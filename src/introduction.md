@@ -1,6 +1,6 @@
 # Zed GPUI Kullanım Haritası
 
-Bu rehber, Zed içinde yeni bir pencere, başlık çubuğu, pencere dekorasyonu, platforma özel davranış, blur/transparency ve UI bileşeni eklerken başka bir kaynağa ihtiyaç duymadan doğru dosyaya ve doğru API'ye yönelebilmek için hazırlanmış kapsamlı bir başvuru kaynağıdır.
+Bu rehber, Zed içinde yeni bir pencere, başlık çubuğu, pencere dekorasyonu, platforma özel davranış, blur/transparency veya UI bileşeni eklerken doğru dosya ve API'ye hızla ulaşabilmek için hazırlanmış kapsamlı bir başvuru kaynağıdır.
 
 Ana kaynak dosyalar:
 
@@ -12,4 +12,4 @@ Ana kaynak dosyalar:
 - Zed UI bileşenleri: `crates/ui`, metin girişi için `crates/ui_input`
 - Ayarlar ve tema: `crates/settings_content`, `crates/settings`, `crates/theme_settings`, `crates/theme`
 
-Rehber 21 ana bölüm altında 102 başlıkta organize edilmiştir; her başlık ilgili GPUI/Zed dosyasındaki tipleri, fonksiyonları ve pratik kullanım desenlerini özetler. Sol kenar çubuğundaki içindekiler üzerinden ilgili bölüme geçebilirsiniz.
+Rehber, 21 ana bölüm ve 102 başlık halinde düzenlenmiştir. Her başlık, ilgili GPUI/Zed dosyalarındaki tipleri, fonksiyonları ve pratik kullanım desenlerini özetler. Sol kenar çubuğundaki içindekilerden ilgili bölüme geçebilirsiniz.
