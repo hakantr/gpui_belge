@@ -70,11 +70,11 @@ app.run(|cx| {
 - `QuitMode::LastWindowClosed`: Hangi platform olursa olsun son pencere kapandığı an uygulama otomatik kapanır.
 - `QuitMode::Explicit`: Hiçbir pencere kalmasa bile uygulama açık kalır; yalnızca `cx.quit()` çağrılınca kapanır. Sistem tepsisi (tray) uygulamaları, arka plan servisleri için uygundur.
 
-**Ne zaman ve nasıl tanımlanır?** Uygulama başlatılırken `application().with_quit_mode(...)` ile builder üzerinde belirlenir. Sonradan değiştirilebilir mi? Evet — çalışma zamanında `cx.set_quit_mode(mode)` ile değiştirilir. Builder API ve runtime API aynı alanı besler, bu yüzden örneğin kullanıcı ayarlardan "uygulama arka planda kalsın" seçeneğini değiştirdiğinde modu canlı olarak güncelleyebilirsin.
+Mod, uygulama başlatılırken `application().with_quit_mode(...)` ile builder üzerinde belirlenir. Çalışma zamanında değiştirmek için `cx.set_quit_mode(mode)` kullanılır; builder ve runtime API'leri aynı alana yazdığı için, örneğin kullanıcı ayarlardan "uygulama arka planda kalsın" seçeneğini açıp kapattığında mod canlı olarak güncellenebilir.
 
-**Kapanış sırasında ne oluyor?** Çıkış kararı verildiğinde `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm callback'ler paralel başlar. GPUI bunların tamamlanmasını `SHUTDOWN_TIMEOUT = 100ms` (`app.rs:71`) süresince bekler; eşik aşılırsa bekleyen future'lar iptal edilip platform exit sürdürülür. Bu nedenle uzun süren teardown işlerini (büyük dosya flush, ağ kapatma vs.) fire-and-forget bırakmak yerine kısa tut veya state'i daha önceden güvenli bir noktada kaydet.
+**Kapanış akışı.** Çıkış kararı verildiği anda `cx.on_app_quit(|cx| async { ... })` ile kayıtlı tüm callback'ler paralel başlar. GPUI bunların tamamlanmasını `SHUTDOWN_TIMEOUT = 100ms` (`app.rs:71`) süresince bekler; eşik aşılırsa bekleyen future'lar iptal edilir ve platform exit'i devam eder. Bu yüzden uzun süren teardown işleri (büyük dosya flush, ağ kapatma vs.) fire-and-forget bırakılmaz; ya kısa tutulur ya da state daha önceden güvenli bir noktada kaydedilir.
 
-**Aktivasyon (`cx.activate`)** uygulamayı ön plana getirmek demektir. macOS'ta Dock'tan tıklayınca, Windows'ta görev çubuğundan seçilince OS tarafından zaten otomatik tetiklenir. Sen ise `cx.activate(ignoring_other_apps: bool)` çağırarak programatik olarak öne getirebilirsin (örn. derin link ile dosya açıldığında uygulamayı aktif yap). `true` parametresi macOS'ta diğer uygulamaları zorla arkaya iter; günlük kullanımda `false` daha kibar bir aktivasyondur.
+**Aktivasyon (`cx.activate`)**, uygulamayı ön plana getirmek demektir. macOS'ta Dock'tan tıklanınca, Windows'ta görev çubuğundan seçilince OS bunu zaten otomatik tetikler. Programatik olarak öne getirmek için `cx.activate(ignoring_other_apps: bool)` çağrılır (örn. derin link ile dosya açıldığında pencere aktif edilir). `true` parametresi macOS'ta diğer uygulamaları zorla arkaya iter; günlük kullanımda `false` daha kibar bir aktivasyondur.
 
 İlgili komutlar:
 
@@ -85,156 +85,157 @@ app.run(|cx| {
 
 ### Platform sinyalleri (OS'tan gelen olaylara nasıl bağlanılır)
 
-Platform sinyalleri, **işletim sisteminin sana ilettiği değişiklikleri yakalamak için kaydettiğin geri-çağrılar (callback)**'dır. Mantık şudur: uygulama başlatılırken (genelde `app.run(|cx| { ... })` içinde) `cx.on_xxx(|cx| { ... })` ile bir fonksiyon kaydedersin; OS o olay gerçekleştiğinde GPUI'nin ana event loop'u senin verdiğin fonksiyonu çağırır ve içine güncel `&mut App` (veya ilgili veri) verir. Yani sen "olduğunda bana haber ver" dersin, GPUI olduğu an seni uyandırır.
+Platform sinyalleri, **işletim sisteminin ilettiği değişiklikleri yakalamak için kaydedilen geri-çağrılardır (callback)**. Mantık basittir: uygulama başlatılırken (genelde `app.run(|cx| { ... })` içinde) `cx.on_xxx(|cx| { ... })` ile bir fonksiyon kaydedilir; OS o olay gerçekleştiğinde GPUI'nin ana event loop'u kayıtlı fonksiyonu çağırır ve içine güncel `&mut App` (veya ilgili veri) verir. Yani uygulama "şu olduğunda haber ver" şeklinde bir abonelik kurar, GPUI olayı aldığı an callback'i çalıştırır.
 
-- **`cx.on_keyboard_layout_change(|cx| { ... })`** — Kullanıcı klavye düzenini değiştirdiğinde (örn. Türkçe Q'dan Türkçe F'ye geçti, ya da macOS'ta dil çubuğundan İngilizce'ye döndü) bu callback tetiklenir. **Evet**, klavye düzeni değişimi bu noktada yakalanır ve burada yazdığın kod o anda çalışır. Pratikte buraya şunları yazarsın: shortcut etiketlerini (`Ctrl+;` vs.) yeni layout'a göre yeniden hesapla, sanal klavye gösterimini güncelle, kullanıcının fiziksel tuşları nereye basacağını gösteren ipuçlarını yenile. Anlık değer gerekiyorsa `cx.keyboard_layout()` o anki layout kimliğini, `cx.keyboard_mapper()` ise tuş→karakter dönüşüm haritasını döndürür.
+- **`cx.on_keyboard_layout_change(|cx| { ... })`** — Kullanıcı klavye düzenini değiştirdiğinde (örn. Türkçe Q'dan Türkçe F'ye, ya da macOS'ta dil çubuğundan İngilizce'ye dönüş) bu callback tetiklenir ve içine yazılan kod o anda çalışır. Tipik kullanımı: shortcut etiketlerini (`Ctrl+;` gibi) yeni layout'a göre yeniden hesaplama, sanal klavye gösterimini güncelleme, fiziksel tuş ipuçlarını yenileme. Anlık değer için `cx.keyboard_layout()` o anki layout kimliğini, `cx.keyboard_mapper()` ise tuş→karakter dönüşüm haritasını döndürür.
 
-- **`cx.on_thermal_state_change(|state, cx| { ... })`** — Cihazın ısınma durumu değiştiğinde tetiklenir. macOS/iOS thermal API'leri üzerinden `Normal`, `Fair`, `Serious`, `Critical` gibi durumlar gelir. Buraya CPU'yu rahatlatacak kodu yaz: arka plan indeksleme/sıkıştırma işlerini geçici durdur, animasyon FPS'ini düşür, tembel render moduna geç. Anlık okumak için `cx.thermal_state()` da kullanılır.
+- **`cx.on_thermal_state_change(|state, cx| { ... })`** — Cihazın ısınma durumu değiştiğinde tetiklenir. macOS/iOS thermal API'leri üzerinden `Normal`, `Fair`, `Serious`, `Critical` gibi durumlar gelir. Buraya genelde CPU'yu rahatlatacak işlemler yazılır: arka plan indeksleme/sıkıştırma işlerinin geçici olarak durdurulması, animasyon FPS'inin düşürülmesi, tembel render moduna geçilmesi. Anlık okuma için `cx.thermal_state()` da kullanılabilir.
 
-- **`cx.on_window_closed(|cx, window_id| { ... })`** — Bir pencere kapandıktan **sonra** çalışır. Gelen tek bilgi `WindowId`'dir; o pencereye artık erişemezsin, sadece kayıtlardan o id ile ilgili artifact'ları (örn. eşleştirdiğin global state, geçici dosyalar) temizlersin.
+- **`cx.on_window_closed(|cx, window_id| { ... })`** — Bir pencere kapandıktan **sonra** çalışır. Gelen tek bilgi `WindowId`'dir; o pencereye artık erişilemez, yalnızca kayıtlardaki ilgili artifact'lar (eşleştirilmiş global state, geçici dosyalar) temizlenir.
 
-- **`cx.set_cursor_hide_mode(CursorHideMode::...)`** — Kullanıcı klavyeyle yazmaya başladığında mouse imlecini otomatik gizleme politikasını belirler. Editörlerde tipik olarak "OnTyping" tercih edilir.
+- **`cx.set_cursor_hide_mode(CursorHideMode::...)`** — Kullanıcı klavyeyle yazmaya başladığında mouse imlecini otomatik gizleme politikasını belirler. Editörlerde genelde "OnTyping" tercih edilir.
 
-- **`cx.refresh_windows()`** — Tüm açık pencerelere "yeniden çiz" sinyali atar; herhangi bir state'i değiştirmez. Tema/yazı tipi gibi global bir şey değiştiğinde her şeyin baştan çizilmesi gerektiğinde kullanılır.
+- **`cx.refresh_windows()`** — Tüm açık pencerelere "yeniden çiz" sinyali atar; herhangi bir state değiştirmez. Tema/yazı tipi gibi global bir değişiklikten sonra her şeyin baştan çizilmesi gerektiğinde kullanılır.
 
-- **`cx.set_quit_mode(mode)`** — Yukarıda anlatıldığı gibi, çıkış politikasını runtime'da güncellemek için. `.with_quit_mode(...)` ile aynı alanı yazar.
+- **`cx.set_quit_mode(mode)`** — Yukarıda anlatıldığı gibi, çıkış politikasını runtime'da günceller. `.with_quit_mode(...)` ile aynı alanı yazar.
 
 ### Tuzaklar
 
-- `on_open_urls` callback'i `&mut App` almaz; app state gerekiyorsa URL'leri
-  kendi queue/global state'inize aktaracak bir köprü kurun.
-- `on_reopen` macOS Dock/app icon senaryosunda önemlidir; açık pencere yoksa yeni
-  workspace açma mantığı burada tetiklenir.
-- `refresh_windows()` state değiştirmez; yalnızca redraw effect'i planlar.
+- **`on_open_urls` callback'i `&mut App` almaz.** Bu callback, kullanıcı sisteme kayıtlı bir URL şemasını (örn. `myapp://dosya/123`) tıklayıp uygulamayı açtığında ya da zaten açık uygulamaya bir URL geldiğinde tetiklenir. İmzası `&mut App` içermediği için içeriden doğrudan entity güncellenemez, pencere açılamaz, global state'e yazılamaz; yani "bu URL geldi, hemen ilgili dosyayı aç" mantığı doğrudan bu callback'e konmaz. Tipik çözüm, gelen URL'leri thread-safe bir kuyruğa (örn. `Arc<Mutex<Vec<Url>>>` veya kanal) yazmak ve asıl işi `&mut App` erişimi olan bir yerden, örneğin `app.run` içinde kurulan foreground task/defer akışından ya da uzun yaşayan bir global/entity köprüsünden yürütmektir.
+- **`on_reopen` özellikle macOS Dock senaryosu içindir.** Kullanıcı tüm pencereleri kapattıktan sonra Dock'taki simgeye veya menü çubuğundaki uygulama adına yeniden tıkladığında macOS uygulamayı kapatmaz, `reopen` olayını gönderir. Bu olay yakalanmadığında Dock'a tıklamak yalnızca uygulamayı öne getirir ama hiçbir pencere açılmaz; kullanıcı açısından "tıkladım ama bir şey olmadı" hissi oluşur. Beklenen davranış için `on_reopen` içinde açık pencere sayısı kontrol edilir, sıfırsa yeni bir workspace penceresi açılır.
+- **`refresh_windows()` veriyi değiştirmez, yalnızca yeniden çizdirir.** Bu çağrı entity state'ine dokunmaz; sadece "bir sonraki frame'de tüm pencereler `render`'larını yeniden çalıştırsın" sinyali atar. Altta yatan model aynı kaldıkça ekrandaki görüntü de aynı çıkar, yani içerik güncellemek için bu fonksiyon yeterli değildir. İçerik değişikliği gerektiğinde ilgili entity'ler `update`/`notify` ile değiştirilir; `refresh_windows()` ise tema, font ölçeği veya genel UI ayarı gibi *global bir parametre* değiştiğinde tüm pencerelerin yeni değere göre yeniden çizilmesini tetiklemek için kullanılır.
 
 ## 2.3. Platform Servisleri
 
-`App` üzerinden ulaşılan ana platform servisleri (her biri `crates/gpui/src/app.rs`
-içinde wrapper, gerçek davranış `Platform` trait implementasyonunda):
+"Platform servisi" ile kastedilen şey, işletim sistemine bağlı tüm yetenekleri (pencere yönetimi, pano, dosya seçici, klavye, ekran, kimlik bilgisi deposu vs.) `App` ve `Window` üzerinden tek bir tutarlı API olarak sunan katmandır. Uygulama kodu doğrudan macOS, Windows veya Linux çağrılarıyla uğraşmaz; örneğin `cx.write_to_clipboard(...)` çağrılır ve GPUI altta çalışan platforma göre doğru sistemi seçer. Aşağıdaki listeler `crates/gpui/src/app.rs` içindeki wrapper'ları işaret eder; gerçek davranış her platformun `Platform` trait implementasyonunda yer alır.
 
-- Uygulama yaşam döngüsü: `quit`, `restart`, `set_restart_path`,
-  `on_app_quit(|cx| async ...)`, `on_app_restart(|cx| ...)`, `activate`, `hide`,
-  `hide_other_apps`, `unhide_other_apps`.
-- Pencereler: `windows`, `active_window`, `window_stack`, `refresh_windows`.
-- Display: `displays`, `primary_display`, `find_display`.
-- Appearance: `window_appearance`, `button_layout`, `should_auto_hide_scrollbars`,
-  `set_cursor_hide_mode`.
-- Clipboard: `read_from_clipboard`, `write_to_clipboard`.
-- Linux primary selection: `read_from_primary`, `write_to_primary`.
-- macOS find pasteboard: `read_from_find_pasteboard`, `write_to_find_pasteboard`.
-- Keychain / credential store: `write_credentials(url, username, password)`,
-  `read_credentials(url) -> Task<Result<Option<(String, Vec<u8>)>>>`,
-  `delete_credentials(url)`. Geri dönen `Task` background executor üzerinde çalışır;
-  await edilebilir veya `detach_and_log_err(cx)` ile bırakılabilir.
-- URL: `open_url`, `register_url_scheme`.
-- Dosya/prompt: `prompt_for_paths`, `prompt_for_new_path`, `reveal_path`,
-  `open_with_system`, `can_select_mixed_files_and_dirs`.
-- Menü: `set_menus`, `get_menus`, `set_dock_menu`, `add_recent_document`,
-  `update_jump_list`.
-- Termal durum: `thermal_state`, `on_thermal_state_change`.
-- Cursor görünürlüğü: `cursor_hide_mode`, `set_cursor_hide_mode`,
-  `is_cursor_visible`. İşaretçi stili pencere/hitbox bağlamında
-  `window.set_cursor_style(style, &hitbox)`, drag sırasında ise
-  `cx.set_active_drag_cursor_style(...)` ile yönetilir.
-- Screen capture: `is_screen_capture_supported`, `screen_capture_sources`.
-- Klavye: `keyboard_layout()`, `keyboard_mapper()`,
-  `on_keyboard_layout_change(|cx| ...)`.
-- HTTP client: `http_client() -> Arc<dyn HttpClient>`,
-  `set_http_client(Arc<dyn HttpClient>)`. `Application::with_http_client(...)`
-  ile başlatma sırasında da set edilir; tipik olarak `crates/http_client` içindeki
-  Zed varsayılanı kullanılır.
-- Uygulama yolu ve compositor: `app_path() -> Result<PathBuf>` (macOS bundle path
-  ya da Linux executable), `path_for_auxiliary_executable(name)` (yardımcı binary
-  yolu için bundle search), `compositor_name() -> &'static str` (Linux'ta `wayland`,
-  `x11`, `xwayland` gibi adlar; diğer platformlarda boş string).
+**`App` üzerinden ulaşılan servisler:**
 
-`Window` üzerinden:
+- **Uygulama yaşam döngüsü.** Uygulamanın temel hayatta-kalma kontrolleri burada toplanır.
+  - `cx.quit()`, `cx.restart()`: uygulamayı kapatır ya da yeniden başlatır. `set_restart_path(path)` özel bir binary ile restart için kullanılır (örn. güncelleme sonrası yeni sürümü çalıştırmak).
+  - `cx.on_app_quit(|cx| async { ... })`, `cx.on_app_restart(|cx| { ... })`: kapanış veya yeniden başlatma anına bağlanan callback'ler (örn. state'i son anda diske yazma).
+  - `cx.activate(...)`, `cx.hide()`, `cx.hide_other_apps()`, `cx.unhide_other_apps()`: aktivasyon ve gizleme (yukarıda anlatıldı).
 
-- `window.on_window_should_close(cx, |window, cx| -> bool)`: kullanıcı close
-  butonuna bastığında çalıştırılır; `false` döndürerek kapatmayı iptal eder.
-- `window.appearance()`, `window.observe_window_appearance(...)`.
-- `window.tabbed_windows()`, `window.set_tabbing_identifier(...)` ve diğer native
-  window tab API'leri (bkz. Bölüm 34).
+- **Pencereler.** Açık pencerelere toplu erişim:
+  - `cx.windows()` tüm pencerelerin listesini, `cx.active_window()` o anda odakta olanı, `cx.window_stack()` ön-arka sırasını döndürür.
+  - `cx.refresh_windows()`: hepsine "yeniden çiz" sinyali verir (yukarıdaki tuzaklara bakılabilir).
 
-Platform trait implementasyonu yazıyorsan `Platform` ve `PlatformWindow` içindeki
-tüm bu sözleşmeleri karşılaman gerekir. Uygulama geliştirirken doğrudan trait'e
-değil `App`/`Window` wrapper'larına dokunmak tercih edilir.
+- **Display (ekran).** Çoklu monitör desteği:
+  - `cx.displays()` tüm ekranları, `cx.primary_display()` birincil ekranı, `cx.find_display(id)` belirli bir ekran kimliğine karşılık geleni döndürür. Pencere konumlandırma ve "açılırken son ekranda aç" gibi restore akışlarında kullanılır.
+
+- **Görünüm (appearance).** Sistem teması ve UI politikası okumaları:
+  - `cx.window_appearance()`: o anki sistem temasını (light/dark/auto) verir.
+  - `cx.button_layout()`: macOS/Windows/Linux'ta kapat–küçült–büyüt butonlarının dizilişini söyler; custom title bar çizilirken bu butonların konum hesabı için gerekir.
+  - `cx.should_auto_hide_scrollbars()`: scroll bar'ın sürekli mi yoksa yalnızca scroll sırasında mı görüneceğini belirten kullanıcı tercihi.
+
+- **Pano (clipboard).** Sistem panosuna okuma/yazma:
+  - `cx.write_to_clipboard(item)`, `cx.read_from_clipboard()`: hem düz metin hem zengin içerik için.
+  - Linux'taki "primary selection" (X11 orta-tıkla yapıştır) için ayrı API: `read_from_primary`, `write_to_primary`.
+  - macOS'taki "Find Pasteboard" (Cmd+E ile arama panosuna kopyalama) için: `read_from_find_pasteboard`, `write_to_find_pasteboard`.
+
+- **Credential deposu.** Sistem anahtarlığını (macOS Keychain, Windows Credential Manager, Linux Secret Service) tek API üzerinden yönetir:
+  - `cx.write_credentials(url, username, password)`, `cx.read_credentials(url)`, `cx.delete_credentials(url)`. Dönüş tipleri `Task` olduğu için async'tir; await edilebilir ya da `detach_and_log_err(cx)` ile arka planda bırakılabilir.
+
+- **URL.** Tarayıcıda link açma ve sistem URL şeması kaydı:
+  - `cx.open_url(url)`: varsayılan tarayıcıyla açar.
+  - `cx.register_url_scheme(scheme)`: uygulamayı bir URL şemasıyla (örn. `myapp://`) ilişkilendirir. Platform bu şemayla bir URL ilettiğinde `on_open_urls` callback'i tetiklenir.
+
+- **Dosya ve sistem diyalogları.**
+  - `cx.prompt_for_paths(options)`: native "Dosya Aç" diyaloğunu açar.
+  - `cx.prompt_for_new_path(directory, suggested_name)`: "Farklı Kaydet" diyaloğu.
+  - `cx.reveal_path(path)`: ilgili dosyayı OS'un dosya yöneticisinde (Finder, Explorer, Nautilus) seçili olarak gösterir.
+  - `cx.open_with_system(path)`: dosyayı işletim sisteminin varsayılan uygulamasıyla açar.
+  - `cx.can_select_mixed_files_and_dirs()`: dosya seçicide dosya ve klasörlerin aynı anda seçilip seçilemeyeceğini bildirir.
+
+- **Menü.** Uygulama menüsü ve macOS'a özgü öğeler:
+  - `cx.set_menus(menus)`: ana uygulama menüsünü kurar.
+  - `cx.set_dock_menu(menu)`: macOS Dock simgesinin sağ-tık menüsü.
+  - `cx.add_recent_document(path)`: işletim sisteminin "son kullanılanlar" listesine ekler.
+  - `cx.update_jump_list(...)`: Windows Jump List öğelerini günceller.
+
+- **Termal durum.** `cx.thermal_state()` o anki ısınma seviyesini döndürür; `cx.on_thermal_state_change(...)` durum değişikliklerine bağlanır (yukarıda detaylı anlatıldı).
+
+- **İmleç görünürlüğü.**
+  - `cx.cursor_hide_mode()`, `cx.set_cursor_hide_mode(...)`, `cx.is_cursor_visible()`: tipik olarak yazma sırasında imleci gizleme politikası burada okunur ve değiştirilir.
+  - İmlecin *şeklini* hitbox'a göre belirlemek için pencere/element seviyesinde `window.set_cursor_style(style, &hitbox)` kullanılır.
+  - Drag sırasında ise `cx.set_active_drag_cursor_style(...)` devreye girer.
+
+- **Ekran yakalama.** `cx.is_screen_capture_supported()` ve `cx.screen_capture_sources()` (ayrıntılar 2.5'te).
+
+- **Klavye.** Klavye düzeni ve karakter haritası: `cx.keyboard_layout()`, `cx.keyboard_mapper()`, `cx.on_keyboard_layout_change(...)` (yukarıda anlatıldı).
+
+- **HTTP istemcisi.** `cx.http_client()` paylaşılan istemciyi döndürür; `cx.set_http_client(...)` çalışma zamanında değiştirmek için kullanılır. Başlatmada ise `Application::with_http_client(...)` builder API'si tercih edilir. Tipik Zed kurulumunda `crates/http_client` içindeki varsayılan kullanılır.
+
+- **Uygulama yolu ve compositor.**
+  - `cx.app_path()`: macOS'ta `.app` bundle'ının kök yolunu, Linux'ta yürütülen binary yolunu döndürür.
+  - `cx.path_for_auxiliary_executable(name)`: bundle içindeki yardımcı binary'leri (örn. dil sunucusu, helper process) bulur.
+  - `cx.compositor_name()`: Linux'ta `wayland`, `x11` ya da `xwayland` döner; diğer platformlarda boş string. Compositor'a özgü iş akışlarını (örn. CSD pencere gölgesi) tetiklemek için kontrol edilir.
+
+**`Window` üzerinden ulaşılan servisler:**
+
+- `window.on_window_should_close(cx, |window, cx| -> bool)`: kullanıcı kapatma butonuna bastığında çağrılır. `false` döndürmek kapatmayı iptal eder; "kaydedilmemiş değişiklik var, emin misiniz?" tarzı diyaloglar burada gösterilir.
+- `window.appearance()`, `window.observe_window_appearance(...)`: o pencerenin görünüm modunu (light/dark) okur ve değiştiğinde haber alır.
+- `window.tabbed_windows()`, `window.set_tabbing_identifier(...)`: macOS'un native window tab desteği (ayrıntılar için Bölüm 6).
+
+Platform trait'ini doğrudan implemente etmek ayrı bir konudur ve 2.4'te ele alınır; uygulama geliştirme tarafında `App` ve `Window` wrapper'ları üzerinden çalışmak yeterlidir.
 
 ## 2.4. Platform Trait Implementasyonu ve Wrapper Sınırları
 
-Uygulama kodu normalde `Platform` veya `PlatformWindow` trait'lerini doğrudan
-çağırmaz; `App` ve `Window` wrapper'ları üzerinden gider. Yeni platform portu,
-test platformu veya headless backend yazarken trait sözleşmesi gerekir.
+Bu bölüm normal uygulama geliştirenleri ilgilendirmez; GPUI'ye yeni bir platform desteği eklerken (örn. yeni bir Linux compositor portu, embedded sistem veya başsız test backend'i) ya da var olan platform davranışını incelerken referans noktasıdır. Uygulama tarafında `Platform` ve `PlatformWindow` trait'lerine doğrudan dokunulmaz; bunun yerine `App` ve `Window` wrapper'ları kullanılır. Wrapper'lar trait method'larını çağırırken aynı zamanda cross-platform mantığı (örn. eksik kapasite için fallback, hitbox'a göre imleç seçimi) yürütür.
 
-`Platform` ana grupları:
+**`Platform` trait'inin ana grupları:**
 
-- Executor/text: `background_executor`, `foreground_executor`, `text_system`.
-- App lifecycle: `run`, `quit`, `restart`, `activate`, `hide`,
-  `hide_other_apps`, `unhide_other_apps`, `on_quit`, `on_reopen`.
-- Display/window: `displays`, `primary_display`, `active_window`,
-  `window_stack`, `open_window`.
-- Appearance/UI policy: `window_appearance`, `button_layout`,
-  `should_auto_hide_scrollbars`, cursor visibility/style.
-- URL/path/prompt: `open_url`, `on_open_urls`, `register_url_scheme`,
-  `prompt_for_paths`, `prompt_for_new_path`, `reveal_path`,
-  `open_with_system`.
-- Menüler: `set_menus`, `get_menus`, `set_dock_menu`,
-  `on_app_menu_action`, `on_will_open_app_menu`,
-  `on_validate_app_menu_command`.
-- Clipboard/credentials: normal clipboard, Linux primary selection, macOS find
-  pasteboard, credential store task'leri.
-- Screen capture ve keyboard: `is_screen_capture_supported`,
-  `screen_capture_sources`, `keyboard_layout`, `keyboard_mapper`,
-  `on_keyboard_layout_change`.
+- *Executor ve text system*: `background_executor`, `foreground_executor`, `text_system`. Tüm async iş ve metin çizim altyapısı bu üçü üzerinden akar.
+- *Uygulama yaşam döngüsü*: `run`, `quit`, `restart`, `activate`, `hide`, `hide_other_apps`, `unhide_other_apps`, `on_quit`, `on_reopen`. Yeni platform, uygulamanın açılış-kapanış mantığını bu method'larla bağlamak zorundadır.
+- *Display ve pencere*: `displays`, `primary_display`, `active_window`, `window_stack`, `open_window`. Pencere oluşturma çekirdeği.
+- *Görünüm ve UI politikası*: `window_appearance`, `button_layout`, `should_auto_hide_scrollbars`, imleç görünürlüğü ve stili.
+- *URL/yol/prompt*: `open_url`, `on_open_urls`, `register_url_scheme`, `prompt_for_paths`, `prompt_for_new_path`, `reveal_path`, `open_with_system`.
+- *Menüler*: `set_menus`, `get_menus`, `set_dock_menu`, `on_app_menu_action`, `on_will_open_app_menu`, `on_validate_app_menu_command`.
+- *Pano ve credentials*: normal clipboard, Linux primary selection, macOS find pasteboard ve credential store task'leri.
+- *Ekran yakalama ve klavye*: `is_screen_capture_supported`, `screen_capture_sources`, `keyboard_layout`, `keyboard_mapper`, `on_keyboard_layout_change`.
 
-`PlatformWindow` ana grupları:
+**`PlatformWindow` trait'inin ana grupları:**
 
-- Bounds/state: `bounds`, `window_bounds`, `content_size`, `resize`,
-  `scale_factor`, `display`, `appearance`, `modifiers`, `capslock`.
-- Input: `set_input_handler`, `take_input_handler`, `on_input`,
-  `update_ime_position`.
-- Window lifecycle: `activate`, `is_active`, `is_hovered`, `minimize`, `zoom`,
-  `toggle_fullscreen`, `on_should_close`, `on_close`.
-- Render: `on_request_frame`, `draw(scene)`, `completed_frame`,
-  `sprite_atlas`, `is_subpixel_rendering_supported`.
-- Decoration/hit-test: `set_title`, `set_background_appearance`,
-  `on_hit_test_window_control`, `request_decorations`,
-  `window_decorations`, `window_controls`.
-- Platform özel: macOS tab/document APIs, Linux move/resize/menu/app-id/inset,
-  Windows raw handle, test-only `render_to_image`.
+- *Bounds ve durum*: `bounds`, `window_bounds`, `content_size`, `resize`, `scale_factor`, `display`, `appearance`, `modifiers`, `capslock`. Pencerenin boyut, konum, ekran, görünüm ve klavye modifier durumu burada raporlanır.
+- *Girdi*: `set_input_handler`, `take_input_handler`, `on_input`, `update_ime_position`. Klavye, mouse ve IME (input method editor) girdilerinin uygulamaya iletilme noktası.
+- *Pencere yaşam döngüsü*: `activate`, `is_active`, `is_hovered`, `minimize`, `zoom`, `toggle_fullscreen`, `on_should_close`, `on_close`.
+- *Render*: `on_request_frame`, `draw(scene)`, `completed_frame`, `sprite_atlas`, `is_subpixel_rendering_supported`. Çizim sahnesinin GPU'ya gönderildiği taraf.
+- *Dekorasyon ve hit-test*: `set_title`, `set_background_appearance`, `on_hit_test_window_control`, `request_decorations`, `window_decorations`, `window_controls`. Başlık çubuğu, gölge, kontrol butonları gibi pencere kabuğu davranışları.
+- *Platforma özel*: macOS tab/document API'leri, Linux move/resize/menu/app-id/inset, Windows raw handle, test-only `render_to_image`.
 
-Wrapper sınırı:
+**Wrapper ile trait arasındaki sınır.** Trait method'larıyla `App`/`Window` üzerindeki benzer isimli method'lar bire-bir aynı değildir; wrapper bazı kararları kendi başına alır:
 
-- `Platform::set_cursor_style` global platform cursor'ıdır; uygulama UI'ında
-  hitbox'a bağlı stil için `Window::set_cursor_style` kullan.
-- `PlatformWindow::prompt` native prompt döndürebilir; `Window::prompt` custom
-  prompt fallback'ini de yönetir.
-- `PlatformWindow::map_window` Linux map/show ayrımı için vardır; uygulama
-  kodunda `WindowOptions.show` ve window wrapper davranışına güven.
-- Trait default method'ları "desteklenmiyor" anlamı taşır; wrapper üzerinden
-  dönen `None` veya no-op sonuçlarını platform capability olarak ele al.
+- `Platform::set_cursor_style`: tüm uygulama için tek bir genel imleç ayarlar (örn. global "bekleyen" imleci). UI'da belirli bir bölge için hitbox'a bağlı imleç gerektiğinde `Window::set_cursor_style` kullanılır; wrapper o sırada mouse'un hangi hitbox üzerinde olduğunu hesaplar.
+- `PlatformWindow::prompt`: platformun native prompt desteğini temsil eder. `Window::prompt` ise bu desteği kullanır; native prompt yoksa GPUI tarafındaki prompt akışına düşebilir.
+- `PlatformWindow::map_window`: Linux'ta "map" (pencereyi compositor'a görünür yap) ve "show" ayrımı içindir. Uygulama kodu bunu doğrudan çağırmaz; `WindowOptions.show` alanı ve wrapper davranışı yeterlidir.
+- *Trait default method'ları "desteklenmiyor" anlamı taşır.* Wrapper üzerinden dönen `None` veya no-op sonuçları, platform yeteneğinin eksik olduğu şeklinde yorumlanır; UI tarafında bu duruma uygun bir fallback davranışı sağlanır (örn. özelliği menüden gizleme, alternatif yöntem önerme).
 
 ## 2.5. Headless, Screen Capture ve Test Renderer
 
-`crates/gpui/src/platform.rs::screen_capture_sources` ve
-`crates/gpui_platform/src/gpui_platform.rs::headless()`.
+İlgili kaynaklar: `crates/gpui/src/platform.rs::screen_capture_sources` ve `crates/gpui_platform/src/gpui_platform.rs::headless()`.
 
-Headless platform ile pencere açmadan GPUI uygulaması çalıştırmak mümkündür:
+### Headless mod
+
+"Headless mod", GPUI'nin pencere açmadan çalıştırılabildiği bir başlatma biçimidir. Ekrana görünür bir pencere çizilmez ama uygulamanın executor/async, asset loading, network I/O ve entity sistemi gibi geri kalan altyapısı çalışır. Tipik kullanım alanları: komut satırı alt komutları (örn. `myapp index ./project`), batch dosya işleme, sunucu süreçleri, performans benchmark'ları ve CI ortamında çalışan testler.
 
 ```rust
 gpui_platform::headless().run(|cx: &mut App| {
-    // Background tasks, asset loading, network IO; render yok.
+    // Arka plan görevleri, asset yükleme, ağ I/O; render yok.
 });
 ```
 
-Bu yol özellikle CLI alt komutlar, batch işler ve sunucu/benchmark süreçleri
-için kullanılır. UI doğrulama veya screenshot gerekiyorsa `gpui_platform::headless`
-ile karıştırmadan `HeadlessAppContext`/`VisualTestContext` kullanılır.
-`gpui_platform::current_headless_renderer()` yalnızca `test-support` feature'ı
-altında vardır; şu anda macOS'ta Metal headless renderer döndürebilir, diğer
-platformlarda `None` olabilir.
+Headless çalışmanın varyantları ve hangisinin ne zaman tercih edildiği:
 
-Screen capture API'si:
+- **`gpui_platform::headless()`** — Görünür pencere açmadan uygulama çalıştırmak için kullanılır. Üretim ortamındaki CLI/server senaryoları bu yola düşer.
+- **`HeadlessAppContext`** — Birim test ve entegrasyon testlerinde uygulama mantığını koşturmak için. Pencere açılmadan entity, action, async akış doğrulanır.
+- **`VisualTestContext`** — UI testleri için tasarlanmıştır. Layout, render sonucu, snapshot gibi görsel doğrulamalar yapılır; sistem penceresi açılmaz ama in-memory render katmanı çalışır.
+- **`gpui_platform::current_headless_renderer()`** — Yalnızca `test-support` feature'ı altında erişilebilir. Şu an macOS'ta Metal tabanlı headless renderer döndürebilir; diğer platformlarda `None` dönmesi olağandır. UI testlerinde gerçek pencere açmadan piksel doğrulaması yapmak için kullanılır.
+
+`gpui_platform::headless` ve test context'leri birbiriyle karıştırılmaz. Üretimde headless çalıştırma için `gpui_platform::headless()`, test/UI doğrulaması için `HeadlessAppContext` veya `VisualTestContext` tercih edilir.
+
+### Screen capture (ekran yakalama)
+
+Screen capture, ekranın veya belirli bir pencerenin görüntüsünü uygulama içine akıtmaya yarar. Tipik kullanım alanları: ekran paylaşımı, ekran kaydı, picture-in-picture önizleme ve test amaçlı görüntü yakalama. API iki adımdan oluşur: önce mevcut kaynakların listesi alınır, ardından seçilen kaynaktan frame stream başlatılır.
 
 ```rust
 let supported = cx.update(|cx| cx.is_screen_capture_supported());
@@ -253,20 +254,13 @@ if let Some(source) = sources.first() {
 }
 ```
 
-`ScreenCaptureSource` her platformda farklı kaynak listesi sunar. Capture,
-`ScreenCaptureSource::stream(&ForegroundExecutor, frame_callback)` ile başlar.
-Dönen `oneshot::Receiver<Result<Box<dyn ScreenCaptureStream>>>` stream handle'ını
-verir; frame'ler callback'e `ScreenCaptureFrame` olarak gelir.
+Akış şöyle işler: `cx.screen_capture_sources()` platforma uygun kaynakların listesini bir `oneshot::Receiver<Result<Vec<Box<dyn ScreenCaptureSource>>>>` üzerinden döndürür. Liste platforma göre değişir; macOS'ta ekranlar ve uygulama pencereleri, Windows'ta benzer kaynaklar, Linux'ta ise compositor protokolüne (PipeWire/portal vb.) bağlı kaynaklar gelebilir. Seçilen kaynağın `stream(&ForegroundExecutor, frame_callback)` çağrısı yakalamayı başlatır; her yeni frame'de `frame_callback` `ScreenCaptureFrame` ile çağrılır. `stream.metadata()` ile stream'e ait çözünürlük gibi bilgiler okunabilir.
 
-Tuzaklar:
+### Tuzaklar
 
-- macOS izinleri (`Screen Recording`) kullanıcı onayı ister; ilk çağrıda dialog
-  açılır ve sonraki başlatmalarda da geçerlidir.
-- Platform screen capture desteklemiyorsa `is_screen_capture_supported()` false
-  dönebilir veya kaynak listesi boş olabilir.
-- UI testinde gerçek platform penceresi yerine `TestAppContext`,
-  `VisualTestContext` veya renderer factory verilen `HeadlessAppContext` seç.
+- **macOS izinleri.** `screen_capture_sources()` çağrısı işletim sisteminin "Screen Recording" iznini gerektirebilir. Onay verilmezse liste boş döner ya da hata gelir; onay verildikten sonra izin uygulamanın sonraki başlatmalarında da geçerli kalır. UI tarafında ilk kullanımda izin penceresi açılabileceği beklentisi yönetilir.
+- **Desteklenmeyen platformlar.** Capture'in çalışmadığı ortamlarda `cx.is_screen_capture_supported()` `false` döner veya kaynak listesi boş gelir. Buna karşılık olarak ilgili özelliğin menüden gizlenmesi ya da "bu platformda ekran paylaşımı desteklenmiyor" şeklinde bir bilgi gösterilmesi gerekir.
+- **UI testlerinde gerçek pencere açma.** UI doğrulaması için sistem penceresi açmaktan kaçınılır; `TestAppContext`, `VisualTestContext` veya renderer factory ile beslenen `HeadlessAppContext` kullanılır. Aksi halde testler ekrana erişimi olmayan CI ortamında başarısız olur.
 
 
 ---
-
