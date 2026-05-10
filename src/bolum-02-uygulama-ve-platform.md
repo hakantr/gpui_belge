@@ -1,8 +1,8 @@
-# Bölüm II — Uygulama ve Platform
+# 2. Uygulama ve Platform
 
 ---
 
-## 3. Platform Başlatma
+## 2.1. Platform Başlatma
 
 Yeni GPUI uygulaması başlatmanın standart yolu:
 
@@ -39,7 +39,7 @@ Zed'de pratikte `application()` çağrısı, işletim sistemine göre şu platfo
 `gpui_platform::current_headless_renderer()` şu anda test desteği altında macOS'ta
 Metal headless renderer döndürür.
 
-## 4. Application Yaşam Döngüsü ve Platform Olayları
+## 2.2. Application Yaşam Döngüsü ve Platform Olayları
 
 `Application` GPUI başlamadan önceki builder katmanıdır:
 
@@ -100,7 +100,7 @@ Tuzaklar:
   workspace açma mantığı burada tetiklenir.
 - `refresh_windows()` state değiştirmez; yalnızca redraw effect'i planlar.
 
-## 5. Platform Servisleri
+## 2.3. Platform Servisleri
 
 `App` üzerinden ulaşılan ana platform servisleri (her biri `crates/gpui/src/app.rs`
 içinde wrapper, gerçek davranış `Platform` trait implementasyonunda):
@@ -153,7 +153,7 @@ Platform trait implementasyonu yazıyorsan `Platform` ve `PlatformWindow` içind
 tüm bu sözleşmeleri karşılaman gerekir. Uygulama geliştirirken doğrudan trait'e
 değil `App`/`Window` wrapper'larına dokunmak tercih edilir.
 
-## 6. Platform Trait Implementasyonu ve Wrapper Sınırları
+## 2.4. Platform Trait Implementasyonu ve Wrapper Sınırları
 
 Uygulama kodu normalde `Platform` veya `PlatformWindow` trait'lerini doğrudan
 çağırmaz; `App` ve `Window` wrapper'ları üzerinden gider. Yeni platform portu,
@@ -207,7 +207,7 @@ Wrapper sınırı:
 - Trait default method'ları "desteklenmiyor" anlamı taşır; wrapper üzerinden
   dönen `None` veya no-op sonuçlarını platform capability olarak ele al.
 
-## 7. Headless, Screen Capture ve Test Renderer
+## 2.5. Headless, Screen Capture ve Test Renderer
 
 `crates/gpui/src/platform.rs::screen_capture_sources` ve
 `crates/gpui_platform/src/gpui_platform.rs::headless()`.

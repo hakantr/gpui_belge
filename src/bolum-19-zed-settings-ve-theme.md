@@ -1,8 +1,8 @@
-# Bölüm XIX — Zed Settings ve Theme
+# 19. Zed Settings ve Theme
 
 ---
 
-## 92. Persist, Settings ve Theme Akışı (Zed Tarafı)
+## 19.1. Persist, Settings ve Theme Akışı (Zed Tarafı)
 
 GPUI çekirdeği değil ama yeni pencere/UI eklerken temaya ve ayarlara takılı
 kalmak gerekir. Ana dosyalar: `crates/settings`, `crates/settings_content`,
@@ -78,7 +78,7 @@ Tuzaklar:
 - Yeni ayar eklerken `settings_content` schema güncellenmeden JSON schema
   doğrulaması eski formatı kabul etmez.
 
-## 93. SettingsStore: Kayıt, Okuma, Override ve Migration
+## 19.2. SettingsStore: Kayıt, Okuma, Override ve Migration
 
 `crates/settings/src/settings_store.rs`. `SettingsStore` Zed'in tüm ayar
 kaynaklarını tek bir tip-güvenli store içinde birleştirir.
@@ -157,7 +157,7 @@ Tuzaklar:
 - Observer'da `cx.notify()` çağrısı entity'yi yeniden render etmek için gereklidir;
   `observe_global` sadece callback'i çalıştırır, view'i invalidate etmez.
 
-## 94. ThemeRegistry, ThemeFamily ve Tema Yükleme
+## 19.3. ThemeRegistry, ThemeFamily ve Tema Yükleme
 
 `crates/theme/src/registry.rs`, `crates/theme/src/theme.rs`,
 `crates/theme_settings/src/theme_settings.rs`.

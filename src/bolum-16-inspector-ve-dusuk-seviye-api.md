@@ -1,8 +1,8 @@
-# Bölüm XVI — Inspector ve Düşük Seviye API
+# 16. Inspector ve Düşük Seviye API
 
 ---
 
-## 76. Inspector ve Debug Yardımcıları
+## 16.1. Inspector ve Debug Yardımcıları
 
 `crates/gpui/src/inspector.rs` (feature: `inspector`).
 
@@ -78,7 +78,7 @@ Diğer debug helper'ları:
 - `debug_selector` değerleri testte `VisualTestContext::debug_bounds(selector)`
   üzerinden okunur; production overlay için ayrı bir env bayrağına güvenme.
 
-## 77. Default Colors, GPU Specs ve Platform Diagnostics
+## 16.2. Default Colors, GPU Specs ve Platform Diagnostics
 
 Tema sistemi dışındaki küçük ama pratik platform yüzeyleri:
 
@@ -110,7 +110,7 @@ Bu API'ler tema veya pencere oluşturma akışının merkezinde değildir; ama
 diagnostic ekranları, test harness'leri, macOS doküman pencereleri ve platforma
 duyarlı davranışlarda rehbere dahil edilmelidir.
 
-## 78. Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
+## 16.3. Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
 
 Zed'in `workspace` ve `ui` katmanında sık görülen bazı `Window` çağrıları
 render çıktısı üretmez; o anki pencere/input durumunu okumak veya işi doğru frame
@@ -197,7 +197,7 @@ Low-level custom element hook'ları:
   yenileme ve observer notify işlemini tetikler. Platform/test altyapısı içindir;
   app code'da resize simülasyonu dışında çağırma.
 
-## 79. App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
+## 16.4. App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
 
 Bu küçük API'ler ana render modelinin parçası değildir, fakat Zed başlangıcı,
 editor text davranışı ve image cache gibi yerlerde kullanılır.
@@ -271,7 +271,7 @@ Tuzaklar:
 - `show_character_palette` her platformda gerçek UI açmayabilir; platform
   implementasyonu no-op olabilir.
 
-## 80. CursorStyle, FontWeight ve Sabit Enum Tabloları
+## 16.5. CursorStyle, FontWeight ve Sabit Enum Tabloları
 
 Sık başvurulan ama her seferinde aramak zorunda kalınan platform sabitleri:
 
@@ -340,7 +340,7 @@ Layer-shell modülündeki `Anchor` ise bitflag yapısıdır
 `Top`, `Bottom`, `Left`, `Right`, `TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`.
 `window.start_window_resize(edge)` argümanı.
 
-## 81. Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
+## 16.6. Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
 
 Bu bölüm, iki farklı yüzeyi ayırır: `crates/gpui/src/gpui.rs` üzerinden dışarı
 export edilen public API ve private modüllerde `pub` tanımlanmış olsa da yalnız

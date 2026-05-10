@@ -1,8 +1,8 @@
-# Bölüm IV — Render ve Element
+# 4. Render ve Element
 
 ---
 
-## 10. Render Modeli
+## 4.1. Render Modeli
 
 Bir pencerenin root view'i `Entity<V>` olmalı ve `V: Render` implement etmelidir:
 
@@ -44,7 +44,7 @@ impl RenderOnce for Badge {
 `Render` mutable view state ile çalışır. `RenderOnce` sahipliği alır ve genellikle
 Zed UI bileşenlerinde tercih edilir.
 
-## 11. Element Yaşam Döngüsü ve Draw Fazları
+## 4.2. Element Yaşam Döngüsü ve Draw Fazları
 
 `Element` sözleşmesi üç fazdan oluşur:
 
@@ -83,7 +83,7 @@ Kritik kural: `cx.notify()` view render çıktısını etkileyen state değişti
 çağrılır. `window.refresh()` tüm pencerenin tekrar çizimini ister; local view
 state değişiminde önce `cx.notify()` tercih edilir.
 
-## 12. Element Haritası
+## 4.3. Element Haritası
 
 GPUI yerleşik elementleri:
 
@@ -119,7 +119,7 @@ Sık kullanılan style grupları:
 Zed içinde `ui::prelude::*` genellikle `gpui::prelude::*` yerine tercih edilir;
 tasarım sistemi tiplerini de getirir.
 
-## 13. Element ID, Element State ve Type Erasure
+## 4.4. Element ID, Element State ve Type Erasure
 
 GPUI'de her render'da element ağacı yeniden kurulur; kalıcı element state'i için
 stabil ID gerekir. Ana tipler:
@@ -173,7 +173,7 @@ Type erasure kararları:
 - View/entity saklıyorsan mümkün olduğunca typed `Entity<T>` tut; yalnızca plugin,
   dock item veya heterojen koleksiyon gerekiyorsa `AnyEntity`/`AnyView` seç.
 
-## 14. FluentBuilder ve Koşullu Element Üretimi
+## 4.5. FluentBuilder ve Koşullu Element Üretimi
 
 `crates/gpui/src/util.rs::FluentBuilder` trait'i tüm element tiplerine üç
 yardımcı ekler:
@@ -225,7 +225,7 @@ Tuzaklar:
 - `map` element tipini değiştirebilir; `when` ise tipi değiştirmez (refinement
   zincirinde tutulur).
 
-## 15. Refineable, StyleRefinement ve MergeFrom
+## 4.6. Refineable, StyleRefinement ve MergeFrom
 
 GPUI ve Zed'de iki kompozisyon paterni paralel çalışır: render zincirinde
 `Refineable`, settings/tema yüklemesinde `MergeFrom`.
@@ -390,7 +390,7 @@ Tuzaklar:
 - `Option<Option<T>>` gibi yapı yapmak istiyorsan `MergeFrom`'un default davranışı
   doğru sonucu vermeyebilir; özel impl yaz.
 
-## 16. Deferred Draw, Prepaint Order ve Overlay Katmanı
+## 4.7. Deferred Draw, Prepaint Order ve Overlay Katmanı
 
 `deferred(child)` child'ın layout'unu bulunduğu yerde tutar, fakat paint'i ancestor
 paint'lerinden sonraya erteler. Popover, context menu, resize handle ve dock drop

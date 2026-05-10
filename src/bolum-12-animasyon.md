@@ -1,8 +1,8 @@
-# Bölüm XII — Animasyon
+# 12. Animasyon
 
 ---
 
-## 68. Animasyon Sistemi
+## 12.1. Animasyon Sistemi
 
 Animasyon API `crates/gpui/src/elements/animation.rs` içindedir.
 

@@ -1,8 +1,8 @@
-# Bölüm XX — Komut Paleti ve Picker
+# 20. Komut Paleti ve Picker
 
 ---
 
-## 95. CommandPalette: Filter, Aliases ve Interceptor
+## 20.1. CommandPalette: Filter, Aliases ve Interceptor
 
 `crates/command_palette_hooks/` global'leri komut paleti UX'ini şekillendirir.
 UI'ı yazmadan önce bu global'leri tanımak gerekir, çünkü odaktaki elementten
@@ -134,7 +134,7 @@ Action trait'inin `documentation()`, `deprecation_message()` ve
   normal action listesinden komutlara ulaşamaz; gerçekten "tek doğru sonuç var"
   iken set et.
 
-## 96. CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
+## 20.2. CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
 
 `crates/command_palette/src/command_palette.rs` Zed'in gerçek komut paleti
 akışıdır. Başlatma ve açma sırası:
@@ -203,7 +203,7 @@ Onay davranışı:
   foreground'da bekleyebilir; bu, palette açılırken boş liste parlamasını ve
   otomasyon sırasında erken enter basılmasını azaltır.
 
-## 97. Picker, PickerDelegate ve PickerPopoverMenu
+## 20.3. Picker, PickerDelegate ve PickerPopoverMenu
 
 `crates/picker/` command palette dışında da kullanılan genel seçim/arama
 bileşenidir. Bir picker yazarken ana iş `PickerDelegate` implementasyonudur:

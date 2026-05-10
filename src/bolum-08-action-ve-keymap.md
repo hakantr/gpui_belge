@@ -1,8 +1,8 @@
-# Bölüm VIII — Action ve Keymap
+# 8. Action ve Keymap
 
 ---
 
-## 44. Action Sistemi Derinlemesine
+## 8.1. Action Sistemi Derinlemesine
 
 `crates/gpui/src/action.rs`, `key_dispatch.rs`.
 
@@ -94,7 +94,7 @@ Tuzaklar:
 - Aynı action ismi iki crate'te tanımlanırsa registry collision olur; namespace zorunlu.
 - Zed runtime'da bilinmeyen action ismi keymap'te warning log üretir, panic değil.
 
-## 45. Action Makro Detayları, register_action! ve Deprecated Alias
+## 8.2. Action Makro Detayları, register_action! ve Deprecated Alias
 
 `#[derive(Action)]` ve `actions!` makrosu çoğu zaman yeterlidir, ancak action
 sözleşmesinin ek köşe taşları vardır.
@@ -175,7 +175,7 @@ edileceğini sen belirlersin.
 - `no_json` action'ı keymap dosyasından çağıramazsın; sadece kod içinden
   `dispatch_action` ile tetiklenir.
 
-## 46. Keymap, KeyContext ve Dispatch Stack
+## 8.3. Keymap, KeyContext ve Dispatch Stack
 
 Action tanımlamak tek başına yetmez; keybinding'in çalışması için focused element
 dispatch path'inde uygun `KeyContext` bulunmalıdır.
@@ -264,7 +264,7 @@ Tuzaklar:
   tam/pending eşleşmeyi, `keystrokes()`, `action()`, `predicate()`, `meta()` ve
   `action_input()` getter'ları diagnostic ve command/keymap UI'ı besler.
 
-## 47. DispatchPhase, Event Propagation ve DispatchEventResult
+## 8.4. DispatchPhase, Event Propagation ve DispatchEventResult
 
 Mouse, key ve action olayları element ağacında iki fazda akar:
 
@@ -326,7 +326,7 @@ Tuzaklar:
   davranışı durdurduğunu anlamak için ilgili element/window handler'ının
   `window.default_prevented()` kontrol edip etmediğine bak.
 
-## 48. Action ve Keymap Runtime Introspection
+## 8.5. Action ve Keymap Runtime Introspection
 
 Action tanımlama ve dispatch önceki bölümlerde var; Zed komut paleti, keymap UI
 ve geliştirici diagnostikleri için runtime introspection yüzeyi ayrıca bilinmeli.
@@ -409,7 +409,7 @@ Tuzaklar:
 - Interceptor'lar global etkilidir; modal özelinde key engelleyeceksen mümkünse
   element action/capture handler ile sınırla.
 
-## 49. Zed Keymap Dosyası, Validator ve Unbind Akışı
+## 8.6. Zed Keymap Dosyası, Validator ve Unbind Akışı
 
 GPUI action/keybinding modeli Zed'de `settings::keymap_file` ile kullanıcı
 dosyasına bağlanır. Bu bölüm runtime dispatch'ten farklı olarak JSON yükleme,

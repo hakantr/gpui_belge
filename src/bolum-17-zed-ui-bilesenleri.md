@@ -1,8 +1,8 @@
-# Bölüm XVII — Zed UI Bileşenleri
+# 17. Zed UI Bileşenleri
 
 ---
 
-## 82. Zed UI Prelude, Style Extension Trait'leri ve Component Sözleşmesi
+## 17.1. Zed UI Prelude, Style Extension Trait'leri ve Component Sözleşmesi
 
 Zed uygulama kodu çoğu zaman doğrudan `gpui::prelude::*` değil
 `ui::prelude::*` import eder. Bu prelude GPUI çekirdeğini yeniden export eder ve
@@ -107,7 +107,7 @@ Tuzaklar:
 - `VisibleOnHover` için parent'ta aynı group adıyla hover group kurulmadıysa
   element hiçbir zaman görünmez.
 
-## 83. Zed UI Bileşen Envanteri
+## 17.2. Zed UI Bileşen Envanteri
 
 Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 
@@ -143,7 +143,7 @@ Genel kural:
 - Tooltip, popover ve context menu için hazır bileşenleri kullan; focus/blur
   kapanma davranışı orada çözülmüş durumdadır.
 
-## 84. ManagedView, DismissEvent, Modal, Popover ve Tooltip Yaşam Döngüsü
+## 17.3. ManagedView, DismissEvent, Modal, Popover ve Tooltip Yaşam Döngüsü
 
 `ManagedView` GPUI'da başka bir view tarafından yaşam döngüsü yönetilen UI
 parçaları için blanket trait'tir:

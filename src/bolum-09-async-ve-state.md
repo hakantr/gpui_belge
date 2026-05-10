@@ -1,8 +1,8 @@
-# Bölüm IX — Async ve State
+# 9. Async ve State
 
 ---
 
-## 50. Async İşler
+## 9.1. Async İşler
 
 Foreground task:
 
@@ -74,7 +74,7 @@ Testlerde zamanlayıcı:
   `cx.background_executor().timer(duration).await` kullan.
 - `run_until_parked()` ile uyum için GPUI executor timer'ı tercih edilir.
 
-## 51. Executor, Priority, Timeout ve Test Zamanı
+## 9.2. Executor, Priority, Timeout ve Test Zamanı
 
 GPUI'da foreground iş UI thread üzerinde, background iş scheduler/thread pool
 üzerinde çalışır. Bu ayrım sadece performans değil, hangi context'in await
@@ -178,7 +178,7 @@ Test zamanı:
   `try_pop()`, `pop()`, `try_iter()` ve `iter()` ile high/medium/low kuyrukları
   ağırlıklı seçimle tüketir; `Priority::RealtimeAudio` bu kuyruğa girmez.
 
-## 52. Task, TaskExt ve Async Hata Yönetimi
+## 9.3. Task, TaskExt ve Async Hata Yönetimi
 
 `Task<T>` GPUI'ın temel async handle'ıdır. Yardımcı trait `TaskExt`
 (`crates/gpui/src/executor.rs:33+`) `Task<Result<T, E>>` üzerine ek metotlar ekler:
@@ -235,7 +235,7 @@ Tuzaklar:
   WeakEntity üzerinden `update`/`update_in` çağrısı `Result` döndüğünden
   bunu erken çıkış sinyali olarak ele al.
 
-## 53. Global State, Observe ve Event
+## 9.4. Global State, Observe ve Event
 
 Global state:
 
@@ -284,7 +284,7 @@ Window observe:
 - `cx.observe_pending_input(window, ...)`
 - `cx.observe_keystrokes(...)`
 
-## 54. Global State Yardımcıları ve `cx.defer`
+## 9.5. Global State Yardımcıları ve `cx.defer`
 
 `App` üzerinde bulunan yardımcı global state metotları, mevcut bölümlerde
 parça parça geçtiği için burada tek listede topluyoruz:
@@ -320,7 +320,7 @@ Tuzaklar:
 - Subscription `detach()` edilmezse owner drop'unda iptal olur; uzun yaşayan
   observer için sahibi olan struct'a kaydet.
 
-## 55. Subscription Yaşam Döngüsü
+## 9.6. Subscription Yaşam Döngüsü
 
 `crates/gpui/src/subscription.rs`.
 
@@ -362,7 +362,7 @@ Tuzaklar:
 - `observe` sırasında entity'yi update etmek panic verir; `cx.spawn(..)` ile
   ertele veya `cx.defer(|cx| ...)` kullan.
 
-## 56. Window-bound Observer, Release ve Focus Helper Desenleri
+## 9.7. Window-bound Observer, Release ve Focus Helper Desenleri
 
 Normal `observe`, `subscribe` ve `on_release` callback'leri sadece `App` veya
 `Context<T>` verir. UI katmanında çoğu iş pencere de istediği için GPUI aynı
@@ -452,7 +452,7 @@ Tuzaklar:
 - `focus_self` delayed çalıştığı için hemen sonraki satırda focus değişmiş gibi
   okumak yanlıştır; sonucu sonraki effect/frame akışında gözle.
 
-## 57. Entity Reservation ve Çift Yönlü Referans
+## 9.8. Entity Reservation ve Çift Yönlü Referans
 
 `crates/gpui/src/app/async_context.rs:43+` ve `app.rs::reserve_entity`/`insert_entity`.
 
@@ -492,7 +492,7 @@ Tuzaklar:
 - `cx.new` mevcut güncellemenin içinde rezervasyonu da doldurabilir; reentrant
   `update` yasakları aynı şekilde geçerlidir.
 
-## 58. Entity Release, Cleanup ve Leak Detection
+## 9.9. Entity Release, Cleanup ve Leak Detection
 
 Entity handle'ları ref-count mantığıyla yaşar. Son güçlü `Entity<T>` handle'ı
 düştüğünde entity release edilir; `WeakEntity<T>` bunu engellemez.
@@ -553,7 +553,7 @@ Tuzaklar:
 - `WeakEntity::update/read_with` her zaman `Result` döndürür; entity düşmüş
   olabileceği için hatayı görünür biçimde ele al.
 
-## 59. Entity Type Erasure, Callback Adaptörleri ve View Cache
+## 9.10. Entity Type Erasure, Callback Adaptörleri ve View Cache
 
 Bu bölüm GPUI çekirdeğinde public olan ama günlük kullanımda kolay atlanan küçük
 API yüzeylerini toplar.

@@ -1,8 +1,8 @@
-# Bölüm XIV — Input, Sistem ve Menü
+# 14. Input, Sistem ve Menü
 
 ---
 
-## 71. Input, Clipboard, Prompt ve Platform Servisleri
+## 14.1. Input, Clipboard, Prompt ve Platform Servisleri
 
 Element event ailesi:
 
@@ -57,7 +57,7 @@ Prompt ve dosya seçici:
 - Restart ve HTTP client: `cx.set_restart_path(path)`, `cx.restart()`,
   `cx.http_client()`, `cx.set_http_client(client)`.
 
-## 72. Prompt Builder, PromptHandle ve Fallback Prompt
+## 14.2. Prompt Builder, PromptHandle ve Fallback Prompt
 
 `Window::prompt` platform dialog'u açar; platform prompt desteklemiyorsa veya
 custom prompt builder set edilmişse GPUI içinde render edilen prompt kullanılır.
@@ -107,7 +107,7 @@ Tuzaklar:
   focus restore zincirini tamamlayamaz.
 - Prompt sonucu buton label'ı değil, `answers` dizisindeki index'tir.
 
-## 73. Uygulama Menüsü ve Dock
+## 14.3. Uygulama Menüsü ve Dock
 
 `crates/gpui/src/platform/app_menu.rs`.
 

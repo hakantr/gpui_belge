@@ -1,8 +1,8 @@
-# Bölüm VI — Pencere Yönetimi
+# 6. Pencere Yönetimi
 
 ---
 
-## 22. Pencere Oluşturma
+## 6.1. Pencere Oluşturma
 
 Ana API:
 
@@ -69,7 +69,7 @@ let handle = cx.open_window(
 4. Platform callback'lerini bağlar.
 5. İlk render'ı yapar.
 
-## 23. Zed'de Ana Pencere Nasıl Açılır?
+## 6.2. Zed'de Ana Pencere Nasıl Açılır?
 
 Zed'in ana referansı `crates/zed/src/zed.rs::build_window_options` fonksiyonudur.
 Yeni ana workspace penceresi açacaksan bunu kullan:
@@ -102,7 +102,7 @@ Modal/About gibi küçük pencereler için doğrudan `WindowOptions` oluşturmak
 - `is_minimizable: false`
 - `kind: Normal`
 
-## 24. Display ve Çoklu Monitor
+## 6.3. Display ve Çoklu Monitor
 
 Display bilgisi:
 
@@ -129,7 +129,7 @@ WindowOptions {
 display üzerinde merkezler. Elle konumlandırma gerekiyorsa `Bounds::new(origin, size)`
 kullan.
 
-## 25. WindowKind Davranışı
+## 6.4. WindowKind Davranışı
 
 - `Normal`: ana uygulama penceresi.
 - `PopUp`: diğer pencerelerin üstünde, bildirim ve geçici popup için. Zed bildirim
@@ -157,7 +157,7 @@ WindowOptions {
 Zed örnekleri: `crates/agent_ui/src/ui/agent_notification.rs`,
 `crates/collab_ui/src/collab_ui.rs`.
 
-## 26. Başlık Çubuğu ve Pencere Dekorasyonu
+## 6.5. Başlık Çubuğu ve Pencere Dekorasyonu
 
 İki kavramı ayır:
 
@@ -201,7 +201,7 @@ ZED_WINDOW_DECORATIONS=client
 Zed settings tipi `settings_content::workspace::WindowDecorations` sadece `client`
 ve `server` destekler; default `client`.
 
-## 27. Custom Titlebar Nasıl Tanımlanır?
+## 6.6. Custom Titlebar Nasıl Tanımlanır?
 
 Basit GPUI uygulamasında:
 
@@ -261,7 +261,7 @@ platform_titlebar.into_any_element()
 - Linux'ta sağ tık window menu.
 - Sidebar açıkken kontrol butonları ve köşe yuvarlamalarını ayarlama.
 
-## 28. Kontrol Butonları Nasıl Yönetilir?
+## 6.7. Kontrol Butonları Nasıl Yönetilir?
 
 Kontrol butonları platforma göre farklı çizilir:
 
@@ -310,7 +310,7 @@ Linux `WindowButtonLayout`:
 - `TitleBarSettings` içinde kullanıcı override'ı da vardır; `TitleBar` bunu
   `PlatformTitleBar::set_button_layout` ile geçirir.
 
-## 29. Client-Side Decoration ve Resize
+## 6.8. Client-Side Decoration ve Resize
 
 Zed'in client-side decoration wrapper'ı:
 
@@ -347,7 +347,7 @@ Linux'ta server-side decoration her zaman mümkün olmayabilir:
 Bu yüzden pencere açarken istediğin modu değil, her render'da fiili
 `window.window_decorations()` sonucunu esas al.
 
-## 30. Platforma Göre Dekorasyon Davranışı
+## 6.9. Platforma Göre Dekorasyon Davranışı
 
 #### macOS
 
@@ -396,7 +396,7 @@ Bu yüzden pencere açarken istediğin modu değil, her render'da fiili
 - `WindowBackgroundAppearance` şu anda web window için opaque/no-op kabul edilir.
 - Entry point'te `gpui_platform::web_init()` çağır.
 
-## 31. Blur, Transparency ve Mica Yönetimi
+## 6.10. Blur, Transparency ve Mica Yönetimi
 
 GPUI tipi:
 
@@ -463,7 +463,7 @@ Pratik karar tablosu:
 - Blur kullanıyorsan: içerikte gerçekten alfa bırak; tamamen opak root background
   blur'u görünmez yapar.
 
-## 32. Pencere Üzerinden Yapılan İşlemler
+## 6.11. Pencere Üzerinden Yapılan İşlemler
 
 Sık kullanılan `Window` API'leri:
 
@@ -500,7 +500,7 @@ macOS window tab API'leri:
 - `window.toggle_window_tab_overview()`
 - `window.set_tabbing_identifier(...)`
 
-## 33. Pencere Bounds Persist ve Restore
+## 6.12. Pencere Bounds Persist ve Restore
 
 `crates/gpui/src/platform.rs::WindowBounds`, Zed tarafında
 `crates/workspace/src/persistence/`, `crates/workspace/src/workspace.rs` ve
@@ -566,7 +566,7 @@ Tuzaklar:
 - Display UUID'si Linux/Wayland'de boş olabilir (`display.uuid().ok()` None döner);
   fallback gerekli.
 
-## 34. Native Window Tabs ve SystemWindowTabController
+## 6.13. Native Window Tabs ve SystemWindowTabController
 
 macOS native window tabbing GPUI'de iki katmanlıdır:
 
@@ -600,7 +600,7 @@ Tuzaklar:
 - Window title değiştiğinde native tab title için `window.set_window_title(...)`
   ve controller update akışı birlikte düşünülmelidir.
 
-## 35. Layer Shell ve Özel Platform Pencereleri
+## 6.14. Layer Shell ve Özel Platform Pencereleri
 
 Normal Zed pencereleri `WindowKind::Normal` ile açılır. Linux Wayland feature
 aktifken `WindowKind::LayerShell(LayerShellOptions)` overlay/dock/wallpaper

@@ -1,8 +1,8 @@
-# Bölüm VII — Etkileşim
+# 7. Etkileşim
 
 ---
 
-## 36. Focus, Blur ve Keyboard
+## 7.1. Focus, Blur ve Keyboard
 
 Focus handle:
 
@@ -70,7 +70,7 @@ Event propagation:
 - Action bubble phase'de handler'lar default propagation'ı durdurur; gerekirse
   `cx.propagate()` kullanılır.
 
-## 37. Mouse, Drag, Drop ve Hitbox
+## 7.2. Mouse, Drag, Drop ve Hitbox
 
 Element interactivity:
 
@@ -113,7 +113,7 @@ closure'da ilk pozisyonel argüman `bounds` (kullanılmıyorsa `_bounds`), ikinc
 argüman ise prepaint'in döndürdüğü değer (`hitbox`) olur. `set_cursor_style`
 hitbox'a referans ister; bu yüzden `&hitbox` geçilir.
 
-## 38. Drag ve Drop İçerik Üretimi
+## 7.3. Drag ve Drop İçerik Üretimi
 
 `crates/gpui/src/elements/div.rs:572+` ve `1271+`.
 
@@ -210,7 +210,7 @@ Tuzaklar:
   `on_drop` çağrılmaz; kabul edilmeyen hedefin visual feedback'ini ayrı state ile
   göstermen gerekiyorsa `on_drag_move` kullan.
 
-## 39. Hitbox, Cursor, Pointer Capture ve Autoscroll
+## 7.4. Hitbox, Cursor, Pointer Capture ve Autoscroll
 
 Hitbox, mouse hit-test ve cursor davranışının temelidir. Element handler'ları çoğu
 zaman bunu senin yerine kurar; custom canvas/element yazarken doğrudan kullanılır.
@@ -266,7 +266,7 @@ Tuzaklar:
 - Pointer capture release edilmezse sonraki mouse hareketlerinde yanlış hitbox
   hovered kalabilir.
 
-## 40. Tab Sırası ve Klavye Navigasyonu
+## 7.5. Tab Sırası ve Klavye Navigasyonu
 
 `crates/gpui/src/tab_stop.rs`, `window.rs:397`.
 
@@ -313,7 +313,7 @@ div()
 ulaşılamaz. Aksesibilite ve form akışı için her interaktif element bir handle'a
 sahip olmalı.
 
-## 41. Text Input ve IME
+## 7.6. Text Input ve IME
 
 Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Editor benzeri metin
 alanları şunları sağlamalıdır:
@@ -344,7 +344,7 @@ window.invalidate_character_coordinates();
 Zed'de form tipi tek satır input için doğrudan editor yazmak yerine `ui_input::InputField`
 kullan. Bu crate editor'a bağlı olduğu için `ui` içinde değildir.
 
-## 42. Text Input Handler ve IME Derin Akış
+## 7.7. Text Input Handler ve IME Derin Akış
 
 Metin düzenleyen custom element yazıyorsan yalnızca key event dinlemek yeterli
 değildir. IME, dead key, marked text ve candidate window için platforma
@@ -412,7 +412,7 @@ Tuzaklar:
 - Input handler frame'e bağlıdır; focused element paint edilmezse platform input
   handler da düşer.
 
-## 43. Keystroke, Modifiers ve Platform Bağımsız Kısayollar
+## 7.8. Keystroke, Modifiers ve Platform Bağımsız Kısayollar
 
 `crates/gpui/src/platform/keystroke.rs` klavye girdisinin normalized modelidir.
 Keymap sadece action binding değildir; pending input, IME ve gösterim metni de

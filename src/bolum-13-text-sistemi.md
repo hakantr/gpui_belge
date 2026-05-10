@@ -1,8 +1,8 @@
-# Bölüm XIII — Text Sistemi
+# 13. Text Sistemi
 
 ---
 
-## 69. Text, Font ve Metin Ölçümü
+## 13.1. Text, Font ve Metin Ölçümü
 
 Ana tipler `crates/gpui/src/text_system.rs`, `style.rs` ve
 `elements/text.rs` içinde:
@@ -55,7 +55,7 @@ Tuzaklar:
   (`text_system.rs:45,48`); yani glyph atlas boyutu yatay subpixel pozisyonuna
   duyarlı, dikey değil.
 
-## 70. StyledText, TextLayout ve InteractiveText
+## 13.2. StyledText, TextLayout ve InteractiveText
 
 Basit metin `SharedString` olarak child verilebilir; ölçüm, highlight,
 font override veya tıklanabilir aralık gerekiyorsa `StyledText` kullanılır.

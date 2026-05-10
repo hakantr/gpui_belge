@@ -1,8 +1,8 @@
-# Bölüm XVIII — Zed Workspace
+# 18. Zed Workspace
 
 ---
 
-## 85. Zed Workspace Dock ve Panel Modeli
+## 18.1. Zed Workspace Dock ve Panel Modeli
 
 Bu bölüm GPUI çekirdeği değil, Zed'in `workspace` crate'i üstündeki dock/panel
 katmanıdır. Dosyalar: `crates/workspace/src/workspace.rs`,
@@ -64,7 +64,7 @@ Yeni panel eklerken kontrol:
 - Dock değiştiren settings gözlemlerinde panel taşınırken size state axis değişirse
   reset edilebilir; bu mevcut `Dock::add_panel`/settings observer akışında yapılır.
 
-## 86. Workspace Item, Pane, Modal, Toast ve Notification Sistemi
+## 18.2. Workspace Item, Pane, Modal, Toast ve Notification Sistemi
 
 GPUI bir UI framework'üdür; Zed'in workspace katmanı bunun üstünde tab/pane,
 modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editor benzeri
@@ -276,7 +276,7 @@ let task = workspace.open_paths(
   beklemeye girer; testte `run_until_parked()` ile resolve sürecini ilerletmen
   gerekir.
 
-## 87. Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
+## 18.3. Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
 
 Workspace item açma yalnızca `Pane::add_item` değildir; Zed session restore,
 project item resolution, search bar ve collab follow gibi katmanları da item
@@ -425,7 +425,7 @@ Tuzaklar:
   anlamına gelmez; path açma davranışını özellikle directory/file ayrımı için
   açık seç.
 
-## 88. PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
+## 18.4. PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
 
 Pane ve workspace yalnız tab listesi değildir; split ağacı, navigation history,
 toolbar item'ları ve multi-workspace sidebar birlikte çalışır.
@@ -549,7 +549,7 @@ Tuzaklar:
 - Split yönü hardcode etmek yerine user ayarlı default isteniyorsa
   `SplitDirection::vertical(cx)` / `horizontal(cx)` kullan.
 
-## 89. Workspace Notification Yardımcıları ve Async Hata Gösterimi
+## 18.5. Workspace Notification Yardımcıları ve Async Hata Gösterimi
 
 Bildirim sistemi yalnız `show_notification` değildir; workspace dışı app-level
 notification ve async error propagation için yardımcı trait'ler vardır.
@@ -593,7 +593,7 @@ Tuzaklar:
 - `MessageNotification` click handler'ları `Window` ve `App` alır; workspace state
   gerekiyorsa weak workspace/entity yakala ve düşmüş olma ihtimalini ele al.
 
-## 90. AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
+## 18.6. AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
 
 Zed uygulamasında workspace açma, sadece `open_window` çağrısı değildir. Startup,
 CLI/open-url istekleri, workspace DB ve collab follow state'i birkaç global/handle
@@ -686,7 +686,7 @@ Tuzaklar:
   yeni item türü eklerken `register_serializable_item` startup init'inde
   çağrılmalıdır.
 
-## 91. Item Ayarları, Context Menu, ApplicationMenu ve Focus-Follows-Mouse
+## 18.7. Item Ayarları, Context Menu, ApplicationMenu ve Focus-Follows-Mouse
 
 Zed UI kodunda sık görülen ama GPUI çekirdeği olmayan birkaç yardımcı katman daha
 vardır.

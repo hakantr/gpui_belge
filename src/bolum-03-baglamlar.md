@@ -1,8 +1,8 @@
-# Bölüm III — Bağlamlar
+# 3. Bağlamlar
 
 ---
 
-## 8. Temel Bağlamlar
+## 3.1. Temel Bağlamlar
 
 GPUI'de neredeyse her şey `cx` ile yapılır:
 
@@ -47,7 +47,7 @@ Kurallar:
 - `Task` düşerse iş iptal olur. Ya `await` et, ya struct alanında sakla, ya da
   `detach()` / `detach_and_log_err(cx)` kullan.
 
-## 9. WindowHandle, AnyWindowHandle ve VisualContext
+## 3.2. WindowHandle, AnyWindowHandle ve VisualContext
 
 `open_window` veya test helper'ları typed `WindowHandle<V>` döndürür. Bu handle
 pencerenin root view tipini bilir; `AnyWindowHandle` ise root tipini runtime'da

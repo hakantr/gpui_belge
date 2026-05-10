@@ -1,8 +1,8 @@
-# Bölüm XI — Asset, Image, Path ve Çizim
+# 11. Asset, Image, Path ve Çizim
 
 ---
 
-## 62. Asset, Image ve SVG Yükleme
+## 11.1. Asset, Image ve SVG Yükleme
 
 `crates/gpui/src/asset_cache.rs`, `assets.rs`, `elements/img.rs`, `svg.rs`.
 
@@ -80,7 +80,7 @@ Tuzaklar:
 - `RenderImage` GIF/animated WebP için `frame_count()` ve `delay(frame_index)`
   sağlar; `img` element'i aktif pencerede frame ilerletip animation frame ister.
 
-## 63. Asset, ImageCache ve Surface Boru Hattı
+## 11.2. Asset, ImageCache ve Surface Boru Hattı
 
 GPUI asset katmanı üç seviyelidir:
 
@@ -140,7 +140,7 @@ Tuzaklar:
 - Çok büyük veya sürekli değişen image setlerinde `RetainAllImageCache` sınırsız
   büyüyebilir; özel eviction stratejisi için kendi `ImageCache` implementasyonu yaz.
 
-## 64. Path Çizimi ve Custom Drawing
+## 11.3. Path Çizimi ve Custom Drawing
 
 `crates/gpui/src/path_builder.rs`, `scene.rs`, `elements/canvas.rs`.
 
@@ -243,7 +243,7 @@ Tuzaklar:
 - Stroke genişliği logical Pixels'dir; DPI yüksek ekranda çok ince kalmasın diye
   `px(1.0).max(...)` ile zemin tut.
 
-## 65. Anchored ve Popover Konumlandırma
+## 11.4. Anchored ve Popover Konumlandırma
 
 `crates/gpui/src/elements/anchored.rs`.
 
@@ -288,7 +288,7 @@ Tuzaklar:
 - Anchored child kendi içinde overflow `Visible` davranır; içerik pencereyi taşırsa
   scroll için ekstra wrapper gerekir.
 
-## 66. PaintQuad, Window Paint Primitives ve BorderStyle
+## 11.5. PaintQuad, Window Paint Primitives ve BorderStyle
 
 `canvas` ve custom `Element::paint` içinde GPU'ya gönderilen primitive'ler:
 
@@ -347,7 +347,7 @@ Tuzaklar:
 - `border_widths` dört kenara ayrı değer verebilir (`Edges { top, right, bottom, left }`);
   düz bir değer verirsen `Edges::all(px(1.))`.
 
-## 67. Window Drawing Context Stack, Asset Fetch ve SVG Transform
+## 11.6. Window Drawing Context Stack, Asset Fetch ve SVG Transform
 
 Custom element yazarken `Window` yalnızca paint primitive çağırdığın yer değildir;
 draw fazlarında aktif style, offset, clipping ve asset yükleme context'ini de

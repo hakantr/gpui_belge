@@ -1,8 +1,8 @@
-# Bölüm V — Stil, Geometri ve Renkler
+# 5. Stil, Geometri ve Renkler
 
 ---
 
-## 17. Style ve Layout Haritası
+## 5.1. Style ve Layout Haritası
 
 GPUI style sistemi CSS/Tailwind'e benzer fluent metotlardan oluşur, fakat Rust
 tipleriyle daha nettir:
@@ -75,7 +75,7 @@ Pratik kararlar:
 - Kart/toolbar/list gibi tekrar eden UI'da boyutları `min/max/aspect_ratio` ile
   sabitle; hover veya loading state layout shift üretmemeli.
 
-## 18. Geometri Tipleri ve Birim Yönetimi
+## 5.2. Geometri Tipleri ve Birim Yönetimi
 
 `crates/gpui/src/geometry.rs`.
 
@@ -155,7 +155,7 @@ Tuzaklar:
   ister; örtük çevrilmez.
 - `point(x, y)` argument sırası önce X sonra Y'dir; `size(width, height)` de aynı.
 
-## 19. Renkler, Gradient ve Background
+## 5.3. Renkler, Gradient ve Background
 
 `crates/gpui/src/color.rs` ve `colors.rs`.
 
@@ -230,7 +230,7 @@ Pratik notlar:
 - Hsla'da hue 1.0'a sarılmaz (clamp'lenir); rotasyon için `hue + delta` modulo 1.0
   ile hesapla.
 
-## 20. SharedString, SharedUri ve Ucuz Klonlanan Tipler
+## 5.4. SharedString, SharedUri ve Ucuz Klonlanan Tipler
 
 `SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri`
 `crates/gpui/src/shared_uri.rs` içinde bu string tipini sarar.
@@ -279,7 +279,7 @@ Tuzaklar:
 - Format string her render'da çalışıyorsa `format!` sonucu da her frame allocation
   yapar; sonucu cache'lemek için entity state'te tut.
 
-## 21. WindowAppearance ve Tema Modu
+## 5.5. WindowAppearance ve Tema Modu
 
 `crates/gpui/src/platform.rs:1604` içinde tanımlı:
 

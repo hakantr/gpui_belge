@@ -1,8 +1,8 @@
-# Bölüm XXI — Reçeteler ve Kontrol Listeleri
+# 21. Reçeteler ve Kontrol Listeleri
 
 ---
 
-## 98. Reçeteler
+## 21.1. Reçeteler
 
 #### Yeni Workspace Penceresi
 
@@ -120,7 +120,7 @@ cx.observe_global::<SettingsStore>(move |cx| {
 
 Zed ana uygulaması bu deseni zaten kullanır.
 
-## 99. Sık Hatalar ve Doğru Desenler
+## 21.2. Sık Hatalar ve Doğru Desenler
 
 - **İstenen decoration'a güvenme**: `WindowOptions.window_decorations` sadece istektir.
   Render sırasında `window.window_decorations()` sonucunu kullan.
@@ -143,7 +143,7 @@ Zed ana uygulaması bu deseni zaten kullanır.
 - **Client decoration shadow boşluğu**: `set_client_inset` ve dış wrapper padding/shadow
   birlikte yönetilmelidir.
 
-## 100. Yeni Pencere Eklerken Kontrol Listesi
+## 21.3. Yeni Pencere Eklerken Kontrol Listesi
 
 1. Bu pencere workspace mi, modal mı, popup mı? `WindowKind` seç.
 2. Ana Zed penceresiyse `build_window_options` kullan.
@@ -162,7 +162,7 @@ Zed ana uygulaması bu deseni zaten kullanır.
 15. Button layout değişiminde titlebar yeniden render olacak mı?
 16. Testte timer gerekiyorsa GPUI executor timer kullanıldı mı?
 
-## 101. Kısa Cevaplar
+## 21.4. Kısa Cevaplar
 
 **İleride pencere oluşturmak için nasıl yapmalıyım?**
 
@@ -201,7 +201,7 @@ Zed UI görünümüyle ilgiliyse `PlatformStyle::platform()` ve `platform_title_
 bileşenlerinde. Ayar farkı gerekiyorsa `settings_content` schema ve `settings`
 dönüşümlerinde.
 
-## 102. Dosya Yoluna Göre Ne Nerede?
+## 21.5. Dosya Yoluna Göre Ne Nerede?
 
 - Pencere açma API'si: `crates/gpui/src/app.rs::open_window`
 - Pencere seçenekleri: `crates/gpui/src/platform.rs::WindowOptions`

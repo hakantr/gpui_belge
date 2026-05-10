@@ -1,8 +1,8 @@
-# Bölüm X — Liste ve Sanallaştırma
+# 10. Liste ve Sanallaştırma
 
 ---
 
-## 60. ScrollHandle ve Scroll Davranışı
+## 10.1. ScrollHandle ve Scroll Davranışı
 
 `crates/gpui/src/elements/div.rs:3387+`.
 
@@ -72,7 +72,7 @@ Liste elementlerinde ayrı state/handle tipleri vardır:
 Büyük listelerde doğrudan `ScrollHandle` yerine bu listeye özel
 `ListState`/`UniformListScrollHandle` API'lerini kullanmak doğru sonuç verir.
 
-## 61. List ve UniformList Sanallaştırma
+## 10.2. List ve UniformList Sanallaştırma
 
 GPUI'de büyük listeler için iki çekirdek element vardır:
 

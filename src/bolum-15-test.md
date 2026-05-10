@@ -1,8 +1,8 @@
-# Bölüm XV — Test
+# 15. Test
 
 ---
 
-## 74. Test Rehberi
+## 15.1. Test Rehberi
 
 GPUI testlerinde:
 
@@ -19,7 +19,7 @@ Testlerde kaçınılacaklar:
 - `unwrap()` ile test dışı production yoluna panik taşımak.
 - Async hata sonuçlarını `let _ = ...` ile yutmak.
 
-## 75. Test Bağlamları ve Simülasyon
+## 15.2. Test Bağlamları ve Simülasyon
 
 `crates/gpui/src/app/test_context.rs`, `crates/gpui/src/app/visual_test_context.rs`.
 

@@ -1,8 +1,8 @@
-# Bölüm I — Temeller ve Mimari
+# 1. Temeller ve Mimari
 
 ---
 
-## 1. Büyük Resim
+## 1.1. Büyük Resim
 
 GPUI üç katmanlıdır:
 
@@ -22,7 +22,7 @@ Zed bu katmanların üstüne kendi tasarım sistemini koyar:
 - `crates/workspace`: ana çalışma alanını, client-side decoration gölgesini, resize
   bölgelerini ve pencere içeriğini birleştirir.
 
-## 2. Hızlı Referans: GPUI Kavram Sözlüğü
+## 1.2. Hızlı Referans: GPUI Kavram Sözlüğü
 
 | Kavram | Tip | Yer | Kısa Açıklama |
 |---|---|---|---|
