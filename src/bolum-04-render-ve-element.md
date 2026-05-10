@@ -21,7 +21,7 @@ impl Render for MyView {
                 window.remove_window();
             }))
             .size_full()
-            .child("Content")
+            .child("İçerik")
     }
 }
 ```

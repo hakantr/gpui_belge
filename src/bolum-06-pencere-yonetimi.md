@@ -226,7 +226,7 @@ div()
         h_flex()
             .window_control_area(WindowControlArea::Drag)
             .h(px(34.))
-            .child("Title")
+            .child("Başlık")
     )
     .child(content)
 ```

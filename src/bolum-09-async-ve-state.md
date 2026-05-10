@@ -540,7 +540,7 @@ Leak kontrolü testlerde/feature altında:
 
 ```rust
 let snapshot = cx.leak_detector_snapshot();
-// Test body.
+// Testin gövdesi burada çalışır.
 cx.assert_no_new_leaks(&snapshot);
 ```
 

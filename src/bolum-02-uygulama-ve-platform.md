@@ -14,14 +14,14 @@ struct Root;
 
 impl Render for Root {
     fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        div().size_full().child("Hello")
+        div().size_full().child("Merhaba")
     }
 }
 
 fn main() {
     application().run(|cx: &mut App| {
         if let Err(error) = cx.open_window(WindowOptions::default(), |_, cx| cx.new(|_| Root)) {
-            eprintln!("failed to open window: {error:?}");
+            eprintln!("pencere açılamadı: {error:?}");
         }
     });
 }
@@ -50,7 +50,7 @@ let app = gpui_platform::application()
     .with_quit_mode(QuitMode::Default);
 
 app.on_open_urls(|urls| {
-    // Platform URL open event.
+    // Platformun URL açma olayı.
 });
 
 app.on_reopen(|cx| {
@@ -58,41 +58,48 @@ app.on_reopen(|cx| {
 });
 
 app.run(|cx| {
-    // Global init, keymap, windows.
+    // Global state başlatma, keymap kaydı, pencere açma.
 });
 ```
 
-Quit ve activation:
+### Çıkış davranışı (QuitMode) ve uygulama aktivasyonu
 
-- `QuitMode::Default`: macOS'ta explicit quit, diğer platformlarda son pencere
-  kapanınca quit.
-- `QuitMode::LastWindowClosed`: son window kapanınca otomatik çık.
-- `QuitMode::Explicit`: yalnızca `App::quit()` ile çık.
-- `cx.on_app_quit(|cx| async { ... })` callback'lerinin tamamı sürdürülürken
-  uygulama `gpui::SHUTDOWN_TIMEOUT: Duration = 100ms` (`app.rs:71`) süresince
-  bekler. Bu eşik aşılırsa pending future'lar iptal edilip platform exit
-  sürdürülür; uzun teardown işlerini fire-and-forget değil, uygun bir lifecycle
-  observer'ında yap.
-- `cx.activate(ignoring_other_apps)`, `cx.hide()`, `cx.hide_other_apps()`,
-  `cx.unhide_other_apps()` platform app state'ini yönetir.
-- `window.activate_window()`, `window.minimize_window()`,
-  `window.toggle_fullscreen()` pencere seviyesidir.
+**QuitMode** uygulamanın ne zaman kapanacağına karar veren politikadır. Üç değeri var:
 
-Platform sinyalleri:
+- `QuitMode::Default`: macOS'ta tipik macOS davranışıdır; son pencere kapansa bile uygulama Dock'ta çalışmaya devam eder ve kapanmak için Cmd+Q ya da menüden Quit gerekir. Windows/Linux gibi diğer platformlarda son pencere kapanınca uygulama da kapanır.
+- `QuitMode::LastWindowClosed`: Hangi platform olursa olsun son pencere kapandığı an uygulama otomatik kapanır.
+- `QuitMode::Explicit`: Hiçbir pencere kalmasa bile uygulama açık kalır; yalnızca `cx.quit()` çağrılınca kapanır. Sistem tepsisi (tray) uygulamaları, arka plan servisleri için uygundur.
 
-- `cx.on_keyboard_layout_change(...)`: klavye layout değişimi.
-- `cx.keyboard_layout()` ve `cx.keyboard_mapper()`: keystroke mapping için.
-- `cx.thermal_state()` ve `cx.on_thermal_state_change(...)`: yoğun render,
-  indexing veya background iş throttling'i için.
-- `cx.set_cursor_hide_mode(CursorHideMode::...)`: typing/action sonrası cursor
-  gizleme politikasını değiştirir.
-- `cx.refresh_windows()`: tüm pencereleri tek effect cycle içinde redraw'a zorlar.
-- `cx.set_quit_mode(mode)`: runtime'da quit politikasını değiştirir; builder
-  tarafındaki `.with_quit_mode(...)` ile aynı alanı besler.
-- `cx.on_window_closed(|cx, window_id| ...)`: pencere kapandıktan sonra çalışır;
-  bu noktada window artık erişilebilir değildir, yalnızca `WindowId` gelir.
+**Ne zaman ve nasıl tanımlanır?** Uygulama başlatılırken `application().with_quit_mode(...)` ile builder üzerinde belirlenir. Sonradan değiştirilebilir mi? Evet — çalışma zamanında `cx.set_quit_mode(mode)` ile değiştirilir. Builder API ve runtime API aynı alanı besler, bu yüzden örneğin kullanıcı ayarlardan "uygulama arka planda kalsın" seçeneğini değiştirdiğinde modu canlı olarak güncelleyebilirsin.
 
-Tuzaklar:
+**Kapanış sırasında ne oluyor?** Çıkış kararı verildiğinde `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm callback'ler paralel başlar. GPUI bunların tamamlanmasını `SHUTDOWN_TIMEOUT = 100ms` (`app.rs:71`) süresince bekler; eşik aşılırsa bekleyen future'lar iptal edilip platform exit sürdürülür. Bu nedenle uzun süren teardown işlerini (büyük dosya flush, ağ kapatma vs.) fire-and-forget bırakmak yerine kısa tut veya state'i daha önceden güvenli bir noktada kaydet.
+
+**Aktivasyon (`cx.activate`)** uygulamayı ön plana getirmek demektir. macOS'ta Dock'tan tıklayınca, Windows'ta görev çubuğundan seçilince OS tarafından zaten otomatik tetiklenir. Sen ise `cx.activate(ignoring_other_apps: bool)` çağırarak programatik olarak öne getirebilirsin (örn. derin link ile dosya açıldığında uygulamayı aktif yap). `true` parametresi macOS'ta diğer uygulamaları zorla arkaya iter; günlük kullanımda `false` daha kibar bir aktivasyondur.
+
+İlgili komutlar:
+
+- `cx.hide()`, `cx.hide_other_apps()`, `cx.unhide_other_apps()`: macOS'ta Cmd+H mantığında uygulama gizleme. Uygulama yaşamaya devam eder, yalnızca pencereleri ekran dışına alınır.
+- `window.activate_window()`: Belirli bir pencereyi öne getirir.
+- `window.minimize_window()`: Pencereyi simge durumuna küçültür.
+- `window.toggle_fullscreen()`: Tam ekran modunu açar/kapatır.
+
+### Platform sinyalleri (OS'tan gelen olaylara nasıl bağlanılır)
+
+Platform sinyalleri, **işletim sisteminin sana ilettiği değişiklikleri yakalamak için kaydettiğin geri-çağrılar (callback)**'dır. Mantık şudur: uygulama başlatılırken (genelde `app.run(|cx| { ... })` içinde) `cx.on_xxx(|cx| { ... })` ile bir fonksiyon kaydedersin; OS o olay gerçekleştiğinde GPUI'nin ana event loop'u senin verdiğin fonksiyonu çağırır ve içine güncel `&mut App` (veya ilgili veri) verir. Yani sen "olduğunda bana haber ver" dersin, GPUI olduğu an seni uyandırır.
+
+- **`cx.on_keyboard_layout_change(|cx| { ... })`** — Kullanıcı klavye düzenini değiştirdiğinde (örn. Türkçe Q'dan Türkçe F'ye geçti, ya da macOS'ta dil çubuğundan İngilizce'ye döndü) bu callback tetiklenir. **Evet**, klavye düzeni değişimi bu noktada yakalanır ve burada yazdığın kod o anda çalışır. Pratikte buraya şunları yazarsın: shortcut etiketlerini (`Ctrl+;` vs.) yeni layout'a göre yeniden hesapla, sanal klavye gösterimini güncelle, kullanıcının fiziksel tuşları nereye basacağını gösteren ipuçlarını yenile. Anlık değer gerekiyorsa `cx.keyboard_layout()` o anki layout kimliğini, `cx.keyboard_mapper()` ise tuş→karakter dönüşüm haritasını döndürür.
+
+- **`cx.on_thermal_state_change(|state, cx| { ... })`** — Cihazın ısınma durumu değiştiğinde tetiklenir. macOS/iOS thermal API'leri üzerinden `Normal`, `Fair`, `Serious`, `Critical` gibi durumlar gelir. Buraya CPU'yu rahatlatacak kodu yaz: arka plan indeksleme/sıkıştırma işlerini geçici durdur, animasyon FPS'ini düşür, tembel render moduna geç. Anlık okumak için `cx.thermal_state()` da kullanılır.
+
+- **`cx.on_window_closed(|cx, window_id| { ... })`** — Bir pencere kapandıktan **sonra** çalışır. Gelen tek bilgi `WindowId`'dir; o pencereye artık erişemezsin, sadece kayıtlardan o id ile ilgili artifact'ları (örn. eşleştirdiğin global state, geçici dosyalar) temizlersin.
+
+- **`cx.set_cursor_hide_mode(CursorHideMode::...)`** — Kullanıcı klavyeyle yazmaya başladığında mouse imlecini otomatik gizleme politikasını belirler. Editörlerde tipik olarak "OnTyping" tercih edilir.
+
+- **`cx.refresh_windows()`** — Tüm açık pencerelere "yeniden çiz" sinyali atar; herhangi bir state'i değiştirmez. Tema/yazı tipi gibi global bir şey değiştiğinde her şeyin baştan çizilmesi gerektiğinde kullanılır.
+
+- **`cx.set_quit_mode(mode)`** — Yukarıda anlatıldığı gibi, çıkış politikasını runtime'da güncellemek için. `.with_quit_mode(...)` ile aynı alanı yazar.
+
+### Tuzaklar
 
 - `on_open_urls` callback'i `&mut App` almaz; app state gerekiyorsa URL'leri
   kendi queue/global state'inize aktaracak bir köprü kurun.
