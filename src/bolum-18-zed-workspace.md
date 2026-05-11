@@ -12,7 +12,7 @@ Workspace yapısı:
 
 - `Workspace` merkezde pane grubu, solda `left_dock`, sağda `right_dock`, altta
   `bottom_dock` taşır.
-- Dock entity'si `DockPosition::{Left, Bottom, Right}` ile konumlanır.
+- Dock varlığı `DockPosition::{Left, Bottom, Right}` ile konumlanır.
 - `Workspace::left_dock()`, `right_dock()`, `bottom_dock()`, `all_docks()`,
   `dock_at_position(position)` erişim sağlar.
 - Aksiyonlar: `ToggleLeftDock`, `ToggleRightDock`, `ToggleBottomDock`,
@@ -29,7 +29,7 @@ Panel yazmak için `Panel` trait'i uygulanır:
 - `icon`, `icon_tooltip`, `icon_label`, `toggle_action`, `activation_priority`
   status bar button ve sıralamayı belirler.
 - `starts_open`, `set_active`, `is_zoomed`, `set_zoomed`, `pane`, `remote_id`
-  dock state ve remote workspace entegrasyonudur.
+  dock durumu ve remote workspace entegrasyonudur.
 - Panel `Focusable + EventEmitter<PanelEvent> + Render` olmalıdır.
 
 Dock davranışı:
@@ -39,19 +39,19 @@ Dock davranışı:
 - `Dock::set_open`, `activate_panel`, `active_panel`, `visible_panel`,
   `panel::<T>()`, `remove_panel`, `resize_active_panel`, `resize_all_panels`
   temel yönetim API'leridir.
-- Panel `PanelEvent::Activate` emit ederse dock açılır, panel aktiflenir ve focus
+- Panel `PanelEvent::Activate` yayarsa dock açılır, panel aktiflenir ve odak
   panele taşınır.
 - `PanelEvent::Close` aktif görünür paneli kapatır.
-- `PanelEvent::ZoomIn/ZoomOut` workspace zoom layer state'ini günceller.
-- Boyut state'i `PanelSizeState { size, flex }` olarak persist edilir.
+- `PanelEvent::ZoomIn/ZoomOut` workspace zoom layer durumunu günceller.
+- Boyut durumu `PanelSizeState { size, flex }` olarak persist edilir.
 
 Workspace `toggle_dock` akışı:
 
 1. Dock görünürse açık pozisyonlar kaydedilir.
-2. Dock open state terslenir.
+2. Dock açık/kapalı durumu terslenir.
 3. Aktif panel yoksa ilk enabled panel aktiflenir.
-4. Açılıyorsa focus panel focus handle'a taşınır; kapanıyorsa focused panelden
-   geliyorsa focus center pane'e döner.
+4. Açılıyorsa odak panelin odak tutamacına taşınır; kapanış odaktaki panelden
+   geliyorsa odak merkez pane'e döner.
 5. Workspace serialize edilir.
 
 Yeni panel eklerken kontrol:
@@ -60,13 +60,13 @@ Yeni panel eklerken kontrol:
 - `position_is_valid` bottom/side sınırlamalarını net tanımlamalıdır.
 - `toggle_action()` action'ı register edilmiş olmalıdır.
 - `activation_priority()` benzersiz olmalıdır.
-- `set_active` içinde UI state değişiyorsa `cx.notify()` çağrısı unutulmamalıdır.
-- Dock değiştiren settings gözlemlerinde panel taşınırken size state axis değişirse
+- `set_active` içinde UI durumu değişiyorsa `cx.notify()` çağrısı unutulmamalıdır.
+- Dock değiştiren ayar gözlemlerinde panel taşınırken boyut durumunun ekseni değişirse
   reset edilebilir; bu mevcut `Dock::add_panel`/settings observer akışında yapılır.
 
 ## 18.2. Workspace Item, Pane, Modal, Toast ve Notification Sistemi
 
-GPUI bir UI framework'üdür; Zed'in workspace katmanı bunun üstünde tab/pane, modal, toast ve bildirim akışlarını standardize eder. Editor benzeri yeni bir panel, komut veya bildirim yazılırken bu trait ve sözleşmelere göre uyum sağlamak gerekir — aksi halde tab sistemine, modal layer'a veya status bar'a entegrasyon doğru çalışmaz. Bu bölüm sırasıyla `Item`/`ItemHandle`, `ModalView`, `StatusItemView`, `Notification`/`Toast` ve `Workspace::open_*` akışını ele alır.
+GPUI bir UI framework'üdür; Zed'in workspace katmanı bunun üstünde tab/pane, modal, toast ve bildirim akışlarını standartlaştırır. Editor benzeri yeni bir panel, komut veya bildirim yazılırken bu trait ve sözleşmelere göre uyum sağlamak gerekir; aksi halde tab sistemine, modal layer'a veya status bar'a entegrasyon doğru çalışmaz. Bu bölüm sırasıyla `Item`/`ItemHandle`, `ModalView`, `StatusItemView`, `Notification`/`Toast` ve `Workspace::open_*` akışını ele alır.
 
 #### Item ve ItemHandle
 
@@ -96,7 +96,7 @@ Tipik akış:
 
 - Yeni tab tipini `impl Item for MyView` ile uygula.
 - `Workspace::open_path`/`open_paths`/`open_abs_path` zaten `ProjectItem` üreterek
-  doğru `Item` view'ini açar; özel akışta `Pane::add_item(Box::new(view), ...)`
+  doğru `Item` görünümünü açar; özel akışta `Pane::add_item(Box::new(view), ...)`
   kullanılır.
 - `Pane::activate_item`, `close_active_item`, `navigate_backward`,
   `navigate_forward`, `split` (split direction ile yeni pane) Pane API'leridir.
@@ -205,8 +205,8 @@ workspace.show_toast(
 workspace.show_error(&error, cx);
 ```
 
-`Toast` lightweight ve geçicidir (autohide), `Notification` ise persistant
-view'dir ve kullanıcı dismiss edene kadar görünür. `SuppressEvent` aynı kaynaktan
+`Toast` hafif ve geçicidir (autohide), `Notification` ise kalıcı
+görünümdür ve kullanıcı dismiss edene kadar görünür. `SuppressEvent` aynı kaynaktan
 gelen tekrarlı bildirimleri bastırmak için kullanılır.
 
 `Workspace::toggle_status_toast<V: ToastView>` ise modal layer mantığında
@@ -221,8 +221,8 @@ pub trait ToastView: ManagedView {
 ```
 
 `ToastAction::new(label, on_click)` toast içindeki aksiyon butonunu tanımlar.
-`ToastView` tabanlı toast'larda auto dismiss default `true`; `Workspace::show_toast`
-ile gösterilen lightweight `Toast` struct'ında ise `.autohide()` çağrılmadıkça
+`ToastView` tabanlı toast'larda auto dismiss varsayılan olarak `true`; `Workspace::show_toast`
+ile gösterilen hafif `Toast` struct'ında ise `.autohide()` çağrılmadıkça
 otomatik kapanma yoktur.
 
 #### `Workspace::open_*` Akışı
@@ -242,7 +242,7 @@ let task = workspace.open_paths(
 
 Önemli giriş noktaları:
 
-- `workspace::open_paths(paths, app_state, open_options, cx)`: standalone helper;
+- `workspace::open_paths(paths, app_state, open_options, cx)`: bağımsız yardımcı;
   gerekirse pencere açar veya mevcut workspace'i yeniden kullanır.
 - `Workspace::open_paths(abs_paths, OpenOptions, pane, window, cx)`: mevcut
   workspace içinde birden çok absolute path açar.
@@ -261,7 +261,7 @@ let task = workspace.open_paths(
 - `Item` implementasyonunda `Self::Event` türünü doğru tanımlamak ve
   `EventEmitter<Self::Event>` impl etmek gerekir; aksi halde `Item` trait
   bound'u tutmaz.
-- `Pane::add_item` `Box::new(view)` ile yapılır; pane item ownership'ini alır.
+- `Pane::add_item` `Box::new(view)` ile yapılır; pane item sahipliğini alır.
 - `Workspace::register_action` callback signature'ı
   `Fn(&mut Self, &A, &mut Window, &mut Context<Self>)` — diğer GPUI
   `on_action` listener'larından farklı pozisyonel düzeni var (`&A` ortada).
@@ -276,11 +276,11 @@ let task = workspace.open_paths(
 
 ## 18.3. Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
 
-Workspace item açma yalnızca `Pane::add_item` değildir; Zed session restore (uygulamayı kapatıp açtığında aynı sekmelerin geri gelmesi), project item resolution (dosya yolundan editor view'ı türetme), search bar entegrasyonu ve collab follow akışlarının hepsi `Item` üzerine kurulmuş ek trait'lerden geçer. Bu bölüm bu dört trait ailesini (`SerializableItem`, `ProjectItem`, `SearchableItem`, `FollowableItem`) ve workspace açma için kullanılan `OpenOptions`'ı kapsar.
+Workspace item açma yalnızca `Pane::add_item` değildir; Zed session restore (uygulamayı kapatıp açtığında aynı sekmelerin geri gelmesi), project item resolution (dosya yolundan editor görünümü türetme), search bar entegrasyonu ve collab follow akışlarının hepsi `Item` üzerine kurulmuş ek trait'lerden geçer. Bu bölüm bu dört trait ailesini (`SerializableItem`, `ProjectItem`, `SearchableItem`, `FollowableItem`) ve workspace açma için kullanılan `OpenOptions`'ı kapsar.
 
 #### SerializableItem ve Restore
 
-`SerializableItem` workspace kapanırken veya item event'i geldiğinde item state'ini
+`SerializableItem` workspace kapanırken veya item event'i geldiğinde item durumunu
 workspace DB'ye yazmak ve sonra geri yüklemek için kullanılır:
 
 ```rust
@@ -330,7 +330,7 @@ workspace::register_serializable_item::<MyItem>(cx);
 - `cleanup(workspace_id, alive_items, ...)` DB'de artık canlı olmayan item kayıtlarını
   temizlemek için çağrılır.
 - `SerializableItemHandle` `Entity<T: SerializableItem>` için blanket implement
-  edilir; pane/workspace type erasure bu handle üzerinden çalışır.
+  edilir; pane/workspace type erasure bu tutamaç üzerinden çalışır.
 
 #### OpenOptions ve open_paths
 
@@ -338,13 +338,13 @@ Top-level `workspace::open_paths` ve `Workspace::open_paths` aynı option modeli
 kullanır:
 
 - `visible: Option<OpenVisible>`: `All`, `None`, `OnlyFiles`, `OnlyDirectories`.
-- `focus: Option<bool>`: açılan item focus alsın mı?
+- `focus: Option<bool>`: açılan item odak alsın mı?
 - `workspace_matching: WorkspaceMatching`: `None`, `MatchExact`,
   `MatchSubdirectory`.
-- `add_dirs_to_sidebar`: unmatched directory yeni pencere açmak yerine mevcut
+- `add_dirs_to_sidebar`: eşleşmeyen directory yeni pencere açmak yerine mevcut
   local `MultiWorkspace` penceresine workspace olarak eklensin mi? Default `true`.
-  Ekleme yalnız hedef window'da `multi_workspace_enabled(cx)` true ise yapılır;
-  bu durumda `requesting_window` aktif/ilk local multi-workspace window'a set
+  Ekleme yalnız hedef pencerede `multi_workspace_enabled(cx)` true ise yapılır;
+  bu durumda `requesting_window` aktif/ilk local multi-workspace penceresine set
   edilir ve sidebar açılır.
 - `wait`: CLI `--wait` benzeri akışlarda pencerenin kapanmasını bekleme davranışı.
 - `requesting_window`: hedef `WindowHandle<MultiWorkspace>` varsa onu kullan.
@@ -358,7 +358,7 @@ workspace açma fonksiyonları çoğunlukla `Task<Result<Box<dyn ItemHandle>>>` 
 
 #### ProjectItem
 
-`ProjectItem` Zed project entry'sinden workspace item view'i üretir:
+`ProjectItem` Zed project entry'sinden workspace item görünümü üretir:
 
 ```rust
 pub trait ProjectItem: Item {
@@ -379,7 +379,7 @@ pub trait ProjectItem: Item {
 ```
 
 Normal dosya açma `project::ProjectItem::try_open` üzerinden item'i çözer; hata
-durumunda `for_broken_project_item` bozuk/eksik kaynağı temsil eden view üretmek
+durumunda `for_broken_project_item` bozuk/eksik kaynağı temsil eden görünüm üretmek
 için kullanılabilir.
 
 #### SearchableItem
@@ -402,28 +402,28 @@ Workspace search bar'ın bir item içinde çalışması için `SearchableItem` g
 
 Collab/follow akışı için `FollowableItem` kullanılır:
 
-- `remote_id()`, `to_state_proto`, `from_state_proto` remote view state'ini taşır.
+- `remote_id()`, `to_state_proto`, `from_state_proto` remote görünüm durumunu taşır.
 - `to_follow_event(event)` item event'ini follow event'e çevirir.
 - `add_event_to_update_proto` ve `apply_update_proto` incremental remote update
   akışıdır.
-- `set_leader_id` takip edilen kullanıcı bilgisini item state'ine işler.
+- `set_leader_id` takip edilen kullanıcı bilgisini item durumuna işler.
 - `dedup(existing, ...) -> Option<Dedup>` remote item açılırken mevcut item ile
   birleştirme veya replace kararıdır.
 
 Tuzaklar:
 
 - Serializable item'i register etmezsen `deserialize` hiç çağrılmaz; session restore
-  silently invalid item'e düşebilir.
+  sessizce invalid item'e düşebilir.
 - `serialized_item_kind` global namespace gibidir; başka item ile çakıştırma.
 - Search match tipini byte offset, buffer snapshot ve token ile uyumlu tut; stale
   match'i yeni buffer üzerinde kullanmak yanlış range'e gider.
-- `OpenOptions::visible = None` default olarak workspace'e görünür worktree ekleme
+- `OpenOptions::visible = None` varsayılan olarak workspace'e görünür worktree ekleme
   anlamına gelmez; path açma davranışını özellikle directory/file ayrımı için
   açık seç.
 
 ## 18.4. PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
 
-Pane ve workspace yalnız bir tab listesinden ibaret değildir; split ağacı (yatay/dikey bölme), navigation history (geri/ileri gitme), toolbar item'ları (her pane üstünde gösterilen kontroller) ve multi-workspace sidebar birlikte çalışır. Bu yapıların her biri ayrı trait/tip ile temsil edilir ve birbirine işlevsel olarak bağlanır — örneğin pane bir item'a aktiflenir, toolbar bunu öğrenir ve item'a özgü kontroller (search bar, breadcrumb) gösterir; split ağacı pane konumlarını taşır, sidebar multi-workspace state'ini yönetir.
+Pane ve workspace yalnız bir tab listesinden ibaret değildir; split ağacı (yatay/dikey bölme), navigation history (geri/ileri gitme), toolbar item'ları (her pane üstünde gösterilen kontroller) ve multi-workspace sidebar birlikte çalışır. Bu yapıların her biri ayrı trait/tip ile temsil edilir ve birbirine işlevsel olarak bağlanır — örneğin pane bir item'a aktiflenir, toolbar bunu öğrenir ve item'a özgü kontroller (search bar, breadcrumb) gösterir; split ağacı pane konumlarını taşır, sidebar multi-workspace durumunu yönetir.
 
 #### PaneGroup ve SplitDirection
 
@@ -432,13 +432,13 @@ Pane ve workspace yalnız bir tab listesinden ibaret değildir; split ağacı (y
 
 - `PaneGroup::new(pane)` tek pane ile başlar.
 - `split(old_pane, new_pane, SplitDirection, cx)` ağaca yeni pane ekler; eski pane
-  bulunamazsa first pane fallback'i kullanılır.
+  bulunamazsa ilk pane yedek olarak kullanılır.
 - `remove`, `resize`, `reset_pane_sizes`, `swap`, `move_to_border` split ağacını
   değiştirir.
 - `pane_at_pixel_position(point)`, `bounding_box_for_pane(pane)`,
   `find_pane_in_direction` drag/drop ve keyboard pane navigation için kullanılır.
 - `SplitDirection::{Up, Down, Left, Right}`; `vertical(cx)` ve `horizontal(cx)`
-  kullanıcı ayarına göre default split yönünü üretir.
+  kullanıcı ayarına göre varsayılan split yönünü üretir.
 - `SplitDirection::axis()`, `opposite()`, `edge(bounds)`,
   `along_edge(bounds, length)` resize/drop indicator hesaplarında kullanılır.
 
@@ -456,8 +456,8 @@ Pane item listesinde preview/pinned ayrımı vardır:
   katar.
 - Workspace bir pane'i kaldırırken aktif pane kaldırılıyorsa
   `Workspace::force_remove_pane` artık önce `active_pane`'i kalan pane'e günceller:
-  `focus_on` verilmişse o pane aktif olur, verilmemişse son kalan pane fallback
-  olur. Aktif modal varsa focus fallback pane'e taşınmayabilir, ancak `active_pane`
+  `focus_on` verilmişse o pane aktif olur, verilmemişse son kalan pane yedek
+  olur. Aktif modal varsa odak yedek pane'e taşınmayabilir, ancak `active_pane`
   yine kaldırılmış pane olarak bırakılmaz.
 
 Navigation:
@@ -471,7 +471,7 @@ Navigation:
 
 #### ToolbarItemView
 
-Pane toolbar'a katkı verecek view `ToolbarItemView` uygular:
+Pane toolbar'a katkı verecek görünüm `ToolbarItemView` uygular:
 
 ```rust
 pub trait ToolbarItemView: Render + EventEmitter<ToolbarItemEvent> {
@@ -490,11 +490,11 @@ pub trait ToolbarItemView: Render + EventEmitter<ToolbarItemEvent> {
 - `ToolbarItemLocation::{Hidden, PrimaryLeft, PrimaryRight, Secondary}` render
   yerini belirler.
 - Item kendi yerini değiştirmek isterse `ToolbarItemEvent::ChangeLocation(...)`
-  emit eder.
+  yayar.
 - `Toolbar::add_item(entity, window, cx)` item'i kaydeder.
-- `Toolbar::set_active_item` active pane item değişince tüm toolbar item'larını
+- `Toolbar::set_active_item` aktif pane item değişince tüm toolbar item'larını
   günceller.
-- `contribute_context` görünür toolbar item'larının key context'e katkı vermesini
+- `contribute_context` görünür toolbar item'larının key bağlamına katkı vermesini
   sağlar.
 
 #### Sidebar ve MultiWorkspace
@@ -512,15 +512,15 @@ pub trait Sidebar: Focusable + Render + EventEmitter<SidebarEvent> + Sized {
 }
 ```
 
-- `MultiWorkspace::register_sidebar(entity, cx)` sidebar'ı handle olarak saklar,
+- `MultiWorkspace::register_sidebar(entity, cx)` sidebar'ı tutamaç olarak saklar,
   observe eder ve `SidebarEvent::SerializeNeeded` geldiğinde serialize eder.
 - `toggle_sidebar`, `open_sidebar`, `close_sidebar`, `focus_sidebar` görünürlük ve
-  focus akışıdır.
+  odak akışıdır.
 - `set_sidebar_overlay(Some(AnyView), cx)` sidebar üstüne overlay yerleştirir.
 - `multi_workspace_enabled(cx)`, `!DisableAiSettings::disable_ai` ve
   `AgentSettings::enabled` koşullarının birlikte true olmasına bağlıdır. Bu false
-  ise sidebar açma/focus işlemleri erken döner ve açık sidebar render edilmez.
-- `sidebar_render_state(cx)` render tarafında open/side bilgisini taşır; `open`
+  ise sidebar açma/odak işlemleri erken döner ve açık sidebar render edilmez.
+- `sidebar_render_state(cx)` render tarafında açık/side bilgisini taşır; `open`
   değeri hem sidebar açık olmasına hem de `multi_workspace_enabled(cx)` sonucuna
   bağlıdır.
 - `sidebar_has_notifications(cx)` titlebar/status indicator için kullanılır.
@@ -533,22 +533,22 @@ pub trait Sidebar: Focusable + Render + EventEmitter<SidebarEvent> + Sized {
 Tuzaklar:
 
 - Toolbar item `set_active_pane_item` içinde location döndürür ama daha sonra yer
-  değiştirecekse event emit etmelidir; sadece state değiştirip `cx.notify()` yeterli
+  değiştirecekse event yaymalıdır; sadece durum değiştirip `cx.notify()` yeterli
   değildir.
-- Sidebar state'i serialize etmek istiyorsan `SidebarEvent::SerializeNeeded` emit
-  etmeyi unutma.
+- Sidebar durumunu serialize etmek istiyorsan `SidebarEvent::SerializeNeeded`
+  yaymayı unutma.
 - Workspace retain/detach davranışını sidebar açık/kapalı durumuna bağlama;
   güncel karar kaynağı `multi_workspace_enabled(cx)` sonucudur.
 - Nav history preview item'i ayrı işaretler; preview tab gerçek tab'a pinlenince
   history entry'lerini buna göre güncelle.
-- Split yönü hardcode etmek yerine user ayarlı default isteniyorsa
+- Split yönünü hardcode etmek yerine kullanıcı ayarlı varsayılan isteniyorsa
   `SplitDirection::vertical(cx)` / `horizontal(cx)` kullan.
 
 ## 18.5. Workspace Notification Yardımcıları ve Async Hata Gösterimi
 
-Zed'in bildirim sistemi yalnızca `Workspace::show_notification` ile sınırlı değildir; **workspace dışında** (uygulama henüz aktif workspace'e sahip olmadığında) bildirim göstermek ve **async task sonuçlarındaki hataları** kullanıcıya doğal biçimde aktarmak için ayrı yardımcı trait'ler ve fonksiyonlar vardır. Async iş başarısız olduğunda kullanıcının gördüğü mesajın kalitesi büyük oranda bu helper'ların doğru seçilmesine bağlıdır.
+Zed'in bildirim sistemi yalnızca `Workspace::show_notification` ile sınırlı değildir; **workspace dışında** (uygulama henüz aktif workspace'e sahip olmadığında) bildirim göstermek ve **async task sonuçlarındaki hataları** kullanıcıya doğal biçimde aktarmak için ayrı yardımcı trait'ler ve fonksiyonlar vardır. Async iş başarısız olduğunda kullanıcının gördüğü mesajın kalitesi büyük oranda bu yardımcıların doğru seçilmesine bağlıdır.
 
-App-level notification:
+App seviyesi notification:
 
 - `show_app_notification(id, cx, build)`: active workspace varsa orada, yoksa tüm
   workspace'lerde notification gösterir.
@@ -566,7 +566,7 @@ Error propagation:
   workspace'e error notification yollar.
 - `notify_app_err(cx)`: active workspace yoksa app-level notification gösterir.
 - `NotifyTaskExt::detach_and_notify_err(workspace, window, cx)`: `Task<Result<...>>`
-  sonucunu window üzerinde spawn eder ve error'u workspace notification'a çevirir.
+  sonucunu pencere üzerinde spawn eder ve hatayı workspace notification'a çevirir.
 - `DetachAndPromptErr::prompt_err` ve `detach_and_prompt_err`: `anyhow::Result`
   task'ını prompt tabanlı kullanıcı hatasına çevirir.
 
@@ -581,15 +581,15 @@ Kullanım seçimi:
 Tuzaklar:
 
 - `detach_and_log_err` yalnız loglar; kullanıcıya görünür hata isteniyorsa
-  workspace notification/prompt helper'larından birini seç.
+  workspace notification/prompt yardımcılarından birini seç.
 - `show_app_notification` aynı id ile birden fazla workspace'te gösterim yapabilir;
   id'yi `NotificationId::named` veya `composite` ile bilinçli seç.
-- `MessageNotification` click handler'ları `Window` ve `App` alır; workspace state
-  gerekiyorsa weak workspace/entity yakala ve düşmüş olma ihtimalini ele al.
+- `MessageNotification` click handler'ları `Window` ve `App` alır; workspace durumu
+  gerekiyorsa weak workspace/varlık yakala ve düşmüş olma ihtimalini ele al.
 
 ## 18.6. AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
 
-Zed uygulamasında workspace açmak yalnızca `cx.open_window` çağrısı değildir; uygulama startup'ı, CLI veya `open://` URL'leri ile gelen istekler, workspace SQLite veritabanı ve collab follow state'i birkaç farklı global ve handle üzerinden birbirine bağlanır. Bu bölüm bu zincirin parçalarını (`AppState`, `WorkspaceStore`, `WorkspaceDb`, `HistoryManager`, `OpenListener`) açıklar; yeni bir workspace açma akışı eklendiğinde hangi taraftan başlanacağını netleştirir.
+Zed uygulamasında workspace açmak yalnızca `cx.open_window` çağrısı değildir; uygulama başlangıcı, CLI veya `open://` URL'leri ile gelen istekler, workspace SQLite veritabanı ve collab follow durumu birkaç farklı global ve tutamaç üzerinden birbirine bağlanır. Bu bölüm bu zincirin parçalarını (`AppState`, `WorkspaceStore`, `WorkspaceDb`, `HistoryManager`, `OpenListener`) açıklar; yeni bir workspace açma akışı eklendiğinde hangi taraftan başlanacağını netleştirir.
 
 #### AppState
 
@@ -617,7 +617,7 @@ language registry ve test settings store kurar.
 
 - `WorkspaceStore::new(client, cx)` client request/message handler'larını kaydeder.
 - `workspaces()` weak workspace iterator'ı verir.
-- `workspaces_with_windows()` window handle ile birlikte döndürür.
+- `workspaces_with_windows()` pencere tutamacı ile birlikte döndürür.
 - `update_followers(project_id, update, cx)` aktif call üzerinden follower update
   mesajı gönderir.
 - Collab/titlebar/follow akışlarında client tarafındaki `User` artık
@@ -643,7 +643,7 @@ dağılır:
 
 #### OpenListener ve RawOpenRequest
 
-`zed::open_listener` app dışından gelen açma isteklerini queue'lar:
+`zed::open_listener` app dışından gelen açma isteklerini kuyruğa alır:
 
 ```rust
 let (listener, rx) = OpenListener::new();
@@ -658,7 +658,7 @@ listener.open(RawOpenRequest {
 
 - `OpenListener` bir `Global`'dir; `open(...)` isteği unbounded channel'a yollar.
 - `RawOpenRequest` ham CLI/URL alanlarını taşır.
-- `OpenRequest::parse(raw, cx)` bunları typed `OpenRequest` haline getirir.
+- `OpenRequest::parse(raw, cx)` bunları tipli `OpenRequest` haline getirir.
 - `OpenRequestKind` kaynak türünü belirtir: CLI connection, extension, agent
   panel, shared agent thread, dock menu action, builtin JSON schema, setting,
   git clone, git commit vb.
@@ -674,17 +674,17 @@ Tuzaklar:
   olabilir.
 - `OpenListener::open` listener yoksa hatayı loglar; request teslim edildi
   varsayımıyla kullanıcı akışı başlatma.
-- DB restore path'inde serializable item kind eksikse item restore edilemez;
+- DB restore yolunda serializable item kind eksikse item restore edilemez;
   yeni item türü eklerken `register_serializable_item` startup init'inde
   çağrılmalıdır.
 
 ## 18.7. Item Ayarları, Context Menu, ApplicationMenu ve Focus-Follows-Mouse
 
-Zed UI kodunda sık görülen ama GPUI çekirdeğinin parçası olmayan birkaç yardımcı katman daha vardır: item/tab davranışını settings'e bağlayan tipler, context menu UI bileşeni, macOS dışındaki platformlarda uygulama içinde çizilen `ApplicationMenu` ve mouse hover ile odak taşıyan `FocusFollowsMouse` davranışı. Bu bölüm bu dört yardımcı katmanı bir araya getirir.
+Zed UI kodunda sık görülen ama GPUI çekirdeğinin parçası olmayan birkaç yardımcı katman daha vardır: item/tab davranışını ayarlara bağlayan tipler, context menu UI bileşeni, macOS dışındaki platformlarda uygulama içinde çizilen `ApplicationMenu` ve fare hover ile odak taşıyan `FocusFollowsMouse` davranışı. Bu bölüm bu dört yardımcı katmanı bir araya getirir.
 
 #### Item Ayarları ve SaveIntent
 
-Item/tab davranışını settings tarafına bağlayan tipler:
+Item/tab davranışını ayarlar tarafına bağlayan tipler:
 
 - `ItemSettings`: `git_status`, `close_position`, `activate_on_close`,
   `file_icons`, `show_diagnostics`, `show_close_button` alanlarını `tabs` ve
@@ -692,9 +692,9 @@ Item/tab davranışını settings tarafına bağlayan tipler:
 - `PreviewTabsSettings`: preview tab kaynaklarını ayrı ayrı açıp kapatır:
   project panel, file finder, multibuffer, code navigation, keep-preview gibi.
 - `TabContentParams { detail, selected, preview, deemphasized }`: tab render'ına
-  selection/preview/focus dışı durumu taşır; `text_color()` semantic `Color`
+  selection/preview/odak dışı durumu taşır; `text_color()` anlamsal `Color`
   döndürür.
-- `TabTooltipContent::{Text, Custom}` tab tooltip'ini string veya custom view
+- `TabTooltipContent::{Text, Custom}` tab tooltip'ini string veya özel görünüm
   olarak tanımlar.
 - `ItemBufferKind::{Multibuffer, Singleton, None}` item'in buffer ilişkisini
   sınıflandırır.
@@ -718,18 +718,19 @@ modeli:
   CustomEntry, Submenu}`.
 - `ContextMenuEntry` label, icon, checked/toggle, action, disabled, secondary
   handler, documentation aside ve end-slot gibi alanları taşır.
-- `ContextMenu::build(window, cx, |menu, window, cx| ...)` menü entity'si üretir.
+- `ContextMenu::build(window, cx, |menu, window, cx| ...)` menü varlığı üretir.
 - `menu.context(focus_handle)` menu action availability ve keybinding display için
-  belirli focus context'ini kullanır.
+  belirli odak bağlamını kullanır.
 
-`PopoverMenu<M: ManagedView>` anchor element ile managed menu view'i bağlar:
+`PopoverMenu<M: ManagedView>` anchor UI öğesi ile managed menu görünümünü bağlar:
 
 - `PopoverMenu::new(id)`, `.menu(...)`, `.with_handle(handle)`, `.anchor(...)`,
-  `.attach(...)`, `.offset(...)`, `.full_width(...)`, `.on_open(...)`.
-- `PopoverMenuHandle<M>` dışarıdan toggle/close ve açık menu entity'sine erişim
+  `.attach(...)`, `.offset(...)`, `.full_width(...)`, `.on_open(...)`; burada
+  `handle` dışarıdan saklanacak popover tutamacıdır.
+- `PopoverMenuHandle<M>` dışarıdan toggle/close ve açık menü varlığına erişim
   için saklanır.
 - Popover konumlandırması `window.layout_bounds` ve çift `on_next_frame` desenini
-  kullanabilir; anchor bounds ilk frame'de, menu bounds sonraki frame'de bilinir.
+  kullanabilir; anchor bounds ilk frame'de, menü bounds sonraki frame'de bilinir.
 
 #### Client-side ApplicationMenu
 
@@ -743,7 +744,7 @@ macOS dışındaki client-side application menu `title_bar::ApplicationMenu` ile
 - `ApplicationMenu` boş submenu'leri ve ardışık/trailing separator'ları temizler,
   sonra `OwnedMenuItem::{Action, Submenu, Separator, SystemMenu}` değerlerini
   işler. `Action`/`Submenu`/`Separator` `ContextMenu` entry'lerine dönüşür;
-  `SystemMenu(_)` client-side context'te anlamlı olmadığı için yok sayılır.
+  `SystemMenu(_)` client-side bağlamda anlamlı olmadığı için yok sayılır.
 
 #### FocusFollowsMouse
 
@@ -753,24 +754,23 @@ macOS dışındaki client-side application menu `title_bar::ApplicationMenu` ile
 element.focus_follows_mouse(WorkspaceSettings::get_global(cx).focus_follows_mouse, cx)
 ```
 
-- Ayar enabled ise hover enter sırasında target `AnyWindowHandle + FocusHandle`
-  global state'e yazılır.
+- Ayar enabled ise hover enter sırasında hedef `AnyWindowHandle + FocusHandle`
+  global duruma yazılır.
 - Debounce için `cx.background_executor().timer(settings.debounce).await`
   kullanılır.
 - Debounce sonunda `cx.update_window(window, |_, window, cx| window.focus(&focus, cx))`
   çağrılır.
-- Daha spesifik child focus target'ı varken parent hover onu ezmesin diye
+- Daha spesifik child odak hedefi varken üst hover onu ezmesin diye
   `focus_handle.contains(existing, window)` kontrolü yapılır.
 
 Tuzaklar:
 
-- Context menu action'ları focused element context'ine göre enable/disable olur;
-  menüyü focus context'i olmadan kurarsan bazı action'lar görünür ama çalışmayabilir.
-- ApplicationMenu platform menu bar değildir; macOS native menü ayrı platform
+- Context menu action'ları odaktaki UI öğesi bağlamına göre enable/disable olur;
+  menüyü odak bağlamı olmadan kurarsan bazı action'lar görünür ama çalışmayabilir.
+- ApplicationMenu platform menu bar değildir; macOS yerel menü ayrı platform
   menü akışından gelir.
-- Focus-follows-mouse global debounce state kullanır; aynı anda birden çok hover
-  target'ı yarışabilir, bu nedenle daha spesifik child kontrolünü kaldırma.
+- Focus-follows-mouse global debounce durumu kullanır; aynı anda birden çok hover
+  hedefi yarışabilir, bu nedenle daha spesifik child kontrolünü kaldırma.
 
 
 ---
-

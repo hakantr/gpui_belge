@@ -6,19 +6,19 @@
 
 Kaynak: `crates/gpui/src/inspector.rs` (feature: `inspector`).
 
-GPUI'nin "inspector" katmanı, çalışan uygulamanın element ağacını canlı incelemek için kullanılan dev tool altyapısıdır: bir elementi seçtiğinde kaynak konumunu, kimliğini, geçerli stilini ve hangi method'ların ona uygulanabileceğini gösterir. Bu katman release build'lerde derlenmez; `inspector` feature ile veya `debug_assertions` altında aktiftir, böylece üretim binary'sinde sıfır ek maliyet yaratır.
+GPUI'nin "inspector" katmanı, çalışan uygulamanın UI öğesi ağacını canlı incelemek için kullanılan geliştirici aracı altyapısıdır: bir UI öğesini seçtiğinde kaynak konumunu, kimliğini, geçerli stilini ve hangi method'ların ona uygulanabileceğini gösterir. Bu katman release derlemelerde derlenmez; `inspector` feature'ı ile veya `debug_assertions` altında aktiftir, böylece üretim binary'sinde sıfır ek maliyet yaratır.
 
-- `InspectorElementId`: her element için `(file, line, instance)` tabanlı kimlik.
-- `InspectorElementPath` (`inspector.rs:30`): bir elementin
-  `GlobalElementId` zincirini ve construction'dan `&'static Location` source
-  location'ını birleştiren kimlik. Element seçildiğinde inspector UI'ı bu
-  path üzerinden source link gösterir. Hem alanları hem `Clone` impl'i feature
-  gate altındadır.
-- Element source location `#[track_caller]` ile yakalanır ve
+- `InspectorElementId`: her UI öğesi için `(file, line, instance)` tabanlı kimlik.
+- `InspectorElementPath` (`inspector.rs:30`): bir UI öğesinin
+  `GlobalElementId` zincirini ve oluşturma konumundan gelen `&'static Location`
+  kaynak konumunu birleştiren kimlik. UI öğesi seçildiğinde inspector UI'ı bu
+  yol üzerinden kaynak bağlantısı gösterir. Hem alanları hem `Clone` impl'i
+  feature koşulu altındadır.
+- UI öğesi kaynak konumu `#[track_caller]` ile yakalanır ve
   `InspectorElementPath.source_location` alanına yazılır.
-- Element seçimi window'da `Inspector` global state üzerinden tetiklenir.
+- UI öğesi seçimi pencerede `Inspector` global durumu üzerinden tetiklenir.
 - `Window::toggle_inspector(cx)` inspector panelini açar/kapatır.
-- `Window::with_inspector_state(...)` aktif elemente özel geçici inspector state'i
+- `Window::with_inspector_state(...)` aktif UI öğesine özel geçici inspector durumunu
   tutar.
 - `App::set_inspector_renderer(InspectorRenderer)` inspector UI'ını bağlar.
   `InspectorRenderer` (`inspector.rs:55`) bir type alias'tır:
@@ -29,22 +29,22 @@ GPUI'nin "inspector" katmanı, çalışan uygulamanın element ağacını canlı
   ```
 
   Yani inspector panelinin içeriği bu closure tarafından üretilir; argümanlar
-  Inspector state, ait olduğu Window ve Inspector için Context.
-- `App::register_inspector_element(...)` belirli element tipinin inspector
-  panel render'ını kaydeder; element seçildiğinde state için custom UI çizer.
+  Inspector durumu, ait olduğu `Window` ve Inspector için `Context`.
+- `App::register_inspector_element(...)` belirli UI öğesi tipinin inspector
+  panel render'ını kaydeder; UI öğesi seçildiğinde durum için özel UI çizer.
 
-Reflection katmanı (Styled metotlarını runtime'da listelemek için):
+Reflection katmanı (`Styled` metotlarını çalışma zamanında listelemek için):
 
-`Styled` trait `cfg(any(feature = "inspector", debug_assertions))` altında
+`Styled` trait'i `cfg(any(feature = "inspector", debug_assertions))` altında
 `#[gpui_macros::derive_inspector_reflection]` ile annote edilir
-(`styled.rs:18-21`). Bu macro yan etki olarak iki API üretir:
+(`styled.rs:18-21`). Bu makro yan etki olarak iki API üretir:
 
 - **`gpui::styled_reflection`** — proc macro çıktısı modül.
   - `pub fn methods<T: Styled + 'static>() -> Vec<FunctionReflection<T>>`:
-    `Styled` trait'inin tüm reflectable metotlarını belirli bir somut tip için
-    wrap eder.
+    `Styled` trait'inin tüm yansıtılabilir metotlarını belirli bir somut tip için
+    sarmalar.
   - `pub fn find_method<T: Styled + 'static>(name: &str) -> Option<FunctionReflection<T>>`:
-    aynı listeyi name eşleşmesiyle filtreler.
+    aynı listeyi ad eşleşmesiyle filtreler.
 - **`gpui::inspector_reflection::FunctionReflection<T>`** (`inspector.rs:233`):
   ```rust
   pub struct FunctionReflection<T> {
@@ -54,20 +54,20 @@ Reflection katmanı (Styled metotlarını runtime'da listelemek için):
       pub _type: PhantomData<T>,
   }
   ```
-  `documentation` alanı trait metodunun `///` doc comment'inden çıkarılır
+  `documentation` alanı trait metodunun `///` dokümantasyon yorumundan çıkarılır
   (`gpui_macros::extract_doc_comment`). Inspector UI bu metni markdown olarak
   render eder — örn. `inspector_ui/src/div_inspector.rs:670` Styled metodu
   autocomplete'inde `CompletionDocumentation::MultiLineMarkdown` formuna
-  sarmalıyor. Tailwind doc linki gibi ham link'ler de bu yolla hyperlink olur.
+  sarmalıyor. Tailwind dokümantasyon bağlantısı gibi ham bağlantılar da bu yolla hyperlink olur.
 - `FunctionReflection::invoke(value: T) -> T` — metodu çalışma zamanında
   çağırır; inspector "method picker" akışında kullanıcı bir style metodunu
-  seçince mevcut element'in `StyleRefinement`'ı bu invoke ile dönüştürülür.
+  seçince mevcut UI öğesinin `StyleRefinement`'ı bu invoke ile dönüştürülür.
 
-Production build'de inspector kodu sıfır maliyetlidir; reflection module ve
-`FunctionReflection` da feature gate'in dışında bulunmadığı için release Zed
+Üretim derlemesinde inspector kodu sıfır maliyetlidir; reflection modülü ve
+`FunctionReflection` da feature koşulunun dışında bulunmadığı için release Zed
 binary'sinde derlenmez.
 
-Diğer debug helper'ları:
+Diğer debug yardımcıları:
 
 - `div().debug_selector(|| "my-button")`: test ve inspector'da selector ata.
 - `crates/gpui/src/profiler.rs`: executor task timing buffer'ları; runtime'da
@@ -75,29 +75,29 @@ Diğer debug helper'ları:
   `ProfilingCollector` ile okunur.
 - `RUST_LOG=gpui=debug` ile event/key dispatch log seviyesi yükselir.
 - `debug_selector` değerleri testte `VisualTestContext::debug_bounds(selector)`
-  üzerinden okunur; production overlay için ayrı bir env bayrağına güvenme.
+  üzerinden okunur; üretim overlay'i için ayrı bir env bayrağına güvenme.
 
 ## 16.2. Default Colors, GPU Specs ve Platform Diagnostics
 
-Bu bölüm tema sistemi dışında kalan, ama pratik platform entegrasyonlarında sıkça başvurulan küçük yüzeyleri toplar: framework default renkleri, GPU/sürücü teşhisi, pencere üstüne yazılan macOS-özgü dirty/document state'i, sistem zili, native pencere tab API'leri ve input latency teşhis snapshot'ı.
+Bu bölüm tema sistemi dışında kalan, ama pratik platform entegrasyonlarında sıkça başvurulan küçük yüzeyleri toplar: framework varsayılan renkleri, GPU/sürücü teşhisi, pencere üstüne yazılan macOS'a özgü dirty/document durumu, sistem zili, yerel pencere sekme API'leri ve input latency teşhis snapshot'ı.
 
 - `Colors::for_appearance(window)`: `WindowAppearance::Light/VibrantLight`
-  için light, `Dark/VibrantDark` için dark default palet döndürür.
+  için açık, `Dark/VibrantDark` için koyu varsayılan palet döndürür.
 - `Colors::light()`, `Colors::dark()`, `Colors::get_global(cx)`: GPUI örnekleri
-  ve base component'lerde kullanılan framework renkleri. Zed uygulama UI'ında
+  ve temel bileşenlerde kullanılan framework renkleri. Zed uygulama UI'ında
   esas kaynak `cx.theme().colors()` olmalıdır.
 - `DefaultColors` trait'i `cx.default_colors()` kısayolunu sağlar; bunun için
-  `GlobalColors(Arc<Colors>)` global state olarak set edilmiş olmalıdır.
+  `GlobalColors(Arc<Colors>)` global durum olarak set edilmiş olmalıdır.
 - `DefaultAppearance::{Light, Dark}` `WindowAppearance` değerinden türetilir ve
   base GPUI renk setini seçmek için kullanılır.
-- `window.gpu_specs() -> Option<GpuSpecs>`: Linux/Vulkan tarafında GPU/driver
-  bilgisi ve software emulation durumu; macOS ve Windows'ta şu anda `None`
+- `window.gpu_specs() -> Option<GpuSpecs>`: Linux/Vulkan tarafında GPU/sürücü
+  bilgisi ve yazılım emülasyonu durumu; macOS ve Windows'ta şu anda `None`
   dönebilir.
 - `window.set_window_edited(true)`: platform seviyesinde "dirty document"
   göstergesi.
 - `window.set_document_path(Some(path))`: macOS'ta `AXDocument` accessibility
   property değerini ayarlar.
-- `window.play_system_bell()`: platform alert sesi.
+- `window.play_system_bell()`: platform uyarı sesi.
 - `window.window_title()`, `titlebar_double_click()`, `tabbed_windows()`,
   `merge_all_windows()`, `move_tab_to_new_window()`,
   `toggle_window_tab_overview()`, `set_tabbing_identifier(...)`: macOS'a özgü
@@ -106,44 +106,44 @@ Bu bölüm tema sistemi dışında kalan, ama pratik platform entegrasyonlarınd
   input-to-frame ve mid-frame input histogramlarını döndürür.
 
 Bu API'ler tema veya pencere oluşturma akışının merkezinde değildir; ama
-diagnostic ekranları, test harness'leri, macOS doküman pencereleri ve platforma
+tanı ekranları, test koşumları, macOS doküman pencereleri ve platforma
 duyarlı davranışlarda rehbere dahil edilmelidir.
 
 ## 16.3. Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
 
-Zed'in `workspace` ve `ui` katmanında sık görülen bazı `Window` method'ları render çıktısı üretmez; bunlar o anki pencere veya input durumunu okumak, custom layout hesaplamak ya da işi doğru frame fazına ertelemek için kullanılır. Bu bölüm üç ana grubu kapsar: **anlık input snapshot'ı**, **layout ölçüm ve current view sorguları**, **frame zamanlama araçları**.
+Zed'in `workspace` ve `ui` katmanında sık görülen bazı `Window` method'ları render çıktısı üretmez; bunlar o anki pencere veya girdi durumunu okumak, özel layout hesaplamak ya da işi doğru frame fazına ertelemek için kullanılır. Bu bölüm üç ana grubu kapsar: **anlık girdi snapshot'ı**, **layout ölçümü ve mevcut görünüm sorguları**, **frame zamanlama araçları**.
 
-### Anlık input snapshot'ı
+### Anlık girdi snapshot'ı
 
 - `window.modifiers() -> Modifiers`: o an basılı modifier'ları verir. Zed'de
-  Shift/Alt/Ctrl ile notification suppress, pane clone veya quick action preview
+  Shift/Alt/Ctrl ile bildirim bastırma, pane klonlama veya quick action önizleme
   davranışı değiştirmek için kullanılır.
 - `window.capslock() -> Capslock`: capslock durumunu okur.
-- `window.mouse_position() -> Point<Pixels>`: pointer'ın pencere içi konumu.
-  Context menu ve right-click menu konumlandırmasında doğrudan kullanılır.
-- `window.last_input_was_keyboard() -> bool`: focus-visible kararlarında ana
-  sinyaldir; pointer ile focuslanan elemente gereksiz focus ring çizmemek için.
+- `window.mouse_position() -> Point<Pixels>`: imlecin pencere içi konumu.
+  Bağlam menüsü ve sağ tık menüsü konumlandırmasında doğrudan kullanılır.
+- `window.last_input_was_keyboard() -> bool`: odak görünürlüğü kararlarında ana
+  sinyaldir; imleç ile odaklanan UI öğesine gereksiz odak halkası çizmemek için.
 - `window.is_window_hovered() -> bool`: tooltip, popover veya hover overlay'i
-  window dışına çıkınca kapatmak gibi durumlarda kullanılır.
+  pencere dışına çıkınca kapatmak gibi durumlarda kullanılır.
 
-### Render/prepaint sırasında current view ve layout
+### Render/prepaint sırasında mevcut görünüm ve layout
 
-- `window.current_view() -> EntityId`: şu anda render/prepaint/paint edilen view
-  entity'sidir. `request_animation_frame`, `use_asset` ve hover/indent-guide gibi
-  delayed notify akışları bu id'ye bağlanır. Yalnızca draw fazlarında anlamlıdır;
-  uzun süre saklanacak domain id gibi ele alınmamalıdır.
-- `window.request_layout(style, children, cx) -> LayoutId`: custom element'in
+- `window.current_view() -> EntityId`: şu anda render/prepaint/paint edilen görünüm
+  varlığıdır (`view entity`). `request_animation_frame`, `use_asset` ve hover/indent-guide gibi
+  gecikmeli notify akışları bu id'ye bağlanır. Yalnızca draw fazlarında anlamlıdır;
+  uzun süre saklanacak domain kimliği gibi ele alınmamalıdır.
+- `window.request_layout(style, children, cx) -> LayoutId`: özel UI öğesinin
   taffy layout ağacına node eklemesidir.
 - `window.request_measured_layout(style, measure) -> LayoutId`: text veya dinamik
-  ölçüm gerektiren elementlerde layout zamanı ölçüm closure'ı sağlar.
+  ölçüm gerektiren UI öğelerinde layout zamanı ölçüm closure'ı sağlar.
 - `window.compute_layout(layout_id, available_space, cx)`: verilen layout node'u
   için hesaplamayı tetikler.
 - `window.layout_bounds(layout_id) -> Bounds<Pixels>`: hesaplanan bounds'u
   pencere koordinatlarında döndürür. Popover/right-click menu gibi bileşenler
   anchor bounds'u öğrenmek için bunu prepaint sırasında okur.
 - `window.pixel_snap(...)`, `pixel_snap_f64(...)`, `pixel_snap_point(...)`,
-  `pixel_snap_bounds(...)`: logical pikseli device pixel grid'e hizalar. İnce
-  çizgi, indent guide ve overlay border'larında bulanıklığı azaltmak için kullan.
+  `pixel_snap_bounds(...)`: mantıksal pikseli cihaz piksel ızgarasına hizalar. İnce
+  çizgi, indent guide ve bindirme kenarlıklarında bulanıklığı azaltmak için kullan.
 
 ### Frame zamanlama araçları
 
@@ -164,45 +164,45 @@ window.defer(cx, |window, cx| {
 - `window.on_next_frame(...)`: mevcut frame tamamlandıktan sonraki frame'de çalışır.
   Layout sonucu, hitbox veya popover konumu bir frame sonra bilinecekse doğru
   araçtır. Zed UI'da bazı menu konumlandırmaları iki kez `on_next_frame` kullanır;
-  ilk frame anchor/layout bilgisini, ikinci frame menu entity'sinin kendi bounds'unu
+  ilk frame anchor/layout bilgisini, ikinci frame menu varlığının kendi bounds'unu
   stabilize eder.
-- `Context<T>::on_next_frame(window, |this, window, cx| ...)`: aynı işin current
-  entity'ye bağlı helper'ıdır; callback içinde entity update context'i gelir.
+- `Context<T>::on_next_frame(window, |this, window, cx| ...)`: aynı işin mevcut
+  varlığa bağlı yardımcısıdır; callback içinde varlık update bağlamı gelir.
 - `window.request_animation_frame()`: sürekli animasyon, GIF/video veya animated
-  image için yeni frame ister. Bir view içinde çağrıldığında current view'i next
+  image için yeni frame ister. Bir görünüm içinde çağrıldığında mevcut görünümü next
   frame'de notify eder.
 - `cx.defer(...)`, `window.defer(cx, ...)`, `cx.defer_in(window, ...)`: mevcut
-  effect cycle bittikten sonra çalışır. Entity zaten update stack'inde olduğunda
-  reentrant update panic'inden kaçmak veya focus/menu dispatch'ini stack boşalınca
+  effect döngüsü bittikten sonra çalışır. Varlık zaten update stack'inde olduğunda
+  yeniden girişli update panic'inden kaçmak veya focus/menu dispatch'ini stack boşalınca
   yapmak için kullanılır. Layout ölçümü gerekiyorsa `defer` değil `on_next_frame`
   tercih edilir.
 
-### Low-level custom element hook'ları
+### Düşük seviyeli özel UI öğesi hook'ları
 
 - `window.insert_window_control_hitbox(area, hitbox)`: paint fazında platform
-  control hitbox'ı kaydeder; Windows custom titlebar'da min/max/close ve drag
+  kontrol hitbox'ı kaydeder; Windows özel titlebar'ında min/max/close ve drag
   alanları için kullanılır.
-- `window.set_key_context(context)`: paint fazında current dispatch node'una
-  keybinding context bağlar. Element API'deki `.key_context(...)` bunun sarmalıdır.
-- `window.set_focus_handle(&focus_handle, cx)`: prepaint fazında current dispatch
-  node'unu focus handle ile ilişkilendirir. Element API'deki `.track_focus(...)`
+- `window.set_key_context(context)`: paint fazında mevcut dispatch node'una
+  keybinding bağlamı bağlar. UI öğesi API'sindeki `.key_context(...)` bunun sarmalıdır.
+- `window.set_focus_handle(&focus_handle, cx)`: prepaint fazında mevcut dispatch
+  node'unu odak tutamacı ile ilişkilendirir. UI öğesi API'sindeki `.track_focus(...)`
   çoğu uygulama kodunda daha doğru seviyedir.
 - `window.set_view_id(view_id)`: prepaint fazında dispatch/cache node'una view id
   bağlar. Kaynak yorumunda kaldırılması planlanan düşük seviyeli bir kaçış yolu
-  olarak işaretlidir; normal view render akışında kullanma.
-- `window.bounds_changed(cx)`: platform resize/move callback'inin yaptığı state
+  olarak işaretlidir; normal görünüm render akışında kullanma.
+- `window.bounds_changed(cx)`: platform resize/move callback'inin yaptığı durum
   yenileme ve observer notify işlemini tetikler. Platform/test altyapısı içindir;
-  app code'da resize simülasyonu dışında çağırma.
+  uygulama kodunda resize simülasyonu dışında çağırma.
 
 ## 16.4. App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
 
-Bu bölüm ana render modelinin doğrudan parçası olmayan, ama Zed uygulamasının başlangıcında, editor text davranışında ve image cache yaşam döngüsünde kullanılan düşük seviyeli API'leri toplar. Sıradan UI kodu bunlara doğrudan dokunmaz; framework-level veya platform-port yazarken gerekli hâle gelir.
+Bu bölüm ana render modelinin doğrudan parçası olmayan, ama Zed uygulamasının başlangıcında, editor metin davranışında ve image cache yaşam döngüsünde kullanılan düşük seviyeli API'leri toplar. Sıradan UI kodu bunlara doğrudan dokunmaz; framework seviyesi veya platform portu yazarken gerekli hâle gelir.
 
 ### Application/platform kurulumu
 
 - `Application::with_platform(Rc<dyn Platform>)` Application kurmak için tek
-  yapıcıdır; `Application::new()` diye sade bir constructor yoktur.
-- Production kodu genellikle bu yapıcıyı doğrudan çağırmaz; `gpui_platform`
+  yapıcıdır; `Application::new()` diye sade bir kurucu yoktur.
+- Üretim kodu genellikle bu yapıcıyı doğrudan çağırmaz; `gpui_platform`
   yardımcıları kullanılır:
   - `gpui_platform::application()` →
     `Application::with_platform(current_platform(false))`.
@@ -213,35 +213,35 @@ Bu bölüm ana render modelinin doğrudan parçası olmayan, ama Zed uygulaması
 - Test koşumunda `Application::with_platform(test_platform)` ile
   `TestPlatform`/`VisualTestPlatform` enjekte edilir; `Application::run`
   GPUI'a sahipliği geçirip event loop'u sürer.
-- `Application::with_assets(Assets)` embedded asset kaynağını bağlar; `svg()`,
+- `Application::with_assets(Assets)` gömülü asset kaynağını bağlar; `svg()`,
   `window.use_asset` ve bundled resource yüklemeleri buna dayanır. SVG
   rasterizer da bu çağrıdan sonra reset edilir.
 - `Application::with_http_client(Arc<dyn HttpClient>)` runtime HTTP istemcisini
-  bağlar; default `NullHttpClient` instance'tır.
+  bağlar; varsayılan `NullHttpClient` instance'ıdır.
 - Headless testlerde `HeadlessAppContext::with_platform(...)` aynı fikrin test
-  harness versiyonudur (UI penceresi açmadan App, executor ve platform
+  koşumu karşılığıdır (UI penceresi açmadan App, executor ve platform
   servislerini kurar).
 
-### Text/render servisleri
+### Metin/render servisleri
 
 - `cx.set_text_rendering_mode(mode)` ve `cx.text_rendering_mode()` uygulama
-  genel text rendering modunu yönetir. Zed startup'ta ayarlardan gelen değeri
+  genel metin render modunu yönetir. Zed başlangıçta ayarlardan gelen değeri
   buraya yazar.
 - `TextRenderingMode::{PlatformDefault, Subpixel, Grayscale}` desteklenir.
   `PlatformDefault` text system tarafında platformun önerdiği gerçek moda
-  çözülür; ölçüm/paint path'inde enum'u doğrudan string ayar gibi ele alma.
-- `cx.svg_renderer() -> SvgRenderer` low-level SVG rasterizer handle'ını verir.
-  Uygulama elementleri çoğunlukla `svg()` veya `window.paint_svg(...)` kullanır;
+  çözülür; ölçüm/paint yolunda enum'u doğrudan string ayar gibi ele alma.
+- `cx.svg_renderer() -> SvgRenderer` low-level SVG rasterizer tutamacını verir.
+  Uygulama UI öğeleri çoğunlukla `svg()` veya `window.paint_svg(...)` kullanır;
   cache/renderer entegrasyonu yazıyorsan doğrudan erişim gerekir.
 - `window.show_character_palette()` platform karakter paletini açar. Editor
   tarafındaki `show_character_palette` action'ı bu çağrıya iner.
 
 ### Image atlas ve kaynak bırakma
 
-- `window.drop_image(Arc<RenderImage>) -> Result<()>`: current window sprite
+- `window.drop_image(Arc<RenderImage>) -> Result<()>`: mevcut pencerenin sprite
   atlas'ından image kaynağını bırakır.
 - `cx.drop_image(image, current_window)`: tüm pencerelerde atlas temizliği yapar.
-  Current window update edilirken `App.windows` içinden geçici olarak çıkmış
+  Mevcut pencere update edilirken `App.windows` içinden geçici olarak çıkmış
   olabileceği için `Some(window)` argümanı ayrıca verilir.
 - Zed/GPUI image cache release callback'leri atlas sızıntısı olmaması için bu
   API'leri kullanır; normal `img()`/`svg()` kullanımında elle çağırman gerekmez.
@@ -252,29 +252,29 @@ Bu bölüm ana render modelinin doğrudan parçası olmayan, ama Zed uygulaması
   display'i platform display listesiyle eşler.
 - `window.show_character_palette()`, `window.play_system_bell()`,
   `window.set_window_edited(...)`, `window.set_document_path(...)` gibi çağrılar
-  platform entegrasyonudur; cross-platform davranışları platform trait
+  platform entegrasyonudur; platformlar arası davranışları platform trait
   implementasyonuna bağlıdır.
-- `window.gpu_specs()` ve feature-gated `window.input_latency_snapshot()` diagnostic
-  ekranlar veya performans analizleri içindir, uygulama state akışının kaynağı
+- `window.gpu_specs()` ve feature ile açılan `window.input_latency_snapshot()` tanı
+  ekranları veya performans analizleri içindir, uygulama durum akışının kaynağı
   yapılmamalıdır.
 
 ### Tuzaklar
 
-- **`cx.svg_renderer()` veya `cx.drop_image(...)` gibi low-level servisleri component API yerine kullanmak** ownership/cache sorumluluğunu kullanıcıya devreder; mümkün olduğunca `img()`, `svg()`, `image_cache(...)` element API'leri tercih edilir.
-- **`Application::with_platform` production'da tek platform seçimini startup'ta yapar;** runtime'da platform değiştirme mekanizması değildir.
+- **`cx.svg_renderer()` veya `cx.drop_image(...)` gibi düşük seviyeli servisleri bileşen API'si yerine kullanmak** sahiplik/cache sorumluluğunu kullanıcıya devreder; mümkün olduğunca `img()`, `svg()`, `image_cache(...)` UI öğesi API'leri tercih edilir.
+- **`Application::with_platform` üretimde tek platform seçimini başlangıçta yapar;** runtime'da platform değiştirme mekanizması değildir.
 - **`show_character_palette` her platformda gerçek UI açmayabilir;** platform implementasyonu no-op olabilir, bu yüzden UI'nin tek seçenek olarak buna bağlanmaması gerekir.
 
 ## 16.5. CursorStyle, FontWeight ve Sabit Enum Tabloları
 
-Bu bölüm günlük kullanımda sık başvurulan, ama her seferinde kaynak dosyada aranmak zorunda kalınan enum ve sabitleri tek bir tabloya toplar. Cursor stilleri, font weight değerleri, pencere kontrol alanları, hitbox davranışları, border style'ları, anchor noktaları ve resize edge sayısallarıdır.
+Bu bölüm günlük kullanımda sık başvurulan, ama her seferinde kaynak dosyada aranmak zorunda kalınan enum ve sabitleri tek bir tabloya toplar. Cursor stilleri, font weight değerleri, pencere kontrol alanları, hitbox davranışları, border style'ları, anchor noktaları ve resize edge değerlerini kapsar.
 
-Aşağıdaki başlıklar referans niteliğindedir; sıradan uygulama kodu çoğu zaman ham enum yerine fluent helper'lar (`.cursor_pointer()`, `.italic()` vb.) kullanır.
+Aşağıdaki başlıklar referans niteliğindedir; sıradan uygulama kodu çoğu zaman ham enum yerine akıcı yardımcıları (`.cursor_pointer()`, `.italic()` vb.) kullanır.
 
 #### `CursorStyle` (`crates/gpui/src/platform.rs:1745+`)
 
 CSS cursor karşılıklarıyla:
 
-- `Arrow` (default)
+- `Arrow` (varsayılan)
 - `IBeam`, `IBeamCursorForVerticalLayout` — text input
 - `Crosshair`
 - `OpenHand` (`grab`), `ClosedHand` (`grabbing`)
@@ -287,7 +287,7 @@ CSS cursor karşılıklarıyla:
 - `DragLink` (`alias`), `DragCopy` (`copy`)
 - `ContextualMenu` (`context-menu`)
 
-Element'te: `.cursor(CursorStyle::PointingHand)` veya kısayollar
+UI öğesinde: `.cursor(CursorStyle::PointingHand)` veya kısayollar
 `.cursor_pointer()`, `.cursor_text()`, `.cursor_grab()`, `.cursor_default()`.
 
 #### `FontWeight` (`crates/gpui/src/text_system.rs:871+`)
@@ -295,7 +295,7 @@ Element'te: `.cursor(CursorStyle::PointingHand)` veya kısayollar
 CSS weight değerleriyle birebir:
 
 - `THIN` (100), `EXTRA_LIGHT` (200), `LIGHT` (300)
-- `NORMAL` (400, default), `MEDIUM` (500)
+- `NORMAL` (400, varsayılan), `MEDIUM` (500)
 - `SEMIBOLD` (600), `BOLD` (700)
 - `EXTRA_BOLD` (800), `BLACK` (900)
 
@@ -304,17 +304,17 @@ genellikle `FontWeight::SEMIBOLD` ve `FontWeight::BOLD` kullanılır.
 
 #### `FontStyle`
 
-`Normal`, `Italic`, `Oblique`. `.italic()` fluent kısayolu Italic'e set eder.
+`Normal`, `Italic`, `Oblique`. `.italic()` akıcı kısayolu `Italic` değerine ayarlar.
 
 #### `WindowControlArea` (`crates/gpui/src/window.rs:564`)
 
-`Drag`, `Close`, `Max`, `Min`. Custom titlebar yazarken Windows native hit-test
+`Drag`, `Close`, `Max`, `Min`. Özel titlebar yazarken Windows yerel hit-test
 için zorunlu.
 
 #### `HitboxBehavior` (`crates/gpui/src/window.rs:692`)
 
 `Normal`, `BlockMouse`, `BlockMouseExceptScroll`. `.occlude()` ve
-`.block_mouse_except_scroll()` element kısayolları sırasıyla son ikisini set eder.
+`.block_mouse_except_scroll()` UI öğesi kısayolları sırasıyla son ikisini set eder.
 
 #### `BorderStyle` (`crates/gpui/src/scene.rs:544`)
 
@@ -322,13 +322,13 @@ için zorunlu.
 
 #### `Anchor`, `Corners` ve Layer-shell `Anchor`
 
-Anchored elementte kullanılan tip `gpui::Anchor`'dır:
+Anchored UI öğesinde kullanılan tip `gpui::Anchor`'dır:
 `TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`, `TopCenter`,
 `BottomCenter`, `LeftCenter`, `RightCenter`.
 
 `Corners<T>` farklı bir tiptir; border radius/quad köşe yarıçapları içindir.
 Layer-shell modülündeki `Anchor` ise bitflag yapısıdır
-(`TOP | BOTTOM | LEFT | RIGHT`) ve anchored element `Anchor`'ıyla karıştırılmaz.
+(`TOP | BOTTOM | LEFT | RIGHT`) ve anchored UI öğesi `Anchor`'ıyla karıştırılmaz.
 
 #### `ResizeEdge` (`crates/gpui/src/platform.rs:358`)
 
@@ -337,11 +337,11 @@ Layer-shell modülündeki `Anchor` ise bitflag yapısıdır
 
 ## 16.6. Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
 
-GPUI'de bir tip `pub` olduğu için dışarıya açık olmayabilir; modül içinde `pub` olsa da `gpui.rs` crate kökünden `pub(crate) use ...` ile sınırlandırılmış olabilir. Bu bölüm, **`crates/gpui/src/gpui.rs` üzerinden dışarı export edilen public API** ile **private modüllerde `pub` tanımlı olup yalnız crate içinde erişilebilen taşıyıcıları** ayırır. Önceki bölümlerde geçmemiş, kalan tipleri kategori kategori sunar — referans amaçlı kullanılır, baştan sona okunmaz.
+GPUI'de bir tip `pub` olduğu için dışarıya açık olmayabilir; modül içinde `pub` olsa da `gpui.rs` crate kökünden `pub(crate) use ...` ile sınırlandırılmış olabilir. Bu bölüm, **`crates/gpui/src/gpui.rs` üzerinden dışarı açılan public API** ile **private modüllerde `pub` tanımlı olup yalnız crate içinde erişilebilen taşıyıcıları** ayırır. Önceki bölümlerde geçmemiş, kalan tipleri kategori kategori sunar — referans amaçlı kullanılır, baştan sona okunmaz.
 
 #### Style ve Layout Enumları
 
-`style.rs` tarafındaki temel enum/type alias'lar `Styled` fluent metotlarının
+`style.rs` tarafındaki temel enum/type alias'lar `Styled` akıcı metotlarının
 arkasındaki ham değerlerdir:
 
 - Hizalama: `AlignItems`, `AlignSelf`, `JustifyItems`, `JustifySelf`,
@@ -352,13 +352,13 @@ arkasındaki ham değerlerdir:
   Tek varyantlı bir enum olmasının nedeni gelecekte ek dolgu tipleri (örn. örüntü
   tabanlı fill) eklenebilmesi için API'yi sabit tutmak. Solid renk dışında bir
   şey üretmek istiyorsan `Background` tipinin `linear_gradient`/`pattern_slash`/
-  `checkerboard` constructor'larını kullan.
+  `checkerboard` kurucularını kullan.
 - Debug: `DebugBelow`, yalnız `debug_assertions` altında derlenir; `debug_below`
-  styling'ini custom element içinden okumak için global marker olarak kullanılır.
+  styling'ini özel UI öğesi içinden okumak için global marker olarak kullanılır.
 
-Uygulama kodunda genellikle bu enumları doğrudan construct etmek yerine
+Uygulama kodunda genellikle bu enumları doğrudan oluşturmak yerine
 `.items_center()`, `.justify_between()`, `.flex_col()`, `.whitespace_nowrap()`,
-`.text_ellipsis()` gibi helper metotlar kullanılır. Custom element veya style
+`.text_ellipsis()` gibi yardımcı metotlar kullanılır. Özel UI öğesi veya style
 refinement yazarken ham enumlar gerekir.
 
 #### Geometri Yardımcıları
@@ -375,12 +375,12 @@ refinement yazarken ham enumlar gerekir.
   `.grid_area(...)` gibi style metotlarının ham grid yerleşim girdisidir.
 - `PathStyle`: path çiziminde fill/stroke stil seçimini taşır.
 
-Bu tipleri özellikle custom layout hesaplarında, canvas/path çiziminde ve grid
+Bu tipleri özellikle özel layout hesaplarında, canvas/path çiziminde ve grid
 placement değerlerini programatik üretirken kullan.
 
-#### Element ve Frame-State Taşıyıcıları
+#### UI Öğesi ve Frame Durumu Taşıyıcıları
 
-Bazı public tipler element ağacının layout/prepaint/paint fazları arasında state
+Bazı public tipler UI öğesi ağacının layout/prepaint/paint fazları arasında durum
 taşır:
 
 - `Drawable<E>`, `Canvas<T>`, `AnimationElement<E>`, `Svg`, `Img`, `SurfaceSource`.
@@ -392,10 +392,10 @@ taşır:
 - `DeferredScrollToItem`, `ItemSize`, `UniformListDecoration`,
   `ListScrollEvent`, `ListMeasuringBehavior`, `ListHorizontalSizingBehavior`.
 
-Normal uygulama kodunda bu state tipleri çoğunlukla doğrudan tutulmaz; `div()`,
+Normal uygulama kodunda bu durum tipleri çoğunlukla doğrudan tutulmaz; `div()`,
 `canvas(...)`, `img(...)`, `svg()`, `list(...)`, `uniform_list(...)`,
-`anchored()`, `deferred(...)` ve ilgili element builder'ları bunları üretir.
-Custom element implementasyonu yazarken `Element::request_layout`,
+`anchored()`, `deferred(...)` ve ilgili UI öğesi builder'ları bunları üretir.
+Özel UI öğesi implementasyonu yazarken `Element::request_layout`,
 `Element::prepaint` ve `Element::paint` dönüş değerlerinde bu taşıyıcıların
 benzer desenlerini izle.
 
@@ -407,15 +407,15 @@ benzer desenlerini izle.
 - Klavye: `ModifiersChangedEvent`, `KeyboardClickEvent`, `KeyboardButton`.
 - Mouse: `MouseClickEvent`, `MouseExitEvent`, `PressureStage`.
 - Dokunma/gesture: `TouchPhase`, `NavigationDirection`.
-- Hitbox: `HitboxId` rendered frame içinde hitbox'ı tanımlayan opaque id'dir;
-  uygulama kodu genellikle `Hitbox` handle'ı ve `window.hitbox(...)` sonucu ile
+- Hitbox: `HitboxId` render edilen frame içinde hitbox'ı tanımlayan opak kimliktir;
+  uygulama kodu genellikle `Hitbox` tutamacı ve `window.hitbox(...)` sonucu ile
   çalışır.
 - Drag/drop tarafında [`ExternalPaths` ve `FileDropEvent`](./bolum-07-etkilesim.md#73-drag-ve-drop-içerik-üretimi)
   ayrıca ele alındı.
 
-Element callback'lerinde çoğu zaman concrete event tipi otomatik gelir:
+UI öğesi callback'lerinde çoğu zaman somut event tipi otomatik gelir:
 `.on_mouse_down(|event, window, cx| ...)`, `.on_scroll_wheel(...)`,
-`.on_modifiers_changed(...)` gibi. Synthetic test event'i veya platform input
+`.on_modifiers_changed(...)` gibi. Sentetik test event'i veya platform girdi
 çevirimi yazarken `InputEvent::to_platform_input()` hattı önemlidir.
 
 #### Image, SVG ve Cache Taşıyıcıları
@@ -443,9 +443,9 @@ ve `window.paint_svg(...)` kullanılır. Cache implementasyonu yazıyorsan
 #### Platform, Dispatcher, Atlas ve Renderer Sınırı
 
 Platform implementasyonu veya headless renderer yazılmadıkça aşağıdaki tipler
-application kodunda nadiren doğrudan kullanılır:
+uygulama kodunda nadiren doğrudan kullanılır:
 
-- Display/diagnostic: `DisplayId`, `ThermalState`, `SourceMetadata`,
+- Display/tanı: `DisplayId`, `ThermalState`, `SourceMetadata`,
   `RequestFrameOptions`, `WindowParams`, `InputLatencySnapshot`.
 - Dispatcher/executor: rustdoc public yüzeyinde `Scope`, `FallibleTask`,
   `SchedulerForegroundExecutor` ve `RunnableMeta` görünür. Buna ek olarak
@@ -464,11 +464,11 @@ application kodunda nadiren doğrudan kullanılır:
     için sessizce drop edilirse derleme uyarısı verir.
   - `SchedulerForegroundExecutor` — `gpui::executor.rs:10` `pub use scheduler::ForegroundExecutor as SchedulerForegroundExecutor`
     re-export'u. GPUI tarafındaki `ForegroundExecutor` bunun üzerinde wrapper'dır;
-    ham scheduler handle'ına `ForegroundExecutor::scheduler_executor()`
+    ham scheduler tutamacına `ForegroundExecutor::scheduler_executor()`
     (`executor.rs:369`) çağrısıyla inilir, `BackgroundExecutor::scheduler_executor()`
     de paralel `scheduler::BackgroundExecutor` döner. Uygulama kodu genelde
     `cx.foreground_executor()` veya `cx.background_executor()` kullanır;
-    scheduler handle yalnızca scheduler crate'iyle doğrudan etkileşim gerekirse
+    scheduler tutamacı yalnızca scheduler crate'iyle doğrudan etkileşim gerekirse
     çekilir.
 - Text/keyboard: `PlatformTextSystem`, `NoopTextSystem`,
   `PlatformKeyboardLayout`, `PlatformKeyboardMapper`, `DummyKeyboardMapper`,
@@ -479,7 +479,7 @@ application kodunda nadiren doğrudan kullanılır:
 - Test platformu: `TestDispatcher`, `TestScreenCaptureSource`,
   `TestScreenCaptureStream`, `TestWindow`.
 - İç scheduler: `PlatformScheduler` modül içinde public olsa da crate kökünden
-  normal application API olarak export edilen bir yüzey değildir.
+  normal uygulama API'si olarak dışarı açılan bir yüzey değildir.
 
 Bu tiplerin doğru sahibi `gpui_platform` implementasyonlarıdır. Zed uygulama
 katmanında genelde `cx.platform()`, `cx.text_system()`, `cx.svg_renderer()`,
@@ -500,7 +500,7 @@ katmanında genelde `cx.platform()`, `cx.text_system()`, `cx.svg_renderer()`,
   `gpui.rs` sadece `use taffy::TaffyLayoutEngine` yaptığı için dış API değildir.
 - Arena tarafında `Arena` ve `ArenaBox<T>` `arena` private modülünde `pub`
   tanımlanır ama `gpui.rs` bunları `pub(crate) use arena::*` ile yalnız crate
-  içine açar; dış application kodunun API'si değildir.
+  içine açar; dış uygulama kodunun API'si değildir.
 
 Uygulama kodu genellikle bu tipleri elle üretmez. `Element` implementasyonları
 `window.paint_quad`, `window.paint_image`, `window.paint_path`,
@@ -534,7 +534,7 @@ verilerini public tiplerle taşır:
 
 Normal UI kodu bunlara `window.text_system()`, `window.line_height()`,
 `window.text_style()`, `StyledText`, `TextLayout` ve `InteractiveText` üzerinden
-dokunur. Custom text renderer veya editor-level ölçüm kodunda ham tipler gerekir.
+dokunur. Özel text renderer veya editor-level ölçüm kodunda ham tipler gerekir.
 
 Text public metot envanteri:
 
@@ -568,12 +568,12 @@ Performans ve queue altyapısındaki public taşıyıcılar:
   `ThreadTimingsDelta`, `GlobalThreadTimings`, `GuardedTaskTimings`,
   `SerializedLocation`, `SerializedTaskTiming`, `SerializedThreadTaskTimings`.
 - Priority queue: `SendError<T>`, `RecvError`, `Iter<T>`, `TryIter<T>`.
-- Global helper trait'leri: `ReadGlobal`, `UpdateGlobal`.
+- Global yardımcı trait'leri: `ReadGlobal`, `UpdateGlobal`.
 
 Profiler tipleri `gpui::profiler` yüzeyinden task/thread zamanlamalarını okumak
 ve serialize etmek içindir. Queue hata/iterator tipleri
 `PriorityQueueSender`/`PriorityQueueReceiver` kullanıldığında görünür. `ReadGlobal`
-ve `UpdateGlobal` trait'leri global state okuma/güncelleme kısayollarını sağlar;
+ve `UpdateGlobal` trait'leri global durum okuma/güncelleme kısayollarını sağlar;
 uygulama kodunda çoğu zaman doğrudan `cx.global`, `cx.read_global`,
 `cx.update_global` çağrıları yeterlidir.
 
@@ -581,13 +581,13 @@ uygulama kodunda çoğu zaman doğrudan `cx.global`, `cx.read_global`,
 
 Prompt katmanında iki ek tip vardır:
 
-- `RenderablePromptHandle`: prompt sonucunu custom `RenderOnce` UI ile
-  gösterebilen handle.
-- `FallbackPromptRenderer`: platform native prompt yoksa GPUI içinde fallback
+- `RenderablePromptHandle`: prompt sonucunu özel `RenderOnce` UI ile
+  gösterebilen tutamaç.
+- `FallbackPromptRenderer`: platformun yerel prompt'u yoksa GPUI içinde yedek
   prompt render etmek için kullanılan renderer hook'u.
 
 Uygulama tarafında çoğu zaman `cx.prompt(...)`, `cx.prompt_for_path(...)`,
-`cx.prompt_for_new_path(...)` ve `PromptBuilder` yeterlidir; custom platform veya
+`cx.prompt_for_new_path(...)` ve `PromptBuilder` yeterlidir; özel platform veya
 headless prompt davranışı yazarken bu taşıyıcılara inilmelidir.
 
 #### Menu, Keymap, Action ve Test Taşıyıcıları
@@ -610,7 +610,7 @@ Doğrudan kullanıcı akışında nadiren görülen public yardımcılar:
 `generate_list_of_all_registered_actions()` action registry'yi dokümantasyon,
 komut paleti veya test doğrulaması için tarar. `AppCell`/`AppRef`/`AppRefMut`
 normal uygulama kodunun sahiplenmesi gereken tipler değildir; `App`, `Context<T>`
-ve async context'ler üzerinden çalışmak doğru sınırdır.
+ve async bağlamlar üzerinden çalışmak doğru sınırdır.
 
 #### Küçük Public Fonksiyonlar
 
@@ -619,12 +619,12 @@ ve async context'ler üzerinden çalışmak doğru sınırdır.
   akışının düşük seviye yardımcısıdır.
 - `get_gamma_correction_ratios(gamma)`: atlas/glyph rendering gamma düzeltme
   oranlarını üretir; tema rengi seçmek için kullanılmaz.
-- `LinearColorStop`: gradient stop verisidir; `linear_gradient(...)` helper'ları
+- `LinearColorStop`: gradient stop verisidir; `linear_gradient(...)` yardımcıları
   bunu üretir.
 - `combine_highlights(...)`: text highlight katmanlarını birleştirir; editor/text
   rendering hattında kullanılır.
-- `hash(data)`: asset cache key üretimi için helper'dır.
-- `percentage(value)`: `Percentage` constructor helper'ıdır.
+- `hash(data)`: asset cache key üretimi için yardımcıdır.
+- `percentage(value)`: `Percentage` kurucu yardımcısıdır.
 - `scap_screen_sources(...)`: screen capture kaynaklarını platforma göre toplar;
   uygulama kodunda çoğu zaman `cx.screen_capture_sources(...)` tercih edilir.
 
@@ -633,15 +633,15 @@ ve async context'ler üzerinden çalışmak doğru sınırdır.
 `target/doc/gpui/all.html` altında ayrı listelenen sabitler:
 
 - `DEFAULT_WINDOW_SIZE = 1536x1095`: `WindowOptions.window_bounds` verilmezse
-  default placement için kullanılan ana pencere boyutu.
+  varsayılan yerleşim için kullanılan ana pencere boyutu.
 - `DEFAULT_ADDITIONAL_WINDOW_SIZE = 900x750`: settings/rules library gibi ek
   işlevsel pencereler için önerilen minimum oranlı boyut.
 - `KEYSTROKE_PARSE_EXPECTED_MESSAGE`: `InvalidKeystrokeError` mesajının
   "beklenen modifier + key" açıklaması.
-- `LOADING_DELAY = 200ms`: `img()` elementinin loading state'i göstermeden önce
+- `LOADING_DELAY = 200ms`: `img()` UI öğesinin loading durumu göstermeden önce
   beklediği süre.
 - `MAX_BUTTONS_PER_SIDE = 3`: `WindowButtonLayout` içinde bir tarafta tutulabilen
-  native control button slot sayısı.
+  yerel kontrol butonu slot sayısı.
 - `SHUTDOWN_TIMEOUT = 100ms`: `Context::on_app_quit` future'larının app quit
   sırasında çalışabileceği süre.
 - `SMOOTH_SVG_SCALE_FACTOR = 2.0`: SVG'leri daha yumuşak raster etmek için
@@ -657,7 +657,7 @@ Type alias'lar:
 - `DrawOrder = u32`: scene layer/primitive sıralama anahtarı.
 - `ImageLoadingTask = Shared<Task<Result<Arc<RenderImage>, ImageCacheError>>>`:
   image cache loader task tipi.
-- `ImgResourceLoader = AssetLogger<ImageAssetLoader>`: `img()` elementinin asset
+- `ImgResourceLoader = AssetLogger<ImageAssetLoader>`: `img()` UI öğesinin asset
   loader alias'ı.
 - `InspectorRenderer = Box<dyn Fn(&mut Inspector, &mut Window,
   &mut Context<Inspector>) -> AnyElement>`: `App::set_inspector_renderer(...)`
@@ -703,7 +703,7 @@ yeniden export eder:
   olduğu için `target/doc/gpui/all.html` içinde listelenmez ve
   `derive.Render.html` sayfası üretilmez. Bu derive yalnız boş bir
   `Render` impl'i üretir; `render` gövdesi `gpui::Empty` döndürür. Gerçek UI
-  üreten view'lerde manuel `impl Render` yazılır.
+  üreten görünümlerde manuel `impl Render` yazılır.
 
 Rustdoc listesindeki `Action`, `IntoElement`, `Refineable`, `AppContext` ve
 `VisualContext` kısa adları tek bir öğe değildir; trait ve derive macro
@@ -721,15 +721,15 @@ crate kökünden ergonomik erişimidir. Özellikle `property_test` ve `proptest`
 yalnız test kodunda, `ctor` ise registration altyapısı gibi dar alanlarda
 kullanılmalıdır.
 
-Test helper fonksiyonları `gpui::test` modülünde tutulur: `seed_strategy()`,
+Test yardımcı fonksiyonları `gpui::test` modülünde tutulur: `seed_strategy()`,
 `apply_seed_to_proptest_config(...)`, `run_test_once(...)`, `run_test(...)` ve
 `Observation<T>`. Bunlar `#[gpui::test]` ve `#[gpui::property_test]` makrolarının
 altyapısıdır; normal app kodu çağırmaz.
 
-Profiler helper'ları `add_task_timing(...)` ve
+Profiler yardımcıları `add_task_timing(...)` ve
 `get_current_thread_task_timings()` thread-local task timing toplama için
-kullanılır. Text fallback helper'ları `font_name_with_fallbacks(...)` ve
-`font_name_with_fallbacks_shared(...)` platform font ailesi fallback adını
+kullanılır. Text yedek font yardımcıları `font_name_with_fallbacks(...)` ve
+`font_name_with_fallbacks_shared(...)` platform font ailesi yedek adını
 döndürür. `swap_rgba_pa_to_bgra(...)` premultiplied RGBA byte buffer'ını platform
 BGRA düzenine çevirmek için renk/bitmap alt katmanında kullanılır.
 

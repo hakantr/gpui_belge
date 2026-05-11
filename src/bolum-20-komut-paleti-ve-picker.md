@@ -4,13 +4,13 @@
 
 ## 20.1. CommandPalette: Filter, Aliases ve Interceptor
 
-Komut paleti (Ctrl+Shift+P / Cmd+Shift+P) Zed'de yalnızca "kayıtlı action listesini göster" demek değildir; **üç ek katman** kullanıcı deneyimini şekillendirir:
+Komut paleti (Ctrl+Shift+P / Cmd+Shift+P) Zed'de yalnızca "kayıtlı action listesini göster" demek değildir; kullanıcı deneyimini **üç ek katman** şekillendirir:
 
-1. **Filter** — Hangi action'ların görünür olduğunu belirler (feature flag, vim mode aktif/pasif vs.).
+1. **Filter** — Hangi action'ların görünür olduğunu belirler (feature flag, vim modu aktif/pasif vs.).
 2. **Aliases** — Kullanıcının kısa adlarla yazdığı sorguları (örn. `ag` → `search::ToggleSearch`) canonical action adına çevirir.
 3. **Interceptor** — "Tam string'i komuta dönüştür" desenini destekler (örn. vim ex komutu `:42` → satır 42'ye git).
 
-Bu katmanlar `crates/command_palette_hooks/` crate'inde tanımlı global'lerden yönetilir. Komut paleti UI'ı yazılmadan veya değiştirilmeden önce bu global'lerin işleyişini bilmek gerekir; odaktaki UI öğesinden toplanan action listesi, görünürlük filtresi ve alternatif komut sonuçları hep bu katmandan geçer. Zed başlangıcı `command_palette::init(cx)` çağrısı sırasında `command_palette_hooks::init(cx)` da çağırır; filter global'i bu noktada kurulur.
+Bu katmanlar `crates/command_palette_hooks/` crate'inde tanımlı global'lerden yönetilir. Komut paleti UI'ı yazılmadan veya değiştirilmeden önce bu global'lerin işleyişini bilmek gerekir; odaktaki UI öğesinden toplanan action listesi, görünürlük filtresi ve alternatif komut sonuçları hep bu katmandan geçer. Zed başlangıcı `command_palette::init(cx)` çağrısı sırasında `command_palette_hooks::init(cx)` de çağırır; filter global'i bu noktada kurulur.
 
 #### CommandPaletteFilter
 
@@ -55,7 +55,7 @@ gizler.
 
 `WorkspaceSettings::command_aliases: HashMap<String, ActionName>`. Kullanıcı
 JSON'una `"command_aliases": { "ag": "search::ToggleSearch" }` yazınca komut
-paleti query tam olarak `ag` olduğunda sorguyu `search::ToggleSearch` string'ine
+paleti query'si tam olarak `ag` olduğunda sorguyu `search::ToggleSearch` string'ine
 çevirir. Bu çeviri fuzzy eşleşme ve interceptor çağrısından önce yapılır; alias
 bir action nesnesi üretmez, yalnızca palette sorgusunu canonical action adına
 yaklaştırır. Yeni komut sunarken alias sözleşmesini bozmaktan kaçın; eski adları
@@ -105,7 +105,7 @@ interceptor sonuçları listenin başına eklenip normal eşleşmeler arkadan ge
 
 #### Action Documentation ve Deprecation Mesajları
 
-Action trait'inin `documentation()`, `deprecation_message()` ve
+`Action` trait'inin `documentation()`, `deprecation_message()` ve
 `deprecated_aliases()` yüzeyi command palette ile karıştırılmamalıdır:
 
 - Komut paleti satırında şu anda humanized action adı ve mevcut keybinding
@@ -126,7 +126,7 @@ Action trait'inin `documentation()`, `deprecation_message()` ve
 
 #### Tuzaklar
 
-- `CommandPaletteFilter` global state'tir; testlerde bir feature açıp kapatınca
+- `CommandPaletteFilter` global durumdur; testlerde bir feature açıp kapatınca
   sonraki test başlamadan reset etmen gerekebilir.
 - `hide_action_types` ile gizlenen tip register edilmiş olmalı; aksi halde
   filtreye eklendiği halde komut paleti listesinde zaten görünmez.
@@ -138,15 +138,15 @@ Action trait'inin `documentation()`, `deprecation_message()` ve
 
 ## 20.2. CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
 
-20.1'deki hook'ların üstüne, gerçek komut paleti runtime akışı `crates/command_palette/src/command_palette.rs` içinde implemente edilir. Kullanıcı paleti açtığında — başlatma, action toplama, fuzzy arama, sıralama ve onay davranışı sırasıyla şu adımları izler. Bu akış picker bileşeninin (20.3) tipik bir tüketicisidir; benzer pattern'i farklı seçim UI'larına uyarlamak için temel referanstır.
+[CommandPalette: Filter, Aliases ve Interceptor](#201-commandpalette-filter-aliases-ve-interceptor) bölümündeki hook'ların üstüne, gerçek komut paleti runtime akışı `crates/command_palette/src/command_palette.rs` içinde implemente edilir. Kullanıcı paleti açtığında başlatma, action toplama, fuzzy arama, sıralama ve onay davranışı sırasıyla şu adımları izler. Bu akış picker bileşeninin tipik bir tüketicisidir; benzer deseni farklı seçim UI'larına uyarlamak için temel referanstır.
 
 1. `command_palette::init(cx)` hook global'lerini kurar ve
    `cx.observe_new(CommandPalette::register).detach()` ile her yeni
    `Workspace` için `zed_actions::command_palette::Toggle` action'ını register
    eder.
-2. `CommandPalette::toggle(workspace, query, window, cx)` mevcut focus handle'ı
+2. `CommandPalette::toggle(workspace, query, window, cx)` mevcut odak tutamacını
    alır. Focus yoksa palette açılmaz. Sonra `workspace.toggle_modal(...)` ile
-   `CommandPalette` modal view olarak oluşturulur.
+   `CommandPalette` modal görünüm olarak oluşturulur.
 3. `CommandPalette::new(previous_focus_handle, query, workspace, window, cx)`
    `window.available_actions(cx)` çağırır. Bu liste bütün registry değil, odaktaki
    dispatch path üzerinde `.on_action(...)` ile bağlanmış action'lar ve global
@@ -192,7 +192,7 @@ Onay davranışı:
 
 - Normal confirm seçili command'i alır, telemetry'ye
   `source = "command palette"` ile yazar, `CommandPaletteDB` kaydını background
-  task olarak başlatır, eski focus handle'a geri odaklanır, modalı dismiss eder
+  task olarak başlatır, eski odak tutamacına geri odaklanır, modalı dismiss eder
   ve `window.dispatch_action(action, cx)` çağırır.
 - Secondary confirm seçili action'ın canonical adını `String` olarak alıp
   `zed_actions::ChangeKeybinding { action: action_name.to_string() }` action'ını
@@ -206,7 +206,7 @@ Onay davranışı:
 
 ## 20.3. Picker, PickerDelegate ve PickerPopoverMenu
 
-`Picker` Zed'de aramalı seçim listesi için kullanılan genel UI bileşenidir; komut paleti, dosya arama, branch seçici, tema seçici gibi pek çok yerin altında aynı bileşen çalışır. Bir picker yazılırken esas iş **`PickerDelegate`** implementasyonudur — delegate hangi item'ların var olduğunu, hangisinin seçili olduğunu, query değiştiğinde nasıl filtre uygulanacağını ve onay/iptal davranışını tanımlar. Picker bileşeni delegate'i alıp UI'yı kurar.
+`Picker` Zed'de aramalı seçim listesi için kullanılan genel UI bileşenidir; komut paleti, dosya arama, branch seçici, tema seçici gibi pek çok yerin altında aynı bileşen çalışır. Bir picker yazılırken esas iş **`PickerDelegate`** implementasyonudur — delegate hangi item'ların var olduğunu, hangisinin seçili olduğunu, query değiştiğinde nasıl filtre uygulanacağını ve onay/iptal davranışını tanımlar. Picker bileşeni delegate'i alıp UI'ı kurar.
 
 Kaynak: `crates/picker/`.
 
@@ -228,7 +228,7 @@ pub trait PickerDelegate: Sized + 'static {
 Sık override edilen davranışlar:
 
 - `select_history(Direction, query, ...) -> Option<String>`: yukarı/aşağı okları
-  default seçim yerine query geçmişinde gezdirmek için.
+  varsayılan seçim yerine query geçmişinde gezdirmek için.
 - `can_select(ix, ...)`, `select_on_hover()`, `selected_index_changed(...)`:
   seçilebilir satırları ve hover/selection yan etkilerini yönetir.
 - `no_matches_text(...)`, `render_header(...)`, `render_footer(...)`:
@@ -240,7 +240,7 @@ Sık override edilen davranışlar:
   action'a çevirdiği picker türleri.
 - `editor_position() -> PickerEditorPosition::{Start, End}`: arama editörünün
   listenin üstünde mi altında mı duracağını belirler.
-- `finalize_update_matches(query, duration, ...) -> bool`: background matching'i
+- `finalize_update_matches(query, duration, ...) -> bool`: background eşleştirmeyi
   kısa süre bloklayarak ilk render/confirm yarışını azaltır.
 
 Constructor seçimi:
@@ -263,28 +263,27 @@ Kullanılabilir ayarlar:
   ScrollBehavior)`: match akışını dışarıdan tetikleyen mutable yardımcılar.
 - `query(&self, cx: &App) -> String`: editördeki anlık sorguyu okur.
 - `set_query(&self, query: &str, window: &mut Window, cx: &mut App)`: editör
-  metnini değiştirir; `&self` aldığına dikkat — picker entity'sini `update`
+  metnini değiştirir; `&self` aldığına dikkat — picker varlığını `update`
   bloğunun içine sokmak şart değil, doğrudan picker referansından çağrılabilir.
-  `cx` burada `Context<...>` değil `&mut App` olduğu için entity context
+  `cx` burada `Context<...>` değil `&mut App` olduğu için varlık bağlamı
   gerekiyorsa update bloğundan dışarı çıkmak gerekebilir.
 
-Action/key context:
+Action/key bağlamı:
 
-- Render root `"Picker"` key context'ini kurar.
+- Render root `"Picker"` key bağlamını kurar.
 - `menu::SelectNext`, `menu::SelectPrevious`, `menu::SelectFirst`,
   `menu::SelectLast`, `menu::Cancel`, `menu::Confirm`,
   `menu::SecondaryConfirm`, `picker::ConfirmCompletion` ve `picker::ConfirmInput`
   action'larını dinler.
 - Click confirm sırasında `cx.stop_propagation()` ve `window.prevent_default()`
-  çağrılır; bu yüzden picker satırına tıklama dış elementlere sızmaz.
+  çağrılır; bu yüzden picker satırına tıklama dış UI öğelerine sızmaz.
 
 `PickerPopoverMenu<T, TT, P>` bir picker'ı `ui::PopoverMenu` içine koyan ince
 sarmaldır. `new(picker, trigger, tooltip, anchor, cx)` picker'ın
 `DismissEvent`'ini popover dismiss event'ine bağlar; `with_handle(...)` ve
-`offset(...)` ile dış popover handle/konum ayarı yapılır. Picker bir toolbar
+`offset(...)` ile dış popover tutamacı/konum ayarı yapılır. Picker bir toolbar
 butonu veya popover tetikleyicisi arkasında açılacaksa doğrudan modal yerine bu
 sarmalı kullan.
 
 
 ---
-

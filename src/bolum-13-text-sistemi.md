@@ -1,17 +1,17 @@
-# 13. Text Sistemi
+# 13. Metin Sistemi
 
 ---
 
 ## 13.1. Text, Font ve Metin Ölçümü
 
-GPUI'de metin tek bir "string"den ibaret değildir; renk, font ailesi, boyut, satır yüksekliği, dekorasyon, overflow gibi onlarca parametreyle bir araya gelir ve render sırasında platforma uygun glyph'lere dönüştürülür. Metnin parçaları farklı stillere sahip olabilir (örn. tek satırda farklı renkte iki kelime); bu parçalanmayı `TextRun` ve `HighlightStyle` tipleri tarif eder. Metin elementleri ise bu yapı taşlarını alır, `WindowTextSystem` üzerinden ölçer ve çizer.
+GPUI'de metin tek bir "string"den ibaret değildir; renk, font ailesi, boyut, satır yüksekliği, dekorasyon ve taşma davranışı gibi birçok parametreyle birlikte değerlendirilir. Render sırasında platforma uygun glyph'lere dönüştürülür. Metnin parçaları farklı stillere sahip olabilir (örn. tek satırda farklı renkte iki kelime); bu parçalanmayı `TextRun` ve `HighlightStyle` tipleri tarif eder. Metin UI öğeleri bu yapı taşlarını alır, `WindowTextSystem` üzerinden ölçer ve çizer.
 
 Ana tipler `crates/gpui/src/text_system.rs`, `style.rs` ve `elements/text.rs` içinde tanımlıdır:
 
-- **`TextStyle`** — Renk, font family, font size, line height, weight/style, decoration, whitespace, overflow, align, line clamp gibi tüm metin görsel parametrelerini taşır.
+- **`TextStyle`** — Renk, font ailesi, font boyutu, satır yüksekliği, ağırlık/stil, dekorasyon, boşluk, taşma, hizalama ve satır sınırlama gibi tüm metin görsel parametrelerini taşır.
 - **`HighlightStyle`** — Belirli aralıklara uygulanan kısmi stil (sadece bazı alanları override eder).
 - **`TextRun`** — UTF-8 byte uzunluğu + font + renk/dekorasyon birleşimi. **Run'ların toplam uzunluğu metnin byte uzunluğunu tam karşılamalıdır;** açıkta kalan byte panic yaratır.
-- **`StyledText`** — `SharedString` + run/highlight/font override ile render edilen metin elementi.
+- **`StyledText`** — `SharedString` + run/highlight/font override ile render edilen metin UI öğesi.
 - **`InteractiveText`** — `StyledText`'in üstüne karakter/range bazlı tıklama, hover ve tooltip ekler.
 - **`Font`, `FontWeight`, `FontStyle`, `FontFeatures`, `FontFallbacks`** — Font seçimi ve özelliklerini tanımlayan tipler.
 
@@ -32,27 +32,27 @@ div()
     .child(text)
 ```
 
-Burada `0..5` aralığı (`"Error"` kelimesi) kırmızı ve bold; geri kalan kısım parent'tan miras alınan stil ile çizilir.
+Burada `0..5` aralığı (`"Error"` kelimesi) kırmızı ve bold çizilir; geri kalan kısım üst UI öğesinden miras alınan stil ile çizilir.
 
 ### Metin ölçümü ve layout
 
-- **`window.text_style()`** — Aktif inherited text style'ını verir.
+- **`window.text_style()`** — Aktif miras alınmış metin stilini verir.
 - **`window.text_system()`** — Pencereye bağlı `WindowTextSystem`'a erişir.
 - **`App::text_system()`** — Global text system'a erişir.
-- **`TextStyle::to_run(len)`** — Inherited style'dan `TextRun` üretir.
-- **`TextStyle::line_height_in_pixels(rem_size)`** — Line-height değerini piksele çevirir.
-- **`window.line_height()`** — Aktif text style'a göre satır yüksekliği.
+- **`TextStyle::to_run(len)`** — Miras alınmış stilden `TextRun` üretir.
+- **`TextStyle::line_height_in_pixels(rem_size)`** — Satır yüksekliği değerini piksele çevirir.
+- **`window.line_height()`** — Aktif metin stiline göre satır yüksekliği.
 
 ### Tuzaklar
 
 - **Highlight aralıkları byte aralığıdır;** UTF-8 karakter sınırlarına denk gelmek zorundadır. Çok-byte'lı karakter ortasına denk gelen aralık panic'e yol açar.
-- **`SharedString` kopyalamayı azaltır;** render child'larında `String` yerine `SharedString` kullanmak her frame allocation'ını engeller (bkz. 5.4).
-- **`text_ellipsis`, `line_clamp`, `white_space` gibi overflow davranışları layout genişliğine bağlıdır;** parent genişliği belirsizse (örn. `flex` içinde `min-w-0` verilmemişse) truncation beklendiği gibi çalışmaz.
+- **`SharedString` kopyalamayı azaltır;** render child'larında `String` yerine `SharedString` kullanmak her frame'deki allocation'ı engeller. Kullanım ayrımı [SharedString, SharedUri ve Ucuz Klonlanan Tipler](./bolum-05-stil-geometri-ve-renkler.md#54-sharedstring-shareduri-ve-ucuz-klonlanan-tipler) bölümünde anlatılır.
+- **`text_ellipsis`, `line_clamp`, `white_space` gibi taşma davranışları layout genişliğine bağlıdır;** üst UI öğesinin genişliği belirsizse (örn. `flex` içinde `min-w-0` verilmemişse) metin kısaltma beklendiği gibi çalışmaz.
 - **Uygulama genel text rendering modu `cx.set_text_rendering_mode(...)`** ile `PlatformDefault`, `Subpixel`, `Grayscale` arasında seçilir. Subpixel akışı her glyph için yatayda `gpui::SUBPIXEL_VARIANTS_X: u8 = 4`, dikeyde `gpui::SUBPIXEL_VARIANTS_Y: u8 = 1` farklı varyant rasterize eder (`text_system.rs:45,48`); yani glyph atlas boyutu yatay subpixel pozisyonuna duyarlı, dikey değildir.
 
 ## 13.2. StyledText, TextLayout ve InteractiveText
 
-Basit, tek stilli metin `SharedString` olarak `.child(...)` çağrısına geçirilebilir; karmaşıklaştıkça (highlight, font override, tıklanabilir aralık, hover, tooltip) sırasıyla `StyledText` ve `InteractiveText` element tipleri kullanılır. Bu bölüm her birinin sağladığı yüzeyleri ve ortak ölçüm sonucu olan `TextLayout` tipini açıklar.
+Basit, tek stilli metin `SharedString` olarak `.child(...)` çağrısına geçirilebilir; karmaşıklaştıkça (highlight, font override, tıklanabilir aralık, hover, tooltip) sırasıyla `StyledText` ve `InteractiveText` UI öğesi tipleri kullanılır. Bu bölüm her birinin sağladığı yüzeyleri ve ortak ölçüm sonucu olan `TextLayout` tipini açıklar.
 
 ### `StyledText`
 
@@ -64,17 +64,17 @@ let text = StyledText::new("Open settings")
 let layout = text.layout().clone();
 ```
 
-Önceden hesaplanmış `TextRun` listesi varsa `.with_highlights(...)` yerine `.with_runs(runs)` kullanılır — bu, run'ları her render'da yeniden üretmek yerine cache'lenmiş bir sonuçtan inşa etmek için uygundur. `.with_default_highlights(&default_style, ranges)` ise parent stil yerine açıkça verilen bir `TextStyle`'ı baz alır.
+Önceden hesaplanmış `TextRun` listesi varsa `.with_highlights(...)` yerine `.with_runs(runs)` kullanılır — bu, run'ları her render'da yeniden üretmek yerine cache'lenmiş bir sonuçtan inşa etmek için uygundur. `.with_default_highlights(&default_style, ranges)` ise üst stilden miras almak yerine açıkça verilen bir `TextStyle`'ı baz alır.
 
 ### `TextLayout` — ölçüm sonucu
 
-Ölçüm/prepaint sonrası elde edilen `TextLayout`, metnin ekrandaki gerçek konum bilgisini taşır. Click/hover gibi event handler'lar bu bilgiyi kullanır:
+Ölçüm/prepaint sonrası elde edilen `TextLayout`, metnin ekrandaki gerçek konum bilgisini taşır. Click/hover gibi event işleyicileri bu bilgiyi kullanır:
 
-- **`index_for_position(point) -> Result<usize, usize>`** — Piksel pozisyonundan UTF-8 byte index'i (mouse'un hangi karakter üzerinde olduğunu bulmak için).
+- **`index_for_position(point) -> Result<usize, usize>`** — Piksel pozisyonundan UTF-8 byte index'i (farenin hangi karakter üzerinde olduğunu bulmak için).
 - **`position_for_index(index) -> Option<Point<Pixels>>`** — Byte index'ten piksel konumu (cursor çizimi için).
 - **`line_layout_for_index(index)`, `bounds()`, `line_height()`, `len()`, `text()`, `wrapped_text()`** — Satır, bounds ve metin meta verileri.
 
-**Önemli:** `TextLayout` değerleri layout/prepaint yapılmadan okunursa panic edebilir; bu nedenle event handler ve after-layout path'inde kullanılır, render sırasında henüz ölçülmemiş layout'a güvenilmez.
+**Önemli:** `TextLayout` değerleri layout/prepaint yapılmadan okunursa panic edebilir; bu nedenle event işleyicisi ve after-layout yolunda kullanılır, render sırasında henüz ölçülmemiş layout'a güvenilmez.
 
 ### `InteractiveText`
 
@@ -91,8 +91,7 @@ InteractiveText::new("settings-link", StyledText::new("Open settings"))
     .tooltip(|index, window, cx| build_tooltip(index, window, cx))
 ```
 
-Verilen aralıklar **byte index aralığıdır**; Unicode metinlerde karakter sınırlarını yanlış hesaplamak hover/click eşleşmesini bozar. Ayrıca `on_click` listener'ı yalnızca **mouse down ve mouse up aynı aralık içinde kaldığında** çalışır — bu, kullanıcının drag yaparken tıklamayı iptal etmesine olanak verir.
+Verilen aralıklar **byte index aralığıdır**; Unicode metinlerde karakter sınırlarını yanlış hesaplamak hover/click eşleşmesini bozar. Ayrıca `on_click` listener'ı yalnızca **fare basma ve bırakma aynı aralık içinde kaldığında** çalışır — bu, kullanıcının drag yaparken tıklamayı iptal etmesine olanak verir.
 
 
 ---
-
