@@ -30,6 +30,7 @@ ZED_REPO="${1:-$VARSAYILAN_ZED}"
 IZLENEN_YOLLAR=(
   "crates/theme/"
   "crates/syntax_theme/"
+  "crates/settings_content/src/theme.rs"
   "assets/themes/"
 )
 
@@ -118,7 +119,7 @@ cat <<EOF
      git -C $ZED_REPO show <sha>
 
 2. Yeni alan eklenmiş veya alan adı değişmişse:
-     - yerel tema crate'inde struct'ları güncelle
+     - tema crate'inde struct'ları güncelle
      - tests/fixtures/ altındaki tema JSON'larını yeni pin'den yenile
      - cargo test ile fixture testlerini doğrula
 

@@ -22,10 +22,12 @@ Kaynak olarak kardeş dizindeki Zed yerel kopyası kullanılır:
 ~/github/
 ├── gpui_belge/                        ← bu depo (notlar + araçlar)
 │   ├── tema_aktarimi.md               ← bu dosya
+│   ├── tema_rehber.md                 ← mimari + kod rehberi
 │   └── tema_kaymasi_kontrol.sh        ← drift raporu
 └── zed/                               ← Zed yerel kopyası (kaynak)
     ├── crates/theme/
     ├── crates/syntax_theme/
+    ├── crates/settings_content/
     └── assets/themes/
 ```
 
@@ -60,12 +62,14 @@ göredir, yani `../zed/<yol>`):
 
 - `crates/theme/src/theme.rs`
 - `crates/theme/src/styles/` — alan paritesinin kritik olduğu yer
-- `crates/theme/src/schema.rs` — JSON sözleşmesi
-- `crates/theme/src/registry.rs` — runtime referansı (mirror zorunlu değil)
+- `crates/theme/src/schema.rs` — JSON sözleşmesi (eski konum, varsa)
+- `crates/settings_content/src/theme.rs` — `ThemeColorsContent` / `StatusColorsContent` Content tipleri (rehberin Faz 2 kaynağı)
+- `crates/theme/src/registry.rs` — runtime referansı
 - `crates/theme/src/fallback_themes.rs` — türetme mantığı referansı
-- `crates/theme/src/icon_theme.rs` (yalnızca icon tema aktifse)
+- `crates/theme/src/icon_theme.rs` — icon tema sözleşmesi
 - `crates/syntax_theme/src/`
 - `assets/themes/*.json` — fixture testleri için referans
+- `assets/themes/LICENSE_*` — fixture lisans doğrulaması
 
 Aşağıdaki yollar **kasıtlı olarak izlenmez** (runtime farklılığı):
 
@@ -78,16 +82,23 @@ Aşağıdaki yollar **kasıtlı olarak izlenmez** (runtime farklılığı):
 
 ## Senkron edilMEYEN (kasıtlı) Zed özellikleri
 
-Bu liste, "bilinçli olarak aynalamadığımız" özellikleri ve **gerekçesini**
-tutar. Sync turunda upstream'de bu alanlarla ilgili değişiklik görürsen
-gözden geçir.
+Bu liste, **bilinçli olarak aynalamadığın** alanları ve gerekçesini tutar.
+Sync turunda upstream'de bu alanlarla ilgili değişiklik görürsen gözden
+geçir.
+
+> **Varsayılan: hiçbir alan kasıtlı olarak dışlanmaz.** Bu rehber tüm
+> Zed alanlarını (terminal_ansi, editor diff hunk, debugger, vcs, vim,
+> vs.) destekleyen bir uygulama varsayar. Bir alanı buraya yazmak için
+> **kalıcı ve kesin** bir dışlama kararı olmalı (örn. lisans çakışması).
+> "Henüz yazmadık" bir dışlama sebebi değildir; o durumda struct'ta alan
+> bulunur ama UI'da okunmaz — bkz. `tema_rehber.md` Faz 1.
 
 - _(henüz yok)_
 
 <!--
-Örnek:
-- `terminal_ansi_*` (16 alan) — uygulamada terminal yok.
-  Karar tarihi: 2026-05-11. Gözden geçirme: terminal eklediğimizde.
+Format (gerçek karar değil, sadece şablon):
+- `<alan veya alan grubu>` — kalıcı dışlama gerekçesi.
+  Karar tarihi: YYYY-MM-DD. Gözden geçirme koşulu: <hangi durumda yeniden ele alınır>.
 -->
 
 ---
@@ -99,9 +110,9 @@ Sync turunda fark edilen ama henüz karara bağlanmamış değişiklikler.
 - _(henüz yok)_
 
 <!--
-Örnek:
-- Zed #51784 (fb3218e01e): editor diff hunk renkleri eklendi.
-  Soru: Bizim editor bileşenimiz diff gösteriyor mu? Yanıt bekleniyor.
+Format (gerçek karar değil, sadece şablon):
+- Zed #<PR> (<kısa-sha>): <ne değişti>.
+  Soru: <kararlaştırılması gereken nokta>. Yanıt bekleniyor.
 -->
 
 ---
@@ -113,7 +124,7 @@ içindeki tema sözleşmesi evrimini gösterir.
 
 | Tarih       | Önceki pin    | Yeni pin       | İnceleyen | Eklenen alan sayısı | Notlar |
 |-------------|---------------|----------------|-----------|---------------------|--------|
-| 2026-05-11  | —             | `db6039d815`   | hakantr   | —                   | İlk pin: yerel_tema crate'i kurulurken alınan baseline. |
+| 2026-05-11  | —             | `db6039d815`   | hakantr   | —                   | İlk pin: tema crate'i kurulurken alınan baseline. |
 
 ---
 
