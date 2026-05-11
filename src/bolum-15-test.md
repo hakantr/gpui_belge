@@ -4,30 +4,34 @@
 
 ## 15.1. Test Rehberi
 
-GPUI testlerinde:
+GPUI testleri sıradan Rust testlerinden farklıdır: zaman, executor, pencere, input simülasyonu hepsi deterministik bir kontrol altındadır. Bu bölüm tipik bir GPUI testinin uyduğu kuralları kısa bir kontrol listesi olarak sunar; ayrıntılı API'ler için 15.2'ye bakılır.
 
-- `#[gpui::test]` macro'su ve `TestAppContext` kullan.
-- Pencere gerekiyorsa test context'in offscreen/window helper'larını kullan.
-- Async timer için `cx.background_executor().timer(duration).await`.
-- UI action testlerinde key binding ve action dispatch'i doğrudan test et.
-- Görsel test gerekiyorsa `VisualTestContext` ve headless renderer desteğini kontrol et.
-- Element debug bounds gerekiyorsa test-support altında `.debug_selector(...)` ekle.
+### Yapılması gerekenler
 
-Testlerde kaçınılacaklar:
+- **`#[gpui::test]` makrosu ve `TestAppContext` kullanılır.** Normal `#[test]` GPUI runtime'ı kuramaz.
+- **Pencere gerekiyorsa** test context'in offscreen/window helper'ları (`add_window`, `add_window_view`) tercih edilir.
+- **Async timer için** `cx.background_executor().timer(duration).await` kullanılır; `smol::Timer::after` ile çelişir.
+- **UI action testlerinde** key binding ve action dispatch doğrudan test edilir; binding kaydı `cx.bind_keys([...])` ile testte de yapılır.
+- **Görsel test gerekiyorsa** `VisualTestContext` kullanılır; headless renderer desteği platforma göre değişir.
+- **Element debug bounds** gerekiyorsa test-support feature altında `.debug_selector(...)` ile etiketlenir.
 
-- `smol::Timer::after(...)` ile `run_until_parked()` beklemek.
-- `unwrap()` ile test dışı production yoluna panik taşımak.
-- Async hata sonuçlarını `let _ = ...` ile yutmak.
+### Kaçınılması gerekenler
+
+- **`smol::Timer::after(...)` ile `run_until_parked()` beklemek.** GPUI scheduler bu timer'ı görmez; test sonsuza dek parked kalabilir.
+- **`unwrap()` ile test dışı production yoluna panik taşımak.** Test başarısızlığı net mesajla raporlanmalıdır; `expect("...")` veya `assert!` tercih edilir.
+- **Async hata sonuçlarını `let _ = ...` ile yutmak.** Test sessizce başarılı görünebilir; sonuç açıkça assert edilir.
 
 ## 15.2. Test Bağlamları ve Simülasyon
 
-`crates/gpui/src/app/test_context.rs`, `crates/gpui/src/app/visual_test_context.rs`.
+Kaynak: `crates/gpui/src/app/test_context.rs`, `crates/gpui/src/app/visual_test_context.rs`.
 
-`#[gpui::test]` makrosu bir `TestAppContext` sağlar. Görsel test için
-`add_window` bir `WindowHandle<V>` döndürür ve `VisualTestContext` ile sürülür.
-İsim benzerliğine dikkat: `VisualTestContext` test penceresini kendi içinde tutar;
-macOS `test-support` altındaki `VisualTestAppContext` ise window handle'ı açık
-argüman olarak alan ayrı bir bağlamdır.
+GPUI testleri için üç farklı bağlam vardır ve hangisinin seçildiği "pencere açılıyor mu?" ve "pencere argümanı her seferinde verilmek mi isteniyor?" sorularına göre değişir:
+
+- **`TestAppContext`** — `#[gpui::test]` makrosu tarafından sağlanan ana bağlam. Pencere argümanı her API'ye **açıkça** verilir.
+- **`VisualTestContext`** — `add_window_view` / `add_empty_window` ile alınır; test penceresini **kendi içinde** tutar, bu sayede klavye/mouse/dispatch çağrılarında window argümanı geçirilmez.
+- **`VisualTestAppContext`** — Yalnızca macOS `test-support` altında. Yine pencere handle'ını argüman olarak alan ayrı bir bağlam (isim benzerliğine dikkat).
+
+### Tipik test örneği
 
 ```rust
 #[gpui::test]
@@ -43,64 +47,46 @@ fn test_save(cx: &mut TestAppContext) {
 }
 ```
 
-Sık kullanılan API'ler:
+### Sık kullanılan API'ler (`TestAppContext`)
 
-- `cx.add_window(|window, cx| cx.new(...))`: yeni offscreen pencere.
-- `cx.simulate_keystrokes(window, "cmd-s left")`: boşlukla ayrılmış keystroke dizisi.
-- `cx.simulate_input(window, "hello")`: text input simulasyonu.
-- `cx.dispatch_action(window, action)`.
-- `cx.run_until_parked()`: tüm pending future/task tamamlanıncaya kadar sürer.
-- `cx.background_executor.advance_clock(duration)`: deterministic timer ilerletme.
-- `cx.background_executor.run_until_parked()`: test executor'ında yalnızca background.
-- `window.update(cx, |view, window, cx| ...)`: pencere içi state mutate.
+- **`cx.add_window(|window, cx| cx.new(...))`** — Yeni offscreen pencere açar.
+- **`cx.simulate_keystrokes(window, "cmd-s left")`** — Boşlukla ayrılmış keystroke dizisini simüle eder.
+- **`cx.simulate_input(window, "hello")`** — Text input simülasyonu.
+- **`cx.dispatch_action(window, action)`** — Action dispatch.
+- **`cx.run_until_parked()`** — Tüm pending future/task tamamlanıncaya kadar executor'ı sürer.
+- **`cx.background_executor.advance_clock(duration)`** — Fake clock'u ilerletir (deterministic timer için).
+- **`cx.background_executor.run_until_parked()`** — Test executor'ında yalnız background side'ı sürer.
+- **`window.update(cx, |view, window, cx| ...)`** — Pencere içi state mutate eder.
 
-`add_window_view` veya `add_empty_window` ile alınan `VisualTestContext` pencere
-bağlamını taşıdığı için *bazı* metotları window argümansız çağrılır:
+### `VisualTestContext` farkı
 
-- `cx.simulate_keystrokes("cmd-p")` ve `cx.simulate_input("hello")` — `self.window`
-  kullanır.
-- `cx.dispatch_action(action)` — yine `self.window` üzerinden dispatch eder.
-- `cx.run_until_parked()`, `cx.window_title()`, `cx.document_path()` window-less
-  helper'lardır.
+`VisualTestContext` pencere bağlamını kendi içinde tuttuğu için **bazı method'ları window argümansız** çağrılır:
 
-Mouse simülasyon metotları `VisualTestContext` üzerinde de `self.window`
-üzerinden çalışır ve window argümanı almaz (`test_context.rs:764-809`):
+- `cx.simulate_keystrokes("cmd-p")` ve `cx.simulate_input("hello")` — `self.window` kullanır.
+- `cx.dispatch_action(action)` — yine `self.window` üzerinden.
+- `cx.run_until_parked()`, `cx.window_title()`, `cx.document_path()` — Window-less helper'lardır.
+
+Mouse simülasyonları `VisualTestContext` üzerinde `self.window` ile çalışır (`test_context.rs:764-809`):
 
 - `cx.simulate_mouse_move(position, button, modifiers)`
 - `cx.simulate_mouse_down(position, button, modifiers)`
 - `cx.simulate_mouse_up(position, button, modifiers)`
 - `cx.simulate_click(position, modifiers)`
 
-Pencere argümanı isteyen helper'lar `TestAppContext` üzerindeki
-`simulate_keystrokes(window, ...)`, `simulate_input(window, ...)`,
-`dispatch_action(window, ...)` ve `dispatch_keystroke(window, ...)` ailesidir.
-`VisualTestContext` bu window handle'ı kendi içinde tuttuğu için aynı klavye ve
-action helper'larını window-less sarmallar olarak sunar.
-`VisualTestAppContext` ise `simulate_keystrokes(window, ...)`,
-`simulate_mouse_move(window, ...)`, `simulate_click(window, ...)` ve
-`dispatch_action(window, ...)` şeklindeki window argümanlı formu kullanır.
+Pencere argümanını isteyen formlar `TestAppContext` üzerindeki `simulate_keystrokes(window, ...)`, `simulate_input(window, ...)`, `dispatch_action(window, ...)`, `dispatch_keystroke(window, ...)` ailesidir. `VisualTestAppContext` (macOS) tüm helper'larda pencere argümanlı formu kullanır.
 
-Pratik kurallar:
+### Pratik kurallar
 
-- Real tutarlılık için `smol::Timer` yerine `cx.background_executor.timer(d)` kullan.
-- `run_until_parked` ile `advance_clock` kombine edilirken önce clock ilerlet,
-  sonra park bekle. `VisualTestContext` `TestAppContext` içine deref ettiği için
-  normal yolda `cx.background_executor.advance_clock(d)` kullanılır; direct
-  `advance_clock(d)` helper'ı `VisualTestAppContext` üzerindedir.
-- Async test için `#[gpui::test]` `async fn(cx: &mut TestAppContext)` formunu
-  destekler; foreground task'ları orada `cx.spawn` ile kur.
-- Pencerenin gerçekten render edilmesi için `VisualTestContext::draw(...)`,
-  `TestApp::draw()` veya doğrudan `window.draw(cx).clear()` kullanılan bir
-  pencere update'i gerekebilir; aksi halde debug bounds/layout bilgisi üretilmez.
+- **Real tutarlılık için `smol::Timer` yerine `cx.background_executor.timer(d)` kullanılır;** scheduler her ikisini de görmez ama yalnızca executor timer'ı `run_until_parked` ile uyumludur.
+- **`run_until_parked` + `advance_clock` kombinasyonunda önce clock ilerletilir, sonra park beklenir.** `VisualTestContext` `TestAppContext` içine deref olduğu için aynı path'te `cx.background_executor.advance_clock(d)` kullanılır; doğrudan `advance_clock(d)` helper'ı yalnız `VisualTestAppContext` üzerindedir.
+- **Async test için** `#[gpui::test]` `async fn(cx: &mut TestAppContext)` formunu destekler; foreground task'ları içeride `cx.spawn` ile kurulur.
+- **Pencerenin gerçekten render edilmesi için** `VisualTestContext::draw(...)`, `TestApp::draw()` veya pencerede bir update tetiklenmesi gerekebilir; aksi halde debug bounds/layout bilgisi üretilmez.
 
-Tuzaklar:
+### Tuzaklar
 
-- `simulate_keystrokes` action dispatch'i tetikler ama keymap binding kaydedilmiş
-  olmalıdır; testte `cx.bind_keys([...])` çağırmayı unutma.
-- `run_until_parked` zaman ilerletmez; sadece pending future'ları sürer. Timer
-  beklenirken `advance_clock` şart.
-- `dispatch_action` focus tree'de action handler bulamazsa sessizce no-op'tur;
-  view'in gerçekten focused olduğundan emin ol.
+- **`simulate_keystrokes` action dispatch'i tetikler ama keymap binding kaydedilmiş olmalıdır;** testte `cx.bind_keys([...])` çağrılması unutulursa kısayol sessizce çalışmaz.
+- **`run_until_parked` zaman ilerletmez;** sadece pending future'ları sürer. Timer'la birlikte kullanıldığında `advance_clock` da çağrılmalıdır.
+- **`dispatch_action` focus tree'de action handler bulamazsa sessizce no-op'tur.** Action'ın çalışması için ilgili view'ın gerçekten focused olduğundan emin olunur (`cx.focus_view(...)` veya benzeri).
 
 
 ---

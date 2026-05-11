@@ -4,23 +4,23 @@
 
 ## 14.1. Input, Clipboard, Prompt ve Platform Servisleri
 
-Element event ailesi:
+Bu bölüm GPUI'de element'lere bağlanan input event ailesi, pano (clipboard) erişimi, prompt diyalogları, dosya seçici ve diğer platform servislerinin pratik bir özetini sunar. Detayları önceki bölümlerde geçmiş olan konular burada referans amaçlı tek bir yerde toplanır.
 
-- Keyboard: `.on_key_down`, `.capture_key_down`, `.on_key_up`, `.capture_key_up`.
-- Mouse: `.on_mouse_down`, `.capture_any_mouse_down`, `.on_mouse_up`,
-  `.capture_any_mouse_up`, `.on_mouse_move`, `.on_mouse_down_out`,
-  `.on_mouse_up_out`, `.on_click`, `.on_hover`.
-- Gesture/scroll: `.on_scroll_wheel`, `.on_pinch`, `.capture_pinch`.
-- Drag/drop: `.on_drag`, `.on_drag_move`, `.on_drop`.
-- Action: `.capture_action::<A>`, `.on_action::<A>`, `.on_boxed_action`.
+### Element event ailesi
 
-Event tipleri `interactive.rs` ve `platform.rs` içinde tanımlıdır:
-`KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`,
-`MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`,
-`FileDropEvent`, `ExternalPaths`, `ClickEvent`. `ScrollDelta::pixel_delta(line_height)`
-line-based scroll'u pixel'e çevirir; `coalesce` aynı yöndeki delta'ları birleştirir.
+Bir element üzerine zincirleme eklenen event listener'ları kategorilere göre:
 
-Clipboard:
+- **Klavye**: `.on_key_down`, `.capture_key_down`, `.on_key_up`, `.capture_key_up`.
+- **Mouse**: `.on_mouse_down`, `.capture_any_mouse_down`, `.on_mouse_up`, `.capture_any_mouse_up`, `.on_mouse_move`, `.on_mouse_down_out`, `.on_mouse_up_out`, `.on_click`, `.on_hover`.
+- **Gesture/scroll**: `.on_scroll_wheel`, `.on_pinch`, `.capture_pinch`.
+- **Drag/drop**: `.on_drag`, `.on_drag_move`, `.on_drop`.
+- **Action**: `.capture_action::<A>`, `.on_action::<A>`, `.on_boxed_action`.
+
+Event tipleri `interactive.rs` ve `platform.rs` içindedir: `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`, `FileDropEvent`, `ExternalPaths`, `ClickEvent`. Scroll için pratik yardımcılar: `ScrollDelta::pixel_delta(line_height)` line-based scroll'u piksele çevirir; `coalesce` aynı yöndeki ardışık delta'ları birleştirir.
+
+### Clipboard (pano)
+
+Sistem panosuna metin yazma ve okuma:
 
 ```rust
 cx.write_to_clipboard(ClipboardItem::new_string("metin".to_string()));
@@ -32,35 +32,22 @@ if let Some(item) = cx.read_from_clipboard()
 }
 ```
 
-`ClipboardItem` birden çok `ClipboardEntry` taşıyabilir: `String`, `Image`,
-`ExternalPaths`. String entry metadata'sı `new_string_with_metadata` veya
-`new_string_with_json_metadata` ile yazılır. Linux/FreeBSD için primary selection
-`read_from_primary`/`write_to_primary`, macOS Find pasteboard için
-`read_from_find_pasteboard`/`write_to_find_pasteboard` cfg-gated API'lerdir.
+`ClipboardItem` birden çok `ClipboardEntry` taşıyabilir: `String`, `Image`, `ExternalPaths`. String entry'sine metadata eklemek için `new_string_with_metadata` veya `new_string_with_json_metadata` kullanılır (örn. kopyalanan kaynağın URL'si). Linux/FreeBSD primary selection (X11 orta-tıkla yapıştır) için `read_from_primary`/`write_to_primary`; macOS Find pasteboard (Cmd+E arama panosu) için `read_from_find_pasteboard`/`write_to_find_pasteboard` cfg-gated API'leri vardır.
 
-Prompt ve dosya seçici:
+### Prompt ve dosya seçici
 
-- `window.prompt(level, message, detail, answers, cx) -> oneshot::Receiver<usize>`.
-- `cx.set_prompt_builder(...)` custom GPUI prompt UI kurar; `reset_prompt_builder`
-  native/default akışa döner.
-- `cx.prompt_for_paths(PathPromptOptions { files, directories, multiple, prompt })`
-  dosya/dizin seçici açar.
-- `cx.prompt_for_new_path(directory, suggested_name)` save dialog açar.
-- `cx.open_url(url)`, `cx.register_url_scheme(scheme)`, `cx.reveal_path(path)`,
-  `cx.open_with_system(path)` platform servislerine gider.
-- Platform credential store: `cx.write_credentials(url, username, password)`,
-  `cx.read_credentials(url)`, `cx.delete_credentials(url)` async `Task<Result<_>>`
-  döndürür.
-- Uygulama yolu ve sistem bilgisi: `cx.app_path()`,
-  `cx.path_for_auxiliary_executable(name)`, `cx.compositor_name()`,
-  `cx.should_auto_hide_scrollbars()`.
-- Restart ve HTTP client: `cx.set_restart_path(path)`, `cx.restart()`,
-  `cx.http_client()`, `cx.set_http_client(client)`.
+- **`window.prompt(level, message, detail, answers, cx) -> oneshot::Receiver<usize>`** — Sistem prompt diyaloğu açar; seçilen buton index'ini async olarak döndürür (14.2'de detayı).
+- **`cx.set_prompt_builder(...)`** — Custom GPUI prompt UI kurar; `reset_prompt_builder` native/default akışa döner.
+- **`cx.prompt_for_paths(PathPromptOptions { files, directories, multiple, prompt })`** — Dosya/dizin seçici açar.
+- **`cx.prompt_for_new_path(directory, suggested_name)`** — "Farklı Kaydet" diyaloğu açar.
+- **`cx.open_url(url)`, `cx.register_url_scheme(scheme)`, `cx.reveal_path(path)`, `cx.open_with_system(path)`** — URL açma, sistem URL şeması kaydı, dosyayı OS dosya yöneticisinde gösterme, varsayılan uygulamayla açma.
+- **Credential store**: `cx.write_credentials(url, username, password)`, `cx.read_credentials(url)`, `cx.delete_credentials(url)` — Sistem anahtarlığı async `Task<Result<_>>` döndürür.
+- **Uygulama yolu ve sistem bilgisi**: `cx.app_path()`, `cx.path_for_auxiliary_executable(name)`, `cx.compositor_name()`, `cx.should_auto_hide_scrollbars()`.
+- **Restart ve HTTP**: `cx.set_restart_path(path)`, `cx.restart()`, `cx.http_client()`, `cx.set_http_client(client)`.
 
 ## 14.2. Prompt Builder, PromptHandle ve Fallback Prompt
 
-`Window::prompt` platform dialog'u açar; platform prompt desteklemiyorsa veya
-custom prompt builder set edilmişse GPUI içinde render edilen prompt kullanılır.
+`Window::prompt` çağrısı, platform prompt diyaloğunu açar; platform native prompt desteklemiyorsa veya `set_prompt_builder` ile özel bir UI bağlanmışsa GPUI içinde render edilen prompt kullanılır. Bu yapı, aynı `window.prompt(...)` API'sinin hem native macOS/Windows prompt'u, hem custom tasarlı modal pencere ile değiştirilebilmesini sağlar.
 
 ```rust
 let response = window.prompt(
@@ -74,20 +61,16 @@ let response = window.prompt(
 let selected_index = response.await?;
 ```
 
-Prompt tipleri:
+### Prompt tipleri
 
-- `PromptLevel::{Info, Warning, Critical}` görsel önem seviyesidir.
-- `PromptButton::ok(label)`, `cancel(label)`, `new(label)` sırasıyla ok/cancel
-  ve generic action butonu üretir; `label()` ve `is_cancel()` okunabilir.
-- `PromptResponse(pub usize)`: custom prompt view'in seçilen buton index'ini
-  emit ettiği event.
-- `Prompt`: `EventEmitter<PromptResponse> + Focusable` trait birleşimidir.
-- `PromptHandle::with_view(view, window, cx)`: custom prompt entity'sini
-  window'a bağlar, önceki focus'u kaydeder, prompt yanıtında focus'u geri verir.
-- `fallback_prompt_renderer(...)`: `set_prompt_builder` ile default GPUI prompt
-  render'ını zorlamak için kullanılabilir.
+- **`PromptLevel::{Info, Warning, Critical}`** — Görsel önem seviyesi (icon ve renk farkı yaratır).
+- **`PromptButton::ok(label)`, `cancel(label)`, `new(label)`** — Sırasıyla OK/Cancel/generic action butonu üretir. `label()` ve `is_cancel()` ile okunur.
+- **`PromptResponse(pub usize)`** — Custom prompt view'in seçilen buton index'ini event olarak emit etmesi için tip.
+- **`Prompt`** — `EventEmitter<PromptResponse> + Focusable` trait birleşimi; custom prompt entity'sinin sağlaması gerekenleri tanımlar.
+- **`PromptHandle::with_view(view, window, cx)`** — Custom prompt entity'sini window'a bağlar, önceki focus'u kaydeder, prompt yanıtında odağı eski yerine geri taşır.
+- **`fallback_prompt_renderer(...)`** — `set_prompt_builder` içinde default GPUI prompt render'ını zorlamak için kullanılabilir.
 
-Custom builder:
+### Custom builder
 
 ```rust
 cx.set_prompt_builder(|level, message, detail, actions, handle, window, cx| {
@@ -99,30 +82,31 @@ cx.set_prompt_builder(|level, message, detail, actions, handle, window, cx| {
 });
 ```
 
-Tuzaklar:
+Builder kapaması her `window.prompt(...)` çağrısında çalışır; istenirse uygulama temasına uygun bir prompt view'i oluşturulur ve `handle.with_view(...)` ile pencereye bağlanır.
 
-- GPUI re-entrant prompt desteklemez; bir prompt açıkken aynı window'da ikinci
-  prompt açma path'i tasarlanmalıdır.
-- Custom prompt `Focusable` sağlamalıdır; aksi halde `PromptHandle::with_view`
-  focus restore zincirini tamamlayamaz.
-- Prompt sonucu buton label'ı değil, `answers` dizisindeki index'tir.
+### Tuzaklar
+
+- **GPUI re-entrant prompt desteklemez.** Bir prompt açıkken aynı pencerede ikinci prompt açılırsa davranış tanımsızdır; "ardışık prompt" akışı için cevap alındıktan sonra ikinci prompt açılır.
+- **Custom prompt `Focusable` sağlamalıdır;** aksi halde `PromptHandle::with_view` focus restore zincirini tamamlayamaz ve kullanıcı odağı kaybeder.
+- **Prompt sonucu buton label'ı değil, `answers` dizisindeki index'tir.** Yani sıralamayı değiştirmek programatik kontrolü bozar; buton sırası kullanıcı arayüzü tasarımıyla aynı kalmalıdır.
 
 ## 14.3. Uygulama Menüsü ve Dock
 
-`crates/gpui/src/platform/app_menu.rs`.
+Kaynak: `crates/gpui/src/platform/app_menu.rs`.
 
-Tipler:
+Uygulama menüsü; macOS'ta üst menü çubuğu, Windows ve Linux'ta uygulamanın kendi içinde çizilen menü olarak görünür. GPUI menü modeli platforma bağımsız tek bir veri yapısıdır; her platform implementasyonu bu modeli kendi native menü API'sine çevirir. Dock menüsü, "son kullanılanlar" listesi ve Windows Jump List gibi yan sistemler de aynı modelin parçasıdır.
 
-- `Menu { name, items, disabled }`
-- `MenuItem`:
-  - `Separator`
-  - `Submenu(Menu)`
-  - `SystemMenu(OsMenu)` — macOS Services gibi sistem submenu'leri.
-  - `Action { name, action, os_action, checked, disabled }`
-- `OsAction`: `Cut`, `Copy`, `Paste`, `SelectAll`, `Undo`, `Redo`. Native edit
-  menu eşlemesi için.
+### Tipler
 
-Builder örneği:
+- **`Menu { name, items, disabled }`** — Bir menü (örn. "File", "Edit").
+- **`MenuItem`** — Menü öğesi varyantları:
+  - **`Separator`** — Ayırıcı çizgi.
+  - **`Submenu(Menu)`** — İç içe menü.
+  - **`SystemMenu(OsMenu)`** — macOS Services gibi sistem submenüleri.
+  - **`Action { name, action, os_action, checked, disabled }`** — Tıklanabilir öğe; tetiklendiğinde action dispatch eder.
+- **`OsAction`** — `Cut`, `Copy`, `Paste`, `SelectAll`, `Undo`, `Redo`. macOS native edit menüsüne özel eşleme için.
+
+### Builder örneği
 
 ```rust
 cx.set_menus(vec![
@@ -143,32 +127,25 @@ cx.set_menus(vec![
 ]);
 ```
 
-`MenuItem::action(name, action)` veri taşımayan unit struct action'lar için kısayoldur;
-veri taşıyan action'larda da doğrudan action değerini geçebilirsin:
-`MenuItem::action("Go To Line", GoToLine { line: 1 })`. Aynı menü modelinin
-clone'lanması gerekiyorsa `Menu::owned()`/`MenuItem::owned()` kullanılır.
+`MenuItem::action(name, action)` veri taşımayan unit struct action'lar için kısayoldur; veri taşıyan action'larda da doğrudan action değeri geçirilir: `MenuItem::action("Go To Line", GoToLine { line: 1 })`. Aynı menü modeli farklı yerlerde clone'lanacaksa `Menu::owned()` / `MenuItem::owned()` kullanılır.
 
-Diğer menü API'leri (`App` üzerinde):
+### Diğer menü API'leri (`App` üzerinde)
 
-- `cx.set_dock_menu(Vec<MenuItem>)` — macOS dock right-click menüsü; Windows'ta
-  dock menu/jump list modelinin parçası.
-- `cx.add_recent_document(path)` — macOS recent items.
-- `cx.update_jump_list(menus, entries) -> Task<Vec<SmallVec<[PathBuf; 2]>>>` —
-  Windows jump list'i günceller ve kullanıcının listeden kaldırdığı entry'leri
-  task sonucu olarak döndürür. Zed `HistoryManager` bu sonucu history'den siler.
-- `cx.get_menus()` — şu anda set edili menü modelini okur.
+- **`cx.set_dock_menu(Vec<MenuItem>)`** — macOS Dock simgesinin sağ-tık menüsü; Windows'ta dock menu/jump list modelinin parçasıdır.
+- **`cx.add_recent_document(path)`** — macOS "son kullanılanlar" listesine ekler.
+- **`cx.update_jump_list(menus, entries) -> Task<Vec<SmallVec<[PathBuf; 2]>>>`** — Windows Jump List'i günceller ve kullanıcının listeden kaldırdığı entry'leri task sonucu olarak döndürür. Zed `HistoryManager` bu sonucu history'den temizlemek için kullanır.
+- **`cx.get_menus()`** — Şu anda set edili menü modelini okur.
 
-Platform davranışı:
+### Platform davranışı
 
-- macOS native `NSMenu` ile çizilir; klavye kısayolları binding'lerden okunur.
-- Windows ve Linux platform state'i `OwnedMenu` olarak saklar; Zed bu modeli
-  uygulama içi menü/render katmanlarında kullanır.
-- Linux dock menüsü backend'de `todo`/no-op'tur; dock/jump-list davranışı için
-  platforma özel fallback gerekir.
+- **macOS**: native `NSMenu` ile çizilir; klavye kısayolları binding'lerden okunur.
+- **Windows ve Linux**: platform state'i `OwnedMenu` olarak saklar; Zed bu modeli uygulama içi menü/render katmanlarında kullanır.
+- **Linux dock menüsü**: backend'de `todo`/no-op'tur; dock/jump-list davranışı için platforma özel fallback gerekir.
 
-Tuzak: Aynı action birden çok menü item'a bağlanırsa keymap'te tek shortcut
-gösterilir. `os_action` yalnızca macOS native edit menu eşlemesini etkiler;
-diğer platformlarda alelade action gibidir.
+### Tuzaklar
+
+- **Aynı action birden çok menü item'a bağlanırsa keymap'te tek shortcut gösterilir.** Kullanıcı kafa karışıklığı yaratmamak için aynı action'a bağlı duplicate item'lardan kaçınılır.
+- **`os_action` yalnızca macOS native edit menu eşlemesini etkiler;** diğer platformlarda sıradan bir action gibi davranır. Yani `OsAction::Cut` macOS dışında `Cmd+X` shortcut'ını otomatik üretmez.
 
 
 ---

@@ -4,10 +4,9 @@
 
 ## 16.1. Inspector ve Debug Yardımcıları
 
-`crates/gpui/src/inspector.rs` (feature: `inspector`).
+Kaynak: `crates/gpui/src/inspector.rs` (feature: `inspector`).
 
-`gpui` crate'i `inspector` feature ile derlendiğinde (veya `debug_assertions`
-açıkken) dev tool entegrasyonu sağlar:
+GPUI'nin "inspector" katmanı, çalışan uygulamanın element ağacını canlı incelemek için kullanılan dev tool altyapısıdır: bir elementi seçtiğinde kaynak konumunu, kimliğini, geçerli stilini ve hangi method'ların ona uygulanabileceğini gösterir. Bu katman release build'lerde derlenmez; `inspector` feature ile veya `debug_assertions` altında aktiftir, böylece üretim binary'sinde sıfır ek maliyet yaratır.
 
 - `InspectorElementId`: her element için `(file, line, instance)` tabanlı kimlik.
 - `InspectorElementPath` (`inspector.rs:30`): bir elementin
@@ -80,7 +79,7 @@ Diğer debug helper'ları:
 
 ## 16.2. Default Colors, GPU Specs ve Platform Diagnostics
 
-Tema sistemi dışındaki küçük ama pratik platform yüzeyleri:
+Bu bölüm tema sistemi dışında kalan, ama pratik platform entegrasyonlarında sıkça başvurulan küçük yüzeyleri toplar: framework default renkleri, GPU/sürücü teşhisi, pencere üstüne yazılan macOS-özgü dirty/document state'i, sistem zili, native pencere tab API'leri ve input latency teşhis snapshot'ı.
 
 - `Colors::for_appearance(window)`: `WindowAppearance::Light/VibrantLight`
   için light, `Dark/VibrantDark` için dark default palet döndürür.
@@ -112,11 +111,9 @@ duyarlı davranışlarda rehbere dahil edilmelidir.
 
 ## 16.3. Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
 
-Zed'in `workspace` ve `ui` katmanında sık görülen bazı `Window` çağrıları
-render çıktısı üretmez; o anki pencere/input durumunu okumak veya işi doğru frame
-fazına taşımak için kullanılır.
+Zed'in `workspace` ve `ui` katmanında sık görülen bazı `Window` method'ları render çıktısı üretmez; bunlar o anki pencere veya input durumunu okumak, custom layout hesaplamak ya da işi doğru frame fazına ertelemek için kullanılır. Bu bölüm üç ana grubu kapsar: **anlık input snapshot'ı**, **layout ölçüm ve current view sorguları**, **frame zamanlama araçları**.
 
-Anlık input snapshot'ı:
+### Anlık input snapshot'ı
 
 - `window.modifiers() -> Modifiers`: o an basılı modifier'ları verir. Zed'de
   Shift/Alt/Ctrl ile notification suppress, pane clone veya quick action preview
@@ -129,7 +126,7 @@ Anlık input snapshot'ı:
 - `window.is_window_hovered() -> bool`: tooltip, popover veya hover overlay'i
   window dışına çıkınca kapatmak gibi durumlarda kullanılır.
 
-Render/prepaint sırasında current view ve layout:
+### Render/prepaint sırasında current view ve layout
 
 - `window.current_view() -> EntityId`: şu anda render/prepaint/paint edilen view
   entity'sidir. `request_animation_frame`, `use_asset` ve hover/indent-guide gibi
@@ -148,7 +145,7 @@ Render/prepaint sırasında current view ve layout:
   `pixel_snap_bounds(...)`: logical pikseli device pixel grid'e hizalar. İnce
   çizgi, indent guide ve overlay border'larında bulanıklığı azaltmak için kullan.
 
-Frame zamanlama araçları:
+### Frame zamanlama araçları
 
 ```rust
 window.on_next_frame(|window, cx| {
@@ -180,7 +177,7 @@ window.defer(cx, |window, cx| {
   yapmak için kullanılır. Layout ölçümü gerekiyorsa `defer` değil `on_next_frame`
   tercih edilir.
 
-Low-level custom element hook'ları:
+### Low-level custom element hook'ları
 
 - `window.insert_window_control_hitbox(area, hitbox)`: paint fazında platform
   control hitbox'ı kaydeder; Windows custom titlebar'da min/max/close ve drag
@@ -199,10 +196,9 @@ Low-level custom element hook'ları:
 
 ## 16.4. App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
 
-Bu küçük API'ler ana render modelinin parçası değildir, fakat Zed başlangıcı,
-editor text davranışı ve image cache gibi yerlerde kullanılır.
+Bu bölüm ana render modelinin doğrudan parçası olmayan, ama Zed uygulamasının başlangıcında, editor text davranışında ve image cache yaşam döngüsünde kullanılan düşük seviyeli API'leri toplar. Sıradan UI kodu bunlara doğrudan dokunmaz; framework-level veya platform-port yazarken gerekli hâle gelir.
 
-Application/platform kurulumu:
+### Application/platform kurulumu
 
 - `Application::with_platform(Rc<dyn Platform>)` Application kurmak için tek
   yapıcıdır; `Application::new()` diye sade bir constructor yoktur.
@@ -226,7 +222,7 @@ Application/platform kurulumu:
   harness versiyonudur (UI penceresi açmadan App, executor ve platform
   servislerini kurar).
 
-Text/render servisleri:
+### Text/render servisleri
 
 - `cx.set_text_rendering_mode(mode)` ve `cx.text_rendering_mode()` uygulama
   genel text rendering modunu yönetir. Zed startup'ta ayarlardan gelen değeri
@@ -240,7 +236,7 @@ Text/render servisleri:
 - `window.show_character_palette()` platform karakter paletini açar. Editor
   tarafındaki `show_character_palette` action'ı bu çağrıya iner.
 
-Image atlas ve kaynak bırakma:
+### Image atlas ve kaynak bırakma
 
 - `window.drop_image(Arc<RenderImage>) -> Result<()>`: current window sprite
   atlas'ından image kaynağını bırakır.
@@ -250,7 +246,7 @@ Image atlas ve kaynak bırakma:
 - Zed/GPUI image cache release callback'leri atlas sızıntısı olmaması için bu
   API'leri kullanır; normal `img()`/`svg()` kullanımında elle çağırman gerekmez.
 
-Pencere/platform küçük servisleri:
+### Pencere/platform küçük servisleri
 
 - `window.display(cx) -> Option<Rc<dyn PlatformDisplay>>`: pencerenin bulunduğu
   display'i platform display listesiyle eşler.
@@ -262,18 +258,17 @@ Pencere/platform küçük servisleri:
   ekranlar veya performans analizleri içindir, uygulama state akışının kaynağı
   yapılmamalıdır.
 
-Tuzaklar:
+### Tuzaklar
 
-- `cx.svg_renderer()` veya `cx.drop_image(...)` gibi low-level servisleri component
-  API yerine kullanmak ownership/cache sorumluluğunu da sana verir.
-- `Application::with_platform` production'da tek platform seçimini startup'ta
-  yapar; runtime platform değiştirme mekanizması değildir.
-- `show_character_palette` her platformda gerçek UI açmayabilir; platform
-  implementasyonu no-op olabilir.
+- **`cx.svg_renderer()` veya `cx.drop_image(...)` gibi low-level servisleri component API yerine kullanmak** ownership/cache sorumluluğunu kullanıcıya devreder; mümkün olduğunca `img()`, `svg()`, `image_cache(...)` element API'leri tercih edilir.
+- **`Application::with_platform` production'da tek platform seçimini startup'ta yapar;** runtime'da platform değiştirme mekanizması değildir.
+- **`show_character_palette` her platformda gerçek UI açmayabilir;** platform implementasyonu no-op olabilir, bu yüzden UI'nin tek seçenek olarak buna bağlanmaması gerekir.
 
 ## 16.5. CursorStyle, FontWeight ve Sabit Enum Tabloları
 
-Sık başvurulan ama her seferinde aramak zorunda kalınan platform sabitleri:
+Bu bölüm günlük kullanımda sık başvurulan, ama her seferinde kaynak dosyada aranmak zorunda kalınan enum ve sabitleri tek bir tabloya toplar. Cursor stilleri, font weight değerleri, pencere kontrol alanları, hitbox davranışları, border style'ları, anchor noktaları ve resize edge sayısallarıdır.
+
+Aşağıdaki başlıklar referans niteliğindedir; sıradan uygulama kodu çoğu zaman ham enum yerine fluent helper'lar (`.cursor_pointer()`, `.italic()` vb.) kullanır.
 
 #### `CursorStyle` (`crates/gpui/src/platform.rs:1745+`)
 
@@ -342,11 +337,7 @@ Layer-shell modülündeki `Anchor` ise bitflag yapısıdır
 
 ## 16.6. Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
 
-Bu bölüm, iki farklı yüzeyi ayırır: `crates/gpui/src/gpui.rs` üzerinden dışarı
-export edilen public API ve private modüllerde `pub` tanımlanmış olsa da yalnız
-crate içinde erişilebilen taşıyıcılar. `pub` kelimesi tek başına dış API anlamına
-gelmez; dış kullanıcı açısından asıl sınır `gpui.rs` içindeki `pub use ...` /
-`pub(crate) use ...` kararlarıdır.
+GPUI'de bir tip `pub` olduğu için dışarıya açık olmayabilir; modül içinde `pub` olsa da `gpui.rs` crate kökünden `pub(crate) use ...` ile sınırlandırılmış olabilir. Bu bölüm, **`crates/gpui/src/gpui.rs` üzerinden dışarı export edilen public API** ile **private modüllerde `pub` tanımlı olup yalnız crate içinde erişilebilen taşıyıcıları** ayırır. Önceki bölümlerde geçmemiş, kalan tipleri kategori kategori sunar — referans amaçlı kullanılır, baştan sona okunmaz.
 
 #### Style ve Layout Enumları
 
