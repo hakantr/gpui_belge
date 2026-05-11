@@ -166,9 +166,8 @@ belirtilecek.
 
 ### Constructor envanteri
 
-Başlangıç constructor listesi `rg -n "pub fn (new|build|dot|checkbox|switch|divider|...)"`
-çıktısından doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında
-verilecek.
+Başlangıç constructor listesi kaynak dosyalar üzerinde yapılan `awk` taramasıyla
+doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında verilecek.
 
 | Bileşen / API | Constructor veya giriş noktası |
 | :-- | :-- |
@@ -277,9 +276,9 @@ verilecek.
 Bu envanter şu komutlarla doğrulandı:
 
 ```sh
-rg --files crates/ui/src/components crates/ui/src/styles crates/ui/src/traits crates/component/src crates/icons/src
-rg -n "impl Component for |impl<T: ButtonBuilder.*Component" crates/ui/src/components crates/ui/src/styles crates/component/src
-rg -n "pub fn (new|build|dot|checkbox|switch|divider|vertical_divider|h_flex|v_flex|h_group|right_click_menu|sticky_items|indent_guides)\\b" crates/ui/src/components crates/ui/src/styles/typography.rs
+find crates/ui/src/components crates/ui/src/styles crates/ui/src/traits crates/component/src crates/icons/src -name '*.rs' -print
+find crates/ui/src/components crates/ui/src/styles crates/component/src -name '*.rs' -print0 | xargs -0 awk '/impl Component for |impl<T: ButtonBuilder.*Component/ { print FILENAME ":" FNR ":" $0 }'
+find crates/ui/src/components crates/ui/src/styles/typography.rs -name '*.rs' -print0 | xargs -0 awk '/pub fn (new|build|dot|checkbox|switch|divider|vertical_divider|h_flex|v_flex|h_group|right_click_menu|sticky_items|indent_guides)\\b/ { print FILENAME ":" FNR ":" $0 }'
 ```
 
 ## 2. Ortak Kullanım Temelleri
@@ -4069,9 +4068,10 @@ impl LogTable {
         }
     }
 
-    fn replace_rows(&mut self, rows: Vec<LogRow>) {
+    fn replace_rows(&mut self, rows: Vec<LogRow>, cx: &mut Context<Self>) {
         self.list_state.reset(rows.len());
         self.rows = rows;
+        cx.notify();
     }
 }
 
@@ -6034,15 +6034,16 @@ Davranış:
 Örnek:
 
 ```rust
-use gpui::{KeybindingKeystroke, Keystroke};
+use gpui::{AnyElement, KeybindingKeystroke, Keystroke};
 use ui::{KeyBinding, prelude::*};
 
-fn render_save_shortcut() -> impl IntoElement {
-    let keystroke = KeybindingKeystroke::from_keystroke(
-        Keystroke::parse("cmd-s").expect("valid keybinding"),
-    );
+fn render_save_shortcut() -> AnyElement {
+    let Ok(parsed) = Keystroke::parse("cmd-s") else {
+        return div().into_any_element();
+    };
+    let keystroke = KeybindingKeystroke::from_keystroke(parsed);
 
-    KeyBinding::from_keystrokes(vec![keystroke].into(), false)
+    KeyBinding::from_keystrokes(vec![keystroke].into(), false).into_any_element()
 }
 ```
 
@@ -6086,17 +6087,19 @@ Davranış:
 Örnek:
 
 ```rust
-use gpui::{KeybindingKeystroke, Keystroke};
+use gpui::{AnyElement, KeybindingKeystroke, Keystroke};
 use ui::{KeyBinding, KeybindingHint, prelude::*};
 
-fn render_command_hint(cx: &App) -> impl IntoElement {
-    let keystroke = KeybindingKeystroke::from_keystroke(
-        Keystroke::parse("cmd-shift-p").expect("valid keybinding"),
-    );
+fn render_command_hint(cx: &App) -> AnyElement {
+    let Ok(parsed) = Keystroke::parse("cmd-shift-p") else {
+        return div().into_any_element();
+    };
+    let keystroke = KeybindingKeystroke::from_keystroke(parsed);
     let binding = KeyBinding::from_keystrokes(vec![keystroke].into(), false);
 
     KeybindingHint::new(binding, cx.theme().colors().surface_background)
         .prefix("Open command palette:")
+        .into_any_element()
 }
 ```
 

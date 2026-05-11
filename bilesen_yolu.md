@@ -693,7 +693,8 @@ Her kategori için aynı okuma sırası izlenmeli:
 1. `crates/ui/src/components/<kategori>.rs` modül dosyasını oku.
 2. Alt dosyalarda public struct, enum, trait ve `impl RenderOnce` bloklarını çıkar.
 3. `impl Component for ...` bölümünü incele; mevcut preview örneklerini temel al.
-4. `rg "<BileşenAdı>::"` ile Zed içindeki gerçek çağrıları bul.
+4. `awk '/<BileşenAdı>::/ { print FILENAME ":" FNR ":" $0 }' ...` ile Zed
+   içindeki gerçek çağrıları bul.
 5. Benzer kullanım yerlerinden minimum ve gerçekçi örnek kod üret.
 6. Örneği rehberdeki bölüm şablonuna yerleştir.
 7. API imzaları değişmişse kaynak haritasını güncelle.
@@ -701,9 +702,9 @@ Her kategori için aynı okuma sırası izlenmeli:
 Önerilen komutlar:
 
 ```sh
-rg -n "pub struct Button|impl Button|impl Component for Button" crates/ui/src/components/button
-rg -n "Button::new|IconButton::new|ToggleButton::" crates
-rg -n "impl Component for" crates/ui/src/components
+find crates/ui/src/components/button -name '*.rs' -print0 | xargs -0 awk '/pub struct Button|impl Button|impl Component for Button/ { print FILENAME ":" FNR ":" $0 }'
+find crates -name '*.rs' -print0 | xargs -0 awk '/Button::new|IconButton::new|ToggleButton::/ { print FILENAME ":" FNR ":" $0 }'
+find crates/ui/src/components -name '*.rs' -print0 | xargs -0 awk '/impl Component for/ { print FILENAME ":" FNR ":" $0 }'
 ```
 
 ## 7. Kapsam Dışı Bırakılacaklar
