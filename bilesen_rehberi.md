@@ -42,18 +42,26 @@ crate kökünden çağrılır. Alt modüller de kendi içlerinde `pub use *` yap
 `crates/ui/src/prelude.rs` daha seçicidir. Her component'i değil, sık kullanılan
 temel UI primitive'lerini ve trait'leri getirir:
 
-- `gpui::prelude::*`, `App`, `Context`, `Window`, `AnyElement`, `ElementId`,
-  `ParentElement`, `RenderOnce`, `SharedString`, `div`, `px`, `rems`.
+- GPUI yeniden ihraçları (`pub use gpui::prelude::*` ve ayrıca):
+  `AbsoluteLength`, `AnyElement`, `App`, `Context`, `DefiniteLength`, `Div`,
+  `Element`, `ElementId`, `InteractiveElement`, `ParentElement`, `Pixels`,
+  `Rems`, `RenderOnce`, `SharedString`, `Styled`, `Window`, `div`, `px`,
+  `relative`, `rems`.
 - Component preview tipleri: `Component`, `ComponentScope`,
   `example_group`, `example_group_with_title`, `single_example`,
   `RegisterComponent`.
 - Ortak trait'ler: `Clickable`, `Disableable`, `FixedWidth`, `StyledExt`,
   `Toggleable`, `VisibleOnHover`.
-- Sık kullanılan bileşenler ve token'lar: `Button`, `IconButton`,
+- Tasarım sistemi token'ları ve yardımcıları: `DynamicSpacing`, `PlatformStyle`,
+  `Severity`, `StyledTypography`, `TextSize`, `rems_from_px`, `vh`, `vw`,
+  `ActiveTheme`.
+- Animasyon yardımcıları: `AnimationDirection`, `AnimationDuration`,
+  `DefaultAnimations`.
+- Sık kullanılan bileşenler ve enum'lar: `Button`, `IconButton`,
   `SelectableButton`, `ButtonCommon`, `ButtonSize`, `ButtonStyle`, `Color`,
   `Headline`, `HeadlineSize`, `Icon`, `IconName`, `IconPosition`, `IconSize`,
   `Label`, `LabelCommon`, `LabelSize`, `LineHeightStyle`, `LoadingLabel`,
-  `h_flex`, `v_flex`, `h_group*`, `v_group*`, `Severity`, `ActiveTheme`.
+  `h_flex`, `v_flex`, `h_group*`, `v_group*`.
 
 Rehberdeki örneklerde kural şu olacak: örnekler önce `use ui::prelude::*;` ile
 başlayacak, prelude'da olmayan bileşenler ayrıca `use ui::{...};` satırında
@@ -98,6 +106,8 @@ belirtilecek.
 | İkon | `Icon` | `crates/ui/src/components/icon.rs` | `ui::Icon` | Evet | Evet |
 | İkon | `DecoratedIcon` | `crates/ui/src/components/icon/decorated_icon.rs` | `ui::DecoratedIcon` | Hayır | Evet |
 | İkon | `IconDecoration` | `crates/ui/src/components/icon/icon_decoration.rs` | `ui::IconDecoration` | Hayır | Hayır |
+| İkon | `IconWithIndicator` | `crates/ui/src/components/icon.rs` | `ui::IconWithIndicator` | Hayır | Hayır |
+| İkon | `AnyIcon` | `crates/ui/src/components/icon.rs` | `ui::AnyIcon` | Hayır | Enum |
 | İkon | `IconName` | `crates/icons/src/icons.rs` | `ui::IconName` | Evet | Enum |
 | İkon | `IconSize` | `crates/ui/src/components/icon.rs` | `ui::IconSize` | Evet | Enum |
 | Form / Toggle | `Checkbox` | `crates/ui/src/components/toggle.rs` | `ui::Checkbox` | Hayır | Evet |
@@ -114,6 +124,7 @@ belirtilecek.
 | Liste / Tree | `ListHeader` | `crates/ui/src/components/list/list_header.rs` | `ui::ListHeader` | Hayır | Evet |
 | Liste / Tree | `ListSubHeader` | `crates/ui/src/components/list/list_sub_header.rs` | `ui::ListSubHeader` | Hayır | Evet |
 | Liste / Tree | `ListSeparator` | `crates/ui/src/components/list/list_separator.rs` | `ui::ListSeparator` | Hayır | Hayır |
+| Liste / Tree | `ListBulletItem` | `crates/ui/src/components/list/list_bullet_item.rs` | `ui::ListBulletItem` | Hayır | Evet |
 | Liste / Tree | `TreeViewItem` | `crates/ui/src/components/tree_view_item.rs` | `ui::TreeViewItem` | Hayır | Evet |
 | Liste / Tree | `StickyItems` | `crates/ui/src/components/sticky_items.rs` | `ui::StickyItems` | Hayır | Hayır |
 | Liste / Tree | `IndentGuides` | `crates/ui/src/components/indent_guides.rs` | `ui::IndentGuides` | Hayır | Hayır |
@@ -161,6 +172,7 @@ belirtilecek.
 | AI / Collab | `ThreadItem` | `crates/ui/src/components/ai/thread_item.rs` | `ui::ThreadItem` | Hayır | Evet |
 | AI / Collab | `AgentThreadStatus` / `ThreadItemWorktreeInfo` | `crates/ui/src/components/ai/thread_item.rs` | `ui::AgentThreadStatus`, `ui::ThreadItemWorktreeInfo`, `ui::WorktreeKind` | Hayır | Yardımcı |
 | AI / Collab | `ConfiguredApiCard` | `crates/ui/src/components/ai/configured_api_card.rs` | `ui::ConfiguredApiCard` | Hayır | Evet |
+| AI / Collab | `ParallelAgentsIllustration` | `crates/ui/src/components/ai/parallel_agents_illustration.rs` | `ui::ParallelAgentsIllustration` | Hayır | Hayır |
 | AI / Collab | `CollabNotification` | `crates/ui/src/components/collab/collab_notification.rs` | `ui::CollabNotification` | Hayır | Evet |
 | AI / Collab | `UpdateButton` | `crates/ui/src/components/collab/update_button.rs` | `ui::UpdateButton` | Hayır | Evet |
 
@@ -187,9 +199,11 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | `Icon` | `Icon::new(icon)`, `Icon::from_path(path)`, `Icon::from_external_svg(svg)` |
 | `DecoratedIcon` | `DecoratedIcon::new(icon, decoration)` |
 | `IconDecoration` | `IconDecoration::new(kind, knockout_color, cx)` |
+| `IconWithIndicator` | `IconWithIndicator::new(icon, Option<Indicator>)` |
+| `AnyIcon` | `AnyIcon::Icon(icon)`, `AnyIcon::AnimatedIcon(animation_element)` ve `From<Icon>`, `From<AnimationElement<Icon>>` dönüşümleri; `.map(|icon| ...)` ile içeriği dönüştürür |
 | `Checkbox` | `Checkbox::new(id, checked)` veya `checkbox(id, state)` |
 | `Switch` | `Switch::new(id, state)` veya `switch(id, state)` |
-| `SwitchField` | `SwitchField::new(id, label, description, state, on_click)` |
+| `SwitchField` | `SwitchField::new(id, label: Option<impl Into<SharedString>>, description: Option<SharedString>, state: impl Into<ToggleState>, on_click)` |
 | `DropdownMenu` | `DropdownMenu::new(id, label, menu)` veya `DropdownMenu::new_with_element(id, label, menu)` |
 | `ContextMenu` | `ContextMenu::new(window, cx, builder)` veya `ContextMenu::build(window, cx, builder)` |
 | `RightClickMenu` | `right_click_menu(id)` |
@@ -243,6 +257,7 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | `AgentSetupButton` | `AgentSetupButton::new(id)` |
 | `ThreadItem` | `ThreadItem::new(id, title)` |
 | `ConfiguredApiCard` | `ConfiguredApiCard::new(label)` |
+| `ParallelAgentsIllustration` | `ParallelAgentsIllustration::new()` |
 | `CollabNotification` | `CollabNotification::new(avatar_uri, accept_button, dismiss_button)` |
 | `UpdateButton` | `UpdateButton::new(icon, message)` |
 
@@ -438,6 +453,121 @@ Toggle state'i `ToggleState` ile ifade edilir. `bool` doğrudan `ToggleState`'e
 dönüşebilir; üç durumlu seçimlerde `ToggleState::Indeterminate` veya
 `ToggleState::from_any_and_all(any_checked, all_checked)` kullanın.
 
+### Spacing token'ları (`DynamicSpacing`)
+
+Padding, margin ve gap değerleri için elle `px(...)` veya `rems(...)` yazmak
+yerine `crates/ui/src/styles/spacing.rs` içinde tanımlı `DynamicSpacing`
+ölçeğini tercih edin. Bu enum kullanıcının UI yoğunluk ayarına (`Compact`,
+`Default`, `Comfortable`) göre tek noktadan ölçek değiştirir.
+
+- Adlandırma: `Base00`, `Base01`, ..., `Base12`. `BaseXX`, `XX` değeri varsayılan
+  yoğunlukta yaklaşık pixel değeridir (`Base04 ≈ 4px`, `Base16 ≈ 16px`).
+- Kullanım: `.gap(DynamicSpacing::Base02.px(cx))`,
+  `.p(DynamicSpacing::Base06.rems(cx))`.
+- Üç değer manuel verildiğinde (örn. `(1, 1, 2)`) yoğunluğa göre değişir;
+  tek değer verilirse `(n-4, n, n+4)` formülü uygulanır.
+- Mevcut ui density'i `ui::ui_density(cx)` ile sorgulayabilirsiniz; bu döner
+  değer yalnızca görsel kararlar için kullanılmalı, doğrudan spacing
+  hesaplamak için değil.
+
+Sabit aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `gap_2` gibi GPUI
+yardımcıları yeterlidir; bu sabitler `h_group*` ve `v_group*` helper'larının
+arkasında kullanılır.
+
+### Yükseklik / elevation token'ları (`ElevationIndex`)
+
+`crates/ui/src/styles/elevation.rs`'teki `ElevationIndex`, bir yüzeyin görsel
+"z-axis" konumunu ifade eder. Doğru elevation, doğru shadow, background ve
+border kombinasyonunu otomatik üretir.
+
+- `Background`: uygulamanın en alt zemini.
+- `Surface`: paneller, pane'ler, ana yüzey container'ları.
+- `EditorSurface`: editable buffer yüzeyleri (genelde `Surface` ile aynı renk).
+- `ElevatedSurface`: popover, dropdown gibi paneller üstünde yer alan yüzeyler.
+- `ModalSurface`: dialog, alert, modal gibi uygulamayı geçici olarak kilitleyen
+  yüzeyler.
+
+Pratik builder'lar `StyledExt` üzerinden gelir:
+
+- `.elevation_1(cx)` ve `.elevation_1_borderless(cx)`: hafif yükseltilmiş yüzey.
+- `.elevation_2(cx)` ve `.elevation_2_borderless(cx)`: popover, popovermenu,
+  tooltip yüzeyi.
+- `.elevation_3(cx)` ve `.elevation_3_borderless(cx)`: modal ve announcement
+  yüzeyi.
+
+`Popover` `.elevation_2(cx)`, `AnnouncementToast` `.elevation_3(cx)` kullanır.
+Kendi modal/dialog yüzeyini elden kurarken aynı yardımcıları çağırın; aksi
+halde shadow ve background görsel tutarlılığı bozulur.
+
+### Platform stili (`PlatformStyle`)
+
+`crates/ui/src/styles/platform.rs`'teki `PlatformStyle`, render kararlarını
+işletim sistemine göre soyutlamak için kullanılır.
+
+- Değerler: `Mac`, `Linux`, `Windows`.
+- Mevcut platformu öğrenmek için `PlatformStyle::platform()` (const fn).
+- `KeyBinding::platform_style(...)` modifier ikonu vs. metin gösterimini
+  bu enum'a göre seçer.
+
+Platforma özel davranış kurarken `cfg!` makrolarını dağıtmak yerine
+`PlatformStyle::platform()` döndüren değeri tek noktada saklayın; testlerde
+bu değeri override etmek daha kolaydır.
+
+### Tipografi yardımcıları (`StyledTypography`, `TextSize`)
+
+`crates/ui/src/styles/typography.rs`, `Headline` ve `Label` dışında düz
+`div()` üzerine de tema tutarlı tipografi uygulamak için `StyledTypography`
+trait'ini sağlar. `Styled` implement eden her tip otomatik bu trait'i alır.
+
+Sık kullanılan yöntemler:
+
+- `.font_ui(cx)` ve `.font_buffer(cx)`: tema UI/buffer fontunu uygular.
+- `.text_ui_lg(cx)`, `.text_ui(cx)`, `.text_ui_sm(cx)`, `.text_ui_xs(cx)`:
+  `Large`, `Default`, `Small`, `XSmall` boyutlarını seçer.
+- `.text_buffer(cx)`: kullanıcının buffer font size'ını uygular.
+- `.text_ui_size(TextSize::Editor, cx)` gibi serbest seçim.
+
+`TextSize` değerleri ve karşılık geldikleri rem değerleri (16px = 1rem):
+
+| `TextSize` | rem | px |
+| :-- | :-- | :-- |
+| `Large` | `rems_from_px(16.)` | `16` |
+| `Default` | `rems_from_px(14.)` | `14` |
+| `Small` | `rems_from_px(12.)` | `12` |
+| `XSmall` | `rems_from_px(10.)` | `10` |
+| `Ui` | settings'teki ui_font_size | dinamik |
+| `Editor` | settings'teki buffer_font_size | dinamik |
+
+`Label` ve `Headline` zaten doğru tipografiyi uygular; `div()` veya `h_flex()`
+gibi yapı taşlarına metin yazıyorsanız `font_ui` + `text_ui_*` çağırmadan
+bırakmayın. Aksi halde font ailesi sistemden devralınır ve tema değişikliği
+yansımaz.
+
+### Animasyon yardımcıları
+
+`crates/ui/src/styles/animation.rs` küçük UI animasyonlarını standart
+süreler ve yönlerle kurmak için bir trait sağlar.
+
+- `AnimationDuration`: `Instant` (50ms), `Fast` (150ms), `Slow` (300ms).
+- `AnimationDirection`: `FromBottom`, `FromLeft`, `FromRight`, `FromTop`.
+- `DefaultAnimations` trait yöntemleri: `.animate_in(direction, fade_in)`,
+  `.animate_in_from_bottom(fade)`, `.animate_in_from_top(fade)`,
+  `.animate_in_from_left(fade)`, `.animate_in_from_right(fade)`.
+
+`DefaultAnimations`, `Styled + Element` implement eden her tipe otomatik
+bağlanır. Daha karmaşık animasyonlar için GPUI'nin `Animation`,
+`AnimationExt`, `with_animation(...)` ve `with_animations(...)` yapılarını
+doğrudan kullanın; `LoadingLabel`, `SpinnerLabel`, `AiSettingItem` ve
+`ThreadItem::Running` durumu bu yolla animasyon uygular.
+
+### `Transformable` trait
+
+`crates/ui/src/traits/transformable.rs` içindeki `Transformable`, GPUI'nin
+`Transformation` tipini bileşene uygulamak için ortak bir yüzey sağlar
+(`.transform(transformation)`). Şu anda `Vector` bu trait'i implement eder;
+döndürmek için `gpui::Transformation::rotate(...)`, çevirmek için
+`gpui::Transformation::scale(...)` üretip `.transform(...)` ile geçirin.
+
 ### Layout yardımcıları
 
 `h_flex()` yatay flex container, `v_flex()` dikey flex container üretir. Bu
@@ -450,6 +580,32 @@ tercih edin.
 
 Raw `div()` hala geçerlidir. Özel grid, absolute positioning, canvas veya çok
 spesifik style gerektiğinde doğrudan `div()` kullanmak daha açıktır.
+
+### Hata yönetimi
+
+UI olay işleyicilerinden veya async task'larından dönen `Result` değerleri
+sessizce yutulmamalıdır. Tutarlı bir kuralı izleyin:
+
+- Çağıran fonksiyon `Result` taşıyabiliyorsa hatayı `?` ile yayın.
+- View içinde fire-and-forget bir task çalıştırıyorsanız hatayı log'a
+  düşürmek için `task.detach_and_log_err(cx)` kullanın; `task.detach()` hatayı
+  yok eder ve sebebi tespit edilemez.
+- Async iş bitiminde view state'ini güncellemeniz gerekiyorsa task'ı view
+  struct'ı içinde `Task<anyhow::Result<()>>` alanı olarak saklayın ve task
+  içinde `this.update(cx, ...)?` ile entity'ye geri dönün. Bu pattern Bölüm
+  12'de "Ayarlar Paneli Satırı" örneğinde uygulanır.
+- Tek seferlik async sonucu kullanıcıya göstermeniz gerekiyorsa hatayı
+  `last_error: Option<SharedString>` gibi bir state alanına yazıp
+  `Callout` veya `Banner` ile sunun. Görsel state değiştiği için
+  `cx.notify()` çağırmayı unutmayın.
+- `unwrap()`, `expect(...)` ve `let _ = ...?` yerine açık eşleştirme yapın.
+  `let _ =` üretim kodunda yalnızca hatayı bilinçli yok etmek istediğiniz
+  ender durumlarda kabul edilir; o durumda da yorum satırıyla nedenini
+  belirtin.
+
+`anyhow::Result` ve `anyhow::Context` Zed crate'lerinde standarttır.
+`?` operatörü ile hata yayıyorsanız mesaja `with_context(|| ...)` ekleyerek
+log'da kaynağı görünür yapın.
 
 ### Component preview
 
@@ -495,6 +651,19 @@ Preview kodunda `scope()` bileşenin gallery'de hangi grupta gösterileceğini
 belirler. `preview()` herhangi bir `AnyElement` döndürebilir; tek bir örnek için
 `single_example`, ilişkili varyantları gruplayarak göstermek için
 `example_group_with_title` kullanılır.
+
+Preview'ları Zed reposunda görsel olarak incelemek için:
+
+```sh
+cargo run -p component_preview --example component_preview
+```
+
+Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda alınmış tüm
+bileşenleri sol panelden gezilebilir kategoriler (`ComponentScope`) altında
+listeler. Yeni bir bileşene preview eklediğinizde derive makrosu kaydı kendisi
+yapar; ayrı bir kayıt çağrısı gerekmez. Preview için doğrudan `impl Component`
+yazan tipler (struct olmadan) gallery'ye eklenmez; en az boş bir
+`#[derive(IntoElement, RegisterComponent)] struct ExampleComponent;` ile sarın.
 
 ## 3. Metin ve İkon Bileşenleri
 
@@ -1143,6 +1312,19 @@ Buton boyutları:
 - `ButtonSize::Default`: 22px.
 - `ButtonSize::Compact`: 18px.
 - `ButtonSize::None`: 16px; link veya özel kompozisyonlarda kullanılır.
+
+Seçili görünüm seçimi (`Tinted` ya da `selected_style`):
+
+| Senaryo | Tercih | Neden |
+| :-- | :-- | :-- |
+| Buton seçili değilken bile semantik renk taşıyor (örn. delete / approve) | `.style(ButtonStyle::Tinted(TintColor::...))` | Tinted, normal stilin yerine geçer; toggle olmadan da renk kalıcıdır. |
+| Buton normalde `Subtle` veya `Filled`; seçildiğinde vurgulu görünmeli | `.toggle_state(true).selected_style(ButtonStyle::Tinted(TintColor::Accent))` | `selected_style`, yalnızca `toggle_state` true iken devreye girer; seçim kalkınca eski stile döner. |
+| Seçili durumda da `Subtle` görünmeli ama icon/label rengi değişsin | `.toggle_state(true).selected_label_color(Color::Accent)` veya `IconButton::selected_icon_color(...)` | Buton arka planı korunur, sadece içerik rengi değişir. |
+| Seçili durumda farklı bir ikon görünmeli | `IconButton::selected_icon(IconName::...)` | Toggle iken icon swap'i `selected_style` ile kombine edilebilir. |
+
+`SelectableButton` trait'i `Button`, `IconButton` ve `ButtonLike` için
+`selected_style(ButtonStyle)` yüzeyini birlikte sunar; ortak bir görsel kural
+gerektiğinde butonlar üzerinde aynı helper'ı çağırabilirsiniz.
 
 Dikkat edilecekler:
 
@@ -2187,6 +2369,57 @@ Zed içinden kullanım:
 - `../zed/crates/git_ui/src/git_panel.rs`: git panel eylem menüleri.
 - `../zed/crates/keymap_editor/src/keymap_editor.rs`: filtre ve keybinding
   menüleri.
+
+Özel entry'ler:
+
+```rust
+use gpui::IntoElement;
+use ui::prelude::*;
+use ui::{Chip, ContextMenu};
+
+fn build_menu_with_custom_entries(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
+    ContextMenu::build(window, cx, |menu, _, _| {
+        menu.header_with_link(
+            "Available Tools",
+            "Docs",
+            "https://zed.dev/docs/tools",
+        )
+        .custom_entry(
+            |_, _| {
+                h_flex()
+                    .gap_2()
+                    .child(Label::new("Run Selection"))
+                    .child(Chip::new("beta").label_color(Color::Accent))
+                    .into_any_element()
+            },
+            |_, _| {},
+        )
+        .custom_entry_with_docs(
+            |_, _| Label::new("Open Workspace Settings").into_any_element(),
+            |_, _| {},
+            Some(ui::DocumentationAside::new(
+                ui::DocumentationSide::Right,
+                std::rc::Rc::new(|_| {
+                    Label::new("Workspace ayarları sadece bu proje için geçerlidir.")
+                        .into_any_element()
+                }),
+            )),
+        )
+    })
+}
+```
+
+`header_with_link(...)` üç parametre alır: başlık, link etiketi ve link URL'i.
+Render edilen header'a tıklanırsa URL `cx.open_url(...)` ile açılır.
+
+`custom_entry(render_fn, handler)`, entry görselini sıfırdan üretmenize izin
+verir. Varsayılan olarak selectable'dır; `.selectable(false)` ile entry'yi
+salt görsel hale getirebilirsiniz (label gibi).
+
+`custom_entry_with_docs(render_fn, handler, documentation_aside)`, entry'nin
+yanında popover olarak küçük bir dokümantasyon paneli açar. Ayrıca normal
+`entry(...)` zinciri üzerine `.documentation_aside(side, render)` ile aynı
+davranışı eklemek mümkündür.
 
 Dikkat edilecekler:
 
@@ -3875,12 +4108,135 @@ fn render_branch_metadata(branch: SharedString, ahead: usize) -> impl IntoElemen
 }
 ```
 
+### Scrollbar
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/scrollbar.rs`
+- Export: `ui::Scrollbars`, `ui::ScrollAxes`, `ui::ScrollbarStyle`,
+  `ui::ShowScrollbar`, `ui::ScrollbarAutoHide`, `ui::ScrollbarVisibility`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: Doğrudan component preview yok; gerçek kullanım panel, modal ve
+  tablo kompozisyonları içindedir.
+
+Ne zaman kullanılır:
+
+- Bir scroll container'a Zed tema renkleriyle uyumlu scrollbar bağlamak için.
+- Tablo, panel veya picker gibi içeriklerde tema scrollbar ayarına saygı
+  duyan otomatik gösterim/gizleme davranışı gerektiğinde.
+- Yatay, dikey veya iki yönlü scroll track'ini tek API ile yönetmek için.
+
+Ne zaman kullanılmaz:
+
+- Doğal browser/native scroll yeterliyse `overflow_y_scroll()` veya
+  `overflow_x_scroll()` ile basit container kullanın; `Scrollbars`, tema ile
+  hizalanmış özel scrollbar yüzeyi gerektiğinde devreye girer.
+
+Temel API:
+
+- `Scrollbars::new(show_along: ScrollAxes)`
+- `Scrollbars::always_visible(show_along)`
+- `Scrollbars::for_settings::<S: ScrollbarVisibility>()`
+- `.id(ElementId)`, `.notify_content()`, `.tracked_entity(EntityId)`,
+  `.tracked_scroll_handle(handle)`, `.show_along(axes)`, `.style(style)`,
+  `.with_track_along(axes, bg)`, `.with_stable_track_along(axes, bg)`
+- `ScrollAxes`: `Horizontal`, `Vertical`, `Both`.
+- `ScrollbarStyle`: `Regular` (6px), `Editor` (15px).
+- `ShowScrollbar`: `Auto`, `System`, `Always`, `Never`.
+
+Davranış:
+
+- `Scrollbars::new(ScrollAxes::Vertical)` varsayılan olarak tema scrollbar
+  ayarına bağlı görünür; `always_visible(...)` ayarı yok sayar.
+- `tracked_scroll_handle(...)`, harici bir `ScrollableHandle` (örn.
+  `ScrollHandle`, `UniformListScrollHandle`) kullanır.
+- `Table::interactable(...)` ile `TableInteractionState::with_custom_scrollbar(...)`
+  birlikte verildiğinde `Scrollbars` tablonun yatay/dikey scroll handle'larına
+  bağlanır.
+- `ScrollbarStyle::Editor`, editor görselli scrollbar genişliği için
+  kullanılır; panel ve liste için `Regular` daha uygundur.
+
+Örnek:
+
+```rust
+use gpui::ScrollHandle;
+use ui::prelude::*;
+use ui::{ScrollAxes, Scrollbars};
+
+struct LogPanel {
+    scroll: ScrollHandle,
+}
+
+impl Render for LogPanel {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        v_flex()
+            .size_full()
+            .child(
+                div()
+                    .id("log-body")
+                    .flex_1()
+                    .overflow_y_scroll()
+                    .track_scroll(&self.scroll)
+                    .child(Label::new("…")),
+            )
+            .child(
+                Scrollbars::new(ScrollAxes::Vertical)
+                    .tracked_scroll_handle(self.scroll.clone()),
+            )
+    }
+}
+```
+
+Dikkat edilecekler:
+
+- `Scrollbars` kendi başına içerik scroll'lamaz; bir `ScrollableHandle` ile
+  bağlanmalı veya bir `ScrollHandle::new()` üzerinden takip etmelidir.
+- `with_stable_track_along(...)`, scroll alanı yokken bile track yer ayırır;
+  böylece scrollbar görünür/gizli değiştiğinde layout zıplaması olmaz.
+- Birden çok scroll alanı varsa her birine `.id(...)` ile benzersiz id verin.
+
 ## 9. Veri ve Tablo Bileşenleri
 
 Zed UI tarafında tablo ihtiyacı için ana giriş noktası `Table` bileşenidir.
 Küçük ve sabit satırlı tabloları doğrudan `.row(...)` ile, büyük tabloları ise
 GPUI'nin sanallaştırılmış liste altyapısına bağlanan `.uniform_list(...)` veya
 `.variable_row_height_list(...)` ile render eder.
+
+### GPUI uniform_list ile köprü
+
+`Table::uniform_list(...)` ve Bölüm 6'daki büyük listeler aslında GPUI'nin
+`uniform_list(...)` elementine bağlanır. Bu element, görünür satır aralığını
+parça parça render ederek binlerce satırlı listeleri performans kaybı olmadan
+gösterir. Kullanım kuralları:
+
+- `uniform_list(id, item_count, |range, window, cx| Vec<AnyElement>)`: id ve
+  satır sayısını alır, kalan kısım yalnızca görünür `range` için satırları
+  üretir. Range içindeki indeks dizisi `range.map(|ix| ...)`.
+- Satır yüksekliği homojen olmalıdır; içerik her satırda farklı yükseklik
+  istiyorsa GPUI `list(...)` elementi ve `ListState` ile çalışan
+  `Table::variable_row_height_list(...)` daha uygundur.
+- Scroll davranışı için `UniformListScrollHandle` view struct'ında saklanır
+  ve `.track_scroll(&handle)` ile bağlanır. `Table::interactable(...)`
+  davranışı bunu kendi `TableInteractionState`'inde yönetir.
+- `with_sizing_behavior(ListSizingBehavior::Infer)`, listenin içeriğine göre
+  yükseklik almasını sağlar; `Fill` parent yüksekliğini kullanır.
+- `with_decoration(...)` slotuna `IndentGuides`, `StickyItems` gibi
+  decoration'lar bağlanır; bu decorations `UniformListDecoration` trait'ini
+  implement etmelidir.
+
+Karar matrisi:
+
+| Satır modeli | Kullanım |
+| :-- | :-- |
+| Sabit, az satır | `List::new()` + `ListItem::new(...)`; doğrudan parent içinde scroll. |
+| Sabit yükseklik, çok satır | `uniform_list(id, count, ...)` veya `Table::uniform_list(...)`. |
+| Değişken yükseklik, çok satır | `gpui::list(...) + ListState` veya `Table::variable_row_height_list(...)`. |
+| Hiyerarşik / sticky parent | `uniform_list(...)` + `IndentGuides` + `StickyItems`. |
+
+`gpui::ListAlignment` (`Top`, `Bottom`) ve `ListSizingBehavior`
+(`Fill`, `Infer`) için tip referansları `gpui` crate'inde tanımlıdır; UI
+tarafında bunları kullanan örnekler `crates/keymap_editor`, `crates/csv_preview`
+ve `crates/project_panel` içinde yer alır.
 
 Bu ailede üç karar birlikte düşünülmelidir:
 
@@ -4545,6 +4901,16 @@ Ne zaman kullanılmaz:
 Temel API:
 
 - `TableRenderContext::for_column_widths(column_widths, use_ui_font)`
+  - `column_widths`: `Option<TableRow<Length>>`. `None` verirse hücreler
+    sabit genişlik almaz; redistributable/resizable bir state'ten geliyorsa
+    `columns_state.read(cx).widths_to_render()` çağırın.
+  - `use_ui_font`: `true` ise hücre içeriği `text_ui(cx)` ile çizilir; `false`
+    ise font ailesi parent'tan miras alınır. `Table::no_ui_font()` ile kapatılan
+    davranışın aynısıdır. CSV preview, monospace görünüm için `false` verir.
+  - `striped`, `show_row_borders`, `show_row_hover`, `total_row_count`,
+    `disable_base_cell_style`, `map_row` alanları `Default::default()`
+    benzeri varsayılanlarla doldurulur; özel görünüm gerekiyorsa
+    `for_column_widths(...)` çıktısını alan alan değiştirebilirsiniz.
 - `render_table_header(headers, table_context, resize_info, entity_id, cx)`
 - `render_table_row(row_index, items, table_context, window, cx)`
 - `HeaderResizeInfo::from_redistributable(&columns_state, cx)`
@@ -4970,6 +5336,69 @@ fn render_project_settings_modal() -> impl IntoElement {
 }
 ```
 
+Modal lifecycle ve workspace entegrasyonu:
+
+Zed UI `Modal` bileşeni yalnızca içerik shell'idir; modal'ın açılıp
+kapanmasını yöneten asıl katman `workspace::ModalLayer` ve
+`workspace::ModalView` trait'idir.
+
+```rust
+use gpui::{Entity, ManagedView};
+use ui::{Modal, ModalFooter, ModalHeader, Section, prelude::*};
+use workspace::{ModalView, Workspace};
+
+struct ProjectSettingsModal {
+    focus_handle: gpui::FocusHandle,
+}
+
+impl gpui::EventEmitter<gpui::DismissEvent> for ProjectSettingsModal {}
+
+impl gpui::Focusable for ProjectSettingsModal {
+    fn focus_handle(&self, _cx: &App) -> gpui::FocusHandle {
+        self.focus_handle.clone()
+    }
+}
+
+impl ManagedView for ProjectSettingsModal {}
+impl ModalView for ProjectSettingsModal {}
+
+impl Render for ProjectSettingsModal {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        Modal::new("project-settings-modal", None)
+            .header(ModalHeader::new().headline("Project Settings"))
+            .section(Section::new().child(Label::new("…")))
+            .footer(ModalFooter::new().end_slot(Button::new("close", "Close")))
+    }
+}
+
+fn open_project_settings(
+    workspace: &mut Workspace,
+    window: &mut Window,
+    cx: &mut Context<Workspace>,
+) {
+    workspace.toggle_modal::<ProjectSettingsModal, _>(window, cx, |_window, cx| {
+        ProjectSettingsModal {
+            focus_handle: cx.focus_handle(),
+        }
+    });
+}
+```
+
+`ModalView` trait sözleşmesi:
+
+- `ManagedView`: yani `Render + Focusable + EventEmitter<DismissEvent>`.
+- `on_before_dismiss(window, cx) -> DismissDecision`: kapanmadan önce
+  validation veya kullanıcı onayı istenebilir. `DismissDecision::Pending`
+  kapanmayı erteler, `DismissDecision::Dismiss(false)` iptal eder.
+- `fade_out_background(&self) -> bool`: ekrandaki diğer içeriği soluklaştırmak
+  için override edilebilir.
+- `render_bare(&self) -> bool`: workspace `ModalLayer`'ın varsayılan elevation
+  yüzeyini bypass etmek için.
+
+`Workspace::toggle_modal::<V, _>(window, cx, build_fn)`, aynı modal türü zaten
+açıksa kapatır, farklı bir modal açıksa onu kapatıp yenisini açar. `ModalLayer`,
+dismiss event'ini dinler ve focus'u önceki elemana geri verir.
+
 Dikkat edilecekler:
 
 - `Modal` yalnızca içerik shell'idir; açma/kapama lifecycle'ı modal host veya
@@ -4977,6 +5406,8 @@ Dikkat edilecekler:
 - Header dismiss/back button'ları `menu::Cancel` dispatch eder; parent context bu
   aksiyonu ele almalıdır.
 - Section içinde çok sayıda ayar satırı varsa body scroll handle'ı verin.
+- Modal'ı bir AlertModal yerine kullanıyorsanız bile yine workspace üzerinden
+  `toggle_modal` ile sunun; ayrı bir overlay altyapısı kurmaya gerek yoktur.
 
 ### AlertModal
 
@@ -5987,6 +6418,42 @@ Dikkat edilecekler:
 - `Image` adında public Zed UI component'i yoktur; rehberde görsel ihtiyacı için
   `Vector`, `Avatar`, `Icon` ve GPUI `img(...)` ayrımı yapılmalıdır.
 - `VectorName` yalnızca kaynakta tanımlı bundled asset'leri kapsar.
+
+GPUI `img(...)` ve `ImageSource` (raster veya dış görsel için):
+
+```rust
+use gpui::{ImageSource, SharedUri, img};
+use ui::prelude::*;
+
+fn render_remote_thumbnail() -> impl IntoElement {
+    img(ImageSource::from(SharedUri::from(
+        "https://zed.dev/img/banner.png",
+    )))
+    .size(px(96.))
+    .rounded_md()
+}
+
+fn render_local_thumbnail() -> impl IntoElement {
+    img(ImageSource::from(std::path::Path::new("/tmp/preview.png")))
+        .size(px(96.))
+        .rounded_md()
+}
+```
+
+`ImageSource` aşağıdaki kaynaklardan otomatik dönüşür:
+
+| Kaynak | Notlar |
+| :-- | :-- |
+| `&str`, `String`, `SharedString` | URL veya yerel yol; URL ise asenkron yüklenir. |
+| `SharedUri` | Tip güvenli URL gösterimi; `Avatar::new("https://...")` örtük bu yolu kullanır. |
+| `&Path`, `Arc<Path>`, `PathBuf` | Dosya sistemi yolu; senkron olarak okunur. |
+| `Arc<RenderImage>`, `Arc<Image>` | Önceden decode edilmiş image bytes. |
+| `F: Fn(&mut Window, &mut App) -> ImageSource` | Çağrı sırasında dinamik kaynak üretmek için. |
+
+`Avatar::new` bu `Into<ImageSource>` zincirinin üzerinde durur; raw `img(...)`
+kullanırken `flex_none()` ve sabit `size(...)` vermezseniz layout taşmaları
+yaşanabilir. SVG ikon için her zaman `Icon` veya `Vector` tercih edilmelidir;
+`img(...)` SVG path'lerini raster gibi muamele eder ve recolor edemez.
 
 ### KeyBinding
 
@@ -7395,3 +7862,61 @@ Bir ekranı kendi uygulamanıza taşırken şu sırayla kontrol edin:
   gibi uygun yüzey kullanıldı mı?
 - AI/collab domain bileşenlerine sadece render metadata'sı veriliyor mu, gizli
   credential veya servis nesnesi taşınmıyor mu?
+
+### Klavye Erişimi ve Action Akışı Kontrol Listesi
+
+GPUI'de bir ekranın klavye erişimi dört parçayla kurulur: focus, tab order,
+key context ve action dispatch. Bu parçalar `Navigable`, `Tooltip`, `KeyBinding`,
+`Button*`, `ListItem`, `ContextMenu` ve `AlertModal` gibi bileşenlerin builder
+yüzeyinde dağıtık olarak görülür. Bir ekran üretirken aşağıdaki sırayı izleyin:
+
+1. **Focus handle'ı tek noktada üretin.** View struct'ında
+   `focus_handle: FocusHandle` alanı tutun ve `Focusable` implement edin.
+   Modal/AlertModal kullanıyorsanız aynı handle'ı `.track_focus(&focus_handle)`
+   ile bağlayın.
+2. **Tab order'ı `tab_index(...)` ile verin.** `Button`, `IconButton`,
+   `ButtonLike`, `SwitchField`, `Switch`, `DropdownMenu`, `Disclosure`,
+   `Tab`, `ToggleButtonGroup`, `ConfiguredApiCard`, `TreeViewItem` ve `Table`
+   builder yüzeyleri `tab_index`'i (genellikle `&mut isize` veya `isize`)
+   kabul eder. Aynı form üzerinde tek bir counter geçirin; her builder counter'ı
+   kendi kullandığı kadar artırır.
+3. **`tab_stop`/`track_focus` ile özel focusable kurun.** `ListItem` gibi
+   yüksek seviyeli bileşenler odağı kendileri yönetir; özel `div()` veya
+   `h_flex()` üzerinde klavye odağı vermek için `.track_focus(&handle)` ve
+   gerektiğinde `.tab_index(...)` ekleyin. `NavigableEntry::focusable(cx)`
+   scroll anchor'sız focusable entry üretir.
+4. **`Navigable` ile up/down traversal kurun.** Scrollable listede
+   `menu::SelectNext` / `menu::SelectPrevious` action'ları `Navigable::new(...)
+   .entry(NavigableEntry::new(...))` bağlamasıyla doğru entry'ye scroll edip
+   focus eder.
+5. **`key_context(...)` ile bağlam zinciri kurun.** `AlertModal::key_context(...)`
+   ve `ContextMenu::key_context(...)`, modal veya menü içindeyken keymap'in
+   doğru bindings'i kullanmasını sağlar. Custom view'larda `cx.set_global` veya
+   element üzerinde `.key_context(KeyContext::new("MyView"))` kullanın.
+6. **Action dispatch'i `.on_action::<A>(listener)` ile bağlayın.**
+   `AlertModal::on_action`, `Modal` içindeki `menu::Cancel` ve özel
+   action'lar bu yolla yakalanır. Custom action tanımları `actions!(...)` veya
+   `Action` derive makrosuyla yapılır.
+7. **Shortcut'ları action'tan türetin.** Tooltip ve hint'lerde shortcut metni
+   yazmak yerine `KeyBinding::for_action(action, cx)` veya
+   `Tooltip::for_action_title(title, &action)` kullanın. Bu sayede keymap
+   değiştiğinde UI otomatik güncel kalır.
+8. **Icon-only kontrollerde tooltip zorunludur.** `IconButton`, `Disclosure`,
+   `CopyButton` gibi label'sız kontroller `Tooltip::text(...)` veya
+   `Tooltip::for_action_title(...)` ile niyetlerini açıklamalı.
+9. **Modal/menu kapanınca focus'u geri verin.** `ModalLayer`,
+   `ContextMenu`, `PopoverMenu` ve `right_click_menu` bu davranışı zaten
+   uygular; özel popover yazıyorsanız `previous_focus_handle`'ı saklayıp
+   dismiss'te `window.focus(&handle, cx)` çağırın.
+
+Hızlı kontrol listesi:
+
+- [ ] View'ın `focus_handle` alanı var ve `Focusable` implement ediyor mu?
+- [ ] Tab order için tek bir `&mut isize` veya artan `isize` paylaşıldı mı?
+- [ ] Listede ok tuşu traversal'i için `Navigable` bağlandı mı?
+- [ ] Modal/menu için `key_context(...)` belirtildi mi?
+- [ ] Shortcut tooltip'leri action tabanlı helper'larla mı üretiliyor?
+- [ ] Icon-only kontroller `Tooltip` taşıyor mu?
+- [ ] Modal/menu kapanışında önceki focus geri veriliyor mu?
+- [ ] Sağ tık menüsü ve `on_secondary_mouse_down` davranışları aynı action
+  setine bağlanıyor mu (mouse ve klavye akışı tutarlı mı)?
