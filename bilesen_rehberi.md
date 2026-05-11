@@ -2632,7 +2632,17 @@ Temel API:
   `.action_checked(...)`, `.action_checked_with_disabled(...)`,
   `.action_disabled_when(...)`, `.link(...)`, `.link_with_handler(...)`,
   `.submenu(...)`, `.submenu_with_icon(...)`, `.submenu_with_colored_icon(...)`,
-  `.keep_open_on_confirm(bool)`, `.fixed_width(...)`, `.key_context(...)`.
+  `.keep_open_on_confirm(bool)`, `.fixed_width(...)`, `.key_context(...)`,
+  `.end_slot_action(action)`.
+- Dinamik item ekleme builder'ları: `.item(item: impl Into<ContextMenuItem>)`
+  ve `.extend(items: impl IntoIterator<Item = impl Into<ContextMenuItem>>)`
+  zincirleme kullanım için; `&mut self` üzerinden mutate eden
+  `.push_item(item)` builder dışında menüyü değiştirmek için (örn. event
+  callback içinde).
+- Programatik mutator'lar: `.rebuild(window, cx)` `build_persistent` ile
+  açık kalan menünün içeriğini yeniden kurar; `.trigger_end_slot_handler
+  (window, cx)` aktif entry'nin end slot handler'ını programatik olarak
+  çalıştırır.
 - Entry builder'ları: `ContextMenuEntry::new(label).icon(...).toggleable(...)`
   `.custom_icon_path(...)`, `.custom_icon_svg(...)`, `.icon_position(...)`,
   `.icon_size(...)`, `.icon_color(...)`, `.action(...)`, `.handler(...)`,
