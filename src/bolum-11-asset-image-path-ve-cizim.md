@@ -4,9 +4,11 @@
 
 ## 11.1. Asset, Image ve SVG Yükleme
 
-`crates/gpui/src/asset_cache.rs`, `assets.rs`, `elements/img.rs`, `svg.rs`.
+Kaynak: `crates/gpui/src/asset_cache.rs`, `assets.rs`, `elements/img.rs`, `svg.rs`.
 
-`Asset` trait async loader sözleşmesidir:
+Bir uygulamada icon, font, image gibi varlıklar (asset) farklı yerlerden gelebilir: binary'ye gömülü olabilir, diskten okunabilir, ağdan indirilebilir. GPUI bu kaynakları soyutlayan üç katmanlı bir sistem kullanır: **`Asset` trait** async loader sözleşmesini, **`Resource` enum** kaynağın nereden geleceğini, **`AssetSource` trait** gömülü asset'lerin nasıl çözümleneceğini belirler. Element seviyesinde (`img`, `svg`) bu katmanlar şeffaf çalışır — kullanıcı sadece bir kaynak verir, sistem doğru yoldan yükler.
+
+### `Asset` trait
 
 ```rust
 trait Asset {
@@ -16,19 +18,15 @@ trait Asset {
 }
 ```
 
-Kaynak gösterimi:
+### Kaynak gösterimi (`Resource`)
 
-- `Resource::Path(Arc<Path>)`
-- `Resource::Uri(SharedUri)` — `http://`, `https://`, `file://` vb.
-- `Resource::Embedded(SharedString)` — `AssetSource` üzerinden gömülü asset.
+- **`Resource::Path(Arc<Path>)`** — Dosya sistemi yolu.
+- **`Resource::Uri(SharedUri)`** — `http://`, `https://`, `file://` URI.
+- **`Resource::Embedded(SharedString)`** — `AssetSource` içine gömülü asset (örn. `RustEmbed`).
 
-`AssetSource` trait `App::with_assets` ile kurulan global asset providerdır.
-`crates/assets` Zed binary'sinde `RustEmbed` ile SVG/icons dahil eder.
-Kurulu kaynak gerektiğinde `cx.asset_source()` ile okunabilir; çoğu UI kodu bunu
-doğrudan değil `Resource::Embedded`, `svg().path(...)` veya `window.use_asset`
-üzerinden kullanır.
+`AssetSource` trait, `App::with_assets` ile kurulan global asset provider'dır. `crates/assets` Zed binary'sinde `RustEmbed` ile SVG/icon'ları binary'ye dahil eder. Kurulu kaynak gerekirse `cx.asset_source()` ile okunur; sıradan UI kodu bunu doğrudan kullanmaz, bunun yerine `Resource::Embedded`, `svg().path(...)` veya `window.use_asset` üzerinden çalışır.
 
-Image element:
+### Image element
 
 ```rust
 img(PathBuf::from("path/to/icon.png"))
@@ -39,57 +37,47 @@ img(PathBuf::from("path/to/icon.png"))
     .with_fallback(|| div().bg(rgb(0xffeeee)).into_any_element())
 ```
 
-`img(impl Into<ImageSource>)` kabul eder. `ImageSource`:
+`img(impl Into<ImageSource>)` çağrısı çeşitli kaynak tiplerini kabul eder; `ImageSource` varyantları:
 
-- `Resource(Resource)`
-- `Render(Arc<RenderImage>)` — önceden raster edilmiş frame'ler.
-- `Image(Arc<Image>)` — encoded bytes (PNG/JPEG/WebP).
-- `Custom(Arc<dyn Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>>)`
+- **`Resource(Resource)`** — Yukarıdaki enum.
+- **`Render(Arc<RenderImage>)`** — Önceden raster edilmiş frame'ler.
+- **`Image(Arc<Image>)`** — Encoded bytes (PNG/JPEG/WebP).
+- **`Custom(Arc<dyn Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>>)`** — Tamamen özel yükleme.
 
-URL string otomatik `Uri` olarak parse edilir; URL olmayan `&str`/`String`
-`Resource::Embedded` olur ve `AssetSource` içinden aranır. Dosya sistemi path'i
-için `Path`, `PathBuf` veya `Arc<Path>` geçir.
+URL string otomatik olarak `Uri` parse edilir; URL olmayan `&str` veya `String` ise `Resource::Embedded` sayılır ve `AssetSource` içinden aranır. Dosya sistemi yolu için `Path`, `PathBuf` veya `Arc<Path>` doğrudan geçirilir — bu tip ayrımı kritiktir, aksi halde yanlış kaynaktan arama yapılır.
 
-SVG:
+### SVG
 
 ```rust
 svg().path("icons/check.svg").size(px(16.)).text_color(rgb(0x000000))
 ```
 
-SVG path `AssetSource`'tan okunur. `text_color` SVG'deki `currentColor` referanslarını
-boyamak için kullanılır. Custom path string yerine derive edilen `IconName::path()`
-de geçirilebilir (Zed'de `Icon::new(IconName::Check)` doğrudan kullanılır).
+SVG yolu `AssetSource`'tan okunur. `text_color`, SVG dosyasındaki `currentColor` referanslarını boyamak için kullanılır; bu sayede aynı icon farklı tema renkleriyle yeniden boyatılabilir. Custom path string yerine `IconName::path()` derive sonucu da geçirilebilir; Zed'de tipik kullanım `Icon::new(IconName::Check)` biçimindedir.
 
-Cache davranışı iki katmanlıdır: `window.use_asset::<A>(source, cx)` aynı source
-için tek async load task'ını paylaşır ve tamamlanınca current view'i yeniden
-çizdirir; `ImageCache` ise decode edilmiş `RenderImage`'ı tutar. Element bazında
-`.image_cache(&entity)` veya ağacın üstünde `image_cache(retain_all("id"))`
-kullanılabilir. Hata loglama `ImgResourceLoader = AssetLogger<...>` ile otomatiktir.
+### Cache davranışı
 
-Tuzaklar:
+Asset yükleme iki seviyeli cache ile yapılır:
 
-- URL parse başarısızsa string embedded asset sayılır; gerçek dosya yolu için
-  `PathBuf` kullanmadıysan yanlış kaynaktan arama yapılır.
-- Custom closure `'static` olmalı; `Window`/`App` sadece closure çağrısında
-  parametre olarak kullanılmalı.
-- `with_fallback` yalnızca yükleme tamamlandığında ve hatalıysa fallback render eder.
-- `with_loading` yükleme 200 ms'den uzun sürerse loading fallback'ini render
-  eder. Bu eşik `gpui::LOADING_DELAY: Duration` const'ında tanımlıdır
-  (`elements/img.rs:31`); kendi delayed-fallback akışın için aynı değeri
-  ödünç alabilirsin.
-- `RenderImage` GIF/animated WebP için `frame_count()` ve `delay(frame_index)`
-  sağlar; `img` element'i aktif pencerede frame ilerletip animation frame ister.
+- **`window.use_asset::<A>(source, cx)`** — Aynı source için tek bir async load task'ı paylaşılır; tamamlandığında current view yeniden çizdirilir.
+- **`ImageCache`** — Decode edilmiş `RenderImage` byte'larını tutar; ağaç bazında `.image_cache(&entity)` veya `image_cache(retain_all("id"))` ile yerleştirilir.
+
+Hata loglama otomatiktir; `ImgResourceLoader = AssetLogger<...>` decode/load hatalarını yakalar.
+
+### Tuzaklar
+
+- **URL parse başarısızsa string embedded asset sayılır.** Gerçek dosya yolu vermek için `PathBuf` kullanılmazsa yanlış kaynaktan arama yapılır ve "asset not found" hatası alınır.
+- **`Custom` closure `'static` olmalıdır.** `Window`/`App` referansları yalnızca closure çağrısının parametresi olarak kullanılır; closure dışına taşınamaz.
+- **`with_fallback` yalnızca yükleme tamamlandığında ve **hata oluştuysa** fallback'i render eder.** Hâlâ yükleniyor durumunda fallback gösterilmez.
+- **`with_loading` yükleme 200 ms'den uzun sürerse loading fallback'i gösterir.** Bu eşik `gpui::LOADING_DELAY: Duration` const'ında tanımlıdır (`elements/img.rs:31`); kendi delayed-fallback akışında aynı değer ödünç alınabilir.
+- **`RenderImage` GIF/animated WebP için `frame_count()` ve `delay(frame_index)` sağlar;** `img` element'i aktif pencerede frame ilerletir ve animation frame ister.
 
 ## 11.2. Asset, ImageCache ve Surface Boru Hattı
 
-GPUI asset katmanı üç seviyelidir:
+Asset katmanının üç seviyesi (11.1'de tanımlandı) image yükleme ve cache pipeline'ında birlikte çalışır: `AssetSource` byte'ları sağlar, `Asset` async loader rolünü oynar, `Resource` ise kaynak adresini taşır. Bu bölüm image cache'inin nasıl yerleştirildiğini, `RetainAllImageCache`'in davranışını, custom cache yazımını ve `Surface` adlı ayrı pipeline'ı kapsar.
 
-- `AssetSource`: embedded/static asset byte'larını sağlar.
-- `Asset`: async loader trait'i; `Source -> Output`.
-- `Resource`: image/svg kaynak adresi: `Uri(SharedUri)`, `Path(Arc<Path>)`,
-  `Embedded(SharedString)`.
+### Image cache yerleştirme
 
-Image cache elementleri:
+Cache element ağacına iki yolla bağlanır — bağlamı netleştirmek için tercih edilen şekil ortama göre değişir:
 
 ```rust
 div()
@@ -97,22 +85,25 @@ div()
     .child(img(avatar_uri.clone()).object_fit(ObjectFit::Cover))
 ```
 
-Alternatif wrapper:
+Alternatif wrapper element:
 
 ```rust
 image_cache(retain_all("preview-cache"))
     .child(img(preview_path.clone()))
 ```
 
-`RetainAllImageCache`:
+### `RetainAllImageCache`
 
-- `RetainAllImageCache::new(cx)` entity cache oluşturur.
-- `retain_all(id)` element-local cache provider oluşturur.
-- `load(resource, window, cx)` sonuç hazır değilse `None`, hazırsa
-  `Some(Result<Arc<RenderImage>, ImageCacheError>)` döndürür.
-- Release sırasında `cx.drop_image(...)` ile GPU image kaynaklarını bırakır.
+Bu hazır cache "yüklediğin her şeyi sakla" politikasını uygular. Küçük ve sınırlı asset setleri için (avatar listesi, sabit ikon seti) uygundur.
 
-Custom cache gerektiğinde `ImageCache` trait'i uygulanır:
+- **`RetainAllImageCache::new(cx)`** — Entity cache oluşturur.
+- **`retain_all(id)`** — Element-local cache provider üretir.
+- **`load(resource, window, cx)`** — Sonuç hazır değilse `None`, hazırsa `Some(Result<Arc<RenderImage>, ImageCacheError>)` döndürür.
+- Cache release edilirken `cx.drop_image(...)` çağrılır; GPU image kaynakları serbest bırakılır.
+
+### Custom cache
+
+Eviction politikası, boyut sınırı veya özel yükleme stratejisi gerekiyorsa `ImageCache` trait'i elle uygulanır:
 
 ```rust
 impl ImageCache for MyImageCache {
@@ -127,25 +118,27 @@ impl ImageCache for MyImageCache {
 }
 ```
 
-`Surface` ayrı bir yol izler: macOS'ta `CVPixelBuffer` gibi platform surface
-kaynaklarını `surface(buffer).object_fit(...)` ile çizmek içindir. Genel image
-asset cache'i yerine `window.paint_surface(...)` boru hattını kullanır ve şu anda
-platforma bağlıdır.
+### Surface — platform-native pipeline
 
-Tuzaklar:
+`Surface` image cache'inden tamamen ayrı bir yol izler. macOS'ta `CVPixelBuffer` gibi platforma özgü surface kaynaklarını doğrudan çizmek için kullanılır (örn. video frame'i, harici GPU surface'i, AVFoundation çıktısı):
 
-- Cache ID'si değişirse decode edilmiş image state'i düşer.
-- `img("literal")` URL değilse embedded resource olarak yorumlanır; filesystem
-  için `PathBuf`/`Arc<Path>` ver.
-- Çok büyük veya sürekli değişen image setlerinde `RetainAllImageCache` sınırsız
-  büyüyebilir; özel eviction stratejisi için kendi `ImageCache` implementasyonu yaz.
+```rust
+surface(buffer).object_fit(ObjectFit::Cover)
+```
+
+Altta `window.paint_surface(...)` boru hattını kullanır; image asset cache'iyle paylaşmaz. Şu anda platforma bağımlıdır (macOS odaklı).
+
+### Tuzaklar
+
+- **Cache ID'si değişirse decode edilmiş image state'i düşer.** Aynı asset için aynı ID kullanmak yeniden decode maliyetinden kaçınır.
+- **`img("literal")` URL değilse embedded resource olarak yorumlanır;** filesystem yolu için `PathBuf` veya `Arc<Path>` verilmesi gerekir (11.1'deki uyarı).
+- **`RetainAllImageCache` sınırsız büyüyebilir.** Çok büyük veya sürekli değişen image setlerinde (örn. infinite scroll'da görsel listesi) eviction stratejisi olan custom `ImageCache` yazılır.
 
 ## 11.3. Path Çizimi ve Custom Drawing
 
-`crates/gpui/src/path_builder.rs`, `scene.rs`, `elements/canvas.rs`.
+Kaynak: `crates/gpui/src/path_builder.rs`, `scene.rs`, `elements/canvas.rs`.
 
-GPUI doğrudan path API yerine `canvas` elementi ve `PathBuilder` ile vektör çizim
-sağlar. `PathBuilder` lyon tessellator wrapper'ıdır.
+GPUI sıradan element ağacının vermediği özgür çizim için `canvas` elementi ve `PathBuilder` API'sini sağlar. `canvas` iki closure alır (prepaint ve paint); `PathBuilder` ise lyon tessellator'ı kullanarak vektör path'leri GPU üçgenlerine çevirir. Bu pipeline custom resize handle, custom progress bar, ikon türetme, dekoratif çizim gibi durumlar içindir.
 
 ```rust
 canvas(
@@ -245,9 +238,11 @@ Tuzaklar:
 
 ## 11.4. Anchored ve Popover Konumlandırma
 
-`crates/gpui/src/elements/anchored.rs`.
+Kaynak: `crates/gpui/src/elements/anchored.rs`.
 
-`anchored()` fonksiyonu bir `Anchored` builder döndürür:
+`anchored()` elementi, child'ın belirli bir noktaya sabitlenmesini sağlar; layout akışında parent bounds'unu yok sayar ve absolute positioning gibi davranır. Tooltip, popover, context menu, dropdown gibi UI parçalarının altında bu element çalışır. Konumlandırmanın temel mantığı: child'ın **anchor noktası** (örn. üst-sol köşesi) verilen **position**'a hizalanır; pencere kenarına yetişirse `snap`/`flip` davranışları devreye girer.
+
+### Tipik kullanım
 
 ```rust
 anchored()
@@ -258,39 +253,31 @@ anchored()
     .child(menu_view.into_any_element())
 ```
 
-API:
+### API
 
-- `anchor(Anchor)`: child'ın hangi referans noktasının `position`'a
-  hizalanacağı. `Anchor` varyantları `TopLeft`, `TopRight`, `BottomLeft`,
-  `BottomRight`, `TopCenter`, `BottomCenter`, `LeftCenter`, `RightCenter`.
-- `position(point)`: anchor noktası (window veya local koordinatlarda).
-- `offset(point)`: hizalama sonrası ek kayma.
-- `position_mode(AnchoredPositionMode::Window)` veya
-  `position_mode(AnchoredPositionMode::Local)`: koordinat referansı.
-- `snap_to_window()` ve `snap_to_window_with_margin(Edges)`: pencere dışına taşıyorsa
-  aynı anchor'ı koruyarak pencere içine kaydırır.
+- **`anchor(Anchor)`** — Child'ın hangi referans noktasının `position`'a hizalanacağını belirler. `Anchor` varyantları: `TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`, `TopCenter`, `BottomCenter`, `LeftCenter`, `RightCenter`. Örnek: dropdown bir butonun **altında** açılacaksa `Anchor::TopLeft` + position butonun alt-sol köşesi olarak verilir.
+- **`position(point)`** — Anchor noktasının ekrandaki konumu (window veya local koordinatlarda).
+- **`offset(point)`** — Hizalama sonrası ek kayma (örn. küçük spacing).
+- **`position_mode(AnchoredPositionMode::Window | Local)`** — Koordinat referansı: `Window` pencere içi mutlak konum, `Local` parent content origin'e göreli.
+- **`snap_to_window()` ve `snap_to_window_with_margin(Edges)`** — Pencere dışına taşıyorsa aynı anchor'ı koruyarak pencere içine kaydırır.
 
-`AnchoredFitMode`:
+### `AnchoredFitMode`
 
-- `SwitchAnchor` (default): yetersiz alanda tersine flip.
-- `SnapToWindow`: aynı köşede kalır, pencere kenarına oturur.
-- `SnapToWindowWithMargin(Edges)`: marjin bırakarak oturur.
+Pencerede yer kalmadığında child'ın nasıl davranacağı:
 
-Anchored element ağaca normal çocuk gibi eklenir, fakat layout fazında parent
-bounds'unu yok sayar; absolute positioning gibi davranır. Tooltip, popover ve
-ContextMenu altta bu element ile çalışır.
+- **`SwitchAnchor` (default)** — Yetersiz alanda anchor'ı tersine çevirir (örn. altta yer yoksa üste açılır).
+- **`SnapToWindow`** — Aynı köşede kalır, pencere kenarına oturur.
+- **`SnapToWindowWithMargin(Edges)`** — Marjin bırakarak pencere kenarına oturur.
 
-Tuzaklar:
+### Tuzaklar
 
-- Position `Local` modda parent'ın content origin'ine görelidir; window modda
-  ekranda mutlak değil, **pencere içi** koordinatlardır.
-- Snap fonksiyonları arasında en son çağrılan kazanır.
-- Anchored child kendi içinde overflow `Visible` davranır; içerik pencereyi taşırsa
-  scroll için ekstra wrapper gerekir.
+- **Position `Local` modda parent'ın content origin'ine görelidir;** `Window` modda **pencere içi** koordinatlardır (ekran mutlak değil).
+- **Snap fonksiyonları arasında en son çağrılan kazanır.** `snap_to_window()` ve `snap_to_window_with_margin()` aynı element üzerinde sıralı çağrılırsa son set olan etkili olur.
+- **Anchored child kendi içinde overflow `Visible` davranır;** içerik penceredeki alanı taşırsa scroll otomatik gelmez, ekstra wrapper (`div().overflow_y_scroll()`) eklenmelidir.
 
 ## 11.5. PaintQuad, Window Paint Primitives ve BorderStyle
 
-`canvas` ve custom `Element::paint` içinde GPU'ya gönderilen primitive'ler:
+Element ağacı seviyesinden bir kademe altta, `canvas` veya custom `Element::paint` içinde doğrudan GPU'ya primitive'ler gönderilir. Bu primitive'ler arka plan dolgusu, çerçeveli kutu, gölge, image, SVG, glyph gibi her temel çizim parçasının altyapısıdır. Aşağıda paint fazında çağrılabilen başlıca primitive'ler ve `PaintQuad` builder'ı ele alınır.
 
 ```rust
 window.paint_quad(fill(bounds, rgb(0xeeeeee)));
@@ -349,11 +336,9 @@ Tuzaklar:
 
 ## 11.6. Window Drawing Context Stack, Asset Fetch ve SVG Transform
 
-Custom element yazarken `Window` yalnızca paint primitive çağırdığın yer değildir;
-draw fazlarında aktif style, offset, clipping ve asset yükleme context'ini de
-taşır.
+Custom element yazarken `Window` sadece paint primitive çağırılan yer değildir; draw fazları boyunca **aktif style, offset, clipping ve asset yükleme bağlamını** taşır. Bu bağlamlar bir stack üzerinden push/pop edilir; örneğin bir `with_text_style(...)` çağrısı, kapsadığı closure boyunca text style stack'ine bir refinement ekler, çıkışta kaldırır. Bu yaklaşım nested context'leri (örn. inner panel kendi rem size'ını ayarlayabilir) doğal olarak destekler.
 
-Context stack yardımcıları:
+### Context stack yardımcıları
 
 - `window.with_text_style(Some(TextStyleRefinement), |window| ...)`: aktif text
   style stack'ine refinement ekler. İçeride `window.text_style()` birleşmiş

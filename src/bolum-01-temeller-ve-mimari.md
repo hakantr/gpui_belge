@@ -10,7 +10,7 @@ GPUI mimarisini pratikte üç katman üzerinden okumak yararlı olur:
    `Platform` ve `PlatformWindow` trait'leri burada ana sözleşmedir.
 2. **Uygulama ve durum katmanı**: `Application`, `App`, `Context<T>`, `Entity<T>`,
    `WeakEntity<T>`, `Task`, `Subscription`, `Global` ve event sistemini yönetir.
-3. **Render/element katmanı**: `Render`, `RenderOnce`, `IntoElement`, `Element`,
+3. **Render/UI öğesi katmanı**: `Render`, `RenderOnce`, `IntoElement`, `Element`,
    `div`, `canvas`, `list`, `uniform_list`, `img`, `svg`, `anchored`, `surface`
    ve `Styled`/`InteractiveElement` fluent API'leriyle UI ağacını oluşturur.
 
@@ -24,23 +24,25 @@ Zed, bu katmanların üstüne kendi tasarım sistemini ve uygulama kabuğunu ekl
 
 ## 1.2. Hızlı Referans: GPUI Kavram Sözlüğü
 
+Bu rehberde Rust tip adları İngilizce bırakılır; çünkü kodda aynen bu isimlerle kullanılırlar. Ancak ilk okuma sırasında şu Türkçe karşılıklarla düşünmek metni kolaylaştırır: **entity = varlık**, **handle = tutamaç**, **view = görünüm**, **element = UI öğesi**, **state = durum**, **context = bağlam**. Sonraki bölümlerde bu terimler mümkün olduğunca Türkçe karşılıklarıyla birlikte kullanılır.
+
 | Kavram | Tip | Yer | Kısa Açıklama |
 |---|---|---|---|
 | Application | `Application` | `gpui_platform` | İşletim sistemine göre doğru platform kodunu seçer ve uygulama kapanana kadar pencere, girdi ve çizim olaylarını ana event loop içinde yürütür. |
-| Root context | `App` | `app.rs` | Uygulamanın kök bağlamı. Pencere açma, entity oluşturma ve uygulama genelindeki ayarlara/state'e erişim buradan yapılır. |
-| Entity | `Entity<T>` | `app/entity_map.rs` | Heap'te tutulan model veya durum için güçlü handle. View/model state'i burada saklanır ve diğer yerlerden bu handle ile güncellenir. |
-| Weak handle | `WeakEntity<T>` | aynı | Aynı entity'ye işaret eder ama onu hayatta tutmaz. Karşılıklı referanslardan doğabilecek referans döngülerini önler. |
-| Update context | `Context<T>` | `app.rs` | Bir entity güncellenirken alınan bağlam. Entity state'ini değiştirmeye ve aynı anda `App` API'lerine erişmeye imkan verir. |
-| Async context | `AsyncApp` | `app/async_context.rs` | `await` noktaları arasında taşınabilen uygulama bağlamı. Async işlerden tekrar foreground'a dönüp uygulama state'ini güncellemek için kullanılır. |
+| Kök bağlam | `App` | `app.rs` | Uygulamanın ana bağlamı. Pencere açma, varlık (`entity`) oluşturma ve uygulama genelindeki ayarlara/duruma (`state`) erişim buradan yapılır. |
+| Varlık | `Entity<T>` | `app/entity_map.rs` | Heap'te tutulan model veya durum için güçlü tutamaç (`handle`). Görünüm/model durumu burada saklanır ve diğer yerlerden bu tutamaç ile güncellenir. |
+| Zayıf tutamaç | `WeakEntity<T>` | aynı | Aynı varlığa (`entity`) işaret eder ama onu hayatta tutmaz. Karşılıklı referanslardan doğabilecek referans döngülerini önler. |
+| Güncelleme bağlamı | `Context<T>` | `app.rs` | Bir varlık güncellenirken alınan bağlam. Varlık durumunu değiştirmeye ve aynı anda `App` API'lerine erişmeye imkan verir. |
+| Async bağlam | `AsyncApp` | `app/async_context.rs` | `await` noktaları arasında taşınabilen uygulama bağlamı. Async işlerden tekrar foreground'a dönüp uygulama durumunu güncellemek için kullanılır. |
 | Pencere | `Window` | `window.rs` | Tek bir pencerenin boyut, odak, görünür içerik ve platform durumunu tutar. |
-| Window handle | `WindowHandle<V>` | `window.rs` | Belirli bir view tipini bilen pencere referansı. Pencereyi dışarıdan güncellemek veya pencereye komut göndermek için kullanılır. |
-| Future task | `Task<T>` | `executor.rs` | Arka planda veya foreground executor'da çalışan iş. `Task` handle'ı drop edildiğinde iş iptal edilir. |
-| Subscription | `Subscription` | `subscription.rs` | Bir olaya abonelik handle'ı. Saklanmazsa veya drop edilirse abonelik kapanır. |
-| Element | `impl Element` | `element.rs` | Ekrana çizilen tek bir UI parçası. Boyutunu hesaplar (layout) ve kendini çizer (paint). |
-| View | `impl Render` | `view.rs` | Durum tutan ve her render'da yeni bir element ağacı üreten entity; React'teki component modeline benzer. |
+| Pencere tutamacı | `WindowHandle<V>` | `window.rs` | Belirli bir görünüm (`view`) tipini bilen pencere referansı. Pencereyi dışarıdan güncellemek veya pencereye komut göndermek için kullanılır. |
+| Async iş tutamacı | `Task<T>` | `executor.rs` | Arka planda veya foreground executor'da çalışan iş. `Task` tutamacı drop edildiğinde iş iptal edilir. |
+| Abonelik tutamacı | `Subscription` | `subscription.rs` | Bir olaya aboneliği temsil eder. Saklanmazsa veya drop edilirse abonelik kapanır. |
+| UI öğesi | `impl Element` | `element.rs` | Ekrana çizilen tek bir UI parçası. Boyutunu hesaplar (layout) ve kendini çizer (paint). |
+| Görünüm | `impl Render` | `view.rs` | Durum tutan ve her render'da yeni bir UI öğesi ağacı üreten varlık; React'teki component modeline benzer. |
 | Action | `impl Action` | `action.rs` | Klavyeden, menüden veya komut paletinden tetiklenip focus ağacında yukarı doğru iletilen komut mesajı (örn. "Save", "OpenFile"). |
-| Focus handle | `FocusHandle` | `window.rs` | Bir elementin odak kimliği. Tab sırasını ve klavye girdisini hangi öğenin alacağını belirler. |
-| Hitbox | `Hitbox` | `window.rs` | Bir elementin tıklama, hover ve imleç davranışlarına tepki veren görünmez alanı. |
+| Odak tutamacı | `FocusHandle` | `window.rs` | Bir UI öğesinin odak kimliği. Tab sırasını ve klavye girdisini hangi öğenin alacağını belirler. |
+| Hitbox | `Hitbox` | `window.rs` | Bir UI öğesinin tıklama, hover ve imleç davranışlarına tepki veren görünmez alanı. |
 | ScrollHandle | `ScrollHandle` | `elements/div.rs` | Bir scroll alanının kaydırma konumunu paylaşılabilir biçimde tutar; koddan kaydırma yapmak için kullanılır. |
 | Animation | `Animation` | `elements/animation.rs` | Belirli sürede iki değer arasında easing ile yumuşak geçiş yapar (örn. opaklığı 0'dan 1'e çıkarır). |
 | Asset source | `AssetSource` trait | `assets.rs` | İkon, font, resim gibi asset'leri ham byte olarak sağlayan kaynak; verinin diskten mi gömülüden mi geldiğini soyutlar. |
@@ -49,7 +51,7 @@ Zed, bu katmanların üstüne kendi tasarım sistemini ve uygulama kabuğunu ekl
 | Background | `Background` | `color.rs` | Bir alanın dolgusu: düz renk, gradient veya pattern (desen) olabilir. |
 | Keymap | `Keymap` | `keymap/` | Tuş kombinasyonlarını action'lara bağlayan, aktif bağlama göre değişebilen tablo. |
 | Global | `impl Global` | `global.rs` | Tüm uygulamada tek kopya tutulan paylaşımlı durum (örn. tema, ayarlar). |
-| Event emitter | `EventEmitter<E>` | `app.rs` | Bir entity'nin başka entity'lere olay duyurmak için kullandığı yayıncı (örn. "değiştim", "tıklandım"). |
+| Olay yayınlayıcı | `EventEmitter<E>` | `app.rs` | Bir varlığın (`entity`) başka varlıklara olay duyurmak için kullandığı yayıncı (örn. "değiştim", "tıklandım"). |
 
 
 ---

@@ -4,7 +4,7 @@
 
 ## 6.1. Pencere Oluşturma
 
-GPUI'de top-level pencere açmak için kullanılan ana API `cx.open_window(...)` çağrısıdır. Bu çağrı iki ana parça alır: pencerenin nasıl açılacağını tarif eden `WindowOptions` ve pencere ilk kez kurulduğunda root view'ı üreten closure. Geriye dönen `WindowHandle<V>` pencereye sonradan tipli erişim sağlar.
+GPUI'de top-level pencere açmak için kullanılan ana API `cx.open_window(...)` çağrısıdır. Bu çağrı iki ana parça alır: pencerenin nasıl açılacağını tarif eden `WindowOptions` ve pencere ilk kez kurulduğunda kök görünümü (`root view`) üreten closure. Geriye dönen `WindowHandle<V>` pencere tutamacı, pencereye sonradan tipli erişim sağlar.
 
 ```rust
 let handle = cx.open_window(
@@ -52,13 +52,13 @@ let handle = cx.open_window(
 
 ### Açılış akışı
 
-`open_window` çağrıldığında GPUI önce platform penceresini oluşturur, ardından pencere state'ini ve callback'leri kurar:
+`open_window` çağrıldığında GPUI önce platform penceresini oluşturur, ardından pencere durumunu (`state`) ve callback'leri kurar:
 
 1. `platform_window.request_decorations(...)` ile pencere dekorasyon modu (server/client) istenir.
 2. `platform_window.set_background_appearance(window_background)` ile background türü uygulanır.
 3. Bounds `Fullscreen` ise pencere fullscreen'e alınır, `Maximized` ise zoom uygulanır.
 4. Platform callback'leri (kapatma, focus değişimi, drag vs.) bağlanır.
-5. Root view oluşturulur ve ilk render gerçekleştirilir.
+5. Kök görünüm (`root view`) oluşturulur ve ilk render gerçekleştirilir.
 
 ## 6.2. Zed'de Ana Pencere Nasıl Açılır
 
@@ -200,7 +200,7 @@ cx.open_window(
 )?;
 ```
 
-Root view içinde başlık alanı kendi elementleriyle çizilir:
+Kök görünüm (`root view`) içinde başlık alanı kendi UI öğeleriyle çizilir:
 
 ```rust
 div()
@@ -362,7 +362,7 @@ Aynı `WindowOptions` ve `TitlebarOptions` her platformda farklı sistem API'ler
 - Client-side decoration ekran gölge çizebilen bir compositor gerektirir; compositor yoksa SSD'ye düşülür.
 - `show_window_menu` `_GTK_SHOW_WINDOW_MENU` client message'ı gönderir.
 - Move/resize işlemleri `_NET_WM_MOVERESIZE` tarzı mesajla başlatılır.
-- Tiling, fullscreen ve maximize state'leri `Decorations::Client { tiling }` sonucunu etkiler; UI bu durumlara göre köşe yuvarlamalarını kaldırır.
+- Tiling, fullscreen ve maximize durumları `Decorations::Client { tiling }` sonucunu etkiler; UI bu durumlara göre köşe yuvarlamalarını kaldırır.
 
 #### Web/WASM
 
@@ -388,7 +388,7 @@ Her varyantın anlamı:
 
 - **`Opaque`** — Pencerenin arkasını göstermeyen düz dolu arkaplan. Tipik uygulama penceresi.
 - **`Transparent`** — Pencere arkaplanı saydam; içerik tarafından çizilen renkler ekranda göründüğü gibi kalır, çizilmeyen yerler doğrudan altta kalan masaüstü içeriğini gösterir.
-- **`Blurred`** — Arkaplan saydam ama altındaki içerik OS tarafından bulanıklaştırılır; "buzlu cam" görünümü oluşur. Sistem desteğine bağlıdır.
+- **`Blurred`** — Arkaplan saydam ama altındaki içerik işletim sistemi tarafından bulanıklaştırılır; "buzlu cam" görünümü oluşur. Sistem desteğine bağlıdır.
 - **`MicaBackdrop`**, **`MicaAltBackdrop`** — Windows 11'e özgü Mica materyali. Sistem teması ve wallpaper'a göre yumuşak gölgeli arkaplan üretilir.
 
 ### Zed tema ayarı
@@ -416,10 +416,10 @@ Zed tema schema'sı şu an için yalnızca `opaque`, `transparent`, `blurred` de
   - `Opaque` — native pencere opaque olarak işaretlenir.
   - `Transparent` ve `Blurred` için renderer transparency açılır.
   - macOS 12 öncesinde blur, `CGSSetWindowBackgroundBlurRadius` ile sabit 80 radius kullanır.
-  - macOS 12 ve sonrasında `NSVisualEffectView` tabanlı blur view eklenir/kaldırılır.
+  - macOS 12 ve sonrasında `NSVisualEffectView` tabanlı blur görünümü eklenir/kaldırılır.
 - **Windows**
   - `Opaque` — DWM composition attribute kapatılır.
-  - `Transparent` — composition state transparent.
+  - `Transparent` — composition durumu transparent.
   - `Blurred` — acrylic/blur benzeri composition attribute.
   - `MicaBackdrop` — DWM `DWMSBT_MAINWINDOW` (ana pencere için).
   - `MicaAltBackdrop` — DWM `DWMSBT_TABBEDWINDOW` (tab içeren pencereler için, biraz farklı ton).
@@ -524,7 +524,7 @@ cx.observe_window_bounds(window, |this, window, cx| {
 }).detach();
 ```
 
-Aynı şekilde `cx.observe_window_appearance(window, ...)` [light/dark görünüm değişimini](./bolum-05-stil-geometri-ve-renkler.md#55-windowappearance-ve-tema-modu), `cx.observe_window_activation(window, ...)` foreground/background değişimini izler. `.detach()` handle'ı elde saklama zorunluluğunu kaldırır; ilgili context/window yaşadığı sürece observer çalışmaya devam eder.
+Aynı şekilde `cx.observe_window_appearance(window, ...)` [light/dark görünüm değişimini](./bolum-05-stil-geometri-ve-renkler.md#55-windowappearance-ve-tema-modu), `cx.observe_window_activation(window, ...)` foreground/background değişimini izler. `.detach()` tutamacı (`handle`) elde saklama zorunluluğunu kaldırır; ilgili bağlam (`context`) ve pencere yaşadığı sürece observer çalışmaya devam eder.
 
 ### Tuzaklar
 
@@ -537,7 +537,7 @@ Aynı şekilde `cx.observe_window_appearance(window, ...)` [light/dark görünü
 macOS, birden çok top-level pencereyi tek pencere içindeki sekmelere dönüştürme yeteneği sunar (System Preferences → General → "Prefer tabs when opening documents" ayarı). Bu native window tabbing, Safari ve Finder'da görülen sistem davranışıdır. GPUI bunu iki katmanda destekler:
 
 - **`WindowOptions::tabbing_identifier`** — Aynı identifier'a sahip pencerelerin sistem tarafından otomatik olarak tek tab grubuna alınmasına izin verir.
-- **`SystemWindowTabController`** — GPUI global'i olarak açık native tab gruplarını ve görünürlük state'ini takip eder.
+- **`SystemWindowTabController`** — GPUI global'i olarak açık native tab gruplarını ve görünürlük durumunu (`state`) takip eder.
 
 İlgili `Window` method'ları:
 
@@ -553,7 +553,7 @@ macOS, birden çok top-level pencereyi tek pencere içindeki sekmelere dönüşt
 - *Uygulama içi tablar* (editor sekmeleri, panel tabları, dosya sekmeleri) için **native tabbing kullanılmaz**; `workspace::Pane` ve `TabBar` ile uygulama içinde çizilen tablar tercih edilir. Bu tablar uygulama ile aynı tasarım dilinde olur ve cross-platform çalışır.
 - *İşletim sistemi seviyesinde birden çok top-level pencereyi aynı sistem tab grubunda toplamak* gerekiyorsa (örn. birden fazla workspace penceresi tek macOS penceresi içinde sekmeler) `tabbing_identifier` verilir.
 
-Native tab state'i platformdan gelir; Linux ve Windows üzerinde bu API'lerin bir kısmı no-op davranır veya `None` döner. Platformlar arası uygulamalarda bu davranış uygun bir yedek akışla karşılanır.
+Native tab durumu platformdan gelir; Linux ve Windows üzerinde bu API'lerin bir kısmı no-op davranır veya `None` döner. Platformlar arası uygulamalarda bu davranış uygun bir yedek akışla karşılanır.
 
 ### Tuzaklar
 

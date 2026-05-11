@@ -4,11 +4,11 @@
 
 ## 4.1. Render Modeli
 
-GPUI'de "render" yapmak, view state'inden bir element ağacı (UI'ın o frame'deki yapısı) üretmek demektir. Render çıktısı kalıcı bir ağaç olarak saklanmaz; her frame'de yeniden üretilir, GPUI bu çıktının layout'unu hesaplar ve ekrana çizer. Kalıcı bilgi gerekiyorsa view state, element-local state veya ilgili handle'larda tutulur.
+GPUI'de "render" yapmak, görünüm durumundan (`view state`) bir UI öğesi ağacı (`element tree`) üretmek demektir. Bu ağaç, UI'ın o frame'deki yapısıdır. Render çıktısı kalıcı bir ağaç olarak saklanmaz; her frame'de yeniden üretilir, GPUI bu çıktının layout'unu hesaplar ve ekrana çizer. Kalıcı bilgi gerekiyorsa görünüm durumu, UI öğesine yerel durum (`element-local state`) veya ilgili tutamaçlarda (`handle`) tutulur.
 
 Render iki şekilde ifade edilir:
 
-- **`Render` trait'i**, durum tutan view'lar (Entity tabanlı) içindir. Aynı view birden çok frame boyunca yaşar; her frame'de `render` çağrılır ve içerideki state mutable referansla erişilir. Bir pencerenin kök view'ı `Entity<V>` tipinde olmak ve `V: Render` implementasyonuna sahip olmak zorundadır:
+- **`Render` trait'i**, durum tutan görünümler (`view`) içindir. Bu görünümler `Entity` (varlık) tabanlıdır: aynı görünüm birden çok frame boyunca yaşar; her frame'de `render` çağrılır ve içerideki duruma değiştirilebilir referansla erişilir. Bir pencerenin kök görünümü `Entity<V>` tipinde olmak ve `V: Render` implementasyonuna sahip olmak zorundadır:
 
 ```rust
 struct MyView {
@@ -30,7 +30,7 @@ impl Render for MyView {
 }
 ```
 
-- **`RenderOnce` trait'i**, durum tutmayan, tek seferlik element üretimi yapan hafif bileşenler içindir. `render(self, ...)` çağrısı değeri sahiplenir; aynı değer bir kez elemente dönüştürülür:
+- **`RenderOnce` trait'i**, durum tutmayan, tek seferlik UI öğesi üretimi yapan hafif bileşenler içindir. `render(self, ...)` çağrısı değeri sahiplenir; aynı değer bir kez UI öğesine dönüştürülür:
 
 ```rust
 #[derive(IntoElement)]
@@ -47,59 +47,59 @@ impl RenderOnce for Badge {
 
 Hangisinin ne zaman tercih edildiği:
 
-- *`Render` (Entity ile birlikte)*: state tutan, ömrü birden çok frame'e yayılan, event aboneliği veya async iş barındıran view'lar için. Tipik örnekler: workspace, editor pane, settings paneli.
+- *`Render` (`Entity` ile birlikte)*: durum (`state`) tutan, ömrü birden çok frame'e yayılan, event aboneliği veya async iş barındıran görünümler için. Tipik örnekler: workspace, editor pane, settings paneli.
 - *`RenderOnce` (`#[derive(IntoElement)]` ile)*: durum taşımayan tasarım sistemi bileşenleri için. Tipik örnekler: Button, Badge, Icon, Tooltip içeriği. Zed UI bileşenlerinin neredeyse tamamı `RenderOnce` tabanlıdır.
 
 ## 4.2. Element Yaşam Döngüsü ve Draw Fazları
 
-Her element bir frame içinde üç fazdan geçer. Bu fazlar bilinçli olarak ayrılmıştır çünkü her birinin yapabileceği iş farklıdır: layout hesaplandığında geometri henüz yoktur, paint sırasında ise layout artık sabittir ve geometriye dokunulamaz.
+Her UI öğesi bir frame içinde üç fazdan geçer. Bu fazlar bilinçli olarak ayrılmıştır çünkü her birinin yapabileceği iş farklıdır: layout hesaplandığında geometri henüz yoktur, paint sırasında ise layout artık sabittir ve geometriye dokunulamaz.
 
-1. **`request_layout(...) -> (LayoutId, RequestLayoutState)`** — Element kendi stilini ve child layout isteklerini Taffy layout ağacına bildirir. Bu fazda *hiçbir piksel çizilmez*, hitbox eklenmez ve nihai bounds henüz bilinmez.
-2. **`prepaint(...) -> PrepaintState`** — Layout artık bilindiği için, çizimden önce yapılması gereken her şey burada yapılır: hitbox kayıtları, scroll state hesabı, element state okuma/yazma, child bounds'a göre ölçüm.
+1. **`request_layout(...) -> (LayoutId, RequestLayoutState)`** — UI öğesi kendi stilini ve child layout isteklerini Taffy layout ağacına bildirir. Bu fazda *hiçbir piksel çizilmez*, hitbox eklenmez ve nihai bounds henüz bilinmez.
+2. **`prepaint(...) -> PrepaintState`** — Layout artık bilindiği için, çizimden önce yapılması gereken her şey burada yapılır: hitbox kayıtları, scroll durumu hesabı, UI öğesi durumu okuma/yazma, child bounds'a göre ölçüm.
 3. **`paint(...)`** — Asıl çizim. `paint_quad`, `paint_path`, `paint_image`, `paint_svg`, `set_cursor_style` gibi çağrılar yalnızca bu fazda geçerlidir.
 
 `Window` üzerinde her faz için debug assertion bulunur; yanlış fazda yapılan çağrı (örn. `request_layout` içinde `paint_quad`) test/debug build'inde panic'e yol açar. Faz kuralları: `insert_hitbox` yalnızca prepaint'te, `paint_*` çağrıları yalnızca paint'te, `with_text_style` ve bazı ölçüm yardımcıları ise prepaint/paint sırasında geçerlidir.
 
-### State'i nerede saklamak gerekir
+### State (durum) nerede saklanır
 
 Render her frame yeniden çalıştığı için, sıradan bir local değişken iki frame arasında saklanamaz. GPUI bu boşluğu birkaç farklı saklama yolu sunarak doldurur:
 
-- **View state** (`Entity<T>` alanları) — view'ın kendine ait, uzun yaşayan durum. Tipik örnek: input alanının değeri, panelin açık/kapalı durumu, seçili öğe veya model snapshot'ı.
-- **Element-local state** — yalnızca tek bir element'in iç durumu (örn. hover animasyon sayacı, virtualized list scroll offset). Stabil bir `id(...)` ile `window.with_element_state` veya `window.use_keyed_state` üzerinden tutulur. ID değişirse state sıfırlanır.
+- **Görünüm durumu (`view state`)** (`Entity<T>` alanları) — görünümün kendine ait, uzun yaşayan durumu. Tipik örnek: input alanının değeri, panelin açık/kapalı durumu, seçili öğe veya model snapshot'ı.
+- **UI öğesine yerel durum (`element-local state`)** — yalnızca tek bir UI öğesinin iç durumu (örn. hover animasyon sayacı, virtualized list scroll offset). Stabil bir `id(...)` ile `window.with_element_state` veya `window.use_keyed_state` üzerinden tutulur. ID değişirse durum sıfırlanır.
 - **Frame callback** (`window.on_next_frame(...)`) — bir sonraki frame'in render'ından önce çalışacak callback.
 - **Effect sonunda erteleme** (`cx.defer(...)`, `window.defer(cx, ...)`, `cx.defer_in(window, ...)`) — mevcut update effect'i bittikten sonra çalıştırılacak iş için.
 - **Sürekli redraw** (`window.request_animation_frame()`) — bir sonraki frame için anında render isteği.
 
 ### Render katmanının trait'leri
 
-- **`Render`** — entity/view state'ini her render'da element ağacına çevirir.
+- **`Render`** — varlık/görünüm durumunu her render'da UI öğesi ağacına çevirir.
 - **`RenderOnce`** — durum taşımayan hafif bileşenler için tek seferlik render.
-- **`ParentElement`** — child kabul eden elementler. `.child(...)` ve `.children(...)` bu trait'le gelir.
-- **`Styled`** — style refinement zincirine dahil olan elementler. `.flex()`, `.w(...)`, `.bg(...)` gibi method'lar burada tanımlıdır.
+- **`ParentElement`** — child kabul eden UI öğeleri. `.child(...)` ve `.children(...)` bu trait'le gelir.
+- **`Styled`** — style refinement zincirine dahil olan UI öğeleri. `.flex()`, `.w(...)`, `.bg(...)` gibi method'lar burada tanımlıdır.
 - **`InteractiveElement`** — focus, action, key, mouse, hover, drag/drop dinleyicileri ekler. `.on_click`, `.on_mouse_down`, `.track_focus` bu trait üzerindendir.
 - **`StatefulInteractiveElement`** — `id(...)` çağrıldıktan sonra elde edilir; scroll, focus gibi stateful interaktif davranışları açar.
 
 ### `cx.notify()` ve `window.refresh()` arasındaki fark
 
-- `cx.notify()` — view'ın render çıktısını etkileyen state değişikliklerinde çağrılır. GPUI ilgili view'ı bir sonraki frame'de yeniden render edilmek üzere işaretler. Çoğu durumda doğru seçenek budur.
-- `window.refresh()` — tüm pencerenin yeniden çizimini ister; herhangi bir state değişikliği olmadan da pencere tamamen yeniden çizilir. Genelde tema, font ölçeği gibi pencerenin tamamını etkileyen değişikliklerde tercih edilir.
+- `cx.notify()` — görünümün render çıktısını etkileyen durum değişikliklerinde çağrılır. GPUI ilgili görünümü bir sonraki frame'de yeniden render edilmek üzere işaretler. Çoğu durumda doğru seçenek budur.
+- `window.refresh()` — tüm pencerenin yeniden çizimini ister; herhangi bir durum değişikliği olmadan da pencere tamamen yeniden çizilir. Genelde tema, font ölçeği gibi pencerenin tamamını etkileyen değişikliklerde tercih edilir.
 
-Local view state değişimleri için `cx.notify()` esastır; `refresh` daha kaba (ve daha pahalı) bir araçtır ve hedef daha dar olduğunda kullanılmaz.
+Yerel görünüm durumu değişimleri için `cx.notify()` esastır; `refresh` daha kaba (ve daha pahalı) bir araçtır ve hedef daha dar olduğunda kullanılmaz.
 
 ## 4.3. Element Haritası
 
-GPUI yerleşik element fabrikalarının küçük bir setini sağlar; tasarım sistemi katmanı (Zed UI) bunların üzerine kurulur. Aşağıda yerleşik elementler ve tipik kullanım yerleri:
+GPUI yerleşik UI öğesi fabrikalarının küçük bir setini sağlar; tasarım sistemi katmanı (Zed UI) bunların üzerine kurulur. Aşağıda yerleşik UI öğeleri ve tipik kullanım yerleri:
 
-- **`div()`** — Genel amaçlı container. Flex/grid layout, style zinciri, child, event, focus ve window-control area desteği içerir. UI'da en sık görülen elementtir.
-- **Metin** — `&'static str`, `String`, `SharedString` doğrudan element olarak kullanılabilir; başka bir element'in `.child(...)` çağrısına geçirilen string otomatik olarak metin elementine dönüşür. Daha zengin metin (renkli aralık, link, kod span'i) için `StyledText` ve `InteractiveText` vardır.
+- **`div()`** — Genel amaçlı container. Flex/grid layout, style zinciri, child, event, focus ve window-control area desteği içerir. UI'da en sık görülen öğedir.
+- **Metin** — `&'static str`, `String`, `SharedString` doğrudan UI öğesi olarak kullanılabilir; başka bir UI öğesinin `.child(...)` çağrısına geçirilen string otomatik olarak metin öğesine dönüşür. Daha zengin metin (renkli aralık, link, kod span'i) için `StyledText` ve `InteractiveText` vardır.
 - **`svg()`** — Gömülü path veya asset yoluyla SVG çizimi.
-- **`img(...)`** — Asset, dosya yolu, URL veya byte kaynağı gibi farklı görsel kaynakları çizer. Loading ve fallback slotları içerir.
+- **`img(...)`** — Asset, dosya yolu, URL veya byte kaynağı gibi farklı görsel kaynakları çizer. Yükleniyor ve yedek içerik slotları içerir.
 - **`canvas(prepaint, paint)`** — Düşük seviye, manuel çizim için. Bir prepaint kapaması ile bir paint kapaması alır; hitbox/cursor gibi prepaint gerektiren özel işlere uygundur.
 - **`anchored()`** — Pencereye veya belirli bir noktaya sabitlenen popover, menu gibi UI parçaları için.
 - **`deferred(child)`** — Child'ın layout'unu yerinde tutar ama paint'i ertelenmiş queue'ya alır; çizim sırası [Deferred Draw](#47-deferred-draw-prepaint-order-ve-overlay-katmanı) bölümünde açıklanır.
-- **`list(...)`** — Değişken yükseklikli, büyük listeler için sanallaştırılmış element.
+- **`list(...)`** — Değişken yükseklikli, büyük listeler için sanallaştırılmış UI öğesi.
 - **`uniform_list(...)`** — Item yükseklikleri sabit veya kolay ölçülen listeler için daha verimli sanallaştırma.
-- **`surface(...)`** — Platform/native bir surface kaynağını (örn. video frame, harici GPU surface) element olarak gösterir.
+- **`surface(...)`** — Platform/native bir surface kaynağını (örn. video frame, harici GPU surface) UI öğesi olarak gösterir.
 
 ### Sık kullanılan style grupları
 
@@ -117,18 +117,18 @@ Zed kodu yazılırken `gpui::prelude::*` yerine `ui::prelude::*` import edilmesi
 
 ## 4.4. Element ID, Element State ve Type Erasure
 
-GPUI'de element ağacı her frame yeniden kurulur; bir önceki frame'deki element nesnesi bu frame'de aynı obje olarak var olmayabilir. Bu yüzden bir elementin kendine ait kalıcı state'i (örn. hover animasyon sayacı, virtualized list scroll konumu, image cache durumu) "obje kimliğinden" değil, **stabil bir ID'den** referanslanmak zorundadır. Aynı render konumunda aynı ID kullanıldığı sürece state korunur; ID değiştiği an state sıfırlanır.
+GPUI'de UI öğesi ağacı (`element tree`) her frame yeniden kurulur; bir önceki frame'deki element nesnesi bu frame'de aynı obje olarak var olmayabilir. Bu yüzden bir UI öğesinin kendine ait kalıcı durumu (`state`) (örn. hover animasyon sayacı, virtualized list scroll konumu, image cache durumu) "obje kimliğinden" değil, **stabil bir ID'den** referanslanmak zorundadır. Aynı render konumunda aynı ID kullanıldığı sürece durum korunur; ID değiştiği an durum sıfırlanır.
 
 ### Temel tipler
 
-- **`ElementId`** — Bir element için kimlik. `Name`, `Integer`, `NamedInteger`, `Path`, `Uuid`, `FocusHandle`, `CodeLocation` gibi varyantlarla farklı kaynaklardan inşa edilebilir.
-- **`GlobalElementId`** — `ElementId`'nin parent namespace zinciriyle birleşmiş hâli. Aynı `ElementId` farklı parent'lar altında farklı `GlobalElementId`'ler üretir; bu sayede iki ayrı bölümdeki "row-0" elementleri çakışmaz.
-- **`AnyElement`** — Element type erasure'ı. Child listelerinde farklı tipte elementleri aynı `Vec<AnyElement>` içinde tutmak için kullanılır.
-- **`AnyView`, `AnyEntity`** — View veya entity için type erasure. Tip bilgisi runtime'a taşınır; gerektiğinde `.downcast()` ile geri çevrilir.
+- **`ElementId`** — Bir UI öğesi için kimlik. `Name`, `Integer`, `NamedInteger`, `Path`, `Uuid`, `FocusHandle`, `CodeLocation` gibi varyantlarla farklı kaynaklardan inşa edilebilir.
+- **`GlobalElementId`** — `ElementId`'nin parent namespace zinciriyle birleşmiş hâli. Aynı `ElementId` farklı parent'lar altında farklı `GlobalElementId`'ler üretir; bu sayede iki ayrı bölümdeki "row-0" UI öğeleri çakışmaz.
+- **`AnyElement`** — UI öğesi için type erasure. Child listelerinde farklı tipte UI öğelerini aynı `Vec<AnyElement>` içinde tutmak için kullanılır.
+- **`AnyView`, `AnyEntity`** — Görünüm veya varlık için type erasure. Tip bilgisi runtime'a taşınır; gerektiğinde `.downcast()` ile geri çevrilir.
 
-### Element state API'leri
+### Element state (UI öğesi durumu) API'leri
 
-State okuma/yazma `Window` üzerinde tanımlıdır ve yalnızca element çizimi sırasında (prepaint/paint fazlarında) çağrılır:
+Durum okuma/yazma `Window` üzerinde tanımlıdır ve yalnızca UI öğesi çizimi sırasında (prepaint/paint fazlarında) çağrılır:
 
 ```rust
 let row_state = window.use_keyed_state(
@@ -152,17 +152,17 @@ window.with_global_id("image-cache".into(), |global_id, window| {
 
 ### Kurallar
 
-- `window.with_id(element_id, |window| { ... })` lokal element id stack'ine bir id push eder; `with_global_id` ise bu stack'i tek bir `GlobalElementId`'ye dönüştürür.
-- **Liste item'larında `use_state` yerine `use_keyed_state` kullanılır.** `use_state` ID'yi caller location'dan üretir; aynı `for` döngüsündeki tüm item'lar aynı caller location'a sahip olduğu için ayırt edilemez ve state karışır.
-- `with_element_namespace(id, ...)` custom element içinde child ID'lerin parent ID'leriyle çakışmasını önler.
-- Aynı `GlobalElementId` ve aynı state tipi için **reentrant** `with_element_state` çağrısı panic eder; içeride aynı state'e tekrar girilmek istenirse iş `cx.defer(...)` ile bir sonraki effect cycle'a alınır.
-- ID değiştiğinde önceki frame'in state'i devam etmez; animasyon, hover, scroll ve image cache state'i sıfırlanır.
+- `window.with_id(element_id, |window| { ... })` lokal UI öğesi id stack'ine bir id push eder; `with_global_id` ise bu stack'i tek bir `GlobalElementId`'ye dönüştürür.
+- **Liste item'larında `use_state` yerine `use_keyed_state` kullanılır.** `use_state` ID'yi caller location'dan üretir; aynı `for` döngüsündeki tüm item'lar aynı caller location'a sahip olduğu için ayırt edilemez ve durum karışır.
+- `with_element_namespace(id, ...)` özel UI öğesi içinde child ID'lerin parent ID'leriyle çakışmasını önler.
+- Aynı `GlobalElementId` ve aynı durum tipi için **reentrant** `with_element_state` çağrısı panic eder; içeride aynı duruma tekrar girilmek istenirse iş `cx.defer(...)` ile bir sonraki effect cycle'a alınır.
+- ID değiştiğinde önceki frame'in durumu devam etmez; animasyon, hover, scroll ve image cache durumu sıfırlanır.
 
 ### Type erasure ne zaman kullanılır
 
 - *Public component API child kabul ediyorsa* `impl IntoElement` parametresi alınır; çağıranın verdiği somut element tipi API'nin dışına sızdırılmaz.
 - *Struct alanında çocuk element saklanacaksa* `AnyElement` kullanılır; her child farklı tipte olabileceği için jenerik bir alan yetmez.
-- *View/entity saklarken* mümkün olduğunca tipli `Entity<T>` tutulur. `AnyEntity` / `AnyView` yalnızca plugin sistemi, heterojen koleksiyon veya dock item gibi tipi önceden bilinemeyen alanlarda tercih edilir.
+- *Görünüm/varlık saklarken* mümkün olduğunca tipli `Entity<T>` tutulur. `AnyEntity` / `AnyView` yalnızca plugin sistemi, heterojen koleksiyon veya dock item gibi tipi önceden bilinemeyen alanlarda tercih edilir.
 
 ## 4.5. FluentBuilder ve Koşullu Element Üretimi
 
@@ -185,7 +185,7 @@ pub trait FluentBuilder {
 
 Her yardımcının pratik anlamı:
 
-- **`when(cond, |this| ...)`** — koşul `true` ise verilen kapama uygulanır; aksi halde element olduğu gibi geçer. En sık kullanılan helper'dır.
+- **`when(cond, |this| ...)`** — koşul `true` ise verilen kapama uygulanır; aksi halde UI öğesi olduğu gibi geçer. En sık kullanılan helper'dır.
 - **`when_else(cond, |this| ..., |this| ...)`** — koşula göre iki farklı dönüşümden biri uygulanır.
 - **`when_some(option, |this, value| ...)`** — `Option` `Some(v)` ise kapama içeride `v` ile çalışır; `None` ise atlanır. Closure içinde `Option`'ı `unwrap` etmek gerekmez.
 - **`when_none(&option, |this| ...)`** — `Option` `None` ise kapama çalışır (örn. "veri yok" mesajı yerleştirmek için).
@@ -212,13 +212,13 @@ div()
 ### Avantajlar
 
 - Method chain bozulmadan koşullu UI yazılır; ifade tek bir akış olarak okunur.
-- `when` ailesi closure içine geçen elementin tipini *değiştirmez*; bu sayede zincirin sonraki halkaları aynı tipin method'larını çağırmaya devam edebilir.
+- `when` ailesi closure içine geçen UI öğesinin tipini *değiştirmez*; bu sayede zincirin sonraki halkaları aynı tipin method'larını çağırmaya devam edebilir.
 - `map`, zincirin dönüş tipini de değiştirebilen genel amaçlı bir dönüşüm sağlar; `match` ile dallandırma yapmak için kullanılır.
 
 ### Tuzaklar
 
 - `when` kapaması **her render'da çalışır**; içine ağır hesap konulmaz. Pahalı bir değer önceden hesaplanıp closure'a kapatılır.
-- Aynı element üzerinde uzun `when_some` zincirleri okunabilirliği bozduğunda, ilgili state önceden `if let` ile pre-compute edilip tek bir `.child(...)` çağrısıyla eklenir.
+- Aynı UI öğesi üzerinde uzun `when_some` zincirleri okunabilirliği bozduğunda, ilgili durum önceden `if let` ile hesaplanıp tek bir `.child(...)` çağrısıyla eklenir.
 - `map` zincirin dönüş tipini değiştirebilir; buna karşın `when` ailesi tipi sabit tutar, bu yüzden style refinement zinciri devam ettirilebilir. `match` kollarının Rust gereği yine uyumlu tek bir dönüş tipinde birleşmesi gerekir.
 
 ## 4.6. Refineable, StyleRefinement ve MergeFrom
@@ -298,7 +298,7 @@ pub struct CascadeSlot(usize);
 Temel API:
 
 - `Cascade::default()` — slot 0'ı `Some(default)` ile kurar; ek slotlar başta `None`'dur. Slot 0 her zaman dolu kalır ve "base" refinement'ı tutar.
-- `cascade.reserve() -> CascadeSlot` — yeni `None` slot ekler ve handle döndürür. Hover, focus, active gibi her dinamik katman için bir slot ayrılır.
+- `cascade.reserve() -> CascadeSlot` — yeni `None` slot ekler ve tutamaç döndürür. Hover, focus, active gibi her dinamik katman için bir slot ayrılır.
 - `cascade.base() -> &mut S::Refinement` — slot 0'ı mutable verir; layout başında asıl style buraya yazılır.
 - `cascade.set(slot, Option<S::Refinement>)` — belirli bir slot'a refinement yerleştirir ya da `None` ile devre dışı bırakır.
 - `cascade.merged() -> S::Refinement` — slot 0 üstüne diğer dolu slotları sırayla `refine` eder; sonraki slot önceki slotu ezer.
@@ -351,7 +351,7 @@ Bu sıralamada en spesifik kaynak (worktree) en sona, en genel kaynak (default) 
 
 ## 4.7. Deferred Draw, Prepaint Order ve Overlay Katmanı
 
-`deferred(child)` çağrısı, child'ın **layout'unu yerinde** tutar — yani parent içindeki ölçü ve konum hesabı normal şekilde yapılır — ancak **paint'i ancestor paint'lerinden sonraya** erteler. Bu yapı, "konumu kendi parent'ına göre hesaplansın ama görsel olarak üst katmanda çizilsin" gereken parçalar için tasarlanmıştır. Tipik kullanım yerleri: context menu, dropdown, resize handle, dock drop overlay, modal arkaplan.
+`deferred(child)` çağrısı, child'ın **layout'unu yerinde** tutar — yani parent içindeki ölçü ve konum hesabı normal şekilde yapılır — ancak **paint'i ancestor paint'lerinden sonraya** erteler. Bu yapı, "konumu kendi parent'ına göre hesaplansın ama görsel olarak üst katmanda çizilsin" gereken parçalar için tasarlanmıştır. Tipik kullanım yerleri: context menu, dropdown, resize tutamacı, dock drop overlay, modal arkaplan.
 
 ```rust
 deferred(
@@ -367,18 +367,18 @@ Faz bazında davranış:
 
 - `request_layout` — Child normal layout alır (sanki deferred olmasa yapacağı şey). Bu yüzden `anchored` gibi konum hesabı yapan child'lar parent bounds'a göre doğru çalışır.
 - `prepaint` — Child `window.defer_draw(...)` çağrısıyla deferred queue'ya taşınır.
-- `paint` — Deferred element kendi paint fazında bir şey çizmez; tüm normal paint'ler bittikten sonra deferred queue işlenir.
-- `with_priority(n)` — Aynı frame içindeki deferred elementler arasında z-order belirler; yüksek priority üstte çizilir. Tüm pencerede geçerli global bir z-index *değildir*.
+- `paint` — Deferred UI öğesi kendi paint fazında bir şey çizmez; tüm normal paint'ler bittikten sonra deferred queue işlenir.
+- `with_priority(n)` — Aynı frame içindeki deferred UI öğeleri arasında z-order belirler; yüksek priority üstte çizilir. Tüm pencerede geçerli global bir z-index *değildir*.
 
 ### `Div` prepaint yardımcıları
 
-- `on_children_prepainted(|bounds, window, cx| { ... })` — Child'lar prepaint olduktan sonra onların bounds'larını ölçüp sonraki paint için state üretmek için kullanılır.
+- `on_children_prepainted(|bounds, window, cx| { ... })` — Child'lar prepaint olduktan sonra onların bounds'larını ölçüp sonraki paint için durum üretmek için kullanılır.
 - `with_dynamic_prepaint_order(...)` — Child prepaint sırasını runtime'da belirler. Özellikle bir child'ın autoscroll veya ölçüm sonucu başka bir child'ı etkilediği durumlarda gerekir (örn. önce ölçülen menünün konumuna göre arka çubuğun çizilmesi).
 
 ### Tuzaklar
 
 - Deferred child layout'ta yer tuttuğu için `absolute`/`anchored` konumlarının başvuru noktası hâlâ parent bounds'tır; "ekrandan bağımsız" değildir.
-- Overlay altındaki mouse olaylarını engellemek gerekiyorsa child içinde `.occlude()` veya `.block_mouse_except_scroll()` kullanılır; aksi halde overlay altına tıklama altta kalan elementlere de gider.
+- Overlay altındaki mouse olaylarını engellemek gerekiyorsa child içinde `.occlude()` veya `.block_mouse_except_scroll()` kullanılır; aksi halde overlay altına tıklama altta kalan UI öğelerine de gider.
 - `with_priority` global bir z-index değildir, yalnızca **aynı frame içindeki deferred queue** için sıralama belirler. Farklı pencereler veya farklı frame'ler için z-order sağlanmaz.
 
 

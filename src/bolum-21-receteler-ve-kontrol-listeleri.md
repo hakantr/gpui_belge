@@ -7,7 +7,7 @@
 #### Yeni Workspace Penceresi
 
 1. `zed::build_window_options(display_uuid, cx)` kullan.
-2. Root view olarak workspace/multi-workspace entity oluştur.
+2. Kök görünüm (`root view`) olarak workspace/multi-workspace varlığı (`entity`) oluştur.
 3. Titlebar için `TitleBar`/`PlatformTitleBar` yolunu izle.
 4. Root content'i `workspace::client_side_decorations(...)` ile sar.
 5. Close işlemi için `workspace::CloseWindow` action'ını dispatch et.
@@ -128,7 +128,7 @@ Zed ana uygulaması bu deseni zaten kullanır.
   surface ve alfa gerekir.
 - **Linux kontrol butonları yanlış tarafta**: `cx.button_layout()` ve
   `observe_button_layout_changed` kullanılmalı.
-- **Windows caption butonları tıklanmıyor**: Buton elementlerinde
+- **Windows caption butonları tıklanmıyor**: Buton UI öğelerinde
   `window_control_area(Close/Max/Min)` eksik olabilir.
 - **Close davranışı bypass ediliyor**: Zed workspace penceresinde doğrudan
   `remove_window` yerine `workspace::CloseWindow` action'ını dispatch et.
@@ -143,6 +143,17 @@ Zed ana uygulaması bu deseni zaten kullanır.
 - **Client decoration shadow boşluğu**: `set_client_inset` ve dış wrapper padding/shadow
   birlikte yönetilmelidir.
 
+#### Dokümantasyon Dili
+
+- Kod tipleri İngilizce bırakılır; açıklama metninde ilk kullanımda Türkçe karşılığıyla
+  verilir: `entity` = varlık, `handle` = tutamaç, `view` = görünüm,
+  `element` = UI öğesi, `state` = durum, `context` = bağlam.
+- Okurun kavramı takip ettiği cümlelerde Türkçe karşılık kullanılır; Rust tipi veya API adı
+  gerekiyorsa parantez içinde yazılır (örn. varlık (`Entity<T>`), odak tutamacı
+  (`FocusHandle`)).
+- "Yukarıda anlatıldı", "önceki bölümde değinildi" gibi ifadeler yerine ilgili başlığa
+  doğrudan Markdown linki verilir.
+
 ## 21.3. Yeni Pencere Eklerken Kontrol Listesi
 
 1. Bu pencere workspace mi, modal mı, popup mı? `WindowKind` seç.
@@ -151,10 +162,10 @@ Zed ana uygulaması bu deseni zaten kullanır.
 4. Hangi display'de açılacak? `display_id` veya `display_uuid` seç.
 5. Titlebar native mi custom mı? `TitlebarOptions`/`PlatformTitleBar` kararını ver.
 6. Linux decoration modu ayardan mı gelecek? `window_decorations` bağla.
-7. Client decoration varsa wrapper, inset, resize handle ve tiling durumunu ekle.
+7. Client decoration varsa wrapper, inset, resize tutamacı ve tiling durumunu ekle.
 8. Close action doğrudan pencereyi kapatmalı mı, yoksa workspace close flow mu?
 9. Blur/transparent gerekiyorsa `window_background` ve root alpha uyumunu kontrol et.
-10. Focus başlangıcı doğru mu? `focus`, `show`, `activate_window`, focus handle.
+10. Focus başlangıcı doğru mu? `focus`, `show`, `activate_window`, odak tutamacı.
 11. Minimum size gerekli mi?
 12. App id ve Linux icon gerekiyor mu?
 13. macOS native tabbing isteniyor mu? `tabbing_identifier`.
@@ -168,7 +179,7 @@ Zed ana uygulaması bu deseni zaten kullanır.
 
 Workspace penceresi için `zed::build_window_options` ile başla. Özel küçük pencere
 için doğrudan `cx.open_window(WindowOptions { ... }, |window, cx| cx.new(...))`
-kullan. Root view `Render` implement eden bir `Entity` olmalı.
+kullan. Kök görünüm (`root view`) `Render` implement eden bir `Entity` olmalı.
 
 **Pencere dekorunu nasıl tanımlarım?**
 
@@ -207,7 +218,7 @@ dönüşümlerinde.
 - Pencere seçenekleri: `crates/gpui/src/platform.rs::WindowOptions`
 - Platform penceresi sözleşmesi: `crates/gpui/src/platform.rs::PlatformWindow`
 - Pencere wrapper metotları: `crates/gpui/src/window.rs`
-- Element ve render trait'leri: `crates/gpui/src/element.rs`, `view.rs`
+- UI öğesi ve render trait'leri: `crates/gpui/src/element.rs`, `view.rs`
 - Style fluent API: `crates/gpui/src/styled.rs`
 - Interactivity fluent API: `crates/gpui/src/elements/div.rs`
 - Platform seçimi: `crates/gpui_platform/src/gpui_platform.rs`
@@ -226,4 +237,3 @@ dönüşümlerinde.
   `crates/settings/src/content_into_gpui.rs`
 - UI component export list: `crates/ui/src/components.rs`
 - UI input: `crates/ui_input/src/ui_input.rs`, `input_field.rs`
-

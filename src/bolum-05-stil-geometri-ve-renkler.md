@@ -4,7 +4,7 @@
 
 ## 5.1. Style ve Layout Haritası
 
-GPUI'nin style sistemi, CSS/Tailwind'e benzer fluent (zincirleme) method'lardan oluşur. Fark, bunların Rust tip sistemiyle yazılmış olmasıdır: birçok yanlış birim veya uyumsuz değer derleme zamanında yakalanır; runtime'da CSS benzeri sessiz geçersiz stil üretme ihtimali azalır. `Styled` trait'ini implemente eden her element bu method zincirinden faydalanır: `div()` gibi yerleşik elementler, `RenderOnce` bileşenleri ve Zed UI tipleri dahil.
+GPUI'nin style sistemi, CSS/Tailwind'e benzer fluent (zincirleme) method'lardan oluşur. Fark, bunların Rust tip sistemiyle yazılmış olmasıdır: birçok yanlış birim veya uyumsuz değer derleme zamanında yakalanır; runtime'da CSS benzeri sessiz geçersiz stil üretme ihtimali azalır. `Styled` trait'ini implemente eden her UI öğesi (`element`) bu method zincirinden faydalanır: `div()` gibi yerleşik elementler, `RenderOnce` bileşenleri ve Zed UI tipleri dahil.
 
 Style method'larının ana grupları ve hangi amaca hizmet ettikleri:
 
@@ -15,7 +15,7 @@ Style method'larının ana grupları ve hangi amaca hizmet ettikleri:
 - **Arkaplan ve çerçeve**: `bg`, `border_*`, `border_color`, `rounded_*`, `box_shadow`, `opacity`.
 - **Metin**: `text_color`, `text_bg`, `text_size`, `text_*`, `font_family`, `font_weight`, `italic`, `line_height`, `text_ellipsis`, `line_clamp`.
 - **Etkileşim**: `hover`, `active`, `focus`, `focus_visible`, `cursor_*`, `track_focus`, `key_context`, action/key/mouse handler'ları.
-- **Grup stillemesi**: `.group("name")` ile bir element grup adı alır; `group_hover(...)`, `group_active(...)`, `group_drag_over::<T>(...)` ise aynı isimli gruba göre child stilleri uygular. Parent hover/active durumuna göre child'ı stillemek için kullanılır.
+- **Grup stillemesi**: `.group("name")` ile bir UI öğesi grup adı alır; `group_hover(...)`, `group_active(...)`, `group_drag_over::<T>(...)` ise aynı isimli gruba göre child stilleri uygular. Parent hover/active durumuna göre child'ı stillemek için kullanılır.
 - **Grid yerleşimi**: container için `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`; child için `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full`. Altta `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement::{Line, Span, Auto}` tipleri çalışır.
 
 ### Style method'larının nereden geldiği
@@ -27,24 +27,24 @@ Bu fluent method'ların büyük kısmı `Styled` trait gövdesinde tek tek yazı
 | `visibility_style_methods!()` | `visible()`, `invisible()` |
 | `margin_style_methods!()` | `m_*` ile birlikte `mt_`, `mb_`, `my_`, `mx_`, `ml_`, `mr_` ve her birinin spacing scale + `auto` varyantları (`mt_auto()` gibi) |
 | `padding_style_methods!()` | `p_*`, `pt_`, `pb_`, `py_`, `px_`, `pl_`, `pr_` (margin ailesinin padding karşılığı) |
-| `position_style_methods!()` | `relative()`, `absolute()` ve positioned element offset prefix'leri: `inset`, `top`, `bottom`, `left`, `right` |
+| `position_style_methods!()` | `relative()`, `absolute()` ve konumlandırılmış UI öğesi offset prefix'leri: `inset`, `top`, `bottom`, `left`, `right` |
 | `overflow_style_methods!()` | `overflow_hidden()`, `overflow_x_hidden()`, `overflow_y_hidden()` |
 | `cursor_style_methods!()` | `cursor(CursorStyle)`, `cursor_default()`, `cursor_pointer()`, `cursor_text()`, `cursor_move()`, `cursor_not_allowed()`, `cursor_context_menu()`, `cursor_crosshair()`, `cursor_vertical_text()`, `cursor_alias()`, `cursor_copy()`, `cursor_no_drop()`, `cursor_grab()`, `cursor_grabbing()`, ve resize ailesi: `cursor_ew_resize()`, `cursor_ns_resize()`, `cursor_nesw_resize()`, `cursor_nwse_resize()`, `cursor_col_resize()`, `cursor_row_resize()`, `cursor_n_resize()`, `cursor_e_resize()`, `cursor_s_resize()`, `cursor_w_resize()` |
 | `border_style_methods!()` | `border_color(C)` ve `border_*` width prefix'leri (`border_*`, `border_t_*`, `border_r_*`, `border_b_*`, `border_l_*`, `border_x_*`, `border_y_*`) × suffix tablosu (`_0`, `_1`, `_2`, `_4`, `_8`, vb.) |
 | `box_shadow_style_methods!()` | `shadow(Vec<BoxShadow>)`, `shadow_none()`, `shadow_2xs()`, `shadow_xs()`, `shadow_sm()`, `shadow_md()`, `shadow_lg()`, `shadow_xl()`, `shadow_2xl()` |
 
-Bu proc macro'lar `gpui_macros` crate'inden `pub` olarak export edilir ve `gpui::{visibility_style_methods, margin_style_methods, ...}` üzerinden re-export edilir. Uygulama kodunda doğrudan çağrılmaz; `Styled` trait'i her implementasyona bu method'ları sağladığı için, custom bir element `Styled` implemente ettiğinde bu zincir hazır gelir.
+Bu proc macro'lar `gpui_macros` crate'inden `pub` olarak export edilir ve `gpui::{visibility_style_methods, margin_style_methods, ...}` üzerinden re-export edilir. Uygulama kodunda doğrudan çağrılmaz; `Styled` trait'i her implementasyona bu method'ları sağladığı için, özel bir UI öğesi `Styled` implemente ettiğinde bu zincir hazır gelir.
 
 `Styled` trait gövdesinde ayrıca `gpui_macros::style_helpers!()` çağrısı vardır. Bu macro `#[doc(hidden)]` olduğu ve `gpui` crate kökünden re-export edilmediği için `target/doc/gpui/all.html` listesinde görünmez. Aşağıdaki method aileleri bu dahili macro'dan üretilir: `w_*`, `h_*`, `size_*`, `min_size_*`, `min_w_*`, `min_h_*`, `max_size_*`, `max_w_*`, `max_h_*`, `gap_*`, `gap_x_*`, `gap_y_*`, `rounded_*`.
 
-Custom bir element için `Styled` implemente edildiğinde bu makroları yeniden çağırmak gerekmez; trait'in tüm method'ları o elementte kullanıma açılır. Makroların doğrudan çağrılmasının tek senaryosu GPUI'ye paralel yeni bir style framework yazmaktır (örn. başka bir `Styled` benzeri trait için). Bu durumda `method_visibility` parametresi public/`pub(crate)` ayarına izin verir.
+Özel bir UI öğesi için `Styled` implemente edildiğinde bu makroları yeniden çağırmak gerekmez; trait'in tüm method'ları o UI öğesinde kullanıma açılır. Makroların doğrudan çağrılmasının tek senaryosu GPUI'ye paralel yeni bir style framework yazmaktır (örn. başka bir `Styled` benzeri trait için). Bu durumda `method_visibility` parametresi public/`pub(crate)` ayarına izin verir.
 
 ### Pratik kararlar
 
-- Görünüm state'e bağlı değişiyorsa stil değişikliği render'ın içinde `.when(...)` ile koşullandırılır; element çizildikten sonra style'ı imperative olarak değiştirmeye çalışmak GPUI'nin modeline uymaz.
-- Scroll, focus, tooltip, animation gibi stateful elementlerin ID'leri stabil tutulur; ID değişmesi state'i sıfırlar.
+- Görünüm bir duruma (`state`) bağlı değişiyorsa stil değişikliği render'ın içinde `.when(...)` ile koşullandırılır; UI öğesi çizildikten sonra style'ı imperative olarak değiştirmeye çalışmak GPUI'nin modeline uymaz.
+- Scroll, focus, tooltip, animation gibi durum tutan (`stateful`) UI öğelerinin ID'leri stabil tutulur; ID değişmesi durumu sıfırlar.
 - Parent layout genişliği belirsiz olduğunda text overflow, image aspect ratio ve absolute child konumu beklenen sonucu vermeyebilir; en azından bir `w(...)` veya `flex_basis(...)` ile referans değer verilir.
-- Kart, toolbar, liste gibi tekrar eden UI'da boyutlar `min/max/aspect_ratio` ile sabitlenir; hover veya loading state'inde layout kayması (layout shift) yaşanmasın diye.
+- Kart, toolbar, liste gibi tekrar eden UI'da boyutlar `min/max/aspect_ratio` ile sabitlenir; hover veya loading durumunda layout kayması (layout shift) yaşanmasın diye.
 
 ## 5.2. Geometri Tipleri ve Birim Yönetimi
 
@@ -190,7 +190,7 @@ UI ağacı her render'da yeniden oluşturulduğu için, render fonksiyonunun dö
 
 ### Tipik kullanım
 
-Render içinde `String` üretip clone etmek yerine entity state'inde `SharedString` saklamak, hot path allocation'ını yok eder:
+Render içinde `String` üretip clone etmek yerine varlık durumunda (`entity state`) `SharedString` saklamak, hot path allocation'ını yok eder:
 
 ```rust
 struct Header { title: SharedString }
@@ -213,7 +213,7 @@ impl Render for Header {
 
 GPUI'de yaygın görülen, clone'lanması ucuz diğer tipler:
 
-- **`Arc<str>`, `Arc<Path>`, `Arc<[T]>`** — GPUI birçok API'sinde `Arc` tabanlı slice veya path bekler; aynı buffer'ı paylaşan handle'lar üretir.
+- **`Arc<str>`, `Arc<Path>`, `Arc<[T]>`** — GPUI birçok API'sinde `Arc` tabanlı slice veya path bekler; aynı buffer'ı paylaşan tutamaçlar (`handle`) üretir.
 - **`Hsla` / `Rgba`** — `Copy` tipindedir; doğrudan değer olarak geçirilir, clone gerekmez.
 - **`ElementId`** — `Clone` ucuzdur; içeride ya küçük bir sayısal ID ya `SharedString` taşır.
 
@@ -221,7 +221,7 @@ GPUI'de yaygın görülen, clone'lanması ucuz diğer tipler:
 
 - `SharedString::from(String)` çağrısı veriyi **bir kez** paylaşımlı temsile çevirir; sonraki tüm clone'lar yalnızca ref-count artırır. Hot path'te tekrar tekrar `String` oluşturup `SharedString`'e çevirmekten kaçınmak gerekir: başlangıçta bir kez dönüşüm yapılır, sonra `SharedString` saklanır.
 - `to_string()` her çağrıldığında yeni bir `String` allocation üretir; gerekmediği yerde `as_ref()` veya `Display` üzerinden yazmak tercih edilir.
-- Format string'ler her render'da çalışıyorsa `format!` sonucu da her frame allocation yapar; format'lanmış sonuç entity state'inde tutulup cache'lenir, render her seferde değer hesaplamaz.
+- Format string'ler her render'da çalışıyorsa `format!` sonucu da her frame allocation yapar; format'lanmış sonuç varlık durumunda (`entity state`) tutulup cache'lenir, render her seferde değer hesaplamaz.
 
 ## 5.5. WindowAppearance ve Tema Modu
 
@@ -242,8 +242,8 @@ pub enum WindowAppearance {
 
 - **`cx.window_appearance() -> WindowAppearance`** — Uygulama genelinde platformun bildirdiği tercihi anlık olarak okur.
 - **`window.appearance() -> WindowAppearance`** — Belirli bir pencerenin gerçek görünümünü okur; parent pencere (macOS modal hiyerarşisi) bu değeri override etmiş olabilir.
-- **`window.observe_window_appearance(|window, cx| { ... })`** — Pencerenin görünümü değiştiğinde tetiklenen observer. View state'i gerektirmeyen, doğrudan pencere üzerinden kurulan abonelik.
-- **`cx.observe_window_appearance(window, |this, window, cx| { ... })`** — Aynı abonelik bir `Context<T>` üzerinden kurulur; closure içinde `this: &mut T` ile view state'e erişilir. Tema bağımlı view state'i de güncellenmesi gerekiyorsa bu form tercih edilir.
+- **`window.observe_window_appearance(|window, cx| { ... })`** — Pencerenin görünümü değiştiğinde tetiklenen observer. Görünüm durumu (`view state`) gerektirmeyen, doğrudan pencere üzerinden kurulan abonelik.
+- **`cx.observe_window_appearance(window, |this, window, cx| { ... })`** — Aynı abonelik bir `Context<T>` üzerinden kurulur; closure içinde `this: &mut T` ile görünüm durumuna erişilir. Tema bağımlı görünüm durumu da güncellenmesi gerekiyorsa bu form tercih edilir.
 - **`window.observe_button_layout_changed(...)`** ve **`cx.observe_button_layout_changed(window, ...)`** — Platform pencere kontrol butonlarının (kapat–küçült–büyüt) düzeni değiştiğinde çalışır; custom title bar çizen kodda bu sıraya göre yeniden layout gerekir.
 
 ### Zed örüntüsü
@@ -259,7 +259,7 @@ cx.observe_window_appearance(window, |_, window, cx| {
 }).detach();
 ```
 
-Akış: kullanıcı sistemden temayı değiştirdiğinde callback çalışır → güncel appearance global olarak yazılır → tema ve ikon teması yeniden yüklenir. `detach()` ile observer'ın handle'ı bırakılır; bu observer uygulama yaşadığı sürece aktif kalsın diye.
+Akış: kullanıcı sistemden temayı değiştirdiğinde callback çalışır → güncel appearance global olarak yazılır → tema ve ikon teması yeniden yüklenir. `detach()` ile observer'ın tutamacı bırakılır; bu observer uygulama yaşadığı sürece aktif kalsın diye.
 
 ### Tuzaklar
 
