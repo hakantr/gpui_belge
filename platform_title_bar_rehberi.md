@@ -1,13 +1,706 @@
 # Zed Platform Title Bar Kullanım Rehberi
 
-Bu rehber, `../zed` çalışma ağacındaki Zed `platform_title_bar` modülünü kaynak
-alır (`../zed` içinde `git rev-parse --short HEAD`: `db6039d815`). Amaç,
-Zed'in platforma duyarlı başlık çubuğunu kendi GPUI uygulamanıza nasıl dahil
-edebileceğinizi, hangi parçaları değiştirebileceğinizi ve pencere butonlarını
-uygulama katmanınızdaki varlıklar, action'lar ve ayarlarla nasıl
-yönetebileceğinizi göstermektir.
+Bu rehber, GPUI tabanlı kendi uygulamana **Zed-uyumlu, platforma duyarlı bir
+başlık çubuğu** entegre etmen için yazılmıştır. Zed'in
+`crates/platform_title_bar` ve `crates/title_bar` crate'lerini **doğrudan
+dependency olarak kullanmadan** (GPL-3 lisans nedeniyle), aynı platform
+davranışını veren, kendi action ve ayar sözleşmenize bağlanan, lisans
+açısından temiz bir başlık çubuğu inşa etmek hedeftir.
 
-Bu dokümanda `crates/...` ile başlayan yollar `../zed` deposuna göredir.
+> **Eşlik eden dosyalar (rehber tamamlandıktan sonra eklenecek):**
+> `platform_title_bar_aktarimi.md` (upstream pin / sync günlüğü) ve
+> `platform_title_bar_kaymasi_kontrol.sh` (drift raporu). Bu rehber
+> **mimari, sözleşme ve kod** tarafına odaklanır; uzun vadeli senkron
+> disiplini için onlara bakılır.
+
+> **Anlatım biçimi:** Rehber, GPUI ana referansı `rehber.md` ve tema
+> rehberi `tema_rehber.md` ile aynı biçimi kullanır — her konu kendi
+> başına okunabilir; kullanılan tipi, hangi modülden geldiğini, kabul
+> ettiği değerleri, runtime davranışını ve yaygın tuzakları tek yerde
+> toplar. Mevcut faz-tabanlı eski içerik geçici olarak "Ek" bölümünde
+> tutulur; bölümler tamamlandıkça absorbe edilip silinir.
+
+---
+
+## İçindekiler
+
+### Bölüm I — Mimari ve İlkeler
+1. [Üç katmanlı yaklaşım: platform kabuğu / ürün başlığı / uygulama state](#1-üç-katmanlı-yaklaşım-platform-kabuğu--ürün-başlığı--uygulama-state)
+2. [Temel ilke: platform katmanı bilir, ürün katmanı karar verir](#2-temel-ilke-platform-katmanı-bilir-ürün-katmanı-karar-verir)
+3. [Lisans-temiz çalışma protokolü](#3-lisans-temiz-çalışma-protokolü)
+4. [Crate yapısı ve klasör yerleşimi](#4-crate-yapısı-ve-klasör-yerleşimi)
+5. [Bağımlılık matrisi](#5-bağımlılık-matrisi)
+
+### Bölüm II — GPUI'nin title bar için kullanılan yüzeyi
+6. `WindowOptions`, `TitlebarOptions`, `WindowDecorations`
+7. `WindowControlArea` ve hit-test sözleşmesi
+8. `WindowButtonLayout`, `WindowButton`, `observe_button_layout_changed`
+9. `Window` API'leri: minimize / zoom / start_window_move / show_window_menu / titlebar_double_click / set_client_inset
+10. `tabbing_identifier`, `tab_bar_visible`, fullscreen ve `window_controls` capability filtresi
+
+### Bölüm III — Platform katmanı tipleri
+11. `PlatformTitleBar` üst yapısı ve render modeli
+12. `LinuxWindowControls`, `WindowControl`, `WindowControlStyle`, `WindowControlType`
+13. `WindowsWindowControls` ve caption button → `WindowControlArea` eşlemesi
+14. macOS trafik ışıkları, `traffic_light_position`, `titlebar_double_click`
+15. `SystemWindowTabs`, `SystemWindowTabController`, `SystemWindowTab`
+
+### Bölüm IV — Davranış sözleşmesi
+16. Drag alanı, `WindowControlArea::Drag` ve propagation kuralları
+17. Çift tıklama platform farkları (macOS / Linux / Windows)
+18. Title bar rengi: `title_bar_background` vs `title_bar_inactive_background` ve tema token kataloğu
+19. Yükseklik hesabı (`platform_title_bar_height`)
+20. Client-side decoration sarmalı (shadow / border / resize / inset)
+
+### Bölüm V — Buton ve action yönetimi
+21. Close action sözleşmesi ve `Box<dyn Action>` enjeksiyonu
+22. Minimize/maximize: Linux doğrudan `Window`, Windows native caption
+23. `WindowButtonLayout` ayar formatları (`platform_default` / `standard` / GNOME string)
+24. Native tab action'ları: `ShowNextWindowTab` / `ShowPreviousWindowTab` / `MoveTabToNewWindow` / `MergeAllWindows`
+
+### Bölüm VI — Sidebar ve workspace etkileşimi
+25. `MultiWorkspace` zayıf referansı ve `SidebarRenderState`
+26. Pencere kontrolleri sidebar çakışma kuralı
+27. `is_multi_workspace_enabled` feature flag deseni
+
+### Bölüm VII — Tüketim ve dış API
+28. Doğrudan crate ile kullanım (Zed ekosistemi içi)
+29. Bağımsız uygulama için port stratejisi
+30. Public API kataloğu ve crate-içi sınır
+31. Test ortamında title bar mock'lama
+
+### Bölüm VIII — Pratik
+32. Sınama listesi
+33. Yaygın tuzaklar
+34. Reçeteler
+
+---
+
+## Bölüm I — Mimari ve İlkeler
+
+---
+
+### 1. Üç katmanlı yaklaşım: platform kabuğu / ürün başlığı / uygulama state
+
+**Kaynak yön:** Aşağıdan yukarıya — platform kabuğu en alttadır ve
+**davranış paritesi** ister; üst katmanlar tasarım özgürlüğüyle yazılır.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Uygulama state (senin kodun)                                   │
+│  - TitleBarController trait                                     │
+│  - close_action, new_window_action, button_layout, sidebar      │
+│  - AppState / WorkspaceState / DocumentState                    │
+├─────────────────────────────────────────────────────────────────┤
+│  Ürün başlığı (kendi tasarımın, AppTitleBar)                    │
+│  - Uygulama menüsü, proje/doküman adı, kullanıcı menüsü         │
+│  - Tema renkleri, branş göstergesi, status chip'leri            │
+│  - PlatformTitleBar entity'sine child olarak verilir            │
+├─────────────────────────────────────────────────────────────────┤
+│  Platform kabuğu (port edilmiş, kvs_titlebar)                   │
+│  - PlatformTitleBar: drag alanı, arka plan, köşe yuvarlama      │
+│  - Linux/Windows caption buton render'ları                      │
+│  - macOS trafik ışığı padding'i ve dbl-click                    │
+│  - Native pencere sekmeleri (opsiyonel)                         │
+│  - GPUI: WindowOptions, WindowControlArea, WindowButtonLayout   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Platform kabuğu (en alt katman) — `mirror`:** Zed'in
+`platform_title_bar` crate'inin **davranışını** yeniden yazarsın. Hit-test
+alanları, drag akışı, hangi platformda hangi pencere butonu render
+edilecek — hepsi Zed sözleşmesiyle paralel. Yaratıcılık yok; sadece
+davranış paritesi. Bölüm III ve IV bu katmanı ele alır. **Lisans
+nedeniyle kod kopyalanmaz**; sadece API'lerin gözlemlenebilir davranışı
+yeniden inşa edilir.
+
+**Ürün başlığı (orta katman) — `senin tasarımın`:** Uygulamanın
+gerçek başlık içeriği. Menü, proje adı, status chip'leri, kullanıcı
+avatar'ı — hepsi senin tasarım dilinde. Platform kabuğuna **child**
+olarak verilir; her render'da yenilenir (Konu 11'de `set_children`
+tüketim modeli). Tema rehberinin "Faz 5 — UI tüketim" bölümüyle aynı
+zihniyet: temayı oku, durum-bazlı render et.
+
+**Uygulama state (en üst katman) — `karar otoritesi`:** Platform
+kabuğunun ihtiyaç duyduğu **politika** kararları: "close butonu ne
+kapatıyor?", "new window action'ı hangi?", "Linux butonları sağda mı
+solda mı?", "sidebar açık mı?". Bunları platform kabuğuna **trait
+sözleşmesi** üzerinden verirsin (`TitleBarController` — Konu 17 sonu).
+
+**Bağımlılık yönü:**
+
+```
+Uygulama state  ←─reads─  Ürün başlığı  ←─child of─  Platform kabuğu
+                                                      │
+                                                      └─reads─  TitleBarController
+                                                                (uygulama state'inden trait obj)
+```
+
+Platform kabuğu doğrudan `AppState`'i bilmez — sadece `TitleBarController`
+trait'ini bilir. Bu yön kuralı, platform kabuğunu **bağımsız test
+edilebilir** kılar.
+
+**Lisans katmanlama:**
+
+| Katman | Lisans tarafı |
+|--------|---------------|
+| Platform kabuğu | Davranış öğrenilir, kod kendi sözcüklerinizle yazılır (GPL-3 kod gövdesi kopyalama yasak) |
+| Ürün başlığı | Tamamen senin; Zed'in `title_bar` koduyla hiçbir ilgisi yok |
+| Uygulama state | Tamamen senin; trait imzası `TitleBarController` çıkış API'sidir |
+
+#### Zed ile bu rehberin terim eşlemesi
+
+| Zed | Bu rehber |
+|-----|-----------|
+| `platform_title_bar` crate | `kvs_titlebar` crate (port edilmiş) |
+| `title_bar` crate | `kvs_app_titlebar` veya uygulamanın kendi crate'i |
+| `workspace::Workspace` | Uygulamanın kendi shell/window state'i |
+| `WorkspaceSettings`, `ItemSettings` | Uygulamanın config sistemi |
+| `MultiWorkspace`, `SidebarRenderState` | `TitleBarController::sidebar_state` |
+| `zed_actions::OpenRecent` vb. | Uygulamanın kendi action'ları |
+
+Sync turunda (`platform_title_bar_aktarimi.md` — rehber bittikten sonra
+oluşturulacak) bu eşleme tablosu **referans değer**: Zed sözleşmesindeki
+yeni bir kavram bizim hangi tipte mirror edilir, kararı burada verilir.
+
+---
+
+### 2. Temel ilke: platform katmanı bilir, ürün katmanı karar verir
+
+Tek cümle: **Platform kabuğu pencerenin mekaniğini bilir; ürün katmanı
+neyin kapanacağına, hangi menünün açılacağına, hangi workspace'in
+taşınacağına karar verir.**
+
+#### Üç şeyi ayırt et
+
+| Soru | Sahibi |
+|------|--------|
+| Mouse buradan basıldı, pencere sürüklenmeli mi? | **Platform** (`start_window_move`) |
+| Close butonuna basıldı, ne kapatılmalı? | **Ürün** (`AppState::close_action`) |
+| Pencere zoom edilmeli mi yoksa minimize mi? | **Platform** (Linux: `zoom_window`; macOS: sistem) |
+| Workspace kirli, save modal aç mı? | **Ürün** (`AppState::on_close_intent`) |
+| Linux pencere butonu hangi tarafta? | **Platform** + **Ürün** (button_layout ayardan) |
+| Native tab açıldığında ne yapılır? | **Platform** (`SystemWindowTabController`) + **Ürün** (yeni pencere ne içeriyor) |
+| Hit-test: bu piksel caption mı, drag mı, content mi? | **Platform** (`WindowControlArea`) |
+| Pencerenin teması (renk) ne? | **Ürün** (`cx.theme().title_bar_background`) |
+
+#### Gerekçe
+
+1. **Platform davranışı evrenseldir.** Bir Linux kullanıcısı kendi pencere
+   manager'ının button layout ayarını bekler; kendi compositor'unun
+   resize edge davranışını bekler. Ürün bu beklentilere karşı çıkamaz —
+   onları tüketir.
+2. **Ürün anlamı uygulamaya özgüdür.** Zed için close = workspace kapat;
+   bir editor için close = doküman kapat; bir launcher için close = pencereyi
+   gizle. Platform bu farkı bilmez, bilmek zorunda da değildir.
+3. **Test izolasyonu için zorunludur.** Platform kabuğunu test ederken
+   gerçek `AppState`'e ihtiyaç olmasın; mock `TitleBarController` yeterli
+   olsun.
+
+#### Kontrol listesi: bir davranışı hangi katmana koymalı?
+
+Bir davranış için üç soru:
+
+1. **Bu davranış pencere yöneticisi/OS sözleşmesini takip mi ediyor?**
+   → Platform katmanı.
+2. **Bu davranış uygulamanın iş kuralına mı bağlı?**
+   → Ürün katmanı veya `AppState`.
+3. **Hangi katmana koyduğumda diğer uygulamalar bu kabuğu kullanabilir?**
+   → O katman doğru cevap.
+
+> **Örnek hatalı yerleşim:** "Close butonu tıklandığında SaveModal aç" —
+> bu **ürün katmanında** olmalı; platform kabuğu sadece "close intent"
+> dispatch eder, modal açma kararı `AppState`'in.
+
+#### "Tema rehberindeki Temel ilke ile farkı"
+
+Tema rehberinin Konu 2'si **veri sözleşmesinde dışlama yok** diyordu —
+tüm Zed alanları mirror edilmeli. Bu rehberin Konu 2'si **kapsam farkı**
+söylüyor: platform vs ürün vs state. İki kural aynı zihniyetin iki
+yüzü: **sözleşmeyi geliştiriciye, uygulamayı geliştiricinin ürününe
+bırak**.
+
+#### Tuzaklar
+
+1. **Close action'ı platforma sabitlemek.** `PlatformTitleBar`'a
+   `close_action: Box::new(workspace::CloseWindow)` koyarsan platform
+   kabuğu Zed'e bağlanır. **Daima dışarıdan** geçir.
+2. **Çift tıklama davranışını ürüne sızdırmak.** macOS double-click
+   `window.titlebar_double_click()` — platform sözleşmesi. Ürün burada
+   `cx.dispatch_action(ZoomWorkspace)` çağırsa platform farkı bozulur.
+3. **Sidebar açıkken pencere kontrollerini gizleme kararı.** Bu Konu 26'da
+   ele alınıyor — sidebar bilgisi `TitleBarController` üzerinden gelir,
+   platform kabuğu doğrudan workspace state'ini sorgulamaz.
+4. **Native tab kararını ürüne kapatmak.** `tabbing_identifier`
+   verilmesi/verilmemesi `TitleBarController::use_system_window_tabs`'tan
+   gelir; platform kabuğu kendi karar vermez.
+
+---
+
+### 3. Lisans-temiz çalışma protokolü
+
+Zed'in `platform_title_bar` ve `title_bar` crate'leri
+**GPL-3.0-or-later** lisanslıdır. Kod gövdesi kopyalanamaz; ancak API
+imzaları, JSON sözleşmeleri, davranış kuralları telif kapsamında değildir
+ve mirror edilebilir.
+
+> **Tema rehberi Konu 3 ile fark:** Tema sözleşmesi alan adlarını mirror
+> ediyor (data shape). Burada **davranışı** mirror ediyoruz: "mouse'a
+> basıldığında pencere sürüklenmeye başlar", "close butonu ana
+> caption'da sağ uçtadır" gibi gözlemlenebilir davranışlar telif değil;
+> bunları yeniden inşa edebilirsin.
+
+#### Yapılabilir / Yapılamaz
+
+| Yapılabilir | Yapılamaz |
+|-------------|-----------|
+| API imzalarını gözlemleyip yeniden yazmak (örn. `pub fn set_button_layout(...)`) | `crates/platform_title_bar/src/*.rs` kod gövdesini kopyalamak |
+| Davranışı tarif edip kendi kelimelerinle implement etmek | Doc comment'i kelime kelime taşımak |
+| `WindowControlArea` enum varyantlarını mirror etmek (gpui'den, Apache-2.0) | Zed'in `LinuxWindowControls` impl'ini taşımak |
+| `WindowButtonLayout` enum varyantlarını mirror etmek (gpui'den) | Zed'in render fonksiyonlarını birebir Rust → Rust kopyalamak |
+| Platform-spesifik bilinen davranışları (hit-test, dbl-click) yeniden yazmak | Zed'in caption button hover renklerinin tam hex değerlerini kopyalamak |
+| Sözleşme parite tabloları çıkarmak (sync turunda) | Zed'in mevcut SVG icon dosyalarını binary olarak gömmek |
+
+#### Güvenli dependency'ler (hepsi Apache-2.0, Zed workspace'inden alınabilir)
+
+- **`gpui`** — `WindowOptions`, `TitlebarOptions`, `WindowControlArea`,
+  `WindowButtonLayout`, `WindowDecorations`, `Window` methodları
+  (`start_window_move`, `minimize_window`, `zoom_window`, `show_window_menu`,
+  `titlebar_double_click`, `set_client_inset`, `tab_bar_visible`,
+  `set_tabbing_identifier`).
+- **`refineable`** — Style cascade için (tema rehberindeki kullanım gibi;
+  title bar'da çoğu zaman gerekmez ama opsiyonel).
+- **`collections`** — `HashMap`/`IndexMap` wrapper'ları.
+
+**GPL-3 crate'ler (referans için okunur, asla dependency olarak eklenmez):**
+
+| Crate | Lisans | Bu rehberin yaklaşımı |
+|-------|--------|----------------------|
+| `platform_title_bar` | GPL-3.0-or-later | **Mirror** — kendi `kvs_titlebar`'a port |
+| `title_bar` | GPL-3.0-or-later | **Mirror** — kendi `kvs_app_titlebar`'a port |
+| `workspace` | GPL-3.0-or-later | **Sadece referans** — `client_side_decorations` benzerini elle yaz |
+| `theme` | GPL-3.0-or-later | Tema rehberindeki gibi mirror (`kvs_tema`) |
+| `theme_settings`, `theme_selector` | GPL-3.0-or-later | Sadece referans |
+| `zed_actions` | GPL-3.0-or-later | Action karşılıkları kendi `app::actions!` makronla |
+
+#### Üç port yaklaşımı ve lisans sonucu
+
+| Yaklaşım | Lisans sonucu | Kullanım koşulu |
+|----------|---------------|-----------------|
+| **1. Doğrudan `platform_title_bar` dependency** | Senin uygulaman **GPL-3** olur | Sadece kendin GPL altında dağıtacaksan |
+| **2. Crate'i vendor'la (kaynak kodu kopyala)** | Vendor'lanan kod **hâlâ GPL-3**; senin uygulaman da GPL-3 olur | Yine GPL hedefin varsa |
+| **3. Davranış mirror'ı (kendi koddan yeniden yaz)** | Senin kodun **kendi lisansın** olur | **Lisans-temiz hedef için tek doğru yol** |
+
+Bu rehber **3. yolu** anlatır. 1. veya 2. yolu seçen geliştiriciler için
+bu rehber yine işe yarar (Bölüm II–IV referans amaçlı okunabilir), ama
+"port" kelimesi geçen her yerde sadece "kullan" deyip geçebilirler.
+
+#### Doc comment yazımı
+
+Zed kaynak dosyasındaki bir fonksiyon imzasını mirror ediyorsan, doc
+comment'i **kendi sözcüklerinle** yaz. Aynı cümleyi kullanma. Örnek:
+
+```rust
+// Zed'de (mirror EDİLMEZ — birebir kopyalama):
+/// Renders the left window controls for Linux client-side decorations.
+
+// Sizde (mirror EDİLİR — yeniden yazılmış):
+/// Linux client-side decoration durumunda sol kenar pencere butonlarını
+/// üretir; layout boş ise `None` döner.
+pub fn render_left_window_controls(...) -> Option<impl IntoElement> { ... }
+```
+
+#### Publishing uyarısı
+
+`gpui` ve `refineable` Zed workspace'inde `publish = false` ile
+işaretlidir. Yani crates.io'ya yayınlanacak bir kütüphane içinde git/path
+dep olarak kullanılamazlar. Üç çözüm (tema rehberi Konu 3 ile aynı):
+
+1. **Vendor:** Kaynak kodu kendi monorepo'na kopyala (lisans + atribusyon
+   koru).
+2. **Fork yayınla:** `gpui`'yi kendi adınla crates.io'ya yayınla.
+3. **Sadece dahili kullan:** Uygulaman binary olarak dağıtılıyorsa
+   (kütüphane değil), git dep yeterli.
+
+#### Tuzaklar
+
+1. **"Hangi dosya GPL?" diye düşünmemek.** `crates/platform_title_bar/`
+   altındaki **her dosya** GPL. Tek bir helper fonksiyonu bile taşırsan
+   ihlal.
+2. **API imzasını "yeniden yazmak" diye kelime farkıyla kopyalamak.**
+   `pub fn render_right_window_controls(button_layout, close_action, window)`
+   ile aynı isim/parametre yazmak imza paritesi (kopya değil). Ama
+   **gövde** içindeki match/if/loop zincirini birebir alırsan kopya
+   olur — kendi kodunla yeniden çöz.
+3. **Lisans kontrolünü "sonra" demek.** Bir kez GPL kod taşırsan
+   uygulaman da GPL olur; bunu sonradan geri almak `cargo deny` ile
+   yakalanmaz. **İlk port satırından önce** yaklaşımını seç.
+4. **`cargo deny check licenses` çalıştırmamak.** Yanlışlıkla transit bir
+   GPL dep girerse CI'da yakalanmalı (Bölüm I/Konu 5 sonu).
+
+---
+
+### 4. Crate yapısı ve klasör yerleşimi
+
+Platform title bar **iki crate** olarak konumlanır; tema sisteminin
+`kvs_tema` + `kvs_syntax_tema` ayrımıyla aynı zihniyet.
+
+| Crate | Sorumluluk | Lisans |
+|-------|-----------|--------|
+| `kvs_titlebar` | `PlatformTitleBar`, platform-spesifik buton tipleri, native tabs, `WindowControlArea` mirror'ları, `TitleBarController` trait | senin lisansın |
+| `kvs_app_titlebar` | Ürün başlık içeriği (menü, proje adı, kullanıcı UI, status chip'leri) | senin lisansın |
+
+> **Crate adlandırma:** `kvs_*` prefix bu rehberde örnek. Kendi projende
+> `app_titlebar`, `core_titlebar` veya istediğin adı ver; rehber kalıpları
+> aynı kalır.
+
+#### Neden iki crate?
+
+**Bağımsız test ve evrim:**
+
+- `kvs_titlebar` platform kabuğunu içerir → Zed'in `platform_title_bar`
+  sync turlarında değişen tek crate olur.
+- `kvs_app_titlebar` ürünün başlık içeriğini içerir → uygulamanın UI
+  tasarım kararlarına bağlı; Zed evriminden etkilenmez.
+- İkisi ayrı crate olunca **derleme süresi** ve **bağımlılık grafiği**
+  net kalır; platform kabuğu sadece `gpui`'ye, ürün başlığı tema/menu
+  crate'lerine bağlanır.
+
+**Lisans izolasyonu:**
+
+- `kvs_titlebar` Zed `platform_title_bar` davranışını mirror eder; doc
+  comment, isim seçimi gibi konularda lisans-temizliğe en çok özen
+  gerektiren crate burası.
+- `kvs_app_titlebar` tamamen senin tasarım dilin; Zed davranışı sızıntısı
+  yoktur.
+
+#### Klasör yerleşimi
+
+```
+~/github/
+├── gpui_belge/                       ← bu rehber + (sonradan) aktarımı + drift script
+│   ├── platform_title_bar_rehberi.md
+│   ├── platform_title_bar_aktarimi.md       ← rehber bittikten sonra
+│   └── platform_title_bar_kaymasi_kontrol.sh ← rehber bittikten sonra
+├── zed/                              ← referans kaynak
+└── kvs_ui/                           ← senin uygulaman
+    ├── Cargo.toml                    ← workspace
+    └── crates/
+        ├── kvs_titlebar/
+        │   ├── Cargo.toml
+        │   ├── DECISIONS.md          ← Zed'den farklılıkların kaydı
+        │   ├── src/
+        │   │   ├── kvs_titlebar.rs       ← lib kökü (mod.rs değil)
+        │   │   ├── platform_title_bar.rs ← PlatformTitleBar entity
+        │   │   ├── platforms/
+        │   │   │   ├── platform_linux.rs    ← LinuxWindowControls
+        │   │   │   ├── platform_windows.rs  ← WindowsWindowControls
+        │   │   │   └── platform_macos.rs    ← macOS davranış helper'ları
+        │   │   ├── system_window_tabs.rs ← native pencere sekmeleri
+        │   │   ├── controller.rs         ← TitleBarController trait
+        │   │   └── style.rs              ← WindowControlStyle helper
+        │   └── tests/
+        │       ├── controller_mock.rs    ← Mock TitleBarController
+        │       └── render_smoke.rs       ← Headless render testleri
+        ├── kvs_app_titlebar/
+        │   ├── Cargo.toml
+        │   ├── src/
+        │   │   ├── kvs_app_titlebar.rs   ← lib kökü
+        │   │   ├── app_title_bar.rs      ← AppTitleBar entity (Zed'in TitleBar'ı muadili)
+        │   │   ├── menu.rs               ← uygulama menüsü
+        │   │   ├── project_picker.rs     ← proje/doküman adı widget'ı
+        │   │   └── user_menu.rs          ← kullanıcı menüsü (opsiyonel)
+        │   └── tests/
+        └── kvs_tema/                ← tema rehberinden
+            └── ...
+```
+
+#### Modül adlandırma kuralı
+
+Lib kökü `mod.rs` yerine **crate adıyla aynı isimli dosya** (örn.
+`kvs_titlebar.rs`). Bu, editör başlığında hangi dosyayı düzenlediğini
+görmeni sağlar; Zed projesinin kendi konvansiyonu da budur (tema
+rehberi Konu 4 ile aynı).
+
+#### `DECISIONS.md`
+
+Her crate kendi karar günlüğünü tutar. Zed'den farklı yaptığın her şey
+burada gerekçesiyle kayıt altına alınır. Örnek ilk giriş:
+
+```markdown
+# kvs_titlebar karar günlüğü
+
+## YYYY-MM-DD — İlk pin
+
+- Pin: <Zed kısa SHA> (bkz. ../../gpui_belge/platform_title_bar_aktarimi.md
+  — rehber tamamlanınca oluşturulacak)
+- Crate yapısı: kvs_titlebar (platform kabuğu) + kvs_app_titlebar (ürün başlığı)
+- TitleBarController trait: uygulama action / sidebar / button_layout
+  sorularını trait üzerinden alır (Zed'in workspace doğrudan referansı
+  yerine)
+- SystemWindowTabs: ilk sürümde **kapalı** (feature flag default off);
+  uygulama native tab desteğine ihtiyaç doğunca açılacak
+- macOS double-click davranışı: sistem default'a teslim edilir; ayar
+  override'ı yapılmaz (gerekirse Konu 17'ye göre eklenir)
+- Linux CSD: WindowDecorations::Client desteklenir; CSD sarmalı
+  (client_side_decorations muadili) ayrı bir helper olarak yazılır
+```
+
+`DECISIONS.md`'yi her sync turunda ve mimari kararda **güncelle**. 6 ay
+sonraki sen sana minnettar olur.
+
+#### Modüllerin sorumluluk haritası
+
+| Modül | İçerir | Dış API mı? |
+|-------|--------|-------------|
+| `kvs_titlebar.rs` (lib kökü) | Re-export'lar, `PlatformTitleBar`, `TitleBarController` | Evet |
+| `platform_title_bar.rs` | `PlatformTitleBar`, render fonksiyonları, `render_left_window_controls`, `render_right_window_controls` | Evet |
+| `platforms/platform_linux.rs` | `LinuxWindowControls`, `WindowControl`, `WindowControlStyle` | Evet (kararsız) |
+| `platforms/platform_windows.rs` | `WindowsWindowControls` | Evet (kararsız) |
+| `platforms/platform_macos.rs` | macOS davranış helper'ları (genelde trivial) | Crate-içi |
+| `system_window_tabs.rs` | `SystemWindowTabs`, `SystemWindowTabController`, native tab davranışı | Evet (kararsız) |
+| `controller.rs` | `TitleBarController` trait, ilgili veri tipleri (`ShellSidebarState`, vs.) | Evet |
+| `style.rs` | `WindowControlStyle` builder helper'ı | Crate-içi (veya kararsız public) |
+
+"Dış API" sütununda "kararsız" işareti olan modüller (platform-spesifik
+butonlar, native tabs) Zed sync turlarında değişme olasılığı yüksek
+olan parçalar; tüketici doğrudan bunlara dayanırsa breaking change'e
+açıktır. Public API kararlılık seviyeleri Bölüm VII/Konu 30'da detaylı.
+
+---
+
+### 5. Bağımlılık matrisi
+
+`kvs_titlebar/Cargo.toml`:
+
+```toml
+[package]
+name = "kvs_titlebar"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"            # veya Apache-2.0 — kendi seçimin
+publish = false
+
+[lib]
+path = "src/kvs_titlebar.rs" # mod.rs değil
+
+[dependencies]
+# Zed workspace (Apache-2.0; publish = false uyarısı için Konu 3)
+gpui = { git = "https://github.com/zed-industries/zed", branch = "main" }
+
+# Aile içi crate'ler
+kvs_tema = { path = "../kvs_tema" }
+
+# Üçüncü taraf
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+```
+
+`kvs_app_titlebar/Cargo.toml`:
+
+```toml
+[package]
+name = "kvs_app_titlebar"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+publish = false
+
+[lib]
+path = "src/kvs_app_titlebar.rs"
+
+[dependencies]
+gpui = { git = "https://github.com/zed-industries/zed", branch = "main" }
+kvs_titlebar = { path = "../kvs_titlebar" }
+kvs_tema = { path = "../kvs_tema" }
+
+anyhow = "1"
+```
+
+#### Her dependency'nin rolü
+
+| Crate | Rol | Tema'da/title bar'da tipik kullanım |
+|-------|-----|--------------------------------------|
+| `gpui` | UI çatısı, pencere API'leri | `WindowOptions`, `WindowControlArea`, `WindowButtonLayout`, `Window` methodları, `App`/`Context` |
+| `kvs_tema` | Tema renkleri | `cx.theme().colors().title_bar_background` |
+| `kvs_titlebar` (kvs_app_titlebar için) | Platform kabuğu | `PlatformTitleBar`, `TitleBarController` trait |
+| `anyhow` | Hata propagation | Tema/state init hatalarını caller'a iletmek |
+| `serde` | Settings deserialize | `WindowButtonLayout` ayarını kullanıcı config'inden okumak |
+
+#### Zed bağımlılığı → port karşılığı tablosu
+
+Zed'in `platform_title_bar` ve `title_bar` crate'leri aşağıdaki Zed-içi
+crate'lere bağlanır. Port ederken bunları **kendi karşılıklarınla
+değiştir**:
+
+| Zed bağımlılığı | Bu rehberdeki port karşılığı |
+|-----------------|------------------------------|
+| `workspace::Workspace` | Uygulamanın kendi shell state'i (örn. `AppShell` entity'si) |
+| `workspace::CloseWindow` | `TitleBarController::close_action()` üzerinden gelen action |
+| `workspace::MultiWorkspace` | `TitleBarController::sidebar_state()` (opsiyonel) |
+| `workspace::client_side_decorations` | Kendi CSD sarmalı (Konu 20) |
+| `zed_actions::OpenRecent { create_new_window: true }` | `TitleBarController::new_window_action()` |
+| `WorkspaceSettings::use_system_window_tabs` | `TitleBarController::use_system_window_tabs(cx)` |
+| `ItemSettings::close_position`, `ItemSettings::show_close_button` | Senin kendi `TabSettings` veya app config |
+| `DisableAiSettings` | Senin kendi feature flag'in (`SidebarSettings::enabled` vb.) |
+| `theme::Theme::colors()::title_bar_background` | `kvs_tema::ActiveTheme` + `cx.theme().colors().title_bar_background` |
+| `theme::Theme::colors()::title_bar_inactive_background` | `cx.theme().colors().title_bar_inactive_background` |
+| `ui::prelude::*`, `ui::IconButton`, `ui::Tooltip` | Kendi UI bileşen kütüphanen |
+| `zed::ReleaseChannel::global(cx).app_id()` | Senin `AppState::app_id()` |
+
+#### Versiyon pinleme tavsiyesi
+
+- **`gpui` git `branch = "main"`** ile takip ediliyor; pin commit'e
+  sabitlemek istersen `rev = "..."` kullan. Title bar için en kritik
+  imzalar: `WindowControlArea`, `WindowButtonLayout`, `TitlebarOptions`,
+  `Window::start_window_move`. Sync turunda bu imzaların değişip
+  değişmediği kontrol edilir.
+- **`kvs_tema`** tema rehberinde anlatılan crate; aynı workspace'in
+  parçası olduğu için path dep yeterli.
+
+#### Bağımlılık akış grafiği
+
+```
+kvs_app_titlebar  ──depends on──>  kvs_titlebar, kvs_tema, gpui
+                                    ↑
+                                    │  AppTitleBar, child olarak
+                                    │  PlatformTitleBar'a verilir
+                                    │
+kvs_titlebar  ──depends on──>  gpui, kvs_tema, anyhow, serde
+
+kvs_tema  ──depends on──>  gpui, refineable, collections, palette, serde, ...
+
+gpui  ──published from──>  zed workspace (Apache-2.0)
+```
+
+Bu grafiğin yönü tersine işlemez; `gpui` asla `kvs_titlebar`'a bağlanmaz.
+`kvs_titlebar` asla `kvs_app_titlebar`'a bağlanmaz. Bu kural, Zed'in
+upstream'inde değişiklik olduğunda etkilenme yüzeyini sınırlar.
+
+#### Lib kökü iskeleti (`kvs_titlebar/src/kvs_titlebar.rs`)
+
+```rust
+//! kvs_titlebar — Zed-uyumlu, lisans-temiz platform title bar.
+
+mod controller;
+mod platform_title_bar;
+mod platforms;
+mod style;
+mod system_window_tabs;
+
+pub use crate::controller::*;
+pub use crate::platform_title_bar::*;
+pub use crate::platforms::*;
+pub use crate::system_window_tabs::*;
+
+// style modülü crate-içi tutulabilir; sadece WindowControlStyle public ise re-export
+pub use crate::style::WindowControlStyle;
+```
+
+`platforms` modülünü `pub mod platforms` yerine `mod platforms` + re-export
+seçtim çünkü `platforms::platform_linux::*` gibi nested path tüketici için
+karışık; düz `kvs_titlebar::LinuxWindowControls` daha okunabilir.
+
+#### Bağımlılık denetim CI'ı
+
+`cargo-deny` ile transit GPL bağımlılık girişini engelle (`deny.toml`):
+
+```toml
+[licenses]
+allow = ["MIT", "Apache-2.0", "BSD-3-Clause", "MPL-2.0", "ISC", "Unicode-DFS-2016"]
+deny = ["GPL-3.0", "GPL-2.0", "AGPL-3.0", "LGPL-3.0"]
+
+[bans]
+# Zed'in GPL crate'lerini kazara dep olarak ekleme
+deny = [
+    { name = "platform_title_bar" },
+    { name = "title_bar" },
+    { name = "workspace" },
+    { name = "theme" },
+    { name = "theme_settings" },
+    { name = "theme_selector" },
+    { name = "zed_actions" },
+]
+```
+
+CI workflow'una ekle:
+
+```yaml
+- name: License check
+  run: cargo deny check licenses bans
+```
+
+**Bölüm I çıkış kriteri:** `cargo check -p kvs_titlebar -p kvs_app_titlebar`
+yeşil. Tipler tanımlı (alanları boş veya `unimplemented!()` olsa bile);
+modül ağacının iskeleti hazır; lisans-temiz dep listesi `cargo deny` ile
+doğrulanıyor.
+
+---
+
+## Bölüm II — GPUI'nin title bar için kullanılan yüzeyi
+
+_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: `WindowOptions`,
+`TitlebarOptions`, `WindowDecorations`, `WindowControlArea`, `WindowButtonLayout`,
+`WindowButton`, `observe_button_layout_changed`, `Window` API'leri
+(`minimize_window`, `zoom_window`, `start_window_move`, `show_window_menu`,
+`titlebar_double_click`, `set_client_inset`, `tab_bar_visible`,
+`set_tabbing_identifier`), fullscreen ve `window_controls` capability
+filtresi.)_
+
+---
+
+## Bölüm III — Platform katmanı tipleri
+
+_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: `PlatformTitleBar`,
+`LinuxWindowControls`, `WindowControl`, `WindowControlStyle`,
+`WindowControlType`, `WindowsWindowControls`, macOS davranışı,
+`SystemWindowTabs`, `SystemWindowTabController`, `SystemWindowTab`.)_
+
+---
+
+## Bölüm IV — Davranış sözleşmesi
+
+_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: drag alanı, çift
+tıklama platform farkları, title bar rengi, yükseklik hesabı, CSD
+sarmalı.)_
+
+---
+
+## Bölüm V — Buton ve action yönetimi
+
+_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: close action sözleşmesi,
+minimize/maximize, button_layout ayar formatları, native tab action'ları.)_
+
+---
+
+## Bölüm VI — Sidebar ve workspace etkileşimi
+
+_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: `MultiWorkspace`
+muadili, sidebar çakışma kuralı, feature flag deseni.)_
+
+---
+
+## Bölüm VII — Tüketim ve dış API
+
+_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: doğrudan kullanım, port
+stratejisi, public API kataloğu ve crate-içi sınır, test mock'lama.)_
+
+---
+
+## Bölüm VIII — Pratik
+
+_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: sınama listesi, yaygın
+tuzaklar, reçeteler.)_
+
+---
+
+# Ek (geçici): Faz tabanlı eski içerik
+
+> **Not:** Aşağıdaki içerik bölüm bölüm yeni yapıya taşınmaktadır.
+> Taşıma tamamlandıkça ilgili alt başlıklar bu ekten kaldırılır. Eski
+> referansları kırmamak için geçici olarak korunur.
+
+---
 
 ## 1. Kapsam
 

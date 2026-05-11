@@ -29,57 +29,57 @@ temiz bir tema sistemi inşa etmek.
 5. [Bağımlılık matrisi](#5-bağımlılık-matrisi)
 
 ### Bölüm II — GPUI'nin tema için kullanılan yüzeyi
-6. Renk tipleri: `Hsla`, `Rgba` ve constructor'lar
-7. Metin/font tipleri: `SharedString`, `HighlightStyle`, `FontStyle`, `FontWeight`
-8. Pencere: `WindowBackgroundAppearance`, `WindowAppearance`
-9. Bağlam tipleri: `App`, `Context<T>`, `Window`, `BorrowAppContext`
-10. `Global` trait ve `cx.set_global / update_global / refresh_windows`
-11. `refineable::Refineable` derive davranışı
+6. [Renk tipleri: `Hsla`, `Rgba` ve constructor'lar](#6-renk-tipleri-hsla-rgba-ve-constructorlar)
+7. [Metin/font tipleri: `SharedString`, `HighlightStyle`, `FontStyle`, `FontWeight`](#7-metinfont-tipleri-sharedstring-highlightstyle-fontstyle-fontweight)
+8. [Pencere: `WindowBackgroundAppearance`, `WindowAppearance`](#8-pencere-windowbackgroundappearance-windowappearance)
+9. [Bağlam tipleri: `App`, `Context<T>`, `Window`, `BorrowAppContext`](#9-bağlam-tipleri-app-contextt-window-borrowappcontext)
+10. [`Global` trait ve `cx.set_global / update_global / refresh_windows`](#10-global-trait-ve-cxset_global--update_global--refresh_windows)
+11. [`refineable::Refineable` derive davranışı](#11-refineablerefineable-derive-davranışı)
 
 ### Bölüm III — Veri sözleşmesi tipleri
-12. `Theme` ve `ThemeStyles` üst yapısı
-13. `ThemeColors` alan kataloğu
-14. `StatusColors`: fg/bg/border üçlüsü deseni
-15. `PlayerColors`, `PlayerColor`, slot semantiği
-16. `AccentColors`, `SystemColors`, `Appearance`
-17. `ThemeFamily`, `SyntaxTheme`, `IconTheme`
+12. [`Theme` ve `ThemeStyles` üst yapısı](#12-theme-ve-themestyles-üst-yapısı)
+13. [`ThemeColors` alan kataloğu](#13-themecolors-alan-kataloğu)
+14. [`StatusColors`: fg/bg/border üçlüsü deseni](#14-statuscolors-fgbgborder-üçlüsü-deseni)
+15. [`PlayerColors`, `PlayerColor`, slot semantiği](#15-playercolors-playercolor-slot-semantiği)
+16. [`AccentColors`, `SystemColors`, `Appearance`](#16-accentcolors-systemcolors-appearance)
+17. [`ThemeFamily`, `SyntaxTheme`, `IconTheme`](#17-themefamily-syntaxtheme-icontheme)
 
 ### Bölüm IV — JSON şeması katmanı
-18. `ThemeContent` ve serde flatten/rename desenleri
-19. `*Content` tiplerinin opsiyonellik felsefesi
-20. `try_parse_color`: hex → `Hsla` boru hattı
-21. Hata tolerans: `treat_error_as_none`, `deny_unknown_fields` tuzağı
-22. JSON anahtar konvansiyonu (dot vs snake_case)
+18. [`ThemeContent` ve serde flatten/rename desenleri](#18-themecontent-ve-serde-flattenrename-desenleri)
+19. [`*Content` tiplerinin opsiyonellik felsefesi](#19-content-tiplerinin-opsiyonellik-felsefesi)
+20. [`try_parse_color`: hex → `Hsla` boru hattı](#20-try_parse_color-hex--hsla-boru-hattı)
+21. [Hata tolerans: `treat_error_as_none`, `deny_unknown_fields` tuzağı](#21-hata-tolerans-treat_error_as_none-deny_unknown_fields-tuzağı)
+22. [JSON anahtar konvansiyonu (dot vs snake_case)](#22-json-anahtar-konvansiyonu-dot-vs-snake_case)
 
 ### Bölüm V — Refinement katmanı
-23. Content → Refinement → Theme akışı
-24. `theme_colors_refinement`, `status_colors_refinement` deseni
-25. `apply_status_color_defaults`: %25 alpha türetme kuralı
-26. `Theme::from_content` birleşik akış
+23. [Content → Refinement → Theme akışı](#23-content--refinement--theme-akışı)
+24. [`theme_colors_refinement`, `status_colors_refinement` deseni](#24-theme_colors_refinement-status_colors_refinement-deseni)
+25. [`apply_status_color_defaults`: %25 alpha türetme kuralı](#25-apply_status_color_defaults-25-alpha-türetme-kuralı)
+26. [`Theme::from_content` birleşik akış](#26-themefrom_content-birleşik-akış)
 
 ### Bölüm VI — Runtime katmanı
-27. `ThemeRegistry`: API yüzeyi ve thread safety
-28. `GlobalTheme` ve `ActiveTheme` trait
-29. `SystemAppearance` ve sistem mod takibi
-30. `init()`: kuruluş sırası ve fallback yükleme
-31. Tema değiştirme ve `cx.refresh_windows()`
+27. [`ThemeRegistry`: API yüzeyi ve thread safety](#27-themeregistry-api-yüzeyi-ve-thread-safety)
+28. [`GlobalTheme` ve `ActiveTheme` trait](#28-globaltheme-ve-activetheme-trait)
+29. [`SystemAppearance` ve sistem mod takibi](#29-systemappearance-ve-sistem-mod-takibi)
+30. [`init()`: kuruluş sırası ve fallback yükleme](#30-init-kuruluş-sırası-ve-fallback-yükleme)
+31. [Tema değiştirme ve `cx.refresh_windows()`](#31-tema-değiştirme-ve-cxrefresh_windows)
 
 ### Bölüm VII — Varlık ve test
-32. Fallback tema tasarımı
-33. Built-in tema bundling ve `AssetSource`
-34. Fixture testleri ve JSON sözleşme doğrulama
-35. Lisans doğrulama akışı
+32. [Fallback tema tasarımı](#32-fallback-tema-tasarımı)
+33. [Built-in tema bundling ve `AssetSource`](#33-built-in-tema-bundling-ve-assetsource)
+34. [Fixture testleri ve JSON sözleşme doğrulama](#34-fixture-testleri-ve-json-sözleşme-doğrulama)
+35. [Lisans doğrulama akışı](#35-lisans-doğrulama-akışı)
 
 ### Bölüm VIII — Tüketim ve dış API
-36. `cx.theme()` ile bileşen renklendirme
-37. Hover / active / disabled / selected / ghost desenleri
-38. Public API kataloğu ve crate-içi sınır
-39. Test ortamında tema mock'lama
+36. [`cx.theme()` ile bileşen renklendirme](#36-cxtheme-ile-bileşen-renklendirme)
+37. [Hover / active / disabled / selected / ghost desenleri](#37-hover--active--disabled--selected--ghost-desenleri)
+38. [Public API kataloğu ve crate-içi sınır](#38-public-api-kataloğu-ve-crate-içi-sınır)
+39. [Test ortamında tema mock'lama](#39-test-ortamında-tema-mocklama)
 
 ### Bölüm IX — Pratik
-40. Sınama listesi
-41. Yaygın tuzaklar
-42. Reçeteler
+40. [Sınama listesi](#40-sınama-listesi)
+41. [Yaygın tuzaklar](#41-yaygın-tuzaklar)
+42. [Reçeteler](#42-reçeteler)
 
 ---
 
@@ -342,7 +342,7 @@ sonraki sen sana minnettar olur.
 
 | Modül | İçerir | Dış API mı? |
 |-------|--------|-------------|
-| `kvs_tema.rs` (lib kökü) | Re-export'lar, `Theme`, `ThemeStyles`, `Appearance`, `ThemeFamily` | Evet |
+| `kvs_tema.rs` (lib kökü) | Re-export'lar, `Theme`, `Appearance`, `ThemeFamily`; crate-içi `ThemeStyles` | Kısmen |
 | `styles/colors.rs` | `ThemeColors` | Evet |
 | `styles/status.rs` | `StatusColors` | Evet |
 | `styles/players.rs` | `PlayerColors`, `PlayerColor` | Evet |
@@ -363,6 +363,27 @@ breaking change yaşar.
 
 ### 5. Bağımlılık matrisi
 
+**Workspace kökü (`kvs_ui/Cargo.toml`):**
+
+```toml
+[workspace]
+resolver = "2"
+members = [
+    "crates/kvs_tema",
+    "crates/kvs_syntax_tema",
+    # ... uygulama crate'leri
+]
+
+[workspace.dependencies]
+# Zed workspace bağımlılıkları — alt crate'ler buradan inherit eder
+gpui        = { git = "https://github.com/zed-industries/zed", branch = "main" }
+refineable  = { git = "https://github.com/zed-industries/zed", branch = "main" }
+collections = { git = "https://github.com/zed-industries/zed", branch = "main" }
+```
+
+Alt crate'ler `gpui = { workspace = true }` ile inherit eder; pin
+güncellemesi tek noktadan yapılır.
+
 `kvs_tema/Cargo.toml`:
 
 ```toml
@@ -378,9 +399,9 @@ path = "src/kvs_tema.rs" # mod.rs değil
 
 [dependencies]
 # Zed workspace (Apache-2.0; publish = false uyarısı için bkz. Konu 3)
-gpui = { git = "https://github.com/zed-industries/zed", branch = "main" }
-refineable = { git = "https://github.com/zed-industries/zed", branch = "main" }
-collections = { git = "https://github.com/zed-industries/zed", branch = "main" }
+gpui = { workspace = true }
+refineable = { workspace = true }
+collections = { workspace = true }
 
 # Aile içi crate
 kvs_syntax_tema = { path = "../kvs_syntax_tema" }
@@ -396,6 +417,17 @@ serde_json = "1"
 serde_json_lenient = "0.2"
 thiserror = "1"
 uuid = { version = "1", features = ["v4"] }
+
+[dev-dependencies]
+# Headless GPUI test ortamı (TestAppContext, #[gpui::test])
+gpui = { workspace = true, features = ["test-support"] }
+# Refinement birim testleri için epsilon karşılaştırma yardımcısı (opsiyonel)
+approx = "0.5"
+
+[features]
+# Tüketici crate'ler için test helper'larını açar (Bölüm VIII/Konu 39).
+# Release build'lerde açma; CI'da sadece test job'unda etkinleştir.
+test-util = []
 ```
 
 `kvs_syntax_tema/Cargo.toml`:
@@ -412,7 +444,7 @@ publish = false
 path = "src/kvs_syntax_tema.rs"
 
 [dependencies]
-gpui = { git = "https://github.com/zed-industries/zed", branch = "main" }
+gpui = { workspace = true }
 ```
 
 Syntax crate'in tek bağımlılığı `gpui` — sadece `HighlightStyle` ve renk
@@ -475,7 +507,7 @@ kvs_tema  ──depends on──>  gpui, refineable, collections, kvs_syntax_tem
 
 kvs_syntax_tema  ──depends on──>  gpui
 
-gpui, refineable, collections  ──published from──>  zed workspace (Apache-2.0)
+gpui, refineable, collections  ──sourced from──>  zed workspace (Apache-2.0)
 ```
 
 Bu grafiğin yönü tersine işlemez; `gpui` asla `kvs_tema`'ya bağlanmaz.
@@ -488,20 +520,29 @@ imzası**, **davranış**, **isim/yol değişimi**.
 ```rust
 //! kvs_tema — Zed-uyumlu, lisans-temiz tema sistemi.
 
-mod fallback;
+pub(crate) mod refinement;   // crate-içi — Bölüm VIII/Konu 38
+pub mod fallback;            // namespace: `kvs_tema::fallback::kvs_default_dark`
 mod icon_theme;
-mod refinement;
 mod registry;
 mod runtime;
 mod schema;
 mod styles;
 
+// Kararlı dış API — glob ile ihraç
 pub use crate::icon_theme::*;
-pub use crate::refinement::*;
 pub use crate::registry::*;
 pub use crate::runtime::*;
-pub use crate::schema::*;
 pub use crate::styles::*;
+
+// Schema — kararsız ama deserialize için gerekli; tek tek ihraç,
+// glob asla (yeni iç tip eklenince istemeden public olmasın).
+pub use crate::schema::{
+    AppearanceContent, FontStyleContent, FontWeightContent,
+    HighlightStyleContent, PlayerColorContent, StatusColorsContent,
+    ThemeColorsContent, ThemeContent, ThemeFamilyContent,
+    ThemeStyleContent, WindowBackgroundContent,
+    try_parse_color,
+};
 
 use gpui::SharedString;
 use std::sync::Arc;
@@ -524,18 +565,33 @@ pub struct Theme {
     pub id: String,
     pub name: SharedString,
     pub appearance: Appearance,
-    pub styles: ThemeStyles,
+    pub(crate) styles: ThemeStyles,   // accessor'lar üzerinden — Konu 12
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ThemeStyles {
-    pub window_background_appearance: gpui::WindowBackgroundAppearance,
-    pub system: SystemColors,
-    pub colors: ThemeColors,
-    pub status: StatusColors,
-    pub player: PlayerColors,
-    pub accents: AccentColors,
-    pub syntax: Arc<kvs_syntax_tema::SyntaxTheme>,
+pub(crate) struct ThemeStyles {
+    pub(crate) window_background_appearance: gpui::WindowBackgroundAppearance,
+    pub(crate) system: SystemColors,
+    pub(crate) colors: ThemeColors,
+    pub(crate) status: StatusColors,
+    pub(crate) player: PlayerColors,
+    pub(crate) accents: AccentColors,
+    pub(crate) syntax: Arc<kvs_syntax_tema::SyntaxTheme>,
+}
+
+// Accessor metotları — public okuma yolu (Konu 12, 36, 38)
+impl Theme {
+    pub fn colors(&self)  -> &ThemeColors   { &self.styles.colors }
+    pub fn status(&self)  -> &StatusColors  { &self.styles.status }
+    pub fn players(&self) -> &PlayerColors  { &self.styles.player }
+    pub fn accents(&self) -> &AccentColors  { &self.styles.accents }
+    pub fn system(&self)  -> &SystemColors  { &self.styles.system }
+    pub fn syntax(&self)  -> &Arc<kvs_syntax_tema::SyntaxTheme> {
+        &self.styles.syntax
+    }
+    pub fn window_background_appearance(&self) -> gpui::WindowBackgroundAppearance {
+        self.styles.window_background_appearance
+    }
 }
 
 pub struct ThemeFamily {
@@ -828,6 +884,12 @@ Tema JSON anahtarı: `"font_weight": 700` veya `"font_weight": 700.0`
    edilir ama bazılarında ayrı bir glyph seti olabilir. Tema yazarına
    "Italic seçtim ama Oblique göründü" gibi bir bildirim gelirse font
    katmanına bak.
+5. **`HighlightStyle::default()` nötr ama sentaks katmanında **görünmez**:**
+   Tüm alanlar `None` (color dahil); SyntaxTheme'da bir kategori için
+   `Default::default()` koymak token'ı şeffaf bırakır. `Hsla::default()`
+   görünmezliğin renk tarafı; `HighlightStyle::default()` ise stil
+   tarafının görünmezliğidir. Fallback syntax kurarken (Konu 32) her
+   kategoriye en az `color: Some(...)` ver.
 
 ---
 
@@ -859,9 +921,16 @@ pub enum WindowBackgroundAppearance {
 **Tema'da yer:**
 
 ```rust
-pub struct ThemeStyles {
-    pub window_background_appearance: WindowBackgroundAppearance,
+// kvs_tema/src/kvs_tema.rs
+pub(crate) struct ThemeStyles {
+    pub(crate) window_background_appearance: WindowBackgroundAppearance,
     // ...
+}
+// Theme accessor (Konu 12)
+impl Theme {
+    pub fn window_background_appearance(&self) -> WindowBackgroundAppearance {
+        self.styles.window_background_appearance
+    }
 }
 ```
 
@@ -872,7 +941,7 @@ JSON Content tarafında `WindowBackgroundContent` (`Opaque`/`Transparent`/
 
 ```rust
 WindowOptions {
-    window_background: cx.theme().styles.window_background_appearance,
+    window_background: cx.theme().window_background_appearance(),
     // ...
 }
 ```
@@ -1241,13 +1310,18 @@ ama tema akışında çağrılmaz (Zed de bunların çoğunu kullanmaz).
 
 #### Davranış kuralları
 
-- **Alan-bazlı, recursive değil**: Nested struct alanı varsa, onun da
-  `Refineable` olması gerek. Macro otomatik olarak iç içe `refine`
-  çağırmaz; manuel orchestration `Theme::from_content` içinde.
+- **Nested davranış explicit**: Macro normal alanları `Option<T>` yapıp
+  değer geldiyse alanı değiştirir. Sadece alan üzerinde `#[refineable]`
+  varsa nested refinement tipi kullanılır ve `self.field.refine(...)`
+  çağrılır. `Theme.styles` gibi üst katmanlarda bunu istemiyorsan alanı
+  işaretleme; manuel orchestration `Theme::from_content` içinde kalır.
 - **`Some(v)` override, `None` koruma**: JSON deserializasyonu sırasında
   verilmeyen alan `None` olarak gelir; baseline korunur.
-- **`Copy` alanlar için `*v`**: `Hsla` gibi Copy tipler için macro deref
-  eder. Non-Copy alanlar için `.clone()` (versiyona göre).
+- **Override `clone()` tabanlıdır**: Macro normal alanlarda `value.clone()`
+  üretir. `Hsla` gibi `Copy` tiplerde bu ucuz no-op davranışlıdır; non-Copy
+  alanlarda gerçek clone çalışır. Refineable türettiğin struct'taki her
+  wrapped alan `Clone` olmalı; aksi halde derive hata verir ("the trait
+  `Clone` is not implemented for ...").
 - **`Refinement`'in kendisi `Refineable`**: İki refinement'i zincirleme
   birleştirmek mümkün (`refine_a.refine(&refine_b)`); tema sisteminin
   şimdilik kullanmadığı bir kapasite.
@@ -1290,8 +1364,9 @@ gerçekte nadir. Bilgi olarak ihtiyaç doğarsa hazır.
    kopyalanır.
 3. **`refine` vs `refined`**: İlki `&mut self`, ikincisi sahip alır.
    `Hsla` gibi küçük alanlar için `refine` her zaman doğru seçim.
-4. **Nested struct'lar için manuel orchestration**: `Theme.styles.colors`
-   gibi katmanlar Refineable kendiliğinden recursive birleştirmez.
+4. **Nested struct'lar için karar noktası**: Macro sadece `#[refineable]`
+   işaretli alanlarda recursive birleştirir. `Theme.styles.colors` gibi
+   katmanlarda bu ilişkiyi bilinçli kurmak istemiyorsan
    `Theme::from_content` her alt struct için ayrı `refine` çağırır.
 5. **`refineable` `publish = false`**: Crates.io'ya yayınlanan bir
    crate'in bu derive'ı kullanması için fork veya vendor şart (bkz.
@@ -1328,19 +1403,42 @@ pub struct Theme {
     pub id: String,
     pub name: SharedString,
     pub appearance: Appearance,
-    pub styles: ThemeStyles,
+    pub(crate) styles: ThemeStyles,   // accessor'lar üzerinden okunur
 }
 
-pub struct ThemeStyles {
-    pub window_background_appearance: WindowBackgroundAppearance,
-    pub system: SystemColors,
-    pub colors: ThemeColors,
-    pub status: StatusColors,
-    pub player: PlayerColors,
-    pub accents: AccentColors,
-    pub syntax: Arc<kvs_syntax_tema::SyntaxTheme>,
+pub(crate) struct ThemeStyles {
+    pub(crate) window_background_appearance: WindowBackgroundAppearance,
+    pub(crate) system: SystemColors,
+    pub(crate) colors: ThemeColors,
+    pub(crate) status: StatusColors,
+    pub(crate) player: PlayerColors,
+    pub(crate) accents: AccentColors,
+    pub(crate) syntax: Arc<kvs_syntax_tema::SyntaxTheme>,
+}
+
+// Tüketicinin tek okuma yolu — accessor metotları (Konu 36, 38)
+impl Theme {
+    pub fn colors(&self) -> &ThemeColors      { &self.styles.colors }
+    pub fn status(&self) -> &StatusColors     { &self.styles.status }
+    pub fn players(&self) -> &PlayerColors    { &self.styles.player }
+    pub fn accents(&self) -> &AccentColors    { &self.styles.accents }
+    pub fn system(&self) -> &SystemColors     { &self.styles.system }
+    pub fn syntax(&self) -> &Arc<kvs_syntax_tema::SyntaxTheme> {
+        &self.styles.syntax
+    }
+    pub fn window_background_appearance(&self) -> WindowBackgroundAppearance {
+        self.styles.window_background_appearance
+    }
 }
 ```
+
+> **Visibility kararı:** `styles` alanı `pub(crate)` — tüketici crate
+> doğrudan `theme.styles.X` zinciri **yazamaz**; her okuma accessor
+> üzerinden geçer. Gerekçesi: `ThemeStyles`'ın iç düzeni (alan adları,
+> sıralama, alt-struct ayrımı) sync turlarında değişebilir; accessor
+> arayüzü sözleşmeyi `theme.colors()` üzerinde **sabitler** ve iç düzen
+> değişimi tüketici kodu kırmaz. Konu 38 bu kararı `pub` API kataloğu
+> ile zorunlu kılar.
 
 #### Alan-alan davranış
 
@@ -1378,28 +1476,20 @@ varyant için ayrı klon zaten gerek.
 #### Erişim desenleri
 
 ```rust
-let theme = cx.theme();                          // &Arc<Theme>
-let bg = theme.styles.colors.background;         // doğrudan alan
-let muted = theme.styles.colors.text_muted;
-let error = theme.styles.status.error;
-let local = theme.styles.player.local().cursor;
+let theme = cx.theme();                       // &Arc<Theme>
+let bg = theme.colors().background;           // accessor üzerinden
+let muted = theme.colors().text_muted;
+let error = theme.status().error;
+let local = theme.players().local().cursor;
 ```
 
-> **Zed eşdeğeri:** Zed'de `theme.colors()`, `theme.status()` gibi
-> accessor metotları var (`crates/theme/src/theme.rs`). `kvs_tema`'da
-> opsiyonel olarak ekleyebilirsin; kıyaslı API:
+> **Zed eşdeğeri:** Zed'in `crates/theme/src/theme.rs` dosyasında da
+> `theme.colors()`, `theme.status()` accessor'ları var. `kvs_tema`'da
+> da aynı sözleşmeyi koruyoruz; accessor'lar yukarıdaki struct
+> tanımının `impl Theme` bloğunda tanımlı (yukarı bak).
 >
-> ```rust
-> impl Theme {
->     pub fn colors(&self) -> &ThemeColors { &self.styles.colors }
->     pub fn status(&self) -> &StatusColors { &self.styles.status }
->     pub fn players(&self) -> &PlayerColors { &self.styles.player }
->     pub fn syntax(&self) -> &Arc<SyntaxTheme> { &self.styles.syntax }
-> }
-> ```
->
-> Bu accessor'lar `theme.styles.colors.x` yerine `theme.colors().x`
-> yazmanı sağlar; iç düzen değişirse tüketici kodu etkilenmez.
+> Tüketici kod **hiçbir zaman** `theme.styles.X` yazmaz — `styles` alanı
+> `pub(crate)`, crate dışından görünmez (Konu 38).
 
 #### `Theme` clone stratejisi
 
@@ -1412,9 +1502,10 @@ zaten `Arc<Theme>` tutuyor.
 
 1. **`id` yerine `name` map key**: `name` `SharedString` ve registry key
    olarak kullanılır. `id` (uuid) sadece tema-içi tanım için; karıştırma.
-2. **`styles` alanını dış API yapmak**: Iç düzen sync turunda değişebilir.
-   Tüketici `theme.styles.colors.x` yerine `theme.colors().x` kullansın
-   diye accessor sağla (yukarıdaki opsiyonel kalıp).
+2. **`styles` alanını `pub` yapmak**: Sözleşme delinmesi — bu rehberin
+   kararı `pub(crate)`. Tüketicinin tek okuma yolu accessor metotları
+   (`theme.colors()`, `theme.status()`, vs.). İç düzen sync turunda
+   değişebilir; accessor arayüzü `theme.colors()` üzerinde sabit kalır.
 3. **`appearance` runtime'da değişmez**: Bir tema *Light* olarak yüklendi
    diye runtime'da Dark olarak yeniden işlenmez. Tema değiştirmek için
    `set_theme` ile yeni tema yükle.
@@ -1660,8 +1751,14 @@ pub struct PlayerColor {
     pub selection: Hsla,
 }
 
-#[derive(Clone, Debug, PartialEq, Default)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct PlayerColors(pub Vec<PlayerColor>);
+
+impl Default for PlayerColors {
+    fn default() -> Self {
+        Self::dark()
+    }
+}
 ```
 
 #### `PlayerColor` alanları
@@ -1681,25 +1778,25 @@ slotları.
 ```rust
 impl PlayerColors {
     pub fn local(&self) -> PlayerColor {
-        self.0.first().cloned().unwrap_or(/* siyah fallback */)
+        *self.0.first().unwrap()
     }
 
     pub fn color_for_participant(&self, participant_index: u32) -> PlayerColor {
-        let len = self.0.len().max(1);
-        let idx = (participant_index as usize) % len;
-        self.0.get(idx).cloned().unwrap_or_else(|| self.local())
+        let len = self.0.len() - 1;
+        self.0[(participant_index as usize % len) + 1]
     }
 }
 ```
 
 **Davranış kuralları:**
 
-- Liste boşsa `local()` siyah fallback döner. Bu **UI'da görünmez** —
-  fallback temalarda her zaman en az bir `PlayerColor` doldur.
-- `color_for_participant(N)` modulo behavior: 8 player slot varsa
-  9. participant slot 1'i yeniden kullanır (`9 % 8 = 1`).
-- `unwrap_or_else(|| self.local())` — `get(idx)` zaten `Some` döner çünkü
-  `idx = N % len`, ama type system için fallback şart.
+- Liste boşsa `local()` panic eder. Fallback temalarda her zaman en az bir
+  `PlayerColor` doldur; collaboration/participant renkleri kullanılıyorsa
+  en az iki slot gerekir.
+- `color_for_participant(N)` local slot'u atlar: participant 0, liste index
+  1'i kullanır. 8 slot varsa remote slotlar index 1-7 arasında döner.
+- Bu API boş/tek elemanlı listeyi tolere etmez; listeyi runtime'a
+  getirmeden önce fallback veya fixture testleriyle garanti et.
 
 #### JSON şeması
 
@@ -1719,24 +1816,26 @@ korur (`Theme::from_content` içinde bunu kontrol eder).
 
 ```rust
 // Yerel kullanıcının imleci
-let yerel = cx.theme().styles.player.local();
+let yerel = cx.theme().players().local();
 div().bg(yerel.cursor)
 
 // 3. katılımcının seçimi
-let katilimci = cx.theme().styles.player.color_for_participant(3);
+let katilimci = cx.theme().players().color_for_participant(3);
 div().bg(katilimci.selection)
 ```
 
 #### Tuzaklar
 
-1. **Boş `PlayerColors`**: `Vec` boşsa `local()` siyah fallback verir =
-   ekranda görünmez. Fallback temalarda **en az bir slot** doldur:
+1. **Boş `PlayerColors`**: `Vec` boşsa `local()` panic eder; tek slot
+   varsa `color_for_participant` modulo-by-zero panikler. Fallback
+   temalarda **en az bir local slot**, participant kullanıyorsan **en az
+   iki slot** doldur:
    ```rust
    PlayerColors(vec![PlayerColor { cursor: accent, ... }])
    ```
 2. **`color_for_participant(0)` ile `local()`**: Aynı sonucu verir mi?
-   Evet, çünkü `0 % len = 0` ve index 0 local. Ama anlamsal olarak
-   `local()` daha net.
+   Hayır. `local()` index 0'dır; `color_for_participant(0)` index 1'i
+   döndürür. Remote katılımcı renkleri local renkten ayrı tutulur.
 3. **Modulo yerine clamp düşünmek**: Modulo kasıtlı — slot sayısı yetmezse
    "sarmal" davranır. Clamp seçseydin son slot tüm fazla katılımcılarda
    aynı renk olurdu = ayırt edilemez.
@@ -1794,7 +1893,7 @@ içinde).
 **Tema'da kullanım:**
 
 ```rust
-let chip_color = cx.theme().styles.accents.color_for(chip_index);
+let chip_color = cx.theme().accents().color_for(chip_index);
 ```
 
 Etiket/chip listesinde her etiket için index gönderirsin; renk otomatik
@@ -2042,9 +2141,9 @@ paylaşılabilmesi.
 **Tema'da kullanım:**
 
 ```rust
-let style = cx.theme().styles.syntax.style_for("comment");
+let style = cx.theme().syntax().style_for("comment");
 // veya
-let syntax: &Arc<SyntaxTheme> = &cx.theme().styles.syntax;
+let syntax: &Arc<SyntaxTheme> = &cx.theme().syntax();
 for (name, style) in &syntax.highlights {
     // ...
 }
@@ -2061,54 +2160,277 @@ mirror eder ("Temel ilke" gereği — Konu 2). `IconTheme` Zed'in
 `crates/theme/src/icon_theme.rs` dosyasındaki yapıya alan paritesiyle
 yazılır.
 
-**Tipik şema (Zed sözleşmesinden):**
+**Runtime sözleşmesi:**
 
 ```rust
+use std::sync::Arc;
+use collections::HashMap;
+use gpui::SharedString;
+
 pub struct IconTheme {
     pub id: String,
     pub name: SharedString,
     pub appearance: Appearance,
     pub directory_icons: DirectoryIcons,
+    pub named_directory_icons: HashMap<String, DirectoryIcons>,
     pub chevron_icons: ChevronIcons,
-    pub file_stems: HashMap<String, String>,    // "Cargo.toml" → "icon-id"
-    pub file_suffixes: HashMap<String, String>, // "rs" → "icon-id"
+    pub file_stems: HashMap<String, String>,     // "Cargo.toml" → "icon-id"
+    pub file_suffixes: HashMap<String, String>,  // "rs" → "icon-id"
     pub file_icons: HashMap<String, IconDefinition>,
+}
+
+pub struct DirectoryIcons {
+    pub collapsed: Option<SharedString>,         // SVG/PNG yolu
+    pub expanded: Option<SharedString>,
+}
+
+pub struct ChevronIcons {
+    pub collapsed: Option<SharedString>,
+    pub expanded: Option<SharedString>,
+}
+
+pub struct IconDefinition {
+    pub path: SharedString,                       // asset altındaki dosya yolu
+}
+
+pub struct IconThemeFamily {
+    pub id: String,
+    pub name: SharedString,
+    pub author: SharedString,
+    pub themes: Vec<IconTheme>,
 }
 ```
 
-> **Uyarı:** Yukarıdaki şema **referans** niteliğindedir. Tam alan listesi
-> ve alt struct'ların imzası için `../zed/crates/theme/src/icon_theme.rs`
-> dosyasına bak ve sync turunda (`tema_aktarimi.md`) bu konuyu güncelle.
-> Icon tema sözleşmesi UI renk sözleşmesinden daha hızlı evrilebilir.
+> **Uyarı:** Alan listesi Zed sözleşmesini takip eder; sync turunda
+> (`tema_aktarimi.md`) yeni alan/struct gelirse `kvs_tema/src/icon_theme.rs`
+> güncellenir. Icon tema sözleşmesi UI renk sözleşmesinden daha hızlı
+> evrilebilir.
+
+**JSON Content sözleşmesi:**
+
+```rust
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+pub struct IconThemeFamilyContent {
+    pub name: String,
+    pub author: String,
+    pub themes: Vec<IconThemeContent>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct IconThemeContent {
+    pub name: String,
+    pub appearance: AppearanceContent,
+    #[serde(default)]
+    pub directory_icons: DirectoryIconsContent,
+    #[serde(default)]
+    pub named_directory_icons: HashMap<String, DirectoryIconsContent>,
+    #[serde(default)]
+    pub chevron_icons: ChevronIconsContent,
+    #[serde(default)]
+    pub file_stems: HashMap<String, String>,
+    #[serde(default)]
+    pub file_suffixes: HashMap<String, String>,
+    #[serde(default)]
+    pub file_icons: HashMap<String, IconDefinitionContent>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+pub struct DirectoryIconsContent {
+    pub collapsed: Option<String>,
+    pub expanded: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+pub struct ChevronIconsContent {
+    pub collapsed: Option<String>,
+    pub expanded: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct IconDefinitionContent {
+    pub path: String,
+}
+```
+
+`*Content` tiplerinin opsiyonellik felsefesi UI temasıyla aynı (Konu 19):
+her alan ya `Option` ya da `#[serde(default)]` ile boş kabul edilir.
+
+**Content → Runtime akışı:**
+
+```rust
+impl IconTheme {
+    pub fn from_content(c: IconThemeContent) -> Self {
+        Self {
+            id: uuid::Uuid::new_v4().to_string(),
+            name: SharedString::from(c.name),
+            appearance: match c.appearance {
+                AppearanceContent::Light => Appearance::Light,
+                AppearanceContent::Dark => Appearance::Dark,
+            },
+            directory_icons: DirectoryIcons {
+                collapsed: c.directory_icons.collapsed.map(SharedString::from),
+                expanded: c.directory_icons.expanded.map(SharedString::from),
+            },
+            named_directory_icons: c.named_directory_icons.into_iter()
+                .map(|(k, v)| (k, DirectoryIcons {
+                    collapsed: v.collapsed.map(SharedString::from),
+                    expanded: v.expanded.map(SharedString::from),
+                }))
+                .collect(),
+            chevron_icons: ChevronIcons {
+                collapsed: c.chevron_icons.collapsed.map(SharedString::from),
+                expanded: c.chevron_icons.expanded.map(SharedString::from),
+            },
+            file_stems: c.file_stems,
+            file_suffixes: c.file_suffixes,
+            file_icons: c.file_icons.into_iter()
+                .map(|(k, v)| (k, IconDefinition { path: v.path.into() }))
+                .collect(),
+        }
+    }
+}
+```
+
+UI temasından farklı: **refinement katmanı yok**. Icon tema'da
+baseline+kullanıcı birleştirme deseni şu an gerek değil (kullanıcı kendi
+icon tema'sını **bütünüyle** yazar, baseline ile karışım nadir). Mirror
+disiplini gereği gelecekte gerekirse `IconThemeRefinement` türetilir.
 
 **Rol:** Dosya/dizin/chevron icon'larının **kaynağını** tutar; UI sadece
 icon id'sini bilir, asıl SVG/PNG asset registry'sinden gelir.
 
 **Tema sözleşmesindeki yer:** Icon tema, UI tema (`Theme`) ile **kardeş**
-bir kavram — `Theme.styles` içine girmez. Ayrı registry tutulabilir
-(`IconThemeRegistry`) veya `ThemeRegistry`'nin metotlarına eklenir.
+bir kavram — `Theme.styles` içine **girmez**. Ayrı registry tutulur:
 
-**JSON şeması (referans):**
+```rust
+// kvs_tema/src/registry.rs (UI tema registry ile aynı dosya)
+pub struct IconThemeRegistry {
+    themes: parking_lot::RwLock<HashMap<SharedString, Arc<IconTheme>>>,
+}
+
+struct GlobalIconThemeRegistry(Arc<IconThemeRegistry>);
+impl gpui::Global for GlobalIconThemeRegistry {}
+
+impl IconThemeRegistry {
+    pub fn new() -> Self { /* ... */ }
+    pub fn global(cx: &gpui::App) -> Arc<Self> { /* ... */ }
+    pub fn set_global(cx: &mut gpui::App, registry: Arc<Self>) { /* ... */ }
+    pub fn insert(&self, icon_theme: IconTheme) { /* ... */ }
+    pub fn get(&self, name: &str) -> Result<Arc<IconTheme>, ThemeNotFound> { /* ... */ }
+    pub fn list_names(&self) -> Vec<SharedString> { /* ... */ }
+}
+```
+
+API yüzeyi `ThemeRegistry`'ye birebir paralel (Konu 27). Aktif icon
+tema için ayrı global (`GlobalIconTheme`) gerek olursa eklenir; çoğu
+uygulamada UI ile icon tema **bir arada** seçildiği için `ThemeRegistry`
+seçimi sırasında ilgili `IconTheme` da load edilir.
+
+**JSON şeması:**
 
 ```json
 {
   "name": "Material Icons",
+  "author": "Material team",
   "themes": [{
     "name": "Material",
     "appearance": "dark",
-    "directory_icons": { ... },
-    "chevron_icons": { ... },
-    "file_stems": { "Cargo.toml": "rust-cargo" },
-    "file_suffixes": { "rs": "rust", "toml": "settings" },
-    "file_icons": { "rust": { "path": "icons/rust.svg" } }
+    "directory_icons": {
+      "collapsed": "icons/folder-closed.svg",
+      "expanded":  "icons/folder-open.svg"
+    },
+    "named_directory_icons": {
+      ".github": {
+        "collapsed": "icons/folder-github.svg",
+        "expanded":  "icons/folder-github-open.svg"
+      }
+    },
+    "chevron_icons": {
+      "collapsed": "icons/chevron-right.svg",
+      "expanded":  "icons/chevron-down.svg"
+    },
+    "file_stems": { "Cargo.toml": "rust-cargo", "package.json": "npm" },
+    "file_suffixes": { "rs": "rust", "ts": "typescript", "md": "markdown" },
+    "file_icons": {
+      "rust":       { "path": "icons/rust.svg" },
+      "typescript": { "path": "icons/typescript.svg" },
+      "markdown":   { "path": "icons/markdown.svg" }
+    }
   }]
 }
 ```
 
-**Bu rehberin scope'u:** Icon tema'nın **mirror edileceği** (alan
-paritesi), **dışlanmayacağı** (Konu 2). Tam implementasyon, JSON şeması,
-asset yükleme akışı ayrı bir konu olarak Bölüm VII'de işlenecek (icon
-asset bundling).
+**Lookup mantığı (UI tüketicisi):**
+
+```rust
+pub fn icon_for_file(name: &str, icon_theme: &IconTheme) -> Option<&str> {
+    // 1. Tam dosya adı (stem) eşleşmesi öncelikli
+    if let Some(id) = icon_theme.file_stems.get(name) {
+        return icon_theme.file_icons.get(id).map(|d| d.path.as_ref());
+    }
+    // 2. Uzantı bazlı eşleşme
+    if let Some(ext) = std::path::Path::new(name)
+        .extension()
+        .and_then(|e| e.to_str())
+    {
+        if let Some(id) = icon_theme.file_suffixes.get(ext) {
+            return icon_theme.file_icons.get(id).map(|d| d.path.as_ref());
+        }
+    }
+    None
+}
+```
+
+**Asset yükleme:** Icon path'leri (örn. `icons/rust.svg`) `AssetSource`
+katmanından çözülür (Konu 33). `IconTheme` yalnız path'i tutar; SVG
+parse'ı GPUI'nin `svg()` element çağrısında olur.
+
+**Bundling akışı (Konu 33'ün parça-paralel akışı):**
+
+```rust
+pub fn load_bundled_icon_themes(
+    registry: &IconThemeRegistry,
+) -> anyhow::Result<()> {
+    for path in EmbeddedAssets::iter()
+        .filter(|p| p.starts_with("icon_themes/") && p.ends_with(".json"))
+    {
+        let file = EmbeddedAssets::get(&path)
+            .ok_or_else(|| anyhow::anyhow!("asset missing: {}", path))?;
+        let family: IconThemeFamilyContent =
+            serde_json_lenient::from_slice(&file.data)?;
+        for theme_content in family.themes {
+            registry.insert(IconTheme::from_content(theme_content));
+        }
+    }
+    Ok(())
+}
+```
+
+**`kvs_tema::init` ile entegrasyon:**
+
+`init` UI tema registry'sinin yanında icon tema registry'sini de
+kurabilir. Bu opsiyonel — uygulama icon teması kullanmıyorsa atlanır:
+
+```rust
+pub fn init(cx: &mut App) {
+    SystemAppearance::init(cx);
+
+    // UI tema registry (Konu 30)
+    let theme_registry = Arc::new(ThemeRegistry::new());
+    theme_registry.insert(fallback::kvs_default_dark());
+    theme_registry.insert(fallback::kvs_default_light());
+    ThemeRegistry::set_global(cx, theme_registry.clone());
+    GlobalTheme::set_theme(
+        cx,
+        theme_registry.get("Kvs Default Dark")
+            .expect("default tema kayıtlı olmalı"),
+    );
+
+    // Icon tema registry — opsiyonel, fallback gerekirse eklenir
+    let icon_registry = Arc::new(IconThemeRegistry::new());
+    IconThemeRegistry::set_global(cx, icon_registry);
+}
+```
 
 #### Tuzaklar
 
@@ -2185,7 +2507,11 @@ pub struct ThemeContent {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 pub struct ThemeStyleContent {
-    #[serde(rename = "background.appearance", default)]
+    #[serde(
+        rename = "background.appearance",
+        default,
+        deserialize_with = "treat_error_as_none"
+    )]
     pub window_background_appearance: Option<WindowBackgroundContent>,
 
     #[serde(default)]
@@ -2204,6 +2530,160 @@ pub struct ThemeStyleContent {
     pub syntax: IndexMap<String, HighlightStyleContent>,
 }
 ```
+
+#### Diğer Content tipleri — tam tanımlar
+
+`ThemeStyleContent`'in alt-tipleri:
+
+```rust
+// ─── Enum'lar — snake_case rename
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum AppearanceContent {
+    Light,
+    Dark,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum WindowBackgroundContent {
+    Opaque,
+    Transparent,
+    Blurred,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum FontStyleContent {
+    Normal,
+    Italic,
+    Oblique,
+}
+
+// ─── Newtype — saydam
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[serde(transparent)]
+pub struct FontWeightContent(pub f32);
+
+// ─── HighlightStyleContent (syntax token sözleşmesi)
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+pub struct HighlightStyleContent {
+    pub color: Option<String>,
+
+    #[serde(default, deserialize_with = "treat_error_as_none")]
+    pub background_color: Option<String>,
+
+    #[serde(default, deserialize_with = "treat_error_as_none")]
+    pub font_style: Option<FontStyleContent>,
+
+    #[serde(default, deserialize_with = "treat_error_as_none")]
+    pub font_weight: Option<FontWeightContent>,
+}
+
+// ─── PlayerColorContent (collaboration slot'ları)
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+pub struct PlayerColorContent {
+    pub cursor: Option<String>,
+    pub background: Option<String>,
+    pub selection: Option<String>,
+}
+
+// ─── ThemeColorsContent (UI renkleri — ~150 alan)
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(default)]
+pub struct ThemeColorsContent {
+    pub border: Option<String>,
+    #[serde(rename = "border.variant")]
+    pub border_variant: Option<String>,
+    #[serde(rename = "border.focused")]
+    pub border_focused: Option<String>,
+    #[serde(rename = "border.selected")]
+    pub border_selected: Option<String>,
+    #[serde(rename = "border.transparent")]
+    pub border_transparent: Option<String>,
+    #[serde(rename = "border.disabled")]
+    pub border_disabled: Option<String>,
+
+    pub background: Option<String>,
+    #[serde(rename = "surface.background")]
+    pub surface_background: Option<String>,
+    #[serde(rename = "elevated_surface.background")]
+    pub elevated_surface_background: Option<String>,
+
+    #[serde(rename = "element.background")]
+    pub element_background: Option<String>,
+    #[serde(rename = "element.hover")]
+    pub element_hover: Option<String>,
+    #[serde(rename = "element.active")]
+    pub element_active: Option<String>,
+    #[serde(rename = "element.selected")]
+    pub element_selected: Option<String>,
+    #[serde(rename = "element.disabled")]
+    pub element_disabled: Option<String>,
+
+    pub text: Option<String>,
+    #[serde(rename = "text.muted")]
+    pub text_muted: Option<String>,
+    #[serde(rename = "text.placeholder")]
+    pub text_placeholder: Option<String>,
+    #[serde(rename = "text.disabled")]
+    pub text_disabled: Option<String>,
+    #[serde(rename = "text.accent")]
+    pub text_accent: Option<String>,
+
+    pub icon: Option<String>,
+    #[serde(rename = "icon.muted")]
+    pub icon_muted: Option<String>,
+    #[serde(rename = "icon.disabled")]
+    pub icon_disabled: Option<String>,
+
+    #[serde(rename = "terminal.ansi.black")]
+    pub terminal_ansi_black: Option<String>,
+    #[serde(rename = "terminal.ansi.red")]
+    pub terminal_ansi_red: Option<String>,
+    // ... 8 ANSI rengi × 2 (normal + bright) = 16 alan
+    // ... editör, debugger, vcs, vim, panel, scrollbar, tab grupları
+    // (tam liste: ThemeColors'taki ~150 alanın hepsi mirror edilir)
+}
+
+// ─── StatusColorsContent (14 status × 3 = 42 alan)
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(default)]
+pub struct StatusColorsContent {
+    pub error: Option<String>,
+    #[serde(rename = "error.background")]
+    pub error_background: Option<String>,
+    #[serde(rename = "error.border")]
+    pub error_border: Option<String>,
+
+    pub warning: Option<String>,
+    #[serde(rename = "warning.background")]
+    pub warning_background: Option<String>,
+    #[serde(rename = "warning.border")]
+    pub warning_border: Option<String>,
+
+    // ... 14 status (conflict, created, deleted, hidden, hint, ignored,
+    // info, modified, predictive, renamed, success, unreachable) × üçlü
+}
+```
+
+**Davranış kuralları (özet):**
+
+| Tip | Opsiyonellik | Yanlış değer davranışı |
+|-----|--------------|------------------------|
+| `AppearanceContent` | `ThemeContent.appearance` **zorunlu** | Deserialize hatası (tema tüm yüklenmez) |
+| `WindowBackgroundContent` | `Option` + `treat_error_as_none` ile tolerans | `None` (baseline'dan) |
+| `FontStyleContent` | `Option` + `treat_error_as_none` | `None` |
+| `FontWeightContent` | `Option` + `treat_error_as_none`; `f32` newtype | `None` |
+| `HighlightStyleContent.color` | `Option<String>` (geçersiz hex → refinement'ta `None`) | `None` |
+| `HighlightStyleContent` (diğer) | `Option<...>` + `treat_error_as_none` | `None` |
+| `PlayerColorContent` (3 alan) | hepsi `Option<String>` | Eksik alan baseline.local'dan |
+| `ThemeColorsContent` (150 alan) | her biri `Option<String>` | Refinement → baseline |
+| `StatusColorsContent` (42 alan) | her biri `Option<String>` | Refinement → baseline (fg→bg türetme uygulanır) |
+
+> **`AppearanceContent` neden `Option` değil?** Bir tema'nın "Light mı
+> Dark mı" sorusu **kritik**; eksikse renk seçimi anlamsız. Tema
+> yazarı bu alanı yazmak zorunda — sözleşmenin tek zorunlu enum alanı.
 
 #### `#[serde(flatten)]` — alt struct'ları aynı seviyeye açar
 
@@ -2939,6 +3419,64 @@ Yaygın renk grupları için Rust ↔ JSON eşlemesi:
 6. **JSON 'da hem `border_variant` hem `border.variant` yazmak**:
    Kullanıcı temasında bu iki anahtar görünürse hangisinin kazanacağı
    tanımsız. Geliştirici doc'unda **sadece dot konvansiyonu**'nu önder.
+
+#### `serde_json_lenient` ile JSON yazım kolaylığı
+
+Zed tema dosyaları **standart JSON değil**: yorum satırları ve trailing
+comma içerebilir. Bunları parse edebilmek için `serde_json_lenient`
+kullanılır (Konu 5 bağımlılık matrisinde sabit).
+
+**Desteklenen genişletmeler:**
+
+```jsonc
+{
+  // Tek satır yorum (// ile başlar)
+  "name": "My Theme",
+  "author": "x",
+
+  /* Çok satırlı yorum bloğu —
+     açıklama, atıf, vs. */
+  "themes": [{
+    "name": "My Dark",
+    "appearance": "dark",
+    "style": {
+      "background": "#1c2025ff",
+      "border":     "#2a2f3aff",   // satır sonu yorumu da kabul
+      "text":       "#c8ccd4ff",   // ← trailing comma yasal
+    },
+  }],   // ← array elemanı sonrası trailing comma
+}       // ← object kapatması öncesi trailing comma
+```
+
+**Standart `serde_json` (lenient olmayan) bu JSON'u parse edemez:**
+yorum satırı `Err("expected value")`, trailing comma `Err("trailing
+comma")` verir. Zed tüm built-in temalarını yorum/trailing comma ile
+yazıyor; bu yüzden `serde_json_lenient` **zorunlu**.
+
+**Kullanım:**
+
+```rust
+let family: ThemeFamilyContent =
+    serde_json_lenient::from_slice(&bytes)?;
+// veya str için:
+let family: ThemeFamilyContent =
+    serde_json_lenient::from_str(json)?;
+```
+
+API yüzeyi `serde_json` ile uyumlu — sadece import farkı.
+
+**Sınırlamalar:**
+
+- Unquoted key (`{ name: "x" }`) **kabul edilmez** — JavaScript object
+  literal değil, JSON.
+- Single quote string (`'value'`) kabul edilmez.
+- JSON5'in genişletmeleri tam olarak destekli değil; sadece yorum +
+  trailing comma.
+
+**Tuzak — yazma yönü:** Tema dosyasını sen yazıyorsan (test fixture,
+fallback dump) `serde_json::to_string_pretty` çıktısı standart JSON'dur
+(yorumsuz). Lenient sadece **okuma**da; yazılan çıktı sade JSON
+formatındadır.
 
 ---
 
@@ -4108,8 +4646,8 @@ impl Render for AnaPanel {
     fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let tema = cx.theme();   // &Arc<Theme>
         div()
-            .bg(tema.styles.colors.background)
-            .text_color(tema.styles.colors.text)
+            .bg(tema.colors().background)
+            .text_color(tema.colors().text)
     }
 }
 ```
@@ -4127,10 +4665,10 @@ pub use crate::Theme;
 use kvs_tema::prelude::*;  // tek satırlık import
 ```
 
-#### Accessor metotları (opsiyonel)
+#### Accessor metotları
 
-`cx.theme().styles.colors.x` uzun. Konu 12'deki opsiyonel accessor'lar
-ile kısaltılır:
+`styles` alanı crate-içi olduğu için tüketicinin kararlı okuma yolu
+Konu 12'deki accessor'lardır:
 
 ```rust
 impl Theme {
@@ -4244,18 +4782,18 @@ impl SystemAppearance {
 - `.0` newtype'ı açar — `SystemAppearance` `Copy` olduğu için değer
   döner.
 
-#### Sistem mod değişimini izleme (Zed deseni)
+#### Sistem mod değişimini izleme (public API)
 
 `init` sadece **başlangıçta** çağrılır. OS theme değişimini takip etmek
-için observer şart:
+için observer şart; ama observer kurmak `Window` referansı ister ve
+`init` `&mut App` aldığı için bunu içeride yapamaz. Tüketici pencere
+açıldıktan sonra ayrı bir public fonksiyon çağırır:
 
 ```rust
-use gpui::WindowAppearance;
-use std::sync::Arc;
-
-pub fn observe_system_appearance(
+// kvs_tema/src/runtime.rs — public API
+pub fn observe_system_appearance<V: 'static>(
     window: &mut Window,
-    cx: &mut Context<impl 'static>,
+    cx: &mut Context<V>,
 ) {
     cx.observe_window_appearance(window, |_, window, cx| {
         let new_appearance = match window.appearance() {
@@ -4263,17 +4801,49 @@ pub fn observe_system_appearance(
             WindowAppearance::Light | WindowAppearance::VibrantLight => Appearance::Light,
         };
 
-        // Global güncelle
+        // SystemAppearance global'ini güncelle
         cx.set_global(GlobalSystemAppearance(SystemAppearance(new_appearance)));
 
-        // Sistem moduna göre tema seç (opsiyonel)
-        // ...
+        // Tüketici tema değişimini de istiyorsa observe_global ile
+        // ayrı subscribe eder; bu fonksiyon sadece sistem mod'unu
+        // raporlar (politika kullanıcıya bırakılır).
     }).detach();
 }
 ```
 
+**Çağrı yeri — pencere açma callback'i:**
+
+```rust
+fn main() {
+    Application::new().run(|cx| {
+        kvs_tema::init(cx);   // Adım 1: SystemAppearance::init burada
+
+        cx.open_window(WindowOptions::default(), |window, cx| {
+            cx.new(|cx| {
+                // Adım 2: pencere açıldıktan sonra observer kur
+                kvs_tema::observe_system_appearance(window, cx);
+                AnaPanel
+            })
+        }).unwrap();
+    });
+}
+```
+
+**İki adımlı kuruluşun gerekçesi:**
+
+- **Adım 1 (`init`)**: Sistem mod'unun **anlık değerini** yakalar
+  (`cx.window_appearance()` `&App` üzerinden çalışır).
+- **Adım 2 (`observe_system_appearance`)**: Mod **değişimini** dinler
+  (`cx.observe_window_appearance` `Window` ister).
+
+Tüketici Adım 2'yi atlayabilir — sistem mod'u "set once" olarak kalır
+ve uygulama yaşadığı sürece ilk değerinde donar. Bu kasıtlı bir seçim
+olabilir; ama otomatik tema takibi isteniyorsa observer şart.
+
 > **`.detach()` zorunlu:** `cx.observe_window_appearance` `Subscription`
 > döner; drop edilirse observer ölür (Bölüm II/Konu 10 tuzak 5).
+> `observe_system_appearance` fonksiyonu zaten `.detach()` çağırır;
+> tüketicinin elle çağırmasına gerek yok.
 
 #### Sistem'den tema seçme örneği
 
@@ -4444,7 +5014,7 @@ fn main() {
         // 3. Pencere aç — render içinde cx.theme() artık güvenli
         cx.open_window(WindowOptions {
             // window_background dahil tema kullanılır
-            window_background: cx.theme().styles.window_background_appearance,
+            window_background: cx.theme().window_background_appearance(),
             ..Default::default()
         }, |w, cx| {
             cx.new(|cx| AnaPanel::new(cx))
@@ -4948,6 +5518,112 @@ fn status_colors_dark() -> StatusColors {
 > her status anchor'lardan birine map'lensin (örn. `modified = yellow`,
 > `deleted = red`, `created = green`).
 
+**Light eşleniği** (`status_colors_light()`): Aynı anchor renkleri,
+**lightness biraz koyu** (light bg üzerinde okunaklılık için), bg ve
+border opacity'leri korunur.
+
+```rust
+fn status_colors_light() -> StatusColors {
+    // Light bg üzerinde kontrast için lightness 0.45-0.50 (dark'ta 0.55-0.60)
+    let red    = hsla(0.0   / 360.0, 0.7,  0.45, 1.0);
+    let green  = hsla(140.0 / 360.0, 0.45, 0.40, 1.0);
+    let yellow = hsla(45.0  / 360.0, 0.85, 0.45, 1.0);
+    let blue   = hsla(210.0 / 360.0, 0.7,  0.45, 1.0);
+
+    StatusColors {
+        error: red,
+        error_background: red.opacity(0.15),     // light bg'de bg alpha daha düşük
+        error_border: red.opacity(0.4),
+
+        warning: yellow,
+        warning_background: yellow.opacity(0.15),
+        warning_border: yellow.opacity(0.4),
+
+        info: blue,
+        info_background: blue.opacity(0.15),
+        info_border: blue.opacity(0.4),
+
+        success: green,
+        success_background: green.opacity(0.15),
+        success_border: green.opacity(0.4),
+
+        // ... 14 × 3 = 42 alan — dark'taki anchor map'i aynı,
+        // sadece lightness ve opacity light bg'ye uyarlı
+    }
+}
+```
+
+**Light vs dark status renk kuralları:**
+
+| Boyut | Dark | Light |
+|-------|------|-------|
+| Foreground lightness | 0.55-0.60 | 0.40-0.50 (koyu bg'ye karşı doygun) |
+| Background opacity | 0.20 | 0.15 (light yüzeyde aşırı dolgu olmasın) |
+| Border opacity | 0.50 | 0.40 |
+| Saturation | aynı (her iki tarafta da doygunluk korunur) |
+
+#### Syntax fallback — temel kategoriler
+
+`SyntaxTheme::new(vec![])` ile boş bırakmak kod görünümünde tüm token'ları
+varsayılan text rengiyle çizer; renksiz ve okunaksız. Minimum **8 temel
+kategori** doldur:
+
+```rust
+fn syntax_theme_dark(accent: Hsla, text: Hsla, text_muted: Hsla) -> Arc<SyntaxTheme> {
+    use gpui::{FontStyle, FontWeight, HighlightStyle};
+
+    let red    = hsla(0.0   / 360.0, 0.65, 0.65, 1.0);   // keyword
+    let green  = hsla(140.0 / 360.0, 0.45, 0.60, 1.0);   // string
+    let yellow = hsla(45.0  / 360.0, 0.80, 0.65, 1.0);   // type, function
+    let cyan   = hsla(190.0 / 360.0, 0.65, 0.65, 1.0);   // number
+    let purple = hsla(280.0 / 360.0, 0.55, 0.70, 1.0);   // constant
+
+    SyntaxTheme::new(vec![
+        ("comment".into(), HighlightStyle {
+            color: Some(text_muted),
+            font_style: Some(FontStyle::Italic),
+            ..Default::default()
+        }),
+        ("string".into(), HighlightStyle {
+            color: Some(green),
+            ..Default::default()
+        }),
+        ("keyword".into(), HighlightStyle {
+            color: Some(red),
+            font_weight: Some(FontWeight::BOLD),
+            ..Default::default()
+        }),
+        ("number".into(), HighlightStyle {
+            color: Some(cyan),
+            ..Default::default()
+        }),
+        ("function".into(), HighlightStyle {
+            color: Some(yellow),
+            ..Default::default()
+        }),
+        ("type".into(), HighlightStyle {
+            color: Some(yellow),
+            ..Default::default()
+        }),
+        ("constant".into(), HighlightStyle {
+            color: Some(purple),
+            ..Default::default()
+        }),
+        ("variable".into(), HighlightStyle {
+            color: Some(text),
+            ..Default::default()
+        }),
+    ])
+}
+```
+
+**Kategoriler tüm tree-sitter dilleri için ortak**: `comment`, `string`,
+`keyword`, `number`, `function`, `type`, `constant`, `variable` —
+Zed'in tüm `languages/*/highlights.scm` dosyalarında bu adlar kullanılır.
+Kullanıcı tema'sı daha zengin kategorilere genişletebilir (örn.
+`function.builtin`, `string.escape`); fallback minimum garantili
+8'lik liste.
+
 #### Player ve accent fallback
 
 ```rust
@@ -5018,13 +5694,13 @@ fn fallback_temalari_tam_dolu() {
     let light = kvs_default_light();
 
     // Hiçbir alan default/sıfır olmamalı
-    assert_ne!(dark.styles.colors.background, gpui::Hsla::default());
-    assert_ne!(dark.styles.colors.text, gpui::Hsla::default());
-    assert_ne!(dark.styles.status.error, gpui::Hsla::default());
+    assert_ne!(dark.colors().background, gpui::Hsla::default());
+    assert_ne!(dark.colors().text, gpui::Hsla::default());
+    assert_ne!(dark.status().error, gpui::Hsla::default());
 
     // Player ve accent en az 1 girdi
-    assert!(!dark.styles.player.0.is_empty());
-    assert!(!dark.styles.accents.0.is_empty());
+    assert!(!dark.players().0.is_empty());
+    assert!(!dark.accents().0.is_empty());
 
     // Appearance tutarlı
     assert_eq!(dark.appearance, Appearance::Dark);
@@ -5321,12 +5997,11 @@ pub fn init_hot_reload(
 
 ```
 assets/themes/
-├── LICENSE_MIT           ← Zed'den alınan MIT temaların lisansı
-├── LICENSE_APACHE        ← Apache lisanslı temaların lisansı
+├── one.LICENSE_MIT       ← <stem>.LICENSE_<tip>
+├── ayu.LICENSE_MIT
 ├── README.md             ← Hangi tema hangi lisans
 ├── one.json              ← One Light + One Dark
-├── solarized.json        ← Solarized Light + Dark
-└── monokai.json          ← Monokai
+└── ayu.json              ← Ayu varyantları
 ```
 
 **Her tema dosyası bir `ThemeFamilyContent`** — birden fazla varyant
@@ -5347,7 +6022,7 @@ assets/themes/
    #[derive(RustEmbed)]
    #[folder = "assets/"]
    #[include = "themes/*.json"]
-   #[include = "themes/LICENSE_*"]
+   #[include = "themes/*.LICENSE_*"]
    ```
 3. **Async yükleme'de `cx` lifetime**: `cx.spawn` içinde `AsyncApp`;
    `cx.update(|cx| ...)` ile sync bağlama düş (Bölüm VI/Konu 31).
@@ -5380,8 +6055,9 @@ kvs_tema/tests/
 ├── fixtures/
 │   ├── one-dark.json           ← Zed assets/themes/one/one.json (MIT)
 │   ├── one-light.json          ← Aynı paket, light variant
-│   ├── solarized.json          ← Zed solarized (MIT)
-│   ├── LICENSE_MIT             ← Zed'den kopyalanan lisans
+│   ├── ayu.json                ← Zed assets/themes/ayu/ayu.json (MIT)
+│   ├── one.LICENSE_MIT         ← Zed'den kopyalanan lisans
+│   ├── ayu.LICENSE_MIT
 │   ├── README.md               ← Fixture kaynak ve lisans tablosu
 │   └── synthetic/
 │       ├── empty.json          ← Boş tema (test için sentetik)
@@ -5423,13 +6099,13 @@ fn parses_zed_one_dark() {
 
         assert!(!theme.name.is_empty());
         // Baseline'dan farklı bir bg üretilmiş olmalı
-        assert_ne!(theme.styles.colors.background, gpui::Hsla::default());
+        assert_ne!(theme.colors().background, gpui::Hsla::default());
     }
 }
 
 #[test]
-fn parses_zed_solarized() {
-    let json = include_str!("fixtures/solarized.json");
+fn parses_zed_ayu() {
+    let json = include_str!("fixtures/ayu.json");
     let _: ThemeFamilyContent = serde_json_lenient::from_str(json).unwrap();
 }
 ```
@@ -5465,8 +6141,8 @@ fn empty_theme_uses_baseline() {
     );
 
     // Tüm renkler baseline'dan gelmeli
-    assert_eq!(theme.styles.colors.background, baseline.styles.colors.background);
-    assert_eq!(theme.styles.status.error, baseline.styles.status.error);
+    assert_eq!(theme.colors().background, baseline.colors().background);
+    assert_eq!(theme.status().error, baseline.status().error);
 }
 
 #[test]
@@ -5506,7 +6182,7 @@ fn invalid_hex_falls_to_baseline() {
     );
 
     // Geçersiz hex → baseline'dan
-    assert_eq!(theme.styles.colors.background, baseline.styles.colors.background);
+    assert_eq!(theme.colors().background, baseline.colors().background);
 }
 
 #[test]
@@ -5545,7 +6221,7 @@ fn status_color_derives_background_from_foreground() {
 #[test]
 fn refine_overrides_only_some_fields() {
     let baseline = fallback::kvs_default_dark();
-    let mut colors = baseline.styles.colors.clone();
+    let mut colors = baseline.colors().clone();
 
     let refinement = ThemeColorsRefinement {
         border: Some(gpui::hsla(0.5, 1.0, 0.5, 1.0)),
@@ -5555,8 +6231,8 @@ fn refine_overrides_only_some_fields() {
     let original_bg = colors.background;
     colors.refine(&refinement);
 
-    assert_ne!(colors.border, baseline.styles.colors.border);  // override
-    assert_eq!(colors.background, original_bg);                 // korundu
+    assert_ne!(colors.border, baseline.colors().border);  // override
+    assert_eq!(colors.background, original_bg);            // korundu
 }
 ```
 
@@ -5567,17 +6243,17 @@ fn refine_overrides_only_some_fields() {
 ```sh
 # Zed kaynağındaki lisans dosyasına bak
 ls ../zed/assets/themes/one/
-# LICENSE_MIT one.json
+# LICENSE one.json
 ```
 
-`LICENSE_MIT` → kullanılabilir. `LICENSE_GPL` veya lisans yoksa
-**kullanma**.
+`LICENSE` dosyasının içeriği MIT/Apache/BSD gibi uyumlu lisans olmalı.
+GPL veya lisans yoksa **kullanma**.
 
 **Adım 2 — Kopyala:**
 
 ```sh
 cp ../zed/assets/themes/one/one.json tests/fixtures/one-dark.json
-cp ../zed/assets/themes/one/LICENSE_MIT tests/fixtures/LICENSE_MIT
+cp ../zed/assets/themes/one/LICENSE tests/fixtures/one.LICENSE_MIT
 ```
 
 **Adım 3 — Atıf:**
@@ -5672,10 +6348,10 @@ context. Tema runtime'ı bunda %100 test edilebilir.
 
 1. **`include_str!` mutlak yol**: Path test dosyasına göredir; `include_str!("fixtures/one-dark.json")`
    `tests/fixtures/...` olarak çözülür. Mutlak yol verme.
-2. **Fixture lisansını unutmak**: Dosyayı kopyalarken `LICENSE_*`'ı
+2. **Fixture lisansını unutmak**: Dosyayı kopyalarken `*.LICENSE_*`'ı
    atlama. CI'da otomatik kontrol et:
    ```sh
-   ls tests/fixtures/LICENSE_* 1>/dev/null || (echo "lisans dosyası yok!" && exit 1)
+   ls tests/fixtures/*.LICENSE_* 1>/dev/null || (echo "lisans dosyası yok!" && exit 1)
    ```
 3. **Test'lerin `init`'i**: `kvs_tema::init(cx)` her test başında
    manuel çağır; auto-setup yok. `TestAppContext::update` callback'i
@@ -5713,44 +6389,87 @@ kararın).
 
 #### Zed tema lisansları
 
-Zed'in `assets/themes/` dizininde **her tema kendi lisansını** taşır.
-Aynı dizin altında birden fazla lisans dosyası olabilir:
+Zed'in `assets/themes/` dizininde **her tema kendi alt dizininde** ve
+kendi lisansıyla tutulur:
 
 ```
 zed/assets/themes/
 ├── one/
-│   ├── LICENSE_MIT
+│   ├── LICENSE
 │   └── one.json
-├── solarized/
-│   ├── LICENSE_MIT
-│   └── solarized.json
-├── monokai/
-│   ├── LICENSE_GPL          ← GPL — kullanılamaz
-│   └── monokai.json
-└── tokyo-night/
-    ├── LICENSE_APACHE
-    └── tokyo-night.json
+├── ayu/
+│   ├── LICENSE
+│   └── ayu.json
+└── gruvbox/
+    ├── LICENSE
+    └── gruvbox.json
 ```
+
+**Kendi bundle'ında adlandırma konvansiyonu:**
+
+Zed alt-dizin yapısını korumak yerine tüm tema'ları **düz dizinde**
+tutuyorsan, lisans dosyalarının çakışmaması için tema adıyla son ek:
+
+```
+kvs_ui/assets/themes/
+├── README.md                    ← atıf tablosu (zorunlu)
+├── one.json
+├── one.LICENSE_MIT              ← <tema-ad>.LICENSE_<tip>
+├── ayu.json
+├── ayu.LICENSE_MIT
+├── gruvbox.json
+└── gruvbox.LICENSE_MIT
+```
+
+**Konvansiyon kuralları:**
+
+1. Her tema JSON dosyasının **aynı stem** (uzantı öncesi ad) ile bir
+   `<stem>.LICENSE_<tip>` dosyası olmalı.
+2. `<tip>` = `MIT`, `APACHE`, `BSD3`, `MPL2` gibi SPDX kodlarının kısa
+   karşılığı.
+3. `LICENSE_GPL*` ile başlayan dosya **bulunmaz** (CI kontrolü Konu
+   sonunda).
+4. `README.md` zorunlu — atıf tablosu (telif sahibi, kaynak repo, SPDX
+   kodu).
+
+**Alternatif:** Zed dizin yapısını birebir korumak (tema başına alt
+dizin):
+
+```
+kvs_ui/assets/themes/
+├── README.md
+├── one/
+│   ├── one.json
+│   └── LICENSE
+└── ayu/
+    ├── ayu.json
+    └── LICENSE
+```
+
+Hangi yapıyı seçtiysen `RustEmbed`/`AssetSource` filter'larını
+güncelle (`include = "themes/**/*.json"` vs `include = "themes/*.json"`).
+Bu rehberin örnekleri **düz dizin** yapısını varsayar; alt-dizin tercih
+edilirse path manipülasyonu farklı.
 
 **Kontrol komutu:**
 
 ```sh
 # Hangi temalar hangi lisansta?
-find ../zed/assets/themes -name "LICENSE_*" | sort
+find ../zed/assets/themes -maxdepth 2 \( -name "LICENSE" -o -name "LICENSE_*" \) | sort
 ```
 
-`LICENSE_GPL` görürsen o tema senin için yasak; `LICENSE_MIT` /
-`LICENSE_APACHE` → kullanılabilir.
+Dosya adı `LICENSE` ise içeriğini oku; MIT/Apache/BSD gibi uyumlu lisans
+kullanılabilir, GPL veya belirsiz lisans kullanılamaz.
 
 #### Yeni tema eklerken kontrol listesi
 
 ```sh
 # 1. Lisans dosyasını oku
-cat ../zed/assets/themes/<tema>/LICENSE_*
+cat ../zed/assets/themes/<tema>/LICENSE
 
 # 2. Lisans uygunsa kopyala (tema + lisans birlikte)
 cp ../zed/assets/themes/<tema>/<tema>.json kvs_ui/assets/themes/
-cp ../zed/assets/themes/<tema>/LICENSE_* kvs_ui/assets/themes/
+cp ../zed/assets/themes/<tema>/LICENSE kvs_ui/assets/themes/<tema>.LICENSE_MIT
 
 # 3. Atıf metnini güncelle
 $EDITOR kvs_ui/assets/themes/README.md
@@ -5770,9 +6489,9 @@ Bu dizindeki tema JSON'ları aşağıdaki kaynaklardan alındı.
 
 | Dosya | Kaynak repo | Yol | Lisans | Telif |
 |-------|-------------|-----|--------|-------|
-| `one.json` | github.com/zed-industries/zed | `assets/themes/one/one.json` | MIT | © Zed Industries |
-| `solarized.json` | github.com/zed-industries/zed | `assets/themes/solarized/solarized.json` | MIT | © Ethan Schoonover |
-| `tokyo-night.json` | github.com/zed-industries/zed | `assets/themes/tokyo-night/...` | Apache-2.0 | © Tokyo Night contributors |
+| `one.json` | github.com/zed-industries/zed | `assets/themes/one/one.json` | MIT | ilgili `LICENSE` dosyası |
+| `ayu.json` | github.com/zed-industries/zed | `assets/themes/ayu/ayu.json` | MIT | ilgili `LICENSE` dosyası |
+| `gruvbox.json` | github.com/zed-industries/zed | `assets/themes/gruvbox/gruvbox.json` | MIT | ilgili `LICENSE` dosyası |
 
 ## Senkron tarihi
 
@@ -5790,17 +6509,33 @@ set -e
 THEMES_DIR="kvs_ui/assets/themes"
 FIXTURES_DIR="kvs_tema/tests/fixtures"
 
-# Her dizinde en az bir LICENSE_* dosyası olmalı
+# Her .json dosyasının yanında aynı stem'li bir LICENSE_* dosyası olmalı
 for dir in "$THEMES_DIR" "$FIXTURES_DIR"; do
-    if ! ls "$dir"/LICENSE_* 1>/dev/null 2>&1; then
-        echo "HATA: $dir altında lisans dosyası yok"
-        exit 1
-    fi
+    for json in "$dir"/*.json; do
+        [ -e "$json" ] || continue
+        stem="${json%.json}"
+        # düz konvansiyon: <stem>.LICENSE_<tip>
+        if ! ls "$stem".LICENSE_* 1>/dev/null 2>&1; then
+            # alt-dizin konvansiyonu için fallback: <dir>/LICENSE veya <dir>/LICENSE_*
+            subdir="$(dirname "$json")"
+            if ! ls "$subdir"/LICENSE "$subdir"/LICENSE_* 1>/dev/null 2>&1; then
+                echo "HATA: $json için lisans dosyası yok"
+                exit 1
+            fi
+        fi
+    done
 done
 
-# GPL lisansı yasak
-if ls "$THEMES_DIR"/LICENSE_GPL* 1>/dev/null 2>&1; then
+# GPL lisansı yasak (dosya adı ve içerik kontrolü)
+if find "$THEMES_DIR" "$FIXTURES_DIR" -type f \
+    \( -name "*LICENSE_GPL*" -o -name "LICENSE_GPL*" \) | grep -q .; then
     echo "HATA: $THEMES_DIR altında GPL tema bulundu — kaldır"
+    exit 1
+fi
+if find "$THEMES_DIR" "$FIXTURES_DIR" -type f \
+    \( -name "LICENSE*" -o -name "*.LICENSE_*" \) \
+    -exec grep -Eil "GNU GENERAL PUBLIC LICENSE|GPL-3|GPL-2" {} + | grep -q .; then
+    echo "HATA: GPL içerikli lisans bulundu — kaldır"
     exit 1
 fi
 
@@ -5823,12 +6558,11 @@ Her `tema_aktarimi.md` sync turunda:
 
 1. **Yeni eklenen Zed tema'ları kontrol et:**
    ```sh
-   awk '/^pub fn/ || /LICENSE_/' ../zed/assets/themes/*/LICENSE_* 2>/dev/null
+   awk '/^The / || /^Copyright/ || /License/' ../zed/assets/themes/*/LICENSE 2>/dev/null
    diff <(ls /eski/zed/assets/themes) <(ls ../zed/assets/themes)
    ```
 2. **Lisansı değişmiş temalar var mı?** Bir tema dosyası kaldı ama
-   `LICENSE_MIT` → `LICENSE_GPL` oldu = kullanmaya devam edemezsin.
-   Kaldır.
+   lisans içeriği MIT'den GPL'e döndü = kullanmaya devam edemezsin. Kaldır.
 3. **README'yi güncelle:** Yeni eklenmiş/kaldırılmış tema satırları.
 
 #### Dependency lisans denetimi
@@ -5940,10 +6674,10 @@ impl Render for AnaPanel {
     ) -> impl IntoElement {
         let tema = cx.theme();
         div()
-            .bg(tema.styles.colors.background)
-            .text_color(tema.styles.colors.text)
+            .bg(tema.colors().background)
+            .text_color(tema.colors().text)
             .border_1()
-            .border_color(tema.styles.colors.border)
+            .border_color(tema.colors().border)
             .p_4()
             .child("Merhaba")
     }
@@ -5956,21 +6690,17 @@ impl Render for AnaPanel {
    "method not found" hatası verir.
 2. **`let tema = cx.theme();`** — `&Arc<Theme>` döndüğü için `&self`
    borrow gibi davranır; render içinde tek seferlik bağlama.
-3. **Alan erişimi** — `tema.styles.colors.background` veya (opsiyonel
-   accessor varsa) `tema.colors().background`.
+3. **Alan erişimi** — `styles` crate-içi olduğu için tüketici
+   `tema.colors().background` gibi accessor kullanır.
 
 #### Erişim yolları kıyaslaması
 
 ```rust
-// 1. Doğrudan alan zinciri (Bölüm III/Konu 12)
-let bg = tema.styles.colors.background;
-let muted = tema.styles.colors.text_muted;
-let error = tema.styles.status.error;
-let local = tema.styles.player.local().cursor;
-
-// 2. Accessor metotları (önerilen — iç düzen değişimine dirençli)
+// Accessor metotları (önerilen değil, dış crate için zorunlu)
 let bg = tema.colors().background;
+let muted = tema.colors().text_muted;
 let error = tema.status().error;
+let local = tema.players().local().cursor;
 ```
 
 **Accessor metotları neden tercih?** `styles` alanının iç düzeni sync
@@ -5993,7 +6723,7 @@ Prelude modül bunu tek satıra indirir:
 ```rust
 // kvs_tema/src/prelude.rs
 pub use crate::runtime::ActiveTheme;
-pub use crate::{Appearance, Theme, ThemeFamily, ThemeStyles};
+pub use crate::{Appearance, Theme, ThemeFamily};
 pub use crate::styles::*;
 ```
 
@@ -6123,8 +6853,8 @@ impl Render for Button {
    refcount artırır ama referans yeterli. Gereksiz.
 3. **Bileşen state'inde renk cache'lemek**: Tema değişiminde stale.
    Stateless oku.
-4. **`tema.styles.colors.X` zinciri**: Tutarlılık iyi ama accessor
-   metotları yoksa iç düzen sızıntısı. Accessor ekle (`theme.colors()`).
+4. **`tema.styles.colors.X` zinciri**: Dış crate için compile hatasıdır.
+   Accessor kullan (`theme.colors()`).
 5. **Render dışında `cx.theme()`**: `&mut Context<Self>` `App`'ten
    `cx.theme()` çağırmana izin verir; ama render fazı dışında çağrı
    genelde yanlış soyutlama — bileşen state'i tutar, theme değişiminde
@@ -6405,8 +7135,7 @@ sync turlarında bozulmaması için kritik.
 **Veri tipleri (kararlı):**
 
 ```rust
-pub use crate::Theme;
-pub use crate::ThemeStyles;
+pub use crate::Theme;            // accessor metotlarıyla okunur (Konu 12)
 pub use crate::ThemeFamily;
 pub use crate::Appearance;
 
@@ -6417,38 +7146,62 @@ pub use crate::styles::PlayerColor;
 pub use crate::styles::AccentColors;
 pub use crate::styles::SystemColors;
 
-pub use crate::icon_theme::IconTheme;
+// Icon tema sözleşmesi (Konu 17)
+pub use crate::icon_theme::{
+    IconTheme, IconThemeFamily, IconDefinition,
+    DirectoryIcons, ChevronIcons,
+};
 ```
+
+> **`ThemeStyles` listede YOK.** `Theme.styles` alanı `pub(crate)` —
+> tüketici accessor'larla okur (`theme.colors()`, `theme.status()`).
+> `ThemeStyles` tipini import etmek tüketici için anlamsız.
 
 **Runtime (kararlı):**
 
 ```rust
-pub use crate::runtime::ActiveTheme;       // cx.theme() için trait
+pub use crate::runtime::ActiveTheme;             // cx.theme() için trait
 pub use crate::runtime::GlobalTheme;
 pub use crate::runtime::SystemAppearance;
 pub use crate::runtime::init;
-pub use crate::runtime::temayi_degistir;   // helper fonksiyon
+pub use crate::runtime::temayi_degistir;         // tek-yönlü helper (Konu 31)
+pub use crate::runtime::temayi_yeniden_yukle;    // disk reload (Konu 31)
+pub use crate::runtime::observe_system_appearance;  // pencere observer (Konu 29)
 ```
 
 **Registry (kararlı):**
 
 ```rust
-pub use crate::registry::ThemeRegistry;
-pub use crate::registry::ThemeNotFound;
+pub use crate::registry::{ThemeRegistry, ThemeNotFound};
+pub use crate::registry::IconThemeRegistry;      // Konu 17
 ```
 
-**Fallback (kararlı):**
+**Fallback (kararlı, namespace altında):**
 
 ```rust
-pub use crate::fallback::kvs_default_dark;
-pub use crate::fallback::kvs_default_light;
+// kvs_tema::fallback::kvs_default_dark()
+// kvs_tema::fallback::kvs_default_light()
+pub mod fallback;   // pub modül; içeride sadece public fonksiyonlar
 ```
 
-**Schema (KARARSIZ — extension/ileri kullanım için):**
+**Schema (KARARSIZ — extension/ileri kullanım için, tek tek ihraç):**
 
 ```rust
-pub use crate::schema::*;  // ThemeContent, ThemeColorsContent, ...
-pub use crate::schema::try_parse_color;
+// Glob YASAK — yeni iç tip eklenince istemeden public olmaması için
+// tek tek ihraç:
+pub use crate::schema::{
+    AppearanceContent, FontStyleContent, FontWeightContent,
+    HighlightStyleContent, PlayerColorContent, StatusColorsContent,
+    ThemeColorsContent, ThemeContent, ThemeFamilyContent,
+    ThemeStyleContent, WindowBackgroundContent,
+    try_parse_color,
+};
+
+// Icon tema Content tipleri (Konu 17)
+pub use crate::icon_theme::{
+    IconThemeContent, IconThemeFamilyContent,
+    DirectoryIconsContent, ChevronIconsContent, IconDefinitionContent,
+};
 ```
 
 > **Schema kararsız:** Bu tipler JSON sözleşmesini taşır; Zed sync
@@ -6478,41 +7231,56 @@ dışında bağlılık oluşturur.
 
 #### Lib kökü yapısı (`kvs_tema/src/kvs_tema.rs`)
 
+Konu 4'teki iskeletle **birebir aynı**. Burada özet:
+
 ```rust
 //! kvs_tema — Zed-uyumlu, lisans-temiz tema sistemi.
 
-// Modüller (crate-içi)
-pub(crate) mod refinement;   // Bölüm V
-mod fallback;
+// Crate-içi (gizli)
+pub(crate) mod refinement;          // Bölüm V
+
+// Namespace altında public (kvs_tema::fallback::*)
+pub mod fallback;
+
+// Private dosya modülleri, içeriği selektif ihraç edilir
 mod icon_theme;
 mod registry;
 mod runtime;
 mod schema;
 mod styles;
 
-// Public API yeniden ihraç
-pub use icon_theme::*;
-pub use registry::*;
-pub use runtime::*;
-pub use schema::*;     // KARARSIZ — schema tipleri ile birlikte
-pub use styles::*;
+// Glob ihraç — kararlı modüller (yeni iç tip neredeyse hep public istenir)
+pub use crate::icon_theme::*;
+pub use crate::registry::*;
+pub use crate::runtime::*;
+pub use crate::styles::*;
 
-// fallback re-export (sadece public fonksiyonlar)
-pub mod fallback {
-    pub use crate::fallback::{kvs_default_dark, kvs_default_light};
-}
+// Schema — KARARSIZ; tek tek ihraç, glob asla
+pub use crate::schema::{
+    AppearanceContent, FontStyleContent, FontWeightContent,
+    HighlightStyleContent, PlayerColorContent, StatusColorsContent,
+    ThemeColorsContent, ThemeContent, ThemeFamilyContent,
+    ThemeStyleContent, WindowBackgroundContent,
+    try_parse_color,
+};
 
-// Theme/ThemeStyles/ThemeFamily/Appearance lib kökünde tanımlı
-pub use crate::{Theme, ThemeStyles, ThemeFamily, Appearance};
+// Lib kökünde tanımlı tipler (zaten public)
+// → Theme, ThemeFamily, Appearance
+// → ThemeStyles tipi crate-içi; ihraç edilmez (Konu 12)
 ```
 
 **Pattern:**
 
 - `pub(crate) mod refinement` — `refinement.rs` modülü dışarıya kapalı,
   içeride paylaşılır.
-- `pub use module::*` — kararlı tiplerin tüm-ihracı (`*` riski Konu
-  4 tablosunda).
-- `pub mod fallback` — fallback fonksiyonları namespace altında (`kvs_tema::fallback::kvs_default_dark`).
+- `pub use module::*` — kararlı modüller için tüm-ihracı; her iç tipin
+  public olmasını istiyorsan glob; istemiyorsan tek tek.
+- `pub use schema::{...}` — schema modülü için **glob YASAK** çünkü yeni
+  iç implementasyon tipleri (mesela `serde` helper'ları) istemeden public
+  olmasın.
+- `pub mod fallback` — fallback fonksiyonları namespace altında
+  (`kvs_tema::fallback::kvs_default_dark`). `fallback.rs` içinde sadece
+  bu iki fonksiyon `pub`, diğer her şey `pub(super)` veya private.
 
 #### `prelude` modülü (önerilen)
 
@@ -6521,7 +7289,7 @@ pub use crate::{Theme, ThemeStyles, ThemeFamily, Appearance};
 //! kvs_tema prelude — sık kullanılan tipleri tek import'a indirir.
 
 pub use crate::runtime::ActiveTheme;
-pub use crate::{Appearance, Theme, ThemeFamily, ThemeStyles};
+pub use crate::{Appearance, Theme, ThemeFamily};
 pub use crate::styles::{
     AccentColors, PlayerColor, PlayerColors,
     StatusColors, SystemColors, ThemeColors,
@@ -6567,15 +7335,24 @@ Tüketici kodu güvenle yapabileceği şeyler:
 ✓ `ThemeRegistry::global(cx)` ile registry sorgulamak
 ✓ `kvs_tema::init(cx)` çağırmak
 ✓ `kvs_tema::temayi_degistir(ad, cx)` ile tema değiştirmek
+✓ `kvs_tema::temayi_yeniden_yukle(yol, cx)` ile disk'ten reload
+✓ `kvs_tema::observe_system_appearance(window, cx)` ile sistem mod takibi
 ✓ `kvs_tema::SystemAppearance::global(cx)` ile sistem mod sorgulamak
+✓ `kvs_tema::IconThemeRegistry::global(cx)` ile icon tema sorgulamak
 
-Tüketicinin yapmaması gerekenler:
+Tüketicinin yapamayacağı şeyler (compile hatası):
 
-✗ `kvs_tema::theme_colors_refinement(...)` doğrudan çağırmak (crate-içi)
-✗ `kvs_tema::apply_status_color_defaults(...)` çağırmak (crate-içi)
-✗ `kvs_tema::schema::ThemeColorsContent` üzerinde `match` yazmak (kararsız)
-✗ `Theme.styles.colors.X` yerine `theme.colors().X` öner (iç düzen sızıntısı)
+✗ `theme.styles.colors.X` yazmak — `styles` `pub(crate)`, accessor şart
 ✗ `GlobalThemeRegistry`/`GlobalSystemAppearance` newtype'larına dokunmak
+  (private)
+
+Tüketicinin yapmaması gerekenler (compile geçer ama kötü pratik):
+
+✗ `kvs_tema::ThemeColorsContent` üzerinde `match` yazmak — schema
+  kararsız (Konu 18)
+✗ `kvs_tema::try_parse_color(...)` doğrudan çağırmak — `Theme::from_content`
+  zaten sarmalıyor
+✗ Tema yüklerken `baseline`'ı yanlış appearance ile seçmek (Konu 26)
 
 #### `pub(crate)` ile gerçek izolasyon
 
@@ -6663,7 +7440,7 @@ fn button_uses_theme_colors(cx: &mut TestAppContext) {
 
         let theme = cx.theme();
         assert_eq!(theme.appearance, kvs_tema::Appearance::Dark);
-        assert_ne!(theme.styles.colors.background, gpui::Hsla::default());
+        assert_ne!(theme.colors().background, gpui::Hsla::default());
     });
 }
 ```
@@ -6677,16 +7454,22 @@ Yüzlerce test çalıştırıyorsan kümülatif.
 
 Test'in özel renk değerlerine ihtiyacı varsa, manuel kur:
 
-```rust
-use std::sync::Arc;
-use gpui::{TestAppContext, hsla};
-use kvs_tema::{
-    Theme, ThemeStyles, ThemeColors, StatusColors, PlayerColors, AccentColors,
-    SystemColors, Appearance, ActiveTheme, GlobalTheme, ThemeRegistry,
-};
-use kvs_syntax_tema::SyntaxTheme;
+**Bu strateji `kvs_tema` crate'inin İÇİNDEN çalışır** — `Theme { styles:
+... }` literal'i `pub(crate)` field'lara erişir. `kvs_tema/tests/`
+(entegrasyon testleri) **dış crate** sayılır; oradan struct literal
+yazılamaz. Bu manuel kurulum sadece `kvs_tema/src/test.rs` (Strateji 3)
+veya `kvs_tema` modülünün kendi birim testlerinde kullanılır.
 
-fn test_theme(bg: gpui::Hsla, fg: gpui::Hsla) -> Theme {
+```rust
+// kvs_tema/src/test.rs içinde (crate-içi)
+use std::sync::Arc;
+use gpui::hsla;
+use crate::{
+    Theme, ThemeStyles, ThemeColors, StatusColors, PlayerColors,
+    AccentColors, SystemColors, Appearance,
+};
+
+pub(crate) fn test_theme(bg: gpui::Hsla, fg: gpui::Hsla) -> Theme {
     Theme {
         id: "test".into(),
         name: "Test Theme".into(),
@@ -6703,33 +7486,19 @@ fn test_theme(bg: gpui::Hsla, fg: gpui::Hsla) -> Theme {
             status: fallback_status_dark(),
             player: PlayerColors::default(),
             accents: AccentColors::default(),
-            syntax: SyntaxTheme::new(vec![]),
+            syntax: kvs_syntax_tema::SyntaxTheme::new(vec![]),
         },
     }
-}
-
-#[gpui::test]
-fn button_with_custom_theme(cx: &mut TestAppContext) {
-    cx.update(|cx| {
-        let red = hsla(0.0, 1.0, 0.5, 1.0);
-        let white = hsla(0.0, 0.0, 1.0, 1.0);
-
-        let registry = Arc::new(ThemeRegistry::new());
-        registry.insert(test_theme(red, white));
-
-        ThemeRegistry::set_global(cx, registry);
-        GlobalTheme::set_theme(cx, /* arc */);
-
-        let theme = cx.theme();
-        assert_eq!(theme.styles.colors.background, red);
-    });
 }
 ```
 
 > **`..fallback_colors_dark()` yapmak için:** `ThemeColors`'a `Default`
-> türetmen veya yardımcı bir `fn fallback_colors_dark() -> ThemeColors`
-> tanımlaman gerek. Mevcut yapıda `ThemeColors`'ın `Default`'u yok
-> (tüm alanları zorunlu); test helper'ı yaz.
+> türetmen veya yardımcı bir `pub(crate) fn fallback_colors_dark() ->
+> ThemeColors` tanımlaman gerek. Mevcut yapıda `ThemeColors`'ın
+> `Default`'u yok (tüm alanları zorunlu); test helper'ı yaz.
+>
+> **Dış crate'ten test:** `kvs_ui/tests/`'te bu strateji çalışmaz;
+> `feature = "test-util"` ile Strateji 3'ün public helper'ları çağrılır.
 
 #### Strateji 3: `kvs_tema` test helper'ı
 
@@ -6810,7 +7579,7 @@ fn button_renders_with_theme_background(cx: &mut TestAppContext) {
         init_test(cx);
 
         let theme = test_theme();
-        let expected_bg = theme.styles.colors.element_background;
+        let expected_bg = theme.colors().element_background;
 
         let button = cx.new(|_| Button::new("OK".into()));
 
@@ -6859,9 +7628,10 @@ render eder, snapshot karşılaştırır.
 #### Tema mock'lamayı yanlış yapmak
 
 ```rust
-// YANLIŞ: cx olmadan tema oluşturmak
-let theme = Theme { /* ... */ };
-let bg = theme.styles.colors.background;
+// YANLIŞ: cx olmadan, struct literal ile tema oluşturmak
+// (dış crate'te bu zaten derlenmez — `styles` pub(crate))
+let theme = kvs_tema::fallback::kvs_default_dark();
+let bg = theme.colors().background;
 let button_bg = bg;  // ← bileşen rendering'i ile bağlantısı yok
 ```
 
@@ -6950,10 +7720,10 @@ güncelleme, vs.) bu listeyi gez. **Atlanan madde = ileride bir bug.**
 
 - [ ] `cargo license` veya `cargo deny check licenses` — GPL bağımlılık
       yok (Bölüm VII/Konu 35).
-- [ ] `kvs_ui/assets/themes/LICENSE_*` — her bundle'lı tema için lisans
+- [ ] `kvs_ui/assets/themes/*.LICENSE_*` — her bundle'lı tema için lisans
       dosyası mevcut.
 - [ ] `kvs_ui/assets/themes/README.md` — atıf tablosu güncel.
-- [ ] `kvs_tema/tests/fixtures/LICENSE_*` — her fixture için lisans.
+- [ ] `kvs_tema/tests/fixtures/*.LICENSE_*` — her fixture için lisans.
 - [ ] `kvs_tema/tests/fixtures/README.md` — fixture atıf tablosu güncel.
 
 #### Sözleşme sağlığı
@@ -7167,30 +7937,35 @@ Zed'den bir tema dosyasını uygulama bundle'ına dahil etmek.
 
 ```sh
 # 1. Lisans doğrula
-cat ../zed/assets/themes/tokyo-night/LICENSE_*
-# → LICENSE_MIT veya LICENSE_APACHE olmalı; LICENSE_GPL ise kullanma
+ls ../zed/assets/themes/one/LICENSE
+# LICENSE içeriği MIT/Apache/BSD gibi uyumlu olmalı; GPL ise kullanma
+LICENSE_FILE="../zed/assets/themes/one/LICENSE"
+LICENSE_KIND="LICENSE_MIT"   # LICENSE içeriğinden doğrula
 ```
 
 ```sh
-# 2. Tema + lisans kopyala
-cp ../zed/assets/themes/tokyo-night/tokyo-night.json \
+# 2. Tema + lisans kopyala — düz dizin konvansiyonu (Konu 35)
+# <stem>.json + <stem>.LICENSE_<tip>
+cp ../zed/assets/themes/one/one.json \
    kvs_ui/assets/themes/
-cp ../zed/assets/themes/tokyo-night/LICENSE_MIT \
-   kvs_ui/assets/themes/LICENSE_MIT.tokyo-night
+cp "$LICENSE_FILE" \
+   "kvs_ui/assets/themes/one.$LICENSE_KIND"
 ```
 
 ```sh
 # 3. Atıf README'sine ekle
 $EDITOR kvs_ui/assets/themes/README.md
-# | tokyo-night.json | zed/assets/themes/tokyo-night | MIT | © Tokyo Night |
+# | one.json | zed/assets/themes/one | $LICENSE_KIND | © GitHub Inc. |
 ```
 
 ```sh
 # 4. Fixture testine ekle (opsiyonel)
-cp ../zed/assets/themes/tokyo-night/tokyo-night.json \
+cp ../zed/assets/themes/one/one.json \
    kvs_ui/crates/kvs_tema/tests/fixtures/
+cp "$LICENSE_FILE" \
+   "kvs_ui/crates/kvs_tema/tests/fixtures/one.$LICENSE_KIND"
 $EDITOR kvs_ui/crates/kvs_tema/tests/parse_fixture.rs
-# #[test] fn parses_tokyo_night() { ... }
+# #[test] fn parses_one() { ... }
 ```
 
 ```sh
@@ -7350,11 +8125,11 @@ pub fn diff_theme_against_baseline(
 
     macro_rules! check {
         ($field:ident) => {
-            if theme.styles.colors.$field != baseline.styles.colors.$field {
+            if theme.colors().$field != baseline.colors().$field {
                 diffs.push((
                     stringify!($field).to_string(),
-                    baseline.styles.colors.$field,
-                    theme.styles.colors.$field,
+                    baseline.colors().$field,
+                    theme.colors().$field,
                 ));
             }
         };
@@ -7607,55 +8382,54 @@ cargo publish -p kvs_tema   # sırası önemli, syntax önce
 
 Bir UI testinde bilinen renklere ihtiyacın var.
 
-```rust
-// kvs_ui/tests/button_test.rs
-use gpui::TestAppContext;
-use kvs_tema::*;
-use std::sync::Arc;
+**Dış crate'ten `Theme` inşa edemezsin** — `styles` `pub(crate)` (Konu
+12). Test temasını kurmak için `kvs_tema`'nın `test-util` feature
+helper'ları üzerinden geçilir (Konu 39).
 
-fn install_test_theme(cx: &mut gpui::App) -> Arc<Theme> {
-    let theme = Theme {
-        id: "test".into(),
-        name: "Test".into(),
-        appearance: Appearance::Dark,
-        styles: ThemeStyles {
-            window_background_appearance: gpui::WindowBackgroundAppearance::Opaque,
-            system: SystemColors::default(),
-            colors: ThemeColors {
-                background: gpui::hsla(0.0, 1.0, 0.5, 1.0),     // kırmızı
-                element_background: gpui::hsla(0.333, 1.0, 0.5, 1.0),  // yeşil
-                element_hover: gpui::hsla(0.666, 1.0, 0.5, 1.0),       // mavi
-                text: gpui::hsla(0.0, 0.0, 1.0, 1.0),                  // beyaz
-                // ... tüm alanları açık değerle doldur (fallback helper'dan ödünç)
-                ..extract_baseline_colors()
-            },
-            status: extract_baseline_status(),
-            player: PlayerColors::default(),
-            accents: AccentColors::default(),
-            syntax: kvs_syntax_tema::SyntaxTheme::new(vec![]),
-        },
-    };
+```toml
+# kvs_ui/Cargo.toml
+[dev-dependencies]
+kvs_tema = { path = "../kvs_tema", features = ["test-util"] }
+```
+
+```rust
+// kvs_tema/src/test.rs — crate-içi helper (test-util feature)
+#[cfg(any(test, feature = "test-util"))]
+pub fn install_with_overrides(
+    cx: &mut gpui::App,
+    overrides: impl FnOnce(&mut ThemeColors),
+) -> Arc<Theme> {
+    let mut theme = crate::fallback::kvs_default_dark();
+    // styles `pub(crate)` ama bu fonksiyon crate-içi — erişim yasal
+    overrides(&mut theme.styles.colors);
 
     let registry = Arc::new(ThemeRegistry::new());
     let arc_theme = Arc::new(theme);
     registry.insert((*arc_theme).clone());
     ThemeRegistry::set_global(cx, registry);
     GlobalTheme::set_theme(cx, arc_theme.clone());
-
     arc_theme
 }
+```
+
+```rust
+// kvs_ui/tests/button_test.rs — tüketici test
+use gpui::TestAppContext;
+use kvs_tema::test::install_with_overrides;
+use kvs_tema::ActiveTheme;
 
 #[gpui::test]
 fn button_uses_element_background(cx: &mut TestAppContext) {
     cx.update(|cx| {
-        let theme = install_test_theme(cx);
         let green = gpui::hsla(0.333, 1.0, 0.5, 1.0);
+        let theme = install_with_overrides(cx, |colors| {
+            colors.element_background = green;
+        });
 
-        let button = cx.new(|_| Button::new("OK".into()));
+        let _button = cx.new(|_| Button::new("OK".into()));
 
-        // Render output'unu inspect et (gpui test API)
-        // ...
-        assert_eq!(theme.styles.colors.element_background, green);
+        // Accessor üzerinden okuma — dış crate yolu
+        assert_eq!(theme.colors().element_background, green);
     });
 }
 ```
@@ -7675,35 +8449,47 @@ pub fn user_theme_dir() -> Option<PathBuf> {
         .map(|d| d.join("kvs").join("themes"))
 }
 
-pub async fn load_user_themes(cx: &mut gpui::AsyncApp) -> anyhow::Result<()> {
-    let Some(dir) = user_theme_dir() else { return Ok(()); };
-    if !dir.exists() { return Ok(()); }
+/// Disk taramasını blocking olarak yapar; çağıran taraf
+/// `cx.background_executor().spawn` ile UI thread'i bloklamadan
+/// çalıştırır.
+pub fn collect_user_theme_files() -> anyhow::Result<Vec<(PathBuf, Vec<u8>)>> {
+    let Some(dir) = user_theme_dir() else { return Ok(vec![]); };
+    if !dir.exists() { return Ok(vec![]); }
 
-    let mut entries = tokio::fs::read_dir(&dir).await?;
-    while let Some(entry) = entries.next_entry().await? {
+    let mut out = Vec::new();
+    for entry in std::fs::read_dir(&dir)? {
+        let entry = entry?;
         let path = entry.path();
         if !path.extension().is_some_and(|e| e == "json") { continue; }
+        let bytes = std::fs::read(&path)?;
+        out.push((path, bytes));
+    }
+    Ok(out)
+}
 
-        let bytes = tokio::fs::read(&path).await?;
+/// Toplanan dosyaları registry'ye basar — `cx.update` içinde çağrılır.
+pub fn install_user_themes(
+    files: Vec<(PathBuf, Vec<u8>)>,
+    cx: &mut gpui::App,
+) -> anyhow::Result<()> {
+    let registry = kvs_tema::ThemeRegistry::global(cx);
+    let baseline_dark = kvs_tema::fallback::kvs_default_dark();
+    let baseline_light = kvs_tema::fallback::kvs_default_light();
+
+    for (path, bytes) in files {
         let family: kvs_tema::ThemeFamilyContent =
-            serde_json_lenient::from_slice(&bytes)?;
-
-        cx.update(|cx| {
-            let registry = kvs_tema::ThemeRegistry::global(cx);
-            let baseline_dark = kvs_tema::fallback::kvs_default_dark();
-            let baseline_light = kvs_tema::fallback::kvs_default_light();
-
-            for theme_content in family.themes {
-                let baseline = match theme_content.appearance {
-                    kvs_tema::AppearanceContent::Dark => &baseline_dark,
-                    kvs_tema::AppearanceContent::Light => &baseline_light,
-                };
-                registry.insert(kvs_tema::Theme::from_content(
-                    theme_content,
-                    baseline,
-                ));
-            }
-        })?;
+            serde_json_lenient::from_slice(&bytes)
+                .map_err(|e| anyhow::anyhow!("{}: {}", path.display(), e))?;
+        for theme_content in family.themes {
+            let baseline = match theme_content.appearance {
+                kvs_tema::AppearanceContent::Dark => &baseline_dark,
+                kvs_tema::AppearanceContent::Light => &baseline_light,
+            };
+            registry.insert(kvs_tema::Theme::from_content(
+                theme_content,
+                baseline,
+            ));
+        }
     }
     Ok(())
 }
@@ -7713,9 +8499,22 @@ fn main() {
     Application::new().run(|cx| {
         kvs_tema::init(cx);
 
+        // Disk taramasını GPUI'nin background executor'ında çalıştır
+        // (blocking IO UI thread'i durdurmasın; tokio dep gerektirmez).
+        let task = cx.background_executor().spawn(async {
+            themes::collect_user_theme_files()
+        });
+
         cx.spawn(async move |cx| {
-            if let Err(e) = themes::load_user_themes(&mut cx).await {
-                tracing::warn!("kullanıcı temaları yüklenemedi: {}", e);
+            match task.await {
+                Ok(files) => {
+                    let _ = cx.update(|cx| {
+                        if let Err(e) = themes::install_user_themes(files, cx) {
+                            tracing::warn!("kullanıcı tema yüklemesi: {}", e);
+                        }
+                    });
+                }
+                Err(e) => tracing::warn!("disk taraması: {}", e),
             }
         }).detach();
 
@@ -7723,6 +8522,12 @@ fn main() {
     });
 }
 ```
+
+> **Neden tokio değil?** GPUI'nin kendi `BackgroundExecutor`'ı var
+> (smol tabanlı); ek bir runtime dependency'si gerek değil.
+> `cx.background_executor().spawn` blocking IO için ayrı thread'e dispatch
+> eder; sonuç `.await` ile geri gelir ve `cx.update` UI thread'inde
+> registry'yi günceller.
 
 > **Referans:** Bölüm VI/Konu 30 (init genişletme), Bölüm VII/Konu 33.
 
@@ -7744,1176 +8549,3 @@ Beklenmedik bir durum yaşarsan ilgili Konu'ya git; yoksa Bölüm IX'daki
 tuzaklar listesi başlangıç noktasıdır.
 
 ---
-
-# Ek (geçici): Faz tabanlı eski içerik
-
-> **Not:** Aşağıdaki içerik bölüm bölüm yeni yapıya taşınmaktadır.
-> Taşıma tamamlandıkça ilgili alt başlıklar bu ekten kaldırılır. Eski
-> referansları kırmamak için geçici olarak korunur.
-
----
-
-## Faz 1 — Çekirdek tipler
-
-Hedef: Zed'in `crates/theme/src/styles/` altındaki tüm struct'ları
-**alan paritesiyle** yansıtmak. Doc comment'lerini kendi sözcüklerinle yaz.
-
-### 1.1 `styles.rs` — modül kökü
-
-```rust
-mod accents;
-mod colors;
-mod players;
-mod status;
-mod system;
-
-pub use accents::*;
-pub use colors::*;
-pub use players::*;
-pub use status::*;
-pub use system::*;
-```
-
-### 1.2 `styles/colors.rs` — UI renkleri (~150 alan)
-
-Zed'deki tam liste için `../zed/crates/theme/src/styles/colors.rs`'a bak.
-Buradan sıralı **mirror** yap. Aşağıda ilk 30 alan + örnek pattern var.
-
-```rust
-use gpui::Hsla;
-use refineable::Refineable;
-
-/// UI renk paleti. Alan listesi Zed'in ThemeColors'ı ile birebir paralel.
-///
-/// Refineable derive, her alanı Option<T> olarak içeren
-/// `ThemeColorsRefinement` struct'ını otomatik üretir.
-#[derive(Refineable, Clone, Debug, PartialEq)]
-#[refineable(Debug, serde::Deserialize)]
-pub struct ThemeColors {
-    // Kenarlıklar -----------------------------------------------------------
-    pub border: Hsla,
-    pub border_variant: Hsla,
-    pub border_focused: Hsla,
-    pub border_selected: Hsla,
-    pub border_transparent: Hsla,
-    pub border_disabled: Hsla,
-
-    // Yüzeyler --------------------------------------------------------------
-    pub elevated_surface_background: Hsla,
-    pub surface_background: Hsla,
-    pub background: Hsla,
-
-    // Etkileşimli element durumları ----------------------------------------
-    pub element_background: Hsla,
-    pub element_hover: Hsla,
-    pub element_active: Hsla,
-    pub element_selected: Hsla,
-    pub element_selection_background: Hsla,
-    pub element_disabled: Hsla,
-
-    pub drop_target_background: Hsla,
-    pub drop_target_border: Hsla,
-
-    // Ghost (yüzey rengiyle aynı) elementler -------------------------------
-    pub ghost_element_background: Hsla,
-    pub ghost_element_hover: Hsla,
-    pub ghost_element_active: Hsla,
-    pub ghost_element_selected: Hsla,
-    pub ghost_element_disabled: Hsla,
-
-    // Metin -----------------------------------------------------------------
-    pub text: Hsla,
-    pub text_muted: Hsla,
-    pub text_placeholder: Hsla,
-    pub text_disabled: Hsla,
-    pub text_accent: Hsla,
-
-    // Icon ------------------------------------------------------------------
-    pub icon: Hsla,
-    pub icon_muted: Hsla,
-    pub icon_disabled: Hsla,
-
-    // ... (Zed'deki tüm alanları aynı sırayla buraya devam ettir)
-    // editor_*, terminal_*, panel_*, status_bar_*, title_bar_*, tab_*,
-    // search_*, scrollbar_*, debugger_*, vcs_*, vim_yank_*, ...
-}
-```
-
-> **Editor / terminal_ansi / debugger / diff hunk / vcs / vim alanları**:
-> Uygulamanda henüz karşılığı olmasa bile struct'a **dahil et**. Yoksa
-> Zed JSON'unda bu alan geldiğinde sessizce kaybolur veya deserialize
-> hatası verebilir. UI'da okumadığın sürece struct'ta bulunması sıfır
-> maliyettir. Gerekçenin tamamı için **Temel ilke** bölümüne bak.
-
-### 1.3 `styles/status.rs` — durum renkleri
-
-```rust
-use gpui::Hsla;
-use refineable::Refineable;
-
-/// Diagnostic ve VCS durum renkleri. Her durum için fg/bg/border üçlüsü.
-#[derive(Refineable, Clone, Debug, PartialEq)]
-#[refineable(Debug, serde::Deserialize)]
-pub struct StatusColors {
-    pub conflict: Hsla,
-    pub conflict_background: Hsla,
-    pub conflict_border: Hsla,
-
-    pub created: Hsla,
-    pub created_background: Hsla,
-    pub created_border: Hsla,
-
-    pub deleted: Hsla,
-    pub deleted_background: Hsla,
-    pub deleted_border: Hsla,
-
-    pub error: Hsla,
-    pub error_background: Hsla,
-    pub error_border: Hsla,
-
-    pub hidden: Hsla,
-    pub hidden_background: Hsla,
-    pub hidden_border: Hsla,
-
-    pub hint: Hsla,
-    pub hint_background: Hsla,
-    pub hint_border: Hsla,
-
-    pub ignored: Hsla,
-    pub ignored_background: Hsla,
-    pub ignored_border: Hsla,
-
-    pub info: Hsla,
-    pub info_background: Hsla,
-    pub info_border: Hsla,
-
-    pub modified: Hsla,
-    pub modified_background: Hsla,
-    pub modified_border: Hsla,
-
-    pub predictive: Hsla,
-    pub predictive_background: Hsla,
-    pub predictive_border: Hsla,
-
-    pub renamed: Hsla,
-    pub renamed_background: Hsla,
-    pub renamed_border: Hsla,
-
-    pub success: Hsla,
-    pub success_background: Hsla,
-    pub success_border: Hsla,
-
-    pub unreachable: Hsla,
-    pub unreachable_background: Hsla,
-    pub unreachable_border: Hsla,
-
-    pub warning: Hsla,
-    pub warning_background: Hsla,
-    pub warning_border: Hsla,
-}
-```
-
-### 1.4 `styles/players.rs`
-
-```rust
-use gpui::Hsla;
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct PlayerColor {
-    pub cursor: Hsla,
-    pub background: Hsla,
-    pub selection: Hsla,
-}
-
-#[derive(Clone, Debug, PartialEq, Default)]
-pub struct PlayerColors(pub Vec<PlayerColor>);
-
-impl PlayerColors {
-    /// Yerel (kullanıcı) renk slotu — index 0.
-    pub fn local(&self) -> PlayerColor {
-        self.0.first().cloned().unwrap_or(PlayerColor {
-            cursor: gpui::black(),
-            background: gpui::black(),
-            selection: gpui::black().opacity(0.3),
-        })
-    }
-
-    /// Belirli bir player slotu (collab veya örnek).
-    pub fn color_for_participant(&self, participant_index: u32) -> PlayerColor {
-        let len = self.0.len().max(1);
-        let idx = (participant_index as usize) % len;
-        self.0
-            .get(idx)
-            .cloned()
-            .unwrap_or_else(|| self.local())
-    }
-}
-```
-
-### 1.5 `styles/accents.rs`
-
-```rust
-use gpui::Hsla;
-
-#[derive(Clone, Debug, PartialEq, Default)]
-pub struct AccentColors(pub Vec<Hsla>);
-
-impl AccentColors {
-    pub fn color_for(&self, index: u32) -> Hsla {
-        if self.0.is_empty() {
-            return gpui::blue();
-        }
-        let idx = (index as usize) % self.0.len();
-        self.0[idx]
-    }
-}
-```
-
-### 1.6 `styles/system.rs`
-
-```rust
-use gpui::{Hsla, hsla};
-
-/// Tema-bağımsız sistem renkleri (macOS mavi vs).
-#[derive(Clone, Debug, PartialEq)]
-pub struct SystemColors {
-    pub transparent: Hsla,
-    pub mac_os_traffic_light_red: Hsla,
-    pub mac_os_traffic_light_yellow: Hsla,
-    pub mac_os_traffic_light_green: Hsla,
-}
-
-impl Default for SystemColors {
-    fn default() -> Self {
-        Self {
-            transparent: hsla(0., 0., 0., 0.),
-            mac_os_traffic_light_red: hsla(0.0139, 0.79, 0.65, 1.0),
-            mac_os_traffic_light_yellow: hsla(0.0986, 0.84, 0.62, 1.0),
-            mac_os_traffic_light_green: hsla(0.3194, 0.49, 0.55, 1.0),
-        }
-    }
-}
-```
-
-### 1.7 `kvs_syntax_tema/src/kvs_syntax_tema.rs`
-
-```rust
-use gpui::HighlightStyle;
-use std::sync::Arc;
-
-/// Sözdizimi (token) renkleri. Sıralı liste; ilk eşleşme kazanır.
-#[derive(Clone, Debug, PartialEq, Default)]
-pub struct SyntaxTheme {
-    pub highlights: Vec<(String, HighlightStyle)>,
-}
-
-impl SyntaxTheme {
-    pub fn new(highlights: Vec<(String, HighlightStyle)>) -> Arc<Self> {
-        Arc::new(Self { highlights })
-    }
-
-    pub fn style_for(&self, capture: &str) -> Option<HighlightStyle> {
-        self.highlights
-            .iter()
-            .find(|(name, _)| name == capture)
-            .map(|(_, style)| *style)
-    }
-}
-```
-
-**Faz 1 çıkış kriteri**: `cargo build -p kvs_tema` yeşil. Henüz JSON yok,
-ama tip iskeleti ve refinement türleri (`ThemeColorsRefinement`,
-`StatusColorsRefinement`) oluşmuş durumda. Bunu doğrula:
-
-```rust
-// tests'te
-let _: kvs_tema::ThemeColorsRefinement = Default::default();
-```
-
----
-
-## Faz 2 — JSON şeması ve refinement
-
-Bu fazın hedefi: bir Zed temasını (`one-dark.json` gibi) **birebir parse
-edip** çalışan bir `Theme` üretmek.
-
-### 2.1 JSON anahtar konvansiyonu
-
-Zed JSON dosyalarında alan adları **dot-separated** (`border.variant`,
-`element.hover`). Rust alan adları snake_case (`border_variant`). İkisini
-`#[serde(rename = "...")]` ile bağlarsın.
-
-```json
-// one-dark.json (kısaltılmış)
-{
-  "name": "One",
-  "author": "Zed Industries",
-  "themes": [
-    {
-      "name": "One Dark",
-      "appearance": "dark",
-      "style": {
-        "background": "#1c2025ff",
-        "border": "#464b57ff",
-        "border.variant": "#363c46ff",
-        "element.hover": "#363c4680",
-        "text": "#c8ccd4ff",
-        "syntax": {
-          "comment": { "color": "#8b9eb999", "font_style": "italic" },
-          "string": { "color": "#a1c181ff" }
-        }
-      }
-    }
-  ]
-}
-```
-
-### 2.2 `schema.rs` — Content tipleri
-
-JSON sözleşmesi **opsiyonel string** renklerden oluşur. Sıkı tipli `Hsla` değil
-— çünkü kullanıcı her alanı yazmak zorunda değil ve renk parse hatası tüm
-temayı bozmamalı.
-
-```rust
-use indexmap::IndexMap;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum AppearanceContent {
-    Light,
-    Dark,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-pub struct ThemeFamilyContent {
-    pub name: String,
-    pub author: String,
-    pub themes: Vec<ThemeContent>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-pub struct ThemeContent {
-    pub name: String,
-    pub appearance: AppearanceContent,
-    pub style: ThemeStyleContent,
-}
-
-/// `ThemeStyleContent` JSON'da düz (flat) görünür; renk grupları flatten ile
-/// aynı seviyeye açılır.
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
-pub struct ThemeStyleContent {
-    #[serde(rename = "background.appearance", default)]
-    pub window_background_appearance: Option<WindowBackgroundContent>,
-
-    #[serde(default)]
-    pub accents: Vec<Option<String>>,
-
-    #[serde(flatten, default)]
-    pub colors: ThemeColorsContent,
-
-    #[serde(flatten, default)]
-    pub status: StatusColorsContent,
-
-    #[serde(default)]
-    pub players: Vec<PlayerColorContent>,
-
-    #[serde(default)]
-    pub syntax: IndexMap<String, HighlightStyleContent>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum WindowBackgroundContent {
-    Opaque,
-    Transparent,
-    Blurred,
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
-#[serde(default)]
-pub struct ThemeColorsContent {
-    #[serde(rename = "border")]
-    pub border: Option<String>,
-
-    #[serde(rename = "border.variant")]
-    pub border_variant: Option<String>,
-
-    #[serde(rename = "border.focused")]
-    pub border_focused: Option<String>,
-
-    // ... Zed'in ThemeColorsContent'inin tüm alanlarını
-    //     aynı serde(rename) anahtarlarıyla mirror et.
-    //     Kaynak: ../zed/crates/settings_content/src/theme.rs:512
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
-#[serde(default)]
-pub struct StatusColorsContent {
-    pub conflict: Option<String>,
-    pub conflict_background: Option<String>,
-    pub conflict_border: Option<String>,
-
-    pub created: Option<String>,
-    pub created_background: Option<String>,
-    pub created_border: Option<String>,
-
-    // ... tüm status grupları
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
-pub struct PlayerColorContent {
-    pub cursor: Option<String>,
-    pub background: Option<String>,
-    pub selection: Option<String>,
-}
-
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
-pub struct HighlightStyleContent {
-    pub color: Option<String>,
-    #[serde(default, deserialize_with = "treat_error_as_none")]
-    pub background_color: Option<String>,
-    #[serde(default, deserialize_with = "treat_error_as_none")]
-    pub font_style: Option<FontStyleContent>,
-    #[serde(default, deserialize_with = "treat_error_as_none")]
-    pub font_weight: Option<FontWeightContent>,
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "snake_case")]
-pub enum FontStyleContent {
-    Normal,
-    Italic,
-    Oblique,
-}
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
-#[serde(transparent)]
-pub struct FontWeightContent(pub f32);
-
-/// JSON deserializer'ları için: bilinmeyen değer hatasını None'a çevir.
-/// Örnek: kullanıcı `font_weight: "bold"` yazsa bile parse devam etsin.
-fn treat_error_as_none<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
-where
-    T: serde::Deserialize<'de>,
-    D: serde::Deserializer<'de>,
-{
-    let value: serde_json::Value = serde::Deserialize::deserialize(deserializer)?;
-    Ok(T::deserialize(value).ok())
-}
-```
-
-> **`deny_unknown_fields` KULLANMA**. Zed yeni alan ekler, sen henüz mirror
-> etmediysen tüm tema yüklenmesi patlar. Strict olmayan kalmak hayat
-> kurtarır.
-
-### 2.3 Renk parser — `schema.rs` devamı
-
-```rust
-use gpui::Hsla;
-use palette::FromColor;
-
-/// `"#1c2025ff"` → `Hsla`. Hata olursa Err döner; çağıran tarafta
-/// `Option<Hsla>` olarak yutuluyor.
-pub fn try_parse_color(s: &str) -> anyhow::Result<Hsla> {
-    let rgba = gpui::Rgba::try_from(s)?;
-    let srgba = palette::rgb::Srgba::from_components((rgba.r, rgba.g, rgba.b, rgba.a));
-    let hsla = palette::Hsla::from_color(srgba);
-
-    Ok(gpui::hsla(
-        hsla.hue.into_positive_degrees() / 360.0,
-        hsla.saturation,
-        hsla.lightness,
-        hsla.alpha,
-    ))
-}
-```
-
-### 2.4 `refinement.rs` — Content → Refinement → Theme
-
-Bu modülün işi: opsiyonel string renkleri olan `Content` tipini, opsiyonel
-`Hsla` alanları olan `Refinement` tipine çevirmek. Sonra runtime tarafı
-`baseline.refined(refinement)` ile birleştirir.
-
-```rust
-use crate::{
-    schema::{try_parse_color, StatusColorsContent, ThemeColorsContent},
-    StatusColorsRefinement, ThemeColorsRefinement,
-};
-
-/// Bir renk string'i Some(Hsla) ise parse et, parse hatası olursa None.
-fn color(s: &Option<String>) -> Option<gpui::Hsla> {
-    s.as_deref().and_then(|s| try_parse_color(s).ok())
-}
-
-pub fn theme_colors_refinement(c: &ThemeColorsContent) -> ThemeColorsRefinement {
-    ThemeColorsRefinement {
-        border: color(&c.border),
-        border_variant: color(&c.border_variant),
-        border_focused: color(&c.border_focused),
-        // ... her alan için aynı tek-satır kalıbı
-        ..Default::default()
-    }
-}
-
-pub fn status_colors_refinement(c: &StatusColorsContent) -> StatusColorsRefinement {
-    StatusColorsRefinement {
-        conflict: color(&c.conflict),
-        conflict_background: color(&c.conflict_background),
-        conflict_border: color(&c.conflict_border),
-        created: color(&c.created),
-        created_background: color(&c.created_background),
-        // ... tüm alanlar
-        ..Default::default()
-    }
-}
-```
-
-### 2.5 Türetme: foreground'dan background
-
-Zed kullanıcısı bir renk için sadece foreground verdiyse, background'u
-%25 alpha'lı versiyondan **türetmek** beklenir:
-
-```rust
-use crate::StatusColorsRefinement;
-
-/// Status renkleri için foreground varsa ve background yoksa,
-/// background'u foreground'un %25 alpha'lı kopyası olarak türet.
-pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement) {
-    let pairs: &mut [(&mut Option<_>, &mut Option<_>)] = &mut [
-        (&mut r.deleted, &mut r.deleted_background),
-        (&mut r.created, &mut r.created_background),
-        (&mut r.modified, &mut r.modified_background),
-        (&mut r.conflict, &mut r.conflict_background),
-        (&mut r.error, &mut r.error_background),
-        (&mut r.hidden, &mut r.hidden_background),
-    ];
-
-    for (fg, bg) in pairs {
-        if bg.is_none()
-            && let Some(fg) = fg.as_ref()
-        {
-            **bg = Some(fg.opacity(0.25));
-        }
-    }
-}
-```
-
-> Türetme kuralları olmadan kullanıcı temaları yarı-boş yüklenir (bg alanları
-> baseline'dan gelir, fg değişmiş ama bg eski temaya ait kalır). Bu Zed'in
-> beklenen davranışıyla **birebir tutmak gerek**.
-
-### 2.6 `Theme::from_content` — birleşik akış
-
-```rust
-use std::sync::Arc;
-use gpui::{HighlightStyle, SharedString, WindowBackgroundAppearance};
-use refineable::Refineable;
-use kvs_syntax_tema::SyntaxTheme;
-
-use crate::{
-    refinement::{
-        apply_status_color_defaults, status_colors_refinement, theme_colors_refinement,
-    },
-    schema::{
-        try_parse_color, AppearanceContent, FontStyleContent, FontWeightContent,
-        HighlightStyleContent, ThemeContent, WindowBackgroundContent,
-    },
-    Appearance, AccentColors, PlayerColor, PlayerColors, Theme, ThemeStyles,
-};
-
-impl Theme {
-    /// Bir Zed-uyumlu `ThemeContent`'i, baseline tema üzerine bindirerek
-    /// tam bir `Theme`'e dönüştürür.
-    pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
-        let appearance = match content.appearance {
-            AppearanceContent::Light => Appearance::Light,
-            AppearanceContent::Dark => Appearance::Dark,
-        };
-
-        let mut color_refinement = theme_colors_refinement(&content.style.colors);
-        let mut status_refinement = status_colors_refinement(&content.style.status);
-        apply_status_color_defaults(&mut status_refinement);
-
-        let mut colors = baseline.styles.colors.clone();
-        colors.refine(&color_refinement);
-
-        let mut status = baseline.styles.status.clone();
-        status.refine(&status_refinement);
-
-        let accents = if content.style.accents.is_empty() {
-            baseline.styles.accents.clone()
-        } else {
-            AccentColors(
-                content
-                    .style
-                    .accents
-                    .iter()
-                    .filter_map(|c| c.as_deref().and_then(|s| try_parse_color(s).ok()))
-                    .collect(),
-            )
-        };
-
-        let player = if content.style.players.is_empty() {
-            baseline.styles.player.clone()
-        } else {
-            PlayerColors(
-                content
-                    .style
-                    .players
-                    .iter()
-                    .map(|p| PlayerColor {
-                        cursor: p
-                            .cursor
-                            .as_deref()
-                            .and_then(|s| try_parse_color(s).ok())
-                            .unwrap_or(baseline.styles.player.local().cursor),
-                        background: p
-                            .background
-                            .as_deref()
-                            .and_then(|s| try_parse_color(s).ok())
-                            .unwrap_or(baseline.styles.player.local().background),
-                        selection: p
-                            .selection
-                            .as_deref()
-                            .and_then(|s| try_parse_color(s).ok())
-                            .unwrap_or(baseline.styles.player.local().selection),
-                    })
-                    .collect(),
-            )
-        };
-
-        let syntax_highlights = content
-            .style
-            .syntax
-            .iter()
-            .map(|(name, style)| (name.clone(), highlight_style(style)))
-            .collect();
-
-        let syntax = SyntaxTheme::new(syntax_highlights);
-
-        let window_background_appearance = match content.style.window_background_appearance {
-            Some(WindowBackgroundContent::Opaque) => WindowBackgroundAppearance::Opaque,
-            Some(WindowBackgroundContent::Transparent) => WindowBackgroundAppearance::Transparent,
-            Some(WindowBackgroundContent::Blurred) => WindowBackgroundAppearance::Blurred,
-            None => baseline.styles.window_background_appearance,
-        };
-
-        Self {
-            id: uuid::Uuid::new_v4().to_string(),
-            name: SharedString::from(content.name),
-            appearance,
-            styles: ThemeStyles {
-                window_background_appearance,
-                system: baseline.styles.system.clone(),
-                colors,
-                status,
-                player,
-                accents,
-                syntax,
-            },
-        }
-    }
-}
-
-fn highlight_style(s: &HighlightStyleContent) -> HighlightStyle {
-    HighlightStyle {
-        color: s.color.as_deref().and_then(|s| try_parse_color(s).ok()),
-        background_color: s
-            .background_color
-            .as_deref()
-            .and_then(|s| try_parse_color(s).ok()),
-        font_style: s.font_style.map(|fs| match fs {
-            FontStyleContent::Normal => gpui::FontStyle::Normal,
-            FontStyleContent::Italic => gpui::FontStyle::Italic,
-            FontStyleContent::Oblique => gpui::FontStyle::Oblique,
-        }),
-        font_weight: s.font_weight.map(|w| gpui::FontWeight(w.0)),
-        ..Default::default()
-    }
-}
-```
-
-### 2.7 Fixture testi — kritik kontrol noktası
-
-`tests/fixtures/`'a Zed'den gerçek bir tema kopyala (Zed'in
-`assets/themes/one/one.json`'u **MIT lisanslı** — `assets/themes/LICENSE_*`
-dosyalarını kontrol et).
-
-```rust
-// tests/parse_fixture.rs
-use kvs_tema::{schema::ThemeFamilyContent, Theme};
-
-fn baseline() -> Theme {
-    kvs_tema::fallback::kvs_default_dark()
-}
-
-#[test]
-fn parses_zed_one_dark() {
-    let json = include_str!("fixtures/one-dark.json");
-    let family: ThemeFamilyContent = serde_json_lenient::from_str(json)
-        .expect("Zed one.json deserialize edilemedi");
-
-    let baseline = baseline();
-    for theme_content in family.themes {
-        let theme = Theme::from_content(theme_content, &baseline);
-        assert!(!theme.name.is_empty());
-        // Baseline'dan gelen değerlerin bozulmadığını kontrol et:
-        assert_ne!(theme.styles.colors.background, gpui::black());
-    }
-}
-
-#[test]
-fn unknown_field_does_not_break() {
-    let json = r#"{
-        "name": "Test",
-        "author": "x",
-        "themes": [{
-            "name": "T",
-            "appearance": "dark",
-            "style": {
-                "background": "#000000ff",
-                "future.unknown.field": "#ffffffff"
-            }
-        }]
-    }"#;
-    let family: ThemeFamilyContent = serde_json_lenient::from_str(json).unwrap();
-    let _ = Theme::from_content(family.themes.into_iter().next().unwrap(), &baseline());
-}
-```
-
-**Faz 2 çıkış kriteri**:
-- Zed'in `one-dark.json`'u parse oluyor, panic yok.
-- Bilinmeyen alan tüm temayı bozmuyor.
-- Sadece fg verilen status renkleri için bg türetiliyor.
-
----
-
-## Faz 3 — Runtime ve global tema
-
-Burada **özgürsün** — Zed'in `theme_settings`'sini taşımak zorunda değilsin.
-
-### 3.1 `registry.rs`
-
-```rust
-use crate::Theme;
-use collections::HashMap;
-use gpui::{App, Global, SharedString};
-use parking_lot::RwLock;
-use std::sync::Arc;
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-#[error("tema bulunamadı: {0}")]
-pub struct ThemeNotFound(pub SharedString);
-
-pub struct ThemeRegistry {
-    themes: RwLock<HashMap<SharedString, Arc<Theme>>>,
-}
-
-#[derive(Default)]
-struct GlobalThemeRegistry(Arc<ThemeRegistry>);
-impl Global for GlobalThemeRegistry {}
-
-impl ThemeRegistry {
-    pub fn new() -> Self {
-        Self {
-            themes: RwLock::new(HashMap::default()),
-        }
-    }
-
-    pub fn global(cx: &App) -> Arc<Self> {
-        cx.global::<GlobalThemeRegistry>().0.clone()
-    }
-
-    pub fn set_global(cx: &mut App, registry: Arc<Self>) {
-        cx.set_global(GlobalThemeRegistry(registry));
-    }
-
-    pub fn insert(&self, theme: Theme) {
-        self.themes
-            .write()
-            .insert(theme.name.clone(), Arc::new(theme));
-    }
-
-    pub fn get(&self, name: &str) -> Result<Arc<Theme>, ThemeNotFound> {
-        self.themes
-            .read()
-            .get(name)
-            .cloned()
-            .ok_or_else(|| ThemeNotFound(name.to_string().into()))
-    }
-
-    pub fn list_names(&self) -> Vec<SharedString> {
-        let mut names: Vec<_> = self.themes.read().keys().cloned().collect();
-        names.sort();
-        names
-    }
-}
-```
-
-### 3.2 `runtime.rs` — Global ve ActiveTheme
-
-```rust
-use crate::{registry::ThemeRegistry, Appearance, Theme};
-use gpui::{App, BorrowAppContext, Global, WindowAppearance};
-use std::sync::Arc;
-
-pub struct GlobalTheme {
-    theme: Arc<Theme>,
-}
-impl Global for GlobalTheme {}
-
-impl GlobalTheme {
-    pub fn theme(cx: &App) -> &Arc<Theme> {
-        &cx.global::<Self>().theme
-    }
-
-    pub fn set_theme(cx: &mut App, theme: Arc<Theme>) {
-        if cx.has_global::<Self>() {
-            cx.update_global::<Self, _>(|this, _| this.theme = theme);
-        } else {
-            cx.set_global(Self { theme });
-        }
-    }
-}
-
-/// `cx.theme().colors().background` kullanımını mümkün kılan trait.
-pub trait ActiveTheme {
-    fn theme(&self) -> &Arc<Theme>;
-}
-
-impl ActiveTheme for App {
-    fn theme(&self) -> &Arc<Theme> {
-        GlobalTheme::theme(self)
-    }
-}
-
-#[derive(Clone, Copy)]
-pub struct SystemAppearance(pub Appearance);
-
-struct GlobalSystemAppearance(SystemAppearance);
-impl Global for GlobalSystemAppearance {}
-
-impl SystemAppearance {
-    pub fn init(cx: &mut App) {
-        let appearance = match cx.window_appearance() {
-            WindowAppearance::Dark | WindowAppearance::VibrantDark => Appearance::Dark,
-            WindowAppearance::Light | WindowAppearance::VibrantLight => Appearance::Light,
-        };
-        cx.set_global(GlobalSystemAppearance(SystemAppearance(appearance)));
-    }
-
-    pub fn global(cx: &App) -> Self {
-        cx.global::<GlobalSystemAppearance>().0
-    }
-}
-
-/// Tema sistemini başlat: registry kur, fallback temayı yükle, aktif yap.
-pub fn init(cx: &mut App) {
-    SystemAppearance::init(cx);
-
-    let registry = Arc::new(ThemeRegistry::new());
-    registry.insert(crate::fallback::kvs_default_dark());
-    registry.insert(crate::fallback::kvs_default_light());
-
-    let default = registry
-        .get("Kvs Default Dark")
-        .expect("default tema kayıtlı olmalı");
-
-    ThemeRegistry::set_global(cx, registry);
-    GlobalTheme::set_theme(cx, default);
-}
-```
-
-### 3.3 Settings köprüsü (örnek)
-
-```rust
-// kvs_ui'nin kendi config sisteminde:
-#[derive(serde::Deserialize)]
-pub struct AyarlarTema {
-    pub ad: String,
-}
-
-pub fn ayarlardan_tema_uygula(ayar: &AyarlarTema, cx: &mut gpui::App) -> anyhow::Result<()> {
-    let registry = kvs_tema::ThemeRegistry::global(cx);
-    let theme = registry.get(&ayar.ad)?;
-    kvs_tema::GlobalTheme::set_theme(cx, theme);
-    Ok(())
-}
-```
-
-**Faz 3 çıkış kriteri**: Bir GPUI uygulamasında `cx.theme().colors().background`
-çağrısı çalışıyor; `ayarlardan_tema_uygula` ile değiştirilebiliyor.
-
----
-
-## Faz 4 — Built-in temalar
-
-### 4.1 Kendi fallback'in — `fallback.rs`
-
-Zed'in `fallback_themes.rs`'sini **birebir kopyalama**. Aynı paleti aynı
-HSL değerleriyle yazmak telif riski. Kendi paletini seç. Aşağıda örnek bir
-"kvs default dark":
-
-```rust
-use std::sync::Arc;
-use gpui::{hsla, Hsla, WindowBackgroundAppearance};
-use kvs_syntax_tema::SyntaxTheme;
-
-use crate::{
-    AccentColors, Appearance, PlayerColor, PlayerColors, StatusColors,
-    SystemColors, Theme, ThemeColors, ThemeStyles,
-};
-
-pub fn kvs_default_dark() -> Theme {
-    let bg = hsla(220.0 / 360.0, 0.10, 0.12, 1.0);
-    let surface = hsla(220.0 / 360.0, 0.10, 0.15, 1.0);
-    let elevated = hsla(220.0 / 360.0, 0.10, 0.18, 1.0);
-    let text = hsla(220.0 / 360.0, 0.05, 0.92, 1.0);
-    let text_muted = hsla(220.0 / 360.0, 0.05, 0.65, 1.0);
-    let border = hsla(220.0 / 360.0, 0.10, 0.25, 1.0);
-    let accent = hsla(210.0 / 360.0, 0.75, 0.60, 1.0);
-
-    Theme {
-        id: "kvs-default-dark".into(),
-        name: "Kvs Default Dark".into(),
-        appearance: Appearance::Dark,
-        styles: ThemeStyles {
-            window_background_appearance: WindowBackgroundAppearance::Opaque,
-            system: SystemColors::default(),
-            colors: ThemeColors {
-                background: bg,
-                surface_background: surface,
-                elevated_surface_background: elevated,
-                border,
-                border_variant: border.opacity(0.5),
-                border_focused: accent,
-                border_selected: accent.opacity(0.5),
-                border_transparent: hsla(0., 0., 0., 0.),
-                border_disabled: border.opacity(0.3),
-                element_background: surface,
-                element_hover: elevated,
-                element_active: elevated.opacity(0.8),
-                element_selected: accent.opacity(0.3),
-                element_selection_background: accent.opacity(0.25),
-                element_disabled: surface.opacity(0.5),
-                ghost_element_background: hsla(0., 0., 0., 0.),
-                ghost_element_hover: elevated,
-                ghost_element_active: elevated.opacity(0.8),
-                ghost_element_selected: accent.opacity(0.3),
-                ghost_element_disabled: hsla(0., 0., 0., 0.),
-                drop_target_background: accent.opacity(0.2),
-                drop_target_border: accent,
-                text,
-                text_muted,
-                text_placeholder: text_muted.opacity(0.7),
-                text_disabled: text_muted.opacity(0.5),
-                text_accent: accent,
-                icon: text,
-                icon_muted: text_muted,
-                icon_disabled: text_muted.opacity(0.5),
-                // ... kalan tüm alanlar için makul default'lar
-            },
-            status: status_colors_dark(),
-            player: PlayerColors(vec![PlayerColor {
-                cursor: accent,
-                background: accent.opacity(0.2),
-                selection: accent.opacity(0.3),
-            }]),
-            accents: AccentColors(vec![accent]),
-            syntax: SyntaxTheme::new(vec![]),
-        },
-    }
-}
-
-fn status_colors_dark() -> StatusColors {
-    let red = hsla(0.0 / 360.0, 0.7, 0.6, 1.0);
-    let green = hsla(140.0 / 360.0, 0.45, 0.55, 1.0);
-    let yellow = hsla(45.0 / 360.0, 0.85, 0.6, 1.0);
-    let blue = hsla(210.0 / 360.0, 0.7, 0.6, 1.0);
-
-    StatusColors {
-        error: red,
-        error_background: red.opacity(0.2),
-        error_border: red.opacity(0.5),
-        warning: yellow,
-        warning_background: yellow.opacity(0.2),
-        warning_border: yellow.opacity(0.5),
-        info: blue,
-        info_background: blue.opacity(0.2),
-        info_border: blue.opacity(0.5),
-        success: green,
-        success_background: green.opacity(0.2),
-        success_border: green.opacity(0.5),
-        // ... kalan status alanları için aynı kalıp
-        ..unsafe { std::mem::zeroed() } // GERÇEK KODDA: tüm alanları doldur
-    }
-}
-
-pub fn kvs_default_light() -> Theme {
-    // Aynı yapıyı light paletiyle yaz.
-    todo!()
-}
-```
-
-> Yukarıdaki `unsafe { std::mem::zeroed() }` **sadece şablon**. Gerçek kodda
-> `StatusColors`'ın tüm alanlarını açık değerle doldur — `zeroed()`
-> `Hsla(0,0,0,0)` üretir ki bu UI'da görünmez.
-
-### 4.2 Opsiyonel: Zed JSON bundling
-
-Zed'in built-in temalarını **kullanıcına sunmak** istiyorsan:
-
-1. `../zed/assets/themes/LICENSE_GPL` veya `LICENSE_APACHE` dosyalarını oku —
-   her tema kendi alt klasöründe ayrı lisansa sahip olabilir. **MIT lisanslı
-   olanları seç**.
-2. Seçtiğin JSON'ları `kvs_ui/assets/themes/` altına kopyala.
-3. Lisans dosyalarını da kopyala ve kaynağı belirt.
-4. Yükleme:
-
-```rust
-pub fn load_bundled_themes(registry: &kvs_tema::ThemeRegistry) -> anyhow::Result<()> {
-    let baseline = kvs_tema::fallback::kvs_default_dark();
-    let entries = std::fs::read_dir("assets/themes")?;
-    for entry in entries.flatten() {
-        let path = entry.path();
-        if path.extension().is_some_and(|e| e == "json") {
-            let bytes = std::fs::read(&path)?;
-            let family: kvs_tema::ThemeFamilyContent =
-                serde_json_lenient::from_slice(&bytes)?;
-            for theme_content in family.themes {
-                registry.insert(kvs_tema::Theme::from_content(theme_content, &baseline));
-            }
-        }
-    }
-    Ok(())
-}
-```
-
----
-
-## Faz 5 — UI tüketim örnekleri
-
-### 5.1 `ActiveTheme` ile element renklendirme
-
-```rust
-use gpui::{div, prelude::*, App, Window, Context};
-use kvs_tema::ActiveTheme;
-
-struct AnaPanel;
-
-impl Render for AnaPanel {
-    fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let tema = cx.theme();
-        div()
-            .bg(tema.colors.background)
-            .text_color(tema.colors.text)
-            .border_1()
-            .border_color(tema.colors.border)
-            .p_4()
-            .child("Merhaba")
-    }
-}
-```
-
-### 5.2 Hover/aktif durum
-
-```rust
-div()
-    .bg(cx.theme().colors.element_background)
-    .hover(|s| s.bg(cx.theme().colors.element_hover))
-    .active(|s| s.bg(cx.theme().colors.element_active))
-```
-
-### 5.3 Tema değiştirme
-
-```rust
-fn temayi_degistir(ad: &str, cx: &mut gpui::App) -> anyhow::Result<()> {
-    let registry = kvs_tema::ThemeRegistry::global(cx);
-    let yeni = registry.get(ad)?;
-    kvs_tema::GlobalTheme::set_theme(cx, yeni);
-    // Görünüm güncellemesi için view'ları notify et:
-    cx.refresh_windows();
-    Ok(())
-}
-```
-
-### 5.4 Sistem açık/koyu mod takibi
-
-```rust
-pub fn sistemden_tema_sec(cx: &mut gpui::App) -> anyhow::Result<()> {
-    let registry = kvs_tema::ThemeRegistry::global(cx);
-    let ad = match kvs_tema::SystemAppearance::global(cx).0 {
-        kvs_tema::Appearance::Dark => "Kvs Default Dark",
-        kvs_tema::Appearance::Light => "Kvs Default Light",
-    };
-    kvs_tema::GlobalTheme::set_theme(cx, registry.get(ad)?);
-    Ok(())
-}
-```
-
----
-
-## Sınama listesi
-
-Faz bittiğinde **her seferinde** bu listeyi gez:
-
-- [ ] `cargo build -p kvs_tema -p kvs_syntax_tema` yeşil.
-- [ ] `cargo clippy --all-targets -- -D warnings` yeşil.
-- [ ] `tests/fixtures/one-dark.json` parse oluyor, panic yok.
-- [ ] Bilinmeyen JSON alanı tüm temayı bozmuyor.
-- [ ] Sadece fg verilen status renkleri için bg türetiliyor.
-- [ ] `cx.theme().colors.background` örnek bir GPUI uygulamasında çalışıyor.
-- [ ] `set_theme` ile değiştirme sonrası `cx.refresh_windows()` ile UI güncelleniyor.
-- [ ] `tema_aktarimi.md`'deki pin hâlâ izlenen yollardaki HEAD'e yakın.
-
----
-
-## Yaygın tuzaklar
-
-1. **`#[serde(deny_unknown_fields)]` kullanmak**
-   Zed yeni alan ekler, sen henüz mirror etmediysen tüm yüklemeler patlar.
-   Asla kullanma.
-
-2. **JSON'da nokta ayrımı yerine snake_case beklemek**
-   Zed JSON'unda `border.variant` yazıyor; `#[serde(rename = "border.variant")]`
-   şart. `border_variant` koyarsan alan sessizce boş kalır.
-
-3. **`color.opacity(x)` yerine `color.alpha = x` yazmak**
-   GPUI'de `Hsla.a` alanı public; ama `opacity(x)` çağırmak okunabilirlik
-   için tercih edilir. İkisi de aynı sonucu verir.
-
-4. **Türetme adımını atlayıp `refine`'a doğrudan gitmek**
-   Status'ta kullanıcı sadece `created` verirse `created_background`
-   baseline'dan gelir — kullanıcı temasıyla uyumsuz koyu/açık karışım çıkar.
-   `apply_status_color_defaults` şart.
-
-5. **Bir alan grubunu "şimdilik gerek yok" diye struct'tan çıkarmak**
-   `terminal_ansi`, debugger, diff hunk, vcs, vim, icon theme — UI'da
-   okumasan bile struct'ta bulunmalı (bkz. **Temel ilke**). Aksi takdirde
-   Zed JSON'unda o alan geldiğinde sessizce kaybolur ve bir sonraki sync
-   turunda fixture testleri anlamsız hatalarla patlar.
-
-6. **`refineable` dep'ini fork'lamadan production'a gitmek**
-   `publish = false` olduğu için crates.io dağıtımı yapamazsın. Erken
-   karara bağla: ya vendor'la (kopyala) ya da fork'undan path/git dep.
-
-7. **`Theme`'i `Clone` her yerde**
-   `Theme` ~150 `Hsla` alanı içerir — `Arc<Theme>` kullan ve handle olarak
-   geçir. `GlobalTheme` zaten `Arc<Theme>` tutuyor.
-
-8. **`palette` versiyonunu Zed'le aynı tutmamak**
-   `try_parse_color` Zed davranışına uymalı. `palette` major sürüm farkı,
-   renkleri ufak miktarda kaydırabilir. Pin'i takip et.
-
-9. **`cx.notify()` yerine `cx.refresh_windows()` çağırmamak**
-   Tema değişikliği global state'i etkiler; her view'ı tek tek notify etmek
-   pratik değil. `refresh_windows` tüm pencerelerin yeniden çizilmesini
-   sağlar.
-
-10. **Lisans hatırlatması: fallback paleti**
-    Zed'in `default_colors.rs`'sindeki HSL değerlerini birebir taşıma.
-    Kendi paletini tasarla; Tailwind, Catppuccin gibi açık-lisanslı
-    paletlerden esinlenebilirsin.

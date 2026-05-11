@@ -14,6 +14,12 @@ Ana kapsam:
 - `crates/icons`: `IconName` kaynakları.
 - `crates/theme`: tema token'larının arkasındaki etkin tema verisi.
 
+Yardımcı kapsam:
+
+- `crates/ui_input`: editor tabanlı tek satır form input'u (`InputField`).
+- `crates/notifications` ve `crates/collab_ui`: doğrudan Zed UI component'i
+  olmayan, ama örneklerde lifecycle ve gerçek kullanım bağlamı veren katmanlar.
+
 ## 1. Kaynak ve API Envanteri
 
 Bu bölüm, rehberde anlatılan bileşenlerin kaynak dosyalarını, export yollarını,
@@ -82,19 +88,25 @@ belirtilecek.
 | `FixedWidth` | `crates/ui/src/traits/fixed.rs` | Sabit genişlik davranışı. |
 | `VisibleOnHover` | `crates/ui/src/traits/visible_on_hover.rs` | Hover grubuna bağlı görünürlük davranışı. |
 | `StyledExt` | `crates/ui/src/traits/styled_ext.rs` | Tema ve durum odaklı style yardımcıları. |
+| `CommonAnimationExt` | `crates/ui/src/traits/animation_ext.rs` | Döndürme animasyonu gibi ortak animation extension yüzeyi. |
+| `Transformable` | `crates/ui/src/traits/transformable.rs` | GPUI `Transformation` değerini bileşene uygulama yüzeyi. |
 | `LabelCommon` | `crates/ui/src/components/label/label_like.rs` | Label ailesinin ortak size/color/weight/truncation yüzeyi. |
 | `ButtonCommon` | `crates/ui/src/components/button/button_like.rs` | Button ailesinin ortak icon, style, key binding ve loading yüzeyi. |
 | `SelectableButton` | `crates/ui/src/components/button/button_like.rs` | `Button`, `IconButton`, `ButtonLike` için seçilebilirlik sözleşmesi. |
+| `WithScrollbar` / `ScrollableHandle` | `crates/ui/src/components/scrollbar.rs` | Elementlere özel scrollbar bağlama ve scroll handle soyutlaması. |
+| `IntoTableRow` | `crates/ui/src/components/data_table/table_row.rs` | `Vec<T>` değerlerini kolon sayısı doğrulanmış `TableRow<T>` tipine dönüştürme trait'i. |
 
 ### Kaynak indeksi
 
 | Kategori | Bileşen / API | Tanım kaynağı | Export | Prelude | Preview |
 | :-- | :-- | :-- | :-- | :-- | :-- |
 | Metin | `Label` | `crates/ui/src/components/label/label.rs` | `ui::Label` | Evet | Evet |
+| Metin | `LabelLike` | `crates/ui/src/components/label/label_like.rs` | `ui::LabelLike` | Hayır | Evet |
 | Metin | `Headline` | `crates/ui/src/styles/typography.rs` | `ui::Headline` | Evet | Evet |
 | Metin | `HighlightedLabel` | `crates/ui/src/components/label/highlighted_label.rs` | `ui::HighlightedLabel` | Hayır | Evet |
 | Metin | `LoadingLabel` | `crates/ui/src/components/label/loading_label.rs` | `ui::LoadingLabel` | Evet | Hayır |
 | Metin | `SpinnerLabel` | `crates/ui/src/components/label/spinner_label.rs` | `ui::SpinnerLabel` | Hayır | Evet |
+| Tasarım | `Color` | `crates/ui/src/styles/color.rs` | `ui::Color` | Evet | Evet |
 | Buton | `Button` | `crates/ui/src/components/button/button.rs` | `ui::Button` | Evet | Evet |
 | Buton | `IconButton` | `crates/ui/src/components/button/icon_button.rs` | `ui::IconButton` | Evet | Evet |
 | Buton | `ButtonLike` | `crates/ui/src/components/button/button_like.rs` | `ui::ButtonLike` | Hayır | Evet |
@@ -103,6 +115,9 @@ belirtilecek.
 | Buton | `CopyButton` | `crates/ui/src/components/button/copy_button.rs` | `ui::CopyButton` | Hayır | Evet |
 | Buton | `SplitButton` | `crates/ui/src/components/button/split_button.rs` | `ui::SplitButton` | Hayır | Hayır |
 | Buton | `ToggleButtonGroup` | `crates/ui/src/components/button/toggle_button.rs` | `ui::ToggleButtonGroup` | Hayır | Evet |
+| Buton | `ToggleButtonSimple` / `ToggleButtonWithIcon` | `crates/ui/src/components/button/toggle_button.rs` | `ui::ToggleButtonSimple`, `ui::ToggleButtonWithIcon` | Hayır | Yardımcı |
+| Buton | `ButtonBuilder` / `ButtonConfiguration` | `crates/ui/src/components/button/toggle_button.rs` | `ui::ButtonBuilder`, `ui::ButtonConfiguration` | Hayır | Sealed helper |
+| Buton | `KeybindingPosition` | `crates/ui/src/components/button/button_like.rs` | `ui::KeybindingPosition` | Hayır | Enum |
 | İkon | `Icon` | `crates/ui/src/components/icon.rs` | `ui::Icon` | Evet | Evet |
 | İkon | `DecoratedIcon` | `crates/ui/src/components/icon/decorated_icon.rs` | `ui::DecoratedIcon` | Hayır | Evet |
 | İkon | `IconDecoration` | `crates/ui/src/components/icon/icon_decoration.rs` | `ui::IconDecoration` | Hayır | Hayır |
@@ -113,12 +128,14 @@ belirtilecek.
 | Form / Toggle | `Checkbox` | `crates/ui/src/components/toggle.rs` | `ui::Checkbox` | Hayır | Evet |
 | Form / Toggle | `Switch` | `crates/ui/src/components/toggle.rs` | `ui::Switch` | Hayır | Evet |
 | Form / Toggle | `SwitchField` | `crates/ui/src/components/toggle.rs` | `ui::SwitchField` | Hayır | Evet |
+| Form / Input | `InputField` | `crates/ui_input/src/input_field.rs` | `ui_input::InputField` | Hayır | Evet |
 | Form / Toggle | `DropdownMenu` | `crates/ui/src/components/dropdown_menu.rs` | `ui::DropdownMenu` | Hayır | Evet |
 | Menü / Popup | `ContextMenu` | `crates/ui/src/components/context_menu.rs` | `ui::ContextMenu` | Hayır | Hayır |
 | Menü / Popup | `RightClickMenu` | `crates/ui/src/components/right_click_menu.rs` | `ui::RightClickMenu` | Hayır | Hayır |
 | Menü / Popup | `Popover` | `crates/ui/src/components/popover.rs` | `ui::Popover` | Hayır | Hayır |
 | Menü / Popup | `PopoverMenu` | `crates/ui/src/components/popover_menu.rs` | `ui::PopoverMenu` | Hayır | Hayır |
 | Menü / Popup | `Tooltip` | `crates/ui/src/components/tooltip.rs` | `ui::Tooltip` | Hayır | Evet |
+| Menü / Popup | `LinkPreview` / `tooltip_container` | `crates/ui/src/components/tooltip.rs` | `ui::LinkPreview`, `ui::tooltip_container` | Hayır | Yardımcı |
 | Liste / Tree | `List` | `crates/ui/src/components/list/list.rs` | `ui::List` | Hayır | Evet |
 | Liste / Tree | `ListItem` | `crates/ui/src/components/list/list_item.rs` | `ui::ListItem` | Hayır | Evet |
 | Liste / Tree | `ListHeader` | `crates/ui/src/components/list/list_header.rs` | `ui::ListHeader` | Hayır | Evet |
@@ -133,13 +150,17 @@ belirtilecek.
 | Layout | `h_flex` / `v_flex` | `crates/ui/src/components/stack.rs` | `ui::h_flex`, `ui::v_flex` | Evet | Fonksiyon |
 | Layout | `h_group*` / `v_group*` | `crates/ui/src/components/group.rs` | `ui::h_group*`, `ui::v_group*` | Evet | Fonksiyon |
 | Layout | `Divider` | `crates/ui/src/components/divider.rs` | `ui::Divider` | Hayır | Evet |
+| Layout | `Scrollbars` | `crates/ui/src/components/scrollbar.rs` | `ui::Scrollbars`, `ui::ScrollAxes`, `ui::ScrollbarStyle`, `ui::ShowScrollbar` | Hayır | Yardımcı |
+| Layout | `WithScrollbar` / `on_new_scrollbars` | `crates/ui/src/components/scrollbar.rs` | `ui::WithScrollbar`, `ui::on_new_scrollbars` | Hayır | Trait / setup |
 | Veri | `Table` | `crates/ui/src/components/data_table.rs` | `ui::Table` | Hayır | Evet |
 | Veri | `TableInteractionState` | `crates/ui/src/components/data_table.rs` | `ui::TableInteractionState` | Hayır | State |
 | Veri | `ColumnWidthConfig` | `crates/ui/src/components/data_table.rs` | `ui::ColumnWidthConfig` | Hayır | Enum |
+| Veri | `StaticColumnWidths` | `crates/ui/src/components/data_table.rs` | `ui::StaticColumnWidths` | Hayır | Enum |
 | Veri | `ResizableColumnsState` | `crates/ui/src/components/data_table.rs` | `ui::ResizableColumnsState` | Hayır | State |
 | Veri | `RedistributableColumnsState` | `crates/ui/src/components/redistributable_columns.rs` | `ui::RedistributableColumnsState` | Hayır | State |
 | Veri | `TableResizeBehavior` | `crates/ui/src/components/redistributable_columns.rs` | `ui::TableResizeBehavior` | Hayır | Enum |
 | Veri | `TableRow` | `crates/ui/src/components/data_table/table_row.rs` | `ui::table_row::TableRow` | Hayır | Yardımcı tip |
+| Veri | `IntoTableRow` | `crates/ui/src/components/data_table/table_row.rs` | `ui::table_row::IntoTableRow` | Hayır | Trait |
 | Veri | `render_table_row` / `render_table_header` | `crates/ui/src/components/data_table.rs` | `ui::render_table_row`, `ui::render_table_header` | Hayır | Fonksiyon |
 | Veri | `bind_redistributable_columns` | `crates/ui/src/components/redistributable_columns.rs` | `ui::bind_redistributable_columns` | Hayır | Fonksiyon |
 | Veri | `render_redistributable_columns_resize_handles` | `crates/ui/src/components/redistributable_columns.rs` | `ui::render_redistributable_columns_resize_handles` | Hayır | Fonksiyon |
@@ -168,13 +189,21 @@ belirtilecek.
 | Diğer | `Navigable` | `crates/ui/src/components/navigable.rs` | `ui::Navigable` | Hayır | Hayır |
 | AI / Collab | `AiSettingItem` | `crates/ui/src/components/ai/ai_setting_item.rs` | `ui::AiSettingItem` | Hayır | Evet |
 | AI / Collab | `AiSettingItemStatus` / `AiSettingItemSource` | `crates/ui/src/components/ai/ai_setting_item.rs` | `ui::AiSettingItemStatus`, `ui::AiSettingItemSource` | Hayır | Enum |
-| AI / Collab | `AgentSetupButton` | `crates/ui/src/components/ai/agent_setup_button.rs` | `ui::AgentSetupButton` | Hayır | Evet |
+| AI / Collab | `AgentSetupButton` | `crates/ui/src/components/ai/agent_setup_button.rs` | `ui::AgentSetupButton` | Hayır | Impl var / `None` |
 | AI / Collab | `ThreadItem` | `crates/ui/src/components/ai/thread_item.rs` | `ui::ThreadItem` | Hayır | Evet |
 | AI / Collab | `AgentThreadStatus` / `ThreadItemWorktreeInfo` | `crates/ui/src/components/ai/thread_item.rs` | `ui::AgentThreadStatus`, `ui::ThreadItemWorktreeInfo`, `ui::WorktreeKind` | Hayır | Yardımcı |
 | AI / Collab | `ConfiguredApiCard` | `crates/ui/src/components/ai/configured_api_card.rs` | `ui::ConfiguredApiCard` | Hayır | Evet |
 | AI / Collab | `ParallelAgentsIllustration` | `crates/ui/src/components/ai/parallel_agents_illustration.rs` | `ui::ParallelAgentsIllustration` | Hayır | Hayır |
 | AI / Collab | `CollabNotification` | `crates/ui/src/components/collab/collab_notification.rs` | `ui::CollabNotification` | Hayır | Evet |
 | AI / Collab | `UpdateButton` | `crates/ui/src/components/collab/update_button.rs` | `ui::UpdateButton` | Hayır | Evet |
+| Utils | `WithRemSize` | `crates/ui/src/utils/with_rem_size.rs` | `ui::utils::WithRemSize` | Hayır | Hayır |
+| Utils | `SearchInputWidth` | `crates/ui/src/utils/search_input.rs` | `ui::utils::SearchInputWidth` | Hayır | Hayır |
+| Utils | `CornerSolver` / `inner_corner_radius` | `crates/ui/src/utils/corner_solver.rs` | `ui::utils::CornerSolver`, `ui::utils::inner_corner_radius` | Hayır | Fonksiyon |
+| Utils | `FormatDistance` / `DateTimeType` | `crates/ui/src/utils/format_distance.rs` | `ui::utils::FormatDistance`, `ui::utils::DateTimeType`, `ui::utils::format_distance`, `ui::utils::format_distance_from_now` | Hayır | Yardımcı |
+| Utils | `apca_contrast` / `calculate_contrast_ratio` / `ensure_minimum_contrast` | `crates/ui/src/utils/apca_contrast.rs`, `crates/ui/src/utils/color_contrast.rs` | `ui::utils::apca_contrast`, `ui::utils::calculate_contrast_ratio`, `ui::utils::ensure_minimum_contrast` | Hayır | Fonksiyon |
+| Utils | `is_light` / `capitalize` / `reveal_in_file_manager_label` | `crates/ui/src/utils.rs` | `ui::utils::is_light`, `ui::utils::capitalize`, `ui::utils::reveal_in_file_manager_label` | Hayır | Fonksiyon |
+| Utils | `platform_title_bar_height` / `TRAFFIC_LIGHT_PADDING` | `crates/ui/src/utils/constants.rs` | `ui::utils::platform_title_bar_height`, `ui::utils::TRAFFIC_LIGHT_PADDING` | Hayır | Sabit |
+| Utils | `BASE_REM_SIZE_IN_PX` / `EDITOR_SCROLLBAR_WIDTH` | `crates/ui/src/styles/units.rs`, `crates/ui/src/components/scrollbar.rs` | `ui::BASE_REM_SIZE_IN_PX`, `ui::EDITOR_SCROLLBAR_WIDTH` | Hayır | Sabit |
 
 ### Constructor envanteri
 
@@ -184,6 +213,8 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | Bileşen / API | Constructor veya giriş noktası |
 | :-- | :-- |
 | `Label` | `Label::new(label)` |
+| `LabelLike` | `LabelLike::new()` |
+| `Color` | `Color::Default`, `Color::Muted`, `Color::Accent`, `Color::Custom(hsla)` ve `.color(cx)` |
 | `Headline` | `Headline::new(text)` |
 | `HighlightedLabel` | `HighlightedLabel::new(label, highlight_indices)` |
 | `LoadingLabel` | `LoadingLabel::new(text)` |
@@ -204,12 +235,15 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | `Checkbox` | `Checkbox::new(id, checked)` veya `checkbox(id, state)` |
 | `Switch` | `Switch::new(id, state)` veya `switch(id, state)` |
 | `SwitchField` | `SwitchField::new(id, label: Option<impl Into<SharedString>>, description: Option<SharedString>, state: impl Into<ToggleState>, on_click)` |
+| `InputField` | `ui_input::InputField::new(window, cx, placeholder_text)` |
 | `DropdownMenu` | `DropdownMenu::new(id, label, menu)` veya `DropdownMenu::new_with_element(id, label, menu)` |
 | `ContextMenu` | `ContextMenu::new(window, cx, builder)` veya `ContextMenu::build(window, cx, builder)` |
 | `RightClickMenu` | `right_click_menu(id)` |
 | `Popover` | `Popover::new()` |
 | `PopoverMenu` | `PopoverMenu::new(id)` |
 | `Tooltip` | `Tooltip::new(title)` |
+| `LinkPreview` | `LinkPreview::new(url, cx) -> AnyView` |
+| `DocumentationAside` | `DocumentationAside::new(side: DocumentationSide, render: Rc<dyn Fn(&mut App) -> AnyElement>)`; `DocumentationSide::Left` veya `Right` |
 | `List` | `List::new()` |
 | `ListItem` | `ListItem::new(id)` |
 | `ListHeader` | `ListHeader::new(label)` |
@@ -224,6 +258,7 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | `h_flex` / `v_flex` | `h_flex()`, `v_flex()` |
 | `h_group*` / `v_group*` | `h_group_sm()`, `h_group()`, `h_group_lg()`, `h_group_xl()` ve dikey karşılıkları |
 | `Divider` | `divider()`, `vertical_divider()` |
+| `Scrollbars` | `Scrollbars::new(show_along)`, `Scrollbars::always_visible(show_along)`, `Scrollbars::for_settings::<S>()` |
 | `Table` | `Table::new(cols)` |
 | `TableInteractionState` | `TableInteractionState::new(cx)` |
 | `ColumnWidthConfig` | `ColumnWidthConfig::auto()`, `ColumnWidthConfig::auto_with_table_width(width)`, `ColumnWidthConfig::explicit(widths)`, `ColumnWidthConfig::redistributable(columns_state)` |
@@ -251,6 +286,7 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | `GradientFade` | `GradientFade::new(base_bg, hover_bg, active_bg)` |
 | `Vector` | `Vector::new(vector, width, height)` |
 | `KeyBinding` | `KeyBinding::new(action, focus_handle, cx)` |
+| `Key` / `KeyIcon` | `Key::new(key, color)`, `KeyIcon::new(icon, color)` |
 | `KeybindingHint` | `KeybindingHint::new(keybinding, background_color)` |
 | `NavigableEntry` / `Navigable` | `NavigableEntry::new(scroll_handle, cx)`, `Navigable::new(child)` |
 | `AiSettingItem` | `AiSettingItem::new(id, label, status, source)` |
@@ -260,6 +296,9 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | `ParallelAgentsIllustration` | `ParallelAgentsIllustration::new()` |
 | `CollabNotification` | `CollabNotification::new(avatar_uri, accept_button, dismiss_button)` |
 | `UpdateButton` | `UpdateButton::new(icon, message)` |
+| `WithRemSize` | `WithRemSize::new(rem_size: impl Into<Pixels>)` |
+| `CornerSolver` | `CornerSolver::new(root_radius, root_border, root_padding)` ve `.add_child(border, padding).corner_radius(level)` |
+| `FormatDistance` | `FormatDistance::new(date, base_date)`, `FormatDistance::from_now(date)` |
 
 ### Repo gerçekliği notları
 
@@ -271,6 +310,11 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 - `Notification` adı `crates/ui/src/components/notification.rs` içinde public
   component olarak yok; dosya `AlertModal` ve `AnnouncementToast` modüllerini
   re-export eden bir modül dosyasıdır.
+- Kaynakta public görünen `MenuHandleElementState`, `RequestLayoutState`,
+  `PrepaintState`, `PopoverMenuElementState`, `PopoverMenuFrameState` ve
+  `ScrollbarPrepaintState` tipleri kullanıcıya dönük component API'si değil,
+  element prepaint/layout state taşıyıcılarıdır. Rehberde kullanım yüzeyi olarak
+  öne çıkarılmaz.
 - `ToggleButton` adı tekil bir public component değil. Kaynakta
   `ToggleButtonGroup<T, COLS, ROWS>`, `ToggleButtonSimple`,
   `ToggleButtonWithIcon`, `ButtonBuilder`, `ToggleButtonGroupStyle` ve
@@ -285,15 +329,22 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
   `Popover`, `PopoverMenu`, `RightClickMenu`, `Modal`, `GradientFade`,
   `StickyItems`, `IndentGuides`, `Navigable`, `SplitButton`, `IconDecoration`,
   `LoadingLabel` ve `ListSeparator` için doğrudan component preview bulunmadı.
+  `AgentSetupButton` için `impl Component` vardır, ancak `preview()` `None`
+  döndürür. `Color`, `LabelLike` ve `ui_input::InputField` da component
+  preview sistemine kayıtlıdır.
+- `crates/ui/src/styles/animation.rs` içindeki `Animation` tipi yalnızca
+  animation preview göstermek için kullanılan private bir component'tir; public
+  kullanım yüzeyi `AnimationDuration`, `AnimationDirection` ve
+  `DefaultAnimations` trait'idir.
 
 ### Doğrulama komutları
 
 Bu envanter şu komutlarla doğrulandı:
 
 ```sh
-find crates/ui/src/components crates/ui/src/styles crates/ui/src/traits crates/component/src crates/icons/src -name '*.rs' -print
-find crates/ui/src/components crates/ui/src/styles crates/component/src -name '*.rs' -print0 | xargs -0 awk '/impl Component for |impl<T: ButtonBuilder.*Component/ { print FILENAME ":" FNR ":" $0 }'
-find crates/ui/src/components crates/ui/src/styles/typography.rs -name '*.rs' -print0 | xargs -0 awk '/pub fn (new|build|dot|checkbox|switch|divider|vertical_divider|h_flex|v_flex|h_group|right_click_menu|sticky_items|indent_guides)\\b/ { print FILENAME ":" FNR ":" $0 }'
+find crates/ui/src/components crates/ui/src/styles crates/ui/src/traits crates/ui_input/src crates/component/src crates/icons/src -name '*.rs' -print
+find crates/ui/src/components crates/ui/src/styles crates/ui_input/src crates/component/src -name '*.rs' -print0 | xargs -0 awk '/impl Component for |impl<T: ButtonBuilder.*Component/ { print FILENAME ":" FNR ":" $0 }'
+find crates/ui/src/components crates/ui/src/styles/typography.rs crates/ui_input/src -name '*.rs' -print0 | xargs -0 awk '/pub fn (new|build|dot|checkbox|switch|divider|vertical_divider|h_flex|v_flex|h_group|right_click_menu|sticky_items|indent_guides)\\b/ { print FILENAME ":" FNR ":" $0 }'
 ```
 
 ## 2. Ortak Kullanım Temelleri
@@ -425,10 +476,13 @@ fn build_sort_menu(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
 ### Tasarım token'ları
 
 `Color`, tema bağımsız semantik metin ve ikon rengi seçmek için kullanılır.
-`Color::Default`, `Muted`, `Accent`, `Success`, `Warning`, `Error`, `Info` ve
+`Color::Default`, `Muted`, `Hidden`, `Disabled`, `Placeholder`, `Accent`,
+`Info`, `Success`, `Warning`, `Error`, `Hint`, `Created`, `Modified`,
+`Deleted`, `Conflict`, `Ignored`, `Debugger`, `Player(u32)`, `Selected` ve
 version-control renkleri etkin temadan gerçek HSLA değerine çevrilir. Özel HSLA
 gerektiğinde `Color::Custom` vardır, ancak tutarlılık için semantik renkler
-önceliklidir.
+önceliklidir. `Color` ayrıca `Component` preview'ı olan bir tasarım token'ıdır;
+gallery'de tema renklerini karşılaştırmak için kullanılabilir.
 
 `Severity`, mesaj ve feedback bileşenlerinde durum seviyesini ifade eder:
 `Info`, `Success`, `Warning`, `Error`. `Banner` ve `Callout` gibi bileşenler bu
@@ -453,6 +507,12 @@ Toggle state'i `ToggleState` ile ifade edilir. `bool` doğrudan `ToggleState`'e
 dönüşebilir; üç durumlu seçimlerde `ToggleState::Indeterminate` veya
 `ToggleState::from_any_and_all(any_checked, all_checked)` kullanın.
 
+Transparent veya blurred tema kullanan pencere yüzeylerinde arka plan davranışını
+ayırmak için `ui::theme_is_transparent(cx)` yardımcı fonksiyonunu kullanın. Bu
+fonksiyon etkin `WindowBackgroundAppearance` değeri `Transparent` veya `Blurred`
+ise `true` döner; custom yüzeylerde opak fallback gerekip gerekmediğini seçmek
+için uygundur.
+
 ### Spacing token'ları (`DynamicSpacing`)
 
 Padding, margin ve gap değerleri için elle `px(...)` veya `rems(...)` yazmak
@@ -460,8 +520,10 @@ yerine `crates/ui/src/styles/spacing.rs` içinde tanımlı `DynamicSpacing`
 ölçeğini tercih edin. Bu enum kullanıcının UI yoğunluk ayarına (`Compact`,
 `Default`, `Comfortable`) göre tek noktadan ölçek değiştirir.
 
-- Adlandırma: `Base00`, `Base01`, ..., `Base12`. `BaseXX`, `XX` değeri varsayılan
-  yoğunlukta yaklaşık pixel değeridir (`Base04 ≈ 4px`, `Base16 ≈ 16px`).
+- Adlandırma: `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`,
+  `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`,
+  `Base48`. `BaseXX`, `XX` değeri varsayılan yoğunlukta yaklaşık pixel
+  değeridir (`Base04 ≈ 4px`, `Base16 ≈ 16px`).
 - Kullanım: `.gap(DynamicSpacing::Base02.px(cx))`,
   `.p(DynamicSpacing::Base06.rems(cx))`.
 - Üç değer manuel verildiğinde (örn. `(1, 1, 2)`) yoğunluğa göre değişir;
@@ -560,6 +622,13 @@ bağlanır. Daha karmaşık animasyonlar için GPUI'nin `Animation`,
 doğrudan kullanın; `LoadingLabel`, `SpinnerLabel`, `AiSettingItem` ve
 `ThreadItem::Running` durumu bu yolla animasyon uygular.
 
+`ui::CommonAnimationExt` prelude içinde değildir, ancak crate kökünden export
+edilir. `use ui::CommonAnimationExt as _;` ile import edildiğinde
+`Transformable` implement eden bileşenlere `.with_rotate_animation(duration)` ve
+`.with_keyed_rotate_animation(id, duration)` yardımcılarını ekler. Liste veya
+tekrarlı item içinde aynı animasyon birden çok kez render edilecekse keyed
+varyantı kullanın; varsayılan varyant call site konumunu element id olarak alır.
+
 ### `Transformable` trait
 
 `crates/ui/src/traits/transformable.rs` içindeki `Transformable`, GPUI'nin
@@ -567,6 +636,86 @@ doğrudan kullanın; `LoadingLabel`, `SpinnerLabel`, `AiSettingItem` ve
 (`.transform(transformation)`). Şu anda `Vector` bu trait'i implement eder;
 döndürmek için `gpui::Transformation::rotate(...)`, çevirmek için
 `gpui::Transformation::scale(...)` üretip `.transform(...)` ile geçirin.
+
+### `ui::utils` modülü
+
+`crates/ui/src/utils.rs` public alt modüldür; `is_light`,
+`reveal_in_file_manager_label` ve `capitalize` doğrudan burada yaşar, geri
+kalanlar alt modüllerden `ui::utils::*` altında re-export edilir. Bu yardımcılar
+`ui` crate kökünden re-export edilmez; doğru çağrı yolu `ui::utils::is_light`,
+`ui::utils::WithRemSize`, `ui::utils::FormatDistance` gibi alt modül yoludur.
+`BASE_REM_SIZE_IN_PX`, `EDITOR_SCROLLBAR_WIDTH`, `theme_is_transparent` ve
+`ui_density` ise styles/components re-export zinciri üzerinden `ui::...`
+kökünden erişilebilir.
+
+Temalama ve görsel:
+
+- `is_light(cx: &mut App) -> bool`: etkin temanın açık/koyu olduğunu söyler;
+  custom canvas çizimlerinde uygun overlay rengini seçmek için kullanın.
+- `theme_is_transparent(cx)` (styles modülünde): transparent veya blurred
+  pencere arka planı için aynı işi yapar.
+
+İçerik ve etiket yardımcıları:
+
+- `capitalize(str: &str) -> String`: ilk karakteri büyük harfe çevirip yeni
+  `String` döndürür; locale-aware değil, hızlı UI label normalleştirme için.
+- `reveal_in_file_manager_label(is_remote: bool) -> &'static str`: macOS için
+  `"Reveal in Finder"`, Windows için `"Reveal in File Explorer"`, diğer
+  durumlarda `"Reveal in File Manager"` döndürür. `is_remote` true ise her
+  zaman generic etiket döner.
+
+Layout ve ölçü yardımcıları:
+
+- `BASE_REM_SIZE_IN_PX: f32 = 16.0` (`styles/units.rs`): rem tabanlı
+  hesaplamalarda referans değer.
+- `EDITOR_SCROLLBAR_WIDTH: Pixels` (`components/scrollbar.rs`):
+  `ScrollbarStyle::Editor.to_pixels()` sabiti; editor görselli scrollbar
+  genişliğini diğer panelle hizalamak için kullanın.
+- `TRAFFIC_LIGHT_PADDING: f32`: macOS pencere kontrolleri (kapat/küçült/büyüt)
+  için title bar'da ayrılması gereken sol padding; SDK 26 öncesi 71px, sonrası
+  78px sabittir.
+- `platform_title_bar_height(window: &Window) -> Pixels`: Windows'ta sabit
+  32px, diğer platformlarda `1.75 * window.rem_size()` (minimum 34px) döndürür.
+- `inner_corner_radius(parent_radius, parent_border, parent_padding, self_border)
+  -> Pixels`: iç içe geçmiş yuvarlatılmış köşeler için child radius hesaplar.
+- `CornerSolver::new(root_radius, root_border, root_padding)` ve
+  `.add_child(border, padding).corner_radius(level)`: birden fazla seviyeli
+  nesting için aynı problemin batch çözümü.
+- `SearchInputWidth::THRESHOLD_WIDTH` / `MAX_WIDTH` (her ikisi 1200px) ve
+  `SearchInputWidth::calc_width(container_width)`: arama input'unun container
+  genişliğine göre yayılma/sınırlandırma davranışı.
+- `WithRemSize::new(rem_size)`: alt ağaca farklı bir rem boyutunu zorla
+  uygulayan element; settings preview gibi kendi ölçeklemesini yöneten
+  alanlarda kullanılır. `.occlude()` ile pointer event'lerini engeller.
+
+Erişilebilirlik ve renk kontrastı:
+
+- `calculate_contrast_ratio(fg: Hsla, bg: Hsla) -> f32`: WCAG 2 standardı
+  kontrast oranı.
+- `apca_contrast(text_color: Hsla, background_color: Hsla) -> f32`: APCA Lc
+  (lightness contrast) ölçeği; pozitif değer normal polarity (koyu metin/açık
+  arka plan), negatif değer ters polarity. Tipik eşikler: `Lc 45` UI metni
+  minimumu, `Lc 60` küçük metin, `Lc 75` gövde metni.
+- `ensure_minimum_contrast(foreground: Hsla, background: Hsla,
+  minimum_apca_contrast: f32) -> Hsla`: foreground'un lightness'ını
+  ayarlayarak verilen APCA eşiğini sağlayan en yakın rengi döndürür; tema
+  derived renklerin okunabilir kalmasını garantilemek için ideal.
+
+Tarih farkı yardımcıları (`format_distance` modülü):
+
+- `DateTimeType::Naive(NaiveDateTime)` veya `DateTimeType::Local(DateTime<Local>)`.
+  `.to_naive()` her ikisini de `NaiveDateTime`'a çevirir.
+- `format_distance(date, base_date, include_seconds, add_suffix, hide_prefix)
+  -> String`: iki tarih arası mesafeyi "less than a minute ago", "about 2
+  hours ago", "3 months from now" gibi metne çevirir.
+- `format_distance_from_now(datetime, include_seconds, add_suffix,
+  hide_prefix) -> String`: aynı şey ama `base_date` olarak `Local::now()`
+  kullanır.
+- `FormatDistance::new(date, base_date).include_seconds(...).add_suffix(...)
+  .hide_prefix(...)`: builder yüzeyi; thread item, git commit ve activity
+  feed'lerde tercih edilir. Kaynak yorumu bu modülün ileride `time_format`
+  crate'ine taşınacağını söyler; yeni kodda `time_format` çözümlerine de göz
+  atın.
 
 ### Layout yardımcıları
 
@@ -675,6 +824,8 @@ Genel kural:
 
 - Yapısal başlık için `Headline`.
 - Normal UI metni için `Label`.
+- Hazır label slot modeli yetmediğinde, sınırlı custom metin yüzeyi için
+  `LabelLike`.
 - Arama veya fuzzy match vurgusu için `HighlightedLabel`.
 - İşlem devam ederken metinle geri bildirim vermek için `LoadingLabel`.
 - Yalnızca yükleme göstergesi gerektiğinde `SpinnerLabel`.
@@ -772,6 +923,63 @@ Dikkat edilecekler:
   yalnızca backtick içindeki parçaları vurgulamak için `.render_code_spans()`
   kullanın.
 
+### LabelLike
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/label/label_like.rs`
+- Export: `ui::LabelLike`
+- Prelude: Hayır, `use ui::LabelLike;` ekleyin.
+- Preview: `impl Component for LabelLike`
+
+Ne zaman kullanılır:
+
+- `Label` veya `HighlightedLabel` yeterli değilse, ama yine de `LabelCommon`
+  renk/boyut/ağırlık/truncation kurallarını koruyan özel bir metin yüzeyi
+  gerekiyorsa.
+- Birden fazla child element içeren, label gibi davranan küçük inline
+  kompozisyonlarda.
+
+Ne zaman kullanılmaz:
+
+- Düz metin için `Label`, arama vurgusu için `HighlightedLabel` daha tutarlı ve
+  daha kısıtlıdır.
+- Komple özel rich text, editor metni veya selectable text gerekiyorsa GPUI text
+  primitive'leri daha uygun olabilir.
+
+Temel API:
+
+- Constructor: `LabelLike::new()`
+- `LabelCommon`: `.size(...)`, `.color(...)`, `.weight(...)`,
+  `.line_height_style(...)`, `.italic()`, `.underline()`, `.strikethrough()`,
+  `.alpha(...)`, `.truncate()`, `.single_line()`, `.buffer_font(cx)`,
+  `.inline_code(cx)`.
+- Ek builder: `.truncate_start()`
+- `ParentElement` implement eder; `.child(...)` ve `.children(...)` alır.
+
+Davranış:
+
+- `RenderOnce` implement eder.
+- `Label` ailesinin kullandığı iç stil yüzeyidir; UI font weight'i, semantic
+  `Color` ve `LabelSize` değerlerini aynı şekilde uygular.
+- Serbest child kabul ettiği için tutarsız tipografi üretmek kolaydır; hazır
+  label'ların yetmediği durumlarla sınırlayın.
+
+Örnek:
+
+```rust
+use ui::prelude::*;
+use ui::LabelLike;
+
+fn render_inline_hint(action: SharedString, cx: &App) -> impl IntoElement {
+    LabelLike::new()
+        .size(LabelSize::Small)
+        .color(Color::Muted)
+        .child("Press ")
+        .child(Label::new(action).inline_code(cx))
+}
+```
+
 ### Headline
 
 Kaynak:
@@ -859,6 +1067,12 @@ Temel API:
 
 - Constructor: `HighlightedLabel::new(label, highlight_indices)`
 - Range constructor: `HighlightedLabel::from_ranges(label, highlight_ranges)`
+- Düşük seviye yardımcı:
+  `highlight_ranges(text: &str, indices: &[usize], style: HighlightStyle)
+  -> Vec<(Range<usize>, HighlightStyle)>`. Ardışık byte indekslerini char
+  sınırlarına oturmuş tek bir range içinde birleştirir. `HighlightedLabel`
+  bunu içeride kullanır; aynı dönüşümü `StyledText` veya custom rich text
+  yüzeylerinde tekrar etmek için import edebilirsiniz.
 - Okuma yöntemleri: `.text()`, `.highlight_indices()`
 - `LabelCommon` builder'ları: `.size(...)`, `.color(...)`, `.weight(...)`,
   `.italic()`, `.underline()`, `.truncate()`, `.single_line()`.
@@ -1285,6 +1499,7 @@ Kaynak:
 Ortak trait'ler:
 
 - `ButtonCommon`: `.style(...)`, `.size(...)`, `.tooltip(...)`,
+  `.key_binding(...)`, `.key_binding_position(KeybindingPosition)`,
   `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`.
 - `Clickable`: `.on_click(...)`, `.cursor_style(...)`.
 - `Disableable`: `.disabled(bool)`.
@@ -1292,6 +1507,8 @@ Ortak trait'ler:
 - `SelectableButton`: `.selected_style(ButtonStyle)`.
 - `FixedWidth`: `.width(...)`, `.full_width()`.
 - `VisibleOnHover`: `.visible_on_hover(group_name)`.
+- `KeybindingPosition`: buton içindeki shortcut göstergesinin `Start` veya `End`
+  konumunu seçer; varsayılan `End` değeridir.
 
 Buton stilleri:
 
@@ -1858,6 +2075,14 @@ Davranış:
   tetikler.
 - Seçili görünüm `ButtonStyle::Tinted(TintColor::Accent)` ve accent label/icon
   rengiyle çizilir.
+- `ToggleButtonPosition`, grup içindeki ilk/orta/son segmentin köşe yuvarlamasını
+  taşır; public const değerleri (`HORIZONTAL_FIRST`, `HORIZONTAL_MIDDLE`,
+  `HORIZONTAL_LAST`) vardır, ancak alanları private olduğu için normal kullanıcı
+  kodunda doğrudan segment state'i üretmek yerine `ToggleButtonGroup` kullanın.
+- `ButtonBuilder` public ama private supertrait ile sealed durumdadır. Dış crate
+  kendi entry tipini implement edemez; `ToggleButtonSimple` ve
+  `ToggleButtonWithIcon` beklenen giriş noktalarıdır. `ButtonConfiguration`
+  de aynı iç taşıyıcı rolündedir.
 
 Örnek:
 
@@ -1974,6 +2199,7 @@ Genel seçim rehberi:
 - Aç/kapat anlamı taşıyan tek ayar için `Switch`.
 - Label, açıklama ve switch tek satır ayar olarak birlikte kullanılacaksa
   `SwitchField`.
+- Tek satır metin girişi için `ui_input::InputField`.
 - Seçili değeri trigger üzerinde gösteren seçenek listesi için `DropdownMenu`.
 - Menü içeriği, entry, separator, submenu ve action dispatch için `ContextMenu`.
 - İkincil tıklamayla açılan bağlam menüsü için `right_click_menu`.
@@ -2214,6 +2440,82 @@ Dikkat edilecekler:
 - Tooltip sadece label varsa görsel ikonla birlikte çizilir; labelsız kullanımda
   tooltip beklemeyin.
 
+### InputField (`ui_input`)
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui_input/src/input_field.rs`
+- Export: `ui_input::InputField`
+- Prelude: Hayır, `use ui_input::InputField;` ekleyin.
+- Preview: `impl Component for InputField`
+
+Ne zaman kullanılır:
+
+- Search input, API key alanı, ayar formu veya modal içi tek satır metin girişi
+  gerektiğinde.
+- Editor tabanlı gerçek text input davranışı, focus handle, placeholder, masked
+  değer ve tab order desteği isteniyorsa.
+
+Ne zaman kullanılmaz:
+
+- Sadece statik metin göstermek için `Label`.
+- Çok satırlı veya editor özellikli içerik için doğrudan editor tabanlı view.
+- `crates/ui` içine bağımlılık eklerken; `ui_input`, editor'a bağımlı olduğu için
+  ayrı crate'te tutulur.
+
+Temel API:
+
+- Constructor: `InputField::new(window, cx, placeholder_text)`
+- Builder'lar: `.start_icon(IconName)`, `.label(...)`, `.label_size(...)`,
+  `.label_min_width(...)`, `.tab_index(...)`, `.tab_stop(bool)`,
+  `.masked(bool)`.
+- Okuma/yazma: `.text(cx)`, `.is_empty(cx)`, `.clear(window, cx)`,
+  `.set_text(text, window, cx)`, `.set_masked(masked, window, cx)`.
+- Düşük seviye erişim: `.editor() -> &Arc<dyn ErasedEditor>`.
+
+Davranış:
+
+- `Render` ve `Focusable` implement eder; genellikle `Entity<InputField>` olarak
+  view state'inde tutulur.
+- `InputField::new(...)`, `ui_input::ERASED_EDITOR_FACTORY` kurulmuş olmasını
+  bekler. Zed runtime bunu editor entegrasyonu sırasında hazırlar.
+- `.masked(true)` verilirse sağda show/hide `IconButton` render edilir ve click
+  ile mask state'i güncellenir.
+- Focus görünümü editor focus handle'ına bağlı border rengiyle çizilir.
+
+Örnek:
+
+```rust
+use gpui::Entity;
+use ui::prelude::*;
+use ui_input::InputField;
+
+fn new_api_key_input(window: &mut Window, cx: &mut App) -> Entity<InputField> {
+    cx.new(|cx| {
+        InputField::new(window, cx, "sk-...")
+            .label("API key")
+            .start_icon(IconName::LockOutlined)
+            .masked(true)
+    })
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/language_models/src/provider/open_ai.rs`: API key input'u.
+- `../zed/crates/keymap_editor/src/keymap_editor.rs`: context ve action input'ları.
+- `../zed/crates/component_preview/src/component_preview.rs`: component arama
+  filter input'u.
+
+Dikkat edilecekler:
+
+- `InputField` `RenderOnce` değildir; her render'da yeniden yaratmayın, entity
+  olarak saklayın.
+- Text değerini `field.read(cx).text(cx)` ile okuyun; değer değişimine tepki
+  vermeniz gerekiyorsa editor event subscription tarafını kullanın.
+- `label_min_width(...)` adı tarihsel olarak label dese de kaynakta input
+  container'ın `min_width` değerini ayarlar.
+
 ### DropdownMenu
 
 Kaynak:
@@ -2325,11 +2627,16 @@ Temel API:
 - Yapı builder'ları: `.context(focus_handle)`, `.header(...)`,
   `.header_with_link(...)`, `.separator()`, `.label(...)`, `.entry(...)`,
   `.toggleable_entry(...)`, `.custom_row(...)`, `.custom_entry(...)`,
-  `.selectable(bool)`, `.submenu(...)`, `.submenu_with_icon(...)`,
+  `.custom_entry_with_docs(...)`, `.entry_with_end_slot(...)`,
+  `.entry_with_end_slot_on_hover(...)`, `.selectable(bool)`, `.action(...)`,
+  `.action_checked(...)`, `.action_checked_with_disabled(...)`,
+  `.action_disabled_when(...)`, `.link(...)`, `.link_with_handler(...)`,
+  `.submenu(...)`, `.submenu_with_icon(...)`, `.submenu_with_colored_icon(...)`,
   `.keep_open_on_confirm(bool)`, `.fixed_width(...)`, `.key_context(...)`.
 - Entry builder'ları: `ContextMenuEntry::new(label).icon(...).toggleable(...)`
-  `.action(...)`, `.handler(...)`, `.secondary_handler(...)`,
-  `.disabled(...)`, `.documentation_aside(...)`.
+  `.custom_icon_path(...)`, `.custom_icon_svg(...)`, `.icon_position(...)`,
+  `.icon_size(...)`, `.icon_color(...)`, `.action(...)`, `.handler(...)`,
+  `.secondary_handler(...)`, `.disabled(...)`, `.documentation_aside(...)`.
 
 Davranış:
 
@@ -2421,6 +2728,28 @@ yanında popover olarak küçük bir dokümantasyon paneli açar. Ayrıca normal
 `entry(...)` zinciri üzerine `.documentation_aside(side, render)` ile aynı
 davranışı eklemek mümkündür.
 
+Action ve link helper'ları:
+
+- `action(label, action)`: önce varsa context focus handle'ına focus verir, sonra
+  action dispatch eder.
+- `action_checked(...)` ve `action_checked_with_disabled(...)`: action entry'ye
+  checked/disabled durumunu ekler.
+- `action_disabled_when(disabled, label, action)`: disabled koşulunu entry
+  oluştururken bağlar.
+- `link(...)` ve `link_with_handler(...)`: entry'nin sonuna `ArrowUpRight`
+  ikonunu ekler, custom handler'ı çalıştırır ve action dispatch eder.
+
+End slot ve icon helper'ları:
+
+- `entry_with_end_slot(...)`, entry'nin sağ tarafına ikinci bir icon action
+  koyar.
+- `entry_with_end_slot_on_hover(...)`, aynı action'ı yalnızca hover sırasında
+  gösterir.
+- `custom_icon_path(...)` ve `custom_icon_svg(...)`, `ContextMenuEntry` üzerinde
+  normal `IconName` yerine harici icon kaynağı seçer.
+- `submenu_with_colored_icon(...)`, submenu label'ına semantik `Color` ile
+  renklendirilmiş ikon ekler.
+
 Dikkat edilecekler:
 
 - `ContextMenu` bir açma mekanizması değildir. Onu `DropdownMenu`,
@@ -2436,7 +2765,7 @@ Dikkat edilecekler:
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/popover_menu.rs`
-- Export: `ui::PopoverMenu`, `ui::PopoverMenuHandle`
+- Export: `ui::PopoverMenu`, `ui::PopoverMenuHandle`, `ui::PopoverTrigger`
 - Prelude: Hayır, ayrıca import edin.
 - Preview: Doğrudan component preview yok; gerçek kullanımlar menu trigger
   bileşenleri üzerinden ilerler.
@@ -2465,7 +2794,9 @@ Temel API:
 
 Davranış:
 
-- Trigger tipi `IntoElement + Clickable + Toggleable + 'static` olmalıdır.
+- Trigger tipi `PopoverTrigger` trait'ini sağlamalıdır; bu trait
+  `IntoElement + Clickable + Toggleable + 'static` kombinasyonunun public alias
+  yüzeyidir.
 - Trigger tıklandığında menu builder `Option<Entity<M>>` döndürür; `None`
   dönerse menü açılmaz.
 - Açılan menu `DismissEvent` yayınladığında handle temizlenir ve önceki focus
@@ -2693,6 +3024,14 @@ Temel API:
   `Tooltip::with_meta_in(...)`
 - Özel element: `Tooltip::element(...)`, `Tooltip::new_element(...)`
 - Instance builder'ları: `Tooltip::new(title).meta(...).key_binding(...)`.
+- `tooltip_container(cx, |div, cx| ...)`: Zed tooltip yüzeyini özel içerikle
+  yeniden kullanmak için düşük seviye helper.
+- `LinkPreview::new(url: &str, cx: &mut App) -> AnyView`: uzun URL'i 100
+  karakterlik parçalara bölüp en fazla 500 karakterde keserek tooltip yüzeyi
+  içinde yumuşak satır kırma ile render eden basit URL önizleme view'ı. Geri
+  dönen `AnyView` doğrudan `Tooltip::new_element(...)` veya entity tabanlı
+  tooltip slot'larına geçirilebilir. Network çağrısı, başlık çekme veya
+  metadata akışı içermez; bunlar parent tooltip view'ında elle uygulanmalıdır.
 
 Davranış:
 
@@ -3322,7 +3661,14 @@ Ne zaman kullanılmaz:
 Temel API:
 
 - `sticky_items(entity, compute_fn, render_fn)`
-- `StickyCandidate` trait'i: `fn depth(&self) -> usize`
+- `StickyCandidate` trait'i: `fn depth(&self) -> usize`. Render edilecek her
+  satır verisinin bu trait'i implement etmesi beklenir; depth değeri kalan
+  range içindeki sıraya göre monotonik artmalıdır.
+- `StickyItemsDecoration` trait'i: `fn compute(&self, indents:
+  &SmallVec<[usize; 8]>, bounds, scroll_offset, item_height, window, cx)
+  -> AnyElement`. Sticky bölgenin üstüne overlay (indent guide, vurgu) çizmek
+  için bu trait'i implement edip `.with_decoration(...)` ile bağlayın;
+  `IndentGuides` bu trait'i hazır şekilde implement eder.
 - Builder: `.with_decoration(decoration: impl StickyItemsDecoration)`
 - `compute_fn`: görünür range için sticky candidate listesi üretir.
 - `render_fn`: seçilen sticky candidate için render edilecek `AnyElement`
@@ -4140,6 +4486,14 @@ Temel API:
 - `.id(ElementId)`, `.notify_content()`, `.tracked_entity(EntityId)`,
   `.tracked_scroll_handle(handle)`, `.show_along(axes)`, `.style(style)`,
   `.with_track_along(axes, bg)`, `.with_stable_track_along(axes, bg)`
+- `WithScrollbar`: elementlere `.vertical_scrollbar_for(...)` ve
+  `.custom_scrollbars(...)` ekleyen extension trait. Kaynakta yatay/double helper
+  taslakları yorum satırı olarak durur; public API değildir.
+- `ScrollableHandle`: custom handle yazacaksanız `max_offset`, `set_offset`,
+  `offset`, `viewport` ve opsiyonel drag hook'larını sağlar.
+- `on_new_scrollbars::<S>(cx)`: scrollbar global setting tipi değiştiğinde
+  yeni `ScrollbarState` entity'lerini ayar değişikliklerine abone eden setup
+  helper'ı.
 - `ScrollAxes`: `Horizontal`, `Vertical`, `Both`.
 - `ScrollbarStyle`: `Regular` (6px), `Editor` (15px).
 - `ShowScrollbar`: `Auto`, `System`, `Always`, `Never`.
@@ -4191,6 +4545,8 @@ Dikkat edilecekler:
 
 - `Scrollbars` kendi başına içerik scroll'lamaz; bir `ScrollableHandle` ile
   bağlanmalı veya bir `ScrollHandle::new()` üzerinden takip etmelidir.
+- Tek bir scroll container'a doğrudan bağlanıyorsanız `WithScrollbar` helper'ları
+  ayrı `Scrollbars` child'ı yazmaktan daha kısa ve daha az hata açıktır.
 - `with_stable_track_along(...)`, scroll alanı yokken bile track yer ayırır;
   böylece scrollbar görünür/gizli değiştiğinde layout zıplaması olmaz.
 - Birden çok scroll alanı varsa her birine `.id(...)` ile benzersiz id verin.
@@ -4852,6 +5208,14 @@ Davranış:
 - `Table::header(...)`, `Table::row(...)`, `.uniform_list(...)` ve
   `.variable_row_height_list(...)` public API'de `Vec<T>` kabul eder; `TableRow`
   dönüşümü içeride yapılır.
+- `IntoTableRow` trait'i `Vec<T>` için tek bir
+  `.into_table_row(expected_length)` yöntemi sağlar; uzunluk eşleşmezse panic
+  eder. Kaynakta `Table` bunu içeride kullandığı için normal kullanımda import
+  gerekmez; düşük seviye helper'lara iniyorsanız
+  `use ui::table_row::IntoTableRow as _;` ile çağırabilirsiniz. Doğrulanmış
+  (`Result` döndüren) dönüşüm için doğrudan
+  `TableRow::try_from_vec(data, expected_length)` kullanın; `try_into_table_row`
+  trait yöntemi mevcut değildir.
 
 Örnek:
 
@@ -6462,7 +6826,8 @@ Kaynak:
 - Tanım: `../zed/crates/ui/src/components/keybinding.rs`
 - Export: `ui::KeyBinding`, `ui::Key`, `ui::KeyIcon`,
   `ui::render_keybinding_keystroke`, `ui::text_for_action`,
-  `ui::text_for_keystrokes`, `ui::text_for_keybinding_keystrokes`
+  `ui::text_for_keystrokes`, `ui::text_for_keybinding_keystrokes`,
+  `ui::render_modifiers`
 - Prelude: Hayır, ayrıca import edin.
 - Preview: `impl Component for KeyBinding`
 
@@ -6489,6 +6854,16 @@ Temel API:
 - `.disabled(bool)`
 - `.has_binding(window)`
 - `KeyBinding::set_vim_mode(cx, enabled)`
+- `Key::new(key: impl Into<SharedString>, color: Option<Color>)` ve
+  `KeyIcon::new(icon: IconName, color: Option<Color>)`: tekil tuş veya ikonlu
+  tuş yüzeyi.
+- `render_modifiers(modifiers: &Modifiers, platform_style: PlatformStyle,
+  color: Option<Color>, size: Option<AbsoluteLength>, trailing_separator: bool)
+  -> impl Iterator<Item = AnyElement>`: modifier dizisini platform stiline göre
+  ikon/metin elementlerine çeviren düşük seviye helper. `trailing_separator`
+  son modifier'dan sonra `+` ayırıcısı ekler.
+- `text_for_keystroke(modifiers: &Modifiers, key: &str, cx: &App) -> String`:
+  tek bir keystroke için platforma duyarlı metin üretir.
 
 Davranış:
 

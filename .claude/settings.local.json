@@ -13,12 +13,17 @@
       "Bash(cargo clippy *)",
       "Bash(grep *)",
       "Bash(awk *)",
+      "Bash(sed *)",
+      "Bash(echo *)",
+      "Bash(for *)",
       "Bash(grep -B 1 -A 10 \"could be written as a \\\\`while let\\\\`\")",
       "Bash(awk '/^pub struct Theme/,/^}/' /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
       "Bash(awk '/^pub struct ThemeStyles/,/^}/' /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
       "Bash(awk '/^pub struct ThemeColors/,/^}/' /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
       "Read(//tmp/**)",
-      "Bash(sort *)"
+      "Bash(sort *)",
+      "Bash(awk '/^# Ek \\\\\\(geçici\\\\\\)/{exit} {print}' /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
+      "Bash(mv /tmp/tema_rehber_yeni.md /Users/hakanbiris/github/gpui_belge/tema_rehber.md)"
     ]
   }
 }
