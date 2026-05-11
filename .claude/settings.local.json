@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cargo check *)",
+      "Bash(grep -v \"gpui_macos\\\\|unnecessary \\\\`unsafe\\\\`\\\\|unused_unsafe\\\\|generated 1 warning\")",
+      "Bash(cargo test *)",
+      "Bash(cargo fmt *)",
+      "Bash(cargo +nightly check --target wasm32-unknown-unknown)",
+      "Bash(grep -v \"^[+-]\\\\s*//\\\\|^[+-]\\\\s*$\\\\|^[+-]\\\\s*$\\\\|^[+-] *use \\\\|^[+-] *crate::\")",
+      "Bash(grep -v \"use\\\\|^\\\\s*$\")",
+      "Bash(git stash *)",
+      "Bash(cargo build *)",
+      "Bash(cargo clippy *)",
+      "Bash(grep *)",
+      "Bash(awk *)",
+      "Bash(grep -B 1 -A 10 \"could be written as a \\\\`while let\\\\`\")",
+      "Bash(awk '/^pub struct Theme/,/^}/' /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
+      "Bash(awk '/^pub struct ThemeStyles/,/^}/' /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
+      "Bash(awk '/^pub struct ThemeColors/,/^}/' /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
+      "Read(//tmp/**)",
+      "Bash(sort *)"
+    ]
+  }
+}
