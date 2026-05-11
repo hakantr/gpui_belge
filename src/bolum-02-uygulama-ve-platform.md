@@ -97,7 +97,7 @@ Platform sinyalleri, **işletim sisteminin ilettiği değişiklikleri yakalamak 
 
 - **`cx.refresh_windows()`** — Tüm açık pencerelere "yeniden çiz" sinyali atar; herhangi bir state değiştirmez. Tema/yazı tipi gibi global bir değişiklikten sonra her şeyin baştan çizilmesi gerektiğinde kullanılır.
 
-- **`cx.set_quit_mode(mode)`** — Yukarıda anlatıldığı gibi, çıkış politikasını runtime'da günceller. `.with_quit_mode(...)` ile aynı alanı yazar.
+- **`cx.set_quit_mode(mode)`** — [Çıkış davranışı](#çıkış-davranışı-quitmode-ve-uygulama-aktivasyonu) politikasını runtime'da günceller. `.with_quit_mode(...)` ile aynı alanı yazar.
 
 ### Tuzaklar
 
@@ -114,11 +114,11 @@ Platform sinyalleri, **işletim sisteminin ilettiği değişiklikleri yakalamak 
 - **Uygulama yaşam döngüsü.** Uygulamanın temel hayatta-kalma kontrolleri burada toplanır.
   - `cx.quit()`, `cx.restart()`: uygulamayı kapatır ya da yeniden başlatır. `set_restart_path(path)` özel bir binary ile restart için kullanılır (örn. güncelleme sonrası yeni sürümü çalıştırmak).
   - `cx.on_app_quit(|cx| async { ... })`, `cx.on_app_restart(|cx| { ... })`: kapanış veya yeniden başlatma anına bağlanan callback'ler (örn. state'i son anda diske yazma).
-  - `cx.activate(...)`, `cx.hide()`, `cx.hide_other_apps()`, `cx.unhide_other_apps()`: aktivasyon ve gizleme (yukarıda anlatıldı).
+  - `cx.activate(...)`, `cx.hide()`, `cx.hide_other_apps()`, `cx.unhide_other_apps()`: [aktivasyon ve gizleme](#çıkış-davranışı-quitmode-ve-uygulama-aktivasyonu).
 
 - **Pencereler.** Açık pencerelere toplu erişim:
   - `cx.windows()` tüm pencerelerin listesini, `cx.active_window()` o anda odakta olanı, `cx.window_stack()` ön-arka sırasını döndürür.
-  - `cx.refresh_windows()`: hepsine "yeniden çiz" sinyali verir (yukarıdaki tuzaklara bakılabilir).
+  - `cx.refresh_windows()`: hepsine "yeniden çiz" sinyali verir; veri değiştirmediği için [refresh tuzağına](#tuzaklar) dikkat edilir.
 
 - **Display (ekran).** Çoklu monitör desteği:
   - `cx.displays()` tüm ekranları, `cx.primary_display()` birincil ekranı, `cx.find_display(id)` belirli bir ekran kimliğine karşılık geleni döndürür. Pencere konumlandırma ve "açılırken son ekranda aç" gibi restore akışlarında kullanılır.
@@ -153,16 +153,16 @@ Platform sinyalleri, **işletim sisteminin ilettiği değişiklikleri yakalamak 
   - `cx.add_recent_document(path)`: işletim sisteminin "son kullanılanlar" listesine ekler.
   - `cx.update_jump_list(...)`: Windows Jump List öğelerini günceller.
 
-- **Termal durum.** `cx.thermal_state()` o anki ısınma seviyesini döndürür; `cx.on_thermal_state_change(...)` durum değişikliklerine bağlanır (yukarıda detaylı anlatıldı).
+- **Termal durum.** `cx.thermal_state()` o anki ısınma seviyesini döndürür; [`cx.on_thermal_state_change(...)` durum değişikliklerine bağlanır](#platform-sinyalleri-ostan-gelen-olaylara-nasıl-bağlanılır).
 
 - **İmleç görünürlüğü.**
   - `cx.cursor_hide_mode()`, `cx.set_cursor_hide_mode(...)`, `cx.is_cursor_visible()`: tipik olarak yazma sırasında imleci gizleme politikası burada okunur ve değiştirilir.
   - İmlecin *şeklini* hitbox'a göre belirlemek için pencere/element seviyesinde `window.set_cursor_style(style, &hitbox)` kullanılır.
   - Drag sırasında ise `cx.set_active_drag_cursor_style(...)` devreye girer.
 
-- **Ekran yakalama.** `cx.is_screen_capture_supported()` ve `cx.screen_capture_sources()` (ayrıntılar 2.5'te).
+- **Ekran yakalama.** [`cx.is_screen_capture_supported()` ve `cx.screen_capture_sources()`](#screen-capture-ekran-yakalama).
 
-- **Klavye.** Klavye düzeni ve karakter haritası: `cx.keyboard_layout()`, `cx.keyboard_mapper()`, `cx.on_keyboard_layout_change(...)` (yukarıda anlatıldı).
+- **Klavye.** Klavye düzeni ve karakter haritası: `cx.keyboard_layout()`, `cx.keyboard_mapper()` ve [`cx.on_keyboard_layout_change(...)`](#platform-sinyalleri-ostan-gelen-olaylara-nasıl-bağlanılır).
 
 - **HTTP istemcisi.** `cx.http_client()` paylaşılan istemciyi döndürür; `cx.set_http_client(...)` çalışma zamanında değiştirmek için kullanılır. Başlatmada ise `Application::with_http_client(...)` builder API'si tercih edilir. Tipik Zed kurulumunda `crates/http_client` içindeki varsayılan kullanılır.
 
@@ -175,7 +175,7 @@ Platform sinyalleri, **işletim sisteminin ilettiği değişiklikleri yakalamak 
 
 - `window.on_window_should_close(cx, |window, cx| -> bool)`: kullanıcı kapatma butonuna bastığında çağrılır. `false` döndürmek kapatmayı iptal eder; "kaydedilmemiş değişiklik var, emin misiniz?" tarzı diyaloglar burada gösterilir.
 - `window.appearance()`, `window.observe_window_appearance(...)`: o pencerenin görünüm modunu (light/dark) okur ve değiştiğinde haber alır.
-- `window.tabbed_windows()`, `window.set_tabbing_identifier(...)`: macOS'un native window tab desteği (ayrıntılar için Bölüm 6).
+- `window.tabbed_windows()`, `window.set_tabbing_identifier(...)`: [macOS'un native window tab desteği](./bolum-06-pencere-yonetimi.md#613-native-window-tabs-ve-systemwindowtabcontroller).
 
 Platform trait'ini doğrudan implemente etmek ayrı bir konudur ve 2.4'te ele alınır; uygulama geliştirme tarafında `App` ve `Window` wrapper'ları üzerinden çalışmak yeterlidir.
 

@@ -419,8 +419,8 @@ benzer desenlerini izle.
 - Hitbox: `HitboxId` rendered frame içinde hitbox'ı tanımlayan opaque id'dir;
   uygulama kodu genellikle `Hitbox` handle'ı ve `window.hitbox(...)` sonucu ile
   çalışır.
-- Drag/drop tarafında `ExternalPaths` ve `FileDropEvent` Bölüm 38'te ayrıca
-  ele alındı.
+- Drag/drop tarafında [`ExternalPaths` ve `FileDropEvent`](./bolum-07-etkilesim.md#73-drag-ve-drop-içerik-üretimi)
+  ayrıca ele alındı.
 
 Element callback'lerinde çoğu zaman concrete event tipi otomatik gelir:
 `.on_mouse_down(|event, window, cx| ...)`, `.on_scroll_wheel(...)`,
@@ -492,8 +492,9 @@ application kodunda nadiren doğrudan kullanılır:
 
 Bu tiplerin doğru sahibi `gpui_platform` implementasyonlarıdır. Zed uygulama
 katmanında genelde `cx.platform()`, `cx.text_system()`, `cx.svg_renderer()`,
-`window.drop_image(...)`, `window.input_latency_snapshot()` veya Bölüm 7'teki
-headless/screen capture API'leri üzerinden dolaylı erişilir.
+`window.drop_image(...)`, `window.input_latency_snapshot()` veya
+[headless/screen capture API'leri](./bolum-02-uygulama-ve-platform.md#25-headless-screen-capture-ve-test-renderer)
+üzerinden dolaylı erişilir.
 
 #### Scene, Primitive ve Crate-İçi Arena Taşıyıcıları
 
@@ -622,8 +623,9 @@ ve async context'ler üzerinden çalışmak doğru sınırdır.
 
 #### Küçük Public Fonksiyonlar
 
-- `guess_compositor()`: Linux/Wayland/X11 compositor adını tahmin eder; Bölüm 5'deki
-  `cx.compositor_name()` akışının düşük seviye yardımcısıdır.
+- `guess_compositor()`: Linux/Wayland/X11 compositor adını tahmin eder;
+  [`cx.compositor_name()`](./bolum-02-uygulama-ve-platform.md#23-platform-servisleri)
+  akışının düşük seviye yardımcısıdır.
 - `get_gamma_correction_ratios(gamma)`: atlas/glyph rendering gamma düzeltme
   oranlarını üretir; tema rengi seçmek için kullanılmaz.
 - `LinearColorStop`: gradient stop verisidir; `linear_gradient(...)` helper'ları
@@ -741,4 +743,3 @@ döndürür. `swap_rgba_pa_to_bgra(...)` premultiplied RGBA byte buffer'ını pl
 BGRA düzenine çevirmek için renk/bitmap alt katmanında kullanılır.
 
 ---
-

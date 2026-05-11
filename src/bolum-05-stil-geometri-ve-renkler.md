@@ -4,37 +4,25 @@
 
 ## 5.1. Style ve Layout Haritası
 
-GPUI style sistemi CSS/Tailwind'e benzer fluent metotlardan oluşur, fakat Rust
-tipleriyle daha nettir:
+GPUI'nin style sistemi, CSS/Tailwind'e benzer fluent (zincirleme) method'lardan oluşur. Fark, bunların Rust tip sistemiyle yazılmış olmasıdır: birçok yanlış birim veya uyumsuz değer derleme zamanında yakalanır; runtime'da CSS benzeri sessiz geçersiz stil üretme ihtimali azalır. `Styled` trait'ini implemente eden her element bu method zincirinden faydalanır: `div()` gibi yerleşik elementler, `RenderOnce` bileşenleri ve Zed UI tipleri dahil.
 
-- Boyut: `w`, `h`, `size`, `min_w`, `max_w`, `flex_basis`, `size_full`,
-  `h_auto`, `relative(f32)`, `px`, `rems`.
-- Layout: `flex`, `grid`, `flex_row`, `flex_col`, `items_*`, `justify_*`,
-  `content_*`, `gap_*`, `flex_wrap`, `flex_grow`, `flex_shrink`.
-- Position: `relative`, `absolute`, `inset_*`, `top/right/bottom/left`,
-  `z_index`.
-- Overflow: plain style overflow ve stateful `.overflow_*_scroll()`.
-- Background/border: `bg`, `border_*`, `border_color`, `rounded_*`,
-  `box_shadow`, `opacity`.
-- Text: `text_color`, `text_bg`, `text_size`, `text_*`, `font_family`,
-  `font_weight`, `italic`, `line_height`, `text_ellipsis`, `line_clamp`.
-- Interaction: `hover`, `active`, `focus`, `focus_visible`, `cursor_*`,
-  `track_focus`, `key_context`, action/key/mouse handlers.
-- Group styling: `.group("name")`, `group_hover(...)`, `group_active(...)` ve
-  `group_drag_over::<T>(...)` aynı isimli interaction grubuna göre uygulanır.
-- Grid placement: container için `grid_cols`, `grid_cols_min_content`,
-  `grid_cols_max_content`, `grid_rows`; child için `col_start`, `col_end`,
-  `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`,
-  `row_span_full` kullanılır. Altta `GridTemplate`,
-  `TemplateColumnMinSize` ve `GridPlacement::{Line, Span, Auto}` vardır.
+Style method'larının ana grupları ve hangi amaca hizmet ettikleri:
 
-Yukarıdaki fluent metotların büyük kısmı `Styled` trait body'sinde tek tek
-yazılmaz; bir grup proc macro tarafından üretilir. `crates/gpui/src/styled.rs`
-trait gövdesinde bu makrolar tek satır olarak invoke edilir, `gpui_macros`
-crate'i ise her invoke için onlarca metot expand eder. Hangi macro hangi
-metotları üretiyor:
+- **Boyut**: `w`, `h`, `size`, `min_w`, `max_w`, `flex_basis`, `size_full`, `h_auto`, `relative(f32)`, `px`, `rems`.
+- **Layout (yerleşim)**: `flex`, `grid`, `flex_row`, `flex_col`, `items_*`, `justify_*`, `content_*`, `gap_*`, `flex_wrap`, `flex_grow`, `flex_shrink`.
+- **Konum**: `relative`, `absolute`, `inset_*`, `top` / `right` / `bottom` / `left`, `z_index`.
+- **Overflow**: düz `overflow_*` (örn. gizleme/kesme) ve stateful `.overflow_*_scroll()` (kaydırma).
+- **Arkaplan ve çerçeve**: `bg`, `border_*`, `border_color`, `rounded_*`, `box_shadow`, `opacity`.
+- **Metin**: `text_color`, `text_bg`, `text_size`, `text_*`, `font_family`, `font_weight`, `italic`, `line_height`, `text_ellipsis`, `line_clamp`.
+- **Etkileşim**: `hover`, `active`, `focus`, `focus_visible`, `cursor_*`, `track_focus`, `key_context`, action/key/mouse handler'ları.
+- **Grup stillemesi**: `.group("name")` ile bir element grup adı alır; `group_hover(...)`, `group_active(...)`, `group_drag_over::<T>(...)` ise aynı isimli gruba göre child stilleri uygular. Parent hover/active durumuna göre child'ı stillemek için kullanılır.
+- **Grid yerleşimi**: container için `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`; child için `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full`. Altta `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement::{Line, Span, Auto}` tipleri çalışır.
 
-| Proc macro (`gpui_macros::...!()`) | Üretilen fluent metotlar (Styled trait üyesi olarak) |
+### Style method'larının nereden geldiği
+
+Bu fluent method'ların büyük kısmı `Styled` trait gövdesinde tek tek yazılmaz; `crates/gpui/src/styled.rs` içinde bir grup proc macro çağrısı vardır ve `gpui_macros` crate'i her çağrı için onlarca method genişletir. Hangi makronun hangi method'ları ürettiği:
+
+| Proc macro (`gpui_macros::...!()`) | Üretilen fluent method'lar (`Styled` trait üyesi olarak) |
 |---|---|
 | `visibility_style_methods!()` | `visible()`, `invisible()` |
 | `margin_style_methods!()` | `m_*` ile birlikte `mt_`, `mb_`, `my_`, `mx_`, `ml_`, `mr_` ve her birinin spacing scale + `auto` varyantları (`mt_auto()` gibi) |
@@ -45,48 +33,30 @@ metotları üretiyor:
 | `border_style_methods!()` | `border_color(C)` ve `border_*` width prefix'leri (`border_*`, `border_t_*`, `border_r_*`, `border_b_*`, `border_l_*`, `border_x_*`, `border_y_*`) × suffix tablosu (`_0`, `_1`, `_2`, `_4`, `_8`, vb.) |
 | `box_shadow_style_methods!()` | `shadow(Vec<BoxShadow>)`, `shadow_none()`, `shadow_2xs()`, `shadow_xs()`, `shadow_sm()`, `shadow_md()`, `shadow_lg()`, `shadow_xl()`, `shadow_2xl()` |
 
-Bu makrolar `pub` (proc) macro olarak `gpui_macros` crate'inden export edilir
-ve `gpui::{visibility_style_methods, margin_style_methods, ...}` üzerinden de
-yeniden re-export edilir. Doğrudan uygulama kodu çağırmaz — fluent metotlar
-zaten `Styled` trait'inin parçası olduğu için her `Styled` impl'i otomatik
-sahip olur.
+Bu proc macro'lar `gpui_macros` crate'inden `pub` olarak export edilir ve `gpui::{visibility_style_methods, margin_style_methods, ...}` üzerinden re-export edilir. Uygulama kodunda doğrudan çağrılmaz; `Styled` trait'i her implementasyona bu method'ları sağladığı için, custom bir element `Styled` implemente ettiğinde bu zincir hazır gelir.
 
-`Styled` trait içinde ayrıca `gpui_macros::style_helpers!()` çağrısı vardır, fakat
-bu proc macro `#[doc(hidden)]` olduğu ve `gpui` crate kökünden re-export
-edilmediği için `target/doc/gpui/all.html` macro listesinde yer almaz. `w_*`,
-`h_*`, `size_*`, `min_size_*`, `min_w_*`, `min_h_*`, `max_size_*`, `max_w_*`,
-`max_h_*`, `gap_*`, `gap_x_*`, `gap_y_*` ve `rounded_*` aileleri bu internal
-macrodan gelir.
+`Styled` trait gövdesinde ayrıca `gpui_macros::style_helpers!()` çağrısı vardır. Bu macro `#[doc(hidden)]` olduğu ve `gpui` crate kökünden re-export edilmediği için `target/doc/gpui/all.html` listesinde görünmez. Aşağıdaki method aileleri bu dahili macro'dan üretilir: `w_*`, `h_*`, `size_*`, `min_size_*`, `min_w_*`, `min_h_*`, `max_size_*`, `max_w_*`, `max_h_*`, `gap_*`, `gap_x_*`, `gap_y_*`, `rounded_*`.
 
-Custom bir element için `Styled` impl ediyorsan trait'in tüm metotları
-otomatik miras kalır; bu makroları yeniden invoke etmek gerekmez. Yalnız
-GPUI'nin kendisi gibi yeni bir style framework yazıyorsan (paralel bir
-`Styled` benzeri trait için) bu macro'ları kendi trait'inin içinde invoke
-edebilirsin — `method_visibility` parametresi public/pub(crate) ayarına izin
-verir.
+Custom bir element için `Styled` implemente edildiğinde bu makroları yeniden çağırmak gerekmez; trait'in tüm method'ları o elementte kullanıma açılır. Makroların doğrudan çağrılmasının tek senaryosu GPUI'ye paralel yeni bir style framework yazmaktır (örn. başka bir `Styled` benzeri trait için). Bu durumda `method_visibility` parametresi public/`pub(crate)` ayarına izin verir.
 
-Pratik kararlar:
+### Pratik kararlar
 
-- Görünüm state'e bağlıysa `Render` içinde koşullu `.when(...)` kullan; style'ı
-  sonradan imperative değiştirmeye çalışma.
-- Scroll, focus, tooltip, animation gibi stateful elementlerde ID stabil olmalıdır.
-- Parent layout genişliği belirsizse text overflow, image aspect ratio ve absolute
-  child konumu beklediğin sonucu vermeyebilir.
-- Kart/toolbar/list gibi tekrar eden UI'da boyutları `min/max/aspect_ratio` ile
-  sabitle; hover veya loading state layout shift üretmemeli.
+- Görünüm state'e bağlı değişiyorsa stil değişikliği render'ın içinde `.when(...)` ile koşullandırılır; element çizildikten sonra style'ı imperative olarak değiştirmeye çalışmak GPUI'nin modeline uymaz.
+- Scroll, focus, tooltip, animation gibi stateful elementlerin ID'leri stabil tutulur; ID değişmesi state'i sıfırlar.
+- Parent layout genişliği belirsiz olduğunda text overflow, image aspect ratio ve absolute child konumu beklenen sonucu vermeyebilir; en azından bir `w(...)` veya `flex_basis(...)` ile referans değer verilir.
+- Kart, toolbar, liste gibi tekrar eden UI'da boyutlar `min/max/aspect_ratio` ile sabitlenir; hover veya loading state'inde layout kayması (layout shift) yaşanmasın diye.
 
 ## 5.2. Geometri Tipleri ve Birim Yönetimi
 
-`crates/gpui/src/geometry.rs`.
+Kaynak: `crates/gpui/src/geometry.rs`.
 
-GPUI üç farklı pixel birimi kullanır:
+GPUI ekrandaki bir uzunluk için tek bir "pixel" tipiyle yetinmez; çünkü mantıksal piksel, ölçeklenmiş piksel ve gerçek cihaz pikseli birbirinden farklı kavramlardır. Üç ayrı pixel tipi vardır ve her birinin kullanım yeri ayrıdır:
 
-- `Pixels(f32)`: scale-bağımsız mantıksal piksel. UI kodunda neredeyse her zaman
-  bu kullanılır.
-- `ScaledPixels(f32)`: `Pixels * window.scale_factor()`. Renderer'a iletilen değer.
-- `DevicePixels(i32)`: fiziksel cihaz pikseli. Asset/texture boyutlarında kullanılır.
+- **`Pixels(f32)`** — ekran ölçeğinden (DPI/scale factor) bağımsız mantıksal piksel. UI kodunda neredeyse her zaman bu kullanılır; tasarım Retina'da da düşük DPI'da da aynı görünür.
+- **`ScaledPixels(f32)`** — `Pixels * window.scale_factor()` ile elde edilir; renderer'a ölçeklenmiş uzunluk olarak iletilir. Uygulama kodunda nadiren elle inşa edilir.
+- **`DevicePixels(i32)`** — fiziksel cihaz pikseli. Asset/texture boyutları, GPU buffer tahsisleri gibi cihaza yakın yerlerde kullanılır.
 
-Yardımcılar:
+Birim oluşturma yardımcıları:
 
 ```rust
 let p = px(12.0);                  // Pixels
@@ -96,112 +66,95 @@ let s = size(px(100.), px(40.));   // Size<Pixels>
 let b = Bounds::from_corners(point(px(0.), px(0.)), point(px(100.), px(100.)));
 ```
 
-Diğer birimler:
+### Length aileleri
 
-- `Rems(f32)`: kök font boyutuna görelidir (Zed'de `theme.ui_font_size` ile bağlı).
-  `.text_sm()`, `.gap_2()` gibi makro üretilen helper'lar genelde Rems üzerinden
-  Pixels üretir.
-- `AbsoluteLength`: `Pixels` veya `Rems`.
-- `DefiniteLength`: `Absolute(AbsoluteLength)` veya `Fraction(f32)`.
-- `Length`: `Definite(DefiniteLength)` veya `Auto`.
+`Pixels` dışında stil sisteminin kabul ettiği başka uzunluk tipleri de vardır; bunlar `Length` enum'u altında birleşir:
 
-Stil API'leri Length kabul eder:
+- **`Rems(f32)`** — kök font boyutuna görelidir (Zed'de `theme.ui_font_size` değerine bağlanır). `.text_sm()`, `.gap_2()` gibi makro üretilen helper'lar genellikle Rems üzerinden Pixels üretir; bu sayede kullanıcının yazı boyutu değiştiğinde tüm UI orantılı küçülür veya büyür.
+- **`AbsoluteLength`** — ya `Pixels` ya `Rems` taşır.
+- **`DefiniteLength`** — `Absolute(AbsoluteLength)` veya `Fraction(f32)` olabilir. Fraction parent boyutunun belirli bir oranı demektir (`relative(0.5)` = %50).
+- **`Length`** — `Definite(DefiniteLength)` veya `Auto`. `Auto`, layout motoru karar versin anlamındadır.
+
+Stil API'leri `impl Into<Length>` kabul ettiği için bu tiplerin hepsi tek bir method'a geçirilebilir:
 
 ```rust
 div().w(px(120.))           // Pixels
     .min_h(rems(2.))        // Rems
-    .flex_basis(relative(0.5)) // Fraction
-    .h_auto()
+    .flex_basis(relative(0.5)) // Fraction (parent'ın %50'si)
+    .h_auto()                  // Layout motoru karar versin
 ```
 
-Generic container'lar `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Corners<T>`
-çoğu metot için aritmetik destekler (`+`, `-`, `*`, `/`).
+### Geometri container'ları
 
-Kaynakta public inherent metot yüzeyi:
+`Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Corners<T>` generic container'lardır; aritmetik operatörler (`+`, `-`, `*`, `/`) çoğu kombinasyon için destekli olduğundan `bounds + offset`, `size * 2` gibi ifadeler doğrudan yazılabilir.
 
-- `Point<T>`: `map`, `scale`, `magnitude`, `relative_to`, `max`, `min`, `clamp`.
-- `Size<T>`: `new`, `map`, `center`, `scale`, `max`, `min`, `full`, `auto`,
-  `to_pixels`, `to_device_pixels`.
-- `Bounds<T>`: `centered`, `maximized`, `new`, `from_corners`,
-  `from_anchor_and_size`, `centered_at`, `top_center`, `bottom_center`,
-  `left_center`, `right_center`, `intersects`, `center`, `half_perimeter`,
-  `dilate`, `extend`, `inset`, `space_within`, `top`, `bottom`, `left`,
-  `right`, `top_right`, `bottom_right`, `bottom_left`, `corner`, `contains`,
-  `is_contained_within`, `map`, `map_origin`, `map_size`, `localize`,
-  `is_empty`, `scale`, `to_device_pixels`, `to_pixels`.
-- `Edges<T>`: `all`, `map`, `any`, `auto`, `zero`, `to_pixels`, `scale`, `max`.
-  Birden fazla `zero`/`to_pixels` impl'i farklı generic specialization'lardan
-  gelir.
-- `Corners<T>`: `all`, `corner`, `to_pixels`, `scale`, `max`,
-  `clamp_radii_for_quad_size`, `map`.
-- Birim wrapper'ları: `Pixels::{as_f32, floor, round, ceil, scale, pow, abs,
-  signum, to_f64}`, `ScaledPixels::{as_f32, floor, round, ceil}`,
-  `Rems::{is_zero, to_pixels, to_rems}`, `DevicePixels::to_bytes`.
+Public inherent method yüzeyi (referans amaçlı):
 
-Hazır oran sabitleri:
+- **`Point<T>`**: `map`, `scale`, `magnitude`, `relative_to`, `max`, `min`, `clamp`.
+- **`Size<T>`**: `new`, `map`, `center`, `scale`, `max`, `min`, `full`, `auto`, `to_pixels`, `to_device_pixels`.
+- **`Bounds<T>`**: `centered`, `maximized`, `new`, `from_corners`, `from_anchor_and_size`, `centered_at`, `top_center`, `bottom_center`, `left_center`, `right_center`, `intersects`, `center`, `half_perimeter`, `dilate`, `extend`, `inset`, `space_within`, `top`, `bottom`, `left`, `right`, `top_right`, `bottom_right`, `bottom_left`, `corner`, `contains`, `is_contained_within`, `map`, `map_origin`, `map_size`, `localize`, `is_empty`, `scale`, `to_device_pixels`, `to_pixels`.
+- **`Edges<T>`**: `all`, `map`, `any`, `auto`, `zero`, `to_pixels`, `scale`, `max`. Birden fazla `zero`/`to_pixels` impl'i farklı generic specialization'lardan gelir.
+- **`Corners<T>`**: `all`, `corner`, `to_pixels`, `scale`, `max`, `clamp_radii_for_quad_size`, `map`.
+- **Birim wrapper'ları**: `Pixels::{as_f32, floor, round, ceil, scale, pow, abs, signum, to_f64}`, `ScaledPixels::{as_f32, floor, round, ceil}`, `Rems::{is_zero, to_pixels, to_rems}`, `DevicePixels::to_bytes`.
 
-- `phi() -> DefiniteLength` (`geometry.rs:3698`): altın oranı `relative(1.618_034)`
-  olarak döndürür — yani parent'ın **1.618 katı**, %50 değil. GPUI'nin kendisi
-  default `TextStyle::line_height` değeri olarak `phi()` kullanır
-  (`style.rs:451`); yani bir font için satır yüksekliği `font_size * 1.618`'dir.
-  Layout oranlamada (örn. golden-ratio iki sütun) parent'ın katı olarak
-  istenirse aynı sabit kullanılabilir.
+### Hazır oran sabiti: `phi()`
 
-Tuzaklar:
+`phi() -> DefiniteLength` (`geometry.rs:3698`), altın oranı `relative(1.618_034)` olarak döndürür. Burada dikkat çeken nokta `phi()`'nin bir oran *katı* (1.618 katı) belirttiği, yüzde değil. GPUI'nin kendisi default `TextStyle::line_height` değeri olarak `phi()` kullanır (`style.rs:451`); yani bir font için satır yüksekliği `font_size * 1.618` olarak hesaplanır. Layout tarafında aynı sabit kullanılabilir, ancak `relative(1.618_034)` uygulandığı eksende parent boyutundan büyük bir değer üretebileceği için bilinçli seçilmelidir.
 
-- `Bounds::contains(point)` half-open intervallere göre çalışır; sınır pikseli
-  `false` dönebilir.
-- `Pixels` ile `ScaledPixels` aritmetiği `From`/`Into` üzerinden açık konversiyon
-  ister; örtük çevrilmez.
-- `point(x, y)` argument sırası önce X sonra Y'dir; `size(width, height)` de aynı.
+### Tuzaklar
+
+- `Bounds::contains(point)` half-open intervaller üzerinden çalışır; tam sınır pikseli `false` dönebilir. Tıklama hit-test'i yapılırken bunun farkında olunmalıdır.
+- `Pixels` ile `ScaledPixels` aritmetiği örtük yapılmaz; aralarındaki dönüşüm `From`/`Into` ile *açıkça* yazılır. Bu kasıtlıdır — yanlış birim kullanımı tip sistemi tarafından yakalanır.
+- `point(x, y)` ve `size(width, height)` argümanları **önce X (genişlik), sonra Y (yükseklik)** sırasıyla verilir; yaygın bir tuzak parametreleri ters geçirmektir.
 
 ## 5.3. Renkler, Gradient ve Background
 
-`crates/gpui/src/color.rs` ve `colors.rs`.
+Kaynak: `crates/gpui/src/color.rs` ve `colors.rs`.
 
-İki temel tip:
+GPUI'de renkler iki temel tip üzerinden temsil edilir. İkisi de bileşenlerini 0.0–1.0 aralığında tutar (0–255 değil); böylece farklı renk uzayları ve interpolasyon hesapları doğal akar.
 
-- `Rgba { r, g, b, a }`: 0.0–1.0 aralığında bileşenler.
-- `Hsla { h, s, l, a }`: 0.0–1.0 aralığında bileşenler.
+- **`Rgba { r, g, b, a }`** — kırmızı/yeşil/mavi/alfa bileşenleri. Doğrudan piksel renkleri ve hex kaynaklı renkler için doğal tip.
+- **`Hsla { h, s, l, a }`** — ton (hue) / doygunluk (saturation) / açıklık (lightness) / alfa. Tema palette'leri ve renk varyasyonları (örn. "aynı tonu biraz daha koyu") burada daha rahat ifade edilir.
 
 Constructor'lar:
 
 ```rust
 let red = rgb(0xff0000);                    // Rgba, alfa 1.0
-let translucent = rgba(0xff000080);         // 0xRRGGBBAA
-let h = hsla(0.0, 1.0, 0.5, 1.0);           // saf kırmızı
+let translucent = rgba(0xff000080);         // 0xRRGGBBAA, alfa 0x80
+let h = hsla(0.0, 1.0, 0.5, 1.0);           // saf kırmızı (HSL)
 let grey = opaque_grey(0.5, 1.0);           // gri yardımcısı
 ```
 
-Hazır renk sabitleri (hepsi `pub const fn ... -> Hsla`, `color.rs:344+`):
+### Hazır renk sabitleri
+
+Aşağıdaki fonksiyonlar `pub const fn ... -> Hsla` olarak tanımlıdır (`color.rs:344+`). Bunlar tema sisteminden **bağımsızdır** — debug placeholder, GPU shader testi, fade-out maske ucu veya tema yokluğunda yedek palette gerektiğinde elde hazır gelir. Tema renkleri için `cx.theme().colors()` kullanmak doğru yaklaşımdır.
 
 | Fonksiyon | HSLA değeri | Not |
 |---|---|---|
 | `black()` | `(0.0, 0.0, 0.0, 1.0)` | Saf siyah |
 | `white()` | `(0.0, 0.0, 1.0, 1.0)` | Saf beyaz |
-| `transparent_black()` | `(0.0, 0.0, 0.0, 0.0)` | Tam saydam siyah — gradient ucu olarak kullanışlı |
+| `transparent_black()` | `(0.0, 0.0, 0.0, 0.0)` | Tam saydam siyah — gradient ucu olarak en yaygın kullanım |
 | `transparent_white()` | `(0.0, 0.0, 1.0, 0.0)` | Tam saydam beyaz |
 | `red()` | `(0.0, 1.0, 0.5, 1.0)` | %100 doygun kırmızı |
 | `blue()` | `(0.666…, 1.0, 0.5, 1.0)` | %100 doygun mavi |
 | `yellow()` | `(0.166…, 1.0, 0.5, 1.0)` | %100 doygun sarı |
 | `green()` | `(0.333…, 1.0, **0.25**, 1.0)` | Diğerlerinden farklı: lightness 0.25 (koyu yeşil) |
 
-Bunlar Zed tasarım sisteminden bağımsızdır; tema renkleri için `cx.theme().colors()`
-kullan. Debug placeholder, GPU shader test'i veya tema-bağımsız palette örneği
-gerekirse bu sabitler hazır gelir. `transparent_black()` `linear_gradient` ucu
-olarak en yaygın kullanılan tek-parça çağrısıdır (ör. fade-out maskeleri).
+`transparent_black()` özellikle `linear_gradient` ucu olarak fade-out maskelerinde kullanılır (örn. metin sonunu silikleştirme efekti).
 
-Sık kullanılan metotlar (`color.rs:472+`):
+### Sık kullanılan renk method'ları (`color.rs:472+`)
 
-- `is_transparent()`, `is_opaque()`
-- `opacity(factor)`: alfayı çarpar.
-- `alpha(a)`: alfayı doğrudan ayarlar.
-- `fade_out(factor)`: in-place alfa azaltma.
-- `blend(other)`: pre-multiplied alpha ile karıştırır.
-- `grayscale()`: doygunluğu sıfırlar.
-- `to_rgb()`: Hsla → Rgba.
+- `is_transparent()`, `is_opaque()` — alfa durum sorgusu.
+- `opacity(factor)` — mevcut alfayı `factor` ile çarpar (alfa azaltma).
+- `alpha(a)` — alfayı doğrudan verilen değere ayarlar.
+- `fade_out(factor)` — in-place alfa azaltma (mevcut nesneyi değiştirir).
+- `blend(other)` — pre-multiplied alpha ile başka bir rengi karıştırır.
+- `grayscale()` — doygunluğu sıfırlar; rengi tonlamadan kaldırır.
+- `to_rgb()` — `Hsla` → `Rgba` dönüşümü.
 
-Background tipi (`color.rs:763+`) sadece düz renk değildir:
+### Background tipi
+
+Bir alanın dolgusu yalnızca düz renk olmak zorunda değildir; `Background` (`color.rs:763+`) gradient ve desen seçeneklerini de barındırır:
 
 ```rust
 solid_background(rgb(0xffffff))
@@ -214,38 +167,30 @@ checkerboard(rgb(0xeeeeee), 8.0)
 pattern_slash(rgb(0xff0000), 2.0, 6.0)
 ```
 
-`linear_gradient(...).color_space(ColorSpace::Oklab)` ile renk uzayı seçilebilir;
-`opacity(factor)` her stop'a uygulanır. `Background::as_solid()` yalnızca düz
-renk background için `Some(Hsla)` döndürür; gradient/pattern için `None` döner.
+- `linear_gradient(...).color_space(ColorSpace::Oklab)` ile renk uzayı seçilebilir (Oklab algısal olarak daha düzgün geçiş verir).
+- `opacity(factor)` çağrısı gradient'taki tüm stop'lara birden uygulanır.
+- `Background::as_solid()` yalnızca düz renk background için `Some(Hsla)` döndürür; gradient ve pattern için `None` döner. "Bu background tek renk mi" sorusu burada cevaplanır.
 
-`.bg(impl Into<Background>)` her style fluent API'sinde mevcut. Düz `Hsla` da
-`Into<Background>` implement eder, bu yüzden `.bg(theme.colors().panel_background)`
-tipik kullanımdır.
+Her stil fluent API'sinde `.bg(impl Into<Background>)` method'u vardır ve düz `Hsla` da `Into<Background>` implementasyonuna sahiptir; bu yüzden tipik kullanım `.bg(theme.colors().panel_background)` biçiminde, açıkça `solid_background(...)` çağrısına gerek kalmadan yapılır.
 
-Pratik notlar:
+### Pratik notlar
 
-- Alfa = 0 fakat opaque arka planın üzerine çiziyorsan temadaki opak rengi tercih et.
-- Gradient stop'lar `0.0` ve `1.0` arasında sıralı vermeli; aksi halde GPU shader'ı
-  beklenmedik dağılım verebilir.
-- Hsla'da hue 1.0'a sarılmaz (clamp'lenir); rotasyon için `hue + delta` modulo 1.0
-  ile hesapla.
+- Gradient veya fade maskesi üretirken tam saydam renklerin RGB bileşeni hâlâ interpolasyonu etkileyebilir. Arka plan opaksa, saydam uç rengi olarak genelde aynı tema renginin alpha'sı 0 olan varyantını kullanmak kenarlarda renk saçılması riskini azaltır.
+- Gradient stop'ları `0.0` ile `1.0` arası, **sıralı** (artan) verilmelidir; sıra dışı verilen stop'lar GPU shader'ında beklenmedik dağılım üretebilir.
+- `Hsla`'da hue 1.0'a sarılmaz, clamp'lenir; renk rotasyonu için `(hue + delta) % 1.0` ile elle modulo alınır.
 
 ## 5.4. SharedString, SharedUri ve Ucuz Klonlanan Tipler
 
-`SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri`
-`crates/gpui/src/shared_uri.rs` içinde bu string tipini sarar.
+UI ağacı her render'da yeniden oluşturulduğu için, render fonksiyonunun döndürdüğü yapıya geçirilen string ve URI'ler her frame'de kopyalanır. Sıradan `String` kullanıldığında bu kopyalama bir allocation demektir; saniyede 60+ frame ile çarpıldığında ciddi bir maliyet birikir. GPUI bu sorunu, `Arc` tabanlı paylaşımlı string ve URI tipleriyle çözer: bir kez allocate edilir, sonraki tüm clone'lar yalnızca referans sayacı artırır.
 
-UI ağacı her render'da yeniden oluşturulduğu için string ve URI kopyalama maliyeti
-hızla birikir. GPUI bunun için `Arc` tabanlı tipler sunar:
+`SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri` ise `crates/gpui/src/shared_uri.rs` içinde aynı string tipini sarar.
 
-- `SharedString`: `&'static str` veya `Arc<str>`. `Clone` ucuzdur (ref-count).
-  `Display`, `AsRef<str>`, `Into<SharedString>` impl'ler mevcuttur. `&'static str`,
-  `String` ve `Cow<'_, str>` ücretsizce dönüşür.
-- `SharedUri`: aynı stratejiyle URI; `ImageSource::Resource(Resource::Uri(...))`
-  burada `SharedUri` ister.
+- **`SharedString`** — içeride ya `&'static str` ya `Arc<str>` tutar. `Clone` ucuzdur (ref-count artışı). `Display`, `AsRef<str>`, `Into<SharedString>` implementasyonları mevcuttur; `&'static str`, `String` ve `Cow<'_, str>` kolayca dönüştürülür. String literal allocation yapmaz; sahip olunan `String` ise bir kez paylaşımlı temsile çevrilir.
+- **`SharedUri`** — aynı stratejiyle URI. Örneğin `ImageSource::Resource(Resource::Uri(...))` burada `SharedUri` bekler; aynı asset URI'sinin tekrar tekrar görselleştirilmesi durumunda allocation çoğalmaz.
 
-Render içinde `String` üretip clone etmek yerine entity state'de `SharedString`
-sakla:
+### Tipik kullanım
+
+Render içinde `String` üretip clone etmek yerine entity state'inde `SharedString` saklamak, hot path allocation'ını yok eder:
 
 ```rust
 struct Header { title: SharedString }
@@ -259,29 +204,28 @@ impl Header {
 
 impl Render for Header {
     fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
-        div().child(self.title.clone())
+        div().child(self.title.clone()) // sadece ref-count artar
     }
 }
 ```
 
-İlgili ucuz klon tipleri:
+### İlgili ucuz klon tipleri
 
-- `Arc<str>`, `Arc<Path>`, `Arc<[T]>`: GPUI sıkça `Arc` based slice/path bekler.
-- `Hsla`/`Rgba`: `Copy` tipli, doğrudan değer geçirilir.
-- `ElementId`: `Clone`, internal ID veya string varyantları taşır.
+GPUI'de yaygın görülen, clone'lanması ucuz diğer tipler:
 
-Tuzaklar:
+- **`Arc<str>`, `Arc<Path>`, `Arc<[T]>`** — GPUI birçok API'sinde `Arc` tabanlı slice veya path bekler; aynı buffer'ı paylaşan handle'lar üretir.
+- **`Hsla` / `Rgba`** — `Copy` tipindedir; doğrudan değer olarak geçirilir, clone gerekmez.
+- **`ElementId`** — `Clone` ucuzdur; içeride ya küçük bir sayısal ID ya `SharedString` taşır.
 
-- `SharedString::from(String)` çağrısı bir kez allocation yapar; sonraki klonlar
-  ücretsiz. Hot path'te tekrar tekrar `String` üretmekten kaçın.
-- `to_string()` çağrısı yeni `String` allocation üretir; gerekmiyorsa
-  `as_ref()` veya `Display` ile yaz.
-- Format string her render'da çalışıyorsa `format!` sonucu da her frame allocation
-  yapar; sonucu cache'lemek için entity state'te tut.
+### Tuzaklar
+
+- `SharedString::from(String)` çağrısı veriyi **bir kez** paylaşımlı temsile çevirir; sonraki tüm clone'lar yalnızca ref-count artırır. Hot path'te tekrar tekrar `String` oluşturup `SharedString`'e çevirmekten kaçınmak gerekir: başlangıçta bir kez dönüşüm yapılır, sonra `SharedString` saklanır.
+- `to_string()` her çağrıldığında yeni bir `String` allocation üretir; gerekmediği yerde `as_ref()` veya `Display` üzerinden yazmak tercih edilir.
+- Format string'ler her render'da çalışıyorsa `format!` sonucu da her frame allocation yapar; format'lanmış sonuç entity state'inde tutulup cache'lenir, render her seferde değer hesaplamaz.
 
 ## 5.5. WindowAppearance ve Tema Modu
 
-`crates/gpui/src/platform.rs:1604` içinde tanımlı:
+`WindowAppearance`, işletim sisteminin o anki açık/koyu görünüm tercihini ifade eden enum'dur. Kullanıcı sistemden "Light" veya "Dark" seçtiğinde GPUI bunu pencereye yansıtır; tema motoru da bu sinyali takip ederek koyu/açık temaya geçer. Tanım `crates/gpui/src/platform.rs:1604`:
 
 ```rust
 pub enum WindowAppearance {
@@ -292,26 +236,19 @@ pub enum WindowAppearance {
 }
 ```
 
-`Vibrant` varyantları macOS `NSAppearance` değerleriyle doğrudan eşleşir. Diğer
-platformlar bu enum'u yine taşır, fakat vibrancy'nin gerçek etkisi platform
-implementasyonuna bağlıdır. Sistem açık/koyu tercih ettiğinde GPUI bunu platform
-appearance olarak yansıtır; kullanıcı manuel tema override yapmıyorsa Zed teması
-bu sinyali takip eder.
+`Vibrant` varyantları macOS `NSAppearance` değerleriyle birebir eşleşir; macOS'ta sistem materyalleri arkaplanı bulanıklaştırarak ("vibrancy") özel bir görünüm üretir. Diğer platformlar (Windows, Linux, web) bu enum'u taşımaya devam eder ama vibrancy'nin gerçek görsel etkisi platforma göre değişir veya hiç olmaz; bu yüzden tema logic'inde tüm dört değer için eşleştirme tanımlanır.
 
-Erişim:
+### Erişim ve abonelik
 
-- `cx.window_appearance() -> WindowAppearance`: uygulama-genel platform tercihi.
-- `window.appearance() -> WindowAppearance`: pencerenin gerçek görünümü
-  (parent override edebilir).
-- `window.observe_window_appearance(|window, cx| ...)`: entity state'e gerek
-  yoksa doğrudan pencere observer'ı.
-- `cx.observe_window_appearance(window, |this, window, cx| ...)`: `Context<T>`
-  içinden view state ile birlikte değişimi izle.
-- `window.observe_button_layout_changed(...)` ve
-  `cx.observe_button_layout_changed(window, ...)`: platform pencere kontrol
-  butonu düzeni değiştiğinde çalışır.
+- **`cx.window_appearance() -> WindowAppearance`** — Uygulama genelinde platformun bildirdiği tercihi anlık olarak okur.
+- **`window.appearance() -> WindowAppearance`** — Belirli bir pencerenin gerçek görünümünü okur; parent pencere (macOS modal hiyerarşisi) bu değeri override etmiş olabilir.
+- **`window.observe_window_appearance(|window, cx| { ... })`** — Pencerenin görünümü değiştiğinde tetiklenen observer. View state'i gerektirmeyen, doğrudan pencere üzerinden kurulan abonelik.
+- **`cx.observe_window_appearance(window, |this, window, cx| { ... })`** — Aynı abonelik bir `Context<T>` üzerinden kurulur; closure içinde `this: &mut T` ile view state'e erişilir. Tema bağımlı view state'i de güncellenmesi gerekiyorsa bu form tercih edilir.
+- **`window.observe_button_layout_changed(...)`** ve **`cx.observe_button_layout_changed(window, ...)`** — Platform pencere kontrol butonlarının (kapat–küçült–büyüt) düzeni değiştiğinde çalışır; custom title bar çizen kodda bu sıraya göre yeniden layout gerekir.
 
-Zed örüntüsü `crates/zed/src/main.rs` içinde tema seçimine bağlanır:
+### Zed örüntüsü
+
+`crates/zed/src/main.rs` içinde sistem görünümü değişimine bağlanan tipik kullanım:
 
 ```rust
 cx.observe_window_appearance(window, |_, window, cx| {
@@ -322,16 +259,13 @@ cx.observe_window_appearance(window, |_, window, cx| {
 }).detach();
 ```
 
-Tuzaklar:
+Akış: kullanıcı sistemden temayı değiştirdiğinde callback çalışır → güncel appearance global olarak yazılır → tema ve ikon teması yeniden yüklenir. `detach()` ile observer'ın handle'ı bırakılır; bu observer uygulama yaşadığı sürece aktif kalsın diye.
 
-- macOS dışında `VibrantLight`/`VibrantDark` üretilmez; eşleştirme tablosunda
-  yine de tüm dört değeri ele al.
-- Sistem temasını değiştirmek pencere açıldıktan sonra `window_background_appearance`
-  değişimini tetiklemez; tema akışında manuel `window.set_background_appearance(...)`
-  çağrısı gerekir.
-- `Vibrant*` ile birlikte `WindowBackgroundAppearance::Blurred` eklenirse macOS'ta
-  blur'un üzerine extra vibrancy bindirilir; tasarım sisteminde tek katman seç.
+### Tuzaklar
+
+- `VibrantLight` / `VibrantDark` pratikte macOS `NSAppearance` değerleri için beklenir, ama enum bu varyantları platformdan bağımsız taşımaya devam eder. Tema eşleştirme tablosunda tüm dört değer (`Light`, `VibrantLight`, `Dark`, `VibrantDark`) ele alınır; aksi halde wildcard kullanılmayan `match` ifadelerinde Rust derleyicisi exhaustiveness hatası verir ve macOS'ta vibrancy'li pencerelerde tema yanlış uygulanabilir.
+- **Sistem temasını değiştirmek `window_background_appearance`'ı otomatik tetiklemez.** Pencerenin background'u açıldıktan sonra appearance değişimine bağlı olarak kendiliğinden güncellenmez; tema akışında manuel olarak `window.set_background_appearance(...)` çağrılır.
+- **`Vibrant*` ile `WindowBackgroundAppearance::Blurred` çakışır.** İkisi birlikte kullanıldığında macOS'ta iki ayrı materyal/bulanıklık etkisi üst üste binebilir. Tasarım sisteminde yalnızca bir katman tercih edilir.
 
 
 ---
-

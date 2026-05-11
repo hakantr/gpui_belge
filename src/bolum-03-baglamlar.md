@@ -4,14 +4,14 @@
 
 ## 3.1. Temel Bağlamlar
 
-GPUI'de yapılan hemen her işlem — entity güncellemek, pencere açmak, async iş başlatmak, global state okumak, event yayınlamak — `cx` ile gösterilen bir "bağlam" (context) nesnesi üzerinden gerçekleştirilir. Bağlam, o anda hangi kapsamda bulunulduğunu (tüm uygulama, belirli bir entity'nin güncellenmesi, bir pencere, bir async devam) ve hangi API'lerin kullanılabilir olduğunu temsil eder. Bu yüzden GPUI kodunda fonksiyon imzalarında neredeyse her zaman `cx: &mut App` veya benzer bir parametre görülür; bağlam dışarıdan içeri taşınır, global yoluyla "havadan alınmaz".
+GPUI'de yapılan hemen her işlem — entity güncellemek, pencere açmak, async iş başlatmak, global state okumak, event yayınlamak — `cx` ile gösterilen bir "bağlam" (context) nesnesi üzerinden gerçekleştirilir. Bağlam, o anda hangi kapsamda bulunulduğunu (tüm uygulama, belirli bir entity'nin güncellenmesi, bir pencere, bir async devam) ve hangi API'lerin kullanılabilir olduğunu temsil eder. Bu yüzden GPUI kodunda fonksiyon imzalarında neredeyse her zaman `cx: &mut App` veya benzer bir parametre görülür; bağlam dışarıdan içeri taşınır, global bir singleton gibi "havadan" alınmaz.
 
 GPUI'de en sık karşılaşılan bağlam tipleri ve hangisinin neyi temsil ettiği:
 
-- **`App`** — Uygulamanın kök bağlamı. Pencere listesi, platform servisleri, keymap, global state, yeni entity oluşturma ve yeni pencere açma buradan yapılır. Genelde uygulama başlangıcındaki `app.run(|cx: &mut App| { ... })` içinde ve top-level event handler'larda görülür.
-- **`Context<T>`** — Belirli bir `Entity<T>` güncellenirken otomatik olarak alınır (örn. `entity.update(cx, |state, cx| { ... })` içindeki ikinci `cx`). `App`'in tüm yeteneklerini içerir (`Deref` ile) ve üstüne entity-odaklı yardımcılar ekler: `cx.notify()` (render lazım), `cx.emit(event)` (event yayınla), `cx.listener(...)` (callback ile entity'yi yeniden çağır), `cx.observe(...)` ve `cx.subscribe(...)` (başka entity'leri izle), `cx.spawn(...)` (async iş başlat).
+- **`App`** — Uygulamanın kök bağlamı. Pencere listesi, platform servisleri, keymap, global state, yeni entity oluşturma ve yeni pencere açma buradan yapılır. Genelde uygulama başlangıcındaki `app.run(|cx: &mut App| { ... })` içinde ve üst seviye event handler'larda görülür.
+- **`Context<T>`** — Belirli bir `Entity<T>` güncellenirken otomatik olarak alınır (örn. `entity.update(cx, |state, cx| { ... })` içindeki ikinci `cx`). `App` API yüzeyine erişir (`Deref` ile) ve üstüne entity-odaklı yardımcılar ekler: `cx.notify()` (render gerekli), `cx.emit(event)` (event yayınla), `cx.listener(...)` (callback ile entity'yi yeniden çağır), `cx.observe(...)` ve `cx.subscribe(...)` (başka entity'leri izle), `cx.spawn(...)` (async iş başlat).
 - **`Window`** — Belirli bir pencereye özgü durum ve davranış. Focus yönetimi, imleç, bounds, resize, title bar, background appearance, action dispatch, IME, prompt ve platform pencere işlemleri burada yapılır. Render fonksiyonları (`fn render(&mut self, window: &mut Window, cx: &mut Context<Self>)`) hem `Window`'u hem `Context`'i alır.
-- **`AsyncApp` ve `AsyncWindowContext`** — `await` noktaları arasında taşınabilen bağlam türleridir. Async iş sürerken entity veya pencere kapanmış olabileceği için bu bağlamlar üzerinden yapılan erişimler `Result` döndürür (fallible'dır).
+- **`AsyncApp` ve `AsyncWindowContext`** — `await` noktaları arasında taşınabilen bağlam türleridir. Async iş sürerken entity veya pencere kapanmış olabileceği için bu bağlamlar üzerinden yapılan birçok erişim `Result` döndürür; yani hata ihtimali açıkça ele alınır.
 - **`TestAppContext` ve `VisualTestContext`** — Testlerde kullanılır. Zaman simülasyonu, görsel doğrulama, manuel event tetikleme gibi test araçları ekler. Üretim kodunda yer almaz.
 
 ### Entity oluşturma, okuma ve güncelleme
@@ -35,7 +35,7 @@ let weak = entity.downgrade();
 weak.update(cx, |state, cx| {
     state.value += 1;
     cx.notify();
-})?; // entity hâlâ yaşıyorsa Some, yoksa None — bu yüzden ?
+})?; // entity hâlâ yaşıyorsa Ok döner, düşmüşse Err — bu yüzden ?
 ```
 
 `entity.read(cx)` veriyi immutable referans olarak verir. `entity.update(cx, |state, cx| { ... })` ise içerideki closure'a mutable referans geçer; closure tamamlanınca, içeride `cx.notify()` çağrılmışsa ilgili view'ların yeniden render'ı planlanır. `notify` çağrılmazsa GPUI değişiklikten habersiz kalır ve ekranda eski görüntü kalır.
@@ -44,12 +44,12 @@ weak.update(cx, |state, cx| {
 
 - **Render'ı etkileyen state değişikliklerinden sonra `cx.notify()` çağrılır.** Aksi halde değişiklik bellekte gerçekleşir ama UI bunu görmez; "değiştirdim ama ekran güncellenmiyor" yaygın bir tuzaktır.
 - **Bir entity güncellenirken aynı entity yeniden update edilmez.** İç içe `entity.update(...)` çağrısı panic'e yol açar. İçeride aynı entity'ye dokunmak gerekiyorsa iş `cx.defer(|cx| { ... })` ile sonraki effect cycle'a ertelenir.
-- **Uzun ömürlü async işlerde `Entity<T>` yerine `WeakEntity<T>` taşınır.** Aksi halde async closure entity'yi hayatta tutar, entity kullanılmasa bile bellekten serbest kalmaz ve kapatma akışı kilitlenir.
+- **Uzun ömürlü async işlerde `Entity<T>` yerine `WeakEntity<T>` taşınır.** Aksi halde async closure entity'yi gereğinden uzun süre hayatta tutar; view kapanmış olsa bile state serbest kalmayabilir ve lifecycle davranışı beklenenden farklılaşır.
 - **`Task` handle'ı düşürülürse iş iptal olur.** Bu yüzden başlatılan iş ya `await` edilir, ya bir struct alanında saklanır, ya da `detach()` / `detach_and_log_err(cx)` ile bağımsız bırakılır.
 
 ## 3.2. WindowHandle, AnyWindowHandle ve VisualContext
 
-`cx.open_window(...)` veya test helper'ları yeni bir pencere açtığında geriye `WindowHandle<V>` türünde bir handle döner. Bu handle pencerenin **kök view tipini** (`V`) bilen, dışarıdan o pencereye komut göndermek için kullanılan tutamaçtır. Pencereye dair kod iki yerden birinde bulunur: ya pencerenin içinde (`render` fonksiyonu, `&mut Window` ile), ya da pencere dışından (`WindowHandle` üzerinden). Handle, pencereye dışarıdan eriştiren tek köprüdür.
+`cx.open_window(...)` veya test helper'ları yeni bir pencere açtığında geriye `WindowHandle<V>` türünde bir handle döner. Bu handle pencerenin **kök view tipini** (`V`) bilen, dışarıdan o pencereye komut göndermek için kullanılan tutamaçtır. Pencereye dair kod iki yerden birinde bulunur: ya pencerenin içinde (`render` fonksiyonu, `&mut Window` ile), ya da pencere dışından (`WindowHandle` üzerinden). Pencereye dışarıdan tipli erişim için ana köprü budur.
 
 `AnyWindowHandle` aynı amaca hizmet eder ama kök view tipini taşımaz; ihtiyaç olduğunda runtime'da downcast edilerek tipli versiyona çevrilir. Örneğin tüm açık pencerelerin listesi `Vec<AnyWindowHandle>` olarak gelir, içlerinden belirli bir tipte (örn. `Workspace`) olanları işlemek için downcast yapılır.
 
@@ -74,7 +74,7 @@ let active = handle.is_active(cx);
 let id = handle.window_id();
 ```
 
-`handle.update(...)` çağrısı, pencere hâlâ açıksa içerideki closure'ı çalıştırır; pencere bu arada kapanmışsa `Err` döner ve bu yüzden `?` ile sonlandırılır. Closure üç şey alır: kök view'ın mutable hâli (tipli, örn. `Workspace`), `&mut Window` ve `&mut App`. Pencereyle yapılacak hemen her şey (focus, refresh, resize, prompt) bu closure içinde mümkündür.
+`handle.update(...)` çağrısı, pencere hâlâ açıksa içerideki closure'ı çalıştırır; pencere bu arada kapanmışsa `Err` döner ve bu yüzden `?` ile sonlandırılır. Closure üç şey alır: kök view'ın mutable hâli (tipli, örn. `Workspace`), `&mut Window` ve kök view'a ait update context'i. Pencereyle yapılacak hemen her şey (focus, refresh, resize, prompt) bu closure içinde mümkündür.
 
 ### `AnyWindowHandle` kullanımı
 
@@ -112,12 +112,11 @@ Bir pencerenin tüm içeriği aslında tek bir kök view tarafından üretilir. 
 window.replace_root(cx, |window, cx| NewRoot::new(window, cx));
 ```
 
-Async veya test bağlamlarında aynı işlem `replace_root_view` helper'ı üzerinden yapılır. Tipik kullanımı: yeni bir pencere açmadan tüm UI akışını başka bir ekrana geçirmek (örn. login ekranından workspace'e geçiş, "Welcome" ekranından ana çalışma alanına geçiş). Eski kök view'a ait subscription'lar, root entity drop edildiğinde otomatik olarak kalkar; ancak `detach`'le başlatılmış ve struct dışında tutulan task'lar yaşamaya devam eder. Bu yüzden root değişiminden önce ilgili task ve abone yönetiminin gözden geçirilmesi gerekir.
+Async veya test bağlamlarında aynı işlem `replace_root_view` helper'ı üzerinden yapılır. Tipik kullanımı: yeni bir pencere açmadan tüm UI akışını başka bir ekrana geçirmek (örn. login ekranından workspace'e geçiş, "Welcome" ekranından ana çalışma alanına geçiş). Eski kök view'a ait subscription'lar, root entity drop edildiğinde otomatik olarak kalkar; ancak `detach` edilmiş veya başka bir yerde saklanan task'lar yaşamaya devam edebilir. Bu yüzden root değişiminden önce ilgili task ve abonelik yönetiminin gözden geçirilmesi gerekir.
 
 ### Hangi pencerede çalışıldığını bulmak
 
-`with_window(entity_id, |window, cx| { ... })`, verilen entity'nin **en son render edildiği** pencereyi bulup içinde çalıştırma yapar. Bir entity aynı anda birden fazla pencerede render ediliyorsa bu API "şu an aktif olan" hangisiyse onu seçer; bilinçli bir kısayoldur. Kesin bir pencere hedeflenmek isteniyorsa entity oluşturulurken ilgili `WindowHandle` saklanır ve sonradan doğrudan o handle üzerinden işlem yapılır.
+`with_window(entity_id, |window, cx| { ... })`, verilen entity'nin **geçerli veya en son ilişkilendirilen** penceresini bulup içinde çalıştırma yapar. Bir entity aynı anda birden fazla pencerede render ediliyorsa bu API bilinçli bir kısayoldur; kesin pencere hedeflenmek isteniyorsa entity oluşturulurken ilgili `WindowHandle` saklanır ve sonradan doğrudan o handle üzerinden işlem yapılır.
 
 
 ---
-

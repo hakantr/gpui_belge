@@ -63,7 +63,7 @@ let border = colors.border;
 
 Persist edilen örnekler:
 
-- Pencere bounds (bkz. Bölüm 33).
+- [Pencere bounds persist ve restore](./bolum-06-pencere-yonetimi.md#612-pencere-bounds-persist-ve-restore).
 - Açık projeler ve recent: `crates/recent_projects`.
 - Workspace serialization: `crates/workspace/src/persistence.rs` ve
   `db` crate'i (SQLite tabanlı).
@@ -250,4 +250,3 @@ Tuzaklar:
 
 
 ---
-
