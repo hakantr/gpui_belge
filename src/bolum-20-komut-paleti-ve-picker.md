@@ -4,11 +4,13 @@
 
 ## 20.1. CommandPalette: Filter, Aliases ve Interceptor
 
-`crates/command_palette_hooks/` global'leri komut paleti UX'ini şekillendirir.
-UI'ı yazmadan önce bu global'leri tanımak gerekir, çünkü odaktaki elementten
-toplanan action listesi, görünürlük filtresi ve alternatif komut sonuçları bu
-katmandan geçer. Zed başlangıcında `command_palette::init(cx)`,
-`command_palette_hooks::init(cx)` çağırır; filtre global'i bu çağrıyla kurulur.
+Komut paleti (Ctrl+Shift+P / Cmd+Shift+P) Zed'de yalnızca "kayıtlı action listesini göster" demek değildir; **üç ek katman** kullanıcı deneyimini şekillendirir:
+
+1. **Filter** — Hangi action'ların görünür olduğunu belirler (feature flag, vim mode aktif/pasif vs.).
+2. **Aliases** — Kullanıcının kısa adlarla yazdığı sorguları (örn. `ag` → `search::ToggleSearch`) canonical action adına çevirir.
+3. **Interceptor** — "Tam string'i komuta dönüştür" desenini destekler (örn. vim ex komutu `:42` → satır 42'ye git).
+
+Bu katmanlar `crates/command_palette_hooks/` crate'inde tanımlı global'lerden yönetilir. Komut paleti UI'ı yazılmadan veya değiştirilmeden önce bu global'lerin işleyişini bilmek gerekir; odaktaki UI öğesinden toplanan action listesi, görünürlük filtresi ve alternatif komut sonuçları hep bu katmandan geçer. Zed başlangıcı `command_palette::init(cx)` çağrısı sırasında `command_palette_hooks::init(cx)` da çağırır; filter global'i bu noktada kurulur.
 
 #### CommandPaletteFilter
 
@@ -136,8 +138,7 @@ Action trait'inin `documentation()`, `deprecation_message()` ve
 
 ## 20.2. CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
 
-`crates/command_palette/src/command_palette.rs` Zed'in gerçek komut paleti
-akışıdır. Başlatma ve açma sırası:
+20.1'deki hook'ların üstüne, gerçek komut paleti runtime akışı `crates/command_palette/src/command_palette.rs` içinde implemente edilir. Kullanıcı paleti açtığında — başlatma, action toplama, fuzzy arama, sıralama ve onay davranışı sırasıyla şu adımları izler. Bu akış picker bileşeninin (20.3) tipik bir tüketicisidir; benzer pattern'i farklı seçim UI'larına uyarlamak için temel referanstır.
 
 1. `command_palette::init(cx)` hook global'lerini kurar ve
    `cx.observe_new(CommandPalette::register).detach()` ile her yeni
@@ -205,8 +206,9 @@ Onay davranışı:
 
 ## 20.3. Picker, PickerDelegate ve PickerPopoverMenu
 
-`crates/picker/` command palette dışında da kullanılan genel seçim/arama
-bileşenidir. Bir picker yazarken ana iş `PickerDelegate` implementasyonudur:
+`Picker` Zed'de aramalı seçim listesi için kullanılan genel UI bileşenidir; komut paleti, dosya arama, branch seçici, tema seçici gibi pek çok yerin altında aynı bileşen çalışır. Bir picker yazılırken esas iş **`PickerDelegate`** implementasyonudur — delegate hangi item'ların var olduğunu, hangisinin seçili olduğunu, query değiştiğinde nasıl filtre uygulanacağını ve onay/iptal davranışını tanımlar. Picker bileşeni delegate'i alıp UI'yı kurar.
+
+Kaynak: `crates/picker/`.
 
 ```rust
 pub trait PickerDelegate: Sized + 'static {

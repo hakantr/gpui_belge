@@ -4,6 +4,8 @@
 
 ## 21.1. Reçeteler
 
+Bu bölüm önceki bölümlerde anlatılan kavramları pratik **hazır reçeteler** olarak bir araya getirir. Her reçete, somut bir senaryoda (yeni pencere açma, modal dialog, transparent bildirim, custom resize handle vb.) hangi API'lerin hangi sırada çağrılacağını adım adım gösterir; kopyalanıp uyarlanmak üzere düşünülmüştür.
+
 #### Yeni Workspace Penceresi
 
 1. `zed::build_window_options(display_uuid, cx)` kullan.
@@ -122,28 +124,21 @@ Zed ana uygulaması bu deseni zaten kullanır.
 
 ## 21.2. Sık Hatalar ve Doğru Desenler
 
-- **İstenen decoration'a güvenme**: `WindowOptions.window_decorations` sadece istektir.
-  Render sırasında `window.window_decorations()` sonucunu kullan.
-- **Blur görünmüyor**: Root veya theme tamamen opak renk çiziyor olabilir. Transparent
-  surface ve alfa gerekir.
-- **Linux kontrol butonları yanlış tarafta**: `cx.button_layout()` ve
-  `observe_button_layout_changed` kullanılmalı.
-- **Windows caption butonları tıklanmıyor**: Buton UI öğelerinde
-  `window_control_area(Close/Max/Min)` eksik olabilir.
-- **Close davranışı bypass ediliyor**: Zed workspace penceresinde doğrudan
-  `remove_window` yerine `workspace::CloseWindow` action'ını dispatch et.
-- **Async task çalışırken yok oluyor**: Dönen `Task` saklanmamış veya detach edilmemiştir.
-- **Entity leak**: Uzun yaşayan task/subscription içinde güçlü `Entity` yakalamak yerine
-  `WeakEntity` kullan.
-- **Render güncellenmiyor**: State değişiminden sonra `cx.notify()` unutulmuştur.
-- **Focus callback'i fire etmiyor**: Element `.track_focus(&focus_handle)` ile ağaca
-  bağlanmamış olabilir.
-- **Custom titlebar altında içerik tıklanamıyor**: Drag/window control hitbox'ı fazla
-  geniş olabilir veya `.occlude()` yanlış yerde olabilir.
-- **Client decoration shadow boşluğu**: `set_client_inset` ve dış wrapper padding/shadow
-  birlikte yönetilmelidir.
+Önceki bölümlerde tek tek geçen tuzakların pratikte en çok karşılaşılan formları aşağıda toplanmıştır. Her madde "yaşanan belirti → kök neden → doğru desen" çerçevesindedir.
 
-#### Dokümantasyon Dili
+- **İstenen decoration'a güvenmek** — `WindowOptions.window_decorations` yalnızca istektir; compositor desteğine göre değişebilir. Render sırasında `window.window_decorations()` ile **fiili** mod okunur (bkz. 6.5, 6.8).
+- **Blur görünmüyor** — Root veya tema tamamen opak renk çiziyor olabilir. Blur'un ekrana yansıması için transparent surface ve içerikte alfa bırakılması gerekir (bkz. 6.10).
+- **Linux kontrol butonları yanlış tarafta** — Sabit konumlar yerine `cx.button_layout()` okunur; `observe_button_layout_changed` ile layout değişimi izlenir.
+- **Windows caption butonları tıklanmıyor** — Buton UI öğelerinde `window_control_area(Close/Max/Min)` çağrısı eksik olabilir; Windows hit-test sistemi buna bağlıdır (bkz. 6.6).
+- **Close davranışı bypass ediliyor** — Zed workspace penceresinde doğrudan `remove_window` çağrılırsa dirty buffer kontrolü ve confirmation akışı atlanır. Bunun yerine `workspace::CloseWindow` action dispatch edilir (bkz. 6.7).
+- **Async task çalışırken yok oluyor** — Dönen `Task` saklanmamış veya detach edilmemiştir; `Task` drop edilince iş iptal olur. `await`, struct alanında saklama veya `detach_and_log_err(cx)` seçeneklerinden birine bağlanmalıdır (bkz. 9.3).
+- **Entity leak** — Uzun yaşayan task veya subscription içinde güçlü `Entity` yakalamak referans döngüsü kurabilir; bunun yerine `WeakEntity` kullanılır (bkz. 9.8).
+- **Render güncellenmiyor** — State değişiminden sonra `cx.notify()` çağrısı unutulmuştur; GPUI değişiklikten habersiz kalır ve ekrandaki görüntü eski değerle kalır (bkz. 4.2).
+- **Focus callback'i fire etmiyor** — Element `.track_focus(&focus_handle)` ile ağaca bağlanmamış olabilir; handle UI öğesine bağlanmadıkça yalnızca programatik focus alır (bkz. 7.1).
+- **Custom titlebar altında içerik tıklanamıyor** — Drag/window control hitbox'ı fazla geniş olabilir veya `.occlude()` yanlış yerde çağrılmıştır; tıklamalar alta düşmüyordur (bkz. 7.2, 7.4).
+- **Client decoration shadow boşluğu** — `set_client_inset` ve dış wrapper'ın padding/shadow değerleri birbirine uygun olmalıdır; aksi halde gölgenin etrafında garip beyaz/şeffaf boşluk oluşur (bkz. 6.8).
+
+### Dokümantasyon Dili
 
 - Kod tipleri İngilizce bırakılır; açıklama metninde ilk kullanımda Türkçe karşılığıyla
   verilir: `entity` = varlık, `handle` = tutamaç, `view` = görünüm,
@@ -155,6 +150,8 @@ Zed ana uygulaması bu deseni zaten kullanır.
   doğrudan Markdown linki verilir.
 
 ## 21.3. Yeni Pencere Eklerken Kontrol Listesi
+
+Yeni bir pencere eklemek küçük gibi görünen ama on'larca karar gerektiren bir iştir: pencere türü, restore davranışı, decoration modu, focus akışı, theme/font etkisi vs. Aşağıdaki kontrol listesi her yeni pencere eklenmeden önce sırasıyla geçilmelidir; her madde önceki bölümlerde detaylı olarak ele alınan bir kararla eşleşir.
 
 1. Bu pencere workspace mi, modal mı, popup mı? `WindowKind` seç.
 2. Ana Zed penceresiyse `build_window_options` kullan.
@@ -174,6 +171,8 @@ Zed ana uygulaması bu deseni zaten kullanır.
 16. Testte timer gerekiyorsa GPUI executor timer kullanıldı mı?
 
 ## 21.4. Kısa Cevaplar
+
+Bu bölüm rehberin sık sorulan pratik sorularına kısa, doğrudan cevap sunar. Daha derin açıklamalar için ilgili ana bölüme bakılır; buradaki amaç hızlı referanstır.
 
 **İleride pencere oluşturmak için nasıl yapmalıyım?**
 
@@ -213,6 +212,8 @@ bileşenlerinde. Ayar farkı gerekiyorsa `settings_content` schema ve `settings`
 dönüşümlerinde.
 
 ## 21.5. Dosya Yoluna Göre Ne Nerede?
+
+Bir özellik üzerinde çalışırken doğru kaynak dosyaya hızla ulaşmak için aşağıdaki haritalama tutulur; "şu davranış nerede?" sorusunu repo dolaşmadan çözmek içindir.
 
 - Pencere açma API'si: `crates/gpui/src/app.rs::open_window`
 - Pencere seçenekleri: `crates/gpui/src/platform.rs::WindowOptions`

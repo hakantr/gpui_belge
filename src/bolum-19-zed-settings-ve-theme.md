@@ -4,9 +4,9 @@
 
 ## 19.1. Persist, Settings ve Theme Akışı (Zed Tarafı)
 
-GPUI çekirdeği değil ama yeni pencere/UI eklerken temaya ve ayarlara takılı
-kalmak gerekir. Ana dosyalar: `crates/settings`, `crates/settings_content`,
-`crates/theme`, `crates/theme_settings`.
+GPUI çekirdeği uygulamaya ayar veya tema empoze etmez; ancak Zed gibi gerçek bir uygulama yazarken yeni pencerelerin ve UI bileşenlerinin temaya ve kullanıcı ayarlarına bağlı çalışması gerekir. Akış kabaca şudur: **kullanıcı JSON dosyasını yazar → `SettingsStore` global'i değişimi yayınlar → ilgili `Settings` tipleri kendi bölümlerini parse eder → observe eden UI yeniden render olur**. Bu zincire entegre olabilmek için ayarın hem `settings_content` schema'sında, hem `Settings` trait implementasyonunda, hem de observe akışında olması gerekir.
+
+Ana dosyalar: `crates/settings`, `crates/settings_content`, `crates/theme`, `crates/theme_settings`.
 
 Akış:
 
@@ -80,8 +80,7 @@ Tuzaklar:
 
 ## 19.2. SettingsStore: Kayıt, Okuma, Override ve Migration
 
-`crates/settings/src/settings_store.rs`. `SettingsStore` Zed'in tüm ayar
-kaynaklarını tek bir tip-güvenli store içinde birleştirir.
+`SettingsStore`, Zed'in birden çok ayar kaynağını (binary'ye gömülü default, kullanıcı dosyası, aktif profil, worktree'deki `.zed/settings.json`) tek bir tip-güvenli store içinde birleştirir; her ayar tipi kendi schema'sına göre buradan okur. Kayıt iki yoldan yapılabilir (derive ile inventory veya elle), okuma için worktree-scoped override'lar dahil olan helper'lar vardır. Bu bölüm ayar tipi yazarken sıkça karşılaşılan kayıt/okuma/yazma/migration desenlerini özetler. Kaynak: `crates/settings/src/settings_store.rs`.
 
 Ayar kayıt yolları:
 
@@ -159,8 +158,9 @@ Tuzaklar:
 
 ## 19.3. ThemeRegistry, ThemeFamily ve Tema Yükleme
 
-`crates/theme/src/registry.rs`, `crates/theme/src/theme.rs`,
-`crates/theme_settings/src/theme_settings.rs`.
+Zed'de tema yalnızca renk paleti değildir; bir paket içinde light/dark varyantları, syntax renkleri, player renkleri, status renkleri ve UI font tercihleriyle birlikte gelen bir bütündür. **`ThemeRegistry`** yüklü tüm temaları global olarak tutar; **`ThemeFamily`** light/dark gibi varyantları bir araya getirir; aktif tema `ThemeSettings` ve `SystemAppearance` (OS açık/koyu tercihi) birlikte değerlendirilerek seçilir. Custom tema yükleme akışı, JSON `ThemeFamilyContent` deserialize edilerek `insert_theme_families` ile yapılır.
+
+Kaynak dosyalar: `crates/theme/src/registry.rs`, `crates/theme/src/theme.rs`, `crates/theme_settings/src/theme_settings.rs`.
 
 Tema veri modeli:
 

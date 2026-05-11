@@ -4,9 +4,9 @@
 
 ## 18.1. Zed Workspace Dock ve Panel Modeli
 
-Bu bölüm GPUI çekirdeği değil, Zed'in `workspace` crate'i üstündeki dock/panel
-katmanıdır. Dosyalar: `crates/workspace/src/workspace.rs`,
-`crates/workspace/src/dock.rs`, `crates/workspace/src/pane.rs`.
+Bu bölüm GPUI çekirdeği değil, Zed'in `workspace` crate'i üstüne kurduğu dock ve panel katmanını ele alır. **Workspace**, ekranın merkezindeki pane grubunu, üç kenarındaki dock'ları (sol/sağ/alt) ve bu dock'lara takılan panelleri (Project Explorer, Outline, Terminal vb.) birbirine bağlayan üst-seviye yapıdır. Yeni bir panel yazmak; `Panel` trait'ini implemente etmek, dock'a eklemek ve panel event'lerini (Activate, Close, Zoom) yayınlamak demektir.
+
+Kaynak dosyalar: `crates/workspace/src/workspace.rs`, `crates/workspace/src/dock.rs`, `crates/workspace/src/pane.rs`.
 
 Workspace yapısı:
 
@@ -66,9 +66,7 @@ Yeni panel eklerken kontrol:
 
 ## 18.2. Workspace Item, Pane, Modal, Toast ve Notification Sistemi
 
-GPUI bir UI framework'üdür; Zed'in workspace katmanı bunun üstünde tab/pane,
-modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editor benzeri
-panel veya komut yazıyorsan bu sözleşmeleri tanımalısın.
+GPUI bir UI framework'üdür; Zed'in workspace katmanı bunun üstünde tab/pane, modal, toast ve bildirim akışlarını standardize eder. Editor benzeri yeni bir panel, komut veya bildirim yazılırken bu trait ve sözleşmelere göre uyum sağlamak gerekir — aksi halde tab sistemine, modal layer'a veya status bar'a entegrasyon doğru çalışmaz. Bu bölüm sırasıyla `Item`/`ItemHandle`, `ModalView`, `StatusItemView`, `Notification`/`Toast` ve `Workspace::open_*` akışını ele alır.
 
 #### Item ve ItemHandle
 
@@ -278,9 +276,7 @@ let task = workspace.open_paths(
 
 ## 18.3. Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
 
-Workspace item açma yalnızca `Pane::add_item` değildir; Zed session restore,
-project item resolution, search bar ve collab follow gibi katmanları da item
-trait'leri üzerinden bağlar.
+Workspace item açma yalnızca `Pane::add_item` değildir; Zed session restore (uygulamayı kapatıp açtığında aynı sekmelerin geri gelmesi), project item resolution (dosya yolundan editor view'ı türetme), search bar entegrasyonu ve collab follow akışlarının hepsi `Item` üzerine kurulmuş ek trait'lerden geçer. Bu bölüm bu dört trait ailesini (`SerializableItem`, `ProjectItem`, `SearchableItem`, `FollowableItem`) ve workspace açma için kullanılan `OpenOptions`'ı kapsar.
 
 #### SerializableItem ve Restore
 
@@ -427,8 +423,7 @@ Tuzaklar:
 
 ## 18.4. PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
 
-Pane ve workspace yalnız tab listesi değildir; split ağacı, navigation history,
-toolbar item'ları ve multi-workspace sidebar birlikte çalışır.
+Pane ve workspace yalnız bir tab listesinden ibaret değildir; split ağacı (yatay/dikey bölme), navigation history (geri/ileri gitme), toolbar item'ları (her pane üstünde gösterilen kontroller) ve multi-workspace sidebar birlikte çalışır. Bu yapıların her biri ayrı trait/tip ile temsil edilir ve birbirine işlevsel olarak bağlanır — örneğin pane bir item'a aktiflenir, toolbar bunu öğrenir ve item'a özgü kontroller (search bar, breadcrumb) gösterir; split ağacı pane konumlarını taşır, sidebar multi-workspace state'ini yönetir.
 
 #### PaneGroup ve SplitDirection
 
@@ -551,8 +546,7 @@ Tuzaklar:
 
 ## 18.5. Workspace Notification Yardımcıları ve Async Hata Gösterimi
 
-Bildirim sistemi yalnız `show_notification` değildir; workspace dışı app-level
-notification ve async error propagation için yardımcı trait'ler vardır.
+Zed'in bildirim sistemi yalnızca `Workspace::show_notification` ile sınırlı değildir; **workspace dışında** (uygulama henüz aktif workspace'e sahip olmadığında) bildirim göstermek ve **async task sonuçlarındaki hataları** kullanıcıya doğal biçimde aktarmak için ayrı yardımcı trait'ler ve fonksiyonlar vardır. Async iş başarısız olduğunda kullanıcının gördüğü mesajın kalitesi büyük oranda bu helper'ların doğru seçilmesine bağlıdır.
 
 App-level notification:
 
@@ -595,9 +589,7 @@ Tuzaklar:
 
 ## 18.6. AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
 
-Zed uygulamasında workspace açma, sadece `open_window` çağrısı değildir. Startup,
-CLI/open-url istekleri, workspace DB ve collab follow state'i birkaç global/handle
-üzerinden birbirine bağlanır.
+Zed uygulamasında workspace açmak yalnızca `cx.open_window` çağrısı değildir; uygulama startup'ı, CLI veya `open://` URL'leri ile gelen istekler, workspace SQLite veritabanı ve collab follow state'i birkaç farklı global ve handle üzerinden birbirine bağlanır. Bu bölüm bu zincirin parçalarını (`AppState`, `WorkspaceStore`, `WorkspaceDb`, `HistoryManager`, `OpenListener`) açıklar; yeni bir workspace açma akışı eklendiğinde hangi taraftan başlanacağını netleştirir.
 
 #### AppState
 
@@ -688,8 +680,7 @@ Tuzaklar:
 
 ## 18.7. Item Ayarları, Context Menu, ApplicationMenu ve Focus-Follows-Mouse
 
-Zed UI kodunda sık görülen ama GPUI çekirdeği olmayan birkaç yardımcı katman daha
-vardır.
+Zed UI kodunda sık görülen ama GPUI çekirdeğinin parçası olmayan birkaç yardımcı katman daha vardır: item/tab davranışını settings'e bağlayan tipler, context menu UI bileşeni, macOS dışındaki platformlarda uygulama içinde çizilen `ApplicationMenu` ve mouse hover ile odak taşıyan `FocusFollowsMouse` davranışı. Bu bölüm bu dört yardımcı katmanı bir araya getirir.
 
 #### Item Ayarları ve SaveIntent
 

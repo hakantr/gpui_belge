@@ -6,7 +6,7 @@
 
 Kaynak: `crates/gpui/src/elements/animation.rs`.
 
-GPUI'de animasyon, bir element'in zaman içinde aldığı style/boyut/opaklık değişimini bir **delta değeri** (`0.0` → `1.0`) üzerinden ifade etmektir. Belirlenmiş sürede sistem geçerli `delta`'yı hesaplar (easing fonksiyonundan geçirip yumuşatır), elemente her frame yeniden render imkânı sağlar. Bu yaklaşım deklaratiftir: hangi alanın nasıl ilerleyeceği tek bir closure'da tanımlanır, frame frame state yönetilmez.
+GPUI'de animasyon, bir UI öğesinin zaman içinde aldığı style/boyut/opaklık değişimini bir **delta değeri** (`0.0` → `1.0`) üzerinden ifade etmektir. Belirlenmiş sürede sistem geçerli `delta`'yı hesaplar (easing fonksiyonundan geçirip yumuşatır), UI öğesine her frame yeniden render imkânı sağlar. Bu yaklaşım deklaratiftir: hangi alanın nasıl ilerleyeceği tek bir closure'da tanımlanır, frame frame durum (`state`) yönetilmez.
 
 ### `Animation` yapısı
 
@@ -22,7 +22,7 @@ Builder yapısı:
 - **`.repeat()`** — Döngüye alır.
 - **`.with_easing(fn)`** — Easing'i değiştirir.
 
-### `AnimationExt` — element üzerine bağlama
+### `AnimationExt` — UI öğesi üzerine bağlama
 
 `AnimationExt` trait, herhangi bir `IntoElement` üzerine animasyon eklenebilen iki method sunar:
 
@@ -40,7 +40,7 @@ div()
     )
 ```
 
-Closure imzası `Fn(El, f32) -> El` formundadır: animasyon ID (örn. `"grow"`) ve `delta` parametresiyle her frame elemente uygulanacak transform belirtilir. Burada element 100px'ten 200px'e büyür.
+Closure imzası `Fn(El, f32) -> El` formundadır: animasyon ID (örn. `"grow"`) ve `delta` parametresiyle her frame UI öğesine uygulanacak transform belirtilir. Burada UI öğesi 100px'ten 200px'e büyür.
 
 Çoklu animasyon ardışık zinciri için `with_animations(id, vec![anim_a, anim_b], |el, ix, delta| ...)` kullanılır; `ix` o anki sıradaki animasyonun index'ini verir.
 
@@ -57,11 +57,10 @@ Closure imzası `Fn(El, f32) -> El` formundadır: animasyon ID (örn. `"grow"`) 
 
 ### Tuzaklar
 
-- **Element ID render boyunca stabil olmalıdır;** değişirse animasyon state'i sıfırlanır ve animasyon baştan başlar.
-- **Animator closure `'static` olduğu için dış state `Rc`/`Arc`/`clone` ile yakalanır.** Borç alınan referans closure'a sığmaz.
-- **`Repeat` animasyonu her frame'de `window.request_animation_frame()` ile sonraki frame'i ister;** bu, view'ı sürekli notify eder ve CPU kullanımı artar. Gerekmiyorsa oneshot bırakılır.
+- **UI öğesi ID'si render boyunca stabil olmalıdır;** değişirse animasyon durumu sıfırlanır ve animasyon baştan başlar.
+- **Animator closure `'static` olduğu için dış durum `Rc`/`Arc`/`clone` ile yakalanır.** Borç alınan referans closure'a sığmaz.
+- **`Repeat` animasyonu her frame'de `window.request_animation_frame()` ile sonraki frame'i ister;** bu, görünümü sürekli notify eder ve CPU kullanımı artar. Gerekmiyorsa oneshot bırakılır.
 - **Frame'ler arası progress executor saatinden hesaplanır.** Normal `TestAppContext` / `VisualTestContext` testlerinde `cx.background_executor.advance_clock(...)` veya `TestApp::advance_clock(...)` ile zaman ilerletilir. macOS'a özgü `VisualTestAppContext` üzerinde ayrıca doğrudan `advance_clock(...)` helper'ı vardır.
 
 
 ---
-

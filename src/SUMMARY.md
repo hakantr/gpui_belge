@@ -10,7 +10,7 @@
 - [Pencere Yönetimi](./bolum-06-pencere-yonetimi.md)
 - [Etkileşim](./bolum-07-etkilesim.md)
 - [Action ve Keymap](./bolum-08-action-ve-keymap.md)
-- [Async ve State](./bolum-09-async-ve-state.md)
+- [Async ve Durum (State)](./bolum-09-async-ve-state.md)
 - [Liste ve Sanallaştırma](./bolum-10-liste-ve-sanallastirma.md)
 - [Asset, Image, Path ve Çizim](./bolum-11-asset-image-path-ve-cizim.md)
 - [Animasyon](./bolum-12-animasyon.md)
