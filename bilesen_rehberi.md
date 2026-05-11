@@ -144,6 +144,8 @@ belirtilecek.
 | Feedback | `ProgressBar` | `crates/ui/src/components/progress/progress_bar.rs` | `ui::ProgressBar` | Hayır | Evet |
 | Feedback | `CircularProgress` | `crates/ui/src/components/progress/circular_progress.rs` | `ui::CircularProgress` | Hayır | Evet |
 | Diğer | `Avatar` | `crates/ui/src/components/avatar.rs` | `ui::Avatar` | Hayır | Evet |
+| Diğer | `AvatarAudioStatusIndicator` | `crates/ui/src/components/avatar.rs` | `ui::AvatarAudioStatusIndicator`, `ui::AudioStatus` | Hayır | Yardımcı |
+| Diğer | `AvatarAvailabilityIndicator` | `crates/ui/src/components/avatar.rs` | `ui::AvatarAvailabilityIndicator`, `ui::CollaboratorAvailability` | Hayır | Yardımcı |
 | Diğer | `Facepile` | `crates/ui/src/components/facepile.rs` | `ui::Facepile` | Hayır | Evet |
 | Diğer | `Chip` | `crates/ui/src/components/chip.rs` | `ui::Chip` | Hayır | Evet |
 | Diğer | `DiffStat` | `crates/ui/src/components/diff_stat.rs` | `ui::DiffStat` | Hayır | Evet |
@@ -154,8 +156,10 @@ belirtilecek.
 | Diğer | `KeybindingHint` | `crates/ui/src/components/keybinding_hint.rs` | `ui::KeybindingHint` | Hayır | Evet |
 | Diğer | `Navigable` | `crates/ui/src/components/navigable.rs` | `ui::Navigable` | Hayır | Hayır |
 | AI / Collab | `AiSettingItem` | `crates/ui/src/components/ai/ai_setting_item.rs` | `ui::AiSettingItem` | Hayır | Evet |
+| AI / Collab | `AiSettingItemStatus` / `AiSettingItemSource` | `crates/ui/src/components/ai/ai_setting_item.rs` | `ui::AiSettingItemStatus`, `ui::AiSettingItemSource` | Hayır | Enum |
 | AI / Collab | `AgentSetupButton` | `crates/ui/src/components/ai/agent_setup_button.rs` | `ui::AgentSetupButton` | Hayır | Evet |
 | AI / Collab | `ThreadItem` | `crates/ui/src/components/ai/thread_item.rs` | `ui::ThreadItem` | Hayır | Evet |
+| AI / Collab | `AgentThreadStatus` / `ThreadItemWorktreeInfo` | `crates/ui/src/components/ai/thread_item.rs` | `ui::AgentThreadStatus`, `ui::ThreadItemWorktreeInfo`, `ui::WorktreeKind` | Hayır | Yardımcı |
 | AI / Collab | `ConfiguredApiCard` | `crates/ui/src/components/ai/configured_api_card.rs` | `ui::ConfiguredApiCard` | Hayır | Evet |
 | AI / Collab | `CollabNotification` | `crates/ui/src/components/collab/collab_notification.rs` | `ui::CollabNotification` | Hayır | Evet |
 | AI / Collab | `UpdateButton` | `crates/ui/src/components/collab/update_button.rs` | `ui::UpdateButton` | Hayır | Evet |
@@ -225,6 +229,8 @@ verilecek.
 | `ProgressBar` | `ProgressBar::new(id, value, max_value, cx)` |
 | `CircularProgress` | `CircularProgress::new(value, max_value, size, cx)` |
 | `Avatar` | `Avatar::new(src)` |
+| `AvatarAudioStatusIndicator` | `AvatarAudioStatusIndicator::new(audio_status)` |
+| `AvatarAvailabilityIndicator` | `AvatarAvailabilityIndicator::new(availability)` |
 | `Facepile` | `Facepile::new(faces)` |
 | `Chip` | `Chip::new(label)` |
 | `DiffStat` | `DiffStat::new(id, added, removed)` |
@@ -5501,3 +5507,1888 @@ Karar rehberi:
 - Var/yok veya state noktası: `Indicator`.
 - Belirli yatay ilerleme: `ProgressBar`.
 - Belirli compact ilerleme: `CircularProgress`.
+
+## 11. Diğer Bileşenler ve AI/Collab Özel Alanı
+
+Bu gruptaki bileşenler ikiye ayrılır. `Avatar`, `Facepile`, `Chip`, `DiffStat`,
+`Disclosure`, `GradientFade`, `Vector`, `KeyBinding`, `KeybindingHint` ve
+`Navigable` genel UI yapı taşlarıdır. `AiSettingItem`, `AgentSetupButton`,
+`ThreadItem`, `ConfiguredApiCard`, `CollabNotification` ve `UpdateButton` ise
+Zed'in AI, agent, collaboration ve update akışlarına daha sıkı bağlıdır.
+
+Genel kural:
+
+- Domain'e bağlı bileşenlerde gerçek servis state'ini component içine taşımayın;
+  component'e yalnızca render için gereken label, status, icon, callback ve
+  metadata'yı verin.
+- `ui::KeyBinding` ile `gpui::KeyBinding` isimleri farklıdır. UI bileşeni
+  shortcut'ı render eder; GPUI tipi keymap'e binding tanımlar.
+- `Image` adında public Zed UI component'i yoktur. Bundled SVG için `Vector`,
+  raster veya dış görsel için GPUI `img(...)` / `ImageSource` kullanılır.
+
+### Avatar
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/avatar.rs`
+- Export: `ui::Avatar`, `ui::AvatarAudioStatusIndicator`,
+  `ui::AvatarAvailabilityIndicator`, `ui::AudioStatus`,
+  `ui::CollaboratorAvailability`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for Avatar`
+
+Ne zaman kullanılır:
+
+- Kullanıcı, collaborator, participant veya commit author görseli göstermek için.
+- Avatar üstünde microphone veya availability göstergesi gerekiyorsa.
+- Facepile içinde küçük, border'lı ve overlap eden avatarlar için.
+
+Ne zaman kullanılmaz:
+
+- Genel icon veya logo için `Icon` / `Vector`.
+- Avatar kaynağı yoksa sadece harf badge'i gerekiyorsa özel `div()` + `Label`
+  daha açık olabilir.
+
+Temel API:
+
+- `Avatar::new(src: impl Into<ImageSource>)`
+- `.grayscale(bool)`
+- `.border_color(color)`
+- `.size(size)`
+- `.indicator(element)`
+- `AvatarAudioStatusIndicator::new(AudioStatus::Muted | AudioStatus::Deafened)`
+- `AvatarAvailabilityIndicator::new(CollaboratorAvailability::Free | Busy)`
+
+Davranış:
+
+- Varsayılan avatar boyutu `1rem`.
+- Görsel yüklenemezse `IconName::Person` ile fallback render eder.
+- `border_color(...)`, avatar çevresinde `1px` border açar ve facepile overlap
+  görünümünde görsel boşluk yaratmak için kullanılır.
+- Indicator, avatar container'ının child'ı olarak render edilir; indicator
+  pozisyonu kendi elementinde absolute ayarlanır.
+
+Örnek:
+
+```rust
+use ui::{
+    Avatar, AvatarAvailabilityIndicator, CollaboratorAvailability, prelude::*,
+};
+
+fn render_reviewer_avatar() -> impl IntoElement {
+    Avatar::new("https://avatars.githubusercontent.com/u/1714999?v=4")
+        .size(px(28.))
+        .border_color(gpui::transparent_black())
+        .indicator(
+            AvatarAvailabilityIndicator::new(CollaboratorAvailability::Free)
+                .avatar_size(px(28.)),
+        )
+}
+```
+
+Ses durumu:
+
+```rust
+use ui::{AudioStatus, Avatar, AvatarAudioStatusIndicator, prelude::*};
+
+fn render_muted_participant(avatar_url: SharedString) -> impl IntoElement {
+    Avatar::new(avatar_url)
+        .size(px(32.))
+        .indicator(AvatarAudioStatusIndicator::new(AudioStatus::Muted))
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/collab_ui/src/collab_panel.rs`: contact ve participant
+  satırları.
+- `../zed/crates/title_bar/src/collab.rs`: title bar collaborator avatarları.
+- `../zed/crates/editor/src/git.rs`: author avatarları.
+
+Dikkat edilecekler:
+
+- `.size(...)` için `px(...)` veya `rems(...)` kullanabilirsiniz; facepile'da aynı
+  boyutu korumak daha temiz görünür.
+- Audio status tooltip'i gerekiyorsa `AvatarAudioStatusIndicator::tooltip(...)`
+  ile bağlayın.
+- Availability indicator için `.avatar_size(...)` gerçek avatar boyutuyla aynı
+  verilirse nokta oranı daha doğru olur.
+
+### Facepile
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/facepile.rs`
+- Export: `ui::Facepile`, `ui::EXAMPLE_FACES`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for Facepile`
+
+Ne zaman kullanılır:
+
+- Aktif collaborator, reviewer veya participant grubunu kompakt göstermek için.
+- Yüzleri soldan sağa overlap ederek küçük alanda birden çok kişiyi göstermek
+  için.
+
+Ne zaman kullanılmaz:
+
+- Tek kullanıcı için `Avatar`.
+- Sıralı, detaylı kullanıcı listesi için `ListItem` + `Avatar`.
+
+Temel API:
+
+- `Facepile::empty()`
+- `Facepile::new(faces: SmallVec<[AnyElement; 2]>)`
+- ParentElement: `.child(...)`, `.children(...)`
+- Padding style yöntemleri desteklenir.
+
+Davranış:
+
+- Render sırasında `flex_row_reverse()` kullanır; sol yüz en üstte kalacak şekilde
+  görsel overlap sağlar.
+- İkinci ve sonraki yüzler `ml_neg_1()` ile bindirilir.
+- `Facepile` overflow sayacı üretmez; daha fazla kişi varsa ayrıca `Chip` veya
+  `CountBadge` benzeri bir eleman ekleyin.
+
+Örnek:
+
+```rust
+use ui::{Avatar, Facepile, prelude::*};
+
+fn render_reviewers() -> impl IntoElement {
+    Facepile::empty()
+        .child(Avatar::new("https://avatars.githubusercontent.com/u/326587?s=60").size(px(24.)))
+        .child(Avatar::new("https://avatars.githubusercontent.com/u/2280405?s=60").size(px(24.)))
+        .child(Avatar::new("https://avatars.githubusercontent.com/u/1789?s=60").size(px(24.)))
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/collab_ui/src/collab_panel.rs`: channel ve participant
+  özetlerinde.
+- `../zed/crates/ui/src/components/facepile.rs`: default ve custom size preview.
+
+Dikkat edilecekler:
+
+- Overlap görünümü için avatar border rengini parent background ile eşleştirmek
+  iyi sonuç verir.
+- Çok fazla avatar eklemek yerine ilk birkaç kişiyi gösterip kalan sayıyı ayrı
+  belirtin.
+
+### Chip
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/chip.rs`
+- Export: `ui::Chip`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for Chip`
+
+Ne zaman kullanılır:
+
+- Filtre, plan adı, provider tipi, branch adı, metadata veya küçük status label'ı
+  göstermek için.
+- Icon + kısa label kombinasyonunu düşük vurgu ile göstermek için.
+
+Ne zaman kullanılmaz:
+
+- Etkileşimli menü butonu için `Button` / `DropdownMenu`.
+- Uzun açıklama veya paragraf için `Label`.
+
+Temel API:
+
+- `Chip::new(label)`
+- `.label_color(Color)`
+- `.label_size(LabelSize)`
+- `.icon(IconName)`
+- `.icon_color(Color)`
+- `.bg_color(Hsla)`
+- `.border_color(Hsla)`
+- `.height(Pixels)`
+- `.truncate()`
+- `.tooltip(...)`
+
+Davranış:
+
+- Varsayılan label size `LabelSize::XSmall`.
+- Label buffer font ile render edilir.
+- `.truncate()` parent içinde shrink etmeye izin verir; uzun chip metinlerinde
+  kullanın.
+- Tooltip closure `AnyView` döndürür.
+
+Örnek:
+
+```rust
+use ui::{Chip, IconName, prelude::*};
+
+fn render_branch_chip(branch: SharedString) -> impl IntoElement {
+    Chip::new(branch)
+        .icon(IconName::GitBranch)
+        .icon_color(Color::Muted)
+        .label_color(Color::Muted)
+        .truncate()
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/extensions_ui/src/extensions_ui.rs`: extension capability
+  etiketleri.
+- `../zed/crates/agent_ui/src/ui/model_selector_components.rs`: model metadata
+  ve cost bilgisi.
+- `../zed/crates/title_bar/src/plan_chip.rs`: plan adı gösterimi.
+
+Dikkat edilecekler:
+
+- Chip küçük bir bilgi kapsülüdür; primary action gibi kullanılmamalıdır.
+- Custom background kullanıyorsanız border rengini de uyumlu seçin.
+- Dar toolbar içinde `.truncate()` olmadan uzun label layout'u bozabilir.
+
+### DiffStat
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/diff_stat.rs`
+- Export: `ui::DiffStat`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for DiffStat`
+
+Ne zaman kullanılır:
+
+- Eklenen ve silinen satır sayılarını compact göstermek için.
+- Commit, branch, thread veya file diff metadata'sı yanında.
+
+Ne zaman kullanılmaz:
+
+- Ayrıntılı file diff görünümü için.
+- Sadece toplam değişiklik sayısı gerekiyorsa `Label` veya `CountBadge`.
+
+Temel API:
+
+- `DiffStat::new(id, added, removed)`
+- `.label_size(LabelSize)`
+- `.tooltip(text)`
+
+Davranış:
+
+- Added değeri `Color::Success`, removed değeri `Color::Error` ile render edilir.
+- Removed label'ı typographic minus kullanır.
+- Tooltip verilirse `Tooltip::text(...)` bağlanır.
+
+Örnek:
+
+```rust
+use ui::{DiffStat, prelude::*};
+
+fn render_file_change_summary() -> impl IntoElement {
+    h_flex()
+        .gap_2()
+        .items_center()
+        .child(Label::new("src/main.rs").truncate())
+        .child(DiffStat::new("main-rs-diff", 12, 3).tooltip("12 additions, 3 deletions"))
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: tool result ve
+  thread değişiklik özetleri.
+- `../zed/crates/git_ui/src/project_diff.rs`: project diff metadata'sı.
+- `../zed/crates/git_graph/src/git_graph.rs`: commit metadata.
+
+Dikkat edilecekler:
+
+- `id` stabil olmalıdır; aynı listede tekrar eden id kullanmayın.
+- Sıfır değerlerin gösterilip gösterilmeyeceğine parent karar vermelidir.
+
+### Disclosure
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/disclosure.rs`
+- Export: `ui::Disclosure`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for Disclosure`
+
+Ne zaman kullanılır:
+
+- Açılır/kapanır bölüm, tree satırı veya detay satırı için chevron button
+  gerektiğinde.
+- Parent state'in açılma durumunu kontrol ettiği controlled toggle için.
+
+Ne zaman kullanılmaz:
+
+- Tam satır tree davranışı için `TreeViewItem` daha fazla hazır davranış sağlar.
+- Sadece görsel chevron gerekiyorsa `Icon` yeterlidir.
+
+Temel API:
+
+- `Disclosure::new(id, is_open)`
+- `.on_toggle_expanded(handler)`
+- `.opened_icon(IconName)`
+- `.closed_icon(IconName)`
+- `.disabled(bool)`
+- `Clickable`: `.on_click(...)`, `.cursor_style(...)`
+- `Toggleable`: `.toggle_state(selected)`
+- `VisibleOnHover`: `.visible_on_hover(group_name)`
+
+Davranış:
+
+- Açıkken default icon `ChevronDown`, kapalıyken `ChevronRight`.
+- Render sonucu `IconButton` üzerinden gelir.
+- `is_open` internal state değildir; parent her render'da güncel değeri verir.
+
+Örnek:
+
+```rust
+use ui::{Disclosure, prelude::*};
+
+fn render_collapsible_header(is_open: bool) -> impl IntoElement {
+    h_flex()
+        .gap_1()
+        .items_center()
+        .child(
+            Disclosure::new("advanced-toggle", is_open)
+                .on_click(|_, _window, cx| cx.stop_propagation()),
+        )
+        .child(Label::new("Advanced"))
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/ui/src/components/tree_view_item.rs`: tree item expansion.
+- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: plan, queue ve
+  edit detay açılımları.
+- `../zed/crates/repl/src/outputs/json.rs`: JSON node expansion.
+
+Dikkat edilecekler:
+
+- Toggle state'i parent'ta tutulmalı ve click handler parent state'i
+  güncellemelidir.
+- `visible_on_hover(...)` kullanıyorsanız parent aynı group name'i tanımlamalıdır.
+
+### GradientFade
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/gradient_fade.rs`
+- Export: `ui::GradientFade`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: Hayır.
+
+Ne zaman kullanılır:
+
+- Sağ kenarda taşan içerik veya hover action alanı üstünde yumuşak fade overlay
+  gerektiğinde.
+- Sidebar item gibi tek satırda metadata/action geçişini maskelemek için.
+
+Ne zaman kullanılmaz:
+
+- Genel background dekorasyonu için.
+- Scrollbar veya gerçek clipping yerine geçecek şekilde.
+
+Temel API:
+
+- `GradientFade::new(base_bg, hover_bg, active_bg)`
+- `.width(Pixels)`
+- `.right(Pixels)`
+- `.gradient_stop(f32)`
+- `.group_name(name)`
+
+Davranış:
+
+- Absolute positioned, `top_0()`, `h_full()` ve sağ kenara bağlıdır.
+- Renkleri app background ile blend ederek opaklaştırmaya çalışır.
+- `group_name(...)` verilirse parent hover/active durumunda gradient rengi değişir.
+
+Örnek:
+
+```rust
+use ui::{GradientFade, prelude::*};
+
+fn render_fading_row(cx: &App) -> impl IntoElement {
+    let base = cx.theme().colors().panel_background;
+    let hover = cx.theme().colors().element_hover;
+
+    h_flex()
+        .group("metadata-row")
+        .relative()
+        .overflow_hidden()
+        .child(Label::new("A very long metadata value that fades near the action").truncate())
+        .child(
+            GradientFade::new(base, hover, hover)
+                .width(px(64.))
+                .group_name("metadata-row"),
+        )
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/ui/src/components/ai/thread_item.rs`: action slot ve metadata
+  fade overlay.
+- `../zed/crates/sidebar/src/sidebar.rs`: sidebar satır hover fade.
+
+Dikkat edilecekler:
+
+- Parent `relative()` ve `overflow_hidden()` olmalıdır.
+- Fade gerçek layout alanı ayırmaz; action slot veya trailing content için ayrıca
+  padding/space bırakın.
+
+### Vector ve Görsel Kullanımı
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/image.rs`
+- Export: `ui::Vector`, `ui::VectorName`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for Vector`
+
+Ne zaman kullanılır:
+
+- Zed içinde paketlenmiş SVG görsellerini belirli boyutta render etmek için.
+- Logo, stamp veya product mark gibi icon standardına uymayan vektörler için.
+
+Ne zaman kullanılmaz:
+
+- Standart simge için `Icon`.
+- Kullanıcı avatarı için `Avatar`.
+- Raster veya dış görsel için GPUI `img(...)` / `ImageSource`.
+
+Temel API:
+
+- `Vector::new(VectorName, width: Rems, height: Rems)`
+- `Vector::square(VectorName, size: Rems)`
+- `.color(Color)`
+- `.size(Size<Rems>)`
+- `Transformable`: `.transform(transformation)`
+- `VectorName`: `BusinessStamp`, `Grid`, `ProTrialStamp`, `ProUserStamp`,
+  `StudentStamp`, `ZedLogo`, `ZedXCopilot`
+
+Davranış:
+
+- `VectorName::path()` `images/<name>.svg` yolu üretir.
+- SVG `flex_none()`, width ve height rem değerleriyle render edilir.
+- `.color(...)`, SVG `text_color(...)` üzerinden uygulanır.
+
+Örnek:
+
+```rust
+use ui::{Vector, VectorName, prelude::*};
+
+fn render_zed_mark() -> impl IntoElement {
+    Vector::square(VectorName::ZedLogo, rems(3.)).color(Color::Accent)
+}
+```
+
+Dikkat edilecekler:
+
+- `Image` adında public Zed UI component'i yoktur; rehberde görsel ihtiyacı için
+  `Vector`, `Avatar`, `Icon` ve GPUI `img(...)` ayrımı yapılmalıdır.
+- `VectorName` yalnızca kaynakta tanımlı bundled asset'leri kapsar.
+
+### KeyBinding
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/keybinding.rs`
+- Export: `ui::KeyBinding`, `ui::Key`, `ui::KeyIcon`,
+  `ui::render_keybinding_keystroke`, `ui::text_for_action`,
+  `ui::text_for_keystrokes`, `ui::text_for_keybinding_keystrokes`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for KeyBinding`
+
+Ne zaman kullanılır:
+
+- UI içinde action'a bağlı shortcut göstermek için.
+- Explicit keystroke dizisini platforma uygun tuş görseli olarak render etmek
+  için.
+- Tooltip, command palette veya ayar satırında klavye kısayolu göstermek için.
+
+Ne zaman kullanılmaz:
+
+- Keymap'e yeni binding tanımlamak için `gpui::KeyBinding` kullanılır.
+- Sadece açıklama metni gerekiyorsa `text_for_action(...)` veya `Label`.
+
+Temel API:
+
+- `KeyBinding::for_action(action, cx)`
+- `KeyBinding::for_action_in(action, focus_handle, cx)`
+- `KeyBinding::new(action, focus_handle, cx)`
+- `KeyBinding::from_keystrokes(keystrokes, vim_mode)`
+- `.platform_style(PlatformStyle)`
+- `.size(size)`
+- `.disabled(bool)`
+- `.has_binding(window)`
+- `KeyBinding::set_vim_mode(cx, enabled)`
+
+Davranış:
+
+- Action source kullanıldığında window'daki en yüksek öncelikli binding aranır.
+- Focus handle verilirse önce action için focus bağlamındaki binding aranır.
+- Binding bulunamazsa `Empty` render edilir.
+- Platform stili macOS için modifier icon'ları, Linux/Windows için metin ve `+`
+  separator kullanır.
+
+Örnek:
+
+```rust
+use gpui::{KeybindingKeystroke, Keystroke};
+use ui::{KeyBinding, prelude::*};
+
+fn render_save_shortcut() -> impl IntoElement {
+    let keystroke = KeybindingKeystroke::from_keystroke(
+        Keystroke::parse("cmd-s").expect("valid keybinding"),
+    );
+
+    KeyBinding::from_keystrokes(vec![keystroke].into(), false)
+}
+```
+
+Dikkat edilecekler:
+
+- `ui::KeyBinding` ile `gpui::KeyBinding` importlarını aynı dosyada kullanırken
+  alias verin; aksi halde kod okunması zorlaşır.
+- Action'a bağlı shortcut gösteriyorsanız binding bulunamama durumunu UI'da
+  düşünün; component boş render edebilir.
+
+### KeybindingHint
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/keybinding_hint.rs`
+- Export: `ui::KeybindingHint`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for KeybindingHint`
+
+Ne zaman kullanılır:
+
+- Shortcut'ı prefix/suffix metniyle birlikte açıklamak için.
+- Tooltip veya empty state içinde kısa klavye ipucu göstermek için.
+
+Temel API:
+
+- `KeybindingHint::new(keybinding, background_color)`
+- `KeybindingHint::with_prefix(prefix, keybinding, background_color)`
+- `KeybindingHint::with_suffix(keybinding, suffix, background_color)`
+- `.prefix(text)`
+- `.suffix(text)`
+- `.size(Pixels)`
+
+Davranış:
+
+- Prefix/suffix italic buffer font ile render edilir.
+- Keybinding parçası border, subtle background ve küçük shadow alır.
+- Background color, theme text/accent renkleriyle blend edilerek hint yüzeyi
+  oluşturulur.
+
+Örnek:
+
+```rust
+use gpui::{KeybindingKeystroke, Keystroke};
+use ui::{KeyBinding, KeybindingHint, prelude::*};
+
+fn render_command_hint(cx: &App) -> impl IntoElement {
+    let keystroke = KeybindingKeystroke::from_keystroke(
+        Keystroke::parse("cmd-shift-p").expect("valid keybinding"),
+    );
+    let binding = KeyBinding::from_keystrokes(vec![keystroke].into(), false);
+
+    KeybindingHint::new(binding, cx.theme().colors().surface_background)
+        .prefix("Open command palette:")
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/settings_ui/src/settings_ui.rs`: ayar UI kısayol ipuçları.
+- `../zed/crates/git_ui/src/commit_modal.rs`: modal shortcut hint'i.
+
+Dikkat edilecekler:
+
+- `background_color` parent yüzeyine yakın seçilmelidir; hint kendi border ve
+  fill rengini bu değerden türetir.
+- Çok uzun prefix/suffix kullanmayın; kısa komut açıklaması için tasarlanmıştır.
+
+### Navigable
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/navigable.rs`
+- Export: `ui::Navigable`, `ui::NavigableEntry`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: Hayır.
+
+Ne zaman kullanılır:
+
+- Scrollable view içinde `menu::SelectNext` / `menu::SelectPrevious` aksiyonlarıyla
+  klavye gezintisi kurmak için.
+- Focus handle ve scroll anchor listesini tek wrapper'a bağlamak için.
+
+Temel API:
+
+- `NavigableEntry::new(scroll_handle, cx)`
+- `NavigableEntry::focusable(cx)`
+- `Navigable::new(child: AnyElement)`
+- `.entry(NavigableEntry)`
+
+Davranış:
+
+- Entry ekleme sırası traversal sırasıdır.
+- Select next/previous aksiyonları focused entry'yi bulur, hedef entry'nin
+  focus handle'ını focus eder ve scroll anchor varsa görünür alana scroll eder.
+- `NavigableEntry::focusable(...)` scroll anchor olmadan focusable entry üretir.
+
+Örnek:
+
+```rust
+use gpui::ScrollHandle;
+use ui::{Navigable, NavigableEntry, prelude::*};
+
+fn render_navigable_rows(scroll_handle: &ScrollHandle, cx: &App) -> impl IntoElement {
+    let first = NavigableEntry::new(scroll_handle, cx);
+    let second = NavigableEntry::new(scroll_handle, cx);
+
+    let content = v_flex()
+        .child(div().track_focus(&first.focus_handle).child(Label::new("First")))
+        .child(div().track_focus(&second.focus_handle).child(Label::new("Second")));
+
+    Navigable::new(content.into_any_element())
+        .entry(first)
+        .entry(second)
+}
+```
+
+Dikkat edilecekler:
+
+- Wrapper yalnızca action routing ve focus/scroll geçişini kurar; her child'ın
+  kendisi focus track etmelidir.
+- Entry listesi render edilen item sırasıyla aynı tutulmalıdır.
+
+### AI ve Collab Bileşenleri
+
+Bu alt grup Zed'in agent, provider ve collaboration ekranlarında kullanılan daha
+özelleşmiş component'lerdir. Genel uygulamalarda doğrudan kullanmadan önce domain
+modelinizin bu API'ye gerçekten uyup uymadığını kontrol edin.
+
+### AiSettingItem
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/ai/ai_setting_item.rs`
+- Export: `ui::AiSettingItem`, `ui::AiSettingItemStatus`,
+  `ui::AiSettingItemSource`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for AiSettingItem`
+
+Ne zaman kullanılır:
+
+- MCP server, agent provider veya AI integration ayar satırı göstermek için.
+- Status indicator, source icon, detail label, action button ve detay satırını
+  tek compact row'da toplamak için.
+
+Temel API:
+
+- `AiSettingItem::new(id, label, status, source)`
+- `.icon(element)`
+- `.detail_label(text)`
+- `.action(element)`
+- `.details(element)`
+- `AiSettingItemStatus`: `Stopped`, `Starting`, `Running`, `Error`,
+  `AuthRequired`, `Authenticating`
+- `AiSettingItemSource`: `Extension`, `Custom`, `Registry`
+
+Davranış:
+
+- Icon verilmezse label'ın ilk harfinden küçük avatar üretir.
+- `Starting` ve `Authenticating` durumlarında icon opacity pulse animasyonu alır.
+- Status tooltip'i ve source tooltip'i otomatik üretilir.
+- Status indicator, `IconDecorationKind::Dot` ile icon köşesine yerleşir.
+
+Örnek:
+
+```rust
+use ui::{
+    AiSettingItem, AiSettingItemSource, AiSettingItemStatus, IconButton, IconName, IconSize,
+    prelude::*,
+};
+
+fn render_mcp_setting_row() -> impl IntoElement {
+    AiSettingItem::new(
+        "postgres-mcp",
+        "Postgres",
+        AiSettingItemStatus::Running,
+        AiSettingItemSource::Extension,
+    )
+    .detail_label("3 tools")
+    .action(
+        IconButton::new("postgres-settings", IconName::Settings)
+            .icon_size(IconSize::Small)
+            .icon_color(Color::Muted),
+    )
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/agent_ui/src/agent_configuration.rs`: MCP server ve agent
+  configuration listeleri.
+- `../zed/crates/ui/src/components/ai/ai_setting_item.rs`: running, stopped,
+  starting ve error preview örnekleri.
+
+Dikkat edilecekler:
+
+- Source enum'u gerçek kurulum kaynağıyla eşleşmelidir; tooltip metni bundan
+  türetilir.
+- `.details(...)` uzun hata metinleri için kullanılabilir ama ana satırı
+  kalabalıklaştırmayın.
+
+### AgentSetupButton
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/ai/agent_setup_button.rs`
+- Export: `ui::AgentSetupButton`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for AgentSetupButton`, ancak preview `None` döndürür.
+
+Ne zaman kullanılır:
+
+- Onboarding veya provider setup ekranında agent seçeneğini card-button gibi
+  göstermek için.
+- Üstte icon/name, altta state bilgisi olan küçük seçim yüzeyi gerektiğinde.
+
+Temel API:
+
+- `AgentSetupButton::new(id)`
+- `.icon(Icon)`
+- `.name(text)`
+- `.state(element)`
+- `.disabled(bool)`
+- `.on_click(handler)`
+
+Davranış:
+
+- Disabled değil ve on_click varsa hover'da pointer cursor, hover background ve
+  border rengi uygulanır.
+- `state(...)` verilirse alt bölüm border-top ve subtle background ile ayrılır.
+
+Örnek:
+
+```rust
+use ui::{AgentSetupButton, Icon, IconName, IconSize, prelude::*};
+
+fn render_agent_setup_button() -> impl IntoElement {
+    AgentSetupButton::new("setup-zed-agent")
+        .icon(Icon::new(IconName::ZedAgent).size(IconSize::Small))
+        .name("Zed Agent")
+        .state(Label::new("Ready").size(LabelSize::Small).color(Color::Success))
+        .on_click(|_, _window, _cx| {})
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/onboarding/src/basics_page.rs`: onboarding agent setup
+  seçenekleri.
+
+Dikkat edilecekler:
+
+- Empty card üretmemek için en az icon/name veya state verin.
+- Disabled state click handler'ı render etmez.
+
+### ThreadItem
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/ai/thread_item.rs`
+- Export: `ui::ThreadItem`, `ui::AgentThreadStatus`,
+  `ui::ThreadItemWorktreeInfo`, `ui::WorktreeKind`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for ThreadItem`
+
+Ne zaman kullanılır:
+
+- Agent thread listesinde title, status, timestamp, worktree metadata ve diff
+  özetini tek satırda göstermek için.
+- Hover action slot'u ve selected/focused görsel state'i gereken thread listeleri
+  için.
+
+Temel API:
+
+- `ThreadItem::new(id, title)`
+- `.timestamp(text)`
+- `.icon(IconName)`, `.icon_color(Color)`, `.icon_visible(bool)`
+- `.custom_icon_from_external_svg(svg)`
+- `.notified(bool)`
+- `.status(AgentThreadStatus)`
+- `.title_generating(bool)`, `.title_label_color(Color)`,
+  `.highlight_positions(Vec<usize>)`
+- `.selected(bool)`, `.focused(bool)`, `.hovered(bool)`, `.rounded(bool)`
+- `.added(usize)`, `.removed(usize)`
+- `.project_paths(Arc<[PathBuf]>)`, `.project_name(text)`
+- `.worktrees(Vec<ThreadItemWorktreeInfo>)`
+- `.is_remote(bool)`, `.archived(bool)`
+- `.on_click(handler)`, `.on_hover(handler)`, `.action_slot(element)`,
+  `.base_bg(Hsla)`
+
+Davranış:
+
+- `Running` status `LoadCircle` icon'u ve rotate animation gösterir.
+- `WaitingForConfirmation` warning icon ve tooltip üretir.
+- `Error` close icon ve tooltip üretir.
+- `notified(true)` accent circle kullanır.
+- Metadata satırında linked worktree bilgisi, project name/path, diff stat ve
+  timestamp sırayla render edilir.
+- `action_slot(...)` yalnızca `.hovered(true)` olduğunda görünür.
+
+Örnek:
+
+```rust
+use ui::{
+    AgentThreadStatus, IconButton, IconName, IconSize, ThreadItem,
+    ThreadItemWorktreeInfo, WorktreeKind, prelude::*,
+};
+
+fn render_agent_thread() -> impl IntoElement {
+    ThreadItem::new("thread-parser", "Fix parser error recovery")
+        .icon(IconName::AiClaude)
+        .status(AgentThreadStatus::Running)
+        .timestamp("12m")
+        .worktrees(vec![ThreadItemWorktreeInfo {
+            worktree_name: Some("parser-fix".into()),
+            branch_name: Some("fix/parser-recovery".into()),
+            full_path: "/worktrees/parser-fix".into(),
+            highlight_positions: Vec::new(),
+            kind: WorktreeKind::Linked,
+        }])
+        .added(42)
+        .removed(7)
+        .hovered(true)
+        .action_slot(
+            IconButton::new("delete-thread", IconName::Trash)
+                .icon_size(IconSize::Small)
+                .icon_color(Color::Muted),
+        )
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/sidebar/src/thread_switcher.rs`: thread switcher listesi.
+- `../zed/crates/sidebar/src/sidebar.rs`: sidebar thread entries.
+- `../zed/crates/zed/src/visual_test_runner.rs`: geniş thread item varyantları.
+
+Dikkat edilecekler:
+
+- `ThreadItem` yoğun bir domain component'idir. Genel liste satırı için
+  `ListItem` veya özel `h_flex()` kompozisyonu daha temiz olabilir.
+- Worktree metadata'sında yalnızca `WorktreeKind::Linked` olan ve worktree/branch
+  bilgisi bulunan girdiler gösterilir.
+- Hover state'i component içinde ölçülmez; parent `.hovered(...)` değerini
+  yönetmelidir.
+
+### ConfiguredApiCard
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/ai/configured_api_card.rs`
+- Export: `ui::ConfiguredApiCard`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for ConfiguredApiCard`
+
+Ne zaman kullanılır:
+
+- API key veya provider credential yapılandırılmış durumunu göstermek için.
+- Reset/remove key aksiyonunu aynı satırda sunmak için.
+
+Temel API:
+
+- `ConfiguredApiCard::new(label)`
+- `.button_label(text)`
+- `.tooltip_label(text)`
+- `.disabled(bool)`
+- `.button_tab_index(isize)`
+- `.on_click(handler)`
+
+Davranış:
+
+- Sol tarafta success `Check` icon ve label render edilir.
+- Button label verilmezse `"Reset Key"`.
+- Button start icon'u `Undo`.
+- `disabled(true)` button'ı disabled yapar ve click handler bağlanmaz.
+
+Örnek:
+
+```rust
+use ui::{ConfiguredApiCard, prelude::*};
+
+fn render_configured_key_card() -> impl IntoElement {
+    ConfiguredApiCard::new("OpenAI API key configured")
+        .button_label("Reset Key")
+        .tooltip_label("Click to replace the current key")
+        .on_click(|_, _window, _cx| {})
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/language_models/src/provider/open_ai.rs`: provider key state.
+- `../zed/crates/language_models/src/provider/anthropic.rs`,
+  `deepseek.rs`, `google.rs`, `open_router.rs`: benzer provider kartları.
+- `../zed/crates/settings_ui/src/pages/edit_prediction_provider_setup.rs`.
+
+Dikkat edilecekler:
+
+- Card yalnızca configured durumunu temsil eder; credential giriş formu değildir.
+- `button_tab_index(...)`, provider setup ekranında keyboard order ayarlamak için
+  kullanılır.
+
+### CollabNotification
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/collab/collab_notification.rs`
+- Export: `ui::CollabNotification`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for CollabNotification`
+
+Ne zaman kullanılır:
+
+- Incoming call, project share, contact request veya channel invite gibi iki
+  aksiyonlu collaboration notification view'ı için.
+- Avatar + metin + accept/dismiss button düzenini standart tutmak için.
+
+Temel API:
+
+- `CollabNotification::new(avatar_uri, accept_button, dismiss_button)`
+- ParentElement: `.child(...)`, `.children(...)`
+
+Davranış:
+
+- Avatar `px(40.)` boyutunda render edilir.
+- Sağ tarafta iki button dikey yerleşir.
+- İçerik `SmallVec<[AnyElement; 2]>` ile tutulur ve `v_flex().truncate()` içinde
+  render edilir.
+
+Örnek:
+
+```rust
+use ui::{Button, CollabNotification, prelude::*};
+
+fn render_project_share_notification() -> impl IntoElement {
+    CollabNotification::new(
+        "https://avatars.githubusercontent.com/u/67129314?v=4",
+        Button::new("open-shared-project", "Open"),
+        Button::new("dismiss-shared-project", "Dismiss"),
+    )
+    .child(Label::new("Ada shared a project with you"))
+    .child(Label::new("zed").color(Color::Muted))
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/collab_ui/src/notifications/project_shared_notification.rs`
+- `../zed/crates/collab_ui/src/notifications/incoming_call_notification.rs`
+- `../zed/crates/collab_ui/src/collab_panel.rs`
+
+Dikkat edilecekler:
+
+- Accept ve dismiss button'larının callback'leri parent notification view'ında
+  bağlanmalıdır.
+- Uzun kullanıcı veya proje adlarında child label'lara truncate davranışı ekleyin.
+
+### UpdateButton
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/collab/update_button.rs`
+- Export: `ui::UpdateButton`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: `impl Component for UpdateButton`
+
+Ne zaman kullanılır:
+
+- Title bar içinde auto-update durumunu ve update aksiyonunu göstermek için.
+- Checking/downloading/installing/updated/error state'leri için hazır görünüm
+  gerektiğinde.
+
+Temel API:
+
+- `UpdateButton::new(icon, message)`
+- `.icon_animate(bool)`
+- `.icon_color(Option<Color>)`
+- `.tooltip(text)`
+- `.with_dismiss()`
+- `.on_click(handler)`
+- `.on_dismiss(handler)`
+- Convenience constructors:
+  `UpdateButton::checking()`, `downloading(version)`, `installing(version)`,
+  `updated(version)`, `errored(error)`
+
+Davranış:
+
+- `icon_animate(true)`, icon'a rotate animation uygular.
+- `.with_dismiss()` sağ tarafta dismiss icon button gösterir.
+- Main area `ButtonLike::new("update-button")` ile render edilir.
+- Tooltip verilirse main button area'ya bağlanır.
+
+Örnek:
+
+```rust
+use ui::{UpdateButton, prelude::*};
+
+fn render_ready_update_button() -> impl IntoElement {
+    UpdateButton::updated("1.99.0")
+        .on_click(|_, _window, _cx| {})
+        .on_dismiss(|_, _window, _cx| {})
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/auto_update_ui/src/auto_update_ui.rs`: auto-update title bar ve
+  notification akışları.
+
+Dikkat edilecekler:
+
+- Bu component title bar bağlamına göre tasarlanmıştır; genel sayfa CTA'sı olarak
+  kullanmayın.
+- `updated(...)` ve `errored(...)` dismiss gösterir; dismiss callback'i
+  bağlanmazsa button görünür ama state temizlenmez.
+
+### Diğer ve AI/Collab Kompozisyon Örnekleri
+
+Collab özet satırı:
+
+```rust
+use ui::{Avatar, Chip, DiffStat, Facepile, prelude::*};
+
+fn render_collab_summary() -> impl IntoElement {
+    h_flex()
+        .gap_2()
+        .items_center()
+        .child(
+            Facepile::empty()
+                .child(Avatar::new("https://avatars.githubusercontent.com/u/326587?s=60"))
+                .child(Avatar::new("https://avatars.githubusercontent.com/u/2280405?s=60")),
+        )
+        .child(
+            v_flex()
+                .min_w_0()
+                .child(Label::new("Reviewing changes").truncate())
+                .child(Chip::new("2 reviewers").label_color(Color::Muted)),
+        )
+        .child(DiffStat::new("review-summary-diff", 12, 3))
+}
+```
+
+Agent settings satırı:
+
+```rust
+use ui::{
+    AiSettingItem, AiSettingItemSource, AiSettingItemStatus, ConfiguredApiCard,
+    IconButton, IconName, IconSize, prelude::*,
+};
+
+fn render_agent_settings_summary() -> impl IntoElement {
+    v_flex()
+        .gap_2()
+        .child(
+            AiSettingItem::new(
+                "claude-agent",
+                "Claude Agent",
+                AiSettingItemStatus::Running,
+                AiSettingItemSource::Extension,
+            )
+            .detail_label("Ready")
+            .action(
+                IconButton::new("agent-settings", IconName::Settings)
+                    .icon_size(IconSize::Small)
+                    .icon_color(Color::Muted),
+            ),
+        )
+        .child(ConfiguredApiCard::new("Anthropic API key configured"))
+}
+```
+
+Karar rehberi:
+
+- Kişi görseli: `Avatar`; kişi grubu: `Facepile`.
+- Compact metadata etiketi: `Chip`.
+- Eklenen/silinen satır özeti: `DiffStat`.
+- Açılır/kapanır icon button: `Disclosure`.
+- Sağ kenar fade overlay: `GradientFade`.
+- Bundled SVG: `Vector`; raster/dış görsel: GPUI `img(...)`.
+- Shortcut render: `KeyBinding`; açıklamalı shortcut hint: `KeybindingHint`.
+- Focus/scroll traversal: `Navigable`.
+- AI ayar satırı: `AiSettingItem`; provider credential state'i:
+  `ConfiguredApiCard`; agent thread listesi: `ThreadItem`.
+- Collaboration toast layout'u: `CollabNotification`; update title bar state'i:
+  `UpdateButton`.
+
+## 12. Entegre Örnek Sayfaları
+
+Bileşenleri tek tek doğru kullanmak yeterli değildir. Gerçek ekranlarda önemli
+olan, state'in hangi view'da tutulduğu, event'lerin hangi sınırdan geçtiği,
+asenkron işlerin nasıl izleneceği ve görsel state değişiminden sonra yeniden
+render'ın nasıl tetikleneceğidir.
+
+Bu bölümdeki örnekler tam ekran uygulama değildir; kendi domain tiplerinizi,
+settings servislerinizi ve action tiplerinizi bağlayacağınız iskeletlerdir.
+Kullanılan component API'leri `../zed` çalışma ağacındaki kaynak dosyalara göre
+düzenlenmiştir.
+
+Ortak uygulama kuralları:
+
+- View'a ait geçici UI state'i view struct'ında tutun: seçili satır, açık menü,
+  pending async task, hata mesajı, progress değeri.
+- Paylaşılan veya servis kaynaklı state'i doğrudan component içinde saklamayın;
+  render sırasında component'e label, status, icon, callback ve metadata olarak
+  aktarın.
+- View state'i değiştiren handler'larda `cx.listener(...)` kullanın. Bu sayede
+  closure view instance'ına güvenli şekilde ulaşır.
+- Görsel state değiştiğinde `cx.notify()` çağırın. Özellikle `selected`,
+  `expanded`, `saving`, `error`, `progress` ve hover dışı custom state'lerde
+  bunu atlamayın.
+- Tamamlanması izlenecek asenkron işleri `Task` alanında saklayın. Sonucu UI'ı
+  değiştirmeyen fire-and-forget işler için `.detach_and_log_err(cx)` kullanın.
+- Menü içeriklerini `ContextMenu::build(...)` içinde oluşturun; menünün
+  açılmasını `PopoverMenu` veya `right_click_menu(...)` gibi taşıyıcı
+  bileşenlerle bağlayın.
+
+### Ayarlar Paneli Satırı
+
+Bu örnekte `Headline`, `Label`, `SwitchField`, `Button` ve `Callout` tek bir
+ayar satırı içinde birlikte kullanılır.
+
+Neden birlikte:
+
+- `Headline` section başlığını verir.
+- `Label` ayarın adı ve açıklaması için hafif metin katmanıdır.
+- `SwitchField`, boolean ayarı erişilebilir bir toggle olarak yönetir.
+- `Button`, elle kaydetme veya reset gibi komutları taşır.
+- `Callout`, satırın altındaki hata, uyarı veya açıklayıcı aksiyonu gösterir.
+
+State:
+
+- `format_on_save`: switch'in render state'i.
+- `saving`: button disable ve progress metni için geçici state.
+- `last_error`: yalnızca hata olduğunda `Callout` render edilir.
+- `_save_task`: ayar yazımı bitene kadar task'ın düşmemesi için tutulur.
+
+Örnek:
+
+```rust
+use gpui::{ClickEvent, Task};
+use ui::{
+    Button, ButtonSize, ButtonStyle, Callout, Headline, HeadlineSize, IconName,
+    Label, LabelSize, Severity, SwitchField, ToggleState, prelude::*,
+};
+
+struct EditorSettingsRow {
+    format_on_save: bool,
+    saving: bool,
+    last_error: Option<SharedString>,
+    _save_task: Option<Task<anyhow::Result<()>>>,
+}
+
+impl EditorSettingsRow {
+    fn set_format_on_save(&mut self, selected: bool, cx: &mut Context<Self>) {
+        self.format_on_save = selected;
+        self.saving = true;
+        self.last_error = None;
+        cx.notify();
+
+        self._save_task = Some(cx.spawn(async move |this, cx| {
+            save_format_on_save(selected).await?;
+            this.update(cx, |this, cx| {
+                this.saving = false;
+                cx.notify();
+            })?;
+            anyhow::Ok(())
+        }));
+    }
+
+    fn retry_save(&mut self, cx: &mut Context<Self>) {
+        self.set_format_on_save(self.format_on_save, cx);
+    }
+}
+
+impl Render for EditorSettingsRow {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        v_flex()
+            .gap_3()
+            .child(Headline::new("Editor").size(HeadlineSize::Small))
+            .child(
+                h_flex()
+                    .justify_between()
+                    .items_start()
+                    .gap_3()
+                    .child(
+                        v_flex()
+                            .gap_0p5()
+                            .child(Label::new("Format on save"))
+                            .child(
+                                Label::new("Runs the configured formatter before writing files.")
+                                    .size(LabelSize::Small)
+                                    .color(Color::Muted),
+                            ),
+                    )
+                    .child(
+                        SwitchField::new(
+                            "format-on-save",
+                            Some("Enabled"),
+                            Some("Apply formatting automatically".into()),
+                            ToggleState::from(self.format_on_save),
+                            cx.listener(
+                                |this, selection: &ToggleState, _window, cx| {
+                                    this.set_format_on_save(selection.selected(), cx);
+                                },
+                            ),
+                        )
+                        .disabled(self.saving),
+                    ),
+            )
+            .child(
+                Button::new("save-editor-settings", "Save Now")
+                    .size(ButtonSize::Compact)
+                    .style(ButtonStyle::Filled)
+                    .disabled(self.saving)
+                    .on_click(cx.listener(
+                        |this, _: &ClickEvent, _window, cx| this.retry_save(cx),
+                    )),
+            )
+            .when_some(self.last_error.clone(), |this, error| {
+                this.child(
+                    Callout::new()
+                        .severity(Severity::Error)
+                        .icon(IconName::Warning)
+                        .title("Settings could not be saved")
+                        .description(error)
+                        .actions_slot(
+                            Button::new("retry-editor-settings", "Retry")
+                                .size(ButtonSize::Compact)
+                                .on_click(cx.listener(
+                                    |this, _: &ClickEvent, _window, cx| this.retry_save(cx),
+                                )),
+                        ),
+                )
+            })
+    }
+}
+```
+
+Dikkat edilecekler:
+
+- `SwitchField::new(...)` callback'i yeni state'i `&ToggleState` olarak alır.
+  `ToggleState::selected()` indeterminate state'i `false` kabul eder; üç durumlu
+  bir ayarınız varsa `match` ile açık ele alın.
+- Switch state'i optimistik güncelleniyorsa hata durumunda eski değeri geri
+  yazın ve `cx.notify()` çağırın.
+- Uzun süren yazımlarda `Button` ve `SwitchField` disabled olmalı; aksi halde
+  aynı ayar için üst üste task başlatabilirsiniz.
+
+### Toolbar ve Komut Menüsü
+
+Bu örnekte `Button`, `IconButton`, `SplitButton`, `PopoverMenu`, `ContextMenu`,
+`Tooltip` ve `KeybindingHint` aynı toolbar davranışını tamamlar.
+
+Neden birlikte:
+
+- `Button` veya `ButtonLike`, birincil komutu taşır.
+- `IconButton`, compact komutlar ve menü tetikleyicileri için uygundur.
+- `SplitButton`, birincil eylem ile varyant menüsünü tek kontrol gibi gösterir.
+- `PopoverMenu`, tetikleyici ile `ContextMenu` view'ını ilişkilendirir.
+- `Tooltip`, icon-only kontrollerin niyetini açıklar.
+- `KeybindingHint`, gerçek keymap'ten gelen shortcut bilgisini görünür kılar.
+
+Örnek:
+
+```rust
+use gpui::ClickEvent;
+use ui::{
+    ButtonLike, ButtonSize, ContextMenu, IconButton, IconName, Label,
+    PopoverMenu, SplitButton, SplitButtonStyle, Tooltip, prelude::*,
+};
+
+struct CommandToolbar {
+    can_run: bool,
+}
+
+impl CommandToolbar {
+    fn run_default(&mut self, _window: &mut Window, cx: &mut Context<Self>) {
+        self.can_run = false;
+        cx.notify();
+
+        cx.spawn(async move |_this, _cx| run_default_command().await)
+            .detach_and_log_err(cx);
+    }
+}
+
+impl Render for CommandToolbar {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let left = ButtonLike::new_rounded_left("run-default")
+            .size(ButtonSize::Default)
+            .disabled(!self.can_run)
+            .child(Label::new("Run"))
+            .on_click(cx.listener(
+                |this, _: &ClickEvent, window, cx| this.run_default(window, cx),
+            ))
+            .tooltip(|_window, cx| Tooltip::simple("Run default command", cx));
+
+        let right = PopoverMenu::<ContextMenu>::new("run-menu")
+            .trigger(
+                IconButton::new("run-menu-trigger", IconName::ChevronDown)
+                    .size(ButtonSize::Default)
+                    .tooltip(|_window, cx| Tooltip::simple("More run commands", cx)),
+            )
+            .menu(|window, cx| {
+                Some(ContextMenu::build(window, cx, |menu, _window, _cx| {
+                    menu.entry("Run All", None, |_window, _cx| {})
+                        .entry("Run Selection", None, |_window, _cx| {})
+                        .separator()
+                        .entry("Configure Task...", None, |_window, _cx| {})
+                }))
+            });
+
+        h_flex()
+            .gap_1()
+            .items_center()
+            .child(
+                SplitButton::new(left, right.into_any_element())
+                    .style(SplitButtonStyle::Outlined),
+            )
+            .child(
+                IconButton::new("stop-task", IconName::Stop)
+                    .disabled(self.can_run)
+                    .tooltip(|_window, cx| Tooltip::simple("Stop running task", cx)),
+            )
+    }
+}
+```
+
+`KeybindingHint` için kural:
+
+- Shortcut'ı sabit string olarak yazmayın; mümkünse uygulamadaki action/keymap
+  çözümünden `ui::KeyBinding` üretin.
+- Hint'i toolbar'da her zaman göstermeyin. Komut palette, empty state veya
+  onboarding gibi bağlamlarda daha değerlidir.
+- Icon-only button varsa `Tooltip` zorunlu kabul edilmelidir; label'lı button'da
+  tooltip yalnızca ek bağlam sağlıyorsa kullanılmalıdır.
+
+### Proje Listesi
+
+Bu örnekte `List`, `ListItem`, `TreeViewItem`, `Disclosure`, `IndentGuides` ve
+`CountBadge` proje gezgini benzeri bir görünümde birlikte kullanılır.
+
+Neden birlikte:
+
+- `List`, liste container'ı ve empty state davranışını sağlar.
+- `ListItem`, satır slot'ları, selected state ve secondary click için uygundur.
+- `TreeViewItem`, dosya ağacı gibi expand/collapse ve focus davranışı olan
+  satırlarda kullanılır.
+- `Disclosure`, özel satır layout'larında aç/kapat icon'unu ayırır.
+- `IndentGuides`, virtualization kullanılan ağaç listelerinde girinti çizgilerini
+  hesaplama/render sürecine bağlanır.
+- `CountBadge`, klasör veya filtre sonucundaki sayıları kompakt gösterir.
+
+State:
+
+- `expanded_project_ids`: hangi root veya klasörlerin açık olduğu.
+- `selected_path`: tek seçili proje/dosya yolu.
+- `pending_context_menu_path`: sağ tık menüsü açılırken kullanılan yol.
+- Büyük listelerde scroll ve virtualization state'i component dışında kalmalıdır.
+
+Örnek:
+
+```rust
+use gpui::ClickEvent;
+use std::collections::HashSet;
+use ui::{
+    CountBadge, Disclosure, Icon, IconName, Label, List, ListHeader, ListItem,
+    TreeViewItem, prelude::*,
+};
+
+struct ProjectList {
+    expanded: HashSet<SharedString>,
+    selected_path: Option<SharedString>,
+}
+
+impl ProjectList {
+    fn toggle_project(&mut self, project_id: SharedString, cx: &mut Context<Self>) {
+        if !self.expanded.insert(project_id.clone()) {
+            self.expanded.remove(&project_id);
+        }
+        cx.notify();
+    }
+
+    fn select_path(&mut self, path: SharedString, cx: &mut Context<Self>) {
+        self.selected_path = Some(path);
+        cx.notify();
+    }
+}
+
+impl Render for ProjectList {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let project_id: SharedString = "zed".into();
+        let project_open = self.expanded.contains(&project_id);
+        let src_path: SharedString = "zed/crates/ui/src".into();
+
+        List::new()
+            .header(
+                ListHeader::new("Projects")
+                    .end_slot(CountBadge::new(3))
+                    .toggle(Some(project_open))
+                    .on_toggle(cx.listener({
+                        let project_id = project_id.clone();
+                        move |this, _: &ClickEvent, _window, cx| {
+                            this.toggle_project(project_id.clone(), cx);
+                        }
+                    })),
+            )
+            .child(
+                ListItem::new("project-zed")
+                    .toggle_state(self.selected_path.as_ref() == Some(&project_id))
+                    .start_slot(
+                        Disclosure::new("project-zed-disclosure", project_open)
+                            .on_click(cx.listener({
+                                let project_id = project_id.clone();
+                                move |this, _: &ClickEvent, _window, cx| {
+                                    this.toggle_project(project_id.clone(), cx);
+                                }
+                            })),
+                    )
+                    .end_slot(CountBadge::new(12))
+                    .child(Label::new("zed"))
+                    .on_click(cx.listener({
+                        let project_id = project_id.clone();
+                        move |this, _: &ClickEvent, _window, cx| {
+                            this.select_path(project_id.clone(), cx);
+                        }
+                    })),
+            )
+            .when(project_open, |this| {
+                this.child(
+                    TreeViewItem::new("project-zed-src", "crates/ui/src")
+                        .expanded(true)
+                        .toggle_state(self.selected_path.as_ref() == Some(&src_path))
+                        .on_click(cx.listener({
+                            let src_path = src_path.clone();
+                            move |this, _: &ClickEvent, _window, cx| {
+                                this.select_path(src_path.clone(), cx);
+                            }
+                        })),
+                )
+                .child(
+                    ListItem::new("project-zed-components")
+                        .indent_level(2)
+                        .start_slot(Icon::new(IconName::Folder))
+                        .child(Label::new("components"))
+                        .end_slot(CountBadge::new(41)),
+                )
+            })
+    }
+}
+```
+
+`IndentGuides` notu:
+
+- `IndentGuides`, düz `List` içine otomatik çizgi eklemez. `uniform_list` veya
+  sticky item decoration bağlamında `indent_guides(indent_size, colors)` ile
+  kullanılır.
+- Girinti hesabı için `with_compute_indents_fn(...)`, özel çizim için
+  `with_render_fn(...)` bağlayın.
+- Girinti state'i satır verisinden türetilmelidir; her satırda ayrı ayrı çizgi
+  elementleri üretmek büyük ağaçlarda gereksiz maliyet yaratır.
+
+### Veri Tablosu
+
+Bu örnekte `Table`, `TableInteractionState`, `RedistributableColumnsState`,
+`Indicator` ve `ProgressBar` birlikte kullanılır.
+
+Neden birlikte:
+
+- `Table`, satır/sütun düzenini ve header davranışını sağlar.
+- `TableInteractionState`, scroll ve focus state'ini view dışında tutulabilir
+  hale getirir.
+- `RedistributableColumnsState`, sabit toplam genişlik içinde kullanıcıya sütun
+  yeniden dağıtımı verir.
+- `Indicator`, satırdaki kısa status bilgisini gösterir.
+- `ProgressBar`, tabloyu besleyen async işlerin ilerlemesini gösterir.
+
+State:
+
+- `interaction_state: Entity<TableInteractionState>`
+- `columns_state: Entity<RedistributableColumnsState>`
+- `rows: Vec<RowVm>`
+- `sync_progress: Option<(f32, f32)>`
+
+Örnek:
+
+```rust
+use ui::{
+    ColumnWidthConfig, Indicator, ProgressBar, RedistributableColumnsState,
+    Table, TableInteractionState, TableResizeBehavior, prelude::*,
+};
+
+struct PackageRow {
+    name: SharedString,
+    version: SharedString,
+    status: PackageStatus,
+}
+
+enum PackageStatus {
+    Ready,
+    Updating,
+    Failed,
+}
+
+struct PackageTable {
+    interaction_state: Entity<TableInteractionState>,
+    columns_state: Entity<RedistributableColumnsState>,
+    rows: Vec<PackageRow>,
+    sync_progress: Option<(f32, f32)>,
+}
+
+impl Render for PackageTable {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let table = self.rows.iter().fold(
+            Table::new(3)
+                .interactable(&self.interaction_state)
+                .width_config(ColumnWidthConfig::redistributable(
+                    self.columns_state.clone(),
+                ))
+                .striped()
+                .header(vec!["Status", "Package", "Version"]),
+            |table, row| {
+                let color = match row.status {
+                    PackageStatus::Ready => Color::Success,
+                    PackageStatus::Updating => Color::Info,
+                    PackageStatus::Failed => Color::Error,
+                };
+
+                table.row(vec![
+                    Indicator::dot().color(color).into_any_element(),
+                    row.name.clone().into_any_element(),
+                    row.version.clone().into_any_element(),
+                ])
+            },
+        );
+
+        v_flex()
+            .gap_2()
+            .when_some(self.sync_progress, |this, (value, max)| {
+                this.child(ProgressBar::new("package-sync-progress", value, max, cx))
+            })
+            .child(table)
+    }
+}
+```
+
+Kurulum notu:
+
+```rust
+fn new(cx: &mut Context<PackageTable>) -> PackageTable {
+    PackageTable {
+        interaction_state: cx.new(|cx| TableInteractionState::new(cx)),
+        columns_state: cx.new(|_| {
+            RedistributableColumnsState::new(
+                3,
+                vec![rems(5.), rems(16.), rems(8.)],
+                vec![
+                    TableResizeBehavior::None,
+                    TableResizeBehavior::Resizable,
+                    TableResizeBehavior::Resizable,
+                ],
+            )
+        }),
+        rows: Vec::new(),
+        sync_progress: None,
+    }
+}
+```
+
+Dikkat edilecekler:
+
+- `Table::row(...)` küçük ve sabit listeler için yeterlidir. Büyük veri setinde
+  `uniform_list(...)` veya `variable_row_height_list(...)` kullanın.
+- `RedistributableColumnsState::new(cols, widths, resize_behavior)` içindeki
+  `cols`, width sayısı ve resize behavior sayısı aynı olmalıdır.
+- Progress değeri değiştiğinde `sync_progress` güncellenmeli ve `cx.notify()`
+  çağrılmalıdır.
+
+### Bildirim Merkezi
+
+Bu örnekte `Notification` yaşam döngüsü, `NotificationFrame`,
+`AnnouncementToast`, `Banner`, `AlertModal` ve `Button` birlikte düşünülür.
+
+Neden birlikte:
+
+- `Banner`, ekran veya panel üstündeki non-blocking duyuruyu gösterir.
+- `NotificationFrame`, workspace notification stack'inde başlık, içerik, close
+  ve suppress davranışını çerçeveler.
+- `AnnouncementToast`, ürün duyurusu veya yeni özellik tanıtımı için hazır
+  layout sağlar.
+- `AlertModal`, kısa ve blocking karar anlarında kullanılır.
+- `Button`, banner, toast ve modal action yüzeyini tamamlar.
+
+Örnek:
+
+```rust
+use gpui::ClickEvent;
+use ui::{
+    AlertModal, AnnouncementToast, Banner, Button, ButtonSize, ListBulletItem,
+    Severity, prelude::*,
+};
+use workspace::notifications::NotificationFrame;
+
+struct NotificationCenterPreview {
+    show_restart_alert: bool,
+}
+
+impl Render for NotificationCenterPreview {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        v_flex()
+            .gap_3()
+            .child(
+                Banner::new()
+                    .severity(Severity::Warning)
+                    .child("Language server restarted after a crash.")
+                    .action_slot(
+                        Button::new("open-lsp-log", "Open Log")
+                            .size(ButtonSize::Compact),
+                    ),
+            )
+            .child(
+                NotificationFrame::new()
+                    .with_title(Some("Indexing project"))
+                    .with_content("Symbols are still being indexed.")
+                    .with_suffix(Button::new("hide-indexing", "Hide").size(ButtonSize::Compact))
+                    .on_close(|suppress, _window, _cx| {
+                        if *suppress {
+                            persist_notification_suppression();
+                        }
+                    }),
+            )
+            .child(
+                AnnouncementToast::new()
+                    .heading("Agent threads can now be restored")
+                    .description("Recent work is available from the thread history.")
+                    .bullet_item(ListBulletItem::new("Open previous agent sessions"))
+                    .bullet_item(ListBulletItem::new("Continue from saved context"))
+                    .primary_action_label("Open Threads")
+                    .primary_on_click(|_event, _window, _cx| open_thread_history())
+                    .secondary_action_label("Learn More")
+                    .secondary_on_click(|_event, _window, _cx| open_release_notes())
+                    .dismiss_on_click(|_event, _window, _cx| dismiss_announcement()),
+            )
+            .when(self.show_restart_alert, |this| {
+                this.child(
+                    AlertModal::new("restart-required")
+                        .title("Restart required")
+                        .child("The update will be applied after restarting the application.")
+                        .primary_action("Restart")
+                        .dismiss_label("Later")
+                        .on_action(cx.listener(
+                            |this, _: &menu::Confirm, _window, cx| {
+                                this.show_restart_alert = false;
+                                cx.notify();
+                            },
+                        )),
+                )
+            })
+    }
+}
+```
+
+Notification yaşam döngüsü:
+
+- Workspace notification stack'e girecek view, `workspace::notifications::Notification`
+  trait sınırını karşılamalıdır: `Render`, `Focusable`,
+  `EventEmitter<DismissEvent>` ve `EventEmitter<SuppressEvent>`.
+- Dismiss veya suppress state'i component içinde unutulmamalı; kullanıcı tercihi
+  kalıcıysa settings/KV store tarafına yazılmalıdır.
+- Blocking karar gerekmiyorsa `AlertModal` yerine `Banner` veya
+  `NotificationFrame` kullanın.
+
+### AI Sağlayıcı Kartları
+
+Bu örnekte `ConfiguredApiCard`, `AiSettingItem`, `AgentSetupButton`,
+`ThreadItem` ve `UpdateButton` aynı AI ayar alanında birlikte kullanılır.
+
+Neden birlikte:
+
+- `AiSettingItem`, agent/provider satırının status ve kaynak bilgisini taşır.
+- `ConfiguredApiCard`, credential var/yok state'ini güvenli, kısa bir kartla
+  gösterir.
+- `AgentSetupButton`, provider veya agent kurulumu için action satırı sağlar.
+- `ThreadItem`, son agent oturumlarını listelemek için domain'e özel satırdır.
+- `UpdateButton`, AI alanının dışındaki update/collab özel durumlarında da aynı
+  compact status/action modelini gösterir.
+
+Örnek:
+
+```rust
+use gpui::ClickEvent;
+use ui::{
+    AgentSetupButton, AgentThreadStatus, AiSettingItem, AiSettingItemSource,
+    AiSettingItemStatus, ConfiguredApiCard, Icon, IconButton, IconName,
+    ThreadItem, UpdateButton, prelude::*,
+};
+
+struct AiProviderPanel {
+    provider_running: bool,
+    selected_thread_id: Option<SharedString>,
+}
+
+impl Render for AiProviderPanel {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let thread_id: SharedString = "thread-42".into();
+
+        v_flex()
+            .gap_2()
+            .child(
+                AiSettingItem::new(
+                    "openai-provider",
+                    "OpenAI",
+                    if self.provider_running {
+                        AiSettingItemStatus::Running
+                    } else {
+                        AiSettingItemStatus::Stopped
+                    },
+                    AiSettingItemSource::Custom,
+                )
+                .icon(Icon::new(IconName::ZedAgent))
+                .detail_label("Used by Assistant and inline edits")
+                .action(
+                    IconButton::new("openai-settings", IconName::Settings)
+                        .on_click(|_event, _window, _cx| open_provider_settings()),
+                )
+                .details(
+                    ConfiguredApiCard::new("API key configured")
+                        .button_label("Reset Key")
+                        .tooltip_label("Replace the stored API key")
+                        .on_click(|_event, _window, _cx| reset_provider_key()),
+                ),
+            )
+            .child(
+                AgentSetupButton::new("setup-local-agent")
+                    .icon(Icon::new(IconName::Terminal))
+                    .name("Local Agent")
+                    .state(Label::new("Not configured").color(Color::Muted))
+                    .on_click(|_event, _window, _cx| open_agent_setup()),
+            )
+            .child(
+                ThreadItem::new(thread_id.clone(), "Refactor settings panel")
+                    .timestamp("2m ago")
+                    .status(AgentThreadStatus::Running)
+                    .project_name("gpui_belge")
+                    .selected(self.selected_thread_id.as_ref() == Some(&thread_id))
+                    .notified(true)
+                    .added(12)
+                    .removed(4)
+                    .action_slot(IconButton::new("archive-thread-42", IconName::Archive))
+                    .on_click(cx.listener({
+                        let thread_id = thread_id.clone();
+                        move |this, _: &ClickEvent, _window, cx| {
+                            this.selected_thread_id = Some(thread_id.clone());
+                            cx.notify();
+                        }
+                    })),
+            )
+            .child(
+                UpdateButton::checking()
+                    .tooltip("Checking provider metadata")
+                    .on_click(|_event, _window, _cx| refresh_provider_metadata()),
+            )
+    }
+}
+```
+
+Dikkat edilecekler:
+
+- Provider secret veya token değerini component'e vermeyin. `ConfiguredApiCard`
+  yalnızca "configured" state'ini ve reset action'ını taşır.
+- `AiSettingItemStatus::Authenticating` ve `AuthRequired` gibi state'leri servis
+  state'inden türetin; kullanıcı tıklamasıyla optimistic olarak değiştirmeyin.
+- `ThreadItem` action slot'unda destructive action varsa tooltip ve confirm
+  akışı ekleyin.
+
+### Collaboration Özeti
+
+Bu örnekte `Avatar`, `Facepile`, `CollabNotification`, `DiffStat` ve `Chip`
+collaboration özet alanında birlikte kullanılır.
+
+Neden birlikte:
+
+- `Avatar`, tek kullanıcı veya çağrı katılımcısını gösterir.
+- `Facepile`, aktif collaborator grubunu az yer kaplayarak gösterir.
+- `CollabNotification`, davet veya paylaşım aksiyonu için hazır layout verir.
+- `DiffStat`, collaboration sırasında değişen satır sayısını özetler.
+- `Chip`, branch, role, room veya permission gibi kısa metadata'yı taşır.
+
+Örnek:
+
+```rust
+use ui::{
+    Avatar, Button, Chip, CollabNotification, DiffStat, Facepile, IconName,
+    prelude::*,
+};
+
+fn render_collab_summary() -> impl IntoElement {
+    v_flex()
+        .gap_3()
+        .child(
+            h_flex()
+                .gap_2()
+                .items_center()
+                .child(
+                    Facepile::empty()
+                        .child(Avatar::new("https://example.com/a.png").size(px(20.)))
+                        .child(Avatar::new("https://example.com/b.png").size(px(20.)))
+                        .child(Avatar::new("https://example.com/c.png").size(px(20.))),
+                )
+                .child(Chip::new("Live").icon(IconName::Circle).label_color(Color::Success))
+                .child(DiffStat::new("collab-diff", 24, 7).tooltip("Shared branch diff")),
+        )
+        .child(
+            CollabNotification::new(
+                "https://example.com/avatar.png",
+                Button::new("accept-share", "Accept"),
+                Button::new("dismiss-share", "Dismiss").color(Color::Muted),
+            )
+            .child("Hakan invited you to join a shared project.")
+            .child(Chip::new("read/write").truncate()),
+        )
+}
+```
+
+Dikkat edilecekler:
+
+- `Facepile` içinde avatar boyutlarını aynı tutun; karışık boyut overlap
+  hizasını bozar.
+- `DiffStat` sadece özet sayı içindir. Dosya bazlı diff gerekiyorsa ayrı liste
+  veya diff viewer kullanın.
+- `CollabNotification` accept/dismiss davranışını kendi başına yönetmez; iki
+  `Button`'ın handler'larını notification lifecycle'a bağlayın.
+
+### Uyum Kontrol Listesi
+
+Bir ekranı kendi uygulamanıza taşırken şu sırayla kontrol edin:
+
+- Her state alanının sahibi belli mi: view, entity, servis store veya settings?
+- View state'i değiştiren bütün event handler'lar `cx.listener(...)` üzerinden mi?
+- Görsel sonucu olan state değişimlerinden sonra `cx.notify()` var mı?
+- Async iş sonucunda view hala yaşıyor mu diye `Entity`/`WeakEntity` update
+  sınırları doğru kullanılıyor mu?
+- Fire-and-forget task'lar `.detach_and_log_err(cx)` ile loglanıyor mu?
+- Menü içeriği render sırasında güncel state'ten mi kuruluyor?
+- Icon-only kontrollerde `Tooltip` var mı?
+- Shortcut gösterimi gerçek keymap/action çözümünden mi geliyor?
+- Büyük listelerde `List` yerine virtualization veya `Table::uniform_list(...)`
+  gibi uygun yüzey kullanıldı mı?
+- AI/collab domain bileşenlerine sadece render metadata'sı veriliyor mu, gizli
+  credential veya servis nesnesi taşınmıyor mu?
