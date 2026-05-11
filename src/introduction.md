@@ -11,5 +11,3 @@ Ana kaynak dosyalar:
 - Zed başlık çubuğu / dekorasyon: `crates/platform_title_bar`, `crates/title_bar`, `crates/workspace/src/workspace.rs`
 - Zed UI bileşenleri: `crates/ui`, metin girişi için `crates/ui_input`
 - Ayarlar ve tema: `crates/settings_content`, `crates/settings`, `crates/theme_settings`, `crates/theme`
-
-Rehber, 21 ana bölüm ve 102 başlık halinde düzenlenmiştir. Her başlık, ilgili GPUI/Zed dosyalarındaki tipleri, fonksiyonları ve pratik kullanım desenlerini özetler. Sol kenar çubuğundaki içindekilerden ilgili bölüme geçebilirsiniz.
