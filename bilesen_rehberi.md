@@ -94,7 +94,7 @@ belirtilecek.
 | `CommonAnimationExt` | `crates/ui/src/traits/animation_ext.rs` | Döndürme animasyonu gibi ortak animation extension yüzeyi. |
 | `Transformable` | `crates/ui/src/traits/transformable.rs` | GPUI `Transformation` değerini bileşene uygulama yüzeyi. |
 | `LabelCommon` | `crates/ui/src/components/label/label_like.rs` | Label ailesinin ortak size/color/weight/truncation yüzeyi. |
-| `ButtonCommon` | `crates/ui/src/components/button/button_like.rs` | Button ailesinin ortak icon, style, key binding ve loading yüzeyi. |
+| `ButtonCommon` | `crates/ui/src/components/button/button_like.rs` | Button ailesinin ortak `id`, `style`, `size`, `tooltip`, `tab_index`, `layer`, `track_focus` yüzeyi. `Clickable + Disableable` supertrait. |
 | `SelectableButton` | `crates/ui/src/components/button/button_like.rs` | `Button`, `IconButton`, `ButtonLike` için seçilebilirlik sözleşmesi. |
 | `WithScrollbar` / `ScrollableHandle` | `crates/ui/src/components/scrollbar.rs` | Elementlere özel scrollbar bağlama ve scroll handle soyutlaması. |
 | `IntoTableRow` | `crates/ui/src/components/data_table/table_row.rs` | `Vec<T>` değerlerini kolon sayısı doğrulanmış `TableRow<T>` tipine dönüştürme trait'i. |
@@ -1722,17 +1722,25 @@ Kaynak:
 
 Ortak trait'ler:
 
-- `ButtonCommon`: `.style(...)`, `.size(...)`, `.tooltip(...)`,
-  `.key_binding(...)`, `.key_binding_position(KeybindingPosition)`,
-  `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`.
-- `Clickable`: `.on_click(...)`, `.cursor_style(...)`.
+- `ButtonCommon` (supertrait: `Clickable + Disableable`):
+  `.id(&self) -> &ElementId`, `.style(ButtonStyle)`, `.size(ButtonSize)`,
+  `.tooltip(Fn(...) -> AnyView)`, `.tab_index(impl Into<isize>)`,
+  `.layer(ElevationIndex)`, `.track_focus(&FocusHandle)`.
+- `Clickable`: `.on_click(handler)`, `.cursor_style(CursorStyle)`.
 - `Disableable`: `.disabled(bool)`.
-- `Toggleable`: `.toggle_state(bool)`.
-- `SelectableButton`: `.selected_style(ButtonStyle)`.
-- `FixedWidth`: `.width(...)`, `.full_width()`.
-- `VisibleOnHover`: `.visible_on_hover(group_name)`.
-- `KeybindingPosition`: buton içindeki shortcut göstergesinin `Start` veya `End`
-  konumunu seçer; varsayılan `End` değeridir.
+- `Toggleable`: `.toggle_state(bool)` (tek metot).
+- `SelectableButton` (supertrait: `Toggleable`):
+  `.selected_style(ButtonStyle)`.
+- `FixedWidth`: `.width(impl Into<DefiniteLength>)`, `.full_width()`.
+- `VisibleOnHover`: `.visible_on_hover(impl Into<SharedString>)`.
+
+> **`key_binding` ve `key_binding_position` trait'te yoktur.** Bu iki
+> builder `Button` struct'ının kendi inherent (impl) metotlarıdır;
+> `IconButton`, `ButtonLike`, `SplitButton` üzerinde **çalışmaz**. Shortcut
+> hint'i bu üçünde göstermek için manuel `KeyBinding` widget'ı eklenir
+> (Bölüm 11/`KeyBinding`). `KeybindingPosition` enum'u (`Start`,
+> `End` (Default)) yalnızca `Button::key_binding_position(...)` parametresi
+> olarak anlam taşır.
 
 Buton stilleri:
 
@@ -2287,9 +2295,12 @@ Temel API:
 - Group constructor'ları:
   `ToggleButtonGroup::single_row(group_name, [buttons; COLS])`,
   `ToggleButtonGroup::two_rows(group_name, first_row, second_row)`
-- Group builder'ları: `.style(...)`, `.size(...)`, `.selected_index(...)`,
-  `.auto_width()`, `.label_size(...)`, `.tab_index(&mut isize)`,
-  `.width(...)`, `.full_width()`.
+- Group builder'ları: `.style(ToggleButtonGroupStyle)`,
+  `.size(ToggleButtonGroupSize)`, `.selected_index(usize)`,
+  `.auto_width()`, `.label_size(LabelSize)`, `.tab_index(&mut isize)`,
+  `.width(impl Into<DefiniteLength>)`, `.full_width()`.
+- `ToggleButtonGroupStyle`: `Transparent`, `Filled`, `Outlined`.
+- `ToggleButtonGroupSize`: `Default`, `Medium`, `Large`, `Custom(Rems)`.
 
 Davranış:
 
@@ -6967,6 +6978,10 @@ Davranış:
 - Açıkken default icon `ChevronDown`, kapalıyken `ChevronRight`.
 - Render sonucu `IconButton` üzerinden gelir.
 - `is_open` internal state değildir; parent her render'da güncel değeri verir.
+- **`Clickable::on_click` ve `on_toggle_expanded` aynı slotu yazar.** Kaynak
+  implementasyon `on_click`'i `self.on_toggle_expanded = Some(Arc::new(handler))`
+  olarak depolar; bu yüzden ikisi birlikte çağrılırsa **sonuncu** kazanır.
+  Karışıklık önlemek için yalnızca birini kullanın.
 
 Örnek:
 
