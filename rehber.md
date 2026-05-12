@@ -570,8 +570,13 @@ handle.update(cx, |root: &mut Workspace, window, cx| {
 
 let title = handle.read_with(cx, |root, cx| root.title(cx))?;
 let entity = handle.entity(cx)?;
-let active = handle.is_active(cx);
-let id = handle.window_id();
+// WindowHandle::is_active `Option<bool>` döner; pencere kapanmış/geçici
+// olarak ödünç alınmışsa `None`. Tipik kullanım:
+let active: Option<bool> = handle.is_active(cx);
+// `window_id()` `WindowHandle<V>` üzerinde inherent metot olarak yoktur;
+// `AnyWindowHandle::window_id()` üzerinden okunur. `WindowHandle<V>`
+// `Into<AnyWindowHandle>` implement ettiği için dönüşüm trivial:
+let id = AnyWindowHandle::from(handle).window_id();
 ```
 
 `AnyWindowHandle`:
