@@ -1141,6 +1141,27 @@ Sekme çubuğu şu durumlarda boş döner:
 - Platform `window.tab_bar_visible()` false ve controller görünür değilse.
 - `use_system_window_tabs` false ve yalnızca bir sekme varsa.
 
+Sekme drag payload tipi `DraggedWindowTab` (`system_window_tabs.rs:29`):
+
+```rust
+pub struct DraggedWindowTab {
+    pub id: WindowId,
+    pub ix: usize,
+    pub handle: AnyWindowHandle,
+    pub title: String,
+    pub width: Pixels,
+    pub is_active: bool,
+    pub active_background_color: Hsla,
+    pub inactive_background_color: Hsla,
+}
+```
+
+Drag/drop sırasında `on_drag(DraggedWindowTab, ...)` payload'ı bu struct'tır.
+`SystemWindowTabs.last_dragged_tab` alanı bir önceki drag'ı saklar; drop
+hedefi başka pencereye düşerse aynı payload yeniden okunup `merge`/`move`
+akışına yönlendirilebilir. Kendi uygulamana port ediyorsan tab drag/drop
+sözleşmesini bu tipi mirror ederek koru.
+
 Kendi uygulamanızda native tab desteğini ilk aşamada istemiyorsanız:
 
 - `PlatformTitleBar::init(cx)` çağrısını kaldırmak yerine, port edilen
