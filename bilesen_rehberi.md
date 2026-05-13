@@ -336,14 +336,14 @@ güncellenmelidir.
 | :-- | :-- | :-- |
 | `styles/typography.rs` | `TextSize::pixels(cx)` | `TextSize` token'ını `Pixels` değerine çevirir |
 | `styles/elevation.rs` | `ElevationIndex::on_elevation_bg(cx)`, `.darker_bg(cx)` | Elevation arka plan varyantlarını tema üzerinden çözer |
-| `icon.rs` | `IconSize::square_components(window, cx)`, `IconWithIndicator::indicator_color(color)` | İkon kare ölçüsü ve indicator rengi |
-| `toggle.rs` | `ToggleButtonGroup::container_size()` | Toggle group container yüksekliğini sabit token olarak verir |
-| `divider.rs` | `Divider::render_solid(base, cx)`, `.render_dashed(base)` | `Divider` render stratejisi; normal kullanımda `divider()` / `vertical_divider()` yeterlidir |
-| `modal.rs` | `Modal::show_back_button(show)`, `ModalRow::contained(contained)` | Geri butonu ve contained modal satırı davranışı |
-| `tab_bar.rs` | `TabBarSlot::start_children_mut()`, `.end_children_mut()` | Slot içindeki başlangıç/bitiş child listelerini mutably düzenler |
-| `scrollbar.rs` | `ShowScrollbar::should_hide()` | Scrollbar görünürlük kararını okur |
-| `data_table.rs` | `Table::table_width(window, cx)`, `.list_horizontal_sizing(window, cx)`, `TableInteractionState::reset_column_to_initial_width(col_idx)` | Table genişliği, horizontal sizing ve kolon reset helper'ları |
-| `redistributable_columns.rs` | `RedistributableColumn::is_resizable()`, `RedistributableColumnsState::reset_column(col_idx, window, cx)`, `.reset_column_to_initial_width(column_index, window)` | Redistributable kolon resize/reset yüzeyi |
+| `icon.rs` | `IconSize::square_components(window, cx)`, `IconSize::square(window, cx)`, `IconWithIndicator::indicator_color(color)` | İkon kare ölçüsü ve indicator rengi |
+| `toggle.rs` | `Checkbox::container_size()` | Checkbox kutusu için sabit `Pixels` ölçüsü; satır hizalama için kullanılır |
+| `divider.rs` | `Divider::render_solid(base, cx)`, `Divider::render_dashed(base)` | `Divider` render stratejisi; normal kullanımda `divider()` / `vertical_divider()` yeterlidir |
+| `modal.rs` | `Modal::show_back(bool)`, `ModalHeader::show_back_button(bool)`, `Section::contained(bool)` | Modal seviyesinde geri butonunu açma, header'a back button ikonu ekleme ve `Section` border'lı yüzey toggle'ı |
+| `tab_bar.rs` | `TabBar::start_children_mut()`, `TabBar::end_children_mut()` | Builder zinciri dışından TabBar başlangıç/bitiş child listelerini mutably düzenler (`SmallVec<[AnyElement; 2]>`) |
+| `scrollbar.rs` | `ScrollbarAutoHide::should_hide()` | Scrollbar otomatik gizleme kararını okuyan global token; `Global` olarak set/get edilir |
+| `data_table.rs` | `ColumnWidthConfig::table_width(window, cx)`, `ColumnWidthConfig::list_horizontal_sizing(window, cx)`, `ResizableColumnsState::reset_column_to_initial_width(col_idx)`, `Table::map_row(callback)`, `Table::empty_table_callback(callback)` | Table genişliği, horizontal sizing ve kolon reset helper'ları; `Table` üzerinde satır/empty callback'leri |
+| `redistributable_columns.rs` | `TableResizeBehavior::is_resizable()`, `HeaderResizeInfo::reset_column(col_idx, window, cx)`, `RedistributableColumnsState::reset_column_to_initial_width(column_index, window)` | Resize davranışı sorgusu, header bilgi paketi üzerinden reset ve kolon initial width'e dönüş |
 | `context_menu.rs` | `ContextMenu::selected_index()`, `.confirm(...)`, `.secondary_confirm(...)`, `.cancel(...)`, `.end_slot(...)`, `.clear_selected()`, `.select_first(...)`, `.select_last(...)`, `.select_next(...)`, `.select_previous(...)`, `.select_submenu_child(...)`, `.select_submenu_parent(...)`, `.on_action_dispatch(...)`, `.on_blur_subscription(subscription)` | Menü action, seçim, submenu traversal, end slot ve blur subscription state yönetimi |
 
 #### Denetim mantığı düzeltmesi
