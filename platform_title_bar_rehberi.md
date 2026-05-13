@@ -883,6 +883,24 @@ aynı olmaz.
 | `WindowControlStyle` | Linux/FreeBSD CSD | Buton arka planı ve ikon renklerini değiştirmek için builder yüzeyi sağlar. |
 | `WindowsWindowControls` | Windows | Minimize, maximize/restore ve close butonlarını `WindowControlArea::{Min, Max, Close}` olarak işaretler. |
 
+### System window tab yüzeyi
+
+| Tip/API | Yer | Sözleşme |
+| :-- | :-- | :-- |
+| `DraggedWindowTab` | `platform_title_bar/src/system_window_tabs.rs` | Drag payload'ı ve drag preview render state'i. |
+| `SystemWindowTabs::new()` | `platform_title_bar/src/system_window_tabs.rs` | Scroll handle, ölçülen tab genişliği ve `last_dragged_tab` başlangıcı. |
+| `SystemWindowTabs::init(cx)` | `platform_title_bar/src/system_window_tabs.rs` | Settings observer ve workspace action renderer kaydı. |
+| `SystemWindowTab::new(title, handle)` | `gpui/src/app.rs` | GPUI tarafındaki native tab metadata'sı: `id`, `title`, `handle`, `last_active_at`. |
+| `SystemWindowTabController::new/init` | `gpui/src/app.rs` | Global controller'ı kurar; `App` init sırasında zaten kurulur, settings toggle akışında resetlenebilir. |
+| `tab_groups()` | `gpui/src/app.rs` | Tüm native tab gruplarını okur. |
+| `tabs(id)` | `gpui/src/app.rs` | Verilen pencereyle aynı gruptaki tab listesini döndürür. |
+| `init_visible`, `is_visible`, `set_visible` | `gpui/src/app.rs` | Native tab bar visibility state'i. |
+| `add_tab`, `remove_tab` | `gpui/src/app.rs` | Controller içindeki tab gruplarına ekleme/çıkarma. |
+| `update_last_active`, `update_tab_position`, `update_tab_title` | `gpui/src/app.rs` | Aktiflik zamanı, drag sırası ve başlık senkronu. |
+| `move_tab_to_new_window`, `merge_all_windows` | `gpui/src/app.rs` | Controller state'ini yeni grup / tek grup halinde yeniden düzenler. |
+| `select_next_tab`, `select_previous_tab` | `gpui/src/app.rs` | Komşu tab'ın `AnyWindowHandle`'ı üzerinden pencereyi aktive eder. |
+| `get_next_tab_group_window`, `get_prev_tab_group_window` | `gpui/src/app.rs` | Native tab grupları arası odak geçişi için handle seçer. |
+
 ## 6. Kendi Uygulamana Dahil Etme
 
 ### Doğrudan Zed crate'iyle kullanım
@@ -1141,9 +1159,28 @@ Sekme çubuğu şu durumlarda boş döner:
 - Platform `window.tab_bar_visible()` false ve controller görünür değilse.
 - `use_system_window_tabs` false ve yalnızca bir sekme varsa.
 
+**Hata kaynağı ve düzeltilen mantık:** Önceki ekleme `DraggedWindowTab`
+adını ve alanlarını doğru yakaladı, fakat akışı "drop başka pencereye düşerse
+merge/move" diye genelledi. Kaynakta owner ve olay ayrımı şöyledir:
+
+- `render_tab(...).on_drag(...)` `DraggedWindowTab` üretir ve
+  `last_dragged_tab = Some(tab.clone())` yapar.
+- Aynı tab bar üzerindeki `.on_drop(...)` yalnızca
+  `SystemWindowTabController::update_tab_position(cx, dragged_tab.id, ix)`
+  çağırır.
+- Tab bar dışına sol mouse-up olursa `last_dragged_tab.take()` ile
+  `SystemWindowTabController::move_tab_to_new_window(cx, tab.id)` ve platform
+  `window.move_tab_to_new_window()` akışı çalışır.
+- `merge_all_windows` drag payload'ından değil, action renderer veya context
+  menu içindeki "Show All Tabs" / merge action akışından gelir.
+
+Bu nedenle native tab portunda drag/drop davranışı `DraggedWindowTab` alan
+paritesiyle birlikte **olay hedefine göre** mirror edilmelidir.
+
 Sekme drag payload tipi `DraggedWindowTab` (`system_window_tabs.rs:29`):
 
 ```rust
+#[derive(Clone)]
 pub struct DraggedWindowTab {
     pub id: WindowId,
     pub ix: usize,
@@ -1157,10 +1194,34 @@ pub struct DraggedWindowTab {
 ```
 
 Drag/drop sırasında `on_drag(DraggedWindowTab, ...)` payload'ı bu struct'tır.
-`SystemWindowTabs.last_dragged_tab` alanı bir önceki drag'ı saklar; drop
-hedefi başka pencereye düşerse aynı payload yeniden okunup `merge`/`move`
-akışına yönlendirilebilir. Kendi uygulamana port ediyorsan tab drag/drop
-sözleşmesini bu tipi mirror ederek koru.
+`DraggedWindowTab` aynı zamanda `Render` implement eder; drag preview bu
+struct'ın `title`, `width`, `is_active`, `active_background_color` ve
+`inactive_background_color` alanlarından çizilir. `last_dragged_tab` yalnızca
+tab bar dışına bırakma ihtimalini yakalamak için geçici state'tir; başarılı
+`on_drop` içinde `None` yapılır.
+
+**Controller akışı:**
+
+```text
+settings toggle true
+  -> SystemWindowTabController::init(cx)
+  -> mevcut pencereler için window.set_tabbing_identifier(Some("zed"))
+  -> window.tabbed_windows() varsa platform listesini kullan
+  -> yoksa SystemWindowTab::new(window.window_title(), window.window_handle())
+  -> SystemWindowTabController::add_tab(cx, window_id, tabs)
+
+tab drag aynı tab bar'a drop
+  -> update_tab_position(cx, dragged_tab.id, target_ix)
+
+tab drag tab bar dışına mouse-up
+  -> move_tab_to_new_window(cx, dragged_tab.id)
+  -> ilgili platform window.move_tab_to_new_window()
+
+context menu / action
+  -> MoveTabToNewWindow: controller + platform move
+  -> MergeAllWindows: controller + platform merge
+  -> ShowNext/PreviousWindowTab: controller tab handle'ını activate_window()
+```
 
 Kendi uygulamanızda native tab desteğini ilk aşamada istemiyorsanız:
 
@@ -1172,7 +1233,9 @@ Kendi uygulamanızda native tab desteğini ilk aşamada istemiyorsanız:
 Native tab desteğini koruyacaksanız:
 
 - Her pencereye aynı uygulama tab group adı verin.
-- `SystemWindowTabController::init(cx)` çağrısını ayar açıldığında yapın.
+- `SystemWindowTabController::init(cx)` GPUI `App` init sırasında zaten
+  kuruludur; settings toggle true olduğunda Zed bunu tekrar çağırıp controller
+  state'ini temiz şekilde yeniden başlatır.
 - Yeni açılan pencereleri controller'a `SystemWindowTab::new(title, handle)` ile
   bildirin.
 - Sekme kapatma ve yeni pencere action'larını uygulama lifecycle'ınıza bağlayın.
@@ -1327,19 +1390,40 @@ Interaktif child'larda dikkat edilecekler:
 
 ## 15. Kaynak Doğrulama Komutları
 
-Bu rehber hazırlanırken kaynak kontrolü `awk` ile yapılmıştır. Aynı kontrolleri
-tekrar çalıştırmak için:
+Bu rehber hazırlanırken yapılan ilk hata, public adları ve payload alanlarını
+"geçiyor mu?" diye kontrol edip owner/metot ve olay hedefi ayrımını ayrı
+doğrulamamaktı. Bundan sonra kontrolleri üç seviyede çalıştır:
+
+1. Public API envanteri.
+2. Owner/metot yüzeyi.
+3. Event akışı ve payload alan paritesi.
 
 ```sh
-find ../zed/crates -name '*.rs' -print0 |
-  xargs -0 awk '/PlatformTitleBar::|PlatformTitleBar|render_left_window_controls|render_right_window_controls|ShowNextWindowTab|MergeAllWindows|set_button_layout|set_multi_workspace/ { print FILENAME ":" FNR ":" $0 }'
+rg -n '^pub (struct|enum|fn)|^\s*pub fn|actions!\(' \
+  ../zed/crates/platform_title_bar/src \
+  -g '*.rs'
 ```
 
-Public API yüzeyini görmek için:
+`PlatformTitleBar` owner/metot yüzeyi:
 
 ```sh
-find ../zed/crates/title_bar ../zed/crates/platform_title_bar -name '*.rs' -print0 |
-  xargs -0 awk '/pub struct|pub enum|pub fn|actions!|impl Render|impl RenderOnce|impl ParentElement/ { print FILENAME ":" FNR ":" $0 }'
+rg -n '^impl PlatformTitleBar|^\s*pub fn (new|with_multi_workspace|set_multi_workspace|title_bar_color|set_children|set_button_layout|init|is_multi_workspace_enabled)|^pub fn render_(left|right)_window_controls' \
+  ../zed/crates/platform_title_bar/src/platform_title_bar.rs
+```
+
+System tab controller yüzeyi:
+
+```sh
+sed -n '270,560p' ../zed/crates/gpui/src/app.rs \
+  | rg '^pub struct SystemWindowTab|^impl SystemWindowTab|^pub struct SystemWindowTabController|^impl SystemWindowTabController|^\s*pub fn'
+```
+
+`DraggedWindowTab` alan paritesi ve event akışı:
+
+```sh
+sed -n '28,39p' ../zed/crates/platform_title_bar/src/system_window_tabs.rs
+rg -n 'on_drag|last_dragged_tab|drag_over::<DraggedWindowTab>|on_drop|on_mouse_up_out|handle_tab_drop|move_tab_to_new_window|merge_all_windows|update_tab_position' \
+  ../zed/crates/platform_title_bar/src/system_window_tabs.rs
 ```
 
 Pencere seçenekleri ve CSD bağlantılarını kontrol etmek için:
@@ -1368,6 +1452,12 @@ find ../zed/crates/gpui/src ../zed/crates/settings_content/src ../zed/crates/tit
   implementation hit-test alanı verir; davranış platform katmanındadır.
 - Native tabs açıkken `tabbing_identifier` vermemek. Pencereler aynı native tab
   grubunda birleşmez.
+- `DraggedWindowTab` payload'ını sadece alan listesi olarak mirror etmek.
+  Aynı tab bar drop'u reorder yapar; tab bar dışına bırakma yeni pencereye taşır;
+  merge ise ayrı action/context menu akışıdır.
+- `SystemWindowTabController` state'i ile platform native tab state'ini tek
+  kaynak sanmak. Controller Zed tarafındaki UI/action modelidir; platform çağrıları
+  (`window.move_tab_to_new_window`, `window.merge_all_windows`) ayrıca yapılır.
 - App-specific menüleri `PlatformTitleBar` içine gömmek. Daha temiz model,
   platform kabuğunu ayrı, ürün titlebar içeriğini ayrı tutmaktır.
 
