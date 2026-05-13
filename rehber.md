@@ -567,6 +567,24 @@ taşır ve gerektiğinde downcast edilir.
 çağrılabilir görünür ama owner'ı aslında `AnyWindowHandle`'dır. Doğru denetim
 `Owner::method -> dönüş tipi -> hata semantiği` üçlüsüyle yapılmalıdır.
 
+Aynı kalıp GPUI'de en az üç başka yerde tekrar eder — denetim turunda hepsini
+ayrı doğrula:
+
+- `Entity<T>: Deref<Target = AnyEntity>` ve `WeakEntity<T>:
+  Deref<Target = AnyWeakEntity>` — typed entity handle'ları untyped handle'a
+  deref eder. Detay Konu 59.
+- `ModifiersChangedEvent`, `ScrollWheelEvent`, `PinchEvent`, `MouseExitEvent`:
+  `Deref<Target = Modifiers>` — bu dört event Modifiers metodlarını doğrudan
+  açar (`event.secondary()`, `event.modified()`). `MouseDownEvent`,
+  `MouseUpEvent`, `MouseMoveEvent` ise Deref *etmez*; yalnızca `modifiers`
+  alanını ifşa eder. Detay Konu 80.
+- `Context<'a, T>: Deref<Target = App>` — `cx.theme()`, `cx.refresh_windows()`
+  gibi App metotları Context üzerinden de çağrılabilir (Konu 8).
+
+Bu Deref aliasing pattern'ini denetim awk script'inde **state-machine** ile
+takip et; basit `rg '^impl '` çıktısı `for` parçasını gevşek eşleştirdiği için
+"Bu metot hangi `impl` bloğunun içinde tanımlandı?" sorusunu cevaplayamaz.
+
 `WindowHandle<V>`:
 
 ```rust
@@ -631,12 +649,45 @@ Tam owner/metot yüzeyi:
 | `AnyWindowHandle` | `read::<T, _, _>(cx, |Entity<T>, &App| ...)` | `Result<R>` | Önce downcast yapar, sonra typed entity okutur. |
 
 **Denetim komutu:** Bu bölüm güncellenirken owner-metot ayrımını kaynak
-üstünden tekrar çıkar:
+üstünden tekrar çıkar. Önce kaba smoke-test (`rg` yeterli):
 
 ```sh
 sed -n '5450,5650p' ../zed/crates/gpui/src/window.rs \
   | rg '^impl.*WindowHandle|^impl AnyWindowHandle|pub fn (new|root|update|read|read_with|entity|is_active|window_id|downcast)'
 ```
+
+Asıl denetim ise state-machine awk gerektirir — `rg` bir `pub fn`'in hangi
+`impl` bloğunun içinde tanımlandığını söylemez, awk'te kalıcı `owner` state'i
+tutarak bu eşlemeyi kuruyoruz:
+
+```sh
+gawk '
+  BEGIN { owner = "(file)" }
+  /^impl[<[:space:]]/ {
+    if (match($0, /[[:space:]]for[[:space:]]+([A-Za-z_][A-Za-z0-9_]*)/, m)) {
+      trait_name = ""
+      if (match($0, /^impl(<[^>]+>)?[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)/, t)) { trait_name = t[2] }
+      owner = m[1] " (impl " trait_name ")"
+    } else if (match($0, /^impl(<[^>]+>)?[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)/, m)) {
+      owner = m[2] " (inherent)"
+    }
+    next
+  }
+  /^[[:space:]]*pub (fn|const|async fn)[[:space:]]/ {
+    n = $0
+    sub(/^[[:space:]]*pub[[:space:]]+/, "", n)
+    sub(/[[:space:]]*\{?[[:space:]]*$/, "", n)
+    print FILENAME ":" FNR ":" owner ":" n
+  }
+' ../zed/crates/gpui/src/window.rs \
+  | grep -E ':(WindowHandle|AnyWindowHandle) '
+```
+
+Bu çıktı `WindowHandle (inherent):fn read(...)` ve `AnyWindowHandle
+(inherent):fn read(...)` satırlarını ayrı ayrı verir; aynı ada sahip iki
+metot olduğu hemen görünür. `impl[<[:space:]]` regex'i `impl<T>...`
+formundaki generic impl bloklarını da yakalar (yalnız `^impl ` kullanırsan
+generic impl'leri kaçırırsın).
 
 Context trait'leri:
 
@@ -3719,6 +3770,93 @@ Kural: plugin/dock/workspace gibi heterojen koleksiyon sınırı yoksa typed
 `Entity<T>`/`WeakEntity<T>` kullan. `AnyEntity` downcast zorunluluğu getirir ve
 yanlış tipte `downcast::<T>()` entity'yi `Err(AnyEntity)` olarak geri verir.
 
+##### Deref ile gizlenmiş yüzey (typed handle üzerinden untyped metot)
+
+`Entity<T>` ve `WeakEntity<T>` `#[derive(Deref, DerefMut)]` ile içlerindeki
+untyped handle'a deref eder
+(`crates/gpui/src/app/entity_map.rs:413` ve `:739`):
+
+```rust
+#[derive(Deref, DerefMut)]
+pub struct Entity<T>     { any_entity: AnyEntity,         entity_type: PhantomData<_> }
+#[derive(Deref, DerefMut)]
+pub struct WeakEntity<T> { any_entity: AnyWeakEntity,     entity_type: PhantomData<_> }
+```
+
+Bu yüzden `AnyEntity`/`AnyWeakEntity` üzerindeki bazı metotlar typed handle
+üzerinde method resolution ile çağrılabilir; "owner sadece untyped tip"
+yanılgısı buradan doğar. Ayrım `Owner::method -> dönüş tipi` çiftiyle yapılır,
+ad tek başına yeterli değildir.
+
+| Owner | Metot | Dönüş | Erişim |
+|---|---|---|---|
+| `Entity<T>` | `entity_id()` | `EntityId` | Inherent (`AnyEntity::entity_id` ile aynı değeri okur; inherent kazanır). |
+| `Entity<T>` | `downgrade()` | `WeakEntity<T>` | Inherent; aynı adlı `AnyEntity::downgrade -> AnyWeakEntity` gölgelenir. |
+| `Entity<T>` | `into_any()` | `AnyEntity` | Inherent; `self`'i tüketir. |
+| `Entity<T>` | `read(&App)` | `&T` | Inherent. |
+| `Entity<T>` | `read_with(cx, |&T, &App| ...)` | `R` | Inherent. |
+| `Entity<T>` | `update(cx, |&mut T, &mut Context<T>| ...)` | `R` | Inherent. |
+| `Entity<T>` | `update_in(visual_cx, |&mut T, &mut Window, &mut Context<T>| ...)` | `C::Result<R>` | Inherent. |
+| `Entity<T>` | `as_mut(&mut cx)` | `GpuiBorrow<T>` | Inherent; drop'ta `cx.notify()`. |
+| `Entity<T>` | `write(&mut cx, value)` | `()` | Inherent; state'i değiştirir ve notify eder. |
+| `Entity<T>` deref | `entity_type()` | `TypeId` | Owner `AnyEntity`; Entity inherent karşılığı yoktur, deref ile çağrılır. |
+| `Entity<T>` deref-only edge case | `downcast::<U>()` | `Result<Entity<U>, AnyEntity>` | Owner `AnyEntity::downcast(self)` — **`self`'i tüketir**. Auto-deref tüketen metoda dağıtmadığından `entity.downcast::<U>()` doğrudan derlenmez; `entity.into_any().downcast::<U>()` yaz. |
+| `AnyEntity` | `entity_id()` | `EntityId` | Inherent. |
+| `AnyEntity` | `entity_type()` | `TypeId` | Inherent. |
+| `AnyEntity` | `downgrade()` | `AnyWeakEntity` | Inherent. |
+| `AnyEntity` | `downcast::<U>()` | `Result<Entity<U>, AnyEntity>` | Inherent; `self`'i tüketir. |
+
+`WeakEntity<T>` tarafı ad çakışmaları yüzünden ayrıca okunaklı tutulmalıdır;
+inherent ile deref-only metotlar aynı isimle farklı imza taşır:
+
+| Owner | Metot | Dönüş | Erişim |
+|---|---|---|---|
+| `WeakEntity<T>` | `upgrade()` | `Option<Entity<T>>` | Inherent; aynı adlı `AnyWeakEntity::upgrade -> Option<AnyEntity>` gölgelenir. |
+| `WeakEntity<T>` | `update(cx, |&mut T, &mut Context<T>| ...)` | `Result<R>` | Inherent. |
+| `WeakEntity<T>` | `update_in(cx, |&mut T, &mut Window, &mut Context<T>| ...)` | `Result<R>` | Inherent; entity'nin son render edildiği pencereyi `App::with_window` ile bulur. |
+| `WeakEntity<T>` | `read_with(cx, |&T, &App| ...)` | `Result<R>` | Inherent. |
+| `WeakEntity<T>` | `new_invalid()` | `Self` | Inherent; aynı adlı `AnyWeakEntity::new_invalid -> AnyWeakEntity` gölgelenir. |
+| `WeakEntity<T>` deref | `entity_id()` | `EntityId` | Owner `AnyWeakEntity`; deref ile çağrılır. |
+| `WeakEntity<T>` deref | `is_upgradable()` | `bool` | Owner `AnyWeakEntity`; deref ile çağrılır. |
+| `WeakEntity<T>` deref | `assert_released()` | `()` | Owner `AnyWeakEntity`; sadece `test`/`leak-detection`. |
+| `AnyWeakEntity` | `entity_id()` | `EntityId` | Inherent. |
+| `AnyWeakEntity` | `is_upgradable()` | `bool` | Inherent. |
+| `AnyWeakEntity` | `upgrade()` | `Option<AnyEntity>` | Inherent — typed handle üzerinden çağrılırsa `WeakEntity::upgrade` kazanır. |
+| `AnyWeakEntity` | `new_invalid()` | `Self` | Inherent. |
+| `AnyWeakEntity` | `assert_released()` | `()` | Inherent; `test`/`leak-detection`. |
+
+Pratik sonuç: `weak.entity_id()` çağrısı typed handle'da deref üzerinden
+`AnyWeakEntity::entity_id`'a iner; ama `weak.upgrade()` typed kazanır ve
+`Option<Entity<T>>` döner. Aynı kod parçasında her ikisi de görünür, oysa
+ownership'leri farklıdır — denetimi `Owner::method -> dönüş` çiftiyle yap.
+
+**Denetim komutu:** State-machine awk ile owner+metot eşlemesi
+(`crates/gpui/src/app/entity_map.rs`):
+
+```sh
+gawk '
+  BEGIN { owner = "(file)" }
+  /^impl[<[:space:]]/ {
+    if (match($0, /[[:space:]]for[[:space:]]+([A-Za-z_][A-Za-z0-9_]*)/, m)) {
+      trait_name = ""
+      if (match($0, /^impl(<[^>]+>)?[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)/, t)) { trait_name = t[2] }
+      owner = m[1] " (impl " trait_name ")"
+    } else if (match($0, /^impl(<[^>]+>)?[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)/, m)) {
+      owner = m[2] " (inherent)"
+    }
+    next
+  }
+  /^[[:space:]]*pub (fn|const|async fn)[[:space:]]/ {
+    n = $0; sub(/^[[:space:]]*pub[[:space:]]+/, "", n); sub(/[[:space:]]*\{?[[:space:]]*$/, "", n)
+    print FILENAME ":" FNR ":" owner ":" n
+  }
+' ../zed/crates/gpui/src/app/entity_map.rs \
+  | grep -E ':(Entity|WeakEntity|AnyEntity|AnyWeakEntity) '
+```
+
+Çıktıda aynı ad birden çok owner satırında çıkıyorsa (`upgrade`, `new_invalid`,
+`entity_id` gibi) tabloda inherent/deref ayrımı gözden kaçırılmamış olur.
+
 #### AnyView, AnyWeakView ve EmptyView
 
 `AnyView`, `Render` implement eden bir `Entity<V>` için element olarak
@@ -5314,6 +5452,38 @@ Element callback'lerinde çoğu zaman concrete event tipi otomatik gelir:
 `.on_mouse_down(|event, window, cx| ...)`, `.on_scroll_wheel(...)`,
 `.on_modifiers_changed(...)` gibi. Synthetic test event'i veya platform input
 çevirimi yazarken `InputEvent::to_platform_input()` hattı önemlidir.
+
+**Modifiers deref aliasing (asimetrik):** Aşağıdaki dört event açıkça
+`impl Deref for X { type Target = Modifiers; }` taşır
+(`crates/gpui/src/interactive.rs:77`, `:450`, `:502`, `:590`):
+
+- `ModifiersChangedEvent`
+- `ScrollWheelEvent`
+- `PinchEvent`
+- `MouseExitEvent`
+
+Sonuç olarak `Modifiers` üzerindeki tüm `&self` metotları — `secondary()`,
+`modified()`, `number_of_modifiers()`, `is_subset_of(...)` ve `control`,
+`alt`, `shift`, `platform`, `function` alanları — bu dört event üzerinde
+doğrudan çağrılabilir. Konu 43'teki kısayollar (`Modifiers::command_shift()`
+vb.) ise `Modifiers` üzerinde **inherent associated function**'dır; event
+üzerinden çağrılmaz, ayrı bir `Modifiers` üretmek için kullanılır.
+
+`MouseDownEvent`, `MouseUpEvent` ve `MouseMoveEvent` Deref *etmez*; yalnızca
+`modifiers: Modifiers` alanını ifşa eder. Bu yüzden bu üç event'te
+`event.modifiers.secondary()` yazılır, dört Deref'li event'te ise hem
+`event.modifiers.secondary()` hem `event.secondary()` çalışır. Asimetri
+kasıtlıdır: Deref'li dörtlü "input'un modifier şapkası budur" semantiğini
+taşır; mouse press/move event'leri ise modifier'ı sadece yan veri olarak
+saklar.
+
+**Denetim komutu:** Yeni bir event ailesinde Deref var mı:
+
+```sh
+rg -n '^impl Deref for [A-Z][A-Za-z]+(Event|Action)' \
+  ../zed/crates/gpui/src/interactive.rs \
+  ../zed/crates/gpui/src/platform.rs
+```
 
 #### Image, SVG ve Cache Taşıyıcıları
 
