@@ -881,7 +881,34 @@ aynı olmaz.
 | `LinuxWindowControls` | Linux/FreeBSD CSD | `WindowButtonLayout` sırasını okur, desteklenmeyen minimize/maximize butonlarını filtreler. |
 | `WindowControl` | Linux/FreeBSD CSD | Minimize için `window.minimize_window()`, maximize/restore için `window.zoom_window()`, close için verilen action'ı dispatch eder. |
 | `WindowControlStyle` | Linux/FreeBSD CSD | Buton arka planı ve ikon renklerini değiştirmek için builder yüzeyi sağlar. |
+| `WindowControlType` | Linux/FreeBSD CSD | `Minimize | Maximize | Restore | Close` variantları; her variantın svg ikon adını `icon(&self) -> IconName` döner. |
 | `WindowsWindowControls` | Windows | Minimize, maximize/restore ve close butonlarını `WindowControlArea::{Min, Max, Close}` olarak işaretler. |
+
+`WindowControl`'ün üç inherent constructor'ı vardır
+(`platform_linux.rs:164-205`):
+
+- `WindowControl::new(id, icon, cx)` — `close_action: None`. Minimize ve
+  maximize butonları için bu yol kullanılır; close yerine kullanılırsa render
+  sırasında close branch'i `Option<Box<dyn Action>>::None` olduğu için no-op
+  olur.
+- `WindowControl::new_close(id, icon, close_action, cx)` — `close_action`'ı
+  `Some(...)` olarak set eder ve `boxed_clone()` ile saklar. `LinuxWindowControls`
+  internal olarak `WindowControlType::Close` butonunu bununla üretir.
+- `WindowControl::custom_style(id, icon, style)` — `cx` almaz, hazır
+  `WindowControlStyle` alır; close action'ı `None` kalır. Kaynakta
+  `#[allow(unused)]` ile işaretli, port hedefi uygulamalar için hazır
+  bırakılmış bir public yüzeydir.
+
+`WindowControlStyle::default(cx: &mut App)` bir **inherent associated function**'dır;
+`Default` trait impl'i değildir. Bu yüzden tema renklerini okumak için `&mut App`
+ister ve `WindowControlStyle::default()` (argümansız) çağrısı derlenmez. Builder
+zinciri: `default(cx).background(c).background_hover(c).icon(c).icon_hover(c)`.
+
+`WindowsCaptionButton` (Windows tarafı) `pub` değildir; yalnızca
+`platform_windows.rs` içinde `enum WindowsCaptionButton { Minimize, Restore,
+Maximize, Close }` olarak tanımlıdır ve `IntoElement` derive'ı ile render edilir.
+Port ederken bu tipi taşıma değil, aynı dört variant için kendi enum'unuzu
+yazma yolu tercih edilir; başka modülden referans alınamaz.
 
 ### System window tab yüzeyi
 
@@ -1337,7 +1364,7 @@ Interaktif child'larda dikkat edilecekler:
 | Close butonu farklı action dispatch etsin | `PlatformTitleBar` içine `close_action` alanı ekle veya serbest render fonksiyonlarını kullan. |
 | Linux buton sırası ayardan gelsin | `set_button_layout(...)` çağrısını uygulama settings state'ine bağla. |
 | Linux buton ikon/rengi değişsin | `WindowControlStyle` veya `WindowControlType::icon()` portunda değişiklik yap. |
-| Windows close hover rengi değişsin | `platform_windows.rs` içinde `WindowsCaptionButton::Close` renklerini değiştir. |
+| Windows close hover rengi değişsin | `platform_windows.rs` içindeki `WindowsCaptionButton::Close` (crate-içi enum) renklerini değiştir; tip pub değildir, port hedefinde aynı dört variantı kendi enum'unuzla yeniden yazın. |
 | Titlebar yüksekliği değişsin | `platform_title_bar_height` karşılığını uygulamana taşı ve tüm titlebar/controls kullanımında aynı değeri kullan. |
 | Native tabs kapatılsın | `SystemWindowTabs` render child'ını feature flag ile boş döndür. |
 | Sekme plus butonu yeni pencere açsın | `zed_actions::OpenRecent` yerine uygulama `NewWindow` action'ını dispatch et. |
@@ -1439,6 +1466,61 @@ find ../zed/crates -name '*.rs' -print0 |
 find ../zed/crates/gpui/src ../zed/crates/settings_content/src ../zed/crates/title_bar/src -name '*.rs' -print0 |
   xargs -0 awk '/WindowButtonLayout|WindowButton|button_layout|into_layout|observe_button_layout_changed/ { print FILENAME ":" FNR ":" $0 }'
 ```
+
+Owner ayrımı (struct vs trait vs inherent fn vs free fn) için **state-machine
+awk** kullan. `rg`'nin satır-tabanlı eşleşmesi bir `pub fn`'in hangi `impl`
+bloğunun içinde olduğunu raporlamaz; awk içindeki kalıcı state ile bunu
+çıkarırız:
+
+```sh
+find ../zed/crates/platform_title_bar/src -name '*.rs' -print0 |
+  xargs -0 gawk '
+    BEGIN { owner = "(free)" }
+    /^pub struct [A-Za-z0-9_]+/  { print FILENAME ":" FNR ":STRUCT: " $0; next }
+    /^pub enum [A-Za-z0-9_]+/    { print FILENAME ":" FNR ":ENUM: "   $0; next }
+    /^pub trait [A-Za-z0-9_]+/   { print FILENAME ":" FNR ":TRAIT: "  $0; next }
+    /^pub fn [A-Za-z0-9_]+/      { print FILENAME ":" FNR ":FREE_FN: " $0; next }
+    /^impl[^!]/ {
+      if (match($0, /for[[:space:]]+([A-Za-z0-9_]+)/, m))                  { owner = m[1] " (trait impl)" }
+      else if (match($0, /impl(<[^>]+>)?[[:space:]]+([A-Za-z0-9_]+)/, m))   { owner = m[2] " (inherent)" }
+      else                                                                  { owner = "?" }
+      print FILENAME ":" FNR ":IMPL[" owner "]: " $0; next
+    }
+    /^[[:space:]]+pub fn [A-Za-z0-9_]+/ {
+      print FILENAME ":" FNR ":  METHOD[" owner "]: " $0
+    }
+  '
+```
+
+Bu komut `WindowControl::new`, `WindowControl::new_close`,
+`WindowControl::custom_style` üçlüsünü ve `WindowControlStyle::default(cx)` gibi
+**inherent** ad çakışmalarını ayrı satırlarda gösterir. `rg '^impl '` yalnızca
+header'ı verir; metotların hangi owner'a ait olduğunu eşleştirmek için ya
+`-A N` ile blok büyüklüğünü tahmin etmek ya da awk state'i kullanmak gerekir —
+state-machine yolu daha güvenlidir.
+
+Crate sınırını aşan keşif için (örn. `SystemWindowTabController`
+`platform_title_bar` referansıyla bulunur ama `gpui` crate'inde tanımlıdır):
+
+```sh
+# Önce platform_title_bar'da geçen tüm tip adlarını çıkar
+gawk '
+  match($0, /\<([A-Z][A-Za-z0-9_]+)\>/, m) { print m[1] }
+' ../zed/crates/platform_title_bar/src/*.rs \
+  ../zed/crates/platform_title_bar/src/platforms/*.rs \
+  | sort -u > /tmp/ptb_referenced.txt
+
+# Sonra her birinin tanım crate'ini bul
+while read name; do
+  defs=$(rg -l "^pub (struct|enum|trait|fn|type) ${name}\b" ../zed/crates 2>/dev/null)
+  [ -n "${defs}" ] && echo "${name}: ${defs}"
+done < /tmp/ptb_referenced.txt
+```
+
+Bu adım `DraggedWindowTab` doğrudan `platform_title_bar`'da olsa da
+`SystemWindowTabController`'ın `gpui/src/app.rs`'te tanımlı olduğunu açığa
+çıkarır — bu cross-crate sıçramayı **yalnızca** rehberin merkez crate'inde
+tarama yapmak kaçırır.
 
 ## 16. Sık Yapılan Hatalar
 
