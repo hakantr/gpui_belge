@@ -97,7 +97,7 @@ disiplini ister; üst katmanlar tasarım özgürlüğüyle yazılır.
 ┌─────────────────────────────────────────────────────────────────┐
 │  Runtime (kendi kodun, Zed'le 1:1 olmak zorunda değil)          │
 │  - ThemeRegistry    - GlobalTheme    - ActiveTheme trait        │
-│  - SystemAppearance - set_theme      - cx.theme()               │
+│  - SystemAppearance - update_theme   - cx.theme()               │
 ├─────────────────────────────────────────────────────────────────┤
 │  Refinement / dönüşüm (Zed davranışını öğreniyor, yeniden yaz)  │
 │  - Content → Refinement → Theme akışı                           │
@@ -128,7 +128,7 @@ sözcüklerinle yazarsın (GPL-3 nedeniyle birebir kopyalama yok). Bölüm V
 bu katmanı ele alır.
 
 **Runtime (en üst katman) — `senin tasarımın`:** `cx.theme()` ile aktif
-temayı sorgulama, `set_theme` ile değiştirme, sistem light/dark modunu
+temayı sorgulama, `GlobalTheme::update_theme` ile değiştirme, sistem light/dark modunu
 izleme. Bu katman tamamen senin tasarımındır — Zed'in
 `crates/theme_settings/` veya `crates/theme_selector/` crate'lerini
 taklit etmek zorunda değilsin. Kendi config sisteminle, kendi UI'nla
@@ -1099,8 +1099,8 @@ pub trait BorrowAppContext {
 ```
 
 Tema sisteminin global yönetimi bu trait üzerinden çalışır. Aynı
-`set_theme(cx)` çağrısı hem `App`'ten hem `Context<T>`'den hem async
-context'ten geçerlidir.
+`GlobalTheme::update_theme(cx, theme)` çağrısı hem `App`'ten hem
+`Context<T>`'den hem async context'ten geçerlidir.
 
 **Trait uyum tablosu (tema açısından):**
 
@@ -1164,11 +1164,15 @@ anahtarı `GlobalThemeRegistry` ayrı tutarak çakışma engellenir.
 **`init`-or-`update` deseni** (tema sisteminin tutarlı kullanımı):
 
 ```rust
-pub fn set_theme(cx: &mut App, theme: Arc<Theme>) {
-    if cx.has_global::<Self>() {
-        cx.update_global::<Self, _>(|this, _| this.theme = theme);
+pub fn install_or_update_theme(cx: &mut App, theme: Arc<Theme>) {
+    if cx.has_global::<GlobalTheme>() {
+        GlobalTheme::update_theme(cx, theme);
     } else {
-        cx.set_global(Self { theme });
+        // İlk kez kuruyoruz; icon teması da elimizde olmalı.
+        let icon_theme = kvs_tema::ThemeRegistry::global(cx)
+            .default_icon_theme()
+            .expect("default icon tema kayıtlı olmalı");
+        cx.set_global(GlobalTheme::new(theme, icon_theme));
     }
 }
 ```
@@ -1176,13 +1180,21 @@ pub fn set_theme(cx: &mut App, theme: Arc<Theme>) {
 → İlk çağrıda `set_global`, sonraki çağrılarda `update_global`. Bu desen
 tema sistemi sınırları dışında da global state için idiomatik.
 
+> **İsim çakışmasından kaçın:** `theme_settings::settings` modülünde
+> `pub fn set_theme(current: &mut SettingsContent, …)` adında **ayrı bir
+> public yardımcı** vardır (Konu 31). O fonksiyon kullanıcı ayar dosyasını
+> mutate eder, runtime global'i değil; ikisini aynı ada bağlamak okuyucuyu
+> yanıltır. Mirror tarafta runtime tarafının adı `update_theme` (Zed paritesi)
+> veya `install_or_update_theme` gibi farklı bir kimlikte tutulmalıdır.
+
 #### Tema sisteminin üç global'i
 
 | Global | İçerik | Kim kurar | Kim okur |
 |--------|--------|-----------|----------|
-| `GlobalThemeRegistry` | `Arc<ThemeRegistry>` | `ThemeRegistry::set_global` | `ThemeRegistry::global(cx)` |
-| `GlobalTheme` | `Arc<Theme>` + `Arc<IconTheme>` (aktif) | `cx.set_global(GlobalTheme::new(...))`, sonra `update_*` | `cx.theme()`, `GlobalTheme::icon_theme(cx)` |
+| `GlobalThemeRegistry` | `Arc<ThemeRegistry>` | `cx.set_global(GlobalThemeRegistry(...))` (Zed'de `pub(crate) ThemeRegistry::set_global` wrapper'ı bunu yapar) | `ThemeRegistry::global(cx)` |
+| `GlobalTheme` | `Arc<Theme>` + `Arc<IconTheme>` (aktif) | `cx.set_global(GlobalTheme::new(...))`, sonra `update_theme` / `update_icon_theme` | `cx.theme()`, `GlobalTheme::icon_theme(cx)` |
 | `GlobalSystemAppearance` | `SystemAppearance` | `SystemAppearance::init` | `SystemAppearance::global(cx)` |
+| `BufferFontSize`, `UiFontSize`, `AgentUiFontSize`, `AgentBufferFontSize` | `Pixels` (override) | `adjust_*_font_size` çağrıları | `ThemeSettings::*_font_size(cx)` (override yoksa settings değerine düşer) |
 
 #### `cx.refresh_windows()`
 
@@ -1216,8 +1228,8 @@ hem pratik değil.
 2. **`set_global` çakışması**: Aynı tipi tekrar set'lemek mevcut global'i
    siler. Tema dışı bir global state'i de aynı tipte koyma.
 3. **`refresh_windows` çağırmamak**: En yaygın bug — tema değişti ama UI
-   eski renkte. `set_theme` her zaman `refresh_windows` ile eşleşmeli;
-   helper fonksiyona sar.
+   eski renkte. `GlobalTheme::update_theme` (veya yerel sarmalayıcısı) her
+   zaman `refresh_windows` ile eşleşmeli; helper fonksiyona sar.
 4. **`update_global` içinde `set_global`**: Aynı tipte re-entrancy
    hatası. Update callback içinde sadece field mutate et, yeni
    set'leme.
@@ -1528,7 +1540,7 @@ zaten `Arc<Theme>` tutuyor.
    değişebilir; accessor arayüzü `theme.colors()` üzerinde sabit kalır.
 3. **`appearance` runtime'da değişmez**: Bir tema *Light* olarak yüklendi
    diye runtime'da Dark olarak yeniden işlenmez. Tema değiştirmek için
-   `set_theme` ile yeni tema yükle.
+   `GlobalTheme::update_theme` ile yeni `Arc<Theme>` aktive et.
 4. **`SystemColors::default()` ile dolu kalsın**: Tema yazarı sistem
    renklerini özelleştirmek istemiyorsa `Default::default()` yeterli;
    bazı geliştiriciler bu alanı atlayıp `unsafe zeroed` ile karıştırıp
@@ -4616,35 +4628,46 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
     let mut status = baseline.styles.status.clone();
     status.refine(&status_refinement);
 
-    // 4. Accents: boş ise baseline, dolu ise parse
-    let accents = if content.style.accents.is_empty() {
-        baseline.styles.accents.clone()
-    } else {
-        AccentColors(
-            content.style.accents.iter()
-                .filter_map(|c| c.as_deref().and_then(|s| try_parse_color(s).ok()))
-                .collect(),
-        )
-    };
+    // 4. Accents: boş ise baseline'a dokunma; dolu ise parse edilebilen
+    //    renkleri topla. Zed paritesi (`merge_accent_colors`,
+    //    theme_settings/src/theme_settings.rs:395): parse edilebilen renkler
+    //    boş çıkarsa accent listesini değiştirme; aksi halde baseline
+    //    `Arc<[Hsla]>`'i tamamen değiştir.
+    let mut accents = baseline.styles.accents.clone();
+    if !content.style.accents.is_empty() {
+        let parsed: Vec<Hsla> = content.style.accents.iter()
+            .filter_map(|c| c.0.as_deref().and_then(|s| try_parse_color(s).ok()))
+            .collect();
+        if !parsed.is_empty() {
+            accents = AccentColors(Arc::from(parsed));
+        }
+    }
 
-    // 5. Players: boş ise baseline, dolu ise alan-bazlı parse
-    let player = if content.style.players.is_empty() {
-        baseline.styles.player.clone()
-    } else {
-        PlayerColors(
-            content.style.players.iter().map(|p| PlayerColor {
-                cursor: p.cursor.as_deref()
-                    .and_then(|s| try_parse_color(s).ok())
-                    .unwrap_or(baseline.styles.player.local().cursor),
-                background: p.background.as_deref()
-                    .and_then(|s| try_parse_color(s).ok())
-                    .unwrap_or(baseline.styles.player.local().background),
-                selection: p.selection.as_deref()
-                    .and_then(|s| try_parse_color(s).ok())
-                    .unwrap_or(baseline.styles.player.local().selection),
-            }).collect(),
-        )
-    };
+    // 5. Players: boş ise baseline, dolu ise IDX BAZLI merge.
+    //    Zed paritesi: `merge_player_colors` (theme_settings/src/theme_settings.rs:356)
+    //    her idx için **o idx'in baseline player'ı**nı koruyarak field
+    //    bazında override eder; idx baseline'dan büyükse yeni
+    //    `PlayerColor::default()` üstüne yazar. `.local()` (idx=0) ile
+    //    tüm slot'ları doldurmak YANLIŞ — slot semantiği bozulur.
+    let mut player = baseline.styles.player.clone();
+    for (idx, p) in content.style.players.iter().enumerate() {
+        let cursor = p.cursor.as_deref().and_then(|s| try_parse_color(s).ok());
+        let background = p.background.as_deref().and_then(|s| try_parse_color(s).ok());
+        let selection = p.selection.as_deref().and_then(|s| try_parse_color(s).ok());
+        if let Some(slot) = player.0.get_mut(idx) {
+            *slot = PlayerColor {
+                cursor: cursor.unwrap_or(slot.cursor),
+                background: background.unwrap_or(slot.background),
+                selection: selection.unwrap_or(slot.selection),
+            };
+        } else {
+            player.0.push(PlayerColor {
+                cursor: cursor.unwrap_or_default(),
+                background: background.unwrap_or_default(),
+                selection: selection.unwrap_or_default(),
+            });
+        }
+    }
 
     // 6. Syntax: IndexMap → Vec<(String, HighlightStyle)>
     let syntax_highlights = content.style.syntax.iter()
@@ -4872,6 +4895,70 @@ fn parses_zed_one_dark() {
 7. **`from_content` panic potansiyeli**: Mevcut implementasyonda panic
    yok. Ama `unwrap` ekleyenler dikkat: tema yüklemesi panic edemez,
    sessizce baseline'a düşmeli.
+
+#### Zed paritesi: `refine_theme*`, `merge_*`, `load_user_theme`
+
+Yukarıdaki `Theme::from_content` `kvs_tema`'nın tasarım önerisidir. Zed'de
+aynı işi yapan **dört public fonksiyon** vardır
+(`crates/theme_settings/src/theme_settings.rs`):
+
+| Fonksiyon | Sorumluluk | Karşılık |
+|-----------|------------|----------|
+| `pub fn refine_theme(theme: &ThemeContent) -> Theme` | Tek `ThemeContent` → `Theme`. Baseline'ı `appearance`'a göre `ThemeColors::light`/`dark` ile alır, refinement + merge + parse pipeline'ını çalıştırır | `Theme::from_content` ile aynı 6 adım |
+| `pub fn refine_theme_family(content: ThemeFamilyContent) -> ThemeFamily` | Tüm aileyi `refine_theme` ile çevirip `ThemeFamily { themes, scales: default_color_scales(), … }` üretir | Aile-bazlı yardımcı; tek tema için `refine_theme` yeterli |
+| `pub fn merge_player_colors(&mut PlayerColors, &[PlayerColorContent])` | Adım 5'in kanonik implementasyonu (idx başına field bazında merge) | Yukarıdaki düzeltilmiş Adım 5 |
+| `pub fn merge_accent_colors(&mut AccentColors, &[AccentContent])` | Adım 4'ün kanonik implementasyonu (parse edilen liste boş değilse `Arc<[Hsla]>`'i tamamen değiştir) | Yukarıdaki düzeltilmiş Adım 4 |
+
+Ayrıca `pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8]) -> Result<()>`
+ve `pub fn deserialize_user_theme(bytes: &[u8]) -> Result<ThemeFamilyContent>`
+fonksiyonları kullanıcı tema dosyasını disk'ten parse eden public yüzeydir:
+
+```rust
+// theme_settings/src/theme_settings.rs:225-251
+pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8]) -> Result<()> {
+    let theme = deserialize_user_theme(bytes)?;
+    let refined = refine_theme_family(theme);
+    registry.insert_theme_families([refined]);
+    Ok(())
+}
+
+pub fn deserialize_user_theme(bytes: &[u8]) -> Result<ThemeFamilyContent> {
+    let theme_family: ThemeFamilyContent =
+        serde_json_lenient::from_slice(bytes)?;
+
+    for theme in &theme_family.themes {
+        if theme.style.colors.deprecated_scrollbar_thumb_background.is_some() {
+            log::warn!(
+                r#"Theme "{name}" is using a deprecated style property: \
+                   scrollbar_thumb.background. Use `scrollbar.thumb.background` \
+                   instead."#,
+                name = theme.name
+            );
+        }
+    }
+    Ok(theme_family)
+}
+```
+
+Reçete 42.10 (kullanıcı tema dizini ekleme) mirror tarafında bu iki
+fonksiyonu doğrudan kullanır:
+
+```rust
+pub fn kullanici_tema_yukle(
+    registry: &ThemeRegistry,
+    bytes: &[u8],
+) -> anyhow::Result<()> {
+    let aile = deserialize_user_theme(bytes)?;
+    let refined = refine_theme_family(aile);
+    registry.insert_theme_families([refined]);
+    Ok(())
+}
+```
+
+Deprecated alan uyarısı (`deprecated_scrollbar_thumb_background`) Zed'de
+**log seviyesinde** kalır; parse hatası yapmaz. `kvs_tema` mirror'ında aynı
+strateji uygulanır — deprecated alanlar `tracing::warn!` ile yazılır,
+kullanıcının teması yine yüklenir.
 
 ---
 
@@ -5273,11 +5360,18 @@ impl GlobalTheme {
 > Tema değişim observer'ı yoksa fark yok; ama olur diye `update_global`
 > tercih.
 
-`kvs_tema` isterse `set_theme_and_icon` veya `set_theme` convenience
-metotlarını ekleyebilir; bunlar Zed public yüzeyinde olmadığı için
-`DECISIONS.md`'de yerel genişletme olarak işaretlenmelidir. Init öncesinde
-`update_theme` ya da yerel `set_theme` çağrılırsa global yokluğu nedeniyle
-panic eder.
+`kvs_tema` isterse yerel convenience metotları ekleyebilir; bunlar Zed
+public yüzeyinde olmadığı için `DECISIONS.md`'de yerel genişletme olarak
+işaretlenir. Önerilen adlandırma:
+
+| Yerel ad | Davranış | Neden bu ad |
+|----------|----------|-------------|
+| `install_or_update_theme(cx, theme)` | `has_global`'a göre `set_global` veya `update_theme` çağırır | `set_theme` adı `theme_settings::settings::set_theme` (Konu 31) ile çakışır — namespace karışıklığı bug çıkarır |
+| `install_or_update_icon_theme(cx, icon)` | Aynı desen, icon tarafı | Aynı gerekçe |
+| `install_active(cx, theme, icon)` | `cx.set_global(GlobalTheme::new(...))` çağrısının okunabilir alias'ı | İlk init'i tek satıra indirir |
+
+Init öncesinde `GlobalTheme::update_theme` ya da bu yerel sarmalayıcılar
+çağrılırsa global yokluğu nedeniyle panic eder.
 
 #### `ActiveTheme` trait
 
@@ -5432,7 +5526,7 @@ tema değişiminde özel state güncellemek istiyorsan kur.
 4. **`update_theme` callback boş**: `update_global::<Self, _>(|this, _| ...)`
    callback'inde sadece field mutate et; başka global'i set etmeye
    çalışırsan re-entrancy panic.
-5. **Theme parametresini `Theme` yapmak**: `set_theme(cx, theme: Theme)`
+5. **Theme parametresini `Theme` yapmak**: `update_theme(cx, theme: Theme)`
    yazsaydın her çağrıda klon olurdu. `Arc<Theme>` zorunlu.
 6. **`observe_global` `.detach()` unutmak**: Subscription drop olursa
    observer ölür; tema değişince bileşen yenilenmez.
@@ -5777,7 +5871,10 @@ panic acceptable.
 **Adım 5 — Global'leri kur:**
 
 ```rust
-ThemeRegistry::set_global(cx, registry);
+// ThemeRegistry::set_global Zed'de pub(crate) ve Box<dyn AssetSource>
+// alır (içeride GlobalThemeRegistry newtype'ını oluşturur). Mirror tarafta
+// newtype'ı kendin set ederek aynı sözleşmeyi kuruyorsun.
+cx.set_global(GlobalThemeRegistry(registry.clone()));
 cx.set_global(GlobalTheme::new(default, default_icon));
 ```
 
@@ -6248,6 +6345,94 @@ dismiss/cancel:
 Bu modelle uygulama, Zed'deki gibi kullanıcıya hem "tek tema seç" hem de
 "sistem moduna göre light/dark temaları ayrı tut" davranışını sunar.
 
+#### Settings mutator helper'ları (Zed paritesi)
+
+Zed `crates/theme_settings/src/settings.rs` içinde **runtime global'i değil**,
+kullanıcı ayar dosyasının `SettingsContent` AST'ini güvenli mutate eden üç
+public helper sunar:
+
+```rust
+// theme_settings::settings içinde:
+pub fn set_theme(
+    current: &mut SettingsContent,
+    theme_name: impl Into<Arc<str>>,
+    theme_appearance: Appearance,
+    system_appearance: Appearance,
+);
+
+pub fn set_icon_theme(
+    current: &mut SettingsContent,
+    icon_theme_name: IconThemeName,
+    appearance: Appearance,
+);
+
+pub fn set_mode(content: &mut SettingsContent, mode: ThemeAppearanceMode);
+```
+
+| Fonksiyon | İş yaptığı yer | Karar mantığı |
+|-----------|----------------|---------------|
+| `set_theme` | `settings.theme.theme` (`Option<ThemeSelection>`) | `Static` ise adı değiştirir, `Dynamic` ise `theme_appearance`'a göre `light`/`dark` slot'unu günceller. `mode == System` iken seçilen appearance sistem appearance'ından farklıysa `mode`'u seçilen tarafa kilitler |
+| `set_icon_theme` | `settings.theme.icon_theme` | `Dynamic` modda mevcut mode'a göre `light`/`dark` slot'unu yazar; `Static`ta tek slot'u günceller. `Option<IconThemeSelection>` `None` ise `Static` ile başlatır |
+| `set_mode` | `settings.theme.theme` | Mevcut `Static` seçimi `Dynamic { mode = System, light = DEFAULT_LIGHT_THEME, dark = DEFAULT_DARK_THEME }` ile değiştirir; mevcut `Dynamic` ise sadece `mode`'u günceller; `None` ise `Dynamic`'i baştan kurar |
+
+**`kvs_tema` karşılığı:** Bu üç fonksiyon `kvs_tema` runtime API'sinin değil
+selector / settings UI köprüsünün sorumluluğudur. Mirror crate yapısında
+ya `kvs_tema_ayarlari` ya da `kvs_secici` modülünde tutulur. Selector
+confirm akışında dosya yazma sırasını şu şekilde kurar:
+
+```rust
+pub fn confirm_selection(
+    secilen: &ThemeMeta,
+    cx: &mut App,
+) -> anyhow::Result<()> {
+    let system = SystemAppearance::global(cx).0;
+
+    // 1. Önce in-memory SettingsContent'i mutate et.
+    let mut content = SettingsStore::global(cx).user_settings_content().clone();
+    set_theme(&mut content, secilen.name.clone(), secilen.appearance, system);
+
+    // 2. Diske persist et (file watcher Konu 33 ile reload'u tetikler).
+    SettingsStore::global(cx).write_user_settings(content)?;
+
+    // 3. Observer (Konu 31) reload_theme'i çağırır; explicit
+    //    GlobalTheme::update_theme + refresh_windows burada GEREKMEZ.
+    Ok(())
+}
+```
+
+**Tuzak:** Selector preview için `GlobalTheme::update_theme` + `refresh_windows`
+çağrıldıysa ve kullanıcı confirm yerine dismiss seçerse, settings dosyası
+yazılmamış olur ama runtime hâlâ önizleme temasını gösterir. Cancel akışında
+preview öncesi tema adını saklayıp `GlobalTheme::update_theme(cx, eski)`
+çağrısı yapılmalıdır.
+
+#### `reload_theme` / `reload_icon_theme` — observer reaksiyonu
+
+Zed `crates/theme_settings/src/theme_settings.rs` içinde iki public reload
+helper'ı tanımlar:
+
+```rust
+pub fn reload_theme(cx: &mut App);
+pub fn reload_icon_theme(cx: &mut App);
+```
+
+Davranış (`theme_settings.rs:185-196`):
+
+1. `configured_theme(cx)` (veya `configured_icon_theme(cx)`) ile aktif
+   seçimi ve override'ları yeniden çözer.
+2. `GlobalTheme::update_theme` veya `update_icon_theme` ile global'i yazar.
+3. `cx.refresh_windows()` çağırır.
+
+Settings observer (`init` içindeki `cx.observe_global::<SettingsStore>`)
+font size, theme name, icon theme name veya theme override'ların değiştiğini
+fark edince ilgili reload helper'ını çağırır. **Yani Settings'i mutate etmek
+otomatik olarak runtime'a yansır**; selector confirm akışında ek bir
+`update_theme` çağrısına ihtiyaç yoktur (önizleme yazmıyorsa).
+
+`kvs_tema` mirror tarafında bu iki fonksiyon `pub fn temayi_yeniden_yukle(cx)`
+ve `pub fn icon_temayi_yeniden_yukle(cx)` olarak çıkar; observer'ı kuran
+`init` fonksiyonu da Zed'deki `theme_settings::init`'in karşılığıdır.
+
 #### Sistem mod takipli otomatik tema
 
 ```rust
@@ -6327,14 +6512,14 @@ pub fn temayi_yeniden_yukle(
 1. Disk'ten oku, parse et.
 2. Her tema variant'ı için uygun baseline seç (light → light baseline).
 3. `registry.insert` üzerine yazar — aynı isimle güncellenir.
-4. Aktif tema yeniden yüklendiyse `set_theme + refresh_windows`.
+4. Aktif tema yeniden yüklendiyse `GlobalTheme::update_theme` + `refresh_windows`.
 
 #### Performans
 
 | Operasyon | Süre | Hot path? |
 |-----------|------|-----------|
 | `registry.get(name)` | O(1) HashMap lookup | Sık (her tema değişimde) |
-| `set_theme` | Global update + observer trigger | Sık |
+| `GlobalTheme::update_theme` | Global update + observer trigger | Sık |
 | `refresh_windows` | Tüm açık view ağaçları | Sık |
 | `Theme::from_content` (reload) | ~25-60 µs (Konu 26) | Nadir |
 | Tek tema değişimi toplam | ~2-5 ms (next frame'de görünür) | Kullanıcı tetikler |
@@ -8692,7 +8877,7 @@ istiyorsan `TestAppContext::update` ile global kur.
 #### Tuzaklar
 
 1. **`kvs_tema::init(cx)` çağırmadan `cx.theme()`**: Panic. Her testin
-   ilk satırı init veya manuel `set_theme`.
+   ilk satırı init veya manuel `cx.set_global(GlobalTheme::new(...))`.
 2. **`TestAppContext::run` yerine `update`**: Tema testleri sync; `update`
    doğru. `run` async event loop, gerek yok.
 3. **`test_theme()` her testte yeniden kurmak**: `set_global` her seferinde
@@ -8848,8 +9033,8 @@ dön.
 #### Runtime (Bölüm VI)
 
 9. **`cx.refresh_windows()` çağırmamak.** Tema değişti ama UI eski
-   renkte kalır — en yaygın tema bug'ı. `set_theme + refresh_windows`
-   her zaman çift. → Konu 31.
+   renkte kalır — en yaygın tema bug'ı. `GlobalTheme::update_theme +
+   refresh_windows` her zaman çift. → Konu 31.
 10. **`cx.notify()` ile yetinmek.** Tek view'ı yeniler; tema tüm
     pencerelerde geçerli. → Konu 31.
 11. **`kvs_tema::init`'i atlamak.** `cx.theme()` panic eder. Uygulama
@@ -9460,7 +9645,9 @@ pub fn install_with_overrides(
     registry.insert_themes([(*arc_theme).clone()]);
     let active_theme = registry.get(arc_theme.name.as_ref()).unwrap();
     let icon_theme = registry.default_icon_theme().unwrap();
-    ThemeRegistry::set_global(cx, registry);
+    // Zed'in `ThemeRegistry::set_global` helper'ı `pub(crate)`; mirror
+    // tarafta newtype'ı doğrudan set ediyoruz.
+    cx.set_global(GlobalThemeRegistry(registry.clone()));
     cx.set_global(GlobalTheme::new(active_theme.clone(), icon_theme));
     active_theme
 }
@@ -10604,6 +10791,90 @@ tipleri zorunlu kılar; `FontFamilyCache` bir runtime önbelleği,
 sözleşmenin parçası değil. `DECISIONS.md`'ye "FontFamilyCache mirror
 edilmedi — kapsam dışı (UI/settings sorumluluğu)" yaz.
 
+#### 43.8.1 Font ayarları runtime API'leri (`adjust_*`, `reset_*`, override global'leri)
+
+**Kaynak modüller:**
+`crates/theme_settings/src/settings.rs` ve
+`crates/theme_settings/src/theme_settings.rs`.
+
+Zed font ölçeklemesini iki katmanlı çalıştırır: ayar dosyasındaki taban
+değer (`ThemeSettings.{ui,buffer,agent_ui,agent_buffer}_font_size`) ve
+**runtime override global'leri**. Override global'i set edilmişse
+`ThemeSettings::*_font_size(cx)` accessor'ı önce global'i okur, yoksa
+settings değerine düşer; bu sayede kullanıcı `cmd-+`/`cmd--` ile font'u
+geçici olarak büyütebilir ve settings dosyası yazılmaz.
+
+```rust
+// Override global'leri (Pixels newtype'ları):
+pub struct BufferFontSize(Pixels);     // settings.rs içinde
+pub struct UiFontSize(Pixels);         // settings.rs içinde
+pub struct AgentUiFontSize(Pixels);    // settings.rs:108
+pub struct AgentBufferFontSize(Pixels);// settings.rs:114
+
+impl Global for BufferFontSize {}      // ... her biri için
+```
+
+Public yüzey:
+
+```rust
+// Düzenle (callback ile)
+pub fn adjust_buffer_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
+pub fn adjust_ui_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
+pub fn adjust_agent_ui_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
+pub fn adjust_agent_buffer_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
+
+// Override'ı kaldır → settings değerine düş
+pub fn reset_buffer_font_size(cx: &mut App);
+pub fn reset_ui_font_size(cx: &mut App);
+pub fn reset_agent_ui_font_size(cx: &mut App);
+pub fn reset_agent_buffer_font_size(cx: &mut App);
+
+// ±1 px convenience (theme_settings.rs:420, 426)
+pub fn increase_buffer_font_size(cx: &mut App);
+pub fn decrease_buffer_font_size(cx: &mut App);
+
+// Yardımcılar (settings.rs)
+pub fn clamp_font_size(size: Pixels) -> Pixels;
+pub fn adjusted_font_size(size: Pixels, cx: &App) -> Pixels;
+pub fn observe_buffer_font_size_adjustment<V: 'static>(
+    cx: &mut Context<V>,
+    f: impl FnMut(&mut V, &mut Context<V>) + 'static,
+) -> Subscription;
+pub fn setup_ui_font(window: &mut Window, cx: &mut App) -> gpui::Font;
+```
+
+`adjust_*` her zaman aynı 4 adımı izler:
+
+1. `ThemeSettings::get_global(cx).*_font_size(cx)` (veya `*_font_size_settings()`)
+   ile **mevcut baz değeri** oku.
+2. `cx.try_global::<*FontSize>().map_or(base, |g| g.0)` ile override
+   varsa onu, yoksa baz değeri al.
+3. Callback'i çağır, sonucu `clamp_font_size` ile `[MIN_FONT_SIZE,
+   MAX_FONT_SIZE]` aralığına sıkıştır, `cx.set_global(*FontSize(...))`.
+4. `cx.refresh_windows()` çağır.
+
+`reset_*` ise `cx.has_global::<*FontSize>()` ise `remove_global` + `refresh_windows`
+çalıştırır; override yoksa no-op'tur (gereksiz redraw yapmaz).
+
+**Settings observer ilişkisi:** `theme_settings::init` içindeki observer
+ayar dosyasındaki taban değer değişince override'ı **otomatik olarak
+sıfırlar** (`reset_*` çağırır). Yani kullanıcı `cmd-+` ile büyüttüğü font'u
+elle settings dosyasını editlerse override drop olur — settings dosyası
+"hakikat kaynağı" rolünü korur.
+
+**`kvs_tema` karşılığı:** Bu API ailesi `kvs_tema` runtime crate'inin
+değil, **settings/UI köprüsünün** sorumluluğudur. Mirror tarafında üç
+strateji var:
+
+| Strateji | Açıklama | Ne zaman |
+|----------|----------|----------|
+| Provider trait'i genişlet | `TemaAyarSaglayici`'a `adjust_*`/`reset_*` ekle | `kvs_tema` tüketicilerin font değişimini dinlemesi gerekiyorsa |
+| Sade newtype mirror | `BufferFontSize` vb. global'leri `kvs_tema_ayarlari` crate'inde tut, `adjust_*`/`reset_*` orada implement et | Settings UI'sı bağımsız crate ise |
+| Atla | UI yoksa hiç mirror etme | İlk sürümde, font picker gelmediyse |
+
+`DECISIONS.md`'ye seçilen stratejiyi yaz; sözleşme parite bayrağı bu
+fonksiyonların `kvs_tema` public API'sinde olmamasıdır.
+
 #### 43.9 Son public yüzey taraması — küçük ama atlanabilir parçalar
 
 Bu ek kontrol, `crates/theme/src` altındaki public ad ve metodların rehberde
@@ -10625,8 +10896,8 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 
 | Öğe | Kaynak | Karar |
 | :-- | :-- | :-- |
-| `DEFAULT_DARK_THEME` | `theme.rs` | Init fallback için sabit ad; mirror edilecekse `"One Dark"` tek kaynak olmalı |
-| `CLIENT_SIDE_DECORATION_ROUNDING`, `CLIENT_SIDE_DECORATION_SHADOW` | `theme.rs` | Tema renk sözleşmesi değil; platform window decoration token'ı olarak `kvs_window`/`kvs_ui` tarafına ayrılabilir |
+| `DEFAULT_DARK_THEME` (`theme.rs:45`) ve `DEFAULT_LIGHT_THEME`, `DEFAULT_DARK_THEME` (`settings_content/src/theme.rs:282-283`) | `theme.rs` + `settings_content` | İki ayrı tanım var: `theme.rs` yalnızca `DARK`'ı re-export eder, `settings_content` ikisini de tanımlar (`'One Light'` / `'One Dark'`). Mirror'da **tek kaynak**: `kvs_ayarlari_icerik::theme` sabitleri, `kvs_tema` `pub use` ile yeniden açar |
+| `CLIENT_SIDE_DECORATION_ROUNDING`, `CLIENT_SIDE_DECORATION_SHADOW` (`px(10.0)`) | `theme.rs:48-50` | Tema renk sözleşmesi değil; client-side window decoration shadow/corner radius token'ı. `kvs_pencere`/`kvs_ui` tarafına ayrılır; değeri Zed pin'iyle birebir tut (`px(10.0)`) |
 | `DEFAULT_ICON_THEME_NAME` | `icon_theme.rs` | Aktif icon theme fallback seçimi için gerekli; icon theme registry mirror ediliyorsa taşınmalı |
 | `ThemeNotFoundError`, `IconThemeNotFoundError` | `registry.rs` | Registry public API'sinin typed error yüzeyi; string error'a düşürme |
 | `zed_default_themes()` | `fallback_themes.rs` | Test/fallback family üretir; GPL kod gövdesi kopyalanmaz, bağımsız `kvs_default_themes()` yazılır |
@@ -10639,7 +10910,16 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `ThemeSettingsProvider::ui_font`, `.buffer_font` | `theme_settings_provider.rs` | Provider font objesini de verir; sadece font size/density değildir |
 | `ThemeSettingsContent` typography alanları | `settings_content/src/theme.rs` | `FontSize`, `FontFamilyName`, `FontFeaturesContent`, `BufferLineHeight`, `CodeFade` Konu 43.2'ye eklendi |
 | `ThemeSelection::mode`, `IconThemeSelection::mode` | `theme_settings/src/settings.rs` | Selector UI hangi slot'un aktif olduğunu göstermek için gerekir |
-| `GlobalTheme::new`, `.update_theme`, `.update_icon_theme`, `.theme`, `.icon_theme` | `theme.rs` | Zed public API; `set_theme_and_icon` ve `set_theme` sadece yerel convenience ise karar günlüğüne yazılır |
+| `GlobalTheme::new`, `.update_theme`, `.update_icon_theme`, `.theme`, `.icon_theme` | `theme.rs` | Zed public API'sinin tamamı. `set_theme_and_icon`, `set_theme`, `set_icon_theme` metotları **yoktur** — set yerine `cx.set_global(GlobalTheme::new(...))` ile init, sonra `update_*` ile değişim |
+| `theme_settings::settings::set_theme`, `set_icon_theme`, `set_mode` | `theme_settings/src/settings.rs:233-315` | Kullanıcı `SettingsContent`'i mutate eden public mutator helper'lar. Runtime global'i **değil**; selector confirm akışında dosya yazımından önce çağrılır. Mirror tarafında `kvs_secici` veya `kvs_tema_ayarlari` crate'inde yer alır |
+| `theme_settings::settings::appearance_to_mode`, `default_theme` | `theme_settings/src/settings.rs:30, 89` | `Appearance` ↔ `ThemeAppearanceMode` köprüsü ve fallback ad seçimi; selector/observer akışında kullanılır |
+| `theme_settings::theme_settings::reload_theme`, `reload_icon_theme`, `load_user_theme`, `deserialize_user_theme`, `refine_theme_family`, `refine_theme`, `merge_player_colors`, `merge_accent_colors`, `increase_buffer_font_size`, `decrease_buffer_font_size` | `theme_settings/src/theme_settings.rs:185-428` | Zed'in JSON→Theme pipeline'ının ve runtime tema reload akışının kanonik fonksiyonları. Konu 26 + Konu 31'de detaylı; bu satır 43.9 denetiminin köprüsü |
+| `theme_settings::settings::adjust_buffer_font_size`, `reset_buffer_font_size`, `adjust_ui_font_size`, `reset_ui_font_size`, `adjust_agent_ui_font_size`, `reset_agent_ui_font_size`, `adjust_agent_buffer_font_size`, `reset_agent_buffer_font_size`, `clamp_font_size`, `adjusted_font_size`, `observe_buffer_font_size_adjustment`, `setup_ui_font` | `theme_settings/src/settings.rs` | Runtime font ölçekleme override global'leri ve helper'ları (Konu 43.8.1). Settings UI / shortcut tarafında kullanılır |
+| `AgentUiFontSize`, `AgentBufferFontSize` newtype global'leri | `theme_settings/src/settings.rs:108, 114` | Agent panel font override'ı için `Global`-impl'lenmiş `Pixels` newtype'ları (Konu 43.8.1) |
+| `theme_settings::schema::syntax_overrides`, `theme_colors_refinement`, `status_colors_refinement` | `theme_settings/src/schema.rs:2343-2540` | Content → Refinement dönüşüm fonksiyonlarının kanonik adları; Konu 24'te işlenir, doğrudan signature 43.9'da kayıt altında |
+| `theme_settings::settings::BufferLineHeight` (`Comfortable`, `Standard`, `Custom(f32)`), `value()` | `theme_settings/src/settings.rs:340-369` | `Standard = 1.3`, `Comfortable = 1.618`, `Custom` doğrudan değer. Settings tarafında `f32 >= 1.0` kısıtı (`settings_content/src/theme.rs:452`) |
+| `try_parse_color` (`theme/src/schema.rs:1171`) | `theme/src/schema.rs` | Konu 20'de detaylı; 43.9'da public helper olarak teyit edilir |
+| `AppearanceContent` (`theme/src/schema.rs:1165`) | `theme/src/schema.rs` | JSON `appearance` alanının enum mirror'ı (`Light` / `Dark`); Konu 18'de kullanılır |
 
 Küçük method yüzeyleri:
 
@@ -10662,6 +10942,20 @@ ThemeSettingsProvider::ui_font(cx)
 ThemeSettingsProvider::buffer_font(cx)
 ThemeSelection::mode()
 IconThemeSelection::mode()
+ThemeSelection::name(system_appearance)
+IconThemeSelection::name(system_appearance)
+ThemeSettings::buffer_font_size(cx)
+ThemeSettings::ui_font_size(cx)
+ThemeSettings::agent_ui_font_size(cx)
+ThemeSettings::agent_buffer_font_size(cx)
+ThemeSettings::line_height()
+ThemeSettings::apply_theme_overrides(arc_theme)
+Theme::darken(color, light_amount, dark_amount)
+BufferLineHeight::value()
+default_theme(appearance) -> &'static str
+appearance_to_mode(appearance) -> ThemeAppearanceMode
+clamp_font_size(size) -> Pixels
+adjusted_font_size(size, cx) -> Pixels
 ```
 
 Bu metodlar rehberin ana akışını değiştirmez, fakat tema editörü, collab
