@@ -1116,6 +1116,10 @@ Temel API:
   `.weight(FontWeight::...)`, `.italic()`, `.underline()`, `.strikethrough()`,
   `.alpha(f32)`, `.truncate()`, `.truncate_start()`, `.single_line()`,
   `.buffer_font(cx)`, `.inline_code(cx)`, `.render_code_spans()`.
+- Mutator: `.set_text(text: impl Into<SharedString>)` `&mut self` üzerinden
+  label metnini günceller; `Label` view alanında saklanıyorsa render dışından
+  yeni `Label` üretmeden metni değiştirmek için kullanılır. Builder zincirinde
+  değil, mevcut instance üzerinde çağrılır.
 - Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow()`,
   `.flex_shrink()`, `.flex_shrink_0()` ve margin style yöntemleri.
 - Trait: `LabelCommon`.
@@ -1527,6 +1531,11 @@ Temel API:
 - `.color(Color::...)`
 - `IconSize`: `Indicator` 10px, `XSmall` 12px, `Small` 14px, `Medium` 16px,
   `XLarge` 48px, `Custom(Rems)`.
+- Ölçü helper'ları: `IconSize::rems() -> Rems`,
+  `IconSize::square(window, cx) -> Pixels` (icon ve simetrik padding'i içeren
+  kare ölçüsü) ve `IconSize::square_components(window, cx) -> (Pixels, Pixels)`
+  (icon ölçüsü ve tek taraf padding'i ayrı döner). `IconButtonShape::Square`
+  ve custom icon konteyner hizalamalarında işe yarar.
 - `IconName::path()` gömülü ikonun `icons/<name>.svg` yolunu döndürür.
 
 Davranış:
@@ -2513,6 +2522,9 @@ Temel API:
   `.visualization_only(bool)`, `.style(ToggleStyle)`, `.elevation(...)`,
   `.tooltip(...)`, `.label(...)`, `.label_size(...)`, `.label_color(...)`,
   `.on_click(...)`, `.on_click_ext(...)`.
+- Statik ölçü helper'ı: `Checkbox::container_size() -> Pixels` checkbox kutusu
+  için kullanılan sabit yan ölçüsünü (`px(20.0)`) döndürür; checkbox satırını
+  diğer kontrollere hizalarken kullanın.
 - `ToggleStyle`: `Ghost`, `ElevationBased(ElevationIndex)`, `Custom(Hsla)`.
 
 Davranış:
@@ -4428,6 +4440,10 @@ Temel API:
 - Constructor: `TabBar::new(id)`
 - Builder'lar: `.track_scroll(&ScrollHandle)`, `.start_child(...)`,
   `.start_children(...)`, `.end_child(...)`, `.end_children(...)`
+- Düşük seviye mutator'lar: `.start_children_mut() -> &mut SmallVec<[AnyElement;
+  2]>` ve `.end_children_mut() -> &mut SmallVec<[AnyElement; 2]>` builder
+  zinciri dışında, parent state içinden start/end slot listesini elle
+  değiştirmek istediğinizde kullanılır. Normal kompozisyonda tercih edilmez.
 - `ParentElement` implement eder; tablar `.child(...)` / `.children(...)` ile
   orta scroll alanına eklenir.
 
@@ -6045,10 +6061,10 @@ Temel API:
 - `.show_dismiss(bool)`
 - `.show_back(bool)`
 - ParentElement: `.child(...)`, `.children(...)`
-- `ModalHeader::new().headline(...).description(...).icon(...).show_dismiss_button(...)`
+- `ModalHeader::new().headline(...).description(...).icon(...).show_dismiss_button(...).show_back_button(...)`
 - `ModalFooter::new().start_slot(...).end_slot(...)`
-- `Section::new()`, `Section::new_contained()`, `.header(...)`, `.meta(...)`,
-  `.padded(bool)`
+- `Section::new()`, `Section::new_contained()`, `.contained(bool)`,
+  `.header(...)`, `.meta(...)`, `.padded(bool)`
 - `SectionHeader::new(label).end_slot(...)`
 - `ModalRow::new()`
 
@@ -9155,40 +9171,80 @@ done < /tmp/ui_input_pub_names.txt
 Owner+method matrisi (ad taraması tek başına yeterli değildir):
 
 ```sh
+find ../zed/crates/ui/src ../zed/crates/ui_input/src ../zed/crates/component/src \
+  -name '*.rs' > /tmp/bilesen_files.txt
+
 awk '
-/^impl/ {
-  line=$0
-  sub(/^[[:space:]]*/, "", line)
-  sub(/[[:space:]]*\{[[:space:]]*$/, "", line)
-  owner=line
+FNR==1 { owner=""; in_impl=0 }
+# Multi-line impl başlığı: ilk satır { veya }, ; ile bitmiyorsa
+# sonraki satırlar tek owner string olarak birleştirilir.
+/^impl[[:space:]<]/ {
+  hdr=$0
+  while (hdr !~ /\{[[:space:]]*$/ && hdr !~ /;[[:space:]]*$/ && hdr !~ /\}[[:space:]]*$/) {
+    if ((getline nextline) <= 0) break
+    hdr = hdr " " nextline
+  }
+  sub(/^[[:space:]]*/, "", hdr)
+  sub(/[[:space:]]*\{[[:space:]]*$/, "", hdr)
+  sub(/[[:space:]]*\{\}[[:space:]]*$/, "", hdr)
+  gsub(/[[:space:]]+/, " ", hdr)
+  owner=hdr
+  in_impl=1
   next
 }
-/^pub trait/ {
-  owner=$0
-  sub(/^pub trait[[:space:]]+/, "", owner)
-  sub(/[<:].*/, "", owner)
+/^pub trait[[:space:]]/ {
+  hdr=$0
+  sub(/^pub trait[[:space:]]+/, "", hdr)
+  sub(/[<:].*/, "", hdr)
+  sub(/[[:space:]]*\{[[:space:]]*$/, "", hdr)
+  owner="trait " hdr
+  in_impl=0
   next
 }
-/^[[:space:]]*(pub )?fn [A-Za-z_][A-Za-z0-9_]*[<(]/ {
+# Inherent veya trait üzerindeki public metot.
+/^[[:space:]]+pub (async )?fn [A-Za-z_]/ {
   name=$0
-  sub(/^[[:space:]]*(pub )?fn[[:space:]]+/, "", name)
+  sub(/^[[:space:]]*pub[[:space:]]+/, "", name)
+  sub(/^async[[:space:]]+/, "", name)
+  sub(/^fn[[:space:]]+/, "", name)
   sub(/[<(].*/, "", name)
-  if (owner != "") print FILENAME ":" FNR ":" owner "::" name
+  if (owner != "") print FILENAME ":" FNR ":" owner " :: " name
+  next
 }
-' \
-  ../zed/crates/ui/src/components/**/*.rs \
-  ../zed/crates/ui/src/components/*.rs \
-  ../zed/crates/ui/src/traits/*.rs \
-  ../zed/crates/ui_input/src/*.rs \
-  ../zed/crates/component/src/*.rs \
-  2>/dev/null | sort -u > /tmp/bilesen_owner_methods.txt
+# `impl Trait for Type` blokları içindeki override metotları `pub`
+# taşımaz; bu yüzden ayrı koldan toplanır.
+in_impl && /^[[:space:]]+(async )?fn [A-Za-z_]/ {
+  if (owner ~ / for /) {
+    name=$0
+    sub(/^[[:space:]]*/, "", name)
+    sub(/^async[[:space:]]+/, "", name)
+    sub(/^fn[[:space:]]+/, "", name)
+    sub(/[<(].*/, "", name)
+    if (owner != "") print FILENAME ":" FNR ":" owner " :: " name
+  }
+}
+' $(cat /tmp/bilesen_files.txt) | sort -u > /tmp/bilesen_owner_methods.txt
 ```
+
+Bu awk akışının `rg`/`grep` ile yakalayamayacağı üç sınıfı kapsamalıdır:
+
+1. **Multi-line impl başlığı**: `impl<T: ButtonBuilder, const COLS: usize,
+   const ROWS: usize> FixedWidth\n    for ToggleButtonGroup<T, COLS, ROWS>`
+   gibi başlıklar tek satırlık ad araması ile owner bilgisinden kopar; awk
+   `getline` ile `{`/`;`/`}` görene kadar birleştirir.
+2. **Trait override metotları**: `impl Clickable for IconButton` içindeki
+   `fn cursor_style(...)` `pub` taşımadığı için `rg 'pub fn'` taramasında
+   görünmez. Bu metotlar trait üzerinden public yüzeydir ve component'in
+   ortak builder listesine yazılır.
+3. **Unit impl bloklarının taşması**: `impl Global for VimStyle {}` gibi
+   tek satırlık unit impl, getline loop'unu yutmaz; owner bir sonraki impl'e
+   geçer. Awk'ın `\}[[:space:]]*$` kontrolü bu durumu durdurur.
 
 Bu dosya elle incelenir; her satır için metodun doğru **sahip başlığında**
 geçtiği doğrulanır. Örneğin `impl Button::key_binding` yalnızca `Button`
 başlığına yazılır; aynı adın `Switch::key_binding` üzerinde de bulunması ikinci
 bir owner satırı olarak ayrıca doğrulanır. Trait implementasyonları
-(`impl Clickable for IconButton::cursor_style`) component başlığındaki ortak
+(`impl Clickable for IconButton :: cursor_style`) component başlığındaki ortak
 builder listesine yansıtılır; trait'in kendisi ayrıca "Ortak trait" listesinde
 kalır.
 
