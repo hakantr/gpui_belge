@@ -326,9 +326,9 @@ giriş:
 ```markdown
 # Tema sistemi karar günlüğü
 
-## 2026-05-11 — İlk pin
+## 2026-05-12 — İlk pin
 
-- Pin: db6039d815 (bkz. ../../gpui_belge/tema_aktarimi.md)
+- Pin: 6e8eaab25b5a (bkz. ../../gpui_belge/zed_commit_pin.txt)
 - Crate yapısı: kvs_tema + kvs_syntax_tema (Zed'in theme + syntax_theme'i karşılığı)
 - Settings entegrasyonu: kendi config sistemimize bağlı (theme_settings karşılığı yok)
 - IconTheme: kvs_tema kapsamında; `icon_theme.rs` modülü Zed'in
@@ -487,12 +487,12 @@ eklersen UI tema crate'i etkilenmez.
   versiyon değişimi yorum/trailing comma parse davranışını değiştirebilir.
 
 - **`gpui`, `refineable`, `collections`** git `branch = "main"` ile takip
-  ediliyor; bunu **pin commit'e** (`tema_aktarimi.md`'deki SHA'ya)
-  sabitlemek istersen `rev = "db6039d815..."` kullan. Sync turunda bu
+  ediliyor; bunu **pin commit'e** (`zed_commit_pin.txt` dosyasındaki SHA'ya)
+  sabitlemek istersen `rev = "6e8eaab25b5a..."` kullan. Sync turunda bu
   SHA güncellenir:
 
   ```toml
-  gpui = { git = "https://github.com/zed-industries/zed", rev = "db6039d815893750ad45e548d6a7c1a64bba5d2a" }
+  gpui = { git = "https://github.com/zed-industries/zed", rev = "6e8eaab25b5ac324e11a82d1563dcad39c84bace" }
   ```
 
   Branch tracking, en güncel davranışı almanı sağlar ama her `cargo
@@ -1181,7 +1181,7 @@ tema sistemi sınırları dışında da global state için idiomatik.
 | Global | İçerik | Kim kurar | Kim okur |
 |--------|--------|-----------|----------|
 | `GlobalThemeRegistry` | `Arc<ThemeRegistry>` | `ThemeRegistry::set_global` | `ThemeRegistry::global(cx)` |
-| `GlobalTheme` | `Arc<Theme>` + `Arc<IconTheme>` (aktif) | `GlobalTheme::set_theme_and_icon`, sonra `update_*` | `cx.theme()`, `cx.icon_theme()` (`ActiveTheme` trait) |
+| `GlobalTheme` | `Arc<Theme>` + `Arc<IconTheme>` (aktif) | `cx.set_global(GlobalTheme::new(...))`, sonra `update_*` | `cx.theme()`, `GlobalTheme::icon_theme(cx)` |
 | `GlobalSystemAppearance` | `SystemAppearance` | `SystemAppearance::init` | `SystemAppearance::global(cx)` |
 
 #### `cx.refresh_windows()`
@@ -1192,7 +1192,7 @@ Tüm açık pencereleri **yeniden render** eder:
 pub fn temayi_degistir(ad: &str, cx: &mut App) -> anyhow::Result<()> {
     let registry = ThemeRegistry::global(cx);
     let yeni = registry.get(ad)?;
-    GlobalTheme::set_theme(cx, yeni);
+    GlobalTheme::update_theme(cx, yeni);
     cx.refresh_windows();   // ← tüm UI'yı yenile
     Ok(())
 }
@@ -1588,9 +1588,9 @@ korunur; eksik alan = sözleşme delinmesi (Konu 2).
 > ve `../zed/crates/settings_content/src/theme.rs` dosyalarını referans
 > al; sync turunda mirror et.
 
-#### Tam alan paritesi (pin `db6039d815`)
+#### Tam alan paritesi (pin `6e8eaab25b5a`)
 
-Bu liste, `tema_aktarimi.md`'deki pin commit için `ThemeColors` runtime
+Bu liste, `zed_commit_pin.txt` dosyasındaki pin commit için `ThemeColors` runtime
 alanlarının **eksiksiz** kataloğudur. Bu commit'te runtime struct'ı
 143 adet `Hsla` alan taşır. `ThemeColorsContent` tarafında buna ek olarak
 3 deprecated uyumluluk alanı vardır; onlar Bölüm IV/Konu 18'de ayrıca
@@ -2787,7 +2787,7 @@ pub fn init(cx: &mut App) {
         .default_icon_theme()
         .expect("default icon tema kayıtlı olmalı");
 
-    GlobalTheme::set_theme_and_icon(cx, active_theme, active_icon_theme);
+    cx.set_global(GlobalTheme::new(active_theme, active_icon_theme));
 }
 ```
 
@@ -2877,7 +2877,7 @@ pub struct ThemeStyleContent {
     pub window_background_appearance: Option<WindowBackgroundContent>,
 
     #[serde(default)]
-    pub accents: Vec<Option<String>>,
+    pub accents: Vec<AccentContent>,
 
     #[serde(flatten, default)]
     pub colors: ThemeColorsContent,
@@ -2926,6 +2926,9 @@ pub enum FontStyleContent {
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
 #[serde(transparent)]
 pub struct FontWeightContent(pub f32);
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+pub struct AccentContent(pub Option<String>);
 
 // ─── HighlightStyleContent (syntax token sözleşmesi)
 #[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
@@ -3009,7 +3012,7 @@ pub struct ThemeColorsContent {
     // (tam liste: ThemeColors'taki ~150 alanın hepsi mirror edilir)
 }
 
-// Pin db6039d815 için tam ThemeColorsContent alan haritası:
+// Pin 6e8eaab25b5a için tam ThemeColorsContent alan haritası:
 //
 // border => "border"
 // border_variant => "border.variant"
@@ -3179,7 +3182,7 @@ pub struct StatusColorsContent {
 }
 ```
 
-`ThemeColorsContent` pin `db6039d815` için 146 `Option<String>` alan
+`ThemeColorsContent` pin `6e8eaab25b5a` için 146 `Option<String>` alan
 taşır. Bunların 143'ü runtime `ThemeColors` alanlarına birebir gider;
 3'ü eski tema JSON'larını kırmamak için content-only deprecated uyumluluk
 alanıdır:
@@ -4923,7 +4926,8 @@ pub struct ThemeRegistry {
 **Üç katmanlı sarmalama:**
 
 1. **`Arc<Theme>` / `Arc<IconTheme>`** — Her tema paylaşılabilir; klon
-   ucuz (refcount). `cx.theme()` ve `cx.icon_theme()` `&Arc<_>` döner.
+   ucuz (refcount). Zed paritesinde `cx.theme()` ve
+   `GlobalTheme::icon_theme(cx)` `&Arc<_>` döner.
 2. **`HashMap<SharedString, _>`** — Ad bazlı O(1) lookup. `SharedString`
    key (Bölüm II/Konu 7); klonsuz hashleme.
 3. **`RwLock<...>`** — Çoklu okuyucu, tek yazıcı. Tema okuma sık
@@ -5172,9 +5176,10 @@ değildir; selector UI sonra gelse bile registry sözleşmesi hazır olmalı.
    eriş.
 5. **`SharedString` case sensitive**: "Kvs Default" ve "kvs default" iki
    ayrı key (Bölüm II/Konu 7).
-6. **Registry boş başlatmak ama aktif tema set etmemek**: `set_global`
-   sonrası `GlobalTheme::set_theme_and_icon(cx, default, default_icon)`
-   çağrısı şart. Aksi halde `cx.theme()` veya `cx.icon_theme()` panic eder.
+6. **Registry boş başlatmak ama aktif tema set etmemek**: registry
+   `set_global` sonrası `cx.set_global(GlobalTheme::new(default, default_icon))`
+   çağrısı şart. Aksi halde `cx.theme()` veya `GlobalTheme::icon_theme(cx)`
+   panic eder.
 
 ---
 
@@ -5183,8 +5188,8 @@ değildir; selector UI sonra gelse bile registry sözleşmesi hazır olmalı.
 **Kaynak modül:** `kvs_tema/src/runtime.rs`.
 
 `GlobalTheme` aktif UI temasını ve aktif icon temasını taşıyan global.
-`ActiveTheme` trait'i `cx.theme()` ve `cx.icon_theme()` ergonomisini
-sağlar. Icon tema ayrı registry'de tutulsa bile aktif seçim aynı global
+`ActiveTheme` trait'i Zed'de yalnızca `cx.theme()` ergonomisini sağlar.
+Icon tema ayrı registry'de tutulsa bile aktif seçim aynı global
 altında saklanır; böylece settings değişiminde UI ve icon refresh aynı
 akıştan geçer.
 
@@ -5221,20 +5226,8 @@ impl GlobalTheme {
         &cx.global::<Self>().icon_theme
     }
 
-    pub fn set_theme_and_icon(
-        cx: &mut App,
-        theme: Arc<Theme>,
-        icon_theme: Arc<IconTheme>,
-    ) {
-        cx.set_global(Self::new(theme, icon_theme));
-    }
-
     pub fn update_theme(cx: &mut App, theme: Arc<Theme>) {
         cx.update_global::<Self, _>(|this, _| this.theme = theme);
-    }
-
-    pub fn set_theme(cx: &mut App, theme: Arc<Theme>) {
-        Self::update_theme(cx, theme);
     }
 
     pub fn update_icon_theme(cx: &mut App, icon_theme: Arc<IconTheme>) {
@@ -5254,16 +5247,18 @@ impl GlobalTheme {
 - Aktif icon tema'yı döner.
 - File tree, picker, tabs ve explorer icon çözümü bu değeri okur.
 
-**`set_theme_and_icon(cx, theme, icon_theme)`:**
+**İlk kurulum:**
 
-- Sadece init sırasında kullanılır.
+- Zed public API'de `set_theme_and_icon` metodu yoktur.
+- `init` sırasında `cx.set_global(GlobalTheme::new(theme, icon_theme))`
+  çağrılır.
 - Global ilk kez kurulurken iki aktif değer de hazır olmalıdır.
 
 **`update_theme` / `update_icon_theme`:**
 
 `init-or-update` deseni (Bölüm II/Konu 10):
 
-- `init` global'i `set_theme_and_icon` ile kurar.
+- `init` global'i `GlobalTheme::new` + `cx.set_global` ile kurar.
 - Sonraki değişimler `update_global` ile yapılır — mevcut instance mutate edilir,
   `Drop` çalışmaz (eski `Arc<Theme>` refcount azalır, başkası
   tutmuyorsa drop).
@@ -5278,8 +5273,11 @@ impl GlobalTheme {
 > Tema değişim observer'ı yoksa fark yok; ama olur diye `update_global`
 > tercih.
 
-`set_theme` eski örnekler ve tüketici kolaylığı için `update_theme`
-alias'ıdır; init öncesinde çağrılırsa global yokluğu nedeniyle panic eder.
+`kvs_tema` isterse `set_theme_and_icon` veya `set_theme` convenience
+metotlarını ekleyebilir; bunlar Zed public yüzeyinde olmadığı için
+`DECISIONS.md`'de yerel genişletme olarak işaretlenmelidir. Init öncesinde
+`update_theme` ya da yerel `set_theme` çağrılırsa global yokluğu nedeniyle
+panic eder.
 
 #### `ActiveTheme` trait
 
@@ -5329,9 +5327,9 @@ yapılır — `cx.icon_theme()` Zed paritesinde doğrudan çalışmaz.
    genişletmek anlamına gelir; `DECISIONS.md`'ye "trait'i iki metotla
    genişlettik, Zed'de tek metotlu" notu düşülmelidir.
 
-Rehberin örnekleri Seçenek 2'yi varsayar (`cx.icon_theme()` çağrısı
-gösterilir). Eğer pariteyi tercih ediyorsanız `cx.icon_theme()`
-çağrılarını `GlobalTheme::icon_theme(cx)` ile değiştirin.
+Rehberin örnekleri Seçenek 1'i varsayar; aktif icon tema için
+`GlobalTheme::icon_theme(cx)` kullanılır. Seçenek 2 uygulanırsa ilgili
+çağrılar `cx.icon_theme()` olarak kısaltılabilir.
 
 **Mantık:**
 
@@ -5352,7 +5350,7 @@ use kvs_tema::ActiveTheme;
 impl Render for AnaPanel {
     fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let tema = cx.theme();   // &Arc<Theme>
-        let _icons = cx.icon_theme(); // &Arc<IconTheme>
+        let _icons = GlobalTheme::icon_theme(cx); // &Arc<IconTheme>
         div()
             .bg(tema.colors().background)
             .text_color(tema.colors().text)
@@ -5397,7 +5395,7 @@ Sonuç:
 Icon okuma:
 
 ```rust
-let path = kvs_tema::icon_for_file("Cargo.toml", cx.icon_theme());
+let path = kvs_tema::icon_for_file("Cargo.toml", GlobalTheme::icon_theme(cx));
 ```
 
 #### Subscribe pattern (observer)
@@ -5616,7 +5614,7 @@ pub fn sistemden_tema_sec(cx: &mut App) -> anyhow::Result<()> {
         Appearance::Dark => "Kvs Default Dark",
         Appearance::Light => "Kvs Default Light",
     };
-    GlobalTheme::set_theme(cx, registry.get(ad)?);
+    GlobalTheme::update_theme(cx, registry.get(ad)?);
     cx.refresh_windows();
     Ok(())
 }
@@ -5710,7 +5708,7 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
     // mirror'da public yaparsan tüketici tarafa açık olur; aksi halde
     // global'i yalnızca bu `init` fonksiyonu kurar.
     cx.set_global(GlobalThemeRegistry(registry.clone()));
-    GlobalTheme::set_theme_and_icon(cx, default, default_icon);
+    cx.set_global(GlobalTheme::new(default, default_icon));
 }
 ```
 
@@ -5746,7 +5744,7 @@ registry.insert_themes([
 İki "default" tema her zaman registry'de. Sebebi:
 
 - Kullanıcı tema yükleme akışı bozulursa bile **uygulama yine çalışır**.
-- `cx.theme()` ve `cx.icon_theme()` panic edemez; her zaman geçerli tema olur.
+- `cx.theme()` ve `GlobalTheme::icon_theme(cx)` panic edemez; her zaman geçerli tema olur.
 - Sistem light/dark mod değişiminde her zaman bir hedef tema var.
 
 **Adım 4 — Default seçimi:**
@@ -5780,12 +5778,12 @@ panic acceptable.
 
 ```rust
 ThemeRegistry::set_global(cx, registry);
-GlobalTheme::set_theme_and_icon(cx, default, default_icon);
+cx.set_global(GlobalTheme::new(default, default_icon));
 ```
 
 Sıra önemli: önce registry global kurulur, sonra aktif UI tema + aktif
 icon tema aynı `GlobalTheme` içinde kurulur. `cx.theme()` ve
-`cx.icon_theme()` bundan sonra güvenlidir.
+`GlobalTheme::icon_theme(cx)` bundan sonra güvenlidir.
 
 #### Çağrı yeri
 
@@ -5821,7 +5819,7 @@ fn main() {
 | Fallback tema yüklenmediyse | `expect` panic | Code review — `kvs_default_*` fonksiyonları statically erişilebilir; runtime hatası imkansız |
 | `cx.window_appearance()` panic eder mi? | Hayır, default `Light` döner | — |
 | `cx` zaten init edilmiş ise (`init` iki kez çağrıldı) | `set_global` sessizce üzerine yazar; eski registry/theme drop | İki kez çağırma, mantıksız |
-| `kvs_tema::init` çağrılmadan `cx.theme()` / `cx.icon_theme()` | Panic: "global not found" | Init'i ilk satıra koy |
+| `kvs_tema::init` çağrılmadan `cx.theme()` / `GlobalTheme::icon_theme(cx)` | Panic: "global not found" | Init'i ilk satıra koy |
 
 #### Genişletilmiş init varyasyonları
 
@@ -5921,7 +5919,7 @@ pencereleri yenile. Eksik bırakırsan UI eski renkte kalır.
 pub fn temayi_degistir(ad: &str, cx: &mut App) -> anyhow::Result<()> {
     let registry = ThemeRegistry::global(cx);
     let yeni = registry.get(ad)?;       // 1. Tema lookup
-    GlobalTheme::set_theme(cx, yeni);   // 2. Global güncelle
+    GlobalTheme::update_theme(cx, yeni); // 2. Global güncelle
     cx.refresh_windows();                // 3. UI yenile
     Ok(())
 }
@@ -5944,7 +5942,7 @@ let yeni = registry.get(ad)?;
 **Adım 2 — Global update:**
 
 ```rust
-GlobalTheme::set_theme(cx, yeni);
+GlobalTheme::update_theme(cx, yeni);
 ```
 
 `init-or-update` pattern (Konu 28). İlk çağrıda kurar, sonraki çağrılarda
@@ -5985,7 +5983,7 @@ yazmasın:
 pub fn temayi_degistir(ad: &str, cx: &mut App) -> Result<(), ThemeNotFoundError> {
     let registry = ThemeRegistry::global(cx);
     let yeni = registry.get(ad)?;
-    GlobalTheme::set_theme(cx, yeni);
+    GlobalTheme::update_theme(cx, yeni);
     cx.refresh_windows();
     Ok(())
 }
@@ -6061,9 +6059,13 @@ pub enum IconThemeSelection {
     },
 }
 
+pub const DEFAULT_LIGHT_THEME: &str = "One Light";
+pub const DEFAULT_DARK_THEME: &str = "One Dark";
+
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 #[serde(default)]
-pub struct TemaAyarContent {
+pub struct ThemeSettingsContent {
+    // Font ve typography alanları Konu 43.2'de listelenir.
     pub theme: Option<ThemeSelection>,
     pub icon_theme: Option<IconThemeSelection>,
 
@@ -6117,6 +6119,13 @@ impl ThemeSelection {
             },
         }
     }
+
+    pub fn mode(&self) -> Option<ThemeAppearanceMode> {
+        match self {
+            Self::Static(_) => None,
+            Self::Dynamic { mode, .. } => Some(*mode),
+        }
+    }
 }
 
 impl IconThemeSelection {
@@ -6133,13 +6142,20 @@ impl IconThemeSelection {
             },
         }
     }
+
+    pub fn mode(&self) -> Option<ThemeAppearanceMode> {
+        match self {
+            Self::Static(_) => None,
+            Self::Dynamic { mode, .. } => Some(*mode),
+        }
+    }
 }
 ```
 
 Tema uygulama akışı:
 
 ```rust
-pub fn configured_theme(settings: &TemaAyarContent, cx: &mut App) -> Arc<Theme> {
+pub fn configured_theme(settings: &ThemeSettingsContent, cx: &mut App) -> Arc<Theme> {
     let registry = ThemeRegistry::global(cx);
     let system = SystemAppearance::global(cx).0;
     let selection = settings.theme.clone().unwrap_or_else(default_theme_selection);
@@ -6156,7 +6172,7 @@ pub fn configured_theme(settings: &TemaAyarContent, cx: &mut App) -> Arc<Theme> 
 
 pub fn apply_theme_overrides(
     mut theme: Arc<Theme>,
-    settings: &TemaAyarContent,
+    settings: &ThemeSettingsContent,
 ) -> Arc<Theme> {
     if let Some(overrides) = &settings.experimental_theme_overrides {
         let mut clone = (*theme).clone();
@@ -6215,8 +6231,8 @@ liste kaynağı:
   ThemeRegistry::list() -> Vec<ThemeMeta { name, appearance }>
 
 preview:
-  seçici içinde highlight değişince GlobalTheme::set_theme veya
-  GlobalTheme::update_theme ile geçici tema uygulanır, refresh_windows çağrılır
+  seçici içinde highlight değişince GlobalTheme::update_theme ile
+  geçici tema uygulanır, refresh_windows çağrılır
 
 confirm:
   settings dosyası ThemeSelection olarak güncellenir:
@@ -6298,7 +6314,7 @@ pub fn temayi_yeniden_yukle(
     // Aktif tema yeniden yüklendi mi? Re-set ile observer'ları tetikle.
     let aktif_ad = cx.theme().name.clone();
     if let Ok(yeni) = registry.get(&aktif_ad) {
-        GlobalTheme::set_theme(cx, yeni);
+        GlobalTheme::update_theme(cx, yeni);
         cx.refresh_windows();
     }
 
@@ -6338,11 +6354,11 @@ pub fn temayi_yeniden_yukle(
    düş:
    ```rust
    match registry.get(&aktif_ad) {
-       Ok(t) => GlobalTheme::set_theme(cx, t),
+       Ok(t) => GlobalTheme::update_theme(cx, t),
        Err(_) => {
            tracing::warn!("aktif tema silindi, fallback'e dönülüyor");
            let fallback = registry.get("Kvs Default Dark").unwrap();
-           GlobalTheme::set_theme(cx, fallback);
+           GlobalTheme::update_theme(cx, fallback);
        }
    }
    cx.refresh_windows();
@@ -7514,8 +7530,8 @@ Bu dizindeki tema JSON'ları aşağıdaki kaynaklardan alındı.
 
 ## Senkron tarihi
 
-Son senkron: 2026-05-11 (Zed pin `db6039d815`). Bkz.
-`../../gpui_belge/tema_aktarimi.md`.
+Son senkron: 2026-05-12 (Zed pin `6e8eaab25b5a`). Bkz.
+`../../gpui_belge/zed_commit_pin.txt`.
 ```
 
 #### CI'da lisans doğrulama
@@ -8358,7 +8374,7 @@ Tüketici kodu güvenle yapabileceği şeyler:
 ✓ `kvs_tema::temayi_yeniden_yukle(yol, cx)` ile disk'ten reload
 ✓ `kvs_tema::observe_system_appearance(window, cx)` ile sistem mod takibi
 ✓ `kvs_tema::SystemAppearance::global(cx)` ile sistem mod sorgulamak
-✓ `cx.icon_theme()` ile aktif icon tema okumak
+✓ `GlobalTheme::icon_theme(cx)` ile aktif icon tema okumak
 ✓ `ThemeRegistry::global(cx).list_icon_themes()` ile icon tema seçeneklerini listelemek
 
 Tüketicinin yapamayacağı şeyler (compile hatası):
@@ -8542,7 +8558,7 @@ pub mod test {
         // kvs_tema'nın test-support feature'ı altında public açar veya
         // doğrudan GlobalThemeRegistry newtype'ını cx.set_global ile kurar.
         cx.set_global(GlobalThemeRegistry(registry.clone()));
-        GlobalTheme::set_theme_and_icon(cx, theme, icon_theme);
+        cx.set_global(GlobalTheme::new(theme, icon_theme));
     }
 
     /// Yeniden kullanılabilir test tema'sı.
@@ -9445,7 +9461,7 @@ pub fn install_with_overrides(
     let active_theme = registry.get(arc_theme.name.as_ref()).unwrap();
     let icon_theme = registry.default_icon_theme().unwrap();
     ThemeRegistry::set_global(cx, registry);
-    GlobalTheme::set_theme_and_icon(cx, active_theme.clone(), icon_theme);
+    cx.set_global(GlobalTheme::new(active_theme.clone(), icon_theme));
     active_theme
 }
 ```
@@ -9684,10 +9700,52 @@ const THEME_COLOR_CONTENT_FIELDS: &[&str] = &[
     // Konu 18'deki 146 alanın tamamı burada tutulur.
 ];
 
+const THEME_COLOR_REFLECTION_FIELDS: &[&str] = &[
+    "border", "border_variant", "border_focused", "border_selected",
+    "border_transparent", "border_disabled",
+    // Konu 43.4'teki ThemeColorField subset'inin 111 alanı burada tutulur.
+];
+
+const THEME_COLOR_REFLECTION_EXCLUDED_FIELDS: &[&str] = &[
+    "debugger_accent",
+    "editor_debugger_active_line_background",
+    "editor_diff_hunk_added_background",
+    "editor_diff_hunk_added_hollow_background",
+    "editor_diff_hunk_added_hollow_border",
+    "editor_diff_hunk_deleted_background",
+    "editor_diff_hunk_deleted_hollow_background",
+    "editor_diff_hunk_deleted_hollow_border",
+    "editor_hover_line_number",
+    "element_selection_background",
+    "version_control_conflict_marker_ours",
+    "version_control_conflict_marker_theirs",
+    "version_control_word_added",
+    "version_control_word_deleted",
+    "vim_helix_jump_label_foreground",
+    "vim_helix_normal_background",
+    "vim_helix_normal_foreground",
+    "vim_helix_select_background",
+    "vim_helix_select_foreground",
+    "vim_insert_background",
+    "vim_insert_foreground",
+    "vim_normal_background",
+    "vim_normal_foreground",
+    "vim_replace_background",
+    "vim_replace_foreground",
+    "vim_visual_background",
+    "vim_visual_block_background",
+    "vim_visual_block_foreground",
+    "vim_visual_foreground",
+    "vim_visual_line_background",
+    "vim_visual_line_foreground",
+    "vim_yank_background",
+];
+
 #[test]
 fn theme_color_field_counts_match_zed_pin() {
     assert_eq!(THEME_COLOR_FIELDS.len(), 143);
     assert_eq!(THEME_COLOR_CONTENT_FIELDS.len(), 146);
+    assert_eq!(THEME_COLOR_REFLECTION_FIELDS.len(), 111);
 }
 
 #[test]
@@ -9705,6 +9763,20 @@ fn only_deprecated_content_fields_are_extra() {
             "version_control_conflict_theirs_background",
         ]
     );
+}
+
+#[test]
+fn reflection_fields_are_zed_subset() {
+    let runtime: std::collections::BTreeSet<_> =
+        THEME_COLOR_FIELDS.iter().copied().collect();
+    let reflection: std::collections::BTreeSet<_> =
+        THEME_COLOR_REFLECTION_FIELDS.iter().copied().collect();
+
+    let invalid: Vec<_> = reflection.difference(&runtime).copied().collect();
+    assert!(invalid.is_empty(), "unknown reflected fields: {invalid:?}");
+
+    let excluded: Vec<_> = runtime.difference(&reflection).copied().collect();
+    assert_eq!(excluded, THEME_COLOR_REFLECTION_EXCLUDED_FIELDS);
 }
 ```
 
@@ -9803,7 +9875,7 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
     // Zed'de set_global pub(crate); mirror'da newtype'ı kendin set
     // edersin veya `init` içeride kalan tek çağıran olur.
     cx.set_global(GlobalThemeRegistry(registry.clone()));
-    GlobalTheme::set_theme_and_icon(cx, default, default_icon);
+    cx.set_global(GlobalTheme::new(default, default_icon));
 }
 ```
 
@@ -9836,29 +9908,39 @@ yönünü ters çevirir: tema crate'i settings'e bağımlı değil, settings
 crate'i tema'ya bir hizmet sunar.
 
 ```rust
+use gpui::{App, Font, Pixels};
+
 pub trait ThemeSettingsProvider: Send + Sync + 'static {
+    fn ui_font<'a>(&'a self, cx: &'a App) -> &'a Font;
+    fn buffer_font<'a>(&'a self, cx: &'a App) -> &'a Font;
     fn ui_font_size(&self, cx: &App) -> Pixels;
     fn buffer_font_size(&self, cx: &App) -> Pixels;
-    fn agent_font_size(&self, cx: &App) -> Pixels;
     fn ui_density(&self, cx: &App) -> UiDensity;
-    fn active_theme_name(&self, cx: &App) -> SharedString;
-    fn active_icon_theme_name(&self, cx: &App) -> SharedString;
 }
 
 pub fn set_theme_settings_provider(provider: Box<dyn ThemeSettingsProvider>, cx: &mut App);
 pub fn theme_settings(cx: &App) -> &dyn ThemeSettingsProvider;
 ```
 
+**Sözleşme sınırı:** Bu trait aktif tema adını veya aktif icon tema adını
+döndürmez. Zed'de provider yalnızca typography/density okumaları için
+vardır; selector state'i `ThemeSettingsContent.theme` ve
+`ThemeSettingsContent.icon_theme` alanlarından çözülür. Önceki rehber
+sürümündeki `agent_font_size`, `active_theme_name` ve
+`active_icon_theme_name` metotları Zed public sözleşmesiyle eşleşmez.
+
 **`kvs_tema`'da karşılığı:**
 
 ```rust
 // kvs_tema/src/settings_provider.rs
+use gpui::{App, Font, Pixels};
+
 pub trait TemaAyarSaglayici: Send + Sync + 'static {
+    fn ui_font<'a>(&'a self, cx: &'a App) -> &'a Font;
+    fn buffer_font<'a>(&'a self, cx: &'a App) -> &'a Font;
     fn ui_font_size(&self, cx: &App) -> Pixels;
     fn buffer_font_size(&self, cx: &App) -> Pixels;
     fn ui_density(&self, cx: &App) -> UiDensity;
-    fn active_theme_name(&self, cx: &App) -> SharedString;
-    fn active_icon_theme_name(&self, cx: &App) -> SharedString;
 }
 
 struct GlobalTemaAyarSaglayici(Box<dyn TemaAyarSaglayici>);
@@ -9880,6 +9962,12 @@ pub fn tema_ayarlari(cx: &App) -> &dyn TemaAyarSaglayici {
 struct KvsAyarSaglayici;
 
 impl TemaAyarSaglayici for KvsAyarSaglayici {
+    fn ui_font<'a>(&'a self, cx: &'a App) -> &'a Font {
+        &kvs_ayarlari::get(cx).ui_font
+    }
+    fn buffer_font<'a>(&'a self, cx: &'a App) -> &'a Font {
+        &kvs_ayarlari::get(cx).buffer_font
+    }
     fn ui_font_size(&self, cx: &App) -> Pixels {
         kvs_ayarlari::get(cx).ui_font_size
     }
@@ -9888,12 +9976,6 @@ impl TemaAyarSaglayici for KvsAyarSaglayici {
     }
     fn ui_density(&self, cx: &App) -> UiDensity {
         kvs_ayarlari::get(cx).ui_density
-    }
-    fn active_theme_name(&self, cx: &App) -> SharedString {
-        kvs_ayarlari::get(cx).theme.clone().into()
-    }
-    fn active_icon_theme_name(&self, cx: &App) -> SharedString {
-        kvs_ayarlari::get(cx).icon_theme.clone().into()
     }
 }
 
@@ -9921,6 +10003,41 @@ ayar dosyasının da güncellenmesi isteniyorsa `tema_ayarlari(cx)` üzerinden
 mutable bir API tasarlanır — Zed'de bu `update_settings_file` tarafından
 yapılır; `kvs_tema` settings crate'inin sözleşmesine bağımlı olmadığı
 için bu çağrı **tüketici tarafında** kalır.
+
+**`ThemeSettingsContent` alan modeli:**
+
+`crates/settings_content/src/theme.rs` tarafındaki settings şeması provider'dan
+daha geniştir; kullanıcı ayar dosyası burada temsil edilir. Pin
+`6e8eaab25b5a` için `ThemeSettingsContent` 21 alan taşır:
+
+```text
+ui_font_size, ui_font_family, ui_font_fallbacks, ui_font_features,
+ui_font_weight, buffer_font_family, buffer_font_fallbacks,
+buffer_font_size, buffer_font_weight, buffer_line_height,
+buffer_font_features, agent_ui_font_size, agent_buffer_font_size,
+markdown_preview_font_family, markdown_preview_theme, theme, icon_theme,
+ui_density, unnecessary_code_fade, experimental_theme_overrides,
+theme_overrides
+```
+
+Bu alanların yardımcı tiplerini de şemaya dahil et:
+
+| Tip | Rol | Kritik sözleşme |
+|-----|-----|-----------------|
+| `ThemeSettingsContent` | Kullanıcı settings dosyasındaki tema/font/density alanları | 21 alan; `#[serde(default)]` ve `MergeFrom` davranışı korunur |
+| `FontSize` | `f32` pixel newtype | serialize ederken iki ondalık basamak |
+| `FontFamilyName` | font family adı | `#[serde(transparent)]`, `Arc<str>` |
+| `FontFeaturesContent` | OpenType feature map'i | 4 karakter alfanumerik key; boolean veya unsigned integer value |
+| `BufferLineHeight` | `comfortable`, `standard`, `custom(f32)` | custom değer `>= 1.0` olmalı |
+| `CodeFade` | gereksiz kod fade oranı | schema aralığı `0.0..=0.9` |
+| `DEFAULT_LIGHT_THEME` / `DEFAULT_DARK_THEME` | settings fallback adları | `"One Light"` / `"One Dark"` tek kaynak olarak kalmalı |
+
+`agent_ui_font_size` ve `agent_buffer_font_size` provider trait'inde
+değildir; agent panel ayarı olarak settings katmanında kalır. `theme`,
+`icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides`
+ve `theme_overrides` selector/override akışına gider; typography helper'ları
+ise provider üzerinden `ui_font`, `buffer_font`, `ui_font_size`,
+`buffer_font_size` ve `ui_density` okur.
 
 #### 43.3 `UiDensity` — UI yoğunluk ayarı
 
@@ -9993,7 +10110,7 @@ sunar:
 ```rust
 use strum::{AsRefStr, EnumIter, IntoEnumIterator};
 
-/// ThemeColors'taki her alan için bir variant.
+/// Tema editörü/preview için seçilmiş reflection alt kümesi.
 #[derive(EnumIter, Debug, Clone, Copy, AsRefStr)]
 #[strum(serialize_all = "snake_case")]
 pub enum ThemeColorField {
@@ -10021,6 +10138,54 @@ pub fn all_theme_colors(cx: &mut App) -> Vec<(Hsla, SharedString)> {
 }
 ```
 
+**Kritik parite düzeltmesi:** `ThemeColorField`, `ThemeColors`'taki her
+alan için variant üretmez. Pin `6e8eaab25b5a` için runtime
+`ThemeColors` 143 alan taşır; `ThemeColorField` ise 111 variant'lık
+reflection alt kümesidir. Küme ilişkisi şudur:
+
+```text
+ThemeColorField labels ⊆ ThemeColors fields
+ThemeColorField labels = 111
+ThemeColors fields = 143
+```
+
+`ThemeColors` içinde olup Zed reflection API'sinde yer almayan 32 alan:
+
+```text
+debugger_accent
+editor_debugger_active_line_background
+editor_diff_hunk_added_background
+editor_diff_hunk_added_hollow_background
+editor_diff_hunk_added_hollow_border
+editor_diff_hunk_deleted_background
+editor_diff_hunk_deleted_hollow_background
+editor_diff_hunk_deleted_hollow_border
+editor_hover_line_number
+element_selection_background
+version_control_conflict_marker_ours
+version_control_conflict_marker_theirs
+version_control_word_added
+version_control_word_deleted
+vim_helix_jump_label_foreground
+vim_helix_normal_background
+vim_helix_normal_foreground
+vim_helix_select_background
+vim_helix_select_foreground
+vim_insert_background
+vim_insert_foreground
+vim_normal_background
+vim_normal_foreground
+vim_replace_background
+vim_replace_foreground
+vim_visual_background
+vim_visual_block_background
+vim_visual_block_foreground
+vim_visual_foreground
+vim_visual_line_background
+vim_visual_line_foreground
+vim_yank_background
+```
+
 **`kvs_tema`'da karşılığı:**
 
 ```rust
@@ -10029,7 +10194,7 @@ pub fn all_theme_colors(cx: &mut App) -> Vec<(Hsla, SharedString)> {
 pub enum ThemeColorField {
     Background,
     Border,
-    // ... her ThemeColors alanı için bir variant
+    // ... Zed reflection subset'indeki 111 alan için bir variant
 }
 
 impl ThemeColorField {
@@ -10067,8 +10232,17 @@ pub fn all_theme_colors(cx: &mut App) -> Vec<(Hsla, SharedString)> {
 }
 ```
 
-**Üretim disiplini:** 143 alan elle yazmak yorucu — derive makrosu
-yazılır:
+**Üretim disiplini:** İki farklı stratejiden birini seç, ama adını doğru
+koy:
+
+- **Zed paritesi:** `ThemeColorField` sadece Zed'in 111 alanlık reflection
+  subset'ini mirror eder. `ThemeColors` alanları için ayrıca 143 alanlık
+  runtime/content parite testi tutulur.
+- **Yerel tam reflection:** `ThemeColorField` 143 alanın tamamını kapsar.
+  Bu Zed'den bilinçli genişletmedir; `DECISIONS.md`'ye yazılır ve snapshot
+  testlerinde `111` değil `143` beklenir.
+
+Elle 111 ya da 143 alan yazmak yorucuysa derive makrosu yazılır:
 
 ```rust
 #[derive(Refineable, ThemeColorReflect)]
@@ -10076,8 +10250,10 @@ pub struct ThemeColors { /* ... */ }
 ```
 
 `ThemeColorReflect` derive makrosu `ThemeColorField` enum'unu, `label`
-ve `value` impl'lerini otomatik üretir. Refinement makrosuyla aynı
-crate (`ui_macros` veya `kvs_macros`) içinde tutulur.
+ve `value` impl'lerini otomatik üretir. Zed paritesi seçildiyse 32 alan
+`#[theme_color_reflect(skip)]` benzeri bir attribute ile reflection dışı
+bırakılır; aksi halde makro yerel genişletme üretir. Refinement makrosuyla
+aynı crate (`ui_macros` veya `kvs_macros`) içinde tutulur.
 
 **Kullanım yerleri:**
 
@@ -10103,6 +10279,12 @@ fn theme_color_count_matches_zed_pin() {
     assert_eq!(ThemeColorField::ALL.len(), 111);
 }
 ```
+
+Bu test tek başına yeterli değildir; ayrıca `ThemeColorField` label'larının
+tamamının gerçek `ThemeColors` alanı olduğunu ve dışarıda kalan 32 alanın
+yukarıdaki listeyle birebir eşleştiğini doğrula. Aksi halde yeni eklenen
+bir alan sessizce reflection dışında kalabilir veya yanlışlıkla reflection'a
+eklenip Zed paritesi bozulabilir.
 
 ```rust
 // Tema farkı raporu (Reçete 42.5)
@@ -10429,6 +10611,18 @@ geçip geçmediğini tarayarak bulundu. Aşağıdaki öğeler ana sözleşme kad
 büyük değildir, ama tema crate'i birebir mirror edilecekse karar verilmeden
 bırakılmamalıdır.
 
+**Hata kaynağı ve düzeltilen denetim mantığı:** Önceki tarama sadece
+"isim rehberde geçiyor mu?" sorusunu sordu. Bu iki sınıf hatayı yakalamaz:
+
+- `ThemeColorField` adının geçmesi, onun 143 `ThemeColors` alanının tamamını
+  temsil ettiği anlamına gelmez; Zed'de 111 alanlık alt kümedir.
+- `ui_font_size` veya `theme` gibi metod/alan adları birden fazla owner'da
+  geçebilir; denetim `Owner::method` ve `Struct.field` düzeyinde yapılmalıdır.
+
+Bundan sonra rehber güncellemesi üç ayrı ilişkiyi doğrular: public isim
+varlığı, owner-metot eşleşmesi ve alan kümeleri arasındaki matematiksel
+ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
+
 | Öğe | Kaynak | Karar |
 | :-- | :-- | :-- |
 | `DEFAULT_DARK_THEME` | `theme.rs` | Init fallback için sabit ad; mirror edilecekse `"One Dark"` tek kaynak olmalı |
@@ -10442,6 +10636,10 @@ bırakılmamalıdır.
 | `ThemeRegistry::insert_themes`, `.clear()` | `registry.rs` | Test, import ve kullanıcı tema yenileme akışında gerekir |
 | `ThemeRegistry::register_test_themes`, `.register_test_icon_themes` | `registry.rs` | `test-support` gated helper; üretim API'si olarak expose edilmez |
 | `Redistributable değildir: FontFamilyCache` | `font_family_cache.rs` | Sözleşme dışı kalır, ama public metodları 43.8'de not edildi |
+| `ThemeSettingsProvider::ui_font`, `.buffer_font` | `theme_settings_provider.rs` | Provider font objesini de verir; sadece font size/density değildir |
+| `ThemeSettingsContent` typography alanları | `settings_content/src/theme.rs` | `FontSize`, `FontFamilyName`, `FontFeaturesContent`, `BufferLineHeight`, `CodeFade` Konu 43.2'ye eklendi |
+| `ThemeSelection::mode`, `IconThemeSelection::mode` | `theme_settings/src/settings.rs` | Selector UI hangi slot'un aktif olduğunu göstermek için gerekir |
+| `GlobalTheme::new`, `.update_theme`, `.update_icon_theme`, `.theme`, `.icon_theme` | `theme.rs` | Zed public API; `set_theme_and_icon` ve `set_theme` sadece yerel convenience ise karar günlüğüne yazılır |
 
 Küçük method yüzeyleri:
 
@@ -10460,6 +10658,10 @@ ColorScale::step_8()
 ColorScale::step_10()
 ColorScale::step_11()
 ColorScaleSet::step_alpha(cx, step)
+ThemeSettingsProvider::ui_font(cx)
+ThemeSettingsProvider::buffer_font(cx)
+ThemeSelection::mode()
+IconThemeSelection::mode()
 ```
 
 Bu metodlar rehberin ana akışını değiştirmez, fakat tema editörü, collab
@@ -10488,9 +10690,45 @@ while read name; do
 done < /tmp/theme_pub_methods.txt
 ```
 
-Geçiş kriteri: iki kontrol de çıktı üretmemelidir. Çıktı üretirse ya ilgili
-konuya ekle ya da "sözleşme dışı / test-only / internal helper" kararını bu
-bölüme yaz.
+Bu iki komut sadece kaba smoke test'tir. Asıl geçiş kriteri aşağıdaki
+owner/metot ve alan kümesi kontrolleridir:
+
+```sh
+# Owner + method kontrolü: aynı metod adı farklı owner'da geçebilir.
+rg -n '^impl |^\\s*pub fn |^\\s*pub async fn ' \
+  ../zed/crates/theme/src ../zed/crates/theme_settings/src ../zed/crates/settings_content/src/theme.rs \
+  -g '*.rs'
+
+# Runtime ThemeColors alanları: pin 6e8eaab25b5a için 143.
+awk '/^pub struct ThemeColors / {in_s=1; next} in_s && /^}/ {in_s=0} \
+  in_s && /^[[:space:]]*pub [a-zA-Z0-9_]+: Hsla,/ { f=$2; sub(/:.*/, "", f); print f }' \
+  ../zed/crates/theme/src/styles/colors.rs | sort -u > /tmp/theme_runtime_fields.txt
+
+# JSON content alanları: runtime + 3 deprecated uyumluluk alanı.
+awk '/^pub struct ThemeColorsContent / {in_s=1; next} in_s && /^}/ {in_s=0} \
+  in_s && /^[[:space:]]*pub [a-zA-Z0-9_]+:/ { f=$2; sub(/:.*/, "", f); print f }' \
+  ../zed/crates/settings_content/src/theme.rs | sort -u > /tmp/theme_content_fields.txt
+
+# Reflection alanları: ThemeColorField label'ları runtime'ın alt kümesi olmalı.
+awk '/^pub enum ThemeColorField / {in_e=1; next} in_e && /^}/ {in_e=0} \
+  in_e && /^[[:space:]]*[A-Z][A-Za-z0-9]+,?$/ { v=$1; sub(/,/, "", v); print v }' \
+  ../zed/crates/theme/src/styles/colors.rs \
+  | perl -pe 's/([a-z0-9])([A-Z])/$1_$2/g; $_=lc' \
+  | sort -u > /tmp/theme_reflection_fields.txt
+
+wc -l /tmp/theme_runtime_fields.txt /tmp/theme_content_fields.txt /tmp/theme_reflection_fields.txt
+comm -23 /tmp/theme_runtime_fields.txt /tmp/theme_content_fields.txt
+comm -23 /tmp/theme_reflection_fields.txt /tmp/theme_runtime_fields.txt
+comm -13 /tmp/theme_runtime_fields.txt /tmp/theme_content_fields.txt
+comm -23 /tmp/theme_runtime_fields.txt /tmp/theme_reflection_fields.txt
+```
+
+Beklenen sonuç: `wc` çıktısı sırasıyla `143`, `146`, `111` olmalı.
+İlk iki `comm` komutu çıktı üretmemeli. Üçüncü `comm` yalnızca
+`deprecated_scrollbar_thumb_background`,
+`version_control_conflict_ours_background` ve
+`version_control_conflict_theirs_background` döndürmeli. Son `comm`,
+Konu 43.4'te listelenen 32 reflection dışı alanı döndürmelidir.
 
 ---
 
