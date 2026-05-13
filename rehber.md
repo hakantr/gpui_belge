@@ -561,6 +561,12 @@ Kurallar:
 pencerenin root view tipini bilir; `AnyWindowHandle` ise root tipini runtime'da
 taşır ve gerektiğinde downcast edilir.
 
+**Hata kaynağı:** Önceki kontrol sadece "metot adı var mı?" sorusuna baktı.
+`WindowHandle<V>` ise `#[derive(Deref, DerefMut)]` ile içindeki
+`AnyWindowHandle`'a deref eder. Bu yüzden bazı metotlar typed handle üzerinde
+çağrılabilir görünür ama owner'ı aslında `AnyWindowHandle`'dır. Doğru denetim
+`Owner::method -> dönüş tipi -> hata semantiği` üçlüsüyle yapılmalıdır.
+
 `WindowHandle<V>`:
 
 ```rust
@@ -568,15 +574,22 @@ handle.update(cx, |root: &mut Workspace, window, cx| {
     root.focus_active_pane(window, cx);
 })?;
 
+let root_ref: &Workspace = handle.read(cx)?;
 let title = handle.read_with(cx, |root, cx| root.title(cx))?;
 let entity = handle.entity(cx)?;
 // WindowHandle::is_active `Option<bool>` döner; pencere kapanmış/geçici
 // olarak ödünç alınmışsa `None`. Tipik kullanım:
 let active: Option<bool> = handle.is_active(cx);
-// `window_id()` `WindowHandle<V>` üzerinde inherent metot olarak yoktur;
-// `AnyWindowHandle::window_id()` üzerinden okunur. `WindowHandle<V>`
-// `Into<AnyWindowHandle>` implement ettiği için dönüşüm trivial:
-let id = AnyWindowHandle::from(handle).window_id();
+
+// `window_id()` owner olarak `AnyWindowHandle` metodudur; fakat
+// `WindowHandle<V>: Deref<Target = AnyWindowHandle>` olduğu için bu çağrı
+// method resolution ile çalışır:
+let id = handle.window_id();
+
+// Untyped handle saklamak veya AnyWindowHandle API'sini açık göstermek
+// istiyorsan dönüşümü bilinçli yap:
+let any: AnyWindowHandle = handle.into();
+let same_id = any.window_id();
 ```
 
 `AnyWindowHandle`:
@@ -593,6 +606,36 @@ any_handle.update(cx, |root_view, window, cx| {
     window.refresh();
     (root_entity_id, window.is_window_active())
 })?;
+
+let title = any_handle.read::<Workspace, _, _>(cx, |workspace, cx| {
+    workspace.read(cx).title(cx)
+})?;
+```
+
+Tam owner/metot yüzeyi:
+
+| Owner | Metot | Dönüş | Not |
+|---|---|---|---|
+| `WindowHandle<V>` | `new(id)` | `Self` | Root tipini runtime'da doğrulamaz; id + `TypeId::of::<V>()` saklar. |
+| `WindowHandle<V>` | `root(cx)` | `Result<Entity<V>>` | Sadece `test` veya `test-support`; root type mismatch/kapalı pencere hata. |
+| `WindowHandle<V>` | `update(cx, |&mut V, &mut Window, &mut Context<V>| ...)` | `Result<R>` | Typed root view mutate eder. |
+| `WindowHandle<V>` | `read(&App)` | `Result<&V>` | Kısa süreli immutable borrow; kapalı/borrowed pencere hata. |
+| `WindowHandle<V>` | `read_with(cx, |&V, &App| ...)` | `Result<R>` | Callback içinde güvenli okuma. |
+| `WindowHandle<V>` | `entity(cx)` | `Result<Entity<V>>` | Root entity handle'ını döndürür. |
+| `WindowHandle<V>` | `is_active(&mut App)` | `Option<bool>` | Kapalı veya borrowed pencere `None`. |
+| `WindowHandle<V>` deref | `window_id()` | `WindowId` | Owner `AnyWindowHandle`; deref sayesinde `handle.window_id()` çalışır. |
+| `WindowHandle<V>` deref | `downcast<T>()` | `Option<WindowHandle<T>>` | Owner `AnyWindowHandle`; typed handle'da çoğu zaman gereksizdir. |
+| `AnyWindowHandle` | `window_id()` | `WindowId` | Pencere kimliği. |
+| `AnyWindowHandle` | `downcast<T>()` | `Option<WindowHandle<T>>` | `TypeId` eşleşmezse `None`. |
+| `AnyWindowHandle` | `update(cx, |AnyView, &mut Window, &mut App| ...)` | `Result<R>` | Root type bilinmez; callback `AnyView` alır. |
+| `AnyWindowHandle` | `read::<T, _, _>(cx, |Entity<T>, &App| ...)` | `Result<R>` | Önce downcast yapar, sonra typed entity okutur. |
+
+**Denetim komutu:** Bu bölüm güncellenirken owner-metot ayrımını kaynak
+üstünden tekrar çıkar:
+
+```sh
+sed -n '5450,5650p' ../zed/crates/gpui/src/window.rs \
+  | rg '^impl.*WindowHandle|^impl AnyWindowHandle|pub fn (new|root|update|read|read_with|entity|is_active|window_id|downcast)'
 ```
 
 Context trait'leri:
@@ -7337,4 +7380,3 @@ dönüşümlerinde.
   `crates/settings/src/content_into_gpui.rs`
 - UI component export list: `crates/ui/src/components.rs`
 - UI input: `crates/ui_input/src/ui_input.rs`, `input_field.rs`
-
