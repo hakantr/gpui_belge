@@ -8,8 +8,9 @@ değişiklikleri, refinement davranışı değişimleri) bu projeye **kayda alı
 şekilde** yansıyabilmesi.
 
 > **Sync ritmi:** Önerilen cadence her 6-8 haftada bir tam tur.
-> Her tur sonunda bu dosya **mutlaka güncellenmelidir**: pin commit + tarih +
-> inceleyen + geçmiş tablosuna yeni satır.
+> Her tur sonunda `zed_commit_pin.txt` ve bu dosya **mutlaka
+> güncellenmelidir**: pin commit + tarih + inceleyen + geçmiş tablosuna yeni
+> satır.
 
 ---
 
@@ -22,8 +23,9 @@ Kaynak olarak kardeş dizindeki Zed yerel kopyası kullanılır:
 ~/github/
 ├── gpui_belge/                        ← bu depo (notlar + araçlar)
 │   ├── tema_aktarimi.md               ← bu dosya
+│   ├── zed_commit_pin.txt             ← diff taban commit'i
 │   ├── tema_rehber.md                 ← mimari + kod rehberi
-│   └── tema_kaymasi_kontrol.sh        ← drift raporu
+│   └── tema_kaymasi_kontrol.sh        ← timestamp'li Zed diff üretici
 └── zed/                               ← Zed yerel kopyası (kaynak)
     ├── crates/theme/
     ├── crates/syntax_theme/
@@ -31,11 +33,13 @@ Kaynak olarak kardeş dizindeki Zed yerel kopyası kullanılır:
     └── assets/themes/
 ```
 
-Script varsayılan olarak `../zed`'i (yani komşu `zed/` dizinini) okur.
-Zed kopyan başka bir yerdeyse argüman olarak ver:
+Script varsayılan olarak `../zed`'i (yani komşu `zed/` dizinini) kullanır.
+Çalıştırıldığında Zed kopyasını `zed_commit_pin.txt` içindeki commit'e geri
+sabitler, yerel değişiklikleri temizler, sonra `git pull --ff-only` ile
+upstream'den günceller. Zed kopyan başka bir yerdeyse argüman olarak ver:
 
 ```sh
-./tema_kaymasi_kontrol.sh /baska/yol/zed
+./tema_kaymasi_kontrol.sh /baska/yol/zed /diff/cikti/dizini
 ```
 
 ---
@@ -45,13 +49,30 @@ Zed kopyan başka bir yerdeyse argüman olarak ver:
 | Alan                       | Değer                                        |
 |----------------------------|----------------------------------------------|
 | Son incelenen Zed commit   | `db6039d815893750ad45e548d6a7c1a64bba5d2a`   |
+| Pin dosyası                | `zed_commit_pin.txt`                         |
 | Pin tarihi                 | 2026-05-11                                   |
 | İnceleyen                  | hakantr                                      |
 | Üst depo                   | `https://github.com/zed-industries/zed`      |
 | Üst depo dalı              | `main`                                       |
 | Yerel Zed kopyası          | `../zed` (`~/github/zed`)                    |
 
-> Drift raporu çalıştırmak için: `./tema_kaymasi_kontrol.sh`
+> Diff üretmek ve `../zed` kopyasını upstream'e çekmek için:
+> `./tema_kaymasi_kontrol.sh`
+
+Script, `zed_commit_pin.txt` içindeki commit'i taban alır; `../zed`
+çalışma ağacını bu commit'e `git reset --hard` ile geri alır, untracked
+dosyaları `git clean -fd` ile temizler, ardından `git pull --ff-only`
+çalıştırır. Pull sonrası yeni `HEAD` pin'den farklıysa tam diff'i şu adla
+kaydeder:
+
+```text
+zed_farkları<yıl-ay-gun-saat-dakika>-<güncel-kısa-commit>.diff
+```
+
+İş akışının amacı `../zed` deposunda yerel çalışma tutmamak, Zed'in upstream
+kaynağına bağlı kalmaktır. Ignored dosyaların da silinmesi gerekiyorsa
+`ZED_TEMIZLE_IGNORED=1 ./tema_kaymasi_kontrol.sh` kullan; bu durumda
+`git clean -fdx` çalışır.
 
 ---
 
@@ -130,28 +151,33 @@ içindeki tema sözleşmesi evrimini gösterir.
 
 ## Tur prosedürü (her seferinde yapılacaklar)
 
-1. **Drift raporunu çalıştır** (bu dizinden):
+1. **Zed'i pine geri sabitle, upstream'den çek ve diff üret** (bu dizinden):
    ```sh
    ./tema_kaymasi_kontrol.sh
    ```
-2. Çıkan commit listesinde tema/styles dosyalarına dokunan her PR'ı **tek tek aç**, alan değişikliklerini not al:
+2. Script `zed_commit_pin.txt` commit'inden yeni Zed `HEAD` commit'ine kadar
+   `zed_farkları*.diff` üretirse dosyayı incele; tema, bileşen, GPUI ve
+   genel rehber yüzeylerini etkileyen değişiklikleri ayır.
+3. Gerekirse commit listesinden ilgili PR/commit'i **tek tek aç**, alan
+   değişikliklerini not al:
    ```sh
    git -C ../zed show <sha>
    ```
-3. **Yeni eklenen alanlar** için karar ver:
+4. **Yeni eklenen alanlar** için karar ver:
    - Bizim için anlamlı mı? → yerel struct'a ekle, fixture testlerini güncelle.
    - Anlamlı değil mi? → bu dosyada "Senkron edilMEYEN" bölümüne **gerekçeyle** yaz.
-4. **Kaldırılan alanlar** için karar ver:
+5. **Kaldırılan alanlar** için karar ver:
    - Biz hâlâ kullanıyor muyuz? → kaldırma, ama "Pending decisions" bölümüne not düş.
-5. **Davranış değişiklikleri** (refinement, türetme mantığı):
+6. **Davranış değişiklikleri** (refinement, türetme mantığı):
    - `DECISIONS.md`'ye yansıt; gerekirse implementasyonu güncelle.
-6. **Fixture testlerini güncelle:** uygulama tarafındaki `tests/fixtures/`
+7. **Fixture testlerini güncelle:** uygulama tarafındaki `tests/fixtures/`
    altındaki gerçek Zed tema JSON'larını yeni pin commit'inden yenile,
    testleri çalıştır.
-7. **Bu dosyayı güncelle:**
+8. **Pin ve bu dosyayı güncelle:**
+   - `zed_commit_pin.txt` içeriğini yeni tam SHA ile değiştir.
    - "Mevcut durum" tablosundaki commit + tarih + inceleyen alanlarını değiştir.
    - "Senkron turu geçmişi" tablosuna yeni satır ekle.
-8. **Tek bir commit olarak işle:** `tema: Upstream sync to <kısa-sha>` başlığıyla.
+9. **Tek bir commit olarak işle:** `tema: Upstream sync to <kısa-sha>` başlığıyla.
 
 ---
 

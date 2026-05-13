@@ -23,7 +23,10 @@
       "Read(//tmp/**)",
       "Bash(sort *)",
       "Bash(awk '/^# Ek \\\\\\(geçici\\\\\\)/{exit} {print}' /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
-      "Bash(mv /tmp/tema_rehber_yeni.md /Users/hakanbiris/github/gpui_belge/tema_rehber.md)"
+      "Bash(mv /tmp/tema_rehber_yeni.md /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
+      "Read(//Users/hakanbiris/github/zed/crates/ui/src/components/button/**)",
+      "Read(//Users/hakanbiris/github/zed/crates/ui/src/components/**)",
+      "Read(//Users/hakanbiris/github/zed/*)"
     ]
   }
 }
