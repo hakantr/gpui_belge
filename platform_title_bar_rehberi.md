@@ -1147,6 +1147,18 @@ değerine çevrilir (`settings_content/src/title_bar.rs:24-49`).
 (`settings_content/src/title_bar.rs:83-126`). Runtime tarafındaki
 `TitleBarSettings` bu payload'dan üretilir (`title_bar_settings.rs:17-32`).
 
+Zed uygulamasında `TitleBar` bu platform bileşenini iki farklı render modunda
+besler (`title_bar/src/title_bar.rs:346-379`). `show_menus` true ise
+`PlatformTitleBar::set_children(...)` yalnız uygulama menüsünü alır; ürün
+başlığı ikinci bir satır olarak aynı `title_bar_color` ile render edilir.
+`show_menus` false ise tüm ürün children'ı doğrudan `PlatformTitleBar` içine
+verilir. Her iki yolda da `set_button_layout(button_layout)` render sırasında
+çağrılır ve desktop layout değişimleri `observe_button_layout_changed(...)`
+subscription'ı ile `cx.notify()` tetikler (`title_bar/src/title_bar.rs:441`).
+Bu yüzden portta `PlatformTitleBar` tek başına "Zed titlebar UI'si" değildir;
+Zed ürünü onu menü modu ve settings durumuna göre farklı child setleriyle
+yönetir.
+
 ## 6. Kendi Uygulamana Dahil Etme
 
 ### Doğrudan Zed crate'iyle kullanım
@@ -1254,6 +1266,21 @@ Linux pencere kontrol grubu ek olarak kendi
 `on_mouse_down(Left, |_, _, cx| cx.stop_propagation())` zincirini kurar
 (`platform_linux.rs:49-50`); aksi halde butonlara basmak da drag
 başlatabilirdi.
+
+### Fullscreen render ayrımı
+
+Fullscreen koşulu yalnız görünsel bir detay değildir; hangi child'ların
+eklendiğini değiştirir (`platform_title_bar.rs:243-320`). `window.is_fullscreen()`
+true ise sol tarafta macOS trafik ışığı padding'i de Linux sol kontrolleri de
+eklenmez, sadece `.pl_2()` fallback'i kullanılır. Aynı render zincirinde sağ
+taraf bloğu da `when(!window.is_fullscreen(), ...)` arkasındadır; yani sağ
+caption kontrolleri ve Linux CSD sağ tık sistem pencere menüsü fullscreen'de
+kurulmaz. `SystemWindowTabs` child'ı ise bu koşulun dışında, titlebar'ın
+altına eklenmeye devam eder (`platform_title_bar.rs:322-325`).
+
+Port hedefinde bu ayrımı tek bir "fullscreen padding'i değiştir" kuralına
+indirgemeyin: fullscreen, hem sol/sağ pencere kontrol render'ını hem de Linux
+CSD `window.show_window_menu(...)` bağını etkiler.
 
 ### Çift tıklama
 
@@ -1550,6 +1577,37 @@ side-effect bir sonraki frame'de geri-beslemeyi tetikler).
 aynı geri-besleme döngüsü gerekir: aksi halde sekme genişliği `0px`
 veya statik kalır.
 
+**Sekme ölçüleri, close ayarı ve drop işaretleri**
+(`system_window_tabs.rs:153-276`):
+
+- Her tab'ın genişliği `measured_tab_width.max(rem_size * 10)` ile en az
+  `10rem` yapılır; sadece canvas ölçümüne güvenilmez.
+- Dış tab bar yüksekliği `Tab::container_height(cx)`, tek tab yüksekliği
+  `Tab::content_height(cx)` ile gelir. `ui::Tab` bu değerleri
+  `DynamicSpacing::Base32` ve `Base32 - 1px` olarak hesaplar
+  (`ui/src/components/tab.rs:79-84`); portta sabit `32px` yazmak density
+  değişimlerini kaçırır.
+- `ItemSettings::close_position` `Left` / `Right` değerlerini taşır ve default
+  `Right`'tır; `show_close_button` ise `Always` / `Hover` / `Hidden` ve default
+  `Hover`'dır (`settings_content/src/workspace.rs:214-239`).
+- `Hidden` durumunda close icon hiç eklenmez. Diğerlerinde absolute close alanı
+  `.top_2().w_4().h_4()` ile çizilir; `Left` için `.left_1()`, `Right` için
+  `.right_1()` uygulanır. `Hover` durumunda icon `visible_on_hover("tab")`
+  ile yalnız tab hover'ında görünür.
+- Close icon ve orta mouse up aynı `CloseWindow` action'ını dispatch eder;
+  hedef aktif pencere değilse action ilgili tab'ın `AnyWindowHandle`'ı üzerinde
+  çalıştırılır.
+- Drag-over preview `drop_target_background` ve `drop_target_border` kullanır,
+  önce border'ı sıfırlar; hedef index dragged index'ten küçükse sol `border_l_2`,
+  büyükse sağ `border_r_2` gösterir. Aynı index üstünde yan çizgi yoktur.
+
+Alt sağdaki plus bölgesi yalnız action değildir: `.h_full()`,
+`DynamicSpacing::Base06.rems(cx)` yatay padding, üst/sol border ve muted small
+plus icon ile render edilir (`system_window_tabs.rs:473-492`). Click akışı
+`zed_actions::OpenRecent { create_new_window: true }` dispatch eder; bağımsız
+uygulamada aynı görsel alanı koruyup action'ı kendi yeni pencere/workspace
+akışınıza bağlayın.
+
 **Controller akışı:**
 
 ```text
@@ -1774,6 +1832,15 @@ sed -n '270,560p' ../zed/crates/gpui/src/app.rs \
 sed -n '28,39p' ../zed/crates/platform_title_bar/src/system_window_tabs.rs
 rg -n 'on_drag|last_dragged_tab|drag_over::<DraggedWindowTab>|on_drop|on_mouse_up_out|handle_tab_drop|move_tab_to_new_window|merge_all_windows|update_tab_position' \
   ../zed/crates/platform_title_bar/src/system_window_tabs.rs
+```
+
+Fullscreen ve tab render ayrıntıları:
+
+```sh
+rg -n 'is_fullscreen|render_right_window_controls|show_window_menu|SystemWindowTabs|Tab::content_height|Tab::container_height|measured_tab_width|max\(rem_size|ShowCloseButton|ClosePosition|visible_on_hover|drop_target|IconButton::new\("plus"' \
+  ../zed/crates/platform_title_bar/src \
+  ../zed/crates/ui/src/components/tab.rs \
+  ../zed/crates/settings_content/src/workspace.rs
 ```
 
 Pencere seçenekleri ve CSD bağlantılarını kontrol etmek için:
