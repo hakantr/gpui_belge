@@ -926,6 +926,11 @@ tipik örneği: `pub struct` olarak yazılmıştır, fakat modülü crate kökü
   (`platform_title_bar.rs:241-257`, `294-307`).
 - Linux CSD + `supported_controls.window_menu` varsa sağ tıkta
   `window.show_window_menu(ev.position)` çağrılır (`platform_title_bar.rs:309-315`).
+- CSD render'ında titlebar kendi üst köşelerini de düzeltir: tiled olmayan ve
+  sidebar tarafından kapatılmayan üst köşelere
+  `theme::CLIENT_SIDE_DECORATION_ROUNDING` uygulanır, sonra transparent köşe
+  boşluğunu kapatmak için `.mt(px(-1.)).mb(px(-1.)).border(px(1.))` ve
+  `border_color(titlebar_color)` eklenir (`platform_title_bar.rs:262-279`).
 - En sonda internal `SystemWindowTabs` child olarak eklenir
   (`platform_title_bar.rs:322-325`).
 
@@ -998,23 +1003,24 @@ yani port hedefi tema sisteminin **bu dört token'ı sağlaması** zorunludur
 | Adım | Yer | Tetikleyici | Çağrı |
 | :-- | :-- | :-- | :-- |
 | 1 | `platform_title_bar.rs:189` | `render()` başı | `let close_action = Box::new(workspace::CloseWindow);` (ilk Box üretimi, klon değil) |
-| 2 | `platform_title_bar.rs:251` | `show_left_controls` true | `close_action.as_ref().boxed_clone()` — `render_left_window_controls` argümanı |
+| 2 | `platform_title_bar.rs:251` | Fullscreen değil, macOS trafik ışığı padding branch'i seçilmedi ve `show_left_controls` true | `close_action.as_ref().boxed_clone()` — `render_left_window_controls` argümanı |
 | 3 | `platform_title_bar.rs:302` | `show_right_controls` true ve `!is_fullscreen` | `close_action.as_ref().boxed_clone()` — `render_right_window_controls` argümanı |
 | 4 | `platform_linux.rs:78` | İlgili tarafta `WindowButton::Close` slot'u var | `create_window_button` → `WindowControl::new_close(..., close_action.boxed_clone(), cx)` |
 | 5 | `platform_linux.rs:188` | `new_close` gövdesi | `close_action: Some(close_action.boxed_clone())` (parametre move'lanmak yerine yeniden klonlanır) |
 | 6 | `platform_linux.rs:239` | Close butonuna **click anı** | `.expect(...).boxed_clone()` — `window.dispatch_action(...)` argümanı |
 
-Adım 2 ve 3 her ilgili sidebar açık değilse her render'da gerçekleşir
-(close butonu o tarafta render edilmese de — clone, render fonksiyonu
-çağrısından önce yapılır). Adım 4 ve 5 yalnızca Linux CSD + close
-butonunun bulunduğu tarafta tetiklenir. Tipik bir Linux GNOME render'ı
-(close sağda, sidebar kapalı): adım 2 + 3 + 4 + 5 = **4 boxed_clone**
-per render. Adım 6 yalnızca click anında, **+1** ek klon.
+Adım 2 ve 3 clone'u render fonksiyonları çağrılmadan önce yapılır; bu yüzden
+o tarafta close butonu üretilmese bile clone maliyeti doğabilir. Fullscreen'de
+adım 2 ve 3 atlanır. macOS'ta sol taraf genellikle trafik ışığı padding branch'i
+ile çözülür; bu durumda adım 2 çalışmaz, fakat fullscreen değilse adım 3
+`render_right_window_controls(...)` çağrısı öncesinde boşa clone üretir ve
+fonksiyon Mac'te `None` döner. Windows'ta `WindowsWindowControls` close action'ı
+kullanmaz; buna rağmen fullscreen değilse adım 2 ve 3 çalışabilir.
 
-macOS render'ında adım 4 ve 5 hiç çalışmaz (`render_left/right_window_controls`
-Mac'te `None` döner) ama adım 2 ve 3 boşa klon harcar. Windows'ta
-`WindowsWindowControls` close_action'ı zaten kullanmaz; ama adım 2/3
-yine gerçekleşir.
+Adım 4 ve 5 yalnızca Linux CSD + close butonunun bulunduğu tarafta tetiklenir.
+Tipik bir Linux GNOME render'ı (close sağda, sidebar kapalı): adım 2 + 3 + 4
++ 5 = **4 boxed_clone** per render. Adım 6 yalnızca click anında, **+1** ek
+klon.
 
 `Box<dyn Action>::boxed_clone()` aslında trait üzerinden v-table dispatch
 yapan klon işlemidir (`Action::boxed_clone(&self) -> Box<dyn Action>`).
@@ -1424,6 +1430,15 @@ geçersizse hata döner. Aynı buton iki tarafta veya aynı tarafta tekrar edili
 ilk görülen slot tutulur, tekrarlar atlanır. Bu nedenle `"close,foo"` geçerli
 layout üretir, `"foo"` hata verir.
 
+Render tarafında side'ın varlığı yalnız ilk slota bakılarak belirlenir:
+`render_left_window_controls(...)` için `button_layout.left[0].is_none()`,
+`render_right_window_controls(...)` için `button_layout.right[0].is_none()`
+ise tüm taraf `None` döner (`platform_title_bar.rs:132-135`, `163-166`).
+Manuel layout verirken `[None, Some(Close), ...]` gibi bir dizi o tarafı
+tamamen gizler. İlk slot doluysa içerdeki sonraki `None` slotlar
+`LinuxWindowControls` render'ındaki `filter_map(|b| *b)` ile sadece atlanır
+(`platform_linux.rs:31-34`).
+
 Zed ayar katmanı üç kullanım biçimi sunar:
 
 | Ayar değeri | Sonuç |
@@ -1702,6 +1717,25 @@ değerinden alır ve `Tab::container_height(cx)` yüksekliğini kullanır
 (`system_window_tabs.rs:498-528`); drag ghost için ayrı bir sabit yükseklik
 yoktur.
 
+**Controller grup mutasyonları** (`gpui/src/app.rs:417-530`): Public imzalar
+basit görünür, fakat state algoritması port için önemlidir.
+
+| Fonksiyon | State davranışı |
+| :-- | :-- |
+| `update_tab_position(cx, id, ix)` | `id` hangi gruptaysa yalnız o grupta çalışır; `ix >= len` veya aynı pozisyon ise no-op. |
+| `update_tab_title(cx, id, title)` | Önce mevcut title aynı mı diye immutable okur; aynıysa mutable global almadan döner. |
+| `add_tab(cx, id, tabs)` | `tabs` içinde `id` yoksa no-op. Mevcut bir grup, `tabs` içindeki **id hariç** sorted id listesiyle eşleşirse current tab o gruba push edilir; eşleşme yoksa `tab_groups.len()` yeni grup id'si olarak kullanılıp gelen `tabs` komple eklenir. |
+| `remove_tab(cx, id)` | Tab'ı bulduğu gruptan çıkarır, boş kalan grubu `retain` ile siler ve çıkarılan tab'ı döndürür. |
+| `move_tab_to_new_window(cx, id)` | Önce `remove_tab`; sonra yeni grup id'si `max(existing_key) + 1`, grup yoksa `0`. |
+| `merge_all_windows(cx, id)` | `id`'nin mevcut grubunu başlangıç grubu yapar; tüm grupları drain eder, başlangıç tab'larını tekrar eklememek için retain uygular ve sonucu group `0` olarak yazar. |
+
+`select_next_tab` ve `select_previous_tab` yalnız mevcut grubun içinde döner ve
+hedef tab'ın `AnyWindowHandle`'ı üzerinde `activate_window()` çağırır
+(`gpui/src/app.rs:532-563`). Grup değiştirme action'ları ise
+`get_next_tab_group_window` / `get_prev_tab_group_window` üzerinden çalışır;
+bu fonksiyonlarda group key sırası `HashMap` key sırası olduğu için kaynakta
+zaten "next/previous ne demek?" TODO'su vardır (`gpui/src/app.rs:326-360`).
+
 **Tab genişliği ölçümü** (`system_window_tabs.rs:455-471`): Tab bar
 render'ı bir görünmez `canvas` element içerir. `canvas` iki callback
 alır (`gpui/src/elements/canvas.rs:10-13`): `prepaint: FnOnce(Bounds,
@@ -1979,7 +2013,7 @@ rg -n 'on_drag|last_dragged_tab|drag_over::<DraggedWindowTab>|on_drop|on_mouse_u
 Fullscreen ve tab render ayrıntıları:
 
 ```sh
-rg -n 'is_fullscreen|render_right_window_controls|show_window_menu|SystemWindowTabs|Tab::content_height|Tab::container_height|measured_tab_width|max\(rem_size|ShowCloseButton|ClosePosition|visible_on_hover|drop_target|IconButton::new\("plus"' \
+rg -n 'is_fullscreen|render_left_window_controls|render_right_window_controls|show_window_menu|CLIENT_SIDE_DECORATION_ROUNDING|mt\(px\(-1|SystemWindowTabs|Tab::content_height|Tab::container_height|measured_tab_width|max\(rem_size|ShowCloseButton|ClosePosition|visible_on_hover|drop_target|IconButton::new\("plus"' \
   ../zed/crates/platform_title_bar/src \
   ../zed/crates/ui/src/components/tab.rs \
   ../zed/crates/settings_content/src/workspace.rs
@@ -1992,6 +2026,13 @@ rg -n 'observe_global::<SettingsStore>|was_use_system_window_tabs|set_tabbing_id
   ../zed/crates/platform_title_bar/src/system_window_tabs.rs \
   ../zed/crates/gpui/src/window.rs \
   ../zed/crates/zed/src/zed.rs
+```
+
+Controller grup mutasyonlarını görmek için:
+
+```sh
+rg -n 'pub fn (add_tab|remove_tab|move_tab_to_new_window|merge_all_windows|update_tab_position|update_tab_title|select_next_tab|select_previous_tab|get_next_tab_group_window|get_prev_tab_group_window)' \
+  ../zed/crates/gpui/src/app.rs
 ```
 
 Pencere seçenekleri ve CSD bağlantılarını kontrol etmek için:
