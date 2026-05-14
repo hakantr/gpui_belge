@@ -812,6 +812,39 @@ pub struct HighlightStyle {
   `refine` eder; `None` katmanı alttakini korur, `Some` katmanı override
   eder.
 - `Default::default()` → tüm alanlar `None` (nötr).
+- `Eq` ve `Hash` `f32` `fade_out` için elle implement edilir (
+  `f.to_be_bytes()` ile `u32`'ye çevrilir; `NaN`'ler `0`'a düşer).
+- `Copy + Clone` — pahalı klon değil; tüple iterasyonunda kopyalayarak
+  taşı.
+
+#### `UnderlineStyle` ve `StrikethroughStyle`
+
+`HighlightStyle.underline` ve `.strikethrough` alanlarının iç tipleri
+(`gpui::style`):
+
+```rust
+#[derive(Refineable, Copy, Clone, Default, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+pub struct UnderlineStyle {
+    pub thickness: Pixels,    // kalınlık
+    pub color: Option<Hsla>,  // None → text color
+    pub wavy: bool,           // imla denetleyicisi gibi dalgalı çizgi
+}
+
+#[derive(Refineable, Copy, Clone, Default, Debug, PartialEq, Eq, Hash, Serialize, Deserialize, JsonSchema)]
+pub struct StrikethroughStyle {
+    pub thickness: Pixels,
+    pub color: Option<Hsla>,
+}
+```
+
+Tema JSON sözleşmesinde syntax stillerinin underline/strikethrough alanları
+**doğrudan yoktur** — `refine_theme` / `modify_theme` syntax block'ta yalnız
+`color`, `background_color`, `font_style`, `font_weight` parse eder
+(`refine_theme`, `theme_settings.rs:313-329`); `underline/strikethrough/fade_out`
+`Default::default()`'tan gelir (her zaman `None` / nötr). Yani **tema
+yazarı bir syntax token'ı altı çizili gösteremez** — bu kısıtlama bilinçli
+ve Zed pin'inde geçerli. Mirror'da aynı sınır tutulmalı; aksi halde tema
+sözleşmesi şişirilir.
 
 **Tema'da kullanım** (`Theme::from_content` içinde):
 
@@ -2734,7 +2767,8 @@ modeline bağlar: settings değişir → uygun `Theme` ve `IconTheme` registry'd
 }
 ```
 
-**Lookup mantığı (UI tüketicisi):**
+**Lookup mantığı (Zed `file_icons` crate paritesi —
+`crates/file_icons/src/file_icons.rs`):**
 
 ```rust
 pub fn icon_for_type(typ: &str, active: &IconTheme, default: &IconTheme) -> Option<&str> {
@@ -2745,23 +2779,54 @@ pub fn icon_for_type(typ: &str, active: &IconTheme, default: &IconTheme) -> Opti
         .map(|d| d.path.as_ref())
 }
 
-pub fn icon_for_file(name: &str, active: &IconTheme, default: &IconTheme) -> Option<&str> {
-    let id = active
-        .file_stems
-        .get(name)
-        .or_else(|| std::path::Path::new(name)
-            .extension()
-            .and_then(|e| e.to_str())
-            .and_then(|ext| active.file_suffixes.get(ext)))?;
+pub fn get_icon(path: &Path, active: &IconTheme, default: &IconTheme) -> Option<SharedString> {
+    let resolve = |suffix: &str| -> Option<SharedString> {
+        active
+            .file_stems
+            .get(suffix)
+            .or_else(|| active.file_suffixes.get(suffix))
+            .and_then(|typ| icon_for_type(typ, active, default).map(SharedString::from))
+    };
 
-    icon_for_type(id, active, default)
+    // 1. Tam dosya adı: "eslint.config.js" gibi full match
+    if let Some(mut typ) = path.file_name().and_then(|n| n.to_str()) {
+        if let Some(p) = resolve(typ) { return Some(p); }
+
+        // 2. Nokta ile bölünen suffix'leri sırayla dene:
+        //    "auth.module.js" → "module.js" → "js"
+        while let Some((_, suffix)) = typ.split_once('.') {
+            if let Some(p) = resolve(suffix) { return Some(p); }
+            typ = suffix;
+        }
+    }
+
+    // 3. Multi-extension: "Component.stories.tsx" gibi alternatif suffix
+    if let Some(suffix) = path.multiple_extensions() {
+        if let Some(p) = resolve(suffix.as_str()) { return Some(p); }
+    }
+
+    // 4. Normal extension veya hidden file adı (`.gitignore`)
+    if let Some(suffix) = path.extension_or_hidden_file_name() {
+        if let Some(p) = resolve(suffix) { return Some(p); }
+    }
+
+    // 5. Sadece normal extension: ".data.json" → "json"
+    if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
+        if let Some(p) = resolve(ext) { return Some(p); }
+    }
+
+    // 6. "default" tipine düş (her icon theme'de bulunmalı)
+    icon_for_type("default", active, default).map(SharedString::from)
 }
 ```
 
-Zed'in gerçek lookup'ı bundan daha geniştir: `file_icons` crate'i önce tam
-dosya adını, sonra nokta ile bölünen suffix'leri, çoklu uzantıları, hidden
-file adını ve normal uzantıyı dener; sonuç yoksa `"default"` tipine düşer.
-Klasör ve chevron icon'larında da aktif temadan default icon theme'e fallback
+Yani **lookup zinciri 6 katmanlıdır**: tam ad → dot-suffix loop →
+`multiple_extensions` → `extension_or_hidden_file_name` → ham `extension`
+→ `"default"` tipi. Her katmanda önce aktif tema'nın `file_stems`/`file_suffixes`
+haritası, sonra `file_icons` aramasıyla aktif → default fallback yapılır.
+Klasör ve chevron icon'larında ayrıca **3 katman**: `named_directory_icons`
+(klasör adına özel) → `directory_icons` (jenerik) → her ikisinde de aktif →
+default → expanded/collapsed slot ayrımı.
 vardır.
 
 **Asset yükleme:** Icon path'leri (örn. `icons/rust.svg`) `AssetSource`
@@ -3485,7 +3550,63 @@ parser "değer geçerli mi?" sorusunu cevaplar.
    bilinçli.
 5. **Bilinmeyen enum'a panic**: `font_style: "semi_oblique"` —
    `FontStyleContent` `SemiOblique`'i tanımıyor. Default deserialize
-   panic. Çözüm: `treat_error_as_none` (Konu 21).
+   panic. Çözüm: `#[with_fallible_options]` macro (Konu 21).
+
+#### `MergeFrom` derive davranış matrisi
+
+`*Content` tipleri `#[derive(..., MergeFrom)]` ile işaretlenir. Zed settings
+hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom`
+üzerinden çalışır** — `default` baz değerleri sağlar, kullanıcı ve proje
+settings'i üstüne merge edilir. Bu trait `settings_content/src/merge_from.rs`
+içinde tanımlıdır; alan tipine göre davranış farklıdır:
+
+| Alan tipi | `merge_from(self, other)` davranışı | Etki |
+|-----------|-------------------------------------|------|
+| Primitive (`u16`, `u32`, `i*`, `bool`, `f32`, `f64`, `char`, `usize`, `NonZeroUsize`, `NonZeroU32`) | `*self = other.clone()` | **Overwrite** — kullanıcı değeri default'u tamamen ezer |
+| `String`, `Arc<str>`, `PathBuf`, `Arc<Path>` | overwrite | Aynı: tek bir scalar, üzerine yaz |
+| `Option<T>` | `None` ise yok say; mevcut `Some` + yeni `Some` → recursive merge (`this.merge_from(other)`); mevcut `None` + yeni `Some` → `replace(other.clone())` | Recursive merge için en uygun tip |
+| `Vec<T>` | `*self = other.clone()` | **Overwrite** (concat değil) — `accents: ["#aaa"]` user'ı default `accents`'i siler |
+| `Box<T: MergeFrom>` | `self.as_mut().merge_from(other.as_ref())` | Pointer içeriği recursive merge |
+| `HashMap<K, V: MergeFrom>` / `BTreeMap` / `IndexMap` | Her key için: varsa recursive merge, yoksa insert | Map'lerin key-bazlı birleşmesi (örn. `theme_overrides`) |
+| `HashSet<T>` / `BTreeSet<T>` | union (her item insert) | Set'ler |
+| `serde_json::Value` | Object → recursive merge; aksi halde overwrite | Free-form JSON için akıllı merge |
+
+**Tema sözleşmesi için kritik sonuçlar:**
+
+1. **`accents: Vec<AccentContent>` overwrite davranır**. Kullanıcı
+   `experimental.theme_overrides.accents = ["#abc"]` yazdığında
+   tema'nın baseline accent listesi silinir. Bunun istenmeyen yan etkisi
+   var: tek bir rengi değiştirmek için kullanıcı tüm listeyi yeniden
+   yazmalıdır. `merge_accent_colors` (Konu 26 Adım 5) bu davranışı
+   `theme_overrides` zinciri içinde **partial fallback** ile yumuşatır
+   ama JSON merge seviyesinde liste hâlâ atomic.
+
+2. **`theme_overrides: HashMap<String, ThemeStyleContent>` key-bazlı
+   merge**. Kullanıcı yalnız `"One Dark": { ... }` yazsa bile
+   `default.json`'da bulunan diğer tema override'ları korunur. Aynı tema
+   adı için iki katmanda override varsa içleri recursive merge edilir.
+
+3. **`Option<ThemeSelection>` recursive merge**. `default.json`'da
+   `theme = Static("One Dark")`, user'da `theme = Dynamic { mode: System,
+   light: ..., dark: ... }` ise: `Some + Some` → recursive `merge_from`
+   çalışır. `ThemeSelection` kendisi `MergeFrom` derive'a sahip olduğu
+   için variant değişebilir; ama bu derive enum davranışı **iç
+   değerleri birleştirmek değil, override etmektir** (variant'lar farklı).
+
+4. **Color string'leri `Option<String>` olduğu için her renk alanı**:
+   - default'ta verilmemiş, user'da var → user değeri yazılır
+   - default'ta var, user'da yok → default korunur
+   - default'ta var, user'da var → user değeri yazılır (`String` overwrite)
+
+Bu davranış matrisi `treat_error_as_none` vs. `with_fallible_options`
+geçişinden bağımsızdır; ikisi de **parse seviyesinde**, MergeFrom ise
+**post-parse merge seviyesinde** çalışır.
+
+> **Mirror disiplini:** `kvs_tema` veya `kvs_ayarlari_icerik` crate'i bir
+> `MergeFrom` derive macro'su mirror etmelidir (veya `settings_macros`
+> crate'ini bağımlı bağlamalıdır). Tema sözleşmesi `MergeFrom`'a güvenir;
+> elle `merge_from` yazmak (her *Content tipi için) çok dağınık ve hata
+> kaynağı olur.
 
 ---
 
@@ -3713,7 +3834,7 @@ etmedin. JSON'da bu anahtar var:
 **Bu kural keskin:** Tema sözleşmesinin **hiçbir** Content tipinde
 `deny_unknown_fields` kullanma.
 
-#### Vektör 2: Bilinmeyen enum değerleri — `treat_error_as_none`
+#### Vektör 2: Bilinmeyen enum değerleri — `#[with_fallible_options]`
 
 Enum alanlar için varsayılan davranış farklı: serde bilinmeyen variant
 gördüğünde `Err` döner.
@@ -3723,55 +3844,82 @@ gördüğünde `Err` döner.
 
 - Standart deserialize: `Err("unknown variant semi_oblique, expected one
   of normal, italic, oblique")`. Tüm tema patlar.
-- `treat_error_as_none` ile: Alan `None`'a düşer, devam eder.
+- `#[with_fallible_options]` ile: Alan `None`'a düşer, devam eder; hata
+  thread-local hata listesinde biriktirilir ve dosyanın `ParseStatus`'una
+  yansıtılır.
 
-**Custom deserializer implementasyonu:**
+**Zed paritesi (`settings_macros::with_fallible_options` +
+`settings_content::fallible_options::deserialize`):** Önceki rehber
+sürümünde `treat_error_as_none` adlı elle yazılmış bir custom deserializer
+gösteriliyordu. Güncel Zed kodu `treat_error_as_none` adını kaldırdı; aynı
+davranış artık iki parça halinde gelir:
+
+1. **Attribute macro** (`#[with_fallible_options]`): struct/enum üstüne
+   yerleştirilir. Macro her `Option<T>` alanı için otomatik şu attribute'u
+   ekler:
+   ```rust
+   #[serde(
+       default,
+       skip_serializing_if = "Option::is_none",
+       deserialize_with = "crate::fallible_options::deserialize",
+   )]
+   ```
+   Yani **elle `#[serde(deserialize_with = "...")]` yazmazsın**; macro tüm
+   `Option<T>` alanlarını işaretler. Bu hem hatırlama yükünü azaltır hem
+   de yeni alan eklendiğinde unutma riski sıfırdır.
+
+2. **`fallible_options::deserialize` fonksiyonu**: Tek tek alanı çağırır;
+   hata varsa thread-local `ERRORS` listesine ekler ve `Default::default()`
+   (yani `None`) döndürür. `ERRORS` `None` ise (parse_json çağrılmadıysa)
+   hatayı yutmaz, yukarı kabarcıklar.
+
+3. **`fallible_options::parse_json::<T>(json)`**: Top-level çağrı.
+   `ERRORS` thread-local'ını sıfırlar, parse'ı çalıştırır, bittikten sonra
+   biriken hataları toplar ve `(Option<T>, ParseStatus)` döner. `ParseStatus`
+   `Success` veya `Failed { error: String }` olur.
+
+**Mekanizma (kullanıcı tarafından görünmeyen):**
+
+1. `parse_json::<ThemeColorsContent>(json)` çağrılır.
+2. Her `Option<T>` alanı için macro tarafından eklenen
+   `fallible_options::deserialize` çağrılır.
+3. Bir alan parse hata verirse → hata thread-local'a yazılır, alan `None`
+   olarak set edilir, parse devam eder.
+4. Tüm parse bitince `ParseStatus` döner; UI gerekirse uyarı gösterir,
+   eksik alan baseline'dan dolar.
+
+**Kullanım (mirror tarafı):**
 
 ```rust
-/// JSON deserializer'ları için: bilinmeyen değer hatasını None'a çevir.
-/// Örnek: kullanıcı `font_weight: "bold"` yazsa bile parse devam etsin.
-fn treat_error_as_none<'de, T, D>(deserializer: D) -> Result<Option<T>, D::Error>
-where
-    T: serde::Deserialize<'de>,
-    D: serde::Deserializer<'de>,
-{
-    let value: serde_json::Value = serde::Deserialize::deserialize(deserializer)?;
-    Ok(T::deserialize(value).ok())
-}
-```
-
-**Mekanizma:**
-
-1. Önce alanı `serde_json::Value` olarak alır (her zaman başarılı, çünkü
-   `Value` herhangi bir JSON'u alır).
-2. `T::deserialize(value)` ile asıl tipe çevirir.
-3. Başarılı: `Ok(Some(t))`. Başarısız: `Ok(None)` — hata yutulur.
-
-**Kullanım:**
-
-```rust
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[settings_macros::with_fallible_options]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema, MergeFrom)]
 pub struct HighlightStyleContent {
     pub color: Option<String>,
-    #[serde(default, deserialize_with = "treat_error_as_none")]
     pub background_color: Option<String>,
-    #[serde(default, deserialize_with = "treat_error_as_none")]
     pub font_style: Option<FontStyleContent>,
-    #[serde(default, deserialize_with = "treat_error_as_none")]
     pub font_weight: Option<FontWeightContent>,
 }
 ```
 
 > **Notlar:**
 >
-> - `color` alanı `treat_error_as_none` kullanmaz çünkü `String` zaten
->   bilinmeyen değer kavramına sahip değil — herhangi bir string parse
->   edilir, içerik kontrolü `try_parse_color`'a düşer.
-> - `font_style` ve `font_weight` `treat_error_as_none` ister çünkü
->   bunlar enum/newtype — bilinmeyen variant veya yanlış tip parse'ı
->   patlatır.
-> - `#[serde(default, deserialize_with = "...")]` — iki annotation **tek
->   `serde` parantezi** içinde virgülle ayrılır.
+> - `color` alanı `Option<String>` olduğu için yine macro tarafından
+>   `fallible_options::deserialize`'a bağlanır; `String` parse'ı pratikte
+>   sadece "JSON değeri string mi" kontrolü yapar — geçersiz tip (`"color": 3`)
+>   alanı `None`'a düşürür, devamı bozmaz.
+> - `font_style` ve `font_weight` enum/newtype olduğu için bilinmeyen
+>   variant burada da sessizce `None` olur.
+> - Macro yalnız `Option<T>` alanlarını işaretler; `Vec<T>`, `String`,
+>   primitive alanlar etkilenmez — onların hatası hâlâ üst seviyeyi patlatır.
+> - `serde_json_lenient` deserializer'ı (`parse_json` içinde kullanılır)
+>   trailing comma'ları ve comment'leri kabul eder; bu da kullanıcı dostu
+>   editör deneyimine ek toleranstır.
+
+**Eski örnekleri çevirme rehberi:** `#[serde(default, deserialize_with =
+"treat_error_as_none")]` görürsen, struct üstüne `#[with_fallible_options]`
+ekle ve alan attribute'larını **sil**. İki yaklaşımı aynı struct'ta karıştırma
+— macro'nun eklediği attribute ile çakışan elle attribute "duplicate
+attribute" hatası verir.
 
 #### Hata tolerans matrisi
 
@@ -10586,9 +10734,18 @@ yoğunluk sorgulanır. Kendi component crate'in varsa `tema_ayarlari(cx).ui_dens
 
 ```jsonc
 {
-  "ui_density": "comfortable"
+  "unstable.ui_density": "comfortable"
 }
 ```
+
+> **JSON anahtarı `"unstable.ui_density"`** (`settings_content/src/theme.rs:166`).
+> `ThemeSettingsContent.ui_density` alanı `#[serde(rename = "unstable.ui_density")]`
+> ile işaretli; düz `"ui_density"` anahtarı **tanınmaz**, parse'ta `None`
+> kalır ve default değer (`UiDensity::Default`) etkin olur. Mirror tarafta
+> aynı rename'i koymak zorunludur; aksi halde Zed-uyumlu kullanıcı
+> ayar dosyaları density'yi göstermez. Zed `unstable.` ön ekini "API hâlâ
+> kararsız" işareti olarak kullanır — kararlılaşırsa rename değişebilir;
+> sync turunda kontrol et.
 
 #### 43.4 `all_theme_colors` ve `ThemeColorField` — reflection API
 
@@ -11251,6 +11408,17 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `ThemeRegistry::clear()` davranışı | `theme/src/registry.rs:176-178` | Sadece `themes` HashMap'ini temizler — `icon_themes` HashMap'ine **dokunmaz**. Test/reset senaryolarında icon themes ayrıca `remove_icon_themes(...)` ile temizlenmelidir |
 | `ThemeRegistry::load_icon_theme` baseline merge davranışı | `theme/src/registry.rs:250-330`, `file_icons/src/file_icons.rs:89-164` | Yüklenen icon theme'in `file_stems`, `file_suffixes`, `named_directory_icons` haritaları **default icon theme üstüne extend edilir**. `file_icons`, `directory_icons`, `chevron_icons` constructor'da default'tan kopyalanmaz; UI lookup eksik dosya tipi, klasör ve chevron path'lerinde `file_icons` crate'i üzerinden default icon theme'e düşer. Her tema için yeni UUID atanır |
 | `Refineable` trait yüzeyi tam katalog | `refineable/src/refineable.rs:29-131` | `Refineable`: `refine`, `refined`, `from_cascade`, `is_superset_of`, `subtract`; `IsEmpty`: `is_empty`; `Cascade<S>` metotları: `reserve`, `base`, `set`, `merged`; `CascadeSlot` yalnız slot handle'ıdır. Tema sistemi `from_cascade`/`Cascade` kullanmaz ama refineable trait sözleşmesi tam mirror edilmelidir |
+| `#[with_fallible_options]` macro | `settings_macros/src/settings_macros.rs:110-152` | `Option<T>` alanlarına otomatik `#[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::fallible_options::deserialize")]` ekler. **`treat_error_as_none` adı kaldırıldı** — eski rehber yanlış. Davranış aynı: parse hatası alan `None`'a düşer, thread-local hata listesine eklenir |
+| `fallible_options::parse_json`, `deserialize` | `settings_content/src/fallible_options.rs:11-65` | Top-level parse fonksiyonu (`parse_json::<T>(json) -> (Option<T>, ParseStatus)`); thread-local `ERRORS` listesi parse sırasında biriken hataları toplar. `ParseStatus::{Success, Failed { error }}` üretir; UI hata mesajını gösterir |
+| `MergeFrom` trait + derive | `settings_content/src/merge_from.rs:17-174`, `settings_macros::MergeFrom` | Primitive overwrite, `Option<T>` recursive merge, `Vec<T>` overwrite (concat değil), `HashMap/BTreeMap/IndexMap` key-bazlı recursive merge, `HashSet/BTreeSet` union, `serde_json::Value` Object recursive. Konu 19'da davranış matrisi tam tablo |
+| `ThemeSettingsContent.ui_density` JSON rename | `settings_content/src/theme.rs:166-167` | `#[serde(rename = "unstable.ui_density")]` — kullanıcı JSON'unda **`"unstable.ui_density"`** yazmalıdır; `"ui_density"` çalışmaz. Konu 43.3'te düzeltildi |
+| `ThemeSettingsContent` schemars tag'leri | `settings_content/src/theme.rs:124-171` | `ui_font_fallbacks`, `buffer_font_fallbacks` `#[schemars(extend("uniqueItems" = true))]`; `unnecessary_code_fade` `#[schemars(range(min = 0.0, max = 0.9))]`; her font alanı `#[schemars(default = "...")]` ile default value fonksiyonu işaretli |
+| `FontSize` newtype derive list'i | `settings_content/src/theme.rs:186-200` | `Clone, Copy, Debug, Serialize, Deserialize, JsonSchema, MergeFrom, PartialEq, PartialOrd, derive_more::FromStr` ve `#[serde(transparent)]`. Serialize iki ondalık basamakla (`serialize_f32_with_two_decimal_places`). Display formatı `{:.2}` |
+| `UnderlineStyle`, `StrikethroughStyle` (`gpui::style:783-804`) | `gpui/src/style.rs` | `UnderlineStyle { thickness, color, wavy }`, `StrikethroughStyle { thickness, color }`. İkisi de `Refineable + Copy + Eq + Hash + JsonSchema`. Tema JSON sözleşmesinde syntax stillerinin underline/strikethrough alanları **YOK**; `refine_theme` her ikisini de `Default::default()` (nötr) bırakır. Konu 7'de işlendi |
+| `HighlightStyle.fade_out` `Hash` impl | `gpui/src/style.rs:562-574` | `f32` `Hash` türetilemez; `to_be_bytes()` ile `u32`'ye çevrilip hashlenir. Mirror tarafta elle implement edilir veya GPUI'nin `HighlightStyle`'ı doğrudan kullanılır |
+| `ThemeRegistry::default()` | `theme/src/registry.rs:327-331` | `Default for ThemeRegistry` impl'i `Self::new(Box::new(()))` — boş asset source ile constructor. Test'te `ThemeRegistry::default()` kısa yol; asset gerektiren testler `Box::new(()) as Box<dyn AssetSource>` parametresini açık geçirir |
+| `file_icons` crate lookup zinciri | `file_icons/src/file_icons.rs:20-82` | `FileIcons::get_icon(path, cx)` 6 katmanlı: tam ad → dot-suffix loop → `multiple_extensions` → `extension_or_hidden_file_name` → ham `extension` → `"default"` tipi. Her katmanda `file_stems` veya `file_suffixes` aktif themasında lookup, sonra `file_icons` aktif → default fallback. Konu 17'de tam akış işlendi |
+| `file_icons::get_folder_icon`, `get_chevron_icon`, `get_generic_folder_icon` | `file_icons/src/file_icons.rs:102-165` | 3 katmanlı fallback: önce `named_directory_icons` (klasör adına özel), sonra `directory_icons` (jenerik), her ikisinde de aktif → default tema fallback. Chevron: yalnız aktif → default. Expanded/collapsed slot ayrımı her katmanda korunur |
 
 Küçük method yüzeyleri:
 
