@@ -244,6 +244,29 @@ variant'ları ayrıca kontrol edilmelidir:
   `DateTimeType::{Naive(NaiveDateTime), Local(DateTime<Local>)}` gibi
   variant'lar yalnızca isim değil, veri taşıyan public construction yüzeyidir.
 
+`pub` taramasının kaçırdığı bir diğer sınıf public trait implementasyonlarıdır.
+`impl From<...> for PublicType` satırında `pub` yazmaz, ama dış crate için
+ergonomik construction yüzeyi oluşturur. Kaynakta doğrulanan dönüşümler:
+
+- `ToggleState`: `From<bool>` ve `From<Option<bool>>`; `None`,
+  `Indeterminate` anlamına gelir.
+- `Color`: `From<Hsla>`, `From<TintColor>`, `From<ButtonStyle>` ve
+  `From<SwitchColor>`. `ButtonStyle::Tinted(tint)` tint rengini taşır; diğer
+  button stilleri `Color::Default` olur. `SwitchColor::Custom(_)` da `Color`
+  dönüşümünde custom rengi taşımaz, `Default` döner.
+- `AnyIcon`: `From<Icon>` ve `From<AnimationElement<Icon>>`; `Icon` ise
+  `From<IconName>` sağlar.
+- `SplitButtonKind`: `From<IconButton>` ve `From<ButtonLike>`. Bu yüzden
+  `SplitButton::new(left, right)` sol parçada iki component türünü kabul eder.
+- `EmptyMessage`: `From<String>`, `From<&str>` ve `From<AnyElement>`.
+- `SectionHeader`: `From<SharedString>` ve `From<&'static str>`.
+- `ContextMenuItem`: `From<ContextMenuEntry>`.
+
+Private tiplerdeki dönüşümler tüketici yüzeyi sayılmaz. Örneğin
+`tooltip.rs` içindeki private `Title` enum'u için `From<SharedString>` vardır,
+ancak dış API `Tooltip::text(...)`, `Tooltip::simple(...)` ve
+`Tooltip::for_action*` constructor'ları üzerinden görünür.
+
 #### İmzası özellikle kontrol edilen lifecycle API'leri
 
 Bu grup, callback imzaları veya generic bound'ları nedeniyle en kolay yanlış
