@@ -5896,9 +5896,10 @@ Diğer UI yardımcıları:
 - `WithRemSize::new(px(...))` child ağacında `window.with_rem_size` uygular;
   özel preview veya küçük component ölçeklemesi için kullanılır.
 - `Scrollbars::new(ScrollAxes::Vertical)` ve `.vertical_scrollbar_for(handle,
-  window, cx)` Zed'in custom scrollbar katmanıdır. `ShowScrollbar::{Auto,
-  System, Always, Never}` ayarını `ScrollbarVisibility` global'i üzerinden
-  platform auto-hide davranışıyla birleştirir.
+  window, cx)` Zed'in custom scrollbar katmanıdır. Görünürlük ayarı crate
+  kökünde değil `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility,
+  ScrollbarAutoHide}` namespace'i altındadır; `ScrollbarVisibility` settings
+  trait'i, `ScrollbarAutoHide` ise auto-hide durumunu taşıyan `Global` tipidir.
 
 Tuzaklar:
 
@@ -5922,17 +5923,26 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 - Liste/tree: `List`, `ListItem`, `ListHeader`, `ListSubHeader`, `ListSeparator`,
   `TreeViewItem`, `StickyItems`, `IndentGuides`
 - Tab: `Tab`, `TabBar`
-- Layout yardımcıları: `h_flex`, `v_flex`, `h_group*`, `v_group*`, `Stack`,
-  `Group`, `Divider`
-- Veri: `Table`, `TableInteractionState`, `RedistributableColumnsState`,
-  `render_table_row`, `render_table_header`
-- Feedback: `Banner`, `Callout`, `Modal`, `AlertModal`, `AnnouncementToast`,
-  `Notification`, `CountBadge`, `Indicator`, `ProgressBar`, `CircularProgress`
-- Diğer: `Avatar`, `Facepile`, `Chip`, `DiffStat`, `Disclosure`,
-  `GradientFade`, `Image`, `KeyBinding`, `KeybindingHint`, `Navigable`,
-  `RedistributableColumnsState` + `bind_redistributable_columns()` /
-  `render_redistributable_columns_resize_handles()` (yeniden boyutlanabilir
-  tablo başlıkları için state + helper fonksiyon çifti)
+- Layout yardımcıları: `h_flex`, `v_flex`, `h_group*`, `v_group*`, `Divider`,
+  `Scrollbars`. `Stack` ve `Group` adında public struct yoktur; bunlar helper
+  fonksiyon ailesidir.
+- Veri: `Table`, `TableInteractionState`, `ColumnWidthConfig`,
+  `StaticColumnWidths`, `ResizableColumnsState`, `RedistributableColumnsState`,
+  `TableResizeBehavior`, `TableRow`, `render_table_row`,
+  `render_table_header`, `bind_redistributable_columns()` ve
+  `render_redistributable_columns_resize_handles()`.
+- Feedback: `Banner`, `Callout`, `Modal`, `ModalHeader`, `ModalFooter`,
+  `ModalRow`, `Section`, `SectionHeader`, `AlertModal`,
+  `AnnouncementToast`, `CountBadge`, `Indicator`, `ProgressBar`,
+  `CircularProgress`. `ui::Notification` standalone component değildir;
+  workspace bildirim sistemi ayrı `workspace::notifications` trait'leriyle
+  yönetilir.
+- Diğer: `Avatar`, `AvatarAudioStatusIndicator`,
+  `AvatarAvailabilityIndicator`, `Facepile`, `Chip`, `DiffStat`,
+  `Disclosure`, `GradientFade`, `Vector`, `VectorName`, `KeyBinding`,
+  `KeybindingHint`, `Navigable`. `Image` adında public Zed UI component'i yoktur;
+  raster görsel için GPUI `img(...)` / `ImageSource`, bundled SVG için
+  `Vector` kullanılır.
 - AI/collab özel: `AiSettingItem`, `AgentSetupButton`, `ThreadItem`,
   `ConfiguredApiCard`, `CollabNotification`, `UpdateButton`
 
