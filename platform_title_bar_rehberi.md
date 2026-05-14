@@ -934,6 +934,29 @@ tipik örneği: `pub struct` olarak yazılmıştır, fakat modülü crate kökü
 - En sonda internal `SystemWindowTabs` child olarak eklenir
   (`platform_title_bar.rs:322-325`).
 
+**Render pipeline sıralaması** (awk `.map(\|this\|` taraması, `render`
+gövdesinde dört ardışık dönüşüm aşaması açığa çıkarır):
+
+| Aşama | Yer | İş |
+| :-- | :-- | :-- |
+| 1 | `platform_title_bar.rs:199-221` | **Drag tespiti**: `on_mouse_down/up/down_out/move` zincirinin `should_move` bayrağıyla `window.start_window_move()` tetiklemesi. Bu aşama her zaman ilk uygulanır; sonraki stage'ler bu state'in üstüne kurulur. |
+| 2 | `platform_title_bar.rs:222-239` | **ID + çift tıklama**: `this.id(self.id.clone())` + Mac/Linux platform branch'leri `on_click`'i `event.click_count() == 2` kontrolüyle `titlebar_double_click` / `zoom_window`'a yönlendirir. Windows branch'i yoktur. |
+| 3 | `platform_title_bar.rs:240-261` | **Sol kenar padding/kontrolleri**: 4-yollu seçim — fullscreen ise `pl_2`, Mac + show_left_controls ise `pl(TRAFFIC_LIGHT_PADDING)`, Linux + CSD + dolu sol layout ise `render_left_window_controls(...)` child, aksi halde `pl_2` fallback. |
+| 4 | `platform_title_bar.rs:262-280` | **Decorations branch**: `match decorations` — `Server` ise `el` olduğu gibi; `Client { tiling, .. }` ise tiled olmayan üst köşelere `rounded_tr/tl(CLIENT_SIDE_DECORATION_ROUNDING)` + `mt(-1)/mb(-1)/border(1)` transparent gap düzeltmesi. |
+
+Bu zincirden sonra `.bg(titlebar_color).content_stretch().child(div().children(children))`
+gelir (ana içerik), sonra `.when(!is_fullscreen, |title_bar| ...)` zinciri
+sağ kontroller ve window_menu sağ-tık handler'ını ekler. Stage'ler
+**commutative değildir**: stage 3'teki sol padding seçimi, stage 4'teki
+corner rounding'in yatay hizalamasını etkiler.
+
+`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipindedir
+(`platform_title_bar.rs:31`). İki element için stack-inline kapasite
+ayrılmış — Zed'in tipik kullanım kalıbı **sol grup + sağ grup**
+şeklindedir (bkz. bu rehberin Konu 12 örneği). İkiden fazla element
+verirseniz heap allocate edilir; iki gruba sıkıştırmak hem ergonomik
+hem alokasyon-az'dır.
+
 ### `platforms::platform_linux`
 
 | Dış API | İmza / tanım | Not |
@@ -1582,7 +1605,33 @@ crate'in `close_action` prop'u buraya geçmez (yalnızca Linux
 sekme kapatma davranışını farklılaştırmak istiyorsanız bu altı çağrı
 yerini ayrı ayrı override etmeniz gerekir; tek bir flag yetmez.
 
-Sağ tık menüsünde şu işlemler bulunur:
+Sağ tık menüsü `ui::right_click_menu(ix).trigger(...).menu(...)` builder
+zinciriyle kurulur (`system_window_tabs.rs:279-343`). Yapı:
+
+```rust
+right_click_menu(ix)
+    .trigger(|_, _, _| tab)               // tetikleyici element (tab'ın kendisi)
+    .menu(move |window, cx| {
+        ContextMenu::build(window, cx, move |mut menu, _, _| {
+            menu = menu.entry("Close Tab", None, ...);
+            menu = menu.entry("Close Other Tabs", None, ...);
+            menu = menu.entry("Move Tab to New Window", None, ...);
+            menu = menu.entry("Show All Tabs", None, ...);
+            menu.context(focus_handle)     // focus capturing
+        })
+    })
+```
+
+Dört menu entry'sinin her biri ayrı bir `move |window, cx| {...}` closure
+alır; her closure içinde `Self::handle_right_click_action(cx, window,
+&tabs_clone, |tab| predicate, |window, cx| body)` çağrılır. Tabs vec'i
+bu yüzden **dört kere clone'lanır** (`tabs.clone()`, `other_tabs.clone()`,
+`move_tabs.clone()`, `merge_tabs.clone()` — `system_window_tabs.rs:283-286`):
+her closure kendi owned kopyasına ihtiyaç duyar. Port hedefinde aynı
+builder pattern: `right_click_menu(id).trigger(trigger_fn).menu(menu_builder_fn)`;
+`menu()` callback'inde `ContextMenu::build` ile entry'ler eklenir.
+
+Menü işlemleri:
 
 - Close Tab (#5)
 - Close Other Tabs (#6)
