@@ -2661,10 +2661,16 @@ impl IconTheme {
 }
 ```
 
-UI temasından farklı: **refinement katmanı yok**. Icon tema'da
-baseline+kullanıcı birleştirme deseni şu an gerek değil (kullanıcı kendi
-icon tema'sını **bütünüyle** yazar, baseline ile karışım nadir). Mirror
-disiplini gereği gelecekte gerekirse `IconThemeRefinement` türetilir.
+UI temasından farklı: **refinement katmanı yok**; yani `Refineable`
+türevli alan-bazlı tema override hattı icon tema için çalışmaz. Buna rağmen
+Zed yükleme/lookup davranışı "tam replacement" değildir:
+`ThemeRegistry::load_icon_theme` kullanıcı temasının `file_stems`,
+`file_suffixes` ve `named_directory_icons` haritalarını default icon theme
+üstüne genişletir. `directory_icons`, `chevron_icons` ve `file_icons`
+runtime objesine kullanıcının verdiği haliyle girer; ancak `file_icons`
+crate'i lookup sırasında eksik dosya tipi, klasör ve chevron path'lerinde
+aktif temadan default icon theme'e düşer. Mirror tarafında bu iki aşamayı
+ayır: schema/refinement yok; registry yükleme ve UI lookup fallback'i var.
 
 **Rol:** Dosya/dizin/chevron icon'larının **kaynağını** tutar; UI sadece
 icon id'sini bilir, asıl SVG/PNG asset registry'sinden gelir.
@@ -2731,23 +2737,32 @@ modeline bağlar: settings değişir → uygun `Theme` ve `IconTheme` registry'd
 **Lookup mantığı (UI tüketicisi):**
 
 ```rust
-pub fn icon_for_file(name: &str, icon_theme: &IconTheme) -> Option<&str> {
-    // 1. Tam dosya adı (stem) eşleşmesi öncelikli
-    if let Some(id) = icon_theme.file_stems.get(name) {
-        return icon_theme.file_icons.get(id).map(|d| d.path.as_ref());
-    }
-    // 2. Uzantı bazlı eşleşme
-    if let Some(ext) = std::path::Path::new(name)
-        .extension()
-        .and_then(|e| e.to_str())
-    {
-        if let Some(id) = icon_theme.file_suffixes.get(ext) {
-            return icon_theme.file_icons.get(id).map(|d| d.path.as_ref());
-        }
-    }
-    None
+pub fn icon_for_type(typ: &str, active: &IconTheme, default: &IconTheme) -> Option<&str> {
+    active
+        .file_icons
+        .get(typ)
+        .or_else(|| default.file_icons.get(typ))
+        .map(|d| d.path.as_ref())
+}
+
+pub fn icon_for_file(name: &str, active: &IconTheme, default: &IconTheme) -> Option<&str> {
+    let id = active
+        .file_stems
+        .get(name)
+        .or_else(|| std::path::Path::new(name)
+            .extension()
+            .and_then(|e| e.to_str())
+            .and_then(|ext| active.file_suffixes.get(ext)))?;
+
+    icon_for_type(id, active, default)
 }
 ```
+
+Zed'in gerçek lookup'ı bundan daha geniştir: `file_icons` crate'i önce tam
+dosya adını, sonra nokta ile bölünen suffix'leri, çoklu uzantıları, hidden
+file adını ve normal uzantıyı dener; sonuç yoksa `"default"` tipine düşer.
+Klasör ve chevron icon'larında da aktif temadan default icon theme'e fallback
+vardır.
 
 **Asset yükleme:** Icon path'leri (örn. `icons/rust.svg`) `AssetSource`
 katmanından çözülür (Konu 33). `IconTheme` yalnız path'i tutar; SVG
@@ -5988,10 +6003,13 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
 > dark) çağrıldıktan sonra üst seviyede `theme_settings::init`
 > (`theme_settings/src/theme_settings.rs:68`) çağrılır; o adım
 > `set_theme_settings_provider` ile typography/density provider'ını kurar,
-> `LoadThemes::All` ise `load_bundled_themes` ile disk'teki kullanıcı
-> temalarını yükler, `configured_theme(cx)` ile settings dosyasından gelen
-> seçimi çözer ve `GlobalTheme::update_theme` + `update_icon_theme` ile
+> `LoadThemes::All` ise `load_bundled_themes` ile `assets/themes/*.json`
+> altındaki bundled tema asset'lerini yükler, `configured_theme(cx)` ile
+> settings dosyasından gelen seçimi çözer ve `GlobalTheme::update_theme` + `update_icon_theme` ile
 > aktif tema'yı **fallback dark'tan settings'in istediği temaya** geçirir.
+> Kullanıcı disk temaları bu adımın parçası değildir; onlar
+> `load_user_theme(registry, bytes)` / `deserialize_user_theme(bytes)`
+> yoluyla ayrıca registry'ye eklenir.
 > Mirror tarafta bu ayrımı koru: `kvs_tema::init` registry + GlobalTheme
 > default'unu kurar, `kvs_tema_ayarlari::init` provider + settings observer
 > + configured_theme akışını kurar. Tek init'te birleştirmek `kvs_tema`'yı
@@ -11221,9 +11239,9 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `Appearance::is_light`, `From<WindowAppearance>` | `theme.rs:63-78` | `is_light` `matches!(self, Light)`'tan kısa. `From<WindowAppearance>`: `Dark` ve `VibrantDark` → `Dark`; `Light` ve `VibrantLight` → `Light` (vibrant varyantları normal mapping'e düşer) |
 | `SystemAppearance::Default = Dark` | `theme.rs:142-146` | Sistem görünümü alınamazsa default Dark. Mirror tarafta aynı varsayılan tutulmalı; aksi halde init önce ekrana light tema gelir, sonra sistem dark'sa dark'a sıçrama olur |
 | `theme_settings::settings::BufferLineHeight` (`Comfortable`, `Standard`, `Custom(f32)`), `value()` | `theme_settings/src/settings.rs:340-369` | `Standard = 1.3`, `Comfortable = 1.618`, `Custom` doğrudan değer. Settings tarafında `f32 >= 1.0` kısıtı (`settings_content/src/theme.rs:452`) |
-| `try_parse_color` (`theme/src/schema.rs:1171`) | `theme/src/schema.rs` | Konu 20'de detaylı; 43.9'da public helper olarak teyit edilir |
+| `try_parse_color` (`theme/src/schema.rs:17`) | `theme/src/schema.rs` | Konu 20'de detaylı; 43.9'da public helper olarak teyit edilir |
 | `gpui::Rgba::try_from(&str)` desteklediği formatlar | `gpui/src/color.rs:162-256` | **Dört format**: `#rgb` (3 hane, çiftleme), `#rgba` (4 hane, çiftleme), `#rrggbb` (6 hane), `#rrggbbaa` (8 hane). `#` zorunlu; trim yapılır. Konu 20 düzeltildi |
-| `AppearanceContent` (`theme/src/schema.rs:1165`) | `theme/src/schema.rs` | JSON `appearance` alanının enum mirror'ı (`Light` / `Dark`); Konu 18'de kullanılır |
+| `AppearanceContent` (`theme/src/schema.rs:11`) | `theme/src/schema.rs` | JSON `appearance` alanının enum mirror'ı (`Light` / `Dark`); Konu 18'de kullanılır |
 | `theme_settings::init` observer 7 değişken tracking'i | `theme_settings/src/theme_settings.rs:85-142` | Settings değişiminde `reset_*_font_size` (4), `reload_theme` (theme_name veya overrides) (1+1=2), `reload_icon_theme` (1). Toplam 7 izleme alanı; eksik tracking font size resync bug'ına yol açar. Konu 31'de düzeltildi |
 | `theme_settings::init` 2 katmanlı init paritesi | `theme_settings/src/theme_settings.rs:64-83` | `theme::init` (registry + fallback dark + GlobalTheme) ÇAĞRIDIKTAN SONRA `set_theme_settings_provider`, `load_bundled_themes` (LoadThemes::All ise), `configured_theme` ile settings'ten gelen seçimi çözüp `GlobalTheme::update_theme` + `update_icon_theme`. Mirror'da iki ayrı `init` fonksiyonu korunmalı; tek `kvs_tema::init`'te birleştirmek bağımlılık matrisini bozar |
 | `Theme.styles.syntax` baseline davranışı | `theme_settings/src/theme_settings.rs:313-331` | `refine_theme` `Arc::new(SyntaxTheme::new(syntax_overrides))` — yani baseline syntax kullanılmaz, **tema JSON'unda syntax bloğu boşsa sonuç boş syntax theme**. Yazar `syntax: { ... }` zorunlu doldurmalıdır; aksi halde editor highlight'sız kalır. Konu 26'da düzeltildi |
@@ -11231,8 +11249,8 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `ThemeRegistry::new` davranışı | `theme/src/registry.rs:101-123` | Constructor **zaten dolu döner**: `insert_theme_families([zed_default_themes()])` çağrısı ve `default_icon_theme()` (`DEFAULT_ICON_THEME_NAME`) icon haritasına yerleştirme. Mirror tarafta da aynı garanti tutulmalı; aksi halde `default_icon_theme()` çağrısı `Err` döner |
 | `ThemeRegistry::list_names()` sıralama | `theme/src/registry.rs:181-185` | `Vec<SharedString>` döner ve **sıralı** (`names.sort()`). Buna karşılık `list()` (Vec<ThemeMeta>) **sıralı değil** — HashMap.values() üzerinden direkt map'lenir. Selector UI sıralı list istiyorsa `list_names` veya manuel sort gerek |
 | `ThemeRegistry::clear()` davranışı | `theme/src/registry.rs:176-178` | Sadece `themes` HashMap'ini temizler — `icon_themes` HashMap'ine **dokunmaz**. Test/reset senaryolarında icon themes ayrıca `remove_icon_themes(...)` ile temizlenmelidir |
-| `ThemeRegistry::load_icon_theme` baseline merge davranışı | `theme/src/registry.rs:250-330` | Yüklenen icon theme'in `file_stems`, `file_suffixes`, `named_directory_icons` haritaları **default icon theme üstüne extend edilir**. Yani built-in stem/suffix eşleşmeleri kullanıcı icon teması tarafından override edilmediği sürece korunur. Her tema için yeni UUID atanır |
-| `Refineable` trait yüzeyi tam katalog | `refineable/src/refineable.rs:29-64` | `refine`, `refined`, `from_cascade`, `is_superset_of`, `subtract` + `IsEmpty` (`is_empty`). `Cascade<S>` ve `CascadeSlot` (reserve/base/set/merged) cascade API'sini sağlar. Tema sistemi `from_cascade`/`Cascade` kullanmaz ama refineable trait sözleşmesi tam mirror edilmelidir |
+| `ThemeRegistry::load_icon_theme` baseline merge davranışı | `theme/src/registry.rs:250-330`, `file_icons/src/file_icons.rs:89-164` | Yüklenen icon theme'in `file_stems`, `file_suffixes`, `named_directory_icons` haritaları **default icon theme üstüne extend edilir**. `file_icons`, `directory_icons`, `chevron_icons` constructor'da default'tan kopyalanmaz; UI lookup eksik dosya tipi, klasör ve chevron path'lerinde `file_icons` crate'i üzerinden default icon theme'e düşer. Her tema için yeni UUID atanır |
+| `Refineable` trait yüzeyi tam katalog | `refineable/src/refineable.rs:29-131` | `Refineable`: `refine`, `refined`, `from_cascade`, `is_superset_of`, `subtract`; `IsEmpty`: `is_empty`; `Cascade<S>` metotları: `reserve`, `base`, `set`, `merged`; `CascadeSlot` yalnız slot handle'ıdır. Tema sistemi `from_cascade`/`Cascade` kullanmaz ama refineable trait sözleşmesi tam mirror edilmelidir |
 
 Küçük method yüzeyleri:
 
@@ -11243,13 +11261,26 @@ PlayerColors::absent()
 PlayerColors::read_only()
 ThemeColors::to_vec()
 UiDensity::spacing_ratio()
+ColorScale::step_1()
+ColorScale::step_2()
+ColorScale::step_3()
 ColorScale::step_4()
 ColorScale::step_5()
 ColorScale::step_6()
 ColorScale::step_7()
 ColorScale::step_8()
+ColorScale::step_9()
 ColorScale::step_10()
 ColorScale::step_11()
+ColorScale::step_12()
+ColorScale::step(step)
+ColorScaleSet::new(name, light, light_alpha, dark, dark_alpha)
+ColorScaleSet::name()
+ColorScaleSet::light()
+ColorScaleSet::light_alpha()
+ColorScaleSet::dark()
+ColorScaleSet::dark_alpha()
+ColorScaleSet::step(cx, step)
 ColorScaleSet::step_alpha(cx, step)
 ThemeSettingsProvider::ui_font(cx)
 ThemeSettingsProvider::buffer_font(cx)
