@@ -174,6 +174,31 @@ girdi olarak alır ve `SmallVec<[RenderedIndentGuide; 12]>` döndürür;
 verir. Bu nedenle üç tip de "IndentGuides" başlığında alanlarıyla birlikte
 listelenir; element state taşıyıcısı sayılmaz.
 
+Benzer public alanlı sözleşme tipleri:
+
+- `TableRenderContext`, `render_table_row(...)` ve `render_table_header(...)`
+  için düşük seviye render bağlamıdır. `TableInteractionState` gibi saklanan
+  view state'i değildir; `striped`, `show_row_borders`, `column_widths`,
+  `map_row` ve `disable_base_cell_style` alanları render helper'larına
+  aktarılır.
+- `HeaderResizeInfo`, header resize/reset sözleşmesidir. `resize_behavior`
+  alanı public okunur, ancak kolon state'i içeride `WeakEntity` olarak tutulur;
+  reset için public yol `reset_column(...)` metodudur.
+- `DocumentationAside`, context menu custom entry'leri için `side` ve `render`
+  callback'ini taşıyan aside verisidir; tek başına render edilen component
+  değildir.
+- `ThreadItemWorktreeInfo`, `ThreadItem::worktrees(...)` için domain veri
+  nesnesidir. `worktree_name`, `branch_name`, `full_path`,
+  `highlight_positions` ve `kind` alanları thread metadata satırını besler.
+- `ComponentExample` ve `ComponentExampleGroup`, component preview layout
+  verisidir. Alanları public olsa da normal preview kodunda
+  `single_example(...)`, `empty_example(...)`, `example_group(...)` ve builder
+  metodları tercih edilir.
+- `NavigableEntry`, `Navigable` wrapper'ına eklenen focus/scroll entry
+  sözleşmesidir. `focus_handle` ve `scroll_anchor` alanları publictir, ancak
+  çoğu kullanım `NavigableEntry::new(...)` veya `focusable(...)` üzerinden
+  kurulmalıdır.
+
 #### İmzası özellikle kontrol edilen lifecycle API'leri
 
 Bu grup, callback imzaları veya generic bound'ları nedeniyle en kolay yanlış
@@ -4556,10 +4581,15 @@ impl Render for OutlineList {
 Zed içinden kullanım:
 
 - `../zed/crates/project_panel/src/project_panel.rs`: project tree indent
-  guide'ları, custom render ve click davranışı.
+  guide'ları, custom render ve click davranışı. Project panel `on_click` içinde
+  `IndentGuideLayout::offset.y` değerinden hedef satırı bulur; secondary
+  modifier aktifse ilgili parent entry'yi collapse eder.
 - `../zed/crates/outline_panel/src/outline_panel.rs`: outline list indent
-  guide'ları.
+  guide'ları. `with_render_fn(...)` aktif guide'ı hesaplayıp
+  `RenderedIndentGuide::is_active` alanını set eder.
 - `../zed/crates/git_ui/src/git_panel.rs`: hiyerarşik git panel satırları.
+  Git panel custom render ile yalnızca bounds/layout üretir, `hitbox: None`
+  bırakarak click davranışı eklemez.
 
 Dikkat edilecekler:
 
@@ -6028,6 +6058,10 @@ Temel API:
 - `render_table_row(row_index, items, table_context, window, cx)`
 - `HeaderResizeInfo::from_redistributable(&columns_state, cx)`
 - `HeaderResizeInfo::from_resizable(&columns_state, cx)`
+  - `resize_behavior: TableRow<TableResizeBehavior>` public alanı header
+    hücresinin resizable olup olmadığını okumak içindir. İlgili kolon state'i
+    public alan değildir; reset ve state update için `reset_column(...)`
+    çağırın.
 - `bind_redistributable_columns(container, columns_state)`
 - `render_redistributable_columns_resize_handles(&columns_state, window, cx)`
 
