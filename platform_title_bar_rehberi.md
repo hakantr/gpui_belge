@@ -1370,6 +1370,27 @@ pub struct WindowButtonLayout {
 - `Maximize`
 - `Close`
 
+GPUI tarafındaki `WindowButton` da dış API'dir
+(`gpui/src/platform.rs:425-444`): `#[derive(Debug, Clone, Copy, PartialEq,
+Eq, Hash)]` taşır ve `pub fn id(&self) -> &'static str` ile sırasıyla
+`"minimize"`, `"maximize"`, `"close"` stable element id'lerini döndürür.
+Bu id'ler Linux `WindowControl::new(...)` çağrılarında doğrudan kullanıldığı
+için port hedefinde key/id uyumu korunmalıdır.
+
+`WindowButtonLayout` üç public öğe ile gelir (`gpui/src/platform.rs:457-486`):
+
+| Öğe | İmza / değer | Davranış notu |
+| :-- | :-- | :-- |
+| `MAX_BUTTONS_PER_SIDE` | `pub const MAX_BUTTONS_PER_SIDE: usize = 3` | Her taraf en fazla üç slot tutar. |
+| `WindowButtonLayout::linux_default` | `pub fn linux_default() -> Self` | Sol taraf boş, sağ taraf `Minimize, Maximize, Close`. Yalnız Linux/FreeBSD cfg'inde derlenir. |
+| `WindowButtonLayout::parse` | `pub fn parse(layout_string: &str) -> Result<Self>` | GNOME tarzı `left:right` string'i okur; `:` yoksa sol boş, tüm string sağ taraf sayılır. |
+
+`parse(...)` davranışının iki ince noktası var (`gpui/src/platform.rs:486-541`):
+tanınmayan adlar, en az bir geçerli buton varsa **yok sayılır**; tüm string
+geçersizse hata döner. Aynı buton iki tarafta veya aynı tarafta tekrar edilirse
+ilk görülen slot tutulur, tekrarlar atlanır. Bu nedenle `"close,foo"` geçerli
+layout üretir, `"foo"` hata verir.
+
 Zed ayar katmanı üç kullanım biçimi sunar:
 
 | Ayar değeri | Sonuç |
@@ -1551,6 +1572,18 @@ için **action'lar yalnızca bir workspace içinde bulunulurken** dispatch
 edilebilir. Workspace dışı pencere (örn. settings standalone) bu
 action'ları görmez.
 
+İlk pencere açılışındaki native tab durumu bu observer'dan değil,
+`zed::build_window_options(...)` içindeki `tabbing_identifier` alanından gelir
+(`zed/src/zed.rs:331-373`). GPUI pencere bootstrap'i de platform
+`tab_bar_visible()` ve `tabbed_windows()` sonuçlarını controller'a işler
+(`gpui/src/window.rs:1295-1299`). `SystemWindowTabs::init(...)` içindeki
+`observe_global::<SettingsStore>` ise `was_use_system_window_tabs` değerini
+tutup yalnız ayar değiştiğinde çalışır; değer değişmediyse erken döner
+(`system_window_tabs.rs:55-64`). Toggle true olduğunda controller yeniden
+başlatılır, mevcut pencerelere `"zed"` identifier'ı ve tab listesi yazılır;
+toggle false olduğunda mevcut pencerelerin identifier'ı `None` yapılır ama
+controller `init` tekrar çağrılmaz (`system_window_tabs.rs:66-90`).
+
 Render sırasında `SystemWindowTabController` global state'i okunur. Controller
 aktif pencerenin sekme grubunu döndürür; yoksa current window tek sekme gibi
 gösterilir.
@@ -1594,8 +1627,10 @@ merge/move" diye genelledi. Kaynakta owner ve olay ayrımı şöyledir:
 - Tab bar dışına sol mouse-up olursa `last_dragged_tab.take()` ile
   `SystemWindowTabController::move_tab_to_new_window(cx, tab.id)` ve platform
   `window.move_tab_to_new_window()` akışı çalışır.
-- `merge_all_windows` drag payload'ından değil, action renderer veya context
-  menu içindeki "Show All Tabs" / merge action akışından gelir.
+- `merge_all_windows` drag payload'ından veya sağ tık "Show All Tabs" menüsünden
+  gelmez; yalnız `MergeAllWindows` action renderer'ı controller + platform merge
+  çağırır. Sağ tık "Show All Tabs" sadece `window.toggle_window_tab_overview()`
+  çağırır (`system_window_tabs.rs:329-339`).
 
 Bu nedenle native tab portunda drag/drop davranışı `DraggedWindowTab` alan
 paritesiyle birlikte **olay hedefine göre** mirror edilmelidir.
@@ -1622,6 +1657,10 @@ struct'ın `title`, `width`, `is_active`, `active_background_color` ve
 `inactive_background_color` alanlarından çizilir. `last_dragged_tab` yalnızca
 tab bar dışına bırakma ihtimalini yakalamak için geçici state'tir; başarılı
 `on_drop` içinde `None` yapılır.
+Preview render'ı label fontunu aktif temadaki `ThemeSettings::ui_font`
+değerinden alır ve `Tab::container_height(cx)` yüksekliğini kullanır
+(`system_window_tabs.rs:498-528`); drag ghost için ayrı bir sabit yükseklik
+yoktur.
 
 **Tab genişliği ölçümü** (`system_window_tabs.rs:455-471`): Tab bar
 render'ı bir görünmez `canvas` element içerir. `canvas` iki callback
@@ -1689,7 +1728,8 @@ tab drag tab bar dışına mouse-up
 
 context menu / action
   -> MoveTabToNewWindow: controller + platform move
-  -> MergeAllWindows: controller + platform merge
+  -> right-click Show All Tabs: platform tab overview toggle; merge değil
+  -> MergeAllWindows action: controller + platform merge
   -> ShowNext/PreviousWindowTab: controller tab handle'ını activate_window()
 ```
 
@@ -1905,6 +1945,15 @@ rg -n 'is_fullscreen|render_right_window_controls|show_window_menu|SystemWindowT
   ../zed/crates/settings_content/src/workspace.rs
 ```
 
+Native tab init ve sağ tık/action ayrımını görmek için:
+
+```sh
+rg -n 'observe_global::<SettingsStore>|was_use_system_window_tabs|set_tabbing_identifier|tabbed_windows|register_action_renderer|toggle_window_tab_overview|MergeAllWindows|build_window_options|tabbing_identifier' \
+  ../zed/crates/platform_title_bar/src/system_window_tabs.rs \
+  ../zed/crates/gpui/src/window.rs \
+  ../zed/crates/zed/src/zed.rs
+```
+
 Pencere seçenekleri ve CSD bağlantılarını kontrol etmek için:
 
 ```sh
@@ -1916,7 +1965,7 @@ find ../zed/crates -name '*.rs' -print0 |
 
 ```sh
 find ../zed/crates/gpui/src ../zed/crates/settings_content/src ../zed/crates/title_bar/src -name '*.rs' -print0 |
-  xargs -0 awk '/WindowButtonLayout|WindowButton|button_layout|into_layout|observe_button_layout_changed/ { print FILENAME ":" FNR ":" $0 }'
+  xargs -0 awk '/MAX_BUTTONS_PER_SIDE|WindowButtonLayout|WindowButton|button_layout|linux_default|parse\\(|into_layout|observe_button_layout_changed/ { print FILENAME ":" FNR ":" $0 }'
 ```
 
 Owner ayrımı (struct vs trait vs inherent fn vs free fn) için **state-machine
