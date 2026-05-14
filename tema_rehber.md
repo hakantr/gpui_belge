@@ -3514,18 +3514,41 @@ pub fn try_parse_color(s: &str) -> anyhow::Result<Hsla> {
 let rgba = gpui::Rgba::try_from(s)?;
 ```
 
-`gpui::Rgba::try_from` aşağıdaki formatları kabul eder:
+`gpui::Rgba::try_from` (`gpui/src/color.rs:162`) **dört** hex formatını
+kabul eder:
 
-- `#RRGGBB` — 6 hex, alpha = 1.0
-- `#RRGGBBAA` — 8 hex, alpha açıkça verilir
-- `RRGGBB` (# olmadan) — `#` opsiyonel
-- (büyük/küçük harf duyarsız — `#1c2025FF` ve `#1C2025ff` aynı)
+| Format | Hex hanesi | Alpha kaynağı | Çiftleme |
+|--------|-----------|---------------|----------|
+| `#rgb` | 3 | `0xf` (`1.0`) | `0xa → 0xaa` (her hane çiftlenir) |
+| `#rgba` | 4 | 4. hane | `0xa → 0xaa` (4 hane de çiftlenir) |
+| `#rrggbb` | 6 | `0xff` (`1.0`) | yok |
+| `#rrggbbaa` | 8 | son 2 hane | yok |
+
+Önemli kurallar:
+
+- **`#` zorunlu**: Kaynak kod `value.trim().split_once('#')` ile parse
+  başlatır; `#` olmadan girilen hex (`RRGGBB`) `Err` döndürür.
+- **Trim yapılır**: Önceki/sonraki whitespace temizlenir (`"  #1c2025  "`
+  geçerlidir).
+- **Büyük/küçük harf duyarsız**: `u8::from_str_radix(..., 16)` zaten
+  duyarsız; `#1c2025FF` ve `#1C2025ff` aynı.
+- **Kısa form çiftleme**: `#abc` → `#aabbcc`, `#abcd` → `#aabbccdd`.
+  Tek hane `r` baytı 4 bit sola kaydırılıp kendisiyle OR'lanır
+  (`(value << 4) | value`).
+- **Alpha varsayılanı**: `#rgb` formatında alpha hane'si `0xf` (yani
+  `0xff` = `1.0`); `#rrggbb` formatında byte `0xff`.
 
 Hata durumları:
 
-- Geçersiz hex (`#zzz`): `Err`.
-- Uzunluk uyumsuz (`#abc` 3 hex): `Err` (3-hex shorthand desteklenmez).
-- Boş string: `Err`.
+- Geçersiz hex karakter (`#zzz`): `u8::from_str_radix` `Err`.
+- Tanınmayan uzunluk (`#abcde` 5 hex veya `#abcdefg` 7 hex): `match` 4
+  varyantın hiçbirine düşmez, fall-through hatası.
+- `#` yok: "invalid RGBA hex color" hatası.
+- Boş string: `#` bulunamaz → `Err`.
+
+Bu nedenle tema JSON'ında `"#abc"` yazıp test ederken parse hatası
+beklemek **yanlış**; kısa form da Zed paritesinde geçerlidir. Rehberin
+önceki sürümünde "3-hex shorthand desteklenmez" diye yanlış işaretliydi.
 
 **Adım 2 — `Rgba` → `palette::Srgba`:**
 
@@ -4925,10 +4948,16 @@ tarafta kullanılabilir. Buradaki kritik ayrım şudur:
 
 - **Tam user theme yükleme** (`refine_theme_family` / `refine_theme`):
   syntax bölümü `SyntaxTheme::new(...)` ile kurulur. Baseline syntax üstüne
-  field-bazlı merge yapılmaz.
+  field-bazlı merge yapılmaz. **Pratik sonuç:** Tema JSON'ında `syntax`
+  bölümü boş veya eksikse `syntax_overrides` boş bir vec döner ve
+  `SyntaxTheme::new([])` çağrılır — sonuç **tamamen boş syntax theme**.
+  Editor renkleri için tema yazarı `syntax: { ... }` bloğunu mutlaka
+  doldurmalıdır; aksi halde syntax highlight'sız bir editör çıkar.
 - **Runtime theme override** (`ThemeSettings::apply_theme_overrides` →
   private `modify_theme`): mevcut `base_theme.styles.syntax` üstüne
   `SyntaxTheme::merge(base, syntax_overrides(theme_overrides))` uygulanır.
+  Bu yol field-bazlı option-or birleştirir; override'da olmayan capture
+  baseline'daki HighlightStyle'ı korur.
 
 Bu yüzden `SyntaxTheme::merge` Konu 17'de ve override akışında kanonik
 helper'dır, fakat Konu 26'daki tam JSON → `Theme` pipeline'ının son adımı
@@ -5927,6 +5956,13 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
     // `ThemeRegistry::new(assets)` zed_default_themes ailesini ve
     // default icon tema'yı kendi içinde yükler.
     let registry = Arc::new(ThemeRegistry::new(assets));
+
+    // Font picker dropdown'u ve `setup_ui_font` runtime hazırlığı.
+    // Zed paritesi (`theme::init`, theme.rs:103): registry kurulduktan
+    // hemen sonra font ailesi önbelleği init edilir. Atlamak settings UI
+    // tarafında "fontlar yüklenmedi" race condition'ına yol açar.
+    FontFamilyCache::init_global(cx);
+
     registry.insert_themes([
         crate::fallback::kvs_default_dark(),
         crate::fallback::kvs_default_light(),
@@ -5946,6 +5982,21 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
     cx.set_global(GlobalTheme::new(default, default_icon));
 }
 ```
+
+> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar.
+> `theme::init` (yukarıdaki akışla aynı, font cache + registry + fallback
+> dark) çağrıldıktan sonra üst seviyede `theme_settings::init`
+> (`theme_settings/src/theme_settings.rs:68`) çağrılır; o adım
+> `set_theme_settings_provider` ile typography/density provider'ını kurar,
+> `LoadThemes::All` ise `load_bundled_themes` ile disk'teki kullanıcı
+> temalarını yükler, `configured_theme(cx)` ile settings dosyasından gelen
+> seçimi çözer ve `GlobalTheme::update_theme` + `update_icon_theme` ile
+> aktif tema'yı **fallback dark'tan settings'in istediği temaya** geçirir.
+> Mirror tarafta bu ayrımı koru: `kvs_tema::init` registry + GlobalTheme
+> default'unu kurar, `kvs_tema_ayarlari::init` provider + settings observer
+> + configured_theme akışını kurar. Tek init'te birleştirmek `kvs_tema`'yı
+> settings crate'ine zorunlu bağımlı yapar (Konu 5 bağımlılık matrisi
+> kararıyla çelişir).
 
 #### 5 adımlı kuruluş
 
@@ -6455,32 +6506,75 @@ değiştirmez; clone üstünde çalışır.
 > gerçekten `SyntaxTheme::merge(...)` ile mevcut syntax üstüne field-bazlı
 > bindirilir.
 
-Settings observer:
+Settings observer (Zed paritesi `theme_settings::init`,
+`theme_settings/src/theme_settings.rs:85-142`):
 
 ```rust
 pub fn observe_tema_ayarlari(cx: &mut App) {
-    let mut prev_theme_name = current_theme_name(cx);
-    let mut prev_icon_theme_name = current_icon_theme_name(cx);
-    let mut prev_overrides = current_theme_overrides(cx);
+    let settings = TemaAyarlari::get_global(cx);
+    let mut prev_buffer_font_size_settings = settings.buffer_font_size_settings();
+    let mut prev_ui_font_size_settings = settings.ui_font_size_settings();
+    let mut prev_agent_ui_font_size_settings = settings.agent_ui_font_size_settings();
+    let mut prev_agent_buffer_font_size_settings = settings.agent_buffer_font_size_settings();
+    let mut prev_theme_name = settings.theme.name(SystemAppearance::global(cx).0);
+    let mut prev_icon_theme_name = settings.icon_theme.name(SystemAppearance::global(cx).0);
+    let mut prev_theme_overrides = (
+        settings.experimental_theme_overrides.clone(),
+        settings.theme_overrides.clone(),
+    );
 
     cx.observe_global::<AyarStore>(move |cx| {
-        let theme_name = current_theme_name(cx);
-        let icon_theme_name = current_icon_theme_name(cx);
-        let overrides = current_theme_overrides(cx);
+        let settings = TemaAyarlari::get_global(cx);
+        let buffer_font_size_settings = settings.buffer_font_size_settings();
+        let ui_font_size_settings = settings.ui_font_size_settings();
+        let agent_ui_font_size_settings = settings.agent_ui_font_size_settings();
+        let agent_buffer_font_size_settings = settings.agent_buffer_font_size_settings();
+        let theme_name = settings.theme.name(SystemAppearance::global(cx).0);
+        let icon_theme_name = settings.icon_theme.name(SystemAppearance::global(cx).0);
+        let theme_overrides = (
+            settings.experimental_theme_overrides.clone(),
+            settings.theme_overrides.clone(),
+        );
 
-        if theme_name != prev_theme_name || overrides != prev_overrides {
-            prev_theme_name = theme_name;
-            prev_overrides = overrides;
-            reload_theme_from_settings(cx);
+        // Settings dosyasındaki baz font size değişirse runtime override
+        // global'ini sıfırla — kullanıcının `cmd-+` ile büyüttüğü değer
+        // settings dosyası "hakikat kaynağı"na yenilirse drop olur.
+        if buffer_font_size_settings != prev_buffer_font_size_settings {
+            prev_buffer_font_size_settings = buffer_font_size_settings;
+            reset_buffer_font_size(cx);
+        }
+        if ui_font_size_settings != prev_ui_font_size_settings {
+            prev_ui_font_size_settings = ui_font_size_settings;
+            reset_ui_font_size(cx);
+        }
+        if agent_ui_font_size_settings != prev_agent_ui_font_size_settings {
+            prev_agent_ui_font_size_settings = agent_ui_font_size_settings;
+            reset_agent_ui_font_size(cx);
+        }
+        if agent_buffer_font_size_settings != prev_agent_buffer_font_size_settings {
+            prev_agent_buffer_font_size_settings = agent_buffer_font_size_settings;
+            reset_agent_buffer_font_size(cx);
         }
 
+        if theme_name != prev_theme_name || theme_overrides != prev_theme_overrides {
+            prev_theme_name = theme_name;
+            prev_theme_overrides = theme_overrides;
+            reload_theme(cx);
+        }
         if icon_theme_name != prev_icon_theme_name {
             prev_icon_theme_name = icon_theme_name;
-            reload_icon_theme_from_settings(cx);
+            reload_icon_theme(cx);
         }
     }).detach();
 }
 ```
+
+> **Tüm 7 değişken zorunlu**: Önceki rehber sürümünde observer yalnız
+> `theme_name + icon_theme_name + overrides` izliyordu. Font size'ların
+> tracking'i atlandığında **kullanıcı settings dosyasında `buffer_font_size`'ı
+> değiştirir, runtime hâlâ override'lı eski değeri gösterir** (bug). Zed
+> paritesinde 4 font size + 2 theme name + 1 theme_overrides = 7 izleme
+> alanı vardır.
 
 Tema seçici davranışı:
 
@@ -11128,7 +11222,17 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `SystemAppearance::Default = Dark` | `theme.rs:142-146` | Sistem görünümü alınamazsa default Dark. Mirror tarafta aynı varsayılan tutulmalı; aksi halde init önce ekrana light tema gelir, sonra sistem dark'sa dark'a sıçrama olur |
 | `theme_settings::settings::BufferLineHeight` (`Comfortable`, `Standard`, `Custom(f32)`), `value()` | `theme_settings/src/settings.rs:340-369` | `Standard = 1.3`, `Comfortable = 1.618`, `Custom` doğrudan değer. Settings tarafında `f32 >= 1.0` kısıtı (`settings_content/src/theme.rs:452`) |
 | `try_parse_color` (`theme/src/schema.rs:1171`) | `theme/src/schema.rs` | Konu 20'de detaylı; 43.9'da public helper olarak teyit edilir |
+| `gpui::Rgba::try_from(&str)` desteklediği formatlar | `gpui/src/color.rs:162-256` | **Dört format**: `#rgb` (3 hane, çiftleme), `#rgba` (4 hane, çiftleme), `#rrggbb` (6 hane), `#rrggbbaa` (8 hane). `#` zorunlu; trim yapılır. Konu 20 düzeltildi |
 | `AppearanceContent` (`theme/src/schema.rs:1165`) | `theme/src/schema.rs` | JSON `appearance` alanının enum mirror'ı (`Light` / `Dark`); Konu 18'de kullanılır |
+| `theme_settings::init` observer 7 değişken tracking'i | `theme_settings/src/theme_settings.rs:85-142` | Settings değişiminde `reset_*_font_size` (4), `reload_theme` (theme_name veya overrides) (1+1=2), `reload_icon_theme` (1). Toplam 7 izleme alanı; eksik tracking font size resync bug'ına yol açar. Konu 31'de düzeltildi |
+| `theme_settings::init` 2 katmanlı init paritesi | `theme_settings/src/theme_settings.rs:64-83` | `theme::init` (registry + fallback dark + GlobalTheme) ÇAĞRIDIKTAN SONRA `set_theme_settings_provider`, `load_bundled_themes` (LoadThemes::All ise), `configured_theme` ile settings'ten gelen seçimi çözüp `GlobalTheme::update_theme` + `update_icon_theme`. Mirror'da iki ayrı `init` fonksiyonu korunmalı; tek `kvs_tema::init`'te birleştirmek bağımlılık matrisini bozar |
+| `Theme.styles.syntax` baseline davranışı | `theme_settings/src/theme_settings.rs:313-331` | `refine_theme` `Arc::new(SyntaxTheme::new(syntax_overrides))` — yani baseline syntax kullanılmaz, **tema JSON'unda syntax bloğu boşsa sonuç boş syntax theme**. Yazar `syntax: { ... }` zorunlu doldurmalıdır; aksi halde editor highlight'sız kalır. Konu 26'da düzeltildi |
+| `ThemeSettings::modify_theme` görünürlüğü | `theme_settings/src/settings.rs:472` | Aslında `fn` — **private**. `pub fn apply_theme_overrides(&self, arc_theme: Arc<Theme>) -> Arc<Theme>` üzerinden çağrılır; tüketici doğrudan `modify_theme` çağıramaz. Public yüzey `apply_theme_overrides`'tır |
+| `ThemeRegistry::new` davranışı | `theme/src/registry.rs:101-123` | Constructor **zaten dolu döner**: `insert_theme_families([zed_default_themes()])` çağrısı ve `default_icon_theme()` (`DEFAULT_ICON_THEME_NAME`) icon haritasına yerleştirme. Mirror tarafta da aynı garanti tutulmalı; aksi halde `default_icon_theme()` çağrısı `Err` döner |
+| `ThemeRegistry::list_names()` sıralama | `theme/src/registry.rs:181-185` | `Vec<SharedString>` döner ve **sıralı** (`names.sort()`). Buna karşılık `list()` (Vec<ThemeMeta>) **sıralı değil** — HashMap.values() üzerinden direkt map'lenir. Selector UI sıralı list istiyorsa `list_names` veya manuel sort gerek |
+| `ThemeRegistry::clear()` davranışı | `theme/src/registry.rs:176-178` | Sadece `themes` HashMap'ini temizler — `icon_themes` HashMap'ine **dokunmaz**. Test/reset senaryolarında icon themes ayrıca `remove_icon_themes(...)` ile temizlenmelidir |
+| `ThemeRegistry::load_icon_theme` baseline merge davranışı | `theme/src/registry.rs:250-330` | Yüklenen icon theme'in `file_stems`, `file_suffixes`, `named_directory_icons` haritaları **default icon theme üstüne extend edilir**. Yani built-in stem/suffix eşleşmeleri kullanıcı icon teması tarafından override edilmediği sürece korunur. Her tema için yeni UUID atanır |
+| `Refineable` trait yüzeyi tam katalog | `refineable/src/refineable.rs:29-64` | `refine`, `refined`, `from_cascade`, `is_superset_of`, `subtract` + `IsEmpty` (`is_empty`). `Cascade<S>` ve `CascadeSlot` (reserve/base/set/merged) cascade API'sini sağlar. Tema sistemi `from_cascade`/`Cascade` kullanmaz ama refineable trait sözleşmesi tam mirror edilmelidir |
 
 Küçük method yüzeyleri:
 
