@@ -5852,9 +5852,16 @@ Public export modeli:
   düzleştirir. Bu yüzden tüketici kodunda `ui::Button`, `ui::Color`,
   `ui::Clickable`, `ui::theme_is_transparent` gibi yollar kullanılır;
   `ui::components::...` veya `ui::styles::...` public API yolu değildir.
-- İstisna olarak bilinçli public nested modül varsa kendi namespace'iyle
-  kullanılır: örn. `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility,
-  ScrollbarAutoHide}`.
+- Bilinçli public nested modüller (`pub mod`) kendi namespace'iyle kullanılır:
+  - `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility, ScrollbarAutoHide}` —
+    scrollbar görünürlük settings yüzeyi.
+  - `ui::utils::*` — non-styling yardımcılar (aşağıdaki utils başlığı).
+  - `ui::component_prelude::*` — component yazarken kullanılan derive ve
+    registry yüzeyi: `Component`, `ComponentId`, `ComponentScope`,
+    `ComponentStatus`, `example_group`, `example_group_with_title`,
+    `single_example`, `RegisterComponent` (ui_macros), `Documented`
+    (documented crate). Yeni component yazarken `use ui::component_prelude::*;`
+    `ui::prelude::*`'a ek olarak import edilir.
 - `ui::prelude::*` sık kullanılan küçük yüzeydir; tüm component envanteri
   değildir. `ButtonLike`, `ContextMenu`, `Tooltip`, `Modal`, `Table`,
   `Vector`, `ThreadItem` gibi tipler crate kökünden explicit import edilir.
@@ -5865,8 +5872,12 @@ Style extension'ları:
 - `StyledExt::v_flex()` = `flex().flex_col()`.
 - `elevation_1/2/3(cx)` ve `*_borderless(cx)` Zed elevation katmanlarını uygular:
   `Surface`, `ElevatedSurface`, `ModalSurface`. Popover/modal gibi katmanlarda
-  elle shadow/border üretmek yerine bunları kullan.
-- `border_primary(cx)` ve `border_muted(cx)` theme border renklerini bağlar.
+  elle shadow/border üretmek yerine bunları kullan. **Reference asimetrisi:**
+  `elevation_1(cx)`, `elevation_2(cx)`, `elevation_3(cx)` `&App` alır;
+  `elevation_1_borderless(cx)`, `elevation_2_borderless(cx)`,
+  `elevation_3_borderless(cx)`, `border_primary(cx)` ve `border_muted(cx)`
+  `&mut App` ister. Read-only render path'inde borderless varyantı
+  çağrılamaz; mut access verir veya borderless yerine bordered varyantı seç.
 - `debug_bg_red/green/blue/yellow/cyan/magenta()` yalnızca geliştirme sırasında
   layout teşhisi içindir.
 
@@ -5919,6 +5930,9 @@ Button/label ortak sözleşmeleri:
   `.line_height_style(LineHeightStyle)`, `.color(Color)`, `.strikethrough()`,
   `.italic()`, `.underline()`, `.alpha(f32)`, `.truncate()`, `.single_line()`,
   `.buffer_font(cx)`, `.inline_code(cx)`.
+- `LabelLike` (underlying primitive struct) ayrıca inherent
+  `.truncate_start()` taşır — `LabelCommon` trait'inde yer almaz; başlangıçtan
+  ellipsis ile kesmek için `LabelLike` veya `Label` üzerinde doğrudan çağrılır.
 
 Diğer UI yardımcıları:
 
@@ -5929,9 +5943,32 @@ Diğer UI yardımcıları:
   `.occlude()` mouse etkileşimini kapatır.
 - `ui::utils` public nested namespace olarak kalır. Sık kullanılan export'lar:
   `is_light(cx)`, `reveal_in_file_manager_label(is_remote)`, `capitalize(str)`,
-  `SearchInputWidth::calc_width(container_width)`, `platform_title_bar_height`,
-  `calculate_contrast_ratio`, `apca_contrast`, `ensure_minimum_contrast`,
-  `CornerSolver`, `inner_corner_radius`, `FormatDistance`.
+  `SearchInputWidth::calc_width(container_width)`,
+  `platform_title_bar_height(&Window)`,
+  `calculate_contrast_ratio(fg, bg)`, `apca_contrast(text, bg)`,
+  `ensure_minimum_contrast(...)`, `CornerSolver::new(root_radius, root_border,
+  root_padding)`, `inner_corner_radius(...)`,
+  `FormatDistance::{new(date, base_date), from_now(date), include_seconds(bool),
+  add_suffix(bool), hide_prefix(bool)}`, `format_distance(...)`,
+  `format_distance_from_now(...)`, `DateTimeType::{NaiveDateTime,
+  OffsetDateTime}` ve `BASE_REM_SIZE_IN_PX` sabiti.
+- `ui::ui_density(cx: &mut App) -> UiDensity` styles modülünden gelen
+  ergonomik helper'dır; `theme::theme_settings(cx).ui_density(cx)` kısayolu.
+  Spacing kararları için `DynamicSpacing` enum'unu tercih et, density'yi
+  yalnızca styling dışı kararlar (örn. icon size, compact toggle) için kullan.
+- Keybinding görünümü için crate kökünde public free fonksiyonlar:
+  - `text_for_action(action: &dyn Action, window, cx) -> Option<String>`
+  - `text_for_keystrokes(keystrokes: &[Keystroke], cx) -> String`
+  - `text_for_keystroke(modifiers: &Modifiers, key: &str, cx) -> String`
+  - `text_for_keybinding_keystrokes(keystrokes: &[KeybindingKeystroke], cx) -> String`
+  - `render_keybinding_keystroke(...)`, `render_modifiers(...)`: element üretir.
+  Bu yardımcılar tooltip/menu metni üretirken `KeyBinding` veya `KeybindingHint`
+  bileşeninden ayrı düşünülmelidir; bileşen render eder, free fn metin üretir.
+- `Transformable` trait crate dışına public değildir (`traits` modülü private);
+  yalnız `Icon` ve `Vector` implement eder. Bu yüzden `CommonAnimationExt`
+  üzerindeki `with_rotate_animation`/`with_keyed_rotate_animation` zinciri
+  yalnız bu iki tip üzerinde derlenir. Üçüncü taraf bir element için döndürme
+  istiyorsan ya `Icon`/`Vector` sar ya da kendi `with_animation` zincirini kur.
 - Scrollbar katmanı **iki ayrı API yüzeyi** sunar; doğru olanı seç:
   - Düşük seviye: `Scrollbars::new(ScrollAxes)` builder zinciri —
     `.tracked_scroll_handle(handle)`, `.id(...)`, `.notify_content()`,
@@ -5982,15 +6019,18 @@ Zed uygulamasında yönetim:
 
 Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 
-- Metin: `Label`, `Headline`, `HighlightedLabel`, `LoadingLabel`, `SpinnerLabel`
-- Buton: `Button`, `IconButton` (`IconButtonShape`), `SelectableButton`,
-  `ButtonLike` (`ButtonBuilder`/`ButtonConfiguration` sealed yardımcılar),
-  `ButtonLink`, `CopyButton`, `SplitButton` (`SplitButtonKind`,
-  `SplitButtonStyle`), `ToggleButtonGroup` (`ToggleButtonGroupStyle`,
-  `ToggleButtonGroupSize`, `ToggleButtonPosition`) ve giriş tipleri
-  `ToggleButtonSimple`, `ToggleButtonWithIcon`. `ToggleButton` adında
-  bağımsız bir struct yoktur; tekil toggle yerine her zaman grup içinde
-  segment kullanılır.
+- Metin: `Label`, `LabelLike` (underlying primitive), `Headline`,
+  `HighlightedLabel` ve `highlight_ranges(...)` free fn yardımcısı,
+  `LoadingLabel`, `SpinnerLabel` (`SpinnerVariant` enum'u ile).
+- Buton: `Button` (`KeybindingPosition::{Start, End}` ile
+  `.key_binding_position(...)`), `IconButton` (`IconButtonShape`),
+  `SelectableButton`, `ButtonLike` (`ButtonBuilder`/`ButtonConfiguration`
+  sealed yardımcılar), `ButtonLink`, `CopyButton`, `SplitButton`
+  (`SplitButtonKind`, `SplitButtonStyle`), `ToggleButtonGroup`
+  (`ToggleButtonGroupStyle`, `ToggleButtonGroupSize`, `ToggleButtonPosition`)
+  ve giriş tipleri `ToggleButtonSimple`, `ToggleButtonWithIcon`. `ToggleButton`
+  adında bağımsız bir struct yoktur; tekil toggle yerine her zaman grup
+  içinde segment kullanılır.
 - İkon: `Icon`, `DecoratedIcon`, `IconDecoration`, `IconDecorationKind`,
   `IconName`, `IconPosition`, `IconSize`, `IconWithIndicator`,
   `KnockoutIconName`, `AnyIcon`. `IconName` `crates/icons` crate'inde
@@ -6003,33 +6043,48 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   ElevationBased(ElevationIndex), Custom(Hsla)}`.
   Lowercase yardımcı fonksiyonlar `checkbox(id, state)` ve
   `switch(id, state)` constructor kısayollarıdır.
-- Menü/popup: `ContextMenu`, `RightClickMenu`, `Popover`, `PopoverMenu`, `Tooltip`
-- Liste/tree: `List`, `EmptyMessage`, `ListItem` (`ListItemSpacing::{Dense,
-  ExtraDense, Sparse}`), `ListHeader`, `ListSubHeader`, `ListSeparator`,
-  `ListBulletItem`, `TreeViewItem`, `StickyItems`, `IndentGuides`
+- Menü/popup: `ContextMenu`, `ContextMenuEntry`, `ContextMenuItem`,
+  `RightClickMenu<M: ManagedView>` ve free fn `right_click_menu(id)`,
+  `Popover`, `PopoverMenu<M: ManagedView>`, `PopoverMenuHandle<M>`,
+  `PopoverTrigger`, `Tooltip` ve free fn `tooltip_container(cx, f)`.
+- Liste/tree: `List` (`EmptyMessage::{Text(SharedString), Element(AnyElement)}`),
+  `ListItem` (`ListItemSpacing::{Dense, ExtraDense, Sparse}`),
+  `ListHeader`, `ListSubHeader`, `ListSeparator` (`pub struct ListSeparator;` —
+  unit struct, builder yok), `ListBulletItem`, `TreeViewItem`, `StickyItems<T>`
+  ve free fn constructor `sticky_items<V, T>(...)`, `IndentGuides`
+  (`IndentGuideColors`, `IndentGuideLayout`) ile free fn constructor
+  `indent_guides(indent_size: Pixels, colors: IndentGuideColors)`.
 - Tab: `Tab`, `TabBar`, `TabPosition::{First, Middle(Ordering), Last}`,
   `TabCloseSide::{Start, End}`
-- Layout yardımcıları: `h_flex`, `v_flex`, `h_group*`, `v_group*`, `Divider`,
-  `Scrollbars`. `Stack` ve `Group` adında public struct yoktur; bunlar helper
-  fonksiyon ailesidir.
+- Layout yardımcıları: `h_flex()`, `v_flex()`, `h_group*()`, `v_group*()`,
+  `Divider` (`DividerColor::{Border, BorderFaded, BorderVariant}`),
+  `divider()` ve `vertical_divider()` free fn constructorları, `Scrollbars`.
+  `Stack` ve `Group` adında public struct yoktur; bunlar helper fonksiyon
+  ailesidir.
 - Veri: `Table`, `TableInteractionState`, `ColumnWidthConfig`,
   `StaticColumnWidths`, `ResizableColumnsState`, `RedistributableColumnsState`,
-  `TableResizeBehavior::{None, Resizable, MinSize(f32)}`, `UncheckedTableRow<T>`,
-  `TableRow<T>`, `TableRenderContext`, `table_row::IntoTableRow`,
-  `render_table_row`, `render_table_header`, `bind_redistributable_columns()`
-  ve `render_redistributable_columns_resize_handles()`.
+  `HeaderResizeInfo`, `TableResizeBehavior::{None, Resizable, MinSize(f32)}`,
+  `TableRow<T>` (`pub struct TableRow<T>(Vec<T>)` — kolon sayısı doğrulanmış
+  satır), `UncheckedTableRow<T>` (`pub type UncheckedTableRow<T> = Vec<T>` —
+  doğrulamasız satır; struct değil tip alias'ıdır), `TableRenderContext`,
+  `IntoTableRow` trait, `render_table_row`, `render_table_header`,
+  `bind_redistributable_columns()` ve
+  `render_redistributable_columns_resize_handles()`.
 - Feedback: `Banner`, `Callout`, `Modal`, `ModalHeader`, `ModalFooter`,
   `ModalRow`, `Section`, `SectionHeader`, `AlertModal`,
   `AnnouncementToast`, `CountBadge`, `Indicator`, `ProgressBar`,
   `CircularProgress`. `ui::Notification` standalone component değildir;
   workspace bildirim sistemi ayrı `workspace::notifications` trait'leriyle
   yönetilir.
-- Diğer: `Avatar`, `AvatarAudioStatusIndicator`,
-  `AvatarAvailabilityIndicator`, `Facepile`, `Chip`, `DiffStat`,
+- Diğer: `Avatar`, `AvatarAudioStatusIndicator` (`AudioStatus::{Muted,
+  Deafened}` enum'u ile), `AvatarAvailabilityIndicator`
+  (`CollaboratorAvailability` enum'u ile), `Facepile`, `Chip`, `DiffStat`,
   `Disclosure`, `GradientFade`, `Vector`, `VectorName`, `KeyBinding`,
-  `KeybindingHint`, `Navigable`. `Image` adında public Zed UI component'i yoktur;
-  raster görsel için GPUI `img(...)` / `ImageSource`, bundled SVG için
-  `Vector` kullanılır.
+  `KeybindingHint`, `Key`, `KeyIcon` (keybinding sub-primitives —
+  `text_for_keystroke`/`render_modifiers` free fn'leri ile kullanılır),
+  `Navigable` ve `NavigableEntry`. `Image` adında public Zed UI
+  component'i yoktur; raster görsel için GPUI `img(...)` / `ImageSource`,
+  bundled SVG için `Vector` kullanılır.
 - AI/collab özel: `AiSettingItem` (`AiSettingItemStatus`,
   `AiSettingItemSource`), `AgentSetupButton`, `ConfiguredApiCard`,
   `ParallelAgentsIllustration`, `ThreadItem` (`AgentThreadStatus`,
