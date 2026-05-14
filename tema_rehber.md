@@ -1335,6 +1335,29 @@ Tema sözleşmesinde kullandıklarımız:
 - `Debug` — log/test çıktısı.
 - `serde::Deserialize` — refinement JSON'dan deserialize edilebilirse.
 
+#### Alan-bazlı sarmalama kuralları (`derive_refineable` davranışı)
+
+Macro alan tipine göre üç farklı sarmalama yapar
+(`refineable/derive_refineable/src/derive_refineable.rs:524-548`):
+
+| Alan tipi (input) | Refinement'taki tip | Davranış |
+|-------------------|---------------------|----------|
+| Düz `T` (örn. `Hsla`, `Pixels`) | `Option<T>` | `Some(v)` → override, `None` → baseline korunur |
+| `Option<T>` (zaten Option) | `Option<T>` **aynen** (tekrar sarmalanmaz) | Boş ↔ dolu durumu kullanıcı seviyesinden gelir; macro yeniden `Option<Option<T>>` üretmez |
+| `#[refineable] U` (nested refineable) | `URefinement` (nested refinement tipi) | Recursive `refine` çağrılır |
+
+`is_optional_field`
+(`refineable/derive_refineable/src/derive_refineable.rs:512-522`) bu kararı
+**alan tipinin son segmenti `Option` mu** kontrolüne dayandırır: `Option<T>`
+sayılır, `core::option::Option<T>` sayılır, ama `MyOption<T>` veya
+generic alias **sayılmaz** (false negative). Pratikte sorun çıkmaz, ama
+mirror tarafta alan tipini `Option<T>` formunda yazmaya dikkat et.
+
+**Refinement içi yuva (`type Refinement = Self::Refinement`):** Refinement
+tipi kendisi de `Refineable` impl eder ve `type Refinement = Self::Refinement`
+(yani Refinement'ın Refinement'ı yine kendisidir). Bu sabit-nokta sayesinde
+`Cascade<S>` slot listesinde her slot aynı tip refinement taşır.
+
 #### `Refineable` trait yüzeyi (tam)
 
 ```rust
@@ -3043,6 +3066,18 @@ pub struct HighlightStyleContent {
     pub font_weight: Option<FontWeightContent>,
 }
 
+impl HighlightStyleContent {
+    /// 4 alanın hepsi `None` ise true. Selector preview ve test'lerde
+    /// "syntax override boş mu" sorusu için kullanılır.
+    /// Zed paritesi: `settings_content/src/theme.rs:1128`.
+    pub fn is_empty(&self) -> bool {
+        self.color.is_none()
+            && self.background_color.is_none()
+            && self.font_style.is_none()
+            && self.font_weight.is_none()
+    }
+}
+
 // ─── PlayerColorContent (collaboration slot'ları)
 #[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 pub struct PlayerColorContent {
@@ -3884,7 +3919,12 @@ gördüğünde `Err` döner.
 3. **`fallible_options::parse_json::<T>(json)`**: Top-level çağrı.
    `ERRORS` thread-local'ını sıfırlar, parse'ı çalıştırır, bittikten sonra
    biriken hataları toplar ve `(Option<T>, ParseStatus)` döner. `ParseStatus`
-   `Success` veya `Failed { error: String }` olur.
+   **üç variantlıdır** (`settings_content::ParseStatus`,
+   `settings_content/src/settings_content.rs:76`): `Success`,
+   `Unchanged` (kaynak dosya değişmediği için parse atlandı), ve
+   `Failed { error: String }`. `Unchanged` yalnızca settings dosya yönetim
+   katmanından gelir (file watcher değişiklik olmadığına karar verirse);
+   `parse_json` doğrudan çağrıldığında `Success` veya `Failed` döner.
 
 Public tüketici yolu genelde doğrudan `fallible_options::parse_json` değildir.
 `settings_content::RootUserSettings` trait'i `SettingsContent`,
@@ -6525,6 +6565,24 @@ Zed'e denk settings sözleşmesi:
 > `kvs_tema_ayarlari` yalnızca `pub use` ile köprü kurar. Aynı tipi
 > birden fazla yerde tanımlamak schema/test çatışmasına yol açar.
 
+> **Flatten ilişkisi:** Zed'de `SettingsContent.theme: Box<ThemeSettingsContent>`
+> alanı `#[serde(flatten)]` ile işaretlidir
+> (`settings_content/src/settings_content.rs:117-121`). Yani kullanıcı ayar
+> dosyasında `theme:` veya `icon_theme:` **iç alan değildir** — `ui_font_size`,
+> `theme`, `icon_theme`, `experimental.theme_overrides`, `theme_overrides`,
+> `unstable.ui_density` vb. hepsi `settings.json`'da **top-level alanlar**
+> olarak yazılır. `SettingsContent` 25+ alt struct'ı flatten ile birleştirir
+> (project, theme, extension, workspace, editor, remote vb.); kullanıcı
+> tek bir düz JSON görür. Mirror tarafta da `kvs_ayarlari_icerik::AyarIcerik`
+> içinde `pub theme: Box<TemaAyarContent>` alanını `#[serde(flatten)]` ile
+> sarmalamak Zed paritesi için zorunludur. Aksi halde mevcut Zed kullanıcı
+> ayar dosyaları çalışmaz.
+>
+> Aynı şekilde `UserSettingsContent`
+> (`settings_content/src/settings_content.rs:409`) `content: Box<SettingsContent>`
+> + `release_channel_overrides` + `platform_overrides` flatten ile gelir;
+> üst seviye `profiles: IndexMap<String, SettingsProfile>` ise düz alandır.
+
 ```rust
 use std::{collections::HashMap, sync::Arc};
 
@@ -6662,7 +6720,56 @@ impl IconThemeSelection {
 }
 ```
 
-Tema uygulama akışı:
+#### `Settings` trait — `ThemeSettings::get_global(cx)` nereden gelir
+
+Zed `theme_settings::ThemeSettings` `Settings` trait'ini
+(`settings/src/settings_store.rs:60-100`) implement eder:
+
+```rust
+pub trait Settings: 'static + Send + Sync + Sized {
+    /// Settings dosyasına her zaman yazılan alan adları (versiyon tag'leri
+    /// gibi).
+    const PRESERVED_KEYS: Option<&'static [&'static str]> = None;
+
+    /// `SettingsContent` (default + user + project merged) → runtime tipi.
+    fn from_settings(content: &SettingsContent) -> Self;
+
+    /// `SettingsStore`'a kaydet (init sırasında).
+    fn register(cx: &mut App);
+
+    /// `path` ile path-scoped okuma (proje override için).
+    fn get<'a>(path: Option<SettingsLocation>, cx: &'a App) -> &'a Self;
+
+    /// Global okuma — path::None ile aynı.
+    fn get_global(cx: &App) -> &Self;
+
+    /// Yumuşak okuma — `SettingsStore` kuruluysa.
+    fn try_get(cx: &App) -> Option<&Self>;
+}
+```
+
+**Çalışma akışı:**
+
+1. `SettingsStore::set_global(cx, store)` settings sisteminin init'inde kurulur.
+2. `ThemeSettings::register(cx)` `SettingsStore::register_setting::<ThemeSettings>()`
+   çağırır. Bu, settings dosyası her değiştiğinde `ThemeSettings::from_settings(&content)`
+   çağrılacağını söyler ve dahili dispatch tablosuna ekler.
+3. `ThemeSettings::get_global(cx)` çalıştığında `cx.global::<SettingsStore>().get(None)`
+   üzerinden cache'lenmiş güncel `&ThemeSettings` döner.
+4. `SettingsLocation { worktree_id, path }` ile path-scoped lookup yapılırsa
+   proje-local `.zed/settings.json` override'ları uygulanır.
+
+**Mirror tarafta:** `kvs_tema` `Settings` trait'ine doğrudan bağımlı değildir
+(Konu 5 bağımlılık matrisi); fakat `kvs_tema_ayarlari` crate'i `kvs_ayarlari::Settings`
+benzeri bir trait sözleşmesini takip etmelidir. `ThemeSettingsProvider` (Konu 43.2)
+bu bağlantının soyutlanmış arayüzüdür — `kvs_tema` `provider`'dan typography
+ve density okur, `Settings` trait'ini doğrudan kullanmaz. `kvs_tema_ayarlari`'nın
+`init`'i `Settings::register` yaparak `kvs_ayarlari_deposu`'na `TemaAyarlari`'yı
+tanıtır.
+
+Tema uygulama akışı (`configured_theme` Zed'de **private** `fn`,
+`theme_settings/src/theme_settings.rs:145`; aşağıdaki örnek mirror tarafta
+public yardımcı olabilir):
 
 ```rust
 pub fn configured_theme(settings: &ThemeSettingsContent, cx: &mut App) -> Arc<Theme> {
@@ -11466,6 +11573,18 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `ThemeRegistry::default()` | `theme/src/registry.rs:327-331` | `Default for ThemeRegistry` impl'i `Self::new(Box::new(()))` — boş asset source ile constructor. Test'te `ThemeRegistry::default()` kısa yol; asset gerektiren testler `Box::new(()) as Box<dyn AssetSource>` parametresini açık geçirir |
 | `FileIcons::get_icon`, `get_icon_for_type` | `file_icons/src/file_icons.rs:20-99` | `get_icon(path, cx)` 6 katmanlı: tam ad → dot-suffix loop → `multiple_extensions` → `extension_or_hidden_file_name` → ham `extension` → `"default"` tipi. Her katmanda `file_stems` veya `file_suffixes` aktif temasında lookup, sonra `get_icon_for_type(typ, cx)` ile `file_icons` aktif → default fallback |
 | `FileIcons::get_folder_icon`, `get_chevron_icon` | `file_icons/src/file_icons.rs:102-165` | Klasör fallback'i: `named_directory_icons` (klasör adına özel) → private `get_generic_folder_icon` ile `directory_icons` (jenerik), her ikisinde de aktif → default tema fallback. Chevron: yalnız aktif → default. Expanded/collapsed slot ayrımı her katmanda korunur |
+| `ParseStatus` 3 variantlı | `settings_content/src/settings_content.rs:75-83` | `Success`, **`Unchanged`** (dosya değişmediği için parse atlandı), `Failed { error: String }`. Önceki rehber `Unchanged`'ı atlıyordu; settings file watcher hattında "skip" sinyali için kritik |
+| `SettingsContent.theme` flatten ilişkisi | `settings_content/src/settings_content.rs:114-145` | `pub theme: Box<ThemeSettingsContent>` **`#[serde(flatten)]`** ile işaretli. Kullanıcı `settings.json`'da `ui_font_size`, `theme`, `icon_theme`, `unstable.ui_density` vb. **top-level** alanlar olarak yazar — iç `"theme": { ... }` bloğu **YOK**. `SettingsContent` 25+ alt struct'ı flatten ile birleştirir; `Box` heap'e taşıyarak stack overflow'tan kaçınır |
+| `UserSettingsContent` yapısı | `settings_content/src/settings_content.rs:407-421` | `content: Box<SettingsContent>` flatten + `release_channel_overrides` flatten + `platform_overrides` flatten + `profiles: IndexMap<String, SettingsProfile>` düz alan. Yani `~/.config/zed/settings.json` `SettingsContent` alanları + override blokları + `"profiles": {...}` taşır |
+| `settings_overrides!` macro | `settings_content/src/settings_content.rs:40-65` | `Option<Box<SettingsContent>>` alanlı override struct'lar üretir + `OVERRIDE_KEYS: &[&str]` derive + `get_by_key(key) -> Option<&SettingsContent>` accessor. Release channel ve platform override'ları bu pattern'le tanımlıdır |
+| `Settings` trait (`settings_store`) | `settings/src/settings_store.rs:60-100` | `PRESERVED_KEYS`, `from_settings(content) -> Self`, `register(cx)`, `get(path, cx)`, `get_global(cx)`, `try_get(cx)`. `ThemeSettings::get_global(cx)` bu trait'ten gelir; `from_settings` `SettingsContent.theme` flatten'ından typed `ThemeSettings` üretir |
+| `SettingsStore` global'i | `settings/src/settings_store.rs` | `register_setting::<T: Settings>()` ile typed setting tipini dispatch tablosuna ekler; ayar dosyası değiştiğinde her kayıtlı tipin `from_settings`'i çağrılır. `cx.global::<SettingsStore>().get(None)` cache'lenmiş `&ThemeSettings` döner — accessor klonsuz, hot path |
+| `settings_json::parse_json_with_comments` | `settings_json/src/settings_json.rs:743-746` | `serde_json_lenient::Deserializer` + `serde_path_to_error::deserialize`. Hata mesajları **field path'ini de gösterir** (örn. `theme.colors.background: invalid hex`); mirror tarafta da `serde_path_to_error` kullanmak kullanıcı deneyimini iyileştirir |
+| `MergeFromTrait` re-export | `settings_content/src/settings_content.rs:23` | `merge_from::MergeFrom` `pub use ... as MergeFromTrait` ile yeniden ihraç edilir. Aynı trait için iki ad: `MergeFrom` (derive macro + trait) ve `MergeFromTrait` (alias). Mirror tarafta tek ada karar ver, çakışma testleri yaz |
+| `HighlightStyleContent::is_empty()` | `settings_content/src/theme.rs:1128-1134` | 4 alanın hepsi `None` ise `true`. Selector preview, snapshot test ve `MergeFrom` "no-op detection" akışında kullanılır. `Refineable.is_empty` trait'inin elle muadili |
+| `Refineable` derive `Option<T>` sarmalama kuralı | `refineable/derive_refineable/src/derive_refineable.rs:512-548` | Düz `T` → `Option<T>`; `Option<T>` aynen `Option<T>` (tekrar sarmalanmaz); `#[refineable] U` → `URefinement` (nested recursive). Konu 11'de tablo eklendi |
+| `configured_theme`, `configured_icon_theme` görünürlüğü | `theme_settings/src/theme_settings.rs:145, 166` | Aslında `fn` — **private**. Mirror tarafta `pub fn` yapmak tasarım kararıdır; `DECISIONS.md`'ye yaz. Zed paritesinde `init` ve `reload_theme` bu helper'ları çağırır, tüketici doğrudan erişmez |
+| `load_bundled_themes` hata davranışı | `theme_settings/src/theme_settings.rs:199-222` | Her tema asset'i `log_err()` ile sarılır; parse hatası **panic etmez**, log'lanır ve sonraki asset'e geçer. Bu sayede tek bozuk bundled tema tüm Zed başlatmasını engellemez. Mirror tarafta aynı davranış zorunlu |
 
 Küçük method yüzeyleri:
 
