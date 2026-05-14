@@ -261,6 +261,21 @@ ergonomik construction yüzeyi oluşturur. Kaynakta doğrulanan dönüşümler:
 - `EmptyMessage`: `From<String>`, `From<&str>` ve `From<AnyElement>`.
 - `SectionHeader`: `From<SharedString>` ve `From<&'static str>`.
 - `ContextMenuItem`: `From<ContextMenuEntry>`.
+- `AnimationDuration`: `impl Into<std::time::Duration>`; iç gövdesi
+  `self.duration()` çağırır, dolayısıyla `Duration::from(duration)` ya da
+  `gpui::Animation::new(AnimationDuration::Fast.into())` gibi kullanımlarda
+  tipi otomatik çözer.
+
+Aynı kategoride, ad olarak görünmeyen ama trigger ergonomisi için kritik olan
+blanket impl'ler `popover_menu.rs` içinde tanımlanır:
+
+- `impl<T: Clickable> Clickable for gpui::AnimationElement<T>` ve
+  `impl<T: Toggleable> Toggleable for gpui::AnimationElement<T>` blanket
+  impl'leri `.map_element(...)` ile delege eder. Bu sayede
+  `IconButton::new(...).with_rotate_animation(2)` gibi `AnimationElement<IconButton>`
+  döndüren zincirler `PopoverTrigger` (`IntoElement + Clickable + Toggleable +
+  'static` alias'ı) için kabul edilir; bu trait'ler olmasa `PopoverMenu::trigger(...)`
+  animasyonlu icon button'ları reddeder.
 
 Private tiplerdeki dönüşümler tüketici yüzeyi sayılmaz. Örneğin
 `tooltip.rs` içindeki private `Title` enum'u için `From<SharedString>` vardır,
@@ -10314,6 +10329,10 @@ geçen re-export kapılarıdır.
 
 ### `crates/ui/src/components/popover_menu.rs`
 - Öğeler: `trait PopoverTrigger: IntoElement + Clickable + Toggleable + 'static`; `struct PopoverMenuHandle<M>(Rc<RefCell<Option<PopoverMenuHandleState<M>>>>)`; `struct PopoverMenu<M: ManagedView>`; `struct PopoverMenuElementState<M>`; `struct PopoverMenuFrameState<M: ManagedView>`
+- Trait passthrough impl'leri:
+  - `impl<T: Clickable> Clickable for gpui::AnimationElement<T> where T: Clickable + 'static`; `on_click` ve `cursor_style` `.map_element(...)` ile inner element'e delege edilir.
+  - `impl<T: Toggleable> Toggleable for gpui::AnimationElement<T> where T: Toggleable + 'static`; `toggle_state` aynı yolla delege edilir.
+  - Sonuç: `AnimationElement<IconButton>` gibi sarmalanmış tipler `PopoverTrigger` alias'ını sağlar ve `PopoverMenu::trigger(...)` argümanı olarak kabul edilir.
 - Metotlar:
   - `<M: ManagedView> PopoverMenuHandle<M>::show(&self, window: &mut Window, cx: &mut App)`
   - `<M: ManagedView> PopoverMenuHandle<M>::hide(&self, cx: &mut App)`
