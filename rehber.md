@@ -4856,6 +4856,19 @@ Prompt tipleri:
 - `fallback_prompt_renderer(...)`: `set_prompt_builder` ile default GPUI prompt
   render'ını zorlamak için kullanılabilir.
 
+Zed entegrasyonu (`crates/ui_prompt`):
+
+- `ui_prompt::init(cx)` `WorkspaceSettings::use_system_prompts` ayarını
+  `SettingsStore` üzerinden gözlemler. Sistem prompt'ları açıksa
+  `cx.reset_prompt_builder()` çağırarak platform diyaloğuna düşer; aksi halde
+  `cx.set_prompt_builder(zed_prompt_renderer)` ile GPUI içi markdown destekli
+  prompt'a geçer. Linux/FreeBSD'de sistem prompt yoksayılır, daima Zed
+  renderer kullanılır.
+- `ZedPromptRenderer` public struct: `Markdown` entity'siyle message/detail
+  render eder; cancel ve confirm action'larını içeride dispatch eder. Uygulama
+  kodu doğrudan oluşturmaz, sadece prompt builder fonksiyonu tarafından
+  kurulur.
+
 Custom builder:
 
 ```rust
@@ -5945,8 +5958,12 @@ Semantic renk ve elevation:
 - `ElevationIndex::{Background, Surface, EditorSurface, ElevatedSurface,
   ModalSurface}` shadow, background ve "bu elevation üzerinde okunacak renk"
   kararlarını toplar.
-  Public helper'ları: `.shadow(cx)`, `.bg(cx)`, `.on_elevation_bg(cx)`,
-  `.darker_bg(cx)`.
+  Public helper'ları (receiver/mut asimetrisi var):
+  - `.shadow(self, cx: &App) -> Vec<BoxShadow>` — `self`'i tüketir; tipik
+    olarak `match`/clone sonrası kullanılır.
+  - `.bg(&self, cx: &mut App) -> Hsla` — `&mut App` ister (yalnız bu).
+  - `.on_elevation_bg(&self, cx: &App) -> Hsla`,
+    `.darker_bg(&self, cx: &App) -> Hsla` — `&App` yeterli.
 
 Button/label ortak sözleşmeleri:
 
@@ -5964,9 +5981,11 @@ Button/label ortak sözleşmeleri:
   OutlinedCustom(Hsla), Subtle, Transparent}`.
 - `ButtonSize::{Large, Medium, Default, Compact, None}`.
 - `LabelCommon`: `.size(LabelSize)`, `.weight(FontWeight)`,
-  `.line_height_style(LineHeightStyle)`, `.color(Color)`, `.strikethrough()`,
-  `.italic()`, `.underline()`, `.alpha(f32)`, `.truncate()`, `.single_line()`,
-  `.buffer_font(cx)`, `.inline_code(cx)`.
+  `.line_height_style(LineHeightStyle::{TextLabel, UiLabel})` — `TextLabel`
+  default (UI/buffer default line-height), `UiLabel` line-height'i 1.0'a sabitler,
+  `.color(Color)`, `.strikethrough()`, `.italic()`, `.underline()`,
+  `.alpha(f32)`, `.truncate()`, `.single_line()`, `.buffer_font(cx)`,
+  `.inline_code(cx)`.
 - `LabelLike` (underlying primitive struct) ayrıca inherent
   `.truncate_start()` taşır — `LabelCommon` trait'inde yer almaz; başlangıçtan
   ellipsis ile kesmek için `LabelLike` veya `Label` üzerinde doğrudan çağrılır.
@@ -6026,11 +6045,20 @@ Diğer UI yardımcıları:
     `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility, ScrollbarAutoHide}`
     namespace'i altındadır; `ScrollbarVisibility` settings trait'i,
     `ScrollbarAutoHide` ise auto-hide durumunu taşıyan `Global` tipidir.
-  - Enum yüzeyi: `ScrollAxes::{Horizontal, Vertical, Both}` ve
-    `ScrollbarStyle::{Regular, Editor}`. Özel scroll handle yazıyorsan
-    `ScrollableHandle` trait'i `max_offset`, `set_offset`, `offset`,
-    `viewport`, opsiyonel `drag_started`/`drag_ended`, `scrollable_along` ve
-    `content_size` sözleşmesini taşır.
+  - Enum yüzeyi: `ScrollAxes::{Horizontal, Vertical, Both}` (Scrollbars'a
+    verilen üç-değerli eksen seçimi) ve `ScrollbarStyle::{Regular, Editor}`.
+    Özel scroll handle yazıyorsan `ScrollableHandle: 'static + Any + Sized
+    + Clone` trait'i `max_offset(&self) -> Point<Pixels>`,
+    `set_offset(&self, Point<Pixels>)`, `offset(&self) -> Point<Pixels>`,
+    `viewport(&self) -> Bounds<Pixels>`, default impl'li
+    `drag_started(&self)`/`drag_ended(&self)`,
+    `scrollable_along(&self, ScrollbarAxis) -> bool` ve
+    `content_size(&self) -> Size<Pixels>` sözleşmesini taşır.
+    **`ScrollbarAxis` ≠ `ScrollAxes`.** `ScrollbarAxis` scrollbar.rs
+    içinde `gpui::Axis as ScrollbarAxis` aliasıdır; iki variantı
+    (`Horizontal`, `Vertical`) vardır ve scrollable handle'ın tek eksen
+    sorgusu için kullanılır. `ScrollAxes` (Horizontal/Vertical/Both)
+    `Scrollbars::new(...)` yapılandırma yüzeyidir.
   - `on_new_scrollbars<T: gpui::Global>(cx)` bir global ayarı
     `ScrollbarState::settings_changed` observer'ına bağlamak için düşük seviye
     helper'dır; normal component render'ında çağrılan bir builder değildir.
@@ -6071,20 +6099,26 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   `HighlightedLabel` ve `highlight_ranges(...)` free fn yardımcısı,
   `LoadingLabel`, `SpinnerLabel` (`SpinnerVariant` enum'u ile).
 - Buton: `Button` (`KeybindingPosition::{Start, End}` ile
-  `.key_binding_position(...)`), `IconButton` (`IconButtonShape`),
-  `SelectableButton`, `ButtonLike` (`ButtonBuilder`/`ButtonConfiguration`
-  sealed yardımcılar), `ButtonLink`, `CopyButton`, `SplitButton`
-  (`SplitButtonKind`, `SplitButtonStyle`), `ToggleButtonGroup`
-  (`ToggleButtonGroupStyle`, `ToggleButtonGroupSize`, `ToggleButtonPosition`)
-  ve giriş tipleri `ToggleButtonSimple`, `ToggleButtonWithIcon`. `ToggleButton`
-  adında bağımsız bir struct yoktur; tekil toggle yerine her zaman grup
-  içinde segment kullanılır.
-- İkon: `Icon`, `DecoratedIcon`, `IconDecoration`, `IconDecorationKind`,
-  `IconName`, `IconPosition`, `IconSize`, `IconWithIndicator`,
-  `KnockoutIconName`, `AnyIcon`. `IconName` `crates/icons` crate'inde
-  tanımlanır, `ui::prelude` üzerinden re-export edilir. `IconSize` varyantları:
-  `Indicator`, `XSmall`, `Small`, `Medium`, `XLarge`, `Custom(Rems)`;
-  `.rems()`, `.square_components(window, cx)`, `.square(window, cx)` verir.
+  `.key_binding_position(...)`), `IconButton`
+  (`IconButtonShape::{Square, Wide}`), `SelectableButton`, `ButtonLike`
+  (`ButtonBuilder`/`ButtonConfiguration` sealed yardımcılar), `ButtonLink`,
+  `CopyButton`, `SplitButton`
+  (`SplitButtonStyle::{Filled, Outlined, Transparent}`,
+  `SplitButtonKind::{ButtonLike(ButtonLike), IconButton(IconButton)}` —
+  segment olarak hem button-like hem icon button kabul eder),
+  `ToggleButtonGroup` (`ToggleButtonGroupStyle::{Transparent, Filled,
+  Outlined}`, `ToggleButtonGroupSize::{Default, Medium, Large, Custom(Rems)}`,
+  `ToggleButtonPosition`) ve giriş tipleri `ToggleButtonSimple`,
+  `ToggleButtonWithIcon`. `ToggleButton` adında bağımsız bir struct yoktur;
+  tekil toggle yerine her zaman grup içinde segment kullanılır.
+- İkon: `Icon`, `DecoratedIcon`, `IconDecoration`,
+  `IconDecorationKind::{X, Dot, Triangle}`, `IconName`,
+  `IconPosition::{Start, End}` (button içinde label-icon sırası),
+  `IconSize`, `IconWithIndicator`, `KnockoutIconName`, `AnyIcon`. `IconName`
+  `crates/icons` crate'inde tanımlanır, `ui::prelude` üzerinden re-export
+  edilir. `IconSize` varyantları: `Indicator`, `XSmall`, `Small`, `Medium`,
+  `XLarge`, `Custom(Rems)`; `.rems()`, `.square_components(window, cx)`,
+  `.square(window, cx)` verir.
 - Form/toggle: `Checkbox`, `Switch` (`SwitchColor::{Accent, Custom(Hsla)}`,
   `SwitchLabelPosition::{Start, End}`), `SwitchField`, `DropdownMenu`
   (`DropdownStyle::{Solid, Outlined, Subtle, Ghost}`), `ToggleStyle::{Ghost,
