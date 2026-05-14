@@ -471,6 +471,10 @@ eklersen UI tema crate'i etkilenmez.
 | `serde_json_lenient` | Yorum/trailing comma toleranslı | Zed JSON dosyalarını parse etmek için **şart** |
 | `thiserror` | Hata türetme | `#[derive(Error)] ThemeNotFoundError` |
 | `uuid` | Unique id | `Theme::from_content` içinde tema id'si |
+| `inventory` | Link-time static registration | Zed'de `#[derive(RegisterSetting)]` `inventory::submit!` ile setting tipini ekler; `SettingsStore::new` `inventory::iter` ile toplar. Mirror'da `kvs_tema_ayarlari` setting'leri auto-register edecekse zorunlu — alternatif elle register listesi tutmaktır |
+| `settings_macros` (Zed iç crate) | Derive ve attribute macro'ları | `RegisterSetting`, `MergeFrom`, `with_fallible_options`. Mirror tarafında `kvs_ayarlari_macros` veya benzeri ayrı crate kurulur (proc-macro crate'ler diğer crate tipleriyle aynı pakette olamaz) |
+| `derive_more` | Newtype ergonomi türevleri | `FontSize` newtype'ında `derive_more::FromStr` ile `from_str` üretmek için (`settings_content/src/theme.rs:197`). Mirror'da opsiyonel; elle implement edilebilir |
+| `serde_path_to_error` | Parse hatasında field path | `settings_json::parse_json_with_comments` bu crate'i kullanır; hata mesajları `theme.colors.background: ...` şeklinde path gösterir. Mirror'da kullanıcı deneyimi için tavsiye edilir |
 
 **Versiyon pinleme tavsiyesi:**
 
@@ -6745,15 +6749,109 @@ pub trait Settings: 'static + Send + Sync + Sized {
 
     /// Yumuşak okuma — `SettingsStore` kuruluysa.
     fn try_get(cx: &App) -> Option<&Self>;
+
+    /// AsyncApp tarafından senkron read (typed setting tipini callback'e ver).
+    fn try_read_global<R>(
+        cx: &AsyncApp,
+        f: impl FnOnce(&Self) -> R,
+    ) -> Option<R>;
+
+    /// Runtime override — settings dosyası değişene kadar geçerli.
+    fn override_global(settings: Self, cx: &mut App);
 }
 ```
+
+#### `#[derive(RegisterSetting)]` ile auto-registration
+
+Zed'in `Settings`-tipi auto-registration mekanizması iki bileşene dayanır
+(`settings_macros::derive_register_setting`,
+`settings/src/settings_store.rs:131-137, 412-416`):
+
+```rust
+// proc-macro üretimi (settings_macros/src/settings_macros.rs:85-105):
+inventory::submit! {
+    RegisteredSetting {
+        settings_value: || Box::new(SettingValue::<#type_name> { ... }),
+        from_settings: |content| Box::new(<#type_name as Settings>::from_settings(content)),
+        id: || std::any::TypeId::of::<#type_name>(),
+    }
+}
+
+// settings_store.rs içinde:
+inventory::collect!(RegisteredSetting);
+
+impl SettingsStore {
+    fn load_settings_types(&mut self) {
+        for registered_setting in inventory::iter::<RegisteredSetting>() {
+            self.register_setting_internal(registered_setting);
+        }
+    }
+
+    pub fn new(cx: &mut App, default_settings: &str) -> Self {
+        let mut this = Self { /* ... */ };
+        this.load_settings_types();   // ← link-time tüm setting tipleri burada toplanır
+        this
+    }
+}
+```
+
+**Pratik sonuç:**
+
+`ThemeSettings` aslında `#[derive(Clone, PartialEq, RegisterSetting)]`
+(`theme_settings/src/settings.rs:38`) ile işaretlenir; `theme_settings::init`
+**`ThemeSettings::register(cx)` çağırmaz**. Inventory crate'i `submit!`
+makrosu üretildiği yerde static registration yapar; `SettingsStore::new`
+constructor'ında `inventory::iter::<RegisteredSetting>()` üzerinden tüm
+linklenen setting tipleri toplanır. Yani üretim akışında setting tiplerinin
+elle `register` edilmesi **gerekmez**; bu trait metodu (`Settings::register`)
+yalnız test'lerde veya manuel SettingsStore kurarken kullanılır.
+
+> **Önemli parite notu:** Mirror tarafta inventory pattern'inin alternatifi
+> elle register etmektir (`kvs_ayarlari::init` veya benzeri). İki yolu
+> karıştırma: ya hepsi `#[derive(KaydetAyar)]` ile auto-register, ya hepsi
+> elle. Mixed mode "bazı tipler kayıtlı, bazıları kayıtsız" gibi sessiz
+> bug üretir.
+
+#### `ThemeSettings` alan görünürlükleri
+
+`ThemeSettings` struct'ında alanların görünürlüğü Zed paritesinde **karışık**
+(`theme_settings/src/settings.rs:39-86`):
+
+| Alan | Görünürlük | Erişim yolu |
+|------|-----------|-------------|
+| `ui_font_size: Pixels` | **private** | `theme_settings.ui_font_size(cx)` accessor |
+| `ui_font: Font` | `pub` | doğrudan alan |
+| `buffer_font_size: Pixels` | **private** | `theme_settings.buffer_font_size(cx)` accessor |
+| `buffer_font: Font` | `pub` | doğrudan alan |
+| `agent_ui_font_size: Option<Pixels>` | **private** | `theme_settings.agent_ui_font_size(cx)` |
+| `agent_buffer_font_size: Option<Pixels>` | **private** | `theme_settings.agent_buffer_font_size(cx)` |
+| `markdown_preview_font_family: Option<SharedString>` | **private** | `theme_settings.markdown_preview_font_family()` |
+| `markdown_preview_theme: Option<ThemeSelection>` | `pub` | doğrudan alan |
+| `buffer_line_height: BufferLineHeight` | `pub` | doğrudan alan |
+| `theme: ThemeSelection` | `pub` | doğrudan alan |
+| `experimental_theme_overrides: Option<ThemeStyleContent>` | `pub` | doğrudan alan |
+| `theme_overrides: HashMap<String, ThemeStyleContent>` | `pub` | doğrudan alan |
+| `icon_theme: IconThemeSelection` | `pub` | doğrudan alan |
+| `ui_density: UiDensity` | `pub` | doğrudan alan |
+| `unnecessary_code_fade: f32` | `pub` | doğrudan alan |
+
+**Gerekçe:** Font size'lar `*FontSize` override global'leri ile etkilenir
+(Konu 43.8.1). Accessor metotlar bu override'ı uygulayıp **etkin değeri**
+döner; doğrudan alan okuma settings dosyasındaki ham değeri verir. Bu yüzden
+font size'lar bilinçli olarak private — okuyucu ya `.ui_font_size(cx)`
+accessor'ını kullanır (override-aware) ya da `.ui_font_size_settings()`
+accessor'ı ile ham değeri ister (Konu 43.9 tablosunda).
+
+Mirror tarafta `TemaAyarlari` struct'ında font size'ları private tutmak ve
+accessor metotlarla okutmak Zed paritesi açısından zorunludur; aksi halde
+override drop davranışı yanlış uygulanır.
 
 **Çalışma akışı:**
 
 1. `SettingsStore::set_global(cx, store)` settings sisteminin init'inde kurulur.
-2. `ThemeSettings::register(cx)` `SettingsStore::register_setting::<ThemeSettings>()`
-   çağırır. Bu, settings dosyası her değiştiğinde `ThemeSettings::from_settings(&content)`
-   çağrılacağını söyler ve dahili dispatch tablosuna ekler.
+2. `SettingsStore::new`'ün `load_settings_types`'ı inventory'den kayıtlı tipleri
+   otomatik yükler; `ThemeSettings::register(cx)` üretim akışında çağrılmaz
+   (yukarıdaki auto-registration bölümü).
 3. `ThemeSettings::get_global(cx)` çalıştığında `cx.global::<SettingsStore>().get(None)`
    üzerinden cache'lenmiş güncel `&ThemeSettings` döner.
 4. `SettingsLocation { worktree_id, path }` ile path-scoped lookup yapılırsa
@@ -6764,8 +6862,8 @@ pub trait Settings: 'static + Send + Sync + Sized {
 benzeri bir trait sözleşmesini takip etmelidir. `ThemeSettingsProvider` (Konu 43.2)
 bu bağlantının soyutlanmış arayüzüdür — `kvs_tema` `provider`'dan typography
 ve density okur, `Settings` trait'ini doğrudan kullanmaz. `kvs_tema_ayarlari`'nın
-`init`'i `Settings::register` yaparak `kvs_ayarlari_deposu`'na `TemaAyarlari`'yı
-tanıtır.
+auto-registration için `#[derive(KaydetAyar)]` benzeri bir macro mirror
+edilmelidir veya `init` fonksiyonunda elle `Settings::register` çağrılır.
 
 Tema uygulama akışı (`configured_theme` Zed'de **private** `fn`,
 `theme_settings/src/theme_settings.rs:145`; aşağıdaki örnek mirror tarafta
@@ -11593,6 +11691,13 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `Refineable` derive `Option<T>` sarmalama kuralı | `refineable/derive_refineable/src/derive_refineable.rs:512-548` | Düz `T` → `Option<T>`; `Option<T>` aynen `Option<T>` (tekrar sarmalanmaz); `#[refineable] U` → `URefinement` (nested recursive). Konu 11'de tablo eklendi |
 | `configured_theme`, `configured_icon_theme` görünürlüğü | `theme_settings/src/theme_settings.rs:145, 166` | Aslında `fn` — **private**. Mirror tarafta `pub fn` yapmak tasarım kararıdır; `DECISIONS.md`'ye yaz. Zed paritesinde `init` ve `reload_theme` bu helper'ları çağırır, tüketici doğrudan erişmez |
 | `load_bundled_themes` hata davranışı | `theme_settings/src/theme_settings.rs:199-222` | Her tema asset'i `log_err()` ile sarılır; parse hatası **panic etmez**, log'lanır ve sonraki asset'e geçer. Bu sayede tek bozuk bundled tema tüm Zed başlatmasını engellemez. Mirror tarafta aynı davranış zorunlu |
+| `#[derive(RegisterSetting)]` auto-registration | `settings_macros/src/settings_macros.rs:85-105`, `settings/src/settings_store.rs:131-137, 412-416` | Setting tipini `inventory::submit!` ile static registry'ye ekler. `SettingsStore::new` → `load_settings_types` → `inventory::iter` ile **link-time** otomatik kaydedilir. `ThemeSettings` `#[derive(Clone, PartialEq, RegisterSetting)]` ile işaretli; `theme_settings::init` **elle register çağırmaz**. Konu 31'de tam akış |
+| `inventory` crate auto-registration | `Cargo.toml` (settings, settings_macros) | Rust'ın link-time static registration için kullanılan crate. Setting tipi tanımının yapıldığı yerde `submit!`, toplama tarafında `collect!`. Mirror'da alternatif (elle register listesi) seçilirse `DECISIONS.md`'ye yazılmalı — iki pattern karıştırılırsa sessiz kayıt eksikleri olur |
+| `SettingsStore::override_global<T>` davranışı | `settings/src/settings_store.rs:475-483` | Test ve runtime override için. `setting_values[TypeId::of::<T>()].set_global_value(Box::new(value))`. Doc note: "The given value will be overwritten if the user settings file changes" — yani settings dosyası değişince override drop olur (observer akışı bunu garantiler). Tip kayıtlı değilse `panic!("unregistered setting type ...")` |
+| `ThemeSettings` alan görünürlükleri | `theme_settings/src/settings.rs:39-86` | Font size alanları (`ui_font_size`, `buffer_font_size`, `agent_*_font_size`, `markdown_preview_font_family`) **private**; accessor metotlar (`ui_font_size(cx)`, `buffer_font_size(cx)`, vs.) override-aware okuma yapar. Diğer alanlar (`ui_font`, `buffer_font`, `theme`, `icon_theme`, `theme_overrides`, `experimental_theme_overrides`, `buffer_line_height`, `markdown_preview_theme`, `ui_density`, `unnecessary_code_fade`) `pub`. Konu 31'de tam tablo |
+| `theme` crate'i `#![deny(missing_docs)]` | `theme/src/theme.rs:1` | Crate-level lint zorlaması: tüm public öğeler doc yorumu gerektirir. Mirror'da aynısı uygulanırsa public API kalitesi artar; yeni alan eklendiğinde "doc yok" hatası sayesinde sözleşme atlanmaz |
+| `theme` crate mod görünürlükleri | `theme/src/theme.rs:11-21, 32-42` | Tüm modüller (`default_colors`, `fallback_themes`, `font_family_cache`, `icon_theme`, `icon_theme_schema`, `registry`, `scale`, `schema`, `styles`, `theme_settings_provider`, `ui_density`) **private** `mod`. Public yüzey yalnızca `pub use crate::<mod>::*` re-export ile gelir. `fallback_themes` istisnası: yalnız `apply_status_color_defaults` ve `apply_theme_color_defaults` `pub use` ile açılır — diğer iç fonksiyonlar (`zed_default_dark` vb.) `pub(crate)` |
+| `ui::is_light(cx)` public helper | `ui/src/utils.rs:23-25` | `cx.theme().appearance.is_light()` çağırır. UI tüketicileri için tekrar eden pattern; `kvs_ui` veya `kvs_bilesen` mirror'ında benzeri sağlanabilir. `ui::prelude` `pub use theme::ActiveTheme` ile trait'i tüketici crate'lere açar |
 
 Küçük method yüzeyleri:
 
