@@ -5864,9 +5864,16 @@ Tipografi:
 
 Semantic renk ve elevation:
 
-- `Color` theme'e göre HSLA'ya çevrilen semantic enum'dur:
-  `Default`, `Muted`, `Hidden`, `Disabled`, `Placeholder`, `Accent`, `Info`,
-  `Success`, `Warning`, `Error`, VCS durum renkleri ve `Custom(Hsla)`.
+- `Color` theme'e göre HSLA'ya çevrilen semantic enum'dur
+  (`crates/ui/src/styles/color.rs`). Variantlar:
+  `Default`, `Accent`, `Conflict`, `Created`, `Custom(Hsla)`, `Debugger`,
+  `Deleted`, `Disabled`, `Error`, `Hidden`, `Hint`, `Ignored`, `Info`,
+  `Modified`, `Muted`, `Placeholder`, `Player(u32)`, `Selected`, `Success`,
+  `VersionControlAdded`, `VersionControlConflict`, `VersionControlDeleted`,
+  `VersionControlIgnored`, `VersionControlModified`, `Warning`. Üretim/diff
+  rengi için git/VCS varyantlarını, oyuncu vurgusu için `Player(u32)`'yi,
+  highlight için `Selected`/`Hint`'i tercih et — bunlar `cx.theme().status()`
+  veya player palette üzerinden HSLA'ya çözülür.
 - `TintColor::{Accent, Error, Warning, Success}` button tint stillerine kaynaklık
   eder ve `Color`'a dönüştürülebilir.
 - `ElevationIndex::{Background, Surface, EditorSurface, ElevatedSurface,
@@ -5895,18 +5902,32 @@ Diğer UI yardımcıları:
   belirtilen group hover olduğunda visible'a çevirir. `""` global group'tur.
 - `WithRemSize::new(px(...))` child ağacında `window.with_rem_size` uygular;
   özel preview veya küçük component ölçeklemesi için kullanılır.
-- `Scrollbars::new(ScrollAxes::Vertical)` ve `.vertical_scrollbar_for(handle,
-  window, cx)` Zed'in custom scrollbar katmanıdır. Görünürlük ayarı crate
-  kökünde değil `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility,
-  ScrollbarAutoHide}` namespace'i altındadır; `ScrollbarVisibility` settings
-  trait'i, `ScrollbarAutoHide` ise auto-hide durumunu taşıyan `Global` tipidir.
+- Scrollbar katmanı **iki ayrı API yüzeyi** sunar; doğru olanı seç:
+  - Düşük seviye: `Scrollbars::new(ScrollAxes)` builder zinciri —
+    `.tracked_scroll_handle(handle)`, `.id(...)`, `.notify_content()`,
+    `.style(ScrollbarStyle)`, `.with_track_along(...)` vb. — sonra
+    `div().custom_scrollbars(config, window, cx)` ile uygulanır.
+    `custom_scrollbars` ve `vertical_scrollbar_for` yalnızca
+    `WithScrollbar` trait üzerindedir; `WithScrollbar`
+    `Div` ve `Stateful<Div>` için implement edilir.
+  - Kısayol: `div().vertical_scrollbar_for(&scroll_handle, window, cx)` —
+    `WithScrollbar::vertical_scrollbar_for` default impl'i kendi içinde
+    `Scrollbars::new(ScrollAxes::Vertical).tracked_scroll_handle(handle)`
+    kurar. **`Scrollbars` üzerinde inherent `.vertical_scrollbar_for(...)`
+    yoktur**; zincir parent element üzerinde başlar.
+  - Görünürlük ayarı crate kökünde değil
+    `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility, ScrollbarAutoHide}`
+    namespace'i altındadır; `ScrollbarVisibility` settings trait'i,
+    `ScrollbarAutoHide` ise auto-hide durumunu taşıyan `Global` tipidir.
 
 Tuzaklar:
 
 - Uygulama UI'ında doğrudan `cx.theme().colors().text_*` yazmak mümkün olsa da
   reusable component için `Color`/`TintColor` semantic katmanı daha dayanıklıdır.
 - `ButtonLike` güçlü ama unconstrained bir primitive'dir; hazır `Button`,
-  `IconButton`, `ToggleButton` yeterliyse onları kullan.
+  `IconButton`, `ToggleButtonGroup`, `ToggleButtonSimple` veya
+  `ToggleButtonWithIcon` yeterliyse onları kullan. `ToggleButton` adında
+  bağımsız bir public tip yoktur.
 - `VisibleOnHover` için parent'ta aynı group adıyla hover group kurulmadıysa
   element hiçbir zaman görünmez.
 
@@ -5915,10 +5936,22 @@ Tuzaklar:
 Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 
 - Metin: `Label`, `Headline`, `HighlightedLabel`, `LoadingLabel`, `SpinnerLabel`
-- Buton: `Button`, `IconButton`, `SelectableButton`, `ButtonLike`,
-  `ButtonLink`, `CopyButton`, `SplitButton`, `ToggleButton`
-- İkon: `Icon`, `DecoratedIcon`, `IconDecoration`, `IconName`, `IconSize`
-- Form/toggle: `Checkbox`, `Switch`, `SwitchField`, `DropdownMenu`
+- Buton: `Button`, `IconButton` (`IconButtonShape`), `SelectableButton`,
+  `ButtonLike` (`ButtonBuilder`/`ButtonConfiguration` sealed yardımcılar),
+  `ButtonLink`, `CopyButton`, `SplitButton` (`SplitButtonKind`,
+  `SplitButtonStyle`), `ToggleButtonGroup` (`ToggleButtonGroupStyle`,
+  `ToggleButtonGroupSize`, `ToggleButtonPosition`) ve giriş tipleri
+  `ToggleButtonSimple`, `ToggleButtonWithIcon`. `ToggleButton` adında
+  bağımsız bir struct yoktur; tekil toggle yerine her zaman grup içinde
+  segment kullanılır.
+- İkon: `Icon`, `DecoratedIcon`, `IconDecoration`, `IconDecorationKind`,
+  `IconName`, `IconPosition`, `IconSize`, `IconWithIndicator`,
+  `KnockoutIconName`, `AnyIcon`. `IconName` `crates/icons` crate'inde
+  tanımlanır, `ui::prelude` üzerinden re-export edilir.
+- Form/toggle: `Checkbox`, `Switch` (`SwitchColor`, `SwitchLabelPosition`
+  enumları ile), `SwitchField`, `DropdownMenu` (`DropdownStyle`).
+  Lowercase yardımcı fonksiyonlar `checkbox(id, state)` ve
+  `switch(id, state)` constructor kısayollarıdır.
 - Menü/popup: `ContextMenu`, `RightClickMenu`, `Popover`, `PopoverMenu`, `Tooltip`
 - Liste/tree: `List`, `ListItem`, `ListHeader`, `ListSubHeader`, `ListSeparator`,
   `TreeViewItem`, `StickyItems`, `IndentGuides`
