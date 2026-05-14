@@ -1227,7 +1227,7 @@ tema sistemi sınırları dışında da global state için idiomatik.
 | `GlobalThemeRegistry` | `Arc<ThemeRegistry>` | `cx.set_global(GlobalThemeRegistry(...))` (Zed'de `pub(crate) ThemeRegistry::set_global` wrapper'ı bunu yapar) | `ThemeRegistry::global(cx)` |
 | `GlobalTheme` | `Arc<Theme>` + `Arc<IconTheme>` (aktif) | `cx.set_global(GlobalTheme::new(...))`, sonra `update_theme` / `update_icon_theme` | `cx.theme()`, `GlobalTheme::icon_theme(cx)` |
 | `GlobalSystemAppearance` | `SystemAppearance` | `SystemAppearance::init` | `SystemAppearance::global(cx)` |
-| `BufferFontSize`, `UiFontSize`, `AgentUiFontSize`, `AgentBufferFontSize` | `Pixels` (override) | `adjust_*_font_size` çağrıları | `ThemeSettings::*_font_size(cx)` (override yoksa settings değerine düşer) |
+| `BufferFontSize`, `UiFontSize`, `AgentUiFontSize`, `AgentBufferFontSize` | `Pixels` (override) | `adjust_*_font_size` çağrıları | `ThemeSettings::*_font_size(cx)` (override yoksa settings değerine düşer). Zed public yüzeyinde yalnız agent newtype'ları re-export edilir; buffer/ui newtype'ları internal kalır |
 
 #### `cx.refresh_windows()`
 
@@ -11419,10 +11419,10 @@ geçici olarak büyütebilir ve settings dosyası yazılmaz.
 
 ```rust
 // Override global'leri (Pixels newtype'ları):
-pub struct BufferFontSize(Pixels);     // settings.rs içinde
-pub struct UiFontSize(Pixels);         // settings.rs içinde
-pub struct AgentUiFontSize(Pixels);    // settings.rs:108
-pub struct AgentBufferFontSize(Pixels);// settings.rs:114
+struct BufferFontSize(Pixels);               // private, settings.rs:96
+pub(crate) struct UiFontSize(Pixels);        // crate-içi, settings.rs:102
+pub struct AgentUiFontSize(Pixels);          // public, settings.rs:108
+pub struct AgentBufferFontSize(Pixels);      // public, settings.rs:114
 
 impl Global for BufferFontSize {}      // ... her biri için
 ```
@@ -11451,7 +11451,7 @@ pub fn clamp_font_size(size: Pixels) -> Pixels;
 pub fn adjusted_font_size(size: Pixels, cx: &App) -> Pixels;
 pub fn observe_buffer_font_size_adjustment<V: 'static>(
     cx: &mut Context<V>,
-    f: impl FnMut(&mut V, &mut Context<V>) + 'static,
+    f: impl 'static + Fn(&mut V, &mut Context<V>),
 ) -> Subscription;
 pub fn setup_ui_font(window: &mut Window, cx: &mut App) -> gpui::Font;
 ```
@@ -11502,6 +11502,12 @@ bırakılmamalıdır.
   temsil ettiği anlamına gelmez; Zed'de 111 alanlık alt kümedir.
 - `ui_font_size` veya `theme` gibi metod/alan adları birden fazla owner'da
   geçebilir; denetim `Owner::method` ve `Struct.field` düzeyinde yapılmalıdır.
+- `pub` kelimesi tek başına gerçek public path değildir; `mod` görünürlüğü,
+  root `pub use` zinciri ve `#[cfg(feature = "...")]` kapısı birlikte
+  kontrol edilmelidir.
+- İsim varlığı imza doğrulaması değildir; callback bound'ları (`Fn`/`FnMut`),
+  `pub(crate)` newtype'lar ve trait default helper'ları doğrudan kaynak
+  satırından karşılaştırılmalıdır.
 
 Bundan sonra rehber güncellemesi üç ayrı ilişkiyi doğrular: public isim
 varlığı, owner-metot eşleşmesi ve alan kümeleri arasındaki matematiksel
@@ -11529,7 +11535,7 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `theme_settings::theme_settings::reload_theme`, `reload_icon_theme`, `load_user_theme`, `deserialize_user_theme`, `refine_theme_family`, `refine_theme`, `merge_player_colors`, `merge_accent_colors`, `increase_buffer_font_size`, `decrease_buffer_font_size` | `theme_settings/src/theme_settings.rs:185-428` | Zed'in JSON→Theme pipeline'ının ve runtime tema reload akışının kanonik fonksiyonları. Konu 26 + Konu 31'de detaylı; bu satır 43.9 denetiminin köprüsü |
 | `theme_settings::settings::adjust_buffer_font_size`, `reset_buffer_font_size`, `adjust_ui_font_size`, `reset_ui_font_size`, `adjust_agent_ui_font_size`, `reset_agent_ui_font_size`, `adjust_agent_buffer_font_size`, `reset_agent_buffer_font_size`, `clamp_font_size`, `adjusted_font_size`, `observe_buffer_font_size_adjustment`, `setup_ui_font` | `theme_settings/src/settings.rs` | Runtime font ölçekleme override global'leri ve helper'ları (Konu 43.8.1). Settings UI / shortcut tarafında kullanılır |
 | `ThemeSettings::*_font_size_settings`, `markdown_preview_font_family` | `theme_settings/src/settings.rs:412-447` | Settings dosyasındaki baz değerleri override global'lerinden ayıran accessor'lar. `theme_settings::init` observer'ı bu `*_settings()` değerlerini izleyip runtime font override global'lerini resetler |
-| `AgentUiFontSize`, `AgentBufferFontSize` newtype global'leri | `theme_settings/src/settings.rs:108, 114` | Agent panel font override'ı için `Global`-impl'lenmiş `Pixels` newtype'ları (Konu 43.8.1) |
+| `AgentUiFontSize`, `AgentBufferFontSize` newtype global'leri | `theme_settings/src/settings.rs:108, 114` | Agent panel font override'ı için `Global`-impl'lenmiş `Pixels` newtype'ları (Konu 43.8.1). `BufferFontSize` private, `UiFontSize` `pub(crate)`; root `pub use` listesine girmez |
 | `theme_settings::schema::syntax_overrides`, `theme_colors_refinement`, `status_colors_refinement` | `theme_settings/src/schema.rs:40, 237, 65` | Content → Refinement dönüşüm fonksiyonlarının kanonik adları. **`theme_colors_refinement` 3 parametrelidir** (`this`, `status_colors`, `is_light`); fallback zincirleri ve diff-hunk opacity'leri Konu 24'te tam tablo |
 | `theme_colors_refinement` fallback zincirleri | `theme_settings/src/schema.rs:237-876` | `scrollbar_thumb_background → deprecated_*`, `version_control_* → status.*`, `minimap_thumb_* → scrollbar_thumb_*` (alpha max `0.7`), `panel_overlay_* → panel_background` (+ `element_hover` blend), document highlight / Vim / Helix fallback'leri ve `editor_diff_hunk_* → version_control_* × LIGHT/DARK_DIFF_HUNK_*_OPACITY`. Konu 24 tablosu eksiksiz listeler |
 | `LIGHT_DIFF_HUNK_FILLED_OPACITY`, `DARK_DIFF_HUNK_FILLED_OPACITY`, `LIGHT_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY`, `DARK_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY`, `LIGHT_DIFF_HUNK_HOLLOW_BORDER_OPACITY`, `DARK_DIFF_HUNK_HOLLOW_BORDER_OPACITY` | `theme_settings/src/schema.rs:16-21` | Pin `6e8eaab25b5a` değerleri sırasıyla `0.16 / 0.12 / 0.08 / 0.06 / 0.48 / 0.36`. `pub(crate)` sabitler ama tüketici görünür sözleşme değil; sayılar mirror'da `kvs_tema_ayarlari` modülünde aynı tutulmalı |
@@ -11558,6 +11564,8 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `ThemeRegistry::list_names()` sıralama | `theme/src/registry.rs:181-185` | `Vec<SharedString>` döner ve **sıralı** (`names.sort()`). Buna karşılık `list()` (Vec<ThemeMeta>) **sıralı değil** — HashMap.values() üzerinden direkt map'lenir. Selector UI sıralı list istiyorsa `list_names` veya manuel sort gerek |
 | `ThemeRegistry::clear()` davranışı | `theme/src/registry.rs:176-178` | Sadece `themes` HashMap'ini temizler — `icon_themes` HashMap'ine **dokunmaz**. Test/reset senaryolarında icon themes ayrıca `remove_icon_themes(...)` ile temizlenmelidir |
 | `ThemeRegistry::load_icon_theme` baseline merge davranışı | `theme/src/registry.rs:250-330`, `file_icons/src/file_icons.rs:89-164` | Yüklenen icon theme'in `file_stems`, `file_suffixes`, `named_directory_icons` haritaları **default icon theme üstüne extend edilir**. `file_icons`, `directory_icons`, `chevron_icons` constructor'da default'tan kopyalanmaz; UI lookup eksik dosya tipi, klasör ve chevron path'lerinde `file_icons` crate'i üzerinden default icon theme'e düşer. Her tema için yeni UUID atanır |
+| `icon_theme_schema` re-export sınırı | `theme/src/theme.rs:15, 36`; `theme/src/icon_theme_schema.rs:10-49` | Modülün kendisi `mod icon_theme_schema` ile private; root `pub use crate::icon_theme_schema::*` yalnız `IconThemeFamilyContent`, `IconThemeContent`, `DirectoryIconsContent`, `ChevronIconsContent`, `IconDefinitionContent` tiplerini açar. Mirror'da `kvs_tema::icon_theme_schema` path'i ancak bilinçli tasarım kararıysa public yapılmalı |
+| `SyntaxTheme::one_dark()` | `syntax_theme/src/syntax_theme.rs:134-220` | `#[cfg(feature = "bundled-themes")]` altında public helper. Bundled `one/one.json` içinden `"One Dark"` syntax theme'i yükler; feature kapalıyken public API'de yoktur. Üretim tema yükleme hattı yerine test/dev fixture olarak düşün |
 | `Refineable` trait yüzeyi tam katalog | `refineable/src/refineable.rs:29-131` | `Refineable`: `refine`, `refined`, `from_cascade`, `is_superset_of`, `subtract`; `IsEmpty`: `is_empty`; `Cascade<S>` metotları: `reserve`, `base`, `set`, `merged`; `CascadeSlot` yalnız slot handle'ıdır. Tema sistemi `from_cascade`/`Cascade` kullanmaz ama refineable trait sözleşmesi tam mirror edilmelidir |
 | `#[with_fallible_options]` macro | `settings_macros/src/settings_macros.rs:110-152` | `Option<T>` alanlarına otomatik `#[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::fallible_options::deserialize")]` ekler. `ThemeSettingsContent`, `ThemeStyleContent`, `ThemeColorsContent`, `StatusColorsContent` gibi tiplerde kullanılır; parse hatası alan `None`'a düşer, thread-local hata listesine eklenir |
 | `fallible_options::parse_json`, crate-private `deserialize` | `settings_content/src/fallible_options.rs:11-65` | Top-level parse fonksiyonu (`parse_json::<T>(json) -> (Option<T>, ParseStatus)`) public re-export edilir; thread-local `ERRORS` listesi parse sırasında biriken hataları toplar. `deserialize` ise `pub(crate)` internal helper'dır, macro'nun eklediği serde attribute'u kullanır |
@@ -11577,7 +11585,7 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `SettingsContent.theme` flatten ilişkisi | `settings_content/src/settings_content.rs:114-145` | `pub theme: Box<ThemeSettingsContent>` **`#[serde(flatten)]`** ile işaretli. Kullanıcı `settings.json`'da `ui_font_size`, `theme`, `icon_theme`, `unstable.ui_density` vb. **top-level** alanlar olarak yazar — iç `"theme": { ... }` bloğu **YOK**. `SettingsContent` 25+ alt struct'ı flatten ile birleştirir; `Box` heap'e taşıyarak stack overflow'tan kaçınır |
 | `UserSettingsContent` yapısı | `settings_content/src/settings_content.rs:407-421` | `content: Box<SettingsContent>` flatten + `release_channel_overrides` flatten + `platform_overrides` flatten + `profiles: IndexMap<String, SettingsProfile>` düz alan. Yani `~/.config/zed/settings.json` `SettingsContent` alanları + override blokları + `"profiles": {...}` taşır |
 | `settings_overrides!` macro | `settings_content/src/settings_content.rs:40-65` | `Option<Box<SettingsContent>>` alanlı override struct'lar üretir + `OVERRIDE_KEYS: &[&str]` derive + `get_by_key(key) -> Option<&SettingsContent>` accessor. Release channel ve platform override'ları bu pattern'le tanımlıdır |
-| `Settings` trait (`settings_store`) | `settings/src/settings_store.rs:60-100` | `PRESERVED_KEYS`, `from_settings(content) -> Self`, `register(cx)`, `get(path, cx)`, `get_global(cx)`, `try_get(cx)`. `ThemeSettings::get_global(cx)` bu trait'ten gelir; `from_settings` `SettingsContent.theme` flatten'ından typed `ThemeSettings` üretir |
+| `Settings` trait (`settings_store`) | `settings/src/settings_store.rs:60-129` | Tam public yüzey: `const PRESERVED_KEYS: Option<&'static [&'static str]> = None`, `from_settings(content: &SettingsContent) -> Self`, `register(cx: &mut App)`, `get<'a>(path: Option<SettingsLocation>, cx: &'a App) -> &'a Self`, `get_global(cx: &App) -> &Self`, `try_get(cx: &App) -> Option<&Self>`, `try_read_global<R>(cx: &AsyncApp, f: impl FnOnce(&Self) -> R) -> Option<R>`, `override_global(settings: Self, cx: &mut App)`. `ThemeSettings::get_global(cx)` bu trait'ten gelir; `from_settings` `SettingsContent.theme` flatten'ından typed `ThemeSettings` üretir |
 | `SettingsStore` global'i | `settings/src/settings_store.rs` | `register_setting::<T: Settings>()` ile typed setting tipini dispatch tablosuna ekler; ayar dosyası değiştiğinde her kayıtlı tipin `from_settings`'i çağrılır. `cx.global::<SettingsStore>().get(None)` cache'lenmiş `&ThemeSettings` döner — accessor klonsuz, hot path |
 | `settings_json::parse_json_with_comments` | `settings_json/src/settings_json.rs:743-746` | `serde_json_lenient::Deserializer` + `serde_path_to_error::deserialize`. Hata mesajları **field path'ini de gösterir** (örn. `theme.colors.background: invalid hex`); mirror tarafta da `serde_path_to_error` kullanmak kullanıcı deneyimini iyileştirir |
 | `MergeFromTrait` re-export | `settings_content/src/settings_content.rs:23` | `merge_from::MergeFrom` `pub use ... as MergeFromTrait` ile yeniden ihraç edilir. Aynı trait için iki ad: `MergeFrom` (derive macro + trait) ve `MergeFromTrait` (alias). Mirror tarafta tek ada karar ver, çakışma testleri yaz |
