@@ -158,10 +158,21 @@ altında ayrıca verilir.
 
 **Public görünen ama kullanım yüzeyi olmayanlar:** `MenuHandleElementState`,
 `RequestLayoutState`, `PrepaintState`, `PopoverMenuElementState`,
-`PopoverMenuFrameState`, `ScrollbarPrepaintState`, `RenderIndentGuideParams`,
-`RenderedIndentGuide` ve `IndentGuideLayout` element/layout state taşıyıcılarıdır.
-Kaynakta `pub struct` olmaları tüketiciye önerilen builder API'si oldukları
-anlamına gelmez.
+`PopoverMenuFrameState` ve `ScrollbarPrepaintState` element/layout state
+taşıyıcılarıdır. Kaynakta `pub struct` olmaları tüketiciye önerilen builder
+API'si oldukları anlamına gelmez; `Element` implementasyonu içinde
+`RequestLayoutState` / `PrepaintState` tipleri layout, prepaint ve paint
+geçişleri arasında veri taşır, `MenuHandleElementState` ve
+`PopoverMenuElementState` ise hover/açık menü durumlarını element id'sine bağlar.
+
+**Callback yüzeyi olarak public, state taşıyıcı değil:**
+`RenderIndentGuideParams`, `RenderedIndentGuide` ve `IndentGuideLayout`
+`IndentGuides` callback'lerinin sözleşme tipleridir.
+`IndentGuides::with_render_fn(...)` callback'i `RenderIndentGuideParams`'ı
+girdi olarak alır ve `SmallVec<[RenderedIndentGuide; 12]>` döndürür;
+`IndentGuides::on_click(...)` ise ilk parametre olarak `&IndentGuideLayout`
+verir. Bu nedenle üç tip de "IndentGuides" başlığında alanlarıyla birlikte
+listelenir; element state taşıyıcısı sayılmaz.
 
 #### İmzası özellikle kontrol edilen lifecycle API'leri
 
@@ -4467,9 +4478,18 @@ Temel API:
 - Renk helper'ı: `IndentGuideColors::panel(cx)`
 - Builder'lar: `.with_compute_indents_fn(entity, compute_fn)`,
   `.with_render_fn(entity, render_fn)`, `.on_click(...)`
-- `RenderIndentGuideParams`: `indent_guides`, `indent_size`, `item_height`
-- `RenderedIndentGuide`: `bounds`, `layout`, `is_active`, `hitbox`
-- `IndentGuideLayout`: `offset`, `length`, `continues_offscreen`
+- `IndentGuideColors` public alanları: `default: Hsla`, `hover: Hsla`,
+  `active: Hsla`. `panel(cx)` helper'ı dışında özel renk seti gerekiyorsa
+  bu alanlarla doğrudan struct literal kurabilirsiniz.
+- `RenderIndentGuideParams`: `indent_guides: SmallVec<[IndentGuideLayout; 12]>`,
+  `indent_size: Pixels`, `item_height: Pixels`. `with_render_fn` callback'inin
+  girdisidir.
+- `RenderedIndentGuide`: `bounds: Bounds<Pixels>`, `layout: IndentGuideLayout`,
+  `is_active: bool`, `hitbox: Option<Bounds<Pixels>>`. `with_render_fn`
+  callback'inin döndürdüğü vektörün eleman tipidir.
+- `IndentGuideLayout`: `offset: Point<usize>` (satır indeksi ve depth),
+  `length: usize` (kaç satır boyunca süreceği), `continues_offscreen: bool`.
+  `.on_click(...)` callback'i bu tipi `&IndentGuideLayout` olarak alır.
 
 Davranış:
 
