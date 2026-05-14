@@ -860,6 +860,23 @@ sarmal gerekir:
 Bu sarmal olmadan titlebar görünür, fakat pencere kenarı/resize davranışı Zed ile
 aynı olmaz.
 
+**İstenen decoration ile gerçek decoration aynı kabul edilmemelidir.**
+`WindowOptions.window_decorations` sadece istek değeridir; render sırasında
+her zaman `window.window_decorations()` sonucu esas alınır. Kaynakta iki
+platform farkı var:
+
+- Wayland'da server-side decoration istenir ama compositor decoration
+  protokolünü desteklemezse GPUI `WindowDecorations::Client`'a düşer
+  (`gpui_linux/src/linux/wayland/window.rs:1469-1484`).
+- X11'de client-side decoration istenir ama compositor desteği yoksa GPUI
+  server-side decoration'a döner; `window_decorations()` da doğrudan
+  `Decorations::Server` verir (`gpui_linux/src/linux/x11/window.rs:1742-1748`,
+  `1818-1828`).
+
+Bu yüzden `PlatformTitleBar::effective_button_layout(...)` ve
+`render_left/right_window_controls(...)` doğru şekilde ayar değerine değil
+**actual** `Decorations::Client` sonucuna bakar.
+
 ## 5. Public API Envanteri
 
 Bu bölümde `pub` iki anlama ayrılır:
@@ -1176,6 +1193,14 @@ Platform farkı Zed kaynağında ayrı işlenir:
 Kendi uygulamanızda çift tıklamanın maximize yerine minimize gibi farklı bir
 ayar izlemesini istiyorsanız bu bölüm parametreleştirilmelidir.
 
+macOS tarafında `window.titlebar_double_click()` sabit "zoom" değildir.
+`gpui_macos` platform impl'i `NSGlobalDomain/AppleActionOnDoubleClick`
+değerini okur; `"None"` için hiçbir şey yapmaz, `"Minimize"` için
+`miniaturize_`, `"Maximize"` ve `"Fill"` için `zoom_`, bilinmeyen değer
+için de `zoom_` çağırır (`gpui_macos/src/window.rs:1668-1712`). Linux
+tarafındaki `window.zoom_window()` çağrısı ise bu macOS kullanıcı ayarını
+taklit etmez; doğrudan maximize/restore davranışıdır.
+
 ### Renk
 
 `title_bar_color` Linux/FreeBSD tarafında aktif pencere için
@@ -1250,6 +1275,19 @@ de zaten Linux + `Decorations::Client` dışındaki kombinasyonlarda
 ayar zinciri yalnızca Linux/FreeBSD CSD penceresinde anlamlıdır;
 diğer platformlarda `set_button_layout(...)` etkisizdir.
 
+Linux tarafında bu değer `gpui_linux` ortak state'inde başta
+`WindowButtonLayout::linux_default()` olarak tutulur
+(`gpui_linux/src/linux/platform.rs:143-150`) ve `Platform::button_layout()`
+bu common state'i `Some(...)` olarak döndürür (`gpui_linux/src/linux/platform.rs:619-620`).
+Canlı desktop değişimi XDP `ButtonLayout` olayıyla gelir: Wayland ve X11
+client'ları gelen string'i `WindowButtonLayout::parse(...)` ile okur,
+parse hata verirse yine `linux_default()`'a düşer, sonra her pencere için
+`window.set_button_layout()` çağırır (`gpui_linux/src/linux/wayland/client.rs:636-645`,
+`gpui_linux/src/linux/x11/client.rs:493-500`). Bu çağrı da
+`on_button_layout_changed` callback'ini tetikler; Zed `TitleBar::new(...)`
+içinde bu callback'i `cx.observe_button_layout_changed(window, ...)` ile
+`cx.notify()`'a bağlar (`title_bar/src/title_bar.rs:441`).
+
 ## 9. Butonları Uygulama Katmanına Bağlama
 
 ### Close davranışı
@@ -1309,6 +1347,23 @@ Windows tarafında butonlar click handler ile pencere fonksiyonu çağırmaz.
 native caption davranışını uygular. Bu yüzden Windows buton davranışını action
 katmanına almak Linux'e göre daha fazla platform uyarlaması gerektirir.
 
+`window.window_controls()` capability yüzeyi de platforma göre değişebilir.
+Trait default'u "her şey destekleniyor" kabul eder (`WindowControls::default`,
+`gpui/src/platform.rs:413-422`), fakat Wayland `xdg_toplevel::Event::WmCapabilities`
+geldiğinde önce tüm bayrakları `false` yapar, sonra compositor'ın bildirdiği
+`Maximize`, `Minimize`, `Fullscreen`, `WindowMenu` capability'lerini tek tek
+`true` yapar (`gpui_linux/src/linux/wayland/window.rs:788-817`). Bu değer
+sonraki configure'da `state.window_controls` içine alınır ve appearance
+callback'iyle rerender tetiklenir (`gpui_linux/src/linux/wayland/window.rs:601-612`).
+Sonuç:
+
+- `LinuxWindowControls` minimize/maximize butonlarını bu capability'ye göre
+  filtreler; close her zaman render edilebilir (`platform_linux.rs:30-39`).
+- Linux CSD titlebar sağ tık window menu handler'ı sadece
+  `supported_controls.window_menu` true ise eklenir (`platform_title_bar.rs:309-315`).
+- Port ederken `WindowControls::default()` değerini kalıcı gerçek sanma;
+  özellikle Wayland'da capability configure olayı geldikten sonra değişebilir.
+
 ### Sekme butonları
 
 `SystemWindowTabs` içindeki sekme kapatma davranışı da `workspace::CloseWindow`
@@ -1357,6 +1412,13 @@ sırasında "neden sekmeler hiç görünmüyor?" sorusuna en sık verilen
 yanlış cevabın ("`tab_bar_visible` çağırmadım") aslında "macOS dışında
 zaten false döner, controller'ı görünür yapmadığım için boş bırakıyor"
 olduğunu gösterir.
+
+macOS native tabbing için `set_tabbing_identifier(Some(...))` yalnız pencereye
+identifier yazmaz; `NSWindow::setAllowsAutomaticWindowTabbing:YES` de çağırır.
+`None` geldiğinde aynı global izin `NO` yapılır ve pencerenin tabbing identifier'ı
+`nil` olur (`gpui_macos/src/window.rs:1174-1191`). Zed'in
+`SystemWindowTabs::init(cx)` içindeki settings observer'ı bu nedenle yalnız
+controller state'ini değil macOS native tabbing politikasını da açıp kapatır.
 
 **Hata kaynağı ve düzeltilen mantık:** Önceki ekleme `DraggedWindowTab`
 adını ve alanlarını doğru yakaladı, fakat akışı "drop başka pencereye düşerse
