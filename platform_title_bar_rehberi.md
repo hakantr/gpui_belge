@@ -992,6 +992,39 @@ yani port hedefi tema sisteminin **bu dört token'ı sağlaması** zorunludur
 | `WindowControl` buton boyutu | `.w_5().h_5()` (≈20px) | `platform_linux.rs:222-223` |
 | `WindowControl` köşe yuvarlama | `.rounded_2xl()` | `platform_linux.rs:221` |
 
+**`Box<dyn Action>` klonlama zinciri** (awk `boxed_clone()` taraması ile
+çıkarılır — rg her satırı ayrı ayrı bulur, zinciri toplamaz):
+
+| Adım | Yer | Tetikleyici | Çağrı |
+| :-- | :-- | :-- | :-- |
+| 1 | `platform_title_bar.rs:189` | `render()` başı | `let close_action = Box::new(workspace::CloseWindow);` (ilk Box üretimi, klon değil) |
+| 2 | `platform_title_bar.rs:251` | `show_left_controls` true | `close_action.as_ref().boxed_clone()` — `render_left_window_controls` argümanı |
+| 3 | `platform_title_bar.rs:302` | `show_right_controls` true ve `!is_fullscreen` | `close_action.as_ref().boxed_clone()` — `render_right_window_controls` argümanı |
+| 4 | `platform_linux.rs:78` | İlgili tarafta `WindowButton::Close` slot'u var | `create_window_button` → `WindowControl::new_close(..., close_action.boxed_clone(), cx)` |
+| 5 | `platform_linux.rs:188` | `new_close` gövdesi | `close_action: Some(close_action.boxed_clone())` (parametre move'lanmak yerine yeniden klonlanır) |
+| 6 | `platform_linux.rs:239` | Close butonuna **click anı** | `.expect(...).boxed_clone()` — `window.dispatch_action(...)` argümanı |
+
+Adım 2 ve 3 her ilgili sidebar açık değilse her render'da gerçekleşir
+(close butonu o tarafta render edilmese de — clone, render fonksiyonu
+çağrısından önce yapılır). Adım 4 ve 5 yalnızca Linux CSD + close
+butonunun bulunduğu tarafta tetiklenir. Tipik bir Linux GNOME render'ı
+(close sağda, sidebar kapalı): adım 2 + 3 + 4 + 5 = **4 boxed_clone**
+per render. Adım 6 yalnızca click anında, **+1** ek klon.
+
+macOS render'ında adım 4 ve 5 hiç çalışmaz (`render_left/right_window_controls`
+Mac'te `None` döner) ama adım 2 ve 3 boşa klon harcar. Windows'ta
+`WindowsWindowControls` close_action'ı zaten kullanmaz; ama adım 2/3
+yine gerçekleşir.
+
+`Box<dyn Action>::boxed_clone()` aslında trait üzerinden v-table dispatch
+yapan klon işlemidir (`Action::boxed_clone(&self) -> Box<dyn Action>`).
+Concrete tip için maliyet `Clone` impl'ine bağlıdır; `workspace::CloseWindow`
+gibi unit struct'lar için ucuz, alan taşıyan action'lar için klonlama
+maliyeti her render'da çarpılır. Port hedefinde action tipinin hafif
+tutulması (alan içermemesi) bu yolu hızlandırır; ayrıca adım 5
+optimize edilebilir (parametre `Some(close_action)` ile move'lanırsa
+bir klon ortadan kalkar).
+
 ### `platforms::platform_windows`
 
 | Dış API | İmza / tanım | Not |
@@ -1490,6 +1523,13 @@ native caption davranışını uygular. Bu yüzden Windows buton davranışını
 katmanına almak Linux'e göre daha fazla platform uyarlaması gerektirir.
 
 `window.window_controls()` capability yüzeyi de platforma göre değişebilir.
+**`WindowControls` struct'ı dört alan taşır** (`gpui/src/platform.rs:402-413`):
+`fullscreen`, `maximize`, `minimize`, `window_menu` — `close` alanı **yoktur**.
+Bu, "close her zaman desteklenir" tasarım kararıdır ve `LinuxWindowControls`
+filter'ındaki koşulsuz `WindowButton::Close => true` arm'ı bu yüzden gerekir
+(`platform_linux.rs:38`). `platform_title_bar` crate'inin gerçekten okuduğu
+capability'ler: `minimize`, `maximize` (Linux buton filtresi),
+`window_menu` (sağ tık window menu); `fullscreen` ise bu crate içinde okunmaz.
 Trait default'u "her şey destekleniyor" kabul eder (`WindowControls::default`,
 `gpui/src/platform.rs:413-422`), fakat Wayland `xdg_toplevel::Event::WmCapabilities`
 geldiğinde önce tüm bayrakları `false` yapar, sonra compositor'ın bildirdiği
