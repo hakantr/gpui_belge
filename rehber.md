@@ -4638,7 +4638,11 @@ div()
     )
 ```
 
-Çoklu animasyon zinciri için `with_animations(id, vec![anim_a, anim_b], |el, ix, delta| ...)`.
+Çoklu animasyon zinciri için `with_animations(id, vec![anim_a, anim_b],
+|el, ix, delta| ...)`. Closure'a (element, animation_index, delta_in_animation)
+parametreleri verilir; `ix` aktif animasyonun vec içindeki sırasıdır, `delta`
+o animasyona göre 0..1 ilerlemedir. Sıralı/çoklu fazlı geçiş yazarken
+`ix` ile `match` yapılır.
 
 Yerleşik easing fonksiyonları (`crates/gpui/src/elements/animation.rs:211+`):
 `linear`, `quadratic`, `ease_in_out`, `ease_out_quint()`, `bounce(inner)`,
@@ -6118,7 +6122,11 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 
 - Metin: `Label`, `LabelLike` (underlying primitive), `Headline`,
   `HighlightedLabel` ve `highlight_ranges(...)` free fn yardımcısı,
-  `LoadingLabel`, `SpinnerLabel` (`SpinnerVariant` enum'u ile).
+  `LoadingLabel`, `SpinnerLabel` (`SpinnerVariant::{Dots (default),
+  DotsVariant, Sand}`). `SpinnerLabel` constructorları: `new()` default
+  Dots, `with_variant(SpinnerVariant)` ve doğrudan kısayollar `dots()`,
+  `dots_variant()`, `sand()`. `SpinnerLabel` ayrıca `LabelCommon` implement
+  ettiği için `.size/.color/.weight/...` zinciri kullanılabilir.
 - Buton: `Button` (`KeybindingPosition::{Start, End}` ile
   `.key_binding_position(...)`), `IconButton`
   (`IconButtonShape::{Square, Wide}`), `SelectableButton`, `ButtonLike`
@@ -6135,7 +6143,10 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 - İkon: `Icon`, `DecoratedIcon`, `IconDecoration`,
   `IconDecorationKind::{X, Dot, Triangle}`, `IconName`,
   `IconPosition::{Start, End}` (button içinde label-icon sırası),
-  `IconSize`, `IconWithIndicator`, `KnockoutIconName`, `AnyIcon`. `IconName`
+  `IconSize`, `IconWithIndicator`, `KnockoutIconName::{XFg, XBg, DotFg, DotBg,
+  TriangleFg, TriangleBg}` (IconDecoration için eşli fg/bg svg adları),
+  `AnyIcon::{Icon(Icon), AnimatedIcon(AnimationElement<Icon>)}` (type-erased
+  ikon: hem statik hem animasyonlu varyantı tek tipte taşır). `IconName`
   `crates/icons` crate'inde tanımlanır, `ui::prelude` üzerinden re-export
   edilir. `IconSize` varyantları: `Indicator`, `XSmall`, `Small`, `Medium`,
   `XLarge`, `Custom(Rems)`; `.rems()`, `.square_components(window, cx)`,
@@ -6150,8 +6161,14 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   `InputField::new(window, cx, placeholder)` editor factory gerektirir ve
   `.label`, `.start_icon`, `.masked`, `.tab_index`, `.text`, `.set_text`,
   `.clear` gibi form alanı API'sini sağlar.
-- Menü/popup: `ContextMenu`, `ContextMenuEntry`, `ContextMenuItem`,
-  `DocumentationAside`, `DocumentationSide::{Left, Right}`,
+- Menü/popup: `ContextMenu`, `ContextMenuEntry`,
+  `ContextMenuItem::{Separator, Header(SharedString), HeaderWithLink(title,
+  link_label, link_url), Label(SharedString), Entry(ContextMenuEntry),
+  CustomEntry { entry_render, handler, selectable, documentation_aside },
+  Submenu { label, icon, icon_color, builder }}` — `ContextMenu` builder'ına
+  doğrudan eklenen yedi tip menü satırı,
+  `DocumentationAside { side: DocumentationSide, render: Rc<...> }`,
+  `DocumentationSide::{Left, Right}`,
   `RightClickMenu<M: ManagedView>` ve free fn `right_click_menu(id)`,
   `Popover`, `PopoverMenu<M: ManagedView>`, `PopoverMenuHandle<M>`,
   `PopoverTrigger`, `Tooltip`, `LinkPreview` ve free fn
@@ -6170,8 +6187,14 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   `divider()` ve `vertical_divider()` free fn constructorları, `Scrollbars`.
   `Stack` ve `Group` adında public struct yoktur; bunlar helper fonksiyon
   ailesidir.
-- Veri: `Table`, `TableInteractionState`, `ColumnWidthConfig`,
-  `StaticColumnWidths`, `ResizableColumnsState`, `RedistributableColumnsState`,
+- Veri: `Table`, `TableInteractionState`,
+  `ColumnWidthConfig::{Static { widths, table_width }, Redistributable {
+  columns_state, table_width }, Resizable(Entity<ResizableColumnsState>)}` —
+  bu üçlü tablo kolon modunu belirler: `Static` resize handle vermez,
+  `Redistributable` toplam tablo genişliğini sabit tutarak komşuya devreder,
+  `Resizable` her kolonu bağımsız büyütür ve toplam genişlik değişir.
+  `StaticColumnWidths::{Auto, Explicit(TableRow<DefiniteLength>)}` Static
+  modun alt seçimidir. `ResizableColumnsState`, `RedistributableColumnsState`,
   `HeaderResizeInfo`, `TableResizeBehavior::{None, Resizable, MinSize(f32)}`,
   `TableRow<T>` (`pub struct TableRow<T>(Vec<T>)` — kolon sayısı doğrulanmış
   satır), `UncheckedTableRow<T>` (`pub type UncheckedTableRow<T> = Vec<T>` —
