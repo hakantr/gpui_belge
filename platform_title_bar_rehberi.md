@@ -899,7 +899,7 @@ tipik örneği: `pub struct` olarak yazılmıştır, fakat modülü crate kökü
 | :-- | :-- | :-- |
 | `pub mod platforms` | `platform_title_bar.rs:1` | `platform_title_bar::platforms::{platform_linux, platform_windows}` path'ini açar. **Cfg-gate yoktur**: `platforms.rs` her iki alt modülü de koşulsuz `pub mod` ile expose eder (`platforms.rs:1-2`). Yani Windows derlemesinde dahi `platform_title_bar::platforms::platform_linux::LinuxWindowControls` derlenir; runtime seçimi `PlatformStyle::platform()` ile yapılır. |
 | `pub use system_window_tabs::{...}` | `DraggedWindowTab`, `MergeAllWindows`, `MoveTabToNewWindow`, `ShowNextWindowTab`, `ShowPreviousWindowTab` (`platform_title_bar.rs:24-26`) | `SystemWindowTabs` re-export edilmez. |
-| `pub struct PlatformTitleBar` | Private alanlar: `id`, `platform_style`, `children`, `should_move`, `system_window_tabs`, `button_layout`, `multi_workspace` (`platform_title_bar.rs:28-36`) | Alanlara dışarıdan erişim yok; yapı `Render` ve `ParentElement` impl'leriyle tüketilir. |
+| `pub struct PlatformTitleBar` | Private alanlar: `id: ElementId`, `platform_style: PlatformStyle`, `children: SmallVec<[AnyElement; 2]>`, `should_move: bool`, `system_window_tabs: Entity<SystemWindowTabs>` (**strong**), `button_layout: Option<WindowButtonLayout>`, `multi_workspace: Option<WeakEntity<MultiWorkspace>>` (**weak**) (`platform_title_bar.rs:28-36`) | Alanlara dışarıdan erişim yok. **Ownership farkı**: `system_window_tabs` strong `Entity` — titlebar tabs alt-entity'yi sahiplenir ve drop edildiğinde onu da sürükler. `multi_workspace` weak — workspace bağımsız yaşar; titlebar sadece gözlemler. Aksini yapmak (workspace'i strong tutmak) **ownership cycle** üretir. |
 | `PlatformTitleBar::new` | `pub fn new(id: impl Into<ElementId>, cx: &mut Context<Self>) -> Self` (`platform_title_bar.rs:39`) | `SystemWindowTabs::new()` ile internal tab entity oluşturur. |
 | `with_multi_workspace` | `pub fn with_multi_workspace(mut self, multi_workspace: WeakEntity<MultiWorkspace>) -> Self` (`platform_title_bar.rs:54`) | Builder tarzı ilk bağlantı. |
 | `set_multi_workspace` | `pub fn set_multi_workspace(&mut self, multi_workspace: WeakEntity<MultiWorkspace>)` (`platform_title_bar.rs:59`) | Sonradan sidebar state kaynağı bağlar. |
@@ -1604,6 +1604,39 @@ crate'in `close_action` prop'u buraya geçmez (yalnızca Linux
 `LinuxWindowControls`/`WindowControl` zincirinde çalışır). Port hedefinde
 sekme kapatma davranışını farklılaştırmak istiyorsanız bu altı çağrı
 yerini ayrı ayrı override etmeniz gerekir; tek bir flag yetmez.
+
+**Cross-window dispatch paterni** (`handle.update(cx, |_, window, cx| { ... })`):
+sekmelerden 4'ü "**hedef pencere mevcut pencere mi?**" sorusunu sorar; değilse
+`item.handle.update(cx, |_view, window, cx| { window.dispatch_action(...) })`
+ile tab'ın `AnyWindowHandle` üzerinden o pencerenin context'ine geçer. awk
+`handle\.update\(` taraması altı çağrı yerini açığa çıkarır:
+
+| Yer | Bağlam |
+| :-- | :-- |
+| `system_window_tabs.rs:77` | Settings observer'da her pencere için `set_tabbing_identifier` ve tab listesi yenileme |
+| `system_window_tabs.rs:226` | Tab click → o pencereyi `activate_window()` |
+| `system_window_tabs.rs:234` | Middle-click close başka tab → o pencereye `CloseWindow` |
+| `system_window_tabs.rs:264` | X butonu click başka tab → o pencereye `CloseWindow` |
+| `system_window_tabs.rs:377` | `handle_right_click_action` helper'ı (Close Tab/Close Other Tabs context menu) |
+| `system_window_tabs.rs:439` | Tab bar dışına drop → o pencerede `move_tab_to_new_window()` |
+
+Tüm çağrılar `let _ = handle.update(...)` deyimine sarılıdır çünkü
+`update()` `Result<R, ()>` döner (pencere zaten kapanmış olabilir);
+sonuç bilinçli olarak yutulur. Port hedefinde aynı paterni karşılamak
+için: (1) her tab metadata'sı bir handle/proxy taşımalı, (2) cross-window
+işlemler bu proxy üzerinden o pencerenin context'ine girip işi orada
+yapmalı, (3) proxy çağrısı **fail-soft** olmalı (pencere kaybolmuşsa
+sessizce geç).
+
+**Conditional Option idiom'u** (`platform_title_bar.rs:248-255` ve
+`299-306`): sol/sağ kontroller `show_X_controls.then(|| render_X_window_controls(...)).flatten()`
+deseniyle dahil edilir. `bool::then(|| fn)` true → `Some(fn())`, false →
+`None`; `render_X_window_controls` zaten `Option<AnyElement>` döner;
+böylece dış `Option<Option<...>>` `.flatten()` ile tek seviye Option'a
+indirilir. **Yan etki**: `then` closure'u boolean true ise **clone'u
+gerçekleştirir** — `boxed_clone` zincirindeki adım 2/3'ün her render'da
+neden çalıştığının nedeni budur. `if show_X { Some(render_X(...)) } else
+{ None }` aynı sonucu verir; `then().flatten()` sadece daha kısa.
 
 Sağ tık menüsü `ui::right_click_menu(ix).trigger(...).menu(...)` builder
 zinciriyle kurulur (`system_window_tabs.rs:279-343`). Yapı:
