@@ -6176,9 +6176,12 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 - Liste/tree: `List` (`EmptyMessage::{Text(SharedString), Element(AnyElement)}`),
   `ListItem` (`ListItemSpacing::{Dense, ExtraDense, Sparse}`),
   `ListHeader`, `ListSubHeader`, `ListSeparator` (`pub struct ListSeparator;` —
-  unit struct, builder yok), `ListBulletItem`, `TreeViewItem`, `StickyItems<T>`
-  ve free fn constructor `sticky_items<V, T>(...)`, `IndentGuides`
-  (`IndentGuideColors`, `IndentGuideLayout`) ile free fn constructor
+  unit struct, builder yok), `ListBulletItem`, `TreeViewItem`,
+  `StickyCandidate` (`depth(&self) -> usize`), `StickyItems<T>` ve free fn
+  constructor `sticky_items<V, T>(...)`, `StickyItemsDecoration`
+  (`compute(indents, bounds, scroll_offset, item_height, window, cx)`),
+  `IndentGuides` (`IndentGuideColors`, `IndentGuideLayout`,
+  `RenderIndentGuideParams`, `RenderedIndentGuide`) ile free fn constructor
   `indent_guides(indent_size: Pixels, colors: IndentGuideColors)`.
 - Tab: `Tab`, `TabBar`, `TabPosition::{First, Middle(Ordering), Last}`,
   `TabCloseSide::{Start, End}`
