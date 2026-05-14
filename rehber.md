@@ -6121,9 +6121,40 @@ Zed uygulamasında yönetim:
   registry'yi okur; isim, scope ve description üzerinden filtreler.
 - `Component` trait public sözleşmesi: `id()`, `scope()`, `status()`,
   `name()`, `sort_name()`, `description()` ve
-  `preview(&mut Window, &mut App) -> Option<AnyElement>`. Bu sözleşme
-  görsel test/debug/dokümantasyon içindir; normal UI kullanımında component
-  registry lookup yapılmaz.
+  `preview(&mut Window, &mut App) -> Option<AnyElement>`. Tüm metotlar
+  default impl'e sahiptir; pratik minimum implementasyon yalnızca
+  `scope()` + `preview()` override etmektir. Default davranış:
+  - `id() -> ComponentId(Self::name())`
+  - `name() -> std::any::type_name::<Self>()` (modül yolu dahil)
+  - `scope() -> ComponentScope::None`
+  - `status() -> ComponentStatus::Live`
+  - `sort_name() -> Self::name()`
+  - `description()` ve `preview()` `None` döner.
+  Bu sözleşme görsel test/debug/dokümantasyon içindir; normal UI
+  kullanımında component registry lookup yapılmaz.
+- `ComponentScope` 17 variantı (organizasyon kovaları — strum
+  `Display`/`EnumString` ile string serialize edilir): `Agent`,
+  `Collaboration`, `DataDisplay` (`"Data Display"`), `Editor`, `Images`
+  (`"Images & Icons"`), `Input` (`"Forms & Input"`), `Layout`
+  (`"Layout & Structure"`), `Loading` (`"Loading & Progress"`),
+  `Navigation`, `None` (`"Unsorted"`), `Notification`, `Overlays`
+  (`"Overlays & Layering"`), `Onboarding`, `Status`, `Typography`,
+  `Utilities`, `VersionControl` (`"Version Control"`).
+- `ComponentStatus::{WorkInProgress, EngineeringReady, Live (default),
+  Deprecated}`; her variant `.description() -> &str` ile kendi açıklama
+  metnini döner (preview ekranında gösterilir).
+- Diğer public registry yüzeyleri: `ComponentId(pub &'static str)`,
+  `ComponentMetadata { id, description, name, preview, scope, sort_name,
+  status }`, `ComponentExample { variant_name, description, element,
+  width }`, `ComponentExampleGroup`, `empty_example(variant_name)`,
+  `register_component::<T: Component>()`. `COMPONENT_DATA: LazyLock<RwLock<
+  ComponentRegistry>>` global storage'dır; tüketici kod yerine
+  `component::components()` accessor'ını kullanır.
+- **`ui` prelude vs `component_prelude` asimetrisi:** `ui::prelude::*`
+  yalnız `Component` ve `ComponentScope`'u re-export eder. `ComponentStatus`,
+  `ComponentId`, `Documented` `ui::component_prelude::*` üzerinden gelir;
+  `ui::ComponentStatus` doğrudan çalışmaz, `ui::component_prelude::ComponentStatus`
+  veya `component::ComponentStatus` yazılır.
 
 ### 83. Zed UI Bileşen Envanteri
 
@@ -6146,7 +6177,9 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   segment olarak hem button-like hem icon button kabul eder),
   `ToggleButtonGroup` (`ToggleButtonGroupStyle::{Transparent, Filled,
   Outlined}`, `ToggleButtonGroupSize::{Default, Medium, Large, Custom(Rems)}`,
-  `ToggleButtonPosition`) ve giriş tipleri `ToggleButtonSimple`,
+  `ToggleButtonPosition` — bu **enum değil struct**'tır; `leftmost`,
+  `rightmost`, `topmost`, `bottommost` private `bool` alanlarıyla grup içi
+  konum bayrağıdır) ve giriş tipleri `ToggleButtonSimple`,
   `ToggleButtonWithIcon`. `ToggleButton` adında bağımsız bir struct yoktur;
   tekil toggle yerine her zaman grup içinde segment kullanılır.
 - İkon: `Icon`, `DecoratedIcon`, `IconDecoration`,
@@ -6207,7 +6240,10 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   |&mut V, RenderIndentGuideParams, &mut Window, &mut App| ->
   SmallVec<[RenderedIndentGuide;12]>)`. `IndentGuides`, `UniformListDecoration`
   trait'ini implement ettiği için `uniform_list(...).with_decoration(guides)`
-  ile bağlanır.
+  ile bağlanır. GPUI tarafında `impl<T: UniformListDecoration + 'static>
+  UniformListDecoration for Entity<T>` blanket impl'i bulunur — bir
+  decoration tipini `Entity<T>` içinde saklayıp aynı `.with_decoration(...)`
+  yüzeyine geçirmek mümkündür.
 - Tab: `Tab`, `TabBar`, `TabPosition::{First, Middle(Ordering), Last}`,
   `TabCloseSide::{Start, End}`
 - Layout yardımcıları: `h_flex()`, `v_flex()`, `h_group*()`, `v_group*()`,
@@ -6239,7 +6275,8 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   yönetilir.
 - Diğer: `Avatar`, `AvatarAudioStatusIndicator` (`AudioStatus::{Muted,
   Deafened}` enum'u ile), `AvatarAvailabilityIndicator`
-  (`CollaboratorAvailability` enum'u ile), `Facepile`, `Chip`, `DiffStat`,
+  (`CollaboratorAvailability::{Free, Busy}` enum'u ile), `Facepile`, `Chip`,
+  `DiffStat`,
   `Disclosure`, `GradientFade`, `Vector`, `VectorName`, `KeyBinding`,
   `KeybindingHint`, `Key`, `KeyIcon` (keybinding sub-primitives —
   `text_for_keystroke`/`render_modifiers` free fn'leri ile kullanılır),
