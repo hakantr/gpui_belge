@@ -5882,6 +5882,20 @@ Yine prelude'da olmayanlar (örn. `Tooltip`, `ContextMenu`, `Popover`,
 import edilir; `with_rotate_animation(duration_secs)` ve
 `with_keyed_rotate_animation(id, duration_secs)` sağlar.
 
+Animasyon yüzeyi:
+
+- `AnimationDuration::{Instant, Fast, Slow}` sırasıyla 50/150/300 ms döner;
+  `.duration()` veya `Into<Duration>` ile GPUI animation'a verilir.
+- `AnimationDirection::{FromBottom, FromLeft, FromRight, FromTop}` giriş
+  animasyon yönüdür.
+- `DefaultAnimations`: `.animate_in(direction, fade)`,
+  `.animate_in_from_bottom(fade)`, `.animate_in_from_left(fade)`,
+  `.animate_in_from_right(fade)`, `.animate_in_from_top(fade)`.
+  Blanket impl `Styled + Element` olan elementler içindir.
+- `CommonAnimationExt` rotasyon helper'ı yalnız `Transformable` implement eden
+  elementlerde çalışır; Zed UI tarafında bu pratikte `Icon` ve `Vector`
+  demektir.
+
 Public export modeli:
 
 - `crates/ui/src/ui.rs` iç modülleri (`components`, `styles`, `traits`) private
@@ -5989,6 +6003,8 @@ Button/label ortak sözleşmeleri:
 - `LabelLike` (underlying primitive struct) ayrıca inherent
   `.truncate_start()` taşır — `LabelCommon` trait'inde yer almaz; başlangıçtan
   ellipsis ile kesmek için `LabelLike` veya `Label` üzerinde doğrudan çağrılır.
+- `FixedWidth`: `.width(DefiniteLength)` ve `.full_width()`; mevcut UI
+  katmanında `Button`, `IconButton` ve `ButtonLike` üzerinde implement edilir.
 
 Diğer UI yardımcıları:
 
@@ -6073,6 +6089,11 @@ Tuzaklar:
   bağımsız bir public tip yoktur.
 - `VisibleOnHover` için parent'ta aynı group adıyla hover group kurulmadıysa
   element hiçbir zaman görünmez.
+- Public görünen bazı state structs kullanıcı-facing builder değildir:
+  `PopoverMenuElementState`, `PopoverMenuFrameState`, `MenuHandleElementState`,
+  `RequestLayoutState`, `PrepaintState`, `ScrollbarPrepaintState`. Bunlar
+  `Element` associated state tipleri olarak public kalmıştır; doğrudan
+  oluşturup component API'si gibi kullanma.
 
 Zed uygulamasında yönetim:
 
