@@ -2829,6 +2829,13 @@ Klasör ve chevron icon'larında ayrıca **3 katman**: `named_directory_icons`
 default → expanded/collapsed slot ayrımı.
 vardır.
 
+Public method yüzeyi gerçek adlarıyla şudur:
+`FileIcons::get(cx)`, `FileIcons::get_icon(path, cx)`,
+`FileIcons::get_icon_for_type(typ, cx)`, `FileIcons::get_folder_icon(expanded,
+path, cx)` ve `FileIcons::get_chevron_icon(expanded, cx)`. Generic folder
+fallback'i sağlayan `get_generic_folder_icon` ise private helper'dır; portta
+dış API olarak açma.
+
 **Asset yükleme:** Icon path'leri (örn. `icons/rust.svg`) `AssetSource`
 katmanından çözülür (Konu 33). `IconTheme` yalnız path'i tutar; SVG
 parse'ı GPUI'nin `svg()` element çağrısında olur.
@@ -2959,13 +2966,11 @@ pub struct ThemeContent {
     pub style: ThemeStyleContent,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[settings_macros::with_fallible_options]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema, MergeFrom, PartialEq)]
+#[serde(default)]
 pub struct ThemeStyleContent {
-    #[serde(
-        rename = "background.appearance",
-        default,
-        deserialize_with = "treat_error_as_none"
-    )]
+    #[serde(rename = "background.appearance")]
     pub window_background_appearance: Option<WindowBackgroundContent>,
 
     #[serde(default)]
@@ -3023,17 +3028,18 @@ pub struct FontWeightContent(pub f32);
 pub struct AccentContent(pub Option<String>);
 
 // ─── HighlightStyleContent (syntax token sözleşmesi)
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema, MergeFrom, PartialEq)]
+#[serde(default)]
 pub struct HighlightStyleContent {
     pub color: Option<String>,
 
-    #[serde(default, deserialize_with = "treat_error_as_none")]
+    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "treat_error_as_none")]
     pub background_color: Option<String>,
 
-    #[serde(default, deserialize_with = "treat_error_as_none")]
+    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "treat_error_as_none")]
     pub font_style: Option<FontStyleContent>,
 
-    #[serde(default, deserialize_with = "treat_error_as_none")]
+    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "treat_error_as_none")]
     pub font_weight: Option<FontWeightContent>,
 }
 
@@ -3295,10 +3301,10 @@ deprecated alan tutulmaz.
 | Tip | Opsiyonellik | Yanlış değer davranışı |
 |-----|--------------|------------------------|
 | `AppearanceContent` | `ThemeContent.appearance` **zorunlu** | Deserialize hatası (tema tüm yüklenmez) |
-| `WindowBackgroundContent` | `Option` + `treat_error_as_none` ile tolerans | `None` (baseline'dan) |
+| `WindowBackgroundContent` | `ThemeStyleContent` üstünde `#[with_fallible_options]` var | User settings `RootUserSettings::parse_json` hattında `None` + `ParseStatus::Failed`; tema dosyası normal serde hattında deserialize hatası |
 | `FontStyleContent` | `Option` + `treat_error_as_none` | `None` |
 | `FontWeightContent` | `Option` + `treat_error_as_none`; `f32` newtype | `None` |
-| `HighlightStyleContent.color` | `Option<String>` (geçersiz hex → refinement'ta `None`) | `None` |
+| `HighlightStyleContent.color` | `Option<String>`; özel deserializer yok | Geçersiz hex string → refinement'ta `None`; yanlış JSON tipi → deserialize hatası |
 | `HighlightStyleContent` (diğer) | `Option<...>` + `treat_error_as_none` | `None` |
 | `PlayerColorContent` (3 alan) | hepsi `Option<String>` | Eksik alan baseline.local'dan |
 | `ThemeColorsContent` (150 alan) | her biri `Option<String>` | Refinement → baseline |
@@ -3550,15 +3556,21 @@ parser "değer geçerli mi?" sorusunu cevaplar.
    bilinçli.
 5. **Bilinmeyen enum'a panic**: `font_style: "semi_oblique"` —
    `FontStyleContent` `SemiOblique`'i tanımıyor. Default deserialize
-   panic. Çözüm: `#[with_fallible_options]` macro (Konu 21).
+   panic. Çözüm: `HighlightStyleContent` içinde `treat_error_as_none`;
+   diğer option-heavy content tiplerinde `#[with_fallible_options]` macro
+   (Konu 21).
 
 #### `MergeFrom` derive davranış matrisi
 
-`*Content` tipleri `#[derive(..., MergeFrom)]` ile işaretlenir. Zed settings
-hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom`
-üzerinden çalışır** — `default` baz değerleri sağlar, kullanıcı ve proje
-settings'i üstüne merge edilir. Bu trait `settings_content/src/merge_from.rs`
-içinde tanımlıdır; alan tipine göre davranış farklıdır:
+`settings_content` tarafındaki kullanıcı settings content tipleri
+`#[derive(..., MergeFrom)]` ile işaretlenir. Zed settings hiyerarşisi
+(`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**
+— `default` baz değerleri sağlar, kullanıcı ve proje settings'i üstüne merge
+edilir. Tema dosyası payload'ı olan `theme_settings::ThemeFamilyContent` /
+`ThemeContent` bu merge hattı değildir; onlar doğrudan deserialize edilip
+runtime tema'ya refine edilir. `MergeFrom` trait'i
+`settings_content/src/merge_from.rs` içinde tanımlıdır; alan tipine göre
+davranış farklıdır:
 
 | Alan tipi | `merge_from(self, other)` davranışı | Etki |
 |-----------|-------------------------------------|------|
@@ -3834,7 +3846,7 @@ etmedin. JSON'da bu anahtar var:
 **Bu kural keskin:** Tema sözleşmesinin **hiçbir** Content tipinde
 `deny_unknown_fields` kullanma.
 
-#### Vektör 2: Bilinmeyen enum değerleri — `#[with_fallible_options]`
+#### Vektör 2: Bilinmeyen enum değerleri — iki tolerans hattı
 
 Enum alanlar için varsayılan davranış farklı: serde bilinmeyen variant
 gördüğünde `Err` döner.
@@ -3844,19 +3856,17 @@ gördüğünde `Err` döner.
 
 - Standart deserialize: `Err("unknown variant semi_oblique, expected one
   of normal, italic, oblique")`. Tüm tema patlar.
-- `#[with_fallible_options]` ile: Alan `None`'a düşer, devam eder; hata
-  thread-local hata listesinde biriktirilir ve dosyanın `ParseStatus`'una
-  yansıtılır.
+- `HighlightStyleContent` içinde: `treat_error_as_none` alanı `None`'a düşürür.
+- `#[with_fallible_options]` kullanılan diğer content tiplerinde: alan
+  `None`'a düşer ve hata thread-local hata listesinde biriktirilerek dosyanın
+  `ParseStatus`'una yansıtılır.
 
-**Zed paritesi (`settings_macros::with_fallible_options` +
-`settings_content::fallible_options::deserialize`):** Önceki rehber
-sürümünde `treat_error_as_none` adlı elle yazılmış bir custom deserializer
-gösteriliyordu. Güncel Zed kodu `treat_error_as_none` adını kaldırdı; aynı
-davranış artık iki parça halinde gelir:
+**Zed paritesi iki ayrı mekanizmadır:**
 
-1. **Attribute macro** (`#[with_fallible_options]`): struct/enum üstüne
-   yerleştirilir. Macro her `Option<T>` alanı için otomatik şu attribute'u
-   ekler:
+1. **Attribute macro** (`#[with_fallible_options]`): `ThemeSettingsContent`,
+   `ThemeStyleContent`, `ThemeColorsContent`, `StatusColorsContent` gibi
+   option-heavy struct/enum'lar üstüne yerleştirilir. Macro her `Option<T>`
+   alanı için otomatik şu attribute'u ekler:
    ```rust
    #[serde(
        default,
@@ -3864,9 +3874,7 @@ davranış artık iki parça halinde gelir:
        deserialize_with = "crate::fallible_options::deserialize",
    )]
    ```
-   Yani **elle `#[serde(deserialize_with = "...")]` yazmazsın**; macro tüm
-   `Option<T>` alanlarını işaretler. Bu hem hatırlama yükünü azaltır hem
-   de yeni alan eklendiğinde unutma riski sıfırdır.
+   Bu hatları elle `#[serde(deserialize_with = "...")]` yazmadan kurarsın.
 
 2. **`fallible_options::deserialize` fonksiyonu**: Tek tek alanı çağırır;
    hata varsa thread-local `ERRORS` listesine ekler ve `Default::default()`
@@ -3877,6 +3885,34 @@ davranış artık iki parça halinde gelir:
    `ERRORS` thread-local'ını sıfırlar, parse'ı çalıştırır, bittikten sonra
    biriken hataları toplar ve `(Option<T>, ParseStatus)` döner. `ParseStatus`
    `Success` veya `Failed { error: String }` olur.
+
+Public tüketici yolu genelde doğrudan `fallible_options::parse_json` değildir.
+`settings_content::RootUserSettings` trait'i `SettingsContent`,
+`Option<SettingsContent>` ve `UserSettingsContent` için
+`parse_json(json) -> (Option<Self>, ParseStatus)` ve
+`parse_json_with_comments(json) -> anyhow::Result<Self>` sağlar. İç helper
+`fallible_options::deserialize` ise `pub(crate)` kalır; yalnız
+`#[with_fallible_options]` macro'sunun eklediği serde attribute'u tarafından
+crate içinden çağrılır.
+
+Bu tolerans **yalnız `fallible_options::parse_json` / `RootUserSettings`
+hattında** tam davranır. Tema dosyaları farklı yoldan gelir:
+`load_bundled_themes` bundled `assets/themes/*.json` için
+`serde_json::from_slice`, `deserialize_user_theme` kullanıcı tema dosyası için
+`serde_json_lenient::from_slice` kullanır. Bu normal serde yollarında
+`ERRORS` thread-local'ı kurulmadığı için `fallible_options::deserialize`
+hatayı yutmaz, deserialize hatası olarak döndürür. `HighlightStyleContent`
+içindeki yerel `treat_error_as_none` ise bu thread-local'a bağlı değildir ve
+tema dosyası parse'ında da seçili alanları `None`'a düşürür.
+
+4. **`HighlightStyleContent` istisnası**: Bu struct
+   `#[with_fallible_options]` kullanmaz. Kaynakta yalnız
+   `background_color`, `font_style`, `font_weight` alanlarında yerel
+   `treat_error_as_none` vardır; `color` alanında yoktur. Sonuç olarak
+   `"font_style": "semi_oblique"` veya `"background_color": 3` sessizce
+   `None` olur, ama `"color": 3` doğrudan deserialize hatası üretir. Geçersiz
+   renk string'i (`"color": "not-a-color"`) ise content aşamasında `Some`
+   kalır ve refinement'ta `try_parse_color(...).ok()` ile `None`'a düşer.
 
 **Mekanizma (kullanıcı tarafından görünmeyen):**
 
@@ -3893,41 +3929,48 @@ davranış artık iki parça halinde gelir:
 ```rust
 #[settings_macros::with_fallible_options]
 #[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema, MergeFrom)]
+#[serde(default)]
+pub struct ThemeColorsContent {
+    pub text: Option<String>,
+    pub icon: Option<String>,
+    // ...
+}
+```
+
+`HighlightStyleContent` ise Zed'de hâlâ özel deserializer kullanır:
+
+```rust
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema, MergeFrom, PartialEq)]
+#[serde(default)]
 pub struct HighlightStyleContent {
     pub color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "treat_error_as_none")]
     pub background_color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "treat_error_as_none")]
     pub font_style: Option<FontStyleContent>,
+    #[serde(skip_serializing_if = "Option::is_none", deserialize_with = "treat_error_as_none")]
     pub font_weight: Option<FontWeightContent>,
 }
 ```
 
 > **Notlar:**
 >
-> - `color` alanı `Option<String>` olduğu için yine macro tarafından
->   `fallible_options::deserialize`'a bağlanır; `String` parse'ı pratikte
->   sadece "JSON değeri string mi" kontrolü yapar — geçersiz tip (`"color": 3`)
->   alanı `None`'a düşürür, devamı bozmaz.
-> - `font_style` ve `font_weight` enum/newtype olduğu için bilinmeyen
->   variant burada da sessizce `None` olur.
 > - Macro yalnız `Option<T>` alanlarını işaretler; `Vec<T>`, `String`,
 >   primitive alanlar etkilenmez — onların hatası hâlâ üst seviyeyi patlatır.
+> - `HighlightStyleContent` için eski elle yazılmış `treat_error_as_none`
+>   pattern'i kaynakta hâlâ geçerli; bunu `#[with_fallible_options]` ile
+>   değiştirme kararı Zed tarafında verilmeden mirror tarafında değiştirme.
 > - `serde_json_lenient` deserializer'ı (`parse_json` içinde kullanılır)
 >   trailing comma'ları ve comment'leri kabul eder; bu da kullanıcı dostu
 >   editör deneyimine ek toleranstır.
-
-**Eski örnekleri çevirme rehberi:** `#[serde(default, deserialize_with =
-"treat_error_as_none")]` görürsen, struct üstüne `#[with_fallible_options]`
-ekle ve alan attribute'larını **sil**. İki yaklaşımı aynı struct'ta karıştırma
-— macro'nun eklediği attribute ile çakışan elle attribute "duplicate
-attribute" hatası verir.
 
 #### Hata tolerans matrisi
 
 | Senaryo | Default davranış | İstediğimiz | Çözüm |
 |---------|------------------|-------------|-------|
 | Bilinmeyen alan | Görmezden gelir | Görmezden gelinsin | Hiçbir şey yapma (`deny_unknown_fields` ekleme) |
-| Bilinmeyen enum variant | Err | None'a düş | `deserialize_with = "treat_error_as_none"` |
-| Yanlış tip (örn. number bekleniyor, string geldi) | Err | None'a düş | `deserialize_with = "treat_error_as_none"` |
+| Bilinmeyen enum variant | Err | None'a düş | `treat_error_as_none` veya `#[with_fallible_options]` |
+| Yanlış tip (örn. number bekleniyor, string geldi) | Err | None'a düş | `treat_error_as_none` veya `#[with_fallible_options]` |
 | Hex parse hatası | (Content katmanı string olarak alır) | None'a düş | Refinement katmanında `try_parse_color(s).ok()` |
 | `null` değer | None | None | Default davranış uyar |
 
@@ -3964,9 +4007,10 @@ fn unknown_font_style_falls_to_none() {
 1. **`deny_unknown_fields` cazibesi**: "Daha sıkı validation iyi" mantığı
    yanlış. Sözleşme **yaşayan**; sıkı validation = breaking change'lerde
    acı.
-2. **`treat_error_as_none` her yerde**: Sadece enum/newtype'lar için
-   gerekli. `Option<String>` zaten "yanlış değer" kavramına sahip değil;
-   gereksiz boilerplate eklenir.
+2. **`treat_error_as_none` her yerde**: Zed bunu yalnız
+   `HighlightStyleContent`'te seçili alanlara koyuyor. Genel settings
+   content'inde macro kullanılıyor; syntax highlight struct'ında ise mevcut
+   özel davranışı değiştirme.
 3. **Hata yutmayı sessizce yapmak**: Production'da `tracing::warn!` ile
    log et — kullanıcı tema dosyasındaki tipo'yu fark etmesin diye değil,
    debug için. Default log kapalı tut.
@@ -11408,8 +11452,11 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `ThemeRegistry::clear()` davranışı | `theme/src/registry.rs:176-178` | Sadece `themes` HashMap'ini temizler — `icon_themes` HashMap'ine **dokunmaz**. Test/reset senaryolarında icon themes ayrıca `remove_icon_themes(...)` ile temizlenmelidir |
 | `ThemeRegistry::load_icon_theme` baseline merge davranışı | `theme/src/registry.rs:250-330`, `file_icons/src/file_icons.rs:89-164` | Yüklenen icon theme'in `file_stems`, `file_suffixes`, `named_directory_icons` haritaları **default icon theme üstüne extend edilir**. `file_icons`, `directory_icons`, `chevron_icons` constructor'da default'tan kopyalanmaz; UI lookup eksik dosya tipi, klasör ve chevron path'lerinde `file_icons` crate'i üzerinden default icon theme'e düşer. Her tema için yeni UUID atanır |
 | `Refineable` trait yüzeyi tam katalog | `refineable/src/refineable.rs:29-131` | `Refineable`: `refine`, `refined`, `from_cascade`, `is_superset_of`, `subtract`; `IsEmpty`: `is_empty`; `Cascade<S>` metotları: `reserve`, `base`, `set`, `merged`; `CascadeSlot` yalnız slot handle'ıdır. Tema sistemi `from_cascade`/`Cascade` kullanmaz ama refineable trait sözleşmesi tam mirror edilmelidir |
-| `#[with_fallible_options]` macro | `settings_macros/src/settings_macros.rs:110-152` | `Option<T>` alanlarına otomatik `#[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::fallible_options::deserialize")]` ekler. **`treat_error_as_none` adı kaldırıldı** — eski rehber yanlış. Davranış aynı: parse hatası alan `None`'a düşer, thread-local hata listesine eklenir |
-| `fallible_options::parse_json`, `deserialize` | `settings_content/src/fallible_options.rs:11-65` | Top-level parse fonksiyonu (`parse_json::<T>(json) -> (Option<T>, ParseStatus)`); thread-local `ERRORS` listesi parse sırasında biriken hataları toplar. `ParseStatus::{Success, Failed { error }}` üretir; UI hata mesajını gösterir |
+| `#[with_fallible_options]` macro | `settings_macros/src/settings_macros.rs:110-152` | `Option<T>` alanlarına otomatik `#[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "crate::fallible_options::deserialize")]` ekler. `ThemeSettingsContent`, `ThemeStyleContent`, `ThemeColorsContent`, `StatusColorsContent` gibi tiplerde kullanılır; parse hatası alan `None`'a düşer, thread-local hata listesine eklenir |
+| `fallible_options::parse_json`, crate-private `deserialize` | `settings_content/src/fallible_options.rs:11-65` | Top-level parse fonksiyonu (`parse_json::<T>(json) -> (Option<T>, ParseStatus)`) public re-export edilir; thread-local `ERRORS` listesi parse sırasında biriken hataları toplar. `deserialize` ise `pub(crate)` internal helper'dır, macro'nun eklediği serde attribute'u kullanır |
+| `RootUserSettings::parse_json`, `parse_json_with_comments` | `settings_content/src/settings_content.rs:333-364` | `SettingsContent`, `Option<SettingsContent>` ve `UserSettingsContent` için public root parse trait'i. `parse_json` fallible option tolerant hattını, `parse_json_with_comments` ise normal `settings_json::parse_json_with_comments` sonucunu döner |
+| `HighlightStyleContent::treat_error_as_none` istisnası | `settings_content/src/theme.rs:1104-1144` | `HighlightStyleContent` `#[with_fallible_options]` kullanmaz. Yalnız `background_color`, `font_style`, `font_weight` alanlarında yerel `treat_error_as_none` vardır; `color` alanında yoktur. Bu yüzden `font_style` bilinmeyen enum ise `None`, ama `"color": 3` deserialize hatasıdır |
+| Tema dosyası parse yolu | `theme_settings/src/theme_settings.rs:212-234` | Bundled tema asset'leri `serde_json::from_slice` ile, kullanıcı tema dosyaları `serde_json_lenient::from_slice` ile parse edilir. Bu hatlar `RootUserSettings::parse_json` değildir; `with_fallible_options` hataları `ParseStatus` olarak toplamaz, normal serde hatası dönebilir |
 | `MergeFrom` trait + derive | `settings_content/src/merge_from.rs:17-174`, `settings_macros::MergeFrom` | Primitive overwrite, `Option<T>` recursive merge, `Vec<T>` overwrite (concat değil), `HashMap/BTreeMap/IndexMap` key-bazlı recursive merge, `HashSet/BTreeSet` union, `serde_json::Value` Object recursive. Konu 19'da davranış matrisi tam tablo |
 | `ThemeSettingsContent.ui_density` JSON rename | `settings_content/src/theme.rs:166-167` | `#[serde(rename = "unstable.ui_density")]` — kullanıcı JSON'unda **`"unstable.ui_density"`** yazmalıdır; `"ui_density"` çalışmaz. Konu 43.3'te düzeltildi |
 | `ThemeSettingsContent` schemars tag'leri | `settings_content/src/theme.rs:124-171` | `ui_font_fallbacks`, `buffer_font_fallbacks` `#[schemars(extend("uniqueItems" = true))]`; `unnecessary_code_fade` `#[schemars(range(min = 0.0, max = 0.9))]`; her font alanı `#[schemars(default = "...")]` ile default value fonksiyonu işaretli |
@@ -11417,8 +11464,8 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `UnderlineStyle`, `StrikethroughStyle` (`gpui::style:783-804`) | `gpui/src/style.rs` | `UnderlineStyle { thickness, color, wavy }`, `StrikethroughStyle { thickness, color }`. İkisi de `Refineable + Copy + Eq + Hash + JsonSchema`. Tema JSON sözleşmesinde syntax stillerinin underline/strikethrough alanları **YOK**; `refine_theme` her ikisini de `Default::default()` (nötr) bırakır. Konu 7'de işlendi |
 | `HighlightStyle.fade_out` `Hash` impl | `gpui/src/style.rs:562-574` | `f32` `Hash` türetilemez; `to_be_bytes()` ile `u32`'ye çevrilip hashlenir. Mirror tarafta elle implement edilir veya GPUI'nin `HighlightStyle`'ı doğrudan kullanılır |
 | `ThemeRegistry::default()` | `theme/src/registry.rs:327-331` | `Default for ThemeRegistry` impl'i `Self::new(Box::new(()))` — boş asset source ile constructor. Test'te `ThemeRegistry::default()` kısa yol; asset gerektiren testler `Box::new(()) as Box<dyn AssetSource>` parametresini açık geçirir |
-| `file_icons` crate lookup zinciri | `file_icons/src/file_icons.rs:20-82` | `FileIcons::get_icon(path, cx)` 6 katmanlı: tam ad → dot-suffix loop → `multiple_extensions` → `extension_or_hidden_file_name` → ham `extension` → `"default"` tipi. Her katmanda `file_stems` veya `file_suffixes` aktif themasında lookup, sonra `file_icons` aktif → default fallback. Konu 17'de tam akış işlendi |
-| `file_icons::get_folder_icon`, `get_chevron_icon`, `get_generic_folder_icon` | `file_icons/src/file_icons.rs:102-165` | 3 katmanlı fallback: önce `named_directory_icons` (klasör adına özel), sonra `directory_icons` (jenerik), her ikisinde de aktif → default tema fallback. Chevron: yalnız aktif → default. Expanded/collapsed slot ayrımı her katmanda korunur |
+| `FileIcons::get_icon`, `get_icon_for_type` | `file_icons/src/file_icons.rs:20-99` | `get_icon(path, cx)` 6 katmanlı: tam ad → dot-suffix loop → `multiple_extensions` → `extension_or_hidden_file_name` → ham `extension` → `"default"` tipi. Her katmanda `file_stems` veya `file_suffixes` aktif temasında lookup, sonra `get_icon_for_type(typ, cx)` ile `file_icons` aktif → default fallback |
+| `FileIcons::get_folder_icon`, `get_chevron_icon` | `file_icons/src/file_icons.rs:102-165` | Klasör fallback'i: `named_directory_icons` (klasör adına özel) → private `get_generic_folder_icon` ile `directory_icons` (jenerik), her ikisinde de aktif → default tema fallback. Chevron: yalnız aktif → default. Expanded/collapsed slot ayrımı her katmanda korunur |
 
 Küçük method yüzeyleri:
 
