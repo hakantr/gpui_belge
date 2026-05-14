@@ -2471,8 +2471,33 @@ IME aday penceresini doğru yerde tutmak için:
 window.invalidate_character_coordinates();
 ```
 
-Zed'de form tipi tek satır input için doğrudan editor yazmak yerine `ui_input::InputField`
-kullan. Bu crate editor'a bağlı olduğu için `ui` içinde değildir.
+Zed'de form tipi tek satır input için doğrudan editor yazmak yerine
+`ui_input::InputField` kullan. Bu crate editor'a bağlı olduğu için `ui` içinde
+değildir.
+
+`ui_input` public yüzeyi:
+
+- `pub use input_field::*`; ana component `InputField`.
+- `InputField::new(window, cx, placeholder_text)` tek satır editor instance'ı
+  ister ve placeholder'ı hemen editor'a yazar.
+- Builder/metotlar: `.start_icon(IconName)`, `.label(...)`,
+  `.label_size(LabelSize)`, `.label_min_width(Length)`, `.tab_index(isize)`,
+  `.tab_stop(bool)`, `.masked(bool)`, `.is_empty(cx)`, `.editor()`,
+  `.text(cx)`, `.clear(window, cx)`, `.set_text(text, window, cx)`,
+  `.set_masked(masked, window, cx)`.
+- `InputFieldStyle` public struct olarak görünür ama alanları private; dışarıdan
+  style override sözleşmesi değil, render içi tema snapshot'ıdır.
+- `ErasedEditor` trait'i editor köprüsüdür: `text`, `set_text`, `clear`,
+  `set_placeholder_text`, `move_selection_to_end`, `set_masked`,
+  `focus_handle`, `subscribe`, `render`, `as_any`.
+- `ErasedEditorEvent::{BufferEdited, Blurred}` picker/search gibi üst
+  bileşenlerin edit/blur akışını dinlemesi için kullanılır.
+- `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn
+  ErasedEditor>>` editor crate tarafından kurulur. Zed'de
+  `crates/editor/src/editor.rs` init akışında bu factory
+  `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile set edilir.
+  `InputField::new` factory unset ise panic eder; bu yüzden uygulama init
+  sırası editor kurulumu tamamlandıktan sonra `InputField` oluşturmaya dayanır.
 
 ### 42. Text Input Handler ve IME Derin Akış
 
@@ -5855,6 +5880,11 @@ Public export modeli:
 - Bilinçli public nested modüller (`pub mod`) kendi namespace'iyle kullanılır:
   - `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility, ScrollbarAutoHide}` —
     scrollbar görünürlük settings yüzeyi.
+  - `ui::animation::{AnimationDirection, AnimationDuration, DefaultAnimations}`
+    — prelude'da da olan animasyon helper modülü; `workspace::toast_layer`
+    gibi kodlar explicit `ui::animation::DefaultAnimations` import edebilir.
+  - `ui::table_row::{TableRow, IntoTableRow}` — `data_table.rs` içinden public
+    açılan kolon sayısı doğrulamalı tablo satırı modülü.
   - `ui::utils::*` — non-styling yardımcılar (aşağıdaki utils başlığı).
   - `ui::component_prelude::*` — component yazarken kullanılan derive ve
     registry yüzeyi: `Component`, `ComponentId`, `ComponentScope`,
@@ -5907,9 +5937,16 @@ Semantic renk ve elevation:
   veya player palette üzerinden HSLA'ya çözülür.
 - `TintColor::{Accent, Error, Warning, Success}` button tint stillerine kaynaklık
   eder ve `Color`'a dönüştürülebilir.
+- `Severity::{Info, Success, Warning, Error}` `Banner`/`Callout` gibi feedback
+  bileşenlerinin semantic durumudur; `TintColor` veya `Color` yerine component
+  severity sözleşmesi istediğinde bunu kullan.
+- `PlatformStyle::{Mac, Linux, Windows}` ve `PlatformStyle::platform()` platforma
+  göre UI ayrımı gereken bileşenlerde küçük branching yüzeyidir.
 - `ElevationIndex::{Background, Surface, EditorSurface, ElevatedSurface,
   ModalSurface}` shadow, background ve "bu elevation üzerinde okunacak renk"
   kararlarını toplar.
+  Public helper'ları: `.shadow(cx)`, `.bg(cx)`, `.on_elevation_bg(cx)`,
+  `.darker_bg(cx)`.
 
 Button/label ortak sözleşmeleri:
 
@@ -5950,8 +5987,11 @@ Diğer UI yardımcıları:
   root_padding)`, `inner_corner_radius(...)`,
   `FormatDistance::{new(date, base_date), from_now(date), include_seconds(bool),
   add_suffix(bool), hide_prefix(bool)}`, `format_distance(...)`,
-  `format_distance_from_now(...)`, `DateTimeType::{NaiveDateTime,
-  OffsetDateTime}` ve `BASE_REM_SIZE_IN_PX` sabiti.
+  `format_distance_from_now(...)`, `DateTimeType::{Naive(NaiveDateTime),
+  Local(DateTime<Local>)}`.
+- `BASE_REM_SIZE_IN_PX` `ui::utils` altında değil, `styles/units.rs` üzerinden
+  crate köküne gelen `ui::BASE_REM_SIZE_IN_PX` sabitidir; `rems_from_px(...)`,
+  `vh(...)`, `vw(...)` ile aynı units yüzeyindedir.
 - `ui::ui_density(cx: &mut App) -> UiDensity` styles modülünden gelen
   ergonomik helper'dır; `theme::theme_settings(cx).ui_density(cx)` kısayolu.
   Spacing kararları için `DynamicSpacing` enum'unu tercih et, density'yi
@@ -5986,6 +6026,14 @@ Diğer UI yardımcıları:
     `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility, ScrollbarAutoHide}`
     namespace'i altındadır; `ScrollbarVisibility` settings trait'i,
     `ScrollbarAutoHide` ise auto-hide durumunu taşıyan `Global` tipidir.
+  - Enum yüzeyi: `ScrollAxes::{Horizontal, Vertical, Both}` ve
+    `ScrollbarStyle::{Regular, Editor}`. Özel scroll handle yazıyorsan
+    `ScrollableHandle` trait'i `max_offset`, `set_offset`, `offset`,
+    `viewport`, opsiyonel `drag_started`/`drag_ended`, `scrollable_along` ve
+    `content_size` sözleşmesini taşır.
+  - `on_new_scrollbars<T: gpui::Global>(cx)` bir global ayarı
+    `ScrollbarState::settings_changed` observer'ına bağlamak için düşük seviye
+    helper'dır; normal component render'ında çağrılan bir builder değildir.
 
 Tuzaklar:
 
@@ -6043,10 +6091,16 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   ElevationBased(ElevationIndex), Custom(Hsla)}`.
   Lowercase yardımcı fonksiyonlar `checkbox(id, state)` ve
   `switch(id, state)` constructor kısayollarıdır.
+- Metin girişi: `ui_input::InputField` ayrı crate'tedir; `ui` re-export etmez.
+  `InputField::new(window, cx, placeholder)` editor factory gerektirir ve
+  `.label`, `.start_icon`, `.masked`, `.tab_index`, `.text`, `.set_text`,
+  `.clear` gibi form alanı API'sini sağlar.
 - Menü/popup: `ContextMenu`, `ContextMenuEntry`, `ContextMenuItem`,
+  `DocumentationAside`, `DocumentationSide::{Left, Right}`,
   `RightClickMenu<M: ManagedView>` ve free fn `right_click_menu(id)`,
   `Popover`, `PopoverMenu<M: ManagedView>`, `PopoverMenuHandle<M>`,
-  `PopoverTrigger`, `Tooltip` ve free fn `tooltip_container(cx, f)`.
+  `PopoverTrigger`, `Tooltip`, `LinkPreview` ve free fn
+  `tooltip_container(cx, f)`.
 - Liste/tree: `List` (`EmptyMessage::{Text(SharedString), Element(AnyElement)}`),
   `ListItem` (`ListItemSpacing::{Dense, ExtraDense, Sparse}`),
   `ListHeader`, `ListSubHeader`, `ListSeparator` (`pub struct ListSeparator;` —
@@ -6070,8 +6124,9 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   `IntoTableRow` trait, `render_table_row`, `render_table_header`,
   `bind_redistributable_columns()` ve
   `render_redistributable_columns_resize_handles()`.
-- Feedback: `Banner`, `Callout`, `Modal`, `ModalHeader`, `ModalFooter`,
-  `ModalRow`, `Section`, `SectionHeader`, `AlertModal`,
+- Feedback: `Banner`, `Callout` (`BorderPosition::{Top, Bottom}`),
+  `Modal`, `ModalHeader`, `ModalFooter`, `ModalRow`, `Section`,
+  `SectionHeader`, `AlertModal`,
   `AnnouncementToast`, `CountBadge`, `Indicator`, `ProgressBar`,
   `CircularProgress`. `ui::Notification` standalone component değildir;
   workspace bildirim sistemi ayrı `workspace::notifications` trait'leriyle
