@@ -4141,13 +4141,32 @@ theme.styles.colors.refine(&refinement);
 
 #### Modülün dış arayüzü
 
-`refinement.rs` kararlı dış API'leri:
+`refinement.rs` kararlı dış API'leri (Zed `crates/theme_settings/src/schema.rs`
+paritesinde):
 
 ```rust
-pub fn theme_colors_refinement(c: &ThemeColorsContent) -> ThemeColorsRefinement;
+pub fn theme_colors_refinement(
+    this: &ThemeColorsContent,
+    status_colors: &StatusColorsRefinement,
+    is_light: bool,
+) -> ThemeColorsRefinement;
 pub fn status_colors_refinement(c: &StatusColorsContent) -> StatusColorsRefinement;
 pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement);
+pub fn apply_theme_color_defaults(
+    r: &mut ThemeColorsRefinement,
+    player_colors: &PlayerColors,
+);
+pub fn syntax_overrides(
+    style: &ThemeStyleContent,
+) -> Vec<(String, gpui::HighlightStyle)>;
 ```
+
+> **Önemli:** `theme_colors_refinement` **üç parametre alır**, tek parametre
+> değil. `status_colors` parametresi `version_control_added/deleted`
+> alanlarının `status.created`/`status.deleted`'a düşmesi için gerekir;
+> `is_light` parametresi `editor_diff_hunk_*` alanlarının appearance'a
+> göre opacity sabiti seçmesini sağlar. Önceki rehber sürümünde tek parametreli
+> imza yanlıştı.
 
 Crate-içi kararsız helper'lar:
 
@@ -4242,23 +4261,70 @@ değil); her renk alanı için tek-satır mantığı tek yere toplar.
 #### `theme_colors_refinement` deseni
 
 ```rust
-pub fn theme_colors_refinement(c: &ThemeColorsContent) -> ThemeColorsRefinement {
+pub fn theme_colors_refinement(
+    this: &ThemeColorsContent,
+    status_colors: &StatusColorsRefinement,
+    is_light: bool,
+) -> ThemeColorsRefinement {
+    // 1. Düz alanlar — her biri tek-satır parse:
+    let border = color(&this.border);
+    // ... border_variant, border_focused, border_selected, border_transparent,
+    //     border_disabled, background, surface_background, ... (çoğu alan)
+
+    // 2. Fallback zincirli alanlar — sözleşmenin asıl inceliği burada:
+    let scrollbar_thumb_background = color(&this.scrollbar_thumb_background)
+        .or_else(|| color(&this.deprecated_scrollbar_thumb_background));
+    let scrollbar_thumb_active_background = color(&this.scrollbar_thumb_active_background)
+        .or(scrollbar_thumb_background);
+    let search_match_background = color(&this.search_match_background);
+    let search_active_match_background = color(&this.search_active_match_background)
+        .or(search_match_background);
+    let version_control_added = color(&this.version_control_added).or(status_colors.created);
+    let version_control_deleted = color(&this.version_control_deleted).or(status_colors.deleted);
+    let pane_group_border = color(&this.pane_group_border).or(border);
+    let panel_background = color(&this.panel_background);
+    let element_hover = color(&this.element_hover);
+    let panel_overlay_background = color(&this.panel_overlay_background)
+        .or(panel_background.map(ensure_opaque));
+    let panel_overlay_hover = color(&this.panel_overlay_hover)
+        .or(panel_background
+            .zip(element_hover)
+            .map(|(p, h)| p.blend(h))
+            .map(ensure_opaque));
+    let minimap_thumb_background = color(&this.minimap_thumb_background)
+        .or(scrollbar_thumb_background.map(ensure_non_opaque));
+    // ... minimap_thumb_{hover,active}_background, minimap_thumb_border de
+    //     scrollbar_thumb_*'tan türer.
+
+    // 3. Appearance-tabanlı opacity sabitleri (`is_light` parametresi burada):
+    let (hunk_fill, hunk_hollow_bg, hunk_hollow_border) = if is_light {
+        (LIGHT_DIFF_HUNK_FILLED_OPACITY,        // 0.16
+         LIGHT_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY,  // 0.08
+         LIGHT_DIFF_HUNK_HOLLOW_BORDER_OPACITY)      // 0.48
+    } else {
+        (DARK_DIFF_HUNK_FILLED_OPACITY,         // 0.12
+         DARK_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY,   // 0.06
+         DARK_DIFF_HUNK_HOLLOW_BORDER_OPACITY)       // 0.36
+    };
+    // editor_diff_hunk_added_background, editor_diff_hunk_deleted_background
+    // version_control_added/deleted * hunk_fill ile türetilir; hollow varyantları
+    // hunk_hollow_bg ve hunk_hollow_border opacity'leri ile.
+
     ThemeColorsRefinement {
-        border: color(&c.border),
-        border_variant: color(&c.border_variant),
-        border_focused: color(&c.border_focused),
-        border_selected: color(&c.border_selected),
-        border_transparent: color(&c.border_transparent),
-        border_disabled: color(&c.border_disabled),
-
-        background: color(&c.background),
-        surface_background: color(&c.surface_background),
-        elevated_surface_background: color(&c.elevated_surface_background),
-
-        element_background: color(&c.element_background),
-        element_hover: color(&c.element_hover),
-        // ... ~150 alan, hepsi aynı kalıpta
-
+        border,
+        border_variant: color(&this.border_variant),
+        // ... düz alanlar
+        scrollbar_thumb_background,
+        scrollbar_thumb_active_background,
+        search_match_background,
+        search_active_match_background,
+        version_control_added,
+        version_control_deleted,
+        pane_group_border,
+        panel_overlay_background,
+        panel_overlay_hover,
+        minimap_thumb_background,
+        // ... editor_diff_hunk_* alanları türetilmiş değerlerle
         ..Default::default()
     }
 }
@@ -4266,11 +4332,39 @@ pub fn theme_colors_refinement(c: &ThemeColorsContent) -> ThemeColorsRefinement 
 
 **Yapı kuralları:**
 
-- **Her alan tek satır**: `<alan_adi>: color(&c.<alan_adi>),`
+- **Düz alanlar**: `<alan_adi>: color(&this.<alan_adi>),` (alanların çoğunluğu)
+- **Fallback zincirli alanlar (en az 10 alan)**: Önceki rehber bunları
+  yanlışlıkla "her alan tek satır" olarak gösteriyordu. Aşağıdaki tabloda
+  Zed pin `6e8eaab25b5a` için tam liste:
+
+| Alan | Düşüş sırası |
+|------|--------------|
+| `scrollbar_thumb_background` | `→ deprecated_scrollbar_thumb_background` |
+| `scrollbar_thumb_active_background` | `→ scrollbar_thumb_background` |
+| `search_active_match_background` | `→ search_match_background` |
+| `version_control_added` | `→ status_colors.created` |
+| `version_control_deleted` | `→ status_colors.deleted` |
+| `pane_group_border` | `→ border` |
+| `panel_overlay_background` | `→ ensure_opaque(panel_background)` |
+| `panel_overlay_hover` | `→ ensure_opaque(panel_background.blend(element_hover))` |
+| `minimap_thumb_background` | `→ ensure_non_opaque(scrollbar_thumb_background)` |
+| `minimap_thumb_hover_background` | `→ ensure_non_opaque(scrollbar_thumb_hover_background)` |
+| `minimap_thumb_active_background` | `→ ensure_non_opaque(scrollbar_thumb_active_background)` |
+| `minimap_thumb_border` | `→ scrollbar_thumb_border` |
+| `editor_diff_hunk_added_background` | `→ version_control_added × hunk_fill (light=0.16 / dark=0.12)` |
+| `editor_diff_hunk_added_hollow_background` | `→ version_control_added × hunk_hollow_bg (0.08 / 0.06)` |
+| `editor_diff_hunk_added_hollow_border` | `→ version_control_added × hunk_hollow_border (0.48 / 0.36)` |
+| `editor_diff_hunk_deleted_background` | `→ version_control_deleted × hunk_fill` |
+| `editor_diff_hunk_deleted_hollow_background` | `→ version_control_deleted × hunk_hollow_bg` |
+| `editor_diff_hunk_deleted_hollow_border` | `→ version_control_deleted × hunk_hollow_border` |
+
 - **`..Default::default()` zorunlu**: Macro üretilen Refinement tipinin
   tüm alanlarını açıkça vermek istemiyorsan default fallback gerek. Tema
   sözleşmesi büyüdükçe (Zed yeni alan ekledikçe) bu kalıp esneklik
   sağlar — yeni alanı mirror etmeden önce de derleme bozulmaz.
+- **`ensure_opaque` / `ensure_non_opaque`** crate-içi yardımcılar: alpha
+  kanalını sırasıyla `1.0`'a sıkıştırır veya `1.0` ise küçültür. Mirror
+  tarafta aynı isimle bekle veya `kvs_renk` modülüne yerleştir.
 
 > **Sync turunda dikkat:** Zed yeni bir alan eklediğinde (`new_color`),
 > Refinement tipinde otomatik olarak `new_color: Option<Hsla>` belirir.
@@ -4506,10 +4600,13 @@ Sırlama:
 **yoktur**. Sebep: UI renklerinde fg/bg ilişkisi yoktur; `border_variant`
 ve `surface_background` farklı alanlardır. Türetme yapay kalır.
 
-Zed'de `apply_theme_color_defaults` adında bir fonksiyon **var**, ama
-yaptığı şey tek bir özel durum (`element_selection_background = text_accent
-* 0.25` gibi); senin sözleşmenin sadeliği bunu pas geçer. Sync turunda
-yeni türetme görürsen değerlendir.
+Zed'de `apply_theme_color_defaults` adında bir fonksiyon **var**, fakat
+tam davranışı Konu 43.6'da işlenir: yalnızca `element_selection_background`
+alanını türetir, kaynak `player_colors.local().selection` rengidir (text_accent
+veya başka bir alan değil); kaynak rengin alpha'sı `1.0` ise sonuç alpha'sı
+`0.25`'e çekilir, aksi halde olduğu gibi atanır. Yani sabit bir `× 0.25`
+formülü **değildir**; alpha < 1.0 olan player selection'ı aynen kopyalanır.
+Sync turunda yeni türetme görürsen Konu 43.6'yı güncel tut.
 
 #### Test örnekleri
 
@@ -4616,64 +4713,61 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
         AppearanceContent::Dark => Appearance::Dark,
     };
 
-    // 2. Renk refinement'larını üret + türetme uygula
-    let mut color_refinement = theme_colors_refinement(&content.style.colors);
+    // ---
+    // Aşağıdaki adımlar Zed `refine_theme` (theme_settings.rs:275)
+    // sırasını birebir takip eder. Sıra önemlidir:
+    //   - status_refinement, theme_refinement'tan ÖNCE çünkü
+    //     theme_colors_refinement(`status_colors`) ona ihtiyaç duyar.
+    //   - player merge, theme_refinement'tan ÖNCE çünkü
+    //     apply_theme_color_defaults(player) ona ihtiyaç duyar.
+    // ---
+
+    // 2a. Status refinement + %25 alpha türetme
     let mut status_refinement = status_colors_refinement(&content.style.status);
     apply_status_color_defaults(&mut status_refinement);
 
-    // 3. Baseline'ı klonla, refinement uygula
-    let mut colors = baseline.styles.colors.clone();
-    colors.refine(&color_refinement);
-
+    // 2b. Baseline status'u refine et
     let mut status = baseline.styles.status.clone();
     status.refine(&status_refinement);
 
-    // 4. Accents: boş ise baseline'a dokunma; dolu ise parse edilebilen
+    // 3. Player merge — baseline player listesi üstüne idx-bazlı override
+    let mut player = baseline.styles.player.clone();
+    merge_player_colors(&mut player, &content.style.players);
+
+    // 4a. Theme color refinement — 3 parametre: content + status_refinement + is_light
+    let is_light = matches!(appearance, Appearance::Light);
+    let mut color_refinement = theme_colors_refinement(
+        &content.style.colors,
+        &status_refinement,
+        is_light,
+    );
+
+    // 4b. element_selection_background türetmesi (player.local().selection)
+    apply_theme_color_defaults(&mut color_refinement, &player);
+
+    // 4c. Baseline theme colors'u refine et
+    let mut colors = baseline.styles.colors.clone();
+    colors.refine(&color_refinement);
+
+    // 5. Accents: boş ise baseline'a dokunma; dolu ise parse edilebilen
     //    renkleri topla. Zed paritesi (`merge_accent_colors`,
     //    theme_settings/src/theme_settings.rs:395): parse edilebilen renkler
     //    boş çıkarsa accent listesini değiştirme; aksi halde baseline
     //    `Arc<[Hsla]>`'i tamamen değiştir.
     let mut accents = baseline.styles.accents.clone();
-    if !content.style.accents.is_empty() {
-        let parsed: Vec<Hsla> = content.style.accents.iter()
-            .filter_map(|c| c.0.as_deref().and_then(|s| try_parse_color(s).ok()))
-            .collect();
-        if !parsed.is_empty() {
-            accents = AccentColors(Arc::from(parsed));
-        }
-    }
+    merge_accent_colors(&mut accents, &content.style.accents);
 
-    // 5. Players: boş ise baseline, dolu ise IDX BAZLI merge.
-    //    Zed paritesi: `merge_player_colors` (theme_settings/src/theme_settings.rs:356)
-    //    her idx için **o idx'in baseline player'ı**nı koruyarak field
-    //    bazında override eder; idx baseline'dan büyükse yeni
-    //    `PlayerColor::default()` üstüne yazar. `.local()` (idx=0) ile
-    //    tüm slot'ları doldurmak YANLIŞ — slot semantiği bozulur.
-    let mut player = baseline.styles.player.clone();
-    for (idx, p) in content.style.players.iter().enumerate() {
-        let cursor = p.cursor.as_deref().and_then(|s| try_parse_color(s).ok());
-        let background = p.background.as_deref().and_then(|s| try_parse_color(s).ok());
-        let selection = p.selection.as_deref().and_then(|s| try_parse_color(s).ok());
-        if let Some(slot) = player.0.get_mut(idx) {
-            *slot = PlayerColor {
-                cursor: cursor.unwrap_or(slot.cursor),
-                background: background.unwrap_or(slot.background),
-                selection: selection.unwrap_or(slot.selection),
-            };
-        } else {
-            player.0.push(PlayerColor {
-                cursor: cursor.unwrap_or_default(),
-                background: background.unwrap_or_default(),
-                selection: selection.unwrap_or_default(),
-            });
-        }
-    }
-
-    // 6. Syntax: IndexMap → Vec<(String, HighlightStyle)>
-    let syntax_highlights = content.style.syntax.iter()
-        .map(|(name, style)| (name.clone(), highlight_style(style)))
-        .collect();
-    let syntax = SyntaxTheme::new(syntax_highlights);
+    // (Eski sürüm 5. adımdaki idx-bazlı player merge bu noktada ZATEN
+    // çalıştırıldı — adım 3. Aşağıdaki kalan kod blokları sadece syntax
+    // ve window bg adımlarını içerir.)
+    // 6. Syntax override'larını topla. Zed paritesi `syntax_overrides`
+    //    (theme_settings/src/schema.rs:40): IndexMap<String, HighlightStyleContent>'i
+    //    `Vec<(String, gpui::HighlightStyle)>`'a dönüştürür. SyntaxTheme baseline
+    //    boş bir `SyntaxTheme::new()` ya da fallback paletinden başlar; sonra
+    //    `SyntaxTheme::merge(base, overrides)` ile birleştirilir (`syntax_theme`
+    //    crate'i — Konu 17). Tek satırda kanonik yazımı:
+    let syntax_highlights = syntax_overrides(&content.style);
+    let syntax = SyntaxTheme::merge(baseline.styles.syntax.clone(), syntax_highlights);
 
     // 7. Pencere bg: enum eşleme veya baseline'dan
     let window_background_appearance = match content.style.window_background_appearance {
@@ -4709,13 +4803,30 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
 İki ayrı enum tipi: Content tipi serde için, Theme tipi runtime için.
 Doğrudan cast yok; explicit match.
 
-**Adım 2 — Renk refinement'ları + türetme.**
+**Adım 2 — Status refinement + %25 alpha türetme.**
 
-`theme_colors_refinement` ve `status_colors_refinement` Konu 24'te.
-`apply_status_color_defaults` Konu 25'te. Sıralama: refinement'lar
-**sonra** türetme.
+`status_colors_refinement` Konu 24'te, `apply_status_color_defaults`
+Konu 25'te. Türetme `theme_colors_refinement`'tan **önce** çalıştırılır,
+çünkü `theme_colors_refinement` `version_control_added/deleted` alanları
+için `status_refinement.created`/`status_refinement.deleted`'a düşer
+(Konu 24 fallback tablosu).
 
-**Adım 3 — Baseline.refine().**
+**Adım 3 — Player merge.**
+
+`merge_player_colors(&mut player, &content.style.players)` çağrısı
+baseline player listesini idx başına field-bazlı override eder
+(yukarıdaki kanonik akışta gösterildi). Bu adım theme color refinement'tan
+**önce** olmalıdır, çünkü `apply_theme_color_defaults` `player.local().selection`
+rengini okur (Konu 43.6).
+
+**Adım 4 — Theme color refinement + türetme.**
+
+`theme_colors_refinement(content, &status_refinement, is_light)` (3 parametre,
+Konu 24'te imza tablosu); ardından `apply_theme_color_defaults(refinement, &player)`
+(`element_selection_background` türetir). Sıra Zed paritesinde adım 2'den
+sonra, baseline refinement'ından önce.
+
+**Adım 4 (devam) — Baseline.refine() detayı.**
 
 ```rust
 let mut colors = baseline.styles.colors.clone();
@@ -4723,7 +4834,8 @@ colors.refine(&color_refinement);
 ```
 
 `Refineable::refine` (Bölüm II/Konu 11) — `Some` alanları override eder,
-`None` baseline'dan kalır.
+`None` baseline'dan kalır. `status.refine(&status_refinement)` Adım 2'de
+benzer şekilde uygulanır.
 
 **`.clone()` neden?** `baseline: &Theme` immutable; doğrudan üzerinde
 `refine` çağıramayız. Baseline registry'de paylaşıldığı için
@@ -4733,66 +4845,87 @@ modifiye edilemez; her tema kendi kopyasını alır.
 `StatusColors` 42 alan = ~700 byte. Toplam ~3 KiB per tema, yüklenirken
 bir kez. Hot path değil.
 
-**Adım 4 — Accents: boş/dolu kararı.**
+**Adım 3 (devam) — Player merge davranış detayı.**
 
 ```rust
-let accents = if content.style.accents.is_empty() {
-    baseline.styles.accents.clone()       // tema vermedi → baseline
-} else {
-    AccentColors(content.style.accents.iter()
-        .filter_map(|c| c.as_deref().and_then(|s| try_parse_color(s).ok()))
-        .collect())                        // tema verdi → parse et
-};
+let mut player = baseline.styles.player.clone();
+merge_player_colors(&mut player, &content.style.players);
 ```
 
-**Önemli:** Accents için **alan-bazlı refinement değil, liste-bazlı**.
-Tema yazarı `accents: []` veya alan yazmadıysa baseline korunur; bir
-veya daha fazla accent yazdıysa **tamamen yeni liste**.
-
-`filter_map`: `Vec<Option<String>>`'ten `Vec<Hsla>`'ya. Null girdiler ve
-parse hataları **sessizce elenir** (mevcut indekslemeyi bozar).
-
-> **Tuzak:** Tema yazarı `accents: ["#aaa", null, "#bbb"]` yazarsa,
-> beklenen davranış [accent[0]=#aaa, accent[1]=null=skip, accent[2]=#bbb]
-> olabilir. Mevcut kod `filter_map` ile null'ları **eler** = [#aaa, #bbb].
-> İndeksleme kayar; #bbb şu an accent index 1. Bu Zed davranışıyla
-> uyumlu mu? Zed kaynağına bak; uyumsuzluk varsa düzelt.
-
-**Adım 5 — Players: alan-bazlı.**
-
-```rust
-PlayerColors(content.style.players.iter().map(|p| PlayerColor {
-    cursor: p.cursor.as_deref()
-        .and_then(|s| try_parse_color(s).ok())
-        .unwrap_or(baseline.styles.player.local().cursor),
-    // background, selection aynı kalıp
-}).collect())
-```
-
-PlayerColor 3 alanı (cursor/background/selection) ayrı parse; her birinin
-fallback'i **baseline'ın local player'ı**. Bu çakışmaya dikkat:
+`merge_player_colors` kanonik akışın 3. adımıdır (status_refinement'tan
+sonra, theme_colors_refinement'tan önce) ve aşağıdaki inceliklerle çalışır:
 
 - Tema yazarı `players: [{ "cursor": "#abc" }, { "cursor": "#def" }]`
   yazdı.
-- Player 0'ın cursor'u #abc, background ve selection baseline.local()'tan.
-- Player 1'in cursor'u #def, background ve selection **yine baseline.local()'tan**.
+- Player 0'ın cursor'u `#abc`, background ve selection **baseline player 0**'dan
+  (baseline'ın `local()` slot'undan).
+- Player 1'in cursor'u `#def`, background ve selection **baseline player 1**'den
+  (slot semantiğine göre orange tonları).
 
-Yani tüm player slot'larının fallback'i tek bir kaynaktan (local) gelir.
-Tek tek slot'lara ayrı fallback **yok**. Bu Zed davranışıyla aynı; istisnai
-bir tasarım kararı.
+Yani fallback **idx-başına** uygulanır, hepsi `local()`'dan değil. Önceki
+rehber sürümünde tüm slot'lara `baseline.player.local()` fallback'i
+gösteriliyordu — bu hata Zed `merge_player_colors`'la **eşleşmez** ve slot
+semantiğini bozar (Konu 15).
 
-**Adım 6 — Syntax: `IndexMap` → `Vec<(String, HighlightStyle)>` tuple
-listesi → `SyntaxTheme`.**
+Player slot'u baseline kapasitesinden büyük bir idx ise (örn. baseline 8
+slot, tema 10 slot tanımlamış) eksik fallback `PlayerColor::default()`
+(siyah/şeffaf) ile doldurulur.
 
-Content tarafında `IndexMap<String, HighlightStyleContent>` (sıra
-korunur). Runtime tarafında her entry tuple'a çevrilir; `highlight_style`
-helper (Konu 7) her `HighlightStyleContent`'i `HighlightStyle`'a çevirir.
-Tuple listesi `SyntaxTheme::new(...)` constructor'ına geçer; constructor
-iç `Vec<HighlightStyle>` ve `BTreeMap<String, usize>` yapılarını üretir.
+**Adım 5 — Accent merge.**
 
-`SyntaxTheme::new()` `Self` döner; caller `Arc::new(SyntaxTheme::new(...))`
-ile sarmalar. `Theme.styles.syntax` alanı `Arc<SyntaxTheme>` taşır,
-böylece light/dark varyantları arasında syntax bölümü paylaşılabilir.
+```rust
+merge_accent_colors(&mut accents, &content.style.accents);
+```
+
+Zed kaynağı `theme_settings::theme_settings::merge_accent_colors`:
+
+- `user_accent_colors.is_empty()` → baseline'a dokunmaz (`accents`
+  baseline'dan klonlu kalır).
+- Aksi halde parse edilebilen renkleri `filter_map` ile toplar; eğer
+  toplam liste boş çıkarsa (hepsi null veya parse hatası) yine baseline'a
+  dokunmaz. Liste en az 1 renk içeriyorsa `accents.0 = Arc::from(colors)`
+  ile **baseline tamamen değiştirilir**.
+
+> **Tuzak:** Tema yazarı `accents: ["#aaa", null, "#bbb"]` yazarsa,
+> `merge_accent_colors` null'ları ve parse hatalarını eler:
+> `accents = [#aaa, #bbb]`. İndeksleme kayar — `#bbb` artık accent
+> index 1, baseline'daki orijinal index 2 değil. Zed bu davranışı
+> bilinçli koruyor; mirror'da aynı semantiği bozmamak için
+> `filter_map` zincirini dimdik kopyala.
+
+**Adım 6 — Syntax: `IndexMap` → `Vec<(String, HighlightStyle)>` →
+`SyntaxTheme::merge(base, overrides)`.**
+
+`theme_settings::schema::syntax_overrides` helper'ı (yukarıdaki Konu 24
+imza tablosunda) Content tarafındaki `IndexMap<String, HighlightStyleContent>`'i
+`Vec<(String, gpui::HighlightStyle)>`'a çevirir; `HighlightStyleContent`'in
+4 alanı (`color`, `background_color`, `font_style`, `font_weight`) parse
+edilir, gerisi `Default::default()`'tan gelir (underline, strikethrough,
+fade_out vb.).
+
+```rust
+let syntax_highlights = syntax_overrides(&content.style);
+let syntax = SyntaxTheme::merge(baseline.styles.syntax.clone(), syntax_highlights);
+```
+
+`SyntaxTheme::merge` (Konu 17 — `syntax_theme` crate'inde tanımlı):
+
+- `user_syntax_styles.is_empty()` → baseline'ı olduğu gibi döner (alloc yok).
+- Aksi halde `Arc::try_unwrap` ile baseline'ı içeri al, mümkün değilse
+  klonla; sonra her override için:
+  - Capture adı baseline'da varsa (`Entry::Occupied`): mevcut `HighlightStyle`'ı
+    **field-bazlı override** et — `color`, `font_weight`, `font_style`,
+    `background_color`, `underline`, `strikethrough`, `fade_out` alanlarını
+    `new.<field>.or(existing.<field>)` ile birleştir (Option zinciri:
+    yeni `Some` ise üzerine yazar, `None` ise mevcut korunur).
+  - Capture adı baseline'da yoksa (`Entry::Vacant`): listenin sonuna ekle,
+    `capture_name_map`'e yeni idx kaydet.
+- `Arc::new(base)` ile yeni `Arc<SyntaxTheme>` döner.
+
+Önceki rehber sürümünde syntax adımı `SyntaxTheme::new(...)` ile
+sıfırdan oluşturuluyordu — bu **baseline syntax'ı sıfırlar**. Mirror
+tarafta `merge` API'sini kullanmazsan tema yazarı yalnız birkaç token
+override etse bile bütün baseline syntax kaybolur.
 
 **Adım 7 — Pencere bg: enum dönüşüm veya fallback.**
 
@@ -4906,8 +5039,8 @@ aynı işi yapan **dört public fonksiyon** vardır
 |-----------|------------|----------|
 | `pub fn refine_theme(theme: &ThemeContent) -> Theme` | Tek `ThemeContent` → `Theme`. Baseline'ı `appearance`'a göre `ThemeColors::light`/`dark` ile alır, refinement + merge + parse pipeline'ını çalıştırır | `Theme::from_content` ile aynı 6 adım |
 | `pub fn refine_theme_family(content: ThemeFamilyContent) -> ThemeFamily` | Tüm aileyi `refine_theme` ile çevirip `ThemeFamily { themes, scales: default_color_scales(), … }` üretir | Aile-bazlı yardımcı; tek tema için `refine_theme` yeterli |
-| `pub fn merge_player_colors(&mut PlayerColors, &[PlayerColorContent])` | Adım 5'in kanonik implementasyonu (idx başına field bazında merge) | Yukarıdaki düzeltilmiş Adım 5 |
-| `pub fn merge_accent_colors(&mut AccentColors, &[AccentContent])` | Adım 4'ün kanonik implementasyonu (parse edilen liste boş değilse `Arc<[Hsla]>`'i tamamen değiştir) | Yukarıdaki düzeltilmiş Adım 4 |
+| `pub fn merge_player_colors(&mut PlayerColors, &[PlayerColorContent])` | Adım 3'ün kanonik implementasyonu (idx başına field bazında merge) | Konu 26 Adım 3 |
+| `pub fn merge_accent_colors(&mut AccentColors, &[AccentContent])` | Adım 5'in kanonik implementasyonu (parse edilen liste boş değilse `Arc<[Hsla]>`'i tamamen değiştir) | Konu 26 Adım 5 |
 
 Ayrıca `pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8]) -> Result<()>`
 ve `pub fn deserialize_user_theme(bytes: &[u8]) -> Result<ThemeFamilyContent>`
@@ -6111,6 +6244,17 @@ settings modeli şu dört özelliği taşır:
 4. **Tema bazlı override:** Belirli tema adına özel override map'i.
 
 Zed'e denk settings sözleşmesi:
+
+> **Owner zinciri (önemli):** `ThemeName`, `IconThemeName`,
+> `ThemeAppearanceMode`, `FontFamilyName`, `DEFAULT_LIGHT_THEME` ve
+> `DEFAULT_DARK_THEME` aslında **`settings_content` crate'inde**
+> tanımlıdır (`settings_content/src/theme.rs:282`, `501`, `507`).
+> `theme_settings` crate'i bunları `pub use settings::{...}`
+> (`theme_settings/src/settings.rs:13`) ile yeniden ihraç eder; tüketici
+> kod `theme_settings::ThemeName` adıyla erişir. Mirror tarafta tek
+> kaynak `kvs_ayarlari_icerik` (veya muadili) crate'i olmalıdır;
+> `kvs_tema_ayarlari` yalnızca `pub use` ile köprü kurar. Aynı tipi
+> birden fazla yerde tanımlamak schema/test çatışmasına yol açar.
 
 ```rust
 use std::{collections::HashMap, sync::Arc};
@@ -8082,6 +8226,38 @@ impl Render for Button {
 6. **`Context<T>` yerine `&Window`**: `Window` üzerinden `cx.theme()`
    yok; `Window` `App` deref etmez. Render imzası `(&mut Window, &mut
    Context<Self>)` — iki parametre ayrı.
+
+#### `Theme::darken` ile appearance-aware koyulaştırma
+
+Zed'in `Theme::darken(color, light_amount, dark_amount)` (`theme.rs:274`)
+yardımcısı bir rengi appearance'a göre **lightness** azaltarak koyulaştırır:
+light tema modunda `light_amount`, dark tema modunda `dark_amount` kullanılır;
+sonuç `l = (l - amount).max(0.0)` ile alt sınırlanır. Aynı bileşenin
+iki temada da yeterli kontrast tutmasını sağlamak için iki ayrı miktar
+geçilir.
+
+```rust
+use kvs_tema::ActiveTheme;
+
+impl Render for HoverChip {
+    fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let tema = cx.theme();
+        // Hover'da background'u light'ta 0.06, dark'ta 0.04 koyulaştır.
+        let hover_bg = tema.darken(tema.colors().element_background, 0.06, 0.04);
+        div()
+            .bg(tema.colors().element_background)
+            .hover(|s| s.bg(hover_bg))
+            .text_color(tema.colors().text)
+    }
+}
+```
+
+**Sınırlar:** `darken` yalnızca lightness'i etkiler; alpha, saturation,
+hue olduğu gibi kalır. Şeffaf renkler için sonuç hâlâ şeffaftır. Kaynak
+notunda "tentative solution" diye işaretli — Zed kalıcı bir renk sistemi
+oturtana kadar geçici. Mirror tarafta aynı imzayla tutmak parite açısından
+önemlidir, ama daha karmaşık (`OkLab` veya `palette::Mix`) bir varyant
+yazılırsa `DECISIONS.md`'ye yerel genişletme olarak yaz.
 
 ---
 
@@ -10916,7 +11092,21 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `theme_settings::theme_settings::reload_theme`, `reload_icon_theme`, `load_user_theme`, `deserialize_user_theme`, `refine_theme_family`, `refine_theme`, `merge_player_colors`, `merge_accent_colors`, `increase_buffer_font_size`, `decrease_buffer_font_size` | `theme_settings/src/theme_settings.rs:185-428` | Zed'in JSON→Theme pipeline'ının ve runtime tema reload akışının kanonik fonksiyonları. Konu 26 + Konu 31'de detaylı; bu satır 43.9 denetiminin köprüsü |
 | `theme_settings::settings::adjust_buffer_font_size`, `reset_buffer_font_size`, `adjust_ui_font_size`, `reset_ui_font_size`, `adjust_agent_ui_font_size`, `reset_agent_ui_font_size`, `adjust_agent_buffer_font_size`, `reset_agent_buffer_font_size`, `clamp_font_size`, `adjusted_font_size`, `observe_buffer_font_size_adjustment`, `setup_ui_font` | `theme_settings/src/settings.rs` | Runtime font ölçekleme override global'leri ve helper'ları (Konu 43.8.1). Settings UI / shortcut tarafında kullanılır |
 | `AgentUiFontSize`, `AgentBufferFontSize` newtype global'leri | `theme_settings/src/settings.rs:108, 114` | Agent panel font override'ı için `Global`-impl'lenmiş `Pixels` newtype'ları (Konu 43.8.1) |
-| `theme_settings::schema::syntax_overrides`, `theme_colors_refinement`, `status_colors_refinement` | `theme_settings/src/schema.rs:2343-2540` | Content → Refinement dönüşüm fonksiyonlarının kanonik adları; Konu 24'te işlenir, doğrudan signature 43.9'da kayıt altında |
+| `theme_settings::schema::syntax_overrides`, `theme_colors_refinement`, `status_colors_refinement` | `theme_settings/src/schema.rs:40, 237, 65` | Content → Refinement dönüşüm fonksiyonlarının kanonik adları. **`theme_colors_refinement` 3 parametrelidir** (`this`, `status_colors`, `is_light`); fallback zincirleri ve diff-hunk opacity'leri Konu 24'te tam tablo |
+| `theme_colors_refinement` fallback zincirleri (15+ alan) | `theme_settings/src/schema.rs:237-547` | `scrollbar_thumb_background → deprecated_*`, `version_control_added → status.created`, `minimap_thumb_* → scrollbar_thumb_*` (non-opaque), `panel_overlay_* → panel_background` (+ `element_hover` blend), `editor_diff_hunk_* → version_control_* × LIGHT/DARK_DIFF_HUNK_*_OPACITY`. Konu 24 tablosu eksiksiz listeler |
+| `LIGHT_DIFF_HUNK_FILLED_OPACITY`, `DARK_DIFF_HUNK_FILLED_OPACITY`, `LIGHT_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY`, `DARK_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY`, `LIGHT_DIFF_HUNK_HOLLOW_BORDER_OPACITY`, `DARK_DIFF_HUNK_HOLLOW_BORDER_OPACITY` | `theme_settings/src/schema.rs:16-21` | Pin `6e8eaab25b5a` değerleri sırasıyla `0.16 / 0.12 / 0.08 / 0.06 / 0.48 / 0.36`. `pub(crate)` sabitler ama tüketici görünür sözleşme değil; sayılar mirror'da `kvs_tema_ayarlari` modülünde aynı tutulmalı |
+| `apply_theme_color_defaults` kaynak rengi | `fallback_themes.rs:47-58` | `text_accent × 0.25` **değil** — `player_colors.local().selection`; alpha 1.0 ise 0.25'e çekilir, aksi halde olduğu gibi atanır. Konu 25'teki yanlış açıklama Konu 43.6'ya yönlendirildi |
+| `refine_theme` adım sırası | `theme_settings/src/theme_settings.rs:275-353` | `status_colors_refinement → apply_status_color_defaults → status.refine → merge_player_colors → theme_colors_refinement(c, &status_ref, is_light) → apply_theme_color_defaults(&player) → colors.refine → merge_accent_colors → syntax_overrides + SyntaxTheme::merge`. Konu 26'da düzeltildi |
+| `pub fn syntax_overrides(style) -> Vec<(String, HighlightStyle)>` | `theme_settings/src/schema.rs:40` | Override map'i `IndexMap<String, HighlightStyleContent>` → `Vec<(String, gpui::HighlightStyle)>`. 4 alan (`color`, `background_color`, `font_style`, `font_weight`) parse edilir; underline/strikethrough/fade_out `Default::default()`. `SyntaxTheme::merge`'in beklediği imza |
+| `SyntaxTheme::merge(base, overrides) -> Arc<Self>` | `syntax_theme/src/syntax_theme.rs:96` | **Field-bazlı merge**: aynı capture varsa `new.<f>.or(existing.<f>)` ile birleştirir; capture yeni ise listenin sonuna ekler. Override boşsa baseline klonsuz döner. Konu 17 + Konu 26'da kanonik kullanım |
+| `ThemeName`, `IconThemeName`, `ThemeAppearanceMode`, `FontFamilyName` re-export zinciri | `settings_content/src/theme.rs:282, 501, 507` → `theme_settings::settings::pub use settings::{...}:13` | Owner `settings_content`; `theme_settings` `pub use` ile köprü kurar. Mirror'da `kvs_ayarlari_icerik` (veya muadili) tek kaynak, `kvs_tema_ayarlari` yalnızca `pub use` ile yeniden açar — aksi halde aynı tipi iki yerde tanımlama bug'ı |
+| `Theme.styles` görünürlüğü | `theme.rs:216` | Zed'de **`pub styles: ThemeStyles`** (alan-bazlı). Rehber `pub(crate)` öneriyor (accessor disiplini için); fark "yerel sıkılaştırma" olarak `DECISIONS.md`'de işaretlenmeli — Zed paritesi `pub` |
+| `ThemeFamily.themes`, `ThemeFamily.scales` görünürlüğü | `theme.rs:192-204` | Hepsi `pub`. `scales: ColorScales` alanı 33 paleti taşır; pin değişiminde alan sayısı sabit kalır, palet sayısı değişebilir |
+| `PlayerColors::color_for_participant(idx)` | `styles/players.rs:147` | Collab kullanıcı renkleri için `modulo (len - 1) + 1` offset'li lookup; **local slot'u (idx 0) atlar**, participant 0 listenin idx 1'inden başlar. Konu 15'te işleniyor, 43.9'da resmi imza |
+| `PlayerColors::agent()`, `.absent()` davranışı | `styles/players.rs:130-136` | İkisi de `self.0.last().unwrap()` döner — yani **agent ve absent player aynı slot'tur** (listenin son elementi). Fallback temalarda son slot'u boş bırakmama nedeni budur |
+| `theme::init` davranışı | `theme.rs:96-116` | `SystemAppearance::init → ThemeRegistry::set_global(assets, cx) → FontFamilyCache::init_global → default_global → themes.get(DEFAULT_DARK_THEME) (yoksa list().next()) → default_icon_theme().unwrap() → cx.set_global(GlobalTheme { theme, icon_theme })`. `GlobalTheme::new` çağırmaz, doğrudan struct literal kullanır (her ikisi de mümkün) |
+| `Appearance::is_light`, `From<WindowAppearance>` | `theme.rs:63-78` | `is_light` `matches!(self, Light)`'tan kısa. `From<WindowAppearance>`: `Dark` ve `VibrantDark` → `Dark`; `Light` ve `VibrantLight` → `Light` (vibrant varyantları normal mapping'e düşer) |
+| `SystemAppearance::Default = Dark` | `theme.rs:142-146` | Sistem görünümü alınamazsa default Dark. Mirror tarafta aynı varsayılan tutulmalı; aksi halde init önce ekrana light tema gelir, sonra sistem dark'sa dark'a sıçrama olur |
 | `theme_settings::settings::BufferLineHeight` (`Comfortable`, `Standard`, `Custom(f32)`), `value()` | `theme_settings/src/settings.rs:340-369` | `Standard = 1.3`, `Comfortable = 1.618`, `Custom` doğrudan değer. Settings tarafında `f32 >= 1.0` kısıtı (`settings_content/src/theme.rs:452`) |
 | `try_parse_color` (`theme/src/schema.rs:1171`) | `theme/src/schema.rs` | Konu 20'de detaylı; 43.9'da public helper olarak teyit edilir |
 | `AppearanceContent` (`theme/src/schema.rs:1165`) | `theme/src/schema.rs` | JSON `appearance` alanının enum mirror'ı (`Light` / `Dark`); Konu 18'de kullanılır |
