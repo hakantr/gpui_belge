@@ -202,6 +202,48 @@ Benzer public alanlı sözleşme tipleri:
   çoğu kullanım `NavigableEntry::new(...)` veya `focusable(...)` üzerinden
   kurulmalıdır.
 
+#### Snapshot satır ayrımı ve payload denetimi
+
+Son snapshot düzeltmesi kaynakla doğrulandı:
+
+- `tab.rs` ve `tab_bar.rs`: `Tab`, `TabBar`, `TabPosition` ve `TabCloseSide`
+  ayrı Tab yüzeyidir. Zed içinde pane tab bar akışı `workspace/src/pane.rs`
+  dosyasında `TabPosition::{First, Middle(Ordering), Last}`,
+  `TabCloseSide::{Start, End}` ve `TabBar::new(...)` ile kurulur.
+- `stack.rs`, `group.rs` ve `divider.rs`: `h_flex`, `v_flex`, `h_group*`,
+  `v_group*`, `Divider`, `DividerColor`, `divider()` ve
+  `vertical_divider()` layout/divider yüzeyidir; `Stack` veya `Group` adlı
+  public struct yoktur.
+- `scrollbar.rs`: `Scrollbars`, `ScrollAxes`, `ScrollbarStyle`,
+  `ScrollableHandle`, `WithScrollbar`, `on_new_scrollbars` ve
+  `EDITOR_SCROLLBAR_WIDTH` root export'tur; `ShowScrollbar`,
+  `ScrollbarVisibility` ve `ScrollbarAutoHide` ise `ui::scrollbars` public alt
+  modülü altındadır. Zed `main.rs` `on_new_scrollbars::<SettingsStore>(cx)`
+  çağırır; editor ve panel kodları `Scrollbars::for_settings::<...>()`
+  kullanır.
+- `keybinding.rs`: `render_keybinding_keystroke`, `render_modifiers`,
+  `text_for_action`, `text_for_keystrokes`,
+  `text_for_keybinding_keystrokes` ve `text_for_keystroke` free helper olarak
+  public'tir. Bunlar `KeyBinding` component'inin constructor'ı değil; arama,
+  keymap editor, which-key ve quick action preview gibi yerlerde doğrudan
+  kullanılır.
+
+Ek denetim sınıfı: `pub struct Foo { pub field: ... }` taraması tek başına
+yeterli değildir. Public tuple struct alanları ve payload taşıyan enum
+variant'ları ayrıca kontrol edilmelidir:
+
+- Public tuple alanları: `ComponentId(pub &'static str)` ve
+  `ScrollbarAutoHide(pub bool)`. İlki registry id değerini, ikincisi global
+  auto-hide bayrağını taşır.
+- Payload variant'ları: `SplitButtonKind::{ButtonLike(ButtonLike),
+  IconButton(IconButton)}`, `ToggleButtonGroupSize::Custom(Rems)`,
+  `StaticColumnWidths::Explicit(TableRow<DefiniteLength>)`,
+  `LabelSize::Custom(Rems)`, `EmptyMessage::{Text(SharedString),
+  Element(AnyElement)}`, `ToggleStyle::{ElevationBased(ElevationIndex),
+  Custom(Hsla)}`, `SwitchColor::Custom(Hsla)`, `Color::Player(u32)` ve
+  `DateTimeType::{Naive(NaiveDateTime), Local(DateTime<Local>)}` gibi
+  variant'lar yalnızca isim değil, veri taşıyan public construction yüzeyidir.
+
 #### İmzası özellikle kontrol edilen lifecycle API'leri
 
 Bu grup, callback imzaları veya generic bound'ları nedeniyle en kolay yanlış
