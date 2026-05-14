@@ -537,6 +537,41 @@ Bu turda yakalayamadığım eksiklerin kök nedenleri:
 Doğru kural: her metot `owner::method` veya `Trait for Type::method` çiftiyle,
 her export ise `components.rs -> alt modül -> pub item` zinciriyle izlenir.
 
+#### Commit sonrası doğrulama (`5cd8338`)
+
+Bu dosyadaki önceki commit, kaynak üzerinde tekrar doğrulandı:
+
+- `crates/ui/src/ui.rs`, `components`, `styles` ve `traits` modüllerini
+  `mod` olarak tutup yalnızca `pub use ...::*` zinciriyle crate köküne ad
+  taşır. Bu nedenle public yol denetiminde kaynak dosyanın `pub` yazması değil,
+  export zincirinden geçip geçmediği esas alınır.
+- `crates/ui/src/components.rs` içinde `stories` modülü yoktur. Tek undeclared
+  dosya `crates/ui/src/components/stories.rs` olarak kalır; dosyanın içindeki
+  `mod context_menu; pub use context_menu::*;` satırları build chain'e
+  girmediği için public API değildir.
+- `ScrollbarStyle::to_pixels(&self) -> Pixels`,
+  `PlatformStyle::platform() -> Self` ve `ComponentFn::new(f: fn()) -> Self`
+  `pub const fn` biçimindedir. Public metod taraması `pub fn` ile sınırlanırsa
+  bu üç compile-time helper düşer.
+- `sticky_items<V, T>(...) -> StickyItems<T>` ve
+  `<T: StickyCandidate + Clone + 'static> StickyItems<T>::with_decoration(...)`
+  imzaları `sticky_items.rs` ile eşleşir; `with_decoration` serbest fonksiyon
+  değil, generic bound'lu `StickyItems<T>` inherent metodudur.
+- `ui_input::ERASED_EDITOR_FACTORY` public static olarak `OnceLock<fn(&mut
+  Window, &mut App) -> Arc<dyn ErasedEditor>>` tipindedir ve Zed'de
+  `editor::init` sırasında `Editor::single_line(...)` adapter'ı ile kurulur.
+
+Ek kapsam taraması, `crates/ui`, `crates/component` ve `crates/ui_input`
+altındaki public item adları, public enum variant'ları ve public struct
+alanları için rehberde isim seviyesinde yeni eksik göstermedi. Sadece standart
+trait implementasyonlarından gelen `fmt`, `eq`, `index_mut` ve `into_element`
+metotları kullanıcıya dönük builder/lifecycle API'si olarak listelenmez.
+`component::COMPONENT_DATA`, `component::ComponentFn::new(...)` ve
+`component::__private` ise `RegisterComponent` / `inventory` mekanizmasının
+makro tarafına açık iç yüzeyi olarak açıklanır; normal uygulama kodu
+`components()`, `component::init()` ve `register_component::<T>()` üzerinden
+ilerler.
+
 Bu hatayı önlemek için rehberdeki her API satırı şu üç sınıftan biriyle
 eşleştirilmelidir:
 
