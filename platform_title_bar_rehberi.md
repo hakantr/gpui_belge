@@ -897,7 +897,7 @@ tipik örneği: `pub struct` olarak yazılmıştır, fakat modülü crate kökü
 
 | Dış API | İmza / tanım | Not |
 | :-- | :-- | :-- |
-| `pub mod platforms` | `platform_title_bar.rs:1` | `platform_title_bar::platforms::{platform_linux, platform_windows}` path'ini açar. |
+| `pub mod platforms` | `platform_title_bar.rs:1` | `platform_title_bar::platforms::{platform_linux, platform_windows}` path'ini açar. **Cfg-gate yoktur**: `platforms.rs` her iki alt modülü de koşulsuz `pub mod` ile expose eder (`platforms.rs:1-2`). Yani Windows derlemesinde dahi `platform_title_bar::platforms::platform_linux::LinuxWindowControls` derlenir; runtime seçimi `PlatformStyle::platform()` ile yapılır. |
 | `pub use system_window_tabs::{...}` | `DraggedWindowTab`, `MergeAllWindows`, `MoveTabToNewWindow`, `ShowNextWindowTab`, `ShowPreviousWindowTab` (`platform_title_bar.rs:24-26`) | `SystemWindowTabs` re-export edilmez. |
 | `pub struct PlatformTitleBar` | Private alanlar: `id`, `platform_style`, `children`, `should_move`, `system_window_tabs`, `button_layout`, `multi_workspace` (`platform_title_bar.rs:28-36`) | Alanlara dışarıdan erişim yok; yapı `Render` ve `ParentElement` impl'leriyle tüketilir. |
 | `PlatformTitleBar::new` | `pub fn new(id: impl Into<ElementId>, cx: &mut Context<Self>) -> Self` (`platform_title_bar.rs:39`) | `SystemWindowTabs::new()` ile internal tab entity oluşturur. |
@@ -934,7 +934,7 @@ tipik örneği: `pub struct` olarak yazılmıştır, fakat modülü crate kökü
 | Dış API | İmza / tanım | Not |
 | :-- | :-- | :-- |
 | `LinuxWindowControls` | `pub struct LinuxWindowControls` private alanlı (`platform_linux.rs:7-11`) | `#[derive(IntoElement)]`; dışarıdan alan set edilemez. |
-| `LinuxWindowControls::new` | `pub fn new(id: &'static str, buttons: [Option<WindowButton>; MAX_BUTTONS_PER_SIDE], close_action: Box<dyn Action>) -> Self` (`platform_linux.rs:14-18`) | Layout slotlarını ve close action'ı saklar. Render'da unsupported minimize/maximize filtrelenir. |
+| `LinuxWindowControls::new` | `pub fn new(id: &'static str, buttons: [Option<WindowButton>; MAX_BUTTONS_PER_SIDE], close_action: Box<dyn Action>) -> Self` (`platform_linux.rs:14-18`) | Layout slotlarını ve close action'ı saklar. Render'da `WindowControls` capability'sine göre minimize/maximize filtrelenir, **`WindowButton::Close => true` arm'ı koşulsuzdur** (`platform_linux.rs:35-39`); `supported_controls.close` false olsa bile close butonu render edilir. |
 | `WindowControlType` | `pub enum WindowControlType { Minimize, Restore, Maximize, Close }` (`platform_linux.rs:84-90`) | Variant sırası kaynakta `Minimize, Restore, Maximize, Close`; `WindowButton::Maximize` runtime'da pencere maximized ise `Restore` ikonuna çevrilir. |
 | `WindowControlType::icon` | `pub fn icon(&self) -> IconName` (`platform_linux.rs:97`) | `GenericMinimize`, `GenericRestore`, `GenericMaximize`, `GenericClose` döner. |
 | `WindowControlStyle` | `pub struct WindowControlStyle` private alanlı (`platform_linux.rs:107-113`) | Alanlar public değildir; sadece builder yüzeyi var. |
@@ -955,6 +955,43 @@ noktasıdır. `WindowButton::Close` branch'i yalnız `WindowControl::new_close(.
 üretmek no-op değil; `expect("Use WindowControl::new_close() for close control.")`
 ile paniktir (`platform_linux.rs:235-239`).
 
+**Derive ve clonability haritası** (awk `#[derive(...)]` taraması ile
+yakalanır, rg satır-bazlı eşleşmede struct ile derive arasındaki bağı
+göstermez):
+
+| Tip | Derive set | Önemi |
+| :-- | :-- | :-- |
+| `WindowControlType` | `Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy` (`platform_linux.rs:84`) | `Hash` + `Copy` — `HashMap` key olabilir, value semantiği. `PartialOrd/Ord` deklarasyon sırasını kullanır: `Minimize < Restore < Maximize < Close`. |
+| `WindowControlStyle` | **Hiçbiri yok** (`platform_linux.rs:107-108`) | `Clone`, `Copy`, `Default` impl'i **yoktur**; her yeni instance için `WindowControlStyle::default(cx)` çağrısı gerekir. `Default` trait olmadığı için generic koddan `D: Default` ile alınamaz. |
+| `LinuxWindowControls` | `IntoElement` (`platform_linux.rs:6`) | `RenderOnce` yüzeyi; build edilip child olarak verilir, alanları tekrar erişilemez. |
+| `WindowControl` | `IntoElement` (`platform_linux.rs:156`) | Aynı RenderOnce yüzeyi. |
+| `WindowsWindowControls` | `IntoElement` (`platform_windows.rs:5`) | Aynı. |
+| `DraggedWindowTab` | `Clone` (`system_window_tabs.rs:28`) | Drag payload tipi; clone'lanabilir ama `Copy` değil. |
+| `PlatformTitleBar`, `SystemWindowTabs` | Yok | `Entity` ile yönetilir; trait impl'leri (`Render`, `ParentElement`) yüzeyi sağlar. |
+
+**`WindowControlStyle::default(cx)` hangi tema token'larını okur?**
+(`platform_linux.rs:117-124`):
+
+| Style alanı | Tema token |
+| :-- | :-- |
+| `background` | `colors.ghost_element_background` |
+| `background_hover` | `colors.ghost_element_hover` |
+| `icon` | `colors.icon` |
+| `icon_hover` | `colors.icon_muted` |
+
+Builder zincirinde override edilmeyen alanlar bu default'larda kalır;
+yani port hedefi tema sisteminin **bu dört token'ı sağlaması** zorunludur
+(diğer rehber bölümlerinde de listelenir).
+
+**Sabit ölçüler** (Linux render closure'larında pixel parite için):
+
+| Yer | Değer | Kaynak |
+| :-- | :-- | :-- |
+| `LinuxWindowControls` buton container gap'i | `.gap_3()` (12px @ default rem) | `platform_linux.rs:48` |
+| `LinuxWindowControls` buton container yatay padding | `.px_3()` | `platform_linux.rs:49` |
+| `WindowControl` buton boyutu | `.w_5().h_5()` (≈20px) | `platform_linux.rs:222-223` |
+| `WindowControl` köşe yuvarlama | `.rounded_2xl()` | `platform_linux.rs:221` |
+
 ### `platforms::platform_windows`
 
 | Dış API | İmza / tanım | Not |
@@ -968,6 +1005,42 @@ ve `WindowControlArea::{Min, Max, Close}` döndürür (`platform_windows.rs:66-9
 Windows butonları Linux gibi click handler çağırmaz; `.window_control_area(...)`
 hit-test alanı verir (`platform_windows.rs:124-135`) ve davranış platform
 caption katmanında yürür.
+
+**Segoe Fluent Icons glyph kodları** (Windows native parite için):
+
+| Variant | Kodepoint | Kaynak |
+| :-- | :-- | :-- |
+| `Minimize` | `\u{e921}` | `platform_windows.rs:80` |
+| `Restore` | `\u{e923}` | `platform_windows.rs:81` |
+| `Maximize` | `\u{e922}` | `platform_windows.rs:82` |
+| `Close` | `\u{e8bb}` | `platform_windows.rs:83` |
+
+Font seçimi `WindowsWindowControls::get_font()` ile yapılır
+(`platform_windows.rs:16/21`); Windows build 22000+ (Windows 11) için
+`"Segoe Fluent Icons"`, daha eski sürümler için `"Segoe MDL2 Assets"`.
+Port hedefinde bu font'lar yoksa glyph'ler kareler olarak render olur;
+fallback SVG ikon zorunlu olabilir.
+
+**Renk sabitleri** (`platform_windows.rs:99-122`):
+
+| Buton | Hover bg | Hover fg | Active bg | Active fg |
+| :-- | :-- | :-- | :-- | :-- |
+| `Close` | `Rgba { r: 232/255, g: 17/255, b: 32/255, a: 1.0 }` = `#E81120` | `gpui::white()` | `color.opacity(0.8)` | `white().opacity(0.8)` |
+| Diğerleri | `theme.ghost_element_hover` | `theme.text` | `theme.ghost_element_active` | `theme.text` |
+
+Close butonunun kırmızısı (`#E81120`) **tema'dan değil, koddan gelir** —
+Microsoft'un Windows title bar kapatma kırmızısıdır. Port hedefinin tema
+sistemi farklı bir close vurgu rengi istiyorsa bu sabit override
+edilmelidir.
+
+**Sabit ölçüler** (Windows caption butonu):
+
+| Yer | Değer | Kaynak |
+| :-- | :-- | :-- |
+| Caption buton genişliği | `.w(px(36.))` (36px) | `platform_windows.rs:129` |
+| Glyph metin boyutu | `.text_size(px(10.0))` (10px) | `platform_windows.rs:131` |
+| Buton yüksekliği | `WindowsWindowControls::new(button_height)`'ten `.h_full()` ile yayılır | `platform_windows.rs:11, 130` |
+| Mouse propagation | `.occlude()` (alt katmanlara mouse event sızdırmaz) | `platform_windows.rs:128` |
 
 ### Root'tan re-export edilen system tab action'ları
 
@@ -1460,6 +1533,22 @@ struct'ın `title`, `width`, `is_active`, `active_background_color` ve
 `inactive_background_color` alanlarından çizilir. `last_dragged_tab` yalnızca
 tab bar dışına bırakma ihtimalini yakalamak için geçici state'tir; başarılı
 `on_drop` içinde `None` yapılır.
+
+**Tab genişliği ölçümü** (`system_window_tabs.rs:455-471`): Tab bar
+render'ı bir görünmez `canvas` element içerir. `canvas` iki callback
+alır (`gpui/src/elements/canvas.rs:10-13`): `prepaint: FnOnce(Bounds,
+&mut Window, &mut App) -> T` ve `paint: FnOnce(Bounds, T, &mut Window,
+&mut App)`. Burada prepaint boş bırakılır (`|_, _, _| ()`); ölçüm
+**paint** callback'inde yapılır: `bounds.size.width / number_of_tabs
+as f32` hesaplanıp `entity.update(cx, |this, cx| { this.measured_tab_width
+= width; cx.notify() })` ile state'e yazılır. Yeni sekme eklenince/silinince
+veya pencere yeniden boyutlanınca paint tekrar çağrılır, `measured_tab_width`
+güncellenir ve sekmeler yeniden render olur (paint sırasındaki bu
+side-effect bir sonraki frame'de geri-beslemeyi tetikler).
+`number_of_tabs` `tab_items.len().max(1)` ile en az 1'e clamp'lenir
+(`system_window_tabs.rs:420`) — sıfıra bölmeyi engeller. Port hedefinde
+aynı geri-besleme döngüsü gerekir: aksi halde sekme genişliği `0px`
+veya statik kalır.
 
 **Controller akışı:**
 
