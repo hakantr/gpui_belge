@@ -6865,6 +6865,87 @@ ve density okur, `Settings` trait'ini doğrudan kullanmaz. `kvs_tema_ayarlari`'n
 auto-registration için `#[derive(KaydetAyar)]` benzeri bir macro mirror
 edilmelidir veya `init` fonksiyonunda elle `Settings::register` çağrılır.
 
+#### `IntoGpui` trait — Settings → Runtime köprüsü
+
+Zed `*Content` tiplerini GPUI runtime tiplerine çevirirken **tek bir trait**
+kullanır: `settings::IntoGpui` (`settings/src/content_into_gpui.rs:12-15`).
+
+```rust
+pub trait IntoGpui {
+    type Output;
+    fn into_gpui(self) -> Self::Output;
+}
+```
+
+Tüm impl'ler `settings` crate'inde toplanır (mirror'da `kvs_ayarlari`
+veya `kvs_ayarlari_icerik` köprü modülü):
+
+| Source (Content) | Output (Runtime) | Davranış |
+|------------------|-----------------|----------|
+| `FontStyleContent` | `gpui::FontStyle` | Variant 1:1 (Normal/Italic/Oblique) |
+| `FontWeightContent` | `gpui::FontWeight` | `FontWeight(self.0.clamp(100., 950.))` — CSS aralığında zorlama |
+| `FontFeaturesContent` | `gpui::FontFeatures` | `FontFeatures(Arc::new(map.collect()))` |
+| `WindowBackgroundContent` | `gpui::WindowBackgroundAppearance` | Variant 1:1 (Opaque/Transparent/Blurred) |
+| `ModifiersContent` | `gpui::Modifiers` | Alan kopyala (`control, alt, shift, platform, function`) |
+| `FontSize` | `gpui::Pixels` | `px(self.0)` |
+| `FontFamilyName` | `gpui::SharedString` | `SharedString::from(self.0)` (klonsuz `Arc<str>` taşır) |
+
+`ThemeSettings::from_settings` her font-bazlı alanda `into_gpui()` zinciri
+ile bu trait'i kullanır:
+
+```rust
+ui_font_size: clamp_font_size(content.ui_font_size.unwrap().into_gpui()),
+ui_font: Font {
+    family: content.ui_font_family.as_ref().unwrap().0.clone().into(),
+    features: content.ui_font_features.clone().unwrap().into_gpui(),
+    fallbacks: font_fallbacks_from_settings(content.ui_font_fallbacks.clone()),
+    weight: content.ui_font_weight.unwrap().into_gpui(),
+    style: Default::default(),
+},
+```
+
+**Çok kritik davranış:** `ThemeSettings::from_settings`'in her satırı `.unwrap()`
+çağırır. Yani **`default.json` bu alanları doldurmak zorundadır**;
+`ui_font_size`, `ui_font_family`, `ui_font_features`, `ui_font_weight`,
+`buffer_font_family`, `buffer_font_features`, `buffer_font_weight`,
+`buffer_font_size`, `buffer_line_height`, `theme`, `icon_theme`,
+`unnecessary_code_fade` boşsa runtime tipini üretmek panic eder. Mirror
+tarafta `kvs_default_settings.json` bu zorunlu alanları içermeli, yoksa
+`init` panic eder.
+
+#### Content/Runtime tip duplication ve `From` impls
+
+Zed `theme_settings::settings` runtime tarafında `ThemeSelection`,
+`IconThemeSelection`, `BufferLineHeight` gibi tipleri **yeniden tanımlar**
+(`settings_content` tarafındaki Content tipleriyle aynı varyantlara sahiptir
+ama farklı derive list'lerine sahiptir). Aralarındaki köprü `From`
+implementasyonları sağlar:
+
+```rust
+// theme_settings/src/settings.rs:136-145, 188-197, 350-359:
+impl From<settings::ThemeSelection> for ThemeSelection {
+    fn from(s: settings::ThemeSelection) -> Self { /* variant kopyala */ }
+}
+
+impl From<settings::IconThemeSelection> for IconThemeSelection { /* aynı */ }
+impl From<settings::BufferLineHeight> for BufferLineHeight { /* variant kopyala */ }
+```
+
+`UiDensity` için ise `pub(crate) fn ui_density_from_settings(val) -> UiDensity`
+helper'ı vardır (`From` trait kullanılmaz). Bu iki kat tip katmanı kasıtlı:
+
+- **Content tipleri** (`settings_content::theme::*`): `JsonSchema, MergeFrom,
+  serde::{Serialize, Deserialize}, strum::EnumDiscriminants` derive'larıyla;
+  JSON sözleşmesi, schema üretimi, user/default/project cascade için.
+- **Runtime tipleri** (`theme_settings::settings::*`): Daha az derive,
+  runtime hot path için. Selector UI, `ThemeSettings.theme.name(appearance)`
+  gibi metotlar burada.
+
+Mirror tarafta aynı duplication tutulmalı: `kvs_ayarlari_icerik::TemaSecimi`
+(content) ve `kvs_tema_ayarlari::TemaSecimi` (runtime), aralarında `From`
+impl. Tek tipte birleştirmek serde derive'ı runtime tarafında zorlar ve
+selector UI'nın `EnumDiscriminants` kullanımını bozar.
+
 Tema uygulama akışı (`configured_theme` Zed'de **private** `fn`,
 `theme_settings/src/theme_settings.rs:145`; aşağıdaki örnek mirror tarafta
 public yardımcı olabilir):
@@ -10950,6 +11031,23 @@ liste item yükseklikleri, panel iç boşlukları bu enuma göre ölçeklenir.
 ayrı bir kullanıcı tercihi olarak `TemaAyarSaglayici` üzerinden okunur.
 `ThemeColors` ile karıştırma; renk değil, boyut.
 
+> **Content/Runtime tip duplication:** `UiDensity` Zed'de **iki yerde**
+> tanımlıdır:
+>
+> - `settings_content::theme::UiDensity` (`settings_content/src/theme.rs:374`):
+>   content tipi, `JsonSchema + MergeFrom + Serialize + Deserialize` derive'larıyla.
+> - `theme::ui_density::UiDensity` (`theme/src/ui_density.rs:21`): runtime tipi.
+>
+> Aralarındaki köprü `theme_settings::settings::ui_density_from_settings`
+> `pub(crate)` helper'ıdır (`theme_settings/src/settings.rs:22-28`); `From`
+> trait kullanılmaz çünkü iki tipin değişik derive zincirleri arasındaki
+> dönüşüm `theme_settings` crate'i içinde özel kalır. `ThemeSettings::from_settings`
+> bu helper'ı çağırır: `ui_density: ui_density_from_settings(content.ui_density.unwrap_or_default())`.
+>
+> Mirror tarafta aynı duplication zorunlu değildir — tek `UiDensity` tipi
+> kullanılabilir; ancak `JsonSchema/MergeFrom` derive zincirini runtime
+> hot path'ine eklemek istiyorsan ayır.
+
 **Tüketici kullanım deseni:**
 
 ```rust
@@ -11292,7 +11390,27 @@ pub struct ColorScales {
     pub black: ColorScaleSet,
     pub white: ColorScaleSet,
 }
+
+impl IntoIterator for ColorScales {
+    type Item = ColorScaleSet;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    /// `vec![self.gray, self.mauve, ..., self.white]` sırasıyla 33 paleti
+    /// dolaşır. Tüm paletleri kataloglamak (snapshot, color picker grid)
+    /// için kanonik yol.
+    fn into_iter(self) -> Self::IntoIter { /* ... 33 element vec'i ... */ }
+}
 ```
+
+**`ColorScales::IntoIterator` davranışı:** Zed
+(`theme/src/scale.rs:194-235`) tüm 33 paleti **sabit bir sırada**
+(`gray → mauve → slate → sage → olive → sand → gold → bronze → brown →
+yellow → amber → orange → tomato → red → ruby → crimson → pink → plum →
+purple → violet → iris → indigo → blue → cyan → teal → jade → green →
+grass → lime → mint → sky → black → white`) `Vec` olarak yayar. Sıralama
+deterministik; snapshot test'leri ve UI palet ızgaraları için güvenle
+kullanılabilir. Mirror'da sırayı bozma; aksi halde sync turunda fixture
+test'leri kayar.
 
 **Kullanım örneği (Zed `StatusColors::dark()`):**
 
@@ -11567,6 +11685,29 @@ pub fn setup_ui_font(window: &mut Window, cx: &mut App) -> gpui::Font;
 `reset_*` ise `cx.has_global::<*FontSize>()` ise `remove_global` + `refresh_windows`
 çalıştırır; override yoksa no-op'tur (gereksiz redraw yapmaz).
 
+**Sayısal sabitler** (`theme_settings/src/settings.rs:18-20`):
+
+```rust
+const MIN_FONT_SIZE: Pixels = px(6.0);
+const MAX_FONT_SIZE: Pixels = px(100.0);
+const MIN_LINE_HEIGHT: f32 = 1.0;
+```
+
+`clamp_font_size` bu iki const'a sıkıştırır. `MIN_LINE_HEIGHT` ise
+`ThemeSettings::line_height()` accessor'ında kullanılır
+(`theme_settings/src/settings.rs:451-453`):
+
+```rust
+pub fn line_height(&self) -> f32 {
+    f32::max(self.buffer_line_height.value(), MIN_LINE_HEIGHT)
+}
+```
+
+Yani `BufferLineHeight::Custom(0.5)` gibi geçersiz değerler bile (her ne
+kadar `deserialize_line_height` parse aşamasında 1.0 alt sınırını zorlasa
+da, in-memory override veya bug durumlarına karşı) accessor'da `1.0`'a
+yükseltilir. Mirror'da aynı double-defense uygulanmalı.
+
 **Settings observer ilişkisi:** `theme_settings::init` içindeki observer
 ayar dosyasındaki taban değer değişince override'ı **otomatik olarak
 sıfırlar** (`reset_*` çağırır). Yani kullanıcı `cmd-+` ile büyüttüğü font'u
@@ -11698,6 +11839,18 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `theme` crate'i `#![deny(missing_docs)]` | `theme/src/theme.rs:1` | Crate-level lint zorlaması: tüm public öğeler doc yorumu gerektirir. Mirror'da aynısı uygulanırsa public API kalitesi artar; yeni alan eklendiğinde "doc yok" hatası sayesinde sözleşme atlanmaz |
 | `theme` crate mod görünürlükleri | `theme/src/theme.rs:11-21, 32-42` | Tüm modüller (`default_colors`, `fallback_themes`, `font_family_cache`, `icon_theme`, `icon_theme_schema`, `registry`, `scale`, `schema`, `styles`, `theme_settings_provider`, `ui_density`) **private** `mod`. Public yüzey yalnızca `pub use crate::<mod>::*` re-export ile gelir. `fallback_themes` istisnası: yalnız `apply_status_color_defaults` ve `apply_theme_color_defaults` `pub use` ile açılır — diğer iç fonksiyonlar (`zed_default_dark` vb.) `pub(crate)` |
 | `ui::is_light(cx)` public helper | `ui/src/utils.rs:23-25` | `cx.theme().appearance.is_light()` çağırır. UI tüketicileri için tekrar eden pattern; `kvs_ui` veya `kvs_bilesen` mirror'ında benzeri sağlanabilir. `ui::prelude` `pub use theme::ActiveTheme` ile trait'i tüketici crate'lere açar |
+| `settings::IntoGpui` trait + 7 impl | `settings/src/content_into_gpui.rs:12-85` | `*Content` tiplerini GPUI runtime tiplerine çeviren tek köprü. İmpl edilen tipler: `FontStyleContent`, `FontWeightContent` (100-950 clamp), `FontFeaturesContent`, `WindowBackgroundContent`, `ModifiersContent`, `FontSize` (`px(self.0)`), `FontFamilyName` (`SharedString::from(self.0)`). `ThemeSettings::from_settings` her font alanında bu trait'i çağırır. Mirror tarafta `KvsIntoRuntime` veya benzeri trait gerek |
+| Content/Runtime tip duplication ve `From` impls | `theme_settings/src/settings.rs:136, 188, 350` ↔ `settings_content/src/theme.rs:267, 309, 438` | `ThemeSelection`, `IconThemeSelection`, `BufferLineHeight` **iki yerde tanımlı**: settings_content (Content, `JsonSchema/MergeFrom/EnumDiscriminants`) ve theme_settings (Runtime, daha az derive). Aralarında `From<settings::*>` impl. `UiDensity` için `ui_density_from_settings` `pub(crate)` helper kullanılır (`From` değil). Konu 31 ve 43.3'te açıklandı |
+| `ThemeSettings::from_settings` panic kontratı | `theme_settings/src/settings.rs:619-666` | Her font ve theme alanında `.unwrap()` çağrılır — yani `default.json` zorunlu alanları (`ui_font_size/family/features/weight`, `buffer_font_*`, `buffer_line_height`, `theme`, `icon_theme`, `unnecessary_code_fade`) doldurmak zorundadır. Boşsa init panic eder. Mirror'da `kvs_default_settings.json` aynı zorunlu set'i taşımalı |
+| `ThemeSelection::Default`, `IconThemeSelection` derive list'i | `settings_content/src/theme.rs:254-322` | Content tipleri `JsonSchema, MergeFrom, EnumDiscriminants, VariantArray, VariantNames, FromRepr` derive eder. `ThemeSelection::default() = Dynamic { mode: System, light: "One Light", dark: "One Dark" }`. Selector UI tabbed picker için `strum::VariantArray` ve `EnumDiscriminants` kullanılır |
+| `ThemeAppearanceMode` derive ve default | `settings_content/src/theme.rs:329-354` | `Copy + Default + strum::VariantArray + strum::VariantNames` derive'larıyla; `#[default] System` variant. `serde(rename_all = "snake_case")` ile JSON'da `"light"`/`"dark"`/`"system"` |
+| `BufferLineHeight::Custom` 1.0 alt sınır deserializer | `settings_content/src/theme.rs:445-460` | `#[serde(deserialize_with = "deserialize_line_height")] f32` özel fonksiyon; 1.0 altı değer **deserialize hatası** üretir. Çift savunma: parse'ta 1.0 alt sınır + runtime `ThemeSettings::line_height()` `f32::max(.., MIN_LINE_HEIGHT)` |
+| `ThemeSettings::line_height()` + `MIN_LINE_HEIGHT` | `theme_settings/src/settings.rs:20, 451-453` | `MIN_LINE_HEIGHT = 1.0`. Buffer renderer satır yüksekliği için bu accessor kullanılır; ham `BufferLineHeight.value()` doğrudan değil — geçersiz değerlerden korunmak için clamp yapılır |
+| `ColorScales` `IntoIterator` impl | `theme/src/scale.rs:194-235` | 33 paleti **sabit sırada** (`gray, mauve, slate, sage, olive, sand, gold, bronze, brown, yellow, amber, orange, tomato, red, ruby, crimson, pink, plum, purple, violet, iris, indigo, blue, cyan, teal, jade, green, grass, lime, mint, sky, black, white`) `Vec<ColorScaleSet>` olarak yayar. Snapshot test ve color picker için kanonik dolaşım. Konu 43.5'te işlendi |
+| `FontFamilyName` impls | `settings_content/src/theme.rs:399-421` | `#[serde(transparent)]` newtype + `AsRef<str>` + `From<String>` + `From<FontFamilyName> for String`. `Arc<str>` taşır, klonsuz `SharedString`'e dönüşür (`IntoGpui::into_gpui()`) |
+| `FontWeightContent::into_gpui()` 100-950 clamp | `settings/src/content_into_gpui.rs:32-34` | `FontWeight(self.0.clamp(100., 950.))` — CSS font-weight aralığında zorlama. `FontWeightContent::{THIN, EXTRA_LIGHT, ..., BLACK}` const'larının GPUI `FontWeight` const'larıyla eşleştiği test ile doğrulanır (`content_into_gpui.rs:92-103`) |
+| `settings::private` modülü | `settings/src/settings.rs:21-25` | `pub mod private { pub use inventory; pub use crate::settings_store::{RegisteredSetting, SettingValue}; }`. `RegisterSetting` derive macro `settings::private::inventory::submit!` çağırır. Mirror'da `kvs_ayarlari::private` benzeri modül zorunlu; aksi halde macro çıktısı derlenmez |
+| `theme_settings` re-export listesi | `theme_settings/src/theme_settings.rs:24-37` | `schema::{FontStyleContent, FontWeightContent, HighlightStyleContent, StatusColorsContent, ThemeColorsContent, ThemeContent, ThemeFamilyContent, ThemeStyleContent, WindowBackgroundContent, status_colors_refinement, syntax_overrides, theme_colors_refinement}` ve `settings::{AgentBufferFontSize, AgentUiFontSize, BufferLineHeight, FontFamilyName, IconThemeName, IconThemeSelection, ThemeAppearanceMode, ThemeName, ThemeSelection, ThemeSettings, adjust_*, reset_*, adjusted_font_size, appearance_to_mode, clamp_font_size, default_theme, observe_buffer_font_size_adjustment, set_icon_theme, set_mode, set_theme, setup_ui_font}` + `pub use theme::UiDensity`. Mirror'da tüm bu sembolleri tek kaynak crate'inden re-export et |
 
 Küçük method yüzeyleri:
 
