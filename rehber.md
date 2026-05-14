@@ -5899,6 +5899,15 @@ Animasyon yüzeyi:
 - `CommonAnimationExt` rotasyon helper'ı yalnız `Transformable` implement eden
   elementlerde çalışır; Zed UI tarafında bu pratikte `Icon` ve `Vector`
   demektir.
+- **Animasyon wrapper transparency:** `popover_menu.rs:16` ve `:32`,
+  `impl<T: Clickable> Clickable for gpui::AnimationElement<T>` ve
+  `impl<T: Toggleable> Toggleable for gpui::AnimationElement<T>` impl'leri
+  taşır. Bu yüzden bir element `.with_animation(...)` veya
+  `.animate_in_from_bottom(...)` ile sarıldığında `Clickable`/`Toggleable`
+  trait yüzeyini kaybetmez — `PopoverMenu::trigger(...)` animasyonlu trigger
+  da kabul eder, çünkü `PopoverTrigger: IntoElement + Clickable + Toggleable
+  + 'static` supertrait listesini blanket impl ile karşılar
+  (`impl<T: IntoElement + Clickable + Toggleable + 'static> PopoverTrigger for T {}`).
 
 Public export modeli:
 
@@ -6170,9 +6179,14 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   `DocumentationAside { side: DocumentationSide, render: Rc<...> }`,
   `DocumentationSide::{Left, Right}`,
   `RightClickMenu<M: ManagedView>` ve free fn `right_click_menu(id)`,
-  `Popover`, `PopoverMenu<M: ManagedView>`, `PopoverMenuHandle<M>`,
-  `PopoverTrigger`, `Tooltip`, `LinkPreview` ve free fn
-  `tooltip_container(cx, f)`.
+  `Popover`, `PopoverMenu<M: ManagedView>`,
+  `PopoverMenuHandle<M>` (imperatif kontrol için `show(window, cx)`,
+  `hide(cx)`, `toggle(window, cx)`, `is_deployed() -> bool`,
+  `is_focused(window, cx) -> bool`, `refresh_menu(...)` metotları —
+  `Default` implement eder ve `PopoverMenu::with_handle(handle)` ile bağlanır),
+  `PopoverTrigger` (`IntoElement + Clickable + Toggleable + 'static`
+  supertraitlerini taşıyan her tipe blanket impl), `Tooltip`, `LinkPreview`
+  ve free fn `tooltip_container(cx, f)`.
 - Liste/tree: `List` (`EmptyMessage::{Text(SharedString), Element(AnyElement)}`),
   `ListItem` (`ListItemSpacing::{Dense, ExtraDense, Sparse}`),
   `ListHeader`, `ListSubHeader`, `ListSeparator` (`pub struct ListSeparator;` —
@@ -6180,9 +6194,20 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   `StickyCandidate` (`depth(&self) -> usize`), `StickyItems<T>` ve free fn
   constructor `sticky_items<V, T>(...)`, `StickyItemsDecoration`
   (`compute(indents, bounds, scroll_offset, item_height, window, cx)`),
-  `IndentGuides` (`IndentGuideColors`, `IndentGuideLayout`,
-  `RenderIndentGuideParams`, `RenderedIndentGuide`) ile free fn constructor
-  `indent_guides(indent_size: Pixels, colors: IndentGuideColors)`.
+  `IndentGuides` (`IndentGuideColors` — `panel(cx) -> Self` factory ile;
+  `IndentGuideLayout { offset: Point<usize>, length: usize,
+  continues_offscreen: bool }`;
+  `RenderIndentGuideParams { indent_guides: SmallVec<[IndentGuideLayout;12]>,
+  indent_size, item_height }`; `RenderedIndentGuide { bounds, layout,
+  is_active, hitbox: Option<Bounds<Pixels>> }`) ile free fn constructor
+  `indent_guides(indent_size: Pixels, colors: IndentGuideColors)`. `IndentGuides`
+  builder yüzeyi: `.on_click(|&IndentGuideLayout, &mut Window, &mut App|)`,
+  `.with_compute_indents_fn::<V>(entity, |&mut V, Range<usize>, &mut Window,
+  &mut Context<V>| -> SmallVec<[usize;64]>)` ve `.with_render_fn::<V>(entity,
+  |&mut V, RenderIndentGuideParams, &mut Window, &mut App| ->
+  SmallVec<[RenderedIndentGuide;12]>)`. `IndentGuides`, `UniformListDecoration`
+  trait'ini implement ettiği için `uniform_list(...).with_decoration(guides)`
+  ile bağlanır.
 - Tab: `Tab`, `TabBar`, `TabPosition::{First, Middle(Ordering), Last}`,
   `TabCloseSide::{Start, End}`
 - Layout yardımcıları: `h_flex()`, `v_flex()`, `h_group*()`, `v_group*()`,
