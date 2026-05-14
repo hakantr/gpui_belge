@@ -4333,7 +4333,7 @@ pub fn theme_colors_refinement(
 **Yapı kuralları:**
 
 - **Düz alanlar**: `<alan_adi>: color(&this.<alan_adi>),` (alanların çoğunluğu)
-- **Fallback zincirli alanlar (en az 10 alan)**: Önceki rehber bunları
+- **Fallback zincirli alanlar**: Önceki rehber bunları
   yanlışlıkla "her alan tek satır" olarak gösteriyordu. Aşağıdaki tabloda
   Zed pin `6e8eaab25b5a` için tam liste:
 
@@ -4351,20 +4351,31 @@ pub fn theme_colors_refinement(
 | `minimap_thumb_hover_background` | `→ ensure_non_opaque(scrollbar_thumb_hover_background)` |
 | `minimap_thumb_active_background` | `→ ensure_non_opaque(scrollbar_thumb_active_background)` |
 | `minimap_thumb_border` | `→ scrollbar_thumb_border` |
+| `editor_document_highlight_bracket_background` | `→ editor_document_highlight_read_background` |
 | `editor_diff_hunk_added_background` | `→ version_control_added × hunk_fill (light=0.16 / dark=0.12)` |
 | `editor_diff_hunk_added_hollow_background` | `→ version_control_added × hunk_hollow_bg (0.08 / 0.06)` |
 | `editor_diff_hunk_added_hollow_border` | `→ version_control_added × hunk_hollow_border (0.48 / 0.36)` |
 | `editor_diff_hunk_deleted_background` | `→ version_control_deleted × hunk_fill` |
 | `editor_diff_hunk_deleted_hollow_background` | `→ version_control_deleted × hunk_hollow_bg` |
 | `editor_diff_hunk_deleted_hollow_border` | `→ version_control_deleted × hunk_hollow_border` |
+| `version_control_modified` | `→ status_colors.modified` |
+| `version_control_renamed` | `→ status_colors.modified` |
+| `version_control_conflict` | `→ status_colors.ignored` |
+| `version_control_ignored` | `→ status_colors.ignored` |
+| `version_control_conflict_marker_ours` | `→ deprecated version_control_conflict_ours_background` |
+| `version_control_conflict_marker_theirs` | `→ deprecated version_control_conflict_theirs_background` |
+| `vim_yank_background` | `→ editor_document_highlight_read_background` |
+| `vim_helix_jump_label_foreground` | `→ status_colors.error` |
 
 - **`..Default::default()` zorunlu**: Macro üretilen Refinement tipinin
   tüm alanlarını açıkça vermek istemiyorsan default fallback gerek. Tema
   sözleşmesi büyüdükçe (Zed yeni alan ekledikçe) bu kalıp esneklik
   sağlar — yeni alanı mirror etmeden önce de derleme bozulmaz.
-- **`ensure_opaque` / `ensure_non_opaque`** crate-içi yardımcılar: alpha
-  kanalını sırasıyla `1.0`'a sıkıştırır veya `1.0` ise küçültür. Mirror
-  tarafta aynı isimle bekle veya `kvs_renk` modülüne yerleştir.
+- **`ensure_opaque` / `ensure_non_opaque`** crate-içi yardımcılar:
+  `ensure_opaque` alpha'yı her zaman `1.0` yapar; `ensure_non_opaque`
+  alpha `0.7` üstündeyse `0.7`'ye indirir, `<= 0.7` değerleri olduğu gibi
+  bırakır. Mirror tarafta aynı isimle bekle veya `kvs_renk` modülüne
+  yerleştir.
 
 > **Sync turunda dikkat:** Zed yeni bir alan eklediğinde (`new_color`),
 > Refinement tipinde otomatik olarak `new_color: Option<Hsla>` belirir.
@@ -4760,14 +4771,13 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
     // (Eski sürüm 5. adımdaki idx-bazlı player merge bu noktada ZATEN
     // çalıştırıldı — adım 3. Aşağıdaki kalan kod blokları sadece syntax
     // ve window bg adımlarını içerir.)
-    // 6. Syntax override'larını topla. Zed paritesi `syntax_overrides`
-    //    (theme_settings/src/schema.rs:40): IndexMap<String, HighlightStyleContent>'i
-    //    `Vec<(String, gpui::HighlightStyle)>`'a dönüştürür. SyntaxTheme baseline
-    //    boş bir `SyntaxTheme::new()` ya da fallback paletinden başlar; sonra
-    //    `SyntaxTheme::merge(base, overrides)` ile birleştirilir (`syntax_theme`
-    //    crate'i — Konu 17). Tek satırda kanonik yazımı:
+    // 6. Syntax listesini kur. Zed `refine_theme` burada
+    //    `theme_settings/src/schema.rs::syntax_overrides` helper'ını
+    //    çağırmaz; aynı dönüşümü inline yapıp `SyntaxTheme::new(...)`
+    //    ile yeni syntax theme üretir. `SyntaxTheme::merge(...)`
+    //    yalnız runtime theme override akışında kullanılır.
     let syntax_highlights = syntax_overrides(&content.style);
-    let syntax = SyntaxTheme::merge(baseline.styles.syntax.clone(), syntax_highlights);
+    let syntax = Arc::new(SyntaxTheme::new(syntax_highlights));
 
     // 7. Pencere bg: enum eşleme veya baseline'dan
     let window_background_appearance = match content.style.window_background_appearance {
@@ -4894,7 +4904,7 @@ Zed kaynağı `theme_settings::theme_settings::merge_accent_colors`:
 > `filter_map` zincirini dimdik kopyala.
 
 **Adım 6 — Syntax: `IndexMap` → `Vec<(String, HighlightStyle)>` →
-`SyntaxTheme::merge(base, overrides)`.**
+`Arc::new(SyntaxTheme::new(...))`.**
 
 `theme_settings::schema::syntax_overrides` helper'ı (yukarıdaki Konu 24
 imza tablosunda) Content tarafındaki `IndexMap<String, HighlightStyleContent>`'i
@@ -4905,27 +4915,25 @@ fade_out vb.).
 
 ```rust
 let syntax_highlights = syntax_overrides(&content.style);
-let syntax = SyntaxTheme::merge(baseline.styles.syntax.clone(), syntax_highlights);
+let syntax = Arc::new(SyntaxTheme::new(syntax_highlights));
 ```
 
-`SyntaxTheme::merge` (Konu 17 — `syntax_theme` crate'inde tanımlı):
+Zed `theme_settings::refine_theme` bu dönüşümü şu an inline yazar
+(`theme_settings.rs:313-331`); `syntax_overrides(style)` helper'ı aynı
+`IndexMap` → `Vec<(String, HighlightStyle)>` dönüşümünü verdiği için mirror
+tarafta kullanılabilir. Buradaki kritik ayrım şudur:
 
-- `user_syntax_styles.is_empty()` → baseline'ı olduğu gibi döner (alloc yok).
-- Aksi halde `Arc::try_unwrap` ile baseline'ı içeri al, mümkün değilse
-  klonla; sonra her override için:
-  - Capture adı baseline'da varsa (`Entry::Occupied`): mevcut `HighlightStyle`'ı
-    **field-bazlı override** et — `color`, `font_weight`, `font_style`,
-    `background_color`, `underline`, `strikethrough`, `fade_out` alanlarını
-    `new.<field>.or(existing.<field>)` ile birleştir (Option zinciri:
-    yeni `Some` ise üzerine yazar, `None` ise mevcut korunur).
-  - Capture adı baseline'da yoksa (`Entry::Vacant`): listenin sonuna ekle,
-    `capture_name_map`'e yeni idx kaydet.
-- `Arc::new(base)` ile yeni `Arc<SyntaxTheme>` döner.
+- **Tam user theme yükleme** (`refine_theme_family` / `refine_theme`):
+  syntax bölümü `SyntaxTheme::new(...)` ile kurulur. Baseline syntax üstüne
+  field-bazlı merge yapılmaz.
+- **Runtime theme override** (`ThemeSettings::apply_theme_overrides` →
+  private `modify_theme`): mevcut `base_theme.styles.syntax` üstüne
+  `SyntaxTheme::merge(base, syntax_overrides(theme_overrides))` uygulanır.
 
-Önceki rehber sürümünde syntax adımı `SyntaxTheme::new(...)` ile
-sıfırdan oluşturuluyordu — bu **baseline syntax'ı sıfırlar**. Mirror
-tarafta `merge` API'sini kullanmazsan tema yazarı yalnız birkaç token
-override etse bile bütün baseline syntax kaybolur.
+Bu yüzden `SyntaxTheme::merge` Konu 17'de ve override akışında kanonik
+helper'dır, fakat Konu 26'daki tam JSON → `Theme` pipeline'ının son adımı
+değildir. Bu ayrımı karıştırmak, user theme yüklemesinde olmayan baseline
+syntax mirası varmış gibi dokümante eder.
 
 **Adım 7 — Pencere bg: enum dönüşüm veya fallback.**
 
@@ -6431,12 +6439,21 @@ pub fn apply_theme_overrides(
 }
 ```
 
-`modify_theme` aynı `Theme::from_content` refinement araçlarını kullanır:
-`window_background_appearance` override edilir, `status_colors_refinement`
-ve `theme_colors_refinement` uygulanır, player/accent listeleri merge
-edilir, syntax override'ları mevcut syntax üstüne bindirilir. Override
-işlemi registry'deki orijinal `Arc<Theme>`'i değiştirmez; clone üstünde
-çalışır.
+`modify_theme` aynı düşük seviye refinement araçlarını kullanır ama tam
+`refine_theme` pipeline'ı değildir. `window_background_appearance` override
+edilir, `status_colors_refinement` ve `theme_colors_refinement` uygulanır,
+player/accent listeleri merge edilir, syntax override'ları mevcut syntax
+üstüne bindirilir. Override işlemi registry'deki orijinal `Arc<Theme>`'i
+değiştirmez; clone üstünde çalışır.
+
+> **Önemli fark:** Zed `ThemeSettings::modify_theme` içinde
+> `apply_status_color_defaults` ve `apply_theme_color_defaults` çağırmaz.
+> Yani settings-level `theme_overrides` fg-only status değerinden otomatik
+> background üretmez ve `element_selection_background` değerini player
+> selection'dan türetmez. Bu iki türetme tam user theme yüklemesindeki
+> `refine_theme` akışına aittir. Buna karşılık syntax override'ları
+> gerçekten `SyntaxTheme::merge(...)` ile mevcut syntax üstüne field-bazlı
+> bindirilir.
 
 Settings observer:
 
@@ -11091,17 +11108,19 @@ ilişki (`content = runtime + deprecated`, `reflection ⊆ runtime`).
 | `theme_settings::settings::appearance_to_mode`, `default_theme` | `theme_settings/src/settings.rs:30, 89` | `Appearance` ↔ `ThemeAppearanceMode` köprüsü ve fallback ad seçimi; selector/observer akışında kullanılır |
 | `theme_settings::theme_settings::reload_theme`, `reload_icon_theme`, `load_user_theme`, `deserialize_user_theme`, `refine_theme_family`, `refine_theme`, `merge_player_colors`, `merge_accent_colors`, `increase_buffer_font_size`, `decrease_buffer_font_size` | `theme_settings/src/theme_settings.rs:185-428` | Zed'in JSON→Theme pipeline'ının ve runtime tema reload akışının kanonik fonksiyonları. Konu 26 + Konu 31'de detaylı; bu satır 43.9 denetiminin köprüsü |
 | `theme_settings::settings::adjust_buffer_font_size`, `reset_buffer_font_size`, `adjust_ui_font_size`, `reset_ui_font_size`, `adjust_agent_ui_font_size`, `reset_agent_ui_font_size`, `adjust_agent_buffer_font_size`, `reset_agent_buffer_font_size`, `clamp_font_size`, `adjusted_font_size`, `observe_buffer_font_size_adjustment`, `setup_ui_font` | `theme_settings/src/settings.rs` | Runtime font ölçekleme override global'leri ve helper'ları (Konu 43.8.1). Settings UI / shortcut tarafında kullanılır |
+| `ThemeSettings::*_font_size_settings`, `markdown_preview_font_family` | `theme_settings/src/settings.rs:412-447` | Settings dosyasındaki baz değerleri override global'lerinden ayıran accessor'lar. `theme_settings::init` observer'ı bu `*_settings()` değerlerini izleyip runtime font override global'lerini resetler |
 | `AgentUiFontSize`, `AgentBufferFontSize` newtype global'leri | `theme_settings/src/settings.rs:108, 114` | Agent panel font override'ı için `Global`-impl'lenmiş `Pixels` newtype'ları (Konu 43.8.1) |
 | `theme_settings::schema::syntax_overrides`, `theme_colors_refinement`, `status_colors_refinement` | `theme_settings/src/schema.rs:40, 237, 65` | Content → Refinement dönüşüm fonksiyonlarının kanonik adları. **`theme_colors_refinement` 3 parametrelidir** (`this`, `status_colors`, `is_light`); fallback zincirleri ve diff-hunk opacity'leri Konu 24'te tam tablo |
-| `theme_colors_refinement` fallback zincirleri (15+ alan) | `theme_settings/src/schema.rs:237-547` | `scrollbar_thumb_background → deprecated_*`, `version_control_added → status.created`, `minimap_thumb_* → scrollbar_thumb_*` (non-opaque), `panel_overlay_* → panel_background` (+ `element_hover` blend), `editor_diff_hunk_* → version_control_* × LIGHT/DARK_DIFF_HUNK_*_OPACITY`. Konu 24 tablosu eksiksiz listeler |
+| `theme_colors_refinement` fallback zincirleri | `theme_settings/src/schema.rs:237-876` | `scrollbar_thumb_background → deprecated_*`, `version_control_* → status.*`, `minimap_thumb_* → scrollbar_thumb_*` (alpha max `0.7`), `panel_overlay_* → panel_background` (+ `element_hover` blend), document highlight / Vim / Helix fallback'leri ve `editor_diff_hunk_* → version_control_* × LIGHT/DARK_DIFF_HUNK_*_OPACITY`. Konu 24 tablosu eksiksiz listeler |
 | `LIGHT_DIFF_HUNK_FILLED_OPACITY`, `DARK_DIFF_HUNK_FILLED_OPACITY`, `LIGHT_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY`, `DARK_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY`, `LIGHT_DIFF_HUNK_HOLLOW_BORDER_OPACITY`, `DARK_DIFF_HUNK_HOLLOW_BORDER_OPACITY` | `theme_settings/src/schema.rs:16-21` | Pin `6e8eaab25b5a` değerleri sırasıyla `0.16 / 0.12 / 0.08 / 0.06 / 0.48 / 0.36`. `pub(crate)` sabitler ama tüketici görünür sözleşme değil; sayılar mirror'da `kvs_tema_ayarlari` modülünde aynı tutulmalı |
 | `apply_theme_color_defaults` kaynak rengi | `fallback_themes.rs:47-58` | `text_accent × 0.25` **değil** — `player_colors.local().selection`; alpha 1.0 ise 0.25'e çekilir, aksi halde olduğu gibi atanır. Konu 25'teki yanlış açıklama Konu 43.6'ya yönlendirildi |
-| `refine_theme` adım sırası | `theme_settings/src/theme_settings.rs:275-353` | `status_colors_refinement → apply_status_color_defaults → status.refine → merge_player_colors → theme_colors_refinement(c, &status_ref, is_light) → apply_theme_color_defaults(&player) → colors.refine → merge_accent_colors → syntax_overrides + SyntaxTheme::merge`. Konu 26'da düzeltildi |
-| `pub fn syntax_overrides(style) -> Vec<(String, HighlightStyle)>` | `theme_settings/src/schema.rs:40` | Override map'i `IndexMap<String, HighlightStyleContent>` → `Vec<(String, gpui::HighlightStyle)>`. 4 alan (`color`, `background_color`, `font_style`, `font_weight`) parse edilir; underline/strikethrough/fade_out `Default::default()`. `SyntaxTheme::merge`'in beklediği imza |
-| `SyntaxTheme::merge(base, overrides) -> Arc<Self>` | `syntax_theme/src/syntax_theme.rs:96` | **Field-bazlı merge**: aynı capture varsa `new.<f>.or(existing.<f>)` ile birleştirir; capture yeni ise listenin sonuna ekler. Override boşsa baseline klonsuz döner. Konu 17 + Konu 26'da kanonik kullanım |
+| `refine_theme` adım sırası | `theme_settings/src/theme_settings.rs:275-353` | `status_colors_refinement → apply_status_color_defaults → status.refine → merge_player_colors → theme_colors_refinement(c, &status_ref, is_light) → apply_theme_color_defaults(&player) → colors.refine → merge_accent_colors → inline syntax map + Arc::new(SyntaxTheme::new(...))`. Konu 26'da düzeltildi |
+| `pub fn syntax_overrides(style) -> Vec<(String, HighlightStyle)>` | `theme_settings/src/schema.rs:40` | Override map'i `IndexMap<String, HighlightStyleContent>` → `Vec<(String, gpui::HighlightStyle)>`. 4 alan (`color`, `background_color`, `font_style`, `font_weight`) parse edilir; underline/strikethrough/fade_out `Default::default()`. `ThemeSettings::modify_theme` içindeki `SyntaxTheme::merge`'in beklediği imza |
+| `ThemeSettings::modify_theme` override akışı | `theme_settings/src/settings.rs:472-491` | Full `refine_theme` değildir: `apply_status_color_defaults` / `apply_theme_color_defaults` çağırmaz; status/theme refinement'ı doğrudan uygular, player/accent merge eder ve syntax için `SyntaxTheme::merge(base, syntax_overrides(...))` kullanır |
+| `SyntaxTheme::merge(base, overrides) -> Arc<Self>` | `syntax_theme/src/syntax_theme.rs:96` | **Field-bazlı merge**: aynı capture varsa `new.<f>.or(existing.<f>)` ile birleştirir; capture yeni ise listenin sonuna ekler. Override boşsa baseline klonsuz döner. Konu 17 + settings-level theme override akışında kanonik kullanım |
 | `ThemeName`, `IconThemeName`, `ThemeAppearanceMode`, `FontFamilyName` re-export zinciri | `settings_content/src/theme.rs:282, 501, 507` → `theme_settings::settings::pub use settings::{...}:13` | Owner `settings_content`; `theme_settings` `pub use` ile köprü kurar. Mirror'da `kvs_ayarlari_icerik` (veya muadili) tek kaynak, `kvs_tema_ayarlari` yalnızca `pub use` ile yeniden açar — aksi halde aynı tipi iki yerde tanımlama bug'ı |
 | `Theme.styles` görünürlüğü | `theme.rs:216` | Zed'de **`pub styles: ThemeStyles`** (alan-bazlı). Rehber `pub(crate)` öneriyor (accessor disiplini için); fark "yerel sıkılaştırma" olarak `DECISIONS.md`'de işaretlenmeli — Zed paritesi `pub` |
-| `ThemeFamily.themes`, `ThemeFamily.scales` görünürlüğü | `theme.rs:192-204` | Hepsi `pub`. `scales: ColorScales` alanı 33 paleti taşır; pin değişiminde alan sayısı sabit kalır, palet sayısı değişebilir |
+| `ThemeFamily` alan görünürlüğü | `theme.rs:192-204` | `id`, `name`, `author`, `themes`, `scales` alanlarının hepsi `pub`. `scales: ColorScales` alanı 33 paleti taşır; pin değişiminde alan sayısı sabit kalır, palet sayısı değişebilir |
 | `PlayerColors::color_for_participant(idx)` | `styles/players.rs:147` | Collab kullanıcı renkleri için `modulo (len - 1) + 1` offset'li lookup; **local slot'u (idx 0) atlar**, participant 0 listenin idx 1'inden başlar. Konu 15'te işleniyor, 43.9'da resmi imza |
 | `PlayerColors::agent()`, `.absent()` davranışı | `styles/players.rs:130-136` | İkisi de `self.0.last().unwrap()` döner — yani **agent ve absent player aynı slot'tur** (listenin son elementi). Fallback temalarda son slot'u boş bırakmama nedeni budur |
 | `theme::init` davranışı | `theme.rs:96-116` | `SystemAppearance::init → ThemeRegistry::set_global(assets, cx) → FontFamilyCache::init_global → default_global → themes.get(DEFAULT_DARK_THEME) (yoksa list().next()) → default_icon_theme().unwrap() → cx.set_global(GlobalTheme { theme, icon_theme })`. `GlobalTheme::new` çağırmaz, doğrudan struct literal kullanır (her ikisi de mümkün) |
@@ -11138,6 +11157,11 @@ ThemeSettings::buffer_font_size(cx)
 ThemeSettings::ui_font_size(cx)
 ThemeSettings::agent_ui_font_size(cx)
 ThemeSettings::agent_buffer_font_size(cx)
+ThemeSettings::markdown_preview_font_family()
+ThemeSettings::buffer_font_size_settings()
+ThemeSettings::ui_font_size_settings()
+ThemeSettings::agent_ui_font_size_settings()
+ThemeSettings::agent_buffer_font_size_settings()
 ThemeSettings::line_height()
 ThemeSettings::apply_theme_overrides(arc_theme)
 Theme::darken(color, light_amount, dark_amount)
