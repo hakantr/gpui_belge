@@ -1262,10 +1262,24 @@ menü tıklaması pencere sürükleme davranışıyla çakışabilir.
 - `on_mouse_down_out(...)` → `should_move = false` (titlebar dışına
   tıklanırsa state sızıntısını önle).
 
-Linux pencere kontrol grubu ek olarak kendi
-`on_mouse_down(Left, |_, _, cx| cx.stop_propagation())` zincirini kurar
-(`platform_linux.rs:49-50`); aksi halde butonlara basmak da drag
-başlatabilirdi.
+Linux pencere kontrol katmanı **üç ayrı `stop_propagation()` noktası**
+kullanır (awk taraması ile çıkarılır; rg dağınık satırları toplamaz):
+
+| Yer | Olay | Kaynak | Neyi engeller? |
+| :-- | :-- | :-- | :-- |
+| `LinuxWindowControls` h_flex container | `on_mouse_down(Left)` | `platform_linux.rs:50` | Buton grubuna basıldığında titlebar drag başlamasını. |
+| `WindowControl` (her buton) | `on_mouse_move` | `platform_linux.rs:228` | Buton üzerinde mouse gezerken titlebar drag tetiklenmesini. |
+| `WindowControl` `on_click` callback gövdesi | `cx.stop_propagation()` ilk satır | `platform_linux.rs:230` | Click event'inin yukarı kabarıp başka handler'lara ulaşmasını. Action dispatch'inden ÖNCE çalışır. |
+
+Üçü birden olmadan: (1) buton üstüne mouse_down ile drag başlar, (2)
+buton hover'larken mouse_move drag tetikler, (3) close action dispatch
+edilirken aynı click PlatformTitleBar'a kabarıp `should_move = true`
+yapar. Port hedefinde aynı üç noktaya **eşdeğer engeller** koymak
+gerekir.
+
+Windows tarafında `.occlude()` (`platform_windows.rs:128`) aynı amaca
+hizmet eder ama tek satırlık ifade: caption butonu üzerinde tüm mouse
+event'leri alt katmanlara sızdırmaz.
 
 ### Fullscreen render ayrımı
 
@@ -1308,18 +1322,25 @@ taklit etmez; doğrudan maximize/restore davranışıdır.
 kullanır. Diğer platformlarda doğrudan `title_bar_background` döner.
 
 Bu davranış, başlık çubuğu ve sekme çubuğu arasında görsel ayrımı korur. Kendi
-tema sisteminizde en az şu token'lar gerekir:
+tema sisteminizde en az şu token'lar gerekir (awk
+`cx\.theme\(\)\.colors\(\)\.X` taramasının tam çıktısı):
 
-- `title_bar_background`
-- `title_bar_inactive_background`
-- `tab_bar_background`
-- `border`
-- `ghost_element_background`
-- `ghost_element_hover`
-- `ghost_element_active`
-- `icon`
-- `icon_muted`
-- `text`
+- `title_bar_background` — aktif Linux + tüm platformlar (`platform_title_bar.rs:66/71`, `system_window_tabs.rs:389`)
+- `title_bar_inactive_background` — pasif/move durumundaki Linux (`platform_title_bar.rs:68`)
+- `tab_bar_background` — native tab arka planı (`system_window_tabs.rs:390`)
+- `border` — Linux tab kenarı ve plus butonu sınırı (`system_window_tabs.rs:181/353/479/525`)
+- `ghost_element_background` — Linux `WindowControlStyle.background` default'u (`platform_linux.rs:120`)
+- `ghost_element_hover` — Linux WindowControl + Windows non-close hover (`platform_linux.rs:121`, `platform_windows.rs:117`)
+- `ghost_element_active` — Windows non-close active state (`platform_windows.rs:119`)
+- `icon` — Linux WindowControl glyph rengi (`platform_linux.rs:122`)
+- `icon_muted` — Linux WindowControl hover glyph rengi (`platform_linux.rs:123`)
+- `text` — Windows caption glyph rengi default (`platform_windows.rs:118/120`)
+- **`drop_target_background`** — **tab drag-over hedef vurgusu** (`system_window_tabs.rs:205`)
+- **`drop_target_border`** — **tab drag-over kenar vurgusu** (`system_window_tabs.rs:206`)
+
+Son iki token, üzerine başka bir sekme sürüklendiğinde drop hedefini
+vurgulamak için kullanılır; tema'da eksik kalırsa drag-and-drop görsel
+geri-besleme çalışmaz.
 
 ### Yükseklik
 
@@ -1466,17 +1487,36 @@ Sonuç:
 
 ### Sekme butonları
 
-`SystemWindowTabs` içindeki sekme kapatma davranışı da `workspace::CloseWindow`
-dispatch eder. Sağ tık menüsünde şu işlemler bulunur:
+`SystemWindowTabs` içindeki her sekme kapatma yolu **`workspace::CloseWindow`
+sabit'ini** dispatch eder. awk `Box::new\(CloseWindow\)` taraması altı ayrı
+çağrı yerini açığa çıkarır:
 
-- Close Tab
-- Close Other Tabs
-- Move Tab to New Window
-- Show All Tabs
+| # | Yer | Tetikleyici | Hedef pencere |
+| - | :-- | :-- | :-- |
+| 1 | `system_window_tabs.rs:232` | Tab üzerinde middle-click (aktif tab) | Mevcut pencere |
+| 2 | `system_window_tabs.rs:235` | Tab üzerinde middle-click (başka tab) | `item.handle.update(...)` ile o pencere |
+| 3 | `system_window_tabs.rs:262` | Tab close (X) butonu click (aktif tab) | Mevcut pencere |
+| 4 | `system_window_tabs.rs:265` | Tab close (X) butonu click (başka tab) | `item.handle.update(...)` ile o pencere |
+| 5 | `system_window_tabs.rs:296` | Right-click → "Close Tab" | `handle_right_click_action` ile tab handle'ı |
+| 6 | `system_window_tabs.rs:308` | Right-click → "Close Other Tabs" | Her diğer tab handle'ı |
+
+Bu altı yol da **aynı sabit action'ı dispatch eder** — yapılandırılamaz, dış
+crate'in `close_action` prop'u buraya geçmez (yalnızca Linux
+`LinuxWindowControls`/`WindowControl` zincirinde çalışır). Port hedefinde
+sekme kapatma davranışını farklılaştırmak istiyorsanız bu altı çağrı
+yerini ayrı ayrı override etmeniz gerekir; tek bir flag yetmez.
+
+Sağ tık menüsünde şu işlemler bulunur:
+
+- Close Tab (#5)
+- Close Other Tabs (#6)
+- Move Tab to New Window (`SystemWindowTabController::move_tab_to_new_window` + `window.move_tab_to_new_window()`, `system_window_tabs.rs:313-327`)
+- Show All Tabs (`window.toggle_window_tab_overview()`, `system_window_tabs.rs:329-339`)
 
 Alt sağdaki plus butonu `zed_actions::OpenRecent { create_new_window: true }`
-dispatch eder. Kendi uygulamanızda bu action büyük olasılıkla `NewWindow`,
-`OpenWorkspace` veya `CreateDocumentWindow` olmalıdır.
+dispatch eder (`system_window_tabs.rs:485-490`) — bu da hardcoded'tır. Kendi
+uygulamanızda bu action büyük olasılıkla `NewWindow`, `OpenWorkspace` veya
+`CreateDocumentWindow` olmalıdır.
 
 ## 10. System Window Tabs
 
@@ -1484,10 +1524,32 @@ dispatch eder. Kendi uygulamanızda bu action büyük olasılıkla `NewWindow`,
 iki şeyi yapar:
 
 1. `WorkspaceSettings::use_system_window_tabs` ayarını izler ve pencerelerin
-   `tabbing_identifier` değerlerini günceller.
-2. Yeni `Workspace` entity'leri için action renderer kaydeder:
+   `tabbing_identifier` değerlerini günceller (`cx.observe_global::<SettingsStore>(...)`,
+   `system_window_tabs.rs:59-94`, `.detach()` ile yaşatılır).
+2. Yeni `Workspace` entity'leri için action renderer kaydeder
+   (`cx.observe_new(|workspace: &mut Workspace, ...|)`, `system_window_tabs.rs:96-139`):
    `ShowNextWindowTab`, `ShowPreviousWindowTab`, `MoveTabToNewWindow`,
    `MergeAllWindows`.
+
+**Önemli binding farkı:** Bu action'lar `workspace.register_action(...)` ile
+değil, **`workspace.register_action_renderer(...)`** ile bağlanır
+(`system_window_tabs.rs:97`). Fark:
+
+| API | Bağlama zamanı | Kapsam | Yan etki |
+| :-- | :-- | :-- | :-- |
+| `register_action` | Setup-time | Workspace entity'sinin tüm yaşam süresi | Sabit binding. |
+| `register_action_renderer` | Her render'da | O frame'de oluşturulan `div` element'inde | Conditional binding: `tabs.len() > 1` veya `tab_groups.len() > 1` koşulları sağlanmazsa o frame'de action **bind edilmez**. |
+
+Yani `ShowNextWindowTab` bir Workspace'te birden fazla tab varken çalışır,
+tek tabla çalışmaz; runtime'da action map otomatik olarak değişir. Port
+hedefinde Workspace kavramı yoksa bu pattern bire bir taşınamaz; yerine
+"her render'da action handler'ları conditional olarak yeniden bağla"
+prensibini koruyacak bir mekanizma gerekir.
+
+Ek kısıt: `register_action_renderer` `Workspace` entity'sine bağlı olduğu
+için **action'lar yalnızca bir workspace içinde bulunulurken** dispatch
+edilebilir. Workspace dışı pencere (örn. settings standalone) bu
+action'ları görmez.
 
 Render sırasında `SystemWindowTabController` global state'i okunur. Controller
 aktif pencerenin sekme grubunu döndürür; yoksa current window tek sekme gibi
