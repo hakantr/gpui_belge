@@ -1919,7 +1919,7 @@ Zed akışı:
 - Ana pencere açılırken `window_background: cx.theme().window_background_appearance()`.
 - Settings/theme değiştiğinde `crates/zed/src/main.rs` tüm açık pencerelerde
   `window.set_background_appearance(background_appearance)` çağırır.
-- UI tarafında `ui::styles::appearance::theme_is_transparent(cx)` transparent veya
+- UI tarafında public yol `ui::theme_is_transparent(cx)`'dir; transparent veya
   blurred ise true döner; opak arka plan varsayan bileşenler buna göre davranmalıdır.
 
 Platform davranışı:
@@ -5840,6 +5840,25 @@ Yine prelude'da olmayanlar (örn. `Tooltip`, `ContextMenu`, `Popover`,
 `PopoverMenu`, `Modal`, `RightClickMenu`) doğrudan `ui::` namespace'inden
 çağrılır.
 
+`CommonAnimationExt` de crate kökünden (`ui::CommonAnimationExt`) explicit
+import edilir; `with_rotate_animation(duration_secs)` ve
+`with_keyed_rotate_animation(id, duration_secs)` sağlar.
+
+Public export modeli:
+
+- `crates/ui/src/ui.rs` iç modülleri (`components`, `styles`, `traits`) private
+  tutar ve `pub use components::*`, `pub use prelude::*`,
+  `pub use styles::*`, `pub use traits::animation_ext::*` ile public yüzeyi
+  düzleştirir. Bu yüzden tüketici kodunda `ui::Button`, `ui::Color`,
+  `ui::Clickable`, `ui::theme_is_transparent` gibi yollar kullanılır;
+  `ui::components::...` veya `ui::styles::...` public API yolu değildir.
+- İstisna olarak bilinçli public nested modül varsa kendi namespace'iyle
+  kullanılır: örn. `ui::scrollbars::{ShowScrollbar, ScrollbarVisibility,
+  ScrollbarAutoHide}`.
+- `ui::prelude::*` sık kullanılan küçük yüzeydir; tüm component envanteri
+  değildir. `ButtonLike`, `ContextMenu`, `Tooltip`, `Modal`, `Table`,
+  `Vector`, `ThreadItem` gibi tipler crate kökünden explicit import edilir.
+
 Style extension'ları:
 
 - `StyledExt::h_flex()` = `flex().flex_row().items_center()`.
@@ -5855,6 +5874,7 @@ Tipografi:
 
 - `StyledTypography::font_ui(cx)` ve `font_buffer(cx)` theme settings'teki UI ve
   buffer font family değerlerini bağlar.
+- `text_ui_size(TextSize, cx)` enum'dan semantic text size uygular.
 - `text_ui_lg(cx)`, `text_ui(cx)`, `text_ui_sm(cx)`, `text_ui_xs(cx)` UI scale'i
   dikkate alan semantic metin boyutlarıdır.
 - `text_buffer(cx)` buffer font size'a uyar; editor içeriğiyle aynı boyda
@@ -5886,22 +5906,32 @@ Button/label ortak sözleşmeleri:
 - `Disableable`: `.disabled(bool)`.
 - `Toggleable`: `.toggle_state(bool)`; `ToggleState::{Unselected,
   Indeterminate, Selected}` üç durumlu checkbox/tree selection için.
+  `ToggleState` ayrıca `.inverse()`, `.selected()` ve
+  `from_any_and_all(any_checked, all_checked)` yardımcılarını sağlar.
 - `SelectableButton`: selected durumda farklı `ButtonStyle` tanımlar.
-- `ButtonCommon`: `.style(ButtonStyle)`, `.size(ButtonSize)`, `.tooltip(...)`,
-  `.tab_index(...)`, `.layer(ElevationIndex)`, `.track_focus(...)`.
+- `ButtonCommon`: `.id()` accessor'ı ve `.style(ButtonStyle)`,
+  `.size(ButtonSize)`, `.tooltip(...)`, `.tab_index(...)`,
+  `.layer(ElevationIndex)`, `.track_focus(...)`.
 - `ButtonStyle::{Filled, Tinted(TintColor), Outlined, OutlinedGhost,
   OutlinedCustom(Hsla), Subtle, Transparent}`.
 - `ButtonSize::{Large, Medium, Default, Compact, None}`.
 - `LabelCommon`: `.size(LabelSize)`, `.weight(FontWeight)`,
-  `.line_height_style(LineHeightStyle)`, `.color(Color)`, `.truncate()`,
-  `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`.
+  `.line_height_style(LineHeightStyle)`, `.color(Color)`, `.strikethrough()`,
+  `.italic()`, `.underline()`, `.alpha(f32)`, `.truncate()`, `.single_line()`,
+  `.buffer_font(cx)`, `.inline_code(cx)`.
 
 Diğer UI yardımcıları:
 
 - `VisibleOnHover::visible_on_hover(group)` elementi başlangıçta invisible yapar,
   belirtilen group hover olduğunda visible'a çevirir. `""` global group'tur.
 - `WithRemSize::new(px(...))` child ağacında `window.with_rem_size` uygular;
-  özel preview veya küçük component ölçeklemesi için kullanılır.
+  özel preview veya küçük component ölçeklemesi için kullanılır;
+  `.occlude()` mouse etkileşimini kapatır.
+- `ui::utils` public nested namespace olarak kalır. Sık kullanılan export'lar:
+  `is_light(cx)`, `reveal_in_file_manager_label(is_remote)`, `capitalize(str)`,
+  `SearchInputWidth::calc_width(container_width)`, `platform_title_bar_height`,
+  `calculate_contrast_ratio`, `apca_contrast`, `ensure_minimum_contrast`,
+  `CornerSolver`, `inner_corner_radius`, `FormatDistance`.
 - Scrollbar katmanı **iki ayrı API yüzeyi** sunar; doğru olanı seç:
   - Düşük seviye: `Scrollbars::new(ScrollAxes)` builder zinciri —
     `.tracked_scroll_handle(handle)`, `.id(...)`, `.notify_content()`,
@@ -5931,6 +5961,23 @@ Tuzaklar:
 - `VisibleOnHover` için parent'ta aynı group adıyla hover group kurulmadıysa
   element hiçbir zaman görünmez.
 
+Zed uygulamasında yönetim:
+
+- Component registry çalışma zamanı render path'i değildir; app kodu bileşenleri
+  doğrudan `ui::{...}` veya `ui::prelude::*` ile import edip element ağacına
+  koyar.
+- `workspace::init` içinde `component::init()` çağrılır. Bu çağrı
+  `#[derive(RegisterComponent)]` tarafından inventory'ye eklenen
+  `ComponentFn` kayıtlarını çalıştırır ve `ComponentRegistry`'yi doldurur.
+- `zed/src/main.rs` `component_preview::init(app_state, cx)` çağırır.
+  Component preview, `component::components().sorted_components()` ile
+  registry'yi okur; isim, scope ve description üzerinden filtreler.
+- `Component` trait public sözleşmesi: `id()`, `scope()`, `status()`,
+  `name()`, `sort_name()`, `description()` ve
+  `preview(&mut Window, &mut App) -> Option<AnyElement>`. Bu sözleşme
+  görsel test/debug/dokümantasyon içindir; normal UI kullanımında component
+  registry lookup yapılmaz.
+
 ### 83. Zed UI Bileşen Envanteri
 
 Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
@@ -5947,23 +5994,30 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 - İkon: `Icon`, `DecoratedIcon`, `IconDecoration`, `IconDecorationKind`,
   `IconName`, `IconPosition`, `IconSize`, `IconWithIndicator`,
   `KnockoutIconName`, `AnyIcon`. `IconName` `crates/icons` crate'inde
-  tanımlanır, `ui::prelude` üzerinden re-export edilir.
-- Form/toggle: `Checkbox`, `Switch` (`SwitchColor`, `SwitchLabelPosition`
-  enumları ile), `SwitchField`, `DropdownMenu` (`DropdownStyle`).
+  tanımlanır, `ui::prelude` üzerinden re-export edilir. `IconSize` varyantları:
+  `Indicator`, `XSmall`, `Small`, `Medium`, `XLarge`, `Custom(Rems)`;
+  `.rems()`, `.square_components(window, cx)`, `.square(window, cx)` verir.
+- Form/toggle: `Checkbox`, `Switch` (`SwitchColor::{Accent, Custom(Hsla)}`,
+  `SwitchLabelPosition::{Start, End}`), `SwitchField`, `DropdownMenu`
+  (`DropdownStyle::{Solid, Outlined, Subtle, Ghost}`), `ToggleStyle::{Ghost,
+  ElevationBased(ElevationIndex), Custom(Hsla)}`.
   Lowercase yardımcı fonksiyonlar `checkbox(id, state)` ve
   `switch(id, state)` constructor kısayollarıdır.
 - Menü/popup: `ContextMenu`, `RightClickMenu`, `Popover`, `PopoverMenu`, `Tooltip`
-- Liste/tree: `List`, `ListItem`, `ListHeader`, `ListSubHeader`, `ListSeparator`,
-  `TreeViewItem`, `StickyItems`, `IndentGuides`
-- Tab: `Tab`, `TabBar`
+- Liste/tree: `List`, `EmptyMessage`, `ListItem` (`ListItemSpacing::{Dense,
+  ExtraDense, Sparse}`), `ListHeader`, `ListSubHeader`, `ListSeparator`,
+  `ListBulletItem`, `TreeViewItem`, `StickyItems`, `IndentGuides`
+- Tab: `Tab`, `TabBar`, `TabPosition::{First, Middle(Ordering), Last}`,
+  `TabCloseSide::{Start, End}`
 - Layout yardımcıları: `h_flex`, `v_flex`, `h_group*`, `v_group*`, `Divider`,
   `Scrollbars`. `Stack` ve `Group` adında public struct yoktur; bunlar helper
   fonksiyon ailesidir.
 - Veri: `Table`, `TableInteractionState`, `ColumnWidthConfig`,
   `StaticColumnWidths`, `ResizableColumnsState`, `RedistributableColumnsState`,
-  `TableResizeBehavior`, `TableRow`, `render_table_row`,
-  `render_table_header`, `bind_redistributable_columns()` ve
-  `render_redistributable_columns_resize_handles()`.
+  `TableResizeBehavior::{None, Resizable, MinSize(f32)}`, `UncheckedTableRow<T>`,
+  `TableRow<T>`, `TableRenderContext`, `table_row::IntoTableRow`,
+  `render_table_row`, `render_table_header`, `bind_redistributable_columns()`
+  ve `render_redistributable_columns_resize_handles()`.
 - Feedback: `Banner`, `Callout`, `Modal`, `ModalHeader`, `ModalFooter`,
   `ModalRow`, `Section`, `SectionHeader`, `AlertModal`,
   `AnnouncementToast`, `CountBadge`, `Indicator`, `ProgressBar`,
@@ -5976,8 +6030,11 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   `KeybindingHint`, `Navigable`. `Image` adında public Zed UI component'i yoktur;
   raster görsel için GPUI `img(...)` / `ImageSource`, bundled SVG için
   `Vector` kullanılır.
-- AI/collab özel: `AiSettingItem`, `AgentSetupButton`, `ThreadItem`,
-  `ConfiguredApiCard`, `CollabNotification`, `UpdateButton`
+- AI/collab özel: `AiSettingItem` (`AiSettingItemStatus`,
+  `AiSettingItemSource`), `AgentSetupButton`, `ConfiguredApiCard`,
+  `ParallelAgentsIllustration`, `ThreadItem` (`AgentThreadStatus`,
+  `WorktreeKind`, `ThreadItemWorktreeInfo`), `CollabNotification`,
+  `UpdateButton`
 
 Genel kural:
 
