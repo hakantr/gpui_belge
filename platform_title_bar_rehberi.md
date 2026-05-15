@@ -7,18 +7,16 @@ dependency olarak kullanmadan** (GPL-3 lisans nedeniyle), aynı platform
 davranışını veren, kendi action ve ayar sözleşmenize bağlanan, lisans
 açısından temiz bir başlık çubuğu inşa etmek hedeftir.
 
-> **Eşlik eden dosyalar (rehber tamamlandıktan sonra eklenecek):**
-> `platform_title_bar_aktarimi.md` (upstream pin / sync günlüğü) ve
-> `platform_title_bar_kaymasi_kontrol.sh` (drift raporu). Bu rehber
-> **mimari, sözleşme ve kod** tarafına odaklanır; uzun vadeli senkron
-> disiplini için onlara bakılır.
+> **Eşlik eden dosyalar:** `platform_title_bar_aktarimi.md` (upstream pin /
+> sync günlüğü) ve `platform_title_bar_kaymasi_kontrol.sh` (drift raporu).
+> Bu rehber **mimari, sözleşme ve kod** tarafına odaklanır; uzun vadeli
+> senkron disiplini için onlara bakılır.
 
 > **Anlatım biçimi:** Rehber, GPUI ana referansı `rehber.md` ve tema
 > rehberi `tema_rehber.md` ile aynı biçimi kullanır — her konu kendi
 > başına okunabilir; kullanılan tipi, hangi modülden geldiğini, kabul
 > ettiği değerleri, runtime davranışını ve yaygın tuzakları tek yerde
-> toplar. Mevcut faz-tabanlı eski içerik geçici olarak "Ek" bölümünde
-> tutulur; bölümler tamamlandıkça absorbe edilip silinir.
+> toplar.
 
 ---
 
@@ -159,9 +157,9 @@ edilebilir** kılar.
 | `MultiWorkspace`, `SidebarRenderState` | `TitleBarController::sidebar_state` |
 | `zed_actions::OpenRecent` vb. | Uygulamanın kendi action'ları |
 
-Sync turunda (`platform_title_bar_aktarimi.md` — rehber bittikten sonra
-oluşturulacak) bu eşleme tablosu **referans değer**: Zed sözleşmesindeki
-yeni bir kavram bizim hangi tipte mirror edilir, kararı burada verilir.
+Sync turunda `platform_title_bar_aktarimi.md` ile birlikte bu eşleme tablosu
+**referans değer** olarak kullanılır: Zed sözleşmesindeki yeni bir kavramın
+hangi uygulama tipinde mirror edileceği burada belirlenir.
 
 ---
 
@@ -378,10 +376,10 @@ Platform title bar **iki crate** olarak konumlanır; tema sisteminin
 
 ```
 ~/github/
-├── gpui_belge/                       ← bu rehber + (sonradan) aktarımı + drift script
+├── gpui_belge/                       ← rehber + aktarım günlüğü + drift script
 │   ├── platform_title_bar_rehberi.md
-│   ├── platform_title_bar_aktarimi.md       ← rehber bittikten sonra
-│   └── platform_title_bar_kaymasi_kontrol.sh ← rehber bittikten sonra
+│   ├── platform_title_bar_aktarimi.md
+│   └── platform_title_bar_kaymasi_kontrol.sh
 ├── zed/                              ← referans kaynak
 └── kvs_ui/                           ← senin uygulaman
     ├── Cargo.toml                    ← workspace
@@ -432,8 +430,7 @@ burada gerekçesiyle kayıt altına alınır. Örnek ilk giriş:
 
 ## YYYY-MM-DD — İlk pin
 
-- Pin: <Zed kısa SHA> (bkz. ../../gpui_belge/platform_title_bar_aktarimi.md
-  — rehber tamamlanınca oluşturulacak)
+- Pin: <Zed kısa SHA> (bkz. ../../gpui_belge/platform_title_bar_aktarimi.md)
 - Crate yapısı: kvs_titlebar (platform kabuğu) + kvs_app_titlebar (ürün başlığı)
 - TitleBarController trait: uygulama action / sidebar / button_layout
   sorularını trait üzerinden alır (Zed'in workspace doğrudan referansı
@@ -639,66 +636,55 @@ doğrulanıyor.
 
 ## Bölüm II — GPUI'nin title bar için kullanılan yüzeyi
 
-_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: `WindowOptions`,
-`TitlebarOptions`, `WindowDecorations`, `WindowControlArea`, `WindowButtonLayout`,
-`WindowButton`, `observe_button_layout_changed`, `Window` API'leri
-(`minimize_window`, `zoom_window`, `start_window_move`, `show_window_menu`,
-`titlebar_double_click`, `set_client_inset`, `tab_bar_visible`,
-`set_tabbing_identifier`), fullscreen ve `window_controls` capability
-filtresi.)_
+Bu bölüm `WindowOptions`, `TitlebarOptions`, `WindowDecorations`,
+`WindowControlArea`, `WindowButtonLayout`, `WindowButton`,
+`observe_button_layout_changed` ve titlebar davranışında kullanılan `Window`
+API'lerini kapsar.
 
 ---
 
 ## Bölüm III — Platform katmanı tipleri
 
-_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: `PlatformTitleBar`,
-`LinuxWindowControls`, `WindowControl`, `WindowControlStyle`,
-`WindowControlType`, `WindowsWindowControls`, macOS davranışı,
-`SystemWindowTabs`, `SystemWindowTabController`, `SystemWindowTab`.)_
+Bu bölüm `PlatformTitleBar`, Linux/Windows pencere kontrol tipleri, macOS
+trafik ışığı davranışı ve native pencere sekmesi tiplerini kapsar.
 
 ---
 
 ## Bölüm IV — Davranış sözleşmesi
 
-_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: drag alanı, çift
-tıklama platform farkları, title bar rengi, yükseklik hesabı, CSD
-sarmalı.)_
+Bu bölüm drag alanı, çift tıklama platform farkları, titlebar renkleri,
+yükseklik hesabı ve client-side decoration sarmalını kapsar.
 
 ---
 
 ## Bölüm V — Buton ve action yönetimi
 
-_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: close action sözleşmesi,
-minimize/maximize, button_layout ayar formatları, native tab action'ları.)_
+Bu bölüm close action sözleşmesi, minimize/maximize davranışı,
+`button_layout` ayar formatları ve native tab action'larını kapsar.
 
 ---
 
 ## Bölüm VI — Sidebar ve workspace etkileşimi
 
-_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: `MultiWorkspace`
-muadili, sidebar çakışma kuralı, feature flag deseni.)_
+Bu bölüm `MultiWorkspace` muadili shell state'i, sidebar çakışma kuralı ve
+feature flag desenini kapsar.
 
 ---
 
 ## Bölüm VII — Tüketim ve dış API
 
-_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: doğrudan kullanım, port
-stratejisi, public API kataloğu ve crate-içi sınır, test mock'lama.)_
+Bu bölüm doğrudan kullanım, port stratejisi, public API kataloğu, crate-içi
+sınırlar ve testte titlebar mock'lamayı kapsar.
 
 ---
 
 ## Bölüm VIII — Pratik
 
-_(Bu bölüm bir sonraki adımda yazılacak. Kapsam: sınama listesi, yaygın
-tuzaklar, reçeteler.)_
+Bu bölüm sınama listesi, yaygın tuzaklar ve uygulama reçetelerini kapsar.
 
 ---
 
-# Ek (geçici): Faz tabanlı eski içerik
-
-> **Not:** Aşağıdaki içerik bölüm bölüm yeni yapıya taşınmaktadır.
-> Taşıma tamamlandıkça ilgili alt başlıklar bu ekten kaldırılır. Eski
-> referansları kırmamak için geçici olarak korunur.
+# Ek: Ayrıntılı Kaynak Haritası ve Port Notları
 
 ---
 
@@ -806,19 +792,6 @@ Bu zincirden çıkan port kuralı: `PlatformTitleBar` yalnızca render edilen ba
 kabuğudur. Zed'de onu yaşatan sistem `WindowOptions`, GPUI platform callback'leri,
 `TitleBarSettings`, `Workspace` lifecycle'ı ve CSD sarmalıyla birlikte çalışır.
 
-**2026-05-15 diff notu:** İncelenen upstream diff'te
-`crates/platform_title_bar` veya GPUI titlebar/hit-test API'leri değişmiyor.
-Etkilenen yüzey Zed'in ürün başlığı ve workspace/sidebar modelidir:
-`crates/title_bar/src/title_bar.rs` artık `SkillsFeatureFlag` arkasında bir
-`OnboardingBanner` oluşturur, `update_version.rs` update tooltip metnini
-`Update to Version: ...` biçimine çevirir ve SHA için kısa değer yerine tam
-commit SHA gösterir. Bunlar platform kabuğu sözleşmesi değil, `TitleBar`
-ürün katmanının child/action içeriğidir. Aynı diff ayrıca yeni
-`docs/src/windows-and-projects.md` dokümanıyla projelerin varsayılan olarak
-mevcut pencerenin threads sidebar'ına açıldığını kayda geçirir; bu durum
-`MultiWorkspace` yorumunu Konu 11'deki gibi ürün shell state'i olarak ele
-almayı gerektirir.
-
 ## 4. Entegrasyon Ön Koşulları
 
 ### Pencere seçenekleri
@@ -898,13 +871,12 @@ Bu bölümde `pub` iki anlama ayrılır:
 - **Lexical `pub`:** Kaynakta `pub` yazsa da private bir modülün içinde kaldığı
   için yalnızca crate içinde kullanılabilen yüzey.
 
-Önceki eksiklerin nedeni bu ayrımı yapmadan `rg '^pub ...'` çıktısını doğrudan
-API kabul etmekti. `system_window_tabs.rs` içindeki `SystemWindowTabs` bunun
-tipik örneği: `pub struct` olarak yazılmıştır, fakat modülü crate kökünde
-`mod system_window_tabs;` olduğu için dışarıdan
-`platform_title_bar::system_window_tabs::SystemWindowTabs` diye erişilemez
-(`platform_title_bar.rs:2`). Dışa açılan parça yalnızca root'taki
-`pub use system_window_tabs::{...}` satırlarıdır (`platform_title_bar.rs:24-26`).
+`system_window_tabs.rs` içindeki `SystemWindowTabs` dış API değildir. Tip
+kaynakta `pub struct` olarak yazılmıştır, fakat modülü crate kökünde
+`mod system_window_tabs;` olarak private kaldığı için dışarıdan
+`platform_title_bar::system_window_tabs::SystemWindowTabs` path'iyle erişilemez.
+Dışa açılan parça yalnızca root'taki `pub use system_window_tabs::{...}`
+satırlarıdır (`platform_title_bar.rs:24-26`).
 
 ### Crate kökü (`platform_title_bar`)
 
@@ -1208,16 +1180,12 @@ crate'i üzerinden re-export olarak da kullanır:
 | `TitleBar` | `pub struct TitleBar` private alanlı (`title_bar/src/title_bar.rs:150-163`) | Zed ürün başlığıdır; generic platform shell değildir. |
 | `TitleBar::new` | `pub fn new(id: impl Into<ElementId>, workspace: &Workspace, multi_workspace: Option<WeakEntity<MultiWorkspace>>, window: &mut Window, cx: &mut Context<Self>) -> Self` (`title_bar/src/title_bar.rs:385-391`) | `PlatformTitleBar::new(...)` entity'sini oluşturur ve `observe_button_layout_changed` subscription'ı kurar (`title_bar.rs:441-455`). |
 | Product helper'ları | `effective_active_worktree`, `render_restricted_mode`, `render_project_host`, `render_sign_in_button`, `render_user_menu_button` (`title_bar.rs:490`, `625`, `672`, `1142`, `1161`) | Zed'e özgü proje/kullanıcı UI yüzeyi; platform titlebar port API'si olarak kopyalanmamalıdır. |
+| Ürün banner'ı | `OnboardingBanner::new(...)` | Feature flag'e bağlı duyuru/ürün mesajı katmanıdır; platform titlebar API'sine taşınmamalıdır. |
 
-2026-05-15 diff'inde `TitleBar::new(...)` artık `banner: None` ile başlamaz.
-`feature_flags::{FeatureFlagAppExt, SkillsFeatureFlag}` bağımlılığı eklenir ve
-"Skills Migration Announcement" id'li bir `OnboardingBanner` oluşturulur.
-Banner `IconName::Sparkle`, "Introducing:" prefix'i ve "Skills" etiketiyle
-`zed_actions::agent::OpenRulesToSkillsMigrationInfo` action'ını dispatch eder;
-`visible_when(|cx| cx.has_flag::<SkillsFeatureFlag>())` ile feature flag'e
-bağlıdır. Port ederken bunu platform titlebar API'sine taşımayın: bu,
-uygulamanın duyuru/ürün mesajı katmanıdır. Kendi uygulamanızda karşılığı varsa
-`AppTitleBar` child grubuna koyun; yoksa tamamen atlanabilir.
+Zed ürün titlebar'ı, duyuru banner'larını da `TitleBar` katmanında yönetir.
+Örneğin Skills duyurusu `SkillsFeatureFlag` ile görünür olur ve ilgili migration
+bilgi action'ını dispatch eder. Kendi uygulamanızda benzer bir duyuru varsa bunu
+`AppTitleBar` child grubuna koyun; platform kabuğuna sorumluluk olarak eklemeyin.
 
 `title_bar_settings.rs` içindeki `pub struct TitleBarSettings` (`title_bar_settings.rs:5-15`)
 private modülde kaldığı için crate dışı API değildir; Zed ayar sistemi içinde
@@ -1762,11 +1730,10 @@ bağlıdır. `is_visible` ise `self.visible == Some(true)` kontrolünü
 yapar (`gpui/src/app.rs:395`); `visible` alanı `init_visible` veya
 `set_visible` çağrılana kadar `None`'dur, dolayısıyla pencere ilk
 açıldığında ve `on_toggle_tab_bar` callback'i tetiklenene kadar Linux
-ve Windows'ta sekme çubuğu **default olarak gizli** kalır. Bu, port
-sırasında "neden sekmeler hiç görünmüyor?" sorusuna en sık verilen
-yanlış cevabın ("`tab_bar_visible` çağırmadım") aslında "macOS dışında
-zaten false döner, controller'ı görünür yapmadığım için boş bırakıyor"
-olduğunu gösterir.
+ve Windows'ta sekme çubuğu **default olarak gizli** kalır. macOS dışındaki
+platformlarda sekme çubuğunun görünmesi için controller'ın açıkça görünür
+duruma alınması gerekir; yalnız `tab_bar_visible` çağrısını aramak yeterli
+değildir.
 
 macOS native tabbing için `set_tabbing_identifier(Some(...))` yalnız pencereye
 identifier yazmaz; `NSWindow::setAllowsAutomaticWindowTabbing:YES` de çağırır.
@@ -1775,9 +1742,8 @@ identifier yazmaz; `NSWindow::setAllowsAutomaticWindowTabbing:YES` de çağırı
 `SystemWindowTabs::init(cx)` içindeki settings observer'ı bu nedenle yalnız
 controller state'ini değil macOS native tabbing politikasını da açıp kapatır.
 
-**Hata kaynağı ve düzeltilen mantık:** Önceki ekleme `DraggedWindowTab`
-adını ve alanlarını doğru yakaladı, fakat akışı "drop başka pencereye düşerse
-merge/move" diye genelledi. Kaynakta owner ve olay ayrımı şöyledir:
+**Drag/drop owner ve olay ayrımı:** `DraggedWindowTab` adını ve alanlarını
+mirror etmek tek başına yeterli değildir. Kaynakta owner ve olay ayrımı şöyledir:
 
 - `render_tab(...).on_drag(...)` `DraggedWindowTab` üretir ve
   `last_dragged_tab = Some(tab.clone())` yapar.
@@ -1959,27 +1925,24 @@ aslında feature flag'dir. Kendi uygulamanızda bunu `AppSettings::multi_workspa
 veya `ShellSettings::sidebar_enabled` gibi doğrudan isimlendirilmiş bir ayarla
 değiştirin.
 
-2026-05-15 diff'i Zed'in ürün modelinde `MultiWorkspace` kapsamını daha görünür
-hale getiriyor: yeni `docs/src/windows-and-projects.md` dokümanına göre klasör
-ve projeler varsayılan olarak yeni pencere açmak yerine mevcut pencerenin
-threads sidebar'ına ekleniyor. `File > Open`, `File > Open Recent`, klasör
-sürükleme ve `zed ~/project` davranışı current-window/sidebar yolunu kullanır;
-yeni pencere için Open Recent'ta Cmd/Ctrl+Enter veya CLI tarafında `zed -n`
-gerekir. `cli_default_open_behavior` varsayılanı da `existing_window` olarak
-belgelenmiştir.
+Zed'in ürün modelinde klasör ve projeler varsayılan olarak yeni pencere açmak
+yerine mevcut pencerenin threads sidebar'ına eklenebilir. `File > Open`,
+`File > Open Recent`, klasör sürükleme ve `zed ~/project` davranışı aynı pencere
+içinde workspace değiştirebilir; yeni pencere için Open Recent'ta Cmd/Ctrl+Enter
+veya CLI tarafında `zed -n` kullanılır. `cli_default_open_behavior` varsayılanı
+`existing_window` ise CLI açılışları da mevcut pencere/sidebar yolunu izler.
 
-Bu değişiklik `PlatformTitleBar` render sözleşmesini değiştirmez: zayıf
-`MultiWorkspace` referansı platform kabuğunda hâlâ sadece sidebar tarafındaki
-pencere kontrolü çakışmasını çözmek için okunur. Ancak ürün titlebar'ı için
-önemli bir port kuralı doğurur: aktif proje/workspace değişimi artık pencere
-değişmeden gerçekleşebilir. Proje adı, worktree bilgisi, sidebar tarafı ve
-başlık içeriği `Window` lifecycle'ına değil aktif `MultiWorkspace::workspace()`
-durumuna gözlemci bağlayarak güncellenmelidir.
+Bu durum `PlatformTitleBar` render sözleşmesini değiştirmez: zayıf
+`MultiWorkspace` referansı platform kabuğunda sadece sidebar tarafındaki pencere
+kontrolü çakışmasını çözmek için okunur. Ürün titlebar'ı için kural şudur:
+aktif proje/workspace değişimi pencere değişmeden gerçekleşebilir. Proje adı,
+worktree bilgisi, sidebar tarafı ve başlık içeriği `Window` lifecycle'ına değil
+aktif `MultiWorkspace::workspace()` durumuna gözlemci bağlayarak güncellenmelidir.
 
-Sidebar açık mı sorusunu "açık proje var mı" sorusundan ayrı tutun. Aynı diff'te
-sidebar/agent panel tarafı boş workspace'lerde yeni thread/terminal oluşturmayı
-no-op yapıyor; buna rağmen sidebar'ın açık/kapalı ve sol/sağ konumu titlebar
-kontrol çakışması için hâlâ ayrı bir render state'tir.
+Sidebar açık mı sorusunu "açık proje var mı" sorusundan ayrı tutun. Boş
+workspace'lerde yeni thread/terminal oluşturma no-op olabilir; buna rağmen
+sidebar'ın açık/kapalı ve sol/sağ konumu titlebar kontrol çakışması için ayrı
+bir render state'tir.
 
 ## 12. Başlık Çubuğuna İçerik Yerleştirme
 
@@ -1994,13 +1957,7 @@ oluşturulur. Bu katman şunları child olarak verir:
 - Kullanıcı menüsü, sign-in butonu, plan chip, update bildirimi.
 - Collab/screen share göstergeleri.
 - Feature flag'e bağlı onboarding/announcement banner'ları.
-
-2026-05-15 diff'i bu listeye iki ürün-titlebar ayrıntısı ekliyor:
-
-- Skills duyurusu için `OnboardingBanner` artık `TitleBar::new(...)` içinde
-  oluşturuluyor ve yalnız `SkillsFeatureFlag` açıkken görünüyor.
-- Update bildiriminin tooltip'i `Update to Version: ...` biçiminde; semantic
-  version aynen yazılıyor, commit SHA ise kısaltılmadan tam değerle gösteriliyor.
+- Update bildirimi tooltip'i (`Update to Version: ...` gibi).
 
 Kendi uygulamanızda aynı pattern'i kullanın: platform titlebar'ı shell olarak
 tutun, ürününüzün anlamlı varlıklarını üst seviye `AppTitleBar` veya
@@ -2109,9 +2066,9 @@ Interaktif child'larda dikkat edilecekler:
 
 ## 15. Kaynak Doğrulama Komutları
 
-Bu rehber hazırlanırken yapılan ilk hata, public adları ve payload alanlarını
-"geçiyor mu?" diye kontrol edip owner/metot ve olay hedefi ayrımını ayrı
-doğrulamamaktı. Bundan sonra kontrolleri üç seviyede çalıştır:
+Kaynak doğrulamasını yalnız public adlar ve payload alanlarıyla sınırlamayın.
+Owner/metot ve olay hedefi ayrımını da doğrulayın. Kontrolleri üç seviyede
+çalıştır:
 
 1. Public API envanteri.
 2. Owner/metot yüzeyi.
