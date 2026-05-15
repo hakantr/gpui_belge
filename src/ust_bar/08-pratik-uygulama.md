@@ -13,7 +13,7 @@ Aşağıdaki tablo, üst barda en sık değiştirilen davranışların hangi dos
 | Linux butonlarının ikonu/rengi değişmeli | `WindowControlStyle` veya `WindowControlType::icon()` port karşılığında değişiklik yapılır. |
 | Windows close hover rengi farklı olmalı | `platform_windows.rs` içindeki `WindowsCaptionButton::Close` (crate-içi enum) renkleri değiştirilir. Tip public değildir; port hedefinde aynı dört variant kendi enum'la yeniden yazılır. |
 | Titlebar yüksekliği değişmeli | `platform_title_bar_height` karşılığı port edilir ve tüm titlebar/controls kullanımlarında aynı değer kullanılır. |
-| Native tabs kapatılmalı | `SystemWindowTabs` render child'ı feature flag ile boş döndürülür; controller kaldırılmaz, böylece geri açmak kolaydır. |
+| Native tabs kapatılmalı | `SystemWindowTabs` render child'ı feature flag ile boş döndürülür; controller kaldırılmaz, böylece ihtiyaç doğduğunda etkinleştirmek kolaydır. |
 | Sekme plus butonu yeni pencere açmalı | `zed_actions::OpenRecent` yerine uygulamanın kendi `NewWindow` action'ı dispatch edilir. |
 | Sidebar açıkken kontroller gizlenmemeli | `sidebar_render_state` ve `show_left/right_controls` koşulları değiştirilir. |
 | Sağ tık window menu kapatılmalı | Linux CSD'deki `window.show_window_menu(ev.position)` bağı kaldırılır veya bir ayara bağlanır. |

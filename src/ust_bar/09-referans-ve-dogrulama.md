@@ -142,7 +142,7 @@ Adım 4 ve 5 yalnızca Linux CSD ortamında ve close butonunun bulunduğu taraft
 | `Maximize` | `\u{e922}` | `platform_windows.rs:82` |
 | `Close` | `\u{e8bb}` | `platform_windows.rs:83` |
 
-Bu glyph'lerin gösterilmesi için kullanılan font, çalışılan Windows sürümüne göre değişir. Font seçimi `WindowsWindowControls::get_font()` fonksiyonunda yapılır (`platform_windows.rs:16/21`). Windows build 22000 ve sonrası, yani Windows 11, için `"Segoe Fluent Icons"` font'u tercih edilir. Daha eski sürümlerde `"Segoe MDL2 Assets"` kullanılır. Port hedefinin çalıştığı sistemde bu font'lar yoksa glyph'ler boş kareler olarak render olur. Bu durumda SVG ikon fallback'i gerekebilir.
+Bu glyph'lerin gösterilmesi için kullanılan font, çalışılan Windows build'ine göre değişir. Font seçimi `WindowsWindowControls::get_font()` fonksiyonunda yapılır (`platform_windows.rs:16/21`). Build numarası 22000 veya üzerindeyse `"Segoe Fluent Icons"` font'u tercih edilir; build numarası bunun altındaysa `"Segoe MDL2 Assets"` kullanılır. Port hedefinin çalıştığı sistemde bu font'lar yoksa glyph'ler boş kareler olarak render olur. Bu durumda SVG ikon fallback'i gerekebilir.
 
 **Renk sabitleri.** Windows pencere butonlarının hover ve active durumlarındaki renkleri `platform_windows.rs:99-122` aralığında sabit olarak tanımlanır. Aşağıdaki tablo bu sabitleri özetler:
 
@@ -252,7 +252,7 @@ Zed'in ürün titlebar'ı, duyuru banner'larını da `TitleBar` katmanında yön
 
 `OnboardingBanner` örneği, görünürlük koşulunu builder zincirinin sonundaki `.visible_when(|cx| cx.has_flag::<SkillsFeatureFlag>())` çağrısıyla alır (`title_bar/src/title_bar.rs:455-472`). Bu kalıp port hedefinde de kullanılabilir. Banner kurucusuna bir predicate kapanışı verilir. Bu kapanış her render geçişinde tekrar çağrılır ve `App`/`Context` üzerinden gelen feature flag ya da ayar durumuna göre banner tamamen gizlenebilir.
 
-`title_bar.rs` içindeki bu çağrı, `feature_flags` crate'inden gelen `FeatureFlagAppExt` trait'i ile `cx.has_flag::<...>()` çağrısına dayanır. Port hedefinde aynı yardımcı yoksa benzer bir `AppSettings`/`AppFlags` API'si yeterlidir. Ayrıca `TitleBar::new` içinde banner artık sabit olarak kurulup `Some(...)` ile alana yazılır; eski "`banner: None`" yerleşik durum kaldırılmıştır. Bu, banner katmanının her örnekte hazır olduğu ve gizleme/gösterme kararının tamamen `visible_when` predicate'iyle alındığı anlamına gelir.
+`title_bar.rs` içindeki bu çağrı, `feature_flags` crate'inden gelen `FeatureFlagAppExt` trait'i ile `cx.has_flag::<...>()` çağrısına dayanır. Port hedefinde aynı yardımcı yoksa benzer bir `AppSettings`/`AppFlags` API'si yeterlidir. `TitleBar::new` içinde banner `Some(...)` olarak kurulur; görünürlük kararı `visible_when` predicate'iyle alınır. Bu yüzden port hedefinde banner state'i ayrıca geçmiş bir başlangıç durumuna göre değil, doğrudan güncel feature flag veya ayar değerine göre yönetilmelidir.
 
 `OnboardingBanner::new(...)` çağrısı, bu rehber yazıldığı sıradaki imzasıyla parametreleri şu sırayla alır: telemetri/dismiss kimliği olarak kullanılacak bir string (örneğin `"Skills Migration Announcement"`), `IconName` ile bir ikon (örneğin `IconName::Sparkle`), banner üzerindeki metin (`"Skills"`), opsiyonel bir ön ek (`Some("Introducing:".into())`) ve tıklama anında dispatch edilecek boxed action (`zed_actions::agent::OpenRulesToSkillsMigrationInfo.boxed_clone()`). Port hedefinde bu imzaların adları korunabilir; somut içerik, ikon ve action ise ürünün ihtiyacına göre belirlenir.
 

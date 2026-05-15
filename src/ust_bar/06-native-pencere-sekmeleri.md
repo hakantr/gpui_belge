@@ -191,7 +191,7 @@ context menu / action
 
 Native tab desteği bir uygulamada ilk aşamada istenmiyorsa şu yol izlenir:
 
-- `PlatformTitleBar::init(cx)` çağrısı tamamen kaldırılmaz. Bunun yerine port edilen `PlatformTitleBar` içindeki `SystemWindowTabs` child'ı feature flag ile kapatılır. Böylece native tab desteğini ileride geri açmak kolay olur.
+- `PlatformTitleBar::init(cx)` çağrısı tamamen kaldırılmaz. Bunun yerine port edilen `PlatformTitleBar` içindeki `SystemWindowTabs` child'ı feature flag ile kapatılır. Böylece native tab desteğini ihtiyaç doğduğunda etkinleştirmek kolay olur.
 - Pencerelerin `tabbing_identifier` alanı `None` olarak bırakılır.
 - Sekme action'ları workspace'e kaydedilmez.
 
