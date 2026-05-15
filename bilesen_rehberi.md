@@ -110,36 +110,12 @@ Rehberdeki örneklerde kural şu olacak: örnekler önce `use ui::prelude::*;` i
 başlayacak, prelude'da olmayan bileşenler ayrıca `use ui::{...};` satırında
 belirtilecek.
 
-#### Bu turdaki denetim düzeltmesi
-
-`tema_rehber.md` dosyasının `8d14daf..7223211` farkı, önceki araştırmanın ana
-kusurunu gösterdi: konu başlıklarına göre arama yapmak, public yüzeyi eksiksiz
-yakalamaya yetmiyor. `refine_theme*`, `merge_*`, settings mutator'ları ve font
-runtime helper'ları ancak şu sırayla bulunabildi: export kapısını oku, `pub`
-adları çıkar, imzayı owner ile eşleştir, sonra gerçek kullanım yerlerini tara.
-Bileşen tarafındaki karşılığı `IconSize::square`, `Checkbox::container_size`,
-`Modal::show_back`, `TabBar::start_children_mut`, `ColumnWidthConfig::*` ve
-`HeaderResizeInfo::reset_column` gibi kolay atlanan owner/metot yüzeyleridir.
-
-Bileşen rehberi için aynı kural geçerlidir. Bir ad yalnızca metinde geçiyor diye
-kapsanmış sayılmaz; şu dört bilgi birlikte doğrulanır:
-
-- **Export yolu:** `ui::Button` mı, `ui::utils::WithRemSize` mi,
-  `component::ComponentRegistry` mi?
-- **Owner:** inherent metot mu (`DropdownMenu::no_chevron`), trait metodu mu
-  (`ButtonCommon::tooltip`), yoksa private modülde kalan yardımcı mı
-  (`Transformable`)?
-- **İmza:** callback parametreleri ve return tipi kaynakla aynı mı?
-- **Zed kullanımı:** `../zed` uygulaması bu API'yi preview'da mı, production
-  UI'da mı, lifecycle yönetiminde mi kullanıyor?
-
-#### Public yüzey snapshot'ı (`../zed` `3493830ce94e`)
+#### Public Yüzey Özeti (`../zed` `3493830ce94e`)
 
 Aşağıdaki liste `crates/ui/src/components`, `crates/ui/src/styles`,
 `crates/ui/src/utils`, `crates/ui/src/traits`, `crates/component/src` ve
-`crates/ui_input/src` üzerinde `^pub` taramasıyla doğrulandı. Ayrıntılı builder
-imzaları ilgili başlıklarda, yüksek riskli lifecycle API'leri ise bu tablonun
-altında ayrıca verilir.
+`crates/ui_input/src` public yüzeyini özetler. Ayrıntılı builder imzaları ilgili
+başlıklarda, lifecycle API'leri ise bu tablonun altında ayrıca verilir.
 
 | Alan | Public adlar |
 | :-- | :-- |
@@ -202,9 +178,9 @@ Benzer public alanlı sözleşme tipleri:
   çoğu kullanım `NavigableEntry::new(...)` veya `focusable(...)` üzerinden
   kurulmalıdır.
 
-#### Snapshot satır ayrımı ve payload denetimi
+#### Ek Public API Notları
 
-Son snapshot düzeltmesi kaynakla doğrulandı:
+Kaynakta şu ayrımlar özellikle önemlidir:
 
 - `tab.rs` ve `tab_bar.rs`: `Tab`, `TabBar`, `TabPosition` ve `TabCloseSide`
   ayrı Tab yüzeyidir. Zed içinde pane tab bar akışı `workspace/src/pane.rs`
@@ -228,9 +204,8 @@ Son snapshot düzeltmesi kaynakla doğrulandı:
   keymap editor, which-key ve quick action preview gibi yerlerde doğrudan
   kullanılır.
 
-Ek denetim sınıfı: `pub struct Foo { pub field: ... }` taraması tek başına
-yeterli değildir. Public tuple struct alanları ve payload taşıyan enum
-variant'ları ayrıca kontrol edilmelidir:
+Public tuple struct alanları ve payload taşıyan enum variant'ları da construction
+yüzeyinin parçasıdır:
 
 - Public tuple alanları: `ComponentId(pub &'static str)` ve
   `ScrollbarAutoHide(pub bool)`. İlki registry id değerini, ikincisi global
@@ -244,9 +219,8 @@ variant'ları ayrıca kontrol edilmelidir:
   `DateTimeType::{Naive(NaiveDateTime), Local(DateTime<Local>)}` gibi
   variant'lar yalnızca isim değil, veri taşıyan public construction yüzeyidir.
 
-`pub` taramasının kaçırdığı bir diğer sınıf public trait implementasyonlarıdır.
-`impl From<...> for PublicType` satırında `pub` yazmaz, ama dış crate için
-ergonomik construction yüzeyi oluşturur. Kaynakta doğrulanan dönüşümler:
+Public trait implementasyonları da dış crate için ergonomik construction yüzeyi
+oluşturur. Kaynakta kullanılan dönüşümler:
 
 - `ToggleState`: `From<bool>` ve `From<Option<bool>>`; `None`,
   `Indeterminate` anlamına gelir.
@@ -282,7 +256,7 @@ Private tiplerdeki dönüşümler tüketici yüzeyi sayılmaz. Örneğin
 ancak dış API `Tooltip::text(...)`, `Tooltip::simple(...)` ve
 `Tooltip::for_action*` constructor'ları üzerinden görünür.
 
-#### İmzası özellikle kontrol edilen lifecycle API'leri
+#### Lifecycle API İmzaları
 
 Bu grup, callback imzaları veya generic bound'ları nedeniyle en kolay yanlış
 aktarılabilecek yüzeydir:
@@ -499,8 +473,8 @@ akışı kullanılır.
 
 ### Constructor envanteri
 
-Başlangıç constructor listesi kaynak dosyalar üzerinde yapılan `awk` taramasıyla
-doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında verilecek.
+Başlangıç constructor listesi aşağıdaki tabloda özetlenir. Ayrıntılı builder
+listeleri ilgili bileşen başlıklarında verilir.
 
 | Bileşen / API | Constructor veya giriş noktası |
 | :-- | :-- |
@@ -604,12 +578,10 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | `CornerSolver` | `CornerSolver::new(root_radius, root_border, root_padding)` ve `.add_child(border, padding).corner_radius(level)` |
 | `FormatDistance` | `FormatDistance::new(date, base_date)`, `FormatDistance::from_now(date)` |
 
-### Public metod denetim notları
+### Public Yardımcı Metodlar
 
-Kaynak taramasında public görünen ama genellikle builder bölümünde değil,
-state/helper bölümünde kullanılan metodlar aşağıdaki tabloda izlenir. Yeni bir
-Zed `ui` metodu eklendiğinde bu tablo veya ilgili bileşen başlığı aynı PR'da
-güncellenmelidir.
+Kaynakta public görünen ama genellikle builder bölümünde değil, state/helper
+bölümünde kullanılan metodlar aşağıdaki tabloda özetlenir.
 
 | Kaynak | Metodlar | Rol |
 | :-- | :-- | :-- |
@@ -624,147 +596,6 @@ güncellenmelidir.
 | `data_table.rs` | `ColumnWidthConfig::table_width(window, cx)`, `ColumnWidthConfig::list_horizontal_sizing(window, cx)`, `ResizableColumnsState::reset_column_to_initial_width(col_idx)`, `Table::pin_cols(n)`, `Table::map_row(callback)`, `Table::empty_table_callback(callback)` | Table genişliği, horizontal sizing, sabit ilk kolonlar ve kolon reset helper'ları; `Table` üzerinde satır/empty callback'leri |
 | `redistributable_columns.rs` | `TableResizeBehavior::is_resizable()`, `HeaderResizeInfo::reset_column(col_idx, window, cx)`, `RedistributableColumnsState::reset_column_to_initial_width(column_index, window)` | Resize davranışı sorgusu, header bilgi paketi üzerinden reset ve kolon initial width'e dönüş |
 | `context_menu.rs` | `ContextMenu::selected_index()`, `.confirm(...)`, `.secondary_confirm(...)`, `.cancel(...)`, `.end_slot(...)`, `.clear_selected()`, `.select_first(...)`, `.select_last(...)`, `.select_next(...)`, `.select_previous(...)`, `.select_submenu_child(...)`, `.select_submenu_parent(...)`, `.on_action_dispatch(...)`, `.on_blur_subscription(subscription)` | Menü action, seçim, submenu traversal, end slot ve blur subscription state yönetimi |
-
-#### Denetim mantığı düzeltmesi
-
-Son iki commit arasındaki farkın gösterdiği ana hata, public metotları yalnızca
-**ada göre** denetlemekti. Bu yaklaşım, `key_binding` adının rehberde geçmesini
-yeterli sayıyor ama bu metodun `Button` üzerinde mi, `Switch` üzerinde mi,
-yoksa ortak trait üzerinde mi bulunduğunu doğrulamıyordu. Aynı hata
-`TableInteractionState` / `ResizableColumnsState`,
-`ModalHeader` / `ModalRow` / `Section` ve `TabBarSlot` / `TabBar` gibi owner
-kaymalarını da gizler.
-
-Bu turda yakalayamadığım eksiklerin kök nedenleri:
-
-- Rehber başındaki Zed commit'i diff hedefiyle eşleşmelidir; doğrulama eski
-  varsayımlardan değil, gerçek `3493830ce94ee1fa9d25ca92dcf23b502109fe07`
-  çalışma ağacından yapılmalıdır.
-- `pub fn` grep'i, `crates/ui/src/components.rs` içindeki `pub use ...::*`
-  zincirini ve nested modül re-export'larını tek tek takip etmiyordu.
-- Inherent metotlar owner bilgisiyle taşınmadığı için aynı isimli metotlar
-  birbirinin yerine geçmiş sayıldı.
-- Trait implementasyonlarındaki public yüzey `impl Clickable for IconButton`
-  gibi bloklarda `pub` taşımadığı için yalnızca `pub fn` taramasıyla eksik
-  kaldı.
-- Owner çıkaran state-machine brace depth izlemezse bir `impl` bloğundan sonra
-  gelen serbest fonksiyonları önceki owner'a sızdırır. Bu nedenle imza taraması
-  yalnız başlığı değil blok derinliğini de izlemelidir.
-- `pub(crate)` ve sealed/internal tipler tüketici API'si gibi sayıldı; dış
-  crate'in gerçekten çağırabildiği yüzey ayrıca filtrelenmelidir.
-- Rehber yalnızca bileşen kaynaklarını okuduğunda `workspace`, `component`,
-  `component_preview` ve uygulama içi gerçek kullanım akışını kaçırabiliyor.
-
-Doğru kural: her metot `owner::method` veya `Trait for Type::method` çiftiyle,
-her export ise `components.rs -> alt modül -> pub item` zinciriyle izlenir.
-
-#### Commit sonrası doğrulama (`5cd8338`)
-
-Bu dosyadaki önceki commit, kaynak üzerinde tekrar doğrulandı:
-
-- `crates/ui/src/ui.rs`, `components`, `styles` ve `traits` modüllerini
-  `mod` olarak tutup yalnızca `pub use ...::*` zinciriyle crate köküne ad
-  taşır. Bu nedenle public yol denetiminde kaynak dosyanın `pub` yazması değil,
-  export zincirinden geçip geçmediği esas alınır.
-- `crates/ui/src/components.rs` içinde `stories` modülü yoktur. Tek undeclared
-  dosya `crates/ui/src/components/stories.rs` olarak kalır; dosyanın içindeki
-  `mod context_menu; pub use context_menu::*;` satırları build chain'e
-  girmediği için public API değildir.
-- `ScrollbarStyle::to_pixels(&self) -> Pixels`,
-  `PlatformStyle::platform() -> Self` ve `ComponentFn::new(f: fn()) -> Self`
-  `pub const fn` biçimindedir. Public metod taraması `pub fn` ile sınırlanırsa
-  bu üç compile-time helper düşer.
-- `sticky_items<V, T>(...) -> StickyItems<T>` ve
-  `<T: StickyCandidate + Clone + 'static> StickyItems<T>::with_decoration(...)`
-  imzaları `sticky_items.rs` ile eşleşir; `with_decoration` serbest fonksiyon
-  değil, generic bound'lu `StickyItems<T>` inherent metodudur.
-- `ui_input::ERASED_EDITOR_FACTORY` public static olarak `OnceLock<fn(&mut
-  Window, &mut App) -> Arc<dyn ErasedEditor>>` tipindedir ve Zed'de
-  `editor::init` sırasında `Editor::single_line(...)` adapter'ı ile kurulur.
-
-Ek kapsam taraması, `crates/ui`, `crates/component` ve `crates/ui_input`
-altındaki public item adları, public enum variant'ları ve public struct
-alanları için rehberde isim seviyesinde yeni eksik göstermedi. Sadece standart
-trait implementasyonlarından gelen `fmt`, `eq`, `index_mut` ve `into_element`
-metotları kullanıcıya dönük builder/lifecycle API'si olarak listelenmez.
-`component::COMPONENT_DATA`, `component::ComponentFn::new(...)` ve
-`component::__private` ise `RegisterComponent` / `inventory` mekanizmasının
-makro tarafına açık iç yüzeyi olarak açıklanır; normal uygulama kodu
-`components()`, `component::init()` ve `register_component::<T>()` üzerinden
-ilerler.
-
-Bu hatayı önlemek için rehberdeki her API satırı şu üç sınıftan biriyle
-eşleştirilmelidir:
-
-- **Trait metodu:** `Clickable::cursor_style`, `ButtonCommon::tooltip`,
-  `FixedWidth::width` gibi import edilen trait üzerinden gelir.
-- **Inherent builder:** `Button::key_binding`,
-  `DropdownMenu::no_chevron`, `ContextMenu::rebuild` gibi yalnızca ilgili
-  struct'ın `impl` bloğunda vardır.
-- **Sealed/internal yüzey:** `ButtonBuilder` public görünür ama
-  `private::ToggleButtonStyle` supertrait'i nedeniyle dış crate'te implement
-  edilemez; `ButtonLikeRounding::{ALL, LEFT, RIGHT}` ise `pub(crate)` tip
-  üzerinde kaldığı için tüketici API'si değildir.
-
-Pratik sonuç: Bir metodun adı başka başlıkta geçiyor diye kapsanmış sayılmaz.
-Örneğin `Button::key_binding(...)` ve `Switch::key_binding(...)` ayrı ayrı
-doğrulanır; `IconButton`, `ButtonLike` veya `SplitButton` için otomatik
-geçerli kabul edilmez.
-
-### Repo gerçekliği notları
-
-- Kaynaklarda `Stack` ve `Group` adları public struct değil. Mevcut API
-  `h_flex`, `v_flex`, `h_group*`, `v_group*` helper fonksiyonlarıdır.
-- `Image` için `crates/ui/src/components/image.rs` içinde public `Image` struct
-  yok. Bu dosya `Vector` ve `VectorName` export eder. Raster görsel için GPUI
-  tarafındaki `img(...)` ve `ImageSource` ayrıca anlatılmalı.
-- `Notification` adı `crates/ui/src/components/notification.rs` içinde public
-  component olarak yok; dosya `AlertModal` ve `AnnouncementToast` modüllerini
-  re-export eden bir modül dosyasıdır.
-- Kaynakta public görünen `MenuHandleElementState`, `RequestLayoutState`,
-  `PrepaintState`, `PopoverMenuElementState`, `PopoverMenuFrameState` ve
-  `ScrollbarPrepaintState` tipleri kullanıcıya dönük component API'si değil,
-  element prepaint/layout state taşıyıcılarıdır. Rehberde kullanım yüzeyi olarak
-  öne çıkarılmaz.
-- `ToggleButton` adı tekil bir public component değil. Kaynakta
-  `ToggleButtonGroup<T, COLS, ROWS>`, `ToggleButtonSimple`,
-  `ToggleButtonWithIcon`, `ButtonBuilder`, `ToggleButtonGroupStyle` ve
-  `ToggleButtonGroupSize` bulunur.
-- `ListBulletItem`, `ModalHeader`, `ModalRow`, `ModalFooter`, `Section`,
-  `SectionHeader`, `IconWithIndicator`, `AvatarAudioStatusIndicator`,
-  `AvatarAvailabilityIndicator`, `ParallelAgentsIllustration` ve scrollbar
-  tipleri kaynakta public yardımcı yapılardır. İlgili bölümlerde yalnızca ana
-  bileşenleri açıklamayı destekledikleri ölçüde ele
-  alınacaklar.
-- Preview desteği `impl Component for ...` ile işaretlendi. `ContextMenu`,
-  `Popover`, `PopoverMenu`, `RightClickMenu`, `Modal`, `GradientFade`,
-  `StickyItems`, `IndentGuides`, `Navigable`, `SplitButton`, `IconDecoration`,
-  `LoadingLabel` ve `ListSeparator` için doğrudan component preview bulunmadı.
-  `AgentSetupButton` için `impl Component` vardır, ancak `preview()` `None`
-  döndürür. `Color`, `LabelLike` ve `ui_input::InputField` da component
-  preview sistemine kayıtlıdır.
-- `crates/ui/src/styles/animation.rs` içindeki `Animation` tipi yalnızca
-  animation preview göstermek için kullanılan private bir component'tir; public
-  kullanım yüzeyi `AnimationDuration`, `AnimationDirection` ve
-  `DefaultAnimations` trait'idir.
-- `crates/ui/src/traits/transformable.rs` içindeki `Transformable` kaynakta
-  `pub` olsa da `ui.rs` bunu re-export etmez. Rehberde doğrudan
-  `.transform(...)` tüketici API'si olarak gösterilmez; public kullanım
-  `CommonAnimationExt` üzerinden rotation helper'larıdır.
-
-### Doğrulama komutları
-
-Bu envanter şu komutlarla doğrulandı:
-
-```sh
-git rev-parse HEAD
-find crates/ui/src/components crates/ui/src/styles crates/ui/src/traits crates/ui_input/src crates/component/src crates/icons/src -name '*.rs' -print
-rg -n '^pub use|^pub mod|^mod ' crates/ui/src/ui.rs crates/ui/src/components.rs crates/ui/src/styles.rs crates/ui/src/traits.rs crates/ui/src/utils.rs crates/ui/src/prelude.rs crates/ui/src/component_prelude.rs
-rg -o '^pub (struct|enum|trait|fn|type|const) [A-Za-z0-9_]+' crates/ui/src/components crates/ui/src/styles crates/ui/src/traits crates/ui/src/utils.rs crates/ui/src/utils crates/component/src crates/ui_input/src
-find crates/ui/src/components crates/ui/src/styles crates/ui_input/src crates/component/src -name '*.rs' -print0 | xargs -0 awk '/impl Component for |impl<T: ButtonBuilder.*Component/ { print FILENAME ":" FNR ":" $0 }'
-find crates/ui/src/components crates/ui/src/styles/typography.rs crates/ui_input/src -name '*.rs' -print0 | xargs -0 awk '/pub fn (new|build|dot|checkbox|switch|divider|vertical_divider|h_flex|v_flex|h_group|right_click_menu|sticky_items|indent_guides)\\b/ { print FILENAME ":" FNR ":" $0 }'
-rg -n 'Button::new|IconButton::new|ContextMenu::build|DropdownMenu::new|PopoverMenu::new|right_click_menu|Table::new|Modal::new|Switch::new|Checkbox::new|Tooltip::' crates/workspace crates/editor crates/project_panel crates/outline_panel crates/settings_ui crates/collab_ui crates/activity_indicator crates/notifications crates/file_finder crates/command_palette crates/recent_projects crates/git_ui
-```
 
 ## 2. Ortak Kullanım Temelleri
 
@@ -1231,7 +1062,7 @@ Zed uygulamasında bu sistem iki seviyede yönetilir:
   alanı çizmez. `AgentSetupButton` bunun bilinçli örneğidir.
 
 Bu nedenle uygulama içi component sistemi runtime UI dependency injection
-mekanizması değil, **görsel denetim ve dokümantasyon registry'si**dir.
+mekanizması değil, **görsel inceleme ve dokümantasyon registry'si**dir.
 Production ekranları component'leri doğrudan `ui::Button`,
 `ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır; component registry
 yalnızca preview tool ve dokümantasyon/arama ekranları için devrededir.
@@ -1367,7 +1198,7 @@ fn list_registered_buttons() {
 | :-- | :-- | :-- |
 | `previews() -> Vec<&ComponentMetadata>` | Preview verilmiş bileşenler | Gallery liste kaynağı |
 | `sorted_previews() -> Vec<ComponentMetadata>` | Aynı, `sort_name`'e göre sıralı | Stabil sıralı liste |
-| `components() -> Vec<&ComponentMetadata>` | Tüm kayıtlı bileşenler (preview'sız dahil) | Programatik denetim |
+| `components() -> Vec<&ComponentMetadata>` | Tüm kayıtlı bileşenler (preview'sız dahil) | Programatik inceleme |
 | `sorted_components() -> Vec<ComponentMetadata>` | Aynı, sıralı | Stabil sıralı |
 | `component_map() -> HashMap<ComponentId, ComponentMetadata>` | Id → metadata haritası | Lookup |
 | `get(id) -> Option<&ComponentMetadata>` | Id ile lookup | Tek bileşen sorgusu |
@@ -2803,8 +2634,7 @@ Davranış:
   kendi entry tipini implement edemez; `ToggleButtonSimple` ve
   `ToggleButtonWithIcon` beklenen giriş noktalarıdır.
 - Sealed supertrait kaynakta `private::ToggleButtonStyle` adını taşır; crate
-  dışından import edilemez. Public ad taramasında görünürse "kapsam dışı
-  sealed helper" olarak sınıflandırılır.
+  dışından import edilemez ve tüketici API'si değildir.
 - `ButtonConfiguration` aynı iç taşıyıcı rolündedir; alanları private olduğu
   için tüketici kodu tarafından elle kurulmaz, yalnızca `ButtonBuilder`
   implementasyonlarının dönüş değeridir.
@@ -9383,8 +9213,7 @@ Kaynak kapısı:
 ### Public GPUI element adları
 
 Aşağıdaki liste `crates/gpui/src/elements` altındaki public type, trait,
-constructor ve constant adlarını temsil eder. Rehber kapsam denetiminde bu
-listenin boşta kalan adı olmamalıdır.
+constructor ve constant adlarını temsil eder.
 
 ```text
 Anchored, AnchoredFitMode, AnchoredPositionMode, AnchoredState,
@@ -9541,7 +9370,7 @@ internal global stack yönetimidir. `DraggedItem<T>::drag(cx)` ve
 Animasyon easing yardımcıları `linear(delta)`, `quadratic(delta)`,
 `ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla export
 edilir. Test modülündeki `select_next` / `select_previous` gibi örnek view
-metodları public görünse de rehber kapsamı için component API sayılmaz.
+metodları component API değildir.
 
 ### Primitive API kataloğu
 
@@ -9576,8 +9405,8 @@ metodları public görünse de rehber kapsamı için component API sayılmaz.
 
 ### GPUI public enum ve state ayrıntıları
 
-Ad/metod taraması tek başına yeterli değildir; bazı GPUI tiplerinde karar
-variant'ları ve public state alanları asıl kullanım bilgisini taşır.
+Bazı GPUI tiplerinde karar variant'ları ve public state alanları asıl kullanım
+bilgisini taşır.
 
 | Tip | Variant / Alan | Kullanım notu |
 | :-- | :-- | :-- |
@@ -9654,7 +9483,7 @@ image_cache(retain_all("image-cache"))
         .with_fallback(|_, _| Icon::new(IconName::Image).into_any_element()))
 ```
 
-## 14. Doğrulanmış `crates/ui/src/components` Public API Yüzeyi
+## 14. `crates/ui/src/components` Public API Yüzeyi
 
 Kaynak: `../zed` commit `3493830ce94ee1fa9d25ca92dcf23b502109fe07`.
 `pub(crate)`, `pub(super)` ve `pub(in ...)` kapsam dışıdır. Trait metotları
@@ -10676,300 +10505,3 @@ geçen re-export kapılarıdır.
   - `TreeViewItem::root_item(mut self, root_item: bool) -> Self`
   - `TreeViewItem::focused(mut self, focused: bool) -> Self`
   - `TreeViewItem::track_focus(mut self, focus_handle: &gpui::FocusHandle) -> Self`
-
-## 15. Prosedürel Kapsam Doğrulaması
-
-Bu rehbere yeni bir GPUI/Zed bileşeni eklenirken aşağıdaki sıra bozulmamalıdır:
-
-1. Kaynak export'u bulun: `components.rs`, `elements/mod.rs`, ilgili modül.
-2. Public ad source index tablosuna eklenir.
-3. Constructor envanteri güncellenir.
-4. Builder/metod yüzeyi **sahibiyle birlikte** ilgili başlıkta listelenir
-   (`Button::key_binding`, `ButtonCommon::tooltip`, `Clickable for
-   IconButton::cursor_style` gibi).
-5. Public enum variant'ları ve public struct alanları kontrol edilir; kullanıcı
-   API'si değilse "internal/debug/test-only" gerekçesiyle not düşülür.
-6. Kullanım disiplini ve en az bir kompozisyon örüntüsü eklenir.
-7. Focus, tooltip, action, scroll ve async riskleri checklist'e bağlanır.
-8. Aşağıdaki doğrulamalar çalıştırılır ve boş diff beklenir.
-
-Zed `ui` public ad kapsamı:
-
-```sh
-rg -o '^pub (struct|enum|trait|fn|type|const) ([A-Za-z0-9_]+)' \
-  ../zed/crates/ui/src/components \
-  ../zed/crates/ui/src/styles \
-  ../zed/crates/ui/src/traits \
-  ../zed/crates/ui/src/utils.rs \
-  ../zed/crates/ui/src/utils \
-  -g '*.rs' \
-  | sed -E 's/.*pub (struct|enum|trait|fn|type|const) ([A-Za-z0-9_]+)/\2/' \
-  | sort -u > /tmp/ui_pub_names.txt
-
-while read name; do
-  rg -q "\\b${name}\\b" bilesen_rehberi.md || echo "${name}"
-done < /tmp/ui_pub_names.txt
-```
-
-Ham GPUI element public ad kapsamı:
-
-```sh
-rg -o '^pub (struct|enum|trait|fn|type|const) ([A-Za-z0-9_]+)' \
-  ../zed/crates/gpui/src/elements \
-  -g '*.rs' \
-  | sed -E 's/.*pub (struct|enum|trait|fn|type|const) ([A-Za-z0-9_]+)/\2/' \
-  | sort -u > /tmp/gpui_element_pub_names.txt
-
-while read name; do
-  rg -q "\\b${name}\\b" bilesen_rehberi.md || echo "${name}"
-done < /tmp/gpui_element_pub_names.txt
-```
-
-Component preview crate public ad kapsamı (`crates/component`):
-
-```sh
-rg -o '^pub (struct|enum|trait|fn|type|const|static) ([A-Za-z0-9_]+)' \
-  ../zed/crates/component/src \
-  -g '*.rs' \
-  | sed -E 's/.*pub (struct|enum|trait|fn|type|const|static) ([A-Za-z0-9_]+)/\2/' \
-  | sort -u > /tmp/component_pub_names.txt
-
-while read name; do
-  rg -q "\\b${name}\\b" bilesen_rehberi.md || echo "${name}"
-done < /tmp/component_pub_names.txt
-```
-
-`ui_input` public ad kapsamı (`InputField`, `ErasedEditor`,
-`ErasedEditorEvent`, `ERASED_EDITOR_FACTORY` ve diğer editor entegrasyon
-yüzeyi):
-
-```sh
-rg -o '^pub (struct|enum|trait|fn|type|const|static) ([A-Za-z0-9_]+)' \
-  ../zed/crates/ui_input/src \
-  -g '*.rs' \
-  | sed -E 's/.*pub (struct|enum|trait|fn|type|const|static) ([A-Za-z0-9_]+)/\2/' \
-  | sort -u > /tmp/ui_input_pub_names.txt
-
-while read name; do
-  rg -q "\\b${name}\\b" bilesen_rehberi.md || echo "${name}"
-done < /tmp/ui_input_pub_names.txt
-```
-
-Owner+method matrisi (ad taraması tek başına yeterli değildir):
-
-```sh
-find ../zed/crates/ui/src ../zed/crates/ui_input/src ../zed/crates/component/src \
-  -name '*.rs' > /tmp/bilesen_files.txt
-
-awk '
-function brace_delta(s, a, b, t) {
-  t=s; a=gsub(/\{/, "", t)
-  t=s; b=gsub(/\}/, "", t)
-  return a-b
-}
-function normalize(s) {
-  gsub(/[[:space:]]+/, " ", s)
-  sub(/^[[:space:]]+/, "", s)
-  sub(/[[:space:]]+$/, "", s)
-  sub(/[[:space:]]*\{[[:space:]]*\}[[:space:]]*$/, "", s)
-  sub(/[[:space:]]*[\{;][[:space:]]*$/, "", s)
-  return s
-}
-function capture_signature(first, sig, nextline) {
-  sig=first
-  cap_delta=brace_delta(first)
-  while (sig !~ /[\{\};][[:space:]]*$/ && (getline nextline) > 0) {
-    sig=sig " " nextline
-    cap_delta += brace_delta(nextline)
-  }
-  return normalize(sig)
-}
-FNR==1 { owner=""; mode=""; depth=0 }
-{
-  line=$0
-  if (mode == "") {
-    if (line ~ /^[[:space:]]*impl[[:space:]<]/) {
-      hdr=line
-      while (hdr !~ /\{/ && hdr !~ /;[[:space:]]*$/ && (getline nextline) > 0) {
-        hdr=hdr " " nextline
-      }
-      if (hdr ~ /;[[:space:]]*$/ || hdr ~ /\{[[:space:]]*\}[[:space:]]*$/) {
-        owner=""; mode=""; depth=0; next
-      }
-      owner=hdr
-      sub(/^[[:space:]]*/, "", owner)
-      sub(/[[:space:]]*\{.*$/, "", owner)
-      gsub(/[[:space:]]+/, " ", owner)
-      depth=brace_delta(hdr)
-      mode="impl"
-      next
-    }
-    if (line ~ /^[[:space:]]*pub trait[[:space:]]/) {
-      hdr=line
-      while (hdr !~ /\{/ && hdr !~ /;[[:space:]]*$/ && (getline nextline) > 0) {
-        hdr=hdr " " nextline
-      }
-      if (hdr ~ /;[[:space:]]*$/) next
-      owner=hdr
-      sub(/^[[:space:]]*pub trait[[:space:]]+/, "trait ", owner)
-      sub(/[<:].*/, "", owner)
-      sub(/[[:space:]]*\{.*$/, "", owner)
-      gsub(/[[:space:]]+/, " ", owner)
-      depth=brace_delta(hdr)
-      mode="trait"
-      next
-    }
-    if (line ~ /^[[:space:]]*pub (async[[:space:]]+|const[[:space:]]+|unsafe[[:space:]]+)*fn [A-Za-z_]/) {
-      sig=capture_signature(line)
-      print FILENAME ":" FNR ":free :: " sig
-      next
-    }
-  } else {
-    if (depth == 1) {
-      if (mode == "trait" && line ~ /^[[:space:]]*(pub[[:space:]]+)?(async[[:space:]]+|const[[:space:]]+|unsafe[[:space:]]+)*fn[[:space:]][A-Za-z_]/) {
-        sig=capture_signature(line)
-        print FILENAME ":" FNR ":" owner " :: " sig
-        depth += cap_delta
-        if (depth <= 0) { owner=""; mode=""; depth=0 }
-        next
-      }
-      if (mode == "impl" && (line ~ /^[[:space:]]+pub[[:space:]]+(async[[:space:]]+|const[[:space:]]+|unsafe[[:space:]]+)*fn[[:space:]][A-Za-z_]/ || (owner ~ / for / && line ~ /^[[:space:]]+(async[[:space:]]+|const[[:space:]]+|unsafe[[:space:]]+)*fn[[:space:]][A-Za-z_]/))) {
-        sig=capture_signature(line)
-        print FILENAME ":" FNR ":" owner " :: " sig
-        depth += cap_delta
-        if (depth <= 0) { owner=""; mode=""; depth=0 }
-        next
-      }
-    }
-    depth += brace_delta(line)
-    if (depth <= 0) { owner=""; mode=""; depth=0 }
-  }
-}
-' $(cat /tmp/bilesen_files.txt) | sort -u > /tmp/bilesen_owner_methods.txt
-```
-
-Bu awk akışının `rg`/`grep` ile yakalayamayacağı beş sınıfı kapsamalıdır:
-
-1. **Multi-line impl başlığı**: `impl<T: ButtonBuilder, const COLS: usize,
-   const ROWS: usize> FixedWidth\n    for ToggleButtonGroup<T, COLS, ROWS>`
-   gibi başlıklar tek satırlık ad araması ile owner bilgisinden kopar; awk
-   `getline` ile `{`/`;`/`}` görene kadar birleştirir.
-2. **Trait override metotları**: `impl Clickable for IconButton` içindeki
-   `fn cursor_style(...)` `pub` taşımadığı için `rg 'pub fn'` taramasında
-   görünmez. Bu metotlar trait üzerinden public yüzeydir ve component'in
-   ortak builder listesine yazılır.
-3. **Public trait sözleşmesi**: `pub trait ButtonCommon` içindeki `fn style(...)`
-   gibi trait item'ları `pub` yazmaz ama trait public olduğu için dış yüzeydir.
-   Bu satırlar `trait ButtonCommon :: fn style(...)` biçiminde ayrıca çıkar.
-4. **Blok derinliği taşması**: `impl Global for VimStyle {}` gibi
-   tek satırlık unit impl, getline loop'unu yutmaz; owner bir sonraki impl'e
-   geçer. Awk'ın brace-depth takibi `impl` dışındaki serbest fonksiyonları
-   önceki owner'a yanlış bağlamayı da engeller.
-5. **`const fn` / `unsafe fn` qualifier'ları**: `pub const fn to_pixels(...)`
-   (`ScrollbarStyle`) ve `pub const fn platform()` (`PlatformStyle`) örneklerinde
-   `pub` ile `fn` arasında ek qualifier vardır. Regex `(async|const|unsafe)*`
-   ile bu ekleri esnek biçimde tüketir; aksi halde compile-time helper'lar
-   public yüzey listesinden düşer.
-
-Bu dosya elle incelenir; her satır için metodun doğru **sahip başlığında**
-geçtiği doğrulanır. Örneğin `impl Button::key_binding` yalnızca `Button`
-başlığına yazılır; aynı adın `Switch::key_binding` üzerinde de bulunması ikinci
-bir owner satırı olarak ayrıca doğrulanır. Trait implementasyonları
-(`impl Clickable for IconButton :: cursor_style`) component başlığındaki ortak
-builder listesine yansıtılır; trait'in kendisi ayrıca "Ortak trait" listesinde
-kalır.
-
-Ham GPUI element metod yüzeyi için kaynak kapısı:
-
-```sh
-rg -n '^pub fn |^    pub fn |^    fn [a-zA-Z_].*-> Self|^pub trait ' \
-  ../zed/crates/gpui/src/elements \
-  ../zed/crates/gpui/src/styled.rs \
-  ../zed/crates/gpui_macros/src/styles.rs
-```
-
-Component ve `ui_input` metod yüzeyi için hızlı kaynak kapısı:
-
-```sh
-rg -n '^pub fn |^    pub fn |^    fn [a-zA-Z_].*-> Self|^pub trait ' \
-  ../zed/crates/ui/src/components \
-  ../zed/crates/ui/src/traits \
-  ../zed/crates/component/src \
-  ../zed/crates/ui_input/src
-```
-
-Public struct field ve enum variant kapsamı:
-
-```sh
-awk '
-/^pub struct [A-Za-z0-9_]+/ { s=$3; sub(/\(.*/, "", s); in_s=1; next }
-in_s && /^}/ { in_s=0; s="" }
-in_s && /^[[:space:]]*pub [A-Za-z0-9_]+:/ {
-  f=$2; gsub(/:.*/, "", f); print s "." f
-}
-' \
-  ../zed/crates/ui/src/components/**/*.rs \
-  ../zed/crates/ui/src/components/*.rs \
-  ../zed/crates/ui/src/styles/*.rs \
-  ../zed/crates/ui/src/traits/*.rs \
-  ../zed/crates/ui/src/utils/*.rs \
-  ../zed/crates/ui/src/utils.rs \
-  ../zed/crates/component/src/*.rs \
-  ../zed/crates/ui_input/src/*.rs \
-  ../zed/crates/gpui/src/elements/*.rs \
-  2>/dev/null | sort -u > /tmp/bilesen_public_fields.txt
-
-while read item; do
-  field="${item#*.}"
-  rg -q "\\b${field}\\b" bilesen_rehberi.md || echo "${item}"
-done < /tmp/bilesen_public_fields.txt
-
-awk '
-/^pub enum [A-Za-z0-9_]+/ { e=$3; in_e=1; next }
-in_e && /^}/ { in_e=0; e="" }
-in_e && /^[[:space:]]*[A-Z][A-Za-z0-9_]+[,{(]/ {
-  v=$1; gsub(/[,{(].*/, "", v); print e "." v
-}
-' \
-  ../zed/crates/ui/src/components/**/*.rs \
-  ../zed/crates/ui/src/components/*.rs \
-  ../zed/crates/ui/src/styles/*.rs \
-  ../zed/crates/ui/src/traits/*.rs \
-  ../zed/crates/ui/src/utils/*.rs \
-  ../zed/crates/ui/src/utils.rs \
-  ../zed/crates/component/src/*.rs \
-  ../zed/crates/ui_input/src/*.rs \
-  ../zed/crates/gpui/src/elements/*.rs \
-  2>/dev/null | sort -u > /tmp/bilesen_enum_variants.txt
-
-while read item; do
-  variant="${item#*.}"
-  rg -q "\\b${variant}\\b" bilesen_rehberi.md || echo "${item}"
-done < /tmp/bilesen_enum_variants.txt
-```
-
-Geçiş kriteri: `ui`, GPUI element, `component` ve `ui_input` public ad
-kontrollerinin **dördü de** çıktı üretmemelidir. Metod yüzeyi ve
-field/variant kontrollerinde yeni bir public constructor, trait metodu,
-builder metodu, enum variant'ı veya public alan görünüyorsa bu bölümdeki tablo
-ve ilgili bileşen başlığı aynı değişiklikte güncellenmelidir. InputField için
-Bölüm 5, component preview için Bölüm 2'nin "Component preview" alt başlığı,
-ham GPUI state alanları için Bölüm 13 kullanılır.
-
-> **Bilinen filtre dışı kalan kasıtlı atlamalar.**
->
-> - `ui_input::InputFieldStyle`: public struct ama tüm alanları private;
->   tüketici tarafı için builder yüzeyi sunmaz, sadece `InputField`'in iç
->   render'ında kullanılır.
-> - `component::COMPONENT_DATA`: `LazyLock<RwLock<ComponentRegistry>>`
->   global; `components()` ve `register_component()` üzerinden erişilir,
->   doğrudan tüketici API'si değildir.
-> - `ToggleButtonStyle`: `toggle_button.rs` içinde `private` modülde duran
->   sealed supertrait; dış crate implement edemez.
-> - `ButtonLikeRounding::{ALL, LEFT, RIGHT}`: `pub(crate)` tip üzerindeki
->   associated const'lar; yalnızca `ButtonLike::new_rounded_*` constructor'ları
->   üzerinden tüketici API'sine yansır.
->
-> Public ad kontrolü bu adları raporlasa bile rehberde başlık açılmaz; bu
-> istisnaları `tema_aktarimi.md`'ye benzer bir kapsam dışı listesinde
-> toplamak iyi bir disiplindir.
