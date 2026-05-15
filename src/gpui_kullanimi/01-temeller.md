@@ -1,4 +1,4 @@
-# Bölüm I — Temeller
+# Temeller
 
 ---
 

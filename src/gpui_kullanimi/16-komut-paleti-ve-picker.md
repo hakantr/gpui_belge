@@ -1,4 +1,4 @@
-# Bölüm XVI — Komut Paleti ve Picker
+# Komut Paleti ve Picker
 
 ---
 

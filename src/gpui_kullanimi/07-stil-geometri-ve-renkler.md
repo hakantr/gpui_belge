@@ -1,4 +1,4 @@
-# Bölüm VII — Stil, Geometri ve Renkler
+# Stil, Geometri ve Renkler
 
 ---
 

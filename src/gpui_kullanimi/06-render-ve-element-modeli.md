@@ -1,4 +1,4 @@
-# Bölüm VI — Render ve Element Modeli
+# Render ve Element Modeli
 
 ---
 

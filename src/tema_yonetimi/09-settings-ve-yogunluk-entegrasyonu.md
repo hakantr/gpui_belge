@@ -1,4 +1,4 @@
-# Bölüm IX — Settings ve yoğunluk entegrasyonu
+# Settings ve yoğunluk entegrasyonu
 
 Runtime çalışır hale geldikten sonra kullanıcı ayarları, font override akışları ve UI density sözleşmesini bağla.
 

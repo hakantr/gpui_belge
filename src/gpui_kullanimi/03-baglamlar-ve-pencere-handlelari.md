@@ -1,4 +1,4 @@
-# Bölüm III — Bağlamlar ve Pencere Handle'ları
+# Bağlamlar ve Pencere Handle'ları
 
 ---
 
@@ -128,17 +128,17 @@ Tam owner/metot yüzeyi:
 |---|---|---|---|
 | `WindowHandle<V>` | `new(id)` | `Self` | Root tipini runtime'da doğrulamaz; id + `TypeId::of::<V>()` saklar. |
 | `WindowHandle<V>` | `root(cx)` | `Result<Entity<V>>` | Sadece `test` veya `test-support`; root type mismatch/kapalı pencere hata. |
-| `WindowHandle<V>` | `update(cx, |&mut V, &mut Window, &mut Context<V>| ...)` | `Result<R>` | Typed root view mutate eder. |
+| `WindowHandle<V>` | `update(cx, \|&mut V, &mut Window, &mut Context<V>\| ...)` | `Result<R>` | Typed root view mutate eder. |
 | `WindowHandle<V>` | `read(&App)` | `Result<&V>` | Kısa süreli immutable borrow; kapalı/borrowed pencere hata. |
-| `WindowHandle<V>` | `read_with(cx, |&V, &App| ...)` | `Result<R>` | Callback içinde güvenli okuma. |
+| `WindowHandle<V>` | `read_with(cx, \|&V, &App\| ...)` | `Result<R>` | Callback içinde güvenli okuma. |
 | `WindowHandle<V>` | `entity(cx)` | `Result<Entity<V>>` | Root entity handle'ını döndürür. |
 | `WindowHandle<V>` | `is_active(&mut App)` | `Option<bool>` | Kapalı veya borrowed pencere `None`. |
 | `WindowHandle<V>` deref | `window_id()` | `WindowId` | Owner `AnyWindowHandle`; deref sayesinde `handle.window_id()` çalışır. |
 | `WindowHandle<V>` deref | `downcast<T>()` | `Option<WindowHandle<T>>` | Owner `AnyWindowHandle`; typed handle'da çoğu zaman gereksizdir. |
 | `AnyWindowHandle` | `window_id()` | `WindowId` | Pencere kimliği. |
 | `AnyWindowHandle` | `downcast<T>()` | `Option<WindowHandle<T>>` | `TypeId` eşleşmezse `None`. |
-| `AnyWindowHandle` | `update(cx, |AnyView, &mut Window, &mut App| ...)` | `Result<R>` | Root type bilinmez; callback `AnyView` alır. |
-| `AnyWindowHandle` | `read::<T, _, _>(cx, |Entity<T>, &App| ...)` | `Result<R>` | Önce downcast yapar, sonra typed entity okutur. |
+| `AnyWindowHandle` | `update(cx, \|AnyView, &mut Window, &mut App\| ...)` | `Result<R>` | Root type bilinmez; callback `AnyView` alır. |
+| `AnyWindowHandle` | `read::<T, _, _>(cx, \|Entity<T>, &App\| ...)` | `Result<R>` | Önce downcast yapar, sonra typed entity okutur. |
 
 Context trait'leri:
 

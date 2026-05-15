@@ -1,4 +1,4 @@
-# Bölüm I — Hedef, kapsam ve lisans
+# Hedef, kapsam ve lisans
 
 Önce sistemin neden var olduğunu, hangi parçaları birebir mirror edeceğini ve GPL sınırını netleştir.
 

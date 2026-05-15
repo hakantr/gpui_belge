@@ -1,4 +1,4 @@
-# Bölüm V — Platform titlebar render akışı ve pencere kontrolleri
+# Platform titlebar render akışı ve pencere kontrolleri
 
 Bu noktadan sonra başlık çubuğunun render davranışı, Linux/Windows/macOS farkları ve close/minimize/maximize bağları uygulanır.
 

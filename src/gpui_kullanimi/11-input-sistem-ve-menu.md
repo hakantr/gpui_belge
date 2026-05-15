@@ -1,4 +1,4 @@
-# Bölüm XI — Input, Sistem ve Menü
+# Input, Sistem ve Menü
 
 ---
 

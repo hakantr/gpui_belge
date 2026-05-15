@@ -1,4 +1,4 @@
-# Bölüm XVIII — Reçeteler ve Kontrol Listeleri
+# Reçeteler ve Kontrol Listeleri
 
 ---
 

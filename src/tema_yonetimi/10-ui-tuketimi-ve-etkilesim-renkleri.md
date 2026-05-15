@@ -1,4 +1,4 @@
-# Bölüm X — UI tüketimi ve etkileşim renkleri
+# UI tüketimi ve etkileşim renkleri
 
 Bileşen tarafında `cx.theme()` okuma yolunu ve hover/active/disabled gibi state renklerini kullan.
 

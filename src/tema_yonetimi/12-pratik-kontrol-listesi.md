@@ -1,4 +1,4 @@
-# Bölüm XII — Pratik kontrol listesi
+# Pratik kontrol listesi
 
 Son bölüm, önceki adımlarda yapılan kararları hata sınıflarına göre hızlı kontrol listesine çevirir.
 

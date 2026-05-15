@@ -1,4 +1,4 @@
-# Bölüm VII — Ürün titlebar'ı ve uygulamaya bağlama
+# Ürün titlebar'ı ve uygulamaya bağlama
 
 Platform kabuğu hazır olunca ürün başlığı, sidebar bilgisi, menüler ve uygulama shell'i bu kabuğa bağlanır.
 

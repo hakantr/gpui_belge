@@ -1,4 +1,4 @@
-# Bölüm XIV — Zed Workspace
+# Zed Workspace
 
 ---
 

@@ -1,4 +1,4 @@
-# Bölüm II — Uygulama ve Platform
+# Uygulama ve Platform
 
 ---
 

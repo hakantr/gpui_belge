@@ -1,4 +1,4 @@
-# Bölüm VIII — Runtime kuruluşu ve tema seçimi
+# Runtime kuruluşu ve tema seçimi
 
 Üretilen temaları registry/global state içine yerleştir, sistem görünümünü izle ve tema değişiminde pencereleri yenile.
 

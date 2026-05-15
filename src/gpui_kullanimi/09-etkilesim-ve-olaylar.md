@@ -1,4 +1,4 @@
-# Bölüm IX — Etkileşim ve Olaylar
+# Etkileşim ve Olaylar
 
 ---
 

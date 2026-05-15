@@ -1,4 +1,4 @@
-# Bölüm VIII — Pratik uygulama
+# Pratik uygulama
 
 Uygulama sırasında değiştirilecek noktaları, platform kontrol listelerini ve sık hataları en sona yakın topla.
 

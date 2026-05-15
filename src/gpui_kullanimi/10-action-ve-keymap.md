@@ -1,4 +1,4 @@
-# Bölüm X — Action ve Keymap
+# Action ve Keymap
 
 ---
 

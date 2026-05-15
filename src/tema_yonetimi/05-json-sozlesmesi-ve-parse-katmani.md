@@ -1,4 +1,4 @@
-# Bölüm V — JSON sözleşmesi ve parse katmanı
+# JSON sözleşmesi ve parse katmanı
 
 Runtime modeli hazırken Zed uyumlu JSON sözleşmesini, opsiyonellik kuralını ve hata toleransını kur.
 

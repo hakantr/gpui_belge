@@ -1,4 +1,4 @@
-# Bölüm VIII — Metin Sistemi
+# Metin Sistemi
 
 ---
 

@@ -1,4 +1,4 @@
-# Bölüm II — Zed kaynak haritası ve bağlantı modeli
+# Zed kaynak haritası ve bağlantı modeli
 
 Ardından Zed içindeki gerçek kaynakları ve başlık çubuğunun uygulama içinde hangi callbacklerle yaşadığını oku.
 

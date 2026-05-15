@@ -1,4 +1,4 @@
-# Bölüm VI — Native pencere sekmeleri
+# Native pencere sekmeleri
 
 Native tab desteğini ayrı bir aşama olarak ele al; controller state'i, platform çağrıları ve drag/drop hedefleri birlikte düşünülür.
 

@@ -1,4 +1,4 @@
-# Bölüm III — GPUI'nin tema için kullanılan yüzeyi
+# GPUI'nin tema için kullanılan yüzeyi
 
 Tema sistemi GPUI tipleriyle konuşur; renk, font, pencere ve global state yüzeyini veri modelinden önce öğren.
 

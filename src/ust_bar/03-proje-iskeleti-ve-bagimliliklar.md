@@ -1,4 +1,4 @@
-# Bölüm III — Proje iskeleti ve bağımlılıklar
+# Proje iskeleti ve bağımlılıklar
 
 Kaynak haritası anlaşıldıktan sonra lisans-temiz crate sınırlarını, klasörleri ve dependency grafiğini kur.
 

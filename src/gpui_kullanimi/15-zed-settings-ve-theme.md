@@ -1,4 +1,4 @@
-# Bölüm XV — Zed Settings ve Theme
+# Zed Settings ve Theme
 
 ---
 

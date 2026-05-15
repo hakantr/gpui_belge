@@ -1,4 +1,4 @@
-# Bölüm IV — Runtime veri modeli
+# Runtime veri modeli
 
 GPUI tipleri bilindikten sonra uygulamanın bellekte taşıyacağı Theme ailesini, renk gruplarını ve syntax/icon tema kabını tanımla.
 

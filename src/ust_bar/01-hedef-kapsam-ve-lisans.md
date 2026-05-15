@@ -1,4 +1,4 @@
-# Bölüm I — Hedef, kapsam ve lisans
+# Hedef, kapsam ve lisans
 
 Önce neyi port ettiğini, hangi sorumluluğun hangi katmanda kaldığını ve lisans sınırını netleştir.
 

@@ -1,4 +1,4 @@
-# Bölüm XIII — Zed UI Bileşenleri
+# Zed UI Bileşenleri
 
 ---
 
@@ -233,11 +233,10 @@ Diğer UI yardımcıları:
     `ScrollbarAutoHide` ise auto-hide durumunu taşıyan `Global` tipidir.
   - Enum yüzeyi: `ScrollAxes::{Horizontal, Vertical, Both}` (Scrollbars'a
     verilen üç-değerli eksen seçimi) ve `ScrollbarStyle::{Regular, Editor}`.
-    Özel scroll handle yazıyorsan `ScrollableHandle: 'static + Any + Sized
-    + Clone` trait'i `max_offset(&self) -> Point<Pixels>`,
-    `set_offset(&self, Point<Pixels>)`, `offset(&self) -> Point<Pixels>`,
-    `viewport(&self) -> Bounds<Pixels>`, default impl'li
-    `drag_started(&self)`/`drag_ended(&self)`,
+    Özel scroll handle yazıyorsan `ScrollableHandle: 'static + Any + Sized + Clone`
+    trait'i `max_offset(&self) -> Point<Pixels>`, `set_offset(&self, Point<Pixels>)`,
+    `offset(&self) -> Point<Pixels>`, `viewport(&self) -> Bounds<Pixels>`,
+    default impl'li `drag_started(&self)` / `drag_ended(&self)`,
     `scrollable_along(&self, ScrollbarAxis) -> bool` ve
     `content_size(&self) -> Size<Pixels>` sözleşmesini taşır.
     **`ScrollbarAxis` ≠ `ScrollAxes`.** `ScrollbarAxis` scrollbar.rs

@@ -1,4 +1,4 @@
-# Bölüm VII — Refinement ve tema üretimi
+# Refinement ve tema üretimi
 
 Content katmanından son Theme nesnesine giden merge, default türetme ve baseline uygulama sırası burada tamamlanır.
 

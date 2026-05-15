@@ -1,4 +1,4 @@
-# Bölüm IV — Async, Görev ve Durum Yönetimi
+# Async, Görev ve Durum Yönetimi
 
 ---
 
@@ -645,9 +645,9 @@ ad tek başına yeterli değildir.
 | `Entity<T>` | `downgrade()` | `WeakEntity<T>` | Inherent; aynı adlı `AnyEntity::downgrade -> AnyWeakEntity` gölgelenir. |
 | `Entity<T>` | `into_any()` | `AnyEntity` | Inherent; `self`'i tüketir. |
 | `Entity<T>` | `read(&App)` | `&T` | Inherent. |
-| `Entity<T>` | `read_with(cx, |&T, &App| ...)` | `R` | Inherent. |
-| `Entity<T>` | `update(cx, |&mut T, &mut Context<T>| ...)` | `R` | Inherent. |
-| `Entity<T>` | `update_in(visual_cx, |&mut T, &mut Window, &mut Context<T>| ...)` | `C::Result<R>` | Inherent. |
+| `Entity<T>` | `read_with(cx, \|&T, &App\| ...)` | `R` | Inherent. |
+| `Entity<T>` | `update(cx, \|&mut T, &mut Context<T>\| ...)` | `R` | Inherent. |
+| `Entity<T>` | `update_in(visual_cx, \|&mut T, &mut Window, &mut Context<T>\| ...)` | `C::Result<R>` | Inherent. |
 | `Entity<T>` | `as_mut(&mut cx)` | `GpuiBorrow<T>` | Inherent; drop'ta `cx.notify()`. |
 | `Entity<T>` | `write(&mut cx, value)` | `()` | Inherent; state'i değiştirir ve notify eder. |
 | `Entity<T>` deref | `entity_type()` | `TypeId` | Owner `AnyEntity`; Entity inherent karşılığı yoktur, deref ile çağrılır. |
@@ -663,9 +663,9 @@ inherent ile deref-only metotlar aynı isimle farklı imza taşır:
 | Owner | Metot | Dönüş | Erişim |
 |---|---|---|---|
 | `WeakEntity<T>` | `upgrade()` | `Option<Entity<T>>` | Inherent; aynı adlı `AnyWeakEntity::upgrade -> Option<AnyEntity>` gölgelenir. |
-| `WeakEntity<T>` | `update(cx, |&mut T, &mut Context<T>| ...)` | `Result<R>` | Inherent. |
-| `WeakEntity<T>` | `update_in(cx, |&mut T, &mut Window, &mut Context<T>| ...)` | `Result<R>` | Inherent; entity'nin son render edildiği pencereyi `App::with_window` ile bulur. |
-| `WeakEntity<T>` | `read_with(cx, |&T, &App| ...)` | `Result<R>` | Inherent. |
+| `WeakEntity<T>` | `update(cx, \|&mut T, &mut Context<T>\| ...)` | `Result<R>` | Inherent. |
+| `WeakEntity<T>` | `update_in(cx, \|&mut T, &mut Window, &mut Context<T>\| ...)` | `Result<R>` | Inherent; entity'nin son render edildiği pencereyi `App::with_window` ile bulur. |
+| `WeakEntity<T>` | `read_with(cx, \|&T, &App\| ...)` | `Result<R>` | Inherent. |
 | `WeakEntity<T>` | `new_invalid()` | `Self` | Inherent; aynı adlı `AnyWeakEntity::new_invalid -> AnyWeakEntity` gölgelenir. |
 | `WeakEntity<T>` deref | `entity_id()` | `EntityId` | Owner `AnyWeakEntity`; deref ile çağrılır. |
 | `WeakEntity<T>` deref | `is_upgradable()` | `bool` | Owner `AnyWeakEntity`; deref ile çağrılır. |

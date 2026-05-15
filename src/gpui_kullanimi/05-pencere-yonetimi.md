@@ -1,4 +1,4 @@
-# Bölüm V — Pencere Yönetimi
+# Pencere Yönetimi
 
 ---
 

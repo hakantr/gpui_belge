@@ -1,4 +1,4 @@
-# Bölüm XII — Liste, Çizim ve Animasyon
+# Liste, Çizim ve Animasyon
 
 ---
 

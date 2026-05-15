@@ -1,4 +1,4 @@
-# Bölüm IX — Referans ve doğrulama
+# Referans ve doğrulama
 
 Detaylı public API envanteri ve kaynak doğrulama komutları, okuma akışını bölmemesi için başvuru bölümünde kalır.
 

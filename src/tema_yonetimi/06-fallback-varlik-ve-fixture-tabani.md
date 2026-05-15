@@ -1,4 +1,4 @@
-# Bölüm VI — Fallback, varlık ve fixture tabanı
+# Fallback, varlık ve fixture tabanı
 
 Tema üretmeden önce lisans-temiz fallback, built-in asset ve test fixture tabanını hazırla; refinement bu baseline üzerine uygulanır.
 

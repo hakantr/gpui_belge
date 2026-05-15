@@ -1,4 +1,4 @@
-# Bölüm II — Proje iskeleti ve bağımlılıklar
+# Proje iskeleti ve bağımlılıklar
 
 Sözleşme kararları netleşince crate sınırlarını ve bağımlılık tabanını kur; sonraki katmanlar bu iskeletin üzerine gelir.
 

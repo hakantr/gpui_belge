@@ -1,4 +1,4 @@
-# Bölüm IV — Entegrasyon başlangıcı ve uygulama sözleşmesi
+# Entegrasyon başlangıcı ve uygulama sözleşmesi
 
 Pencere açılırken gereken GPUI ayarlarını yap ve platform kabuğunun uygulama state'ine soracağı controller sözleşmesini tanımla.
 

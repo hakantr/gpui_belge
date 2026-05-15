@@ -1,4 +1,4 @@
-# Bölüm XVII — Test, Inspector ve Düşük Seviye API
+# Test, Inspector ve Düşük Seviye API
 
 ---
 
