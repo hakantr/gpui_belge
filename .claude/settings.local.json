@@ -26,7 +26,12 @@
       "Bash(mv /tmp/tema_rehber_yeni.md /Users/hakanbiris/github/gpui_belge/tema_rehber.md)",
       "Read(//Users/hakanbiris/github/zed/crates/ui/src/components/button/**)",
       "Read(//Users/hakanbiris/github/zed/crates/ui/src/components/**)",
-      "Read(//Users/hakanbiris/github/zed/*)"
+      "Read(//Users/hakanbiris/github/zed/*)",
+      "Bash(rm -rf /tmp/rehber_rebuild)",
+      "Bash(mkdir -p /tmp/rehber_rebuild)",
+      "Bash(sed -n 1,22p /home/hakanbiris/github/gpui-doc/platform_title_bar_rehberi.md)",
+      "Bash(sed -n 77,635p /home/hakanbiris/github/gpui-doc/platform_title_bar_rehberi.md)",
+      "Bash(sed -n 693,723p /home/hakanbiris/github/gpui-doc/platform_title_bar_rehberi.md)"
     ]
   }
 }
