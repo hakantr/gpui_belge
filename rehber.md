@@ -561,14 +561,13 @@ Kurallar:
 pencerenin root view tipini bilir; `AnyWindowHandle` ise root tipini runtime'da
 taşır ve gerektiğinde downcast edilir.
 
-**Hata kaynağı:** Önceki kontrol sadece "metot adı var mı?" sorusuna baktı.
-`WindowHandle<V>` ise `#[derive(Deref, DerefMut)]` ile içindeki
+`WindowHandle<V>` `#[derive(Deref, DerefMut)]` ile içindeki
 `AnyWindowHandle`'a deref eder. Bu yüzden bazı metotlar typed handle üzerinde
-çağrılabilir görünür ama owner'ı aslında `AnyWindowHandle`'dır. Doğru denetim
-`Owner::method -> dönüş tipi -> hata semantiği` üçlüsüyle yapılmalıdır.
+çağrılabilir görünür ama owner'ı aslında `AnyWindowHandle`'dır. API yüzeyini
+okurken `Owner::method -> dönüş tipi -> hata semantiği` üçlüsünü birlikte
+değerlendir.
 
-Aynı kalıp GPUI'de en az üç başka yerde tekrar eder — denetim turunda hepsini
-ayrı doğrula:
+Aynı kalıp GPUI'de başka handle ve event ailelerinde de görülür:
 
 - `Entity<T>: Deref<Target = AnyEntity>` ve `WeakEntity<T>:
   Deref<Target = AnyWeakEntity>` — typed entity handle'ları untyped handle'a
@@ -581,9 +580,8 @@ ayrı doğrula:
 - `Context<'a, T>: Deref<Target = App>` — `cx.theme()`, `cx.refresh_windows()`
   gibi App metotları Context üzerinden de çağrılabilir (Konu 8).
 
-Bu Deref aliasing pattern'ini denetim awk script'inde **state-machine** ile
-takip et; basit `rg '^impl '` çıktısı `for` parçasını gevşek eşleştirdiği için
-"Bu metot hangi `impl` bloğunun içinde tanımlandı?" sorusunu cevaplayamaz.
+Bu Deref aliasing pattern'inde metot adını tek başına yeterli sayma; aynı ad
+typed ve untyped owner'larda farklı dönüş tipiyle bulunabilir.
 
 `WindowHandle<V>`:
 
@@ -647,47 +645,6 @@ Tam owner/metot yüzeyi:
 | `AnyWindowHandle` | `downcast<T>()` | `Option<WindowHandle<T>>` | `TypeId` eşleşmezse `None`. |
 | `AnyWindowHandle` | `update(cx, |AnyView, &mut Window, &mut App| ...)` | `Result<R>` | Root type bilinmez; callback `AnyView` alır. |
 | `AnyWindowHandle` | `read::<T, _, _>(cx, |Entity<T>, &App| ...)` | `Result<R>` | Önce downcast yapar, sonra typed entity okutur. |
-
-**Denetim komutu:** Bu bölüm güncellenirken owner-metot ayrımını kaynak
-üstünden tekrar çıkar. Önce kaba smoke-test (`rg` yeterli):
-
-```sh
-sed -n '5450,5650p' ../zed/crates/gpui/src/window.rs \
-  | rg '^impl.*WindowHandle|^impl AnyWindowHandle|pub fn (new|root|update|read|read_with|entity|is_active|window_id|downcast)'
-```
-
-Asıl denetim ise state-machine awk gerektirir — `rg` bir `pub fn`'in hangi
-`impl` bloğunun içinde tanımlandığını söylemez, awk'te kalıcı `owner` state'i
-tutarak bu eşlemeyi kuruyoruz:
-
-```sh
-gawk '
-  BEGIN { owner = "(file)" }
-  /^impl[<[:space:]]/ {
-    if (match($0, /[[:space:]]for[[:space:]]+([A-Za-z_][A-Za-z0-9_]*)/, m)) {
-      trait_name = ""
-      if (match($0, /^impl(<[^>]+>)?[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)/, t)) { trait_name = t[2] }
-      owner = m[1] " (impl " trait_name ")"
-    } else if (match($0, /^impl(<[^>]+>)?[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)/, m)) {
-      owner = m[2] " (inherent)"
-    }
-    next
-  }
-  /^[[:space:]]*pub (fn|const|async fn)[[:space:]]/ {
-    n = $0
-    sub(/^[[:space:]]*pub[[:space:]]+/, "", n)
-    sub(/[[:space:]]*\{?[[:space:]]*$/, "", n)
-    print FILENAME ":" FNR ":" owner ":" n
-  }
-' ../zed/crates/gpui/src/window.rs \
-  | grep -E ':(WindowHandle|AnyWindowHandle) '
-```
-
-Bu çıktı `WindowHandle (inherent):fn read(...)` ve `AnyWindowHandle
-(inherent):fn read(...)` satırlarını ayrı ayrı verir; aynı ada sahip iki
-metot olduğu hemen görünür. `impl[<[:space:]]` regex'i `impl<T>...`
-formundaki generic impl bloklarını da yakalar (yalnız `^impl ` kullanırsan
-generic impl'leri kaçırırsın).
 
 Context trait'leri:
 
@@ -1749,6 +1706,17 @@ platform_titlebar.into_any_element()
 - Linux'ta sağ tık window menu.
 - Sidebar açıkken kontrol butonları ve köşe yuvarlamalarını ayarlama.
 
+Zed titlebar davranışı:
+
+- `TitleBar`, `SkillsFeatureFlag` açıkken `OnboardingBanner` ile
+  "Introducing: Skills" banner'ını kurar; banner click'i
+  `zed_actions::agent::OpenRulesToSkillsMigrationInfo` action'ını dispatch eder.
+  Rules-to-Skills açıklaması modal katmanında gösterilir, titlebar label'ı
+  migration sonucuna göre değişmez.
+- `UpdateButton::checking`, `downloading` ve `installing` durumları disabled
+  button olarak çizilir. Sürüm tooltip metni `"Update to Version: ..."` biçimindedir;
+  SHA tabanlı sürümde kısa SHA yerine tam SHA gösterilir.
+
 ### 28. Kontrol Butonları Nasıl Yönetilir?
 
 Kontrol butonları platforma göre farklı çizilir:
@@ -2558,6 +2526,11 @@ Kurallar:
   aktifken printable tuşlar keybinding'den önce IME'ye gider. `ElementInputHandler`
   ile sarılan `EntityInputHandler` için GPUI bu kararı `accepts_text_input`
   üzerinden verir; trait'te ayrı bir override noktası yoktur.
+- Window frame geçişinde platform input handler `Vec<Option<_>>` slot'ları
+  `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılıp bir sonraki frame'de
+  aynı slot'a geri yerleştirilir. `reuse_paint` cached `paint_range` index'leri
+  bu yüzden stabil kalır. Custom düşük seviye window/frame kodu yazarken input
+  handler dizisinin uzunluğunu index cache'i varken değiştirme.
 
 Tuzaklar:
 
@@ -3098,6 +3071,23 @@ Base keymap:
   None}`.
 - Base/default/vim/user binding'leri `KeybindSource` metadata'sı taşır; UI
   hangi binding'in nereden geldiğini bu metadata ile gösterir.
+
+Built-in keymap davranışı:
+
+- Agent panelindeki ACP thread'e özgü kısayollar `AcpThread` context'indedir.
+  Terminal alt bağlamı descendant predicate ile `AgentPanel > Terminal` kullanır.
+  Bu, `>` operatörünün gerçek dispatch path ilişkisi için kullanılmasının
+  pratik örneğidir.
+- Git paneli iki tablıdır: `git_panel::ActivateChangesTab` ve
+  `git_panel::ActivateHistoryTab` için varsayılan binding macOS'ta `cmd-1` /
+  `cmd-2`, Linux/Windows'ta `ctrl-1` / `ctrl-2`.
+- Worktree picker `worktree_picker::ForceDeleteWorktree` action'ını destekler.
+  Varsayılan binding macOS'ta `cmd-alt-shift-backspace`, Linux/Windows'ta
+  `ctrl-alt-shift-backspace`; UI tarafında delete icon'u üzerinde `alt` basılıysa
+  force delete yolu kullanılır.
+- `buffer_search::UseSelectionForFind` seçimi, seçim yoksa cursor altındaki
+  kelimeyi arama sorgusu olarak kullanır. Ayarı bypass etmek gereken çağrılar
+  `SeedQuerySetting::Always` override'ı vermelidir.
 
 Validator:
 
@@ -3853,34 +3843,7 @@ inherent ile deref-only metotlar aynı isimle farklı imza taşır:
 Pratik sonuç: `weak.entity_id()` çağrısı typed handle'da deref üzerinden
 `AnyWeakEntity::entity_id`'a iner; ama `weak.upgrade()` typed kazanır ve
 `Option<Entity<T>>` döner. Aynı kod parçasında her ikisi de görünür, oysa
-ownership'leri farklıdır — denetimi `Owner::method -> dönüş` çiftiyle yap.
-
-**Denetim komutu:** State-machine awk ile owner+metot eşlemesi
-(`crates/gpui/src/app/entity_map.rs`):
-
-```sh
-gawk '
-  BEGIN { owner = "(file)" }
-  /^impl[<[:space:]]/ {
-    if (match($0, /[[:space:]]for[[:space:]]+([A-Za-z_][A-Za-z0-9_]*)/, m)) {
-      trait_name = ""
-      if (match($0, /^impl(<[^>]+>)?[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)/, t)) { trait_name = t[2] }
-      owner = m[1] " (impl " trait_name ")"
-    } else if (match($0, /^impl(<[^>]+>)?[[:space:]]*([A-Za-z_][A-Za-z0-9_]*)/, m)) {
-      owner = m[2] " (inherent)"
-    }
-    next
-  }
-  /^[[:space:]]*pub (fn|const|async fn)[[:space:]]/ {
-    n = $0; sub(/^[[:space:]]*pub[[:space:]]+/, "", n); sub(/[[:space:]]*\{?[[:space:]]*$/, "", n)
-    print FILENAME ":" FNR ":" owner ":" n
-  }
-' ../zed/crates/gpui/src/app/entity_map.rs \
-  | grep -E ':(Entity|WeakEntity|AnyEntity|AnyWeakEntity) '
-```
-
-Çıktıda aynı ad birden çok owner satırında çıkıyorsa (`upgrade`, `new_invalid`,
-`entity_id` gibi) tabloda inherent/deref ayrımı gözden kaçırılmamış olur.
+ownership'leri farklıdır; ayrımı `Owner::method -> dönüş` çiftiyle yap.
 
 #### AnyView, AnyWeakView ve EmptyView
 
@@ -4130,6 +4093,15 @@ zaten bu metotlar üzerinde kuruludur):
   ölçümünden kaynaklı yükseklik dalgalanmasını dondurmak/serbest bırakmak için.
   Drag'a girerken started, bırakırken ended çağırmazsan scrollbar drag boyunca
   beklenmedik şekilde sürünebilir.
+- `is_scrollbar_dragging() -> bool`: `scrollbar_drag_started` ile
+  `scrollbar_drag_ended` arasındaki manuel drag durumunu okur. Wheel/trackpad
+  scroll'u ile scrollbar thumb drag'ini ayırmak ve drag sırasında otomatik
+  tail-follow davranışını bastırmak için kullanılır.
+- `set_offset_from_scrollbar(point)` tarafında scroll offset'inin
+  Y bileşeni içerik yukarı kaydıkça negatiftir; custom scrollbar yazarken
+  pozitif "başlangıçtan uzaklık" yerine `point(px(0.), -distance)` üret. Drag
+  sırasında içerik büyürse başlangıçtaki content height dondurulur; thumb frozen
+  bottom'a sürüklenirse `FollowMode::Tail` tekrar `is_following = true` olur.
 
 Uniform liste:
 
@@ -4245,6 +4217,11 @@ Tuzaklar:
   ödünç alabilirsin.
 - `RenderImage` GIF/animated WebP için `frame_count()` ve `delay(frame_index)`
   sağlar; `img` element'i aktif pencerede frame ilerletip animation frame ister.
+- Path classifier veya settings güvenlik kontrolü yazarken macOS/Windows'un
+  varsayılan case-insensitive dosya sistemlerini unutma.
+  `util::paths::component_matches_ignore_ascii_case(component, ".zed")` gibi
+  ASCII-insensitive helper kullan; `.ZED/settings.json` gibi varyantları düz
+  `== ".zed"` karşılaştırmasıyla kaçırma.
 
 ### 63. Asset, ImageCache ve Surface Boru Hattı
 
@@ -4719,6 +4696,12 @@ Tuzaklar:
   `gpui::SUBPIXEL_VARIANTS_Y: u8 = 1` farklı varyant rasterize eder
   (`text_system.rs:45,48`); yani glyph atlas boyutu yatay subpixel pozisyonuna
   duyarlı, dikey değil.
+- WGPU/Linux text backend'i (`CosmicTextSystem`) `Font.fallbacks` değerini font
+  cache key'ine dahil eder ve `layout_line` içinde kullanıcı fallback zincirini
+  grapheme cluster sınırlarını koruyarak uygular. ASCII karakterlerde primary font
+  tercih edilir; combining mark ve ZWJ emoji cluster'ları fallback span'i içinde
+  bölünmez. Custom font fallback ayarı debug ederken yalnız family adını değil
+  fallback listesini de cache/ölçüm girdisi say.
 
 ### 70. StyledText, TextLayout ve InteractiveText
 
@@ -4767,6 +4750,19 @@ InteractiveText::new("settings-link", StyledText::new("Open settings"))
 Aralıklar byte index aralığıdır; Unicode metinde character sınırlarını yanlış
 hesaplamak hover/click eşleşmesini bozabilir. `on_click` yalnızca mouse down ve
 mouse up aynı verilen range içinde kaldığında listener çağırır.
+
+Markdown render davranışı:
+
+- Markdown image render'ı `StyledImage::with_fallback` kullanarak yüklenemeyen
+  görsel için tıklanabilir "Failed to Load: ..." fallback'i üretir. Fallback
+  label'ı önce alt text'i, yoksa hedef URL'yi kullanır ve click ile `cx.open_url`
+  çağırır.
+- Mermaid code block'ları yalnız kapanmış fenced block ise diagram olarak
+  çıkarılır. ` ```mermaid` yanında fenced source path uzantısı `.mermaid` veya
+  `.mmd` olan bloklar da diagram sayılır.
+- Mermaid diagram UI'ı preview/code tab'ları ve kopyalama butonu gösterebilir;
+  render başarısızsa veya henüz tamamlanmadıysa source code görünümü fallback
+  olarak gösterilir.
 
 
 ---
@@ -4829,6 +4825,19 @@ Prompt ve dosya seçici:
   `cx.should_auto_hide_scrollbars()`.
 - Restart ve HTTP client: `cx.set_restart_path(path)`, `cx.restart()`,
   `cx.http_client()`, `cx.set_http_client(client)`.
+
+Platform ve prompt davranışı:
+
+- macOS `Window::prompt` NSAlert akışında Return ilk butona, Escape Cancel'a
+  gider; Space focus'u ise son non-cancel/non-default butona taşınır. "Save /
+  Don't Save / Cancel" gibi üçlü prompt'larda orta seçenek klavyeyle erişilebilir
+  kalır.
+- Wayland clipboard ve primary selection yazarken key/mouse press türüne
+  göre filtrelenmiş serial yerine alınan en güncel compositor serial'ı kullanılır;
+  aksi halde bazı compositor'lar selection isteğini sessizce reddedebilir.
+- `open_path_prompt` sonuç sıralaması `ProjectPanelSettings.sort_mode` ile uyumlu
+  çalışır. Project panel directories-first/files-first/mixed seçimi, path prompt
+  candidate listesinde de aynı şekilde uygulanır.
 
 ### 72. Prompt Builder, PromptHandle ve Fallback Prompt
 
@@ -4973,6 +4982,9 @@ GPUI testlerinde:
 - UI action testlerinde key binding ve action dispatch'i doğrudan test et.
 - Görsel test gerekiyorsa `VisualTestContext` ve headless renderer desteğini kontrol et.
 - Element debug bounds gerekiyorsa test-support altında `.debug_selector(...)` ekle.
+- `gpui` `proptest` feature'ı açıkken `Hsla` için `Arbitrary` implementasyonu ve
+  `Hsla::opaque_strategy()` helper'ı vardır. Renk/kontrast property testlerinde
+  alfa 1.0 olan rastgele renk üretmek için bunu kullan.
 
 Testlerde kaçınılacaklar:
 
@@ -5518,14 +5530,6 @@ vb.) ise `Modifiers` üzerinde **inherent associated function**'dır; event
 kasıtlıdır: Deref'li dörtlü "input'un modifier şapkası budur" semantiğini
 taşır; mouse press/move event'leri ise modifier'ı sadece yan veri olarak
 saklar.
-
-**Denetim komutu:** Yeni bir event ailesinde Deref var mı:
-
-```sh
-rg -n '^impl Deref for [A-Z][A-Za-z]+(Event|Action)' \
-  ../zed/crates/gpui/src/interactive.rs \
-  ../zed/crates/gpui/src/platform.rs
-```
 
 #### Image, SVG ve Cache Taşıyıcıları
 
@@ -6289,6 +6293,23 @@ Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
   `WorktreeKind`, `ThreadItemWorktreeInfo`), `CollabNotification`,
   `UpdateButton`
 
+Component API yüzeyi:
+
+- `Table::pin_cols(n)` ilk `n` kolonu yatay scroll sırasında sabit tutar.
+  `ColumnWidthConfig::Resizable` ile kullanılır; `n == 0` veya `n >= cols` ise
+  tek parçalı layout'a düşer. Pinned layout'ta header ve
+  satırların scrollable bölümleri ortak `ScrollHandle` ile senkron tutulur.
+- `ResizableColumnsState::drag_to(col_idx, drag_x, rem_size)` test edilebilir
+  düşük seviye resize yüzeyidir. Pinned layout'ta drag koordinatı doğal,
+  scroll edilmemiş kolon şeridi koordinatıdır; `on_drag_move` yatay scroll
+  offset'ini bunu hesaplamak için alır.
+- `ProjectEmptyState::new(label, focus_handle, open_project_key_binding)` ortak
+  boş-proje UI'ıdır. Project panel, Git panel ve Threads sidebar aynı
+  "Open Project / Clone Repository" component'ini kullanır.
+- `Button::loading(true)` `start_icon` yerine dönen `LoadCircle` spinner'ı çizer.
+  Loading açıkken ayrıca start icon bekleme; component bunu bilinçli olarak
+  bastırır.
+
 Genel kural:
 
 - Zed içinde ham `div().on_click(...)` ile buton üretmeden önce `Button` veya
@@ -6358,6 +6379,23 @@ Tuzaklar:
 Bu bölüm GPUI çekirdeği değil, Zed'in `workspace` crate'i üstündeki dock/panel
 katmanıdır. Dosyalar: `crates/workspace/src/workspace.rs`,
 `crates/workspace/src/dock.rs`, `crates/workspace/src/pane.rs`.
+
+Panel helper yüzeyi:
+
+- `panel::PanelHeader` default `header_height` veya `panel_header_container`
+  sağlayan bir helper trait değil, `workspace::Panel` üstünde marker trait'tir.
+  Header yüksekliği gerekiyorsa doğrudan `Tab::container_height(cx)`, container
+  gerekiyorsa `h_flex()`/`v_flex()` ve `ui::Button`/`ui::IconButton`
+  bileşenleriyle kur.
+- `panel_button`, `panel_filled_button`, `panel_icon_button` ve
+  `panel_filled_icon_button` free function helper'ları yoktur. Panel UI'ında
+  button layer/size/style kararlarını açık şekilde component üzerinde belirt.
+- Git paneli `GitPanelTab::{Changes, History}` durumuyla iki tab render eder.
+  Changes tab'ı eski staged/unstaged liste ve commit footer akışını korur;
+  History tab'ı commit geçmişini `UniformListScrollHandle` ile sanallaştırır,
+  ok tuşlarıyla `focused_history_entry` seçer ve confirm ile `CommitView::open`
+  çağırır. Panel action listener'larına `ActivateChangesTab` /
+  `ActivateHistoryTab` eklenmelidir.
 
 Workspace yapısı:
 
@@ -6693,6 +6731,9 @@ Top-level `workspace::open_paths` ve `Workspace::open_paths` aynı option modeli
 kullanır:
 
 - `visible: Option<OpenVisible>`: `All`, `None`, `OnlyFiles`, `OnlyDirectories`.
+  `All` hem dosya hem dizinleri project panelde görünür yapar; `None` hiçbirini
+  görünür yapmaz; `OnlyFiles` dizinleri, `OnlyDirectories` dosyaları dışarıda
+  bırakır.
 - `focus: Option<bool>`: açılan item focus alsın mı?
 - `workspace_matching: WorkspaceMatching`: `None`, `MatchExact`,
   `MatchSubdirectory`.
@@ -6706,6 +6747,12 @@ kullanır:
 - `open_mode: OpenMode`: `NewWindow`, `Add`, `Activate`.
 - `env`: açılan workspace için environment override.
 - `open_in_dev_container`: dev container açma isteği.
+
+`OpenMode::Activate`, `NewWindow` gibi hedef window'u foreground'a getirir.
+Default davranışta `-n`, `-a` veya `-r` verilmeden folder açmak mevcut pencerenin
+Threads sidebar'ına yeni project olarak eklenir. Yeni pencere isteniyorsa CLI'da
+`zed -n path`, Open Recent'te modifier'lı enter/click veya
+`cli_default_open_behavior = "new_window"` kullanılmalıdır.
 
 `OpenResult { window, workspace, opened_items }` top-level açma sonucudur. İç
 workspace açma fonksiyonları çoğunlukla `Task<Result<Box<dyn ItemHandle>>>` veya
@@ -6752,6 +6799,11 @@ Workspace search bar'ın bir item içinde çalışması için `SearchableItem` g
   sorgulamaya zorlar.
 - `SearchableItemHandle` type-erased search item'ıdır; `Item::as_searchable`
   bunu döndürerek pane toolbar search bar'a bağlanır.
+- `query_suggestion(seed_query_override: Option<SeedQuerySetting>, window, cx)`
+  search bar'ın başlangıç sorgusunu üretir. `None` normal
+  `seed_search_query_from_cursor` ayarını kullanır; `Some(Always)` gibi
+  override'lar Cmd-E / Vim search gibi "bu çağrıda cursor altındaki kelimeyi kesin
+  kullan" davranışını açıkça ifade eder.
 
 #### FollowableItem
 
@@ -6885,6 +6937,14 @@ pub trait Sidebar: Focusable + Render + EventEmitter<SidebarEvent> + Sized {
   workspace retain edilir; multi-workspace devre dışıysa eski transient workspace
   detach edilir. Settings değişiminde etkin durumdan devre dışına geçiş
   `collapse_to_single_workspace` ile tüm grupları atar.
+- Threads sidebar thread'lerle birlikte terminal entry'lerini de MRU switcher'a
+  dahil eder; terminal aktivasyonu `AgentPanel::activate_terminal` üzerinden
+  yapılır ve `ArchiveSelectedThread` aktif terminalde close davranışına bağlanır.
+- Sidebar ve panel empty-state akışları root path'i olmayan workspace'te yeni
+  thread/terminal oluşturmaz; kullanıcı önce project açmaya yönlendirilir.
+- Draft thread entry'leri ayrı icon/close davranışıyla gösterilir. Draft başlığı
+  mesaj editor içeriğinden üretildiği için sidebar görünür draft editor'larını
+  observe edip yazdıkça entry'leri yeniler.
 
 Tuzaklar:
 
@@ -7012,6 +7072,7 @@ listener.open(RawOpenRequest {
     diff_all,
     dev_container,
     wsl,
+    cwd,
 });
 ```
 
@@ -7023,6 +7084,29 @@ listener.open(RawOpenRequest {
   git clone, git commit vb.
 - Linux/FreeBSD'de `listen_for_cli_connections` release-channel socket'i üzerinden
   CLI isteklerini alır.
+- `RawOpenRequest::cwd` CLI process'inin çalışma dizinini taşır. Yalnız `--diff`
+  path'leri verildiğinde workspace context'i için bu cwd kullanılır; Zed app
+  process'inin `std::env::current_dir()` değeri macOS bundle veya zaten çalışan
+  instance yüzünden güvenilir değildir.
+- SSH URL parse akışı normal URL'lere ek olarak SCP/git tarzı
+  `ssh://user@host:~/project` ve `ssh://user@host:/absolute/path` biçimlerini
+  normalize eder. Username/password URL-decode edilir; IPv6 SCP-style authority
+  ve çift port benzeri belirsiz biçimler reddedilir.
+- `open_paths_with_positions` diff path canonicalization için `app_state.fs`
+  kullanır ve hataları `opened_items` listesine taşıyarak diğer path'leri açmaya
+  devam eder.
+
+Global agent yönergesi:
+
+- Startup sırasında `zed::watch_user_agents_md(app_state.fs.clone(), cx)` çağrılır.
+  Bu, `paths::agents_file()` (`~/.config/zed/AGENTS.md`, platforma göre eşdeğeri)
+  dosyasını izler ve `agent::UserAgentsMd` global'ine yükler.
+- Boş veya whitespace-only dosya `UserAgentsMdState::Empty`, başarılı okuma
+  `Loaded`, okunamayan mevcut dosya `Error` olur. Error durumunda settings
+  hatalarıyla aynı app-level notification yolu kullanılır.
+- Native agent system prompt'u kişisel `AGENTS.md` içeriğini "Personal
+  `AGENTS.md`" olarak project rules'tan önce render eder; conflict halinde
+  project rules daha sonra geldiği için daha spesifik kabul edilir.
 
 Tuzaklar:
 
@@ -7179,11 +7263,39 @@ Elle kayıt gerekiyorsa uygulama başlangıcında `YourSettings::register(cx)` d
 kullanılabilir. `Settings::get_global(cx)`, `Settings::get(path, cx)` ve
 `Settings::try_get(cx)` okuma tarafındaki standart giriş noktalarıdır.
 
-Güncel agent ayar içeriğinde `agent.default_model` yanında
+Agent ayar içeriğinde `agent.default_model` yanında
 `agent.subagent_model: Option<LanguageModelSelection>` de bulunur. `spawn_agent`
 ile açılan subagent thread'i bu ayar set edilmişse onu kullanır; ayar yoksa parent
 agent'ın model seçimiyle devam eder. Agent/multi-workspace davranışında
 `AgentSettings::enabled` de önemli bir settings sinyalidir.
+
+Ayar alanları:
+
+- `editor.completion_menu_item_kind`: `"off"` default, `"symbol"` seçilirse
+  completion menu satırlarında LSP item kind için syntax theme renginden beslenen
+  tek harfli badge gösterilir.
+- `git.show_stage_restore_buttons`: default `true`; editor diff hunk kontrolünde
+  Stage/Unstage ve Restore butonlarını gösterip göstermemeyi yönetir.
+- `theme.markdown_preview_code_font_family`: markdown preview code fontunu ayırır;
+  unset ise buffer fontuna düşer.
+- Agent tool permission varsayılanlarında `skill` aracı yer alır. Settings UI
+  tool permission sayfasında bu araç için regex açıklaması skill'in mutlak
+  `SKILL.md` path'i üzerinden yapılır.
+- Amazon Bedrock language model ayarlarında `guardrail_identifier` ve
+  `guardrail_version` alanları vardır; version belirtilmezse provider tarafında
+  `"DRAFT"` fallback'i beklenir.
+- `git.path_style` yanında Git UI ve diff görünümü için yeni `git` ayarlarını
+  okurken runtime `ProjectSettings` modelinin `settings_content` ile senkron
+  tutulduğunu kontrol et; default JSON'a eklenmeyen alan `from_settings` içinde
+  beklenmedik default'a düşer.
+
+Completion menu API yüzeyi:
+
+- `CompletionsMenu::entries` doğrudan `Box<[StringMatch]>` değil,
+  `CompletionMenuEntry::{Match, Divider, GroupHeader}` dizisidir. Test veya UI
+  kodu entry'lerden completion adayına erişirken `entry.as_match()` kullanmalı.
+- `project::Completion` üreticileri `group: Option<CompletionGroup>` alanını
+  doldurmalı; grup değiştiğinde menu divider ve optional group header ekler.
 
 Tema renkleri:
 
@@ -7374,6 +7486,15 @@ theme_settings::reload_theme(cx);
 `theme_settings::ThemeContent` üretmek için yardımcılar içerir. Zed tarafında
 `load_user_themes_in_background` ve watcher akışı dosya değişiminden sonra
 `theme_settings::reload_theme(cx)` çağırır.
+
+Markdown preview tema yüzeyi:
+
+- `ThemeSettingsContent::markdown_preview_code_font_family` ayarı markdown preview
+  içindeki inline code ve code block fontunu belirler; unset ise buffer fontuna
+  düşer. Normal `markdown_preview_font_family` yalnız preview metin fontu içindir.
+- Mermaid render akışı Zed temasından renk/font üretir; tema değişiminde markdown
+  entity'si `invalidate_mermaid_cache(cx)` çağırarak diagram cache'ini temizleyip
+  yeniden render ettirmelidir.
 
 Tuzaklar:
 
@@ -7796,6 +7917,31 @@ cx.observe_global::<SettingsStore>(move |cx| {
 ```
 
 Zed ana uygulaması bu deseni zaten kullanır.
+
+#### Git Graph Özel Komut Task'ı
+
+Git Graph commit context menu'sünden özel task çalıştırmak için global
+`tasks.json` içine `git-command` tag'li bir task eklenir. Worktree-local task'lar
+bu akışta desteklenmez. Task seçili commit ve repository context'iyle resolve
+edilir; default çalışma dizini seçili repository root'udur.
+
+Desteklenen Git değişkenleri:
+
+- `ZED_GIT_SHA`
+- `ZED_GIT_SHA_SHORT`
+- `ZED_GIT_REPOSITORY_NAME`
+- `ZED_GIT_REPOSITORY_PATH`
+
+```json
+[
+  {
+    "label": "Branches containing commit: $ZED_GIT_SHA_SHORT",
+    "command": "git",
+    "args": ["branch", "-a", "--contains", "$ZED_GIT_SHA"],
+    "tags": ["git-command"]
+  }
+]
+```
 
 ### 99. Sık Hatalar ve Doğru Desenler
 
