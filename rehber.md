@@ -12,184 +12,174 @@ Ana kaynak dosyalar:
 - Zed UI bileşenleri: `crates/ui`, metin girişi için `crates/ui_input`
 - Ayarlar ve tema: `crates/settings_content`, `crates/settings`, `crates/theme_settings`, `crates/theme`
 
-Rehber 21 ana bölüm altında 102 başlıkta organize edilmiştir; her başlık ilgili GPUI/Zed dosyasındaki tipleri, fonksiyonları ve pratik kullanım desenlerini özetler. İçindekiler aşağıdadır.
+Rehber 18 ana bölüm altında 102 başlıkta organize edilmiştir; başlıklar GPUI temellerinden başlayıp uygulama başlatma, bağlamlar, async/durum yönetimi, render modeli, stil ve geometri, pencere yönetimi, etkileşim, action/keymap, liste/çizim/animasyon, metin, input/menü, test/inspector, Zed UI bileşenleri, workspace, settings/theme ve komut paleti sırasını izler. Son bölüm reçete ve kontrol listelerini toplar. İçindekiler aşağıdadır.
 
 ## İçindekiler
 
+**Bölüm I — Temeller**
 
-**Bölüm I — Temeller ve Mimari**
-
-- 1. Büyük Resim
-- 2. Hızlı Referans: GPUI Kavram Sözlüğü
+- Büyük Resim
+- Hızlı Referans: GPUI Kavram Sözlüğü
 
 **Bölüm II — Uygulama ve Platform**
 
-- 3. Platform Başlatma
-- 4. Application Yaşam Döngüsü ve Platform Olayları
-- 5. Platform Servisleri
-- 6. Platform Trait Implementasyonu ve Wrapper Sınırları
-- 7. Headless, Screen Capture ve Test Renderer
+- Platform Başlatma
+- Application Yaşam Döngüsü ve Platform Olayları
+- Platform Servisleri
+- Platform Trait Implementasyonu ve Wrapper Sınırları
+- Headless, Screen Capture ve Test Renderer
 
-**Bölüm III — Bağlamlar**
+**Bölüm III — Bağlamlar ve Pencere Handle'ları**
 
-- 8. Temel Bağlamlar
-- 9. WindowHandle, AnyWindowHandle ve VisualContext
+- Temel Bağlamlar
+- WindowHandle, AnyWindowHandle ve VisualContext
 
-**Bölüm IV — Render ve Element**
+**Bölüm IV — Async, Görev ve Durum Yönetimi**
 
-- 10. Render Modeli
-- 11. Element Yaşam Döngüsü ve Draw Fazları
-- 12. Element Haritası
-- 13. Element ID, Element State ve Type Erasure
-- 14. FluentBuilder ve Koşullu Element Üretimi
-- 15. Refineable, StyleRefinement ve MergeFrom
-- 16. Deferred Draw, Prepaint Order ve Overlay Katmanı
+- Async İşler
+- Executor, Priority, Timeout ve Test Zamanı
+- Task, TaskExt ve Async Hata Yönetimi
+- Global State, Observe ve Event
+- Global State Yardımcıları ve `cx.defer`
+- Subscription Yaşam Döngüsü
+- Window-bound Observer, Release ve Focus Helper Desenleri
+- Entity Reservation ve Çift Yönlü Referans
+- Entity Release, Cleanup ve Leak Detection
+- Entity Type Erasure, Callback Adaptörleri ve View Cache
 
-**Bölüm V — Stil, Geometri ve Renkler**
+**Bölüm V — Render ve Element Modeli**
 
-- 17. Style ve Layout Haritası
-- 18. Geometri Tipleri ve Birim Yönetimi
-- 19. Renkler, Gradient ve Background
-- 20. SharedString, SharedUri ve Ucuz Klonlanan Tipler
-- 21. WindowAppearance ve Tema Modu
+- Render Modeli
+- Element Yaşam Döngüsü ve Draw Fazları
+- Element Haritası
+- Element ID, Element State ve Type Erasure
+- FluentBuilder ve Koşullu Element Üretimi
+- Refineable, StyleRefinement ve MergeFrom
+- Deferred Draw, Prepaint Order ve Overlay Katmanı
 
-**Bölüm VI — Pencere Yönetimi**
+**Bölüm VI — Stil, Geometri ve Renkler**
 
-- 22. Pencere Oluşturma
-- 23. Zed'de Ana Pencere Nasıl Açılır?
-- 24. Display ve Çoklu Monitor
-- 25. WindowKind Davranışı
-- 26. Başlık Çubuğu ve Pencere Dekorasyonu
-- 27. Custom Titlebar Nasıl Tanımlanır?
-- 28. Kontrol Butonları Nasıl Yönetilir?
-- 29. Client-Side Decoration ve Resize
-- 30. Platforma Göre Dekorasyon Davranışı
-- 31. Blur, Transparency ve Mica Yönetimi
-- 32. Pencere Üzerinden Yapılan İşlemler
-- 33. Pencere Bounds Persist ve Restore
-- 34. Native Window Tabs ve SystemWindowTabController
-- 35. Layer Shell ve Özel Platform Pencereleri
+- Style ve Layout Haritası
+- Geometri Tipleri ve Birim Yönetimi
+- Renkler, Gradient ve Background
+- SharedString, SharedUri ve Ucuz Klonlanan Tipler
+- WindowAppearance ve Tema Modu
 
-**Bölüm VII — Etkileşim**
+**Bölüm VII — Pencere Yönetimi**
 
-- 36. Focus, Blur ve Keyboard
-- 37. Mouse, Drag, Drop ve Hitbox
-- 38. Drag ve Drop İçerik Üretimi
-- 39. Hitbox, Cursor, Pointer Capture ve Autoscroll
-- 40. Tab Sırası ve Klavye Navigasyonu
-- 41. Text Input ve IME
-- 42. Text Input Handler ve IME Derin Akış
-- 43. Keystroke, Modifiers ve Platform Bağımsız Kısayollar
+- Pencere Oluşturma
+- Zed'de Ana Pencere Nasıl Açılır?
+- Display ve Çoklu Monitor
+- WindowKind Davranışı
+- Başlık Çubuğu ve Pencere Dekorasyonu
+- Custom Titlebar Nasıl Tanımlanır?
+- Kontrol Butonları Nasıl Yönetilir?
+- Client-Side Decoration ve Resize
+- Platforma Göre Dekorasyon Davranışı
+- Blur, Transparency ve Mica Yönetimi
+- Pencere Üzerinden Yapılan İşlemler
+- Pencere Bounds Persist ve Restore
+- Native Window Tabs ve SystemWindowTabController
+- Layer Shell ve Özel Platform Pencereleri
 
-**Bölüm VIII — Action ve Keymap**
+**Bölüm VIII — Etkileşim ve Olaylar**
 
-- 44. Action Sistemi Derinlemesine
-- 45. Action Makro Detayları, register_action! ve Deprecated Alias
-- 46. Keymap, KeyContext ve Dispatch Stack
-- 47. DispatchPhase, Event Propagation ve DispatchEventResult
-- 48. Action ve Keymap Runtime Introspection
-- 49. Zed Keymap Dosyası, Validator ve Unbind Akışı
+- Focus, Blur ve Keyboard
+- Mouse, Drag, Drop ve Hitbox
+- Drag ve Drop İçerik Üretimi
+- Hitbox, Cursor, Pointer Capture ve Autoscroll
+- Tab Sırası ve Klavye Navigasyonu
+- Text Input ve IME
+- Text Input Handler ve IME Derin Akış
+- Keystroke, Modifiers ve Platform Bağımsız Kısayollar
 
-**Bölüm IX — Async ve State**
+**Bölüm IX — Action ve Keymap**
 
-- 50. Async İşler
-- 51. Executor, Priority, Timeout ve Test Zamanı
-- 52. Task, TaskExt ve Async Hata Yönetimi
-- 53. Global State, Observe ve Event
-- 54. Global State Yardımcıları ve `cx.defer`
-- 55. Subscription Yaşam Döngüsü
-- 56. Window-bound Observer, Release ve Focus Helper Desenleri
-- 57. Entity Reservation ve Çift Yönlü Referans
-- 58. Entity Release, Cleanup ve Leak Detection
-- 59. Entity Type Erasure, Callback Adaptörleri ve View Cache
+- Action Sistemi Derinlemesine
+- Action Makro Detayları, register_action! ve Deprecated Alias
+- Keymap, KeyContext ve Dispatch Stack
+- DispatchPhase, Event Propagation ve DispatchEventResult
+- Action ve Keymap Runtime Introspection
+- Zed Keymap Dosyası, Validator ve Unbind Akışı
 
-**Bölüm X — Liste ve Sanallaştırma**
+**Bölüm X — Liste, Çizim ve Animasyon**
 
-- 60. ScrollHandle ve Scroll Davranışı
-- 61. List ve UniformList Sanallaştırma
+- ScrollHandle ve Scroll Davranışı
+- List ve UniformList Sanallaştırma
+- Asset, Image ve SVG Yükleme
+- Asset, ImageCache ve Surface Boru Hattı
+- Path Çizimi ve Custom Drawing
+- Anchored ve Popover Konumlandırma
+- PaintQuad, Window Paint Primitives ve BorderStyle
+- Window Drawing Context Stack, Asset Fetch ve SVG Transform
+- Animasyon Sistemi
 
-**Bölüm XI — Asset, Image, Path ve Çizim**
+**Bölüm XI — Metin Sistemi**
 
-- 62. Asset, Image ve SVG Yükleme
-- 63. Asset, ImageCache ve Surface Boru Hattı
-- 64. Path Çizimi ve Custom Drawing
-- 65. Anchored ve Popover Konumlandırma
-- 66. PaintQuad, Window Paint Primitives ve BorderStyle
-- 67. Window Drawing Context Stack, Asset Fetch ve SVG Transform
+- Text, Font ve Metin Ölçümü
+- StyledText, TextLayout ve InteractiveText
 
-**Bölüm XII — Animasyon**
+**Bölüm XII — Input, Sistem ve Menü**
 
-- 68. Animasyon Sistemi
+- Input, Clipboard, Prompt ve Platform Servisleri
+- Prompt Builder, PromptHandle ve Fallback Prompt
+- Uygulama Menüsü ve Dock
 
-**Bölüm XIII — Text Sistemi**
+**Bölüm XIII — Test, Inspector ve Düşük Seviye API**
 
-- 69. Text, Font ve Metin Ölçümü
-- 70. StyledText, TextLayout ve InteractiveText
+- Test Rehberi
+- Test Bağlamları ve Simülasyon
+- Inspector ve Debug Yardımcıları
+- Default Colors, GPU Specs ve Platform Diagnostics
+- Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
+- App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
+- CursorStyle, FontWeight ve Sabit Enum Tabloları
+- Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
 
-**Bölüm XIV — Input, Sistem ve Menü**
+**Bölüm XIV — Zed UI Bileşenleri**
 
-- 71. Input, Clipboard, Prompt ve Platform Servisleri
-- 72. Prompt Builder, PromptHandle ve Fallback Prompt
-- 73. Uygulama Menüsü ve Dock
+- Zed UI Prelude, Style Extension Trait'leri ve Component Sözleşmesi
+- Zed UI Bileşen Envanteri
+- ManagedView, DismissEvent, Modal, Popover ve Tooltip Yaşam Döngüsü
 
-**Bölüm XV — Test**
+**Bölüm XV — Zed Workspace**
 
-- 74. Test Rehberi
-- 75. Test Bağlamları ve Simülasyon
+- Zed Workspace Dock ve Panel Modeli
+- Workspace Item, Pane, Modal, Toast ve Notification Sistemi
+- Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
+- PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
+- Workspace Notification Yardımcıları ve Async Hata Gösterimi
+- AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
+- Item Ayarları, Context Menu, ApplicationMenu ve Focus-Follows-Mouse
 
-**Bölüm XVI — Inspector ve Düşük Seviye API**
+**Bölüm XVI — Zed Settings ve Theme**
 
-- 76. Inspector ve Debug Yardımcıları
-- 77. Default Colors, GPU Specs ve Platform Diagnostics
-- 78. Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
-- 79. App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
-- 80. CursorStyle, FontWeight ve Sabit Enum Tabloları
-- 81. Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
+- Persist, Settings ve Theme Akışı (Zed Tarafı)
+- SettingsStore: Kayıt, Okuma, Override ve Migration
+- ThemeRegistry, ThemeFamily ve Tema Yükleme
 
-**Bölüm XVII — Zed UI Bileşenleri**
+**Bölüm XVII — Komut Paleti ve Picker**
 
-- 82. Zed UI Prelude, Style Extension Trait'leri ve Component Sözleşmesi
-- 83. Zed UI Bileşen Envanteri
-- 84. ManagedView, DismissEvent, Modal, Popover ve Tooltip Yaşam Döngüsü
+- CommandPalette: Filter, Aliases ve Interceptor
+- CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
+- Picker, PickerDelegate ve PickerPopoverMenu
 
-**Bölüm XVIII — Zed Workspace**
+**Bölüm XVIII — Reçeteler ve Kontrol Listeleri**
 
-- 85. Zed Workspace Dock ve Panel Modeli
-- 86. Workspace Item, Pane, Modal, Toast ve Notification Sistemi
-- 87. Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
-- 88. PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
-- 89. Workspace Notification Yardımcıları ve Async Hata Gösterimi
-- 90. AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
-- 91. Item Ayarları, Context Menu, ApplicationMenu ve Focus-Follows-Mouse
-
-**Bölüm XIX — Zed Settings ve Theme**
-
-- 92. Persist, Settings ve Theme Akışı (Zed Tarafı)
-- 93. SettingsStore: Kayıt, Okuma, Override ve Migration
-- 94. ThemeRegistry, ThemeFamily ve Tema Yükleme
-
-**Bölüm XX — Komut Paleti ve Picker**
-
-- 95. CommandPalette: Filter, Aliases ve Interceptor
-- 96. CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
-- 97. Picker, PickerDelegate ve PickerPopoverMenu
-
-**Bölüm XXI — Reçeteler ve Kontrol Listeleri**
-
-- 98. Reçeteler
-- 99. Sık Hatalar ve Doğru Desenler
-- 100. Yeni Pencere Eklerken Kontrol Listesi
-- 101. Kısa Cevaplar
-- 102. Dosya Yoluna Göre Ne Nerede?
-
+- Reçeteler
+- Sık Hatalar ve Doğru Desenler
+- Yeni Pencere Eklerken Kontrol Listesi
+- Kısa Cevaplar
+- Dosya Yoluna Göre Ne Nerede?
 
 ---
 
-## Bölüm I — Temeller ve Mimari
+## Bölüm I — Temeller
 
 ---
 
-### 1. Büyük Resim
+### Büyük Resim
+
 
 GPUI üç katmanlıdır:
 
@@ -209,7 +199,8 @@ Zed bu katmanların üstüne kendi tasarım sistemini koyar:
 - `crates/workspace`: ana çalışma alanını, client-side decoration gölgesini, resize
   bölgelerini ve pencere içeriğini birleştirir.
 
-### 2. Hızlı Referans: GPUI Kavram Sözlüğü
+### Hızlı Referans: GPUI Kavram Sözlüğü
+
 
 | Kavram | Tip | Yer | Kısa Açıklama |
 |---|---|---|---|
@@ -241,11 +232,14 @@ Zed bu katmanların üstüne kendi tasarım sistemini koyar:
 
 ---
 
+---
+
 ## Bölüm II — Uygulama ve Platform
 
 ---
 
-### 3. Platform Başlatma
+### Platform Başlatma
+
 
 Yeni GPUI uygulaması başlatmanın standart yolu:
 
@@ -282,7 +276,8 @@ Zed'de pratikte `application()` çağrısı, işletim sistemine göre şu platfo
 `gpui_platform::current_headless_renderer()` şu anda test desteği altında macOS'ta
 Metal headless renderer döndürür.
 
-### 4. Application Yaşam Döngüsü ve Platform Olayları
+### Application Yaşam Döngüsü ve Platform Olayları
+
 
 `Application` GPUI başlamadan önceki builder katmanıdır:
 
@@ -343,7 +338,8 @@ Tuzaklar:
   workspace açma mantığı burada tetiklenir.
 - `refresh_windows()` state değiştirmez; yalnızca redraw effect'i planlar.
 
-### 5. Platform Servisleri
+### Platform Servisleri
+
 
 `App` üzerinden ulaşılan ana platform servisleri (her biri `crates/gpui/src/app.rs`
 içinde wrapper, gerçek davranış `Platform` trait implementasyonunda):
@@ -390,13 +386,14 @@ içinde wrapper, gerçek davranış `Platform` trait implementasyonunda):
   butonuna bastığında çalıştırılır; `false` döndürerek kapatmayı iptal eder.
 - `window.appearance()`, `window.observe_window_appearance(...)`.
 - `window.tabbed_windows()`, `window.set_tabbing_identifier(...)` ve diğer native
-  window tab API'leri (bkz. Bölüm 34).
+  window tab API'leri (bkz. "Native Window Tabs ve SystemWindowTabController").
 
 Platform trait implementasyonu yazıyorsan `Platform` ve `PlatformWindow` içindeki
 tüm bu sözleşmeleri karşılaman gerekir. Uygulama geliştirirken doğrudan trait'e
 değil `App`/`Window` wrapper'larına dokunmak tercih edilir.
 
-### 6. Platform Trait Implementasyonu ve Wrapper Sınırları
+### Platform Trait Implementasyonu ve Wrapper Sınırları
+
 
 Uygulama kodu normalde `Platform` veya `PlatformWindow` trait'lerini doğrudan
 çağırmaz; `App` ve `Window` wrapper'ları üzerinden gider. Yeni platform portu,
@@ -450,7 +447,8 @@ Wrapper sınırı:
 - Trait default method'ları "desteklenmiyor" anlamı taşır; wrapper üzerinden
   dönen `None` veya no-op sonuçlarını platform capability olarak ele al.
 
-### 7. Headless, Screen Capture ve Test Renderer
+### Headless, Screen Capture ve Test Renderer
+
 
 `crates/gpui/src/platform.rs::screen_capture_sources` ve
 `crates/gpui_platform/src/gpui_platform.rs::headless()`.
@@ -506,11 +504,14 @@ Tuzaklar:
 
 ---
 
-## Bölüm III — Bağlamlar
+---
+
+## Bölüm III — Bağlamlar ve Pencere Handle'ları
 
 ---
 
-### 8. Temel Bağlamlar
+### Temel Bağlamlar
+
 
 GPUI'de neredeyse her şey `cx` ile yapılır:
 
@@ -555,7 +556,8 @@ Kurallar:
 - `Task` düşerse iş iptal olur. Ya `await` et, ya struct alanında sakla, ya da
   `detach()` / `detach_and_log_err(cx)` kullan.
 
-### 9. WindowHandle, AnyWindowHandle ve VisualContext
+### WindowHandle, AnyWindowHandle ve VisualContext
+
 
 `open_window` veya test helper'ları typed `WindowHandle<V>` döndürür. Bu handle
 pencerenin root view tipini bilir; `AnyWindowHandle` ise root tipini runtime'da
@@ -571,14 +573,14 @@ Aynı kalıp GPUI'de başka handle ve event ailelerinde de görülür:
 
 - `Entity<T>: Deref<Target = AnyEntity>` ve `WeakEntity<T>:
   Deref<Target = AnyWeakEntity>` — typed entity handle'ları untyped handle'a
-  deref eder. Detay Konu 59.
+  deref eder. Detay "Entity Type Erasure, Callback Adaptörleri ve View Cache" başlığındadır.
 - `ModifiersChangedEvent`, `ScrollWheelEvent`, `PinchEvent`, `MouseExitEvent`:
   `Deref<Target = Modifiers>` — bu dört event Modifiers metodlarını doğrudan
   açar (`event.secondary()`, `event.modified()`). `MouseDownEvent`,
   `MouseUpEvent`, `MouseMoveEvent` ise Deref *etmez*; yalnızca `modifiers`
-  alanını ifşa eder. Detay Konu 80.
+  alanını ifşa eder. Detay "CursorStyle, FontWeight ve Sabit Enum Tabloları" başlığındadır.
 - `Context<'a, T>: Deref<Target = App>` — `cx.theme()`, `cx.refresh_windows()`
-  gibi App metotları Context üzerinden de çağrılabilir (Konu 8).
+  gibi App metotları Context üzerinden de çağrılabilir (bkz. "Temel Bağlamlar").
 
 Bu Deref aliasing pattern'inde metot adını tek başına yeterli sayma; aynı ad
 typed ve untyped owner'larda farklı dönüş tipiyle bulunabilir.
@@ -670,2513 +672,14 @@ Entity aynı anda birden fazla pencerede render ediliyorsa bu API bilinçli bir
 
 ---
 
-## Bölüm IV — Render ve Element
+---
+
+## Bölüm IV — Async, Görev ve Durum Yönetimi
 
 ---
 
-### 10. Render Modeli
+### Async İşler
 
-Bir pencerenin root view'i `Entity<V>` olmalı ve `V: Render` implement etmelidir:
-
-```rust
-struct MyView {
-    focus_handle: FocusHandle,
-}
-
-impl Render for MyView {
-    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        div()
-            .id("my-view")
-            .track_focus(&self.focus_handle)
-            .key_context("my-view")
-            .on_action(cx.listener(|this, _: &CloseWindow, window, cx| {
-                window.remove_window();
-            }))
-            .size_full()
-            .child("Content")
-    }
-}
-```
-
-Reusable, state taşımayan bileşenlerde `RenderOnce` kullanılır:
-
-```rust
-#[derive(IntoElement)]
-struct Badge {
-    label: SharedString,
-}
-
-impl RenderOnce for Badge {
-    fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
-        div().rounded_sm().px_2().child(self.label)
-    }
-}
-```
-
-`Render` mutable view state ile çalışır. `RenderOnce` sahipliği alır ve genellikle
-Zed UI bileşenlerinde tercih edilir.
-
-### 11. Element Yaşam Döngüsü ve Draw Fazları
-
-`Element` sözleşmesi üç fazdan oluşur:
-
-1. `request_layout(...) -> (LayoutId, RequestLayoutState)`: stil ve child layout
-   istekleri Taffy layout ağacına verilir. Bu fazda paint yapılmaz.
-2. `prepaint(...) -> PrepaintState`: layout bounds bilinir; hitbox, scroll state,
-   element state ve ölçüm gibi paint öncesi işler yapılır.
-3. `paint(...)`: scene primitive'leri üretilir. `paint_quad`, `paint_path`,
-   `paint_image`, `paint_svg`, `set_cursor_style` gibi çağrılar burada yapılır.
-
-`Window` debug assertion'ları faz ihlalini yakalar: `insert_hitbox` yalnızca
-prepaint'te, `paint_*` çağrıları paint'te, `with_text_style` ve bazı ölçüm
-yardımcıları prepaint/paint içinde geçerlidir.
-
-State saklama yolları:
-
-- View state'i: `Entity<T>` alanları.
-- Element-local state: stabil `id(...)` ile `window.with_element_state` veya
-  `with_optional_element_state`; aynı ID değişirse state sıfırlanır.
-- Frame callback: `window.on_next_frame(...)`.
-- Effect sonunda erteleme: `cx.defer(...)`, `window.defer(cx, ...)`,
-  `cx.defer_in(window, ...)`.
-- Sürekli redraw: `window.request_animation_frame()`.
-
-Render katmanı:
-
-- `Render`: entity/view state'ini her render'da element ağacına çevirir.
-- `RenderOnce`: sadece elemente dönüştürülecek hafif bileşenler için uygundur.
-- `ParentElement`: child kabul eden elementler.
-- `Styled`: style refinement zincirine dahil olan elementler.
-- `InteractiveElement`: focus, action, key, mouse, hover, drag/drop dinleyicileri.
-- `StatefulInteractiveElement`: `id(...)` sonrası scroll/focus gibi stateful
-  interaktif davranışlar.
-
-Kritik kural: `cx.notify()` view render çıktısını etkileyen state değiştiğinde
-çağrılır. `window.refresh()` tüm pencerenin tekrar çizimini ister; local view
-state değişiminde önce `cx.notify()` tercih edilir.
-
-### 12. Element Haritası
-
-GPUI yerleşik elementleri:
-
-- `div()`: neredeyse tüm layout ve container işleri. Flex/grid, style, child,
-  event, focus ve window-control area destekler.
-- Metin: `&'static str`, `String`, `SharedString` doğrudan element olur.
-  Daha karmaşık metin için `StyledText` ve `InteractiveText`.
-- `svg()`: path veya external path ile SVG çizimi.
-- `img(...)`: asset, path, URL, byte kaynağı gibi image kaynaklarını çizer; loading
-  ve fallback slotları destekler.
-- `canvas(prepaint, paint)`: düşük seviye çizim veya hitbox/cursor gibi prepaint
-  gerektiren işler için.
-- `anchored()`: pencere veya belirli bir noktaya sabitlenen popover/menu gibi UI.
-- `deferred(child)`: öncelikli/ertelenmiş render.
-- `list(...)`: değişken yükseklikli büyük listeler.
-- `uniform_list(...)`: sabit/sık ölçülebilir item yüksekliği olan verimli listeler.
-- `surface(...)`: platform/native surface kaynağını element olarak gösterir.
-
-Sık kullanılan style grupları:
-
-- Layout: `.flex()`, `.flex_col()`, `.flex_row()`, `.grid()`, `.items_center()`,
-  `.justify_between()`, `.content_stretch()`, `.size_full()`, `.w(...)`, `.h(...)`
-- Spacing: `.p_*`, `.px_*`, `.gap_*`, `.m_*`
-- Text: `.text_color(...)`, `.text_sm()`, `.text_xl()`, `.font_family(...)`,
-  `.truncate()`, `.line_clamp(...)`
-- Border/shape: `.border_1()`, `.border_color(...)`, `.rounded_sm()`
-- Position: `.absolute()`, `.relative()`, `.top(...)`, `.left(...)`
-- State: `.hover(...)`, `.active(...)`, `.focus(...)`, `.focus_visible(...)`,
-  `.group(...)`, `.group_hover(...)`
-- Interaction: `.on_click(...)`, `.on_mouse_down(...)`, `.on_scroll_wheel(...)`,
-  `.on_key_down(...)`, `.on_action(...)`, `.track_focus(...)`, `.key_context(...)`
-
-Zed içinde `ui::prelude::*` genellikle `gpui::prelude::*` yerine tercih edilir;
-tasarım sistemi tiplerini de getirir.
-
-### 13. Element ID, Element State ve Type Erasure
-
-GPUI'de her render'da element ağacı yeniden kurulur; kalıcı element state'i için
-stabil ID gerekir. Ana tipler:
-
-- `ElementId`: `Name`, `Integer`, `NamedInteger`, `Path`, `Uuid`,
-  `FocusHandle`, `CodeLocation` gibi varyantlar taşır.
-- `GlobalElementId`: parent namespace zinciriyle birleşmiş gerçek ID.
-- `AnyElement`: element type erasure; child listelerinde heterojen element tutar.
-- `AnyView`/`AnyEntity`: view veya entity type erasure.
-
-Element state API'leri `Window` üzerindedir ve yalnızca element çizimi sırasında
-kullanılmalıdır:
-
-```rust
-let row_state = window.use_keyed_state(
-    ElementId::named_usize("row", row_ix),
-    cx,
-    |_, cx| RowState::new(cx),
-);
-```
-
-Alt seviye API:
-
-```rust
-window.with_global_id("image-cache".into(), |global_id, window| {
-    window.with_element_state::<MyState, _>(global_id, |state, window| {
-        let mut state = state.unwrap_or_else(MyState::default);
-        state.prepare(window);
-        (state.snapshot(), state)
-    })
-});
-```
-
-Kurallar:
-
-- `window.with_id(element_id, |window| ...)` local element id stack'ine id push
-  eder; `with_global_id` bu stack'i `GlobalElementId` haline getirir.
-- Liste item'larında `use_state` yerine `use_keyed_state` kullan; `use_state`
-  caller location ile ID üretir ve aynı render noktasındaki çoklu item'ları ayıramaz.
-- `with_element_namespace(id, ...)` custom element içinde child ID çakışmasını
-  önlemek için kullanılır.
-- Aynı `GlobalElementId` ve aynı state tipi için reentrant
-  `with_element_state` çağrısı panic eder.
-- ID değişirse önceki frame'in state'i devam etmez; animasyon, hover, scroll ve
-  image cache state'i sıfırlanır.
-
-Type erasure kararları:
-
-- Public component API child kabul ediyorsa `impl IntoElement` al.
-- Struct içinde saklayacaksan `AnyElement` kullan.
-- View/entity saklıyorsan mümkün olduğunca typed `Entity<T>` tut; yalnızca plugin,
-  dock item veya heterojen koleksiyon gerekiyorsa `AnyEntity`/`AnyView` seç.
-
-### 14. FluentBuilder ve Koşullu Element Üretimi
-
-`crates/gpui/src/util.rs::FluentBuilder` trait'i tüm element tiplerine üç
-yardımcı ekler:
-
-```rust
-pub trait FluentBuilder {
-    fn map<U>(self, f: impl FnOnce(Self) -> U) -> U;
-    fn when(self, condition: bool, then: impl FnOnce(Self) -> Self) -> Self;
-    fn when_else(
-        self,
-        condition: bool,
-        then: impl FnOnce(Self) -> Self,
-        else_fn: impl FnOnce(Self) -> Self,
-    ) -> Self;
-    fn when_some<T>(self, option: Option<T>, then: impl FnOnce(Self, T) -> Self) -> Self;
-    fn when_none<T>(self, option: &Option<T>, then: impl FnOnce(Self) -> Self) -> Self;
-}
-```
-
-Kullanım:
-
-```rust
-div()
-    .flex()
-    .when(self.is_active, |this| this.bg(rgb(0xFF0000)))
-    .when_some(self.icon.as_ref(), |this, icon| this.child(icon.clone()))
-    .when_else(self.is_loading,
-        |this| this.opacity(0.5),
-        |this| this.opacity(1.0),
-    )
-    .map(|this| match self.density {
-        UiDensity::Compact => this.gap_1(),
-        UiDensity::Default => this.gap_2(),
-        UiDensity::Comfortable => this.gap_4(),
-    })
-```
-
-Avantajlar:
-
-- Method chain bozulmaz; if/match dışı yapılar olmadan koşullu UI yazılır.
-- Closure içine geçen element'in tipi korunur; child eklemek serbesttir.
-- `map` keyfi bir transform için "escape hatch" sağlar.
-
-Tuzaklar:
-
-- `when` closure her render'da çalışır; ağır hesap yapma.
-- Aynı element üzerinde defalarca `when_some` zinciri okunabilirliği bozarsa
-  state'i normal `if let` ile pre-compute edip tek `child` çağrısı tercih edilir.
-- `map` element tipini değiştirebilir; `when` ise tipi değiştirmez (refinement
-  zincirinde tutulur).
-
-### 15. Refineable, StyleRefinement ve MergeFrom
-
-GPUI ve Zed'de iki kompozisyon paterni paralel çalışır: render zincirinde
-`Refineable`, settings/tema yüklemesinde `MergeFrom`.
-
-#### Refineable
-
-`crates/refineable/src/refineable.rs`:
-
-```rust
-pub trait Refineable: Clone {
-    type Refinement: Refineable<Refinement = Self::Refinement> + IsEmpty + Default;
-
-    fn refine(&mut self, refinement: &Self::Refinement);
-    fn refined(self, refinement: Self::Refinement) -> Self;
-
-    fn from_cascade(cascade: &Cascade<Self>) -> Self
-        where Self: Default + Sized;
-
-    fn is_superset_of(&self, refinement: &Self::Refinement) -> bool;
-    fn subtract(&self, refinement: &Self::Refinement) -> Self::Refinement;
-}
-
-pub trait IsEmpty {
-    fn is_empty(&self) -> bool;
-}
-```
-
-Trait sözleşmesi göründüğünden zengindir:
-
-- `type Refinement` da `Refineable` olmalı; yani refinement'ın kendisi tekrar
-  refine edilebilir (`refine_a.refine(&refine_b)` zincirleme merge için).
-- Aynı `Refinement` ayrıca `IsEmpty + Default` zorunluluğunu taşır. `IsEmpty`
-  "bu refinement uygulansa hiçbir alan değişir mi?" sorusunu cevaplar; merge,
-  layout cache invalidation ve `subtract` çıktısı bu kontrole dayanır.
-- `is_superset_of(refinement)` instance'ın halihazırda bu refinement'ı kapsayıp
-  kapsamadığını söyler — gereksiz `refine` çağrılarını atlayabilirsin.
-- `subtract(refinement)` aradaki farkı yeni bir refinement olarak verir.
-- `from_cascade(cascade)` aşağıdaki `Cascade` yapısını default değer üzerine
-  uygular; tema/stil katmanlamasının sondaki "düzleştirme" adımıdır.
-
-`#[derive(Refineable)]` (gpui re-export'lu): orijinal struct ile aynı alanlara
-sahip ama her alanı `Option`'lı hale getirilmiş `XRefinement` türü üretir.
-`refine` çağrısı yalnızca `Some` alanları yazar. Aşağıdaki somut türler hep
-derive ile üretilir; ayrı yazmak gerekmez:
-
-| Refinement türü | Üreten struct | Kaynak |
-|---|---|---|
-| `StyleRefinement` | `Style` | `style.rs:178` |
-| `TextStyleRefinement` | `TextStyle` | `style.rs` |
-| `UnderlineStyleRefinement` | `UnderlineStyle` | `style.rs` |
-| `StrikethroughStyleRefinement` | `StrikethroughStyle` | `style.rs` |
-| `BoundsRefinement` | `Bounds` | `geometry.rs` |
-| `PointRefinement` | `Point` | `geometry.rs` |
-| `SizeRefinement` | `Size` | `geometry.rs` |
-| `EdgesRefinement` | `Edges` | `geometry.rs` |
-| `CornersRefinement` | `Corners` | `geometry.rs` |
-| `GridTemplateRefinement` | `GridTemplate` | `geometry.rs` |
-
-Bu `*Refinement` tipleri çoğunlukla doğrudan adlandırılarak kullanılmaz; fluent
-API zinciri arka planda toplar. Doğrudan elle inşa etmen gereken tek tip
-genelde `StyleRefinement`'tır (örn. `.hover(|style| style.bg(...))` callback
-imzası).
-
-Tipik kullanım `Style`/`StyleRefinement` (`crates/gpui/src/style.rs:178`):
-
-```rust
-let mut style = Style::default();
-style.refine(&StyleRefinement::default()
-    .text_size(px(20.))
-    .font_weight(FontWeight::SEMIBOLD));
-```
-
-Element fluent zinciri (örn. `div().text_size(px(14.)).bg(rgb(0xff))`)
-arka planda `StyleRefinement` topluyor; render sırasında base style üzerine
-refine ediliyor. `TextStyle`/`TextStyleRefinement`, `HighlightStyle`,
-`PlayerColors`, `ThemeColors` gibi tüm tema yapıları aynı pattern'i kullanır.
-
-`refined(self, refinement)` immutable bir kopya üretir; "ek style ile yeni base
-elde et" senaryolarında uygundur.
-
-#### Cascade ve CascadeSlot
-
-`Refineable` tek başına iki katmanı (base + refinement) birleştirir; daha derin
-hover/focus/active akışları için `crates/refineable/src/refineable.rs:80,93`
-katman yığını sağlar:
-
-```rust
-pub struct Cascade<S: Refineable>(Vec<Option<S::Refinement>>);
-pub struct CascadeSlot(usize);
-```
-
-API:
-
-- `Cascade::default()` slot 0'ı `Some(default)` ile kurar; ek slotlar başta
-  `None`'dur. Slot 0 her zaman dolu kalır ve "base" refinement'tır.
-- `cascade.reserve() -> CascadeSlot`: yeni `None` slot ekler ve handle döndürür.
-  Hover, focus, active gibi her dinamik katman için bir slot ayrılır.
-- `cascade.base() -> &mut S::Refinement`: slot 0'ı mutable verir; layout başına
-  asıl style yazılır.
-- `cascade.set(slot, Option<S::Refinement>)`: belirli slot'a refinement koyar
-  veya `None` ile devre dışı bırakır.
-- `cascade.merged() -> S::Refinement`: slot 0 üstüne diğer dolu slotları
-  sırayla `refine` eder; sonraki slot önceki slotu ezer.
-- `Refineable::from_cascade(&cascade) -> Self`: `default().refined(merged())`
-  shortcut'ı; render sırasında nihai stili üretmek için kullanılır.
-
-Önemli not: GPUI'nin kendi `Interactivity` katmanı (`.hover(...)`, `.active(...)`,
-`.focus(...)`, `.focus_visible(...)`, `.in_focus(...)`, `.group_hover(...)`,
-`.group_active(...)` zinciri) **`Cascade`/`CascadeSlot` kullanmaz**;
-`Interactivity` struct'ında her durum için ayrı bir `Option<Box<StyleRefinement>>`
-alanı tutar (`elements/div.rs:1681+`'deki `hover_style`, `active_style`,
-`focus_style`, `in_focus_style`, `focus_visible_style`, `group_hover_style`,
-`group_active_style`) ve render fazında bu refinement'ları sırayla `refine`
-eder. Yani hover style'ında verdiğin `StyleRefinement::bg(...)` base
-background'u ezer ama `font_size`'a dokunmazsa base'in font_size'ı korunur —
-None alan "etki yok" demektir.
-
-`Cascade<S>` ve `CascadeSlot` arayüzü `refineable` crate'inde public olarak
-durur fakat GPUI çekirdeği veya Zed bu sürümde içeriden kullanmıyor;
-çoklu-katmanlı (3+) refinement yığınını dışarıdan inşa etmek isteyen kütüphane
-yazarları için bir uzantı noktasıdır.
-
-#### MergeFrom
-
-`crates/settings_content/src/merge_from.rs`:
-
-```rust
-pub trait MergeFrom {
-    fn merge_from(&mut self, other: &Self);
-    fn merge_from_option(&mut self, other: Option<&Self>) {
-        if let Some(other) = other { self.merge_from(other); }
-    }
-}
-```
-
-Default kurallar:
-
-- HashMap, BTreeMap, struct: derin merge — sadece `other`'da var olan alanlar
-  yazılır.
-- `Option<T>`: `None` ezmez; `Some` recursive merge eder.
-- Diğer tipler (Vec, primitive): tam üzerine yazma.
-
-`#[derive(MergeFrom)]` derive'ı struct alanları için recursive merge üretir.
-Davranışı değiştirmek için `ExtendingVec<T>` (her merge'te concat) ve
-`SaturatingBool` (bir kez true olunca kalır) gibi sarıcılar mevcuttur.
-
-Settings yükleme zinciri:
-
-1. `assets/settings/default.json` → `SettingsContent::default()` baz alınır.
-2. User `~/.config/zed/settings.json` parse → `merge_from_option`.
-3. Aktif profil → `merge_from_option`.
-4. Worktree `.zed/settings.json` → `merge_from_option`.
-5. Sonuç `Settings::from_settings(content)` ile concrete struct'a çevrilir.
-
-Tuzaklar:
-
-- `Refineable` zincirinde `default()` baz değeri her seferinde yeniden hesaplanır;
-  ağır base style'ları cache'le.
-- `MergeFrom` sıralaması alt-üst değildir: en spesifik kaynağı en sona koy
-  (`local > profile > user > default`).
-- Vec'leri append etmek için `ExtendingVec`; üzerine yazmak gerekiyorsa düz `Vec`.
-- `Option<Option<T>>` gibi yapı yapmak istiyorsan `MergeFrom`'un default davranışı
-  doğru sonucu vermeyebilir; özel impl yaz.
-
-### 16. Deferred Draw, Prepaint Order ve Overlay Katmanı
-
-`deferred(child)` child'ın layout'unu bulunduğu yerde tutar, fakat paint'i ancestor
-paint'lerinden sonraya erteler. Popover, context menu, resize handle ve dock drop
-overlay gibi "üstte çizilmeli ama layout'ta yer tutmamalı" parçalar için kullanılır.
-
-```rust
-deferred(
-    anchored()
-        .anchor(Anchor::TopRight)
-        .position(menu_position)
-        .child(menu),
-)
-.with_priority(1)
-```
-
-Davranış:
-
-- `request_layout`: child normal layout alır.
-- `prepaint`: child `window.defer_draw(...)` ile deferred queue'ya taşınır.
-- `paint`: deferred element kendi paint'inde bir şey çizmez.
-- `with_priority(n)`: aynı frame'deki deferred elementler arasında z-order verir;
-  yüksek priority üstte çizilir.
-
-`Div` prepaint yardımcıları:
-
-- `on_children_prepainted(|bounds, window, cx| ...)`: child bounds'larını ölçüp
-  sonraki paint için state üretir.
-- `with_dynamic_prepaint_order(...)`: child prepaint sırasını runtime'da belirler.
-  Özellikle bir child'ın autoscroll veya ölçüm sonucu diğer child'ı etkiliyorsa
-  kullanılır.
-
-Tuzaklar:
-
-- Deferred child layout'ta yer tuttuğu için absolute/anchored konumu hâlâ doğru
-  parent bounds'a bağlıdır.
-- Overlay mouse'u bloke etmeliyse child içinde `.occlude()` veya
-  `.block_mouse_except_scroll()` kullan.
-- Priority global z-index değildir; aynı window frame içindeki deferred queue
-  için geçerlidir.
-
-
----
-
-## Bölüm V — Stil, Geometri ve Renkler
-
----
-
-### 17. Style ve Layout Haritası
-
-GPUI style sistemi CSS/Tailwind'e benzer fluent metotlardan oluşur, fakat Rust
-tipleriyle daha nettir:
-
-- Boyut: `w`, `h`, `size`, `min_w`, `max_w`, `flex_basis`, `size_full`,
-  `h_auto`, `relative(f32)`, `px`, `rems`.
-- Layout: `flex`, `grid`, `flex_row`, `flex_col`, `items_*`, `justify_*`,
-  `content_*`, `gap_*`, `flex_wrap`, `flex_grow`, `flex_shrink`.
-- Position: `relative`, `absolute`, `inset_*`, `top/right/bottom/left`,
-  `z_index`.
-- Overflow: plain style overflow ve stateful `.overflow_*_scroll()`.
-- Background/border: `bg`, `border_*`, `border_color`, `rounded_*`,
-  `box_shadow`, `opacity`.
-- Text: `text_color`, `text_bg`, `text_size`, `text_*`, `font_family`,
-  `font_weight`, `italic`, `line_height`, `text_ellipsis`, `line_clamp`.
-- Interaction: `hover`, `active`, `focus`, `focus_visible`, `cursor_*`,
-  `track_focus`, `key_context`, action/key/mouse handlers.
-- Group styling: `.group("name")`, `group_hover(...)`, `group_active(...)` ve
-  `group_drag_over::<T>(...)` aynı isimli interaction grubuna göre uygulanır.
-- Grid placement: container için `grid_cols`, `grid_cols_min_content`,
-  `grid_cols_max_content`, `grid_rows`; child için `col_start`, `col_end`,
-  `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`,
-  `row_span_full` kullanılır. Altta `GridTemplate`,
-  `TemplateColumnMinSize` ve `GridPlacement::{Line, Span, Auto}` vardır.
-
-Yukarıdaki fluent metotların büyük kısmı `Styled` trait body'sinde tek tek
-yazılmaz; bir grup proc macro tarafından üretilir. `crates/gpui/src/styled.rs`
-trait gövdesinde bu makrolar tek satır olarak invoke edilir, `gpui_macros`
-crate'i ise her invoke için onlarca metot expand eder. Hangi macro hangi
-metotları üretiyor:
-
-| Proc macro (`gpui_macros::...!()`) | Üretilen fluent metotlar (Styled trait üyesi olarak) |
-|---|---|
-| `visibility_style_methods!()` | `visible()`, `invisible()` |
-| `margin_style_methods!()` | `m_*` ile birlikte `mt_`, `mb_`, `my_`, `mx_`, `ml_`, `mr_` ve her birinin spacing scale + `auto` varyantları (`mt_auto()` gibi) |
-| `padding_style_methods!()` | `p_*`, `pt_`, `pb_`, `py_`, `px_`, `pl_`, `pr_` (margin ailesinin padding karşılığı) |
-| `position_style_methods!()` | `relative()`, `absolute()` ve positioned element offset prefix'leri: `inset`, `top`, `bottom`, `left`, `right` |
-| `overflow_style_methods!()` | `overflow_hidden()`, `overflow_x_hidden()`, `overflow_y_hidden()` |
-| `cursor_style_methods!()` | `cursor(CursorStyle)`, `cursor_default()`, `cursor_pointer()`, `cursor_text()`, `cursor_move()`, `cursor_not_allowed()`, `cursor_context_menu()`, `cursor_crosshair()`, `cursor_vertical_text()`, `cursor_alias()`, `cursor_copy()`, `cursor_no_drop()`, `cursor_grab()`, `cursor_grabbing()`, ve resize ailesi: `cursor_ew_resize()`, `cursor_ns_resize()`, `cursor_nesw_resize()`, `cursor_nwse_resize()`, `cursor_col_resize()`, `cursor_row_resize()`, `cursor_n_resize()`, `cursor_e_resize()`, `cursor_s_resize()`, `cursor_w_resize()` |
-| `border_style_methods!()` | `border_color(C)` ve `border_*` width prefix'leri (`border_*`, `border_t_*`, `border_r_*`, `border_b_*`, `border_l_*`, `border_x_*`, `border_y_*`) × suffix tablosu (`_0`, `_1`, `_2`, `_4`, `_8`, vb.) |
-| `box_shadow_style_methods!()` | `shadow(Vec<BoxShadow>)`, `shadow_none()`, `shadow_2xs()`, `shadow_xs()`, `shadow_sm()`, `shadow_md()`, `shadow_lg()`, `shadow_xl()`, `shadow_2xl()` |
-
-Bu makrolar `pub` (proc) macro olarak `gpui_macros` crate'inden export edilir
-ve `gpui::{visibility_style_methods, margin_style_methods, ...}` üzerinden de
-yeniden re-export edilir. Doğrudan uygulama kodu çağırmaz — fluent metotlar
-zaten `Styled` trait'inin parçası olduğu için her `Styled` impl'i otomatik
-sahip olur.
-
-`Styled` trait içinde ayrıca `gpui_macros::style_helpers!()` çağrısı vardır, fakat
-bu proc macro `#[doc(hidden)]` olduğu ve `gpui` crate kökünden re-export
-edilmediği için `target/doc/gpui/all.html` macro listesinde yer almaz. `w_*`,
-`h_*`, `size_*`, `min_size_*`, `min_w_*`, `min_h_*`, `max_size_*`, `max_w_*`,
-`max_h_*`, `gap_*`, `gap_x_*`, `gap_y_*` ve `rounded_*` aileleri bu internal
-macrodan gelir.
-
-Custom bir element için `Styled` impl ediyorsan trait'in tüm metotları
-otomatik miras kalır; bu makroları yeniden invoke etmek gerekmez. Yalnız
-GPUI'nin kendisi gibi yeni bir style framework yazıyorsan (paralel bir
-`Styled` benzeri trait için) bu macro'ları kendi trait'inin içinde invoke
-edebilirsin — `method_visibility` parametresi public/pub(crate) ayarına izin
-verir.
-
-Pratik kararlar:
-
-- Görünüm state'e bağlıysa `Render` içinde koşullu `.when(...)` kullan; style'ı
-  sonradan imperative değiştirmeye çalışma.
-- Scroll, focus, tooltip, animation gibi stateful elementlerde ID stabil olmalıdır.
-- Parent layout genişliği belirsizse text overflow, image aspect ratio ve absolute
-  child konumu beklediğin sonucu vermeyebilir.
-- Kart/toolbar/list gibi tekrar eden UI'da boyutları `min/max/aspect_ratio` ile
-  sabitle; hover veya loading state layout shift üretmemeli.
-
-### 18. Geometri Tipleri ve Birim Yönetimi
-
-`crates/gpui/src/geometry.rs`.
-
-GPUI üç farklı pixel birimi kullanır:
-
-- `Pixels(f32)`: scale-bağımsız mantıksal piksel. UI kodunda neredeyse her zaman
-  bu kullanılır.
-- `ScaledPixels(f32)`: `Pixels * window.scale_factor()`. Renderer'a iletilen değer.
-- `DevicePixels(i32)`: fiziksel cihaz pikseli. Asset/texture boyutlarında kullanılır.
-
-Yardımcılar:
-
-```rust
-let p = px(12.0);                  // Pixels
-let r = rems(1.5);                 // Rems
-let p2 = point(px(10.), px(20.));  // Point<Pixels>
-let s = size(px(100.), px(40.));   // Size<Pixels>
-let b = Bounds::from_corners(point(px(0.), px(0.)), point(px(100.), px(100.)));
-```
-
-Diğer birimler:
-
-- `Rems(f32)`: kök font boyutuna görelidir (Zed'de `theme.ui_font_size` ile bağlı).
-  `.text_sm()`, `.gap_2()` gibi makro üretilen helper'lar genelde Rems üzerinden
-  Pixels üretir.
-- `AbsoluteLength`: `Pixels` veya `Rems`.
-- `DefiniteLength`: `Absolute(AbsoluteLength)` veya `Fraction(f32)`.
-- `Length`: `Definite(DefiniteLength)` veya `Auto`.
-
-Stil API'leri Length kabul eder:
-
-```rust
-div().w(px(120.))           // Pixels
-    .min_h(rems(2.))        // Rems
-    .flex_basis(relative(0.5)) // Fraction
-    .h_auto()
-```
-
-Generic container'lar `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Corners<T>`
-çoğu metot için aritmetik destekler (`+`, `-`, `*`, `/`).
-
-Kaynakta public inherent metot yüzeyi:
-
-- `Point<T>`: `map`, `scale`, `magnitude`, `relative_to`, `max`, `min`, `clamp`.
-- `Size<T>`: `new`, `map`, `center`, `scale`, `max`, `min`, `full`, `auto`,
-  `to_pixels`, `to_device_pixels`.
-- `Bounds<T>`: `centered`, `maximized`, `new`, `from_corners`,
-  `from_anchor_and_size`, `centered_at`, `top_center`, `bottom_center`,
-  `left_center`, `right_center`, `intersects`, `center`, `half_perimeter`,
-  `dilate`, `extend`, `inset`, `space_within`, `top`, `bottom`, `left`,
-  `right`, `top_right`, `bottom_right`, `bottom_left`, `corner`, `contains`,
-  `is_contained_within`, `map`, `map_origin`, `map_size`, `localize`,
-  `is_empty`, `scale`, `to_device_pixels`, `to_pixels`.
-- `Edges<T>`: `all`, `map`, `any`, `auto`, `zero`, `to_pixels`, `scale`, `max`.
-  Birden fazla `zero`/`to_pixels` impl'i farklı generic specialization'lardan
-  gelir.
-- `Corners<T>`: `all`, `corner`, `to_pixels`, `scale`, `max`,
-  `clamp_radii_for_quad_size`, `map`.
-- Birim wrapper'ları: `Pixels::{as_f32, floor, round, ceil, scale, pow, abs,
-  signum, to_f64}`, `ScaledPixels::{as_f32, floor, round, ceil}`,
-  `Rems::{is_zero, to_pixels, to_rems}`, `DevicePixels::to_bytes`.
-
-Hazır oran sabitleri:
-
-- `phi() -> DefiniteLength` (`geometry.rs:3698`): altın oranı `relative(1.618_034)`
-  olarak döndürür — yani parent'ın **1.618 katı**, %50 değil. GPUI'nin kendisi
-  default `TextStyle::line_height` değeri olarak `phi()` kullanır
-  (`style.rs:451`); yani bir font için satır yüksekliği `font_size * 1.618`'dir.
-  Layout oranlamada (örn. golden-ratio iki sütun) parent'ın katı olarak
-  istenirse aynı sabit kullanılabilir.
-
-Tuzaklar:
-
-- `Bounds::contains(point)` half-open intervallere göre çalışır; sınır pikseli
-  `false` dönebilir.
-- `Pixels` ile `ScaledPixels` aritmetiği `From`/`Into` üzerinden açık konversiyon
-  ister; örtük çevrilmez.
-- `point(x, y)` argument sırası önce X sonra Y'dir; `size(width, height)` de aynı.
-
-### 19. Renkler, Gradient ve Background
-
-`crates/gpui/src/color.rs` ve `colors.rs`.
-
-İki temel tip:
-
-- `Rgba { r, g, b, a }`: 0.0–1.0 aralığında bileşenler.
-- `Hsla { h, s, l, a }`: 0.0–1.0 aralığında bileşenler.
-
-Constructor'lar:
-
-```rust
-let red = rgb(0xff0000);                    // Rgba, alfa 1.0
-let translucent = rgba(0xff000080);         // 0xRRGGBBAA
-let h = hsla(0.0, 1.0, 0.5, 1.0);           // saf kırmızı
-let grey = opaque_grey(0.5, 1.0);           // gri yardımcısı
-```
-
-Hazır renk sabitleri (hepsi `pub const fn ... -> Hsla`, `color.rs:344+`):
-
-| Fonksiyon | HSLA değeri | Not |
-|---|---|---|
-| `black()` | `(0.0, 0.0, 0.0, 1.0)` | Saf siyah |
-| `white()` | `(0.0, 0.0, 1.0, 1.0)` | Saf beyaz |
-| `transparent_black()` | `(0.0, 0.0, 0.0, 0.0)` | Tam saydam siyah — gradient ucu olarak kullanışlı |
-| `transparent_white()` | `(0.0, 0.0, 1.0, 0.0)` | Tam saydam beyaz |
-| `red()` | `(0.0, 1.0, 0.5, 1.0)` | %100 doygun kırmızı |
-| `blue()` | `(0.666…, 1.0, 0.5, 1.0)` | %100 doygun mavi |
-| `yellow()` | `(0.166…, 1.0, 0.5, 1.0)` | %100 doygun sarı |
-| `green()` | `(0.333…, 1.0, **0.25**, 1.0)` | Diğerlerinden farklı: lightness 0.25 (koyu yeşil) |
-
-Bunlar Zed tasarım sisteminden bağımsızdır; tema renkleri için `cx.theme().colors()`
-kullan. Debug placeholder, GPU shader test'i veya tema-bağımsız palette örneği
-gerekirse bu sabitler hazır gelir. `transparent_black()` `linear_gradient` ucu
-olarak en yaygın kullanılan tek-parça çağrısıdır (ör. fade-out maskeleri).
-
-Sık kullanılan metotlar (`color.rs:472+`):
-
-- `is_transparent()`, `is_opaque()`
-- `opacity(factor)`: alfayı çarpar.
-- `alpha(a)`: alfayı doğrudan ayarlar.
-- `fade_out(factor)`: in-place alfa azaltma.
-- `blend(other)`: pre-multiplied alpha ile karıştırır.
-- `grayscale()`: doygunluğu sıfırlar.
-- `to_rgb()`: Hsla → Rgba.
-
-Background tipi (`color.rs:763+`) sadece düz renk değildir:
-
-```rust
-solid_background(rgb(0xffffff))
-linear_gradient(
-    angle_deg,
-    linear_color_stop(rgb(0x000000), 0.0),
-    linear_color_stop(rgb(0xffffff), 1.0),
-)
-checkerboard(rgb(0xeeeeee), 8.0)
-pattern_slash(rgb(0xff0000), 2.0, 6.0)
-```
-
-`linear_gradient(...).color_space(ColorSpace::Oklab)` ile renk uzayı seçilebilir;
-`opacity(factor)` her stop'a uygulanır. `Background::as_solid()` yalnızca düz
-renk background için `Some(Hsla)` döndürür; gradient/pattern için `None` döner.
-
-`.bg(impl Into<Background>)` her style fluent API'sinde mevcut. Düz `Hsla` da
-`Into<Background>` implement eder, bu yüzden `.bg(theme.colors().panel_background)`
-tipik kullanımdır.
-
-Pratik notlar:
-
-- Alfa = 0 fakat opaque arka planın üzerine çiziyorsan temadaki opak rengi tercih et.
-- Gradient stop'lar `0.0` ve `1.0` arasında sıralı vermeli; aksi halde GPU shader'ı
-  beklenmedik dağılım verebilir.
-- Hsla'da hue 1.0'a sarılmaz (clamp'lenir); rotasyon için `hue + delta` modulo 1.0
-  ile hesapla.
-
-### 20. SharedString, SharedUri ve Ucuz Klonlanan Tipler
-
-`SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri`
-`crates/gpui/src/shared_uri.rs` içinde bu string tipini sarar.
-
-UI ağacı her render'da yeniden oluşturulduğu için string ve URI kopyalama maliyeti
-hızla birikir. GPUI bunun için `Arc` tabanlı tipler sunar:
-
-- `SharedString`: `&'static str` veya `Arc<str>`. `Clone` ucuzdur (ref-count).
-  `Display`, `AsRef<str>`, `Into<SharedString>` impl'ler mevcuttur. `&'static str`,
-  `String` ve `Cow<'_, str>` ücretsizce dönüşür.
-- `SharedUri`: aynı stratejiyle URI; `ImageSource::Resource(Resource::Uri(...))`
-  burada `SharedUri` ister.
-
-Render içinde `String` üretip clone etmek yerine entity state'de `SharedString`
-sakla:
-
-```rust
-struct Header { title: SharedString }
-
-impl Header {
-    fn set_title(&mut self, title: impl Into<SharedString>, cx: &mut Context<Self>) {
-        self.title = title.into();
-        cx.notify();
-    }
-}
-
-impl Render for Header {
-    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
-        div().child(self.title.clone())
-    }
-}
-```
-
-İlgili ucuz klon tipleri:
-
-- `Arc<str>`, `Arc<Path>`, `Arc<[T]>`: GPUI sıkça `Arc` based slice/path bekler.
-- `Hsla`/`Rgba`: `Copy` tipli, doğrudan değer geçirilir.
-- `ElementId`: `Clone`, internal ID veya string varyantları taşır.
-
-Tuzaklar:
-
-- `SharedString::from(String)` çağrısı bir kez allocation yapar; sonraki klonlar
-  ücretsiz. Hot path'te tekrar tekrar `String` üretmekten kaçın.
-- `to_string()` çağrısı yeni `String` allocation üretir; gerekmiyorsa
-  `as_ref()` veya `Display` ile yaz.
-- Format string her render'da çalışıyorsa `format!` sonucu da her frame allocation
-  yapar; sonucu cache'lemek için entity state'te tut.
-
-### 21. WindowAppearance ve Tema Modu
-
-`crates/gpui/src/platform.rs:1604` içinde tanımlı:
-
-```rust
-pub enum WindowAppearance {
-    Light,        // macOS: aqua
-    VibrantLight, // macOS: NSAppearanceNameVibrantLight
-    Dark,         // macOS: darkAqua
-    VibrantDark,  // macOS: NSAppearanceNameVibrantDark
-}
-```
-
-`Vibrant` varyantları macOS `NSAppearance` değerleriyle doğrudan eşleşir. Diğer
-platformlar bu enum'u yine taşır, fakat vibrancy'nin gerçek etkisi platform
-implementasyonuna bağlıdır. Sistem açık/koyu tercih ettiğinde GPUI bunu platform
-appearance olarak yansıtır; kullanıcı manuel tema override yapmıyorsa Zed teması
-bu sinyali takip eder.
-
-Erişim:
-
-- `cx.window_appearance() -> WindowAppearance`: uygulama-genel platform tercihi.
-- `window.appearance() -> WindowAppearance`: pencerenin gerçek görünümü
-  (parent override edebilir).
-- `window.observe_window_appearance(|window, cx| ...)`: entity state'e gerek
-  yoksa doğrudan pencere observer'ı.
-- `cx.observe_window_appearance(window, |this, window, cx| ...)`: `Context<T>`
-  içinden view state ile birlikte değişimi izle.
-- `window.observe_button_layout_changed(...)` ve
-  `cx.observe_button_layout_changed(window, ...)`: platform pencere kontrol
-  butonu düzeni değiştiğinde çalışır.
-
-Zed örüntüsü `crates/zed/src/main.rs` içinde tema seçimine bağlanır:
-
-```rust
-cx.observe_window_appearance(window, |_, window, cx| {
-    let appearance = window.appearance();
-    *SystemAppearance::global_mut(cx) = SystemAppearance(appearance.into());
-    theme_settings::reload_theme(cx);
-    theme_settings::reload_icon_theme(cx);
-}).detach();
-```
-
-Tuzaklar:
-
-- macOS dışında `VibrantLight`/`VibrantDark` üretilmez; eşleştirme tablosunda
-  yine de tüm dört değeri ele al.
-- Sistem temasını değiştirmek pencere açıldıktan sonra `window_background_appearance`
-  değişimini tetiklemez; tema akışında manuel `window.set_background_appearance(...)`
-  çağrısı gerekir.
-- `Vibrant*` ile birlikte `WindowBackgroundAppearance::Blurred` eklenirse macOS'ta
-  blur'un üzerine extra vibrancy bindirilir; tasarım sisteminde tek katman seç.
-
-
----
-
-## Bölüm VI — Pencere Yönetimi
-
----
-
-### 22. Pencere Oluşturma
-
-Ana API:
-
-```rust
-let handle = cx.open_window(
-    WindowOptions {
-        window_bounds: Some(WindowBounds::centered(size(px(900.), px(700.)), cx)),
-        titlebar: Some(TitlebarOptions {
-            title: Some("My Window".into()),
-            appears_transparent: true,
-            traffic_light_position: Some(point(px(9.), px(9.))),
-        }),
-        focus: true,
-        show: true,
-        kind: WindowKind::Normal,
-        is_movable: true,
-        is_resizable: true,
-        is_minimizable: true,
-        window_min_size: Some(size(px(360.), px(240.))),
-        window_background: cx.theme().window_background_appearance(),
-        window_decorations: Some(gpui::WindowDecorations::Client),
-        app_id: Some(ReleaseChannel::global(cx).app_id().to_owned()),
-        ..Default::default()
-    },
-    |window, cx| {
-        window.activate_window();
-        cx.new(|cx| MyRootView::new(window, cx))
-    },
-)?;
-```
-
-`WindowOptions` alanları:
-
-- `window_bounds`: `None` ise GPUI display default bounds seçer. `Some` verilirse
-  `Windowed`, `Maximized` veya `Fullscreen` başlangıcı yapılır. Default seçilirken
-  baz alınan boyut `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095, ana
-  Zed penceresi için) ve `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` (900×750, 6:5
-  oranında settings/rules library benzeri ek pencereler için) const'larıdır
-  (`window.rs:70,74`); kendi varsayılan boyutunu override etmek istemiyorsan
-  bu değerlere güvenebilirsin.
-- `titlebar`: `Some(TitlebarOptions)` sistem başlık çubuğu konfigürasyonu.
-  `None`, custom titlebar için kullanılır.
-- `focus`: oluşturulduğunda odak alıp almayacağı.
-- `show`: hemen gösterilip gösterilmeyeceği. Zed ana pencereleri başlangıçta
-  `show: false`, `focus: false` ile açar ve hazır olunca gösterir.
-- `kind`: `Normal`, `PopUp`, `Floating`, `Dialog`, Linux Wayland feature ile
-  `LayerShell`.
-- `is_movable`, `is_resizable`, `is_minimizable`: platform pencere kabiliyetleri.
-- `display_id`: belirli monitor.
-- `window_background`: `Opaque`, `Transparent`, `Blurred`, Windows için ayrıca
-  `MicaBackdrop`, `MicaAltBackdrop`.
-- `app_id`: Linux desktop grouping vb.
-- `window_min_size`: minimum content size.
-- `window_decorations`: `Server` veya `Client`. Linux'ta kritik; macOS/Windows'ta
-  pratikte titlebar seçenekleri daha belirleyici.
-- `icon`: X11 için pencere ikonu.
-- `tabbing_identifier`: macOS native window tabs gruplaması.
-
-`Window::new` içinde GPUI platform penceresini açar, sonra:
-
-1. `platform_window.request_decorations(...)` çağırır.
-2. `platform_window.set_background_appearance(window_background)` çağırır.
-3. Bounds `Fullscreen` ise fullscreen, `Maximized` ise zoom uygular.
-4. Platform callback'lerini bağlar.
-5. İlk render'ı yapar.
-
-### 23. Zed'de Ana Pencere Nasıl Açılır?
-
-Zed'in ana referansı `crates/zed/src/zed.rs::build_window_options` fonksiyonudur.
-Yeni ana workspace penceresi açacaksan bunu kullan:
-
-```rust
-let options = zed::build_window_options(display_uuid, cx);
-let window = cx.open_window(options, |window, cx| {
-    cx.new(|cx| Workspace::new(/* ... */, window, cx))
-})?;
-```
-
-Bu fonksiyon şunları yapar:
-
-- `display_uuid` ile uygun display'i bulur.
-- `ZED_WINDOW_DECORATIONS=server|client` env override'ını okur.
-- Aksi durumda `WorkspaceSettings::window_decorations` ayarını kullanır.
-- `TitlebarOptions { appears_transparent: true, traffic_light_position: (9,9) }`
-  kurar.
-- `focus: false`, `show: false`, `kind: Normal` ayarlar.
-- `window_background` değerini aktif temadan alır.
-- Linux/FreeBSD'de app icon ekler.
-- macOS native tabbing istenirse `tabbing_identifier: Some("zed")` verir.
-
-Modal/About gibi küçük pencereler için doğrudan `WindowOptions` oluşturmak normaldir.
-`crates/zed/src/zed.rs::about` örneği:
-
-- Centered bounds
-- `appears_transparent: true`
-- `is_resizable: false`
-- `is_minimizable: false`
-- `kind: Normal`
-
-### 24. Display ve Çoklu Monitor
-
-Display bilgisi:
-
-```rust
-for display in cx.displays() {
-    let id = display.id();
-    let bounds = display.bounds();
-    let visible = display.visible_bounds();
-    let uuid = display.uuid().ok();
-}
-```
-
-Belirli ekranda pencere açmak için:
-
-```rust
-WindowOptions {
-    display_id: Some(display.id()),
-    window_bounds: Some(WindowBounds::Windowed(bounds)),
-    ..Default::default()
-}
-```
-
-`Bounds` ekran koordinatlarıdır. `WindowBounds::centered(size, cx)` ana/default
-display üzerinde merkezler. Elle konumlandırma gerekiyorsa `Bounds::new(origin, size)`
-kullan.
-
-### 25. WindowKind Davranışı
-
-- `Normal`: ana uygulama penceresi.
-- `PopUp`: diğer pencerelerin üstünde, bildirim ve geçici popup için. Zed bildirim
-  pencerelerinde kullanır.
-- `Floating`: parent üstünde floating panel.
-- `Dialog`: parent etkileşimini kapatan modal platform penceresi.
-- `LayerShell`: Wayland layer-shell feature ile dock/overlay/wallpaper benzeri
-  yüzeyler için.
-
-Pop-up/bildirim pencerelerinde tipik seçenekler:
-
-```rust
-WindowOptions {
-    titlebar: None,
-    kind: WindowKind::PopUp,
-    focus: false,
-    show: true,
-    is_movable: false,
-    window_background: WindowBackgroundAppearance::Transparent,
-    window_decorations: Some(WindowDecorations::Client),
-    ..Default::default()
-}
-```
-
-Zed örnekleri: `crates/agent_ui/src/ui/agent_notification.rs`,
-`crates/collab_ui/src/collab_ui.rs`.
-
-### 26. Başlık Çubuğu ve Pencere Dekorasyonu
-
-İki kavramı ayır:
-
-- `TitlebarOptions`: macOS/Windows native titlebar görünümü, title ve macOS traffic
-  light konumu.
-- `WindowDecorations`: Linux/Wayland/X11 tarafında server-side decoration mı,
-  client-side decoration mı istendiği.
-
-GPUI tipleri:
-
-```rust
-pub enum WindowDecorations {
-    Server,
-    Client,
-}
-
-pub enum Decorations {
-    Server,
-    Client { tiling: Tiling },
-}
-```
-
-`WindowDecorations`, pencere açarken istenen moddur. `Decorations`, platformun fiili
-durumudur ve `window.window_decorations()` ile okunur.
-
-Zed ayarı:
-
-```json
-{
-  "window_decorations": "client"
-}
-```
-
-Env override:
-
-```sh
-ZED_WINDOW_DECORATIONS=server
-ZED_WINDOW_DECORATIONS=client
-```
-
-Zed settings tipi `settings_content::workspace::WindowDecorations` sadece `client`
-ve `server` destekler; default `client`.
-
-### 27. Custom Titlebar Nasıl Tanımlanır?
-
-Basit GPUI uygulamasında:
-
-```rust
-cx.open_window(
-    WindowOptions {
-        titlebar: None,
-        ..Default::default()
-    },
-    |_, cx| cx.new(|_| MyView),
-)?;
-```
-
-Root view içinde kendi başlık çubuğunu çiz:
-
-```rust
-div()
-    .flex()
-    .flex_col()
-    .size_full()
-    .child(
-        h_flex()
-            .window_control_area(WindowControlArea::Drag)
-            .h(px(34.))
-            .child("Title")
-    )
-    .child(content)
-```
-
-Windows'ta caption button bölgeleri için `window_control_area` çok önemlidir:
-
-- `WindowControlArea::Drag`: sürüklenebilir başlık alanı.
-- `WindowControlArea::Close`: native close hit-test alanı.
-- `WindowControlArea::Max`: maximize/restore hit-test alanı.
-- `WindowControlArea::Min`: minimize hit-test alanı.
-
-Zed'de yeni workspace benzeri pencere yapıyorsan custom titlebar'ı sıfırdan yazma.
-`PlatformTitleBar` kullan:
-
-```rust
-let platform_titlebar = cx.new(|cx| PlatformTitleBar::new("my-titlebar", cx));
-
-platform_titlebar.update(cx, |titlebar, _| {
-    titlebar.set_children([my_left_or_center_content.into_any_element()]);
-});
-
-platform_titlebar.into_any_element()
-```
-
-`PlatformTitleBar` şunları halleder:
-
-- Linux client-side decoration için sol/sağ pencere kontrol butonları.
-- Windows pencere kontrol butonları.
-- macOS traffic light padding ve double-click davranışı.
-- Linux double-click ile zoom/maximize.
-- Başlık çubuğu drag alanı.
-- Linux'ta sağ tık window menu.
-- Sidebar açıkken kontrol butonları ve köşe yuvarlamalarını ayarlama.
-
-Zed titlebar davranışı:
-
-- `TitleBar`, `SkillsFeatureFlag` açıkken `OnboardingBanner` ile
-  "Introducing: Skills" banner'ını kurar; banner click'i
-  `zed_actions::agent::OpenRulesToSkillsMigrationInfo` action'ını dispatch eder.
-  Rules-to-Skills açıklaması modal katmanında gösterilir, titlebar label'ı
-  migration sonucuna göre değişmez.
-- `UpdateButton::checking`, `downloading` ve `installing` durumları disabled
-  button olarak çizilir. Sürüm tooltip metni `"Update to Version: ..."` biçimindedir;
-  SHA tabanlı sürümde kısa SHA yerine tam SHA gösterilir.
-
-### 28. Kontrol Butonları Nasıl Yönetilir?
-
-Kontrol butonları platforma göre farklı çizilir:
-
-- macOS: native traffic lights; Zed sadece padding ve `traffic_light_position` ayarlar.
-- Windows: `platform_title_bar::platforms::platform_windows::WindowsWindowControls`
-  caption button render eder; her buton `WindowControlArea` ile native hit-test
-  alanına bağlanır.
-- Linux: `platform_title_bar::platforms::platform_linux::LinuxWindowControls`
-  `WindowButtonLayout` ve `WindowControls` bilgisine göre close/min/max çizer.
-
-Sol/sağ kontrol çizmek için hazır fonksiyonlar:
-
-```rust
-platform_title_bar::render_left_window_controls(
-    cx.button_layout(),
-    Box::new(workspace::CloseWindow),
-    window,
-)
-
-platform_title_bar::render_right_window_controls(
-    cx.button_layout(),
-    Box::new(workspace::CloseWindow),
-    window,
-)
-```
-
-Close butonu doğrudan `window.remove_window()` çağırmaz; Zed'de close action
-dispatch edilir:
-
-```rust
-window.dispatch_action(workspace::CloseWindow.boxed_clone(), cx);
-```
-
-Böylece dirty buffer, confirmation, workspace close mantığı ve keybinding ile aynı
-akış kullanılır.
-
-Linux `WindowButtonLayout`:
-
-- `WindowButton::{Minimize, Maximize, Close}` sıralı control tipleridir; layout
-  sol ve sağ taraf için `Option<WindowButton>` slot dizileri taşır. Slot başı
-  sayısı `gpui::MAX_BUTTONS_PER_SIDE: usize = 3` (`platform.rs:457`) ile
-  sabittir; `WindowButtonLayout::{left, right}` bu sayıda elementli dizidir.
-- Platformdan `cx.button_layout()` ile gelir.
-- GNOME tarzı `"close,minimize:maximize"` formatı parse edilebilir.
-- Default Linux fallback: sağda minimize, maximize, close.
-- `TitleBarSettings` içinde kullanıcı override'ı da vardır; `TitleBar` bunu
-  `PlatformTitleBar::set_button_layout` ile geçirir.
-
-### 29. Client-Side Decoration ve Resize
-
-Zed'in client-side decoration wrapper'ı:
-
-```rust
-workspace::client_side_decorations(element, window, cx, border_radius_tiling)
-```
-
-Yaptıkları:
-
-- `window.window_decorations()` ile fiili decoration modunu okur.
-- Client decoration ise `window.set_client_inset(theme::CLIENT_SIDE_DECORATION_SHADOW)` çağırır.
-- Server decoration ise inset'i `0` yapar.
-- `window.client_inset()` platform penceresine son set edilen inset değerini
-  okumak için kullanılabilir; wrapper padding/shadow hesabıyla uyumlu tutulmalıdır.
-- Tiling durumuna göre köşe yuvarlamalarını kaldırır.
-- Border ve shadow çizer.
-- Kenar/corner bölgelerinde cursor'u resize cursor'a çevirir.
-- Mouse down'da `window.start_window_resize(edge)` çağırır.
-
-Kendi client-side decoration yapacaksan aynı prensipleri uygula:
-
-1. Fiili modu `window.window_decorations()` ile oku.
-2. Client ise gölge/invisible resize alanı kadar `set_client_inset` ver.
-3. Tiling varsa ilgili kenar/köşeye radius, padding ve shadow verme.
-4. Resize bölgelerinde `ResizeEdge` hesapla.
-5. Hareket için titlebar'a `WindowControlArea::Drag` veya Linux/macOS için
-   `window.start_window_move()` bağla.
-
-Linux'ta server-side decoration her zaman mümkün olmayabilir:
-
-- Wayland'de compositor decoration protocol sağlamazsa server isteği client'a düşer.
-- X11'de compositor yoksa client-side decoration server'a düşebilir.
-
-Bu yüzden pencere açarken istediğin modu değil, her render'da fiili
-`window.window_decorations()` sonucunu esas al.
-
-### 30. Platforma Göre Dekorasyon Davranışı
-
-#### macOS
-
-- `TitlebarOptions::appears_transparent = true` style mask'e
-  `NSFullSizeContentViewWindowMask` ekler.
-- `traffic_light_position` native close/min/zoom butonlarının konumunu taşır.
-- `titlebar_double_click()` native double-click aksiyonunu uygular.
-- `start_window_move()` native `performWindowDragWithEvent` çağırır.
-- `tabbing_identifier` verilirse native window tabbing açılır.
-- `WindowDecorations` pratikte platform no-op gibi davranır; macOS için başlık
-  çubuğu davranışını `TitlebarOptions` belirler.
-
-#### Windows
-
-- `TitlebarOptions::appears_transparent` custom/full content titlebar için kullanılır.
-- Caption butonlarının native hit-test davranışı `WindowControlArea` üzerinden
-  `HTCLOSE`, `HTMAXBUTTON`, `HTMINBUTTON`, `HTCAPTION` olarak platform event
-  katmanında eşlenir.
-- `WindowBackgroundAppearance::MicaBackdrop` ve `MicaAltBackdrop` DWM backdrop
-  attribute ile uygulanır.
-- `WindowControls` çizimi Zed tarafında Windows component ile yapılır.
-
-#### Linux/FreeBSD - Wayland
-
-- `WindowDecorations::Server` xdg-decoration protocol ile istenir.
-- Compositor server-side decoration desteklemiyorsa client-side'a düşülür.
-- `window_controls()` Wayland capabilities bilgisinden gelir: fullscreen,
-  maximize, minimize, window menu.
-- `show_window_menu`, `start_window_move`, `start_window_resize` xdg_toplevel
-  üzerinden compositor'a devredilir.
-- Blur için compositor `blur_manager` destekliyorsa `Blurred` yüzeyde blur commit
-  edilir.
-
-#### Linux/FreeBSD - X11
-
-- `request_decorations` `_MOTIF_WM_HINTS` yazar.
-- Client-side decoration compositor gerektirir; yoksa server-side'a düşer.
-- `show_window_menu` `_GTK_SHOW_WINDOW_MENU` client message gönderir.
-- Move/resize `_NET_WM_MOVERESIZE` tarzı mesajla başlatılır.
-- Tiling, fullscreen ve maximize state'leri `Decorations::Client { tiling }`
-  sonucunu etkiler.
-
-#### Web/WASM
-
-- Web platformunda native pencere dekorasyonu kavramı yoktur.
-- `WindowBackgroundAppearance` şu anda web window için opaque/no-op kabul edilir.
-- Entry point'te `gpui_platform::web_init()` çağır.
-
-### 31. Blur, Transparency ve Mica Yönetimi
-
-GPUI tipi:
-
-```rust
-pub enum WindowBackgroundAppearance {
-    Opaque,
-    Transparent,
-    Blurred,
-    MicaBackdrop,
-    MicaAltBackdrop,
-}
-```
-
-Zed tema ayarı sadece şunları kullanıcı tema içeriğinden destekler:
-
-```json
-{
-  "experimental.theme_overrides": {
-    "window_background_appearance": "blurred"
-  }
-}
-```
-
-Desteklenen setting değerleri: `opaque`, `transparent`, `blurred`.
-`MicaBackdrop` ve `MicaAltBackdrop` GPUI seviyesinde var, ancak Zed tema schema'sı
-şu anda bunları expose etmiyor.
-
-Zed akışı:
-
-- Tema refine edilirken `WindowBackgroundContent` -> `WindowBackgroundAppearance`
-  dönüştürülür.
-- Ana pencere açılırken `window_background: cx.theme().window_background_appearance()`.
-- Settings/theme değiştiğinde `crates/zed/src/main.rs` tüm açık pencerelerde
-  `window.set_background_appearance(background_appearance)` çağırır.
-- UI tarafında public yol `ui::theme_is_transparent(cx)`'dir; transparent veya
-  blurred ise true döner; opak arka plan varsayan bileşenler buna göre davranmalıdır.
-
-Platform davranışı:
-
-- macOS:
-  - `Opaque` native window opaque yapar.
-  - `Transparent` ve `Blurred` için renderer transparency açılır.
-  - macOS 12 öncesi blur `CGSSetWindowBackgroundBlurRadius` ile 80 radius kullanır.
-  - macOS 12+ `NSVisualEffectView` tabanlı blur view ekler/kaldırır.
-- Windows:
-  - `Opaque`: composition attribute kapatılır.
-  - `Transparent`: composition state transparent.
-  - `Blurred`: acrylic/blur benzeri composition attribute.
-  - `MicaBackdrop`: DWM `DWMSBT_MAINWINDOW`.
-  - `MicaAltBackdrop`: DWM `DWMSBT_TABBEDWINDOW`.
-- Wayland:
-  - Compositor blur protocol desteklerse `Blurred` yüzeye blur uygular.
-  - Aksi durumda blur isteği görünür fark yaratmayabilir.
-- X11:
-  - Transparent/blur renderer transparency'yi etkiler, gerçek backdrop blur window
-    manager/compositor desteğine bağlıdır.
-
-Pratik karar tablosu:
-
-- Tema/ana pencere için: `cx.theme().window_background_appearance()` kullan.
-- Geçici overlay/bildirim için: `Transparent`.
-- Windows 11 özel Mica istiyorsan: doğrudan `WindowBackgroundAppearance::MicaBackdrop`
-  veya `MicaAltBackdrop` kullan; fakat Zed theme setting'e otomatik bağlanmaz.
-- Blur kullanıyorsan: içerikte gerçekten alfa bırak; tamamen opak root background
-  blur'u görünmez yapar.
-
-### 32. Pencere Üzerinden Yapılan İşlemler
-
-Sık kullanılan `Window` API'leri:
-
-- `window.bounds()`: global ekran koordinatlarında bounds.
-- `window.window_bounds()`: tekrar açma/restore için `WindowBounds`.
-- `window.inner_window_bounds()`: Linux inset hariç bounds.
-- `window.viewport_size()`: drawable content size.
-- `window.resize(size)`: content size değiştirir.
-- `window.is_fullscreen()`, `window.is_maximized()`
-- `window.activate_window()`
-- `window.minimize_window()`
-- `window.zoom_window()`
-- `window.toggle_fullscreen()`
-- `window.remove_window()`
-- `window.set_window_title(title)`
-- `window.set_app_id(app_id)`
-- `window.set_background_appearance(appearance)`
-- `window.set_window_edited(true/false)` macOS dirty indicator.
-- `window.set_document_path(path)` macOS document accessibility/path.
-- `window.show_window_menu(position)` Linux titlebar context menu.
-- `window.start_window_move()`, `window.start_window_resize(edge)`
-- `window.request_decorations(WindowDecorations::Client/Server)`
-- `window.window_decorations()`
-- `window.window_controls()`
-- `window.prompt(...)`
-- `window.play_system_bell()`
-
-macOS window tab API'leri:
-
-- `window.tabbed_windows()`
-- `window.tab_bar_visible()`
-- `window.merge_all_windows()`
-- `window.move_tab_to_new_window()`
-- `window.toggle_window_tab_overview()`
-- `window.set_tabbing_identifier(...)`
-
-### 33. Pencere Bounds Persist ve Restore
-
-`crates/gpui/src/platform.rs::WindowBounds`, Zed tarafında
-`crates/workspace/src/persistence/`, `crates/workspace/src/workspace.rs` ve
-`crates/zed/src/zed.rs`.
-
-`WindowBounds` enum üç durumu kapsar:
-
-```rust
-pub enum WindowBounds {
-    Windowed(Bounds<Pixels>),
-    Maximized(Bounds<Pixels>),
-    Fullscreen(Bounds<Pixels>),
-}
-```
-
-`Bounds` her durumda restore-ready koordinatları taşır; `Maximized`/`Fullscreen`
-içindeki bounds, durum kapatıldığında dönülecek windowed bounds'tır.
-
-Persist akışı:
-
-```rust
-let bounds = window.inner_window_bounds();
-serialize(bounds, display_uuid);
-```
-
-Zed varsayılan pencere boyutu persist ederken `inner_window_bounds()` kullanır;
-workspace serialize sırasında bazı akışlarda `window.window_bounds()` da kullanılır.
-İkisi arasındaki fark platform/titlebar dahil edilen rect farklarına bağlıdır.
-Fullscreen/maximized durumlarında enum içindeki bounds restore edilecek windowed
-bounds'u temsil eder. Display UUID'si ayrı saklanır çünkü kullanıcı sonradan
-monitor'ü ayırabilir.
-
-Restore akışı `Workspace` açılırken `zed::build_window_options` üstüne uygulanır:
-
-1. Saklı `display_uuid`, `cx.displays()` içindeki `display.uuid()` değerleriyle
-   eşleştirilir.
-2. Display bulunduysa `options.display_id` set edilir, kayıtlı `WindowBounds`
-   `options.window_bounds` olur.
-3. Workspace-specific bounds yoksa default window bounds okunur.
-4. Hiç kayıt yoksa `WindowOptions.window_bounds = None` kalır ve GPUI platform
-   default/cascade bounds seçer.
-
-Bounds değişimini izlemek için:
-
-```rust
-cx.observe_window_bounds(window, |this, window, cx| {
-    let bounds = window.inner_window_bounds();
-    this.persist_bounds(bounds);
-}).detach();
-```
-
-Aynı şekilde `cx.observe_window_appearance(window, ...)` light/dark değişimini,
-`cx.observe_window_activation(window, ...)` foreground/background değişimini izler.
-
-Tuzaklar:
-
-- `window.bounds()` (live screen rect), `window.window_bounds()` ve
-  `window.inner_window_bounds()` farklı olabilir; restore/persist akışında hangi
-  rect'in beklediğini mevcut Zed çağrı noktasına göre seç.
-- Maximized/fullscreen enum'larının içindeki `Bounds<Pixels>` restore size'dır;
-  live platform bounds ekranı doldursa bile restore sonrası bu windowed bounds'a
-  dönülür.
-- Display UUID'si Linux/Wayland'de boş olabilir (`display.uuid().ok()` None döner);
-  fallback gerekli.
-
-### 34. Native Window Tabs ve SystemWindowTabController
-
-macOS native window tabbing GPUI'de iki katmanlıdır:
-
-- `WindowOptions::tabbing_identifier`: aynı identifier'a sahip windows native tab
-  group'a girebilir.
-- `SystemWindowTabController`: GPUI global'i olarak native tab gruplarını ve
-  görünürlük state'ini izler.
-
-Window API'leri:
-
-- `window.tabbed_windows() -> Option<Vec<SystemWindowTab>>`
-- `window.tab_bar_visible() -> bool`
-- `window.merge_all_windows()`
-- `window.move_tab_to_new_window()`
-- `window.toggle_window_tab_overview()`
-- `window.set_tabbing_identifier(Some(identifier))`
-
-Kullanım kararı:
-
-- Zed workspace tab/pane sistemi için native tabbing yerine `workspace::Pane` ve
-  `TabBar` kullanılır.
-- İşletim sistemi seviyesinde birden çok top-level window'u aynı native tab gruba
-  almak istiyorsan `tabbing_identifier` ver.
-- Native tab state'i platformdan gelir; Linux/Windows üzerinde bu API'lerin bir
-  kısmı no-op veya `None` dönebilir.
-
-Tuzaklar:
-
-- Native window tab ile Zed pane tab aynı kavram değildir; persistence ve command
-  routing farklıdır.
-- Window title değiştiğinde native tab title için `window.set_window_title(...)`
-  ve controller update akışı birlikte düşünülmelidir.
-
-### 35. Layer Shell ve Özel Platform Pencereleri
-
-Normal Zed pencereleri `WindowKind::Normal` ile açılır. Linux Wayland feature
-aktifken `WindowKind::LayerShell(LayerShellOptions)` overlay/dock/wallpaper
-benzeri yüzeyler için kullanılabilir:
-
-```rust
-use gpui::layer_shell::*;
-
-WindowOptions {
-    titlebar: None,
-    window_background: WindowBackgroundAppearance::Transparent,
-    kind: WindowKind::LayerShell(LayerShellOptions {
-        namespace: "gpui".to_string(),
-        layer: Layer::Overlay,
-        anchor: Anchor::LEFT | Anchor::RIGHT | Anchor::BOTTOM,
-        margin: Some((px(0.), px(0.), px(40.), px(0.))),
-        keyboard_interactivity: KeyboardInteractivity::None,
-        ..Default::default()
-    }),
-    ..Default::default()
-}
-```
-
-Layer shell alanları:
-
-- `Layer`: `Background`, `Bottom`, `Top`, `Overlay`.
-- `layer_shell::Anchor`: bitflag; `TOP/BOTTOM/LEFT/RIGHT` kombine edilir.
-- `exclusive_zone`: compositor'ın başka surface'leri bu alanı kapatmamasını ister.
-- `exclusive_edge`: exclusive zone kenarı.
-- `margin`: CSS sırası ile top/right/bottom/left.
-- `KeyboardInteractivity`: `None`, `Exclusive`, `OnDemand`.
-
-Bu API yalnızca `#[cfg(all(target_os = "linux", feature = "wayland"))]` altında
-vardır. Compositor protocol desteklemiyorsa backend `LayerShellNotSupportedError`
-döndürür; normal app penceresi fallback'i planla.
-
-
----
-
-## Bölüm VII — Etkileşim
-
----
-
-### 36. Focus, Blur ve Keyboard
-
-Focus handle:
-
-```rust
-struct View {
-    focus_handle: FocusHandle,
-}
-
-impl View {
-    fn new(cx: &mut Context<Self>) -> Self {
-        Self {
-            focus_handle: cx.focus_handle(),
-        }
-    }
-}
-```
-
-Render:
-
-```rust
-div()
-    .track_focus(&self.focus_handle)
-    .focus_visible(|style| style.border_color(cx.theme().colors().border_focused))
-```
-
-Focus vermek:
-
-```rust
-self.focus_handle.focus(window, cx);
-// veya
-cx.focus_view(&child_entity, window);
-```
-
-Focus sorguları:
-
-- `focus_handle.is_focused(window)`: handle doğrudan focused mı?
-- `focus_handle.contains_focused(window, cx)`: bu handle veya descendant focused mı?
-- `focus_handle.within_focused(window, cx)`: bu handle focused node'un içinde mi?
-
-Focus olayları:
-
-- `cx.on_focus(handle, window, ...)`: handle doğrudan focus aldı.
-- `cx.on_focus_in(handle, window, ...)`: handle veya descendant focus aldı.
-- `cx.on_blur(handle, window, ...)`: handle focus kaybetti.
-- `cx.on_focus_out(handle, window, |this, event, window, cx| ...)`: handle veya
-  descendant focus dışına çıktı; callback view state alır ve `FocusOutEvent`
-  içinden blur'lanan handle'a (`event.blurred`) erişilebilir.
-- `window.on_focus_out(handle, cx, |event, window, cx| ...)`: aynı olayın view
-  state almayan düşük seviyeli `Window` varyantı; geri çağrımı `Subscription`
-  olarak döner.
-- `cx.on_focus_lost(window, ...)`: pencere içinde focus kalmadı.
-
-Keyboard action akışı:
-
-1. `actions!(namespace, [ActionA, ActionB])` veya `#[derive(Action)]` +
-   `#[action(...)]` ile action tanımla.
-2. Element ağacında `.key_context("context-name")` belirt.
-3. `cx.bind_keys([KeyBinding::new("cmd-k", ActionA, Some("context-name"))])`.
-4. Handler için `.on_action(...)`, `.capture_action(...)` veya `cx.on_action(...)` kullan.
-
-Event propagation:
-
-- Mouse/key event handler'lar default propagate eder.
-- `cx.stop_propagation()` daha arkadaki/üstteki handler'lara gitmesini keser.
-- Action bubble phase'de handler'lar default propagation'ı durdurur; gerekirse
-  `cx.propagate()` kullanılır.
-
-### 37. Mouse, Drag, Drop ve Hitbox
-
-Element interactivity:
-
-- `.on_click(...)`
-- `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)`
-- `.on_mouse_down_out(...)`, `.on_mouse_up_out(...)`
-- `.on_scroll_wheel(...)`
-- `.on_pinch(...)`
-- `.on_drag_move::<T>(...)`
-- `.drag_over::<T>(...)`
-- `.on_drop::<T>(...)`
-- `.can_drop(...)`
-- `.occlude()` veya `.block_mouse_except_scroll()`
-- `.cursor_pointer()`, `.cursor(...)`
-
-Pencere kontrol hitbox'ı:
-
-```rust
-h_flex()
-    .window_control_area(WindowControlArea::Drag)
-```
-
-Custom resize/cursor için `canvas` ile hitbox eklemek Zed'deki client decoration
-desenidir:
-
-```rust
-canvas(
-    |bounds, window, _cx| {
-        window.insert_hitbox(bounds, HitboxBehavior::Normal)
-    },
-    |_bounds, hitbox, window, _cx| {
-        window.set_cursor_style(CursorStyle::ResizeLeftRight, &hitbox);
-    },
-)
-```
-
-Burada `canvas` imzası `prepaint: FnOnce(Bounds<Pixels>, &mut Window, &mut App) -> T`
-ve `paint: FnOnce(Bounds<Pixels>, T, &mut Window, &mut App)` şeklindedir; ikinci
-closure'da ilk pozisyonel argüman `bounds` (kullanılmıyorsa `_bounds`), ikinci
-argüman ise prepaint'in döndürdüğü değer (`hitbox`) olur. `set_cursor_style`
-hitbox'a referans ister; bu yüzden `&hitbox` geçilir.
-
-### 38. Drag ve Drop İçerik Üretimi
-
-`crates/gpui/src/elements/div.rs:572+` ve `1271+`.
-
-GPUI'de drag, drag edilen elementin yerine ayrı bir "ghost" view oluşturur ve
-mouse'u onun ile takip eder.
-
-```rust
-div()
-    .id("draggable")
-    .on_drag(payload.clone(), |payload, mouse_offset, window, cx| {
-        cx.new(|_| GhostView::for_payload(payload.clone(), mouse_offset))
-    })
-```
-
-İmza:
-
-```rust
-fn on_drag<T, W>(
-    self,
-    value: T,
-    constructor: impl Fn(&T, Point<Pixels>, &mut Window, &mut App) -> Entity<W> + 'static,
-) -> Self
-where
-    T: 'static,
-    W: 'static + Render;
-```
-
-- `value: T` drag payload tipidir; alıcı tarafta `on_drop::<T>` ile aynı tip ile
-  bağlanır.
-- `constructor` her drag başlangıcında ghost view üretir; mouse offset'i payload'a
-  göre konumlandırır.
-- `W: Render` ghost'un kendi entity'sidir; standart render gibi davranır.
-
-Drop tarafı:
-
-```rust
-div()
-    .drag_over::<MyPayload>(|style, payload, window, cx| {
-        style.bg(rgb(0xeeeeee))
-    })
-    .can_drop(|payload, window, cx| {
-        payload
-            .downcast_ref::<MyPayload>()
-            .is_some_and(|payload| payload.is_compatible(window, cx))
-    })
-    .on_drop::<MyPayload>(cx.listener(|this, payload: &MyPayload, window, cx| {
-        this.accept(payload.clone());
-        cx.notify();
-    }))
-```
-
-API:
-
-- `.on_drag::<T, W>(value, ctor)`: drag başlat.
-- `.drag_over::<T>(|style, payload, window, cx| -> StyleRefinement)`: hover sırasında
-  uygulanan stil refinement.
-- `.can_drop(|payload: &dyn Any, window, cx| -> bool)`: drop kabul edilip
-  edilmeyeceği. Tip kontrolü gerekiyorsa `downcast_ref::<T>()` kullanılır.
-- `.on_drop::<T>(listener)`: drop tamamlandı.
-- `.on_drag_move::<T>(listener)`: drag süresince mouse pozisyonu.
-- `cx.has_active_drag()`: app genelinde aktif drag var mı?
-- `cx.active_drag_cursor_style()`: aktif drag cursor override'ı.
-- `cx.stop_active_drag(window)`: aktif drag'i temizler, window refresh planlar ve
-  gerçekten drag vardıysa `true` döndürür. Escape/cancel path'lerinde kullanılır.
-
-Harici sürükleme (dosya sistem drag-in) için `FileDropEvent` ve `ExternalPaths`
-akışı kullanılır. Platform `FileDropEvent::Entered/Pending/Submit/Exited`
-üretir; `Window::dispatch_event` bunu dahili `active_drag` durumuna ve
-`ExternalPaths` payload'ına çevirir. UI tarafında normal drag/drop API'siyle
-yakalanır:
-
-```rust
-div()
-    .on_drag_move::<ExternalPaths>(cx.listener(|this, event, window, cx| {
-        let paths = event.drag(cx).paths();
-        this.preview_external_drop(paths, event.bounds, window, cx);
-    }))
-    .on_drop(cx.listener(|this, paths: &ExternalPaths, window, cx| {
-        this.handle_external_paths_drop(paths, window, cx);
-    }))
-```
-
-`ExternalPaths::paths()` `&[PathBuf]` döndürür. Ghost view platform tarafından
-dosya ikonları olarak çizilir; GPUI tarafındaki `Render for ExternalPaths`
-bilerek `Empty` döndürür.
-
-Tuzaklar:
-
-- Drag edilen tip `T: 'static` olmalıdır; lifetime taşıyan tip kabul edilmez.
-- Aynı element üzerinde `on_drag` iki kez çağrılırsa panic ("calling on_drag more
-  than once on the same element is not supported").
-- Ghost view her drag'de yeni `cx.new(...)` ile yaratılır; yan etkilerden kaçın.
-- `can_drop` false dönerse `drag_over`/`group_drag_over` stilleri uygulanmaz ve
-  `on_drop` çağrılmaz; kabul edilmeyen hedefin visual feedback'ini ayrı state ile
-  göstermen gerekiyorsa `on_drag_move` kullan.
-
-### 39. Hitbox, Cursor, Pointer Capture ve Autoscroll
-
-Hitbox, mouse hit-test ve cursor davranışının temelidir. Element handler'ları çoğu
-zaman bunu senin yerine kurar; custom canvas/element yazarken doğrudan kullanılır.
-
-```rust
-let hitbox = window.insert_hitbox(bounds, HitboxBehavior::Normal);
-if hitbox.is_hovered(window) {
-    window.set_cursor_style(CursorStyle::PointingHand, &hitbox);
-}
-```
-
-Davranış tipleri:
-
-- `HitboxBehavior::Normal`: arkadaki hitbox'ları etkilemez.
-- `HitboxBehavior::BlockMouse`: arkadaki mouse, hover, tooltip ve scroll hitbox
-  davranışlarını bloke eder; `.occlude()` bunu kullanır.
-- `HitboxBehavior::BlockMouseExceptScroll`: arkadaki mouse interaction'ı bloke
-  eder ama scroll seçimini geçirebilir; `.block_mouse_except_scroll()` bunu kullanır.
-
-Pointer capture:
-
-```rust
-window.capture_pointer(hitbox.id);
-// drag/resize bittiğinde
-window.release_pointer();
-```
-
-Capture aktifken ilgili hitbox hovered sayılır; resize handle ve sürükleme
-etkileşimlerinde mouse bounds dışına çıksa bile hareketi takip etmek için kullanılır.
-`window.captured_hitbox()` aktif capture id'sini döndürür; custom element debug
-veya nested drag state ayrıştırması dışında genelde gerekmez.
-
-Autoscroll:
-
-- `window.request_autoscroll(bounds)`: drag sırasında viewport kenarına yakın
-  bölge için autoscroll talep eder.
-- `window.take_autoscroll()`: scroll container tarafında talebi tüketir.
-
-Cursor:
-
-- `window.set_cursor_style(style, &hitbox)`: hitbox hovered ise cursor ayarlar.
-- `window.set_window_cursor_style(style)`: window genel cursor state'i.
-- `cx.set_active_drag_cursor_style(style, window)`: aktif drag payload'ı için
-  cursor override.
-- `cx.active_drag_cursor_style()` mevcut drag cursor'unu okur.
-
-Tuzaklar:
-
-- `Hitbox::is_hovered` keyboard input modality sırasında false dönebilir; scroll
-  handler yazarken `should_handle_scroll` kullan.
-- Overlay elementleri `.occlude()` kullanmazsa arkadaki butonlar hover/click
-  almaya devam edebilir.
-- Pointer capture release edilmezse sonraki mouse hareketlerinde yanlış hitbox
-  hovered kalabilir.
-
-### 40. Tab Sırası ve Klavye Navigasyonu
-
-`crates/gpui/src/tab_stop.rs`, `window.rs:397`.
-
-Tab navigasyonu `FocusHandle` üzerindeki iki bayrakla kontrol edilir:
-
-```rust
-let handle = cx.focus_handle()
-    .tab_stop(true)        // Tab tuşuyla durulabilir
-    .tab_index(0);         // Sıra path'ine katılır
-```
-
-Tab traversal sırası TabStopMap içindeki node sıralamasına göre belirlenir:
-
-1. Aynı grup içinde `tab_index` küçükten büyüğe.
-2. `tab_index` eşitse element ağaç sırası (DFS).
-3. `tab_stop(false)` olan handle sırada konum tutar ama klavyeyle durak olmaz.
-   Negatif `tab_index` özel olarak "devre dışı" anlamına gelmez; sadece sıralamada
-   daha erken bir path değeri üretir.
-
-Grup oluşturmak için element tarafında `.tab_group()` kullanılır; grubun sırası
-gerekiyorsa aynı elemente `.tab_index(index)` verilir. `TabStopMap::begin_group`
-ve `end_group` internal traversal operasyonlarıdır; uygulama kodu genelde bunları
-doğrudan çağırmaz.
-
-Custom element yazarken low-level karşılığı `window.with_tab_group(Some(index),
-|window| ...)` çağrısıdır; `None` verirsen grup açmadan closure'ı çalıştırır.
-Normal component kodunda `.tab_group()` fluent API'si tercih edilir.
-
-Window üzerindeki yardımcılar:
-
-- `window.focus_next(cx)` / `window.focus_prev(cx)`: Tab/Shift-Tab sırasında çağrılır.
-- `window.focused(cx)`: o anki odak handle'ı.
-
-Custom input bileşeni yazıyorsan:
-
-```rust
-div()
-    .track_focus(&self.focus_handle)
-    .on_action(cx.listener(|this, _: &menu::Confirm, window, cx| { ... }))
-    .child(/* ... */)
-```
-
-`tab_stop(true)` olmadan handle yalnızca programatik focus alır; klavyeyle
-ulaşılamaz. Aksesibilite ve form akışı için her interaktif element bir handle'a
-sahip olmalı.
-
-### 41. Text Input ve IME
-
-Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Editor benzeri metin
-alanları şunları sağlamalıdır:
-
-- `selected_text_range`
-- `marked_text_range`
-- `text_for_range`
-- `replace_text_in_range`
-- `replace_and_mark_text_in_range`
-- `unmark_text`
-- `bounds_for_range`
-- `character_index_for_point`
-- `accepts_text_input`
-
-Ham `InputHandler` implementasyonu yazıyorsan ayrıca
-`prefers_ime_for_printable_keys` override edilebilir. Ancak yaygın view yolu olan
-`EntityInputHandler` + `ElementInputHandler` ikilisinde bu ayrı bir hook değildir;
-mevcut wrapper `prefers_ime_for_printable_keys` için `accepts_text_input`
-sonucunu kullanır. IME/keybinding önceliğini `accepts_text_input`'tan bağımsız
-yönetmen gerekiyorsa doğrudan `InputHandler` implement eden özel handler yaz.
-
-IME aday penceresini doğru yerde tutmak için:
-
-```rust
-window.invalidate_character_coordinates();
-```
-
-Zed'de form tipi tek satır input için doğrudan editor yazmak yerine
-`ui_input::InputField` kullan. Bu crate editor'a bağlı olduğu için `ui` içinde
-değildir.
-
-`ui_input` public yüzeyi:
-
-- `pub use input_field::*`; ana component `InputField`.
-- `InputField::new(window, cx, placeholder_text)` tek satır editor instance'ı
-  ister ve placeholder'ı hemen editor'a yazar.
-- Builder/metotlar: `.start_icon(IconName)`, `.label(...)`,
-  `.label_size(LabelSize)`, `.label_min_width(Length)`, `.tab_index(isize)`,
-  `.tab_stop(bool)`, `.masked(bool)`, `.is_empty(cx)`, `.editor()`,
-  `.text(cx)`, `.clear(window, cx)`, `.set_text(text, window, cx)`,
-  `.set_masked(masked, window, cx)`.
-- `InputFieldStyle` public struct olarak görünür ama alanları private; dışarıdan
-  style override sözleşmesi değil, render içi tema snapshot'ıdır.
-- `ErasedEditor` trait'i editor köprüsüdür: `text`, `set_text`, `clear`,
-  `set_placeholder_text`, `move_selection_to_end`, `set_masked`,
-  `focus_handle`, `subscribe`, `render`, `as_any`.
-- `ErasedEditorEvent::{BufferEdited, Blurred}` picker/search gibi üst
-  bileşenlerin edit/blur akışını dinlemesi için kullanılır.
-- `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn
-  ErasedEditor>>` editor crate tarafından kurulur. Zed'de
-  `crates/editor/src/editor.rs` init akışında bu factory
-  `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile set edilir.
-  `InputField::new` factory unset ise panic eder; bu yüzden uygulama init
-  sırası editor kurulumu tamamlandıktan sonra `InputField` oluşturmaya dayanır.
-
-### 42. Text Input Handler ve IME Derin Akış
-
-Metin düzenleyen custom element yazıyorsan yalnızca key event dinlemek yeterli
-değildir. IME, dead key, marked text ve candidate window için platforma
-`InputHandler` vermen gerekir.
-
-View tarafı:
-
-```rust
-impl EntityInputHandler for EditorLikeView {
-    fn selected_text_range(
-        &mut self,
-        ignore_disabled_input: bool,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) -> Option<UTF16Selection> {
-        self.selection_utf16(ignore_disabled_input, window, cx)
-    }
-
-    fn marked_text_range(
-        &self,
-        window: &mut Window,
-        cx: &mut Context<Self>,
-    ) -> Option<Range<usize>> {
-        self.marked_range_utf16(window, cx)
-    }
-
-    fn unmark_text(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        self.clear_marked_text(window, cx);
-    }
-
-    // text_for_range, replace_text_in_range,
-    // replace_and_mark_text_in_range, bounds_for_range,
-    // character_index_for_point da uygulanır.
-}
-```
-
-Element paint sırasında:
-
-```rust
-window.handle_input(
-    &focus_handle,
-    ElementInputHandler::new(bounds, view_entity.clone()),
-    cx,
-);
-```
-
-Kurallar:
-
-- Range değerleri UTF-16 offset'idir; Rust byte index'iyle karıştırma.
-- `bounds_for_range` screen/candidate positioning için doğru absolute bounds
-  döndürmelidir.
-- Cursor/selection hareketinden sonra `window.invalidate_character_coordinates()`
-  çağır; IME paneli yeni konuma taşınır.
-- `accepts_text_input` false ise platform text insertion engellenebilir.
-- Raw `InputHandler::prefers_ime_for_printable_keys` true ise non-ASCII IME
-  aktifken printable tuşlar keybinding'den önce IME'ye gider. `ElementInputHandler`
-  ile sarılan `EntityInputHandler` için GPUI bu kararı `accepts_text_input`
-  üzerinden verir; trait'te ayrı bir override noktası yoktur.
-- Window frame geçişinde platform input handler `Vec<Option<_>>` slot'ları
-  `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılıp bir sonraki frame'de
-  aynı slot'a geri yerleştirilir. `reuse_paint` cached `paint_range` index'leri
-  bu yüzden stabil kalır. Custom düşük seviye window/frame kodu yazarken input
-  handler dizisinin uzunluğunu index cache'i varken değiştirme.
-
-Tuzaklar:
-
-- Sadece `.on_key_down` ile text editor yazmak IME ve dead-key dillerinde bozulur.
-- UTF-16 range'i byte slice'a doğrudan uygulamak çok byte'lı karakterlerde panic
-  veya yanlış seçim üretir.
-- Input handler frame'e bağlıdır; focused element paint edilmezse platform input
-  handler da düşer.
-
-### 43. Keystroke, Modifiers ve Platform Bağımsız Kısayollar
-
-`crates/gpui/src/platform/keystroke.rs` klavye girdisinin normalized modelidir.
-Keymap sadece action binding değildir; pending input, IME ve gösterim metni de
-bu tiplerle taşınır.
-
-Ana tipler:
-
-- `Keystroke { modifiers, key, key_char }`: gerçek input. `key` basılan tuşun
-  ASCII karşılığıdır (örn. option-s için `s`); `key_char` o tuşla üretilebilecek
-  karakteri tutar (örn. option-s için `Some("ß")`, cmd-s için `None`). Asciiye
-  çevrilemeyen layout'larda `key` yine ASCII fallback'idir, asıl yazılan
-  karakter `key_char`'a düşer. Ayrı bir `ime_key` alanı yoktur.
-- `KeybindingKeystroke`: binding dosyalarında görünen display modifier/key ile
-  eşleşme için kullanılan sarıcı.
-- `InvalidKeystrokeError`: parse hatası. Hatanın `Display` çıktısı
-  `gpui::KEYSTROKE_PARSE_EXPECTED_MESSAGE: &str` const'ını şablon olarak
-  kullanır (`platform/keystroke.rs:69`); kullanıcı keymap parser'ında aynı
-  bekleyiş cümlesini göstermek istersen bu sabite bağlan.
-- `Modifiers`: `control`, `alt`, `shift`, `platform`, `function` alanları.
-- `AsKeystroke`: hem `Keystroke` hem display wrapper'ları üzerinden ortak
-  keystroke erişimi sağlayan küçük trait.
-- `Capslock { on }`: platform input snapshot'ında capslock durumunu taşır.
-
-Kullanım:
-
-```rust
-let keystroke = Keystroke::parse("cmd-shift-p")?;
-let text = keystroke.unparse();
-let handled = window.dispatch_keystroke(keystroke, cx);
-```
-
-Modifier yardımcıları:
-
-- `Modifiers::none()`, `command()`, `windows()`, `super_key()`,
-  `secondary_key()`, `control()`, `alt()`, `shift()`, `function()`,
-  `command_shift()`, `control_shift()`.
-- `command()`, `windows()`, `super_key()` üçü de aynı şeyi yapar:
-  `Modifiers { platform: true, .. }` üretir. Tek bir `platform` field'ı OS'a
-  göre command (macOS), windows (Windows) veya super (Linux) anlamına gelir;
-  bu üç constructor sadece kavramsal vurgu için ayrı isimle export edilir.
-- `secondary_key()` macOS'ta command, Linux/Windows'ta control üretir; Zed'de
-  platform bağımsız kısayol yazarken çoğu durumda doğru seçim budur.
-- `modified()`, `secondary()`, `number_of_modifiers()`,
-  `is_subset_of(&other)` input ayrıştırmada kullanılır.
-
-IME:
-
-- `Keystroke::is_ime_in_progress()` IME composition sırasında true döner.
-- `window.dispatch_keystroke(...)` test/simülasyon path'inde
-  `with_simulated_ime()` uygular; doğrudan lower-level event üretirken IME
-  state'ini ayrıca düşünmek gerekir.
-
-`KeybindingKeystroke` yüzeyi:
-
-- `KeybindingKeystroke::new_with_mapper(inner, use_key_equivalents,
-  keyboard_mapper)`: platform keyboard mapper üzerinden display key/modifier
-  üretir. `from_keystroke(keystroke)` platform mapping yapmadan sarar.
-  Windows'ta `new(inner, display_modifiers, display_key)` constructor'ı da vardır;
-  macOS/Linux build'lerinde bu constructor yoktur.
-- `inner()`, `modifiers()`, `key()` getter'ları display ve gerçek keystroke
-  ayrımını saklar. Windows'ta `modifiers()`/`key()` display değerini döndürebilir;
-  gerçek GPUI input'u için `inner()` okunur.
-- `set_modifiers(...)`, `set_key(...)`, `remove_key_char()` ve `unparse()`
-  keybinding editor/normalizer akışında kullanılır. `remove_key_char()` yalnız
-  `inner.key_char = None` yapar; `key` alanını silmez.
-
-Binding sorguları:
-
-- `window.bindings_for_action(&Action)` ve `window.keystroke_text_for(&Action)`
-  kullanıcıya gösterilecek kısayol metni için tercih edilir.
-- `cx.all_bindings_for_input(&[Keystroke])` ve
-  `window.possible_bindings_for_input(&[Keystroke])` multi-stroke veya prefix
-  binding durumlarında kullanılabilir.
-- `window.pending_input_keystrokes()` henüz tamamlanmamış input zincirini verir.
-
-
----
-
-## Bölüm VIII — Action ve Keymap
-
----
-
-### 44. Action Sistemi Derinlemesine
-
-`crates/gpui/src/action.rs`, `key_dispatch.rs`.
-
-Action tanımının iki ana yolu vardır.
-
-Veri taşımayan action:
-
-```rust
-use gpui::actions;
-actions!(my_namespace, [Save, Close, Reload]);
-```
-
-`actions!` makrosu her isim için unit struct ve `Action` impl üretir; namespace
-`my_namespace::Save` adıyla registry'ye kaydolur.
-
-Veri taşıyan action:
-
-```rust
-use gpui::Action;
-
-#[derive(Clone, PartialEq, serde::Deserialize, schemars::JsonSchema, Action)]
-#[action(namespace = editor)]
-pub struct GoToLine { pub line: u32 }
-```
-
-`#[action(namespace = ..., name = "...", no_json, no_register,
-deprecated_aliases = [...], deprecated = "...")]` attribute'leri kontrol sağlar.
-Default olarak `Deserialize` derive edilmesi ve `JsonSchema` implement edilmesi
-beklenir; pure code action için `no_json` kullan, register edilmesini
-istemiyorsan `no_register` ekle.
-
-Dispatch:
-
-- `window.dispatch_action(action.boxed_clone(), cx)`: focused element'ten root'a doğru
-  bubble.
-- `focus_handle.dispatch_action(&action, window, cx)`: belirli handle'dan başlatır.
-- Keymap girdileri eşleştiğinde otomatik dispatch edilir.
-
-Listener kaydı:
-
-```rust
-.on_action(cx.listener(|this, action: &GoToLine, window, cx| {
-    this.go_to(action.line);
-    cx.notify();
-}))
-.capture_action(cx.listener(handler)) // capture phase
-```
-
-`DispatchPhase`:
-
-- `Capture`: root'tan focused element'e doğru.
-- `Bubble`: focused element'ten root'a doğru. Default; action handler'lar burada
-  default olarak propagation'ı durdurur. Aksi gerekiyorsa içinde `cx.propagate()`.
-
-Keybinding:
-
-```rust
-cx.bind_keys([
-    KeyBinding::new("cmd-s", Save, Some("Workspace")),
-    KeyBinding::new("ctrl-g", GoToLine { line: 0 }, Some("Editor")),
-]);
-```
-
-Context predicate gramer (`crates/gpui/src/keymap/context.rs:172,360+`):
-
-- `Editor` — context stack'te `Editor` identifier'ı var.
-- `Editor && !ReadOnly` — birleştirme + negasyon.
-- `Workspace > Editor` — `>` operatörü "Editor parent dispatch path'inde Workspace
-  altında" anlamına gelen descendant predicate'idir.
-- `mode == insert` — eşitlik (`KeyContext::set("mode", "insert")` ile yazılan
-  key/value değerine bakar).
-- `mode != normal` — eşitsizlik.
-- `(Editor || Terminal) && !ReadOnly` — parantezle gruplama.
-
-Gerçek parser yalnızca şu operatörleri tanır: `>`, `&&`, `||`, `==`, `!=`, `!`.
-`in (a, b)`, `not in`, fonksiyon çağrısı gibi syntax'lar yoktur. Vim modu gibi
-çoklu seçenek için `mode == normal || mode == visual` yazılır.
-
-`.key_context("Editor")` ile element ağaca context push eder; child'lar üst
-context'leri görür. Aynı binding birden çok context'te match ederse en
-spesifik (en derin) context kazanır.
-
-Tuzaklar:
-
-- Action register edilmeden binding atılırsa keymap parse hata verir; `actions!`
-  veya `#[derive(Action)]` mutlaka ana modülde derlenmiş olmalı.
-- Bubble fazında handler `cx.propagate()` çağırmazsa parent action handler'lara
-  ulaşmaz (default davranış).
-- Aynı action ismi iki crate'te tanımlanırsa registry collision olur; namespace zorunlu.
-- Zed runtime'da bilinmeyen action ismi keymap'te warning log üretir, panic değil.
-
-### 45. Action Makro Detayları, register_action! ve Deprecated Alias
-
-`#[derive(Action)]` ve `actions!` makrosu çoğu zaman yeterlidir, ancak action
-sözleşmesinin ek köşe taşları vardır.
-
-#### `Action` trait'inin gerçek yüzeyi (`crates/gpui/src/action.rs:117+`)
-
-```rust
-pub trait Action: Any + Send {
-    fn boxed_clone(&self) -> Box<dyn Action>;
-    fn partial_eq(&self, other: &dyn Action) -> bool;
-    fn name(&self) -> &'static str;
-    fn name_for_type() -> &'static str where Self: Sized;
-    fn build(value: serde_json::Value) -> Result<Box<dyn Action>>
-        where Self: Sized;
-    fn action_json_schema(_: &mut SchemaGenerator) -> Option<Schema>
-        where Self: Sized { None }
-    fn deprecated_aliases() -> &'static [&'static str]
-        where Self: Sized { &[] }
-    fn deprecation_message() -> Option<&'static str>
-        where Self: Sized { None }
-    fn documentation() -> Option<&'static str>
-        where Self: Sized { None }
-}
-```
-
-`name(&self)` runtime ad, `name_for_type()` static ad — runtime polymorphism
-gerekirse ilkini, registration'da ikincisini kullan.
-
-#### `#[action(...)]` attribute'leri
-
-`#[derive(Action)]` üzerinde:
-
-- `namespace = my_crate`: action adını `my_crate::Save` formuna çevirir.
-- `name = "OpenFile"`: namespace içinde özel ad.
-- `no_json`: `Deserialize`/`JsonSchema` derive zorunluluğunu kaldırır;
-  `build()` her zaman hata döndürür, `action_json_schema()` `None`.
-  Pure-code action (örn. `RangeAction { start: usize }`) için kullan.
-- `no_register`: inventory üzerinden otomatik kaydı atlar; trait'i elle
-  uygularken veya conditional kayıt yaparken gerekir.
-- `deprecated_aliases = ["editor::OldName", "old::Name"]`: keymap'te eski adı
-  kabul ederken kullanıcıya warning üretmek için.
-- `deprecated = "message"`: action'ın kendisini deprecated işaretler;
-  `deprecation_message()` bu metni döndürür.
-
-#### `register_action!` makrosu
-
-`#[derive(Action)]` kullanmadan `Action`'u manuel implement ediyorsan, action'ın
-inventory'e girmesi için:
-
-```rust
-use gpui::register_action;
-
-register_action!(Paste);
-```
-
-Bu makro yalnızca `inventory::submit!` çağrısı üretir; struct/impl tanımına
-dokunmaz. `no_register` ile birleştiği takdirde elle ne zaman register
-edileceğini sen belirlersin.
-
-#### Action runtime API'leri
-
-- `cx.is_action_available(&action) -> bool`: focused element path'te bu action'ı
-  dinleyen biri var mı? Menü item'larını disable etmek için ideal.
-- `window.is_action_available(&action, cx)`: window-spesifik versiyon.
-- `cx.dispatch_action(&action)`: focused window'a yayınla.
-- `window.dispatch_action(action.boxed_clone(), cx)`: window-spesifik.
-- `cx.build_action(name, json_value)`: keymap entry'sinden runtime action üretir;
-  schema yoksa `ActionBuildError` döner.
-
-#### Tuzaklar
-
-- `partial_eq` derive default'ta `PartialEq` impl'i kullanır; derive ekleme
-  unutulursa karşılaştırma yanlış sonuç verebilir.
-- Aynı `name()` döndüren iki action register edilirse inventory startup'ta
-  panic eder; namespace kullanmak çakışmayı önler.
-- `deprecated_aliases` keymap parser'ı eski adı yeni action'a yönlendirir, ama
-  Rust kodunda eski tipi referans etmeye devam edersen iki tanım çakışır.
-- `no_json` action'ı keymap dosyasından çağıramazsın; sadece kod içinden
-  `dispatch_action` ile tetiklenir.
-
-### 46. Keymap, KeyContext ve Dispatch Stack
-
-Action tanımlamak tek başına yetmez; keybinding'in çalışması için focused element
-dispatch path'inde uygun `KeyContext` bulunmalıdır.
-
-Context koyma:
-
-```rust
-div()
-    .track_focus(&self.focus_handle)
-    .key_context("Editor mode=insert")
-    .on_action(cx.listener(|this, _: &Save, window, cx| {
-        this.save(window, cx);
-    }))
-```
-
-Binding ekleme:
-
-```rust
-cx.bind_keys([
-    KeyBinding::new("cmd-s", Save, Some("Editor")),
-    KeyBinding::new("ctrl-g", GoToLine { line: 0 }, Some("Workspace && !Editor")),
-]);
-```
-
-Önemli parçalar:
-
-- `KeyContext::parse("Editor mode = insert")`: elementin bağlamını üretir.
-- `KeyContext::new_with_defaults()`: default context set'iyle başlar.
-  `primary()`, `secondary()` parse edilen ana/ek context entry'lerine erişir;
-  `is_empty()`, `clear()`, `extend(&other)`, `add(identifier)`, `set(key, value)`,
-  `contains(key)` ve `get(key)` düşük seviyeli context inşa/sorgu yüzeyidir.
-- `KeyBindingContextPredicate`: binding tarafındaki predicate dilidir:
-  `Editor`, `mode == insert`, `!Terminal`, `Workspace > Editor`,
-  `A && B`, `A || B`.
-- `KeyBindingContextPredicate::parse(source)` predicate'i üretir.
-  `eval(context_stack)` bool eşleşme, `depth_of(context_stack)` en derin eşleşme
-  derinliği, `is_superset(&other)` ise keymap önceliği ve conflict analizinde
-  kullanılır. `eval_inner(...)` public olsa da parser/validator gibi düşük
-  seviyeli kodlar içindir; normal component kodu doğrudan çağırmaz.
-- `Keymap::bindings_for_input(input, context_stack)`: eşleşen action'ları ve
-  pending multi-stroke durumunu döndürür.
-- `Keymap::possible_next_bindings_for_input(input, context_stack)`: mevcut
-  chord prefix'ini takip edebilecek binding'leri precedence sırasıyla verir.
-- `Keymap::version() -> KeymapVersion`: binding set'i değiştikçe artan sayaçtır;
-  keybinding UI cache'lerinde invalidation anahtarı olarak kullanılabilir.
-- `Keymap::new(bindings)`, `add_bindings(bindings)`, `bindings()`,
-  `bindings_for_action(action)`, `all_bindings_for_input(input)` ve `clear()`
-  ham keymap tablosunu kurma/sorgulama/reset yüzeyidir. Uygulama akışında çoğu
-  zaman `cx.bind_keys(...)` ve settings loader tercih edilir; bu metotlar test,
-  validator, diagnostic ve özel keymap UI için doğrudan kullanılır.
-- `window.context_stack()`: focused node'dan root'a dispatch path context'leri.
-- `window.keystroke_text_for(&action)`: UI'da gösterilecek en yüksek öncelikli
-  binding string'i.
-- `window.possible_bindings_for_input(&[keystroke])`: chord/pending yardım UI'ları
-  için kullanılabilir.
-- `cx.key_bindings() -> Rc<RefCell<Keymap>>`: keymap'e düşük seviyeli erişim.
-  Production kodunda mümkünse `bind_keys`, keymap dosyası ve validator akışı
-  kullan; bu handle test/diagnostic ve özel keymap UI için uygundur.
-- `cx.clear_key_bindings()`: tüm binding'leri temizler ve windows refresh planlar;
-  normal uygulama akışında değil test/reset path'lerinde kullanılır.
-
-Öncelik:
-
-- Context path'te daha derin eşleşme daha yüksek önceliklidir.
-- Aynı derinlikte sonra eklenen binding önce gelir; user keymap bu yüzden built-in
-  binding'leri ezebilir.
-- `NoAction` ve `Unbind` binding'leri devre dışı bırakma için kullanılır.
-- Printable input IME'ye gidecekse `InputHandler::prefers_ime_for_printable_keys`
-  keybinding yakalamayı geriye çekebilir. `EntityInputHandler` kullanan view'larda
-  bu değer `ElementInputHandler` tarafından `accepts_text_input` sonucundan
-  türetilir; ayrı karar gerekiyorsa raw `InputHandler` yaz.
-
-Tuzaklar:
-
-- `.key_context(...)` olmayan subtree'de context predicate'li binding çalışmaz.
-- Handler focus path'te değilse action bubble oraya ulaşmaz; global handler için
-  `cx.on_action(...)`, local handler için element `.on_action(...)` kullan.
-- `KeyBinding::new` parse hatasında panic edebilir; kullanıcı JSON'undan yükleme
-  yaparken `KeyBinding::load` ve error reporting tercih edilir.
-- `KeyBinding::load(keystrokes, action, context_predicate, use_key_equivalents,
-  action_input, keyboard_mapper)` fallible loader'dır; `KeyBindingKeystroke`
-  mapping'ini de burada kurar. `context_predicate` `Option<Rc<KeyBindingContextPredicate>>`,
-  `action_input` ise `Option<SharedString>` alır ve hata durumunda
-  `InvalidKeystrokeError` döner. Runtime'da `with_meta(...)`/`set_meta(...)`
-  binding'in hangi keymap katmanından geldiğini taşır; `match_keystrokes(...)`
-  tam/pending eşleşmeyi, `keystrokes()`, `action()`, `predicate()`, `meta()` ve
-  `action_input()` getter'ları diagnostic ve command/keymap UI'ı besler.
-
-### 47. DispatchPhase, Event Propagation ve DispatchEventResult
-
-Mouse, key ve action olayları element ağacında iki fazda akar:
-
-```rust
-pub enum DispatchPhase {
-    Capture, // root → focused
-    Bubble,  // focused → root (default)
-}
-```
-
-`Window::on_mouse_event`, `on_key_event`, `on_modifiers_changed` listener'ları
-faza göre çağrılır. Element fluent API'lerinde `.on_*` ailesi bubble fazına,
-`.capture_*` ailesi capture fazına bağlanır.
-
-Kontrol bayrakları (`crates/gpui/src/app.rs:2021+`):
-
-- `cx.stop_propagation()`: aynı tipteki diğer handler'ların çağrılmasını keser
-  (mouse'ta z-index'te alt katman, key'de ağaçta üst element).
-- `cx.propagate()`: bir önceki `stop_propagation()` etkisini geri alır. Action
-  handler'lar bubble fazında default olarak propagation'ı durdurur, bu yüzden
-  parent'a düşmesini istiyorsan handler içinden `cx.propagate()` çağır.
-- `window.prevent_default()` / `window.default_prevented()`: aynı dispatch içinde
-  default element davranışını bastıran pencere bayrağıdır. Mevcut kullanımın
-  en görünür örneği mouse down sırasında parent focus transferini engellemektir.
-
-Platform tarafına döndürülen sonuç:
-
-```rust
-pub struct DispatchEventResult {
-    pub propagate: bool,        // hâlâ bubble ediliyorsa true
-    pub default_prevented: bool, // GPUI default davranışı bastırıldı mı
-}
-```
-
-`PlatformWindow::on_input` callback'i `Fn(PlatformInput) -> DispatchEventResult`
-döndürür. Mevcut platform backend'lerinde "event işlendi mi?" kararı esas olarak
-`propagate` üzerinden alınır (`!propagate` handled anlamına gelir).
-`default_prevented` GPUI dispatch ağacındaki default element davranışını ve
-test/diagnostic sonucu taşır; platform default action kontrolü gibi genelleme
-yapmadan, handler'ın açıkça kontrol ettiği yerlerde anlamlandır.
-
-Pratik akış:
-
-1. Element listener fire eder, view state günceller, gerekirse `cx.notify()`.
-2. Listener event'i tüketmek istiyorsa `cx.stop_propagation()` çağırır.
-3. Action handler default davranışı korumak istiyorsa `cx.propagate()` ile
-   bubble'ı yeniden açar.
-4. Default focus transferi gibi GPUI içi davranış bastırılacaksa
-   `window.prevent_default()` çağrılır.
-
-Tuzaklar:
-
-- `capture_*` handler'ları focus path bilinmeden çalışır; pencere global
-  shortcut/observer için kullanılır, ama state mutate etmek istiyorsan focused
-  element'i runtime'da kontrol et.
-- Action propagation davranışı mouse/key event'lerden ters çalışır. Yeni action
-  yazarken ezbere `stop_propagation` koymak parent action'larını öldürebilir.
-- `default_prevented` genel bir platform cancellation API'si değildir; hangi
-  davranışı durdurduğunu anlamak için ilgili element/window handler'ının
-  `window.default_prevented()` kontrol edip etmediğine bak.
-
-### 48. Action ve Keymap Runtime Introspection
-
-Action tanımlama ve dispatch önceki bölümlerde var; Zed komut paleti, keymap UI
-ve geliştirici diagnostikleri için runtime introspection yüzeyi ayrıca bilinmeli.
-
-Action registry:
-
-- `cx.build_action(name, data) -> Result<Box<dyn Action>, ActionBuildError>`:
-  string action adı ve optional JSON verisinden runtime action üretir.
-- `cx.all_action_names() -> &[&'static str]`: register edilmiş tüm action
-  adlarını döndürür. Registration, action'ın element ağacında available olduğu
-  anlamına gelmez.
-- `cx.action_schemas(generator)`: non-internal action adları ve JSON schema'ları.
-- `cx.action_schema_by_name(name, generator)`: tek action için schema döndürür;
-  `None` action yok, `Some(None)` action var ama schema yok demektir.
-- `cx.deprecated_actions_to_preferred_actions()`,
-  `cx.action_deprecation_messages()`, `cx.action_documentation()`: keymap
-  validator, command palette ve migration mesajları için registry metadata'sı.
-
-Available action ve binding sorguları:
-
-- `window.available_actions(cx)`: focused element dispatch path'indeki action
-  listener'larını ve global action listener'larını birleştirir. Menü/komut UI'ında
-  "bu action şu anda yapılabilir mi?" sorusunun window-spesifik cevabıdır.
-- `window.on_action_when(condition, TypeId::of::<A>(), listener)`: paint fazında
-  current dispatch node'una conditional low-level action listener ekler. Element
-  API'deki `.on_action(...)`/`.capture_action(...)` genelde daha okunur; custom
-  element yazmıyorsan bu seviyeye inme.
-- `cx.is_action_available(&action)` ve `window.is_action_available(&action, cx)`:
-  bool kısayollar.
-- `window.is_action_available_in(&action, focus_handle)`: action availability
-  sorgusunu belirli focus handle dispatch path'inden yapar.
-- `window.bindings_for_action(&action)`: focused context stack'e göre action'a
-  giden binding'leri döndürür; display için son binding en yüksek öncelikli kabul
-  edilir.
-- `window.highest_precedence_binding_for_action(&action)`: aynı sorgunun daha
-  ucuz tek sonuç versiyonu.
-- `window.bindings_for_action_in(&action, focus_handle)` ve
-  `highest_precedence_binding_for_action_in(...)`: sorguyu belirli focus handle
-  path'inden yapar.
-- `window.bindings_for_action_in_context(&action, KeyContext)`: tek bir elle
-  verilmiş context'e göre sorgu.
-- `window.highest_precedence_binding_for_action_in_context(&action, KeyContext)`:
-  aynı sorgunun tek sonuçlu en yüksek öncelik versiyonu.
-- `cx.all_bindings_for_input(&[Keystroke])`: context'e bakmadan input dizisine
-  kayıtlı tüm binding'leri listeler.
-- `window.possible_bindings_for_input(&[Keystroke])`: multi-stroke/prefix akışında
-  current context stack'e göre sıradaki aday binding'leri verir. Tam eşleşen
-  action dispatch sonucunu öğrenmek için normal `window.dispatch_keystroke(...)`
-  akışı kullanılmalıdır; public `Window::bindings_for_input` helper'ı yoktur.
-- `window.pending_input_keystrokes()` ve `window.has_pending_keystrokes()`:
-  tamamlanmamış key chord durumunu UI'da göstermek veya test etmek için.
-
-Keystroke global gözlem:
-
-```rust
-let after_dispatch = cx.observe_keystrokes(|event, window, cx| {
-    log_key(event, window, cx);
-});
-
-let before_dispatch = cx.intercept_keystrokes(|event, window, cx| {
-    if should_block(event) {
-        cx.stop_propagation();
-    }
-});
-```
-
-- `observe_keystrokes` action/event mekanizmaları çözüldükten sonra çalışır ve
-  propagation durdurulduysa çağrılmaz.
-- `intercept_keystrokes` dispatch'ten önce çalışır; burada
-  `cx.stop_propagation()` çağırmak action dispatch'i engeller.
-- Her ikisi de `Subscription` döndürür; kaybedilirse observer düşer.
-
-Tuzaklar:
-
-- `all_action_names` içinde görünen action'ın o anda kullanılabilir olması
-  garanti değildir; UI enable/disable için `available_actions` veya
-  `is_action_available` kullan.
-- Binding display ederken context stack'i hesaba katmayan `cx.all_bindings_for_input`
-  yerine mümkünse window/focus handle bazlı sorgu kullan.
-- Interceptor'lar global etkilidir; modal özelinde key engelleyeceksen mümkünse
-  element action/capture handler ile sınırla.
-
-### 49. Zed Keymap Dosyası, Validator ve Unbind Akışı
-
-GPUI action/keybinding modeli Zed'de `settings::keymap_file` ile kullanıcı
-dosyasına bağlanır. Bu bölüm runtime dispatch'ten farklı olarak JSON yükleme,
-schema ve dosya güncelleme tarafını kapsar.
-
-Dosya modeli:
-
-- `KeymapFile(Vec<KeymapSection>)`: top-level JSON array.
-- `KeymapSection`: context predicate ve binding/unbind map'lerini taşır. Alan
-  görünürlüğü dengesizdir — yalnız `pub context: String` dış erişime açıktır;
-  `use_key_equivalents: bool`, `unbind: Option<IndexMap<...>>`,
-  `bindings: Option<IndexMap<...>>` ve `unrecognized_fields: IndexMap<...>`
-  alanları **private**'tır. `KeymapFile` parser'ı bu alanlara crate içinden
-  doğrudan erişir; dış kod yalnız `KeymapSection::bindings(&self)` getter'ını
-  kullanabilir, bu da `(keystroke, KeymapAction)` çiftlerini dönen tek public
-  iterator'dır (`keymap_file.rs:101`). `unbind` ve `use_key_equivalents` için
-  ayrı public getter şu sürümde yoktur.
-- `KeymapAction(Value)`: `null`, `"action::Name"` veya
-  `["action::Name", { ...args... }]` biçimlerini temsil eder.
-- `UnbindTargetAction(Value)`: `unbind` map'indeki hedef action değeri.
-- `KeymapFileLoadResult::{Success, SomeFailedToLoad, JsonParseFailure}`:
-  dosyanın kısmen yüklenebildiği senaryoyu açıkça ayırır.
-
-Yükleme:
-
-```rust
-let keymap = KeymapFile::parse(&contents)?;
-let result = KeymapFile::load(&contents, cx);
-```
-
-`load_asset(asset_path, source, cx)` bundled keymap dosyalarını yükler ve
-`KeybindSource` metadata'sı set edebilir. `load_panic_on_failure` sadece
-startup/test gibi "asset bozuksa devam etmeyelim" path'leri içindir.
-
-Base keymap:
-
-- `BaseKeymap::{VSCode, JetBrains, SublimeText, Atom, TextMate, Emacs, Cursor,
-  None}`.
-- Base/default/vim/user binding'leri `KeybindSource` metadata'sı taşır; UI
-  hangi binding'in nereden geldiğini bu metadata ile gösterir.
-
-Built-in keymap davranışı:
-
-- Agent panelindeki ACP thread'e özgü kısayollar `AcpThread` context'indedir.
-  Terminal alt bağlamı descendant predicate ile `AgentPanel > Terminal` kullanır.
-  Bu, `>` operatörünün gerçek dispatch path ilişkisi için kullanılmasının
-  pratik örneğidir.
-- Git paneli iki tablıdır: `git_panel::ActivateChangesTab` ve
-  `git_panel::ActivateHistoryTab` için varsayılan binding macOS'ta `cmd-1` /
-  `cmd-2`, Linux/Windows'ta `ctrl-1` / `ctrl-2`.
-- Worktree picker `worktree_picker::ForceDeleteWorktree` action'ını destekler.
-  Varsayılan binding macOS'ta `cmd-alt-shift-backspace`, Linux/Windows'ta
-  `ctrl-alt-shift-backspace`; UI tarafında delete icon'u üzerinde `alt` basılıysa
-  force delete yolu kullanılır.
-- `buffer_search::UseSelectionForFind` seçimi, seçim yoksa cursor altındaki
-  kelimeyi arama sorgusu olarak kullanır. Ayarı bypass etmek gereken çağrılar
-  `SeedQuerySetting::Always` override'ı vermelidir.
-
-Validator:
-
-- `KeyBindingValidator`: belirli action type'ı için binding doğrulaması yapar.
-- `KeyBindingValidatorRegistration(pub fn() -> Box<dyn KeyBindingValidator>)`
-  inventory ile toplanır.
-- Validator hatası `MarkdownString` döner; keymap UI bunu kullanıcıya
-  açıklanabilir hata olarak gösterebilir.
-
-Disable / unbind sentinel action'ları:
-
-GPUI iki ayrı sentinel action sağlar (`gpui::action.rs:425-453`); ikisinin de
-runtime davranışı **dispatch etmemek**, fakat keymap dispatch tablosundaki
-işlevleri farklıdır:
-
-- **`zed::NoAction`** — `actions!(zed, [NoAction])` ile tanımlı, veri taşımaz.
-  Keymap JSON'unda eylem değeri olarak `null` veya `"zed::NoAction"` yazılır:
-
-  ```json
-  { "context": "Editor", "bindings": { "cmd-p": null } }
-  ```
-
-  Aynı keystroke'a daha düşük öncelikle bağlanmış action'lar bu context için
-  iptal edilir; eşleşme `Keymap::resolve_binding` tarafında
-  `disabled_binding_matches_context(...)` çağrısıyla **context-aware** olarak
-  filtrelenir (`gpui/src/keymap.rs:120`). Yani `NoAction` belirli bir context
-  predicate'i içinde tuşu sessize alır.
-
-- **`zed::Unbind(SharedString)`** — `derive(Action)` ile tanımlı, payload bir
-  action adıdır. JSON formatı:
-
-  ```json
-  ["zed::Unbind", "editor::NewLine"]
-  ```
-
-  Keymap parser'ı bu sentinel'ı gördüğünde aynı keystroke'a aynı action adıyla
-  ileriden gelen tüm binding'leri **action context'inden bağımsız olarak**
-  iptal eder (`keymap.rs:124-128`'deki `is_unbind` kolu). Yani `editor::NewLine`
-  için `enter` tuşunu tüm context'lerde unbind etmek için kullanılır.
-
-Sentinel kontrol API'leri:
-
-- `gpui::is_no_action(&dyn Action) -> bool` (`action.rs:445`): `as_any().is::<NoAction>()`
-  ile downcast eder. Custom keymap UI veya komut paleti listesinde
-  "(disabled)" göstergesi koymak için kullanılabilir.
-- `gpui::is_unbind(&dyn Action) -> bool` (`action.rs:450`): aynı şekilde
-  `Unbind` instance'ını downcast eder.
-
-`KeymapFile::update_keybinding` `KeybindUpdateOperation::Remove` için bu iki
-sentinel'i bağlama göre üretir: user binding'leri `Remove` doğrudan dosyadan
-siler, framework/default binding'leri ise sessize alabilmek için kullanıcı
-keymap'ine `null` (NoAction) veya `["zed::Unbind", ...]` entry yazar.
-
-Dosya güncelleme:
-
-```rust
-let updated = KeymapFile::update_keybinding(
-    operation,
-    keymap_contents,
-    tab_size,
-    keyboard_mapper,
-)?;
-```
-
-- `KeybindUpdateOperation::Add { source, from }`: yeni binding ekler.
-- `Replace { source, target, target_keybind_source }`: user binding ise değiştirir;
-  user dışı binding değişiyorsa add + suppression unbind'e dönüştürebilir.
-- `Remove { target, target_keybind_source }`: user binding'i dosyadan siler;
-  user dışı binding'i kaldırmak için `unbind` yazar.
-- `KeybindUpdateTarget` action adı, optional action arguments, context ve
-  `KeybindingKeystroke` dizisini taşır.
-
-Tuzaklar:
-
-- `use_key_equivalents` yalnızca destekleyen platformlarda anlamlıdır; keyboard
-  mapper verilmeden dosya güncelleme doğru keystroke string'i üretemez.
-- Non-user binding'i "silmek" gerçek kaynağı değiştirmez; kullanıcı keymap'ine
-  suppress eden `unbind` entry'si yazılır.
-- Kullanıcı JSON'u bozuksa `update_keybinding` dosyayı değiştirmez; önce parse
-  başarıyla geçmelidir.
-
-
----
-
-## Bölüm IX — Async ve State
-
----
-
-### 50. Async İşler
 
 Foreground task:
 
@@ -3248,7 +751,8 @@ Testlerde zamanlayıcı:
   `cx.background_executor().timer(duration).await` kullan.
 - `run_until_parked()` ile uyum için GPUI executor timer'ı tercih edilir.
 
-### 51. Executor, Priority, Timeout ve Test Zamanı
+### Executor, Priority, Timeout ve Test Zamanı
+
 
 GPUI'da foreground iş UI thread üzerinde, background iş scheduler/thread pool
 üzerinde çalışır. Bu ayrım sadece performans değil, hangi context'in await
@@ -3352,7 +856,8 @@ Test zamanı:
   `try_pop()`, `pop()`, `try_iter()` ve `iter()` ile high/medium/low kuyrukları
   ağırlıklı seçimle tüketir; `Priority::RealtimeAudio` bu kuyruğa girmez.
 
-### 52. Task, TaskExt ve Async Hata Yönetimi
+### Task, TaskExt ve Async Hata Yönetimi
+
 
 `Task<T>` GPUI'ın temel async handle'ıdır. Yardımcı trait `TaskExt`
 (`crates/gpui/src/executor.rs:33+`) `Task<Result<T, E>>` üzerine ek metotlar ekler:
@@ -3409,7 +914,8 @@ Tuzaklar:
   WeakEntity üzerinden `update`/`update_in` çağrısı `Result` döndüğünden
   bunu erken çıkış sinyali olarak ele al.
 
-### 53. Global State, Observe ve Event
+### Global State, Observe ve Event
+
 
 Global state:
 
@@ -3458,7 +964,8 @@ Window observe:
 - `cx.observe_pending_input(window, ...)`
 - `cx.observe_keystrokes(...)`
 
-### 54. Global State Yardımcıları ve `cx.defer`
+### Global State Yardımcıları ve `cx.defer`
+
 
 `App` üzerinde bulunan yardımcı global state metotları, mevcut bölümlerde
 parça parça geçtiği için burada tek listede topluyoruz:
@@ -3494,7 +1001,8 @@ Tuzaklar:
 - Subscription `detach()` edilmezse owner drop'unda iptal olur; uzun yaşayan
   observer için sahibi olan struct'a kaydet.
 
-### 55. Subscription Yaşam Döngüsü
+### Subscription Yaşam Döngüsü
+
 
 `crates/gpui/src/subscription.rs`.
 
@@ -3536,7 +1044,8 @@ Tuzaklar:
 - `observe` sırasında entity'yi update etmek panic verir; `cx.spawn(..)` ile
   ertele veya `cx.defer(|cx| ...)` kullan.
 
-### 56. Window-bound Observer, Release ve Focus Helper Desenleri
+### Window-bound Observer, Release ve Focus Helper Desenleri
+
 
 Normal `observe`, `subscribe` ve `on_release` callback'leri sadece `App` veya
 `Context<T>` verir. UI katmanında çoğu iş pencere de istediği için GPUI aynı
@@ -3626,7 +1135,8 @@ Tuzaklar:
 - `focus_self` delayed çalıştığı için hemen sonraki satırda focus değişmiş gibi
   okumak yanlıştır; sonucu sonraki effect/frame akışında gözle.
 
-### 57. Entity Reservation ve Çift Yönlü Referans
+### Entity Reservation ve Çift Yönlü Referans
+
 
 `crates/gpui/src/app/async_context.rs:43+` ve `app.rs::reserve_entity`/`insert_entity`.
 
@@ -3666,7 +1176,8 @@ Tuzaklar:
 - `cx.new` mevcut güncellemenin içinde rezervasyonu da doldurabilir; reentrant
   `update` yasakları aynı şekilde geçerlidir.
 
-### 58. Entity Release, Cleanup ve Leak Detection
+### Entity Release, Cleanup ve Leak Detection
+
 
 Entity handle'ları ref-count mantığıyla yaşar. Son güçlü `Entity<T>` handle'ı
 düştüğünde entity release edilir; `WeakEntity<T>` bunu engellemez.
@@ -3727,7 +1238,8 @@ Tuzaklar:
 - `WeakEntity::update/read_with` her zaman `Result` döndürür; entity düşmüş
   olabileceği için hatayı görünür biçimde ele al.
 
-### 59. Entity Type Erasure, Callback Adaptörleri ve View Cache
+### Entity Type Erasure, Callback Adaptörleri ve View Cache
+
 
 Bu bölüm GPUI çekirdeğinde public olan ama günlük kullanımda kolay atlanan küçük
 API yüzeylerini toplar.
@@ -3939,11 +1451,2566 @@ string tabanlı ID gerektiğinde `Name`; liste satırı gibi tekrar eden yapıla
 
 ---
 
-## Bölüm X — Liste ve Sanallaştırma
+---
+
+## Bölüm V — Render ve Element Modeli
 
 ---
 
-### 60. ScrollHandle ve Scroll Davranışı
+### Render Modeli
+
+
+Bir pencerenin root view'i `Entity<V>` olmalı ve `V: Render` implement etmelidir:
+
+```rust
+struct MyView {
+    focus_handle: FocusHandle,
+}
+
+impl Render for MyView {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        div()
+            .id("my-view")
+            .track_focus(&self.focus_handle)
+            .key_context("my-view")
+            .on_action(cx.listener(|this, _: &CloseWindow, window, cx| {
+                window.remove_window();
+            }))
+            .size_full()
+            .child("Content")
+    }
+}
+```
+
+Reusable, state taşımayan bileşenlerde `RenderOnce` kullanılır:
+
+```rust
+#[derive(IntoElement)]
+struct Badge {
+    label: SharedString,
+}
+
+impl RenderOnce for Badge {
+    fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
+        div().rounded_sm().px_2().child(self.label)
+    }
+}
+```
+
+`Render` mutable view state ile çalışır. `RenderOnce` sahipliği alır ve genellikle
+Zed UI bileşenlerinde tercih edilir.
+
+### Element Yaşam Döngüsü ve Draw Fazları
+
+
+`Element` sözleşmesi üç fazdan oluşur:
+
+1. `request_layout(...) -> (LayoutId, RequestLayoutState)`: stil ve child layout
+   istekleri Taffy layout ağacına verilir. Bu fazda paint yapılmaz.
+2. `prepaint(...) -> PrepaintState`: layout bounds bilinir; hitbox, scroll state,
+   element state ve ölçüm gibi paint öncesi işler yapılır.
+3. `paint(...)`: scene primitive'leri üretilir. `paint_quad`, `paint_path`,
+   `paint_image`, `paint_svg`, `set_cursor_style` gibi çağrılar burada yapılır.
+
+`Window` debug assertion'ları faz ihlalini yakalar: `insert_hitbox` yalnızca
+prepaint'te, `paint_*` çağrıları paint'te, `with_text_style` ve bazı ölçüm
+yardımcıları prepaint/paint içinde geçerlidir.
+
+State saklama yolları:
+
+- View state'i: `Entity<T>` alanları.
+- Element-local state: stabil `id(...)` ile `window.with_element_state` veya
+  `with_optional_element_state`; aynı ID değişirse state sıfırlanır.
+- Frame callback: `window.on_next_frame(...)`.
+- Effect sonunda erteleme: `cx.defer(...)`, `window.defer(cx, ...)`,
+  `cx.defer_in(window, ...)`.
+- Sürekli redraw: `window.request_animation_frame()`.
+
+Render katmanı:
+
+- `Render`: entity/view state'ini her render'da element ağacına çevirir.
+- `RenderOnce`: sadece elemente dönüştürülecek hafif bileşenler için uygundur.
+- `ParentElement`: child kabul eden elementler.
+- `Styled`: style refinement zincirine dahil olan elementler.
+- `InteractiveElement`: focus, action, key, mouse, hover, drag/drop dinleyicileri.
+- `StatefulInteractiveElement`: `id(...)` sonrası scroll/focus gibi stateful
+  interaktif davranışlar.
+
+Kritik kural: `cx.notify()` view render çıktısını etkileyen state değiştiğinde
+çağrılır. `window.refresh()` tüm pencerenin tekrar çizimini ister; local view
+state değişiminde önce `cx.notify()` tercih edilir.
+
+### Element Haritası
+
+
+GPUI yerleşik elementleri:
+
+- `div()`: neredeyse tüm layout ve container işleri. Flex/grid, style, child,
+  event, focus ve window-control area destekler.
+- Metin: `&'static str`, `String`, `SharedString` doğrudan element olur.
+  Daha karmaşık metin için `StyledText` ve `InteractiveText`.
+- `svg()`: path veya external path ile SVG çizimi.
+- `img(...)`: asset, path, URL, byte kaynağı gibi image kaynaklarını çizer; loading
+  ve fallback slotları destekler.
+- `canvas(prepaint, paint)`: düşük seviye çizim veya hitbox/cursor gibi prepaint
+  gerektiren işler için.
+- `anchored()`: pencere veya belirli bir noktaya sabitlenen popover/menu gibi UI.
+- `deferred(child)`: öncelikli/ertelenmiş render.
+- `list(...)`: değişken yükseklikli büyük listeler.
+- `uniform_list(...)`: sabit/sık ölçülebilir item yüksekliği olan verimli listeler.
+- `surface(...)`: platform/native surface kaynağını element olarak gösterir.
+
+Sık kullanılan style grupları:
+
+- Layout: `.flex()`, `.flex_col()`, `.flex_row()`, `.grid()`, `.items_center()`,
+  `.justify_between()`, `.content_stretch()`, `.size_full()`, `.w(...)`, `.h(...)`
+- Spacing: `.p_*`, `.px_*`, `.gap_*`, `.m_*`
+- Text: `.text_color(...)`, `.text_sm()`, `.text_xl()`, `.font_family(...)`,
+  `.truncate()`, `.line_clamp(...)`
+- Border/shape: `.border_1()`, `.border_color(...)`, `.rounded_sm()`
+- Position: `.absolute()`, `.relative()`, `.top(...)`, `.left(...)`
+- State: `.hover(...)`, `.active(...)`, `.focus(...)`, `.focus_visible(...)`,
+  `.group(...)`, `.group_hover(...)`
+- Interaction: `.on_click(...)`, `.on_mouse_down(...)`, `.on_scroll_wheel(...)`,
+  `.on_key_down(...)`, `.on_action(...)`, `.track_focus(...)`, `.key_context(...)`
+
+Zed içinde `ui::prelude::*` genellikle `gpui::prelude::*` yerine tercih edilir;
+tasarım sistemi tiplerini de getirir.
+
+### Element ID, Element State ve Type Erasure
+
+
+GPUI'de her render'da element ağacı yeniden kurulur; kalıcı element state'i için
+stabil ID gerekir. Ana tipler:
+
+- `ElementId`: `Name`, `Integer`, `NamedInteger`, `Path`, `Uuid`,
+  `FocusHandle`, `CodeLocation` gibi varyantlar taşır.
+- `GlobalElementId`: parent namespace zinciriyle birleşmiş gerçek ID.
+- `AnyElement`: element type erasure; child listelerinde heterojen element tutar.
+- `AnyView`/`AnyEntity`: view veya entity type erasure.
+
+Element state API'leri `Window` üzerindedir ve yalnızca element çizimi sırasında
+kullanılmalıdır:
+
+```rust
+let row_state = window.use_keyed_state(
+    ElementId::named_usize("row", row_ix),
+    cx,
+    |_, cx| RowState::new(cx),
+);
+```
+
+Alt seviye API:
+
+```rust
+window.with_global_id("image-cache".into(), |global_id, window| {
+    window.with_element_state::<MyState, _>(global_id, |state, window| {
+        let mut state = state.unwrap_or_else(MyState::default);
+        state.prepare(window);
+        (state.snapshot(), state)
+    })
+});
+```
+
+Kurallar:
+
+- `window.with_id(element_id, |window| ...)` local element id stack'ine id push
+  eder; `with_global_id` bu stack'i `GlobalElementId` haline getirir.
+- Liste item'larında `use_state` yerine `use_keyed_state` kullan; `use_state`
+  caller location ile ID üretir ve aynı render noktasındaki çoklu item'ları ayıramaz.
+- `with_element_namespace(id, ...)` custom element içinde child ID çakışmasını
+  önlemek için kullanılır.
+- Aynı `GlobalElementId` ve aynı state tipi için reentrant
+  `with_element_state` çağrısı panic eder.
+- ID değişirse önceki frame'in state'i devam etmez; animasyon, hover, scroll ve
+  image cache state'i sıfırlanır.
+
+Type erasure kararları:
+
+- Public component API child kabul ediyorsa `impl IntoElement` al.
+- Struct içinde saklayacaksan `AnyElement` kullan.
+- View/entity saklıyorsan mümkün olduğunca typed `Entity<T>` tut; yalnızca plugin,
+  dock item veya heterojen koleksiyon gerekiyorsa `AnyEntity`/`AnyView` seç.
+
+### FluentBuilder ve Koşullu Element Üretimi
+
+
+`crates/gpui/src/util.rs::FluentBuilder` trait'i tüm element tiplerine üç
+yardımcı ekler:
+
+```rust
+pub trait FluentBuilder {
+    fn map<U>(self, f: impl FnOnce(Self) -> U) -> U;
+    fn when(self, condition: bool, then: impl FnOnce(Self) -> Self) -> Self;
+    fn when_else(
+        self,
+        condition: bool,
+        then: impl FnOnce(Self) -> Self,
+        else_fn: impl FnOnce(Self) -> Self,
+    ) -> Self;
+    fn when_some<T>(self, option: Option<T>, then: impl FnOnce(Self, T) -> Self) -> Self;
+    fn when_none<T>(self, option: &Option<T>, then: impl FnOnce(Self) -> Self) -> Self;
+}
+```
+
+Kullanım:
+
+```rust
+div()
+    .flex()
+    .when(self.is_active, |this| this.bg(rgb(0xFF0000)))
+    .when_some(self.icon.as_ref(), |this, icon| this.child(icon.clone()))
+    .when_else(self.is_loading,
+        |this| this.opacity(0.5),
+        |this| this.opacity(1.0),
+    )
+    .map(|this| match self.density {
+        UiDensity::Compact => this.gap_1(),
+        UiDensity::Default => this.gap_2(),
+        UiDensity::Comfortable => this.gap_4(),
+    })
+```
+
+Avantajlar:
+
+- Method chain bozulmaz; if/match dışı yapılar olmadan koşullu UI yazılır.
+- Closure içine geçen element'in tipi korunur; child eklemek serbesttir.
+- `map` keyfi bir transform için "escape hatch" sağlar.
+
+Tuzaklar:
+
+- `when` closure her render'da çalışır; ağır hesap yapma.
+- Aynı element üzerinde defalarca `when_some` zinciri okunabilirliği bozarsa
+  state'i normal `if let` ile pre-compute edip tek `child` çağrısı tercih edilir.
+- `map` element tipini değiştirebilir; `when` ise tipi değiştirmez (refinement
+  zincirinde tutulur).
+
+### Refineable, StyleRefinement ve MergeFrom
+
+
+GPUI ve Zed'de iki kompozisyon paterni paralel çalışır: render zincirinde
+`Refineable`, settings/tema yüklemesinde `MergeFrom`.
+
+#### Refineable
+
+`crates/refineable/src/refineable.rs`:
+
+```rust
+pub trait Refineable: Clone {
+    type Refinement: Refineable<Refinement = Self::Refinement> + IsEmpty + Default;
+
+    fn refine(&mut self, refinement: &Self::Refinement);
+    fn refined(self, refinement: Self::Refinement) -> Self;
+
+    fn from_cascade(cascade: &Cascade<Self>) -> Self
+        where Self: Default + Sized;
+
+    fn is_superset_of(&self, refinement: &Self::Refinement) -> bool;
+    fn subtract(&self, refinement: &Self::Refinement) -> Self::Refinement;
+}
+
+pub trait IsEmpty {
+    fn is_empty(&self) -> bool;
+}
+```
+
+Trait sözleşmesi göründüğünden zengindir:
+
+- `type Refinement` da `Refineable` olmalı; yani refinement'ın kendisi tekrar
+  refine edilebilir (`refine_a.refine(&refine_b)` zincirleme merge için).
+- Aynı `Refinement` ayrıca `IsEmpty + Default` zorunluluğunu taşır. `IsEmpty`
+  "bu refinement uygulansa hiçbir alan değişir mi?" sorusunu cevaplar; merge,
+  layout cache invalidation ve `subtract` çıktısı bu kontrole dayanır.
+- `is_superset_of(refinement)` instance'ın halihazırda bu refinement'ı kapsayıp
+  kapsamadığını söyler — gereksiz `refine` çağrılarını atlayabilirsin.
+- `subtract(refinement)` aradaki farkı yeni bir refinement olarak verir.
+- `from_cascade(cascade)` aşağıdaki `Cascade` yapısını default değer üzerine
+  uygular; tema/stil katmanlamasının sondaki "düzleştirme" adımıdır.
+
+`#[derive(Refineable)]` (gpui re-export'lu): orijinal struct ile aynı alanlara
+sahip ama her alanı `Option`'lı hale getirilmiş `XRefinement` türü üretir.
+`refine` çağrısı yalnızca `Some` alanları yazar. Aşağıdaki somut türler hep
+derive ile üretilir; ayrı yazmak gerekmez:
+
+| Refinement türü | Üreten struct | Kaynak |
+|---|---|---|
+| `StyleRefinement` | `Style` | `style.rs:178` |
+| `TextStyleRefinement` | `TextStyle` | `style.rs` |
+| `UnderlineStyleRefinement` | `UnderlineStyle` | `style.rs` |
+| `StrikethroughStyleRefinement` | `StrikethroughStyle` | `style.rs` |
+| `BoundsRefinement` | `Bounds` | `geometry.rs` |
+| `PointRefinement` | `Point` | `geometry.rs` |
+| `SizeRefinement` | `Size` | `geometry.rs` |
+| `EdgesRefinement` | `Edges` | `geometry.rs` |
+| `CornersRefinement` | `Corners` | `geometry.rs` |
+| `GridTemplateRefinement` | `GridTemplate` | `geometry.rs` |
+
+Bu `*Refinement` tipleri çoğunlukla doğrudan adlandırılarak kullanılmaz; fluent
+API zinciri arka planda toplar. Doğrudan elle inşa etmen gereken tek tip
+genelde `StyleRefinement`'tır (örn. `.hover(|style| style.bg(...))` callback
+imzası).
+
+Tipik kullanım `Style`/`StyleRefinement` (`crates/gpui/src/style.rs:178`):
+
+```rust
+let mut style = Style::default();
+style.refine(&StyleRefinement::default()
+    .text_size(px(20.))
+    .font_weight(FontWeight::SEMIBOLD));
+```
+
+Element fluent zinciri (örn. `div().text_size(px(14.)).bg(rgb(0xff))`)
+arka planda `StyleRefinement` topluyor; render sırasında base style üzerine
+refine ediliyor. `TextStyle`/`TextStyleRefinement`, `HighlightStyle`,
+`PlayerColors`, `ThemeColors` gibi tüm tema yapıları aynı pattern'i kullanır.
+
+`refined(self, refinement)` immutable bir kopya üretir; "ek style ile yeni base
+elde et" senaryolarında uygundur.
+
+#### Cascade ve CascadeSlot
+
+`Refineable` tek başına iki katmanı (base + refinement) birleştirir; daha derin
+hover/focus/active akışları için `crates/refineable/src/refineable.rs:80,93`
+katman yığını sağlar:
+
+```rust
+pub struct Cascade<S: Refineable>(Vec<Option<S::Refinement>>);
+pub struct CascadeSlot(usize);
+```
+
+API:
+
+- `Cascade::default()` slot 0'ı `Some(default)` ile kurar; ek slotlar başta
+  `None`'dur. Slot 0 her zaman dolu kalır ve "base" refinement'tır.
+- `cascade.reserve() -> CascadeSlot`: yeni `None` slot ekler ve handle döndürür.
+  Hover, focus, active gibi her dinamik katman için bir slot ayrılır.
+- `cascade.base() -> &mut S::Refinement`: slot 0'ı mutable verir; layout başına
+  asıl style yazılır.
+- `cascade.set(slot, Option<S::Refinement>)`: belirli slot'a refinement koyar
+  veya `None` ile devre dışı bırakır.
+- `cascade.merged() -> S::Refinement`: slot 0 üstüne diğer dolu slotları
+  sırayla `refine` eder; sonraki slot önceki slotu ezer.
+- `Refineable::from_cascade(&cascade) -> Self`: `default().refined(merged())`
+  shortcut'ı; render sırasında nihai stili üretmek için kullanılır.
+
+Önemli not: GPUI'nin kendi `Interactivity` katmanı (`.hover(...)`, `.active(...)`,
+`.focus(...)`, `.focus_visible(...)`, `.in_focus(...)`, `.group_hover(...)`,
+`.group_active(...)` zinciri) **`Cascade`/`CascadeSlot` kullanmaz**;
+`Interactivity` struct'ında her durum için ayrı bir `Option<Box<StyleRefinement>>`
+alanı tutar (`elements/div.rs:1681+`'deki `hover_style`, `active_style`,
+`focus_style`, `in_focus_style`, `focus_visible_style`, `group_hover_style`,
+`group_active_style`) ve render fazında bu refinement'ları sırayla `refine`
+eder. Yani hover style'ında verdiğin `StyleRefinement::bg(...)` base
+background'u ezer ama `font_size`'a dokunmazsa base'in font_size'ı korunur —
+None alan "etki yok" demektir.
+
+`Cascade<S>` ve `CascadeSlot` arayüzü `refineable` crate'inde public olarak
+durur fakat GPUI çekirdeği veya Zed bu sürümde içeriden kullanmıyor;
+çoklu-katmanlı (3+) refinement yığınını dışarıdan inşa etmek isteyen kütüphane
+yazarları için bir uzantı noktasıdır.
+
+#### MergeFrom
+
+`crates/settings_content/src/merge_from.rs`:
+
+```rust
+pub trait MergeFrom {
+    fn merge_from(&mut self, other: &Self);
+    fn merge_from_option(&mut self, other: Option<&Self>) {
+        if let Some(other) = other { self.merge_from(other); }
+    }
+}
+```
+
+Default kurallar:
+
+- HashMap, BTreeMap, struct: derin merge — sadece `other`'da var olan alanlar
+  yazılır.
+- `Option<T>`: `None` ezmez; `Some` recursive merge eder.
+- Diğer tipler (Vec, primitive): tam üzerine yazma.
+
+`#[derive(MergeFrom)]` derive'ı struct alanları için recursive merge üretir.
+Davranışı değiştirmek için `ExtendingVec<T>` (her merge'te concat) ve
+`SaturatingBool` (bir kez true olunca kalır) gibi sarıcılar mevcuttur.
+
+Settings yükleme zinciri:
+
+1. `assets/settings/default.json` → `SettingsContent::default()` baz alınır.
+2. User `~/.config/zed/settings.json` parse → `merge_from_option`.
+3. Aktif profil → `merge_from_option`.
+4. Worktree `.zed/settings.json` → `merge_from_option`.
+5. Sonuç `Settings::from_settings(content)` ile concrete struct'a çevrilir.
+
+Tuzaklar:
+
+- `Refineable` zincirinde `default()` baz değeri her seferinde yeniden hesaplanır;
+  ağır base style'ları cache'le.
+- `MergeFrom` sıralaması alt-üst değildir: en spesifik kaynağı en sona koy
+  (`local > profile > user > default`).
+- Vec'leri append etmek için `ExtendingVec`; üzerine yazmak gerekiyorsa düz `Vec`.
+- `Option<Option<T>>` gibi yapı yapmak istiyorsan `MergeFrom`'un default davranışı
+  doğru sonucu vermeyebilir; özel impl yaz.
+
+### Deferred Draw, Prepaint Order ve Overlay Katmanı
+
+
+`deferred(child)` child'ın layout'unu bulunduğu yerde tutar, fakat paint'i ancestor
+paint'lerinden sonraya erteler. Popover, context menu, resize handle ve dock drop
+overlay gibi "üstte çizilmeli ama layout'ta yer tutmamalı" parçalar için kullanılır.
+
+```rust
+deferred(
+    anchored()
+        .anchor(Anchor::TopRight)
+        .position(menu_position)
+        .child(menu),
+)
+.with_priority(1)
+```
+
+Davranış:
+
+- `request_layout`: child normal layout alır.
+- `prepaint`: child `window.defer_draw(...)` ile deferred queue'ya taşınır.
+- `paint`: deferred element kendi paint'inde bir şey çizmez.
+- `with_priority(n)`: aynı frame'deki deferred elementler arasında z-order verir;
+  yüksek priority üstte çizilir.
+
+`Div` prepaint yardımcıları:
+
+- `on_children_prepainted(|bounds, window, cx| ...)`: child bounds'larını ölçüp
+  sonraki paint için state üretir.
+- `with_dynamic_prepaint_order(...)`: child prepaint sırasını runtime'da belirler.
+  Özellikle bir child'ın autoscroll veya ölçüm sonucu diğer child'ı etkiliyorsa
+  kullanılır.
+
+Tuzaklar:
+
+- Deferred child layout'ta yer tuttuğu için absolute/anchored konumu hâlâ doğru
+  parent bounds'a bağlıdır.
+- Overlay mouse'u bloke etmeliyse child içinde `.occlude()` veya
+  `.block_mouse_except_scroll()` kullan.
+- Priority global z-index değildir; aynı window frame içindeki deferred queue
+  için geçerlidir.
+
+
+---
+
+---
+
+## Bölüm VI — Stil, Geometri ve Renkler
+
+---
+
+### Style ve Layout Haritası
+
+
+GPUI style sistemi CSS/Tailwind'e benzer fluent metotlardan oluşur, fakat Rust
+tipleriyle daha nettir:
+
+- Boyut: `w`, `h`, `size`, `min_w`, `max_w`, `flex_basis`, `size_full`,
+  `h_auto`, `relative(f32)`, `px`, `rems`.
+- Layout: `flex`, `grid`, `flex_row`, `flex_col`, `items_*`, `justify_*`,
+  `content_*`, `gap_*`, `flex_wrap`, `flex_grow`, `flex_shrink`.
+- Position: `relative`, `absolute`, `inset_*`, `top/right/bottom/left`,
+  `z_index`.
+- Overflow: plain style overflow ve stateful `.overflow_*_scroll()`.
+- Background/border: `bg`, `border_*`, `border_color`, `rounded_*`,
+  `box_shadow`, `opacity`.
+- Text: `text_color`, `text_bg`, `text_size`, `text_*`, `font_family`,
+  `font_weight`, `italic`, `line_height`, `text_ellipsis`, `line_clamp`.
+- Interaction: `hover`, `active`, `focus`, `focus_visible`, `cursor_*`,
+  `track_focus`, `key_context`, action/key/mouse handlers.
+- Group styling: `.group("name")`, `group_hover(...)`, `group_active(...)` ve
+  `group_drag_over::<T>(...)` aynı isimli interaction grubuna göre uygulanır.
+- Grid placement: container için `grid_cols`, `grid_cols_min_content`,
+  `grid_cols_max_content`, `grid_rows`; child için `col_start`, `col_end`,
+  `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`,
+  `row_span_full` kullanılır. Altta `GridTemplate`,
+  `TemplateColumnMinSize` ve `GridPlacement::{Line, Span, Auto}` vardır.
+
+Yukarıdaki fluent metotların büyük kısmı `Styled` trait body'sinde tek tek
+yazılmaz; bir grup proc macro tarafından üretilir. `crates/gpui/src/styled.rs`
+trait gövdesinde bu makrolar tek satır olarak invoke edilir, `gpui_macros`
+crate'i ise her invoke için onlarca metot expand eder. Hangi macro hangi
+metotları üretiyor:
+
+| Proc macro (`gpui_macros::...!()`) | Üretilen fluent metotlar (Styled trait üyesi olarak) |
+|---|---|
+| `visibility_style_methods!()` | `visible()`, `invisible()` |
+| `margin_style_methods!()` | `m_*` ile birlikte `mt_`, `mb_`, `my_`, `mx_`, `ml_`, `mr_` ve her birinin spacing scale + `auto` varyantları (`mt_auto()` gibi) |
+| `padding_style_methods!()` | `p_*`, `pt_`, `pb_`, `py_`, `px_`, `pl_`, `pr_` (margin ailesinin padding karşılığı) |
+| `position_style_methods!()` | `relative()`, `absolute()` ve positioned element offset prefix'leri: `inset`, `top`, `bottom`, `left`, `right` |
+| `overflow_style_methods!()` | `overflow_hidden()`, `overflow_x_hidden()`, `overflow_y_hidden()` |
+| `cursor_style_methods!()` | `cursor(CursorStyle)`, `cursor_default()`, `cursor_pointer()`, `cursor_text()`, `cursor_move()`, `cursor_not_allowed()`, `cursor_context_menu()`, `cursor_crosshair()`, `cursor_vertical_text()`, `cursor_alias()`, `cursor_copy()`, `cursor_no_drop()`, `cursor_grab()`, `cursor_grabbing()`, ve resize ailesi: `cursor_ew_resize()`, `cursor_ns_resize()`, `cursor_nesw_resize()`, `cursor_nwse_resize()`, `cursor_col_resize()`, `cursor_row_resize()`, `cursor_n_resize()`, `cursor_e_resize()`, `cursor_s_resize()`, `cursor_w_resize()` |
+| `border_style_methods!()` | `border_color(C)` ve `border_*` width prefix'leri (`border_*`, `border_t_*`, `border_r_*`, `border_b_*`, `border_l_*`, `border_x_*`, `border_y_*`) × suffix tablosu (`_0`, `_1`, `_2`, `_4`, `_8`, vb.) |
+| `box_shadow_style_methods!()` | `shadow(Vec<BoxShadow>)`, `shadow_none()`, `shadow_2xs()`, `shadow_xs()`, `shadow_sm()`, `shadow_md()`, `shadow_lg()`, `shadow_xl()`, `shadow_2xl()` |
+
+Bu makrolar `pub` (proc) macro olarak `gpui_macros` crate'inden export edilir
+ve `gpui::{visibility_style_methods, margin_style_methods, ...}` üzerinden de
+yeniden re-export edilir. Doğrudan uygulama kodu çağırmaz — fluent metotlar
+zaten `Styled` trait'inin parçası olduğu için her `Styled` impl'i otomatik
+sahip olur.
+
+`Styled` trait içinde ayrıca `gpui_macros::style_helpers!()` çağrısı vardır, fakat
+bu proc macro `#[doc(hidden)]` olduğu ve `gpui` crate kökünden re-export
+edilmediği için `target/doc/gpui/all.html` macro listesinde yer almaz. `w_*`,
+`h_*`, `size_*`, `min_size_*`, `min_w_*`, `min_h_*`, `max_size_*`, `max_w_*`,
+`max_h_*`, `gap_*`, `gap_x_*`, `gap_y_*` ve `rounded_*` aileleri bu internal
+macrodan gelir.
+
+Custom bir element için `Styled` impl ediyorsan trait'in tüm metotları
+otomatik miras kalır; bu makroları yeniden invoke etmek gerekmez. Yalnız
+GPUI'nin kendisi gibi yeni bir style framework yazıyorsan (paralel bir
+`Styled` benzeri trait için) bu macro'ları kendi trait'inin içinde invoke
+edebilirsin — `method_visibility` parametresi public/pub(crate) ayarına izin
+verir.
+
+Pratik kararlar:
+
+- Görünüm state'e bağlıysa `Render` içinde koşullu `.when(...)` kullan; style'ı
+  sonradan imperative değiştirmeye çalışma.
+- Scroll, focus, tooltip, animation gibi stateful elementlerde ID stabil olmalıdır.
+- Parent layout genişliği belirsizse text overflow, image aspect ratio ve absolute
+  child konumu beklediğin sonucu vermeyebilir.
+- Kart/toolbar/list gibi tekrar eden UI'da boyutları `min/max/aspect_ratio` ile
+  sabitle; hover veya loading state layout shift üretmemeli.
+
+### Geometri Tipleri ve Birim Yönetimi
+
+
+`crates/gpui/src/geometry.rs`.
+
+GPUI üç farklı pixel birimi kullanır:
+
+- `Pixels(f32)`: scale-bağımsız mantıksal piksel. UI kodunda neredeyse her zaman
+  bu kullanılır.
+- `ScaledPixels(f32)`: `Pixels * window.scale_factor()`. Renderer'a iletilen değer.
+- `DevicePixels(i32)`: fiziksel cihaz pikseli. Asset/texture boyutlarında kullanılır.
+
+Yardımcılar:
+
+```rust
+let p = px(12.0);                  // Pixels
+let r = rems(1.5);                 // Rems
+let p2 = point(px(10.), px(20.));  // Point<Pixels>
+let s = size(px(100.), px(40.));   // Size<Pixels>
+let b = Bounds::from_corners(point(px(0.), px(0.)), point(px(100.), px(100.)));
+```
+
+Diğer birimler:
+
+- `Rems(f32)`: kök font boyutuna görelidir (Zed'de `theme.ui_font_size` ile bağlı).
+  `.text_sm()`, `.gap_2()` gibi makro üretilen helper'lar genelde Rems üzerinden
+  Pixels üretir.
+- `AbsoluteLength`: `Pixels` veya `Rems`.
+- `DefiniteLength`: `Absolute(AbsoluteLength)` veya `Fraction(f32)`.
+- `Length`: `Definite(DefiniteLength)` veya `Auto`.
+
+Stil API'leri Length kabul eder:
+
+```rust
+div().w(px(120.))           // Pixels
+    .min_h(rems(2.))        // Rems
+    .flex_basis(relative(0.5)) // Fraction
+    .h_auto()
+```
+
+Generic container'lar `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Corners<T>`
+çoğu metot için aritmetik destekler (`+`, `-`, `*`, `/`).
+
+Kaynakta public inherent metot yüzeyi:
+
+- `Point<T>`: `map`, `scale`, `magnitude`, `relative_to`, `max`, `min`, `clamp`.
+- `Size<T>`: `new`, `map`, `center`, `scale`, `max`, `min`, `full`, `auto`,
+  `to_pixels`, `to_device_pixels`.
+- `Bounds<T>`: `centered`, `maximized`, `new`, `from_corners`,
+  `from_anchor_and_size`, `centered_at`, `top_center`, `bottom_center`,
+  `left_center`, `right_center`, `intersects`, `center`, `half_perimeter`,
+  `dilate`, `extend`, `inset`, `space_within`, `top`, `bottom`, `left`,
+  `right`, `top_right`, `bottom_right`, `bottom_left`, `corner`, `contains`,
+  `is_contained_within`, `map`, `map_origin`, `map_size`, `localize`,
+  `is_empty`, `scale`, `to_device_pixels`, `to_pixels`.
+- `Edges<T>`: `all`, `map`, `any`, `auto`, `zero`, `to_pixels`, `scale`, `max`.
+  Birden fazla `zero`/`to_pixels` impl'i farklı generic specialization'lardan
+  gelir.
+- `Corners<T>`: `all`, `corner`, `to_pixels`, `scale`, `max`,
+  `clamp_radii_for_quad_size`, `map`.
+- Birim wrapper'ları: `Pixels::{as_f32, floor, round, ceil, scale, pow, abs,
+  signum, to_f64}`, `ScaledPixels::{as_f32, floor, round, ceil}`,
+  `Rems::{is_zero, to_pixels, to_rems}`, `DevicePixels::to_bytes`.
+
+Hazır oran sabitleri:
+
+- `phi() -> DefiniteLength` (`geometry.rs:3698`): altın oranı `relative(1.618_034)`
+  olarak döndürür — yani parent'ın **1.618 katı**, %50 değil. GPUI'nin kendisi
+  default `TextStyle::line_height` değeri olarak `phi()` kullanır
+  (`style.rs:451`); yani bir font için satır yüksekliği `font_size * 1.618`'dir.
+  Layout oranlamada (örn. golden-ratio iki sütun) parent'ın katı olarak
+  istenirse aynı sabit kullanılabilir.
+
+Tuzaklar:
+
+- `Bounds::contains(point)` half-open intervallere göre çalışır; sınır pikseli
+  `false` dönebilir.
+- `Pixels` ile `ScaledPixels` aritmetiği `From`/`Into` üzerinden açık konversiyon
+  ister; örtük çevrilmez.
+- `point(x, y)` argument sırası önce X sonra Y'dir; `size(width, height)` de aynı.
+
+### Renkler, Gradient ve Background
+
+
+`crates/gpui/src/color.rs` ve `colors.rs`.
+
+İki temel tip:
+
+- `Rgba { r, g, b, a }`: 0.0–1.0 aralığında bileşenler.
+- `Hsla { h, s, l, a }`: 0.0–1.0 aralığında bileşenler.
+
+Constructor'lar:
+
+```rust
+let red = rgb(0xff0000);                    // Rgba, alfa 1.0
+let translucent = rgba(0xff000080);         // 0xRRGGBBAA
+let h = hsla(0.0, 1.0, 0.5, 1.0);           // saf kırmızı
+let grey = opaque_grey(0.5, 1.0);           // gri yardımcısı
+```
+
+Hazır renk sabitleri (hepsi `pub const fn ... -> Hsla`, `color.rs:344+`):
+
+| Fonksiyon | HSLA değeri | Not |
+|---|---|---|
+| `black()` | `(0.0, 0.0, 0.0, 1.0)` | Saf siyah |
+| `white()` | `(0.0, 0.0, 1.0, 1.0)` | Saf beyaz |
+| `transparent_black()` | `(0.0, 0.0, 0.0, 0.0)` | Tam saydam siyah — gradient ucu olarak kullanışlı |
+| `transparent_white()` | `(0.0, 0.0, 1.0, 0.0)` | Tam saydam beyaz |
+| `red()` | `(0.0, 1.0, 0.5, 1.0)` | %100 doygun kırmızı |
+| `blue()` | `(0.666…, 1.0, 0.5, 1.0)` | %100 doygun mavi |
+| `yellow()` | `(0.166…, 1.0, 0.5, 1.0)` | %100 doygun sarı |
+| `green()` | `(0.333…, 1.0, **0.25**, 1.0)` | Diğerlerinden farklı: lightness 0.25 (koyu yeşil) |
+
+Bunlar Zed tasarım sisteminden bağımsızdır; tema renkleri için `cx.theme().colors()`
+kullan. Debug placeholder, GPU shader test'i veya tema-bağımsız palette örneği
+gerekirse bu sabitler hazır gelir. `transparent_black()` `linear_gradient` ucu
+olarak en yaygın kullanılan tek-parça çağrısıdır (ör. fade-out maskeleri).
+
+Sık kullanılan metotlar (`color.rs:472+`):
+
+- `is_transparent()`, `is_opaque()`
+- `opacity(factor)`: alfayı çarpar.
+- `alpha(a)`: alfayı doğrudan ayarlar.
+- `fade_out(factor)`: in-place alfa azaltma.
+- `blend(other)`: pre-multiplied alpha ile karıştırır.
+- `grayscale()`: doygunluğu sıfırlar.
+- `to_rgb()`: Hsla → Rgba.
+
+Background tipi (`color.rs:763+`) sadece düz renk değildir:
+
+```rust
+solid_background(rgb(0xffffff))
+linear_gradient(
+    angle_deg,
+    linear_color_stop(rgb(0x000000), 0.0),
+    linear_color_stop(rgb(0xffffff), 1.0),
+)
+checkerboard(rgb(0xeeeeee), 8.0)
+pattern_slash(rgb(0xff0000), 2.0, 6.0)
+```
+
+`linear_gradient(...).color_space(ColorSpace::Oklab)` ile renk uzayı seçilebilir;
+`opacity(factor)` her stop'a uygulanır. `Background::as_solid()` yalnızca düz
+renk background için `Some(Hsla)` döndürür; gradient/pattern için `None` döner.
+
+`.bg(impl Into<Background>)` her style fluent API'sinde mevcut. Düz `Hsla` da
+`Into<Background>` implement eder, bu yüzden `.bg(theme.colors().panel_background)`
+tipik kullanımdır.
+
+Pratik notlar:
+
+- Alfa = 0 fakat opaque arka planın üzerine çiziyorsan temadaki opak rengi tercih et.
+- Gradient stop'lar `0.0` ve `1.0` arasında sıralı vermeli; aksi halde GPU shader'ı
+  beklenmedik dağılım verebilir.
+- Hsla'da hue 1.0'a sarılmaz (clamp'lenir); rotasyon için `hue + delta` modulo 1.0
+  ile hesapla.
+
+### SharedString, SharedUri ve Ucuz Klonlanan Tipler
+
+
+`SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri`
+`crates/gpui/src/shared_uri.rs` içinde bu string tipini sarar.
+
+UI ağacı her render'da yeniden oluşturulduğu için string ve URI kopyalama maliyeti
+hızla birikir. GPUI bunun için `Arc` tabanlı tipler sunar:
+
+- `SharedString`: `&'static str` veya `Arc<str>`. `Clone` ucuzdur (ref-count).
+  `Display`, `AsRef<str>`, `Into<SharedString>` impl'ler mevcuttur. `&'static str`,
+  `String` ve `Cow<'_, str>` ücretsizce dönüşür.
+- `SharedUri`: aynı stratejiyle URI; `ImageSource::Resource(Resource::Uri(...))`
+  burada `SharedUri` ister.
+
+Render içinde `String` üretip clone etmek yerine entity state'de `SharedString`
+sakla:
+
+```rust
+struct Header { title: SharedString }
+
+impl Header {
+    fn set_title(&mut self, title: impl Into<SharedString>, cx: &mut Context<Self>) {
+        self.title = title.into();
+        cx.notify();
+    }
+}
+
+impl Render for Header {
+    fn render(&mut self, _: &mut Window, _: &mut Context<Self>) -> impl IntoElement {
+        div().child(self.title.clone())
+    }
+}
+```
+
+İlgili ucuz klon tipleri:
+
+- `Arc<str>`, `Arc<Path>`, `Arc<[T]>`: GPUI sıkça `Arc` based slice/path bekler.
+- `Hsla`/`Rgba`: `Copy` tipli, doğrudan değer geçirilir.
+- `ElementId`: `Clone`, internal ID veya string varyantları taşır.
+
+Tuzaklar:
+
+- `SharedString::from(String)` çağrısı bir kez allocation yapar; sonraki klonlar
+  ücretsiz. Hot path'te tekrar tekrar `String` üretmekten kaçın.
+- `to_string()` çağrısı yeni `String` allocation üretir; gerekmiyorsa
+  `as_ref()` veya `Display` ile yaz.
+- Format string her render'da çalışıyorsa `format!` sonucu da her frame allocation
+  yapar; sonucu cache'lemek için entity state'te tut.
+
+### WindowAppearance ve Tema Modu
+
+
+`crates/gpui/src/platform.rs:1604` içinde tanımlı:
+
+```rust
+pub enum WindowAppearance {
+    Light,        // macOS: aqua
+    VibrantLight, // macOS: NSAppearanceNameVibrantLight
+    Dark,         // macOS: darkAqua
+    VibrantDark,  // macOS: NSAppearanceNameVibrantDark
+}
+```
+
+`Vibrant` varyantları macOS `NSAppearance` değerleriyle doğrudan eşleşir. Diğer
+platformlar bu enum'u yine taşır, fakat vibrancy'nin gerçek etkisi platform
+implementasyonuna bağlıdır. Sistem açık/koyu tercih ettiğinde GPUI bunu platform
+appearance olarak yansıtır; kullanıcı manuel tema override yapmıyorsa Zed teması
+bu sinyali takip eder.
+
+Erişim:
+
+- `cx.window_appearance() -> WindowAppearance`: uygulama-genel platform tercihi.
+- `window.appearance() -> WindowAppearance`: pencerenin gerçek görünümü
+  (parent override edebilir).
+- `window.observe_window_appearance(|window, cx| ...)`: entity state'e gerek
+  yoksa doğrudan pencere observer'ı.
+- `cx.observe_window_appearance(window, |this, window, cx| ...)`: `Context<T>`
+  içinden view state ile birlikte değişimi izle.
+- `window.observe_button_layout_changed(...)` ve
+  `cx.observe_button_layout_changed(window, ...)`: platform pencere kontrol
+  butonu düzeni değiştiğinde çalışır.
+
+Zed örüntüsü `crates/zed/src/main.rs` içinde tema seçimine bağlanır:
+
+```rust
+cx.observe_window_appearance(window, |_, window, cx| {
+    let appearance = window.appearance();
+    *SystemAppearance::global_mut(cx) = SystemAppearance(appearance.into());
+    theme_settings::reload_theme(cx);
+    theme_settings::reload_icon_theme(cx);
+}).detach();
+```
+
+Tuzaklar:
+
+- macOS dışında `VibrantLight`/`VibrantDark` üretilmez; eşleştirme tablosunda
+  yine de tüm dört değeri ele al.
+- Sistem temasını değiştirmek pencere açıldıktan sonra `window_background_appearance`
+  değişimini tetiklemez; tema akışında manuel `window.set_background_appearance(...)`
+  çağrısı gerekir.
+- `Vibrant*` ile birlikte `WindowBackgroundAppearance::Blurred` eklenirse macOS'ta
+  blur'un üzerine extra vibrancy bindirilir; tasarım sisteminde tek katman seç.
+
+
+---
+
+---
+
+## Bölüm VII — Pencere Yönetimi
+
+---
+
+### Pencere Oluşturma
+
+
+Ana API:
+
+```rust
+let handle = cx.open_window(
+    WindowOptions {
+        window_bounds: Some(WindowBounds::centered(size(px(900.), px(700.)), cx)),
+        titlebar: Some(TitlebarOptions {
+            title: Some("My Window".into()),
+            appears_transparent: true,
+            traffic_light_position: Some(point(px(9.), px(9.))),
+        }),
+        focus: true,
+        show: true,
+        kind: WindowKind::Normal,
+        is_movable: true,
+        is_resizable: true,
+        is_minimizable: true,
+        window_min_size: Some(size(px(360.), px(240.))),
+        window_background: cx.theme().window_background_appearance(),
+        window_decorations: Some(gpui::WindowDecorations::Client),
+        app_id: Some(ReleaseChannel::global(cx).app_id().to_owned()),
+        ..Default::default()
+    },
+    |window, cx| {
+        window.activate_window();
+        cx.new(|cx| MyRootView::new(window, cx))
+    },
+)?;
+```
+
+`WindowOptions` alanları:
+
+- `window_bounds`: `None` ise GPUI display default bounds seçer. `Some` verilirse
+  `Windowed`, `Maximized` veya `Fullscreen` başlangıcı yapılır. Default seçilirken
+  baz alınan boyut `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095, ana
+  Zed penceresi için) ve `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` (900×750, 6:5
+  oranında settings/rules library benzeri ek pencereler için) const'larıdır
+  (`window.rs:70,74`); kendi varsayılan boyutunu override etmek istemiyorsan
+  bu değerlere güvenebilirsin.
+- `titlebar`: `Some(TitlebarOptions)` sistem başlık çubuğu konfigürasyonu.
+  `None`, custom titlebar için kullanılır.
+- `focus`: oluşturulduğunda odak alıp almayacağı.
+- `show`: hemen gösterilip gösterilmeyeceği. Zed ana pencereleri başlangıçta
+  `show: false`, `focus: false` ile açar ve hazır olunca gösterir.
+- `kind`: `Normal`, `PopUp`, `Floating`, `Dialog`, Linux Wayland feature ile
+  `LayerShell`.
+- `is_movable`, `is_resizable`, `is_minimizable`: platform pencere kabiliyetleri.
+- `display_id`: belirli monitor.
+- `window_background`: `Opaque`, `Transparent`, `Blurred`, Windows için ayrıca
+  `MicaBackdrop`, `MicaAltBackdrop`.
+- `app_id`: Linux desktop grouping vb.
+- `window_min_size`: minimum content size.
+- `window_decorations`: `Server` veya `Client`. Linux'ta kritik; macOS/Windows'ta
+  pratikte titlebar seçenekleri daha belirleyici.
+- `icon`: X11 için pencere ikonu.
+- `tabbing_identifier`: macOS native window tabs gruplaması.
+
+`Window::new` içinde GPUI platform penceresini açar, sonra:
+
+1. `platform_window.request_decorations(...)` çağırır.
+2. `platform_window.set_background_appearance(window_background)` çağırır.
+3. Bounds `Fullscreen` ise fullscreen, `Maximized` ise zoom uygular.
+4. Platform callback'lerini bağlar.
+5. İlk render'ı yapar.
+
+### Zed'de Ana Pencere Nasıl Açılır?
+
+
+Zed'in ana referansı `crates/zed/src/zed.rs::build_window_options` fonksiyonudur.
+Yeni ana workspace penceresi açacaksan bunu kullan:
+
+```rust
+let options = zed::build_window_options(display_uuid, cx);
+let window = cx.open_window(options, |window, cx| {
+    cx.new(|cx| Workspace::new(/* ... */, window, cx))
+})?;
+```
+
+Bu fonksiyon şunları yapar:
+
+- `display_uuid` ile uygun display'i bulur.
+- `ZED_WINDOW_DECORATIONS=server|client` env override'ını okur.
+- Aksi durumda `WorkspaceSettings::window_decorations` ayarını kullanır.
+- `TitlebarOptions { appears_transparent: true, traffic_light_position: (9,9) }`
+  kurar.
+- `focus: false`, `show: false`, `kind: Normal` ayarlar.
+- `window_background` değerini aktif temadan alır.
+- Linux/FreeBSD'de app icon ekler.
+- macOS native tabbing istenirse `tabbing_identifier: Some("zed")` verir.
+
+Modal/About gibi küçük pencereler için doğrudan `WindowOptions` oluşturmak normaldir.
+`crates/zed/src/zed.rs::about` örneği:
+
+- Centered bounds
+- `appears_transparent: true`
+- `is_resizable: false`
+- `is_minimizable: false`
+- `kind: Normal`
+
+### Display ve Çoklu Monitor
+
+
+Display bilgisi:
+
+```rust
+for display in cx.displays() {
+    let id = display.id();
+    let bounds = display.bounds();
+    let visible = display.visible_bounds();
+    let uuid = display.uuid().ok();
+}
+```
+
+Belirli ekranda pencere açmak için:
+
+```rust
+WindowOptions {
+    display_id: Some(display.id()),
+    window_bounds: Some(WindowBounds::Windowed(bounds)),
+    ..Default::default()
+}
+```
+
+`Bounds` ekran koordinatlarıdır. `WindowBounds::centered(size, cx)` ana/default
+display üzerinde merkezler. Elle konumlandırma gerekiyorsa `Bounds::new(origin, size)`
+kullan.
+
+### WindowKind Davranışı
+
+
+- `Normal`: ana uygulama penceresi.
+- `PopUp`: diğer pencerelerin üstünde, bildirim ve geçici popup için. Zed bildirim
+  pencerelerinde kullanır.
+- `Floating`: parent üstünde floating panel.
+- `Dialog`: parent etkileşimini kapatan modal platform penceresi.
+- `LayerShell`: Wayland layer-shell feature ile dock/overlay/wallpaper benzeri
+  yüzeyler için.
+
+Pop-up/bildirim pencerelerinde tipik seçenekler:
+
+```rust
+WindowOptions {
+    titlebar: None,
+    kind: WindowKind::PopUp,
+    focus: false,
+    show: true,
+    is_movable: false,
+    window_background: WindowBackgroundAppearance::Transparent,
+    window_decorations: Some(WindowDecorations::Client),
+    ..Default::default()
+}
+```
+
+Zed örnekleri: `crates/agent_ui/src/ui/agent_notification.rs`,
+`crates/collab_ui/src/collab_ui.rs`.
+
+### Başlık Çubuğu ve Pencere Dekorasyonu
+
+
+İki kavramı ayır:
+
+- `TitlebarOptions`: macOS/Windows native titlebar görünümü, title ve macOS traffic
+  light konumu.
+- `WindowDecorations`: Linux/Wayland/X11 tarafında server-side decoration mı,
+  client-side decoration mı istendiği.
+
+GPUI tipleri:
+
+```rust
+pub enum WindowDecorations {
+    Server,
+    Client,
+}
+
+pub enum Decorations {
+    Server,
+    Client { tiling: Tiling },
+}
+```
+
+`WindowDecorations`, pencere açarken istenen moddur. `Decorations`, platformun fiili
+durumudur ve `window.window_decorations()` ile okunur.
+
+Zed ayarı:
+
+```json
+{
+  "window_decorations": "client"
+}
+```
+
+Env override:
+
+```sh
+ZED_WINDOW_DECORATIONS=server
+ZED_WINDOW_DECORATIONS=client
+```
+
+Zed settings tipi `settings_content::workspace::WindowDecorations` sadece `client`
+ve `server` destekler; default `client`.
+
+### Custom Titlebar Nasıl Tanımlanır?
+
+
+Basit GPUI uygulamasında:
+
+```rust
+cx.open_window(
+    WindowOptions {
+        titlebar: None,
+        ..Default::default()
+    },
+    |_, cx| cx.new(|_| MyView),
+)?;
+```
+
+Root view içinde kendi başlık çubuğunu çiz:
+
+```rust
+div()
+    .flex()
+    .flex_col()
+    .size_full()
+    .child(
+        h_flex()
+            .window_control_area(WindowControlArea::Drag)
+            .h(px(34.))
+            .child("Title")
+    )
+    .child(content)
+```
+
+Windows'ta caption button bölgeleri için `window_control_area` çok önemlidir:
+
+- `WindowControlArea::Drag`: sürüklenebilir başlık alanı.
+- `WindowControlArea::Close`: native close hit-test alanı.
+- `WindowControlArea::Max`: maximize/restore hit-test alanı.
+- `WindowControlArea::Min`: minimize hit-test alanı.
+
+Zed'de yeni workspace benzeri pencere yapıyorsan custom titlebar'ı sıfırdan yazma.
+`PlatformTitleBar` kullan:
+
+```rust
+let platform_titlebar = cx.new(|cx| PlatformTitleBar::new("my-titlebar", cx));
+
+platform_titlebar.update(cx, |titlebar, _| {
+    titlebar.set_children([my_left_or_center_content.into_any_element()]);
+});
+
+platform_titlebar.into_any_element()
+```
+
+`PlatformTitleBar` şunları halleder:
+
+- Linux client-side decoration için sol/sağ pencere kontrol butonları.
+- Windows pencere kontrol butonları.
+- macOS traffic light padding ve double-click davranışı.
+- Linux double-click ile zoom/maximize.
+- Başlık çubuğu drag alanı.
+- Linux'ta sağ tık window menu.
+- Sidebar açıkken kontrol butonları ve köşe yuvarlamalarını ayarlama.
+
+Zed titlebar davranışı:
+
+- `TitleBar`, `SkillsFeatureFlag` açıkken `OnboardingBanner` ile
+  "Introducing: Skills" banner'ını kurar; banner click'i
+  `zed_actions::agent::OpenRulesToSkillsMigrationInfo` action'ını dispatch eder.
+  Rules-to-Skills açıklaması modal katmanında gösterilir, titlebar label'ı
+  migration sonucuna göre değişmez.
+- `UpdateButton::checking`, `downloading` ve `installing` durumları disabled
+  button olarak çizilir. Sürüm tooltip metni `"Update to Version: ..."` biçimindedir;
+  SHA tabanlı sürümde kısa SHA yerine tam SHA gösterilir.
+
+### Kontrol Butonları Nasıl Yönetilir?
+
+
+Kontrol butonları platforma göre farklı çizilir:
+
+- macOS: native traffic lights; Zed sadece padding ve `traffic_light_position` ayarlar.
+- Windows: `platform_title_bar::platforms::platform_windows::WindowsWindowControls`
+  caption button render eder; her buton `WindowControlArea` ile native hit-test
+  alanına bağlanır.
+- Linux: `platform_title_bar::platforms::platform_linux::LinuxWindowControls`
+  `WindowButtonLayout` ve `WindowControls` bilgisine göre close/min/max çizer.
+
+Sol/sağ kontrol çizmek için hazır fonksiyonlar:
+
+```rust
+platform_title_bar::render_left_window_controls(
+    cx.button_layout(),
+    Box::new(workspace::CloseWindow),
+    window,
+)
+
+platform_title_bar::render_right_window_controls(
+    cx.button_layout(),
+    Box::new(workspace::CloseWindow),
+    window,
+)
+```
+
+Close butonu doğrudan `window.remove_window()` çağırmaz; Zed'de close action
+dispatch edilir:
+
+```rust
+window.dispatch_action(workspace::CloseWindow.boxed_clone(), cx);
+```
+
+Böylece dirty buffer, confirmation, workspace close mantığı ve keybinding ile aynı
+akış kullanılır.
+
+Linux `WindowButtonLayout`:
+
+- `WindowButton::{Minimize, Maximize, Close}` sıralı control tipleridir; layout
+  sol ve sağ taraf için `Option<WindowButton>` slot dizileri taşır. Slot başı
+  sayısı `gpui::MAX_BUTTONS_PER_SIDE: usize = 3` (`platform.rs:457`) ile
+  sabittir; `WindowButtonLayout::{left, right}` bu sayıda elementli dizidir.
+- Platformdan `cx.button_layout()` ile gelir.
+- GNOME tarzı `"close,minimize:maximize"` formatı parse edilebilir.
+- Default Linux fallback: sağda minimize, maximize, close.
+- `TitleBarSettings` içinde kullanıcı override'ı da vardır; `TitleBar` bunu
+  `PlatformTitleBar::set_button_layout` ile geçirir.
+
+### Client-Side Decoration ve Resize
+
+
+Zed'in client-side decoration wrapper'ı:
+
+```rust
+workspace::client_side_decorations(element, window, cx, border_radius_tiling)
+```
+
+Yaptıkları:
+
+- `window.window_decorations()` ile fiili decoration modunu okur.
+- Client decoration ise `window.set_client_inset(theme::CLIENT_SIDE_DECORATION_SHADOW)` çağırır.
+- Server decoration ise inset'i `0` yapar.
+- `window.client_inset()` platform penceresine son set edilen inset değerini
+  okumak için kullanılabilir; wrapper padding/shadow hesabıyla uyumlu tutulmalıdır.
+- Tiling durumuna göre köşe yuvarlamalarını kaldırır.
+- Border ve shadow çizer.
+- Kenar/corner bölgelerinde cursor'u resize cursor'a çevirir.
+- Mouse down'da `window.start_window_resize(edge)` çağırır.
+
+Kendi client-side decoration yapacaksan aynı prensipleri uygula:
+
+1. Fiili modu `window.window_decorations()` ile oku.
+2. Client ise gölge/invisible resize alanı kadar `set_client_inset` ver.
+3. Tiling varsa ilgili kenar/köşeye radius, padding ve shadow verme.
+4. Resize bölgelerinde `ResizeEdge` hesapla.
+5. Hareket için titlebar'a `WindowControlArea::Drag` veya Linux/macOS için
+   `window.start_window_move()` bağla.
+
+Linux'ta server-side decoration her zaman mümkün olmayabilir:
+
+- Wayland'de compositor decoration protocol sağlamazsa server isteği client'a düşer.
+- X11'de compositor yoksa client-side decoration server'a düşebilir.
+
+Bu yüzden pencere açarken istediğin modu değil, her render'da fiili
+`window.window_decorations()` sonucunu esas al.
+
+### Platforma Göre Dekorasyon Davranışı
+
+
+#### macOS
+
+- `TitlebarOptions::appears_transparent = true` style mask'e
+  `NSFullSizeContentViewWindowMask` ekler.
+- `traffic_light_position` native close/min/zoom butonlarının konumunu taşır.
+- `titlebar_double_click()` native double-click aksiyonunu uygular.
+- `start_window_move()` native `performWindowDragWithEvent` çağırır.
+- `tabbing_identifier` verilirse native window tabbing açılır.
+- `WindowDecorations` pratikte platform no-op gibi davranır; macOS için başlık
+  çubuğu davranışını `TitlebarOptions` belirler.
+
+#### Windows
+
+- `TitlebarOptions::appears_transparent` custom/full content titlebar için kullanılır.
+- Caption butonlarının native hit-test davranışı `WindowControlArea` üzerinden
+  `HTCLOSE`, `HTMAXBUTTON`, `HTMINBUTTON`, `HTCAPTION` olarak platform event
+  katmanında eşlenir.
+- `WindowBackgroundAppearance::MicaBackdrop` ve `MicaAltBackdrop` DWM backdrop
+  attribute ile uygulanır.
+- `WindowControls` çizimi Zed tarafında Windows component ile yapılır.
+
+#### Linux/FreeBSD - Wayland
+
+- `WindowDecorations::Server` xdg-decoration protocol ile istenir.
+- Compositor server-side decoration desteklemiyorsa client-side'a düşülür.
+- `window_controls()` Wayland capabilities bilgisinden gelir: fullscreen,
+  maximize, minimize, window menu.
+- `show_window_menu`, `start_window_move`, `start_window_resize` xdg_toplevel
+  üzerinden compositor'a devredilir.
+- Blur için compositor `blur_manager` destekliyorsa `Blurred` yüzeyde blur commit
+  edilir.
+
+#### Linux/FreeBSD - X11
+
+- `request_decorations` `_MOTIF_WM_HINTS` yazar.
+- Client-side decoration compositor gerektirir; yoksa server-side'a düşer.
+- `show_window_menu` `_GTK_SHOW_WINDOW_MENU` client message gönderir.
+- Move/resize `_NET_WM_MOVERESIZE` tarzı mesajla başlatılır.
+- Tiling, fullscreen ve maximize state'leri `Decorations::Client { tiling }`
+  sonucunu etkiler.
+
+#### Web/WASM
+
+- Web platformunda native pencere dekorasyonu kavramı yoktur.
+- `WindowBackgroundAppearance` şu anda web window için opaque/no-op kabul edilir.
+- Entry point'te `gpui_platform::web_init()` çağır.
+
+### Blur, Transparency ve Mica Yönetimi
+
+
+GPUI tipi:
+
+```rust
+pub enum WindowBackgroundAppearance {
+    Opaque,
+    Transparent,
+    Blurred,
+    MicaBackdrop,
+    MicaAltBackdrop,
+}
+```
+
+Zed tema ayarı sadece şunları kullanıcı tema içeriğinden destekler:
+
+```json
+{
+  "experimental.theme_overrides": {
+    "window_background_appearance": "blurred"
+  }
+}
+```
+
+Desteklenen setting değerleri: `opaque`, `transparent`, `blurred`.
+`MicaBackdrop` ve `MicaAltBackdrop` GPUI seviyesinde var, ancak Zed tema schema'sı
+şu anda bunları expose etmiyor.
+
+Zed akışı:
+
+- Tema refine edilirken `WindowBackgroundContent` -> `WindowBackgroundAppearance`
+  dönüştürülür.
+- Ana pencere açılırken `window_background: cx.theme().window_background_appearance()`.
+- Settings/theme değiştiğinde `crates/zed/src/main.rs` tüm açık pencerelerde
+  `window.set_background_appearance(background_appearance)` çağırır.
+- UI tarafında public yol `ui::theme_is_transparent(cx)`'dir; transparent veya
+  blurred ise true döner; opak arka plan varsayan bileşenler buna göre davranmalıdır.
+
+Platform davranışı:
+
+- macOS:
+  - `Opaque` native window opaque yapar.
+  - `Transparent` ve `Blurred` için renderer transparency açılır.
+  - macOS 12 öncesi blur `CGSSetWindowBackgroundBlurRadius` ile 80 radius kullanır.
+  - macOS 12+ `NSVisualEffectView` tabanlı blur view ekler/kaldırır.
+- Windows:
+  - `Opaque`: composition attribute kapatılır.
+  - `Transparent`: composition state transparent.
+  - `Blurred`: acrylic/blur benzeri composition attribute.
+  - `MicaBackdrop`: DWM `DWMSBT_MAINWINDOW`.
+  - `MicaAltBackdrop`: DWM `DWMSBT_TABBEDWINDOW`.
+- Wayland:
+  - Compositor blur protocol desteklerse `Blurred` yüzeye blur uygular.
+  - Aksi durumda blur isteği görünür fark yaratmayabilir.
+- X11:
+  - Transparent/blur renderer transparency'yi etkiler, gerçek backdrop blur window
+    manager/compositor desteğine bağlıdır.
+
+Pratik karar tablosu:
+
+- Tema/ana pencere için: `cx.theme().window_background_appearance()` kullan.
+- Geçici overlay/bildirim için: `Transparent`.
+- Windows 11 özel Mica istiyorsan: doğrudan `WindowBackgroundAppearance::MicaBackdrop`
+  veya `MicaAltBackdrop` kullan; fakat Zed theme setting'e otomatik bağlanmaz.
+- Blur kullanıyorsan: içerikte gerçekten alfa bırak; tamamen opak root background
+  blur'u görünmez yapar.
+
+### Pencere Üzerinden Yapılan İşlemler
+
+
+Sık kullanılan `Window` API'leri:
+
+- `window.bounds()`: global ekran koordinatlarında bounds.
+- `window.window_bounds()`: tekrar açma/restore için `WindowBounds`.
+- `window.inner_window_bounds()`: Linux inset hariç bounds.
+- `window.viewport_size()`: drawable content size.
+- `window.resize(size)`: content size değiştirir.
+- `window.is_fullscreen()`, `window.is_maximized()`
+- `window.activate_window()`
+- `window.minimize_window()`
+- `window.zoom_window()`
+- `window.toggle_fullscreen()`
+- `window.remove_window()`
+- `window.set_window_title(title)`
+- `window.set_app_id(app_id)`
+- `window.set_background_appearance(appearance)`
+- `window.set_window_edited(true/false)` macOS dirty indicator.
+- `window.set_document_path(path)` macOS document accessibility/path.
+- `window.show_window_menu(position)` Linux titlebar context menu.
+- `window.start_window_move()`, `window.start_window_resize(edge)`
+- `window.request_decorations(WindowDecorations::Client/Server)`
+- `window.window_decorations()`
+- `window.window_controls()`
+- `window.prompt(...)`
+- `window.play_system_bell()`
+
+macOS window tab API'leri:
+
+- `window.tabbed_windows()`
+- `window.tab_bar_visible()`
+- `window.merge_all_windows()`
+- `window.move_tab_to_new_window()`
+- `window.toggle_window_tab_overview()`
+- `window.set_tabbing_identifier(...)`
+
+### Pencere Bounds Persist ve Restore
+
+
+`crates/gpui/src/platform.rs::WindowBounds`, Zed tarafında
+`crates/workspace/src/persistence/`, `crates/workspace/src/workspace.rs` ve
+`crates/zed/src/zed.rs`.
+
+`WindowBounds` enum üç durumu kapsar:
+
+```rust
+pub enum WindowBounds {
+    Windowed(Bounds<Pixels>),
+    Maximized(Bounds<Pixels>),
+    Fullscreen(Bounds<Pixels>),
+}
+```
+
+`Bounds` her durumda restore-ready koordinatları taşır; `Maximized`/`Fullscreen`
+içindeki bounds, durum kapatıldığında dönülecek windowed bounds'tır.
+
+Persist akışı:
+
+```rust
+let bounds = window.inner_window_bounds();
+serialize(bounds, display_uuid);
+```
+
+Zed varsayılan pencere boyutu persist ederken `inner_window_bounds()` kullanır;
+workspace serialize sırasında bazı akışlarda `window.window_bounds()` da kullanılır.
+İkisi arasındaki fark platform/titlebar dahil edilen rect farklarına bağlıdır.
+Fullscreen/maximized durumlarında enum içindeki bounds restore edilecek windowed
+bounds'u temsil eder. Display UUID'si ayrı saklanır çünkü kullanıcı sonradan
+monitor'ü ayırabilir.
+
+Restore akışı `Workspace` açılırken `zed::build_window_options` üstüne uygulanır:
+
+1. Saklı `display_uuid`, `cx.displays()` içindeki `display.uuid()` değerleriyle
+   eşleştirilir.
+2. Display bulunduysa `options.display_id` set edilir, kayıtlı `WindowBounds`
+   `options.window_bounds` olur.
+3. Workspace-specific bounds yoksa default window bounds okunur.
+4. Hiç kayıt yoksa `WindowOptions.window_bounds = None` kalır ve GPUI platform
+   default/cascade bounds seçer.
+
+Bounds değişimini izlemek için:
+
+```rust
+cx.observe_window_bounds(window, |this, window, cx| {
+    let bounds = window.inner_window_bounds();
+    this.persist_bounds(bounds);
+}).detach();
+```
+
+Aynı şekilde `cx.observe_window_appearance(window, ...)` light/dark değişimini,
+`cx.observe_window_activation(window, ...)` foreground/background değişimini izler.
+
+Tuzaklar:
+
+- `window.bounds()` (live screen rect), `window.window_bounds()` ve
+  `window.inner_window_bounds()` farklı olabilir; restore/persist akışında hangi
+  rect'in beklediğini mevcut Zed çağrı noktasına göre seç.
+- Maximized/fullscreen enum'larının içindeki `Bounds<Pixels>` restore size'dır;
+  live platform bounds ekranı doldursa bile restore sonrası bu windowed bounds'a
+  dönülür.
+- Display UUID'si Linux/Wayland'de boş olabilir (`display.uuid().ok()` None döner);
+  fallback gerekli.
+
+### Native Window Tabs ve SystemWindowTabController
+
+
+macOS native window tabbing GPUI'de iki katmanlıdır:
+
+- `WindowOptions::tabbing_identifier`: aynı identifier'a sahip windows native tab
+  group'a girebilir.
+- `SystemWindowTabController`: GPUI global'i olarak native tab gruplarını ve
+  görünürlük state'ini izler.
+
+Window API'leri:
+
+- `window.tabbed_windows() -> Option<Vec<SystemWindowTab>>`
+- `window.tab_bar_visible() -> bool`
+- `window.merge_all_windows()`
+- `window.move_tab_to_new_window()`
+- `window.toggle_window_tab_overview()`
+- `window.set_tabbing_identifier(Some(identifier))`
+
+Kullanım kararı:
+
+- Zed workspace tab/pane sistemi için native tabbing yerine `workspace::Pane` ve
+  `TabBar` kullanılır.
+- İşletim sistemi seviyesinde birden çok top-level window'u aynı native tab gruba
+  almak istiyorsan `tabbing_identifier` ver.
+- Native tab state'i platformdan gelir; Linux/Windows üzerinde bu API'lerin bir
+  kısmı no-op veya `None` dönebilir.
+
+Tuzaklar:
+
+- Native window tab ile Zed pane tab aynı kavram değildir; persistence ve command
+  routing farklıdır.
+- Window title değiştiğinde native tab title için `window.set_window_title(...)`
+  ve controller update akışı birlikte düşünülmelidir.
+
+### Layer Shell ve Özel Platform Pencereleri
+
+
+Normal Zed pencereleri `WindowKind::Normal` ile açılır. Linux Wayland feature
+aktifken `WindowKind::LayerShell(LayerShellOptions)` overlay/dock/wallpaper
+benzeri yüzeyler için kullanılabilir:
+
+```rust
+use gpui::layer_shell::*;
+
+WindowOptions {
+    titlebar: None,
+    window_background: WindowBackgroundAppearance::Transparent,
+    kind: WindowKind::LayerShell(LayerShellOptions {
+        namespace: "gpui".to_string(),
+        layer: Layer::Overlay,
+        anchor: Anchor::LEFT | Anchor::RIGHT | Anchor::BOTTOM,
+        margin: Some((px(0.), px(0.), px(40.), px(0.))),
+        keyboard_interactivity: KeyboardInteractivity::None,
+        ..Default::default()
+    }),
+    ..Default::default()
+}
+```
+
+Layer shell alanları:
+
+- `Layer`: `Background`, `Bottom`, `Top`, `Overlay`.
+- `layer_shell::Anchor`: bitflag; `TOP/BOTTOM/LEFT/RIGHT` kombine edilir.
+- `exclusive_zone`: compositor'ın başka surface'leri bu alanı kapatmamasını ister.
+- `exclusive_edge`: exclusive zone kenarı.
+- `margin`: CSS sırası ile top/right/bottom/left.
+- `KeyboardInteractivity`: `None`, `Exclusive`, `OnDemand`.
+
+Bu API yalnızca `#[cfg(all(target_os = "linux", feature = "wayland"))]` altında
+vardır. Compositor protocol desteklemiyorsa backend `LayerShellNotSupportedError`
+döndürür; normal app penceresi fallback'i planla.
+
+
+---
+
+---
+
+## Bölüm VIII — Etkileşim ve Olaylar
+
+---
+
+### Focus, Blur ve Keyboard
+
+
+Focus handle:
+
+```rust
+struct View {
+    focus_handle: FocusHandle,
+}
+
+impl View {
+    fn new(cx: &mut Context<Self>) -> Self {
+        Self {
+            focus_handle: cx.focus_handle(),
+        }
+    }
+}
+```
+
+Render:
+
+```rust
+div()
+    .track_focus(&self.focus_handle)
+    .focus_visible(|style| style.border_color(cx.theme().colors().border_focused))
+```
+
+Focus vermek:
+
+```rust
+self.focus_handle.focus(window, cx);
+// veya
+cx.focus_view(&child_entity, window);
+```
+
+Focus sorguları:
+
+- `focus_handle.is_focused(window)`: handle doğrudan focused mı?
+- `focus_handle.contains_focused(window, cx)`: bu handle veya descendant focused mı?
+- `focus_handle.within_focused(window, cx)`: bu handle focused node'un içinde mi?
+
+Focus olayları:
+
+- `cx.on_focus(handle, window, ...)`: handle doğrudan focus aldı.
+- `cx.on_focus_in(handle, window, ...)`: handle veya descendant focus aldı.
+- `cx.on_blur(handle, window, ...)`: handle focus kaybetti.
+- `cx.on_focus_out(handle, window, |this, event, window, cx| ...)`: handle veya
+  descendant focus dışına çıktı; callback view state alır ve `FocusOutEvent`
+  içinden blur'lanan handle'a (`event.blurred`) erişilebilir.
+- `window.on_focus_out(handle, cx, |event, window, cx| ...)`: aynı olayın view
+  state almayan düşük seviyeli `Window` varyantı; geri çağrımı `Subscription`
+  olarak döner.
+- `cx.on_focus_lost(window, ...)`: pencere içinde focus kalmadı.
+
+Keyboard action akışı:
+
+1. `actions!(namespace, [ActionA, ActionB])` veya `#[derive(Action)]` +
+   `#[action(...)]` ile action tanımla.
+2. Element ağacında `.key_context("context-name")` belirt.
+3. `cx.bind_keys([KeyBinding::new("cmd-k", ActionA, Some("context-name"))])`.
+4. Handler için `.on_action(...)`, `.capture_action(...)` veya `cx.on_action(...)` kullan.
+
+Event propagation:
+
+- Mouse/key event handler'lar default propagate eder.
+- `cx.stop_propagation()` daha arkadaki/üstteki handler'lara gitmesini keser.
+- Action bubble phase'de handler'lar default propagation'ı durdurur; gerekirse
+  `cx.propagate()` kullanılır.
+
+### Mouse, Drag, Drop ve Hitbox
+
+
+Element interactivity:
+
+- `.on_click(...)`
+- `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)`
+- `.on_mouse_down_out(...)`, `.on_mouse_up_out(...)`
+- `.on_scroll_wheel(...)`
+- `.on_pinch(...)`
+- `.on_drag_move::<T>(...)`
+- `.drag_over::<T>(...)`
+- `.on_drop::<T>(...)`
+- `.can_drop(...)`
+- `.occlude()` veya `.block_mouse_except_scroll()`
+- `.cursor_pointer()`, `.cursor(...)`
+
+Pencere kontrol hitbox'ı:
+
+```rust
+h_flex()
+    .window_control_area(WindowControlArea::Drag)
+```
+
+Custom resize/cursor için `canvas` ile hitbox eklemek Zed'deki client decoration
+desenidir:
+
+```rust
+canvas(
+    |bounds, window, _cx| {
+        window.insert_hitbox(bounds, HitboxBehavior::Normal)
+    },
+    |_bounds, hitbox, window, _cx| {
+        window.set_cursor_style(CursorStyle::ResizeLeftRight, &hitbox);
+    },
+)
+```
+
+Burada `canvas` imzası `prepaint: FnOnce(Bounds<Pixels>, &mut Window, &mut App) -> T`
+ve `paint: FnOnce(Bounds<Pixels>, T, &mut Window, &mut App)` şeklindedir; ikinci
+closure'da ilk pozisyonel argüman `bounds` (kullanılmıyorsa `_bounds`), ikinci
+argüman ise prepaint'in döndürdüğü değer (`hitbox`) olur. `set_cursor_style`
+hitbox'a referans ister; bu yüzden `&hitbox` geçilir.
+
+### Drag ve Drop İçerik Üretimi
+
+
+`crates/gpui/src/elements/div.rs:572+` ve `1271+`.
+
+GPUI'de drag, drag edilen elementin yerine ayrı bir "ghost" view oluşturur ve
+mouse'u onun ile takip eder.
+
+```rust
+div()
+    .id("draggable")
+    .on_drag(payload.clone(), |payload, mouse_offset, window, cx| {
+        cx.new(|_| GhostView::for_payload(payload.clone(), mouse_offset))
+    })
+```
+
+İmza:
+
+```rust
+fn on_drag<T, W>(
+    self,
+    value: T,
+    constructor: impl Fn(&T, Point<Pixels>, &mut Window, &mut App) -> Entity<W> + 'static,
+) -> Self
+where
+    T: 'static,
+    W: 'static + Render;
+```
+
+- `value: T` drag payload tipidir; alıcı tarafta `on_drop::<T>` ile aynı tip ile
+  bağlanır.
+- `constructor` her drag başlangıcında ghost view üretir; mouse offset'i payload'a
+  göre konumlandırır.
+- `W: Render` ghost'un kendi entity'sidir; standart render gibi davranır.
+
+Drop tarafı:
+
+```rust
+div()
+    .drag_over::<MyPayload>(|style, payload, window, cx| {
+        style.bg(rgb(0xeeeeee))
+    })
+    .can_drop(|payload, window, cx| {
+        payload
+            .downcast_ref::<MyPayload>()
+            .is_some_and(|payload| payload.is_compatible(window, cx))
+    })
+    .on_drop::<MyPayload>(cx.listener(|this, payload: &MyPayload, window, cx| {
+        this.accept(payload.clone());
+        cx.notify();
+    }))
+```
+
+API:
+
+- `.on_drag::<T, W>(value, ctor)`: drag başlat.
+- `.drag_over::<T>(|style, payload, window, cx| -> StyleRefinement)`: hover sırasında
+  uygulanan stil refinement.
+- `.can_drop(|payload: &dyn Any, window, cx| -> bool)`: drop kabul edilip
+  edilmeyeceği. Tip kontrolü gerekiyorsa `downcast_ref::<T>()` kullanılır.
+- `.on_drop::<T>(listener)`: drop tamamlandı.
+- `.on_drag_move::<T>(listener)`: drag süresince mouse pozisyonu.
+- `cx.has_active_drag()`: app genelinde aktif drag var mı?
+- `cx.active_drag_cursor_style()`: aktif drag cursor override'ı.
+- `cx.stop_active_drag(window)`: aktif drag'i temizler, window refresh planlar ve
+  gerçekten drag vardıysa `true` döndürür. Escape/cancel path'lerinde kullanılır.
+
+Harici sürükleme (dosya sistem drag-in) için `FileDropEvent` ve `ExternalPaths`
+akışı kullanılır. Platform `FileDropEvent::Entered/Pending/Submit/Exited`
+üretir; `Window::dispatch_event` bunu dahili `active_drag` durumuna ve
+`ExternalPaths` payload'ına çevirir. UI tarafında normal drag/drop API'siyle
+yakalanır:
+
+```rust
+div()
+    .on_drag_move::<ExternalPaths>(cx.listener(|this, event, window, cx| {
+        let paths = event.drag(cx).paths();
+        this.preview_external_drop(paths, event.bounds, window, cx);
+    }))
+    .on_drop(cx.listener(|this, paths: &ExternalPaths, window, cx| {
+        this.handle_external_paths_drop(paths, window, cx);
+    }))
+```
+
+`ExternalPaths::paths()` `&[PathBuf]` döndürür. Ghost view platform tarafından
+dosya ikonları olarak çizilir; GPUI tarafındaki `Render for ExternalPaths`
+bilerek `Empty` döndürür.
+
+Tuzaklar:
+
+- Drag edilen tip `T: 'static` olmalıdır; lifetime taşıyan tip kabul edilmez.
+- Aynı element üzerinde `on_drag` iki kez çağrılırsa panic ("calling on_drag more
+  than once on the same element is not supported").
+- Ghost view her drag'de yeni `cx.new(...)` ile yaratılır; yan etkilerden kaçın.
+- `can_drop` false dönerse `drag_over`/`group_drag_over` stilleri uygulanmaz ve
+  `on_drop` çağrılmaz; kabul edilmeyen hedefin visual feedback'ini ayrı state ile
+  göstermen gerekiyorsa `on_drag_move` kullan.
+
+### Hitbox, Cursor, Pointer Capture ve Autoscroll
+
+
+Hitbox, mouse hit-test ve cursor davranışının temelidir. Element handler'ları çoğu
+zaman bunu senin yerine kurar; custom canvas/element yazarken doğrudan kullanılır.
+
+```rust
+let hitbox = window.insert_hitbox(bounds, HitboxBehavior::Normal);
+if hitbox.is_hovered(window) {
+    window.set_cursor_style(CursorStyle::PointingHand, &hitbox);
+}
+```
+
+Davranış tipleri:
+
+- `HitboxBehavior::Normal`: arkadaki hitbox'ları etkilemez.
+- `HitboxBehavior::BlockMouse`: arkadaki mouse, hover, tooltip ve scroll hitbox
+  davranışlarını bloke eder; `.occlude()` bunu kullanır.
+- `HitboxBehavior::BlockMouseExceptScroll`: arkadaki mouse interaction'ı bloke
+  eder ama scroll seçimini geçirebilir; `.block_mouse_except_scroll()` bunu kullanır.
+
+Pointer capture:
+
+```rust
+window.capture_pointer(hitbox.id);
+// drag/resize bittiğinde
+window.release_pointer();
+```
+
+Capture aktifken ilgili hitbox hovered sayılır; resize handle ve sürükleme
+etkileşimlerinde mouse bounds dışına çıksa bile hareketi takip etmek için kullanılır.
+`window.captured_hitbox()` aktif capture id'sini döndürür; custom element debug
+veya nested drag state ayrıştırması dışında genelde gerekmez.
+
+Autoscroll:
+
+- `window.request_autoscroll(bounds)`: drag sırasında viewport kenarına yakın
+  bölge için autoscroll talep eder.
+- `window.take_autoscroll()`: scroll container tarafında talebi tüketir.
+
+Cursor:
+
+- `window.set_cursor_style(style, &hitbox)`: hitbox hovered ise cursor ayarlar.
+- `window.set_window_cursor_style(style)`: window genel cursor state'i.
+- `cx.set_active_drag_cursor_style(style, window)`: aktif drag payload'ı için
+  cursor override.
+- `cx.active_drag_cursor_style()` mevcut drag cursor'unu okur.
+
+Tuzaklar:
+
+- `Hitbox::is_hovered` keyboard input modality sırasında false dönebilir; scroll
+  handler yazarken `should_handle_scroll` kullan.
+- Overlay elementleri `.occlude()` kullanmazsa arkadaki butonlar hover/click
+  almaya devam edebilir.
+- Pointer capture release edilmezse sonraki mouse hareketlerinde yanlış hitbox
+  hovered kalabilir.
+
+### Tab Sırası ve Klavye Navigasyonu
+
+
+`crates/gpui/src/tab_stop.rs`, `window.rs:397`.
+
+Tab navigasyonu `FocusHandle` üzerindeki iki bayrakla kontrol edilir:
+
+```rust
+let handle = cx.focus_handle()
+    .tab_stop(true)        // Tab tuşuyla durulabilir
+    .tab_index(0);         // Sıra path'ine katılır
+```
+
+Tab traversal sırası TabStopMap içindeki node sıralamasına göre belirlenir:
+
+1. Aynı grup içinde `tab_index` küçükten büyüğe.
+2. `tab_index` eşitse element ağaç sırası (DFS).
+3. `tab_stop(false)` olan handle sırada konum tutar ama klavyeyle durak olmaz.
+   Negatif `tab_index` özel olarak "devre dışı" anlamına gelmez; sadece sıralamada
+   daha erken bir path değeri üretir.
+
+Grup oluşturmak için element tarafında `.tab_group()` kullanılır; grubun sırası
+gerekiyorsa aynı elemente `.tab_index(index)` verilir. `TabStopMap::begin_group`
+ve `end_group` internal traversal operasyonlarıdır; uygulama kodu genelde bunları
+doğrudan çağırmaz.
+
+Custom element yazarken low-level karşılığı `window.with_tab_group(Some(index),
+|window| ...)` çağrısıdır; `None` verirsen grup açmadan closure'ı çalıştırır.
+Normal component kodunda `.tab_group()` fluent API'si tercih edilir.
+
+Window üzerindeki yardımcılar:
+
+- `window.focus_next(cx)` / `window.focus_prev(cx)`: Tab/Shift-Tab sırasında çağrılır.
+- `window.focused(cx)`: o anki odak handle'ı.
+
+Custom input bileşeni yazıyorsan:
+
+```rust
+div()
+    .track_focus(&self.focus_handle)
+    .on_action(cx.listener(|this, _: &menu::Confirm, window, cx| { ... }))
+    .child(/* ... */)
+```
+
+`tab_stop(true)` olmadan handle yalnızca programatik focus alır; klavyeyle
+ulaşılamaz. Aksesibilite ve form akışı için her interaktif element bir handle'a
+sahip olmalı.
+
+### Text Input ve IME
+
+
+Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Editor benzeri metin
+alanları şunları sağlamalıdır:
+
+- `selected_text_range`
+- `marked_text_range`
+- `text_for_range`
+- `replace_text_in_range`
+- `replace_and_mark_text_in_range`
+- `unmark_text`
+- `bounds_for_range`
+- `character_index_for_point`
+- `accepts_text_input`
+
+Ham `InputHandler` implementasyonu yazıyorsan ayrıca
+`prefers_ime_for_printable_keys` override edilebilir. Ancak yaygın view yolu olan
+`EntityInputHandler` + `ElementInputHandler` ikilisinde bu ayrı bir hook değildir;
+mevcut wrapper `prefers_ime_for_printable_keys` için `accepts_text_input`
+sonucunu kullanır. IME/keybinding önceliğini `accepts_text_input`'tan bağımsız
+yönetmen gerekiyorsa doğrudan `InputHandler` implement eden özel handler yaz.
+
+IME aday penceresini doğru yerde tutmak için:
+
+```rust
+window.invalidate_character_coordinates();
+```
+
+Zed'de form tipi tek satır input için doğrudan editor yazmak yerine
+`ui_input::InputField` kullan. Bu crate editor'a bağlı olduğu için `ui` içinde
+değildir.
+
+`ui_input` public yüzeyi:
+
+- `pub use input_field::*`; ana component `InputField`.
+- `InputField::new(window, cx, placeholder_text)` tek satır editor instance'ı
+  ister ve placeholder'ı hemen editor'a yazar.
+- Builder/metotlar: `.start_icon(IconName)`, `.label(...)`,
+  `.label_size(LabelSize)`, `.label_min_width(Length)`, `.tab_index(isize)`,
+  `.tab_stop(bool)`, `.masked(bool)`, `.is_empty(cx)`, `.editor()`,
+  `.text(cx)`, `.clear(window, cx)`, `.set_text(text, window, cx)`,
+  `.set_masked(masked, window, cx)`.
+- `InputFieldStyle` public struct olarak görünür ama alanları private; dışarıdan
+  style override sözleşmesi değil, render içi tema snapshot'ıdır.
+- `ErasedEditor` trait'i editor köprüsüdür: `text`, `set_text`, `clear`,
+  `set_placeholder_text`, `move_selection_to_end`, `set_masked`,
+  `focus_handle`, `subscribe`, `render`, `as_any`.
+- `ErasedEditorEvent::{BufferEdited, Blurred}` picker/search gibi üst
+  bileşenlerin edit/blur akışını dinlemesi için kullanılır.
+- `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn
+  ErasedEditor>>` editor crate tarafından kurulur. Zed'de
+  `crates/editor/src/editor.rs` init akışında bu factory
+  `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile set edilir.
+  `InputField::new` factory unset ise panic eder; bu yüzden uygulama init
+  sırası editor kurulumu tamamlandıktan sonra `InputField` oluşturmaya dayanır.
+
+### Text Input Handler ve IME Derin Akış
+
+
+Metin düzenleyen custom element yazıyorsan yalnızca key event dinlemek yeterli
+değildir. IME, dead key, marked text ve candidate window için platforma
+`InputHandler` vermen gerekir.
+
+View tarafı:
+
+```rust
+impl EntityInputHandler for EditorLikeView {
+    fn selected_text_range(
+        &mut self,
+        ignore_disabled_input: bool,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Option<UTF16Selection> {
+        self.selection_utf16(ignore_disabled_input, window, cx)
+    }
+
+    fn marked_text_range(
+        &self,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Option<Range<usize>> {
+        self.marked_range_utf16(window, cx)
+    }
+
+    fn unmark_text(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        self.clear_marked_text(window, cx);
+    }
+
+    // text_for_range, replace_text_in_range,
+    // replace_and_mark_text_in_range, bounds_for_range,
+    // character_index_for_point da uygulanır.
+}
+```
+
+Element paint sırasında:
+
+```rust
+window.handle_input(
+    &focus_handle,
+    ElementInputHandler::new(bounds, view_entity.clone()),
+    cx,
+);
+```
+
+Kurallar:
+
+- Range değerleri UTF-16 offset'idir; Rust byte index'iyle karıştırma.
+- `bounds_for_range` screen/candidate positioning için doğru absolute bounds
+  döndürmelidir.
+- Cursor/selection hareketinden sonra `window.invalidate_character_coordinates()`
+  çağır; IME paneli yeni konuma taşınır.
+- `accepts_text_input` false ise platform text insertion engellenebilir.
+- Raw `InputHandler::prefers_ime_for_printable_keys` true ise non-ASCII IME
+  aktifken printable tuşlar keybinding'den önce IME'ye gider. `ElementInputHandler`
+  ile sarılan `EntityInputHandler` için GPUI bu kararı `accepts_text_input`
+  üzerinden verir; trait'te ayrı bir override noktası yoktur.
+- Window frame geçişinde platform input handler `Vec<Option<_>>` slot'ları
+  `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılıp bir sonraki frame'de
+  aynı slot'a geri yerleştirilir. `reuse_paint` cached `paint_range` index'leri
+  bu yüzden stabil kalır. Custom düşük seviye window/frame kodu yazarken input
+  handler dizisinin uzunluğunu index cache'i varken değiştirme.
+
+Tuzaklar:
+
+- Sadece `.on_key_down` ile text editor yazmak IME ve dead-key dillerinde bozulur.
+- UTF-16 range'i byte slice'a doğrudan uygulamak çok byte'lı karakterlerde panic
+  veya yanlış seçim üretir.
+- Input handler frame'e bağlıdır; focused element paint edilmezse platform input
+  handler da düşer.
+
+### Keystroke, Modifiers ve Platform Bağımsız Kısayollar
+
+
+`crates/gpui/src/platform/keystroke.rs` klavye girdisinin normalized modelidir.
+Keymap sadece action binding değildir; pending input, IME ve gösterim metni de
+bu tiplerle taşınır.
+
+Ana tipler:
+
+- `Keystroke { modifiers, key, key_char }`: gerçek input. `key` basılan tuşun
+  ASCII karşılığıdır (örn. option-s için `s`); `key_char` o tuşla üretilebilecek
+  karakteri tutar (örn. option-s için `Some("ß")`, cmd-s için `None`). Asciiye
+  çevrilemeyen layout'larda `key` yine ASCII fallback'idir, asıl yazılan
+  karakter `key_char`'a düşer. Ayrı bir `ime_key` alanı yoktur.
+- `KeybindingKeystroke`: binding dosyalarında görünen display modifier/key ile
+  eşleşme için kullanılan sarıcı.
+- `InvalidKeystrokeError`: parse hatası. Hatanın `Display` çıktısı
+  `gpui::KEYSTROKE_PARSE_EXPECTED_MESSAGE: &str` const'ını şablon olarak
+  kullanır (`platform/keystroke.rs:69`); kullanıcı keymap parser'ında aynı
+  bekleyiş cümlesini göstermek istersen bu sabite bağlan.
+- `Modifiers`: `control`, `alt`, `shift`, `platform`, `function` alanları.
+- `AsKeystroke`: hem `Keystroke` hem display wrapper'ları üzerinden ortak
+  keystroke erişimi sağlayan küçük trait.
+- `Capslock { on }`: platform input snapshot'ında capslock durumunu taşır.
+
+Kullanım:
+
+```rust
+let keystroke = Keystroke::parse("cmd-shift-p")?;
+let text = keystroke.unparse();
+let handled = window.dispatch_keystroke(keystroke, cx);
+```
+
+Modifier yardımcıları:
+
+- `Modifiers::none()`, `command()`, `windows()`, `super_key()`,
+  `secondary_key()`, `control()`, `alt()`, `shift()`, `function()`,
+  `command_shift()`, `control_shift()`.
+- `command()`, `windows()`, `super_key()` üçü de aynı şeyi yapar:
+  `Modifiers { platform: true, .. }` üretir. Tek bir `platform` field'ı OS'a
+  göre command (macOS), windows (Windows) veya super (Linux) anlamına gelir;
+  bu üç constructor sadece kavramsal vurgu için ayrı isimle export edilir.
+- `secondary_key()` macOS'ta command, Linux/Windows'ta control üretir; Zed'de
+  platform bağımsız kısayol yazarken çoğu durumda doğru seçim budur.
+- `modified()`, `secondary()`, `number_of_modifiers()`,
+  `is_subset_of(&other)` input ayrıştırmada kullanılır.
+
+IME:
+
+- `Keystroke::is_ime_in_progress()` IME composition sırasında true döner.
+- `window.dispatch_keystroke(...)` test/simülasyon path'inde
+  `with_simulated_ime()` uygular; doğrudan lower-level event üretirken IME
+  state'ini ayrıca düşünmek gerekir.
+
+`KeybindingKeystroke` yüzeyi:
+
+- `KeybindingKeystroke::new_with_mapper(inner, use_key_equivalents,
+  keyboard_mapper)`: platform keyboard mapper üzerinden display key/modifier
+  üretir. `from_keystroke(keystroke)` platform mapping yapmadan sarar.
+  Windows'ta `new(inner, display_modifiers, display_key)` constructor'ı da vardır;
+  macOS/Linux build'lerinde bu constructor yoktur.
+- `inner()`, `modifiers()`, `key()` getter'ları display ve gerçek keystroke
+  ayrımını saklar. Windows'ta `modifiers()`/`key()` display değerini döndürebilir;
+  gerçek GPUI input'u için `inner()` okunur.
+- `set_modifiers(...)`, `set_key(...)`, `remove_key_char()` ve `unparse()`
+  keybinding editor/normalizer akışında kullanılır. `remove_key_char()` yalnız
+  `inner.key_char = None` yapar; `key` alanını silmez.
+
+Binding sorguları:
+
+- `window.bindings_for_action(&Action)` ve `window.keystroke_text_for(&Action)`
+  kullanıcıya gösterilecek kısayol metni için tercih edilir.
+- `cx.all_bindings_for_input(&[Keystroke])` ve
+  `window.possible_bindings_for_input(&[Keystroke])` multi-stroke veya prefix
+  binding durumlarında kullanılabilir.
+- `window.pending_input_keystrokes()` henüz tamamlanmamış input zincirini verir.
+
+
+---
+
+---
+
+## Bölüm IX — Action ve Keymap
+
+---
+
+### Action Sistemi Derinlemesine
+
+
+`crates/gpui/src/action.rs`, `key_dispatch.rs`.
+
+Action tanımının iki ana yolu vardır.
+
+Veri taşımayan action:
+
+```rust
+use gpui::actions;
+actions!(my_namespace, [Save, Close, Reload]);
+```
+
+`actions!` makrosu her isim için unit struct ve `Action` impl üretir; namespace
+`my_namespace::Save` adıyla registry'ye kaydolur.
+
+Veri taşıyan action:
+
+```rust
+use gpui::Action;
+
+#[derive(Clone, PartialEq, serde::Deserialize, schemars::JsonSchema, Action)]
+#[action(namespace = editor)]
+pub struct GoToLine { pub line: u32 }
+```
+
+`#[action(namespace = ..., name = "...", no_json, no_register,
+deprecated_aliases = [...], deprecated = "...")]` attribute'leri kontrol sağlar.
+Default olarak `Deserialize` derive edilmesi ve `JsonSchema` implement edilmesi
+beklenir; pure code action için `no_json` kullan, register edilmesini
+istemiyorsan `no_register` ekle.
+
+Dispatch:
+
+- `window.dispatch_action(action.boxed_clone(), cx)`: focused element'ten root'a doğru
+  bubble.
+- `focus_handle.dispatch_action(&action, window, cx)`: belirli handle'dan başlatır.
+- Keymap girdileri eşleştiğinde otomatik dispatch edilir.
+
+Listener kaydı:
+
+```rust
+.on_action(cx.listener(|this, action: &GoToLine, window, cx| {
+    this.go_to(action.line);
+    cx.notify();
+}))
+.capture_action(cx.listener(handler)) // capture phase
+```
+
+`DispatchPhase`:
+
+- `Capture`: root'tan focused element'e doğru.
+- `Bubble`: focused element'ten root'a doğru. Default; action handler'lar burada
+  default olarak propagation'ı durdurur. Aksi gerekiyorsa içinde `cx.propagate()`.
+
+Keybinding:
+
+```rust
+cx.bind_keys([
+    KeyBinding::new("cmd-s", Save, Some("Workspace")),
+    KeyBinding::new("ctrl-g", GoToLine { line: 0 }, Some("Editor")),
+]);
+```
+
+Context predicate gramer (`crates/gpui/src/keymap/context.rs:172,360+`):
+
+- `Editor` — context stack'te `Editor` identifier'ı var.
+- `Editor && !ReadOnly` — birleştirme + negasyon.
+- `Workspace > Editor` — `>` operatörü "Editor parent dispatch path'inde Workspace
+  altında" anlamına gelen descendant predicate'idir.
+- `mode == insert` — eşitlik (`KeyContext::set("mode", "insert")` ile yazılan
+  key/value değerine bakar).
+- `mode != normal` — eşitsizlik.
+- `(Editor || Terminal) && !ReadOnly` — parantezle gruplama.
+
+Gerçek parser yalnızca şu operatörleri tanır: `>`, `&&`, `||`, `==`, `!=`, `!`.
+`in (a, b)`, `not in`, fonksiyon çağrısı gibi syntax'lar yoktur. Vim modu gibi
+çoklu seçenek için `mode == normal || mode == visual` yazılır.
+
+`.key_context("Editor")` ile element ağaca context push eder; child'lar üst
+context'leri görür. Aynı binding birden çok context'te match ederse en
+spesifik (en derin) context kazanır.
+
+Tuzaklar:
+
+- Action register edilmeden binding atılırsa keymap parse hata verir; `actions!`
+  veya `#[derive(Action)]` mutlaka ana modülde derlenmiş olmalı.
+- Bubble fazında handler `cx.propagate()` çağırmazsa parent action handler'lara
+  ulaşmaz (default davranış).
+- Aynı action ismi iki crate'te tanımlanırsa registry collision olur; namespace zorunlu.
+- Zed runtime'da bilinmeyen action ismi keymap'te warning log üretir, panic değil.
+
+### Action Makro Detayları, register_action! ve Deprecated Alias
+
+
+`#[derive(Action)]` ve `actions!` makrosu çoğu zaman yeterlidir, ancak action
+sözleşmesinin ek köşe taşları vardır.
+
+#### `Action` trait'inin gerçek yüzeyi (`crates/gpui/src/action.rs:117+`)
+
+```rust
+pub trait Action: Any + Send {
+    fn boxed_clone(&self) -> Box<dyn Action>;
+    fn partial_eq(&self, other: &dyn Action) -> bool;
+    fn name(&self) -> &'static str;
+    fn name_for_type() -> &'static str where Self: Sized;
+    fn build(value: serde_json::Value) -> Result<Box<dyn Action>>
+        where Self: Sized;
+    fn action_json_schema(_: &mut SchemaGenerator) -> Option<Schema>
+        where Self: Sized { None }
+    fn deprecated_aliases() -> &'static [&'static str]
+        where Self: Sized { &[] }
+    fn deprecation_message() -> Option<&'static str>
+        where Self: Sized { None }
+    fn documentation() -> Option<&'static str>
+        where Self: Sized { None }
+}
+```
+
+`name(&self)` runtime ad, `name_for_type()` static ad — runtime polymorphism
+gerekirse ilkini, registration'da ikincisini kullan.
+
+#### `#[action(...)]` attribute'leri
+
+`#[derive(Action)]` üzerinde:
+
+- `namespace = my_crate`: action adını `my_crate::Save` formuna çevirir.
+- `name = "OpenFile"`: namespace içinde özel ad.
+- `no_json`: `Deserialize`/`JsonSchema` derive zorunluluğunu kaldırır;
+  `build()` her zaman hata döndürür, `action_json_schema()` `None`.
+  Pure-code action (örn. `RangeAction { start: usize }`) için kullan.
+- `no_register`: inventory üzerinden otomatik kaydı atlar; trait'i elle
+  uygularken veya conditional kayıt yaparken gerekir.
+- `deprecated_aliases = ["editor::OldName", "old::Name"]`: keymap'te eski adı
+  kabul ederken kullanıcıya warning üretmek için.
+- `deprecated = "message"`: action'ın kendisini deprecated işaretler;
+  `deprecation_message()` bu metni döndürür.
+
+#### `register_action!` makrosu
+
+`#[derive(Action)]` kullanmadan `Action`'u manuel implement ediyorsan, action'ın
+inventory'e girmesi için:
+
+```rust
+use gpui::register_action;
+
+register_action!(Paste);
+```
+
+Bu makro yalnızca `inventory::submit!` çağrısı üretir; struct/impl tanımına
+dokunmaz. `no_register` ile birleştiği takdirde elle ne zaman register
+edileceğini sen belirlersin.
+
+#### Action runtime API'leri
+
+- `cx.is_action_available(&action) -> bool`: focused element path'te bu action'ı
+  dinleyen biri var mı? Menü item'larını disable etmek için ideal.
+- `window.is_action_available(&action, cx)`: window-spesifik versiyon.
+- `cx.dispatch_action(&action)`: focused window'a yayınla.
+- `window.dispatch_action(action.boxed_clone(), cx)`: window-spesifik.
+- `cx.build_action(name, json_value)`: keymap entry'sinden runtime action üretir;
+  schema yoksa `ActionBuildError` döner.
+
+#### Tuzaklar
+
+- `partial_eq` derive default'ta `PartialEq` impl'i kullanır; derive ekleme
+  unutulursa karşılaştırma yanlış sonuç verebilir.
+- Aynı `name()` döndüren iki action register edilirse inventory startup'ta
+  panic eder; namespace kullanmak çakışmayı önler.
+- `deprecated_aliases` keymap parser'ı eski adı yeni action'a yönlendirir, ama
+  Rust kodunda eski tipi referans etmeye devam edersen iki tanım çakışır.
+- `no_json` action'ı keymap dosyasından çağıramazsın; sadece kod içinden
+  `dispatch_action` ile tetiklenir.
+
+### Keymap, KeyContext ve Dispatch Stack
+
+
+Action tanımlamak tek başına yetmez; keybinding'in çalışması için focused element
+dispatch path'inde uygun `KeyContext` bulunmalıdır.
+
+Context koyma:
+
+```rust
+div()
+    .track_focus(&self.focus_handle)
+    .key_context("Editor mode=insert")
+    .on_action(cx.listener(|this, _: &Save, window, cx| {
+        this.save(window, cx);
+    }))
+```
+
+Binding ekleme:
+
+```rust
+cx.bind_keys([
+    KeyBinding::new("cmd-s", Save, Some("Editor")),
+    KeyBinding::new("ctrl-g", GoToLine { line: 0 }, Some("Workspace && !Editor")),
+]);
+```
+
+Önemli parçalar:
+
+- `KeyContext::parse("Editor mode = insert")`: elementin bağlamını üretir.
+- `KeyContext::new_with_defaults()`: default context set'iyle başlar.
+  `primary()`, `secondary()` parse edilen ana/ek context entry'lerine erişir;
+  `is_empty()`, `clear()`, `extend(&other)`, `add(identifier)`, `set(key, value)`,
+  `contains(key)` ve `get(key)` düşük seviyeli context inşa/sorgu yüzeyidir.
+- `KeyBindingContextPredicate`: binding tarafındaki predicate dilidir:
+  `Editor`, `mode == insert`, `!Terminal`, `Workspace > Editor`,
+  `A && B`, `A || B`.
+- `KeyBindingContextPredicate::parse(source)` predicate'i üretir.
+  `eval(context_stack)` bool eşleşme, `depth_of(context_stack)` en derin eşleşme
+  derinliği, `is_superset(&other)` ise keymap önceliği ve conflict analizinde
+  kullanılır. `eval_inner(...)` public olsa da parser/validator gibi düşük
+  seviyeli kodlar içindir; normal component kodu doğrudan çağırmaz.
+- `Keymap::bindings_for_input(input, context_stack)`: eşleşen action'ları ve
+  pending multi-stroke durumunu döndürür.
+- `Keymap::possible_next_bindings_for_input(input, context_stack)`: mevcut
+  chord prefix'ini takip edebilecek binding'leri precedence sırasıyla verir.
+- `Keymap::version() -> KeymapVersion`: binding set'i değiştikçe artan sayaçtır;
+  keybinding UI cache'lerinde invalidation anahtarı olarak kullanılabilir.
+- `Keymap::new(bindings)`, `add_bindings(bindings)`, `bindings()`,
+  `bindings_for_action(action)`, `all_bindings_for_input(input)` ve `clear()`
+  ham keymap tablosunu kurma/sorgulama/reset yüzeyidir. Uygulama akışında çoğu
+  zaman `cx.bind_keys(...)` ve settings loader tercih edilir; bu metotlar test,
+  validator, diagnostic ve özel keymap UI için doğrudan kullanılır.
+- `window.context_stack()`: focused node'dan root'a dispatch path context'leri.
+- `window.keystroke_text_for(&action)`: UI'da gösterilecek en yüksek öncelikli
+  binding string'i.
+- `window.possible_bindings_for_input(&[keystroke])`: chord/pending yardım UI'ları
+  için kullanılabilir.
+- `cx.key_bindings() -> Rc<RefCell<Keymap>>`: keymap'e düşük seviyeli erişim.
+  Production kodunda mümkünse `bind_keys`, keymap dosyası ve validator akışı
+  kullan; bu handle test/diagnostic ve özel keymap UI için uygundur.
+- `cx.clear_key_bindings()`: tüm binding'leri temizler ve windows refresh planlar;
+  normal uygulama akışında değil test/reset path'lerinde kullanılır.
+
+Öncelik:
+
+- Context path'te daha derin eşleşme daha yüksek önceliklidir.
+- Aynı derinlikte sonra eklenen binding önce gelir; user keymap bu yüzden built-in
+  binding'leri ezebilir.
+- `NoAction` ve `Unbind` binding'leri devre dışı bırakma için kullanılır.
+- Printable input IME'ye gidecekse `InputHandler::prefers_ime_for_printable_keys`
+  keybinding yakalamayı geriye çekebilir. `EntityInputHandler` kullanan view'larda
+  bu değer `ElementInputHandler` tarafından `accepts_text_input` sonucundan
+  türetilir; ayrı karar gerekiyorsa raw `InputHandler` yaz.
+
+Tuzaklar:
+
+- `.key_context(...)` olmayan subtree'de context predicate'li binding çalışmaz.
+- Handler focus path'te değilse action bubble oraya ulaşmaz; global handler için
+  `cx.on_action(...)`, local handler için element `.on_action(...)` kullan.
+- `KeyBinding::new` parse hatasında panic edebilir; kullanıcı JSON'undan yükleme
+  yaparken `KeyBinding::load` ve error reporting tercih edilir.
+- `KeyBinding::load(keystrokes, action, context_predicate, use_key_equivalents,
+  action_input, keyboard_mapper)` fallible loader'dır; `KeyBindingKeystroke`
+  mapping'ini de burada kurar. `context_predicate` `Option<Rc<KeyBindingContextPredicate>>`,
+  `action_input` ise `Option<SharedString>` alır ve hata durumunda
+  `InvalidKeystrokeError` döner. Runtime'da `with_meta(...)`/`set_meta(...)`
+  binding'in hangi keymap katmanından geldiğini taşır; `match_keystrokes(...)`
+  tam/pending eşleşmeyi, `keystrokes()`, `action()`, `predicate()`, `meta()` ve
+  `action_input()` getter'ları diagnostic ve command/keymap UI'ı besler.
+
+### DispatchPhase, Event Propagation ve DispatchEventResult
+
+
+Mouse, key ve action olayları element ağacında iki fazda akar:
+
+```rust
+pub enum DispatchPhase {
+    Capture, // root → focused
+    Bubble,  // focused → root (default)
+}
+```
+
+`Window::on_mouse_event`, `on_key_event`, `on_modifiers_changed` listener'ları
+faza göre çağrılır. Element fluent API'lerinde `.on_*` ailesi bubble fazına,
+`.capture_*` ailesi capture fazına bağlanır.
+
+Kontrol bayrakları (`crates/gpui/src/app.rs:2021+`):
+
+- `cx.stop_propagation()`: aynı tipteki diğer handler'ların çağrılmasını keser
+  (mouse'ta z-index'te alt katman, key'de ağaçta üst element).
+- `cx.propagate()`: bir önceki `stop_propagation()` etkisini geri alır. Action
+  handler'lar bubble fazında default olarak propagation'ı durdurur, bu yüzden
+  parent'a düşmesini istiyorsan handler içinden `cx.propagate()` çağır.
+- `window.prevent_default()` / `window.default_prevented()`: aynı dispatch içinde
+  default element davranışını bastıran pencere bayrağıdır. Mevcut kullanımın
+  en görünür örneği mouse down sırasında parent focus transferini engellemektir.
+
+Platform tarafına döndürülen sonuç:
+
+```rust
+pub struct DispatchEventResult {
+    pub propagate: bool,        // hâlâ bubble ediliyorsa true
+    pub default_prevented: bool, // GPUI default davranışı bastırıldı mı
+}
+```
+
+`PlatformWindow::on_input` callback'i `Fn(PlatformInput) -> DispatchEventResult`
+döndürür. Mevcut platform backend'lerinde "event işlendi mi?" kararı esas olarak
+`propagate` üzerinden alınır (`!propagate` handled anlamına gelir).
+`default_prevented` GPUI dispatch ağacındaki default element davranışını ve
+test/diagnostic sonucu taşır; platform default action kontrolü gibi genelleme
+yapmadan, handler'ın açıkça kontrol ettiği yerlerde anlamlandır.
+
+Pratik akış:
+
+1. Element listener fire eder, view state günceller, gerekirse `cx.notify()`.
+2. Listener event'i tüketmek istiyorsa `cx.stop_propagation()` çağırır.
+3. Action handler default davranışı korumak istiyorsa `cx.propagate()` ile
+   bubble'ı yeniden açar.
+4. Default focus transferi gibi GPUI içi davranış bastırılacaksa
+   `window.prevent_default()` çağrılır.
+
+Tuzaklar:
+
+- `capture_*` handler'ları focus path bilinmeden çalışır; pencere global
+  shortcut/observer için kullanılır, ama state mutate etmek istiyorsan focused
+  element'i runtime'da kontrol et.
+- Action propagation davranışı mouse/key event'lerden ters çalışır. Yeni action
+  yazarken ezbere `stop_propagation` koymak parent action'larını öldürebilir.
+- `default_prevented` genel bir platform cancellation API'si değildir; hangi
+  davranışı durdurduğunu anlamak için ilgili element/window handler'ının
+  `window.default_prevented()` kontrol edip etmediğine bak.
+
+### Action ve Keymap Runtime Introspection
+
+
+Action tanımlama ve dispatch önceki bölümlerde var; Zed komut paleti, keymap UI
+ve geliştirici diagnostikleri için runtime introspection yüzeyi ayrıca bilinmeli.
+
+Action registry:
+
+- `cx.build_action(name, data) -> Result<Box<dyn Action>, ActionBuildError>`:
+  string action adı ve optional JSON verisinden runtime action üretir.
+- `cx.all_action_names() -> &[&'static str]`: register edilmiş tüm action
+  adlarını döndürür. Registration, action'ın element ağacında available olduğu
+  anlamına gelmez.
+- `cx.action_schemas(generator)`: non-internal action adları ve JSON schema'ları.
+- `cx.action_schema_by_name(name, generator)`: tek action için schema döndürür;
+  `None` action yok, `Some(None)` action var ama schema yok demektir.
+- `cx.deprecated_actions_to_preferred_actions()`,
+  `cx.action_deprecation_messages()`, `cx.action_documentation()`: keymap
+  validator, command palette ve migration mesajları için registry metadata'sı.
+
+Available action ve binding sorguları:
+
+- `window.available_actions(cx)`: focused element dispatch path'indeki action
+  listener'larını ve global action listener'larını birleştirir. Menü/komut UI'ında
+  "bu action şu anda yapılabilir mi?" sorusunun window-spesifik cevabıdır.
+- `window.on_action_when(condition, TypeId::of::<A>(), listener)`: paint fazında
+  current dispatch node'una conditional low-level action listener ekler. Element
+  API'deki `.on_action(...)`/`.capture_action(...)` genelde daha okunur; custom
+  element yazmıyorsan bu seviyeye inme.
+- `cx.is_action_available(&action)` ve `window.is_action_available(&action, cx)`:
+  bool kısayollar.
+- `window.is_action_available_in(&action, focus_handle)`: action availability
+  sorgusunu belirli focus handle dispatch path'inden yapar.
+- `window.bindings_for_action(&action)`: focused context stack'e göre action'a
+  giden binding'leri döndürür; display için son binding en yüksek öncelikli kabul
+  edilir.
+- `window.highest_precedence_binding_for_action(&action)`: aynı sorgunun daha
+  ucuz tek sonuç versiyonu.
+- `window.bindings_for_action_in(&action, focus_handle)` ve
+  `highest_precedence_binding_for_action_in(...)`: sorguyu belirli focus handle
+  path'inden yapar.
+- `window.bindings_for_action_in_context(&action, KeyContext)`: tek bir elle
+  verilmiş context'e göre sorgu.
+- `window.highest_precedence_binding_for_action_in_context(&action, KeyContext)`:
+  aynı sorgunun tek sonuçlu en yüksek öncelik versiyonu.
+- `cx.all_bindings_for_input(&[Keystroke])`: context'e bakmadan input dizisine
+  kayıtlı tüm binding'leri listeler.
+- `window.possible_bindings_for_input(&[Keystroke])`: multi-stroke/prefix akışında
+  current context stack'e göre sıradaki aday binding'leri verir. Tam eşleşen
+  action dispatch sonucunu öğrenmek için normal `window.dispatch_keystroke(...)`
+  akışı kullanılmalıdır; public `Window::bindings_for_input` helper'ı yoktur.
+- `window.pending_input_keystrokes()` ve `window.has_pending_keystrokes()`:
+  tamamlanmamış key chord durumunu UI'da göstermek veya test etmek için.
+
+Keystroke global gözlem:
+
+```rust
+let after_dispatch = cx.observe_keystrokes(|event, window, cx| {
+    log_key(event, window, cx);
+});
+
+let before_dispatch = cx.intercept_keystrokes(|event, window, cx| {
+    if should_block(event) {
+        cx.stop_propagation();
+    }
+});
+```
+
+- `observe_keystrokes` action/event mekanizmaları çözüldükten sonra çalışır ve
+  propagation durdurulduysa çağrılmaz.
+- `intercept_keystrokes` dispatch'ten önce çalışır; burada
+  `cx.stop_propagation()` çağırmak action dispatch'i engeller.
+- Her ikisi de `Subscription` döndürür; kaybedilirse observer düşer.
+
+Tuzaklar:
+
+- `all_action_names` içinde görünen action'ın o anda kullanılabilir olması
+  garanti değildir; UI enable/disable için `available_actions` veya
+  `is_action_available` kullan.
+- Binding display ederken context stack'i hesaba katmayan `cx.all_bindings_for_input`
+  yerine mümkünse window/focus handle bazlı sorgu kullan.
+- Interceptor'lar global etkilidir; modal özelinde key engelleyeceksen mümkünse
+  element action/capture handler ile sınırla.
+
+### Zed Keymap Dosyası, Validator ve Unbind Akışı
+
+
+GPUI action/keybinding modeli Zed'de `settings::keymap_file` ile kullanıcı
+dosyasına bağlanır. Bu bölüm runtime dispatch'ten farklı olarak JSON yükleme,
+schema ve dosya güncelleme tarafını kapsar.
+
+Dosya modeli:
+
+- `KeymapFile(Vec<KeymapSection>)`: top-level JSON array.
+- `KeymapSection`: context predicate ve binding/unbind map'lerini taşır. Alan
+  görünürlüğü dengesizdir — yalnız `pub context: String` dış erişime açıktır;
+  `use_key_equivalents: bool`, `unbind: Option<IndexMap<...>>`,
+  `bindings: Option<IndexMap<...>>` ve `unrecognized_fields: IndexMap<...>`
+  alanları **private**'tır. `KeymapFile` parser'ı bu alanlara crate içinden
+  doğrudan erişir; dış kod yalnız `KeymapSection::bindings(&self)` getter'ını
+  kullanabilir, bu da `(keystroke, KeymapAction)` çiftlerini dönen tek public
+  iterator'dır (`keymap_file.rs:101`). `unbind` ve `use_key_equivalents` için
+  ayrı public getter şu sürümde yoktur.
+- `KeymapAction(Value)`: `null`, `"action::Name"` veya
+  `["action::Name", { ...args... }]` biçimlerini temsil eder.
+- `UnbindTargetAction(Value)`: `unbind` map'indeki hedef action değeri.
+- `KeymapFileLoadResult::{Success, SomeFailedToLoad, JsonParseFailure}`:
+  dosyanın kısmen yüklenebildiği senaryoyu açıkça ayırır.
+
+Yükleme:
+
+```rust
+let keymap = KeymapFile::parse(&contents)?;
+let result = KeymapFile::load(&contents, cx);
+```
+
+`load_asset(asset_path, source, cx)` bundled keymap dosyalarını yükler ve
+`KeybindSource` metadata'sı set edebilir. `load_panic_on_failure` sadece
+startup/test gibi "asset bozuksa devam etmeyelim" path'leri içindir.
+
+Base keymap:
+
+- `BaseKeymap::{VSCode, JetBrains, SublimeText, Atom, TextMate, Emacs, Cursor,
+  None}`.
+- Base/default/vim/user binding'leri `KeybindSource` metadata'sı taşır; UI
+  hangi binding'in nereden geldiğini bu metadata ile gösterir.
+
+Built-in keymap davranışı:
+
+- Agent panelindeki ACP thread'e özgü kısayollar `AcpThread` context'indedir.
+  Terminal alt bağlamı descendant predicate ile `AgentPanel > Terminal` kullanır.
+  Bu, `>` operatörünün gerçek dispatch path ilişkisi için kullanılmasının
+  pratik örneğidir.
+- Git paneli iki tablıdır: `git_panel::ActivateChangesTab` ve
+  `git_panel::ActivateHistoryTab` için varsayılan binding macOS'ta `cmd-1` /
+  `cmd-2`, Linux/Windows'ta `ctrl-1` / `ctrl-2`.
+- Worktree picker `worktree_picker::ForceDeleteWorktree` action'ını destekler.
+  Varsayılan binding macOS'ta `cmd-alt-shift-backspace`, Linux/Windows'ta
+  `ctrl-alt-shift-backspace`; UI tarafında delete icon'u üzerinde `alt` basılıysa
+  force delete yolu kullanılır.
+- `buffer_search::UseSelectionForFind` seçimi, seçim yoksa cursor altındaki
+  kelimeyi arama sorgusu olarak kullanır. Ayarı bypass etmek gereken çağrılar
+  `SeedQuerySetting::Always` override'ı vermelidir.
+
+Validator:
+
+- `KeyBindingValidator`: belirli action type'ı için binding doğrulaması yapar.
+- `KeyBindingValidatorRegistration(pub fn() -> Box<dyn KeyBindingValidator>)`
+  inventory ile toplanır.
+- Validator hatası `MarkdownString` döner; keymap UI bunu kullanıcıya
+  açıklanabilir hata olarak gösterebilir.
+
+Disable / unbind sentinel action'ları:
+
+GPUI iki ayrı sentinel action sağlar (`gpui::action.rs:425-453`); ikisinin de
+runtime davranışı **dispatch etmemek**, fakat keymap dispatch tablosundaki
+işlevleri farklıdır:
+
+- **`zed::NoAction`** — `actions!(zed, [NoAction])` ile tanımlı, veri taşımaz.
+  Keymap JSON'unda eylem değeri olarak `null` veya `"zed::NoAction"` yazılır:
+
+  ```json
+  { "context": "Editor", "bindings": { "cmd-p": null } }
+  ```
+
+  Aynı keystroke'a daha düşük öncelikle bağlanmış action'lar bu context için
+  iptal edilir; eşleşme `Keymap::resolve_binding` tarafında
+  `disabled_binding_matches_context(...)` çağrısıyla **context-aware** olarak
+  filtrelenir (`gpui/src/keymap.rs:120`). Yani `NoAction` belirli bir context
+  predicate'i içinde tuşu sessize alır.
+
+- **`zed::Unbind(SharedString)`** — `derive(Action)` ile tanımlı, payload bir
+  action adıdır. JSON formatı:
+
+  ```json
+  ["zed::Unbind", "editor::NewLine"]
+  ```
+
+  Keymap parser'ı bu sentinel'ı gördüğünde aynı keystroke'a aynı action adıyla
+  ileriden gelen tüm binding'leri **action context'inden bağımsız olarak**
+  iptal eder (`keymap.rs:124-128`'deki `is_unbind` kolu). Yani `editor::NewLine`
+  için `enter` tuşunu tüm context'lerde unbind etmek için kullanılır.
+
+Sentinel kontrol API'leri:
+
+- `gpui::is_no_action(&dyn Action) -> bool` (`action.rs:445`): `as_any().is::<NoAction>()`
+  ile downcast eder. Custom keymap UI veya komut paleti listesinde
+  "(disabled)" göstergesi koymak için kullanılabilir.
+- `gpui::is_unbind(&dyn Action) -> bool` (`action.rs:450`): aynı şekilde
+  `Unbind` instance'ını downcast eder.
+
+`KeymapFile::update_keybinding` `KeybindUpdateOperation::Remove` için bu iki
+sentinel'i bağlama göre üretir: user binding'leri `Remove` doğrudan dosyadan
+siler, framework/default binding'leri ise sessize alabilmek için kullanıcı
+keymap'ine `null` (NoAction) veya `["zed::Unbind", ...]` entry yazar.
+
+Dosya güncelleme:
+
+```rust
+let updated = KeymapFile::update_keybinding(
+    operation,
+    keymap_contents,
+    tab_size,
+    keyboard_mapper,
+)?;
+```
+
+- `KeybindUpdateOperation::Add { source, from }`: yeni binding ekler.
+- `Replace { source, target, target_keybind_source }`: user binding ise değiştirir;
+  user dışı binding değişiyorsa add + suppression unbind'e dönüştürebilir.
+- `Remove { target, target_keybind_source }`: user binding'i dosyadan siler;
+  user dışı binding'i kaldırmak için `unbind` yazar.
+- `KeybindUpdateTarget` action adı, optional action arguments, context ve
+  `KeybindingKeystroke` dizisini taşır.
+
+Tuzaklar:
+
+- `use_key_equivalents` yalnızca destekleyen platformlarda anlamlıdır; keyboard
+  mapper verilmeden dosya güncelleme doğru keystroke string'i üretemez.
+- Non-user binding'i "silmek" gerçek kaynağı değiştirmez; kullanıcı keymap'ine
+  suppress eden `unbind` entry'si yazılır.
+- Kullanıcı JSON'u bozuksa `update_keybinding` dosyayı değiştirmez; önce parse
+  başarıyla geçmelidir.
+
+
+---
+
+---
+
+## Bölüm X — Liste, Çizim ve Animasyon
+
+---
+
+### ScrollHandle ve Scroll Davranışı
+
 
 `crates/gpui/src/elements/div.rs:3387+`.
 
@@ -4013,7 +4080,8 @@ Liste elementlerinde ayrı state/handle tipleri vardır:
 Büyük listelerde doğrudan `ScrollHandle` yerine bu listeye özel
 `ListState`/`UniformListScrollHandle` API'lerini kullanmak doğru sonuç verir.
 
-### 61. List ve UniformList Sanallaştırma
+### List ve UniformList Sanallaştırma
+
 
 GPUI'de büyük listeler için iki çekirdek element vardır:
 
@@ -4136,11 +4204,8 @@ Karar:
 
 ---
 
-## Bölüm XI — Asset, Image, Path ve Çizim
+### Asset, Image ve SVG Yükleme
 
----
-
-### 62. Asset, Image ve SVG Yükleme
 
 `crates/gpui/src/asset_cache.rs`, `assets.rs`, `elements/img.rs`, `svg.rs`.
 
@@ -4223,7 +4288,8 @@ Tuzaklar:
   ASCII-insensitive helper kullan; `.ZED/settings.json` gibi varyantları düz
   `== ".zed"` karşılaştırmasıyla kaçırma.
 
-### 63. Asset, ImageCache ve Surface Boru Hattı
+### Asset, ImageCache ve Surface Boru Hattı
+
 
 GPUI asset katmanı üç seviyelidir:
 
@@ -4283,7 +4349,8 @@ Tuzaklar:
 - Çok büyük veya sürekli değişen image setlerinde `RetainAllImageCache` sınırsız
   büyüyebilir; özel eviction stratejisi için kendi `ImageCache` implementasyonu yaz.
 
-### 64. Path Çizimi ve Custom Drawing
+### Path Çizimi ve Custom Drawing
+
 
 `crates/gpui/src/path_builder.rs`, `scene.rs`, `elements/canvas.rs`.
 
@@ -4386,7 +4453,8 @@ Tuzaklar:
 - Stroke genişliği logical Pixels'dir; DPI yüksek ekranda çok ince kalmasın diye
   `px(1.0).max(...)` ile zemin tut.
 
-### 65. Anchored ve Popover Konumlandırma
+### Anchored ve Popover Konumlandırma
+
 
 `crates/gpui/src/elements/anchored.rs`.
 
@@ -4431,7 +4499,8 @@ Tuzaklar:
 - Anchored child kendi içinde overflow `Visible` davranır; içerik pencereyi taşırsa
   scroll için ekstra wrapper gerekir.
 
-### 66. PaintQuad, Window Paint Primitives ve BorderStyle
+### PaintQuad, Window Paint Primitives ve BorderStyle
+
 
 `canvas` ve custom `Element::paint` içinde GPU'ya gönderilen primitive'ler:
 
@@ -4490,7 +4559,8 @@ Tuzaklar:
 - `border_widths` dört kenara ayrı değer verebilir (`Edges { top, right, bottom, left }`);
   düz bir değer verirsen `Edges::all(px(1.))`.
 
-### 67. Window Drawing Context Stack, Asset Fetch ve SVG Transform
+### Window Drawing Context Stack, Asset Fetch ve SVG Transform
+
 
 Custom element yazarken `Window` yalnızca paint primitive çağırdığın yer değildir;
 draw fazlarında aktif style, offset, clipping ve asset yükleme context'ini de
@@ -4586,11 +4656,8 @@ Tuzaklar:
 
 ---
 
-## Bölüm XII — Animasyon
+### Animasyon Sistemi
 
----
-
-### 68. Animasyon Sistemi
 
 Animasyon API `crates/gpui/src/elements/animation.rs` içindedir.
 
@@ -4640,11 +4707,14 @@ Tuzaklar:
 
 ---
 
-## Bölüm XIII — Text Sistemi
+---
+
+## Bölüm XI — Metin Sistemi
 
 ---
 
-### 69. Text, Font ve Metin Ölçümü
+### Text, Font ve Metin Ölçümü
+
 
 Ana tipler `crates/gpui/src/text_system.rs`, `style.rs` ve
 `elements/text.rs` içinde:
@@ -4703,7 +4773,8 @@ Tuzaklar:
   bölünmez. Custom font fallback ayarı debug ederken yalnız family adını değil
   fallback listesini de cache/ölçüm girdisi say.
 
-### 70. StyledText, TextLayout ve InteractiveText
+### StyledText, TextLayout ve InteractiveText
+
 
 Basit metin `SharedString` olarak child verilebilir; ölçüm, highlight,
 font override veya tıklanabilir aralık gerekiyorsa `StyledText` kullanılır.
@@ -4767,11 +4838,14 @@ Markdown render davranışı:
 
 ---
 
-## Bölüm XIV — Input, Sistem ve Menü
+---
+
+## Bölüm XII — Input, Sistem ve Menü
 
 ---
 
-### 71. Input, Clipboard, Prompt ve Platform Servisleri
+### Input, Clipboard, Prompt ve Platform Servisleri
+
 
 Element event ailesi:
 
@@ -4839,7 +4913,8 @@ Platform ve prompt davranışı:
   çalışır. Project panel directories-first/files-first/mixed seçimi, path prompt
   candidate listesinde de aynı şekilde uygulanır.
 
-### 72. Prompt Builder, PromptHandle ve Fallback Prompt
+### Prompt Builder, PromptHandle ve Fallback Prompt
+
 
 `Window::prompt` platform dialog'u açar; platform prompt desteklemiyorsa veya
 custom prompt builder set edilmişse GPUI içinde render edilen prompt kullanılır.
@@ -4902,7 +4977,8 @@ Tuzaklar:
   focus restore zincirini tamamlayamaz.
 - Prompt sonucu buton label'ı değil, `answers` dizisindeki index'tir.
 
-### 73. Uygulama Menüsü ve Dock
+### Uygulama Menüsü ve Dock
+
 
 `crates/gpui/src/platform/app_menu.rs`.
 
@@ -4968,11 +5044,14 @@ diğer platformlarda alelade action gibidir.
 
 ---
 
-## Bölüm XV — Test
+---
+
+## Bölüm XIII — Test, Inspector ve Düşük Seviye API
 
 ---
 
-### 74. Test Rehberi
+### Test Rehberi
+
 
 GPUI testlerinde:
 
@@ -4992,7 +5071,8 @@ Testlerde kaçınılacaklar:
 - `unwrap()` ile test dışı production yoluna panik taşımak.
 - Async hata sonuçlarını `let _ = ...` ile yutmak.
 
-### 75. Test Bağlamları ve Simülasyon
+### Test Bağlamları ve Simülasyon
+
 
 `crates/gpui/src/app/test_context.rs`, `crates/gpui/src/app/visual_test_context.rs`.
 
@@ -5078,11 +5158,8 @@ Tuzaklar:
 
 ---
 
-## Bölüm XVI — Inspector ve Düşük Seviye API
+### Inspector ve Debug Yardımcıları
 
----
-
-### 76. Inspector ve Debug Yardımcıları
 
 `crates/gpui/src/inspector.rs` (feature: `inspector`).
 
@@ -5158,7 +5235,8 @@ Diğer debug helper'ları:
 - `debug_selector` değerleri testte `VisualTestContext::debug_bounds(selector)`
   üzerinden okunur; production overlay için ayrı bir env bayrağına güvenme.
 
-### 77. Default Colors, GPU Specs ve Platform Diagnostics
+### Default Colors, GPU Specs ve Platform Diagnostics
+
 
 Tema sistemi dışındaki küçük ama pratik platform yüzeyleri:
 
@@ -5190,7 +5268,8 @@ Bu API'ler tema veya pencere oluşturma akışının merkezinde değildir; ama
 diagnostic ekranları, test harness'leri, macOS doküman pencereleri ve platforma
 duyarlı davranışlarda rehbere dahil edilmelidir.
 
-### 78. Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
+### Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
+
 
 Zed'in `workspace` ve `ui` katmanında sık görülen bazı `Window` çağrıları
 render çıktısı üretmez; o anki pencere/input durumunu okumak veya işi doğru frame
@@ -5277,7 +5356,8 @@ Low-level custom element hook'ları:
   yenileme ve observer notify işlemini tetikler. Platform/test altyapısı içindir;
   app code'da resize simülasyonu dışında çağırma.
 
-### 79. App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
+### App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
+
 
 Bu küçük API'ler ana render modelinin parçası değildir, fakat Zed başlangıcı,
 editor text davranışı ve image cache gibi yerlerde kullanılır.
@@ -5351,7 +5431,8 @@ Tuzaklar:
 - `show_character_palette` her platformda gerçek UI açmayabilir; platform
   implementasyonu no-op olabilir.
 
-### 80. CursorStyle, FontWeight ve Sabit Enum Tabloları
+### CursorStyle, FontWeight ve Sabit Enum Tabloları
+
 
 Sık başvurulan ama her seferinde aramak zorunda kalınan platform sabitleri:
 
@@ -5420,7 +5501,8 @@ Layer-shell modülündeki `Anchor` ise bitflag yapısıdır
 `Top`, `Bottom`, `Left`, `Right`, `TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`.
 `window.start_window_resize(edge)` argümanı.
 
-### 81. Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
+### Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
+
 
 Bu bölüm, iki farklı yüzeyi ayırır: `crates/gpui/src/gpui.rs` üzerinden dışarı
 export edilen public API ve private modüllerde `pub` tanımlanmış olsa da yalnız
@@ -5499,8 +5581,8 @@ benzer desenlerini izle.
 - Hitbox: `HitboxId` rendered frame içinde hitbox'ı tanımlayan opaque id'dir;
   uygulama kodu genellikle `Hitbox` handle'ı ve `window.hitbox(...)` sonucu ile
   çalışır.
-- Drag/drop tarafında `ExternalPaths` ve `FileDropEvent` Bölüm 38'te ayrıca
-  ele alındı.
+- Drag/drop tarafında `ExternalPaths` ve `FileDropEvent` "Drag ve Drop İçerik
+  Üretimi" başlığında ayrıca ele alındı.
 
 Element callback'lerinde çoğu zaman concrete event tipi otomatik gelir:
 `.on_mouse_down(|event, window, cx| ...)`, `.on_scroll_wheel(...)`,
@@ -5519,7 +5601,8 @@ Element callback'lerinde çoğu zaman concrete event tipi otomatik gelir:
 Sonuç olarak `Modifiers` üzerindeki tüm `&self` metotları — `secondary()`,
 `modified()`, `number_of_modifiers()`, `is_subset_of(...)` ve `control`,
 `alt`, `shift`, `platform`, `function` alanları — bu dört event üzerinde
-doğrudan çağrılabilir. Konu 43'teki kısayollar (`Modifiers::command_shift()`
+doğrudan çağrılabilir. "Keystroke, Modifiers ve Platform Bağımsız Kısayollar"
+başlığındaki kısayollar (`Modifiers::command_shift()`
 vb.) ise `Modifiers` üzerinde **inherent associated function**'dır; event
 üzerinden çağrılmaz, ayrı bir `Modifiers` üretmek için kullanılır.
 
@@ -5596,8 +5679,8 @@ application kodunda nadiren doğrudan kullanılır:
 
 Bu tiplerin doğru sahibi `gpui_platform` implementasyonlarıdır. Zed uygulama
 katmanında genelde `cx.platform()`, `cx.text_system()`, `cx.svg_renderer()`,
-`window.drop_image(...)`, `window.input_latency_snapshot()` veya Bölüm 7'teki
-headless/screen capture API'leri üzerinden dolaylı erişilir.
+`window.drop_image(...)`, `window.input_latency_snapshot()` veya "Headless, Screen
+Capture ve Test Renderer" başlığındaki API'ler üzerinden dolaylı erişilir.
 
 #### Scene, Primitive ve Crate-İçi Arena Taşıyıcıları
 
@@ -5726,8 +5809,9 @@ ve async context'ler üzerinden çalışmak doğru sınırdır.
 
 #### Küçük Public Fonksiyonlar
 
-- `guess_compositor()`: Linux/Wayland/X11 compositor adını tahmin eder; Bölüm 5'deki
-  `cx.compositor_name()` akışının düşük seviye yardımcısıdır.
+- `guess_compositor()`: Linux/Wayland/X11 compositor adını tahmin eder; "Platform
+  Servisleri" başlığındaki `cx.compositor_name()` akışının düşük seviye
+  yardımcısıdır.
 - `get_gamma_correction_ratios(gamma)`: atlas/glyph rendering gamma düzeltme
   oranlarını üretir; tema rengi seçmek için kullanılmaz.
 - `LinearColorStop`: gradient stop verisidir; `linear_gradient(...)` helper'ları
@@ -5846,11 +5930,14 @@ BGRA düzenine çevirmek için renk/bitmap alt katmanında kullanılır.
 
 ---
 
-## Bölüm XVII — Zed UI Bileşenleri
+---
+
+## Bölüm XIV — Zed UI Bileşenleri
 
 ---
 
-### 82. Zed UI Prelude, Style Extension Trait'leri ve Component Sözleşmesi
+### Zed UI Prelude, Style Extension Trait'leri ve Component Sözleşmesi
+
 
 Zed uygulama kodu çoğu zaman doğrudan `gpui::prelude::*` değil
 `ui::prelude::*` import eder. Bu prelude GPUI çekirdeğini yeniden export eder ve
@@ -6160,7 +6247,8 @@ Zed uygulamasında yönetim:
   `ui::ComponentStatus` doğrudan çalışmaz, `ui::component_prelude::ComponentStatus`
   veya `component::ComponentStatus` yazılır.
 
-### 83. Zed UI Bileşen Envanteri
+### Zed UI Bileşen Envanteri
+
 
 Zed'de yeni UI yazarken önce `ui` bileşenlerini ara. Başlıca bileşenler:
 
@@ -6319,7 +6407,8 @@ Genel kural:
 - Tooltip, popover ve context menu için hazır bileşenleri kullan; focus/blur
   kapanma davranışı orada çözülmüş durumdadır.
 
-### 84. ManagedView, DismissEvent, Modal, Popover ve Tooltip Yaşam Döngüsü
+### ManagedView, DismissEvent, Modal, Popover ve Tooltip Yaşam Döngüsü
+
 
 `ManagedView` GPUI'da başka bir view tarafından yaşam döngüsü yönetilen UI
 parçaları için blanket trait'tir:
@@ -6370,11 +6459,14 @@ Tuzaklar:
 
 ---
 
-## Bölüm XVIII — Zed Workspace
+---
+
+## Bölüm XV — Zed Workspace
 
 ---
 
-### 85. Zed Workspace Dock ve Panel Modeli
+### Zed Workspace Dock ve Panel Modeli
+
 
 Bu bölüm GPUI çekirdeği değil, Zed'in `workspace` crate'i üstündeki dock/panel
 katmanıdır. Dosyalar: `crates/workspace/src/workspace.rs`,
@@ -6453,7 +6545,8 @@ Yeni panel eklerken kontrol:
 - Dock değiştiren settings gözlemlerinde panel taşınırken size state axis değişirse
   reset edilebilir; bu mevcut `Dock::add_panel`/settings observer akışında yapılır.
 
-### 86. Workspace Item, Pane, Modal, Toast ve Notification Sistemi
+### Workspace Item, Pane, Modal, Toast ve Notification Sistemi
+
 
 GPUI bir UI framework'üdür; Zed'in workspace katmanı bunun üstünde tab/pane,
 modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editor benzeri
@@ -6665,7 +6758,8 @@ let task = workspace.open_paths(
   beklemeye girer; testte `run_until_parked()` ile resolve sürecini ilerletmen
   gerekir.
 
-### 87. Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
+### Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
+
 
 Workspace item açma yalnızca `Pane::add_item` değildir; Zed session restore,
 project item resolution, search bar ve collab follow gibi katmanları da item
@@ -6828,7 +6922,8 @@ Tuzaklar:
   anlamına gelmez; path açma davranışını özellikle directory/file ayrımı için
   açık seç.
 
-### 88. PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
+### PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
+
 
 Pane ve workspace yalnız tab listesi değildir; split ağacı, navigation history,
 toolbar item'ları ve multi-workspace sidebar birlikte çalışır.
@@ -6960,7 +7055,8 @@ Tuzaklar:
 - Split yönü hardcode etmek yerine user ayarlı default isteniyorsa
   `SplitDirection::vertical(cx)` / `horizontal(cx)` kullan.
 
-### 89. Workspace Notification Yardımcıları ve Async Hata Gösterimi
+### Workspace Notification Yardımcıları ve Async Hata Gösterimi
+
 
 Bildirim sistemi yalnız `show_notification` değildir; workspace dışı app-level
 notification ve async error propagation için yardımcı trait'ler vardır.
@@ -7004,7 +7100,8 @@ Tuzaklar:
 - `MessageNotification` click handler'ları `Window` ve `App` alır; workspace state
   gerekiyorsa weak workspace/entity yakala ve düşmüş olma ihtimalini ele al.
 
-### 90. AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
+### AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
+
 
 Zed uygulamasında workspace açma, sadece `open_window` çağrısı değildir. Startup,
 CLI/open-url istekleri, workspace DB ve collab follow state'i birkaç global/handle
@@ -7121,7 +7218,8 @@ Tuzaklar:
   yeni item türü eklerken `register_serializable_item` startup init'inde
   çağrılmalıdır.
 
-### 91. Item Ayarları, Context Menu, ApplicationMenu ve Focus-Follows-Mouse
+### Item Ayarları, Context Menu, ApplicationMenu ve Focus-Follows-Mouse
+
 
 Zed UI kodunda sık görülen ama GPUI çekirdeği olmayan birkaç yardımcı katman daha
 vardır.
@@ -7218,11 +7316,14 @@ Tuzaklar:
 
 ---
 
-## Bölüm XIX — Zed Settings ve Theme
+---
+
+## Bölüm XVI — Zed Settings ve Theme
 
 ---
 
-### 92. Persist, Settings ve Theme Akışı (Zed Tarafı)
+### Persist, Settings ve Theme Akışı (Zed Tarafı)
+
 
 GPUI çekirdeği değil ama yeni pencere/UI eklerken temaya ve ayarlara takılı
 kalmak gerekir. Ana dosyalar: `crates/settings`, `crates/settings_content`,
@@ -7311,7 +7412,7 @@ let border = colors.border;
 
 Persist edilen örnekler:
 
-- Pencere bounds (bkz. Bölüm 33).
+- Pencere bounds (bkz. "Pencere Bounds Persist ve Restore").
 - Açık projeler ve recent: `crates/recent_projects`.
 - Workspace serialization: `crates/workspace/src/persistence.rs` ve
   `db` crate'i (SQLite tabanlı).
@@ -7326,7 +7427,8 @@ Tuzaklar:
 - Yeni ayar eklerken `settings_content` schema güncellenmeden JSON schema
   doğrulaması eski formatı kabul etmez.
 
-### 93. SettingsStore: Kayıt, Okuma, Override ve Migration
+### SettingsStore: Kayıt, Okuma, Override ve Migration
+
 
 `crates/settings/src/settings_store.rs`. `SettingsStore` Zed'in tüm ayar
 kaynaklarını tek bir tip-güvenli store içinde birleştirir.
@@ -7405,7 +7507,8 @@ Tuzaklar:
 - Observer'da `cx.notify()` çağrısı entity'yi yeniden render etmek için gereklidir;
   `observe_global` sadece callback'i çalıştırır, view'i invalidate etmez.
 
-### 94. ThemeRegistry, ThemeFamily ve Tema Yükleme
+### ThemeRegistry, ThemeFamily ve Tema Yükleme
+
 
 `crates/theme/src/registry.rs`, `crates/theme/src/theme.rs`,
 `crates/theme_settings/src/theme_settings.rs`.
@@ -7508,11 +7611,14 @@ Tuzaklar:
 
 ---
 
-## Bölüm XX — Komut Paleti ve Picker
+---
+
+## Bölüm XVII — Komut Paleti ve Picker
 
 ---
 
-### 95. CommandPalette: Filter, Aliases ve Interceptor
+### CommandPalette: Filter, Aliases ve Interceptor
+
 
 `crates/command_palette_hooks/` global'leri komut paleti UX'ini şekillendirir.
 UI'ı yazmadan önce bu global'leri tanımak gerekir, çünkü odaktaki elementten
@@ -7644,7 +7750,8 @@ Action trait'inin `documentation()`, `deprecation_message()` ve
   normal action listesinden komutlara ulaşamaz; gerçekten "tek doğru sonuç var"
   iken set et.
 
-### 96. CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
+### CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
+
 
 `crates/command_palette/src/command_palette.rs` Zed'in gerçek komut paleti
 akışıdır. Başlatma ve açma sırası:
@@ -7713,7 +7820,8 @@ Onay davranışı:
   foreground'da bekleyebilir; bu, palette açılırken boş liste parlamasını ve
   otomasyon sırasında erken enter basılmasını azaltır.
 
-### 97. Picker, PickerDelegate ve PickerPopoverMenu
+### Picker, PickerDelegate ve PickerPopoverMenu
+
 
 `crates/picker/` command palette dışında da kullanılan genel seçim/arama
 bileşenidir. Bir picker yazarken ana iş `PickerDelegate` implementasyonudur:
@@ -7796,11 +7904,14 @@ sarmalı kullan.
 
 ---
 
-## Bölüm XXI — Reçeteler ve Kontrol Listeleri
+---
+
+## Bölüm XVIII — Reçeteler ve Kontrol Listeleri
 
 ---
 
-### 98. Reçeteler
+### Reçeteler
+
 
 #### Yeni Workspace Penceresi
 
@@ -7943,7 +8054,8 @@ Desteklenen Git değişkenleri:
 ]
 ```
 
-### 99. Sık Hatalar ve Doğru Desenler
+### Sık Hatalar ve Doğru Desenler
+
 
 - **İstenen decoration'a güvenme**: `WindowOptions.window_decorations` sadece istektir.
   Render sırasında `window.window_decorations()` sonucunu kullan.
@@ -7966,7 +8078,8 @@ Desteklenen Git değişkenleri:
 - **Client decoration shadow boşluğu**: `set_client_inset` ve dış wrapper padding/shadow
   birlikte yönetilmelidir.
 
-### 100. Yeni Pencere Eklerken Kontrol Listesi
+### Yeni Pencere Eklerken Kontrol Listesi
+
 
 1. Bu pencere workspace mi, modal mı, popup mı? `WindowKind` seç.
 2. Ana Zed penceresiyse `build_window_options` kullan.
@@ -7985,7 +8098,8 @@ Desteklenen Git değişkenleri:
 15. Button layout değişiminde titlebar yeniden render olacak mı?
 16. Testte timer gerekiyorsa GPUI executor timer kullanıldı mı?
 
-### 101. Kısa Cevaplar
+### Kısa Cevaplar
+
 
 **İleride pencere oluşturmak için nasıl yapmalıyım?**
 
@@ -8024,7 +8138,8 @@ Zed UI görünümüyle ilgiliyse `PlatformStyle::platform()` ve `platform_title_
 bileşenlerinde. Ayar farkı gerekiyorsa `settings_content` schema ve `settings`
 dönüşümlerinde.
 
-### 102. Dosya Yoluna Göre Ne Nerede?
+### Dosya Yoluna Göre Ne Nerede?
+
 
 - Pencere açma API'si: `crates/gpui/src/app.rs::open_window`
 - Pencere seçenekleri: `crates/gpui/src/platform.rs::WindowOptions`
