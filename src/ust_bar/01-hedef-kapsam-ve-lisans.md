@@ -1,18 +1,19 @@
 # Hedef, kapsam ve lisans
 
-Üst bar konusuna girmeden önce üç şey netleşmelidir: tam olarak ne port
-ediliyor, hangi sorumluluk hangi katmana ait ve lisans sınırı nereden
-geçiyor. Bu bölüm aceleci olmadan bu üç çerçeveyi kurar; sonraki
-bölümlerin tamamı bu üç çerçevenin üstüne bina edilir.
+Üst bar konusuna geçmeden önce üç sorunun cevabı net olmalıdır: tam
+olarak ne port ediliyor, hangi sorumluluk hangi katmanda kalıyor ve
+lisans sınırı nereden geçiyor. Bu bölüm bu üç çerçeveyi sakin biçimde
+kurar. Sonraki bölümlerin tamamı bu ayrımların üstüne oturur.
 
 ## 1. Üç katmanlı yaklaşım: platform kabuğu / ürün başlığı / uygulama state
 
-Yapı aşağıdan yukarıya okunur. En alta **platform kabuğu** oturur ve bu
-katmandan **davranış paritesi** beklenir; yani Zed'in pencereyle nasıl
-konuştuğu, hangi platformda hangi butonu nereye koyduğu birebir
-tekrarlanır. Üstteki iki katman ise tasarım özgürlüğüyle yazılır: ne
-görüneceği, hangi rengin/menünün geleceği, hangi action'ın dispatch
-edileceği tamamen ürüne aittir.
+Yapıyı aşağıdan yukarıya okumak en kolay yoldur. En altta **platform
+kabuğu** vardır. Bu katmandan beklenen şey **davranış paritesi**dir:
+Zed pencereyle nasıl konuşuyorsa, hangi platformda hangi butonu nereye
+koyuyorsa, port edilen kabuk da aynı davranışı verir. Üstteki iki
+katmanda ise ürünün kendi kararları devreye girer. Ekranda neyin
+görüneceği, hangi renklerin kullanılacağı, hangi menünün açılacağı ve
+hangi action'ın dispatch edileceği ürün tarafının sorumluluğudur.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -35,31 +36,33 @@ edileceği tamamen ürüne aittir.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Platform kabuğu (en alt katman) — `mirror`:** Zed'in
-`platform_title_bar` crate'inin **davranışı** yeniden yazılır. Hit-test
-alanları, drag akışı, hangi platformda hangi pencere butonunun render
-edileceği gibi konuların tamamı Zed sözleşmesine paralel ilerler.
-Burada yaratıcılığa yer yoktur; tek hedef davranış paritesidir. Bu
-katman Bölüm V'te detaylıca ele alınır. **Lisans nedeniyle kaynak kodu
-kopyalanmaz**; yalnızca API'lerin gözlemlenebilir davranışı kendi
-kelimelerle yeniden kurulur.
+**Platform kabuğu (en alt katman) — `mirror`:** Bu katmanda Zed'in
+`platform_title_bar` crate'indeki **davranış** yeniden kurulur. Hit-test
+alanları, drag akışı ve platforma göre pencere butonlarının nerede
+render edileceği Zed sözleşmesiyle uyumlu ilerler. Burada amaç yeni
+bir tasarım denemek değildir; hedef, kullanıcının platformdan
+beklediği davranışı bozmadan yakalamaktır. Bu katman Bölüm V'te
+detaylı anlatılır. **Lisans nedeniyle kaynak kodu kopyalanmaz**;
+yalnızca API'lerin gözlemlenebilir davranışı kendi kelimelerimizle
+yeniden kurulur.
 
-**Ürün başlığı (orta katman) — `senin tasarımın`:** Uygulamanın
-kullanıcıya gözüken başlık içeriği bu katmanda yaşar. Menü, proje adı,
-durum çipleri, kullanıcı avatarı gibi parçaların tamamı ürünün kendi
-tasarım dilinde üretilir. Bu içerik, platform kabuğuna **child** olarak
-verilir ve her render geçişinde yeniden iletilir; bu tüketim modeli
-Konu 16'da `set_children` üzerinden anlatılır. Mantık olarak tema
-rehberindeki "Faz 5 — UI tüketim" bölümüyle aynı zihniyettedir: tema
-okunur, duruma göre render edilir.
+**Ürün başlığı (orta katman) — `senin tasarımın`:** Kullanıcının
+başlık çubuğunda gördüğü ürün içeriği burada yaşar. Menü, proje adı,
+durum çipleri, kullanıcı avatarı ve benzeri parçalar ürünün kendi
+tasarım diliyle üretilir. Bu içerik platform kabuğuna **child** olarak
+verilir ve her render geçişinde yeniden iletilir. Bu tüketim modeli
+Konu 16'da `set_children` üzerinden anlatılır. Mantık, tema
+rehberindeki "Faz 5 — UI tüketim" bölümüyle aynıdır: tema okunur,
+mevcut state'e göre arayüz çizilir.
 
 **Uygulama state (en üst katman) — `karar otoritesi`:** Platform
-kabuğunun ihtiyaç duyduğu **politika** kararları bu katmandan iner.
+kabuğunun ihtiyaç duyduğu **politika** kararları bu katmandan gelir.
 "Close butonu tam olarak neyi kapatıyor?", "Yeni pencere hangi action
 ile açılıyor?", "Linux butonları sağda mı solda mı duruyor?", "Sidebar
 açık mı kapalı mı?" gibi soruların cevabı uygulama state'inde tutulur.
-Bu cevaplar, platform kabuğuna doğrudan veri olarak değil, bir **trait
-sözleşmesi** üzerinden iletilir (`TitleBarController` — Konu 10 sonu).
+Bu cevaplar platform kabuğuna doğrudan `AppState` verisi olarak değil,
+bir **trait sözleşmesi** üzerinden iletilir (`TitleBarController` —
+Konu 10 sonu).
 
 **Bağımlılık yönü:**
 
@@ -70,11 +73,11 @@ Uygulama state  ←─reads─  Ürün başlığı  ←─child of─  Platform 
                                                                 (uygulama state'inden trait obj)
 ```
 
-Platform kabuğu, ürünün `AppState`'ini doğrudan tanımaz; yalnızca
-`TitleBarController` trait'ini bilir. Bu tek yönlü ilişki kuralı,
-platform kabuğunun **bağımsız test edilebilir** kalmasını sağlar:
-testlerde gerçek uygulama state'i yerine, sadece trait'i implement
-eden basit bir mock yeterli olur.
+Platform kabuğu, ürünün `AppState` tipini doğrudan tanımaz; yalnızca
+`TitleBarController` trait'ini bilir. Bu tek yönlü ilişki platform
+kabuğunu **bağımsız test edilebilir** tutar. Testlerde gerçek uygulama
+state'ini ayağa kaldırmak yerine, trait'i implement eden küçük bir
+mock yeterli olur.
 
 **Lisans katmanlama:**
 
@@ -95,21 +98,21 @@ eden basit bir mock yeterli olur.
 | `MultiWorkspace`, `SidebarRenderState` | `TitleBarController::sidebar_state` |
 | `zed_actions::OpenRecent` vb. | Uygulamanın kendi action'ları |
 
-Sync turlarında `platform_title_bar_aktarimi.md` günlüğüyle birlikte bu
-eşleme tablosu bir **referans değer** olarak kullanılır. Zed
-sözleşmesine yeni bir kavram girdiğinde, bu kavramın uygulama tarafında
-hangi tip ile karşılanacağı önce bu tablo üzerinden belirlenir; ancak
-ondan sonra kod yazımına geçilir.
+Sync turlarında bu eşleme tablosu,
+`platform_title_bar_aktarimi.md` günlüğüyle birlikte **referans kaynak**
+olarak kullanılır. Zed sözleşmesine yeni bir kavram girdiğinde, bu
+kavramın uygulama tarafında hangi tipe karşılık geleceği önce bu tablo
+üzerinden belirlenir. Kod yazımına ancak bu eşleşme netleştikten sonra
+geçilir.
 
 ---
 
 ## 2. Temel ilke: platform katmanı bilir, ürün katmanı karar verir
 
-Bütün katmanlamanın özeti tek cümleye sığar: **platform kabuğu
-pencerenin mekaniğini bilir; ürün katmanı ise neyin kapanacağına,
-hangi menünün açılacağına, hangi workspace'in taşınacağına karar
-verir.** Bu kural ezberlenirse rehberin geri kalanı çok daha kolay
-oturur.
+Katmanlamanın özeti şudur: **platform kabuğu pencerenin mekaniğini
+bilir; ürün katmanı ise neyin kapanacağına, hangi menünün açılacağına
+ve hangi workspace'in taşınacağına karar verir.** Bu ayrım akılda
+kaldığında rehberin geri kalanı çok daha kolay okunur.
 
 ### Üç şeyi ayırt et
 
@@ -126,94 +129,91 @@ oturur.
 
 ### Gerekçe
 
-1. **Platform davranışı evrenseldir.** Bir Linux kullanıcısı, kendi
-   pencere yöneticisinin button layout ayarının çalışmasını bekler;
-   kendi compositor'unun resize edge davranışına alışmıştır. Ürün bu
-   beklentilere karşı çıkamaz — onları olduğu gibi tüketmek
-   durumundadır. Aksi halde "neden bu uygulama benim sistemim gibi
-   davranmıyor?" sorusu doğar.
-2. **Ürün anlamı uygulamaya özgüdür.** "Close" sözcüğünün ne anlama
-   geldiği uygulamaya göre değişir: Zed'de bir workspace kapanır, bir
-   metin editörde aktif doküman kapanır, bir launcher uygulamasında
-   pencere sadece gizlenir. Platform bu farkı bilmez ve bilmek de
-   istemez; bu sorumluluk doğal olarak ürün katmanına aittir.
-3. **Test izolasyonu için zorunludur.** Platform kabuğu test edilirken
-   gerçek bir `AppState` ayağa kaldırılmak zorunda kalınmaz; basit bir
-   mock `TitleBarController` ile aynı testler yürütülebilir. Bu, hem
-   testlerin hızını hem de güvenilirliğini yukarı çeker.
+1. **Platform davranışı evrenseldir.** Bir Linux kullanıcısı kendi
+   pencere yöneticisinin button layout ayarının çalışmasını bekler.
+   Kendi compositor'unun resize edge davranışına da alışmıştır. Ürün bu
+   beklentilerle kavga etmez; onları olduğu gibi kullanır. Aksi halde
+   kullanıcı doğal olarak "neden bu uygulama benim sistemim gibi
+   davranmıyor?" diye sorar.
+2. **Ürün anlamı uygulamaya özgüdür.** "Close" her uygulamada aynı
+   şey değildir. Zed'de bir workspace kapanır, bir metin editörde aktif
+   doküman kapanır, bir launcher uygulamasında pencere yalnızca
+   gizlenebilir. Platform bu farkı bilmez, bilmesine de gerek yoktur.
+   Bu karar ürün katmanına aittir.
+3. **Test izolasyonu için gereklidir.** Platform kabuğu test edilirken
+   gerçek bir `AppState` ayağa kaldırmak zorunda kalınmaz. Basit bir
+   mock `TitleBarController` ile aynı testler yürütülebilir. Bu da
+   testleri hem hızlandırır hem daha güvenilir kılar.
 
 ### Kontrol listesi: bir davranış hangi katmana yerleştirilmeli?
 
-Yeni bir davranış eklenirken üç soru ile yer kararı verilir:
+Yeni bir davranış eklenirken yer kararını üç soru ile vermek yeterlidir:
 
 1. **Bu davranış pencere yöneticisinin veya işletim sisteminin
    sözleşmesini mi takip ediyor?** Cevap evet ise yer **platform
    katmanıdır**.
 2. **Bu davranış uygulamanın iş kuralına mı bağlı?** Cevap evet ise yer
    **ürün katmanı** veya `AppState`'tir.
-3. **Bu davranış hangi katmana yerleştirildiğinde aynı kabuk başka
-   uygulamalar tarafından da yeniden kullanılabilir?** O katman doğru
-   cevaptır; çünkü genel olan platforma, özel olan ürüne aittir.
+3. **Bu davranış hangi katmanda kalırsa aynı kabuk başka uygulamalarda
+   da kullanılabilir?** Doğru cevap genellikle buradadır. Genel olan
+   platformda, ürüne özel olan ürün katmanında kalır.
 
 > **Örnek hatalı yerleşim:** "Close butonuna tıklandığında SaveModal
 > aç" kuralı **ürün katmanında** olmalıdır. Platform kabuğu yalnızca
-> "close intent" dispatch eder; bir modal'ın açılıp açılmayacağı kararı
-> `AppState`'e aittir. Bu karar platforma sızdırılırsa kabuk artık tek
-> bir uygulamaya bağlı hale gelir ve başka projede yeniden
-> kullanılamaz.
+> "close intent" dispatch eder. Modal açılıp açılmayacağına `AppState`
+> karar verir. Bu karar platforma sızarsa kabuk tek bir uygulamaya
+> bağlanır ve başka projede rahatça kullanılamaz.
 
 ### "Tema rehberindeki Temel ilke ile farkı"
 
 Tema rehberinin Konu 2'si **veri sözleşmesinde dışlama yok** kuralını
 anlatıyordu: Zed'in tema alanlarının tamamı mirror edilmeli. Bu
-rehberin Konu 2'si ise **kapsam farkından** bahsediyor: platform vs
-ürün vs state. İki kural aslında aynı zihniyetin iki yüzüdür:
-**sözleşme tarafı geliştiriciye bırakılır, uygulama tarafı ise
-geliştiricinin kendi ürününe bırakılır**.
+rehberin Konu 2'si ise **kapsam farkını** anlatır: platform, ürün ve
+state birbirine karıştırılmaz. İki kural aynı düşünceye dayanır:
+Zed'den gelen sözleşme temiz biçimde korunur, ürünün anlamı ise
+uygulamanın kendi kodunda kalır.
 
 ### Tuzaklar
 
 1. **Close action'ını platforma sabitlemek.** `PlatformTitleBar`
    içine doğrudan `close_action: Box::new(workspace::CloseWindow)`
-   yazılırsa platform kabuğu Zed'in kendi action tipine bağlanmış olur
-   ve başka bir uygulamaya bu hâliyle taşınamaz. Bu yüzden close
-   action'ı **her zaman dışarıdan**, controller veya parametre yoluyla
-   geçilir.
+   yazılırsa platform kabuğu Zed'in kendi action tipine bağlanır ve
+   başka bir uygulamaya bu haliyle taşınamaz. Bu yüzden close action'ı
+   **her zaman dışarıdan**, controller veya parametre yoluyla geçirilir.
 2. **Çift tıklama davranışını ürüne sızdırmak.** macOS tarafında çift
-   tıklama `window.titlebar_double_click()` ile sisteme devredilir; bu
-   tamamen platform sözleşmesinin parçasıdır. Ürün burada araya girip
-   `cx.dispatch_action(ZoomWorkspace)` çağırırsa platforma özel
-   davranış bozulur ve macOS kullanıcısının sistem ayarları
-   yok sayılmış olur.
+   tıklama `window.titlebar_double_click()` ile sisteme devredilir. Bu
+   davranış platform sözleşmesinin parçasıdır. Ürün burada araya girip
+   `cx.dispatch_action(ZoomWorkspace)` çağırırsa macOS kullanıcısının
+   sistem ayarları yok sayılmış olur.
 3. **Sidebar açıkken pencere kontrollerini gizleme kararını yanlış
-   yere koymak.** Bu konu Konu 15'te ele alınır; sidebar bilgisi
-   `TitleBarController` üzerinden gelir. Platform kabuğu, doğrudan
+   yere koymak.** Bu konu Konu 15'te ele alınır. Sidebar bilgisi
+   `TitleBarController` üzerinden gelir. Platform kabuğu doğrudan
    workspace state'ini sorgulamaz; çünkü "sidebar" kavramı platforma
-   değil ürüne aittir.
+   değil, ürüne aittir.
 4. **Native tab kararını ürüne kapatmak.** `tabbing_identifier`
-   alanının verilip verilmemesi tek başına ürüne bırakılmaz;
-   `TitleBarController::use_system_window_tabs` üzerinden okunur.
-   Platform kabuğu, native tab desteğinin açık olup olmadığına kendi
-   başına karar vermez.
+   alanının verilip verilmemesi tek başına ürün içeriğinde çözülmez.
+   Bu bilgi `TitleBarController::use_system_window_tabs` üzerinden
+   okunur. Platform kabuğu native tab desteğinin açık olup olmadığına
+   kendi başına karar vermez.
 
 ---
 
 ## 3. Lisans-temiz çalışma protokolü
 
 Zed'in `platform_title_bar` ve `title_bar` crate'leri
-**GPL-3.0-or-later** lisansı altındadır. Bu, kod gövdesinin
-kopyalanamayacağı anlamına gelir; ancak API imzaları, JSON sözleşmeleri
-ve gözlemlenebilir davranış kuralları telif kapsamı dışında olduğundan
-mirror edilebilir. Yani satır satır kopyalama yasaktır, fakat "Zed
-şuna basınca şu olur" gözlemi yasak değildir; bu gözlem ürünün kendi
-kodunda kendi sözcükleriyle yeniden inşa edilebilir.
+**GPL-3.0-or-later** lisansı altındadır. Bu lisans, kod gövdesinin
+kopyalanamayacağı anlamına gelir. Buna karşılık API imzaları, JSON
+sözleşmeleri ve gözlemlenebilir davranış kuralları mirror edilebilir.
+Kısacası satır satır kopyalama yasaktır; ama "Zed'de şu alana basınca
+şu davranış çalışıyor" gözlemi yasak değildir. Bu davranış ürünün
+kendi kodunda, kendi kelimeleri ve kendi yapısıyla yeniden kurulabilir.
 
 > **Tema rehberi Konu 3 ile fark:** Tema sözleşmesi alan adlarını
-> mirror eder — yani veri şekli aynı tutulur. Burada ise **davranış**
-> mirror edilir: "mouse'a basıldığında pencere sürüklenmeye başlar"
-> ya da "close butonu ana caption'ın sağ ucunda durur" gibi
-> gözlemlenebilir davranışlar telif kapsamında olmadığı için
-> bunlar yeniden inşa edilebilir.
+> mirror eder; yani veri şekli aynı tutulur. Burada ise **davranış**
+> mirror edilir. "Mouse'a basıldığında pencere sürüklenmeye başlar"
+> veya "close butonu ana caption'ın sağ ucunda durur" gibi
+> gözlemlenebilir davranışlar telif kapsamında olmadığı için yeniden
+> inşa edilebilir.
 
 ### Yapılabilir / Yapılamaz
 
@@ -260,16 +260,16 @@ kodunda kendi sözcükleriyle yeniden inşa edilebilir.
 | **2. Crate'i vendor'la (kaynak kodu kopyala)** | Vendor'lanan kod **hâlâ GPL-3**; senin uygulaman da GPL-3 olur | Yine GPL hedefin varsa |
 | **3. Davranış mirror'ı (kendi koddan yeniden yaz)** | Senin kodun **kendi lisansın** olur | **Lisans-temiz hedef için tek doğru yol** |
 
-Bu rehber **üçüncü yolu** anlatır. Birinci veya ikinci yolu seçen
-geliştiriciler için rehber yine fayda sağlar; Bölüm II–V referans
-amaçlı okunabilir. Bu durumda "port" kelimesi geçen her yer "kullan"
-olarak okunabilir, çünkü onlar için aynı kod zaten hazırdır.
+Bu rehber **üçüncü yolu** anlatır. Birinci veya ikinci yolu seçenler
+için de rehber faydalıdır; Bölüm II-V referans amacıyla okunabilir.
+Bu durumda "port" kelimesi geçen yerler "kullan" diye düşünülebilir,
+çünkü aynı kod onlar için zaten hazırdır.
 
 ### Doc comment yazımı
 
 Zed kaynak dosyasındaki bir fonksiyon imzası mirror ediliyorsa, doc
-comment'in **kendi sözcüklerle** yeniden yazılması gerekir; orijinal
-cümle aynen taşınamaz. Örnek olarak:
+comment de **kendi sözcüklerimizle** yeniden yazılır. Orijinal cümle
+aynen taşınmaz. Örnek:
 
 ```rust
 // Zed'de (mirror EDİLMEZ — birebir kopyalama):
@@ -281,16 +281,16 @@ cümle aynen taşınamaz. Örnek olarak:
 pub fn render_left_window_controls(...) -> Option<impl IntoElement> { ... }
 ```
 
-İki yorum da aynı fonksiyonu anlatır; ama ikincisi orijinal cümlenin
-ne kelimesini ne de cümle yapısını kullanır.
+İki yorum da aynı fonksiyonu anlatır. Fakat ikincisi orijinal cümlenin
+ne kelimelerini ne de cümle yapısını taşır.
 
 ### Publishing uyarısı
 
 `gpui` ve `refineable` crate'leri Zed workspace'inde `publish = false`
-olarak işaretlidir. Bu, crates.io'ya yayımlanacak bir kütüphanenin
-içinde git veya path dependency olarak kullanılamayacakları anlamına
-gelir. Bu engelin üç olası çözümü vardır (tema rehberi Konu 3 ile
-örtüşür):
+olarak işaretlidir. Bu nedenle crates.io'ya yayımlanacak bir
+kütüphanenin içinde git veya path dependency olarak rahatça
+kullanılamazlar. Bu engelin üç olası çözümü vardır; bunlar tema
+rehberi Konu 3 ile de örtüşür:
 
 1. **Vendor yolu:** Kaynak kod kendi monorepo'ya kopyalanır; lisans
    ve atribüsyon bilgileri korunur.
@@ -303,31 +303,31 @@ gelir. Bu engelin üç olası çözümü vardır (tema rehberi Konu 3 ile
 1. **"Hangi dosya GPL?" sorusunu hiç sormamak.**
    `crates/platform_title_bar/` altındaki **her dosya** GPL'dir.
    Buradan tek bir küçük helper fonksiyon bile taşınırsa lisans
-   ihlali oluşur; "küçücük bir parça nasıl olsa sorun yapmaz" gibi
-   bir varsayım kabul edilmez.
-2. **API imzasını "yeniden yazmak" sanılarak kelime farkıyla
+   ihlali oluşur. "Küçük bir parça sorun olmaz" varsayımı burada
+   güvenli değildir.
+2. **API imzasını "yeniden yazmak" sanıp gövdeyi kelime farkıyla
    kopyalamak.** `pub fn render_right_window_controls(button_layout,
    close_action, window)` ile aynı isim ve parametreleri kullanmak
-   imza paritesidir ve kopya sayılmaz. Buna karşın **gövde**
-   içindeki match/if/loop zincirinin birebir taşınması açık bir
-   kopyadır; gövde her zaman kendi kelimelerle yeniden çözülmelidir.
-3. **Lisans kontrolünü "sonra" diye ertelemek.** Bir kez GPL kod
-   taşındığında, uygulamanın tamamı GPL olur; bunu sonradan geri
-   almak `cargo deny` gibi bir araçla yakalanamayan bir durumdur. Bu
-   yüzden lisans yaklaşımı **ilk port satırı yazılmadan önce**
-   netleştirilir.
+   imza paritesidir; tek başına kopya sayılmaz. Buna karşılık **gövde**
+   içindeki match/if/loop zincirini birebir taşımak açık bir kopyadır.
+   Gövde her zaman yeniden çözülmeli ve kendi koduyla yazılmalıdır.
+3. **Lisans kontrolünü "sonra bakarız" diye ertelemek.** GPL kod bir
+   kez taşındığında uygulamanın tamamı GPL etkisine girer. Bunu
+   sonradan fark etmek çoğu zaman `cargo deny` gibi araçlarla bile
+   kolay yakalanmaz. Bu yüzden lisans yaklaşımı **ilk port satırı
+   yazılmadan önce** netleştirilir.
 4. **`cargo deny check licenses` çalıştırmamak.** Yanlışlıkla transit
-   bir GPL dependency'sinin sızması durumunda bu komut CI'da uyarı
-   verir (Bölüm III, Konu 8 sonunda detayı vardır). Komutun
-   çalıştırılmaması, ihlalin fark edilmesini geciktirir.
+   bir GPL dependency'si projeye sızarsa bu komut CI'da uyarı verir
+   (Bölüm III, Konu 8 sonunda detayı vardır). Komutun çalıştırılmaması
+   ihlalin geç fark edilmesine yol açar.
 
 ---
 
 ## 4. Kapsam ve port yaklaşımları
 
-`platform_title_bar`, dışarıdan bakıldığında basit bir toolbar bileşeni
-gibi görünebilir. Aslında değildir; Zed içinde aynı anda birden çok
-görevi yürüten bir bileşendir. Listelemek gerekirse:
+`platform_title_bar` dışarıdan bakıldığında basit bir toolbar bileşeni
+gibi görünebilir. Aslında bundan daha fazlasıdır. Zed içinde aynı anda
+birden çok işi yürütür:
 
 - Pencereyi sürüklenebilir yapan başlık çubuğu yüzeyini üretir.
 - Linux client-side decoration (CSD) durumunda sol veya sağ pencere
@@ -355,9 +355,9 @@ Bu paket bir uygulamaya alınırken iki ana yaklaşım söz konusudur:
    değiştirilir. Zed dışında bir uygulama için bu, kontrolün elde
    tutulduğu daha temiz yoldur.
 
-Hangi yol seçilirse seçilsin, kod kopyalama veya birebir uyarlama söz
-konusu olduğunda `crates/platform_title_bar` paket lisansının
-`GPL-3.0-or-later` olduğu unutulmamalı ve karar ona göre verilmelidir.
+Hangi yol seçilirse seçilsin, kod kopyalama veya birebir uyarlama
+gündeme geldiğinde `crates/platform_title_bar` paketinin
+`GPL-3.0-or-later` lisanslı olduğu unutulmamalıdır. Karar bu bilgiyle
+verilmelidir.
 
 ---
-

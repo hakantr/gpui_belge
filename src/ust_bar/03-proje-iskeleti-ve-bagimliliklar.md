@@ -1,17 +1,17 @@
 # Proje iskeleti ve bağımlılıklar
 
-Kaynak haritası bir kez oturduktan sonra sıra ürünün kendi tarafına
-gelir: hangi crate'ler oluşturulacak, hangi klasör hangi sorumluluğu
-taşıyacak ve bağımlılık grafiği hangi yönde akacak. Bu bölüm, ileride
-açılan her dosyanın hangi katmana ait olduğunun bir bakışta
-anlaşılabilmesi için fiziksel iskeleti döşer; aynı zamanda lisans
-sınırının bu iskelet üzerinde nereye düştüğünü de net biçimde gösterir.
+Kaynak haritası netleştikten sonra sıra ürün tarafındaki yapıya gelir.
+Hangi crate'ler oluşturulacak, hangi klasör hangi sorumluluğu
+taşıyacak ve bağımlılık grafiği hangi yönde akacak? Bu bölüm bu
+sorulara cevap verir. Amaç, ileride açılan bir dosyanın hangi katmana
+ait olduğunun hızlıca anlaşılmasıdır. Aynı zamanda lisans sınırının bu
+iskelet üzerinde nereye düştüğü de görünür hale gelir.
 
 ## 7. Crate yapısı ve klasör yerleşimi
 
-Platform title bar, tek crate olarak değil **iki ayrı crate** olarak
-konumlanır. Bu ayrım yapay değildir; tema sisteminin
-`kvs_tema` + `kvs_syntax_tema` bölünmesindeki mantığın aynısı burada
+Platform title bar tek crate olarak değil, **iki ayrı crate** olarak
+konumlanır. Bu ayrım yapay değildir. Tema sistemindeki
+`kvs_tema` + `kvs_syntax_tema` bölünmesinde kullanılan mantık burada
 da geçerlidir.
 
 | Crate | Sorumluluk | Lisans |
@@ -19,34 +19,34 @@ da geçerlidir.
 | `kvs_titlebar` | `PlatformTitleBar`, platform-spesifik buton tipleri, native tabs, `WindowControlArea` mirror'ları, `TitleBarController` trait | senin lisansın |
 | `kvs_app_titlebar` | Ürün başlık içeriği (menü, proje adı, kullanıcı UI, status chip'leri) | senin lisansın |
 
-> **Crate adlandırma:** Bu rehber boyunca kullanılan `kvs_*` öneki
-> yalnızca örnektir. Pratikte bu adın yerine `app_titlebar`,
-> `core_titlebar` ya da projeye uygun başka bir ad seçilebilir;
-> rehberdeki kalıplar isimden bağımsız olarak aynı şekilde uygulanır.
+> **Crate adlandırma:** Bu rehberde kullanılan `kvs_*` öneki yalnızca
+> örnektir. Pratikte bunun yerine `app_titlebar`, `core_titlebar` ya da
+> projeye uygun başka bir ad seçilebilir. Rehberdeki kalıplar isimden
+> bağımsız olarak aynı şekilde uygulanır.
 
 ### Neden iki crate?
 
 **Bağımsız test edilebilme ve evrim:**
 
-- `kvs_titlebar` yalnızca platform kabuğunu içerir. Bu sayede Zed'in
-  `platform_title_bar` crate'iyle yapılan sync turlarında değişiklik
-  alan tek crate burası olur; ürün crate'i sync'ten etkilenmez.
-- `kvs_app_titlebar` ise ürünün başlık içeriğini taşır. Bu içerik
-  uygulamanın UI tasarım kararlarına bağlıdır ve Zed'in evrimi ile
-  doğrudan ilişkilenmez.
-- İkisinin ayrı crate'ler olması **derleme süresini** ve **bağımlılık
-  grafiğini** net tutar: platform kabuğu yalnızca `gpui`'ye yaslanır,
-  ürün başlığı ise tema ve menü crate'lerine bağlanır. Karışıklık
-  oluşmaz.
+- `kvs_titlebar` yalnızca platform kabuğunu içerir. Zed'in
+  `platform_title_bar` crate'iyle sync yapılırken değişiklik alan
+  ana crate burası olur. Ürün crate'i bu turdan doğrudan etkilenmez.
+- `kvs_app_titlebar` ürünün başlık içeriğini taşır. Bu içerik
+  uygulamanın UI tasarım kararlarına bağlıdır; Zed'in platform
+  titlebar evrimiyle birebir aynı hızda değişmek zorunda değildir.
+- İki crate ayrımı **derleme süresini** ve **bağımlılık grafiğini**
+  okunur tutar. Platform kabuğu ağırlıklı olarak `gpui`'ye yaslanır;
+  ürün başlığı ise tema, menü ve ürün state'iyle konuşur. Bu ayrım
+  karışıklığı azaltır.
 
 **Lisans izolasyonu:**
 
 - `kvs_titlebar`, Zed'in `platform_title_bar` davranışını mirror eder.
-  Doc comment yazımı, fonksiyon isimlendirmesi gibi konularda lisans
-  hassasiyeti en çok bu crate'te kendini gösterir.
-- `kvs_app_titlebar` ise tamamen ürünün kendi tasarım dilinde yaşar.
-  Bu crate'in içine Zed davranışından herhangi bir sızıntı olmaz;
-  böylece olası bir lisans tartışmasında temas yüzeyi daralır.
+  Doc comment yazımı ve fonksiyon gövdesi gibi konularda lisans
+  hassasiyeti en çok bu crate'te hissedilir.
+- `kvs_app_titlebar` ise ürünün kendi tasarım dilinde yaşar. Bu crate'e
+  Zed ürün davranışından parça taşınmaz. Böylece olası bir lisans
+  tartışmasında temas yüzeyi dar kalır.
 
 ### Klasör yerleşimi
 
@@ -91,19 +91,18 @@ da geçerlidir.
 
 ### Modül adlandırma kuralı
 
-Lib kökü olarak `mod.rs` değil, **crate ile aynı isimli dosya**
-seçilir (örn. `kvs_titlebar.rs`). Pratik nedeni şudur: editörde
-dosyaların sekmelerinde "mod.rs" tekrarları çoğalınca hangi
-crate'in kökünün açık olduğu kolay kolay anlaşılmaz; farklı isimler
-ise sekme başlığından bile ayırt edilir. Bu aynı zamanda Zed
-projesinin kendi konvansiyonudur; tema rehberi Konu 4 ile birebir
-örtüşür.
+Lib kökü olarak `mod.rs` değil, **crate ile aynı isimli dosya** seçilir
+(örn. `kvs_titlebar.rs`). Bunun pratik bir nedeni vardır: editörde
+birden fazla "mod.rs" sekmesi açıldığında hangi crate'in köküne
+baktığını anlamak zorlaşır. Crate adıyla açılan dosyalar ise sekme
+başlığından bile ayırt edilir. Bu aynı zamanda Zed projesinin kendi
+konvansiyonudur ve tema rehberi Konu 4 ile örtüşür.
 
 ### `DECISIONS.md`
 
-Her crate kendi içinde bir karar günlüğü tutar. Zed'den farklı
-yapılan tüm seçimler, küçük dahi olsa, gerekçesiyle birlikte bu
-dosyada kayda alınır. Aşağıda örnek bir ilk giriş gösterilmiştir:
+Her crate kendi içinde bir karar günlüğü tutar. Zed'den farklı yapılan
+tüm seçimler, küçük görünse bile, gerekçesiyle birlikte bu dosyaya
+yazılır. Aşağıda örnek bir ilk giriş yer alır:
 
 ```markdown
 # kvs_titlebar karar günlüğü
@@ -123,10 +122,10 @@ dosyada kayda alınır. Aşağıda örnek bir ilk giriş gösterilmiştir:
   (client_side_decorations muadili) ayrı bir helper olarak yazılır
 ```
 
-`DECISIONS.md` dosyası her sync turunda ve her mimari karar
-sonrasında **güncellenir**. Bu disiplin pahalı görünebilir; ancak
-aradan altı ay geçtiğinde "biz bu kararı neden almıştık?" sorusuna
-cevap aranırken günlüğün varlığı çok büyük zaman tasarrufu sağlar.
+`DECISIONS.md` dosyası her sync turunda ve her mimari karar sonrasında
+**güncellenir**. Bu disiplin ilk bakışta zahmetli görünebilir. Fakat
+aradan altı ay geçtiğinde "biz bu kararı neden almıştık?" sorusunun
+cevabı bu günlükte duruyorsa ciddi zaman kazandırır.
 
 ### Modüllerin sorumluluk haritası
 
@@ -141,14 +140,13 @@ cevap aranırken günlüğün varlığı çok büyük zaman tasarrufu sağlar.
 | `controller.rs` | `TitleBarController` trait, ilgili veri tipleri (`ShellSidebarState`, vs.) | Evet |
 | `style.rs` | `WindowControlStyle` builder helper'ı | Crate-içi (veya kararsız public) |
 
-"Dış API" sütununda "kararsız" işareti olan modüller, yani
-platform-spesifik butonlar ve native tabs gibi parçalar, Zed sync
-turlarında değişme ihtimali yüksek bölgelerdir. Tüketici kod
-doğrudan bunlara yaslanırsa olası bir Zed güncellemesinde breaking
-change yaşayabilir; bu nedenle kararsız API'lere bağlanırken yüzeyin
-geniş tutulmaması, mümkünse arada ince bir adaptör katmanı
-bırakılması tavsiye edilir. Public API kararlılık seviyelerinin
-detaylı tablosu Bölüm IX, Konu 21'de yer alır.
+"Dış API" sütununda "kararsız" yazan modüller, Zed sync turlarında
+değişme ihtimali yüksek alanlardır. Platforma özel butonlar ve native
+tabs bu gruba girer. Tüketici kod doğrudan bu yüzeylere yaslanırsa
+bir Zed güncellemesinde breaking change yaşayabilir. Bu yüzden
+kararsız API'lere bağlanırken yüzeyi dar tutmak ve mümkünse araya
+ince bir adaptör koymak daha sağlıklıdır. Public API kararlılık
+seviyelerinin detaylı tablosu Bölüm IX, Konu 21'de yer alır.
 
 ---
 
@@ -213,10 +211,10 @@ anyhow = "1"
 ### Zed bağımlılığı → port karşılığı tablosu
 
 Zed'in `platform_title_bar` ve `title_bar` crate'leri, çalışmak için
-Zed iç ekosistemindeki birtakım crate'lere yaslanır. Port sırasında
-bu bağımlılıklar olduğu gibi taşınmaz; bunların her birinin yerine
-ürünün kendi tarafında bir karşılık geçirilir. Aşağıdaki tablo bu
-eşleştirmenin yol haritasını verir:
+Zed ekosistemindeki bazı crate'lere yaslanır. Port sırasında bu
+bağımlılıklar olduğu gibi taşınmaz. Her birinin yerine ürün tarafında
+bir karşılık geçirilir. Aşağıdaki tablo bu eşleştirmenin yol haritasını
+verir:
 
 | Zed bağımlılığı | Bu rehberdeki port karşılığı |
 |-----------------|------------------------------|
@@ -241,12 +239,12 @@ eşleştirmenin yol haritasını verir:
   bir commit'e sabitlemek gerekirse `rev = "..."` alanı eklenir.
   Üst bar için en kritik tipler ve metotlar şunlardır:
   `WindowControlArea`, `WindowButtonLayout`, `TitlebarOptions`,
-  `Window::start_window_move`. Her sync turunda öncelikle bu imzaların
-  değişip değişmediği kontrol edilir; çünkü buralardaki en küçük bir
-  değişiklik bile alt katmanı doğrudan etkiler.
+  `Window::start_window_move`. Her sync turunda önce bu imzalar
+  kontrol edilir. Çünkü buradaki küçük bir değişiklik bile alt katmanı
+  doğrudan etkiler.
 - **`kvs_tema`** tema rehberinde detaylı anlatılan crate'tir. Aynı
-  workspace'in parçası olduğu için git dependency yerine path
-  dependency yeterli olur; bu, geliştirme sırasında değişiklik akışını
+  workspace'in parçası olduğu için git dependency yerine path dependency
+  yeterlidir. Bu tercih geliştirme sırasında değişiklik akışını
   hızlandırır.
 
 ### Bağımlılık akış grafiği
@@ -266,11 +264,10 @@ gpui  ──published from──>  zed workspace (Apache-2.0)
 
 Bu grafiğin yönü tersine işlemez. Yani `gpui` asla `kvs_titlebar`'a
 bağlanmaz; `kvs_titlebar` da asla `kvs_app_titlebar`'a bağlanmaz. Bu
-kural keyfi değildir; Zed upstream'inde bir değişiklik olduğunda
-etkilenme yüzeyini sınırlamak için konulmuştur. Aşağı yönlü
-bağımlılık demek, üstteki bir değişikliğin alttakileri tetiklemesi
-demek; yön ters çevrilirse en alttaki Zed crate'i bile dolaylı
-olarak ürün crate'lerini tetikler hâle gelir.
+kural keyfi değildir. Zed upstream'inde bir değişiklik olduğunda
+etkilenme yüzeyini sınırlamak için vardır. Bağımlılık yönü ters
+çevrilirse en alttaki Zed kaynaklı bir değişiklik bile dolaylı olarak
+ürün crate'lerini tetikler hale gelir.
 
 ### Lib kökü iskeleti (`kvs_titlebar/src/kvs_titlebar.rs`)
 
@@ -292,18 +289,18 @@ pub use crate::system_window_tabs::*;
 pub use crate::style::WindowControlStyle;
 ```
 
-Bu iskelette `platforms` modülü, `pub mod platforms` yerine `mod
-platforms` + re-export biçiminde tanımlanır. Tercih nedeni
-okunabilirliktir: tüketici kodun
-`platforms::platform_linux::LinuxWindowControls` gibi iç içe geçmiş
-yolları yazması karışık görünür; bunun yerine düz
-`kvs_titlebar::LinuxWindowControls` çağrısı çok daha rahat okunur.
+Bu iskelette `platforms` modülü `pub mod platforms` şeklinde açılmaz;
+`mod platforms` + re-export kalıbı kullanılır. Bunun nedeni
+okunabilirliktir. Tüketici kodun
+`platforms::platform_linux::LinuxWindowControls` gibi iç içe yollar
+yazması gereksiz kalabalık yaratır. Bunun yerine
+`kvs_titlebar::LinuxWindowControls` daha rahat okunur.
 
 ### Bağımlılık denetim CI'ı
 
-Transit bir GPL bağımlılığının dolaylı yoldan projeye sızması
-ihtimaline karşı, denetim `cargo-deny` ile yapılır. Aşağıdaki
-`deny.toml` kalıbı bu denetimin çekirdeğini oluşturur:
+Transit bir GPL bağımlılığının dolaylı yoldan projeye sızma ihtimaline
+karşı denetim `cargo-deny` ile yapılır. Aşağıdaki `deny.toml` kalıbı
+bu denetimin çekirdeğini oluşturur:
 
 ```toml
 [licenses]
@@ -331,10 +328,9 @@ CI workflow'una aşağıdaki adım eklenir:
 ```
 
 **Bölüm III çıkış kriteri:** `cargo check -p kvs_titlebar -p
-kvs_app_titlebar` komutu temiz çalışır. Bu aşamada tiplerin gövdeleri
-boş veya `unimplemented!()` olabilir; önemli olan modül ağacının
-iskeletinin hazır olması, derlemenin sorunsuz akması ve
-lisans-temiz dependency listesinin `cargo deny` tarafından
-doğrulanmış olmasıdır. Bu üç koşul birden sağlandığında platform
-kabuğunun gerçek davranışını yazmaya geçmek için zemin hazırdır.
-
+kvs_app_titlebar` komutu temiz çalışmalıdır. Bu aşamada tiplerin
+gövdeleri boş veya `unimplemented!()` olabilir. Önemli olan modül
+ağacının hazır olması, derlemenin sorunsuz akması ve lisans-temiz
+dependency listesinin `cargo deny` tarafından doğrulanmasıdır. Bu üç
+koşul sağlandığında platform kabuğunun gerçek davranışını yazmak için
+zemin hazırdır.

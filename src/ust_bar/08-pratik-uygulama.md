@@ -1,18 +1,17 @@
 # Pratik uygulama
 
-Önceki bölümlerde anlatılan parçalar bir araya geldiğinde geriye
-günlük geliştirme sırasında en sık başvurulan üç şey kalır:
-değişikliğe konu olan noktaların listesi, platform bazlı kontrol
-listeleri ve daha önce başkalarının yakalandığı sık hatalar. Bu
-bölüm, bu üç başlığı pratik bir başvuru olarak en sona yakın bir
-yere toplar.
+Önceki bölümlerde anlatılan parçalar bir araya geldiğinde günlük
+geliştirmede en sık ihtiyaç duyulan üç şey kalır: nereden özelleştirme
+yapılacağı, platform bazında neyin kontrol edileceği ve daha önce sık
+yakalanan hatalar. Bu bölüm bu üç başlığı pratik bir başvuru olarak
+toplar.
 
 ## 18. Özelleştirme noktaları
 
 Aşağıdaki tablo, üst barda en sık değiştirilen davranışların hangi
 dosya veya alanda ele alındığını gösterir. Yeni bir özelleştirme
-ihtiyacı doğduğunda önce buradan başlanır; tabloda yer alan giriş
-ilgili kodun kapısını verir.
+ihtiyacı doğduğunda önce buraya bakılır; tablodaki giriş ilgili kodun
+kapısını açar.
 
 | İhtiyaç | Değiştirilecek yer |
 | :-- | :-- |
@@ -30,9 +29,9 @@ ilgili kodun kapısını verir.
 ## 19. Kontrol listesi
 
 Aşağıdaki listeler, üst bar entegrasyonu tamamlandıktan sonra hızlıca
-gözden geçirilmesi gereken maddeleri toplar. Listeyi pratik bir
-"kaçırdığım bir şey var mı?" denetimi olarak kullanmak amaçlanır;
-her madde kabaca bir kod parçasına veya teste karşılık gelir.
+gözden geçirilmesi gereken maddeleri toplar. Bunları pratik bir
+"kaçırdığım bir şey var mı?" denetimi gibi kullanmak gerekir. Her madde
+kabaca bir kod parçasına veya teste karşılık gelir.
 
 ### Genel
 
@@ -44,9 +43,8 @@ her madde kabaca bir kod parçasına veya teste karşılık gelir.
 - Linux CSD ihtiyacı varsa `WindowDecorations::Client` isteniyor mu
   bakılır.
 - CSD kullanılıyorsa pencere gölgesi, kenarlığı ve resize davranışı
-  için ayrı bir sarmal uygulanıyor mu kontrol edilir. Bu sarmal
-  olmadan titlebar yine de render olur, ama pencere kenarı native
-  hissetmez.
+  için ayrı bir sarmal uygulanıyor mu kontrol edilir. Bu sarmal olmadan
+  titlebar yine render olur, ama pencere kenarı native hissettirmez.
 - Titlebar child'ları her render geçişinde `set_children(...)` ile
   yenileniyor mu doğrulanır.
 - Titlebar üzerindeki interaktif child'lar drag propagation'ı ile
@@ -62,13 +60,13 @@ her madde kabaca bir kod parçasına veya teste karşılık gelir.
   `WindowButtonLayout` geliyor mu kontrol edilir.
 - Sol ve sağ buton dizilerinin boş slotlarının doğru davrandığı test
   edilir (ilk slot boş ise tarafın tamamen gizlendiği unutulmaz).
-- Desktop layout değişiminde titlebar otomatik olarak yeniden render
+- Desktop layout değiştiğinde titlebar'ın otomatik olarak yeniden render
   olup olmadığı doğrulanır.
 - `window.window_controls()` capability sonucu, minimize ve maximize
   desteğini doğru filtreliyor mu sınanır.
-- Sağ tık ile açılan sistem pencere menüsü, ürünün istediği davranışla
-  uyumlu mu kontrol edilir; bazı uygulamalar bu menüyü tamamen
-  kapatmayı tercih edebilir.
+- Sağ tık ile açılan sistem pencere menüsü ürünün istediği davranışla
+  uyumlu mu kontrol edilir. Bazı uygulamalar bu menüyü tamamen kapatmayı
+  tercih edebilir.
 
 ### Windows
 
@@ -110,18 +108,18 @@ her madde kabaca bir kod parçasına veya teste karşılık gelir.
 
 ## 20. Sık yapılan hatalar
 
-Aşağıdaki liste, üst bar port edilirken en sık karşılaşılan
-yanlışları toplar. Bu noktalardan bazıları kolayca gözden kaçar; bir
-kez yapıldığında sebebini anlamak saatler alabilir. Her madde ile
-birlikte hatanın yol açtığı sonuç da yazılmıştır:
+Aşağıdaki liste, üst bar port edilirken en sık karşılaşılan yanlışları
+toplar. Bazıları kolayca gözden kaçar; yapıldıktan sonra sebebini
+anlamak saatler alabilir. Her maddeyle birlikte hatanın yol açtığı
+sonuç da yazılmıştır:
 
 - `PlatformTitleBar` child element'lerinin yalnızca constructor sırasında
-  verilmesi. Zed, child listesini render sırasında tükettiği için
-  içerik sonraki render geçişinde kaybolur ve başlık çubuğu boş
-  görünür.
+  verilmesi. Zed child listesini render sırasında tükettiği için içerik
+  sonraki render geçişinde kaybolur ve başlık çubuğu boş görünür.
 - Linux CSD butonlarının gösterilip pencere resize ve border sarmalının
-  uygulanmaması. Başlık çubuğu çalışıyor gibi görünür; ancak pencere
-  kenarı native hissetmez ve gölge/yuvarlama gibi detaylar eksik kalır.
+  uygulanmaması. Başlık çubuğu çalışıyor gibi görünür; fakat pencere
+  kenarı native hissettirmez ve gölge/yuvarlama gibi detaylar eksik
+  kalır.
 - Close butonunun uygulama lifecycle'ına bağlanmadan doğrudan pencereyi
   kapatması. Bu durumda kirli doküman uyarıları, arka plan görevleri
   veya workspace cleanup adımları atlanmış olur; kullanıcı çalışma
@@ -134,19 +132,17 @@ birlikte hatanın yol açtığı sonuç da yazılmıştır:
   yapıldığında pencereler aynı native tab grubunda birleşmez ve
   kullanıcı "neden sekmelerim ayrı pencerelerde kalıyor?" sorusunu
   sorar.
-- `DraggedWindowTab` payload'ının yalnız bir alan listesi olarak
-  mirror edilmesi. Aynı tab bar üzerinde yapılan drop sekmenin yerini
-  değiştirir; tab bar dışına bırakma sekmeyi yeni pencereye taşır;
-  merge ise ayrı bir action ve context menu akışıdır. Bu üç dal farkı
+- `DraggedWindowTab` payload'ının yalnız bir alan listesi olarak mirror
+  edilmesi. Aynı tab bar üzerinde yapılan drop sekmenin yerini
+  değiştirir. Tab bar dışına bırakma sekmeyi yeni pencereye taşır.
+  Merge ise ayrı bir action ve context menu akışıdır. Bu üç dal farkı
   yok sayılırsa drag/drop davranışı hatalı çalışır.
 - `SystemWindowTabController` state'inin platform native tab state'iyle
   aynı kaynak sanılması. Controller, Zed tarafındaki UI ve action
   modelidir; gerçek platform çağrıları (`window.move_tab_to_new_window`,
   `window.merge_all_windows`) ayrıca yapılır. İki tarafın senkron
   tutulması ihmal edilirse görüntü ile sistem davranışı farklı düşer.
-- Uygulamaya özgü menülerin doğrudan `PlatformTitleBar` içine
-  gömülmesi. Daha temiz model, platform kabuğunu ayrı, ürün titlebar
-  içeriğini ayrı tutmaktır; bu ayrım bozulduğunda port edilen bileşen
-  ürünün lehçesine kilitlenir ve başka projede yeniden kullanılamaz
-  hâle gelir.
-
+- Uygulamaya özgü menülerin doğrudan `PlatformTitleBar` içine gömülmesi.
+  Daha temiz model, platform kabuğunu ayrı ve ürün titlebar içeriğini
+  ayrı tutmaktır. Bu ayrım bozulduğunda port edilen bileşen ürünün
+  lehçesine kilitlenir ve başka projede yeniden kullanılamaz hale gelir.
