@@ -128,7 +128,7 @@ publish = false
 path = "src/kvs_titlebar.rs" # mod.rs değil
 
 [dependencies]
-# Zed workspace (Apache-2.0; publish = false uyarısı için Konu 3)
+# Zed workspace (Apache-2.0; pinleme ve yayınlama notları için Konu 3)
 gpui = { git = "https://github.com/zed-industries/zed", branch = "main" }
 
 # Aile içi crate'ler

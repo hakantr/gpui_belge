@@ -126,11 +126,11 @@ Zed'in `platform_title_bar` ve `title_bar` crate'leri **GPL-3.0-or-later** lisan
 | API imzalarını gözlemleyip yeniden yazmak (örn. `pub fn set_button_layout(...)`) | `crates/platform_title_bar/src/*.rs` kod gövdesini kopyalamak |
 | Davranışı tarif edip kendi kelimelerinle implement etmek | Doc comment'i kelime kelime taşımak |
 | `WindowControlArea` enum varyantlarını mirror etmek (gpui'den, Apache-2.0) | Zed'in `LinuxWindowControls` impl'ini taşımak |
-| `WindowButtonLayout` enum varyantlarını mirror etmek (gpui'den) | Zed'in render fonksiyonlarını birebir Rust → Rust kopyalamak |
-| Platform-spesifik bilinen davranışları (hit-test, dbl-click) yeniden yazmak | Zed'in caption button hover renklerinin tam hex değerlerini kopyalamak |
+| `WindowButton` enum varyantlarını ve `WindowButtonLayout` struct şeklini mirror etmek (gpui'den) | Zed'in render fonksiyonlarını birebir Rust → Rust kopyalamak |
+| Platform-spesifik bilinen davranışları (hit-test, dbl-click, Windows native close rengi gibi) yeniden yazmak | Zed'e özgü tema/stil paletini veya render zincirini birebir taşımak |
 | Sözleşme parite tabloları çıkarmak (sync turunda) | Zed'in mevcut SVG icon dosyalarını binary olarak gömmek |
 
-### Güvenli dependency'ler (hepsi Apache-2.0, Zed workspace'inden alınabilir)
+### Lisans açısından güvenli dependency'ler (hepsi Apache-2.0)
 
 - **`gpui`** — Pencere ve render katmanının çekirdeği. `WindowOptions`, `TitlebarOptions`, `WindowControlArea`, `WindowButtonLayout`, `WindowDecorations` gibi tipler ve `Window` üzerindeki `start_window_move`, `minimize_window`, `zoom_window`, `show_window_menu`, `titlebar_double_click`, `set_client_inset`, `tab_bar_visible`, `set_tabbing_identifier` gibi metotlar bu crate'ten alınır.
 - **`refineable`** — Style cascade desenleri için kullanılır; tema rehberindeki kullanım gibi. Üst barda çoğu durumda zorunlu değildir, ama daha karmaşık stil zincirlerinde işe yarar.
@@ -175,10 +175,10 @@ pub fn render_left_window_controls(...) -> Option<impl IntoElement> { ... }
 
 ### Publishing uyarısı
 
-`gpui` ve `refineable` crate'leri Zed workspace'inde `publish = false` olarak işaretlidir. Bu nedenle crates.io'ya yayımlanacak bir kütüphanenin içinde git veya path dependency olarak rahatça kullanılamazlar. Bu engelin üç olası çözümü vardır; bunlar tema rehberi Konu 3 ile de örtüşür:
+`gpui` crate'i bu Zed sürümünde Apache-2.0 lisansıyla `publish = true` durumundadır. Buna karşılık `refineable` ve `collections` gibi bazı yardımcı workspace crate'leri hâlâ `publish = false` işaretlidir. Bu nedenle crates.io'ya yayımlanacak bir kütüphanede yalnız `gpui` kullanımı tek başına engel değildir; ancak publish edilmeyen workspace crate'lerine path veya git dependency ile bağlanılıyorsa aşağıdaki üç çözümden biri gerekir. Bunlar tema rehberi Konu 3 ile de örtüşür:
 
 1. **Vendor yolu:** Kaynak kod kendi monorepo'ya kopyalanır; lisans ve atribüsyon bilgileri korunur.
-2. **Fork yayınlama:** `gpui` kendi ad altında crates.io'ya yayımlanır.
+2. **Fork yayınlama:** Publish edilmeyen yardımcı crate'ler kendi adları altında crates.io'ya yayımlanır.
 3. **Yalnızca dahili kullanım:** Uygulama binary olarak (kütüphane olarak değil) dağıtılıyorsa git dependency yeterlidir.
 
 ### Tuzaklar

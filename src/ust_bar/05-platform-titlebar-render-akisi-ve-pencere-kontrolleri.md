@@ -37,6 +37,10 @@ Aynı render zincirinde sağ taraf bloğu da `when(!window.is_fullscreen(), ...)
 
 Port hedefinde bu ayrım "fullscreen olunca padding'i değiştir" kadar basit ele alınmamalıdır. Fullscreen aynı anda hem sol/sağ pencere kontrol render'ını etkiler hem de Linux CSD'deki `window.show_window_menu(...)` bağını devre dışı bırakır. Bu yüzden tek bir genel kural yazmak yerine, etkilenen alanlar tek tek düşünülür.
 
+### macOS trafik ışığı boşluğu
+
+macOS tarafında sol boşluk iki ayrı kaynaktan gelir. Pencere açılırken `TitlebarOptions.traffic_light_position` değeri `Some(point(px(9.0), px(9.0)))` olarak verilir; bu native trafik ışıklarının pencere içindeki konumunu belirler. Render sırasında ise ürün child'larının bu alana girmemesi için `TRAFFIC_LIGHT_PADDING` kadar sol padding uygulanır. Bu sabit `ui/src/utils/constants.rs` içinde, `macos_sdk_26` cfg'i açıksa `78.0`, değilse `71.0` olarak tanımlıdır. Yani `traffic_light_position` ile `TRAFFIC_LIGHT_PADDING` aynı şey değildir: ilki native butonların konumu, ikincisi custom titlebar içeriğinin başlayacağı güvenli boşluktur.
+
 ### Çift tıklama
 
 Çift tıklama davranışı Zed kaynağında platforma göre farklı işlenir:
@@ -126,7 +130,7 @@ Zed'in kendi `TitleBar` katmanı bu değişikliği `cx.observe_button_layout_cha
 
 Linux tarafında bu değer, `gpui_linux` katmanının ortak state'inde başlangıçta `WindowButtonLayout::linux_default()` olarak tutulur (`gpui_linux/src/linux/platform.rs:143-150`). `Platform::button_layout()` çağrıldığında bu ortak state `Some(...)` sarmalanmış halde geri döner (`gpui_linux/src/linux/platform.rs:619-620`).
 
-Canlı desktop değişikliği XDP üzerinden gelen `ButtonLayout` olayıyla yakalanır. Wayland ve X11 client'larının ikisi de gelen string'i `WindowButtonLayout::parse(...)` ile okur. Parse başarısız olursa yine `linux_default()` değerine düşer. Ardından her pencere için `window.set_button_layout()` çağrısı yapılır (`gpui_linux/src/linux/wayland/client.rs:636-645`, `gpui_linux/src/linux/x11/client.rs:493-500`). Bu çağrı `on_button_layout_changed` callback'ini tetikler. Zed `TitleBar::new(...)` içinde bu callback'i `cx.observe_button_layout_changed(window, ...)` üzerinden `cx.notify()` çağrısına bağlar (`title_bar/src/title_bar.rs:441`). Zincir şöyle ilerler: masaüstü ayarı değişir -> XDP olayı gelir -> string parse edilir -> pencere state'i güncellenir -> callback tetiklenir -> titlebar yeniden render olur.
+Canlı desktop değişikliği XDP üzerinden gelen `ButtonLayout` olayıyla yakalanır. Wayland ve X11 client'larının ikisi de gelen string'i `WindowButtonLayout::parse(...)` ile okur. Parse başarısız olursa yine `linux_default()` değerine düşer. Ardından her pencere için `window.set_button_layout()` çağrısı yapılır (`gpui_linux/src/linux/wayland/client.rs:636-645`, `gpui_linux/src/linux/x11/client.rs:493-500`). Bu çağrı `on_button_layout_changed` callback'ini tetikler. Zed `TitleBar::new(...)` içinde bu callback'i `cx.observe_button_layout_changed(window, ...)` üzerinden `cx.notify()` çağrısına bağlar (`title_bar/src/title_bar.rs:442`). Zincir şöyle ilerler: masaüstü ayarı değişir -> XDP olayı gelir -> string parse edilir -> pencere state'i güncellenir -> callback tetiklenir -> titlebar yeniden render olur.
 
 ## 13. Butonları uygulama katmanına bağlama
 

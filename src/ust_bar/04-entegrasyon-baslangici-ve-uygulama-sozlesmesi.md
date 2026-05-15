@@ -6,7 +6,7 @@
 
 ### Pencere seçenekleri
 
-Custom titlebar davranışının çalışması, pencere açılırken verilen birkaç kritik ayara bağlıdır. Zed'in ana penceresinde `WindowOptions` içinde şu alanlar açıkça set edilir:
+Custom titlebar davranışının çalışması, pencere açılırken verilen birkaç kritik ayara bağlıdır. Zed'in ana penceresinde `WindowOptions` içinde üst barı doğrudan ilgilendiren alanlar şunlardır; kaynakta bunlara ek olarak `focus`, `show`, `kind`, `display_id`, `window_background`, `app_id`, Linux/FreeBSD `icon` ve `window_min_size` gibi genel pencere alanları da ayrıca set edilir:
 
 ```rust
 WindowOptions {
