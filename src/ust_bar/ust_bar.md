@@ -1,24 +1,10 @@
 # Üst Bar
 
-Bu rehber, Zed'deki üst bar davranışını GPUI tabanlı bir uygulamaya
-lisans-temiz biçimde taşımak için hazırlanmıştır. Konu yalnızca
-"ekrana bir başlık çubuğu çizmek" değildir. Pencerenin sürüklenmesi,
-Linux ve Windows pencere butonları, macOS trafik ışıkları, native
-pencere sekmeleri, sidebar çakışmaları, tema renkleri ve uygulamanın
-close/new-window gibi iş kuralları birlikte düşünülür.
+Bu rehber, Zed'deki üst bar davranışını GPUI tabanlı bir uygulamaya lisans-temiz biçimde taşımak için hazırlanmıştır. Konu yalnızca "ekrana bir başlık çubuğu çizmek" değildir. Pencerenin sürüklenmesi, Linux ve Windows pencere butonları, macOS trafik ışıkları, native pencere sekmeleri, sidebar çakışmaları, tema renkleri ve uygulamanın close/new-window gibi iş kuralları birlikte düşünülür.
 
-Okuma sırası özellikle önemlidir. İlk bölümler sınırları koyar:
-neyin platform kabuğuna, neyin ürün başlığına, neyin uygulama
-state'ine ait olduğunu anlatır. Orta bölümler gerçek render akışına
-ve platform farklarına iner. Son bölümler ise port sırasında bakılacak
-kontrol listelerini, sık hataları ve kaynak doğrulama komutlarını
-toplar.
+Okuma sırası özellikle önemlidir. İlk bölümler sınırları koyar: neyin platform kabuğuna, neyin ürün başlığına, neyin uygulama state'ine ait olduğunu anlatır. Orta bölümler gerçek render akışına ve platform farklarına iner. Son bölümler ise port sırasında bakılacak kontrol listelerini, sık hataları ve kaynak doğrulama komutlarını toplar.
 
-Bu belgede amaç içeriği kısaltmak değil, konunun okuyucuya yorulmadan
-geçmesini sağlamaktır. Bu yüzden her bölümde aynı ayrım korunur:
-önce kararın nedeni anlatılır, sonra ilgili API veya kaynak noktası
-gösterilir, en sonda da port sırasında kaçırılabilecek ayrıntılar
-işaretlenir.
+Bu belgede amaç içeriği kısaltmak değil, konunun okuyucuya yorulmadan geçmesini sağlamaktır. Bu yüzden her bölümde aynı ayrım korunur: önce kararın nedeni anlatılır, sonra ilgili API veya kaynak noktası gösterilir, en sonda da port sırasında kaçırılabilecek ayrıntılar işaretlenir.
 
 ## Bölümler
 
