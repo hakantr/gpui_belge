@@ -806,6 +806,19 @@ Bu zincirden çıkan port kuralı: `PlatformTitleBar` yalnızca render edilen ba
 kabuğudur. Zed'de onu yaşatan sistem `WindowOptions`, GPUI platform callback'leri,
 `TitleBarSettings`, `Workspace` lifecycle'ı ve CSD sarmalıyla birlikte çalışır.
 
+**2026-05-15 diff notu:** İncelenen upstream diff'te
+`crates/platform_title_bar` veya GPUI titlebar/hit-test API'leri değişmiyor.
+Etkilenen yüzey Zed'in ürün başlığı ve workspace/sidebar modelidir:
+`crates/title_bar/src/title_bar.rs` artık `SkillsFeatureFlag` arkasında bir
+`OnboardingBanner` oluşturur, `update_version.rs` update tooltip metnini
+`Update to Version: ...` biçimine çevirir ve SHA için kısa değer yerine tam
+commit SHA gösterir. Bunlar platform kabuğu sözleşmesi değil, `TitleBar`
+ürün katmanının child/action içeriğidir. Aynı diff ayrıca yeni
+`docs/src/windows-and-projects.md` dokümanıyla projelerin varsayılan olarak
+mevcut pencerenin threads sidebar'ına açıldığını kayda geçirir; bu durum
+`MultiWorkspace` yorumunu Konu 11'deki gibi ürün shell state'i olarak ele
+almayı gerektirir.
+
 ## 4. Entegrasyon Ön Koşulları
 
 ### Pencere seçenekleri
@@ -1195,6 +1208,16 @@ crate'i üzerinden re-export olarak da kullanır:
 | `TitleBar` | `pub struct TitleBar` private alanlı (`title_bar/src/title_bar.rs:150-163`) | Zed ürün başlığıdır; generic platform shell değildir. |
 | `TitleBar::new` | `pub fn new(id: impl Into<ElementId>, workspace: &Workspace, multi_workspace: Option<WeakEntity<MultiWorkspace>>, window: &mut Window, cx: &mut Context<Self>) -> Self` (`title_bar/src/title_bar.rs:385-391`) | `PlatformTitleBar::new(...)` entity'sini oluşturur ve `observe_button_layout_changed` subscription'ı kurar (`title_bar.rs:441-455`). |
 | Product helper'ları | `effective_active_worktree`, `render_restricted_mode`, `render_project_host`, `render_sign_in_button`, `render_user_menu_button` (`title_bar.rs:490`, `625`, `672`, `1142`, `1161`) | Zed'e özgü proje/kullanıcı UI yüzeyi; platform titlebar port API'si olarak kopyalanmamalıdır. |
+
+2026-05-15 diff'inde `TitleBar::new(...)` artık `banner: None` ile başlamaz.
+`feature_flags::{FeatureFlagAppExt, SkillsFeatureFlag}` bağımlılığı eklenir ve
+"Skills Migration Announcement" id'li bir `OnboardingBanner` oluşturulur.
+Banner `IconName::Sparkle`, "Introducing:" prefix'i ve "Skills" etiketiyle
+`zed_actions::agent::OpenRulesToSkillsMigrationInfo` action'ını dispatch eder;
+`visible_when(|cx| cx.has_flag::<SkillsFeatureFlag>())` ile feature flag'e
+bağlıdır. Port ederken bunu platform titlebar API'sine taşımayın: bu,
+uygulamanın duyuru/ürün mesajı katmanıdır. Kendi uygulamanızda karşılığı varsa
+`AppTitleBar` child grubuna koyun; yoksa tamamen atlanabilir.
 
 `title_bar_settings.rs` içindeki `pub struct TitleBarSettings` (`title_bar_settings.rs:5-15`)
 private modülde kaldığı için crate dışı API değildir; Zed ayar sistemi içinde
@@ -1936,6 +1959,28 @@ aslında feature flag'dir. Kendi uygulamanızda bunu `AppSettings::multi_workspa
 veya `ShellSettings::sidebar_enabled` gibi doğrudan isimlendirilmiş bir ayarla
 değiştirin.
 
+2026-05-15 diff'i Zed'in ürün modelinde `MultiWorkspace` kapsamını daha görünür
+hale getiriyor: yeni `docs/src/windows-and-projects.md` dokümanına göre klasör
+ve projeler varsayılan olarak yeni pencere açmak yerine mevcut pencerenin
+threads sidebar'ına ekleniyor. `File > Open`, `File > Open Recent`, klasör
+sürükleme ve `zed ~/project` davranışı current-window/sidebar yolunu kullanır;
+yeni pencere için Open Recent'ta Cmd/Ctrl+Enter veya CLI tarafında `zed -n`
+gerekir. `cli_default_open_behavior` varsayılanı da `existing_window` olarak
+belgelenmiştir.
+
+Bu değişiklik `PlatformTitleBar` render sözleşmesini değiştirmez: zayıf
+`MultiWorkspace` referansı platform kabuğunda hâlâ sadece sidebar tarafındaki
+pencere kontrolü çakışmasını çözmek için okunur. Ancak ürün titlebar'ı için
+önemli bir port kuralı doğurur: aktif proje/workspace değişimi artık pencere
+değişmeden gerçekleşebilir. Proje adı, worktree bilgisi, sidebar tarafı ve
+başlık içeriği `Window` lifecycle'ına değil aktif `MultiWorkspace::workspace()`
+durumuna gözlemci bağlayarak güncellenmelidir.
+
+Sidebar açık mı sorusunu "açık proje var mı" sorusundan ayrı tutun. Aynı diff'te
+sidebar/agent panel tarafı boş workspace'lerde yeni thread/terminal oluşturmayı
+no-op yapıyor; buna rağmen sidebar'ın açık/kapalı ve sol/sağ konumu titlebar
+kontrol çakışması için hâlâ ayrı bir render state'tir.
+
 ## 12. Başlık Çubuğuna İçerik Yerleştirme
 
 `PlatformTitleBar` kendi başına sadece platform kabuğunu sağlar. Zed'in gerçek
@@ -1948,6 +1993,14 @@ oluşturulur. Bu katman şunları child olarak verir:
 - Restricted mode göstergesi.
 - Kullanıcı menüsü, sign-in butonu, plan chip, update bildirimi.
 - Collab/screen share göstergeleri.
+- Feature flag'e bağlı onboarding/announcement banner'ları.
+
+2026-05-15 diff'i bu listeye iki ürün-titlebar ayrıntısı ekliyor:
+
+- Skills duyurusu için `OnboardingBanner` artık `TitleBar::new(...)` içinde
+  oluşturuluyor ve yalnız `SkillsFeatureFlag` açıkken görünüyor.
+- Update bildiriminin tooltip'i `Update to Version: ...` biçiminde; semantic
+  version aynen yazılıyor, commit SHA ise kısaltılmadan tam değerle gösteriliyor.
 
 Kendi uygulamanızda aynı pattern'i kullanın: platform titlebar'ı shell olarak
 tutun, ürününüzün anlamlı varlıklarını üst seviye `AppTitleBar` veya
