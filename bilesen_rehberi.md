@@ -2,7 +2,7 @@
 
 Bu rehber, `../zed` çalışma ağacındaki Zed UI bileşenlerini kaynak alır
 (`../zed` içinde `git rev-parse HEAD`:
-`6e8eaab25b5ac324e11a82d1563dcad39c84bace`). Amaç, `crates/ui` merkezli
+`3493830ce94ee1fa9d25ca92dcf23b502109fe07`). Amaç, `crates/ui` merkezli
 bileşenleri kaynak dosyaları, export yolları, builder API'leri, preview desteği
 ve gerçek kullanım örnekleriyle tek yerde açıklayarak kendi GPUI tabanlı
 ekranlarınızda doğru, tutarlı ve Zed tasarım sistemiyle uyumlu UI kurmanıza
@@ -133,7 +133,7 @@ kapsanmış sayılmaz; şu dört bilgi birlikte doğrulanır:
 - **Zed kullanımı:** `../zed` uygulaması bu API'yi preview'da mı, production
   UI'da mı, lifecycle yönetiminde mi kullanıyor?
 
-#### Public yüzey snapshot'ı (`../zed` `6e8eaab25b`)
+#### Public yüzey snapshot'ı (`../zed` `3493830ce94e`)
 
 Aşağıdaki liste `crates/ui/src/components`, `crates/ui/src/styles`,
 `crates/ui/src/utils`, `crates/ui/src/traits`, `crates/component/src` ve
@@ -153,7 +153,7 @@ altında ayrıca verilir.
 | Tab | `Tab`, `TabBar`, `TabPosition`, `TabCloseSide` |
 | Layout / divider | `h_flex`, `v_flex`, `h_group`, `h_group_sm`, `h_group_lg`, `h_group_xl`, `v_group`, `v_group_sm`, `v_group_lg`, `v_group_xl`, `Divider`, `DividerColor`, `divider`, `vertical_divider` |
 | Scrollbar | `Scrollbars`, `ScrollAxes`, `ScrollbarStyle`, `ScrollableHandle`, `WithScrollbar`, `on_new_scrollbars`, `EDITOR_SCROLLBAR_WIDTH` (ek olarak `ui::scrollbars` modülü altında `ShowScrollbar`, `ScrollbarVisibility`, `ScrollbarAutoHide`) |
-| Diğer component'ler | `Avatar`, `AudioStatus`, `AvatarAudioStatusIndicator`, `CollaboratorAvailability`, `AvatarAvailabilityIndicator`, `Facepile`, `EXAMPLE_FACES`, `Chip`, `DiffStat`, `Disclosure`, `GradientFade`, `Vector`, `VectorName`, `KeyBinding`, `Key`, `KeyIcon`, `KeybindingHint`, `Navigable`, `NavigableEntry`, `render_keybinding_keystroke`, `render_modifiers`, `text_for_action`, `text_for_keystrokes`, `text_for_keybinding_keystrokes`, `text_for_keystroke` |
+| Diğer component'ler | `Avatar`, `AudioStatus`, `AvatarAudioStatusIndicator`, `CollaboratorAvailability`, `AvatarAvailabilityIndicator`, `Facepile`, `EXAMPLE_FACES`, `Chip`, `DiffStat`, `Disclosure`, `GradientFade`, `Vector`, `VectorName`, `KeyBinding`, `Key`, `KeyIcon`, `KeybindingHint`, `Navigable`, `NavigableEntry`, `ProjectEmptyState`, `render_keybinding_keystroke`, `render_modifiers`, `text_for_action`, `text_for_keystrokes`, `text_for_keybinding_keystrokes`, `text_for_keystroke` |
 | AI / collab | `AiSettingItem`, `AiSettingItemStatus`, `AiSettingItemSource`, `AgentSetupButton`, `ThreadItem`, `AgentThreadStatus`, `ThreadItemWorktreeInfo`, `WorktreeKind`, `ConfiguredApiCard`, `ParallelAgentsIllustration`, `CollabNotification`, `UpdateButton` |
 | Style / trait / utils | `Color`, `ElevationIndex`, `DynamicSpacing`, `ui_density`, `PlatformStyle`, `StyledTypography`, `TextSize`, `Headline`, `HeadlineSize`, `AnimationDuration`, `AnimationDirection`, `DefaultAnimations`, `CommonAnimationExt`, `Clickable`, `Disableable`, `FixedWidth`, `StyledExt`, `Toggleable`, `ToggleState`, `VisibleOnHover`, `WithRemSize`, `SearchInputWidth`, `FormatDistance`, `DateTimeType`, `CornerSolver`, `inner_corner_radius`, `apca_contrast`, `ensure_minimum_contrast`, `calculate_contrast_ratio`, `format_distance`, `format_distance_from_now`, `is_light`, `capitalize`, `reveal_in_file_manager_label`, `platform_title_bar_height`, `TRAFFIC_LIGHT_PADDING`, `BASE_REM_SIZE_IN_PX`, `rems_from_px`, `vw`, `vh`, `theme_is_transparent` |
 | Component preview | `components`, `init`, `register_component`, `Component`, `ComponentFn`, `ComponentRegistry`, `ComponentId`, `ComponentMetadata`, `ComponentStatus`, `ComponentScope`, `ComponentExample`, `ComponentExampleGroup`, `single_example`, `empty_example`, `example_group`, `example_group_with_title` |
@@ -182,8 +182,8 @@ Benzer public alanlı sözleşme tipleri:
 - `TableRenderContext`, `render_table_row(...)` ve `render_table_header(...)`
   için düşük seviye render bağlamıdır. `TableInteractionState` gibi saklanan
   view state'i değildir; `striped`, `show_row_borders`, `column_widths`,
-  `map_row` ve `disable_base_cell_style` alanları render helper'larına
-  aktarılır.
+  `map_row`, `disable_base_cell_style`, `pinned_cols` ve `h_scroll_handle`
+  alanları render helper'larına aktarılır.
 - `HeaderResizeInfo`, header resize/reset sözleşmesidir. `resize_behavior`
   alanı public okunur, ancak kolon state'i içeride `WeakEntity` olarak tutulur;
   reset için public yol `reset_column(...)` metodudur.
@@ -478,6 +478,7 @@ akışı kullanılır.
 | Diğer | `KeyBinding` | `crates/ui/src/components/keybinding.rs` | `ui::KeyBinding` | Hayır | Evet |
 | Diğer | `KeybindingHint` | `crates/ui/src/components/keybinding_hint.rs` | `ui::KeybindingHint` | Hayır | Evet |
 | Diğer | `Navigable` | `crates/ui/src/components/navigable.rs` | `ui::Navigable` | Hayır | Hayır |
+| Diğer | `ProjectEmptyState` | `crates/ui/src/components/project_empty_state.rs` | `ui::ProjectEmptyState` | Hayır | Hayır |
 | AI / Collab | `AiSettingItem` | `crates/ui/src/components/ai/ai_setting_item.rs` | `ui::AiSettingItem` | Hayır | Evet |
 | AI / Collab | `AiSettingItemStatus` / `AiSettingItemSource` | `crates/ui/src/components/ai/ai_setting_item.rs` | `ui::AiSettingItemStatus`, `ui::AiSettingItemSource` | Hayır | Enum |
 | AI / Collab | `AgentSetupButton` | `crates/ui/src/components/ai/agent_setup_button.rs` | `ui::AgentSetupButton` | Hayır | Impl var / `None` |
@@ -591,6 +592,7 @@ doğrulandı. Ayrıntılı builder listeleri ilgili bileşen başlıklarında ve
 | `Key` / `KeyIcon` | `Key::new(key, color)`, `KeyIcon::new(icon, color)` |
 | `KeybindingHint` | `KeybindingHint::new(keybinding, background_color)` |
 | `NavigableEntry` / `Navigable` | `NavigableEntry::new(scroll_handle, cx)`, `Navigable::new(child)` |
+| `ProjectEmptyState` | `ProjectEmptyState::new(label, focus_handle, open_project_key_binding)` |
 | `AiSettingItem` | `AiSettingItem::new(id, label, status, source)` |
 | `AgentSetupButton` | `AgentSetupButton::new(id)` |
 | `ThreadItem` | `ThreadItem::new(id, title)` |
@@ -619,7 +621,7 @@ güncellenmelidir.
 | `modal.rs` | `Modal::show_back(bool)`, `ModalHeader::show_back_button(bool)`, `Section::contained(bool)` | Modal seviyesinde geri butonunu açma, header'a back button ikonu ekleme ve `Section` border'lı yüzey toggle'ı |
 | `tab_bar.rs` | `TabBar::start_children_mut()`, `TabBar::end_children_mut()` | Builder zinciri dışından TabBar başlangıç/bitiş child listelerini mutably düzenler (`SmallVec<[AnyElement; 2]>`) |
 | `scrollbar.rs` | `ScrollbarAutoHide::should_hide()` | Scrollbar otomatik gizleme kararını okuyan global token; `Global` olarak set/get edilir |
-| `data_table.rs` | `ColumnWidthConfig::table_width(window, cx)`, `ColumnWidthConfig::list_horizontal_sizing(window, cx)`, `ResizableColumnsState::reset_column_to_initial_width(col_idx)`, `Table::map_row(callback)`, `Table::empty_table_callback(callback)` | Table genişliği, horizontal sizing ve kolon reset helper'ları; `Table` üzerinde satır/empty callback'leri |
+| `data_table.rs` | `ColumnWidthConfig::table_width(window, cx)`, `ColumnWidthConfig::list_horizontal_sizing(window, cx)`, `ResizableColumnsState::reset_column_to_initial_width(col_idx)`, `Table::pin_cols(n)`, `Table::map_row(callback)`, `Table::empty_table_callback(callback)` | Table genişliği, horizontal sizing, sabit ilk kolonlar ve kolon reset helper'ları; `Table` üzerinde satır/empty callback'leri |
 | `redistributable_columns.rs` | `TableResizeBehavior::is_resizable()`, `HeaderResizeInfo::reset_column(col_idx, window, cx)`, `RedistributableColumnsState::reset_column_to_initial_width(column_index, window)` | Resize davranışı sorgusu, header bilgi paketi üzerinden reset ve kolon initial width'e dönüş |
 | `context_menu.rs` | `ContextMenu::selected_index()`, `.confirm(...)`, `.secondary_confirm(...)`, `.cancel(...)`, `.end_slot(...)`, `.clear_selected()`, `.select_first(...)`, `.select_last(...)`, `.select_next(...)`, `.select_previous(...)`, `.select_submenu_child(...)`, `.select_submenu_parent(...)`, `.on_action_dispatch(...)`, `.on_blur_subscription(subscription)` | Menü action, seçim, submenu traversal, end slot ve blur subscription state yönetimi |
 
@@ -635,8 +637,8 @@ kaymalarını da gizler.
 
 Bu turda yakalayamadığım eksiklerin kök nedenleri:
 
-- Rehber başındaki Zed commit'i güncel pin ile eşleşmiyordu; doğrulama eski
-  `db6039d815` varsayımından değil, gerçek `6e8eaab25b5ac324e11a82d1563dcad39c84bace`
+- Rehber başındaki Zed commit'i diff hedefiyle eşleşmelidir; doğrulama eski
+  varsayımlardan değil, gerçek `3493830ce94ee1fa9d25ca92dcf23b502109fe07`
   çalışma ağacından yapılmalıdır.
 - `pub fn` grep'i, `crates/ui/src/components.rs` içindeki `pub use ...::*`
   zincirini ve nested modül re-export'larını tek tek takip etmiyordu.
@@ -5500,6 +5502,7 @@ Temel API:
 - Görsel builder'lar: `.striped()`, `.hide_row_borders()`, `.hide_row_hover()`,
   `.no_ui_font()`, `.disable_base_style()`
 - Genişlik: `.width(width)`, `.width_config(config)`
+- Sabit ilk kolonlar: `.pin_cols(n)`
 - Etkileşim: `.interactable(&table_interaction_state)`
 - Satır özelleştirme: `.map_row(callback)`
 - Boş durum: `.empty_table_callback(callback)`
@@ -5519,6 +5522,12 @@ Davranış:
 - `.map_row(...)`, tablonun oluşturduğu `Stateful<Div>` satır container'ını
   alır; seçili satır, hover state'i, sağ tık veya özel click davranışı eklemek
   için uygundur.
+- `.pin_cols(n)`, ilk `n` kolonu yatay scroll sırasında görünür tutar.
+  Kaynakta yalnızca `ColumnWidthConfig::Resizable` ile desteklenir; `n == 0`
+  veya `n >= cols` olduğunda tablo tek bölümlü normal layout'a döner.
+- Pinned layout'ta header, satırlar ve resize overlay aynı horizontal
+  `ScrollHandle`'ı izler. Bu nedenle `.pin_cols(...)` kullanırken tabloyu
+  `.interactable(...)` ile bağlamak pratikte zorunludur.
 
 Minimum örnek:
 
@@ -5678,7 +5687,7 @@ Zed içinden kullanım:
   `uniform_list`, `TableInteractionState` ve redistributable kolonlar.
 - `../zed/crates/csv_preview/src/renderer/render_table.rs`: CSV için
   `ResizableColumnsState`, `disable_base_style()` ve iki farklı render
-  mekanizması.
+  mekanizması; ilk kolon `pin_cols(1)` ile yatay scroll sırasında sabitlenir.
 - `../zed/crates/edit_prediction_ui/src/edit_prediction_context_view.rs`:
   metadata için küçük, UI fontu kapatılmış tablo.
 
@@ -5725,6 +5734,9 @@ Davranış:
 - Yatay scroll, tablo genişliği modeline bağlıdır. Sabit toplam genişlik veya
   `ResizableColumnsState` yoksa tablo genellikle container'a sığacak şekilde
   davranır.
+- `Table::pin_cols(...)` kullanılan resizable tabloda aynı
+  `horizontal_scroll_handle`, header'ın ve her satırın scrollable bölümünü
+  kilitli tutmak için kullanılır.
 - `with_custom_scrollbar(...)`, Zed ayarlarından gelen scrollbar davranışını
   tabloya taşımak için kullanılır.
 
@@ -5824,6 +5836,9 @@ Dikkat edilecekler:
 - `explicit(widths)` içindeki `widths.len()` tablo kolon sayısıyla aynı olmalıdır.
 - `Resizable` için associated constructor yoktur; enum varyantı doğrudan
   `ColumnWidthConfig::Resizable(entity)` olarak kullanılır.
+- `Table::pin_cols(n)` yalnızca `ColumnWidthConfig::Resizable(entity)` ile
+  anlamlıdır; `Auto`, `Explicit` ve `Redistributable` modlarında pinned split
+  layout devreye girmez.
 
 ### RedistributableColumnsState
 
@@ -6016,6 +6031,7 @@ impl CsvLikeTable {
         Table::new(3)
             .interactable(&self.table_state)
             .width_config(ColumnWidthConfig::Resizable(self.columns.clone()))
+            .pin_cols(1)
             .header(vec!["#", "Name", "Value"])
             .row(vec!["1", "language", "Rust"])
     }
@@ -6036,6 +6052,10 @@ Dikkat edilecekler:
   `ResizableColumnsState` oluşturmak daha nettir.
 - `set_column_configuration(...)`, runtime'da tek kolonun başlangıç ve mevcut
   genişliğini birlikte günceller.
+- İlk kolonun row number veya seçim sütunu gibi her zaman görünür kalması
+  gerekiyorsa `ColumnWidthConfig::Resizable(entity)` ile birlikte
+  `Table::pin_cols(n)` kullanın. Zed CSV preview artık ilk kolonu bu şekilde
+  sabitler.
 
 ### TableRow ve UncheckedTableRow
 
@@ -6134,10 +6154,11 @@ Temel API:
     ise font ailesi parent'tan miras alınır. `Table::no_ui_font()` ile kapatılan
     davranışın aynısıdır. CSV preview, monospace görünüm için `false` verir.
   - `striped`, `show_row_borders`, `show_row_hover`, `total_row_count`,
-    `disable_base_cell_style`, `map_row` alanları `Default::default()`
-    benzeri varsayılanlarla doldurulur; özel görünüm gerekiyorsa
-    `for_column_widths(...)` çıktısını alan alan değiştirebilirsiniz.
-- `render_table_header(headers, table_context, resize_info, entity_id, cx)`
+    `disable_base_cell_style`, `map_row`, `pinned_cols` ve `h_scroll_handle`
+    alanları `Default::default()` benzeri varsayılanlarla doldurulur; özel
+    görünüm gerekiyorsa `for_column_widths(...)` çıktısını alan alan
+    değiştirebilirsiniz.
+- `render_table_header(headers, table_context, resize_info, entity_id, cx) -> AnyElement`
 - `render_table_row(row_index, items, table_context, window, cx)`
 - `HeaderResizeInfo::from_redistributable(&columns_state, cx)`
 - `HeaderResizeInfo::from_resizable(&columns_state, cx)`
@@ -6207,6 +6228,9 @@ Dikkat edilecekler:
   `HeaderResizeInfo` üzerinden bağlanır.
 - Header ve row için aynı `TableRenderContext` genişlik modeli kullanılmalıdır;
   aksi halde hücreler hizalanmaz.
+- Pinned kolonlu özel render akışı kuruyorsanız `TableRenderContext.pinned_cols`
+  ve `TableRenderContext.h_scroll_handle` birlikte ayarlanmalıdır. Normal
+  `Table::pin_cols(...)` kullanımı bu iki alanı kendi içinde doldurur.
 
 ### Veri Tablosu Kompozisyon Örnekleri
 
@@ -7885,6 +7909,74 @@ Dikkat edilecekler:
   kendisi focus track etmelidir.
 - Entry listesi render edilen item sırasıyla aynı tutulmalıdır.
 
+### ProjectEmptyState
+
+Kaynak:
+
+- Tanım: `../zed/crates/ui/src/components/project_empty_state.rs`
+- Export: `ui::ProjectEmptyState`
+- Prelude: Hayır, ayrıca import edin.
+- Preview: Doğrudan `impl Component` yok.
+
+Ne zaman kullanılır:
+
+- Panel veya sidebar bir proje/worktree olmadan açıldığında aynı boş durum
+  eylemlerini göstermek için.
+- "Open Project" ve "Clone Repository" seçeneklerinin aynı focus, keybinding ve
+  spacing düzeniyle görünmesini istediğiniz yerlerde.
+
+Temel API:
+
+- Constructor: `ProjectEmptyState::new(label, focus_handle, open_project_key_binding)`
+- `.on_open_project(handler)`
+- `.on_clone_repo(handler)`
+
+Davranış:
+
+- Render edilen root `v_flex()` içinde `track_focus(&focus_handle)` çağırır.
+- Üst metni `Choose one of the options below to use the {label}` biçiminde
+  üretir.
+- İlk action `Button::new("open_project", "Open Project")` ve verilen
+  `KeyBinding` ile render edilir; ikinci action
+  `Button::new("clone_repo", "Clone Repository")` olarak gelir.
+- İki action arasında `Divider::horizontal().color(DividerColor::Border)` ve
+  küçük `or` label'ı kullanılır.
+
+Örnek:
+
+```rust
+use gpui::FocusHandle;
+use ui::{KeyBinding, ProjectEmptyState, prelude::*};
+
+fn render_empty_panel(
+    focus_handle: FocusHandle,
+    open_project_key_binding: KeyBinding,
+) -> impl IntoElement {
+    ProjectEmptyState::new("Project Panel", focus_handle, open_project_key_binding)
+        .on_open_project(|_, window, cx| {
+            window.dispatch_action(workspace::Open::default().boxed_clone(), cx);
+        })
+        .on_clone_repo(|_, window, cx| {
+            window.dispatch_action(git::Clone.boxed_clone(), cx);
+        })
+}
+```
+
+Zed içinden kullanım:
+
+- `../zed/crates/project_panel/src/project_panel.rs`: worktree yokken project
+  panel boş durumu.
+- `../zed/crates/agent_ui/src/agent_panel.rs`: proje yokken agent panel boş
+  durumu.
+- `../zed/crates/git_ui/src/git_panel.rs`: worktree yokken git panel boş durumu.
+- `../zed/crates/sidebar/src/sidebar.rs`: threads sidebar boş proje durumu.
+
+Dikkat edilecekler:
+
+- Bu component yalnızca iki standart proje eylemini render eder. Farklı action
+  setleri veya açıklama metni gerekiyorsa özel `v_flex()` layout kurun.
+- Handler verilmezse ilgili button render edilir ama click davranışı bağlanmaz.
+
 ### AI ve Collab Bileşenleri
 
 Bu alt grup Zed'in agent, provider ve collaboration ekranlarında kullanılan daha
@@ -8328,6 +8420,7 @@ Temel API:
 - `.icon_color(Option<Color>)`
 - `.tooltip(text)`
 - `.with_dismiss()`
+- `.disabled(bool)`
 - `.on_click(handler)`
 - `.on_dismiss(handler)`
 - Convenience constructors:
@@ -8338,8 +8431,16 @@ Davranış:
 
 - `icon_animate(true)`, icon'a rotate animation uygular.
 - `.with_dismiss()` sağ tarafta dismiss icon button gösterir.
+- `.disabled(true)`, ana `ButtonLike` alanını disable eder; checking,
+  downloading ve installing convenience constructor'ları artık bu durumu
+  kendileri uygular.
 - Main area `ButtonLike::new("update-button")` ile render edilir.
 - Tooltip verilirse main button area'ya bağlanır.
+- `checking()` ve `installing(...)` dönen `IconName::LoadCircle` kullanır;
+  animation süresi 2 saniyedir. `downloading(...)` `IconName::Download`,
+  `errored(...)` ise `IconName::Warning` ile çizilir.
+- Title bar'daki `UpdateVersion` tooltip'i artık `Update to Version: ...`
+  biçimindedir; SHA tabanlı version'da kısaltılmış SHA yerine tam SHA gösterilir.
 
 Örnek:
 
@@ -8362,6 +8463,10 @@ Dikkat edilecekler:
 
 - Bu component title bar bağlamına göre tasarlanmıştır; genel sayfa CTA'sı olarak
   kullanmayın.
+- `checking()`, `downloading(...)` ve `installing(...)` disabled geldiği için
+  bu durumlarda click handler bağlamayın; kullanıcı aksiyonu gerekiyorsa
+  `updated(...)`, `errored(...)` veya `UpdateButton::new(...)` ile açık state
+  kurun.
 - `updated(...)` ve `errored(...)` dismiss gösterir; dismiss callback'i
   bağlanmazsa button görünür ama state temizlenmez.
 
@@ -9109,8 +9214,7 @@ impl Render for AiProviderPanel {
             )
             .child(
                 UpdateButton::checking()
-                    .tooltip("Checking provider metadata")
-                    .on_click(|_event, _window, _cx| refresh_provider_metadata()),
+                    .tooltip("Checking provider metadata"),
             )
     }
 }
@@ -9552,7 +9656,7 @@ image_cache(retain_all("image-cache"))
 
 ## 14. Doğrulanmış `crates/ui/src/components` Public API Yüzeyi
 
-Kaynak: `../zed` commit `6e8eaab25b5ac324e11a82d1563dcad39c84bace`.
+Kaynak: `../zed` commit `3493830ce94ee1fa9d25ca92dcf23b502109fe07`.
 `pub(crate)`, `pub(super)` ve `pub(in ...)` kapsam dışıdır. Trait metotları
 public trait sözleşmesi olduğu için ayrıca listelenir. Private modül içinde
 `pub` görünen sealed adlar dış crate API'si değildir; ilgili satırda özellikle
@@ -9561,7 +9665,7 @@ public trait sözleşmesi olduğu için ayrıca listelenir. Private modül için
 geçen re-export kapılarıdır.
 
 ### `crates/ui/src/components.rs`
-- Öğeler: `use ai::*`; `use avatar::*`; `use banner::*`; `use button::*`; `use callout::*`; `use chip::*`; `use collab::*`; `use context_menu::*`; `use count_badge::*`; `use data_table::*`; `use diff_stat::*`; `use disclosure::*`; `use divider::*`; `use dropdown_menu::*`; `use facepile::*`; `use gradient_fade::*`; `use group::*`; `use icon::*`; `use image::*`; `use indent_guides::*`; `use indicator::*`; `use keybinding::*`; `use keybinding_hint::*`; `use label::*`; `use list::*`; `use modal::*`; `use navigable::*`; `use notification::*`; `use popover::*`; `use popover_menu::*`; `use progress::*`; `use redistributable_columns::*`; `use right_click_menu::*`; `use scrollbar::*`; `use stack::*`; `use sticky_items::*`; `use tab::*`; `use tab_bar::*`; `use toggle::*`; `use tooltip::*`; `use tree_view_item::*`
+- Öğeler: `use ai::*`; `use avatar::*`; `use banner::*`; `use button::*`; `use callout::*`; `use chip::*`; `use collab::*`; `use context_menu::*`; `use count_badge::*`; `use data_table::*`; `use diff_stat::*`; `use disclosure::*`; `use divider::*`; `use dropdown_menu::*`; `use facepile::*`; `use gradient_fade::*`; `use group::*`; `use icon::*`; `use image::*`; `use indent_guides::*`; `use indicator::*`; `use keybinding::*`; `use keybinding_hint::*`; `use label::*`; `use list::*`; `use modal::*`; `use navigable::*`; `use notification::*`; `use popover::*`; `use popover_menu::*`; `use progress::*`; `use project_empty_state::*`; `use redistributable_columns::*`; `use right_click_menu::*`; `use scrollbar::*`; `use stack::*`; `use sticky_items::*`; `use tab::*`; `use tab_bar::*`; `use toggle::*`; `use tooltip::*`; `use tree_view_item::*`
 
 ### `crates/ui/src/components/ai/agent_setup_button.rs`
 - Öğeler: `struct AgentSetupButton`
@@ -9801,6 +9905,7 @@ geçen re-export kapılarıdır.
   - `UpdateButton::with_dismiss(mut self) -> Self`
   - `UpdateButton::on_click( mut self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static, ) -> Self`
   - `UpdateButton::on_dismiss( mut self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static, ) -> Self`
+  - `UpdateButton::disabled(mut self, disabled: bool) -> Self`
   - `UpdateButton::checking() -> Self`
   - `UpdateButton::downloading(version: impl Into<SharedString>) -> Self`
   - `UpdateButton::installing(version: impl Into<SharedString>) -> Self`
@@ -9905,7 +10010,7 @@ geçen re-export kapılarıdır.
 - Öğeler: `pub mod table_row`; `type UncheckedTableRow<T> = Vec<T>`; `struct ResizableColumnsState`; `struct TableInteractionState`; `enum ColumnWidthConfig`; `enum StaticColumnWidths`; `struct Table`; `struct TableRenderContext`
 - Fonksiyonlar:
   - `fn render_table_row( row_index: usize, items: TableRow<impl IntoElement>, table_context: TableRenderContext, window: &mut Window, cx: &mut App, ) -> AnyElement`
-  - `fn render_table_header( headers: TableRow<impl IntoElement>, table_context: TableRenderContext, resize_info: Option<HeaderResizeInfo>, entity_id: Option<EntityId>, cx: &mut App, ) -> impl IntoElement`
+  - `fn render_table_header( headers: TableRow<impl IntoElement>, table_context: TableRenderContext, resize_info: Option<HeaderResizeInfo>, entity_id: Option<EntityId>, cx: &mut App, ) -> AnyElement`
 - Metotlar:
   - `ResizableColumnsState::new( cols: usize, initial_widths: Vec<impl Into<AbsoluteLength>>, resize_behavior: Vec<TableResizeBehavior>, ) -> Self`
   - `ResizableColumnsState::cols(&self) -> usize`
@@ -9936,6 +10041,7 @@ geçen re-export kapılarıdır.
   - `Table::header(mut self, headers: UncheckedTableRow<impl IntoElement>) -> Self`
   - `Table::row(mut self, items: UncheckedTableRow<impl IntoElement>) -> Self`
   - `Table::no_ui_font(mut self) -> Self`
+  - `Table::pin_cols(mut self, n: usize) -> Self`
   - `Table::map_row( mut self, callback: impl Fn((usize, Stateful<Div>), &mut Window, &mut App) -> AnyElement + 'static, ) -> Self`
   - `Table::hide_row_hover(mut self) -> Self`
   - `Table::empty_table_callback( mut self, callback: impl Fn(&mut Window, &mut App) -> AnyElement + 'static, ) -> Self`
@@ -10374,6 +10480,13 @@ geçen re-export kapılarıdır.
 
 ### `crates/ui/src/components/progress.rs`
 - Öğeler: `use circular_progress::*`; `use progress_bar::*`
+
+### `crates/ui/src/components/project_empty_state.rs`
+- Öğeler: `struct ProjectEmptyState`
+- Metotlar:
+  - `ProjectEmptyState::new( label: impl Into<SharedString>, focus_handle: FocusHandle, open_project_key_binding: KeyBinding, ) -> Self`
+  - `ProjectEmptyState::on_open_project( mut self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static, ) -> Self`
+  - `ProjectEmptyState::on_clone_repo( mut self, handler: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static, ) -> Self`
 
 ### `crates/ui/src/components/redistributable_columns.rs`
 - Öğeler: `enum TableResizeBehavior`; `struct HeaderResizeInfo`; `struct RedistributableColumnsState`
