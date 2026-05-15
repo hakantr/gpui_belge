@@ -1,34 +1,53 @@
 # Platform titlebar render akışı ve pencere kontrolleri
 
-Bu noktadan sonra başlık çubuğunun render davranışı, Linux/Windows/macOS farkları ve close/minimize/maximize bağları uygulanır.
+Bu bölümden itibaren konu doğrudan başlık çubuğunun render davranışına
+odaklanır: pencere nasıl sürükleniyor, Linux/Windows/macOS farkları
+nerede ortaya çıkıyor, close/minimize/maximize butonları hangi
+mekanizmalarla uygulamaya bağlanıyor. Önceki bölümlerde kurulan
+katmanların somut olarak nasıl davrandığı burada görünür hâle gelir.
 
 ## 11. Davranış modeli
 
 ### Sürükleme
 
-Ana titlebar yüzeyi `WindowControlArea::Drag` ile işaretlenir. Ayrıca sol mouse
-down/move akışıyla `window.start_window_move()` çağırır. Bu kombinasyon,
-platforma bağlı titlebar drag davranışının tutarlı işlemesini sağlar.
+Ana titlebar yüzeyi `WindowControlArea::Drag` etiketiyle işaretlenir;
+bu, alanın "sürüklenebilir başlık" olarak platforma tanıtılmasını
+sağlar. Buna ek olarak, sol mouse down ve move olaylarının zincirinde
+`window.start_window_move()` çağrısı tetiklenir. Bu iki mekanizmanın
+birlikte çalışması, başlık çubuğunun sürüklenmesinin tüm platformlarda
+tutarlı biçimde işlemesini sağlar; tek başına ne işaretleme ne de
+manuel çağrı yeterli olur.
 
-Başlık çubuğuna koyduğunuz interaktif elementler kendi mouse down/click
-olaylarında propagation'ı durdurmalıdır. Aksi halde buton, arama kutusu veya
-menü tıklaması pencere sürükleme davranışıyla çakışabilir.
+Başlık çubuğuna yerleştirilen interaktif elementlerin (butonlar, menü
+tetikleyicileri, arama kutuları gibi) kendi mouse down/click
+olaylarında propagation'ı durdurması gerekir. Aksi takdirde aynı
+tıklama hem ilgili buton hem de altındaki "sürükle" yüzeyi tarafından
+algılanır ve davranışlar çakışmaya başlar; bu da kullanıcının bir
+menüye basmak isterken pencereyi yanlışlıkla sürüklemesi gibi tuhaf
+sonuçlar doğurur.
 
-`should_move` state'i dört noktada düzenlenir
-(`platform_title_bar.rs:200-220`):
+`should_move` bayrağı, sürükleme akışının kalbinde durur ve
+`platform_title_bar.rs:200-220` aralığında dört farklı noktada
+düzenlenir:
 
-- `on_mouse_down(Left, ...)` → `should_move = true`.
-- `on_mouse_move(...)` → eğer `should_move` true ise **önce** `false`'a
-  çekilir, **sonra** `window.start_window_move()` çağrılır. Tek-atışlık
-  tetikleyici; her yeni drag için yeni bir mouse_down zincirine ihtiyaç
-  vardır.
-- `on_mouse_up(Left, ...)` → `should_move = false` (drag başlatılmadıysa
-  da temizle).
-- `on_mouse_down_out(...)` → `should_move = false` (titlebar dışına
-  tıklanırsa state sızıntısını önle).
+- `on_mouse_down(Left, ...)` çağrısında `should_move` `true` yapılır;
+  yani "olası bir drag başlayabilir" durumu işaretlenir.
+- `on_mouse_move(...)` içinde, eğer `should_move` `true` ise **önce**
+  bayrak `false`'a çekilir, **sonra** `window.start_window_move()`
+  çağrısı yapılır. Bu sıralama önemlidir: tetikleyici tek-atışlıktır,
+  bir kez ateşlendiğinde tekrar tetiklenmesi için yeni bir
+  mouse_down zincirine gerek vardır.
+- `on_mouse_up(Left, ...)` olayında `should_move` yine `false` yapılır.
+  Bu, drag hiç başlamamış olsa bile state'in temiz kalmasını sağlar.
+- `on_mouse_down_out(...)` olayında da `should_move` `false` yapılır.
+  Bu sayede başlık çubuğunun dışına tıklanması durumunda bayrak
+  geriden gelip ileride başka bir drag'i tetiklemez; state sızıntısı
+  önlenmiş olur.
 
-Linux pencere kontrol katmanı **üç ayrı `stop_propagation()` noktası**
-kullanır (awk taraması ile çıkarılır; rg dağınık satırları toplamaz):
+Linux pencere kontrol katmanı, **üç ayrı `stop_propagation()` noktası**
+kullanır. Bu üç nokta tek başına bakıldığında kolayca gözden kaçabilir;
+awk taramasıyla çıkarılmaları gerekir, çünkü dağınık satırları
+`rg` toparlayamaz:
 
 | Yer | Olay | Kaynak | Neyi engeller? |
 | :-- | :-- | :-- | :-- |
@@ -36,59 +55,84 @@ kullanır (awk taraması ile çıkarılır; rg dağınık satırları toplamaz):
 | `WindowControl` (her buton) | `on_mouse_move` | `platform_linux.rs:228` | Buton üzerinde mouse gezerken titlebar drag tetiklenmesini. |
 | `WindowControl` `on_click` callback gövdesi | `cx.stop_propagation()` ilk satır | `platform_linux.rs:230` | Click event'inin yukarı kabarıp başka handler'lara ulaşmasını. Action dispatch'inden ÖNCE çalışır. |
 
-Üçü birden olmadan: (1) buton üstüne mouse_down ile drag başlar, (2)
-buton hover'larken mouse_move drag tetikler, (3) close action dispatch
-edilirken aynı click PlatformTitleBar'a kabarıp `should_move = true`
-yapar. Port hedefinde aynı üç noktaya **eşdeğer engeller** koymak
-gerekir.
+Bu üç engel birden olmadığında ortaya çıkan tablo şudur:
+(1) butonun üstüne yapılan mouse_down olayı altındaki sürükleme
+yüzeyini tetikler ve pencere drag'e başlar;
+(2) buton üzerinde mouse hareketi olduğunda mouse_move yine drag'i
+ateşler;
+(3) close action dispatch edilirken aynı click `PlatformTitleBar`
+katmanına kadar kabarır ve `should_move = true` bayrağını set eder.
+Bu yüzden port hedefinde bu üç noktanın her birine **eşdeğer engeller**
+yerleştirilir; eksik kalan tek bir nokta bile davranışı bozar.
 
-Windows tarafında `.occlude()` (`platform_windows.rs:128`) aynı amaca
-hizmet eder ama tek satırlık ifade: caption butonu üzerinde tüm mouse
-event'leri alt katmanlara sızdırmaz.
+Windows tarafında aynı amaca hizmet eden çok daha basit bir ifade
+vardır: `.occlude()` çağrısı (`platform_windows.rs:128`). Bu tek
+satırlık ifade, caption butonu üzerindeki tüm mouse event'lerinin alt
+katmanlara sızmasını engeller. Linux'taki üç ayrı `stop_propagation()`
+çağrısının yaptığı işi, Windows tarafında bu tek çağrı toparlar.
 
 ### Fullscreen render ayrımı
 
-Fullscreen koşulu yalnız görünsel bir detay değildir; hangi child'ların
-eklendiğini değiştirir (`platform_title_bar.rs:243-320`). `window.is_fullscreen()`
-true ise sol tarafta macOS trafik ışığı padding'i de Linux sol kontrolleri de
-eklenmez, sadece `.pl_2()` fallback'i kullanılır. Aynı render zincirinde sağ
-taraf bloğu da `when(!window.is_fullscreen(), ...)` arkasındadır; yani sağ
-caption kontrolleri ve Linux CSD sağ tık sistem pencere menüsü fullscreen'de
-kurulmaz. `SystemWindowTabs` child'ı ise bu koşulun dışında, titlebar'ın
-altına eklenmeye devam eder (`platform_title_bar.rs:322-325`).
+Fullscreen, yalnızca görsel bir detay olarak görülmemelidir. Bu
+durum, başlık çubuğuna hangi child'ların ekleneceğini de değiştirir
+(`platform_title_bar.rs:243-320`). `window.is_fullscreen()` `true`
+döndüğünde sol tarafta ne macOS trafik ışığı padding'i ne de Linux
+sol pencere kontrolleri eklenir; bunların yerine yalnızca `.pl_2()`
+fallback değeri kullanılır. Aynı render zincirinde sağ taraf bloğu
+da `when(!window.is_fullscreen(), ...)` koruyucusunun arkasında
+durur; başka bir deyişle, fullscreen'de sağ caption kontrolleri ve
+Linux CSD'deki sağ tık sistem pencere menüsü kurulmaz.
+`SystemWindowTabs` child'ı ise bu koşulun dışında kalır ve
+fullscreen olsun ya da olmasın titlebar'ın altına eklenmeye devam
+eder (`platform_title_bar.rs:322-325`).
 
-Port hedefinde bu ayrımı tek bir "fullscreen padding'i değiştir" kuralına
-indirgemeyin: fullscreen, hem sol/sağ pencere kontrol render'ını hem de Linux
-CSD `window.show_window_menu(...)` bağını etkiler.
+Port hedefinde bu ayrım, "fullscreen olunca padding'i değiştir"
+basitliğinde ele alınmamalıdır. Çünkü fullscreen aynı anda hem
+sol/sağ pencere kontrol render'ını etkiler hem de Linux CSD'deki
+`window.show_window_menu(...)` bağını devre dışı bırakır. Tek bir
+kural yerine her bir etkilenen alan ayrı ayrı düşünülür.
 
 ### Çift tıklama
 
-Platform farkı Zed kaynağında ayrı işlenir:
+Çift tıklama davranışı, Zed kaynağında platforma göre farklı
+biçimlerde işlenir:
 
-- macOS: `window.titlebar_double_click()`
-- Linux/FreeBSD: `window.zoom_window()`
-- Windows: davranış platform caption/hit-test katmanına bırakılır.
+- macOS'ta `window.titlebar_double_click()` çağrılır.
+- Linux/FreeBSD'de `window.zoom_window()` çağrılır.
+- Windows'ta davranış uygulamadan değil, doğrudan platform caption ve
+  hit-test katmanından beklenir.
 
-Kendi uygulamanızda çift tıklamanın maximize yerine minimize gibi farklı bir
-ayar izlemesini istiyorsanız bu bölüm parametreleştirilmelidir.
+Port hedefinde çift tıklamanın maximize yerine örneğin minimize gibi
+farklı bir davranış izlemesi istenirse, bu nokta dışarıdan
+parametreleştirilecek şekilde tasarlanır; aksi halde sabit davranış
+değiştirilemez kalır.
 
-macOS tarafında `window.titlebar_double_click()` sabit "zoom" değildir.
-`gpui_macos` platform impl'i `NSGlobalDomain/AppleActionOnDoubleClick`
-değerini okur; `"None"` için hiçbir şey yapmaz, `"Minimize"` için
-`miniaturize_`, `"Maximize"` ve `"Fill"` için `zoom_`, bilinmeyen değer
-için de `zoom_` çağırır (`gpui_macos/src/window.rs:1668-1712`). Linux
-tarafındaki `window.zoom_window()` çağrısı ise bu macOS kullanıcı ayarını
-taklit etmez; doğrudan maximize/restore davranışıdır.
+macOS tarafında `window.titlebar_double_click()` çağrısının her zaman
+"zoom" anlamına geldiği sanılmamalıdır. `gpui_macos` platform
+implementasyonu, çağrı anında
+`NSGlobalDomain/AppleActionOnDoubleClick` değerini okur ve buna göre
+davranır: değer `"None"` ise hiçbir şey yapmaz, `"Minimize"` için
+`miniaturize_` çağrılır, `"Maximize"` ve `"Fill"` için `zoom_`
+çağrılır, bilinmeyen bir değer geldiğinde de varsayılan olarak yine
+`zoom_` çağrılır (`gpui_macos/src/window.rs:1668-1712`). Buna karşılık
+Linux tarafındaki `window.zoom_window()` çağrısı bu macOS kullanıcı
+ayarını taklit etmez; her durumda doğrudan maximize/restore
+davranışını uygular.
 
 ### Renk
 
-`title_bar_color` Linux/FreeBSD tarafında aktif pencere için
-`title_bar_background`, pasif veya move sırasında `title_bar_inactive_background`
-kullanır. Diğer platformlarda doğrudan `title_bar_background` döner.
+`title_bar_color` fonksiyonu, çalıştığı platforma göre farklı
+davranır. Linux/FreeBSD tarafında, aktif pencere için
+`title_bar_background` token'ı kullanılırken; pencere pasif durumda
+veya taşınmakta olduğunda `title_bar_inactive_background` token'ına
+geçilir. Diğer platformlarda bu ayrım yapılmaz ve doğrudan
+`title_bar_background` döner.
 
-Bu davranış, başlık çubuğu ve sekme çubuğu arasında görsel ayrımı korur. Kendi
-tema sisteminizde en az şu token'lar gerekir (awk
-`cx\.theme\(\)\.colors\(\)\.X` taramasının tam çıktısı):
+Bu davranışın amacı, başlık çubuğu ile alttaki sekme çubuğu
+arasındaki görsel ayrımın korunmasıdır. Port hedefinin tema sisteminde
+en az aşağıdaki token'ların tanımlı olması gerekir; aşağıdaki liste,
+`cx\.theme\(\)\.colors\(\)\.X` desenli awk taramasının tam
+çıktısıdır:
 
 - `title_bar_background` — aktif Linux + tüm platformlar (`platform_title_bar.rs:66/71`, `system_window_tabs.rs:389`)
 - `title_bar_inactive_background` — pasif/move durumundaki Linux (`platform_title_bar.rs:68`)
@@ -103,24 +147,33 @@ tema sisteminizde en az şu token'lar gerekir (awk
 - **`drop_target_background`** — **tab drag-over hedef vurgusu** (`system_window_tabs.rs:205`)
 - **`drop_target_border`** — **tab drag-over kenar vurgusu** (`system_window_tabs.rs:206`)
 
-Son iki token, üzerine başka bir sekme sürüklendiğinde drop hedefini
-vurgulamak için kullanılır; tema'da eksik kalırsa drag-and-drop görsel
-geri-besleme çalışmaz.
+Listenin sonundaki iki token (`drop_target_background` ve
+`drop_target_border`) özel olarak şu işe yarar: başka bir sekme
+sürüklenip mevcut bir sekmenin üzerine gelindiğinde drop hedefi
+görsel olarak vurgulanır. Eğer bu iki token tema'da tanımsız
+bırakılırsa, drag-and-drop sırasındaki görsel geri besleme görünmez
+hâle gelir ve kullanıcı nereye bırakacağını anlayamaz.
 
 ### Yükseklik
 
-Zed `platform_title_bar_height(window)` kullanır:
+Zed, başlık çubuğu yüksekliğini `platform_title_bar_height(window)`
+fonksiyonu üzerinden hesaplar:
 
-- Windows: sabit `32px`.
-- Diğer platformlar: `1.75 * rem_size`, minimum `34px`.
+- Windows'ta sabit `32px` değeri kullanılır.
+- Diğer platformlarda hesap `1.75 * rem_size` formülüyle yapılır ve
+  minimum `34px` değeriyle clamp'lenir.
 
-Bu değer hem titlebar hem Windows buton yüksekliği hem de bazı yardımcı
-başlıkların hizalaması için ortak kullanılmalıdır.
+Bu yükseklik değerinin sadece başlık çubuğunda değil, Windows pencere
+buton yüksekliğinde ve diğer yardımcı başlıkların hizalamasında da
+**aynı kaynaktan** alınması gerekir. Farklı yerlerde farklı sabitler
+yazılırsa hizalama bozulur ve bu hata sonradan tek tek pikselle
+kovalanır.
 
 ## 12. Buton yerleşimi ve ayar yönetimi
 
-Linux/FreeBSD CSD tarafında buton sırası `WindowButtonLayout` ile belirlenir.
-GPUI tipi iki sabit slot dizisi taşır:
+Linux/FreeBSD CSD tarafında pencere butonlarının sırası
+`WindowButtonLayout` tipi üzerinden belirlenir. GPUI tarafındaki tip,
+iki sabit slot dizisinden oluşur:
 
 ```rust
 pub struct WindowButtonLayout {
@@ -129,20 +182,25 @@ pub struct WindowButtonLayout {
 }
 ```
 
-`WindowButton` değerleri:
+`WindowButton` tipinin değerleri şu üçtür:
 
 - `Minimize`
 - `Maximize`
 - `Close`
 
-GPUI tarafındaki `WindowButton` da dış API'dir
-(`gpui/src/platform.rs:425-444`): `#[derive(Debug, Clone, Copy, PartialEq,
-Eq, Hash)]` taşır ve `pub fn id(&self) -> &'static str` ile sırasıyla
-`"minimize"`, `"maximize"`, `"close"` stable element id'lerini döndürür.
-Bu id'ler Linux `WindowControl::new(...)` çağrılarında doğrudan kullanıldığı
-için port hedefinde key/id uyumu korunmalıdır.
+GPUI tarafındaki `WindowButton`, bu üç değerle birlikte dış API olarak
+da kullanıma açıktır (`gpui/src/platform.rs:425-444`). Üzerinde
+`#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]` derive set'i
+vardır ve `pub fn id(&self) -> &'static str` metodu, varyantlara
+karşılık olarak sırasıyla `"minimize"`, `"maximize"` ve `"close"`
+stable element id'lerini döndürür. Bu id'ler Linux tarafındaki
+`WindowControl::new(...)` çağrılarında doğrudan kullanılır; bu yüzden
+port hedefinde de key/id uyumunun korunması gerekir. Aksi halde
+Zed'le birebir uyumlu olması beklenen element id'leri sapar ve test
+ile araç bağlamalarında ince hatalar ortaya çıkar.
 
-`WindowButtonLayout` üç public öğe ile gelir (`gpui/src/platform.rs:457-486`):
+`WindowButtonLayout` tipi üç public öğeyle gelir
+(`gpui/src/platform.rs:457-486`):
 
 | Öğe | İmza / değer | Davranış notu |
 | :-- | :-- | :-- |
@@ -150,22 +208,31 @@ için port hedefinde key/id uyumu korunmalıdır.
 | `WindowButtonLayout::linux_default` | `pub fn linux_default() -> Self` | Sol taraf boş, sağ taraf `Minimize, Maximize, Close`. Yalnız Linux/FreeBSD cfg'inde derlenir. |
 | `WindowButtonLayout::parse` | `pub fn parse(layout_string: &str) -> Result<Self>` | GNOME tarzı `left:right` string'i okur; `:` yoksa sol boş, tüm string sağ taraf sayılır. |
 
-`parse(...)` davranışının iki ince noktası var (`gpui/src/platform.rs:486-541`):
-tanınmayan adlar, en az bir geçerli buton varsa **yok sayılır**; tüm string
-geçersizse hata döner. Aynı buton iki tarafta veya aynı tarafta tekrar edilirse
-ilk görülen slot tutulur, tekrarlar atlanır. Bu nedenle `"close,foo"` geçerli
-layout üretir, `"foo"` hata verir.
+`parse(...)` fonksiyonunun davranışının kolayca atlanabilecek iki
+ince noktası vardır (`gpui/src/platform.rs:486-541`). İlki, geçersiz
+isimlerin ele alınma biçimidir: string içinde tanınmayan adlar geçerse,
+en az bir geçerli buton bulunduğu sürece bu adlar **sessizce yok
+sayılır**. Sadece string'in tamamı geçersiz olduğunda hata döner.
+İkincisi tekrar davranışıdır: aynı buton iki farklı tarafta veya aynı
+tarafın içinde tekrar edilirse, ilk görülen slot tutulur ve sonraki
+tekrarlar atlanır. Bu davranışın doğal sonucu olarak `"close,foo"`
+ifadesi geçerli bir layout üretir, ancak yalnız `"foo"` yazıldığında
+hata alınır.
 
-Render tarafında side'ın varlığı yalnız ilk slota bakılarak belirlenir:
-`render_left_window_controls(...)` için `button_layout.left[0].is_none()`,
-`render_right_window_controls(...)` için `button_layout.right[0].is_none()`
-ise tüm taraf `None` döner (`platform_title_bar.rs:132-135`, `163-166`).
-Manuel layout verirken `[None, Some(Close), ...]` gibi bir dizi o tarafı
-tamamen gizler. İlk slot doluysa içerdeki sonraki `None` slotlar
-`LinuxWindowControls` render'ındaki `filter_map(|b| *b)` ile sadece atlanır
-(`platform_linux.rs:31-34`).
+Render tarafında bir tarafın "var olup olmadığı", yalnız o tarafın
+ilk slotuna bakılarak belirlenir. `render_left_window_controls(...)`
+için `button_layout.left[0].is_none()` ise tüm sol taraf `None` olarak
+döner; aynı kontrol `render_right_window_controls(...)` için
+`button_layout.right[0].is_none()` ile yapılır
+(`platform_title_bar.rs:132-135`, `163-166`). Bunun pratik anlamı
+şudur: manuel layout verilirken `[None, Some(Close), ...]` gibi bir
+dizi yazılırsa o taraf bütünüyle gizlenir, çünkü ilk slot boştur.
+İlk slot doluysa ve sonrasındaki slotlardan biri `None` ise, bu
+`None` slotlar `LinuxWindowControls` render'ı içindeki
+`filter_map(|b| *b)` adımıyla sadece atlanır
+(`platform_linux.rs:31-34`); bütün tarafı düşürmez.
 
-Zed ayar katmanı üç kullanım biçimi sunar:
+Zed'in ayar katmanı bu layout için üç farklı kullanım biçimi sunar:
 
 | Ayar değeri | Sonuç |
 | :-- | :-- |
@@ -173,56 +240,74 @@ Zed ayar katmanı üç kullanım biçimi sunar:
 | `standard` | Zed Linux fallback'i: sağda minimize, maximize, close. |
 | GNOME formatında string | Örneğin `"close:minimize,maximize"` veya `"close,minimize,maximize:"`. |
 
-Uygulama katmanında bu ayarı saklamak istiyorsanız kullanıcı ayarınızı önce
-`WindowButtonLayout` karşılığına çevirin, sonra render sırasında
-`title_bar.set_button_layout(layout)` çağırın.
+Uygulama katmanında bu ayarın saklanması istendiğinde izlenecek
+yol şudur: kullanıcı tarafından girilen ayar değeri önce
+`WindowButtonLayout` tipine çevrilir; ardından render sırasında
+`title_bar.set_button_layout(layout)` çağrısı yapılır. İki adımın da
+atlanmaması gerekir; aksi halde ayar elde tutulur ama render'a yansımaz.
 
-Zed `TitleBar` bu değişimi `cx.observe_button_layout_changed(window, ...)` ile
-izleyip yeniden render tetikler. Kendi uygulamanızda desktop button layout
-değişikliklerini canlı izlemek istiyorsanız aynı observer desenini kullanın.
+Zed'in kendi `TitleBar` katmanı bu değişikliği
+`cx.observe_button_layout_changed(window, ...)` çağrısı ile dinler ve
+değişiklik gelir gelmez yeniden render tetikler. Port hedefinde
+desktop button layout değişikliklerinin canlı izlenmesi isteniyorsa
+aynı observer deseni kullanılır.
 
-**`Platform::button_layout()` trait default'u `None` döndürür**
+**`Platform::button_layout()` trait default'u `None` döner**
 (`gpui/src/platform.rs:162-164`); bu default'u **yalnızca Linux/FreeBSD
-platform impl'i** override edip GTK / GNOME desktop ayarını (örn.
-`gtk-decoration-layout`) okur. Yani `cx.button_layout()` çağrısı
-Windows ve macOS'ta daima `None`'dur. `PlatformTitleBar::effective_button_layout(...)`
-de zaten Linux + `Decorations::Client` dışındaki kombinasyonlarda
-`None` döndürür (`platform_title_bar.rs:86-98`). Sonuç: button layout
-ayar zinciri yalnızca Linux/FreeBSD CSD penceresinde anlamlıdır;
-diğer platformlarda `set_button_layout(...)` etkisizdir.
+platform implementasyonu** override eder ve GTK/GNOME masaüstü
+ayarını (örneğin `gtk-decoration-layout`) okur. Yani `cx.button_layout()`
+çağrısı Windows ve macOS üzerinde her zaman `None` döner. Aynı
+biçimde `PlatformTitleBar::effective_button_layout(...)` de Linux +
+`Decorations::Client` kombinasyonu dışındaki tüm durumlarda `None`
+sonucunu verir (`platform_title_bar.rs:86-98`). Bu davranışın sonucu
+açıktır: button layout ayar zinciri yalnızca Linux/FreeBSD CSD
+penceresinde anlamlıdır; diğer platformlarda `set_button_layout(...)`
+çağrısı yapılsa bile bir etki üretmez.
 
-Linux tarafında bu değer `gpui_linux` ortak state'inde başta
-`WindowButtonLayout::linux_default()` olarak tutulur
-(`gpui_linux/src/linux/platform.rs:143-150`) ve `Platform::button_layout()`
-bu common state'i `Some(...)` olarak döndürür (`gpui_linux/src/linux/platform.rs:619-620`).
-Canlı desktop değişimi XDP `ButtonLayout` olayıyla gelir: Wayland ve X11
-client'ları gelen string'i `WindowButtonLayout::parse(...)` ile okur,
-parse hata verirse yine `linux_default()`'a düşer, sonra her pencere için
-`window.set_button_layout()` çağırır (`gpui_linux/src/linux/wayland/client.rs:636-645`,
+Linux tarafında bu değer, `gpui_linux` katmanının ortak state'inde
+başlangıçta `WindowButtonLayout::linux_default()` olarak tutulur
+(`gpui_linux/src/linux/platform.rs:143-150`).
+`Platform::button_layout()` çağrıldığında, bu ortak state `Some(...)`
+sarmalanmış hâlde geri döner (`gpui_linux/src/linux/platform.rs:619-620`).
+Canlı desktop değişikliği ise XDP üzerinden gelen `ButtonLayout`
+olayı ile yakalanır: Wayland ve X11 client'larının her ikisi de gelen
+string'i `WindowButtonLayout::parse(...)` ile okur, parse başarısız
+olursa yine `linux_default()` değerine düşer, ardından her pencere
+için `window.set_button_layout()` çağrısını yapar
+(`gpui_linux/src/linux/wayland/client.rs:636-645`,
 `gpui_linux/src/linux/x11/client.rs:493-500`). Bu çağrı da
-`on_button_layout_changed` callback'ini tetikler; Zed `TitleBar::new(...)`
-içinde bu callback'i `cx.observe_button_layout_changed(window, ...)` ile
-`cx.notify()`'a bağlar (`title_bar/src/title_bar.rs:441`).
+`on_button_layout_changed` callback'ini tetikler; Zed
+`TitleBar::new(...)` içinde bu callback,
+`cx.observe_button_layout_changed(window, ...)` aracılığıyla
+`cx.notify()` çağrısına bağlanır (`title_bar/src/title_bar.rs:441`).
+Yani zincir şu şekilde işler: masaüstü ayarı değişir → XDP olayı gelir
+→ string parse edilir → pencere state'i güncellenir → callback
+tetiklenir → titlebar yeniden render olur.
 
 ## 13. Butonları uygulama katmanına bağlama
 
 ### Close davranışı
 
-`PlatformTitleBar` kendi render'ında close action'ı şu şekilde sabitler:
+`PlatformTitleBar`, kendi render fonksiyonunun içinde close action'ı
+doğrudan şu şekilde sabitler:
 
 ```rust
 let close_action = Box::new(workspace::CloseWindow);
 ```
 
-Bu yüzden kendi uygulamanızda close butonunun farklı bir varlığı kapatmasını
-istiyorsanız üç seçenek vardır:
+Bu, Zed'in kendi kullanımı için doğrudur; ancak port hedefinde close
+butonunun farklı bir varlığı kapatması isteniyorsa bu sabitlemenin
+aşılması gerekir. Bunun üç yolu vardır:
 
-1. `PlatformTitleBar`'ı port edip `close_action` alanı ekleyin.
-2. Zed'in serbest fonksiyonlarını kullanıp `render_left_window_controls` ve
-   `render_right_window_controls` çağrılarına kendi `Box<dyn Action>` değerinizi
-   verin.
-3. Linux butonlarını doğrudan `LinuxWindowControls::new(...)` ile üretip close
-   action'ı orada verin.
+1. `PlatformTitleBar` port edilirken bu tipe bir `close_action` alanı
+   eklenir; her render'da bu alandan okunarak Zed'in sabit
+   `workspace::CloseWindow` değeri yerine ürünün kendi action'ı geçirilir.
+2. Zed'in `render_left_window_controls` ve
+   `render_right_window_controls` serbest fonksiyonları doğrudan
+   kullanılır ve bu fonksiyonlara argüman olarak ürünün kendi
+   `Box<dyn Action>` değeri verilir.
+3. Linux butonları doğrudan `LinuxWindowControls::new(...)` çağrısıyla
+   üretilir ve close action'ı bu noktada verilir; üst sözleşme atlanır.
 
 Örnek uygulama action eşleşmesi:
 
@@ -237,7 +322,9 @@ let controls = platform_title_bar::render_right_window_controls(
 );
 ```
 
-Close action'ının ne kapatacağı uygulama modelinize göre belirlenmelidir:
+Close action'ının somut olarak neyi kapatacağı, uygulama modelinin
+yapısına göre belirlenir. Aşağıdaki tablo en yaygın senaryoların
+karşılıklarını gösterir:
 
 | Uygulama varlığı | Close action anlamı |
 | :-- | :-- |
@@ -248,44 +335,67 @@ Close action'ının ne kapatacağı uygulama modelinize göre belirlenmelidir:
 
 ### Minimize ve maximize
 
-Linux `WindowControl` minimize ve maximize işlemlerini doğrudan `Window` üstünden
-yapar:
+Linux'ta `WindowControl`, minimize ve maximize işlemlerini doğrudan
+`Window` üzerinden gerçekleştirir:
 
-- `window.minimize_window()`
-- `window.zoom_window()`
+- `window.minimize_window()` çağrısı pencereyi simge durumuna küçültür.
+- `window.zoom_window()` çağrısı maximize/restore davranışını
+  tetikler.
 
-Bu butonlar uygulama action katmanına uğramaz. Eğer maximize/minimize öncesi
-telemetry, policy veya layout persist istiyorsanız `WindowControl`'ü port edip
-bu işlemleri kendi action'ınıza yönlendirin.
+Bu butonlar uygulamanın action katmanına hiç uğramaz. Maximize ya da
+minimize işleminden önce telemetry yazılması, bir policy
+çalıştırılması veya layout state'inin persist edilmesi gerekiyorsa
+`WindowControl` port edilir ve bu işlemler ürünün kendi action'larına
+yönlendirilir. Aksi takdirde "minimize öncesi pencere boyutunu kaydet"
+gibi bir mantığa hiç fırsat verilmez.
 
-Windows tarafında butonlar click handler ile pencere fonksiyonu çağırmaz.
-`WindowControlArea::{Min, Max, Close}` hit-test alanı üretir; platform katmanı
-native caption davranışını uygular. Bu yüzden Windows buton davranışını action
-katmanına almak Linux'e göre daha fazla platform uyarlaması gerektirir.
+Windows tarafında durum farklıdır: butonlar click handler ile pencere
+fonksiyonu çağırmaz. Onun yerine `WindowControlArea::{Min, Max, Close}`
+ile bir hit-test alanı üretirler; davranışı uygulamak doğrudan platform
+caption katmanına bırakılır. Bu yüzden Windows pencere butonlarının
+davranışını uygulamanın action katmanına çekmek, Linux'a göre daha
+fazla platform uyarlaması gerektirir; çünkü tıklamanın hiç
+ulaşmadığı bir alana action yerleştirmek mümkün değildir.
 
-`window.window_controls()` capability yüzeyi de platforma göre değişebilir.
-**`WindowControls` struct'ı dört alan taşır** (`gpui/src/platform.rs:402-413`):
-`fullscreen`, `maximize`, `minimize`, `window_menu` — `close` alanı **yoktur**.
-Bu, "close her zaman desteklenir" tasarım kararıdır ve `LinuxWindowControls`
-filter'ındaki koşulsuz `WindowButton::Close => true` arm'ı bu yüzden gerekir
-(`platform_linux.rs:38`). `platform_title_bar` crate'inin gerçekten okuduğu
-capability'ler: `minimize`, `maximize` (Linux buton filtresi),
-`window_menu` (sağ tık window menu); `fullscreen` ise bu crate içinde okunmaz.
-Trait default'u "her şey destekleniyor" kabul eder (`WindowControls::default`,
-`gpui/src/platform.rs:413-422`), fakat Wayland `xdg_toplevel::Event::WmCapabilities`
-geldiğinde önce tüm bayrakları `false` yapar, sonra compositor'ın bildirdiği
-`Maximize`, `Minimize`, `Fullscreen`, `WindowMenu` capability'lerini tek tek
-`true` yapar (`gpui_linux/src/linux/wayland/window.rs:788-817`). Bu değer
-sonraki configure'da `state.window_controls` içine alınır ve appearance
-callback'iyle rerender tetiklenir (`gpui_linux/src/linux/wayland/window.rs:601-612`).
-Sonuç:
+`window.window_controls()` capability yüzeyi de platforma göre
+farklılık gösterir. **`WindowControls` struct'ı dört alan taşır**
+(`gpui/src/platform.rs:402-413`): `fullscreen`, `maximize`, `minimize`
+ve `window_menu`. Dikkat çekici olarak `close` alanı bu yapıda
+**yoktur**. Bunun nedeni Zed'in "close her zaman desteklenir" tasarım
+kararıdır; `LinuxWindowControls` filter'ı içindeki koşulsuz
+`WindowButton::Close => true` kolu da bu kararın doğrudan
+yansımasıdır (`platform_linux.rs:38`).
 
-- `LinuxWindowControls` minimize/maximize butonlarını bu capability'ye göre
-  filtreler; close her zaman render edilebilir (`platform_linux.rs:30-39`).
-- Linux CSD titlebar sağ tık window menu handler'ı sadece
-  `supported_controls.window_menu` true ise eklenir (`platform_title_bar.rs:309-315`).
-- Port ederken `WindowControls::default()` değerini kalıcı gerçek sanma;
-  özellikle Wayland'da capability configure olayı geldikten sonra değişebilir.
+`platform_title_bar` crate'inin bu capability yapısından gerçekten
+okuduğu alanlar şunlardır: `minimize` ve `maximize` (Linux buton
+filtresinde kullanılır), bir de `window_menu` (sağ tık ile açılan
+pencere menüsünde kullanılır). `fullscreen` alanı bu crate içinde
+hiç okunmaz; var ama burada işlevsel değildir.
+
+Trait default'u (`WindowControls::default`,
+`gpui/src/platform.rs:413-422`) tüm capability'lerin desteklendiği
+varsayımıyla başlar. Buna karşın Wayland tarafında
+`xdg_toplevel::Event::WmCapabilities` olayı geldiğinde önce bütün
+bayraklar `false` yapılır; ardından compositor'ın bildirdiği
+`Maximize`, `Minimize`, `Fullscreen`, `WindowMenu` capability'leri
+tek tek `true` olarak set edilir
+(`gpui_linux/src/linux/wayland/window.rs:788-817`). Bu değer bir
+sonraki configure adımında `state.window_controls` içine alınır ve
+appearance callback'i üzerinden yeniden render tetiklenir
+(`gpui_linux/src/linux/wayland/window.rs:601-612`).
+
+Bu mekanizmanın sonuçları üç başlıkta özetlenir:
+
+- `LinuxWindowControls`, minimize ve maximize butonlarını bu
+  capability değerine göre filtreler; close ise her durumda render
+  edilebilir (`platform_linux.rs:30-39`).
+- Linux CSD titlebar üzerindeki sağ tık window menu handler'ı, ancak
+  `supported_controls.window_menu` `true` olduğunda eklenir
+  (`platform_title_bar.rs:309-315`).
+- Port hedefinde `WindowControls::default()` değerinin kalıcı gerçek
+  olduğu sanılmamalıdır; özellikle Wayland'da capability configure
+  olayı geldikten sonra bu değerler değişebilir ve render buna uyum
+  sağlamalıdır.
 
 
 ---

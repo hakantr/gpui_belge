@@ -1,21 +1,31 @@
 # Referans ve doğrulama
 
-Detaylı public API envanteri ve kaynak doğrulama komutları, okuma akışını bölmemesi için başvuru bölümünde kalır.
+Detaylı public API envanteri ve kaynak doğrulama komutları, ana okuma
+akışını bölmemesi için kasıtlı olarak bu başvuru bölümünde toplanır.
+Önceki bölümler bir kez okunduktan sonra, bu bölüm günlük geliştirme
+sırasında "şu fonksiyonun imzası neydi?", "şu davranış kaynakta hangi
+satırda?" gibi sorulara cevap verir.
 
 ## 21. Public API envanteri
 
-Bu bölümde `pub` iki anlama ayrılır:
+Bu bölümde `pub` anahtar sözcüğünün iki farklı anlamı ayırt edilir;
+bu ayrım gözardı edilirse "neden bu tipi import edemiyorum?" sorusu
+sıkça gündeme gelir:
 
-- **Dış API:** Başka crate'lerin path üzerinden erişebildiği yüzey.
-- **Lexical `pub`:** Kaynakta `pub` yazsa da private bir modülün içinde kaldığı
-  için yalnızca crate içinde kullanılabilen yüzey.
+- **Dış API:** Başka crate'lerden, path üzerinden doğrudan erişilebilen
+  yüzey. Bu tipler dışarıdan tüketilmek üzere kasıtlı olarak açılmıştır.
+- **Lexical `pub`:** Kaynakta `pub` yazsa da, tipi içeren modül crate
+  kökünde private olduğu için yalnızca crate içinden ulaşılabilen
+  yüzey. Bu işaret tek başına dış erişim sağlamaz.
 
-`system_window_tabs.rs` içindeki `SystemWindowTabs` dış API değildir. Tip
-kaynakta `pub struct` olarak yazılmıştır, fakat modülü crate kökünde
-`mod system_window_tabs;` olarak private kaldığı için dışarıdan
-`platform_title_bar::system_window_tabs::SystemWindowTabs` path'iyle erişilemez.
-Dışa açılan parça yalnızca root'taki `pub use system_window_tabs::{...}`
-satırlarıdır (`platform_title_bar.rs:24-26`).
+Bu ayrımın en iyi örneklerinden biri `system_window_tabs.rs` içindeki
+`SystemWindowTabs` tipidir. Kaynakta `pub struct` olarak yazılmıştır;
+ancak modülü crate kökünde `mod system_window_tabs;` (yani private)
+biçiminde bağlandığı için dışarıdan
+`platform_title_bar::system_window_tabs::SystemWindowTabs` yoluyla
+erişilemez. Crate dışına açılan parça yalnızca root dosyadaki
+`pub use system_window_tabs::{...}` satırlarıdır
+(`platform_title_bar.rs:24-26`).
 
 ### Crate kökü (`platform_title_bar`)
 
@@ -35,31 +45,50 @@ satırlarıdır (`platform_title_bar.rs:24-26`).
 | `render_left_window_controls` | `pub fn render_left_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` (`platform_title_bar.rs:121-125`) | Yalnız Linux/FreeBSD + CSD; `button_layout.left[0]` boşsa `None`. |
 | `render_right_window_controls` | `pub fn render_right_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` (`platform_title_bar.rs:150-154`) | Linux/FreeBSD + CSD'de layout kullanır, Windows'ta `WindowsWindowControls::new(height)`, macOS'ta `None`. |
 
-`PlatformTitleBar` render davranışı API imzasından daha önemlidir:
+`PlatformTitleBar` tipinin render davranışı, public API imzalarından
+çoğu zaman daha kritiktir; çünkü gerçek port hatalarının büyük kısmı
+imza farklarından değil, render içindeki ince akışlardan doğar.
+Aşağıdaki maddeler bu davranışın gözden kaçırılmaması gereken
+noktalarını sıralar:
 
-- `close_action` kaynakta sabit `Box::new(workspace::CloseWindow)` olarak
-  oluşturulur (`platform_title_bar.rs:189`). Serbest render fonksiyonları ise
-  dışarıdan `Box<dyn Action>` alır.
-- `button_layout` private helper `effective_button_layout(...)` ile sadece
-  Linux + CSD durumunda `self.button_layout.or_else(|| cx.button_layout())`
-  olarak çözülür (`platform_title_bar.rs:86-98`).
-- Ana yüzey `WindowControlArea::Drag` alır (`platform_title_bar.rs:195-197`);
-  macOS çift tıklamada `titlebar_double_click`, Linux/FreeBSD çift tıklamada
-  `zoom_window` çağırır (`platform_title_bar.rs:225-237`).
-- Sol/sağ sidebar açıksa ilgili taraftaki pencere kontrolleri gizlenir
-  (`platform_title_bar.rs:241-257`, `294-307`).
-- Linux CSD + `supported_controls.window_menu` varsa sağ tıkta
-  `window.show_window_menu(ev.position)` çağrılır (`platform_title_bar.rs:309-315`).
-- CSD render'ında titlebar kendi üst köşelerini de düzeltir: tiled olmayan ve
-  sidebar tarafından kapatılmayan üst köşelere
-  `theme::CLIENT_SIDE_DECORATION_ROUNDING` uygulanır, sonra transparent köşe
-  boşluğunu kapatmak için `.mt(px(-1.)).mb(px(-1.)).border(px(1.))` ve
-  `border_color(titlebar_color)` eklenir (`platform_title_bar.rs:262-279`).
-- En sonda internal `SystemWindowTabs` child olarak eklenir
-  (`platform_title_bar.rs:322-325`).
+- `close_action`, kaynakta sabit olarak
+  `Box::new(workspace::CloseWindow)` ifadesiyle oluşturulur
+  (`platform_title_bar.rs:189`). Buna karşılık serbest render
+  fonksiyonları (`render_left_window_controls`,
+  `render_right_window_controls`) close action'ı dışarıdan
+  `Box<dyn Action>` olarak alır; bu, davranışın yapılandırılabilir
+  olduğu tek noktadır.
+- `button_layout`, private bir helper olan
+  `effective_button_layout(...)` üzerinden çözülür. Bu çözüm yalnızca
+  Linux + CSD durumunda yapılır ve mantığı
+  `self.button_layout.or_else(|| cx.button_layout())` şeklindedir
+  (`platform_title_bar.rs:86-98`). Yani önce uygulamadan gelen değere
+  bakılır, yoksa platforma sorulur.
+- Ana titlebar yüzeyi `WindowControlArea::Drag` ile etiketlenir
+  (`platform_title_bar.rs:195-197`). Buna ek olarak macOS'ta çift
+  tıklama `titlebar_double_click` çağrısına, Linux/FreeBSD'de ise
+  `zoom_window` çağrısına bağlanır (`platform_title_bar.rs:225-237`).
+- Sol veya sağ sidebar açıkken, sidebar tarafındaki pencere
+  kontrolleri gizlenir (`platform_title_bar.rs:241-257`,
+  `294-307`). Bu, görsel çakışmayı önlemek içindir.
+- Linux CSD aktifken ve `supported_controls.window_menu` `true` ise,
+  başlık çubuğunda sağ tıklama `window.show_window_menu(ev.position)`
+  çağrısını tetikler (`platform_title_bar.rs:309-315`).
+- CSD render'ında titlebar, kendi üst köşelerini de düzeltir: tiled
+  olmayan ve sidebar tarafından kapatılmayan üst köşelere
+  `theme::CLIENT_SIDE_DECORATION_ROUNDING` uygulanır; ardından şeffaf
+  köşe boşluğunu kapatmak için
+  `.mt(px(-1.)).mb(px(-1.)).border(px(1.))` ölçüleri ve
+  `border_color(titlebar_color)` rengi eklenir
+  (`platform_title_bar.rs:262-279`).
+- Render zincirinin sonunda, internal `SystemWindowTabs` entity'si
+  child olarak eklenir (`platform_title_bar.rs:322-325`). Yani sekme
+  çubuğu titlebar'ın görsel olarak hemen altında çizilir.
 
-**Render pipeline sıralaması** (awk `.map(\|this\|` taraması, `render`
-gövdesinde dört ardışık dönüşüm aşaması açığa çıkarır):
+**Render pipeline sıralaması** ise port hedefinde sırasıyla
+uygulanması gereken adımları açığa çıkarır. `.map(\|this\|` deseniyle
+yapılan awk taraması, `render` fonksiyonu gövdesinde birbirini takip
+eden dört ayrı dönüşüm aşamasını ortaya koyar:
 
 | Aşama | Yer | İş |
 | :-- | :-- | :-- |
@@ -68,18 +97,23 @@ gövdesinde dört ardışık dönüşüm aşaması açığa çıkarır):
 | 3 | `platform_title_bar.rs:240-261` | **Sol kenar padding/kontrolleri**: 4-yollu seçim — fullscreen ise `pl_2`, Mac + show_left_controls ise `pl(TRAFFIC_LIGHT_PADDING)`, Linux + CSD + dolu sol layout ise `render_left_window_controls(...)` child, aksi halde `pl_2` fallback. |
 | 4 | `platform_title_bar.rs:262-280` | **Decorations branch**: `match decorations` — `Server` ise `el` olduğu gibi; `Client { tiling, .. }` ise tiled olmayan üst köşelere `rounded_tr/tl(CLIENT_SIDE_DECORATION_ROUNDING)` + `mt(-1)/mb(-1)/border(1)` transparent gap düzeltmesi. |
 
-Bu zincirden sonra `.bg(titlebar_color).content_stretch().child(div().children(children))`
-gelir (ana içerik), sonra `.when(!is_fullscreen, |title_bar| ...)` zinciri
-sağ kontroller ve window_menu sağ-tık handler'ını ekler. Stage'ler
-**commutative değildir**: stage 3'teki sol padding seçimi, stage 4'teki
-corner rounding'in yatay hizalamasını etkiler.
+Bu dört aşamalı zincirden sonra
+`.bg(titlebar_color).content_stretch().child(div().children(children))`
+ifadesi gelir; bu, başlık çubuğunun ana içeriğini oluşturur. Ardından
+`.when(!is_fullscreen, |title_bar| ...)` zinciri sağ kontrolleri ve
+window_menu sağ-tık handler'ını ekler. Burada önemli bir kural vardır:
+aşamalar **birbirleriyle commutative değildir**. Yani 3. aşamadaki sol
+padding seçimi, 4. aşamadaki corner rounding'in yatay hizalamasını
+doğrudan etkiler; sıralamayı değiştirmek görünmez bir biçimde
+hizalamayı bozabilir.
 
-`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipindedir
-(`platform_title_bar.rs:31`). İki element için stack-inline kapasite
-ayrılmış — Zed'in tipik kullanım kalıbı **sol grup + sağ grup**
-şeklindedir (bkz. bu rehberin Konu 16 örneği). İkiden fazla element
-verirseniz heap allocate edilir; iki gruba sıkıştırmak hem ergonomik
-hem alokasyon-az'dır.
+`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipinde
+tanımlıdır (`platform_title_bar.rs:31`). Yapı, iki element için
+stack-inline kapasite ayırır. Bunun nedeni Zed'in tipik kullanım
+kalıbının **sol grup + sağ grup** olmasıdır (rehberin Konu 16'sındaki
+örneğe bakılabilir). Bu yapıya ikiden fazla element verildiğinde heap
+allocate yapılır; bu yüzden içeriği iki gruba sıkıştırmak hem
+ergonomik açıdan tutarlı kalır hem de bellek allocation'ı azaltır.
 
 ### `platforms::platform_linux`
 
@@ -100,12 +134,18 @@ hem alokasyon-az'dır.
 | `WindowControl::new_close` | `pub fn new_close(id: impl Into<ElementId>, icon: WindowControlType, close_action: Box<dyn Action>, cx: &mut App) -> Self` (`platform_linux.rs:176-181`) | `close_action.boxed_clone()` saklar (`platform_linux.rs:188`). |
 | `WindowControl::custom_style` | `pub fn custom_style(id: impl Into<ElementId>, icon: WindowControlType, style: WindowControlStyle) -> Self` (`platform_linux.rs:193-197`) | `#[allow(unused)]`; crate içinde çağrılmıyor, close action `None`. |
 
-Linux davranışının kritik private helper'ı `fn create_window_button(...)`
-(`platform_linux.rs:56-62`) dış API değildir ama parite için zorunlu karar
-noktasıdır. `WindowButton::Close` branch'i yalnız `WindowControl::new_close(...)`
-çağırır (`platform_linux.rs:77-79`). `WindowControl::new(...)` ile close
-üretmek no-op değil; `expect("Use WindowControl::new_close() for close control.")`
-ile paniktir (`platform_linux.rs:235-239`).
+Linux davranışının kritik private helper'ı olan
+`fn create_window_button(...)` fonksiyonu, `platform_linux.rs:56-62`
+aralığında yer alır. Bu fonksiyon dış API olmasa da, davranış paritesi
+için zorunlu bir karar noktasıdır. İçinde `WindowButton::Close` branch'i
+yalnızca `WindowControl::new_close(...)` çağrısını kullanır
+(`platform_linux.rs:77-79`). Buna ek olarak, close butonunun
+`WindowControl::new(...)` ile üretilmeye çalışılması no-op değildir;
+runtime'da
+`expect("Use WindowControl::new_close() for close control.")` ile panik
+fırlatılır (`platform_linux.rs:235-239`). Bu, "yanlış constructor ile
+close üretme" hatasının sessizce geçmemesini sağlayan kasıtlı bir
+güvenlik önlemidir.
 
 **Derive ve clonability haritası** (awk `#[derive(...)]` taraması ile
 yakalanır, rg satır-bazlı eşleşmede struct ile derive arasındaki bağı
@@ -121,8 +161,10 @@ göstermez):
 | `DraggedWindowTab` | `Clone` (`system_window_tabs.rs:28`) | Drag payload tipi; clone'lanabilir ama `Copy` değil. |
 | `PlatformTitleBar`, `SystemWindowTabs` | Yok | `Entity` ile yönetilir; trait impl'leri (`Render`, `ParentElement`) yüzeyi sağlar. |
 
-**`WindowControlStyle::default(cx)` hangi tema token'larını okur?**
-(`platform_linux.rs:117-124`):
+**`WindowControlStyle::default(cx)` çağrısı, hangi tema token'larını
+okur?** Bu soru port hedefinin tema sistemini şekillendirir; cevap
+`platform_linux.rs:117-124` aralığında geçer ve aşağıdaki dört
+token'a karşılık gelir:
 
 | Style alanı | Tema token |
 | :-- | :-- |
@@ -131,11 +173,16 @@ göstermez):
 | `icon` | `colors.icon` |
 | `icon_hover` | `colors.icon_muted` |
 
-Builder zincirinde override edilmeyen alanlar bu default'larda kalır;
-yani port hedefi tema sisteminin **bu dört token'ı sağlaması** zorunludur
-(diğer rehber bölümlerinde de listelenir).
+Builder zincirinde override edilmeyen alanlar bu default değerlerinde
+kalır. Bunun pratik sonucu açıktır: port hedefinin tema sistemi
+**yukarıdaki dört token'ı mutlaka sağlamak zorundadır** (aynı liste
+rehberin diğer bölümlerinde de yer alır). Bunlardan biri eksik
+bırakılırsa Linux pencere butonlarının görünümü beklenmedik renklere
+düşer.
 
-**Sabit ölçüler** (Linux render closure'larında pixel parite için):
+**Sabit ölçüler.** Linux render closure'larında pixel paritesini
+korumak için aşağıdaki sabit değerlerin port hedefinde de aynı
+biçimde kullanılması gerekir:
 
 | Yer | Değer | Kaynak |
 | :-- | :-- | :-- |
@@ -144,8 +191,12 @@ yani port hedefi tema sisteminin **bu dört token'ı sağlaması** zorunludur
 | `WindowControl` buton boyutu | `.w_5().h_5()` (≈20px) | `platform_linux.rs:222-223` |
 | `WindowControl` köşe yuvarlama | `.rounded_2xl()` | `platform_linux.rs:221` |
 
-**`Box<dyn Action>` klonlama zinciri** (awk `boxed_clone()` taraması ile
-çıkarılır — rg her satırı ayrı ayrı bulur, zinciri toplamaz):
+**`Box<dyn Action>` klonlama zinciri.** Close action'ının render
+sırasında kaç defa klonlandığı kolayca gözden kaçar; ama performansı
+düşünen bir portta bu sayı önemlidir. Klonlama yerlerini açığa
+çıkarmak için awk üzerinde `boxed_clone()` deseniyle tarama yapılır;
+`rg` aracı her satırı ayrı ayrı bulur ama bu çağrıların oluşturduğu
+zinciri bütün hâlde toplamaz. Zincirin adımları aşağıdaki gibidir:
 
 | Adım | Yer | Tetikleyici | Çağrı |
 | :-- | :-- | :-- | :-- |
@@ -156,27 +207,36 @@ yani port hedefi tema sisteminin **bu dört token'ı sağlaması** zorunludur
 | 5 | `platform_linux.rs:188` | `new_close` gövdesi | `close_action: Some(close_action.boxed_clone())` (parametre move'lanmak yerine yeniden klonlanır) |
 | 6 | `platform_linux.rs:239` | Close butonuna **click anı** | `.expect(...).boxed_clone()` — `window.dispatch_action(...)` argümanı |
 
-Adım 2 ve 3 clone'u render fonksiyonları çağrılmadan önce yapılır; bu yüzden
-o tarafta close butonu üretilmese bile clone maliyeti doğabilir. Fullscreen'de
-adım 2 ve 3 atlanır. macOS'ta sol taraf genellikle trafik ışığı padding branch'i
-ile çözülür; bu durumda adım 2 çalışmaz, fakat fullscreen değilse adım 3
-`render_right_window_controls(...)` çağrısı öncesinde boşa clone üretir ve
-fonksiyon Mac'te `None` döner. Windows'ta `WindowsWindowControls` close action'ı
-kullanmaz; buna rağmen fullscreen değilse adım 2 ve 3 çalışabilir.
+Adım 2 ve 3'teki klonlamalar render fonksiyonları çağrılmadan önce
+yapılır. Bunun anlamı şudur: ilgili tarafta close butonu hiç
+üretilmese bile klonlama maliyeti yine de doğar. Fullscreen
+durumunda adım 2 ve 3 atlanır; çünkü fullscreen'de yan kontroller
+render'a girmez. macOS tarafında sol kenar genellikle trafik ışığı
+padding branch'i ile çözüldüğü için adım 2 burada çalışmaz; ancak
+fullscreen değilse adım 3 hâlâ `render_right_window_controls(...)`
+çağrısı öncesinde bir klon üretir ve fonksiyon Mac'te zaten `None`
+döner. Yani Mac'te boşa bir klonlama maliyeti söz konusudur. Windows
+tarafında `WindowsWindowControls` close action'ı kullanmaz; buna
+rağmen fullscreen olmadığı sürece adım 2 ve 3 çalışabilir.
 
-Adım 4 ve 5 yalnızca Linux CSD + close butonunun bulunduğu tarafta tetiklenir.
-Tipik bir Linux GNOME render'ı (close sağda, sidebar kapalı): adım 2 + 3 + 4
-+ 5 = **4 boxed_clone** per render. Adım 6 yalnızca click anında, **+1** ek
-klon.
+Adım 4 ve 5 yalnızca Linux CSD ortamında ve close butonunun
+bulunduğu tarafta tetiklenir. Tipik bir Linux GNOME render'ında
+(close sağda, sidebar kapalı), adımlar 2 + 3 + 4 + 5 birlikte
+çalışır; bu da **render başına 4 adet `boxed_clone`** anlamına gelir.
+Adım 6 ise yalnızca close butonuna tıklama anında ek olarak **+1**
+klon üretir.
 
-`Box<dyn Action>::boxed_clone()` aslında trait üzerinden v-table dispatch
-yapan klon işlemidir (`Action::boxed_clone(&self) -> Box<dyn Action>`).
-Concrete tip için maliyet `Clone` impl'ine bağlıdır; `workspace::CloseWindow`
-gibi unit struct'lar için ucuz, alan taşıyan action'lar için klonlama
-maliyeti her render'da çarpılır. Port hedefinde action tipinin hafif
-tutulması (alan içermemesi) bu yolu hızlandırır; ayrıca adım 5
-optimize edilebilir (parametre `Some(close_action)` ile move'lanırsa
-bir klon ortadan kalkar).
+`Box<dyn Action>::boxed_clone()` çağrısı, aslında trait üzerinden
+v-table dispatch yapan bir klon işlemidir
+(`Action::boxed_clone(&self) -> Box<dyn Action>`). Bu klonun maliyeti
+concrete tipin `Clone` implementasyonuna bağlıdır.
+`workspace::CloseWindow` gibi unit struct'lar için maliyet
+neredeyse sıfırdır. Buna karşılık alan taşıyan action'larda bu
+maliyet her render'da çarpan etkisiyle artar. Port hedefinde action
+tipinin alan içermeyecek şekilde tasarlanması bu yolu önemli ölçüde
+hızlandırır. Ayrıca adım 5'in optimize edilmesi mümkündür: parametre
+hareket ettirilebilir (`Some(close_action)` ile move'lanabilir)
+biçimde alınırsa, bir adımın klonu tamamen ortadan kalkar.
 
 ### `platforms::platform_windows`
 
@@ -185,14 +245,19 @@ bir klon ortadan kalkar).
 | `WindowsWindowControls` | `pub struct WindowsWindowControls { button_height: Pixels }` private alanlı (`platform_windows.rs:6-8`) | `#[derive(IntoElement)]`; dışarıdan sadece constructor var. |
 | `WindowsWindowControls::new` | `pub fn new(button_height: Pixels) -> Self` (`platform_windows.rs:11`) | Render'da minimize, maximize/restore ve close caption butonlarını üretir. |
 
-`WindowsCaptionButton` public değildir (`platform_windows.rs:58-64`). Private
-`id()`, `icon()` ve `control_area()` metotları sırasıyla stable id, Segoe glyph
-ve `WindowControlArea::{Min, Max, Close}` döndürür (`platform_windows.rs:66-94`).
-Windows butonları Linux gibi click handler çağırmaz; `.window_control_area(...)`
-hit-test alanı verir (`platform_windows.rs:124-135`) ve davranış platform
-caption katmanında yürür.
+`WindowsCaptionButton` tipi crate dışına açılmamıştır
+(`platform_windows.rs:58-64`); yalnızca crate içinde kullanılır.
+Tipin private metotları `id()`, `icon()` ve `control_area()` sırasıyla
+şu üç şeyi döner: stable element id, Segoe glyph karakteri ve
+`WindowControlArea::{Min, Max, Close}` varyantlarından biri
+(`platform_windows.rs:66-94`). Windows butonları, Linux'taki gibi
+click handler çağırmaz; bunun yerine `.window_control_area(...)` ile
+hit-test alanı üretirler (`platform_windows.rs:124-135`) ve davranış
+platform caption katmanı tarafından sürdürülür.
 
-**Segoe Fluent Icons glyph kodları** (Windows native parite için):
+**Segoe Fluent Icons glyph kodları.** Windows native paritesini
+korumak için aşağıdaki dört Unicode codepoint birebir aynen
+kullanılır:
 
 | Variant | Kodepoint | Kaynak |
 | :-- | :-- | :-- |
@@ -201,23 +266,31 @@ caption katmanında yürür.
 | `Maximize` | `\u{e922}` | `platform_windows.rs:82` |
 | `Close` | `\u{e8bb}` | `platform_windows.rs:83` |
 
-Font seçimi `WindowsWindowControls::get_font()` ile yapılır
-(`platform_windows.rs:16/21`); Windows build 22000+ (Windows 11) için
-`"Segoe Fluent Icons"`, daha eski sürümler için `"Segoe MDL2 Assets"`.
-Port hedefinde bu font'lar yoksa glyph'ler kareler olarak render olur;
-fallback SVG ikon zorunlu olabilir.
+Bu glyph'lerin gösterilmesi için kullanılan font, çalışılan Windows
+sürümüne göre farklı olur. Font seçimi `WindowsWindowControls::get_font()`
+fonksiyonunda yapılır (`platform_windows.rs:16/21`): Windows build
+22000 ve sonrası (yani Windows 11) için `"Segoe Fluent Icons"` font'u,
+daha eski sürümler için `"Segoe MDL2 Assets"` font'u tercih edilir.
+Port hedefinin çalıştığı sistemde bu font'lar yoksa, glyph'ler boş
+kareler olarak render olur; bu durumda SVG ikon fallback'i zorunlu
+hâle gelebilir.
 
-**Renk sabitleri** (`platform_windows.rs:99-122`):
+**Renk sabitleri.** Windows pencere butonlarının hover ve active
+durumlarındaki renkleri `platform_windows.rs:99-122` aralığında
+sabit olarak tanımlanır. Aşağıdaki tablo bu sabitleri özetler:
 
 | Buton | Hover bg | Hover fg | Active bg | Active fg |
 | :-- | :-- | :-- | :-- | :-- |
 | `Close` | `Rgba { r: 232/255, g: 17/255, b: 32/255, a: 1.0 }` = `#E81120` | `gpui::white()` | `color.opacity(0.8)` | `white().opacity(0.8)` |
 | Diğerleri | `theme.ghost_element_hover` | `theme.text` | `theme.ghost_element_active` | `theme.text` |
 
-Close butonunun kırmızısı (`#E81120`) **tema'dan değil, koddan gelir** —
-Microsoft'un Windows title bar kapatma kırmızısıdır. Port hedefinin tema
-sistemi farklı bir close vurgu rengi istiyorsa bu sabit override
-edilmelidir.
+Burada özellikle dikkat çeken bir nokta vardır: close butonunun
+kırmızısı (`#E81120`) **temadan değil, doğrudan koddan gelir**. Bu
+renk Microsoft'un Windows title bar kapatma kırmızısıdır ve native
+hissi korumak için sabittir. Port hedefinin tema sistemi farklı bir
+close vurgu rengi tercih ediyorsa, bu sabitin override edilmesi
+gerekir; aksi takdirde tema değiştirilse bile close hover'ı her zaman
+Microsoft kırmızısında kalır.
 
 **Sabit ölçüler** (Windows caption butonu):
 
@@ -230,20 +303,27 @@ edilmelidir.
 
 ### Root'tan re-export edilen system tab action'ları
 
-`actions!(window, [...])` makrosu dört unit struct üretir
-(`system_window_tabs.rs:18-26`). Makro çıktısı `Clone`, `PartialEq`, `Default`,
-`Debug` ve `gpui::Action` derive eder (`gpui/src/action.rs:24-40`):
+Native pencere sekmeleri için gerekli action'lar
+`actions!(window, [...])` makrosu ile üretilir
+(`system_window_tabs.rs:18-26`). Bu makro dört unit struct'ı bir
+seferde tanımlar. Makro çıktısı şu derive setini otomatik olarak
+ekler: `Clone`, `PartialEq`, `Default`, `Debug` ve `gpui::Action`
+(`gpui/src/action.rs:24-40`). Üretilen tipler şunlardır:
 
 - `pub struct ShowNextWindowTab;`
 - `pub struct ShowPreviousWindowTab;`
 - `pub struct MergeAllWindows;`
 - `pub struct MoveTabToNewWindow;`
 
-Bu action'lar root'tan re-export edilir (`platform_title_bar.rs:24-26`) ve Zed
-`title_bar` crate'i de aynı adları tekrar re-export eder
-(`title_bar/src/title_bar.rs:13-16`).
+Bu dört action `platform_title_bar.rs:24-26` aralığında crate
+kökünden re-export edilir; ardından Zed'in `title_bar` crate'i aynı
+adları kendi seviyesinde bir kez daha re-export eder
+(`title_bar/src/title_bar.rs:13-16`). Bu çift re-export, tüketicilerin
+isim çakışması yaşamadan tipleri kendileri için en uygun yoldan
+import etmesine olanak sağlar.
 
-`DraggedWindowTab` de root'tan re-export edilir. İmzası:
+`DraggedWindowTab` tipi de aynı şekilde crate kökünden re-export
+edilir. İmzası şu şekildedir:
 
 ```rust
 #[derive(Clone)]
@@ -259,10 +339,17 @@ pub struct DraggedWindowTab {
 }
 ```
 
-Kaynak: `system_window_tabs.rs:28-38`. Bu tip aynı zamanda drag preview için
-`Render` implement eder (`system_window_tabs.rs:498-528`).
+Kaynak konumu: `system_window_tabs.rs:28-38`. Bu tip aynı zamanda
+drag preview olarak da kendini çizmek için `Render` trait'ini
+implement eder (`system_window_tabs.rs:498-528`); yani hem veri taşır
+hem de görsel sunum sağlar.
 
 ### Lexical `pub` ama dış API olmayan parçalar
+
+Aşağıdaki tablo, kaynakta `pub` görünmesine rağmen crate sınırının
+dışından erişilemeyen parçaları listeler. Bunların görülmesi port
+hedefinde davranış paritesi için önemlidir; çünkü Zed bu yardımcı
+parçaları kendi içinde aktif olarak kullanır.
 
 | Öğe | Neden dış API değil? | Kullanım |
 | :-- | :-- | :-- |
@@ -273,14 +360,20 @@ Kaynak: `system_window_tabs.rs:28-38`. Bu tip aynı zamanda drag preview için
 | `handle_tab_drop` | Private method (`system_window_tabs.rs:358`) | Sadece same-bar drop reorder: `SystemWindowTabController::update_tab_position(...)`. |
 | `handle_right_click_action` | Private method (`system_window_tabs.rs:362`) | Context menu action'larını hedef tab penceresinde çalıştırır. |
 
-Bu ayrım port için önemlidir: `SystemWindowTabs` dış API olarak taşınmak zorunda
-değildir; ama davranışı mirror edilecekse private event router'ları da
-incelenmelidir.
+Bu ayrımın port hedefi için önemi şudur: `SystemWindowTabs` tipi dış
+API olarak taşınmak zorunda değildir; tüketicilere doğrudan
+göstermemek serbestliktir. Ancak davranışı mirror edilecekse,
+private event router'larının da (özellikle `handle_tab_drop` ve
+`handle_right_click_action`) ayrı ayrı incelenmesi gerekir. Yalnızca
+public yüzey kopyalandığında bu router'ların yaptığı iş atlanır ve
+sekme davranışı eksik kalır.
 
 ### GPUI native tab destek yüzeyi
 
-Bu tipler `platform_title_bar` crate'inden değil, `gpui` crate'inden gelir; yine
-de native tab davranışının state kaynağıdır.
+Aşağıdaki tipler `platform_title_bar` crate'inden değil, `gpui`
+crate'inden gelir. Ancak buna rağmen native tab davranışının state
+kaynağını oluşturdukları için bu envanterde yer almaları zorunludur;
+port hedefi, sekme controller'ını fiilen bu yüzey üzerinden işletir:
 
 | API | İmza / tanım | Not |
 | :-- | :-- | :-- |
@@ -307,8 +400,10 @@ de native tab davranışının state kaynağıdır.
 
 ### Zed `title_bar` crate'inin public tüketim yüzeyi
 
-Zed uygulaması bu platform crate'ini doğrudan kök API olarak da, `title_bar`
-crate'i üzerinden re-export olarak da kullanır:
+Zed uygulaması, platform crate'ini iki farklı yoldan tüketir: bir
+kısmı doğrudan kök API olarak, bir kısmı ise `title_bar` crate'i
+üzerinden re-export olarak. Aşağıdaki tablo bu yüzeyin ana
+parçalarını gösterir:
 
 | API | İmza / tanım | Not |
 | :-- | :-- | :-- |
@@ -321,66 +416,96 @@ crate'i üzerinden re-export olarak da kullanır:
 | Product helper'ları | `effective_active_worktree`, `render_restricted_mode`, `render_project_host`, `render_sign_in_button`, `render_user_menu_button` (`title_bar.rs:490`, `625`, `672`, `1142`, `1161`) | Zed'e özgü proje/kullanıcı UI yüzeyi; platform titlebar port API'si olarak kopyalanmamalıdır. |
 | Ürün banner'ı | `OnboardingBanner::new(...)` | Feature flag'e bağlı duyuru/ürün mesajı katmanıdır; platform titlebar API'sine taşınmamalıdır. |
 
-Zed ürün titlebar'ı, duyuru banner'larını da `TitleBar` katmanında yönetir.
-Örneğin Skills duyurusu `SkillsFeatureFlag` ile görünür olur ve ilgili migration
-bilgi action'ını dispatch eder. Kendi uygulamanızda benzer bir duyuru varsa bunu
-`AppTitleBar` child grubuna koyun; platform kabuğuna sorumluluk olarak eklemeyin.
+Zed'in ürün titlebar'ı, duyuru banner'larını da `TitleBar` katmanında
+yönetir. Bunun pratik bir örneği şudur: Skills duyurusu
+`SkillsFeatureFlag` bayrağına bağlı olarak görünür hâle gelir ve
+ilgili migration bilgi action'ını dispatch eder. Port hedefinde benzer
+bir duyuru bileşeni gerekiyorsa, bu bileşenin yeri `AppTitleBar`
+child grubu olmalıdır. Aynı sorumluluk platform kabuğuna eklenmez;
+çünkü duyuru içeriği ürünün lehçesine aittir ve platform kabuğunu
+ürüne bağımlı hâle getirir.
 
-`OnboardingBanner` örneği, görünürlük koşulunu builder zincirinin sonundaki
-`.visible_when(|cx| cx.has_flag::<SkillsFeatureFlag>())` çağrısıyla alır
-(`title_bar/src/title_bar.rs:455-472`). Bu kalıp portta da aynen kullanılabilir:
-banner kurucusuna bir predicate kapanışı verilir, kapanış her render geçişinde
-çağrılarak `App`/`Context` üzerinden gelen feature flag veya ayar durumuna göre
-banner'ı tamamen gizler. `title_bar.rs` içindeki çağrı `feature_flags`
-crate'inden gelen `FeatureFlagAppExt` trait'iyle `cx.has_flag::<...>()`
-çağrısına dayanır; port hedefinde aynı yardımcı yoksa benzer bir
-`AppSettings`/`AppFlags` API'si yeterlidir. `TitleBar::new` içinde banner artık
-sabit olarak kurulup `Some(...)` ile alana yazılır; eski "`banner: None`"
-yerleşik durum kaldırılmıştır, dolayısıyla banner katmanı her örnekte hazır
-durumdadır ve sadece `visible_when` predicate'i ile gizlenir.
+`OnboardingBanner` örneği, görünürlük koşulunu builder zincirinin
+sonundaki `.visible_when(|cx| cx.has_flag::<SkillsFeatureFlag>())`
+çağrısıyla alır (`title_bar/src/title_bar.rs:455-472`). Bu kalıp port
+hedefinde de aynen kullanılabilir: banner kurucusuna bir predicate
+kapanışı verilir, kapanış her render geçişinde tekrar çağrılır ve
+`App`/`Context` üzerinden gelen feature flag ya da ayar durumuna göre
+banner tamamen gizlenebilir. `title_bar.rs` içindeki bu çağrı,
+`feature_flags` crate'inden gelen `FeatureFlagAppExt` trait'i ile
+`cx.has_flag::<...>()` çağrısına dayanır. Port hedefinde aynı yardımcı
+mevcut değilse, benzer bir `AppSettings`/`AppFlags` API'si yeterli olur.
+Ayrıca `TitleBar::new` içinde banner artık sabit olarak kurulup
+`Some(...)` ile alana yazılır; eski "`banner: None`" yerleşik durum
+kaldırılmıştır. Bu, banner katmanının her örnekte zaten hazır
+olduğu, gizleme/gösterme kararının ise tamamen `visible_when`
+predicate'iyle alındığı anlamına gelir.
 
-`OnboardingBanner::new(...)` çağrısı, bu rehber yazıldığı anda sırasıyla şu
-parametreleri alır: telemetri/dismiss kimliği için bir string (`"Skills
-Migration Announcement"` gibi), `IconName` ikonu (`IconName::Sparkle`), banner
-metni (`"Skills"`), opsiyonel ön ek (`Some("Introducing:".into())`) ve tıklama
-ile dispatch edilecek boxed action (`zed_actions::agent::OpenRulesToSkillsMigrationInfo.boxed_clone()`).
-Portta bu imzaların adları korunabilir; içerik, ikon ve action ürün tarafından
-belirlenir.
+`OnboardingBanner::new(...)` çağrısı, bu rehber yazıldığı sıradaki
+imzasıyla şu parametreleri sırayla alır:
+telemetri/dismiss kimliği olarak kullanılacak bir string (örneğin
+`"Skills Migration Announcement"`),
+`IconName` ile bir ikon (örneğin `IconName::Sparkle`),
+banner üzerindeki metin (`"Skills"`),
+opsiyonel bir ön ek (`Some("Introducing:".into())`)
+ve tıklama anında dispatch edilecek boxed action
+(`zed_actions::agent::OpenRulesToSkillsMigrationInfo.boxed_clone()`).
+Port hedefinde bu imzaların adları korunabilir; somut içerik, ikon ve
+action ise ürünün ihtiyacına göre belirlenir.
 
-`title_bar_settings.rs` içindeki `pub struct TitleBarSettings` (`title_bar_settings.rs:5-15`)
-private modülde kaldığı için crate dışı API değildir; Zed ayar sistemi içinde
-kullanılır. Kullanıcı ayarı tarafındaki dış veri tipi
-`settings_content::title_bar::WindowButtonLayoutContent`'tir; Linux/FreeBSD'de
-`pub fn into_layout(self) -> Option<WindowButtonLayout>` ile `WindowButtonLayout`
-değerine çevrilir (`settings_content/src/title_bar.rs:24-49`).
-`settings_content::title_bar::TitleBarSettingsContent` de public ayar payload'ıdır:
-`show_branch_status_icon`, `show_onboarding_banner`, `show_user_picture`,
-`show_branch_name`, `show_project_items`, `show_sign_in`, `show_user_menu`,
-`show_menus` ve `button_layout` alanlarını `Option<...>` olarak taşır
-(`settings_content/src/title_bar.rs:83-126`). Runtime tarafındaki
-`TitleBarSettings` bu payload'dan üretilir (`title_bar_settings.rs:17-32`).
+`title_bar_settings.rs` içindeki `pub struct TitleBarSettings`
+tanımı, `title_bar_settings.rs:5-15` aralığındadır. Bu tip private bir
+modülde kaldığı için crate dışı API değildir; yalnızca Zed'in kendi
+ayar sistemi içinde kullanılır. Kullanıcı ayarı tarafındaki dış veri
+tipi ise `settings_content::title_bar::WindowButtonLayoutContent`
+tipidir. Linux/FreeBSD'de bu tip, `pub fn into_layout(self) ->
+Option<WindowButtonLayout>` çağrısıyla doğrudan `WindowButtonLayout`
+değerine dönüştürülür (`settings_content/src/title_bar.rs:24-49`).
+Aynı dosyada `settings_content::title_bar::TitleBarSettingsContent`
+de public bir ayar payload'ıdır ve şu alanları taşır (hepsi
+`Option<...>` sarmalında): `show_branch_status_icon`,
+`show_onboarding_banner`, `show_user_picture`, `show_branch_name`,
+`show_project_items`, `show_sign_in`, `show_user_menu`, `show_menus`
+ve `button_layout` (`settings_content/src/title_bar.rs:83-126`).
+Runtime tarafındaki `TitleBarSettings` tipi, bu payload'dan üretilir
+(`title_bar_settings.rs:17-32`).
 
-Zed uygulamasında `TitleBar` bu platform bileşenini iki farklı render modunda
-besler (`title_bar/src/title_bar.rs:346-379`). `show_menus` true ise
-`PlatformTitleBar::set_children(...)` yalnız uygulama menüsünü alır; ürün
-başlığı ikinci bir satır olarak aynı `title_bar_color` ile render edilir.
-`show_menus` false ise tüm ürün children'ı doğrudan `PlatformTitleBar` içine
-verilir. Her iki yolda da `set_button_layout(button_layout)` render sırasında
-çağrılır ve desktop layout değişimleri `observe_button_layout_changed(...)`
-subscription'ı ile `cx.notify()` tetikler (`title_bar/src/title_bar.rs:441`).
-Bu yüzden portta `PlatformTitleBar` tek başına "Zed titlebar UI'si" değildir;
-Zed ürünü onu menü modu ve settings durumuna göre farklı child setleriyle
-yönetir.
+Zed uygulamasında `TitleBar`, platform bileşenini iki farklı render
+modunda besler (`title_bar/src/title_bar.rs:346-379`). `show_menus`
+ayarı `true` ise `PlatformTitleBar::set_children(...)` yalnız
+uygulama menüsünü alır ve ürün başlığı ikinci bir satır olarak aynı
+`title_bar_color` ile render edilir. `show_menus` `false` ise bu
+ikinci satır kurulmaz; tüm ürün child'ları doğrudan `PlatformTitleBar`
+içine verilir. İki render modunda da ortak olan şey şudur:
+`set_button_layout(button_layout)` çağrısı render sırasında yapılır
+ve desktop layout değişimleri `observe_button_layout_changed(...)`
+subscription'ı üzerinden `cx.notify()` ile yeni bir render tetikler
+(`title_bar/src/title_bar.rs:441`).
+
+Bu bilgilerin port hedefi için anlamı şudur: `PlatformTitleBar` tek
+başına "Zed titlebar UI'si" değildir. Zed ürünü, bu platform bileşenini
+menü moduna ve mevcut settings durumuna göre farklı child setleriyle
+besler. Port hedefinin ürün titlebar'ı da benzer bir
+mod farkındalığıyla yazılırsa, ayar değişikliklerine doğru tepki veren
+esnek bir yapıya kavuşur.
 
 ## 22. Kaynak doğrulama komutları
 
-Kaynak doğrulamasını yalnız public adlar ve payload alanlarıyla sınırlamayın.
-Owner/metot ve olay hedefi ayrımını da doğrulayın. Kontrolleri üç seviyede
-çalıştır:
+Kaynak doğrulamasının yalnız public adlar ve payload alanlarıyla
+sınırlandırılması yeterli değildir. Aynı zamanda owner/metot ayrımı ve
+olay hedefi farklılıkları da doğrulanır; aksi halde sahnenin
+arkasındaki ince farklar gözden kaçar. Pratikte kontroller üç farklı
+seviyede çalıştırılır:
 
-1. Public API envanteri.
-2. Owner/metot yüzeyi.
-3. Event akışı ve payload alan paritesi.
+1. Public API envanteri — kaynakta hangi tipler ve fonksiyonlar dış
+   API olarak açık?
+2. Owner/metot yüzeyi — bir `pub fn` hangi `impl` bloğunun içinde,
+   yani hangi tipin metodu olarak yaşıyor?
+3. Event akışı ve payload alan paritesi — hangi event hangi alanlarla
+   tetikleniyor ve hangi route'a düşüyor?
+
+Aşağıdaki komutlar bu üç seviyenin her birinde işe yarayacak somut
+örneklerdir.
 
 ```sh
 rg -n '^pub (struct|enum|fn)|^\s*pub fn|actions!\(' \
@@ -449,10 +574,12 @@ find ../zed/crates/gpui/src ../zed/crates/settings_content/src ../zed/crates/tit
   xargs -0 awk '/MAX_BUTTONS_PER_SIDE|WindowButtonLayout|WindowButton|button_layout|linux_default|parse\\(|into_layout|observe_button_layout_changed/ { print FILENAME ":" FNR ":" $0 }'
 ```
 
-Owner ayrımı (struct vs trait vs inherent fn vs free fn) için **state-machine
-awk** kullan. `rg`'nin satır-tabanlı eşleşmesi bir `pub fn`'in hangi `impl`
-bloğunun içinde olduğunu raporlamaz; awk içindeki kalıcı state ile bunu
-çıkarırız:
+Owner ayrımının yapılması, yani bir `pub fn`'in struct mı, trait mi,
+inherent mi yoksa free fonksiyon mu olduğunun anlaşılması için
+**state-machine awk** kullanılır. `rg` aracının satır tabanlı
+eşleşmesi tek başına yeterli değildir; bir `pub fn`'in hangi `impl`
+bloğunun içinde durduğunu raporlamaz. Bu bilgiyi çıkarmak için awk
+içinde kalıcı bir state tutan aşağıdaki betik kullanılır:
 
 ```sh
 find ../zed/crates/platform_title_bar/src -name '*.rs' -print0 |
@@ -474,15 +601,20 @@ find ../zed/crates/platform_title_bar/src -name '*.rs' -print0 |
   '
 ```
 
-Bu komut `WindowControl::new`, `WindowControl::new_close`,
-`WindowControl::custom_style` üçlüsünü ve `WindowControlStyle::default(cx)` gibi
-**inherent** ad çakışmalarını ayrı satırlarda gösterir. `rg '^impl '` yalnızca
-header'ı verir; metotların hangi owner'a ait olduğunu eşleştirmek için ya
-`-A N` ile blok büyüklüğünü tahmin etmek ya da awk state'i kullanmak gerekir —
+Bu komutun çıktısında `WindowControl::new`, `WindowControl::new_close`
+ve `WindowControl::custom_style` üçlüsü ile birlikte
+`WindowControlStyle::default(cx)` gibi **inherent** ad çakışmaları,
+hangi tipe ait olduklarıyla birlikte ayrı satırlarda görünür. Bunun
+yerine `rg '^impl '` çalıştırıldığında yalnızca `impl` header'ları
+listelenir; metotların hangi owner'a ait olduğunu eşleştirmek için
+ya `-A N` ile blok büyüklüğünü tahmin etmek ya da awk state'ini
+kullanmak gerekir. Tahmin yöntemi kırılgan olduğu için
 state-machine yolu daha güvenlidir.
 
-**Modül görünürlüğü kontrolü:** `pub struct` tek başına dış API değildir.
-Önce crate kökündeki `pub mod`, `mod` ve `pub use` kapılarını gör:
+**Modül görünürlüğü kontrolü.** Daha önce de vurgulandığı gibi,
+`pub struct` tek başına bir tipin dış API olduğu anlamına gelmez.
+Bunu doğru anlamak için önce crate kökündeki `pub mod`, `mod` ve
+`pub use` kapılarına bakılmalıdır:
 
 ```sh
 rg -n '^(pub mod|mod |pub use)|^pub (struct|enum|fn)|^[[:space:]]+pub fn' \
@@ -492,19 +624,23 @@ rg -n '^(pub mod|mod |pub use)|^pub (struct|enum|fn)|^[[:space:]]+pub fn' \
   ../zed/crates/platform_title_bar/src/system_window_tabs.rs
 ```
 
-Okuma kuralı:
+Bu çıktı dört basit kurala göre okunur:
 
-- `platform_title_bar.rs` içindeki `pub mod platforms;` dış path açar.
-- `platform_title_bar.rs` içindeki `mod system_window_tabs;` private kapıdır.
-- Private modül içindeki `pub struct SystemWindowTabs` dış API değildir.
-- Aynı private modülden root'a `pub use` edilen `DraggedWindowTab` ve tab
-  action'ları dış API olur.
+- `platform_title_bar.rs` içindeki `pub mod platforms;` ifadesi dış
+  path'i açar; yani `platforms` modülü crate dışından erişilebilir.
+- `platform_title_bar.rs` içindeki `mod system_window_tabs;` ifadesi
+  ise private bir kapıdır; yalnız crate içinden ulaşılabilir.
+- Private modül içinde `pub struct SystemWindowTabs` yazılı olsa bile,
+  dış API değildir; çünkü kapı kapalıdır.
+- Aynı private modülden crate kökünde `pub use` ile dışarı verilen
+  `DraggedWindowTab` ve tab action'ları ise dış API olur.
 
-**Sınırı:** Yukarıdaki kalıplar `^pub fn` ve `^[[:space:]]+pub fn` ile
-sadece **public** öğeleri yakalar. Crate-içi `fn create_window_button(...)`
-gibi file-private free helper'lar (Linux render yolunun gerçek
-dispatch noktası) gözden kaçar. Davranış paritesi için bu helper'ları
-da görmek istersen kalıpları gevşet:
+**Bir sınır vardır:** Yukarıdaki kalıplar `^pub fn` ve
+`^[[:space:]]+pub fn` desenleriyle yalnızca **public** öğeleri
+yakalar. Crate-içi `fn create_window_button(...)` gibi file-private
+free helper'lar (örneğin Linux render yolunun gerçek dispatch
+noktası) bu taramada görünmez. Davranış paritesi için bu helper'ların
+da görülmesi gerekiyorsa, desen şu şekilde gevşetilir:
 
 ```sh
 find ../zed/crates/platform_title_bar/src -name '*.rs' -print0 |
@@ -514,31 +650,35 @@ find ../zed/crates/platform_title_bar/src -name '*.rs' -print0 |
   '
 ```
 
-Çıktıda şu file-private parçalar görünür:
+Bu betiğin çıktısında karşılaşılan file-private parçalar şunlardır:
 
-- `fn create_window_button(...)` (`platform_linux.rs:56`) — Linux render
-  yolunun gerçek dispatch noktası.
+- `fn create_window_button(...)` (`platform_linux.rs:56`) — Linux
+  render yolunun gerçek dispatch noktasıdır.
 - `fn id(&self)`, `fn icon(&self)`, `fn control_area(&self)`
-  (`platform_windows.rs:68, 78, 88`) — `WindowsCaptionButton` üzerindeki
-  inherent yardımcılar.
-- `fn get_font()` (`platform_windows.rs:16, 21`) — Windows 11 / Windows 10
-  ayrımı için font seçicisi (`Segoe Fluent Icons` vs `Segoe MDL2 Assets`).
+  (`platform_windows.rs:68, 78, 88`) — `WindowsCaptionButton` tipi
+  üzerindeki inherent yardımcı metotlardır.
+- `fn get_font()` (`platform_windows.rs:16, 21`) — Windows 11 ve
+  Windows 10 arasındaki font ayrımını yapan seçicidir
+  (`Segoe Fluent Icons` ve `Segoe MDL2 Assets` arasında karar verir).
 - `fn handle_tab_drop`, `fn handle_right_click_action`
-  (`system_window_tabs.rs:358, 362`) — tab bar event router'ları.
+  (`system_window_tabs.rs:358, 362`) — tab bar event router'larıdır.
 - `PlatformTitleBar::effective_button_layout`, `::sidebar_render_state`
-  (`platform_title_bar.rs:86, 104`) — public yüzeyin arkasındaki karar
-  helper'ları.
-- `fn render(...)` satırları — `Render`/`RenderOnce` trait impl gövdeleri;
-  ayrı satırlarda görüldüklerinde `IMPL[Owner (trait impl)]` header'ı ile
-  eşleştirilmesi gerekir.
+  (`platform_title_bar.rs:86, 104`) — public yüzeyin arkasındaki
+  karar helper'larıdır.
+- `fn render(...)` satırları — `Render` ve `RenderOnce` trait
+  implementasyonlarının gövdeleridir; ayrı satırlarda göründüklerinde
+  `IMPL[Owner (trait impl)]` header'ı ile eşleştirilmeleri gerekir.
 
-Bu set, **dış API'ye değil ama davranış mirror'ına** dahil olan
-parçaları açığa çıkarır. Port hedefinde aynı isimleri kullanmak şart
-değil; ama her birinin davranışına paralel bir karar noktası
-bulunmalıdır.
+Bu liste, **dış API olmayan ama davranış mirror'ı için kritik olan**
+parçaları açığa çıkarır. Port hedefinde aynı isimlerin korunması şart
+değildir; ancak bu fonksiyonların yaptığı işin her birine karşılık
+gelen bir karar noktası mutlaka bulunmalıdır. Aksi halde "isim
+mirror edildi ama davranış eksik" durumuyla karşılaşılır.
 
-Crate sınırını aşan keşif için (örn. `SystemWindowTabController`
-`platform_title_bar` referansıyla bulunur ama `gpui` crate'inde tanımlıdır):
+Crate sınırını aşan keşif de bazen gereklidir. Örneğin
+`SystemWindowTabController` adı `platform_title_bar` içinde geçse
+bile, gerçek tanım `gpui` crate'inde bulunur. Bu tür sıçramaları
+otomatik olarak yakalamak için şu komut zinciri kullanılır:
 
 ```sh
 # Önce platform_title_bar'da geçen tüm tip adlarını çıkar
@@ -555,8 +695,11 @@ while read name; do
 done < /tmp/ptb_referenced.txt
 ```
 
-Bu adım `DraggedWindowTab` doğrudan `platform_title_bar`'da olsa da
-`SystemWindowTabController`'ın `gpui/src/app.rs`'te tanımlı olduğunu açığa
-çıkarır — bu cross-crate sıçramayı **yalnızca** rehberin merkez crate'inde
-tarama yapmak kaçırır.
+Bu betik, `DraggedWindowTab` tipinin doğrudan `platform_title_bar`
+crate'inde tanımlı olduğunu; buna karşılık
+`SystemWindowTabController` tipinin aslında `gpui/src/app.rs`
+dosyasında durduğunu açıkça gösterir. Bu cross-crate sıçramayı
+yakalamanın güvenli tek yolu budur. **Yalnız** rehberin merkez
+crate'inde tarama yapıldığında, bu tür sıçramalar gözden kaçar ve
+"bu tipin tanımı nerede?" sorusu cevapsız kalır.
 

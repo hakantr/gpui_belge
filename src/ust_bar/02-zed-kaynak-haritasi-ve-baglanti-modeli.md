@@ -1,6 +1,10 @@
 # Zed kaynak haritası ve bağlantı modeli
 
-Ardından Zed içindeki gerçek kaynakları ve başlık çubuğunun uygulama içinde hangi callbacklerle yaşadığını oku.
+İlk bölümdeki katman çerçevesi oturduktan sonra sıra Zed kaynaklarının
+gerçekte nerede durduğunu görmeye gelir. Bu bölümde önce dosyaların
+fiziksel haritası çıkarılır; ardından başlık çubuğunun uygulama içinde
+hangi callback'ler aracılığıyla yaşadığı, hangi anda kimin kimi
+oluşturup kime bağladığı anlatılır.
 
 ## 5. Zed kaynak haritası
 
@@ -18,11 +22,14 @@ Ardından Zed içindeki gerçek kaynakları ve başlık çubuğunun uygulama iç
 
 ## 6. Zed içindeki bağlantı modeli
 
-Zed ana workspace penceresinde `title_bar::init(cx)` çalışır. Bu fonksiyon önce
-`PlatformTitleBar::init(cx)` çağırır, sonra her yeni `Workspace` için bir
-`TitleBar` entity'si oluşturur ve workspace titlebar item'ına yerleştirir.
+Zed'in ana workspace penceresinde `title_bar::init(cx)` fonksiyonu
+çalıştırılır. Bu fonksiyonun yaptığı iş iki adımdan oluşur. Önce
+platform kabuğunu hazırlamak için `PlatformTitleBar::init(cx)`
+çağrılır; ardından her yeni `Workspace` açılışı için bir `TitleBar`
+entity'si oluşturulup ilgili workspace'in titlebar item alanına
+yerleştirilir.
 
-Basitleştirilmiş akış şöyledir:
+Basitleştirilmiş akış aşağıdaki gibi okunur:
 
 ```rust
 pub fn init(cx: &mut App) {
@@ -44,7 +51,9 @@ pub fn init(cx: &mut App) {
 }
 ```
 
-`TitleBar`, kendi `Render` akışında `PlatformTitleBar` entity'sini günceller:
+`TitleBar` entity'si kendi `Render` akışı sırasında alt katmandaki
+`PlatformTitleBar` entity'sini günceller. Tipik bir render adımı şu
+şekilde görünür:
 
 ```rust
 self.platform_titlebar.update(cx, |titlebar, _| {
@@ -55,11 +64,17 @@ self.platform_titlebar.update(cx, |titlebar, _| {
 self.platform_titlebar.clone().into_any_element()
 ```
 
-Bu kullanım önemli bir detayı gösterir: `PlatformTitleBar`, child element'lerini
-render sırasında `mem::take` ile tüketir. Bu yüzden dinamik başlık içeriği her
-render geçişinde tekrar `set_children(...)` ile verilmelidir.
+Bu kullanım, kolayca gözden kaçabilen ama port için kritik olan bir
+ayrıntıya işaret eder: `PlatformTitleBar`, kendisine verilen child
+element'leri render sırasında `mem::take` ile tüketir. Yani child
+listesi bir kez verildikten sonra, sonraki render'da içinde hiçbir
+şey kalmaz. Bu nedenle dinamik başlık içeriği her render geçişinde
+yeniden `set_children(...)` çağrısıyla tazelenmelidir; entity
+oluşturulurken bir defalık verilen içerik, sonraki frame'de görünmez
+olur.
 
-Zed uygulamasındaki gerçek yönetim zinciri şu kaynaklardan okunur:
+Zed uygulamasındaki gerçek yönetim zinciri aşağıdaki kaynaklarda
+takip edilir:
 
 | Aşama | Kaynak | Ne yapıyor? |
 | :-- | :-- | :-- |
@@ -71,9 +86,14 @@ Zed uygulamasındaki gerçek yönetim zinciri şu kaynaklardan okunur:
 | CSD dış sarmal | `crates/workspace/src/workspace.rs:10475-10670` | `client_side_decorations(...)` shadow, border, resize edge, cursor ve `window.set_client_inset(...)` davranışlarını sağlar. Titlebar tek başına CSD penceresinin tamamı değildir. |
 | Platform callback'leri | `crates/gpui/src/window.rs:1453-1565` | Button layout değişimi, aktif pencere değişimi, hit-test, native tab taşıma/birleştirme/seçme ve tab bar toggle callback'leri GPUI controller state'ine bağlanır. |
 
-Bu zincirden çıkan port kuralı: `PlatformTitleBar` yalnızca render edilen başlık
-kabuğudur. Zed'de onu yaşatan sistem `WindowOptions`, GPUI platform callback'leri,
-`TitleBarSettings`, `Workspace` lifecycle'ı ve CSD sarmalıyla birlikte çalışır.
+Bu zincirden çıkan port kuralı şudur: `PlatformTitleBar` tek başına
+bir başlık çubuğu uygulaması değildir; yalnızca render edilen başlık
+kabuğunu temsil eder. Zed'de bu kabuğu fiilen yaşatan şey,
+`WindowOptions` ayarları, GPUI'nin platform callback'leri,
+`TitleBarSettings`, `Workspace` lifecycle'ı ve CSD sarmalının
+birlikte oluşturduğu bütündür. Port hedefinde de bu beş parça aynı anda
+düşünülmelidir; eksik bırakılan herhangi biri başlık çubuğunun davranış
+paritesini bozar.
 
 ---
 

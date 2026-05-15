@@ -1,45 +1,62 @@
 # Native pencere sekmeleri
 
-Native tab desteğini ayrı bir aşama olarak ele al; controller state'i, platform çağrıları ve drag/drop hedefleri birlikte düşünülür.
+Native pencere sekmeleri (özellikle macOS'taki sistem sekmeleri),
+başlık çubuğunun en karmaşık parçasıdır. Bu konu, ayrı bir aşama
+olarak ele alınır; çünkü kararlar tek başına değil, üç parçanın
+birlikte düşünülmesiyle verilir: controller state'i, platform çağrıları
+ve drag/drop hedefleri. Bu üçü ayrı ayrı yazılırsa parçalar arasında
+uyumsuzluk kaçınılmaz olur.
 
 ## 14. System window tabs
 
-`PlatformTitleBar::init(cx)`, `SystemWindowTabs::init(cx)` çağırır. Bu kurulum
-iki şeyi yapar:
+`PlatformTitleBar::init(cx)` çağrısı, alt katmandaki
+`SystemWindowTabs::init(cx)` fonksiyonunu da tetikler. Bu kurulum iki
+iş yapar:
 
-1. `WorkspaceSettings::use_system_window_tabs` ayarını izler ve pencerelerin
-   `tabbing_identifier` değerlerini günceller (`cx.observe_global::<SettingsStore>(...)`,
-   `system_window_tabs.rs:59-94`, `.detach()` ile yaşatılır).
-2. Yeni `Workspace` entity'leri için action renderer kaydeder
-   (`cx.observe_new(|workspace: &mut Workspace, ...|)`, `system_window_tabs.rs:96-139`):
-   `ShowNextWindowTab`, `ShowPreviousWindowTab`, `MoveTabToNewWindow`,
-   `MergeAllWindows`.
+1. `WorkspaceSettings::use_system_window_tabs` ayarını izlemeye başlar
+   ve pencerelerin `tabbing_identifier` değerlerini ayar değiştikçe
+   günceller. İzleme `cx.observe_global::<SettingsStore>(...)` ile
+   kurulur, `system_window_tabs.rs:59-94` aralığında çalışır ve
+   subscription `.detach()` ile crate ömrü boyunca canlı tutulur.
+2. Yeni açılan `Workspace` entity'leri için bir action renderer
+   kaydeder. Kayıt `cx.observe_new(|workspace: &mut Workspace, ...|)`
+   bloğunda yapılır (`system_window_tabs.rs:96-139`) ve şu dört
+   action'ı bağlar: `ShowNextWindowTab`, `ShowPreviousWindowTab`,
+   `MoveTabToNewWindow`, `MergeAllWindows`.
 
-**Önemli binding farkı:** Bu action'lar `workspace.register_action(...)` ile
-değil, **`workspace.register_action_renderer(...)`** ile bağlanır
-(`system_window_tabs.rs:97`). Fark:
+**Burada gözden kaçırılmaması gereken kritik bir binding farkı
+vardır.** Bu action'lar `workspace.register_action(...)` ile değil,
+**`workspace.register_action_renderer(...)`** ile bağlanır
+(`system_window_tabs.rs:97`). İki API arasındaki fark, hem zamanlama
+hem de kapsam açısından önemlidir:
 
 | API | Bağlama zamanı | Kapsam | Yan etki |
 | :-- | :-- | :-- | :-- |
 | `register_action` | Setup-time | Workspace entity'sinin tüm yaşam süresi | Sabit binding. |
 | `register_action_renderer` | Her render'da | O frame'de oluşturulan `div` element'inde | Conditional binding: `tabs.len() > 1` veya `tab_groups.len() > 1` koşulları sağlanmazsa o frame'de action **bind edilmez**. |
 
-Yani `ShowNextWindowTab` bir Workspace'te birden fazla tab varken çalışır,
-tek tabla çalışmaz; runtime'da action map otomatik olarak değişir. Port
-hedefinde Workspace kavramı yoksa bu pattern bire bir taşınamaz; yerine
-"her render'da action handler'ları conditional olarak yeniden bağla"
-prensibini koruyacak bir mekanizma gerekir.
+Pratik sonuç şudur: `ShowNextWindowTab` action'ı, bir workspace
+içinde birden fazla tab açık olduğunda çalışır; tek tab varken
+çağrılsa bile bir etki üretmez. Çünkü runtime'da action map o frame
+için otomatik olarak farklı bir şekilde kurulur. Port hedefinde
+"Workspace" kavramı doğrudan yoksa bu desen birebir taşınamaz; ama
+"her render'da action handler'ları koşullu olarak yeniden bağla"
+prensibini koruyacak bir mekanizma kurulması zorunludur. Aksi halde
+tek tab varken bile sekme dolaşma action'ı çalışıyormuş gibi
+görünür ve test edilemez davranışlar oluşur.
 
-Ek kısıt: `register_action_renderer` `Workspace` entity'sine bağlı olduğu
-için **action'lar yalnızca bir workspace içinde bulunulurken** dispatch
-edilebilir. Workspace dışı pencere (örn. settings standalone) bu
-action'ları görmez.
+Ayrıca bu API'nin ek bir kısıtı vardır: `register_action_renderer`
+bağlandığı `Workspace` entity'sine kilitlendiği için, **bu
+action'lar yalnızca bir workspace içindeyken dispatch edilebilir**.
+Workspace bağlamı dışındaki pencereler (örneğin standalone bir
+settings penceresi) bu action'ları hiç görmez.
 
 ### Sekme butonları
 
-`SystemWindowTabs` içindeki her sekme kapatma yolu **`workspace::CloseWindow`
-sabit'ini** dispatch eder. awk `Box::new\(CloseWindow\)` taraması altı ayrı
-çağrı yerini açığa çıkarır:
+`SystemWindowTabs` içindeki sekme kapatma yollarının tamamı, ortak
+olarak **`workspace::CloseWindow` sabit action'ını** dispatch eder.
+Bu yolların kaç tane olduğunu görmek için `Box::new\(CloseWindow\)`
+deseniyle yapılan awk taraması altı farklı çağrı noktası ortaya çıkarır:
 
 | # | Yer | Tetikleyici | Hedef pencere |
 | - | :-- | :-- | :-- |
@@ -50,17 +67,24 @@ sabit'ini** dispatch eder. awk `Box::new\(CloseWindow\)` taraması altı ayrı
 | 5 | `system_window_tabs.rs:296` | Right-click → "Close Tab" | `handle_right_click_action` ile tab handle'ı |
 | 6 | `system_window_tabs.rs:308` | Right-click → "Close Other Tabs" | Her diğer tab handle'ı |
 
-Bu altı yol da **aynı sabit action'ı dispatch eder** — yapılandırılamaz, dış
-crate'in `close_action` prop'u buraya geçmez (yalnızca Linux
-`LinuxWindowControls`/`WindowControl` zincirinde çalışır). Port hedefinde
-sekme kapatma davranışını farklılaştırmak istiyorsanız bu altı çağrı
-yerini ayrı ayrı override etmeniz gerekir; tek bir flag yetmez.
+Bu altı yolun her birinde **aynı sabit action dispatch edilir** ve
+dış crate'in verdiği `close_action` prop'u bu kapatma yollarına
+ulaşmaz. Dışarıdan gelen close action yalnızca Linux tarafındaki
+`LinuxWindowControls`/`WindowControl` zincirinde işlem görür. Port
+hedefinde sekme kapatma davranışını farklılaştırmak istendiğinde, bu
+altı çağrı noktasının her biri ayrı ayrı override edilmek zorundadır;
+tek bir flag açıp kapatmak bütün bu noktaları aynı anda
+değiştirmeye yetmez.
 
-**Cross-window dispatch paterni** (`handle.update(cx, |_, window, cx| { ... })`):
-sekmelerden 4'ü "**hedef pencere mevcut pencere mi?**" sorusunu sorar; değilse
+**Cross-window dispatch deseni**, yani
+`handle.update(cx, |_, window, cx| { ... })` çağrı zinciri, bu
+sekme yollarının dördünde merkezi rol oynar. Bu dördü, çağrı anında
+"**hedef pencere mevcut pencere mi?**" sorusunu sorar; değilse
 `item.handle.update(cx, |_view, window, cx| { window.dispatch_action(...) })`
-ile tab'ın `AnyWindowHandle` üzerinden o pencerenin context'ine geçer. awk
-`handle\.update\(` taraması altı çağrı yerini açığa çıkarır:
+yapısıyla tab'ın `AnyWindowHandle`'ı üzerinden ilgili pencerenin
+context'ine geçilir ve action o pencerede dispatch edilir. Aynı
+`handle\.update\(` deseninin awk taraması altı çağrı noktası
+açığa çıkarır:
 
 | Yer | Bağlam |
 | :-- | :-- |
@@ -71,23 +95,36 @@ ile tab'ın `AnyWindowHandle` üzerinden o pencerenin context'ine geçer. awk
 | `system_window_tabs.rs:377` | `handle_right_click_action` helper'ı (Close Tab/Close Other Tabs context menu) |
 | `system_window_tabs.rs:439` | Tab bar dışına drop → o pencerede `move_tab_to_new_window()` |
 
-Tüm çağrılar `let _ = handle.update(...)` deyimine sarılıdır çünkü
-`update()` `Result<R, ()>` döner (pencere zaten kapanmış olabilir);
-sonuç bilinçli olarak yutulur. Port hedefinde aynı paterni karşılamak
-için: (1) her tab metadata'sı bir handle/proxy taşımalı, (2) cross-window
-işlemler bu proxy üzerinden o pencerenin context'ine girip işi orada
-yapmalı, (3) proxy çağrısı **fail-soft** olmalı (pencere kaybolmuşsa
-sessizce geç).
+Bu çağrıların hepsi `let _ = handle.update(...)` deyimine sarılıdır.
+Bunun sebebi, `update()` fonksiyonunun `Result<R, ()>` döndürmesidir;
+yani çağrı sırasında pencere zaten kapanmış olabilir. Bu durumda
+sonuç bilinçli olarak yutulur ve hata fırlatılmaz. Port hedefinde aynı
+deseni karşılamak için üç şey birlikte sağlanmalıdır:
+(1) her tab metadata yapısı bir handle veya proxy taşımalıdır;
+(2) cross-window işlemler bu proxy üzerinden ilgili pencerenin
+context'ine girip işi orada yapmalıdır;
+(3) proxy çağrısı **fail-soft** davranmalı, hedef pencere ortadan
+kalkmışsa sessizce geçilmelidir. Bu üç kural birlikte uygulanmadığı
+sürece, kapanmış pencerelere yapılan çağrılar uygulamanın çökmesine
+yol açabilir.
 
-**Conditional Option idiom'u** (`platform_title_bar.rs:248-255` ve
-`299-306`): sol/sağ kontroller `show_X_controls.then(|| render_X_window_controls(...)).flatten()`
-deseniyle dahil edilir. `bool::then(|| fn)` true → `Some(fn())`, false →
-`None`; `render_X_window_controls` zaten `Option<AnyElement>` döner;
-böylece dış `Option<Option<...>>` `.flatten()` ile tek seviye Option'a
-indirilir. **Yan etki**: `then` closure'u boolean true ise **clone'u
-gerçekleştirir** — `boxed_clone` zincirindeki adım 2/3'ün her render'da
-neden çalıştığının nedeni budur. `if show_X { Some(render_X(...)) } else
-{ None }` aynı sonucu verir; `then().flatten()` sadece daha kısa.
+**Conditional Option idiom'u**, `platform_title_bar.rs` içinde
+`248-255` ve `299-306` aralıklarında geçer. Sol ve sağ kontroller
+şu desenle dahil edilir:
+`show_X_controls.then(|| render_X_window_controls(...)).flatten()`.
+
+Bu desenin işleyişi şöyledir: `bool::then(|| fn)` ifadesi, boolean
+`true` ise `Some(fn())` döner, `false` ise `None` döner.
+`render_X_window_controls` fonksiyonu zaten `Option<AnyElement>`
+döndürdüğü için, dış sarmal `Option<Option<...>>` olur ve `.flatten()`
+ile tek seviye `Option`'a indirgenir. Burada gözden kaçabilecek bir
+yan etki vardır: `then` closure'u, boolean `true` olduğunda gövdesini
+çalıştırır ve gövde içinde **clone işlemi** gerçekleşir. Bu, ileride
+bahsedilecek `boxed_clone` zincirindeki adım 2 ve 3'ün her render'da
+neden çalıştığının doğrudan nedenidir. Aynı sonucu daha açık biçimde
+`if show_X { Some(render_X(...)) } else { None }` ifadesiyle de yazmak
+mümkündür; `then().flatten()` formu yalnızca daha kısadır, ek bir
+avantaj sağlamaz.
 
 Sağ tık menüsü `ui::right_click_menu(ix).trigger(...).menu(...)` builder
 zinciriyle kurulur (`system_window_tabs.rs:279-343`). Yapı:
@@ -106,87 +143,123 @@ right_click_menu(ix)
     })
 ```
 
-Dört menu entry'sinin her biri ayrı bir `move |window, cx| {...}` closure
-alır; her closure içinde `Self::handle_right_click_action(cx, window,
-&tabs_clone, |tab| predicate, |window, cx| body)` çağrılır. Tabs vec'i
-bu yüzden **dört kere clone'lanır** (`tabs.clone()`, `other_tabs.clone()`,
-`move_tabs.clone()`, `merge_tabs.clone()` — `system_window_tabs.rs:283-286`):
-her closure kendi owned kopyasına ihtiyaç duyar. Port hedefinde aynı
-builder pattern: `right_click_menu(id).trigger(trigger_fn).menu(menu_builder_fn)`;
-`menu()` callback'inde `ContextMenu::build` ile entry'ler eklenir.
+Bu yapıda dört menu entry'sinin her biri ayrı bir
+`move |window, cx| {...}` closure'u alır. Her closure'ın gövdesinde
+ortak olarak `Self::handle_right_click_action(cx, window,
+&tabs_clone, |tab| predicate, |window, cx| body)` çağrısı yapılır.
+Buradan doğan ilginç bir bellek davranışı vardır: `tabs` vec'i
+**dört defa clone'lanır** (`tabs.clone()`, `other_tabs.clone()`,
+`move_tabs.clone()`, `merge_tabs.clone()` —
+`system_window_tabs.rs:283-286`). Bunun nedeni her closure'ın kendi
+owned kopyasına ihtiyaç duymasıdır; reference olarak paylaşmak,
+closure lifetime'larıyla çakışır. Port hedefinde aynı builder kalıbı
+kullanılır:
+`right_click_menu(id).trigger(trigger_fn).menu(menu_builder_fn)`
+zinciri kurulur ve `menu()` callback'i içinde `ContextMenu::build`
+ile entry'ler eklenir.
 
-Menü işlemleri:
+Menüye konulan dört işlem şunlardır:
 
 - Close Tab (#5)
 - Close Other Tabs (#6)
 - Move Tab to New Window (`SystemWindowTabController::move_tab_to_new_window` + `window.move_tab_to_new_window()`, `system_window_tabs.rs:313-327`)
 - Show All Tabs (`window.toggle_window_tab_overview()`, `system_window_tabs.rs:329-339`)
 
-Alt sağdaki plus butonu `zed_actions::OpenRecent { create_new_window: true }`
-dispatch eder (`system_window_tabs.rs:485-490`) — bu da hardcoded'tır. Kendi
-uygulamanızda bu action büyük olasılıkla `NewWindow`, `OpenWorkspace` veya
-`CreateDocumentWindow` olmalıdır.
+Sekme barının alt sağ köşesindeki plus butonu, click anında
+`zed_actions::OpenRecent { create_new_window: true }` action'ını
+dispatch eder (`system_window_tabs.rs:485-490`). Bu davranış da sabit
+şekilde gömülüdür; port hedefinde bu noktanın değiştirilmesi büyük
+ihtimalle gereklidir. Bağımsız bir uygulamada bu action genellikle
+`NewWindow`, `OpenWorkspace` veya `CreateDocumentWindow` gibi ürünün
+kendi action'ı ile değiştirilir.
 
-İlk pencere açılışındaki native tab durumu bu observer'dan değil,
-`zed::build_window_options(...)` içindeki `tabbing_identifier` alanından gelir
-(`zed/src/zed.rs:331-373`). GPUI pencere bootstrap'i de platform
-`tab_bar_visible()` ve `tabbed_windows()` sonuçlarını controller'a işler
-(`gpui/src/window.rs:1295-1299`). `SystemWindowTabs::init(...)` içindeki
-`observe_global::<SettingsStore>` ise `was_use_system_window_tabs` değerini
-tutup yalnız ayar değiştiğinde çalışır; değer değişmediyse erken döner
-(`system_window_tabs.rs:55-64`). Toggle true olduğunda controller yeniden
-başlatılır, mevcut pencerelere `"zed"` identifier'ı ve tab listesi yazılır;
-toggle false olduğunda mevcut pencerelerin identifier'ı `None` yapılır ama
-controller `init` tekrar çağrılmaz (`system_window_tabs.rs:66-90`).
+İlk pencere açılışındaki native tab durumu, bu settings observer
+zincirinden değil, çok daha önce işleyen başka bir yoldan beslenir:
+`zed::build_window_options(...)` fonksiyonu içindeki `tabbing_identifier`
+alanı bu rolü üstlenir (`zed/src/zed.rs:331-373`). GPUI'nin pencere
+bootstrap aşaması ise platformun `tab_bar_visible()` ve
+`tabbed_windows()` çağrılarının sonucunu doğrudan controller'a işler
+(`gpui/src/window.rs:1295-1299`). Daha sonra çalışan
+`SystemWindowTabs::init(...)` içindeki `observe_global::<SettingsStore>`
+gözlemcisi, `was_use_system_window_tabs` değerini hafızasında tutar ve
+yalnız ayar değiştiğinde tetiklenir; değer değişmediyse hemen erken
+döner (`system_window_tabs.rs:55-64`).
 
-Render sırasında `SystemWindowTabController` global state'i okunur. Controller
-aktif pencerenin sekme grubunu döndürür; yoksa current window tek sekme gibi
-gösterilir.
+Toggle değeri `true` olduğunda controller yeniden başlatılır; mevcut
+tüm pencerelere `"zed"` identifier'ı ve tab listesi yazılır. Toggle
+`false` olduğunda ise mevcut pencerelerin identifier'ı `None` yapılır,
+ancak controller'ın `init` fonksiyonu tekrar çağrılmaz
+(`system_window_tabs.rs:66-90`). Bu asimetri kasıtlıdır: native tab'i
+devre dışı bırakmak kontrolcüyü temizlemekle değil, sadece pencere
+identifier'larını çekmekle olur.
 
-Sekme çubuğu şu durumlarda boş döner:
+Render sırasında `SystemWindowTabController`'ın global state'i okunur.
+Bu controller, aktif pencerenin ait olduğu sekme grubunu döndürür;
+böyle bir grup yoksa, mevcut pencere tek sekme olarak gösterilir.
 
-- Platform `window.tab_bar_visible()` false ve controller görünür değilse.
-- `use_system_window_tabs` false ve yalnızca bir sekme varsa.
+Sekme çubuğunun boş dönmesi iki durumda mümkündür:
 
-**Önemli platform farkı:** `Platform::tab_bar_visible()`'in trait
-default impl'i `false` döndürür (`gpui/src/platform.rs:658-660`); bu
-default'u **yalnızca macOS** override eder. Linux ve Windows'ta birinci
-koşulun ilk parçası daima `true`'dur, yani çubuğun görünür olması
-**tamamen `SystemWindowTabController::is_visible(...)` state'ine**
-bağlıdır. `is_visible` ise `self.visible == Some(true)` kontrolünü
-yapar (`gpui/src/app.rs:395`); `visible` alanı `init_visible` veya
-`set_visible` çağrılana kadar `None`'dur, dolayısıyla pencere ilk
-açıldığında ve `on_toggle_tab_bar` callback'i tetiklenene kadar Linux
-ve Windows'ta sekme çubuğu **default olarak gizli** kalır. macOS dışındaki
-platformlarda sekme çubuğunun görünmesi için controller'ın açıkça görünür
-duruma alınması gerekir; yalnız `tab_bar_visible` çağrısını aramak yeterli
-değildir.
+- Platform `window.tab_bar_visible()` çağrısı `false` döner **ve**
+  controller görünür durumda değildir.
+- `use_system_window_tabs` ayarı `false` durumda ve yalnız bir sekme
+  vardır.
 
-macOS native tabbing için `set_tabbing_identifier(Some(...))` yalnız pencereye
-identifier yazmaz; `NSWindow::setAllowsAutomaticWindowTabbing:YES` de çağırır.
-`None` geldiğinde aynı global izin `NO` yapılır ve pencerenin tabbing identifier'ı
-`nil` olur (`gpui_macos/src/window.rs:1174-1191`). Zed'in
-`SystemWindowTabs::init(cx)` içindeki settings observer'ı bu nedenle yalnız
-controller state'ini değil macOS native tabbing politikasını da açıp kapatır.
+**Burada önemli bir platform farkı yatar.** `Platform::tab_bar_visible()`
+trait'inin default implementasyonu `false` döner
+(`gpui/src/platform.rs:658-660`). Bu default'u **yalnızca macOS**
+override eder. Bunun sonucu olarak, Linux ve Windows'ta yukarıdaki
+ilk koşulun ilk parçası daima `true` olarak değerlendirilir; yani
+sekme çubuğunun görünürlüğü **tamamen
+`SystemWindowTabController::is_visible(...)` state'ine** bağlanır.
+`is_visible` fonksiyonu da `self.visible == Some(true)` kontrolünü
+yapar (`gpui/src/app.rs:395`); ancak `visible` alanı, `init_visible`
+veya `set_visible` çağrılana kadar `None` durumdadır. Dolayısıyla
+pencere ilk açıldığında ve `on_toggle_tab_bar` callback'i tetiklenmediği
+sürece, Linux ve Windows'ta sekme çubuğu **varsayılan olarak gizli**
+kalır. macOS dışındaki platformlarda sekme çubuğunun görünmesi için
+controller'ın açıkça görünür duruma alınması gerekir; yalnızca
+`tab_bar_visible` çağrısını aramak yetmez. Bu noktayı atlayan bir
+port, "neden Linux'ta sekmeler hiç görünmüyor?" sorusuyla saatler
+kaybedebilir.
 
-**Drag/drop owner ve olay ayrımı:** `DraggedWindowTab` adını ve alanlarını
-mirror etmek tek başına yeterli değildir. Kaynakta owner ve olay ayrımı şöyledir:
+macOS'taki native tabbing için `set_tabbing_identifier(Some(...))`
+çağrısının yaptığı iş, yalnızca pencereye identifier yazmak değildir.
+Aynı çağrı, paralel olarak `NSWindow::setAllowsAutomaticWindowTabbing:YES`
+fonksiyonunu da çağırır. Ters yönde, `None` değeri geldiğinde aynı
+global izin `NO` olarak set edilir ve pencerenin tabbing identifier'ı
+`nil` yapılır (`gpui_macos/src/window.rs:1174-1191`). Bu yüzden Zed'in
+`SystemWindowTabs::init(cx)` içindeki settings observer'ı yalnız
+controller state'ini değil, aynı zamanda macOS'un native tabbing
+politikasını da açıp kapatır.
 
-- `render_tab(...).on_drag(...)` `DraggedWindowTab` üretir ve
-  `last_dragged_tab = Some(tab.clone())` yapar.
-- Aynı tab bar üzerindeki `.on_drop(...)` yalnızca
+**Drag/drop'ta owner ve olay ayrımı.** `DraggedWindowTab` tipinin
+adını ve alanlarını mirror etmek başlı başına yeterli değildir; çünkü
+sürükleme/bırakma davranışı, hangi alanda olay tetiklendiğine göre
+farklı yollar izler. Kaynaktaki owner ve olay ayrımı şu şekildedir:
+
+- `render_tab(...).on_drag(...)` çağrısı bir `DraggedWindowTab`
+  payload'ı üretir ve `last_dragged_tab = Some(tab.clone())` ifadesiyle
+  geçici state'i set eder.
+- Aynı tab bar üzerinde tetiklenen `.on_drop(...)` çağrısı yalnızca
   `SystemWindowTabController::update_tab_position(cx, dragged_tab.id, ix)`
-  çağırır.
-- Tab bar dışına sol mouse-up olursa `last_dragged_tab.take()` ile
-  `SystemWindowTabController::move_tab_to_new_window(cx, tab.id)` ve platform
-  `window.move_tab_to_new_window()` akışı çalışır.
-- `merge_all_windows` drag payload'ından veya sağ tık "Show All Tabs" menüsünden
-  gelmez; yalnız `MergeAllWindows` action renderer'ı controller + platform merge
-  çağırır. Sağ tık "Show All Tabs" sadece `window.toggle_window_tab_overview()`
-  çağırır (`system_window_tabs.rs:329-339`).
+  fonksiyonunu çalıştırır; başka bir iş yapmaz. Burada hedef, mevcut
+  bar içinde sekmenin yerini değiştirmektir.
+- Tab bar dışında sol mouse-up gerçekleşirse, `last_dragged_tab.take()`
+  ile state alınır ve iki şey arka arkaya çalışır: önce
+  `SystemWindowTabController::move_tab_to_new_window(cx, tab.id)`,
+  sonra platform tarafındaki `window.move_tab_to_new_window()` çağrısı.
+- `merge_all_windows` ise drag payload'ı üzerinden veya sağ tık "Show
+  All Tabs" menüsünden tetiklenmez. Yalnızca `MergeAllWindows` action
+  renderer'ı, controller'daki merge fonksiyonunu ve platform merge
+  çağrısını birlikte tetikler. Sağ tıktaki "Show All Tabs" ise yalnız
+  `window.toggle_window_tab_overview()` çağrısı yapar
+  (`system_window_tabs.rs:329-339`); merge işlemi değildir.
 
-Bu nedenle native tab portunda drag/drop davranışı `DraggedWindowTab` alan
-paritesiyle birlikte **olay hedefine göre** mirror edilmelidir.
+Bu farklar nedeniyle native tab portunda drag/drop davranışı sadece
+`DraggedWindowTab` alanları paralel olarak taşınarak çözülmez; aynı
+zamanda **olayın hangi hedefte gerçekleştiğine göre** mirror edilir.
+"Drop nerede oldu?" sorusunun cevabına göre üç ayrı dal vardır ve bu
+dalların hepsi ayrı kodlanır.
 
 Sekme drag payload tipi `DraggedWindowTab` (`system_window_tabs.rs:29`):
 
@@ -204,19 +277,29 @@ pub struct DraggedWindowTab {
 }
 ```
 
-Drag/drop sırasında `on_drag(DraggedWindowTab, ...)` payload'ı bu struct'tır.
-`DraggedWindowTab` aynı zamanda `Render` implement eder; drag preview bu
+Drag/drop sürecinde `on_drag(DraggedWindowTab, ...)` çağrısının
+payload'ı bu struct'tır. Aynı `DraggedWindowTab` tipi, aynı zamanda
+`Render` trait'ini de implement eder; sürükleme önizlemesi, bu
 struct'ın `title`, `width`, `is_active`, `active_background_color` ve
-`inactive_background_color` alanlarından çizilir. `last_dragged_tab` yalnızca
-tab bar dışına bırakma ihtimalini yakalamak için geçici state'tir; başarılı
-`on_drop` içinde `None` yapılır.
-Preview render'ı label fontunu aktif temadaki `ThemeSettings::ui_font`
-değerinden alır ve `Tab::container_height(cx)` yüksekliğini kullanır
-(`system_window_tabs.rs:498-528`); drag ghost için ayrı bir sabit yükseklik
-yoktur.
+`inactive_background_color` alanlarından doğrudan çizilir.
 
-**Controller grup mutasyonları** (`gpui/src/app.rs:417-530`): Public imzalar
-basit görünür, fakat state algoritması port için önemlidir.
+`last_dragged_tab` alanı yalnızca geçici bir state'tir ve tek bir
+amaca hizmet eder: sekmenin tab bar dışına bırakılma ihtimalini
+yakalamak. Başarılı bir `on_drop` çağrısı tamamlandığında bu alan
+`None` yapılır; aksi halde state sızıntısı oluşur.
+
+Preview render'ı, etiket fontunu aktif tema üzerinden
+`ThemeSettings::ui_font` değerinden alır ve yüksekliği
+`Tab::container_height(cx)` ile hesaplar
+(`system_window_tabs.rs:498-528`). Drag ghost'u için ayrı, sabit bir
+yükseklik tutulmaz; önizleme her zaman gerçek sekmeye eşit boyda
+çıkar.
+
+**Controller grup mutasyonları** (`gpui/src/app.rs:417-530`). Bu
+fonksiyonların public imzaları yüzeyde basit görünür; ama gövdedeki
+state algoritması port hedefi için kritik öneme sahiptir. Aşağıdaki
+tablo her bir fonksiyonun state üzerinde tam olarak ne yaptığını
+gösterir:
 
 | Fonksiyon | State davranışı |
 | :-- | :-- |
@@ -227,59 +310,91 @@ basit görünür, fakat state algoritması port için önemlidir.
 | `move_tab_to_new_window(cx, id)` | Önce `remove_tab`; sonra yeni grup id'si `max(existing_key) + 1`, grup yoksa `0`. |
 | `merge_all_windows(cx, id)` | `id`'nin mevcut grubunu başlangıç grubu yapar; tüm grupları drain eder, başlangıç tab'larını tekrar eklememek için retain uygular ve sonucu group `0` olarak yazar. |
 
-`select_next_tab` ve `select_previous_tab` yalnız mevcut grubun içinde döner ve
-hedef tab'ın `AnyWindowHandle`'ı üzerinde `activate_window()` çağırır
-(`gpui/src/app.rs:532-563`). Grup değiştirme action'ları ise
-`get_next_tab_group_window` / `get_prev_tab_group_window` üzerinden çalışır;
-bu fonksiyonlarda group key sırası `HashMap` key sırası olduğu için kaynakta
-zaten "next/previous ne demek?" TODO'su vardır (`gpui/src/app.rs:326-360`).
+`select_next_tab` ve `select_previous_tab` fonksiyonları, yalnız
+mevcut grubun içinde döner ve hedef sekmenin `AnyWindowHandle`'ı
+üzerinde `activate_window()` çağırarak o pencereyi öne getirir
+(`gpui/src/app.rs:532-563`). Grup değiştirme action'ları ise farklı
+bir yoldan, `get_next_tab_group_window` ve `get_prev_tab_group_window`
+fonksiyonları üzerinden işler. Burada dikkat çekici bir nokta var:
+bu iki fonksiyonda grup key sırası, `HashMap` key sırası olduğu için
+tutarlı bir "önce/sonra" tanımı yoktur. Kaynak kodunda zaten bu
+duruma işaret eden bir "next/previous ne demek?" TODO yorumu mevcuttur
+(`gpui/src/app.rs:326-360`). Port hedefinde grup geçişlerine deterministik
+bir sıralama isteniyorsa, bu noktada `HashMap` yerine sıralı bir yapı
+tercih edilir.
 
-**Tab genişliği ölçümü** (`system_window_tabs.rs:455-471`): Tab bar
-render'ı bir görünmez `canvas` element içerir. `canvas` iki callback
-alır (`gpui/src/elements/canvas.rs:10-13`): `prepaint: FnOnce(Bounds,
-&mut Window, &mut App) -> T` ve `paint: FnOnce(Bounds, T, &mut Window,
-&mut App)`. Burada prepaint boş bırakılır (`|_, _, _| ()`); ölçüm
-**paint** callback'inde yapılır: `bounds.size.width / number_of_tabs
-as f32` hesaplanıp `entity.update(cx, |this, cx| { this.measured_tab_width
-= width; cx.notify() })` ile state'e yazılır. Yeni sekme eklenince/silinince
-veya pencere yeniden boyutlanınca paint tekrar çağrılır, `measured_tab_width`
-güncellenir ve sekmeler yeniden render olur (paint sırasındaki bu
-side-effect bir sonraki frame'de geri-beslemeyi tetikler).
-`number_of_tabs` `tab_items.len().max(1)` ile en az 1'e clamp'lenir
-(`system_window_tabs.rs:420`) — sıfıra bölmeyi engeller. Port hedefinde
-aynı geri-besleme döngüsü gerekir: aksi halde sekme genişliği `0px`
-veya statik kalır.
+**Tab genişliği ölçümü**, `system_window_tabs.rs:455-471` aralığında
+bulunan ince bir mekanizmadır. Tab bar render'ı, kullanıcıya hiç
+görünmeyen bir `canvas` elementi içerir. Bu `canvas` tipi iki callback
+alır (`gpui/src/elements/canvas.rs:10-13`):
+`prepaint: FnOnce(Bounds, &mut Window, &mut App) -> T` ve
+`paint: FnOnce(Bounds, T, &mut Window, &mut App)`.
 
-**Sekme ölçüleri, close ayarı ve drop işaretleri**
-(`system_window_tabs.rs:153-276`):
+Bu kullanımda `prepaint` boş bırakılır (`|_, _, _| ()`); asıl ölçüm
+**`paint`** callback'inde yapılır. Burada `bounds.size.width /
+number_of_tabs as f32` formülü ile bir sekme genişliği hesaplanır,
+ardından bu değer `entity.update(cx, |this, cx| {
+this.measured_tab_width = width; cx.notify() })` çağrısıyla state'e
+yazılır.
 
-- Her tab'ın genişliği `measured_tab_width.max(rem_size * 10)` ile en az
-  `10rem` yapılır; sadece canvas ölçümüne güvenilmez.
-- Dış tab bar yüksekliği `Tab::container_height(cx)`, tek tab yüksekliği
-  `Tab::content_height(cx)` ile gelir. `ui::Tab` bu değerleri
-  `DynamicSpacing::Base32` ve `Base32 - 1px` olarak hesaplar
-  (`ui/src/components/tab.rs:79-84`); portta sabit `32px` yazmak density
-  değişimlerini kaçırır.
-- `ItemSettings::close_position` `Left` / `Right` değerlerini taşır ve default
-  `Right`'tır; `show_close_button` ise `Always` / `Hover` / `Hidden` ve default
-  `Hover`'dır (`settings_content/src/workspace.rs:214-239`).
-- `Hidden` durumunda close icon hiç eklenmez. Diğerlerinde absolute close alanı
-  `.top_2().w_4().h_4()` ile çizilir; `Left` için `.left_1()`, `Right` için
-  `.right_1()` uygulanır. `Hover` durumunda icon `visible_on_hover("tab")`
-  ile yalnız tab hover'ında görünür.
-- Close icon ve orta mouse up aynı `CloseWindow` action'ını dispatch eder;
-  hedef aktif pencere değilse action ilgili tab'ın `AnyWindowHandle`'ı üzerinde
-  çalıştırılır.
-- Drag-over preview `drop_target_background` ve `drop_target_border` kullanır,
-  önce border'ı sıfırlar; hedef index dragged index'ten küçükse sol `border_l_2`,
-  büyükse sağ `border_r_2` gösterir. Aynı index üstünde yan çizgi yoktur.
+Bu yapının döngüsel davranışı şu şekilde işler: yeni bir sekme
+eklendiğinde, mevcut bir sekme silindiğinde veya pencere yeniden
+boyutlandığında paint tekrar çağrılır; `measured_tab_width`
+güncellenir ve sekmeler güncel genişlikle yeniden render olur.
+Paint sırasında oluşturulan bu side-effect, bir sonraki frame'de
+geri-beslemeyi tetikler.
 
-Alt sağdaki plus bölgesi yalnız action değildir: `.h_full()`,
-`DynamicSpacing::Base06.rems(cx)` yatay padding, üst/sol border ve muted small
-plus icon ile render edilir (`system_window_tabs.rs:473-492`). Click akışı
-`zed_actions::OpenRecent { create_new_window: true }` dispatch eder; bağımsız
-uygulamada aynı görsel alanı koruyup action'ı kendi yeni pencere/workspace
-akışınıza bağlayın.
+Burada bölme hatasına karşı bir güvence vardır: `number_of_tabs`
+ifadesi `tab_items.len().max(1)` ile en az 1'e clamp'lenir
+(`system_window_tabs.rs:420`). Bu sayede sekme sayısı sıfır olduğunda
+bile bölme işlemi güvenli kalır. Port hedefinde aynı geri-besleme
+döngüsünün kurulması zorunludur; aksi halde sekme genişliği ya `0px`
+çıkar ya da hiç güncellenmeyip statik kalır.
+
+**Sekme ölçüleri, close ayarı ve drop işaretleri** konuları
+`system_window_tabs.rs:153-276` aralığında birlikte ele alınır.
+Burada gözlenmesi gereken altı detay vardır:
+
+- Her sekmenin genişliği `measured_tab_width.max(rem_size * 10)`
+  ifadesi ile **en az** `10rem` olacak şekilde clamp edilir. Yani
+  yalnızca canvas ölçümüne güvenilmez; çok dar sekmelerin oluşmasının
+  önüne geçilir.
+- Dış tab bar yüksekliği `Tab::container_height(cx)`, tek sekmenin
+  yüksekliği ise `Tab::content_height(cx)` üzerinden hesaplanır.
+  `ui::Tab` bu iki değeri `DynamicSpacing::Base32` ve `Base32 - 1px`
+  cinsinden üretir (`ui/src/components/tab.rs:79-84`). Port hedefinde
+  bu değerlere sabit `32px` yazılırsa, dinamik density değişimleri
+  doğru takip edilemez ve UI farklı yoğunluklarda bozulur.
+- `ItemSettings::close_position` ayarı `Left` ve `Right` değerlerini
+  alır; default olarak `Right`'tır. `show_close_button` ayarı ise
+  `Always`, `Hover` ve `Hidden` değerlerini alır; default `Hover`'dır
+  (`settings_content/src/workspace.rs:214-239`).
+- `Hidden` durumunda close icon hiç eklenmez. Diğer durumlarda kapatma
+  alanı `.top_2().w_4().h_4()` ölçüleriyle çizilir; `Left` ayarında
+  `.left_1()`, `Right` ayarında `.right_1()` uygulanır. `Hover`
+  durumunda icon `visible_on_hover("tab")` modifier'ı ile yalnız
+  sekmenin üzerine gelindiğinde görünür hâle gelir.
+- Close icon'una yapılan tıklama ile sekmenin ortasındaki mouse up
+  olayı aynı `CloseWindow` action'ını dispatch eder. Hedef sekme,
+  şu anki aktif pencereye ait değilse action o sekmenin
+  `AnyWindowHandle`'ı üzerinden çalıştırılır.
+- Drag-over preview'ı `drop_target_background` ve `drop_target_border`
+  token'larını kullanır. Önce border tamamen sıfırlanır; hedef index
+  sürüklenen indexten küçükse sol tarafa `border_l_2`, büyükse sağ
+  tarafa `border_r_2` çizilir. Aynı index üstünde herhangi bir yan
+  çizgi gösterilmez; bu, "sekme buraya zaten ait" durumunun görsel
+  ifadesidir.
+
+Alt sağdaki plus bölgesi, tek başına bir action sayılmaz. Görsel
+olarak da kendine ait bir yapısı vardır: `.h_full()` ile dikeyde tüm
+alana yayılır, `DynamicSpacing::Base06.rems(cx)` ile yatay padding
+alır; üst ve sol kenarına border çizilir; içine muted small bir plus
+ikonu yerleştirilir (`system_window_tabs.rs:473-492`). Click akışı,
+yukarıda da bahsedildiği gibi
+`zed_actions::OpenRecent { create_new_window: true }` action'ını
+dispatch eder. Bağımsız bir uygulamada genellikle aynı görsel alan
+korunur, ama action ürünün kendi yeni pencere veya workspace akışına
+yönlendirilir.
 
 **Controller akışı:**
 
@@ -305,20 +420,27 @@ context menu / action
   -> ShowNext/PreviousWindowTab: controller tab handle'ını activate_window()
 ```
 
-Kendi uygulamanızda native tab desteğini ilk aşamada istemiyorsanız:
+Native tab desteği bir uygulamada ilk aşamada istenmiyorsa şu yol
+izlenir:
 
-- `PlatformTitleBar::init(cx)` çağrısını kaldırmak yerine, port edilen
-  `PlatformTitleBar` içinde `SystemWindowTabs` child'ını feature flag ile kapatın.
-- `tabbing_identifier` değerini `None` bırakın.
-- Sekme action'larını kaydetmeyin.
+- `PlatformTitleBar::init(cx)` çağrısı tamamen kaldırılmaz; bunun
+  yerine port edilen `PlatformTitleBar` içindeki `SystemWindowTabs`
+  child'ı feature flag ile kapatılır. Böylece native tab desteğinin
+  geri açılması ileride kolay olur.
+- Pencerelerin `tabbing_identifier` alanı `None` olarak bırakılır.
+- Sekme action'ları workspace'e kaydedilmez.
 
-Native tab desteğini koruyacaksanız:
+Native tab desteği korunacaksa şu yol izlenir:
 
-- Her pencereye aynı uygulama tab group adı verin.
-- `SystemWindowTabController::init(cx)` GPUI `App` init sırasında zaten
-  kuruludur; settings toggle true olduğunda Zed bunu tekrar çağırıp controller
-  state'ini temiz şekilde yeniden başlatır.
-- Yeni açılan pencereleri controller'a `SystemWindowTab::new(title, handle)` ile
-  bildirin.
-- Sekme kapatma ve yeni pencere action'larını uygulama lifecycle'ınıza bağlayın.
+- Aynı tab grubuna ait pencerelerin hepsine tek bir tab group adı
+  verilir.
+- `SystemWindowTabController::init(cx)` çağrısı GPUI `App` init
+  sırasında zaten kurulmuştur. Settings toggle `true` olduğunda Zed bu
+  fonksiyonu tekrar çağırır ve controller state'i temiz biçimde
+  yeniden başlatılır; manuel olarak tekrar tetiklenmesine gerek yoktur.
+- Yeni açılan pencerelerin controller'a bildirilmesi için
+  `SystemWindowTab::new(title, handle)` çağrısı kullanılır.
+- Sekme kapatma ve yeni pencere action'ları uygulamanın lifecycle
+  modeline doğrudan bağlanır; bunlar boş bırakılırsa native tab
+  yüzeyi görünür ama çalışmaz duruma düşer.
 
