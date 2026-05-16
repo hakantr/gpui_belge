@@ -1,6 +1,9 @@
 # Runtime veri modeli
 
-GPUI tipleri bilindikten sonra uygulamanın bellekte taşıyacağı Theme ailesini, renk gruplarını ve syntax/icon tema kabını tanımla.
+GPUI tipleri tanındıktan sonra sıra, uygulamanın bellekte taşıyacağı Theme
+ailesini, renk gruplarını ve syntax/icon tema kabını tanımlamaya gelir. Bu
+bölüm; tema sisteminin runtime tarafındaki bütün ana yapı taşlarını tek tek
+ele alır ve her birinin neden o şekilde tasarlandığını açıklar.
 
 ---
 
@@ -8,8 +11,10 @@ GPUI tipleri bilindikten sonra uygulamanın bellekte taşıyacağı Theme ailesi
 
 **Kaynak modül:** `kvs_tema/src/kvs_tema.rs` (lib kökü).
 
-Tema'nın **üst düzey** sözleşmesi iki ayrı struct'a bölünür: `Theme`
-(metadata + styles) ve `ThemeStyles` (tüm renk/stil grupları).
+Tema'nın **üst düzey** sözleşmesi iki ayrı struct olarak bölünür: `Theme`
+(metadata ve styles birleşimi) ile `ThemeStyles` (tüm renk ve stil
+gruplarının kabı). Bu ayrım, ileride yapılacak okuma ve klonlama
+işlemlerinin neden bu kadar ucuza geldiğini de açıklar.
 
 ```rust
 pub struct Theme {
@@ -61,22 +66,23 @@ impl Theme {
 }
 ```
 
-> **Visibility kararı:** `styles` alanı `pub(crate)` — tüketici crate
-> doğrudan `theme.styles.X` zinciri **yazamaz**; her okuma accessor
-> üzerinden geçer. Gerekçesi: `ThemeStyles`'ın iç düzeni (alan adları,
-> sıralama, alt-struct ayrımı) Zed sözleşmesine bağlı olarak evrilebilir;
-> accessor arayüzü sözleşmeyi `theme.colors()` üzerinde **sabitler** ve iç düzen
-> değişimi tüketici kodu kırmaz. Konu 43 bu kararı `pub` API kataloğu
-> ile zorunlu kılar.
+> **Visibility kararı:** `styles` alanı `pub(crate)` olarak tanımlanır —
+> tüketici crate doğrudan `theme.styles.X` zincirini **yazamaz**; her okuma
+> accessor üzerinden geçer. Gerekçe şudur: `ThemeStyles`'ın iç düzeni (alan
+> adları, sıralaması, alt-struct ayrımı) Zed sözleşmesine bağlı olarak
+> zaman içinde evrilebilir; accessor arayüzü ise sözleşmeyi
+> `theme.colors()` üzerinde **sabitler** ve iç düzendeki bir değişim
+> tüketici kodu kırmaz. Bu kural Konu 43'te `pub` API kataloğu üzerinden
+> ayrıca zorunlu kılınmıştır.
 
 ### Alan-alan davranış
 
 | Alan | Tip | Niye böyle |
 |------|-----|------------|
-| `id` | `String` | Unique tema id; runtime'da `uuid::Uuid::new_v4()` üretilir. Map key değil; hash ihtiyacı yok. |
-| `name` | `SharedString` | İnsan-okunabilir ad (örn. "Kvs Default Dark"). Registry map key, çok klonlanır → `Arc<str>` ucuzluğu (bkz. Konu 7). |
-| `appearance` | `Appearance` | `Light` veya `Dark`. UI tarafının sistem moduna göre tema seçmesini sağlar. |
-| `styles` | `ThemeStyles` | Tüm renk grupları. Ayrı struct olması: `Theme`'i Clone'larken `styles`'ın boyutunu (~150 `Hsla` + diğerleri) tek alan altında tutar. |
+| `id` | `String` | Unique tema id'sidir; runtime'da `uuid::Uuid::new_v4()` ile üretilir. Map key olarak kullanılmadığı için hash ihtiyacı yoktur. |
+| `name` | `SharedString` | İnsan-okunabilir ad (örn. "Kvs Default Dark"). Registry map key'i olarak çok klonlandığından `Arc<str>` ucuzluğu burada kazanç sağlar (bkz. Konu 7). |
+| `appearance` | `Appearance` | `Light` veya `Dark`. UI tarafının sistem moduna göre tema seçmesini mümkün kılar. |
+| `styles` | `ThemeStyles` | Tüm renk grupları. Ayrı bir struct olarak tutulmasının nedeni: `Theme` klonlanırken `styles`'ın boyutunu (~150 `Hsla` + diğerleri) tek alan altında bir arada tutmaktır. |
 
 ### `ThemeStyles` alt katmanları
 
@@ -92,15 +98,16 @@ impl Theme {
 
 ### `Arc<SyntaxTheme>` neden Arc?
 
-`SyntaxTheme` `Vec<(String, HighlightStyle)>` taşır — boy büyük (50-200
-girdi). Tema değişirken syntax bölümü diğer alanlardan **bağımsız**
-güncellenebilir; `Arc` sayesinde aynı syntax birden fazla `Theme`
-varyantı arasında paylaşılabilir (örn. light/dark sadece UI renklerinde
-farklı, syntax aynı olabilir).
+`SyntaxTheme` içinde `Vec<(String, HighlightStyle)>` taşır ve bu vektör
+genelde 50-200 girdiden oluşur. Tema değişimi sırasında syntax bölümünün
+diğer alanlardan **bağımsız** olarak güncellenmesi mümkün olduğundan,
+`Arc` ile sarmalama sayesinde aynı syntax birden fazla `Theme` varyantı
+arasında paylaşılabilir (örneğin light ve dark sürümler yalnızca UI
+renklerinde ayrışır, syntax aynı kalabilir).
 
-Diğer alt katmanlar (`ThemeColors`, `StatusColors`, vs.) `Arc` ile
-sarılmamış — küçük (her biri max ~150 `Hsla`), ve baseline ile her
-varyant için ayrı klon zaten gerek.
+Diğer alt katmanlar (`ThemeColors`, `StatusColors`, vb.) `Arc` ile
+sarılmaz; her biri görece küçüktür (en fazla ~150 `Hsla`) ve baseline ile
+her varyant için ayrı bir klon zaten kaçınılmazdır.
 
 ### Erişim desenleri
 
@@ -113,35 +120,41 @@ let local = theme.players().local().cursor;
 ```
 
 > **Zed eşdeğeri:** Zed'in `crates/theme/src/theme.rs` dosyasında da
-> `theme.colors()`, `theme.status()` accessor'ları var. `kvs_tema`'da
-> da aynı sözleşmeyi koruyoruz; accessor'lar yukarıdaki struct
-> tanımının `impl Theme` bloğunda tanımlı (yukarı bak).
+> `theme.colors()` ve `theme.status()` accessor'ları bulunur.
+> `kvs_tema`'da bu sözleşme aynen korunur; accessor'lar yukarıdaki struct
+> tanımının `impl Theme` bloğunda yer alır.
 >
 > Tüketici kod **hiçbir zaman** `theme.styles.X` yazmaz — `styles` alanı
-> `pub(crate)`, crate dışından görünmez (Konu 43).
+> `pub(crate)` olduğundan crate dışından görünmez (Konu 43).
 
 ### `Theme` clone stratejisi
 
-`Theme` tek seferde `~150 × Hsla (16 byte) + birkaç enum + Arc + String`
-≈ **2.5-3 KiB**. Her `cx.theme()` çağrısı `&Arc<Theme>` döner; clone
-ücretsiz. Asla `Theme::clone()` yazmaktan kaçın — `GlobalTheme.theme`
-zaten `Arc<Theme>` tutuyor.
+`Theme` bir bütün olarak yaklaşık `~150 × Hsla (16 byte) + birkaç enum + Arc
++ String` boyutunda, yani **2.5-3 KiB** civarındadır. Her `cx.theme()`
+çağrısı `&Arc<Theme>` döner; bu nedenle clone pratikte ücretsizdir.
+Doğrudan `Theme::clone()` çağırmak çoğu zaman gereksizdir — `GlobalTheme.theme`
+zaten `Arc<Theme>` üzerinden taşır ve `Arc::clone` yalnızca refcount artırır.
 
 ### Tuzaklar
 
-1. **`id` yerine `name` map key**: `name` `SharedString` ve registry key
-   olarak kullanılır. `id` (uuid) sadece tema-içi tanım için; karıştırma.
-2. **`styles` alanını `pub` yapmak**: Sözleşme delinmesi — bu rehberin
-   kararı `pub(crate)`. Tüketicinin tek okuma yolu accessor metotları
-   (`theme.colors()`, `theme.status()`, vs.). İç düzen evrilse bile
-   accessor arayüzü `theme.colors()` üzerinde sabit kalır.
+1. **`id` ile `name` arasında karışıklık**: `name` `SharedString` tipindedir
+   ve registry'de key olarak kullanılır. `id` (uuid) yalnızca tema-içi
+   tanımlama amacıyla tutulur; ikisinin birbirinin yerine konulması
+   registry akışını bozar.
+2. **`styles` alanını `pub` yapmak**: Sözleşmenin doğrudan delinmesi
+   anlamına gelir — bu rehberin kararı `pub(crate)` yönündedir. Tüketicinin
+   tek okuma yolu accessor metotlarıdır (`theme.colors()`, `theme.status()`
+   vb.). İç düzen ileride evrilse bile accessor arayüzü `theme.colors()`
+   imzasında sabit kalır.
 3. **`appearance` runtime'da değişmez**: Bir tema *Light* olarak yüklendi
-   diye runtime'da Dark olarak yeniden işlenmez. Tema değiştirmek için
-   `GlobalTheme::update_theme` ile yeni `Arc<Theme>` aktive et.
-4. **`SystemColors::default()` ile dolu kalsın**: Tema yazarı sistem
-   renklerini özelleştirmek istemiyorsa `Default::default()` yeterli;
-   bazı geliştiriciler bu alanı atlayıp `unsafe zeroed` ile karıştırıp
-   görünmez kılar.
+   diye runtime'da Dark olarak yeniden işlenmez. Tema değişimi için
+   `GlobalTheme::update_theme` çağrısı yapılarak yeni bir `Arc<Theme>`
+   aktive edilmelidir.
+4. **`SystemColors::default()` ile doldurmanın yeterliliği**: Tema yazarı
+   sistem renklerini özelleştirmek istemiyorsa `Default::default()`
+   yeterlidir. Bazı geliştiriciler bu alanı atlayıp `unsafe zeroed` ile
+   karıştırıp yapıyı görünmez hale getirme yoluna gider; bu yaklaşım
+   sonradan zor takip edilen hatalara yol açar.
 
 ---
 
@@ -149,8 +162,9 @@ zaten `Arc<Theme>` tutuyor.
 
 **Kaynak modül:** `kvs_tema/src/styles/colors.rs`.
 
-UI renk paletinin tamamı tek struct'ta toplanır. **Alan sayısı ~150**;
-kesin sayı izlenen Zed tema sözleşmesine bağlıdır.
+UI renk paletinin tamamı tek bir struct altında toplanır. **Alan sayısı
+yaklaşık 150 civarındadır**; kesin rakam izlenen Zed tema sözleşmesine
+bağlıdır.
 
 ```rust
 #[derive(Refineable, Clone, Debug, PartialEq)]
@@ -160,21 +174,22 @@ pub struct ThemeColors {
 }
 ```
 
-`#[derive(Refineable)]` otomatik olarak `ThemeColorsRefinement` ikizini
-üretir (bkz. Konu 11).
+`#[derive(Refineable)]` attribute'u sayesinde `ThemeColorsRefinement` ikizi
+otomatik olarak üretilir (bkz. Konu 11).
 
 ### Alan grupları (semantik kategoriler)
 
-Aşağıdaki tablo, alan adlandırma prefix'lerini ve **işlevsel rolünü**
-toplar. Zed'in `crates/theme/src/styles/colors.rs` dosyasındaki sıralama
-korunur; eksik alan = sözleşme delinmesi (Konu 2).
+Aşağıdaki tablo, alan adlandırma prefix'lerini ve her grubun **işlevsel
+rolünü** özetler. Zed'in `crates/theme/src/styles/colors.rs` dosyasındaki
+sıralama olduğu gibi korunur; bir alanın eksik bırakılması sözleşmenin
+delinmesi anlamına gelir (Konu 2).
 
 | Grup | Prefix / örnek | Rol | Yaklaşık alan sayısı |
 |------|----------------|-----|---------------------|
 | **Kenarlıklar** | `border`, `border_variant`, `border_focused`, `border_selected`, `border_transparent`, `border_disabled` | Çevre çizgileri ve focus/selection durumları | 6 |
 | **Yüzeyler** | `background`, `surface_background`, `elevated_surface_background` | Pencere/panel/popover katmanlama | 3 |
 | **Etkileşimli element** | `element_background`, `element_hover`, `element_active`, `element_selected`, `element_selection_background`, `element_disabled`, `drop_target_background`, `drop_target_border` | Button/clickable durumları | 8 |
-| **Ghost element** | `ghost_element_background`, `ghost_element_hover`, `ghost_element_active`, `ghost_element_selected`, `ghost_element_disabled` | Şeffaf bg ile element durumları (toolbar icon vs.) | 5 |
+| **Ghost element** | `ghost_element_background`, `ghost_element_hover`, `ghost_element_active`, `ghost_element_selected`, `ghost_element_disabled` | Şeffaf bg ile element durumları (toolbar icon vb.) | 5 |
 | **Metin** | `text`, `text_muted`, `text_placeholder`, `text_disabled`, `text_accent` | Ön plan renkleri | 5 |
 | **Icon** | `icon`, `icon_muted`, `icon_disabled` | Icon ön plan renkleri | 3 |
 | **Editor** | `editor_*` (background, foreground, line_number, active_line_background, wrap_guide, document_highlight_*) | Kod editör katmanı | 18 |
@@ -198,10 +213,11 @@ korunur; eksik alan = sözleşme delinmesi (Konu 2).
 
 ### Tam alan paritesi
 
-Bu liste, referans alınan Zed sürümündeki `ThemeColors` runtime
-alanlarının **eksiksiz** kataloğudur. Runtime struct'ı 143 adet `Hsla`
-alan taşır. `ThemeColorsContent` tarafında buna ek olarak 3 deprecated
-uyumluluk alanı vardır; onlar Bölüm V/Konu 19'de ayrıca belirtilir.
+Aşağıdaki liste, referans alınan Zed sürümündeki `ThemeColors` runtime
+alanlarının **eksiksiz** kataloğudur. Runtime struct'ı toplam 143 adet
+`Hsla` alanı taşır. `ThemeColorsContent` tarafında buna ek olarak 3
+deprecated uyumluluk alanı yer alır; bunlar Bölüm V/Konu 19'de ayrıca
+belirtilir.
 
 ```text
 border:
@@ -303,8 +319,8 @@ version_control:
 ```
 
 **Parite ilişkisi:** Runtime alan sayısı, `ThemeColorsContent` alan sayısı
-ve deprecated content farkları şu ilişkiyi korur: content alanları =
-runtime alanları + deprecated uyumluluk alanları.
+ve deprecated content farkları arasında şu denge korunur: content alanları
+sayısı = runtime alanları + deprecated uyumluluk alanları.
 
 ### Naming convention
 
@@ -316,42 +332,45 @@ runtime alanları + deprecated uyumluluk alanları.
 
 ### `Refineable` davranışı
 
-`ThemeColors` `Refineable` türettiği için her alan için
-`ThemeColorsRefinement` içinde `Option<Hsla>` üretilir. `from_content`
-akışında:
+`ThemeColors` `Refineable` türevini taşıdığı için her alan için
+`ThemeColorsRefinement` içinde bir `Option<Hsla>` üretilir. `from_content`
+akışı şu şekilde işler:
 
 1. Baseline `ThemeColors` klonlanır.
 2. Kullanıcı temasından `ThemeColorsRefinement` üretilir.
-3. `baseline.refine(&refinement)` ile birleştirilir.
+3. `baseline.refine(&refinement)` çağrısıyla iki katman birleştirilir.
 
-Eksik alanlar baseline'dan gelir; kullanıcı verdiği alanlar override
-eder.
+Sonuçta eksik alanlar baseline'dan gelir; kullanıcının verdiği alanlar ise
+üstüne yazar.
 
 ### Tuzaklar
 
-1. **Sıra önemli (sözleşme açısından değil ama okunabilirlik açısından)**:
-   Zed'in dosyasındaki sıralamayı korumak yeni alanların yerini anlamayı
-   kolaylaştırır. Alfabetik sıralamak hata.
+1. **Sıra önemlidir (sözleşme açısından değil, okunabilirlik açısından)**:
+   Zed dosyasındaki sıralamanın korunması, yeni alanların yerinin
+   anlaşılmasını kolaylaştırır. Alfabetik sıralama ise yanlış bir tercih
+   olur ve ileride parite kontrolünü zorlaştırır.
 2. **Grup yorumlarını silmek**: `// Kenarlıklar`, `// Yüzeyler` gibi
    semantik yorumlar grup sınırını gösterir; yeni alan grupları eklenirken
-   bu yorumlar referans noktasıdır.
-3. **Yeni grup ekleyince Konu 13 tablosunu güncellememek**: Yeni bir
-   semantik grup eklendiyse buraya satır ekle.
-4. **Editor / debugger / vcs alanlarını dışlamak**: "Henüz editor yok" =
-   geçerli dışlama sebebi değil (Konu 2). Hepsini ekle, UI'da okumayı
-   sonraya bırak.
-5. **`Option<Hsla>` alanları**: ThemeColors `Hsla` (Option değil). Eksik
-   alan baseline'dan dolar — refinement katmanı bunu yönetir. ThemeColors
-   içinde Option kullanmaya çalışırsan refinement deseni bozulur.
+   bu yorumlar referans noktası olarak iş görür.
+3. **Yeni grup eklendiğinde Konu 13 tablosunu güncellememek**: Yeni bir
+   semantik grup eklendiyse rehberin bu bölümündeki tabloya satır
+   eklenmesi gerekir; aksi halde dokümantasyon kodun gerisinde kalır.
+4. **Editor / debugger / vcs alanlarını dışlamak**: "Henüz editor yok"
+   geçerli bir dışlama sebebi olarak kabul edilmez (Konu 2). Tüm alanlar
+   eklenir, UI'da okunması sonraya bırakılabilir.
+5. **`Option<Hsla>` alanları**: `ThemeColors` `Hsla` (Option değil) tutar.
+   Eksik bir alan baseline'dan doldurulur — refinement katmanı bunu
+   yönetir. `ThemeColors` içinde `Option<Hsla>` kullanılmaya kalkıldığında
+   refinement deseni bozulur.
 
 ### `all_theme_colors` ve `ThemeColorField` — reflection API
 
-**Kaynak:** `crates/theme/src/styles/colors.rs:346` (`ThemeColorField` enum),
-`crates/theme/src/styles/colors.rs:596` (`all_theme_colors` fn).
+**Kaynak:** `crates/theme/src/styles/colors.rs:346` (`ThemeColorField`
+enum), `crates/theme/src/styles/colors.rs:596` (`all_theme_colors` fn).
 
 Tema editörü, color picker, debug inspector veya snapshot testi yazarken
-tema renklerini **runtime'da listeyebilmek** istenir. Zed bunu iki yapıyla
-sunar:
+tema renklerinin **runtime'da listelenmesi** gerekebilir. Zed bu ihtiyacı
+iki yapı üzerinden karşılar:
 
 ```rust
 use strum::{AsRefStr, EnumIter, IntoEnumIterator};
@@ -384,10 +403,10 @@ pub fn all_theme_colors(cx: &mut App) -> Vec<(Hsla, SharedString)> {
 }
 ```
 
-**Kritik parite düzeltmesi:** `ThemeColorField`, `ThemeColors`'taki her
-alan için variant üretmez. Referans Zed sürümünde runtime
-`ThemeColors` 143 alan taşır; `ThemeColorField` ise 111 variant'lık
-reflection alt kümesidir. Küme ilişkisi şudur:
+**Kritik parite düzeltmesi:** `ThemeColorField`, `ThemeColors` içindeki
+her alan için variant üretmez. Referans Zed sürümünde runtime `ThemeColors`
+143 alan taşırken `ThemeColorField` yalnızca 111 variant'lık bir
+reflection alt kümesidir. Küme ilişkisi şu şekildedir:
 
 ```text
 ThemeColorField labels ⊆ ThemeColors fields
@@ -395,7 +414,8 @@ ThemeColorField labels = 111
 ThemeColors fields = 143
 ```
 
-`ThemeColors` içinde olup Zed reflection API'sinde yer almayan 32 alan:
+`ThemeColors` içinde bulunan ama Zed reflection API'sinde yer almayan 32
+alan şunlardır:
 
 ```text
 debugger_accent
@@ -478,28 +498,30 @@ pub fn all_theme_colors(cx: &mut App) -> Vec<(Hsla, SharedString)> {
 }
 ```
 
-**Üretim disiplini:** İki farklı stratejiden birini seç, ama adını doğru
-koy:
+**Üretim disiplini:** İki farklı stratejiden biri seçilmelidir ve seçimin
+adı net konulmalıdır:
 
-- **Zed paritesi:** `ThemeColorField` sadece Zed'in 111 alanlık reflection
-  subset'ini mirror eder. `ThemeColors` alanları için ayrıca 143 alanlık
-  runtime/content parite testi tutulur.
+- **Zed paritesi:** `ThemeColorField` yalnızca Zed'in 111 alanlık
+  reflection subset'ini mirror eder. `ThemeColors` alanları için ayrıca
+  143 alanlık bir runtime/content parite testi tutulur.
 - **Yerel tam reflection:** `ThemeColorField` 143 alanın tamamını kapsar.
-  Bu Zed'den bilinçli genişletmedir; snapshot testlerinde `111` değil
-  `143` beklenir.
+  Bu, Zed'den bilinçli bir genişletmedir; snapshot testlerinde `111`
+  değil `143` beklenir.
 
-Elle 111 ya da 143 alan yazmak yorucuysa derive makrosu yazılır:
+Elle 111 ya da 143 alanın yazılması yorucu olduğunda derive makrosu
+yazmak pratik bir çözüm olur:
 
 ```rust
 #[derive(Refineable, ThemeColorReflect)]
 pub struct ThemeColors { /* ... */ }
 ```
 
-`ThemeColorReflect` derive makrosu `ThemeColorField` enum'unu, `label`
-ve `value` impl'lerini otomatik üretir. Zed paritesi seçildiyse 32 alan
-`#[theme_color_reflect(skip)]` benzeri bir attribute ile reflection dışı
-bırakılır; aksi halde makro yerel genişletme üretir. Refinement makrosuyla
-aynı crate (`ui_macros` veya `kvs_macros`) içinde tutulur.
+`ThemeColorReflect` derive makrosu `ThemeColorField` enum'unu, `label` ve
+`value` impl'lerini otomatik olarak üretir. Zed paritesi tercih edilmişse
+32 alan, `#[theme_color_reflect(skip)]` benzeri bir attribute ile
+reflection dışı bırakılır; aksi halde makro yerel genişletme üretir.
+Refinement makrosuyla aynı crate içinde (`ui_macros` veya `kvs_macros`)
+tutulması, bakım açısından çok daha tutarlı bir yerleşim olur.
 
 **Kullanım yerleri:**
 
@@ -527,10 +549,10 @@ fn theme_color_count_matches_zed_reference() {
 ```
 
 Bu test tek başına yeterli değildir; `ThemeColorField` label'larının
-tamamı gerçek `ThemeColors` alanı olmalı ve dışarıda kalan 32 alan
-yukarıdaki listeyle birebir eşleşmelidir. Aksi halde yeni eklenen bir
-alan sessizce reflection dışında kalabilir veya yanlışlıkla reflection'a
-eklenip Zed paritesi bozulabilir.
+tamamının gerçek bir `ThemeColors` alanına denk gelmesi gerekir ve
+dışarıda kalan 32 alanın yukarıdaki listeyle birebir eşleşmesi
+beklenir. Aksi halde yeni eklenen bir alan sessizce reflection dışında
+kalabilir ya da yanlışlıkla reflection'a eklenip Zed paritesi bozulabilir.
 
 ```rust
 // Reflection karşılaştırması
@@ -549,8 +571,8 @@ for ((a, label), (b, _)) in zed.iter().zip(user.iter()) {
 
 **Kaynak modül:** `kvs_tema/src/styles/status.rs`.
 
-Diagnostic ve VCS durum renklerini taşır. Her durum için **üç alan**:
-foreground (`<ad>`), background (`<ad>_background`), border
+Diagnostic ve VCS durum renklerini taşır. Her durum için **üç alan**
+tanımlıdır: foreground (`<ad>`), background (`<ad>_background`) ve border
 (`<ad>_border`).
 
 ```rust
@@ -609,7 +631,7 @@ warning, warning_background, warning_border
 
 ### Üçlü deseni
 
-Her status üçlüsü tutarlı:
+Her status üçlüsü kendi içinde tutarlı bir yapıya sahiptir:
 
 ```rust
 pub <name>: Hsla,             // foreground — ana renk (icon, metin)
@@ -617,14 +639,14 @@ pub <name>_background: Hsla,  // arka plan — vurgu/highlight bg
 pub <name>_border: Hsla,      // kenar — outline/divider
 ```
 
-Tema yazarı sık sık sadece foreground'u verir; `_background` ve
-`_border` türetilir.
+Pratikte tema yazarı çoğu zaman yalnızca foreground rengini verir;
+`_background` ve `_border` değerleri ise otomatik olarak türetilir.
 
 ### Türetme önizleme (`apply_status_color_defaults`)
 
-`refinement.rs` içindeki yardımcı, **foreground verilmiş ama background
-verilmemiş** durumda `_background`'u foreground'un **%25 alpha**'lı
-versiyonundan türetir:
+`refinement.rs` içindeki yardımcı; **foreground verilmiş ama background
+verilmemiş** durumda `_background` değerini foreground'un **%25
+alpha**'lı bir kopyasından türetir:
 
 ```rust
 pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement) {
@@ -644,9 +666,11 @@ pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement) {
 }
 ```
 
-Detaylar Bölüm VII/Konu 31'te. Burada bilinmesi gereken: **fg-only**
-JSON temaları baseline'ın `_background` değerleriyle karışmaz — fg'den
-türetilir.
+Detaylar Bölüm VII/Konu 31'de işlenir. Burada bilinmesi gereken şudur:
+**fg-only** JSON temaları, `_background` değerlerini baseline'dan
+almaz; bu değerler doğrudan kullanıcı temasının verdiği foreground'dan
+türetilir, böylece tema yazarının niyetinden kopmayan bir görsel
+tutarlılık elde edilir.
 
 ### JSON şeması
 
@@ -659,20 +683,20 @@ türetilir.
 }
 ```
 
-> **Not:** JSON anahtarında `.background` kullanılır (`error.background`),
-> Rust alan adında `_background` (`error_background`).
-> `#[serde(rename = "error.background")]` ile bağlanır.
+> **Not:** JSON anahtarında `.background` (`error.background`) kullanılır;
+> Rust alan adında ise `_background` (`error_background`). İki taraf
+> arasındaki köprü `#[serde(rename = "error.background")]` ile kurulur.
 
 ### Tüm alanlar Hsla, hiçbiri Option değil
 
-ThemeColors gibi `StatusColors` de her alanı `Hsla` tutar. Eksik alanlar
-refinement katmanında handle edilir (`StatusColorsRefinement` her alanı
-`Option<Hsla>` yapar otomatik).
+`StatusColors` da, `ThemeColors` gibi, her alanı `Hsla` olarak tutar.
+Eksik alanlar refinement katmanında ele alınır; `StatusColorsRefinement`
+her alanı otomatik olarak `Option<Hsla>` haline getirir.
 
 ### Editor için `DiagnosticColors` projeksiyonu
 
-Zed'in `crates/theme/src/styles/status.rs:83` dosyasında `StatusColors`'un
-yanında **`DiagnosticColors`** adında üç alanlı bir tip vardır:
+Zed'in `crates/theme/src/styles/status.rs:83` dosyasında, `StatusColors`'un
+yanı sıra **`DiagnosticColors`** adında üç alanlı bir tip de bulunur:
 
 ```rust
 pub struct DiagnosticColors {
@@ -683,10 +707,10 @@ pub struct DiagnosticColors {
 ```
 
 **Rol:** Editor diagnostic'leri (squiggly underline, gutter işaretleri,
-diagnostic popup) için **sıkıştırılmış** renk seti. `StatusColors` 42
-alan taşırken `DiagnosticColors` editor render path'ine sadece foreground
-renklerini sunar. Refinement zincirinde yer almaz — `StatusColors`'tan
-**türetilir**:
+diagnostic popup) için **sıkıştırılmış** bir renk seti sunar.
+`StatusColors` 42 alan taşırken `DiagnosticColors` editor render path'ine
+yalnızca üç foreground rengini iletir. Bu tip refinement zincirinde yer
+almaz; doğrudan `StatusColors`'tan **türetilir**:
 
 ```rust
 impl Theme {
@@ -701,49 +725,55 @@ impl Theme {
 ```
 
 **Kullanım yeri:** Editor crate'i (`kvs_editor`) diagnostic render
-sırasında `cx.theme().status().error` yerine `cx.theme().diagnostic_colors().error`
-çağırabilir. Üç alanı bir kez kopyalamak, her render'da üç ayrı `status()`
-erişiminden daha okunaklı.
+sırasında `cx.theme().status().error` çağrısı yerine
+`cx.theme().diagnostic_colors().error` çağrısını kullanabilir. Üç alanı
+tek seferde kopyalamak, her render'da üç ayrı `status()` erişiminden çok
+daha okunaklı bir kod akışı sağlar.
 
-**JSON sözleşmesinde yer almaz.** Tema dosyasında `diagnostic.error`
-anahtarı yok; `error`, `warning`, `info` `StatusColors`'tan gelir.
-`DiagnosticColors` saf runtime projeksiyonudur.
+**JSON sözleşmesinde yer almaz.** Tema dosyasında `diagnostic.error` gibi
+bir anahtar bulunmaz; `error`, `warning` ve `info` değerleri
+`StatusColors`'tan gelir. `DiagnosticColors` tamamen runtime tarafında
+yapılan bir projeksiyondur.
 
 **Ne zaman kullanılır?**
 
 - Editor diagnostic render: `error` squiggly, `warning` squiggly, `info`
   squiggly.
 - Diagnostic popup başlığı (severity icon + renk).
-- Gutter işareti yanındaki severity dot.
+- Gutter işaretinin yanındaki severity dot.
 
 **Ne zaman kullanılmaz?**
 
-- Modal/banner/toast: `StatusColors`'un üçlü desenini (fg/bg/border)
-  kullan; `DiagnosticColors` bg/border vermez.
-- File tree status (created/modified/deleted): bunlar diagnostic değil,
-  vcs status — `StatusColors.modified` vs.
+- Modal, banner veya toast tasarımları: bu yüzeylerde `StatusColors`'un
+  üçlü deseni (fg/bg/border) gerekir; `DiagnosticColors` bg ve border
+  taşımaz.
+- File tree status alanları (created/modified/deleted): bunlar diagnostic
+  değil VCS status değerleridir; `StatusColors.modified` gibi alanlardan
+  beslenir.
 
-**Sözleşme sınırı:** `DiagnosticColors` alanları Zed'in diagnostic severity
-modelini izler. Zed tarafında yeni severity alanı görünürse `kvs_tema`
-runtime tipinde aynı alan bulunmalıdır.
+**Sözleşme sınırı:** `DiagnosticColors` alanları Zed'in diagnostic
+severity modelini izler. Zed tarafında yeni bir severity alanı eklendiğinde
+`kvs_tema` runtime tipinin de aynı alanı taşıması beklenir.
 
 ### Tuzaklar
 
-1. **Türetme kuralı atlanırsa**: Kullanıcı sadece `error` verirse ve
-   `apply_status_color_defaults` çağrılmazsa, `error_background`
-   baseline'dan kalır. Sonuç: kullanıcı temasının ana rengi var ama
-   bg eski temanın yarı-saydam mavisi. UI karışık görünür.
-2. **14 status'un tamamını dahil etmek**: Tema yazarı sadece `error` ve
-   `warning` kullansa bile struct'ta `predictive`, `unreachable`,
-   `renamed` vs. **olmak zorunda** (Konu 2). UI'da okumayan alan
-   sıfır maliyet.
-3. **`_background` ve `_border` farklı türetilebilir**: %25 alpha bg
-   için makul; border için %50 alpha daha doğal. Yardımcı fonksiyon
-   sadece `_background` için tanımlı — `_border` için ayrı türetme
-   istiyorsan ek fonksiyon yaz.
+1. **Türetme kuralının atlanması**: Kullanıcı yalnızca `error` rengini
+   verdiyse ve `apply_status_color_defaults` çağrılmadıysa,
+   `error_background` baseline'dan kalır. Sonuç olarak kullanıcı
+   temasının ana rengi var ama background eski temanın yarı saydam
+   mavisidir; UI dağınık görünür.
+2. **14 status'un tamamını dahil etmek**: Tema yazarı yalnızca `error` ve
+   `warning` kullanıyor olsa bile, struct'ta `predictive`, `unreachable`,
+   `renamed` vb. **bulunmak zorundadır** (Konu 2). UI'da okunmayan alanın
+   maliyeti sıfırdır.
+3. **`_background` ve `_border` farklı türetilebilir**: Background için
+   %25 alpha makul bir tercihtir; border için %50 alpha çoğu zaman daha
+   doğal durur. Mevcut yardımcı fonksiyon yalnızca `_background` için
+   tanımlıdır — `_border` için ayrı bir türetme istendiğinde ek bir
+   fonksiyonun yazılması yerinde olur.
 4. **Yeni status tipi**: Zed sözleşmesindeki her status tipi fg/bg/border
-   üçlüsüyle temsil edilir; foreground-only türetme gerekiyorsa
-   `apply_status_color_defaults` içinde yer alır.
+   üçlüsüyle temsil edilir; foreground-only türetme gerektiren senaryolar
+   `apply_status_color_defaults` içinde toplanır.
 
 ---
 
@@ -751,10 +781,11 @@ runtime tipinde aynı alan bulunmalıdır.
 
 **Kaynak modül:** `kvs_tema/src/styles/players.rs`.
 
-"Player" terimi Zed'in collaboration sisteminden gelir: çoklu kullanıcının
-aynı dosyada eş zamanlı düzenlemesinde her kullanıcıya farklı **cursor**,
-**selection** ve **background** rengi atanır. Single-player uygulamada
-da kullanışlı (multi-cursor görünümü).
+"Player" terimi Zed'in collaboration sisteminden gelir: aynı dosyada eş
+zamanlı düzenleme yapan birden çok kullanıcının her birine ayrı bir
+**cursor**, **selection** ve **background** rengi atanır. Single-player
+uygulamalar için de bu yapı pratiktir; örneğin multi-cursor görünümlerinde
+kullanılabilir.
 
 ```rust
 #[derive(Clone, Debug, PartialEq)]
@@ -784,9 +815,9 @@ impl Default for PlayerColors {
 
 ### Slot semantiği
 
-`PlayerColors(Vec<PlayerColor>)` sıralı bir liste. **Index 0 yerel
-kullanıcıya rezerve**; sonraki index'ler katılımcı (participant)
-slotları.
+`PlayerColors(Vec<PlayerColor>)` sıralı bir listedir. **Index 0 yerel
+kullanıcıya rezerve** tutulur; sonraki indeksler katılımcı (participant)
+slotlarıdır.
 
 **Zed kaynak sözleşmesinin tüm metotları** (`crates/theme/src/styles/players.rs`):
 
@@ -831,18 +862,22 @@ impl PlayerColors {
 
 **Davranış kuralları:**
 
-- Liste boşsa `local()`, `agent()`, `absent()`, `read_only()` ve
-  `color_for_participant()` hepsi panic eder. Fallback temalarda her
-  zaman en az bir `PlayerColor` doldur; collaboration/participant
-  renkleri kullanılıyorsa en az iki slot gerekir.
-- `color_for_participant(N)` local slot'u atlar: participant 0, liste index
-  1'i kullanır. 8 slot varsa remote slotlar index 1-7 arasında döner.
-- `agent()` ve `absent()` aynı slot'u döner (listenin sonu); semantik
-  ayrımı tüketici tarafında yapılır — agent UI'sı vs. ofline kullanıcı.
-- `read_only()` çağrı sırasında lokal slot'tan grayscale türetir;
-  fallback temada lokal değer doluysa otomatik çalışır.
-- Bu API boş/tek elemanlı listeyi tolere etmez; listeyi runtime'a
-  getirmeden önce fallback veya fixture testleriyle garanti et.
+- Liste boş olduğunda `local()`, `agent()`, `absent()`, `read_only()` ve
+  `color_for_participant()` metotlarının hepsi panic atar. Fallback
+  temalarda bu yüzden her zaman en az bir `PlayerColor` doldurulmalıdır;
+  collaboration veya participant renkleri kullanılıyorsa en az iki
+  slotun bulunması gerekir.
+- `color_for_participant(N)` çağrısı local slot'u atlar: participant 0,
+  liste index 1'ini kullanır. 8 slot bulunduğu varsayıldığında remote
+  slotlar index 1 ile 7 arasında döner.
+- `agent()` ve `absent()` aynı slot'u döndürür (listenin sonu); semantik
+  ayrım tüketici tarafında yapılır — bir kullanım agent UI'sı olabilir,
+  bir diğeri offline kullanıcı.
+- `read_only()` çağrı anında lokal slot'tan grayscale türevi üretir;
+  fallback temada lokal değer dolu olduğu sürece otomatik çalışır.
+- Bu API boş veya tek elemanlı listeyi tolere etmez; listenin runtime'a
+  ulaşmadan önce fallback veya fixture testleriyle garanti altına
+  alınması gerekir.
 
 ### JSON şeması
 
@@ -855,8 +890,8 @@ impl PlayerColors {
 }
 ```
 
-`players` boş array gelirse refinement deseni baseline'ın liste'sini
-korur (`Theme::from_content` içinde bunu kontrol eder).
+`players` boş array olarak gelirse refinement deseni baseline'ın listesini
+korur (`Theme::from_content` içinde bu durum kontrol edilir).
 
 ### Kullanım örnekleri
 
@@ -872,37 +907,42 @@ div().bg(katilimci.selection)
 
 ### Tuzaklar
 
-1. **Boş `PlayerColors`**: `Vec` boşsa `local()` panic eder; tek slot
-   varsa `color_for_participant` modulo-by-zero panikler. Fallback
-   temalarda **en az bir local slot**, participant kullanıyorsan **en az
-   iki slot** doldur:
+1. **Boş `PlayerColors`**: `Vec` boş olduğunda `local()` panic eder; yalnız
+   tek bir slot varsa `color_for_participant` modulo-by-zero hatasına yol
+   açar. Fallback temalarda **en az bir local slot**, participant kullanılan
+   senaryolarda ise **en az iki slot** bulundurulmalıdır:
    ```rust
    PlayerColors(vec![PlayerColor { cursor: accent, ... }])
    ```
-2. **`color_for_participant(0)` ile `local()`**: Aynı sonucu verir mi?
-   Hayır. `local()` index 0'dır; `color_for_participant(0)` index 1'i
-   döndürür. Remote katılımcı renkleri local renkten ayrı tutulur.
-3. **Modulo yerine clamp düşünmek**: Modulo kasıtlı — slot sayısı yetmezse
-   "sarmal" davranır. Clamp seçseydin son slot tüm fazla katılımcılarda
-   aynı renk olurdu = ayırt edilemez.
-4. **`cursor` alpha**: Çoğunlukla 1.0 (tam opak); `background` ve
-   `selection` yarı saydam. Tüm üçü opak yaparsan metin görünmez olur.
-5. **Tema yazarının `players` atlaması**: `players: []` veya alan yok =
-   baseline'ın player paleti korunur. Bu kasıtlı; her tema kendi player
-   paletini vermek zorunda değil.
+2. **`color_for_participant(0)` ile `local()` arasındaki fark**: Bu iki
+   çağrı aynı sonucu vermez. `local()` index 0'a karşılık gelir;
+   `color_for_participant(0)` ise index 1'i döndürür. Remote katılımcı
+   renkleri böylelikle local renkten ayrı tutulur.
+3. **Modulo yerine clamp düşünmek**: Modulo davranışı kasıtlıdır — slot
+   sayısı yetmediğinde "sarmal" bir döngü oluşturur. Clamp seçildiğinde
+   ise son slot, sınırı aşan tüm katılımcılarda aynı renk olur ve
+   katılımcılar birbirinden ayırt edilemez hale gelir.
+4. **`cursor` alpha değeri**: Bu alan genellikle 1.0 (tam opak) verilir;
+   `background` ve `selection` ise yarı saydam tutulur. Üçünün de tam opak
+   olduğu durumda metin görünmez hale gelir.
+5. **Tema yazarının `players` alanını atlaması**: `players: []` verilmesi
+   veya alanın hiç olmaması durumunda baseline'ın player paleti korunur.
+   Bu davranış kasıtlıdır; her tema kendi player paletini sunmak zorunda
+   değildir.
 
 ---
 
 ## 16. `AccentColors`, `SystemColors`, `Appearance`
 
-Bu üç tip tema'nın **kromatik altyapısını** tamamlar: dönen accent
-listesi, platforma özgü sabitler, ve tema modunun nominal işareti.
+Bu üç tip, tema'nın **kromatik altyapısını** tamamlar: dönen accent
+listesi, platforma özgü sabitler ve tema modunun nominal işareti.
 
 ### `AccentColors`
 
 **Kaynak modül:** `kvs_tema/src/styles/accents.rs`.
 
-Tema'nın "vurgu" renkleri — rotation list (örn. çoklu chip, etiket, label).
+Tema'nın "vurgu" renklerini taşır — bu liste çoğunlukla rotasyon
+mantığıyla kullanılır (örneğin chip, etiket veya label dizilerinde).
 
 **Zed kaynak sözleşmesi** (`crates/theme/src/styles/accents.rs`):
 
@@ -928,13 +968,13 @@ impl AccentColors {
 
 **Üç önemli sözleşme noktası:**
 
-- İç tip `Arc<[Hsla]>` — `Vec<Hsla>` değil. Sözleşme `Arc<[T]>` üzerinden
-  paylaşılır; klon ucuz, mutate edilmez.
-- Lookup metodunun adı `color_for_index`, `color_for` değil.
-- Boş liste için **fallback yok**: modulo lookup'u `len()` 0'sa panic
-  eder. `Default::default()` `Self::dark()` döndüğü için varsayılan
-  her zaman 13 elemanlıdır; tema yazarının `accents: []` vermesine de
-  refinement katmanı izin vermez (Bölüm VII/Konu 29).
+- İç tip `Arc<[Hsla]>`'dır — `Vec<Hsla>` değil. Sözleşme `Arc<[T]>`
+  üzerinden paylaşılır; klonlama ucuzdur, mutate edilmez.
+- Lookup metodunun adı `color_for_index`'dir, `color_for` değil.
+- Boş liste için **fallback yoktur**: modulo lookup'u `len()` 0 olduğunda
+  panic atar. `Default::default()` çağrısı `Self::dark()` döndürdüğü için
+  varsayılan her zaman 13 elemanlıdır; tema yazarının `accents: []`
+  vermesine de refinement katmanı izin vermez (Bölüm VII/Konu 29).
 
 **`kvs_tema`'da sözleşme:**
 
@@ -960,9 +1000,10 @@ impl AccentColors {
 
 **Davranış:**
 
-- Modulo döner — accent listesi tükenince başa sarar.
-- Boş liste durumu sözleşmeyle dışlanır; yine de defansif kod gerekiyorsa
-  `Default::default()` ile fallback kur (sıfır eleman = panic riski).
+- Modulo ile döner — accent listesi tükendiğinde başa sarar.
+- Boş liste durumu sözleşmeyle dışarıda bırakılır. Yine de defansif kod
+  gerektiren durumlarda `Default::default()` ile bir fallback kurulması
+  gerekir; aksi halde sıfır eleman panic riski oluşturur.
 
 **JSON şeması:**
 
@@ -973,7 +1014,7 @@ impl AccentColors {
 ```
 
 `null` girdiler `Vec<Option<String>>` olarak `*Content` tipine girer;
-parse hatası olanlar `filter_map` ile elenir (`Theme::from_content`
+parse hatası alanlar `filter_map` ile elenir (`Theme::from_content`
 içinde).
 
 **Tema'da kullanım:**
@@ -982,15 +1023,16 @@ içinde).
 let chip_color = cx.theme().accents().color_for_index(chip_index);
 ```
 
-Etiket/chip listesinde her etiket için index gönderirsin; renk otomatik
-döner.
+Etiket veya chip listesinde her öğeye bir index verildiğinde, renk
+otomatik olarak liste üzerinden döner.
 
 ### `SystemColors`
 
 **Kaynak modül:** `kvs_tema/src/styles/system.rs`.
 
-Tema-bağımsız platform sabitleri. **Tüm temalarda aynı değer**; tema
-yazarı override edebilir ama genelde edilmez.
+Tema-bağımsız platform sabitleri. **Tüm temalarda aynı değerleri** taşır;
+tema yazarı override edebilir, ancak pratikte bu çok nadir görülen bir
+tercihtir.
 
 ```rust
 #[derive(Clone, Debug, PartialEq)]
@@ -1017,13 +1059,13 @@ impl Default for SystemColors {
 
 | Alan | Rol |
 |------|-----|
-| `transparent` | `hsla(0,0,0,0)` sabiti — `transparent_black()` ile aynı, alan olarak da bulundurulur. |
+| `transparent` | `hsla(0,0,0,0)` sabitidir — `transparent_black()` ile aynı; alan olarak da ayrıca bulundurulur. |
 | `mac_os_traffic_light_red` | macOS pencere kapatma butonu rengi (kırmızı). |
 | `mac_os_traffic_light_yellow` | Minimize butonu rengi (sarı). |
 | `mac_os_traffic_light_green` | Maximize/fullscreen butonu rengi (yeşil). |
 
-Custom titlebar yazıyorsan (rehber.md #27) traffic light butonlarını
-elle çizersin; renkler bu alanlardan gelir.
+Custom titlebar uygulamasında (rehber.md #27) traffic light butonları elle
+çizildiğinden, renkleri bu alanlardan beslenmelidir.
 
 **Tema'da kullanım:**
 
@@ -1065,23 +1107,24 @@ impl From<WindowAppearance> for Appearance {
 }
 ```
 
-> **Not:** Zed kaynağında `Appearance` `#[serde(rename_all = ...)]`
-> kullanmaz; JSON anahtarında `"appearance": "light"` / `"dark"` üretmek
-> için Content katmanı kendi `AppearanceContent` enum'unu taşır
-> (Konu 19). Runtime `Appearance` deserialize ihtiyacı bu yüzden yok;
-> ama `serde::Deserialize` derive edilmiştir (testler ve bazı içsel
-> akışlar için).
+> **Not:** Zed kaynağındaki `Appearance` `#[serde(rename_all = ...)]`
+> attribute'u taşımaz; JSON anahtarında `"appearance": "light"` veya
+> `"dark"` üretmek için Content katmanı kendi `AppearanceContent` enum'unu
+> taşır (Konu 19). Runtime `Appearance` deserialize ihtiyacı bu yüzden
+> ortaya çıkmaz; yine de `serde::Deserialize` derive'lı tutulmuştur
+> (testler ve bazı içsel akışlar için işine yarar).
 
 **Tema'da rol:** Tema'nın **nominal modu**. Sistem light/dark mod
-sinyalinden farklı:
+sinyalinden farklıdır:
 
 | Tip | Anlam | Kaynak |
 |-----|-------|--------|
-| `Appearance` | "Bu tema light mi dark mı?" | Tema JSON'undaki `"appearance"` alanı |
-| `WindowAppearance` (Bölüm III/Konu 8) | "OS şu an light mı dark mı?" | `cx.window_appearance()` |
+| `Appearance` | "Bu tema light mi, dark mı?" | Tema JSON'undaki `"appearance"` alanı |
+| `WindowAppearance` (Bölüm III/Konu 8) | "OS şu an light mı, dark mı?" | `cx.window_appearance()` |
 
-İkisi **eşleşmek zorunda değil** — kullanıcı sistem dark modda ama
-explicit olarak light tema seçmiş olabilir.
+Bu iki değerin birbiriyle **eşleşmesi zorunlu değildir** — kullanıcı
+sistem dark modda olsa bile explicit olarak light bir tema seçmiş
+olabilir.
 
 **JSON anahtarı:** `"appearance": "light"` veya `"appearance": "dark"`.
 
@@ -1096,31 +1139,37 @@ if active.appearance.is_light() {
 
 ### Tuzaklar
 
-1. **`AccentColors` boş başlatmak**: Fallback `gpui::blue()` döner ama
-   tema yazarı muhtemelen kendi mavi tonu farklı. Fallback temalarda
-   en az 4-6 accent doldur.
-2. **`SystemColors`'u sıfır bırakmak**: `Default::default()` kullan; elle
-   doldurursan macOS traffic light renkleri elle hesaplaman gerekir.
-3. **`Appearance` ile `WindowAppearance` karıştırmak**: İlki tema'nın
-   nominal modu, ikincisi sistem modu. Aralarında `From<WindowAppearance>
-   for Appearance` impl'i vardır; `Vibrant*` variant'lar `Light`/`Dark`'a
-   indirgenir. Doğrudan dönüşüm çalışır:
+1. **`AccentColors` listesinin boş başlatılması**: Fallback olarak
+   `gpui::blue()` döner ama tema yazarının zihnindeki mavi tonu büyük
+   olasılıkla farklıdır. Fallback temalarda en az 4–6 accent
+   doldurulması, görsel zenginliği koruyan en pratik yaklaşımdır.
+2. **`SystemColors`'un sıfır bırakılması**: `Default::default()` kullanmak
+   yeterlidir. Elle doldurma yolu seçildiğinde macOS traffic light
+   renklerinin elle hesaplanması gerekir, bu da gereksiz bir bakım yükü
+   getirir.
+3. **`Appearance` ile `WindowAppearance` arasındaki karışıklık**: İlki
+   tema'nın nominal modunu, ikincisi sistem modunu temsil eder. Aralarında
+   `From<WindowAppearance> for Appearance` impl'i bulunur; `Vibrant*`
+   varyantları `Light`/`Dark` değerlerine indirgenir. Doğrudan dönüşüm
+   şöyle çalışır:
    ```rust
    let app_appearance: Appearance = cx.window_appearance().into();
    ```
-   Sözleşme aynı kalsın diye `SystemAppearance::init` da bu `From` impl'ini
-   içeride kullanır (Konu 35). "İki kategoriye indirgenmiş" davranışın
-   tek kaynağı bu impl'dir.
-4. **JSON'da `appearance` alanı için casing**: Runtime `Appearance` ile
+   Sözleşme tutarlılığı açısından `SystemAppearance::init` de aynı `From`
+   impl'ini içeride kullanır (Konu 35). "İki kategoriye indirgeme"
+   davranışının tek kaynağı bu impl'dir.
+4. **JSON'daki `appearance` alanı için casing**: Runtime `Appearance` ile
    JSON'daki `AppearanceContent` ayrı tiplerdir. Content tarafı
    serializer ayarlarını taşır (Konu 19); runtime enum'unun rename
    politikası tüketici tarafında görünmez.
-5. **`AccentColors::color_for_index(u32)` overflow**: `u32::MAX` versen
-   modulo güvenli — usize'a cast'te 64-bit platformda taşma yok. 32-bit
-   platformda dikkat ama nadir.
-6. **`AccentColors` iç tipini `Vec<Hsla>` yapmak**: Sözleşme `Arc<[Hsla]>`.
-   `Vec` yazarsan baseline'dan klon her tema variant'ında yeni alloc
-   üretir; `Arc<[T]>` cheap-clone garantisini bozarsın.
+5. **`AccentColors::color_for_index(u32)` taşması**: `u32::MAX` verilse
+   bile modulo güvenlidir — usize'a cast 64-bit platformda taşma
+   yaratmaz. 32-bit platformlarda dikkat gerektirir ama bu nadir bir
+   senaryodur.
+6. **`AccentColors` iç tipini `Vec<Hsla>` yapmak**: Sözleşme `Arc<[Hsla]>`
+   üzerinedir. `Vec` yazıldığında baseline'dan yapılan klon her tema
+   varyantında yeni bir allocation üretir; bu durum `Arc<[T]>`'nin
+   cheap-clone garantisini bozar.
 
 ---
 
@@ -1130,9 +1179,9 @@ if active.appearance.is_light() {
 
 Zed'in fallback temalarındaki renk üretim sistemi **Radix UI** color
 scales modelinden esinlenir. Her renk ailesi 12 adımlı bir skala olarak
-modellenir. Zed referansında `neutral` alanı yoktur; nötr aileler
-`gray`, `mauve`, `slate`, `sage`, `olive`, `sand` gibi ayrı scale set'ler
-olarak tutulur. Adım numarası **semantik anlam** taşır:
+modellenir. Zed referansında `neutral` adında bir alan bulunmaz; nötr
+aileler `gray`, `mauve`, `slate`, `sage`, `olive`, `sand` gibi ayrı scale
+set'ler olarak tutulur. Adım numarası **semantik anlam** taşır:
 
 ```rust
 pub struct ColorScaleStep(usize);
@@ -1239,9 +1288,10 @@ impl IntoIterator for ColorScales {
 yellow → amber → orange → tomato → red → ruby → crimson → pink → plum →
 purple → violet → iris → indigo → blue → cyan → teal → jade → green →
 grass → lime → mint → sky → black → white`) `Vec` olarak yayar. Sıralama
-deterministik; snapshot test'leri ve UI palet ızgaraları için güvenle
-kullanılabilir. Mirror'da sırayı bozma; aksi halde color picker ve
-snapshot karşılaştırmaları farklı sırada değer üretir.
+deterministiktir; snapshot test'leri ve UI palet ızgaraları için güvenle
+bu sıraya bel bağlanabilir. Mirror tarafında bu sıranın korunması
+şarttır; aksi takdirde color picker ile snapshot karşılaştırmaları farklı
+sıralarda değer üretir ve testler düşer.
 
 **Kullanım örneği (Zed `StatusColors::dark()`):**
 
@@ -1258,14 +1308,14 @@ impl StatusColors {
 }
 ```
 
-`red()` `ColorScaleSet` döner; `.dark()` `ColorScale` seçer; `.step_9()`
-solid accent rengini verir.
+`red()` bir `ColorScaleSet` döndürür; `.dark()` bu set içinden bir
+`ColorScale` seçer; `.step_9()` ise solid accent rengini verir.
 
 **`kvs_tema`'da ele alma seçenekleri:**
 
-1. **Skala olmadan, doğrudan `hsla` ile:** Bölüm VI/Konu 25 zaten bu
-   yolu anlatıyor. Az tema için yeterli; alanlar arası tutarlılığı
-   "anchor hue + opacity" disiplini sağlar.
+1. **Skala olmadan, doğrudan `hsla` ile:** Bölüm VI/Konu 25 zaten bu yolu
+   anlatır. Az sayıda tema için yeterli olur; alanlar arası tutarlılık
+   "anchor hue + opacity" disiplini sayesinde sağlanır.
 
 2. **Minimal scale (`step_*` helper'ları olmadan, sadece sabit):**
 
@@ -1288,35 +1338,37 @@ solid accent rengini verir.
    ```
 
 3. **Tam Radix-style scale (Zed pariteli):** `crates/theme/src/scale.rs`
-   ve `crates/theme/src/default_colors.rs` mirror edilir. Bu **büyük**
-   bir iş — `default_color_scales()` 33 renk ailesi için 12 adım ×
-   light/dark/alpha matrisini taşır. Kendi temanı sıfırdan tasarlıyorsan
-   **kullanma**; sadece Zed'in birebir paletini taklit istiyorsan bu yola
-   gir (lisans-temizliği için HSL değerlerini bağımsız üretmen şart;
-   Bölüm I/Konu 3).
+   ve `crates/theme/src/default_colors.rs` mirror edilir. Bu **kapsamlı**
+   bir iştir — `default_color_scales()` 33 renk ailesi için 12 adım ile
+   light/dark/alpha matrisini taşır. Tema sıfırdan tasarlanacaksa bu
+   yola girilmesi gerekmez; yalnızca Zed'in birebir paletini taklit
+   etmek hedefleniyorsa bu yol seçilir (lisans-temizliği için HSL
+   değerlerinin bağımsız üretilmesi şarttır; Bölüm I/Konu 3).
 
-**Tavsiye:** Çoğu uygulama için Seçenek 1 (Konu 25 anchor disiplini)
-yeterli. ColorScale modeli **20+ tema variant** üretmesi gereken design
-system'ler için anlamlı; tek dark + tek light için aşırı mühendislik.
+**Tavsiye:** Çoğu uygulama için 1. seçenek (Konu 25 anchor disiplini)
+yeterlidir. ColorScale modeli, **20'den fazla tema varyantı** üretmesi
+gereken design system'lerde anlamlı olur; tek dark ve tek light için
+çoğunlukla aşırı mühendisliğe dönüşür.
 
 **Public domain açık-lisanslı kaynaklar:**
 
-- [Radix UI Colors](https://www.radix-ui.com/colors) — MIT lisansı,
-  HSL değerleri açık.
+- [Radix UI Colors](https://www.radix-ui.com/colors) — MIT lisanslı,
+  HSL değerleri açıktır.
 - [Tailwind CSS palette](https://tailwindcss.com/docs/customizing-colors)
-  — MIT lisansı.
-- [Open Color](https://yeun.github.io/open-color/) — MIT lisansı.
+  — MIT lisanslı.
+- [Open Color](https://yeun.github.io/open-color/) — MIT lisanslı.
 
-Bunların HSL değerlerini referans alabilirsin; tema'da `ColorScale` ile
-modellemek isteğe bağlı.
+Bu kaynaklardaki HSL değerleri referans olarak alınabilir; bunları tema
+içinde `ColorScale` ile modellemek isteğe bağlıdır.
 
 ---
 
 ## 18. `ThemeFamily`, `SyntaxTheme`, `IconTheme`
 
-Bu üç tip tema'nın **toplama ve uzantı** boyutunu taşır: bir paket
-içinde birden fazla varyant, syntax token'larının ayrı sözleşmesi, ve
-icon tema sözleşmesi.
+Bu üç tip; tema'nın **toplama ve uzantı** boyutunu taşır. `ThemeFamily`
+bir paket içindeki birden fazla varyantı tek çatı altında toplar,
+`SyntaxTheme` syntax token'larının ayrı sözleşmesini taşır ve `IconTheme`
+icon tema sözleşmesinin runtime modelini kurar.
 
 ### `ThemeFamily`
 
@@ -1336,24 +1388,25 @@ pub struct ThemeFamily {
 }
 ```
 
-**Rol:** Bir **paket** içinde birden fazla tema varyantı taşır. Örnek:
-"One" ailesi → `One Light` ve `One Dark` themes. Zed'in `assets/themes/`
-altındaki her JSON dosyası bir `ThemeFamily` deserialize'ı.
+**Rol:** Bir **paket** içinde birden fazla tema varyantını bir arada
+tutar. Örneğin "One" ailesi `One Light` ve `One Dark` varyantlarını
+içerir. Zed'in `assets/themes/` altındaki her JSON dosyası tek bir
+`ThemeFamily` deserialize'ına karşılık gelir.
 
 **Alan rolleri:**
 
 | Alan | Rol |
 |------|-----|
-| `id` | Paket id (uuid veya stable id). |
-| `name` | Paket adı (örn. "One"). |
+| `id` | Paket id'si (uuid veya stable id). |
+| `name` | Paketin adı (örn. "One"). |
 | `author` | Paketin yazarı (örn. "Zed Industries"). |
-| `themes` | Bu pakette yer alan tüm varyantlar (light + dark). |
+| `themes` | Bu paketin içindeki tüm varyantlar (light + dark). |
 | `scales` | Aileye bağlı palet matrisi — `ColorScales` (43.5'te detay). |
 
 > **`scales` alanı için karar:** Zed kaynağı bu alanı `"This will be
-> removed in the future."` notuyla taşır. `kvs_tema` `ColorScale`
-> mirror etmiyorsa (Konu 17 tavsiyesi) bu alan da alınmaz; mirror
-> ediyorsa parite gereği aynı sıralamayla eklenir.
+> removed in the future."` notuyla taşır. `kvs_tema` `ColorScale` mirror
+> etmiyorsa (Konu 17 tavsiyesi) bu alan da alınmaz; mirror ediyorsa
+> parite gereği aynı sırayla eklenir.
 
 **JSON şeması:**
 
@@ -1379,14 +1432,16 @@ let themes: Vec<Theme> = family.themes
 registry.insert_themes(themes);
 ```
 
-Aile metadata'sı registry'ye geçmez — sadece tek tek `Theme`'ler
-kaydedilir. Aile bilgisi `Theme.id` veya ek metadata tablosunda
-saklanmak istenirse opsiyonel.
+Aile metadata'sı registry'ye geçirilmez — yalnızca tek tek `Theme`
+örnekleri kaydedilir. Aile bilgisi `Theme.id` üzerinden veya ek bir
+metadata tablosunda saklamak istenirse, bu opsiyonel bir karar olarak
+ayrıca verilebilir.
 
 ### `SyntaxTheme`
 
-**Kaynak crate:** `kvs_syntax_tema` (`kvs_syntax_tema/src/kvs_syntax_tema.rs`).
-Zed'in `crates/syntax_theme/src/syntax_theme.rs` dosyasına paritelidir.
+**Kaynak crate:** `kvs_syntax_tema`
+(`kvs_syntax_tema/src/kvs_syntax_tema.rs`). Zed'in
+`crates/syntax_theme/src/syntax_theme.rs` dosyasıyla pariteldir.
 
 ```rust
 #[derive(Debug, PartialEq, Eq, Clone, Default)]
@@ -1432,19 +1487,20 @@ impl SyntaxTheme {
 
 **Yapı kritik notları:**
 
-- İki **private** alan: `highlights: Vec<HighlightStyle>` (sadece stil
-  vektörü, capture adı YOK) ve `capture_name_map: BTreeMap<String,
-  usize>` (capture adı → index). Eski API'deki `Vec<(String,
-  HighlightStyle)>` artık yok; dış crate'ler `style_for_name`, `get`,
-  `highlight_id` üzerinden okur.
-- `new(...)` `Self` döner, **`Arc::new` sarmalamaz** — `Arc` sözleşmesi
-  caller tarafında kurulur (`Arc::new(SyntaxTheme::new(...))`).
-- `style_for_name` `BTreeMap` lookup'u; "ilk eşleşme kazanır" davranışı
-  yok — anahtar uniq. Aynı capture iki kez verildiğinde `new`
-  ikincisi haritada birinciyi ezer.
-- `highlight_id` prefix-eşleşmeli aramaya izin verir: `"string.escape"`
-  capture'ı, `"string"` highlight'ına düşer. Tree-sitter integration'da
-  alt kapsama kuralı budur.
+- İki **private** alan bulunur: `highlights: Vec<HighlightStyle>` (yalnızca
+  stil vektörü, capture adı yok) ve `capture_name_map: BTreeMap<String,
+  usize>` (capture adından indexe yönelen harita). Eski API'deki
+  `Vec<(String, HighlightStyle)>` artık dış crate'lere açılmaz; tüketici
+  `style_for_name`, `get` ve `highlight_id` üzerinden okur.
+- `new(...)` `Self` döndürür ve **`Arc::new` sarmalamaz** — `Arc`
+  sözleşmesi caller tarafında kurulur (`Arc::new(SyntaxTheme::new(...))`).
+- `style_for_name` `BTreeMap` lookup'u yapar; "ilk eşleşme kazanır"
+  davranışı söz konusu değildir — anahtar uniq olarak tutulur. Aynı
+  capture iki kez verildiğinde `new` çağrısı sırasında ikincisi haritada
+  birincisinin üstüne yazar.
+- `highlight_id` prefix-eşleşmeli aramaya izin verir:
+  `"string.escape"` capture'ı `"string"` highlight'ına düşer. Tree-sitter
+  integration'da alt kapsama kuralının çalışma biçimi budur.
 
 **JSON şeması:**
 
@@ -1458,20 +1514,20 @@ impl SyntaxTheme {
 }
 ```
 
-JSON'da object — sıra korunur (`IndexMap` ile). Rust runtime'a
-`Vec<(String, HighlightStyle)>` tuple listesi olarak iletilir;
-`SyntaxTheme::new` bu listeyi tüketip iki private alana (`highlights`
-ve `capture_name_map`) ayırır.
+JSON tarafında bu yapı bir object olarak yer alır ve sırası korunur
+(`IndexMap` ile). Rust runtime'a `Vec<(String, HighlightStyle)>` tuple
+listesi olarak iletilir; `SyntaxTheme::new` bu listeyi tüketip iki
+private alana (`highlights` ve `capture_name_map`) ayırır.
 
-**`new()` `Self` döner — `Arc` sarmalı caller tarafında:**
+**`new()` `Self` döner — `Arc` sarmalı caller tarafında kurulur:**
 
 ```rust
 let syntax = Arc::new(SyntaxTheme::new(highlights));
 ```
 
-`Theme` struct'ı içinde alan tipi `Arc<SyntaxTheme>`'dir. `Arc`
-sözleşmesi `Theme` katmanında kurulur; `SyntaxTheme::new` API'si Zed
-gibi `Self` döndürür.
+`Theme` struct'ı içinde alan tipi `Arc<SyntaxTheme>` olarak tanımlanır.
+`Arc` sözleşmesi `Theme` katmanında kurulur; `SyntaxTheme::new` API'si
+ise Zed'de olduğu gibi `Self` döndürür.
 
 **Tema'da kullanım:**
 
@@ -1487,20 +1543,21 @@ let style = cx.theme().syntax().get(id as usize)?;
 let name = cx.theme().syntax().get_capture_name(0)?;
 ```
 
-> **Alan iterasyonu:** `highlights` private bir `Vec<HighlightStyle>`'dır;
-> capture adları bu vektörde tutulmaz. Capture adlarına erişmek için
-> `get_capture_name(idx)` döngüsü kullanın veya `highlight_id` ile arama
-> yapın.
+> **Alan iterasyonu:** `highlights` private bir `Vec<HighlightStyle>`'dır
+> ve capture adları bu vektörde tutulmaz. Capture adlarına erişmek için
+> `get_capture_name(idx)` döngüsü kullanılır veya `highlight_id` ile
+> aramaya başvurulur.
 
-Editor entegrasyonu Bölüm X ve XI'de. `SyntaxTheme::merge(base, override)`
-helper'ı override'ları base üstüne bindirip yeni `Arc` döner; tema
-override'ları (Bölüm IX/Konu 39) bu helper'ı çağırır.
+Editor entegrasyonu Bölüm X ve XI'de ele alınır.
+`SyntaxTheme::merge(base, override)` helper'ı override'ları base'in
+üzerine bindirip yeni bir `Arc` döndürür; tema override'ları (Bölüm
+IX/Konu 39) bu helper'ı çağırır.
 
 ### `IconTheme`
 
 **Kaynak modül:** `kvs_tema/src/icon_theme.rs`.
 
-Tema sistemi UI renklerinin yanı sıra **icon tema sözleşmesini** de
+Tema sistemi yalnızca UI renklerini değil, **icon tema sözleşmesini** de
 mirror eder ("Temel ilke" gereği — Konu 2). `IconTheme` Zed'in
 `crates/theme/src/icon_theme.rs` dosyasındaki yapıya alan paritesiyle
 yazılır.
@@ -1547,8 +1604,8 @@ pub struct IconThemeFamily {
 ```
 
 > **Uyarı:** Alan listesi Zed icon theme sözleşmesini takip eder. Icon
-> theme sözleşmesi UI renk sözleşmesinden daha hızlı evrilebilir; runtime
-> tipi bu alan paritesini korur.
+> theme sözleşmesi UI renk sözleşmesinden daha hızlı evrilebildiği için,
+> runtime tipinin bu alan paritesini koruması özellikle önemlidir.
 
 **JSON Content sözleşmesi:**
 
@@ -1596,8 +1653,9 @@ pub struct IconDefinitionContent {
 }
 ```
 
-`*Content` tiplerinin opsiyonellik felsefesi UI temasıyla aynı (Konu 20):
-her alan ya `Option` ya da `#[serde(default)]` ile boş kabul edilir.
+`*Content` tiplerinin opsiyonellik felsefesi UI temasıyla aynıdır (Konu
+20): her alan ya `Option` taşır ya da `#[serde(default)]` ile boş bırakma
+hakkı tanır.
 
 **Content → Runtime akışı:**
 
@@ -1635,22 +1693,24 @@ impl IconTheme {
 }
 ```
 
-UI temasından farklı: **refinement katmanı yok**; yani `Refineable`
-türevli alan-bazlı tema override hattı icon tema için çalışmaz. Buna rağmen
-Zed yükleme/lookup davranışı "tam replacement" değildir:
-`ThemeRegistry::load_icon_theme` kullanıcı temasının `file_stems`,
-`file_suffixes` ve `named_directory_icons` haritalarını default icon theme
-üstüne genişletir. `directory_icons`, `chevron_icons` ve `file_icons`
-runtime objesine kullanıcının verdiği haliyle girer; ancak `file_icons`
-crate'i lookup sırasında eksik dosya tipi, klasör ve chevron path'lerinde
-aktif temadan default icon theme'e düşer. Mirror tarafında bu iki aşamayı
-ayır: schema/refinement yok; registry yükleme ve UI lookup fallback'i var.
+UI temasından farklı olarak burada **refinement katmanı yoktur**; yani
+`Refineable` türevli alan-bazlı tema override hattı icon tema için
+çalışmaz. Buna rağmen Zed'in yükleme/lookup davranışı "tam replacement"
+biçiminde de değildir: `ThemeRegistry::load_icon_theme` kullanıcı
+temasının `file_stems`, `file_suffixes` ve `named_directory_icons`
+haritalarını default icon theme'in üstüne genişletir. `directory_icons`,
+`chevron_icons` ve `file_icons` alanları runtime objesine kullanıcının
+verdiği biçimde girer; ancak `file_icons` crate'i lookup sırasında eksik
+dosya tipi, klasör ve chevron path'lerinde aktif tema'dan default icon
+theme'e düşer. Mirror tarafta bu iki aşamanın ayrı ele alınması gerekir:
+schema/refinement yoktur, ama registry yükleme ile UI lookup fallback'i
+vardır.
 
-**Rol:** Dosya/dizin/chevron icon'larının **kaynağını** tutar; UI sadece
-icon id'sini bilir, asıl SVG/PNG asset registry'sinden gelir.
+**Rol:** Dosya, dizin ve chevron icon'larının **kaynağını** tutar; UI
+yalnızca icon id'sini bilir, asıl SVG/PNG asset registry'sinden gelir.
 
-**Tema sözleşmesindeki yer:** Icon tema, UI tema (`Theme`) ile **kardeş**
-bir kavram — `Theme.styles` içine **girmez**. Zed'e uyumlu runtime'da
+**Tema sözleşmesindeki yeri:** Icon tema, UI tema (`Theme`) ile **kardeş**
+bir kavramdır — `Theme.styles` içine **girmez**. Zed'e uyumlu runtime'da
 ikisi aynı `ThemeRegistry` içinde farklı map'lerde tutulur:
 
 ```rust
@@ -1668,11 +1728,12 @@ impl ThemeRegistry {
 }
 ```
 
-Aktif icon tema ayrı bir `GlobalIconTheme` yerine `GlobalTheme` içinde
-tutulur (Konu 34). Bu, tema seçimi ve icon tema seçimini aynı refresh
-modeline bağlar: settings değişir → uygun `Theme` ve `IconTheme` registry'den
-çözülür → `GlobalTheme::update_theme` / `update_icon_theme` çağrılır →
-`cx.refresh_windows()`.
+Aktif icon tema, ayrı bir `GlobalIconTheme` yerine `GlobalTheme` içinde
+tutulur (Konu 34). Bu seçim, tema değişimi ile icon tema değişimini aynı
+refresh modeline bağlar: settings değişir → uygun `Theme` ve `IconTheme`
+registry'den çözülür → `GlobalTheme::update_theme` ve
+`update_icon_theme` çağrıları yapılır → `cx.refresh_windows()` ile
+ekran yenilenir.
 
 **JSON şeması:**
 
@@ -1763,23 +1824,24 @@ pub fn get_icon(path: &Path, active: &IconTheme, default: &IconTheme) -> Option<
 
 Yani **lookup zinciri 6 katmanlıdır**: tam ad → dot-suffix loop →
 `multiple_extensions` → `extension_or_hidden_file_name` → ham `extension`
-→ `"default"` tipi. Her katmanda önce aktif tema'nın `file_stems`/`file_suffixes`
-haritası, sonra `file_icons` aramasıyla aktif → default fallback yapılır.
-Klasör ve chevron icon'larında ayrıca **3 katman**: `named_directory_icons`
-(klasör adına özel) → `directory_icons` (jenerik) → her ikisinde de aktif →
-default → expanded/collapsed slot ayrımı.
-vardır.
+→ `"default"` tipi. Her katmanda önce aktif tema'nın
+`file_stems`/`file_suffixes` haritası, sonra `file_icons` araması ile
+aktif → default fallback gerçekleştirilir. Klasör ve chevron icon'larında
+ayrıca **3 katman** vardır: `named_directory_icons` (klasör adına özel)
+→ `directory_icons` (jenerik) → her ikisinde de aktif → default
+fallback ile birlikte expanded/collapsed slot ayrımı.
 
-Public method yüzeyi gerçek adlarıyla şudur:
-`FileIcons::get(cx)`, `FileIcons::get_icon(path, cx)`,
-`FileIcons::get_icon_for_type(typ, cx)`, `FileIcons::get_folder_icon(expanded,
-path, cx)` ve `FileIcons::get_chevron_icon(expanded, cx)`. Generic folder
-fallback'i sağlayan `get_generic_folder_icon` ise private helper'dır; portta
-dış API olarak açma.
+Public method yüzeyi gerçek adlarıyla şudur: `FileIcons::get(cx)`,
+`FileIcons::get_icon(path, cx)`,
+`FileIcons::get_icon_for_type(typ, cx)`,
+`FileIcons::get_folder_icon(expanded, path, cx)` ve
+`FileIcons::get_chevron_icon(expanded, cx)`. Generic folder fallback'ini
+sağlayan `get_generic_folder_icon` ise private bir helper'dır; portta dış
+API olarak açılması doğru olmaz.
 
 **Asset yükleme:** Icon path'leri (örn. `icons/rust.svg`) `AssetSource`
-katmanından çözülür (Konu 26). `IconTheme` yalnız path'i tutar; SVG
-parse'ı GPUI'nin `svg()` element çağrısında olur.
+katmanından çözülür (Konu 26). `IconTheme` yalnızca path'i tutar; SVG
+parse'ı GPUI'nin `svg()` element çağrısında gerçekleşir.
 
 **Bundling akışı (Konu 26'ün parça-paralel akışı):**
 
@@ -1802,8 +1864,9 @@ pub fn load_bundled_icon_themes(
 
 **`kvs_tema::init` ile entegrasyon:**
 
-`init` UI tema registry'sinin yanında icon tema registry'sini de
-kurabilir. Bu opsiyonel — uygulama icon teması kullanmıyorsa atlanır:
+`init`, UI tema registry'sinin yanı sıra icon tema registry'sini de
+kurabilir. Bu adım opsiyoneldir — uygulama icon teması kullanmıyorsa
+atlanabilir:
 
 ```rust
 pub fn init(cx: &mut App) {
@@ -1833,24 +1896,29 @@ pub fn init(cx: &mut App) {
 
 ### Tuzaklar
 
-1. **`ThemeFamily.id` kullanılmıyorsa**: Registry sadece `Theme`'leri
-   isim üzerinden indeksliyor. `ThemeFamily.id` runtime'da neredeyse hiç
-   sorgulanmıyor — saklamak isimsel/debug; ekstra metadata için
-   gerekmiyorsa atlayabilirsin (ama Zed paritesi için tut).
+1. **`ThemeFamily.id` kullanılmıyorsa**: Registry yalnızca `Theme`'leri
+   isim üzerinden indeksler. `ThemeFamily.id` runtime'da neredeyse hiç
+   sorgulanmaz — saklanması daha çok debug ve isimlendirme amacıyla
+   anlamlıdır. Ekstra metadata için ihtiyaç duyulmuyorsa atlanması da
+   mümkündür, ancak Zed paritesini koruma adına tutulmasında fayda
+   vardır.
 2. **`SyntaxTheme::new()`'nun `Arc` döndüğünü varsaymak**: Zed sözleşmesi
-   `Self` döner; `Arc` sözleşmesi caller tarafında kurulur
+   `Self` döndürür; `Arc` sözleşmesi caller tarafında kurulur
    (`Arc::new(SyntaxTheme::new(...))`).
-3. **`SyntaxTheme.highlights` alanına dışarıdan erişmek**: Alan private;
-   tüketici sadece `style_for_name`, `get`, `get_capture_name`,
-   `highlight_id` üzerinden okur. `IndexMap`/`HashMap` tartışması da
-   tarihseldir: gerçek implementasyon iki ayrı yapı kullanır
-   (`Vec<HighlightStyle>` + `BTreeMap<String, usize>`).
-4. **`IconTheme` `Theme`'in içine koymak**: İki ayrı sözleşme. Birbirine
-   bağlamak (`Theme.icon: IconTheme`) sync disiplinini bozar — Zed
-   ikisini ayrı tutuyor, biz de tutmalıyız.
-5. **`IconTheme` mirror'unu ertelemek**: "Henüz icon tema kullanmıyorum"
-   = geçerli dışlama değil (Konu 2). Struct'ı tanımla, runtime
-   implementasyonu sonraya bırak (`unimplemented!()` ile placeholder).
+3. **`SyntaxTheme.highlights` alanına dışarıdan erişmeye çalışmak**: Bu
+   alan private'tır; tüketici yalnızca `style_for_name`, `get`,
+   `get_capture_name` ve `highlight_id` üzerinden okur.
+   `IndexMap`/`HashMap` tartışması tarihseldir: gerçek implementasyon iki
+   ayrı yapıyı bir arada kullanır (`Vec<HighlightStyle>` ve
+   `BTreeMap<String, usize>`).
+4. **`IconTheme` ile `Theme` arasında bağ kurmak**: İki sözleşme ayrıdır.
+   Birbirine bağlama denemesi (`Theme.icon: IconTheme` gibi) sync
+   disiplinini bozar — Zed ikisini ayrı tutar ve aynı yaklaşımın mirror
+   tarafta da korunması beklenir.
+5. **`IconTheme` mirror'unun ertelenmesi**: "Henüz icon tema
+   kullanmıyorum" geçerli bir dışlama sebebi olarak kabul edilmez (Konu 2).
+   Struct'ın tanımlanması ve runtime implementasyonunun
+   `unimplemented!()` placeholder ile sonraya bırakılması yeterli bir
+   yaklaşımdır.
 
 ---
-

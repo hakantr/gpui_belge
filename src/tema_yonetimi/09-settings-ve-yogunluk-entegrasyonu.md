@@ -1,6 +1,9 @@
 # Settings ve yoğunluk entegrasyonu
 
-Runtime çalışır hale geldikten sonra kullanıcı ayarları, font override akışları ve UI density sözleşmesini bağla.
+Runtime çalışır hale geldikten sonra sıra; kullanıcı ayarları, font
+override akışları ve UI density sözleşmesinin runtime'a bağlanmasına
+gelir. Bu üç hat birbirine sıkı şekilde bağlıdır ve birinde alınan
+karar diğerlerinin nasıl çalışacağını doğrudan etkiler.
 
 ---
 
@@ -8,46 +11,52 @@ Runtime çalışır hale geldikten sonra kullanıcı ayarları, font override ak
 
 ### Settings / override / selector köprüsü
 
-Zed-benzeri kontrol için tek bir `ad: String` yeterli değildir. Minimum
-settings modeli şu dört özelliği taşır:
+Zed-benzeri bir kontrol için tek bir `ad: String` yeterli olmaz. Minimum
+seviyedeki settings modeli şu dört özelliği taşır:
 
-1. **Static seçim:** Tek tema adı her modda kullanılır.
-2. **Dynamic seçim:** `mode + light + dark`; `mode=system` ise OS modu
-   hangi adı seçeceğini belirler.
-3. **Aktif tema override'ı:** Geçerli temanın üstüne geçici/deneysel
-   `ThemeStyleContent` uygulanır.
-4. **Tema bazlı override:** Belirli tema adına özel override map'i.
+1. **Static seçim:** Tek bir tema adı her modda kullanılır.
+2. **Dynamic seçim:** `mode + light + dark` üçlüsü tanımlanır;
+   `mode=system` durumunda OS modu hangi adın seçileceğini belirler.
+3. **Aktif tema override'ı:** Geçerli temanın üstüne geçici veya
+   deneysel `ThemeStyleContent` uygulanır.
+4. **Tema bazlı override:** Belirli bir tema adı için özel bir
+   override map'i tanımlanır.
 
-Zed'e denk settings sözleşmesi:
+Zed'e denk düşen settings sözleşmesi:
 
 > **Owner zinciri (önemli):** `ThemeName`, `IconThemeName`,
 > `ThemeAppearanceMode`, `FontFamilyName`, `DEFAULT_LIGHT_THEME` ve
 > `DEFAULT_DARK_THEME` aslında **`settings_content` crate'inde**
 > tanımlıdır (`settings_content/src/theme.rs:282`, `501`, `507`).
 > `theme_settings` crate'i bunları `pub use settings::{...}`
-> (`theme_settings/src/settings.rs:13`) ile yeniden ihraç eder; tüketici
-> kod `theme_settings::ThemeName` adıyla erişir. Mirror tarafta tek
-> kaynak `kvs_ayarlari_icerik` (veya muadili) crate'i olmalıdır;
-> `kvs_tema_ayarlari` yalnızca `pub use` ile köprü kurar. Aynı tipi
-> birden fazla yerde tanımlamak schema/test çatışmasına yol açar.
+> (`theme_settings/src/settings.rs:13`) ile yeniden ihraç eder;
+> tüketici kod `theme_settings::ThemeName` adıyla erişir. Mirror
+> tarafında tek kaynak `kvs_ayarlari_icerik` (veya muadili) crate'i
+> olmalıdır; `kvs_tema_ayarlari` yalnızca `pub use` ile köprü kurar.
+> Aynı tipin birden fazla yerde tanımlanması schema/test çatışmasına
+> yol açar.
 
-> **Flatten ilişkisi:** Zed'de `SettingsContent.theme: Box<ThemeSettingsContent>`
-> alanı `#[serde(flatten)]` ile işaretlidir
-> (`settings_content/src/settings_content.rs:117-121`). Yani kullanıcı ayar
-> dosyasında `theme:` veya `icon_theme:` **iç alan değildir** — `ui_font_size`,
-> `theme`, `icon_theme`, `experimental.theme_overrides`, `theme_overrides`,
-> `unstable.ui_density` vb. hepsi `settings.json`'da **top-level alanlar**
-> olarak yazılır. `SettingsContent` 25+ alt struct'ı flatten ile birleştirir
-> (project, theme, extension, workspace, editor, remote vb.); kullanıcı
-> tek bir düz JSON görür. Mirror tarafta da `kvs_ayarlari_icerik::AyarIcerik`
-> içinde `pub theme: Box<TemaAyarContent>` alanını `#[serde(flatten)]` ile
-> sarmalamak Zed paritesi için zorunludur. Aksi halde mevcut Zed kullanıcı
-> ayar dosyaları çalışmaz.
+> **Flatten ilişkisi:** Zed'de `SettingsContent.theme:
+> Box<ThemeSettingsContent>` alanı `#[serde(flatten)]` ile işaretlidir
+> (`settings_content/src/settings_content.rs:117-121`). Yani kullanıcı
+> ayar dosyasında `theme:` veya `icon_theme:` **iç alan değildir** —
+> `ui_font_size`, `theme`, `icon_theme`,
+> `experimental.theme_overrides`, `theme_overrides`,
+> `unstable.ui_density` gibi tüm alanlar `settings.json`'da **top-level
+> alanlar** olarak yazılır. `SettingsContent` 25'ten fazla alt
+> struct'ını flatten ile birleştirir (project, theme, extension,
+> workspace, editor, remote vb.); kullanıcı tek bir düz JSON görür.
+> Mirror tarafında da `kvs_ayarlari_icerik::AyarIcerik` içinde
+> `pub theme: Box<TemaAyarContent>` alanının `#[serde(flatten)]` ile
+> sarmalanması Zed paritesi için zorunludur. Aksi halde mevcut Zed
+> kullanıcı ayar dosyaları çalışmaz.
 >
 > Aynı şekilde `UserSettingsContent`
-> (`settings_content/src/settings_content.rs:409`) `content: Box<SettingsContent>`
-> + `release_channel_overrides` + `platform_overrides` flatten ile gelir;
-> üst seviye `profiles: IndexMap<String, SettingsProfile>` ise düz alandır.
+> (`settings_content/src/settings_content.rs:409`) `content:
+> Box<SettingsContent>` + `release_channel_overrides` +
+> `platform_overrides` üçlüsünü flatten ile barındırır; üst seviye
+> `profiles: IndexMap<String, SettingsProfile>` ise düz alan olarak
+> kalır.
 
 ```rust
 use std::{collections::HashMap, sync::Arc};
@@ -110,7 +119,7 @@ pub struct ThemeSettingsContent {
 }
 ```
 
-Örnek kullanıcı config'i:
+Örnek bir kullanıcı config'i:
 
 ```jsonc
 {
@@ -188,7 +197,7 @@ impl IconThemeSelection {
 
 ### `Settings` trait — `ThemeSettings::get_global(cx)` nereden gelir
 
-Zed `theme_settings::ThemeSettings` `Settings` trait'ini
+Zed'in `theme_settings::ThemeSettings` tipi `Settings` trait'ini
 (`settings/src/settings_store.rs:60-100`) implement eder:
 
 ```rust
@@ -225,8 +234,8 @@ pub trait Settings: 'static + Send + Sync + Sized {
 
 ### `#[derive(RegisterSetting)]` ile auto-registration
 
-Zed'in `Settings`-tipi auto-registration mekanizması iki bileşene dayanır
-(`settings_macros::derive_register_setting`,
+Zed'in `Settings`-tipi auto-registration mekanizması iki bileşene
+dayanır (`settings_macros::derive_register_setting`,
 `settings/src/settings_store.rs:131-137, 412-416`):
 
 ```rust
@@ -260,24 +269,27 @@ impl SettingsStore {
 **Pratik sonuç:**
 
 `ThemeSettings` aslında `#[derive(Clone, PartialEq, RegisterSetting)]`
-(`theme_settings/src/settings.rs:38`) ile işaretlenir; `theme_settings::init`
-**`ThemeSettings::register(cx)` çağırmaz**. Inventory crate'i `submit!`
-makrosu üretildiği yerde static registration yapar; `SettingsStore::new`
-constructor'ında `inventory::iter::<RegisteredSetting>()` üzerinden tüm
-linklenen setting tipleri toplanır. Yani üretim akışında setting tiplerinin
-elle `register` edilmesi **gerekmez**; bu trait metodu (`Settings::register`)
-yalnız test'lerde veya manuel SettingsStore kurarken kullanılır.
+(`theme_settings/src/settings.rs:38`) ile işaretlenir;
+`theme_settings::init` **`ThemeSettings::register(cx)` çağırmaz**.
+Inventory crate'i `submit!` makrosunun üretildiği yerde static
+registration yapar; `SettingsStore::new` constructor'ında
+`inventory::iter::<RegisteredSetting>()` üzerinden tüm linklenen
+setting tipleri toplanır. Yani üretim akışında setting tiplerinin elle
+`register` edilmesine **gerek kalmaz**; bu trait metodu
+(`Settings::register`) yalnızca test'lerde veya `SettingsStore` elle
+kurulurken kullanılır.
 
-> **Önemli parite notu:** Mirror tarafta inventory pattern'inin alternatifi
-> elle register etmektir (`kvs_ayarlari::init` veya benzeri). İki yolu
-> karıştırma: ya hepsi `#[derive(KaydetAyar)]` ile auto-register, ya hepsi
-> elle. Mixed mode "bazı tipler kayıtlı, bazıları kayıtsız" gibi sessiz
-> bug üretir.
+> **Önemli parite notu:** Mirror tarafında inventory pattern'inin
+> alternatifi elle register etmektir (`kvs_ayarlari::init` veya
+> benzeri). İki yolun karıştırılmaması gerekir: ya tüm tipler
+> `#[derive(KaydetAyar)]` ile auto-register edilir, ya da tamamı elle
+> kaydedilir. Karışık bir mod ("bazı tipler kayıtlı, bazıları
+> kayıtsız") sessiz bug üretir.
 
 ### `ThemeSettings` alan görünürlükleri
 
-`ThemeSettings` struct'ında alanların görünürlüğü Zed paritesinde **karışık**
-(`theme_settings/src/settings.rs:39-86`):
+`ThemeSettings` struct'ında alanların görünürlüğü Zed paritesinde
+**karışıktır** (`theme_settings/src/settings.rs:39-86`):
 
 | Alan | Görünürlük | Erişim yolu |
 |------|-----------|-------------|
@@ -298,42 +310,49 @@ yalnız test'lerde veya manuel SettingsStore kurarken kullanılır.
 | `ui_density: UiDensity` | `pub` | doğrudan alan |
 | `unnecessary_code_fade: f32` | `pub` | doğrudan alan |
 
-**Gerekçe:** Font size'lar `*FontSize` override global'leri ile etkilenir
-(Konu 39). Accessor metotlar bu override'ı uygulayıp **etkin değeri**
-döner; doğrudan alan okuma settings dosyasındaki ham değeri verir. Bu yüzden
-font size'lar bilinçli olarak private — okuyucu ya `.ui_font_size(cx)`
-accessor'ını kullanır (override-aware) ya da `.ui_font_size_settings()`
-accessor'ı ile ham değeri ister (Konu 43 tablosunda).
-Markdown preview font family alanları da private tutulur; düz markdown
-metni UI fontuna, inline code/code block ise buffer fontuna fallback eder.
+**Gerekçe:** Font size değerleri `*FontSize` override global'leri ile
+etkilenir (Konu 39). Accessor metotlar bu override'ı uygulayıp **etkin
+değeri** döndürür; doğrudan alan okuması ise settings dosyasındaki ham
+değeri verir. Bu yüzden font size alanları bilinçli olarak private
+tutulur — okuyucu ya `.ui_font_size(cx)` accessor'ını kullanır
+(override-aware) ya da `.ui_font_size_settings()` accessor'ı ile ham
+değeri ister (Konu 43 tablosunda yer alır). Markdown preview font
+family alanları da private tutulur; düz markdown metni UI fontuna,
+inline code ve code block ise buffer fontuna fallback eder.
 
-Mirror tarafta `TemaAyarlari` struct'ında font size'ları private tutmak ve
-accessor metotlarla okutmak Zed paritesi açısından zorunludur; aksi halde
-override drop davranışı yanlış uygulanır.
+Mirror tarafında `TemaAyarlari` struct'ında font size'ların private
+tutulması ve accessor metotlarla okunması Zed paritesi açısından
+zorunludur; aksi halde override drop davranışı yanlış uygulanır.
 
 **Çalışma akışı:**
 
-1. `SettingsStore::set_global(cx, store)` settings sisteminin init'inde kurulur.
-2. `SettingsStore::new`'ün `load_settings_types`'ı inventory'den kayıtlı tipleri
-   otomatik yükler; `ThemeSettings::register(cx)` üretim akışında çağrılmaz
-   (yukarıdaki auto-registration bölümü).
-3. `ThemeSettings::get_global(cx)` çalıştığında `cx.global::<SettingsStore>().get(None)`
-   üzerinden cache'lenmiş güncel `&ThemeSettings` döner.
-4. `SettingsLocation { worktree_id, path }` ile path-scoped lookup yapılırsa
-   proje-local `.zed/settings.json` override'ları uygulanır.
+1. `SettingsStore::set_global(cx, store)` settings sisteminin init'inde
+   kurulur.
+2. `SettingsStore::new`'ün `load_settings_types`'ı inventory'den
+   kayıtlı tipleri otomatik yükler; `ThemeSettings::register(cx)`
+   üretim akışında çağrılmaz (yukarıdaki auto-registration bölümü).
+3. `ThemeSettings::get_global(cx)` çalıştığında
+   `cx.global::<SettingsStore>().get(None)` üzerinden cache'lenmiş
+   güncel `&ThemeSettings` döner.
+4. `SettingsLocation { worktree_id, path }` ile path-scoped lookup
+   yapıldığında proje-local `.zed/settings.json` override'ları
+   uygulanır.
 
-**Mirror tarafta:** `kvs_tema` `Settings` trait'ine doğrudan bağımlı değildir
-(Konu 5 bağımlılık matrisi); fakat `kvs_tema_ayarlari` crate'i `kvs_ayarlari::Settings`
-benzeri bir trait sözleşmesini takip etmelidir. `ThemeSettingsProvider` (Konu 39)
-bu bağlantının soyutlanmış arayüzüdür — `kvs_tema` `provider`'dan typography
-ve density okur, `Settings` trait'ini doğrudan kullanmaz. `kvs_tema_ayarlari`'nın
-auto-registration için `#[derive(KaydetAyar)]` benzeri bir macro mirror
-edilmelidir veya `init` fonksiyonunda elle `Settings::register` çağrılır.
+**Mirror tarafında:** `kvs_tema` `Settings` trait'ine doğrudan bağımlı
+değildir (Konu 5 bağımlılık matrisi); ancak `kvs_tema_ayarlari` crate'i
+`kvs_ayarlari::Settings` benzeri bir trait sözleşmesini takip eder.
+`ThemeSettingsProvider` (Konu 39) bu bağlantının soyutlanmış
+arayüzüdür — `kvs_tema` provider'dan typography ve density okur,
+`Settings` trait'ini doğrudan kullanmaz. `kvs_tema_ayarlari`'nın
+auto-registration için `#[derive(KaydetAyar)]` benzeri bir macro
+mirror edilebilir; alternatif olarak `init` fonksiyonunda elle
+`Settings::register` çağrılır.
 
 ### `IntoGpui` trait — Settings → Runtime köprüsü
 
-Zed `*Content` tiplerini GPUI runtime tiplerine çevirirken **tek bir trait**
-kullanır: `settings::IntoGpui` (`settings/src/content_into_gpui.rs:12-15`).
+Zed `*Content` tiplerini GPUI runtime tiplerine çevirirken **tek bir
+trait** kullanır: `settings::IntoGpui`
+(`settings/src/content_into_gpui.rs:12-15`).
 
 ```rust
 pub trait IntoGpui {
@@ -342,8 +361,8 @@ pub trait IntoGpui {
 }
 ```
 
-Tüm impl'ler `settings` crate'inde toplanır (mirror'da `kvs_ayarlari`
-veya `kvs_ayarlari_icerik` köprü modülü):
+Tüm impl'ler `settings` crate'inde toplanır (mirror tarafında
+`kvs_ayarlari` veya `kvs_ayarlari_icerik` köprü modülü):
 
 | Source (Content) | Output (Runtime) | Davranış |
 |------------------|-----------------|----------|
@@ -355,8 +374,8 @@ veya `kvs_ayarlari_icerik` köprü modülü):
 | `FontSize` | `gpui::Pixels` | `px(self.0)` |
 | `FontFamilyName` | `gpui::SharedString` | `SharedString::from(self.0)` (klonsuz `Arc<str>` taşır) |
 
-`ThemeSettings::from_settings` her font-bazlı alanda `into_gpui()` zinciri
-ile bu trait'i kullanır:
+`ThemeSettings::from_settings` font-bazlı her alanda `into_gpui()`
+zinciri ile bu trait'i kullanır:
 
 ```rust
 ui_font_size: clamp_font_size(content.ui_font_size.unwrap().into_gpui()),
@@ -369,22 +388,24 @@ ui_font: Font {
 },
 ```
 
-**Çok kritik davranış:** `ThemeSettings::from_settings`'in her satırı `.unwrap()`
-çağırır. Yani **`default.json` bu alanları doldurmak zorundadır**;
-`ui_font_size`, `ui_font_family`, `ui_font_features`, `ui_font_weight`,
-`buffer_font_family`, `buffer_font_features`, `buffer_font_weight`,
-`buffer_font_size`, `buffer_line_height`, `theme`, `icon_theme`,
-`unnecessary_code_fade` boşsa runtime tipini üretmek panic eder. Mirror
-tarafta `kvs_default_settings.json` bu zorunlu alanları içermeli, yoksa
-`init` panic eder.
+**Çok kritik bir davranış:** `ThemeSettings::from_settings`'in her
+satırı `.unwrap()` çağırır. Yani **`default.json` bu alanları
+doldurmak zorundadır**; `ui_font_size`, `ui_font_family`,
+`ui_font_features`, `ui_font_weight`, `buffer_font_family`,
+`buffer_font_features`, `buffer_font_weight`, `buffer_font_size`,
+`buffer_line_height`, `theme`, `icon_theme`, `unnecessary_code_fade`
+alanları boş olduğunda runtime tipini üretmek panic eder. Mirror
+tarafında `kvs_default_settings.json` bu zorunlu alanları içermelidir;
+aksi halde `init` panic atar.
 
 ### Content/Runtime tip duplication ve `From` impls
 
-Zed `theme_settings::settings` runtime tarafında `ThemeSelection`,
-`IconThemeSelection`, `BufferLineHeight` gibi tipleri **yeniden tanımlar**
-(`settings_content` tarafındaki Content tipleriyle aynı varyantlara sahiptir
-ama farklı derive list'lerine sahiptir). Aralarındaki köprü `From`
-implementasyonları sağlar:
+Zed'in `theme_settings::settings` modülü; runtime tarafında
+`ThemeSelection`, `IconThemeSelection`, `BufferLineHeight` gibi
+tipleri **yeniden tanımlar** (`settings_content` tarafındaki Content
+tipleriyle aynı varyantlara sahiptir ama farklı derive list'lerine
+sahiptirler). Aralarındaki köprü `From` implementasyonları üzerinden
+kurulur:
 
 ```rust
 // theme_settings/src/settings.rs:136-145, 188-197, 350-359:
@@ -396,24 +417,28 @@ impl From<settings::IconThemeSelection> for IconThemeSelection { /* aynı */ }
 impl From<settings::BufferLineHeight> for BufferLineHeight { /* variant kopyala */ }
 ```
 
-`UiDensity` için ise `pub(crate) fn ui_density_from_settings(val) -> UiDensity`
-helper'ı vardır (`From` trait kullanılmaz). Bu iki kat tip katmanı kasıtlı:
+`UiDensity` için ise `pub(crate) fn ui_density_from_settings(val) ->
+UiDensity` helper'ı bulunur (`From` trait kullanılmaz). Bu iki kat tip
+katmanı kasıtlıdır:
 
-- **Content tipleri** (`settings_content::theme::*`): `JsonSchema, MergeFrom,
-  serde::{Serialize, Deserialize}, strum::EnumDiscriminants` derive'larıyla;
-  JSON sözleşmesi, schema üretimi, user/default/project cascade için.
-- **Runtime tipleri** (`theme_settings::settings::*`): Daha az derive,
-  runtime hot path için. Selector UI, `ThemeSettings.theme.name(appearance)`
-  gibi metotlar burada.
+- **Content tipleri** (`settings_content::theme::*`): `JsonSchema,
+  MergeFrom, serde::{Serialize, Deserialize}, strum::EnumDiscriminants`
+  derive'larıyla birlikte gelir; JSON sözleşmesi, schema üretimi ve
+  user/default/project cascade için ayarlanır.
+- **Runtime tipleri** (`theme_settings::settings::*`): Daha az derive
+  taşır, runtime hot path için optimize edilir. Selector UI ile
+  `ThemeSettings.theme.name(appearance)` gibi metotlar burada yer alır.
 
-Mirror tarafta aynı duplication tutulmalı: `kvs_ayarlari_icerik::TemaSecimi`
-(content) ve `kvs_tema_ayarlari::TemaSecimi` (runtime), aralarında `From`
-impl. Tek tipte birleştirmek serde derive'ı runtime tarafında zorlar ve
-selector UI'nın `EnumDiscriminants` kullanımını bozar.
+Mirror tarafında bu duplication korunmalıdır:
+`kvs_ayarlari_icerik::TemaSecimi` (content) ve
+`kvs_tema_ayarlari::TemaSecimi` (runtime), aralarında `From` impl ile
+bağlanır. Tek bir tipte birleştirme tercih edildiğinde serde derive'ı
+runtime tarafında zorlanır ve selector UI'nın `EnumDiscriminants`
+kullanımı bozulur.
 
-Tema uygulama akışı (`configured_theme` Zed'de **private** `fn`,
-`theme_settings/src/theme_settings.rs:145`; aşağıdaki örnek mirror tarafta
-public yardımcı olabilir):
+Tema uygulama akışı (`configured_theme` Zed'de **private** bir `fn`'dir,
+`theme_settings/src/theme_settings.rs:145`; aşağıdaki örnek mirror
+tarafında public bir yardımcı olarak yazılabilir):
 
 ```rust
 pub fn configured_theme(settings: &ThemeSettingsContent, cx: &mut App) -> Arc<Theme> {
@@ -451,21 +476,23 @@ pub fn apply_theme_overrides(
 }
 ```
 
-`modify_theme` aynı düşük seviye refinement araçlarını kullanır ama tam
-`refine_theme` pipeline'ı değildir. `window_background_appearance` override
-edilir, `status_colors_refinement` ve `theme_colors_refinement` uygulanır,
-player/accent listeleri merge edilir, syntax override'ları mevcut syntax
-üstüne bindirilir. Override işlemi registry'deki orijinal `Arc<Theme>`'i
-değiştirmez; clone üstünde çalışır.
+`modify_theme` aynı düşük seviyeli refinement araçlarını kullanır ama
+tam bir `refine_theme` pipeline'ı değildir.
+`window_background_appearance` override edilir,
+`status_colors_refinement` ve `theme_colors_refinement` uygulanır,
+player ve accent listeleri merge edilir, syntax override'ları mevcut
+syntax üstüne bindirilir. Override işlemi registry'deki orijinal
+`Arc<Theme>` örneğini değiştirmez; yalnızca bir klon üzerinde çalışır.
 
 > **Önemli fark:** Zed `ThemeSettings::modify_theme` içinde
-> `apply_status_color_defaults` ve `apply_theme_color_defaults` çağırmaz.
-> Yani settings-level `theme_overrides` fg-only status değerinden otomatik
-> background üretmez ve `element_selection_background` değerini player
-> selection'dan türetmez. Bu iki türetme tam user theme yüklemesindeki
+> `apply_status_color_defaults` ve `apply_theme_color_defaults`
+> çağırmaz. Yani settings seviyesindeki `theme_overrides`, fg-only
+> status değerinden otomatik background üretmez ve
+> `element_selection_background` değerini player selection'dan
+> türetmez. Bu iki türetme yalnızca tam user theme yüklemesindeki
 > `refine_theme` akışına aittir. Buna karşılık syntax override'ları
-> gerçekten `SyntaxTheme::merge(...)` ile mevcut syntax üstüne field-bazlı
-> bindirilir.
+> gerçekten `SyntaxTheme::merge(...)` ile mevcut syntax üstüne
+> field-bazlı bindirilir.
 
 Settings observer (Zed paritesi `theme_settings::init`,
 `theme_settings/src/theme_settings.rs:85-142`):
@@ -530,8 +557,8 @@ pub fn observe_tema_ayarlari(cx: &mut App) {
 }
 ```
 
-> **Tüm 7 değişken zorunlu**: Observer 4 font size + 2 theme name + 1
-> theme_overrides alanını izler. Font size'lar izlenmezse kullanıcı
+> **Tüm 7 değişken zorunludur**: Observer 4 font size, 2 theme name ve
+> 1 theme_overrides alanını izler. Font size'lar izlenmezse, kullanıcı
 > settings dosyasında `buffer_font_size`'ı değiştirdiğinde runtime eski
 > override değerini göstermeye devam edebilir.
 
@@ -556,14 +583,14 @@ dismiss/cancel:
   eski tema geri yüklenir ve refresh_windows çağrılır
 ```
 
-Bu modelle uygulama, Zed'deki gibi kullanıcıya hem "tek tema seç" hem de
-"sistem moduna göre light/dark temaları ayrı tut" davranışını sunar.
+Bu modelle uygulama, Zed'deki gibi kullanıcıya hem "tek tema seç" hem
+de "sistem moduna göre light/dark temaları ayrı tut" davranışını sunar.
 
 ### Settings mutator helper'ları (Zed paritesi)
 
-Zed `crates/theme_settings/src/settings.rs` içinde **runtime global'i değil**,
-kullanıcı ayar dosyasının `SettingsContent` AST'ini güvenli mutate eden üç
-public helper sunar:
+Zed `crates/theme_settings/src/settings.rs` içinde **runtime global'i
+değil**, kullanıcı ayar dosyasının `SettingsContent` AST'ini güvenli
+biçimde mutate eden üç public helper sunar:
 
 ```rust
 // theme_settings::settings içinde:
@@ -585,14 +612,14 @@ pub fn set_mode(content: &mut SettingsContent, mode: ThemeAppearanceMode);
 
 | Fonksiyon | İş yaptığı yer | Karar mantığı |
 |-----------|----------------|---------------|
-| `set_theme` | `settings.theme.theme` (`Option<ThemeSelection>`) | `Static` ise adı değiştirir, `Dynamic` ise `theme_appearance`'a göre `light`/`dark` slot'unu günceller. `mode == System` iken seçilen appearance sistem appearance'ından farklıysa `mode`'u seçilen tarafa kilitler |
-| `set_icon_theme` | `settings.theme.icon_theme` | `Dynamic` modda mevcut mode'a göre `light`/`dark` slot'unu yazar; `Static`ta tek slot'u günceller. `Option<IconThemeSelection>` `None` ise `Static` ile başlatır |
-| `set_mode` | `settings.theme.theme` | Mevcut `Static` seçimi `Dynamic { mode = System, light = DEFAULT_LIGHT_THEME, dark = DEFAULT_DARK_THEME }` ile değiştirir; mevcut `Dynamic` ise sadece `mode`'u günceller; `None` ise `Dynamic`'i baştan kurar |
+| `set_theme` | `settings.theme.theme` (`Option<ThemeSelection>`) | `Static` ise adı değiştirir, `Dynamic` ise `theme_appearance`'a göre `light` veya `dark` slot'unu günceller. `mode == System` iken seçilen appearance sistem appearance'ından farklıysa `mode`'u seçilen tarafa kilitler |
+| `set_icon_theme` | `settings.theme.icon_theme` | `Dynamic` modda mevcut mode'a göre `light` veya `dark` slot'unu yazar; `Static` durumunda tek slot'u günceller. `Option<IconThemeSelection>` `None` ise `Static` ile başlatır |
+| `set_mode` | `settings.theme.theme` | Mevcut `Static` seçimi `Dynamic { mode = System, light = DEFAULT_LIGHT_THEME, dark = DEFAULT_DARK_THEME }` ile değiştirir; mevcut `Dynamic` ise yalnızca `mode`'u günceller; `None` durumunda `Dynamic`'i baştan kurar |
 
-**`kvs_tema` karşılığı:** Bu üç fonksiyon `kvs_tema` runtime API'sinin değil
-selector / settings UI köprüsünün sorumluluğudur. Mirror crate yapısında
-ya `kvs_tema_ayarlari` ya da `kvs_secici` modülünde tutulur. Selector
-confirm akışında dosya yazma sırasını şu şekilde kurar:
+**`kvs_tema` karşılığı:** Bu üç fonksiyon `kvs_tema` runtime API'sinin
+değil; selector / settings UI köprüsünün sorumluluğudur. Mirror crate
+yapısında ya `kvs_tema_ayarlari` ya da `kvs_secici` modülünde tutulur.
+Selector confirm akışında dosya yazma sırası şu şekilde kurulur:
 
 ```rust
 pub fn confirm_selection(
@@ -614,16 +641,17 @@ pub fn confirm_selection(
 }
 ```
 
-**Tuzak:** Selector preview için `GlobalTheme::update_theme` + `refresh_windows`
-çağrıldıysa ve kullanıcı confirm yerine dismiss seçerse, settings dosyası
-yazılmamış olur ama runtime hâlâ önizleme temasını gösterir. Cancel akışında
-preview öncesi tema adını saklayıp `GlobalTheme::update_theme(cx, eski)`
-çağrısı yapılmalıdır.
+**Tuzak:** Selector preview için `GlobalTheme::update_theme` +
+`refresh_windows` çağrıldıktan sonra kullanıcı confirm yerine dismiss
+seçtiğinde, settings dosyası yazılmamış olur ama runtime hâlâ önizleme
+temasını göstermeye devam eder. Cancel akışında preview öncesi tema
+adının saklanıp `GlobalTheme::update_theme(cx, eski)` çağrısıyla geri
+yüklenmesi gerekir.
 
 ### `reload_theme` / `reload_icon_theme` — observer reaksiyonu
 
-Zed `crates/theme_settings/src/theme_settings.rs` içinde iki public reload
-helper'ı tanımlar:
+Zed `crates/theme_settings/src/theme_settings.rs` içinde iki public
+reload helper'ı tanımlar:
 
 ```rust
 pub fn reload_theme(cx: &mut App);
@@ -633,19 +661,22 @@ pub fn reload_icon_theme(cx: &mut App);
 Davranış (`theme_settings.rs:185-196`):
 
 1. `configured_theme(cx)` (veya `configured_icon_theme(cx)`) ile aktif
-   seçimi ve override'ları yeniden çözer.
-2. `GlobalTheme::update_theme` veya `update_icon_theme` ile global'i yazar.
-3. `cx.refresh_windows()` çağırır.
+   seçim ve override'lar yeniden çözülür.
+2. `GlobalTheme::update_theme` veya `update_icon_theme` ile global
+   yazılır.
+3. `cx.refresh_windows()` çağrılır.
 
 Settings observer (`init` içindeki `cx.observe_global::<SettingsStore>`)
-font size, theme name, icon theme name veya theme override'ların değiştiğini
-fark edince ilgili reload helper'ını çağırır. **Yani Settings'i mutate etmek
-otomatik olarak runtime'a yansır**; selector confirm akışında ek bir
-`update_theme` çağrısına ihtiyaç yoktur (önizleme yazmıyorsa).
+font size, theme name, icon theme name veya theme override'ların
+değiştiğini fark ettiğinde ilgili reload helper'ını çağırır. Yani
+Settings'i mutate etmek otomatik olarak runtime'a yansır; selector
+confirm akışında ek bir `update_theme` çağrısına ihtiyaç kalmaz
+(önizleme yazılmadığı sürece).
 
-`kvs_tema` mirror tarafında bu iki fonksiyon `pub fn temayi_yeniden_yukle(cx)`
-ve `pub fn icon_temayi_yeniden_yukle(cx)` olarak çıkar; observer'ı kuran
-`init` fonksiyonu da Zed'deki `theme_settings::init`'in karşılığıdır.
+`kvs_tema` mirror tarafında bu iki fonksiyon `pub fn
+temayi_yeniden_yukle(cx)` ve `pub fn icon_temayi_yeniden_yukle(cx)`
+olarak yer alır; observer'ı kuran `init` fonksiyonu da Zed'deki
+`theme_settings::init`'in karşılığıdır.
 
 ### Sistem mod takipli otomatik tema
 
@@ -677,13 +708,15 @@ pub fn observe_system_mod_ile_tema_takibi(
 ```
 
 > **Kullanıcı tercihini ezme uyarısı:** Bu fonksiyon sistem değişiminde
-> otomatik tema değiştirir = kullanıcının manuel seçimi sistem
-> değişiminde kaybolur. Production'da bir `ayar.mod_takibi: bool`
-> bayrağı ile koşullu çalıştır.
+> otomatik tema değiştirir. Bu durum, kullanıcının manuel seçiminin
+> sistem değişiminde kaybolması anlamına gelir. Production akışında
+> `ayar.mod_takibi: bool` bayrağı ile koşullu çalıştırılması yerinde
+> olur.
 
 ### Tema reload
 
-Kullanıcı tema dosyasını editörden değiştirir → uygulama yeniden okur:
+Kullanıcı tema dosyasını editörden değiştirdiğinde uygulamanın yeniden
+okumaya geçmesi:
 
 ```rust
 pub fn temayi_yeniden_yukle(
@@ -723,10 +756,13 @@ pub fn temayi_yeniden_yukle(
 
 **Akış:**
 
-1. Disk'ten oku, parse et.
-2. Her tema variant'ı için uygun baseline seç (light → light baseline).
-3. `registry.insert` üzerine yazar — aynı isimle güncellenir.
-4. Aktif tema yeniden yüklendiyse `GlobalTheme::update_theme` + `refresh_windows`.
+1. Disk'ten okunur ve parse edilir.
+2. Her tema varyantı için uygun baseline seçilir (light → light
+   baseline).
+3. `registry.insert` çağrısı eski kaydın üstüne yazar — aynı isim
+   güncellenir.
+4. Aktif tema yeniden yüklendiyse `GlobalTheme::update_theme` ile
+   global güncellenir ve `refresh_windows` çağrılır.
 
 ### Performans
 
@@ -735,17 +771,19 @@ pub fn temayi_yeniden_yukle(
 | `registry.get(name)` | O(1) HashMap lookup | Sık (her tema değişimde) |
 | `GlobalTheme::update_theme` | Global update + observer trigger | Sık |
 | `refresh_windows` | Tüm açık view ağaçları | Sık |
-| `Theme::from_content` (reload) | ~25-60 µs (Konu 32) | Nadir |
-| Tek tema değişimi toplam | ~2-5 ms (next frame'de görünür) | Kullanıcı tetikler |
+| `Theme::from_content` (reload) | ~25–60 µs (Konu 32) | Nadir |
+| Tek tema değişimi toplam | ~2–5 ms (next frame'de görünür) | Kullanıcı tetikler |
 
 ### Tuzaklar
 
-1. **`registry.get` `unwrap`**: Hata UI'da görünmeli, panic etmemeli.
-   `?` ile propagate veya match.
-2. **Sistem mod takipli akışta kullanıcı tercihini ezmek**: `ayar.mod_takibi`
-   bayrağı ile koşullu çalıştır.
-3. **Async reload'da `cx` lifetime**: `cx.spawn` içinde `cx`
-   `AsyncApp`; `cx.update(|cx| ...)` ile sync bağlama düş.
+1. **`registry.get` üzerine `unwrap`**: Hata UI'da görünür kılınmalı,
+   panic'e dönüşmemelidir. `?` ile propagate ya da bir match deseni
+   kullanılır.
+2. **Sistem mod takipli akışta kullanıcı tercihinin ezilmesi**:
+   `ayar.mod_takibi` bayrağı ile koşullu çalıştırma yerinde olur.
+3. **Async reload'da `cx` lifetime'ı**: `cx.spawn` içinde `cx`
+   `AsyncApp`'tir; sync bağlamaya `cx.update(|cx| ...)` ile geçiş
+   yapılır.
 
 ---
 
@@ -755,11 +793,11 @@ pub fn temayi_yeniden_yukle(
 **Kaynak:** `crates/theme/src/theme_settings_provider.rs:9`.
 
 Zed'in son sürümlerinde `crates/theme` `crates/theme_settings`'i
-**doğrudan tüketmez**; bunun yerine `ThemeSettingsProvider` adlı bir
+**doğrudan tüketmez**; bunun yerine `ThemeSettingsProvider` adında bir
 trait sunar. Settings crate'i bu trait'i implement eder ve
-`crates/theme` çalışma zamanında provider'ı sorgular. Bu, soyutlama
-yönünü ters çevirir: tema crate'i settings'e bağımlı değil, settings
-crate'i tema'ya bir hizmet sunar.
+`crates/theme` çalışma zamanında provider'ı sorgular. Bu yaklaşım
+soyutlama yönünü ters çevirir: tema crate'i settings'e bağımlı değildir,
+aksine settings crate'i tema'ya bir hizmet sunar.
 
 ```rust
 use gpui::{App, Font, Pixels};
@@ -776,12 +814,12 @@ pub fn set_theme_settings_provider(provider: Box<dyn ThemeSettingsProvider>, cx:
 pub fn theme_settings(cx: &App) -> &dyn ThemeSettingsProvider;
 ```
 
-**Sözleşme sınırı:** Bu trait aktif tema adını veya aktif icon tema adını
-döndürmez. Zed'de provider yalnızca typography/density okumaları için
-vardır; selector state'i `ThemeSettingsContent.theme` ve
-`ThemeSettingsContent.icon_theme` alanlarından çözülür. Provider trait
-`agent_font_size`, `active_theme_name` veya `active_icon_theme_name`
-metotlarını içermez.
+**Sözleşme sınırı:** Bu trait aktif tema adını veya aktif icon tema
+adını döndürmez. Zed'de provider yalnızca typography ve density
+okumaları için vardır; selector state'i `ThemeSettingsContent.theme`
+ve `ThemeSettingsContent.icon_theme` alanlarından çözülür. Provider
+trait `agent_font_size`, `active_theme_name` ya da
+`active_icon_theme_name` gibi metotlar içermez.
 
 **`kvs_tema`'da karşılığı:**
 
@@ -843,26 +881,27 @@ fn main() {
 }
 ```
 
-**Neden trait?**
+**Neden bir trait?**
 
-- Tema crate'i settings crate'inin tipini bilmez — sadece davranışını
-  sözleşme olarak alır.
-- Test ortamında `MockTemaAyarSaglayici` enjekte edilir; gerçek settings
-  store'u kurmaya gerek kalmaz.
+- Tema crate'i settings crate'inin tipini bilmez — yalnızca davranışını
+  sözleşme olarak kabul eder.
+- Test ortamında `MockTemaAyarSaglayici` enjekte edilebilir; gerçek bir
+  settings store'u kurmaya gerek kalmaz.
 - Settings dosya formatı değişirse (`config.toml` → `settings.json`)
-  trait imzası aynı kalır.
+  trait imzası değişmeden kalır.
 
-**Konu 38 (`temayi_degistir`) ile ilişki:** `temayi_degistir` çağrıldığında
-ayar dosyasının da güncellenmesi isteniyorsa `tema_ayarlari(cx)` üzerinden
-mutable bir API tasarlanır — Zed'de bu `update_settings_file` tarafından
-yapılır; `kvs_tema` settings crate'inin sözleşmesine bağımlı olmadığı
-için bu çağrı **tüketici tarafında** kalır.
+**Konu 38 (`temayi_degistir`) ile ilişki:** `temayi_degistir`
+çağrıldığında ayar dosyasının da güncellenmesi istendiğinde
+`tema_ayarlari(cx)` üzerinden mutable bir API tasarlanır — Zed'de bunu
+`update_settings_file` üstlenir. `kvs_tema` settings crate'inin
+sözleşmesine bağımlı olmadığı için bu çağrı **tüketici tarafında**
+kalır.
 
 **`ThemeSettingsContent` alan modeli:**
 
-`crates/settings_content/src/theme.rs` tarafındaki settings şeması provider'dan
-daha geniştir; kullanıcı ayar dosyası burada temsil edilir.
-`ThemeSettingsContent` şu alanları taşır:
+`crates/settings_content/src/theme.rs` tarafındaki settings şeması
+provider'dan daha geniştir; kullanıcı ayar dosyası burada temsil
+edilir. `ThemeSettingsContent` şu alanları taşır:
 
 ```text
 ui_font_size, ui_font_family, ui_font_fallbacks, ui_font_features,
@@ -874,27 +913,27 @@ markdown_preview_theme, theme, icon_theme, ui_density,
 unnecessary_code_fade, experimental_theme_overrides, theme_overrides
 ```
 
-Bu alanların yardımcı tiplerini de şemaya dahil et:
+Bu alanların yardımcı tipleri de şemaya dahildir:
 
 | Tip | Rol | Kritik sözleşme |
 |-----|-----|-----------------|
 | `ThemeSettingsContent` | Kullanıcı settings dosyasındaki tema/font/density alanları | 22 alan; `#[serde(default)]` ve `MergeFrom` davranışı korunur |
-| `FontSize` | `f32` pixel newtype | serialize ederken iki ondalık basamak |
+| `FontSize` | `f32` pixel newtype'ı | Serialize edilirken iki ondalık basamak tutar |
 | `FontFamilyName` | font family adı | `#[serde(transparent)]`, `Arc<str>` |
 | `FontFeaturesContent` | OpenType feature map'i | 4 karakter alfanumerik key; boolean veya unsigned integer value |
-| `BufferLineHeight` | `comfortable`, `standard`, `custom(f32)` | custom değer `>= 1.0` olmalı |
+| `BufferLineHeight` | `comfortable`, `standard`, `custom(f32)` | custom değer `>= 1.0` olmalıdır |
 | `CodeFade` | gereksiz kod fade oranı | schema aralığı `0.0..=0.9` |
-| `DEFAULT_LIGHT_THEME` / `DEFAULT_DARK_THEME` | settings fallback adları | `"One Light"` / `"One Dark"` tek kaynak olarak kalmalı |
+| `DEFAULT_LIGHT_THEME` / `DEFAULT_DARK_THEME` | settings fallback adları | `"One Light"` / `"One Dark"` tek kaynak olarak korunur |
 
 `agent_ui_font_size` ve `agent_buffer_font_size` provider trait'inde
-değildir; agent panel ayarı olarak settings katmanında kalır. `theme`,
+yer almaz; agent panel ayarı olarak settings katmanında kalır. `theme`,
 `icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides`
-ve `theme_overrides` selector/override akışına gider; typography helper'ları
-ise provider üzerinden `ui_font`, `buffer_font`, `ui_font_size`,
-`buffer_font_size` ve `ui_density` okur.
-`markdown_preview_code_font_family` provider trait'ine eklenmez; markdown
-preview tüketicisi `ThemeSettings` üzerinden okur ve unset ise
-`buffer_font.family` kullanır.
+ve `theme_overrides` selector ve override akışına gider; typography
+helper'ları ise provider üzerinden `ui_font`, `buffer_font`,
+`ui_font_size`, `buffer_font_size` ve `ui_density` değerlerini okur.
+`markdown_preview_code_font_family` provider trait'ine eklenmez;
+markdown preview tüketicisi `ThemeSettings` üzerinden okur ve değer
+boş kaldığında `buffer_font.family` kullanır.
 
 ### Font ayarları runtime API'leri (`adjust_*`, `reset_*`, override global'leri)
 
@@ -903,8 +942,8 @@ preview tüketicisi `ThemeSettings` üzerinden okur ve unset ise
 `crates/theme_settings/src/theme_settings.rs`.
 
 Zed font ölçeklemesini iki katmanlı çalıştırır: ayar dosyasındaki taban
-değer (`ThemeSettings.{ui,buffer,agent_ui,agent_buffer}_font_size`) ve
-**runtime override global'leri**. Override global'i set edilmişse
+değer (`ThemeSettings.{ui,buffer,agent_ui,agent_buffer}_font_size`) ile
+**runtime override global'leri**. Override global'i set edildiğinde
 `ThemeSettings::*_font_size(cx)` accessor'ı önce global'i okur, yoksa
 settings değerine düşer; bu sayede kullanıcı `cmd-+`/`cmd--` ile font'u
 geçici olarak büyütebilir ve settings dosyası yazılmaz.
@@ -950,16 +989,18 @@ pub fn setup_ui_font(window: &mut Window, cx: &mut App) -> gpui::Font;
 
 `adjust_*` her zaman aynı 4 adımı izler:
 
-1. `ThemeSettings::get_global(cx).*_font_size(cx)` (veya `*_font_size_settings()`)
-   ile **mevcut baz değeri** oku.
+1. `ThemeSettings::get_global(cx).*_font_size(cx)` (veya
+   `*_font_size_settings()`) ile **mevcut baz değer** okunur.
 2. `cx.try_global::<*FontSize>().map_or(base, |g| g.0)` ile override
-   varsa onu, yoksa baz değeri al.
-3. Callback'i çağır, sonucu `clamp_font_size` ile `[MIN_FONT_SIZE,
-   MAX_FONT_SIZE]` aralığına sıkıştır, `cx.set_global(*FontSize(...))`.
-4. `cx.refresh_windows()` çağır.
+   varsa o değer, yoksa baz değer alınır.
+3. Callback çağrılır; sonuç `clamp_font_size` ile
+   `[MIN_FONT_SIZE, MAX_FONT_SIZE]` aralığına sıkıştırılır ve
+   `cx.set_global(*FontSize(...))` ile yazılır.
+4. `cx.refresh_windows()` çağrılır.
 
-`reset_*` ise `cx.has_global::<*FontSize>()` ise `remove_global` + `refresh_windows`
-çalıştırır; override yoksa no-op'tur (gereksiz redraw yapmaz).
+`reset_*` ise `cx.has_global::<*FontSize>()` durumunda `remove_global`
+ve ardından `refresh_windows` çalıştırır; override yoksa no-op'tur
+(gereksiz redraw üretmez).
 
 **Sayısal sabitler** (`theme_settings/src/settings.rs:18-20`):
 
@@ -969,9 +1010,9 @@ const MAX_FONT_SIZE: Pixels = px(100.0);
 const MIN_LINE_HEIGHT: f32 = 1.0;
 ```
 
-`clamp_font_size` bu iki const'a sıkıştırır. `MIN_LINE_HEIGHT` ise
-`ThemeSettings::line_height()` accessor'ında kullanılır
-(`theme_settings/src/settings.rs:451-453`):
+`clamp_font_size` bu iki const'a göre sıkıştırma yapar.
+`MIN_LINE_HEIGHT` ise `ThemeSettings::line_height()` accessor'ında
+kullanılır (`theme_settings/src/settings.rs:451-453`):
 
 ```rust
 pub fn line_height(&self) -> f32 {
@@ -979,29 +1020,30 @@ pub fn line_height(&self) -> f32 {
 }
 ```
 
-Yani `BufferLineHeight::Custom(0.5)` gibi geçersiz değerler bile (her ne
-kadar `deserialize_line_height` parse aşamasında 1.0 alt sınırını zorlasa
-da, in-memory override veya bug durumlarına karşı) accessor'da `1.0`'a
-yükseltilir. Mirror'da aynı double-defense uygulanmalı.
+Yani `BufferLineHeight::Custom(0.5)` gibi geçersiz değerler bile (her
+ne kadar `deserialize_line_height` parse aşamasında 1.0 alt sınırını
+zorlasa da, in-memory override veya bug durumlarına karşı) accessor
+seviyesinde `1.0`'a yükseltilir. Mirror tarafında aynı double-defense
+uygulanmalıdır.
 
-**Settings observer ilişkisi:** `theme_settings::init` içindeki observer
-ayar dosyasındaki taban değer değişince override'ı **otomatik olarak
-sıfırlar** (`reset_*` çağırır). Yani kullanıcı `cmd-+` ile büyüttüğü font'u
-elle settings dosyasını editlerse override drop olur — settings dosyası
-"hakikat kaynağı" rolünü korur.
+**Settings observer ilişkisi:** `theme_settings::init` içindeki
+observer ayar dosyasındaki taban değer değiştiğinde override'ı
+**otomatik olarak sıfırlar** (`reset_*` çağırır). Yani kullanıcı
+`cmd-+` ile büyüttüğü font'u settings dosyası üzerinden düzenlediğinde
+override drop edilir — settings dosyası "hakikat kaynağı" rolünü korur.
 
 **`kvs_tema` karşılığı:** Bu API ailesi `kvs_tema` runtime crate'inin
-değil, **settings/UI köprüsünün** sorumluluğudur. Mirror tarafında üç
-strateji var:
+değil; **settings/UI köprüsünün** sorumluluğudur. Mirror tarafında üç
+strateji vardır:
 
 | Strateji | Açıklama | Ne zaman |
 |----------|----------|----------|
-| Provider trait'i genişlet | `TemaAyarSaglayici`'a `adjust_*`/`reset_*` ekle | `kvs_tema` tüketicilerin font değişimini dinlemesi gerekiyorsa |
-| Sade newtype mirror | `BufferFontSize` vb. global'leri `kvs_tema_ayarlari` crate'inde tut, `adjust_*`/`reset_*` orada implement et | Settings UI'sı bağımsız crate ise |
-| Atla | UI yoksa hiç mirror etme | İlk sürümde, font picker gelmediyse |
+| Provider trait'ini genişletme | `TemaAyarSaglayici`'a `adjust_*`/`reset_*` eklenir | `kvs_tema` tüketicilerinin font değişimini dinlemesi gerekiyorsa |
+| Sade newtype mirror | `BufferFontSize` vb. global'leri `kvs_tema_ayarlari` crate'inde tutulur, `adjust_*`/`reset_*` orada implement edilir | Settings UI'sı bağımsız bir crate olduğunda |
+| Atlama | UI yoksa hiç mirror edilmez | İlk sürümde, font picker henüz gelmediyse |
 
-Sözleşme parite bayrağı, bu fonksiyonların `kvs_tema` public API'sinde
-olmamasıdır.
+Sözleşme parite bayrağı şudur: bu fonksiyonlar `kvs_tema` public
+API'sinde yer almaz.
 
 ---
 
@@ -1020,29 +1062,36 @@ pub enum UiDensity {
 }
 ```
 
-**Rol:** Kullanıcının UI'da tercih ettiği yoğunluk — buton paddingleri,
-liste item yükseklikleri, panel iç boşlukları bu enuma göre ölçeklenir.
+**Rol:** Kullanıcının UI'da tercih ettiği yoğunluğu temsil eder —
+buton padding'leri, liste item yükseklikleri ve panel iç boşlukları bu
+enuma göre ölçeklenir.
 
-**Tema sözleşmesindeki yeri:** `UiDensity` `Theme` içinde **yok** —
-ayrı bir kullanıcı tercihi olarak `TemaAyarSaglayici` üzerinden okunur.
-`ThemeColors` ile karıştırma; renk değil, boyut.
+**Tema sözleşmesindeki yeri:** `UiDensity` `Theme` içinde **yer almaz**
+— ayrı bir kullanıcı tercihi olarak `TemaAyarSaglayici` üzerinden
+okunur. `ThemeColors` ile bir karışıklık olmaması gerekir; bu bir renk
+değil, boyut tercihidir.
 
 > **Content/Runtime tip duplication:** `UiDensity` Zed'de **iki yerde**
 > tanımlıdır:
 >
-> - `settings_content::theme::UiDensity` (`settings_content/src/theme.rs:374`):
->   content tipi, `JsonSchema + MergeFrom + Serialize + Deserialize` derive'larıyla.
-> - `theme::ui_density::UiDensity` (`theme/src/ui_density.rs:21`): runtime tipi.
+> - `settings_content::theme::UiDensity`
+>   (`settings_content/src/theme.rs:374`): content tipi,
+>   `JsonSchema + MergeFrom + Serialize + Deserialize` derive'larıyla
+>   beraber.
+> - `theme::ui_density::UiDensity` (`theme/src/ui_density.rs:21`):
+>   runtime tipi.
 >
-> Aralarındaki köprü `theme_settings::settings::ui_density_from_settings`
-> `pub(crate)` helper'ıdır (`theme_settings/src/settings.rs:22-28`); `From`
-> trait kullanılmaz çünkü iki tipin değişik derive zincirleri arasındaki
-> dönüşüm `theme_settings` crate'i içinde özel kalır. `ThemeSettings::from_settings`
-> bu helper'ı çağırır: `ui_density: ui_density_from_settings(content.ui_density.unwrap_or_default())`.
+> Aralarındaki köprü
+> `theme_settings::settings::ui_density_from_settings` adındaki
+> `pub(crate)` bir helper'dır (`theme_settings/src/settings.rs:22-28`);
+> `From` trait kullanılmaz; çünkü iki tipin değişik derive zincirleri
+> arasındaki dönüşüm `theme_settings` crate'i içinde özel kalır.
+> `ThemeSettings::from_settings` bu helper'ı çağırır:
+> `ui_density: ui_density_from_settings(content.ui_density.unwrap_or_default())`.
 >
-> Mirror tarafta aynı duplication zorunlu değildir — tek `UiDensity` tipi
-> kullanılabilir; ancak `JsonSchema/MergeFrom` derive zincirini runtime
-> hot path'ine eklemek istiyorsan ayır.
+> Mirror tarafında aynı duplication zorunlu değildir — tek bir
+> `UiDensity` tipi kullanılabilir; ancak `JsonSchema`/`MergeFrom` derive
+> zincirini runtime hot path'ine eklemek istenmiyorsa ayrım korunur.
 
 **Tüketici kullanım deseni:**
 
@@ -1070,8 +1119,9 @@ impl Render for Toolbar {
 
 **`bilesen_rehberi.md` ile köprü:** `DynamicSpacing::BaseXX.px(cx)`
 helper'ı zaten `UiDensity`'i bilir — `ui::ui_density(cx)` ile şu anki
-yoğunluk sorgulanır. Kendi component crate'in varsa `tema_ayarlari(cx).ui_density(cx)`
-çağrısını GPUI spacing helper'larına bağla.
+yoğunluk sorgulanır. Bağımsız bir component crate kullanılıyorsa
+`tema_ayarlari(cx).ui_density(cx)` çağrısının GPUI spacing
+helper'larına bağlanması gerekir.
 
 **JSON kullanıcı ayarı:**
 
@@ -1081,13 +1131,15 @@ yoğunluk sorgulanır. Kendi component crate'in varsa `tema_ayarlari(cx).ui_dens
 }
 ```
 
-> **JSON anahtarı `"unstable.ui_density"`** (`settings_content/src/theme.rs:166`).
-> `ThemeSettingsContent.ui_density` alanı `#[serde(rename = "unstable.ui_density")]`
-> ile işaretli; düz `"ui_density"` anahtarı **tanınmaz**, parse'ta `None`
-> kalır ve default değer (`UiDensity::Default`) etkin olur. Mirror tarafta
-> aynı rename'i koymak zorunludur; aksi halde Zed-uyumlu kullanıcı
-> ayar dosyaları density'yi göstermez. Zed `unstable.` ön ekini "API hâlâ
-> kararsız" işareti olarak kullanır; alan kararlılaşırsa rename değişebilir.
+> **JSON anahtarı `"unstable.ui_density"`'dir**
+> (`settings_content/src/theme.rs:166`).
+> `ThemeSettingsContent.ui_density` alanı
+> `#[serde(rename = "unstable.ui_density")]` ile işaretlenir; düz bir
+> `"ui_density"` anahtarı **tanınmaz**, parse aşamasında `None` kalır
+> ve default değer (`UiDensity::Default`) etkin olur. Mirror tarafında
+> aynı rename'in konulması zorunludur; aksi halde Zed uyumlu kullanıcı
+> ayar dosyalarında density görünmez. Zed `unstable.` ön ekini "API
+> hâlâ kararsız" işareti olarak kullanır; alan kararlılaştığında
+> rename değişebilir.
 
 ---
-

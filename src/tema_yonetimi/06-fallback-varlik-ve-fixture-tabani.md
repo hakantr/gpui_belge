@@ -1,6 +1,9 @@
 # Fallback, varlık ve fixture tabanı
 
-Tema üretmeden önce lisans-temiz fallback, built-in asset ve test fixture tabanını hazırla; refinement bu baseline üzerine uygulanır.
+Tema üretmeye geçmeden önce; lisans-temiz fallback'in, built-in
+asset'lerin ve test fixture tabanının kurulması gerekir. Refinement akışı
+da bu baseline'ın üzerine uygulanacağı için, buradaki kararlar sonraki
+bölümlerin "üzerine bina edilen" zemini oluşturur.
 
 ---
 
@@ -8,31 +11,34 @@ Tema üretmeden önce lisans-temiz fallback, built-in asset ve test fixture taba
 
 **Kaynak modül:** `kvs_tema/src/fallback.rs`.
 
-Fallback temalar **runtime'ın güvenlik ağı**: kullanıcı tema yüklemesi
-başarısız olsa bile uygulama açılır. Her zaman en az **iki tema**
-(light + dark) registry'de bulunur (Bölüm VIII/Konu 36).
+Fallback temalar, runtime için bir **güvenlik ağı** rolündedir: kullanıcı
+tema yüklemesi başarısız olsa bile uygulama açılır. Bu yüzden her zaman
+en az **iki tema** (light + dark) registry'de hazır bulundurulur (Bölüm
+VIII/Konu 36).
 
 ### Rol ve sözleşme
 
 | Soru | Cevap |
 |------|-------|
-| Kaç adet fallback? | **2 — `kvs_default_dark` ve `kvs_default_light`** |
-| Kim ne zaman çağırır? | `kvs_tema::init` (Bölüm VIII/Konu 36); ayrıca `Theme::from_content` baseline argümanı |
-| Lisans? | **Senin lisansın** — Zed'in paletini taşımak yasak (Bölüm I/Konu 3) |
-| Hangi alan eksik kalabilir? | **Hiçbiri** — tüm ThemeColors/StatusColors alanları açık değer almalı |
-| Ne zaman değişir? | Tasarım dili veya izlenen Zed tema sözleşmesi yeni alan gerektirirse |
+| Kaç adet fallback bulunur? | **2 — `kvs_default_dark` ve `kvs_default_light`** |
+| Kim ne zaman çağırır? | `kvs_tema::init` (Bölüm VIII/Konu 36); ayrıca `Theme::from_content` çağrısında baseline argümanı olarak |
+| Lisans? | **Uygulamanın kendi lisansı** — Zed'in paletini taşımak yasaktır (Bölüm I/Konu 3) |
+| Hangi alan eksik kalabilir? | **Hiçbiri** — tüm ThemeColors/StatusColors alanları açık değer almalıdır |
+| Ne zaman değişir? | Tasarım dili veya izlenen Zed tema sözleşmesi yeni bir alan gerektirdiğinde |
 
 ### Palet seçimi disiplini
 
-Zed'in `default_colors.rs`'sindeki HSL değerleri **GPL-3 telif altında**.
-Birebir kopyalama yasak. İki yol:
+Zed'in `default_colors.rs` dosyasındaki HSL değerleri **GPL-3 telif
+altındadır**. Birebir kopyalanmasına izin verilmez. Önünde iki yol
+bulunur:
 
-**1. Sıfırdan tasarla:** Tek "anchor hue" seç, türetme kuralları kur.
+**1. Sıfırdan tasarım:** Tek bir "anchor hue" belirlenir ve türetme
+kuralları onun üzerine kurulur.
 
 ```rust
 pub fn kvs_default_dark() -> Theme {
     // Anchor renkler — tüm türetmelerin başlangıcı
-    let anchor_hue = 220.0;  // mavi-gri (kendi seçimin)
+    let anchor_hue = 220.0;  // mavi-gri (tasarımcının kendi seçimi)
     let bg          = hsla(anchor_hue / 360.0, 0.10, 0.12, 1.0);  // ana arka plan
     let surface     = hsla(anchor_hue / 360.0, 0.10, 0.15, 1.0);  // panel
     let elevated    = hsla(anchor_hue / 360.0, 0.10, 0.18, 1.0);  // popup
@@ -45,22 +51,25 @@ pub fn kvs_default_dark() -> Theme {
 }
 ```
 
-**Anchor hue stratejisi**: Tüm "nötr" renkler (bg/surface/elevated/text/border)
-aynı hue'dan; sadece **lightness** değişir. Bu monokromatik temel
-profesyonel görünüm verir.
+**Anchor hue stratejisi:** Tüm "nötr" renkler (bg/surface/elevated/text/border)
+aynı hue'dan beslenir; yalnızca **lightness** değişir. Monokromatik bu
+temel, profesyonel ve dağılmamış bir görünüm sağlar.
 
-**2. Açık-lisanslı palet'ten esinlen:** Tailwind, Catppuccin, Nord,
-Solarized — bu paletlerin HSL değerleri **public domain veya açık
-lisanslı**. Kullan ama:
+**2. Açık-lisanslı paletten esinlenme:** Tailwind, Catppuccin, Nord,
+Solarized gibi paletlerin HSL değerleri **public domain veya açık
+lisanslıdır**. Bu kaynaklar kullanılabilir; ancak şu üç maddenin
+gözetilmesi gerekir:
 
-- Lisans dosyasını `LICENSES/` altına ekle.
-- Esin kaynağını tema atıflarında belirt.
-- HSL değerlerini doğrudan kopyala değil; **ondalık hassasiyetini farklılaştır**
-  (kendi tasarım kararı olduğunu göster).
+- Lisans dosyasının `LICENSES/` altına eklenmesi.
+- Esin kaynağının tema atıflarında belirtilmesi.
+- HSL değerlerinin birebir kopyalanması yerine **ondalık hassasiyetinin
+  farklılaştırılması** (kararın bağımsız bir tasarım kararı olduğunun
+  görünür kılınması).
 
 ### Türetme kalıpları
 
-`opacity()` ile baz renklerden varyant türetmek tutarlılık sağlar:
+Baz renklerden `opacity()` ile varyant türetmek, tutarlılığı doğal bir
+biçimde getirir:
 
 ```rust
 ThemeColors {
@@ -75,7 +84,7 @@ ThemeColors {
     border_disabled: border.opacity(0.3),       // disabled için soluk
     element_background: surface,
     element_hover: elevated,                    // bir tık yukarı
-    element_active: elevated.opacity(0.8),     // basılınca hafif soluklaş
+    element_active: elevated.opacity(0.8),     // basılınca hafif soluklaşma
     element_selected: accent.opacity(0.3),     // selection bg
     element_selection_background: accent.opacity(0.25),  // status fg/bg ile uyumlu
     element_disabled: surface.opacity(0.5),
@@ -89,7 +98,7 @@ ThemeColors {
     drop_target_border: accent,
     text,
     text_muted,
-    text_placeholder: text_muted.opacity(0.7),  // muted'un daha solu
+    text_placeholder: text_muted.opacity(0.7),  // muted'un daha solgun hali
     text_disabled: text_muted.opacity(0.5),
     text_accent: accent,
     icon: text,                                 // metin ile aynı
@@ -99,14 +108,17 @@ ThemeColors {
 }
 ```
 
-**Pattern:**
+**Görülen örüntüler:**
 
-- `border`/`border_variant`/`border_disabled` → tek border anchor + opacity
-- `element_*`/`ghost_element_*` → surface/elevated/accent karışımı
-- `text_*`/`icon_*` → tek text + muted anchor + opacity
+- `border` / `border_variant` / `border_disabled` → tek bir border anchor
+  ve opacity türevleri.
+- `element_*` / `ghost_element_*` → surface, elevated ve accent
+  karışımları.
+- `text_*` / `icon_*` → tek bir text + muted anchor üzerinden opacity
+  türetmeleri.
 
-Bu disiplin, yeni alan geldiğinde "hangi anchor'dan türetmeli" sorusunu
-hızlı cevaplar.
+Bu disiplin sayesinde yeni bir alan geldiğinde "hangi anchor'dan
+türetilmeli" sorusu hızla cevap bulur.
 
 ### Status renkleri için ayrı fonksiyon
 
@@ -134,29 +146,31 @@ fn status_colors_dark() -> StatusColors {
         success_background: green.opacity(0.2),
         success_border: green.opacity(0.5),
 
-        // 14 × 3 = 42 alan — her birini açık değerle doldur
+        // 14 × 3 = 42 alan — her birinin açık bir değer alması gerekir.
         // conflict, created, deleted, hidden, hint, ignored, modified,
         // predictive, renamed, unreachable
-        ..elinde_olmayan_default()  // ← YANLIŞ, aşağıya bak
+        ..elinde_olmayan_default()  // ← YANLIŞ, aşağıdaki nota bakılır
     }
 }
 ```
 
-> **Uyarı:** `..unsafe { std::mem::zeroed() }` veya `..Default::default()`
-> ile eksik alan **doldurmayın**. `Hsla::default()` = `(0, 0, 0, 0)` =
-> UI'da görünmez. **Tüm 42 alanı tek tek açık değerle doldurun.** Diğer
-> 10 status (conflict, created, deleted, hidden, vs.) için aynı kalıbı
-> tekrarlayın — çıkardığım anchor'lar (red, green, yellow, blue) yeterli;
-> her status anchor'lardan birine map'lensin (örn. `modified = yellow`,
-> `deleted = red`, `created = green`).
+> **Uyarı:** Eksik alanların `..unsafe { std::mem::zeroed() }` veya
+> `..Default::default()` ile **doldurulmaması** gerekir. `Hsla::default()`
+> = `(0, 0, 0, 0)` ve bu UI'da görünmez. **Tüm 42 alanın tek tek açık
+> değerle doldurulması** beklenir. Geriye kalan 10 status (conflict,
+> created, deleted, hidden vb.) için de aynı kalıp tekrarlanır;
+> seçilmiş olan anchor'lar (red, green, yellow, blue) çoğu durumda
+> yeterli olur — her status anchor'lardan birine map edilebilir
+> (örneğin `modified = yellow`, `deleted = red`, `created = green`).
 
-**Light eşleniği** (`status_colors_light()`): Aynı anchor renkleri,
-**lightness biraz koyu** (light bg üzerinde okunaklılık için), bg ve
-border opacity'leri korunur.
+**Light eşleniği** (`status_colors_light()`): Aynı anchor renkler
+kullanılır; yalnızca **lightness değerleri biraz koyulaşır** (light bg
+üzerinde okunaklılık için), background ile border opacity'leri
+korunur.
 
 ```rust
 fn status_colors_light() -> StatusColors {
-    // Light bg üzerinde kontrast için lightness 0.45-0.50 (dark'ta 0.55-0.60)
+    // Light bg üzerinde kontrast için lightness 0.45–0.50 (dark'ta 0.55–0.60)
     let red    = hsla(0.0   / 360.0, 0.7,  0.45, 1.0);
     let green  = hsla(140.0 / 360.0, 0.45, 0.40, 1.0);
     let yellow = hsla(45.0  / 360.0, 0.85, 0.45, 1.0);
@@ -185,20 +199,21 @@ fn status_colors_light() -> StatusColors {
 }
 ```
 
-**Light vs dark status renk kuralları:**
+**Light ile dark status renk kuralları:**
 
 | Boyut | Dark | Light |
 |-------|------|-------|
-| Foreground lightness | 0.55-0.60 | 0.40-0.50 (koyu bg'ye karşı doygun) |
-| Background opacity | 0.20 | 0.15 (light yüzeyde aşırı dolgu olmasın) |
+| Foreground lightness | 0.55–0.60 | 0.40–0.50 (koyu bg'ye karşı doygun) |
+| Background opacity | 0.20 | 0.15 (light yüzeyde aşırı dolgu olmaması için) |
 | Border opacity | 0.50 | 0.40 |
 | Saturation | aynı (her iki tarafta da doygunluk korunur) |
 
 ### Syntax fallback — temel kategoriler
 
-`SyntaxTheme::new(vec![])` ile boş bırakmak kod görünümünde tüm token'ları
-varsayılan text rengiyle çizer; renksiz ve okunaksız. Minimum **8 temel
-kategori** doldur:
+`SyntaxTheme::new(vec![])` ile boş bir liste verildiğinde kod görünümünde
+tüm token'lar varsayılan text rengiyle çizilir; sonuç renksiz ve
+okunaksız olur. En azından **8 temel kategorinin** doldurulması iyi bir
+başlangıçtır:
 
 ```rust
 fn syntax_theme_dark(accent: Hsla, text: Hsla, text_muted: Hsla) -> Arc<SyntaxTheme> {
@@ -249,12 +264,12 @@ fn syntax_theme_dark(accent: Hsla, text: Hsla, text_muted: Hsla) -> Arc<SyntaxTh
 }
 ```
 
-**Kategoriler tüm tree-sitter dilleri için ortak**: `comment`, `string`,
-`keyword`, `number`, `function`, `type`, `constant`, `variable` —
-Zed'in tüm `languages/*/highlights.scm` dosyalarında bu adlar kullanılır.
-Kullanıcı tema'sı daha zengin kategorilere genişletebilir (örn.
-`function.builtin`, `string.escape`); fallback minimum garantili
-8'lik liste.
+**Kategorilerin tamamı tree-sitter dilleri arasında ortaktır**:
+`comment`, `string`, `keyword`, `number`, `function`, `type`, `constant`,
+`variable` — Zed'in tüm `languages/*/highlights.scm` dosyalarında bu
+adlar kullanılır. Kullanıcı teması daha zengin kategorilere genişleyebilir
+(örneğin `function.builtin`, `string.escape`); fallback ise garanti
+edilen minimum kategori setini sunar.
 
 ### Player ve accent fallback
 
@@ -271,13 +286,15 @@ ThemeStyles {
 }
 ```
 
-- **Player listesi en az 1 girdi** (Bölüm IV/Konu 15) — yoksa
-  `local()` panic eder.
-- **Accents en az 1 girdi** — yoksa `color_for_index(idx)` modulo'da
-  `len() == 0` paniği üretir; Zed kaynağında `Default::default()`
-  `Self::dark()` döndüğü için her zaman 13 elemandır.
-- **Syntax boş Vec** kabul edilebilir — `SyntaxTheme::new`'a boş tuple
-  iter geçirilir, runtime `style_for_name` her zaman `None` döner.
+- **Player listesinde en az 1 girdi bulunmalıdır** (Bölüm IV/Konu 15) —
+  aksi halde `local()` çağrısı panic atar.
+- **Accents listesinde en az 1 girdi bulunmalıdır** — aksi takdirde
+  `color_for_index(idx)` modulo'da `len() == 0` paniğine yol açar; Zed
+  kaynağında `Default::default()` `Self::dark()` döndürdüğü için bu
+  liste her zaman 13 elemanlıdır.
+- **Syntax boş bir `Vec` ile başlatılabilir** — `SyntaxTheme::new`'a boş
+  tuple iter geçirilmesinde sakınca yoktur. Bu durumda runtime
+  `style_for_name` çağrısı her zaman `None` döndürür.
 
 ### Light tema simetrisi
 
@@ -310,13 +327,14 @@ pub fn kvs_default_light() -> Theme {
 
 **Simetri kuralları:**
 
-- Aynı `anchor_hue` (örn. 220°) — light ve dark arasında **renk
-  ailesi tutarlı**.
-- Lightness "tersine çevril": dark'ta 0.12 olan bg light'ta 0.98.
-- Saturation çoğu zaman aynı; gözle bakıldığında "aynı tema, ters
-  mod" hissi gerek.
-- Accent için dark hue'su (örn. 210°) light'ta biraz **daha koyu**
-  (l=0.50 vs 0.60) — light bg üzerinde okunaklılık için.
+- Aynı `anchor_hue` (örneğin 220°) — light ve dark arasında **renk
+  ailesi tutarlı** kalır.
+- Lightness değerleri tersine çevrilir: dark'ta 0.12 olan bg, light'ta
+  0.98 olur.
+- Saturation çoğunlukla aynı tutulur; gözle bakıldığında "aynı tema, ters
+  mod" hissi vermesi gerekir.
+- Accent için dark'taki hue (örn. 210°) light'ta biraz **daha koyu**
+  konumlanır (l=0.50 yerine 0.60) — light bg üzerinde okunaklılık için.
 
 ### Fallback test örneği
 
@@ -331,52 +349,58 @@ fn fallback_temalari_tam_dolu() {
     assert_ne!(dark.colors().text, gpui::Hsla::default());
     assert_ne!(dark.status().error, gpui::Hsla::default());
 
-    // Player ve accent en az 1 girdi
+    // Player ve accent en az 1 girdi taşımalı
     assert!(!dark.players().0.is_empty());
     assert!(!dark.accents().0.is_empty());
 
-    // Appearance tutarlı
+    // Appearance tutarlı olmalı
     assert_eq!(dark.appearance, Appearance::Dark);
     assert_eq!(light.appearance, Appearance::Light);
 
-    // İsimler benzersiz
+    // İsimler benzersiz olmalı
     assert_ne!(dark.name, light.name);
 }
 ```
 
 ### Tuzaklar
 
-1. **`Default::default()` ile eksik alan doldurmak**: Hsla::default() =
-   görünmez. Tüm 150 + 42 alanı açık değerle doldur.
-2. **`unsafe { std::mem::zeroed() }` kullanmak**: Aynı sonuç (sıfır
-   Hsla). Şablon kodda görsen sil; gerçek kodda asla.
-3. **Anchor olmadan rastgele HSL**: Her alan farklı hue/saturation
-   = tema dağınık görünür. Anchor hue + opacity disiplini şart.
-4. **`palette` versiyonu sabitlememek**: Aynı `hsla(0.583, 0.10, 0.12)`
-   farklı `palette` major sürümünde **ufak miktarda farklı sRGB**
-   üretebilir. Cargo.lock ile kullanılan sürümü sabitle.
-5. **Zed'in `default_colors.rs` HSL'ini birebir kopyalamak**: GPL-3
-   ihlali (Bölüm I/Konu 3). Kendi anchor'larını seç.
-6. **Light tema'yı dark'tan otomatik türetmek**: "`l = 1.0 - dark_l`"
-   gibi formüller **çalışmaz** — gözün light vs dark algısı doğrusal
-   değil. Light tema'yı ayrı bir tasarım kararı olarak yaz.
-7. **`syntax: Arc::new(SyntaxTheme::new(vec![]))` bırakmak**: Fallback'te
-   boş syntax kabul, ama UI'da kod gösteriliyorsa syntax token'ları için
-   en azından 5-10 temel kategori doldur (comment, string, keyword,
-   number, function). `Theme.styles.syntax` alanı `Arc<SyntaxTheme>` tipi
-   beklediği için boş bile olsa `Arc::new(...)` sarması zorunlu.
+1. **`Default::default()` ile eksik alanların doldurulması**:
+   `Hsla::default()` görünmezdir. 150 + 42 alanın tamamının açık bir
+   değerle doldurulması gerekir.
+2. **`unsafe { std::mem::zeroed() }` kullanımı**: Sonuç aynıdır (sıfır
+   Hsla). Şablon kodda görüldüğünde silinmesi, gerçek kodda ise asla
+   kullanılmaması doğru olur.
+3. **Anchor olmadan rastgele HSL**: Her alan için farklı hue/saturation
+   = dağınık bir tema demektir. Anchor hue + opacity disiplini şarttır.
+4. **`palette` sürümünün sabitlenmemesi**: Aynı `hsla(0.583, 0.10, 0.12)`
+   ifadesi, farklı `palette` major sürümlerinde **ufak miktarda farklı
+   sRGB** üretebilir. Cargo.lock dosyası ile kullanılan sürümün
+   sabitlenmesi yerinde olur.
+5. **Zed'in `default_colors.rs` HSL değerlerini birebir kopyalamak**:
+   GPL-3 ihlali demektir (Bölüm I/Konu 3). Bağımsız anchor değerleri
+   seçilmesi gerekir.
+6. **Light temasını dark'tan otomatik türetmek**: `l = 1.0 - dark_l`
+   gibi formüller **çalışmaz** — gözün light ve dark algısı doğrusal
+   değildir. Light tema, ayrı bir tasarım kararı olarak yazılır.
+7. **`syntax: Arc::new(SyntaxTheme::new(vec![]))` ile yetinmek**:
+   Fallback olarak boş syntax kabul edilir; ancak UI'da kod gösteriliyorsa
+   en azından 5–10 temel kategori (comment, string, keyword, number,
+   function) doldurulmalıdır. `Theme.styles.syntax` alanı
+   `Arc<SyntaxTheme>` tipi beklediği için, içerik boş olsa bile
+   `Arc::new(...)` sarması zorunludur.
 
 ---
 
 ## 26. Built-in tema bundling ve `AssetSource`
 
-Built-in temalar = uygulama ile **birlikte dağıtılan** JSON tema
-dosyaları. Üç bundling stratejisi var; ihtiyacına göre seç.
+Built-in temalar; uygulama ile **birlikte dağıtılan** JSON tema
+dosyalarını ifade eder. Bunun üç farklı bundling stratejisi vardır ve
+seçim ihtiyaca göre yapılır.
 
 ### Strateji 1: Diskten yükleme (en basit)
 
-Geliştirme aşamasında ve dev build'lerde yeterli. `assets/themes/`
-dizinindeki tüm JSON'lar runtime'da okunur:
+Geliştirme aşamasında ve dev build'lerde yeterli olur. `assets/themes/`
+dizinindeki tüm JSON dosyaları runtime'da okunur:
 
 ```rust
 use std::path::Path;
@@ -418,11 +442,12 @@ pub fn load_bundled_themes(
 
 **Yapı:**
 
-- Her dosya bir `ThemeFamilyContent`; ailedeki light + dark varyantlar
-  ayrılır.
-- `theme_content.appearance`'a göre uygun baseline seçilir (Bölüm VIII/Konu 35 reload akışı ile aynı).
-- Hata bir tema dosyasından gelse bile diğerleri yüklenmeye devam et
-  istiyorsan `try_into`/`continue` kullan:
+- Her dosya bir `ThemeFamilyContent` taşır; ailedeki light + dark
+  varyantlar ayrılır.
+- `theme_content.appearance` değerine göre uygun baseline seçilir
+  (Bölüm VIII/Konu 35 reload akışı ile aynı mantık).
+- Bir tema dosyasından hata gelse bile diğerlerinin yüklenmeye devam
+  etmesi isteniyorsa `try_into`/`continue` deseni kullanılabilir:
 
 ```rust
 for entry in entries.flatten() {
@@ -435,19 +460,22 @@ for entry in entries.flatten() {
 
 **Avantajlar:**
 
-- Sıfır build-time iş.
-- Dev'de tema dosyalarını editör'le anlık değiştirip yeniden başlatma.
+- Sıfır build-time iş yükü.
+- Dev'de tema dosyalarını editör ile anlık değiştirip uygulamayı yeniden
+  başlatma kolaylığı.
 
 **Dezavantajlar:**
 
-- Binary tek dosya değil; dağıtımda klasör yapısı korunmalı.
-- `themes_dir` yolunu binary'nin nereden çağrıldığına göre çözmek
+- Binary tek dosya olarak dağıtılmaz; dağıtım sırasında klasör
+  yapısının korunması gerekir.
+- `themes_dir` yolunun binary'nin nereden çağrıldığına göre çözülmesi
   gerekir.
 
 ### Strateji 2: `RustEmbed` ile derleme zamanı gömme
 
-Production binary'lerde yaygın. Tema dosyaları **derleme zamanında**
-binary'ye gömülür; runtime'da disk gerekmez.
+Production binary'lerinde yaygın olarak tercih edilir. Tema dosyaları
+**derleme zamanında** binary'ye gömülür; runtime'da disk erişimi
+gerekmez.
 
 `Cargo.toml`:
 
@@ -499,20 +527,21 @@ pub fn load_bundled_themes(registry: &kvs_tema::ThemeRegistry) -> anyhow::Result
 
 **Avantajlar:**
 
-- Single-binary dağıtım.
-- Çalışma zamanı disk erişimi yok = hızlı init.
+- Single-binary dağıtım kolaylığı.
+- Çalışma zamanında disk erişimi olmadığı için hızlı init süresi.
 
 **Dezavantajlar:**
 
-- Tema değiştirmek için yeniden derleme.
+- Tema değiştirmek için yeniden derleme gerekir.
 - Build süresi artar (her tema dosyası binary'ye girer).
-- `debug-embed` özelliği ile dev modda dosyalardan, release'de embed
-  davranışı.
+- `debug-embed` özelliği ile dev modda dosyalardan, release modunda ise
+  embed davranışı elde edilir.
 
 ### Strateji 3: `gpui::AssetSource` entegrasyonu
 
-GPUI'nin kendi asset sistemini kullanmak istersen — özellikle SVG/icon
-ile tutarlı asset pipeline'ı için.
+GPUI'nin kendi asset sisteminin kullanılması durumunda — özellikle
+SVG/icon ile tutarlı bir asset pipeline'ı hedefleniyorsa — bu strateji
+seçilebilir.
 
 ```rust
 use gpui::AssetSource;
@@ -540,14 +569,14 @@ fn main() {
         .with_assets(KvsAssets)
         .run(|cx| {
             kvs_tema::init(cx);
-            // Tema'lar AssetSource'tan okunabilir
+            // Tema dosyaları AssetSource üzerinden okunabilir
             // ...
         });
 }
 ```
 
-GPUI'nin `cx.asset_source()` ile tema dosyalarına `Resource::Embedded(...)`
-üzerinden erişebilirsin:
+GPUI'nin `cx.asset_source()` API'sı ile tema dosyalarına
+`Resource::Embedded(...)` üzerinden erişim mümkün olur:
 
 ```rust
 pub fn load_via_asset_source(
@@ -586,27 +615,28 @@ pub fn load_via_asset_source(
 
 **Avantajlar:**
 
-- Icon, SVG, font ile tutarlı tek API.
-- Asset cache ve loading davranışı GPUI tarafından yönetilir.
+- Icon, SVG ve font ile tutarlı tek bir API.
+- Asset cache ve loading davranışının GPUI tarafından yönetilmesi.
 
 **Dezavantajlar:**
 
-- AssetSource impl boilerplate'i.
-- GPUI versiyon değişiminde trait imzası kayabilir (rehber.md #62).
+- `AssetSource` impl boilerplate'i.
+- GPUI sürüm değişimlerinde trait imzasının kayma ihtimali (rehber.md
+  #62).
 
 ### Karar matrisi
 
 | İhtiyaç | Strateji |
 |---------|----------|
-| Dev/prototip; tema'ları editörden anlık değiştirme | **1 — diskten** |
-| Production single-binary dağıtım, tema sayısı az (<20) | **2 — RustEmbed** |
+| Dev/prototip; tema'ların editörden anlık değiştirilmesi | **1 — diskten** |
+| Production single-binary dağıtım, az sayıda tema (<20) | **2 — RustEmbed** |
 | GPUI asset pipeline ile tutarlı; tema sayısı çok veya kullanıcı eklenebilir | **3 — AssetSource** |
-| Karma: built-in + kullanıcı tema dizini | Strateji 2 + ek kullanıcı dizin yüklemesi |
+| Karma kullanım: built-in + kullanıcı tema dizini | Strateji 2 + ek kullanıcı dizin yüklemesi |
 
 ### Hot reload (file watcher)
 
 Dev modda tema dosyasını editörden değiştirip uygulamayı yeniden
-başlatmadan görmek istersen:
+başlatmadan görmek istenirse:
 
 ```rust
 use notify::{RecommendedWatcher, RecursiveMode, Watcher};
@@ -639,13 +669,13 @@ pub fn init_hot_reload(
 }
 ```
 
-> **Production'da kapatın.** Hot reload tek dev kolaylığı; production
-> kullanıcısı tema dosyasını manuel değiştirmez. `#[cfg(debug_assertions)]`
-> ile gate'le.
+> **Production'da kapatılması gerekir.** Hot reload yalnızca dev tarafında
+> kolaylık sağlar; production kullanıcısı tema dosyasını elle değiştirmez.
+> Bu kolaylığın `#[cfg(debug_assertions)]` ile gate edilmesi yerinde olur.
 
 ### Tema dosyası yapısı
 
-`assets/themes/` altında konvansiyon:
+`assets/themes/` altında izlenen konvansiyon:
 
 ```
 assets/themes/
@@ -656,59 +686,64 @@ assets/themes/
 └── ayu.json              ← Ayu varyantları
 ```
 
-**Her tema dosyası bir `ThemeFamilyContent`** — birden fazla varyant
+**Her tema dosyası bir `ThemeFamilyContent`'tir** — birden fazla varyant
 (light + dark) içerebilir.
 
 ### Tuzaklar
 
-1. **`themes_dir` working directory bağımlılığı**: Disk yükleme'de
-   `assets/themes` relative path; binary nereden çalıştırılırsa oraya
-   göre çözülür. **Mutlak yol** üret:
+1. **`themes_dir` working directory bağımlılığı**: Disk yüklemesinde
+   `assets/themes` göreli bir yoldur; binary nereden çalıştırılırsa
+   yola göre çözülür. **Mutlak yol** üretilmesi yerinde olur:
    ```rust
    let exe_dir = std::env::current_exe()?.parent().unwrap().to_path_buf();
    let themes_dir = exe_dir.join("assets").join("themes");
    ```
-2. **`RustEmbed` derleme süresini şişirmek**: Her tema dosyası binary'ye
-   gömülür. 100 MB tema klasörü = 100 MB binary. Ayıklama:
+2. **`RustEmbed` derleme süresini şişirir**: Her tema dosyası binary'ye
+   gömülür. 100 MB'lık bir tema klasörü 100 MB'lık binary'ye dönüşür.
+   Ayıklama için include filtreleri kullanılabilir:
    ```toml
    #[derive(RustEmbed)]
    #[folder = "assets/"]
    #[include = "themes/*.json"]
    #[include = "themes/*.LICENSE_*"]
    ```
-3. **Async yükleme'de `cx` lifetime**: `cx.spawn` içinde `AsyncApp`;
-   `cx.update(|cx| ...)` ile sync bağlama düş (Bölüm IX/Konu 39).
-4. **Aynı isim çakışması**: Bundled tema "One Dark" + kullanıcı tema
-   "One Dark" — kullanıcı tema **üzerine yazar** (`insert` semantiği).
-   Bilinçli; kullanıcının modifikasyonu öncelikli.
-5. **`baseline` seçimi atlamak**: Dark tema'nın baseline'ı light yapılırsa
-   eksik alanlar light değerlerden gelir = uyumsuz görüntü. Mutlaka
-   `appearance`'a göre baseline seç.
-6. **`include_bytes!` yerine `RustEmbed`**: `include_bytes!` tek dosya;
-   onlarca tema için `RustEmbed` tek macro çağrısı.
-7. **Hot reload production'da açık**: File watcher CPU/IO maliyeti +
-   güvenlik riski (kullanıcı path injection). `cfg(debug_assertions)`
-   ile gate.
+3. **Async yüklemede `cx` lifetime'ı**: `cx.spawn` içinde `AsyncApp`
+   bulunur; sync bağlamaya geçmek için `cx.update(|cx| ...)` kullanılır
+   (Bölüm IX/Konu 39).
+4. **Aynı isim çakışması**: Bundled "One Dark" teması ile kullanıcının
+   "One Dark" teması karşılaştığında, kullanıcı teması **üzerine yazar**
+   (`insert` semantiği). Bu davranış bilinçlidir; kullanıcının
+   modifikasyonu önceliklidir.
+5. **`baseline` seçiminin atlanması**: Dark bir temanın baseline'ı yanlış
+   biçimde light olarak verilirse, eksik alanlar light değerlerden gelir
+   ve görsel olarak uyumsuz bir tema ortaya çıkar. Baseline'ın
+   `appearance` değerine göre seçilmesi şarttır.
+6. **`include_bytes!` yerine `RustEmbed`**: `include_bytes!` tek dosya
+   gömme için yeterlidir; onlarca tema için `RustEmbed` tek bir macro
+   çağrısıyla aynı işi yapar.
+7. **Hot reload'un production'da açık kalması**: File watcher CPU/IO
+   maliyetinin yanı sıra güvenlik açısından da risk taşır (kullanıcı path
+   injection). `cfg(debug_assertions)` ile gate edilmesi tercih edilir.
 
 ---
 
 ## 27. Tema asset lisans sınırları
 
-Üç farklı lisans hattını ayrı ayrı izle: **bağımlılıklar** (kod), **Zed
-tema fixture'ları** (data), ve **fallback paleti** (kendi tasarım
-kararın).
+Üç farklı lisans hattının ayrı ayrı izlenmesi gerekir: **bağımlılıklar**
+(kod), **Zed tema fixture'ları** (data), ve **fallback paleti** (kendi
+tasarım kararı).
 
 ### Lisans matrisi
 
 | Kaynak | Tip | Lisans | Sözleşme |
 |--------|-----|--------|----------|
-| `gpui` (Zed workspace) | Code dependency | Apache-2.0 | Doğrudan dep olarak kullan |
+| `gpui` (Zed workspace) | Code dependency | Apache-2.0 | Doğrudan dep olarak kullanılır |
 | `refineable` | Code dependency | Apache-2.0 | Doğrudan dep |
 | `collections` | Code dependency | Apache-2.0 | Doğrudan dep |
-| Zed `theme`/`syntax_theme` | Code reference | GPL-3.0-or-later | **Mirror, kopyalama** (Bölüm I/Konu 3) |
-| Zed `theme_settings`/`theme_selector` | Code reference | GPL-3.0-or-later | **Sadece referans, dep yok** |
-| Zed tema JSON'ları | Data fixture | Tema-özel (MIT/Apache/GPL) | **Lisans dosyasıyla beraber kopyala** |
-| `default_colors.rs` HSL değerleri | Design data | GPL-3.0-or-later | **Kopyalama; kendi paletini seç** |
+| Zed `theme` / `syntax_theme` | Code reference | GPL-3.0-or-later | **Mirror edilir, kopyalanmaz** (Bölüm I/Konu 3) |
+| Zed `theme_settings` / `theme_selector` | Code reference | GPL-3.0-or-later | **Yalnızca referans için okunur, dep olarak alınmaz** |
+| Zed tema JSON'ları | Data fixture | Tema-özel (MIT/Apache/GPL) | **Lisans dosyasıyla birlikte kopyalanır** |
+| `default_colors.rs` HSL değerleri | Design data | GPL-3.0-or-later | **Kopyalanmaz; bağımsız palet seçilir** |
 
 ### Zed tema lisansları
 
@@ -728,10 +763,11 @@ zed/assets/themes/
     └── gruvbox.json
 ```
 
-**Kendi bundle'ında adlandırma konvansiyonu:**
+**Bundle adlandırma konvansiyonu:**
 
-Zed alt-dizin yapısını korumak yerine tüm tema'ları **düz dizinde**
-tutuyorsan, lisans dosyalarının çakışmaması için tema adıyla son ek:
+Tüm temalar Zed alt-dizin yapısı yerine **düz bir dizinde** tutuluyorsa,
+lisans dosyalarının çakışmaması için her dosyanın tema adıyla
+isimlendirilmesi gerekir:
 
 ```
 kvs_ui/assets/themes/
@@ -747,13 +783,13 @@ kvs_ui/assets/themes/
 **Konvansiyon kuralları:**
 
 1. Her tema JSON dosyasının **aynı stem** (uzantı öncesi ad) ile bir
-   `<stem>.LICENSE_<tip>` dosyası olmalı.
-2. `<tip>` = `MIT`, `APACHE`, `BSD3`, `MPL2` gibi SPDX kodlarının kısa
-   karşılığı.
-3. `LICENSE_GPL*` ile başlayan dosya bundled tema varlıklarına dahil
+   `<stem>.LICENSE_<tip>` dosyasının bulunması gerekir.
+2. `<tip>` SPDX kodlarının kısa karşılığı olur: `MIT`, `APACHE`, `BSD3`,
+   `MPL2` gibi.
+3. `LICENSE_GPL*` ile başlayan dosyalar bundled tema varlıklarına dahil
    edilmez.
-4. `README.md` zorunlu — atıf tablosu (telif sahibi, kaynak repo, SPDX
-   kodu).
+4. `README.md` zorunludur — atıf tablosu (telif sahibi, kaynak repo, SPDX
+   kodu) burada yer alır.
 
 **Alternatif:** Zed dizin yapısını birebir korumak (tema başına alt
 dizin):
@@ -769,47 +805,53 @@ kvs_ui/assets/themes/
     └── LICENSE
 ```
 
-Hangi yapıyı seçtiysen `RustEmbed`/`AssetSource` filter'larını
-güncelle (`include = "themes/**/*.json"` vs `include = "themes/*.json"`).
-Bu rehberin örnekleri **düz dizin** yapısını varsayar; alt-dizin tercih
-edilirse path manipülasyonu farklı.
+Hangi yapı seçilirse seçilsin, `RustEmbed`/`AssetSource` filtrelerinin
+buna göre güncellenmesi gerekir (`include = "themes/**/*.json"` ile
+`include = "themes/*.json"` arasındaki fark). Bu rehberin örnekleri
+**düz dizin** yapısını varsayar; alt-dizin tercih edildiğinde path
+manipülasyonu farklılaşır.
 
-Dosya adı `LICENSE` ise içeriği tema ile birlikte saklanır; MIT/Apache/BSD
-gibi uyumlu lisanslar bundle içine alınabilir, GPL veya belirsiz lisanslı
-tema dosyaları bundle'a dahil edilmez. Her bundled tema için kaynak repo,
-yol, lisans ve telif bilgisi atıf dosyasında yer almalıdır.
+Dosya adı `LICENSE` olduğunda içerik tema ile birlikte saklanır;
+MIT/Apache/BSD gibi uyumlu lisanslar bundle içine alınabilir, GPL veya
+lisansı belirsiz tema dosyaları ise bundle'a dahil edilmez. Her bundled
+tema için kaynak repo, yol, lisans ve telif bilgisinin atıf dosyasında
+yer alması beklenir.
 
 ### Fallback paleti lisans hatırlatması
 
-Bölüm I/Konu 3 ve Konu 25'de işlendi; özetle:
+Bu konu Bölüm I/Konu 3 ile Konu 25'te işlenmişti; özet olarak:
 
-- Zed'in `default_colors.rs` HSL değerlerini **birebir kopyalama**.
-- Açık lisanslı paletten esinlen (Tailwind, Catppuccin, Nord, Solarized),
-  esin kaynağını atıf metninde belirt.
-- `kvs_default_dark` ve `kvs_default_light` **senin tasarım kararın**;
-  lisansı senin lisansın (MIT/Apache vs.).
+- Zed'in `default_colors.rs` HSL değerleri **birebir kopyalanmaz**.
+- Açık lisanslı paletten (Tailwind, Catppuccin, Nord, Solarized)
+  esinlenilebilir; esin kaynağının atıf metninde belirtilmesi gerekir.
+- `kvs_default_dark` ve `kvs_default_light` **uygulamanın kendi tasarım
+  kararıdır**; lisansı da uygulamanın lisansıyla (MIT/Apache vb.)
+  uyumludur.
 
 ### Tuzaklar
 
-1. **Lisans dosyasını "sonra ekleyeyim"**: Build sırasında binary'ye
-   tema JSON'u girer ama LICENSE girmezse **dağıtım anında lisans
+1. **Lisans dosyasını "sonradan eklemek"**: Build sırasında binary'ye
+   tema JSON'u girer ama LICENSE girmezse, **dağıtım anında lisans
    ihlali** oluşur.
-2. **`LICENSE_GPL` görmezden gelmek**: Tema dosyasındaki HSL'leri
-   "sadece JSON" zannetmek = telif ihlali. GPL temaları **kullanma**.
-3. **Atıf README'sini güncellememek**: Yeni tema ekleyip atıf eklemezsen
-   "kim hangi tema'yı yazdı?" sorusu cevapsız; lisansın "telif sahibi
-   gösterimi" şartı ihlal.
-4. **Cargo dep'lerinde GPL**: Yanlışlıkla GPL bir crate eklersen
-   uygulamanın **tamamı** GPL'e tabi olur.
-5. **`palette`/`refineable` lisans karıştırması**: `palette` MIT/Apache
-   dual; `refineable` Apache-2.0. Bundle ve NOTICE metni bu ayrımı doğru
-   yansıtmalıdır.
-6. **Fixture dosyasını fork'tan almak**: Tema JSON Zed'in **upstream**
-   reposundan alınmalı; bir fork'tan kopyalarsan o fork'un lisans
-   değişikliği veya patch'i de gelir.
-7. **Hot reload yolundan kullanıcı dosyası**: Kullanıcının `~/.config/kvs/themes/`
-   dizinine koyduğu tema = kullanıcının kendi sorumluluğu; senin lisans
-   matrisin etkilenmez. Built-in vs user'ı ayrı tut.
+2. **`LICENSE_GPL` görmezden gelmek**: Tema dosyasındaki HSL
+   değerlerinin "yalnızca JSON" olarak görülmesi telif ihlaline yol açar.
+   GPL temalarının kullanılmaması gerekir.
+3. **Atıf README'sinin güncellenmemesi**: Yeni bir tema eklendikten sonra
+   atıf eklenmediğinde, "hangi tema kim tarafından yazıldı?" sorusu
+   cevapsız kalır; lisansın "telif sahibi gösterimi" şartı ihlal edilmiş
+   olur.
+4. **Cargo dep'lerinde GPL kullanmak**: Yanlışlıkla GPL bir crate
+   eklendiğinde uygulamanın **tamamı** GPL'e tabi hale gelir.
+5. **`palette` / `refineable` lisans karıştırması**: `palette` MIT/Apache
+   dual lisanslıdır; `refineable` Apache-2.0'dır. Bundle ve NOTICE metni
+   bu ayrımı doğru yansıtmalıdır.
+6. **Fixture dosyasını bir fork'tan almak**: Tema JSON'larının Zed'in
+   **upstream** reposundan alınması gerekir; bir fork'tan kopyalandığında
+   o fork'un lisans değişikliği veya patch'leri de bulaşır.
+7. **Hot reload yolundan kullanıcı dosyası**: Kullanıcının
+   `~/.config/kvs/themes/` dizinine koyduğu tema kullanıcının kendi
+   sorumluluğundadır; uygulamanın lisans matrisini etkilemez. Built-in
+   ile user kaynakları ayrı tutulmalıdır.
 
 ---
 
@@ -817,9 +859,9 @@ Bölüm I/Konu 3 ve Konu 25'de işlendi; özetle:
 
 **Kaynak dizin:** `kvs_tema/tests/fixtures/`.
 
-Fixture dosyaları, gerçek tema JSON biçimini temsil eden örnek veridir.
-Bu dosyalar `ThemeFamilyContent`, refinement ve runtime dönüşümünün aynı
-JSON sözleşmesini paylaştığını görünür kılar.
+Fixture dosyaları, gerçek tema JSON biçimini temsil eden örnek veri
+parçalarıdır. Bu dosyalar; `ThemeFamilyContent`, refinement ve runtime
+dönüşümünün aynı JSON sözleşmesini paylaştığını görünür kılar.
 
 ### Dizin yapısı
 
@@ -836,7 +878,7 @@ kvs_tema/tests/
 │       ├── empty.json          ← Boş tema (test için sentetik)
 │       ├── unknown_field.json  ← Bilinmeyen alan
 │       └── invalid_color.json  ← Geçersiz hex
-├── parse_fixture.rs            ← Zed tema'ları parse edebiliyor mu?
+├── parse_fixture.rs            ← Zed temaları parse edilebiliyor mu?
 ├── synthetic.rs                ← Sentetik testler
 └── refinement.rs               ← Refinement davranış testleri
 ```
@@ -885,10 +927,11 @@ fn parses_zed_ayu() {
 
 **Pattern:**
 
-- `include_str!` derleme zamanında dosyayı stringe gömer.
-- `serde_json_lenient` — Zed JSON'unda yorum/trailing comma toleransı.
-- `from_content` çağrısı ile **tam akış** test edilir (parse + refinement
-  + Theme yapısı).
+- `include_str!` derleme zamanında dosya içeriğini bir stringe gömer.
+- `serde_json_lenient` — Zed JSON'unda yer alan yorum ve trailing comma
+  toleransını sağlar.
+- `from_content` çağrısı ile **tam akış** test edilir (parse +
+  refinement + Theme yapısı).
 
 ### `tests/synthetic.rs` — kenar durumlar
 
@@ -1012,19 +1055,22 @@ fn refine_overrides_only_some_fields() {
 ### Property testleri — `Hsla::opaque_strategy`
 
 `gpui::Hsla`, `proptest` feature'ı açıkken `Arbitrary` ve
-`Hsla::opaque_strategy()` desteği taşır. Renk türetme ve kontrast
-helper'ları yazıyorsan sentetik tekil örnekler yerine property test ekle:
+`Hsla::opaque_strategy()` desteğini taşır. Renk türetme ve kontrast
+helper'ları yazıldığında, tekil örnekler yerine property test
+yaklaşımına geçilmesi daha güçlü bir kapsama sağlar:
 
-- `Hsla::opaque_strategy()` alpha'yı `1.0` tutar; contrast testlerinde
-  şeffaflık kaynaklı belirsizliği kaldırır.
-- `any::<Hsla>()` alpha dahil tüm kanalları `0.0..=1.0` aralığında üretir;
-  parse/refinement yuvarlama ve alpha davranışı testlerinde kullanılır.
-- Bu API yalnız `gpui` `proptest` feature'ı ile gelir. Mirror testlerinde
-  dev-dependency feature set'ini buna göre aç; production build'e taşıma.
+- `Hsla::opaque_strategy()` alpha'yı `1.0` olarak tutar; bu da contrast
+  testlerinde şeffaflık kaynaklı belirsizliği ortadan kaldırır.
+- `any::<Hsla>()` alpha dahil tüm kanalları `0.0..=1.0` aralığında
+  üretir; parse/refinement yuvarlama ve alpha davranış testlerinde
+  kullanılır.
+- Bu API yalnızca `gpui`'nin `proptest` feature'ı ile birlikte gelir.
+  Mirror testlerinde dev-dependency feature setinin buna göre açılması;
+  production build'e taşınmaması gerekir.
 
-Örnek kullanım alanı: Mermaid `accent_fill_and_text` benzeri bir helper'ın
-light ve dark appearance'ta minimum kontrastı koruduğunu rastgele opak
-renklerle doğrulamak.
+Örnek bir kullanım alanı: `accent_fill_and_text` benzeri bir helper'ın
+light ve dark appearance'ta minimum kontrastı koruduğunun rastgele opak
+renklerle doğrulanması.
 
 ### `gpui::TestAppContext` ile runtime testleri
 
@@ -1059,37 +1105,44 @@ fn tema_degistir_aktifi_gunceller(cx: &mut TestAppContext) {
 }
 ```
 
-`gpui::test` attribute pencere/UI sürmez; `TestAppContext` headless
-context. Tema runtime'ı bunda %100 test edilebilir.
+`gpui::test` attribute'u bir pencere veya UI sürmez; `TestAppContext`
+headless bir context'tir. Tema runtime'ı bu bağlam üzerinde %100 test
+edilebilir biçimde kalır.
 
 ### Test stratejisi özeti
 
 | Test türü | Hedef | Dosya |
 |-----------|-------|-------|
-| Gerçek tema parse | Sözleşme parite | `parse_fixture.rs` |
+| Gerçek tema parse | Sözleşme paritesi | `parse_fixture.rs` |
 | Sentetik kenar durum | `treat_error_as_none`, bilinmeyen alan, geçersiz hex | `synthetic.rs` |
-| Refinement davranış | `apply_status_color_defaults`, `refine` | `refinement.rs` |
-| Runtime kurulum | `init`, `temayi_degistir`, registry | `runtime.rs` ile `TestAppContext` |
-| Fallback bütünlüğü | Tüm alanlar dolu | `fallback.rs` |
+| Refinement davranışı | `apply_status_color_defaults`, `refine` | `refinement.rs` |
+| Runtime kurulum | `init`, `temayi_degistir`, registry | `runtime.rs` + `TestAppContext` |
+| Fallback bütünlüğü | Tüm alanların dolu olması | `fallback.rs` |
 
 ### Tuzaklar
 
-1. **`include_str!` mutlak yol**: Path test dosyasına göredir; `include_str!("fixtures/one-dark.json")`
-   `tests/fixtures/...` olarak çözülür. Mutlak yol verme.
-2. **Fixture lisansını unutmak**: Dosyayı kopyalarken `*.LICENSE_*`'ı
-   atlama; fixture JSON'u ile lisans dosyası birlikte tutulur.
-3. **Test'lerin `init`'i**: `kvs_tema::init(cx)` her test başında
-   manuel çağır; auto-setup yok. `TestAppContext::update` callback'i
-   içinde.
-4. **`assert_eq!` Hsla karşılaştırma**: Floating point eşitlik tehlikeli.
-   `assert!((a.h - b.h).abs() < 1e-6)` ile epsilon karşılaştır.
-5. **`#[gpui::test]` vs `#[test]`**: GPUI runtime testleri `gpui::test`;
-   pure sözleşme testleri `test`. Karıştırma; gereksiz overhead.
-6. **Fixture dosyasını yerinde değiştirmek**: Test patches fixture =
-   testler kendi datasını yazıp doğruluyor. Fixture dosyaları
-   **read-only**; sentetik kenar durumları ayrı dosya/inline string.
-7. **Fixture'ı eski sözleşmede bırakmak**: Yeni Zed alanları geldi ama
-   fixture eski kaldıysa gerçek tema örneği yeni alanları temsil etmez.
+1. **`include_str!` ile mutlak yol**: Path test dosyasına göre çözülür;
+   `include_str!("fixtures/one-dark.json")` ifadesi `tests/fixtures/...`
+   olarak yorumlanır. Mutlak yol verilmesi gerekmez.
+2. **Fixture lisansının unutulması**: Dosya kopyalanırken `*.LICENSE_*`
+   dosyalarının atlanmaması gerekir; fixture JSON'u ile lisans dosyası
+   bir arada tutulur.
+3. **Test'lerin `init` çağrısı**: `kvs_tema::init(cx)` her test başında
+   elle çağrılır; otomatik bir setup mekanizması yoktur. Çağrı,
+   `TestAppContext::update` callback'i içinde yapılır.
+4. **`assert_eq!` ile Hsla karşılaştırması**: Floating point eşitlik
+   yanıltıcı sonuçlara yol açabilir. `assert!((a.h - b.h).abs() < 1e-6)`
+   gibi bir epsilon karşılaştırması tercih edilmelidir.
+5. **`#[gpui::test]` ile `#[test]` arasındaki seçim**: GPUI runtime
+   testleri `gpui::test`; pure sözleşme testleri ise `test` ile
+   yazılır. Karıştırılması gereksiz bir overhead yaratır.
+6. **Fixture dosyasının yerinde değiştirilmesi**: Test fixture'a yama
+   uyguladığında, testler kendi datasını yazıp doğrulamış olur. Fixture
+   dosyaları **read-only** kabul edilmelidir; sentetik kenar durumları
+   ayrı dosyalarda veya inline string'lerde tutulur.
+7. **Fixture'ın eski sözleşmede bırakılması**: Yeni Zed alanları
+   eklendiğinde fixture eski halinde kalırsa, gerçek tema örneği yeni
+   alanları temsil edemez ve testler bu yüzden parite konusunda
+   yanıltıcı sonuçlar verebilir.
 
 ---
-

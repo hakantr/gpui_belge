@@ -1,13 +1,20 @@
 # Hedef, kapsam ve lisans
 
-Önce sistemin neden var olduğunu, hangi parçaları birebir mirror edeceğini ve GPL sınırını netleştir.
+Bu bölüm; sistemin neden var olduğunu, hangi parçalarının birebir mirror
+edileceğini ve GPL sınırının tam olarak nereden geçtiğini netleştirmek için
+ayrılmıştır. Geri kalan bölümler bu üç temel kararın üzerine inşa edilir;
+bu yüzden buradaki seçimlerin sonraki bölümlerde defalarca yeniden açılması
+yerine, bir kere oturtulup geçilmesi iş akışını belirgin biçimde
+hafifletir.
 
 ---
 
 ## 1. Üç katmanlı yaklaşım ve büyük resim
 
-**Kaynak yön:** Aşağıdan yukarıya — veri sözleşmesi en alttadır ve mirror
-disiplini ister; üst katmanlar tasarım özgürlüğüyle yazılır.
+**Okuma yönü:** Aşağıdan yukarıya. En altta veri sözleşmesi yer alır ve bu
+katman mirror disiplini gerektirir; üstteki katmanlar ise giderek artan bir
+tasarım özgürlüğüyle yazılır. Bu yüzden öğrenme sırası, kuralların en sıkı
+olduğu yerden serbestliğin en yüksek olduğu yere doğru ilerler.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -26,29 +33,32 @@ disiplini ister; üst katmanlar tasarım özgürlüğüyle yazılır.
 ```
 
 **Veri sözleşmesi (en alt katman) — `mirror`:** Zed'in JSON tema dosyalarını
-birebir parse edebilmek için struct'lar. Alan adları, JSON anahtarları,
-opsiyonellik dereceleri — hepsi Zed'in `crates/theme/src/styles/` ve
-`crates/settings_content/src/theme.rs` ile **aynı şekilde** yazılır.
-Yaratıcılık yok; sadece sözleşme parite. Bölüm IV ve V bu katmanı
-ele alır.
+birebir parse edebilmek için kurulan struct katmanıdır. Alan adları, JSON
+anahtarları ve opsiyonellik dereceleri; hepsi Zed'in
+`crates/theme/src/styles/` ve `crates/settings_content/src/theme.rs`
+dosyalarındaki yapıyla **aynı şekilde** yazılır. Bu katmanda yaratıcılığa
+yer yoktur; tek hedef sözleşme paritesinin tam olarak sağlanmasıdır. Bölüm
+IV ve V bu katmanı ele alır.
 
 **Refinement (orta katman) — `davranış`:** Kullanıcının yazdığı tema
-(genelde eksik alanlar içeren JSON) ile baseline tema (fallback)
-birleştirme mantığı. Zed'in `refineable` crate'inin sağladığı `Refineable`
-derive macro'su her struct için `Option<T>` alanlı ikiz bir `*Refinement`
-tipi üretir; bunu `original.refine(&refinement)` ile uygularsın. Ek
-olarak, foreground rengi verilmiş ama background verilmemiş durumları
-otomatik türeten yardımcılar (`apply_status_color_defaults`) bu
-katmandadır. Davranışı Zed'den **öğrenirsin**, ama kodunu kendi
-sözcüklerinle yazarsın (GPL-3 nedeniyle birebir kopyalama yok). Bölüm VII
-bu katmanı ele alır.
+(genellikle eksik alanlar içeren bir JSON) ile baseline temayı (fallback)
+birleştiren mantığı barındırır. Zed'in `refineable` crate'inden gelen
+`Refineable` derive macro'su her struct için `Option<T>` alanlı ikiz bir
+`*Refinement` tipi üretir; birleştirme bu ikiz üzerinden
+`original.refine(&refinement)` çağrısıyla yapılır. Ayrıca foreground rengi
+tanımlı ama background tanımsız gibi yarı belirlenmiş durumları otomatik
+türeten yardımcılar (`apply_status_color_defaults` ve benzerleri) da bu
+katmana aittir. Davranış Zed'den **öğrenilir**, ama kod bağımsız
+sözcüklerle yeniden yazılır (GPL-3 nedeniyle birebir kopyalama söz konusu
+değildir). Bölüm VII bu katmanı ele alır.
 
-**Runtime (en üst katman) — `senin tasarımın`:** `cx.theme()` ile aktif
-temayı sorgulama, `GlobalTheme::update_theme` ile değiştirme, sistem light/dark modunu
-izleme. Bu katman tamamen senin tasarımındır — Zed'in
-`crates/theme_settings/` veya `crates/theme_selector/` crate'lerini
-taklit etmek zorunda değilsin. Kendi config sisteminle, kendi UI'nla
-entegre edersin. Bölüm VIII bu katmanı ele alır.
+**Runtime (en üst katman) — `uygulama tasarımı`:** Aktif temayı
+`cx.theme()` ile sorgulama, `GlobalTheme::update_theme` ile değiştirme ve
+sistem light/dark modunu izleme gibi işler bu katmanda toplanır. Katmanın
+tamamı uygulamanın kendi tasarımına bırakılmıştır; Zed'in
+`crates/theme_settings/` veya `crates/theme_selector/` crate'lerini taklit
+etme zorunluluğu yoktur. Entegrasyon, uygulamanın kendi config sistemi ve
+kendi UI'ı üzerinden kurulur. Bölüm VIII bu katmanı ele alır.
 
 **Bağımlılık yönü:**
 
@@ -58,102 +68,113 @@ Runtime  ──depends on──>  Refinement  ──depends on──>  Veri söz
                                                        └─> gpui, refineable, collections
 ```
 
-Ters yön yasak: veri sözleşmesi asla refinement'a, refinement asla
-runtime'a referans vermez. Bu, üst katmanları değiştirirken alt
-katmanların hareketsiz kalmasını garanti eder.
+Ters yön yasaktır: veri sözleşmesi asla refinement katmanına, refinement de
+asla runtime katmanına referans vermez. Bu kural sayesinde üst katmanlarda
+değişiklik yapılırken alt katmanların hareketsiz kalması garanti altına
+alınır. Pratikte bunun anlamı şudur: alt katmanlardaki struct'lar
+sabitlendikten sonra, üst katmanlardaki tasarım kararları onları kırmadan
+istenildiği gibi değiştirilebilir.
 
 **Lisans katmanlama:**
 
 | Katman | Lisans tarafı |
 |--------|---------------|
-| Veri sözleşmesi | Alan adları ve JSON anahtarları telif kapsamında değil; mirror serbest |
-| Refinement | Davranış öğrenilir, kod kendi sözcüklerinizle yazılır (GPL-3 kod gövdesi kopyalama yasak) |
-| Runtime | Tamamen sizin; Zed'in `theme_settings`/`theme_selector` koduyla hiçbir ilgisi yok |
+| Veri sözleşmesi | Alan adları ve JSON anahtarları telif kapsamında değildir; mirror edilmesi serbesttir |
+| Refinement | Davranış öğrenilir, kod bağımsız sözcüklerle yeniden yazılır (GPL-3 kod gövdesinin kopyalanması yasaktır) |
+| Runtime | Tamamen uygulamaya özgüdür; Zed'in `theme_settings`/`theme_selector` koduyla hiçbir bağı yoktur |
 
 ---
 
 ## 2. Temel ilke: veri sözleşmesinde dışlama yok
 
-Zed'in JSON tema sözleşmesindeki **hiçbir alan kasıtlı olarak
-dışlanmaz**: `terminal_ansi_*`, editor diff hunk, debugger, vcs, vim,
-panel, scrollbar, tab, search, icon theme — tümü mirror struct'larında
-**alan olarak bulunur**.
+Zed'in JSON tema sözleşmesinde yer alan **hiçbir alan kasıtlı olarak
+dışarıda bırakılmaz**: `terminal_ansi_*`, editor diff hunk, debugger, vcs,
+vim, panel, scrollbar, tab, search, icon theme; bunların tamamı mirror
+struct'larında **alan olarak bulunur**. Bu, görünüşte basit bir kural gibi
+dursa da rehberin geri kalanındaki birçok kararı belirleyen ana eksendir.
 
 **Gerekçe:**
 
-- Bu rehber tüm Zed alanlarını destekleyecek bir uygulama varsayar.
-  Geliştiricinin hangi özellikleri (terminal, debugger, diff görünümü
-  vs.) ileride ekleyip eklemeyeceğini önceden bilemeyiz; varsayılan
-  "hepsi eklenir".
-- Eksik bir alan, Zed JSON'unda göründüğünde sessizce kaybolur ya da
-  `deny_unknown_fields` açıksa deserialize hatası verir.
-- UI'da okunmadığı sürece bir alanın struct'ta bulunması **sıfır
-  maliyettir** — değer baseline'dan veya kullanıcı temasından dolar,
-  sadece kullanılmaz.
+- Bu rehber, tüm Zed alanlarını destekleyebilecek bir uygulamayı varsayar.
+  Geliştiricinin hangi özellikleri (terminal, debugger, diff görünümü vb.)
+  ileride ekleyip eklemeyeceği önceden bilinemediği için varsayılan tutum
+  "hepsi eklenir" şeklindedir.
+- Struct tarafında karşılığı bulunmayan bir alan, Zed JSON'unda
+  göründüğünde ya sessizce kaybolur ya da `deny_unknown_fields` açık ise
+  deserialize hatasına yol açar. Her iki sonuç da temaların güvenilir
+  biçimde yüklenmesini bozar.
+- Bir alanın struct içinde tutulmasının, UI tarafından okunmadığı sürece
+  **hiçbir maliyeti yoktur** — değer baseline'dan veya kullanıcı temasından
+  doldurulur ve yalnızca kullanılmadan bekler. Yani "ileride lazım olur"
+  diye alan bırakmanın somut bir bedeli yoktur.
 
-**Dışlama kararı kalıcı ve kesin bir sebep gerektirir** (örn. lisans
-çakışması, platforma özgü kısıt). "Henüz UI'da kullanmıyorum" geçerli
-bir dışlama sebebi değildir; Zed sözleşmesinde yer alan alan, tüketici
-UI tarafından okunmasa bile mirror struct'ında bulunur.
+**Bir alanı dışarıda bırakma kararı kalıcı ve net bir gerekçe gerektirir**
+(örneğin bir lisans çakışması ya da platforma özgü bir kısıt). "Henüz UI'da
+kullanılmıyor" şeklindeki bir gerekçe yeterli sayılmaz; Zed sözleşmesinde
+yer alan bir alan, tüketici UI tarafından okunmasa bile mirror struct'ında
+yerini korur.
 
 ---
 
 ## 3. Lisans sınırları
 
-Zed'in tema sistemi **GPL-3.0-or-later** lisanslıdır. Kod gövdesi
-kopyalanamaz; ancak alan adları, JSON anahtarları ve sözleşme şeması
-(yani struct'ların layout'u) telif kapsamında değildir ve mirror
-edilebilir.
+Zed'in tema sistemi **GPL-3.0-or-later** lisansına tabidir. Kod gövdesinin
+kopyalanmasına izin verilmez; ancak alan adları, JSON anahtarları ve
+sözleşme şeması (yani struct'ların alan dizilimi) telif kapsamında
+değildir ve mirror edilebilir. Bu ayrım, rehberin "neyi alıp neyi kendisi
+yazacağı" sorusunun cevabını oluşturur.
 
 **Yapılabilir / Yapılamaz:**
 
 | Yapılabilir | Yapılamaz |
 |-------------|-----------|
-| Alan adlarını okuyup yeniden yazmak | Kod gövdesini kopyalamak |
+| Alan adlarını okuyup yeniden yazmak | Kod gövdesini birebir kopyalamak |
 | JSON anahtarlarını birebir mirror etmek | Default renk paletini (`default_colors.rs` HSL değerleri) taşımak |
-| Doc comment'i kendi sözcüklerinle yazmak | Doc comment'i kelime kelime kopyalamak |
-| Refinement davranışını anlayıp kendi versiyonunu kodlamak | `fallback_themes.rs`'nin algoritmasını birebir taşımak |
-| Fixture testleri için MIT/Apache lisanslı tema JSON'larını kopyalamak (lisansla beraber) | Lisans dosyası olmadan tema JSON'u taşımak |
+| Doc comment'i bağımsız bir anlatımla yeniden yazmak | Doc comment'i kelime kelime kopyalamak |
+| Refinement davranışını anlayıp ayrı bir kodla yeniden yazmak | `fallback_themes.rs`'nin algoritmasını birebir taşımak |
+| Fixture testleri için MIT/Apache lisanslı tema JSON'larını, lisans dosyasıyla birlikte kopyalamak | Lisans dosyası olmadan tema JSON'u taşımak |
 
-**Güvenli dependency'ler (hepsi Apache-2.0, Zed workspace'inden alınabilir):**
+**Güvenli dependency'ler (hepsi Apache-2.0; Zed workspace'inden alınabilir):**
 
-- `gpui` — UI çatısı; `Hsla`, `SharedString`, `HighlightStyle`,
-  `App`/`Context`/`Window`, `Global` trait gibi tip ve servisleri sağlar.
-- `refineable` — `#[derive(Refineable)]` macro; her struct için
-  `Option<T>` alanlı `*Refinement` ikizi üretir.
-- `collections` — Deterministik iteration sıralı `HashMap`/`IndexMap`
-  wrapper'ları.
+- `gpui` — UI çatısıdır; `Hsla`, `SharedString`, `HighlightStyle`,
+  `App`/`Context`/`Window` ve `Global` trait gibi tip ve servisleri sağlar.
+- `refineable` — `#[derive(Refineable)]` macro'sunu sunar; her struct için
+  `Option<T>` alanlı bir `*Refinement` ikizi üretir.
+- `collections` — Deterministik iteration sırasına sahip `HashMap` ve
+  `IndexMap` wrapper'larını barındırır.
 
 **GPL-3 crate'ler (`theme`, `syntax_theme`, `theme_settings`,
-`theme_selector`, `theme_importer`, `theme_extension`):** Sadece referans
-için **okunur**. Asla `Cargo.toml`'a dependency olarak eklenmez. Bu kural
-keskindir; ihlal edersen ürettiğin uygulama GPL-3 sözleşmesi altına
-girer.
+`theme_selector`, `theme_importer`, `theme_extension`):** Bu crate'ler
+yalnızca referans amacıyla **okunur**. `Cargo.toml` içine dependency olarak
+asla eklenmez. Kural keskindir; ihlal edildiğinde üretilen uygulamanın
+kendisi otomatik olarak GPL-3 sözleşmesinin altına girer ve geri dönüşü
+oldukça zahmetli bir lisans temizliği gerektirir.
 
-**Publishing uyarısı:** `gpui`, `refineable`, `collections` Zed
-workspace'inde `publish = false` ile işaretlidir. Yani crates.io
-üzerinden yayınladığın bir crate'in dependency listesinde git/path dep
-olarak bunlar olamaz. Üç çözüm:
+**Publishing uyarısı:** `gpui`, `refineable` ve `collections` crate'leri
+Zed workspace'inde `publish = false` ile işaretlenmiştir. Bu yüzden
+crates.io üzerinden yayınlanmak istenen bir crate'in dependency listesinde
+bunlar git veya path dep olarak yer alamaz. Kısıtın etrafından dolaşmak
+için üç yol vardır:
 
-1. **Vendor:** Kaynak kodu kendi monorepo'na kopyala (lisans + atribusyon
-   koru).
-2. **Fork yayınla:** `gpui` ve `refineable`'ı kendi adınla crates.io'ya
-   yayınla.
-3. **Sadece dahili kullan:** Uygulaman binary olarak dağıtılıyorsa
-   (kütüphane değil), git dep yeterli.
+1. **Vendor:** Kaynak kod, lisans ve atribusyon dosyalarıyla birlikte
+   uygulamanın kendi monorepo'suna kopyalanır.
+2. **Fork yayınlama:** `gpui` ve `refineable` ayrı bir hesap adıyla
+   crates.io üzerine yeniden yayınlanır.
+3. **Yalnızca dahili kullanım:** Uygulama bir kütüphane olarak değil binary
+   olarak dağıtılıyorsa Cargo.toml'da git dep tutmak yeterli olur; çünkü
+   bu senaryoda crates.io yayını söz konusu değildir.
 
-**Doc comment yazımı:** Zed kaynak dosyasındaki bir struct alanını mirror
-ediyorsan, doc comment'i **kendi sözcüklerinle** yaz. Aynı cümleyi
-kullanma. Örnek:
+**Doc comment yazımı:** Zed kaynak dosyasındaki bir struct alanı mirror
+edildiğinde, doc comment orijinaliyle birebir aynı tutulmaz; aynı anlam
+**bağımsız sözcüklerle** yeniden yazılır. Örnek:
 
 ```rust
-// Zed'de (mirror EDİLMEZ):
+// Zed'deki orijinal (mirror EDİLMEZ):
 /// The color used for the background of a fill element.
 
-// Sizde (mirror EDİLİR, yeniden yazılmış):
+// Mirror sürümü (yeniden yazılmış):
 /// Dolu (fill) bir element'in arka plan rengi.
 pub border: Hsla,
 ```
 
 ---
-

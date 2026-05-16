@@ -1,6 +1,9 @@
 # Proje iskeleti ve bağımlılıklar
 
-Sözleşme kararları netleşince crate sınırlarını ve bağımlılık tabanını kur; sonraki katmanlar bu iskeletin üzerine gelir.
+Sözleşme kararları netleştikten sonra sıra, crate sınırlarının ve bağımlılık
+tabanının kurulmasına gelir. Sonraki bütün katmanlar bu iskeletin üzerine
+oturduğundan, buradaki yerleşim ve dependency seçimleri ileride yapılacak
+işlerin hem hızını hem de bakım maliyetini doğrudan belirler.
 
 ---
 
@@ -10,25 +13,27 @@ Tema sistemi **iki crate** olarak konumlanır:
 
 | Crate | Sorumluluk | Lisans |
 |-------|-----------|--------|
-| `kvs_tema` | `Theme`, `ThemeColors`, `IconTheme`, JSON schema, registry, runtime | senin lisansın |
-| `kvs_syntax_tema` | `SyntaxTheme` — kod renkleri | senin lisansın |
+| `kvs_tema` | `Theme`, `ThemeColors`, `IconTheme`, JSON schema, registry, runtime | uygulamanın kendi lisansı |
+| `kvs_syntax_tema` | `SyntaxTheme` — kod renkleri | uygulamanın kendi lisansı |
 
-> **Crate adlandırma:** Bu rehberde `kvs_*` prefix'i örnek olarak
-> kullanılır. Kendi projende `app_tema`, `core_tema` veya istediğin adı
-> ver; rehber kalıpları aynı kalır.
+> **Crate adlandırma:** Bu rehberde `kvs_*` prefix'i yalnızca bir örnek
+> olarak kullanılır. Uygulama tarafında `app_tema`, `core_tema` veya farklı
+> bir isim de tercih edilebilir; rehberin ortaya koyduğu kalıplar isim
+> değişse de aynen geçerli kalır.
 
-**Neden iki crate?** Syntax theme bağımsız bir paket — bir uygulama UI
-temasına ihtiyaç duyabilir ama syntax highlighting'e duymayabilir
-(veya tersi). Ayrıca syntax theme ileride `tree-sitter` gibi farklı
-dep'lere açılabilir; bunu UI tema crate'inden izole tutmak derleme
-süresini ve API yüzeyini sade tutar.
+**İki crate olmasının nedeni:** Syntax theme bağımsız bir paket olarak
+durur — bir uygulama UI temasına ihtiyaç duyup syntax highlighting'e ihtiyaç
+duymayabilir (veya tersi geçerli olabilir). Ayrıca syntax theme ileride
+`tree-sitter` gibi farklı dep'lere açılabileceğinden, bu olasılığı UI tema
+crate'inden izole tutmak hem derleme süresini hem de public API yüzeyini
+sade tutar.
 
 **Klasör yerleşimi:**
 
 ```
 ~/github/
 ├── zed/                         ← referans kaynak
-└── kvs_ui/                      ← senin uygulaman
+└── kvs_ui/                      ← uygulamanın kendi monorepo'su
     ├── Cargo.toml               ← workspace
     └── crates/
         ├── kvs_tema/
@@ -47,7 +52,7 @@ süresini ve API yüzeyini sade tutar.
         │   │   ├── registry.rs
         │   │   ├── runtime.rs   ← Global, ActiveTheme, init
         │   │   ├── icon_theme.rs ← IconTheme sözleşmesi
-        │   │   └── fallback.rs  ← kendi default temaların
+        │   │   └── fallback.rs  ← uygulamaya ait default temalar
         │   └── tests/
         │       ├── fixtures/
         │       │   ├── one-dark.json   ← Zed'den, MIT lisanslı
@@ -58,10 +63,10 @@ süresini ve API yüzeyini sade tutar.
             └── src/kvs_syntax_tema.rs
 ```
 
-**Modül adlandırma kuralı:** Lib kökü `mod.rs` yerine **crate adıyla aynı
-isimli dosya** (örn. `kvs_tema.rs`). Bu, editör başlığında hangi
-dosyayı düzenlediğini görmeni sağlar; Zed projesinin kendi konvansiyonu
-da budur.
+**Modül adlandırma kuralı:** Lib kökünün adı `mod.rs` olarak değil, **crate
+adıyla aynı isimli bir dosya** olarak verilir (örneğin `kvs_tema.rs`). Bu
+ayrıntı sayesinde editör başlığında hangi dosyanın düzenlendiği doğrudan
+okunur; Zed projesinin kendi konvansiyonu da bu yöndedir.
 
 **Modüllerin sorumluluk haritası:**
 
@@ -80,9 +85,10 @@ da budur.
 | `icon_theme.rs` | `IconTheme` ve içerik tipleri | Evet |
 | `fallback.rs` | `kvs_default_dark()`, `kvs_default_light()` | Evet |
 
-"Dış API" sütununda "kararsız" işareti olan modül (`schema.rs`) Zed JSON
-sözleşmesinin evrilen yüzeyini taşır; tüketici bu modüle doğrudan dayanırsa
-breaking change yaşayabilir.
+"Dış API" sütununda "kararsız" işareti taşıyan modül (`schema.rs`), Zed JSON
+sözleşmesinin zaman içinde evrilen yüzeyini taşır; bu modüle doğrudan
+dayanan bir tüketici, Zed tarafındaki bir değişikliğin etkisini birinci elden
+hisseder ve breaking change ile karşılaşabilir.
 
 ---
 
@@ -106,8 +112,9 @@ refineable  = { git = "https://github.com/zed-industries/zed", branch = "main" }
 collections = { git = "https://github.com/zed-industries/zed", branch = "main" }
 ```
 
-Alt crate'ler `gpui = { workspace = true }` ile inherit eder; kaynak
-güncellemesi tek noktadan yapılır.
+Alt crate'ler bu bağımlılıkları `gpui = { workspace = true }` biçiminde
+inherit eder; böylece kaynak güncellemesi tek bir noktadan yapılır ve
+crate'ler arasında sürüm sapması yaşanmaz.
 
 `kvs_tema/Cargo.toml`:
 
@@ -116,7 +123,7 @@ güncellemesi tek noktadan yapılır.
 name = "kvs_tema"
 version = "0.1.0"
 edition = "2021"
-license = "MIT"          # veya Apache-2.0 — kendi seçimin
+license = "MIT"          # veya Apache-2.0 — uygulamanın tercihine bağlı
 publish = false
 
 [lib]
@@ -171,9 +178,10 @@ path = "src/kvs_syntax_tema.rs"
 gpui = { workspace = true }
 ```
 
-Syntax crate'in tek bağımlılığı `gpui` — sadece `HighlightStyle` ve renk
-tipleri için. Bu izolasyon kasıtlı; ileride syntax'a `tree-sitter`
-eklersen UI tema crate'i etkilenmez.
+Syntax crate'in tek bağımlılığı `gpui` ile sınırlıdır — yalnızca
+`HighlightStyle` ve renk tipleri için bu bağımlılığa ihtiyaç vardır. Bu
+izolasyon kasıtlıdır; ileride syntax tarafına `tree-sitter` eklendiğinde UI
+tema crate'i bu değişiklikten etkilenmeden kalır.
 
 **Her dependency'nin rolü ve kabul ettiği değer:**
 
@@ -193,30 +201,36 @@ eklersen UI tema crate'i etkilenmez.
 | `serde_json_lenient` | Yorum/trailing comma toleranslı | Zed JSON dosyalarını parse etmek için **şart** |
 | `thiserror` | Hata türetme | `#[derive(Error)] ThemeNotFoundError` |
 | `uuid` | Unique id | `Theme::from_content` içinde tema id'si |
-| `inventory` | Link-time static registration | Zed'de `#[derive(RegisterSetting)]` `inventory::submit!` ile setting tipini ekler; `SettingsStore::new` `inventory::iter` ile toplar. Mirror'da `kvs_tema_ayarlari` setting'leri auto-register edecekse zorunlu — alternatif elle register listesi tutmaktır |
-| `settings_macros` (Zed iç crate) | Derive ve attribute macro'ları | `RegisterSetting`, `MergeFrom`, `with_fallible_options`. Mirror tarafında `kvs_ayarlari_macros` veya benzeri ayrı crate kurulur (proc-macro crate'ler diğer crate tipleriyle aynı pakette olamaz) |
-| `derive_more` | Newtype ergonomi türevleri | `FontSize` newtype'ında `derive_more::FromStr` ile `from_str` üretmek için (`settings_content/src/theme.rs:197`). Mirror'da opsiyonel; elle implement edilebilir |
-| `serde_path_to_error` | Parse hatasında field path | `settings_json::parse_json_with_comments` bu crate'i kullanır; hata mesajları `theme.colors.background: ...` şeklinde path gösterir. Mirror'da kullanıcı deneyimi için tavsiye edilir |
+| `inventory` | Link-time static registration | Zed'de `#[derive(RegisterSetting)]` `inventory::submit!` ile setting tipini ekler; `SettingsStore::new` ise `inventory::iter` ile bunları toplar. Mirror tarafında `kvs_tema_ayarlari` setting'leri otomatik kayıt edilecekse zorunlu hale gelir — alternatifi, register listesini elle tutmaktır |
+| `settings_macros` (Zed iç crate) | Derive ve attribute macro'ları | `RegisterSetting`, `MergeFrom`, `with_fallible_options`. Mirror tarafında `kvs_ayarlari_macros` veya benzeri ayrı bir crate kurulur (proc-macro crate'ler diğer crate tipleriyle aynı pakette tutulamaz) |
+| `derive_more` | Newtype ergonomi türevleri | `FontSize` newtype'ında `derive_more::FromStr` ile `from_str` üretmek için (`settings_content/src/theme.rs:197`). Mirror tarafında opsiyoneldir; elle de implement edilebilir |
+| `serde_path_to_error` | Parse hatasında field path | `settings_json::parse_json_with_comments` bu crate'i kullanır; hata mesajları `theme.colors.background: ...` biçiminde alan yolunu gösterir. Mirror tarafında kullanıcı deneyimi açısından tavsiye edilir |
 
 **Sürüm uyumu:**
 
-- **`palette` major versiyonu Zed'in kullandığıyla aynı olmalı.** Aksi
-  halde HSL dönüşümü ufak miktarda kayabilir ve tema renkleri referans
-  JSON çıktısıyla birebir örtüşmeyebilir.
+- **`palette` major versiyonu Zed'in kullandığıyla aynı tutulmalıdır.** Aksi
+  takdirde HSL dönüşümü ufak miktarda kayabilir ve tema renkleri referans
+  JSON çıktısıyla birebir örtüşmez. Bu kayma görsel olarak fark
+  edilmeyecek kadar küçük olabilir ama testlerdeki exact karşılaştırmaları
+  bozar.
 
-- **`serde_json_lenient`** Zed'in kullandığıyla uyumlu olmalı; major
-  versiyon değişimi yorum/trailing comma parse davranışını değiştirebilir.
+- **`serde_json_lenient`** Zed'in kullandığı sürümle uyumlu olmalıdır;
+  major versiyon değişikliği yorum ve trailing comma parse davranışını
+  değiştirebilir, bu da bazı geçerli Zed JSON dosyalarının aniden parse
+  edilememesine yol açabilir.
 
 - **`gpui`, `refineable`, `collections`** git kaynağından alınır. Üretim
-  ortamında kararlı davranış için `branch` yerine `rev` ile sabit referans
-  kullanılabilir:
+  ortamında daha kararlı bir davranış için `branch` yerine `rev` ile sabit
+  bir commit referansı kullanılabilir:
 
   ```toml
   gpui = { git = "https://github.com/zed-industries/zed", rev = "6e8eaab25b5ac324e11a82d1563dcad39c84bace" }
   ```
 
-  Branch tracking güncel davranışı alır; `rev` sabitleme dependency
-  yüzeyini daha öngörülebilir yapar.
+  Branch tracking güncel davranışın izlenmesini sağlar; `rev` ile sabitleme
+  ise dependency yüzeyini daha öngörülebilir kılar. İki yaklaşım arasındaki
+  seçim, "her zaman en yeni davranış" ile "her build aynı davranış" arasında
+  yapılan bir tercihtir.
 
 **Bağımlılık akış grafiği:**
 
@@ -230,10 +244,11 @@ kvs_syntax_tema  ──depends on──>  gpui
 gpui, refineable, collections  ──sourced from──>  zed workspace (Apache-2.0)
 ```
 
-Bu grafiğin yönü tersine işlemez; `gpui` asla `kvs_tema`'ya bağlanmaz.
-Bu kural, Zed'in upstream'inde değişiklik olduğunda senin tema crate'inin
-etkilenmesini sınırlar — değişiklik sadece üç vektörden gelir: **tip
-imzası**, **davranış**, **isim/yol değişimi**.
+Bu grafiğin yönü tersine işlemez; `gpui` asla `kvs_tema`'ya bağlanmaz. Bu
+kural sayesinde Zed'in upstream'inde bir değişiklik olduğunda tema crate'i
+yalnızca üç vektörden etkilenir: **tip imzası**, **davranış** ve **isim/yol
+değişimi**. Yani upstream'i takip ederken nereye bakılacağı önceden bellidir
+ve sürpriz bir geri etki ihtimali ortadan kalkar.
 
 **Lib kökü iskeleti (`src/kvs_tema.rs`):**
 
@@ -323,4 +338,3 @@ pub struct ThemeFamily {
 ```
 
 ---
-
