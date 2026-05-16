@@ -133,7 +133,7 @@ fn status_colors_dark() -> StatusColors {
 }
 ```
 
-> **Uyarı:** Eksik alanlar `..unsafe { std::mem::zeroed() }` veya `..Default::default()` ile **doldurulmamalıdır**. `Hsla::default()` = `(0, 0, 0, 0)` değerini verir ve bu UI'da görünmez. **Tüm 42 alanın açık değerle doldurulması** beklenir. Geriye kalan 10 status (conflict, created, deleted, hidden vb.) için de aynı kalıp tekrarlanır. Seçilen anchor'lar (red, green, yellow, blue) çoğu durumda yeterlidir; her status bu anchor'lardan birine map edilebilir. Örneğin `modified = yellow`, `deleted = red`, `created = green`.
+> **Uyarı:** Eksik alanlar `..unsafe { std::mem::zeroed() }` veya `..Default::default()` ile **doldurulmamalıdır**. `Hsla::default()` = `(0, 0, 0, 0)` değerini verir ve bu UI'da görünmez. **Tüm 42 alanın açık değerle doldurulması** beklenir. Kalan 10 status (conflict, created, deleted, hidden vb.) için de aynı kalıp tekrarlanır. Seçilen anchor'lar (red, green, yellow, blue) çoğu durumda yeterlidir; her status bu anchor'lardan birine map edilebilir. Örneğin `modified = yellow`, `deleted = red`, `created = green`.
 
 **Light eşleniği** (`status_colors_light()`): Aynı anchor renkler kullanılır. Yalnızca **lightness değerleri biraz koyulaşır**; böylece light background üzerinde okunaklılık korunur. Background ve border opacity'leri de light zemine göre biraz daha düşük tutulur.
 
@@ -736,7 +736,7 @@ kvs_tema/tests/
 │   ├── README.md               ← Fixture kaynak ve lisans tablosu
 │   └── synthetic/
 │       ├── empty.json          ← Boş tema (test için sentetik)
-│       ├── unknown_field.json  ← Bilinmeyen alan
+│       ├── unknown_field.json  ← Bilinmeyen alan hata örneği
 │       └── invalid_color.json  ← Geçersiz hex
 ├── parse_fixture.rs            ← Zed temaları parse edilebiliyor mu?
 ├── synthetic.rs                ← Sentetik testler
@@ -820,23 +820,20 @@ fn empty_theme_uses_baseline() {
 }
 
 #[test]
-fn unknown_field_does_not_break() {
+fn unknown_field_is_rejected() {
     let json = r#"{
         "name": "Test", "author": "x",
         "themes": [{
             "name": "T", "appearance": "dark",
             "style": {
                 "background": "#000000ff",
-                "future.unknown.field": "#ffffffff"
+                "scrollbar_thumb.background": "#ffffffff"
             }
         }]
     }"#;
-    let family: ThemeFamilyContent = serde_json_lenient::from_str(json).unwrap();
-    let baseline = fallback::kvs_default_dark();
-    let _ = Theme::from_content(
-        family.themes.into_iter().next().unwrap(),
-        &baseline,
-    );
+    let err = deserialize_theme_family_strict(json.as_bytes())
+        .unwrap_err();
+    assert!(err.to_string().contains("unknown theme style field"));
 }
 
 #[test]
@@ -960,7 +957,7 @@ fn tema_degistir_aktifi_gunceller(cx: &mut TestAppContext) {
 | Test türü | Hedef | Dosya |
 |-----------|-------|-------|
 | Gerçek tema parse | Sözleşme paritesi | `parse_fixture.rs` |
-| Sentetik kenar durum | `treat_error_as_none`, bilinmeyen alan, geçersiz hex | `synthetic.rs` |
+| Sentetik kenar durum | `treat_error_as_none`, bilinmeyen alan hatası, geçersiz hex | `synthetic.rs` |
 | Refinement davranışı | `apply_status_color_defaults`, `refine` | `refinement.rs` |
 | Runtime kurulum | `init`, `temayi_degistir`, registry | `runtime.rs` + `TestAppContext` |
 | Fallback bütünlüğü | Tüm alanların dolu olması | `fallback.rs` |
@@ -973,6 +970,6 @@ fn tema_degistir_aktifi_gunceller(cx: &mut TestAppContext) {
 4. **`assert_eq!` ile Hsla karşılaştırması**: Floating point eşitlik yanıltıcı sonuçlara yol açabilir. `assert!((a.h - b.h).abs() < 1e-6)` gibi bir epsilon karşılaştırması tercih edilmelidir.
 5. **`#[gpui::test]` ile `#[test]` arasındaki seçim**: GPUI runtime testleri `gpui::test`; pure sözleşme testleri ise `test` ile yazılır. Karıştırılması gereksiz bir overhead yaratır.
 6. **Fixture dosyasının yerinde değiştirilmesi**: Test fixture'a yama uyguladığında, testler kendi datasını yazıp doğrulamış olur. Fixture dosyaları **read-only** kabul edilmelidir; sentetik kenar durumları ayrı dosyalarda veya inline string'lerde tutulur.
-7. **Fixture'ın eski sözleşmede bırakılması**: Yeni Zed alanları eklendiğinde fixture eski halinde kalırsa, gerçek tema örneği yeni alanları temsil edemez ve testler bu yüzden parite konusunda yanıltıcı sonuçlar verebilir.
+7. **Fixture'ın hedef sözleşmeden sapması**: Fixture dosyaları seçilen Zed referansındaki alanları temsil etmelidir. Eski alias anahtarlar veya sözleşme dışı alanlar fixture'a karışırsa testler parite konusunda yanıltıcı sonuçlar verebilir.
 
 ---

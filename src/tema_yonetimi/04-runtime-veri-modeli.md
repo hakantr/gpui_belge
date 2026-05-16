@@ -60,7 +60,7 @@ impl Theme {
 }
 ```
 
-> **Visibility kararı:** `styles` alanı `pub(crate)` olarak tanımlanır. Tüketici crate doğrudan `theme.styles.X` zincirini **yazamaz**; her okuma accessor üzerinden geçer. Bunun nedeni basittir: `ThemeStyles`'ın iç düzeni Zed sözleşmesine göre zamanla değişebilir. Accessor arayüzü ise dış sözleşmeyi `theme.colors()` gibi metotlar üzerinde **sabitler**. İç düzen değişse bile tüketici kod kırılmaz. Bu kural Konu 43'te public API kataloğu üzerinden ayrıca netleştirilir.
+> **Visibility kararı:** `styles` alanı `pub(crate)` olarak tanımlanır. Tüketici crate doğrudan `theme.styles.X` zincirini **yazamaz**; her okuma accessor üzerinden geçer. Amaç, tüketici kodu tema modelinin iç yerleşimine bağlamamaktır. Uygulama mevcut Zed sözleşmesine göre güncellendiğinde accessor arayüzü okunacak alanları açık ve kontrollü tutar. Bu kural Konu 43'te public API kataloğu üzerinden ayrıca netleştirilir.
 
 ### Alan-alan davranış
 
@@ -112,7 +112,7 @@ let local = theme.players().local().cursor;
 ### Tuzaklar
 
 1. **`id` ile `name` arasında karışıklık**: `name` `SharedString` tipindedir ve registry'de key olarak kullanılır. `id` (uuid) yalnızca tema-içi tanımlama amacıyla tutulur; ikisinin birbirinin yerine konulması registry akışını bozar.
-2. **`styles` alanını `pub` yapmak**: Bu, dış sözleşmeyi doğrudan iç yapıya bağlar. Bu rehberin kararı `pub(crate)` yönündedir. Tüketicinin tek okuma yolu accessor metotlarıdır (`theme.colors()`, `theme.status()` vb.). İç düzen ileride değişse bile accessor arayüzü sabit kalır.
+2. **`styles` alanını `pub` yapmak**: Bu, dış sözleşmeyi doğrudan iç yapıya bağlar. Bu rehberin kararı `pub(crate)` yönündedir. Tüketicinin tek okuma yolu accessor metotlarıdır (`theme.colors()`, `theme.status()` vb.).
 3. **`appearance` runtime'da değişmez**: Bir tema *Light* olarak yüklendi diye runtime'da Dark olarak yeniden işlenmez. Tema değişimi için `GlobalTheme::update_theme` çağrısı yapılarak yeni bir `Arc<Theme>` aktive edilmelidir.
 4. **`SystemColors::default()` ile doldurmanın yeterliliği**: Tema yazarı sistem renklerini özelleştirmek istemiyorsa `Default::default()` yeterlidir. Bazı geliştiriciler bu alanı atlayıp `unsafe zeroed` ile karıştırıp yapıyı görünmez hale getirme yoluna gider; bu yaklaşım sonradan zor takip edilen hatalara yol açar.
 
@@ -165,7 +165,7 @@ Aşağıdaki tablo, alan adlandırma prefix'lerini ve her grubun **ne işe yarad
 
 ### Tam alan paritesi
 
-Aşağıdaki liste, referans alınan Zed sürümündeki `ThemeColors` runtime alanlarının **eksiksiz** kataloğudur. Runtime struct'ı toplam 143 adet `Hsla` alanı taşır. `ThemeColorsContent` tarafında buna ek olarak 3 deprecated uyumluluk alanı yer alır; bunlar Bölüm V/Konu 19'de ayrıca belirtilir.
+Aşağıdaki liste, referans alınan Zed sürümündeki `ThemeColors` runtime alanlarının **eksiksiz** kataloğudur. Runtime struct'ı toplam 143 adet `Hsla` alanı taşır. `ThemeColorsContent` tarafında da hedeflenen sözleşme bu runtime alanlarına karşılık gelen content alanlarıyla sınırlı tutulur; alias alanlar bu rehberin kapsamına alınmaz.
 
 ```text
 border:
@@ -266,7 +266,7 @@ version_control:
   version_control_conflict_marker_theirs
 ```
 
-**Parite ilişkisi:** Runtime alanları, `ThemeColorsContent` alanları ve deprecated content alanları arasında şu denge korunur: content alanları sayısı = runtime alanları + deprecated uyumluluk alanları.
+**Parite ilişkisi:** Runtime alanları ile `ThemeColorsContent` alanları aynı hedef sözleşmenin iki yüzüdür: runtime tarafı `Hsla`, content tarafı JSON'dan gelen `Option<String>` taşır. Alias alanlar ayrıca eklenmez.
 
 ### Naming convention
 
@@ -630,11 +630,11 @@ impl Theme {
 - Modal, banner veya toast tasarımları: bu yüzeylerde `StatusColors`'un üçlü deseni (fg/bg/border) gerekir; `DiagnosticColors` bg ve border taşımaz.
 - File tree status alanları (created/modified/deleted): bunlar diagnostic değil VCS status değerleridir; `StatusColors.modified` gibi alanlardan beslenir.
 
-**Sözleşme sınırı:** `DiagnosticColors` alanları Zed'in diagnostic severity modelini izler. Zed tarafında yeni bir severity alanı eklenirse `kvs_tema` runtime tipinin de aynı alanı taşıması beklenir.
+**Sözleşme sınırı:** `DiagnosticColors` alanları hedeflenen Zed diagnostic severity modelini izler. Bu model güncellendiğinde `kvs_tema` runtime tipi de aynı çalışma kapsamında güncellenir; iki farklı severity setini aynı anda taşıyan ayrı bir katman kurulmaz.
 
 ### Tuzaklar
 
-1. **Türetme kuralının atlanması**: Kullanıcı yalnızca `error` rengini verdiyse ve `apply_status_color_defaults` çağrılmadıysa, `error_background` baseline'dan kalır. Sonuç olarak kullanıcı temasının ana rengi var ama background eski temanın yarı saydam mavisidir; UI dağınık görünür.
+1. **Türetme kuralının atlanması**: Kullanıcı yalnızca `error` rengini verdiyse ve `apply_status_color_defaults` çağrılmadıysa, `error_background` baseline'dan kalır. Sonuç olarak kullanıcı temasının ana rengi var ama background baseline'ın yarı saydam mavisidir; UI dağınık görünür.
 2. **14 status'un tamamını dahil etmek**: Tema yazarı yalnızca `error` ve `warning` kullanıyor olsa bile, struct'ta `predictive`, `unreachable`, `renamed` vb. **bulunmak zorundadır** (Konu 2). UI'da okunmayan alanın maliyeti sıfırdır.
 3. **`_background` ve `_border` farklı türetilebilir**: Background için %25 alpha makul bir tercihtir; border için %50 alpha çoğu zaman daha doğal durur. Mevcut yardımcı fonksiyon yalnızca `_background` için tanımlıdır — `_border` için ayrı bir türetme istendiğinde ek bir fonksiyonun yazılması yerinde olur.
 4. **Yeni status tipi**: Zed sözleşmesindeki her status tipi fg/bg/border üçlüsüyle temsil edilir; foreground-only türetme gerektiren senaryolar `apply_status_color_defaults` içinde toplanır.
@@ -1141,7 +1141,6 @@ pub struct ThemeFamily {
     pub author: SharedString,
     pub themes: Vec<Theme>,
     /// Sözleşmenin sondan bir alanı — Zed'in `scale.rs` palet matrisi.
-    /// Yorum: "This will be removed in the future."
     pub scales: ColorScales,
 }
 ```
@@ -1158,7 +1157,7 @@ pub struct ThemeFamily {
 | `themes` | Bu paketin içindeki tüm varyantlar (light + dark). |
 | `scales` | Aileye bağlı palet matrisi — `ColorScales` (43.5'te detay). |
 
-> **`scales` alanı için karar:** Zed kaynağı bu alanı `"This will be removed in the future."` notuyla taşır. `kvs_tema` `ColorScale` mirror etmiyorsa (Konu 17 tavsiyesi) bu alan da alınmaz; mirror ediyorsa parite gereği aynı sırayla eklenir.
+> **`scales` alanı için karar:** `kvs_tema` `ColorScale` mirror etmiyorsa (Konu 17 tavsiyesi) bu alan da alınmaz; mirror ediyorsa hedeflenen Zed sözleşmesindeki sırayla eklenir.
 
 **JSON şeması:**
 

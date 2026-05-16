@@ -359,7 +359,7 @@ impl ApiKeyForm {
 }
 ```
 
-> **`_input_subscription` saklamak şart.** `Subscription` drop edilirse callback ölür ve `BufferEdited` event'i artık tetiklenmez. Aynı kural diğer GPUI subscription'ları için de geçerlidir.
+> **`_input_subscription` saklamak şart.** `Subscription` drop edilirse callback ölür ve `BufferEdited` event'i tetiklenmez. Aynı kural diğer GPUI subscription'ları için de geçerlidir.
 
 Dikkat edilecek noktalar:
 

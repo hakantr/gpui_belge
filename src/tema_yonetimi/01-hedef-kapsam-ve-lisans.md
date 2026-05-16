@@ -57,7 +57,7 @@ Zed'in JSON tema sözleşmesindeki **hiçbir alan bilerek dışarıda bırakılm
 **Gerekçe:**
 
 - Bu rehber, tüm Zed alanlarını destekleyebilecek bir uygulamayı esas alır. Geliştiricinin terminal, debugger veya diff görünümü gibi özellikleri ileride ekleyip eklemeyeceği baştan bilinmez. Bu yüzden varsayılan tutum "hepsi eklenir" olmalıdır.
-- Struct tarafında karşılığı bulunmayan bir alan, Zed JSON'unda göründüğünde ya sessizce kaybolur ya da `deny_unknown_fields` açık ise deserialize hatasına yol açar. Her iki sonuç da temaların güvenilir biçimde yüklenmesini bozar.
+- Struct tarafında karşılığı bulunmayan bir alan, referans alınan Zed sözleşmesinde yer almıyor demektir. Böyle bir alan tema dosyasında görülürse bu durum sessizce geçilecek bir detay değil, sözleşme veya yazım hatası olarak ele alınmalıdır.
 - Bir alanın struct içinde tutulmasının, UI tarafından okunmadığı sürece **hiçbir maliyeti yoktur** — değer baseline'dan veya kullanıcı temasından doldurulur ve yalnızca kullanılmadan bekler. Yani "ileride lazım olur" diye alan bırakmanın somut bir bedeli yoktur.
 
 **Bir alanı dışarıda bırakmak için kalıcı ve net bir gerekçe gerekir.** Örneğin bir lisans çakışması ya da platforma özgü bir kısıt böyle bir gerekçe olabilir. "Henüz UI'da kullanılmıyor" yeterli değildir. Zed sözleşmesinde yer alan bir alan, tüketici UI tarafından okunmasa bile mirror struct'ında yerini korur.

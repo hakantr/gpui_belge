@@ -43,7 +43,7 @@ Typography, Utilities, VersionControl ("Version Control")
 | `Live` (varsayılan) | Üretimde kullanılabilir | Normal olarak listelenir |
 | `WorkInProgress` | Hâlâ tasarlanıyor veya kısmi olarak implement edilmiş | "WIP" badge'i; üretim kodunda kullanılmamalı |
 | `EngineeringReady` | Tasarım tamamlanmış, implementasyon bekleniyor | "Ready to Build" badge'i |
-| `Deprecated` | Yeni kodda kullanılmamalı | Uyarı badge'i; ileride kaldırılabilir |
+| `Deprecated` | Mevcut uygulama kodu için hedef yüzey değildir | Gallery'de uyarı badge'iyle gösterilir |
 
 Preview'a dahil edilecek küçük bir örnek component şu yapıyı izler:
 

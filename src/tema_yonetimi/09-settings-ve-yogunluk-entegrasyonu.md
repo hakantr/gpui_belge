@@ -453,7 +453,7 @@ confirm:
 
 dismiss/cancel:
   açılıştaki tema adı saklanır; seçici kapanınca confirm edilmediyse
-  eski tema geri yüklenir ve refresh_windows çağrılır
+  önizleme öncesi tema geri yüklenir ve refresh_windows çağrılır
 ```
 
 Bu modelle uygulama, Zed'deki gibi iki davranışı da sunar: kullanıcı ister tek tema seçer, ister sistem moduna göre light/dark temaları ayrı tutar.
@@ -630,7 +630,7 @@ pub fn temayi_yeniden_yukle(
 
 **Kaynak:** `crates/theme/src/theme_settings_provider.rs:9`.
 
-Zed'in son sürümlerinde `crates/theme`, `crates/theme_settings`'i **doğrudan tüketmez**. Bunun yerine `ThemeSettingsProvider` adında bir trait sunar. Settings crate'i bu trait'i implement eder ve `crates/theme` çalışma zamanında provider'ı sorgular. Böylece bağımlılık yönü temiz kalır: tema crate'i settings'e bağımlı değildir; settings crate'i tema'ya bir hizmet sunar.
+Hedeflenen Zed referansında `crates/theme`, `crates/theme_settings`'i **doğrudan tüketmez**. Bunun yerine `ThemeSettingsProvider` adında bir trait sunar. Settings crate'i bu trait'i implement eder ve `crates/theme` çalışma zamanında provider'ı sorgular. Böylece bağımlılık yönü temiz kalır: tema crate'i settings'e bağımlı değildir; settings crate'i tema'ya bir hizmet sunar.
 
 ```rust
 use gpui::{App, Font, Pixels};
@@ -825,7 +825,7 @@ Yani `BufferLineHeight::Custom(0.5)` gibi geçersiz değerler bile accessor sevi
 |----------|----------|----------|
 | Provider trait'ini genişletme | `TemaAyarSaglayici`'a `adjust_*`/`reset_*` eklenir | `kvs_tema` tüketicilerinin font değişimini dinlemesi gerekiyorsa |
 | Sade newtype mirror | `BufferFontSize` vb. global'leri `kvs_tema_ayarlari` crate'inde tutulur, `adjust_*`/`reset_*` orada implement edilir | Settings UI'sı bağımsız bir crate olduğunda |
-| Atlama | UI yoksa hiç mirror edilmez | İlk sürümde, font picker henüz gelmediyse |
+| Atlama | UI yoksa hiç mirror edilmez | Font picker kapsam dışı bırakıldıysa |
 
 Sözleşme parite bayrağı şudur: bu fonksiyonlar `kvs_tema` public API'sinde yer almaz.
 
@@ -893,6 +893,6 @@ impl Render for Toolbar {
 }
 ```
 
-> **JSON anahtarı `"unstable.ui_density"`'dir** (`settings_content/src/theme.rs:166`). `ThemeSettingsContent.ui_density` alanı `#[serde(rename = "unstable.ui_density")]` ile işaretlenir. Düz bir `"ui_density"` anahtarı **tanınmaz**, parse aşamasında `None` kalır ve default değer (`UiDensity::Default`) etkin olur. Mirror tarafta aynı rename konulmalıdır; aksi halde Zed uyumlu kullanıcı ayar dosyalarında density görünmez. Zed `unstable.` ön ekini "API hâlâ kararsız" işareti olarak kullanır; alan kararlılaşırsa rename değişebilir.
+> **JSON anahtarı `"unstable.ui_density"`'dir** (`settings_content/src/theme.rs:166`). `ThemeSettingsContent.ui_density` alanı `#[serde(rename = "unstable.ui_density")]` ile işaretlenir. Düz bir `"ui_density"` anahtarı **tanınmaz**, parse aşamasında `None` kalır ve default değer (`UiDensity::Default`) etkin olur. Mirror tarafta aynı rename konulmalıdır; çünkü hedeflenen Zed sözleşmesinde geçerli anahtar budur. `"ui_density"` gibi alternatif anahtarlar desteklenmez.
 
 ---

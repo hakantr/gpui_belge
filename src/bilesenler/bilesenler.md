@@ -1,6 +1,6 @@
 # Bileşenler
 
-Bu bölüm, Zed'in `ui` katmanındaki bileşenleri GPUI temeliyle birlikte anlatır. Amaç yalnızca hangi component'in hangi constructor ile üretildiğini listelemek değil; bir ekranda hangi parçanın neden seçildiğini, state'in nerede tutulduğunu ve kullanıcı etkileşiminden sonra render'ın nasıl güncellendiğini anlaşılır hale getirmektir.
+Bu bölüm, mevcut Zed `ui` katmanındaki bileşenleri GPUI temeliyle birlikte anlatır. Amaç yalnızca hangi component'in hangi constructor ile üretildiğini listelemek değil; bir ekranda hangi parçanın neden seçildiğini, state'in nerede tutulduğunu ve kullanıcı etkileşiminden sonra render'ın nasıl güncellendiğini anlaşılır hale getirmektir.
 
 Belgeleri sırayla okumak en rahat yoldur. İlk bölümler ortak kavramları, layout'u, metni, ikonları ve butonları kurar. Sonraki bölümlerde form kontrolleri, menüler, listeler, tablolar, feedback bileşenleri ve daha özel AI ve collaboration yüzeyleri anlatılır. En sonda da bu parçaların gerçek ekran iskeletlerinde nasıl bir araya geldiğini gösteren örnekler ve API envanterleri bulunur.
 

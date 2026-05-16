@@ -34,7 +34,7 @@ Tipik bir kullanım, `CommandPaletteFilter::update_global(cx, |filter, _| { ... 
 
 #### CommandAliases (WorkspaceSettings)
 
-`WorkspaceSettings::command_aliases: HashMap<String, ActionName>`. Kullanıcı JSON'una `"command_aliases": { "ag": "search::ToggleSearch" }` yazıldığında komut paleti, sorgu tam olarak `ag` olduğunda bunu `search::ToggleSearch` string'ine çevirir. Bu çeviri fuzzy eşleşme ve interceptor çağrısından önce yapılır; alias bir action nesnesi üretmez, yalnızca palet sorgusunu canonical action adına yaklaştırır. Yeni komut sunulurken alias sözleşmesini bozmaktan kaçınmak gerekir; eski adları keymap tarafında desteklemek için `#[action(deprecated_aliases = [...])]`, komut paleti kullanıcı sorgusu içinse `command_aliases` kullanılır.
+`WorkspaceSettings::command_aliases: HashMap<String, ActionName>`. Kullanıcı JSON'una `"command_aliases": { "ag": "search::ToggleSearch" }` yazıldığında komut paleti, sorgu tam olarak `ag` olduğunda bunu `search::ToggleSearch` string'ine çevirir. Bu çeviri fuzzy eşleşme ve interceptor çağrısından önce yapılır; alias bir action nesnesi üretmez, yalnızca palet sorgusunu canonical action adına yaklaştırır. Yeni uygulamada alias, kullanıcının kısa sorgu yazmasını kolaylaştıran bir palet kısayolu olarak düşünülmelidir. Keymap tarafında canonical action adı kullanılmalıdır.
 
 #### CommandInterceptor
 
@@ -69,14 +69,13 @@ pub struct CommandInterceptItem {
 
 Tipik akış şudur: Vim modu açıkken `:w<CR>` gibi komutlar intercept edilip `SaveActiveItem` action'ına çevrilir. Benzer şekilde başka extension veya agent türleri de aynı mekanizmayı kullanır. Komut paleti interceptor sonuçlarını normal fuzzy action eşleşmeleriyle birleştirir. Aynı action zaten normal eşleşmelerde yer alıyorsa interceptor sonucu eklenmeden önce normal sonuçtan çıkarılır. `exclusive = true` olduğunda yalnız interceptor sonuçları gösterilir; `exclusive = false` ise interceptor sonuçları listenin başına eklenir ve normal eşleşmeler arkadan gelir.
 
-#### Action Documentation ve Deprecation Mesajları
+#### Action Documentation
 
-Action trait'inin `documentation()`, `deprecation_message()` ve `deprecated_aliases()` yüzeyi komut paleti ile karıştırılmamalıdır:
+Action trait'inin `documentation()` yüzeyi komut paleti ile karıştırılmamalıdır:
 
-- Komut paleti satırında şu anda humanized action adı ve mevcut keybinding görünür; action documentation veya deprecation mesajı palet satırında ayrı bir açıklama olarak render edilmez.
-- `#[action(deprecated_aliases = ["foo::OldName"])]` eski adın `ActionRegistry::build_action` içinde hâlâ inşa edilebilir olmasını sağlar ve keymap JSON schema ile uyarı akışına yansır. Komut paleti ise `window.available_actions(cx)` ile odaktaki dispatch path'ten action tiplerini toplar; `build_action_type(type_id)` ile canonical action adını üretir. Eski alias'lar ayrı bir palet satırı olarak listelenmez.
+- Komut paleti satırında şu anda humanized action adı ve mevcut keybinding görünür; action documentation palet satırında ayrı bir açıklama olarak render edilmez.
+- Komut paleti `window.available_actions(cx)` ile odaktaki dispatch path'ten action tiplerini toplar; `build_action_type(type_id)` ile canonical action adını üretir.
 - Doc comment yazımı yine önemlidir: derive makrosu bunu `documentation()` üzerinden ifşa eder ve keymap editor ile JSON schema gibi action keşif yüzeyleri bu bilgiyi kullanır.
-- `#[action(deprecated = "...")]` da keymap schema ve uyarı akışını besler. Komut paleti kullanıcı sorgusuna eski bir kısa ad eklemek isteniyorsa `WorkspaceSettings::command_aliases` kullanılmalıdır.
 
 #### Tuzaklar
 
@@ -115,7 +114,7 @@ Filter ve interceptor kullanımında karşılaşılan yaygın sorunlar:
 
 **Onay davranışı.** Confirm akışları iki şekilde işler:
 
-- Normal confirm seçili komutu alır, telemetry'ye `source = "command palette"` ile yazar, `CommandPaletteDB` kaydını bir background task olarak başlatır, eski focus handle'a geri odaklanır, modalı kapatır ve `window.dispatch_action(action, cx)` çağırır.
+- Normal confirm seçili komutu alır, telemetry'ye `source = "command palette"` ile yazar, `CommandPaletteDB` kaydını bir background task olarak başlatır, önceden odakta olan handle'a geri odaklanır, modalı kapatır ve `window.dispatch_action(action, cx)` çağırır.
 - Secondary confirm seçili action'ın canonical adını `String` olarak alır ve `zed_actions::ChangeKeybinding { action: action_name.to_string() }` action'ını dispatch eder. Buradaki `action` alanı bir action nesnesi değil, registry name string'idir (örneğin `"editor::GoToDefinition"`); keymap editor bu string'i alır ve binding ekleme akışını başlatır. Footer'daki "Add/Change Keybinding" butonu da aynı yolu kullanır.
 - `finalize_update_matches` pending background sonucu en fazla kısa bir süre foreground'da bekleyebilir; bu, palet açılırken boş liste parlamasını ve otomasyon sırasında erken enter basma durumunu azaltır.
 

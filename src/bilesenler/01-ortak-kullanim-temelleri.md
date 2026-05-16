@@ -219,7 +219,7 @@ fn render_loading_icon() -> impl IntoElement {
 }
 ```
 
-`Icon` ve `Vector` içeride `Transformable` implement eder; bu bound sayesinde `.with_rotate_animation(duration)` ve `.with_keyed_rotate_animation(id, duration)` çağrıları çalışır. Eğer doğrudan bir dönüşüm builder'ı gerekli olursa, mirror tarafta ya `Transformable` bilinçli biçimde re-export edilmeli ya da `Icon::transform` / `Vector::transform` benzeri inherent bir builder eklenmelidir. Mevcut Zed pin'inde bu yüzey, doğrudan tüketici API'si olarak sunulmuyor.
+`Icon` ve `Vector` içeride `Transformable` implement eder; bu bound sayesinde `.with_rotate_animation(duration)` ve `.with_keyed_rotate_animation(id, duration)` çağrıları çalışır. Mevcut Zed API yüzeyinde doğrudan tüketici tarafına açılan çağrı `ui::CommonAnimationExt` üzerinden gelir; `.transform(...)` ise public kullanım yolu olarak ele alınmamalıdır.
 
 ## `ui::utils` modülü
 
@@ -257,7 +257,7 @@ Tarih farkı yardımcıları (`format_distance` modülü):
 - `DateTimeType::Naive(NaiveDateTime)` veya `DateTimeType::Local(DateTime<Local>)` iki olası kaynağı temsil eder. `.to_naive()` her ikisini de `NaiveDateTime`'a çevirir.
 - `format_distance(date, base_date, include_seconds, add_suffix, hide_prefix) -> String`: iki tarih arasındaki mesafeyi "less than a minute ago", "about 2 hours ago", "3 months from now" gibi insan okuyabilir bir metne çevirir.
 - `format_distance_from_now(datetime, include_seconds, add_suffix, hide_prefix) -> String`: aynı işi yapar, ancak `base_date` olarak otomatik `Local::now()` kullanılır.
-- `FormatDistance::new(date, base_date).include_seconds(...).add_suffix(...) .hide_prefix(...)`: builder yüzeyidir; thread item, git commit ve activity feed gibi yerlerde tercih edilir. Modülün kaynak yorumu, ileride `time_format` crate'ine taşınacağını söyler; bu yüzden yeni kod yazarken `time_format` çözümlerine de göz atılması faydalı olur.
+- `FormatDistance::new(date, base_date).include_seconds(...).add_suffix(...) .hide_prefix(...)`: builder yüzeyidir; thread item, git commit ve activity feed gibi yerlerde tercih edilir. Yeni kod yazarken mevcut Zed çalışma ağacında kullanılan tarih formatlama yardımcılarıyla aynı çizgide kalmak gerekir.
 
 ## Hata yönetimi
 

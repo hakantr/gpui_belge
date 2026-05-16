@@ -411,7 +411,7 @@ use kvs_tema::prelude::*;  // tek satırlık import
 
 ### Accessor metotları
 
-`styles` alanı crate-içi olduğu için tüketicinin kararlı okuma yolu Konu 12'deki accessor'lardır:
+`styles` alanı crate-içi olduğu için tüketicinin açık okuma yolu Konu 12'deki accessor'lardır:
 
 ```rust
 impl Theme {

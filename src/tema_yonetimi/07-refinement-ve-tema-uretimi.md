@@ -80,7 +80,7 @@ theme.styles.colors.refine(&refinement);
 
 ### Modülün dış arayüzü
 
-`refinement.rs` kararlı dış API'leri (Zed `crates/theme_settings/src/schema.rs` paritesinde):
+`refinement.rs` dış API'leri (Zed `crates/theme_settings/src/schema.rs` paritesinde):
 
 ```rust
 pub fn theme_colors_refinement(
@@ -101,7 +101,7 @@ pub fn syntax_overrides(
 
 > **Önemli:** `theme_colors_refinement` **üç parametre alır**, tek parametre değildir. `status_colors` parametresi `version_control_added`/`version_control_deleted` alanlarının `status.created`/`status.deleted` değerlerine düşebilmesi için gerekir. `is_light` parametresi ise `editor_diff_hunk_*` alanlarının appearance'a göre doğru opacity sabitini seçmesini sağlar.
 
-Crate-içi kararsız helper'lar:
+Crate-içi helper'lar:
 
 ```rust
 fn color(s: &Option<String>) -> Option<gpui::Hsla>;  // tek-satır parse
@@ -141,7 +141,7 @@ fn invalid_hex_is_swallowed_to_none() {
 
 ### Tuzaklar
 
-1. **Refinement'ı tüketici API'ye sızdırmak**: UI katmanı yalnızca `Theme` görmelidir. `Refinement` tipinin dışarı export edilmesi, tüketici kodu Zed sözleşmesinin evrimine bağlar; iç düzen değiştiğinde breaking change yaşanır.
+1. **Refinement'ı tüketici API'ye sızdırmak**: UI katmanı yalnızca `Theme` görmelidir. `Refinement` tipinin dışarı export edilmesi, tüketici kodu JSON sözleşmesinin iç ayrıntılarına bağlar ve tema üretim sırasını dağıtır.
 2. **Refinement'ı gereksiz klonlamak**: `Refinement` 150 `Option<Hsla>` alanı içerir; klon görece ucuz olsa da gereksizdir. Referansla (`&refinement`) geçirilmesi daha doğrudur.
 3. **`refine()` öncesi `apply_status_color_defaults`'ın atlanması**: Türetme uygulanmadığında fg-only status temaları baseline'ın background'unu tutar; sonuç kullanıcı renkleriyle uyumsuz bir görüntüye dönüşür. Bu adım şarttır (Konu 31).
 4. **Refinement'ı global tutmak**: Refinement geçici bir nesnedir; `from_content` çağrısı içinde yaratılır, kullanılır ve düşürülür. `static` veya `Arc` ile tutulmasının anlamı yoktur.
@@ -191,8 +191,7 @@ pub fn theme_colors_refinement(
     //     border_disabled, background, surface_background, ... (çoğu alan)
 
     // 2. Fallback zincirli alanlar — sözleşmenin asıl inceliği burada:
-    let scrollbar_thumb_background = color(&this.scrollbar_thumb_background)
-        .or_else(|| color(&this.deprecated_scrollbar_thumb_background));
+    let scrollbar_thumb_background = color(&this.scrollbar_thumb_background);
     let scrollbar_thumb_active_background = color(&this.scrollbar_thumb_active_background)
         .or(scrollbar_thumb_background);
     let search_match_background = color(&this.search_match_background);
@@ -256,7 +255,6 @@ pub fn theme_colors_refinement(
 
 | Alan | Düşüş sırası |
 |------|--------------|
-| `scrollbar_thumb_background` | `→ deprecated_scrollbar_thumb_background` |
 | `scrollbar_thumb_active_background` | `→ scrollbar_thumb_background` |
 | `search_active_match_background` | `→ search_match_background` |
 | `version_control_added` | `→ status_colors.created` |
@@ -279,12 +277,10 @@ pub fn theme_colors_refinement(
 | `version_control_renamed` | `→ status_colors.modified` |
 | `version_control_conflict` | `→ status_colors.ignored` |
 | `version_control_ignored` | `→ status_colors.ignored` |
-| `version_control_conflict_marker_ours` | `→ deprecated version_control_conflict_ours_background` |
-| `version_control_conflict_marker_theirs` | `→ deprecated version_control_conflict_theirs_background` |
 | `vim_yank_background` | `→ editor_document_highlight_read_background` |
 | `vim_helix_jump_label_foreground` | `→ status_colors.error` |
 
-- **`..Default::default()` zorunludur**: Macro tarafından üretilen Refinement tipinin tüm alanlarını elle vermek pratik değildir; default fallback gerekir. Tema sözleşmesi büyüdükçe bu kalıp esneklik sağlar. Yeni bir alan mirror edilmeyi beklerken bile derleme bozulmaz.
+- **`..Default::default()` zorunludur**: Macro tarafından üretilen Refinement tipinin tüm alanlarını elle vermek pratik değildir; default fallback gerekir. Bu kalıp, yalnızca kullanıcının JSON'da vermediği geçerli alanların baseline'da kalmasını sağlar; sözleşme dışı alanları desteklemek için kullanılmaz.
 - **`ensure_opaque` / `ensure_non_opaque`** crate-içi yardımcılardır: `ensure_opaque` alpha'yı her zaman `1.0` yapar; `ensure_non_opaque` ise alpha `0.7` üstündeyse `0.7`'ye indirir, `<= 0.7` değerleri olduğu gibi bırakır. Mirror tarafta aynı isimle yerleşim beklenir veya `kvs_renk` modülüne taşınabilir.
 
 > **Yeni alan semantiği:** `ThemeColors` tarafına `new_color` adında bir alan eklendiğinde, macro `ThemeColorsRefinement` içinde otomatik olarak `new_color: Option<Hsla>` üretir. `..Default::default()` derlemeyi korur. Ancak alan `theme_colors_refinement` içinde açıkça doldurulmazsa kullanıcı temasındaki değer runtime'a taşınmaz.
@@ -369,7 +365,7 @@ Bunlar `*_refinement` fonksiyonu altında modellenmez. Çünkü `Refineable` der
 
 ## 31. `apply_status_color_defaults` ve `apply_theme_color_defaults`: %25 alpha türetme kuralı
 
-`StatusColors` sözleşmesinin özel bir davranışı vardır. Tema yazarı bir durum için **yalnızca foreground** verirse, **background** değeri otomatik olarak foreground'un **%25 alpha**'lı halinden türetilir. Bu kural Zed tema davranışıyla uyum için gereklidir. Aksi halde kullanıcı temasında ana renk yeni olur, background ise baseline'dan kalır ve ortaya yarı eski yarı yeni bir görünüm çıkar.
+`StatusColors` sözleşmesinin özel bir davranışı vardır. Tema yazarı bir durum için **yalnızca foreground** verirse, **background** değeri otomatik olarak foreground'un **%25 alpha**'lı halinden türetilir. Bu kural Zed tema davranışıyla uyum için gereklidir. Aksi halde kullanıcı temasında ana renk değişir, background ise baseline'dan kalır ve ortaya parçalı bir görünüm çıkar.
 
 ### Kural
 
@@ -601,7 +597,7 @@ Default uygulama, refinement birleştirmesinin **sonrasında** ve materyalize ed
 
 ## 32. `Theme::from_content` birleşik akış
 
-**Kaynak modül:** `kvs_tema/src/refinement.rs` veya `kvs_tema.rs` (lib kökü). Yerleşim kararsız olabilir; ancak `impl Theme` bloğu tek parçadır.
+**Kaynak modül:** `kvs_tema/src/refinement.rs` veya `kvs_tema.rs` (lib kökü). Yerleşim uygulama tasarımına göre değişebilir; ancak `impl Theme` bloğu tek parçadır.
 
 Refinement katmanının dışarıya verdiği ana kurulum fonksiyonudur. İki bilgiyle çağrılır: kullanıcı tema içeriği ve baseline tema. Sonuç olarak tam bir `Theme` nesnesi üretir.
 
@@ -671,9 +667,8 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
     let mut accents = baseline.styles.accents.clone();
     merge_accent_colors(&mut accents, &content.style.accents);
 
-    // (Eski sürüm 5. adımdaki idx-bazlı player merge bu noktada ZATEN
-    // çalıştırıldı — adım 3. Aşağıdaki kalan kod blokları sadece syntax
-    // ve window bg adımlarını içerir.)
+    // Player merge bu noktada ZATEN çalıştırıldı — adım 3.
+    // Aşağıdaki kalan kod blokları sadece syntax ve window bg adımlarını içerir.
     // 6. Syntax listesini kur. Zed `refine_theme` burada
     //    `theme_settings/src/schema.rs::syntax_overrides` helper'ını
     //    çağırmaz; aynı dönüşümü inline yapıp `SyntaxTheme::new(...)`
@@ -892,17 +887,6 @@ pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8]) -> Result<()> {
 pub fn deserialize_user_theme(bytes: &[u8]) -> Result<ThemeFamilyContent> {
     let theme_family: ThemeFamilyContent =
         serde_json_lenient::from_slice(bytes)?;
-
-    for theme in &theme_family.themes {
-        if theme.style.colors.deprecated_scrollbar_thumb_background.is_some() {
-            log::warn!(
-                r#"Theme "{name}" is using a deprecated style property: \
-                   scrollbar_thumb.background. Use `scrollbar.thumb.background` \
-                   instead."#,
-                name = theme.name
-            );
-        }
-    }
     Ok(theme_family)
 }
 ```
@@ -921,6 +905,6 @@ pub fn kullanici_tema_yukle(
 }
 ```
 
-Deprecated alan uyarısı (`deprecated_scrollbar_thumb_background`) Zed'de **log seviyesinde** kalır; parse hatası üretmez. `kvs_tema` mirror'ında da aynı strateji izlenir: deprecated alanlar `tracing::warn!` ile yazılır, kullanıcının teması yine yüklenir.
+Bu akışta alias kontrolü bulunmaz. Kullanıcı tema dosyası mevcut sözleşmedeki anahtarlarla yazılmalıdır; sözleşme dışı alias'lar için ayrı bir kabul hattı kurulmaz.
 
 ---

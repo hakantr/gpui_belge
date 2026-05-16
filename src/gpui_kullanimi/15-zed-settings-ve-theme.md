@@ -70,9 +70,9 @@ let border = colors.border;
 
 - `cx.theme()` panel açılırken `None` döndürmez; ancak `cx.global::<ThemeRegistry>()` henüz yüklenmemişse yedek tema döner.
 - Settings serialization `SettingsContent` merge akışına bağlıdır; user/global, project ve language-specific kaynaklar `SettingsStore` içinde yeniden hesaplanır.
-- Yeni ayar eklenirken `settings_content` schema güncellenmediğinde JSON schema doğrulaması eski formatı kabul etmez.
+- Yeni ayar eklenirken `settings_content` schema güncellenmelidir; aksi halde JSON schema doğrulaması yeni alanı tanımaz.
 
-## SettingsStore: Kayıt, Okuma, Override ve Migration
+## SettingsStore: Kayıt, Okuma ve Override
 
 `crates/settings/src/settings_store.rs`. `SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip-güvenli store içinde birleştirir.
 
@@ -119,13 +119,6 @@ cx.observe_global::<SettingsStore>(|cx| {
 ```
 
 `SettingsStore` global'i her dosya değişimi veya programatik override'dan sonra notify edilir; observer callback'i içinde değer zaten yeni state'tedir.
-
-**Migration.** Eski şemadan yeni şemaya geçişi yönetmek için ayrı bir katman bulunur:
-
-- Kullanıcı JSON'u eski şemayı kullanıyorsa `crates/settings/src/migrator/` modülü değerleri yeni anahtarlara taşır.
-- `SettingsStore::set_user_settings(...)` ve file watcher/update callback'leri `SettingsParseResult { parse_status, migration_status }` döndürür veya taşır.
-- `MigrationStatus` değerleri `NotNeeded`, `Succeeded` ve `Failed { error }` şeklindedir. Başarılı migration in-memory uygulanır; çağıran taraf gerekiyorsa dosyayı yeniden yazar veya kullanıcıya uyarı üretir.
-- Parse sonucu `ParseStatus::Success`, `ParseStatus::Unchanged` veya `ParseStatus::Failed { error }` olur; migration durumu ayrı bir alan olarak ifade edilir.
 
 **Tuzaklar.** SettingsStore kullanımında karşılaşılan hatalar:
 

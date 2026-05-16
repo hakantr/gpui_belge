@@ -64,14 +64,14 @@ Tema sistemi **iki crate** olarak konumlanır:
 | `styles/players.rs` | `PlayerColors`, `PlayerColor` | Evet |
 | `styles/accents.rs` | `AccentColors` | Evet |
 | `styles/system.rs` | `SystemColors` | Evet |
-| `schema.rs` | `*Content` tipleri, `try_parse_color` | Evet (kararsız) |
+| `schema.rs` | `*Content` tipleri, `try_parse_color` | Evet (Zed sözleşmesine bağlı) |
 | `refinement.rs` | `*_refinement()` fonksiyonları, `apply_*_defaults` | Crate-içi |
 | `registry.rs` | `ThemeRegistry`, `ThemeNotFoundError`, `IconThemeNotFoundError` | Evet |
 | `runtime.rs` | `GlobalTheme`, `ActiveTheme` trait, `SystemAppearance`, `init` | Evet |
 | `icon_theme.rs` | `IconTheme` ve içerik tipleri | Evet |
 | `fallback.rs` | `kvs_default_dark()`, `kvs_default_light()` | Evet |
 
-"Dış API" sütununda "kararsız" görünen `schema.rs`, Zed JSON sözleşmesinin zamanla değişebilen yüzeyini taşır. Bu modüle doğrudan dayanan bir tüketici, Zed tarafındaki değişiklikleri birinci elden hisseder ve breaking change ile karşılaşabilir.
+`schema.rs`, mevcut Zed JSON sözleşmesinin taşıyıcısıdır. Bu modüle doğrudan dayanan bir tüketici, uygulamanın hedeflediği Zed sözleşmesine bağlanmış olur. Sözleşme güncellenecekse mirror struct'ları ve test fixture'ları birlikte güncellenir.
 
 ---
 
@@ -190,13 +190,13 @@ Syntax crate'in tek bağımlılığı `gpui` ile sınırlıdır. Buna yalnızca 
 
 - **`serde_json_lenient`** Zed'in kullandığı sürümle uyumlu olmalıdır; major versiyon değişikliği yorum ve trailing comma parse davranışını değiştirebilir, bu da bazı geçerli Zed JSON dosyalarının aniden parse edilememesine yol açabilir.
 
-- **`gpui`, `refineable`, `collections`** git kaynağından alınır. Üretim ortamında daha kararlı bir davranış için `branch` yerine `rev` ile sabit bir commit referansı kullanılabilir:
+- **`gpui`, `refineable`, `collections`** git kaynağından alınır. Uygulamanın hedeflediği Zed durumunu açık tutmak için `branch` yerine `rev` ile sabit bir commit referansı kullanılabilir:
 
   ```toml
   gpui = { git = "https://github.com/zed-industries/zed", rev = "6e8eaab25b5ac324e11a82d1563dcad39c84bace" }
   ```
 
-Branch tracking güncel davranışı takip etmeyi sağlar. `rev` ile sabitleme ise dependency yüzeyini daha öngörülebilir hale getirir. Buradaki seçim, "her zaman en yeni davranış" ile "her build aynı davranış" arasında yapılır.
+Branch tracking Zed'deki değişimleri otomatik alır; `rev` ile sabitleme ise hangi Zed durumunun referans alındığını netleştirir. Bu rehberde önemli olan, seçilen referansın açık ve test edilebilir olmasıdır.
 
 **Bağımlılık akış grafiği:**
 
@@ -231,7 +231,7 @@ pub use crate::registry::*;
 pub use crate::runtime::*;
 pub use crate::styles::*;
 
-// Schema — kararsız ama deserialize için gerekli; tek tek ihraç,
+// Schema — Zed sözleşmesine bağlı; tek tek ihraç,
 // glob asla (yeni iç tip eklenince istemeden public olmasın).
 pub use crate::schema::{
     AppearanceContent, FontStyleContent, FontWeightContent,

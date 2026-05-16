@@ -204,7 +204,7 @@ Bu başlık altında rehber boyunca en çok sorulan dört konunun kısa özeti y
 
 **Kontrol butonlarının yönetimi.** Zed içinde `platform_title_bar::render_left_window_controls` ve `render_right_window_controls` kullanılır. Linux'ta `cx.button_layout()` ve `window.window_controls()` sonucu belirleyicidir. Windows'ta butonlar `WindowControlArea::{Min, Max, Close}` ile native hit-test'e bağlanır. Close için workspace akışında `CloseWindow` action'ı dispatch edilir.
 
-**Blur yönetiminin işletim sistemine göre uygulanması.** Pencere açılırken veya tema değiştiğinde `window.set_background_appearance(...)` çağrılır. Zed tema akışı `opaque`, `transparent` ve `blurred` değerlerini destekler. macOS gerçek blur'u `NSVisualEffectView` ya da legacy blur radius ile, Windows composition/DWM ile, Wayland ise compositor blur protokolü ile uygular. Destek olmadığında `Blurred` transparan gibi davranabilir. Root UI opak çizdiğinde blur görünmez kalır.
+**Blur yönetiminin işletim sistemine göre uygulanması.** Pencere açılırken veya tema değiştiğinde `window.set_background_appearance(...)` çağrılır. Zed tema akışı `opaque`, `transparent` ve `blurred` değerlerini destekler. macOS gerçek blur'u `NSVisualEffectView` ile, Windows composition/DWM ile, Wayland ise compositor blur protokolü ile uygular. Destek olmadığında `Blurred` transparan gibi davranabilir. Root UI opak çizdiğinde blur görünmez kalır.
 
 **Platform farklarının soyutlanacağı yer.** Davranış pencere ile ilgiliyse GPUI `Platform` ve `PlatformWindow` katmanına bağlanır. Zed UI görünümüyle ilgiliyse `PlatformStyle::platform()` ve `platform_title_bar` bileşenleri kullanılır. Ayar farkı gerekiyorsa `settings_content` şeması ve `settings` dönüşümleri devreye girer.
 

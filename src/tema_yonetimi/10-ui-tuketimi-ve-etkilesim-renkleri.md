@@ -50,7 +50,7 @@ let error = tema.status().error;
 let local = tema.players().local().cursor;
 ```
 
-**Accessor metotları neden tercih edilir?** `styles` alanının iç düzeni zamanla değişebilir; örneğin `colors` ve `status` farklı şekilde ayrıştırılabilir. Accessor yöntemi dış sözleşmeyi `theme.colors()` imzasında sabitler. İç düzen değişse bile tüketici kod kırılmaz.
+**Accessor metotları neden tercih edilir?** `styles` alanı tema modelinin iç yerleşimidir; tüketici bileşenlerin bu iç yerleşime bağlanması istenmez. Accessor yöntemi, mevcut Zed sözleşmesinde okunacak alanı `theme.colors()` gibi açık bir kapıdan verir ve UI kodunu daha anlaşılır tutar.
 
 ### Prelude modül deseni
 
@@ -209,7 +209,7 @@ impl Render for HoverChip {
 }
 ```
 
-**Sınırlar:** `darken` yalnızca lightness değerini etkiler; alpha, saturation ve hue olduğu gibi kalır. Şeffaf renkler yine şeffaftır. Kaynak kodunda "tentative solution" notu bulunur; Zed kalıcı bir renk sistemini oturtana kadar bu çağrı geçici bir çözüm olarak konumlanır. Mirror tarafta aynı imzanın korunması parite açısından önemlidir. Daha gelişmiş bir varyant (`OkLab` veya `palette::Mix`) yerel API genişletmesi olarak ele alınır.
+**Sınırlar:** `darken` yalnızca lightness değerini etkiler; alpha, saturation ve hue olduğu gibi kalır. Şeffaf renkler yine şeffaftır. Mirror tarafta aynı imzanın korunması parite açısından önemlidir. Daha gelişmiş bir varyant (`OkLab` veya `palette::Mix`) yerel API genişletmesi olarak ele alınır.
 
 ### Markdown preview, code fontu ve Mermaid tema tüketimi
 
@@ -219,7 +219,7 @@ Markdown preview hattı, tema tüketicisi olarak şu alanları kullanır:
 - Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutulur.
 - Mermaid render hattı artık aktif tema renklerinden kendi renderer temasını üretir: `editor_background`, `surface_background`, `element_background`, `ghost_element_hover`, `panel_background`, `text`, `border`, `border_variant`, `accents()` ve `players()` birlikte kullanılır.
 - Mermaid `accent0..accentN` class'ları player renklerinden üretilir; fill rengi light/dark appearance'a göre okunabilir bir kontrasta çekilir. Bu durum, player slot'larının yalnızca collab cursor için değil, görsel markdown diyagramları için de tüketildiği anlamına gelir.
-- Tema veya settings değiştiğinde Mermaid image cache'inin invalid edilmesi gerekir; aksi takdirde markdown preview eski tema renkleriyle kalır.
+- Tema veya settings değiştiğinde Mermaid image cache'inin invalid edilmesi gerekir; aksi takdirde markdown preview önceki tema renkleriyle kalır.
 
 Editor completion menüsündeki `completion_menu_item_kind = "symbol"` ayarı da syntax theme'i editor metni dışında tüketir: LSP completion kind değerleri `function`, `function.method`, `type`, `property`, `variable`, `keyword`, `string` gibi highlight capture adlarına eşlenir; tam capture bulunamadığında parent capture denenir. Syntax theme boş bırakıldığında bu rozetler renksiz kalır.
 

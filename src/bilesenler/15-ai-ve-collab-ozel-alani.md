@@ -411,7 +411,7 @@ Davranış:
 - `checking()` ile `installing(...)` dönen `IconName::LoadCircle` kullanır; animation süresi 2 saniyedir. `downloading(...)` `IconName::Download`, `errored(...)` ise `IconName::Warning` ile çizilir.
 - Convenience constructor'ların varsayılan mesajları şu şekildedir: `checking()` "Checking for Zed Updates…", `downloading(...)` "Downloading Zed Update…", `installing(...)` "Installing Zed Update…", `errored(...)` ise "Failed to Update". Özel bir metin gerektiğinde `UpdateButton::new(...)` ile açıkça bir state kurulur.
 - Kenarlık rengi disabled state'e göre değişir: aktif konumda `colors().text.opacity(0.15)` ile yumuşatılmış bir border, disabled konumda ise standart `colors().border` kullanılır. Bu nedenle aktif `updated(...)` ve `errored(...)` durumları, disabled olan checking, downloading ve installing durumlarından daha belirgin bir kenarlık taşır.
-- Title bar'daki `UpdateVersion` tooltip'i artık `Update to Version: ...` biçimindedir; SHA tabanlı bir version'da kısaltılmış SHA yerine tam SHA gösterilir.
+- Title bar'daki `UpdateVersion` tooltip'i `Update to Version: ...` biçimindedir; SHA tabanlı bir version'da kısaltılmış SHA yerine tam SHA gösterilir.
 
 Örnek:
 

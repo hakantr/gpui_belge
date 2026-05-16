@@ -27,7 +27,7 @@ use gpui::Action;
 pub struct GoToLine { pub line: u32 }
 ```
 
-`#[action(namespace = ..., name = "...", no_json, no_register, deprecated_aliases = [...], deprecated = "...")]` attribute'leri bu derive üzerinde davranışı yönlendirir. Varsayılan olarak `Deserialize` derive'ı ve `JsonSchema` implementasyonu beklenir; tamamen kod içinde kullanılacak bir action için `no_json`, registry'ye kayıt istenmeyen durumda `no_register` seçilir.
+`#[action(namespace = ..., name = "...", no_json, no_register)]` attribute'leri bu derive üzerinde davranışı yönlendirir. Varsayılan olarak `Deserialize` derive'ı ve `JsonSchema` implementasyonu beklenir; tamamen kod içinde kullanılacak bir action için `no_json`, registry'ye kayıt istenmeyen durumda `no_register` seçilir.
 
 **Dispatch.** Bir action'ı tetiklemenin başlıca yolları şunlardır:
 
@@ -79,11 +79,11 @@ Gerçek parser yalnızca şu operatörleri tanır: `>`, `&&`, `||`, `==`, `!=`, 
 - Aynı action ismi iki crate'te tanımlanırsa registry çakışması olur; namespace bu yüzden zorunludur.
 - Zed çalışma zamanında bilinmeyen action ismi keymap'te warning log'u üretir, panic vermez.
 
-## Action Makro Detayları, register_action! ve Deprecated Alias
+## Action Makro Detayları ve register_action!
 
 `#[derive(Action)]` ve `actions!` makrosu çoğu durumda yeterlidir; ancak action sözleşmesinin ek köşe taşları da vardır.
 
-#### `Action` trait'inin gerçek yüzeyi (`crates/gpui/src/action.rs:117+`)
+#### Yeni action yazarken kullanılan çekirdek yüzey (`crates/gpui/src/action.rs:117+`)
 
 ```rust
 pub trait Action: Any + Send {
@@ -94,10 +94,6 @@ pub trait Action: Any + Send {
     fn build(value: serde_json::Value) -> Result<Box<dyn Action>>
         where Self: Sized;
     fn action_json_schema(_: &mut SchemaGenerator) -> Option<Schema>
-        where Self: Sized { None }
-    fn deprecated_aliases() -> &'static [&'static str]
-        where Self: Sized { &[] }
-    fn deprecation_message() -> Option<&'static str>
         where Self: Sized { None }
     fn documentation() -> Option<&'static str>
         where Self: Sized { None }
@@ -114,8 +110,6 @@ pub trait Action: Any + Send {
 - `name = "OpenFile"` — namespace içinde özel ad.
 - `no_json` — `Deserialize`/`JsonSchema` derive zorunluluğunu kaldırır; `build()` her zaman hata döner, `action_json_schema()` `None` verir. Tamamen kod içi kullanılacak action'lar (örneğin `RangeAction { start: usize }`) için tercih edilir.
 - `no_register` — inventory üzerinden otomatik kaydı atlar; trait'i elle uygularken veya koşullu kayıt yaparken gerekir.
-- `deprecated_aliases = ["editor::OldName", "old::Name"]` — keymap'te eski adı kabul ederken kullanıcıya warning göstermek için.
-- `deprecated = "message"` — action'ın kendisini deprecated işaretler; `deprecation_message()` bu metni döndürür.
 
 #### `register_action!` makrosu
 
@@ -145,7 +139,6 @@ Action makrolarının kullanımındaki ince noktalar:
 
 - `partial_eq` varsayılan olarak `PartialEq` impl'ini kullanır; derive eklenmemişse karşılaştırma yanlış sonuç verebilir.
 - Aynı `name()` döndüren iki action register edildiğinde inventory startup'ta panic eder; namespace kullanımı çakışmaları önler.
-- `deprecated_aliases` keymap parser'ı eski adı yeni action'a yönlendirir; Rust kodunda eski tipe referans verilmeye devam edilirse iki tanım çakışır.
 - `no_json` ile işaretlenmiş bir action keymap dosyasından çağrılamaz; yalnızca kod içinden `dispatch_action` ile tetiklenir.
 
 ## Keymap, KeyContext ve Dispatch Stack
@@ -193,7 +186,7 @@ cx.bind_keys([
 - Context path'te daha derin eşleşme daha yüksek önceliklidir.
 - Aynı derinlikte sonra eklenen binding önce gelir; kullanıcı keymap'i built-in binding'leri bu yüzden ezebilir.
 - `NoAction` ve `Unbind` binding'leri devre dışı bırakma için kullanılır.
-- Printable input IME'ye gidecekse `InputHandler::prefers_ime_for_printable_keys` keybinding yakalamasını geriye çekebilir. `EntityInputHandler` kullanan view'larda bu değer `ElementInputHandler` tarafından `accepts_text_input` sonucundan türetilir; ayrı bir karar isteniyorsa raw `InputHandler` yazılır.
+- Printable input IME'ye gidecekse `InputHandler::prefers_ime_for_printable_keys` keybinding yakalamasının önceliğini düşürebilir. `EntityInputHandler` kullanan view'larda bu değer `ElementInputHandler` tarafından `accepts_text_input` sonucundan türetilir; ayrı bir karar isteniyorsa raw `InputHandler` yazılır.
 
 **Tuzaklar.** Bu sistemde sık karşılaşılan hatalar:
 
@@ -255,7 +248,7 @@ Action tanımlama ve dispatch önceki bölümlerde işlenmiştir. Zed komut pale
 - `cx.all_action_names() -> &[&'static str]` — register edilmiş tüm action adlarını döndürür. Kayıtlı olmak, action'ın element ağacında o anda kullanılabilir olduğu anlamına gelmez.
 - `cx.action_schemas(generator)` — internal olmayan action adlarını ve JSON schema'larını verir.
 - `cx.action_schema_by_name(name, generator)` — tek action için schema döndürür; `None` action'ın yokluğunu, `Some(None)` action'ın varlığını ama schema bulunmayışını ifade eder.
-- `cx.deprecated_actions_to_preferred_actions()`, `cx.action_deprecation_messages()` ve `cx.action_documentation()` — keymap validator, komut paleti ve migration mesajları için registry meta verisini sağlar.
+- `cx.action_documentation()` — keymap editor, JSON schema ve geliştirici diagnostikleri için action açıklamalarını sağlar.
 
 **Available action ve binding sorguları.** Bağlamdaki action durumunu ve ilgili binding'leri öğrenmek için:
 

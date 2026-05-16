@@ -10,7 +10,7 @@ Bu bölüm GPUI çekirdeğine değil, Zed'in `workspace` crate'i üstünde duran
 
 - `panel::PanelHeader` varsayılan `header_height` veya `panel_header_container` sağlayan bir yardımcı trait değildir; `workspace::Panel` üstünde marker bir trait'tir. Header yüksekliği gerekiyorsa doğrudan `Tab::container_height(cx)`, container gerekiyorsa `h_flex()`/`v_flex()` ve `ui::Button`/`ui::IconButton` bileşenleri kurulur.
 - `panel_button`, `panel_filled_button`, `panel_icon_button` ve `panel_filled_icon_button` free function helper'ları yoktur. Panel UI'ında button layer/size/style kararları doğrudan component üzerinde açıkça belirtilir.
-- Git paneli `GitPanelTab::{Changes, History}` durumuyla iki tab render eder. Changes tab'ı eski staged/unstaged liste ve commit footer akışını korur; History tab'ı commit geçmişini `UniformListScrollHandle` ile sanallaştırır, ok tuşlarıyla `focused_history_entry` seçer ve confirm ile `CommitView::open` çağırır. Panel action listener'larına `ActivateChangesTab` ve `ActivateHistoryTab` eklenmelidir.
+- Git paneli `GitPanelTab::{Changes, History}` durumuyla iki tab render eder. Changes tab'ı staged/unstaged liste ve commit footer akışını taşır; History tab'ı commit geçmişini `UniformListScrollHandle` ile sanallaştırır, ok tuşlarıyla `focused_history_entry` seçer ve confirm ile `CommitView::open` çağırır. Panel action listener'larına `ActivateChangesTab` ve `ActivateHistoryTab` eklenmelidir.
 
 **Workspace yapısı.** Workspace üç ana dock'u ve merkezdeki pane grubunu bir arada tutar:
 
@@ -47,7 +47,7 @@ Bu bölüm GPUI çekirdeğine değil, Zed'in `workspace` crate'i üstünde duran
 
 **Yeni panel eklerken kontrol.** Aşağıdaki noktalar yeni bir panel hazırlanırken gözden geçirilmelidir:
 
-- `panel_key` değiştirildiğinde eski persist ve keymap adları kırılır.
+- `panel_key` persist ve keymap kimliğidir; yeni panelde baştan stabil bir değer seçilmelidir.
 - `position_is_valid` bottom ve side sınırlamalarını net tanımlamalıdır.
 - `toggle_action()` action'ı önceden register edilmiş olmalıdır.
 - `activation_priority()` benzersiz olmalıdır.
@@ -275,10 +275,10 @@ Kayıt için tek satırlık bir çağrı yeterlidir:
 workspace::register_serializable_item::<MyItem>(cx);
 ```
 
-- `serialized_item_kind()` session DB'deki discriminant'tır; değiştirildiği takdirde eski session restore bozulur.
+- `serialized_item_kind()` session DB'deki discriminant'tır; restore akışı item tipini bu değer üzerinden bulur.
 - `serialize(..., closing, ...)` `None` döndürürse o event için yazma yapılmaz.
 - `should_serialize(event)` item event'inden sonra serialization'ın gerekip gerekmediğini belirler.
-- `cleanup(workspace_id, alive_items, ...)` DB'de artık canlı olmayan item kayıtlarını temizlemek için çağrılır.
+- `cleanup(workspace_id, alive_items, ...)` DB'de canlı olmayan item kayıtlarını temizlemek için çağrılır.
 - `SerializableItemHandle` `Entity<T: SerializableItem>` için blanket implement edilir; pane ve workspace type erasure bu handle üzerinden çalışır.
 
 #### OpenOptions ve open_paths
@@ -362,7 +362,7 @@ Pane ve workspace yalnızca tab listesinden ibaret değildir; split ağacı, nav
 `PaneGroup` center veya dock içindeki pane ağacını taşır. Kök `Member::Pane` veya `Member::Axis(PaneAxis)` olabilir.
 
 - `PaneGroup::new(pane)` tek bir pane ile başlar.
-- `split(old_pane, new_pane, SplitDirection, cx)` ağaca yeni pane ekler; eski pane bulunamazsa ilk pane yedek olarak kullanılır.
+- `split(old_pane, new_pane, SplitDirection, cx)` ağaca yeni pane ekler; `old_pane` bulunamazsa ilk pane yedek olarak kullanılır.
 - `remove`, `resize`, `reset_pane_sizes`, `swap`, `move_to_border` split ağacını değiştirir.
 - `pane_at_pixel_position(point)`, `bounding_box_for_pane(pane)`, `find_pane_in_direction` drag/drop ve klavyeyle pane navigation için kullanılır.
 - `SplitDirection::{Up, Down, Left, Right}`; `vertical(cx)` ve `horizontal(cx)` kullanıcı ayarına göre varsayılan split yönünü üretir.
@@ -376,7 +376,7 @@ Pane item listesinde preview ve pinned ayrımı vardır; her ikisi de benzer ama
 - `pinned_count`, `set_pinned_count` pinned tab sınırını yönetir.
 - `activate_item`, `activate_previous_item`, `activate_next_item`, `activate_last_item`, `swap_item_left/right` tab seçim ve sırasının yönetimidir.
 - `close_active_item`, `close_item_by_id`, `close_other_items`, `close_clean_items`, `close_all_items` save intent ve pinned davranışını hesaba katar.
-- Workspace bir pane'i kaldırırken aktif pane kaldırılıyorsa `Workspace::force_remove_pane` artık önce `active_pane`'i kalan bir pane'e günceller: `focus_on` verilmişse o pane aktif olur, verilmemişse son kalan pane yedek olarak seçilir. Aktif modal varsa odak yedek pane'e taşınmayabilir; ancak `active_pane` yine kaldırılmış pane olarak bırakılmaz.
+- Workspace bir pane'i kaldırırken aktif pane kaldırılıyorsa `Workspace::force_remove_pane` önce `active_pane`'i kalan bir pane'e günceller: `focus_on` verilmişse o pane aktif olur, verilmemişse son kalan pane yedek olarak seçilir. Aktif modal varsa odak yedek pane'e taşınmayabilir; ancak `active_pane` yine kaldırılmış pane olarak bırakılmaz.
 
 **Navigation.** Geçmiş yönetimi item ve pane düzeyinde çalışır:
 
@@ -432,7 +432,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 - `multi_workspace_enabled(cx)`, `!DisableAiSettings::disable_ai` ve `AgentSettings::enabled` koşullarının birlikte true olmasına bağlıdır. Bu false olduğunda sidebar açma veya focus işlemleri erken döner ve açık sidebar render edilmez.
 - `sidebar_render_state(cx)` render tarafında open ve side bilgisini taşır; `open` değeri hem sidebar'ın açık olmasına hem de `multi_workspace_enabled(cx)` sonucuna bağlıdır.
 - `sidebar_has_notifications(cx)` titlebar veya status indicator için kullanılır.
-- Workspace aktivasyonunda retain kararı artık sidebar'ın açık olmasına bağlı değildir. Multi-workspace etkinse yeni aktif workspace ve önceki transient aktif workspace retain edilir; multi-workspace devre dışıysa eski transient workspace detach edilir. Settings değişiminde etkin durumdan devre dışına geçiş `collapse_to_single_workspace` ile tüm grupları atar.
+- Workspace aktivasyonunda retain kararı sidebar'ın açık olmasına bağlı değildir. Multi-workspace etkinse aktif workspace ve son transient aktif workspace retain edilir; multi-workspace devre dışıysa transient workspace detach edilir. Settings değişiminde etkin durumdan devre dışına geçiş `collapse_to_single_workspace` ile tüm grupları atar.
 - Threads sidebar thread'lerle birlikte terminal entry'lerini de MRU switcher'a dahil eder; terminal aktivasyonu `AgentPanel::activate_terminal` üzerinden yapılır ve `ArchiveSelectedThread` aktif terminalde close davranışına bağlanır.
 - Sidebar ve panel empty-state akışları root path'i olmayan workspace'te yeni thread veya terminal oluşturmaz; kullanıcı önce bir proje açmaya yönlendirilir.
 - Draft thread entry'leri ayrı icon ve close davranışıyla gösterilir. Draft başlığı mesaj editor içeriğinden üretildiği için sidebar görünür draft editor'larını observe edip yazıldıkça entry'leri yeniler.
@@ -503,7 +503,7 @@ Zed uygulamasında workspace açmak yalnızca `open_window` çağrısı değildi
 - `workspaces()` weak workspace iterator'ı döndürür.
 - `workspaces_with_windows()` window handle ile birlikte verir.
 - `update_followers(project_id, update, cx)` aktif call üzerinden follower update mesajı yollar.
-- Collab, titlebar ve follow akışlarında client tarafındaki `User` artık `legacy_id: LegacyUserId` alanını taşır; proto room role lookup, participant index ve `join_in_room_project` gibi legacy id bekleyen yerlere `user.legacy_id` verilmelidir. `user.id` alanı bu client modelinde yoktur.
+- Collab, titlebar ve follow akışlarında client tarafındaki `User`, oda/protokol kimliğini `legacy_id: LegacyUserId` alanında taşır. Proto room role lookup, participant index ve `join_in_room_project` çağrılarında bu alan kullanılır. Bu client modelinde ayrı bir `user.id` alanı yoktur.
 
 #### WorkspaceDb ve HistoryManager
 

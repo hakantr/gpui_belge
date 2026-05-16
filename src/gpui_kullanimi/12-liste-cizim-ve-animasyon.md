@@ -46,7 +46,7 @@ anchor.scroll_to(window, cx);
 **Tuzaklar.** Scroll handle ile çalışırken atlanan noktalar:
 
 - `id(...)` çağırılmadan `overflow_*_scroll` çalışmaz; element interaktif olmaz.
-- `track_scroll` çağırılmadığında handle değerleri eski kalır; offset güncel olmaz.
+- `track_scroll` çağırılmadığında handle değerleri güncel kalmaz; offset doğru okunmaz.
 - Klavye ile scroll dispatch için `.on_key_down(...)` veya action kullanarak `scroll_to_item` çağrılır; otomatik klavye scroll'u yoktur.
 
 **Liste elementlerine özel state/handle tipleri.** Büyük listelerde `ScrollHandle` yerine bu tiplere geçilir:

@@ -51,7 +51,7 @@ Bunun günlük kullanım açısından sonuçları şunlardır:
 
 Rehberdeki örneklerde izlenen kural şudur: her örnek önce `use ui::prelude::*;` ile başlar. Prelude içinde bulunmayan bileşenler ek bir `use ui::{...};` satırıyla ayrıca belirtilir.
 
-### Public Yüzey Özeti (`../zed` `3493830ce94e`)
+### Public Yüzey Özeti (mevcut `../zed`)
 
 Aşağıdaki liste `crates/ui/src/components`, `crates/ui/src/styles`, `crates/ui/src/utils`, `crates/ui/src/traits`, `crates/component/src` ve `crates/ui_input/src` public yüzeyini özetler. Ayrıntılı builder imzaları ilgili başlıkta yer alır; lifecycle API'leri ise bu tablonun hemen altında ayrıca ele alınır.
 

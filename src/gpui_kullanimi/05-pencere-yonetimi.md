@@ -241,7 +241,7 @@ platform_titlebar.into_any_element()
 
 Zed'in titlebar davranışında dikkat çeken iki ayrıntı vardır:
 
-- `TitleBar`, `SkillsFeatureFlag` açıkken `OnboardingBanner` ile "Introducing: Skills" banner'ını kurar; banner tıklaması `zed_actions::agent::OpenRulesToSkillsMigrationInfo` action'ını dispatch eder. Rules-to-Skills açıklaması modal katmanında gösterilir, titlebar label'ı migration sonucuna göre değişmez.
+- `TitleBar`, `SkillsFeatureFlag` açıkken `OnboardingBanner` ile "Introducing: Skills" banner'ını kurar; banner tıklaması agent/skills bilgilendirme modalını açan action'ı dispatch eder. Titlebar label'ı bu modalın sonucuna göre değişmez.
 - `UpdateButton::checking`, `downloading` ve `installing` durumları disabled button olarak çizilir. Sürüm tooltip metni `"Update to Version: ..."` biçimindedir; SHA tabanlı sürümde kısa SHA yerine tam SHA gösterilir.
 
 ## Kontrol Butonları Nasıl Yönetilir?
@@ -396,8 +396,7 @@ Desteklenen setting değerleri `opaque`, `transparent` ve `blurred`'dir. `MicaBa
 - macOS:
   - `Opaque` pencereyi opak yapar.
   - `Transparent` ve `Blurred` için renderer transparency açılır.
-  - macOS 12 öncesinde blur `CGSSetWindowBackgroundBlurRadius` ile 80 radius kullanır.
-  - macOS 12 ve sonrasında `NSVisualEffectView` tabanlı blur view eklenir ya da kaldırılır.
+  - `Blurred` için `NSVisualEffectView` tabanlı blur view eklenir ya da kaldırılır.
 - Windows:
   - `Opaque`: composition attribute kapatılır.
   - `Transparent`: composition state transparent olarak işaretlenir.

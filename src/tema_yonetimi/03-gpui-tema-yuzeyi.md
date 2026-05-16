@@ -92,7 +92,7 @@ Tüm runtime renk alanları `Hsla` tipindedir. JSON tarafında string olarak gel
 2. **`Default::default()` görünmezliği**: `Hsla::default()` çıktısı `(0, 0, 0, 0)` olur. Alpha sıfır olduğu için UI'da hiçbir şey görünmez. Status renklerinde `unsafe { std::mem::zeroed() }` ile struct doldurmak da aynı tuzağa düşer.
 3. **`opacity` ile `alpha` arasındaki fark**: `opacity(0.5)` mevcut alpha değerini `0.5` ile **çarpar**; `alpha(0.5)` ise alpha'yı doğrudan `0.5`'e **set** eder. Yarı şeffaf bir rengi tam şeffaf yapmak için `opacity(0)` işe yaramaz; bunun yerine `alpha(0)` veya `transparent_black()` tercih edilmelidir.
 4. **`green()` davranışının farkı**: Diğer temel renk fonksiyonlarından farklı olarak `green()` lightness değerini 0.5 yerine 0.25 verir. Fallback renkler hazırlanırken bu detayın gözetilmesi, beklenmedik koyu yeşil tonlarının önüne geçer.
-5. **sRGB ↔ HSL kayması**: Aynı hex değeri farklı `palette` major versiyonlarında çok küçük miktarda farklı bir `Hsla` üretebilir. Bu yüzden referans Zed sürümüyle aynı `palette` major versiyonunun kullanılması, exact karşılaştırma yapan testlerin kararlı kalması için gereklidir.
+5. **sRGB ↔ HSL kayması**: Aynı hex değeri farklı `palette` major versiyonlarında çok küçük miktarda farklı bir `Hsla` üretebilir. Bu yüzden hedeflenen Zed referansıyla aynı `palette` major versiyonunun kullanılması, exact karşılaştırma yapan testlerin tutarlı kalması için gereklidir.
 
 ---
 

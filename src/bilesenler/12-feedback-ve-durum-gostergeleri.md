@@ -86,13 +86,13 @@ fn render_sync_banner() -> impl IntoElement {
 ```rust
 use ui::{Banner, Severity, prelude::*};
 
-fn render_deprecation_banner() -> impl IntoElement {
+fn render_provider_warning_banner() -> impl IntoElement {
     Banner::new()
         .severity(Severity::Warning)
         .wrap_content(true)
         .child(
             Label::new(
-                "This setting is deprecated and will be ignored in a future release.",
+                "This setting is not available for the selected provider.",
             )
             .size(LabelSize::Small),
         )

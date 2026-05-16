@@ -247,7 +247,6 @@ pub struct ThemeColorsContent {
 // panel_overlay_hover => "panel.overlay_hover"
 // pane_focused_border => "pane.focused_border"
 // pane_group_border => "pane_group.border"
-// deprecated_scrollbar_thumb_background => "scrollbar_thumb.background"
 // scrollbar_thumb_background => "scrollbar.thumb.background"
 // scrollbar_thumb_hover_background => "scrollbar.thumb.hover_background"
 // scrollbar_thumb_active_background => "scrollbar.thumb.active_background"
@@ -322,8 +321,6 @@ pub struct ThemeColorsContent {
 // version_control_word_deleted => "version_control.word_deleted"
 // version_control_conflict_marker_ours => "version_control.conflict_marker.ours"
 // version_control_conflict_marker_theirs => "version_control.conflict_marker.theirs"
-// version_control_conflict_ours_background => "version_control_conflict_ours_background" (deprecated)
-// version_control_conflict_theirs_background => "version_control_conflict_theirs_background" (deprecated)
 // vim_normal_background => "vim.normal.background"
 // vim_insert_background => "vim.insert.background"
 // vim_replace_background => "vim.replace.background"
@@ -364,13 +361,7 @@ pub struct StatusColorsContent {
 }
 ```
 
-`ThemeColorsContent`, referans Zed sürümünde 146 adet `Option<String>` alan taşır. Bunların 143'ü runtime `ThemeColors` alanlarına birebir gider. Geriye kalan 3 alan ise eski tema JSON'larını kırmamak için yalnızca content tarafında tutulan deprecated uyumluluk alanlarıdır:
-
-- `deprecated_scrollbar_thumb_background` (`scrollbar_thumb.background`) yeni `scrollbar_thumb_background` alanı boş olduğunda ona aktarılır.
-- `version_control_conflict_ours_background`, yeni `version_control_conflict_marker_ours` boş olduğunda ona aktarılır.
-- `version_control_conflict_theirs_background`, yeni `version_control_conflict_marker_theirs` boş olduğunda ona aktarılır.
-
-Refinement üretilirken yeni alan **her zaman önceliklidir**. Deprecated alan yalnızca fallback olarak kullanılır. Runtime `ThemeColors` içinde deprecated alan bulundurulmaz.
+`ThemeColorsContent`, hedeflenen Zed sözleşmesindeki runtime `ThemeColors` alanlarına karşılık gelen `Option<String>` alanları taşır. Bu rehberde ayrıca alias alanlar eklenmez. Örneğin `scrollbar_thumb.background` gibi sözleşme dışı anahtarlar yerine mevcut sözleşmedeki `scrollbar.thumb.background` anahtarı beklenir.
 
 **Davranış kuralları (özet):**
 
@@ -383,7 +374,7 @@ Refinement üretilirken yeni alan **her zaman önceliklidir**. Deprecated alan y
 | `HighlightStyleContent.color` | `Option<String>`; özel deserializer yok | Geçersiz hex string → refinement'ta `None`; yanlış JSON tipi → deserialize hatası |
 | `HighlightStyleContent` (diğer) | `Option<...>` + `treat_error_as_none` | `None` |
 | `PlayerColorContent` (3 alan) | hepsi `Option<String>` | Eksik alan baseline.local'dan |
-| `ThemeColorsContent` (150 alan) | her biri `Option<String>` | Refinement → baseline |
+| `ThemeColorsContent` (143 alan) | her biri `Option<String>` | Refinement → baseline |
 | `StatusColorsContent` (42 alan) | her biri `Option<String>` | Refinement → baseline (fg→bg türetme uygulanır) |
 
 > **`AppearanceContent` neden `Option` değil?** Bir tema'nın "Light mı, Dark mı?" sorusu **kritiktir**. Bu bilgi eksik olduğunda renk seçimi anlamını yitirir. Bu yüzden alan, sözleşmenin zorunlu enum alanı olarak tutulur.
@@ -510,9 +501,9 @@ Zed temalarında tipik bir tema dosyası 150 alandan yalnızca 30-50 kadarını 
 
 `border: String` yani zorunlu alan olarak tanımlansaydı, tek bir hatalı alan yüzünden tüm tema yüklenemezdi. `border: Option<String>` olduğunda değer string olarak gelir. Ardından `try_parse_color` bir `Result` döndürür; hata olursa refinement `None`'a düşer ve baseline değeri kullanılır.
 
-**3. Tip sözleşmesi sürümden bağımsız kalır.**
+**3. Tip sözleşmesi seçilen Zed referansına bağlı kalır.**
 
-Zed ileride bir alana yeni bir varyant ekleyebilir; örneğin `FontStyle::SemiOblique`. Eski şema `font_style: "semi_oblique"` değerini tanımaz. **Ancak `font_style: Option<FontStyleContent>`** olduğunda, `treat_error_as_none` deserializer'ı (Konu 22) bilinmeyen varyantı `None`'a düşürür ve tema yüklemesi devam eder.
+Geçerli enum değerleri seçilen Zed referansındaki listeyle sınırlıdır. Örneğin `font_style: "semi_oblique"` mevcut sözleşmede yoksa bu değer geçersiz kabul edilir. **Ancak `font_style: Option<FontStyleContent>`** olduğunda, `treat_error_as_none` deserializer'ı (Konu 22) geçersiz varyantı `None`'a düşürür ve tema yüklemesi kalan alanlarla devam eder.
 
 ### İki katmanlı opsiyonellik
 
@@ -609,7 +600,7 @@ Bu davranış matrisi `treat_error_as_none` ve `with_fallible_options` mekanizma
 
 ## 21. `try_parse_color`: hex → `Hsla` boru hattı
 
-**Kaynak:** `kvs_tema/src/schema.rs` veya `kvs_tema/src/refinement.rs` (yerleşimi kararsızdır).
+**Kaynak:** `kvs_tema/src/schema.rs` veya `kvs_tema/src/refinement.rs` (yerleşim uygulama tasarımına göre değişebilir).
 
 JSON'dan gelen hex string'i runtime `Hsla` değerine çeviren tek fonksiyon:
 
@@ -765,40 +756,42 @@ Her renk alanı için tek bir `try_parse_color` çağrısı yapılır. Yaklaşı
 
 ---
 
-## 22. Hata tolerans: `treat_error_as_none`, `deny_unknown_fields` tuzağı
+## 22. Hata toleransı: `treat_error_as_none` ve açık sözleşme
 
-Tema sözleşmesinin **forward compatibility** prensibi şudur: Zed gelecekte yeni bir alan veya enum varyantı eklediğinde eski kod **patlamak yerine bunu göz ardı edebilmelidir**. Bu prensibin iki yönü vardır: bilinmeyen **alanlar** ve bilinmeyen **değerler**.
+Bu rehberde hata toleransı, alternatif sözleşmeleri destekleyen ayrı bir katman anlamına gelmez. Hedef, seçilen Zed referansındaki JSON sözleşmesini açık biçimde taşımaktır. Bu yüzden bilinmeyen alanlar ile bilinen alanlardaki hatalı değerler ayrı ele alınır: bilinmeyen alan sözleşme dışıdır; hatalı değer ise bilinen bir alanın parse edilemeyen içeriğidir.
 
-### Vektör 1: Bilinmeyen alanlar — `deny_unknown_fields` YASAK
+### Vektör 1: Bilinmeyen alanlar — açık hata
 
-Serde varsayılan olarak bilinmeyen alanları **görmezden gelir**. Yeni bir alan JSON'da göründüğünde mevcut Content struct'ı onu sessizce atlar. Tema sözleşmesi için istenen davranış budur.
+Serde varsayılan olarak bilinmeyen alanları **görmezden gelir**. Bu davranış kullanıcı hatalarını saklayabilir: `scrollbar.thumb.background` yerine yanlışlıkla `scrollbar_thumb.background` yazıldığında tema yüklenir ama beklenen renk uygulanmaz. Bu rehberde bilinmeyen alanların sessizce kabul edilmesi istenmez.
 
 ```rust
-// YASAK:
-#[derive(Deserialize)]
-#[serde(deny_unknown_fields)]   // ← Zed yeni alan eklerse parse PATLAR
-pub struct ThemeColorsContent { ... }
-
-// DOĞRU:
-#[derive(Deserialize)]
-// deny_unknown_fields YOK — bilinmeyen alan göz ardı edilir
-pub struct ThemeColorsContent { ... }
+fn validate_theme_style_keys(style: &serde_json::Map<String, serde_json::Value>) -> anyhow::Result<()> {
+    for key in style.keys() {
+        anyhow::ensure!(
+            THEME_STYLE_KEYS.contains(key.as_str()),
+            "unknown theme style field `{key}`"
+        );
+    }
+    Ok(())
+}
 ```
 
-**Senaryo:** Zed `inlay_hint_background` adında bir alan ekledi. Henüz mirror tarafa eklenmemiş olsun. JSON dosyasında bu anahtar bulunuyor:
+**Senaryo:** Kullanıcı tema JSON'unda `scrollbar_thumb.background` yazdı. Mevcut sözleşmede doğru anahtar `scrollbar.thumb.background` olmalıdır.
 
-- `deny_unknown_fields` AÇIK: Tüm tema yüklemesi `Err("unknown field inlay_hint_background")` ile başarısız olur. Kullanıcı temasını açamaz.
-- `deny_unknown_fields` KAPALI (default): Alan sessizce atlanır. Tema yüklenir, yalnızca o alanın özelliği etkisiz kalır.
+- Anahtar validasyonu AÇIK: Tema yüklemesi alan yolunu gösteren bir hatayla durur. Hata hızlıca bulunur.
+- Anahtar validasyonu YOK: Alan sessizce atlanır. Kullanıcı renk verdiğini sanır, ama uygulama baseline değeri kullanır.
 
-**Bu kural nettir:** Tema sözleşmesinin **hiçbir** Content tipinde `deny_unknown_fields` kullanılmaz.
+**Bu kural nettir:** Mevcut Zed sözleşmesinde olmayan alanlar kabul edilmez. `ThemeStyleContent` `#[serde(flatten)]` kullandığı için pratik çözüm `deny_unknown_fields` değil, hedef sözleşmedeki anahtarları tutan açık bir allowlist validasyonudur. Zed referansı güncellenecekse önce mirror struct'ları, sonra allowlist, fixture ve snapshot testleri güncellenir.
+
+Pratik yükleme helper'ı bu yüzden iki aşamalı yazılır: önce JSON lenient biçimde `serde_json::Value` olarak okunur, `themes[*].style` içindeki anahtarlar `THEME_STYLE_KEYS` ile doğrulanır, sonra aynı value `ThemeFamilyContent` tipine deserialize edilir. Bu rehberde örnek helper adı `deserialize_theme_family_strict(bytes)` olarak kullanılır.
 
 ### Vektör 2: Bilinmeyen enum değerleri — iki tolerans hattı
 
 Enum alanlarda varsayılan davranış farklıdır: serde bilinmeyen bir variant gördüğünde `Err` döndürür.
 
-**Senaryo:** Zed `FontStyle::SemiOblique` ekledi. JSON: `"font_style": "semi_oblique"`. Mirror tarafındaki `FontStyleContent`'te bu variant henüz yok.
+**Senaryo:** Kullanıcı `"font_style": "semi_oblique"` yazdı. Mevcut sözleşmede geçerli değerler `normal`, `italic` ve `oblique` ile sınırlıdır.
 
-- Standart deserialize: `Err("unknown variant semi_oblique, expected one of normal, italic, oblique")`. Tüm tema patlar.
+- Standart deserialize: `Err("unknown variant semi_oblique, expected one of normal, italic, oblique")`.
 - `HighlightStyleContent` içinde: `treat_error_as_none` alanı `None`'a düşürür.
 - `#[with_fallible_options]` kullanılan diğer content tiplerinde: alan `None`'a düşer ve hata thread-local hata listesinde biriktirilerek dosyanın `ParseStatus`'una yansıtılır.
 
@@ -863,14 +856,14 @@ pub struct HighlightStyleContent {
 > **Notlar:**
 >
 > - Macro yalnızca `Option<T>` alanlarını işaretler. `Vec<T>`, `String` ve primitive alanlar etkilenmez; onların hatası hâlâ üst seviyeyi patlatır.
-> - `HighlightStyleContent` için elle yazılmış eski `treat_error_as_none` deseni kaynakta hâlâ geçerlidir; bunun `#[with_fallible_options]` ile değiştirilmesi kararı Zed tarafında verilmeden mirror tarafında yerinde tutulur.
+> - `HighlightStyleContent` için elle yazılmış `treat_error_as_none` deseni kaynakta hâlâ geçerlidir; bunun `#[with_fallible_options]` ile değiştirilmesi bu rehberin konusu değildir.
 > - `serde_json_lenient` deserializer'ı (`parse_json` içinde kullanılır) trailing comma ve comment kabul eder; bu da kullanıcı dostu editör deneyimi için ek bir tolerans katmanı sağlar.
 
 ### Hata tolerans matrisi
 
 | Senaryo | Default davranış | İstenen | Çözüm |
 |---------|------------------|---------|-------|
-| Bilinmeyen alan | Görmezden gelir | Görmezden gelinsin | Hiçbir şey eklenmez (`deny_unknown_fields` kullanılmaz) |
+| Bilinmeyen alan | Görmezden gelir | Hata verilsin | Allowlist anahtar validasyonu |
 | Bilinmeyen enum variant | Err | None'a düş | `treat_error_as_none` veya `#[with_fallible_options]` |
 | Yanlış tip (örn. number bekleniyor, string geldi) | Err | None'a düş | `treat_error_as_none` veya `#[with_fallible_options]` |
 | Hex parse hatası | (Content katmanı string olarak alır) | None'a düş | Refinement katmanında `try_parse_color(s).ok()` |
@@ -880,19 +873,20 @@ pub struct HighlightStyleContent {
 
 ```rust
 #[test]
-fn unknown_field_does_not_break() {
+fn unknown_field_is_rejected() {
     let json = r#"{
         "name": "Test", "author": "x",
         "themes": [{
             "name": "T", "appearance": "dark",
             "style": {
                 "background": "#000000ff",
-                "future.unknown.field": "#ffffffff"   // ← yeni alan
+                "scrollbar_thumb.background": "#ffffffff"   // ← sözleşme dışı anahtar
             }
         }]
     }"#;
-    let family: ThemeFamilyContent =
-        serde_json_lenient::from_str(json).unwrap();   // parse oluyor
+    let err = deserialize_theme_family_strict(json.as_bytes())
+        .unwrap_err();
+    assert!(err.to_string().contains("unknown theme style field"));
 }
 
 #[test]
@@ -906,7 +900,7 @@ fn unknown_font_style_falls_to_none() {
 
 ### Tuzaklar
 
-1. **`deny_unknown_fields` cazibesi**: "Daha sıkı validation iyidir" sezgisi burada yanıltıcıdır. Sözleşme **yaşayan** bir yapıdadır; sıkı validation breaking change'lerde kullanıcıyı gereksiz yere durdurur.
+1. **Bilinmeyen alanı sessizce atlamak**: Bu, kullanıcı typo'larını saklar ve sözleşme dışı anahtarların destekleniyormuş gibi algılanmasına yol açar. Mevcut Zed sözleşmesinde olmayan alanlar açık hataya düşmelidir.
 2. **`treat_error_as_none` her yere koymak**: Zed bunu yalnızca `HighlightStyleContent`'te seçili alanlara koyar. Genel settings content'inde macro kullanılır; syntax highlight struct'ında ise mevcut özel davranışın değiştirilmesi tercih edilmez.
 3. **Hata yutmayı sessizce yapmak**: Production'da `tracing::warn!` ile log alınması yerinde olur — amaç kullanıcının tema dosyasındaki bir typo'yu fark etmesi değil, debug akışı için bilgi bırakmaktır. Log seviyesi default olarak kapalı tutulabilir.
 4. **`#[serde(default)]` unutmak**: `deserialize_with` yazıldığında default davranış değişir; `default` annotation'ı bu durumda şart hale gelir, aksi takdirde alan eksik olduğunda hata alınır.
@@ -1129,6 +1123,6 @@ Tek satırlık bir helper gibi görünür, ama birkaç pratik faydası vardır:
 
 - `serde_json_lenient` import'unu tüketici crate'lerden gizler.
 - Hata mesajını `anyhow::Context` ile zenginleştirir; debug çıktısında hangi adımın başarısız olduğu net anlaşılır.
-- Parser implementasyonu ileride değişirse (örneğin `serde_json` ile `comments` feature'ı), helper içeride güncellenir ve tüketici tarafında hiçbir değişiklik gerekmez.
+- Parser ayrıntısı helper içinde kaldığı için tüketici crate'ler doğrudan `serde_json_lenient` API'sine bağlanmaz.
 
 ---

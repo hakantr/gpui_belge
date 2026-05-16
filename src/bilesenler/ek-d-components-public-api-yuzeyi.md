@@ -1,6 +1,6 @@
 # Ek D. `crates/ui/src/components` Public API Yüzeyi
 
-Bu ek, `crates/ui/src/components` ağacındaki her dosyanın public API yüzeyini düz bir referans olarak toplar. Kaynak olarak `../zed` commit `3493830ce94ee1fa9d25ca92dcf23b502109fe07` alınmıştır.
+Bu ek, mevcut `../zed` çalışma ağacındaki `crates/ui/src/components` dosyalarının public API yüzeyini düz bir referans olarak toplar.
 
 Listeyi okurken şu noktalar önemlidir:
 

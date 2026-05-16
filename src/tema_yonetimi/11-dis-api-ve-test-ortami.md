@@ -1,24 +1,24 @@
 # Dış API ve test ortamı
 
-Bu bölüm iki işi netleştirir: tüketiciye açılacak public API sınırı ve test ortamında tema mock düzeni. İyi çizilmiş bir public API sınırı, sözleşme ileride değişse bile tüketici kodun bozulmasını azaltır. İyi kurulmuş bir test ortamı ise bileşenlerin tema değişimi karşısında doğru davrandığını sürdürülebilir biçimde doğrular.
+Bu bölüm iki işi netleştirir: tüketiciye açılacak public API sınırı ve test ortamında tema mock düzeni. İyi çizilmiş bir public API sınırı, mevcut Zed sözleşmesinde hangi parçaların bilinçli olarak açıldığını gösterir. İyi kurulmuş bir test ortamı ise bileşenlerin tema değişimi karşısında doğru davrandığını sürdürülebilir biçimde doğrular.
 
 ---
 
 ## 43. Public API kataloğu ve crate-içi sınır
 
-`kvs_tema` ve `kvs_syntax_tema` crate'lerinin **dışa açtığı** sözleşme ile **iç implementasyon detayları** arasındaki ayrımı netleştirir. Bu sınır, Zed sözleşmesi evrilse bile tüketici kodun kararlı kalması için önemlidir.
+`kvs_tema` ve `kvs_syntax_tema` crate'lerinin **dışa açtığı** sözleşme ile **iç implementasyon detayları** arasındaki ayrımı netleştirir. Bu sınırın amacı, tüketicinin yalnızca mevcut uygulama için desteklenen yüzeye bağlanmasını sağlamaktır.
 
 ### Sınır felsefesi
 
-| Kategori | Kararlı | Kim kullanır | Değişimde davranış |
-|----------|---------|--------------|-------------------|
-| **Public API (kararlı)** | ✓ | Tüketici UI bileşenleri | Major sürüm bump |
-| **Public API (kararsız)** | Kısmen | İleri kullanıcı / extension yazarı | Minor sürüm değişebilir |
-| **Crate-içi (`pub(crate)`)** | ✗ | Yalnızca `kvs_tema` modülleri | Patch sürümde değişebilir |
+| Kategori | Public mi? | Kim kullanır | Not |
+|----------|------------|--------------|-----|
+| **Public API** | ✓ | Tüketici UI bileşenleri | Uygulamanın desteklediği açık yüzey |
+| **Schema API** | Kısmen | Tema yükleme/import kodu | Mevcut Zed JSON sözleşmesine bağlı |
+| **Crate-içi (`pub(crate)`)** | ✗ | Yalnızca `kvs_tema` modülleri | Dış tüketiciye açılmaz |
 
 ### `kvs_tema` public API kataloğu
 
-**Veri tipleri (kararlı):**
+**Veri tipleri (public):**
 
 ```rust
 pub use crate::Theme;            // accessor metotlarıyla okunur (Konu 12)
@@ -41,7 +41,7 @@ pub use crate::icon_theme::{
 
 > **`ThemeStyles` listede yer almaz.** `Theme.styles` alanı `pub(crate)` olduğundan tüketici okumalarını accessor üzerinden yapar (`theme.colors()`, `theme.status()`). `ThemeStyles` tipinin tüketici tarafından import edilmesi bu nedenle anlamlı değildir.
 
-**Runtime (kararlı):**
+**Runtime (public):**
 
 ```rust
 pub use crate::runtime::ActiveTheme;             // cx.theme() için trait
@@ -53,7 +53,7 @@ pub use crate::runtime::temayi_yeniden_yukle;    // disk reload (Konu 38)
 pub use crate::runtime::observe_system_appearance;  // pencere observer (Konu 35)
 ```
 
-**Registry (kararlı):**
+**Registry (public):**
 
 ```rust
 pub use crate::registry::{
@@ -61,7 +61,7 @@ pub use crate::registry::{
 };
 ```
 
-**Fallback (kararlı, namespace altında):**
+**Fallback (public, namespace altında):**
 
 ```rust
 // kvs_tema::fallback::kvs_default_dark()
@@ -69,7 +69,7 @@ pub use crate::registry::{
 pub mod fallback;   // pub modül; içeride sadece public fonksiyonlar
 ```
 
-**Schema (KARARSIZ — extension/ileri kullanım için, tek tek ihraç):**
+**Schema (Zed sözleşmesine bağlı — tek tek ihraç):**
 
 ```rust
 // Glob YASAK — yeni iç tip eklendiğinde istemeden public olmaması için
@@ -89,7 +89,7 @@ pub use crate::icon_theme::{
 };
 ```
 
-> **Schema kararsızdır:** Bu tipler JSON sözleşmesini taşır; Zed tarafında yeni alan veya enum eklenebilir. Tüketici doğrudan `ThemeColorsContent` kullanırsa yeni alanlar veya değişen enum'lar breaking etki yaratabilir. Mecburiyet yoksa bu tiplerden uzak durmak ve işlemleri `Theme::from_content` üzerinden yürütmek daha doğru olur.
+> **Schema public kullanım için ana kapı değildir:** Bu tipler mevcut Zed JSON sözleşmesini taşır. Tüketici doğrudan `ThemeColorsContent` kullanırsa JSON ayrıntılarına bağlanmış olur. Mecburiyet yoksa tema yükleme işlemleri `Theme::from_content` ve registry helper'ları üzerinden yürütülmelidir.
 
 **`kvs_syntax_tema` public API:**
 
@@ -106,7 +106,7 @@ Tek bir tip yeterli olur. `HighlightStyle` zaten GPUI'den gelir; re-export gerek
 | `refinement.rs` | `theme_colors_refinement`, `status_colors_refinement`, `apply_status_color_defaults`, `color()` helper | `pub(crate)` — yalnızca `Theme::from_content` çağırır |
 | `runtime` iç detayları | `GlobalThemeRegistry`, `GlobalSystemAppearance` newtype'ları | `pub(crate)` veya `pub(super)` |
 
-**Neden gizli tutulur?** Refinement davranışı Zed'in evrimine doğrudan bağlıdır. Türetme kuralları (`apply_status_color_defaults`'ın 6 status'lik listesi gibi) değişebilir. Tüketici bu fonksiyonları doğrudan çağırırsa, kontrolümüz dışında bir bağlılık oluşur.
+**Neden gizli tutulur?** Refinement davranışı tema üretim hattının iç adımıdır. Tüketici bu fonksiyonları doğrudan çağırırsa, `Theme::from_content` ile tek yerde tutulması gereken sıra ve default kuralları dağılır.
 
 ### Lib kökü yapısı (`kvs_tema/src/kvs_tema.rs`)
 
@@ -128,7 +128,7 @@ mod runtime;
 mod schema;
 mod styles;
 
-// Glob ihraç — kararlı modüller (yeni iç tip neredeyse her zaman public istenir)
+// Glob ihraç — public modüller
 pub use crate::icon_theme::*;
 pub use crate::registry::*;
 pub use crate::runtime::*;
@@ -151,8 +151,8 @@ pub use crate::schema::{
 **İzlenen kalıp:**
 
 - `pub(crate) mod refinement` — `refinement.rs` dışarıya kapalıdır, içeride paylaşılır.
-- `pub use module::*` — kararlı modüller için tümünü ihraç eden bir yol; her iç tipin public olması isteniyorsa glob, istenmiyorsa tek tek kullanılır.
-- `pub use schema::{...}` — schema modülü için **glob YASAK**; çünkü ileride eklenecek iç implementasyon tipleri (örneğin `serde` helper'ları) istenmeden public hale gelmemelidir.
+- `pub use module::*` — public modüller için tümünü ihraç eden bir yol; her iç tipin public olması isteniyorsa glob, istenmiyorsa tek tek kullanılır.
+- `pub use schema::{...}` — schema modülü için **glob YASAK**; çünkü iç implementasyon tipleri (örneğin `serde` helper'ları) istenmeden public hale gelmemelidir.
 - `pub mod fallback` — fallback fonksiyonları bir namespace altında toplanır (`kvs_tema::fallback::kvs_default_dark`). `fallback.rs` içinde yalnızca bu iki fonksiyon `pub`'tır; gerisi `pub(super)` veya private kalır.
 
 ### `prelude` modülü (önerilen)
@@ -178,24 +178,9 @@ use kvs_tema::prelude::*;
 
 > **Prelude'a `ThemeRegistry`/`GlobalTheme` eklenmemiştir.** Bu tipler uygulama init ve admin kodu için anlam taşır; UI bileşenleri kullanmaz. Render path prelude'unun hafif tutulması yerinde olur.
 
-### Versiyon politikası (semver)
+### Referans güncelleme notu
 
-`kvs_tema` `0.x.y` aşamasında bulunduğunda:
-
-| Değişim | Sürüm bump |
-|---------|------------|
-| Public API'ye yeni alan veya fonksiyon eklenmesi | `0.x.y+1` (patch) |
-| Public API'de breaking change (alan kaldırma, imza değiştirme) | `0.x+1.0` (minor) |
-| Mimari değişim (modül adı, prelude içeriği) | `0.x+1.0` |
-| Crate-içi (`pub(crate)`) değişim | `0.x.y+1` |
-
-`1.0` sonrası:
-
-| Değişim | Sürüm bump |
-|---------|------------|
-| Yeni alan/fonksiyon | Minor |
-| Breaking | Major |
-| Bug fix | Patch |
+`kvs_tema` hedeflediği Zed referansını değiştirdiğinde public export listesi, schema tipleri, fixture dosyaları ve snapshot testleri aynı çalışma içinde güncellenmelidir. Sözleşme değişimini yalnızca bir yerde yapmak yeterli değildir; aksi halde belge, test ve runtime modeli farklı Zed durumlarını tarif eder.
 
 ### Tüketici sözleşmesi
 
@@ -209,7 +194,7 @@ Tüketicinin yapamayacağı işlemler (compile hatası alır):
 
 Tüketicinin yapmaması gereken işlemler (compile geçer ama kötü pratik):
 
-✗ `kvs_tema::ThemeColorsContent` üzerinde `match` yazılması — schema kararsız bir yüzeydir (Konu 19). ✗ `kvs_tema::try_parse_color(...)` çağrısının doğrudan yapılması — `Theme::from_content` zaten bu işlemi sarmalar. ✗ Tema yüklenirken `baseline`'ın yanlış appearance ile seçilmesi (Konu 32).
+✗ `kvs_tema::ThemeColorsContent` üzerinde UI davranışı kurmak — schema JSON ayrıntısıdır (Konu 19). ✗ `kvs_tema::try_parse_color(...)` çağrısının doğrudan yapılması — `Theme::from_content` zaten bu işlemi sarmalar. ✗ Tema yüklenirken `baseline`'ın yanlış appearance ile seçilmesi (Konu 32).
 
 ### `pub(crate)` ile gerçek izolasyon
 
@@ -239,7 +224,7 @@ Doc sayfasında `theme_colors_refinement` veya `apply_status_color_defaults` gö
 
 1. **`pub use crate::*` içinde `refinement`'in yakalanması**: `pub use crate::refinement::*` yazıp ardından modülün `pub(crate)` olarak tutulması bir compile hatasına yol açar ("re-exporting private module"). İki tarafın tutarlı olması gerekir.
 2. **`Theme.styles` alanının public yapılması (`pub`)**: Bu durumda alan public hale gelir ve iç düzen sızar. Accessor metotları sunulduktan sonra `styles` `pub(crate)` olarak tutulur ve okumalar yalnızca accessor üzerinden yapılır.
-3. **`schema::*` glob ile public ihraç**: Schema tiplerinin tamamı dışa açılır; ileride iç tipler eklendiğinde otomatik olarak public olurlar. Bunun yerine tek tek `pub use` yapılması doğru tercihtir:
+3. **`schema::*` glob ile public ihraç**: Schema tiplerinin tamamı dışa açılır; iç tipler de otomatik olarak public olur. Bunun yerine tek tek `pub use` yapılması doğru tercihtir:
    ```rust
    pub use crate::schema::{
        ThemeFamilyContent, ThemeContent, ThemeStyleContent,
@@ -249,14 +234,14 @@ Doc sayfasında `theme_colors_refinement` veya `apply_status_color_defaults` gö
        try_parse_color,
    };
    ```
-4. **Semver dışı değişim**: 0.x aşamasında bile tüketicinin bir beklentisi vardır. Breaking değişim minor bump olarak yapılsa bile changelog yazılması bu beklentiyi karşılar.
+4. **Public yüzeyi belirsiz bırakmak**: Tüketici hangi modüle bağlanacağını bilmiyorsa schema ve refinement detaylarına kayar. Public export listesi bu yüzden açık tutulmalıdır.
 5. **`prelude::*` glob importlarının endüstri görüşü**: Bazı stil rehberleri glob'u kabul etmez. Bu konudaki karar tüketiciye bırakılır; prelude sunulur, kullanılması veya elle import edilmesi geliştiricinin tercihinde kalır.
 6. **`pub` accessor metotlarının yazılmaması**: `theme.colors().background` gibi accessor olmadan `styles` alanına doğrudan erişim zorunlu hale gelir; iç düzen değiştiğinde tüm tüketici kodu kırılır. Accessor yazılması şarttır.
 7. **Public API'ye `kvs_default_dark` doğrudan koymak**: `pub use fallback::*` yerine namespace altında tutmak (`pub mod fallback { pub use crate::fallback::{...}; }`) niyetin açık görünmesini sağlar — tüketici `kvs_tema::fallback::kvs_default_dark` ifadesini yazarak amaca işaret eder.
 
 ### Son public yüzey — küçük ama atlanabilir parçalar
 
-Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema crate'i birebir mirror edilecekse public yüzey kararlarına dahil edilmelidir. Listeyi isim ezberiyle değil, owner/metot/alan ilişkisiyle okumak daha yararlıdır: `content = runtime + deprecated`, `reflection ⊆ runtime`.
+Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema crate'i birebir mirror edilecekse public yüzey kararlarına dahil edilmelidir. Listeyi isim ezberiyle değil, owner/metot/alan ilişkisiyle okumak daha yararlıdır: `content = runtime`, `reflection ⊆ runtime`.
 
 | Öğe | Kaynak | Karar |
 | :-- | :-- | :-- |
@@ -282,7 +267,7 @@ Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema cr
 | `ThemeSettings::*_font_size_settings`, `markdown_preview_font_family`, `markdown_preview_code_font_family` | `theme_settings/src/settings.rs:412-455` | Settings dosyasındaki baz değerleri override global'lerinden ayıran accessor'lardır. Markdown preview text fontu UI fontuna, preview code fontu buffer fontuna fallback eder. `theme_settings::init` observer'ı `*_settings()` değerlerini izleyip runtime font override global'lerini sıfırlar |
 | `AgentUiFontSize`, `AgentBufferFontSize` newtype global'leri | `theme_settings/src/settings.rs:108, 114` | Agent panel font override'ı için `Global`-impl'lenmiş `Pixels` newtype'larıdır (Konu 39). `BufferFontSize` private, `UiFontSize` `pub(crate)`'tir; root `pub use` listesine girmez |
 | `theme_settings::schema::syntax_overrides`, `theme_colors_refinement`, `status_colors_refinement` | `theme_settings/src/schema.rs:40, 237, 65` | Content → Refinement dönüşüm fonksiyonlarının kanonik adlarıdır. **`theme_colors_refinement` 3 parametrelidir** (`this`, `status_colors`, `is_light`); fallback zincirleri ve diff-hunk opacity'leri Konu 30'da tam tablo halinde verilir |
-| `theme_colors_refinement` fallback zincirleri | `theme_settings/src/schema.rs:237-876` | `scrollbar_thumb_background → deprecated_*`, `version_control_* → status.*`, `minimap_thumb_* → scrollbar_thumb_*` (alpha max `0.7`), `panel_overlay_* → panel_background` (+ `element_hover` blend), document highlight / Vim / Helix fallback'leri ve `editor_diff_hunk_* → version_control_* × LIGHT/DARK_DIFF_HUNK_*_OPACITY`. Konu 30 tablosu eksiksiz listeler |
+| `theme_colors_refinement` fallback zincirleri | `theme_settings/src/schema.rs:237-876` | `version_control_* → status.*`, `minimap_thumb_* → scrollbar_thumb_*` (alpha max `0.7`), `panel_overlay_* → panel_background` (+ `element_hover` blend), document highlight / Vim / Helix fallback'leri ve `editor_diff_hunk_* → version_control_* × LIGHT/DARK_DIFF_HUNK_*_OPACITY`. Konu 30 tablosu eksiksiz listeler |
 | `LIGHT_DIFF_HUNK_FILLED_OPACITY`, `DARK_DIFF_HUNK_FILLED_OPACITY`, `LIGHT_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY`, `DARK_DIFF_HUNK_HOLLOW_BACKGROUND_OPACITY`, `LIGHT_DIFF_HUNK_HOLLOW_BORDER_OPACITY`, `DARK_DIFF_HUNK_HOLLOW_BORDER_OPACITY` | `theme_settings/src/schema.rs:16-21` | Referans değerler sırasıyla `0.16 / 0.12 / 0.08 / 0.06 / 0.48 / 0.36`. `pub(crate)` sabitlerdir, tüketici görünür sözleşme değildir; sayıların mirror'da `kvs_tema_ayarlari` modülünde aynı tutulması gerekir |
 | `apply_theme_color_defaults` kaynak rengi | `fallback_themes.rs:47-58` | `text_accent × 0.25` **değil** — `player_colors.local().selection`; alpha 1.0 ise 0.25'e çekilir, aksi halde olduğu gibi atanır. Konu 31'de ayrıntılıdır |
 | `refine_theme` adım sırası | `theme_settings/src/theme_settings.rs:275-353` | `status_colors_refinement → apply_status_color_defaults → status.refine → merge_player_colors → theme_colors_refinement(c, &status_ref, is_light) → apply_theme_color_defaults(&player) → colors.refine → merge_accent_colors → inline syntax map + Arc::new(SyntaxTheme::new(...))`. Konu 32'de ayrıntılı |
@@ -291,7 +276,7 @@ Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema cr
 | `SyntaxTheme::merge(base, overrides) -> Arc<Self>` | `syntax_theme/src/syntax_theme.rs:96` | **Field-bazlı merge**: aynı capture varsa `new.<f>.or(existing.<f>)` ile birleştirir; capture yeni ise listenin sonuna eklenir. Override boşsa baseline klonsuz döner. Konu 18 + settings seviyesi theme override akışında kanonik kullanımdır |
 | `ThemeName`, `IconThemeName`, `ThemeAppearanceMode`, `FontFamilyName` re-export zinciri | `settings_content/src/theme.rs:282, 501, 507` → `theme_settings::settings::pub use settings::{...}:13` | Owner `settings_content`'tir; `theme_settings` `pub use` ile köprü kurar. Mirror'da `kvs_ayarlari_icerik` (veya muadili) tek kaynaktır, `kvs_tema_ayarlari` yalnızca `pub use` ile yeniden açar — aksi halde aynı tipin iki yerde tanımlanması bug'ı doğar |
 | `Theme.styles` görünürlüğü | `theme.rs:216` | Zed'de **`pub styles: ThemeStyles`** (alan-bazlı). Yerel tasarım accessor disiplini için `pub(crate)` seçilebilir; bu yerel bir sıkılaştırmadır. Zed paritesi `pub`'tır |
-| `ThemeFamily` alan görünürlüğü | `theme.rs:192-204` | `id`, `name`, `author`, `themes`, `scales` alanlarının tamamı `pub`'tır. `scales: ColorScales` alanı 33 paleti taşır; referans değişiminde alan sayısı sabit kalır, palet sayısı değişebilir |
+| `ThemeFamily` alan görünürlüğü | `theme.rs:192-204` | `id`, `name`, `author`, `themes`, `scales` alanlarının tamamı `pub`'tır. `scales: ColorScales` alanı hedeflenen referansta 33 paleti taşır |
 | `PlayerColors::color_for_participant(idx)` | `styles/players.rs:147` | Collab kullanıcı renkleri için `modulo (len - 1) + 1` offset'li lookup; **local slot'u (idx 0) atlar**, participant 0 listenin idx 1'inden başlar. Konu 15'te işlenmiştir, 43.9'da resmi imzası verilir |
 | `PlayerColors::agent()`, `.absent()` davranışı | `styles/players.rs:130-136` | İkisi de `self.0.last().unwrap()` döner — yani **agent ve absent player aynı slot'tur** (listenin son elementi). Fallback temalarda son slot'un boş bırakılmamasının nedeni budur |
 | `theme::init` davranışı | `theme.rs:96-116` | `SystemAppearance::init → ThemeRegistry::set_global(assets, cx) → FontFamilyCache::init_global → default_global → themes.get(DEFAULT_DARK_THEME) (yoksa list().next()) → default_icon_theme().unwrap() → cx.set_global(GlobalTheme { theme, icon_theme })`. `GlobalTheme::new` çağrısı yerine doğrudan struct literal kullanılır (her ikisi de mümkündür) |

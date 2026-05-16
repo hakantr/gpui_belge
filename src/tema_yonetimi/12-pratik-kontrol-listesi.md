@@ -10,7 +10,7 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 
 ### Sözleşme katmanı (Bölüm IV ve V)
 
-1. **`#[serde(deny_unknown_fields)]` kullanımı.** Zed yeni bir alan eklediğinde parse patlar. **Bu attribute hiçbir biçimde kullanılmaz.** → Konu 22.
+1. **Bilinmeyen alanların sessizce atlanması.** Mevcut Zed sözleşmesinde olmayan alanlar açık hataya düşmelidir. `style` alanı `flatten` kullandığı için bu kontrol açık anahtar allowlist'i ile yapılır. → Konu 22.
 2. **JSON'da snake_case beklemek.** Zed `border.variant` yazar; `#[serde(rename = "border.variant")]` şarttır, yoksa alan sessizce boş kalır. → Konu 23.
 3. **`Option<Hsla>` yerine `Option<String>` kullanmanın gerekçesi.** Sıkı tipli bir parse hatası tüm temayı bozar; iki katmanlı opsiyonellik (Content katmanı string + Refinement katmanı Hsla) sözleşmenin temelidir. → Konu 20.
 4. **Bir alan grubunu "şimdilik gerek yok" diye atlamak.** `terminal_ansi`, debugger, diff hunk, vcs, vim, icon theme — UI'da okunmuyor olsa bile struct'ta bulunmalıdır. Aksi halde sözleşme delinir. → Konu 2 (Temel ilke), Konu 13.
@@ -67,18 +67,18 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 
 Önceki pratik bölümünde toplanan "İleri öğeler" başlığı ilgili katmanlara dağıtılmıştır. Aşağıdaki tablo, mirror kararı için kısa kontrol listesidir:
 
-| Zed öğesi | `kvs_tema` mirror gerekli mi? | Hangi sürümde? |
-|-----------|-------------------------------|----------------|
-| `LoadThemes` | Önerilir | Init API'sinin finalize edilmesi sırasında |
-| `ThemeSettingsProvider` | Settings entegrasyonu için **gerekli** | Tema selector veya runtime ayar eklendiğinde |
+| Zed öğesi | `kvs_tema` mirror gerekli mi? | Ne zaman gerekli? |
+|-----------|-------------------------------|------------------|
+| `LoadThemes` | Önerilir | Init API'si kapsamdaysa |
+| `ThemeSettingsProvider` | Settings entegrasyonu için **gerekli** | Tema selector veya runtime ayar kapsamdaysa |
 | `UiDensity` | Tema değil, settings — yine de mirror edilmesi gerekir | Spacing tutarlılığı için |
 | `all_theme_colors` / `ThemeColorField` | Tema editörü/preview için **gerekli**, diğer durumlarda opsiyonel | Tema editörü yazıldığında |
 | `ColorScale` ailesi | **Çoğu uygulama için gereksiz** | Yalnızca geniş tema varyant matrisi gerektiğinde |
-| `apply_theme_color_defaults` | Gerekli (Konu 31'in ikiz fonksiyonu) | İlk sürümde |
+| `apply_theme_color_defaults` | Gerekli (Konu 31'in ikiz fonksiyonu) | Tema refinement akışı kurulduğunda |
 | `deserialize_icon_theme` | Trivial bir helper; sarmalanması önerilir | Icon tema yüklendiğinde |
 | `FontFamilyCache` | Hayır — sözleşme dışıdır | — |
 | `DiagnosticColors` | Editor render path'i kullanıyorsa **gerekli** | Editor entegre olduğunda |
-| Registry sabitleri / typed error'lar | Registry mirror ediliyorsa **gerekli** | İlk registry sürümünde |
+| Registry sabitleri / typed error'lar | Registry mirror ediliyorsa **gerekli** | Registry kapsamdaysa |
 | `default_color_scales` / `zed_default_themes` | Karara bağlıdır | Fallback ve scale mirror kararı verildiğinde |
 
 Yukarıdaki öğeler kapsam kararına göre mirror edilir. Public API'ye alınmayan parçalar tüketici sözleşmesinin dışında kalır.
@@ -93,7 +93,7 @@ Bu rehber, `kvs_tema` ve `kvs_syntax_tema` crate'lerinin **tüm yüzeyini** 12 b
 
 1. **Veri sözleşmesinde dışlama yok** — Zed'in tüm alanları mirror edilir (Konu 2).
 2. **Lisans-temiz çalışma** — kod gövdesi GPL'den kopyalanmaz; yalnızca sözleşme paritesi korunur (Konu 3).
-3. **Sözleşme sınırı** — public API ile crate-içi detaylar birbirinden ayrılır; tüketici yalnızca kararlı yüzeye bağlanır.
+3. **Sözleşme sınırı** — public API ile crate-içi detaylar birbirinden ayrılır; tüketici yalnızca açıkça desteklenen yüzeye bağlanır.
 
 Beklenmedik bir durumla karşılaşıldığında ilk bakılacak yer Bölüm XII'deki tuzaklar listesidir. Daha geniş tartışma için ilgili konuya geri dönülmelidir.
 

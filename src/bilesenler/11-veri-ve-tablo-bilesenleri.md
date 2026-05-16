@@ -546,7 +546,7 @@ Dikkat edilecek noktalar:
 - Bu model yatay scroll üretebilir; bu yüzden tablonun `.interactable(...)` ile bağlanması gerekir.
 - Kolon sayısı değişirse, eski state'i güncellemek yerine yeni bir `ResizableColumnsState` oluşturmak çok daha net bir tercih olur.
 - `set_column_configuration(...)`, runtime'da tek bir kolonun başlangıç ve mevcut genişliğini birlikte günceller.
-- İlk kolonun row number veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanılır. Zed CSV preview artık ilk kolonu bu şekilde sabitler.
+- İlk kolonun row number veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanılır. Zed CSV preview ilk kolonu bu şekilde sabitler.
 
 ## TableRow ve UncheckedTableRow
 
