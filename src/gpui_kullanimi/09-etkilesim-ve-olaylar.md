@@ -4,8 +4,9 @@
 
 ## Focus, Blur ve Keyboard
 
-
-Focus handle:
+Klavye odağı GPUI'de `FocusHandle` ile temsil edilir. Bir view'in odak alıp
+verebilmesi için kendine ait bir handle tutması, render sırasında bu handle'ı
+takip etmesi gerekir.
 
 ```rust
 struct View {
@@ -21,7 +22,8 @@ impl View {
 }
 ```
 
-Render:
+Render zincirinde handle element'e bağlanır; isteğe bağlı olarak focus-visible
+stil eklenir:
 
 ```rust
 div()
@@ -29,7 +31,8 @@ div()
     .focus_visible(|style| style.border_color(cx.theme().colors().border_focused))
 ```
 
-Focus vermek:
+Programatik olarak odak vermek için handle'ın kendisi veya `cx.focus_view`
+çağrısı kullanılır:
 
 ```rust
 self.focus_handle.focus(window, cx);
@@ -37,44 +40,56 @@ self.focus_handle.focus(window, cx);
 cx.focus_view(&child_entity, window);
 ```
 
-Focus sorguları:
+**Focus sorguları.** Mevcut odak durumunu kontrol etmek için üç sık sorulan
+soruya karşılık üç metot vardır:
 
-- `focus_handle.is_focused(window)`: handle doğrudan focused mı?
-- `focus_handle.contains_focused(window, cx)`: bu handle veya descendant focused mı?
-- `focus_handle.within_focused(window, cx)`: bu handle focused node'un içinde mi?
+- `focus_handle.is_focused(window)` — handle doğrudan odakta mı?
+- `focus_handle.contains_focused(window, cx)` — bu handle veya altındaki bir
+  düğüm odakta mı?
+- `focus_handle.within_focused(window, cx)` — bu handle odakta olan düğümün
+  içinde mi?
 
-Focus olayları:
+**Focus olayları.** Odakla ilgili değişimleri dinlemek için ayrı subscription
+metotları mevcuttur:
 
-- `cx.on_focus(handle, window, ...)`: handle doğrudan focus aldı.
-- `cx.on_focus_in(handle, window, ...)`: handle veya descendant focus aldı.
-- `cx.on_blur(handle, window, ...)`: handle focus kaybetti.
-- `cx.on_focus_out(handle, window, |this, event, window, cx| ...)`: handle veya
-  descendant focus dışına çıktı; callback view state alır ve `FocusOutEvent`
-  içinden blur'lanan handle'a (`event.blurred`) erişilebilir.
-- `window.on_focus_out(handle, cx, |event, window, cx| ...)`: aynı olayın view
-  state almayan düşük seviyeli `Window` varyantı; geri çağrımı `Subscription`
-  olarak döner.
-- `cx.on_focus_lost(window, ...)`: pencere içinde focus kalmadı.
+- `cx.on_focus(handle, window, ...)` — handle doğrudan odak aldı.
+- `cx.on_focus_in(handle, window, ...)` — handle veya bir descendant odak aldı.
+- `cx.on_blur(handle, window, ...)` — handle odak kaybetti.
+- `cx.on_focus_out(handle, window, |this, event, window, cx| ...)` — handle
+  veya descendant odak dışına çıktı; callback view state alır ve
+  `FocusOutEvent` içinden blur'lanan handle'a (`event.blurred`) erişilebilir.
+- `window.on_focus_out(handle, cx, |event, window, cx| ...)` — aynı olayın
+  view state almayan, daha düşük seviyeli `Window` varyantı; sonucu
+  `Subscription` olarak döner.
+- `cx.on_focus_lost(window, ...)` — pencere içinde hiçbir handle odakta
+  kalmadığında çalışır.
 
-Keyboard action akışı:
+**Keyboard action akışı.** Tuşların action'a bağlanması birkaç adımdan
+oluşur; bu adımlar her özel kısayol için tekrarlanır:
 
 1. `actions!(namespace, [ActionA, ActionB])` veya `#[derive(Action)]` +
-   `#[action(...)]` ile action tanımla.
-2. Element ağacında `.key_context("context-name")` belirt.
-3. `cx.bind_keys([KeyBinding::new("cmd-k", ActionA, Some("context-name"))])`.
-4. Handler için `.on_action(...)`, `.capture_action(...)` veya `cx.on_action(...)` kullan.
+   `#[action(...)]` ile action tanımı yapılır.
+2. Element ağacında `.key_context("context-name")` belirtilir; bu sayede
+   action yalnızca uygun bağlamda dispatch edilir.
+3. `cx.bind_keys([KeyBinding::new("cmd-k", ActionA, Some("context-name"))])`
+   ile binding kaydedilir.
+4. Handler için `.on_action(...)`, `.capture_action(...)` veya
+   `cx.on_action(...)` kullanılır.
 
-Event propagation:
+**Event propagation.** GPUI olay yayılımı varsayılan olarak yukarı doğru
+ilerler; iki helper bu davranışı kontrol eder:
 
-- Mouse/key event handler'lar default propagate eder.
-- `cx.stop_propagation()` daha arkadaki/üstteki handler'lara gitmesini keser.
-- Action bubble phase'de handler'lar default propagation'ı durdurur; gerekirse
-  `cx.propagate()` kullanılır.
+- Mouse ve key event handler'ları varsayılan olarak propagate eder.
+- `cx.stop_propagation()` daha arkadaki veya üstteki handler'lara olayın
+  ulaşmasını keser.
+- Action bubble fazında handler'lar varsayılan olarak propagation'ı durdurur;
+  gerekirse `cx.propagate()` ile devam ettirilebilir.
 
 ## Mouse, Drag, Drop ve Hitbox
 
-
-Element interactivity:
+Element seviyesindeki etkileşim API'leri tek bir fluent zincir içinde
+toplanır; aşağıdaki metotlar farklı mouse olaylarına ve drag-drop kalıplarına
+karşılık gelir:
 
 - `.on_click(...)`
 - `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)`
@@ -88,15 +103,15 @@ Element interactivity:
 - `.occlude()` veya `.block_mouse_except_scroll()`
 - `.cursor_pointer()`, `.cursor(...)`
 
-Pencere kontrol hitbox'ı:
+Pencere kontrol hitbox'ı isteniyorsa fluent API üzerinden işaretlenir:
 
 ```rust
 h_flex()
     .window_control_area(WindowControlArea::Drag)
 ```
 
-Custom resize/cursor için `canvas` ile hitbox eklemek Zed'deki client decoration
-desenidir:
+Özel resize ve cursor davranışı için `canvas` ile hitbox eklemek Zed'deki
+client decoration deseninin tipik bir örneğidir:
 
 ```rust
 canvas(
@@ -109,19 +124,19 @@ canvas(
 )
 ```
 
-Burada `canvas` imzası `prepaint: FnOnce(Bounds<Pixels>, &mut Window, &mut App) -> T`
-ve `paint: FnOnce(Bounds<Pixels>, T, &mut Window, &mut App)` şeklindedir; ikinci
+Burada `canvas` imzası
+`prepaint: FnOnce(Bounds<Pixels>, &mut Window, &mut App) -> T` ve
+`paint: FnOnce(Bounds<Pixels>, T, &mut Window, &mut App)` şeklindedir. İkinci
 closure'da ilk pozisyonel argüman `bounds` (kullanılmıyorsa `_bounds`), ikinci
-argüman ise prepaint'in döndürdüğü değer (`hitbox`) olur. `set_cursor_style`
-hitbox'a referans ister; bu yüzden `&hitbox` geçilir.
+argüman ise prepaint'in döndürdüğü değerdir (örnekteki `hitbox`).
+`set_cursor_style` hitbox'a referans aldığı için `&hitbox` şeklinde geçilir.
 
 ## Drag ve Drop İçerik Üretimi
 
-
 `crates/gpui/src/elements/div.rs:572+` ve `1271+`.
 
-GPUI'de drag, drag edilen elementin yerine ayrı bir "ghost" view oluşturur ve
-mouse'u onun ile takip eder.
+GPUI'da drag sırasında, sürüklenen elementin yerine ayrı bir "ghost" view
+oluşturulur ve mouse onun ile birlikte takip edilir:
 
 ```rust
 div()
@@ -131,7 +146,7 @@ div()
     })
 ```
 
-İmza:
+İmza şu şekildedir:
 
 ```rust
 fn on_drag<T, W>(
@@ -144,13 +159,14 @@ where
     W: 'static + Render;
 ```
 
-- `value: T` drag payload tipidir; alıcı tarafta `on_drop::<T>` ile aynı tip ile
-  bağlanır.
-- `constructor` her drag başlangıcında ghost view üretir; mouse offset'i payload'a
-  göre konumlandırır.
-- `W: Render` ghost'un kendi entity'sidir; standart render gibi davranır.
+- `value: T` — drag payload tipidir; alıcı tarafta `on_drop::<T>` ile aynı
+  tipe bağlanır.
+- `constructor` — her drag başlangıcında ghost view üretir; mouse offset'i
+  payload'a göre konumlandırır.
+- `W: Render` — ghost'un kendi entity'sidir; standart render gibi davranır.
 
-Drop tarafı:
+**Drop tarafı.** Alıcı element kabul edilebilirlik kontrolünü, stilini ve
+listener'ını ayrı ayrı tanımlar:
 
 ```rust
 div()
@@ -168,25 +184,29 @@ div()
     }))
 ```
 
-API:
+**API.** Drag-drop akışı için kullanılan başlıca metotlar şunlardır:
 
-- `.on_drag::<T, W>(value, ctor)`: drag başlat.
-- `.drag_over::<T>(|style, payload, window, cx| -> StyleRefinement)`: hover sırasında
-  uygulanan stil refinement.
-- `.can_drop(|payload: &dyn Any, window, cx| -> bool)`: drop kabul edilip
-  edilmeyeceği. Tip kontrolü gerekiyorsa `downcast_ref::<T>()` kullanılır.
-- `.on_drop::<T>(listener)`: drop tamamlandı.
-- `.on_drag_move::<T>(listener)`: drag süresince mouse pozisyonu.
-- `cx.has_active_drag()`: app genelinde aktif drag var mı?
-- `cx.active_drag_cursor_style()`: aktif drag cursor override'ı.
-- `cx.stop_active_drag(window)`: aktif drag'i temizler, window refresh planlar ve
-  gerçekten drag vardıysa `true` döndürür. Escape/cancel path'lerinde kullanılır.
+- `.on_drag::<T, W>(value, ctor)` — drag başlatır.
+- `.drag_over::<T>(|style, payload, window, cx| -> StyleRefinement)` — hover
+  sırasında uygulanan stil refinement.
+- `.can_drop(|payload: &dyn Any, window, cx| -> bool)` — drop kabul edilip
+  edilmeyeceğine karar verir. Tip kontrolü için `downcast_ref::<T>()`
+  kullanılır.
+- `.on_drop::<T>(listener)` — drop tamamlandığında çalışır.
+- `.on_drag_move::<T>(listener)` — drag süresince mouse pozisyonu bilgisi
+  verir.
+- `cx.has_active_drag()` — app genelinde aktif bir drag olup olmadığını
+  döner.
+- `cx.active_drag_cursor_style()` — aktif drag cursor override değeri.
+- `cx.stop_active_drag(window)` — aktif drag'i temizler, pencereyi refresh
+  için planlar ve gerçekten bir drag varsa `true` döner. Escape/cancel
+  yollarında kullanılır.
 
-Harici sürükleme (dosya sistem drag-in) için `FileDropEvent` ve `ExternalPaths`
-akışı kullanılır. Platform `FileDropEvent::Entered/Pending/Submit/Exited`
-üretir; `Window::dispatch_event` bunu dahili `active_drag` durumuna ve
-`ExternalPaths` payload'ına çevirir. UI tarafında normal drag/drop API'siyle
-yakalanır:
+**Harici sürükleme.** Dosya sisteminden sürükleyip bırakma akışı için
+`FileDropEvent` ve `ExternalPaths` tipleri kullanılır. Platform
+`FileDropEvent::Entered/Pending/Submit/Exited` üretir; `Window::dispatch_event`
+bu olayları dahili `active_drag` durumuna ve `ExternalPaths` payload'ına
+çevirir. UI tarafında normal drag/drop API'siyle yakalanır:
 
 ```rust
 div()
@@ -199,25 +219,27 @@ div()
     }))
 ```
 
-`ExternalPaths::paths()` `&[PathBuf]` döndürür. Ghost view platform tarafından
-dosya ikonları olarak çizilir; GPUI tarafındaki `Render for ExternalPaths`
+`ExternalPaths::paths()` `&[PathBuf]` döner. Ghost view dosya ikonları olarak
+platform tarafından çizilir; GPUI tarafındaki `Render for ExternalPaths`
 bilerek `Empty` döndürür.
 
-Tuzaklar:
+**Tuzaklar.** Drag-drop yazarken karşılaşılan yaygın hatalar:
 
-- Drag edilen tip `T: 'static` olmalıdır; lifetime taşıyan tip kabul edilmez.
-- Aynı element üzerinde `on_drag` iki kez çağrılırsa panic ("calling on_drag more
-  than once on the same element is not supported").
-- Ghost view her drag'de yeni `cx.new(...)` ile yaratılır; yan etkilerden kaçın.
-- `can_drop` false dönerse `drag_over`/`group_drag_over` stilleri uygulanmaz ve
-  `on_drop` çağrılmaz; kabul edilmeyen hedefin visual feedback'ini ayrı state ile
-  göstermen gerekiyorsa `on_drag_move` kullan.
+- Drag edilen tip `T: 'static` olmalıdır; lifetime taşıyan tipler kabul
+  edilmez.
+- Aynı element üzerinde `on_drag` iki kez çağrıldığında panic oluşur
+  ("calling on_drag more than once on the same element is not supported").
+- Ghost view her drag'de yeni bir `cx.new(...)` ile yaratılır; constructor
+  içinde yan etkiden kaçınılmalıdır.
+- `can_drop` `false` döndüğünde `drag_over` ve `group_drag_over` stilleri
+  uygulanmaz, `on_drop` çağrılmaz. Kabul edilmeyen hedefin görsel feedback'i
+  ayrı state ile gösterilecekse `on_drag_move` kullanılır.
 
 ## Hitbox, Cursor, Pointer Capture ve Autoscroll
 
-
-Hitbox, mouse hit-test ve cursor davranışının temelidir. Element handler'ları çoğu
-zaman bunu senin yerine kurar; custom canvas/element yazarken doğrudan kullanılır.
+Hitbox, mouse hit-test ve cursor davranışının temelidir. Element handler'ları
+genellikle hitbox'ı arka planda kurar; bu API doğrudan custom canvas veya
+element yazılırken devreye girer.
 
 ```rust
 let hitbox = window.insert_hitbox(bounds, HitboxBehavior::Normal);
@@ -226,15 +248,19 @@ if hitbox.is_hovered(window) {
 }
 ```
 
-Davranış tipleri:
+**Davranış tipleri.** Hitbox'ın arka planda kalan başka hitbox'larla ilişkisi
+`HitboxBehavior` ile ifade edilir:
 
-- `HitboxBehavior::Normal`: arkadaki hitbox'ları etkilemez.
-- `HitboxBehavior::BlockMouse`: arkadaki mouse, hover, tooltip ve scroll hitbox
-  davranışlarını bloke eder; `.occlude()` bunu kullanır.
-- `HitboxBehavior::BlockMouseExceptScroll`: arkadaki mouse interaction'ı bloke
-  eder ama scroll seçimini geçirebilir; `.block_mouse_except_scroll()` bunu kullanır.
+- `HitboxBehavior::Normal` — arkadaki hitbox'ları etkilemez.
+- `HitboxBehavior::BlockMouse` — arkadaki mouse, hover, tooltip ve scroll
+  hitbox davranışlarını bloke eder. `.occlude()` bu davranışı kullanır.
+- `HitboxBehavior::BlockMouseExceptScroll` — arkadaki mouse interaction'ı
+  bloke eder ama scroll'un geçmesine izin verir.
+  `.block_mouse_except_scroll()` bu davranışı kullanır.
 
-Pointer capture:
+**Pointer capture.** Sürükleme veya resize gibi senaryolarda mouse bounds
+dışına çıksa da olayların yakalanmaya devam etmesi için pointer capture
+kullanılır:
 
 ```rust
 window.capture_pointer(hitbox.id);
@@ -243,39 +269,42 @@ window.release_pointer();
 ```
 
 Capture aktifken ilgili hitbox hovered sayılır; resize handle ve sürükleme
-etkileşimlerinde mouse bounds dışına çıksa bile hareketi takip etmek için kullanılır.
-`window.captured_hitbox()` aktif capture id'sini döndürür; custom element debug
-veya nested drag state ayrıştırması dışında genelde gerekmez.
+etkileşimlerinde mouse bounds dışına çıksa bile hareket takip edilebilir.
+`window.captured_hitbox()` aktif capture id'sini döndürür; custom element
+debug'ı veya iç içe drag state ayrıştırması dışında genelde kullanılmaz.
 
-Autoscroll:
+**Autoscroll.** Drag sırasında viewport kenarına yaklaşıldığında otomatik
+kaydırma talep etmek için iki helper vardır:
 
-- `window.request_autoscroll(bounds)`: drag sırasında viewport kenarına yakın
-  bölge için autoscroll talep eder.
-- `window.take_autoscroll()`: scroll container tarafında talebi tüketir.
+- `window.request_autoscroll(bounds)` — drag sırasında viewport kenarına
+  yakın bölge için autoscroll talep eder.
+- `window.take_autoscroll()` — scroll container tarafında bu talebi tüketir.
 
-Cursor:
+**Cursor.** İmleç stili hitbox veya pencere bağlamında ayarlanır:
 
-- `window.set_cursor_style(style, &hitbox)`: hitbox hovered ise cursor ayarlar.
-- `window.set_window_cursor_style(style)`: window genel cursor state'i.
-- `cx.set_active_drag_cursor_style(style, window)`: aktif drag payload'ı için
+- `window.set_cursor_style(style, &hitbox)` — hitbox hovered ise cursor
+  stilini ayarlar.
+- `window.set_window_cursor_style(style)` — pencere genelindeki cursor
+  state.
+- `cx.set_active_drag_cursor_style(style, window)` — aktif drag payload için
   cursor override.
-- `cx.active_drag_cursor_style()` mevcut drag cursor'unu okur.
+- `cx.active_drag_cursor_style()` — mevcut drag cursor'unu okur.
 
-Tuzaklar:
+**Tuzaklar.** Hitbox ve cursor tarafında dikkat edilecek noktalar:
 
-- `Hitbox::is_hovered` keyboard input modality sırasında false dönebilir; scroll
-  handler yazarken `should_handle_scroll` kullan.
-- Overlay elementleri `.occlude()` kullanmazsa arkadaki butonlar hover/click
-  almaya devam edebilir.
-- Pointer capture release edilmezse sonraki mouse hareketlerinde yanlış hitbox
-  hovered kalabilir.
+- `Hitbox::is_hovered` keyboard input modality sırasında `false` dönebilir;
+  scroll handler yazılırken `should_handle_scroll` tercih edilir.
+- Overlay elementleri `.occlude()` kullanmazsa arkadaki butonlar hover ve
+  click almaya devam edebilir.
+- Pointer capture release edilmediğinde sonraki mouse hareketlerinde
+  yanlış hitbox hovered kalabilir.
 
 ## Tab Sırası ve Klavye Navigasyonu
 
-
 `crates/gpui/src/tab_stop.rs`, `window.rs:397`.
 
-Tab navigasyonu `FocusHandle` üzerindeki iki bayrakla kontrol edilir:
+Tab navigasyonu `FocusHandle` üzerindeki iki bayrak yardımıyla kontrol edilir;
+ikisi de fluent zincirde okunur:
 
 ```rust
 let handle = cx.focus_handle()
@@ -283,29 +312,32 @@ let handle = cx.focus_handle()
     .tab_index(0);         // Sıra path'ine katılır
 ```
 
-Tab traversal sırası TabStopMap içindeki node sıralamasına göre belirlenir:
+**Sıralama kuralları.** Tab traversal sırası TabStopMap içindeki node
+sıralamasına göre belirlenir:
 
-1. Aynı grup içinde `tab_index` küçükten büyüğe.
-2. `tab_index` eşitse element ağaç sırası (DFS).
-3. `tab_stop(false)` olan handle sırada konum tutar ama klavyeyle durak olmaz.
-   Negatif `tab_index` özel olarak "devre dışı" anlamına gelmez; sadece sıralamada
-   daha erken bir path değeri üretir.
+1. Aynı grup içinde `tab_index` küçükten büyüğe sıralanır.
+2. `tab_index` eşit olduğunda element ağaç sırası (DFS) belirleyicidir.
+3. `tab_stop(false)` olan handle sırada konumunu korur ama klavyeyle durak
+   olmaz. Negatif `tab_index` özel olarak "devre dışı" anlamına gelmez;
+   yalnızca sıralamada daha erken bir path değeri üretir.
 
-Grup oluşturmak için element tarafında `.tab_group()` kullanılır; grubun sırası
-gerekiyorsa aynı elemente `.tab_index(index)` verilir. `TabStopMap::begin_group`
-ve `end_group` internal traversal operasyonlarıdır; uygulama kodu genelde bunları
-doğrudan çağırmaz.
+**Gruplar.** Bir grup tanımlamak için element tarafında `.tab_group()`
+kullanılır; grubun sırası gerekiyorsa aynı elemente `.tab_index(index)`
+verilir. `TabStopMap::begin_group` ve `end_group` traversal'ın internal
+operasyonlarıdır; uygulama kodunda doğrudan çağrılmaz.
 
-Custom element yazarken low-level karşılığı `window.with_tab_group(Some(index),
-|window| ...)` çağrısıdır; `None` verirsen grup açmadan closure'ı çalıştırır.
-Normal component kodunda `.tab_group()` fluent API'si tercih edilir.
+Düşük seviyeli karşılık `window.with_tab_group(Some(index), |window| ...)`
+çağrısıdır; `None` verilirse grup açılmadan closure çalışır. Normal component
+kodunda `.tab_group()` fluent API'si tercih edilir.
 
-Window üzerindeki yardımcılar:
+**Window üzerindeki yardımcılar.** Tab/Shift-Tab davranışı pencere üzerinden
+yapılır:
 
-- `window.focus_next(cx)` / `window.focus_prev(cx)`: Tab/Shift-Tab sırasında çağrılır.
-- `window.focused(cx)`: o anki odak handle'ı.
+- `window.focus_next(cx)` / `window.focus_prev(cx)` — Tab veya Shift-Tab
+  geldiğinde çağrılır.
+- `window.focused(cx)` — o anki odak handle'ını verir.
 
-Custom input bileşeni yazıyorsan:
+**Custom input bileşeni.** Tab akışına dahil olacak özel bir input için:
 
 ```rust
 div()
@@ -314,15 +346,14 @@ div()
     .child(/* ... */)
 ```
 
-`tab_stop(true)` olmadan handle yalnızca programatik focus alır; klavyeyle
-ulaşılamaz. Aksesibilite ve form akışı için her interaktif element bir handle'a
-sahip olmalı.
+`tab_stop(true)` olmadan handle yalnızca programatik olarak odak alır;
+klavyeyle ulaşılamaz. Erişilebilirlik ve form akışı için her interaktif
+elementin bir handle'a sahip olması beklenir.
 
 ## Text Input ve IME
 
-
-Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Editor benzeri metin
-alanları şunları sağlamalıdır:
+Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Editor benzeri
+metin alanlarının aşağıdaki metot ailesini sağlaması gerekir:
 
 - `selected_text_range`
 - `marked_text_range`
@@ -334,55 +365,57 @@ alanları şunları sağlamalıdır:
 - `character_index_for_point`
 - `accepts_text_input`
 
-Ham `InputHandler` implementasyonu yazıyorsan ayrıca
-`prefers_ime_for_printable_keys` override edilebilir. Ancak yaygın view yolu olan
-`EntityInputHandler` + `ElementInputHandler` ikilisinde bu ayrı bir hook değildir;
-mevcut wrapper `prefers_ime_for_printable_keys` için `accepts_text_input`
-sonucunu kullanır. IME/keybinding önceliğini `accepts_text_input`'tan bağımsız
-yönetmen gerekiyorsa doğrudan `InputHandler` implement eden özel handler yaz.
+Ham `InputHandler` implementasyonu yazıldığında ayrıca
+`prefers_ime_for_printable_keys` override edilebilir. Bununla birlikte yaygın
+view yolu olan `EntityInputHandler` + `ElementInputHandler` ikilisinde bu
+ayrı bir hook değildir; mevcut wrapper `prefers_ime_for_printable_keys`
+sorusunu `accepts_text_input` sonucunu kullanarak yanıtlar. IME ve
+keybinding önceliğinin `accepts_text_input`'tan bağımsız yönetilmesi
+gerekiyorsa doğrudan `InputHandler` implement eden özel bir handler yazılır.
 
-IME aday penceresini doğru yerde tutmak için:
+IME aday penceresinin doğru konumda kalması için imleç hareketinden sonra:
 
 ```rust
 window.invalidate_character_coordinates();
 ```
 
-Zed'de form tipi tek satır input için doğrudan editor yazmak yerine
-`ui_input::InputField` kullan. Bu crate editor'a bağlı olduğu için `ui` içinde
-değildir.
+Zed'de form tipindeki tek satırlık input için doğrudan editor yazmak yerine
+`ui_input::InputField` kullanılır. Bu crate editor'a bağlı olduğu için `ui`
+içinde değildir.
 
-`ui_input` public yüzeyi:
+**`ui_input` public yüzeyi.** Public API üzerinde aşağıdaki öğeler bulunur:
 
 - `pub use input_field::*`; ana component `InputField`.
-- `InputField::new(window, cx, placeholder_text)` tek satır editor instance'ı
-  ister ve placeholder'ı hemen editor'a yazar.
-- Builder/metotlar: `.start_icon(IconName)`, `.label(...)`,
+- `InputField::new(window, cx, placeholder_text)` tek satırlık bir editor
+  instance'ı ister ve placeholder'ı hemen editor'a yazar.
+- Builder ve metot zinciri: `.start_icon(IconName)`, `.label(...)`,
   `.label_size(LabelSize)`, `.label_min_width(Length)`, `.tab_index(isize)`,
   `.tab_stop(bool)`, `.masked(bool)`, `.is_empty(cx)`, `.editor()`,
   `.text(cx)`, `.clear(window, cx)`, `.set_text(text, window, cx)`,
   `.set_masked(masked, window, cx)`.
-- `InputFieldStyle` public struct olarak görünür ama alanları private; dışarıdan
-  style override sözleşmesi değil, render içi tema snapshot'ıdır.
-- `ErasedEditor` trait'i editor köprüsüdür: `text`, `set_text`, `clear`,
+- `InputFieldStyle` public struct olarak görünür ancak alanları private;
+  dışarıdan stil override sözleşmesi değil, render içi tema snapshot'ıdır.
+- `ErasedEditor` trait'i editor köprüsüdür; `text`, `set_text`, `clear`,
   `set_placeholder_text`, `move_selection_to_end`, `set_masked`,
-  `focus_handle`, `subscribe`, `render`, `as_any`.
-- `ErasedEditorEvent::{BufferEdited, Blurred}` picker/search gibi üst
-  bileşenlerin edit/blur akışını dinlemesi için kullanılır.
+  `focus_handle`, `subscribe`, `render`, `as_any` metotlarını içerir.
+- `ErasedEditorEvent::{BufferEdited, Blurred}` picker veya search gibi üst
+  bileşenlerin edit ve blur akışını dinlemesi için yayınlanır.
 - `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn
   ErasedEditor>>` editor crate tarafından kurulur. Zed'de
   `crates/editor/src/editor.rs` init akışında bu factory
-  `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile set edilir.
-  `InputField::new` factory unset ise panic eder; bu yüzden uygulama init
-  sırası editor kurulumu tamamlandıktan sonra `InputField` oluşturmaya dayanır.
+  `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile set
+  edilir. Factory unset iken `InputField::new` panic eder; bu nedenle uygulama
+  init sırası editor kurulumu tamamlandıktan sonra `InputField` üretimine
+  güvenmelidir.
 
 ## Text Input Handler ve IME Derin Akış
 
+Metin düzenleyen custom bir element yazılırken yalnızca key event dinlemek
+yeterli değildir. IME, dead key, marked text ve aday penceresi için
+platforma `InputHandler` sağlanmalıdır.
 
-Metin düzenleyen custom element yazıyorsan yalnızca key event dinlemek yeterli
-değildir. IME, dead key, marked text ve candidate window için platforma
-`InputHandler` vermen gerekir.
-
-View tarafı:
+**View tarafı.** Görece geniş bir trait yüzeyi vardır; sık kullanılan
+metotlar şu şekilde implement edilir:
 
 ```rust
 impl EntityInputHandler for EditorLikeView {
@@ -413,7 +446,7 @@ impl EntityInputHandler for EditorLikeView {
 }
 ```
 
-Element paint sırasında:
+Element paint sırasında handler pencereye kaydedilir:
 
 ```rust
 window.handle_input(
@@ -423,58 +456,64 @@ window.handle_input(
 );
 ```
 
-Kurallar:
+**Kurallar.** IME entegrasyonunda sıkça gözden kaçan noktalar şunlardır:
 
-- Range değerleri UTF-16 offset'idir; Rust byte index'iyle karıştırma.
-- `bounds_for_range` screen/candidate positioning için doğru absolute bounds
-  döndürmelidir.
-- Cursor/selection hareketinden sonra `window.invalidate_character_coordinates()`
-  çağır; IME paneli yeni konuma taşınır.
-- `accepts_text_input` false ise platform text insertion engellenebilir.
-- Raw `InputHandler::prefers_ime_for_printable_keys` true ise non-ASCII IME
-  aktifken printable tuşlar keybinding'den önce IME'ye gider. `ElementInputHandler`
-  ile sarılan `EntityInputHandler` için GPUI bu kararı `accepts_text_input`
-  üzerinden verir; trait'te ayrı bir override noktası yoktur.
+- Range değerleri UTF-16 offset'idir; Rust byte index'iyle karıştırılmaz.
+- `bounds_for_range` ekran veya aday penceresi konumlandırması için doğru
+  mutlak bounds döndürmelidir.
+- Cursor veya selection hareketinden sonra
+  `window.invalidate_character_coordinates()` çağrılır; aksi halde IME
+  paneli yeni konuma taşınmaz.
+- `accepts_text_input` `false` olduğunda platformun metin eklemesi
+  engellenebilir.
+- Raw `InputHandler::prefers_ime_for_printable_keys` `true` olduğunda
+  ASCII dışı IME aktifken yazdırılabilir tuşlar keybinding'den önce IME'ye
+  gider. `ElementInputHandler` sarmalı `EntityInputHandler` için GPUI bu
+  kararı `accepts_text_input` üzerinden verir; trait'te ayrı bir override
+  noktası yoktur.
 - Window frame geçişinde platform input handler `Vec<Option<_>>` slot'ları
-  `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılıp bir sonraki frame'de
-  aynı slot'a geri yerleştirilir. `reuse_paint` cached `paint_range` index'leri
-  bu yüzden stabil kalır. Custom düşük seviye window/frame kodu yazarken input
-  handler dizisinin uzunluğunu index cache'i varken değiştirme.
+  `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılır ve bir sonraki
+  frame'de aynı slot'a geri yerleştirilir. `reuse_paint` cached `paint_range`
+  index'leri bu yüzden stabil kalır. Custom düşük seviye window/frame kodu
+  yazılırken input handler dizisinin uzunluğu index cache'i mevcutken
+  değiştirilmez.
 
-Tuzaklar:
+**Tuzaklar.** IME ile çalışırken sık yapılan hatalar:
 
-- Sadece `.on_key_down` ile text editor yazmak IME ve dead-key dillerinde bozulur.
-- UTF-16 range'i byte slice'a doğrudan uygulamak çok byte'lı karakterlerde panic
-  veya yanlış seçim üretir.
-- Input handler frame'e bağlıdır; focused element paint edilmezse platform input
-  handler da düşer.
+- Sadece `.on_key_down` ile metin editörü yazmak IME ve dead-key dillerinde
+  bozulur.
+- UTF-16 range'i doğrudan byte slice'a uygulamak çok-byte'lı karakterlerde
+  panic ya da yanlış seçim üretir.
+- Input handler frame'e bağlıdır; odak edilen element paint edilmediğinde
+  platform input handler da düşer.
 
 ## Keystroke, Modifiers ve Platform Bağımsız Kısayollar
 
+`crates/gpui/src/platform/keystroke.rs` klavye girdisinin normalize edilmiş
+modelini içerir. Keymap yalnızca action binding değildir; pending input, IME
+ve gösterim metni de bu tiplerle taşınır.
 
-`crates/gpui/src/platform/keystroke.rs` klavye girdisinin normalized modelidir.
-Keymap sadece action binding değildir; pending input, IME ve gösterim metni de
-bu tiplerle taşınır.
+**Ana tipler.** Klavye dünyasını ifade eden tipler birbirini destekleyecek
+şekilde tasarlanmıştır:
 
-Ana tipler:
-
-- `Keystroke { modifiers, key, key_char }`: gerçek input. `key` basılan tuşun
-  ASCII karşılığıdır (örn. option-s için `s`); `key_char` o tuşla üretilebilecek
-  karakteri tutar (örn. option-s için `Some("ß")`, cmd-s için `None`). Asciiye
-  çevrilemeyen layout'larda `key` yine ASCII fallback'idir, asıl yazılan
-  karakter `key_char`'a düşer. Ayrı bir `ime_key` alanı yoktur.
-- `KeybindingKeystroke`: binding dosyalarında görünen display modifier/key ile
-  eşleşme için kullanılan sarıcı.
-- `InvalidKeystrokeError`: parse hatası. Hatanın `Display` çıktısı
-  `gpui::KEYSTROKE_PARSE_EXPECTED_MESSAGE: &str` const'ını şablon olarak
+- `Keystroke { modifiers, key, key_char }` — gerçek input. `key` basılan
+  tuşun ASCII karşılığıdır (örneğin option-s için `s`); `key_char` o tuşla
+  üretilebilecek karakteri tutar (option-s için `Some("ß")`, cmd-s için
+  `None`). ASCII'ye çevrilemeyen layout'larda `key` yine ASCII fallback'i
+  olur, asıl yazılan karakter `key_char`'a düşer. Ayrı bir `ime_key` alanı
+  yoktur.
+- `KeybindingKeystroke` — binding dosyalarında görünen display modifier/key
+  ile eşleşme için kullanılan sarıcı tip.
+- `InvalidKeystrokeError` — parse hatası. Hatanın `Display` çıktısı
+  `gpui::KEYSTROKE_PARSE_EXPECTED_MESSAGE: &str` sabitini şablon olarak
   kullanır (`platform/keystroke.rs:69`); kullanıcı keymap parser'ında aynı
-  bekleyiş cümlesini göstermek istersen bu sabite bağlan.
-- `Modifiers`: `control`, `alt`, `shift`, `platform`, `function` alanları.
-- `AsKeystroke`: hem `Keystroke` hem display wrapper'ları üzerinden ortak
+  beklenti cümlesinin gösterilmesi için bu sabite bağlanılır.
+- `Modifiers` — `control`, `alt`, `shift`, `platform`, `function` alanları.
+- `AsKeystroke` — hem `Keystroke` hem display wrapper'ları üzerinden ortak
   keystroke erişimi sağlayan küçük trait.
-- `Capslock { on }`: platform input snapshot'ında capslock durumunu taşır.
+- `Capslock { on }` — platform input snapshot'ında capslock durumunu taşır.
 
-Kullanım:
+Tipik kullanım parse, unparse ve dispatch zincirinde görünür:
 
 ```rust
 let keystroke = Keystroke::parse("cmd-shift-p")?;
@@ -482,51 +521,56 @@ let text = keystroke.unparse();
 let handled = window.dispatch_keystroke(keystroke, cx);
 ```
 
-Modifier yardımcıları:
+**Modifier yardımcıları.** Sık kullanılan modifier kombinasyonları için
+yapıcı fonksiyonlar mevcuttur:
 
 - `Modifiers::none()`, `command()`, `windows()`, `super_key()`,
   `secondary_key()`, `control()`, `alt()`, `shift()`, `function()`,
   `command_shift()`, `control_shift()`.
-- `command()`, `windows()`, `super_key()` üçü de aynı şeyi yapar:
+- `command()`, `windows()` ve `super_key()` aslında aynı işi yapar:
   `Modifiers { platform: true, .. }` üretir. Tek bir `platform` field'ı OS'a
   göre command (macOS), windows (Windows) veya super (Linux) anlamına gelir;
-  bu üç constructor sadece kavramsal vurgu için ayrı isimle export edilir.
-- `secondary_key()` macOS'ta command, Linux/Windows'ta control üretir; Zed'de
-  platform bağımsız kısayol yazarken çoğu durumda doğru seçim budur.
+  bu üç constructor yalnızca kavramsal vurgu için farklı isimlerle export
+  edilir.
+- `secondary_key()` macOS'ta command, Linux ve Windows'ta control üretir;
+  Zed'de platform-bağımsız kısayol yazılırken çoğu durumda doğru seçim
+  budur.
 - `modified()`, `secondary()`, `number_of_modifiers()`,
   `is_subset_of(&other)` input ayrıştırmada kullanılır.
 
-IME:
+**IME.** Bileşimsel girdi sırasında özel bayraklar devreye girer:
 
-- `Keystroke::is_ime_in_progress()` IME composition sırasında true döner.
-- `window.dispatch_keystroke(...)` test/simülasyon path'inde
-  `with_simulated_ime()` uygular; doğrudan lower-level event üretirken IME
-  state'ini ayrıca düşünmek gerekir.
+- `Keystroke::is_ime_in_progress()` — IME composition sırasında `true` döner.
+- `window.dispatch_keystroke(...)` test ve simülasyon yolunda
+  `with_simulated_ime()` uygular; doğrudan düşük seviye event üretilirken
+  IME state'inin ayrıca düşünülmesi gerekir.
 
-`KeybindingKeystroke` yüzeyi:
+**`KeybindingKeystroke` yüzeyi.** Display ve gerçek keystroke ayrımı bu
+sarıcı üzerinden yapılır:
 
 - `KeybindingKeystroke::new_with_mapper(inner, use_key_equivalents,
-  keyboard_mapper)`: platform keyboard mapper üzerinden display key/modifier
-  üretir. `from_keystroke(keystroke)` platform mapping yapmadan sarar.
-  Windows'ta `new(inner, display_modifiers, display_key)` constructor'ı da vardır;
-  macOS/Linux build'lerinde bu constructor yoktur.
-- `inner()`, `modifiers()`, `key()` getter'ları display ve gerçek keystroke
-  ayrımını saklar. Windows'ta `modifiers()`/`key()` display değerini döndürebilir;
-  gerçek GPUI input'u için `inner()` okunur.
+  keyboard_mapper)` — platform keyboard mapper üzerinden display key ve
+  modifier üretir. `from_keystroke(keystroke)` platform mapping yapmadan
+  sarar. Windows'ta `new(inner, display_modifiers, display_key)`
+  constructor'ı da vardır; macOS ve Linux build'lerinde bu constructor
+  bulunmaz.
+- `inner()`, `modifiers()`, `key()` getter'ları display ile gerçek keystroke
+  ayrımını saklar. Windows'ta `modifiers()` ve `key()` display değerini
+  döndürebilir; gerçek GPUI input'u için `inner()` okunur.
 - `set_modifiers(...)`, `set_key(...)`, `remove_key_char()` ve `unparse()`
-  keybinding editor/normalizer akışında kullanılır. `remove_key_char()` yalnız
-  `inner.key_char = None` yapar; `key` alanını silmez.
+  keybinding editor veya normalizer akışında kullanılır. `remove_key_char()`
+  yalnızca `inner.key_char = None` yapar; `key` alanına dokunmaz.
 
-Binding sorguları:
+**Binding sorguları.** Kullanıcıya gösterilecek kısayol metni ve aktif input
+zinciri için window üzerinde yardımcılar mevcuttur:
 
-- `window.bindings_for_action(&Action)` ve `window.keystroke_text_for(&Action)`
-  kullanıcıya gösterilecek kısayol metni için tercih edilir.
+- `window.bindings_for_action(&Action)` ve
+  `window.keystroke_text_for(&Action)` kullanıcıya gösterilecek kısayol
+  metni için tercih edilir.
 - `cx.all_bindings_for_input(&[Keystroke])` ve
-  `window.possible_bindings_for_input(&[Keystroke])` multi-stroke veya prefix
-  binding durumlarında kullanılabilir.
-- `window.pending_input_keystrokes()` henüz tamamlanmamış input zincirini verir.
+  `window.possible_bindings_for_input(&[Keystroke])` çoklu vuruş veya prefix
+  binding durumlarında kullanılır.
+- `window.pending_input_keystrokes()` henüz tamamlanmamış input zincirini
+  verir.
 
 ---
-
----
-

@@ -4,23 +4,32 @@
 
 ## Temel Bağlamlar
 
+GPUI'de neredeyse her iş bir bağlam (context) üzerinden yapılır; isim olarak da
+genellikle `cx` kısaltmasıyla geçer. Bağlam, o anda hangi katmandan
+konuşulduğunu ve nelere erişim olduğunu belirler. Birden fazla bağlam tipi
+vardır ve her birinin kendi sorumluluk alanı bulunur:
 
-GPUI'de neredeyse her şey `cx` ile yapılır:
+- **`App`**: uygulamanın kök bağlamıdır. Global durum, açık pencerelerin
+  listesi, platform servisleri, keymap, global'ler, yeni entity oluşturma ve
+  pencere açma gibi süreç ömrü boyu geçerli işler buradan yapılır.
+- **`Context<T>`**: belirli bir `Entity<T>` güncellenirken karşılaşılan
+  bağlamdır. `App` üzerine deref eder, yani `App`'in tüm metotlarına buradan da
+  ulaşılabilir; ek olarak `cx.notify()`, `cx.emit(...)`, `cx.listener(...)`,
+  `cx.observe(...)`, `cx.subscribe(...)`, `cx.spawn(...)` gibi entity'ye özel
+  API'leri açar.
+- **`Window`**: tek bir pencereye özgü durum ve davranıştır. Focus, cursor,
+  bounds, resize, başlık, arka plan görünümü, action dispatch, IME, prompt ve
+  platform pencere işlemleri bu bağlam üzerinden yürür.
+- **`AsyncApp` / `AsyncWindowContext`**: bir `await` noktasının ötesine kadar
+  taşınabilen async bağlamlardır. Bekleyiş sırasında entity veya pencere
+  kapanmış olabileceği için bu bağlamlarda yapılan erişimler `Result` döner;
+  yani fallible'dır.
+- **`TestAppContext` / `VisualTestContext`**: testlerde simülasyon, zamanlayıcı
+  kontrolü ve görsel doğrulama için ayrılmış bağlamlardır; üretim akışlarında
+  kullanılmaz.
 
-- `App`: global durum, pencere listesi, platform servisleri, keymap, global state,
-  entity oluşturma ve pencere açma.
-- `Context<T>`: bir `Entity<T>` güncellenirken gelir. `App` içine deref eder ve
-  `cx.notify()`, `cx.emit(...)`, `cx.listener(...)`, `cx.observe(...)`,
-  `cx.subscribe(...)`, `cx.spawn(...)` gibi entity odaklı API'leri ekler.
-- `Window`: pencereye özel durum ve davranış. Focus, cursor, bounds, resize,
-  title, background appearance, action dispatch, IME, prompt ve platform pencere
-  işlemleri burada yapılır.
-- `AsyncApp` / `AsyncWindowContext`: `await` noktaları boyunca tutulabilen async
-  context. Entity/window kapanmış olabileceği için erişimler fallible olabilir.
-- `TestAppContext` / `VisualTestContext`: testlerde simülasyon, zamanlayıcı ve
-  görsel doğrulama için kullanılır.
-
-Entity kullanımı:
+**Entity kullanımı.** Bir entity hem okunabilir hem güncellenebilir; her iki
+durum da bağlam üzerinden yapılır:
 
 ```rust
 let entity = cx.new(|cx| State::new(cx));
@@ -39,45 +48,52 @@ weak.update(cx, |state, cx| {
 })?;
 ```
 
-Kurallar:
+**Kurallar.** Bağlam kullanımının başlıca disiplinleri şunlardır:
 
-- Render çıktısını etkileyen state değiştiğinde `cx.notify()` çağır.
-- Bir entity güncellenirken aynı entity'yi yeniden update etmeye çalışma; panic'e
-  yol açabilir.
-- Uzun yaşayan async işlerde `Entity<T>` yerine `WeakEntity<T>` yakala.
-- `Task` düşerse iş iptal olur. Ya `await` et, ya struct alanında sakla, ya da
-  `detach()` / `detach_and_log_err(cx)` kullan.
+- Render çıktısını etkileyen bir state değiştiğinde `cx.notify()` çağrılır.
+  Aksi halde view'da yeni veriye rağmen ekran yenilenmez.
+- Bir entity güncellenirken aynı entity yeniden update'e sokulmaz; bu durum
+  yeniden giriş (reentrancy) yarattığı için panic'e yol açabilir.
+- Uzun yaşayan async işlerde `Entity<T>` yerine `WeakEntity<T>` yakalanır; bu
+  sayede iş bitmeden entity drop edildiğinde döngüsel sahiplik oluşmaz.
+- Bir `Task` düştüğünde içindeki iş iptal olur. Bu nedenle ya `await`
+  edilmelidir, ya struct'ın bir alanında saklanmalıdır, ya da `detach()` /
+  `detach_and_log_err(cx)` ile bağımsız olarak bırakılmalıdır.
 
 ## WindowHandle, AnyWindowHandle ve VisualContext
 
+`open_window` ve test helper'ları, açılan pencereyi temsil eden tipli bir
+`WindowHandle<V>` döndürür. Bu handle root view'un tipini compile-time'da
+taşır; karşıt olarak `AnyWindowHandle` root tipini runtime'da tutar ve
+gerektiğinde downcast edilebilir.
 
-`open_window` veya test helper'ları typed `WindowHandle<V>` döndürür. Bu handle
-pencerenin root view tipini bilir; `AnyWindowHandle` ise root tipini runtime'da
-taşır ve gerektiğinde downcast edilir.
+İki handle arasında doğrudan bir Deref ilişkisi vardır:
+`WindowHandle<V>` `#[derive(Deref, DerefMut)]` sayesinde içindeki
+`AnyWindowHandle` değerine deref olur. Bu yüzden bazı metotlar tipli handle
+üzerinden çağrılabilir gibi görünür, oysa o metotların asıl sahibi
+`AnyWindowHandle`'dır. API yüzeyi okunurken `Owner::method -> dönüş tipi ->
+hata semantiği` üçlüsünü birlikte değerlendirmek hataya düşmemek için
+önemlidir.
 
-`WindowHandle<V>` `#[derive(Deref, DerefMut)]` ile içindeki
-`AnyWindowHandle`'a deref eder. Bu yüzden bazı metotlar typed handle üzerinde
-çağrılabilir görünür ama owner'ı aslında `AnyWindowHandle`'dır. API yüzeyini
-okurken `Owner::method -> dönüş tipi -> hata semantiği` üçlüsünü birlikte
-değerlendir.
+Aynı Deref kalıbı GPUI'de başka handle ve event ailelerinde de görülür:
 
-Aynı kalıp GPUI'de başka handle ve event ailelerinde de görülür:
-
-- `Entity<T>: Deref<Target = AnyEntity>` ve `WeakEntity<T>:
-  Deref<Target = AnyWeakEntity>` — typed entity handle'ları untyped handle'a
-  deref eder. Detay "Entity Type Erasure, Callback Adaptörleri ve View Cache" başlığındadır.
+- `Entity<T>: Deref<Target = AnyEntity>` ve
+  `WeakEntity<T>: Deref<Target = AnyWeakEntity>` — tipli entity handle'ları
+  untyped handle'a deref eder. Detay "Entity Type Erasure, Callback
+  Adaptörleri ve View Cache" başlığında işlenir.
 - `ModifiersChangedEvent`, `ScrollWheelEvent`, `PinchEvent`, `MouseExitEvent`:
-  `Deref<Target = Modifiers>` — bu dört event Modifiers metodlarını doğrudan
-  açar (`event.secondary()`, `event.modified()`). `MouseDownEvent`,
-  `MouseUpEvent`, `MouseMoveEvent` ise Deref *etmez*; yalnızca `modifiers`
-  alanını ifşa eder. Detay "CursorStyle, FontWeight ve Sabit Enum Tabloları" başlığındadır.
+  `Deref<Target = Modifiers>` — bu dört event Modifiers metotlarını doğrudan
+  açar (`event.secondary()`, `event.modified()`). Buna karşılık
+  `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent` Deref *etmez*; yalnızca
+  `modifiers` alanını alan olarak verir. Detay "CursorStyle, FontWeight ve
+  Sabit Enum Tabloları" başlığındadır.
 - `Context<'a, T>: Deref<Target = App>` — `cx.theme()`, `cx.refresh_windows()`
   gibi App metotları Context üzerinden de çağrılabilir (bkz. "Temel Bağlamlar").
 
-Bu Deref aliasing pattern'inde metot adını tek başına yeterli sayma; aynı ad
-typed ve untyped owner'larda farklı dönüş tipiyle bulunabilir.
+Bu Deref aliasing pattern'inde metot adı tek başına yeterli sayılmaz; aynı isim
+tipli ve untyped owner'larda farklı dönüş tipiyle var olabilir.
 
-`WindowHandle<V>`:
+**`WindowHandle<V>`.** Tipli handle root view'a doğrudan tipli erişim sağlar:
 
 ```rust
 handle.update(cx, |root: &mut Workspace, window, cx| {
@@ -97,12 +113,13 @@ let active: Option<bool> = handle.is_active(cx);
 let id = handle.window_id();
 
 // Untyped handle saklamak veya AnyWindowHandle API'sini açık göstermek
-// istiyorsan dönüşümü bilinçli yap:
+// gerektiğinde dönüşüm bilinçli yapılır:
 let any: AnyWindowHandle = handle.into();
 let same_id = any.window_id();
 ```
 
-`AnyWindowHandle`:
+**`AnyWindowHandle`.** Tip silinmiş handle ise generic kodlarda ve runtime
+downcast senaryolarında kullanılır:
 
 ```rust
 if let Some(workspace) = any_handle.downcast::<Workspace>() {
@@ -122,7 +139,9 @@ let title = any_handle.read::<Workspace, _, _>(cx, |workspace, cx| {
 })?;
 ```
 
-Tam owner/metot yüzeyi:
+**Tam owner/metot yüzeyi.** Aşağıdaki tablo her metodun asıl sahibini, dönüş
+tipini ve hata davranışını bir arada gösterir; bu sayede tipli handle'da
+"hangi çağrı kendi metodum, hangisi deref ile geliyor" ayrımı net olur:
 
 | Owner | Metot | Dönüş | Not |
 |---|---|---|---|
@@ -140,28 +159,32 @@ Tam owner/metot yüzeyi:
 | `AnyWindowHandle` | `update(cx, \|AnyView, &mut Window, &mut App\| ...)` | `Result<R>` | Root type bilinmez; callback `AnyView` alır. |
 | `AnyWindowHandle` | `read::<T, _, _>(cx, \|Entity<T>, &App\| ...)` | `Result<R>` | Önce downcast yapar, sonra typed entity okutur. |
 
-Context trait'leri:
+**Context trait'leri.** Farklı bağlamlar arasında ortak metot setleri trait'ler
+aracılığıyla paylaşılır:
 
 - `AppContext`: `new`, `reserve_entity`, `insert_entity`, `update_entity`,
   `read_entity`, `update_window`, `with_window`, `read_window`,
-  `background_spawn`, `read_global`.
-- `VisualContext`: pencere bağlı context'lerde `window_handle`,
-  `update_window_entity`, `new_window_entity`, `replace_root_view`, `focus`
-  sağlar.
-- `BorrowAppContext`: `App`, `Context<T>`, async/test context gibi farklı
-  context'lerle çalışan yardımcı fonksiyonlar için ortak global API yüzeyidir.
+  `background_spawn`, `read_global` gibi temel App davranışlarını sağlar.
+- `VisualContext`: pencereye bağlı bağlamlara (örneğin `Window`+`App` çiftine)
+  `window_handle`, `update_window_entity`, `new_window_entity`,
+  `replace_root_view`, `focus` metotlarını ekler.
+- `BorrowAppContext`: `App`, `Context<T>`, async ve test context'leri gibi
+  farklı bağlamlar arasında çalışan yardımcı fonksiyonlar için ortak global
+  API yüzeyidir.
 
-`window.replace_root(cx, |window, cx| NewRoot::new(window, cx))` mevcut pencerenin
-root entity'sini yeni bir `Render` view ile değiştirir. Async/test context'lerde
-aynı işlem `replace_root_view` helper'ı üzerinden yapılır. Bu, yeni pencere
-açmadan root flow değiştirmek için kullanılır; eski root'a ait subscription ve
-task ownership'i ayrıca düşünülmelidir.
+**Pencerede root değiştirme.**
+`window.replace_root(cx, |window, cx| NewRoot::new(window, cx))` çağrısı,
+mevcut pencerenin root entity'sini yeni bir `Render` view ile değiştirir.
+Async ve test context'lerde aynı işlem `replace_root_view` helper'ı üzerinden
+yapılır. Bu kalıp yeni bir pencere açmadan root akışı değiştirmek için
+kullanılır; ancak eski root'a ait subscription'lar ve task ownership ayrıca
+düşünülmelidir, aksi halde geride kalan abonelikler veya işler bağlamsız
+şekilde çalışmaya devam edebilir.
 
-`with_window(entity_id, ...)` entity'nin en son render edildiği pencereyi bulur.
-Entity aynı anda birden fazla pencerede render ediliyorsa bu API bilinçli bir
-"current window" kısayoludur; kesin pencere gerekiyorsa `WindowHandle` sakla.
+**`with_window` kullanımı.** `with_window(entity_id, ...)` çağrısı verilen
+entity'nin en son render edildiği pencereyi bulur. Aynı entity birden fazla
+pencerede render ediliyorsa bu API bilinçli bir "current window" kısayolu
+olarak çalışır; spesifik bir pencere hedefleniyorsa o pencerenin
+`WindowHandle`'ı doğrudan saklanmalıdır.
 
 ---
-
----
-

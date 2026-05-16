@@ -4,8 +4,12 @@
 
 ## Async İşler
 
+GPUI'de async işler, bağlam üzerinden spawn edilen `Task` handle'larıyla
+yönetilir. Üç temel kalıp vardır: foreground (UI thread'i ile aynı executor'da
+çalışan) task, current entity'ye bağlı task ve bir pencereyi de hesaba katan
+task. Her biri biraz farklı bir closure imzasıyla yazılır.
 
-Foreground task:
+**Foreground task.** En sade biçimdir; entity veya pencere bağlamı gerektirmez:
 
 ```rust
 cx.spawn(async move |cx| {
@@ -16,7 +20,9 @@ cx.spawn(async move |cx| {
 .detach();
 ```
 
-Entity task:
+**Entity'ye bağlı task.** Closure başlangıçta current entity'nin
+`WeakEntity` handle'ını verir, bu sayede async beklemeler sırasında entity
+düşmüş olabileceği fallible olarak ele alınır:
 
 ```rust
 cx.spawn(async move |this, cx| {
@@ -30,7 +36,8 @@ cx.spawn(async move |this, cx| {
 .detach_and_log_err(cx);
 ```
 
-Window'a bağlı task:
+**Pencereye bağlı task.** Pencere context'ini de async tarafa taşır; `Window`
+metotları `cx.update_in` ile birlikte kullanılabilir:
 
 ```rust
 cx.spawn_in(window, async move |this, cx| {
@@ -44,16 +51,20 @@ cx.spawn_in(window, async move |this, cx| {
 ```
 
 `Context::spawn` ve `spawn_in` imzaları
-`AsyncFnOnce(WeakEntity<T>, &mut AsyncApp/AsyncWindowContext)` ister; closure
-`async move |this, cx| { ... }` formuyla yazılır. Closure `Result` döndürüyorsa
-örnekteki gibi `Ok::<(), anyhow::Error>(())` ile tip annotate et veya en üstte
-`let _: Result<_, anyhow::Error> = ...` kullan.
+`AsyncFnOnce(WeakEntity<T>, &mut AsyncApp/AsyncWindowContext)` ister; bu
+nedenle closure `async move |this, cx| { ... }` biçiminde yazılır. Closure'ın
+gövdesi `Result` döndürüyorsa derleyicinin tipini çıkarması için ya
+örnekteki gibi `Ok::<(), anyhow::Error>(())` ile son ifade tip-açıklanmalı, ya
+da en üstte `let _: Result<_, anyhow::Error> = ...` kalıbı kullanılmalıdır.
 
-`window.to_async(cx)` doğrudan `AsyncWindowContext` üretir; callback dışına
-taşınacak pencere bağlı async helper yazarken kullanılır. Çoğu entity/view kodunda
-`cx.spawn_in(window, ...)` daha güvenli ve okunur wrapper'dır.
+`window.to_async(cx)` doğrudan bir `AsyncWindowContext` üretir; callback dışına
+taşınacak pencere bağlı async helper'lar yazılırken bu yol tercih edilir.
+Bununla birlikte günlük entity/view kodunda `cx.spawn_in(window, ...)` daha
+güvenli ve okunaklı bir wrapper olarak kalır.
 
-Background thread:
+**Background thread.** CPU-yoğun iş foreground executor'ı bloklamasın diye
+ayrı bir executor'a verilir; ardından elde edilen sonuç bir foreground task ile
+UI'ya geri taşınır:
 
 ```rust
 let task = cx.background_spawn(async move {
@@ -69,36 +80,42 @@ cx.spawn(async move |cx| {
 .detach();
 ```
 
-Testlerde zamanlayıcı:
+**Testlerde zamanlayıcı.** Test ortamında zamanın kontrol altında olması için
+GPUI'nın kendi timer'ı kullanılır:
 
 - GPUI testlerinde `smol::Timer::after(...)` yerine
-  `cx.background_executor().timer(duration).await` kullan.
-- `run_until_parked()` ile uyum için GPUI executor timer'ı tercih edilir.
+  `cx.background_executor().timer(duration).await` çağrılır. Bu sayede zamanı
+  manuel ilerletme ve `run_until_parked()` ile senkron çalışma mümkün olur.
+- `run_until_parked()` ile uyum sağlandığında GPUI executor timer'ı tercih
+  edilir; bu çift, deterministik test akışının temelidir.
 
 ## Executor, Priority, Timeout ve Test Zamanı
 
+GPUI'da iş iki executor arasında bölünür: foreground executor UI thread üzerinde
+çalışır, background executor ise scheduler ve thread pool üzerinde. Bu ayrım
+yalnızca performans için değildir; bir await noktasının ötesinde hangi
+context'in tutulabileceğini de belirler. Foreground'da `App` veya `Window`'a
+güvenli dönüş noktaları varken background tarafında bunlar yoktur.
 
-GPUI'da foreground iş UI thread üzerinde, background iş scheduler/thread pool
-üzerinde çalışır. Bu ayrım sadece performans değil, hangi context'in await
-noktası boyunca tutulabileceğini de belirler.
+**Temel tipler.** Sistem aşağıdaki parçalardan oluşur:
 
-Temel tipler:
-
-- `BackgroundExecutor`: `spawn`, `spawn_with_priority`, `timer`,
-  `scoped`, `scoped_priority`, testlerde `advance_clock`, `run_until_parked`,
-  `simulate_random_delay`.
-- `ForegroundExecutor`: main thread'e future koyar; `spawn`,
-  `spawn_with_priority`, synchronous köprü için `block_on` ve
+- `BackgroundExecutor`: ana metotları `spawn`, `spawn_with_priority`, `timer`,
+  `scoped`, `scoped_priority`'dir; test desteğiyle birlikte `advance_clock`,
+  `run_until_parked` ve `simulate_random_delay` da kullanılabilir.
+- `ForegroundExecutor`: future'ları main thread'e koyar; `spawn`,
+  `spawn_with_priority`, ek olarak senkron köprü için `block_on` ve
   `block_with_timeout` sağlar.
-- `Priority`: `RealtimeAudio`, `High`, `Medium`, `Low`. Realtime ayrı thread
-  ister; UI dışı audio gibi çok sınırlı işler dışında kullanılmaz.
-- `Task<T>`: await edilebilir handle. Drop edilirse iş iptal edilir;
-  tamamlanması isteniyorsa await edilir, struct alanında saklanır veya
-  `detach()`/`detach_and_log_err(cx)` kullanılır.
-- `FutureExt::with_timeout(duration, executor)`: future ile executor timer'ını
-  yarışır ve `Result<T, Timeout>` döndürür.
+- `Priority`: dört seviyesi vardır — `RealtimeAudio`, `High`, `Medium`, `Low`.
+  Realtime ayrı bir thread ister; UI dışı audio gibi çok sınırlı işler dışında
+  kullanılması önerilmez.
+- `Task<T>`: await edilebilir handle'dır. Drop edildiğinde içindeki iş iptal
+  olur; tamamlanmasının istendiği durumlarda await edilir, struct alanında
+  saklanır veya `detach()` / `detach_and_log_err(cx)` ile bırakılır.
+- `FutureExt::with_timeout(duration, executor)`: bir future'ı executor timer'ı
+  ile yarıştırır ve sonucu `Result<T, Timeout>` olarak verir.
 
-Örnek:
+**Timeout örneği.** Tipik bir kullanım, uzun süren bir background işine
+süre sınırı koymaktır:
 
 ```rust
 let executor = cx.background_executor().clone();
@@ -111,7 +128,8 @@ let result = task
     .await?;
 ```
 
-Foreground priority:
+**Foreground priority.** Aciliyet seviyeleri foreground tarafta polling sırasını
+belirler; öncelikli işler executor kuyruğunda öne geçer:
 
 ```rust
 cx.spawn_with_priority(Priority::High, async move |cx| {
@@ -122,38 +140,49 @@ cx.spawn_with_priority(Priority::High, async move |cx| {
 .detach();
 ```
 
-`AsyncApp::update(|cx| ...)` doğrudan `R` döndürür; entity'lerden farklı olarak
-fallible değildir, bu yüzden `?` ile yayılmaz. Pencere içi async çalışmada
-`AsyncWindowContext::update(|window, cx| ...) -> Result<R>` ya da
+**Update semantiği.** `AsyncApp::update(|cx| ...)` doğrudan `R` döndürür;
+entity'lerin aksine fallible değildir, dolayısıyla `?` ile yayılması
+gerekmez. Pencere içi async çalışmada
+`AsyncWindowContext::update(|window, cx| ...) -> Result<R>` veya
 `Entity::update(cx, ...)` fallible varyantları kullanılır.
 
-Async context convenience yüzeyi:
+**Async context convenience yüzeyi.** Async bağlamlar üzerinde tekrar tekrar
+ihtiyaç duyulan birkaç kestirme metot vardır:
 
-- `AsyncApp::refresh()` tüm pencereler için redraw planlar; `update(|cx|
-  cx.refresh_windows())` yazmadan async path'ten redraw tetiklemek içindir.
+- `AsyncApp::refresh()` tüm pencereler için redraw planlar; async path'ten
+  redraw tetiklemek için `update(|cx| cx.refresh_windows())` yazmaya gerek
+  bırakmaz.
 - `AsyncApp::background_executor()` ve `foreground_executor()` executor
-  handle'larını verir. Timer/timeout veya nested spawn gerekiyorsa bunları kullan.
-- `AsyncApp::subscribe(&entity, ...)`, `open_window(options, ...)`, `spawn(...)`,
-  `has_global::<G>()`, `read_global`, `try_read_global`, `read_default_global`,
-  `update_global` ve `on_drop(&weak, ...)` await edilebilir app task'larında aynı
-  foreground state'e güvenli dönüş noktalarıdır.
+  handle'larını döndürür. Timer/timeout veya iç içe spawn gerektiğinde
+  buradan alınır.
+- `AsyncApp::subscribe(&entity, ...)`, `open_window(options, ...)`,
+  `spawn(...)`, `has_global::<G>()`, `read_global`, `try_read_global`,
+  `read_default_global`, `update_global` ve `on_drop(&weak, ...)` await
+  edilebilir app task'larında aynı foreground state'e güvenli dönüş
+  noktalarıdır.
 - `AsyncWindowContext::window_handle()` bağlı pencereyi verir.
-  `update(|window, cx| ...)` sadece window state'i, `update_root(|root, window,
-  cx| ...)` root `AnyView` de gerektiğinde kullanılır.
+  `update(|window, cx| ...)` yalnızca window state'ini güncellerken,
+  `update_root(|root, window, cx| ...)` root `AnyView` de gerektiğinde
+  kullanılır.
 - `AsyncWindowContext::on_next_frame(...)`, `read_global`, `update_global`,
-  `spawn(...)` ve `prompt(...)` pencereye bağlı async işlerde `Window` kapanmış
-  olabilir durumunu `Result`/fallback receiver ile yönetir.
+  `spawn(...)` ve `prompt(...)` pencereye bağlı async işlerde "pencere
+  kapanmış olabilir" durumunu `Result` veya fallback receiver üzerinden
+  yönetir.
 
-Entity ve window bağlı priority spawn:
+**Entity ve window bağlı priority spawn.** Öncelikli işlerin daha tipli
+sürümleri için de yardımcılar mevcuttur:
 
 - `cx.spawn_in_with_priority(priority, window, async move |weak, cx| { ... })`
-  current entity'nin `WeakEntity<T>` handle'ını ve `AsyncWindowContext` verir.
+  current entity'nin `WeakEntity<T>` handle'ını ve `AsyncWindowContext`
+  bağlamını verir.
 - `window.spawn_with_priority(priority, cx, async move |cx| { ... })` pencere
-  handle'ına bağlı ama entity'siz async iş içindir.
-- Priority yalnızca foreground executor kuyruğunda polling önceliği verir;
+  handle'ına bağlı ama entity'siz async iş için uygundur.
+- Priority yalnızca foreground executor kuyruğunda polling önceliği sağlar;
   uzun CPU işi hâlâ `background_spawn` tarafına taşınmalıdır.
 
-Hazır değer:
+**Hazır değer.** Bir hesap sonucu hâlihazırda elde varsa ek bir Task açmadan
+direkt `Task::ready` ile döndürülebilir. Bu, caller'ın imzasını her iki yolda
+da `Task` olarak tutarlı bırakır:
 
 ```rust
 fn cached_or_async(cached: Option<Data>, cx: &App) -> Task<anyhow::Result<Data>> {
@@ -165,26 +194,32 @@ fn cached_or_async(cached: Option<Data>, cx: &App) -> Task<anyhow::Result<Data>>
 }
 ```
 
-Test zamanı:
+**Test zamanı.** Test ortamında zamanlama davranışını anlamak için birkaç
+noktanın bilinmesi gerekir:
 
 - `cx.background_executor().timer(duration).await` GPUI scheduler'a bağlıdır;
-  `smol::Timer::after` GPUI `run_until_parked()` ile uyumsuz kalabilir.
-- `advance_clock(duration)` sadece fake clock'u ilerletir; runnable işleri
-  yürütmek için ayrıca `run_until_parked()` gerekir.
+  `smol::Timer::after` ise GPUI `run_until_parked()` ile uyumsuz kalabilir,
+  bu nedenle testlerde tercih edilmez.
+- `advance_clock(duration)` yalnızca fake clock'u ilerletir; ilerletilen
+  süreyle gelinen noktada hazır olan işleri çalıştırmak için ayrıca
+  `run_until_parked()` çağrısı gereklidir.
 - `allow_parking()` outstanding task varken parked olmayı testte bilerek
-  kabul etmek içindir; production path'e taşınmaz.
-- `block_with_timeout` timeout olduğunda future'ı geri verir; bu, işi iptal
-  etmek ya da sonra yeniden poll etmek için çağıranın karar vermesini sağlar.
+  kabul etmek için kullanılır; production path'lerine taşınması doğru
+  değildir.
+- `block_with_timeout` timeout olduğunda future'ı geri verir; bu davranış,
+  işi iptal etmek veya daha sonra yeniden poll etmek konusunda kararı
+  çağırana bırakır.
 - `PriorityQueueSender<T>` / `PriorityQueueReceiver<T>` yalnızca
-  Windows/Linux/wasm cfg'lerinde re-export edilir. `send(priority, item)`,
-  `try_pop()`, `pop()`, `try_iter()` ve `iter()` ile high/medium/low kuyrukları
-  ağırlıklı seçimle tüketir; `Priority::RealtimeAudio` bu kuyruğa girmez.
+  Windows/Linux/wasm cfg'lerinde re-export edilir.
+  `send(priority, item)`, `try_pop()`, `pop()`, `try_iter()` ve `iter()`
+  metotları high/medium/low kuyruklarını ağırlıklı seçimle tüketir;
+  `Priority::RealtimeAudio` bu kuyruğa girmez.
 
 ## Task, TaskExt ve Async Hata Yönetimi
 
-
 `Task<T>` GPUI'ın temel async handle'ıdır. Yardımcı trait `TaskExt`
-(`crates/gpui/src/executor.rs:33+`) `Task<Result<T, E>>` üzerine ek metotlar ekler:
+(`crates/gpui/src/executor.rs:33+`) `Task<Result<T, E>>` tipleri üzerine ek
+metotlar bindirir:
 
 ```rust
 pub trait TaskExt<T, E> {
@@ -193,11 +228,13 @@ pub trait TaskExt<T, E> {
 }
 ```
 
-`detach_and_log_err` task'ı arka plana atar ve hata oluşursa
-`log::error!("...: {err}")` formatında loglar. `_with_backtrace` aynı işlevi
-`{:?}` formatıyla yapar; `anyhow::Error` durumlarında full backtrace ister.
+`detach_and_log_err` task'ı arka plana atar ve hata oluşması durumunda hatayı
+`log::error!("...: {err}")` formatında loglar. `_with_backtrace` varyantı aynı
+işi `{:?}` formatıyla yapar; bu sayede `anyhow::Error` gibi backtrace taşıyan
+tipler tam stack ile loglanır.
 
-Pratik akış:
+**Pratik akış.** Tipik bir async UI iş parçası, network'tan veri çekmek ve
+sonra view state'ini güncellemekten oluşur:
 
 ```rust
 cx.spawn_in(window, async move |this, cx| {
@@ -210,38 +247,48 @@ cx.spawn_in(window, async move |this, cx| {
 .detach_and_log_err(cx);
 ```
 
-Detach varyantları:
+**Detach varyantları.** Task'ı bırakırken niyete göre üç farklı yardımcı
+vardır:
 
-- `task.detach()`: hata loglanmaz, sessizce yutulur. UI'da gösterilemeyen
-  fire-and-forget iş için.
-- `task.detach_and_log_err(cx)`: standart akış, prod kodunda tercih edilir.
-- `task.detach_and_prompt_err(prompt_label, window, cx, |err, window, cx| ...)`:
-  workspace UI'sında kullanılan ek helper (workspace crate'inde tanımlı);
-  hatayı modal prompt'la kullanıcıya gösterir.
+- `task.detach()` — hata loglanmaz, sessizce yutulur. Yalnızca UI'da
+  gösterilemeyen, kaybedilmesinin sorun olmadığı fire-and-forget işler için
+  uygundur.
+- `task.detach_and_log_err(cx)` — standart akıştır; üretim kodunda hata
+  yönetiminin varsayılan yolu olarak tercih edilir.
+- `task.detach_and_prompt_err(prompt_label, window, cx, |err, window, cx| ...)`
+  — workspace UI'sında kullanılan ek bir helper'dır (workspace crate'inde
+  tanımlıdır); hatayı modal bir prompt'la kullanıcıya gösterir.
 
-Yazarken kararlar:
+**Yazarken kararlar.** Task'ı imzaya nasıl koyacağına dair pratik yönlendirici
+kurallar şunlardır:
 
-- Async sonuç caller'a dönmesi gerekiyorsa `Task<R>` döndür ve await et; struct
-  alanında saklamak iptal davranışı verir.
-- Caller fire-and-forget yaptıysa task'ı return etmek gereksiz; doğrudan
-  `detach_and_log_err(cx)` çağır.
+- Async sonuç caller'a dönmesi gerekiyorsa metot `Task<R>` döndürmeli ve
+  caller await etmelidir; sonucu struct alanında saklamak, ileride drop
+  edilirse iptal davranışı verir.
+- Caller fire-and-forget yapıyorsa task'ı return etmek gereksizdir; doğrudan
+  `detach_and_log_err(cx)` çağırmak niyeti daha açık ifade eder.
 - Result'ı log'a düşürmemek için manuel `if let Err(e) = task.await { ... }`
-  yazma; `detach_and_log_err` zaten `track_caller` ile log location'ı tutar.
+  yazmak gereksizdir; `detach_and_log_err` zaten `track_caller` ile log
+  konumunu kayda alır.
 
-Tuzaklar:
+**Tuzaklar.** Bu API'lerle ilgili sık yapılan hatalar şunlardır:
 
-- Result tipinin `E` argümanı `Display + Debug` istemeli; `anyhow::Error` ve
-  custom error tipi otomatik uyar.
-- Task'ı `Vec<Task<()>>` içinde topladıysan drop sırası sürpriz olabilir;
-  iptal etmek istemediğin tipik akışta `detach()` daha açık bir niyet bildirir.
-- `cx.spawn_in(window, ...)` Window düştüğünde task otomatik iptal etmez;
-  WeakEntity üzerinden `update`/`update_in` çağrısı `Result` döndüğünden
-  bunu erken çıkış sinyali olarak ele al.
+- `Result` tipinin `E` argümanı `Display + Debug` istemelidir; `anyhow::Error`
+  ve standart custom error tipleri otomatik uyar.
+- Task'lar `Vec<Task<()>>` içinde toplandığında drop sırası sürpriz olabilir;
+  iptalin amaçlanmadığı tipik akışlarda `detach()` daha açık bir niyet bildirir.
+- `cx.spawn_in(window, ...)` Window düştüğünde task'ı otomatik iptal etmez;
+  `WeakEntity` üzerinden `update`/`update_in` çağrısı `Result` döndüğünden bu
+  dönüş erken çıkış sinyali olarak ele alınmalıdır.
 
 ## Global State, Observe ve Event
 
+GPUI'da uygulama genelindeki paylaşılan durum üç ana mekanizmayla yönetilir:
+global state, observe (durum değişimini dinlemek) ve event (tipli mesaj
+yayma). Üçü de bağlam üzerinden çağrılır ve genellikle birlikte kullanılır.
 
-Global state:
+**Global state.** Uygulama ömrü boyunca tek nüsha tutulan bir kaynak için
+`Global` trait'i implement edilir ve `cx.set_global` ile yerleştirilir:
 
 ```rust
 struct MyGlobal(State);
@@ -256,7 +303,8 @@ cx.update_global::<MyGlobal, _>(|global, cx| {
 let value = cx.read_global::<MyGlobal, _>(|global, _| global.0.clone());
 ```
 
-Observe:
+**Observe.** Bir entity'nin `cx.notify()` çağırması bütün gözlemcileri
+tetikler. Tipik kullanım, derived state'i kaynağa bağlamaktır:
 
 ```rust
 subscriptions.push(cx.observe(&other, |this, other, cx| {
@@ -265,7 +313,8 @@ subscriptions.push(cx.observe(&other, |this, other, cx| {
 }));
 ```
 
-Event:
+**Event.** Tipli mesaj yayma için entity `EventEmitter<E>` implement eder;
+yayılan event abonelere ulaşır:
 
 ```rust
 struct Saved;
@@ -279,7 +328,8 @@ subscriptions.push(cx.subscribe(&document, |this, document, _: &Saved, cx| {
 }));
 ```
 
-Window observe:
+**Pencere bazlı gözlem.** Pencerenin kendisine ait değişimler için ayrı bir
+observer ailesi vardır; her biri ilgili pencere değişiminde tetiklenir:
 
 - `cx.observe_window_bounds(window, ...)`
 - `cx.observe_window_activation(window, ...)`
@@ -290,48 +340,56 @@ Window observe:
 
 ## Global State Yardımcıları ve `cx.defer`
 
+`App` üzerinde bulunan global state yardımcıları rehberin farklı bölümlerinde
+parça parça geçer; burada tek bir listede toplanır. Aynı kategori altında
+"global'i değiştir" ve "effect cycle'ı yönet" başlıklarını birlikte ele almak
+en sık sorulan iki konuyu yan yana getirir.
 
-`App` üzerinde bulunan yardımcı global state metotları, mevcut bölümlerde
-parça parça geçtiği için burada tek listede topluyoruz:
+- `cx.set_global<T: Global>(value)` — var olanı ezer; yoksa kurar.
+- `cx.global<T>() -> &T` — var olduğundan emin olunan call site'larda kullanılır;
+  yoksa panic eder.
+- `cx.global_mut<T>()` — aynısının mutable karşılığıdır.
+- `cx.default_global<T: Default>() -> &mut T` — global yoksa default ile bir
+  instance oluşturur, varsa mevcut global'i mutable verir.
+- `cx.has_global<T>() -> bool` — okuma öncesi varlık kontrolü.
+- `cx.try_global<T>() -> Option<&T>` — nullable okuma.
+- `cx.update_global<T, R>(|g, cx| ...) -> R` — kapsamlı update.
+- `cx.read_global<T, R>(|g, cx| ...) -> R` — kapsamlı read.
+- `cx.remove_global<T>() -> T` — instance'ı geri alır; tekrar set edilmediği
+  sürece global yok sayılır.
+- `cx.observe_global<T>(|cx| ...) -> Subscription` — global her notify
+  olduğunda callback'i tetikler.
 
-- `cx.set_global<T: Global>(value)`: var olanı ezer; yoksa kurar.
-- `cx.global<T>() -> &T`: panic eder; var olduğundan eminsen.
-- `cx.global_mut<T>()`: aynı, mutable.
-- `cx.default_global<T: Default>() -> &mut T`: yoksa default instance oluşturur,
-  varsa mevcut global'i mutable döndürür.
-- `cx.has_global<T>() -> bool`: kontrol etmeden global okumak istediğinde.
-- `cx.try_global<T>() -> Option<&T>`: nullable okuma.
-- `cx.update_global<T, R>(|g, cx| ...) -> R`: kapsamlı update.
-- `cx.read_global<T, R>(|g, cx| ...) -> R`: kapsamlı read.
-- `cx.remove_global<T>() -> T`: instance'ı geri alır; bir daha set edilmezse
-  global yok sayılır.
-- `cx.observe_global<T>(|cx| ...) -> Subscription`: global her notify olduğunda.
+**Effect cycle yönetimi.** GPUI içinde state değişimleri "effect cycle"
+denilen turlar halinde işlenir; bir update'in içinden başka bir update başlatmak
+yerine işleri ertelemek genellikle daha güvenlidir:
 
-Effect cycle yönetimi:
+- `cx.defer(|cx| ...)` mevcut effect cycle bittiğinde çalışır. Reentrant
+  update'leri kırmak veya entity'leri stack'e geri vermek için idealdir.
+- `Context<T>::defer_in(window, |this, window, cx| ...)` aynı erteleme
+  davranışının window-bound varyantıdır.
+- `window.defer(cx, |window, cx| ...)` doğrudan window context'inden ertelemek
+  için kullanılır.
+- `window.refresh()` pencereyi bir sonraki frame'de redraw için işaretler.
+- `cx.refresh_windows()` tüm pencereler için aynı işi yapar.
 
-- `cx.defer(|cx| ...)`: mevcut effect cycle bittiğinde çalışır. Reentrant
-  `update` veya entity'leri stack'e geri vermek için ideal.
-- `Context<T>::defer_in(window, |this, window, cx| ...)`: window-bound varyant.
-- `window.defer(cx, |window, cx| ...)`: doğrudan window context'inden ertele.
-- `window.refresh()`: pencereyi bir sonraki frame'de redraw için işaretle.
-- `cx.refresh_windows()`: tüm pencereler için aynı.
+**Tuzaklar.** Global'ler ve defer kullanımında dikkat edilmesi gerekenler:
 
-Tuzaklar:
-
-- `cx.global<T>()` ve `cx.global_mut<T>()` panic eder; init'i kontrol etmediğin
-  call site'ta `try_global` veya `has_global` kullan.
-- `update_global` sırasında aynı global'i tekrar update etmek panic verir;
-  iç içe çağrılarda `defer` ile ertelemek güvenli yoldur.
-- Subscription `detach()` edilmezse owner drop'unda iptal olur; uzun yaşayan
-  observer için sahibi olan struct'a kaydet.
+- `cx.global<T>()` ve `cx.global_mut<T>()` global yoksa panic eder; init
+  kontrolünün yapılmadığı call site'larda `try_global` veya `has_global`
+  tercih edilmelidir.
+- `update_global` sırasında aynı global yeniden update edilirse panic verir;
+  iç içe çağrılar varsa erteleme için `defer` güvenli yoldur.
+- Subscription `detach()` edilmezse owner drop'ta iptal olur; uzun yaşaması
+  gereken observer'lar bir struct alanında saklanmalıdır.
 
 ## Subscription Yaşam Döngüsü
 
-
 `crates/gpui/src/subscription.rs`.
 
-`Subscription` opaque tiptir; düşürüldüğünde callback kaydını siler. Pratikte
-üç desen vardır:
+`Subscription` opaque bir tiptir; düşürüldüğünde içindeki callback kaydı silinir.
+Bu davranış üç farklı kullanım desenine yol açar; aralarındaki seçim
+abonelik kaydının ne kadar yaşaması gerektiğine bağlıdır:
 
 ```rust
 // 1. Field'da sakla
@@ -346,36 +404,42 @@ let _sub = cx.observe(&entity, |...| { ... });
 // _sub düştüğünde callback kaldırılır
 ```
 
-Subscription üreten yöntemler (`Context<T>` üzerinde):
+**Subscription üreten yöntemler.** `Context<T>` üzerinde abonelik üreten temel
+metotlar şunlardır:
 
-- `cx.observe(entity, f)`: `cx.notify()` çağrıldığında fire eder.
-- `cx.subscribe(entity, f)`: `EventEmitter<E>` event'leri için.
-- `cx.observe_global::<G>(f)`: global state değişti.
-- `cx.observe_release(entity, f)`: entity drop edildi.
-- `cx.on_focus(handle, window, f)` / `cx.on_blur(...)` / `cx.on_focus_in(...)` /
+- `cx.observe(entity, f)` — entity `cx.notify()` çağırdığında fire eder.
+- `cx.subscribe(entity, f)` — `EventEmitter<E>` event'leri için.
+- `cx.observe_global::<G>(f)` — global state değiştiğinde.
+- `cx.observe_release(entity, f)` — entity drop edildiğinde.
+- `cx.on_focus(handle, window, f)`, `cx.on_blur(...)`, `cx.on_focus_in(...)`,
   `cx.on_focus_lost(window, f)`. Descendant focus-out için düşük seviyeli
   `window.on_focus_out(handle, cx, f)` kullanılır.
 - `cx.observe_window_bounds`, `cx.observe_window_activation`,
   `cx.observe_window_appearance`, `cx.observe_button_layout_changed`,
   `cx.observe_pending_input`, `cx.observe_keystrokes`.
 
-Tuzaklar:
+**Tuzaklar.** Subscription kullanımında dikkat edilecek noktalar:
 
-- `detach()` uzun yaşayan callback'i view ömründen koparır; view drop olduktan
-  sonra hâlâ fire ederse `WeakEntity` ile koru.
-- Subscription drop sırasına davranış bağlama; birden çok abonelik birbirini
-  etkiliyorsa açık teardown metodu veya tek owner struct kullan.
-- `observe` sırasında entity'yi update etmek panic verir; `cx.spawn(..)` ile
-  ertele veya `cx.defer(|cx| ...)` kullan.
+- `detach()` uzun yaşayan bir callback'i view ömründen koparır; view drop
+  olduktan sonra callback hâlâ fire ediyorsa state erişimi için `WeakEntity`
+  ile koruma şart olur.
+- Birden çok abonelik birbirini etkiliyorsa drop sırasına davranış bağlamak
+  hatalıdır; açık bir teardown metodu veya tek owner struct kullanmak güvenli
+  yoldur.
+- `observe` callback'i içinden entity'yi update etmek panic verir; bunun
+  yerine `cx.spawn(..)` ile async path'e taşınır veya `cx.defer(|cx| ...)`
+  ile sonraki effect cycle'a ertelenir.
 
 ## Window-bound Observer, Release ve Focus Helper Desenleri
 
+Standart `observe`, `subscribe` ve `on_release` callback'leri yalnızca `App`
+veya `Context<T>` verir. Buna karşılık UI katmanında çoğu iş pencereye de
+ihtiyaç duyduğu için GPUI aynı desenlerin pencere-bilinçli varyantlarını
+ayrıca sağlar. Aşağıdaki başlıklar bu helper ailelerini ve aralarındaki seçimi
+açar.
 
-Normal `observe`, `subscribe` ve `on_release` callback'leri sadece `App` veya
-`Context<T>` verir. UI katmanında çoğu iş pencere de istediği için GPUI aynı
-desenlerin window-bound varyantlarını sağlar.
-
-Yeni entity gözleme:
+**Yeni entity gözleme.** Belirli bir tipin oluşturulduğu anda hook takmak
+gerektiğinde `observe_new` kullanılır:
 
 ```rust
 cx.observe_new(|workspace: &mut Workspace, window, cx| {
@@ -386,16 +450,17 @@ cx.observe_new(|workspace: &mut Workspace, window, cx| {
 ```
 
 - `App::observe_new<T>(|state, Option<&mut Window>, &mut Context<T>| ...)`
-  belirli türde bir entity oluşturulduğunda çalışır. Entity bir window içinde
-  yaratıldıysa `Some(window)` gelir; headless veya app-level yaratımda `None`
-  gelebilir.
+  belirli türde bir entity oluşturulduğunda çalışır. Entity bir pencere içinde
+  yaratıldıysa callback'e `Some(window)` gelir; headless ya da app-level
+  yaratımda `None` gelebilir.
 - Zed `zed.rs`, `toast_layer`, `theme_preview`, `telemetry_log`,
   `move_to_applications` gibi modüllerde workspace/project/editor yaratıldığında
   global hook takmak için bu deseni kullanır.
-- Dönen `Subscription` saklanmalı veya app ömrü boyunca gerekiyorsa `detach()`
-  edilmelidir.
+- Dönen `Subscription` saklanmalı ya da uygulama ömrü boyunca gerekiyorsa
+  `detach()` edilmelidir.
 
-Window context'iyle observe/subscribe:
+**Window context'iyle observe/subscribe.** İçinde pencere context'i gerektiren
+abonelikler ayrı bir yardımcı ailesiyle yapılır:
 
 ```rust
 self._observe_active_pane = cx.observe_in(active_pane, window, |this, pane, window, cx| {
@@ -408,65 +473,72 @@ self._subscription = cx.subscribe_in(&modal, window, |this, modal, event, window
 ```
 
 - `Context<T>::observe_in(&Entity<V>, window, |this, Entity<V>, window, cx| ...)`
-  observed entity `cx.notify()` yaptığında current entity'yi pencere context'iyle
-  update eder.
+  observed entity `cx.notify()` yaptığında current entity'yi pencere context'i
+  eşliğinde update eder.
 - `Context<T>::subscribe_in(&Entity<Emitter>, window, |this, emitter, event, window, cx| ...)`
   `EventEmitter` olaylarını window context'iyle işler.
-- `Context<T>::observe_self(|this, cx| ...)` current entity `cx.notify()` yaptığında
-  kendi üzerinde callback çalıştırır; derived/cache state'i tek yerde tutmak için
-  kullanılabilir.
+- `Context<T>::observe_self(|this, cx| ...)` current entity `cx.notify()`
+  yaptığında kendi üzerinde callback çalıştırır; türetilmiş ya da cache durumu
+  tek noktada tutmak için kullanılabilir.
 - `Context<T>::subscribe_self::<Evt>(|this, event, cx| ...)` current entity'nin
-  kendi yaydığı event'i dinler. Bu desen dikkatli kullanılmalı; çoğu durumda event'i
-  doğrudan emit eden kod path'inde state güncellemek daha açıktır.
+  kendi yaydığı event'i dinler. Bu desen dikkatli kullanılmalıdır; çoğu
+  durumda event'i emit eden kod yolunda state'i doğrudan güncellemek daha
+  açıktır.
 - `Context<T>::observe_global_in::<G>(window, |this, window, cx| ...)` global
   state notify olduğunda current entity'yi pencere context'iyle update eder.
-  Pencere geçici olarak update stack'inden alınmış veya kapanmışsa notification
-  atlanır, observer canlı kalır.
-- Bu API'ler `ensure_window(observer_id, window.handle.id)` çağırır; entity'nin
-  hangi pencereye bağlı çalışacağını GPUI'a kaydeder. Aynı entity birden fazla
-  pencerede kullanılacaksa hangi pencerenin bağlandığını açıkça düşün.
+  Pencere geçici olarak update stack'inden alınmış veya kapanmışsa
+  notification atlanır, observer canlı kalır.
+- Bu API'ler `ensure_window(observer_id, window.handle.id)` çağırır;
+  entity'nin hangi pencereye bağlı çalışacağını GPUI'a kaydeder. Aynı entity
+  birden fazla pencerede kullanılacaksa hangi pencerenin bağlandığı bilinçli
+  şekilde düşünülmelidir.
 
-Release gözleme:
+**Release gözleme.** Bir entity yok edilirken yapılacak temizlikler için
+release callback'leri vardır:
 
-- `App::observe_release(&entity, |state, cx| ...)`: entity'nin son strong handle'ı
-  düştükten sonra, state drop edilmeden hemen önce çalışır.
-- `App::observe_release_in(&entity, window, |state, window, cx| ...)`: aynı
+- `App::observe_release(&entity, |state, cx| ...)` — entity'nin son güçlü
+  handle'ı düştükten sonra, state drop edilmeden hemen önce çalışır.
+- `App::observe_release_in(&entity, window, |state, window, cx| ...)` — aynı
   callback'i pencere handle'ı üzerinden çalıştırır; pencere kapanmışsa update
   başarısız olur ve callback atlanabilir.
-- `Context<T>::on_release_in(window, |this, window, cx| ...)`: current entity'nin
-  release'ini pencereyle gözler.
-- `Context<T>::observe_release_in(&other, window, |this, other, window, cx| ...)`:
-  başka entity release olurken observer entity'yi de update eder.
+- `Context<T>::on_release_in(window, |this, window, cx| ...)` — current
+  entity'nin release'ini pencereyle gözler.
+- `Context<T>::observe_release_in(&other, window, |this, other, window, cx| ...)`
+  — başka bir entity release olurken observer entity'yi de update eder.
 
-Focus helper'ları:
+**Focus helper'ları.** Focus akışına müdahale için tipli yardımcılar mevcuttur:
 
-- `cx.focus_view(&entity, window)`: `Focusable` implement eden başka bir view'i
-  focuslar.
-- `cx.focus_self(window)`: current entity `Focusable` ise focus'u kendine taşır.
-  İçeride `window.defer(...)` kullanır; bu nedenle render/action callback içinde
-  çağrıldığında focus değişimi effect cycle sonunda uygulanır.
-- `window.disable_focus()`: pencereyi blur eder ve ardından `focus_enabled`
+- `cx.focus_view(&entity, window)` — `Focusable` implement eden başka bir
+  view'i focus eder.
+- `cx.focus_self(window)` — current entity `Focusable` ise focus'u kendine
+  taşır. İçeride `window.defer(...)` kullanır; bu nedenle render ya da action
+  callback içinde çağrıldığında focus değişimi effect cycle sonunda uygulanır.
+- `window.disable_focus()` — pencereyi blur eder ve ardından `focus_enabled`
   bayrağını `false` yapar. Tersine çeviren bir API yoktur, yani çağrıldıktan
   sonra `focus_next/focus_prev/focus(...)` çağrıları sessizce no-op olur.
   Uygulama component'lerinde genellikle gerekmez; sadece pencere ömrü boyunca
-  klavye focus'unu kalıcı kapatmak istediğinde kullan.
+  klavye focus'unu kalıcı kapatmak isteyen ender durumlarda kullanılır.
 
-Tuzaklar:
+**Tuzaklar.** Bu helper aileleri kullanılırken gözden kaçabilecek noktalar:
 
-- `observe_new` callback'inde `window` her zaman vardır varsayma; headless test ve
-  app-level entity yaratımı `None` üretebilir.
-- Window-bound subscription'ı struct alanında saklamazsan callback hemen düşer.
-- `focus_self` delayed çalıştığı için hemen sonraki satırda focus değişmiş gibi
-  okumak yanlıştır; sonucu sonraki effect/frame akışında gözle.
+- `observe_new` callback'inde `window`'un her zaman var olduğu varsayılmamalıdır;
+  headless test ve app-level entity yaratımı `None` üretebilir.
+- Window-bound subscription bir struct alanında saklanmazsa callback hemen
+  düşer.
+- `focus_self` ertelemeli çalıştığı için hemen sonraki satırda focus değişmiş
+  gibi okumak yanıltıcıdır; sonucu sonraki effect veya frame akışında gözlemek
+  gerekir.
 
 ## Entity Reservation ve Çift Yönlü Referans
 
+`crates/gpui/src/app/async_context.rs:43+` ve
+`app.rs::reserve_entity`/`insert_entity`.
 
-`crates/gpui/src/app/async_context.rs:43+` ve `app.rs::reserve_entity`/`insert_entity`.
-
-Bazen bir entity oluşturulurken başka bir entity'nin kimliğini veya zayıf handle'ını
-önceden bilmek gerekir (ör. `Workspace` ve `Pane`). Bunu kuvvetli referans döngüsü
-kurmadan yapmak için `Reservation` deseni vardır:
+Bazen bir entity oluşturulurken başka bir entity'nin kimliğini veya zayıf
+handle'ını önceden bilmek gerekir; en tipik örnek `Workspace` ve `Pane` ikilisidir.
+Bunu kuvvetli referans döngüsü kurmadan yapmak için `Reservation` deseni
+mevcuttur. Önce kimlik rezerve edilir, ardından entity bu rezervasyona
+yerleştirilir:
 
 ```rust
 let pane_reservation: Reservation<Pane> = cx.reserve_entity();
@@ -481,45 +553,48 @@ let pane = cx.insert_entity(pane_reservation, |cx| {
 });
 ```
 
-`Reservation<T>`:
+**`Reservation<T>` yüzeyi.** Rezervasyon nesnesi ile iki temel iş yapılır:
 
-- `entity_id()` daha entity oluşturulmadan kimliği verir.
-- `cx.insert_entity(reservation, build)` rezervasyonu doldurur ve `Entity<T>` döner.
-- Doldurulmadan drop edilirse rezervasyon iptal olur.
+- `entity_id()` — entity henüz oluşturulmadan kimliğini verir.
+- `cx.insert_entity(reservation, build)` — rezervasyonu doldurur ve
+  `Entity<T>` döndürür.
+- Doldurulmadan drop edildiğinde rezervasyon iptal olur.
 
-Deseni: çocuk entity ebeveyne `WeakEntity` ile bağlanır; rezervasyon sayesinde
-ebeveynin oluştururken çocuk handle'ı önceden bilinmesi gerektiği durumlarda da
-döngü oluşmaz. `AsyncApp` üzerinden de aynı API çağrılabilir.
+**Deseni.** Çocuk entity ebeveyne `WeakEntity` ile bağlanır; rezervasyon
+sayesinde ebeveyni oluştururken çocuğun handle'ının önceden bilinmesi gereken
+durumlarda da döngü oluşmaz. Aynı API `AsyncApp` üzerinden de çağrılabilir.
 
-Tuzaklar:
+**Tuzaklar.** Reservation kullanılırken karşılaşılabilecek hata desenleri:
 
-- Reservation kullanmadan iki `Entity<T>` birbirine kuvvetli sahiplikle bağlanırsa
-  hiçbir handle drop olmadığında bellek sızıntısı oluşur.
-- `insert_entity` çağrılmadan reservation drop'ta entity oluşturulmamış sayılır;
-  daha önce `entity_id()` ile yayılmış kimlik artık geçersizdir.
-- `cx.new` mevcut güncellemenin içinde rezervasyonu da doldurabilir; reentrant
-  `update` yasakları aynı şekilde geçerlidir.
+- Reservation kullanmadan iki `Entity<T>` birbirine kuvvetli sahiplikle
+  bağlandığında, hiçbir handle drop olmadığı için bellek sızıntısı oluşur.
+- `insert_entity` çağrılmadan reservation drop edildiğinde entity hiç
+  oluşturulmamış sayılır; daha önce `entity_id()` ile yayılmış olan kimlik
+  artık geçersizdir.
+- `cx.new` bir update'in ortasında rezervasyonu da doldurabilir; reentrant
+  update yasakları reservation için de aynen geçerlidir.
 
 ## Entity Release, Cleanup ve Leak Detection
 
+Entity handle'ları ref-count mantığıyla yaşar; son güçlü `Entity<T>` handle'ı
+düştüğünde entity release edilir. `WeakEntity<T>` ise bu davranışı engellemez,
+yalnızca canlıyken zayıf erişim sağlar.
 
-Entity handle'ları ref-count mantığıyla yaşar. Son güçlü `Entity<T>` handle'ı
-düştüğünde entity release edilir; `WeakEntity<T>` bunu engellemez.
+**Cleanup API'leri.** Release anında yapılacak işler için birkaç farklı
+callback formu vardır:
 
-Cleanup API'leri:
+- `cx.on_release(|this, cx| ...)` — mevcut entity release edilirken çalışır.
+- `App::observe_release(&entity, |entity, cx| ...)` — app context'inden başka
+  bir entity'nin release'ini izler.
+- `Context<T>::observe_release(&entity, |this, entity, cx| ...)` — view state
+  ile birlikte başka bir entity'nin release'ini izler.
+- `window.observe_release(&entity, cx, |entity, window, cx| ...)` — release
+  sırasında window context gerektiğinde kullanılır.
+- `cx.on_drop(...)` / `AsyncApp::on_drop(...)` — Rust scope drop'unda entity
+  update etmek için `Deferred` callback üretir; entity zaten düşmüşse update
+  başarısız olabilir.
 
-- `cx.on_release(|this, cx| ...)`: mevcut entity release edilirken çalışır.
-- `App::observe_release(&entity, |entity, cx| ...)`: app context'ten başka bir
-  entity'nin release'ini izle.
-- `Context<T>::observe_release(&entity, |this, entity, cx| ...)`: view state ile
-  başka bir entity'nin release'ini izle.
-- `window.observe_release(&entity, cx, |entity, window, cx| ...)`: release
-  sırasında window context gerekiyorsa.
-- `cx.on_drop(...)` / `AsyncApp::on_drop(...)`: Rust scope drop'unda entity update
-  etmek için `Deferred` callback üretir; entity zaten düşmüşse update başarısız
-  olabilir.
-
-Örnek:
+**Örnek.** Cache release'ini gözlemleyen bir view tipik bir desendir:
 
 ```rust
 struct Preview {
@@ -545,7 +620,7 @@ impl Preview {
 }
 ```
 
-Leak kontrolü testlerde/feature altında:
+**Leak kontrolü.** Test ve feature bayrağı altında entity sızıntısı izlenebilir:
 
 ```rust
 let snapshot = cx.leak_detector_snapshot();
@@ -553,24 +628,26 @@ let snapshot = cx.leak_detector_snapshot();
 cx.assert_no_new_leaks(&snapshot);
 ```
 
-Tuzaklar:
+**Tuzaklar.** Cleanup ve release çalışmasında dikkat edilmesi gerekenler:
 
-- Subscription saklanmazsa hemen drop olur ve listener iptal edilir.
-- Karşılıklı `Entity<T>` alanları cycle üretir; bir taraf `WeakEntity<T>` olmalı.
-- Release callback içinde uzun async iş başlatacaksan entity state'in artık
-  kapanmakta olduğunu varsay; gerekli veriyi callback başında kopyala.
+- Subscription saklanmadığında hemen drop olur ve listener iptal edilir.
+- Karşılıklı `Entity<T>` alanları cycle üretir; bir tarafın `WeakEntity<T>`
+  olması gereklidir.
+- Release callback'i içinde uzun async iş başlatılacaksa entity state'in
+  kapanmakta olduğu varsayılmalı; gerekli veri callback başında kopyalanmalıdır.
 - `WeakEntity::update/read_with` her zaman `Result` döndürür; entity düşmüş
-  olabileceği için hatayı görünür biçimde ele al.
+  olabileceği için hata görünür biçimde ele alınmalıdır.
 
 ## Entity Type Erasure, Callback Adaptörleri ve View Cache
 
-
-Bu bölüm GPUI çekirdeğinde public olan ama günlük kullanımda kolay atlanan küçük
-API yüzeylerini toplar.
+Bu bölüm GPUI çekirdeğinde public olan ama günlük kullanımda kolay atlanan
+küçük API yüzeylerini toplar. Entity'nin tipli/untyped varyantları, view cache
+mekanizması, callback adaptörleri ve düşük seviyeli kimlik tipleri burada
+işlenir.
 
 #### Entity ve WeakEntity Tam Yüzeyi
 
-`Entity<T>` güçlü handle'dır:
+`Entity<T>` güçlü handle'dır ve şu metotları sağlar:
 
 - `entity.entity_id() -> EntityId`
 - `entity.downgrade() -> WeakEntity<T>`
@@ -579,47 +656,51 @@ API yüzeylerini toplar.
 - `entity.read_with(cx, |state, cx| ...) -> R`
 - `entity.update(cx, |state, cx| ...) -> R`
 - `entity.update_in(visual_cx, |state, window, cx| ...) -> C::Result<R>`
-- `entity.as_mut(cx) -> GpuiBorrow<T>`: mutable borrow verir; borrow drop
+- `entity.as_mut(cx) -> GpuiBorrow<T>` — mutable borrow verir; borrow drop
   olurken entity notify edilir.
-- `entity.write(cx, value)`: state'i komple değiştirir ve `cx.notify()` çağırır.
+- `entity.write(cx, value)` — state'i komple değiştirir ve `cx.notify()`
+  çağırır.
 
-`Context<T>` current entity için aynı kimlik/handle yüzeyini verir:
+`Context<T>` current entity için aynı kimlik ve handle yüzeyini sağlar:
 
 - `cx.entity_id() -> EntityId`
-- `cx.entity() -> Entity<T>`: current entity hâlâ canlı olmak zorunda olduğu için
-  strong handle döndürür.
-- `cx.weak_entity() -> WeakEntity<T>`: async task, listener veya döngüsel sahiplik
-  riski olan alanlarda saklanacak handle budur.
+- `cx.entity() -> Entity<T>` — current entity hâlâ canlı olmak zorunda olduğu
+  için strong handle döndürür.
+- `cx.weak_entity() -> WeakEntity<T>` — async task, listener veya döngüsel
+  sahiplik riski olan alanlarda saklanacak handle budur.
 
-Kimlik dönüşümleri:
+**Kimlik dönüşümleri.** GPUI runtime kimlikleri u64 olarak ifşa edilebilir:
 
 - `EntityId::as_u64()` ve `EntityId::as_non_zero_u64()` FFI, telemetry veya
   debug map anahtarı gibi typed id dışına çıkılan yerlerde kullanılır.
-- `WindowId::as_u64()` aynı işi pencere kimliği için yapar. Bu değerleri domain
-  id'si veya kalıcı workspace serialization anahtarı gibi kullanma; GPUI runtime
-  kimliğidir.
+- `WindowId::as_u64()` aynı işi pencere kimliği için yapar. Bu değerler
+  domain id'si veya kalıcı workspace serialization anahtarı olarak
+  kullanılmamalıdır; GPUI runtime kimliği olmaları kalıcılık garantisi
+  vermez.
 
 `WeakEntity<T>` zayıf handle'dır:
 
 - `weak.upgrade() -> Option<Entity<T>>`
 - `weak.update(cx, |state, cx| ...) -> Result<R>`
 - `weak.read_with(cx, |state, cx| ...) -> Result<R>`
-- `weak.update_in(cx, |state, window, cx| ...) -> Result<R>`: entity'nin current
-  window'ını `App::with_window(entity_id, ...)` üzerinden bulur; entity düşmüşse
-  veya current window yoksa hata döner.
+- `weak.update_in(cx, |state, window, cx| ...) -> Result<R>` — entity'nin
+  current window'ını `App::with_window(entity_id, ...)` üzerinden bulur;
+  entity düşmüşse veya current window yoksa hata döner.
 - `WeakEntity::new_invalid()` hiçbir zaman upgrade edilemeyen sentinel handle
-  üretir; opsiyon yerine "geçersiz ama tipli handle" gereken yerlerde kullanılır.
+  üretir; opsiyon yerine "geçersiz ama tipli handle" gereken yerlerde
+  kullanılır.
 
 `AnyEntity` ve `AnyWeakEntity` heterojen koleksiyonlar içindir:
 
 - `AnyEntity::{entity_id, entity_type, downgrade, downcast::<T>}`
 - `AnyWeakEntity::{entity_id, is_upgradable, upgrade, new_invalid}`
-- `AnyWeakEntity::assert_released()` yalnız test/leak-detection feature altında
-  vardır; güçlü handle sızıntısını yakalamak için kullanılır.
+- `AnyWeakEntity::assert_released()` yalnız `test`/`leak-detection` feature'ı
+  altında vardır; güçlü handle sızıntısını yakalamak için kullanılır.
 
-Kural: plugin/dock/workspace gibi heterojen koleksiyon sınırı yoksa typed
-`Entity<T>`/`WeakEntity<T>` kullan. `AnyEntity` downcast zorunluluğu getirir ve
-yanlış tipte `downcast::<T>()` entity'yi `Err(AnyEntity)` olarak geri verir.
+**Kural.** Plugin/dock/workspace gibi heterojen koleksiyon sınırı yoksa typed
+`Entity<T>`/`WeakEntity<T>` tercih edilir. `AnyEntity` downcast zorunluluğu
+getirir; yanlış tipte `downcast::<T>()` çağrısı entity'yi `Err(AnyEntity)`
+olarak geri verir.
 
 ##### Deref ile gizlenmiş yüzey (typed handle üzerinden untyped metot)
 
@@ -634,10 +715,10 @@ pub struct Entity<T>     { any_entity: AnyEntity,         entity_type: PhantomDa
 pub struct WeakEntity<T> { any_entity: AnyWeakEntity,     entity_type: PhantomData<_> }
 ```
 
-Bu yüzden `AnyEntity`/`AnyWeakEntity` üzerindeki bazı metotlar typed handle
-üzerinde method resolution ile çağrılabilir; "owner sadece untyped tip"
-yanılgısı buradan doğar. Ayrım `Owner::method -> dönüş tipi` çiftiyle yapılır,
-ad tek başına yeterli değildir.
+Bu yüzden `AnyEntity` ve `AnyWeakEntity` üzerindeki bazı metotlar typed
+handle'da method resolution ile çağrılabilir; "owner sadece untyped tip"
+yanılgısı buradan doğar. Doğru ayrım `Owner::method -> dönüş tipi` çiftiyle
+yapılır; metot adı tek başına yeterli değildir.
 
 | Owner | Metot | Dönüş | Erişim |
 |---|---|---|---|
@@ -651,14 +732,14 @@ ad tek başına yeterli değildir.
 | `Entity<T>` | `as_mut(&mut cx)` | `GpuiBorrow<T>` | Inherent; drop'ta `cx.notify()`. |
 | `Entity<T>` | `write(&mut cx, value)` | `()` | Inherent; state'i değiştirir ve notify eder. |
 | `Entity<T>` deref | `entity_type()` | `TypeId` | Owner `AnyEntity`; Entity inherent karşılığı yoktur, deref ile çağrılır. |
-| `Entity<T>` deref-only edge case | `downcast::<U>()` | `Result<Entity<U>, AnyEntity>` | Owner `AnyEntity::downcast(self)` — **`self`'i tüketir**. Auto-deref tüketen metoda dağıtmadığından `entity.downcast::<U>()` doğrudan derlenmez; `entity.into_any().downcast::<U>()` yaz. |
+| `Entity<T>` deref-only edge case | `downcast::<U>()` | `Result<Entity<U>, AnyEntity>` | Owner `AnyEntity::downcast(self)` — **`self`'i tüketir**. Auto-deref tüketen metoda dağıtmadığından `entity.downcast::<U>()` doğrudan derlenmez; `entity.into_any().downcast::<U>()` yazılmalıdır. |
 | `AnyEntity` | `entity_id()` | `EntityId` | Inherent. |
 | `AnyEntity` | `entity_type()` | `TypeId` | Inherent. |
 | `AnyEntity` | `downgrade()` | `AnyWeakEntity` | Inherent. |
 | `AnyEntity` | `downcast::<U>()` | `Result<Entity<U>, AnyEntity>` | Inherent; `self`'i tüketir. |
 
-`WeakEntity<T>` tarafı ad çakışmaları yüzünden ayrıca okunaklı tutulmalıdır;
-inherent ile deref-only metotlar aynı isimle farklı imza taşır:
+`WeakEntity<T>` tarafında ad çakışmaları yüzünden tablo daha da dikkatli
+okunmalıdır; inherent ve deref-only metotlar aynı isimle farklı imza taşır:
 
 | Owner | Metot | Dönüş | Erişim |
 |---|---|---|---|
@@ -676,33 +757,39 @@ inherent ile deref-only metotlar aynı isimle farklı imza taşır:
 | `AnyWeakEntity` | `new_invalid()` | `Self` | Inherent. |
 | `AnyWeakEntity` | `assert_released()` | `()` | Inherent; `test`/`leak-detection`. |
 
-Pratik sonuç: `weak.entity_id()` çağrısı typed handle'da deref üzerinden
-`AnyWeakEntity::entity_id`'a iner; ama `weak.upgrade()` typed kazanır ve
-`Option<Entity<T>>` döner. Aynı kod parçasında her ikisi de görünür, oysa
-ownership'leri farklıdır; ayrımı `Owner::method -> dönüş` çiftiyle yap.
+**Pratik sonuç.** `weak.entity_id()` çağrısı typed handle'da deref üzerinden
+`AnyWeakEntity::entity_id` metoduna iner; oysa `weak.upgrade()` çağrısında
+typed metot kazanır ve sonuç `Option<Entity<T>>` olur. Aynı kod parçasında her
+ikisi de yan yana görünür ama ownership'leri farklıdır; ayrım yine
+`Owner::method -> dönüş` çiftiyle yapılır.
 
 #### AnyView, AnyWeakView ve EmptyView
 
 `AnyView`, `Render` implement eden bir `Entity<V>` için element olarak
-kullanılabilen type-erased view handle'dır:
+kullanılabilen type-erased view handle'dır. Bu sayede farklı view tipleri
+tek bir element yuvasına yerleştirilebilir:
 
 ```rust
 let view: AnyView = pane.clone().into();
 div().child(view.clone());
 ```
 
-Önemli metotlar:
+**Önemli metotlar.** Type-erased view ile çalışırken sık kullanılan API'ler
+şunlardır:
 
-- `AnyView::from(entity)` veya `entity.into_element()` typed view'i type-erased
-  element yapar.
-- `any_view.downcast::<T>() -> Result<Entity<T>, AnyView>` typed handle'a geri
-  dönmek içindir.
-- `any_view.downgrade() -> AnyWeakView`; `AnyWeakView::upgrade() -> Option<AnyView>`.
-- `any_view.entity_id()` ve `entity_type()` debug/registry mantığı için kullanılır.
-- `EmptyView` hiçbir şey render etmeyen `Render` view'idir.
+- `AnyView::from(entity)` veya `entity.into_element()` — typed view'i
+  type-erased element haline getirir.
+- `any_view.downcast::<T>() -> Result<Entity<T>, AnyView>` — typed handle'a
+  geri dönmek için kullanılır.
+- `any_view.downgrade() -> AnyWeakView` ve
+  `AnyWeakView::upgrade() -> Option<AnyView>` — zayıf handle dönüşümleri.
+- `any_view.entity_id()` ve `entity_type()` — debug ve registry mantığında
+  kullanılır.
+- `EmptyView` — hiçbir şey render etmeyen `Render` view'idir; placeholder
+  amaçlı kullanılır.
 
-`AnyView::cached(style_refinement)` pahalı child view render'ını cache'lemek için
-kullanılır:
+**Cached view.** `AnyView::cached(style_refinement)` pahalı bir child view'in
+render'ını cache'lemek için kullanılır:
 
 ```rust
 div().child(
@@ -711,68 +798,72 @@ div().child(
 )
 ```
 
-Cache, view `cx.notify()` çağırmadıysa önceki layout/prepaint/paint aralıklarını
-yeniden kullanır. `Window::refresh()` çağrısı cache'i bypass eder; inspector
-picking açıkken de hitbox'ların eksiksiz olması için caching devre dışı kalır.
-Cache key bounds, aktif `ContentMask` ve aktif `TextStyle` içerir. Bu nedenle
-`cached(...)` için verdiğin root `StyleRefinement` view'in gerçek root layout
-stiliyle uyumlu olmalıdır; yanlış refinement layout'u bayat veya hatalı gösterir.
+Cache, view `cx.notify()` çağırmadığı sürece önceki layout/prepaint/paint
+aralıklarını yeniden kullanır. `Window::refresh()` çağrısı cache'i bypass
+eder; inspector picking açıkken de hitbox'ların eksiksiz olabilmesi için
+cache devre dışı kalır. Cache anahtarı (key) bounds, aktif `ContentMask` ve
+aktif `TextStyle`'ı içerir. Bu nedenle `cached(...)` çağrısında verilen root
+`StyleRefinement` view'in gerçek root layout stiliyle uyumlu olmalıdır; yanlış
+refinement layout'u bayat veya hatalı gösterir.
 
 #### Callback Adaptörleri
 
-Çoğu element callback'i view state almaz:
+Çoğu element callback'i view state'ini doğrudan almaz:
 
 ```rust
 Fn(&Event, &mut Window, &mut App)
 ```
 
-State'e dönmek için doğru adaptörü seç:
+Callback'ten view state'ine geri dönmek için uygun adaptör seçilir:
 
-- `cx.listener(|this, event, window, cx| ...)`:
+- `cx.listener(|this, event, window, cx| ...)` —
   `Fn(&Event, &mut Window, &mut App)` üretir. İçeride current entity'nin
-  `WeakEntity` handle'ı kullanılır; entity düşmüşse callback sessizce no-op olur.
-- `cx.processor(|this, event, window, cx| -> R { ... })`:
+  `WeakEntity` handle'ı kullanılır; entity düşmüşse callback sessizce no-op
+  olur.
+- `cx.processor(|this, event, window, cx| -> R { ... })` —
   `Fn(Event, &mut Window, &mut App) -> R` üretir. Event'i sahiplenir ve dönüş
-  değeri gerekirken kullanılır.
-- `window.listener_for(&entity, |state, event, window, cx| ...)`:
-  current `Context<T>` dışında, elde typed `Entity<T>` varken listener üretir.
-- `window.handler_for(&entity, |state, window, cx| ...)`:
-  event parametresi olmayan `Fn(&mut Window, &mut App)` handler üretir.
+  değeri gerektiğinde tercih edilir.
+- `window.listener_for(&entity, |state, event, window, cx| ...)` — current
+  `Context<T>` dışında, elde typed `Entity<T>` varken listener üretir.
+- `window.handler_for(&entity, |state, window, cx| ...)` — event parametresi
+  olmayan `Fn(&mut Window, &mut App)` handler üretir.
 
-`cx.listener` dışındaki adaptörleri reusable component veya window-level helper
-yazarken kullan. Handler içinde `cx.notify()` çağrısı yine state değişimine göre
-senin sorumluluğundadır.
+`cx.listener` dışındaki adaptörler yeniden kullanılabilir component'ler veya
+window seviyesindeki helper'lar yazılırken devreye girer. Handler içinde state
+değiştiğinde `cx.notify()` çağırmak yine çağıranın sorumluluğundadır; adaptör
+bunu otomatik yapmaz.
 
 #### FocusHandle Zayıf Handle ve Dispatch
 
-`FocusHandle` yalnız focus vermek için değildir:
+`FocusHandle` yalnızca focus vermek için değildir; zayıf handle ve dispatch
+kontrolü de sunar:
 
 - `focus_handle.downgrade() -> WeakFocusHandle`
 - `WeakFocusHandle::upgrade() -> Option<FocusHandle>`
-- `focus_handle.contains(&other, window) -> bool`: son rendered frame'deki focus
-  ağaç ilişkisini kontrol eder.
-- `focus_handle.dispatch_action(&action, window, cx)`: dispatch'i focused node
-  yerine belirli focus handle'ın node'undan başlatır.
+- `focus_handle.contains(&other, window) -> bool` — son render edilen
+  frame'deki focus ağacı ilişkisini kontrol eder.
+- `focus_handle.dispatch_action(&action, window, cx)` — dispatch'i focused
+  node yerine belirli bir focus handle'ın node'undan başlatır.
 
-`contains_focused(window, cx)` "ben veya descendant focused mı?", `within_focused`
-ise "ben focused node'un içinde miyim?" sorusunu cevaplar. `within_focused`
-imzasında `cx: &mut App` vardır; çünkü dispatch/focus path hesaplarında app
-state'iyle çalışır.
+`contains_focused(window, cx)` "ben veya altımdaki bir node focused mu?"
+sorusuna, `within_focused` ise "ben focused node'un içinde miyim?" sorusuna
+cevap verir. `within_focused` imzasında `cx: &mut App` vardır; çünkü
+dispatch/focus path hesaplarında app state'iyle çalışır.
 
 #### ElementId Tam Varyantları
 
-Stabil element state için kullanılan `ElementId` varyantları:
+Kararlı (stabil) element state'i için kullanılan `ElementId` varyantları
+şunlardır:
 
 - `View(EntityId)`, `Integer(u64)`, `Name(SharedString)`, `Uuid(Uuid)`
 - `FocusHandle(FocusId)`, `NamedInteger(SharedString, u64)`, `Path(Arc<Path>)`
-- `CodeLocation(Location<'static>)`, `NamedChild(Arc<ElementId>, SharedString)`
+- `CodeLocation(Location<'static>)`,
+  `NamedChild(Arc<ElementId>, SharedString)`
 - `OpaqueId([u8; 20])`
 
-`ElementId::named_usize(name, usize)` `NamedInteger` üretir. Debug selector veya
-string tabanlı ID gerektiğinde `Name`; liste satırı gibi tekrar eden yapılarda
-`NamedInteger`; text anchor gibi byte-level kimliklerde `OpaqueId` kullanılır.
+`ElementId::named_usize(name, usize)` `NamedInteger` üretir. Pratik seçim
+şöyledir: debug selector veya string tabanlı ID gerektiğinde `Name`; liste
+satırı gibi tekrar eden yapılarda `NamedInteger`; text anchor gibi byte-level
+kimliklerde `OpaqueId` tercih edilir.
 
 ---
-
----
-

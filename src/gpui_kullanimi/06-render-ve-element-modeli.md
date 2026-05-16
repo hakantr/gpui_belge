@@ -4,8 +4,9 @@
 
 ## Render Modeli
 
-
-Bir pencerenin root view'i `Entity<V>` olmalı ve `V: Render` implement etmelidir:
+Bir pencerenin root view'u her zaman bir `Entity<V>` olur ve bu V tipi
+`Render` trait'ini implement etmek zorundadır. `Render::render` her frame'de
+yeniden çağrılan, view state'ini element ağacına dönüştüren ana metottur:
 
 ```rust
 struct MyView {
@@ -27,7 +28,9 @@ impl Render for MyView {
 }
 ```
 
-Reusable, state taşımayan bileşenlerde `RenderOnce` kullanılır:
+State taşımayan, yeniden kullanılan küçük bileşenler için ise `RenderOnce`
+trait'i kullanılır. Bu trait `self`'i tüketir ve genellikle Zed UI bileşenleri
+gibi statik veriden inşa edilen parçalar için tercih edilir:
 
 ```rust
 #[derive(IntoElement)]
@@ -42,100 +45,127 @@ impl RenderOnce for Badge {
 }
 ```
 
-`Render` mutable view state ile çalışır. `RenderOnce` sahipliği alır ve genellikle
-Zed UI bileşenlerinde tercih edilir.
+Aradaki ayrım net bir şekilde sahiplik üzerine kuruludur: `Render` mutable
+view state ile çalışır; `RenderOnce` ise sahipliği alır ve genellikle Zed UI
+bileşenlerinde tercih edilir. Hangisinin seçileceği, bileşenin state'inin
+nerede saklandığına bağlıdır — state view içinde tutulacaksa `Render`,
+caller'ın geçirdiği yapıdan tek seferlik inşa ediliyorsa `RenderOnce`.
 
 ## Element Yaşam Döngüsü ve Draw Fazları
 
+`Element` sözleşmesi üç ana fazdan oluşur ve bu üç faz aynı frame içinde
+sırasıyla çalışır:
 
-`Element` sözleşmesi üç fazdan oluşur:
+1. `request_layout(...) -> (LayoutId, RequestLayoutState)` — stil ve child
+   layout istekleri Taffy layout ağacına verilir. Bu fazda paint yapılmaz;
+   yalnızca "ne kadar yer istiyorum, çocuklarımın layout id'leri nedir"
+   bilgisi üretilir.
+2. `prepaint(...) -> PrepaintState` — layout sonucu artık bilinir, dolayısıyla
+   bounds'a göre yapılması gereken işler burada gerçekleşir: hitbox kaydı,
+   scroll state hazırlığı, element state okuma ve gerekli ölçümler.
+3. `paint(...)` — sahnedeki primitive'ler üretilir. `paint_quad`,
+   `paint_path`, `paint_image`, `paint_svg`, `set_cursor_style` gibi çağrılar
+   bu faza aittir.
 
-1. `request_layout(...) -> (LayoutId, RequestLayoutState)`: stil ve child layout
-   istekleri Taffy layout ağacına verilir. Bu fazda paint yapılmaz.
-2. `prepaint(...) -> PrepaintState`: layout bounds bilinir; hitbox, scroll state,
-   element state ve ölçüm gibi paint öncesi işler yapılır.
-3. `paint(...)`: scene primitive'leri üretilir. `paint_quad`, `paint_path`,
-   `paint_image`, `paint_svg`, `set_cursor_style` gibi çağrılar burada yapılır.
+`Window` üzerindeki debug assertion'lar faz ihlallerini yakalar:
+`insert_hitbox` yalnızca prepaint'te; `paint_*` çağrıları paint'te;
+`with_text_style` ve bazı ölçüm yardımcıları ise prepaint veya paint
+fazlarında geçerlidir. Yanlış fazda yapılan bir çağrı debug build'de panic
+üretir, böylece hatalar erken yakalanır.
 
-`Window` debug assertion'ları faz ihlalini yakalar: `insert_hitbox` yalnızca
-prepaint'te, `paint_*` çağrıları paint'te, `with_text_style` ve bazı ölçüm
-yardımcıları prepaint/paint içinde geçerlidir.
+**State saklama yolları.** Element seviyesinde state'in nerede tutulduğu
+genellikle yaşam süresine göre belirlenir:
 
-State saklama yolları:
-
-- View state'i: `Entity<T>` alanları.
-- Element-local state: stabil `id(...)` ile `window.with_element_state` veya
-  `with_optional_element_state`; aynı ID değişirse state sıfırlanır.
-- Frame callback: `window.on_next_frame(...)`.
+- View state'i: `Entity<T>` alanları olarak tutulur.
+- Element-local state: stabil bir `id(...)` ile birlikte
+  `window.with_element_state` veya `with_optional_element_state` üzerinden
+  saklanır; aynı ID değişirse state sıfırlanır.
+- Frame callback: `window.on_next_frame(...)` ile sonraki frame'e kayıt.
 - Effect sonunda erteleme: `cx.defer(...)`, `window.defer(cx, ...)`,
   `cx.defer_in(window, ...)`.
-- Sürekli redraw: `window.request_animation_frame()`.
+- Sürekli redraw: `window.request_animation_frame()` ile yeni frame talebi.
 
-Render katmanı:
+**Render katmanı.** GPUI'da render zinciri birkaç trait'in birlikte
+çalışmasıyla ortaya çıkar; her trait belirli bir yetenek setini temsil eder:
 
 - `Render`: entity/view state'ini her render'da element ağacına çevirir.
-- `RenderOnce`: sadece elemente dönüştürülecek hafif bileşenler için uygundur.
-- `ParentElement`: child kabul eden elementler.
-- `Styled`: style refinement zincirine dahil olan elementler.
-- `InteractiveElement`: focus, action, key, mouse, hover, drag/drop dinleyicileri.
-- `StatefulInteractiveElement`: `id(...)` sonrası scroll/focus gibi stateful
-  interaktif davranışlar.
+- `RenderOnce`: yalnızca element'e dönüştürülecek hafif bileşenler için
+  uygundur.
+- `ParentElement`: child kabul eden elementlerin trait'idir.
+- `Styled`: style refinement zincirine dahil olan elementleri belirler.
+- `InteractiveElement`: focus, action, key, mouse, hover, drag/drop
+  dinleyicilerini açar.
+- `StatefulInteractiveElement`: `id(...)` çağrısından sonra scroll/focus gibi
+  stateful interaktif davranışları açar.
 
-Kritik kural: `cx.notify()` view render çıktısını etkileyen state değiştiğinde
-çağrılır. `window.refresh()` tüm pencerenin tekrar çizimini ister; local view
-state değişiminde önce `cx.notify()` tercih edilir.
+**Kritik kural.** `cx.notify()`, view'un render çıktısını etkileyen bir state
+değiştiğinde çağrılır; bu olmadan view yeniden render edilmez.
+`window.refresh()` ise tüm pencerenin tekrar çizimini ister; lokal view state
+değişimleri için önce `cx.notify()` tercih edilir, çünkü daha hedeflenmiş bir
+yenilemedir.
 
 ## Element Haritası
 
+GPUI'nın yerleşik elementleri farklı görevler için ayrı ayrı tasarlanmıştır.
+Aşağıdaki liste hangi element'in hangi sorumluluk için seçileceğine dair
+hızlı bir rehberdir:
 
-GPUI yerleşik elementleri:
+- `div()` — neredeyse tüm layout ve container işlerinin temel taşıdır.
+  Flex/grid, style, child, event, focus ve window-control area destekler.
+- Metin — `&'static str`, `String`, `SharedString` doğrudan element olur.
+  Daha karmaşık metin durumlarında `StyledText` ve `InteractiveText` devreye
+  girer.
+- `svg()` — inline path veya harici path ile SVG çizimi sağlar.
+- `img(...)` — asset, path, URL veya byte kaynağı gibi image kaynaklarını
+  çizer; loading ve fallback slotları da destekler.
+- `canvas(prepaint, paint)` — düşük seviyeli çizim ya da hitbox/cursor gibi
+  prepaint gerektiren işler için kullanılır.
+- `anchored()` — pencereye veya belirli bir noktaya sabitlenen popover ve
+  menu benzeri UI parçaları içindir.
+- `deferred(child)` — öncelikli veya ertelenmiş render gerektiren durumlar
+  için.
+- `list(...)` — değişken yükseklikli büyük listelerde tercih edilir.
+- `uniform_list(...)` — sabit veya kolay ölçülen item yüksekliği olan, yüksek
+  performans gerektiren listeler için.
+- `surface(...)` — platform/native bir surface kaynağını element olarak
+  gösterir.
 
-- `div()`: neredeyse tüm layout ve container işleri. Flex/grid, style, child,
-  event, focus ve window-control area destekler.
-- Metin: `&'static str`, `String`, `SharedString` doğrudan element olur.
-  Daha karmaşık metin için `StyledText` ve `InteractiveText`.
-- `svg()`: path veya external path ile SVG çizimi.
-- `img(...)`: asset, path, URL, byte kaynağı gibi image kaynaklarını çizer; loading
-  ve fallback slotları destekler.
-- `canvas(prepaint, paint)`: düşük seviye çizim veya hitbox/cursor gibi prepaint
-  gerektiren işler için.
-- `anchored()`: pencere veya belirli bir noktaya sabitlenen popover/menu gibi UI.
-- `deferred(child)`: öncelikli/ertelenmiş render.
-- `list(...)`: değişken yükseklikli büyük listeler.
-- `uniform_list(...)`: sabit/sık ölçülebilir item yüksekliği olan verimli listeler.
-- `surface(...)`: platform/native surface kaynağını element olarak gösterir.
+**Sık kullanılan style grupları.** Fluent API'de tekrar tekrar karşılaşılan
+zincir parçaları genelde şu gruplar altında toplanır:
 
-Sık kullanılan style grupları:
-
-- Layout: `.flex()`, `.flex_col()`, `.flex_row()`, `.grid()`, `.items_center()`,
-  `.justify_between()`, `.content_stretch()`, `.size_full()`, `.w(...)`, `.h(...)`
-- Spacing: `.p_*`, `.px_*`, `.gap_*`, `.m_*`
+- Layout: `.flex()`, `.flex_col()`, `.flex_row()`, `.grid()`,
+  `.items_center()`, `.justify_between()`, `.content_stretch()`,
+  `.size_full()`, `.w(...)`, `.h(...)`.
+- Spacing: `.p_*`, `.px_*`, `.gap_*`, `.m_*`.
 - Text: `.text_color(...)`, `.text_sm()`, `.text_xl()`, `.font_family(...)`,
-  `.truncate()`, `.line_clamp(...)`
-- Border/shape: `.border_1()`, `.border_color(...)`, `.rounded_sm()`
-- Position: `.absolute()`, `.relative()`, `.top(...)`, `.left(...)`
+  `.truncate()`, `.line_clamp(...)`.
+- Border/shape: `.border_1()`, `.border_color(...)`, `.rounded_sm()`.
+- Position: `.absolute()`, `.relative()`, `.top(...)`, `.left(...)`.
 - State: `.hover(...)`, `.active(...)`, `.focus(...)`, `.focus_visible(...)`,
-  `.group(...)`, `.group_hover(...)`
-- Interaction: `.on_click(...)`, `.on_mouse_down(...)`, `.on_scroll_wheel(...)`,
-  `.on_key_down(...)`, `.on_action(...)`, `.track_focus(...)`, `.key_context(...)`
+  `.group(...)`, `.group_hover(...)`.
+- Interaction: `.on_click(...)`, `.on_mouse_down(...)`,
+  `.on_scroll_wheel(...)`, `.on_key_down(...)`, `.on_action(...)`,
+  `.track_focus(...)`, `.key_context(...)`.
 
-Zed içinde `ui::prelude::*` genellikle `gpui::prelude::*` yerine tercih edilir;
-tasarım sistemi tiplerini de getirir.
+Zed kod tabanında `ui::prelude::*` genellikle `gpui::prelude::*` yerine
+tercih edilir; bu prelude tasarım sistemi tiplerini de birlikte getirir,
+böylece import listesi sade kalır.
 
 ## Element ID, Element State ve Type Erasure
 
+GPUI'da her render'da element ağacı sıfırdan kurulur; oysa hover/scroll/cache
+gibi durumlar frame'ler arasında korunmalıdır. Bu kalıcılığı kuran şey stabil
+ID'lerdir. İlgili ana tipler şunlardır:
 
-GPUI'de her render'da element ağacı yeniden kurulur; kalıcı element state'i için
-stabil ID gerekir. Ana tipler:
-
-- `ElementId`: `Name`, `Integer`, `NamedInteger`, `Path`, `Uuid`,
+- `ElementId` — `Name`, `Integer`, `NamedInteger`, `Path`, `Uuid`,
   `FocusHandle`, `CodeLocation` gibi varyantlar taşır.
-- `GlobalElementId`: parent namespace zinciriyle birleşmiş gerçek ID.
-- `AnyElement`: element type erasure; child listelerinde heterojen element tutar.
-- `AnyView`/`AnyEntity`: view veya entity type erasure.
+- `GlobalElementId` — parent namespace zinciriyle birleşerek tam yol oluşturur.
+- `AnyElement` — element type erasure; child listelerinde heterojen element
+  tutmak için kullanılır.
+- `AnyView` / `AnyEntity` — view veya entity için type erasure.
 
-Element state API'leri `Window` üzerindedir ve yalnızca element çizimi sırasında
-kullanılmalıdır:
+Element state API'leri `Window` üzerindedir ve yalnızca element çizimi
+sırasında çağrılabilir. Yüksek seviyeli API state'i otomatik yönetir:
 
 ```rust
 let row_state = window.use_keyed_state(
@@ -145,7 +175,8 @@ let row_state = window.use_keyed_state(
 );
 ```
 
-Alt seviye API:
+Daha düşük seviyeli ihtiyaçlar için global id ve element state API'leri
+doğrudan açıktır:
 
 ```rust
 window.with_global_id("image-cache".into(), |global_id, window| {
@@ -157,31 +188,35 @@ window.with_global_id("image-cache".into(), |global_id, window| {
 });
 ```
 
-Kurallar:
+**Kurallar.** Element id'siyle çalışırken gözetilmesi gereken disiplinler
+şunlardır:
 
-- `window.with_id(element_id, |window| ...)` local element id stack'ine id push
-  eder; `with_global_id` bu stack'i `GlobalElementId` haline getirir.
-- Liste item'larında `use_state` yerine `use_keyed_state` kullan; `use_state`
-  caller location ile ID üretir ve aynı render noktasındaki çoklu item'ları ayıramaz.
-- `with_element_namespace(id, ...)` custom element içinde child ID çakışmasını
-  önlemek için kullanılır.
+- `window.with_id(element_id, |window| ...)` lokal element id stack'ine id
+  ekler; `with_global_id` bu stack'ten tam bir `GlobalElementId` üretir.
+- Liste item'larında `use_state` yerine `use_keyed_state` tercih edilir;
+  `use_state` caller location'a göre id üretir ve aynı render noktasındaki
+  birden fazla item'ı birbirinden ayıramaz.
+- `with_element_namespace(id, ...)` custom element içinde child id
+  çakışmalarını önlemek için kullanılır.
 - Aynı `GlobalElementId` ve aynı state tipi için reentrant
-  `with_element_state` çağrısı panic eder.
-- ID değişirse önceki frame'in state'i devam etmez; animasyon, hover, scroll ve
-  image cache state'i sıfırlanır.
+  `with_element_state` çağrısı panic verir.
+- ID değiştiğinde önceki frame'in state'i devam etmez; animasyon, hover,
+  scroll ve image cache state'i sıfırlanır.
 
-Type erasure kararları:
+**Type erasure kararları.** Tipli ve untyped element/view arasında seçim
+yapılırken şu yönlendirmeler işe yarar:
 
-- Public component API child kabul ediyorsa `impl IntoElement` al.
-- Struct içinde saklayacaksan `AnyElement` kullan.
-- View/entity saklıyorsan mümkün olduğunca typed `Entity<T>` tut; yalnızca plugin,
-  dock item veya heterojen koleksiyon gerekiyorsa `AnyEntity`/`AnyView` seç.
+- Public bir component API'si child kabul ediyorsa `impl IntoElement` almak
+  uygundur.
+- Struct içinde saklanacaksa `AnyElement` kullanılır.
+- View veya entity saklanıyorsa mümkün olduğu kadar tipli `Entity<T>` tutmak
+  tercih edilir; yalnızca plugin, dock item veya heterojen koleksiyon gerektiren
+  durumlarda `AnyEntity`/`AnyView` seçilir.
 
 ## FluentBuilder ve Koşullu Element Üretimi
 
-
 `crates/gpui/src/util.rs::FluentBuilder` trait'i tüm element tiplerine üç
-yardımcı ekler:
+yardımcı ekler ve fluent zincirin if/match bloklarıyla kırılmasını engeller:
 
 ```rust
 pub trait FluentBuilder {
@@ -198,7 +233,8 @@ pub trait FluentBuilder {
 }
 ```
 
-Kullanım:
+Tipik bir kullanım birden fazla koşullu davranışı tek bir akıcı zincirde
+toparlar:
 
 ```rust
 div()
@@ -216,25 +252,30 @@ div()
     })
 ```
 
-Avantajlar:
+**Avantajlar.** Bu yardımcıların getirdiği başlıca kolaylıklar şunlardır:
 
-- Method chain bozulmaz; if/match dışı yapılar olmadan koşullu UI yazılır.
-- Closure içine geçen element'in tipi korunur; child eklemek serbesttir.
-- `map` keyfi bir transform için "escape hatch" sağlar.
+- Method chain bozulmaz; if/match yapılarına başvurmadan koşullu UI
+  yazılabilir.
+- Closure içine geçen element'in tipi korunur; child eklemeye devam etmek
+  serbesttir.
+- `map` keyfi bir transform için "escape hatch" olarak iş görür.
 
-Tuzaklar:
+**Tuzaklar.** Aynı kolaylıkların yanlış kullanımı küçük sorunlar üretebilir:
 
-- `when` closure her render'da çalışır; ağır hesap yapma.
-- Aynı element üzerinde defalarca `when_some` zinciri okunabilirliği bozarsa
-  state'i normal `if let` ile pre-compute edip tek `child` çağrısı tercih edilir.
+- `when` closure her render'da çalışır; içinde ağır hesap yapılması performans
+  problemi doğurur.
+- Aynı element üzerinde defalarca `when_some` zincirlemek okunabilirliği
+  bozarsa state'i önce normal `if let` ile pre-compute etmek ve tek `child`
+  çağrısı yapmak tercih edilir.
 - `map` element tipini değiştirebilir; `when` ise tipi değiştirmez (refinement
-  zincirinde tutulur).
+  zincirinde kalır). Bu nedenle map kullanımı dikkatli yapılır.
 
 ## Refineable, StyleRefinement ve MergeFrom
 
-
 GPUI ve Zed'de iki kompozisyon paterni paralel çalışır: render zincirinde
-`Refineable`, settings/tema yüklemesinde `MergeFrom`.
+`Refineable`, settings ve tema yüklemesinde `MergeFrom`. İkisi de "default
+üzerine kademe kademe override" mantığını işletir, ancak farklı yerlerde
+devreye girer.
 
 #### Refineable
 
@@ -259,23 +300,28 @@ pub trait IsEmpty {
 }
 ```
 
-Trait sözleşmesi göründüğünden zengindir:
+Trait sözleşmesi göründüğünden zengindir ve birkaç ince detay içerir:
 
-- `type Refinement` da `Refineable` olmalı; yani refinement'ın kendisi tekrar
-  refine edilebilir (`refine_a.refine(&refine_b)` zincirleme merge için).
-- Aynı `Refinement` ayrıca `IsEmpty + Default` zorunluluğunu taşır. `IsEmpty`
-  "bu refinement uygulansa hiçbir alan değişir mi?" sorusunu cevaplar; merge,
-  layout cache invalidation ve `subtract` çıktısı bu kontrole dayanır.
-- `is_superset_of(refinement)` instance'ın halihazırda bu refinement'ı kapsayıp
-  kapsamadığını söyler — gereksiz `refine` çağrılarını atlayabilirsin.
-- `subtract(refinement)` aradaki farkı yeni bir refinement olarak verir.
-- `from_cascade(cascade)` aşağıdaki `Cascade` yapısını default değer üzerine
-  uygular; tema/stil katmanlamasının sondaki "düzleştirme" adımıdır.
+- `type Refinement` da `Refineable` olmalıdır; yani refinement'ın kendisi
+  tekrar refine edilebilir — bu sayede `refine_a.refine(&refine_b)`
+  zincirleme merge mümkün olur.
+- Aynı `Refinement` ayrıca `IsEmpty + Default` zorunluluğunu taşır.
+  `IsEmpty` "bu refinement uygulansa hiçbir alan değişir mi?" sorusunu
+  cevaplar; merge, layout cache invalidation ve `subtract` çıktısı bu
+  kontrole dayanır.
+- `is_superset_of(refinement)` instance'ın halihazırda bu refinement'ı
+  kapsayıp kapsamadığını söyler; gereksiz `refine` çağrıları bu sayede
+  atlanabilir.
+- `subtract(refinement)` iki refinement arasındaki farkı yeni bir refinement
+  olarak verir.
+- `from_cascade(cascade)` aşağıda anlatılan `Cascade` yapısını default değer
+  üzerine uygular; tema ve stil katmanlamasının sondaki "düzleştirme"
+  adımıdır.
 
 `#[derive(Refineable)]` (gpui re-export'lu): orijinal struct ile aynı alanlara
-sahip ama her alanı `Option`'lı hale getirilmiş `XRefinement` türü üretir.
-`refine` çağrısı yalnızca `Some` alanları yazar. Aşağıdaki somut türler hep
-derive ile üretilir; ayrı yazmak gerekmez:
+sahip, ama her alanı `Option`'lı hale getirilmiş bir `XRefinement` türü
+üretir. `refine` çağrısı yalnızca `Some` alanları yazar. Aşağıdaki somut
+türler her zaman derive ile üretilir, ayrıca elle yazmaya gerek kalmaz:
 
 | Refinement türü | Üreten struct | Kaynak |
 |---|---|---|
@@ -290,12 +336,13 @@ derive ile üretilir; ayrı yazmak gerekmez:
 | `CornersRefinement` | `Corners` | `geometry.rs` |
 | `GridTemplateRefinement` | `GridTemplate` | `geometry.rs` |
 
-Bu `*Refinement` tipleri çoğunlukla doğrudan adlandırılarak kullanılmaz; fluent
-API zinciri arka planda toplar. Doğrudan elle inşa etmen gereken tek tip
-genelde `StyleRefinement`'tır (örn. `.hover(|style| style.bg(...))` callback
-imzası).
+Bu `*Refinement` tipleri çoğunlukla doğrudan adlandırılarak kullanılmaz;
+fluent API zinciri onları arka planda toplar. Doğrudan elle inşa etmek
+gerektiği tek tip genellikle `StyleRefinement`'tır — örneğin
+`.hover(|style| style.bg(...))` callback'inin imzasında bu tip görünür.
 
-Tipik kullanım `Style`/`StyleRefinement` (`crates/gpui/src/style.rs:178`):
+Tipik kullanım `Style`/`StyleRefinement` (`crates/gpui/src/style.rs:178`)
+üzerinden ilerler:
 
 ```rust
 let mut style = Style::default();
@@ -304,55 +351,57 @@ style.refine(&StyleRefinement::default()
     .font_weight(FontWeight::SEMIBOLD));
 ```
 
-Element fluent zinciri (örn. `div().text_size(px(14.)).bg(rgb(0xff))`)
-arka planda `StyleRefinement` topluyor; render sırasında base style üzerine
-refine ediliyor. `TextStyle`/`TextStyleRefinement`, `HighlightStyle`,
-`PlayerColors`, `ThemeColors` gibi tüm tema yapıları aynı pattern'i kullanır.
+Element fluent zinciri (örneğin
+`div().text_size(px(14.)).bg(rgb(0xff))`) arka planda bir `StyleRefinement`
+biriktirir; render sırasında base style üzerine refine eder.
+`TextStyle`/`TextStyleRefinement`, `HighlightStyle`, `PlayerColors`,
+`ThemeColors` gibi tüm tema yapıları aynı paterni kullanır.
 
-`refined(self, refinement)` immutable bir kopya üretir; "ek style ile yeni base
-elde et" senaryolarında uygundur.
+`refined(self, refinement)` ise immutable bir kopya üretir; "ek style ile
+yeni base elde et" senaryolarında uygundur.
 
 #### Cascade ve CascadeSlot
 
-`Refineable` tek başına iki katmanı (base + refinement) birleştirir; daha derin
-hover/focus/active akışları için `crates/refineable/src/refineable.rs:80,93`
-katman yığını sağlar:
+`Refineable` tek başına iki katmanı (base + refinement) birleştirir. Daha
+derin hover/focus/active akışları için
+`crates/refineable/src/refineable.rs:80,93` katman yığını sunar:
 
 ```rust
 pub struct Cascade<S: Refineable>(Vec<Option<S::Refinement>>);
 pub struct CascadeSlot(usize);
 ```
 
-API:
+API yüzeyi şu şekildedir:
 
 - `Cascade::default()` slot 0'ı `Some(default)` ile kurar; ek slotlar başta
   `None`'dur. Slot 0 her zaman dolu kalır ve "base" refinement'tır.
-- `cascade.reserve() -> CascadeSlot`: yeni `None` slot ekler ve handle döndürür.
-  Hover, focus, active gibi her dinamik katman için bir slot ayrılır.
-- `cascade.base() -> &mut S::Refinement`: slot 0'ı mutable verir; layout başına
-  asıl style yazılır.
-- `cascade.set(slot, Option<S::Refinement>)`: belirli slot'a refinement koyar
-  veya `None` ile devre dışı bırakır.
-- `cascade.merged() -> S::Refinement`: slot 0 üstüne diğer dolu slotları
+- `cascade.reserve() -> CascadeSlot` yeni `None` slot ekler ve handle döner.
+  Hover, focus, active gibi her dinamik katman için ayrı bir slot ayrılır.
+- `cascade.base() -> &mut S::Refinement` slot 0'ı mutable verir; layout
+  başına asıl style buraya yazılır.
+- `cascade.set(slot, Option<S::Refinement>)` belirli bir slot'a refinement
+  koyar veya `None` ile o katmanı devre dışı bırakır.
+- `cascade.merged() -> S::Refinement` slot 0 üzerine diğer dolu slotları
   sırayla `refine` eder; sonraki slot önceki slotu ezer.
-- `Refineable::from_cascade(&cascade) -> Self`: `default().refined(merged())`
-  shortcut'ı; render sırasında nihai stili üretmek için kullanılır.
+- `Refineable::from_cascade(&cascade) -> Self` `default().refined(merged())`
+  shortcut'ıdır; render sırasında nihai stili üretmek için kullanılır.
 
-Önemli not: GPUI'nin kendi `Interactivity` katmanı (`.hover(...)`, `.active(...)`,
-`.focus(...)`, `.focus_visible(...)`, `.in_focus(...)`, `.group_hover(...)`,
-`.group_active(...)` zinciri) **`Cascade`/`CascadeSlot` kullanmaz**;
-`Interactivity` struct'ında her durum için ayrı bir `Option<Box<StyleRefinement>>`
-alanı tutar (`elements/div.rs:1681+`'deki `hover_style`, `active_style`,
-`focus_style`, `in_focus_style`, `focus_visible_style`, `group_hover_style`,
+**Önemli not.** GPUI'nın kendi `Interactivity` katmanı (`.hover(...)`,
+`.active(...)`, `.focus(...)`, `.focus_visible(...)`, `.in_focus(...)`,
+`.group_hover(...)`, `.group_active(...)` zinciri) **`Cascade`/`CascadeSlot`
+kullanmaz**; `Interactivity` struct'ı her durum için ayrı bir
+`Option<Box<StyleRefinement>>` alanı tutar
+(`elements/div.rs:1681+`'deki `hover_style`, `active_style`, `focus_style`,
+`in_focus_style`, `focus_visible_style`, `group_hover_style`,
 `group_active_style`) ve render fazında bu refinement'ları sırayla `refine`
-eder. Yani hover style'ında verdiğin `StyleRefinement::bg(...)` base
-background'u ezer ama `font_size`'a dokunmazsa base'in font_size'ı korunur —
-None alan "etki yok" demektir.
+eder. Yani hover style'da verilen `StyleRefinement::bg(...)` base
+background'u ezer ama `font_size`'a dokunmayan bir refinement base'in
+font_size'ını korur; `None` alan "etki yok" anlamına gelir.
 
 `Cascade<S>` ve `CascadeSlot` arayüzü `refineable` crate'inde public olarak
-durur fakat GPUI çekirdeği veya Zed bu sürümde içeriden kullanmıyor;
-çoklu-katmanlı (3+) refinement yığınını dışarıdan inşa etmek isteyen kütüphane
-yazarları için bir uzantı noktasıdır.
+durur; ancak GPUI çekirdeği veya Zed bu sürümde içeriden kullanmaz. Çoklu
+katmanlı (3+) refinement yığınını dışarıdan inşa etmek isteyen kütüphane
+yazarları için bir uzantı noktası olarak bulunur.
 
 #### MergeFrom
 
@@ -367,41 +416,47 @@ pub trait MergeFrom {
 }
 ```
 
-Default kurallar:
+Default kurallar şu şekildedir:
 
-- HashMap, BTreeMap, struct: derin merge — sadece `other`'da var olan alanlar
-  yazılır.
-- `Option<T>`: `None` ezmez; `Some` recursive merge eder.
+- HashMap, BTreeMap, struct: derin merge — yalnızca `other`'da var olan
+  alanlar yazılır.
+- `Option<T>`: `None` üzerine yazmaz; `Some` recursive olarak merge eder.
 - Diğer tipler (Vec, primitive): tam üzerine yazma.
 
 `#[derive(MergeFrom)]` derive'ı struct alanları için recursive merge üretir.
-Davranışı değiştirmek için `ExtendingVec<T>` (her merge'te concat) ve
-`SaturatingBool` (bir kez true olunca kalır) gibi sarıcılar mevcuttur.
+Bu default davranışı değiştirmek için `ExtendingVec<T>` (her merge'te concat)
+ve `SaturatingBool` (bir kez `true` olunca öyle kalır) gibi sarıcılar
+hazırdır.
 
-Settings yükleme zinciri:
+**Settings yükleme zinciri.** Settings okunurken katmanlar belli bir sırayla
+merge edilir:
 
 1. `assets/settings/default.json` → `SettingsContent::default()` baz alınır.
-2. User `~/.config/zed/settings.json` parse → `merge_from_option`.
+2. User `~/.config/zed/settings.json` parse edilir →
+   `merge_from_option`.
 3. Aktif profil → `merge_from_option`.
 4. Worktree `.zed/settings.json` → `merge_from_option`.
 5. Sonuç `Settings::from_settings(content)` ile concrete struct'a çevrilir.
 
-Tuzaklar:
+**Tuzaklar.** Refineable ve MergeFrom kullanımlarında karşılaşılabilecek
+hatalı kalıplar şunlardır:
 
-- `Refineable` zincirinde `default()` baz değeri her seferinde yeniden hesaplanır;
-  ağır base style'ları cache'le.
-- `MergeFrom` sıralaması alt-üst değildir: en spesifik kaynağı en sona koy
-  (`local > profile > user > default`).
-- Vec'leri append etmek için `ExtendingVec`; üzerine yazmak gerekiyorsa düz `Vec`.
-- `Option<Option<T>>` gibi yapı yapmak istiyorsan `MergeFrom`'un default davranışı
-  doğru sonucu vermeyebilir; özel impl yaz.
+- `Refineable` zincirinde `default()` baz değeri her seferinde yeniden
+  hesaplanır; ağır base style'lar bir önbelleğe alınmalıdır.
+- `MergeFrom` sıralaması alt-üst değildir: en spesifik kaynak en sona
+  konulmalıdır (`local > profile > user > default`).
+- Vec'leri append etmek gerekiyorsa `ExtendingVec`; üzerine yazmak yeterliyse
+  düz `Vec` kullanılır.
+- `Option<Option<T>>` gibi iç içe seçenek yapıları gerektiğinde MergeFrom'un
+  default davranışı doğru sonucu vermeyebilir; bu durumda özel bir impl
+  yazılması gerekir.
 
 ## Deferred Draw, Prepaint Order ve Overlay Katmanı
 
-
-`deferred(child)` child'ın layout'unu bulunduğu yerde tutar, fakat paint'i ancestor
-paint'lerinden sonraya erteler. Popover, context menu, resize handle ve dock drop
-overlay gibi "üstte çizilmeli ama layout'ta yer tutmamalı" parçalar için kullanılır.
+`deferred(child)` çağrısı, çocuk elementin layout'unu bulunduğu yerde tutar
+ama paint'i ancestor paint'lerinden sonraya erteler. Bu davranış popover,
+context menu, resize handle ve dock drop overlay gibi "üstte çizilmesi ama
+layout'ta yer tutmaması gereken" parçalar için tasarlanmıştır:
 
 ```rust
 deferred(
@@ -413,32 +468,31 @@ deferred(
 .with_priority(1)
 ```
 
-Davranış:
+**Davranış.** Üç faz sırasıyla şu işleri yapar:
 
-- `request_layout`: child normal layout alır.
+- `request_layout`: child normal şekilde layout alır.
 - `prepaint`: child `window.defer_draw(...)` ile deferred queue'ya taşınır.
-- `paint`: deferred element kendi paint'inde bir şey çizmez.
-- `with_priority(n)`: aynı frame'deki deferred elementler arasında z-order verir;
-  yüksek priority üstte çizilir.
+- `paint`: deferred element kendi paint'inde bir şey çizmez; çizim
+  ertelenmiş kuyrukta sıra geldiğinde yapılır.
+- `with_priority(n)`: aynı frame içindeki deferred elementler arasında
+  z-order verir; yüksek priority üstte çizilir.
 
-`Div` prepaint yardımcıları:
+**`Div` prepaint yardımcıları.** Layout sonuçlarına göre prepaint'te aksiyon
+almak gerektiğinde iki yardımcı vardır:
 
-- `on_children_prepainted(|bounds, window, cx| ...)`: child bounds'larını ölçüp
-  sonraki paint için state üretir.
-- `with_dynamic_prepaint_order(...)`: child prepaint sırasını runtime'da belirler.
-  Özellikle bir child'ın autoscroll veya ölçüm sonucu diğer child'ı etkiliyorsa
-  kullanılır.
+- `on_children_prepainted(|bounds, window, cx| ...)` — child bounds'larını
+  ölçer ve sonraki paint için state üretir.
+- `with_dynamic_prepaint_order(...)` — child prepaint sırasını runtime'da
+  belirler. Özellikle bir child'ın autoscroll veya ölçüm sonucu diğer
+  child'ı etkilediği durumlarda kullanılır.
 
-Tuzaklar:
+**Tuzaklar.** Deferred draw kullanımında dikkat edilecek noktalar:
 
-- Deferred child layout'ta yer tuttuğu için absolute/anchored konumu hâlâ doğru
-  parent bounds'a bağlıdır.
-- Overlay mouse'u bloke etmeliyse child içinde `.occlude()` veya
-  `.block_mouse_except_scroll()` kullan.
-- Priority global z-index değildir; aynı window frame içindeki deferred queue
-  için geçerlidir.
+- Deferred child layout'ta yer tuttuğu için absolute/anchored konumlandırma
+  hâlâ doğru parent bounds'a bağlıdır.
+- Overlay'in mouse olaylarını bloklaması isteniyorsa child içinde
+  `.occlude()` veya `.block_mouse_except_scroll()` kullanılır.
+- Priority değeri global z-index değildir; yalnızca aynı window frame
+  içindeki deferred queue için geçerlidir.
 
 ---
-
----
-
