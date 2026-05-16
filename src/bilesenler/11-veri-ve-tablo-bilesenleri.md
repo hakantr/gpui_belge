@@ -1,20 +1,19 @@
 # 11. Veri ve Tablo Bileşenleri
 
-Zed UI tarafında bir tabloya ihtiyaç duyulduğunda ana giriş noktası
-`Table` bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)`
-çağrılarıyla kurulurken, büyük tablolar GPUI'nin sanallaştırılmış liste
+Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table`
+bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)` çağrılarıyla
+kurulur. Satır sayısı büyüdüğünde ise tablo, GPUI'nin sanallaştırılmış liste
 altyapısına bağlanan `.uniform_list(...)` veya
-`.variable_row_height_list(...)` çağrıları üzerinden render edilir. Yani
-satır sayısı arttıkça tabloya yaklaşım da farklılaşır; bileşen ihtiyaca
-göre üç farklı modu birden destekler.
+`.variable_row_height_list(...)` çağrılarıyla render edilir. Yani tablo tek bir
+kalıba sıkışmaz; satır modeline göre üç farklı kullanım biçimi sunar.
 
 ## GPUI uniform_list ile köprü
 
-`Table::uniform_list(...)` ve Bölüm 9'daki büyük listeler aslında
-GPUI'nin `uniform_list(...)` elementine bağlanır. Bu element, görünür
-satır aralığını parça parça render ederek binlerce satırlık listelerin
-performans kaybı yaşamadan ekrana basılmasını sağlar. Kullanım açısından
-şu kurallara dikkat etmek gerekir:
+`Table::uniform_list(...)` ve Bölüm 9'daki büyük listeler GPUI'nin
+`uniform_list(...)` elementine bağlanır. Bu element yalnızca görünür satır
+aralığını render eder; böylece binlerce satırlık listeler gereksiz render
+maliyeti yaratmadan ekrana basılabilir. Kullanırken şu kurallara dikkat etmek
+gerekir:
 
 - `uniform_list(id, item_count, |range, window, cx| Vec<AnyElement>)`
   imzası bir id ile bir satır sayısı alır; kalan kısımda yalnızca görünür
@@ -49,16 +48,16 @@ Karar matrisi:
 bu değerleri kullanan örnekler `crates/keymap_editor`,
 `crates/csv_preview` ve `crates/project_panel` içinde yer alır.
 
-Bu ailedeki tablolarda üç farklı karar birlikte düşünülür ve birbirinden
-ayrılmaz:
+Bu ailede tablo kurarken üç karar birlikte düşünülür; biri değiştiğinde
+diğerleri de genellikle etkilenir:
 
 - **Satır modeli:** sabit bir satır listesi mi, sabit yükseklikli
   sanallaştırılmış bir liste mi, yoksa değişken yükseklikli
   sanallaştırılmış bir liste mi.
 - **Kolon genişliği modeli:** otomatik, explicit, redistributable veya
   resizable.
-- **Etkileşim modeli:** sadece görsel bir tablo mu, yoksa
-  focus/scroll/resize state'i tutan interactable bir tablo mu.
+- **Etkileşim modeli:** sadece görsel bir tablo mu, yoksa focus, scroll ve
+  resize state'i tutan interactable bir tablo mu.
 
 ## Table
 
@@ -82,7 +81,7 @@ Ne zaman kullanılmaz:
 - Tek kolonlu seçim listelerinde `List` ile `ListItem` çok daha uygundur.
 - Hiyerarşik veri için `TreeViewItem` doğru yüzeydir.
 - Form satırları veya toolbar bilgileri için tablo yerine `h_flex()` veya
-  `v_flex()` ile daha açık bir layout kurmak okunabilirliği artırır.
+  `v_flex()` ile açık bir layout kurmak genellikle daha okunur olur.
 
 Temel API:
 
@@ -112,9 +111,9 @@ Davranış:
 - `.disable_base_style()` çağrısı hücre baz stilini kapatır. CSV
   önizleme gibi her hücrenin kendi layout'unu taşıdığı durumlarda
   kullanılır.
-- `.row(...)` yalnızca tablo sabit satır modunda iken satır ekler.
-  Tablo `.uniform_list(...)` veya `.variable_row_height_list(...)` ile
-  kurulduktan sonra satırlar bir closure üzerinden üretilir.
+- `.row(...)` yalnızca tablo sabit satır modundayken satır ekler. Tablo
+  `.uniform_list(...)` veya `.variable_row_height_list(...)` ile kurulduysa
+  satırlar bir closure üzerinden üretilir.
 - `.map_row(...)`, tablonun ürettiği `Stateful<Div>` satır container'ını
   alır. Bu sayede seçili satır, hover state'i, sağ tık veya özel click
   davranışı gibi ek davranışlar eklemek mümkün hale gelir.

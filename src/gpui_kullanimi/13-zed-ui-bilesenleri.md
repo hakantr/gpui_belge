@@ -5,12 +5,12 @@
 ## Zed UI Prelude, Style Extension Trait'leri ve Component Sözleşmesi
 
 Zed uygulama kodu çoğunlukla doğrudan `gpui::prelude::*` değil
-`ui::prelude::*` import eder. Bu prelude GPUI çekirdeğini yeniden export
-eder ve Zed'e özgü component ile stil katmanını üzerine ekler; böylece tek
-bir import deyimi UI yazımının büyük kısmını karşılar.
+`ui::prelude::*` import eder. Bu prelude GPUI çekirdeğini yeniden export eder
+ve üstüne Zed'e özgü component ile stil katmanını ekler. Böylece tek bir
+import deyimi UI yazımının büyük kısmını karşılar.
 
-**`ui::prelude::*` içindeki başlıca export'lar.** Aşağıdaki tipler ve
-trait'ler prelude ile gelir:
+**`ui::prelude::*` içindeki başlıca export'lar.** Aşağıdaki tipler ve trait'ler
+prelude ile gelir:
 
 - `gpui::prelude::*` üzerinden trait ve tipler: `AppContext` (anonim),
   `BorrowAppContext`, `Context`, `Element`, `InteractiveElement`,
@@ -38,8 +38,8 @@ trait'ler prelude ile gelir:
 
 `ButtonLike` prelude'da değildir; ihtiyaç duyulduğunda `ui::ButtonLike`
 şeklinde import edilir. Aynı şekilde prelude'da yer almayan `Tooltip`,
-`ContextMenu`, `Popover`, `PopoverMenu`, `Modal`, `RightClickMenu` gibi
-tipler doğrudan `ui::` namespace'i üzerinden çağrılır.
+`ContextMenu`, `Popover`, `PopoverMenu`, `Modal`, `RightClickMenu` gibi tipler
+doğrudan `ui::` namespace'i üzerinden çağrılır.
 
 `CommonAnimationExt` de crate kökünden (`ui::CommonAnimationExt`) açıkça
 import edilir; `with_rotate_animation(duration_secs)` ve
@@ -71,8 +71,8 @@ import edilir; `with_rotate_animation(duration_secs)` ve
   supertrait listesi blanket impl ile karşılanır
   (`impl<T: IntoElement + Clickable + Toggleable + 'static> PopoverTrigger for T {}`).
 
-**Public export modeli.** UI crate'i hangi tipi nereden açıyor, bilinmesi
-gereken birkaç asimetri vardır:
+**Public export modeli.** UI crate'inin hangi tipi nereden açtığı konusunda
+bilinmesi gereken birkaç asimetri vardır:
 
 - `crates/ui/src/ui.rs` iç modülleri (`components`, `styles`, `traits`)
   private tutar ve `pub use components::*`, `pub use prelude::*`,
@@ -119,8 +119,8 @@ kullanımda fluent zinciri kısaltır:
 - `debug_bg_red/green/blue/yellow/cyan/magenta()` yalnızca geliştirme
   sırasında layout teşhisi için kullanılır.
 
-**Tipografi.** Yazı boyutları semantic helper'larla ifade edilir; bu hem
-tema değişimine direnci hem de tutarlılığı sağlar:
+**Tipografi.** Yazı boyutları semantic helper'larla ifade edilir; bu hem tema
+değişimlerine dayanıklılığı hem de tutarlılığı artırır:
 
 - `StyledTypography::font_ui(cx)` ve `font_buffer(cx)` theme settings
   içindeki UI ve buffer font family değerlerini bağlar.
@@ -130,11 +130,11 @@ tema değişimine direnci hem de tutarlılığı sağlar:
 - `text_buffer(cx)` buffer font size'a uyar; editör içeriğiyle aynı boyda
   görünmesi gereken metinde kullanılır.
 - `TextSize::{Large, Default, Small, XSmall, Ui, Editor}` hem `.rems(cx)`
-  hem `.pixels(cx)` verir. Hardcoded `px(14.)` yerine semantic boyut
+  hem `.pixels(cx)` verir. Sabit `px(14.)` yerine semantic boyut
   tercih edilir.
 
-**Semantic renk ve elevation.** Tema değişikliklerine dayanıklı bir
-renk yüzeyi semantic enum'larla kurulur:
+**Semantic renk ve elevation.** Tema değişikliklerine dayanıklı renk yüzeyi
+semantic enum'larla kurulur:
 
 - `Color` theme'e göre HSLA'ya çevrilen semantic enum'dur
   (`crates/ui/src/styles/color.rs`). Varyantlar: `Default`, `Accent`,
@@ -284,13 +284,13 @@ trait'leri sade bir setten oluşur:
 - Uygulama UI'ında doğrudan `cx.theme().colors().text_*` yazmak mümkündür,
   ancak reusable component için `Color` veya `TintColor` semantic
   katmanı daha dayanıklı kalır.
-- `ButtonLike` güçlü ama unconstrained bir primitive'dir; hazır `Button`,
+- `ButtonLike` güçlü ama sınırları geniş bir primitive'dir; hazır `Button`,
   `IconButton`, `ToggleButtonGroup`, `ToggleButtonSimple` veya
   `ToggleButtonWithIcon` yeterliyse onlar tercih edilir. `ToggleButton`
   adında bağımsız bir public tip yoktur.
 - `VisibleOnHover` için parent'ta aynı group adıyla hover group
   kurulmadıysa element hiçbir zaman görünmez.
-- Public görünen bazı state struct'lar kullanıcı-facing builder değildir:
+- Public görünen bazı state struct'lar kullanıcıya dönük builder değildir:
   `PopoverMenuElementState`, `PopoverMenuFrameState`,
   `MenuHandleElementState`, `RequestLayoutState`, `PrepaintState`,
   `ScrollbarPrepaintState`. Bunlar `Element` associated state tipleri
@@ -300,7 +300,7 @@ trait'leri sade bir setten oluşur:
 **Zed uygulamasında yönetim.** Component registry ve preview mekanizması
 kısaca şöyle akar:
 
-- Component registry çalışma zamanı render path'i değildir; uygulama
+- Component registry çalışma zamanı render akışı değildir; uygulama
   kodu bileşenleri doğrudan `ui::{...}` veya `ui::prelude::*` ile import
   edip element ağacına yerleştirir.
 - `workspace::init` içinde `component::init()` çağrılır. Bu çağrı
@@ -352,9 +352,8 @@ kısaca şöyle akar:
 ## Zed UI Bileşen Envanteri
 
 Zed içinde yeni bir UI yazılırken önce `ui` bileşenleri taranır. Aşağıdaki
-liste hazır bileşen ailelerini kategorilere göre düzenler; mevcut bir tip
-ihtiyaca yetiyorsa sıfırdan üretim yerine onun seçilmesi tutarlılığı
-korur.
+liste hazır bileşen ailelerini kategorilere göre düzenler. Mevcut bir tip
+ihtiyacı karşılıyorsa sıfırdan üretmek yerine onu seçmek tutarlılığı korur.
 
 - **Metin:** `Label`, `LabelLike` (alttaki primitive), `Headline`,
   `HighlightedLabel` ve `highlight_ranges(...)` free fn yardımcısı,
@@ -522,8 +521,8 @@ ayrıntıları vardır:
 
 ## ManagedView, DismissEvent, Modal, Popover ve Tooltip Yaşam Döngüsü
 
-`ManagedView` GPUI'da başka bir view tarafından yaşam döngüsü yönetilen
-UI parçaları için bir blanket trait'tir:
+`ManagedView` GPUI'da yaşam döngüsü başka bir view tarafından yönetilen UI
+parçaları için kullanılan bir blanket trait'tir:
 
 ```rust
 pub trait ManagedView: Focusable + EventEmitter<DismissEvent> + Render {}
@@ -558,8 +557,8 @@ fn dismiss(&mut self, cx: &mut Context<Self>) {
 - Element fluent API: `.tooltip(|window, cx| AnyView)` ve
   `.hoverable_tooltip(|window, cx| AnyView)`.
 - Imperative `Interactivity` API aynı callback imzasını kullanır.
-- `hoverable_tooltip` mouse tooltip içine girdiğinde kapanmaz; normal
-  tooltip ise pointer owner element'ten ayrıldığında kaldırılır.
+- `hoverable_tooltip` mouse tooltip içine girdiğinde kapanmaz; normal tooltip
+  ise pointer owner element'ten ayrıldığında kaldırılır.
 
 **Tuzaklar.** Yaşam döngüsü yönetiminde sık görülen hatalar:
 

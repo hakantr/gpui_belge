@@ -1,10 +1,10 @@
 # Ek A. Component Preview Sistemi
 
-Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel
-olarak incelemek için kullanılır. Bu sistem `crates/component` crate'i
-tarafından yönetilir ve üç parçadan oluşur: `Component` trait'i,
-`ComponentRegistry` global'i ve `single_example` ile
-`example_group_with_title` gibi layout helper'ları.
+Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak
+incelemek için kullanılır. Bu sistem `crates/component` crate'i tarafından
+yönetilir ve üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry`
+global'i ve `single_example` ile `example_group_with_title` gibi layout
+helper'ları.
 
 Zed uygulamasında bu sistem iki seviyede ele alınır:
 
@@ -27,20 +27,18 @@ Zed uygulamasında bu sistem iki seviyede ele alınır:
   kayıtlı kalmaya devam eder ama gallery'de bir örnek alanı çizmez.
   `AgentSetupButton` bu davranışın bilinçli bir örneğidir.
 
-Bu nedenle uygulama içi component sistemi bir runtime UI dependency
-injection mekanizması değildir; aslında **görsel inceleme ve
-dokümantasyon registry'si**dir. Production ekranları bileşenleri
-doğrudan `ui::Button`, `ui::ContextMenu`, `ui::Table` gibi builder'larla
-kullanır; component registry yalnızca preview tool'u ve dokümantasyon
-veya arama ekranları için devrede tutulur.
+Bu nedenle uygulama içi component sistemi bir runtime UI dependency injection
+mekanizması değildir. Asıl görevi **görsel inceleme ve dokümantasyon
+registry'si** olmaktır. Production ekranları bileşenleri doğrudan `ui::Button`,
+`ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır. Component registry
+yalnızca preview tool'u, dokümantasyon ve arama ekranları için devrede tutulur.
 
-`ui::prelude::*` yalnızca `Component`, `ComponentScope`,
-`example_group`, `example_group_with_title`, `single_example` ve
-`RegisterComponent` derive makrosunu getirir. Programatik registry
-erişimi (`ComponentRegistry`, `ComponentMetadata`, `ComponentStatus`,
-`ComponentId`, `register_component`, `empty_example`, `ComponentExample`,
-`ComponentExampleGroup`, `ComponentFn`) gerektiğinde, `use component::*;`
-veya doğrudan tek tek import yapılır.
+`ui::prelude::*` yalnızca `Component`, `ComponentScope`, `example_group`,
+`example_group_with_title`, `single_example` ve `RegisterComponent` derive
+makrosunu getirir. Programatik registry erişimi (`ComponentRegistry`,
+`ComponentMetadata`, `ComponentStatus`, `ComponentId`, `register_component`,
+`empty_example`, `ComponentExample`, `ComponentExampleGroup`, `ComponentFn`)
+gerektiğinde `use component::*;` veya doğrudan tek tek import kullanılır.
 
 `Component` trait'inin tam yüzeyi şu metotları içerir; her biri opsiyoneldir
 ve derive makrosu varsayılan implementasyon sağlar:
@@ -113,9 +111,9 @@ impl Component for ExampleButtonSet {
 ```
 
 Preview kodunda `scope()` çağrısı, bileşenin gallery'de hangi grupta
-gösterileceğini belirler. `preview()` herhangi bir `AnyElement`
-döndürebilir; tek bir örnek için `single_example`, ilişkili varyantları
-gruplayarak göstermek için ise `example_group_with_title` kullanılır.
+gösterileceğini belirler. `preview()` herhangi bir `AnyElement` döndürebilir.
+Tek bir örnek için `single_example`, ilişkili varyantları gruplayarak göstermek
+için `example_group_with_title` kullanılır.
 
 Preview'ları Zed reposunda görsel olarak incelemek için aşağıdaki komut
 çalıştırılır:

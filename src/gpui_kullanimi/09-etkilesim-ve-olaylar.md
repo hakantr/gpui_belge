@@ -5,8 +5,8 @@
 ## Focus, Blur ve Keyboard
 
 Klavye odağı GPUI'de `FocusHandle` ile temsil edilir. Bir view'in odak alıp
-verebilmesi için kendine ait bir handle tutması, render sırasında bu handle'ı
-takip etmesi gerekir.
+verebilmesi için kendine ait bir handle tutması ve render sırasında bu handle'ı
+elemente bağlaması gerekir.
 
 ```rust
 struct View {
@@ -40,8 +40,8 @@ self.focus_handle.focus(window, cx);
 cx.focus_view(&child_entity, window);
 ```
 
-**Focus sorguları.** Mevcut odak durumunu kontrol etmek için üç sık sorulan
-soruya karşılık üç metot vardır:
+**Focus sorguları.** Mevcut odak durumunu kontrol etmek için üç temel soru ve
+üç karşılık gelen metot vardır:
 
 - `focus_handle.is_focused(window)` — handle doğrudan odakta mı?
 - `focus_handle.contains_focused(window, cx)` — bu handle veya altındaki bir
@@ -77,7 +77,7 @@ oluşur; bu adımlar her özel kısayol için tekrarlanır:
    `cx.on_action(...)` kullanılır.
 
 **Event propagation.** GPUI olay yayılımı varsayılan olarak yukarı doğru
-ilerler; iki helper bu davranışı kontrol eder:
+ilerler. İki helper bu davranışı kontrol eder:
 
 - Mouse ve key event handler'ları varsayılan olarak propagate eder.
 - `cx.stop_propagation()` daha arkadaki veya üstteki handler'lara olayın
@@ -127,8 +127,8 @@ canvas(
 Burada `canvas` imzası
 `prepaint: FnOnce(Bounds<Pixels>, &mut Window, &mut App) -> T` ve
 `paint: FnOnce(Bounds<Pixels>, T, &mut Window, &mut App)` şeklindedir. İkinci
-closure'da ilk pozisyonel argüman `bounds` (kullanılmıyorsa `_bounds`), ikinci
-argüman ise prepaint'in döndürdüğü değerdir (örnekteki `hitbox`).
+closure'da ilk pozisyonel argüman `bounds`'tur (kullanılmıyorsa `_bounds`),
+ikinci argüman ise prepaint'in döndürdüğü değerdir (örnekteki `hitbox`).
 `set_cursor_style` hitbox'a referans aldığı için `&hitbox` şeklinde geçilir.
 
 ## Drag ve Drop İçerik Üretimi
@@ -136,7 +136,7 @@ argüman ise prepaint'in döndürdüğü değerdir (örnekteki `hitbox`).
 `crates/gpui/src/elements/div.rs:572+` ve `1271+`.
 
 GPUI'da drag sırasında, sürüklenen elementin yerine ayrı bir "ghost" view
-oluşturulur ve mouse onun ile birlikte takip edilir:
+oluşturulur ve mouse ile birlikte bu view hareket eder:
 
 ```rust
 div()
@@ -232,13 +232,13 @@ bilerek `Empty` döndürür.
 - Ghost view her drag'de yeni bir `cx.new(...)` ile yaratılır; constructor
   içinde yan etkiden kaçınılmalıdır.
 - `can_drop` `false` döndüğünde `drag_over` ve `group_drag_over` stilleri
-  uygulanmaz, `on_drop` çağrılmaz. Kabul edilmeyen hedefin görsel feedback'i
-  ayrı state ile gösterilecekse `on_drag_move` kullanılır.
+  uygulanmaz, `on_drop` çağrılmaz. Kabul edilmeyen hedef için ayrı bir görsel
+  geri bildirim gösterilecekse `on_drag_move` kullanılır.
 
 ## Hitbox, Cursor, Pointer Capture ve Autoscroll
 
 Hitbox, mouse hit-test ve cursor davranışının temelidir. Element handler'ları
-genellikle hitbox'ı arka planda kurar; bu API doğrudan custom canvas veya
+çoğu zaman hitbox'ı arka planda kurar; bu API doğrudan özel canvas veya özel
 element yazılırken devreye girer.
 
 ```rust
@@ -259,8 +259,7 @@ if hitbox.is_hovered(window) {
   `.block_mouse_except_scroll()` bu davranışı kullanır.
 
 **Pointer capture.** Sürükleme veya resize gibi senaryolarda mouse bounds
-dışına çıksa da olayların yakalanmaya devam etmesi için pointer capture
-kullanılır:
+dışına çıksa bile olayları almaya devam etmek için pointer capture kullanılır:
 
 ```rust
 window.capture_pointer(hitbox.id);
@@ -268,13 +267,13 @@ window.capture_pointer(hitbox.id);
 window.release_pointer();
 ```
 
-Capture aktifken ilgili hitbox hovered sayılır; resize handle ve sürükleme
+Capture aktifken ilgili hitbox hovered sayılır. Resize handle ve sürükleme
 etkileşimlerinde mouse bounds dışına çıksa bile hareket takip edilebilir.
-`window.captured_hitbox()` aktif capture id'sini döndürür; custom element
+`window.captured_hitbox()` aktif capture id'sini döndürür; özel element
 debug'ı veya iç içe drag state ayrıştırması dışında genelde kullanılmaz.
 
 **Autoscroll.** Drag sırasında viewport kenarına yaklaşıldığında otomatik
-kaydırma talep etmek için iki helper vardır:
+kaydırma talep etmek için iki yardımcı vardır:
 
 - `window.request_autoscroll(bounds)` — drag sırasında viewport kenarına
   yakın bölge için autoscroll talep eder.
@@ -296,8 +295,8 @@ kaydırma talep etmek için iki helper vardır:
   scroll handler yazılırken `should_handle_scroll` tercih edilir.
 - Overlay elementleri `.occlude()` kullanmazsa arkadaki butonlar hover ve
   click almaya devam edebilir.
-- Pointer capture release edilmediğinde sonraki mouse hareketlerinde
-  yanlış hitbox hovered kalabilir.
+- Pointer capture release edilmediğinde sonraki mouse hareketlerinde yanlış
+  hitbox hovered kalabilir.
 
 ## Tab Sırası ve Klavye Navigasyonu
 
@@ -410,9 +409,9 @@ içinde değildir.
 
 ## Text Input Handler ve IME Derin Akış
 
-Metin düzenleyen custom bir element yazılırken yalnızca key event dinlemek
-yeterli değildir. IME, dead key, marked text ve aday penceresi için
-platforma `InputHandler` sağlanmalıdır.
+Metin düzenleyen özel bir element yazılırken yalnızca key event dinlemek
+yeterli değildir. IME, dead key, marked text ve aday penceresi için platforma
+`InputHandler` sağlanmalıdır.
 
 **View tarafı.** Görece geniş bir trait yüzeyi vardır; sık kullanılan
 metotlar şu şekilde implement edilir:
@@ -474,8 +473,8 @@ window.handle_input(
 - Window frame geçişinde platform input handler `Vec<Option<_>>` slot'ları
   `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılır ve bir sonraki
   frame'de aynı slot'a geri yerleştirilir. `reuse_paint` cached `paint_range`
-  index'leri bu yüzden stabil kalır. Custom düşük seviye window/frame kodu
-  yazılırken input handler dizisinin uzunluğu index cache'i mevcutken
+  index'leri bu yüzden stabil kalır. Özel düşük seviye window/frame kodu
+  yazılırken input handler dizisinin uzunluğu, index cache'i varken
   değiştirilmez.
 
 **Tuzaklar.** IME ile çalışırken sık yapılan hatalar:
@@ -490,8 +489,8 @@ window.handle_input(
 ## Keystroke, Modifiers ve Platform Bağımsız Kısayollar
 
 `crates/gpui/src/platform/keystroke.rs` klavye girdisinin normalize edilmiş
-modelini içerir. Keymap yalnızca action binding değildir; pending input, IME
-ve gösterim metni de bu tiplerle taşınır.
+modelini içerir. Keymap yalnızca action binding değildir; tamamlanmamış input,
+IME durumu ve gösterim metni de bu tiplerle taşınır.
 
 **Ana tipler.** Klavye dünyasını ifade eden tipler birbirini destekleyecek
 şekilde tasarlanmıştır:

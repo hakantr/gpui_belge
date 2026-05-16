@@ -4,9 +4,9 @@
 
 ## Render Modeli
 
-Bir pencerenin root view'u her zaman bir `Entity<V>` olur ve bu V tipi
+Bir pencerenin root view'u her zaman bir `Entity<V>` olur ve bu `V` tipi
 `Render` trait'ini implement etmek zorundadır. `Render::render` her frame'de
-yeniden çağrılan, view state'ini element ağacına dönüştüren ana metottur:
+yeniden çağrılır; view state'ini element ağacına çeviren ana metot budur:
 
 ```rust
 struct MyView {
@@ -45,21 +45,21 @@ impl RenderOnce for Badge {
 }
 ```
 
-Aradaki ayrım net bir şekilde sahiplik üzerine kuruludur: `Render` mutable
-view state ile çalışır; `RenderOnce` ise sahipliği alır ve genellikle Zed UI
-bileşenlerinde tercih edilir. Hangisinin seçileceği, bileşenin state'inin
-nerede saklandığına bağlıdır — state view içinde tutulacaksa `Render`,
-caller'ın geçirdiği yapıdan tek seferlik inşa ediliyorsa `RenderOnce`.
+Aradaki ayrım sahiplik üzerinden anlaşılır: `Render` mutable view state ile
+çalışır; `RenderOnce` ise sahipliği alır ve genellikle Zed UI bileşenlerinde
+tercih edilir. Seçim, bileşenin state'inin nerede saklandığına bağlıdır. State
+view içinde tutulacaksa `Render`, çağıran kodun geçirdiği yapıdan tek seferlik
+inşa ediliyorsa `RenderOnce` kullanılır.
 
 ## Element Yaşam Döngüsü ve Draw Fazları
 
-`Element` sözleşmesi üç ana fazdan oluşur ve bu üç faz aynı frame içinde
-sırasıyla çalışır:
+`Element` sözleşmesi üç ana fazdan oluşur. Bu fazlar aynı frame içinde
+sırayla çalışır:
 
 1. `request_layout(...) -> (LayoutId, RequestLayoutState)` — stil ve child
    layout istekleri Taffy layout ağacına verilir. Bu fazda paint yapılmaz;
    yalnızca "ne kadar yer istiyorum, çocuklarımın layout id'leri nedir"
-   bilgisi üretilir.
+   bilgisi hazırlanır.
 2. `prepaint(...) -> PrepaintState` — layout sonucu artık bilinir, dolayısıyla
    bounds'a göre yapılması gereken işler burada gerçekleşir: hitbox kaydı,
    scroll state hazırlığı, element state okuma ve gerekli ölçümler.
@@ -99,16 +99,16 @@ genellikle yaşam süresine göre belirlenir:
   stateful interaktif davranışları açar.
 
 **Kritik kural.** `cx.notify()`, view'un render çıktısını etkileyen bir state
-değiştiğinde çağrılır; bu olmadan view yeniden render edilmez.
-`window.refresh()` ise tüm pencerenin tekrar çizimini ister; lokal view state
-değişimleri için önce `cx.notify()` tercih edilir, çünkü daha hedeflenmiş bir
-yenilemedir.
+değiştiğinde çağrılır. Bu olmadan view yeniden render edilmez.
+`window.refresh()` ise tüm pencerenin tekrar çizimini ister. Yerel view state
+değişimleri için önce `cx.notify()` tercih edilir, çünkü daha hedefli bir
+yenileme yapar.
 
 ## Element Haritası
 
 GPUI'nın yerleşik elementleri farklı görevler için ayrı ayrı tasarlanmıştır.
-Aşağıdaki liste hangi element'in hangi sorumluluk için seçileceğine dair
-hızlı bir rehberdir:
+Aşağıdaki liste, hangi element'in hangi sorumluluk için seçileceğini hızlıca
+gösterir:
 
 - `div()` — neredeyse tüm layout ve container işlerinin temel taşıdır.
   Flex/grid, style, child, event, focus ve window-control area destekler.
@@ -153,14 +153,14 @@ böylece import listesi sade kalır.
 
 ## Element ID, Element State ve Type Erasure
 
-GPUI'da her render'da element ağacı sıfırdan kurulur; oysa hover/scroll/cache
-gibi durumlar frame'ler arasında korunmalıdır. Bu kalıcılığı kuran şey stabil
-ID'lerdir. İlgili ana tipler şunlardır:
+GPUI'da her render'da element ağacı sıfırdan kurulur. Buna rağmen hover,
+scroll ve cache gibi durumların frame'ler arasında korunması gerekir. Bu
+kalıcılığı stabil ID'ler sağlar. İlgili ana tipler şunlardır:
 
 - `ElementId` — `Name`, `Integer`, `NamedInteger`, `Path`, `Uuid`,
   `FocusHandle`, `CodeLocation` gibi varyantlar taşır.
 - `GlobalElementId` — parent namespace zinciriyle birleşerek tam yol oluşturur.
-- `AnyElement` — element type erasure; child listelerinde heterojen element
+- `AnyElement` — element type erasure; child listelerinde farklı türden element
   tutmak için kullanılır.
 - `AnyView` / `AnyEntity` — view veya entity için type erasure.
 
@@ -194,7 +194,7 @@ window.with_global_id("image-cache".into(), |global_id, window| {
 - `window.with_id(element_id, |window| ...)` lokal element id stack'ine id
   ekler; `with_global_id` bu stack'ten tam bir `GlobalElementId` üretir.
 - Liste item'larında `use_state` yerine `use_keyed_state` tercih edilir;
-  `use_state` caller location'a göre id üretir ve aynı render noktasındaki
+  `use_state` çağrı konumuna göre id üretir ve aynı render noktasındaki
   birden fazla item'ı birbirinden ayıramaz.
 - `with_element_namespace(id, ...)` custom element içinde child id
   çakışmalarını önlemek için kullanılır.
@@ -258,7 +258,8 @@ div()
   yazılabilir.
 - Closure içine geçen element'in tipi korunur; child eklemeye devam etmek
   serbesttir.
-- `map` keyfi bir transform için "escape hatch" olarak iş görür.
+- `map` zincirin dışına kontrollü çıkmak için kullanılır; keyfi bir dönüşüm
+  gerektiğinde işe yarar.
 
 **Tuzaklar.** Aynı kolaylıkların yanlış kullanımı küçük sorunlar üretebilir:
 
@@ -272,10 +273,10 @@ div()
 
 ## Refineable, StyleRefinement ve MergeFrom
 
-GPUI ve Zed'de iki kompozisyon paterni paralel çalışır: render zincirinde
-`Refineable`, settings ve tema yüklemesinde `MergeFrom`. İkisi de "default
-üzerine kademe kademe override" mantığını işletir, ancak farklı yerlerde
-devreye girer.
+GPUI ve Zed'de iki kompozisyon deseni paralel çalışır: render zincirinde
+`Refineable`, settings ve tema yüklemesinde `MergeFrom`. İkisi de "varsayılan
+değerin üstüne adım adım override uygula" mantığını kullanır, ancak farklı
+yerlerde devreye girer.
 
 #### Refineable
 
@@ -314,7 +315,7 @@ Trait sözleşmesi göründüğünden zengindir ve birkaç ince detay içerir:
   atlanabilir.
 - `subtract(refinement)` iki refinement arasındaki farkı yeni bir refinement
   olarak verir.
-- `from_cascade(cascade)` aşağıda anlatılan `Cascade` yapısını default değer
+- `from_cascade(cascade)` aşağıda anlatılan `Cascade` yapısını varsayılan değer
   üzerine uygular; tema ve stil katmanlamasının sondaki "düzleştirme"
   adımıdır.
 
@@ -353,16 +354,16 @@ style.refine(&StyleRefinement::default()
 
 Element fluent zinciri (örneğin
 `div().text_size(px(14.)).bg(rgb(0xff))`) arka planda bir `StyleRefinement`
-biriktirir; render sırasında base style üzerine refine eder.
+biriktirir; render sırasında temel style üzerine refine eder.
 `TextStyle`/`TextStyleRefinement`, `HighlightStyle`, `PlayerColors`,
 `ThemeColors` gibi tüm tema yapıları aynı paterni kullanır.
 
-`refined(self, refinement)` ise immutable bir kopya üretir; "ek style ile
-yeni base elde et" senaryolarında uygundur.
+`refined(self, refinement)` ise immutable bir kopya üretir; "ek style ile yeni
+temel değer elde et" senaryolarında uygundur.
 
 #### Cascade ve CascadeSlot
 
-`Refineable` tek başına iki katmanı (base + refinement) birleştirir. Daha
+`Refineable` tek başına iki katmanı (temel değer + refinement) birleştirir. Daha
 derin hover/focus/active akışları için
 `crates/refineable/src/refineable.rs:80,93` katman yığını sunar:
 
@@ -374,7 +375,7 @@ pub struct CascadeSlot(usize);
 API yüzeyi şu şekildedir:
 
 - `Cascade::default()` slot 0'ı `Some(default)` ile kurar; ek slotlar başta
-  `None`'dur. Slot 0 her zaman dolu kalır ve "base" refinement'tır.
+  `None`'dur. Slot 0 her zaman dolu kalır ve temel refinement'tır.
 - `cascade.reserve() -> CascadeSlot` yeni `None` slot ekler ve handle döner.
   Hover, focus, active gibi her dinamik katman için ayrı bir slot ayrılır.
 - `cascade.base() -> &mut S::Refinement` slot 0'ı mutable verir; layout
@@ -384,7 +385,7 @@ API yüzeyi şu şekildedir:
 - `cascade.merged() -> S::Refinement` slot 0 üzerine diğer dolu slotları
   sırayla `refine` eder; sonraki slot önceki slotu ezer.
 - `Refineable::from_cascade(&cascade) -> Self` `default().refined(merged())`
-  shortcut'ıdır; render sırasında nihai stili üretmek için kullanılır.
+  kısayoludur; render sırasında nihai stili üretmek için kullanılır.
 
 **Önemli not.** GPUI'nın kendi `Interactivity` katmanı (`.hover(...)`,
 `.active(...)`, `.focus(...)`, `.focus_visible(...)`, `.in_focus(...)`,
@@ -394,14 +395,14 @@ kullanmaz**; `Interactivity` struct'ı her durum için ayrı bir
 (`elements/div.rs:1681+`'deki `hover_style`, `active_style`, `focus_style`,
 `in_focus_style`, `focus_visible_style`, `group_hover_style`,
 `group_active_style`) ve render fazında bu refinement'ları sırayla `refine`
-eder. Yani hover style'da verilen `StyleRefinement::bg(...)` base
-background'u ezer ama `font_size`'a dokunmayan bir refinement base'in
-font_size'ını korur; `None` alan "etki yok" anlamına gelir.
+eder. Yani hover style'da verilen `StyleRefinement::bg(...)` temel
+background'u ezer ama `font_size`'a dokunmayan bir refinement temel
+`font_size` değerini korur; `None` alan "etki yok" anlamına gelir.
 
 `Cascade<S>` ve `CascadeSlot` arayüzü `refineable` crate'inde public olarak
 durur; ancak GPUI çekirdeği veya Zed bu sürümde içeriden kullanmaz. Çoklu
-katmanlı (3+) refinement yığınını dışarıdan inşa etmek isteyen kütüphane
-yazarları için bir uzantı noktası olarak bulunur.
+katmanlı (3+) refinement yığınını dışarıdan kurmak isteyen kütüphane yazarları
+için bir uzantı noktasıdır.
 
 #### MergeFrom
 
@@ -416,7 +417,7 @@ pub trait MergeFrom {
 }
 ```
 
-Default kurallar şu şekildedir:
+Varsayılan kurallar şu şekildedir:
 
 - HashMap, BTreeMap, struct: derin merge — yalnızca `other`'da var olan
   alanlar yazılır.
@@ -424,7 +425,7 @@ Default kurallar şu şekildedir:
 - Diğer tipler (Vec, primitive): tam üzerine yazma.
 
 `#[derive(MergeFrom)]` derive'ı struct alanları için recursive merge üretir.
-Bu default davranışı değiştirmek için `ExtendingVec<T>` (her merge'te concat)
+Bu varsayılan davranışı değiştirmek için `ExtendingVec<T>` (her merge'te concat)
 ve `SaturatingBool` (bir kez `true` olunca öyle kalır) gibi sarıcılar
 hazırdır.
 
@@ -441,14 +442,14 @@ merge edilir:
 **Tuzaklar.** Refineable ve MergeFrom kullanımlarında karşılaşılabilecek
 hatalı kalıplar şunlardır:
 
-- `Refineable` zincirinde `default()` baz değeri her seferinde yeniden
+- `Refineable` zincirinde `default()` temel değeri her seferinde yeniden
   hesaplanır; ağır base style'lar bir önbelleğe alınmalıdır.
 - `MergeFrom` sıralaması alt-üst değildir: en spesifik kaynak en sona
   konulmalıdır (`local > profile > user > default`).
 - Vec'leri append etmek gerekiyorsa `ExtendingVec`; üzerine yazmak yeterliyse
   düz `Vec` kullanılır.
 - `Option<Option<T>>` gibi iç içe seçenek yapıları gerektiğinde MergeFrom'un
-  default davranışı doğru sonucu vermeyebilir; bu durumda özel bir impl
+  varsayılan davranışı doğru sonucu vermeyebilir; bu durumda özel bir impl
   yazılması gerekir.
 
 ## Deferred Draw, Prepaint Order ve Overlay Katmanı
@@ -456,7 +457,7 @@ hatalı kalıplar şunlardır:
 `deferred(child)` çağrısı, çocuk elementin layout'unu bulunduğu yerde tutar
 ama paint'i ancestor paint'lerinden sonraya erteler. Bu davranış popover,
 context menu, resize handle ve dock drop overlay gibi "üstte çizilmesi ama
-layout'ta yer tutmaması gereken" parçalar için tasarlanmıştır:
+layout'ta yer kaplamaması gereken" parçalar için tasarlanmıştır:
 
 ```rust
 deferred(
@@ -482,7 +483,7 @@ almak gerektiğinde iki yardımcı vardır:
 
 - `on_children_prepainted(|bounds, window, cx| ...)` — child bounds'larını
   ölçer ve sonraki paint için state üretir.
-- `with_dynamic_prepaint_order(...)` — child prepaint sırasını runtime'da
+- `with_dynamic_prepaint_order(...)` — child prepaint sırasını çalışma zamanında
   belirler. Özellikle bir child'ın autoscroll veya ölçüm sonucu diğer
   child'ı etkilediği durumlarda kullanılır.
 

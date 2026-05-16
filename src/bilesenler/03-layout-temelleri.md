@@ -1,14 +1,13 @@
 # 3. Layout Temelleri
 
-Layout yardımcıları, GPUI'nin `div()` çağrısı üstüne Zed'in sık kullandığı
-flex ve separator kalıplarını ekleyen küçük katmanlardır. Bunlar tam
-anlamıyla bir yüksek seviye component değildir; daha çok layout kurulurken
-sürekli tekrarlanan stil dizilerini kısaltmak için var olan yapı taşlarıdır.
-İçerik semantiği taşımazlar ve kendi başlarına bir state yönetimi
-sağlamazlar; tek işleri görsel düzeni hızlı kurmaktır.
+Layout yardımcıları, GPUI'nin `div()` çağrısının üstüne Zed'de sık kullanılan
+flex ve separator kalıplarını ekleyen küçük yapı taşlarıdır. Bunlar tam anlamıyla
+yüksek seviye component sayılmaz. Daha çok, layout kurarken sürekli tekrar eden
+stil zincirlerini kısa ve okunur hale getirmek için vardır. İçerik semantiği
+taşımazlar, kendi başlarına state yönetmezler; işleri görsel düzeni hızlı ve
+tutarlı biçimde kurmaktır.
 
-Hangi durumda hangisi tercih edilir sorusu için kabaca şöyle bir yol haritası
-çıkarılabilir:
+Hangi durumda hangisini seçeceğinizi düşünürken şu yol haritası yeterli olur:
 
 - Satır düzeni ve dikey eksende otomatik ortalama gerekiyorsa `h_flex()` ilk
   akla gelen seçenektir.
@@ -123,10 +122,10 @@ Ne zaman kullanılır:
 Ne zaman kullanılmaz:
 
 - Ana sayfa veya panel layout'u için `h_flex()` / `v_flex()` daha açık bir
-  niyet ifadesidir; group helper'ları o ölçekte boşluk için tasarlanmaz.
-- Büyük bir section'da geniş boşluklar gerekiyorsa, group helper'larındaki
-  spacing değerleri çok küçük kalır; bunun yerine `.gap_4()` gibi explicit
-  ölçeklerin kullanılması daha tutarlı sonuç verir.
+  niyet ifadesidir; group helper'ları o ölçekte boşluk için tasarlanmamıştır.
+- Büyük bir section'da geniş boşluklar gerekiyorsa group helper'larındaki
+  spacing değerleri küçük kalır. Bu durumda `.gap_4()` gibi açık ölçekler daha
+  anlaşılır ve daha tutarlı sonuç verir.
 
 Temel API:
 

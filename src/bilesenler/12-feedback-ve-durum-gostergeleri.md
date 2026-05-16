@@ -1,16 +1,15 @@
 # 12. Feedback ve Durum Göstergeleri
 
-Feedback bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır.
-Bilgi, başarı, uyarı, hata, ilerleme, sayaç veya dikkat gerektiren bir
-karar gibi farklı içerikler bu grubun çatısı altına girer. Bu bileşenler
-aynı tema token'larını paylaşır, fakat görsel yoğunlukları birbirinden
-ayrılır. Yani bir mesajın ne kadar dikkat çekmesi gerektiğine göre farklı
-bir yüzey seçilir:
+Feedback bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilgi,
+başarı, uyarı, hata, ilerleme, sayaç veya dikkat gerektiren kararlar bu grubun
+çatısı altına girer. Hepsi aynı tema token'larını paylaşır, fakat görsel
+yoğunlukları farklıdır. Bu yüzden önce mesajın ne kadar dikkat çekmesi
+gerektiğine karar verilir, sonra uygun yüzey seçilir:
 
-- `Banner`: sayfa veya panel üstünde kısa ve non-blocking bir mesaj
-  vermek için kullanılır.
+- `Banner`: sayfa veya panel üstünde kısa ve akışı bölmeyen bir mesaj vermek
+  için kullanılır.
 - `Callout`: içerik akışı içinde, kullanıcının okuması ve gerekirse karar
-  vermesi beklenen daha açıklayıcı bir mesaj için.
+  vermesi beklenen daha açıklayıcı bir mesaj için kullanılır.
 - `Modal`: kendi modal içeriğini kurmak için bir shell sağlar.
 - `AlertModal`: kısa karar akışları veya uyarı diyalogları için.
 - `AnnouncementToast`: yeni özellik veya duyuru kartı; lifecycle'ı parent
@@ -39,9 +38,9 @@ Davranış:
   türetir.
 - `Info` nötr ya da muted, `Success` yeşil, `Warning` sarı, `Error`
   kırmızı status token'larını kullanır.
-- Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesajın kısa ve
-  açık olması beklenir; bir aksiyon gerekiyorsa, aksiyonun ayrı bir button
-  slot'una yerleştirilmesi tercih edilir.
+- Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve
+  açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyon ayrı bir button slot'una
+  yerleştirilir.
 
 ## Banner
 
@@ -57,8 +56,7 @@ Ne zaman kullanılır:
 
 - Sayfa veya panel içinde kısa bir bilgi, başarı, uyarı veya hata mesajı
   göstermek için.
-- Kullanıcıyı akıştan koparmadan bir CTA veya düzeltme aksiyonu sunmak
-  için.
+- Kullanıcıyı akıştan koparmadan bir CTA veya düzeltme aksiyonu sunmak için.
 - Bir içeriğin üstünde ya da ilgili bölümün başında non-blocking bir mesaj
   konumlandırmak için.
 
@@ -134,13 +132,13 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edilecek noktalar:
 
-- Banner kısa kalmalıdır. Birden fazla paragraf veya liste gerektiren
-  içerikler için `Callout` çok daha uygundur.
+- Banner kısa kalmalıdır. Birden fazla paragraf veya liste gerektiren içerikler
+  için `Callout` daha uygundur.
 - `action_slot(...)` içinde birden çok aksiyon yer alacaksa,
   `h_flex().gap_1()` ile açık bir spacing kurulması okunabilirliği
   artırır.
-- Banner, bir modal içindeki karar alanı gibi kullanılmamalıdır. Modal
-  kararlarının footer aksiyonlarıyla verilmesi beklenir.
+- Banner, modal içindeki karar alanı gibi kullanılmamalıdır. Modal kararlarının
+  footer aksiyonlarıyla verilmesi beklenir.
 
 ## Callout
 

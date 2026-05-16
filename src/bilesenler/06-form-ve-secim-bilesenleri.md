@@ -1,14 +1,12 @@
 # 6. Form ve Seçim Bileşenleri
 
-Bu bölüm, kullanıcıdan bir değer alan veya var olan bir ayarı değiştiren
-kontrolleri ele alır. Konum olarak butonların hemen ardından gelmesinin bir
-sebebi var: checkbox, switch ve input alanları hem aynı ortak event modelini
-paylaşır, hem de önceki bölümlerde anlatılan label ve icon düzenini
-yeniden kullanır. Bu yüzden butonları bilen biri için bu kontrollerin
-arkasında oturan düşünce zaten tanıdıktır.
+Bu bölüm, kullanıcıdan değer alan veya var olan bir ayarı değiştiren
+kontrolleri anlatır. Butonlardan hemen sonra gelmesinin sebebi de budur:
+checkbox, switch ve input alanları aynı event modeline yaslanır; ayrıca önceki
+bölümlerdeki label ve icon düzenini tekrar kullanır. Butonların çalışma şeklini
+anladıysanız, bu kontrollerin arkasındaki fikir size tanıdık gelecektir.
 
-Hangi durumda hangisinin seçileceği konusunda işe yarayan bir yön haritası
-şöyledir:
+Hangi durumda hangisini seçeceğinizi belirlemek için şu ayrım iş görür:
 
 - Birbirinden bağımsız çoklu bir seçim varsa `Checkbox` doğru araçtır.
 - Bir ayarı aç/kapat anlamı taşıyan tek bir değer için `Switch` daha
@@ -17,11 +15,11 @@ Hangi durumda hangisinin seçileceği konusunda işe yarayan bir yön haritası
   görünecekse `SwitchField` bu üçlüyü tek seferde kurar.
 - Tek satır metin girişi için ise `ui_input::InputField` kullanılır.
 
-Bu kontrollerin hepsi için ortak bir kural geçerlidir: görsel durum ile
-uygulama durumu birbirinden ayrı düşünülür. Checkbox, switch veya input
-yalnızca o anki state'i ekrana basar; gerçek değer view state'inde veya
-uygulama modelinde tutulur ve handler içinde güncellenir. Bu ayrımı net
-tutmak, sahnenin tutarlı kalmasını sağlar.
+Bu kontrollerin hepsi için ortak kural şudur: görsel durum ile uygulama durumu
+birbirinden ayrı düşünülür. Checkbox, switch veya input yalnızca o anki state'i
+ekrana yansıtır. Gerçek değer view state'inde veya uygulama modelinde tutulur ve
+handler içinde güncellenir. Bu ayrımı net tutmak, sahnenin tutarlı kalmasını
+sağlar.
 
 ## Checkbox
 
@@ -114,9 +112,9 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edilecek noktalar:
 
-- Handler'a gelen state, mevcut değil hedef state'tir. `self.telemetry =
-  state.selected()` gibi doğrudan uygulama state'ine yazılması beklenir;
-  tersine çevirmeye gerek yoktur.
+- Handler'a gelen state mevcut state değil, hedef state'tir. `self.telemetry =
+  state.selected()` gibi doğrudan uygulama state'ine yazılır; tekrar tersine
+  çevirmeye gerek yoktur.
 - Kısmi bir seçim gösteriliyorsa `ToggleState::from_any_and_all(...)`
   helper'ının kullanılması, manuel `if` koşullarına göre çok daha okunabilir
   bir sonuç verir.
@@ -195,9 +193,9 @@ Dikkat edilecek noktalar:
 - `ToggleState::Indeterminate`, switch için ayrı bir görsel ara durum
   üretmez. Switch açık/kapalı anlamı taşıdığı için state'in çoğunlukla
   `bool` üzerinden üretilmesi daha tutarlı bir tercihtir.
-- Disabled bir switch, dış container'da pointer cursor'ı tamamen
-  kaldırmaz. Kullanıcıya neden disabled olduğunu anlatmak gerekiyorsa,
-  satıra bir açıklama veya tooltip eklemek bu boşluğu kapatır.
+- Disabled bir switch, dış container'da pointer cursor'ı tamamen kaldırmaz.
+  Kullanıcıya neden disabled olduğunu anlatmak gerekiyorsa satıra kısa bir
+  açıklama veya tooltip eklemek bu boşluğu kapatır.
 
 ## SwitchField
 

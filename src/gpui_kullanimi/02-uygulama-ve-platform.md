@@ -4,9 +4,9 @@
 
 ## Platform Başlatma
 
-Bir GPUI uygulamasının ilk satırı her zaman bir platform seçimiyle başlar.
-Platform, işletim sistemiyle konuşan tarafı temsil eder; pencere açmak, klavye
-okumak, ekrana çizmek gibi tüm işler bu seçilen platformun arkasından geçer.
+Bir GPUI uygulamasının ilk adımı platform seçimidir. Platform, işletim
+sistemiyle konuşan tarafı temsil eder. Pencere açmak, klavye okumak ve ekrana
+çizmek gibi işler bu seçilen platform üzerinden yürür.
 Standart başlangıç şu kalıbı izler:
 
 ```rust
@@ -30,8 +30,8 @@ fn main() {
 }
 ```
 
-`application()` çağrısı çalıştığı işletim sistemine göre otomatik olarak doğru
-platform implementasyonunu döndürür. Bu seçim Zed'de şu şekilde yapılır:
+`application()` çağrısı çalıştığı işletim sistemine göre doğru platform
+gerçekleştirmesini otomatik döndürür. Zed'deki seçim kabaca şöyledir:
 
 - macOS: `gpui_macos::MacPlatform::new(headless)`
 - Windows: `gpui_windows::WindowsPlatform::new(headless)`
@@ -47,9 +47,9 @@ macOS'ta Metal headless renderer döner, diğer hedeflerde `None` gelir.
 
 ## Application Yaşam Döngüsü ve Platform Olayları
 
-`Application` GPUI henüz çalışmaya başlamadan önceki builder katmanıdır;
-asset kaynağı, HTTP istemcisi, quit politikası gibi süreç ömrü boyunca
-geçerli olacak ayarlar burada kurulur. Tipik bir kurulum şu şekildedir:
+`Application`, GPUI çalışmaya başlamadan önce kullanılan builder katmanıdır.
+Asset kaynağı, HTTP istemcisi ve çıkış politikası gibi süreç ömrü boyunca
+geçerli ayarlar burada kurulur. Tipik kurulum şu şekildedir:
 
 ```rust
 let app = gpui_platform::application()
@@ -70,25 +70,25 @@ app.run(|cx| {
 });
 ```
 
-`run` çağrısı kontrolü platform event loop'una devreder; bu noktadan sonra
-uygulama tamamen olay tabanlı çalışır.
+`run` çağrısı kontrolü platformun event loop'una devreder. Bu noktadan sonra
+uygulama olay tabanlı çalışır.
 
 **Quit ve activation.** Uygulamanın hangi durumda çıkacağı `QuitMode` ile
 ayarlanır:
 
-- `QuitMode::Default`: macOS'ta yalnızca explicit quit ile çıkar, diğer
-  platformlarda ise son pencere kapandığında otomatik çıkış yapılır.
+- `QuitMode::Default`: macOS'ta yalnızca açık bir quit isteğiyle çıkar,
+  diğer platformlarda ise son pencere kapandığında otomatik çıkış yapılır.
 - `QuitMode::LastWindowClosed`: son pencere kapanır kapanmaz uygulama biter.
 - `QuitMode::Explicit`: çıkış yalnızca `App::quit()` çağrılınca olur.
 - `cx.on_app_quit(|cx| async { ... })` ile kaydedilen tüm callback'ler
   uygulama tamamen sonlanmadan önce çalıştırılır. Bu callback'ler için
   ayrılan süre `gpui::SHUTDOWN_TIMEOUT: Duration = 100ms` (`app.rs:71`)
   sabitiyle belirlenir; bu eşik aşılırsa hâlâ pending olan future'lar iptal
-  edilir ve platform exit'i sürdürülür. Bu nedenle uzun teardown işleri
-  fire-and-forget bir Task'a değil, uygun bir lifecycle observer'ına
-  bağlanmalıdır.
+  edilir ve platform çıkışı sürdürülür. Bu nedenle uzun kapanış işleri,
+  sonucunu beklemeden bırakılan bir `Task` yerine uygun bir yaşam döngüsü
+  observer'ına bağlanmalıdır.
 - `cx.activate(ignoring_other_apps)`, `cx.hide()`, `cx.hide_other_apps()`,
-  `cx.unhide_other_apps()` platform genelindeki app state'ini değiştirir.
+  `cx.unhide_other_apps()` platform genelindeki uygulama durumunu değiştirir.
 - `window.activate_window()`, `window.minimize_window()`,
   `window.toggle_fullscreen()` ise pencere seviyesindeki kontrolleri verir.
 
@@ -123,12 +123,12 @@ kanallarla dinleyebilir:
 
 ## Platform Servisleri
 
-`App` üzerinden ulaşılan platform servisleri uygulamanın tüm "dış dünyaya
-açılan kapıları"dır: pencere yönetimi, panoya yazma, kimlik bilgileri,
-URL açma, ekran yakalama hepsi buradan gider. Wrapper'lar
-`crates/gpui/src/app.rs` içinde tanımlıdır; asıl davranış ise platforma
-özgü `Platform` trait implementasyonunda yaşar. Aşağıdaki gruplama, hangi
-işin nereden çağrılacağını hızlıca bulmak içindir.
+`App` üzerinden ulaşılan platform servisleri uygulamanın dış dünyaya açılan
+kapılarıdır. Pencere yönetimi, panoya yazma, kimlik bilgileri, URL açma ve
+ekran yakalama buradan ilerler. Sarmalayıcılar (wrapper'lar)
+`crates/gpui/src/app.rs` içinde tanımlıdır; asıl davranış platforma özgü
+`Platform` trait gerçekleştirmesinde yaşar. Aşağıdaki gruplama, hangi işin
+nereden çağrılacağını hızlıca bulmak içindir.
 
 - **Uygulama yaşam döngüsü:** `quit`, `restart`, `set_restart_path`,
   `on_app_quit(|cx| async ...)`, `on_app_restart(|cx| ...)`, `activate`,
@@ -181,16 +181,16 @@ işin nereden çağrılacağını hızlıca bulmak içindir.
   SystemWindowTabController" bölümüne bakın).
 
 Yeni bir platform portu veya test backend'i yazıldığında bu sözleşmelerin
-hepsinin karşılanması gerekir. Buna karşılık normal uygulama geliştirirken
-trait'lerin kendisine değil, `App` ve `Window` wrapper'larına dokunmak tercih
-edilir; bu, platform farklılıklarını wrapper katmanının emmesini sağlar.
+tamamı karşılanmalıdır. Normal uygulama geliştirirken ise trait'lerin kendisine
+değil, `App` ve `Window` sarmalayıcılarına dokunmak tercih edilir. Böylece
+platform farklarını wrapper katmanı üstlenir.
 
 ## Platform Trait Implementasyonu ve Wrapper Sınırları
 
 Uygulama kodu `Platform` veya `PlatformWindow` trait'lerini doğrudan çağırmaz;
-her şey `App` ve `Window` wrapper'ları üzerinden ilerler. Trait sözleşmesini
-bilmek yalnızca yeni bir platform portu, test platformu veya headless backend
-yazıldığında gerekir. Aşağıdaki listeler trait'lerin hangi büyük yetenek
+akış `App` ve `Window` sarmalayıcıları üzerinden ilerler. Trait sözleşmesini
+bilmek en çok yeni bir platform portu, test platformu veya headless backend
+yazarken gerekir. Aşağıdaki listeler trait'lerin hangi büyük yetenek
 gruplarına ayrıldığını gösterir.
 
 `Platform` ana grupları:
@@ -229,13 +229,14 @@ gruplarına ayrıldığını gösterir.
 - **Platforma özel:** macOS tab/document API'leri, Linux move/resize/menu/
   app-id/inset desteği, Windows raw handle, test-only `render_to_image`.
 
-**Wrapper sınırı.** Trait ve wrapper arasındaki en kritik ayrımlar şunlardır:
+**Wrapper sınırı.** Trait ve sarmalayıcı arasındaki en kritik ayrımlar
+şunlardır:
 
 - `Platform::set_cursor_style` global platform cursor'ını ayarlar; uygulama
   UI'ında hitbox'a bağlı stil gerekiyorsa `Window::set_cursor_style` tercih
   edilir.
 - `PlatformWindow::prompt` native bir prompt döndürebilir; `Window::prompt`
-  ise gerektiğinde custom prompt fallback'i de yönetir.
+  ise gerektiğinde özel prompt yedeğini de yönetir.
 - `PlatformWindow::map_window` Linux'ta map/show ayrımı için vardır; uygulama
   kodunda doğrudan çağrılmaz, `WindowOptions.show` ve window wrapper davranışı
   bu işi karşılar.
@@ -245,8 +246,8 @@ gruplarına ayrıldığını gösterir.
 
 ## Headless, Screen Capture ve Test Renderer
 
-Görsel arayüz olmadan da GPUI uygulaması başlatmak mümkündür. Bu yol özellikle
-CLI alt komutları, batch işler, sunucu süreçleri ve benchmark senaryoları için
+Görsel arayüz olmadan da GPUI uygulaması başlatılabilir. Bu yol özellikle CLI
+alt komutları, toplu işler, sunucu süreçleri ve benchmark senaryoları için
 kullanılır. İlgili modüller `crates/gpui/src/platform.rs::screen_capture_sources`
 ve `crates/gpui_platform/src/gpui_platform.rs::headless()` içinde yer alır.
 

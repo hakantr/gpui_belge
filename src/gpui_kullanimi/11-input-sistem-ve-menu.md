@@ -5,8 +5,8 @@
 ## Input, Clipboard, Prompt ve Platform Servisleri
 
 Element seviyesinde GPUI birçok input olayını tek tipli bir fluent API
-üzerinden açar. Aşağıdaki listeler farklı olay tiplerini ve hangi metotların
-hangi davranışı sağladığını özetler:
+üzerinden açar. Aşağıdaki listeler, farklı olay tiplerinin hangi metotlarla
+yakalandığını özetler:
 
 - Keyboard: `.on_key_down`, `.capture_key_down`, `.on_key_up`,
   `.capture_key_up`.
@@ -20,9 +20,9 @@ hangi davranışı sağladığını özetler:
 Event tipleri `interactive.rs` ve `platform.rs` içinde tanımlıdır:
 `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`,
 `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`,
-`FileDropEvent`, `ExternalPaths`, `ClickEvent`. `ScrollDelta::pixel_delta(line_height)`
-satır tabanlı scroll'u piksele çevirir; `coalesce` aynı yöndeki delta'ları
-birleştirir.
+`FileDropEvent`, `ExternalPaths`, `ClickEvent`.
+`ScrollDelta::pixel_delta(line_height)` satır tabanlı scroll'u piksele çevirir;
+`coalesce` aynı yöndeki delta'ları birleştirir.
 
 **Clipboard.** Pano okuma ve yazma sade çağrılarla yapılır:
 
@@ -43,12 +43,12 @@ Linux/FreeBSD için primary selection
 `read_from_primary`/`write_to_primary`; macOS Find pasteboard için
 `read_from_find_pasteboard`/`write_to_find_pasteboard` cfg-gated API'lerdir.
 
-**Prompt ve dosya seçici.** Kullanıcıyla iletişim kuran platform diyalogları
-da bağlam üzerinden çalışır:
+**Prompt ve dosya seçici.** Kullanıcıyla iletişim kuran platform diyalogları da
+bağlam üzerinden çalışır:
 
 - `window.prompt(level, message, detail, answers, cx) -> oneshot::Receiver<usize>`
-- `cx.set_prompt_builder(...)` custom GPUI prompt UI kurar;
-  `reset_prompt_builder` native/default akışa döner.
+- `cx.set_prompt_builder(...)` özel GPUI prompt UI kurar;
+  `reset_prompt_builder` native/varsayılan akışa döner.
 - `cx.prompt_for_paths(PathPromptOptions { files, directories, multiple, prompt })`
   dosya veya dizin seçici açar.
 - `cx.prompt_for_new_path(directory, suggested_name)` save dialog açar.
@@ -81,9 +81,9 @@ sürpriz oluşturabilir; bilinmesi gereken birkaç nokta:
 
 ## Prompt Builder, PromptHandle ve Fallback Prompt
 
-`Window::prompt` platform diyaloğunu açar; platform prompt'u
-desteklemiyorsa veya özel bir prompt builder set edilmişse GPUI içinde
-render edilen prompt kullanılır:
+`Window::prompt` platform diyaloğunu açar. Platform prompt'u desteklemiyorsa
+veya özel bir prompt builder set edilmişse GPUI içinde render edilen prompt
+kullanılır:
 
 ```rust
 let response = window.prompt(
@@ -106,10 +106,10 @@ let selected_index = response.await?;
 - `PromptResponse(pub usize)` — custom prompt view'in seçilen buton index'ini
   yaydığı event.
 - `Prompt` — `EventEmitter<PromptResponse> + Focusable` trait birleşimidir.
-- `PromptHandle::with_view(view, window, cx)` — custom prompt entity'sini
+- `PromptHandle::with_view(view, window, cx)` — özel prompt entity'sini
   pencereye bağlar, önceki odağı kaydeder ve prompt yanıtında odağı geri
   verir.
-- `fallback_prompt_renderer(...)` — `set_prompt_builder` ile default GPUI
+- `fallback_prompt_renderer(...)` — `set_prompt_builder` ile varsayılan GPUI
   prompt render'ını zorlamak için kullanılır.
 
 **Zed entegrasyonu** (`crates/ui_prompt`):
@@ -140,8 +140,8 @@ cx.set_prompt_builder(|level, message, detail, actions, handle, window, cx| {
 
 **Tuzaklar.** Prompt'larla çalışırken dikkat edilmesi gereken noktalar:
 
-- GPUI re-entrant prompt desteklemez; bir prompt açıkken aynı pencerede
-  ikinci bir prompt'un açılması yolunun ayrıca tasarlanması gerekir.
+- GPUI re-entrant prompt desteklemez; bir prompt açıkken aynı pencerede ikinci
+  prompt'un nasıl açılacağı ayrıca tasarlanmalıdır.
 - Custom prompt `Focusable` sağlamalıdır; aksi halde
   `PromptHandle::with_view` odak restore zincirini tamamlayamaz.
 - Prompt sonucu buton etiketi değil, `answers` dizisindeki index'tir.
@@ -184,7 +184,7 @@ cx.set_menus(vec![
 ```
 
 `MenuItem::action(name, action)` veri taşımayan unit struct action'lar için
-bir kısayoldur; veri taşıyan action'larda da doğrudan action değeri
+bir kısayoldur. Veri taşıyan action'larda da doğrudan action değeri
 geçirilebilir: `MenuItem::action("Go To Line", GoToLine { line: 1 })`. Aynı
 menü modeli klonlanmak istenirse `Menu::owned()` ve `MenuItem::owned()`
 kullanılır.
@@ -207,11 +207,11 @@ kullanılır.
   okunur.
 - Windows ve Linux platform state'i `OwnedMenu` olarak saklar; Zed bu
   modeli uygulama içi menü ve render katmanlarında kullanır.
-- Linux dock menüsü backend'de `todo`/no-op'tur; dock veya jump-list
-  davranışı için platforma özel bir fallback hazırlanmalıdır.
+- Linux dock menüsü backend'de `todo`/no-op'tur; dock veya jump-list davranışı
+  için platforma özel bir yedek akış hazırlanmalıdır.
 
-**Tuzak.** Aynı action birden çok menü item'a bağlandığında keymap'te tek
-bir shortcut gösterilir. `os_action` yalnızca macOS native edit menüsü
-eşlemesini etkiler; diğer platformlarda sıradan bir action gibi davranır.
+**Tuzak.** Aynı action birden çok menü item'a bağlandığında keymap'te tek bir
+shortcut gösterilir. `os_action` yalnızca macOS native edit menüsü eşlemesini
+etkiler; diğer platformlarda sıradan bir action gibi davranır.
 
 ---

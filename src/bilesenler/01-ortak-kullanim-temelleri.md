@@ -1,27 +1,27 @@
 # 1. Ortak Kullanım Temelleri
 
-Zed UI bileşenleri, GPUI element modelinin üstüne yerleşen daha kısıtlı ve daha
-tutarlı bir tasarım sistemi katmanıdır. Bu katmanın altında doğrudan GPUI'den
-gelen parçalar vardır: `div()`, `Render`, `RenderOnce`, `IntoElement`, `Styled`,
-`ParentElement` ve event handler'lar GPUI'nin sunduğu kısımdır. Üst katmanda ise
-Zed'in kendi UI crate'inde tanımlanan tipler bulunur; `Button`, `Label`, `Icon`,
-`Color`, `Severity`, `ButtonStyle`, `ToggleState` gibi yüzeyler bu katmanın
-ürünüdür ve tasarım sisteminin sınırlarını çizen yapı taşlarıdır.
+Zed UI bileşenleri, GPUI element modelinin üstüne kurulan daha dar ve daha
+tutarlı bir tasarım sistemi katmanıdır. Altta GPUI'nin temel parçaları durur:
+`div()`, `Render`, `RenderOnce`, `IntoElement`, `Styled`, `ParentElement` ve
+event handler'lar bu temel katmandan gelir. Zed'in `ui` crate'i ise bu temeli
+gündelik ekran kodunda daha kolay kullanılacak hale getirir. `Button`, `Label`,
+`Icon`, `Color`, `Severity`, `ButtonStyle` ve `ToggleState` gibi tipler bu üst
+katmanın parçasıdır. Bu tipler yalnızca kısa isimler değildir; renk, boyut,
+focus, spacing ve görsel tutarlılık için ortak bir dil sağlar.
 
 ## Import düzeni
 
-Zed içinde yeni UI kodu yazılırken başlangıç import'u genellikle tek satıra sığar:
+Zed içinde yeni UI kodu yazarken çoğu dosya tek bir import ile başlar:
 
 ```rust
 use ui::prelude::*;
 ```
 
-`ui::prelude::*`, `gpui::prelude::*` içeriğini de aynı anda getirir ve bunun
-üstüne Zed tasarım sistemiyle sık kullanılan tipleri ekler. Bu sayede sıradan
-bir view veya component örneğinde `Button`, `Icon`, `Label`, `Color`, `h_flex`,
-`v_flex`, `Context`, `Window`, `App`, `SharedString`, `AnyElement` ve
-`RenderOnce` için ayrı bir `use` satırı yazılmasına ihtiyaç kalmaz; bütün
-bunlar prelude üzerinden hazır şekilde gelir.
+`ui::prelude::*`, `gpui::prelude::*` içeriğini de getirir ve üstüne Zed tasarım
+sisteminde sık kullanılan tipleri ekler. Bu yüzden sıradan bir view veya küçük
+component örneğinde `Button`, `Icon`, `Label`, `Color`, `h_flex`, `v_flex`,
+`Context`, `Window`, `App`, `SharedString`, `AnyElement` ve `RenderOnce` için
+ayrı ayrı `use` satırı yazmanız gerekmez. Bunlar prelude üzerinden hazır gelir.
 
 Prelude her şeyi getirmez. Daha özel kalan bileşenler için açık import gerekir:
 
@@ -30,17 +30,17 @@ use ui::prelude::*;
 use ui::{Callout, ContextMenu, DropdownMenu, List, ListItem, Tooltip};
 ```
 
-`gpui::prelude::*` yalnızca GPUI primitive'leriyle çalışılırken yeterli kalır;
-Zed UI bileşenleri devreye girdiği an `ui::prelude::*` tercih edilen yoldur.
-Aksi halde tasarım token'ları ve ortak component trait'leri eksik kalır, bazı
-metodlar çağrılamaz hâle gelir.
+`gpui::prelude::*` yalnızca ham GPUI primitive'leriyle çalışırken yeterli olur.
+Zed UI bileşenleri kullanılacaksa tercih edilen yol `ui::prelude::*` olmalıdır.
+Aksi halde tasarım token'ları ve ortak component trait'leri eksik kalır; bazı
+builder metodları görünmez.
 
 ## Render modeli
 
-Zed UI bileşenlerinin büyük kısmı `RenderOnce` implement eder. Bu model, kendi
-içinde state taşımayan ve builder zinciriyle kurulan küçük UI parçaları için
-uygundur. Bileşen tek seferlik üretilir, ekrana basılır ve unutulur; aralarda
-sakladığı bir durum yoktur:
+Zed UI bileşenlerinin büyük kısmı `RenderOnce` implement eder. Bu model,
+kendi içinde state taşımayan ve builder zinciriyle kurulan küçük UI parçaları
+için uygundur. Bileşen o render sırasında üretilir, ekrana çizilir ve işi
+biter; bir sonraki render'a sakladığı ayrı bir durum yoktur:
 
 ```rust
 use ui::prelude::*;
@@ -66,11 +66,11 @@ fn render_status_title() -> impl IntoElement {
 }
 ```
 
-View state'i tutan ekran parçalarında ise `Render` kullanılır. Bu durumda
-bileşen, kendisine ait alanlarda durum bilgisi saklar ve etkileşime göre bu
-durum değişir. Kullanıcı etkileşimi view state'ini değiştirdiğinde, ekrana
-çizilen çıktının yenilenmesi için `cx.notify()` çağrılması gerekir; aksi halde
-state güncellense bile render aynı kalır:
+View state'i tutan ekran parçalarında ise `Render` kullanılır. Bu durumda view,
+kendi alanlarında durum bilgisi saklar ve kullanıcı etkileşimine göre bu bilgi
+değişir. Etkileşim view state'ini değiştirdiyse, ekrana çizilen çıktının da
+yenilenmesi için `cx.notify()` çağrılmalıdır. Bu çağrı unutulursa state
+değişmiş olur, fakat kullanıcı aynı eski render sonucunu görmeye devam eder:
 
 ```rust
 use ui::prelude::*;
@@ -98,22 +98,22 @@ impl Render for SettingsRow {
 
 ## Temel veri tipleri
 
-`ElementId`, component state'i ve hitbox takibi için kullanılan kararlı bir
+`ElementId`, component state'i ve hitbox takibi için kullanılan kararlı
 kimliktir. Button, tab, list item, table row ve toggle gibi etkileşimli
-bileşenlerde anlamlı ve birbiriyle çakışmayan bir id verilmesi beklenir; aksi
-halde GPUI hangi elementin hangi state'i taşıdığını ayırt edemez.
+bileşenlere anlamlı ve birbiriyle çakışmayan bir id verilmesi beklenir. Aksi
+halde GPUI hangi elementin hangi state'i taşıdığını ayırt etmekte zorlanır.
 
 `SharedString`, UI metinleri için tercih edilen string tipidir. `&'static str`,
 `String` veya `Arc<str>` kaynaklı metinleri, gereksiz bir kopya üretmeden
 elementlere taşımaya yarar. Render sırasında her metnin tekrar tekrar
 kopyalanması yerine paylaşılan bir referans üzerinden hareket edilir.
 
-`AnyElement`, farklı concrete element tiplerini tek bir slotta tutmak
-gerektiğinde devreye girer. Örneğin bir list item'in start slot'u bazen `Icon`,
-bazen özel bir `div()` olabilir; bu çeşitlilik `AnyElement` ile aynı tipin
-arkasında toplanır. Buna karşılık public builder API'si generic bir
-`impl IntoElement` kabul ediyorsa, çağıran tarafın `AnyElement` üretmesine
-gerek kalmaz; tip dönüşümü zaten otomatik olur.
+`AnyElement`, farklı somut element tiplerini tek bir slotta tutmak gerektiğinde
+kullanılır. Örneğin bir list item'in start slot'u bazen `Icon`, bazen özel bir
+`div()` olabilir. Bu çeşitlilik `AnyElement` ile aynı tipin arkasında toplanır.
+Buna karşılık public builder API'si generic bir `impl IntoElement` kabul
+ediyorsa, çağıran tarafın özellikle `AnyElement` üretmesine gerek yoktur; dönüşüm
+zaten builder tarafından yapılır.
 
 `AnyView`, entity tabanlı ve dinamik view döndüren tooltip, popover veya
 preview gibi API'lerde sık karşılaşılan bir tiptir. Bir view'in yaşam döngüsü
@@ -141,12 +141,13 @@ fn build_sort_menu(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
 
 ## Tasarım token'ları
 
-`Color`, tema bağımsız semantik metin ve ikon rengi seçmek için kullanılan ana
+`Color`, tema bağımsız metin ve ikon rengi seçmek için kullanılan ana semantik
 token'dır. `Color::Default`, `Muted`, `Hidden`, `Disabled`, `Placeholder`,
 `Accent`, `Info`, `Success`, `Warning`, `Error`, `Hint`, `Created`, `Modified`,
 `Deleted`, `Conflict`, `Ignored`, `Debugger`, `Player(u32)`, `Selected` ve
-version-control renkleri etkin temadan gerçek HSLA değerine çevrilir. Yani
-kodda "uyarı rengi istiyorum" denir, gerçek HSLA değerini tema belirler.
+version-control renkleri etkin temadan gerçek HSLA değerine çevrilir. Kod
+"uyarı rengi istiyorum" der; o uyarının açık temada mı koyu temada mı nasıl
+görüneceğine tema karar verir.
 
 Version control variant'ları açık adlarıyla `VersionControlAdded`,
 `VersionControlModified`, `VersionControlDeleted`, `VersionControlConflict` ve
@@ -154,10 +155,10 @@ Version control variant'ları açık adlarıyla `VersionControlAdded`,
 `Created`/`Modified` yerine bu açık adlar tercih edilir; bu sayede diff
 yüzeyleri tema değişikliklerinde tutarlı kalır.
 
-Özel HSLA gerektiğinde `Color::Custom` vardır, ancak tutarlılık açısından
-semantik renkler önceliklidir; özel renge düşmek bir istisna olarak görülür.
-`Color` ayrıca `Component` preview'ı olan bir tasarım token'ıdır ve component
-gallery'de tema renkleri yan yana karşılaştırılabilir.
+Özel HSLA gerektiğinde `Color::Custom` kullanılabilir. Yine de tutarlılık için
+önce semantik renkler düşünülmelidir; özel renge geçmek istisna kabul edilir.
+`Color` ayrıca `Component` preview'ı olan bir tasarım token'ıdır. Bu sayede
+component gallery içinde tema renkleri yan yana karşılaştırılabilir.
 
 `Severity`, mesaj ve feedback bileşenlerinde durum seviyesini ifade eder:
 `Info`, `Success`, `Warning`, `Error`. `Banner` ve `Callout` gibi bileşenler
@@ -196,12 +197,12 @@ gerekmediğine bu değere göre karar verilir.
 
 ## Spacing token'ları (`DynamicSpacing`)
 
-Padding, margin ve gap değerleri için elle `px(...)` veya `rems(...)` yazmak
-yerine, `crates/ui/src/styles/spacing.rs` içinde tanımlı `DynamicSpacing`
-ölçeğinin tercih edilmesi önerilir. Bu enum, kullanıcının UI yoğunluk ayarına
-(`Compact`, `Default`, `Comfortable`) göre tek bir noktadan ölçek değiştirir;
-uygulama yoğunluğu değiştiğinde tüm spacing değerleri kendiliğinden uyum
-sağlar.
+Padding, margin ve gap değerleri için her yerde elle `px(...)` veya
+`rems(...)` yazmak yerine, `crates/ui/src/styles/spacing.rs` içinde tanımlı
+`DynamicSpacing` ölçeğini tercih etmek daha doğru olur. Bu enum, kullanıcının
+UI yoğunluk ayarına (`Compact`, `Default`, `Comfortable`) göre tek noktadan
+ölçek değiştirir. Uygulama yoğunluğu değiştiğinde spacing değerleri de aynı
+kurala bağlı olarak uyum sağlar.
 
 - Adlandırma: `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`,
   `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`,
@@ -222,9 +223,9 @@ ve `v_group*` helper'larının arkasında da kullanılır.
 ## Yükseklik / elevation token'ları (`ElevationIndex`)
 
 `crates/ui/src/styles/elevation.rs` içindeki `ElevationIndex`, bir yüzeyin
-görsel "z-axis" konumunu ifade eder. Doğru elevation seçimi, doğru shadow,
-background ve border kombinasyonunu otomatik olarak üretir; her yüzeyin elden
-ayarlanmasına gerek kalmaz.
+görsel "z-axis" konumunu anlatır. Doğru elevation seçildiğinde shadow,
+background ve border kombinasyonu birlikte gelir. Böylece her popover, modal
+veya panel için aynı görsel ayrıntıları elden ayarlamak gerekmez.
 
 - `Background`: uygulamanın en alt zemini.
 - `Surface`: paneller, pane'ler ve ana yüzey container'ları.
@@ -260,10 +261,10 @@ background görsel tutarlılığı kaybeder ve aynı dilin parçası gibi durmaz
 
 ## Platform stili (`PlatformStyle`)
 
-`crates/ui/src/styles/platform.rs` içindeki `PlatformStyle`, render kararlarını
-işletim sistemine göre soyutlamak için kullanılır. `cfg!` makrolarını ya da
-işletim sistemi tespitini her noktaya dağıtmak yerine, tek noktadan platforma
-göre değişen davranışlar bu enum üzerinden ifade edilir.
+`crates/ui/src/styles/platform.rs` içindeki `PlatformStyle`, işletim sistemine
+bağlı render kararlarını tek bir yerde toplamak için kullanılır. `cfg!`
+makrolarını veya platform tespitini her bileşene dağıtmak yerine, platforma göre
+değişen davranışlar bu enum üzerinden ifade edilir.
 
 - Değerler: `Mac`, `Linux`, `Windows`.
 - Mevcut platform için `PlatformStyle::platform()` (const fn) çağrılır.
@@ -313,9 +314,8 @@ metin temanın geri kalanından kopuk görünmeye başlar.
 ## Animasyon yardımcıları
 
 `crates/ui/src/styles/animation.rs`, küçük UI animasyonlarını standart süreler
-ve standart yönlerle kurmak için bir trait sağlar. Amaç, her yerde elden
-animasyon parametresi yazmak yerine ortak ve tutarlı bir vokabüleri
-paylaşmaktır.
+ve yönlerle kurmak için bir trait sağlar. Amaç, her yerde ayrı ayrı animasyon
+parametresi yazmak yerine ortak ve tutarlı bir sözlük kullanmaktır.
 
 - `AnimationDuration`: `Instant` (50ms), `Fast` (150ms), `Slow` (300ms).
 - `AnimationDirection`: `FromBottom`, `FromLeft`, `FromRight`, `FromTop`.
@@ -462,10 +462,10 @@ Tarih farkı yardımcıları (`format_distance` modülü):
 
 ## Hata yönetimi
 
-UI olay işleyicilerinden veya async task'larından dönen `Result` değerleri
-sessizce yutulmamalıdır. Bir hata düşürüldüğünde kullanıcının haberi olması,
-geliştiricinin loglarda izini sürebilmesi ve view state'inin tutarlı kalması
-istenir. Bu yüzden tutarlı bir kuralın izlenmesi beklenir:
+UI olay işleyicilerinden veya async task'lardan dönen `Result` değerleri
+sessizce yok sayılmamalıdır. Bir hata oluştuğunda kullanıcının gerekirse bunu
+görmesi, geliştiricinin loglarda iz sürebilmesi ve view state'inin tutarlı
+kalması gerekir. Bu yüzden aynı kuralı her yerde izlemek önemlidir:
 
 - Çağıran fonksiyon `Result` taşıyabiliyorsa hatanın `?` ile yayılması en
   doğal yoldur.

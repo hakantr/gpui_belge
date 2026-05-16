@@ -4,15 +4,14 @@
 
 ## Zed Workspace Dock ve Panel Modeli
 
-Bu bölüm GPUI çekirdeğine değil, Zed'in `workspace` crate'i üstünde duran
-dock ve panel katmanına aittir. İlgili dosyalar:
+Bu bölüm GPUI çekirdeğine değil, Zed'in `workspace` crate'i üstünde duran dock
+ve panel katmanına aittir. İlgili dosyalar:
 `crates/workspace/src/workspace.rs`, `crates/workspace/src/dock.rs`,
 `crates/workspace/src/pane.rs`.
 
-**Panel helper yüzeyi.** Panel UI'ı yazarken aşağıdaki sınırlar
-bilinmelidir:
+**Panel helper yüzeyi.** Panel UI'ı yazarken aşağıdaki sınırlar bilinmelidir:
 
-- `panel::PanelHeader` default `header_height` veya `panel_header_container`
+- `panel::PanelHeader` varsayılan `header_height` veya `panel_header_container`
   sağlayan bir yardımcı trait değildir; `workspace::Panel` üstünde marker
   bir trait'tir. Header yüksekliği gerekiyorsa doğrudan
   `Tab::container_height(cx)`, container gerekiyorsa `h_flex()`/`v_flex()`
@@ -95,9 +94,9 @@ hazırlanırken gözden geçirilmelidir:
 
 ## Workspace Item, Pane, Modal, Toast ve Notification Sistemi
 
-GPUI bir UI framework'üdür; Zed'in workspace katmanı bunun üstünde
-tab/pane, modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir
-editor benzeri panel veya komut yazılırken bu sözleşmeler tanınmalıdır.
+GPUI bir UI framework'üdür. Zed'in workspace katmanı bunun üstünde tab/pane,
+modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editor benzeri
+panel veya komut yazılırken bu sözleşmeler bilinmelidir.
 
 #### Item ve ItemHandle
 
@@ -239,9 +238,9 @@ workspace.show_toast(
 workspace.show_error(&error, cx);
 ```
 
-`Toast` lightweight ve geçicidir (autohide); `Notification` ise persistant
-bir view'dir ve kullanıcı dismiss edene kadar görünür kalır. `SuppressEvent`
-aynı kaynaktan gelen tekrarlı bildirimleri bastırmak için kullanılır.
+`Toast` hafif ve geçicidir (autohide); `Notification` ise kalıcı bir view'dir
+ve kullanıcı dismiss edene kadar görünür kalır. `SuppressEvent` aynı kaynaktan
+gelen tekrarlı bildirimleri bastırmak için kullanılır.
 
 `Workspace::toggle_status_toast<V: ToastView>` modal layer mantığında
 `ToastView` üzerinden toast'ı toggle eder; tipik UI elemanları (örneğin
@@ -254,9 +253,9 @@ pub trait ToastView: ManagedView {
 }
 ```
 
-`ToastAction::new(label, on_click)` toast içindeki action butonunu
-tanımlar. `ToastView` tabanlı toast'larda auto dismiss default `true`;
-`Workspace::show_toast` ile gösterilen lightweight `Toast` struct'ında ise
+`ToastAction::new(label, on_click)` toast içindeki action butonunu tanımlar.
+`ToastView` tabanlı toast'larda auto dismiss varsayılan olarak `true`'dur.
+`Workspace::show_toast` ile gösterilen hafif `Toast` struct'ında ise
 `.autohide()` çağrılmadıkça otomatik kapanma yoktur.
 
 #### `Workspace::open_*` Akışı
@@ -316,15 +315,14 @@ Item ve workspace tarafında dikkat edilmesi gereken yaygın hatalar:
 
 ## Workspace Serialization, OpenOptions, ProjectItem ve SearchableItem
 
-Workspace item açma yalnız `Pane::add_item` çağrısından ibaret değildir;
-Zed session restore, project item resolution, search bar ve collab follow
-gibi katmanlar da item trait'leri üzerinden bağlanır.
+Workspace item açma yalnız `Pane::add_item` çağrısından ibaret değildir. Zed
+session restore, project item çözme, search bar ve collab follow gibi katmanlar
+da item trait'leri üzerinden bağlanır.
 
 #### SerializableItem ve Restore
 
-`SerializableItem` workspace kapanırken veya item event'i geldiğinde
-item state'ini workspace DB'ye yazmak ve daha sonra geri yüklemek için
-kullanılır:
+`SerializableItem`, workspace kapanırken veya item event'i geldiğinde item
+state'ini workspace DB'ye yazmak ve daha sonra geri yüklemek için kullanılır:
 
 ```rust
 pub trait SerializableItem: Item {
@@ -485,15 +483,15 @@ hatalar:
 - Search match tipi byte offset, buffer snapshot ve token ile uyumlu
   tutulmalıdır; stale match'in yeni buffer üzerinde kullanılması yanlış
   range'e gider.
-- `OpenOptions::visible = None` default olarak workspace'e görünür
+- `OpenOptions::visible = None` varsayılan olarak workspace'e görünür
   worktree ekleme anlamı taşımaz; path açma davranışı dizin/dosya ayrımı
   için açıkça seçilmelidir.
 
 ## PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
 
 Pane ve workspace yalnızca tab listesinden ibaret değildir; split ağacı,
-navigation history, toolbar item'ları ve multi-workspace sidebar bir
-arada çalışır.
+navigation history, toolbar item'ları ve multi-workspace sidebar birlikte
+çalışır.
 
 #### PaneGroup ve SplitDirection
 
@@ -502,14 +500,14 @@ arada çalışır.
 
 - `PaneGroup::new(pane)` tek bir pane ile başlar.
 - `split(old_pane, new_pane, SplitDirection, cx)` ağaca yeni pane ekler;
-  eski pane bulunamazsa ilk pane fallback'i kullanılır.
+  eski pane bulunamazsa ilk pane yedek olarak kullanılır.
 - `remove`, `resize`, `reset_pane_sizes`, `swap`, `move_to_border` split
   ağacını değiştirir.
 - `pane_at_pixel_position(point)`, `bounding_box_for_pane(pane)`,
   `find_pane_in_direction` drag/drop ve klavyeyle pane navigation için
   kullanılır.
 - `SplitDirection::{Up, Down, Left, Right}`; `vertical(cx)` ve
-  `horizontal(cx)` kullanıcı ayarına göre default split yönünü üretir.
+  `horizontal(cx)` kullanıcı ayarına göre varsayılan split yönünü üretir.
 - `SplitDirection::axis()`, `opposite()`, `edge(bounds)`,
   `along_edge(bounds, length)` resize ve drop indicator hesaplarında
   kullanılır.
@@ -532,7 +530,7 @@ benzer ama farklı state'lerde yönetilir:
 - Workspace bir pane'i kaldırırken aktif pane kaldırılıyorsa
   `Workspace::force_remove_pane` artık önce `active_pane`'i kalan bir
   pane'e günceller: `focus_on` verilmişse o pane aktif olur, verilmemişse
-  son kalan pane fallback olarak seçilir. Aktif modal varsa odak fallback
+  son kalan pane yedek olarak seçilir. Aktif modal varsa odak yedek
   pane'e taşınmayabilir; ancak `active_pane` yine kaldırılmış pane olarak
   bırakılmaz.
 
@@ -637,18 +635,18 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
   sonucudur.
 - Nav history preview item'ı ayrı işaretler; preview tab gerçek tab'a
   pinlendiğinde history entry'leri buna göre güncellenmelidir.
-- Split yönü hardcode edilmek yerine kullanıcı ayarlı default
+- Split yönü hardcode edilmek yerine kullanıcı ayarlı varsayılan
   isteniyorsa `SplitDirection::vertical(cx)` veya `horizontal(cx)`
   kullanılır.
 
 ## Workspace Notification Yardımcıları ve Async Hata Gösterimi
 
-Bildirim sistemi sadece `show_notification` çağrısından ibaret değildir;
-workspace dışı app seviyesinde bildirim ve async error propagation için
-ek yardımcı trait'ler bulunur.
+Bildirim sistemi sadece `show_notification` çağrısından ibaret değildir.
+Workspace dışı app seviyesinde bildirim ve async hata yayılımı için ek yardımcı
+trait'ler bulunur.
 
-**App-level notification.** Aktif workspace olup olmadığına bakmaksızın
-bildirim göstermek için:
+**App-level notification.** Aktif workspace olup olmadığına bakmadan bildirim
+göstermek için:
 
 - `show_app_notification(id, cx, build)` — aktif workspace varsa orada,
   yoksa tüm workspace'lerde notification gösterir.
@@ -740,7 +738,7 @@ bu store üzerinden uygun workspace'e yönlendirilir.
 #### WorkspaceDb ve HistoryManager
 
 `WorkspaceDb::global(cx)` session ve workspace persistence için kullanılan
-SQLite bağlantı wrapper'ıdır. Workspace restore ve recent project history
+SQLite bağlantı sarmalayıcısıdır. Workspace restore ve recent project history
 şu katmanlara dağılır:
 
 - `open_workspace_by_id(workspace_id, app_state, requesting_window, cx)`
@@ -756,7 +754,7 @@ SQLite bağlantı wrapper'ıdır. Workspace restore ve recent project history
 
 #### OpenListener ve RawOpenRequest
 
-`zed::open_listener` uygulama dışından gelen açma isteklerini queue'a alır:
+`zed::open_listener` uygulama dışından gelen açma isteklerini kuyruğa alır:
 
 ```rust
 let (listener, rx) = OpenListener::new();
@@ -773,7 +771,7 @@ listener.open(RawOpenRequest {
 - `OpenListener` bir `Global`'dir; `open(...)` isteği unbounded bir
   channel'a gönderir.
 - `RawOpenRequest` ham CLI veya URL alanlarını taşır.
-- `OpenRequest::parse(raw, cx)` bunları typed `OpenRequest`'a çevirir.
+- `OpenRequest::parse(raw, cx)` bunları tipli `OpenRequest`'a çevirir.
 - `OpenRequestKind` kaynak türünü belirtir: CLI connection, extension,
   agent panel, shared agent thread, dock menu action, builtin JSON
   schema, setting, git clone, git commit vb.
@@ -813,7 +811,7 @@ hatalar:
 
 - Workspace açma akışında `AppState::build_window_options` kullanılır;
   doğrudan `WindowOptions` kopyalamak Zed'in titlebar, app id, bounds
-  restore ve platform ayarlarını bypass eder.
+  restore ve platform ayarlarını atlar.
 - `WorkspaceStore` weak workspace tutar; iterasyon sırasında upgrade
   başarısız olabilir.
 - `OpenListener::open` listener yokken hatayı loglar; talebin teslim

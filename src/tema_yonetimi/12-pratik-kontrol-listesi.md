@@ -1,17 +1,16 @@
 # Pratik kontrol listesi
 
-Son bölüm; önceki adımlarda alınan kararları hata sınıflarına göre
-hızlıca taranabilir bir kontrol listesine çevirir. Burada her madde
-yalnızca özet niteliğindedir; detay gerektiğinde ilgili konuya
-dönülmesi gerekir.
+Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hızlıca
+taranabilir bir kontrol listesine çevirir. Her madde özet niteliğindedir;
+detay gerektiğinde ilgili konuya dönülmelidir.
 
 ---
 
 ## 45. Yaygın tuzaklar
 
-Önceki bölümlerde dağınık olan tuzaklar **tek bir yerde** toplanır; her
-madde bir-iki cümle özet içerir ve bölüm referansıyla bağlanır.
-Ayrıntılı tartışma için ilgili konuya dönülmesi yerinde olur.
+Önceki bölümlerde geçen tuzaklar **tek bir yerde** toplanır. Her madde kısa
+bir özet içerir ve bölüm referansıyla bağlanır. Ayrıntılı tartışma için ilgili
+konuya dönülmelidir.
 
 ### Sözleşme katmanı (Bölüm IV ve V)
 
@@ -53,7 +52,7 @@ Ayrıntılı tartışma için ilgili konuya dönülmesi yerinde olur.
    + refresh_windows` her zaman bir çift olarak çağrılmalıdır.
    → Konu 38.
 10. **`cx.notify()` ile yetinmek.** Yalnızca tek view'ı yeniler; oysa
-    tema değişimi tüm pencerelerde geçerli olur. → Konu 39.
+    tema değişimi tüm pencerelerde geçerli olur. → Konu 38.
 11. **`kvs_tema::init`'in atlanması.** `cx.theme()` panic atar. Bu
     çağrı uygulama girişinin **ilk** satırı olarak konumlanır.
     → Konu 36.
@@ -101,8 +100,8 @@ Ayrıntılı tartışma için ilgili konuya dönülmesi yerinde olur.
     GPL-3 ihlalidir. Bağımsız anchor değerleri seçilmelidir. → Konu 3, 25.
 24. **Lisans dosyasını "sonradan eklerim" demek.** Bundled tema'ya
     atıf eklenmediğinde telif ihlali oluşur. → Konu 27.
-25. **GPL lisanslı fixture'ın atlanmaması.** Tema JSON'undaki HSL
-    değerleri bile telif kapsamına girer; yalnızca MIT/Apache lisanslı
+25. **GPL lisanslı fixture'ın alınması.** Tema JSON'undaki HSL değerleri
+    bile telif kapsamına girer; yalnızca MIT/Apache gibi uyumlu lisanslı
     temalar fixture'a alınır. → Konu 27.
 
 ### Test (Bölüm VI ve XI)
@@ -122,15 +121,14 @@ Ayrıntılı tartışma için ilgili konuya dönülmesi yerinde olur.
     `pub(crate) mod refinement;` zorunludur. → Konu 43.
 30. **`schema::*` glob ile public ihraç.** Yeni iç tip otomatik
     olarak public hale gelir. Tek tek `pub use` yazılmalıdır. → Konu 43.
-31. **`Theme.styles` field'ının doğrudan public olması.** İç düzen
+31. **`Theme.styles` alanının doğrudan public olması.** İç düzen
     sızıntısına yol açar; accessor metotlarının (`theme.colors()`)
     tercih edilmesi gerekir. → Konu 12, 41.
 
 ### Özet karar matrisi
 
-Önceki pratik bölümünde toplanmış olan "İleri öğeler" başlığı ilgili
-katmanlara dağıtılmıştır; aşağıdaki tablo, mirror kararı için kanonik
-ve kısa kontrol listesini sunar:
+Önceki pratik bölümünde toplanan "İleri öğeler" başlığı ilgili katmanlara
+dağıtılmıştır. Aşağıdaki tablo, mirror kararı için kısa kontrol listesidir:
 
 | Zed öğesi | `kvs_tema` mirror gerekli mi? | Hangi sürümde? |
 |-----------|-------------------------------|----------------|
@@ -146,8 +144,8 @@ ve kısa kontrol listesini sunar:
 | Registry sabitleri / typed error'lar | Registry mirror ediliyorsa **gerekli** | İlk registry sürümünde |
 | `default_color_scales` / `zed_default_themes` | Karara bağlıdır | Fallback ve scale mirror kararı verildiğinde |
 
-Yukarıdaki öğeler kapsam kararına göre mirror edilir; public API'ye
-alınmayan parçalar tüketici sözleşmesinin dışında kalır.
+Yukarıdaki öğeler kapsam kararına göre mirror edilir. Public API'ye alınmayan
+parçalar tüketici sözleşmesinin dışında kalır.
 
 > **Referans:** Bölüm IV/Konu 14 (DiagnosticColors detayı), Bölüm
 > VII/Konu 31 (apply_status_color_defaults +
@@ -158,9 +156,9 @@ alınmayan parçalar tüketici sözleşmesinin dışında kalır.
 
 # Son
 
-Bu rehber, `kvs_tema` ve `kvs_syntax_tema` crate'lerinin **tüm
-yüzeyini** 12 bölüm ve 45 konu altında, uygulama kurulum sırasını
-izleyerek toplar. Üç temel kural baştan sona geçerli kalır:
+Bu rehber, `kvs_tema` ve `kvs_syntax_tema` crate'lerinin **tüm yüzeyini** 12
+bölüm ve 45 konu altında, uygulama kurulum sırasını izleyerek toplar. Üç temel
+kural baştan sona geçerli kalır:
 
 1. **Veri sözleşmesinde dışlama yok** — Zed'in tüm alanları mirror
    edilir (Konu 2).
@@ -169,8 +167,7 @@ izleyerek toplar. Üç temel kural baştan sona geçerli kalır:
 3. **Sözleşme sınırı** — public API ile crate-içi detaylar birbirinden
    ayrılır; tüketici yalnızca kararlı yüzeye bağlanır.
 
-Beklenmedik bir durumla karşılaşıldığında ilk başvurulacak yer Bölüm
-XII'deki tuzaklar listesidir; daha geniş bir tartışma için ilgili
-konuya geri dönülmesi yerinde olur.
+Beklenmedik bir durumla karşılaşıldığında ilk bakılacak yer Bölüm XII'deki
+tuzaklar listesidir. Daha geniş tartışma için ilgili konuya geri dönülmelidir.
 
 ---

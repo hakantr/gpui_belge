@@ -1,22 +1,21 @@
 # 10. Tab Bileşenleri
 
-Tab bileşenleri yatay bir navigation yüzeyi kurmak için kullanılır.
-`Tab` tek bir tab satırını çizer; `TabBar` ise bu tabları, soldaki ve
-sağdaki action alanlarıyla ve yatay scroll container'ıyla birlikte
-düzenler. Seçili tab, aktif index, close davranışı ve tabların pozisyonu
-gibi bilgilerin view state'i tarafından hesaplanması beklenir; tab
-bileşenleri bu bilgiyi kendiliğinden üretmez.
+Tab bileşenleri yatay bir navigation yüzeyi kurmak için kullanılır. `Tab` tek
+bir sekmeyi çizer; `TabBar` ise sekmeleri, soldaki ve sağdaki action alanlarını
+ve yatay scroll container'ını birlikte düzenler. Seçili tab, aktif index, close
+davranışı ve tab pozisyonu gibi bilgiler view state'i tarafından hesaplanır.
+Tab bileşenleri bu bilgiyi kendi başına üretmez.
 
-Hangi durumda hangisinin kullanılacağına dair kısa bir özet:
+Hangi durumda hangisini seçeceğiniz için kısa özet:
 
 - Tek bir tab yüzeyi için `Tab` yeterlidir.
-- Tab koleksiyonu, soldaki/sağdaki toolbar kontrolleri ve yatay scroll
-  alanını birlikte çizmek gerekiyorsa `TabBar` doğru üst yapıdır.
+- Tab koleksiyonu, soldaki/sağdaki toolbar kontrolleri ve yatay scroll alanı
+  birlikte çizilecekse `TabBar` doğru üst yapıdır.
 - Dosya veya editor sekmeleri gibi bitişik border davranışının önemli
   olduğu durumlarda, her tab için doğru `TabPosition` değerinin
   verilmesi gerekir.
-- Tab içeriğinde icon, dirty indicator veya close/pin butonu gerektiğinde
-  `start_slot(...)` ve `end_slot(...)` yardımcıları devreye girer.
+- Tab içeriğinde icon, dirty indicator veya close/pin butonu gerekiyorsa
+  `start_slot(...)` ve `end_slot(...)` yardımcıları kullanılır.
 
 ## Tab
 
@@ -126,11 +125,11 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edilecek noktalar:
 
-- `Tab`, kendi başına aktif tabı değiştirmez. Click handler içinde view
-  state'in güncellenmesi ve ardından `cx.notify()` çağrılması gerekir.
-- `TabPosition` verilmediğinde varsayılan değer `First` olur; bu yüzden
-  çoklu bir tab bar içinde her tab için doğru pozisyonun hesaplanması
-  gerekir, aksi halde border'lar tutarsız görünür.
+- `Tab`, aktif tabı kendi başına değiştirmez. Click handler içinde view state
+  güncellenir ve ardından `cx.notify()` çağrılır.
+- `TabPosition` verilmediğinde varsayılan değer `First` olur. Bu yüzden çoklu
+  bir tab bar içinde her tab için doğru pozisyon hesaplanmalıdır; aksi halde
+  border'lar tutarsız görünür.
 - Close butonu gibi `end_slot` kontrolleri için ayrı ve stabil bir id
   kullanılması beklenir; aksi halde tıklamalar yanlış elemana
   yönlendirilebilir.

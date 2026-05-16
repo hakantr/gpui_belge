@@ -5,9 +5,10 @@
 ## Async İşler
 
 GPUI'de async işler, bağlam üzerinden spawn edilen `Task` handle'larıyla
-yönetilir. Üç temel kalıp vardır: foreground (UI thread'i ile aynı executor'da
-çalışan) task, current entity'ye bağlı task ve bir pencereyi de hesaba katan
-task. Her biri biraz farklı bir closure imzasıyla yazılır.
+yönetilir. Üç temel kalıp vardır: foreground task, current entity'ye bağlı
+task ve pencereyi de hesaba katan task. Foreground task UI thread'i ile aynı
+executor'da çalışır; diğer iki kalıp entity ya da pencere yaşam döngüsünü
+hesaba katar. Her biri biraz farklı bir closure imzasıyla yazılır.
 
 **Foreground task.** En sade biçimdir; entity veya pencere bağlamı gerektirmez:
 
@@ -21,8 +22,8 @@ cx.spawn(async move |cx| {
 ```
 
 **Entity'ye bağlı task.** Closure başlangıçta current entity'nin
-`WeakEntity` handle'ını verir, bu sayede async beklemeler sırasında entity
-düşmüş olabileceği fallible olarak ele alınır:
+`WeakEntity` handle'ını verir. Böylece async beklemeler sırasında entity'nin
+düşmüş olma ihtimali `Result` üzerinden görünür hale gelir:
 
 ```rust
 cx.spawn(async move |this, cx| {
@@ -57,14 +58,14 @@ gövdesi `Result` döndürüyorsa derleyicinin tipini çıkarması için ya
 örnekteki gibi `Ok::<(), anyhow::Error>(())` ile son ifade tip-açıklanmalı, ya
 da en üstte `let _: Result<_, anyhow::Error> = ...` kalıbı kullanılmalıdır.
 
-`window.to_async(cx)` doğrudan bir `AsyncWindowContext` üretir; callback dışına
-taşınacak pencere bağlı async helper'lar yazılırken bu yol tercih edilir.
-Bununla birlikte günlük entity/view kodunda `cx.spawn_in(window, ...)` daha
-güvenli ve okunaklı bir wrapper olarak kalır.
+`window.to_async(cx)` doğrudan bir `AsyncWindowContext` üretir. Callback dışına
+taşınacak pencere bağlı async yardımcılar yazılırken bu yol tercih edilir.
+Günlük entity/view kodunda ise `cx.spawn_in(window, ...)` daha güvenli ve
+okunaklı bir sarmalayıcıdır.
 
 **Background thread.** CPU-yoğun iş foreground executor'ı bloklamasın diye
-ayrı bir executor'a verilir; ardından elde edilen sonuç bir foreground task ile
-UI'ya geri taşınır:
+ayrı bir executor'a verilir. Sonuç hazır olduğunda foreground task ile UI'ya
+geri taşınır:
 
 ```rust
 let task = cx.background_spawn(async move {
@@ -91,11 +92,12 @@ GPUI'nın kendi timer'ı kullanılır:
 
 ## Executor, Priority, Timeout ve Test Zamanı
 
-GPUI'da iş iki executor arasında bölünür: foreground executor UI thread üzerinde
-çalışır, background executor ise scheduler ve thread pool üzerinde. Bu ayrım
-yalnızca performans için değildir; bir await noktasının ötesinde hangi
-context'in tutulabileceğini de belirler. Foreground'da `App` veya `Window`'a
-güvenli dönüş noktaları varken background tarafında bunlar yoktur.
+GPUI'da iş iki executor arasında bölünür. Foreground executor UI thread
+üzerinde çalışır; background executor ise scheduler ve thread pool üzerinde
+çalışır. Bu ayrım yalnızca performans için değildir. Bir `await` noktasından
+sonra hangi context'in tutulabileceğini de belirler. Foreground tarafta `App`
+veya `Window`'a güvenli dönüş noktaları vardır; background tarafta bunlar
+yoktur.
 
 **Temel tipler.** Sistem aşağıdaki parçalardan oluşur:
 
@@ -149,7 +151,7 @@ gerekmez. Pencere içi async çalışmada
 **Async context convenience yüzeyi.** Async bağlamlar üzerinde tekrar tekrar
 ihtiyaç duyulan birkaç kestirme metot vardır:
 
-- `AsyncApp::refresh()` tüm pencereler için redraw planlar; async path'ten
+- `AsyncApp::refresh()` tüm pencereler için redraw planlar; async akıştan
   redraw tetiklemek için `update(|cx| cx.refresh_windows())` yazmaya gerek
   bırakmaz.
 - `AsyncApp::background_executor()` ve `foreground_executor()` executor
@@ -166,7 +168,7 @@ ihtiyaç duyulan birkaç kestirme metot vardır:
   kullanılır.
 - `AsyncWindowContext::on_next_frame(...)`, `read_global`, `update_global`,
   `spawn(...)` ve `prompt(...)` pencereye bağlı async işlerde "pencere
-  kapanmış olabilir" durumunu `Result` veya fallback receiver üzerinden
+  kapanmış olabilir" durumunu `Result` veya yedek receiver üzerinden
   yönetir.
 
 **Entity ve window bağlı priority spawn.** Öncelikli işlerin daha tipli
@@ -180,9 +182,9 @@ sürümleri için de yardımcılar mevcuttur:
 - Priority yalnızca foreground executor kuyruğunda polling önceliği sağlar;
   uzun CPU işi hâlâ `background_spawn` tarafına taşınmalıdır.
 
-**Hazır değer.** Bir hesap sonucu hâlihazırda elde varsa ek bir Task açmadan
-direkt `Task::ready` ile döndürülebilir. Bu, caller'ın imzasını her iki yolda
-da `Task` olarak tutarlı bırakır:
+**Hazır değer.** Bir hesap sonucu zaten eldeyse ek bir `Task` açmadan doğrudan
+`Task::ready` ile döndürülebilir. Bu, çağıran kodun imzasını her iki yolda da
+`Task` olarak tutarlı bırakır:
 
 ```rust
 fn cached_or_async(cached: Option<Data>, cx: &App) -> Task<anyhow::Result<Data>> {
@@ -204,7 +206,7 @@ noktanın bilinmesi gerekir:
   süreyle gelinen noktada hazır olan işleri çalıştırmak için ayrıca
   `run_until_parked()` çağrısı gereklidir.
 - `allow_parking()` outstanding task varken parked olmayı testte bilerek
-  kabul etmek için kullanılır; production path'lerine taşınması doğru
+  kabul etmek için kullanılır; üretim akışlarına taşınması doğru
   değildir.
 - `block_with_timeout` timeout olduğunda future'ı geri verir; bu davranış,
   işi iptal etmek veya daha sonra yeniden poll etmek konusunda kararı
@@ -251,7 +253,7 @@ cx.spawn_in(window, async move |this, cx| {
 vardır:
 
 - `task.detach()` — hata loglanmaz, sessizce yutulur. Yalnızca UI'da
-  gösterilemeyen, kaybedilmesinin sorun olmadığı fire-and-forget işler için
+  gösterilemeyen ve sonucu kaybolsa sorun olmayacak işler için
   uygundur.
 - `task.detach_and_log_err(cx)` — standart akıştır; üretim kodunda hata
   yönetiminin varsayılan yolu olarak tercih edilir.
@@ -259,14 +261,14 @@ vardır:
   — workspace UI'sında kullanılan ek bir helper'dır (workspace crate'inde
   tanımlıdır); hatayı modal bir prompt'la kullanıcıya gösterir.
 
-**Yazarken kararlar.** Task'ı imzaya nasıl koyacağına dair pratik yönlendirici
-kurallar şunlardır:
+**Yazarken kararlar.** Bir task'ın imzada nasıl görüneceğini seçerken şu
+pratik kurallar işe yarar:
 
-- Async sonuç caller'a dönmesi gerekiyorsa metot `Task<R>` döndürmeli ve
-  caller await etmelidir; sonucu struct alanında saklamak, ileride drop
-  edilirse iptal davranışı verir.
-- Caller fire-and-forget yapıyorsa task'ı return etmek gereksizdir; doğrudan
-  `detach_and_log_err(cx)` çağırmak niyeti daha açık ifade eder.
+- Async sonuç çağıran koda dönmeliyse metot `Task<R>` döndürmeli ve çağıran
+  kod bunu await etmelidir. Sonucu struct alanında saklamak ise ileride alan
+  drop edilirse iptal davranışı verir.
+- Çağıran kod sonucu beklemeyecekse task'ı return etmek gereksizdir; doğrudan
+  `detach_and_log_err(cx)` çağırmak niyeti daha açık gösterir.
 - Result'ı log'a düşürmemek için manuel `if let Err(e) = task.await { ... }`
   yazmak gereksizdir; `detach_and_log_err` zaten `track_caller` ile log
   konumunu kayda alır.
@@ -346,7 +348,7 @@ parça parça geçer; burada tek bir listede toplanır. Aynı kategori altında
 en sık sorulan iki konuyu yan yana getirir.
 
 - `cx.set_global<T: Global>(value)` — var olanı ezer; yoksa kurar.
-- `cx.global<T>() -> &T` — var olduğundan emin olunan call site'larda kullanılır;
+- `cx.global<T>() -> &T` — var olduğundan emin olunan çağrı noktalarında kullanılır;
   yoksa panic eder.
 - `cx.global_mut<T>()` — aynısının mutable karşılığıdır.
 - `cx.default_global<T: Default>() -> &mut T` — global yoksa default ile bir
@@ -376,7 +378,7 @@ yerine işleri ertelemek genellikle daha güvenlidir:
 **Tuzaklar.** Global'ler ve defer kullanımında dikkat edilmesi gerekenler:
 
 - `cx.global<T>()` ve `cx.global_mut<T>()` global yoksa panic eder; init
-  kontrolünün yapılmadığı call site'larda `try_global` veya `has_global`
+  kontrolünün yapılmadığı çağrı noktalarında `try_global` veya `has_global`
   tercih edilmelidir.
 - `update_global` sırasında aynı global yeniden update edilirse panic verir;
   iç içe çağrılar varsa erteleme için `defer` güvenli yoldur.
@@ -407,7 +409,7 @@ let _sub = cx.observe(&entity, |...| { ... });
 **Subscription üreten yöntemler.** `Context<T>` üzerinde abonelik üreten temel
 metotlar şunlardır:
 
-- `cx.observe(entity, f)` — entity `cx.notify()` çağırdığında fire eder.
+- `cx.observe(entity, f)` — entity `cx.notify()` çağırdığında tetiklenir.
 - `cx.subscribe(entity, f)` — `EventEmitter<E>` event'leri için.
 - `cx.observe_global::<G>(f)` — global state değiştiğinde.
 - `cx.observe_release(entity, f)` — entity drop edildiğinde.
@@ -421,13 +423,13 @@ metotlar şunlardır:
 **Tuzaklar.** Subscription kullanımında dikkat edilecek noktalar:
 
 - `detach()` uzun yaşayan bir callback'i view ömründen koparır; view drop
-  olduktan sonra callback hâlâ fire ediyorsa state erişimi için `WeakEntity`
+  olduktan sonra callback hâlâ çalışıyorsa state erişimi için `WeakEntity`
   ile koruma şart olur.
 - Birden çok abonelik birbirini etkiliyorsa drop sırasına davranış bağlamak
-  hatalıdır; açık bir teardown metodu veya tek owner struct kullanmak güvenli
+  hatalıdır; açık bir teardown metodu veya tek sahip struct kullanmak güvenli
   yoldur.
 - `observe` callback'i içinden entity'yi update etmek panic verir; bunun
-  yerine `cx.spawn(..)` ile async path'e taşınır veya `cx.defer(|cx| ...)`
+  yerine `cx.spawn(..)` ile async akışa taşınır veya `cx.defer(|cx| ...)`
   ile sonraki effect cycle'a ertelenir.
 
 ## Window-bound Observer, Release ve Focus Helper Desenleri
@@ -642,8 +644,8 @@ cx.assert_no_new_leaks(&snapshot);
 
 Bu bölüm GPUI çekirdeğinde public olan ama günlük kullanımda kolay atlanan
 küçük API yüzeylerini toplar. Entity'nin tipli/untyped varyantları, view cache
-mekanizması, callback adaptörleri ve düşük seviyeli kimlik tipleri burada
-işlenir.
+mekanizması, callback adaptörleri ve düşük seviyeli kimlik tipleri burada ele
+alınır.
 
 #### Entity ve WeakEntity Tam Yüzeyi
 
@@ -669,13 +671,14 @@ işlenir.
 - `cx.weak_entity() -> WeakEntity<T>` — async task, listener veya döngüsel
   sahiplik riski olan alanlarda saklanacak handle budur.
 
-**Kimlik dönüşümleri.** GPUI runtime kimlikleri u64 olarak ifşa edilebilir:
+**Kimlik dönüşümleri.** GPUI çalışma zamanı kimlikleri `u64` olarak dışarı
+verilebilir:
 
 - `EntityId::as_u64()` ve `EntityId::as_non_zero_u64()` FFI, telemetry veya
-  debug map anahtarı gibi typed id dışına çıkılan yerlerde kullanılır.
+  debug map anahtarı gibi tipli id sınırının dışına çıkılan yerlerde kullanılır.
 - `WindowId::as_u64()` aynı işi pencere kimliği için yapar. Bu değerler
   domain id'si veya kalıcı workspace serialization anahtarı olarak
-  kullanılmamalıdır; GPUI runtime kimliği olmaları kalıcılık garantisi
+  kullanılmamalıdır; GPUI çalışma zamanı kimliği olmaları kalıcılık garantisi
   vermez.
 
 `WeakEntity<T>` zayıf handle'dır:
@@ -697,12 +700,12 @@ işlenir.
 - `AnyWeakEntity::assert_released()` yalnız `test`/`leak-detection` feature'ı
   altında vardır; güçlü handle sızıntısını yakalamak için kullanılır.
 
-**Kural.** Plugin/dock/workspace gibi heterojen koleksiyon sınırı yoksa typed
-`Entity<T>`/`WeakEntity<T>` tercih edilir. `AnyEntity` downcast zorunluluğu
-getirir; yanlış tipte `downcast::<T>()` çağrısı entity'yi `Err(AnyEntity)`
-olarak geri verir.
+**Kural.** Plugin, dock veya workspace gibi heterojen koleksiyon sınırı yoksa
+tipli `Entity<T>`/`WeakEntity<T>` tercih edilir. `AnyEntity` downcast
+zorunluluğu getirir; yanlış tipte `downcast::<T>()` çağrısı entity'yi
+`Err(AnyEntity)` olarak geri verir.
 
-##### Deref ile gizlenmiş yüzey (typed handle üzerinden untyped metot)
+##### Deref ile gizlenmiş yüzey (tipli handle üzerinden untyped metot)
 
 `Entity<T>` ve `WeakEntity<T>` `#[derive(Deref, DerefMut)]` ile içlerindeki
 untyped handle'a deref eder
@@ -715,8 +718,8 @@ pub struct Entity<T>     { any_entity: AnyEntity,         entity_type: PhantomDa
 pub struct WeakEntity<T> { any_entity: AnyWeakEntity,     entity_type: PhantomData<_> }
 ```
 
-Bu yüzden `AnyEntity` ve `AnyWeakEntity` üzerindeki bazı metotlar typed
-handle'da method resolution ile çağrılabilir; "owner sadece untyped tip"
+Bu yüzden `AnyEntity` ve `AnyWeakEntity` üzerindeki bazı metotlar tipli
+handle'da method resolution ile çağrılabilir. "Owner yalnız untyped tiptir"
 yanılgısı buradan doğar. Doğru ayrım `Owner::method -> dönüş tipi` çiftiyle
 yapılır; metot adı tek başına yeterli değildir.
 
@@ -732,7 +735,7 @@ yapılır; metot adı tek başına yeterli değildir.
 | `Entity<T>` | `as_mut(&mut cx)` | `GpuiBorrow<T>` | Inherent; drop'ta `cx.notify()`. |
 | `Entity<T>` | `write(&mut cx, value)` | `()` | Inherent; state'i değiştirir ve notify eder. |
 | `Entity<T>` deref | `entity_type()` | `TypeId` | Owner `AnyEntity`; Entity inherent karşılığı yoktur, deref ile çağrılır. |
-| `Entity<T>` deref-only edge case | `downcast::<U>()` | `Result<Entity<U>, AnyEntity>` | Owner `AnyEntity::downcast(self)` — **`self`'i tüketir**. Auto-deref tüketen metoda dağıtmadığından `entity.downcast::<U>()` doğrudan derlenmez; `entity.into_any().downcast::<U>()` yazılmalıdır. |
+| `Entity<T>` deref-only özel durum | `downcast::<U>()` | `Result<Entity<U>, AnyEntity>` | Owner `AnyEntity::downcast(self)` — **`self`'i tüketir**. Auto-deref tüketen metoda uygulanmadığı için `entity.downcast::<U>()` doğrudan derlenmez; `entity.into_any().downcast::<U>()` yazılmalıdır. |
 | `AnyEntity` | `entity_id()` | `EntityId` | Inherent. |
 | `AnyEntity` | `entity_type()` | `TypeId` | Inherent. |
 | `AnyEntity` | `downgrade()` | `AnyWeakEntity` | Inherent. |
@@ -757,10 +760,10 @@ okunmalıdır; inherent ve deref-only metotlar aynı isimle farklı imza taşır
 | `AnyWeakEntity` | `new_invalid()` | `Self` | Inherent. |
 | `AnyWeakEntity` | `assert_released()` | `()` | Inherent; `test`/`leak-detection`. |
 
-**Pratik sonuç.** `weak.entity_id()` çağrısı typed handle'da deref üzerinden
-`AnyWeakEntity::entity_id` metoduna iner; oysa `weak.upgrade()` çağrısında
-typed metot kazanır ve sonuç `Option<Entity<T>>` olur. Aynı kod parçasında her
-ikisi de yan yana görünür ama ownership'leri farklıdır; ayrım yine
+**Pratik sonuç.** `weak.entity_id()` çağrısı tipli handle'da deref üzerinden
+`AnyWeakEntity::entity_id` metoduna iner. Buna karşılık `weak.upgrade()`
+çağrısında tipli metot kazanır ve sonuç `Option<Entity<T>>` olur. Aynı kod
+parçasında ikisi yan yana görünebilir ama sahipleri farklıdır; ayrım yine
 `Owner::method -> dönüş` çiftiyle yapılır.
 
 #### AnyView, AnyWeakView ve EmptyView
@@ -777,9 +780,9 @@ div().child(view.clone());
 **Önemli metotlar.** Type-erased view ile çalışırken sık kullanılan API'ler
 şunlardır:
 
-- `AnyView::from(entity)` veya `entity.into_element()` — typed view'i
+- `AnyView::from(entity)` veya `entity.into_element()` — tipli view'i
   type-erased element haline getirir.
-- `any_view.downcast::<T>() -> Result<Entity<T>, AnyView>` — typed handle'a
+- `any_view.downcast::<T>() -> Result<Entity<T>, AnyView>` — tipli handle'a
   geri dönmek için kullanılır.
 - `any_view.downgrade() -> AnyWeakView` ve
   `AnyWeakView::upgrade() -> Option<AnyView>` — zayıf handle dönüşümleri.
@@ -824,14 +827,14 @@ Callback'ten view state'ine geri dönmek için uygun adaptör seçilir:
   `Fn(Event, &mut Window, &mut App) -> R` üretir. Event'i sahiplenir ve dönüş
   değeri gerektiğinde tercih edilir.
 - `window.listener_for(&entity, |state, event, window, cx| ...)` — current
-  `Context<T>` dışında, elde typed `Entity<T>` varken listener üretir.
+  `Context<T>` dışında, elde tipli `Entity<T>` varken listener üretir.
 - `window.handler_for(&entity, |state, window, cx| ...)` — event parametresi
   olmayan `Fn(&mut Window, &mut App)` handler üretir.
 
 `cx.listener` dışındaki adaptörler yeniden kullanılabilir component'ler veya
-window seviyesindeki helper'lar yazılırken devreye girer. Handler içinde state
-değiştiğinde `cx.notify()` çağırmak yine çağıranın sorumluluğundadır; adaptör
-bunu otomatik yapmaz.
+window seviyesindeki yardımcılar yazılırken devreye girer. Handler içinde
+state değiştiğinde `cx.notify()` çağırmak yine çağıranın sorumluluğundadır;
+adaptör bunu otomatik yapmaz.
 
 #### FocusHandle Zayıf Handle ve Dispatch
 

@@ -1,21 +1,21 @@
 # 4. Metin ve İkon Bileşenleri
 
 Metin ve ikon bileşenleri Zed UI içinde en sık kullanılan yapı taşlarıdır.
-Başlık, etiket, arama sonucu, durum satırı, liste item'i, toolbar veya
-bildirim gibi sahnelerin çoğu doğrudan bu bileşenlerden başlar. Yani neyin
-nasıl yazılacağına karar verirken işe genellikle "bu metin nasıl bir Label
-olmalı, yanına hangi Icon gelmeli" sorusuyla başlanır.
+Başlık, etiket, arama sonucu, durum satırı, liste item'i, toolbar veya bildirim
+gibi sahnelerin çoğu bu parçalarla başlar. Bu yüzden bir ekran kurarken ilk
+soru çoğu zaman şudur: Bu metin normal bir `Label` mı olmalı, daha güçlü bir
+`Headline` mı gerektiriyor, yanına hangi `Icon` eşlik etmeli?
 
-Genel bir yön çizen kural seti şöyle özetlenebilir:
+Genel tercih sırası şöyle düşünülebilir:
 
 - Yapısal bir başlık için `Headline` kullanılır.
 - Normal UI metni için `Label` yeterlidir ve ilk akla gelen seçenektir.
-- Hazır label slot modeli ihtiyacı karşılamıyorsa, sınırlı bir özel metin
-  yüzeyi olarak `LabelLike` tercih edilebilir.
+- Hazır label modeli ihtiyacı karşılamıyorsa, sınırlı bir özel metin yüzeyi
+  olarak `LabelLike` tercih edilebilir.
 - Arama veya fuzzy match sonucunda eşleşen karakterleri vurgulamak için
   `HighlightedLabel` vardır.
-- Bir işlem sürerken metinle geri bildirim verme ihtiyacı `LoadingLabel` ile
-  karşılanır.
+- Bir işlem sürerken metinle geri bildirim vermek için `LoadingLabel`
+  kullanılır.
 - Sadece bir yükleme göstergesi gerekiyorsa `SpinnerLabel` daha uygundur.
 - Simgeler için `Icon` temel yapı taşıdır; bir simgenin üstünde durum
   işareti gerektiğinde ise `DecoratedIcon` ve `IconDecoration` ikilisi
@@ -33,7 +33,7 @@ Kaynak:
 
 Ne zaman kullanılır:
 
-- Buton dışı kısa UI metinleri, açıklamalar, metadata satırları, durum
+- Buton dışındaki kısa UI metinleri, açıklamalar, metadata satırları, durum
   metinleri ve liste satırı metinleri için.
 - Tema ile uyumlu bir renk, boyut, ağırlık ve truncation davranışı gereken
   hemen her yerde.
@@ -48,9 +48,8 @@ Ne zaman kullanılmaz:
   başlıklara ait tipografi davranışını otomatik getirir.
 - Metnin bir kısmı arama sonucuna göre vurgulanacaksa `HighlightedLabel`
   tercih edilir; bu Label'ın yapamayacağı bir iştir.
-- Tamamen özel bir rich text veya çok biçimli uzun bir içerik
-  gerekiyorsa, GPUI'nin `StyledText` ailesi veya doğrudan text
-  primitive'leri daha esnektir.
+- Tamamen özel bir rich text veya çok biçimli uzun bir içerik gerekiyorsa,
+  GPUI'nin `StyledText` ailesi veya doğrudan text primitive'leri daha esnektir.
 
 Temel API:
 
@@ -121,9 +120,9 @@ Dikkat edilecek noktalar:
 - Uzun bir metin dar bir container içine yerleştirildiğinde `.truncate()`
   veya `.truncate_start()` çağrısının eklenmesi gerekir; aksi halde satır
   taşması layout'u bozabilir.
-- `Label::new(format!(...))` kullanımı pratik bir kısayoldur, ancak sık
-  render edilen listelerde hazır `SharedString` veya önceden üretilmiş bir
-  metin kullanmak gereksiz allocation'ı azaltır ve render maliyetini düşürür.
+- `Label::new(format!(...))` pratik bir kısayoldur. Ancak sık render edilen
+  listelerde hazır `SharedString` veya önceden üretilmiş bir metin kullanmak
+  gereksiz allocation'ı azaltır ve render maliyetini düşürür.
 - Tüm satırı monospace yapmak gerekiyorsa `.buffer_font(cx)` veya
   `.inline_code(cx)` çağrılır; yalnızca backtick içindeki bölümleri
   vurgulamak gerekiyorsa `.render_code_spans()` daha doğru bir seçimdir.
@@ -147,9 +146,9 @@ Ne zaman kullanılır:
 
 Ne zaman kullanılmaz:
 
-- Düz bir metin için `Label`, arama vurgusu için `HighlightedLabel` daha
-  tutarlı ve daha kısıtlı bir yüzey sunar. Bu kısıtlama aslında bir
-  avantajdır; tasarımın savrulmasını engeller.
+- Düz metin için `Label`, arama vurgusu için `HighlightedLabel` daha tutarlı ve
+  daha kısıtlı bir yüzey sunar. Bu kısıtlama çoğu zaman avantajdır; tasarımın
+  gereksiz yere dağılmasını engeller.
 - Komple özel bir rich text, editor metni veya seçilebilir metin gerekiyorsa
   GPUI'nin text primitive'leri daha uygun olabilir.
 

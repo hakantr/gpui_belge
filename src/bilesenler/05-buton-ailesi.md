@@ -1,19 +1,18 @@
 # 5. Buton Ailesi
 
 Buton ailesi, kullanıcı eylemlerini başlatan veya görünür bir UI durumunu
-toggle eden bileşenlerden oluşur. `Button` metinli eylemler için,
-`IconButton` yalnızca ikonlu kontroller için, `ButtonLike` ise özel
-içerikli buton yüzeyleri için tasarlanmıştır. Bu ailedeki diğer buton
-tipleri de bu üç temel yüzeyin üstüne ek davranış veya kompozisyon
-ekleyerek türetilmiştir; yani arka planda hepsi aynı temele dayanır.
+değiştiren bileşenlerden oluşur. `Button` metinli eylemler için,
+`IconButton` yalnızca ikonlu kontroller için, `ButtonLike` ise özel içerikli
+buton yüzeyleri için tasarlanmıştır. Ailenin diğer üyeleri de bu üç temel
+yüzeyin üstüne ek davranış veya kompozisyon ekler; arka planda aynı buton
+disiplinini paylaşırlar.
 
-Hangi durumda hangisinin tercih edileceği için kabaca şöyle bir yön
-çıkarılabilir:
+Hangi durumda hangisini seçeceğiniz için şu kısa ayrım yeterli olur:
 
 - Açık metinli bir komut için `Button` ilk seçenektir.
 - Toolbar, panel başlığı veya kompakt bir kontrol için `IconButton` daha
   uygun düşer.
-- İçerik standart label/icon düzeninden ayrılıyorsa `ButtonLike` esnek bir
+- İçerik standart label/icon düzeninden ayrılıyorsa `ButtonLike` daha esnek bir
   yüzey sunar.
 - Harici bir URL'i açan metin linki için `ButtonLink` vardır.
 - Clipboard'a kopyalama davranışı için `CopyButton` doğrudan kullanılır.
@@ -50,8 +49,8 @@ Ortak trait'ler:
 > **`key_binding` ve `key_binding_position` trait'te yer almaz.** Bu iki
 > builder, `Button` struct'ının kendisine ait inherent (impl) metotlardır
 > ve `IconButton`, `ButtonLike`, `SplitButton` üzerinde **çalışmaz**. Bu
-> üç buton tipinde shortcut hint'i göstermek için manuel olarak bir
-> `KeyBinding` widget'ı eklenir (bkz. Bölüm 14, `KeyBinding`).
+> üç buton tipinde shortcut hint'i göstermek için elle bir `KeyBinding`
+> widget'ı eklenir (bkz. Bölüm 14, `KeyBinding`).
 > `KeybindingPosition` enum'unun değerleri (`Start`, `End` — varsayılan
 > olarak `End`) ise yalnızca `Button::key_binding_position(...)` parametresi
 > bağlamında anlam taşır.
@@ -79,9 +78,8 @@ Buton boyutları:
 - `ButtonSize::Compact`: 18px.
 - `ButtonSize::None`: 16px; link veya özel kompozisyonlarda tercih edilir.
 
-Seçili görünümün nasıl ifade edileceği (`Tinted` mi yoksa `selected_style`
-mi) konusu, sahnenin niyetine göre değişir. Aşağıdaki tablo bu kararı
-özetler:
+Seçili görünümün nasıl ifade edileceği (`Tinted` mi, `selected_style` mı)
+sahnenin niyetine göre değişir. Aşağıdaki tablo bu kararı özetler:
 
 | Senaryo | Tercih | Neden |
 | :-- | :-- | :-- |
@@ -101,8 +99,8 @@ Dikkat edilecek noktalar:
   `Fn(&mut Window, &mut App) -> AnyView` döndüren helper'larla birlikte
   kullanılır.
 - `ButtonLike`, render sırasında click handler'ı içinde
-  `cx.stop_propagation()` çağırır. Bu nedenle iç içe yerleştirilmiş
-  tıklanabilir yüzeylerde event akışı buna göre tasarlanır.
+  `cx.stop_propagation()` çağırır. Bu yüzden iç içe yerleştirilmiş
+  tıklanabilir yüzeylerde event akışı buna göre düşünülmelidir.
 - Disabled durumda olan butonlarda click ve right-click handler'ları
   uygulanmaz; sahnede görünseler bile etkileşime girmezler.
 
@@ -214,8 +212,8 @@ Dikkat edilecek noktalar:
 - Dinamik bir label için `truncate(true)` eklenirken, parent container'a da
   `min_w_0` gibi taşmayı sınırlayacak bir layout davranışının verilmesi
   gerekir; aksi halde truncate beklendiği gibi çalışmaz.
-- Loading state yalnızca görsel bir spinner sağlar; async işin hatasının
-  view state'ine taşınması sorumluluğu yine view tarafına aittir.
+- Loading state yalnızca görsel bir spinner sağlar. Async işin hatasını view
+  state'ine taşımak yine view tarafının sorumluluğudur.
 - Tinted stiller için kullanılan `TintColor` prelude içinde gelmez;
   ayrıca import edilir.
 

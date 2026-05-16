@@ -6,8 +6,8 @@
 
 GPUI'de pencereyi açan ana API `cx.open_window(options, root_builder)`'dır.
 İlk parametre pencerenin başlangıç davranışını anlatan `WindowOptions`,
-ikincisi ise pencerenin root view'unu inşa eden closure'dır. Tipik bir kullanım
-şu kalıbı izler:
+ikincisi ise pencerenin root view'unu kuran closure'dır. Tipik kullanım şu
+kalıbı izler:
 
 ```rust
 let handle = cx.open_window(
@@ -40,21 +40,21 @@ let handle = cx.open_window(
 **`WindowOptions` alanları.** Aşağıdaki alanlar pencerenin oluşumunda
 sorumluluğu olan başlıca parametreleri tanımlar:
 
-- `window_bounds`: `None` verilirse GPUI display default bounds seçer.
+- `window_bounds`: `None` verilirse GPUI display için varsayılan bounds seçer.
   `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını
   belirler. Default seçilirken baz alınan boyutlar
   `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095, ana Zed penceresi
   için) ve `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` (900×750, 6:5 oranında
   settings veya rules library benzeri ek pencereler için) const'larıdır
-  (`window.rs:70,74`); kendi varsayılan boyutunun override edilmesi gerekmiyorsa
-  bu değerlere güvenilebilir.
-- `titlebar`: `Some(TitlebarOptions)` sistem başlık çubuğu konfigürasyonu için
-  kullanılır. `None` verildiğinde custom titlebar yolu açılır.
+  (`window.rs:70,74`); kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa bu
+  değerlere güvenilebilir.
+- `titlebar`: `Some(TitlebarOptions)` sistem başlık çubuğu ayarı için
+  kullanılır. `None` verildiğinde özel titlebar yolu açılır.
 - `focus`: pencere oluşturulduğu anda odağı alıp almayacağını belirler.
 - `show`: pencerenin hemen gösterilip gösterilmeyeceğini kontrol eder. Zed ana
   pencereleri başlangıçta `show: false`, `focus: false` ile açar ve hazır
   olduğunda gösterir.
-- `kind`: `Normal`, `PopUp`, `Floating`, `Dialog`; Linux Wayland feature ile
+- `kind`: `Normal`, `PopUp`, `Floating`, `Dialog`; Linux Wayland feature'ı ile
   birlikte `LayerShell` de mevcuttur.
 - `is_movable`, `is_resizable`, `is_minimizable`: platform seviyesindeki
   pencere kabiliyetleridir.
@@ -63,12 +63,12 @@ sorumluluğu olan başlıca parametreleri tanımlar:
   için ayrıca `MicaBackdrop` ve `MicaAltBackdrop` seçenekleri de vardır.
 - `app_id`: Linux desktop'larda uygulama gruplandırması ve görev çubuğu
   davranışı için kullanılır.
-- `window_min_size`: minimum content size.
+- `window_min_size`: minimum içerik boyutu.
 - `window_decorations`: `Server` veya `Client` seçimini taşır. Linux'ta
   kritik bir alandır; macOS ve Windows tarafında ise pratikte titlebar
   seçenekleri daha belirleyicidir.
 - `icon`: X11 üzerinde pencere ikonu için kullanılır.
-- `tabbing_identifier`: macOS native window tab gruplaması için.
+- `tabbing_identifier`: macOS native pencere tab gruplaması için.
 
 `Window::new` çağrısı GPUI platform penceresini açtıktan sonra şu sırayı
 izler:
@@ -104,11 +104,11 @@ Fonksiyon kendi içinde şu işleri sırayla yapar:
 - Linux/FreeBSD'de uygulama ikonunu ekler.
 - macOS native tabbing istendiğinde `tabbing_identifier: Some("zed")` verir.
 
-Modal veya About benzeri küçük pencereler için bu fonksiyonu kullanmak yerine
-doğrudan `WindowOptions` kurmak yaygın bir desendir. Örneğin
+Modal veya About benzeri küçük pencerelerde bu fonksiyonu kullanmak yerine
+doğrudan `WindowOptions` kurmak daha yaygın bir desendir. Örneğin
 `crates/zed/src/zed.rs::about` şu seçenekleri kullanır:
 
-- Centered bounds
+- Merkezlenmiş bounds
 - `appears_transparent: true`
 - `is_resizable: false`
 - `is_minimizable: false`
@@ -116,9 +116,8 @@ doğrudan `WindowOptions` kurmak yaygın bir desendir. Örneğin
 
 ## Display ve Çoklu Monitor
 
-Birden fazla ekran olduğunda hangi display'in hedeflendiği `cx.displays()`
-listesi üzerinden çözülür. Liste her display için kimlik, bounds ve UUID
-bilgisini sağlar:
+Birden fazla ekran olduğunda hedef display `cx.displays()` listesi üzerinden
+bulunur. Liste her display için kimlik, bounds ve UUID bilgisini sağlar:
 
 ```rust
 for display in cx.displays() {
@@ -141,9 +140,9 @@ WindowOptions {
 ```
 
 `Bounds` her zaman ekran koordinatlarında ifade edilir.
-`WindowBounds::centered(size, cx)` çağrısı ana ya da default display üzerinde
-merkezleme yapar. Elle konumlandırma gerektiğinde `Bounds::new(origin, size)`
-kullanılır.
+`WindowBounds::centered(size, cx)` çağrısı ana ya da varsayılan display
+üzerinde merkezleme yapar. Elle konumlandırma gerektiğinde
+`Bounds::new(origin, size)` kullanılır.
 
 ## WindowKind Davranışı
 
@@ -178,8 +177,8 @@ Zed içindeki örnekler `crates/agent_ui/src/ui/agent_notification.rs` ve
 
 ## Başlık Çubuğu ve Pencere Dekorasyonu
 
-Başlık çubuğu ve pencere dekorasyonu iki ayrı kavramdır; karıştırmamak için
-ikisinin sorumluluk alanı net tutulmalıdır:
+Başlık çubuğu ve pencere dekorasyonu iki ayrı kavramdır. Karışmaması için
+ikisinin sorumluluğu ayrı düşünülmelidir:
 
 - `TitlebarOptions`: macOS ve Windows native başlık çubuğunun görünümü, başlık
   metni ve macOS traffic light konumu burada belirlenir.
@@ -221,7 +220,7 @@ ZED_WINDOW_DECORATIONS=client
 ```
 
 Zed settings tipi `settings_content::workspace::WindowDecorations` yalnızca
-`client` ve `server` değerlerini destekler; default değer `client`'tır.
+`client` ve `server` değerlerini destekler; varsayılan değer `client`'tır.
 
 ## Custom Titlebar Nasıl Tanımlanır?
 
@@ -348,26 +347,27 @@ kullanıcı tarafında özelleştirilebilir:
   dizilerdir.
 - Layout platformdan `cx.button_layout()` ile gelir.
 - GNOME tarzı `"close,minimize:maximize"` formatı parse edilebilir.
-- Default Linux fallback'i sağda minimize, maximize, close şeklindedir.
+- Varsayılan Linux yedeği sağda minimize, maximize, close şeklindedir.
 - `TitleBarSettings` içinde kullanıcı override'ı da yer alır; `TitleBar`
   bunu `PlatformTitleBar::set_button_layout` ile aktarır.
 
 ## Client-Side Decoration ve Resize
 
-Zed'in client-side decoration wrapper'ı tek bir helper üzerinde toplanmıştır:
+Zed'in client-side decoration sarmalayıcısı tek bir helper üzerinde
+toplanmıştır:
 
 ```rust
 workspace::client_side_decorations(element, window, cx, border_radius_tiling)
 ```
 
-Wrapper'ın yaptıkları şunlardır:
+Bu sarmalayıcının yaptığı işler şunlardır:
 
 - `window.window_decorations()` ile fiili dekorasyon modunu okur.
 - Client decoration durumunda
   `window.set_client_inset(theme::CLIENT_SIDE_DECORATION_SHADOW)` çağırır.
 - Server decoration durumunda inset değerini `0` yapar.
 - `window.client_inset()` platform penceresine son set edilen inset değerini
-  okumak için kullanılabilir; wrapper padding ve shadow hesabıyla uyumlu
+  okumak için kullanılabilir; bu değer padding ve shadow hesabıyla uyumlu
   tutulmalıdır.
 - Tiling durumuna göre köşe yuvarlamalarını kaldırır.
 - Border ve shadow çizer.
@@ -391,7 +391,7 @@ Linux'ta server-side decoration her zaman mümkün olmayabilir:
   düşürülür.
 - X11'de compositor olmadığında client-side decoration server'a düşebilir.
 
-Bu nedenle pencere açılırken istenen mod değil, her render'da fiili
+Bu nedenle pencere açılırken istenen mod değil, her render'da alınan fiili
 `window.window_decorations()` sonucu esas alınır.
 
 ## Platforma Göre Dekorasyon Davranışı
@@ -576,9 +576,9 @@ pub enum WindowBounds {
 }
 ```
 
-`Bounds` her üç durumda da restore'a hazır koordinatları taşır; `Maximized`
-ve `Fullscreen` içindeki bounds değeri, ilgili durum kapatıldığında geri
-dönülecek windowed bounds'u temsil eder.
+`Bounds` her üç durumda da geri yüklemeye hazır koordinatları taşır.
+`Maximized` ve `Fullscreen` içindeki bounds değeri, ilgili durum kapatıldığında
+geri dönülecek windowed bounds'u temsil eder.
 
 **Persist akışı.** Bounds saklanırken tipik kullanım şudur:
 
@@ -587,11 +587,11 @@ let bounds = window.inner_window_bounds();
 serialize(bounds, display_uuid);
 ```
 
-Zed varsayılan pencere boyutunu persist ederken `inner_window_bounds()`
-kullanır; workspace serialize sırasında bazı akışlarda `window.window_bounds()`
-de tercih edilir. İkisi arasındaki fark, dahil edilen platform veya başlık
-çubuğu rect'inin farklı olmasından kaynaklanır. Fullscreen veya maximized
-durumlarında enum içindeki bounds restore edilecek windowed bounds'u temsil
+Zed varsayılan pencere boyutunu saklarken `inner_window_bounds()` kullanır.
+Workspace serialize sırasında bazı akışlarda `window.window_bounds()` da tercih
+edilir. İkisi arasındaki fark, dahil edilen platform veya başlık çubuğu
+rect'inin farklı olmasından kaynaklanır. Fullscreen ya da maximized
+durumlarında enum içindeki bounds, geri yüklenecek windowed bounds'u temsil
 eder. Display UUID'si ayrı saklanır; kullanıcı sonradan monitörü ayırabileceği
 için bu kimliğin pencere bounds'undan bağımsız tutulması gerekir.
 
@@ -602,9 +602,9 @@ için bu kimliğin pencere bounds'undan bağımsız tutulması gerekir.
    değerleriyle eşleştirilir.
 2. Display bulunmuşsa `options.display_id` ayarlanır ve kayıtlı
    `WindowBounds` değeri `options.window_bounds`'a yerleştirilir.
-3. Workspace-specific bounds bulunmuyorsa default window bounds okunur.
+3. Workspace'e özel bounds bulunmuyorsa varsayılan window bounds okunur.
 4. Hiç kayıt yoksa `WindowOptions.window_bounds = None` bırakılır ve GPUI
-   platform default/cascade bounds seçer.
+   platform varsayılan/cascade bounds seçer.
 
 Bounds değişimini izlemek için subscription kullanılır:
 
@@ -629,7 +629,7 @@ foreground/background değişimini takip eder.
   boyutudur; canlı platform bounds ekranı tamamen kaplasa bile restore
   sonrasında bu windowed bounds'a geri dönülür.
 - Display UUID'si Linux/Wayland tarafında boş olabilir; bu durumda
-  `display.uuid().ok()` `None` döner ve uygun bir fallback davranışı
+  `display.uuid().ok()` `None` döner ve uygun bir yedek davranış
   düşünülmelidir.
 
 ## Native Window Tabs ve SystemWindowTabController
@@ -658,7 +658,7 @@ kavramlardır:
 - İşletim sistemi seviyesinde birden çok top-level pencerenin aynı native
   tab grubuna alınması gerektiğinde `tabbing_identifier` verilir.
 - Native tab state'i platformdan gelir; Linux ve Windows üzerinde bu
-  API'lerin bir kısmı no-op veya `None` dönebilir.
+  API'lerin bir kısmı no-op kalabilir veya `None` dönebilir.
 
 **Tuzaklar.** Native tab kullanırken dikkat edilmesi gerekenler:
 
@@ -670,7 +670,7 @@ kavramlardır:
 
 ## Layer Shell ve Özel Platform Pencereleri
 
-Normal Zed pencereleri `WindowKind::Normal` ile açılır. Linux Wayland feature
+Normal Zed pencereleri `WindowKind::Normal` ile açılır. Linux Wayland feature'ı
 aktifken `WindowKind::LayerShell(LayerShellOptions)` overlay, dock veya
 wallpaper benzeri yüzeyler için kullanılabilir:
 
@@ -706,6 +706,6 @@ anlatır:
 Bu API yalnızca `#[cfg(all(target_os = "linux", feature = "wayland"))]`
 altında mevcuttur. Compositor protocol desteklemediğinde backend
 `LayerShellNotSupportedError` döndürür; bu durumda normal app penceresine
-düşen bir fallback planlanmalıdır.
+düşen bir yedek akış planlanmalıdır.
 
 ---

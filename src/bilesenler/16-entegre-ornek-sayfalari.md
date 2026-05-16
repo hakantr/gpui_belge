@@ -1,36 +1,35 @@
 # 16. Entegre Örnek Sayfaları
 
-Bileşenleri tek tek doğru kullanmak yeterli değildir. Gerçek bir ekranda
-asıl önemli olan, state'in hangi view'da tutulduğu, event'lerin hangi
-sınırdan geçtiği, asenkron işlerin nasıl izleneceği ve görsel state
-değişiminden sonra yeniden render'ın nasıl tetikleneceğidir. Yani teker
-teker iyi anlaşılmış bileşenler, ancak bir araya geldiklerinde anlamlı
-bir uygulama parçasına dönüşür.
+Bileşenleri tek tek doğru kullanmak yeterli değildir. Gerçek bir ekranda asıl
+önemli olan state'in hangi view'da tutulduğu, event'lerin hangi sınırdan geçtiği,
+asenkron işlerin nasıl izlendiği ve görsel state değişiminden sonra render'ın
+nasıl yenilendiğidir. Tek başına anlaşılmış bileşenler, ancak bu akış içinde bir
+araya geldiklerinde anlamlı bir uygulama parçasına dönüşür.
 
-Bu bölümdeki örnekler birer tam ekran uygulama değildir; kendi domain
-tiplerinin, settings servislerinin ve action tiplerinin bağlanacağı
-iskeletlerdir. Kullanılan component API'leri `../zed` çalışma ağacındaki
-kaynak dosyalara göre düzenlenmiştir.
+Bu bölümdeki örnekler tam ekran uygulama değildir. Daha çok, kendi domain
+tiplerinizin, settings servislerinizin ve action tiplerinizin bağlanacağı
+iskeletlerdir. Kullanılan component API'leri `../zed` çalışma ağacındaki kaynak
+dosyalara göre düzenlenmiştir.
 
 Ortak uygulama kuralları:
 
-- View'a ait geçici UI state'i view struct'ında tutulur: seçili satır,
-  açık menü, pending async task, hata mesajı, progress değeri gibi
-  alanlar burada yer alır.
-- Paylaşılan veya servis kaynaklı bir state doğrudan component içinde
-  saklanmaz; bunun yerine render sırasında component'e label, status,
-  icon, callback ve metadata olarak aktarılır.
+- View'a ait geçici UI state'i view struct'ında tutulur: seçili satır, açık
+  menü, pending async task, hata mesajı ve progress değeri gibi alanlar burada
+  yer alır.
+- Paylaşılan veya servis kaynaklı state doğrudan component içinde saklanmaz.
+  Bunun yerine render sırasında component'e label, status, icon, callback ve
+  metadata olarak aktarılır.
 - View state'i değiştiren handler'larda `cx.listener(...)` kullanılır.
   Bu sayede closure view instance'ına güvenli bir şekilde ulaşır.
-- Görsel sonucu olan bir state değişiminden sonra `cx.notify()` çağrısı
-  yapılır. Özellikle `selected`, `expanded`, `saving`, `error`,
-  `progress` gibi alanlarda bunu atlamamak gerekir.
-- Tamamlanması izlenmesi gereken asenkron işler bir `Task` alanında
-  saklanır. UI'ı değiştirmeyen fire-and-forget bir iş içinse
-  `.detach_and_log_err(cx)` tercih edilir.
-- Menü içerikleri `ContextMenu::build(...)` içinde oluşturulur ve
-  menünün açılması `PopoverMenu` veya `right_click_menu(...)` gibi
-  taşıyıcı bir bileşene bağlanır.
+- Görsel sonucu olan bir state değişiminden sonra `cx.notify()` çağrılır.
+  Özellikle `selected`, `expanded`, `saving`, `error` ve `progress` gibi
+  alanlarda bunu atlamamak gerekir.
+- Tamamlanması izlenmesi gereken asenkron işler bir `Task` alanında saklanır.
+  UI'ı değiştirmeyen fire-and-forget bir iş içinse `.detach_and_log_err(cx)`
+  tercih edilir.
+- Menü içerikleri `ContextMenu::build(...)` içinde oluşturulur. Menünün açılması
+  ise `PopoverMenu` veya `right_click_menu(...)` gibi taşıyıcı bir bileşene
+  bağlanır.
 
 ## Ayarlar Paneli Satırı
 

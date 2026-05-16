@@ -1,20 +1,19 @@
 # 7. Menü, Popup ve Tooltip
 
-Bu bölüm, bir kontrolün arkasından geçici bir yüzey açan bileşenleri ele
-alır. Form ve seçim state'inin önceki bölümde anlaşıldığı varsayılır; bu
-yüzden buradaki odak biraz farklıdır. Soru artık "değer nasıl tutuluyor"
-değil; "seçenekler nasıl sunulacak, menü içeriği hangi modelle kurulacak,
-popup'ın açılıp kapanma davranışı nasıl yönetilecek" sorularıdır.
+Bu bölüm, bir kontrolün arkasından geçici bir yüzey açan bileşenleri anlatır.
+Önceki bölümde form ve seçim state'inin nasıl tutulduğunu gördük; burada odak
+biraz değişir. Artık asıl soru "değer nerede duruyor" değil, "seçenekler nasıl
+sunulacak, menü içeriği hangi modelle kurulacak, popup nasıl açılıp kapanacak"
+sorusudur.
 
-Hangi durumda hangisinin tercih edileceğine dair genel bir yön çıkarmak
-gerekirse:
+Hangi durumda hangisini seçeceğinizi kabaca şöyle ayırabilirsiniz:
 
 - Seçili değeri trigger üzerinde gösteren bir seçenek listesi için
   `DropdownMenu` uygundur.
-- Menü içeriği, entry, separator, submenu ve action dispatch akışı
-  gerektiğinde `ContextMenu` doğru yapı taşıdır.
-- Buton veya ikon trigger ile açılan, içinde managed bir view bulunan
-  menüler için `PopoverMenu` tercih edilir.
+- Menü içeriğinde entry, separator, submenu ve action dispatch akışı gerekiyorsa
+  `ContextMenu` doğru yapı taşıdır.
+- Buton veya ikon trigger ile açılan ve içinde managed bir view bulunan menüler
+  için `PopoverMenu` tercih edilir.
 - İkincil tıklamayla (sağ tık) açılan bir bağlam menüsü için
   `right_click_menu` vardır.
 - Bir popup yüzeyinin içeriğini doğru elevation ve padding ile çizmek için
@@ -22,10 +21,9 @@ gerekirse:
 - Kısa hover açıklamaları veya shortcut bilgilerini göstermek için ise
   `Tooltip` doğru yüzeydir.
 
-Menü ve popup bileşenleri kendi başlarına bir değer saklamaz. Entry
-handler'larının view veya model state'ini güncellemesi beklenir; popup'ın
-açılıp kapanma davranışı ise ilgili menu, popover veya parent lifecycle
-tarafından yönetilir.
+Menü ve popup bileşenleri kendi başlarına değer saklamaz. Entry handler'ları
+view veya model state'ini günceller. Popup'ın açılıp kapanma davranışı ise
+ilgili menu, popover veya parent lifecycle tarafından yönetilir.
 
 ## DropdownMenu
 
@@ -46,9 +44,8 @@ Ne zaman kullanılır:
 
 Ne zaman kullanılmaz:
 
-- Trigger üzerindeki değer değişmiyor ve yalnızca bir eylem listesi
-  açılıyorsa doğrudan `PopoverMenu<ContextMenu>` kullanmak daha açık bir
-  niyet ifadesi olur.
+- Trigger üzerindeki değer değişmiyor ve yalnızca bir eylem listesi açılıyorsa,
+  doğrudan `PopoverMenu<ContextMenu>` kullanmak niyeti daha açık gösterir.
 - Geniş bir arama veya filtre deneyimi gerekiyorsa, bir picker bileşeni
   veya özel managed view tercih edilir.
 
@@ -106,9 +103,9 @@ Dikkat edilecek noktalar:
 - `DropdownMenu`, menu entity'sini dışarıdan alır. Menü entry handler'ları
   seçili değeri view veya model state'ine yazmalıdır; dropdown bu yazımı
   kendi başına yapmaz.
-- Dinamik bir label kullanılıyorsa, mevcut seçili değerin her render'da
-  label'a yansıtılması gerekir; aksi halde kontrol seçim ile birlikte
-  güncellenmez.
+- Dinamik bir label kullanılıyorsa mevcut seçili değer her render'da label'a
+  yansıtılmalıdır. Aksi halde kontrol seçim değişse bile eski etiketi
+  göstermeye devam eder.
 - `full_width(true)`, trigger ile popover'ın genişliklerini birlikte
   etkiler. Dar formlarda parent width'in de bilinçli ayarlanması gerekir.
 

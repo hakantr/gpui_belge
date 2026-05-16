@@ -1,19 +1,18 @@
 # 13. Kullanıcı ve Avatar Görselleri
 
-Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini
-sahnede göstermek için kullanılır. Bu ya tek bir kişi olarak ya da
-örtüşen küçük bir grup hâlinde olabilir. Görsel kaynağı yüklenemediği
-durumlarda her ikisi de fallback bir ikona düşer; ayrıca indicator,
-border ve boyut gibi alanlar üzerinden çevrelerine durum bilgisi
-eklemeye izin verirler.
+Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini ekranda
+göstermek için kullanılır. Bu gösterim tek bir kişi olabilir ya da küçük,
+örtüşen bir grup halinde kurulabilir. Görsel kaynağı yüklenemezse her ikisi de
+fallback bir ikona döner. Ayrıca indicator, border ve boyut gibi ayarlarla
+avatarın çevresine durum bilgisi eklenebilir.
 
-Bu bileşenler için genel olarak iki kural geçerlidir:
+Bu bileşenlerde iki kuralı baştan netleştirmek faydalıdır:
 
-- Avatar kaynağı (`ImageSource`), view veya bir servis tarafında
-  çözümlenir. Component'in kendisine yalnızca hazır bir URL veya asset
-  verilir; component'in bu çözümlemeyi yapması beklenmez.
-- Birden fazla katılımcının yan yana gösterilmesi gerektiğinde
-  `Facepile`, tek bir katılımcı için ise doğrudan `Avatar` kullanılır.
+- Avatar kaynağı (`ImageSource`) view veya bir servis tarafında çözümlenir.
+  Component'e yalnızca hazır URL veya asset verilir; kaynak çözümleme işini
+  component'in yapması beklenmez.
+- Birden fazla katılımcı yan yana gösterilecekse `Facepile`, tek bir katılımcı
+  için doğrudan `Avatar` kullanılır.
 
 ## Avatar
 
@@ -176,6 +175,5 @@ Dikkat edilecek noktalar:
 
 - Overlap görünümünün düzgün okunması için, avatar border renginin
   parent background ile eşleşmesi iyi bir tercih olur.
-- Çok fazla avatarın yan yana sıkıştırılması yerine, ilk birkaç kişinin
-  gösterilip kalan sayının ayrı bir göstergeyle belirtilmesi okunabilirliği
-  korur.
+- Çok fazla avatarı yan yana sıkıştırmak yerine, ilk birkaç kişiyi gösterip
+  kalan sayıyı ayrı bir göstergeyle belirtmek okunabilirliği korur.

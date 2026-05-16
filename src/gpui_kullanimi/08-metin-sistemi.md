@@ -5,9 +5,8 @@
 ## Text, Font ve Metin Ölçümü
 
 Metin sisteminin ana tipleri `crates/gpui/src/text_system.rs`, `style.rs` ve
-`elements/text.rs` içinde toplanır. Bir metni doğru çizebilmek için stil,
-font ve ölçüm tipleri birlikte çalışır; her birinin sorumluluğu birbirinden
-ayrıdır:
+`elements/text.rs` içinde toplanır. Bir metni doğru çizebilmek için stil, font
+ve ölçüm tipleri birlikte çalışır. Her birinin sorumluluğu ayrıdır:
 
 - `TextStyle` — renk, font family, font size, line height, weight/style,
   decoration, whitespace, overflow, align ve line clamp gibi metin
@@ -24,7 +23,7 @@ ayrıdır:
 - `Font`, `FontWeight`, `FontStyle`, `FontFeatures`, `FontFallbacks` —
   font seçimi ve özelliklerini tanımlayan yardımcı tiplerdir.
 
-Pratikte stil + highlight birleşimi şu kalıbı çıkarır:
+Pratikte stil + highlight birleşimi şu kalıpta görünür:
 
 ```rust
 let text = StyledText::new("Error: missing field")
@@ -41,7 +40,7 @@ div()
     .child(text)
 ```
 
-**Metin ölçümü ve layout.** Metnin yer kaplama biçimi ve aktif stilin değeri
+**Metin ölçümü ve layout.** Metnin ne kadar yer kapladığı ve aktif stil değeri
 aşağıdaki noktalardan okunur:
 
 - `window.text_style()` — o anda kalıtılan (inherited) aktif metin stilini
@@ -83,8 +82,8 @@ aşağıdaki noktalardan okunur:
 
 Basit bir metin doğrudan `SharedString` olarak bir element'in child'ı
 verilebilir. Ölçüm, highlight, font override veya tıklanabilir aralık
-gerektiğinde `StyledText` devreye girer; tıklama ve hover gerekiyorsa
-`InteractiveText`'e geçilir.
+gerektiğinde `StyledText` devreye girer. Tıklama ve hover gerekiyorsa
+`InteractiveText` kullanılır.
 
 **`StyledText` kullanımı.** Highlight ve font override'lar fluent zincire
 eklenir:
@@ -97,9 +96,10 @@ let text = StyledText::new("Open settings")
 let layout = text.layout().clone();
 ```
 
-Önceden hesaplanmış `TextRun` listesi varsa highlight'ı geç (delayed) uygulamak
-yerine `.with_runs(runs)` çağrısı yapılır; `with_default_highlights(&default_style, ranges)`
-ise parent style yerine açık bir `TextStyle`'ı baz alarak run üretir.
+Önceden hesaplanmış `TextRun` listesi varsa highlight'ı geç (delayed)
+uygulamak yerine `.with_runs(runs)` çağrısı yapılır.
+`with_default_highlights(&default_style, ranges)` ise parent style yerine açık
+bir `TextStyle`'ı baz alarak run üretir.
 
 **Ölçüm sonrası `TextLayout`.** Layout veya prepaint tamamlandıktan sonra elde
 edilen layout nesnesi metin koordinatları üzerinde sorgu yapmaya izin verir:
@@ -112,8 +112,8 @@ edilen layout nesnesi metin koordinatları üzerinde sorgu yapmaya izin verir:
   `text()`, `wrapped_text()`.
 
 `TextLayout` değerleri layout veya prepaint tamamlanmadan okunursa panic
-üretebilir; bu nedenle ölçüm sonuçlarına ihtiyaç duyan kod event handler veya
-after-layout yolunda çalışır. Render sırasında henüz ölçülmemiş bir layout'a
+üretebilir. Bu nedenle ölçüm sonuçlarına ihtiyaç duyan kod event handler ya da
+layout sonrası akışta çalışır. Render sırasında henüz ölçülmemiş bir layout'a
 güvenilmez.
 
 **`InteractiveText`.** Tıklama, hover ve tooltip ekleyen sarmalayıcıdır:
@@ -131,8 +131,8 @@ InteractiveText::new("settings-link", StyledText::new("Open settings"))
 
 Aralıklar yine byte index aralıklarıdır; Unicode metinde karakter sınırlarını
 yanlış hesaplamak hover ve click eşleşmesini bozar. `on_click` yalnızca mouse
-down ile mouse up aynı verilen range içinde kaldığında listener'ı tetikler;
-yani bir aralıkta basıp başka bir aralıkta bırakmak click sayılmaz.
+down ile mouse up aynı verilen range içinde kaldığında listener'ı tetikler.
+Yani bir aralıkta basıp başka bir aralıkta bırakmak click sayılmaz.
 
 **Markdown render davranışı.** Markdown ekosistemi metin sisteminin üzerine
 özel davranışlar bindirir; bunların bilinmesi sürpriz davranışları azaltır:

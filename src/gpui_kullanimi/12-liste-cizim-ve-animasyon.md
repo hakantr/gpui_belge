@@ -6,9 +6,9 @@
 
 `crates/gpui/src/elements/div.rs:3387+`.
 
-`ScrollHandle`, scroll offset'ini paylaşılabilir bir handle olarak ifade eder.
-`Rc<RefCell<ScrollHandleState>>` üzerinden çalışır ve view'lar arasında
-ucuz şekilde klonlanabilir; aynı handle birden fazla yerden okunup
+`ScrollHandle`, scroll offset'ini paylaşılabilir bir handle olarak tutar.
+`Rc<RefCell<ScrollHandleState>>` üzerinden çalışır ve view'lar arasında ucuz
+şekilde klonlanabilir. Aynı handle birden fazla yerden okunup
 değiştirilebilir.
 
 **Public API.** Handle üzerinden ulaşılabilen başlıca metotlar şunlardır:
@@ -44,12 +44,12 @@ div()
 `overflow_scroll`, `overflow_x_scroll` ve `overflow_y_scroll`
 `StatefulInteractiveElement` metotlarıdır; pratikte önce `.id(...)` çağrısı
 yapılarak `Stateful<Div>` üretilir. Overflow `Scroll` olduğunda input wheel
-veya touch event'i bu container içinde tüketilir. `track_scroll` aynı
-handle'ı render geçişleri arasında bağlar; bu sayede handle başka yerden de
-okunup değiştirilebilir.
+veya touch event'i bu container içinde tüketilir. `track_scroll` aynı handle'ı
+render geçişleri arasında bağlar; bu sayede handle başka yerden de okunup
+değiştirilebilir.
 
-`ScrollAnchor` (`div.rs:3332+`) bir handle ile çalışan helper'dır;
-ağaçta doğrudan child olmayan bir element'in görünür kalmasını ister:
+`ScrollAnchor` (`div.rs:3332+`) bir handle ile çalışan yardımcıdır. Ağaçta
+doğrudan child olmayan bir element'in görünür kalmasını ister:
 
 ```rust
 let anchor = ScrollAnchor::for_handle(handle.clone());
@@ -78,8 +78,8 @@ anchor.scroll_to(window, cx);
 
 ## List ve UniformList Sanallaştırma
 
-GPUI'de büyük listeler için iki çekirdek element vardır ve bunlar farklı
-ihtiyaçlara göre tasarlanmıştır:
+GPUI'de büyük listeler için iki çekirdek element vardır. İkisi farklı liste
+ihtiyaçları için tasarlanmıştır:
 
 - `list(state, render_item)` — item yükseklikleri değişebilir. Ölçüm cache'i
   `ListState` içinde tutulur.
@@ -87,7 +87,7 @@ ihtiyaçlara göre tasarlanmıştır:
   yükseklikte olduğunda daha hızlıdır; ilk veya örnek item ölçülür ve yalnız
   görünür range çizilir.
 
-**Değişken yükseklikli liste.** State view içinde tutulur ve set
+**Değişken yükseklikli liste.** State view içinde tutulur ve veri seti
 değiştiğinde uygun helper'lar çağrılır:
 
 ```rust
@@ -121,8 +121,8 @@ list(self.list_state.clone(), |ix, window, cx| {
 .with_sizing_behavior(ListSizingBehavior::Auto)
 ```
 
-**`ListState` yönetimi.** Liste durumunu tutan tipin yüzeyi geniştir; her
-metot ayrı bir senaryoya yanıt verir:
+**`ListState` yönetimi.** Liste durumunu tutan tipin yüzeyi geniştir. Her
+metot ayrı bir senaryoya karşılık gelir:
 
 - `new(item_count, alignment, overdraw)` — builder.
 - `measure_all()` (consuming) —
@@ -150,23 +150,22 @@ metot ayrı bir senaryoya yanıt verir:
   rect'i.
 - `set_scroll_handler(...)` — görünür range ve follow state takibi.
 
-**Custom scrollbar API'si.** Kendi scrollbar widget'ı yazıldığında bu
-metotlar üzerinden çalışılır (`ui::Scrollbars` da aslında bu yüzeyin
-üstünde kuruludur):
+**Custom scrollbar API'si.** Kendi scrollbar widget'ı yazıldığında bu metotlar
+üzerinden çalışılır (`ui::Scrollbars` da aslında bu yüzeyin üstünde kuruludur):
 
 - `viewport_bounds() -> Bounds<Pixels>` — en son layout edilmiş viewport
   rect'i.
 - `scroll_px_offset_for_scrollbar() -> Point<Pixels>` — scrollbar için
   adapte edilmiş güncel scroll konumu.
 - `max_offset_for_scrollbar() -> Point<Pixels>` — ölçülmüş item'lara göre
-  maksimum scroll. Drag sırasında bu değer sabit kalır ki scrollbar
-  sıçramasın.
+  maksimum scroll. Drag sırasında bu değer sabit kalır; böylece scrollbar
+  sıçramaz.
 - `set_offset_from_scrollbar(point)` — scrollbar drag veya click'inden gelen
   offset'i uygular.
 - `scrollbar_drag_started()` / `scrollbar_drag_ended()` — drag sırasında
   overdraw ölçümünden kaynaklı yükseklik dalgalanmasını dondurmak veya
   serbest bırakmak için. Drag'a girerken `started`, bırakırken `ended`
-  çağrılmazsa scrollbar drag boyunca beklenmedik şekilde sürüklenebilir.
+  çağrılmazsa scrollbar drag boyunca beklenmedik şekilde kayabilir.
 - `is_scrollbar_dragging() -> bool` — `scrollbar_drag_started` ile
   `scrollbar_drag_ended` arasındaki manuel drag durumunu okur. Wheel veya
   trackpad scroll ile scrollbar thumb drag'ini ayırmak ve drag sırasında
@@ -228,7 +227,7 @@ trait Asset {
 }
 ```
 
-**Kaynak gösterimi.** Asset adresi farklı yerlerden gelebilir; `Resource`
+**Kaynak gösterimi.** Asset adresi farklı yerlerden gelebilir. `Resource`
 enum'u bu seçenekleri toplar:
 
 - `Resource::Path(Arc<Path>)`
@@ -260,10 +259,9 @@ img(PathBuf::from("path/to/icon.png"))
 - `Image(Arc<Image>)` — encoded byte'lar (PNG/JPEG/WebP).
 - `Custom(Arc<dyn Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>>)`
 
-URL biçimindeki string otomatik olarak `Uri` parse edilir; URL olmayan
-`&str` veya `String` `Resource::Embedded` sayılır ve `AssetSource` içinden
-aranır. Dosya sistemi path'i için `Path`, `PathBuf` veya `Arc<Path>`
-geçirilir.
+URL biçimindeki string otomatik olarak `Uri` parse edilir. URL olmayan `&str`
+veya `String` `Resource::Embedded` sayılır ve `AssetSource` içinden aranır.
+Dosya sistemi path'i için `Path`, `PathBuf` veya `Arc<Path>` geçirilir.
 
 **SVG.** Vektör çizimi için ayrı bir element vardır:
 
@@ -272,17 +270,16 @@ svg().path("icons/check.svg").size(px(16.)).text_color(rgb(0x000000))
 ```
 
 SVG path'i `AssetSource`'tan okunur. `text_color` SVG içindeki
-`currentColor` referanslarının renklendirilmesinde kullanılır. Custom path
-string yerine türetilmiş `IconName::path()` de geçirilebilir (Zed'de
+`currentColor` referanslarının renklendirilmesinde kullanılır. Özel path
+string'i yerine türetilmiş `IconName::path()` de geçirilebilir (Zed'de
 `Icon::new(IconName::Check)` doğrudan kullanılır).
 
 **Cache davranışı.** İki katmanlıdır:
-`window.use_asset::<A>(source, cx)` aynı source için tek async load
-task'ını paylaşır ve tamamlandığında current view'i yeniden çizdirir.
-`ImageCache` ise decode edilmiş `RenderImage`'ı tutar. Element bazında
-`.image_cache(&entity)` veya ağacın üstünde `image_cache(retain_all("id"))`
-kullanılabilir. Hata loglama `ImgResourceLoader = AssetLogger<...>` ile
-otomatiktir.
+`window.use_asset::<A>(source, cx)` aynı source için tek async load task'ını
+paylaşır ve tamamlandığında current view'i yeniden çizdirir. `ImageCache` ise
+decode edilmiş `RenderImage`'ı tutar. Element bazında `.image_cache(&entity)`
+veya ağacın üstünde `image_cache(retain_all("id"))` kullanılabilir. Hata
+loglama `ImgResourceLoader = AssetLogger<...>` ile otomatiktir.
 
 **Tuzaklar.** Asset yüklerken karşılaşılabilecek durumlar:
 
@@ -376,9 +373,8 @@ boru hattını kullanır ve şu anda platforma bağlıdır.
 
 `crates/gpui/src/path_builder.rs`, `scene.rs`, `elements/canvas.rs`.
 
-GPUI doğrudan path API'si yerine `canvas` elementi ve `PathBuilder` ile
-vektör çizim sunar. `PathBuilder`, lyon tessellator'ının ince bir
-sarmalayıcısıdır.
+GPUI doğrudan path API'si yerine `canvas` elementi ve `PathBuilder` ile vektör
+çizimi sunar. `PathBuilder`, lyon tessellator'ının ince bir sarmalayıcısıdır.
 
 ```rust
 canvas(
@@ -430,24 +426,24 @@ pub enum PathStyle {
 }
 ```
 
-Default constructor'lar default lyon parametrelerini set eder
+Varsayılan constructor'lar default lyon parametrelerini set eder
 (`PathBuilder::fill()` → `FillOptions::default()`;
 `PathBuilder::stroke(width)` →
 `StrokeOptions::default().with_line_width(width.0)`). Bu seçeneklerin
 özelleştirilmesi gerektiğinde `path.style` alanı doğrudan değiştirilir
 veya path inşa edildikten sonra yeni `PathStyle` atanır.
 
-- `FillOptions` — `tolerance` (flattening hassasiyeti, default 0.1),
+- `FillOptions` — `tolerance` (flattening hassasiyeti, varsayılan 0.1),
   `fill_rule` (`FillRule::{EvenOdd, NonZero}`, SVG `fill-rule` semantiği;
-  default **`EvenOdd`** —
+  varsayılan **`EvenOdd`** —
   `lyon_tessellation::FillOptions::DEFAULT_FILL_RULE`), `sweep_orientation`
-  (default `Orientation::Vertical`), `handle_intersections` (default
+  (varsayılan `Orientation::Vertical`), `handle_intersections` (varsayılan
   `true`). Hızlı yardımcılar: `FillOptions::even_odd()`,
   `FillOptions::non_zero()`, `FillOptions::tolerance(t)`.
-- `StrokeOptions` — `line_width` (default 1.0), `start_cap` ve `end_cap`
-  (her sub-path için başlangıç ve bitiş cap'i, default `LineCap::Butt`),
-  `line_join` (default `LineJoin::Miter`), `miter_limit` (default 4.0),
-  `tolerance` (default 0.1). Tüm sabitler
+- `StrokeOptions` — `line_width` (varsayılan 1.0), `start_cap` ve `end_cap`
+  (her sub-path için başlangıç ve bitiş cap'i, varsayılan `LineCap::Butt`),
+  `line_join` (varsayılan `LineJoin::Miter`), `miter_limit` (varsayılan 4.0),
+  `tolerance` (varsayılan 0.1). Tüm sabitler
   `lyon_tessellation::StrokeOptions::{DEFAULT_LINE_CAP, DEFAULT_LINE_JOIN,
   DEFAULT_MITER_LIMIT, DEFAULT_LINE_WIDTH, DEFAULT_TOLERANCE}` const'larında
   bulunur.
@@ -487,7 +483,7 @@ için ayrı bir wrapper'a ihtiyaç yoktur.
 
 `crates/gpui/src/elements/anchored.rs`.
 
-`anchored()` fonksiyonu bir `Anchored` builder döner; popover, menu ve
+`anchored()` fonksiyonu bir `Anchored` builder döndürür. Popover, menu ve
 tooltip benzeri konumlandırmalar bu element üzerinde kurulur:
 
 ```rust
@@ -513,7 +509,7 @@ anchored()
 
 **`AnchoredFitMode`.** Pencere kenarına yaklaşıldığında nasıl davranılacağı:
 
-- `SwitchAnchor` (default) — yetersiz alanda ters anchor'a flip.
+- `SwitchAnchor` (varsayılan) — yetersiz alanda ters anchor'a flip.
 - `SnapToWindow` — aynı köşede kalır, pencere kenarına oturur.
 - `SnapToWindowWithMargin(Edges)` — marjin bırakarak oturur.
 
@@ -531,8 +527,8 @@ Tooltip, popover ve ContextMenu altta bu element üzerinde çalışır.
 
 ## PaintQuad, Window Paint Primitives ve BorderStyle
 
-`canvas` ve custom `Element::paint` içinde GPU'ya gönderilen primitive'ler
-şu çağrılarla üretilir:
+`canvas` ve custom `Element::paint` içinde GPU'ya gönderilen primitive'ler şu
+çağrılarla üretilir:
 
 ```rust
 window.paint_quad(fill(bounds, rgb(0xeeeeee)));
@@ -582,8 +578,8 @@ geniş bir yelpazeyi kapsar:
 
 `BorderStyle` (`crates/gpui/src/scene.rs:544`) iki değer alır: `Solid` ve
 `Dashed`. `Corners<P>`, `Edges<P>`, `Bounds<P>`, `Hsla` ve `Background`
-zaten önceden bilinen geometri ve renk tipleridir; her builder bunlara
-`Into` üzerinden kabul eder.
+zaten önceden bilinen geometri ve renk tipleridir; her builder bunları `Into`
+üzerinden kabul eder.
 
 **Tuzaklar.** Paint çağrılarında dikkat edilmesi gerekenler:
 
@@ -599,9 +595,9 @@ zaten önceden bilinen geometri ve renk tipleridir; her builder bunlara
 
 ## Window Drawing Context Stack, Asset Fetch ve SVG Transform
 
-Custom element yazılırken `Window` yalnızca paint primitive çağrılarının
-yeri değildir; draw fazlarında aktif stil, offset, clipping ve asset
-yükleme context'ini de taşır.
+Custom element yazılırken `Window` yalnızca paint primitive çağrılarının yeri
+değildir; draw fazlarında aktif stil, offset, clipping ve asset yükleme
+context'ini de taşır.
 
 **Context stack yardımcıları.** Geçici olarak farklı stil, rem veya clip
 gerektiğinde stack üzerine eklenir:
@@ -611,7 +607,7 @@ gerektiğinde stack üzerine eklenir:
   `window.text_style()` birleşmiş sonucu verir.
 - `window.with_rem_size(Some(px(...)), |window| ...)` — rem override
   stack'i; içeride `window.rem_size()` override değerini döndürür.
-- `window.set_rem_size(px(...))` — pencerenin base rem değerini kalıcı
+- `window.set_rem_size(px(...))` — pencerenin temel rem değerini kalıcı
   değiştirir.
 - `window.with_content_mask(Some(ContentMask { bounds }), |window| ...)` —
   mevcut mask ile intersection alır; paint veya prepaint içindeki
@@ -646,8 +642,8 @@ draw context'i etkiler:
   `paint_image` decode edilmiş raster frame, `paint_surface` ise macOS
   native surface içindir.
 
-**Generic asset yükleme.** Asset bekleme ve cache paylaşımı için üç
-yardımcı bulunur:
+**Generic asset yükleme.** Asset bekleme ve cache paylaşımı için üç yardımcı
+bulunur:
 
 ```rust
 if let Some(result) = window.use_asset::<MyAsset>(&source, cx) {
@@ -657,7 +653,7 @@ if let Some(result) = window.use_asset::<MyAsset>(&source, cx) {
 
 - `window.use_asset::<A>(&source, cx) -> Option<A::Output>` — load
   bitmediğinde `None` döner ve ilk load tamamlandığında current view'i
-  next frame'de notify eder.
+  sonraki frame'de notify eder.
 - `window.get_asset::<A>(&source, cx) -> Option<A::Output>` — cache'i poll
   eder ancak tamamlandığında view redraw planlamaz.
 - `cx.fetch_asset::<A>(&source) -> (Shared<Task<A::Output>>, bool)` — daha
@@ -694,7 +690,7 @@ svg()
 - `with_content_mask` yalnızca clip mask'idir; hitbox veya layout'u
   otomatik küçültmez.
 - `use_asset` redraw'ı current view entity'sine bağlar; view dışı bir
-  helper'da çağrılıyorsa current view beklentisi bozulmamalıdır.
+  yardımcıda çağrılıyorsa current view beklentisi bozulmamalıdır.
 - SVG transformation görsel olarak döndürür ya da ölçeklendirir, ancak
   pointer hitbox'ı eski layout rect'inde kalır.
 
@@ -746,8 +742,8 @@ birleştirilir).
   state'i sıfırlanır.
 - Animator closure `'static` olduğundan dış state `Rc`, `Arc` veya
   `clone` ile yakalanır.
-- Repeat animasyonu `window.request_animation_frame()` ile sonraki
-  frame'i talep eder; bu da mevcut view'i sonraki frame'de notify eder.
+- Repeat animasyonu `window.request_animation_frame()` ile sonraki frame'i
+  talep eder; bu da mevcut view'i sonraki frame'de notify eder.
   Gerekmiyorsa oneshot bırakılır.
 - Frame'ler arası progress değeri executor saatinden hesaplanır; normal
   `TestAppContext`/`VisualTestContext` testlerinde

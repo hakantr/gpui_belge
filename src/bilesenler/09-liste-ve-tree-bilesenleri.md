@@ -1,22 +1,20 @@
 # 9. Liste ve Tree Bileşenleri
 
-Liste bileşenleri, aynı görsel ritme sahip satırları, section başlıklarını,
-boş durumları ve hiyerarşik navigation yüzeylerini kurmak için kullanılır.
-Küçük ve orta ölçekli statik listelerde `List` ile `ListItem` çoğu zaman
-yeterlidir. Buna karşılık çok büyük, scroll edilen ve satır yüksekliği aynı
-olan listelerde GPUI tarafının `uniform_list(...)` çağrısı tercih edilir;
-`StickyItems` ve `IndentGuides` gibi yardımcılar da bu düşük seviyeli
-listenin üstüne birer decoration olarak eklenir.
+Liste bileşenleri, aynı görsel ritme sahip satırları, bölüm başlıklarını, boş
+durumları ve hiyerarşik navigation yüzeylerini kurmak için kullanılır. Küçük ve
+orta ölçekli statik listelerde `List` ile `ListItem` çoğu zaman yeterlidir.
+Satır sayısı büyüdüğünde ve satır yüksekliği aynı kaldığında ise GPUI tarafının
+`uniform_list(...)` çağrısı daha doğru olur. `StickyItems` ve `IndentGuides`
+gibi yardımcılar da bu düşük seviyeli listenin üstüne decoration olarak eklenir.
 
-Hangi durumda hangisinin seçileceğini özetleyen genel bir yön haritası
-şöyledir:
+Hangi durumda hangisini seçeceğinizi şu ayrımla düşünebilirsiniz:
 
 - Basit bir container, header ve empty state için `List` uygundur.
 - Tıklanabilir veya seçilebilir bir satır için `ListItem` doğru yüzeydir.
 - Listenin ana bölüm başlığı için `ListHeader` kullanılır.
 - Daha küçük bir alt bölüm başlığı için `ListSubHeader` vardır.
 - Liste içinde yatay bir ayırıcı için `ListSeparator` tercih edilir.
-- Sabit açıklama bullet'ları için yardımcı olarak `ListBulletItem` kullanılır.
+- Sabit açıklama maddeleri için yardımcı olarak `ListBulletItem` kullanılır.
 - Hiyerarşik ve açılıp kapanabilen bir navigation satırı için
   `TreeViewItem` doğrudan bu rol için tasarlanmıştır.
 - Büyük bir `uniform_list` içinde sticky parent veya header davranışı
@@ -106,9 +104,9 @@ Dikkat edilecek noktalar:
 - `List`, kendi başına bir scroll davranışı sağlamaz. Scroll gerekiyorsa
   parent container'a `overflow_y_scroll()` eklenir; büyük listelerde ise
   `uniform_list(...)` tercih edilir.
-- Dinamik çocuklar üretilirken stable bir `ElementId` kullanılması önerilir.
-  Yalnızca index üzerinden id verilmesi, reorder edilen listelerde state
-  ve focus takibini zorlaştırır.
+- Dinamik çocuklar üretilirken stabil bir `ElementId` kullanılması önerilir.
+  Yalnızca index üzerinden id vermek, yeniden sıralanan listelerde state ve
+  focus takibini zorlaştırır.
 - Empty state custom bir element ise `.into_any_element()` çağrısıyla
   iletilmesi gerekir.
 
@@ -157,9 +155,9 @@ Davranış:
 
 - `RenderOnce`, `Disableable`, `Toggleable` ve `ParentElement` implement
   eder.
-- `toggle_state(true)` satırı selected bir background ile çizer; ama
-  uygulama state'ini kendisi değiştirmez. Selected'in arkasındaki gerçek
-  değerin view tarafında tutulması gerekir.
+- `toggle_state(true)` satırı selected background ile çizer; ama uygulama
+  state'ini kendisi değiştirmez. Selected bilgisinin arkasındaki gerçek değerin
+  view tarafında tutulması gerekir.
 - `disabled(true)` click handler'ını devre dışı bırakır.
 - `.toggle(Some(is_open))` bir disclosure ikonu render eder; çocukların
   gerçekten gösterilip gösterilmeyeceğini parent view kontrol eder.

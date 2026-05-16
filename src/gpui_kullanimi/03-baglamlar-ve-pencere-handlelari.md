@@ -4,10 +4,10 @@
 
 ## Temel Bağlamlar
 
-GPUI'de neredeyse her iş bir bağlam (context) üzerinden yapılır; isim olarak da
-genellikle `cx` kısaltmasıyla geçer. Bağlam, o anda hangi katmandan
-konuşulduğunu ve nelere erişim olduğunu belirler. Birden fazla bağlam tipi
-vardır ve her birinin kendi sorumluluk alanı bulunur:
+GPUI'de neredeyse her iş bir bağlam (context) üzerinden yapılır. Kodda bu
+bağlam genellikle `cx` adıyla görünür. Bağlam, o anda hangi katmandan
+konuşulduğunu ve nelere erişilebildiğini belirler. Birden fazla bağlam tipi
+vardır ve her birinin sorumluluğu farklıdır:
 
 - **`App`**: uygulamanın kök bağlamıdır. Global durum, açık pencerelerin
   listesi, platform servisleri, keymap, global'ler, yeni entity oluşturma ve
@@ -28,8 +28,8 @@ vardır ve her birinin kendi sorumluluk alanı bulunur:
   kontrolü ve görsel doğrulama için ayrılmış bağlamlardır; üretim akışlarında
   kullanılmaz.
 
-**Entity kullanımı.** Bir entity hem okunabilir hem güncellenebilir; her iki
-durum da bağlam üzerinden yapılır:
+**Entity kullanımı.** Bir entity hem okunabilir hem güncellenebilir. İki işlem
+de bağlam üzerinden yapılır:
 
 ```rust
 let entity = cx.new(|cx| State::new(cx));
@@ -48,7 +48,8 @@ weak.update(cx, |state, cx| {
 })?;
 ```
 
-**Kurallar.** Bağlam kullanımının başlıca disiplinleri şunlardır:
+**Kurallar.** Bağlam kullanımında dikkat edilmesi gereken ana noktalar
+şunlardır:
 
 - Render çıktısını etkileyen bir state değiştiğinde `cx.notify()` çağrılır.
   Aksi halde view'da yeni veriye rağmen ekran yenilenmez.
@@ -63,8 +64,8 @@ weak.update(cx, |state, cx| {
 ## WindowHandle, AnyWindowHandle ve VisualContext
 
 `open_window` ve test helper'ları, açılan pencereyi temsil eden tipli bir
-`WindowHandle<V>` döndürür. Bu handle root view'un tipini compile-time'da
-taşır; karşıt olarak `AnyWindowHandle` root tipini runtime'da tutar ve
+`WindowHandle<V>` döndürür. Bu handle root view'un tipini derleme zamanında
+taşır. Buna karşılık `AnyWindowHandle` root tipini çalışma zamanında tutar ve
 gerektiğinde downcast edilebilir.
 
 İki handle arasında doğrudan bir Deref ilişkisi vardır:
@@ -72,8 +73,8 @@ gerektiğinde downcast edilebilir.
 `AnyWindowHandle` değerine deref olur. Bu yüzden bazı metotlar tipli handle
 üzerinden çağrılabilir gibi görünür, oysa o metotların asıl sahibi
 `AnyWindowHandle`'dır. API yüzeyi okunurken `Owner::method -> dönüş tipi ->
-hata semantiği` üçlüsünü birlikte değerlendirmek hataya düşmemek için
-önemlidir.
+hata davranışı` üçlüsünü birlikte düşünmek gerekir. Yalnız metot adına bakmak
+burada kolayca yanıltır.
 
 Aynı Deref kalıbı GPUI'de başka handle ve event ailelerinde de görülür:
 
@@ -90,8 +91,8 @@ Aynı Deref kalıbı GPUI'de başka handle ve event ailelerinde de görülür:
 - `Context<'a, T>: Deref<Target = App>` — `cx.theme()`, `cx.refresh_windows()`
   gibi App metotları Context üzerinden de çağrılabilir (bkz. "Temel Bağlamlar").
 
-Bu Deref aliasing pattern'inde metot adı tek başına yeterli sayılmaz; aynı isim
-tipli ve untyped owner'larda farklı dönüş tipiyle var olabilir.
+Bu Deref kalıbında metot adı tek başına yeterli değildir. Aynı isim tipli ve
+untyped owner'larda farklı dönüş tipleriyle bulunabilir.
 
 **`WindowHandle<V>`.** Tipli handle root view'a doğrudan tipli erişim sağlar:
 
@@ -118,8 +119,8 @@ let any: AnyWindowHandle = handle.into();
 let same_id = any.window_id();
 ```
 
-**`AnyWindowHandle`.** Tip silinmiş handle ise generic kodlarda ve runtime
-downcast senaryolarında kullanılır:
+**`AnyWindowHandle`.** Tip silinmiş handle ise generic kodlarda ve çalışma
+zamanı downcast senaryolarında kullanılır:
 
 ```rust
 if let Some(workspace) = any_handle.downcast::<Workspace>() {
@@ -140,15 +141,15 @@ let title = any_handle.read::<Workspace, _, _>(cx, |workspace, cx| {
 ```
 
 **Tam owner/metot yüzeyi.** Aşağıdaki tablo her metodun asıl sahibini, dönüş
-tipini ve hata davranışını bir arada gösterir; bu sayede tipli handle'da
-"hangi çağrı kendi metodum, hangisi deref ile geliyor" ayrımı net olur:
+tipini ve hata davranışını birlikte gösterir. Böylece tipli handle üzerinde
+"hangi çağrı bu tipe ait, hangisi deref ile geliyor" ayrımı netleşir:
 
 | Owner | Metot | Dönüş | Not |
 |---|---|---|---|
-| `WindowHandle<V>` | `new(id)` | `Self` | Root tipini runtime'da doğrulamaz; id + `TypeId::of::<V>()` saklar. |
-| `WindowHandle<V>` | `root(cx)` | `Result<Entity<V>>` | Sadece `test` veya `test-support`; root type mismatch/kapalı pencere hata. |
-| `WindowHandle<V>` | `update(cx, \|&mut V, &mut Window, &mut Context<V>\| ...)` | `Result<R>` | Typed root view mutate eder. |
-| `WindowHandle<V>` | `read(&App)` | `Result<&V>` | Kısa süreli immutable borrow; kapalı/borrowed pencere hata. |
+| `WindowHandle<V>` | `new(id)` | `Self` | Root tipini çalışma zamanında doğrulamaz; id + `TypeId::of::<V>()` saklar. |
+| `WindowHandle<V>` | `root(cx)` | `Result<Entity<V>>` | Sadece `test` veya `test-support`; root tipi uyuşmazsa ya da pencere kapalıysa hata. |
+| `WindowHandle<V>` | `update(cx, \|&mut V, &mut Window, &mut Context<V>\| ...)` | `Result<R>` | Tipli root view'i günceller. |
+| `WindowHandle<V>` | `read(&App)` | `Result<&V>` | Kısa süreli immutable borrow; kapalı/borrowed pencere hata verir. |
 | `WindowHandle<V>` | `read_with(cx, \|&V, &App\| ...)` | `Result<R>` | Callback içinde güvenli okuma. |
 | `WindowHandle<V>` | `entity(cx)` | `Result<Entity<V>>` | Root entity handle'ını döndürür. |
 | `WindowHandle<V>` | `is_active(&mut App)` | `Option<bool>` | Kapalı veya borrowed pencere `None`. |
@@ -156,7 +157,7 @@ tipini ve hata davranışını bir arada gösterir; bu sayede tipli handle'da
 | `WindowHandle<V>` deref | `downcast<T>()` | `Option<WindowHandle<T>>` | Owner `AnyWindowHandle`; typed handle'da çoğu zaman gereksizdir. |
 | `AnyWindowHandle` | `window_id()` | `WindowId` | Pencere kimliği. |
 | `AnyWindowHandle` | `downcast<T>()` | `Option<WindowHandle<T>>` | `TypeId` eşleşmezse `None`. |
-| `AnyWindowHandle` | `update(cx, \|AnyView, &mut Window, &mut App\| ...)` | `Result<R>` | Root type bilinmez; callback `AnyView` alır. |
+| `AnyWindowHandle` | `update(cx, \|AnyView, &mut Window, &mut App\| ...)` | `Result<R>` | Root tipi bilinmez; callback `AnyView` alır. |
 | `AnyWindowHandle` | `read::<T, _, _>(cx, \|Entity<T>, &App\| ...)` | `Result<R>` | Önce downcast yapar, sonra typed entity okutur. |
 
 **Context trait'leri.** Farklı bağlamlar arasında ortak metot setleri trait'ler
@@ -176,10 +177,10 @@ aracılığıyla paylaşılır:
 `window.replace_root(cx, |window, cx| NewRoot::new(window, cx))` çağrısı,
 mevcut pencerenin root entity'sini yeni bir `Render` view ile değiştirir.
 Async ve test context'lerde aynı işlem `replace_root_view` helper'ı üzerinden
-yapılır. Bu kalıp yeni bir pencere açmadan root akışı değiştirmek için
-kullanılır; ancak eski root'a ait subscription'lar ve task ownership ayrıca
-düşünülmelidir, aksi halde geride kalan abonelikler veya işler bağlamsız
-şekilde çalışmaya devam edebilir.
+yapılır. Bu kalıp yeni bir pencere açmadan root akışını değiştirmek için
+kullanılır. Yine de eski root'a ait subscription'lar ve task sahipliği ayrıca
+düşünülmelidir; aksi halde geride kalan abonelikler veya işler bağlamını
+kaybetmiş halde çalışmaya devam edebilir.
 
 **`with_window` kullanımı.** `with_window(entity_id, ...)` çağrısı verilen
 entity'nin en son render edildiği pencereyi bulur. Aynı entity birden fazla

@@ -1,9 +1,10 @@
 # Proje iskeleti ve bağımlılıklar
 
-Sözleşme kararları netleştikten sonra sıra, crate sınırlarının ve bağımlılık
-tabanının kurulmasına gelir. Sonraki bütün katmanlar bu iskeletin üzerine
-oturduğundan, buradaki yerleşim ve dependency seçimleri ileride yapılacak
-işlerin hem hızını hem de bakım maliyetini doğrudan belirler.
+Sözleşme sınırları netleştiğinde sıradaki iş, crate yapısını ve bağımlılık
+tabanını kurmaktır. Sonraki bütün katmanlar bu iskeletin üzerine oturur. Bu
+yüzden klasör yerleşimi ve dependency seçimleri yalnızca başlangıç detayı
+değildir; ilerideki geliştirme hızını, test yükünü ve bakım maliyetini
+doğrudan etkiler.
 
 ---
 
@@ -21,12 +22,12 @@ Tema sistemi **iki crate** olarak konumlanır:
 > bir isim de tercih edilebilir; rehberin ortaya koyduğu kalıplar isim
 > değişse de aynen geçerli kalır.
 
-**İki crate olmasının nedeni:** Syntax theme bağımsız bir paket olarak
-durur — bir uygulama UI temasına ihtiyaç duyup syntax highlighting'e ihtiyaç
-duymayabilir (veya tersi geçerli olabilir). Ayrıca syntax theme ileride
-`tree-sitter` gibi farklı dep'lere açılabileceğinden, bu olasılığı UI tema
-crate'inden izole tutmak hem derleme süresini hem de public API yüzeyini
-sade tutar.
+**Neden iki crate var?** Syntax theme, UI temasından ayrı yaşayabilen bir
+pakettir. Bir uygulama UI temasına ihtiyaç duyup syntax highlighting'e ihtiyaç
+duymayabilir; tersi de mümkün olabilir. Ayrıca syntax theme tarafı ileride
+`tree-sitter` gibi farklı bağımlılıklara açılabilir. Bu olasılığı UI tema
+crate'inden ayrı tutmak, hem derleme süresini hem de public API yüzeyini daha
+sade bırakır.
 
 **Klasör yerleşimi:**
 
@@ -63,10 +64,10 @@ sade tutar.
             └── src/kvs_syntax_tema.rs
 ```
 
-**Modül adlandırma kuralı:** Lib kökünün adı `mod.rs` olarak değil, **crate
-adıyla aynı isimli bir dosya** olarak verilir (örneğin `kvs_tema.rs`). Bu
-ayrıntı sayesinde editör başlığında hangi dosyanın düzenlendiği doğrudan
-okunur; Zed projesinin kendi konvansiyonu da bu yöndedir.
+**Modül adlandırma kuralı:** Lib kökü `mod.rs` olarak değil, **crate adıyla
+aynı isimli bir dosya** olarak tutulur; örneğin `kvs_tema.rs`. Böylece editör
+başlığında hangi crate'in kök dosyasında çalışıldığı hemen görülür. Zed
+projesinin kendi konvansiyonu da bu yöndedir.
 
 **Modüllerin sorumluluk haritası:**
 
@@ -85,10 +86,10 @@ okunur; Zed projesinin kendi konvansiyonu da bu yöndedir.
 | `icon_theme.rs` | `IconTheme` ve içerik tipleri | Evet |
 | `fallback.rs` | `kvs_default_dark()`, `kvs_default_light()` | Evet |
 
-"Dış API" sütununda "kararsız" işareti taşıyan modül (`schema.rs`), Zed JSON
-sözleşmesinin zaman içinde evrilen yüzeyini taşır; bu modüle doğrudan
-dayanan bir tüketici, Zed tarafındaki bir değişikliğin etkisini birinci elden
-hisseder ve breaking change ile karşılaşabilir.
+"Dış API" sütununda "kararsız" görünen `schema.rs`, Zed JSON sözleşmesinin
+zamanla değişebilen yüzeyini taşır. Bu modüle doğrudan dayanan bir tüketici,
+Zed tarafındaki değişiklikleri birinci elden hisseder ve breaking change ile
+karşılaşabilir.
 
 ---
 
@@ -113,8 +114,8 @@ collections = { git = "https://github.com/zed-industries/zed", branch = "main" }
 ```
 
 Alt crate'ler bu bağımlılıkları `gpui = { workspace = true }` biçiminde
-inherit eder; böylece kaynak güncellemesi tek bir noktadan yapılır ve
-crate'ler arasında sürüm sapması yaşanmaz.
+workspace'ten alır. Böylece kaynak güncellemesi tek bir noktadan yapılır ve
+crate'ler arasında sürüm sapması oluşmaz.
 
 `kvs_tema/Cargo.toml`:
 
@@ -178,10 +179,10 @@ path = "src/kvs_syntax_tema.rs"
 gpui = { workspace = true }
 ```
 
-Syntax crate'in tek bağımlılığı `gpui` ile sınırlıdır — yalnızca
-`HighlightStyle` ve renk tipleri için bu bağımlılığa ihtiyaç vardır. Bu
-izolasyon kasıtlıdır; ileride syntax tarafına `tree-sitter` eklendiğinde UI
-tema crate'i bu değişiklikten etkilenmeden kalır.
+Syntax crate'in tek bağımlılığı `gpui` ile sınırlıdır. Buna yalnızca
+`HighlightStyle` ve renk tipleri için ihtiyaç vardır. Bu izolasyon bilinçli
+bir tercihtir: syntax tarafına ileride `tree-sitter` eklense bile UI tema
+crate'i bu değişiklikten etkilenmez.
 
 **Her dependency'nin rolü ve kabul ettiği değer:**
 
@@ -208,11 +209,10 @@ tema crate'i bu değişiklikten etkilenmeden kalır.
 
 **Sürüm uyumu:**
 
-- **`palette` major versiyonu Zed'in kullandığıyla aynı tutulmalıdır.** Aksi
-  takdirde HSL dönüşümü ufak miktarda kayabilir ve tema renkleri referans
-  JSON çıktısıyla birebir örtüşmez. Bu kayma görsel olarak fark
-  edilmeyecek kadar küçük olabilir ama testlerdeki exact karşılaştırmaları
-  bozar.
+- **`palette` major versiyonu Zed'in kullandığıyla aynı tutulmalıdır.**
+  Aksi durumda HSL dönüşümü çok küçük miktarda kayabilir ve tema renkleri
+  referans JSON çıktısıyla birebir örtüşmeyebilir. Bu fark gözle zor
+  seçilebilir, ama exact karşılaştırma yapan testleri bozar.
 
 - **`serde_json_lenient`** Zed'in kullandığı sürümle uyumlu olmalıdır;
   major versiyon değişikliği yorum ve trailing comma parse davranışını
@@ -227,10 +227,9 @@ tema crate'i bu değişiklikten etkilenmeden kalır.
   gpui = { git = "https://github.com/zed-industries/zed", rev = "6e8eaab25b5ac324e11a82d1563dcad39c84bace" }
   ```
 
-  Branch tracking güncel davranışın izlenmesini sağlar; `rev` ile sabitleme
-  ise dependency yüzeyini daha öngörülebilir kılar. İki yaklaşım arasındaki
-  seçim, "her zaman en yeni davranış" ile "her build aynı davranış" arasında
-  yapılan bir tercihtir.
+  Branch tracking güncel davranışı takip etmeyi sağlar. `rev` ile sabitleme
+  ise dependency yüzeyini daha öngörülebilir hale getirir. Buradaki seçim,
+  "her zaman en yeni davranış" ile "her build aynı davranış" arasında yapılır.
 
 **Bağımlılık akış grafiği:**
 
@@ -244,11 +243,11 @@ kvs_syntax_tema  ──depends on──>  gpui
 gpui, refineable, collections  ──sourced from──>  zed workspace (Apache-2.0)
 ```
 
-Bu grafiğin yönü tersine işlemez; `gpui` asla `kvs_tema`'ya bağlanmaz. Bu
-kural sayesinde Zed'in upstream'inde bir değişiklik olduğunda tema crate'i
-yalnızca üç vektörden etkilenir: **tip imzası**, **davranış** ve **isim/yol
-değişimi**. Yani upstream'i takip ederken nereye bakılacağı önceden bellidir
-ve sürpriz bir geri etki ihtimali ortadan kalkar.
+Bu grafiğin yönü tersine işlemez; `gpui` hiçbir zaman `kvs_tema`'ya bağlanmaz.
+Bu kural sayesinde Zed'in upstream'inde bir değişiklik olduğunda tema crate'i
+yalnızca üç yerden etkilenir: **tip imzası**, **davranış** ve **isim/yol
+değişimi**. Böylece upstream'i takip ederken nereye bakılacağı baştan bellidir
+ve beklenmedik geri etkiler azalır.
 
 **Lib kökü iskeleti (`src/kvs_tema.rs`):**
 

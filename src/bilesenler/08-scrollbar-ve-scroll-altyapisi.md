@@ -1,12 +1,11 @@
 # 8. Scrollbar ve Scroll Altyapısı
 
-Scrollbar bileşeni, Zed UI içinde panel, liste, modal ve özel scroll
-container'larında tema renkleriyle uyumlu bir scroll geri bildirimi sağlar.
-Layout primitive'lerinden ayrı bir bölümde tutulmasının nedeni şudur:
-scrollbar yalnızca bir görsel bir parça değildir. Hem tema ayarına, hem
-scrollbar görünürlüğü tercihlerine, hem de `ScrollableHandle` ile birlikte
-çalışmasına bağlıdır. Bu kombinasyon onu basit bir layout helper'ından
-ayırır.
+Scrollbar bileşeni, panel, liste, modal ve özel scroll container'larında Zed
+temasıyla uyumlu bir scroll geri bildirimi sağlar. Layout primitive'lerinden
+ayrı anlatılmasının nedeni şudur: scrollbar yalnızca çizilen bir görsel parça
+değildir. Tema ayarına, scrollbar görünürlüğü tercihine ve `ScrollableHandle`
+ile kurduğu bağlantıya göre davranır. Bu yüzden basit bir layout helper'ından
+daha fazla sorumluluk taşır.
 
 Kaynak:
 
@@ -28,10 +27,10 @@ Ne zaman kullanılır:
 
 Ne zaman kullanılmaz:
 
-- Doğal bir browser veya native scroll davranışı yeterliyse,
-  `overflow_y_scroll()` veya `overflow_x_scroll()` ile basit bir container
-  kullanılır. `Scrollbars`, tema ile hizalanmış özel bir scrollbar yüzeyi
-  gerektiğinde devreye girer; her scroll alanına ihtiyaç duymaz.
+- Doğal scroll davranışı yeterliyse `overflow_y_scroll()` veya
+  `overflow_x_scroll()` ile basit bir container kullanılır. `Scrollbars`, tema
+  ile hizalanmış özel bir scrollbar yüzeyi gerektiğinde devreye girer; her
+  scroll alanına eklenmesi gerekmez.
 
 Temel API:
 
@@ -106,12 +105,12 @@ impl Render for LogPanel {
 
 Dikkat edilecek noktalar:
 
-- `Scrollbars` kendi başına içerik scroll'lamaz. İçeriğin gerçekten
-  kaymasını sağlamak için bir `ScrollableHandle` ile bağlanması veya
-  bir `ScrollHandle::new()` üzerinden takip etmesi gerekir.
-- Tek bir scroll container'a doğrudan bağlanılıyorsa, `WithScrollbar`
-  helper'larının kullanılması ayrı bir `Scrollbars` child'ı yazmaya göre
-  hem daha kısa hem de daha az hata yapmaya açıktır.
+- `Scrollbars` kendi başına içerik kaydırmaz. İçeriğin gerçekten scroll
+  olabilmesi için bir `ScrollableHandle` ile bağlanması veya bir
+  `ScrollHandle::new()` üzerinden takip edilmesi gerekir.
+- Tek bir scroll container'a doğrudan bağlanılıyorsa `WithScrollbar`
+  helper'larını kullanmak, ayrı bir `Scrollbars` child'ı yazmaya göre hem daha
+  kısa hem de daha az hataya açıktır.
 - `with_stable_track_along(...)`, scroll alanı henüz yokken bile track
   için yer ayırır. Bu sayede scrollbar görünür ya da gizli olarak
   değiştiğinde layout aniden zıplamaz; sahne stabil kalır.

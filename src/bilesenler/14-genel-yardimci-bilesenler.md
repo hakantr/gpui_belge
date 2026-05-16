@@ -1,23 +1,22 @@
 # 14. Genel Yardımcı Bileşenler
 
-Bu bölümdeki bileşenler tek bir amaca hizmet eden yapı taşlarıdır.
-Çoğunlukla görsel bir yardımcı ya da klavye/navigation yüzeyi sunarlar
-ve bir liste satırı, toolbar, panel başlığı veya empty state üzerinde
-birlikte sık kullanılırlar. Yani önceki bölümlerdeki büyük bileşenlerin
-etrafında küçük ama önemli destek görevleri üstlenirler.
+Bu bölümdeki bileşenler tek bir amaca hizmet eden küçük yapı taşlarıdır.
+Çoğunlukla görsel bir yardımcı, klavye ipucu veya navigation yüzeyi sunarlar.
+Liste satırı, toolbar, panel başlığı veya empty state gibi alanlarda önceki
+bölümlerdeki büyük bileşenlerin yanında sık kullanılırlar. Küçük görünseler de
+ekranın okunabilirliğini ve etkileşim kalitesini doğrudan etkilerler.
 
-Bu ailede üç genel kuralın akılda tutulması faydalı olur:
+Bu aileyi kullanırken üç ayrımı akılda tutmak işinizi kolaylaştırır:
 
-- `ui::KeyBinding` ile `gpui::KeyBinding` aynı ad altında olsalar da
-  birbirinden farklı şeyleri ifade eder. UI tarafındaki bileşen bir
-  shortcut'ı görsel olarak render eder; GPUI tarafındaki tip ise keymap'e
-  bir binding tanımlar.
-- `Image` adında public bir Zed UI component'i bulunmaz. Bundled bir
-  SVG için `Vector` kullanılır; raster veya dış kaynaklı görsel için ise
-  GPUI tarafının `img(...)` ve `ImageSource` yüzeyi devreye girer.
-- Disclosure, Chip ve DiffStat gibi kompakt yapı taşları liste veya
-  toolbar içinde kullanılırken, parent container'a `min_w_0` değerinin
-  ve uygun gap'lerin verilmesi taşma kontrolünü çok daha kolaylaştırır.
+- `ui::KeyBinding` ile `gpui::KeyBinding` aynı adı taşısa da farklı şeylerdir.
+  UI tarafındaki bileşen shortcut'ı görsel olarak render eder; GPUI tarafındaki
+  tip ise keymap'e bir binding tanımlar.
+- `Image` adında public bir Zed UI component'i yoktur. Bundled SVG için
+  `Vector` kullanılır; raster veya dış kaynaklı görsel için GPUI tarafındaki
+  `img(...)` ve `ImageSource` yüzeyi devreye girer.
+- Disclosure, Chip ve DiffStat gibi kompakt parçalar liste veya toolbar içinde
+  kullanılırken parent container'a `min_w_0` ve uygun gap'ler vermek taşma
+  kontrolünü ciddi biçimde kolaylaştırır.
 
 ## Chip
 
@@ -85,10 +84,9 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edilecek noktalar:
 
-- Chip küçük bir bilgi kapsülüdür; bir primary action yerine
-  kullanılmaması beklenir.
-- Custom bir background kullanılıyorsa, border renginin de bu seçimle
-  uyumlu olması görsel tutarlılığı korur.
+- Chip küçük bir bilgi kapsülüdür; primary action yerine kullanılmamalıdır.
+- Custom background kullanılıyorsa border renginin de bu seçimle uyumlu olması
+  görsel tutarlılığı korur.
 - Dar bir toolbar içinde `.truncate()` olmadan uzun bir label kullanmak
   layout'u bozabilir.
 

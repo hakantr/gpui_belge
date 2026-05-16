@@ -4,13 +4,12 @@
 
 ## Reçeteler
 
-Bu bölüm rehberin önceki başlıklarındaki API'leri günlük bir senaryoya
-oturtarak özetler. Her reçete, ihtiyaç duyulan ayar ve çağrı sırasını
-tek paragrafta bir araya getirir.
+Bu bölüm, önceki başlıklardaki API'leri günlük senaryolara oturtarak özetler.
+Her reçete, ihtiyaç duyulan ayarları ve çağrı sırasını tek yerde toplar.
 
 #### Yeni Workspace Penceresi
 
-Bir Zed workspace penceresi açılırken izlenen adımlar şu sırayla işler:
+Bir Zed workspace penceresi açılırken adımlar şu sırayla işler:
 
 1. `zed::build_window_options(display_uuid, cx)` çağrılır.
 2. Root view olarak workspace veya multi-workspace entity oluşturulur.
@@ -71,7 +70,8 @@ gerekir, aksi halde blur görünmez kalır.
 
 #### Platforma Göre UI Ayırma
 
-Runtime'da platforma göre branching gerektiğinde `PlatformStyle` kullanılır:
+Çalışma zamanında platforma göre dallanma gerektiğinde `PlatformStyle`
+kullanılır:
 
 ```rust
 match PlatformStyle::platform() {
@@ -81,14 +81,13 @@ match PlatformStyle::platform() {
 }
 ```
 
-Compile-time bir farklılık gerektiğinde `cfg!(target_os = "...")` veya
-`#[cfg(...)]` tercih edilir. Runtime styling için `PlatformStyle` daha
-okunaklıdır.
+Derleme zamanı farkı gerekiyorsa `cfg!(target_os = "...")` veya `#[cfg(...)]`
+tercih edilir. Çalışma zamanı styling için `PlatformStyle` daha okunaklıdır.
 
 #### Titlebar Drag ve Double Click
 
-Drag ve double-click davranışı tek bir click handler içinde toplanır;
-double-click'te platforma göre native ya da fluent helper kullanılır:
+Drag ve double-click davranışı tek bir click handler içinde toplanır.
+Double-click'te platforma göre native ya da fluent helper kullanılır:
 
 ```rust
 h_flex()
@@ -152,11 +151,10 @@ Zed ana uygulaması bu deseni zaten kullanır.
 
 #### Git Graph Özel Komut Task'ı
 
-Git Graph commit context menu'sünden özel bir task çalıştırmak için
-global `tasks.json` içine `git-command` tag'li bir task eklenir.
-Worktree-local task'lar bu akışta desteklenmez. Task seçili commit ve
-repository context'iyle resolve edilir; varsayılan çalışma dizini
-seçili repository root'udur.
+Git Graph commit context menu'sünden özel bir task çalıştırmak için global
+`tasks.json` içine `git-command` tag'li bir task eklenir. Worktree-local
+task'lar bu akışta desteklenmez. Task seçili commit ve repository context'iyle
+çözülür; varsayılan çalışma dizini seçili repository root'udur.
 
 Desteklenen Git değişkenleri şu şekildedir:
 
@@ -197,7 +195,7 @@ işaret eder.
 - **Windows caption butonları tıklanmıyor** — Butonlarda
   `window_control_area(Close/Max/Min)` çağrısının eksik kalması native
   hit-test'i bozar.
-- **Close davranışı bypass ediliyor** — Zed workspace penceresinde
+- **Close davranışı atlanıyor** — Zed workspace penceresinde
   doğrudan `remove_window` yerine `workspace::CloseWindow` action'ı
   dispatch edilmelidir; aksi halde dirty buffer ve kullanıcı onayı
   akışları atlanır.
@@ -214,7 +212,7 @@ işaret eder.
   control hitbox'ı fazla geniş tutulmuş ya da `.occlude()` yanlış yere
   konmuş olabilir.
 - **Client decoration shadow boşluğu** — `set_client_inset` ve dış
-  wrapper'ın padding/shadow değerleri birlikte yönetilmelidir; aralarındaki
+  sarmalayıcının padding/shadow değerleri birlikte yönetilmelidir; aralarındaki
   uyumsuzluk görünür bir boşluk üretir.
 
 ## Yeni Pencere Eklerken Kontrol Listesi
@@ -225,7 +223,7 @@ ayrıntı kalmaması için bir hatırlatma görevi görür:
 1. Bu pencerenin workspace mi, modal mı, popup mu olduğuna karar
    verilir ve uygun `WindowKind` seçilir.
 2. Ana Zed penceresi ise `build_window_options` kullanılır.
-3. Bounds restore edilecekse `WindowBounds` persist edilir.
+3. Bounds geri yüklenecekse `WindowBounds` persist edilir.
 4. Hangi display'de açılacağı belirlenir; `display_id` veya
    `display_uuid` seçilir.
 5. Titlebar native mi, custom mı olacak? `TitlebarOptions` ile
@@ -264,7 +262,7 @@ kullanılır. Root view, `Render` implement eden bir `Entity` olmalıdır.
 verilir. Render tarafında fiili sonuç `window.window_decorations()`
 ile okunur. Zed tarzı client decoration için
 `workspace::client_side_decorations` kullanılır. macOS ve Windows'ta
-custom titlebar için `TitlebarOptions { appears_transparent: true }`
+özel titlebar için `TitlebarOptions { appears_transparent: true }`
 ya da `titlebar: None` ile `PlatformTitleBar` tercih edilir.
 
 **Kontrol butonlarının yönetimi.** Zed içinde

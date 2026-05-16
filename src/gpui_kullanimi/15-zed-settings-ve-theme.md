@@ -4,8 +4,8 @@
 
 ## Persist, Settings ve Theme Akışı (Zed Tarafı)
 
-Bu konu GPUI çekirdeği değildir; ancak yeni pencere veya UI eklenirken
-tema ile ayarlara takılı kalmak gerekir. Ana dosyalar: `crates/settings`,
+Bu konu GPUI çekirdeği değildir; ancak yeni pencere veya UI eklenirken tema ve
+ayar akışını bilmek gerekir. Ana dosyalar: `crates/settings`,
 `crates/settings_content`, `crates/theme`, `crates/theme_settings`.
 
 **Akış.** Settings sisteminin ana adımları şu sırayla işler:
@@ -18,8 +18,8 @@ tema ile ayarlara takılı kalmak gerekir. Ana dosyalar: `crates/settings`,
 4. UI tarafları `cx.observe_global::<SettingsStore>(...)` ile değişimi
    izler ve yeniden render eder.
 
-Yeni bir ayar eklenirken önce `settings_content` içindeki JSON içerik
-modeline alan eklenir, sonra runtime settings tipi `Settings` trait'ini
+Yeni bir ayar eklenirken önce `settings_content` içindeki JSON içerik modeline
+alan eklenir, sonra çalışma zamanı settings tipi `Settings` trait'ini
 implement eder. Bu repoda gerçek trait, ilişkili içerik tipi veya `load`
 yöntemi yerine `from_settings` kullanır:
 
@@ -62,16 +62,16 @@ sürprizleri içerir:
   kontrolünde Stage/Unstage ve Restore butonlarını gösterip göstermemeyi
   yönetir.
 - `theme.markdown_preview_code_font_family` — markdown preview'daki kod
-  fontunu ayırır; unset durumda buffer fontuna düşer.
+  fontunu ayırır; ayar yoksa buffer fontuna düşer.
 - Agent tool permission varsayılanlarında `skill` aracı yer alır. Settings
   UI'daki tool permission sayfasında bu araç için regex açıklaması
   skill'in mutlak `SKILL.md` path'i üzerinden yapılır.
 - Amazon Bedrock language model ayarlarında `guardrail_identifier` ve
   `guardrail_version` alanları vardır; version belirtilmediğinde provider
-  tarafında `"DRAFT"` fallback'i beklenir.
+  tarafında `"DRAFT"` yedeği beklenir.
 - `git.path_style` yanında Git UI ve diff görünümü için yeni `git`
-  ayarları okunurken runtime `ProjectSettings` modelinin
-  `settings_content` ile senkron tutulduğu kontrol edilmelidir; default
+  ayarları okunurken çalışma zamanı `ProjectSettings` modelinin
+  `settings_content` ile senkron tutulduğu kontrol edilmelidir; varsayılan
   JSON'a eklenmeyen alan `from_settings` içinde beklenmedik bir default'a
   düşer.
 
@@ -111,7 +111,7 @@ mekanizmalarını kullanır:
 **Tuzaklar.** Settings tarafında yapılan tipik hatalar:
 
 - `cx.theme()` panel açılırken `None` döndürmez; ancak
-  `cx.global::<ThemeRegistry>()` henüz yüklenmemişse fallback theme
+  `cx.global::<ThemeRegistry>()` henüz yüklenmemişse yedek tema
   döner.
 - Settings serialization `SettingsContent` merge akışına bağlıdır;
   user/global, project ve language-specific kaynaklar `SettingsStore`
@@ -149,7 +149,7 @@ topluluk yaratır. Store kurulumu
 Zed'in normal başlangıç akışında bunu `settings::init(cx)` çağırır ve
 oluşan store'u `cx.set_global(settings)` ile global hale getirir.
 
-**Okuma.** Ayarı runtime'da almak için kullanılan API'ler:
+**Okuma.** Ayarı çalışma zamanında almak için kullanılan API'ler:
 
 - `YourSettings::get_global(cx)` — aktif global değer.
 - `YourSettings::get(Some(SettingsLocation { worktree_id, path }), cx)` —
@@ -158,11 +158,11 @@ oluşan store'u `cx.set_global(settings)` ile global hale getirir.
 - `YourSettings::try_read_global(async_cx, |s| ...)` — async bağlam
   içinde okur.
 
-**Yazma.** Ayarın runtime'da değiştirilmesi veya kalıcı kaydedilmesi için
-yardımcılar vardır:
+**Yazma.** Ayarın çalışma zamanında değiştirilmesi veya kalıcı kaydedilmesi
+için yardımcılar vardır:
 
 - `YourSettings::override_global(value, cx)` — programatik override;
-  persist edilmez, yalnız runtime state'i değiştirir.
+  persist edilmez, yalnız çalışma zamanı state'ini değiştirir.
 - `settings::update_settings_file(fs, cx, |content, cx| { ... })` —
   kullanıcı JSON'una kalıcı yazma yoludur. Dosya okuma/yazma, parse ve
   store update akışı `SettingsStore::update_settings_file(...)` üzerinden
@@ -202,7 +202,7 @@ katman bulunur:
 
 **Tuzaklar.** SettingsStore kullanımında karşılaşılan hatalar:
 
-- `from_settings` panic ediyorsa default JSON eksiktir; her alan
+- `from_settings` panic ediyorsa varsayılan JSON eksiktir; her alan
   `assets/settings/default.json` içinde tanımlı olmalıdır.
 - Per-language ayar gerekiyorsa
   `LanguageSettings::get(Some(location), cx)` çağrısı worktree-specific
@@ -269,25 +269,24 @@ pub fn reload_theme(cx: &mut App) {
 
 `reload_icon_theme(cx)` aynı modeli icon theme için uygular.
 `theme::init(...)` registry'yi, `SystemAppearance`'ı, font family
-cache'ini ve fallback `GlobalTheme`'i kurar; `theme_settings::init(...)`
+cache'ini ve yedek `GlobalTheme`'i kurar; `theme_settings::init(...)`
 bunun üstüne settings observer'larını ve bundled/user theme yükleme
 akışını bağlar.
 
-**Tema ayar sağlayıcısı.** Theme crate'i font ve density bilgisini
-ayrı bir provider üzerinden okur; bu sayede kendi içinde concrete
-settings crate'ine bağımlı olmaz:
+**Tema ayar sağlayıcısı.** Theme crate'i font ve density bilgisini ayrı bir
+provider üzerinden okur; bu sayede kendi içinde somut settings crate'ine
+bağımlı olmaz:
 
 - `theme::set_theme_settings_provider(provider, cx)` — UI font, buffer
   font, font size ve UI density kaynağını global olarak bağlar.
 - `theme::theme_settings(cx) -> &dyn ThemeSettingsProvider` — theme
-  crate'inin concrete settings crate'ine bağımlı olmadan font ve density
+  crate'inin somut settings crate'ine bağımlı olmadan font ve density
   okumasını sağlar.
 - `UiDensity::{Compact, Default, Comfortable}` ve `spacing_ratio()`
   spacing ölçeğini verir; Zed tarafında provider implementasyonu
   `theme_settings` crate'inde yer alır.
 
-**Custom tema yükleme.** Bir kullanıcı temasını programatik olarak
-eklemek için:
+**Custom tema yükleme.** Bir kullanıcı temasını programatik olarak eklemek için:
 
 ```rust
 theme_settings::load_user_theme(&ThemeRegistry::global(cx), bytes)?;
@@ -306,7 +305,7 @@ kaç ek alanla devreye girer:
 
 - `ThemeSettingsContent::markdown_preview_code_font_family` ayarı
   markdown preview içindeki inline code ve code block fontunu belirler;
-  unset bırakıldığında buffer fontuna düşer. Normal
+  ayar yoksa buffer fontuna düşer. Normal
   `markdown_preview_font_family` yalnızca preview metin fontunu kontrol
   eder.
 - Mermaid render akışı Zed temasından renk ve font üretir; tema
@@ -316,11 +315,11 @@ kaç ek alanla devreye girer:
 
 **Tuzaklar.** Tema akışında karşılaşılan hatalar:
 
-- `cx.theme()` ilk frame'de fallback temayı döndürebilir; observer ile
+- `cx.theme()` ilk frame'de yedek temayı döndürebilir; observer ile
   `SystemAppearance` veya `SettingsStore` dinlenip rerender yapılmazsa
-  ilk render fallback ile kalır.
+  ilk render yedek tema ile kalır.
 - `ThemeColors` tüm token'ları içerir; kullanıcı temada eksik bırakılan
-  token `null` olduğunda default light/dark temadan fallback alınır.
+  token `null` olduğunda varsayılan light/dark temadan yedek alınır.
 - `Theme.styles.colors.background` yerine doğrudan
   `theme.colors().background` kullanılır; `styles` alanı internal
   layout'tur.

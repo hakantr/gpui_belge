@@ -1,9 +1,9 @@
 # JSON sözleşmesi ve parse katmanı
 
-Runtime modeli kurulduktan sonra sıra; Zed uyumlu JSON sözleşmesinin,
-opsiyonellik kuralının ve hata toleransının kurulmasına gelir. Bu üç
-parça birbirine sıkı şekilde bağlıdır ve birinde alınan karar diğerlerinin
-nasıl çalışacağını doğrudan etkiler.
+Runtime modeli kurulduktan sonra sıra JSON sözleşmesine gelir. Burada üç konu
+birlikte düşünülür: Zed uyumlu JSON yapısı, alanların opsiyonel ele alınması
+ve parse sırasında ne kadar hata toleransı gösterileceği. Bu kararlar birbirine
+sıkı bağlıdır; birindeki tercih diğer ikisinin davranışını doğrudan etkiler.
 
 ---
 
@@ -11,7 +11,7 @@ nasıl çalışacağını doğrudan etkiler.
 
 **Kaynak modül:** `kvs_tema/src/schema.rs`.
 
-JSON tema dosyalarını parse edebilen tip hiyerarşisi üç seviyeden oluşur:
+JSON tema dosyalarını parse eden tip hiyerarşisi üç seviyeden oluşur:
 
 ```
 ThemeFamilyContent      ← dosya kökü, "themes" array taşır
@@ -368,9 +368,9 @@ pub struct StatusColorsContent {
 ```
 
 `ThemeColorsContent`, referans Zed sürümünde 146 adet `Option<String>` alan
-taşır. Bunların 143'ü runtime `ThemeColors` alanlarına birebir gider; geriye
-kalan 3'ü ise eski tema JSON'larını kırmamak için yalnızca content
-tarafında bulunan deprecated uyumluluk alanlarıdır:
+taşır. Bunların 143'ü runtime `ThemeColors` alanlarına birebir gider. Geriye
+kalan 3 alan ise eski tema JSON'larını kırmamak için yalnızca content
+tarafında tutulan deprecated uyumluluk alanlarıdır:
 
 - `deprecated_scrollbar_thumb_background` (`scrollbar_thumb.background`)
   yeni `scrollbar_thumb_background` alanı boş olduğunda ona aktarılır.
@@ -379,8 +379,8 @@ tarafında bulunan deprecated uyumluluk alanlarıdır:
 - `version_control_conflict_theirs_background`, yeni
   `version_control_conflict_marker_theirs` boş olduğunda ona aktarılır.
 
-Refinement üretilirken yeni alan **her zaman önceliklidir**; deprecated alan
-yalnızca fallback olarak işe yarar. Runtime `ThemeColors` içinde deprecated
+Refinement üretilirken yeni alan **her zaman önceliklidir**. Deprecated alan
+yalnızca fallback olarak kullanılır. Runtime `ThemeColors` içinde deprecated
 alan bulundurulmaz.
 
 **Davranış kuralları (özet):**
@@ -397,18 +397,17 @@ alan bulundurulmaz.
 | `ThemeColorsContent` (150 alan) | her biri `Option<String>` | Refinement → baseline |
 | `StatusColorsContent` (42 alan) | her biri `Option<String>` | Refinement → baseline (fg→bg türetme uygulanır) |
 
-> **`AppearanceContent` neden `Option` değil?** Bir tema'nın "Light mı,
-> Dark mı" sorusu **kritiktir**; eksik olduğunda renk seçimi anlamını
-> yitirir. Bu alan, sözleşmenin tek zorunlu enum alanı olarak tutulur.
+> **`AppearanceContent` neden `Option` değil?** Bir tema'nın "Light mı, Dark
+> mı?" sorusu **kritiktir**. Bu bilgi eksik olduğunda renk seçimi anlamını
+> yitirir. Bu yüzden alan, sözleşmenin zorunlu enum alanı olarak tutulur.
 
 ### `#[serde(flatten)]` — alt struct'ları aynı seviyeye açar
 
 JSON dosyasında `style` objesi içinde **150'den fazla alan düz olarak**
-sıralanır; iç içe `"colors": { ... }` yapısı bulunmaz. Rust tarafında bu
+sıralanır; iç içe `"colors": { ... }` yapısı yoktur. Rust tarafında bu
 alanlar mantıksal olarak ayrı struct'larda (`ThemeColorsContent`,
-`StatusColorsContent`) tutulur; ancak JSON parse'ı sırasında **aynı
-seviyede** deserialize edilirler. `#[serde(flatten)]` tam olarak bu
-eşlemeyi sağlar.
+`StatusColorsContent`) tutulur. JSON parse edilirken ise **aynı seviyeden**
+deserialize edilirler. `#[serde(flatten)]` bu eşlemeyi sağlar.
 
 **Davranış:**
 
@@ -433,10 +432,9 @@ JSON:
 }
 ```
 
-İki ayrı struct'ın alanları **aynı JSON object'inde** iç içe geçmiş olarak
-deserialize edilir. Çakışan anahtar bulunamaz; `ThemeColorsContent`'in
-"error" diye bir alanı yoktur, dolayısıyla `StatusColorsContent.error` ile
-bir çatışma da söz konusu değildir.
+İki ayrı struct'ın alanları **aynı JSON object'i** içinden deserialize edilir.
+Çakışan anahtar bulunmamalıdır. Örneğin `ThemeColorsContent` içinde `"error"`
+alanı yoktur; bu yüzden `StatusColorsContent.error` ile çatışmaz.
 
 ### `#[serde(rename = "...")]` — alan adı eşleme
 
@@ -464,10 +462,9 @@ pub enum AppearanceContent {
 }
 ```
 
-Bu sayede JSON'da `"appearance": "light"` yazılır; Rust variant adı `Light`
-olsa bile JSON tarafında küçük harf görünür. `rename_all = "snake_case"`
-attribute'u, her variant için tek tek `rename` yazma yükünü ortadan
-kaldırır.
+Bu sayede JSON'da `"appearance": "light"` yazılır. Rust variant adı `Light`
+olsa bile JSON tarafında küçük harf kullanılır. `rename_all = "snake_case"`
+attribute'u, her variant için tek tek `rename` yazma yükünü kaldırır.
 
 ### `#[serde(transparent)]` — newtype'ı saydamlaştır
 
@@ -479,8 +476,8 @@ pub struct FontWeightContent(pub f32);
 
 Bu attribute sayesinde JSON'da `{ "font_weight": { "0": 700 } }` yerine
 doğrudan `{ "font_weight": 700 }` yazılır. Newtype'ın sarmaladığı tek alan
-saydam görünür; JSON tüketicisi `FontWeightContent`'in bir newtype
-olduğunu fark etmez.
+saydam görünür; JSON tüketicisi `FontWeightContent`'in newtype olduğunu fark
+etmez.
 
 ### `#[serde(default)]` — eksik alana default değer
 
@@ -489,9 +486,9 @@ olduğunu fark etmez.
 pub colors: ThemeColorsContent,
 ```
 
-JSON'da `colors` alanı bulunmuyorsa `ThemeColorsContent::default()`
-çağrılır ve tüm alanlar `None` olarak gelir. `default` annotation'ı her
-alan için bireysel olarak da verilebilir:
+JSON'da `colors` alanı yoksa `ThemeColorsContent::default()` çağrılır ve tüm
+alanlar `None` olarak gelir. `default` annotation'ı alan bazında da
+verilebilir:
 
 ```rust
 #[serde(default)]
@@ -535,19 +532,19 @@ pub players: Vec<PlayerColorContent>,    // Yoksa boş Vec
 
 ## 20. `*Content` tiplerinin opsiyonellik felsefesi
 
-Content tipleri **tek bir kuralı** izler: her renk alanı `Option<String>`,
-her enum alanı ise `Option<EnumContent>` olarak tutulur. Hiçbir renk
-alanı sıkı tipli `Hsla` veya zorunlu `String` olarak tanımlanmaz.
+Content tipleri **tek bir ana kuralı** izler: her renk alanı
+`Option<String>`, her enum alanı ise `Option<EnumContent>` olarak tutulur.
+Renk alanları doğrudan `Hsla` veya zorunlu `String` yapılmaz.
 
 ### Üç gerekçe
 
 **1. Kullanıcı her alanı yazmak zorunda değildir.**
 
-Zed temalarında tipik bir tema dosyası 150 alandan yalnızca 30–50 kadarını
-yazar; gerisi baseline'dan dolar. Eksik alanların parse hatası vermek
-yerine `None` olarak gelmesi gerekir — refinement katmanı (Bölüm VII),
-hangi alanın override edildiğini ve hangisinin baseline'dan kalacağını
-bu `Some`/`None` ayrımına bakarak belirler.
+Zed temalarında tipik bir tema dosyası 150 alandan yalnızca 30-50 kadarını
+yazar; gerisi baseline'dan dolar. Eksik alanların parse hatası vermek yerine
+`None` olarak gelmesi gerekir. Refinement katmanı (Bölüm VII), hangi alanın
+override edildiğini ve hangisinin baseline'dan kalacağını bu `Some`/`None`
+ayrımına bakarak belirler.
 
 **2. Renk parse hatası tüm temayı bozmamalıdır.**
 
@@ -559,19 +556,18 @@ bu `Some`/`None` ayrımına bakarak belirler.
 }
 ```
 
-`border: String` (yani zorunlu) olarak tanımlanmış olsaydı, tek bir hatalı
-alan yüzünden tüm tema yüklenememe durumuna düşerdi. Oysa
-`border: Option<String>` ile string olarak gelir; ardından
-`try_parse_color` bir `Result` döndürür ve başarısız olduğunda refinement
-`None`'a düşerek baseline değerini kullanır.
+`border: String` yani zorunlu alan olarak tanımlansaydı, tek bir hatalı alan
+yüzünden tüm tema yüklenemezdi. `border: Option<String>` olduğunda değer
+string olarak gelir. Ardından `try_parse_color` bir `Result` döndürür; hata
+olursa refinement `None`'a düşer ve baseline değeri kullanılır.
 
 **3. Tip sözleşmesi sürümden bağımsız kalır.**
 
-Zed bir gün bir alana yeni bir varyant ekleyebilir (örneğin
-`FontStyle::SemiOblique`). Eski şema `font_style: "semi_oblique"` gibi
-bir değeri parse edemez. **Ancak `font_style: Option<FontStyleContent>`**
-olduğunda, `treat_error_as_none` deserializer'ı (Konu 22) bilinmeyen
-varyantı `None`'a düşürür ve tema yüklemeye devam eder.
+Zed ileride bir alana yeni bir varyant ekleyebilir; örneğin
+`FontStyle::SemiOblique`. Eski şema `font_style: "semi_oblique"` değerini
+tanımaz. **Ancak `font_style: Option<FontStyleContent>`** olduğunda,
+`treat_error_as_none` deserializer'ı (Konu 22) bilinmeyen varyantı `None`'a
+düşürür ve tema yüklemesi devam eder.
 
 ### İki katmanlı opsiyonellik
 
@@ -588,8 +584,7 @@ yok           None                 None             baseline'dan
 - `Option<String>` katmanı: "kullanıcı bu alanı yazdı mı?"
 - `Option<Hsla>` katmanı: "yazdıysa parse edilebildi mi?"
 
-İki ayrı katman, birbirinden farklı iki hata türünü ayırt etmeye olanak
-verir:
+İki ayrı katman, iki farklı durumu ayırmamızı sağlar:
 
 | Senaryo | Content katmanı | Refinement katmanı | Sonuç |
 |---------|-----------------|--------------------|---------|
@@ -614,19 +609,19 @@ pub struct ThemeColorsContent {
 karşılığı "tüm alanlar `None`" olur. `#[serde(default)]` struct
 seviyesinde tüm alanlara uygulanır.
 
-Bu sayede JSON'da bütün bir struct (`colors`, `status` vb.) eksik
-olabilir; serde flatten katmanı `Default::default()` çağırır ve parse
-işlemine devam eder.
+Bu sayede JSON'da bütün bir struct (`colors`, `status` vb.) eksik olabilir.
+Serde flatten katmanı `Default::default()` çağırır ve parse işlemine devam
+eder.
 
 ### `Option<String>` neden `Option<Hsla>` değil?
 
-İlk akla gelen soru şu olabilir: "Madem string ileride `Hsla`'ya
-çevriliyor, baştan `Option<Hsla>` neden olmuyor?"
+İlk akla gelen soru şu olabilir: "Madem string ileride `Hsla`'ya çevriliyor,
+neden baştan `Option<Hsla>` kullanmıyoruz?"
 
-**Cevap:** Serde'nin JSON'dan `Hsla`'ya doğrudan deserialize edebileceği
-bir yol yoktur. GPUI `Hsla` için manuel bir `Deserialize` impl yazmak
-gerekirdi; bu da hex string parse logic'ini struct attribute'una sokar.
-Sonuç: test edilemeyen bir parse adımı ve okunması güç hata mesajları.
+**Cevap:** Serde'nin JSON'dan `Hsla`'ya doğrudan deserialize edebileceği hazır
+bir yol yoktur. GPUI `Hsla` için manuel bir `Deserialize` impl yazmak gerekir.
+Bu da hex string parse mantığını struct attribute'larının içine taşır. Sonuçta
+test etmesi zor bir parse adımı ve okunması güç hata mesajları ortaya çıkar.
 
 Mevcut yaklaşımda akış şu şekilde işler:
 
@@ -635,8 +630,8 @@ Mevcut yaklaşımda akış şu şekilde işler:
 3. Hatalı renk, string olarak content'te kalır; Refinement aşamasında
    sessizce `None`'a düşer.
 
-Bu **sorumluluk ayrımı** son derece sağlamdır: serde "yapı doğru mu?"
-sorusunu cevaplar, parser ise "değer geçerli mi?" sorusunu cevaplar.
+Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevaplar,
+parser ise "değer geçerli mi?" sorusunu cevaplar.
 
 ### Tuzaklar
 
@@ -662,16 +657,15 @@ sorusunu cevaplar, parser ise "değer geçerli mi?" sorusunu cevaplar.
 
 ### `MergeFrom` derive davranış matrisi
 
-`settings_content` tarafındaki kullanıcı settings content tipleri,
+`settings_content` tarafındaki kullanıcı settings content tipleri
 `#[derive(..., MergeFrom)]` ile işaretlenir. Zed settings hiyerarşisi
-(`default.json → user.json → project.json`) **`MergeFrom` üzerinden
-çalışır** — `default` baz değerleri sağlar, kullanıcı ve proje settings'i
-bunun üstüne merge edilir. Tema dosyası payload'ı olan
-`theme_settings::ThemeFamilyContent` ve `ThemeContent` ise bu merge
-hattının bir parçası değildir; doğrudan deserialize edilir ve runtime
-tema'ya refine edilir. `MergeFrom` trait'i
-`settings_content/src/merge_from.rs` içinde tanımlıdır ve alan tipine
-göre davranışı değişir:
+(`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**.
+`default` baz değerleri sağlar; kullanıcı ve proje settings'i bunun üstüne
+merge edilir. Tema dosyası payload'ı olan `theme_settings::ThemeFamilyContent`
+ve `ThemeContent` ise bu merge hattının parçası değildir. Onlar doğrudan
+deserialize edilir ve runtime tema'ya refine edilir. `MergeFrom` trait'i
+`settings_content/src/merge_from.rs` içinde tanımlıdır ve alan tipine göre
+davranışı değişir:
 
 | Alan tipi | `merge_from(self, other)` davranışı | Etki |
 |-----------|-------------------------------------|------|
@@ -716,16 +710,15 @@ göre davranışı değişir:
    - default'ta var, user'da var → user değeri yazılır (`String`
      overwrite)
 
-Bu davranış matrisi `treat_error_as_none` ile `with_fallible_options`
-geçişinden bağımsızdır; ikisi de **parse seviyesinde**, `MergeFrom` ise
+Bu davranış matrisi `treat_error_as_none` ve `with_fallible_options`
+mekanizmalarından bağımsızdır. Onlar **parse seviyesinde**, `MergeFrom` ise
 **post-parse merge seviyesinde** çalışır.
 
 > **Mirror disiplini:** `kvs_tema` veya `kvs_ayarlari_icerik` crate'i bir
-> `MergeFrom` derive macro'su mirror etmelidir (veya `settings_macros`
-> crate'ini doğrudan dependency olarak bağlamalıdır). Tema sözleşmesi
-> `MergeFrom` üzerine inşa edildiğinden, her *Content tipi için elle
-> `merge_from` yazılması son derece dağınık ve hata kaynağı bir yola
-> dönüşür.
+> `MergeFrom` derive macro'su mirror etmelidir; alternatif olarak
+> `settings_macros` doğrudan dependency yapılır. Tema sözleşmesi `MergeFrom`
+> üzerine kurulduğu için her `*Content` tipi için elle `merge_from` yazmak
+> dağınık ve hata üretmeye açık bir yola dönüşür.
 
 ---
 
@@ -734,7 +727,7 @@ geçişinden bağımsızdır; ikisi de **parse seviyesinde**, `MergeFrom` ise
 **Kaynak:** `kvs_tema/src/schema.rs` veya `kvs_tema/src/refinement.rs`
 (yerleşimi kararsızdır).
 
-JSON'dan gelen hex string'i runtime `Hsla`'ya çeviren tek fonksiyon:
+JSON'dan gelen hex string'i runtime `Hsla` değerine çeviren tek fonksiyon:
 
 ```rust
 use gpui::Hsla;
@@ -769,8 +762,8 @@ pub fn try_parse_color(s: &str) -> anyhow::Result<Hsla> {
 let rgba = gpui::Rgba::try_from(s)?;
 ```
 
-`gpui::Rgba::try_from` (`gpui/src/color.rs:162`) **dört** hex formatını
-kabul eder:
+`gpui::Rgba::try_from` (`gpui/src/color.rs:162`) **dört** hex formatını kabul
+eder:
 
 | Format | Hex hanesi | Alpha kaynağı | Çiftleme |
 |--------|-----------|---------------|----------|
@@ -812,10 +805,9 @@ let srgba = palette::rgb::Srgba::from_components(
 );
 ```
 
-GPUI'nin `Rgba` tipi ile palette crate'inin `Srgba` tipi **aynı bellek
-düzenine sahiptir** ama farklı crate'lerde tanımlıdır. `from_components`
-tuple alıp struct'a yerleştirir; veri kopyası neredeyse hiç maliyet
-çıkarmaz (yalnızca 4 × f32).
+GPUI'nin `Rgba` tipi ile palette crate'inin `Srgba` tipi aynı değerleri taşır,
+ama farklı crate'lerde tanımlıdır. `from_components` tuple alıp struct'a
+yerleştirir; veri kopyası çok küçük bir maliyettir (yalnızca 4 × f32).
 
 **Adım 3 — sRGB → HSL color space dönüşümü:**
 
@@ -823,9 +815,9 @@ tuple alıp struct'a yerleştirir; veri kopyası neredeyse hiç maliyet
 let hsla = palette::Hsla::from_color(srgba);
 ```
 
-`palette::Hsla` ile `palette::Srgba` farklı renk uzaylarında bulunur — sRGB
-küpünden HSL silindirine matematiksel bir dönüşüm yapılır. `palette`
-crate'inin asıl iş yüklendiği nokta tam olarak budur.
+`palette::Hsla` ile `palette::Srgba` farklı renk uzaylarında bulunur. Burada
+sRGB küpünden HSL silindirine matematiksel bir dönüşüm yapılır. `palette`
+crate'inin asıl işi bu adımdadır.
 
 **Adım 4 — `palette::Hsla` → `gpui::Hsla`:**
 
@@ -853,8 +845,8 @@ uzayına çekilir.
 
 ### Dönüş tipi: `Result<Hsla>`, çağıran tarafta `Option<Hsla>`
 
-Fonksiyon `anyhow::Result<Hsla>` döndürür. Çağıran taraf hatayı
-`Option`'a "yutar":
+Fonksiyon `anyhow::Result<Hsla>` döndürür. Çağıran taraf hatayı `Option`
+katmanına indirir:
 
 ```rust
 fn color(s: &Option<String>) -> Option<gpui::Hsla> {
@@ -862,7 +854,7 @@ fn color(s: &Option<String>) -> Option<gpui::Hsla> {
 }
 ```
 
-Bu desen Bölüm VII/Konu 30'de ayrıntılı olarak ele alınır:
+Bu desen Bölüm VII/Konu 30'da ayrıntılı olarak ele alınır:
 `Some(geçersiz hex) → None`.
 
 ### Test ve idempotans
@@ -888,8 +880,8 @@ fn rejects_named_color() {
 
 ### `palette` versiyonunun önemi
 
-`palette` major sürüm farkı color-space dönüşümünü değiştirebilir; aynı
-hex değeri farklı bir `Hsla` üretebilir. Bu nedenle:
+`palette` major sürüm farkı color-space dönüşümünü değiştirebilir. Aynı hex
+değeri farklı bir `Hsla` üretebilir. Bu nedenle:
 
 - `palette` sürümünün Zed'in kullandığı sürümle uyumlu tutulması gerekir
   (Bölüm II/Konu 5).
@@ -899,10 +891,9 @@ hex değeri farklı bir `Hsla` üretebilir. Bu nedenle:
 
 ### Performans
 
-Her renk alanı için tek bir `try_parse_color` çağrısı yapılır; bir
-tema'nın ~150 rengi için yaklaşık ~150 fonksiyon çağrısı gerçekleşir.
-Tek bir tema yüklemesi mikrosaniye seviyesinde kalır. Bu fonksiyon hot
-path'te yer almaz.
+Her renk alanı için tek bir `try_parse_color` çağrısı yapılır. Yaklaşık 150
+renkli bir tema için yaklaşık 150 fonksiyon çağrısı gerçekleşir. Tek bir tema
+yüklemesi mikrosaniye seviyesinde kalır. Bu fonksiyon hot path'te yer almaz.
 
 ### Tuzaklar
 
@@ -930,16 +921,16 @@ path'te yer almaz.
 
 ## 22. Hata tolerans: `treat_error_as_none`, `deny_unknown_fields` tuzağı
 
-Tema sözleşmesinin **forward compatibility** prensibi şudur: gelecekte
-Zed yeni bir alan veya yeni bir enum varyantı eklediğinde, eski kod
-**patlamak yerine sessizce göz ardı etmelidir**. Bu prensibin iki ayrı
-vektörü vardır: bilinmeyen **alanlar** ve bilinmeyen **değerler**.
+Tema sözleşmesinin **forward compatibility** prensibi şudur: Zed gelecekte
+yeni bir alan veya enum varyantı eklediğinde eski kod **patlamak yerine bunu
+göz ardı edebilmelidir**. Bu prensibin iki yönü vardır: bilinmeyen
+**alanlar** ve bilinmeyen **değerler**.
 
 ### Vektör 1: Bilinmeyen alanlar — `deny_unknown_fields` YASAK
 
-Serde varsayılan olarak bilinmeyen alanları **görmezden gelir**. Yeni bir
-alan JSON'da göründüğünde mevcut Content struct'ı onu sessizce atlar.
-**Tam istenen davranış da budur.**
+Serde varsayılan olarak bilinmeyen alanları **görmezden gelir**. Yeni bir alan
+JSON'da göründüğünde mevcut Content struct'ı onu sessizce atlar. Tema
+sözleşmesi için istenen davranış budur.
 
 ```rust
 // YASAK:
@@ -962,13 +953,13 @@ mirror tarafa eklenmemiş olsun. JSON dosyasında bu anahtar bulunuyor:
 - `deny_unknown_fields` KAPALI (default): Alan sessizce atlanır. Tema
   yüklenir, yalnızca o alanın özelliği etkisiz kalır.
 
-**Bu kural keskindir:** Tema sözleşmesinin **hiçbir** Content tipinde
+**Bu kural nettir:** Tema sözleşmesinin **hiçbir** Content tipinde
 `deny_unknown_fields` kullanılmaz.
 
 ### Vektör 2: Bilinmeyen enum değerleri — iki tolerans hattı
 
-Enum alanlar için varsayılan davranış farklıdır: serde bilinmeyen bir
-variant gördüğünde `Err` döndürür.
+Enum alanlarda varsayılan davranış farklıdır: serde bilinmeyen bir variant
+gördüğünde `Err` döndürür.
 
 **Senaryo:** Zed `FontStyle::SemiOblique` ekledi. JSON:
 `"font_style": "semi_oblique"`. Mirror tarafındaki `FontStyleContent`'te
@@ -1017,26 +1008,25 @@ bu variant henüz yok.
    verdiğinde); `parse_json` doğrudan çağrıldığında yalnızca `Success`
    veya `Failed` döner.
 
-Public tüketici yolu genelde doğrudan `fallible_options::parse_json`
-değildir. `settings_content::RootUserSettings` trait'i `SettingsContent`,
+Public tüketici yolu genelde doğrudan `fallible_options::parse_json` değildir.
+`settings_content::RootUserSettings` trait'i, `SettingsContent`,
 `Option<SettingsContent>` ve `UserSettingsContent` için
 `parse_json(json) -> (Option<Self>, ParseStatus)` ile
-`parse_json_with_comments(json) -> anyhow::Result<Self>` metotlarını
-sağlar. İç helper olan `fallible_options::deserialize` ise `pub(crate)`
-kalır; yalnızca `#[with_fallible_options]` macro'sunun eklediği serde
-attribute'u tarafından crate içinden çağrılır.
+`parse_json_with_comments(json) -> anyhow::Result<Self>` metotlarını sağlar.
+İç helper olan `fallible_options::deserialize` ise `pub(crate)` kalır; yalnızca
+`#[with_fallible_options]` macro'sunun eklediği serde attribute'u tarafından
+crate içinden çağrılır.
 
 Bu tolerans **yalnızca `fallible_options::parse_json` veya
-`RootUserSettings` hattında** tam davranışını gösterir. Tema dosyaları
-ise farklı bir yoldan gelir: `load_bundled_themes` bundled
-`assets/themes/*.json` için `serde_json::from_slice` kullanır;
-`deserialize_user_theme` kullanıcı tema dosyası için
-`serde_json_lenient::from_slice` kullanır. Bu normal serde yollarında
-`ERRORS` thread-local'ı kurulmadığı için `fallible_options::deserialize`
-hatayı yutmaz; doğrudan deserialize hatası olarak döndürür.
-`HighlightStyleContent` içindeki yerel `treat_error_as_none` ise bu
-thread-local'a bağlı değildir ve tema dosyası parse'ında da seçili
-alanları `None`'a düşürür.
+`RootUserSettings` hattında** tam davranışını gösterir. Tema dosyaları farklı
+bir yoldan gelir: `load_bundled_themes`, bundled `assets/themes/*.json` için
+`serde_json::from_slice` kullanır; `deserialize_user_theme`, kullanıcı tema
+dosyası için `serde_json_lenient::from_slice` kullanır. Bu normal serde
+yollarında `ERRORS` thread-local'ı kurulmadığı için
+`fallible_options::deserialize` hatayı yutmaz; doğrudan deserialize hatası
+döndürür. `HighlightStyleContent` içindeki yerel `treat_error_as_none` ise bu
+thread-local'a bağlı değildir ve tema dosyası parse'ında da seçili alanları
+`None`'a düşürür.
 
 4. **`HighlightStyleContent` istisnası**: Bu struct
    `#[with_fallible_options]` kullanmaz. Kaynakta yalnızca
@@ -1089,9 +1079,8 @@ pub struct HighlightStyleContent {
 
 > **Notlar:**
 >
-> - Macro yalnızca `Option<T>` alanlarını işaretler; `Vec<T>`, `String`,
->   primitive alanlar etkilenmez — onların hatası hâlâ üst seviyeyi
->   patlatır.
+> - Macro yalnızca `Option<T>` alanlarını işaretler. `Vec<T>`, `String` ve
+>   primitive alanlar etkilenmez; onların hatası hâlâ üst seviyeyi patlatır.
 > - `HighlightStyleContent` için elle yazılmış eski `treat_error_as_none`
 >   deseni kaynakta hâlâ geçerlidir; bunun `#[with_fallible_options]`
 >   ile değiştirilmesi kararı Zed tarafında verilmeden mirror tarafında
@@ -1140,9 +1129,9 @@ fn unknown_font_style_falls_to_none() {
 
 ### Tuzaklar
 
-1. **`deny_unknown_fields` cazibesi**: "Daha sıkı validation iyidir"
-   sezgisi burada yanıltıcıdır. Sözleşme **yaşayan** bir yapıdadır; sıkı
-   validation breaking change'lerde acıya dönüşür.
+1. **`deny_unknown_fields` cazibesi**: "Daha sıkı validation iyidir" sezgisi
+   burada yanıltıcıdır. Sözleşme **yaşayan** bir yapıdadır; sıkı validation
+   breaking change'lerde kullanıcıyı gereksiz yere durdurur.
 2. **`treat_error_as_none` her yere koymak**: Zed bunu yalnızca
    `HighlightStyleContent`'te seçili alanlara koyar. Genel settings
    content'inde macro kullanılır; syntax highlight struct'ında ise
@@ -1163,9 +1152,9 @@ fn unknown_font_style_falls_to_none() {
 
 ## 23. JSON anahtar konvansiyonu (dot vs snake_case)
 
-Tema JSON dosyalarında alan adları **dot.separated** yazılır; Rust alan
-adları **snake_case** olarak tutulur. İki konvansiyon
-`#[serde(rename = "...")]` ile birbirine bağlanır.
+Tema JSON dosyalarında alan adları **dot.separated** yazılır; Rust alan adları
+ise **snake_case** olarak tutulur. İki konvansiyon `#[serde(rename = "...")]`
+ile birbirine bağlanır.
 
 ### Konvansiyon
 
@@ -1196,10 +1185,10 @@ pub struct ThemeColorsContent {
 }
 ```
 
-**Her alan için ayrı `rename`** kullanılır — `rename_all`, snake_case ↔
-dot dönüşümünü sağlayamaz (serde'in `rename_all` desteği kebab-case,
-camelCase, PascalCase ve SCREAMING_SNAKE_CASE'i kapsar; dot ayrımını
-desteklemez). Bu nedenle her alanın elle işaretlenmesi gerekir.
+**Her alan için ayrı `rename`** kullanılır. `rename_all`, snake_case ↔ dot
+dönüşümünü yapamaz. Serde'in `rename_all` desteği kebab-case, camelCase,
+PascalCase ve SCREAMING_SNAKE_CASE gibi biçimleri kapsar; dot ayrımını
+desteklemez. Bu yüzden her alan elle işaretlenir.
 
 ### Hiyerarşi gösterimi
 
@@ -1221,12 +1210,11 @@ Dot konvansiyonu Zed JSON'unun **görsel hiyerarşisini** korur:
 }
 ```
 
-Tek bir alfabetik sıralama ile **mantıksal gruplar** yan yana gelir —
-`border` ailesinin tamamı, `element` ailesinin tamamı, `terminal.ansi`
-ailesinin tamamı aynı blokta toplanır. Snake_case'te bu sıralama
-bozulurdu; `border_variant`, `border_focused`, `border_disabled` gibi
-isimler alfabetik olarak `disabled`, `focused`, `variant` sırasında
-dağılırdı.
+Dot konvansiyonu sayesinde **mantıksal gruplar** yan yana kalır. `border`
+ailesi, `element` ailesi ve `terminal.ansi` ailesi aynı blokta toplanır.
+Snake_case JSON kullanılsaydı bu sıralama bozulurdu; `border_variant`,
+`border_focused`, `border_disabled` gibi isimler alfabetik olarak farklı
+yerlere dağılırdı.
 
 ### Çift altçizgi konvansiyonu (boundary case)
 
@@ -1238,8 +1226,8 @@ Bazı alanlar **iki seviyeli** dot konvansiyonu taşır:
 | `terminal.ansi.bright_red` | `terminal_ansi_bright_red` |
 | `version_control.added` | `version_control_added` |
 
-Yani dot **alt seviye ayrımını**, underscore ise **kelime ayrımını**
-temsil eder. JSON anahtarında bulunan underscore Rust adında korunur:
+Yani dot **alt seviye ayrımını**, underscore ise **kelime ayrımını** temsil
+eder. JSON anahtarında bulunan underscore Rust adında korunur:
 
 ```json
 "terminal.ansi.bright_red": "#ff5555"
@@ -1338,10 +1326,9 @@ Yaygın renk grupları için Rust ↔ JSON eşlemesi:
 
 ### `serde_json_lenient` ile JSON yazım kolaylığı
 
-Zed tema dosyaları **standart JSON değildir**: yorum satırları ve
-trailing comma içerebilir. Bu yapıların parse edilebilmesi için
-`serde_json_lenient` kullanılır (Konu 5 bağımlılık matrisinde sabit
-olarak yer alır).
+Zed tema dosyaları pratikte **standart JSON'dan biraz daha esnektir**: yorum
+satırları ve trailing comma içerebilir. Bu yapıların parse edilebilmesi için
+`serde_json_lenient` kullanılır (Konu 5 bağımlılık matrisinde yer alır).
 
 **Desteklenen genişletmeler:**
 
@@ -1365,11 +1352,10 @@ olarak yer alır).
 }       // ← object kapatması öncesi trailing comma
 ```
 
-**Standart `serde_json` (lenient olmayan) bu JSON'u parse edemez:**
-yorum satırı `Err("expected value")` üretir, trailing comma
-`Err("trailing comma")` döndürür. Zed tüm built-in temalarını yorum ve
-trailing comma ile yazdığı için `serde_json_lenient` kullanılması
-**zorunludur**.
+**Standart `serde_json` bu JSON'u parse edemez.** Yorum satırı
+`Err("expected value")`, trailing comma ise `Err("trailing comma")` döndürür.
+Zed built-in temalarında yorum ve trailing comma kullanabildiği için
+`serde_json_lenient` kullanmak **zorunludur**.
 
 **Kullanım:**
 
@@ -1420,7 +1406,7 @@ pub fn deserialize_icon_theme(bytes: &[u8]) -> anyhow::Result<IconThemeFamilyCon
 }
 ```
 
-Tek satırlık bir helper olmakla birlikte birkaç pratik faydası vardır:
+Tek satırlık bir helper gibi görünür, ama birkaç pratik faydası vardır:
 
 - `serde_json_lenient` import'unu tüketici crate'lerden gizler.
 - Hata mesajını `anyhow::Context` ile zenginleştirir; debug çıktısında

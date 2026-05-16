@@ -6,10 +6,11 @@
 
 `crates/gpui/src/action.rs`, `key_dispatch.rs`.
 
-Action tanımı iki ana yolla yapılır; ihtiyaca göre veri taşıyıp taşımayan
-sürüm tercih edilir.
+Action tanımı iki ana yolla yapılır. Seçim, action'ın veri taşıyıp
+taşımamasına göre yapılır.
 
-**Veri taşımayan action.** Sade isimler için makro tek satırda iş görür:
+**Veri taşımayan action.** Yalnız adı olan action'lar için makro tek satırda
+iş görür:
 
 ```rust
 use gpui::actions;
@@ -19,8 +20,8 @@ actions!(my_namespace, [Save, Close, Reload]);
 `actions!` makrosu her isim için bir unit struct ve `Action` implementasyonu
 üretir; namespace `my_namespace::Save` adıyla registry'ye kaydedilir.
 
-**Veri taşıyan action.** Bir veri yüküyle taşınması gereken action'lar için
-derive ve attribute kullanılır:
+**Veri taşıyan action.** Yanında veri götürmesi gereken action'lar için derive
+ve attribute kullanılır:
 
 ```rust
 use gpui::Action;
@@ -101,7 +102,7 @@ spesifik (en derin) olan kazanır.
   handler'lara ulaşılmaz (varsayılan davranış).
 - Aynı action ismi iki crate'te tanımlanırsa registry çakışması olur;
   namespace bu yüzden zorunludur.
-- Zed runtime'da bilinmeyen action ismi keymap'te warning log'u üretir,
+- Zed çalışma zamanında bilinmeyen action ismi keymap'te warning log'u üretir,
   panic vermez.
 
 ## Action Makro Detayları, register_action! ve Deprecated Alias
@@ -130,8 +131,8 @@ pub trait Action: Any + Send {
 }
 ```
 
-`name(&self)` runtime adı verir; `name_for_type()` static adı. Runtime
-polymorphism söz konusu olduğunda ilki, registration sırasında ikincisi
+`name(&self)` çalışma zamanı adını verir; `name_for_type()` static adı verir.
+Runtime polymorphism söz konusu olduğunda ilki, registration sırasında ikincisi
 kullanılır.
 
 #### `#[action(...)]` attribute'leri
@@ -147,7 +148,7 @@ kullanılır.
 - `no_register` — inventory üzerinden otomatik kaydı atlar; trait'i elle
   uygularken veya koşullu kayıt yaparken gerekir.
 - `deprecated_aliases = ["editor::OldName", "old::Name"]` — keymap'te eski
-  adı kabul ederken kullanıcıya warning üretmek için.
+  adı kabul ederken kullanıcıya warning göstermek için.
 - `deprecated = "message"` — action'ın kendisini deprecated işaretler;
   `deprecation_message()` bu metni döndürür.
 
@@ -168,17 +169,17 @@ zamanı seçilebilir.
 
 #### Action runtime API'leri
 
-Action'ları runtime'da sorgulamak ve tetiklemek için bazı yardımcılar
+Action'ları çalışma zamanında sorgulamak ve tetiklemek için bazı yardımcılar
 sağlanır:
 
 - `cx.is_action_available(&action) -> bool` — focused element path'inde bu
-  action'ı dinleyen biri var mı? Menü item'larını disable etmek için
+  action'ı dinleyen biri var mı? Menü item'larını pasifleştirmek için
   idealdir.
 - `window.is_action_available(&action, cx)` — pencereye özel sürüm.
 - `cx.dispatch_action(&action)` — focused window'a yayınlar.
 - `window.dispatch_action(action.boxed_clone(), cx)` — pencereye özel
   sürüm.
-- `cx.build_action(name, json_value)` — keymap entry'sinden runtime action
+- `cx.build_action(name, json_value)` — keymap entry'sinden çalışma zamanı action'ı
   üretir; schema yoksa `ActionBuildError` döner.
 
 #### Tuzaklar
@@ -197,7 +198,7 @@ Action makrolarının kullanımındaki ince noktalar:
 
 ## Keymap, KeyContext ve Dispatch Stack
 
-Action tanımı tek başına yeterli değildir; keybinding'in çalışabilmesi için
+Action tanımı tek başına yeterli değildir. Keybinding'in çalışabilmesi için
 focused element'in dispatch path'inde uygun `KeyContext` bulunmalıdır.
 
 **Context koyma.** Element bağlamı `key_context` ile bildirilir:
@@ -223,7 +224,7 @@ cx.bind_keys([
 **Önemli parçalar.** Bu sistemin temel taşları şunlardır:
 
 - `KeyContext::parse("Editor mode = insert")` — elementin bağlamını üretir.
-- `KeyContext::new_with_defaults()` — default context set'iyle başlar.
+- `KeyContext::new_with_defaults()` — varsayılan context set'iyle başlar.
   `primary()` ve `secondary()` parse edilen ana ve ek context girişlerine
   erişir. `is_empty()`, `clear()`, `extend(&other)`, `add(identifier)`,
   `set(key, value)`, `contains(key)` ve `get(key)` düşük seviyeli context
@@ -240,7 +241,7 @@ cx.bind_keys([
 - `Keymap::bindings_for_input(input, context_stack)` — eşleşen action'ları
   ve pending multi-stroke durumunu döndürür.
 - `Keymap::possible_next_bindings_for_input(input, context_stack)` — mevcut
-  chord prefix'ini takip edebilecek binding'leri precedence sırasında
+  chord prefix'ini takip edebilecek binding'leri öncelik sırasında
   verir.
 - `Keymap::version() -> KeymapVersion` — binding seti değiştikçe artan
   sayaçtır; keybinding UI cache'lerinde invalidation anahtarı olarak
@@ -269,7 +270,7 @@ cx.bind_keys([
 çözülür:
 
 - Context path'te daha derin eşleşme daha yüksek önceliklidir.
-- Aynı derinlikte sonra eklenen binding önce gelir; user keymap'i built-in
+- Aynı derinlikte sonra eklenen binding önce gelir; kullanıcı keymap'i built-in
   binding'leri bu yüzden ezebilir.
 - `NoAction` ve `Unbind` binding'leri devre dışı bırakma için kullanılır.
 - Printable input IME'ye gidecekse
@@ -292,7 +293,7 @@ cx.bind_keys([
   loader'dır; `KeyBindingKeystroke` mapping'ini de burada kurar.
   `context_predicate` `Option<Rc<KeyBindingContextPredicate>>`,
   `action_input` ise `Option<SharedString>` alır ve hata durumunda
-  `InvalidKeystrokeError` döner. Runtime'da `with_meta(...)` ve
+  `InvalidKeystrokeError` döner. Çalışma zamanında `with_meta(...)` ve
   `set_meta(...)` binding'in hangi keymap katmanından geldiğini taşır;
   `match_keystrokes(...)` tam veya pending eşleşmeyi verirken
   `keystrokes()`, `action()`, `predicate()`, `meta()` ve `action_input()`
@@ -340,9 +341,9 @@ pub struct DispatchEventResult {
 `Fn(PlatformInput) -> DispatchEventResult` döndürür. Mevcut platform
 backend'lerinde "event işlendi mi?" kararı esas olarak `propagate` üzerinden
 verilir (`!propagate` "handled" anlamına gelir). `default_prevented` GPUI
-dispatch ağacındaki default element davranışını ve test/diagnostic sonucu
-taşır; platform default action kontrolü gibi geniş bir genelleme yapmadan,
-handler'ın açıkça kontrol ettiği yerlerde anlamlandırılır.
+dispatch ağacındaki varsayılan element davranışını ve test/diagnostic sonucunu
+taşır. Bunu genel bir platform iptal mekanizması gibi değil, handler'ın açıkça
+kontrol ettiği yerlerde anlamlandırmak gerekir.
 
 **Pratik akış.** Tipik bir dispatch turunda şu adımlar izlenir:
 
@@ -358,10 +359,10 @@ handler'ın açıkça kontrol ettiği yerlerde anlamlandırılır.
 
 - `capture_*` handler'ları focus path'i bilinmeden çalışır; pencere global
   shortcut veya observer için kullanılır, ancak state mutate edilmek
-  isteniyorsa focused element runtime'da kontrol edilmelidir.
+  isteniyorsa focused element çalışma zamanında kontrol edilmelidir.
 - Action propagation davranışı mouse veya key event'lerinden ters çalışır.
   Yeni bir action handler'ında refleksle `stop_propagation` yazmak parent
-  action'larını öldürebilir.
+  action'larını engelleyebilir.
 - `default_prevented` genel bir platform cancellation API'si değildir;
   hangi davranışın durdurulduğunu anlamak için ilgili element veya pencere
   handler'ının `window.default_prevented()` kontrol edip etmediğine
@@ -369,19 +370,19 @@ handler'ın açıkça kontrol ettiği yerlerde anlamlandırılır.
 
 ## Action ve Keymap Runtime Introspection
 
-Action tanımlama ve dispatch önceki bölümlerde işlenmiştir; Zed komut
-paleti, keymap UI ve geliştirici diagnostikleri için runtime introspection
+Action tanımlama ve dispatch önceki bölümlerde işlenmiştir. Zed komut paleti,
+keymap UI ve geliştirici diagnostikleri için çalışma zamanı introspection
 yüzeyinin de bilinmesi gerekir.
 
 **Action registry.** Registry'ye kayıtlı action'lar üzerinde aşağıdaki
 yardımcılar sorgu yapar:
 
 - `cx.build_action(name, data) -> Result<Box<dyn Action>, ActionBuildError>`
-  — string action adı ve isteğe bağlı JSON verisinden runtime action
+  — string action adı ve isteğe bağlı JSON verisinden çalışma zamanı action'ı
   üretir.
 - `cx.all_action_names() -> &[&'static str]` — register edilmiş tüm action
-  adlarını döndürür. Registration, action'ın element ağacında available
-  olduğu anlamına gelmez.
+  adlarını döndürür. Kayıtlı olmak, action'ın element ağacında o anda
+  kullanılabilir olduğu anlamına gelmez.
 - `cx.action_schemas(generator)` — internal olmayan action adlarını ve
   JSON schema'larını verir.
 - `cx.action_schema_by_name(name, generator)` — tek action için schema
@@ -432,9 +433,9 @@ ilgili binding'leri öğrenmek için:
   `window.has_pending_keystrokes()` — tamamlanmamış key chord durumunu
   UI'da göstermek veya test etmek için.
 
-**Keystroke global gözlem.** Tüm pencerelerdeki keystroke akışını
-yakalamak için iki kanca vardır; sırasıyla dispatch'ten sonra ve önce
-çalışırlar:
+**Keystroke global gözlem.** Tüm pencerelerdeki keystroke akışını yakalamak
+için iki kanca vardır; biri dispatch'ten sonra, diğeri dispatch'ten önce
+çalışır:
 
 ```rust
 let after_dispatch = cx.observe_keystrokes(|event, window, cx| {
@@ -469,12 +470,12 @@ let before_dispatch = cx.intercept_keystrokes(|event, window, cx| {
 ## Zed Keymap Dosyası, Validator ve Unbind Akışı
 
 GPUI action ve keybinding modeli Zed'de `settings::keymap_file` üzerinden
-kullanıcı dosyasına bağlanır. Bu bölüm runtime dispatch'ten farklı olarak
+kullanıcı dosyasına bağlanır. Bu bölüm, runtime dispatch'ten farklı olarak
 JSON yükleme, şema ve dosya güncelleme tarafını kapsar.
 
 **Dosya modeli.** Keymap JSON yapısı birkaç ana tip üzerinden okunur:
 
-- `KeymapFile(Vec<KeymapSection>)` — top-level JSON array.
+- `KeymapFile(Vec<KeymapSection>)` — üst seviye JSON array.
 - `KeymapSection` — context predicate ile binding ve unbind map'lerini
   taşır. Alan görünürlüğü dengeli değildir: yalnız `pub context: String`
   dış erişime açıktır; `use_key_equivalents: bool`,
@@ -506,8 +507,8 @@ startup ve test gibi "asset bozuksa devam etmeyelim" yolları içindir.
 
 - `BaseKeymap::{VSCode, JetBrains, SublimeText, Atom, TextMate, Emacs,
   Cursor, None}`.
-- Base, default, vim ve user binding'leri `KeybindSource` meta verisi
-  taşır; UI bu meta veriyle binding'in nereden geldiğini gösterir.
+- Base, default, vim ve user binding'leri `KeybindSource` meta verisi taşır;
+  UI bu meta veriyle binding'in nereden geldiğini gösterir.
 
 **Built-in keymap davranışı.** Aşağıdaki davranışlar Zed'in varsayılan
 keymap kurulumunda gözlenir:
@@ -537,8 +538,8 @@ keymap kurulumunda gözlenir:
   okunaklı bir hata olarak gösterebilir.
 
 **Disable / unbind sentinel action'ları.** GPUI iki ayrı sentinel action
-sağlar (`gpui::action.rs:425-453`); ikisinin runtime davranışı da
-**dispatch etmemek**'tir, ancak keymap dispatch tablosundaki işlevleri
+sağlar (`gpui::action.rs:425-453`). İkisinin çalışma zamanı davranışı da
+**dispatch etmemek**'tir, ancak keymap dispatch tablosundaki görevleri
 farklıdır:
 
 - **`zed::NoAction`** — `actions!(zed, [NoAction])` ile tanımlıdır, veri
@@ -568,7 +569,7 @@ farklıdır:
   `editor::NewLine` için `enter` tuşunun tüm context'lerde unbind
   edilmesi gerektiğinde kullanılır.
 
-**Sentinel kontrol API'leri.** Sentinel action'ları runtime'da tespit
+**Sentinel kontrol API'leri.** Sentinel action'ları çalışma zamanında tespit
 etmek için iki ufak yardımcı vardır:
 
 - `gpui::is_no_action(&dyn Action) -> bool` (`action.rs:445`) —
@@ -578,9 +579,9 @@ etmek için iki ufak yardımcı vardır:
 - `gpui::is_unbind(&dyn Action) -> bool` (`action.rs:450`) — aynı şekilde
   `Unbind` instance'ını downcast eder.
 
-`KeymapFile::update_keybinding` `KeybindUpdateOperation::Remove` için bu
-iki sentinel'ı bağlama göre üretir: user binding'leri `Remove` doğrudan
-dosyadan silinir, framework veya default binding'lerin sessize alınabilmesi
+`KeymapFile::update_keybinding` `KeybindUpdateOperation::Remove` için bu iki
+sentinel'ı bağlama göre üretir: user binding'leri `Remove` ile doğrudan
+dosyadan silinir; framework veya default binding'lerin sessize alınabilmesi
 için kullanıcı keymap'ine `null` (NoAction) ya da `["zed::Unbind", ...]`
 girdisi yazılır.
 
@@ -610,7 +611,7 @@ let updated = KeymapFile::update_keybinding(
 - `use_key_equivalents` yalnızca destekleyen platformlarda anlamlıdır;
   keyboard mapper sağlanmadan dosya güncelleme doğru keystroke string'ini
   üretemez.
-- Non-user binding'i "silmek" gerçek kaynağı değiştirmez; kullanıcı
+- User dışı binding'i "silmek" gerçek kaynağı değiştirmez; kullanıcı
   keymap'ine suppression yapan bir `unbind` girdisi yazılır.
 - Kullanıcı JSON'u bozuksa `update_keybinding` dosyayı değiştirmez; önce
   parse başarıyla geçmelidir.

@@ -34,10 +34,10 @@ güvenilmez yapar:
 `crates/gpui/src/app/visual_test_context.rs`.
 
 `#[gpui::test]` makrosu bir `TestAppContext` sağlar. Görsel test için
-`add_window` bir `WindowHandle<V>` döndürür ve `VisualTestContext` ile
-sürülür. İsim benzerliğine dikkat: `VisualTestContext` test penceresini
-kendi içinde tutar; macOS `test-support` altındaki `VisualTestAppContext`
-ise window handle'ı açık argüman olarak alan ayrı bir bağlamdır.
+`add_window` bir `WindowHandle<V>` döndürür ve `VisualTestContext` ile sürülür.
+İsim benzerliğine dikkat: `VisualTestContext` test penceresini kendi içinde
+tutar; macOS `test-support` altındaki `VisualTestAppContext` ise window
+handle'ı açık argüman olarak alan ayrı bir bağlamdır.
 
 ```rust
 #[gpui::test]
@@ -162,7 +162,7 @@ derlendiğinde dev tool entegrasyonu sağlar:
   inspector panel render'ını kaydeder; element seçildiğinde state için
   custom UI çizilir.
 
-**Reflection katmanı.** `Styled` metotlarını runtime'da listeleyebilmek
+**Reflection katmanı.** `Styled` metotlarını çalışma zamanında listeleyebilmek
 için bir reflection mekanizması vardır. `Styled` trait
 `cfg(any(feature = "inspector", debug_assertions))` altında
 `#[gpui_macros::derive_inspector_reflection]` ile işaretlenir
@@ -197,12 +197,11 @@ için bir reflection mekanizması vardır. `Styled` trait
   metodunu seçtiğinde mevcut elementin `StyleRefinement`'ı bu invoke ile
   dönüştürülür.
 
-Üretim build'inde inspector kodu sıfır maliyetlidir; reflection modülü
-ve `FunctionReflection` da feature gate'in dışında derlenmediği için
-release Zed binary'sinde bulunmaz.
+Üretim build'inde inspector kodu sıfır maliyetlidir; reflection modülü ve
+`FunctionReflection` da feature gate'in dışında derlenmediği için release Zed
+binary'sinde bulunmaz.
 
-**Diğer debug helper'ları.** Inspector dışında küçük yardımcılar da
-mevcuttur:
+**Diğer debug yardımcıları.** Inspector dışında küçük yardımcılar da mevcuttur:
 
 - `div().debug_selector(|| "my-button")` — test ve inspector'da selector
   atar.
@@ -216,11 +215,10 @@ mevcuttur:
 
 ## Default Colors, GPU Specs ve Platform Diagnostics
 
-Tema sistemi dışındaki küçük ama pratik platform yüzeyleri burada
-toplanır:
+Tema sistemi dışındaki küçük ama pratik platform yüzeyleri burada toplanır:
 
 - `Colors::for_appearance(window)` — `WindowAppearance::Light` veya
-  `VibrantLight` için light, `Dark` veya `VibrantDark` için dark default
+  `VibrantLight` için light, `Dark` veya `VibrantDark` için dark varsayılan
   palet döndürür.
 - `Colors::light()`, `Colors::dark()`, `Colors::get_global(cx)` — GPUI
   örneklerinde ve base component'lerde kullanılan framework renkleri.
@@ -246,14 +244,14 @@ toplanır:
   açıkken input-to-frame ve mid-frame input histogramlarını döndürür.
 
 Bu API'ler tema veya pencere oluşturma akışının merkezinde değildir;
-ancak diagnostic ekranları, test harness'ları, macOS doküman pencereleri
-ve platforma duyarlı davranışlarda rehbere dahildir.
+ancak diagnostic ekranları, test harness'ları, macOS doküman pencereleri ve
+platforma duyarlı davranışlarda rehbere dahildir.
 
 ## Window Runtime Snapshot, Layout Ölçümü ve Frame Zamanlama
 
-Zed'in `workspace` ve `ui` katmanlarında sık görülen bazı `Window`
-çağrıları render çıktısı üretmez; o anki pencere veya input durumunu
-okumak ya da işi doğru frame fazına taşımak için kullanılır.
+Zed'in `workspace` ve `ui` katmanlarında sık görülen bazı `Window` çağrıları
+render çıktısı üretmez. O anki pencere veya input durumunu okumak ya da işi
+doğru frame fazına taşımak için kullanılır.
 
 **Anlık input snapshot'ı.** Modifier, capslock ve mouse durumu pencere
 üzerinden okunabilir:
@@ -272,16 +270,15 @@ okumak ya da işi doğru frame fazına taşımak için kullanılır.
   overlay'i pencere dışına çıktığında kapatmak gibi durumlarda
   kullanılır.
 
-**Render ve prepaint sırasında current view ile layout.** Layout
-ölçümlerine ve view kimliğine ulaşmak için aşağıdaki helper'lar
-sağlanır:
+**Render ve prepaint sırasında current view ile layout.** Layout ölçümlerine ve
+view kimliğine ulaşmak için aşağıdaki helper'lar sağlanır:
 
 - `window.current_view() -> EntityId` — şu anda render, prepaint veya
   paint edilen view entity'sidir. `request_animation_frame`, `use_asset`
   ve hover/indent-guide gibi delayed notify akışları bu id'ye bağlanır.
   Yalnız draw fazlarında anlamlıdır; uzun süre saklanacak bir domain id
   gibi ele alınmamalıdır.
-- `window.request_layout(style, children, cx) -> LayoutId` — custom
+- `window.request_layout(style, children, cx) -> LayoutId` — özel
   element'in taffy layout ağacına node eklemesidir.
 - `window.request_measured_layout(style, measure) -> LayoutId` — text
   veya dinamik ölçüm gerektiren elementlerde layout zamanında ölçüm
@@ -333,8 +330,8 @@ window.defer(cx, |window, cx| {
   Layout ölçümü gerektiğinde `defer` yerine `on_next_frame` tercih
   edilir.
 
-**Low-level custom element hook'ları.** Element implementasyonu
-yazılırken kullanılan dispatch ve hitbox API'leri:
+**Low-level custom element hook'ları.** Element implementasyonu yazılırken
+kullanılan dispatch ve hitbox API'leri:
 
 - `window.insert_window_control_hitbox(area, hitbox)` — paint fazında
   platform control hitbox'ı kaydeder; Windows custom titlebar'da min,
@@ -357,12 +354,11 @@ yazılırken kullanılan dispatch ve hitbox API'leri:
 
 ## App/Window Low-level Servisleri: Platform, Text, Palette ve Atlas
 
-Bu küçük API'ler ana render modelinin parçası değildir; ancak Zed
-başlangıcı, editor text davranışı ve image cache gibi yerlerde devreye
-girer.
+Bu küçük API'ler ana render modelinin parçası değildir; ancak Zed başlangıcı,
+editor text davranışı ve image cache gibi yerlerde devreye girer.
 
-**Application ve platform kurulumu.** Application yapıcısı tek seçimle
-gelir; platform helper'ları ise üst katmanda yaygın olarak kullanılır:
+**Application ve platform kurulumu.** Application yapıcısı tek seçimle gelir;
+platform helper'ları ise üst katmanda yaygın olarak kullanılır:
 
 - `Application::with_platform(Rc<dyn Platform>)` Application kurmak için
   tek yapıcıdır; `Application::new()` diye sade bir constructor yoktur.
@@ -380,14 +376,14 @@ gelir; platform helper'ları ise üst katmanda yaygın olarak kullanılır:
 - `Application::with_assets(Assets)` embedded asset kaynağını bağlar;
   `svg()`, `window.use_asset` ve bundled resource yüklemeleri buna
   dayanır. SVG rasterizer da bu çağrıdan sonra reset edilir.
-- `Application::with_http_client(Arc<dyn HttpClient>)` runtime HTTP
-  istemcisini bağlar; default `NullHttpClient` instance'tır.
+- `Application::with_http_client(Arc<dyn HttpClient>)` çalışma zamanı HTTP
+  istemcisini bağlar; varsayılan `NullHttpClient` instance'tır.
 - Headless testlerde `HeadlessAppContext::with_platform(...)` aynı
   fikrin test harness sürümüdür; UI penceresi açmadan App, executor ve
   platform servislerini kurar.
 
-**Text ve render servisleri.** Metin rendering tarafında ek API'ler şu
-işleri yapar:
+**Text ve render servisleri.** Metin rendering tarafında ek API'ler şu işleri
+yapar:
 
 - `cx.set_text_rendering_mode(mode)` ve `cx.text_rendering_mode()`
   uygulama genelindeki text rendering modunu yönetir. Zed startup'ta
@@ -396,15 +392,15 @@ işleri yapar:
   `PlatformDefault` text system tarafında platformun önerdiği gerçek
   moda çözülür; ölçüm ve paint path'inde enum doğrudan string ayar gibi
   ele alınmamalıdır.
-- `cx.svg_renderer() -> SvgRenderer` low-level SVG rasterizer handle'ını
+- `cx.svg_renderer() -> SvgRenderer` düşük seviyeli SVG rasterizer handle'ını
   verir. Uygulama elementleri çoğunlukla `svg()` veya
   `window.paint_svg(...)` kullanır; cache/renderer entegrasyonu
   yazılırken doğrudan erişim gerekebilir.
 - `window.show_character_palette()` platform karakter paletini açar.
   Editor tarafındaki `show_character_palette` action'ı bu çağrıya iner.
 
-**Image atlas ve kaynak bırakma.** GPU atlas sızıntısı olmaması için
-image release callback'leri özel helper'lar sağlar:
+**Image atlas ve kaynak bırakma.** GPU atlas sızıntısı olmaması için image
+release callback'leri özel helper'lar sağlar:
 
 - `window.drop_image(Arc<RenderImage>) -> Result<()>` — current window
   sprite atlas'ından image kaynağını bırakır.
@@ -430,16 +426,16 @@ yardımcılar:
   analizi içindir; uygulama state akışının kaynağı olarak
   kullanılmamalıdır.
 
-**Tuzaklar.** Bu low-level servisleri yanlış kullanmak görünmez
-sorunlar üretir:
+**Tuzaklar.** Bu low-level servisleri yanlış kullanmak görünmez sorunlar
+üretir:
 
 - `cx.svg_renderer()` veya `cx.drop_image(...)` gibi düşük seviye
   servisleri component API yerine kullanmak ownership ve cache
   sorumluluğunu da çağırana yükler.
-- `Application::with_platform` üretimde tek platform seçimini
-  startup'ta yapar; runtime platform değiştirme mekanizması değildir.
-- `show_character_palette` her platformda gerçek bir UI açmayabilir;
-  platform implementasyonu no-op olabilir.
+- `Application::with_platform` üretimde tek platform seçimini startup'ta yapar;
+  çalışma zamanında platform değiştirme mekanizması değildir.
+- `show_character_palette` her platformda gerçek bir UI açmayabilir; platform
+  implementasyonu no-op olabilir.
 
 ## CursorStyle, FontWeight ve Sabit Enum Tabloları
 
@@ -519,11 +515,11 @@ verilir.
 
 ## Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
 
-Bu bölüm iki farklı yüzeyi ayırır: `crates/gpui/src/gpui.rs` üzerinden
-dışarı export edilen public API ve private modüllerde `pub` tanımlanmış
-olsa da yalnız crate içinde erişilebilen taşıyıcılar. `pub` kelimesi tek
-başına dış API anlamına gelmez; dış kullanıcı açısından asıl sınır
-`gpui.rs` içindeki `pub use ...` / `pub(crate) use ...` kararlarıdır.
+Bu bölüm iki farklı yüzeyi ayırır: `crates/gpui/src/gpui.rs` üzerinden dışarı
+export edilen public API ve private modüllerde `pub` tanımlanmış olsa da yalnız
+crate içinde erişilebilen taşıyıcılar. `pub` kelimesi tek başına dış API
+anlamına gelmez; dış kullanıcı açısından asıl sınır `gpui.rs` içindeki
+`pub use ...` / `pub(crate) use ...` kararlarıdır.
 
 #### Style ve Layout Enumları
 
@@ -545,11 +541,10 @@ metotlarının arkasındaki ham değerlerdir:
   `debug_below` styling'ini custom element içinden okumak için global
   marker olarak kullanılır.
 
-Uygulama kodunda genellikle bu enum'lar doğrudan inşa edilmez;
+Uygulama kodunda genellikle bu enum'lar doğrudan inşa edilmez.
 `.items_center()`, `.justify_between()`, `.flex_col()`,
-`.whitespace_nowrap()`, `.text_ellipsis()` gibi helper metotlar
-kullanılır. Custom element veya style refinement yazılırken ham
-enum'lara ihtiyaç duyulur.
+`.whitespace_nowrap()`, `.text_ellipsis()` gibi helper metotlar kullanılır.
+Özel element veya style refinement yazılırken ham enum'lara ihtiyaç duyulur.
 
 #### Geometri Yardımcıları
 
@@ -664,8 +659,8 @@ ImageCacheItem` zincirine inilir.
 
 #### Platform, Dispatcher, Atlas ve Renderer Sınırı
 
-Platform implementasyonu veya headless renderer yazılmadığı sürece
-aşağıdaki tipler uygulama kodunda nadiren doğrudan kullanılır:
+Platform implementasyonu veya headless renderer yazılmadığı sürece aşağıdaki
+tipler uygulama kodunda nadiren doğrudan kullanılır:
 
 - Display ve diagnostic: `DisplayId`, `ThermalState`, `SourceMetadata`,
   `RequestFrameOptions`, `WindowParams`, `InputLatencySnapshot`.
@@ -683,7 +678,7 @@ aşağıdaki tipler uygulama kodunda nadiren doğrudan kullanılır:
     taşır; profiler ve log akışı doc-hidden `RunnableVariant` üzerinden
     bu alana ulaşır.
   - `FallibleTask<T>` (`scheduler/src/executor.rs:250`) —
-    `Task::fallible(self)` çağrısının döndürdüğü wrapper. Future olarak
+    `Task::fallible(self)` çağrısının döndürdüğü sarmalayıcı. Future olarak
     poll edildiğinde `Option<T>` döner; iptal edilirse panik atmaz,
     `None` üretir. `must_use` işaretli olduğu için sessizce drop edilirse
     derleme uyarısı verir.
@@ -718,8 +713,8 @@ Renderer" başlığındaki API'ler üzerinden dolaylı erişim sağlanır.
 
 #### Scene, Primitive ve Crate-İçi Arena Taşıyıcıları
 
-`scene.rs`, `arena.rs` ve `taffy.rs` renderer ve layout boru hattının
-alt katmanıdır:
+`scene.rs`, `arena.rs` ve `taffy.rs` renderer ve layout boru hattının alt
+katmanıdır:
 
 - Scene tarafı dış API'ye re-export edilir: `Scene`, `Primitive`,
   `PrimitiveBatch`, `DrawOrder`, `Quad`, `Underline`, `Shadow`,
@@ -735,13 +730,12 @@ alt katmanıdır:
   `pub(crate) use arena::*` ile yalnız crate içine açar; dış uygulama
   kodunun API'si değildir.
 
-Uygulama kodu genellikle bu tipleri elle üretmez. `Element`
-implementasyonları `window.paint_quad`, `window.paint_image`,
-`window.paint_path`, `window.paint_layer` gibi API'ler üzerinden scene'e
-primitive ekler. Arena yönetimi `Window::draw` boyunca dahili olarak
-yapılır; arena'yı açıp kapatan `ElementArenaScope` da `window.rs` içinde
-`pub(crate)` olduğu için uygulama kodu doğrudan kullanmaz,
-`AnyElement`/`Element` API'leri üzerinden çalışır.
+Uygulama kodu genellikle bu tipleri elle üretmez. `Element` implementasyonları
+`window.paint_quad`, `window.paint_image`, `window.paint_path`,
+`window.paint_layer` gibi API'ler üzerinden scene'e primitive ekler. Arena
+yönetimi `Window::draw` boyunca dahili olarak yapılır; arena'yı açıp kapatan
+`ElementArenaScope` da `window.rs` içinde `pub(crate)` olduğu için uygulama kodu
+doğrudan kullanmaz, `AnyElement`/`Element` API'leri üzerinden çalışır.
 
 **Scene public metot envanteri.** Aşağıdaki metotlar scene seviyesinde
 doğrudan erişilebilir:
@@ -929,8 +923,8 @@ Renk ve geometri kısa fonksiyonları:
 
 #### Kök Re-export ve Makro Yüzeyi
 
-`gpui.rs` crate kökünde yalnız GPUI modüllerini değil, bazı yardımcı
-crate'leri de yeniden export eder:
+`gpui.rs` crate kökünde yalnız GPUI modüllerini değil, bazı yardımcı crate'leri
+de yeniden export eder:
 
 - `Result` — `anyhow::Result` alias'ıdır; GPUI API'leriyle aynı hata
   tipini kullanmak için tercih edilir.
@@ -956,9 +950,9 @@ crate'leri de yeniden export eder:
   `gpui::Empty` döndürür. Gerçek UI üreten view'lerde manuel
   `impl Render` yazılır.
 
-Rustdoc listesindeki `Action`, `IntoElement`, `Refineable`,
-`AppContext` ve `VisualContext` kısa adları tek bir öğe değildir; trait
-ve derive macro yüzeyleri ayrı namespace'lerde yaşar.
+Rustdoc listesindeki `Action`, `IntoElement`, `Refineable`, `AppContext` ve
+`VisualContext` kısa adları tek bir öğe değildir; trait ve derive macro
+yüzeyleri ayrı namespace'lerde yaşar.
 `#[derive(AppContext)]` struct içinde `#[app]` ile işaretlenmiş
 `&mut App` alanını bulur ve `AppContext` metotlarını o alana delege
 eder. `#[derive(VisualContext)]` hem `#[app]` hem `#[window]` ister;
@@ -971,8 +965,8 @@ bir runtime davranışı değildir.
 
 Bu re-export'lar yeni bir API anlamına gelmez; modüllerde anlatılan aynı
 yüzeyin crate kökünden ergonomik erişimidir. Özellikle `property_test` ve
-`proptest` yalnız test kodunda, `ctor` ise registration altyapısı gibi
-dar alanlarda kullanılır.
+`proptest` yalnız test kodunda, `ctor` ise registration altyapısı gibi dar
+alanlarda kullanılır.
 
 Test helper fonksiyonları `gpui::test` modülünde toplanır:
 `seed_strategy()`, `apply_seed_to_proptest_config(...)`,

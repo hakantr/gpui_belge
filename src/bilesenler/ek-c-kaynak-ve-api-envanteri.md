@@ -1,15 +1,13 @@
 # Ek C. Kaynak ve API Envanteri
 
-Bu bölüm, rehberde anlatılan bileşenlerin kaynak dosyalarını, export
-yollarını, prelude durumlarını ve preview desteklerini tek bir yerde
-toplar. Bir bileşenin ayrıntılı kullanım notları, ilgili bileşen
-başlığında yer alır; burası ise her şeyin bir bakışta görülebileceği
-bir referanstır.
+Bu ek, rehberde anlatılan bileşenlerin kaynak dosyalarını, export yollarını,
+prelude durumlarını ve preview desteklerini tek yerde toplar. Ayrıntılı kullanım
+notları ilgili bileşen başlıklarında anlatılır; burası ise hızlı bakış için
+başvurulacak referans sayfasıdır.
 
 ## Export modeli
 
-`crates/ui/src/components.rs`, component modüllerini crate seviyesine
-açar:
+`crates/ui/src/components.rs`, component modüllerini crate seviyesine açar:
 
 ```rust
 mod button;
@@ -21,12 +19,11 @@ pub use icon::*;
 pub use label::*;
 ```
 
-Bu düzen nedeniyle bileşenlerin büyük çoğunluğu `ui::Button`,
-`ui::Icon`, `ui::Label` gibi doğrudan crate kökünden çağrılır. Alt
-modüller de kendi içlerinde `pub use *` ifadesini kullanır; örneğin
-`crates/ui/src/components/button.rs` dosyası `Button`, `IconButton`,
-`ButtonLike`, `CopyButton`, `SplitButton` ve toggle button tiplerini
-dışarı açar.
+Bu düzen nedeniyle bileşenlerin büyük çoğunluğu `ui::Button`, `ui::Icon`,
+`ui::Label` gibi doğrudan crate kökünden çağrılır. Alt modüller de kendi
+içlerinde `pub use *` kullanır. Örneğin
+`crates/ui/src/components/button.rs`, `Button`, `IconButton`, `ButtonLike`,
+`CopyButton`, `SplitButton` ve toggle button tiplerini dışarı açar.
 
 `crates/ui/src/ui.rs` ise Zed UI crate'inin gerçek export kapısıdır:
 
@@ -44,15 +41,15 @@ pub use styles::*;
 pub use traits::animation_ext::*;
 ```
 
-Bunun pratik sonuçları şunlardır:
+Bunun günlük kullanım açısından sonuçları şunlardır:
 
-- `components`, `styles` ve `traits` modülleri kaynakta `mod` (yani
-  crate-içi) olarak tanımlandığı için doğrudan bir public path değildir.
-  `ui::components::button::Button` gibi yollar bulunmaz. Tüketici kod
-  `ui::Button`, `ui::ContextMenu`, `ui::Color`, `ui::TextSize` gibi
-  crate kökü re-export'larını kullanır. `pub use components::*`,
-  `pub use styles::*` ve `pub use traits::animation_ext::*` ifadeleri,
-  bu özel modüllerin içindeki public adları crate köküne taşır.
+- `components`, `styles` ve `traits` modülleri kaynakta `mod` yani crate-içi
+  olarak tanımlandığı için doğrudan public path değildir. `ui::components::button::Button`
+  gibi yollar yoktur. Tüketici kod `ui::Button`, `ui::ContextMenu`,
+  `ui::Color`, `ui::TextSize` gibi crate kökü re-export'larını kullanır.
+  `pub use components::*`, `pub use styles::*` ve
+  `pub use traits::animation_ext::*` ifadeleri bu özel modüllerin içindeki
+  public adları crate köküne taşır.
 - Public bir alt modül olarak kalıcı şekilde görünen yollar
   `ui::prelude`, `ui::component_prelude`, `ui::utils` ile re-export
   zincirinden gelen `ui::animation`, `ui::scrollbars` ve `ui::table_row`
@@ -89,8 +86,8 @@ sık kullanılan temel UI primitive'lerini ve trait'lerini getirir:
   `v_group*`.
 
 Rehberdeki örneklerde izlenen kural şudur: her örnek önce
-`use ui::prelude::*;` ile başlar; prelude içinde bulunmayan bileşenler
-ek bir `use ui::{...};` satırıyla belirtilir.
+`use ui::prelude::*;` ile başlar. Prelude içinde bulunmayan bileşenler ek bir
+`use ui::{...};` satırıyla ayrıca belirtilir.
 
 ### Public Yüzey Özeti (`../zed` `3493830ce94e`)
 
@@ -120,14 +117,13 @@ hemen altında ayrıca ele alınır.
 
 **Public görünen ama kullanım yüzeyi olmayanlar.** Kaynakta
 `MenuHandleElementState`, `RequestLayoutState`, `PrepaintState`,
-`PopoverMenuElementState`, `PopoverMenuFrameState` ve
-`ScrollbarPrepaintState` element ve layout state taşıyıcılarıdır. Bu
-tiplerin kaynakta `pub struct` olarak görünmesi, tüketiciye önerilen
-bir builder API'si oldukları anlamına gelmez. `Element`
-implementasyonu içinde `RequestLayoutState` ve `PrepaintState` tipleri
-layout, prepaint ve paint geçişleri arasında veri taşır;
-`MenuHandleElementState` ile `PopoverMenuElementState` ise hover veya
-açık menü durumlarını element id'sine bağlar.
+`PopoverMenuElementState`, `PopoverMenuFrameState` ve `ScrollbarPrepaintState`
+element ve layout state taşıyıcılarıdır. Bu tiplerin kaynakta `pub struct`
+olarak görünmesi, tüketiciye önerilen builder API'leri oldukları anlamına
+gelmez. `Element` implementasyonu içinde `RequestLayoutState` ve
+`PrepaintState` layout, prepaint ve paint geçişleri arasında veri taşır.
+`MenuHandleElementState` ile `PopoverMenuElementState` ise hover veya açık menü
+durumlarını element id'sine bağlar.
 
 **Callback yüzeyi olarak public, state taşıyıcı değil.**
 `RenderIndentGuideParams`, `RenderedIndentGuide` ve `IndentGuideLayout`

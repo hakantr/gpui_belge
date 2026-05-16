@@ -1,17 +1,17 @@
 # UI tüketimi ve etkileşim renkleri
 
-Bileşen tarafında `cx.theme()` okuma yolu ve hover/active/disabled gibi
-state renkleri kullanılır. Bu bölüm; bileşenlerin tema değerlerine
-nereden ve nasıl ulaştığını, etkileşim durumlarında hangi alanları
-seçmesi gerektiğini ve sık karşılaşılan tuzakları tek tek ele alır.
+Bileşen tarafında tema okuma yolu `cx.theme()` çağrısıdır. Hover, active,
+disabled ve selected gibi durumlar da tema alanlarından beslenir. Bu bölüm,
+bileşenlerin tema değerlerine nasıl ulaştığını ve etkileşim durumlarında hangi
+alanları kullanması gerektiğini anlatır.
 
 ---
 
 ## 41. `cx.theme()` ile bileşen renklendirme
 
-**Tüketici sözleşmesi:** UI bileşenleri tema değerlerine `cx.theme()`
-çağrısı üzerinden erişir. Bu çağrı `&Arc<Theme>` döndürür — klonsuz ve
-allocation üretmeyen bir okuma yoludur.
+**Tüketici sözleşmesi:** UI bileşenleri tema değerlerine `cx.theme()` çağrısı
+üzerinden erişir. Bu çağrı `&Arc<Theme>` döndürür; klon ve allocation üretmeden
+okuma yapılır.
 
 ### Temel kalıp
 
@@ -59,11 +59,10 @@ let error = tema.status().error;
 let local = tema.players().local().cursor;
 ```
 
-**Accessor metotları neden tercih edilir?** `styles` alanının iç düzeni
-sync turunda değişebilir (örneğin `colors` ve `status`'un farklı bir
-biçimde ayrıştırılması). Accessor yöntemi sözleşmeyi `theme.colors()`
-imzası üzerinde sabitler ve iç düzendeki bir değişiklik tüketici kodu
-kırmaz.
+**Accessor metotları neden tercih edilir?** `styles` alanının iç düzeni zamanla
+değişebilir; örneğin `colors` ve `status` farklı şekilde ayrıştırılabilir.
+Accessor yöntemi dış sözleşmeyi `theme.colors()` imzasında sabitler. İç düzen
+değişse bile tüketici kod kırılmaz.
 
 ### Prelude modül deseni
 
@@ -124,15 +123,14 @@ impl Render for X {
 }
 ```
 
-**Her durumda (A) — yani stateless yaklaşım tercih edilir.**
-`cx.refresh_windows()` (Bölüm VIII/Konu 35) view'ı yeniden çağırır;
-tema yeni değerlerle okunur. (B) yaklaşımı tema değişimine **kapalı**
-kalır — eski rengi tutmaya devam eder ve bu bir bug'a dönüşür.
+**Genel tercih (A), yani stateless yaklaşımdır.** `cx.refresh_windows()`
+(Bölüm VIII/Konu 38) view'ı yeniden çağırır ve tema yeni değerlerle okunur.
+(B) yaklaşımı tema değişimine **kapalı** kalır; eski rengi tutmaya devam eder
+ve bu bug'a dönüşür.
 
-İstisna: render içinde **hesaplanmış bir değer** (örneğin
-`bg.opacity(0.5)`) performans için cache edilebilir; ancak `cx.theme()`
-çağrısı zaten allocation üretmediğinden bu seviyede cache çoğu zaman
-gereksizdir.
+İstisna: render içinde **hesaplanmış bir değer** (örneğin `bg.opacity(0.5)`)
+performans için cache edilebilir. Ancak `cx.theme()` zaten allocation
+üretmediği için bu seviyede cache çoğu zaman gereksizdir.
 
 ### Birden fazla alan okuma
 
@@ -161,8 +159,8 @@ div()
     })
 ```
 
-Tekrarın maliyeti pratikte düşüktür (`cx.global` bir HashMap lookup'u
-yapar); ancak okunabilirlik adına tek bir bağlama yeterlidir.
+Tekrarın maliyeti pratikte düşüktür (`cx.global` bir HashMap lookup'u yapar).
+Yine de okunabilirlik için tek bir bağlama yeterlidir.
 
 ### Bileşen tasarım deseni
 
@@ -199,8 +197,7 @@ impl Render for Button {
 
 **Sözleşme noktaları:**
 
-- Bileşen tema değerini kendi içinde okur — parent'tan renk parametre
-  olarak almaz.
+- Bileşen tema değerini kendi içinde okur; parent'tan renk parametresi almaz.
 - Bileşen `Theme` tipini import etmez; yalnızca `ActiveTheme` trait'ini
   (prelude ile) kullanır.
 - Bileşen state'inde `Hsla` tutmaz — her render'da temayı fresh olarak
@@ -231,11 +228,10 @@ impl Render for Button {
 ### `Theme::darken` ile appearance-aware koyulaştırma
 
 Zed'in `Theme::darken(color, light_amount, dark_amount)` (`theme.rs:274`)
-yardımcısı, bir rengi appearance'a göre **lightness** azaltarak
-koyulaştırır: light tema modunda `light_amount`, dark tema modunda
-`dark_amount` kullanılır; sonuç `l = (l - amount).max(0.0)` ile alt
-sınırlanır. Aynı bileşenin iki temada da yeterli kontrastı tutması için
-iki ayrı miktar geçirilir.
+yardımcısı, bir rengi appearance'a göre **lightness** azaltarak koyulaştırır.
+Light tema modunda `light_amount`, dark tema modunda `dark_amount` kullanılır.
+Sonuç `l = (l - amount).max(0.0)` ile alt sınırlanır. Aynı bileşenin iki
+temada da yeterli kontrastı koruması için iki ayrı miktar verilir.
 
 ```rust
 use kvs_tema::ActiveTheme;
@@ -253,14 +249,12 @@ impl Render for HoverChip {
 }
 ```
 
-**Sınırlar:** `darken` yalnızca lightness değerini etkiler; alpha,
-saturation ve hue olduğu gibi kalır. Şeffaf renkler için sonuç hâlâ
-şeffaftır. Kaynak kodunda "tentative solution" notu bulunur — Zed
-kalıcı bir renk sistemini oturtana kadar bu çağrı geçici bir çözüm
-olarak konumlanır. Mirror tarafında aynı imzanın korunması parite
-açısından önemlidir; daha gelişmiş bir varyantın (`OkLab` veya
-`palette::Mix`) yazılması ise yerel bir API genişletmesi olarak ele
-alınır.
+**Sınırlar:** `darken` yalnızca lightness değerini etkiler; alpha, saturation
+ve hue olduğu gibi kalır. Şeffaf renkler yine şeffaftır. Kaynak kodunda
+"tentative solution" notu bulunur; Zed kalıcı bir renk sistemini oturtana kadar
+bu çağrı geçici bir çözüm olarak konumlanır. Mirror tarafta aynı imzanın
+korunması parite açısından önemlidir. Daha gelişmiş bir varyant (`OkLab` veya
+`palette::Mix`) yerel API genişletmesi olarak ele alınır.
 
 ### Markdown preview, code fontu ve Mermaid tema tüketimi
 
@@ -298,10 +292,9 @@ theme boş bırakıldığında bu rozetler renksiz kalır.
 
 ## 42. Hover / active / disabled / selected / ghost desenleri
 
-GPUI'nin fluent API'si etkileşim durumları için `.hover()`, `.active()`
-ve `Interactivity` katmanını sağlar. Tema tarafında her durum için
-**özel alanlar** bulunur ve bu alanların nasıl eşleneceği sözleşmenin
-bir parçasıdır.
+GPUI'nin fluent API'si etkileşim durumları için `.hover()`, `.active()` ve
+`Interactivity` katmanını sağlar. Tema tarafında her durum için **özel alanlar**
+vardır. Bu alanların nasıl eşleneceği sözleşmenin parçasıdır.
 
 ### Etkileşim alanları eşlemesi
 
@@ -379,13 +372,13 @@ div()
 ```
 
 **Sıralama önemlidir:** GPUI önce hover'ı uygular, ardından active'i
-yerleştirir. Active'de verilen alan, hover'ın üstüne yazılır. Active
-state, mouse button basılıyken etkin olur.
+yerleştirir. Active'de verilen alan hover'ın üstüne yazılır. Active state,
+mouse button basılıyken etkin olur.
 
 ### Disabled state
 
-GPUI doğrudan bir `.disabled(|s| ...)` callback'i sunmaz; durum
-mantığının uygulama tarafında yönetilmesi gerekir:
+GPUI doğrudan bir `.disabled(|s| ...)` callback'i sunmaz; disabled mantığı
+uygulama tarafında yönetilir:
 
 ```rust
 let bg = if self.is_disabled {
@@ -411,8 +404,8 @@ div()
     })
 ```
 
-`.when(cond, |this| ...)` koşullu bir fluent yardımcısıdır. Disabled
-durumunda hover, active ve click handler tamamen atlanır.
+`.when(cond, |this| ...)` koşullu bir fluent yardımcısıdır. Disabled durumda
+hover, active ve click handler tamamen atlanır.
 
 > **Alternatif:** `element_disabled` zaten "soluk" bir renk taşır;
 > hover davranışı disabled'da tamamen kapatılmak yerine yalnızca görsel
@@ -421,8 +414,8 @@ durumunda hover, active ve click handler tamamen atlanır.
 
 ### Selected state
 
-Seçili öğeler için durum bilgisini **uygulama mantığı** taşır; tema
-yalnızca rengi sağlar:
+Seçili öğeler için durum bilgisini **uygulama mantığı** taşır; tema yalnızca
+rengi sağlar:
 
 ```rust
 struct ListItem {
@@ -461,9 +454,8 @@ impl Render for ListItem {
 
 ### Ghost element family
 
-"Ghost" terimi, transparan arka planlı bir element'i tanımlar; toolbar
-icon button'ları gibi yüzeye yapışmış görünen bileşenler için
-kullanılır.
+"Ghost" terimi, transparan arka planlı bir elementi tanımlar. Toolbar icon
+button'ları gibi yüzeye yapışmış görünen bileşenlerde kullanılır.
 
 ```rust
 div()
@@ -508,8 +500,8 @@ div()
     })
 ```
 
-Drop target alanları, drag işlemi sırasında kullanıcıya "burada
-bırakılabilir" feedback'i vermek için kullanılır.
+Drop target alanları, drag işlemi sırasında kullanıcıya "buraya bırakılabilir"
+geri bildirimi vermek için kullanılır.
 
 ### Etkileşim alanı seçim akış şeması
 

@@ -1,15 +1,14 @@
 # 2. Ham GPUI Primitive'leri ve Metod Kapsamı
 
 Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements`
-primitive'lerini ele alır. İşleyiş şu mantığa dayanır: Zed `ui` içinde hazır
-bir bileşen varsa öncelik ona verilir; ham GPUI primitive'lerine inmek ise
-ancak belirli ihtiyaçlar ortaya çıktığında anlamlıdır. Bu ihtiyaçlar genellikle
-özel bir layout, kendi başına çizim, metin ölçümü, görsel cache, sanal liste
-veya alıştığımız bileşenlerin sunmadığı bir etkileşim yüzeyidir. Yani üst
-katman çoğu işi karşıladığı için aşağı inmek bir tercih değil, ihtiyaç
-sonucudur.
+primitive'lerini anlatır. Günlük Zed ekran kodunda önce hazır `ui`
+bileşenlerine bakılır. Ham GPUI primitive'lerine ise ancak daha özel bir ihtiyaç
+çıktığında inilir: kendine özgü bir layout, özel çizim, metin ölçümü, görsel
+cache, sanal liste veya hazır bileşenlerin sunmadığı bir etkileşim gibi. Kısaca,
+üst katman çoğu işi karşılar; alt katmana inmek ise genellikle bilinçli bir
+ihtiyaç sonucudur.
 
-Kaynak kapısı:
+Kaynakta bakılacak ana yerler:
 
 - `crates/gpui/src/elements/mod.rs`: primitive export kapısı; tüm element
   ailelerinin toplandığı giriş noktasıdır.
@@ -26,9 +25,9 @@ Kaynak kapısı:
 ## Public GPUI element adları
 
 Aşağıdaki liste `crates/gpui/src/elements` altındaki public type, trait,
-constructor ve constant adlarını tek bir yerde toparlar. Bu envanter, hangi
-isimlerin "kullanılabilir resmi yüzey" olduğunu görmek için bir referans
-işlevi görür:
+constructor ve constant adlarını tek yerde toplar. Bu envanter, hangi isimlerin
+"kullanılabilir resmi yüzey" olduğunu hızlıca görmek için referans görevi
+görür:
 
 ```text
 Anchored, AnchoredFitMode, AnchoredPositionMode, AnchoredState,
@@ -52,8 +51,8 @@ div, image_cache, img, list, retain_all, surface, svg, uniform_list
 
 ## Karar tablosu
 
-Hangi ihtiyaç için hangi API'nin tercih edileceğini ve neden ham GPUI'ye
-inildiğini özetleyen pratik bir tablo aşağıdaki gibidir:
+Hangi ihtiyaç için hangi API'nin seçileceğini ve ne zaman ham GPUI'ye inilmesi
+gerektiğini aşağıdaki tablo pratik biçimde özetler:
 
 | İhtiyaç | Öncelikli API | Ham GPUI'ye inme sebebi |
 | :-- | :-- | :-- |
@@ -73,19 +72,18 @@ inildiğini özetleyen pratik bir tablo aşağıdaki gibidir:
 
 ## Ortak trait yüzeyleri
 
-`ParentElement`, çocuk alabilen bütün container'ların paylaştığı ortak
-ekleme kapısıdır. Bir elemanın "alt eleman taşıyabilir" sözleşmesini bu trait
-sağlar:
+`ParentElement`, çocuk alabilen bütün container'ların ortak ekleme kapısıdır.
+Bir elemanın "alt eleman taşıyabilir" sözleşmesini bu trait sağlar:
 
 | Trait | Metodlar | Not |
 | :-- | :-- | :-- |
 | `ParentElement` | `.extend(elements)`, `.child(child)`, `.children(children)` | `child` ve `children`, `IntoElement` kabul eder; `extend` ise `AnyElement` koleksiyonu ister |
 
 `Styled`, `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu ve
-makroyla üretilen ortak utility yüzeyini taşır. `Div`, `Img`, `Svg`, `Canvas`,
-`Surface`, `ImageCacheElement`, `List`, `UniformList`, `Deferred`,
-`AnimationElement` ve birçok Zed `ui` bileşeni bu yüzeyi miras alır; yani
-bunların hemen hepsi aynı stil sözlüğünü paylaşır.
+makroyla üretilen ortak yardımcı metodları taşır. `Div`, `Img`, `Svg`,
+`Canvas`, `Surface`, `ImageCacheElement`, `List`, `UniformList`, `Deferred`,
+`AnimationElement` ve birçok Zed `ui` bileşeni bu yüzeyi miras alır. Bu yüzden
+bu elementlerin büyük kısmı aynı stil sözlüğünü konuşur.
 
 `Styled` manuel metodları aşağıdaki gibidir:
 
@@ -131,10 +129,10 @@ oluşturulur ve aşağıdaki ailelere ayrılır:
 | Cursor | `cursor`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `cursor_ew_resize`, `cursor_ns_resize`, `cursor_nesw_resize`, `cursor_nwse_resize`, `cursor_col_resize`, `cursor_row_resize`, `cursor_n_resize`, `cursor_e_resize`, `cursor_s_resize`, `cursor_w_resize` |
 | Shadow | `shadow`, `shadow_none`, `shadow_2xs`, `shadow_xs`, `shadow_sm`, `shadow_md`, `shadow_lg`, `shadow_xl`, `shadow_2xl` |
 
-Size, margin, padding ve position prefix'leri için suffix formülü şu
-şekildedir: `{prefix}(length)` custom setter'ı vardır. Bunun yanı sıra
-uygun prefix'lerde `{prefix}_{suffix}` üretilir; auto dışındaki suffix'lerde
-ise `{prefix}_neg_{suffix}` formundaki negatif varyantlar da otomatik olarak
+Size, margin, padding ve position prefix'leri için aynı üretim kuralı geçerlidir:
+`{prefix}(length)` özel bir değer vermek için kullanılır. Buna ek olarak uygun
+prefix'lerde `{prefix}_{suffix}` metodları üretilir; `auto` dışındaki
+suffix'lerde `{prefix}_neg_{suffix}` biçimindeki negatif varyantlar da otomatik
 oluşturulur. Suffix seti şu değerlerden oluşur: `0`, `0p5`, `1`, `1p5`, `2`,
 `2p5`, `3`, `3p5`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `16`,
 `20`, `24`, `32`, `40`, `48`, `56`, `64`, `72`, `80`, `96`, `112`, `128`,
@@ -145,9 +143,9 @@ oluşturulur. Suffix seti şu değerlerden oluşur: `0`, `0p5`, `1`, `1p5`, `2`,
 `7`, `8`, `9`, `10`, `11`, `12`, `16`, `20`, `24`, `32`.
 
 `InteractiveElement`, ham etkileşimli container davranışını taşır. `id(...)`
-çağrısı `Stateful<Self>` döndürür ve scroll, click, drag, active, tooltip
-gibi durum gerektiren metodlar ancak bundan sonra erişilebilir hâle gelir.
-Yani önce kimliklendirme, sonra durumlu etkileşim sırası izlenir:
+çağrısı `Stateful<Self>` döndürür. Scroll, click, drag, active ve tooltip gibi
+durum gerektiren metodlar bundan sonra görünür hale gelir. Yani sıra genellikle
+önce kimlik vermek, sonra durumlu etkileşimi bağlamaktır:
 
 ```text
 group, id, track_focus, tab_stop, tab_index, tab_group, key_context,
@@ -186,14 +184,13 @@ edilir; `Interactivity` doğrudan yalnızca özel bir element yazılırken
 gerekir.
 
 Framework implementer metodları `source_location`, `request_layout`,
-`prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder
-API değildir; yani günlük UI yazımında kullanılmazlar. Yalnızca `Element`
-implementasyonu yazılırken veya GPUI içinde değişiklik yapılırken devreye
-girerler. `GroupHitboxes::get/push/pop` ise grup hover/active hitbox
-state'inin internal global stack yönetimini yapar; üst seviye kodun bunu
-doğrudan kullanması beklenmez. `DraggedItem<T>::drag(cx)` ve
-`.dragged_item()` ise drag payload'unu okumak için kullanılan event
-yardımcılarıdır.
+`prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder API
+değildir; günlük UI yazımında kullanılmazlar. Yalnızca `Element`
+implementasyonu yazarken veya GPUI içinde değişiklik yaparken devreye girerler.
+`GroupHitboxes::get/push/pop`, grup hover/active hitbox state'inin iç global
+stack yönetimini yapar; üst seviye kodun bunu doğrudan kullanması beklenmez.
+`DraggedItem<T>::drag(cx)` ve `.dragged_item()` ise drag payload'unu okumak için
+kullanılan event yardımcılarıdır.
 
 Animasyon easing yardımcıları `linear(delta)`, `quadratic(delta)`,
 `ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla
@@ -267,10 +264,9 @@ Public state alanları:
 
 ## Kullanım örüntüleri
 
-Ham `div()` ile özel bir kontrol yazılırken kullanılan minimum iskelet şu
-şekilde görünür. Bu örüntü, standart bir `ui::Button` yerine elle kontrol
-yazıldığında focus, hover, tooltip ve action bağlarının nasıl kurulduğunu
-gösterir:
+Ham `div()` ile özel bir kontrol yazarken aşağıdaki iskelet minimum bir örnek
+olarak düşünülebilir. Standart bir `ui::Button` yerine elle kontrol yazıldığında
+focus, hover, tooltip ve action bağlarını açıkça kurmanız gerekir:
 
 ```rust
 div()

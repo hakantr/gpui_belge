@@ -1,19 +1,18 @@
 # 15. AI ve Collab Özel Alanı
 
-Bu bölümdeki bileşenler Zed'in AI, agent, provider, collaboration ve
-update akışlarına sıkı sıkıya bağlıdır. Yani genel bir uygulamada
-kullanılmaya başlamadan önce, domain modelinin bu API'lere gerçekten
-oturup oturmadığının kontrol edilmesi gerekir. Aksi halde bileşenin
-sağladığı yapı modelle çelişebilir.
+Bu bölümdeki bileşenler Zed'in AI, agent, provider, collaboration ve update
+akışlarına yakından bağlıdır. Bu yüzden genel bir uygulamada kullanılmadan önce
+domain modelinin bu API'lere gerçekten uyup uymadığı kontrol edilmelidir. Aksi
+halde component görsel olarak hazır görünür, fakat modelin ihtiyaçlarıyla
+çelişebilir.
 
-Bu ailede iki genel kural geçerlidir:
+Bu ailede iki genel kural vardır:
 
-- Domain'e bağlı bileşenlerde gerçek servis state'i component'in
-  içine taşınmaz. Component'e yalnızca render için gereken label,
-  status, ikon, callback ve metadata verilir.
-- AI ve Collab bileşenleri başka panellerde kompoze edilirken, kendi
-  domain state'leri view'da tutulur; bu component'ler yalnızca görsel
-  hizalama yapar.
+- Domain'e bağlı bileşenlerde gerçek servis state'i component'in içine
+  taşınmaz. Component'e yalnızca render için gereken label, status, ikon,
+  callback ve metadata verilir.
+- AI ve Collab bileşenleri başka panellerde kompoze edilirken domain state'i
+  view'da tutulur. Bu component'ler yalnızca o state'i görsel olarak düzenler.
 
 ## AiSettingItem
 
@@ -27,10 +26,10 @@ Kaynak:
 
 Ne zaman kullanılır:
 
-- MCP server, agent provider veya AI integration için bir ayar satırı
-  göstermek gerektiğinde.
-- Status indicator, source icon, detail label, action button ve detay
-  satırını tek bir kompakt row'da toplamak için.
+- MCP server, agent provider veya AI integration için ayar satırı göstermek
+  gerektiğinde.
+- Status indicator, source icon, detail label, action button ve detay satırını
+  tek bir kompakt row'da toplamak için.
 
 Temel API:
 
@@ -88,8 +87,8 @@ Dikkat edilecek noktalar:
 
 - Source enum'u, gerçek kurulum kaynağıyla eşleşmelidir; tooltip metni
   bu değerden türetilir.
-- `.details(...)` uzun bir hata metni için kullanılabilir, ancak ana
-  satırın kalabalıklaşmamasına dikkat etmek gerekir.
+- `.details(...)` uzun bir hata metni için kullanılabilir. Yine de ana satırın
+  kalabalıklaşmamasına dikkat etmek gerekir.
 
 ## AgentSetupButton
 

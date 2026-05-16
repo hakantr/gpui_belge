@@ -1,14 +1,13 @@
 # Ek B. Zed Uygulamasında Component Yönetimi
 
-Zed'de `crates/ui` bileşenleri runtime'da merkezi bir "component
-manager" tarafından yaratılmaz. Normal uygulama ekranlarında akış
-tamamen GPUI'ye aittir: view veya entity state'i `Render`
-implementasyonunda tutulur, küçük ve stateless UI parçaları
-`RenderOnce` builder'larıyla oluşturulur ve `ui::prelude::*` ile veya
+Zed'de `crates/ui` bileşenleri runtime'da merkezi bir "component manager"
+tarafından yaratılmaz. Normal uygulama ekranlarında akış GPUI'ye aittir: view
+veya entity state'i `Render` implementasyonunda tutulur, küçük ve stateless UI
+parçaları `RenderOnce` builder'larıyla oluşturulur ve `ui::prelude::*` ya da
 doğrudan `use ui::{...}` import'larıyla çağrılır. `Button::new`,
-`IconButton::new`, `ListItem::new`, `ContextMenu::build`,
-`PopoverMenu::new`, `Scrollbars::for_settings` ve `Table::new` gibi
-constructor'lar Zed uygulama crate'lerinde doğrudan kullanılır.
+`IconButton::new`, `ListItem::new`, `ContextMenu::build`, `PopoverMenu::new`,
+`Scrollbars::for_settings` ve `Table::new` gibi constructor'lar Zed uygulama
+crate'lerinde doğrudan kullanılır.
 
 Component preview ise bundan ayrı, kendi içinde bir registry akışıdır:
 
@@ -40,7 +39,7 @@ Component preview ise bundan ayrı, kendi içinde bir registry akışıdır:
   restore sırasında `SerializableItem` implementasyonu bu state'i geri
   yükler.
 
-Gerçek uygulama kullanımı için okuma sırası şu şekildedir:
+Gerçek uygulama kullanımı için en rahat okuma sırası şudur:
 
 1. Builder imzası ve export yolu için önce `crates/ui/src/components.rs`
    ile ilgili alt modül dosyası okunur.
@@ -53,9 +52,8 @@ Gerçek uygulama kullanımı için okuma sırası şu şekildedir:
    `workspace::notifications` toast ve notification frame kullanımı yer
    alır.
 
-Bu ayrımın altını çizmek gerekir: `impl Component for T`, üretim
-ekranındaki bir lifecycle'ı değil; preview ve gallery metadata'sını
-anlatır. Üretim ekranındaki lifecycle GPUI tarafında `Entity`, `Context`,
-`Window`, `FocusHandle`, `Task` ve gerektiğinde workspace katmanındaki
-`ModalLayer`, notification stack veya popover/menu state handle'ları
-tarafından yönetilir.
+Bu ayrım önemlidir: `impl Component for T`, üretim ekranındaki lifecycle'ı
+değil, preview ve gallery metadata'sını anlatır. Üretim ekranındaki lifecycle
+GPUI tarafında `Entity`, `Context`, `Window`, `FocusHandle`, `Task` ve
+gerektiğinde workspace katmanındaki `ModalLayer`, notification stack veya
+popover/menu state handle'ları tarafından yönetilir.
