@@ -4,12 +4,7 @@
 
 ## CommandPalette: Filter, Aliases ve Interceptor
 
-`crates/command_palette_hooks/` global'leri komut paletinin UX'ini
-şekillendirir. UI yazılmadan önce bu global'leri tanımak gerekir; çünkü
-odaktaki elementten toplanan action listesi, görünürlük filtresi ve alternatif
-komut sonuçları bu katmandan geçer. Zed başlangıcında
-`command_palette::init(cx)` `command_palette_hooks::init(cx)` çağırır;
-filtre global'i bu çağrı sırasında kurulur.
+`crates/command_palette_hooks/` global'leri komut paletinin UX'ini şekillendirir. UI yazılmadan önce bu global'leri tanımak gerekir; çünkü odaktaki elementten toplanan action listesi, görünürlük filtresi ve alternatif komut sonuçları bu katmandan geçer. Zed başlangıcında `command_palette::init(cx)` `command_palette_hooks::init(cx)` çağırır; filtre global'i bu çağrı sırasında kurulur.
 
 #### CommandPaletteFilter
 
@@ -27,52 +22,23 @@ Erişim noktaları şunlardır:
 - `CommandPaletteFilter::global_mut(cx) -> &mut Self`
 - `CommandPaletteFilter::update_global(cx, |filter, cx| ...)`
 
-`update_global` global yoksa yenisini oluşturmaz; `cx.has_global` kontrolünden
-sonra çalışır ve global mevcut değilse no-op kalır. Bu nedenle command palette
-crate'i kullanılmadan yalnızca hook crate'ine erişiliyorsa önce
-`command_palette_hooks::init(cx)` çağrılmalıdır.
+`update_global` global yoksa yenisini oluşturmaz; `cx.has_global` kontrolünden sonra çalışır ve global mevcut değilse no-op kalır. Bu nedenle command palette crate'i kullanılmadan yalnızca hook crate'ine erişiliyorsa önce `command_palette_hooks::init(cx)` çağrılmalıdır.
 
-**Filtre yönetimi.** Komut paletinde hangi action'ların görünür kalacağı
-filtre üzerinden ayarlanır:
+**Filtre yönetimi.** Komut paletinde hangi action'ların görünür kalacağı filtre üzerinden ayarlanır:
 
-- `is_hidden(&action) -> bool` — belirli action namespace veya tip olarak
-  gizliyse `true` döner. Komut paleti UI'ı bu sonuca göre gösterimi
-  atlar. `shown_action_types` içine alınmış tipler, namespace gizli olsa
-  bile görünür kalır.
-- `hide_namespace(&'static str)` / `show_namespace(&'static str)` — bir
-  namespace'in tüm action'larını gizler veya gösterir (örneğin headless
-  paneller için).
-- `hide_action_types(impl IntoIterator<Item = &TypeId>)` ve
-  `show_action_types(impl IntoIterator<Item = &TypeId>)` — belirli action
-  tiplerini topluca yönetir. `hide_action_types` tipi
-  `hidden_action_types` setine ekler ve `shown_action_types` setinden
-  çıkarır; `show_action_types` ise tersini yapar.
+- `is_hidden(&action) -> bool` — belirli action namespace veya tip olarak gizliyse `true` döner. Komut paleti UI'ı bu sonuca göre gösterimi atlar. `shown_action_types` içine alınmış tipler, namespace gizli olsa bile görünür kalır.
+- `hide_namespace(&'static str)` / `show_namespace(&'static str)` — bir namespace'in tüm action'larını gizler veya gösterir (örneğin headless paneller için).
+- `hide_action_types(impl IntoIterator<Item = &TypeId>)` ve `show_action_types(impl IntoIterator<Item = &TypeId>)` — belirli action tiplerini topluca yönetir. `hide_action_types` tipi `hidden_action_types` setine ekler ve `shown_action_types` setinden çıkarır; `show_action_types` ise tersini yapar.
 
-Tipik bir kullanım,
-`CommandPaletteFilter::update_global(cx, |filter, _| { ... })` bloğu
-içinde aynı anda hem `hide_namespace` hem `hide_action_types` çağırarak
-feature flag tabanlı komut görünürlüğünü tek seferde değiştirmektir.
-Örneğin Vim entegrasyonu, vim modu açıldığında `vim` namespace'ini
-gösterir ve modu kapandığında tekrar gizler.
+Tipik bir kullanım, `CommandPaletteFilter::update_global(cx, |filter, _| { ... })` bloğu içinde aynı anda hem `hide_namespace` hem `hide_action_types` çağırarak feature flag tabanlı komut görünürlüğünü tek seferde değiştirmektir. Örneğin Vim entegrasyonu, vim modu açıldığında `vim` namespace'ini gösterir ve modu kapandığında tekrar gizler.
 
 #### CommandAliases (WorkspaceSettings)
 
-`WorkspaceSettings::command_aliases: HashMap<String, ActionName>`.
-Kullanıcı JSON'una `"command_aliases": { "ag": "search::ToggleSearch" }`
-yazıldığında komut paleti, sorgu tam olarak `ag` olduğunda bunu
-`search::ToggleSearch` string'ine çevirir. Bu çeviri fuzzy eşleşme ve
-interceptor çağrısından önce yapılır; alias bir action nesnesi üretmez,
-yalnızca palet sorgusunu canonical action adına yaklaştırır. Yeni komut
-sunulurken alias sözleşmesini bozmaktan kaçınmak gerekir; eski adları keymap
-tarafında desteklemek için
-`#[action(deprecated_aliases = [...])]`, komut paleti kullanıcı sorgusu
-içinse `command_aliases` kullanılır.
+`WorkspaceSettings::command_aliases: HashMap<String, ActionName>`. Kullanıcı JSON'una `"command_aliases": { "ag": "search::ToggleSearch" }` yazıldığında komut paleti, sorgu tam olarak `ag` olduğunda bunu `search::ToggleSearch` string'ine çevirir. Bu çeviri fuzzy eşleşme ve interceptor çağrısından önce yapılır; alias bir action nesnesi üretmez, yalnızca palet sorgusunu canonical action adına yaklaştırır. Yeni komut sunulurken alias sözleşmesini bozmaktan kaçınmak gerekir; eski adları keymap tarafında desteklemek için `#[action(deprecated_aliases = [...])]`, komut paleti kullanıcı sorgusu içinse `command_aliases` kullanılır.
 
 #### CommandInterceptor
 
-Komut paletindeki "tam string'i komuta dönüştür" davranışı (örneğin Vim
-ex komutları, line jump `:42`)
-`GlobalCommandPaletteInterceptor` üzerinden çalışır:
+Komut paletindeki "tam string'i komuta dönüştür" davranışı (örneğin Vim ex komutları, line jump `:42`) `GlobalCommandPaletteInterceptor` üzerinden çalışır:
 
 ```rust
 GlobalCommandPaletteInterceptor::set(cx, |query, workspace, cx| {
@@ -84,8 +50,7 @@ GlobalCommandPaletteInterceptor::set(cx, |query, workspace, cx| {
 
 - `set(cx, Fn(&str, WeakEntity<Workspace>, &mut App) -> Task<CommandInterceptResult>)`
 - `clear(cx)` — interceptor'ı kaldırır.
-- `intercept(query, workspace, cx) -> Option<Task<CommandInterceptResult>>`
-  — komut paleti UI'ı her tuş vuruşunda çağırır.
+- `intercept(query, workspace, cx) -> Option<Task<CommandInterceptResult>>` — komut paleti UI'ı her tuş vuruşunda çağırır.
 
 `CommandInterceptResult` yapısı şu şekildedir:
 
@@ -102,131 +67,61 @@ pub struct CommandInterceptItem {
 }
 ```
 
-Tipik akış şudur: Vim modu açıkken `:w<CR>` gibi komutlar intercept edilip
-`SaveActiveItem` action'ına çevrilir. Benzer şekilde başka extension veya agent
-türleri de aynı mekanizmayı kullanır. Komut paleti interceptor sonuçlarını
-normal fuzzy action eşleşmeleriyle birleştirir. Aynı action zaten normal
-eşleşmelerde yer alıyorsa interceptor sonucu eklenmeden önce normal sonuçtan
-çıkarılır. `exclusive = true` olduğunda yalnız interceptor sonuçları gösterilir;
-`exclusive = false` ise interceptor sonuçları listenin başına eklenir ve normal
-eşleşmeler arkadan gelir.
+Tipik akış şudur: Vim modu açıkken `:w<CR>` gibi komutlar intercept edilip `SaveActiveItem` action'ına çevrilir. Benzer şekilde başka extension veya agent türleri de aynı mekanizmayı kullanır. Komut paleti interceptor sonuçlarını normal fuzzy action eşleşmeleriyle birleştirir. Aynı action zaten normal eşleşmelerde yer alıyorsa interceptor sonucu eklenmeden önce normal sonuçtan çıkarılır. `exclusive = true` olduğunda yalnız interceptor sonuçları gösterilir; `exclusive = false` ise interceptor sonuçları listenin başına eklenir ve normal eşleşmeler arkadan gelir.
 
 #### Action Documentation ve Deprecation Mesajları
 
-Action trait'inin `documentation()`, `deprecation_message()` ve
-`deprecated_aliases()` yüzeyi komut paleti ile karıştırılmamalıdır:
+Action trait'inin `documentation()`, `deprecation_message()` ve `deprecated_aliases()` yüzeyi komut paleti ile karıştırılmamalıdır:
 
-- Komut paleti satırında şu anda humanized action adı ve mevcut keybinding
-  görünür; action documentation veya deprecation mesajı palet satırında ayrı
-  bir açıklama olarak render edilmez.
-- `#[action(deprecated_aliases = ["foo::OldName"])]` eski adın
-  `ActionRegistry::build_action` içinde hâlâ inşa edilebilir olmasını
-  sağlar ve keymap JSON schema ile uyarı akışına yansır. Komut paleti ise
-  `window.available_actions(cx)` ile odaktaki dispatch path'ten action
-  tiplerini toplar; `build_action_type(type_id)` ile canonical action
-  adını üretir. Eski alias'lar ayrı bir palet satırı olarak
-  listelenmez.
-- Doc comment yazımı yine önemlidir: derive makrosu bunu
-  `documentation()` üzerinden ifşa eder ve keymap editor ile JSON schema
-  gibi action keşif yüzeyleri bu bilgiyi kullanır.
-- `#[action(deprecated = "...")]` da keymap schema ve uyarı akışını
-  besler. Komut paleti kullanıcı sorgusuna eski bir kısa ad eklemek
-  isteniyorsa `WorkspaceSettings::command_aliases` kullanılmalıdır.
+- Komut paleti satırında şu anda humanized action adı ve mevcut keybinding görünür; action documentation veya deprecation mesajı palet satırında ayrı bir açıklama olarak render edilmez.
+- `#[action(deprecated_aliases = ["foo::OldName"])]` eski adın `ActionRegistry::build_action` içinde hâlâ inşa edilebilir olmasını sağlar ve keymap JSON schema ile uyarı akışına yansır. Komut paleti ise `window.available_actions(cx)` ile odaktaki dispatch path'ten action tiplerini toplar; `build_action_type(type_id)` ile canonical action adını üretir. Eski alias'lar ayrı bir palet satırı olarak listelenmez.
+- Doc comment yazımı yine önemlidir: derive makrosu bunu `documentation()` üzerinden ifşa eder ve keymap editor ile JSON schema gibi action keşif yüzeyleri bu bilgiyi kullanır.
+- `#[action(deprecated = "...")]` da keymap schema ve uyarı akışını besler. Komut paleti kullanıcı sorgusuna eski bir kısa ad eklemek isteniyorsa `WorkspaceSettings::command_aliases` kullanılmalıdır.
 
 #### Tuzaklar
 
 Filter ve interceptor kullanımında karşılaşılan yaygın sorunlar:
 
-- `CommandPaletteFilter` global state'tir; testlerde bir feature açıldığında
-  sonraki test başlamadan reset edilmesi gerekebilir.
-- `hide_action_types` ile gizlenen tipin register edilmiş olması gerekir;
-  aksi halde filtreye eklenmesine rağmen komut paleti listesinde zaten
-  görünmez.
-- `Interceptor::set` mevcut interceptor'ı ezer; çoklu kaynak gerektiğinde
-  zincirin kendi kodunda kurulması gerekir (örneğin önce Vim, başarısızsa
-  AI agent gibi).
-- `CommandInterceptResult::exclusive = true` yoğun şekilde kullanıldığında
-  kullanıcı normal action listesinden komutlara ulaşamaz; gerçekten "tek doğru
-  sonuç var" durumunda set edilir.
+- `CommandPaletteFilter` global state'tir; testlerde bir feature açıldığında sonraki test başlamadan reset edilmesi gerekebilir.
+- `hide_action_types` ile gizlenen tipin register edilmiş olması gerekir; aksi halde filtreye eklenmesine rağmen komut paleti listesinde zaten görünmez.
+- `Interceptor::set` mevcut interceptor'ı ezer; çoklu kaynak gerektiğinde zincirin kendi kodunda kurulması gerekir (örneğin önce Vim, başarısızsa AI agent gibi).
+- `CommandInterceptResult::exclusive = true` yoğun şekilde kullanıldığında kullanıcı normal action listesinden komutlara ulaşamaz; gerçekten "tek doğru sonuç var" durumunda set edilir.
 
 ## CommandPalette Runtime Akışı, Fuzzy Arama ve Geçmiş
 
-`crates/command_palette/src/command_palette.rs` Zed'in gerçek komut paleti
-akışıdır. Başlatma ve açma sırası şu adımlarla işler:
+`crates/command_palette/src/command_palette.rs` Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adımlarla işler:
 
-1. `command_palette::init(cx)` hook global'lerini kurar ve
-   `cx.observe_new(CommandPalette::register).detach()` ile her yeni
-   `Workspace` için `zed_actions::command_palette::Toggle` action'ını
-   register eder.
-2. `CommandPalette::toggle(workspace, query, window, cx)` mevcut focus
-   handle'ını alır. Focus yoksa palet açılmaz. Ardından
-   `workspace.toggle_modal(...)` ile `CommandPalette` modal view olarak
-   oluşturulur.
-3. `CommandPalette::new(previous_focus_handle, query, workspace, window,
-   cx)` `window.available_actions(cx)` çağırır. Bu liste bütün registry
-   değildir; odaktaki dispatch path üzerinde `.on_action(...)` ile bağlı
-   action'lar ve global action listener'larıdır.
-4. Her action `CommandPaletteFilter::is_hidden` ile elenir ve görünen
-   action'lar `humanize_action_name(action.name())` sonucuyla
-   `Command { name, action }` haline getirilir.
-5. UI `Picker::uniform_list(delegate, window, cx)` ile kurulur; ardından
-   başlangıç query'si `picker.set_query(query, window, cx)` ile editöre
-   yazılır.
+1. `command_palette::init(cx)` hook global'lerini kurar ve `cx.observe_new(CommandPalette::register).detach()` ile her yeni `Workspace` için `zed_actions::command_palette::Toggle` action'ını register eder.
+2. `CommandPalette::toggle(workspace, query, window, cx)` mevcut focus handle'ını alır. Focus yoksa palet açılmaz. Ardından `workspace.toggle_modal(...)` ile `CommandPalette` modal view olarak oluşturulur.
+3. `CommandPalette::new(previous_focus_handle, query, workspace, window, cx)` `window.available_actions(cx)` çağırır. Bu liste bütün registry değildir; odaktaki dispatch path üzerinde `.on_action(...)` ile bağlı action'lar ve global action listener'larıdır.
+4. Her action `CommandPaletteFilter::is_hidden` ile elenir ve görünen action'lar `humanize_action_name(action.name())` sonucuyla `Command { name, action }` haline getirilir.
+5. UI `Picker::uniform_list(delegate, window, cx)` ile kurulur; ardından başlangıç query'si `picker.set_query(query, window, cx)` ile editöre yazılır.
 
 **Arama akışı.** Sorgu birkaç aşamadan geçer:
 
-- `humanize_action_name("editor::GoToDefinition")` sonucu
-  `"editor: go to definition"` olur; `go_to_line::Deploy` gibi snake
-  case adlar boşluklu hale gelir.
-- `normalize_action_query(input)` trim yapar, ardışık whitespace'i tek
-  boşluğa indirir, `_` karakterlerini boşluğa çevirir ve ardışık `::`
-  yazımlarını arama için sadeleştirir.
-- `WorkspaceSettings::command_aliases` tam sorgu eşleşmesini canonical
-  action adı string'ine çevirir.
-- Sorgu bir Zed link ise (`parse_zed_link`) palette `OpenZedUrl { url }`
-  action'ını interceptor sonucu gibi listeye ekler.
-- Normal komut listesi background executor üzerinde
-  `fuzzy_nucleo::match_strings_async(..., Case::Smart, LengthPenalty::On,
-  10000, ...)` ile eşleştirilir. Eşleşmeler hit count'a göre, sonra
-  alfabetik ada göre sıralanan komut havuzundan gelir.
-- Interceptor sonucu varsa `matches_updated` içinde normal eşleşmelerle
-  birleştirilir; çift action'lar `Action::partial_eq` ile ayıklanır.
+- `humanize_action_name("editor::GoToDefinition")` sonucu `"editor: go to definition"` olur; `go_to_line::Deploy` gibi snake case adlar boşluklu hale gelir.
+- `normalize_action_query(input)` trim yapar, ardışık whitespace'i tek boşluğa indirir, `_` karakterlerini boşluğa çevirir ve ardışık `::` yazımlarını arama için sadeleştirir.
+- `WorkspaceSettings::command_aliases` tam sorgu eşleşmesini canonical action adı string'ine çevirir.
+- Sorgu bir Zed link ise (`parse_zed_link`) palette `OpenZedUrl { url }` action'ını interceptor sonucu gibi listeye ekler.
+- Normal komut listesi background executor üzerinde `fuzzy_nucleo::match_strings_async(..., Case::Smart, LengthPenalty::On, 10000, ...)` ile eşleştirilir. Eşleşmeler hit count'a göre, sonra alfabetik ada göre sıralanan komut havuzundan gelir.
+- Interceptor sonucu varsa `matches_updated` içinde normal eşleşmelerle birleştirilir; çift action'lar `Action::partial_eq` ile ayıklanır.
 
-**Geçmiş ve sıralama.** `CommandPaletteDB` SQLite tablosu komut geçmişini
-tutar:
+**Geçmiş ve sıralama.** `CommandPaletteDB` SQLite tablosu komut geçmişini tutar:
 
 - SQLite domain adı `CommandPaletteDB`'dir; tablo `command_invocations`.
-- `write_command_invocation(command_name, user_query)` çalıştırılan komutu
-  ve kullanıcının yazdığı sorguyu kaydeder. Tablo 1000 kaydı geçtiğinde
-  en eski kayıt silinir.
-- `list_commands_used()` komut başına invocation sayısı ile son kullanım
-  zamanını döndürür; palet açılırken hit count'u yüksek komutlar önce
-  sıralanır.
-- `list_recent_queries()` boş olmayan kullanıcı sorgularını son kullanım
-  zamanına göre getirir; komut paletinde yukarı/aşağı gezinilirken aynı
-  prefix ile sorgu geçmişine dönülebilir.
+- `write_command_invocation(command_name, user_query)` çalıştırılan komutu ve kullanıcının yazdığı sorguyu kaydeder. Tablo 1000 kaydı geçtiğinde en eski kayıt silinir.
+- `list_commands_used()` komut başına invocation sayısı ile son kullanım zamanını döndürür; palet açılırken hit count'u yüksek komutlar önce sıralanır.
+- `list_recent_queries()` boş olmayan kullanıcı sorgularını son kullanım zamanına göre getirir; komut paletinde yukarı/aşağı gezinilirken aynı prefix ile sorgu geçmişine dönülebilir.
 
 **Onay davranışı.** Confirm akışları iki şekilde işler:
 
-- Normal confirm seçili komutu alır, telemetry'ye
-  `source = "command palette"` ile yazar, `CommandPaletteDB` kaydını bir
-  background task olarak başlatır, eski focus handle'a geri odaklanır, modalı
-  kapatır ve `window.dispatch_action(action, cx)` çağırır.
-- Secondary confirm seçili action'ın canonical adını `String` olarak
-  alır ve `zed_actions::ChangeKeybinding { action: action_name.to_string() }`
-  action'ını dispatch eder. Buradaki `action` alanı bir action nesnesi
-  değil, registry name string'idir (örneğin `"editor::GoToDefinition"`);
-  keymap editor bu string'i alır ve binding ekleme akışını başlatır.
-  Footer'daki "Add/Change Keybinding" butonu da aynı yolu kullanır.
-- `finalize_update_matches` pending background sonucu en fazla kısa bir süre
-  foreground'da bekleyebilir; bu, palet açılırken boş liste parlamasını ve
-  otomasyon sırasında erken enter basma durumunu azaltır.
+- Normal confirm seçili komutu alır, telemetry'ye `source = "command palette"` ile yazar, `CommandPaletteDB` kaydını bir background task olarak başlatır, eski focus handle'a geri odaklanır, modalı kapatır ve `window.dispatch_action(action, cx)` çağırır.
+- Secondary confirm seçili action'ın canonical adını `String` olarak alır ve `zed_actions::ChangeKeybinding { action: action_name.to_string() }` action'ını dispatch eder. Buradaki `action` alanı bir action nesnesi değil, registry name string'idir (örneğin `"editor::GoToDefinition"`); keymap editor bu string'i alır ve binding ekleme akışını başlatır. Footer'daki "Add/Change Keybinding" butonu da aynı yolu kullanır.
+- `finalize_update_matches` pending background sonucu en fazla kısa bir süre foreground'da bekleyebilir; bu, palet açılırken boş liste parlamasını ve otomasyon sırasında erken enter basma durumunu azaltır.
 
 ## Picker, PickerDelegate ve PickerPopoverMenu
 
-`crates/picker/` komut paleti dışında da kullanılan genel bir seçim ve arama
-bileşenidir. Yeni bir picker yazılırken esas iş, `PickerDelegate`
-implementasyonunu yazmaktır:
+`crates/picker/` komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Yeni bir picker yazılırken esas iş, `PickerDelegate` implementasyonunu yazmaktır:
 
 ```rust
 pub trait PickerDelegate: Sized + 'static {
@@ -243,75 +138,38 @@ pub trait PickerDelegate: Sized + 'static {
 }
 ```
 
-**Sık override edilen davranışlar.** Picker farklı senaryolara uydurmak
-için bir dizi opsiyonel hook sağlar:
+**Sık override edilen davranışlar.** Picker farklı senaryolara uydurmak için bir dizi opsiyonel hook sağlar:
 
-- `select_history(Direction, query, ...) -> Option<String>` — yukarı veya aşağı
-  oklarını varsayılan seçim yerine sorgu geçmişinde gezdirmek için.
-- `can_select(ix, ...)`, `select_on_hover()`, `selected_index_changed(...)`
-  — seçilebilir satırları ve hover/selection yan etkilerini yönetir.
-- `no_matches_text(...)`, `render_header(...)`, `render_footer(...)` —
-  boş durum ile sabit üst ve alt alanlar.
-- `documentation_aside(...)` ve `documentation_aside_index()` — seçili
-  veya hover edilen öğe için sağda dokümantasyon paneli göstermek.
-- `confirm_update_query(...)`, `confirm_input(...)`, `confirm_completion(...)`
-  — enter'ın seçimi onaylamak yerine sorguyu dönüştürdüğü veya literal input'u
-  action'a çevirdiği picker türleri.
-- `editor_position() -> PickerEditorPosition::{Start, End}` — arama
-  editörünün listenin üstünde mi altında mı duracağını belirler.
-- `finalize_update_matches(query, duration, ...) -> bool` — background
-  matching'i kısa süreliğine bloklayarak ilk render ve confirm yarışını azaltır.
+- `select_history(Direction, query, ...) -> Option<String>` — yukarı veya aşağı oklarını varsayılan seçim yerine sorgu geçmişinde gezdirmek için.
+- `can_select(ix, ...)`, `select_on_hover()`, `selected_index_changed(...)` — seçilebilir satırları ve hover/selection yan etkilerini yönetir.
+- `no_matches_text(...)`, `render_header(...)`, `render_footer(...)` — boş durum ile sabit üst ve alt alanlar.
+- `documentation_aside(...)` ve `documentation_aside_index()` — seçili veya hover edilen öğe için sağda dokümantasyon paneli göstermek.
+- `confirm_update_query(...)`, `confirm_input(...)`, `confirm_completion(...)` — enter'ın seçimi onaylamak yerine sorguyu dönüştürdüğü veya literal input'u action'a çevirdiği picker türleri.
+- `editor_position() -> PickerEditorPosition::{Start, End}` — arama editörünün listenin üstünde mi altında mı duracağını belirler.
+- `finalize_update_matches(query, duration, ...) -> bool` — background matching'i kısa süreliğine bloklayarak ilk render ve confirm yarışını azaltır.
 
 **Constructor seçimi.** Picker üretmek için dört yapıcı vardır:
 
-- `Picker::uniform_list(delegate, window, cx)` — aramalı picker; tüm
-  satırlar aynı yükseklikteyse tercih edilir ve `gpui::uniform_list`
-  kullanır.
-- `Picker::list(delegate, window, cx)` — aramalı picker; satır
-  yükseklikleri değişkense kullanılır.
-- `Picker::nonsearchable_uniform_list(...)` ve
-  `Picker::nonsearchable_list(...)` — arama editörü olmayan seçim
-  listeleri.
+- `Picker::uniform_list(delegate, window, cx)` — aramalı picker; tüm satırlar aynı yükseklikteyse tercih edilir ve `gpui::uniform_list` kullanır.
+- `Picker::list(delegate, window, cx)` — aramalı picker; satır yükseklikleri değişkense kullanılır.
+- `Picker::nonsearchable_uniform_list(...)` ve `Picker::nonsearchable_list(...)` — arama editörü olmayan seçim listeleri.
 
-**Kullanılabilir ayarlar.** Picker davranışı zincir üzerinden ince
-ayarlanır:
+**Kullanılabilir ayarlar.** Picker davranışı zincir üzerinden ince ayarlanır:
 
-- `width(...)`, `max_height(...)`, `widest_item(...)` — ölçü ve liste
-  genişliği.
+- `width(...)`, `max_height(...)`, `widest_item(...)` — ölçü ve liste genişliği.
 - `show_scrollbar(bool)` — dış scrollbar gösterimi.
-- `modal(bool)` — picker kendi başına modal gibi render ediliyorsa
-  elevation verir; daha büyük bir modalın parçasıysa `false` yapılabilir.
-- `list_measure_all()` — `ListState` tabanlı listede tüm öğeleri ölçmek
-  için.
-- `refresh(&mut self, window, cx)`,
-  `update_matches_with_options(..., ScrollBehavior)` — match akışını
-  dışarıdan tetikleyen mutable yardımcılar.
+- `modal(bool)` — picker kendi başına modal gibi render ediliyorsa elevation verir; daha büyük bir modalın parçasıysa `false` yapılabilir.
+- `list_measure_all()` — `ListState` tabanlı listede tüm öğeleri ölçmek için.
+- `refresh(&mut self, window, cx)`, `update_matches_with_options(..., ScrollBehavior)` — match akışını dışarıdan tetikleyen mutable yardımcılar.
 - `query(&self, cx: &App) -> String` — editördeki anlık sorguyu okur.
-- `set_query(&self, query: &str, window: &mut Window, cx: &mut App)` —
-  editör metnini değiştirir; `&self` aldığına dikkat — picker
-  entity'sini bir `update` bloğunun içine sokmak şart değildir, doğrudan
-  picker referansından çağrılabilir. `cx` burada `Context<...>` değil
-  `&mut App` olduğu için entity context gerekiyorsa update bloğundan
-  dışarı çıkmak gerekebilir.
+- `set_query(&self, query: &str, window: &mut Window, cx: &mut App)` — editör metnini değiştirir; `&self` aldığına dikkat — picker entity'sini bir `update` bloğunun içine sokmak şart değildir, doğrudan picker referansından çağrılabilir. `cx` burada `Context<...>` değil `&mut App` olduğu için entity context gerekiyorsa update bloğundan dışarı çıkmak gerekebilir.
 
-**Action ve key context.** Picker root'u kendi key context'ini ve action
-listenerlarını kurar:
+**Action ve key context.** Picker root'u kendi key context'ini ve action listenerlarını kurar:
 
 - Render root'u `"Picker"` key context'ini ekler.
-- `menu::SelectNext`, `menu::SelectPrevious`, `menu::SelectFirst`,
-  `menu::SelectLast`, `menu::Cancel`, `menu::Confirm`,
-  `menu::SecondaryConfirm`, `picker::ConfirmCompletion` ve
-  `picker::ConfirmInput` action'larını dinler.
-- Click confirm sırasında `cx.stop_propagation()` ve
-  `window.prevent_default()` çağrılır; bu sayede picker satırına
-  tıklama dış elementlere sızmaz.
+- `menu::SelectNext`, `menu::SelectPrevious`, `menu::SelectFirst`, `menu::SelectLast`, `menu::Cancel`, `menu::Confirm`, `menu::SecondaryConfirm`, `picker::ConfirmCompletion` ve `picker::ConfirmInput` action'larını dinler.
+- Click confirm sırasında `cx.stop_propagation()` ve `window.prevent_default()` çağrılır; bu sayede picker satırına tıklama dış elementlere sızmaz.
 
-**`PickerPopoverMenu`.** Bu sarmal, bir picker'ı `ui::PopoverMenu` içine
-yerleştiren ince bir yapıdır.
-`new(picker, trigger, tooltip, anchor, cx)` picker'ın `DismissEvent`'ini
-popover dismiss event'ine bağlar; `with_handle(...)` ve `offset(...)` ile
-dış popover handle ve konum ayarı yapılır. Picker bir toolbar butonu veya
-popover tetikleyicisi arkasında açılacaksa doğrudan modal yerine bu
-sarmal tercih edilir.
+**`PickerPopoverMenu`.** Bu sarmal, bir picker'ı `ui::PopoverMenu` içine yerleştiren ince bir yapıdır. `new(picker, trigger, tooltip, anchor, cx)` picker'ın `DismissEvent`'ini popover dismiss event'ine bağlar; `with_handle(...)` ve `offset(...)` ile dış popover handle ve konum ayarı yapılır. Picker bir toolbar butonu veya popover tetikleyicisi arkasında açılacaksa doğrudan modal yerine bu sarmal tercih edilir.
 
 ---

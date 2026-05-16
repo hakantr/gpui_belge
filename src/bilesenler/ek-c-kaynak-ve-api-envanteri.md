@@ -1,9 +1,6 @@
 # Ek C. Kaynak ve API Envanteri
 
-Bu ek, rehberde anlatılan bileşenlerin kaynak dosyalarını, export yollarını,
-prelude durumlarını ve preview desteklerini tek yerde toplar. Ayrıntılı kullanım
-notları ilgili bileşen başlıklarında anlatılır; burası ise hızlı bakış için
-başvurulacak referans sayfasıdır.
+Bu ek, rehberde anlatılan bileşenlerin kaynak dosyalarını, export yollarını, prelude durumlarını ve preview desteklerini tek yerde toplar. Ayrıntılı kullanım notları ilgili bileşen başlıklarında anlatılır; burası ise hızlı bakış için başvurulacak referans sayfasıdır.
 
 ## Export modeli
 
@@ -19,11 +16,7 @@ pub use icon::*;
 pub use label::*;
 ```
 
-Bu düzen nedeniyle bileşenlerin büyük çoğunluğu `ui::Button`, `ui::Icon`,
-`ui::Label` gibi doğrudan crate kökünden çağrılır. Alt modüller de kendi
-içlerinde `pub use *` kullanır. Örneğin
-`crates/ui/src/components/button.rs`, `Button`, `IconButton`, `ButtonLike`,
-`CopyButton`, `SplitButton` ve toggle button tiplerini dışarı açar.
+Bu düzen nedeniyle bileşenlerin büyük çoğunluğu `ui::Button`, `ui::Icon`, `ui::Label` gibi doğrudan crate kökünden çağrılır. Alt modüller de kendi içlerinde `pub use *` kullanır. Örneğin `crates/ui/src/components/button.rs`, `Button`, `IconButton`, `ButtonLike`, `CopyButton`, `SplitButton` ve toggle button tiplerini dışarı açar.
 
 `crates/ui/src/ui.rs` ise Zed UI crate'inin gerçek export kapısıdır:
 
@@ -43,59 +36,24 @@ pub use traits::animation_ext::*;
 
 Bunun günlük kullanım açısından sonuçları şunlardır:
 
-- `components`, `styles` ve `traits` modülleri kaynakta `mod` yani crate-içi
-  olarak tanımlandığı için doğrudan public path değildir. `ui::components::button::Button`
-  gibi yollar yoktur. Tüketici kod `ui::Button`, `ui::ContextMenu`,
-  `ui::Color`, `ui::TextSize` gibi crate kökü re-export'larını kullanır.
-  `pub use components::*`, `pub use styles::*` ve
-  `pub use traits::animation_ext::*` ifadeleri bu özel modüllerin içindeki
-  public adları crate köküne taşır.
-- Public bir alt modül olarak kalıcı şekilde görünen yollar
-  `ui::prelude`, `ui::component_prelude`, `ui::utils` ile re-export
-  zincirinden gelen `ui::animation`, `ui::scrollbars` ve `ui::table_row`
-  yollarıdır.
-- `traits::animation_ext` crate köküne açıldığı için
-  `ui::CommonAnimationExt` doğrudan import edilebilir. Buna karşılık
-  `traits::transformable` crate kökünden açılmaz; kaynakta
-  `pub trait Transformable` görünmesi tek başına onun bir tüketici API'si
-  olduğu anlamına gelmez.
+- `components`, `styles` ve `traits` modülleri kaynakta `mod` yani crate-içi olarak tanımlandığı için doğrudan public path değildir. `ui::components::button::Button` gibi yollar yoktur. Tüketici kod `ui::Button`, `ui::ContextMenu`, `ui::Color`, `ui::TextSize` gibi crate kökü re-export'larını kullanır. `pub use components::*`, `pub use styles::*` ve `pub use traits::animation_ext::*` ifadeleri bu özel modüllerin içindeki public adları crate köküne taşır.
+- Public bir alt modül olarak kalıcı şekilde görünen yollar `ui::prelude`, `ui::component_prelude`, `ui::utils` ile re-export zincirinden gelen `ui::animation`, `ui::scrollbars` ve `ui::table_row` yollarıdır.
+- `traits::animation_ext` crate köküne açıldığı için `ui::CommonAnimationExt` doğrudan import edilebilir. Buna karşılık `traits::transformable` crate kökünden açılmaz; kaynakta `pub trait Transformable` görünmesi tek başına onun bir tüketici API'si olduğu anlamına gelmez.
 
-`crates/ui/src/prelude.rs` ise daha seçici davranır. Her bileşeni değil,
-sık kullanılan temel UI primitive'lerini ve trait'lerini getirir:
+`crates/ui/src/prelude.rs` ise daha seçici davranır. Her bileşeni değil, sık kullanılan temel UI primitive'lerini ve trait'lerini getirir:
 
-- GPUI yeniden ihraçları (`pub use gpui::prelude::*` ile ek olarak):
-  `AbsoluteLength`, `AnyElement`, `App`, `Context`, `DefiniteLength`,
-  `Div`, `Element`, `ElementId`, `InteractiveElement`, `ParentElement`,
-  `Pixels`, `Rems`, `RenderOnce`, `SharedString`, `Styled`, `Window`,
-  `div`, `px`, `relative`, `rems`.
-- Component preview tipleri: `Component`, `ComponentScope`,
-  `example_group`, `example_group_with_title`, `single_example`,
-  `RegisterComponent`.
-- Ortak trait'ler: `Clickable`, `Disableable`, `FixedWidth`, `StyledExt`,
-  `Toggleable`, `VisibleOnHover`.
-- Tasarım sistemi token'ları ve yardımcıları: `DynamicSpacing`,
-  `PlatformStyle`, `Severity`, `StyledTypography`, `TextSize`,
-  `rems_from_px`, `vh`, `vw`, `ActiveTheme`.
-- Animasyon yardımcıları: `AnimationDirection`, `AnimationDuration`,
-  `DefaultAnimations`.
-- Sık kullanılan bileşenler ve enum'lar: `Button`, `IconButton`,
-  `SelectableButton`, `ButtonCommon`, `ButtonSize`, `ButtonStyle`,
-  `Color`, `Headline`, `HeadlineSize`, `Icon`, `IconName`,
-  `IconPosition`, `IconSize`, `Label`, `LabelCommon`, `LabelSize`,
-  `LineHeightStyle`, `LoadingLabel`, `h_flex`, `v_flex`, `h_group*`,
-  `v_group*`.
+- GPUI yeniden ihraçları (`pub use gpui::prelude::*` ile ek olarak): `AbsoluteLength`, `AnyElement`, `App`, `Context`, `DefiniteLength`, `Div`, `Element`, `ElementId`, `InteractiveElement`, `ParentElement`, `Pixels`, `Rems`, `RenderOnce`, `SharedString`, `Styled`, `Window`, `div`, `px`, `relative`, `rems`.
+- Component preview tipleri: `Component`, `ComponentScope`, `example_group`, `example_group_with_title`, `single_example`, `RegisterComponent`.
+- Ortak trait'ler: `Clickable`, `Disableable`, `FixedWidth`, `StyledExt`, `Toggleable`, `VisibleOnHover`.
+- Tasarım sistemi token'ları ve yardımcıları: `DynamicSpacing`, `PlatformStyle`, `Severity`, `StyledTypography`, `TextSize`, `rems_from_px`, `vh`, `vw`, `ActiveTheme`.
+- Animasyon yardımcıları: `AnimationDirection`, `AnimationDuration`, `DefaultAnimations`.
+- Sık kullanılan bileşenler ve enum'lar: `Button`, `IconButton`, `SelectableButton`, `ButtonCommon`, `ButtonSize`, `ButtonStyle`, `Color`, `Headline`, `HeadlineSize`, `Icon`, `IconName`, `IconPosition`, `IconSize`, `Label`, `LabelCommon`, `LabelSize`, `LineHeightStyle`, `LoadingLabel`, `h_flex`, `v_flex`, `h_group*`, `v_group*`.
 
-Rehberdeki örneklerde izlenen kural şudur: her örnek önce
-`use ui::prelude::*;` ile başlar. Prelude içinde bulunmayan bileşenler ek bir
-`use ui::{...};` satırıyla ayrıca belirtilir.
+Rehberdeki örneklerde izlenen kural şudur: her örnek önce `use ui::prelude::*;` ile başlar. Prelude içinde bulunmayan bileşenler ek bir `use ui::{...};` satırıyla ayrıca belirtilir.
 
 ### Public Yüzey Özeti (`../zed` `3493830ce94e`)
 
-Aşağıdaki liste `crates/ui/src/components`, `crates/ui/src/styles`,
-`crates/ui/src/utils`, `crates/ui/src/traits`, `crates/component/src` ve
-`crates/ui_input/src` public yüzeyini özetler. Ayrıntılı builder
-imzaları ilgili başlıkta yer alır; lifecycle API'leri ise bu tablonun
-hemen altında ayrıca ele alınır.
+Aşağıdaki liste `crates/ui/src/components`, `crates/ui/src/styles`, `crates/ui/src/utils`, `crates/ui/src/traits`, `crates/component/src` ve `crates/ui_input/src` public yüzeyini özetler. Ayrıntılı builder imzaları ilgili başlıkta yer alır; lifecycle API'leri ise bu tablonun hemen altında ayrıca ele alınır.
 
 | Alan | Public adlar |
 | :-- | :-- |
@@ -115,143 +73,53 @@ hemen altında ayrıca ele alınır.
 | Component preview | `components`, `init`, `register_component`, `Component`, `ComponentFn`, `ComponentRegistry`, `ComponentId`, `ComponentMetadata`, `ComponentStatus`, `ComponentScope`, `ComponentExample`, `ComponentExampleGroup`, `single_example`, `empty_example`, `example_group`, `example_group_with_title` |
 | `ui_input` | `InputField`, `InputFieldStyle`, `ErasedEditor`, `ErasedEditorEvent`, `ERASED_EDITOR_FACTORY` |
 
-**Public görünen ama kullanım yüzeyi olmayanlar.** Kaynakta
-`MenuHandleElementState`, `RequestLayoutState`, `PrepaintState`,
-`PopoverMenuElementState`, `PopoverMenuFrameState` ve `ScrollbarPrepaintState`
-element ve layout state taşıyıcılarıdır. Bu tiplerin kaynakta `pub struct`
-olarak görünmesi, tüketiciye önerilen builder API'leri oldukları anlamına
-gelmez. `Element` implementasyonu içinde `RequestLayoutState` ve
-`PrepaintState` layout, prepaint ve paint geçişleri arasında veri taşır.
-`MenuHandleElementState` ile `PopoverMenuElementState` ise hover veya açık menü
-durumlarını element id'sine bağlar.
+**Public görünen ama kullanım yüzeyi olmayanlar.** Kaynakta `MenuHandleElementState`, `RequestLayoutState`, `PrepaintState`, `PopoverMenuElementState`, `PopoverMenuFrameState` ve `ScrollbarPrepaintState` element ve layout state taşıyıcılarıdır. Bu tiplerin kaynakta `pub struct` olarak görünmesi, tüketiciye önerilen builder API'leri oldukları anlamına gelmez. `Element` implementasyonu içinde `RequestLayoutState` ve `PrepaintState` layout, prepaint ve paint geçişleri arasında veri taşır. `MenuHandleElementState` ile `PopoverMenuElementState` ise hover veya açık menü durumlarını element id'sine bağlar.
 
-**Callback yüzeyi olarak public, state taşıyıcı değil.**
-`RenderIndentGuideParams`, `RenderedIndentGuide` ve `IndentGuideLayout`
-`IndentGuides` callback'lerinin sözleşme tipleridir.
-`IndentGuides::with_render_fn(...)` callback'i `RenderIndentGuideParams`'ı
-girdi olarak alır ve bir `SmallVec<[RenderedIndentGuide; 12]>`
-döndürür; `IndentGuides::on_click(...)` ise ilk parametre olarak bir
-`&IndentGuideLayout` verir. Bu nedenle üç tip de "IndentGuides"
-başlığında, alanlarıyla birlikte listelenir; bir element state
-taşıyıcısı sayılmaz.
+**Callback yüzeyi olarak public, state taşıyıcı değil.** `RenderIndentGuideParams`, `RenderedIndentGuide` ve `IndentGuideLayout` `IndentGuides` callback'lerinin sözleşme tipleridir. `IndentGuides::with_render_fn(...)` callback'i `RenderIndentGuideParams`'ı girdi olarak alır ve bir `SmallVec<[RenderedIndentGuide; 12]>` döndürür; `IndentGuides::on_click(...)` ise ilk parametre olarak bir `&IndentGuideLayout` verir. Bu nedenle üç tip de "IndentGuides" başlığında, alanlarıyla birlikte listelenir; bir element state taşıyıcısı sayılmaz.
 
 Benzer sözleşme tiplerine ait public alanlı tipler şunlardır:
 
-- `TableRenderContext`, `render_table_row(...)` ve
-  `render_table_header(...)` çağrıları için düşük seviyeli bir render
-  bağlamıdır. `TableInteractionState` gibi saklanan bir view state'i
-  değildir; `striped`, `show_row_borders`, `column_widths`, `map_row`,
-  `disable_base_cell_style`, `pinned_cols` ve `h_scroll_handle` alanları
-  render helper'larına aktarılır.
-- `HeaderResizeInfo`, header resize ve reset sözleşmesidir.
-  `resize_behavior` alanı public şekilde okunur, ancak kolon state'i
-  içeride bir `WeakEntity` olarak tutulur. Reset için kullanılan public
-  yol `reset_column(...)` metodudur.
-- `DocumentationAside`, context menu custom entry'leri için bir `side`
-  değeri ve bir `render` callback'ini taşır; tek başına render edilen
-  bir component değildir.
-- `ThreadItemWorktreeInfo`, `ThreadItem::worktrees(...)` için domain
-  bir veri nesnesidir. `worktree_name`, `branch_name`, `full_path`,
-  `highlight_positions` ve `kind` alanları thread metadata satırını
-  besler.
-- `ComponentExample` ve `ComponentExampleGroup`, component preview
-  layout verileridir. Alanları public olsa da normal preview kodunda
-  `single_example(...)`, `empty_example(...)`, `example_group(...)` ve
-  builder metotları tercih edilir.
-- `NavigableEntry`, `Navigable` wrapper'ına eklenen focus ve scroll
-  entry sözleşmesidir. `focus_handle` ve `scroll_anchor` alanları
-  publictir; ancak çoğu kullanım `NavigableEntry::new(...)` veya
-  `focusable(...)` üzerinden kurulur.
+- `TableRenderContext`, `render_table_row(...)` ve `render_table_header(...)` çağrıları için düşük seviyeli bir render bağlamıdır. `TableInteractionState` gibi saklanan bir view state'i değildir; `striped`, `show_row_borders`, `column_widths`, `map_row`, `disable_base_cell_style`, `pinned_cols` ve `h_scroll_handle` alanları render helper'larına aktarılır.
+- `HeaderResizeInfo`, header resize ve reset sözleşmesidir. `resize_behavior` alanı public şekilde okunur, ancak kolon state'i içeride bir `WeakEntity` olarak tutulur. Reset için kullanılan public yol `reset_column(...)` metodudur.
+- `DocumentationAside`, context menu custom entry'leri için bir `side` değeri ve bir `render` callback'ini taşır; tek başına render edilen bir component değildir.
+- `ThreadItemWorktreeInfo`, `ThreadItem::worktrees(...)` için domain bir veri nesnesidir. `worktree_name`, `branch_name`, `full_path`, `highlight_positions` ve `kind` alanları thread metadata satırını besler.
+- `ComponentExample` ve `ComponentExampleGroup`, component preview layout verileridir. Alanları public olsa da normal preview kodunda `single_example(...)`, `empty_example(...)`, `example_group(...)` ve builder metotları tercih edilir.
+- `NavigableEntry`, `Navigable` wrapper'ına eklenen focus ve scroll entry sözleşmesidir. `focus_handle` ve `scroll_anchor` alanları publictir; ancak çoğu kullanım `NavigableEntry::new(...)` veya `focusable(...)` üzerinden kurulur.
 
 ### Ek Public API Notları
 
 Kaynakta birkaç ayrım özellikle dikkat ister:
 
-- `tab.rs` ve `tab_bar.rs`: `Tab`, `TabBar`, `TabPosition` ve
-  `TabCloseSide` ayrı bir Tab yüzeyidir. Zed içinde pane tab bar akışı
-  `workspace/src/pane.rs` dosyasında `TabPosition::{First,
-  Middle(Ordering), Last}`, `TabCloseSide::{Start, End}` ve
-  `TabBar::new(...)` ile kurulur.
-- `stack.rs`, `group.rs` ve `divider.rs`: `h_flex`, `v_flex`,
-  `h_group*`, `v_group*`, `Divider`, `DividerColor`, `divider()` ve
-  `vertical_divider()` layout ve divider yüzeyidir; `Stack` veya
-  `Group` adlı bir public struct yoktur.
-- `scrollbar.rs`: `Scrollbars`, `ScrollAxes`, `ScrollbarStyle`,
-  `ScrollableHandle`, `WithScrollbar`, `on_new_scrollbars` ve
-  `EDITOR_SCROLLBAR_WIDTH` root export'tur; `ShowScrollbar`,
-  `ScrollbarVisibility` ve `ScrollbarAutoHide` ise `ui::scrollbars`
-  public alt modülü altındadır. Zed `main.rs` dosyası
-  `on_new_scrollbars::<SettingsStore>(cx)` çağırır; editor ve panel
-  kodları ise `Scrollbars::for_settings::<...>()` kullanır.
-- `keybinding.rs`: `render_keybinding_keystroke`, `render_modifiers`,
-  `text_for_action`, `text_for_keystrokes`,
-  `text_for_keybinding_keystrokes` ve `text_for_keystroke` public free
-  helper'lardır. Bunlar `KeyBinding` component'inin constructor'ı
-  değildir; arama, keymap editor, which-key ve quick action preview
-  gibi yerlerde doğrudan kullanılırlar.
+- `tab.rs` ve `tab_bar.rs`: `Tab`, `TabBar`, `TabPosition` ve `TabCloseSide` ayrı bir Tab yüzeyidir. Zed içinde pane tab bar akışı `workspace/src/pane.rs` dosyasında `TabPosition::{First, Middle(Ordering), Last}`, `TabCloseSide::{Start, End}` ve `TabBar::new(...)` ile kurulur.
+- `stack.rs`, `group.rs` ve `divider.rs`: `h_flex`, `v_flex`, `h_group*`, `v_group*`, `Divider`, `DividerColor`, `divider()` ve `vertical_divider()` layout ve divider yüzeyidir; `Stack` veya `Group` adlı bir public struct yoktur.
+- `scrollbar.rs`: `Scrollbars`, `ScrollAxes`, `ScrollbarStyle`, `ScrollableHandle`, `WithScrollbar`, `on_new_scrollbars` ve `EDITOR_SCROLLBAR_WIDTH` root export'tur; `ShowScrollbar`, `ScrollbarVisibility` ve `ScrollbarAutoHide` ise `ui::scrollbars` public alt modülü altındadır. Zed `main.rs` dosyası `on_new_scrollbars::<SettingsStore>(cx)` çağırır; editor ve panel kodları ise `Scrollbars::for_settings::<...>()` kullanır.
+- `keybinding.rs`: `render_keybinding_keystroke`, `render_modifiers`, `text_for_action`, `text_for_keystrokes`, `text_for_keybinding_keystrokes` ve `text_for_keystroke` public free helper'lardır. Bunlar `KeyBinding` component'inin constructor'ı değildir; arama, keymap editor, which-key ve quick action preview gibi yerlerde doğrudan kullanılırlar.
 
-Public tuple struct alanları ile payload taşıyan enum variant'ları da
-construction yüzeyinin bir parçasıdır:
+Public tuple struct alanları ile payload taşıyan enum variant'ları da construction yüzeyinin bir parçasıdır:
 
-- Public tuple alanları: `ComponentId(pub &'static str)` ve
-  `ScrollbarAutoHide(pub bool)`. İlki registry id değerini, ikincisi
-  ise global auto-hide bayrağını taşır.
-- Payload variant'ları: `SplitButtonKind::{ButtonLike(ButtonLike),
-  IconButton(IconButton)}`, `ToggleButtonGroupSize::Custom(Rems)`,
-  `StaticColumnWidths::Explicit(TableRow<DefiniteLength>)`,
-  `LabelSize::Custom(Rems)`, `EmptyMessage::{Text(SharedString),
-  Element(AnyElement)}`, `ToggleStyle::{ElevationBased(ElevationIndex),
-  Custom(Hsla)}`, `SwitchColor::Custom(Hsla)`, `Color::Player(u32)` ve
-  `DateTimeType::{Naive(NaiveDateTime), Local(DateTime<Local>)}` gibi
-  variant'lar yalnızca bir isim değil, veri taşıyan public bir
-  construction yüzeyidir.
+- Public tuple alanları: `ComponentId(pub &'static str)` ve `ScrollbarAutoHide(pub bool)`. İlki registry id değerini, ikincisi ise global auto-hide bayrağını taşır.
+- Payload variant'ları: `SplitButtonKind::{ButtonLike(ButtonLike), IconButton(IconButton)}`, `ToggleButtonGroupSize::Custom(Rems)`, `StaticColumnWidths::Explicit(TableRow<DefiniteLength>)`, `LabelSize::Custom(Rems)`, `EmptyMessage::{Text(SharedString), Element(AnyElement)}`, `ToggleStyle::{ElevationBased(ElevationIndex), Custom(Hsla)}`, `SwitchColor::Custom(Hsla)`, `Color::Player(u32)` ve `DateTimeType::{Naive(NaiveDateTime), Local(DateTime<Local>)}` gibi variant'lar yalnızca bir isim değil, veri taşıyan public bir construction yüzeyidir.
 
-Public trait implementasyonları da dış crate için ergonomik bir
-construction yüzeyi oluşturur. Kaynakta kullanılan dönüşümler:
+Public trait implementasyonları da dış crate için ergonomik bir construction yüzeyi oluşturur. Kaynakta kullanılan dönüşümler:
 
-- `ToggleState`: `From<bool>` ve `From<Option<bool>>`; `None`,
-  `Indeterminate` anlamına gelir.
-- `Color`: `From<Hsla>`, `From<TintColor>`, `From<ButtonStyle>` ve
-  `From<SwitchColor>`. `ButtonStyle::Tinted(tint)` tint rengini taşır;
-  diğer button stilleri `Color::Default` olarak çözümlenir.
-  `SwitchColor::Custom(_)` de `Color` dönüşümünde custom rengi
-  taşımaz, `Default` döner.
-- `AnyIcon`: `From<Icon>` ve `From<AnimationElement<Icon>>`; `Icon`
-  ise `From<IconName>` sağlar.
-- `SplitButtonKind`: `From<IconButton>` ve `From<ButtonLike>`. Bu
-  yüzden `SplitButton::new(left, right)` sol parçada iki component
-  türünü de kabul eder.
+- `ToggleState`: `From<bool>` ve `From<Option<bool>>`; `None`, `Indeterminate` anlamına gelir.
+- `Color`: `From<Hsla>`, `From<TintColor>`, `From<ButtonStyle>` ve `From<SwitchColor>`. `ButtonStyle::Tinted(tint)` tint rengini taşır; diğer button stilleri `Color::Default` olarak çözümlenir. `SwitchColor::Custom(_)` de `Color` dönüşümünde custom rengi taşımaz, `Default` döner.
+- `AnyIcon`: `From<Icon>` ve `From<AnimationElement<Icon>>`; `Icon` ise `From<IconName>` sağlar.
+- `SplitButtonKind`: `From<IconButton>` ve `From<ButtonLike>`. Bu yüzden `SplitButton::new(left, right)` sol parçada iki component türünü de kabul eder.
 - `EmptyMessage`: `From<String>`, `From<&str>` ve `From<AnyElement>`.
 - `SectionHeader`: `From<SharedString>` ve `From<&'static str>`.
 - `ContextMenuItem`: `From<ContextMenuEntry>`.
-- `AnimationDuration`: `impl Into<std::time::Duration>`; iç gövdesi
-  `self.duration()` çağırır, dolayısıyla `Duration::from(duration)`
-  ya da `gpui::Animation::new(AnimationDuration::Fast.into())` gibi
-  kullanımlarda tipi otomatik çözer.
+- `AnimationDuration`: `impl Into<std::time::Duration>`; iç gövdesi `self.duration()` çağırır, dolayısıyla `Duration::from(duration)` ya da `gpui::Animation::new(AnimationDuration::Fast.into())` gibi kullanımlarda tipi otomatik çözer.
 
-Aynı kategoride, isim olarak görünmeyen ama trigger ergonomisi
-açısından kritik olan blanket impl'ler `popover_menu.rs` içinde
-tanımlanır:
+Aynı kategoride, isim olarak görünmeyen ama trigger ergonomisi açısından kritik olan blanket impl'ler `popover_menu.rs` içinde tanımlanır:
 
-- `impl<T: Clickable> Clickable for gpui::AnimationElement<T>` ve
-  `impl<T: Toggleable> Toggleable for gpui::AnimationElement<T>`
-  blanket impl'leri `.map_element(...)` ile delege eder. Bu sayede
-  `IconButton::new(...).with_rotate_animation(2)` gibi bir
-  `AnimationElement<IconButton>` döndüren zincir, `PopoverTrigger`
-  (`IntoElement + Clickable + Toggleable + 'static` alias'ı) için
-  kabul edilir. Bu trait'ler olmasa `PopoverMenu::trigger(...)`,
-  animasyonlu icon button'ları reddederdi.
+- `impl<T: Clickable> Clickable for gpui::AnimationElement<T>` ve `impl<T: Toggleable> Toggleable for gpui::AnimationElement<T>` blanket impl'leri `.map_element(...)` ile delege eder. Bu sayede `IconButton::new(...).with_rotate_animation(2)` gibi bir `AnimationElement<IconButton>` döndüren zincir, `PopoverTrigger` (`IntoElement + Clickable + Toggleable + 'static` alias'ı) için kabul edilir. Bu trait'ler olmasa `PopoverMenu::trigger(...)`, animasyonlu icon button'ları reddederdi.
 
-Private tiplerdeki dönüşümler ise bir tüketici yüzeyi sayılmaz.
-Örneğin `tooltip.rs` içindeki private `Title` enum'u için
-`From<SharedString>` vardır; ancak dış API `Tooltip::text(...)`,
-`Tooltip::simple(...)` ve `Tooltip::for_action*` constructor'ları
-üzerinden görünür kalır.
+Private tiplerdeki dönüşümler ise bir tüketici yüzeyi sayılmaz. Örneğin `tooltip.rs` içindeki private `Title` enum'u için `From<SharedString>` vardır; ancak dış API `Tooltip::text(...)`, `Tooltip::simple(...)` ve `Tooltip::for_action*` constructor'ları üzerinden görünür kalır.
 
 ### Lifecycle API İmzaları
 
-Bu grup, callback imzaları veya generic bound'ları yüzünden en kolay
-yanlış aktarılabilecek yüzeydir:
+Bu grup, callback imzaları veya generic bound'ları yüzünden en kolay yanlış aktarılabilecek yüzeydir:
 
 ```rust
 pub fn right_click_menu<M: ManagedView>(
@@ -311,14 +179,7 @@ impl ContextMenu {
 }
 ```
 
-**Zed kullanım paritesi.** Activity indicator, file finder, status bar,
-pane tab bar, git branch picker ve settings UI aynı modeli izler:
-trigger `Button` veya `IconButton` ile kurulur, menü
-`ContextMenu::build(...)` içinde üretilir ve popover açıkken focus
-`ManagedView`/`DismissEvent` zinciriyle yönetilir. Bir context menu'yu
-elde tutmak gerektiğinde `PopoverMenuHandle<ContextMenu>` view
-state'inde saklanır. Sağ tık menülerinde ise
-`right_click_menu(id).trigger(...).menu(...)` akışı kullanılır.
+**Zed kullanım paritesi.** Activity indicator, file finder, status bar, pane tab bar, git branch picker ve settings UI aynı modeli izler: trigger `Button` veya `IconButton` ile kurulur, menü `ContextMenu::build(...)` içinde üretilir ve popover açıkken focus `ManagedView`/`DismissEvent` zinciriyle yönetilir. Bir context menu'yu elde tutmak gerektiğinde `PopoverMenuHandle<ContextMenu>` view state'inde saklanır. Sağ tık menülerinde ise `right_click_menu(id).trigger(...).menu(...)` akışı kullanılır.
 
 ## Ortak trait ve sistem tipleri
 
@@ -466,9 +327,7 @@ state'inde saklanır. Sağ tık menülerinde ise
 
 ## Constructor envanteri
 
-Aşağıdaki tablo bileşenlerin başlangıç constructor'larını özetler.
-Ayrıntılı builder listeleri, ilgili bileşenin kendi başlığında yer
-alır.
+Aşağıdaki tablo bileşenlerin başlangıç constructor'larını özetler. Ayrıntılı builder listeleri, ilgili bileşenin kendi başlığında yer alır.
 
 | Bileşen / API | Constructor veya giriş noktası |
 | :-- | :-- |
@@ -574,9 +433,7 @@ alır.
 
 ## Public Yardımcı Metotlar
 
-Kaynakta public olarak görünen ama genellikle builder bölümünde değil
-de state veya helper bölümünde kullanılan metotlar aşağıdaki tabloda
-özetlenir.
+Kaynakta public olarak görünen ama genellikle builder bölümünde değil de state veya helper bölümünde kullanılan metotlar aşağıdaki tabloda özetlenir.
 
 | Kaynak | Metotlar | Rol |
 | :-- | :-- | :-- |

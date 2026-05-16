@@ -1,9 +1,6 @@
 # Runtime kuruluşu ve tema seçimi
 
-Üretilen temalar önce registry'ye ve global state'e yerleştirilir. Ardından
-sistem görünümü izlenir ve tema değiştiğinde pencereler yenilenir. Bu bölüm bu
-akışı sırayla anlatır: tema nerede tutulur, aktif tema nasıl seçilir ve UI yeni
-renkleri nasıl görür?
+Üretilen temalar önce registry'ye ve global state'e yerleştirilir. Ardından sistem görünümü izlenir ve tema değiştiğinde pencereler yenilenir. Bu bölüm bu akışı sırayla anlatır: tema nerede tutulur, aktif tema nasıl seçilir ve UI yeni renkleri nasıl görür?
 
 ---
 
@@ -11,9 +8,7 @@ renkleri nasıl görür?
 
 **Kaynak modül:** `kvs_tema/src/registry.rs`.
 
-Yüklü UI temalarının ve icon temalarının ad bazlı kataloğunu tutar.
-Thread-safe okuma/yazma erişimi sunar; runtime'ın tek "tema veritabanı" gibi
-çalışır.
+Yüklü UI temalarının ve icon temalarının ad bazlı kataloğunu tutar. Thread-safe okuma/yazma erişimi sunar; runtime'ın tek "tema veritabanı" gibi çalışır.
 
 ### Yapı
 
@@ -43,33 +38,20 @@ pub struct ThemeRegistry {
 
 **Sarmalama katmanları:**
 
-1. **`Arc<Theme>` / `Arc<IconTheme>`** — Her tema paylaşılabilir; klonu
-   ucuzdur (yalnızca refcount artışı). Zed paritesinde `cx.theme()` ve
-   `GlobalTheme::icon_theme(cx)` çağrıları `&Arc<_>` döndürür.
-2. **`HashMap<SharedString, _>`** — Ad bazlı O(1) lookup. `SharedString`
-   key olarak kullanılır (Bölüm III/Konu 7); klonsuz hash'leme yapar.
-3. **`RwLock<...>`** — Çoklu okuyucu, tek yazıcı. Tema okuma sıktır
-   (render path), yazma ise nadirdir (init + reload).
-4. **`AssetSource`** — Built-in tema ve icon theme asset'lerini aynı
-   registry üzerinden listeler ve yükler; production bundling ile
-   uyumlu çalışır.
+1. **`Arc<Theme>` / `Arc<IconTheme>`** — Her tema paylaşılabilir; klonu ucuzdur (yalnızca refcount artışı). Zed paritesinde `cx.theme()` ve `GlobalTheme::icon_theme(cx)` çağrıları `&Arc<_>` döndürür.
+2. **`HashMap<SharedString, _>`** — Ad bazlı O(1) lookup. `SharedString` key olarak kullanılır (Bölüm III/Konu 7); klonsuz hash'leme yapar.
+3. **`RwLock<...>`** — Çoklu okuyucu, tek yazıcı. Tema okuma sıktır (render path), yazma ise nadirdir (init + reload).
+4. **`AssetSource`** — Built-in tema ve icon theme asset'lerini aynı registry üzerinden listeler ve yükler; production bundling ile uyumlu çalışır.
 
-> **Neden `parking_lot::RwLock`?** `std::sync::RwLock` daha yavaş ve daha
-> büyüktür. Ayrıca panic sonrası poison davranışı zorunlu `unwrap` çağrılarına
-> yol açar. `parking_lot::RwLock`:
+> **Neden `parking_lot::RwLock`?** `std::sync::RwLock` daha yavaş ve daha büyüktür. Ayrıca panic sonrası poison davranışı zorunlu `unwrap` çağrılarına yol açar. `parking_lot::RwLock`:
 > - Yaklaşık 2× daha hızlı kilit-açma sağlar.
 > - Daha küçük bir bellek ayak izi taşır.
-> - Poison kavramı yoktur — panic sonrası bile lock kullanılmaya devam
->   edebilir.
-> - `read()` ve `write()` doğrudan guard döndürür; `unwrap()` çağrısına
->   ihtiyaç bırakmaz.
+> - Poison kavramı yoktur — panic sonrası bile lock kullanılmaya devam edebilir.
+> - `read()` ve `write()` doğrudan guard döndürür; `unwrap()` çağrısına ihtiyaç bırakmaz.
 
 ### Hata tipleri
 
-**Zed kaynak sözleşmesi** (`crates/theme/src/registry.rs:27`, `:32`): hata
-tipi adları `ThemeNotFoundError` ve `IconThemeNotFoundError` biçimindedir.
-Sonda `Error` suffix'i bulunur. `kvs_tema` mirror'ında da aynı isimler
-kullanılır:
+**Zed kaynak sözleşmesi** (`crates/theme/src/registry.rs:27`, `:32`): hata tipi adları `ThemeNotFoundError` ve `IconThemeNotFoundError` biçimindedir. Sonda `Error` suffix'i bulunur. `kvs_tema` mirror'ında da aynı isimler kullanılır:
 
 ```rust
 use thiserror::Error;
@@ -83,15 +65,11 @@ pub struct ThemeNotFoundError(pub SharedString);
 pub struct IconThemeNotFoundError(pub SharedString);
 ```
 
-- `thiserror` makrosu `Display + std::error::Error` türevlerini ücretsiz
-  olarak üretir.
-- Tek alanlı newtype — hata mesajı `"tema bulunamadı: Kvs Default Dark"`
-  biçiminde okunur.
-- Hata propagation kolaydır: `?` operatörü ile
-  `anyhow::Result<...>` veya başka bir error chain'e dönüştürülebilir.
+- `thiserror` makrosu `Display + std::error::Error` türevlerini ücretsiz olarak üretir.
+- Tek alanlı newtype — hata mesajı `"tema bulunamadı: Kvs Default Dark"` biçiminde okunur.
+- Hata propagation kolaydır: `?` operatörü ile `anyhow::Result<...>` veya başka bir error chain'e dönüştürülebilir.
 
-> **İsim sözleşmesi:** Zed pariteli hata adları `Error` suffix'i taşır:
-> `ThemeNotFoundError` ve `IconThemeNotFoundError`.
+> **İsim sözleşmesi:** Zed pariteli hata adları `Error` suffix'i taşır: `ThemeNotFoundError` ve `IconThemeNotFoundError`.
 
 ### Global wrapper
 
@@ -101,20 +79,14 @@ struct GlobalThemeRegistry(Arc<ThemeRegistry>);
 impl Global for GlobalThemeRegistry {}
 ```
 
-`Arc<ThemeRegistry>`'yi `App` global'i yapmak için bir newtype kullanılır
-(Bölüm III/Konu 10). `Arc<ThemeRegistry>`'yi doğrudan global yapmak iki nedenle
-uygun değildir:
+`Arc<ThemeRegistry>`'yi `App` global'i yapmak için bir newtype kullanılır (Bölüm III/Konu 10). `Arc<ThemeRegistry>`'yi doğrudan global yapmak iki nedenle uygun değildir:
 
-- `Arc<T>` zaten `'static + Send + Sync` özelliklerini taşır; ancak
-  global key olarak `Arc` kullanmak başka kodlarla, örneğin başka bir
-  `Arc<ThemeRegistry>` tutan kodla çakışma yaratır.
-- Newtype, bu özel registry'nin **kendine ait bir global anahtarına**
-  sahip olduğunu garanti altına alır.
+- `Arc<T>` zaten `'static + Send + Sync` özelliklerini taşır; ancak global key olarak `Arc` kullanmak başka kodlarla, örneğin başka bir `Arc<ThemeRegistry>` tutan kodla çakışma yaratır.
+- Newtype, bu özel registry'nin **kendine ait bir global anahtarına** sahip olduğunu garanti altına alır.
 
 ### Public API yüzeyi
 
-Zed'in `crates/theme/src/registry.rs` dosyasındaki public yüzeye paraleldir.
-Üç önemli davranış farkı yorum satırlarında belirtilmiştir:
+Zed'in `crates/theme/src/registry.rs` dosyasındaki public yüzeye paraleldir. Üç önemli davranış farkı yorum satırlarında belirtilmiştir:
 
 ```rust
 impl ThemeRegistry {
@@ -168,11 +140,7 @@ impl ThemeRegistry {
 }
 ```
 
-> **`ThemeRegistry::new` davranış notu:** Yapıcı kendi içinde
-> `insert_theme_families([zed_default_themes()])` çağrısı yapar ve default icon
-> theme'i de ekler. Yani `new`'den dönen registry hiçbir zaman tamamen boş
-> değildir. Mirror tarafta `kvs_default_themes()` ailesinin otomatik yüklenmesi
-> beklenir.
+> **`ThemeRegistry::new` davranış notu:** Yapıcı kendi içinde `insert_theme_families([zed_default_themes()])` çağrısı yapar ve default icon theme'i de ekler. Yani `new`'den dönen registry hiçbir zaman tamamen boş değildir. Mirror tarafta `kvs_default_themes()` ailesinin otomatik yüklenmesi beklenir.
 
 **Her metodun davranışı:**
 
@@ -210,15 +178,9 @@ pub fn insert_themes(&self, themes: impl IntoIterator<Item = Theme>) {
 }
 ```
 
-`HashMap::insert` aynı key bulunduğunda eski değeri **drop eder**. Kullanıcı
-aynı "My Theme" adıyla iki tema yüklediğinde ikincisi birincinin yerini alır.
-Bu davranış **kasıtlıdır**; kullanıcının aynı adla yeniden yükleyerek temayı
-güncellemesi bu yolla karşılanır.
+`HashMap::insert` aynı key bulunduğunda eski değeri **drop eder**. Kullanıcı aynı "My Theme" adıyla iki tema yüklediğinde ikincisi birincinin yerini alır. Bu davranış **kasıtlıdır**; kullanıcının aynı adla yeniden yükleyerek temayı güncellemesi bu yolla karşılanır.
 
-> Tek bir tema yüklemek gerektiğinde tek elemanlı bir koleksiyon
-> geçirilir: `registry.insert_themes([theme]);` veya
-> `registry.insert_themes(std::iter::once(theme));`. Zed'de tek tema
-> eklemek için ayrı bir `insert(theme)` metodu bulunmaz.
+> Tek bir tema yüklemek gerektiğinde tek elemanlı bir koleksiyon geçirilir: `registry.insert_themes([theme]);` veya `registry.insert_themes(std::iter::once(theme));`. Zed'de tek tema eklemek için ayrı bir `insert(theme)` metodu bulunmaz.
 
 **`get` clone semantiği:**
 
@@ -233,9 +195,7 @@ pub fn get(&self, name: &str) -> Result<Arc<Theme>, ThemeNotFoundError> {
 }
 ```
 
-`cloned()` çağrısı `Arc<Theme>`'i klonlar; yalnızca refcount artar. Caller
-kendi `Arc<Theme>` örneğine sahip olur, registry'nin storage'ı ondan bağımsız
-kalır.
+`cloned()` çağrısı `Arc<Theme>`'i klonlar; yalnızca refcount artar. Caller kendi `Arc<Theme>` örneğine sahip olur, registry'nin storage'ı ondan bağımsız kalır.
 
 **`list_names` sıralama:**
 
@@ -247,30 +207,19 @@ pub fn list_names(&self) -> Vec<SharedString> {
 }
 ```
 
-`HashMap` sırasızdır; `sort()` deterministik bir liste sunar. UI'da tema
-seçici dropdown'u alfabetik görünür. Picker veya selector adın yanında
-appearance da gösterecekse `list()` çağrısı tercih edilir.
+`HashMap` sırasızdır; `sort()` deterministik bir liste sunar. UI'da tema seçici dropdown'u alfabetik görünür. Picker veya selector adın yanında appearance da gösterecekse `list()` çağrısı tercih edilir.
 
 ### Thread safety semantiği
 
-- `&ThemeRegistry`'den (paylaşımlı erişimden) hem **okunabilir hem de
-  yazılabilir**. `RwLock` iç-mutabilite sağladığı için `insert` çağrısı
-  bile `&self` ile mümkündür.
-- `Arc<ThemeRegistry>` **`Send + Sync`**'tir; çünkü `RwLock` iki
-  özelliği de garanti eder.
-- Lock hold süresi minimaldir — `insert`/`get` çağrısı tek bir HashMap
-  operasyonundan ibarettir. Race condition oluşmaz.
+- `&ThemeRegistry`'den (paylaşımlı erişimden) hem **okunabilir hem de yazılabilir**. `RwLock` iç-mutabilite sağladığı için `insert` çağrısı bile `&self` ile mümkündür.
+- `Arc<ThemeRegistry>` **`Send + Sync`**'tir; çünkü `RwLock` iki özelliği de garanti eder.
+- Lock hold süresi minimaldir — `insert`/`get` çağrısı tek bir HashMap operasyonundan ibarettir. Race condition oluşmaz.
 
-> **Kilit zinciri uyarısı:** `registry.read()` guard'ı tutulurken başka bir
-> kilide girilmesi, örneğin `GlobalTheme` güncellenmesi, **deadlock riski**
-> doğurur. Tema değişiminde önce `registry.get()` çağrılır, dönen `Arc` alınır,
-> lock düşer ve sonra `GlobalTheme::update_theme(...)` çağrılır. Mevcut API bu
-> deseni zaten teşvik eder.
+> **Kilit zinciri uyarısı:** `registry.read()` guard'ı tutulurken başka bir kilide girilmesi, örneğin `GlobalTheme` güncellenmesi, **deadlock riski** doğurur. Tema değişiminde önce `registry.get()` çağrılır, dönen `Arc` alınır, lock düşer ve sonra `GlobalTheme::update_theme(...)` çağrılır. Mevcut API bu deseni zaten teşvik eder.
 
 ### Zed uyumlu tamamlanmış API
 
-Zed-benzeri selector/settings/icon-theme akışı hedefleniyorsa aşağıdaki
-metotlar opsiyonel değildir, public runtime sözleşmesinin parçasıdır:
+Zed-benzeri selector/settings/icon-theme akışı hedefleniyorsa aşağıdaki metotlar opsiyonel değildir, public runtime sözleşmesinin parçasıdır:
 
 | Metot | Gerekçe |
 |-------|---------|
@@ -283,36 +232,16 @@ metotlar opsiyonel değildir, public runtime sözleşmesinin parçasıdır:
 | `remove_icon_themes` | Extension/user icon theme yenileme. |
 | `extensions_loaded`, `set_extensions_loaded` | Extension temaları gelmeden önce fallback'e sessiz düşme, geldikten sonra gerçek hata loglama. |
 
-Bu metotlardan biri public API'ye eklenmeyecekse, bu karar açıkça kapsam dışı
-tasarım kararı olarak yazılmalıdır. "Şimdilik UI yok" yeterli bir gerekçe
-değildir; selector UI ileride gelse bile registry sözleşmesinin hazır olması
-beklenir.
+Bu metotlardan biri public API'ye eklenmeyecekse, bu karar açıkça kapsam dışı tasarım kararı olarak yazılmalıdır. "Şimdilik UI yok" yeterli bir gerekçe değildir; selector UI ileride gelse bile registry sözleşmesinin hazır olması beklenir.
 
 ### Tuzaklar
 
-1. **`get(name: &str)` ile `get(&SharedString)` arasındaki tercih**:
-   İmza `&str` aldığı için caller `&"...".into()` yazmak zorunda
-   değildir; `"...".into()` ya da bir literal yeterli olur. HashMap key
-   `SharedString` olsa bile `Borrow<str>` impl'i sayesinde `&str` ile
-   lookup çalışır.
-2. **`insert` race condition**: İki thread aynı anda aynı isimle insert
-   yaptığında, hangisinin kazanacağı tanımsızdır —
-   `RwLock::write()` sıraya sokar, son giren kazanır. Bu davranış
-   mantıken kabul edilebilirdir.
-3. **`global(cx)` panic'i**: Registry init edilmediyse panic atar.
-   `kvs_tema::init()` çağrısı uygulama başında yapılmış olmalıdır. Test
-   ortamında `set_global` elle de tetiklenebilir.
-4. **`Arc<ThemeRegistry>`'yi parametre olarak almak ile `cx`
-   kullanmak**: API `ThemeRegistry::global(cx)` desenine sahiptir;
-   `&Arc<ThemeRegistry>` parametre geçmek de mümkündür ama tüketici
-   kodu bu desene bağlar. Genel olarak `cx` üzerinden erişim daha
-   esnektir.
-5. **`SharedString` case sensitivity**: "Kvs Default" ile "kvs default"
-   iki ayrı key olarak değerlendirilir (Bölüm III/Konu 7).
-6. **Registry'i boş başlatıp aktif tema set etmemek**: registry
-   `set_global` sonrası `cx.set_global(GlobalTheme::new(default,
-   default_icon))` çağrısı şarttır. Aksi halde `cx.theme()` veya
-   `GlobalTheme::icon_theme(cx)` panic atar.
+1. **`get(name: &str)` ile `get(&SharedString)` arasındaki tercih**: İmza `&str` aldığı için caller `&"...".into()` yazmak zorunda değildir; `"...".into()` ya da bir literal yeterli olur. HashMap key `SharedString` olsa bile `Borrow<str>` impl'i sayesinde `&str` ile lookup çalışır.
+2. **`insert` race condition**: İki thread aynı anda aynı isimle insert yaptığında, hangisinin kazanacağı tanımsızdır — `RwLock::write()` sıraya sokar, son giren kazanır. Bu davranış mantıken kabul edilebilirdir.
+3. **`global(cx)` panic'i**: Registry init edilmediyse panic atar. `kvs_tema::init()` çağrısı uygulama başında yapılmış olmalıdır. Test ortamında `set_global` elle de tetiklenebilir.
+4. **`Arc<ThemeRegistry>`'yi parametre olarak almak ile `cx` kullanmak**: API `ThemeRegistry::global(cx)` desenine sahiptir; `&Arc<ThemeRegistry>` parametre geçmek de mümkündür ama tüketici kodu bu desene bağlar. Genel olarak `cx` üzerinden erişim daha esnektir.
+5. **`SharedString` case sensitivity**: "Kvs Default" ile "kvs default" iki ayrı key olarak değerlendirilir (Bölüm III/Konu 7).
+6. **Registry'i boş başlatıp aktif tema set etmemek**: registry `set_global` sonrası `cx.set_global(GlobalTheme::new(default, default_icon))` çağrısı şarttır. Aksi halde `cx.theme()` veya `GlobalTheme::icon_theme(cx)` panic atar.
 
 ---
 
@@ -320,10 +249,7 @@ beklenir.
 
 **Kaynak modül:** `kvs_tema/src/runtime.rs`.
 
-`GlobalTheme`, aktif UI temasını ve aktif icon temasını taşıyan global'dir.
-`ActiveTheme` trait'i Zed'de yalnızca `cx.theme()` ergonomisini sağlar. Icon
-tema registry'de ayrı tutulur, ama aktif seçim aynı global altında saklanır.
-Bu sayede settings değişiminde UI ve icon refresh aynı akıştan geçer.
+`GlobalTheme`, aktif UI temasını ve aktif icon temasını taşıyan global'dir. `ActiveTheme` trait'i Zed'de yalnızca `cx.theme()` ergonomisini sağlar. Icon tema registry'de ayrı tutulur, ama aktif seçim aynı global altında saklanır. Bu sayede settings değişiminde UI ve icon refresh aynı akıştan geçer.
 
 ### `GlobalTheme` yapısı
 
@@ -338,9 +264,7 @@ pub struct GlobalTheme {
 impl Global for GlobalTheme {}
 ```
 
-`Theme` ve `IconTheme` doğrudan global yapılmaz; bunun yerine bir newtype
-wrapper kullanılır (Bölüm III/Konu 10 kuralı). Alanlar private'tır. Dışarıdan
-erişim `theme()`/`icon_theme()` ve update metotları üzerinden yapılır.
+`Theme` ve `IconTheme` doğrudan global yapılmaz; bunun yerine bir newtype wrapper kullanılır (Bölüm III/Konu 10 kuralı). Alanlar private'tır. Dışarıdan erişim `theme()`/`icon_theme()` ve update metotları üzerinden yapılır.
 
 ### `GlobalTheme` API
 
@@ -371,8 +295,7 @@ impl GlobalTheme {
 **`theme(cx)`:**
 
 - `cx.global::<Self>()` global'i okur; bulunmadığında panic atar.
-- `&Arc<Theme>` döndürür — caller refcount artırmadan okur, klona
-  ihtiyaç duymaz.
+- `&Arc<Theme>` döndürür — caller refcount artırmadan okur, klona ihtiyaç duymaz.
 
 **`icon_theme(cx)`:**
 
@@ -382,8 +305,7 @@ impl GlobalTheme {
 **İlk kurulum:**
 
 - Zed public API'sinde `set_theme_and_icon` adında bir metot bulunmaz.
-- `init` sırasında `cx.set_global(GlobalTheme::new(theme, icon_theme))`
-  çağrılır.
+- `init` sırasında `cx.set_global(GlobalTheme::new(theme, icon_theme))` çağrılır.
 - Global ilk kez kurulurken iki aktif değerin de hazır olması beklenir.
 
 **`update_theme` / `update_icon_theme`:**
@@ -391,24 +313,15 @@ impl GlobalTheme {
 `init-or-update` deseni (Bölüm III/Konu 10) burada şöyle işler:
 
 - `init` global'i `GlobalTheme::new` + `cx.set_global` ile kurar.
-- Sonraki değişimler `update_global` ile yapılır — mevcut instance
-  mutate edilir, `Drop` çalışmaz (eski `Arc<Theme>` refcount azalır,
-  başka bir tutucu yoksa drop edilir).
+- Sonraki değişimler `update_global` ile yapılır — mevcut instance mutate edilir, `Drop` çalışmaz (eski `Arc<Theme>` refcount azalır, başka bir tutucu yoksa drop edilir).
 
-> **Neden yeni bir `set_global` yerine `update_global`?** İki davranış
-> görünüşte aynıdır, ancak:
-> - `set_global` global tipini **kontrolsüz biçimde değiştirir** —
->   observer'lar bilgilendirilmez.
-> - `update_global` callback'i içinde GPUI'nin observer mekanizması
->   tetiklenir (örneğin `cx.observe_global::<GlobalTheme>(|_, _| {})`).
+> **Neden yeni bir `set_global` yerine `update_global`?** İki davranış görünüşte aynıdır, ancak:
+> - `set_global` global tipini **kontrolsüz biçimde değiştirir** — observer'lar bilgilendirilmez.
+> - `update_global` callback'i içinde GPUI'nin observer mekanizması tetiklenir (örneğin `cx.observe_global::<GlobalTheme>(|_, _| {})`).
 >
-> Tema değişim observer'ı yoksa fark görünmez; ama ileride
-> eklenebilecek senaryolar düşünüldüğünde `update_global` daha güvenli
-> bir tercihtir.
+> Tema değişim observer'ı yoksa fark görünmez; ama ileride eklenebilecek senaryolar düşünüldüğünde `update_global` daha güvenli bir tercihtir.
 
-`kvs_tema` istediği takdirde yerel convenience metotları ekleyebilir;
-bunlar Zed public yüzeyinde olmadığı için yerel genişletme olarak
-değerlendirilir. Önerilen adlandırmalar:
+`kvs_tema` istediği takdirde yerel convenience metotları ekleyebilir; bunlar Zed public yüzeyinde olmadığı için yerel genişletme olarak değerlendirilir. Önerilen adlandırmalar:
 
 | Yerel ad | Davranış | Neden bu ad |
 |----------|----------|-------------|
@@ -416,8 +329,7 @@ değerlendirilir. Önerilen adlandırmalar:
 | `install_or_update_icon_theme(cx, icon)` | Aynı desen, icon tarafı | Aynı gerekçe |
 | `install_active(cx, theme, icon)` | `cx.set_global(GlobalTheme::new(...))` çağrısının okunabilir alias'ı | İlk init'i tek satıra indirir |
 
-Init öncesinde `GlobalTheme::update_theme` veya bu yerel sarmalayıcılar
-çağrılırsa global yokluğu nedeniyle panic oluşur.
+Init öncesinde `GlobalTheme::update_theme` veya bu yerel sarmalayıcılar çağrılırsa global yokluğu nedeniyle panic oluşur.
 
 ### `ActiveTheme` trait
 
@@ -435,16 +347,11 @@ impl ActiveTheme for App {
 }
 ```
 
-**Önemli sözleşme notu:** Zed'de `ActiveTheme` trait'i **yalnızca** `theme()`
-metoduna sahiptir; `icon_theme()` trait'in parçası **değildir**. Aktif icon
-tema'ya erişim `GlobalTheme::icon_theme(cx)` üzerinden yapılır. Zed paritesinde
-`cx.icon_theme()` doğrudan çalışmaz.
+**Önemli sözleşme notu:** Zed'de `ActiveTheme` trait'i **yalnızca** `theme()` metoduna sahiptir; `icon_theme()` trait'in parçası **değildir**. Aktif icon tema'ya erişim `GlobalTheme::icon_theme(cx)` üzerinden yapılır. Zed paritesinde `cx.icon_theme()` doğrudan çalışmaz.
 
 **`kvs_tema` için iki seçenek:**
 
-1. **Paritede kalmak** — trait Zed'deki gibi tek metotlu tutulur; icon
-   tema'ya `GlobalTheme::icon_theme(cx)` veya bağımsız bir
-   `IconActiveTheme` trait'i üzerinden erişilir:
+1. **Paritede kalmak** — trait Zed'deki gibi tek metotlu tutulur; icon tema'ya `GlobalTheme::icon_theme(cx)` veya bağımsız bir `IconActiveTheme` trait'i üzerinden erişilir:
 
    ```rust
    pub trait ActiveTheme {
@@ -463,24 +370,15 @@ tema'ya erişim `GlobalTheme::icon_theme(cx)` üzerinden yapılır. Zed paritesi
    }
    ```
 
-2. **`kvs_tema` ek metot olarak `icon_theme` koymak** — bu, Zed
-   paritesini genişletmek anlamına gelir; trait Zed'den farklı, iki
-   metotlu bir yerel API olur.
+2. **`kvs_tema` ek metot olarak `icon_theme` koymak** — bu, Zed paritesini genişletmek anlamına gelir; trait Zed'den farklı, iki metotlu bir yerel API olur.
 
-Rehberin örnekleri 1. seçeneği varsayar; aktif icon tema için
-`GlobalTheme::icon_theme(cx)` çağrılır. 2. seçenek uygulandığında ilgili
-çağrılar `cx.icon_theme()` olarak kısaltılabilir.
+Rehberin örnekleri 1. seçeneği varsayar; aktif icon tema için `GlobalTheme::icon_theme(cx)` çağrılır. 2. seçenek uygulandığında ilgili çağrılar `cx.icon_theme()` olarak kısaltılabilir.
 
 **Mantık:**
 
-- Trait **extension method** sağlar — `App` üzerinde `cx.theme()`
-  çağrısını mümkün kılar.
-- `Context<T>: Deref<Target = App>` (Bölüm III/Konu 9) sayesinde
-  `cx.theme()` `Context<T>` üzerinden de çalışır — ayrı bir trait impl
-  gerekmez; deref coercion yeterlidir.
-- `AsyncApp` üzerinde `theme()` çalışmaz; `AsyncApp` `&App`'e doğrudan
-  deref etmez. Gerektiğinde `cx.try_global::<GlobalTheme>()` ile manuel
-  erişilir.
+- Trait **extension method** sağlar — `App` üzerinde `cx.theme()` çağrısını mümkün kılar.
+- `Context<T>: Deref<Target = App>` (Bölüm III/Konu 9) sayesinde `cx.theme()` `Context<T>` üzerinden de çalışır — ayrı bir trait impl gerekmez; deref coercion yeterlidir.
+- `AsyncApp` üzerinde `theme()` çalışmaz; `AsyncApp` `&App`'e doğrudan deref etmez. Gerektiğinde `cx.try_global::<GlobalTheme>()` ile manuel erişilir.
 
 ### Tüketici tarafı kullanımı
 
@@ -498,8 +396,7 @@ impl Render for AnaPanel {
 }
 ```
 
-`use kvs_tema::ActiveTheme;` zorunludur — trait metodu import edilmediği
-sürece görünmez. Tipik bir desen, prelude modülü kullanmaktır:
+`use kvs_tema::ActiveTheme;` zorunludur — trait metodu import edilmediği sürece görünmez. Tipik bir desen, prelude modülü kullanmaktır:
 
 ```rust
 // kvs_tema/src/prelude.rs (opsiyonel)
@@ -514,8 +411,7 @@ use kvs_tema::prelude::*;  // tek satırlık import
 
 ### Accessor metotları
 
-`styles` alanı crate-içi olduğu için tüketicinin kararlı okuma yolu
-Konu 12'deki accessor'lardır:
+`styles` alanı crate-içi olduğu için tüketicinin kararlı okuma yolu Konu 12'deki accessor'lardır:
 
 ```rust
 impl Theme {
@@ -552,35 +448,18 @@ impl AnaPanel {
 }
 ```
 
-`cx.observe_global` `Subscription` döndürür; `.detach()` çağrısı zorunludur.
-Aksi halde observer ölür.
+`cx.observe_global` `Subscription` döndürür; `.detach()` çağrısı zorunludur. Aksi halde observer ölür.
 
-Buna ek olarak şuna dikkat etmek gerekir: `cx.refresh_windows()` (Konu 38)
-zaten tüm view'ları yeniden çizdiği için explicit observer çoğu durumda
-gereksizdir. Observer yalnızca tema veya icon tema değişiminde özel bir state
-güncellenecekse anlamlı olur.
+Buna ek olarak şuna dikkat etmek gerekir: `cx.refresh_windows()` (Konu 38) zaten tüm view'ları yeniden çizdiği için explicit observer çoğu durumda gereksizdir. Observer yalnızca tema veya icon tema değişiminde özel bir state güncellenecekse anlamlı olur.
 
 ### Tuzaklar
 
-1. **`theme(&Arc<Theme>)` üzerinde gereksiz clone**: `cx.theme()` zaten
-   `&Arc<Theme>` döndürür; bunun üzerinde `.clone()` çağrılması
-   gereksiz bir refcount artışı oluşturur. `let tema = cx.theme();`
-   yeterli olur.
-2. **`use kvs_tema::ActiveTheme` import etmemek**: Trait import
-   edilmediğinde `cx.theme()` "method not found" hatasıyla karşılaşır.
-   Prelude kullanmak en pratik çözüm olur.
-3. **Global'i icon temasız kurmak**: Aktif icon tema yokken explorer
-   render fallback path üretemez. `init` içinde default icon tema'nın
-   mutlaka kurulması gerekir.
-4. **`update_theme` callback'inde başka bir global'i set etmeye
-   kalkmak**: `update_global::<Self, _>(|this, _| ...)` callback'inde
-   yalnızca field mutate edilebilir; başka bir global'i set etmeye
-   çalışmak re-entrancy panic'i çıkarır.
-5. **Theme parametresinin `Theme` olarak alınması**:
-   `update_theme(cx, theme: Theme)` yazıldığında her çağrıda klon
-   oluşurdu. `Arc<Theme>` parametre tipi zorunludur.
-6. **`observe_global` üzerinde `.detach()` çağırmamak**: Subscription
-   drop edildiğinde observer ölür; tema değişince bileşen yenilenmez.
+1. **`theme(&Arc<Theme>)` üzerinde gereksiz clone**: `cx.theme()` zaten `&Arc<Theme>` döndürür; bunun üzerinde `.clone()` çağrılması gereksiz bir refcount artışı oluşturur. `let tema = cx.theme();` yeterli olur.
+2. **`use kvs_tema::ActiveTheme` import etmemek**: Trait import edilmediğinde `cx.theme()` "method not found" hatasıyla karşılaşır. Prelude kullanmak en pratik çözüm olur.
+3. **Global'i icon temasız kurmak**: Aktif icon tema yokken explorer render fallback path üretemez. `init` içinde default icon tema'nın mutlaka kurulması gerekir.
+4. **`update_theme` callback'inde başka bir global'i set etmeye kalkmak**: `update_global::<Self, _>(|this, _| ...)` callback'inde yalnızca field mutate edilebilir; başka bir global'i set etmeye çalışmak re-entrancy panic'i çıkarır.
+5. **Theme parametresinin `Theme` olarak alınması**: `update_theme(cx, theme: Theme)` yazıldığında her çağrıda klon oluşurdu. `Arc<Theme>` parametre tipi zorunludur.
+6. **`observe_global` üzerinde `.detach()` çağırmamak**: Subscription drop edildiğinde observer ölür; tema değişince bileşen yenilenmez.
 
 ---
 
@@ -588,8 +467,7 @@ güncellenecekse anlamlı olur.
 
 **Kaynak modül:** `kvs_tema/src/runtime.rs`.
 
-OS'un light/dark mod tercihini taşır. Tema seçim mantığı bu değeri okur ve
-uygun tema varyantını yükler.
+OS'un light/dark mod tercihini taşır. Tema seçim mantığı bu değeri okur ve uygun tema varyantını yükler.
 
 ### Yapı
 
@@ -627,19 +505,12 @@ impl std::ops::DerefMut for GlobalSystemAppearance {
 impl Global for GlobalSystemAppearance {}
 ```
 
-- `SystemAppearance(pub Appearance)` — `Appearance` (Bölüm IV/Konu 16)
-  newtype'ıdır; `Default` `Self(Appearance::Dark)` döndürür.
-- `Deref<Target = Appearance>` impl'i sayesinde `system.is_light()` gibi
-  `Appearance` metotları doğrudan çalışır; `.0` açmaya gerek kalmaz.
-- `Copy` türevidir; çünkü `Appearance` `Copy`'dir. Bu sayede değer
-  geçişi ucuz olur.
-- `GlobalSystemAppearance` `Default` türevini taşır ve `Deref`/`DerefMut`
-  ile newtype'ı tutucu olarak şeffaflaştırır.
+- `SystemAppearance(pub Appearance)` — `Appearance` (Bölüm IV/Konu 16) newtype'ıdır; `Default` `Self(Appearance::Dark)` döndürür.
+- `Deref<Target = Appearance>` impl'i sayesinde `system.is_light()` gibi `Appearance` metotları doğrudan çalışır; `.0` açmaya gerek kalmaz.
+- `Copy` türevidir; çünkü `Appearance` `Copy`'dir. Bu sayede değer geçişi ucuz olur.
+- `GlobalSystemAppearance` `Default` türevini taşır ve `Deref`/`DerefMut` ile newtype'ı tutucu olarak şeffaflaştırır.
 
-> **Neden `Appearance` doğrudan global yapılmaz?** `Appearance` enum'u farklı
-> anlamlarda da kullanılır: tema'nın nominal modu ve JSON deserialize hedefi
-> gibi. Global anahtarının **sisteme özgü** kalması önemlidir. `SystemAppearance`
-> yalnızca "OS şu an ne söylüyor?" sorusunu cevaplar.
+> **Neden `Appearance` doğrudan global yapılmaz?** `Appearance` enum'u farklı anlamlarda da kullanılır: tema'nın nominal modu ve JSON deserialize hedefi gibi. Global anahtarının **sisteme özgü** kalması önemlidir. `SystemAppearance` yalnızca "OS şu an ne söylüyor?" sorusunu cevaplar.
 
 ### API
 
@@ -666,34 +537,23 @@ impl SystemAppearance {
 }
 ```
 
-> **`init` `default_global` ile çalışır:** `set_global` yerine
-> `default_global` kullanıldığında, bağlamda global yoksa
-> `Default::default()` (yani `SystemAppearance(Appearance::Dark)`)
-> oluşturulup üstüne yazılır. İkinci `init` çağrısı eski global'i drop
-> etmek yerine mevcut yerinde günceller — observer'lar tetiklenir.
+> **`init` `default_global` ile çalışır:** `set_global` yerine `default_global` kullanıldığında, bağlamda global yoksa `Default::default()` (yani `SystemAppearance(Appearance::Dark)`) oluşturulup üstüne yazılır. İkinci `init` çağrısı eski global'i drop etmek yerine mevcut yerinde günceller — observer'lar tetiklenir.
 
 **`init(cx)`:**
 
 - `cx.window_appearance()` (Bölüm III/Konu 8) sorgusu yapılır.
-- `WindowAppearance` dört variant'tan birini döndürür; `Vibrant*`
-  macOS'a özgüdür ama tema seçiminde Light/Dark ile aynı kategoride
-  ele alınır.
+- `WindowAppearance` dört variant'tan birini döndürür; `Vibrant*` macOS'a özgüdür ama tema seçiminde Light/Dark ile aynı kategoride ele alınır.
 - Match ifadesi dört variant'ı iki kategoride birleştirir.
 - `set_global` ile global kurulur.
 
 **`global(cx)`:**
 
-- `cx.global::<GlobalSystemAppearance>()` çağrısı
-  `&GlobalSystemAppearance` döndürür.
-- `.0` newtype'ı açar — `SystemAppearance` `Copy` olduğu için değer
-  geri döner.
+- `cx.global::<GlobalSystemAppearance>()` çağrısı `&GlobalSystemAppearance` döndürür.
+- `.0` newtype'ı açar — `SystemAppearance` `Copy` olduğu için değer geri döner.
 
 ### Sistem mod değişimini izleme (public API)
 
-`init` çağrısı yalnızca **başlangıçta** yapılır. OS theme değişimini takip
-etmek için observer gerekir. Observer kurmak `Window` referansı ister; `init`
-ise `&mut App` aldığı için bunu içeride yapamaz. Bu yüzden tüketici, pencere
-açıldıktan sonra ayrı bir public fonksiyon çağırır:
+`init` çağrısı yalnızca **başlangıçta** yapılır. OS theme değişimini takip etmek için observer gerekir. Observer kurmak `Window` referansı ister; `init` ise `&mut App` aldığı için bunu içeride yapamaz. Bu yüzden tüketici, pencere açıldıktan sonra ayrı bir public fonksiyon çağırır:
 
 ```rust
 // kvs_tema/src/runtime.rs — public API
@@ -737,19 +597,12 @@ fn main() {
 
 **İki adımlı kuruluşun gerekçesi:**
 
-- **Adım 1 (`init`)**: Sistem mod'unun **anlık değerini** yakalar
-  (`cx.window_appearance()` `&App` üzerinden çalışır).
-- **Adım 2 (`observe_system_appearance`)**: Mod **değişimini** dinler
-  (`cx.observe_window_appearance` `Window` ister).
+- **Adım 1 (`init`)**: Sistem mod'unun **anlık değerini** yakalar (`cx.window_appearance()` `&App` üzerinden çalışır).
+- **Adım 2 (`observe_system_appearance`)**: Mod **değişimini** dinler (`cx.observe_window_appearance` `Window` ister).
 
-Tüketici 2. adımı atlayabilir. Bu durumda sistem modu "set once" davranışı
-gösterir ve uygulama yaşadığı sürece ilk değerinde kalır. Bu kasıtlı bir seçim
-olabilir; ancak otomatik tema takibi isteniyorsa observer kurulmalıdır.
+Tüketici 2. adımı atlayabilir. Bu durumda sistem modu "set once" davranışı gösterir ve uygulama yaşadığı sürece ilk değerinde kalır. Bu kasıtlı bir seçim olabilir; ancak otomatik tema takibi isteniyorsa observer kurulmalıdır.
 
-> **`.detach()` zorunluluğu:** `cx.observe_window_appearance`
-> `Subscription` döndürür; drop edildiğinde observer ölür (Bölüm
-> III/Konu 10 tuzak 5). `observe_system_appearance` fonksiyonu zaten
-> `.detach()` çağırır; tüketicinin elle çağırmasına gerek kalmaz.
+> **`.detach()` zorunluluğu:** `cx.observe_window_appearance` `Subscription` döndürür; drop edildiğinde observer ölür (Bölüm III/Konu 10 tuzak 5). `observe_system_appearance` fonksiyonu zaten `.detach()` çağırır; tüketicinin elle çağırmasına gerek kalmaz.
 
 ### Sistemden tema seçme örneği
 
@@ -768,12 +621,9 @@ pub fn sistemden_tema_sec(cx: &mut App) -> anyhow::Result<()> {
 }
 ```
 
-> **Tema adının sabit string olarak yazılması:** "Kvs Default Dark"
-> ifadesi tipo'ya açıktır. Production için iki yaklaşım daha
-> güvenlidir:
+> **Tema adının sabit string olarak yazılması:** "Kvs Default Dark" ifadesi tipo'ya açıktır. Production için iki yaklaşım daha güvenlidir:
 > - Sabitler modülü: `pub const DEFAULT_DARK: &str = "Kvs Default Dark";`
-> - Kullanıcı ayarlarından okuma: `SettingsTema { dark_default: String,
->   light_default: String }`.
+> - Kullanıcı ayarlarından okuma: `SettingsTema { dark_default: String, light_default: String }`.
 
 ### `Appearance` ile `SystemAppearance` ve `WindowAppearance` ayrımı
 
@@ -785,39 +635,22 @@ pub fn sistemden_tema_sec(cx: &mut App) -> anyhow::Result<()> {
 
 Bu üç tip farklı kavramları temsil eder; karıştırılmamalıdır:
 
-- Kullanıcı sistem Dark modda olsa bile explicit olarak Light tema
-  seçmişse: `SystemAppearance::Dark` ama `cx.theme().appearance == Light`.
-- macOS Vibrant moda geçtiğinde: `WindowAppearance::VibrantDark` döner
-  ama `SystemAppearance::Dark` olarak kategorize edilir (kategori
-  indirme).
+- Kullanıcı sistem Dark modda olsa bile explicit olarak Light tema seçmişse: `SystemAppearance::Dark` ama `cx.theme().appearance == Light`.
+- macOS Vibrant moda geçtiğinde: `WindowAppearance::VibrantDark` döner ama `SystemAppearance::Dark` olarak kategorize edilir (kategori indirme).
 
 ### Tuzaklar
 
-1. **`init` tek seferlik çağrılır**: Sistem mod değişirse `init` tekrar
-   tetiklenmez. Değişimin yakalanması için observer'ın kurulması
-   gerekir.
-2. **`SystemAppearance` `Copy` ama `GlobalSystemAppearance` değil**:
-   Newtype `Copy` türevini taşımaz (`Global` `Copy` gerektirmez); ama
-   içindeki `SystemAppearance` `Copy` olduğu için `.0` `Copy` döner.
-   Bu kasıtlı bir tasarım kararıdır.
-3. **Vibrant variant'larını görmezden gelmek**: `match` ifadesinde
-   `_ => Light` veya `_ => Dark` yazıldığında macOS'ta yanlış kategori
-   üretilir. Dört variant'ın da listelenmesi gerekir.
-4. **Sistem moduna zorla uymaya çalışmak**: Kullanıcı manuel olarak
-   bir tema seçmiş olabilir; sistem mod değişimini doğrudan uygulamak
-   kullanıcı tercihini ezer. Bunun için ayar yapısı genişletilebilir:
+1. **`init` tek seferlik çağrılır**: Sistem mod değişirse `init` tekrar tetiklenmez. Değişimin yakalanması için observer'ın kurulması gerekir.
+2. **`SystemAppearance` `Copy` ama `GlobalSystemAppearance` değil**: Newtype `Copy` türevini taşımaz (`Global` `Copy` gerektirmez); ama içindeki `SystemAppearance` `Copy` olduğu için `.0` `Copy` döner. Bu kasıtlı bir tasarım kararıdır.
+3. **Vibrant variant'larını görmezden gelmek**: `match` ifadesinde `_ => Light` veya `_ => Dark` yazıldığında macOS'ta yanlış kategori üretilir. Dört variant'ın da listelenmesi gerekir.
+4. **Sistem moduna zorla uymaya çalışmak**: Kullanıcı manuel olarak bir tema seçmiş olabilir; sistem mod değişimini doğrudan uygulamak kullanıcı tercihini ezer. Bunun için ayar yapısı genişletilebilir:
    ```rust
    pub struct AyarlarTema {
        pub mod_takibi: bool,  // false ise sistem mod'unu yok say
        pub ad: Option<String>,
    }
    ```
-5. **`SystemAppearance::global(cx)` init'siz erişim**: Zed'de
-   `SystemAppearance` `Default` (`Appearance::Dark`) türevini taşır;
-   ancak `global(cx)` `cx.global::<...>` çağrısı yaptığı için bağlamda
-   kayıt yoksa panic atar. Erişimden önce `default_global(cx)` veya
-   `init(cx)` ile kurulum yapılması gerekir. Bu sıra `init()` fonksiyonu
-   içinde garanti altındadır.
+5. **`SystemAppearance::global(cx)` init'siz erişim**: Zed'de `SystemAppearance` `Default` (`Appearance::Dark`) türevini taşır; ancak `global(cx)` `cx.global::<...>` çağrısı yaptığı için bağlamda kayıt yoksa panic atar. Erişimden önce `default_global(cx)` veya `init(cx)` ile kurulum yapılması gerekir. Bu sıra `init()` fonksiyonu içinde garanti altındadır.
 
 ---
 
@@ -825,13 +658,11 @@ Bu üç tip farklı kavramları temsil eder; karıştırılmamalıdır:
 
 **Kaynak modül:** `kvs_tema/src/runtime.rs`.
 
-`kvs_tema::init(cx)`, runtime'ın **tek giriş noktasıdır**. Uygulamanın başında,
-pencere açılmadan **mutlaka** çağrılır.
+`kvs_tema::init(cx)`, runtime'ın **tek giriş noktasıdır**. Uygulamanın başında, pencere açılmadan **mutlaka** çağrılır.
 
 ### Tam kod
 
-`kvs_tema::init` Zed paritesi için `LoadThemes` enum'unu parametre olarak
-alır (Konu 43.1):
+`kvs_tema::init` Zed paritesi için `LoadThemes` enum'unu parametre olarak alır (Konu 43.1):
 
 ```rust
 pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
@@ -872,30 +703,13 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
 }
 ```
 
-> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar.
-> `theme::init` önce font cache, registry ve fallback dark temasını kurar.
-> Daha sonra üst seviyede `theme_settings::init`
-> (`theme_settings/src/theme_settings.rs:68`) çağrılır. Bu ikinci adım
-> `set_theme_settings_provider` ile typography/density provider'ını kurar,
-> `LoadThemes::All` durumunda `assets/themes/*.json` altındaki bundled tema
-> asset'lerini yükler, `configured_theme(cx)` ile settings dosyasından gelen
-> seçimi çözer ve aktif tema'yı **fallback dark'tan settings'in istediği
-> temaya** geçirir. Kullanıcı disk temaları bu adımın parçası değildir; onlar
-> `load_user_theme(registry, bytes)` veya `deserialize_user_theme(bytes)`
-> yoluyla ayrıca registry'ye eklenir. Mirror tarafta da bu ayrım korunmalıdır:
-> `kvs_tema::init` registry + `GlobalTheme` default'unu kurar,
-> `kvs_tema_ayarlari::init` ise provider + settings observer +
-> `configured_theme` akışını kurar. Bunları tek init'te birleştirmek
-> `kvs_tema` crate'ini settings crate'ine zorunlu bağlar ve Konu 5'teki
-> bağımlılık kararıyla çelişir.
+> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar. `theme::init` önce font cache, registry ve fallback dark temasını kurar. Daha sonra üst seviyede `theme_settings::init` (`theme_settings/src/theme_settings.rs:68`) çağrılır. Bu ikinci adım `set_theme_settings_provider` ile typography/density provider'ını kurar, `LoadThemes::All` durumunda `assets/themes/*.json` altındaki bundled tema asset'lerini yükler, `configured_theme(cx)` ile settings dosyasından gelen seçimi çözer ve aktif tema'yı **fallback dark'tan settings'in istediği temaya** geçirir. Kullanıcı disk temaları bu adımın parçası değildir; onlar `load_user_theme(registry, bytes)` veya `deserialize_user_theme(bytes)` yoluyla ayrıca registry'ye eklenir. Mirror tarafta da bu ayrım korunmalıdır: `kvs_tema::init` registry + `GlobalTheme` default'unu kurar, `kvs_tema_ayarlari::init` ise provider + settings observer + `configured_theme` akışını kurar. Bunları tek init'te birleştirmek `kvs_tema` crate'ini settings crate'ine zorunlu bağlar ve Konu 5'teki bağımlılık kararıyla çelişir.
 
 ### 5 adımlı kuruluş
 
 **Adım 1 — `SystemAppearance::init(cx)`:**
 
-Sistem mod sorgulanır ve global kurulur. **İlk** adım olmasının nedeni,
-sonraki adımların gerektiğinde sistem mod'una bakabilmesidir (`init`
-sırasında olmasa bile observer eklenirken).
+Sistem mod sorgulanır ve global kurulur. **İlk** adım olmasının nedeni, sonraki adımların gerektiğinde sistem mod'una bakabilmesidir (`init` sırasında olmasa bile observer eklenirken).
 
 **Adım 2 — Registry yaratma:**
 
@@ -903,12 +717,7 @@ sırasında olmasa bile observer eklenirken).
 let registry = Arc::new(ThemeRegistry::new(assets));
 ```
 
-`Arc` global'e konacağı için kullanılır. `ThemeRegistry::new(assets)`
-`AssetSource` parametresini zorunlu alır; testte `Box::new(()) as
-Box<dyn AssetSource>` geçirilir. Yapıcı zaten içinde
-`insert_theme_families([zed_default_themes()])` çağrısı yapar ve default
-icon tema'yı ekler — yani `new`'den dönen registry hiçbir zaman boş
-değildir.
+`Arc` global'e konacağı için kullanılır. `ThemeRegistry::new(assets)` `AssetSource` parametresini zorunlu alır; testte `Box::new(()) as Box<dyn AssetSource>` geçirilir. Yapıcı zaten içinde `insert_theme_families([zed_default_themes()])` çağrısı yapar ve default icon tema'yı ekler — yani `new`'den dönen registry hiçbir zaman boş değildir.
 
 **Adım 3 — Fallback temalarının insert edilmesi:**
 
@@ -921,12 +730,9 @@ registry.insert_themes([
 
 İki "default" tema her zaman registry'de bulunur. Bunun nedenleri:
 
-- Kullanıcı tema yükleme akışı bozulsa bile **uygulama çalışmaya devam
-  eder**.
-- `cx.theme()` ve `GlobalTheme::icon_theme(cx)` çağrıları panic
-  atamaz; her zaman geçerli bir tema bulunur.
-- Sistem light/dark mod değişiminde her zaman bir hedef tema hazır
-  durur.
+- Kullanıcı tema yükleme akışı bozulsa bile **uygulama çalışmaya devam eder**.
+- `cx.theme()` ve `GlobalTheme::icon_theme(cx)` çağrıları panic atamaz; her zaman geçerli bir tema bulunur.
+- Sistem light/dark mod değişiminde her zaman bir hedef tema hazır durur.
 
 **Adım 4 — Default seçimi:**
 
@@ -939,13 +745,9 @@ let default_icon = registry
     .expect("default icon tema kayıtlı olmalı");
 ```
 
-`.expect()` kullanımı kasıtlıdır. Bu durum bir **mantıksal invariant**'tır:
-az önce UI fallback temaları insert edildi ve registry default icon tema'yı
-kurdu; eksik olmaları beklenmez. Eksiklerse bu programatik bir hatadır
-(typo veya init bug'ı) ve panic kabul edilebilir bir tepkidir.
+`.expect()` kullanımı kasıtlıdır. Bu durum bir **mantıksal invariant**'tır: az önce UI fallback temaları insert edildi ve registry default icon tema'yı kurdu; eksik olmaları beklenmez. Eksiklerse bu programatik bir hatadır (typo veya init bug'ı) ve panic kabul edilebilir bir tepkidir.
 
-> Alternatif olarak `SystemAppearance` baz alınarak başlangıç teması
-> seçilebilir:
+> Alternatif olarak `SystemAppearance` baz alınarak başlangıç teması seçilebilir:
 > ```rust
 > let default_name = match SystemAppearance::global(cx).0 {
 >     Appearance::Dark => "Kvs Default Dark",
@@ -953,9 +755,7 @@ kurdu; eksik olmaları beklenmez. Eksiklerse bu programatik bir hatadır
 > };
 > let default = registry.get(default_name).expect("...");
 > ```
-> Bu sürüm OS modunu hemen yansıtır. İki yaklaşım arasındaki seçim bir
-> tercih meselesidir; varsayılan olarak dark tutmak da bilinçli bir
-> karar olabilir.
+> Bu sürüm OS modunu hemen yansıtır. İki yaklaşım arasındaki seçim bir tercih meselesidir; varsayılan olarak dark tutmak da bilinçli bir karar olabilir.
 
 **Adım 5 — Global'lerin kurulması:**
 
@@ -967,9 +767,7 @@ cx.set_global(GlobalThemeRegistry(registry.clone()));
 cx.set_global(GlobalTheme::new(default, default_icon));
 ```
 
-Sıra önemlidir: önce registry global'i kurulur, ardından aktif UI tema + aktif
-icon tema aynı `GlobalTheme` içinde kurulur. `cx.theme()` ve
-`GlobalTheme::icon_theme(cx)` bu noktadan sonra güvenle çağrılabilir.
+Sıra önemlidir: önce registry global'i kurulur, ardından aktif UI tema + aktif icon tema aynı `GlobalTheme` içinde kurulur. `cx.theme()` ve `GlobalTheme::icon_theme(cx)` bu noktadan sonra güvenle çağrılabilir.
 
 ### Çağrı yeri
 
@@ -1023,8 +821,7 @@ pub fn init_with_bundled(cx: &mut App) {
 }
 ```
 
-`init`'in temel kontratı korunur; bundled yükleme **opsiyoneldir**. Hata oluşsa
-bile uygulama açılır; fallback temalar yeterlidir.
+`init`'in temel kontratı korunur; bundled yükleme **opsiyoneldir**. Hata oluşsa bile uygulama açılır; fallback temalar yeterlidir.
 
 **2. Async user theme yükleme:**
 
@@ -1053,8 +850,7 @@ pub fn init_with_user_themes(cx: &mut App, user_theme_dir: PathBuf) {
 }
 ```
 
-User theme yükleme **disk I/O** içerdiği için async çalışır; init akışını
-bloklamaz.
+User theme yükleme **disk I/O** içerdiği için async çalışır; init akışını bloklamaz.
 
 ### Test senaryoları
 
@@ -1077,31 +873,18 @@ fn init_kurar_fallback_temalari(cx: &mut TestAppContext) {
 
 ### Tuzaklar
 
-1. **`init`'in pencere içinde çağrılması**: `Context<T>::update`
-   callback'inde `init(cx)` çağırmak mantıksızdır — pencere zaten
-   render başladığında `cx.theme()` çağırıyor olur. Init Application
-   root'unda yer alır.
-2. **`init`'in async yapılması**: `init` `&mut App` aldığından async
-   olamaz. Async yüklemeler (kullanıcı tema dosyaları, network) `spawn`
-   ile **init sonrası** başlatılır.
-3. **Birden fazla `init` çağrısı**: İdempotent değildir — registry ve
-   aktif tema sıfırlanır. Bu çağrı tekrarlanmamalıdır.
-4. **`init` yokken `cx.theme()` çağrılması**: Panic mesajı `"global not
-   found: GlobalTheme"` biçiminde olur. Hata mesajı yönlendiricidir;
-   `init` eklendiğinde sorun giderilir.
-5. **Default tema seçiminde fallback olmadan**: `registry.get("Yok").expect()`
-   panic atar. Yalnızca insert edilmiş temaların seçilmesi gerekir.
-6. **Fallback'lerin kaldırılması**: User theme'ler yüklendikten sonra
-   "Kvs Default *" temaları gereksiz görünebilir; **kaldırılmaması**
-   gerekir. Kullanıcı temasının yüklenmesi başarısız olduğunda son
-   çare olarak iş görür.
+1. **`init`'in pencere içinde çağrılması**: `Context<T>::update` callback'inde `init(cx)` çağırmak mantıksızdır — pencere zaten render başladığında `cx.theme()` çağırıyor olur. Init Application root'unda yer alır.
+2. **`init`'in async yapılması**: `init` `&mut App` aldığından async olamaz. Async yüklemeler (kullanıcı tema dosyaları, network) `spawn` ile **init sonrası** başlatılır.
+3. **Birden fazla `init` çağrısı**: İdempotent değildir — registry ve aktif tema sıfırlanır. Bu çağrı tekrarlanmamalıdır.
+4. **`init` yokken `cx.theme()` çağrılması**: Panic mesajı `"global not found: GlobalTheme"` biçiminde olur. Hata mesajı yönlendiricidir; `init` eklendiğinde sorun giderilir.
+5. **Default tema seçiminde fallback olmadan**: `registry.get("Yok").expect()` panic atar. Yalnızca insert edilmiş temaların seçilmesi gerekir.
+6. **Fallback'lerin kaldırılması**: User theme'ler yüklendikten sonra "Kvs Default *" temaları gereksiz görünebilir; **kaldırılmaması** gerekir. Kullanıcı temasının yüklenmesi başarısız olduğunda son çare olarak iş görür.
 
 ### `LoadThemes` — yükleme modu enum'u
 
 **Kaynak:** `crates/theme/src/theme.rs:81`.
 
-Zed'in `init` fonksiyonu, `crates/theme/assets/themes/` altındaki temaların
-yüklenip yüklenmeyeceğini bir enum üzerinden kontrol eder:
+Zed'in `init` fonksiyonu, `crates/theme/assets/themes/` altındaki temaların yüklenip yüklenmeyeceğini bir enum üzerinden kontrol eder:
 
 ```rust
 pub enum LoadThemes {
@@ -1154,10 +937,8 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
 
 **Ne zaman `JustBase`?**
 
-- Test ortamları (`#[gpui::test]` bağlamında bundled asset'lere ihtiyaç
-  duyulmadığında).
-- Headless CLI veya batch işler (registry yalnızca program içi
-  kullanımda).
+- Test ortamları (`#[gpui::test]` bağlamında bundled asset'lere ihtiyaç duyulmadığında).
+- Headless CLI veya batch işler (registry yalnızca program içi kullanımda).
 - Minimal binary çıkışı (önyükleme süresini düşürme amacı).
 
 **Ne zaman `All(...)`?**
@@ -1165,12 +946,7 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
 - Production uygulama girişi.
 - Geliştirme çalışmaları (bundled tema fixture'larıyla doğrulama).
 
-**Yapısal not:** `LoadThemes::All(Box<dyn AssetSource>)` enum içinde bir
-`AssetSource` taşır. `init` çağrısı sırasında
-`Application::new().with_assets(...)` ile geçirilen aynı asset source'un tekrar
-verilmesi zorunlu değildir; `cx.asset_source()` üzerinden dolaylı erişim de
-mümkündür. Hangi yolun seçileceği Bölüm VI/Konu 26'daki bundling stratejisine
-bağlıdır.
+**Yapısal not:** `LoadThemes::All(Box<dyn AssetSource>)` enum içinde bir `AssetSource` taşır. `init` çağrısı sırasında `Application::new().with_assets(...)` ile geçirilen aynı asset source'un tekrar verilmesi zorunlu değildir; `cx.asset_source()` üzerinden dolaylı erişim de mümkündür. Hangi yolun seçileceği Bölüm VI/Konu 26'daki bundling stratejisine bağlıdır.
 
 ---
 
@@ -1178,8 +954,7 @@ bağlıdır.
 
 **Kaynak:** `crates/theme/src/font_family_cache.rs:18`.
 
-Zed sistem font ailelerini her sorguda yeniden almak yerine global bir
-önbellekte tutar:
+Zed sistem font ailelerini her sorguda yeniden almak yerine global bir önbellekte tutar:
 
 ```rust
 pub struct FontFamilyCache {
@@ -1187,9 +962,7 @@ pub struct FontFamilyCache {
 }
 ```
 
-**Rol:** Settings UI'daki font seçici dropdown'u, kullanıcının makinesindeki
-font listesini gösterir. OS sorgusu pahalı bir işlemdir; cache asenkron olarak
-init edilir ve sonrasında bellek üzerinden okunur.
+**Rol:** Settings UI'daki font seçici dropdown'u, kullanıcının makinesindeki font listesini gösterir. OS sorgusu pahalı bir işlemdir; cache asenkron olarak init edilir ve sonrasında bellek üzerinden okunur.
 
 Public yüzey:
 
@@ -1203,21 +976,15 @@ impl FontFamilyCache {
 }
 ```
 
-**Tema sözleşmesindeki yer:** Yoktur — bu tip `kvs_tema` kapsamı
-dışında tutulabilir. Font ailesi listesini kullanan settings/picker
-bileşeni gerektiğinde, `kvs_settings` veya `kvs_ui` crate'inde benzer
-bir cache implement edilebilir.
+**Tema sözleşmesindeki yer:** Yoktur — bu tip `kvs_tema` kapsamı dışında tutulabilir. Font ailesi listesini kullanan settings/picker bileşeni gerektiğinde, `kvs_settings` veya `kvs_ui` crate'inde benzer bir cache implement edilebilir.
 
-**Atlama gerekçesi:** Mirror disiplini (Konu 2) `Theme` ve içerdiği
-tipleri zorunlu kılar; `FontFamilyCache` ise bir runtime önbelleğidir,
-sözleşmenin parçası değildir.
+**Atlama gerekçesi:** Mirror disiplini (Konu 2) `Theme` ve içerdiği tipleri zorunlu kılar; `FontFamilyCache` ise bir runtime önbelleğidir, sözleşmenin parçası değildir.
 
 ---
 
 ## 38. Tema değiştirme ve `cx.refresh_windows()`
 
-Tema değişimi iki temel işlemdir: aktif tema güncellenir ve pencereler
-yenilenir. Pencereler yenilenmezse UI eski renkte kalır.
+Tema değişimi iki temel işlemdir: aktif tema güncellenir ve pencereler yenilenir. Pencereler yenilenmezse UI eski renkte kalır.
 
 ### Temel akış
 
@@ -1242,8 +1009,7 @@ let yeni = registry.get(ad)?;
 
 - `registry.get(ad)` `Result<Arc<Theme>, ThemeNotFoundError>` döndürür.
 - `?` operatörü hatayı caller'a propagate eder.
-- Tema bulunamazsa `ThemeNotFoundError` döner — caller bunu loglayabilir
-  veya UI'da gösterebilir (toast: "Tema bulunamadı: X").
+- Tema bulunamazsa `ThemeNotFoundError` döner — caller bunu loglayabilir veya UI'da gösterebilir (toast: "Tema bulunamadı: X").
 
 **Adım 2 — Global update:**
 
@@ -1251,9 +1017,7 @@ let yeni = registry.get(ad)?;
 GlobalTheme::update_theme(cx, yeni);
 ```
 
-`init-or-update` pattern (Konu 34) burada da geçerlidir. İlk çağrıda
-global kurulur, sonraki çağrılarda ise içeride mutate edilir.
-`observe_global::<GlobalTheme>` observer'ları varsa tetiklenir.
+`init-or-update` pattern (Konu 34) burada da geçerlidir. İlk çağrıda global kurulur, sonraki çağrılarda ise içeride mutate edilir. `observe_global::<GlobalTheme>` observer'ları varsa tetiklenir.
 
 **Adım 3 — `cx.refresh_windows()`:**
 
@@ -1274,15 +1038,12 @@ cx.refresh_windows();
 
 **Maliyet:**
 
-- Frame budget tipik olarak 16 ms'tir (60 fps); refresh maliyeti ~2-5
-  ms civarında olur (içerik karmaşıklığına bağlı).
-- Kullanıcı tema değiştirir, bir frame geçer ve yeni renk görünür hale
-  gelir. Gözlemlenebilir bir gecikme oluşmaz.
+- Frame budget tipik olarak 16 ms'tir (60 fps); refresh maliyeti ~2-5 ms civarında olur (içerik karmaşıklığına bağlı).
+- Kullanıcı tema değiştirir, bir frame geçer ve yeni renk görünür hale gelir. Gözlemlenebilir bir gecikme oluşmaz.
 
 ### Helper fonksiyon önerisi
 
-`temayi_degistir` çağrısının helper içine sarılması tüketici kodlarda tekrarın
-önüne geçer:
+`temayi_degistir` çağrısının helper içine sarılması tüketici kodlarda tekrarın önüne geçer:
 
 ```rust
 // kvs_tema/src/runtime.rs (public API)
@@ -1309,16 +1070,9 @@ fn handle_tema_secimi(secilen: &str, cx: &mut App) {
 
 ### Tuzaklar
 
-1. **`refresh_windows` çağrısının atlanması**: En sık karşılaşılan
-   bug'lardan biridir. UI eski renkte kalır ve yeni renk ancak sonraki
-   etkileşimle (örn. hover) görünür. Helper fonksiyona sarılması bu
-   hatanın önüne geçer.
-2. **`cx.notify()` ile yetinmek**: `notify` yalnızca lokal entity'i
-   yeniler — tüm view'ları kapsamaz. Tema değişiminde `refresh_windows`
-   şarttır.
-3. **Reload sonrası `aktif_ad` lookup'ının başarısız olması**: Tema
-   dosyasından o isim silinmiş olabilir. `get(&aktif_ad).is_err()`
-   durumunda default fallback'e düşülür:
+1. **`refresh_windows` çağrısının atlanması**: En sık karşılaşılan bug'lardan biridir. UI eski renkte kalır ve yeni renk ancak sonraki etkileşimle (örn. hover) görünür. Helper fonksiyona sarılması bu hatanın önüne geçer.
+2. **`cx.notify()` ile yetinmek**: `notify` yalnızca lokal entity'i yeniler — tüm view'ları kapsamaz. Tema değişiminde `refresh_windows` şarttır.
+3. **Reload sonrası `aktif_ad` lookup'ının başarısız olması**: Tema dosyasından o isim silinmiş olabilir. `get(&aktif_ad).is_err()` durumunda default fallback'e düşülür:
    ```rust
    match registry.get(&aktif_ad) {
        Ok(t) => GlobalTheme::update_theme(cx, t),
@@ -1330,9 +1084,6 @@ fn handle_tema_secimi(secilen: &str, cx: &mut App) {
    }
    cx.refresh_windows();
    ```
-4. **Frame budget aşımı**: Çok karmaşık UI'da `refresh_windows`
-   çağrısı 16 ms'yi aşabilir ve bir frame skip olarak görünebilir. Bu
-   noktada profilling yapılması yerinde olur; gerçek bir bug söz
-   konusudur.
+4. **Frame budget aşımı**: Çok karmaşık UI'da `refresh_windows` çağrısı 16 ms'yi aşabilir ve bir frame skip olarak görünebilir. Bu noktada profilling yapılması yerinde olur; gerçek bir bug söz konusudur.
 
 ---

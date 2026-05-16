@@ -1,33 +1,18 @@
 # 2. Ham GPUI Primitive'leri ve Metod Kapsamı
 
-Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements`
-primitive'lerini anlatır. Günlük Zed ekran kodunda önce hazır `ui`
-bileşenlerine bakılır. Ham GPUI primitive'lerine ise ancak daha özel bir ihtiyaç
-çıktığında inilir: kendine özgü bir layout, özel çizim, metin ölçümü, görsel
-cache, sanal liste veya hazır bileşenlerin sunmadığı bir etkileşim gibi. Kısaca,
-üst katman çoğu işi karşılar; alt katmana inmek ise genellikle bilinçli bir
-ihtiyaç sonucudur.
+Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements` primitive'lerini anlatır. Günlük Zed ekran kodunda önce hazır `ui` bileşenlerine bakılır. Ham GPUI primitive'lerine ise ancak daha özel bir ihtiyaç çıktığında inilir: kendine özgü bir layout, özel çizim, metin ölçümü, görsel cache, sanal liste veya hazır bileşenlerin sunmadığı bir etkileşim gibi. Kısaca, üst katman çoğu işi karşılar; alt katmana inmek ise genellikle bilinçli bir ihtiyaç sonucudur.
 
 Kaynakta bakılacak ana yerler:
 
-- `crates/gpui/src/elements/mod.rs`: primitive export kapısı; tüm element
-  ailelerinin toplandığı giriş noktasıdır.
-- `crates/gpui/src/element.rs`: `ParentElement`, `IntoElement`, `Element`
-  trait'lerinin tanımlandığı temel dosya.
-- `crates/gpui/src/styled.rs`: `Styled` ortak stil yüzeyinin yaşadığı yer;
-  bütün element ailesinin ortak stil dilini sağlar.
-- `crates/gpui/src/elements/div.rs`: `Div`, `Interactivity`,
-  `InteractiveElement`, `StatefulInteractiveElement` ve `ScrollHandle` gibi
-  etkileşim çekirdeğini barındırır.
-- `crates/gpui/src/elements/{canvas,img,image_cache,svg,anchored,deferred,surface,text,list,uniform_list,animation}.rs`:
-  her bir özel primitive'in kendi dosyası; özel API'lerin tanım yerleridir.
+- `crates/gpui/src/elements/mod.rs`: primitive export kapısı; tüm element ailelerinin toplandığı giriş noktasıdır.
+- `crates/gpui/src/element.rs`: `ParentElement`, `IntoElement`, `Element` trait'lerinin tanımlandığı temel dosya.
+- `crates/gpui/src/styled.rs`: `Styled` ortak stil yüzeyinin yaşadığı yer; bütün element ailesinin ortak stil dilini sağlar.
+- `crates/gpui/src/elements/div.rs`: `Div`, `Interactivity`, `InteractiveElement`, `StatefulInteractiveElement` ve `ScrollHandle` gibi etkileşim çekirdeğini barındırır.
+- `crates/gpui/src/elements/{canvas,img,image_cache,svg,anchored,deferred,surface,text,list,uniform_list,animation}.rs`: her bir özel primitive'in kendi dosyası; özel API'lerin tanım yerleridir.
 
 ## Public GPUI element adları
 
-Aşağıdaki liste `crates/gpui/src/elements` altındaki public type, trait,
-constructor ve constant adlarını tek yerde toplar. Bu envanter, hangi isimlerin
-"kullanılabilir resmi yüzey" olduğunu hızlıca görmek için referans görevi
-görür:
+Aşağıdaki liste `crates/gpui/src/elements` altındaki public type, trait, constructor ve constant adlarını tek yerde toplar. Bu envanter, hangi isimlerin "kullanılabilir resmi yüzey" olduğunu hızlıca görmek için referans görevi görür:
 
 ```text
 Anchored, AnchoredFitMode, AnchoredPositionMode, AnchoredState,
@@ -51,8 +36,7 @@ div, image_cache, img, list, retain_all, surface, svg, uniform_list
 
 ## Karar tablosu
 
-Hangi ihtiyaç için hangi API'nin seçileceğini ve ne zaman ham GPUI'ye inilmesi
-gerektiğini aşağıdaki tablo pratik biçimde özetler:
+Hangi ihtiyaç için hangi API'nin seçileceğini ve ne zaman ham GPUI'ye inilmesi gerektiğini aşağıdaki tablo pratik biçimde özetler:
 
 | İhtiyaç | Öncelikli API | Ham GPUI'ye inme sebebi |
 | :-- | :-- | :-- |
@@ -72,18 +56,13 @@ gerektiğini aşağıdaki tablo pratik biçimde özetler:
 
 ## Ortak trait yüzeyleri
 
-`ParentElement`, çocuk alabilen bütün container'ların ortak ekleme kapısıdır.
-Bir elemanın "alt eleman taşıyabilir" sözleşmesini bu trait sağlar:
+`ParentElement`, çocuk alabilen bütün container'ların ortak ekleme kapısıdır. Bir elemanın "alt eleman taşıyabilir" sözleşmesini bu trait sağlar:
 
 | Trait | Metodlar | Not |
 | :-- | :-- | :-- |
 | `ParentElement` | `.extend(elements)`, `.child(child)`, `.children(children)` | `child` ve `children`, `IntoElement` kabul eder; `extend` ise `AnyElement` koleksiyonu ister |
 
-`Styled`, `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu ve
-makroyla üretilen ortak yardımcı metodları taşır. `Div`, `Img`, `Svg`,
-`Canvas`, `Surface`, `ImageCacheElement`, `List`, `UniformList`, `Deferred`,
-`AnimationElement` ve birçok Zed `ui` bileşeni bu yüzeyi miras alır. Bu yüzden
-bu elementlerin büyük kısmı aynı stil sözlüğünü konuşur.
+`Styled`, `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu ve makroyla üretilen ortak yardımcı metodları taşır. `Div`, `Img`, `Svg`, `Canvas`, `Surface`, `ImageCacheElement`, `List`, `UniformList`, `Deferred`, `AnimationElement` ve birçok Zed `ui` bileşeni bu yüzeyi miras alır. Bu yüzden bu elementlerin büyük kısmı aynı stil sözlüğünü konuşur.
 
 `Styled` manuel metodları aşağıdaki gibidir:
 
@@ -113,8 +92,7 @@ row_start, row_start_auto, row_end, row_end_auto, row_span,
 row_span_full, debug, debug_below
 ```
 
-`Styled` üzerinde makro yardımıyla üretilen metodlar belirli kurallarla
-oluşturulur ve aşağıdaki ailelere ayrılır:
+`Styled` üzerinde makro yardımıyla üretilen metodlar belirli kurallarla oluşturulur ve aşağıdaki ailelere ayrılır:
 
 | Makro ailesi | Üretilen metodlar |
 | :-- | :-- |
@@ -129,23 +107,9 @@ oluşturulur ve aşağıdaki ailelere ayrılır:
 | Cursor | `cursor`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `cursor_ew_resize`, `cursor_ns_resize`, `cursor_nesw_resize`, `cursor_nwse_resize`, `cursor_col_resize`, `cursor_row_resize`, `cursor_n_resize`, `cursor_e_resize`, `cursor_s_resize`, `cursor_w_resize` |
 | Shadow | `shadow`, `shadow_none`, `shadow_2xs`, `shadow_xs`, `shadow_sm`, `shadow_md`, `shadow_lg`, `shadow_xl`, `shadow_2xl` |
 
-Size, margin, padding ve position prefix'leri için aynı üretim kuralı geçerlidir:
-`{prefix}(length)` özel bir değer vermek için kullanılır. Buna ek olarak uygun
-prefix'lerde `{prefix}_{suffix}` metodları üretilir; `auto` dışındaki
-suffix'lerde `{prefix}_neg_{suffix}` biçimindeki negatif varyantlar da otomatik
-oluşturulur. Suffix seti şu değerlerden oluşur: `0`, `0p5`, `1`, `1p5`, `2`,
-`2p5`, `3`, `3p5`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `16`,
-`20`, `24`, `32`, `40`, `48`, `56`, `64`, `72`, `80`, `96`, `112`, `128`,
-`auto`, `px`, `full`, `1_2`, `1_3`, `2_3`, `1_4`, `2_4`, `3_4`, `1_5`,
-`2_5`, `3_5`, `4_5`, `1_6`, `5_6`, `1_12`. `gap*` ve `padding*` prefix'leri
-`auto` üretmez. Radius suffix seti: `none`, `xs`, `sm`, `md`, `lg`, `xl`,
-`2xl`, `3xl`, `full`. Border suffix seti: `0`, `1`, `2`, `3`, `4`, `5`, `6`,
-`7`, `8`, `9`, `10`, `11`, `12`, `16`, `20`, `24`, `32`.
+Size, margin, padding ve position prefix'leri için aynı üretim kuralı geçerlidir: `{prefix}(length)` özel bir değer vermek için kullanılır. Buna ek olarak uygun prefix'lerde `{prefix}_{suffix}` metodları üretilir; `auto` dışındaki suffix'lerde `{prefix}_neg_{suffix}` biçimindeki negatif varyantlar da otomatik oluşturulur. Suffix seti şu değerlerden oluşur: `0`, `0p5`, `1`, `1p5`, `2`, `2p5`, `3`, `3p5`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `16`, `20`, `24`, `32`, `40`, `48`, `56`, `64`, `72`, `80`, `96`, `112`, `128`, `auto`, `px`, `full`, `1_2`, `1_3`, `2_3`, `1_4`, `2_4`, `3_4`, `1_5`, `2_5`, `3_5`, `4_5`, `1_6`, `5_6`, `1_12`. `gap*` ve `padding*` prefix'leri `auto` üretmez. Radius suffix seti: `none`, `xs`, `sm`, `md`, `lg`, `xl`, `2xl`, `3xl`, `full`. Border suffix seti: `0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `16`, `20`, `24`, `32`.
 
-`InteractiveElement`, ham etkileşimli container davranışını taşır. `id(...)`
-çağrısı `Stateful<Self>` döndürür. Scroll, click, drag, active ve tooltip gibi
-durum gerektiren metodlar bundan sonra görünür hale gelir. Yani sıra genellikle
-önce kimlik vermek, sonra durumlu etkileşimi bağlamaktır:
+`InteractiveElement`, ham etkileşimli container davranışını taşır. `id(...)` çağrısı `Stateful<Self>` döndürür. Scroll, click, drag, active ve tooltip gibi durum gerektiren metodlar bundan sonra görünür hale gelir. Yani sıra genellikle önce kimlik vermek, sonra durumlu etkileşimi bağlamaktır:
 
 ```text
 group, id, track_focus, tab_stop, tab_index, tab_group, key_context,
@@ -168,41 +132,15 @@ track_scroll, anchor_scroll, active, group_active, on_click, on_aux_click,
 on_drag, on_hover, tooltip, hoverable_tooltip
 ```
 
-`Interactivity` lower-level metodları, yukarıdaki fluent API'nin iç
-karşılıklarıdır: `on_mouse_down`, `capture_any_mouse_down`,
-`on_any_mouse_down`, `on_mouse_up`, `capture_any_mouse_up`,
-`on_any_mouse_up`, `on_mouse_pressure`, `capture_mouse_pressure`,
-`on_mouse_down_out`, `on_mouse_up_out`, `on_mouse_move`, `on_drag_move`,
-`on_scroll_wheel`, `on_pinch`, `capture_pinch`, `capture_action`,
-`on_action`, `on_boxed_action`, `on_key_down`, `capture_key_down`,
-`on_key_up`, `capture_key_up`, `on_modifiers_changed`, `on_drop`,
-`can_drop`, `on_click`, `on_aux_click`, `on_drag`, `on_hover`, `tooltip`,
-`hoverable_tooltip`, `occlude_mouse`, `window_control_area`,
-`block_mouse_except_scroll`. Uygulama kodunda mümkün olduğu sürece fluent
-`InteractiveElement` ve `StatefulInteractiveElement` metodları tercih
-edilir; `Interactivity` doğrudan yalnızca özel bir element yazılırken
-gerekir.
+`Interactivity` lower-level metodları, yukarıdaki fluent API'nin iç karşılıklarıdır: `on_mouse_down`, `capture_any_mouse_down`, `on_any_mouse_down`, `on_mouse_up`, `capture_any_mouse_up`, `on_any_mouse_up`, `on_mouse_pressure`, `capture_mouse_pressure`, `on_mouse_down_out`, `on_mouse_up_out`, `on_mouse_move`, `on_drag_move`, `on_scroll_wheel`, `on_pinch`, `capture_pinch`, `capture_action`, `on_action`, `on_boxed_action`, `on_key_down`, `capture_key_down`, `on_key_up`, `capture_key_up`, `on_modifiers_changed`, `on_drop`, `can_drop`, `on_click`, `on_aux_click`, `on_drag`, `on_hover`, `tooltip`, `hoverable_tooltip`, `occlude_mouse`, `window_control_area`, `block_mouse_except_scroll`. Uygulama kodunda mümkün olduğu sürece fluent `InteractiveElement` ve `StatefulInteractiveElement` metodları tercih edilir; `Interactivity` doğrudan yalnızca özel bir element yazılırken gerekir.
 
-Framework implementer metodları `source_location`, `request_layout`,
-`prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder API
-değildir; günlük UI yazımında kullanılmazlar. Yalnızca `Element`
-implementasyonu yazarken veya GPUI içinde değişiklik yaparken devreye girerler.
-`GroupHitboxes::get/push/pop`, grup hover/active hitbox state'inin iç global
-stack yönetimini yapar; üst seviye kodun bunu doğrudan kullanması beklenmez.
-`DraggedItem<T>::drag(cx)` ve `.dragged_item()` ise drag payload'unu okumak için
-kullanılan event yardımcılarıdır.
+Framework implementer metodları `source_location`, `request_layout`, `prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder API değildir; günlük UI yazımında kullanılmazlar. Yalnızca `Element` implementasyonu yazarken veya GPUI içinde değişiklik yaparken devreye girerler. `GroupHitboxes::get/push/pop`, grup hover/active hitbox state'inin iç global stack yönetimini yapar; üst seviye kodun bunu doğrudan kullanması beklenmez. `DraggedItem<T>::drag(cx)` ve `.dragged_item()` ise drag payload'unu okumak için kullanılan event yardımcılarıdır.
 
-Animasyon easing yardımcıları `linear(delta)`, `quadratic(delta)`,
-`ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla
-export edilir. Test modülünde yer alan `select_next` veya `select_previous`
-gibi örnek view metodları ise component API değildir; sadece test amaçlı
-örneklerdir.
+Animasyon easing yardımcıları `linear(delta)`, `quadratic(delta)`, `ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla export edilir. Test modülünde yer alan `select_next` veya `select_previous` gibi örnek view metodları ise component API değildir; sadece test amaçlı örneklerdir.
 
 ## Primitive API kataloğu
 
-Aşağıdaki tablo her primitive'in nasıl üretildiğini, hangi özel metodlara
-sahip olduğunu ve hangi disiplinle kullanılması beklendiğini bir arada
-sunar:
+Aşağıdaki tablo her primitive'in nasıl üretildiğini, hangi özel metodlara sahip olduğunu ve hangi disiplinle kullanılması beklendiğini bir arada sunar:
 
 | API | Constructor | Özel metodlar / ilişkili tipler | Kullanım disiplini |
 | :-- | :-- | :-- | :-- |
@@ -235,8 +173,7 @@ sunar:
 
 ## GPUI public enum ve state ayrıntıları
 
-Bazı GPUI tiplerinde asıl kullanım bilgisini taşıyan şey, türün adından çok
-sahip olduğu variant'lar ve public state alanlarıdır:
+Bazı GPUI tiplerinde asıl kullanım bilgisini taşıyan şey, türün adından çok sahip olduğu variant'lar ve public state alanlarıdır:
 
 | Tip | Variant / Alan | Kullanım notu |
 | :-- | :-- | :-- |
@@ -264,9 +201,7 @@ Public state alanları:
 
 ## Kullanım örüntüleri
 
-Ham `div()` ile özel bir kontrol yazarken aşağıdaki iskelet minimum bir örnek
-olarak düşünülebilir. Standart bir `ui::Button` yerine elle kontrol yazıldığında
-focus, hover, tooltip ve action bağlarını açıkça kurmanız gerekir:
+Ham `div()` ile özel bir kontrol yazarken aşağıdaki iskelet minimum bir örnek olarak düşünülebilir. Standart bir `ui::Button` yerine elle kontrol yazıldığında focus, hover, tooltip ve action bağlarını açıkça kurmanız gerekir:
 
 ```rust
 div()
@@ -283,9 +218,7 @@ div()
     .child(Label::new("Etiket"))
 ```
 
-Değişken yükseklikli liste örüntüsü şu şekildedir. Burada `list(...)` bir
-state nesnesi ve bir render closure'u alır; closure'un içinde verilen aralık
-satır satır render edilir:
+Değişken yükseklikli liste örüntüsü şu şekildedir. Burada `list(...)` bir state nesnesi ve bir render closure'u alır; closure'un içinde verilen aralık satır satır render edilir:
 
 ```rust
 list(self.list_state.clone(), move |range, window, cx| {
@@ -296,10 +229,7 @@ list(self.list_state.clone(), move |range, window, cx| {
 .with_sizing_behavior(ListSizingBehavior::Infer)
 ```
 
-Sabit yükseklikli büyük liste örüntüsünde ise `uniform_list` öne çıkar.
-Buradaki kritik fark, her satırın aynı yüksekliğe sahip olduğunun
-varsayılmasıdır; bu varsayım sayesinde çok büyük veri kümeleri için hızlı
-bir virtualization elde edilir:
+Sabit yükseklikli büyük liste örüntüsünde ise `uniform_list` öne çıkar. Buradaki kritik fark, her satırın aynı yüksekliğe sahip olduğunun varsayılmasıdır; bu varsayım sayesinde çok büyük veri kümeleri için hızlı bir virtualization elde edilir:
 
 ```rust
 uniform_list("items", self.items.len(), move |range, window, cx| {
@@ -310,10 +240,7 @@ uniform_list("items", self.items.len(), move |range, window, cx| {
 .track_scroll(&self.uniform_scroll_handle)
 ```
 
-Görsel cache örüntüsü ise alt ağaçtaki tüm `img` çağrılarını ortak bir
-cache'e bağlamak için kullanılır. `image_cache(retain_all(...))` katmanı,
-aynı görselin tekrar tekrar yüklenmesini önler ve loading/fallback davranışı
-da merkezi bir yerden tanımlanabilir:
+Görsel cache örüntüsü ise alt ağaçtaki tüm `img` çağrılarını ortak bir cache'e bağlamak için kullanılır. `image_cache(retain_all(...))` katmanı, aynı görselin tekrar tekrar yüklenmesini önler ve loading/fallback davranışı da merkezi bir yerden tanımlanabilir:
 
 ```rust
 image_cache(retain_all("image-cache"))

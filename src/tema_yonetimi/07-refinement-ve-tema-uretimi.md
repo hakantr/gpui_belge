@@ -1,9 +1,6 @@
 # Refinement ve tema üretimi
 
-Content katmanından son `Theme` nesnesine giden yol burada tamamlanır:
-merge sırası, default türetme ve baseline uygulaması aynı akışta birleşir.
-Adımlar Zed'in `refine_theme` akışıyla denk düşer. Bu bölüm, sözleşmenin neden
-bu kadar düzenli tutulduğunu somut örneklerle gösterir.
+Content katmanından son `Theme` nesnesine giden yol burada tamamlanır: merge sırası, default türetme ve baseline uygulaması aynı akışta birleşir. Adımlar Zed'in `refine_theme` akışıyla denk düşer. Bu bölüm, sözleşmenin neden bu kadar düzenli tutulduğunu somut örneklerle gösterir.
 
 ---
 
@@ -11,9 +8,7 @@ bu kadar düzenli tutulduğunu somut örneklerle gösterir.
 
 **Kaynak modül:** `kvs_tema/src/refinement.rs`.
 
-Bu bölüm üç katmanlı boru hattının orta halkasını anlatır. Davranış
-**stateless** ve **deterministic** kalır: aynı `Content`, her seferinde aynı
-`Refinement` değerini üretir.
+Bu bölüm üç katmanlı boru hattının orta halkasını anlatır. Davranış **stateless** ve **deterministic** kalır: aynı `Content`, her seferinde aynı `Refinement` değerini üretir.
 
 ### Üç katmanın rolü
 
@@ -25,22 +20,14 @@ Bu bölüm üç katmanlı boru hattının orta halkasını anlatır. Davranış
 
 ### Neden iki ayrı `Option` katmanı?
 
-İlk akla gelen soru şudur: "Madem string ileride `Hsla`'ya çevriliyor, neden
-tek katmanda halletmiyoruz?"
+İlk akla gelen soru şudur: "Madem string ileride `Hsla`'ya çevriliyor, neden tek katmanda halletmiyoruz?"
 
 **Cevap:** İki **farklı hata türünün** ayırt edilmesi gerekir:
 
-- **Tip-yapısal hata** (Content katmanı): JSON anahtarı yanlış, tip
-  yanlış veya bilinmeyen enum varyantı. Serde bu durumu deserialize
-  sırasında yakalar. `treat_error_as_none` (Konu 22) ile sonuç `None`'a
-  düşer.
-- **Değer-içerik hatası** (Refinement katmanı): String alanı doludur ama
-  hex değildir (`"rebeccapurple"`) veya hex'in formatı bozuktur
-  (`"#zzz"`). `try_parse_color` `Err` döndürür; refinement bu hatayı
-  sessizce `None`'a yutar.
+- **Tip-yapısal hata** (Content katmanı): JSON anahtarı yanlış, tip yanlış veya bilinmeyen enum varyantı. Serde bu durumu deserialize sırasında yakalar. `treat_error_as_none` (Konu 22) ile sonuç `None`'a düşer.
+- **Değer-içerik hatası** (Refinement katmanı): String alanı doludur ama hex değildir (`"rebeccapurple"`) veya hex'in formatı bozuktur (`"#zzz"`). `try_parse_color` `Err` döndürür; refinement bu hatayı sessizce `None`'a yutar.
 
-İki katman sayesinde her hata kendi yerinde ele alınır ve üst katmanlara
-taşınmaz.
+İki katman sayesinde her hata kendi yerinde ele alınır ve üst katmanlara taşınmaz.
 
 ### Akış görünümü — örnek bir alan
 
@@ -87,19 +74,13 @@ theme.styles.colors.refine(&refinement);
 
 `refinement.rs` modülünün sorumlulukları şunlardır:
 
-1. **String → Hsla**: `theme_colors_refinement`, `status_colors_refinement`
-   ve dolaylı olarak `accents`/`players`/`syntax` (`Theme::from_content`
-   içinde).
-2. **Türetme** (`apply_status_color_defaults`): foreground verilmiş ama
-   background verilmemiş status alanlarına %25 alpha bg üretir.
-3. **Refineable çağrısı**: `baseline.refine(&refinement)` ile baseline
-   güncellenir. (Bu adım Konu 32'de işlenir; `refinement.rs` kendi
-   içinde `refine` çağırmaz, yalnızca Refinement üretir.)
+1. **String → Hsla**: `theme_colors_refinement`, `status_colors_refinement` ve dolaylı olarak `accents`/`players`/`syntax` (`Theme::from_content` içinde).
+2. **Türetme** (`apply_status_color_defaults`): foreground verilmiş ama background verilmemiş status alanlarına %25 alpha bg üretir.
+3. **Refineable çağrısı**: `baseline.refine(&refinement)` ile baseline güncellenir. (Bu adım Konu 32'de işlenir; `refinement.rs` kendi içinde `refine` çağırmaz, yalnızca Refinement üretir.)
 
 ### Modülün dış arayüzü
 
-`refinement.rs` kararlı dış API'leri (Zed
-`crates/theme_settings/src/schema.rs` paritesinde):
+`refinement.rs` kararlı dış API'leri (Zed `crates/theme_settings/src/schema.rs` paritesinde):
 
 ```rust
 pub fn theme_colors_refinement(
@@ -118,12 +99,7 @@ pub fn syntax_overrides(
 ) -> Vec<(String, gpui::HighlightStyle)>;
 ```
 
-> **Önemli:** `theme_colors_refinement` **üç parametre alır**, tek parametre
-> değildir. `status_colors` parametresi
-> `version_control_added`/`version_control_deleted` alanlarının
-> `status.created`/`status.deleted` değerlerine düşebilmesi için gerekir.
-> `is_light` parametresi ise `editor_diff_hunk_*` alanlarının appearance'a
-> göre doğru opacity sabitini seçmesini sağlar.
+> **Önemli:** `theme_colors_refinement` **üç parametre alır**, tek parametre değildir. `status_colors` parametresi `version_control_added`/`version_control_deleted` alanlarının `status.created`/`status.deleted` değerlerine düşebilmesi için gerekir. `is_light` parametresi ise `editor_diff_hunk_*` alanlarının appearance'a göre doğru opacity sabitini seçmesini sağlar.
 
 Crate-içi kararsız helper'lar:
 
@@ -131,10 +107,7 @@ Crate-içi kararsız helper'lar:
 fn color(s: &Option<String>) -> Option<gpui::Hsla>;  // tek-satır parse
 ```
 
-> **Konu 4'teki modül haritasında `refinement.rs` "crate-içi" olarak
-> işaretlenmişti.** Tek istisna, `Theme::from_content` tarafından çağrılan
-> `apply_status_color_defaults` ve `*_refinement` fonksiyonlarıdır. Tüketici
-> UI katmanı bu modüle doğrudan dokunmaz.
+> **Konu 4'teki modül haritasında `refinement.rs` "crate-içi" olarak işaretlenmişti.** Tek istisna, `Theme::from_content` tarafından çağrılan `apply_status_color_defaults` ve `*_refinement` fonksiyonlarıdır. Tüketici UI katmanı bu modüle doğrudan dokunmaz.
 
 ### Saflık ve test edilebilirlik
 
@@ -168,28 +141,16 @@ fn invalid_hex_is_swallowed_to_none() {
 
 ### Tuzaklar
 
-1. **Refinement'ı tüketici API'ye sızdırmak**: UI katmanı yalnızca
-   `Theme` görmelidir. `Refinement` tipinin dışarı export edilmesi,
-   tüketici kodu Zed sözleşmesinin evrimine bağlar; iç düzen değiştiğinde
-   breaking change yaşanır.
-2. **Refinement'ı gereksiz klonlamak**: `Refinement` 150 `Option<Hsla>`
-   alanı içerir; klon görece ucuz olsa da gereksizdir. Referansla
-   (`&refinement`) geçirilmesi daha doğrudur.
-3. **`refine()` öncesi `apply_status_color_defaults`'ın atlanması**:
-   Türetme uygulanmadığında fg-only status temaları baseline'ın
-   background'unu tutar; sonuç kullanıcı renkleriyle uyumsuz bir
-   görüntüye dönüşür. Bu adım şarttır (Konu 31).
-4. **Refinement'ı global tutmak**: Refinement geçici bir nesnedir;
-   `from_content` çağrısı içinde yaratılır, kullanılır ve düşürülür.
-   `static` veya `Arc` ile tutulmasının anlamı yoktur.
+1. **Refinement'ı tüketici API'ye sızdırmak**: UI katmanı yalnızca `Theme` görmelidir. `Refinement` tipinin dışarı export edilmesi, tüketici kodu Zed sözleşmesinin evrimine bağlar; iç düzen değiştiğinde breaking change yaşanır.
+2. **Refinement'ı gereksiz klonlamak**: `Refinement` 150 `Option<Hsla>` alanı içerir; klon görece ucuz olsa da gereksizdir. Referansla (`&refinement`) geçirilmesi daha doğrudur.
+3. **`refine()` öncesi `apply_status_color_defaults`'ın atlanması**: Türetme uygulanmadığında fg-only status temaları baseline'ın background'unu tutar; sonuç kullanıcı renkleriyle uyumsuz bir görüntüye dönüşür. Bu adım şarttır (Konu 31).
+4. **Refinement'ı global tutmak**: Refinement geçici bir nesnedir; `from_content` çağrısı içinde yaratılır, kullanılır ve düşürülür. `static` veya `Arc` ile tutulmasının anlamı yoktur.
 
 ---
 
 ## 30. `theme_colors_refinement`, `status_colors_refinement` deseni
 
-İki yardımcı fonksiyon Content tipini Refinement tipine çevirir. **Tek bir
-desen** üzerinden çalışırlar: her renk alanını `color()` helper'ından
-geçirirler.
+İki yardımcı fonksiyon Content tipini Refinement tipine çevirir. **Tek bir desen** üzerinden çalışırlar: her renk alanını `color()` helper'ından geçirirler.
 
 ### `color()` helper — temel yapı taşı
 
@@ -211,14 +172,10 @@ Some("bozuk")   →  None             (parse hatası yutulur)
 
 Üç ana dal vardır:
 
-1. `s.as_deref()`: `&Option<String>` → `Option<&str>`. Klonsuz ve sıfır
-   maliyetli bir dönüşümdür.
-2. `and_then(|s| try_parse_color(s).ok())`: `Some(s)` ise parse denenir;
-   `Err` çıktığında sonuç `None`'a düşer. `try_parse_color` Konu 21'de
-   ayrıntılı işlenmiştir.
+1. `s.as_deref()`: `&Option<String>` → `Option<&str>`. Klonsuz ve sıfır maliyetli bir dönüşümdür.
+2. `and_then(|s| try_parse_color(s).ok())`: `Some(s)` ise parse denenir; `Err` çıktığında sonuç `None`'a düşer. `try_parse_color` Konu 21'de ayrıntılı işlenmiştir.
 
-`color()` `refinement.rs` modülünün **dahili** yardımcısıdır; `pub` değildir.
-Her renk alanı için gereken tek satırlık parse mantığını tek noktada toplar.
+`color()` `refinement.rs` modülünün **dahili** yardımcısıdır; `pub` değildir. Her renk alanı için gereken tek satırlık parse mantığını tek noktada toplar.
 
 ### `theme_colors_refinement` deseni
 
@@ -294,11 +251,8 @@ pub fn theme_colors_refinement(
 
 **Yapı kuralları:**
 
-- **Düz alanlar**: `<alan_adi>: color(&this.<alan_adi>),` kalıbını izler.
-  Alanların büyük çoğunluğu bu gruptadır.
-- **Fallback zincirli alanlar**: Bazı alanlar doğrudan `color(...)`
-  çağrısından değil, öncelikli bir fallback zincirinden değer alır. Kanonik
-  liste şudur:
+- **Düz alanlar**: `<alan_adi>: color(&this.<alan_adi>),` kalıbını izler. Alanların büyük çoğunluğu bu gruptadır.
+- **Fallback zincirli alanlar**: Bazı alanlar doğrudan `color(...)` çağrısından değil, öncelikli bir fallback zincirinden değer alır. Kanonik liste şudur:
 
 | Alan | Düşüş sırası |
 |------|--------------|
@@ -330,21 +284,10 @@ pub fn theme_colors_refinement(
 | `vim_yank_background` | `→ editor_document_highlight_read_background` |
 | `vim_helix_jump_label_foreground` | `→ status_colors.error` |
 
-- **`..Default::default()` zorunludur**: Macro tarafından üretilen Refinement
-  tipinin tüm alanlarını elle vermek pratik değildir; default fallback gerekir.
-  Tema sözleşmesi büyüdükçe bu kalıp esneklik sağlar. Yeni bir alan mirror
-  edilmeyi beklerken bile derleme bozulmaz.
-- **`ensure_opaque` / `ensure_non_opaque`** crate-içi yardımcılardır:
-  `ensure_opaque` alpha'yı her zaman `1.0` yapar; `ensure_non_opaque`
-  ise alpha `0.7` üstündeyse `0.7`'ye indirir, `<= 0.7` değerleri olduğu
-  gibi bırakır. Mirror tarafta aynı isimle yerleşim beklenir veya
-  `kvs_renk` modülüne taşınabilir.
+- **`..Default::default()` zorunludur**: Macro tarafından üretilen Refinement tipinin tüm alanlarını elle vermek pratik değildir; default fallback gerekir. Tema sözleşmesi büyüdükçe bu kalıp esneklik sağlar. Yeni bir alan mirror edilmeyi beklerken bile derleme bozulmaz.
+- **`ensure_opaque` / `ensure_non_opaque`** crate-içi yardımcılardır: `ensure_opaque` alpha'yı her zaman `1.0` yapar; `ensure_non_opaque` ise alpha `0.7` üstündeyse `0.7`'ye indirir, `<= 0.7` değerleri olduğu gibi bırakır. Mirror tarafta aynı isimle yerleşim beklenir veya `kvs_renk` modülüne taşınabilir.
 
-> **Yeni alan semantiği:** `ThemeColors` tarafına `new_color` adında bir alan
-> eklendiğinde, macro `ThemeColorsRefinement` içinde otomatik olarak
-> `new_color: Option<Hsla>` üretir. `..Default::default()` derlemeyi korur.
-> Ancak alan `theme_colors_refinement` içinde açıkça doldurulmazsa kullanıcı
-> temasındaki değer runtime'a taşınmaz.
+> **Yeni alan semantiği:** `ThemeColors` tarafına `new_color` adında bir alan eklendiğinde, macro `ThemeColorsRefinement` içinde otomatik olarak `new_color: Option<Hsla>` üretir. `..Default::default()` derlemeyi korur. Ancak alan `theme_colors_refinement` içinde açıkça doldurulmazsa kullanıcı temasındaki değer runtime'a taşınmaz.
 
 ### `status_colors_refinement` deseni
 
@@ -366,8 +309,7 @@ pub fn status_colors_refinement(c: &StatusColorsContent) -> StatusColorsRefineme
 }
 ```
 
-Aynı kalıp burada da geçerlidir. Her status üçlüsü (fg, bg, border) ayrı
-bir satırda yazılır.
+Aynı kalıp burada da geçerlidir. Her status üçlüsü (fg, bg, border) ayrı bir satırda yazılır.
 
 ### Neden macro veya `From` impl değil?
 
@@ -375,20 +317,12 @@ bir satırda yazılır.
 
 **Karşı argüman:**
 
-- **Görsel arama**: Bir alanın refinement'ta nasıl ele alındığını bulmak için
-  `grep "border_variant"` yeterlidir. Macro kullanılırsa bu zincir saklanır
-  ve gözle takip zorlaşır.
-- **Alan görünürlüğü**: Yeni bir alan eklendiğinde manuel ekleme zorunluluğu,
-  alanın refinement zincirinde görünür kalmasını sağlar. Macro otomatik üretim
-  yaptığında alanın gerçekten doldurulup doldurulmadığını fark etmek zorlaşır.
-- **Derleme süresi**: Üç ek satır × 150 alan = 450 satır kod. Macro
-  proc-macro derleme süresinden daha hızlıdır.
-- **IDE deneyimi**: `color(&c.border_variant)` üzerinde "go to
-  definition" çağrısı Content alanına gider; macro tarafında IDE
-  indirgemelerin tamamına henüz aşina değildir.
+- **Görsel arama**: Bir alanın refinement'ta nasıl ele alındığını bulmak için `grep "border_variant"` yeterlidir. Macro kullanılırsa bu zincir saklanır ve gözle takip zorlaşır.
+- **Alan görünürlüğü**: Yeni bir alan eklendiğinde manuel ekleme zorunluluğu, alanın refinement zincirinde görünür kalmasını sağlar. Macro otomatik üretim yaptığında alanın gerçekten doldurulup doldurulmadığını fark etmek zorlaşır.
+- **Derleme süresi**: Üç ek satır × 150 alan = 450 satır kod. Macro proc-macro derleme süresinden daha hızlıdır.
+- **IDE deneyimi**: `color(&c.border_variant)` üzerinde "go to definition" çağrısı Content alanına gider; macro tarafında IDE indirgemelerin tamamına henüz aşina değildir.
 
-Zed kendi `refinement.rs` dosyasında da macro kullanmaz; aynı tek-satır
-deseni tercih edilmiştir.
+Zed kendi `refinement.rs` dosyasında da macro kullanmaz; aynı tek-satır deseni tercih edilmiştir.
 
 ### `From` trait impl alternatifi
 
@@ -398,45 +332,27 @@ impl From<&ThemeColorsContent> for ThemeColorsRefinement { ... }
 
 Çalışır, ancak birkaç dezavantajı vardır:
 
-- Trait nesnesi olarak çağırmak kafa karıştırır: `let r:
-  ThemeColorsRefinement = (&content.colors).into();` ifadesi yerine
-  `theme_colors_refinement(&content.colors)` çok daha nettir.
-- Birden fazla Refinement tipi vardır (ThemeColors + StatusColors); her
-  biri için ayrı `From` impl gerekir ve `From` trait'ler arasında
-  okuma kaybolur.
+- Trait nesnesi olarak çağırmak kafa karıştırır: `let r: ThemeColorsRefinement = (&content.colors).into();` ifadesi yerine `theme_colors_refinement(&content.colors)` çok daha nettir.
+- Birden fazla Refinement tipi vardır (ThemeColors + StatusColors); her biri için ayrı `From` impl gerekir ve `From` trait'ler arasında okuma kaybolur.
 
-Mevcut fonksiyon yaklaşımı **görünür bir API** sunar. Refinement modülünün
-yaptığı iş, birkaç fonksiyon imzasından okunabilir kalır.
+Mevcut fonksiyon yaklaşımı **görünür bir API** sunar. Refinement modülünün yaptığı iş, birkaç fonksiyon imzasından okunabilir kalır.
 
 ### `accents`, `players`, `syntax` neden burada değil?
 
-Bu üç katman `*Content` opsiyonelliğinden çok **liste/map** sözleşmesi taşır.
-Tek alan-bazlı refinement burada yeterli olmaz. Bu yüzden
-`Theme::from_content` içinde inline işlenirler:
+Bu üç katman `*Content` opsiyonelliğinden çok **liste/map** sözleşmesi taşır. Tek alan-bazlı refinement burada yeterli olmaz. Bu yüzden `Theme::from_content` içinde inline işlenirler:
 
-- `accents: Vec<Option<String>>` — refinement değil, **boş ise baseline,
-  dolu ise listeyi yeniden parse etme** kararıdır (Konu 32).
+- `accents: Vec<Option<String>>` — refinement değil, **boş ise baseline, dolu ise listeyi yeniden parse etme** kararıdır (Konu 32).
 - `players: Vec<PlayerColorContent>` — aynı boş/dolu kararı.
-- `syntax: IndexMap<String, HighlightStyleContent>` — `Vec<(String,
-  HighlightStyle)>` üretimi.
+- `syntax: IndexMap<String, HighlightStyleContent>` — `Vec<(String, HighlightStyle)>` üretimi.
 
-Bunlar `*_refinement` fonksiyonu altında modellenmez. Çünkü `Refineable`
-derive macro'su `Vec` veya `IndexMap` üzerinde hangi davranışın beklendiğini
-bilemez: `Refinement = Option<Vec<...>>` mi olmalı, yoksa
-`Vec<Option<...>>` mi? Inline işleme bu yüzden daha doğal kalır.
+Bunlar `*_refinement` fonksiyonu altında modellenmez. Çünkü `Refineable` derive macro'su `Vec` veya `IndexMap` üzerinde hangi davranışın beklendiğini bilemez: `Refinement = Option<Vec<...>>` mi olmalı, yoksa `Vec<Option<...>>` mi? Inline işleme bu yüzden daha doğal kalır.
 
 ### Tuzaklar
 
-1. **`color(c.border)` yerine `color(&c.border)`**: Helper
-   `&Option<String>` parametresi bekler, `Option<String>` değil. Move
-   alma istenmeyeceği için referans verilmesi gerekir.
-2. **`..Default::default()` atlamak**: Yeni bir alan eklendiğinde
-   derleme bozulur. Bu atlamayı yapmak yerine default fallback yerinde
-   tutulmalıdır; zaten verilen alanları default override etmez.
-3. **`as_deref` yerine `as_ref().map(String::as_str)`**: Aynı sonucu
-   verir ama daha uzun bir yazımdır. `as_deref()` idiomatik kullanımdır.
-4. **Hata loglaması**: Parse hatası sessizce `None`'a düşer. Production
-   debug ihtiyacı için şu yaklaşım yardımcı olur:
+1. **`color(c.border)` yerine `color(&c.border)`**: Helper `&Option<String>` parametresi bekler, `Option<String>` değil. Move alma istenmeyeceği için referans verilmesi gerekir.
+2. **`..Default::default()` atlamak**: Yeni bir alan eklendiğinde derleme bozulur. Bu atlamayı yapmak yerine default fallback yerinde tutulmalıdır; zaten verilen alanları default override etmez.
+3. **`as_deref` yerine `as_ref().map(String::as_str)`**: Aynı sonucu verir ama daha uzun bir yazımdır. `as_deref()` idiomatik kullanımdır.
+4. **Hata loglaması**: Parse hatası sessizce `None`'a düşer. Production debug ihtiyacı için şu yaklaşım yardımcı olur:
    ```rust
    fn color(s: &Option<String>) -> Option<gpui::Hsla> {
        s.as_deref().and_then(|s| {
@@ -446,29 +362,18 @@ bilemez: `Refinement = Option<Vec<...>>` mi olmalı, yoksa
        })
    }
    ```
-   Default'ta sessiz tutulması ve opt-in olarak log açılması doğru bir
-   tercih olur.
-5. **`status_colors_refinement` 42 alanın atlanması**: 14 × 3 = 42 alan
-   bulunur; kısayol yoktur. `..Default::default()` ile eksik alanların
-   tutulacağına güvenildiğinde refinement uygulanmaz ve kullanıcı
-   teması ile baseline arasında sessiz bir tutarsızlık doğar.
+   Default'ta sessiz tutulması ve opt-in olarak log açılması doğru bir tercih olur.
+5. **`status_colors_refinement` 42 alanın atlanması**: 14 × 3 = 42 alan bulunur; kısayol yoktur. `..Default::default()` ile eksik alanların tutulacağına güvenildiğinde refinement uygulanmaz ve kullanıcı teması ile baseline arasında sessiz bir tutarsızlık doğar.
 
 ---
 
 ## 31. `apply_status_color_defaults` ve `apply_theme_color_defaults`: %25 alpha türetme kuralı
 
-`StatusColors` sözleşmesinin özel bir davranışı vardır. Tema yazarı bir durum
-için **yalnızca foreground** verirse, **background** değeri otomatik olarak
-foreground'un **%25 alpha**'lı halinden türetilir. Bu kural Zed tema
-davranışıyla uyum için gereklidir. Aksi halde kullanıcı temasında ana renk yeni
-olur, background ise baseline'dan kalır ve ortaya yarı eski yarı yeni bir
-görünüm çıkar.
+`StatusColors` sözleşmesinin özel bir davranışı vardır. Tema yazarı bir durum için **yalnızca foreground** verirse, **background** değeri otomatik olarak foreground'un **%25 alpha**'lı halinden türetilir. Bu kural Zed tema davranışıyla uyum için gereklidir. Aksi halde kullanıcı temasında ana renk yeni olur, background ise baseline'dan kalır ve ortaya yarı eski yarı yeni bir görünüm çıkar.
 
 ### Kural
 
-**Eğer** Refinement'ta `<status>` foreground `Some(fg)` değerini
-taşıyor ama `<status>_background` `None` ise,
-**uygulama**: `<status>_background = Some(fg.opacity(0.25))`.
+**Eğer** Refinement'ta `<status>` foreground `Some(fg)` değerini taşıyor ama `<status>_background` `None` ise, **uygulama**: `<status>_background = Some(fg.opacity(0.25))`.
 
 ```rust
 pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement) {
@@ -493,8 +398,7 @@ pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement) {
 
 ### Hangi status için türetme uygulanır?
 
-**6 status:** `deleted`, `created`, `modified`, `conflict`, `error`,
-`hidden`.
+**6 status:** `deleted`, `created`, `modified`, `conflict`, `error`, `hidden`.
 
 | Status | Türetme uygulanır mı | Neden |
 |--------|---------------------|-------|
@@ -513,22 +417,17 @@ pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement) {
 | `renamed` | ✗ | VCS — bg uyumsuz türetilebilir |
 | `unreachable` | ✗ | Kod — bg genelde transparan |
 
-> **Bu seçim Zed'in `refine_theme_family` davranışını izler.** Listenin
-> değiştirilmesi gündeme gelirse önce Zed kaynağına bakılmalı
-> (`crates/theme/...`), ardından değişiklik yerel API genişletmesi olarak
-> değerlendirilmelidir.
+> **Bu seçim Zed'in `refine_theme_family` davranışını izler.** Listenin değiştirilmesi gündeme gelirse önce Zed kaynağına bakılmalı (`crates/theme/...`), ardından değişiklik yerel API genişletmesi olarak değerlendirilmelidir.
 
 ### `_border` türetilmez
 
-Yalnızca `_background` türetilir; `_border` `None` ise baseline'dan
-gelir. Tema yazarı `error: "#ff5555"` yazdığında durum şu olur:
+Yalnızca `_background` türetilir; `_border` `None` ise baseline'dan gelir. Tema yazarı `error: "#ff5555"` yazdığında durum şu olur:
 
 - `error` = `Some(hsla(...))`
 - `error_background` = türetildi (`#ff555540` benzeri)
 - `error_border` = baseline'dan (tema yazarı vermediyse)
 
-Bu kasıtlı bir tercihtir. Border renginin %50 alpha versiyonu her durumda
-makul olmayabilir; bu rengin ayrı bir kararla yazılması beklenir.
+Bu kasıtlı bir tercihtir. Border renginin %50 alpha versiyonu her durumda makul olmayabilir; bu rengin ayrı bir kararla yazılması beklenir.
 
 ### Mekanizma detayı
 
@@ -539,10 +438,7 @@ let pairs: &mut [(&mut Option<_>, &mut Option<_>)] = &mut [
 ];
 ```
 
-**`&mut Option<_>` çiftleri**: Rust borrow checker aynı struct'tan rastgele
-birden fazla `&mut` referans alınmasına izin vermez. Ancak farklı **alanlar**
-söz konusu olduğunda buna izin verir. `pairs` array'i bu çiftleri tek slice'ta
-toplar.
+**`&mut Option<_>` çiftleri**: Rust borrow checker aynı struct'tan rastgele birden fazla `&mut` referans alınmasına izin vermez. Ancak farklı **alanlar** söz konusu olduğunda buna izin verir. `pairs` array'i bu çiftleri tek slice'ta toplar.
 
 ```rust
 for (fg, bg) in pairs {
@@ -553,16 +449,13 @@ for (fg, bg) in pairs {
 ```
 
 - `bg.is_none()`: background verilmemiş.
-- `let Some(fg) = fg.as_ref()`: if-let chain (Rust 2024) — foreground
-  verilmiş.
-- `**bg = ...`: `bg` `&mut &mut Option<Hsla>` tipindedir (içeri çıkmak
-  için iki deref); değer atanır.
+- `let Some(fg) = fg.as_ref()`: if-let chain (Rust 2024) — foreground verilmiş.
+- `**bg = ...`: `bg` `&mut &mut Option<Hsla>` tipindedir (içeri çıkmak için iki deref); değer atanır.
 - `fg.opacity(0.25)`: `Hsla::opacity` Konu 6'da işlenmiştir.
 
 ### Çağrı yeri
 
-`apply_status_color_defaults`, `Theme::from_content` içinde **yalnızca tek bir
-yerde** çağrılır:
+`apply_status_color_defaults`, `Theme::from_content` içinde **yalnızca tek bir yerde** çağrılır:
 
 ```rust
 let mut status_refinement = status_colors_refinement(&content.style.status);
@@ -578,21 +471,9 @@ Sıralama:
 
 ### `theme_color_defaults` muadili?
 
-`ThemeColors` için genel bir foreground/background türetme yardımcısı yoktur.
-Sebep basittir: UI renklerinde status renklerindeki gibi düzenli bir
-foreground/background ilişkisi bulunmaz. `border_variant` ile
-`surface_background` birbirinden bağımsız alanlardır. Genel türetme bu yüzden
-yapay kalır.
+`ThemeColors` için genel bir foreground/background türetme yardımcısı yoktur. Sebep basittir: UI renklerinde status renklerindeki gibi düzenli bir foreground/background ilişkisi bulunmaz. `border_variant` ile `surface_background` birbirinden bağımsız alanlardır. Genel türetme bu yüzden yapay kalır.
 
-Zed'de `apply_theme_color_defaults` adında bir fonksiyon bulunur, ancak
-tam davranışı Konu 31'de işlenir: yalnızca `element_selection_background`
-alanını türetir ve kaynak rengi `player_colors.local().selection`
-değeridir (text_accent veya başka bir alan değil). Kaynak rengin
-alpha'sı `1.0` olduğunda sonuç alpha'sı `0.25`'e çekilir; aksi durumda
-değer olduğu gibi atanır. Yani sabit bir `× 0.25` formülü **söz konusu
-değildir**; alpha < 1.0 olan bir player selection'ı aynen kopyalanır.
-`apply_theme_color_defaults` tarafındaki ek türetme kuralları Konu 31'de
-ayrıca ele alınır.
+Zed'de `apply_theme_color_defaults` adında bir fonksiyon bulunur, ancak tam davranışı Konu 31'de işlenir: yalnızca `element_selection_background` alanını türetir ve kaynak rengi `player_colors.local().selection` değeridir (text_accent veya başka bir alan değil). Kaynak rengin alpha'sı `1.0` olduğunda sonuç alpha'sı `0.25`'e çekilir; aksi durumda değer olduğu gibi atanır. Yani sabit bir `× 0.25` formülü **söz konusu değildir**; alpha < 1.0 olan bir player selection'ı aynen kopyalanır. `apply_theme_color_defaults` tarafındaki ek türetme kuralları Konu 31'de ayrıca ele alınır.
 
 ### Test örnekleri
 
@@ -639,21 +520,10 @@ fn neither_fg_nor_bg() {
 
 ### Tuzaklar
 
-1. **`opacity(0.25)` yerine `alpha(0.25)`**: `opacity(x)` mevcut
-   alpha'yı `* x` ile çarpar; `alpha(x)` ise doğrudan atar. Foreground
-   genelde alpha 1.0 olduğu için iki çağrı aynı sonucu üretir; ancak
-   anlamları farklıdır. Zed `opacity` kullanır, mirror tarafta da aynı
-   tercih korunur.
-2. **6 status'un listeye yazılmasının unutulması**: Liste eksik
-   olduğunda (örneğin `modified` eklenmediğinde) türetme çalışmaz;
-   kullanıcı yalnız fg yazdığında bg baseline'dan gelir. Listenin tam
-   olması şarttır.
-3. **`pairs` slice'ının tekrar kullanılması**: `&mut [...]` literal her
-   çağrıda yeniden üretilir; performans açısından bir kayıp değildir.
-   Bu kod hot path'te yer almaz.
-4. **`if-let chain` syntax**: `if bg.is_none() && let Some(fg) =
-   fg.as_ref()` ifadesi Rust 2024 edition'a aittir. Edition < 2024
-   ortamlarda nested `if let` yazılır:
+1. **`opacity(0.25)` yerine `alpha(0.25)`**: `opacity(x)` mevcut alpha'yı `* x` ile çarpar; `alpha(x)` ise doğrudan atar. Foreground genelde alpha 1.0 olduğu için iki çağrı aynı sonucu üretir; ancak anlamları farklıdır. Zed `opacity` kullanır, mirror tarafta da aynı tercih korunur.
+2. **6 status'un listeye yazılmasının unutulması**: Liste eksik olduğunda (örneğin `modified` eklenmediğinde) türetme çalışmaz; kullanıcı yalnız fg yazdığında bg baseline'dan gelir. Listenin tam olması şarttır.
+3. **`pairs` slice'ının tekrar kullanılması**: `&mut [...]` literal her çağrıda yeniden üretilir; performans açısından bir kayıp değildir. Bu kod hot path'te yer almaz.
+4. **`if-let chain` syntax**: `if bg.is_none() && let Some(fg) = fg.as_ref()` ifadesi Rust 2024 edition'a aittir. Edition < 2024 ortamlarda nested `if let` yazılır:
    ```rust
    if bg.is_none() {
        if let Some(fg) = fg.as_ref() {
@@ -661,20 +531,14 @@ fn neither_fg_nor_bg() {
        }
    }
    ```
-5. **`_border` türetmesinin eklenmesi**: Sözleşmenin dışına çıkar ve
-   kullanıcı temasıyla uyumsuz bir görüntü riskini doğurur. Bu adımın
-   eklenmesi yerel bir API genişletmesi olarak değerlendirilmelidir.
-6. **Türetme sırası**: `apply_status_color_defaults` `refine()`'dan
-   **önce** çağrılmalıdır. Sonra çağrıldığında baseline'ın `_background`
-   değeri zaten yazılmış olur ve türetme yerini bulamaz.
+5. **`_border` türetmesinin eklenmesi**: Sözleşmenin dışına çıkar ve kullanıcı temasıyla uyumsuz bir görüntü riskini doğurur. Bu adımın eklenmesi yerel bir API genişletmesi olarak değerlendirilmelidir.
+6. **Türetme sırası**: `apply_status_color_defaults` `refine()`'dan **önce** çağrılmalıdır. Sonra çağrıldığında baseline'ın `_background` değeri zaten yazılmış olur ve türetme yerini bulamaz.
 
 ### `apply_theme_color_defaults` — refinement default'ları
 
 **Kaynak:** `crates/theme/src/fallback_themes.rs:47`.
 
-Konu 31'in başında `apply_status_color_defaults` için %25 alpha türetme kuralı
-işlenmişti. Zed'in `ThemeColors` için **ikinci** bir default uygulama
-fonksiyonu daha vardır:
+Konu 31'in başında `apply_status_color_defaults` için %25 alpha türetme kuralı işlenmişti. Zed'in `ThemeColors` için **ikinci** bir default uygulama fonksiyonu daha vardır:
 
 ```rust
 pub fn apply_theme_color_defaults(
@@ -693,15 +557,9 @@ pub fn apply_theme_color_defaults(
 
 **`kvs_tema`'da neden gerekir?**
 
-- `ThemeColorsRefinement` `Option<Hsla>` alanları taşır; refinement
-  zincirinde `None` kalan alanlar baseline'dan gelir.
-- `element_selection_background` özel bir fallback kuralı taşır:
-  kullanıcı veya tema bu alanı vermediyse lokal player selection
-  rengi alınır; tam opak ise alpha `0.25`'e çekilir.
-- Bu fonksiyon appearance tabanlı genel bir renk doldurucu değildir.
-  `border_disabled` veya `text_disabled` gibi alanların otomatik
-  üretilmesi sağlamaz; böyle bir genişletme yapılacak olursa Zed
-  referansından bağımsız bir uygulama kararı olarak ele alınmalıdır.
+- `ThemeColorsRefinement` `Option<Hsla>` alanları taşır; refinement zincirinde `None` kalan alanlar baseline'dan gelir.
+- `element_selection_background` özel bir fallback kuralı taşır: kullanıcı veya tema bu alanı vermediyse lokal player selection rengi alınır; tam opak ise alpha `0.25`'e çekilir.
+- Bu fonksiyon appearance tabanlı genel bir renk doldurucu değildir. `border_disabled` veya `text_disabled` gibi alanların otomatik üretilmesi sağlamaz; böyle bir genişletme yapılacak olursa Zed referansından bağımsız bir uygulama kararı olarak ele alınmalıdır.
 
 **Örnek implementasyon:**
 
@@ -737,21 +595,15 @@ apply_theme_color_defaults(&mut merged, &player_colors);
 apply_status_color_defaults(&mut status_merged);
 ```
 
-Default uygulama, refinement birleştirmesinin **sonrasında** ve materyalize
-edilmeden **önce** gelir. Bu sıralama kullanıcı override'ı varsa onu korur;
-yalnızca eksik (`None`) alanlar doldurulur.
+Default uygulama, refinement birleştirmesinin **sonrasında** ve materyalize edilmeden **önce** gelir. Bu sıralama kullanıcı override'ı varsa onu korur; yalnızca eksik (`None`) alanlar doldurulur.
 
 ---
 
 ## 32. `Theme::from_content` birleşik akış
 
-**Kaynak modül:** `kvs_tema/src/refinement.rs` veya `kvs_tema.rs` (lib
-kökü). Yerleşim kararsız olabilir; ancak `impl Theme` bloğu tek
-parçadır.
+**Kaynak modül:** `kvs_tema/src/refinement.rs` veya `kvs_tema.rs` (lib kökü). Yerleşim kararsız olabilir; ancak `impl Theme` bloğu tek parçadır.
 
-Refinement katmanının dışarıya verdiği ana kurulum fonksiyonudur. İki bilgiyle
-çağrılır: kullanıcı tema içeriği ve baseline tema. Sonuç olarak tam bir
-`Theme` nesnesi üretir.
+Refinement katmanının dışarıya verdiği ana kurulum fonksiyonudur. İki bilgiyle çağrılır: kullanıcı tema içeriği ve baseline tema. Sonuç olarak tam bir `Theme` nesnesi üretir.
 
 ```rust
 impl Theme {
@@ -761,11 +613,8 @@ impl Theme {
 
 **İmza ayrıntısı:**
 
-- `content: ThemeContent` — **sahip alır** (move). Çağıran, fonksiyon
-  sonrası Content'i kullanamaz; ancak Content tipi zaten parse sonrası
-  bir kez kullanılır ve atılır.
-- `baseline: &Theme` — **referanstır**. Baseline registry'de durur. Klon
-  gerektiğinde fonksiyon içinde `.clone()` çağrılır.
+- `content: ThemeContent` — **sahip alır** (move). Çağıran, fonksiyon sonrası Content'i kullanamaz; ancak Content tipi zaten parse sonrası bir kez kullanılır ve atılır.
+- `baseline: &Theme` — **referanstır**. Baseline registry'de durur. Klon gerektiğinde fonksiyon içinde `.clone()` çağrılır.
 - Dönüş: `Self` (`Theme`).
 
 ### 8 adımlı akış
@@ -863,33 +712,19 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
 
 **Adım 1 — Appearance enum dönüşümü.**
 
-`AppearanceContent::Light` (Bölüm V) → `Appearance::Light` (Bölüm IV).
-Burada iki ayrı enum tipi vardır. Content tipi serde için, Theme tipi runtime
-için kullanılır. Doğrudan cast yapılmaz; açık bir `match` yazılır.
+`AppearanceContent::Light` (Bölüm V) → `Appearance::Light` (Bölüm IV). Burada iki ayrı enum tipi vardır. Content tipi serde için, Theme tipi runtime için kullanılır. Doğrudan cast yapılmaz; açık bir `match` yazılır.
 
 **Adım 2 — Status refinement + %25 alpha türetme.**
 
-`status_colors_refinement` Konu 30'da, `apply_status_color_defaults` ise Konu
-31'de ele alınmıştır. Türetme `theme_colors_refinement`'tan **önce**
-çalıştırılır; çünkü `theme_colors_refinement`,
-`version_control_added`/`version_control_deleted` alanları için
-`status_refinement.created`/`status_refinement.deleted` değerlerine düşer
-(Konu 30 fallback tablosu).
+`status_colors_refinement` Konu 30'da, `apply_status_color_defaults` ise Konu 31'de ele alınmıştır. Türetme `theme_colors_refinement`'tan **önce** çalıştırılır; çünkü `theme_colors_refinement`, `version_control_added`/`version_control_deleted` alanları için `status_refinement.created`/`status_refinement.deleted` değerlerine düşer (Konu 30 fallback tablosu).
 
 **Adım 3 — Player merge.**
 
-`merge_player_colors(&mut player, &content.style.players)` çağrısı baseline
-player listesini index başına field-bazlı override eder. Bu adımın theme color
-refinement'tan **önce** olması gerekir; çünkü `apply_theme_color_defaults`,
-`player.local().selection` rengini okur (Konu 31).
+`merge_player_colors(&mut player, &content.style.players)` çağrısı baseline player listesini index başına field-bazlı override eder. Bu adımın theme color refinement'tan **önce** olması gerekir; çünkü `apply_theme_color_defaults`, `player.local().selection` rengini okur (Konu 31).
 
 **Adım 4 — Theme color refinement + türetme.**
 
-`theme_colors_refinement(content, &status_refinement, is_light)` üç parametreyle
-çağrılır; Konu 30'daki imza tablosu bunu açıklar. Ardından
-`apply_theme_color_defaults(refinement, &player)` çağrılır ve
-`element_selection_background` türetilir. Bu sıra, status türetmesinden sonra
-ve baseline'a uygulamadan öncedir.
+`theme_colors_refinement(content, &status_refinement, is_light)` üç parametreyle çağrılır; Konu 30'daki imza tablosu bunu açıklar. Ardından `apply_theme_color_defaults(refinement, &player)` çağrılır ve `element_selection_background` türetilir. Bu sıra, status türetmesinden sonra ve baseline'a uygulamadan öncedir.
 
 **Adım 4 (devam) — Baseline.refine() detayı.**
 
@@ -898,17 +733,11 @@ let mut colors = baseline.styles.colors.clone();
 colors.refine(&color_refinement);
 ```
 
-`Refineable::refine` (Bölüm III/Konu 11) — `Some` alanları override
-eder, `None` ise baseline'dan kalır. Adım 2'de
-`status.refine(&status_refinement)` aynı şekilde uygulanır.
+`Refineable::refine` (Bölüm III/Konu 11) — `Some` alanları override eder, `None` ise baseline'dan kalır. Adım 2'de `status.refine(&status_refinement)` aynı şekilde uygulanır.
 
-**`.clone()` neden gereklidir?** `baseline: &Theme` immutable bir referanstır;
-doğrudan üzerinde `refine` çağrılamaz. Baseline registry'de paylaşıldığı için
-değiştirilemez; her tema kendi kopyasını alır.
+**`.clone()` neden gereklidir?** `baseline: &Theme` immutable bir referanstır; doğrudan üzerinde `refine` çağrılamaz. Baseline registry'de paylaşıldığı için değiştirilemez; her tema kendi kopyasını alır.
 
-**Maliyet:** `ThemeColors` ~150 `Hsla` taşır = 150 × 16 byte = 2.4 KiB
-klon. `StatusColors` 42 alan = ~700 byte. Toplam ~3 KiB per tema, tema
-yüklenirken yalnızca bir kez. Bu adım hot path'te değildir.
+**Maliyet:** `ThemeColors` ~150 `Hsla` taşır = 150 × 16 byte = 2.4 KiB klon. `StatusColors` 42 alan = ~700 byte. Toplam ~3 KiB per tema, tema yüklenirken yalnızca bir kez. Bu adım hot path'te değildir.
 
 **Adım 3 (devam) — Player merge davranış detayı.**
 
@@ -917,23 +746,15 @@ let mut player = baseline.styles.player.clone();
 merge_player_colors(&mut player, &content.style.players);
 ```
 
-`merge_player_colors` kanonik akışın 3. adımıdır; status refinement'tan sonra,
-theme colors refinement'tan önce çalışır. İnce noktaları şunlardır:
+`merge_player_colors` kanonik akışın 3. adımıdır; status refinement'tan sonra, theme colors refinement'tan önce çalışır. İnce noktaları şunlardır:
 
-- Tema yazarı şu listeyi vermiş olsun:
-  `players: [{ "cursor": "#abc" }, { "cursor": "#def" }]`.
-- Player 0'ın cursor'u `#abc`, background ve selection ise **baseline
-  player 0**'dan (baseline'ın `local()` slot'undan) gelir.
-- Player 1'in cursor'u `#def`, background ve selection ise **baseline
-  player 1**'den (slot semantiğine göre turuncu tonları) gelir.
+- Tema yazarı şu listeyi vermiş olsun: `players: [{ "cursor": "#abc" }, { "cursor": "#def" }]`.
+- Player 0'ın cursor'u `#abc`, background ve selection ise **baseline player 0**'dan (baseline'ın `local()` slot'undan) gelir.
+- Player 1'in cursor'u `#def`, background ve selection ise **baseline player 1**'den (slot semantiğine göre turuncu tonları) gelir.
 
-Yani fallback **index başına** uygulanır; tüm eksikler `local()` slot'undan
-gelmez. Bu davranış Zed'in `merge_player_colors` sözleşmesiyle eşleşir ve slot
-semantiğini korur (Konu 15).
+Yani fallback **index başına** uygulanır; tüm eksikler `local()` slot'undan gelmez. Bu davranış Zed'in `merge_player_colors` sözleşmesiyle eşleşir ve slot semantiğini korur (Konu 15).
 
-Player slot'u baseline kapasitesinden büyük bir index ise, örneğin baseline 8
-slot tutarken tema 10 slot tanımlamışsa, eksik fallback `PlayerColor::default()`
-ile doldurulur.
+Player slot'u baseline kapasitesinden büyük bir index ise, örneğin baseline 8 slot tutarken tema 10 slot tanımlamışsa, eksik fallback `PlayerColor::default()` ile doldurulur.
 
 **Adım 5 — Accent merge.**
 
@@ -941,64 +762,28 @@ ile doldurulur.
 merge_accent_colors(&mut accents, &content.style.accents);
 ```
 
-Zed kaynağındaki `theme_settings::theme_settings::merge_accent_colors`
-şu davranışı sergiler:
+Zed kaynağındaki `theme_settings::theme_settings::merge_accent_colors` şu davranışı sergiler:
 
-- `user_accent_colors.is_empty()` → baseline'a dokunmaz (`accents`
-  baseline'dan klonlu kalır).
-- Aksi halde parse edilebilen renkler `filter_map` ile toplanır; toplam
-  liste boş çıkarsa (hepsi null veya parse hatası) yine baseline'a
-  dokunulmaz. Liste en az 1 renk içerdiğinde `accents.0 =
-  Arc::from(colors)` çağrısıyla **baseline tamamen değiştirilir**.
+- `user_accent_colors.is_empty()` → baseline'a dokunmaz (`accents` baseline'dan klonlu kalır).
+- Aksi halde parse edilebilen renkler `filter_map` ile toplanır; toplam liste boş çıkarsa (hepsi null veya parse hatası) yine baseline'a dokunulmaz. Liste en az 1 renk içerdiğinde `accents.0 = Arc::from(colors)` çağrısıyla **baseline tamamen değiştirilir**.
 
-> **Tuzak:** Tema yazarı `accents: ["#aaa", null, "#bbb"]` yazdığında,
-> `merge_accent_colors` null'ları ve parse hatalarını eler. Sonuç
-> `accents = [#aaa, #bbb]` olur. İndeksleme bu durumda kayar; `#bbb` artık
-> accent index 1'dir, baseline'daki orijinal index 2 değildir. Zed bu davranışı
-> bilinçli olarak korur. Mirror tarafta semantik bozulmaması için aynı
-> `filter_map` zinciri korunmalıdır.
+> **Tuzak:** Tema yazarı `accents: ["#aaa", null, "#bbb"]` yazdığında, `merge_accent_colors` null'ları ve parse hatalarını eler. Sonuç `accents = [#aaa, #bbb]` olur. İndeksleme bu durumda kayar; `#bbb` artık accent index 1'dir, baseline'daki orijinal index 2 değildir. Zed bu davranışı bilinçli olarak korur. Mirror tarafta semantik bozulmaması için aynı `filter_map` zinciri korunmalıdır.
 
-**Adım 6 — Syntax: `IndexMap` → `Vec<(String, HighlightStyle)>` →
-`Arc::new(SyntaxTheme::new(...))`.**
+**Adım 6 — Syntax: `IndexMap` → `Vec<(String, HighlightStyle)>` → `Arc::new(SyntaxTheme::new(...))`.**
 
-`theme_settings::schema::syntax_overrides` helper'ı (yukarıdaki Konu 30
-imza tablosunda yer alır), Content tarafındaki
-`IndexMap<String, HighlightStyleContent>` yapısını `Vec<(String,
-gpui::HighlightStyle)>` haline çevirir. `HighlightStyleContent`'in 4
-alanı (`color`, `background_color`, `font_style`, `font_weight`) parse
-edilir; gerisi `Default::default()`'tan gelir (underline, strikethrough,
-fade_out vb.).
+`theme_settings::schema::syntax_overrides` helper'ı (yukarıdaki Konu 30 imza tablosunda yer alır), Content tarafındaki `IndexMap<String, HighlightStyleContent>` yapısını `Vec<(String, gpui::HighlightStyle)>` haline çevirir. `HighlightStyleContent`'in 4 alanı (`color`, `background_color`, `font_style`, `font_weight`) parse edilir; gerisi `Default::default()`'tan gelir (underline, strikethrough, fade_out vb.).
 
 ```rust
 let syntax_highlights = syntax_overrides(&content.style);
 let syntax = Arc::new(SyntaxTheme::new(syntax_highlights));
 ```
 
-Zed `theme_settings::refine_theme` bu dönüşümü şu an inline yazar
-(`theme_settings.rs:313-331`); `syntax_overrides(style)` helper'ı aynı
-`IndexMap` → `Vec<(String, HighlightStyle)>` dönüşümünü ürettiği için
-mirror tarafta da kullanılabilir. Buradaki kritik ayrım şu şekildedir:
+Zed `theme_settings::refine_theme` bu dönüşümü şu an inline yazar (`theme_settings.rs:313-331`); `syntax_overrides(style)` helper'ı aynı `IndexMap` → `Vec<(String, HighlightStyle)>` dönüşümünü ürettiği için mirror tarafta da kullanılabilir. Buradaki kritik ayrım şu şekildedir:
 
-- **Tam user theme yüklemesi** (`refine_theme_family` / `refine_theme`):
-  syntax bölümü `SyntaxTheme::new(...)` ile kurulur. Baseline syntax
-  üzerine field-bazlı bir merge yapılmaz. **Pratik sonuç:** Tema
-  JSON'ında `syntax` bölümü boş veya eksik olduğunda `syntax_overrides`
-  boş bir vec döner ve `SyntaxTheme::new([])` çağrılır — sonuç
-  **tamamen boş bir syntax theme** olur. Editor renklerinin
-  görünebilmesi için tema yazarının `syntax: { ... }` bloğunu mutlaka
-  doldurması gerekir; aksi takdirde syntax highlight'sız bir editör
-  ekranı ortaya çıkar.
-- **Runtime theme override** (`ThemeSettings::apply_theme_overrides` →
-  private `modify_theme`): mevcut `base_theme.styles.syntax` üstüne
-  `SyntaxTheme::merge(base, syntax_overrides(theme_overrides))`
-  uygulanır. Bu yol field-bazlı option-or birleştirme yapar;
-  override'da olmayan bir capture baseline'daki `HighlightStyle`'ı
-  korur.
+- **Tam user theme yüklemesi** (`refine_theme_family` / `refine_theme`): syntax bölümü `SyntaxTheme::new(...)` ile kurulur. Baseline syntax üzerine field-bazlı bir merge yapılmaz. **Pratik sonuç:** Tema JSON'ında `syntax` bölümü boş veya eksik olduğunda `syntax_overrides` boş bir vec döner ve `SyntaxTheme::new([])` çağrılır — sonuç **tamamen boş bir syntax theme** olur. Editor renklerinin görünebilmesi için tema yazarının `syntax: { ... }` bloğunu mutlaka doldurması gerekir; aksi takdirde syntax highlight'sız bir editör ekranı ortaya çıkar.
+- **Runtime theme override** (`ThemeSettings::apply_theme_overrides` → private `modify_theme`): mevcut `base_theme.styles.syntax` üstüne `SyntaxTheme::merge(base, syntax_overrides(theme_overrides))` uygulanır. Bu yol field-bazlı option-or birleştirme yapar; override'da olmayan bir capture baseline'daki `HighlightStyle`'ı korur.
 
-Bu nedenle `SyntaxTheme::merge` Konu 18'de ve override akışında kanonik helper
-olarak işlev görür; ancak Konu 32'deki tam JSON → `Theme` pipeline'ının son
-adımı **değildir**. Bu ayrım karıştırılırsa, user theme yüklemesinde aslında
-olmayan bir baseline syntax mirası varmış gibi anlatılır.
+Bu nedenle `SyntaxTheme::merge` Konu 18'de ve override akışında kanonik helper olarak işlev görür; ancak Konu 32'deki tam JSON → `Theme` pipeline'ının son adımı **değildir**. Bu ayrım karıştırılırsa, user theme yüklemesinde aslında olmayan bir baseline syntax mirası varmış gibi anlatılır.
 
 **Adım 7 — Pencere bg: enum dönüşümü veya fallback.**
 
@@ -1009,19 +794,14 @@ match content.style.window_background_appearance {
 }
 ```
 
-Tema yazarı değer vermediyse baseline'dan gelir. Değer verdiyse Content
-enum'undan GPUI enum'una açık bir `match` yapılır.
+Tema yazarı değer vermediyse baseline'dan gelir. Değer verdiyse Content enum'undan GPUI enum'una açık bir `match` yapılır.
 
 **Adım 8 — Theme yapısını topla.**
 
-- `id`: `uuid::Uuid::new_v4().to_string()` — her seferinde yeni bir
-  unique id üretilir. Aynı tema iki kez yüklendiğinde iki farklı id
-  alır; runtime'da ayırt etmek için kullanılabilir (genelde gerekmez).
-- `name`: `SharedString::from(content.name)`. Content'in `name: String`
-  alanı klonsuz biçimde `SharedString`'e sarmalanır.
+- `id`: `uuid::Uuid::new_v4().to_string()` — her seferinde yeni bir unique id üretilir. Aynı tema iki kez yüklendiğinde iki farklı id alır; runtime'da ayırt etmek için kullanılabilir (genelde gerekmez).
+- `name`: `SharedString::from(content.name)`. Content'in `name: String` alanı klonsuz biçimde `SharedString`'e sarmalanır.
 - `appearance`: Adım 1.
-- `styles.system`: Baseline'dan klonlanır (tema yazarı sistem renklerini
-  override etmez).
+- `styles.system`: Baseline'dan klonlanır (tema yazarı sistem renklerini override etmez).
 - Diğerleri: Adım 3–7'den.
 
 ### Edge case'ler
@@ -1047,17 +827,14 @@ enum'undan GPUI enum'una açık bir `match` yapılır.
 | Accents/Players/Syntax | ~5–20 µs | Map sayısına bağlı |
 | Toplam | **~25–60 µs** | Tema yüklemesi başına |
 
-100 tema yüklendiğinde toplam yaklaşık ~5 ms olur. Bu kod yolu hot path
-değildir.
+100 tema yüklendiğinde toplam yaklaşık ~5 ms olur. Bu kod yolu hot path değildir.
 
 ### Çağrı yerleri
 
 `Theme::from_content` iki ana yerden çağrılır:
 
-1. **Bundled tema yükleme** (Bölüm VI): `assets/themes/*.json` →
-   `ThemeFamilyContent` → her `ThemeContent` için `from_content`.
-2. **Kullanıcı tema yükleme** (runtime API): Kullanıcı bir tema dosyası
-   eklediğinde → `serde_json_lenient::from_str` → `from_content`.
+1. **Bundled tema yükleme** (Bölüm VI): `assets/themes/*.json` → `ThemeFamilyContent` → her `ThemeContent` için `from_content`.
+2. **Kullanıcı tema yükleme** (runtime API): Kullanıcı bir tema dosyası eklediğinde → `serde_json_lenient::from_str` → `from_content`.
 
 Test fixture'larında da kullanılır:
 
@@ -1076,40 +853,23 @@ fn parses_zed_one_dark() {
 
 ### Tuzaklar
 
-1. **Baseline için yanlış appearance seçmek**: Light bir tema yüklenirken
-   dark baseline kullanıldığında, kullanıcının vermediği alanlar dark
-   baseline'dan gelir ve uyumsuz bir görüntü oluşur. Çağıran kodun
-   baseline'ı `content.appearance` değerine göre seçmesi gerekir:
+1. **Baseline için yanlış appearance seçmek**: Light bir tema yüklenirken dark baseline kullanıldığında, kullanıcının vermediği alanlar dark baseline'dan gelir ve uyumsuz bir görüntü oluşur. Çağıran kodun baseline'ı `content.appearance` değerine göre seçmesi gerekir:
    ```rust
    let baseline = match content.appearance {
        AppearanceContent::Light => fallback::kvs_default_light(),
        AppearanceContent::Dark => fallback::kvs_default_dark(),
    };
    ```
-2. **`from_content`'in her render'da çağrılması**: Hot path olmasa bile
-   gereksizdir. Tema yüklenirken bir kez çağrılır ve sonuç cache'lenir.
-3. **`uuid` dependency'sinin unutulması**: Cargo.toml'a `uuid = { version
-   = "1", features = ["v4"] }` eklenir. Bölüm II/Konu 5 listesinde de
-   yer alır.
-4. **`SystemColors`'un override edilmesi**: Sözleşmede SystemColors tema
-   yazarı tarafından override edilmez. Şu anki Content tipinde bu alana
-   karşılık gelen bir yer yoktur; istense bile yazılamaz. Bu durum
-   kasıtlıdır.
-5. **`Theme.id` üzerinden equality**: İki tema farklı id'lere sahip
-   olduğunda aynı içeriği taşısa bile farklı sayılır. Equality için
-   `name` veya `styles` karşılaştırılmalıdır.
-6. **Accents `filter_map` null davranışı**: Zed davranışı, parse
-   edilemeyen veya `null` accent girdilerini eler; liste boş kaldığında
-   baseline korunur.
-7. **`from_content` panic potansiyeli**: Mevcut implementasyonda panic
-   bulunmaz. Buna karşın `unwrap` eklemek dikkat gerektirir: tema
-   yüklemesinin panic etmemesi, sessizce baseline'a düşmesi beklenir.
+2. **`from_content`'in her render'da çağrılması**: Hot path olmasa bile gereksizdir. Tema yüklenirken bir kez çağrılır ve sonuç cache'lenir.
+3. **`uuid` dependency'sinin unutulması**: Cargo.toml'a `uuid = { version = "1", features = ["v4"] }` eklenir. Bölüm II/Konu 5 listesinde de yer alır.
+4. **`SystemColors`'un override edilmesi**: Sözleşmede SystemColors tema yazarı tarafından override edilmez. Şu anki Content tipinde bu alana karşılık gelen bir yer yoktur; istense bile yazılamaz. Bu durum kasıtlıdır.
+5. **`Theme.id` üzerinden equality**: İki tema farklı id'lere sahip olduğunda aynı içeriği taşısa bile farklı sayılır. Equality için `name` veya `styles` karşılaştırılmalıdır.
+6. **Accents `filter_map` null davranışı**: Zed davranışı, parse edilemeyen veya `null` accent girdilerini eler; liste boş kaldığında baseline korunur.
+7. **`from_content` panic potansiyeli**: Mevcut implementasyonda panic bulunmaz. Buna karşın `unwrap` eklemek dikkat gerektirir: tema yüklemesinin panic etmemesi, sessizce baseline'a düşmesi beklenir.
 
 ### Zed paritesi: `refine_theme*`, `merge_*`, `load_user_theme`
 
-Yukarıdaki `Theme::from_content` `kvs_tema` için önerilen tasarımdır. Zed'de
-aynı işi parçalara bölen **dört public fonksiyon** bulunur
-(`crates/theme_settings/src/theme_settings.rs`):
+Yukarıdaki `Theme::from_content` `kvs_tema` için önerilen tasarımdır. Zed'de aynı işi parçalara bölen **dört public fonksiyon** bulunur (`crates/theme_settings/src/theme_settings.rs`):
 
 | Fonksiyon | Sorumluluk | Karşılık |
 |-----------|------------|----------|
@@ -1118,10 +878,7 @@ aynı işi parçalara bölen **dört public fonksiyon** bulunur
 | `pub fn merge_player_colors(&mut PlayerColors, &[PlayerColorContent])` | Adım 3'ün kanonik implementasyonu (idx başına field bazında merge) | Konu 32 Adım 3 |
 | `pub fn merge_accent_colors(&mut AccentColors, &[AccentContent])` | Adım 5'in kanonik implementasyonu (parse edilen liste boş değilse `Arc<[Hsla]>`'i tamamen değiştir) | Konu 32 Adım 5 |
 
-Ayrıca `pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8])
--> Result<()>` ve `pub fn deserialize_user_theme(bytes: &[u8]) ->
-Result<ThemeFamilyContent>` fonksiyonları kullanıcı tema dosyasını
-disk'ten parse eden public yüzeyi sunar:
+Ayrıca `pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8]) -> Result<()>` ve `pub fn deserialize_user_theme(bytes: &[u8]) -> Result<ThemeFamilyContent>` fonksiyonları kullanıcı tema dosyasını disk'ten parse eden public yüzeyi sunar:
 
 ```rust
 // theme_settings/src/theme_settings.rs:225-251
@@ -1150,8 +907,7 @@ pub fn deserialize_user_theme(bytes: &[u8]) -> Result<ThemeFamilyContent> {
 }
 ```
 
-Kullanıcı tema dizini gibi runtime yükleme yolları bu iki fonksiyonu doğrudan
-kullanabilir:
+Kullanıcı tema dizini gibi runtime yükleme yolları bu iki fonksiyonu doğrudan kullanabilir:
 
 ```rust
 pub fn kullanici_tema_yukle(
@@ -1165,9 +921,6 @@ pub fn kullanici_tema_yukle(
 }
 ```
 
-Deprecated alan uyarısı (`deprecated_scrollbar_thumb_background`) Zed'de **log
-seviyesinde** kalır; parse hatası üretmez. `kvs_tema` mirror'ında da aynı
-strateji izlenir: deprecated alanlar `tracing::warn!` ile yazılır, kullanıcının
-teması yine yüklenir.
+Deprecated alan uyarısı (`deprecated_scrollbar_thumb_background`) Zed'de **log seviyesinde** kalır; parse hatası üretmez. `kvs_tema` mirror'ında da aynı strateji izlenir: deprecated alanlar `tracing::warn!` ile yazılır, kullanıcının teması yine yüklenir.
 
 ---

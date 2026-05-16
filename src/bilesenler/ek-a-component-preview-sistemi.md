@@ -1,47 +1,19 @@
 # Ek A. Component Preview Sistemi
 
-Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak
-incelemek için kullanılır. Bu sistem `crates/component` crate'i tarafından
-yönetilir ve üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry`
-global'i ve `single_example` ile `example_group_with_title` gibi layout
-helper'ları.
+Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak incelemek için kullanılır. Bu sistem `crates/component` crate'i tarafından yönetilir ve üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry` global'i ve `single_example` ile `example_group_with_title` gibi layout helper'ları.
 
 Zed uygulamasında bu sistem iki seviyede ele alınır:
 
-- `workspace::init(app_state, cx)` içinde `component::init()` çağrılır.
-  Bu çağrı, `inventory::iter::<ComponentFn>()` ile `RegisterComponent`
-  derive'larından gelen kayıt fonksiyonlarını çalıştırır ve
-  `COMPONENT_DATA` registry'sini doldurur.
-- `crates/zed/src/main.rs`, normal uygulama açılışında
-  `component_preview::init(app_state.clone(), cx)` çağrısını yapar.
-  Standalone preview örneği de aynı şekilde önce `component::init()`,
-  sonra settings ve theme init, ardından workspace init ve son olarak
-  `component_preview::init(...)` sırasını izler.
-- `ComponentPreview::new(...)`, registry'yi `components()` ile okur;
-  `sorted_components()` ve `component_map()` değerlerini kendi view
-  state'ine alır. Filtre editor'ü için
-  `InputField::new(window, cx, "Find components or usages…")` kurar ve
-  listeyi `ListState` üzerinden sanallaştırır.
-- Render tarafında preview sayfası `ComponentMetadata::preview()`
-  callback'ini çağırır. Callback `None` döndürürse, component registry'de
-  kayıtlı kalmaya devam eder ama gallery'de bir örnek alanı çizmez.
-  `AgentSetupButton` bu davranışın bilinçli bir örneğidir.
+- `workspace::init(app_state, cx)` içinde `component::init()` çağrılır. Bu çağrı, `inventory::iter::<ComponentFn>()` ile `RegisterComponent` derive'larından gelen kayıt fonksiyonlarını çalıştırır ve `COMPONENT_DATA` registry'sini doldurur.
+- `crates/zed/src/main.rs`, normal uygulama açılışında `component_preview::init(app_state.clone(), cx)` çağrısını yapar. Standalone preview örneği de aynı şekilde önce `component::init()`, sonra settings ve theme init, ardından workspace init ve son olarak `component_preview::init(...)` sırasını izler.
+- `ComponentPreview::new(...)`, registry'yi `components()` ile okur; `sorted_components()` ve `component_map()` değerlerini kendi view state'ine alır. Filtre editor'ü için `InputField::new(window, cx, "Find components or usages…")` kurar ve listeyi `ListState` üzerinden sanallaştırır.
+- Render tarafında preview sayfası `ComponentMetadata::preview()` callback'ini çağırır. Callback `None` döndürürse, component registry'de kayıtlı kalmaya devam eder ama gallery'de bir örnek alanı çizmez. `AgentSetupButton` bu davranışın bilinçli bir örneğidir.
 
-Bu nedenle uygulama içi component sistemi bir runtime UI dependency injection
-mekanizması değildir. Asıl görevi **görsel inceleme ve dokümantasyon
-registry'si** olmaktır. Production ekranları bileşenleri doğrudan `ui::Button`,
-`ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır. Component registry
-yalnızca preview tool'u, dokümantasyon ve arama ekranları için devrede tutulur.
+Bu nedenle uygulama içi component sistemi bir runtime UI dependency injection mekanizması değildir. Asıl görevi **görsel inceleme ve dokümantasyon registry'si** olmaktır. Production ekranları bileşenleri doğrudan `ui::Button`, `ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır. Component registry yalnızca preview tool'u, dokümantasyon ve arama ekranları için devrede tutulur.
 
-`ui::prelude::*` yalnızca `Component`, `ComponentScope`, `example_group`,
-`example_group_with_title`, `single_example` ve `RegisterComponent` derive
-makrosunu getirir. Programatik registry erişimi (`ComponentRegistry`,
-`ComponentMetadata`, `ComponentStatus`, `ComponentId`, `register_component`,
-`empty_example`, `ComponentExample`, `ComponentExampleGroup`, `ComponentFn`)
-gerektiğinde `use component::*;` veya doğrudan tek tek import kullanılır.
+`ui::prelude::*` yalnızca `Component`, `ComponentScope`, `example_group`, `example_group_with_title`, `single_example` ve `RegisterComponent` derive makrosunu getirir. Programatik registry erişimi (`ComponentRegistry`, `ComponentMetadata`, `ComponentStatus`, `ComponentId`, `register_component`, `empty_example`, `ComponentExample`, `ComponentExampleGroup`, `ComponentFn`) gerektiğinde `use component::*;` veya doğrudan tek tek import kullanılır.
 
-`Component` trait'inin tam yüzeyi şu metotları içerir; her biri opsiyoneldir
-ve derive makrosu varsayılan implementasyon sağlar:
+`Component` trait'inin tam yüzeyi şu metotları içerir; her biri opsiyoneldir ve derive makrosu varsayılan implementasyon sağlar:
 
 | Metot | Dönen | Varsayılan | Kullanım |
 | :-- | :-- | :-- | :-- |
@@ -53,8 +25,7 @@ ve derive makrosu varsayılan implementasyon sağlar:
 | `description() -> Option<&'static str>` | `None` | Doc comment veya elle string | `documented::Documented` derive ile doc comment otomatik bir description'a dönüşür |
 | `preview(window, cx) -> Option<AnyElement>` | `None` | Genelde override | Gallery'de gösterilen örnek alanı |
 
-`ComponentScope` enum'unun tüm variant'ları, yani gallery'deki grup
-başlıkları aşağıdaki gibidir:
+`ComponentScope` enum'unun tüm variant'ları, yani gallery'deki grup başlıkları aşağıdaki gibidir:
 
 ```text
 Agent, Collaboration, DataDisplay ("Data Display"), Editor,
@@ -110,30 +81,17 @@ impl Component for ExampleButtonSet {
 }
 ```
 
-Preview kodunda `scope()` çağrısı, bileşenin gallery'de hangi grupta
-gösterileceğini belirler. `preview()` herhangi bir `AnyElement` döndürebilir.
-Tek bir örnek için `single_example`, ilişkili varyantları gruplayarak göstermek
-için `example_group_with_title` kullanılır.
+Preview kodunda `scope()` çağrısı, bileşenin gallery'de hangi grupta gösterileceğini belirler. `preview()` herhangi bir `AnyElement` döndürebilir. Tek bir örnek için `single_example`, ilişkili varyantları gruplayarak göstermek için `example_group_with_title` kullanılır.
 
-Preview'ları Zed reposunda görsel olarak incelemek için aşağıdaki komut
-çalıştırılır:
+Preview'ları Zed reposunda görsel olarak incelemek için aşağıdaki komut çalıştırılır:
 
 ```sh
 cargo run -p component_preview --example component_preview
 ```
 
-Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda
-alınmış tüm bileşenleri sol panelden gezilebilir kategoriler altında
-(`ComponentScope`) listeler. Yeni bir bileşene preview eklendiğinde
-derive makrosu kaydı kendisi yapar; ayrı bir kayıt çağrısına ihtiyaç
-kalmaz. Preview için doğrudan `impl Component` yazılan tipler (struct
-olmadan) gallery'ye eklenmez. Bu yüzden en az boş bir
-`#[derive(IntoElement, RegisterComponent)] struct ExampleComponent;`
-ile sarılması gerekir.
+Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda alınmış tüm bileşenleri sol panelden gezilebilir kategoriler altında (`ComponentScope`) listeler. Yeni bir bileşene preview eklendiğinde derive makrosu kaydı kendisi yapar; ayrı bir kayıt çağrısına ihtiyaç kalmaz. Preview için doğrudan `impl Component` yazılan tipler (struct olmadan) gallery'ye eklenmez. Bu yüzden en az boş bir `#[derive(IntoElement, RegisterComponent)] struct ExampleComponent;` ile sarılması gerekir.
 
-**Programatik registry erişimi.** Bir component preview tool'u,
-dokümantasyon üretici veya custom gallery yazılıyorsa `component`
-crate'inin registry API'sine doğrudan erişilebilir:
+**Programatik registry erişimi.** Bir component preview tool'u, dokümantasyon üretici veya custom gallery yazılıyorsa `component` crate'inin registry API'sine doğrudan erişilebilir:
 
 ```rust
 use component::{
@@ -174,17 +132,11 @@ fn list_registered_buttons() {
 | `get(id) -> Option<&ComponentMetadata>` | Id ile lookup | Tek bileşen sorgusu |
 | `len() -> usize` | Toplam kayıt sayısı | Test asersiyonu |
 
-`ComponentMetadata` accessor'ları: `id()`, `name()`, `description()`,
-`preview()`, `scope()`, `sort_name()`, `scopeless_name()`, `status()`.
+`ComponentMetadata` accessor'ları: `id()`, `name()`, `description()`, `preview()`, `scope()`, `sort_name()`, `scopeless_name()`, `status()`.
 
-`register_component::<T>()` çağrısı, `RegisterComponent` derive'ı
-yapmayan tipler için manuel bir kayıt sunar. Derive zaten
-kullanılıyorsa bu fonksiyonu çağırmaya gerek yoktur.
-`init_components()` ise `inventory` ile toplanan otomatik kayıtları
-çalıştırır ve registry global'ini hazırlar.
+`register_component::<T>()` çağrısı, `RegisterComponent` derive'ı yapmayan tipler için manuel bir kayıt sunar. Derive zaten kullanılıyorsa bu fonksiyonu çağırmaya gerek yoktur. `init_components()` ise `inventory` ile toplanan otomatik kayıtları çalıştırır ve registry global'ini hazırlar.
 
-**Layout helper detayları.** Preview alanını kurarken üç farklı çıktı
-tipi vardır:
+**Layout helper detayları.** Preview alanını kurarken üç farklı çıktı tipi vardır:
 
 ```rust
 use component::{
@@ -217,32 +169,15 @@ let titled: ComponentExampleGroup = example_group_with_title(
 .grow();
 ```
 
-`ComponentExample` builder yüzeyi: `.description(text)`, `.width(pixels)`.
-`ComponentExampleGroup` builder yüzeyi: `.width(pixels)`, `.grow()`,
-`.vertical()` ile birlikte `with_title(title, examples)` constructor'ı.
+`ComponentExample` builder yüzeyi: `.description(text)`, `.width(pixels)`. `ComponentExampleGroup` builder yüzeyi: `.width(pixels)`, `.grow()`, `.vertical()` ile birlikte `with_title(title, examples)` constructor'ı.
 
-`ComponentExample` public alanları: `variant_name`, `description`,
-`element`, `width`. Normal kullanımda bu alanları doğrudan mutasyona
-açmak yerine `single_example(...)`, `empty_example(...)`,
-`.description(...)` ve `.width(...)` helper'larının kullanılması
-beklenir. `variant_name` gallery'de görünen varyant başlığıdır; test ve
-dokümantasyon üretici kodlarda doğrudan okunabilir.
+`ComponentExample` public alanları: `variant_name`, `description`, `element`, `width`. Normal kullanımda bu alanları doğrudan mutasyona açmak yerine `single_example(...)`, `empty_example(...)`, `.description(...)` ve `.width(...)` helper'larının kullanılması beklenir. `variant_name` gallery'de görünen varyant başlığıdır; test ve dokümantasyon üretici kodlarda doğrudan okunabilir.
 
-`ComponentExampleGroup` public alanları: `title`, `examples`, `width`,
-`grow`, `vertical`. Bunlar `RenderOnce` sırasında layout kararına
-çevrilir; üretim preview kodunda builder metotlarının kullanılması daha
-okunaklı bir sonuç verir.
+`ComponentExampleGroup` public alanları: `title`, `examples`, `width`, `grow`, `vertical`. Bunlar `RenderOnce` sırasında layout kararına çevrilir; üretim preview kodunda builder metotlarının kullanılması daha okunaklı bir sonuç verir.
 
-**Component preview ile preview helper sözleşmesi.** Bir bileşenin
-`preview()` metodu bir `Option<AnyElement>` döndürür. `None` döndürmek,
-"bu bileşen registry'de kayıtlı ama gallery'de gösterilmesin" anlamına
-gelir. Örneğin `AgentSetupButton` `impl Component` taşır ama
-`preview()` `None` döner. Yine de `RegisterComponent` derive'ı sayesinde
-`components()` ile listelenebilir kalır.
+**Component preview ile preview helper sözleşmesi.** Bir bileşenin `preview()` metodu bir `Option<AnyElement>` döndürür. `None` döndürmek, "bu bileşen registry'de kayıtlı ama gallery'de gösterilmesin" anlamına gelir. Örneğin `AgentSetupButton` `impl Component` taşır ama `preview()` `None` döner. Yine de `RegisterComponent` derive'ı sayesinde `components()` ile listelenebilir kalır.
 
-**`description()` ile doc comment otomasyonu.** `documented::Documented`
-derive'ı eklendiğinde, bir doc comment `Self::DOCS` sabitinden okunur
-ve description'a dönüşür:
+**`description()` ile doc comment otomasyonu.** `documented::Documented` derive'ı eklendiğinde, bir doc comment `Self::DOCS` sabitinden okunur ve description'a dönüşür:
 
 ```rust
 use documented::Documented;

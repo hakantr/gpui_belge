@@ -4,24 +4,16 @@
 
 ## Persist, Settings ve Theme Akışı (Zed Tarafı)
 
-Bu konu GPUI çekirdeği değildir; ancak yeni pencere veya UI eklenirken tema ve
-ayar akışını bilmek gerekir. Ana dosyalar: `crates/settings`,
-`crates/settings_content`, `crates/theme`, `crates/theme_settings`.
+Bu konu GPUI çekirdeği değildir; ancak yeni pencere veya UI eklenirken tema ve ayar akışını bilmek gerekir. Ana dosyalar: `crates/settings`, `crates/settings_content`, `crates/theme`, `crates/theme_settings`.
 
 **Akış.** Settings sisteminin ana adımları şu sırayla işler:
 
-1. Kullanıcı `~/.config/zed/settings.json` veya proje
-   `.zed/settings.json` dosyasına yazar.
+1. Kullanıcı `~/.config/zed/settings.json` veya proje `.zed/settings.json` dosyasına yazar.
 2. `SettingsStore` global'i değişimi yayar.
-3. `Settings` trait'leri (`WorkspaceSettings`, `ThemeSettings`, ...) kendi
-   bölümlerini parse eder.
-4. UI tarafları `cx.observe_global::<SettingsStore>(...)` ile değişimi
-   izler ve yeniden render eder.
+3. `Settings` trait'leri (`WorkspaceSettings`, `ThemeSettings`, ...) kendi bölümlerini parse eder.
+4. UI tarafları `cx.observe_global::<SettingsStore>(...)` ile değişimi izler ve yeniden render eder.
 
-Yeni bir ayar eklenirken önce `settings_content` içindeki JSON içerik modeline
-alan eklenir, sonra çalışma zamanı settings tipi `Settings` trait'ini
-implement eder. Bu repoda gerçek trait, ilişkili içerik tipi veya `load`
-yöntemi yerine `from_settings` kullanır:
+Yeni bir ayar eklenirken önce `settings_content` içindeki JSON içerik modeline alan eklenir, sonra çalışma zamanı settings tipi `Settings` trait'ini implement eder. Bu repoda gerçek trait, ilişkili içerik tipi veya `load` yöntemi yerine `from_settings` kullanır:
 
 ```rust
 #[derive(Clone, Deserialize, RegisterSetting)]
@@ -39,52 +31,23 @@ impl Settings for YourSettings {
 }
 ```
 
-`RegisterSetting` derive'ı inventory üzerinden tipi `SettingsStore`
-içine kaydeder. Elle kayıt gerektiğinde uygulama başlangıcında
-`YourSettings::register(cx)` de kullanılabilir. Okuma tarafındaki standart
-giriş noktaları `Settings::get_global(cx)`, `Settings::get(path, cx)` ve
-`Settings::try_get(cx)` şeklindedir.
+`RegisterSetting` derive'ı inventory üzerinden tipi `SettingsStore` içine kaydeder. Elle kayıt gerektiğinde uygulama başlangıcında `YourSettings::register(cx)` de kullanılabilir. Okuma tarafındaki standart giriş noktaları `Settings::get_global(cx)`, `Settings::get(path, cx)` ve `Settings::try_get(cx)` şeklindedir.
 
-Agent ayar içeriğinde `agent.default_model` yanında
-`agent.subagent_model: Option<LanguageModelSelection>` de bulunur.
-`spawn_agent` ile açılan subagent thread'i bu ayar set edilmişse onu
-kullanır; ayar yoksa parent agent'ın model seçimiyle devam eder. Agent ve
-multi-workspace davranışında `AgentSettings::enabled` de önemli bir
-settings sinyalidir.
+Agent ayar içeriğinde `agent.default_model` yanında `agent.subagent_model: Option<LanguageModelSelection>` de bulunur. `spawn_agent` ile açılan subagent thread'i bu ayar set edilmişse onu kullanır; ayar yoksa parent agent'ın model seçimiyle devam eder. Agent ve multi-workspace davranışında `AgentSettings::enabled` de önemli bir settings sinyalidir.
 
-**Ayar alanları.** Aşağıdaki alanlar settings dünyasında karşılaşılan
-sürprizleri içerir:
+**Ayar alanları.** Aşağıdaki alanlar settings dünyasında karşılaşılan sürprizleri içerir:
 
-- `editor.completion_menu_item_kind` — `"off"` varsayılan, `"symbol"`
-  seçildiğinde completion menü satırlarında LSP item kind için syntax
-  theme renginden beslenen tek harfli bir badge gösterilir.
-- `git.show_stage_restore_buttons` — varsayılan `true`; editor diff hunk
-  kontrolünde Stage/Unstage ve Restore butonlarını gösterip göstermemeyi
-  yönetir.
-- `theme.markdown_preview_code_font_family` — markdown preview'daki kod
-  fontunu ayırır; ayar yoksa buffer fontuna düşer.
-- Agent tool permission varsayılanlarında `skill` aracı yer alır. Settings
-  UI'daki tool permission sayfasında bu araç için regex açıklaması
-  skill'in mutlak `SKILL.md` path'i üzerinden yapılır.
-- Amazon Bedrock language model ayarlarında `guardrail_identifier` ve
-  `guardrail_version` alanları vardır; version belirtilmediğinde provider
-  tarafında `"DRAFT"` yedeği beklenir.
-- `git.path_style` yanında Git UI ve diff görünümü için yeni `git`
-  ayarları okunurken çalışma zamanı `ProjectSettings` modelinin
-  `settings_content` ile senkron tutulduğu kontrol edilmelidir; varsayılan
-  JSON'a eklenmeyen alan `from_settings` içinde beklenmedik bir default'a
-  düşer.
+- `editor.completion_menu_item_kind` — `"off"` varsayılan, `"symbol"` seçildiğinde completion menü satırlarında LSP item kind için syntax theme renginden beslenen tek harfli bir badge gösterilir.
+- `git.show_stage_restore_buttons` — varsayılan `true`; editor diff hunk kontrolünde Stage/Unstage ve Restore butonlarını gösterip göstermemeyi yönetir.
+- `theme.markdown_preview_code_font_family` — markdown preview'daki kod fontunu ayırır; ayar yoksa buffer fontuna düşer.
+- Agent tool permission varsayılanlarında `skill` aracı yer alır. Settings UI'daki tool permission sayfasında bu araç için regex açıklaması skill'in mutlak `SKILL.md` path'i üzerinden yapılır.
+- Amazon Bedrock language model ayarlarında `guardrail_identifier` ve `guardrail_version` alanları vardır; version belirtilmediğinde provider tarafında `"DRAFT"` yedeği beklenir.
+- `git.path_style` yanında Git UI ve diff görünümü için yeni `git` ayarları okunurken çalışma zamanı `ProjectSettings` modelinin `settings_content` ile senkron tutulduğu kontrol edilmelidir; varsayılan JSON'a eklenmeyen alan `from_settings` içinde beklenmedik bir default'a düşer.
 
-**Completion menu API yüzeyi.** Completion akışında dikkat edilecek iki
-nokta vardır:
+**Completion menu API yüzeyi.** Completion akışında dikkat edilecek iki nokta vardır:
 
-- `CompletionsMenu::entries` doğrudan `Box<[StringMatch]>` değil,
-  `CompletionMenuEntry::{Match, Divider, GroupHeader}` dizisidir. Test
-  veya UI kodu entry'lerden completion adayına erişirken
-  `entry.as_match()` kullanmalıdır.
-- `project::Completion` üreticileri `group: Option<CompletionGroup>`
-  alanını doldurmalıdır; grup değiştiğinde menu divider ve isteğe bağlı
-  bir group header eklenir.
+- `CompletionsMenu::entries` doğrudan `Box<[StringMatch]>` değil, `CompletionMenuEntry::{Match, Divider, GroupHeader}` dizisidir. Test veya UI kodu entry'lerden completion adayına erişirken `entry.as_match()` kullanmalıdır.
+- `project::Completion` üreticileri `group: Option<CompletionGroup>` alanını doldurmalıdır; grup değiştiğinde menu divider ve isteğe bağlı bir group header eklenir.
 
 **Tema renkleri.** Tema bilgisine bağlam üzerinden ulaşılır:
 
@@ -94,38 +57,26 @@ let panel_bg = colors.panel_background;
 let border = colors.border;
 ```
 
-`cx.theme()` aktif `ThemeVariant` (light/dark) döndürür. `.colors()`,
-`.players()`, `.syntax()` alt bölümlerini taşır. `theme::ActiveTheme`
-extension trait'i `App` üzerinde olduğu için `cx.theme()` doğrudan
-çalışır.
+`cx.theme()` aktif `ThemeVariant` (light/dark) döndürür. `.colors()`, `.players()`, `.syntax()` alt bölümlerini taşır. `theme::ActiveTheme` extension trait'i `App` üzerinde olduğu için `cx.theme()` doğrudan çalışır.
 
-**Persist edilen örnekler.** Zed'in farklı katmanları farklı persistence
-mekanizmalarını kullanır:
+**Persist edilen örnekler.** Zed'in farklı katmanları farklı persistence mekanizmalarını kullanır:
 
 - Pencere bounds (bkz. "Pencere Bounds Persist ve Restore" başlığı).
 - Açık projeler ve recent: `crates/recent_projects`.
-- Workspace serialization: `crates/workspace/src/persistence.rs` ve
-  `db` crate'i (SQLite tabanlı).
+- Workspace serialization: `crates/workspace/src/persistence.rs` ve `db` crate'i (SQLite tabanlı).
 - Vim modu, panel boyutları ve dock state: workspace serialization.
 
 **Tuzaklar.** Settings tarafında yapılan tipik hatalar:
 
-- `cx.theme()` panel açılırken `None` döndürmez; ancak
-  `cx.global::<ThemeRegistry>()` henüz yüklenmemişse yedek tema
-  döner.
-- Settings serialization `SettingsContent` merge akışına bağlıdır;
-  user/global, project ve language-specific kaynaklar `SettingsStore`
-  içinde yeniden hesaplanır.
-- Yeni ayar eklenirken `settings_content` schema güncellenmediğinde JSON
-  schema doğrulaması eski formatı kabul etmez.
+- `cx.theme()` panel açılırken `None` döndürmez; ancak `cx.global::<ThemeRegistry>()` henüz yüklenmemişse yedek tema döner.
+- Settings serialization `SettingsContent` merge akışına bağlıdır; user/global, project ve language-specific kaynaklar `SettingsStore` içinde yeniden hesaplanır.
+- Yeni ayar eklenirken `settings_content` schema güncellenmediğinde JSON schema doğrulaması eski formatı kabul etmez.
 
 ## SettingsStore: Kayıt, Okuma, Override ve Migration
 
-`crates/settings/src/settings_store.rs`. `SettingsStore` Zed'in tüm ayar
-kaynaklarını tek bir tip-güvenli store içinde birleştirir.
+`crates/settings/src/settings_store.rs`. `SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip-güvenli store içinde birleştirir.
 
-**Ayar kayıt yolları.** İki kayıt yolu vardır; biri derive yoluyla
-otomatik, diğeri elle çağrılır:
+**Ayar kayıt yolları.** İki kayıt yolu vardır; biri derive yoluyla otomatik, diğeri elle çağrılır:
 
 ```rust
 // Derive ile inventory üzerinden otomatik kayıt:
@@ -143,32 +94,20 @@ impl Settings for YourSettings {
 YourSettings::register(cx);
 ```
 
-`RegisterSetting` derive'ı `inventory::collect!` ile build-time bir
-topluluk yaratır. Store kurulumu
-`SettingsStore::new(cx, &settings::default_settings())` imzasıyla yapılır;
-Zed'in normal başlangıç akışında bunu `settings::init(cx)` çağırır ve
-oluşan store'u `cx.set_global(settings)` ile global hale getirir.
+`RegisterSetting` derive'ı `inventory::collect!` ile build-time bir topluluk yaratır. Store kurulumu `SettingsStore::new(cx, &settings::default_settings())` imzasıyla yapılır; Zed'in normal başlangıç akışında bunu `settings::init(cx)` çağırır ve oluşan store'u `cx.set_global(settings)` ile global hale getirir.
 
 **Okuma.** Ayarı çalışma zamanında almak için kullanılan API'ler:
 
 - `YourSettings::get_global(cx)` — aktif global değer.
-- `YourSettings::get(Some(SettingsLocation { worktree_id, path }), cx)` —
-  worktree veya `.zed/settings.json` override'ları dahil değer.
+- `YourSettings::get(Some(SettingsLocation { worktree_id, path }), cx)` — worktree veya `.zed/settings.json` override'ları dahil değer.
 - `YourSettings::try_get(cx)` — store register edilmemişse `None`.
-- `YourSettings::try_read_global(async_cx, |s| ...)` — async bağlam
-  içinde okur.
+- `YourSettings::try_read_global(async_cx, |s| ...)` — async bağlam içinde okur.
 
-**Yazma.** Ayarın çalışma zamanında değiştirilmesi veya kalıcı kaydedilmesi
-için yardımcılar vardır:
+**Yazma.** Ayarın çalışma zamanında değiştirilmesi veya kalıcı kaydedilmesi için yardımcılar vardır:
 
-- `YourSettings::override_global(value, cx)` — programatik override;
-  persist edilmez, yalnız çalışma zamanı state'ini değiştirir.
-- `settings::update_settings_file(fs, cx, |content, cx| { ... })` —
-  kullanıcı JSON'una kalıcı yazma yoludur. Dosya okuma/yazma, parse ve
-  store update akışı `SettingsStore::update_settings_file(...)` üzerinden
-  tamamlanır.
-- `SettingsStore::update_user_settings(...)` yalnızca `test-support`
-  altında mevcuttur; uygulama kodunda kalıcı yazma için kullanılmaz.
+- `YourSettings::override_global(value, cx)` — programatik override; persist edilmez, yalnız çalışma zamanı state'ini değiştirir.
+- `settings::update_settings_file(fs, cx, |content, cx| { ... })` — kullanıcı JSON'una kalıcı yazma yoludur. Dosya okuma/yazma, parse ve store update akışı `SettingsStore::update_settings_file(...)` üzerinden tamamlanır.
+- `SettingsStore::update_user_settings(...)` yalnızca `test-support` altında mevcuttur; uygulama kodunda kalıcı yazma için kullanılmaz.
 
 **Observer akışı.** Settings değişimini dinlemek:
 
@@ -179,71 +118,44 @@ cx.observe_global::<SettingsStore>(|cx| {
 }).detach();
 ```
 
-`SettingsStore` global'i her dosya değişimi veya programatik override'dan
-sonra notify edilir; observer callback'i içinde değer zaten yeni
-state'tedir.
+`SettingsStore` global'i her dosya değişimi veya programatik override'dan sonra notify edilir; observer callback'i içinde değer zaten yeni state'tedir.
 
-**Migration.** Eski şemadan yeni şemaya geçişi yönetmek için ayrı bir
-katman bulunur:
+**Migration.** Eski şemadan yeni şemaya geçişi yönetmek için ayrı bir katman bulunur:
 
-- Kullanıcı JSON'u eski şemayı kullanıyorsa
-  `crates/settings/src/migrator/` modülü değerleri yeni anahtarlara
-  taşır.
-- `SettingsStore::set_user_settings(...)` ve file watcher/update
-  callback'leri `SettingsParseResult { parse_status, migration_status }`
-  döndürür veya taşır.
-- `MigrationStatus` değerleri `NotNeeded`, `Succeeded` ve
-  `Failed { error }` şeklindedir. Başarılı migration in-memory uygulanır;
-  çağıran taraf gerekiyorsa dosyayı yeniden yazar veya kullanıcıya uyarı
-  üretir.
-- Parse sonucu `ParseStatus::Success`, `ParseStatus::Unchanged` veya
-  `ParseStatus::Failed { error }` olur; migration durumu ayrı bir alan
-  olarak ifade edilir.
+- Kullanıcı JSON'u eski şemayı kullanıyorsa `crates/settings/src/migrator/` modülü değerleri yeni anahtarlara taşır.
+- `SettingsStore::set_user_settings(...)` ve file watcher/update callback'leri `SettingsParseResult { parse_status, migration_status }` döndürür veya taşır.
+- `MigrationStatus` değerleri `NotNeeded`, `Succeeded` ve `Failed { error }` şeklindedir. Başarılı migration in-memory uygulanır; çağıran taraf gerekiyorsa dosyayı yeniden yazar veya kullanıcıya uyarı üretir.
+- Parse sonucu `ParseStatus::Success`, `ParseStatus::Unchanged` veya `ParseStatus::Failed { error }` olur; migration durumu ayrı bir alan olarak ifade edilir.
 
 **Tuzaklar.** SettingsStore kullanımında karşılaşılan hatalar:
 
-- `from_settings` panic ediyorsa varsayılan JSON eksiktir; her alan
-  `assets/settings/default.json` içinde tanımlı olmalıdır.
-- Per-language ayar gerekiyorsa
-  `LanguageSettings::get(Some(location), cx)` çağrısı worktree-specific
-  override'ı otomatik getirir.
-- Observer'da `cx.notify()` çağrısı entity'yi yeniden render etmek için
-  gereklidir; `observe_global` sadece callback'i çalıştırır, view'i
-  invalidate etmez.
+- `from_settings` panic ediyorsa varsayılan JSON eksiktir; her alan `assets/settings/default.json` içinde tanımlı olmalıdır.
+- Per-language ayar gerekiyorsa `LanguageSettings::get(Some(location), cx)` çağrısı worktree-specific override'ı otomatik getirir.
+- Observer'da `cx.notify()` çağrısı entity'yi yeniden render etmek için gereklidir; `observe_global` sadece callback'i çalıştırır, view'i invalidate etmez.
 
 ## ThemeRegistry, ThemeFamily ve Tema Yükleme
 
-`crates/theme/src/registry.rs`, `crates/theme/src/theme.rs`,
-`crates/theme_settings/src/theme_settings.rs`.
+`crates/theme/src/registry.rs`, `crates/theme/src/theme.rs`, `crates/theme_settings/src/theme_settings.rs`.
 
 **Tema veri modeli.** Tema dünyası birkaç temel tipten oluşur:
 
-- `ThemeFamily { name, author, themes: Vec<Theme> }` — bir paket
-  içindeki light ve dark varyantlar.
+- `ThemeFamily { name, author, themes: Vec<Theme> }` — bir paket içindeki light ve dark varyantlar.
 - `Theme { name, appearance, styles }` — belirli bir varyant.
-- `ThemeColors`, `StatusColors`, `PlayerColors`, `SyntaxTheme` — alt
-  kategoriler.
+- `ThemeColors`, `StatusColors`, `PlayerColors`, `SyntaxTheme` — alt kategoriler.
 - `Appearance::Light | Dark` — temanın nominal görünüm modu.
 
-**`ThemeRegistry`.** Tüm yüklü temalar bu registry üzerinde toplanır ve
-ihtiyaç duyulduğunda buradan okunur:
+**`ThemeRegistry`.** Tüm yüklü temalar bu registry üzerinde toplanır ve ihtiyaç duyulduğunda buradan okunur:
 
 - `ThemeRegistry::global(cx) -> Arc<Self>` — aktif registry.
-- `ThemeRegistry::default_global(cx)` ve `try_global(cx)` — init ve test
-  kodunda registry erişimi.
+- `ThemeRegistry::default_global(cx)` ve `try_global(cx)` — init ve test kodunda registry erişimi.
 - `registry.assets()` — bundled theme ve icon asset source'u.
 - `registry.list_names() -> Vec<SharedString>` — yüklü tema adları.
-- `registry.list() -> Vec<ThemeMeta>` — tema adı ve appearance meta
-  bilgisi.
+- `registry.list() -> Vec<ThemeMeta>` — tema adı ve appearance meta bilgisi.
 - `registry.get(name) -> Result<Arc<Theme>, ThemeNotFoundError>`.
-- `registry.insert_theme_families(families)` veya
-  `insert_themes(themes)` — tema ekleme.
+- `registry.insert_theme_families(families)` veya `insert_themes(themes)` — tema ekleme.
 - `registry.remove_user_themes(&names)` — verilen tema adlarını temizler.
-- `registry.list_icon_themes()`, `get_icon_theme(name)`,
-  `default_icon_theme()`, `load_icon_theme(content, icons_root_dir)`,
-  `remove_icon_themes(&names)` — icon theme yönetimi.
-- `registry.extensions_loaded()` ve `set_extensions_loaded()` — extension
-  temalarının yüklenip yüklenmediği bayrağı.
+- `registry.list_icon_themes()`, `get_icon_theme(name)`, `default_icon_theme()`, `load_icon_theme(content, icons_root_dir)`, `remove_icon_themes(&names)` — icon theme yönetimi.
+- `registry.extensions_loaded()` ve `set_extensions_loaded()` — extension temalarının yüklenip yüklenmediği bayrağı.
 
 **Aktif tema akışı.** Bir view içinden tema bileşenlerine ulaşmak:
 
@@ -255,9 +167,7 @@ let players = theme.players(); // &PlayerColors
 let syntax = theme.syntax();   // &SyntaxTheme
 ```
 
-`cx.theme()` extension trait `theme::ActiveTheme` ile sağlanır; `App`
-üzerinde çalışır. Aktif tema `ThemeSettings` içindeki seçimden ve
-`SystemAppearance`'tan hesaplanır:
+`cx.theme()` extension trait `theme::ActiveTheme` ile sağlanır; `App` üzerinde çalışır. Aktif tema `ThemeSettings` içindeki seçimden ve `SystemAppearance`'tan hesaplanır:
 
 ```rust
 pub fn reload_theme(cx: &mut App) {
@@ -267,24 +177,13 @@ pub fn reload_theme(cx: &mut App) {
 }
 ```
 
-`reload_icon_theme(cx)` aynı modeli icon theme için uygular.
-`theme::init(...)` registry'yi, `SystemAppearance`'ı, font family
-cache'ini ve yedek `GlobalTheme`'i kurar; `theme_settings::init(...)`
-bunun üstüne settings observer'larını ve bundled/user theme yükleme
-akışını bağlar.
+`reload_icon_theme(cx)` aynı modeli icon theme için uygular. `theme::init(...)` registry'yi, `SystemAppearance`'ı, font family cache'ini ve yedek `GlobalTheme`'i kurar; `theme_settings::init(...)` bunun üstüne settings observer'larını ve bundled/user theme yükleme akışını bağlar.
 
-**Tema ayar sağlayıcısı.** Theme crate'i font ve density bilgisini ayrı bir
-provider üzerinden okur; bu sayede kendi içinde somut settings crate'ine
-bağımlı olmaz:
+**Tema ayar sağlayıcısı.** Theme crate'i font ve density bilgisini ayrı bir provider üzerinden okur; bu sayede kendi içinde somut settings crate'ine bağımlı olmaz:
 
-- `theme::set_theme_settings_provider(provider, cx)` — UI font, buffer
-  font, font size ve UI density kaynağını global olarak bağlar.
-- `theme::theme_settings(cx) -> &dyn ThemeSettingsProvider` — theme
-  crate'inin somut settings crate'ine bağımlı olmadan font ve density
-  okumasını sağlar.
-- `UiDensity::{Compact, Default, Comfortable}` ve `spacing_ratio()`
-  spacing ölçeğini verir; Zed tarafında provider implementasyonu
-  `theme_settings` crate'inde yer alır.
+- `theme::set_theme_settings_provider(provider, cx)` — UI font, buffer font, font size ve UI density kaynağını global olarak bağlar.
+- `theme::theme_settings(cx) -> &dyn ThemeSettingsProvider` — theme crate'inin somut settings crate'ine bağımlı olmadan font ve density okumasını sağlar.
+- `UiDensity::{Compact, Default, Comfortable}` ve `spacing_ratio()` spacing ölçeğini verir; Zed tarafında provider implementasyonu `theme_settings` crate'inde yer alır.
 
 **Custom tema yükleme.** Bir kullanıcı temasını programatik olarak eklemek için:
 
@@ -293,35 +192,17 @@ theme_settings::load_user_theme(&ThemeRegistry::global(cx), bytes)?;
 theme_settings::reload_theme(cx);
 ```
 
-`load_user_theme` JSON'u `ThemeFamilyContent` olarak deserialize eder,
-`refine_theme_family` ile gerçek `ThemeFamily` üretir ve
-`insert_theme_families` çağırır. `crates/theme_importer/` VS Code
-temalarından `theme_settings::ThemeContent` üretmek için yardımcılar
-içerir. Zed tarafında `load_user_themes_in_background` ve watcher akışı
-dosya değişiminden sonra `theme_settings::reload_theme(cx)` çağırır.
+`load_user_theme` JSON'u `ThemeFamilyContent` olarak deserialize eder, `refine_theme_family` ile gerçek `ThemeFamily` üretir ve `insert_theme_families` çağırır. `crates/theme_importer/` VS Code temalarından `theme_settings::ThemeContent` üretmek için yardımcılar içerir. Zed tarafında `load_user_themes_in_background` ve watcher akışı dosya değişiminden sonra `theme_settings::reload_theme(cx)` çağırır.
 
-**Markdown preview tema yüzeyi.** Preview tarafında tema seçimleri bir
-kaç ek alanla devreye girer:
+**Markdown preview tema yüzeyi.** Preview tarafında tema seçimleri bir kaç ek alanla devreye girer:
 
-- `ThemeSettingsContent::markdown_preview_code_font_family` ayarı
-  markdown preview içindeki inline code ve code block fontunu belirler;
-  ayar yoksa buffer fontuna düşer. Normal
-  `markdown_preview_font_family` yalnızca preview metin fontunu kontrol
-  eder.
-- Mermaid render akışı Zed temasından renk ve font üretir; tema
-  değiştiğinde markdown entity'sinin `invalidate_mermaid_cache(cx)`
-  çağırarak diagram cache'ini temizlemesi ve yeniden render etmesi
-  gerekir.
+- `ThemeSettingsContent::markdown_preview_code_font_family` ayarı markdown preview içindeki inline code ve code block fontunu belirler; ayar yoksa buffer fontuna düşer. Normal `markdown_preview_font_family` yalnızca preview metin fontunu kontrol eder.
+- Mermaid render akışı Zed temasından renk ve font üretir; tema değiştiğinde markdown entity'sinin `invalidate_mermaid_cache(cx)` çağırarak diagram cache'ini temizlemesi ve yeniden render etmesi gerekir.
 
 **Tuzaklar.** Tema akışında karşılaşılan hatalar:
 
-- `cx.theme()` ilk frame'de yedek temayı döndürebilir; observer ile
-  `SystemAppearance` veya `SettingsStore` dinlenip rerender yapılmazsa
-  ilk render yedek tema ile kalır.
-- `ThemeColors` tüm token'ları içerir; kullanıcı temada eksik bırakılan
-  token `null` olduğunda varsayılan light/dark temadan yedek alınır.
-- `Theme.styles.colors.background` yerine doğrudan
-  `theme.colors().background` kullanılır; `styles` alanı internal
-  layout'tur.
+- `cx.theme()` ilk frame'de yedek temayı döndürebilir; observer ile `SystemAppearance` veya `SettingsStore` dinlenip rerender yapılmazsa ilk render yedek tema ile kalır.
+- `ThemeColors` tüm token'ları içerir; kullanıcı temada eksik bırakılan token `null` olduğunda varsayılan light/dark temadan yedek alınır.
+- `Theme.styles.colors.background` yerine doğrudan `theme.colors().background` kullanılır; `styles` alanı internal layout'tur.
 
 ---

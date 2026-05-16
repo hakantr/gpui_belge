@@ -1,17 +1,12 @@
 # UI tüketimi ve etkileşim renkleri
 
-Bileşen tarafında tema okuma yolu `cx.theme()` çağrısıdır. Hover, active,
-disabled ve selected gibi durumlar da tema alanlarından beslenir. Bu bölüm,
-bileşenlerin tema değerlerine nasıl ulaştığını ve etkileşim durumlarında hangi
-alanları kullanması gerektiğini anlatır.
+Bileşen tarafında tema okuma yolu `cx.theme()` çağrısıdır. Hover, active, disabled ve selected gibi durumlar da tema alanlarından beslenir. Bu bölüm, bileşenlerin tema değerlerine nasıl ulaştığını ve etkileşim durumlarında hangi alanları kullanması gerektiğini anlatır.
 
 ---
 
 ## 41. `cx.theme()` ile bileşen renklendirme
 
-**Tüketici sözleşmesi:** UI bileşenleri tema değerlerine `cx.theme()` çağrısı
-üzerinden erişir. Bu çağrı `&Arc<Theme>` döndürür; klon ve allocation üretmeden
-okuma yapılır.
+**Tüketici sözleşmesi:** UI bileşenleri tema değerlerine `cx.theme()` çağrısı üzerinden erişir. Bu çağrı `&Arc<Theme>` döndürür; klon ve allocation üretmeden okuma yapılır.
 
 ### Temel kalıp
 
@@ -41,13 +36,9 @@ impl Render for AnaPanel {
 
 **Üç gereklilik:**
 
-1. **`use kvs_tema::ActiveTheme;`** — trait import edilmediği takdirde
-   `cx.theme()` çağrısı "method not found" hatasıyla karşılaşır.
-2. **`let tema = cx.theme();`** — `&Arc<Theme>` döndürdüğü için `&self`
-   borrow gibi davranır; render içinde tek seferlik bağlamayla
-   yetinilir.
-3. **Alan erişimi** — `styles` crate-içi olduğundan, tüketici
-   `tema.colors().background` gibi accessor'lar üzerinden okur.
+1. **`use kvs_tema::ActiveTheme;`** — trait import edilmediği takdirde `cx.theme()` çağrısı "method not found" hatasıyla karşılaşır.
+2. **`let tema = cx.theme();`** — `&Arc<Theme>` döndürdüğü için `&self` borrow gibi davranır; render içinde tek seferlik bağlamayla yetinilir.
+3. **Alan erişimi** — `styles` crate-içi olduğundan, tüketici `tema.colors().background` gibi accessor'lar üzerinden okur.
 
 ### Erişim yolları kıyaslaması
 
@@ -59,10 +50,7 @@ let error = tema.status().error;
 let local = tema.players().local().cursor;
 ```
 
-**Accessor metotları neden tercih edilir?** `styles` alanının iç düzeni zamanla
-değişebilir; örneğin `colors` ve `status` farklı şekilde ayrıştırılabilir.
-Accessor yöntemi dış sözleşmeyi `theme.colors()` imzasında sabitler. İç düzen
-değişse bile tüketici kod kırılmaz.
+**Accessor metotları neden tercih edilir?** `styles` alanının iç düzeni zamanla değişebilir; örneğin `colors` ve `status` farklı şekilde ayrıştırılabilir. Accessor yöntemi dış sözleşmeyi `theme.colors()` imzasında sabitler. İç düzen değişse bile tüketici kod kırılmaz.
 
 ### Prelude modül deseni
 
@@ -89,9 +77,7 @@ Tüketici tarafından kullanım:
 use kvs_tema::prelude::*;
 ```
 
-> **`gpui::prelude` ile çakışma:** GPUI'nin `prelude::*` modülü `Render`
-> trait'ini ve fluent API trait'lerini taşır. `kvs_tema::prelude::*`
-> yanına eklendiğinde iki ayrı `use` satırı tercih edilir:
+> **`gpui::prelude` ile çakışma:** GPUI'nin `prelude::*` modülü `Render` trait'ini ve fluent API trait'lerini taşır. `kvs_tema::prelude::*` yanına eklendiğinde iki ayrı `use` satırı tercih edilir:
 > ```rust
 > use gpui::{prelude::*, div, App, Window, Context};
 > use kvs_tema::prelude::*;
@@ -123,19 +109,13 @@ impl Render for X {
 }
 ```
 
-**Genel tercih (A), yani stateless yaklaşımdır.** `cx.refresh_windows()`
-(Bölüm VIII/Konu 38) view'ı yeniden çağırır ve tema yeni değerlerle okunur.
-(B) yaklaşımı tema değişimine **kapalı** kalır; eski rengi tutmaya devam eder
-ve bu bug'a dönüşür.
+**Genel tercih (A), yani stateless yaklaşımdır.** `cx.refresh_windows()` (Bölüm VIII/Konu 38) view'ı yeniden çağırır ve tema yeni değerlerle okunur. (B) yaklaşımı tema değişimine **kapalı** kalır; eski rengi tutmaya devam eder ve bu bug'a dönüşür.
 
-İstisna: render içinde **hesaplanmış bir değer** (örneğin `bg.opacity(0.5)`)
-performans için cache edilebilir. Ancak `cx.theme()` zaten allocation
-üretmediği için bu seviyede cache çoğu zaman gereksizdir.
+İstisna: render içinde **hesaplanmış bir değer** (örneğin `bg.opacity(0.5)`) performans için cache edilebilir. Ancak `cx.theme()` zaten allocation üretmediği için bu seviyede cache çoğu zaman gereksizdir.
 
 ### Birden fazla alan okuma
 
-`cx.theme()` çağrısının **bir kez** yapılıp, türeyenlerin lokal olarak
-bind edilmesi okunabilirliği artırır:
+`cx.theme()` çağrısının **bir kez** yapılıp, türeyenlerin lokal olarak bind edilmesi okunabilirliği artırır:
 
 ```rust
 // İYİ
@@ -159,8 +139,7 @@ div()
     })
 ```
 
-Tekrarın maliyeti pratikte düşüktür (`cx.global` bir HashMap lookup'u yapar).
-Yine de okunabilirlik için tek bir bağlama yeterlidir.
+Tekrarın maliyeti pratikte düşüktür (`cx.global` bir HashMap lookup'u yapar). Yine de okunabilirlik için tek bir bağlama yeterlidir.
 
 ### Bileşen tasarım deseni
 
@@ -198,40 +177,21 @@ impl Render for Button {
 **Sözleşme noktaları:**
 
 - Bileşen tema değerini kendi içinde okur; parent'tan renk parametresi almaz.
-- Bileşen `Theme` tipini import etmez; yalnızca `ActiveTheme` trait'ini
-  (prelude ile) kullanır.
-- Bileşen state'inde `Hsla` tutmaz — her render'da temayı fresh olarak
-  okur.
+- Bileşen `Theme` tipini import etmez; yalnızca `ActiveTheme` trait'ini (prelude ile) kullanır.
+- Bileşen state'inde `Hsla` tutmaz — her render'da temayı fresh olarak okur.
 
 ### Tuzaklar
 
-1. **`use kvs_tema::ActiveTheme;` import'unun unutulması**: `cx.theme()`
-   "method not found" hatası verir. En yaygın import bug'ıdır; prelude
-   kullanmak bunu pratikte ortadan kaldırır.
-2. **`cx.theme().clone()` çağrısı**: `&Arc<Theme>` zaten ucuz bir
-   referanstır; `.clone()` refcount artırır ancak çoğu durumda
-   referans yeterlidir. Gereksiz bir maliyet doğurur.
-3. **Bileşen state'inde rengin cache'lenmesi**: Tema değişiminde stale
-   kalır. Stateless okuma tercih edilir.
-4. **`tema.styles.colors.X` zinciri**: Dış crate'ten erişildiğinde
-   compile hatası verir. Accessor (`theme.colors()`) tek doğru yoldur.
-5. **Render dışında `cx.theme()` çağrılması**: `&mut Context<Self>`
-   `App`'ten `cx.theme()` çağrısına izin verir; ancak render fazı
-   dışındaki bir çağrı çoğunlukla yanlış bir soyutlama belirtisidir —
-   bileşen state'te tutar ve tema değişiminde yeniden okunmaz. Çağrı
-   render fazıyla sınırlandırılmalıdır.
-6. **`Context<T>` yerine `&Window` ile erişim denemek**: `Window`
-   üzerinden `cx.theme()` yapılamaz; `Window` `App`'e deref etmez.
-   Render imzası `(&mut Window, &mut Context<Self>)` biçimindedir — iki
-   parametre birbirinden ayrıdır.
+1. **`use kvs_tema::ActiveTheme;` import'unun unutulması**: `cx.theme()` "method not found" hatası verir. En yaygın import bug'ıdır; prelude kullanmak bunu pratikte ortadan kaldırır.
+2. **`cx.theme().clone()` çağrısı**: `&Arc<Theme>` zaten ucuz bir referanstır; `.clone()` refcount artırır ancak çoğu durumda referans yeterlidir. Gereksiz bir maliyet doğurur.
+3. **Bileşen state'inde rengin cache'lenmesi**: Tema değişiminde stale kalır. Stateless okuma tercih edilir.
+4. **`tema.styles.colors.X` zinciri**: Dış crate'ten erişildiğinde compile hatası verir. Accessor (`theme.colors()`) tek doğru yoldur.
+5. **Render dışında `cx.theme()` çağrılması**: `&mut Context<Self>` `App`'ten `cx.theme()` çağrısına izin verir; ancak render fazı dışındaki bir çağrı çoğunlukla yanlış bir soyutlama belirtisidir — bileşen state'te tutar ve tema değişiminde yeniden okunmaz. Çağrı render fazıyla sınırlandırılmalıdır.
+6. **`Context<T>` yerine `&Window` ile erişim denemek**: `Window` üzerinden `cx.theme()` yapılamaz; `Window` `App`'e deref etmez. Render imzası `(&mut Window, &mut Context<Self>)` biçimindedir — iki parametre birbirinden ayrıdır.
 
 ### `Theme::darken` ile appearance-aware koyulaştırma
 
-Zed'in `Theme::darken(color, light_amount, dark_amount)` (`theme.rs:274`)
-yardımcısı, bir rengi appearance'a göre **lightness** azaltarak koyulaştırır.
-Light tema modunda `light_amount`, dark tema modunda `dark_amount` kullanılır.
-Sonuç `l = (l - amount).max(0.0)` ile alt sınırlanır. Aynı bileşenin iki
-temada da yeterli kontrastı koruması için iki ayrı miktar verilir.
+Zed'in `Theme::darken(color, light_amount, dark_amount)` (`theme.rs:274`) yardımcısı, bir rengi appearance'a göre **lightness** azaltarak koyulaştırır. Light tema modunda `light_amount`, dark tema modunda `dark_amount` kullanılır. Sonuç `l = (l - amount).max(0.0)` ile alt sınırlanır. Aynı bileşenin iki temada da yeterli kontrastı koruması için iki ayrı miktar verilir.
 
 ```rust
 use kvs_tema::ActiveTheme;
@@ -249,52 +209,25 @@ impl Render for HoverChip {
 }
 ```
 
-**Sınırlar:** `darken` yalnızca lightness değerini etkiler; alpha, saturation
-ve hue olduğu gibi kalır. Şeffaf renkler yine şeffaftır. Kaynak kodunda
-"tentative solution" notu bulunur; Zed kalıcı bir renk sistemini oturtana kadar
-bu çağrı geçici bir çözüm olarak konumlanır. Mirror tarafta aynı imzanın
-korunması parite açısından önemlidir. Daha gelişmiş bir varyant (`OkLab` veya
-`palette::Mix`) yerel API genişletmesi olarak ele alınır.
+**Sınırlar:** `darken` yalnızca lightness değerini etkiler; alpha, saturation ve hue olduğu gibi kalır. Şeffaf renkler yine şeffaftır. Kaynak kodunda "tentative solution" notu bulunur; Zed kalıcı bir renk sistemini oturtana kadar bu çağrı geçici bir çözüm olarak konumlanır. Mirror tarafta aynı imzanın korunması parite açısından önemlidir. Daha gelişmiş bir varyant (`OkLab` veya `palette::Mix`) yerel API genişletmesi olarak ele alınır.
 
 ### Markdown preview, code fontu ve Mermaid tema tüketimi
 
 Markdown preview hattı, tema tüketicisi olarak şu alanları kullanır:
 
-- Düz markdown metni preview modunda `markdown_preview_font_family()`
-  ile okunur; bu alan set edilmemişse `ui_font.family` kullanılır.
-- Inline code ve code block'lar yeni
-  `markdown_preview_code_font_family()` accessor'ını kullanır; set
-  edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle
-  settings mirror'ında `markdown_preview_font_family` ile
-  `markdown_preview_code_font_family` ayrı alanlar olarak tutulur.
-- Mermaid render hattı artık aktif tema renklerinden kendi renderer
-  temasını üretir: `editor_background`, `surface_background`,
-  `element_background`, `ghost_element_hover`, `panel_background`,
-  `text`, `border`, `border_variant`, `accents()` ve `players()`
-  birlikte kullanılır.
-- Mermaid `accent0..accentN` class'ları player renklerinden üretilir;
-  fill rengi light/dark appearance'a göre okunabilir bir kontrasta
-  çekilir. Bu durum, player slot'larının yalnızca collab cursor için
-  değil, görsel markdown diyagramları için de tüketildiği anlamına
-  gelir.
-- Tema veya settings değiştiğinde Mermaid image cache'inin invalid
-  edilmesi gerekir; aksi takdirde markdown preview eski tema
-  renkleriyle kalır.
+- Düz markdown metni preview modunda `markdown_preview_font_family()` ile okunur; bu alan set edilmemişse `ui_font.family` kullanılır.
+- Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutulur.
+- Mermaid render hattı artık aktif tema renklerinden kendi renderer temasını üretir: `editor_background`, `surface_background`, `element_background`, `ghost_element_hover`, `panel_background`, `text`, `border`, `border_variant`, `accents()` ve `players()` birlikte kullanılır.
+- Mermaid `accent0..accentN` class'ları player renklerinden üretilir; fill rengi light/dark appearance'a göre okunabilir bir kontrasta çekilir. Bu durum, player slot'larının yalnızca collab cursor için değil, görsel markdown diyagramları için de tüketildiği anlamına gelir.
+- Tema veya settings değiştiğinde Mermaid image cache'inin invalid edilmesi gerekir; aksi takdirde markdown preview eski tema renkleriyle kalır.
 
-Editor completion menüsündeki `completion_menu_item_kind = "symbol"`
-ayarı da syntax theme'i editor metni dışında tüketir: LSP completion
-kind değerleri `function`, `function.method`, `type`, `property`,
-`variable`, `keyword`, `string` gibi highlight capture adlarına
-eşlenir; tam capture bulunamadığında parent capture denenir. Syntax
-theme boş bırakıldığında bu rozetler renksiz kalır.
+Editor completion menüsündeki `completion_menu_item_kind = "symbol"` ayarı da syntax theme'i editor metni dışında tüketir: LSP completion kind değerleri `function`, `function.method`, `type`, `property`, `variable`, `keyword`, `string` gibi highlight capture adlarına eşlenir; tam capture bulunamadığında parent capture denenir. Syntax theme boş bırakıldığında bu rozetler renksiz kalır.
 
 ---
 
 ## 42. Hover / active / disabled / selected / ghost desenleri
 
-GPUI'nin fluent API'si etkileşim durumları için `.hover()`, `.active()` ve
-`Interactivity` katmanını sağlar. Tema tarafında her durum için **özel alanlar**
-vardır. Bu alanların nasıl eşleneceği sözleşmenin parçasıdır.
+GPUI'nin fluent API'si etkileşim durumları için `.hover()`, `.active()` ve `Interactivity` katmanını sağlar. Tema tarafında her durum için **özel alanlar** vardır. Bu alanların nasıl eşleneceği sözleşmenin parçasıdır.
 
 ### Etkileşim alanları eşlemesi
 
@@ -340,11 +273,8 @@ impl Render for InteractiveButton {
 
 **Önemli noktalar:**
 
-- `.id(...)` çağrısı **şarttır** — Interactivity (hover/active/click)
-  bileşeni stateful bir yapıdadır ve ID olmadan GPUI durumu tanıyamaz.
-- `.hover(|s| ...)` ve `.active(|s| ...)` çağrıları bir
-  `StyleRefinement` callback'i alır (Bölüm III/Konu 11). Bu refinement
-  element üzerine layer'lanır.
+- `.id(...)` çağrısı **şarttır** — Interactivity (hover/active/click) bileşeni stateful bir yapıdadır ve ID olmadan GPUI durumu tanıyamaz.
+- `.hover(|s| ...)` ve `.active(|s| ...)` çağrıları bir `StyleRefinement` callback'i alır (Bölüm III/Konu 11). Bu refinement element üzerine layer'lanır.
 
 ### Hover varyantları
 
@@ -371,14 +301,11 @@ div()
     .active(|s| s.bg(colors.element_active))
 ```
 
-**Sıralama önemlidir:** GPUI önce hover'ı uygular, ardından active'i
-yerleştirir. Active'de verilen alan hover'ın üstüne yazılır. Active state,
-mouse button basılıyken etkin olur.
+**Sıralama önemlidir:** GPUI önce hover'ı uygular, ardından active'i yerleştirir. Active'de verilen alan hover'ın üstüne yazılır. Active state, mouse button basılıyken etkin olur.
 
 ### Disabled state
 
-GPUI doğrudan bir `.disabled(|s| ...)` callback'i sunmaz; disabled mantığı
-uygulama tarafında yönetilir:
+GPUI doğrudan bir `.disabled(|s| ...)` callback'i sunmaz; disabled mantığı uygulama tarafında yönetilir:
 
 ```rust
 let bg = if self.is_disabled {
@@ -404,18 +331,13 @@ div()
     })
 ```
 
-`.when(cond, |this| ...)` koşullu bir fluent yardımcısıdır. Disabled durumda
-hover, active ve click handler tamamen atlanır.
+`.when(cond, |this| ...)` koşullu bir fluent yardımcısıdır. Disabled durumda hover, active ve click handler tamamen atlanır.
 
-> **Alternatif:** `element_disabled` zaten "soluk" bir renk taşır;
-> hover davranışı disabled'da tamamen kapatılmak yerine yalnızca görsel
-> feedback'in farklılaştırılması da yeterli olabilir. Bu noktada karar
-> tasarım tercihine kalır.
+> **Alternatif:** `element_disabled` zaten "soluk" bir renk taşır; hover davranışı disabled'da tamamen kapatılmak yerine yalnızca görsel feedback'in farklılaştırılması da yeterli olabilir. Bu noktada karar tasarım tercihine kalır.
 
 ### Selected state
 
-Seçili öğeler için durum bilgisini **uygulama mantığı** taşır; tema yalnızca
-rengi sağlar:
+Seçili öğeler için durum bilgisini **uygulama mantığı** taşır; tema yalnızca rengi sağlar:
 
 ```rust
 struct ListItem {
@@ -444,18 +366,15 @@ impl Render for ListItem {
 }
 ```
 
-> **`element_selected` ile `element_selection_background` arasındaki
-> fark:**
+> **`element_selected` ile `element_selection_background` arasındaki fark:**
 > - `element_selected` bir liste öğesinin seçili durumunu gösterir.
-> - `element_selection_background` metin seçimi (highlight) arka
->   planıdır.
+> - `element_selection_background` metin seçimi (highlight) arka planıdır.
 >
 > İki alan birbirinden farklıdır ve karıştırılmamalıdır.
 
 ### Ghost element family
 
-"Ghost" terimi, transparan arka planlı bir elementi tanımlar. Toolbar icon
-button'ları gibi yüzeye yapışmış görünen bileşenlerde kullanılır.
+"Ghost" terimi, transparan arka planlı bir elementi tanımlar. Toolbar icon button'ları gibi yüzeye yapışmış görünen bileşenlerde kullanılır.
 
 ```rust
 div()
@@ -467,10 +386,7 @@ div()
     .active(|s| s.bg(colors.ghost_element_active))
 ```
 
-`ghost_element_background` genellikle `hsla(0, 0, 0, 0)` (tamamen
-şeffaf) olarak tutulur. Hover durumunda `ghost_element_hover` (çoğunlukla
-`elevated_surface_background` rengine yakın bir değer) devreye girer
-ve element görünür hale gelir.
+`ghost_element_background` genellikle `hsla(0, 0, 0, 0)` (tamamen şeffaf) olarak tutulur. Hover durumunda `ghost_element_hover` (çoğunlukla `elevated_surface_background` rengine yakın bir değer) devreye girer ve element görünür hale gelir.
 
 **Ne zaman ghost kullanılır?**
 
@@ -483,10 +399,7 @@ ve element görünür hale gelir.
 | Tab şeridi | | ✓ |
 | Dropdown trigger | ✓ | |
 
-**Genel kural:** Element'in **kendine ait bir kromu** varsa (border,
-görünür bg) → `element_*` seçilir. Yüzeye yapışmış, yalnızca
-hover/active'de görünen bir element ise → `ghost_element_*` tercih
-edilir.
+**Genel kural:** Element'in **kendine ait bir kromu** varsa (border, görünür bg) → `element_*` seçilir. Yüzeye yapışmış, yalnızca hover/active'de görünen bir element ise → `ghost_element_*` tercih edilir.
 
 ### Drop target (drag & drop)
 
@@ -500,8 +413,7 @@ div()
     })
 ```
 
-Drop target alanları, drag işlemi sırasında kullanıcıya "buraya bırakılabilir"
-geri bildirimi vermek için kullanılır.
+Drop target alanları, drag işlemi sırasında kullanıcıya "buraya bırakılabilir" geri bildirimi vermek için kullanılır.
 
 ### Etkileşim alanı seçim akış şeması
 
@@ -519,37 +431,20 @@ Bileşen interactive mi?
 
 ### Tuzaklar
 
-1. **`.id()` çağrısının atlanması**: Interactivity stateful bir
-   yapıdır — ID olmadan hover/active çalışmaz ve "method not found"
-   yerine sessiz bir başarısızlık ortaya çıkar.
+1. **`.id()` çağrısının atlanması**: Interactivity stateful bir yapıdır — ID olmadan hover/active çalışmaz ve "method not found" yerine sessiz bir başarısızlık ortaya çıkar.
 2. **`.hover` callback'inde tekrar `cx` üzerinden tema erişimi**:
    ```rust
    .hover(|s| s.bg(cx.theme().colors().element_hover))  // ← cx burada yok
    ```
-   `cx` callback dışında bağlandığı için bu kapsamda erişim mümkün
-   olmaz. Doğru yol, değeri önceden bağlamaktır:
+   `cx` callback dışında bağlandığı için bu kapsamda erişim mümkün olmaz. Doğru yol, değeri önceden bağlamaktır:
    ```rust
    let hover_bg = colors.element_hover;
    .hover(move |s| s.bg(hover_bg))
    ```
-3. **Hover ile active sıralamasının tersine yazılması**:
-   `.active(...).hover(...)` yazılsa bile davranış aynıdır (refinement
-   sırası önceden belirlenmiştir); ancak okunabilirlik için
-   `hover → active` sıralaması idiomatik kabul edilir.
-4. **`element_disabled` yerine `element_background.opacity(0.5)`
-   tercih etmek**: İki seçenek farklı tasarım kararlarıdır. Tema yazarı
-   disabled için özel bir renk vermiş olabilir; bu durumda
-   `element_disabled` alanının kullanılması gerekir.
-5. **`element_selected`'in her zaman dolu olduğunu varsaymak**:
-   Refinement aşamasında `Some` değer geldiğinde dolu olur; tema yazarı
-   vermediğinde baseline değerinden gelir. Fallback tema değerinin açık
-   doldurulması, sürpriz boşlukların önüne geçer (Bölüm VI/Konu 25).
-6. **Ghost ile element'in karıştırılması**: Toolbar bir element'e
-   `element_background` verildiğinde, beklenen şeffaf görüntü yerine
-   yüzey rengiyle dolar; bu durum tasarım dilinin kaymasına yol açar.
-7. **Etkileşim durumlarının kontrast olmayan renklerle verilmesi**:
-   `element_hover` ile `element_background` arasında yeterli lightness
-   farkı bulunmadığında kullanıcı hover etkisini fark etmez. Tema
-   testlerinde bu farkın gözle doğrulanması yerinde olur.
+3. **Hover ile active sıralamasının tersine yazılması**: `.active(...).hover(...)` yazılsa bile davranış aynıdır (refinement sırası önceden belirlenmiştir); ancak okunabilirlik için `hover → active` sıralaması idiomatik kabul edilir.
+4. **`element_disabled` yerine `element_background.opacity(0.5)` tercih etmek**: İki seçenek farklı tasarım kararlarıdır. Tema yazarı disabled için özel bir renk vermiş olabilir; bu durumda `element_disabled` alanının kullanılması gerekir.
+5. **`element_selected`'in her zaman dolu olduğunu varsaymak**: Refinement aşamasında `Some` değer geldiğinde dolu olur; tema yazarı vermediğinde baseline değerinden gelir. Fallback tema değerinin açık doldurulması, sürpriz boşlukların önüne geçer (Bölüm VI/Konu 25).
+6. **Ghost ile element'in karıştırılması**: Toolbar bir element'e `element_background` verildiğinde, beklenen şeffaf görüntü yerine yüzey rengiyle dolar; bu durum tasarım dilinin kaymasına yol açar.
+7. **Etkileşim durumlarının kontrast olmayan renklerle verilmesi**: `element_hover` ile `element_background` arasında yeterli lightness farkı bulunmadığında kullanıcı hover etkisini fark etmez. Tema testlerinde bu farkın gözle doğrulanması yerinde olur.
 
 ---

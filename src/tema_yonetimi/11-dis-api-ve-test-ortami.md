@@ -1,18 +1,12 @@
 # Dış API ve test ortamı
 
-Bu bölüm iki işi netleştirir: tüketiciye açılacak public API sınırı ve test
-ortamında tema mock düzeni. İyi çizilmiş bir public API sınırı, sözleşme
-ileride değişse bile tüketici kodun bozulmasını azaltır. İyi kurulmuş bir test
-ortamı ise bileşenlerin tema değişimi karşısında doğru davrandığını
-sürdürülebilir biçimde doğrular.
+Bu bölüm iki işi netleştirir: tüketiciye açılacak public API sınırı ve test ortamında tema mock düzeni. İyi çizilmiş bir public API sınırı, sözleşme ileride değişse bile tüketici kodun bozulmasını azaltır. İyi kurulmuş bir test ortamı ise bileşenlerin tema değişimi karşısında doğru davrandığını sürdürülebilir biçimde doğrular.
 
 ---
 
 ## 43. Public API kataloğu ve crate-içi sınır
 
-`kvs_tema` ve `kvs_syntax_tema` crate'lerinin **dışa açtığı** sözleşme ile
-**iç implementasyon detayları** arasındaki ayrımı netleştirir. Bu sınır, Zed
-sözleşmesi evrilse bile tüketici kodun kararlı kalması için önemlidir.
+`kvs_tema` ve `kvs_syntax_tema` crate'lerinin **dışa açtığı** sözleşme ile **iç implementasyon detayları** arasındaki ayrımı netleştirir. Bu sınır, Zed sözleşmesi evrilse bile tüketici kodun kararlı kalması için önemlidir.
 
 ### Sınır felsefesi
 
@@ -45,10 +39,7 @@ pub use crate::icon_theme::{
 };
 ```
 
-> **`ThemeStyles` listede yer almaz.** `Theme.styles` alanı `pub(crate)`
-> olduğundan tüketici okumalarını accessor üzerinden yapar (`theme.colors()`,
-> `theme.status()`). `ThemeStyles` tipinin tüketici tarafından import edilmesi
-> bu nedenle anlamlı değildir.
+> **`ThemeStyles` listede yer almaz.** `Theme.styles` alanı `pub(crate)` olduğundan tüketici okumalarını accessor üzerinden yapar (`theme.colors()`, `theme.status()`). `ThemeStyles` tipinin tüketici tarafından import edilmesi bu nedenle anlamlı değildir.
 
 **Runtime (kararlı):**
 
@@ -98,11 +89,7 @@ pub use crate::icon_theme::{
 };
 ```
 
-> **Schema kararsızdır:** Bu tipler JSON sözleşmesini taşır; Zed tarafında
-> yeni alan veya enum eklenebilir. Tüketici doğrudan `ThemeColorsContent`
-> kullanırsa yeni alanlar veya değişen enum'lar breaking etki yaratabilir.
-> Mecburiyet yoksa bu tiplerden uzak durmak ve işlemleri `Theme::from_content`
-> üzerinden yürütmek daha doğru olur.
+> **Schema kararsızdır:** Bu tipler JSON sözleşmesini taşır; Zed tarafında yeni alan veya enum eklenebilir. Tüketici doğrudan `ThemeColorsContent` kullanırsa yeni alanlar veya değişen enum'lar breaking etki yaratabilir. Mecburiyet yoksa bu tiplerden uzak durmak ve işlemleri `Theme::from_content` üzerinden yürütmek daha doğru olur.
 
 **`kvs_syntax_tema` public API:**
 
@@ -110,8 +97,7 @@ pub use crate::icon_theme::{
 pub use SyntaxTheme;
 ```
 
-Tek bir tip yeterli olur. `HighlightStyle` zaten GPUI'den gelir;
-re-export gereksizdir.
+Tek bir tip yeterli olur. `HighlightStyle` zaten GPUI'den gelir; re-export gereksizdir.
 
 ### Crate-içi (NON-public) modüller
 
@@ -120,10 +106,7 @@ re-export gereksizdir.
 | `refinement.rs` | `theme_colors_refinement`, `status_colors_refinement`, `apply_status_color_defaults`, `color()` helper | `pub(crate)` — yalnızca `Theme::from_content` çağırır |
 | `runtime` iç detayları | `GlobalThemeRegistry`, `GlobalSystemAppearance` newtype'ları | `pub(crate)` veya `pub(super)` |
 
-**Neden gizli tutulur?** Refinement davranışı Zed'in evrimine doğrudan
-bağlıdır. Türetme kuralları (`apply_status_color_defaults`'ın 6 status'lik
-listesi gibi) değişebilir. Tüketici bu fonksiyonları doğrudan çağırırsa,
-kontrolümüz dışında bir bağlılık oluşur.
+**Neden gizli tutulur?** Refinement davranışı Zed'in evrimine doğrudan bağlıdır. Türetme kuralları (`apply_status_color_defaults`'ın 6 status'lik listesi gibi) değişebilir. Tüketici bu fonksiyonları doğrudan çağırırsa, kontrolümüz dışında bir bağlılık oluşur.
 
 ### Lib kökü yapısı (`kvs_tema/src/kvs_tema.rs`)
 
@@ -167,18 +150,10 @@ pub use crate::schema::{
 
 **İzlenen kalıp:**
 
-- `pub(crate) mod refinement` — `refinement.rs` dışarıya kapalıdır, içeride
-  paylaşılır.
-- `pub use module::*` — kararlı modüller için tümünü ihraç eden bir
-  yol; her iç tipin public olması isteniyorsa glob, istenmiyorsa tek
-  tek kullanılır.
-- `pub use schema::{...}` — schema modülü için **glob YASAK**;
-  çünkü ileride eklenecek iç implementasyon tipleri (örneğin `serde`
-  helper'ları) istenmeden public hale gelmemelidir.
-- `pub mod fallback` — fallback fonksiyonları bir namespace altında
-  toplanır (`kvs_tema::fallback::kvs_default_dark`). `fallback.rs`
-  içinde yalnızca bu iki fonksiyon `pub`'tır; gerisi `pub(super)`
-  veya private kalır.
+- `pub(crate) mod refinement` — `refinement.rs` dışarıya kapalıdır, içeride paylaşılır.
+- `pub use module::*` — kararlı modüller için tümünü ihraç eden bir yol; her iç tipin public olması isteniyorsa glob, istenmiyorsa tek tek kullanılır.
+- `pub use schema::{...}` — schema modülü için **glob YASAK**; çünkü ileride eklenecek iç implementasyon tipleri (örneğin `serde` helper'ları) istenmeden public hale gelmemelidir.
+- `pub mod fallback` — fallback fonksiyonları bir namespace altında toplanır (`kvs_tema::fallback::kvs_default_dark`). `fallback.rs` içinde yalnızca bu iki fonksiyon `pub`'tır; gerisi `pub(super)` veya private kalır.
 
 ### `prelude` modülü (önerilen)
 
@@ -201,9 +176,7 @@ use kvs_tema::prelude::*;
 // Theme, ActiveTheme, ThemeColors, vb. hepsi mevcut
 ```
 
-> **Prelude'a `ThemeRegistry`/`GlobalTheme` eklenmemiştir.** Bu tipler uygulama
-> init ve admin kodu için anlam taşır; UI bileşenleri kullanmaz. Render path
-> prelude'unun hafif tutulması yerinde olur.
+> **Prelude'a `ThemeRegistry`/`GlobalTheme` eklenmemiştir.** Bu tipler uygulama init ve admin kodu için anlam taşır; UI bileşenleri kullanmaz. Render path prelude'unun hafif tutulması yerinde olur.
 
 ### Versiyon politikası (semver)
 
@@ -228,38 +201,19 @@ use kvs_tema::prelude::*;
 
 Tüketici kodun güvenle yapabileceği işlemler:
 
-✓ `cx.theme().colors().background` okunabilir
-✓ `kvs_tema::Theme`, `kvs_tema::ThemeColors` import edilebilir
-✓ `ThemeRegistry::global(cx)` ile registry sorgulanabilir
-✓ `kvs_tema::init(cx)` çağrılabilir
-✓ `kvs_tema::temayi_degistir(ad, cx)` ile tema değiştirilebilir
-✓ `kvs_tema::temayi_yeniden_yukle(yol, cx)` ile disk'ten reload yapılabilir
-✓ `kvs_tema::observe_system_appearance(window, cx)` ile sistem mod takibi kurulabilir
-✓ `kvs_tema::SystemAppearance::global(cx)` ile sistem mod sorgulanabilir
-✓ `GlobalTheme::icon_theme(cx)` ile aktif icon tema okunabilir
-✓ `ThemeRegistry::global(cx).list_icon_themes()` ile icon tema seçenekleri listelenebilir
+✓ `cx.theme().colors().background` okunabilir ✓ `kvs_tema::Theme`, `kvs_tema::ThemeColors` import edilebilir ✓ `ThemeRegistry::global(cx)` ile registry sorgulanabilir ✓ `kvs_tema::init(cx)` çağrılabilir ✓ `kvs_tema::temayi_degistir(ad, cx)` ile tema değiştirilebilir ✓ `kvs_tema::temayi_yeniden_yukle(yol, cx)` ile disk'ten reload yapılabilir ✓ `kvs_tema::observe_system_appearance(window, cx)` ile sistem mod takibi kurulabilir ✓ `kvs_tema::SystemAppearance::global(cx)` ile sistem mod sorgulanabilir ✓ `GlobalTheme::icon_theme(cx)` ile aktif icon tema okunabilir ✓ `ThemeRegistry::global(cx).list_icon_themes()` ile icon tema seçenekleri listelenebilir
 
 Tüketicinin yapamayacağı işlemler (compile hatası alır):
 
-✗ `theme.styles.colors.X` zinciri — `styles` `pub(crate)`, accessor şarttır
-✗ `GlobalThemeRegistry` veya `GlobalSystemAppearance` newtype'larına
-  doğrudan dokunulması (private)
+✗ `theme.styles.colors.X` zinciri — `styles` `pub(crate)`, accessor şarttır ✗ `GlobalThemeRegistry` veya `GlobalSystemAppearance` newtype'larına doğrudan dokunulması (private)
 
 Tüketicinin yapmaması gereken işlemler (compile geçer ama kötü pratik):
 
-✗ `kvs_tema::ThemeColorsContent` üzerinde `match` yazılması — schema
-  kararsız bir yüzeydir (Konu 19).
-✗ `kvs_tema::try_parse_color(...)` çağrısının doğrudan yapılması —
-  `Theme::from_content` zaten bu işlemi sarmalar.
-✗ Tema yüklenirken `baseline`'ın yanlış appearance ile seçilmesi
-  (Konu 32).
+✗ `kvs_tema::ThemeColorsContent` üzerinde `match` yazılması — schema kararsız bir yüzeydir (Konu 19). ✗ `kvs_tema::try_parse_color(...)` çağrısının doğrudan yapılması — `Theme::from_content` zaten bu işlemi sarmalar. ✗ Tema yüklenirken `baseline`'ın yanlış appearance ile seçilmesi (Konu 32).
 
 ### `pub(crate)` ile gerçek izolasyon
 
-`pub use crate::refinement::*` yazıldığında **`refinement` modülü
-public hale gelir**; istenmediği halde dışa açılır. `pub(crate) mod
-refinement;` ile modülün gizli tutulması ve `Theme::from_content` impl bloğu
-içinde doğrudan çağrılması doğru yaklaşımdır:
+`pub use crate::refinement::*` yazıldığında **`refinement` modülü public hale gelir**; istenmediği halde dışa açılır. `pub(crate) mod refinement;` ile modülün gizli tutulması ve `Theme::from_content` impl bloğu içinde doğrudan çağrılması doğru yaklaşımdır:
 
 ```rust
 // kvs_tema.rs
@@ -269,35 +223,23 @@ pub(crate) mod refinement;
 use crate::refinement::{theme_colors_refinement, ...};
 ```
 
-`refinement.rs`'in fonksiyonları `pub` olabilir; modülün kendisi `pub(crate)`
-olduğu için dış dünyaya görünmez kalır. Bu, pratik bir API izolasyonu sağlar.
+`refinement.rs`'in fonksiyonları `pub` olabilir; modülün kendisi `pub(crate)` olduğu için dış dünyaya görünmez kalır. Bu, pratik bir API izolasyonu sağlar.
 
 ### Tüketici API sınırı örneği
 
-`cargo doc --no-deps` çalıştırıldığında **yalnızca istenen tiplerin** görünmesi
-beklenir:
+`cargo doc --no-deps` çalıştırıldığında **yalnızca istenen tiplerin** görünmesi beklenir:
 
 ```sh
 cargo doc -p kvs_tema --no-deps --open
 ```
 
-Doc sayfasında `theme_colors_refinement` veya
-`apply_status_color_defaults` görünüyorsa `pub use` zincirinin gözden
-geçirilmesi gerekir; bir sızıntı söz konusudur.
+Doc sayfasında `theme_colors_refinement` veya `apply_status_color_defaults` görünüyorsa `pub use` zincirinin gözden geçirilmesi gerekir; bir sızıntı söz konusudur.
 
 ### Tuzaklar
 
-1. **`pub use crate::*` içinde `refinement`'in yakalanması**: `pub use
-   crate::refinement::*` yazıp ardından modülün `pub(crate)` olarak
-   tutulması bir compile hatasına yol açar ("re-exporting private
-   module"). İki tarafın tutarlı olması gerekir.
-2. **`Theme.styles` alanının public yapılması (`pub`)**: Bu durumda
-   alan public hale gelir ve iç düzen sızar. Accessor metotları
-   sunulduktan sonra `styles` `pub(crate)` olarak tutulur ve okumalar
-   yalnızca accessor üzerinden yapılır.
-3. **`schema::*` glob ile public ihraç**: Schema tiplerinin tamamı
-   dışa açılır; ileride iç tipler eklendiğinde otomatik olarak public
-   olurlar. Bunun yerine tek tek `pub use` yapılması doğru tercihtir:
+1. **`pub use crate::*` içinde `refinement`'in yakalanması**: `pub use crate::refinement::*` yazıp ardından modülün `pub(crate)` olarak tutulması bir compile hatasına yol açar ("re-exporting private module"). İki tarafın tutarlı olması gerekir.
+2. **`Theme.styles` alanının public yapılması (`pub`)**: Bu durumda alan public hale gelir ve iç düzen sızar. Accessor metotları sunulduktan sonra `styles` `pub(crate)` olarak tutulur ve okumalar yalnızca accessor üzerinden yapılır.
+3. **`schema::*` glob ile public ihraç**: Schema tiplerinin tamamı dışa açılır; ileride iç tipler eklendiğinde otomatik olarak public olurlar. Bunun yerine tek tek `pub use` yapılması doğru tercihtir:
    ```rust
    pub use crate::schema::{
        ThemeFamilyContent, ThemeContent, ThemeStyleContent,
@@ -307,29 +249,14 @@ geçirilmesi gerekir; bir sızıntı söz konusudur.
        try_parse_color,
    };
    ```
-4. **Semver dışı değişim**: 0.x aşamasında bile tüketicinin bir
-   beklentisi vardır. Breaking değişim minor bump olarak yapılsa bile
-   changelog yazılması bu beklentiyi karşılar.
-5. **`prelude::*` glob importlarının endüstri görüşü**: Bazı stil
-   rehberleri glob'u kabul etmez. Bu konudaki karar tüketiciye
-   bırakılır; prelude sunulur, kullanılması veya elle import edilmesi
-   geliştiricinin tercihinde kalır.
-6. **`pub` accessor metotlarının yazılmaması**: `theme.colors().background`
-   gibi accessor olmadan `styles` alanına doğrudan erişim zorunlu hale
-   gelir; iç düzen değiştiğinde tüm tüketici kodu kırılır. Accessor
-   yazılması şarttır.
-7. **Public API'ye `kvs_default_dark` doğrudan koymak**:
-   `pub use fallback::*` yerine namespace altında tutmak
-   (`pub mod fallback { pub use crate::fallback::{...}; }`) niyetin
-   açık görünmesini sağlar — tüketici `kvs_tema::fallback::kvs_default_dark`
-   ifadesini yazarak amaca işaret eder.
+4. **Semver dışı değişim**: 0.x aşamasında bile tüketicinin bir beklentisi vardır. Breaking değişim minor bump olarak yapılsa bile changelog yazılması bu beklentiyi karşılar.
+5. **`prelude::*` glob importlarının endüstri görüşü**: Bazı stil rehberleri glob'u kabul etmez. Bu konudaki karar tüketiciye bırakılır; prelude sunulur, kullanılması veya elle import edilmesi geliştiricinin tercihinde kalır.
+6. **`pub` accessor metotlarının yazılmaması**: `theme.colors().background` gibi accessor olmadan `styles` alanına doğrudan erişim zorunlu hale gelir; iç düzen değiştiğinde tüm tüketici kodu kırılır. Accessor yazılması şarttır.
+7. **Public API'ye `kvs_default_dark` doğrudan koymak**: `pub use fallback::*` yerine namespace altında tutmak (`pub mod fallback { pub use crate::fallback::{...}; }`) niyetin açık görünmesini sağlar — tüketici `kvs_tema::fallback::kvs_default_dark` ifadesini yazarak amaca işaret eder.
 
 ### Son public yüzey — küçük ama atlanabilir parçalar
 
-Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema crate'i
-birebir mirror edilecekse public yüzey kararlarına dahil edilmelidir. Listeyi
-isim ezberiyle değil, owner/metot/alan ilişkisiyle okumak daha yararlıdır:
-`content = runtime + deprecated`, `reflection ⊆ runtime`.
+Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema crate'i birebir mirror edilecekse public yüzey kararlarına dahil edilmelidir. Listeyi isim ezberiyle değil, owner/metot/alan ilişkisiyle okumak daha yararlıdır: `content = runtime + deprecated`, `reflection ⊆ runtime`.
 
 | Öğe | Kaynak | Karar |
 | :-- | :-- | :-- |
@@ -491,17 +418,13 @@ clamp_font_size(size) -> Pixels
 adjusted_font_size(size, cx) -> Pixels
 ```
 
-Bu metotlar rehberin ana akışını değiştirmez. Ancak tema editörü, collab
-renkleri, density ölçümü ve snapshot karşılaştırması yazıldığında doğrudan
-public API ihtiyacına dönüşürler.
+Bu metotlar rehberin ana akışını değiştirmez. Ancak tema editörü, collab renkleri, density ölçümü ve snapshot karşılaştırması yazıldığında doğrudan public API ihtiyacına dönüşürler.
 
 ---
 
 ## 44. Test ortamında tema mock'lama
 
-UI bileşenleri test edilirken **tüm tema sistemini** init etmek çoğu zaman
-gerekmez. Yalnızca bileşenin renk ihtiyacını karşılayacak kadar bir mock tema
-kurmak yeterli olabilir.
+UI bileşenleri test edilirken **tüm tema sistemini** init etmek çoğu zaman gerekmez. Yalnızca bileşenin renk ihtiyacını karşılayacak kadar bir mock tema kurmak yeterli olabilir.
 
 ### Strateji 1: Tam init (`kvs_tema::init`)
 
@@ -523,21 +446,15 @@ fn button_uses_theme_colors(cx: &mut TestAppContext) {
 }
 ```
 
-**Avantaj:** Production akışına en yakın yöntemdir. Init bug'ları erken aşamada
-yakalanır.
+**Avantaj:** Production akışına en yakın yöntemdir. Init bug'ları erken aşamada yakalanır.
 
-**Dezavantaj:** Her test fallback tema oluşumu için ~50 µs harcar. Yüzlerce
-test koşulduğunda bu süre birikir.
+**Dezavantaj:** Her test fallback tema oluşumu için ~50 µs harcar. Yüzlerce test koşulduğunda bu süre birikir.
 
 ### Strateji 2: Manuel kurulum (özel tema değerleri)
 
 Test'in özel renk değerlerine ihtiyacı varsa kurulum elle yapılır:
 
-**Bu strateji `kvs_tema` crate'inin içinden çalışır.** `Theme { styles: ... }`
-literal'i `pub(crate)` alanlara erişim gerektirir. `kvs_tema/tests/`
-(entegrasyon testleri) **dış crate** sayılır; oradan struct literal yazılamaz.
-Bu manuel kurulum yalnızca `kvs_tema/src/test.rs` (Strateji 3) veya `kvs_tema`
-modülünün kendi birim testlerinde kullanılır.
+**Bu strateji `kvs_tema` crate'inin içinden çalışır.** `Theme { styles: ... }` literal'i `pub(crate)` alanlara erişim gerektirir. `kvs_tema/tests/` (entegrasyon testleri) **dış crate** sayılır; oradan struct literal yazılamaz. Bu manuel kurulum yalnızca `kvs_tema/src/test.rs` (Strateji 3) veya `kvs_tema` modülünün kendi birim testlerinde kullanılır.
 
 ```rust
 // kvs_tema/src/test.rs içinde (crate-içi)
@@ -571,19 +488,13 @@ pub(crate) fn test_theme(bg: gpui::Hsla, fg: gpui::Hsla) -> Theme {
 }
 ```
 
-> **`..fallback_colors_dark()` yapılabilmesi için:** `ThemeColors`'a `Default`
-> türevi eklenmesi veya `pub(crate) fn fallback_colors_dark() -> ThemeColors`
-> adında bir yardımcı tanımlanması gerekir. Mevcut yapıda `ThemeColors`'ın
-> `Default` türevi bulunmaz; tüm alanlar zorunludur. Bu nedenle test helper'ı
-> yazılması beklenir.
+> **`..fallback_colors_dark()` yapılabilmesi için:** `ThemeColors`'a `Default` türevi eklenmesi veya `pub(crate) fn fallback_colors_dark() -> ThemeColors` adında bir yardımcı tanımlanması gerekir. Mevcut yapıda `ThemeColors`'ın `Default` türevi bulunmaz; tüm alanlar zorunludur. Bu nedenle test helper'ı yazılması beklenir.
 >
-> **Dış crate'ten test:** `kvs_ui/tests/` içinde bu strateji çalışmaz.
-> `feature = "test-util"` üzerinden Strateji 3'ün public helper'ları çağrılır.
+> **Dış crate'ten test:** `kvs_ui/tests/` içinde bu strateji çalışmaz. `feature = "test-util"` üzerinden Strateji 3'ün public helper'ları çağrılır.
 
 ### Strateji 3: `kvs_tema` test helper'ı
 
-`kvs_tema/src/test.rs` (yeni modül,
-`#[cfg(any(test, feature = "test-util"))]`):
+`kvs_tema/src/test.rs` (yeni modül, `#[cfg(any(test, feature = "test-util"))]`):
 
 ```rust
 #[cfg(any(test, feature = "test-util"))]
@@ -675,10 +586,7 @@ fn button_renders_with_theme_background(cx: &mut TestAppContext) {
 }
 ```
 
-> **GPUI test API'ları:** `TestAppContext::simulate_input`, `find_view`
-> vb. rehber.md #75'te ayrıntılı işlenir. Render output'unun test
-> edilmesi tema'nın doğru okunduğunu doğrular; tema'nın **kendi**
-> doğruluğu için Bölüm VI fixture testleri yeterli olur.
+> **GPUI test API'ları:** `TestAppContext::simulate_input`, `find_view` vb. rehber.md #75'te ayrıntılı işlenir. Render output'unun test edilmesi tema'nın doğru okunduğunu doğrular; tema'nın **kendi** doğruluğu için Bölüm VI fixture testleri yeterli olur.
 
 ### Tema değişimi simülasyonu
 
@@ -701,14 +609,9 @@ fn ui_updates_on_theme_change(cx: &mut TestAppContext) {
 
 ### Test'te `refresh_windows`
 
-`TestAppContext` headless bir bağlamdır; açık pencere bulunmaz.
-`cx.refresh_windows()` hata üretmez ama görünür bir etkisi de olmaz. Tema
-değişimi test edilirken `cx.theme()` çağrısı **yeni değeri** döndürür; global
-hemen güncellenir.
+`TestAppContext` headless bir bağlamdır; açık pencere bulunmaz. `cx.refresh_windows()` hata üretmez ama görünür bir etkisi de olmaz. Tema değişimi test edilirken `cx.theme()` çağrısı **yeni değeri** döndürür; global hemen güncellenir.
 
-UI bileşeninin gerçekten yeniden render edilip edilmediğini doğrulamak
-için `VisualTestContext` gerekir (rehber.md #75) — pencereyi açar,
-render eder ve snapshot karşılaştırması yapar.
+UI bileşeninin gerçekten yeniden render edilip edilmediğini doğrulamak için `VisualTestContext` gerekir (rehber.md #75) — pencereyi açar, render eder ve snapshot karşılaştırması yapar.
 
 ### Tema mock'lamayı yanlış yapmak
 
@@ -720,9 +623,7 @@ let bg = theme.colors().background;
 let button_bg = bg;  // ← bileşen rendering'i ile bağlantısı yok
 ```
 
-Bu test yalnızca `Theme` struct'ının kendi alanlarını doğrular. **Tüketici
-kodun `cx.theme()` çağrısının doğru çalıştığını test etmez.** Bir UI testi
-hedefleniyorsa `TestAppContext::update` üzerinden global kurulum yapılmalıdır.
+Bu test yalnızca `Theme` struct'ının kendi alanlarını doğrular. **Tüketici kodun `cx.theme()` çağrısının doğru çalıştığını test etmez.** Bir UI testi hedefleniyorsa `TestAppContext::update` üzerinden global kurulum yapılmalıdır.
 
 ### Test ortamı sınır listesi
 
@@ -736,30 +637,12 @@ hedefleniyorsa `TestAppContext::update` üzerinden global kurulum yapılmalıdı
 
 ### Tuzaklar
 
-1. **`kvs_tema::init(cx)` çağrılmadan `cx.theme()` çağırmak**: Panic
-   atar. Her testin ilk satırının init veya manuel
-   `cx.set_global(GlobalTheme::new(...))` olması beklenir.
-2. **`TestAppContext::run` yerine `update`**: Tema testleri sync
-   çalışır; `update` doğru tercihtir. `run` async bir event loop
-   kurar ve burada gerekmez.
-3. **`test_theme()` çağrısının her testte yeniden yapılması**:
-   `set_global` her çağrıda üstüne yazar; cumulative bug üretmez ama
-   performans maliyeti vardır. Test fixture olarak `Arc<Theme>`
-   paylaşılabilir.
-4. **`feature = "test-util"`'ın production'da açık bırakılması**:
-   `#[cfg(any(test, feature = "test-util"))]` koşulu kurulur; release
-   build'de kapalı kalmalıdır.
-5. **Test tema'sının tüm alanlarının sıfır bırakılması**: `unsafe {
-   zeroed() }` ile doldurulan bir test = production'da görünmez bir
-   UI'a karşılık gelir. Test sırasında bile tüm alanların açık değerle
-   doldurulması, bug yakalama gücünü yükseltir.
-6. **`refresh_windows`'un test'te etkisiz sanılması**: `TestAppContext`
-   üzerinde etkisi olmaz ama global state güncel kalır; test mantığı
-   `cx.theme()` ile yeni değeri okur. `VisualTestContext`
-   kullanıldığında ise render gerçek anlamda tetiklenir.
-7. **Mock tema'nın `Theme.id` değerinin aynı bırakılması**: Test'te
-   birden fazla tema kurulduğunda farklı `id`'lerin (`"test-1"`,
-   `"test-2"`) verilmesi gerekir; aksi halde `Theme.id` üzerinden
-   yapılan equality testi yanlış sonuç verebilir.
+1. **`kvs_tema::init(cx)` çağrılmadan `cx.theme()` çağırmak**: Panic atar. Her testin ilk satırının init veya manuel `cx.set_global(GlobalTheme::new(...))` olması beklenir.
+2. **`TestAppContext::run` yerine `update`**: Tema testleri sync çalışır; `update` doğru tercihtir. `run` async bir event loop kurar ve burada gerekmez.
+3. **`test_theme()` çağrısının her testte yeniden yapılması**: `set_global` her çağrıda üstüne yazar; cumulative bug üretmez ama performans maliyeti vardır. Test fixture olarak `Arc<Theme>` paylaşılabilir.
+4. **`feature = "test-util"`'ın production'da açık bırakılması**: `#[cfg(any(test, feature = "test-util"))]` koşulu kurulur; release build'de kapalı kalmalıdır.
+5. **Test tema'sının tüm alanlarının sıfır bırakılması**: `unsafe { zeroed() }` ile doldurulan bir test = production'da görünmez bir UI'a karşılık gelir. Test sırasında bile tüm alanların açık değerle doldurulması, bug yakalama gücünü yükseltir.
+6. **`refresh_windows`'un test'te etkisiz sanılması**: `TestAppContext` üzerinde etkisi olmaz ama global state güncel kalır; test mantığı `cx.theme()` ile yeni değeri okur. `VisualTestContext` kullanıldığında ise render gerçek anlamda tetiklenir.
+7. **Mock tema'nın `Theme.id` değerinin aynı bırakılması**: Test'te birden fazla tema kurulduğunda farklı `id`'lerin (`"test-1"`, `"test-2"`) verilmesi gerekir; aksi halde `Theme.id` üzerinden yapılan equality testi yanlış sonuç verebilir.
 
 ---
