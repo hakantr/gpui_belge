@@ -1,16 +1,19 @@
 # 15. AI ve Collab Özel Alanı
 
-Bu bölümdeki bileşenler Zed'in AI, agent, provider, collaboration ve update
-akışlarına sıkı bağlıdır. Genel uygulamalarda doğrudan kullanmadan önce
-domain modelinizin bu API'lere gerçekten uyup uymadığı kontrol edilmelidir.
+Bu bölümdeki bileşenler Zed'in AI, agent, provider, collaboration ve
+update akışlarına sıkı sıkıya bağlıdır. Yani genel bir uygulamada
+kullanılmaya başlamadan önce, domain modelinin bu API'lere gerçekten
+oturup oturmadığının kontrol edilmesi gerekir. Aksi halde bileşenin
+sağladığı yapı modelle çelişebilir.
 
-Genel kural:
+Bu ailede iki genel kural geçerlidir:
 
-- Domain'e bağlı bileşenlerde gerçek servis state'i component içine
-  taşınmaz; component'e yalnızca render için gereken label, status, icon,
-  callback ve metadata verilir.
-- AI/Collab bileşenleri başka panellerde kompoze edilirken kendi domain
-  state'leri view'da tutulmalı; component yalnızca görsel hizalama yapar.
+- Domain'e bağlı bileşenlerde gerçek servis state'i component'in
+  içine taşınmaz. Component'e yalnızca render için gereken label,
+  status, ikon, callback ve metadata verilir.
+- AI ve Collab bileşenleri başka panellerde kompoze edilirken, kendi
+  domain state'leri view'da tutulur; bu component'ler yalnızca görsel
+  hizalama yapar.
 
 ## AiSettingItem
 
@@ -18,33 +21,37 @@ Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/ai/ai_setting_item.rs`
 - Export: `ui::AiSettingItem`, `ui::AiSettingItemStatus`,
-  `ui::AiSettingItemSource`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for AiSettingItem`
+  `ui::AiSettingItemSource`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for AiSettingItem`.
 
 Ne zaman kullanılır:
 
-- MCP server, agent provider veya AI integration ayar satırı göstermek için.
-- Status indicator, source icon, detail label, action button ve detay satırını
-  tek compact row'da toplamak için.
+- MCP server, agent provider veya AI integration için bir ayar satırı
+  göstermek gerektiğinde.
+- Status indicator, source icon, detail label, action button ve detay
+  satırını tek bir kompakt row'da toplamak için.
 
 Temel API:
 
-- `AiSettingItem::new(id, label, status, source)`
-- `.icon(element)`
-- `.detail_label(text)`
-- `.action(element)`
-- `.details(element)`
+- `AiSettingItem::new(id, label, status, source)`.
+- `.icon(element)`.
+- `.detail_label(text)`.
+- `.action(element)`.
+- `.details(element)`.
 - `AiSettingItemStatus`: `Stopped`, `Starting`, `Running`, `Error`,
-  `AuthRequired`, `Authenticating`
-- `AiSettingItemSource`: `Extension`, `Custom`, `Registry`
+  `AuthRequired`, `Authenticating`.
+- `AiSettingItemSource`: `Extension`, `Custom`, `Registry`.
 
 Davranış:
 
-- Icon verilmezse label'ın ilk harfinden küçük avatar üretir.
-- `Starting` ve `Authenticating` durumlarında icon opacity pulse animasyonu alır.
-- Status tooltip'i ve source tooltip'i otomatik üretilir.
-- Status indicator, `IconDecorationKind::Dot` ile icon köşesine yerleşir.
+- Bir icon verilmediğinde, label'ın ilk harfinden küçük bir avatar
+  otomatik olarak üretilir.
+- `Starting` ve `Authenticating` durumlarında ikon, opacity üzerinden
+  pulse animasyonu alır.
+- Status ile source için tooltip otomatik üretilir.
+- Status indicator, `IconDecorationKind::Dot` ile ikonun köşesine
+  yerleşir.
 
 Örnek:
 
@@ -70,49 +77,52 @@ fn render_mcp_setting_row() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/agent_ui/src/agent_configuration.rs`: MCP server ve agent
-  configuration listeleri.
-- `../zed/crates/ui/src/components/ai/ai_setting_item.rs`: running, stopped,
-  starting ve error preview örnekleri.
+- `../zed/crates/agent_ui/src/agent_configuration.rs`: MCP server ve
+  agent configuration listeleri.
+- `../zed/crates/ui/src/components/ai/ai_setting_item.rs`: running,
+  stopped, starting ve error preview örnekleri.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Source enum'u gerçek kurulum kaynağıyla eşleşmelidir; tooltip metni bundan
-  türetilir.
-- `.details(...)` uzun hata metinleri için kullanılabilir ama ana satırı
-  kalabalıklaştırmayın.
+- Source enum'u, gerçek kurulum kaynağıyla eşleşmelidir; tooltip metni
+  bu değerden türetilir.
+- `.details(...)` uzun bir hata metni için kullanılabilir, ancak ana
+  satırın kalabalıklaşmamasına dikkat etmek gerekir.
 
 ## AgentSetupButton
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/ai/agent_setup_button.rs`
-- Export: `ui::AgentSetupButton`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for AgentSetupButton`, ancak preview `None` döndürür.
+- Export: `ui::AgentSetupButton`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for AgentSetupButton`; preview `None`
+  döndürür.
 
 Ne zaman kullanılır:
 
-- Onboarding veya provider setup ekranında agent seçeneğini card-button gibi
-  göstermek için.
-- Üstte icon/name, altta state bilgisi olan küçük seçim yüzeyi gerektiğinde.
+- Onboarding veya provider setup ekranında bir agent seçeneğini bir
+  card-button şeklinde göstermek için.
+- Üstte ikon veya isim, altta state bilgisi olan küçük bir seçim yüzeyi
+  gerektiğinde.
 
 Temel API:
 
-- `AgentSetupButton::new(id)`
-- `.icon(Icon)`
-- `.name(text)`
-- `.state(element)`
-- `.disabled(bool)`
-- `.on_click(handler)`
+- `AgentSetupButton::new(id)`.
+- `.icon(Icon)`.
+- `.name(text)`.
+- `.state(element)`.
+- `.disabled(bool)`.
+- `.on_click(handler)`.
 
 Davranış:
 
-- Disabled değil ve on_click varsa hover'da pointer cursor, hover background ve
-  border rengi uygulanır.
-- `state(...)` verilirse alt bölüm border-top ve subtle background ile ayrılır.
+- Disabled değilse ve bir `on_click` bağlanmışsa, hover sırasında
+  pointer cursor, hover background ve border rengi uygulanır.
+- `state(...)` verildiğinde, alt bölüm border-top ile subtle bir
+  background ile ayrılır.
 
 Örnek:
 
@@ -128,15 +138,16 @@ fn render_agent_setup_button() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/onboarding/src/basics_page.rs`: onboarding agent setup
-  seçenekleri.
+- `../zed/crates/onboarding/src/basics_page.rs`: onboarding sırasında
+  agent setup seçenekleri.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Empty card üretmemek için en az icon/name veya state verin.
-- Disabled state click handler'ı render etmez.
+- Boş bir card üretmemek için en azından icon ile name veya state
+  verilmesi beklenir.
+- Disabled durumdayken click handler render edilmez.
 
 ## ThreadItem
 
@@ -144,47 +155,49 @@ Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/ai/thread_item.rs`
 - Export: `ui::ThreadItem`, `ui::AgentThreadStatus`,
-  `ui::ThreadItemWorktreeInfo`, `ui::WorktreeKind`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for ThreadItem`
+  `ui::ThreadItemWorktreeInfo`, `ui::WorktreeKind`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for ThreadItem`.
 
 Ne zaman kullanılır:
 
-- Agent thread listesinde title, status, timestamp, worktree metadata ve diff
-  özetini tek satırda göstermek için.
-- Hover action slot'u ve selected/focused görsel state'i gereken thread listeleri
-  için.
+- Bir agent thread listesinde title, status, timestamp, worktree
+  metadata'sı ve diff özetini tek satırda göstermek için.
+- Hover action slot'u ve selected/focused görsel state'i gerektiren
+  thread listelerinde.
 
 Temel API:
 
-- `ThreadItem::new(id, title)`
-- `.timestamp(text)`
-- `.icon(IconName)`, `.icon_color(Color)`, `.icon_visible(bool)`
-- `.custom_icon_from_external_svg(svg)`
-- `.notified(bool)`
-- `.status(AgentThreadStatus)`
+- `ThreadItem::new(id, title)`.
+- `.timestamp(text)`.
+- `.icon(IconName)`, `.icon_color(Color)`, `.icon_visible(bool)`.
+- `.custom_icon_from_external_svg(svg)`.
+- `.notified(bool)`.
+- `.status(AgentThreadStatus)`.
 - `.title_generating(bool)`, `.title_label_color(Color)`,
-  `.highlight_positions(Vec<usize>)`
-- `.selected(bool)`, `.focused(bool)`, `.hovered(bool)`, `.rounded(bool)`
-- `.added(usize)`, `.removed(usize)`
-- `.project_paths(Arc<[PathBuf]>)`, `.project_name(text)`
-- `.worktrees(Vec<ThreadItemWorktreeInfo>)`
-- `.is_remote(bool)`, `.archived(bool)`
+  `.highlight_positions(Vec<usize>)`.
+- `.selected(bool)`, `.focused(bool)`, `.hovered(bool)`,
+  `.rounded(bool)`.
+- `.added(usize)`, `.removed(usize)`.
+- `.project_paths(Arc<[PathBuf]>)`, `.project_name(text)`.
+- `.worktrees(Vec<ThreadItemWorktreeInfo>)`.
+- `.is_remote(bool)`, `.archived(bool)`.
 - `.on_click(handler)`, `.on_hover(handler)`, `.action_slot(element)`,
-  `.base_bg(Hsla)`
+  `.base_bg(Hsla)`.
 - `AgentThreadStatus`: `Completed`, `Running`, `WaitingForConfirmation`,
-  `Error`. `Completed` varsayılan durumdur ve özel status ikon/animasyon
-  göstermez.
+  `Error`. `Completed` varsayılan durumdur ve özel bir status
+  ikonu/animasyonu göstermez.
 
 Davranış:
 
-- `Running` status `LoadCircle` icon'u ve rotate animation gösterir.
-- `WaitingForConfirmation` warning icon ve tooltip üretir.
-- `Error` close icon ve tooltip üretir.
-- `notified(true)` accent circle kullanır.
-- Metadata satırında linked worktree bilgisi, project name/path, diff stat ve
-  timestamp sırayla render edilir.
-- `action_slot(...)` yalnızca `.hovered(true)` olduğunda görünür.
+- `Running` status, `LoadCircle` ikonunu rotate animation ile
+  birlikte gösterir.
+- `WaitingForConfirmation` warning ikonu ve bir tooltip üretir.
+- `Error` durumu close ikonu ve bir tooltip üretir.
+- `notified(true)` accent bir circle kullanır.
+- Metadata satırında linked worktree bilgisi, project name veya path,
+  diff stat ve timestamp sırayla render edilir.
+- `action_slot(...)` yalnızca `.hovered(true)` durumunda görünür.
 
 Örnek:
 
@@ -217,50 +230,57 @@ fn render_agent_thread() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/sidebar/src/thread_switcher.rs`: thread switcher listesi.
+- `../zed/crates/sidebar/src/thread_switcher.rs`: thread switcher
+  listesi.
 - `../zed/crates/sidebar/src/sidebar.rs`: sidebar thread entries.
-- `../zed/crates/zed/src/visual_test_runner.rs`: geniş thread item varyantları.
+- `../zed/crates/zed/src/visual_test_runner.rs`: geniş thread item
+  varyantları.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `ThreadItem` yoğun bir domain component'idir. Genel liste satırı için
-  `ListItem` veya özel `h_flex()` kompozisyonu daha temiz olabilir.
-- Worktree metadata'sında yalnızca `WorktreeKind::Linked` olan ve worktree/branch
-  bilgisi bulunan girdiler gösterilir.
-- Hover state'i component içinde ölçülmez; parent `.hovered(...)` değerini
-  yönetmelidir.
+- `ThreadItem` yoğun bir domain component'idir. Genel bir liste satırı
+  ihtiyacı için `ListItem` veya özel bir `h_flex()` kompozisyonu çok
+  daha temiz bir çözüm sunar.
+- Worktree metadata'sında yalnızca `WorktreeKind::Linked` olan ve
+  worktree veya branch bilgisi bulunan girdiler gösterilir; diğerleri
+  bileşen tarafından filtrelenir.
+- Hover state'i component içinde ölçülmez. Parent view, `.hovered(...)`
+  değerini doğru şekilde yönetmek durumundadır.
 
 ## ConfiguredApiCard
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/ai/configured_api_card.rs`
-- Export: `ui::ConfiguredApiCard`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for ConfiguredApiCard`
+- Export: `ui::ConfiguredApiCard`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for ConfiguredApiCard`.
 
 Ne zaman kullanılır:
 
-- API key veya provider credential yapılandırılmış durumunu göstermek için.
-- Reset/remove key aksiyonunu aynı satırda sunmak için.
+- Bir API key veya provider credential'ın yapılandırılmış olduğu
+  durumu göstermek için.
+- Reset veya remove key aksiyonunu aynı satırda sunmak için.
 
 Temel API:
 
-- `ConfiguredApiCard::new(label)`
-- `.button_label(text)`
-- `.tooltip_label(text)`
-- `.disabled(bool)`
-- `.button_tab_index(isize)`
-- `.on_click(handler)`
+- `ConfiguredApiCard::new(label)`.
+- `.button_label(text)`.
+- `.tooltip_label(text)`.
+- `.disabled(bool)`.
+- `.button_tab_index(isize)`.
+- `.on_click(handler)`.
 
 Davranış:
 
-- Sol tarafta success `Check` icon ve label render edilir.
-- Button label verilmezse `"Reset Key"`.
-- Button start icon'u `Undo`.
-- `disabled(true)` button'ı disabled yapar ve click handler bağlanmaz.
+- Sol tarafta success rengiyle bir `Check` ikonu ve label render
+  edilir.
+- Button label verilmediğinde varsayılan olarak `"Reset Key"` gelir.
+- Button'ın start ikonu `Undo`'dur.
+- `disabled(true)`, button'ı disabled hâle getirir ve click handler
+  bağlanmaz.
 
 Örnek:
 
@@ -275,63 +295,73 @@ fn render_configured_key_card() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/language_models/src/provider/open_ai.rs`: provider key state.
+- `../zed/crates/language_models/src/provider/open_ai.rs`: provider
+  key state'i.
 - `../zed/crates/language_models/src/provider/anthropic.rs`,
-  `deepseek.rs`, `google.rs`, `open_router.rs`: benzer provider kartları.
+  `deepseek.rs`, `google.rs`, `open_router.rs`: benzer provider
+  kartları.
 - `../zed/crates/settings_ui/src/pages/edit_prediction_provider_setup.rs`.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Card yalnızca configured durumunu temsil eder; credential giriş formu değildir.
-- `button_tab_index(...)`, provider setup ekranında keyboard order ayarlamak için
-  kullanılır.
+- Card yalnızca configured durumu temsil eder; bir credential giriş
+  formu değildir.
+- `button_tab_index(...)`, provider setup ekranında klavye sırasını
+  ayarlamak için kullanılır.
 
 ## ParallelAgentsIllustration
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/ai/parallel_agents_illustration.rs`
-- Export: `ui::ParallelAgentsIllustration`
-- Prelude: Hayır, `use ui::ParallelAgentsIllustration;` ekleyin.
-- Preview: Doğrudan `impl Component for ParallelAgentsIllustration` yok; onboarding
-  ve marketing yüzeylerinde başka component'lerin preview içinde kullanılır.
+- Export: `ui::ParallelAgentsIllustration`.
+- Prelude: Hayır; `use ui::ParallelAgentsIllustration;` ayrıca eklenir.
+- Preview: Doğrudan `impl Component for ParallelAgentsIllustration`
+  yok; onboarding ve marketing yüzeylerinde başka component'lerin
+  preview'ları içinde kullanılır.
 
 Ne zaman kullanılır:
 
-- Onboarding, "what's new" veya parallel agent özelliklerini tanıtan boş durum
-  ekranlarında. Agent listesi, thread görünümü ve proje paneli skeleton'ından
-  oluşan miniatür bir Zed workspace çizimi gerektiğinde.
-- Henüz veri olmayan ama özelliğin görsel anlamını anlatmak gereken alanlarda
-  dekoratif bir illustration olarak.
+- Onboarding, "what's new" veya parallel agent özelliklerini tanıtan
+  boş durum ekranlarında. Agent listesi, thread görünümü ve proje
+  paneli skeleton'ından oluşan miniatür bir Zed workspace çizimi
+  gerektiğinde.
+- Henüz veri olmayan ama özelliğin görsel anlamını anlatmak gereken
+  alanlarda dekoratif bir illustration olarak.
 
 Ne zaman kullanılmaz:
 
-- Gerçek agent thread listesi için: `ThreadItem` + `List` kompozisyonu kullanın.
-- Etkileşim gerektiren agent provider seçimi için: `AgentSetupButton` veya
-  `AiSettingItem` daha uygundur.
-- Veri görünüm component'i olarak: bu yapı görsel pulse animasyonlu skeleton
-  içerir, click handler veya state yüzeyi sunmaz.
+- Gerçek bir agent thread listesi için: `ThreadItem` ile `List`
+  kompozisyonu kullanılır.
+- Etkileşim gerektiren agent provider seçimi için: `AgentSetupButton`
+  veya `AiSettingItem` çok daha uygundur.
+- Veri görünüm component'i olarak bu bileşen tasarlanmamıştır; bir
+  görsel pulse animasyonlu skeleton içerir ve click handler veya state
+  yüzeyi sunmaz.
 
 Temel API:
 
-- Constructor: `ParallelAgentsIllustration::new()` — argümansız değer üretir.
-- `RenderOnce` implement eder; sonradan style builder zinciri yoktur.
-- Konteyner içinde yerleştirilirken yükseklik 180px civarında sabittir;
-  genişliği parent layout belirler.
+- Constructor: `ParallelAgentsIllustration::new()`. Bu çağrı
+  argümansızdır.
+- `RenderOnce` implement eder; sonradan eklenen bir style builder
+  zinciri yoktur.
+- Konteyner içinde yerleştirildiğinde yüksekliği 180px civarında
+  sabittir; genişliği ise parent layout belirler.
 
 Davranış:
 
-- Üç kolonlu bir grid çizer: solda agent listesi, ortada thread görünümü, sağda
-  proje paneli skeleton'ı.
-- `gpui::Animation` ve `pulsating_between(0.1, 0.8)` ile thread görünümündeki
-  loading bar'lara süreklilik animasyonu uygular.
+- Üç kolonlu bir grid çizer: solda agent listesi, ortada thread
+  görünümü, sağda proje paneli skeleton'ı.
+- `gpui::Animation` ile `pulsating_between(0.1, 0.8)` kullanılarak
+  thread görünümündeki loading bar'lara süreklilik kazandıran bir
+  animasyon uygulanır.
 - Renkler `cx.theme().colors().element_selected`, `panel_background`,
-  `editor_background` ve `text_muted.opacity(0.05)` token'larından gelir; tema
-  değişikliklerinde otomatik uyum sağlar.
-- İlk agent satırı `selected` durumdadır ve `DiffStat`, worktree etiketi,
-  zaman metni gibi alt component'lerle birlikte render edilir.
+  `editor_background` ve `text_muted.opacity(0.05)` token'larından
+  beslenir; bu sayede tema değişikliklerinde otomatik uyum sağlar.
+- İlk agent satırı `selected` durumdadır ve `DiffStat`, worktree
+  etiketi, zaman metni gibi alt component'lerle birlikte render edilir.
 
 Örnek:
 
@@ -352,52 +382,56 @@ fn render_parallel_agents_onboarding() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/onboarding/src/onboarding.rs` ve ilişkili sayfalar: parallel
-  agent özelliğinin tanıtım alanlarında dekoratif illustration olarak.
-- `../zed/crates/ui/src/components/ai/parallel_agents_illustration.rs`: bileşenin
-  tek tanım dosyası; alt yapı taşları (`DiffStat`, `Divider`, `Label`, `Icon`)
-  doğrudan ui crate'inden tüketilir.
+- `../zed/crates/onboarding/src/onboarding.rs` ile ilişkili sayfalar:
+  parallel agent özelliğinin tanıtım alanlarında dekoratif bir
+  illustration olarak.
+- `../zed/crates/ui/src/components/ai/parallel_agents_illustration.rs`:
+  bileşenin tek tanım dosyası; alt yapı taşları (`DiffStat`,
+  `Divider`, `Label`, `Icon`) doğrudan ui crate'inden tüketilir.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Bu bileşen yalnızca görsel bir illustration'dır; gerçek thread, worktree veya
-  agent verisi göstermek için kullanılmamalıdır.
-- Sürekli pulse animasyonu içerdiği için arka planda görünmediği halde
-  render maliyetini paylaşır; geniş onboarding sayfalarında scroll dışında
-  kaldığında parent'ı `.when(visible, ...)` veya `IntoElement` koşullu render
-  ile kontrol edin.
-- `ParallelAgentsIllustration::new()` parametresizdir; renk veya boyut özelleştirmesi
-  bileşenin kendi içine bağımlıdır. Farklı görsel gerekiyorsa kaynak dosyayı
-  referans alarak özel bir illustration component'i yazmak daha uygundur.
+- Bu bileşen yalnızca görsel bir illustration'dır; gerçek thread,
+  worktree veya agent verisi göstermek için kullanılmaması beklenir.
+- Sürekli bir pulse animasyonu içerdiği için, arka planda görünmediği
+  durumda bile render maliyetini paylaşır. Geniş onboarding
+  sayfalarında scroll dışında kaldığında parent'ı
+  `.when(visible, ...)` veya koşullu bir `IntoElement` render ile
+  kontrol etmek faydalı olur.
+- `ParallelAgentsIllustration::new()` çağrısı parametresizdir; renk
+  veya boyut özelleştirmesi tamamen bileşenin kendi içine bağımlıdır.
+  Farklı bir görsele ihtiyaç doğduğunda, kaynak dosyayı referans alarak
+  özel bir illustration component'i yazmak daha uygun olur.
 
 ## CollabNotification
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/collab/collab_notification.rs`
-- Export: `ui::CollabNotification`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for CollabNotification`
+- Export: `ui::CollabNotification`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for CollabNotification`.
 
 Ne zaman kullanılır:
 
-- Incoming call, project share, contact request veya channel invite gibi iki
-  aksiyonlu collaboration notification view'ı için.
-- Avatar + metin + accept/dismiss button düzenini standart tutmak için.
+- Incoming call, project share, contact request veya channel invite
+  gibi iki aksiyonlu collaboration notification view'ı için.
+- Avatar, metin ve accept/dismiss buton düzenini standart bir şekilde
+  tutmak için.
 
 Temel API:
 
-- `CollabNotification::new(avatar_uri, accept_button, dismiss_button)`
-- ParentElement: `.child(...)`, `.children(...)`
+- `CollabNotification::new(avatar_uri, accept_button, dismiss_button)`.
+- ParentElement: `.child(...)`, `.children(...)`.
 
 Davranış:
 
 - Avatar `px(40.)` boyutunda render edilir.
-- Sağ tarafta iki button dikey yerleşir.
-- İçerik `SmallVec<[AnyElement; 2]>` ile tutulur ve `v_flex().truncate()` içinde
-  render edilir.
+- Sağ tarafta iki button dikey olarak yerleşir.
+- İçerik `SmallVec<[AnyElement; 2]>` üzerinden tutulur ve bir
+  `v_flex().truncate()` içinde render edilir.
 
 Örnek:
 
@@ -415,72 +449,76 @@ fn render_project_share_notification() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
 - `../zed/crates/collab_ui/src/notifications/project_shared_notification.rs`
 - `../zed/crates/collab_ui/src/notifications/incoming_call_notification.rs`
 - `../zed/crates/collab_ui/src/collab_panel.rs`
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Accept ve dismiss button'larının callback'leri parent notification view'ında
-  bağlanmalıdır.
-- Uzun kullanıcı veya proje adlarında child label'lara truncate davranışı ekleyin.
+- Accept ve dismiss button'larının callback'leri parent notification
+  view'ında bağlanmalıdır.
+- Uzun kullanıcı veya proje adlarında, child label'lara bir truncate
+  davranışının eklenmesi gerekir; aksi halde satır taşabilir.
 
 ## UpdateButton
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/collab/update_button.rs`
-- Export: `ui::UpdateButton`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for UpdateButton`
+- Export: `ui::UpdateButton`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for UpdateButton`.
 
 Ne zaman kullanılır:
 
-- Title bar içinde auto-update durumunu ve update aksiyonunu göstermek için.
-- Checking/downloading/installing/updated/error state'leri için hazır görünüm
-  gerektiğinde.
+- Title bar içinde auto-update durumunu ve update aksiyonunu göstermek
+  için.
+- Checking, downloading, installing, updated veya error state'leri için
+  hazır bir görünüm gerektiğinde.
 
 Temel API:
 
-- `UpdateButton::new(icon, message)`
-- `.icon_animate(bool)`
-- `.icon_color(Option<Color>)`
-- `.tooltip(text)`
-- `.with_dismiss()`
-- `.disabled(bool)`
-- `.on_click(handler)`
-- `.on_dismiss(handler)`
-- Convenience constructors:
-  `UpdateButton::checking()`, `downloading(version)`, `installing(version)`,
-  `updated(version)`, `errored(error)`
+- `UpdateButton::new(icon, message)`.
+- `.icon_animate(bool)`.
+- `.icon_color(Option<Color>)`.
+- `.tooltip(text)`.
+- `.with_dismiss()`.
+- `.disabled(bool)`.
+- `.on_click(handler)`.
+- `.on_dismiss(handler)`.
+- Convenience constructor'lar:
+  `UpdateButton::checking()`, `downloading(version)`,
+  `installing(version)`, `updated(version)`, `errored(error)`.
 
 Davranış:
 
-- `icon_animate(true)`, icon'a rotate animation uygular.
-- `.with_dismiss()` sağ tarafta dismiss icon button gösterir.
-- `.disabled(true)`, ana `ButtonLike` alanını disable eder; checking,
-  downloading ve installing convenience constructor'ları artık bu durumu
-  kendileri uygular.
-- Main area `ButtonLike::new("update-button")` ile render edilir.
-- Tooltip verilirse main button area'ya bağlanır.
-- `checking()` ve `installing(...)` dönen `IconName::LoadCircle` kullanır;
-  animation süresi 2 saniyedir. `downloading(...)` `IconName::Download`,
-  `errored(...)` ise `IconName::Warning` ile çizilir.
-- Convenience constructor varsayılan mesajları: `checking()` "Checking for
-  Zed Updates…", `downloading(...)` "Downloading Zed Update…",
-  `installing(...)` "Installing Zed Update…", `errored(...)` "Failed to
-  Update" yazısını kullanır; özel metin gerekiyorsa `UpdateButton::new(...)`
-  ile açık state kurulmalıdır.
+- `icon_animate(true)` çağrısı, ikona rotate animation uygular.
+- `.with_dismiss()` sağ tarafta bir dismiss icon button gösterir.
+- `.disabled(true)`, ana `ButtonLike` alanını disable eder. Bunun
+  yanında checking, downloading ve installing convenience
+  constructor'ları bu durumu kendileri uygular.
+- Ana alan `ButtonLike::new("update-button")` üzerinden render edilir.
+- Tooltip verildiğinde ana button area'ya bağlanır.
+- `checking()` ile `installing(...)` dönen `IconName::LoadCircle`
+  kullanır; animation süresi 2 saniyedir. `downloading(...)`
+  `IconName::Download`, `errored(...)` ise `IconName::Warning` ile
+  çizilir.
+- Convenience constructor'ların varsayılan mesajları şu şekildedir:
+  `checking()` "Checking for Zed Updates…", `downloading(...)`
+  "Downloading Zed Update…", `installing(...)` "Installing Zed
+  Update…", `errored(...)` ise "Failed to Update". Özel bir metin
+  gerektiğinde `UpdateButton::new(...)` ile açıkça bir state kurulur.
 - Kenarlık rengi disabled state'e göre değişir: aktif konumda
   `colors().text.opacity(0.15)` ile yumuşatılmış bir border, disabled
   konumda ise standart `colors().border` kullanılır. Bu nedenle aktif
-  `updated(...)` ve `errored(...)` durumları, disabled olan checking /
-  downloading / installing durumlarından daha belirgin bir kenarlık
+  `updated(...)` ve `errored(...)` durumları, disabled olan checking,
+  downloading ve installing durumlarından daha belirgin bir kenarlık
   taşır.
-- Title bar'daki `UpdateVersion` tooltip'i artık `Update to Version: ...`
-  biçimindedir; SHA tabanlı version'da kısaltılmış SHA yerine tam SHA gösterilir.
+- Title bar'daki `UpdateVersion` tooltip'i artık
+  `Update to Version: ...` biçimindedir; SHA tabanlı bir version'da
+  kısaltılmış SHA yerine tam SHA gösterilir.
 
 Örnek:
 
@@ -494,25 +532,29 @@ fn render_ready_update_button() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/auto_update_ui/src/auto_update_ui.rs`: auto-update title bar ve
-  notification akışları.
+- `../zed/crates/auto_update_ui/src/auto_update_ui.rs`: auto-update
+  title bar ve notification akışları.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Bu component title bar bağlamına göre tasarlanmıştır; genel sayfa CTA'sı olarak
-  kullanmayın.
-- `checking()`, `downloading(...)` ve `installing(...)` disabled geldiği için
-  bu durumlarda click handler bağlamayın; kullanıcı aksiyonu gerekiyorsa
-  `updated(...)`, `errored(...)` veya `UpdateButton::new(...)` ile açık state
-  kurun.
-- `updated(...)` ve `errored(...)` dismiss gösterir; dismiss callback'i
-  bağlanmazsa button görünür ama state temizlenmez.
+- Bu component title bar bağlamına göre tasarlanmıştır; genel bir
+  sayfa CTA'sı olarak kullanılması beklenmez.
+- `checking()`, `downloading(...)` ve `installing(...)` constructor'ları
+  zaten disabled bir hâlde gelir. Bu yüzden bu durumlarda click
+  handler bağlamak anlamsızdır; kullanıcı bir aksiyon yapabilmeliyse
+  `updated(...)`, `errored(...)` veya `UpdateButton::new(...)` ile
+  açıkça bir state kurmak gerekir.
+- `updated(...)` ve `errored(...)` dismiss gösterir; bir dismiss
+  callback'i bağlanmadığında button görünür kalır ama state
+  temizlenmez.
 
-## Diğer ve AI/Collab Kompozisyon Örnekleri
+## AI/Collab Kompozisyon Örnekleri
 
-Collab özet satırı:
+Bir collab özet satırı için Facepile, Chip ve DiffStat birlikte
+kullanılabilir. Aşağıdaki örnek hem reviewer'ları hem değişiklik
+sayısını hem de açıklayıcı bir başlığı tek bir satırda toplar:
 
 ```rust
 use ui::{Avatar, Chip, DiffStat, Facepile, prelude::*};
@@ -536,7 +578,10 @@ fn render_collab_summary() -> impl IntoElement {
 }
 ```
 
-Agent settings satırı:
+Bir agent settings satırı için ise `AiSettingItem` ile
+`ConfiguredApiCard` birlikte iyi bir özet sunar. İlki MCP veya agent
+provider'ı temsil eder; ikincisi credential'ın yapılandırıldığını
+gösterir:
 
 ```rust
 use ui::{
@@ -565,20 +610,22 @@ fn render_agent_settings_summary() -> impl IntoElement {
 }
 ```
 
-Karar rehberi:
+Bu bölümdeki bileşenlerin nerede tercih edileceğini özetleyen kısa bir
+karar rehberi şöyle özetlenebilir:
 
-- Kişi görseli: `Avatar`; kişi grubu: `Facepile`.
-- Compact metadata etiketi: `Chip`.
-- Eklenen/silinen satır özeti: `DiffStat`.
-- Açılır/kapanır icon button: `Disclosure`.
-- Sağ kenar fade overlay: `GradientFade`.
-- Bundled SVG: `Vector`; raster/dış görsel: GPUI `img(...)`.
-- Shortcut render: `KeyBinding`; açıklamalı shortcut hint: `KeybindingHint`.
-- Focus/scroll traversal: `Navigable`.
-- AI ayar satırı: `AiSettingItem`; provider credential state'i:
-  `ConfiguredApiCard`; agent thread listesi: `ThreadItem`.
-- Parallel agent özelliği için onboarding/illustration:
-  `ParallelAgentsIllustration` (yalnızca dekoratif).
-- Collaboration toast layout'u: `CollabNotification`; update title bar state'i:
-  `UpdateButton`.
-
+- Kişi görseli için `Avatar`; kişi grubu için `Facepile`.
+- Kompakt metadata etiketi için `Chip`.
+- Eklenen ve silinen satır özetleri için `DiffStat`.
+- Açılır veya kapanır bir icon button için `Disclosure`.
+- Sağ kenarda yumuşak bir fade overlay için `GradientFade`.
+- Bundled bir SVG için `Vector`; raster veya dış kaynaklı bir görsel
+  için GPUI `img(...)`.
+- Shortcut render için `KeyBinding`; açıklamalı bir shortcut hint için
+  `KeybindingHint`.
+- Focus ve scroll traversal için `Navigable`.
+- AI ayar satırı için `AiSettingItem`; provider credential state'i için
+  `ConfiguredApiCard`; agent thread listesi için `ThreadItem`.
+- Parallel agent özelliği için onboarding veya illustration alanı
+  gerekiyorsa `ParallelAgentsIllustration` (yalnızca dekoratif).
+- Collaboration toast layout'u için `CollabNotification`; title bar
+  update state'i için `UpdateButton`.

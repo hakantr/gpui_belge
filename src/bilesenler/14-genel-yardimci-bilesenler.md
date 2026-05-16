@@ -1,59 +1,65 @@
 # 14. Genel Yardımcı Bileşenler
 
-Bu bölümdeki bileşenler tek bir amaca hizmet eden, çoğu görsel yardımcı veya
-klavye/navigasyon yüzeyi sunan yapı taşlarıdır. Bir liste satırı, toolbar,
-panel başlığı veya empty state üzerinde sıkça birlikte kullanılırlar.
+Bu bölümdeki bileşenler tek bir amaca hizmet eden yapı taşlarıdır.
+Çoğunlukla görsel bir yardımcı ya da klavye/navigation yüzeyi sunarlar
+ve bir liste satırı, toolbar, panel başlığı veya empty state üzerinde
+birlikte sık kullanılırlar. Yani önceki bölümlerdeki büyük bileşenlerin
+etrafında küçük ama önemli destek görevleri üstlenirler.
 
-Genel kural:
+Bu ailede üç genel kuralın akılda tutulması faydalı olur:
 
-- `ui::KeyBinding` ile `gpui::KeyBinding` isimleri farklıdır. UI bileşeni
-  shortcut'ı görsel olarak render eder; GPUI tipi keymap'e binding tanımlar.
-- `Image` adında public Zed UI component'i yoktur. Bundled SVG için `Vector`,
-  raster veya dış görsel için GPUI `img(...)` / `ImageSource` kullanılır.
-- Disclosure, Chip ve DiffStat gibi compact yapı taşlarını liste/toolbar
-  içinde kullanırken parent container'a `min_w_0` ve uygun gap değerleri
-  verilmesi taşma kontrolünü kolaylaştırır.
+- `ui::KeyBinding` ile `gpui::KeyBinding` aynı ad altında olsalar da
+  birbirinden farklı şeyleri ifade eder. UI tarafındaki bileşen bir
+  shortcut'ı görsel olarak render eder; GPUI tarafındaki tip ise keymap'e
+  bir binding tanımlar.
+- `Image` adında public bir Zed UI component'i bulunmaz. Bundled bir
+  SVG için `Vector` kullanılır; raster veya dış kaynaklı görsel için ise
+  GPUI tarafının `img(...)` ve `ImageSource` yüzeyi devreye girer.
+- Disclosure, Chip ve DiffStat gibi kompakt yapı taşları liste veya
+  toolbar içinde kullanılırken, parent container'a `min_w_0` değerinin
+  ve uygun gap'lerin verilmesi taşma kontrolünü çok daha kolaylaştırır.
 
 ## Chip
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/chip.rs`
-- Export: `ui::Chip`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for Chip`
+- Export: `ui::Chip`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for Chip`.
 
 Ne zaman kullanılır:
 
-- Filtre, plan adı, provider tipi, branch adı, metadata veya küçük status label'ı
-  göstermek için.
-- Icon + kısa label kombinasyonunu düşük vurgu ile göstermek için.
+- Filtre, plan adı, provider tipi, branch adı, metadata veya küçük bir
+  status label'ı göstermek için.
+- İkon ile kısa label kombinasyonunu düşük vurgu ile göstermek için.
 
 Ne zaman kullanılmaz:
 
-- Etkileşimli menü butonu için `Button` / `DropdownMenu`.
-- Uzun açıklama veya paragraf için `Label`.
+- Etkileşimli bir menü butonu için `Button` veya `DropdownMenu` daha
+  uygundur.
+- Uzun bir açıklama veya paragraf için `Label` doğru yüzeydir.
 
 Temel API:
 
-- `Chip::new(label)`
-- `.label_color(Color)`
-- `.label_size(LabelSize)`
-- `.icon(IconName)`
-- `.icon_color(Color)`
-- `.bg_color(Hsla)`
-- `.border_color(Hsla)`
-- `.height(Pixels)`
-- `.truncate()`
-- `.tooltip(...)`
+- `Chip::new(label)`.
+- `.label_color(Color)`.
+- `.label_size(LabelSize)`.
+- `.icon(IconName)`.
+- `.icon_color(Color)`.
+- `.bg_color(Hsla)`.
+- `.border_color(Hsla)`.
+- `.height(Pixels)`.
+- `.truncate()`.
+- `.tooltip(...)`.
 
 Davranış:
 
-- Varsayılan label size `LabelSize::XSmall`.
-- Label buffer font ile render edilir.
-- `.truncate()` parent içinde shrink etmeye izin verir; uzun chip metinlerinde
-  kullanın.
-- Tooltip closure `AnyView` döndürür.
+- Varsayılan label size `LabelSize::XSmall`'dur.
+- Label, buffer font ile render edilir.
+- `.truncate()` parent içinde shrink edilmesine izin verir; uzun chip
+  metinlerinde bu davranışın açık olması önerilir.
+- Tooltip closure'ı bir `AnyView` döndürür.
 
 Örnek:
 
@@ -69,50 +75,55 @@ fn render_branch_chip(branch: SharedString) -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/extensions_ui/src/extensions_ui.rs`: extension capability
-  etiketleri.
-- `../zed/crates/agent_ui/src/ui/model_selector_components.rs`: model metadata
-  ve cost bilgisi.
+- `../zed/crates/extensions_ui/src/extensions_ui.rs`: extension
+  capability etiketleri.
+- `../zed/crates/agent_ui/src/ui/model_selector_components.rs`: model
+  metadata ve cost bilgisi.
 - `../zed/crates/title_bar/src/plan_chip.rs`: plan adı gösterimi.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Chip küçük bir bilgi kapsülüdür; primary action gibi kullanılmamalıdır.
-- Custom background kullanıyorsanız border rengini de uyumlu seçin.
-- Dar toolbar içinde `.truncate()` olmadan uzun label layout'u bozabilir.
+- Chip küçük bir bilgi kapsülüdür; bir primary action yerine
+  kullanılmaması beklenir.
+- Custom bir background kullanılıyorsa, border renginin de bu seçimle
+  uyumlu olması görsel tutarlılığı korur.
+- Dar bir toolbar içinde `.truncate()` olmadan uzun bir label kullanmak
+  layout'u bozabilir.
 
 ## DiffStat
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/diff_stat.rs`
-- Export: `ui::DiffStat`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for DiffStat`
+- Export: `ui::DiffStat`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for DiffStat`.
 
 Ne zaman kullanılır:
 
-- Eklenen ve silinen satır sayılarını compact göstermek için.
-- Commit, branch, thread veya file diff metadata'sı yanında.
+- Eklenen ve silinen satır sayılarını kompakt biçimde göstermek için.
+- Commit, branch, thread veya file diff metadata'sının yanında.
 
 Ne zaman kullanılmaz:
 
-- Ayrıntılı file diff görünümü için.
-- Sadece toplam değişiklik sayısı gerekiyorsa `Label` veya `CountBadge`.
+- Ayrıntılı bir file diff görünümü için bu component yeterli değildir.
+- Yalnızca toplam değişiklik sayısı gerekiyorsa bir `Label` veya
+  `CountBadge` daha doğru bir araç olur.
 
 Temel API:
 
-- `DiffStat::new(id, added, removed)`
-- `.label_size(LabelSize)`
-- `.tooltip(text)`
+- `DiffStat::new(id, added, removed)`.
+- `.label_size(LabelSize)`.
+- `.tooltip(text)`.
 
 Davranış:
 
-- Added değeri `Color::Success`, removed değeri `Color::Error` ile render edilir.
-- Removed label'ı typographic minus kullanır.
-- Tooltip verilirse `Tooltip::text(...)` bağlanır.
+- Added değeri `Color::Success`, removed değeri ise `Color::Error` ile
+  render edilir.
+- Removed label'ı görsel olarak typographic minus karakterini kullanır.
+- Tooltip verildiğinde `Tooltip::text(...)` bağlanır.
 
 Örnek:
 
@@ -128,58 +139,65 @@ fn render_file_change_summary() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: tool result ve
-  thread değişiklik özetleri.
+- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: tool
+  result ve thread değişiklik özetleri.
 - `../zed/crates/git_ui/src/project_diff.rs`: project diff metadata'sı.
 - `../zed/crates/git_graph/src/git_graph.rs`: commit metadata.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `id` stabil olmalıdır; aynı listede tekrar eden id kullanmayın.
-- Sıfır değerlerin gösterilip gösterilmeyeceğine parent karar vermelidir.
+- Verilen `id` değerinin stabil olması beklenir; aynı listede tekrar
+  eden bir id kullanmak hatalı davranışa yol açar.
+- Sıfır değerlerinin gösterilip gösterilmeyeceğine parent karar verir;
+  bileşen kendiliğinden gizlemez.
 
 ## Disclosure
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/disclosure.rs`
-- Export: `ui::Disclosure`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for Disclosure`
+- Export: `ui::Disclosure`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for Disclosure`.
 
 Ne zaman kullanılır:
 
-- Açılır/kapanır bölüm, tree satırı veya detay satırı için chevron button
-  gerektiğinde.
-- Parent state'in açılma durumunu kontrol ettiği controlled toggle için.
+- Açılır veya kapanır bir bölüm, bir tree satırı ya da bir detay satırı
+  için chevron button gerektiğinde.
+- Parent state'in açılma durumunu kontrol ettiği "controlled" bir toggle
+  için.
 
 Ne zaman kullanılmaz:
 
-- Tam satır tree davranışı için `TreeViewItem` daha fazla hazır davranış sağlar.
-- Sadece görsel chevron gerekiyorsa `Icon` yeterlidir.
+- Tam satır bir tree davranışı gerekiyorsa `TreeViewItem` çok daha hazır
+  bir davranış sağlar.
+- Yalnızca görsel bir chevron yeterliyse, bir `Icon` daha sade bir
+  çözüm sunar.
 
 Temel API:
 
-- `Disclosure::new(id, is_open)`
-- `.on_toggle_expanded(handler)`
-- `.opened_icon(IconName)`
-- `.closed_icon(IconName)`
-- `.disabled(bool)`
-- `Clickable`: `.on_click(...)`, `.cursor_style(...)`
-- `Toggleable`: `.toggle_state(selected)`
-- `VisibleOnHover`: `.visible_on_hover(group_name)`
+- `Disclosure::new(id, is_open)`.
+- `.on_toggle_expanded(handler)`.
+- `.opened_icon(IconName)`.
+- `.closed_icon(IconName)`.
+- `.disabled(bool)`.
+- `Clickable`: `.on_click(...)`, `.cursor_style(...)`.
+- `Toggleable`: `.toggle_state(selected)`.
+- `VisibleOnHover`: `.visible_on_hover(group_name)`.
 
 Davranış:
 
-- Açıkken default icon `ChevronDown`, kapalıyken `ChevronRight`.
-- Render sonucu `IconButton` üzerinden gelir.
-- `is_open` internal state değildir; parent her render'da güncel değeri verir.
-- **`Clickable::on_click` ve `on_toggle_expanded` aynı slotu yazar.** Kaynak
-  implementasyon `on_click`'i `self.on_toggle_expanded = Some(Arc::new(handler))`
-  olarak depolar; bu yüzden ikisi birlikte çağrılırsa **sonuncu** kazanır.
-  Karışıklık önlemek için yalnızca birini kullanın.
+- Açıkken default ikon `ChevronDown`; kapalıyken `ChevronRight`'tır.
+- Render sonucu bir `IconButton` üzerinden gelir.
+- `is_open` değeri internal bir state değildir; parent her render'da
+  güncel değeri vermelidir.
+- **`Clickable::on_click` ve `on_toggle_expanded` aynı slotu yazar.**
+  Kaynak implementasyon `on_click`'i
+  `self.on_toggle_expanded = Some(Arc::new(handler))` olarak depolar; bu
+  yüzden iki metod birlikte çağrılırsa **sonuncu** kazanır. Karışıklığı
+  önlemek için yalnızca birinin kullanılması önerilir.
 
 Örnek:
 
@@ -198,52 +216,58 @@ fn render_collapsible_header(is_open: bool) -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/ui/src/components/tree_view_item.rs`: tree item expansion.
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: plan, queue ve
-  edit detay açılımları.
+- `../zed/crates/ui/src/components/tree_view_item.rs`: tree item
+  expansion.
+- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: plan,
+  queue ve edit detay açılımları.
 - `../zed/crates/repl/src/outputs/json.rs`: JSON node expansion.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Toggle state'i parent'ta tutulmalı ve click handler parent state'i
-  güncellemelidir.
-- `visible_on_hover(...)` kullanıyorsanız parent aynı group name'i tanımlamalıdır.
+- Toggle state'i parent'ta tutulur ve click handler bu state'i
+  güncellemekle yükümlüdür.
+- `visible_on_hover(...)` kullanıldığında parent elementte aynı group
+  name'in tanımlanmış olması gerekir.
 
 ## GradientFade
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/gradient_fade.rs`
-- Export: `ui::GradientFade`
-- Prelude: Hayır, ayrıca import edin.
+- Export: `ui::GradientFade`.
+- Prelude: Hayır; ayrıca import edilir.
 - Preview: Hayır.
 
 Ne zaman kullanılır:
 
-- Sağ kenarda taşan içerik veya hover action alanı üstünde yumuşak fade overlay
-  gerektiğinde.
-- Sidebar item gibi tek satırda metadata/action geçişini maskelemek için.
+- Sağ kenarda taşan bir içerik veya hover action alanı üzerinde yumuşak
+  bir fade overlay gerektiğinde.
+- Sidebar item gibi tek satırda metadata ile action geçişini maskelemek
+  için.
 
 Ne zaman kullanılmaz:
 
-- Genel background dekorasyonu için.
-- Scrollbar veya gerçek clipping yerine geçecek şekilde.
+- Genel bir background dekorasyonu için bu bileşen tasarlanmamıştır.
+- Scrollbar veya gerçek bir clipping'in yerine geçecek şekilde
+  kullanılması doğru olmaz.
 
 Temel API:
 
-- `GradientFade::new(base_bg, hover_bg, active_bg)`
-- `.width(Pixels)`
-- `.right(Pixels)`
-- `.gradient_stop(f32)`
-- `.group_name(name)`
+- `GradientFade::new(base_bg, hover_bg, active_bg)`.
+- `.width(Pixels)`.
+- `.right(Pixels)`.
+- `.gradient_stop(f32)`.
+- `.group_name(name)`.
 
 Davranış:
 
-- Absolute positioned, `top_0()`, `h_full()` ve sağ kenara bağlıdır.
-- Renkleri app background ile blend ederek opaklaştırmaya çalışır.
-- `group_name(...)` verilirse parent hover/active durumunda gradient rengi değişir.
+- Absolute pozisyonludur; `top_0()`, `h_full()` ve sağ kenara bağlıdır.
+- Renkleri app background ile blend ederek opaklık etkisi yaratmaya
+  çalışır.
+- `group_name(...)` verildiğinde, parent hover veya active durumunda
+  gradient rengi otomatik olarak değişir.
 
 Örnek:
 
@@ -267,54 +291,60 @@ fn render_fading_row(cx: &App) -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/ui/src/components/ai/thread_item.rs`: action slot ve metadata
-  fade overlay.
+- `../zed/crates/ui/src/components/ai/thread_item.rs`: action slot ve
+  metadata fade overlay.
 - `../zed/crates/sidebar/src/sidebar.rs`: sidebar satır hover fade.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Parent `relative()` ve `overflow_hidden()` olmalıdır.
-- Fade gerçek layout alanı ayırmaz; action slot veya trailing content için ayrıca
-  padding/space bırakın.
+- Parent elemanın `relative()` ve `overflow_hidden()` olması gerekir;
+  aksi halde fade beklenen konuma oturmaz.
+- Fade gerçek bir layout alanı ayırmaz. Action slot veya trailing
+  content için ayrıca padding ya da boşluk bırakılması gerekir.
 
 ## Vector ve Görsel Kullanımı
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/image.rs`
-- Export: `ui::Vector`, `ui::VectorName`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for Vector`
+- Export: `ui::Vector`, `ui::VectorName`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for Vector`.
 
 Ne zaman kullanılır:
 
-- Zed içinde paketlenmiş SVG görsellerini belirli boyutta render etmek için.
-- Logo, stamp veya product mark gibi icon standardına uymayan vektörler için.
+- Zed içinde paketlenmiş SVG görsellerini belirli bir boyutta render
+  etmek için.
+- Logo, stamp veya product mark gibi standart ikon ailesine girmeyen
+  vektörler için.
 
 Ne zaman kullanılmaz:
 
-- Standart simge için `Icon`.
-- Kullanıcı avatarı için `Avatar`.
-- Raster veya dış görsel için GPUI `img(...)` / `ImageSource`.
+- Standart bir simge için `Icon` doğru yüzeydir.
+- Bir kullanıcı avatarı için `Avatar` kullanılır.
+- Raster veya dış kaynaklı bir görsel için GPUI tarafındaki `img(...)`
+  ile `ImageSource` devreye girer.
 
 Temel API:
 
-- `Vector::new(VectorName, width: Rems, height: Rems)`
-- `Vector::square(VectorName, size: Rems)`
-- `.color(Color)`
-- `.size(Size<Rems>)`
-- `CommonAnimationExt` üzerinden `.with_rotate_animation(duration)`; doğrudan
-  `.transform(...)` Zed tüketici API'si olarak re-export edilmez.
+- `Vector::new(VectorName, width: Rems, height: Rems)`.
+- `Vector::square(VectorName, size: Rems)`.
+- `.color(Color)`.
+- `.size(Size<Rems>)`.
+- `CommonAnimationExt` üzerinden `.with_rotate_animation(duration)`;
+  doğrudan `.transform(...)` bir Zed tüketici API'si olarak re-export
+  edilmez.
 - `VectorName`: `BusinessStamp`, `Grid`, `ProTrialStamp`, `ProUserStamp`,
-  `StudentStamp`, `ZedLogo`, `ZedXCopilot`
+  `StudentStamp`, `ZedLogo`, `ZedXCopilot`.
 
 Davranış:
 
-- `VectorName::path()` `images/<name>.svg` yolu üretir.
-- SVG `flex_none()`, width ve height rem değerleriyle render edilir.
-- `.color(...)`, SVG `text_color(...)` üzerinden uygulanır.
+- `VectorName::path()` çağrısı `images/<name>.svg` yolunu üretir.
+- SVG `flex_none()` ile birlikte verilen width ve height rem değerleri
+  üzerinden render edilir.
+- `.color(...)` ayarı, SVG'ye `text_color(...)` üzerinden uygulanır.
 
 Örnek:
 
@@ -326,13 +356,16 @@ fn render_zed_mark() -> impl IntoElement {
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `Image` adında public Zed UI component'i yoktur; rehberde görsel ihtiyacı için
-  `Vector`, `Avatar`, `Icon` ve GPUI `img(...)` ayrımı yapılmalıdır.
-- `VectorName` yalnızca kaynakta tanımlı bundled asset'leri kapsar.
+- `Image` adında public bir Zed UI component'i yoktur. Rehberde bir
+  görsel ihtiyacı varsa `Vector`, `Avatar`, `Icon` ve GPUI `img(...)`
+  ayrımının yapılması beklenir.
+- `VectorName` yalnızca kaynakta tanımlanmış olan bundled asset'leri
+  kapsar; dışarıdan yeni isim eklenmez.
 
-GPUI `img(...)` ve `ImageSource` (raster veya dış görsel için):
+GPUI `img(...)` ve `ImageSource` (raster veya dış görsel için) şu
+şekilde kullanılır:
 
 ```rust
 use gpui::{ImageSource, SharedUri, img};
@@ -363,10 +396,11 @@ fn render_local_thumbnail() -> impl IntoElement {
 | `Arc<RenderImage>`, `Arc<Image>` | Önceden decode edilmiş image bytes. |
 | `F: Fn(&mut Window, &mut App) -> ImageSource` | Çağrı sırasında dinamik kaynak üretmek için. |
 
-`Avatar::new` bu `Into<ImageSource>` zincirinin üzerinde durur; raw `img(...)`
-kullanırken `flex_none()` ve sabit `size(...)` vermezseniz layout taşmaları
-yaşanabilir. SVG ikon için her zaman `Icon` veya `Vector` tercih edilmelidir;
-`img(...)` SVG path'lerini raster gibi muamele eder ve recolor edemez.
+`Avatar::new`, bu `Into<ImageSource>` zincirinin üzerine kuruludur. Ham
+bir `img(...)` kullanılırken `flex_none()` ve sabit bir `size(...)`
+verilmediğinde layout taşmaları yaşanması olasıdır. SVG bir ikon için
+her zaman `Icon` veya `Vector` tercih edilir; `img(...)` SVG path'lerini
+raster gibi muamele eder ve dolayısıyla recolor edemez.
 
 ## KeyBinding
 
@@ -376,51 +410,57 @@ Kaynak:
 - Export: `ui::KeyBinding`, `ui::Key`, `ui::KeyIcon`,
   `ui::render_keybinding_keystroke`, `ui::text_for_action`,
   `ui::text_for_keystrokes`, `ui::text_for_keybinding_keystrokes`,
-  `ui::render_modifiers`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for KeyBinding`
+  `ui::render_modifiers`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for KeyBinding`.
 
 Ne zaman kullanılır:
 
-- UI içinde action'a bağlı shortcut göstermek için.
-- Explicit keystroke dizisini platforma uygun tuş görseli olarak render etmek
-  için.
-- Tooltip, command palette veya ayar satırında klavye kısayolu göstermek için.
+- UI içinde bir action'a bağlı shortcut göstermek için.
+- Explicit bir keystroke dizisini platforma uygun tuş görseli olarak
+  render etmek için.
+- Tooltip, command palette veya bir ayar satırında klavye kısayolu
+  göstermek için.
 
 Ne zaman kullanılmaz:
 
-- Keymap'e yeni binding tanımlamak için `gpui::KeyBinding` kullanılır.
-- Sadece açıklama metni gerekiyorsa `text_for_action(...)` veya `Label`.
+- Keymap'e yeni bir binding tanımlamak için `gpui::KeyBinding`
+  kullanılır; UI tarafındaki tip bu amaç için değildir.
+- Yalnızca açıklayıcı bir metin gerekiyorsa `text_for_action(...)`
+  veya bir `Label` daha uygundur.
 
 Temel API:
 
-- `KeyBinding::for_action(action, cx)`
-- `KeyBinding::for_action_in(action, focus_handle, cx)`
-- `KeyBinding::new(action, focus_handle, cx)`
-- `KeyBinding::from_keystrokes(keystrokes, vim_mode)`
-- `.platform_style(PlatformStyle)`
-- `.size(size)`
-- `.disabled(bool)`
-- `.has_binding(window)`
-- `KeyBinding::set_vim_mode(cx, enabled)`
+- `KeyBinding::for_action(action, cx)`.
+- `KeyBinding::for_action_in(action, focus_handle, cx)`.
+- `KeyBinding::new(action, focus_handle, cx)`.
+- `KeyBinding::from_keystrokes(keystrokes, vim_mode)`.
+- `.platform_style(PlatformStyle)`.
+- `.size(size)`.
+- `.disabled(bool)`.
+- `.has_binding(window)`.
+- `KeyBinding::set_vim_mode(cx, enabled)`.
 - `Key::new(key: impl Into<SharedString>, color: Option<Color>)` ve
-  `KeyIcon::new(icon: IconName, color: Option<Color>)`: tekil tuş veya ikonlu
-  tuş yüzeyi.
+  `KeyIcon::new(icon: IconName, color: Option<Color>)`: tekil tuş veya
+  ikonlu tuş yüzeyi.
 - `render_modifiers(modifiers: &Modifiers, platform_style: PlatformStyle,
   color: Option<Color>, size: Option<AbsoluteLength>, trailing_separator: bool)
-  -> impl Iterator<Item = AnyElement>`: modifier dizisini platform stiline göre
-  ikon/metin elementlerine çeviren düşük seviye helper. `trailing_separator`
-  son modifier'dan sonra `+` ayırıcısı ekler.
+  -> impl Iterator<Item = AnyElement>`: bir modifier dizisini platform
+  stiline göre ikon veya metin elementlerine çeviren düşük seviyeli
+  helper. `trailing_separator`, son modifier'dan sonra bir `+` ayırıcısı
+  ekler.
 - `text_for_keystroke(modifiers: &Modifiers, key: &str, cx: &App) -> String`:
-  tek bir keystroke için platforma duyarlı metin üretir.
+  tek bir keystroke için platforma duyarlı bir metin üretir.
 
 Davranış:
 
-- Action source kullanıldığında window'daki en yüksek öncelikli binding aranır.
-- Focus handle verilirse önce action için focus bağlamındaki binding aranır.
-- Binding bulunamazsa `Empty` render edilir.
-- Platform stili macOS için modifier icon'ları, Linux/Windows için metin ve `+`
-  separator kullanır.
+- Action source kullanıldığında window'daki en yüksek öncelikli binding
+  aranır.
+- Bir focus handle verildiğinde, action için önce focus bağlamındaki
+  binding aranır.
+- Binding bulunamadığında `Empty` render edilir.
+- Platform stili macOS için modifier ikonlarını, Linux ve Windows için
+  ise metin ve `+` separator'larını kullanır.
 
 Örnek:
 
@@ -438,42 +478,44 @@ fn render_save_shortcut() -> AnyElement {
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `ui::KeyBinding` ile `gpui::KeyBinding` importlarını aynı dosyada kullanırken
-  alias verin; aksi halde kod okunması zorlaşır.
-- Action'a bağlı shortcut gösteriyorsanız binding bulunamama durumunu UI'da
-  düşünün; component boş render edebilir.
+- `ui::KeyBinding` ile `gpui::KeyBinding` aynı dosyada birlikte import
+  edilirken, ikisine de alias verilmesi okunabilirliği artırır.
+- Bir action'a bağlı shortcut gösterilirken binding bulunamama
+  durumunun UI'da düşünülmesi gerekir; çünkü component bu durumda boş
+  render edebilir.
 
 ## KeybindingHint
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/keybinding_hint.rs`
-- Export: `ui::KeybindingHint`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for KeybindingHint`
+- Export: `ui::KeybindingHint`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for KeybindingHint`.
 
 Ne zaman kullanılır:
 
-- Shortcut'ı prefix/suffix metniyle birlikte açıklamak için.
-- Tooltip veya empty state içinde kısa klavye ipucu göstermek için.
+- Bir shortcut'ı prefix veya suffix metniyle birlikte açıklamak için.
+- Tooltip veya empty state içinde kısa bir klavye ipucu göstermek için.
 
 Temel API:
 
-- `KeybindingHint::new(keybinding, background_color)`
-- `KeybindingHint::with_prefix(prefix, keybinding, background_color)`
-- `KeybindingHint::with_suffix(keybinding, suffix, background_color)`
-- `.prefix(text)`
-- `.suffix(text)`
-- `.size(Pixels)`
+- `KeybindingHint::new(keybinding, background_color)`.
+- `KeybindingHint::with_prefix(prefix, keybinding, background_color)`.
+- `KeybindingHint::with_suffix(keybinding, suffix, background_color)`.
+- `.prefix(text)`.
+- `.suffix(text)`.
+- `.size(Pixels)`.
 
 Davranış:
 
-- Prefix/suffix italic buffer font ile render edilir.
-- Keybinding parçası border, subtle background ve küçük shadow alır.
-- Background color, theme text/accent renkleriyle blend edilerek hint yüzeyi
-  oluşturulur.
+- Prefix ve suffix metni italik buffer font ile render edilir.
+- Keybinding parçası bir border, subtle bir background ve hafif bir
+  shadow alır.
+- Background color, theme text ve accent renkleriyle blend edilerek
+  hint yüzeyi oluşturulur.
 
 Örnek:
 
@@ -494,48 +536,53 @@ fn render_command_hint(cx: &App) -> AnyElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/settings_ui/src/settings_ui.rs`: ayar UI kısayol ipuçları.
+- `../zed/crates/settings_ui/src/settings_ui.rs`: ayar UI kısayol
+  ipuçları.
 - `../zed/crates/git_ui/src/commit_modal.rs`: modal shortcut hint'i.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `background_color` parent yüzeyine yakın seçilmelidir; hint kendi border ve
-  fill rengini bu değerden türetir.
-- Çok uzun prefix/suffix kullanmayın; kısa komut açıklaması için tasarlanmıştır.
+- `background_color` parent yüzeyine yakın seçilmelidir; hint kendi
+  border ve fill rengini bu değerden türetir.
+- Çok uzun bir prefix veya suffix yazılmaması beklenir; bileşen kısa
+  komut açıklamaları için tasarlanmıştır.
 
 ## Navigable
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/navigable.rs`
-- Export: `ui::Navigable`, `ui::NavigableEntry`
-- Prelude: Hayır, ayrıca import edin.
+- Export: `ui::Navigable`, `ui::NavigableEntry`.
+- Prelude: Hayır; ayrıca import edilir.
 - Preview: Hayır.
 
 Ne zaman kullanılır:
 
-- Scrollable view içinde `menu::SelectNext` / `menu::SelectPrevious` aksiyonlarıyla
-  klavye gezintisi kurmak için.
-- Focus handle ve scroll anchor listesini tek wrapper'a bağlamak için.
+- Scrollable bir view içinde `menu::SelectNext` ve `menu::SelectPrevious`
+  aksiyonlarıyla bir klavye gezintisi kurmak için.
+- Focus handle ve scroll anchor listesini tek bir wrapper'a bağlamak için.
 
 Temel API:
 
-- `NavigableEntry::new(scroll_handle, cx)`
-- `NavigableEntry::focusable(cx)`
-- `Navigable::new(child: AnyElement)`
-- `.entry(NavigableEntry)`
+- `NavigableEntry::new(scroll_handle, cx)`.
+- `NavigableEntry::focusable(cx)`.
+- `Navigable::new(child: AnyElement)`.
+- `.entry(NavigableEntry)`.
 - `NavigableEntry` public alanları: `focus_handle` ve
-  `scroll_anchor: Option<ScrollAnchor>`. `new(...)` scroll anchor'lı entry,
-  `focusable(...)` ise `scroll_anchor: None` olan entry üretir.
+  `scroll_anchor: Option<ScrollAnchor>`. `new(...)` scroll anchor'lı bir
+  entry üretir; `focusable(...)` ise `scroll_anchor: None` olan bir entry
+  döndürür.
 
 Davranış:
 
-- Entry ekleme sırası traversal sırasıdır.
-- Select next/previous aksiyonları focused entry'yi bulur, hedef entry'nin
-  focus handle'ını focus eder ve scroll anchor varsa görünür alana scroll eder.
-- `NavigableEntry::focusable(...)` scroll anchor olmadan focusable entry üretir.
+- Entry'lerin ekleme sırası, traversal sırasıdır.
+- Select next veya previous aksiyonu focused entry'yi bulur, hedef
+  entry'nin focus handle'ını focus eder ve bir scroll anchor varsa
+  görünür alana scroll yapar.
+- `NavigableEntry::focusable(...)`, scroll anchor olmadan focusable bir
+  entry üretir.
 
 Örnek:
 
@@ -557,44 +604,47 @@ fn render_navigable_rows(scroll_handle: &ScrollHandle, cx: &App) -> impl IntoEle
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Wrapper yalnızca action routing ve focus/scroll geçişini kurar; her child'ın
-  kendisi focus track etmelidir.
-- Entry listesi render edilen item sırasıyla aynı tutulmalıdır.
+- Wrapper yalnızca action routing ile focus/scroll geçişini kurar; her
+  child'ın kendisi yine `track_focus` ile focus track etmelidir.
+- Entry listesinin, render edilen item sırasıyla aynı tutulması gerekir;
+  aksi halde gezinti beklenmedik bir sıraya kayar.
 
 ## ProjectEmptyState
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/project_empty_state.rs`
-- Export: `ui::ProjectEmptyState`
-- Prelude: Hayır, ayrıca import edin.
+- Export: `ui::ProjectEmptyState`.
+- Prelude: Hayır; ayrıca import edilir.
 - Preview: Doğrudan `impl Component` yok.
 
 Ne zaman kullanılır:
 
-- Panel veya sidebar bir proje/worktree olmadan açıldığında aynı boş durum
-  eylemlerini göstermek için.
-- "Open Project" ve "Clone Repository" seçeneklerinin aynı focus, keybinding ve
-  spacing düzeniyle görünmesini istediğiniz yerlerde.
+- Bir panel veya sidebar bir proje veya worktree olmadan açıldığında
+  aynı boş durum eylemlerini göstermek için.
+- "Open Project" ve "Clone Repository" seçeneklerinin aynı focus,
+  keybinding ve spacing düzeniyle görünmesinin istendiği yerlerde.
 
 Temel API:
 
-- Constructor: `ProjectEmptyState::new(label, focus_handle, open_project_key_binding)`
-- `.on_open_project(handler)`
-- `.on_clone_repo(handler)`
+- Constructor:
+  `ProjectEmptyState::new(label, focus_handle, open_project_key_binding)`.
+- `.on_open_project(handler)`.
+- `.on_clone_repo(handler)`.
 
 Davranış:
 
-- Render edilen root `v_flex()` içinde `track_focus(&focus_handle)` çağırır.
-- Üst metni `Choose one of the options below to use the {label}` biçiminde
-  üretir.
+- Render edilen root, bir `v_flex()` içinde `track_focus(&focus_handle)`
+  çağrısı yapar.
+- Üst metin `Choose one of the options below to use the {label}` biçiminde
+  üretilir.
 - İlk action `Button::new("open_project", "Open Project")` ve verilen
-  `KeyBinding` ile render edilir; ikinci action
+  `KeyBinding` ile render edilir; ikinci action ise
   `Button::new("clone_repo", "Clone Repository")` olarak gelir.
-- İki action arasında `Divider::horizontal().color(DividerColor::Border)` ve
-  küçük `or` label'ı kullanılır.
+- İki action arasında bir `Divider::horizontal().color(DividerColor::Border)`
+  ile küçük bir `or` label'ı kullanılır.
 
 Örnek:
 
@@ -616,18 +666,21 @@ fn render_empty_panel(
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/project_panel/src/project_panel.rs`: worktree yokken project
-  panel boş durumu.
-- `../zed/crates/agent_ui/src/agent_panel.rs`: proje yokken agent panel boş
+- `../zed/crates/project_panel/src/project_panel.rs`: worktree yokken
+  project panel boş durumu.
+- `../zed/crates/agent_ui/src/agent_panel.rs`: proje yokken agent panel
+  boş durumu.
+- `../zed/crates/git_ui/src/git_panel.rs`: worktree yokken git panel boş
   durumu.
-- `../zed/crates/git_ui/src/git_panel.rs`: worktree yokken git panel boş durumu.
-- `../zed/crates/sidebar/src/sidebar.rs`: threads sidebar boş proje durumu.
+- `../zed/crates/sidebar/src/sidebar.rs`: threads sidebar boş proje
+  durumu.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Bu component yalnızca iki standart proje eylemini render eder. Farklı action
-  setleri veya açıklama metni gerekiyorsa özel `v_flex()` layout kurun.
-- Handler verilmezse ilgili button render edilir ama click davranışı bağlanmaz.
-
+- Bu bileşen yalnızca iki standart proje eylemini render eder. Farklı
+  action setleri veya farklı bir açıklama metni gerekiyorsa, özel bir
+  `v_flex()` layout kurmak daha doğru bir tercih olur.
+- Handler verilmediğinde ilgili button yine render edilir ama click
+  davranışı bağlanmaz.

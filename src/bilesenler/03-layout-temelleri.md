@@ -1,19 +1,25 @@
 # 3. Layout Temelleri
 
-Layout yardımcıları, GPUI `div()` üzerine Zed'in sık kullanılan flex ve separator
-kalıplarını ekler. Bunlar yüksek seviyeli component değil, layout kurarken tekrar
-eden stil dizilerini kısaltan yapı taşlarıdır. İçerik semantiği veya state
-yönetimi sağlamazlar.
+Layout yardımcıları, GPUI'nin `div()` çağrısı üstüne Zed'in sık kullandığı
+flex ve separator kalıplarını ekleyen küçük katmanlardır. Bunlar tam
+anlamıyla bir yüksek seviye component değildir; daha çok layout kurulurken
+sürekli tekrarlanan stil dizilerini kısaltmak için var olan yapı taşlarıdır.
+İçerik semantiği taşımazlar ve kendi başlarına bir state yönetimi
+sağlamazlar; tek işleri görsel düzeni hızlı kurmaktır.
 
-Genel seçim rehberi:
+Hangi durumda hangisi tercih edilir sorusu için kabaca şöyle bir yol haritası
+çıkarılabilir:
 
-- Satır düzeni ve dikey ortalama için `h_flex()`.
-- Kolon düzeni için `v_flex()`.
-- Küçük, tutarlı boşluklu inline gruplar için `h_group*`.
-- Küçük, tutarlı boşluklu dikey gruplar için `v_group*`.
-- Section, toolbar veya panel ayrımı için `Divider`.
-- Sadece tek seferlik özel layout gerekiyorsa doğrudan `div()` + GPUI style
-  builder'ları yeterlidir.
+- Satır düzeni ve dikey eksende otomatik ortalama gerekiyorsa `h_flex()` ilk
+  akla gelen seçenektir.
+- Kolon düzeni gerektiğinde `v_flex()` kullanılır.
+- Birbirine yakın oturması gereken küçük ve tutarlı boşluklu inline gruplar
+  için `h_group*` ailesi daha uygundur.
+- Küçük ve tutarlı boşluklu dikey gruplar için `v_group*` benzer rolü dikey
+  yönde üstlenir.
+- Section, toolbar veya panel ayrımı için `Divider` doğru araçtır.
+- Yalnızca tek seferlik özel bir layout gerekiyorsa, doğrudan `div()` ve
+  GPUI'nin style builder'ları yeterli kalır.
 
 ## h_flex ve v_flex
 
@@ -22,36 +28,42 @@ Kaynak:
 - Tanım: `../zed/crates/ui/src/components/stack.rs`
 - Altyapı: `../zed/crates/ui/src/traits/styled_ext.rs`
 - Export: `ui::h_flex`, `ui::v_flex`
-- Prelude: `ui::prelude::*` içinde gelir.
+- Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: Doğrudan `impl Component` yok.
 
 Ne zaman kullanılır:
 
 - Bileşenleri satır veya kolon içinde hızlıca hizalamak için.
-- Buton toolbar'ları, metadata satırları, icon + label kombinasyonları ve panel
-  içerik düzenleri için.
+- Buton toolbar'ları, metadata satırları, icon ile label kombinasyonları ve
+  panel içerik düzenleri için en sık başvurulan iki helper'dır.
 
 Ne zaman kullanılmaz:
 
-- Semantik component gerekiyorsa `ListItem`, `ButtonLike`, `Tab`, `Modal` gibi
-  daha yüksek seviyeli bileşenler önceliklidir.
-- Sadece tek stil gerekiyorsa doğrudan `div()` kullanmak daha açık olabilir.
+- Aslında semantik bir component gerekiyorsa (yani bir satır sadece bir
+  layout değil, bir liste öğesi veya bir buton gibi anlam taşıyorsa)
+  `ListItem`, `ButtonLike`, `Tab`, `Modal` gibi daha yüksek seviyeli
+  bileşenler önceliklidir.
+- Sadece tek bir stil ihtiyacı varsa, doğrudan `div()` kullanmak okuyucu
+  açısından daha açık bir tercih olabilir; gereksiz bir helper kullanmak
+  yerine niyet açıkça yazılır.
 
 Temel API:
 
 - `h_flex() -> Div`
 - `v_flex() -> Div`
-- Aynı davranış herhangi bir `Styled` üzerinde `.h_flex()` ve `.v_flex()` olarak
-  da kullanılabilir.
+- Aynı davranış herhangi bir `Styled` üzerinde `.h_flex()` ve `.v_flex()`
+  metod biçimiyle de kullanılabilir; yani var olan bir builder zincirine
+  sonradan eklenebilir.
 
 Davranış:
 
 - `h_flex()` kaynakta `div().h_flex()` çağırır.
-- `StyledExt::h_flex()` sırasıyla `.flex().flex_row().items_center()` uygular.
+- `StyledExt::h_flex()` arka planda sırasıyla `.flex()`, `.flex_row()` ve
+  `.items_center()` uygular.
 - `v_flex()` kaynakta `div().v_flex()` çağırır.
-- `StyledExt::v_flex()` sırasıyla `.flex().flex_col()` uygular.
-- Her ikisi de yalnızca layout stilini ayarlar; gap, width, overflow ve
-  responsive davranış ayrıca verilmelidir.
+- `StyledExt::v_flex()` ise `.flex()` ve `.flex_col()` uygular.
+- Her iki helper da yalnızca layout stilini ayarlar. Gap, width, overflow ve
+  responsive davranış ayrıca tanımlanır; bunlar otomatik olarak verilmez.
 
 Örnek:
 
@@ -80,13 +92,15 @@ fn render_toolbar_title(path: SharedString) -> impl IntoElement {
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
 - `h_flex()` varsayılan olarak `items_center()` uygular. Üstten hizalama
-  gerekiyorsa `.items_start()` ile override edin.
-- Uzun metin taşıyan h-flex satırlarında parent'a `.min_w_0()`, label'a
-  `.truncate()` ekleyin.
-- `v_flex()` gap vermez. Dikey boşluğu `.gap_*()` veya padding ile açıkça kurun.
+  gerektiğinde bunun `.items_start()` ile override edilmesi gerekir.
+- Uzun metin taşıyan h-flex satırlarında parent elemana `.min_w_0()` ve
+  label elemanına `.truncate()` eklenmesi beklenir; aksi halde flex algoritması
+  metni kısaltmak yerine satırı taşırabilir.
+- `v_flex()` kendiliğinden gap eklemez. Dikey boşluğun `.gap_*()` ya da
+  padding ile açıkça kurulması gerekir.
 
 ## h_group ve v_group
 
@@ -96,20 +110,23 @@ Kaynak:
 - Export: `ui::h_group_sm`, `ui::h_group`, `ui::h_group_lg`,
   `ui::h_group_xl`, `ui::v_group_sm`, `ui::v_group`, `ui::v_group_lg`,
   `ui::v_group_xl`
-- Prelude: `ui::prelude::*` içinde gelir.
+- Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: Doğrudan `impl Component` yok.
 
 Ne zaman kullanılır:
 
-- Birbirine yakın durması gereken küçük ikon, label, badge veya button grupları
-  için.
-- Tekrarlanan compact spacing değerlerini aynı helper üzerinden korumak için.
+- Birbirine yakın durması gereken küçük ikon, label, badge veya buton
+  grupları için.
+- Tekrarlanan ve kompakt spacing değerlerini aynı helper üzerinden korumak,
+  yani aynı ölçeği farklı yerlerde tek bir kelimeyle ifade etmek için.
 
 Ne zaman kullanılmaz:
 
-- Ana sayfa/panel layout'u için `h_flex()` / `v_flex()` daha açık.
-- Büyük section boşlukları için helper spacing'i çok küçüktür; explicit `.gap_4()`
-  gibi değerler kullanın.
+- Ana sayfa veya panel layout'u için `h_flex()` / `v_flex()` daha açık bir
+  niyet ifadesidir; group helper'ları o ölçekte boşluk için tasarlanmaz.
+- Büyük bir section'da geniş boşluklar gerekiyorsa, group helper'larındaki
+  spacing değerleri çok küçük kalır; bunun yerine `.gap_4()` gibi explicit
+  ölçeklerin kullanılması daha tutarlı sonuç verir.
 
 Temel API:
 
@@ -124,10 +141,14 @@ Temel API:
 
 Davranış:
 
-- `h_group*` helper'ları `items_center()` eklemez. Satırdaki elemanların dikey
-  hizası önemliyse `.items_center()` veya `.items_start()` ekleyin.
-- `v_group*` helper'ları `flex_col()` ekler.
-- Helper isimleri spacing ölçeğini anlatır: `sm`, varsayılan, `lg`, `xl`.
+- `h_group*` helper'ları `items_center()` eklemez. Satırdaki elemanların
+  dikey hizası bir konu olarak öne çıkıyorsa `.items_center()` veya
+  `.items_start()` çağrılarının elle eklenmesi gerekir.
+- `v_group*` helper'ları otomatik olarak `flex_col()` ekler; yani dikey
+  istif baştan kurulmuş gelir.
+- Helper isimleri spacing ölçeğini doğrudan anlatır: `sm` küçük boşluk,
+  isimsiz varyant varsayılan, `lg` biraz daha büyük, `xl` ise grubun
+  içerebileceği en geniş boşluğu ifade eder.
 
 Örnek:
 
@@ -155,12 +176,14 @@ fn render_metadata_stack(branch: SharedString, path: SharedString) -> impl IntoE
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `h_group*` ve `v_group*` component değildir; sadece `Div` döndürür.
-- Group helper'larını iç içe fazla kullanmak layout'u belirsizleştirir. Ana
-  container için `h_flex` / `v_flex`, küçük alt kümeler için group helper
-  kullanın.
+- `h_group*` ve `v_group*` bir component değildir; yalnızca düz bir `Div`
+  döndürür.
+- Group helper'larının iç içe fazla kullanılması layout'u zamanla
+  belirsizleştirir. Ana container için `h_flex` veya `v_flex`, küçük alt
+  kümeler için group helper kullanımı, bu hiyerarşinin okunabilir kalmasını
+  sağlar.
 
 ## Divider
 
@@ -169,40 +192,48 @@ Kaynak:
 - Tanım: `../zed/crates/ui/src/components/divider.rs`
 - Export: `ui::Divider`, `ui::DividerColor`, `ui::divider`,
   `ui::vertical_divider`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for Divider`
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for Divider`.
 
 Ne zaman kullanılır:
 
-- Panel, modal, toolbar veya listede görsel ayırıcı çizmek için.
-- Aynı container içinde iki içeriği ince border rengiyle ayırmak için.
-- Dashed separator gerekiyorsa dashed constructor'lar ile.
+- Panel, modal, toolbar veya listede görsel bir ayırıcı çizmek için.
+- Aynı container içinde iki içeriği ince bir border rengiyle ayırmak için.
+- Dashed (kesik çizgili) bir separator gerekiyorsa, dashed constructor'lar
+  ile.
 
 Ne zaman kullanılmaz:
 
-- `ContextMenu` içinde separator gerekiyorsa `ContextMenu::separator()`.
-- Sadece boşluk gerekiyorsa divider yerine margin/gap kullanın.
-- Tablo veya listede semantic row separator gerekiyorsa ilgili component'in
-  kendi border/separator davranışını tercih edin.
+- `ContextMenu` içinde bir ayırıcıya ihtiyaç varsa `ContextMenu::separator()`
+  doğru yüzeydir; menü kendi separator API'sini sağlar.
+- Sadece bir boşluk gerekiyorsa divider yerine margin veya gap kullanmak
+  daha doğru bir tercihtir; çünkü divider görsel bir çizgi de getirir.
+- Tablo ya da listede satırları ayıran bir semantic separator gerekiyorsa,
+  ilgili component'in kendi border veya separator davranışı kullanılır.
 
 Temel API:
 
-- Helper constructor'lar: `divider()`, `vertical_divider()`
+- Helper constructor'lar: `divider()`, `vertical_divider()`.
 - Associated constructor'lar: `Divider::horizontal()`, `Divider::vertical()`,
-  `Divider::horizontal_dashed()`, `Divider::vertical_dashed()`
-- Builder'lar: `.inset()`, `.color(DividerColor)`
-- `DividerColor`: `Border`, `BorderFaded`, `BorderVariant`
+  `Divider::horizontal_dashed()`, `Divider::vertical_dashed()`.
+- Builder'lar: `.inset()`, `.color(DividerColor)`.
+- `DividerColor`: `Border`, `BorderFaded`, `BorderVariant`.
 
 Davranış:
 
-- Varsayılan renk `DividerColor::BorderVariant`.
-- Solid divider `bg(...)` ile çizilir.
-- Dashed divider `canvas(...)` ve `PathBuilder::stroke(px(1.)).dash_array(...)`
-  ile çizilir.
-- Horizontal divider `h_px().w_full()`; vertical divider `w_px().h_full()` kullanır.
-- `.inset()` horizontal için `mx_1p5()`, vertical için `my_1p5()` uygular.
-- Vertical divider'ın görünür olması için parent container'ın yüksekliği belirli
-  veya içerikten türetilmiş olmalıdır.
+- Varsayılan renk `DividerColor::BorderVariant`'tır; yani ayırıcı sahnenin
+  içine fazla bağırmaz.
+- Solid divider arka planda `bg(...)` ile çizilir.
+- Dashed divider ise `canvas(...)` ve
+  `PathBuilder::stroke(px(1.)).dash_array(...)` kullanılarak çizilir; bu
+  yüzden solid'e göre daha pahalı bir çizim yapar.
+- Horizontal divider geometri olarak `h_px().w_full()`, vertical divider ise
+  `w_px().h_full()` kullanır.
+- `.inset()` çağrısı horizontal divider'da `mx_1p5()`, vertical divider'da
+  `my_1p5()` ekler; yani kenarlardan içeri çekme davranışı sağlar.
+- Vertical divider'ın görünür olabilmesi için parent container'ın belirli
+  bir yüksekliği olmalı veya yüksekliği içerikten otomatik türetilmelidir;
+  aksi halde dikey çizgi 0 boy alıp kaybolur.
 
 Örnek:
 
@@ -233,23 +264,29 @@ fn render_split_toolbar() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
 - `../zed/crates/settings_ui/src/settings_ui.rs`: section alt border'ları.
 - `../zed/crates/recent_projects/src/recent_projects.rs`: proje grupları ve
   toolbar ayrımları.
-- `../zed/crates/git_ui/src/project_diff.rs`: diff toolbar vertical divider'ları.
+- `../zed/crates/git_ui/src/project_diff.rs`: diff toolbar üzerindeki dikey
+  divider'lar.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Divider layout değil, görsel ayrımdır. Çok sık kullanıldığında UI kalabalık
-  görünür; section hiyerarşisi için önce spacing ve başlık kullanın.
-- Dashed divider özel canvas çizimi yapar. Basit ayrım için solid divider daha
-  ucuz ve tutarlıdır.
+- Divider bir layout aracı değildir; tamamen görsel bir ayrım için vardır.
+  Çok sık kullanıldığında UI hızla kalabalıklaşır; section hiyerarşisini
+  öncelikle spacing ve başlıklar üzerinden kurmak daha sade bir sonuç
+  verir, divider en son ihtiyaç hâline getirilir.
+- Dashed divider, kesik çizgi efektini elde edebilmek için özel bir canvas
+  çizimi yapar. Basit bir ayrım yeterliyse solid divider hem daha ucuz hem
+  de görsel olarak daha tutarlı bir seçimdir.
 
 ## Layout Kompozisyon Örnekleri
 
-Panel iskeleti:
+Panel iskeleti, üstte bir başlık satırı, altında bir ayırıcı ve geri kalan
+alanı dolduran bir içerik bölgesi içerir. Aşağıdaki örnek bu üç parçayı
+nasıl bir araya getirebileceğini gösterir:
 
 ```rust
 use ui::prelude::*;
@@ -275,7 +312,10 @@ fn render_panel_shell(title: SharedString) -> impl IntoElement {
 }
 ```
 
-Inline metadata:
+Inline metadata için ise küçük bir ikon, bir branch adı ve bir ahead sayacı
+gibi yan yana duran küçük parçaları bir `h_group_sm()` içinde toplamak
+yeterlidir. Bu örnek, group helper'larının küçük ölçekli inline
+kompozisyonlarda nasıl rahat bir okuma sağladığını ortaya koyar:
 
 ```rust
 use ui::prelude::*;
@@ -288,4 +328,3 @@ fn render_branch_metadata(branch: SharedString, ahead: usize) -> impl IntoElemen
         .child(Label::new(format!("ahead {ahead}")).size(LabelSize::Small).color(Color::Muted))
 }
 ```
-

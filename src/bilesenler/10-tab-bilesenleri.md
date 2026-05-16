@@ -1,66 +1,74 @@
 # 10. Tab Bileşenleri
 
-Tab bileşenleri yatay navigation yüzeyi kurmak için kullanılır. `Tab`, tek bir
-tab satırını çizer; `TabBar`, bu tabları start/end action alanları ve yatay scroll
-container'ı içinde düzenler. Seçili tab, aktif index, close davranışı ve tabların
-pozisyonu view state'i tarafından hesaplanmalıdır.
+Tab bileşenleri yatay bir navigation yüzeyi kurmak için kullanılır.
+`Tab` tek bir tab satırını çizer; `TabBar` ise bu tabları, soldaki ve
+sağdaki action alanlarıyla ve yatay scroll container'ıyla birlikte
+düzenler. Seçili tab, aktif index, close davranışı ve tabların pozisyonu
+gibi bilgilerin view state'i tarafından hesaplanması beklenir; tab
+bileşenleri bu bilgiyi kendiliğinden üretmez.
 
-Genel seçim rehberi:
+Hangi durumda hangisinin kullanılacağına dair kısa bir özet:
 
-- Tek tab yüzeyi için `Tab`.
-- Tab koleksiyonunu, soldaki/sağdaki toolbar kontrollerini ve yatay scroll
-  alanını bir arada çizmek için `TabBar`.
-- Dosya/editor sekmeleri gibi bitişik border davranışı önemliyse her tab için
-  doğru `TabPosition` verin.
-- Tab içeriğinde icon, dirty indicator veya close/pin butonu gerekiyorsa
-  `start_slot(...)` ve `end_slot(...)` kullanın.
+- Tek bir tab yüzeyi için `Tab` yeterlidir.
+- Tab koleksiyonu, soldaki/sağdaki toolbar kontrolleri ve yatay scroll
+  alanını birlikte çizmek gerekiyorsa `TabBar` doğru üst yapıdır.
+- Dosya veya editor sekmeleri gibi bitişik border davranışının önemli
+  olduğu durumlarda, her tab için doğru `TabPosition` değerinin
+  verilmesi gerekir.
+- Tab içeriğinde icon, dirty indicator veya close/pin butonu gerektiğinde
+  `start_slot(...)` ve `end_slot(...)` yardımcıları devreye girer.
 
 ## Tab
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/tab.rs`
-- Export: `ui::Tab`, `ui::TabPosition`, `ui::TabCloseSide`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for Tab`
+- Export: `ui::Tab`, `ui::TabPosition`, `ui::TabCloseSide`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for Tab`.
 
 Ne zaman kullanılır:
 
-- Editor, pane, preview veya ayar ekranında yatay sekme satırı çizmek için.
+- Editor, pane, preview veya ayar ekranında yatay bir sekme satırı
+  çizilirken.
 - Seçili ve seçili olmayan tabların Zed tema renkleriyle uyumlu görünmesi
   gerektiğinde.
-- Tabın solunda status/icon, sağında close/pin/action butonu gerektiğinde.
+- Tabın solunda bir status veya icon, sağında close/pin gibi action
+  butonu bulunması istendiğinde.
 
 Ne zaman kullanılmaz:
 
-- Segmented control veya mod seçici için `ToggleButtonGroup` daha doğru.
-- İçerik değiştirmeyen basit toolbar eylemleri için `Button` veya `IconButton`
-  kullanın.
-- Dikey navigation için `ListItem` / `TreeViewItem` daha uygundur.
+- Bir segmented control veya mod seçici için `ToggleButtonGroup` daha
+  doğru bir araçtır.
+- İçeriği değiştirmeyen basit toolbar eylemleri için `Button` veya
+  `IconButton` yeterlidir.
+- Dikey bir navigation için `ListItem` veya `TreeViewItem` daha uygundur.
 
 Temel API:
 
-- Constructor: `Tab::new(id)`
+- Constructor: `Tab::new(id)`.
 - Builder'lar: `.position(TabPosition)`, `.close_side(TabCloseSide)`,
-  `.start_slot(...)`, `.end_slot(...)`, `.toggle_state(bool)`
-- Ölçü helper'ları: `Tab::content_height(cx)`, `Tab::container_height(cx)`
-- `TabPosition`: `First`, `Middle(Ordering)`, `Last`
-- `TabCloseSide`: `Start`, `End`
-- `InteractiveElement` ve `StatefulInteractiveElement` implement ettiği için
-  `.on_click(...)`, drag/drop ve tooltip gibi GPUI interactivity builder'ları
-  kullanılabilir.
+  `.start_slot(...)`, `.end_slot(...)`, `.toggle_state(bool)`.
+- Ölçü yardımcıları: `Tab::content_height(cx)`,
+  `Tab::container_height(cx)`.
+- `TabPosition`: `First`, `Middle(Ordering)`, `Last`.
+- `TabCloseSide`: `Start`, `End`.
+- `InteractiveElement` ve `StatefulInteractiveElement` implement eder; bu
+  sayede `.on_click(...)`, drag/drop ve tooltip gibi GPUI interactivity
+  builder'ları doğrudan kullanılabilir.
 
 Davranış:
 
 - `RenderOnce`, `Toggleable` ve `ParentElement` implement eder.
-- `toggle_state(true)` aktif tab renklerini ve border düzenini seçer.
-- `TabPosition` aktif tab çevresindeki border'ları belirler. `Middle(Ordering)`
-  içindeki `Ordering`, tabın seçili taba göre solunda mı sağında mı olduğunu
-  anlatır.
-- `close_side(TabCloseSide::Start)`, start ve end slotların görsel tarafını
-  değiştirir. Workspace tablarında close butonunun sol/sağ ayarı bu yolla
-  uygulanır.
-- Child içerik `text_color(...)` atanmış bir `h_flex` içinde çizilir.
+- `toggle_state(true)`, aktif tab renklerini ve border düzenini seçer.
+- `TabPosition` aktif tab çevresindeki border'ları belirler.
+  `Middle(Ordering)` içindeki `Ordering`, ilgili tabın seçili taba göre
+  solda mı yoksa sağda mı olduğunu anlatır; bu bilgi border'ın hangi
+  tarafta görüneceğini etkiler.
+- `close_side(TabCloseSide::Start)` çağrısı, start ve end slot'ların
+  görsel tarafını değiştirir. Workspace sekmelerinde close butonunun sol
+  ya da sağ tarafta görünmesi bu seçim üzerinden uygulanır.
+- Child içerik, `text_color(...)` atanmış bir `h_flex` içinde çizilir.
 
 Örnek:
 
@@ -109,66 +117,81 @@ impl EditorTabs {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/workspace/src/pane.rs`: editor/pane tab render'ı, close side,
-  drag/drop, pinned tab ve sağ tık context menu davranışları.
+- `../zed/crates/workspace/src/pane.rs`: editor/pane tab render'ı; close
+  side, drag/drop, pinned tab ve sağ tık context menu davranışlarıyla
+  birlikte uygulanır.
 - Component preview: `../zed/crates/ui/src/components/tab.rs`.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `Tab` kendi başına aktif tabı değiştirmez. Click handler içinde view state'ini
-  güncelleyin ve `cx.notify()` çağırın.
-- `TabPosition` verilmezse varsayılan `First` olur; çoklu tab bar içinde her tab
-  için doğru pozisyonu hesaplayın.
-- Close butonu gibi `end_slot` kontrolleri için ayrı, stable id kullanın.
-- Tab label'ının aktif/pasif text rengini doğrudan miras almasını istiyorsanız
-  basit string child kullanın. Özel label/truncation gerektiğinde renk davranışını
-  ayrıca kontrol edin.
-- `Tab::new("")` gibi boş id yalnızca özel render proxy'lerinde kullanılmalı;
-  normal listelerde stable id tercih edin.
+- `Tab`, kendi başına aktif tabı değiştirmez. Click handler içinde view
+  state'in güncellenmesi ve ardından `cx.notify()` çağrılması gerekir.
+- `TabPosition` verilmediğinde varsayılan değer `First` olur; bu yüzden
+  çoklu bir tab bar içinde her tab için doğru pozisyonun hesaplanması
+  gerekir, aksi halde border'lar tutarsız görünür.
+- Close butonu gibi `end_slot` kontrolleri için ayrı ve stabil bir id
+  kullanılması beklenir; aksi halde tıklamalar yanlış elemana
+  yönlendirilebilir.
+- Tab label'ının aktif veya pasif text rengini doğrudan miras almasını
+  istemek gerekiyorsa, basit bir string child kullanmak yeterlidir. Özel
+  label veya truncation gerektiğinde renk davranışının ayrıca kontrol
+  edilmesi gerekir.
+- `Tab::new("")` gibi boş bir id yalnızca özel render proxy'lerinde
+  kullanılır. Normal listelerde stabil bir id tercih edilir.
 
 ## TabBar
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/tab_bar.rs`
-- Export: `ui::TabBar`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for TabBar`
+- Export: `ui::TabBar`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for TabBar`.
 
 Ne zaman kullanılır:
 
-- Birden fazla `Tab` öğesini ortak tab bar yüzeyinde göstermek için.
-- Tabların solunda navigation/history, sağında create/settings gibi toolbar
-  eylemleri gerekiyorsa.
-- Tab listesi yatayda taşabilir ve scroll state'i takip edilecekse.
+- Birden fazla `Tab` öğesinin ortak bir tab bar yüzeyinde gösterilmesi
+  istendiğinde.
+- Tabların solunda navigation veya history, sağında create veya settings
+  gibi toolbar eylemleri yer alacaksa.
+- Tab listesi yatayda taşma riski taşıyorsa ve scroll state'inin takip
+  edilmesi gerekiyorsa.
 
 Ne zaman kullanılmaz:
 
-- Tek bir segment kontrol veya küçük mod seçici için `ToggleButtonGroup`.
-- Dikey navigation veya tree için `List` / `TreeViewItem`.
+- Tek bir segment kontrol veya küçük bir mod seçici için
+  `ToggleButtonGroup` çok daha doğru bir tercihtir.
+- Dikey bir navigation veya tree için `List` veya `TreeViewItem` daha
+  uygundur.
 
 Temel API:
 
-- Constructor: `TabBar::new(id)`
+- Constructor: `TabBar::new(id)`.
 - Builder'lar: `.track_scroll(&ScrollHandle)`, `.start_child(...)`,
-  `.start_children(...)`, `.end_child(...)`, `.end_children(...)`
+  `.start_children(...)`, `.end_child(...)`, `.end_children(...)`.
 - Düşük seviye mutator'lar: `.start_children_mut() -> &mut SmallVec<[AnyElement;
-  2]>` ve `.end_children_mut() -> &mut SmallVec<[AnyElement; 2]>` builder
-  zinciri dışında, parent state içinden start/end slot listesini elle
-  değiştirmek istediğinizde kullanılır. Normal kompozisyonda tercih edilmez.
-- `ParentElement` implement eder; tablar `.child(...)` / `.children(...)` ile
-  orta scroll alanına eklenir.
+  2]>` ve `.end_children_mut() -> &mut SmallVec<[AnyElement; 2]>`. Bunlar
+  builder zinciri dışında, parent state içinden start veya end slot
+  listesinin elle değiştirilmesi gerektiğinde kullanılır. Normal
+  kompozisyonda tercih edilmezler.
+- `ParentElement` implement eder; tablar `.child(...)` veya
+  `.children(...)` ile orta scroll alanına eklenir.
 
 Davranış:
 
 - `RenderOnce` implement eder.
-- Start children varsa sol tarafta border'lı, flex-none bir alan oluşturur.
-- Orta tab alanı `overflow_x_scroll()` kullanan `h_flex` içinde render edilir.
-- End children varsa sağ tarafta border'lı, flex-none bir alan oluşturur.
-- `.track_scroll(...)` internal tab scroll container'ına scroll handle bağlar.
-- TabBar, çocuk tabların `TabPosition` veya selected state'ini hesaplamaz.
+- Start children varsa, sol tarafta border'lı ve flex-none bir alan
+  oluşturulur.
+- Orta tab alanı `overflow_x_scroll()` kullanan bir `h_flex` içinde
+  render edilir.
+- End children varsa, sağ tarafta border'lı ve flex-none bir alan
+  oluşturulur.
+- `.track_scroll(...)`, internal tab scroll container'ına bir scroll
+  handle bağlar.
+- TabBar, çocuk tabların `TabPosition` veya selected state'ini
+  hesaplamaz; bu sorumluluk view tarafına aittir.
 
 Örnek:
 
@@ -226,24 +249,27 @@ fn render_editor_tab_bar(active: usize) -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
-- `../zed/crates/workspace/src/pane.rs`: tek satır, pinned/unpinned ve iki satırlı
-  tab bar kompozisyonları.
+- `../zed/crates/workspace/src/pane.rs`: tek satır, pinned/unpinned ve
+  iki satırlı tab bar kompozisyonları.
 - Component preview: `../zed/crates/ui/src/components/tab_bar.rs`.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Start/end children tab scroll alanına dahil değildir; navigation ve global tab
-  eylemleri için uygundurlar.
-- Tabların taşması bekleniyorsa `ScrollHandle` view state'inde saklanıp
-  `.track_scroll(...)` ile bağlanmalıdır.
-- Pinned ve unpinned tabları ayrı satırda göstermek gerekiyorsa iki ayrı
-  `TabBar` compose edin; kaynakta workspace pane bu yaklaşımı kullanır.
+- Start ve end children, tab scroll alanına dahil değildir. Bu yüzden
+  navigation ve global tab eylemleri için uygundur; tabların kendisiyle
+  karışmadan ayrı bir alanda yaşar.
+- Tabların taşması bekleniyorsa, bir `ScrollHandle` view state'inde
+  saklanır ve `.track_scroll(...)` ile bağlanır.
+- Pinned ile unpinned tabları ayrı satırlarda göstermek gerekiyorsa,
+  iki ayrı `TabBar` compose edilir. Kaynakta workspace pane tam olarak
+  bu yaklaşımı kullanır.
 
 ## Tab Kompozisyon Örnekleri
 
-Close butonu solda olan tab:
+Aşağıdaki örnek close butonu solda kalan bir tab gösterir. `TabCloseSide::Start`
+seçildiğinde start slot ile end slot'un görsel tarafları yer değiştirir:
 
 ```rust
 use ui::prelude::*;
@@ -263,7 +289,8 @@ fn render_left_close_tab() -> impl IntoElement {
 }
 ```
 
-Scroll handle bağlanan tab bar:
+Scroll handle bağlanmış bir tab bar örneğinde ise scroll davranışı view
+state'inde tutulan bir `ScrollHandle` üzerinden yönetilir:
 
 ```rust
 use gpui::ScrollHandle;
@@ -283,4 +310,3 @@ impl Render for ScrollableTabs {
     }
 }
 ```
-

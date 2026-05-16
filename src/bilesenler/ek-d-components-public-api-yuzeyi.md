@@ -1,12 +1,20 @@
 # Ek D. `crates/ui/src/components` Public API Yüzeyi
 
-Kaynak: `../zed` commit `3493830ce94ee1fa9d25ca92dcf23b502109fe07`.
-`pub(crate)`, `pub(super)` ve `pub(in ...)` kapsam dışıdır. Trait metotları
-public trait sözleşmesi olduğu için ayrıca listelenir. Private modül içinde
-`pub` görünen sealed adlar dış crate API'si değildir; ilgili satırda özellikle
-"private/sealed" olarak işaretlenir.
-`Öğeler` satırındaki `use ...::*` kayıtları kaynakta `pub use ...::*` olarak
-geçen re-export kapılarıdır.
+Bu ek, `crates/ui/src/components` ağacındaki her dosyanın public API
+yüzeyini düz bir referans hâlinde toplar. Kaynak olarak `../zed` commit
+`3493830ce94ee1fa9d25ca92dcf23b502109fe07` alınmıştır.
+
+Listede dikkat edilecek birkaç nokta vardır:
+
+- `pub(crate)`, `pub(super)` ve `pub(in ...)` görünürlüğüne sahip
+  semboller kapsam dışıdır; yalnızca tam `pub` olanlar dahil edilir.
+- Trait metotları public trait sözleşmesinin bir parçası olduğu için
+  ayrıca listelenir.
+- Private modül içinde `pub` görünen sealed adlar, dış crate API'si
+  sayılmaz. Bu tür semboller ilgili satırda "private/sealed" olarak
+  işaretlenir.
+- `Öğeler` satırındaki `use ...::*` kayıtları, kaynakta
+  `pub use ...::*` olarak yer alan re-export kapılarıdır.
 
 ## `crates/ui/src/components.rs`
 - Öğeler: `use ai::*`; `use avatar::*`; `use banner::*`; `use button::*`; `use callout::*`; `use chip::*`; `use collab::*`; `use context_menu::*`; `use count_badge::*`; `use data_table::*`; `use diff_stat::*`; `use disclosure::*`; `use divider::*`; `use dropdown_menu::*`; `use facepile::*`; `use gradient_fade::*`; `use group::*`; `use icon::*`; `use image::*`; `use indent_guides::*`; `use indicator::*`; `use keybinding::*`; `use keybinding_hint::*`; `use label::*`; `use list::*`; `use modal::*`; `use navigable::*`; `use notification::*`; `use popover::*`; `use popover_menu::*`; `use progress::*`; `use project_empty_state::*`; `use redistributable_columns::*`; `use right_click_menu::*`; `use scrollbar::*`; `use stack::*`; `use sticky_items::*`; `use tab::*`; `use tab_bar::*`; `use toggle::*`; `use tooltip::*`; `use tree_view_item::*`

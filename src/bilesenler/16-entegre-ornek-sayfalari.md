@@ -1,52 +1,59 @@
 # 16. Entegre Örnek Sayfaları
 
-Bileşenleri tek tek doğru kullanmak yeterli değildir. Gerçek ekranlarda önemli
-olan, state'in hangi view'da tutulduğu, event'lerin hangi sınırdan geçtiği,
-asenkron işlerin nasıl izleneceği ve görsel state değişiminden sonra yeniden
-render'ın nasıl tetikleneceğidir.
+Bileşenleri tek tek doğru kullanmak yeterli değildir. Gerçek bir ekranda
+asıl önemli olan, state'in hangi view'da tutulduğu, event'lerin hangi
+sınırdan geçtiği, asenkron işlerin nasıl izleneceği ve görsel state
+değişiminden sonra yeniden render'ın nasıl tetikleneceğidir. Yani teker
+teker iyi anlaşılmış bileşenler, ancak bir araya geldiklerinde anlamlı
+bir uygulama parçasına dönüşür.
 
-Bu bölümdeki örnekler tam ekran uygulama değildir; kendi domain tiplerinizi,
-settings servislerinizi ve action tiplerinizi bağlayacağınız iskeletlerdir.
-Kullanılan component API'leri `../zed` çalışma ağacındaki kaynak dosyalara göre
-düzenlenmiştir.
+Bu bölümdeki örnekler birer tam ekran uygulama değildir; kendi domain
+tiplerinin, settings servislerinin ve action tiplerinin bağlanacağı
+iskeletlerdir. Kullanılan component API'leri `../zed` çalışma ağacındaki
+kaynak dosyalara göre düzenlenmiştir.
 
 Ortak uygulama kuralları:
 
-- View'a ait geçici UI state'i view struct'ında tutun: seçili satır, açık menü,
-  pending async task, hata mesajı, progress değeri.
-- Paylaşılan veya servis kaynaklı state'i doğrudan component içinde saklamayın;
-  render sırasında component'e label, status, icon, callback ve metadata olarak
-  aktarın.
-- View state'i değiştiren handler'larda `cx.listener(...)` kullanın. Bu sayede
-  closure view instance'ına güvenli şekilde ulaşır.
-- Görsel state değiştiğinde `cx.notify()` çağırın. Özellikle `selected`,
-  `expanded`, `saving`, `error`, `progress` ve hover dışı custom state'lerde
-  bunu atlamayın.
-- Tamamlanması izlenecek asenkron işleri `Task` alanında saklayın. Sonucu UI'ı
-  değiştirmeyen fire-and-forget işler için `.detach_and_log_err(cx)` kullanın.
-- Menü içeriklerini `ContextMenu::build(...)` içinde oluşturun; menünün
-  açılmasını `PopoverMenu` veya `right_click_menu(...)` gibi taşıyıcı
-  bileşenlerle bağlayın.
+- View'a ait geçici UI state'i view struct'ında tutulur: seçili satır,
+  açık menü, pending async task, hata mesajı, progress değeri gibi
+  alanlar burada yer alır.
+- Paylaşılan veya servis kaynaklı bir state doğrudan component içinde
+  saklanmaz; bunun yerine render sırasında component'e label, status,
+  icon, callback ve metadata olarak aktarılır.
+- View state'i değiştiren handler'larda `cx.listener(...)` kullanılır.
+  Bu sayede closure view instance'ına güvenli bir şekilde ulaşır.
+- Görsel sonucu olan bir state değişiminden sonra `cx.notify()` çağrısı
+  yapılır. Özellikle `selected`, `expanded`, `saving`, `error`,
+  `progress` gibi alanlarda bunu atlamamak gerekir.
+- Tamamlanması izlenmesi gereken asenkron işler bir `Task` alanında
+  saklanır. UI'ı değiştirmeyen fire-and-forget bir iş içinse
+  `.detach_and_log_err(cx)` tercih edilir.
+- Menü içerikleri `ContextMenu::build(...)` içinde oluşturulur ve
+  menünün açılması `PopoverMenu` veya `right_click_menu(...)` gibi
+  taşıyıcı bir bileşene bağlanır.
 
 ## Ayarlar Paneli Satırı
 
-Bu örnekte `Headline`, `Label`, `SwitchField`, `Button` ve `Callout` tek bir
-ayar satırı içinde birlikte kullanılır.
+Bu örnekte `Headline`, `Label`, `SwitchField`, `Button` ve `Callout` tek
+bir ayar satırı içinde birlikte kullanılır.
 
-Neden birlikte:
+Neden bir arada:
 
-- `Headline` section başlığını verir.
-- `Label` ayarın adı ve açıklaması için hafif metin katmanıdır.
-- `SwitchField`, boolean ayarı erişilebilir bir toggle olarak yönetir.
+- `Headline`, section başlığını verir.
+- `Label`, ayarın adı ve açıklaması için hafif bir metin katmanı sağlar.
+- `SwitchField`, boolean bir ayarı erişilebilir bir toggle olarak
+  yönetir.
 - `Button`, elle kaydetme veya reset gibi komutları taşır.
-- `Callout`, satırın altındaki hata, uyarı veya açıklayıcı aksiyonu gösterir.
+- `Callout`, satırın altında bir hata, uyarı veya açıklayıcı bir
+  aksiyon olarak görünür.
 
 State:
 
 - `format_on_save`: switch'in render state'i.
-- `saving`: button disable ve progress metni için geçici state.
-- `last_error`: yalnızca hata olduğunda `Callout` render edilir.
-- `_save_task`: ayar yazımı bitene kadar task'ın düşmemesi için tutulur.
+- `saving`: button'ı disable etmek ve progress metni için geçici state.
+- `last_error`: yalnızca bir hata varsa `Callout` render edilir.
+- `_save_task`: ayar yazımı bitene kadar task'ın drop edilmemesi için
+  saklanır.
 
 Örnek:
 
@@ -150,29 +157,34 @@ impl Render for EditorSettingsRow {
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `SwitchField::new(...)` callback'i yeni state'i `&ToggleState` olarak alır.
-  `ToggleState::selected()` indeterminate state'i `false` kabul eder; üç durumlu
-  bir ayarınız varsa `match` ile açık ele alın.
-- Switch state'i optimistik güncelleniyorsa hata durumunda eski değeri geri
-  yazın ve `cx.notify()` çağırın.
-- Uzun süren yazımlarda `Button` ve `SwitchField` disabled olmalı; aksi halde
-  aynı ayar için üst üste task başlatabilirsiniz.
+- `SwitchField::new(...)` callback'i yeni state'i bir `&ToggleState`
+  olarak alır. `ToggleState::selected()` indeterminate state'i `false`
+  olarak kabul eder; üç durumlu bir ayar söz konusu ise bir `match` ile
+  açık şekilde ele alınması gerekir.
+- Switch state'i optimistik olarak güncelleniyorsa, hata durumunda eski
+  değerin geri yazılması ve ardından `cx.notify()` çağrılması gerekir.
+- Uzun süren yazımlarda `Button` ile `SwitchField` disabled olmalıdır;
+  aksi halde aynı ayar için üst üste task başlatma riski oluşur.
 
 ## Toolbar ve Komut Menüsü
 
-Bu örnekte `Button`, `IconButton`, `SplitButton`, `PopoverMenu`, `ContextMenu`,
-`Tooltip` ve `KeybindingHint` aynı toolbar davranışını tamamlar.
+Bu örnekte `Button`, `IconButton`, `SplitButton`, `PopoverMenu`,
+`ContextMenu`, `Tooltip` ve `KeybindingHint` aynı toolbar davranışını
+birlikte tamamlar.
 
-Neden birlikte:
+Neden bir arada:
 
 - `Button` veya `ButtonLike`, birincil komutu taşır.
-- `IconButton`, compact komutlar ve menü tetikleyicileri için uygundur.
-- `SplitButton`, birincil eylem ile varyant menüsünü tek kontrol gibi gösterir.
+- `IconButton`, kompakt komutlar ve menü tetikleyicileri için
+  uygundur.
+- `SplitButton`, birincil eylem ile varyant menüsünü tek bir kontrol
+  gibi gösterir.
 - `PopoverMenu`, tetikleyici ile `ContextMenu` view'ını ilişkilendirir.
 - `Tooltip`, icon-only kontrollerin niyetini açıklar.
-- `KeybindingHint`, gerçek keymap'ten gelen shortcut bilgisini görünür kılar.
+- `KeybindingHint`, gerçek keymap'ten gelen shortcut bilgisini görünür
+  kılar.
 
 Örnek:
 
@@ -239,37 +251,44 @@ impl Render for CommandToolbar {
 }
 ```
 
-`KeybindingHint` için kural:
+`KeybindingHint` için pratik kurallar:
 
-- Shortcut'ı sabit string olarak yazmayın; mümkünse uygulamadaki action/keymap
-  çözümünden `ui::KeyBinding` üretin.
-- Hint'i toolbar'da her zaman göstermeyin. Komut palette, empty state veya
-  onboarding gibi bağlamlarda daha değerlidir.
-- Icon-only button varsa `Tooltip` zorunlu kabul edilmelidir; label'lı button'da
-  tooltip yalnızca ek bağlam sağlıyorsa kullanılmalıdır.
+- Shortcut sabit bir string olarak yazılmaz. Mümkün olduğunda
+  uygulamadaki action veya keymap çözümünden bir `ui::KeyBinding`
+  üretilir.
+- Hint her toolbar'da görünmek zorunda değildir. Asıl değerli olduğu
+  yerler komut palette, empty state veya onboarding gibi bağlamlardır.
+- Icon-only bir buton varsa `Tooltip` zorunlu kabul edilir; label'lı
+  bir buton üzerinde tooltip ise yalnızca ek bir bağlam sağlıyorsa
+  kullanılır.
 
 ## Proje Listesi
 
-Bu örnekte `List`, `ListItem`, `TreeViewItem`, `Disclosure`, `IndentGuides` ve
-`CountBadge` proje gezgini benzeri bir görünümde birlikte kullanılır.
+Bu örnekte `List`, `ListItem`, `TreeViewItem`, `Disclosure`,
+`IndentGuides` ve `CountBadge`, bir proje gezgini benzeri görünümde
+birlikte çalışır.
 
-Neden birlikte:
+Neden bir arada:
 
-- `List`, liste container'ı ve empty state davranışını sağlar.
-- `ListItem`, satır slot'ları, selected state ve secondary click için uygundur.
-- `TreeViewItem`, dosya ağacı gibi expand/collapse ve focus davranışı olan
-  satırlarda kullanılır.
-- `Disclosure`, özel satır layout'larında aç/kapat icon'unu ayırır.
-- `IndentGuides`, virtualization kullanılan ağaç listelerinde girinti çizgilerini
-  hesaplama/render sürecine bağlanır.
-- `CountBadge`, klasör veya filtre sonucundaki sayıları kompakt gösterir.
+- `List`, liste container'ı ve empty state davranışı için temel yapıdır.
+- `ListItem`, satır slot'larını, selected state'i ve secondary click'i
+  destekler.
+- `TreeViewItem`, dosya ağacı gibi expand veya collapse ile focus
+  davranışı olan satırlarda kullanılır.
+- `Disclosure`, özel satır layout'larında aç/kapat ikonunu ayrı bir
+  parça olarak yerleştirmeye yarar.
+- `IndentGuides`, virtualization kullanan ağaç listelerinde girinti
+  çizgilerini hesaplama ve render sürecine bağlar.
+- `CountBadge`, bir klasör veya filtre sonucundaki sayıları kompakt
+  biçimde gösterir.
 
 State:
 
 - `expanded_project_ids`: hangi root veya klasörlerin açık olduğu.
-- `selected_path`: tek seçili proje/dosya yolu.
+- `selected_path`: tek seçili proje veya dosya yolu.
 - `pending_context_menu_path`: sağ tık menüsü açılırken kullanılan yol.
-- Büyük listelerde scroll ve virtualization state'i component dışında kalmalıdır.
+- Büyük listelerde scroll ve virtualization state'i bileşenlerin dışında
+  tutulur.
 
 Örnek:
 
@@ -363,37 +382,39 @@ impl Render for ProjectList {
 }
 ```
 
-`IndentGuides` notu:
+`IndentGuides` notları:
 
-- `IndentGuides`, düz `List` içine otomatik çizgi eklemez. `uniform_list` veya
-  sticky item decoration bağlamında `indent_guides(indent_size, colors)` ile
-  kullanılır.
-- Girinti hesabı için `with_compute_indents_fn(...)`, özel çizim için
-  `with_render_fn(...)` bağlayın.
-- Girinti state'i satır verisinden türetilmelidir; her satırda ayrı ayrı çizgi
-  elementleri üretmek büyük ağaçlarda gereksiz maliyet yaratır.
+- `IndentGuides`, düz bir `List` içine otomatik olarak çizgi eklemez.
+  `uniform_list` veya sticky item decoration bağlamında
+  `indent_guides(indent_size, colors)` çağrısıyla kullanılır.
+- Girinti hesabı için `with_compute_indents_fn(...)`, özel bir çizim
+  için ise `with_render_fn(...)` bağlanır.
+- Girinti state'i satır verisinden türetilmelidir. Her satırda ayrı
+  ayrı çizgi elemanları üretmek, büyük ağaçlarda gereksiz bir maliyet
+  yaratır.
 
 ## Veri Tablosu
 
-Bu örnekte `Table`, `TableInteractionState`, `RedistributableColumnsState`,
-`Indicator` ve `ProgressBar` birlikte kullanılır.
+Bu örnekte `Table`, `TableInteractionState`,
+`RedistributableColumnsState`, `Indicator` ve `ProgressBar` birlikte
+kullanılır.
 
-Neden birlikte:
+Neden bir arada:
 
-- `Table`, satır/sütun düzenini ve header davranışını sağlar.
-- `TableInteractionState`, scroll ve focus state'ini view dışında tutulabilir
-  hale getirir.
-- `RedistributableColumnsState`, sabit toplam genişlik içinde kullanıcıya sütun
-  yeniden dağıtımı verir.
+- `Table`, satır ve sütun düzenini, header davranışını sağlar.
+- `TableInteractionState`, scroll ve focus state'ini view dışında
+  tutulabilir hâle getirir.
+- `RedistributableColumnsState`, sabit bir toplam genişlik içinde
+  kullanıcıya sütun yeniden dağıtımı seçeneği verir.
 - `Indicator`, satırdaki kısa status bilgisini gösterir.
 - `ProgressBar`, tabloyu besleyen async işlerin ilerlemesini gösterir.
 
 State:
 
-- `interaction_state: Entity<TableInteractionState>`
-- `columns_state: Entity<RedistributableColumnsState>`
-- `rows: Vec<RowVm>`
-- `sync_progress: Option<(f32, f32)>`
+- `interaction_state: Entity<TableInteractionState>`.
+- `columns_state: Entity<RedistributableColumnsState>`.
+- `rows: Vec<RowVm>`.
+- `sync_progress: Option<(f32, f32)>`.
 
 Örnek:
 
@@ -480,29 +501,33 @@ fn new(cx: &mut Context<PackageTable>) -> PackageTable {
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `Table::row(...)` küçük ve sabit listeler için yeterlidir. Büyük veri setinde
-  `uniform_list(...)` veya `variable_row_height_list(...)` kullanın.
-- `RedistributableColumnsState::new(cols, widths, resize_behavior)` içindeki
-  `cols`, width sayısı ve resize behavior sayısı aynı olmalıdır.
-- Progress değeri değiştiğinde `sync_progress` güncellenmeli ve `cx.notify()`
-  çağrılmalıdır.
+- `Table::row(...)` küçük ve sabit listeler için yeterlidir. Büyük bir
+  veri setinde `uniform_list(...)` veya `variable_row_height_list(...)`
+  kullanılır.
+- `RedistributableColumnsState::new(cols, widths, resize_behavior)`
+  içinde `cols`, width sayısı ve resize behavior sayısı birbirine eşit
+  olmalıdır.
+- Progress değeri değiştiğinde `sync_progress` güncellenir ve hemen
+  ardından `cx.notify()` çağrılır.
 
 ## Bildirim Merkezi
 
-Bu örnekte `Notification` yaşam döngüsü, `NotificationFrame`,
-`AnnouncementToast`, `Banner`, `AlertModal` ve `Button` birlikte düşünülür.
+Bu örnekte bir notification yaşam döngüsü ile birlikte
+`NotificationFrame`, `AnnouncementToast`, `Banner`, `AlertModal` ve
+`Button` birlikte düşünülür.
 
-Neden birlikte:
+Neden bir arada:
 
-- `Banner`, ekran veya panel üstündeki non-blocking duyuruyu gösterir.
-- `NotificationFrame`, workspace notification stack'inde başlık, içerik, close
-  ve suppress davranışını çerçeveler.
-- `AnnouncementToast`, ürün duyurusu veya yeni özellik tanıtımı için hazır
-  layout sağlar.
-- `AlertModal`, kısa ve blocking karar anlarında kullanılır.
-- `Button`, banner, toast ve modal action yüzeyini tamamlar.
+- `Banner`, ekran veya panel üstündeki non-blocking bir duyuruyu
+  gösterir.
+- `NotificationFrame`, workspace notification stack'inde başlığı,
+  içeriği, close ve suppress davranışını birlikte çerçeveler.
+- `AnnouncementToast`, ürün duyurusu veya yeni özellik tanıtımı için
+  hazır bir layout sağlar.
+- `AlertModal`, kısa ve blocking bir karar anında devreye girer.
+- `Button`, banner, toast ve modal action yüzeylerinin tamamlayıcısıdır.
 
 Örnek:
 
@@ -575,28 +600,34 @@ impl Render for NotificationCenterPreview {
 
 Notification yaşam döngüsü:
 
-- Workspace notification stack'e girecek view, `workspace::notifications::Notification`
+- Workspace notification stack'e girecek bir view, `workspace::notifications::Notification`
   trait sınırını karşılamalıdır: `Render`, `Focusable`,
-  `EventEmitter<DismissEvent>` ve `EventEmitter<SuppressEvent>`.
-- Dismiss veya suppress state'i component içinde unutulmamalı; kullanıcı tercihi
-  kalıcıysa settings/KV store tarafına yazılmalıdır.
-- Blocking karar gerekmiyorsa `AlertModal` yerine `Banner` veya
-  `NotificationFrame` kullanın.
+  `EventEmitter<DismissEvent>` ve `EventEmitter<SuppressEvent>`
+  birlikte beklenir.
+- Dismiss veya suppress state'i bileşen içinde unutulmaz. Kullanıcı
+  tercihi kalıcı olarak saklanacaksa, settings veya bir KV store
+  tarafında tutulması gerekir.
+- Bloklayıcı bir karar gerekmiyorsa, `AlertModal` yerine bir `Banner`
+  veya `NotificationFrame` çok daha uygun bir seçim olur.
 
 ## AI Sağlayıcı Kartları
 
 Bu örnekte `ConfiguredApiCard`, `AiSettingItem`, `AgentSetupButton`,
-`ThreadItem` ve `UpdateButton` aynı AI ayar alanında birlikte kullanılır.
+`ThreadItem` ve `UpdateButton` aynı AI ayar alanında birlikte
+kullanılır.
 
-Neden birlikte:
+Neden bir arada:
 
-- `AiSettingItem`, agent/provider satırının status ve kaynak bilgisini taşır.
-- `ConfiguredApiCard`, credential var/yok state'ini güvenli, kısa bir kartla
-  gösterir.
-- `AgentSetupButton`, provider veya agent kurulumu için action satırı sağlar.
-- `ThreadItem`, son agent oturumlarını listelemek için domain'e özel satırdır.
-- `UpdateButton`, AI alanının dışındaki update/collab özel durumlarında da aynı
-  compact status/action modelini gösterir.
+- `AiSettingItem`, bir agent veya provider satırının status ve kaynak
+  bilgisini taşır.
+- `ConfiguredApiCard`, credential var/yok state'ini güvenli ve kısa bir
+  kartla gösterir.
+- `AgentSetupButton`, bir provider veya agent kurulumu için action
+  satırı sağlar.
+- `ThreadItem`, son agent oturumlarını listelemek için domain'e özel
+  bir satır sunar.
+- `UpdateButton`, AI alanının dışında bir update veya collab özel
+  durumu yaşandığında da aynı kompakt status/action modelini gösterir.
 
 Örnek:
 
@@ -676,27 +707,32 @@ impl Render for AiProviderPanel {
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Provider secret veya token değerini component'e vermeyin. `ConfiguredApiCard`
-  yalnızca "configured" state'ini ve reset action'ını taşır.
-- `AiSettingItemStatus::Authenticating` ve `AuthRequired` gibi state'leri servis
-  state'inden türetin; kullanıcı tıklamasıyla optimistic olarak değiştirmeyin.
-- `ThreadItem` action slot'unda destructive action varsa tooltip ve confirm
-  akışı ekleyin.
+- Provider secret veya token değerleri bir component'e verilmez.
+  `ConfiguredApiCard` yalnızca "configured" state'ini ve reset action'ını
+  taşıdığı için bu sınır net şekilde korunur.
+- `AiSettingItemStatus::Authenticating` ve `AuthRequired` gibi
+  state'ler servis state'inden türetilmelidir; kullanıcı tıklamasıyla
+  optimistik olarak değiştirilmesi yanıltıcı olabilir.
+- `ThreadItem` action slot'unda destructive bir action varsa, tooltip
+  ve onay akışının eklenmesi gerekir.
 
 ## Collaboration Özeti
 
-Bu örnekte `Avatar`, `Facepile`, `CollabNotification`, `DiffStat` ve `Chip`
-collaboration özet alanında birlikte kullanılır.
+Bu örnekte `Avatar`, `Facepile`, `CollabNotification`, `DiffStat` ve
+`Chip` bir collaboration özet alanında birlikte kullanılır.
 
-Neden birlikte:
+Neden bir arada:
 
-- `Avatar`, tek kullanıcı veya çağrı katılımcısını gösterir.
-- `Facepile`, aktif collaborator grubunu az yer kaplayarak gösterir.
-- `CollabNotification`, davet veya paylaşım aksiyonu için hazır layout verir.
+- `Avatar`, tek bir kullanıcıyı veya çağrı katılımcısını gösterir.
+- `Facepile`, aktif collaborator grubunu az yer kaplayarak bir arada
+  sunar.
+- `CollabNotification`, bir davet veya paylaşım aksiyonu için hazır bir
+  layout verir.
 - `DiffStat`, collaboration sırasında değişen satır sayısını özetler.
-- `Chip`, branch, role, room veya permission gibi kısa metadata'yı taşır.
+- `Chip`, branch, role, room veya permission gibi kısa metadata'yı
+  taşır.
 
 Örnek:
 
@@ -734,88 +770,101 @@ fn render_collab_summary() -> impl IntoElement {
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `Facepile` içinde avatar boyutlarını aynı tutun; karışık boyut overlap
-  hizasını bozar.
-- `DiffStat` sadece özet sayı içindir. Dosya bazlı diff gerekiyorsa ayrı liste
-  veya diff viewer kullanın.
-- `CollabNotification` accept/dismiss davranışını kendi başına yönetmez; iki
-  `Button`'ın handler'larını notification lifecycle'a bağlayın.
+- `Facepile` içinde avatar boyutlarının aynı tutulması beklenir; karışık
+  boyutlar overlap hizasını bozar.
+- `DiffStat` yalnızca özet bir sayı için tasarlanmıştır. Dosya bazlı bir
+  diff gerekiyorsa ayrı bir liste veya diff viewer kullanılır.
+- `CollabNotification` accept ve dismiss davranışını kendi içinde
+  yönetmez; iki `Button`'ın handler'larının notification lifecycle'ına
+  bağlanması gerekir.
 
 ## Uyum Kontrol Listesi
 
-Bir ekranı kendi uygulamanıza taşırken şu sırayla kontrol edin:
+Bir ekran kendi uygulamana taşınırken aşağıdaki sıranın izlenmesi işe
+yarar:
 
-- Her state alanının sahibi belli mi: view, entity, servis store veya settings?
-- View state'i değiştiren bütün event handler'lar `cx.listener(...)` üzerinden mi?
-- Görsel sonucu olan state değişimlerinden sonra `cx.notify()` var mı?
-- Async iş sonucunda view hala yaşıyor mu diye `Entity`/`WeakEntity` update
-  sınırları doğru kullanılıyor mu?
+- Her state alanının sahibi belirli mi: view, entity, servis store
+  veya settings?
+- View state'i değiştiren bütün event handler'lar `cx.listener(...)`
+  üzerinden mi geçiyor?
+- Görsel sonucu olan state değişimlerinden sonra `cx.notify()` çağrısı
+  var mı?
+- Async iş sonucunda view hâlâ yaşıyor mu kontrolü için `Entity` veya
+  `WeakEntity` update sınırları doğru kullanılıyor mu?
 - Fire-and-forget task'lar `.detach_and_log_err(cx)` ile loglanıyor mu?
 - Menü içeriği render sırasında güncel state'ten mi kuruluyor?
-- Icon-only kontrollerde `Tooltip` var mı?
-- Shortcut gösterimi gerçek keymap/action çözümünden mi geliyor?
-- Büyük listelerde `List` yerine virtualization veya `Table::uniform_list(...)`
-  gibi uygun yüzey kullanıldı mı?
-- AI/collab domain bileşenlerine sadece render metadata'sı veriliyor mu, gizli
-  credential veya servis nesnesi taşınmıyor mu?
+- Icon-only kontrollerde bir `Tooltip` var mı?
+- Shortcut gösterimi gerçek keymap veya action çözümünden mi geliyor?
+- Büyük listelerde `List` yerine bir virtualization yapısı veya
+  `Table::uniform_list(...)` gibi uygun bir yüzey kullanıldı mı?
+- AI ve collab domain bileşenlerine yalnızca render metadata'sı mı
+  veriliyor, yoksa gizli credential veya servis nesnesi mi taşınıyor?
 
 ## Klavye Erişimi ve Action Akışı Kontrol Listesi
 
-GPUI'de bir ekranın klavye erişimi dört parçayla kurulur: focus, tab order,
-key context ve action dispatch. Bu parçalar `Navigable`, `Tooltip`, `KeyBinding`,
-`Button*`, `ListItem`, `ContextMenu` ve `AlertModal` gibi bileşenlerin builder
-yüzeyinde dağıtık olarak görülür. Bir ekran üretirken aşağıdaki sırayı izleyin:
+GPUI'de bir ekranın klavye erişimi dört parçayla kurulur: focus, tab
+order, key context ve action dispatch. Bu dört parça `Navigable`,
+`Tooltip`, `KeyBinding`, `Button*`, `ListItem`, `ContextMenu` ve
+`AlertModal` gibi bileşenlerin builder yüzeylerinde dağıtık olarak yer
+alır. Bir ekran üretirken aşağıdaki sıranın izlenmesi tutarlı bir sonuç
+verir:
 
-1. **Focus handle'ı tek noktada üretin.** View struct'ında
-   `focus_handle: FocusHandle` alanı tutun ve `Focusable` implement edin.
-   Modal/AlertModal kullanıyorsanız aynı handle'ı `.track_focus(&focus_handle)`
-   ile bağlayın.
+1. **Focus handle'ı tek bir noktada üretin.** View struct'ında bir
+   `focus_handle: FocusHandle` alanı tutulur ve view `Focusable`
+   implement eder. Modal veya AlertModal kullanılıyorsa aynı handle
+   `.track_focus(&focus_handle)` çağrısıyla bağlanır.
 2. **Tab order'ı `tab_index(...)` ile verin.** `Button`, `IconButton`,
    `ButtonLike`, `SwitchField`, `Switch`, `DropdownMenu`, `Disclosure`,
-   `Tab`, `ToggleButtonGroup`, `ConfiguredApiCard`, `TreeViewItem` ve `Table`
-   builder yüzeyleri `tab_index`'i (genellikle `&mut isize` veya `isize`)
-   kabul eder. Aynı form üzerinde tek bir counter geçirin; her builder counter'ı
-   kendi kullandığı kadar artırır.
-3. **`tab_stop`/`track_focus` ile özel focusable kurun.** `ListItem` gibi
-   yüksek seviyeli bileşenler odağı kendileri yönetir; özel `div()` veya
-   `h_flex()` üzerinde klavye odağı vermek için `.track_focus(&handle)` ve
-   gerektiğinde `.tab_index(...)` ekleyin. `NavigableEntry::focusable(cx)`
-   scroll anchor'sız focusable entry üretir.
-4. **`Navigable` ile up/down traversal kurun.** Scrollable listede
-   `menu::SelectNext` / `menu::SelectPrevious` action'ları `Navigable::new(...)
-   .entry(NavigableEntry::new(...))` bağlamasıyla doğru entry'ye scroll edip
-   focus eder.
-5. **`key_context(...)` ile bağlam zinciri kurun.** `AlertModal::key_context(...)`
-   ve `ContextMenu::key_context(...)`, modal veya menü içindeyken keymap'in
-   doğru bindings'i kullanmasını sağlar. Custom view'larda `cx.set_global` veya
-   element üzerinde `.key_context(KeyContext::new("MyView"))` kullanın.
+   `Tab`, `ToggleButtonGroup`, `ConfiguredApiCard`, `TreeViewItem` ve
+   `Table` builder yüzeyleri `tab_index`'i (genellikle `&mut isize`
+   veya `isize`) kabul eder. Aynı form üzerinde tek bir counter
+   geçirilir; her builder counter'ı kendi kullandığı kadar artırır.
+3. **`tab_stop` ve `track_focus` ile özel focusable kurun.** `ListItem`
+   gibi yüksek seviyeli bileşenler odağı kendileri yönetir; özel bir
+   `div()` veya `h_flex()` üzerinde klavye odağı vermek için
+   `.track_focus(&handle)` ve gerektiğinde `.tab_index(...)` eklenir.
+   `NavigableEntry::focusable(cx)`, scroll anchor olmadan focusable bir
+   entry üretir.
+4. **`Navigable` ile up/down traversal kurun.** Scrollable bir listede
+   `menu::SelectNext` ve `menu::SelectPrevious` action'ları,
+   `Navigable::new(...).entry(NavigableEntry::new(...))` bağlamasıyla
+   doğru entry'ye scroll yapıp focus verir.
+5. **`key_context(...)` ile bağlam zinciri kurun.**
+   `AlertModal::key_context(...)` ve `ContextMenu::key_context(...)`,
+   modal veya menü içindeyken keymap'in doğru binding'leri kullanmasını
+   sağlar. Custom view'larda `cx.set_global` veya bir element üzerinde
+   `.key_context(KeyContext::new("MyView"))` çağrısı kullanılır.
 6. **Action dispatch'i `.on_action::<A>(listener)` ile bağlayın.**
    `AlertModal::on_action`, `Modal` içindeki `menu::Cancel` ve özel
-   action'lar bu yolla yakalanır. Custom action tanımları `actions!(...)` veya
-   `Action` derive makrosuyla yapılır.
-7. **Shortcut'ları action'tan türetin.** Tooltip ve hint'lerde shortcut metni
-   yazmak yerine `KeyBinding::for_action(action, cx)` veya
-   `Tooltip::for_action_title(title, &action)` kullanın. Bu sayede keymap
-   değiştiğinde UI otomatik güncel kalır.
-8. **Icon-only kontrollerde tooltip zorunludur.** `IconButton`, `Disclosure`,
-   `CopyButton` gibi label'sız kontroller `Tooltip::text(...)` veya
-   `Tooltip::for_action_title(...)` ile niyetlerini açıklamalı.
-9. **Modal/menu kapanınca focus'u geri verin.** `ModalLayer`,
-   `ContextMenu`, `PopoverMenu` ve `right_click_menu` bu davranışı zaten
-   uygular; özel popover yazıyorsanız `previous_focus_handle`'ı saklayıp
-   dismiss'te `window.focus(&handle, cx)` çağırın.
+   action'lar bu yolla yakalanır. Custom action tanımları `actions!(...)`
+   ile veya `Action` derive makrosuyla yapılır.
+7. **Shortcut'ları action'tan türetin.** Tooltip ve hint'lerde shortcut
+   metni elle yazmak yerine `KeyBinding::for_action(action, cx)` veya
+   `Tooltip::for_action_title(title, &action)` kullanılır. Bu sayede
+   keymap değiştiğinde UI otomatik olarak güncel kalır.
+8. **Icon-only kontrollerde tooltip zorunludur.** `IconButton`,
+   `Disclosure`, `CopyButton` gibi label'sız kontroller
+   `Tooltip::text(...)` veya `Tooltip::for_action_title(...)` ile
+   niyetlerini açıklamalıdır.
+9. **Modal veya menü kapandığında focus'u geri verin.** `ModalLayer`,
+   `ContextMenu`, `PopoverMenu` ve `right_click_menu` bu davranışı
+   zaten uygular. Özel bir popover yazılıyorsa, önceki focus handle
+   saklanır ve dismiss anında `window.focus(&handle, cx)` çağrısıyla
+   geri verilir.
 
 Hızlı kontrol listesi:
 
-- [ ] View'ın `focus_handle` alanı var ve `Focusable` implement ediyor mu?
-- [ ] Tab order için tek bir `&mut isize` veya artan `isize` paylaşıldı mı?
+- [ ] View'ın bir `focus_handle` alanı var ve `Focusable` implement
+  ediyor mu?
+- [ ] Tab order için tek bir `&mut isize` veya artan bir `isize`
+  paylaşıldı mı?
 - [ ] Listede ok tuşu traversal'i için `Navigable` bağlandı mı?
-- [ ] Modal/menu için `key_context(...)` belirtildi mi?
+- [ ] Modal veya menü için `key_context(...)` belirtildi mi?
 - [ ] Shortcut tooltip'leri action tabanlı helper'larla mı üretiliyor?
 - [ ] Icon-only kontroller `Tooltip` taşıyor mu?
-- [ ] Modal/menu kapanışında önceki focus geri veriliyor mu?
-- [ ] Sağ tık menüsü ve `on_secondary_mouse_down` davranışları aynı action
-  setine bağlanıyor mu (mouse ve klavye akışı tutarlı mı)?
-
+- [ ] Modal ya da menü kapanışında önceki focus geri veriliyor mu?
+- [ ] Sağ tık menüsü ve `on_secondary_mouse_down` davranışları aynı
+  action setine bağlanıyor mu (yani mouse ve klavye akışı birbiriyle
+  tutarlı mı)?

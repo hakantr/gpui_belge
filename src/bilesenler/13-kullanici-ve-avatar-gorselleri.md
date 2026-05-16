@@ -1,16 +1,19 @@
 # 13. Kullanıcı ve Avatar Görselleri
 
 Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini
-tek bir kişi veya örtüşen küçük grup olarak göstermek için kullanılır.
-Görsel kaynağı yüklenemediğinde fallback ikona düşerler ve indicator,
-border, boyut gibi alanlarla çevrelerine durum bilgisi eklerler.
+sahnede göstermek için kullanılır. Bu ya tek bir kişi olarak ya da
+örtüşen küçük bir grup hâlinde olabilir. Görsel kaynağı yüklenemediği
+durumlarda her ikisi de fallback bir ikona düşer; ayrıca indicator,
+border ve boyut gibi alanlar üzerinden çevrelerine durum bilgisi
+eklemeye izin verirler.
 
-Genel kural:
+Bu bileşenler için genel olarak iki kural geçerlidir:
 
-- Avatar kaynağı (`ImageSource`) view veya servis tarafında çözümlenir;
-  component'e yalnızca hazır URL/asset verilir.
-- Birden fazla katılımcıyı yan yana göstermek için `Facepile`; tek katılımcı
-  için doğrudan `Avatar` kullanılır.
+- Avatar kaynağı (`ImageSource`), view veya bir servis tarafında
+  çözümlenir. Component'in kendisine yalnızca hazır bir URL veya asset
+  verilir; component'in bu çözümlemeyi yapması beklenmez.
+- Birden fazla katılımcının yan yana gösterilmesi gerektiğinde
+  `Facepile`, tek bir katılımcı için ise doğrudan `Avatar` kullanılır.
 
 ## Avatar
 
@@ -19,40 +22,46 @@ Kaynak:
 - Tanım: `../zed/crates/ui/src/components/avatar.rs`
 - Export: `ui::Avatar`, `ui::AvatarAudioStatusIndicator`,
   `ui::AvatarAvailabilityIndicator`, `ui::AudioStatus`,
-  `ui::CollaboratorAvailability`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for Avatar`
+  `ui::CollaboratorAvailability`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for Avatar`.
 
 Ne zaman kullanılır:
 
-- Kullanıcı, collaborator, participant veya commit author görseli göstermek için.
-- Avatar üstünde microphone veya availability göstergesi gerekiyorsa.
+- Kullanıcı, collaborator, participant veya commit author görseli
+  göstermek için.
+- Avatar üzerinde bir microphone veya availability göstergesi
+  gerektiğinde.
 - Facepile içinde küçük, border'lı ve overlap eden avatarlar için.
 
 Ne zaman kullanılmaz:
 
-- Genel icon veya logo için `Icon` / `Vector`.
-- Avatar kaynağı yoksa sadece harf badge'i gerekiyorsa özel `div()` + `Label`
-  daha açık olabilir.
+- Genel bir icon veya logo için `Icon` ya da `Vector` daha doğru bir
+  araçtır.
+- Avatar kaynağı yoksa ve yalnızca bir harf badge'i gerekiyorsa,
+  doğrudan bir `div()` ile `Label` kombinasyonu okuyucuya niyeti daha
+  açık aktarır.
 
 Temel API:
 
-- `Avatar::new(src: impl Into<ImageSource>)`
-- `.grayscale(bool)`
-- `.border_color(color)`
-- `.size(size)`
-- `.indicator(element)`
-- `AvatarAudioStatusIndicator::new(AudioStatus::Muted | AudioStatus::Deafened)`
-- `AvatarAvailabilityIndicator::new(CollaboratorAvailability::Free | Busy)`
+- `Avatar::new(src: impl Into<ImageSource>)`.
+- `.grayscale(bool)`.
+- `.border_color(color)`.
+- `.size(size)`.
+- `.indicator(element)`.
+- `AvatarAudioStatusIndicator::new(AudioStatus::Muted | AudioStatus::Deafened)`.
+- `AvatarAvailabilityIndicator::new(CollaboratorAvailability::Free | Busy)`.
 
 Davranış:
 
-- Varsayılan avatar boyutu `1rem`.
-- Görsel yüklenemezse `IconName::Person` ile fallback render eder.
-- `border_color(...)`, avatar çevresinde `1px` border açar ve facepile overlap
-  görünümünde görsel boşluk yaratmak için kullanılır.
-- Indicator, avatar container'ının child'ı olarak render edilir; indicator
-  pozisyonu kendi elementinde absolute ayarlanır.
+- Varsayılan avatar boyutu `1rem`'dir.
+- Görsel yüklenemediğinde `IconName::Person` ikonu ile bir fallback
+  render edilir.
+- `border_color(...)` çağrısı avatar çevresinde `1px` bir border açar.
+  Bu border, özellikle facepile gibi overlap görünümlerinde avatarların
+  arasında görsel bir boşluk yaratmak için kullanılır.
+- Indicator, avatar container'ının bir child'ı olarak render edilir;
+  indicator'ın konumu kendi elementinde absolute olarak ayarlanır.
 
 Örnek:
 
@@ -72,7 +81,8 @@ fn render_reviewer_avatar() -> impl IntoElement {
 }
 ```
 
-Ses durumu:
+Ses durumunu göstermek gerektiğinde, indicator yerine
+`AvatarAudioStatusIndicator` kullanılır:
 
 ```rust
 use ui::{AudioStatus, Avatar, AvatarAudioStatusIndicator, prelude::*};
@@ -84,56 +94,63 @@ fn render_muted_participant(avatar_url: SharedString) -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
 - `../zed/crates/collab_ui/src/collab_panel.rs`: contact ve participant
   satırları.
-- `../zed/crates/title_bar/src/collab.rs`: title bar collaborator avatarları.
+- `../zed/crates/title_bar/src/collab.rs`: title bar collaborator
+  avatarları.
 - `../zed/crates/editor/src/git.rs`: author avatarları.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `.size(...)` için `px(...)` veya `rems(...)` kullanabilirsiniz; facepile'da aynı
-  boyutu korumak daha temiz görünür.
-- Audio status tooltip'i gerekiyorsa `AvatarAudioStatusIndicator::tooltip(...)`
-  ile bağlayın.
-- Availability indicator için `.avatar_size(...)` gerçek avatar boyutuyla aynı
-  verilirse nokta oranı daha doğru olur.
+- `.size(...)` için hem `px(...)` hem de `rems(...)` kullanılabilir.
+  Facepile içinde aynı boyutun korunması görsel olarak çok daha temiz
+  bir sonuç verir.
+- Bir audio status için tooltip gerekiyorsa
+  `AvatarAudioStatusIndicator::tooltip(...)` üzerinden bağlanır.
+- Availability indicator için `.avatar_size(...)` değerinin gerçek
+  avatar boyutuyla aynı verilmesi, indicator noktasının oranını doğru
+  hâle getirir.
 
 ## Facepile
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/facepile.rs`
-- Export: `ui::Facepile`, `ui::EXAMPLE_FACES`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: `impl Component for Facepile`
+- Export: `ui::Facepile`, `ui::EXAMPLE_FACES`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: `impl Component for Facepile`.
 
 Ne zaman kullanılır:
 
-- Aktif collaborator, reviewer veya participant grubunu kompakt göstermek için.
-- Yüzleri soldan sağa overlap ederek küçük alanda birden çok kişiyi göstermek
-  için.
+- Aktif bir collaborator, reviewer veya participant grubunu kompakt
+  biçimde göstermek için.
+- Yüzleri soldan sağa overlap ederek küçük bir alanda birden fazla
+  kişiyi göstermek istendiğinde.
 
 Ne zaman kullanılmaz:
 
-- Tek kullanıcı için `Avatar`.
-- Sıralı, detaylı kullanıcı listesi için `ListItem` + `Avatar`.
+- Tek bir kullanıcı için `Avatar` yeterlidir.
+- Sıralı ve detaylı bir kullanıcı listesi için `ListItem` ile `Avatar`
+  birlikte kullanılır.
 
 Temel API:
 
-- `Facepile::empty()`
-- `Facepile::new(faces: SmallVec<[AnyElement; 2]>)`
-- ParentElement: `.child(...)`, `.children(...)`
+- `Facepile::empty()`.
+- `Facepile::new(faces: SmallVec<[AnyElement; 2]>)`.
+- ParentElement: `.child(...)`, `.children(...)`.
 - Padding style yöntemleri desteklenir.
 
 Davranış:
 
-- Render sırasında `flex_row_reverse()` kullanır; sol yüz en üstte kalacak şekilde
-  görsel overlap sağlar.
-- İkinci ve sonraki yüzler `ml_neg_1()` ile bindirilir.
-- `Facepile` overflow sayacı üretmez; daha fazla kişi varsa ayrıca `Chip` veya
-  `CountBadge` benzeri bir eleman ekleyin.
+- Render sırasında `flex_row_reverse()` kullanılır; bu sayede en sol
+  yüz en üstte görünür ve doğal bir overlap elde edilir.
+- İkinci ve sonraki yüzler `ml_neg_1()` ile birbirinin üzerine
+  bindirilir.
+- `Facepile` bir overflow sayacı üretmez. Görüntülenen kişi sayısından
+  daha fazlası varsa, kalan sayıyı belirtmek için `Chip` veya
+  `CountBadge` gibi başka bir eleman ayrıca eklenir.
 
 Örnek:
 
@@ -148,16 +165,17 @@ fn render_reviewers() -> impl IntoElement {
 }
 ```
 
-Zed içinden kullanım:
+Zed içinden kullanım örnekleri:
 
 - `../zed/crates/collab_ui/src/collab_panel.rs`: channel ve participant
   özetlerinde.
-- `../zed/crates/ui/src/components/facepile.rs`: default ve custom size preview.
+- `../zed/crates/ui/src/components/facepile.rs`: default ve custom size
+  preview örnekleri.
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- Overlap görünümü için avatar border rengini parent background ile eşleştirmek
-  iyi sonuç verir.
-- Çok fazla avatar eklemek yerine ilk birkaç kişiyi gösterip kalan sayıyı ayrı
-  belirtin.
-
+- Overlap görünümünün düzgün okunması için, avatar border renginin
+  parent background ile eşleşmesi iyi bir tercih olur.
+- Çok fazla avatarın yan yana sıkıştırılması yerine, ilk birkaç kişinin
+  gösterilip kalan sayının ayrı bir göstergeyle belirtilmesi okunabilirliği
+  korur.

@@ -1,48 +1,57 @@
 # 8. Scrollbar ve Scroll Altyapısı
 
-Scrollbar bileşeni Zed UI içinde panel, liste, modal ve özel scroll
-container'larında tema renkleriyle uyumlu scroll geri bildirimi sağlar.
-Layout primitive'lerinden ayrı tutulur çünkü tema ayarı, scrollbar
-görünürlüğü ve `ScrollableHandle` ile entegre çalışır.
+Scrollbar bileşeni, Zed UI içinde panel, liste, modal ve özel scroll
+container'larında tema renkleriyle uyumlu bir scroll geri bildirimi sağlar.
+Layout primitive'lerinden ayrı bir bölümde tutulmasının nedeni şudur:
+scrollbar yalnızca bir görsel bir parça değildir. Hem tema ayarına, hem
+scrollbar görünürlüğü tercihlerine, hem de `ScrollableHandle` ile birlikte
+çalışmasına bağlıdır. Bu kombinasyon onu basit bir layout helper'ından
+ayırır.
 
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/scrollbar.rs`
 - Export: `ui::Scrollbars`, `ui::ScrollAxes`, `ui::ScrollbarStyle`,
-  `ui::scrollbars::{ShowScrollbar, ScrollbarAutoHide, ScrollbarVisibility}`
-- Prelude: Hayır, ayrıca import edin.
-- Preview: Doğrudan component preview yok; gerçek kullanım panel, modal ve
-  tablo kompozisyonları içindedir.
+  `ui::scrollbars::{ShowScrollbar, ScrollbarAutoHide, ScrollbarVisibility}`.
+- Prelude: Hayır; ayrıca import edilir.
+- Preview: Doğrudan bir component preview yok; gerçek kullanım örnekleri
+  panel, modal ve tablo kompozisyonlarının içinde görünür.
 
 Ne zaman kullanılır:
 
-- Bir scroll container'a Zed tema renkleriyle uyumlu scrollbar bağlamak için.
-- Tablo, panel veya picker gibi içeriklerde tema scrollbar ayarına saygı
-  duyan otomatik gösterim/gizleme davranışı gerektiğinde.
-- Yatay, dikey veya iki yönlü scroll track'ini tek API ile yönetmek için.
+- Bir scroll container'a, Zed tema renkleriyle uyumlu bir scrollbar
+  bağlamak için.
+- Tablo, panel veya picker gibi içeriklerde, tema scrollbar ayarına saygı
+  duyan otomatik gösterim ve gizleme davranışı gerektiğinde.
+- Yatay, dikey veya iki yönlü scroll track'inin tek bir API üzerinden
+  yönetilmesi gerektiğinde.
 
 Ne zaman kullanılmaz:
 
-- Doğal browser/native scroll yeterliyse `overflow_y_scroll()` veya
-  `overflow_x_scroll()` ile basit container kullanın; `Scrollbars`, tema ile
-  hizalanmış özel scrollbar yüzeyi gerektiğinde devreye girer.
+- Doğal bir browser veya native scroll davranışı yeterliyse,
+  `overflow_y_scroll()` veya `overflow_x_scroll()` ile basit bir container
+  kullanılır. `Scrollbars`, tema ile hizalanmış özel bir scrollbar yüzeyi
+  gerektiğinde devreye girer; her scroll alanına ihtiyaç duymaz.
 
 Temel API:
 
-- `Scrollbars::new(show_along: ScrollAxes)`
-- `Scrollbars::always_visible(show_along)`
-- `Scrollbars::for_settings::<S: ScrollbarVisibility>()`
+- `Scrollbars::new(show_along: ScrollAxes)`.
+- `Scrollbars::always_visible(show_along)`.
+- `Scrollbars::for_settings::<S: ScrollbarVisibility>()`.
 - `.id(ElementId)`, `.notify_content()`, `.tracked_entity(EntityId)`,
   `.tracked_scroll_handle(handle)`, `.show_along(axes)`, `.style(style)`,
-  `.with_track_along(axes, bg)`, `.with_stable_track_along(axes, bg)`
+  `.with_track_along(axes, bg)`, `.with_stable_track_along(axes, bg)`.
 - `WithScrollbar`: elementlere `.vertical_scrollbar_for(...)` ve
-  `.custom_scrollbars(...)` ekleyen extension trait. Kaynakta yatay/double helper
-  taslakları yorum satırı olarak durur; public API değildir.
-- `ScrollableHandle`: custom handle yazacaksanız `max_offset`, `set_offset`,
-  `offset`, `viewport` ve opsiyonel drag hook'larını sağlar.
-- `on_new_scrollbars::<S>(cx)`: scrollbar global setting tipi değiştiğinde
-  yeni `ScrollbarState` entity'lerini ayar değişikliklerine abone eden setup
-  helper'ı.
+  `.custom_scrollbars(...)` metodlarını ekleyen bir extension trait'tir.
+  Kaynakta yatay ve çift yönlü helper taslakları yorum satırı olarak
+  durur; bu helper'lar şu anda public API değildir.
+- `ScrollableHandle`: kendi handle'ınızı yazıyorsanız, `max_offset`,
+  `set_offset`, `offset`, `viewport` ve opsiyonel olarak drag hook'larını
+  sağlamanız gerekir. Bu sözleşme, `Scrollbars`'ın handle ile nasıl
+  konuşacağını belirler.
+- `on_new_scrollbars::<S>(cx)`: scrollbar global setting tipinin
+  değiştiği durumlarda, yeni `ScrollbarState` entity'lerinin bu ayar
+  değişikliklerine abone olmasını sağlayan setup helper'ıdır.
 - `ScrollAxes`: `Horizontal`, `Vertical`, `Both`.
 - `ScrollbarStyle`: `Regular` (6px), `Editor` (15px).
 - `ShowScrollbar`: `Auto`, `System`, `Always`, `Never`.
@@ -50,14 +59,19 @@ Temel API:
 Davranış:
 
 - `Scrollbars::new(ScrollAxes::Vertical)` varsayılan olarak tema scrollbar
-  ayarına bağlı görünür; `always_visible(...)` ayarı yok sayar.
-- `tracked_scroll_handle(...)`, harici bir `ScrollableHandle` (örn.
-  `ScrollHandle`, `UniformListScrollHandle`) kullanır.
-- `Table::interactable(...)` ile `TableInteractionState::with_custom_scrollbar(...)`
-  birlikte verildiğinde `Scrollbars` tablonun yatay/dikey scroll handle'larına
-  bağlanır.
-- `ScrollbarStyle::Editor`, editor görselli scrollbar genişliği için
-  kullanılır; panel ve liste için `Regular` daha uygundur.
+  ayarına bağlı şekilde görünür. `always_visible(...)` ayarı ise bu
+  tercihi yok sayar ve scrollbar'ı her zaman çizer.
+- `tracked_scroll_handle(...)` ile harici bir `ScrollableHandle` (örneğin
+  bir `ScrollHandle` veya `UniformListScrollHandle`) bağlanır; scrollbar
+  bu handle üzerinden okuma ve yazma yapar.
+- `Table::interactable(...)` ile
+  `TableInteractionState::with_custom_scrollbar(...)` birlikte
+  kullanıldığında `Scrollbars`, tablonun yatay ve dikey scroll
+  handle'larına bağlanır; yani tablo kendi scroll davranışını dış bir
+  scrollbar üzerinden sürer.
+- `ScrollbarStyle::Editor`, editor görseliyle gelen scrollbar
+  genişliğinde çizim yapar; panel ve listelerde ise `Regular` daha
+  uygundur.
 
 Örnek:
 
@@ -90,13 +104,17 @@ impl Render for LogPanel {
 }
 ```
 
-Dikkat edilecekler:
+Dikkat edilecek noktalar:
 
-- `Scrollbars` kendi başına içerik scroll'lamaz; bir `ScrollableHandle` ile
-  bağlanmalı veya bir `ScrollHandle::new()` üzerinden takip etmelidir.
-- Tek bir scroll container'a doğrudan bağlanıyorsanız `WithScrollbar` helper'ları
-  ayrı `Scrollbars` child'ı yazmaktan daha kısa ve daha az hata açıktır.
-- `with_stable_track_along(...)`, scroll alanı yokken bile track yer ayırır;
-  böylece scrollbar görünür/gizli değiştiğinde layout zıplaması olmaz.
-- Birden çok scroll alanı varsa her birine `.id(...)` ile benzersiz id verin.
-
+- `Scrollbars` kendi başına içerik scroll'lamaz. İçeriğin gerçekten
+  kaymasını sağlamak için bir `ScrollableHandle` ile bağlanması veya
+  bir `ScrollHandle::new()` üzerinden takip etmesi gerekir.
+- Tek bir scroll container'a doğrudan bağlanılıyorsa, `WithScrollbar`
+  helper'larının kullanılması ayrı bir `Scrollbars` child'ı yazmaya göre
+  hem daha kısa hem de daha az hata yapmaya açıktır.
+- `with_stable_track_along(...)`, scroll alanı henüz yokken bile track
+  için yer ayırır. Bu sayede scrollbar görünür ya da gizli olarak
+  değiştiğinde layout aniden zıplamaz; sahne stabil kalır.
+- Birden fazla scroll alanı bulunuyorsa, her birine `.id(...)` üzerinden
+  benzersiz bir id verilmesi gerekir; aksi halde GPUI scroll state'leri
+  karıştırabilir.

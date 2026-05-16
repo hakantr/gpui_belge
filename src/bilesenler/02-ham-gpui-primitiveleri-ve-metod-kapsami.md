@@ -1,24 +1,34 @@
 # 2. Ham GPUI Primitive'leri ve Metod Kapsamı
 
 Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements`
-primitive'lerini kapsar. Kural şudur: Zed `ui` içinde hazır bir bileşen varsa
-önce onu kullanın; ham GPUI primitive'lerine yalnızca layout, çizim, metin
-ölçümü, görsel cache, virtual list veya özel etkileşim yüzeyi gerektiğinde inin.
+primitive'lerini ele alır. İşleyiş şu mantığa dayanır: Zed `ui` içinde hazır
+bir bileşen varsa öncelik ona verilir; ham GPUI primitive'lerine inmek ise
+ancak belirli ihtiyaçlar ortaya çıktığında anlamlıdır. Bu ihtiyaçlar genellikle
+özel bir layout, kendi başına çizim, metin ölçümü, görsel cache, sanal liste
+veya alıştığımız bileşenlerin sunmadığı bir etkileşim yüzeyidir. Yani üst
+katman çoğu işi karşıladığı için aşağı inmek bir tercih değil, ihtiyaç
+sonucudur.
 
 Kaynak kapısı:
 
-- `crates/gpui/src/elements/mod.rs`: primitive export kapısı.
-- `crates/gpui/src/element.rs`: `ParentElement`, `IntoElement`, `Element`.
-- `crates/gpui/src/styled.rs`: `Styled` ortak stil yüzeyi.
+- `crates/gpui/src/elements/mod.rs`: primitive export kapısı; tüm element
+  ailelerinin toplandığı giriş noktasıdır.
+- `crates/gpui/src/element.rs`: `ParentElement`, `IntoElement`, `Element`
+  trait'lerinin tanımlandığı temel dosya.
+- `crates/gpui/src/styled.rs`: `Styled` ortak stil yüzeyinin yaşadığı yer;
+  bütün element ailesinin ortak stil dilini sağlar.
 - `crates/gpui/src/elements/div.rs`: `Div`, `Interactivity`,
-  `InteractiveElement`, `StatefulInteractiveElement`, `ScrollHandle`.
+  `InteractiveElement`, `StatefulInteractiveElement` ve `ScrollHandle` gibi
+  etkileşim çekirdeğini barındırır.
 - `crates/gpui/src/elements/{canvas,img,image_cache,svg,anchored,deferred,surface,text,list,uniform_list,animation}.rs`:
-  özel primitive API'leri.
+  her bir özel primitive'in kendi dosyası; özel API'lerin tanım yerleridir.
 
 ## Public GPUI element adları
 
 Aşağıdaki liste `crates/gpui/src/elements` altındaki public type, trait,
-constructor ve constant adlarını temsil eder.
+constructor ve constant adlarını tek bir yerde toparlar. Bu envanter, hangi
+isimlerin "kullanılabilir resmi yüzey" olduğunu görmek için bir referans
+işlevi görür:
 
 ```text
 Anchored, AnchoredFitMode, AnchoredPositionMode, AnchoredState,
@@ -42,10 +52,13 @@ div, image_cache, img, list, retain_all, surface, svg, uniform_list
 
 ## Karar tablosu
 
+Hangi ihtiyaç için hangi API'nin tercih edileceğini ve neden ham GPUI'ye
+inildiğini özetleyen pratik bir tablo aşağıdaki gibidir:
+
 | İhtiyaç | Öncelikli API | Ham GPUI'ye inme sebebi |
 | :-- | :-- | :-- |
 | Standart satır, toolbar, ayar, menü, modal, tab, bildirim | `ui::*` bileşenleri | Tasarım token'ları, focus ve erişilebilirlik hazır gelir |
-| Sadece container/layout | `div()`, `h_flex()`, `v_flex()` | Bileşen gerekmeyen layout yüzeyi |
+| Sadece container/layout | `div()`, `h_flex()`, `v_flex()` | Bileşen gerekmeyen bir layout yüzeyi |
 | Özel paint veya ölçüm | `canvas(prepaint, paint)` | Hitbox, path, custom çizim veya renderer state gerekir |
 | Görsel gösterimi | `img(source)` | Asset, URI, bytes veya cache davranışı gerekir |
 | Ortak görsel cache | `image_cache(provider)` / `retain_all(id)` | Alt ağaçtaki `img` elemanları aynı cache'i kullanmalıdır |
@@ -60,18 +73,21 @@ div, image_cache, img, list, retain_all, surface, svg, uniform_list
 
 ## Ortak trait yüzeyleri
 
-`ParentElement`, çocuk alan bütün container'ların ortak ekleme kapısıdır:
+`ParentElement`, çocuk alabilen bütün container'ların paylaştığı ortak
+ekleme kapısıdır. Bir elemanın "alt eleman taşıyabilir" sözleşmesini bu trait
+sağlar:
 
 | Trait | Metodlar | Not |
 | :-- | :-- | :-- |
-| `ParentElement` | `.extend(elements)`, `.child(child)`, `.children(children)` | `child` ve `children`, `IntoElement` kabul eder; `extend` `AnyElement` koleksiyonu ister |
+| `ParentElement` | `.extend(elements)`, `.child(child)`, `.children(children)` | `child` ve `children`, `IntoElement` kabul eder; `extend` ise `AnyElement` koleksiyonu ister |
 
 `Styled`, `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu ve
-makro ile üretilen utility yüzeyini taşır. `Div`, `Img`, `Svg`, `Canvas`,
+makroyla üretilen ortak utility yüzeyini taşır. `Div`, `Img`, `Svg`, `Canvas`,
 `Surface`, `ImageCacheElement`, `List`, `UniformList`, `Deferred`,
-`AnimationElement` ve birçok Zed `ui` bileşeni bu yüzeyi miras alır.
+`AnimationElement` ve birçok Zed `ui` bileşeni bu yüzeyi miras alır; yani
+bunların hemen hepsi aynı stil sözlüğünü paylaşır.
 
-`Styled` manuel metodları:
+`Styled` manuel metodları aşağıdaki gibidir:
 
 ```text
 block, flex, grid, hidden, scrollbar_width,
@@ -99,7 +115,8 @@ row_start, row_start_auto, row_end, row_end_auto, row_span,
 row_span_full, debug, debug_below
 ```
 
-`Styled` makro metodları kaynakta şu kurallarla üretilir:
+`Styled` üzerinde makro yardımıyla üretilen metodlar belirli kurallarla
+oluşturulur ve aşağıdaki ailelere ayrılır:
 
 | Makro ailesi | Üretilen metodlar |
 | :-- | :-- |
@@ -114,21 +131,23 @@ row_span_full, debug, debug_below
 | Cursor | `cursor`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `cursor_ew_resize`, `cursor_ns_resize`, `cursor_nesw_resize`, `cursor_nwse_resize`, `cursor_col_resize`, `cursor_row_resize`, `cursor_n_resize`, `cursor_e_resize`, `cursor_s_resize`, `cursor_w_resize` |
 | Shadow | `shadow`, `shadow_none`, `shadow_2xs`, `shadow_xs`, `shadow_sm`, `shadow_md`, `shadow_lg`, `shadow_xl`, `shadow_2xl` |
 
-Size, margin, padding ve position prefix'leri için suffix formülü:
-`{prefix}(length)` custom setter'ı vardır. Ayrıca uygun prefix'lerde
-`{prefix}_{suffix}` ve auto dışındaki suffix'lerde `{prefix}_neg_{suffix}`
-üretilir. Suffix seti: `0`, `0p5`, `1`, `1p5`, `2`, `2p5`, `3`, `3p5`,
-`4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `16`, `20`, `24`, `32`,
-`40`, `48`, `56`, `64`, `72`, `80`, `96`, `112`, `128`, `auto`, `px`,
-`full`, `1_2`, `1_3`, `2_3`, `1_4`, `2_4`, `3_4`, `1_5`, `2_5`, `3_5`,
-`4_5`, `1_6`, `5_6`, `1_12`. `gap*`, `padding*` prefix'leri `auto`
-üretmez. Radius suffix seti: `none`, `xs`, `sm`, `md`, `lg`, `xl`, `2xl`,
-`3xl`, `full`. Border suffix seti: `0`, `1`, `2`, `3`, `4`, `5`, `6`, `7`,
-`8`, `9`, `10`, `11`, `12`, `16`, `20`, `24`, `32`.
+Size, margin, padding ve position prefix'leri için suffix formülü şu
+şekildedir: `{prefix}(length)` custom setter'ı vardır. Bunun yanı sıra
+uygun prefix'lerde `{prefix}_{suffix}` üretilir; auto dışındaki suffix'lerde
+ise `{prefix}_neg_{suffix}` formundaki negatif varyantlar da otomatik olarak
+oluşturulur. Suffix seti şu değerlerden oluşur: `0`, `0p5`, `1`, `1p5`, `2`,
+`2p5`, `3`, `3p5`, `4`, `5`, `6`, `7`, `8`, `9`, `10`, `11`, `12`, `16`,
+`20`, `24`, `32`, `40`, `48`, `56`, `64`, `72`, `80`, `96`, `112`, `128`,
+`auto`, `px`, `full`, `1_2`, `1_3`, `2_3`, `1_4`, `2_4`, `3_4`, `1_5`,
+`2_5`, `3_5`, `4_5`, `1_6`, `5_6`, `1_12`. `gap*` ve `padding*` prefix'leri
+`auto` üretmez. Radius suffix seti: `none`, `xs`, `sm`, `md`, `lg`, `xl`,
+`2xl`, `3xl`, `full`. Border suffix seti: `0`, `1`, `2`, `3`, `4`, `5`, `6`,
+`7`, `8`, `9`, `10`, `11`, `12`, `16`, `20`, `24`, `32`.
 
 `InteractiveElement`, ham etkileşimli container davranışını taşır. `id(...)`
-çağrısı `Stateful<Self>` döndürür; scroll, click, drag, active ve tooltip
-gibi state isteyen metodlar bundan sonra kullanılabilir.
+çağrısı `Stateful<Self>` döndürür ve scroll, click, drag, active, tooltip
+gibi durum gerektiren metodlar ancak bundan sonra erişilebilir hâle gelir.
+Yani önce kimliklendirme, sonra durumlu etkileşim sırası izlenir:
 
 ```text
 group, id, track_focus, tab_stop, tab_index, tab_group, key_context,
@@ -151,7 +170,7 @@ track_scroll, anchor_scroll, active, group_active, on_click, on_aux_click,
 on_drag, on_hover, tooltip, hoverable_tooltip
 ```
 
-`Interactivity` lower-level metodları yukarıdaki fluent API'nin iç
+`Interactivity` lower-level metodları, yukarıdaki fluent API'nin iç
 karşılıklarıdır: `on_mouse_down`, `capture_any_mouse_down`,
 `on_any_mouse_down`, `on_mouse_up`, `capture_any_mouse_up`,
 `on_any_mouse_up`, `on_mouse_pressure`, `capture_mouse_pressure`,
@@ -161,85 +180,97 @@ karşılıklarıdır: `on_mouse_down`, `capture_any_mouse_down`,
 `on_key_up`, `capture_key_up`, `on_modifiers_changed`, `on_drop`,
 `can_drop`, `on_click`, `on_aux_click`, `on_drag`, `on_hover`, `tooltip`,
 `hoverable_tooltip`, `occlude_mouse`, `window_control_area`,
-`block_mouse_except_scroll`. Uygulama kodunda mümkünse fluent
-`InteractiveElement` / `StatefulInteractiveElement` metodlarını kullanın;
-`Interactivity` doğrudan custom element yazarken gerekir.
+`block_mouse_except_scroll`. Uygulama kodunda mümkün olduğu sürece fluent
+`InteractiveElement` ve `StatefulInteractiveElement` metodları tercih
+edilir; `Interactivity` doğrudan yalnızca özel bir element yazılırken
+gerekir.
 
 Framework implementer metodları `source_location`, `request_layout`,
-`prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder API
-değildir; `Element` implementasyonu yazarken veya GPUI içini değiştirirken ele
-alınır. `GroupHitboxes::get/push/pop` grup hover/active hitbox state'inin
-internal global stack yönetimidir. `DraggedItem<T>::drag(cx)` ve
-`.dragged_item()` drag payload okumak için event yardımcılarıdır.
+`prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder
+API değildir; yani günlük UI yazımında kullanılmazlar. Yalnızca `Element`
+implementasyonu yazılırken veya GPUI içinde değişiklik yapılırken devreye
+girerler. `GroupHitboxes::get/push/pop` ise grup hover/active hitbox
+state'inin internal global stack yönetimini yapar; üst seviye kodun bunu
+doğrudan kullanması beklenmez. `DraggedItem<T>::drag(cx)` ve
+`.dragged_item()` ise drag payload'unu okumak için kullanılan event
+yardımcılarıdır.
 
 Animasyon easing yardımcıları `linear(delta)`, `quadratic(delta)`,
-`ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla export
-edilir. Test modülündeki `select_next` / `select_previous` gibi örnek view
-metodları component API değildir.
+`ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla
+export edilir. Test modülünde yer alan `select_next` veya `select_previous`
+gibi örnek view metodları ise component API değildir; sadece test amaçlı
+örneklerdir.
 
 ## Primitive API kataloğu
 
+Aşağıdaki tablo her primitive'in nasıl üretildiğini, hangi özel metodlara
+sahip olduğunu ve hangi disiplinle kullanılması beklendiğini bir arada
+sunar:
+
 | API | Constructor | Özel metodlar / ilişkili tipler | Kullanım disiplini |
 | :-- | :-- | :-- | :-- |
-| `Div` | `div()` | `Styled`, `ParentElement`, `InteractiveElement`, `StatefulInteractiveElement`; ayrıca `.on_children_prepainted(...)`, `.image_cache(...)`, `.with_dynamic_prepaint_order(...)` | Her özel layout'un tabanı olabilir; standart kontrol yerine kullanılacaksa focus, hover, tooltip ve action bağları açıkça kurulmalı |
+| `Div` | `div()` | `Styled`, `ParentElement`, `InteractiveElement`, `StatefulInteractiveElement`; ayrıca `.on_children_prepainted(...)`, `.image_cache(...)`, `.with_dynamic_prepaint_order(...)` | Her özel layout'un tabanı olabilir; standart kontrol yerine kullanılacaksa focus, hover, tooltip ve action bağları açıkça kurulur |
 | `ScrollHandle` | `ScrollHandle::new()` | `.offset()`, `.max_offset()`, `.top_item()`, `.bottom_item()`, `.bounds()`, `.bounds_for_item(ix)`, `.scroll_to_item(ix)`, `.scroll_to_top_of_item(ix)`, `.scroll_to_bottom()`, `.set_offset(point)`, `.logical_scroll_top()`, `.logical_scroll_bottom()`, `.children_count()` | `overflow_*_scroll` ve `.track_scroll(&handle)` ile bağlanır |
-| `ScrollAnchor` | `ScrollAnchor::for_handle(handle)` | `.scroll_to(window, cx)` | Nested child'ın parent scroll alanına anchor edilmesi gerektiğinde kullanılır |
-| `canvas` / `Canvas<T>` | `canvas(prepaint, paint)` | `Styled`; prepaint closure state döndürür, paint closure bu state ile çizim yapar | Sadece custom render gerektiğinde kullanın; layout'u `Styled` boyutlarıyla sabitleyin |
-| `img` / `Img` | `img(source)` | `Img::extensions()`, `.image_cache(entity)`; `StyledImage`: `.grayscale(bool)`, `.object_fit(ObjectFit)`, `.with_fallback(fn)`, `.with_loading(fn)` | Loading ve fallback UI'sız uzak/asset görsel bırakmayın |
+| `ScrollAnchor` | `ScrollAnchor::for_handle(handle)` | `.scroll_to(window, cx)` | Nested child'ın parent scroll alanına anchor edilmesi gerektiğinde tercih edilir |
+| `canvas` / `Canvas<T>` | `canvas(prepaint, paint)` | `Styled`; prepaint closure state döndürür, paint closure bu state ile çizim yapar | Sadece custom render gerektiğinde devreye girer; layout `Styled` boyutlarıyla sabitlenir |
+| `img` / `Img` | `img(source)` | `Img::extensions()`, `.image_cache(entity)`; `StyledImage`: `.grayscale(bool)`, `.object_fit(ObjectFit)`, `.with_fallback(fn)`, `.with_loading(fn)` | Loading ve fallback UI'sı belirlenmemiş uzak/asset görsel bırakılmamalıdır |
 | `ImageSource` | `ImageSource::{Resource, Custom, Render, Image}` | `.remove_asset(cx)` | Asset lifecycle açıkça temizlenecekse kullanılır |
-| `image_cache` / `ImageCacheElement` | `image_cache(provider)` | `ParentElement`, `Styled`; alt ağaçtaki `img` yüklerini provider cache'ine bağlar | Aynı ekran içinde tekrarlanan görsellerde kullanın |
+| `image_cache` / `ImageCacheElement` | `image_cache(provider)` | `ParentElement`, `Styled`; alt ağaçtaki `img` yüklerini provider cache'ine bağlar | Aynı ekran içinde tekrar tekrar görünen görsellerde tercih edilir |
 | `AnyImageCache` | `Entity<I: ImageCache>` üzerinden `From` | `.load(resource, window, cx)` | Cache sağlayıcılarının type erasure katmanı |
-| `ImageCache` | trait | `.load(resource, window, cx)` | Uygulama özel cache stratejisi gerekiyorsa implement edin |
-| `ImageCacheProvider` | trait | `.provide(window, cx)` | Render/request-layout aşamasında cache sağlar |
-| `RetainAllImageCache` | `RetainAllImageCache::new(cx)` | `.load(source, window, cx)`, `.clear(window, cx)`, `.remove(source, window, cx)`, `.len()`, `.is_empty()` | Basit retain-all stratejisidir; uzun ömürlü ekranlarda clear/remove sorumluluğunu unutmayın |
+| `ImageCache` | trait | `.load(resource, window, cx)` | Uygulamaya özel cache stratejisi gerekiyorsa bu trait implement edilir |
+| `ImageCacheProvider` | trait | `.provide(window, cx)` | Render veya request-layout aşamasında cache sağlar |
+| `RetainAllImageCache` | `RetainAllImageCache::new(cx)` | `.load(source, window, cx)`, `.clear(window, cx)`, `.remove(source, window, cx)`, `.len()`, `.is_empty()` | Basit "her şeyi tut" stratejisidir; uzun ömürlü ekranlarda clear/remove sorumluluğunun unutulmaması gerekir |
 | `retain_all` | `retain_all(id)` | `RetainAllImageCacheProvider` üretir | Inline cache provider gerektiğinde kullanılır |
-| `svg` / `Svg` | `svg()` | `.path(path)`, `.external_path(path)`, `.with_transformation(transformation)` | Icon için `Icon` tercih edin; raw SVG yalnızca asset transform gerekiyorsa |
-| `Transformation` | `Transformation::scale(size)`, `::translate(point)`, `::rotate(radians)` | `.with_scaling(size)`, `.with_translation(point)`, `.with_rotation(radians)` | Birden fazla transform gerekiyorsa builder zinciriyle tek `Transformation` üretin |
-| `anchored` / `Anchored` | `anchored()` | `.anchor(anchor)`, `.position(point)`, `.offset(point)`, `.position_mode(mode)`, `.snap_to_window()`, `.snap_to_window_with_margin(edges)`; `AnchoredFitMode`, `AnchoredPositionMode`, `AnchoredState` | Popover/menu gibi hazır yüzeyler yeterliyse onları kullanın; custom overlay'de pencere sınırı snap'ini açıkça seçin |
-| `deferred` / `Deferred` | `deferred(child)` | `.with_priority(priority)`; `DeferredScrollToItem::priority(priority)` | Ağır alt ağaçları render sırasına sokar; interaktif kritik kontrolleri ertelemeyin |
-| `surface` / `Surface` | `surface(source)` | `.object_fit(ObjectFit)`; `SurfaceSource` macOS `CVPixelBuffer` taşır | macOS native surface dışında kullanmayın; platform cfg sınırını koruyun |
-| `list` / `List` | `list(state, render_item)` | `.with_sizing_behavior(ListSizingBehavior)`; `ListAlignment`, `ListHorizontalSizingBehavior`, `ListMeasuringBehavior`, `ListOffset`, `ListScrollEvent`, `FollowMode` | Değişken satır yüksekliğinde kullanın; state'i view alanında saklayın |
-| `ListState` | `ListState::new(item_count, alignment, overdraw)` | `.measure_all()`, `.reset(count)`, `.remeasure()`, `.remeasure_items(range)`, `.item_count()`, `.is_scrolled_to_end()`, `.splice(range, count)`, `.splice_focusable(...)`, `.set_scroll_handler(...)`, `.logical_scroll_top()`, `.scroll_by(distance)`, `.scroll_to_end()`, `.set_follow_mode(mode)`, `.is_following_tail()`, `.scroll_to(offset)`, `.scroll_to_reveal_item(ix)`, `.bounds_for_item(ix)`, `.scrollbar_drag_started()`, `.scrollbar_drag_ended()`, `.is_scrollbar_dragging()`, `.set_offset_from_scrollbar(point)`, `.max_offset_for_scrollbar()`, `.scroll_px_offset_for_scrollbar()`, `.viewport_bounds()` | Veri değişiminde `splice`/`reset`, ölçüm değişiminde `remeasure*` çağrılmalı |
+| `svg` / `Svg` | `svg()` | `.path(path)`, `.external_path(path)`, `.with_transformation(transformation)` | Icon ihtiyaçları için `Icon` tercih edilir; ham SVG yalnızca asset transform gerektiğinde anlamlıdır |
+| `Transformation` | `Transformation::scale(size)`, `::translate(point)`, `::rotate(radians)` | `.with_scaling(size)`, `.with_translation(point)`, `.with_rotation(radians)` | Birden fazla transform gerektiğinde builder zinciriyle tek `Transformation` oluşturulur |
+| `anchored` / `Anchored` | `anchored()` | `.anchor(anchor)`, `.position(point)`, `.offset(point)`, `.position_mode(mode)`, `.snap_to_window()`, `.snap_to_window_with_margin(edges)`; `AnchoredFitMode`, `AnchoredPositionMode`, `AnchoredState` | Popover veya menu gibi hazır yüzeyler yeterliyse önce onlar tercih edilir; özel overlay'de pencere sınırı snap'i açıkça seçilir |
+| `deferred` / `Deferred` | `deferred(child)` | `.with_priority(priority)`; `DeferredScrollToItem::priority(priority)` | Ağır alt ağaçların render sırasını ayarlar; etkileşim açısından kritik kontroller geciktirilmez |
+| `surface` / `Surface` | `surface(source)` | `.object_fit(ObjectFit)`; `SurfaceSource` macOS `CVPixelBuffer` taşır | macOS native surface dışında kullanılmamalı; platform cfg sınırı korunur |
+| `list` / `List` | `list(state, render_item)` | `.with_sizing_behavior(ListSizingBehavior)`; `ListAlignment`, `ListHorizontalSizingBehavior`, `ListMeasuringBehavior`, `ListOffset`, `ListScrollEvent`, `FollowMode` | Satır yüksekliği değişken olduğunda kullanılır; state view alanında saklanır |
+| `ListState` | `ListState::new(item_count, alignment, overdraw)` | `.measure_all()`, `.reset(count)`, `.remeasure()`, `.remeasure_items(range)`, `.item_count()`, `.is_scrolled_to_end()`, `.splice(range, count)`, `.splice_focusable(...)`, `.set_scroll_handler(...)`, `.logical_scroll_top()`, `.scroll_by(distance)`, `.scroll_to_end()`, `.set_follow_mode(mode)`, `.is_following_tail()`, `.scroll_to(offset)`, `.scroll_to_reveal_item(ix)`, `.bounds_for_item(ix)`, `.scrollbar_drag_started()`, `.scrollbar_drag_ended()`, `.is_scrollbar_dragging()`, `.set_offset_from_scrollbar(point)`, `.max_offset_for_scrollbar()`, `.scroll_px_offset_for_scrollbar()`, `.viewport_bounds()` | Veri değiştiğinde `splice` veya `reset`, ölçüm değiştiğinde `remeasure*` çağrılır |
 | `uniform_list` / `UniformList` | `uniform_list(id, item_count, render_item)` | `.with_width_from_item(index)`, `.with_sizing_behavior(...)`, `.with_horizontal_sizing_behavior(...)`, `.with_decoration(decoration)`, `.track_scroll(handle)`, `.y_flipped(bool)`; `UniformListDecoration`, `UniformListFrameState`, `UniformListScrollState` | Sabit satır geometrisi ve çok büyük veri için tercih edilir |
-| `UniformListScrollHandle` | `UniformListScrollHandle::new()` | `.scroll_to_item(ix, strategy)`, `.scroll_to_item_strict(ix, strategy)`, `.scroll_to_item_with_offset(ix, strategy, offset)`, `.scroll_to_item_strict_with_offset(ix, strategy, offset)`, `.y_flipped()`, `.logical_scroll_top_index()`, `.is_scrollable()`, `.is_scrolled_to_end()`, `.scroll_to_bottom()`; `ScrollStrategy` | Dışarıdan scroll komutu ve okuma için handle saklanır |
-| `StyledText` | `StyledText::new(text)` | `.layout()`, `.with_default_highlights(...)`, `.with_highlights(...)`, `.with_font_family_overrides(...)`, `.with_runs(runs)` | Highlight/rich text gerekiyorsa kullanın; normal label için `Label` daha doğru |
-| `TextLayout` | `StyledText::layout()` | `.index_for_position(point)`, `.position_for_index(index)`, `.line_layout_for_index(index)`, `.bounds()`, `.line_height()`, `.len()`, `.text()`, `.wrapped_text()` | Hit-test ve ölçüm bilgisi prepaint/layout sonrası anlamlıdır |
+| `UniformListScrollHandle` | `UniformListScrollHandle::new()` | `.scroll_to_item(ix, strategy)`, `.scroll_to_item_strict(ix, strategy)`, `.scroll_to_item_with_offset(ix, strategy, offset)`, `.scroll_to_item_strict_with_offset(ix, strategy, offset)`, `.y_flipped()`, `.logical_scroll_top_index()`, `.is_scrollable()`, `.is_scrolled_to_end()`, `.scroll_to_bottom()`; `ScrollStrategy` | Dışarıdan scroll komutu verme ve scroll durumunu okuma için handle saklanır |
+| `StyledText` | `StyledText::new(text)` | `.layout()`, `.with_default_highlights(...)`, `.with_highlights(...)`, `.with_font_family_overrides(...)`, `.with_runs(runs)` | Highlight ve zengin metin gerektiğinde tercih edilir; normal etiket için `Label` daha doğru bir yüzeydir |
+| `TextLayout` | `StyledText::layout()` | `.index_for_position(point)`, `.position_for_index(index)`, `.line_layout_for_index(index)`, `.bounds()`, `.line_height()`, `.len()`, `.text()`, `.wrapped_text()` | Hit-test ve ölçüm bilgisi prepaint veya layout sonrası anlam kazanır |
 | `InteractiveText` | `InteractiveText::new(id, styled_text)` | `.on_click(range, listener)`, `.on_hover(range, listener)`, `.tooltip(range, builder)`; `InteractiveTextState` | Inline link, mention veya span tooltip için kullanılır |
-| `Animation` | `Animation::new(duration)` | `.repeat()`, `.with_easing(easing)` | Animasyon token'larını tek yerde üretin; sonsuz animasyonu bilinçli seçin |
-| `AnimationExt` / `AnimationElement` | `.with_animation(id, animation, animator)`, `.with_animations(id, animations, animator)` | `AnimationElement::map_element(f)` | Elementi saran wrapper'dır; stable `ElementId` zorunludur |
+| `Animation` | `Animation::new(duration)` | `.repeat()`, `.with_easing(easing)` | Animasyon token'ları tek yerde üretilir; sonsuz animasyon ise bilinçli olarak seçilir |
+| `AnimationExt` / `AnimationElement` | `.with_animation(id, animation, animator)`, `.with_animations(id, animations, animator)` | `AnimationElement::map_element(f)` | Elementi saran bir wrapper'dır; stabil bir `ElementId` verilmesi zorunludur |
 
 ## GPUI public enum ve state ayrıntıları
 
-Bazı GPUI tiplerinde karar variant'ları ve public state alanları asıl kullanım
-bilgisini taşır.
+Bazı GPUI tiplerinde asıl kullanım bilgisini taşıyan şey, türün adından çok
+sahip olduğu variant'lar ve public state alanlarıdır:
 
 | Tip | Variant / Alan | Kullanım notu |
 | :-- | :-- | :-- |
-| `ScrollStrategy` | `Top`, `Center`, `Bottom`, `Nearest` | `UniformListScrollHandle` scroll komutlarında hedef item'ın viewport içinde nereye yerleşeceğini seçer |
-| `FollowMode` | `Normal`, `Tail` | Chat/log listelerinde tail-follow davranışı; `Tail` yalnızca kullanıcı sonda kalıyorsa otomatik takip eder |
-| `ListMeasuringBehavior` | `Measure(bool)`, `Visible` | Büyük değişken yükseklikli listelerde ilk ölçüm maliyetini kontrol eder |
-| `ListHorizontalSizingBehavior` | `FitList`, `Unconstrained` | Satır genişliği listeye mi sığacak, yoksa en geniş item'a göre taşabilecek mi kararını verir |
-| `AnchoredFitMode` | `SnapToWindow`, `SnapToWindowWithMargin`, `SwitchAnchor` | `anchored()` overlay'lerinde pencere sınırına sığdırma stratejisi |
+| `ScrollStrategy` | `Top`, `Center`, `Bottom`, `Nearest` | `UniformListScrollHandle` scroll komutlarında hedef item'ın viewport içinde nereye oturacağını belirler |
+| `FollowMode` | `Normal`, `Tail` | Chat veya log listelerinde tail-follow davranışı; `Tail` sadece kullanıcı zaten sondaysa otomatik takip eder |
+| `ListMeasuringBehavior` | `Measure(bool)`, `Visible` | Büyük ve değişken yükseklikli listelerde ilk ölçüm maliyetini kontrol eder |
+| `ListHorizontalSizingBehavior` | `FitList`, `Unconstrained` | Satır genişliği listeye mi sığacak, en geniş item'a göre taşabilecek mi sorusunu yanıtlar |
+| `AnchoredFitMode` | `SnapToWindow`, `SnapToWindowWithMargin`, `SwitchAnchor` | `anchored()` overlay'lerinde pencere sınırına nasıl sığdırılacağını belirler |
 | `AnchoredPositionMode` | `Window`, `Local` | Anchor koordinatının pencereye mi parent'a mı göre yorumlanacağını belirler |
-| `ImageCacheError` | `Io`, `Usvg`, `Other` | Görsel yükleme/render hata sınıfları; fallback render için ayırt edilebilir |
-| `ImageCacheItem` | `Loading`, `Loaded` | Cache iç state'i; tüketici çoğunlukla `ImageCache::load` sonucuyla çalışır |
+| `ImageCacheError` | `Io`, `Usvg`, `Other` | Görsel yükleme veya render hatalarını sınıflandırır; fallback render için ayırt edici bilgi taşır |
+| `ImageCacheItem` | `Loading`, `Loaded` | Cache'in iç state'idir; tüketici çoğu zaman doğrudan bunu değil, `ImageCache::load` sonucunu kullanır |
 
 Public state alanları:
 
 | Tip | Alanlar | Not |
 | :-- | :-- | :-- |
-| `Animation` | `duration`, `oneshot`, `easing` | `.repeat()` `oneshot` değerini `false` yapar; direct field mutation yerine builder kullanın |
+| `Animation` | `duration`, `oneshot`, `easing` | `.repeat()` çağrısı `oneshot` değerini `false` yapar; doğrudan field mutation yerine builder zinciri tercih edilir |
 | `DeferredScrollToItem` | `item_index`, `strategy`, `offset`, `scroll_strict` | `UniformListScrollHandle` komutlarının pending state'i |
-| `UniformListScrollState` | `base_handle`, `deferred_scroll_to_item`, `last_item_size`, `y_flipped` | Scroll handle arkasındaki state; okuma için handle metodlarını tercih edin |
-| `ItemSize` | `item`, `contents` | `is_scrollable()` hesabında item viewport'u ve içerik boyutu ayrımı |
-| `ListOffset` | `item_ix`, `offset_in_item` | Değişken yükseklikli listede logical scroll pozisyonu |
-| `ListScrollEvent` | `visible_range`, `count`, `is_scrolled`, `is_following_tail` | `ListState::set_scroll_handler(...)` callback'inde scroll değişimini okuma yüzeyi |
-| `DivInspectorState` | `base_style`, `bounds`, `content_size` | Inspector/debug build state'i; uygulama component API'si değildir |
-| `Interactivity` | `element_id`, `active`, `hovered`, `base_style` | `Div` interactivity çekirdeği; üretim kodunda fluent builder metodları tercih edilir |
+| `UniformListScrollState` | `base_handle`, `deferred_scroll_to_item`, `last_item_size`, `y_flipped` | Scroll handle arkasındaki state; okuma için handle metodları daha doğru bir yüzeydir |
+| `ItemSize` | `item`, `contents` | `is_scrollable()` hesabında item viewport'u ile içerik boyutunun ayrımıdır |
+| `ListOffset` | `item_ix`, `offset_in_item` | Değişken yükseklikli listede logical scroll pozisyonunu temsil eder |
+| `ListScrollEvent` | `visible_range`, `count`, `is_scrolled`, `is_following_tail` | `ListState::set_scroll_handler(...)` callback'i içinde scroll değişimini okuma yüzeyidir |
+| `DivInspectorState` | `base_style`, `bounds`, `content_size` | Inspector veya debug build state'idir; uygulama component API'si değildir |
+| `Interactivity` | `element_id`, `active`, `hovered`, `base_style` | `Div` interactivity çekirdeğidir; üretim kodunda fluent builder metodları tercih edilir |
 
 ## Kullanım örüntüleri
 
-Ham `div()` ile özel kontrol yazarken minimum iskelet:
+Ham `div()` ile özel bir kontrol yazılırken kullanılan minimum iskelet şu
+şekilde görünür. Bu örüntü, standart bir `ui::Button` yerine elle kontrol
+yazıldığında focus, hover, tooltip ve action bağlarının nasıl kurulduğunu
+gösterir:
 
 ```rust
 div()
@@ -256,7 +287,9 @@ div()
     .child(Label::new("Etiket"))
 ```
 
-Değişken yükseklikli liste örüntüsü:
+Değişken yükseklikli liste örüntüsü şu şekildedir. Burada `list(...)` bir
+state nesnesi ve bir render closure'u alır; closure'un içinde verilen aralık
+satır satır render edilir:
 
 ```rust
 list(self.list_state.clone(), move |range, window, cx| {
@@ -267,7 +300,10 @@ list(self.list_state.clone(), move |range, window, cx| {
 .with_sizing_behavior(ListSizingBehavior::Infer)
 ```
 
-Sabit yükseklikli büyük liste örüntüsü:
+Sabit yükseklikli büyük liste örüntüsünde ise `uniform_list` öne çıkar.
+Buradaki kritik fark, her satırın aynı yüksekliğe sahip olduğunun
+varsayılmasıdır; bu varsayım sayesinde çok büyük veri kümeleri için hızlı
+bir virtualization elde edilir:
 
 ```rust
 uniform_list("items", self.items.len(), move |range, window, cx| {
@@ -278,7 +314,10 @@ uniform_list("items", self.items.len(), move |range, window, cx| {
 .track_scroll(&self.uniform_scroll_handle)
 ```
 
-Görsel cache örüntüsü:
+Görsel cache örüntüsü ise alt ağaçtaki tüm `img` çağrılarını ortak bir
+cache'e bağlamak için kullanılır. `image_cache(retain_all(...))` katmanı,
+aynı görselin tekrar tekrar yüklenmesini önler ve loading/fallback davranışı
+da merkezi bir yerden tanımlanabilir:
 
 ```rust
 image_cache(retain_all("image-cache"))
@@ -287,4 +326,3 @@ image_cache(retain_all("image-cache"))
         .with_loading(|_, _| div().size_full().into_any_element())
         .with_fallback(|_, _| Icon::new(IconName::Image).into_any_element()))
 ```
-
