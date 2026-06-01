@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 420">
+  <title>Reçete Karar Haritası</title>
+  <defs>
+    <style>
+      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
+      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
+      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
+      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
+      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
+      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
+    </style>
+  </defs>
+  <rect width="940" height="420" rx="10" fill="#f8fafc"/>
+  <text x="470" y="36" text-anchor="middle" class="title">Reçete Karar Haritası</text>
+  <text x="470" y="60" text-anchor="middle" class="sub">Günlük senaryolarda önce pencere türü, sonra state ve platform kararı seçilir.</text>
+
+  <rect x="46" y="100" width="180" height="110" rx="8" class="card"/>
+  <rect x="46" y="100" width="180" height="30" rx="8" fill="#0284c7"/>
+  <path d="M46 122 H226 V130 H46 Z" fill="#0284c7"/>
+  <text x="62" y="120" class="head">Workspace</text>
+  <text x="62" y="152" class="body">build_window_options</text>
+  <text x="62" y="170" class="body">client decorations</text>
+  <text x="62" y="188" class="small">CloseWindow action</text>
+
+  <rect x="278" y="100" width="180" height="110" rx="8" class="card"/>
+  <rect x="278" y="100" width="180" height="30" rx="8" fill="#7c3aed"/>
+  <path d="M278 122 H458 V130 H278 Z" fill="#7c3aed"/>
+  <text x="294" y="120" class="head">Dialog</text>
+  <text x="294" y="152" class="body">WindowKind::Dialog</text>
+  <text x="294" y="170" class="body">centered bounds</text>
+  <text x="294" y="188" class="small">resize kapalı</text>
+
+  <rect x="510" y="100" width="180" height="110" rx="8" class="card"/>
+  <rect x="510" y="100" width="180" height="30" rx="8" fill="#059669"/>
+  <path d="M510 122 H690 V130 H510 Z" fill="#059669"/>
+  <text x="526" y="120" class="head">Popup</text>
+  <text x="526" y="152" class="body">focus false</text>
+  <text x="526" y="170" class="body">transparent/blurred</text>
+  <text x="526" y="188" class="small">kök UI opak olmamalı</text>
+
+  <rect x="742" y="100" width="150" height="110" rx="8" class="card"/>
+  <rect x="742" y="100" width="150" height="30" rx="8" fill="#d97706"/>
+  <path d="M742 122 H892 V130 H742 Z" fill="#d97706"/>
+  <text x="758" y="120" class="head">Platform</text>
+  <text x="758" y="152" class="body">PlatformStyle</text>
+  <text x="758" y="170" class="body">cfg target</text>
+  <text x="758" y="188" class="small">runtime vs compile</text>
+
+  <rect x="160" y="268" width="190" height="96" rx="8" class="card"/>
+  <rect x="160" y="268" width="190" height="30" rx="8" fill="#334155"/>
+  <path d="M160 290 H350 V298 H160 Z" fill="#334155"/>
+  <text x="176" y="288" class="head">State sahibi</text>
+  <text x="176" y="320" class="body">Entity / Model</text>
+  <text x="176" y="338" class="small">render yalnız okur</text>
+
+  <rect x="390" y="268" width="190" height="96" rx="8" class="card"/>
+  <rect x="390" y="268" width="190" height="30" rx="8" fill="#be123c"/>
+  <path d="M390 290 H580 V298 H390 Z" fill="#be123c"/>
+  <text x="406" y="288" class="head">Action yolu</text>
+  <text x="406" y="320" class="body">dispatch / on_action</text>
+  <text x="406" y="338" class="small">keymap ile uyumlu</text>
+
+  <rect x="620" y="268" width="190" height="96" rx="8" class="card"/>
+  <rect x="620" y="268" width="190" height="30" rx="8" fill="#0f766e"/>
+  <path d="M620 290 H810 V298 H620 Z" fill="#0f766e"/>
+  <text x="636" y="288" class="head">Kontrol listesi</text>
+  <text x="636" y="320" class="body">focus, theme, assets</text>
+  <text x="636" y="338" class="small">son geçişte doğrula</text>
+</svg>

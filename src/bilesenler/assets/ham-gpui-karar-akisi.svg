@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 480">
+  <title>Ham GPUI Primitive Karar Akışı</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <style>
+      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .q     { font: 700 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .api   { font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .why   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
+      .arrow { stroke: #334155; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="880" height="480" rx="10" fill="#f8fafc" />
+  <text x="440" y="33" text-anchor="middle" class="title">Ham GPUI Primitive Karar Akışı</text>
+  <text x="440" y="53" text-anchor="middle" class="sub">Hazır Zed bileşeni var mı? → Yoksa hangi primitive?</text>
+
+  <!-- Merkez karar noktası -->
+  <rect x="300" y="68" width="280" height="50" rx="25" fill="#334155" />
+  <text x="440" y="88" text-anchor="middle" class="q" fill="#e2e8f0">İhtiyacın standart bir Zed</text>
+  <text x="440" y="104" text-anchor="middle" class="q" fill="#e2e8f0">UI bileşeniyle karşılanıyor mu?</text>
+
+  <!-- Evet ok -->
+  <path d="M 300 93 L 140 93" class="arrow" />
+  <rect x="20" y="68" width="118" height="50" rx="8" fill="#0891b2" />
+  <text x="79" y="88" text-anchor="middle" class="api">ui::*</text>
+  <text x="79" y="104" text-anchor="middle" class="why">Token, focus,</text>
+  <text x="79" y="116" text-anchor="middle" class="why">erişilebilirlik hazır</text>
+
+  <!-- Alt dağıtım -->
+  <path d="M 440 118 L 440 148" class="arrow" />
+  <rect x="300" y="150" width="280" height="40" rx="20" fill="#475569" />
+  <text x="440" y="170" text-anchor="middle" class="q" fill="#e2e8f0">Hangi ham GPUI ihtiyacı?</text>
+  <text x="440" y="182" text-anchor="middle" class="q" fill="#e2e8f0">(Aşağıdan seç)</text>
+
+  <!-- Satır 1: 4 kutu -->
+  <path d="M 358 190 L 100 230" class="arrow" />
+  <path d="M 400 190 L 280 230" class="arrow" />
+  <path d="M 480 190 L 530 230" class="arrow" />
+  <path d="M 522 190 L 700 230" class="arrow" />
+
+  <rect x="20" y="232" width="148" height="52" rx="7" fill="#1d4ed8" />
+  <text x="94" y="252" text-anchor="middle" class="api">div / h_flex</text>
+  <text x="94" y="266" text-anchor="middle" class="why">Container + layout</text>
+  <text x="94" y="278" text-anchor="middle" class="why">ve stil zinciri</text>
+
+  <rect x="186" y="232" width="164" height="52" rx="7" fill="#7c3aed" />
+  <text x="268" y="252" text-anchor="middle" class="api">canvas(pre, paint)</text>
+  <text x="268" y="266" text-anchor="middle" class="why">Özel çizim,</text>
+  <text x="268" y="278" text-anchor="middle" class="why">hitbox, path</text>
+
+  <rect x="466" y="232" width="148" height="52" rx="7" fill="#059669" />
+  <text x="540" y="252" text-anchor="middle" class="api">img / svg</text>
+  <text x="540" y="266" text-anchor="middle" class="why">Görsel gösterim,</text>
+  <text x="540" y="278" text-anchor="middle" class="why">vektör asset</text>
+
+  <rect x="630" y="232" width="148" height="52" rx="7" fill="#b45309" />
+  <text x="704" y="252" text-anchor="middle" class="api">anchored()</text>
+  <text x="704" y="266" text-anchor="middle" class="why">Tooltip, popover</text>
+  <text x="704" y="278" text-anchor="middle" class="why">konumlu overlay</text>
+
+  <!-- Satır 2: 4 kutu -->
+  <path d="M 380 190 L 130 334" class="arrow" />
+  <path d="M 420 190 L 304 334" class="arrow" />
+  <path d="M 460 190 L 530 334" class="arrow" />
+  <path d="M 500 190 L 704 334" class="arrow" />
+
+  <rect x="20" y="336" width="190" height="52" rx="7" fill="#0e7490" />
+  <text x="115" y="356" text-anchor="middle" class="api">list / uniform_list</text>
+  <text x="115" y="370" text-anchor="middle" class="why">Sanal liste —</text>
+  <text x="115" y="382" text-anchor="middle" class="why">değişken / sabit yükseklik</text>
+
+  <rect x="226" y="336" width="190" height="52" rx="7" fill="#1e40af" />
+  <text x="321" y="356" text-anchor="middle" class="api">StyledText</text>
+  <text x="321" y="370" text-anchor="middle" class="why">Metin highlight,</text>
+  <text x="321" y="382" text-anchor="middle" class="why">span etkileşimi</text>
+
+  <rect x="432" y="336" width="190" height="52" rx="7" fill="#4c1d95" />
+  <text x="527" y="356" text-anchor="middle" class="api">image_cache</text>
+  <text x="527" y="370" text-anchor="middle" class="why">Alt ağaçta ortak</text>
+  <text x="527" y="382" text-anchor="middle" class="why">görsel önbelleği</text>
+
+  <rect x="638" y="336" width="190" height="52" rx="7" fill="#92400e" />
+  <text x="733" y="356" text-anchor="middle" class="api">Animation</text>
+  <text x="733" y="370" text-anchor="middle" class="why">Zaman tabanlı</text>
+  <text x="733" y="382" text-anchor="middle" class="why">transform / geçiş</text>
+
+  <!-- deferred ve surface -->
+  <rect x="20" y="414" width="190" height="44" rx="7" fill="#334155" />
+  <text x="115" y="434" text-anchor="middle" class="api">deferred(child)</text>
+  <text x="115" y="448" text-anchor="middle" class="why">Ağır alt ağaç erteleme</text>
+
+  <rect x="226" y="414" width="190" height="44" rx="7" fill="#334155" />
+  <text x="321" y="434" text-anchor="middle" class="api">surface(source)</text>
+  <text x="321" y="448" text-anchor="middle" class="why">CVPixelBuffer (macOS)</text>
+
+</svg>

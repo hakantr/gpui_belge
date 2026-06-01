@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 240">
+  <title>FontWeight Ölçeği</title>
+  <defs>
+    <style>
+      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cname { font: 700 9px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .cval  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; }
+      .note  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect width="820" height="240" rx="10" fill="#f8fafc" />
+  <text x="410" y="30" text-anchor="middle" class="title">FontWeight Ölçeği</text>
+  <text x="410" y="50" text-anchor="middle" class="sub">9 sabit; CSS ağırlık değerleriyle birebir eşleşir. FontWeight(pub f32) yeni tip olarak tanımlıdır.</text>
+
+  <!-- 9 kutucuk: genişlik=83px, aralık=4px; sol kenar=21px -->
+  <!-- x sırası: 21, 108, 195, 282, 369, 456, 543, 630, 717 -->
+  <!-- merkez  : 62, 149, 236, 323, 410, 497, 584, 671, 758 -->
+
+  <!-- THIN 100 -->
+  <rect x="21" y="65" width="83" height="150" rx="6" fill="#c7d2fe"/>
+  <text x="62" y="117" text-anchor="middle" font-size="34" font-weight="100" font-family="system-ui, -apple-system, sans-serif" fill="#1e1b4b">Aa</text>
+  <text x="62" y="142" text-anchor="middle" class="cname" fill="#312e81">THIN</text>
+  <text x="62" y="157" text-anchor="middle" class="cval" fill="#3730a3">100.0</text>
+  <text x="62" y="171" text-anchor="middle" class="cval" font-size="9" fill="#4338ca">thin</text>
+
+  <!-- EXTRA_LIGHT 200 -->
+  <rect x="108" y="65" width="83" height="150" rx="6" fill="#a5b4fc"/>
+  <text x="149" y="117" text-anchor="middle" font-size="34" font-weight="200" font-family="system-ui, -apple-system, sans-serif" fill="#1e1b4b">Aa</text>
+  <text x="149" y="142" text-anchor="middle" class="cname" fill="#312e81">EXTRA_LIGHT</text>
+  <text x="149" y="157" text-anchor="middle" class="cval" fill="#3730a3">200.0</text>
+  <text x="149" y="171" text-anchor="middle" class="cval" font-size="9" fill="#4338ca">extra-light</text>
+
+  <!-- LIGHT 300 -->
+  <rect x="195" y="65" width="83" height="150" rx="6" fill="#818cf8"/>
+  <text x="236" y="117" text-anchor="middle" font-size="34" font-weight="300" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
+  <text x="236" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">LIGHT</text>
+  <text x="236" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">300.0</text>
+  <text x="236" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">light</text>
+
+  <!-- NORMAL 400 -->
+  <rect x="282" y="65" width="83" height="150" rx="6" fill="#6366f1"/>
+  <text x="323" y="117" text-anchor="middle" font-size="34" font-weight="400" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
+  <text x="323" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">NORMAL</text>
+  <text x="323" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">400.0</text>
+  <text x="323" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">normal (default)</text>
+
+  <!-- MEDIUM 500 -->
+  <rect x="369" y="65" width="83" height="150" rx="6" fill="#4f46e5"/>
+  <text x="410" y="117" text-anchor="middle" font-size="34" font-weight="500" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
+  <text x="410" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">MEDIUM</text>
+  <text x="410" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">500.0</text>
+  <text x="410" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">medium</text>
+
+  <!-- SEMIBOLD 600 -->
+  <rect x="456" y="65" width="83" height="150" rx="6" fill="#4338ca"/>
+  <text x="497" y="117" text-anchor="middle" font-size="34" font-weight="600" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
+  <text x="497" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">SEMIBOLD</text>
+  <text x="497" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">600.0</text>
+  <text x="497" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">semibold</text>
+
+  <!-- BOLD 700 -->
+  <rect x="543" y="65" width="83" height="150" rx="6" fill="#3730a3"/>
+  <text x="584" y="117" text-anchor="middle" font-size="34" font-weight="700" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
+  <text x="584" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">BOLD</text>
+  <text x="584" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">700.0</text>
+  <text x="584" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">bold</text>
+
+  <!-- EXTRA_BOLD 800 -->
+  <rect x="630" y="65" width="83" height="150" rx="6" fill="#1e1b4b"/>
+  <text x="671" y="117" text-anchor="middle" font-size="34" font-weight="800" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
+  <text x="671" y="142" text-anchor="middle" class="cname" fill="#c7d2fe">EXTRA_BOLD</text>
+  <text x="671" y="157" text-anchor="middle" class="cval" fill="#c7d2fe">800.0</text>
+  <text x="671" y="171" text-anchor="middle" class="cval" font-size="9" fill="#a5b4fc">extra-bold</text>
+
+  <!-- BLACK 900 -->
+  <rect x="717" y="65" width="83" height="150" rx="6" fill="#0f172a"/>
+  <text x="758" y="117" text-anchor="middle" font-size="34" font-weight="900" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
+  <text x="758" y="142" text-anchor="middle" class="cname" fill="#c7d2fe">BLACK</text>
+  <text x="758" y="157" text-anchor="middle" class="cval" fill="#c7d2fe">900.0</text>
+  <text x="758" y="171" text-anchor="middle" class="cval" font-size="9" fill="#a5b4fc">black</text>
+
+  <!-- Alt not -->
+  <text x="410" y="232" text-anchor="middle" class="note">FontWeight::ALL tüm değerleri sırayla taşır — font seçici iterasyonu için.</text>
+</svg>

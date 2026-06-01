@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 620">
+  <title>GPUI Async Görev ve Durum Yönetimi</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="540" y="36" text-anchor="middle" class="title">GPUI Async Görev ve Durum Yönetimi</text>
+
+  <text x="540" y="62" text-anchor="middle" class="subtitle">Ön plan UI güncellemeleri ile arka plan işler ayrı executor yüzeylerinde toplanır.</text>
+  <rect x="70" y="92" width="440" height="356" rx="10" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.6" />
+  <text x="290" y="124" text-anchor="middle" class="label" fill="#0284c7">ForegroundExecutor - UI iş parçacığı</text>
+  <rect x="100" y="150" width="380" height="38" rx="8" fill="#ffffff" stroke="#ffffff" stroke-width="1" />
+<text x="114" y="173" class="monoSmall">cx.spawn(async move |cx| ...)</text>
+  <rect x="100" y="198" width="380" height="38" rx="8" fill="#ffffff" stroke="#ffffff" stroke-width="1" />
+<text x="114" y="221" class="monoSmall">cx.spawn_in(window, async move |view, cx| ...)</text>
+  <rect x="100" y="246" width="380" height="38" rx="8" fill="#ffffff" stroke="#ffffff" stroke-width="1" />
+<text x="114" y="269" class="monoSmall">cx.update(...) / cx.update_in(window, ...)</text>
+  <rect x="100" y="294" width="380" height="38" rx="8" fill="#ffffff" stroke="#ffffff" stroke-width="1" />
+<text x="114" y="317" class="monoSmall">entity.update(cx, ...) / cx.notify()</text>
+  <text x="100" y="366" text-anchor="start" class="body">Kullanım alanı:</text>
+<text x="100" y="384" text-anchor="start" class="body">ön plan görevi, Entity'ye bağlı görev, pencereye bağlı görev</text>
+  <rect x="570" y="92" width="440" height="356" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.6" />
+  <text x="790" y="124" text-anchor="middle" class="label">BackgroundExecutor - scheduler ve thread pool</text>
+  <rect x="600" y="150" width="380" height="38" rx="8" fill="#ffffff" stroke="#ffffff" stroke-width="1" />
+<text x="614" y="173" class="monoSmall">cx.background_spawn(async move { ... })</text>
+  <rect x="600" y="198" width="380" height="38" rx="8" fill="#ffffff" stroke="#ffffff" stroke-width="1" />
+<text x="614" y="221" class="monoSmall">background_executor().timer(duration).await</text>
+  <rect x="600" y="246" width="380" height="38" rx="8" fill="#ffffff" stroke="#ffffff" stroke-width="1" />
+<text x="614" y="269" class="monoSmall">spawn / spawn_with_priority / scoped</text>
+  <rect x="600" y="294" width="380" height="38" rx="8" fill="#ffffff" stroke="#ffffff" stroke-width="1" />
+<text x="614" y="317" class="monoSmall">CPU yoğun iş / async beklemeler</text>
+  <text x="600" y="366" text-anchor="start" class="body">Test desteği:</text>
+<text x="600" y="384" text-anchor="start" class="body">advance_clock, run_until_parked, simulate_random_delay</text>
+  <path d="M 510 230 L 570 230" class="arrowSoft" />
+  <text x="540" y="218" text-anchor="middle" class="edge">spawn</text>
+  <path d="M 570 292 L 510 292" class="arrowSoft" />
+  <text x="540" y="322" text-anchor="middle" class="edge">await sonucu</text>
+  <rect x="70" y="482" width="940" height="84" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
+<text x="86" y="506" text-anchor="start" class="small">Task&lt;T&gt; handle'i: await, detach, detach_and_log_err(cx), with_timeout(duration, executor).</text>
+<text x="86" y="523" text-anchor="start" class="small">Priority: RealtimeAudio, High, Medium, Low.</text>
+<text x="86" y="540" text-anchor="start" class="small">Async bağlamlar: AsyncApp, AsyncWindowContext ve WeakEntity&lt;T&gt; yaşam döngüsü güvenliğini korur.</text>
+
+</svg>

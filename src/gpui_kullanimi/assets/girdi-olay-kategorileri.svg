@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 430">
+  <title>GPUI Element Girdi Olay Kategorileri</title>
+  <defs>
+    <style>
+      .title    { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .catLbl   { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
+      .mono     { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1e293b; }
+      .monoMut  { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #64748b; }
+      .note     { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .noteB    { font: 700 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .badge    { font: 700 10px system-ui, -apple-system, "Segoe UI", sans-serif; }
+    </style>
+  </defs>
+
+  <rect width="900" height="430" rx="10" fill="#f8fafc" />
+
+  <!-- Başlık -->
+  <text x="450" y="34" text-anchor="middle" class="title">Element Girdi Olay Kategorileri</text>
+  <text x="450" y="56" text-anchor="middle" class="subtitle">Her kategori fluent API üzerinden bağlanır. on_ → bubble aşaması · capture_ → capture aşaması.</text>
+
+  <!-- ── Sütun 1: Klavye ── -->
+  <rect x="20" y="74" width="160" height="240" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <rect x="20" y="74" width="160" height="26" rx="7" fill="#1d4ed8" />
+  <path d="M 20 93 H 180 V 100 H 20 Z" fill="#1d4ed8" />
+  <text x="100" y="91" text-anchor="middle" class="catLbl">Klavye</text>
+  <text x="36" y="120" class="mono">.on_key_down</text>
+  <text x="36" y="138" class="mono">.capture_key_down</text>
+  <text x="36" y="156" class="mono">.on_key_up</text>
+  <text x="36" y="174" class="mono">.capture_key_up</text>
+  <line x1="36" y1="186" x2="164" y2="186" stroke="#e2e8f0" />
+  <text x="36" y="202" class="monoMut">KeyDownEvent</text>
+  <text x="36" y="218" class="monoMut">KeyUpEvent</text>
+
+  <!-- ── Sütun 2: Fare ── -->
+  <rect x="192" y="74" width="160" height="240" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <rect x="192" y="74" width="160" height="26" rx="7" fill="#0891b2" />
+  <path d="M 192 93 H 352 V 100 H 192 Z" fill="#0891b2" />
+  <text x="272" y="91" text-anchor="middle" class="catLbl">Fare</text>
+  <text x="208" y="120" class="mono">.on_mouse_down</text>
+  <text x="208" y="138" class="mono">.capture_any_mouse_down</text>
+  <text x="208" y="156" class="mono">.on_mouse_up</text>
+  <text x="208" y="174" class="mono">.on_mouse_move</text>
+  <text x="208" y="192" class="mono">.on_click</text>
+  <text x="208" y="210" class="mono">.on_hover</text>
+  <text x="208" y="228" class="mono">.on_mouse_down_out</text>
+  <text x="208" y="246" class="mono">.on_mouse_up_out</text>
+
+  <!-- ── Sütun 3: Scroll ── -->
+  <rect x="364" y="74" width="160" height="240" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <rect x="364" y="74" width="160" height="26" rx="7" fill="#059669" />
+  <path d="M 364 93 H 524 V 100 H 364 Z" fill="#059669" />
+  <text x="444" y="91" text-anchor="middle" class="catLbl">Hareket &amp; Scroll</text>
+  <text x="380" y="120" class="mono">.on_scroll_wheel</text>
+  <text x="380" y="138" class="mono">.on_pinch</text>
+  <text x="380" y="156" class="mono">.capture_pinch</text>
+  <line x1="380" y1="168" x2="508" y2="168" stroke="#e2e8f0" />
+  <text x="380" y="184" class="monoMut">ScrollWheelEvent</text>
+  <text x="380" y="200" class="monoMut">PinchEvent</text>
+
+  <!-- ── Sütun 4: Sürükle-Bırak ── -->
+  <rect x="536" y="74" width="160" height="240" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <rect x="536" y="74" width="160" height="26" rx="7" fill="#7c3aed" />
+  <path d="M 536 93 H 696 V 100 H 536 Z" fill="#7c3aed" />
+  <text x="616" y="91" text-anchor="middle" class="catLbl">Sürükle-Bırak</text>
+  <text x="552" y="120" class="mono">.on_drag</text>
+  <text x="552" y="138" class="mono">.on_drag_move::&lt;T&gt;</text>
+  <text x="552" y="156" class="mono">.drag_over::&lt;T&gt;</text>
+  <text x="552" y="174" class="mono">.on_drop::&lt;T&gt;</text>
+  <text x="552" y="192" class="mono">.can_drop</text>
+  <line x1="552" y1="204" x2="680" y2="204" stroke="#e2e8f0" />
+  <text x="552" y="220" class="monoMut">DragMoveEvent</text>
+  <text x="552" y="236" class="monoMut">FileDropEvent</text>
+
+  <!-- ── Sütun 5: Action ── -->
+  <rect x="708" y="74" width="172" height="240" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <rect x="708" y="74" width="172" height="26" rx="7" fill="#b45309" />
+  <path d="M 708 93 H 880 V 100 H 708 Z" fill="#b45309" />
+  <text x="794" y="91" text-anchor="middle" class="catLbl">Action</text>
+  <text x="724" y="120" class="mono">.on_action::&lt;A&gt;</text>
+  <text x="724" y="138" class="mono">.capture_action::&lt;A&gt;</text>
+  <text x="724" y="156" class="mono">.on_boxed_action</text>
+  <line x1="724" y1="168" x2="868" y2="168" stroke="#e2e8f0" />
+  <text x="724" y="184" class="monoMut">dispatch → bubble</text>
+  <text x="724" y="200" class="monoMut">capture → önce tutar</text>
+
+  <!-- ── Açıklama kutusu ── -->
+  <rect x="20" y="330" width="860" height="74" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <text x="40" y="354" class="noteB">on_  vs  capture_</text>
+  <text x="120" y="354" class="note">GPUI olayı ağacın köküne kadar taşır (bubble). Capture_ dinleyiciler kökten aşağı inerken daha önce</text>
+  <text x="40" y="374" class="note">çalışır; ebeveyn, çocuktan önce olayı alır. Klavye, fare ve scroll olaylarında her iki aşama mevcuttur.</text>
+  <text x="40" y="394" class="note">Action'larda varsayılan yayılım bubble'dır; capture ile ebeveyn action'u çocuğa ulaşmadan kesebilir.</text>
+
+</svg>

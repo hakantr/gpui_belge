@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 420">
+  <title>JSON Parse Pipeline</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
+      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
+      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
+      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
+      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
+      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
+      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="980" height="420" rx="10" fill="#f8fafc"/>
+  <text x="490" y="36" text-anchor="middle" class="title">JSON Parse Pipeline</text>
+  <text x="490" y="60" text-anchor="middle" class="sub">Lenient okuma, schema tipi ve runtime model aynı sırada ayrılır.</text>
+
+  <rect x="38" y="130" width="160" height="96" rx="8" class="card"/>
+  <rect x="38" y="130" width="160" height="30" rx="8" fill="#334155"/>
+  <path d="M38 152 H198 V160 H38 Z" fill="#334155"/>
+  <text x="54" y="150" class="head">theme.json</text>
+  <text x="54" y="182" class="body">Zed uyumlu</text>
+  <text x="54" y="200" class="small">comments / trailing comma</text>
+
+  <rect x="258" y="130" width="170" height="96" rx="8" class="card"/>
+  <rect x="258" y="130" width="170" height="30" rx="8" fill="#0284c7"/>
+  <path d="M258 152 H428 V160 H258 Z" fill="#0284c7"/>
+  <text x="274" y="150" class="head">serde_lenient</text>
+  <text x="274" y="182" class="body">ThemeFamilyContent</text>
+  <text x="274" y="200" class="small">schema katmanı</text>
+
+  <rect x="488" y="84" width="184" height="96" rx="8" class="card"/>
+  <rect x="488" y="84" width="184" height="30" rx="8" fill="#7c3aed"/>
+  <path d="M488 106 H672 V114 H488 Z" fill="#7c3aed"/>
+  <text x="504" y="104" class="head">flatten/rename</text>
+  <text x="504" y="136" class="body">dotted keys</text>
+  <text x="504" y="154" class="small">Option alanlar</text>
+
+  <rect x="488" y="232" width="184" height="96" rx="8" class="card"/>
+  <rect x="488" y="232" width="184" height="30" rx="8" fill="#d97706"/>
+  <path d="M488 254 H672 V262 H488 Z" fill="#d97706"/>
+  <text x="504" y="252" class="head">treat_error_as_none</text>
+  <text x="504" y="284" class="body">tolerans noktası</text>
+  <text x="504" y="302" class="small">hatalı renk düşer</text>
+
+  <rect x="742" y="130" width="190" height="96" rx="8" class="card"/>
+  <rect x="742" y="130" width="190" height="30" rx="8" fill="#059669"/>
+  <path d="M742 152 H932 V160 H742 Z" fill="#059669"/>
+  <text x="758" y="150" class="head">Theme::from_content</text>
+  <text x="758" y="182" class="body">Hsla + Arc + registry</text>
+  <text x="758" y="200" class="small">runtime model</text>
+
+  <path d="M198 178 H258" class="arrow"/>
+  <path d="M428 160 C460 144 462 132 488 132" class="arrow"/>
+  <path d="M428 196 C460 220 462 280 488 280" class="arrow"/>
+  <path d="M672 132 C704 132 714 166 742 172" class="arrow"/>
+  <path d="M672 280 C704 280 714 198 742 190" class="arrow"/>
+
+  <rect x="158" y="352" width="664" height="42" rx="7" fill="#eef2ff" stroke="#6366f1" stroke-width="1.1"/>
+  <text x="182" y="378" class="body">Kural: JSON schema kullanıcı sözleşmesidir; runtime Theme bu sözleşmenin işlenmiş sonucudur.</text>
+</svg>

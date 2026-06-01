@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 345">
+  <title>ThemeSelection Modu Seçimi</title>
+  <defs>
+    <style>
+      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .api   { font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .head  { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
+      .body  { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #e2e8f0; }
+      .note  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #94a3b8; }
+      .sec   { font: 700 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+    </style>
+  </defs>
+
+  <rect width="860" height="345" rx="10" fill="#f8fafc" />
+  <text x="430" y="30" text-anchor="middle" class="title">ThemeSelection Modu Seçimi</text>
+  <text x="430" y="50" text-anchor="middle" class="sub">Enum serde::untagged olarak ayrıştırılır; string → Static, object → Dynamic.</text>
+
+  <!-- ─── Static kart (tam genişlik) ─── -->
+  <rect x="20" y="65" width="820" height="80" rx="8" fill="#0891b2"/>
+  <text x="40" y="89" class="api">ThemeSelection::Static(ThemeName)</text>
+  <text x="40" y="110" class="body">Tek bir tema adı taşır; mode kavramı yoktur. Her koşulda aynı ad Registry.get(name) ile lookup edilir.</text>
+  <text x="40" y="130" class="note">Örnek JSON: "theme": "One Dark"</text>
+
+  <!-- ─── Dinamik başlık ─── -->
+  <text x="20" y="167" class="sec">Dynamic { mode, light, dark } — object biçiminde ayrıştırılır; light ve dark alanları zorunludur.</text>
+
+  <!-- ─── Dynamic: mode = Light ─── -->
+  <rect x="14" y="175" width="269" height="130" rx="8" fill="#1d4ed8"/>
+  <text x="148" y="200" text-anchor="middle" class="head">mode = Light</text>
+  <text x="25" y="222" class="body">OS modu yoksayılır.</text>
+  <text x="25" y="240" class="body">Hep "light" adı lookup edilir.</text>
+  <text x="25" y="262" class="note">"theme": { "mode": "light",</text>
+  <text x="25" y="278" class="note">  "light": "One Light", "dark": "One Dark" }</text>
+
+  <!-- ─── Dynamic: mode = Dark ─── -->
+  <rect x="295" y="175" width="269" height="130" rx="8" fill="#312e81"/>
+  <text x="430" y="200" text-anchor="middle" class="head">mode = Dark</text>
+  <text x="306" y="222" class="body">OS modu yoksayılır.</text>
+  <text x="306" y="240" class="body">Hep "dark" adı lookup edilir.</text>
+  <text x="306" y="262" class="note">"theme": { "mode": "dark",</text>
+  <text x="306" y="278" class="note">  "light": "One Light", "dark": "One Dark" }</text>
+
+  <!-- ─── Dynamic: mode = System (default) ─── -->
+  <rect x="576" y="175" width="270" height="130" rx="8" fill="#7c3aed"/>
+  <text x="711" y="200" text-anchor="middle" class="head">mode = System  (varsayılan)</text>
+  <text x="587" y="222" class="body">SystemAppearance::global(cx) okunur.</text>
+  <text x="587" y="242" class="body">Appearance::Light  →  "light" adı</text>
+  <text x="587" y="260" class="body">Appearance::Dark   →  "dark" adı</text>
+  <text x="587" y="280" class="note">mode belirtilmezse System seçilir.</text>
+
+  <!-- ─── Alt not ─── -->
+  <rect x="20" y="323" width="820" height="15" rx="4" fill="#334155"/>
+  <text x="430" y="334" text-anchor="middle" class="note" fill="#e2e8f0">ThemeAppearanceMode: #[default] System. IconThemeSelection aynı yapıyı kullanır.</text>
+</svg>

@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 390">
+  <title>UI Tema Tüketim Akışı</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
+      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
+      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
+      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
+      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
+      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
+      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="940" height="390" rx="10" fill="#f8fafc"/>
+  <text x="470" y="36" text-anchor="middle" class="title">UI Tema Tüketim Akışı</text>
+  <text x="470" y="60" text-anchor="middle" class="sub">Bileşenler tema iç yerleşimini değil, accessor yüzeyini okur.</text>
+
+  <rect x="52" y="132" width="166" height="96" rx="8" class="card"/>
+  <rect x="52" y="132" width="166" height="30" rx="8" fill="#334155"/>
+  <path d="M52 154 H218 V162 H52 Z" fill="#334155"/>
+  <text x="68" y="152" class="head">Render view</text>
+  <text x="68" y="184" class="body">use prelude</text>
+  <text x="68" y="202" class="small">ActiveTheme trait'i</text>
+
+  <rect x="284" y="132" width="166" height="96" rx="8" class="card"/>
+  <rect x="284" y="132" width="166" height="30" rx="8" fill="#0284c7"/>
+  <path d="M284 154 H450 V162 H284 Z" fill="#0284c7"/>
+  <text x="300" y="152" class="head">cx.theme()</text>
+  <text x="300" y="184" class="body">&amp;Arc&lt;Theme&gt;</text>
+  <text x="300" y="202" class="small">klon gerekmez</text>
+
+  <rect x="516" y="88" width="178" height="96" rx="8" class="card"/>
+  <rect x="516" y="88" width="178" height="30" rx="8" fill="#059669"/>
+  <path d="M516 110 H694 V118 H516 Z" fill="#059669"/>
+  <text x="532" y="108" class="head">accessor</text>
+  <text x="532" y="140" class="body">colors()</text>
+  <text x="532" y="158" class="small">status(), players()</text>
+
+  <rect x="516" y="226" width="178" height="96" rx="8" class="card"/>
+  <rect x="516" y="226" width="178" height="30" rx="8" fill="#d97706"/>
+  <path d="M516 248 H694 V256 H516 Z" fill="#d97706"/>
+  <text x="532" y="246" class="head">etkileşim</text>
+  <text x="532" y="278" class="body">hover / active</text>
+  <text x="532" y="296" class="small">disabled / selected</text>
+
+  <rect x="760" y="132" width="130" height="96" rx="8" class="card"/>
+  <rect x="760" y="132" width="130" height="30" rx="8" fill="#7c3aed"/>
+  <path d="M760 154 H890 V162 H760 Z" fill="#7c3aed"/>
+  <text x="776" y="152" class="head">Element</text>
+  <text x="776" y="184" class="body">bg / border</text>
+  <text x="776" y="202" class="small">text_color</text>
+
+  <path d="M218 180 H284" class="arrow"/>
+  <path d="M450 168 C482 154 488 136 516 136" class="arrow"/>
+  <path d="M450 196 C482 214 488 274 516 274" class="arrow"/>
+  <path d="M694 136 C734 136 734 170 760 176" class="arrow"/>
+  <path d="M694 274 C734 274 734 208 760 198" class="arrow"/>
+
+  <rect x="122" y="342" width="696" height="28" rx="7" fill="#eef2ff" stroke="#6366f1" stroke-width="1.1"/>
+  <text x="144" y="361" class="small">Kural: `styles` crate-içi kalır; dış UI yalnız accessor metotlarını kullanır.</text>
+</svg>

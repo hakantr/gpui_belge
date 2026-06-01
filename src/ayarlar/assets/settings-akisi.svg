@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+  <title>SettingsStore Akışı</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">SettingsStore Akışı</text>
+
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Kaynaklar sırayla SettingsContent üzerine merge edilir; tipli ayarlar Settings::from_settings ile üretilir.</text>
+  <rect x="60" y="94" width="250" height="104" rx="8" class="card" />
+<rect x="60" y="94" width="250" height="30" rx="8" fill="#0284c7" />
+<path d="M 60 116 H 310 V 124 H 60 Z" fill="#0284c7" />
+<text x="74" y="114" class="cardTitle">1. default.json</text>
+<text x="74" y="146" class="body">assets/settings/default.json</text>
+<text x="74" y="163" class="body">Binary'ye gömülü taban değerler.</text>
+<text x="74" y="180" class="body">SettingsStore::new(...).</text>
+
+  <rect x="330" y="94" width="250" height="104" rx="8" class="card" />
+<rect x="330" y="94" width="250" height="30" rx="8" fill="#059669" />
+<path d="M 330 116 H 580 V 124 H 330 Z" fill="#059669" />
+<text x="344" y="114" class="cardTitle">2. Kullanıcı</text>
+<text x="344" y="146" class="body">~/.config/zed/settings.json</text>
+<text x="344" y="163" class="body">SettingsStore::set_user_settings.</text>
+<text x="344" y="180" class="body">update_settings_file(fs, cx, ...).</text>
+
+  <rect x="600" y="94" width="250" height="104" rx="8" class="card" />
+<rect x="600" y="94" width="250" height="30" rx="8" fill="#7c3aed" />
+<path d="M 600 116 H 850 V 124 H 600 Z" fill="#7c3aed" />
+<text x="614" y="114" class="cardTitle">3. Sunucu</text>
+<text x="614" y="146" class="body">initial_server_settings.json</text>
+<text x="614" y="163" class="body">Release channel / dağıtım override.</text>
+<text x="614" y="180" class="body">SettingsStore::set_server_settings.</text>
+
+  <rect x="870" y="94" width="250" height="104" rx="8" class="card" />
+<rect x="870" y="94" width="250" height="30" rx="8" fill="#d97706" />
+<path d="M 870 116 H 1120 V 124 H 870 Z" fill="#d97706" />
+<text x="884" y="114" class="cardTitle">4. Proje</text>
+<text x="884" y="146" class="body">&lt;worktree&gt;/.zed/settings.json</text>
+<text x="884" y="163" class="body">SettingsStore::set_local_settings.</text>
+<text x="884" y="180" class="body">SettingsLocation {...}.</text>
+
+  <rect x="200" y="244" width="340" height="96" rx="8" class="card" />
+<rect x="200" y="244" width="340" height="30" rx="8" fill="#be123c" />
+<path d="M 200 266 H 540 V 274 H 200 Z" fill="#be123c" />
+<text x="214" y="264" class="cardTitle">5. Dile özel</text>
+<text x="214" y="296" class="body">settings.json içindeki &quot;languages&quot; bloğu.</text>
+<text x="214" y="313" class="body">LanguageSettings::get(Some(location), cx).</text>
+<text x="214" y="330" class="body">worktree + path bilgisinden seçilir.</text>
+
+  <rect x="620" y="244" width="340" height="96" rx="8" class="card" />
+<rect x="620" y="244" width="340" height="30" rx="8" fill="#be123c" />
+<path d="M 620 266 H 960 V 274 H 620 Z" fill="#be123c" />
+<text x="634" y="264" class="cardTitle">6. Programatik override</text>
+<text x="634" y="296" class="body">XSettings::override_global(deger, cx).</text>
+<text x="634" y="313" class="body">Kalıcılaştırılmaz, yalnız çalışma zamanı.</text>
+<text x="634" y="330" class="body">test-support: update_user_settings.</text>
+
+  <path d="M 185 198 L 440 386" class="arrowSoft" />
+  <path d="M 455 198 L 500 386" class="arrowSoft" />
+  <path d="M 725 198 L 660 386" class="arrowSoft" />
+  <path d="M 995 198 L 720 386" class="arrowSoft" />
+  <path d="M 370 340 L 520 386" class="arrowSoft" />
+  <path d="M 790 340 L 640 386" class="arrowSoft" />
+  <rect x="240" y="386" width="680" height="96" rx="8" class="card" />
+<rect x="240" y="386" width="680" height="30" rx="8" fill="#d97706" />
+<path d="M 240 408 H 920 V 416 H 240 Z" fill="#d97706" />
+<text x="254" y="406" class="cardTitle">SettingsContent - merge sonucu</text>
+<text x="254" y="438" class="body">Sıra: default &lt;- user &lt;- server &lt;- local &lt;- language &lt;- override.</text>
+<text x="254" y="455" class="body">Her kaynak MergeFrom ile önceki sonucu günceller.</text>
+<text x="254" y="472" class="body">SettingsStore::recompute() dosya değişiminden sonra zinciri yeniden hesaplar.</text>
+
+  <path d="M 580 482 L 580 524" class="arrowSoft" />
+  <rect x="60" y="524" width="1040" height="112" rx="8" class="card" />
+<rect x="60" y="524" width="1040" height="30" rx="8" fill="#334155" />
+<path d="M 60 546 H 1100 V 554 H 60 Z" fill="#334155" />
+<text x="74" y="544" class="cardTitle">SettingsStore - global, cx.set_global</text>
+<text x="74" y="576" class="body">Kayıt: #[derive(RegisterSetting)] + inventory::collect! ve Settings::register(cx).</text>
+<text x="74" y="593" class="body">Her tipli ayar için Settings::from_settings(&amp;SettingsContent) çağrılır.</text>
+<text x="74" y="610" class="body">Okuma: T::get_global(cx), T::get(Some(SettingsLocation), cx), T::try_get(cx), T::try_read_global(async_cx, ...).</text>
+
+  <path d="M 580 636 L 580 674" class="arrowSoft" />
+  <rect x="60" y="674" width="1040" height="92" rx="8" class="card" />
+<rect x="60" y="674" width="1040" height="30" rx="8" fill="#0f766e" />
+<path d="M 60 696 H 1100 V 704 H 60 Z" fill="#0f766e" />
+<text x="74" y="694" class="cardTitle">UI tüketim</text>
+<text x="74" y="726" class="body">cx.observe_global::&lt;SettingsStore&gt;(...) her merge sonrasında çalışır; cx.notify() ile yeniden çizim istenir.</text>
+<text x="74" y="743" class="body">Yazma: settings::update_settings_file(fs, cx, |content, cx| { ... }) kullanıcı JSON'una kalıcı yazar.</text>
+<text x="74" y="760" class="body">from_settings panic ediyorsa varsayılan JSON'da alan eksiktir.</text>
+
+  <text x="580" y="794" text-anchor="middle" class="small">Aynı kalıp tema için de işler: ThemeRegistry, ThemeFamily, refine_theme_family ve theme_settings::reload_theme(cx).</text>
+
+</svg>

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+  <title>Test Zamanlayıcı Timeline</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">Test Zamanlayıcı Timeline</text>
+  <text x="580" y="62" text-anchor="middle" class="subtitle">TestDispatcher hazır task'leri ve sahte zamanı ayrı ayrı ilerletir.</text>
+
+  <line x1="110" y1="250" x2="1050" y2="250" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+  <text x="110" y="226" text-anchor="middle" class="label">t0</text>
+  <text x="420" y="226" text-anchor="middle" class="label">t+1s</text>
+  <text x="735" y="226" text-anchor="middle" class="label">park</text>
+  <text x="1020" y="226" text-anchor="middle" class="label">assert</text>
+
+  <circle cx="110" cy="250" r="7" fill="#0284c7" />
+  <circle cx="420" cy="250" r="7" fill="#7c3aed" />
+  <circle cx="735" cy="250" r="7" fill="#d97706" />
+  <circle cx="1020" cy="250" r="7" fill="#059669" />
+
+  <rect x="60" y="308" width="260" height="120" rx="8" fill="#dbeafe" stroke="#2563eb" />
+  <text x="190" y="338" text-anchor="middle" class="label">1. Task spawn</text>
+  <text x="190" y="362" text-anchor="middle" class="mono">cx.background_spawn(...)</text>
+  <text x="190" y="382" text-anchor="middle" class="body">Task timer beklemeye geçer.</text>
+  <text x="190" y="402" text-anchor="middle" class="mono">timer(1s).await</text>
+
+  <path d="M 190 308 L 120 256" class="arrowSoft" />
+
+  <rect x="335" y="308" width="260" height="120" rx="8" fill="#ede9fe" stroke="#7c3aed" />
+  <text x="465" y="338" text-anchor="middle" class="label">2. advance_clock</text>
+  <text x="465" y="362" text-anchor="middle" class="mono">advance_clock(1s)</text>
+  <text x="465" y="382" text-anchor="middle" class="body">Sahte saat ilerler.</text>
+  <text x="465" y="402" text-anchor="middle" class="body">Timer hazır hale gelir.</text>
+
+  <path d="M 465 308 L 420 256" class="arrowSoft" />
+
+  <rect x="610" y="308" width="260" height="120" rx="8" fill="#fef3c7" stroke="#d97706" />
+  <text x="740" y="338" text-anchor="middle" class="label">3. run_until_parked</text>
+  <text x="740" y="362" text-anchor="middle" class="mono">cx.run_until_parked()</text>
+  <text x="740" y="382" text-anchor="middle" class="body">Hazır task'ler sürülür.</text>
+  <text x="740" y="402" text-anchor="middle" class="body">Saat kendiliğinden ilerlemez.</text>
+
+  <path d="M 740 308 L 735 256" class="arrowSoft" />
+
+  <rect x="885" y="308" width="220" height="120" rx="8" fill="#d1fae5" stroke="#059669" />
+  <text x="995" y="338" text-anchor="middle" class="label">4. Sonuç</text>
+  <text x="995" y="362" text-anchor="middle" class="body">State değişmişse assert edilir.</text>
+  <text x="995" y="382" text-anchor="middle" class="body">Gerekirse cx.notify sonrası</text>
+  <text x="995" y="402" text-anchor="middle" class="body">render beklenir.</text>
+
+  <path d="M 995 308 L 1020 256" class="arrowSoft" />
+
+  <rect x="80" y="512" width="480" height="130" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
+  <text x="104" y="542" class="label">İki ayrı kaldıraç</text>
+  <text x="104" y="570" class="body">advance_clock yalnızca test saatini ileri alır.</text>
+  <text x="104" y="594" class="body">run_until_parked hazır işleri sürer ama zamanı ilerletmez.</text>
+  <text x="104" y="618" class="body">Timer bekleyen task için çoğu zaman ikisi beraber gerekir.</text>
+
+  <rect x="600" y="512" width="480" height="130" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
+  <text x="624" y="542" class="label">Kaçınılacak kullanım</text>
+  <text x="624" y="570" class="body">smol::Timer::after test dispatcher saatini bilmez.</text>
+  <text x="624" y="594" class="body">Deterministik test için background_executor.timer(d)</text>
+  <text x="624" y="618" class="body">kullanmak gerekir.</text>
+
+  <path d="M 110 250 C 220 140 650 140 735 250" class="arrowDash" />
+  <text x="420" y="150" text-anchor="middle" class="edge">timer hazır olana kadar task park eder</text>
+</svg>

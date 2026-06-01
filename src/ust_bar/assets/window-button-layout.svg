@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 300">
+  <title>WindowButtonLayout Platform Desteği</title>
+  <defs>
+    <style>
+      .title  { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .hdr    { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
+      .feat   { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1e293b; }
+      .cell   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .mono   { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .yes    { font: 700 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #059669; }
+      .no     { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #94a3b8; }
+    </style>
+  </defs>
+
+  <rect width="820" height="300" rx="10" fill="#f8fafc"/>
+  <text x="410" y="30" text-anchor="middle" class="title">WindowButtonLayout Platform Desteği</text>
+  <text x="410" y="50" text-anchor="middle" class="sub">Buton düzeni yalnızca Linux/FreeBSD CSD penceresinde anlamlıdır.</text>
+
+  <!-- Sütun başlıkları -->
+  <rect x="10"  y="60" width="220" height="38" rx="4" fill="#475569"/>
+  <text x="120" y="84" text-anchor="middle" class="hdr">Özellik</text>
+
+  <rect x="238" y="60" width="185" height="38" rx="4" fill="#0284c7"/>
+  <text x="330" y="84" text-anchor="middle" class="hdr">Linux / FreeBSD (CSD)</text>
+
+  <rect x="430" y="60" width="180" height="38" rx="4" fill="#334155"/>
+  <text x="520" y="84" text-anchor="middle" class="hdr">Windows (caption)</text>
+
+  <rect x="618" y="60" width="192" height="38" rx="4" fill="#334155"/>
+  <text x="714" y="84" text-anchor="middle" class="hdr">macOS (native)</text>
+
+  <!-- Satır arkaplanları -->
+  <rect x="10" y="104" width="800" height="38" rx="0" fill="#f1f5f9"/>
+  <rect x="10" y="148" width="800" height="38" rx="0" fill="#fff"/>
+  <rect x="10" y="192" width="800" height="38" rx="0" fill="#f1f5f9"/>
+  <rect x="10" y="236" width="800" height="38" rx="0" fill="#fff"/>
+
+  <!-- Satır sınırları -->
+  <line x1="10"  y1="104" x2="810" y2="104" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="10"  y1="148" x2="810" y2="148" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="10"  y1="192" x2="810" y2="192" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="10"  y1="236" x2="810" y2="236" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="10"  y1="274" x2="810" y2="274" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Dikey çizgiler -->
+  <line x1="234" y1="60" x2="234" y2="274" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="426" y1="60" x2="426" y2="274" stroke="#e2e8f0" stroke-width="1"/>
+  <line x1="614" y1="60" x2="614" y2="274" stroke="#e2e8f0" stroke-width="1"/>
+
+  <!-- Satır 1: cx.button_layout() -->
+  <text x="20"  y="126" class="feat">cx.button_layout()</text>
+  <text x="248" y="120" class="yes">Some(WindowButtonLayout)</text>
+  <text x="248" y="136" class="cell">GTK/GNOME masaüstü ayarını okur.</text>
+  <text x="436" y="126" class="no">None — her zaman</text>
+  <text x="624" y="126" class="no">None — her zaman</text>
+
+  <!-- Satır 2: Varsayılan düzen -->
+  <text x="20"  y="167" class="feat">Varsayılan düzen</text>
+  <text x="248" y="162" class="cell">linux_default():</text>
+  <text x="248" y="178" class="cell">Sağ: [Minimize][Maximize][Close]</text>
+  <text x="436" y="167" class="cell">Sistem caption, değiştirilemez.</text>
+  <text x="624" y="167" class="cell">Sol: native trafik ışıkları.</text>
+
+  <!-- Satır 3: Özel yerleşim -->
+  <text x="20"  y="207" class="feat">Özel yerleşim</text>
+  <text x="248" y="202" class="yes">✓  3 mod:</text>
+  <text x="248" y="218" class="mono">platform_default / standard / GNOME string</text>
+  <text x="436" y="207" class="no">—</text>
+  <text x="624" y="207" class="no">—</text>
+
+  <!-- Satır 4: GNOME format örneği -->
+  <text x="20"  y="253" class="feat">GNOME format örneği</text>
+  <text x="248" y="248" class="mono">"close:minimize,maximize"</text>
+  <text x="248" y="264" class="cell">Sol: Close  |  Sağ: Min, Max</text>
+  <text x="436" y="253" class="no">—</text>
+  <text x="624" y="253" class="no">—</text>
+
+  <!-- Alt not -->
+  <text x="410" y="292" text-anchor="middle" class="sub">set_button_layout çağrısı Windows/macOS üzerinde görünür etki üretmez. MAX_BUTTONS_PER_SIDE = 3.</text>
+</svg>

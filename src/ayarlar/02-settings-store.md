@@ -1,0 +1,184 @@
+# SettingsStore
+
+`crates/settings/src/settings_store.rs`. `SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip-güvenli store içinde birleştirir. Default, user, global, server, extension ve local katmanları öncelik sırasıyla birleşir. Birleşik içerik daha sonra kayıtlı `Settings` tiplerine yedirilir.
+
+![SettingsStore Katmanları](assets/settings-store-katmanlari.svg)
+
+---
+
+## Store yapısı
+
+Aşağıdaki struct alanları, store'un hem kaynak içerikleri hem de birleşik sonucu nerede tuttuğunu gösterir:
+
+```rust
+pub struct SettingsStore {
+    setting_values: HashMap<TypeId, Box<dyn AnySettingValue>>,
+    default_settings: Rc<SettingsContent>,
+    user_settings: Option<UserSettingsContent>,
+    global_settings: Option<Box<SettingsContent>>,
+    extension_settings: Option<Box<SettingsContent>>,
+    server_settings: Option<Box<SettingsContent>>,
+    language_semantic_token_rules: HashMap<SharedString, SemanticTokenRules>,
+    merged_settings: Rc<SettingsContent>,
+    last_user_settings_content: Option<String>,
+    last_global_settings_content: Option<String>,
+    local_settings: BTreeMap<(WorktreeId, Arc<RelPath>), SettingsContent>,
+    pub editorconfig_store: Entity<EditorconfigStore>,
+    file_errors: BTreeMap<SettingsFile, SettingsParseResult>,
+    _settings_files_watcher: Option<Task<()>>,
+    _setting_file_updates: Task<()>,
+    setting_file_updates_tx: mpsc::UnboundedSender<
+        Box<dyn FnOnce(AsyncApp) -> LocalBoxFuture<'static, Result<()>>>,
+    >,
+}
+
+impl Global for SettingsStore {}
+```
+
+- `default_settings` `default.json` üzerinden yüklenen sabit içerik.
+- `user_settings` kullanıcının `~/.config/zed/settings.json` içeriği. Release kanalı, OS ve profil override'larını da taşır.
+- `global_settings` collab/uzak sunucu tarafından yayılan global içerik.
+- `server_settings` SSH proje veya uzak sunucu yan ayar dosyasıdır.
+- `extension_settings` yüklü uzantıların eklediği içeriktir.
+- `local_settings` proje veya worktree içindeki `.zed/settings.json` dosyasını `(WorktreeId, RelPath)` çiftiyle saklar.
+- `merged_settings` öncelik kuralına göre tek bir içerik halinde önbelleğe alınmış sonuçtur; sorgular bu değer üzerinden çözülür.
+- `last_user_settings_content` ve `last_global_settings_content` aynı ham metnin tekrar parse edilmesini engelleyen son içerik önbellekleridir.
+- `editorconfig_store` proje içindeki `.editorconfig` dosyalarını ayrı bir entity'de tutar.
+- `_settings_files_watcher`, `_setting_file_updates` ve `setting_file_updates_tx` dosya izleme ile yazma isteklerini store yaşam döngüsüne bağlar.
+
+---
+
+## Kurulum
+
+En küçük kurulumda store oluşturulur, global state'e konur ve aktif profil değişimi izlenir:
+
+```rust
+let ayarlar = SettingsStore::new(cx, &default_settings());
+cx.set_global(ayarlar);
+SettingsStore::observe_active_settings_profile_name(cx).detach();
+```
+
+`settings::init(cx)` aynı adımı uygular ve aktif profil değişimi için gözlemciyi kurarsın. Test koşumunda `SettingsStore::test(cx)` sahte FS ve test ortamı için minimum konfigürasyonu hazırlar.
+
+`SettingsStore::update(cx, |store, cx| { ... })` herhangi bir `BorrowAppContext` üzerinden `cx.update_global` çağrısını sarmalar. Kaynak içinde doğrudan `SettingsStore::update_global(cx, ...)` kullanımı da GPUI `UpdateGlobal` trait'inden gelir; kayıt ekleme, üzerine yazma veya yeni içerik yedirme bu blok içinde yaparsın.
+
+`SettingsStore::watch_settings_files(fs, cx, callback)` kullanıcı ve global ayar dosyalarını `watch_config_file` ile bağlar; her değişimde ilgili `SettingsFile`, `SettingsParseResult` ve `App` callback'e verirsin.
+
+`SettingsStore::register_setting::<T>()` derive üzerinden `inventory` kayıt listesi zaten doluyken nadir kullanılır; manuel kayıt isteniyorsa burası ana giriştir.
+
+---
+
+## Kaynak öncelik sıralaması
+
+`SettingsFile` enum'u ayar kaynaklarını ve çakışma çözüm sırasını taşır:
+
+```rust
+pub enum SettingsFile {
+    Default,
+    Global,
+    User,
+    Server,
+    Project((WorktreeId, Arc<RelPath>)),
+}
+```
+
+`Ord` uygulaması `Project` > `Server` > `User` > `Global` > `Default` sırasıyla çözer. `merged_settings` bu sıraya göre `merge_from` ile inşa edilir. Aynı kullanıcının birden çok worktree dosyası varsa daha derin path daha yüksek önceliği alır.
+
+`SettingsLocation { worktree_id, path }` sorgulayan tarafa "bana bu yol için geçerli değeri ver" der; store öncelik zincirinde local katmanları yer almıyorsa global değere düşer.
+
+`LocalSettingsKind::{Settings, Tasks, Editorconfig, Debug}` proje yerel dosyalarının tipini belirtir. `LocalSettingsPath::{InWorktree(Arc<RelPath>), OutsideWorktree(Arc<Path>)}` worktree içi ve dışı yolları ayırır; `OutsideWorktree` ev dizinine yerleştirilmiş bir parent `.editorconfig` gibi kaynakları temsil eder.
+
+| API | Alt özellikler | Kısa anlamı |
+| :-- | :-- | :-- |
+| `SettingsFile` | `Default`, `Global`, `User`, `Server`, `Project((WorktreeId, Arc<RelPath>))` | Store'a yedirilen ayar kaynağını ve merge önceliğini taşır. |
+| `SettingsLocation` | `worktree_id`, `path` | Worktree/path özel ayar okumasında hedef konumu belirtir. |
+| `LocalSettingsKind` | `Settings`, `Tasks`, `Editorconfig`, `Debug` | Worktree yerel dosyasının hangi içerik modeline göre parse edileceğini seçer. |
+| `LocalSettingsPath` | `InWorktree`, `OutsideWorktree`, `is_outside_worktree`, `to_proto`, `from_proto` | Yerel dosya yolunun worktree içinde mi dışında mı olduğunu ve proto dönüşümünü taşır. |
+| `WorktreeId` | `from_usize`, `from_proto`, `to_proto` | Worktree kimliğini store ve proto sınırında taşır. |
+
+---
+
+## Okuma
+
+`SettingsStore::get<T: Settings>(path)` `path` üzerine yazma katmanlarını dahil ederek değeri çözer. Aşağıdaki sarmalayıcı yöntemler trait üzerinde bulunur:
+
+- `T::get_global(cx)` — `path = None`, sadece global birleşik değer.
+- `T::get(Some(SettingsLocation { ... }), cx)` — worktree veya path özel değer.
+- `T::try_get(cx)` — store kurulmamışsa `None`.
+- `T::try_read_global(async_cx, |ayar| ...)` — async bağlamda salt okuma.
+
+Düşük seviye yardımcılar:
+
+- `SettingsStore::merged_settings()` — birleşik `SettingsContent` referansı.
+- `SettingsStore::raw_user_settings() -> Option<&UserSettingsContent>` — birleştirilmemiş kullanıcı içeriği; profil, kanal ve OS override'larıyla birlikte.
+- `SettingsStore::raw_default_settings() -> &SettingsContent` — default'ı görüntülemek için.
+- `SettingsStore::configured_settings_profiles()` — kullanıcı tarafında tanımlanmış profil adlarını listeler.
+- `SettingsStore::get_all_locals::<T>()` — bir `Settings` tipinin worktree başı tüm local değerlerini döndürür.
+- `SettingsStore::get_all_files()` — store'a yedirilmiş tüm `SettingsFile` kaynaklarını döndürür; UI ayarlar görünümü hangi dosyaların aktif olduğunu bu liste üzerinden gösterir.
+- `SettingsStore::get_content_for_file(file)` — belirli bir kaynağın ham `SettingsContent` referansını verir.
+- `SettingsStore::get_overrides_for_field(...)`, `get_value_from_file(...)`, `get_value_up_to_file(...)` — belirli bir alanın hangi kaynakta hangi değeri taşıdığını açıklayan analitik yardımcılar; ayarlar UI'ında "bu değer hangi dosyadan geliyor?" sorusunu yanıtlamak için kullanırsın.
+
+---
+
+## Yazma
+
+- `SettingsStore::override_global<T>(value)` programatik üzerine yazmadır; dosyaya yazmaz.
+- `SettingsStore::update_settings_file(fs, update)` user `settings.json` dosyasına closure üzerinden değişiklik uygular ve sonucu yazar. Üst seviye `settings::update_settings_file(fs, cx, update)` aynı çağrıyı sarmalar.
+- `SettingsStore::update_settings_file_with_completion(fs, update) -> oneshot::Receiver<Result<()>>` aynı işi yapar ama yazma tamamlanınca tetiklenen bir kanal döndürür; UI tarafında "kaydedildi" geribildirimi gerektiğinde kullanırsın.
+- `SettingsStore::update_user_settings(...)` yalnız test bağlamlarında mevcuttur; uygulama kodunda kalıcı yazma için `update_settings_file` yolu tercih edersin.
+- `SettingsStore::import_vscode_settings(fs, vscode_settings, cx)` `VsCodeSettings` içeriğini kullanıcı ayar dosyasına aktarır; aşağıdaki "VS Code içe aktarımı" bölümünde detaylandırılır.
+
+JSON metin güncelleme helper'ları:
+
+| API | Rol |
+| :-- | :-- |
+| `replace_value_in_json_text` | JSON metni içinde hedef path'teki değeri pretty biçim korunarak değiştirir; settings UI yazma akışının düşük seviye helper'ıdır. |
+| `replace_top_level_array_value_in_json_text` | Kök seviyedeki array değerlerinden birini bulup değiştirir. |
+| `append_top_level_array_value_in_json_text` | Kök seviyedeki array'e yeni değer ekler. |
+| `to_pretty_json` | `serde_json::Value` değerini Zed settings dosyasının beklediği pretty JSON metnine dönüştürür. |
+
+Ayrı kaynakları doğrudan ayarlamak için store API'leri vardır:
+
+- `set_default_settings(content, cx)` ve `update_default_settings(closure, cx)` — startup veya test sırasında default'ı değiştirir.
+- `set_user_settings(content, cx)` — dosya izleyicisinden gelen ham JSON'u kullanıcıya yazar.
+- `set_global_settings(content, cx)` — collab veya uzak sunucudan gelen globali yazar.
+- `set_server_settings(content, cx)` — SSH proje veya uzak sunucu yan ayar içeriğini yedirir.
+- `set_local_settings(worktree_id, path, kind, content, cx)` — proje yerel dosyasını yedirir. `kind` `LocalSettingsKind` üzerinden ayar/tasks/editorconfig/debug ayrımını yapar.
+- `clear_local_settings(root_id, cx)` — worktree kapandığında ona ait yerel ayarları temizler.
+- `set_extension_settings(content, cx)` — uzantıdan gelen ayarları yedirir.
+- `set_language_semantic_token_rules(...)` ve `remove_language_semantic_token_rules(...)` — dil bazlı semantik token tanımlarını ekler veya temizler; `language_semantic_token_rules(language)` ile sorgulanır.
+
+`SettingsParseResult` her dosya için ayrıştırma sonucunu taşır; başarılı durumda `parse_status = ParseStatus::Success` ve `migration_status = MigrationStatus::NotNeeded` varsayılanı kullanırsın. Hata varsa parse veya migrasyon mesajı burada saklarsın. `SettingsStore::error_for_file(file)` belirli bir dosyanın hata durumunu okur. `MigrationStatus` migrasyon adımının başarılı olup olmadığını bildirir; uygulama kodunda birleşik sonuç `SettingsParseResult::result() -> Result<bool>` ile ele alman gerekir. Dönen `bool`, dosyanın otomatik migrasyon gerektirip gerektirmediğini bildirir.
+
+| API | Alt özellikler | Kısa anlamı |
+| :-- | :-- | :-- |
+| `SettingsParseResult` | `parse_status`, `migration_status`, `unwrap`, `expect`, `result`, `requires_user_action`, `ok`, `parse_error` | Parse ve migrasyon sonucunu UI veya log akışına çevirmek için kullanılır. |
+| `MigrationStatus` | `NotNeeded`, `Succeeded`, `Failed { error }` | Ayar dosyasının otomatik migrasyon durumunu bildirir. |
+
+---
+
+## Schema üretimi
+
+UI ayarlar editörü ve LSP otomatik tamamlama için `SettingsStore` JSON schema üretir:
+
+- `SettingsStore::json_schema(&params)` user `settings.json` için tam schema'yı üretir.
+- `SettingsStore::project_json_schema(&params)` proje seviyesindeki `.zed/settings.json` için kısıtlı schema'yı üretir.
+- `SettingsJsonSchemaParams<'a>` schema üretimi için gerekli registry ve tema verisini taşır; çağıran genelde `App` üzerinden bunu inşa eder.
+
+LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/lsp/"` ön ekiyle ayrı schema URL'leri yayılır; her dil server'ı için ayrı bir document bağlanır.
+
+| API | Alt özellikler | Kısa anlamı |
+| :-- | :-- | :-- |
+| `SettingsJsonSchemaParams` | `language_names`, `font_names`, `theme_names`, `icon_theme_names`, `lsp_adapter_names`, `action_names`, `action_documentation`, `deprecations`, `deprecation_messages` | Runtime JSON schema üretiminde kullanılan isim ve dokümantasyon listelerini taşır. |
+| `LSP_SETTINGS_SCHEMA_URL_PREFIX` | `zed://schemas/settings/lsp/` | LSP ayar schema URL'leri için ortak prefix'tir. |
+| `SemanticTokenRules` | language semantic token kuralları | Dil bazlı semantic token ayarları store içinde bu tip üzerinden saklanır. |
+| `language` | `settings_content` reexport | Dil bazlı ayar content tiplerini kök `settings_content` yüzeyine çıkarır; store bu tipleri schema ve path-scoped merge sırasında kullanır. |
+
+---
+
+## Tuzaklar
+
+- Store'un `Global` olması demek, her testte ayrı bir store gerektiği anlamına gelir; `SettingsStore::test(cx)` veya `SettingsStore::new(cx, ...)` ile yenisi kurulmadan testler birbirinin durumunu kirletebilir.
+- `merged_settings` `Rc` paylaşımındadır; aynı `App`'te uzun süre tutulan referanslar yeni hesap sonrası eskimiş içerikten okumaya neden olabilir. Sorgu sırasında `get` çağrısı her zaman güncel `Rc`'yi çözmelidir.
+- `set_local_settings` `kind` parametresi yanlış verilirse Tasks veya EditorConfig içeriği ayar gibi yedirilebilir; akış doğrudan worktree dosyalarını izleyen kod tarafından çağrılmalıdır.
+- `SettingsStore::update_user_settings` `test-support` altındadır; üretim kodunda elle çağrılırsa derleme `cfg(test)` dışı build'lerde hata verir.

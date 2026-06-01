@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+  <title>Modal, Popover ve Overlay Katmanları</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">Modal, Popover ve Overlay Katmanları</text>
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Workspace ana içeriği üzerinde z-order ile çizilen geçici UI yüzeyleri.</text>
+
+  <rect x="150" y="116" width="760" height="500" rx="14" fill="#e2e8f0" stroke="#334155" stroke-width="1.6" />
+  <text x="180" y="148" class="label">Window / Workspace</text>
+  <rect x="190" y="176" width="680" height="330" rx="10" fill="#fff" stroke="#94a3b8" />
+  <text x="530" y="206" text-anchor="middle" class="label">Ana içerik</text>
+  <text x="530" y="228" text-anchor="middle" class="small">PaneGroup, dock'lar, editor ve status bar.</text>
+
+  <rect x="260" y="280" width="220" height="74" rx="8" fill="#dbeafe" stroke="#2563eb" />
+  <text x="370" y="306" text-anchor="middle" class="label">Context Menu</text>
+  <text x="370" y="326" text-anchor="middle" class="mono">anchored / popup</text>
+
+  <rect x="560" y="254" width="220" height="74" rx="8" fill="#ccfbf1" stroke="#0f766e" />
+  <text x="670" y="280" text-anchor="middle" class="label">Tooltip</text>
+  <text x="670" y="300" text-anchor="middle" class="mono">hover gecikmesi</text>
+
+  <rect x="430" y="364" width="260" height="96" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
+  <text x="560" y="396" text-anchor="middle" class="label">Popover</text>
+  <text x="560" y="418" text-anchor="middle" class="small">Anchor bounds'a göre konumlanır.</text>
+  <text x="560" y="438" text-anchor="middle" class="mono">focus dışı click ile kapanabilir</text>
+
+  <rect x="220" y="514" width="620" height="76" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.4" />
+  <text x="530" y="544" text-anchor="middle" class="label">ModalLayer</text>
+  <text x="530" y="565" text-anchor="middle" class="small">ModalView, ManagedView, Notification, ToastView ve bloklayıcı overlay.</text>
+
+  <rect x="930" y="176" width="100" height="330" rx="8" fill="#f1f5f9" stroke="#94a3b8" />
+  <text x="980" y="204" text-anchor="middle" class="label">Z</text>
+  <rect x="950" y="452" width="60" height="30" rx="5" fill="#fff" stroke="#94a3b8" />
+  <text x="980" y="472" text-anchor="middle" class="small">base</text>
+  <rect x="950" y="382" width="60" height="30" rx="5" fill="#dbeafe" stroke="#2563eb" />
+  <text x="980" y="402" text-anchor="middle" class="small">menu</text>
+  <rect x="950" y="312" width="60" height="30" rx="5" fill="#fef3c7" stroke="#d97706" />
+  <text x="980" y="332" text-anchor="middle" class="small">pop</text>
+  <rect x="950" y="242" width="60" height="30" rx="5" fill="#ffe4e6" stroke="#be123c" />
+  <text x="980" y="262" text-anchor="middle" class="small">modal</text>
+  <path d="M 980 452 L 980 230" class="arrow" />
+  <text x="980" y="360" text-anchor="middle" class="edge">üst</text>
+  <text x="980" y="377" text-anchor="middle" class="edge">katman</text>
+
+  <rect x="80" y="660" width="310" height="96" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
+  <text x="104" y="690" class="label">Açma yolları</text>
+  <text x="104" y="718" class="body">workspace.toggle_modal&lt;V&gt;(...)</text>
+  <text x="104" y="735" class="body">show_toast / notification</text>
+
+  <rect x="425" y="660" width="310" height="96" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="449" y="690" class="label">Kapanma kararları</text>
+  <text x="449" y="718" class="body">Escape, dış click, action veya drop.</text>
+  <text x="449" y="735" class="body">Focus geri verme ayrıca ele alınır.</text>
+
+  <rect x="770" y="660" width="310" height="96" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="1.2" />
+  <text x="794" y="690" class="label">Hitbox etkisi</text>
+  <text x="794" y="718" class="body">Modal overlay alttaki hitbox'ları kapatır.</text>
+  <text x="794" y="735" class="body">Tooltip genelde pointer'ı engellemez.</text>
+</svg>

@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 620">
+  <title>GPUI Pencere Yaşam Döngüsü</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="520" y="36" text-anchor="middle" class="title">GPUI Pencere Yaşam Döngüsü</text>
+
+  <text x="520" y="62" text-anchor="middle" class="subtitle">Açılıştan kapanışa pencere, kök view ve render döngüsü ilişkisi.</text>
+  <rect x="90" y="92" width="640" height="96" rx="8" class="card" />
+<rect x="90" y="92" width="640" height="30" rx="8" fill="#d97706" />
+<path d="M 90 114 H 730 V 122 H 90 Z" fill="#d97706" />
+<text x="104" y="112" class="cardTitle">1. cx.open_window(options, root_builder)</text>
+<text x="104" y="144" class="body">WindowOptions pencere sınırları, titlebar, focus, show ve kind bilgisini taşır.</text>
+<text x="104" y="161" class="body">request_decorations, set_background_appearance ve platform geri çağrıları hazırlanır.</text>
+
+  <path d="M 410 188 L 410 220" class="arrowSoft" />
+  <rect x="90" y="220" width="640" height="112" rx="8" class="card" />
+<rect x="90" y="220" width="640" height="30" rx="8" fill="#059669" />
+<path d="M 90 242 H 730 V 250 H 90 Z" fill="#059669" />
+<text x="104" y="240" class="cardTitle">2. Kök view oluşturulur</text>
+<text x="104" y="272" class="body">cx.new(|cx| KokGorunum::new(window, cx)) ile Entity&lt;V&gt; üretilir.</text>
+<text x="104" y="289" class="body">Kök view Render uygular; ilk element ağacı çizime girer.</text>
+<text x="104" y="306" class="body">Açma çağrısı WindowHandle&lt;V&gt; döndürür.</text>
+
+  <path d="M 410 332 L 410 364" class="arrowSoft" />
+  <rect x="90" y="364" width="640" height="116" rx="8" class="card" />
+<rect x="90" y="364" width="640" height="30" rx="8" fill="#7c3aed" />
+<path d="M 90 386 H 730 V 394 H 90 Z" fill="#7c3aed" />
+<text x="104" y="384" class="cardTitle">3. Etkileşim ve yeniden çizim döngüsü</text>
+<text x="104" y="416" class="body">Kullanıcı girdisi action veya event handler çalıştırır; state değişir.</text>
+<text x="104" y="433" class="body">cx.notify() Render::render çağrısına ve yeni element ağacına gider.</text>
+<text x="104" y="450" class="body">window.refresh, on_next_frame ve request_animation_frame döngüyü sürdürür.</text>
+
+  <path d="M 410 480 L 410 512" class="arrowSoft" />
+  <rect x="90" y="512" width="640" height="72" rx="8" class="card" />
+<rect x="90" y="512" width="640" height="30" rx="8" fill="#be123c" />
+<path d="M 90 534 H 730 V 542 H 90 Z" fill="#be123c" />
+<text x="104" y="532" class="cardTitle">4. Kapanış</text>
+<text x="104" y="564" class="body">window.remove_window() veya işletim sistemi kapanış isteği kök Entity'yi düşürür.</text>
+<text x="104" y="581" class="body">Subscription kayıtları drop ile otomatik temizlenir.</text>
+
+  <path d="M 730 418 C 860 418 860 448 732 448" class="arrowDash" />
+  <text x="850" y="407" text-anchor="middle" class="edge">render döngüsü</text>
+  <rect x="770" y="112" width="220" height="154" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.2" />
+<text x="786" y="136" text-anchor="start" class="small">WindowKind</text>
+<text x="786" y="153" text-anchor="start" class="small">Normal, PopUp, Floating,</text>
+<text x="786" y="170" text-anchor="start" class="small">Dialog, LayerShell</text>
+<text x="786" y="170" text-anchor="start" class="small"></text>
+<text x="786" y="187" text-anchor="start" class="small">WindowDecorations</text>
+<text x="786" y="204" text-anchor="start" class="small">Server veya Client</text>
+  <rect x="770" y="300" width="220" height="116" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2" />
+<text x="786" y="324" text-anchor="start" class="small">Döngü tetikleyicileri</text>
+<text x="786" y="341" text-anchor="start" class="small">cx.notify()</text>
+<text x="786" y="358" text-anchor="start" class="small">window.refresh()</text>
+<text x="786" y="375" text-anchor="start" class="small">window.on_next_frame()</text>
+
+</svg>

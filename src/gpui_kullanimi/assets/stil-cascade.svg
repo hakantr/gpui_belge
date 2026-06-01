@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 860">
+  <title>Refineable / StyleRefinement / Cascade / MergeFrom</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">Refineable / StyleRefinement / Cascade / MergeFrom</text>
+
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Zorunlu style alanlarından opsiyonel refinement üretimi ve paint sırasında uygulama sırası.</text>
+  <text x="580" y="96" text-anchor="middle" class="label">1. Refineable: zorunlu alanlardan opsiyonel ikiz türetilir</text>
+  <rect x="60" y="124" width="300" height="118" rx="8" class="card" />
+<rect x="60" y="124" width="300" height="30" rx="8" fill="#0284c7" />
+<path d="M 60 146 H 360 V 154 H 60 Z" fill="#0284c7" />
+<text x="74" y="144" class="cardTitle">Style</text>
+<text x="74" y="176" class="body">Temel struct; her alan zorunlu.</text>
+<text x="74" y="193" class="body">font_size: AbsoluteLength</text>
+<text x="74" y="210" class="body">background: Fill</text>
+<text x="74" y="227" class="body">border_widths: Edges&lt;...&gt;</text>
+
+  <path d="M 360 182 L 430 182" class="arrowSoft" /><text x="395" y="170" text-anchor="middle" class="edge">derive</text>
+  <rect x="430" y="124" width="300" height="118" rx="8" class="card" />
+<rect x="430" y="124" width="300" height="30" rx="8" fill="#7c3aed" />
+<path d="M 430 146 H 730 V 154 H 430 Z" fill="#7c3aed" />
+<text x="444" y="144" class="cardTitle">StyleRefinement</text>
+<text x="444" y="176" class="body">Her alan Option ile sarılı ikiz.</text>
+<text x="444" y="193" class="body">font_size: Option&lt;AbsoluteLength&gt;</text>
+<text x="444" y="210" class="body">background: Option&lt;Fill&gt;</text>
+<text x="444" y="227" class="body">border_widths: Option&lt;...&gt;</text>
+
+  <path d="M 730 182 L 800 182" class="arrowSoft" /><text x="765" y="170" text-anchor="middle" class="edge">refine</text>
+  <rect x="800" y="124" width="300" height="118" rx="8" class="card" />
+<rect x="800" y="124" width="300" height="30" rx="8" fill="#059669" />
+<path d="M 800 146 H 1100 V 154 H 800 Z" fill="#059669" />
+<text x="814" y="144" class="cardTitle">Style - yenilenmiş</text>
+<text x="814" y="176" class="body">Her alan dolu; çizimde kullanılır.</text>
+<text x="814" y="193" class="body">Some yazar; None değeri korur.</text>
+<text x="814" y="210" class="body">Refineable::from_cascade(&amp;cascade) -&gt; Self.</text>
+
+  <rect x="60" y="272" width="1040" height="56" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2" />
+<text x="76" y="296" text-anchor="start" class="small">Refineable derive'ı Style, TextStyle, UnderlineStyle, StrikethroughStyle ve tema renkleri için refinement ikizleri üretir.</text>
+<text x="76" y="313" text-anchor="start" class="small">Tema tarafında ThemeColors, StatusColors ve HighlightStyle aynı mantığı kullanır.</text>
+  <text x="580" y="370" text-anchor="middle" class="label">2. Interactivity: GPUI çekirdeği paralel Option&lt;Box&lt;StyleRefinement&gt;&gt; alanları kullanır</text>
+  <rect x="60" y="398" width="500" height="210" rx="8" class="card" />
+<rect x="60" y="398" width="500" height="30" rx="8" fill="#d97706" />
+<path d="M 60 420 H 560 V 428 H 60 Z" fill="#d97706" />
+<text x="74" y="418" class="cardTitle">Interactivity</text>
+<text x="74" y="450" class="body">base_style: StyleRefinement</text>
+<text x="74" y="467" class="body">hover_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
+<text x="74" y="484" class="body">active_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
+<text x="74" y="501" class="body">focus_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
+<text x="74" y="518" class="body">in_focus_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
+<text x="74" y="535" class="body">focus_visible_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
+<text x="74" y="552" class="body">group_hover_style / group_active_style</text>
+
+  <path d="M 560 500 L 620 500" class="arrowSoft" />
+  <rect x="620" y="398" width="480" height="210" rx="8" class="card" />
+<rect x="620" y="398" width="480" height="30" rx="8" fill="#059669" />
+<path d="M 620 420 H 1100 V 428 H 620 Z" fill="#059669" />
+<text x="634" y="418" class="cardTitle">Paint zamanında zincirleme refine</text>
+<text x="634" y="450" class="body">let mut s = Style::default();</text>
+<text x="634" y="467" class="body">s.refine(&amp;base_style);</text>
+<text x="634" y="484" class="body">if hover { s.refine(&amp;hover_style); }</text>
+<text x="634" y="501" class="body">if active { s.refine(&amp;active_style); }</text>
+<text x="634" y="518" class="body">if focused { s.refine(&amp;focus_style); }</text>
+<text x="634" y="535" class="body">if focus_visible { s.refine(&amp;focus_visible_style); }</text>
+<text x="634" y="552" class="body">Son uygulanan refinement kazanır.</text>
+
+  <text x="580" y="652" text-anchor="middle" class="label">3. Yan desenler: Cascade ve MergeFrom</text>
+  <rect x="60" y="680" width="500" height="112" rx="8" class="card" />
+<rect x="60" y="680" width="500" height="30" rx="8" fill="#334155" />
+<path d="M 60 702 H 560 V 710 H 60 Z" fill="#334155" />
+<text x="74" y="700" class="cardTitle">Cascade&lt;S: Refineable&gt; / CascadeSlot</text>
+<text x="74" y="732" class="body">Cascade(Vec&lt;Option&lt;S::Refinement&gt;&gt;).</text>
+<text x="74" y="749" class="body">slot 0: Some(default); cascade.reserve() -&gt; CascadeSlot.</text>
+<text x="74" y="766" class="body">Refineable::from_cascade(&amp;cascade) -&gt; S.</text>
+<text x="74" y="783" class="body">refineable crate'inde durur; GPUI çekirdeği bu sürümde içeriden kullanmaz.</text>
+
+  <rect x="620" y="680" width="480" height="112" rx="8" class="card" />
+<rect x="620" y="680" width="480" height="30" rx="8" fill="#be123c" />
+<path d="M 620 702 H 1100 V 710 H 620 Z" fill="#be123c" />
+<text x="634" y="700" class="cardTitle">MergeFrom - ayarlar / tema</text>
+<text x="634" y="732" class="body">trait MergeFrom { fn merge_from(&amp;mut self, other: &amp;Self); }</text>
+<text x="634" y="749" class="body">#[derive(MergeFrom)], ExtendingVec&lt;T&gt;, SaturatingBool.</text>
+<text x="634" y="766" class="body">user_settings.merge_from(&amp;server_settings).</text>
+<text x="634" y="783" class="body">Aynı üzerine yaz mantığı ayarlar ve tema yüklemesinde kullanılır.</text>
+
+
+</svg>

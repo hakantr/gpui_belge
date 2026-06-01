@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 860">
+  <title>Test Ortamı Seçim Haritası</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">Test Ortamı Seçim Haritası</text>
+
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Testin pencere, renderer ve gerçek compositor ihtiyacına göre doğru bağlam seçilir.</text>
+  <rect x="405" y="92" width="350" height="68" rx="9" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
+  <text x="580" y="118" text-anchor="middle" class="label">Pencere render etmem gerekiyor mu?</text>
+  <text x="580" y="140" text-anchor="middle" class="small">SVG, layout veya snapshot gerekiyorsa evet.</text>
+  <path d="M 405 132 L 260 218" class="arrowSoft" /><text x="318" y="162" class="small">hayır</text>
+  <path d="M 755 132 L 900 218" class="arrowSoft" /><text x="830" y="162" class="small">evet</text>
+  <rect x="760" y="218" width="300" height="68" rx="9" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
+  <text x="910" y="244" text-anchor="middle" class="label">Gerçek GPU compositor mu?</text>
+  <text x="910" y="266" text-anchor="middle" class="small">Metal screenshot veya CI headless ayrımı.</text>
+  <path d="M 820 286 L 650 350" class="arrowSoft" /><text x="710" y="316" class="small">hayır</text>
+  <path d="M 990 286 L 990 350" class="arrowSoft" /><text x="1008" y="318" class="small">evet</text>
+  <rect x="60" y="218" width="400" height="176" rx="8" class="card" />
+<rect x="60" y="218" width="400" height="30" rx="8" fill="#059669" />
+<path d="M 60 240 H 460 V 248 H 60 Z" fill="#059669" />
+<text x="74" y="238" class="cardTitle">TestAppContext</text>
+<text x="74" y="270" class="body">#[gpui::test] makrosunun verdiği bağlam.</text>
+<text x="74" y="287" class="body">cx.add_window(|window, cx| cx.new(...)).</text>
+<text x="74" y="304" class="body">simulate_keystrokes, dispatch_action ve run_until_parked.</text>
+<text x="74" y="321" class="body">add_window -&gt; WindowHandle&lt;V&gt;.</text>
+<text x="74" y="338" class="body">add_window_view -&gt; VisualTestContext.</text>
+
+  <rect x="520" y="350" width="300" height="128" rx="8" class="card" />
+<rect x="520" y="350" width="300" height="30" rx="8" fill="#7c3aed" />
+<path d="M 520 372 H 820 V 380 H 520 Z" fill="#7c3aed" />
+<text x="534" y="370" class="cardTitle">HeadlessAppContext</text>
+<text x="534" y="402" class="body">UI window'suz veya null-renderer ile.</text>
+<text x="534" y="419" class="body">HeadlessAppContext::with_platform(...).</text>
+<text x="534" y="436" class="body">renderer_factory: || None.</text>
+<text x="534" y="453" class="body">CI screenshot / otomasyon.</text>
+
+  <rect x="860" y="350" width="240" height="128" rx="8" class="card" />
+<rect x="860" y="350" width="240" height="30" rx="8" fill="#d97706" />
+<path d="M 860 372 H 1100 V 380 H 860 Z" fill="#d97706" />
+<text x="874" y="370" class="cardTitle">VisualTestAppContext</text>
+<text x="874" y="402" class="body">macOS test-support; gerçek Metal.</text>
+<text x="874" y="419" class="body">with_asset_source(platform, ...).</text>
+<text x="874" y="436" class="body">simulate_keystrokes(window, ...).</text>
+<text x="874" y="453" class="body">advance_clock(d).</text>
+
+  <rect x="60" y="420" width="400" height="58" rx="8" fill="#dbeafe" stroke="#2563eb" stroke-width="1.2" />
+<text x="76" y="444" text-anchor="start" class="small">VisualTestContext TestAppContext'ten gelen alt bağlamdır.</text>
+<text x="76" y="461" text-anchor="start" class="small">simulate_* çağrıları self.window kullanır.</text>
+  <rect x="60" y="518" width="1040" height="86" rx="8" class="card" />
+<rect x="60" y="518" width="1040" height="30" rx="8" fill="#0284c7" />
+<path d="M 60 540 H 1100 V 548 H 60 Z" fill="#0284c7" />
+<text x="74" y="538" class="cardTitle">Üretim ortamı - referans</text>
+<text x="74" y="570" class="body">Application::with_platform(current_platform(false)).with_assets(Assets) -&gt; Application::run.</text>
+<text x="74" y="587" class="body">Gerçek olay döngüsü, gerçek pencereler ve gerçek HTTP client; testte buradan ayrılır.</text>
+
+  <rect x="60" y="644" width="1040" height="160" rx="8" class="card" />
+<rect x="60" y="644" width="1040" height="30" rx="8" fill="#334155" />
+<path d="M 60 666 H 1100 V 674 H 60 Z" fill="#334155" />
+<text x="74" y="664" class="cardTitle">Test executor altyapısı</text>
+<text x="74" y="696" class="body">TestDispatcher deterministik task scheduling sağlar; BackgroundExecutor ve ForegroundExecutor ortak çekirdektir.</text>
+<text x="74" y="713" class="body">cx.background_executor.advance_clock(duration) sahte saati ilerletir; tek başına timer tetiklemez.</text>
+<text x="74" y="730" class="body">cx.run_until_parked() hazır task'leri tamamlanana kadar sürer; saati ilerletmez.</text>
+<text x="74" y="747" class="body">cx.background_executor.timer(d).await ve cx.background_spawn(...) test akışında deterministtir.</text>
+<text x="74" y="764" class="body">allow_parking() bekleyen görev varken park'a izin verir; üretime taşınmaz.</text>
+<text x="74" y="781" class="body">FakeHttpClient::with_404_response varsayılandır; with_response_provider(custom) mock yanıt verir.</text>
+
+  <text x="580" y="834" text-anchor="middle" class="small">smol::Timer::after yerine cx.background_executor.timer(d) kullanılır; run_until_parked ile uyum korunur.</text>
+
+</svg>

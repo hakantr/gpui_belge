@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 460">
+  <title>Liste ve Tree Bileşenleri Haritası</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669" />
+    </marker>
+    <style>
+      .title  { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .hdr    { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .nm     { font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .desc   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .arrow  { stroke: #334155; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+      .arrowG { stroke: #059669; stroke-width: 1.6; fill: none; marker-end: url(#arrowG); }
+    </style>
+  </defs>
+
+  <rect width="900" height="460" rx="10" fill="#f8fafc" />
+  <text x="450" y="34" text-anchor="middle" class="title">Liste ve Tree Bileşenleri</text>
+  <text x="450" y="56" text-anchor="middle" class="sub">Her bileşenin rolü ve Liste içindeki yeri</text>
+
+  <!-- ── Merkez: List kapsayıcısı ── -->
+  <rect x="330" y="74" width="240" height="58" rx="8" fill="#0891b2" />
+  <text x="450" y="98" text-anchor="middle" class="hdr">List</text>
+  <text x="450" y="118" text-anchor="middle" class="desc" fill="#e0f2fe">Kapsayıcı. Header + empty state + rows.</text>
+
+  <!-- ── ListHeader ── -->
+  <rect x="20" y="74" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <text x="115" y="96" text-anchor="middle" class="nm">ListHeader</text>
+  <text x="115" y="112" text-anchor="middle" class="desc">Ana bölüm başlığı</text>
+  <path d="M 210 102 L 328 102" class="arrow" />
+
+  <!-- ── ListSubHeader ── -->
+  <rect x="20" y="144" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <text x="115" y="166" text-anchor="middle" class="nm">ListSubHeader</text>
+  <text x="115" y="182" text-anchor="middle" class="desc">Alt bölüm başlığı</text>
+  <path d="M 210 170 L 328 130" class="arrow" />
+
+  <!-- ── ListItem ── -->
+  <rect x="690" y="74" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <text x="785" y="96" text-anchor="middle" class="nm">ListItem</text>
+  <text x="785" y="112" text-anchor="middle" class="desc">Tıklanabilir / seçilebilir satır</text>
+  <path d="M 572 102 L 688 102" class="arrow" />
+
+  <!-- ── ListSeparator ── -->
+  <rect x="690" y="144" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <text x="785" y="166" text-anchor="middle" class="nm">ListSeparator</text>
+  <text x="785" y="182" text-anchor="middle" class="desc">Yatay ayırıcı çizgi</text>
+  <path d="M 572 130 L 688 170" class="arrow" />
+
+  <!-- ── ListBulletItem ── -->
+  <rect x="20" y="214" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <text x="115" y="236" text-anchor="middle" class="nm">ListBulletItem</text>
+  <text x="115" y="252" text-anchor="middle" class="desc">Sabit açıklama maddesi</text>
+  <path d="M 210 240 L 328 156" class="arrow" />
+
+  <!-- ── TreeViewItem ── -->
+  <rect x="690" y="214" width="190" height="52" rx="7" fill="#fff" stroke="#7c3aed" stroke-width="1.5" />
+  <text x="785" y="236" text-anchor="middle" class="nm" style="fill:#7c3aed;">TreeViewItem</text>
+  <text x="785" y="252" text-anchor="middle" class="desc">Hiyerarşik, açılır/kapanır satır</text>
+
+  <!-- ── Büyük Liste Dekoratörleri ── -->
+  <text x="450" y="310" text-anchor="middle" class="sub">Büyük sanallaştırılmış listeler için dekoratörler:</text>
+
+  <!-- StickyItems -->
+  <rect x="160" y="326" width="240" height="72" rx="8" fill="#fff" stroke="#b45309" stroke-width="1.5" />
+  <rect x="160" y="326" width="240" height="26" rx="8" fill="#b45309" />
+  <path d="M 160 345 H 400 V 352 H 160 Z" fill="#b45309" />
+  <text x="280" y="343" text-anchor="middle" class="hdr">StickyItems</text>
+  <text x="280" y="369" text-anchor="middle" class="desc">uniform_list içinde sticky</text>
+  <text x="280" y="385" text-anchor="middle" class="desc">parent veya header davranışı</text>
+
+  <!-- IndentGuides -->
+  <rect x="500" y="326" width="240" height="72" rx="8" fill="#fff" stroke="#059669" stroke-width="1.5" />
+  <rect x="500" y="326" width="240" height="26" rx="8" fill="#059669" />
+  <path d="M 500 345 H 740 V 352 H 500 Z" fill="#059669" />
+  <text x="620" y="343" text-anchor="middle" class="hdr">IndentGuides</text>
+  <text x="620" y="369" text-anchor="middle" class="desc">Büyük hiyerarşik listede</text>
+  <text x="620" y="385" text-anchor="middle" class="desc">girinti çizgileri (decoration)</text>
+
+  <!-- Alt not -->
+  <rect x="20" y="416" width="860" height="28" rx="6" fill="#f1f5f9" stroke="#e2e8f0" />
+  <text x="450" y="434" text-anchor="middle" class="desc">Küçük/orta statik listeler → List + ListItem yeterli · Binlerce satır → uniform_list + StickyItems/IndentGuides</text>
+
+</svg>

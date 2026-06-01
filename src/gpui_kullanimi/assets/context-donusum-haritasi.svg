@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 780">
+  <title>GPUI Bağlam Dönüşüm Haritası</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">GPUI Bağlam Dönüşüm Haritası</text>
+
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Senkron bağlamlardan await sonrası taşınan async yüzeylere geçiş noktaları.</text>
+  <text x="240" y="94" text-anchor="middle" class="label">Senkron taraf - await yok</text>
+  <text x="900" y="94" text-anchor="middle" class="label">Async taraf - await sonrası</text>
+  <line x1="580" y1="108" x2="580" y2="660" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="7 5" />
+  <rect x="70" y="122" width="340" height="104" rx="8" class="card" />
+<rect x="70" y="122" width="340" height="30" rx="8" fill="#0284c7" />
+<path d="M 70 144 H 410 V 152 H 70 Z" fill="#0284c7" />
+<text x="84" y="142" class="cardTitle">App</text>
+<text x="84" y="174" class="body">Kök bağlam (cx).</text>
+<text x="84" y="191" class="body">cx.new, cx.open_window ve cx.spawn.</text>
+<text x="84" y="208" class="body">cx.background_spawn burada başlar.</text>
+
+  <rect x="70" y="270" width="340" height="112" rx="8" class="card" />
+<rect x="70" y="270" width="340" height="30" rx="8" fill="#059669" />
+<path d="M 70 292 H 410 V 300 H 70 Z" fill="#059669" />
+<text x="84" y="290" class="cardTitle">Context&lt;T&gt;</text>
+<text x="84" y="322" class="body">Entity güncellenirken kullanılır.</text>
+<text x="84" y="339" class="body">Deref ile App yüzeyini görür.</text>
+<text x="84" y="356" class="body">cx.notify, cx.emit ve cx.listener.</text>
+<text x="84" y="373" class="body">cx.subscribe çağrıları.</text>
+
+  <rect x="70" y="426" width="340" height="112" rx="8" class="card" />
+<rect x="70" y="426" width="340" height="30" rx="8" fill="#d97706" />
+<path d="M 70 448 H 410 V 456 H 70 Z" fill="#d97706" />
+<text x="84" y="446" class="cardTitle">Window + App</text>
+<text x="84" y="478" class="body">Pencere bağlamı handle.update içinde elde edilir.</text>
+<text x="84" y="495" class="body">window.focus ve window.refresh.</text>
+<text x="84" y="512" class="body">dispatch_action ve prompt.</text>
+
+  <rect x="70" y="582" width="340" height="80" rx="8" class="card" />
+<rect x="70" y="582" width="340" height="30" rx="8" fill="#334155" />
+<path d="M 70 604 H 410 V 612 H 70 Z" fill="#334155" />
+<text x="84" y="602" class="cardTitle">WindowHandle&lt;V&gt; / AnyWindowHandle</text>
+<text x="84" y="634" class="body">handle.update, handle.read.</text>
+<text x="84" y="651" class="body">handle.entity ve is_active.</text>
+
+  <rect x="750" y="122" width="340" height="104" rx="8" class="card" />
+<rect x="750" y="122" width="340" height="30" rx="8" fill="#7c3aed" />
+<path d="M 750 144 H 1090 V 152 H 750 Z" fill="#7c3aed" />
+<text x="764" y="142" class="cardTitle">AsyncApp</text>
+<text x="764" y="174" class="body">await ötesine taşınan App benzeri yüzey.</text>
+<text x="764" y="191" class="body">cx.update, cx.refresh ve</text>
+<text x="764" y="208" class="body">background_executor erişimi.</text>
+
+  <rect x="750" y="270" width="340" height="112" rx="8" class="card" />
+<rect x="750" y="270" width="340" height="30" rx="8" fill="#7c3aed" />
+<path d="M 750 292 H 1090 V 300 H 750 Z" fill="#7c3aed" />
+<text x="764" y="290" class="cardTitle">AsyncWindowContext</text>
+<text x="764" y="322" class="body">Pencereye bağlı async bağlam.</text>
+<text x="764" y="339" class="body">cx.update(|window, cx| ...).</text>
+<text x="764" y="356" class="body">cx.update_root(|root, window, cx| ...).</text>
+
+  <rect x="750" y="426" width="340" height="112" rx="8" class="card" />
+<rect x="750" y="426" width="340" height="30" rx="8" fill="#7c3aed" />
+<path d="M 750 448 H 1090 V 456 H 750 Z" fill="#7c3aed" />
+<text x="764" y="446" class="cardTitle">WeakEntity&lt;T&gt;.update(cx, ...)</text>
+<text x="764" y="478" class="body">Async görevde tipli entity erişimi.</text>
+<text x="764" y="495" class="body">Entity drop edildiyse Result Err döner.</text>
+<text x="764" y="512" class="body">update_in ile birlikte kullanılabilir.</text>
+
+  <rect x="750" y="582" width="340" height="80" rx="8" class="card" />
+<rect x="750" y="582" width="340" height="30" rx="8" fill="#334155" />
+<path d="M 750 604 H 1090 V 612 H 750 Z" fill="#334155" />
+<text x="764" y="602" class="cardTitle">TestAppContext / VisualTestContext</text>
+<text x="764" y="634" class="body">advance_clock, run_until_parked.</text>
+<text x="764" y="651" class="body">simulate_input ve Inspector.</text>
+
+  <path d="M 240 226 L 240 270" class="arrowSoft" /><text x="256" y="250" class="edge">cx.new / entity.update</text>
+  <path d="M 240 382 L 240 426" class="arrowSoft" /><text x="256" y="406" class="edge">open_window / update_window</text>
+  <path d="M 240 538 L 240 582" class="arrowSoft" /><text x="256" y="562" class="edge">handle.update</text>
+  <path d="M 410 158 L 750 158" class="arrow" /><text x="482" y="146" class="edge">cx.spawn(async move |cx| ...)</text>
+  <path d="M 750 194 L 410 194" class="arrowSoft" /><text x="500" y="212" class="edge">cx.update(|cx| ...)</text>
+  <path d="M 410 482 C 585 482 585 326 750 326" class="arrow" /><text x="482" y="346" class="edge">spawn_in / to_async</text>
+  <path d="M 750 372 C 585 372 585 500 410 500" class="arrowSoft" /><text x="482" y="518" class="edge">cx.update_in</text>
+  <path d="M 410 326 C 590 326 590 482 750 482" class="arrow" /><text x="488" y="390" class="edge">entity.downgrade</text>
+  <path d="M 750 516 C 590 548 590 360 410 360" class="arrowSoft" /><text x="488" y="566" class="edge">weak.update?</text>
+  <path d="M 410 622 L 750 622" class="arrowDash" /><text x="482" y="610" class="edge">TestDispatcher</text>
+  <rect x="110" y="698" width="940" height="54" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
+<text x="126" y="722" text-anchor="start" class="small">Sol sütun çalışmakta olan senkron yüzeyi, sağ sütun await sonrası elde tutulan yüzeyi gösterir.</text>
+<text x="126" y="739" text-anchor="start" class="small">Async dönüşlerde entity veya pencere düşmüş olabilir; bu yüzden update/read sonuçları Result veya Option taşır.</text>
+
+</svg>

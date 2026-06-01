@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 300">
+  <title>Form Kontrolü Seçimi</title>
+  <defs>
+    <style>
+      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .api   { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .when  { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .body  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+    </style>
+  </defs>
+
+  <rect width="860" height="300" rx="10" fill="#f8fafc" />
+  <text x="430" y="33" text-anchor="middle" class="title">Form Kontrolü Seçimi</text>
+  <text x="430" y="53" text-anchor="middle" class="sub">Seçim türü ve görsel sunum gereksinime göre doğru kontrolü belirler.</text>
+
+  <!-- Checkbox -->
+  <rect x="20" y="70" width="195" height="200" rx="8" fill="#1d4ed8" />
+  <text x="117" y="96" text-anchor="middle" class="api">Checkbox</text>
+  <text x="36" y="116" class="when">NE ZAMAN:</text>
+  <text x="36" y="132" class="body" fill="#bfdbfe">Birbirinden bağımsız</text>
+  <text x="36" y="148" class="body" fill="#bfdbfe">çoklu seçimler.</text>
+  <text x="36" y="168" class="body" fill="#bfdbfe">İzin, filtre, staged</text>
+  <text x="36" y="184" class="body" fill="#bfdbfe">file, capability vb.</text>
+  <text x="36" y="204" class="body" fill="#bfdbfe">Indeterminate durum</text>
+  <text x="36" y="220" class="body" fill="#bfdbfe">desteklenir.</text>
+
+  <!-- Switch -->
+  <rect x="231" y="70" width="195" height="200" rx="8" fill="#0891b2" />
+  <text x="328" y="96" text-anchor="middle" class="api">Switch</text>
+  <text x="247" y="116" class="when">NE ZAMAN:</text>
+  <text x="247" y="132" class="body" fill="#e0f2fe">Tek bir ayarı</text>
+  <text x="247" y="148" class="body" fill="#e0f2fe">açmak / kapatmak.</text>
+  <text x="247" y="168" class="body" fill="#e0f2fe">Boolean değer,</text>
+  <text x="247" y="184" class="body" fill="#e0f2fe">net aç/kapat anlamı.</text>
+  <text x="247" y="204" class="body" fill="#e0f2fe">Çoklu seçim</text>
+  <text x="247" y="220" class="body" fill="#e0f2fe">gerekmez.</text>
+
+  <!-- SwitchField -->
+  <rect x="442" y="70" width="195" height="200" rx="8" fill="#7c3aed" />
+  <text x="539" y="96" text-anchor="middle" class="api">SwitchField</text>
+  <text x="458" y="116" class="when">NE ZAMAN:</text>
+  <text x="458" y="132" class="body" fill="#f3e8ff">Label + açıklama</text>
+  <text x="458" y="148" class="body" fill="#f3e8ff">+ switch birlikte</text>
+  <text x="458" y="164" class="body" fill="#f3e8ff">tek satır ayar</text>
+  <text x="458" y="180" class="body" fill="#f3e8ff">olarak sunulur.</text>
+  <text x="458" y="200" class="body" fill="#f3e8ff">Switch + label</text>
+  <text x="458" y="216" class="body" fill="#f3e8ff">tek çağrıda kurulur.</text>
+
+  <!-- InputField -->
+  <rect x="653" y="70" width="187" height="200" rx="8" fill="#059669" />
+  <text x="746" y="96" text-anchor="middle" class="api">InputField</text>
+  <text x="669" y="116" class="when">NE ZAMAN:</text>
+  <text x="669" y="132" class="body" fill="#d1fae5">Tek satır serbest</text>
+  <text x="669" y="148" class="body" fill="#d1fae5">metin girişi.</text>
+  <text x="669" y="168" class="body" fill="#d1fae5">Arama, isim,</text>
+  <text x="669" y="184" class="body" fill="#d1fae5">değer, URL vb.</text>
+  <text x="669" y="204" class="body" fill="#d1fae5">ui_input crate'i</text>
+  <text x="669" y="220" class="body" fill="#d1fae5">üzerinden gelir.</text>
+
+</svg>

@@ -1,0 +1,17 @@
+book
+*.diff
+.DS_Store
+.antigravitycli
+doc/test.json
+
+# Generated API inventory artifacts
+.agents/zed_api_snapshot_current.json
+.agents/zed_api_snapshot_current.sqlite
+.agents/zed_api_snapshot_current.sqlite-*
+.agents/zed_api_snapshots/
+.agents/zed_modul_listesi.json
+.agents/zed_api_coverage_all.tsv
+.agents/zed_api_coverage_missing.tsv
+.agents/__pycache__/
+.agents/logs/
+.agents/zed_farklari/

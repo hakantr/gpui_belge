@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420">
+  <title>Item, Pane, Modal ve Notification Akışı</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
+      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
+      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
+      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
+      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
+      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
+      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="960" height="420" rx="10" fill="#f8fafc"/>
+  <text x="480" y="36" text-anchor="middle" class="title">Item, Pane, Modal ve Notification Akışı</text>
+  <text x="480" y="60" text-anchor="middle" class="sub">Workspace katmanı tab içeriğini, geçici yüzeyleri ve bildirimleri ayrı kanallarda yönetir.</text>
+
+  <rect x="46" y="120" width="168" height="104" rx="8" class="card"/>
+  <rect x="46" y="120" width="168" height="30" rx="8" fill="#334155"/>
+  <path d="M46 142 H214 V150 H46 Z" fill="#334155"/>
+  <text x="62" y="140" class="head">Workspace</text>
+  <text x="62" y="172" class="body">action kayıtları</text>
+  <text x="62" y="190" class="body">dock + status bar</text>
+  <text x="62" y="208" class="small">ana oturum sahibi</text>
+
+  <rect x="286" y="80" width="168" height="96" rx="8" class="card"/>
+  <rect x="286" y="80" width="168" height="30" rx="8" fill="#0284c7"/>
+  <path d="M286 102 H454 V110 H286 Z" fill="#0284c7"/>
+  <text x="302" y="100" class="head">Pane</text>
+  <text x="302" y="132" class="body">ItemHandle listesi</text>
+  <text x="302" y="150" class="small">activate / split / close</text>
+
+  <rect x="530" y="80" width="168" height="96" rx="8" class="card"/>
+  <rect x="530" y="80" width="168" height="30" rx="8" fill="#059669"/>
+  <path d="M530 102 H698 V110 H530 Z" fill="#059669"/>
+  <text x="546" y="100" class="head">Item</text>
+  <text x="546" y="132" class="body">Focusable + Render</text>
+  <text x="546" y="150" class="small">tab_content üretir</text>
+
+  <rect x="286" y="244" width="168" height="96" rx="8" class="card"/>
+  <rect x="286" y="244" width="168" height="30" rx="8" fill="#7c3aed"/>
+  <path d="M286 266 H454 V274 H286 Z" fill="#7c3aed"/>
+  <text x="302" y="264" class="head">ModalLayer</text>
+  <text x="302" y="296" class="body">ManagedView</text>
+  <text x="302" y="314" class="small">dismiss kararı</text>
+
+  <rect x="530" y="244" width="168" height="96" rx="8" class="card"/>
+  <rect x="530" y="244" width="168" height="30" rx="8" fill="#d97706"/>
+  <path d="M530 266 H698 V274 H530 Z" fill="#d97706"/>
+  <text x="546" y="264" class="head">Notification</text>
+  <text x="546" y="296" class="body">toast / suppress</text>
+  <text x="546" y="314" class="small">DismissEvent yayar</text>
+
+  <rect x="774" y="160" width="130" height="96" rx="8" class="card"/>
+  <rect x="774" y="160" width="130" height="30" rx="8" fill="#be123c"/>
+  <path d="M774 182 H904 V190 H774 Z" fill="#be123c"/>
+  <text x="790" y="180" class="head">UI</text>
+  <text x="790" y="212" class="body">render tree</text>
+  <text x="790" y="230" class="small">focus + events</text>
+
+  <path d="M214 164 C250 146 252 128 286 128" class="arrow"/>
+  <path d="M454 128 H530" class="arrow"/>
+  <path d="M214 184 C252 218 250 292 286 292" class="arrow"/>
+  <path d="M454 292 H530" class="arrow"/>
+  <path d="M698 128 C744 128 746 188 774 198" class="arrow"/>
+  <path d="M698 292 C744 292 746 236 774 222" class="arrow"/>
+</svg>

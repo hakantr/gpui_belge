@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+  <title>Subscription Drop Güvenliği</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">Subscription Drop Güvenliği</text>
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Abonelik kaydının ömrü Subscription handle'ının nerede saklandığıyla belirlenir.</text>
+
+  <rect x="60" y="108" width="300" height="120" rx="8" class="card" />
+  <rect x="60" y="108" width="300" height="30" rx="8" fill="#0284c7" />
+  <path d="M 60 130 H 360 V 138 H 60 Z" fill="#0284c7" />
+  <text x="74" y="128" class="cardTitle">observe / subscribe</text>
+  <text x="74" y="160" class="body">App içinde callback kaydı açılır.</text>
+  <text x="74" y="177" class="body">Geriye opak Subscription döner.</text>
+  <text x="74" y="194" class="mono">cx.subscribe(&amp;entity, ...)</text>
+
+  <path d="M 360 168 L 430 168" class="arrowSoft" />
+
+  <rect x="430" y="108" width="300" height="120" rx="8" class="card" />
+  <rect x="430" y="108" width="300" height="30" rx="8" fill="#7c3aed" />
+  <path d="M 430 130 H 730 V 138 H 430 Z" fill="#7c3aed" />
+  <text x="444" y="128" class="cardTitle">Handle sahibi</text>
+  <text x="444" y="160" class="body">Struct alanı, local değişken veya detach.</text>
+  <text x="444" y="177" class="body">Sahiplik kaydın ömrünü belirler.</text>
+  <text x="444" y="194" class="mono">Vec&lt;Subscription&gt;</text>
+
+  <path d="M 730 168 L 800 168" class="arrowSoft" />
+
+  <rect x="800" y="108" width="300" height="120" rx="8" class="card" />
+  <rect x="800" y="108" width="300" height="30" rx="8" fill="#059669" />
+  <path d="M 800 130 H 1100 V 138 H 800 Z" fill="#059669" />
+  <text x="814" y="128" class="cardTitle">Drop davranışı</text>
+  <text x="814" y="160" class="body">Subscription düşerse kayıt silinir.</text>
+  <text x="814" y="177" class="body">Callback artık çağrılmaz.</text>
+  <text x="814" y="194" class="body">Leak ve stale update riski azalır.</text>
+
+  <rect x="80" y="306" width="300" height="132" rx="8" fill="#fef3c7" stroke="#d97706" />
+  <text x="230" y="336" text-anchor="middle" class="label">A. Struct alanı</text>
+  <text x="230" y="360" text-anchor="middle" class="mono">_subs: Vec&lt;Subscription&gt;</text>
+  <text x="230" y="382" text-anchor="middle" class="body">View yaşadığı sürece dinler.</text>
+  <text x="230" y="402" text-anchor="middle" class="body">View drop olunca kayıt temizlenir.</text>
+
+  <rect x="430" y="306" width="300" height="132" rx="8" fill="#dbeafe" stroke="#2563eb" />
+  <text x="580" y="336" text-anchor="middle" class="label">B. Local let</text>
+  <text x="580" y="360" text-anchor="middle" class="mono">let _sub = cx.observe(...);</text>
+  <text x="580" y="382" text-anchor="middle" class="body">Scope sonunda hemen düşer.</text>
+  <text x="580" y="402" text-anchor="middle" class="body">Kısa ömürlü dinleme için uygundur.</text>
+
+  <rect x="780" y="306" width="300" height="132" rx="8" fill="#ede9fe" stroke="#7c3aed" />
+  <text x="930" y="336" text-anchor="middle" class="label">C. detach()</text>
+  <text x="930" y="360" text-anchor="middle" class="mono">cx.subscribe(...).detach()</text>
+  <text x="930" y="382" text-anchor="middle" class="body">Handle sahipten kopar.</text>
+  <text x="930" y="402" text-anchor="middle" class="body">WeakEntity koruması gerekir.</text>
+
+  <rect x="80" y="540" width="470" height="132" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
+  <text x="104" y="570" class="label">Callback içinde update riski</text>
+  <text x="104" y="598" class="body">observe callback'i tetikleyen entity üzerinde doğrudan</text>
+  <text x="104" y="615" class="body">update çağırmak re-entrant panic üretebilir.</text>
+  <text x="104" y="642" class="body">Çözüm: cx.defer veya cx.spawn ile işi sonraki tura taşı.</text>
+
+  <rect x="610" y="540" width="470" height="132" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.2" />
+  <text x="634" y="570" class="label">Async ve detached güvenliği</text>
+  <text x="634" y="598" class="body">Detached callback view ömründen uzun yaşayabilir.</text>
+  <text x="634" y="615" class="body">Güçlü Entity yakalamak yaşam döngüsünü uzatır.</text>
+  <text x="634" y="642" class="body">WeakEntity yakala; upgrade/update sonucunu kontrol et.</text>
+
+  <path d="M 230 438 C 230 486 314 500 314 540" class="arrowSoft" />
+  <path d="M 930 438 C 930 486 846 500 846 540" class="arrowRed" />
+</svg>

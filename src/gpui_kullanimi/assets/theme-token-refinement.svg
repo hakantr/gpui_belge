@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+  <title>Theme Token ve Style Refinement Akışı</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">Theme Token ve Style Refinement Akışı</text>
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Tema ailesi ve kullanıcı ayarları token değerlerine, token'lar da element style refinement'larına dönüşür.</text>
+
+  <rect x="60" y="108" width="260" height="116" rx="8" class="card" />
+  <rect x="60" y="108" width="260" height="30" rx="8" fill="#0284c7" />
+  <path d="M 60 130 H 320 V 138 H 60 Z" fill="#0284c7" />
+  <text x="74" y="128" class="cardTitle">1. ThemeFamily</text>
+  <text x="74" y="160" class="body">JSON tema ailesi ve varyantlar.</text>
+  <text x="74" y="177" class="body">Light / dark appearance bilgisi.</text>
+  <text x="74" y="194" class="mono">ThemeRegistry</text>
+
+  <path d="M 320 166 L 390 166" class="arrowSoft" />
+
+  <rect x="390" y="108" width="260" height="116" rx="8" class="card" />
+  <rect x="390" y="108" width="260" height="30" rx="8" fill="#7c3aed" />
+  <path d="M 390 130 H 650 V 138 H 390 Z" fill="#7c3aed" />
+  <text x="404" y="128" class="cardTitle">2. Settings merge</text>
+  <text x="404" y="160" class="body">Kullanıcı, server ve project override.</text>
+  <text x="404" y="177" class="body">ThemeSettings seçimi belirler.</text>
+  <text x="404" y="194" class="mono">reload_theme(cx)</text>
+
+  <path d="M 650 166 L 720 166" class="arrowSoft" />
+
+  <rect x="720" y="108" width="380" height="116" rx="8" class="card" />
+  <rect x="720" y="108" width="380" height="30" rx="8" fill="#059669" />
+  <path d="M 720 130 H 1100 V 138 H 720 Z" fill="#059669" />
+  <text x="734" y="128" class="cardTitle">3. Theme token'ları</text>
+  <text x="734" y="160" class="body">ThemeColors, StatusColors ve HighlightStyle.</text>
+  <text x="734" y="177" class="body">Refinement ile eksik alanlar tamamlanır.</text>
+  <text x="734" y="194" class="mono">ThemeColorsRefinement</text>
+
+  <rect x="110" y="320" width="240" height="120" rx="8" fill="#dbeafe" stroke="#2563eb" />
+  <text x="230" y="350" text-anchor="middle" class="label">UI token</text>
+  <text x="230" y="374" text-anchor="middle" class="mono">cx.theme().colors().text</text>
+  <text x="230" y="394" text-anchor="middle" class="small">text, background, border</text>
+  <text x="230" y="414" text-anchor="middle" class="small">status, accent, warning</text>
+
+  <rect x="460" y="320" width="240" height="120" rx="8" fill="#fef3c7" stroke="#d97706" />
+  <text x="580" y="350" text-anchor="middle" class="label">StyleRefinement</text>
+  <text x="580" y="374" text-anchor="middle" class="mono">.text_color(token)</text>
+  <text x="580" y="394" text-anchor="middle" class="mono">.bg(token)</text>
+  <text x="580" y="414" text-anchor="middle" class="mono">.border_color(token)</text>
+
+  <rect x="810" y="320" width="240" height="120" rx="8" fill="#d1fae5" stroke="#059669" />
+  <text x="930" y="350" text-anchor="middle" class="label">Paint output</text>
+  <text x="930" y="374" text-anchor="middle" class="small">Element final Style üretir.</text>
+  <text x="930" y="394" text-anchor="middle" class="small">Renderer renkleri primitive'e yazar.</text>
+  <text x="930" y="414" text-anchor="middle" class="mono">paint_quad</text>
+
+  <path d="M 230 320 C 250 270 830 270 910 224" class="arrowSoft" />
+  <path d="M 350 380 L 460 380" class="arrowSoft" />
+  <path d="M 700 380 L 810 380" class="arrowSoft" />
+
+  <rect x="80" y="546" width="480" height="124" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
+  <text x="104" y="576" class="label">Tema değişince</text>
+  <text x="104" y="604" class="body">ThemeRegistry yeni aktif temayı seçer.</text>
+  <text x="104" y="628" class="body">SettingsStore veya ThemeRegistry gözlemcileri notify eder.</text>
+  <text x="104" y="652" class="body">Elementler sonraki render'da yeni token okur.</text>
+
+  <rect x="600" y="546" width="480" height="124" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
+  <text x="624" y="576" class="label">Yerel override sınırı</text>
+  <text x="624" y="604" class="body">Element style'ı token'ı doğrudan ezebilir.</text>
+  <text x="624" y="628" class="body">Bileşen sistemi token kullanımını tercih ederek</text>
+  <text x="624" y="652" class="body">tema değişiminde tutarlılığı korur.</text>
+</svg>

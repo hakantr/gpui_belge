@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 760">
+  <title>EventEmitter ve Subscription Yaşam Döngüsü</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">EventEmitter ve Subscription Yaşam Döngüsü</text>
+
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Tipli olay üretimi, pending_effects kuyruğu ve abonelik sahipliği birlikte çalışır.</text>
+  <rect x="60" y="92" width="310" height="128" rx="8" class="card" />
+<rect x="60" y="92" width="310" height="30" rx="8" fill="#0284c7" />
+<path d="M 60 114 H 370 V 122 H 60 Z" fill="#0284c7" />
+<text x="74" y="112" class="cardTitle">Üreten: EventEmitter&lt;E&gt;</text>
+<text x="74" y="144" class="body">impl EventEmitter&lt;Kaydedildi&gt; for Belge {}</text>
+<text x="74" y="161" class="body">cx.emit(Kaydedildi)</text>
+<text x="74" y="178" class="body">Context&lt;Belge&gt; üzerinden çağrılır.</text>
+<text x="74" y="195" class="body">Tip güvenli mesaj yayar.</text>
+
+  <path d="M 370 156 L 430 156" class="arrowSoft" /><text x="400" y="144" text-anchor="middle" class="edge">emit</text>
+  <rect x="430" y="92" width="300" height="128" rx="8" class="card" />
+<rect x="430" y="92" width="300" height="30" rx="8" fill="#7c3aed" />
+<path d="M 430 114 H 730 V 122 H 430 Z" fill="#7c3aed" />
+<text x="444" y="112" class="cardTitle">Merkez: App pending_effects</text>
+<text x="444" y="144" class="body">cx.notify ve cx.emit burada kuyruğa girer.</text>
+<text x="444" y="161" class="body">flush_effects sırayla tüketir.</text>
+<text x="444" y="178" class="body">Kayıtlı Subscription callback'leri çağrılır.</text>
+
+  <path d="M 730 156 L 790 156" class="arrowSoft" /><text x="760" y="144" text-anchor="middle" class="edge">dispatch</text>
+  <rect x="790" y="92" width="310" height="128" rx="8" class="card" />
+<rect x="790" y="92" width="310" height="30" rx="8" fill="#059669" />
+<path d="M 790 114 H 1100 V 122 H 790 Z" fill="#059669" />
+<text x="804" y="112" class="cardTitle">Abone: Subscription</text>
+<text x="804" y="144" class="body">cx.subscribe(&amp;belge,</text>
+<text x="804" y="161" class="body">|g, b, event, cx| { ... })</text>
+<text x="804" y="178" class="body">Gözlemleyen entity güncellenir.</text>
+<text x="804" y="178" class="body">cx.notify ile yeniden çizim isteyebilir.</text>
+
+  <text x="580" y="264" text-anchor="middle" class="label">Subscription sahiplik desenleri</text>
+  <rect x="60" y="286" width="330" height="116" rx="8" class="card" />
+<rect x="60" y="286" width="330" height="30" rx="8" fill="#d97706" />
+<path d="M 60 308 H 390 V 316 H 60 Z" fill="#d97706" />
+<text x="74" y="306" class="cardTitle">A. Struct alanında saklama</text>
+<text x="74" y="338" class="body">struct Gorunum { _abonelikler: Vec&lt;Subscription&gt; }</text>
+<text x="74" y="355" class="body">new() içinde push edilir.</text>
+<text x="74" y="372" class="body">Gorunum düşünce kayıt otomatik temizlenir.</text>
+
+  <rect x="415" y="286" width="330" height="116" rx="8" class="card" />
+<rect x="415" y="286" width="330" height="30" rx="8" fill="#2563eb" />
+<path d="M 415 308 H 745 V 316 H 415 Z" fill="#2563eb" />
+<text x="429" y="306" class="cardTitle">B. .detach()</text>
+<text x="429" y="338" class="body">cx.subscribe(&amp;varlik, |...| { ... }).detach();</text>
+<text x="429" y="355" class="body">Sahipten kopuk, view ömrü dışında yaşar.</text>
+<text x="429" y="372" class="body">Veri erişimi için WeakEntity koruması gerekir.</text>
+
+  <rect x="770" y="286" width="330" height="116" rx="8" class="card" />
+<rect x="770" y="286" width="330" height="30" rx="8" fill="#7c3aed" />
+<path d="M 770 308 H 1100 V 316 H 770 Z" fill="#7c3aed" />
+<text x="784" y="306" class="cardTitle">C. Yerel let _abonelik</text>
+<text x="784" y="338" class="body">let _abonelik = cx.observe(&amp;varlik, ...);</text>
+<text x="784" y="355" class="body">Scope sonunda düşer ve kayıt iptal olur.</text>
+<text x="784" y="372" class="body">Geçici dinleme için uygundur.</text>
+
+  <text x="580" y="446" text-anchor="middle" class="label">Subscribe / observe API ailesi</text>
+  <rect x="60" y="468" width="520" height="156" rx="8" class="card" />
+<rect x="60" y="468" width="520" height="30" rx="8" fill="#0f766e" />
+<path d="M 60 490 H 580 V 498 H 60 Z" fill="#0f766e" />
+<text x="74" y="488" class="cardTitle">Veri ve Event abonelikleri</text>
+<text x="74" y="520" class="body">cx.observe(entity, |g, e, cx| ...) - entity notify ettiğinde tetiklenir.</text>
+<text x="74" y="537" class="body">cx.subscribe(entity, |g, e, &amp;E, cx| ...) - EventEmitter&lt;E&gt; olayları.</text>
+<text x="74" y="554" class="body">cx.observe_global::&lt;G&gt;(|cx| ...) - global her bildirimde tetiklenir.</text>
+<text x="74" y="571" class="body">cx.observe_release(entity, |g, e, cx| ...) - son temizlik için.</text>
+
+  <rect x="610" y="468" width="490" height="156" rx="8" class="card" />
+<rect x="610" y="468" width="490" height="30" rx="8" fill="#0f766e" />
+<path d="M 610 490 H 1100 V 498 H 610 Z" fill="#0f766e" />
+<text x="624" y="488" class="cardTitle">Pencere bağlı varyantlar</text>
+<text x="624" y="520" class="body">observe_window_bounds / activation / appearance.</text>
+<text x="624" y="537" class="body">observe_button_layout_changed ve observe_pending_input.</text>
+<text x="624" y="554" class="body">observe_keystrokes.</text>
+<text x="624" y="571" class="body">cx.on_drop(&amp;weak, |cx| ...) ve AsyncApp::subscribe.</text>
+
+  <rect x="60" y="660" width="1040" height="56" rx="8" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
+<text x="76" y="684" text-anchor="start" class="small">Subscription drop edildiğinde kayıt otomatik silinir.</text>
+<text x="76" y="701" text-anchor="start" class="small">observe içinden entity.update çağırmak panic verir; cx.defer(|cx| ...) veya cx.spawn(...) tercih edilir.</text>
+
+</svg>

@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 420">
+  <title>AI ve Collab Domain Haritası</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
+      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
+      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
+      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
+      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
+      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
+      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="940" height="420" rx="10" fill="#f8fafc"/>
+  <text x="470" y="36" text-anchor="middle" class="title">AI ve Collab Domain Haritası</text>
+  <text x="470" y="60" text-anchor="middle" class="sub">Component hazır görünse de gerçek state üst katmanda kalır.</text>
+
+  <rect x="48" y="126" width="190" height="126" rx="8" class="card"/>
+  <rect x="48" y="126" width="190" height="30" rx="8" fill="#334155"/>
+  <path d="M48 148 H238 V156 H48 Z" fill="#334155"/>
+  <text x="64" y="146" class="head">Domain state</text>
+  <text x="64" y="178" class="body">agent provider</text>
+  <text x="64" y="196" class="body">auth / status</text>
+  <text x="64" y="214" class="body">thread / skill catalog</text>
+  <text x="64" y="232" class="small">view veya model sahibi</text>
+
+  <rect x="318" y="82" width="210" height="96" rx="8" class="card"/>
+  <rect x="318" y="82" width="210" height="30" rx="8" fill="#7c3aed"/>
+  <path d="M318 104 H528 V112 H318 Z" fill="#7c3aed"/>
+  <text x="334" y="102" class="head">AiSettingItem</text>
+  <text x="334" y="134" class="body">label + status + source</text>
+  <text x="334" y="152" class="small">servis mantığı taşımaz</text>
+
+  <rect x="318" y="210" width="210" height="96" rx="8" class="card"/>
+  <rect x="318" y="210" width="210" height="30" rx="8" fill="#0284c7"/>
+  <path d="M318 232 H528 V240 H318 Z" fill="#0284c7"/>
+  <text x="334" y="230" class="head">AgentSetupButton</text>
+  <text x="334" y="262" class="body">kurulum CTA yüzeyi</text>
+  <text x="334" y="280" class="small">callback dışarıdan gelir</text>
+
+  <rect x="608" y="82" width="210" height="96" rx="8" class="card"/>
+  <rect x="608" y="82" width="210" height="30" rx="8" fill="#059669"/>
+  <path d="M608 104 H818 V112 H608 Z" fill="#059669"/>
+  <text x="624" y="102" class="head">Collab UI</text>
+  <text x="624" y="134" class="body">avatar, follower, share</text>
+  <text x="624" y="152" class="small">presence state'i üstte</text>
+
+  <rect x="608" y="210" width="210" height="96" rx="8" class="card"/>
+  <rect x="608" y="210" width="210" height="30" rx="8" fill="#d97706"/>
+  <path d="M608 232 H818 V240 H608 Z" fill="#d97706"/>
+  <text x="624" y="230" class="head">Update / Toast</text>
+  <text x="624" y="262" class="body">duyuru ve migration</text>
+  <text x="624" y="280" class="small">lifecycle parent'ta</text>
+
+  <path d="M238 170 H318" class="arrow"/>
+  <path d="M238 190 C270 190 284 258 318 258" class="arrow"/>
+  <path d="M528 130 H608" class="arrow"/>
+  <path d="M528 258 H608" class="arrow"/>
+
+  <rect x="110" y="342" width="720" height="42" rx="7" fill="#eef2ff" stroke="#6366f1" stroke-width="1.1"/>
+  <text x="134" y="368" class="body">Kural: component yalnız render girdisi alır; gerçek servis ve migration kararları uygulama modelinde kalır.</text>
+</svg>

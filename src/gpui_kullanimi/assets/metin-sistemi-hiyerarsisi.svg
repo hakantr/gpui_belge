@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 430">
+  <title>GPUI Metin Sistemi Bileşen Hiyerarşisi</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <style>
+      .title  { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .lbl    { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
+      .mono   { font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .body   { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .note   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
+      .arrow  { stroke: #334155; stroke-width: 1.8; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect width="820" height="430" rx="10" fill="#f8fafc" />
+  <text x="410" y="34" text-anchor="middle" class="title">Metin Sistemi Bileşen Hiyerarşisi</text>
+  <text x="410" y="56" text-anchor="middle" class="sub">Katmanlar aşağıdan yukarıya — her katman alttakini kullanır.</text>
+
+  <!-- ── Katman 1: Font tipleri ── -->
+  <rect x="20" y="72" width="780" height="62" rx="8" fill="#334155" />
+  <text x="410" y="93" text-anchor="middle" class="lbl">Font Tipleri</text>
+  <text x="120" y="115" text-anchor="middle" class="mono" fill="#94a3b8">Font</text>
+  <text x="280" y="115" text-anchor="middle" class="mono" fill="#94a3b8">FontWeight</text>
+  <text x="440" y="115" text-anchor="middle" class="mono" fill="#94a3b8">FontStyle</text>
+  <text x="600" y="115" text-anchor="middle" class="mono" fill="#94a3b8">FontFeatures</text>
+  <text x="730" y="115" text-anchor="middle" class="mono" fill="#94a3b8">FontFallbacks</text>
+
+  <!-- ── Katman 2: TextStyle + HighlightStyle ── -->
+  <path d="M 410 134 L 410 158" class="arrow" />
+
+  <rect x="20" y="160" width="490" height="68" rx="8" fill="#1d4ed8" />
+  <text x="265" y="182" text-anchor="middle" class="lbl">TextStyle</text>
+  <text x="265" y="200" class="body" fill="#bfdbfe" text-anchor="middle">Taban görünüm: renk, font ailesi, boyut,</text>
+  <text x="265" y="216" class="body" fill="#bfdbfe" text-anchor="middle">satır yüksekliği, kalınlık, dekorasyon…</text>
+
+  <rect x="526" y="160" width="274" height="68" rx="8" fill="#7c3aed" />
+  <text x="663" y="182" text-anchor="middle" class="lbl">HighlightStyle</text>
+  <text x="663" y="200" class="body" fill="#ddd6fe" text-anchor="middle">Kısmi override — belirli</text>
+  <text x="663" y="216" class="body" fill="#ddd6fe" text-anchor="middle">aralığa taban stilin üstüne biner.</text>
+
+  <!-- ── Katman 3: TextRun ── -->
+  <path d="M 265 228 L 265 258" class="arrow" />
+  <path d="M 663 228 L 430 258" class="arrow" />
+
+  <rect x="20" y="260" width="780" height="64" rx="8" fill="#0891b2" />
+  <text x="410" y="282" text-anchor="middle" class="lbl">TextRun</text>
+  <text x="410" y="300" text-anchor="middle" class="body" fill="#e0f2fe">UTF-8 byte uzunluğu + Font + renk/dekorasyon. Run'ların toplam uzunluğu metnin byte uzunluğuyla eşleşmeli.</text>
+  <text x="410" y="316" text-anchor="middle" class="note" fill="#a5f3fc">Harflerin gruplara (run) ayrılması: aynı stilce ardışık karakterler tek run'dır.</text>
+
+  <!-- ── Katman 4: StyledText ── -->
+  <path d="M 410 324 L 410 350" class="arrow" />
+
+  <rect x="20" y="352" width="580" height="52" rx="8" fill="#059669" />
+  <text x="310" y="374" text-anchor="middle" class="lbl">StyledText</text>
+  <text x="310" y="392" text-anchor="middle" class="body" fill="#d1fae5">SharedString + TextRun listesi + HighlightStyle aralıkları → çizime hazır metin</text>
+
+  <!-- ── InteractiveText ── -->
+  <rect x="616" y="352" width="184" height="52" rx="8" fill="#b45309" />
+  <text x="708" y="374" text-anchor="middle" class="lbl">InteractiveText</text>
+  <text x="708" y="392" text-anchor="middle" class="note" fill="#fed7aa">StyledText + tıklama</text>
+  <text x="708" y="404" text-anchor="middle" class="note" fill="#fed7aa">hover · tooltip</text>
+
+  <!-- Arrow StyledText → InteractiveText -->
+  <path d="M 600 378 L 614 378" class="arrow" />
+
+</svg>

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+  <title>reserve_entity ve insert_entity İlişki Kurulumu</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+    </style>
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">reserve_entity ve insert_entity İlişki Kurulumu</text>
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Çift yönlü Entity ilişkilerinde önce slot ayırmak, sonra değerleri yerleştirmek döngü kurulumunu güvenli hale getirir.</text>
+
+  <rect x="80" y="104" width="300" height="120" rx="8" class="card" />
+  <rect x="80" y="104" width="300" height="30" rx="8" fill="#0284c7" />
+  <path d="M 80 126 H 380 V 134 H 80 Z" fill="#0284c7" />
+  <text x="94" y="124" class="cardTitle">1. Slot ayır</text>
+  <text x="94" y="156" class="mono">let parent = cx.reserve_entity();</text>
+  <text x="94" y="173" class="mono">let child = cx.reserve_entity();</text>
+  <text x="94" y="196" class="body">Handle'lar bilinir, veri henüz kurulmaz.</text>
+
+  <path d="M 380 164 L 430 164" class="arrowSoft" />
+
+  <rect x="430" y="104" width="300" height="120" rx="8" class="card" />
+  <rect x="430" y="104" width="300" height="30" rx="8" fill="#7c3aed" />
+  <path d="M 430 126 H 730 V 134 H 430 Z" fill="#7c3aed" />
+  <text x="444" y="124" class="cardTitle">2. Veriyi hazırla</text>
+  <text x="444" y="156" class="body">Parent güçlü child handle tutabilir.</text>
+  <text x="444" y="173" class="body">Child parent için WeakEntity saklar.</text>
+  <text x="444" y="196" class="mono">parent.downgrade()</text>
+
+  <path d="M 730 164 L 780 164" class="arrowSoft" />
+
+  <rect x="780" y="104" width="300" height="120" rx="8" class="card" />
+  <rect x="780" y="104" width="300" height="30" rx="8" fill="#059669" />
+  <path d="M 780 126 H 1080 V 134 H 780 Z" fill="#059669" />
+  <text x="794" y="124" class="cardTitle">3. Slotlara yerleştir</text>
+  <text x="794" y="156" class="mono">cx.insert_entity(parent, Parent {...})</text>
+  <text x="794" y="173" class="mono">cx.insert_entity(child, Child {...})</text>
+  <text x="794" y="196" class="body">Artık iki taraf da tutarlı referans görür.</text>
+
+  <rect x="140" y="304" width="340" height="170" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4" />
+  <text x="310" y="334" text-anchor="middle" class="label">Parent Entity</text>
+  <text x="310" y="358" text-anchor="middle" class="mono">children: Vec&lt;Entity&lt;Child&gt;&gt;</text>
+  <text x="310" y="380" text-anchor="middle" class="body">Çocukları güçlü tutar.</text>
+  <text x="310" y="402" text-anchor="middle" class="body">Parent yaşadığı sürece child düşmez.</text>
+
+  <rect x="680" y="304" width="340" height="170" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" />
+  <text x="850" y="334" text-anchor="middle" class="label">Child Entity</text>
+  <text x="850" y="358" text-anchor="middle" class="mono">parent: WeakEntity&lt;Parent&gt;</text>
+  <text x="850" y="380" text-anchor="middle" class="body">Parent yaşamını uzatmaz.</text>
+  <text x="850" y="402" text-anchor="middle" class="body">update/read Result ile kontrol edilir.</text>
+
+  <path d="M 480 360 L 680 360" class="arrow" />
+  <text x="580" y="348" text-anchor="middle" class="edge">güçlü child handle</text>
+  <path d="M 680 414 L 480 414" class="arrowDash" />
+  <text x="580" y="436" text-anchor="middle" class="edge">WeakEntity parent bağlantısı</text>
+
+  <rect x="80" y="548" width="480" height="142" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
+  <text x="104" y="578" class="label">Neden reserve?</text>
+  <text x="104" y="606" class="body">Bir entity kurulurken diğerinin handle'ına ihtiyaç varsa</text>
+  <text x="104" y="623" class="body">normal cx.new sırası yeterli olmayabilir.</text>
+  <text x="104" y="650" class="body">reserve_entity önce kimlik verir; insert_entity</text>
+  <text x="104" y="667" class="body">veriyi sonradan bu kimliğe bağlar.</text>
+
+  <rect x="600" y="548" width="480" height="142" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
+  <text x="624" y="578" class="label">Kaçınılacak desen</text>
+  <text x="624" y="606" class="body">Parent ve Child birbirini Entity&lt;T&gt; ile güçlü tutarsa</text>
+  <text x="624" y="623" class="body">ref-count sıfıra düşmeyebilir.</text>
+  <text x="624" y="650" class="body">Çift yönlü bağlarda geri referans genelde</text>
+  <text x="624" y="667" class="body">WeakEntity&lt;T&gt; olmalıdır.</text>
+</svg>

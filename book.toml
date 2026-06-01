@@ -1,0 +1,11 @@
+[book]
+title = "Rust GPUI"
+authors = ["Hakan BİRİŞ"]
+language = "tr"
+
+[output.html.search]
+enable = true
+expand = false
+heading-split-level = 2
+use-boolean-and = true
+teaser-word-count = 15

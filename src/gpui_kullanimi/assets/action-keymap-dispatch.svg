@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 840">
+  <title>Action ve Keymap Dispatch Hattı</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
+    </marker>
+    <style>
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
+      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
+      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+    </style>
+    
+  </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
+  <text x="580" y="36" text-anchor="middle" class="title">Action ve Keymap Dispatch Hattı</text>
+
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Platform girdisi bağlam yığını ve keymap eşleşmesi üzerinden action dinleyicilerine ulaşır.</text>
+  <rect x="60" y="92" width="300" height="100" rx="8" class="card" />
+<rect x="60" y="92" width="300" height="30" rx="8" fill="#0284c7" />
+<path d="M 60 114 H 360 V 122 H 60 Z" fill="#0284c7" />
+<text x="74" y="112" class="cardTitle">1. Platform girdisi</text>
+<text x="74" y="144" class="body">PlatformInput -&gt; KeyDownEvent / Keystroke.</text>
+<text x="74" y="161" class="body">PlatformWindow::on_input</text>
+<text x="74" y="178" class="body">-&gt; Window event loop.</text>
+
+  <path d="M 360 142 L 430 142" class="arrowSoft" />
+  <rect x="430" y="92" width="300" height="100" rx="8" class="card" />
+<rect x="430" y="92" width="300" height="30" rx="8" fill="#059669" />
+<path d="M 430 114 H 730 V 122 H 430 Z" fill="#059669" />
+<text x="444" y="112" class="cardTitle">2. Bağlam yığını</text>
+<text x="444" y="144" class="body">Odaktaki elementten kök yoluna doğru kurulur.</text>
+<text x="444" y="161" class="body">window.context_stack()</text>
+<text x="444" y="178" class="body">.key_context(&quot;Editor mode=insert&quot;).</text>
+
+  <path d="M 730 142 L 800 142" class="arrowSoft" />
+  <rect x="800" y="92" width="300" height="100" rx="8" class="card" />
+<rect x="800" y="92" width="300" height="30" rx="8" fill="#7c3aed" />
+<path d="M 800 114 H 1100 V 122 H 800 Z" fill="#7c3aed" />
+<text x="814" y="112" class="cardTitle">3. Keymap eşleşmesi</text>
+<text x="814" y="144" class="body">Keymap::bindings_for_input</text>
+<text x="814" y="161" class="body">(input, context_stack).</text>
+<text x="814" y="178" class="body">matched ve pending multi-stroke sonucu döner.</text>
+
+  <rect x="60" y="224" width="1040" height="70" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2" />
+<text x="76" y="248" text-anchor="start" class="small">KeyBindingContextPredicate: &quot;Editor&quot;, &quot;mode == insert&quot;, &quot;!Terminal&quot;, &quot;Workspace &gt; Editor&quot;, &quot;A &amp;&amp; B&quot;, &quot;A || B&quot;.</text>
+<text x="76" y="265" text-anchor="start" class="small">Öncelik: bağlam yolunda daha derin eşleşme önce; aynı derinlikte sonra eklenen kazanır. NoAction / Unbind devre dışı bırakır.</text>
+  <rect x="60" y="326" width="300" height="100" rx="8" class="card" />
+<rect x="60" y="326" width="300" height="30" rx="8" fill="#d97706" />
+<path d="M 60 348 H 360 V 356 H 60 Z" fill="#d97706" />
+<text x="74" y="346" class="cardTitle">4. Action üretilir</text>
+<text x="74" y="378" class="body">Action::build(json_value)?</text>
+<text x="74" y="395" class="body">Kod içinden: cx.dispatch_action(&amp;Kaydet).</text>
+
+  <path d="M 360 376 L 430 376" class="arrowSoft" />
+  <rect x="430" y="326" width="670" height="150" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
+  <text x="765" y="354" text-anchor="middle" class="label">5. DispatchPhase ile yayılım</text>
+  <rect x="460" y="374" width="610" height="36" rx="7" fill="#fff7ed" stroke="#d97706" />
+  <text x="478" y="397" class="edge" font-weight="700">Capture</text>
+  <text x="610" y="391" class="small">capture dinleyicileri kökten odağa doğru çalışır;</text>
+  <text x="610" y="405" class="small">window.on_key_event(Capture, ...).</text>
+  <rect x="460" y="420" width="610" height="42" rx="7" fill="#fff7ed" stroke="#d97706" />
+  <text x="478" y="446" class="edge" font-weight="700">Bubble</text>
+  <text x="610" y="438" class="small">.on_action ve .on_* dinleyicileri odaktan köke gider.</text>
+  <text x="610" y="455" class="small">Action dinleyicisi yayılımı durdurur; cx.propagate() devam ettirir.</text>
+  <rect x="60" y="512" width="360" height="116" rx="8" class="card" />
+<rect x="60" y="512" width="360" height="30" rx="8" fill="#be123c" />
+<path d="M 60 534 H 420 V 542 H 60 Z" fill="#be123c" />
+<text x="74" y="532" class="cardTitle">6. Dinleyici çalışır</text>
+<text x="74" y="564" class="body">.on_action(cx.listener(|view, _: &amp;Kaydet,</text>
+<text x="74" y="581" class="body">window, cx| { ... }))</text>
+<text x="74" y="598" class="body">cx.notify, stop_propagation, propagate.</text>
+<text x="74" y="615" class="body">window.prevent_default.</text>
+
+  <path d="M 420 570 L 490 570" class="arrowSoft" />
+  <rect x="490" y="512" width="300" height="116" rx="8" class="card" />
+<rect x="490" y="512" width="300" height="30" rx="8" fill="#334155" />
+<path d="M 490 534 H 790 V 542 H 490 Z" fill="#334155" />
+<text x="504" y="532" class="cardTitle">7. Platforma sonuç</text>
+<text x="504" y="564" class="body">DispatchEventResult {</text>
+<text x="504" y="581" class="body">  propagate: bool,</text>
+<text x="504" y="598" class="body">  default_prevented: bool</text>
+<text x="504" y="615" class="body">}</text>
+
+  <rect x="820" y="512" width="280" height="116" rx="8" class="card" />
+<rect x="820" y="512" width="280" height="30" rx="8" fill="#0284c7" />
+<path d="M 820 534 H 1100 V 542 H 820 Z" fill="#0284c7" />
+<text x="834" y="532" class="cardTitle">Kayıt yolları</text>
+<text x="834" y="564" class="body">cx.bind_keys([KeyBinding::new(...)])</text>
+<text x="834" y="581" class="body">KeyBinding::load (JSON / kullanıcı)</text>
+<text x="834" y="598" class="body">actions!(namespace, [...])</text>
+<text x="834" y="615" class="body">#[derive(Action)] / register_action!</text>
+
+  <rect x="60" y="662" width="1040" height="72" rx="8" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
+<text x="76" y="686" text-anchor="start" class="small">Yazdırılabilir girdi IME'ye gidecekse InputHandler::prefers_ime_for_printable_keys kısayol yakalamasının önceliğini düşürür.</text>
+<text x="76" y="703" text-anchor="start" class="small">EntityInputHandler kullanan view'larda değer ElementInputHandler::accepts_text_input sonucundan türetilir.</text>
+<text x="76" y="720" text-anchor="start" class="small">no_json ile işaretli action keymap dosyasından çağrılamaz; yalnızca cx.dispatch_action(&amp;action) ile tetiklenir.</text>
+  <rect x="60" y="762" width="1040" height="50" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
+<text x="76" y="786" text-anchor="start" class="small">Çalışma zamanı inceleme: window.keystroke_text_for(&amp;action), possible_bindings_for_input, Keymap::version().</text>
+<text x="76" y="803" text-anchor="start" class="small">Tanılama: cx.key_bindings(), Keymap::all_bindings_for_input, bindings_for_action; aşama seçimi .on_action veya .capture_action.</text>
+
+</svg>

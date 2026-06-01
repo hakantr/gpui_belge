@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 360">
+  <title>Layout Yardımcısı Seçimi</title>
+  <defs>
+    <style>
+      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .api   { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .when  { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .body  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+    </style>
+  </defs>
+
+  <rect width="860" height="360" rx="10" fill="#f8fafc" />
+  <text x="430" y="33" text-anchor="middle" class="title">Layout Yardımcısı Seçimi</text>
+  <text x="430" y="53" text-anchor="middle" class="sub">Standart layout ihtiyacı → yardımcı · Özel tek-seferlik → div() doğrudan</text>
+
+  <!-- h_flex -->
+  <rect x="20" y="70" width="260" height="120" rx="8" fill="#1d4ed8" />
+  <text x="150" y="96" text-anchor="middle" class="api">h_flex()</text>
+  <text x="36" y="116" class="when">NE ZAMAN:</text>
+  <text x="36" y="132" class="body" fill="#bfdbfe">Yatay satır düzeni.</text>
+  <text x="36" y="148" class="body" fill="#bfdbfe">Dikeyde otomatik ortalama</text>
+  <text x="36" y="164" class="body" fill="#bfdbfe">gerekiyorsa ilk seçenek.</text>
+
+  <!-- v_flex -->
+  <rect x="300" y="70" width="260" height="120" rx="8" fill="#0891b2" />
+  <text x="430" y="96" text-anchor="middle" class="api">v_flex()</text>
+  <text x="316" y="116" class="when">NE ZAMAN:</text>
+  <text x="316" y="132" class="body" fill="#e0f2fe">Dikey kolon düzeni.</text>
+  <text x="316" y="148" class="body" fill="#e0f2fe">Formlar, menü içerikleri</text>
+  <text x="316" y="164" class="body" fill="#e0f2fe">ve dikey panel layout'u.</text>
+
+  <!-- h_group / v_group -->
+  <rect x="580" y="70" width="260" height="120" rx="8" fill="#7c3aed" />
+  <text x="710" y="96" text-anchor="middle" class="api">h_group* / v_group*</text>
+  <text x="596" y="116" class="when">NE ZAMAN:</text>
+  <text x="596" y="132" class="body" fill="#f3e8ff">Birbirine yakın oturması</text>
+  <text x="596" y="148" class="body" fill="#f3e8ff">gereken küçük inline</text>
+  <text x="596" y="164" class="body" fill="#f3e8ff">gruplar; tutarlı boşluk.</text>
+
+  <!-- Divider -->
+  <rect x="20" y="206" width="400" height="120" rx="8" fill="#059669" />
+  <text x="220" y="232" text-anchor="middle" class="api">Divider</text>
+  <text x="36" y="252" class="when">NE ZAMAN:</text>
+  <text x="36" y="268" class="body" fill="#d1fae5">Section, toolbar veya panel</text>
+  <text x="36" y="284" class="body" fill="#d1fae5">ayrımı için yatay çizgi.</text>
+  <text x="36" y="300" class="body" fill="#d1fae5">Görsel bölme; state taşımaz.</text>
+
+  <!-- div() -->
+  <rect x="440" y="206" width="400" height="120" rx="8" fill="#334155" />
+  <text x="640" y="232" text-anchor="middle" class="api">div() doğrudan</text>
+  <text x="456" y="252" class="when">NE ZAMAN:</text>
+  <text x="456" y="268" class="body" fill="#e2e8f0">Yardımcıların karşılamadığı</text>
+  <text x="456" y="284" class="body" fill="#e2e8f0">özel / tek-seferlik layout.</text>
+  <text x="456" y="300" class="body" fill="#e2e8f0">GPUI style builder'ları yeterli.</text>
+
+</svg>

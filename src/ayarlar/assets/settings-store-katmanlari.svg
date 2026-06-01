@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 430">
+  <title>SettingsStore Katmanları</title>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
+      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
+      .layer{stroke:#cbd5e1;stroke-width:1.3}
+      .name{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
+      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
+      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
+      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="940" height="430" rx="10" fill="#f8fafc"/>
+  <text x="470" y="36" text-anchor="middle" class="title">SettingsStore Katmanları</text>
+  <text x="470" y="60" text-anchor="middle" class="sub">Kaynaklar merge edilir, tipli Settings değerleri birleşik içerikten üretilir.</text>
+
+  <rect x="80" y="92" width="230" height="44" rx="7" fill="#64748b" class="layer"/>
+  <text x="100" y="120" class="name">Default</text>
+  <rect x="80" y="144" width="230" height="44" rx="7" fill="#475569" class="layer"/>
+  <text x="100" y="172" class="name">Global</text>
+  <rect x="80" y="196" width="230" height="44" rx="7" fill="#334155" class="layer"/>
+  <text x="100" y="224" class="name">User</text>
+  <rect x="80" y="248" width="230" height="44" rx="7" fill="#1d4ed8" class="layer"/>
+  <text x="100" y="276" class="name">Server / Extension</text>
+  <rect x="80" y="300" width="230" height="44" rx="7" fill="#7c3aed" class="layer"/>
+  <text x="100" y="328" class="name">Project local</text>
+
+  <rect x="410" y="170" width="180" height="96" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1.4"/>
+  <rect x="410" y="170" width="180" height="30" rx="8" fill="#059669"/>
+  <path d="M410 192 H590 V200 H410 Z" fill="#059669"/>
+  <text x="426" y="190" class="name">merge_from</text>
+  <text x="426" y="222" class="body">öncelik sırası</text>
+  <text x="426" y="240" class="small">merged_settings</text>
+
+  <rect x="700" y="116" width="160" height="80" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="720" y="148" class="body">Settings::from_settings</text>
+  <text x="720" y="170" class="small">tipli değer üretir</text>
+
+  <rect x="700" y="236" width="160" height="80" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1.4"/>
+  <text x="720" y="268" class="body">observe_global</text>
+  <text x="720" y="290" class="small">UI yeniden çizilir</text>
+
+  <path d="M310 114 C360 114 360 190 410 198" class="arrow"/>
+  <path d="M310 166 C360 166 360 204 410 210" class="arrow"/>
+  <path d="M310 218 H410" class="arrow"/>
+  <path d="M310 270 C360 270 360 236 410 230" class="arrow"/>
+  <path d="M310 322 C360 322 360 250 410 242" class="arrow"/>
+  <path d="M590 198 C640 198 646 156 700 156" class="arrow"/>
+  <path d="M590 238 C640 238 646 276 700 276" class="arrow"/>
+</svg>

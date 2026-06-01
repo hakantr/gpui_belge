@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 400">
+  <title>Tablo Satır Modeli Seçimi</title>
+  <defs>
+    <style>
+      .title  { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .axisH  { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
+      .axisV  { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .api    { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .body   { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .note   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
+    </style>
+  </defs>
+
+  <rect width="820" height="400" rx="10" fill="#f8fafc" />
+  <text x="410" y="33" text-anchor="middle" class="title">Tablo Satır Modeli Seçimi</text>
+  <text x="410" y="53" text-anchor="middle" class="sub">Satır sayısı ve yükseklik homojenliği üç ana kullanım biçimini belirler.</text>
+
+  <!-- Eksen başlıkları -->
+  <!-- Dikey eksen: Satır sayısı -->
+  <rect x="20" y="70" width="130" height="50" rx="6" fill="#334155" />
+  <text x="85" y="91" text-anchor="middle" class="axisH">Satır</text>
+  <text x="85" y="107" text-anchor="middle" class="axisH">sayısı →</text>
+
+  <!-- Yatay eksen başlıkları: Az / Çok -->
+  <rect x="166" y="70" width="310" height="50" rx="6" fill="#334155" />
+  <text x="321" y="98" text-anchor="middle" class="axisH">Az (statik)</text>
+
+  <rect x="490" y="70" width="310" height="50" rx="6" fill="#334155" />
+  <text x="645" y="98" text-anchor="middle" class="axisH">Çok (sanallaştırma)</text>
+
+  <!-- Dikey eksen etiketleri -->
+  <!-- Sabit yükseklik -->
+  <rect x="20" y="134" width="130" height="100" rx="6" fill="#e2e8f0" />
+  <text x="85" y="178" text-anchor="middle" class="axisV">Sabit</text>
+  <text x="85" y="194" text-anchor="middle" class="axisV">yükseklik</text>
+
+  <!-- Değişken yükseklik -->
+  <rect x="20" y="248" width="130" height="100" rx="6" fill="#e2e8f0" />
+  <text x="85" y="292" text-anchor="middle" class="axisV">Değişken</text>
+  <text x="85" y="308" text-anchor="middle" class="axisV">yükseklik</text>
+
+  <!-- ─── Hücre 1: Az + Sabit ─── -->
+  <rect x="166" y="134" width="310" height="100" rx="6" fill="#0891b2" />
+  <text x="321" y="162" text-anchor="middle" class="api" fill="#fff">List::new() + ListItem</text>
+  <text x="321" y="182" text-anchor="middle" class="body" fill="#e0f2fe">Scroll parent içinde yapılır.</text>
+  <text x="321" y="198" text-anchor="middle" class="body" fill="#e0f2fe">Sanallaştırma gerekmez.</text>
+  <text x="321" y="218" text-anchor="middle" class="note" fill="#a5f3fc">Zed UI List bileşeni</text>
+
+  <!-- ─── Hücre 2: Çok + Sabit ─── -->
+  <rect x="490" y="134" width="310" height="100" rx="6" fill="#1d4ed8" />
+  <text x="645" y="158" text-anchor="middle" class="api" fill="#fff">Table::uniform_list()</text>
+  <text x="645" y="178" text-anchor="middle" class="api" fill="#fff">uniform_list(...)</text>
+  <text x="645" y="198" text-anchor="middle" class="body" fill="#bfdbfe">Yalnız görünür aralık render edilir.</text>
+  <text x="645" y="218" text-anchor="middle" class="note" fill="#93c5fd">UniformListScrollHandle ile scroll</text>
+
+  <!-- ─── Hücre 3: Az + Değişken ─── -->
+  <rect x="166" y="248" width="310" height="100" rx="6" fill="#059669" />
+  <text x="321" y="276" text-anchor="middle" class="api" fill="#fff">List::new() + ListItem</text>
+  <text x="321" y="296" text-anchor="middle" class="body" fill="#d1fae5">Yükseklikler farklı olabilir.</text>
+  <text x="321" y="312" text-anchor="middle" class="body" fill="#d1fae5">Scroll otomatik içerik boyutuna göre.</text>
+  <text x="321" y="330" text-anchor="middle" class="note" fill="#6ee7b7">Önceki hücreyle aynı API</text>
+
+  <!-- ─── Hücre 4: Çok + Değişken ─── -->
+  <rect x="490" y="248" width="310" height="100" rx="6" fill="#7c3aed" />
+  <text x="645" y="272" text-anchor="middle" class="api" fill="#fff">Table::variable_row_height_list()</text>
+  <text x="645" y="292" text-anchor="middle" class="api" fill="#fff">gpui::list() + ListState</text>
+  <text x="645" y="312" text-anchor="middle" class="body" fill="#f3e8ff">ListState ölçüm önbelleği tutar.</text>
+  <text x="645" y="330" text-anchor="middle" class="note" fill="#c4b5fd">Her satır ayrıca ölçülür</text>
+
+  <!-- ─── Hiyerarşik/sticky not ─── -->
+  <rect x="20" y="364" width="780" height="22" rx="6" fill="#334155" />
+  <text x="410" y="379" text-anchor="middle" class="note" fill="#e2e8f0">Hiyerarşik veya sticky parent gerekiyorsa: uniform_list + IndentGuides + StickyItems (her ikisi UniformListDecoration uygular)</text>
+
+</svg>
