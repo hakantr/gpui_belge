@@ -63,6 +63,13 @@ if let Some(oge) = cx.read_from_clipboard()
 
 ## Prompt Builder, PromptHandle ve Fallback Prompt
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `PromptHandle` | Metotlar | `with_view` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 `Window::prompt` platform diyaloğunu açar. Platform prompt'u desteklemiyorsa veya özel bir prompt builder ayarlanmışsa GPUI içinde çizilen prompt'u kullanırsın:
 
 ```rust

@@ -6,6 +6,13 @@
 
 ## `KeymapFile` yapısı
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `KeymapFile` | Metotlar | `action_schema_generator`, `generate_json_schema_for_registered_actions`, `generate_json_schema_from_inventory`, `get_action_schema_by_name`, `load`, `load_asset`, `load_asset_allow_partial_failure`, `load_keymap_file`, `parse_action`, `sections`, `update_keybinding` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 `KeymapFile`, birden fazla bağlam bloğu içeren bir keymap JSON dosyasının ayrıştırılmış halidir. Her blok bir `KeymapSection` olarak tutulur:
 
 ```rust
@@ -81,6 +88,14 @@ API üzerinde sık kullanılan yapıcılar şunlardır:
 
 ## `KeybindSource`
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `KeybindSource` | Metotlar | `from_meta`, `meta`, `name` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `KeybindSource` | Varyantlar | `Base`, `Unknown`, `User`, `Vim` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 ```rust
 pub enum KeybindSource {
     User, Vim, Base, Default, Unknown,
@@ -105,6 +120,15 @@ API:
 ---
 
 ## `KeybindUpdateOperation` ve `KeybindUpdateTarget`
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `KeybindUpdateOperation` | Metotlar | `add`, `generate_telemetry` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `KeybindUpdateOperation` | Varyantlar | `Add`, `Remove`, `Replace` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `KeybindUpdateTarget` | Alanlar | `action_arguments`, `action_name`, `keystrokes` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 Programatik keymap güncellemesi (örneğin "Add/Change Keybinding" UI'ı veya komut paleti üzerinden binding düzenleme) `KeybindUpdateOperation` üzerinden modellenir:
 
@@ -144,6 +168,13 @@ pub struct KeybindUpdateTarget<'a> {
 ---
 
 ## `KeyBindingValidator`
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `KeyBindingValidator` | Trait üyeleri | `action_type_id`, `validate` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 Bazı action'lar için ek doğrulama (örneğin "bu action'a yalnız Editor bağlamında bağlanabilirsin") gereklidir. `KeyBindingValidator` trait'i her action tipi için ayrı doğrulayıcı kaydı yapar:
 

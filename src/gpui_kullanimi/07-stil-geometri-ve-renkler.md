@@ -4,6 +4,13 @@
 
 ## Styled
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Styled` | Trait üyeleri | `col_end_auto`, `col_start_auto`, `debug`, `debug_below`, `row_end_auto`, `row_start_auto`, `style` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
+
 `Styled`, `crates/gpui/src/styled.rs` içindeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu taşır; `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList`, `Deferred`, `AnimationElement` ve çok sayıda Zed UI bileşeni bu trait üzerinden aynı fluent stil sözlüğünü kullanır.
 
 GPUI stil sistemi CSS ve Tailwind'e benzeyen fluent metotlardan oluşur. Arka planda Rust tipleri olduğu için neyin hangi değeri aldığı daha nettir. Örnek bir stil zinciri:
@@ -96,6 +103,17 @@ div()
 
 ### Pixels, ScaledPixels ve DevicePixels
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `DevicePixels` | Metotlar | `to_bytes` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `DevicePixels` | Alanlar | `0` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `Pixels` | Metotlar | `abs`, `as_f32`, `ceil`, `floor`, `MAX`, `MIN`, `pow`, `round`, `signum`, `to_f64`, `ZERO` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ScaledPixels` | Metotlar | `as_f32`, `ceil`, `floor`, `round` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ScaledPixels` | Alanlar | `0` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 GPUI üç farklı piksel birimi kullanır. Ekran ölçeği değiştiğinde hangi birimin hangi katmanda kullanıldığını bilmek birçok hatayı baştan önler:
 
 ![GPUI Piksel Birimi Katmanları](assets/piksel-birimleri.svg)
@@ -128,6 +146,13 @@ Bu helper'lar basit yapıcı olduğu için ayrı ayrı uzun anlatım gerektirmez
 | `bounds(origin, size)` | `Bounds<T>` | Origin ve size ile dikdörtgen üretir. |
 
 ### Rems, AbsoluteLength, DefiniteLength ve Length
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Rems` | Alanlar | `0` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 Pixels dışındaki uzunluk tipleri farklı senaryolar için ayrılmıştır:
 
@@ -174,6 +199,13 @@ Bu yardımcı tipler stil zincirinde doğrudan kullanıcıya görünmeyebilir, a
 
 ### Point, Size, Bounds, Edges ve Corners
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Bounds` | Metotlar | `intersect`, `union` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Corners<T>`, çoğu metot için aritmetik destekler (`+`, `-`, `*`, `/`).
 
 **Kaynaktaki doğrudan metot yüzeyi.** Geometri tipleri pek çok yardımcı metoda sahiptir; aşağıdaki liste hangi tipin hangi araçları açtığını özetler:
@@ -201,6 +233,14 @@ Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Cor
 - `point(x, y)` argüman sırası önce X sonra Y'dir; `size(width, height)` de aynı sırayı izler.
 
 ## Layout, Style ve Dönüşüm API Tamamlayıcıları
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Style` | Alanlar 1 | `aspect_ratio`, `background`, `border_color`, `border_style`, `border_widths`, `corner_radii`, `debug`, `debug_below`, `display`, `flex_basis`, `flex_grow`, `flex_shrink`, `flex_wrap`, `gap` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `Style` | Alanlar 2 | `grid_cols`, `grid_rows`, `inset`, `margin`, `max_size`, `opacity`, `overflow`, `padding`, `position`, `scrollbar_width`, `size`, `text`, `visibility` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 Stil ve geometri dosyasında geçen bazı tipler doğrudan fluent zincirde görünmez, ama özel element, canvas, popover veya renderer entegrasyonu yazarken karşına çıkar.
 
@@ -254,6 +294,15 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ### Axis ve Along
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Along` | Trait üyeleri | `along`, `apply_along` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Axis` | Metotlar | `invert` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Axis` | Varyantlar | `Horizontal`, `Vertical` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 `Axis` ve `Along` yatay/dikey kararları generic hale getirir. `Axis::invert()` yatay ekseni dikeye, dikeyi yataya çevirir; split pane veya resize handle'da ana eksenden çapraz eksene geçerken kullanılır. `Along::along(axis)` verilen eksendeki değeri okur, `Along::apply_along(axis, f)` ise yalnız o ekseni dönüştürür. `Anchor::opposite()` bir kutu referansının tam karşısını, `Anchor::other_side_along(axis)` yalnız verilen eksen boyunca karşı tarafı döndürür; `Anchor::is_center()` ise `TopCenter`, `BottomCenter`, `LeftCenter` veya `RightCenter` değerlerini ayırt eder. Scrollbar, popover, anchored element ve iki eksenli layout helper yazarken bu metotlar koordinat dallanmalarını sadeleştirir. Tek bir bileşen yalnız yatay veya yalnız dikey çalışıyorsa bu tipleri okuyucuya göstermek yerine açık `width`/`height` hesabı daha anlaşılırdır.
 
 ### GridTemplate, TemplateColumnMinSize, GridLocation ve GridPlacement
@@ -273,6 +322,13 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ### PathBuilder ve PathStyle
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `PathBuilder` | Metotlar | `build_path` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 `PathBuilder::fill()` ve `stroke(width)` ile başlar; `with_style(style)`, `move_to(...)`, `line_to(...)`, `curve_to(...)`, `cubic_bezier_to(...)`, `arc_to(...)`, `relative_arc_to(...)`, `add_polygon(...)`, `close()`, `dash_array(...)`, `translate(...)`, `scale(...)`, `rotate(...)`, `transform(...)` ve `build()` ile tamamlanır. `PathBuilder::with_style(...)`, hazır builder'ın `PathStyle::{Fill, Stroke}` ayarını lyon seçenekleriyle değiştirmek içindir. `PathBuilder::build_path(buf)` ise tessellator'dan gelen `VertexBuffers` değerini doğrudan `Path<Pixels>` modeline çeviren alt seviye köprüdür; normal çizimde çoğunlukla `build()` çağrısının içinden kullanılır. `PathBuilder.style` alanı `PathStyle::{Fill, Stroke}` üzerinden lyon `FillOptions` veya `StrokeOptions` taşır. Kullanıcı etkileşimi olan basit çizimlerde önce `canvas(...)` ve `window.paint_path(...)` yeterli mi diye bakarsın; her frame'de path tessellate etmek yerine mümkünse hesaplamayı cache'lersin.
 
 | API | Alt özellikler | Kısa anlamı |
@@ -281,6 +337,13 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 | `PathBuilder` | `style`, `stroke`, `fill`, `with_style`, `dash_array`, `move_to`, `line_to`, `curve_to`, `cubic_bezier_to`, `arc_to`, `relative_arc_to`, `add_polygon`, `close`, `transform`, `translate`, `scale`, `rotate`, `build` | SVG path komutlarını GPUI `Path<Pixels>` değerine dönüştürür. |
 
 ### Path, Transformation ve TransformationMatrix
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Path` | Alanlar | `content_mask`, `id`, `order` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 `Path<Pixels>::new`, `scale`, `move_to`, `line_to`, `curve_to`, `push_triangle` ve `clipped_bounds` tessellate edilmiş path verisi üzerinde çalışır; bu seviye artık çizime yakın renderer katmanıdır. `Transformation` SVG elementi için ergonomik dönüşüm builder'ıdır; `TransformationMatrix::unit()`, `translate(...)`, `rotate(...)`, `scale(...)`, `compose(...)` ve `apply(...)` sahne primitive'lerine uygulanacak matrisi üretir. Dönüşüm görseli değiştirir, layout ve hitbox boyutunu otomatik güncellemez.
 
@@ -295,6 +358,14 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 `crates/gpui/src/color.rs` ve `colors.rs`.
 
 ### Rgba ve Hsla
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Hsla` | Metotlar | `black`, `blend`, `blue`, `fade_out`, `grayscale`, `green`, `is_opaque`, `is_transparent`, `opacity`, `red`, `to_rgb`, `transparent_black`, `white` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Rgba` | Metotlar | `blend` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 GPUI renkleri iki temel tipte ifade eder:
 
@@ -344,6 +415,13 @@ Bu sabitler Zed tasarım sisteminden bağımsızdır; tema renklerine ihtiyaç d
 
 ### Background, ColorSpace ve LinearColorStop
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `LinearColorStop` | Alanlar | `percentage` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 Background yalnızca düz renk değildir; gradient ve desen de aynı çatı altındadır (`color.rs:763+`):
 
 ```rust
@@ -379,6 +457,14 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 - Hsla'da hue 1.0'a sarılmaz, kırpılır (`clamp`); döndürme için `hue + delta`'yı modulo 1.0 ile hesaplaman gerekir.
 
 ### HighlightStyle ve combine_highlights
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `HighlightStyle` | Metotlar | `highlight` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `HighlightStyle` | Alanlar | `background_color`, `fade_out`, `font_weight`, `strikethrough`, `underline` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 `LinearColorStop` gradient stop verisidir; `linear_color_stop(...)` helper'ı genellikle doğrudan inşa etmekten daha okunaklıdır. `LinearColorStop::opacity(factor)` stop alfasını düşürür. `HighlightStyle::highlight(...)` metin vurgu katmanlarını üretir; editör ve markdown gibi kısmi metin stillerinde kullanılır. `combine_highlights(...)` birden çok vurgu katmanını birleştirir; uygulama form bileşenlerinde genellikle gerekmez.
 
@@ -439,6 +525,13 @@ impl Render for Baslik {
 - Biçim metni (`format string`) her çizimde çalışıyorsa `format!` sonucu da her ekran karesinde bellek ayırması üretir; sonucu önbelleğe almak için entity verisinde tutman gerekir.
 
 ## WindowAppearance ve Tema Modu
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `WindowAppearance` | Varyantlar | `Dark`, `VibrantDark`, `VibrantLight` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
 
 `crates/gpui/src/platform.rs:1604` içinde tanımlıdır:
 

@@ -1,5 +1,12 @@
 # 7. Menü, Popup ve Tooltip
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Tooltip` | Metotlar | `for_action`, `for_action_in`, `for_action_title`, `for_action_title_in`, `key_binding`, `meta`, `new_element`, `simple`, `text`, `with_meta`, `with_meta_in` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Bu bölüm, bir kontrolün arkasından geçici bir yüzey açan bileşenleri anlatır. Önceki bölümde form ve seçim state'inin nasıl tutulduğunu gördük; burada odak biraz değişir. Artık asıl soru "değer nerede duruyor" değil, "seçenekler nasıl sunulacak, menü içeriği hangi modelle kurulacak, popup nasıl açılıp kapanacak" sorusudur.
 
 Hangi durumda hangisini seçeceğini kabaca şöyle ayırabilirsin:
@@ -16,6 +23,13 @@ Hangi durumda hangisini seçeceğini kabaca şöyle ayırabilirsin:
 Menü ve popup bileşenleri kendi başlarına değer saklamaz. Entry handler'ları view veya model state'ini günceller. Popup'ın açılıp kapanma davranışı ise ilgili menu, popover veya parent lifecycle tarafından yönetilir.
 
 ## DropdownMenu
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `DropdownMenu` | Metotlar | `attach`, `full_width`, `new`, `new_with_element`, `no_chevron`, `offset`, `style`, `tab_index`, `trigger_icon`, `trigger_size`, `trigger_tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -83,6 +97,16 @@ Dikkat edeceğin noktalar:
 - `full_width(true)`, trigger ile popover'ın genişliklerini birlikte etkiler. Dar formlarda parent width'i de bilinçli ayarlaman gerekir.
 
 ## ContextMenu
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ContextMenu` | Metotlar 1 | `action_checked`, `action_checked_with_disabled`, `action_disabled_when`, `build`, `build_persistent`, `cancel`, `clear_selected`, `confirm`, `custom_entry`, `custom_entry_with_docs`, `custom_row`, `end_slot`, `end_slot_action`, `entry` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ContextMenu` | Metotlar 2 | `entry_with_end_slot`, `entry_with_end_slot_on_hover`, `extend`, `fixed_width`, `header`, `header_with_link`, `item`, `keep_open_on_confirm`, `key_context`, `label`, `link`, `link_with_handler`, `new`, `on_action_dispatch` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ContextMenu` | Metotlar 3 | `on_blur_subscription`, `push_item`, `rebuild`, `secondary_confirm`, `select_first`, `select_last`, `select_next`, `select_previous`, `select_submenu_child`, `select_submenu_parent`, `selectable`, `selected_index`, `separator`, `submenu` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ContextMenu` | Metotlar 4 | `submenu_with_colored_icon`, `submenu_with_icon`, `toggleable_entry`, `trigger_end_slot_handler` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -214,6 +238,13 @@ Dikkat edeceğin noktalar:
 
 ## PopoverMenu
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `PopoverMenu` | Metotlar | `anchor`, `attach`, `full_width`, `offset`, `on_open`, `trigger`, `trigger_with_tooltip`, `with_handle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/popover_menu.rs`
@@ -305,6 +336,13 @@ Dikkat edeceğin noktalar:
 
 ## RightClickMenu
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `RightClickMenu` | Metotlar | `anchor`, `attach`, `menu`, `trigger` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/right_click_menu.rs`
@@ -374,6 +412,13 @@ Dikkat edeceğin noktalar:
 - Sağ tık menüsünün içinde sol tıkla çalışan custom kontroller varsa, event propagation davranışını ve menu dismiss akışını test etmen gerekir; yoksa sürpriz davranışlar ortaya çıkabilir.
 
 ## Popover
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Popover` | Metotlar | `aside`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

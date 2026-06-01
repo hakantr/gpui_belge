@@ -4,6 +4,14 @@
 
 ## Metin, Font ve Ölçüm
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Font` | Metotlar | `bold`, `italic` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Font` | Alanlar | `fallbacks`, `style`, `weight` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 Metin sisteminin ana tipleri `crates/gpui/src/text_system.rs`, `style.rs` ve `elements/text.rs` içinde toplanır. Bir metni doğru çizebilmek için stil, font ve ölçüm tipleri birlikte çalışır. Her birinin sorumluluğu ayrıdır:
 
 ![GPUI Metin Sistemi Bileşen Hiyerarşisi](assets/metin-sistemi-hiyerarsisi.svg)
@@ -93,6 +101,15 @@ Buradaki `.into()` yalnız okunabilirlik kısaltması değildir; `&'static str`,
 - WGPU/Linux metin arka ucu (`CosmicTextSystem`) `Font.fallbacks` değerini font önbellek anahtarına dahil eder ve `layout_line` içinde kullanıcı yedek zincirini grapheme cluster sınırlarını koruyarak uygular. ASCII karakterlerinde birincil font tercih edilir; combining mark ve ZWJ emoji cluster'ları yedek aralığının içinde bölünmez. Özel font yedek ayarı incelenirken yalnızca aile adını değil yedek listesini de önbellek/ölçüm girdisi sayman gerekir.
 
 ## StyledText, TextLayout ve InteractiveText
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `InteractiveText` | Metotlar | `new`, `on_click`, `on_hover`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `StyledText` | Metotlar | `new`, `with_default_highlights`, `with_font_family_overrides`, `with_highlights`, `with_runs` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `TextLayout` | Metotlar | `bounds`, `index_for_position`, `len`, `line_height`, `line_layout_for_index`, `position_for_index`, `text`, `wrapped_text` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Basit bir metni doğrudan `SharedString` olarak bir elementin alt öğesi şeklinde verebilirsin. Ölçüm, vurgu, font üzerine yazma veya tıklanabilir aralık gerektiğinde `StyledText` devreye girer. Tıklama ve hover gerekiyorsa `InteractiveText`'i kullanırsın.
 

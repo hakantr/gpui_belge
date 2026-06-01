@@ -20,6 +20,13 @@ Ayar akışı şu sırayla işler:
 
 ## `Settings` trait'i
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Settings` | Trait üyeleri | `from_settings`, `get`, `override_global`, `PRESERVED_KEYS`, `register`, `try_get`, `try_read_global` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
+
 `settings::Settings` her tipli ayarın çalışma zamanı sözleşmesidir:
 
 ```rust
@@ -139,6 +146,13 @@ Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; 
 ---
 
 ## Kök `SettingsContent` schema yüzeyi
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SettingsContent` | Alanlar | `agent`, `base_keymap`, `diagnostics`, `extension`, `git`, `log`, `node`, `project`, `remote`, `session`, `status_bar`, `tab_bar`, `terminal`, `vim` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 `settings_content::SettingsContent`, kullanıcı JSON'unun düz görünen alanlarını domain content tiplerine dağıtır. `project`, `theme`, `extension`, `workspace`, `editor` ve `remote` alanları `#[serde(flatten)]` ile birleşir; aşağıdaki daha küçük content tipleri ise top-level alanların schema, merge ve default davranışını taşır. Bu tipler runtime `Settings` implementasyonu değildir; `SettingsStore` içindeki ham `SettingsContent` merge hattının sözleşmesidir.
 

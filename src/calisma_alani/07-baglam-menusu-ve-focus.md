@@ -6,6 +6,13 @@ Zed UI kodunda sık görülen ama GPUI çekirdeği olmayan birkaç yardımcı ka
 
 ## Item Ayarları ve SaveIntent
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SaveIntent` | Varyantlar | `Overwrite`, `Skip` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 Item ve tab davranışını ayarlar tarafına bağlayan tipler şunlardır:
 
 - `ItemSettings` — `git_status`, `close_position`, `activate_on_close`, `file_icons`, `show_diagnostics`, `show_close_button` alanlarını `tabs` ve `git` ayarlarından üretir.
@@ -70,6 +77,14 @@ macOS dışındaki istemci tarafı application menüsü `title_bar::ApplicationM
 ---
 
 ## FocusFollowsMouse
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `FocusFollowsMouse` | Trait üyeleri | `focus_follows_mouse` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `FocusFollowsMouse` | Alanlar | `debounce`, `enabled` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 `FocusFollowsMouse` trait'i `StatefulInteractiveElement` üzerine eklersin:
 

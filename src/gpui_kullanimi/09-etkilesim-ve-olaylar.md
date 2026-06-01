@@ -68,6 +68,14 @@ cx.focus_view(&alt_varlik, window);
 
 ## Fare, Sürükle-Bırak ve Hitbox
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Hitbox` | Metotlar | `is_hovered`, `should_handle_scroll` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Hitbox` | Alanlar | `bounds`, `content_mask`, `id` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 ![Hitbox ve Sürükle-Bırak State Machine](assets/hitbox-surukle-birak.svg)
 
 
@@ -400,6 +408,16 @@ window.handle_input(
 - Girdi dinleyicisi ekran karesine bağlıdır; odaktaki element çizilmediğinde platform girdi dinleyicisi de düşer.
 
 ## Keystroke, Modifiers ve Platform Bağımsız Kısayollar
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Keystroke` | Metotlar | `is_ime_in_progress`, `should_match`, `unparse`, `with_simulated_ime` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Keystroke` | Alanlar | `key_char`, `modifiers` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `Modifiers` | Metotlar | `command`, `command_shift`, `control`, `control_shift`, `function`, `is_subset_of`, `modified`, `none`, `number_of_modifiers`, `secondary`, `secondary_key`, `shift`, `super_key`, `windows` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Modifiers` | Alanlar | `control`, `function`, `shift` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 `crates/gpui/src/platform/keystroke.rs`, klavye girdisinin normalize edilmiş modelini içerir. Keymap yalnızca action bağlama değildir; tamamlanmamış girdi, IME durumu ve gösterim metni de bu tiplerle taşınır.
 

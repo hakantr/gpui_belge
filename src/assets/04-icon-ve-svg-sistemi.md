@@ -33,6 +33,17 @@ Her bölgenin tüketicisi farklıdır:
 
 ## 2. `IconName` registry'si
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `IconName` | Varyantlar 1 | `AcpRegistry`, `AiAnthropic`, `AiBedrock`, `AiClaude`, `Archive`, `ArrowLeft`, `ArrowRight`, `ArrowUpRight`, `Attach`, `Bell`, `Bitbucket`, `Box`, `Chat`, `Check` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `IconName` | Varyantlar 2 | `ChevronDown`, `ChevronRight`, `ChevronUpDown`, `Circle`, `Codeberg`, `Control`, `Copy`, `Dash`, `Debug`, `Diff`, `Disconnected`, `Download`, `Ellipsis`, `File` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `IconName` | Varyantlar 3 | `FileDoc`, `Filter`, `Folder`, `Forgejo`, `GitBranch`, `Gitea`, `Gitlab`, `Info`, `Link`, `LoadCircle`, `LockOutlined`, `MagnifyingGlass`, `Person`, `PlayFilled` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `IconName` | Varyantlar 4 | `Plus`, `Regex`, `Replace`, `RotateCw`, `Send`, `Share`, `Slash`, `Sparkle`, `Split`, `Stop`, `TextUnwrap`, `TextWrap`, `ToolWeb`, `Trash` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `IconName` | Varyantlar 5 | `Triangle`, `Undo`, `Warning`, `XCircle`, `ZedAgent`, `ZedPredictUp`, `ZedSrcCustom`, `ZedSrcExtension` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 İkon eşlemenin tek doğru kaynağı `crates/icons/src/icons.rs` içindeki `IconName` enum'udur:
 
 ```rust

@@ -8,6 +8,13 @@ Runtime modeli kurulduktan sonra sıra JSON sözleşmesine gelir. Burada üç ko
 
 ## 19. `ThemeContent` ve serde flatten/rename desenleri
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ThemeContent` | Alanlar | `name`, `style` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 **Kaynak modül:** `kvs_tema/src/schema.rs`.
 
 JSON tema dosyalarını parse eden tip hiyerarşisi üç seviyeden oluşur:

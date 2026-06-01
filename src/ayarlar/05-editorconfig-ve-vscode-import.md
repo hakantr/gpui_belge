@@ -62,6 +62,15 @@ EditorConfig sonucu Zed tarafında `EditorconfigProperties` üzerinden tüketili
 
 ## `VsCodeSettings` ve `VsCodeSettingsSource`
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `VsCodeSettings` | Metotlar | `load_user_settings`, `settings_content` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `VsCodeSettings` | Alanlar | `source` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `VsCodeSettingsSource` | Varyantlar | `Cursor`, `VsCode` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 `crates/settings/src/vscode_import.rs` mevcut VS Code veya Cursor kullanıcısının ayar dosyasını okuyup Zed kullanıcı JSON'una aktarır.
 
 ```rust

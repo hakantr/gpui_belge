@@ -1,10 +1,25 @@
 # Serileştirme, OpenOptions, ProjectItem ve SearchableItem
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `OpenOptions` | Alanlar | `add_dirs_to_sidebar`, `env`, `focus`, `open_in_dev_container`, `open_mode`, `requesting_window`, `visible`, `wait`, `workspace_matching` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `ProjectItem` | Trait üyeleri | `for_broken_project_item`, `for_project_item`, `project_item_kind` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
+
 Çalışma alanında item açma yalnız `Pane::add_item` çağrısından ibaret değildir. Zed session restore, project item çözme, search bar ve collab follow gibi katmanlar da item trait'leri üzerinden bağlanır.
 
 ---
 
 ## SerializableItem ve Restore
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SerializableItem` | Trait üyeleri | `cleanup`, `deserialize`, `serialize`, `serialized_item_kind`, `should_serialize` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 `SerializableItem`, çalışma alanı kapanırken veya item olayı geldiğinde item durumunu çalışma alanı veritabanına yazmak için kullanılır. Aynı veri daha sonra restore akışında geri yüklenir:
 
@@ -208,6 +223,13 @@ pub fn possible_open_target(
 ---
 
 ## FollowableItem
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `FollowableItem` | Trait üyeleri | `add_event_to_update_proto`, `apply_update_proto`, `dedup`, `from_state_proto`, `is_project_item`, `remote_id`, `set_leader_id`, `to_follow_event`, `to_state_proto`, `update_agent_location` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 Collab ve follow akışı için `FollowableItem` kullanırsın:
 

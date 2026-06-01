@@ -349,6 +349,17 @@ window.with_global_id("gorsel-onbellegi".into(), |genel_id, window| {
 
 ## AnyElement, Component ve Interactivity Yüzeyi
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AnyElement` | Metotlar | `downcast_mut`, `layout_as_root`, `paint`, `prepaint`, `prepaint_as_root`, `prepaint_at`, `request_layout` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Interactivity` | Metotlar 1 | `block_mouse_except_scroll`, `can_drop`, `capture_action`, `capture_any_mouse_down`, `capture_any_mouse_up`, `capture_key_down`, `capture_key_up`, `capture_mouse_pressure`, `capture_pinch`, `compute_style`, `hoverable_tooltip`, `new`, `occlude_mouse`, `on_action` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Interactivity` | Metotlar 2 | `on_any_mouse_down`, `on_any_mouse_up`, `on_aux_click`, `on_boxed_action`, `on_click`, `on_drag`, `on_drag_move`, `on_drop`, `on_hover`, `on_key_down`, `on_key_up`, `on_modifiers_changed`, `on_mouse_down`, `on_mouse_down_out` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Interactivity` | Metotlar 3 | `on_mouse_move`, `on_mouse_pressure`, `on_mouse_up`, `on_mouse_up_out`, `on_pinch`, `on_scroll_wheel`, `paint`, `prepaint`, `request_layout`, `source_location`, `tooltip`, `window_control_area` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Interactivity` | Alanlar | `base_style`, `element_id`, `hovered` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 Render katmanında bazı public tipler, uygulama bileşeni yazarken nadiren doğrudan görünür ama element ağacının nasıl çalıştığını anlamak için önemlidir.
 
 **AnyElement.** `AnyElement`, heterojen elementleri tek tipe indirir. `into_any_element()` çağrısı bunun günlük yoludur. Düşük seviyede `downcast_mut::<T>()` ile iç element tipini denetleyebilir, `request_layout(window, cx)`, `layout_as_root(available_space, window, cx)`, `prepaint(window, cx)`, `prepaint_at(origin, window, cx)`, `prepaint_as_root(origin, available_space, window, cx)` ve `paint(window, cx)` ile element yaşam döngüsünü elle sürebilirsin. Bu metotlar özel container, test harness veya framework elementleri içindir; normal view kodunda child elementleri GPUI'nın kendisine bırakırsın.
@@ -372,6 +383,13 @@ Normal bileşen kodunda bu imperative yüzey yanlış seviyedir; element fluent 
 **Arena ve frame taşıyıcıları.** `Arena`, `ArenaBox<T>`, `DivFrameState`, `DivInspectorState`, `ElementClickedState`, `ElementHoverState`, `InteractiveElementState`, `GroupStyle`, `DragMoveEvent<T>`, `AnchoredState`, `Deferred`, `ScrollHandle`, `ScrollAnchor` ve `Reservation<T>` render veya etkileşim fazları arasında veri taşıyan altyapı tipleridir. `Arena::alloc(...)`, `capacity()` ve `clear()` pencere çizim arenasına aittir; uygulama verisi saklamak için kullanılmaz. `DragMoveEvent::drag(cx)` ve `dragged_item()` sürükleme yükünü tipli biçimde okumaya yarar; uygulama tarafında çoğunlukla `.on_drag_move::<T>(...)` callback argümanı olarak gelir.
 
 ## FluentBuilder ve Koşullu Element Üretimi
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `FluentBuilder` | Trait üyeleri | `map`, `when`, `when_else`, `when_none`, `when_some` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 `crates/gpui/src/util.rs::FluentBuilder` trait'i tüm element tiplerine üç yardımcı ekler ve fluent zincirin if/match bloklarıyla kırılmasını engeller:
 
@@ -421,6 +439,14 @@ div()
 - `map` element tipini değiştirebilir; `when` ise tipi değiştirmez (refinement zincirinde kalır). Bu yüzden `map` kullanımını dikkatli yaparsın.
 
 ## Refineable, StyleRefinement ve MergeFrom
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `StyleRefinement` | Alanlar 1 | `aspect_ratio`, `background`, `border_color`, `border_style`, `border_widths`, `corner_radii`, `debug`, `debug_below`, `display`, `flex_basis`, `flex_grow`, `flex_shrink`, `flex_wrap`, `gap` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `StyleRefinement` | Alanlar 2 | `grid_cols`, `grid_rows`, `inset`, `margin`, `max_size`, `min_size`, `opacity`, `overflow`, `padding`, `position`, `scrollbar_width`, `size`, `text`, `visibility` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 ![Refineable / Cascade / MergeFrom Boru Hattı](assets/stil-cascade.svg)
 

@@ -129,6 +129,15 @@ Bu değerler bir tema paleti alanı değildir; kullanıcı temasından override 
 
 ## 13. `ThemeColors` alan kataloğu ve reflection API
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ThemeColors` | Metotlar | `dark`, `iter`, `light`, `to_vec` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ThemeColors` | Alanlar 1 | `icon_accent`, `icon_placeholder`, `link_text_hover`, `panel_indent_guide`, `panel_overlay_background`, `panel_overlay_hover`, `search_active_match_background`, `terminal_bright_foreground`, `terminal_dim_foreground`, `toolbar_background`, `version_control_conflict`, `version_control_conflict_marker_ours`, `version_control_conflict_marker_theirs`, `version_control_deleted` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `ThemeColors` | Alanlar 2 | `version_control_ignored`, `version_control_modified`, `version_control_renamed`, `version_control_word_added`, `version_control_word_deleted`, `vim_insert_background`, `vim_insert_foreground`, `vim_replace_background`, `vim_replace_foreground` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 **Kaynak modül:** `kvs_tema/src/styles/colors.rs`.
 
 UI renk paletinin tamamı tek bir struct altında toplanır. **Alan sayısı yaklaşık 150 civarındadır**; kesin sayı takip edilen Zed tema sözleşmesine bağlıdır.
@@ -312,6 +321,13 @@ Sonuçta eksik alanlar baseline'dan gelir; kullanıcının verdiği alanlar base
 
 ### `all_theme_colors` ve `ThemeColorField` — reflection API
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ThemeColorField` | Varyantlar | `Border`, `BorderVariant` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 **Kaynak:** `crates/theme/src/styles/colors.rs:346` (`ThemeColorField` enum), `crates/theme/src/styles/colors.rs:596` (`all_theme_colors` fn).
 
 Tema editörü, color picker, debug inspector veya snapshot testi yazarken tema renklerini **runtime'da listelemek** gerekebilir. Zed bu ihtiyacı iki yapıyla karşılar:
@@ -494,6 +510,15 @@ for ((a, label), (b, _)) in zed.iter().zip(user.iter()) {
 
 ## 14. `StatusColors`: fg/bg/border üçlüsü deseni
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `StatusColors` | Metotlar | `dark`, `diagnostic`, `light` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `StatusColors` | Alanlar 1 | `conflict_background`, `conflict_border`, `created_background`, `created_border`, `deleted_background`, `deleted_border`, `error_background`, `error_border`, `hidden_background`, `hidden_border`, `hint_background`, `hint_border`, `ignored_background`, `ignored_border` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `StatusColors` | Alanlar 2 | `info_background`, `info_border`, `modified_background`, `modified_border`, `predictive_background`, `predictive_border`, `renamed_background`, `renamed_border`, `success_background`, `success_border`, `unreachable_background`, `unreachable_border`, `warning_background`, `warning_border` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 **Kaynak modül:** `kvs_tema/src/styles/status.rs`.
 
 Diagnostic ve VCS durum renklerini taşır. Her durum için **üç alan** vardır: foreground (`<ad>`), background (`<ad>_background`) ve border (`<ad>_border`).
@@ -607,6 +632,13 @@ Detaylar Bölüm VII/Konu 31'de işlenir. Burada bilinmesi gereken nokta şudur:
 
 ### Editor için `DiagnosticColors` projeksiyonu
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `DiagnosticColors` | Alanlar | `error`, `info`, `warning` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 Zed'in `crates/theme/src/styles/status.rs:83` dosyasında, `StatusColors`'un yanı sıra **`DiagnosticColors`** adında üç alanlı bir tip de bulunur:
 
 ```rust
@@ -658,6 +690,14 @@ impl Theme {
 ---
 
 ## 15. `PlayerColors`, `PlayerColor`, slot semantiği
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `PlayerColors` | Metotlar | `absent`, `agent`, `color_for_participant`, `dark`, `light`, `local`, `read_only` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `PlayerColors` | Alanlar | `0` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 **Kaynak modül:** `kvs_tema/src/styles/players.rs`.
 
@@ -781,6 +821,15 @@ div().bg(katilimci.selection)
 ---
 
 ## 16. `AccentColors`, `SystemColors`, `Appearance`
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AccentColors` | Metotlar | `color_for_index`, `dark`, `light` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Appearance` | Metotlar | `is_light` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Appearance` | Varyantlar | `Dark` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
 
 Bu üç tip tema'nın **kromatik altyapısını** tamamlar: dönen accent listesi, platforma özgü sabitler ve tema modunun nominal işareti.
 
@@ -980,6 +1029,13 @@ if active.appearance.is_light() {
 
 ## 17. `ColorScale` ailesi — 12-adımlı palet sistemi
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ColorScale` | Metotlar | `step_1`, `step_10`, `step_11`, `step_12`, `step_2`, `step_3`, `step_4`, `step_5`, `step_6`, `step_7`, `step_8`, `step_9` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 **Kaynak:** `crates/theme/src/scale.rs`.
 
 Zed'in fallback temalarındaki renk üretim sistemi **Radix UI** color scales modelinden esinlenir. Her renk ailesi 12 adımlı bir skala olarak modellenir. Zed referansında `neutral` adında tek bir alan yoktur; nötr aileler `gray`, `mauve`, `slate`, `sage`, `olive`, `sand` gibi ayrı scale set'ler halinde tutulur. Adım numarası **semantik anlam** taşır:
@@ -1152,6 +1208,13 @@ Bu kaynaklardaki HSL değerleri referans olarak alınabilir; bunları tema için
 ---
 
 ## 18. `ThemeFamily`, `SyntaxTheme`, `IconTheme`
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `IconTheme` | Alanlar | `chevron_icons`, `directory_icons`, `file_stems`, `file_suffixes`, `named_directory_icons` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 Bu üç tip, tema'nın **paketleme ve uzantı** tarafını taşır. `ThemeFamily` bir paket içindeki birden fazla varyantı tek çatı altında toplar. `SyntaxTheme` syntax token'larının ayrı sözleşmesini taşır. `IconTheme` ise icon tema sözleşmesinin runtime modelini kurarsın.
 

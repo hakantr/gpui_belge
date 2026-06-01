@@ -18,6 +18,13 @@ Hangi durumda hangisini seçeceğini şu ayrımla düşünebilirsin:
 
 ## List
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `List` | Metotlar | `empty_message`, `header`, `new`, `toggle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/list/list.rs`
@@ -94,6 +101,14 @@ Dikkat edeceğin noktalar:
 - Empty state custom bir element ise `.into_any_element()` çağrısıyla iletilmesi gerekir.
 
 ## ListItem
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ListItem` | Metotlar 1 | `always_show_disclosure_icon`, `docked_right`, `end_slot`, `end_slot_on_hover`, `focused`, `group_name`, `height`, `indent_level`, `indent_step_size`, `inset`, `new`, `on_click`, `on_hover`, `on_secondary_mouse_down` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ListItem` | Metotlar 2 | `on_toggle`, `outlined`, `overflow_x`, `rounded`, `selectable`, `show_end_slot_on_hover`, `spacing`, `start_slot`, `toggle`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -202,6 +217,13 @@ Dikkat edeceğin noktalar:
 
 ## ListHeader
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ListHeader` | Metotlar | `end_hover_slot`, `end_slot`, `inset`, `new`, `on_toggle`, `start_slot`, `toggle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/list/list_header.rs`
@@ -256,6 +278,13 @@ Dikkat edeceğin noktalar:
 - `end_hover_slot(...)`, normal `end_slot` ile aynı alanı paylaşır. Bu yüzden count ve hover action birlikte tasarlanırken, ikisinin görsel olarak nasıl yer değiştireceği önceden düşünülür.
 
 ## ListSubHeader
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ListSubHeader` | Metotlar | `end_slot`, `inset`, `left_icon`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -350,6 +379,13 @@ fn render_grouped_actions() -> impl IntoElement {
 
 ## ListBulletItem
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ListBulletItem` | Metotlar | `label_color`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/list/list_bullet_item.rs`
@@ -379,6 +415,13 @@ Dikkat edeceğin noktalar:
 - Kaynakta iç `ListItem` id'si sabittir; bu yüzden keyed bir satır state'inin gerektiği dinamik listelerde `ListItem` ile özel bir satır kurmak daha doğru bir tercih olur.
 
 ## TreeViewItem
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `TreeViewItem` | Metotlar | `default_expanded`, `expanded`, `focused`, `group_name`, `new`, `on_click`, `on_hover`, `on_secondary_mouse_down`, `on_toggle`, `root_item`, `tab_index`, `tooltip`, `track_focus` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -463,6 +506,13 @@ Dikkat edeceğin noktalar:
 
 ## StickyItems
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `StickyItems` | Metotlar | `with_decoration` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/sticky_items.rs`
@@ -532,6 +582,13 @@ Dikkat edeceğin noktalar:
 - `render_fn` birden fazla sticky ancestor döndürebilir; bu elemanların yüksekliklerinin uniform list item height ile uyumlu olması gerekir.
 
 ## IndentGuides
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `IndentGuides` | Metotlar | `on_click`, `with_compute_indents_fn`, `with_render_fn` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

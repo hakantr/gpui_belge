@@ -1,5 +1,14 @@
 # Dock ve Panel Modeli
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Dock` | Metotlar | `activate_panel`, `active_panel`, `new`, `position`, `remove_panel`, `resize_active_panel`, `resize_all_panels`, `set_open`, `toggle_action`, `visible_panel` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Panel` | Trait üyeleri 1 | `activation_priority`, `default_size`, `enabled`, `has_flexible_size`, `hide_button_setting`, `icon_label`, `icon_tooltip`, `initial_size_state`, `is_agent_panel`, `is_zoomed`, `min_size`, `pane`, `panel_key`, `persistent_name` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Panel` | Trait üyeleri 2 | `position`, `position_is_valid`, `remote_id`, `set_active`, `set_flexible_size`, `set_position`, `set_zoomed`, `size_state_changed`, `starts_open`, `supports_flexible_size`, `toggle_action` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
+
 ---
 
 ## Çalışma Alanı İskeleti

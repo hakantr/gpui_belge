@@ -1,10 +1,27 @@
 # PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `NavHistory` | Metotlar | `clear`, `disable`, `enable`, `for_each_entry`, `pop`, `pop_tag`, `set_mode` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `PaneGroup` | Metotlar | `bounding_box_for_pane`, `find_pane_in_direction`, `move_to_border`, `pane_at_pixel_position`, `remove`, `reset_pane_sizes`, `resize`, `split`, `swap` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Toolbar` | Metotlar | `add_item`, `set_active_item` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağacı, gezinme geçmişi, toolbar item'ları ve çoklu çalışma alanı sidebar birlikte çalışır.
 
 ---
 
 ## PaneGroup ve SplitDirection
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SplitDirection` | Metotlar | `along_edge`, `axis`, `edge`, `horizontal`, `opposite`, `vertical` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `SplitDirection` | Varyantlar | `Down`, `Left`, `Right`, `Up` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
 
 `PaneGroup` merkez veya dock içindeki pane ağacını taşır. Kök `Member::Pane` veya `Member::Axis(PaneAxis)` olabilir.
 
@@ -37,6 +54,13 @@ Pane item listesinde preview ve sabitlenmiş ayrımı vardır; her ikisi de benz
 ---
 
 ## ToolbarItemView
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ToolbarItemView` | Trait üyeleri | `contribute_context`, `pane_focus_update`, `set_active_pane_item` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 Pane toolbar'a katkı veren view'lar `ToolbarItemView` uygular:
 

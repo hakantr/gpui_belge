@@ -1,5 +1,12 @@
 # 2. Ham GPUI Primitive'leri ve Metod Kapsamı
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Primitive` | Varyantlar | `MonochromeSprite`, `PolychromeSprite`, `Quad`, `SubpixelSprite`, `Underline` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements` primitive'lerini anlatır. Günlük Zed ekran kodunda önce hazır `ui` bileşenlerine bakarsın. Ham GPUI primitive'lerine ise ancak daha özel bir ihtiyaç çıktığında inersin: kendine özgü bir layout, özel çizim, metin ölçümü, görsel cache, sanal liste veya hazır bileşenlerin sunmadığı bir etkileşim gibi. Kısaca, üst katman çoğu işi karşılar; alt katmana inmek ise genellikle bilinçli bir ihtiyaç sonucudur.
 
 Kaynakta bakacağın ana yerler:

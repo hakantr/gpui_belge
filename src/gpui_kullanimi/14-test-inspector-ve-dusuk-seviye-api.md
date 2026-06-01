@@ -1,5 +1,12 @@
 # Test, Inspector ve Düşük Seviye API
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Inspector` | Metotlar | `active_element_id`, `is_picking`, `render_inspector_states`, `start_picking` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 ---
 
 ## Test Rehberi
@@ -387,6 +394,15 @@ Bu küçük API'ler ana çizim modelinin parçası değildir; ancak Zed başlang
 
 ## CursorStyle, FontWeight ve Sabit Enum Tabloları
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `CursorStyle` | Varyantlar 1 | `Arrow`, `ClosedHand`, `ContextualMenu`, `Crosshair`, `DragCopy`, `DragLink`, `IBeam`, `IBeamCursorForVerticalLayout`, `OpenHand`, `OperationNotAllowed`, `PointingHand`, `ResizeColumn`, `ResizeDown`, `ResizeLeft` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `CursorStyle` | Varyantlar 2 | `ResizeLeftRight`, `ResizeRight`, `ResizeRow`, `ResizeUp`, `ResizeUpDown`, `ResizeUpLeftDownRight`, `ResizeUpRightDownLeft` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `FontWeight` | Metotlar | `ALL`, `BLACK`, `BOLD`, `EXTRA_BOLD`, `EXTRA_LIGHT`, `LIGHT`, `MEDIUM`, `NORMAL`, `SEMIBOLD`, `THIN` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Aşağıdaki sabitler her seferinde araştırılmak yerine tek noktada toplanır. Sık başvurduğun platform enum'ları ve hangi alanda anlam taşıdıkları kısaca özetlenir.
 
 #### `CursorStyle` (`crates/gpui/src/platform.rs:1745+`)
@@ -421,13 +437,34 @@ CSS weight değerleriyle birebir:
 
 #### `FontStyle`
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `FontStyle` | Varyantlar | `Italic`, `Normal`, `Oblique` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 `Normal`, `Italic`, `Oblique`. `.italic()` fluent kısayolu Italic'e ayarlar.
 
 #### `WindowControlArea` (`crates/gpui/src/window.rs:564`)
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `WindowControlArea` | Varyantlar | `Drag`, `Max`, `Min` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 `Drag`, `Close`, `Max`, `Min`. Özel bir başlık çubuğu yazarken Windows yerel hit-test için zorunludur.
 
 #### `HitboxBehavior` (`crates/gpui/src/window.rs:692`)
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `HitboxBehavior` | Varyantlar | `BlockMouse`, `BlockMouseExceptScroll`, `Normal` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
 
 `Normal`, `BlockMouse`, `BlockMouseExceptScroll`. `.occlude()` ve `.block_mouse_except_scroll()` element kısayolları sırasıyla son ikisini ayarlar.
 
@@ -437,11 +474,26 @@ CSS weight değerleriyle birebir:
 
 #### `Anchor`, `Corners` ve Layer-shell `Anchor`
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Anchor` | Metotlar | `is_center`, `opposite`, `other_side_along` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Anchor` | Varyantlar | `BottomCenter`, `BottomLeft`, `BottomRight`, `LeftCenter`, `RightCenter`, `TopCenter`, `TopLeft`, `TopRight` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 Anchored elementte kullandığın tip `gpui::Anchor`'dır: `TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`, `TopCenter`, `BottomCenter`, `LeftCenter`, `RightCenter`.
 
 `Corners<T>` farklı bir tiptir; kenarlık yarıçapı ve quad köşe yarıçapları içindir. Layer-shell modülündeki `Anchor` ise bitflag yapısındadır (`TOP | BOTTOM | LEFT | RIGHT`); anchored element `Anchor`'ı ile karıştırmaman gerekir.
 
 #### `ResizeEdge` (`crates/gpui/src/platform.rs:358`)
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ResizeEdge` | Varyantlar | `Bottom`, `BottomLeft`, `BottomRight`, `Left`, `Right`, `Top`, `TopLeft`, `TopRight` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
 
 `Top`, `Bottom`, `Left`, `Right`, `TopLeft`, `TopRight`, `BottomLeft`, `BottomRight`. `window.start_window_resize(edge)` argümanı olarak verirsin.
 
@@ -709,6 +761,14 @@ Prompt katmanında iki ek tip vardır:
 Uygulama tarafında çoğu zaman `cx.prompt(...)`, `cx.prompt_for_path(...)`, `cx.prompt_for_new_path(...)` ve `PromptBuilder` yeterlidir; özel platform veya başsız prompt davranışı yazarken bu taşıyıcılara inersin.
 
 #### Menu, Keymap, Action ve Test Taşıyıcıları
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Menu` | Metotlar | `items`, `new`, `owned` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Menu` | Alanlar | `items`, `name` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 Doğrudan kullanıcı akışında nadiren gördüğün genel yardımcılar:
 

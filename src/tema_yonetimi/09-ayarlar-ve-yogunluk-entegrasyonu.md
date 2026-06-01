@@ -6,6 +6,15 @@ Runtime çalışır hale geldikten sonra kullanıcı ayarları devreye girer. Bu
 
 ## 39. Settings entegrasyonu: `ThemeSettings`, `RegisterSetting`, `IntoGpui`, `ThemeSettingsProvider`, font runtime API'leri
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ThemeSettings` | Metotlar | `agent_buffer_font_size`, `agent_buffer_font_size_settings`, `agent_ui_font_size`, `agent_ui_font_size_settings`, `apply_theme_overrides`, `buffer_font_size`, `buffer_font_size_settings`, `git_commit_buffer_font_size`, `git_commit_buffer_font_size_settings`, `line_height`, `markdown_preview_code_font_family`, `markdown_preview_font_family`, `ui_font_size`, `ui_font_size_settings` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ThemeSettings` | Alanlar | `buffer_font`, `buffer_line_height`, `experimental_theme_overrides`, `icon_theme`, `markdown_preview_theme`, `theme_overrides`, `ui_density`, `ui_font`, `unnecessary_code_fade` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `ThemeSettingsProvider` | Trait üyeleri | `buffer_font`, `buffer_font_size`, `ui_density`, `ui_font`, `ui_font_size` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
+
 ### Ayar / override / selector köprüsü
 
 Zed-benzeri bir kontrol için tek bir `ad: String` yeterli değildir. Minimum settings modeli şu dört özelliği taşımalıdır:
@@ -872,6 +881,14 @@ Sözleşme parite bayrağı şudur: bu fonksiyonlar `kvs_tema` public API'sinde 
 ---
 
 ## 40. `UiDensity` — UI yoğunluk ayarı
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `UiDensity` | Metotlar | `spacing_ratio` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `UiDensity` | Varyantlar | `Comfortable`, `Compact` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
 
 **Kaynak:** `crates/theme/src/ui_density.rs:21`.
 

@@ -14,6 +14,14 @@ Genel tercih sırası şöyle:
 
 ## Label
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Label` | Metotlar 1 | `flex_1`, `flex_grow`, `flex_none`, `flex_shrink`, `flex_shrink_0`, `mb`, `ml_neg_1`, `mr`, `mt`, `mx`, `mx_1p5`, `my`, `my_1p5`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Label` | Metotlar 2 | `render_code_spans`, `set_text`, `truncate_start` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/label/label.rs`
@@ -88,6 +96,13 @@ Dikkat edeceğin noktalar:
 
 ## LabelLike
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `LabelLike` | Metotlar | `mb`, `ml_neg_1`, `mr`, `mt`, `mx`, `mx_1p5`, `my`, `my_1p5`, `new`, `truncate_start` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/label/label_like.rs`
@@ -142,6 +157,13 @@ fn render_inline_hint(action: SharedString, cx: &App) -> impl IntoElement {
 ```
 
 ## Headline
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Headline` | Metotlar | `new`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -252,6 +274,13 @@ Dikkat edeceğin noktalar:
 
 ## HighlightedLabel
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `HighlightedLabel` | Metotlar | `flex_1`, `flex_grow`, `flex_none`, `flex_shrink`, `flex_shrink_0`, `from_ranges`, `highlight_indices`, `new`, `text` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/label/highlighted_label.rs`
@@ -332,6 +361,13 @@ Dikkat edeceğin noktalar:
 
 ## LoadingLabel
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `LoadingLabel` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/label/loading_label.rs`
@@ -380,6 +416,13 @@ Dikkat edeceğin noktalar:
 - Bu component bir async task başlatmaz; yalnızca görsel bir animasyon sağlar. Asıl işi başka bir yerde yönetirsin.
 
 ## SpinnerLabel
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SpinnerLabel` | Metotlar | `dots`, `dots_variant`, `new`, `sand`, `with_variant` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -432,6 +475,15 @@ fn render_compact_spinner() -> impl IntoElement {
 ```
 
 ## Icon, IconName ve IconSize
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Icon` | Metotlar | `from_external_svg`, `from_path`, `new`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `IconSize` | Metotlar | `rems`, `square`, `square_components` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `IconSize` | Varyantlar | `Custom`, `Medium`, `Small`, `XLarge`, `XSmall` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
 
 Kaynak:
 
@@ -507,6 +559,14 @@ Dikkat edeceğin noktalar:
 
 ## IconWithIndicator ve AnyIcon
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AnyIcon` | Metotlar | `map` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `IconWithIndicator` | Metotlar | `indicator`, `indicator_border_color`, `indicator_color`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/icon.rs`
@@ -557,6 +617,14 @@ Dikkat edeceğin noktalar:
 - Indicator anlamı yalnız renge bırakılmamalıdır. Kullanıcı state'i okuyacaksa yanında tooltip veya label kullanırsın.
 
 ## DecoratedIcon ve IconDecoration
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `DecoratedIcon` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `IconDecoration` | Metotlar | `group_name`, `kind`, `knockout_color`, `knockout_hover_color`, `new`, `position`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

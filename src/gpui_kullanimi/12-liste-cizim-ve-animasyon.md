@@ -4,6 +4,13 @@
 
 ## ScrollHandle ve Scroll Davranışı
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ScrollHandle` | Metotlar | `bottom_item`, `bounds`, `bounds_for_item`, `children_count`, `logical_scroll_bottom`, `logical_scroll_top`, `max_offset`, `new`, `offset`, `scroll_to_bottom`, `scroll_to_item`, `scroll_to_top_of_item`, `set_offset`, `top_item` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 `crates/gpui/src/elements/div.rs:3387+`.
 
 `ScrollHandle`, scroll offset'ini paylaşılabilir bir handle olarak tutar. `Rc<RefCell<ScrollHandleState>>` üzerinden çalışır ve view'lar arasında ucuz biçimde klonlanabilir. Aynı handle'ı birden fazla yerden okuyup değiştirebilirsin.
@@ -55,6 +62,14 @@ capa.scroll_to(window, cx);
 - `UniformListScrollHandle` — `scroll_to_item(..., ScrollStrategy)`, `scroll_to_item_strict`, `scroll_to_item_with_offset`, `scroll_to_item_strict_with_offset`, `logical_scroll_top_index`, `is_scrolled_to_end`, `scroll_to_bottom`.
 
 ## List ve UniformList Sanallaştırma
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `List` | Metotlar | `with_sizing_behavior` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `UniformList` | Metotlar | `track_scroll`, `with_decoration`, `with_horizontal_sizing_behavior`, `with_sizing_behavior`, `with_width_from_item`, `y_flipped` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 GPUI'de büyük listeler için iki çekirdek element vardır. İkisi farklı liste ihtiyaçları için tasarlanmıştır:
 
@@ -161,6 +176,14 @@ uniform_list("arama-sonuclari", self.ogeler.len(), move |aralik, window, cx| {
 
 ## Asset, Image ve SVG Yükleme
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Image` | Metotlar | `bytes`, `empty`, `from_bytes`, `get_render_image`, `id`, `remove_asset`, `to_image_data`, `use_render_image` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Image` | Alanlar | `bytes`, `id` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 `crates/gpui/src/asset_cache.rs`, `assets.rs`, `elements/img.rs`, `svg.rs`.
 
 `Asset` trait'i asenkron yükleyici sözleşmesidir; her özel kaynak türü bu trait'i uygular:
@@ -253,6 +276,14 @@ Zed'in bilinen ikon setinden bir simge çizeceksen `Icon::new(IconName::...)` en
 - Yol sınıflandırıcı veya ayarlar güvenlik kontrolü yazarken macOS ve Windows'un varsayılan büyük/küçük harfe duyarsız dosya sistemlerini atlamaman gerekir. `util::paths::component_matches_ignore_ascii_case(component, ".zed")` gibi ASCII duyarsız yardımcıları tercih edersin; `.ZED/settings.json` gibi varyantları düz `== ".zed"` karşılaştırmasıyla kaçırmaman gerekir.
 
 ## Asset, ImageCache ve Surface Boru Hattı
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ImageCache` | Trait üyeleri | `load` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Surface` | Metotlar | `object_fit` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 GPUI asset katmanı üç seviyelidir ve her seviye ayrı bir sorumluluk taşır:
 
@@ -445,6 +476,13 @@ Lyon API'sine inmek istiyorsan `lyon::tessellation::FillOptions::tolerance(0.5)`
 
 ## Anchored ve Popover Konumlandırma
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Anchored` | Metotlar | `anchor`, `offset`, `position`, `position_mode`, `snap_to_window`, `snap_to_window_with_margin` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 `crates/gpui/src/elements/anchored.rs`.
 
 `anchored()` fonksiyonu bir `Anchored` builder döndürür. Popover, menü ve tooltip benzeri konumlandırmaları bu element üzerinde kurarsın:
@@ -481,6 +519,15 @@ Anchored element ağaca normal bir alt öğe gibi eklenir; ancak yerleşim fazı
 - Anchored alt öğesi kendi içinde overflow `Visible` davranır; içerik pencereyi taşırsa scroll için ekstra bir sarmalayıcıya ihtiyacın olur.
 
 ## PaintQuad, Window Paint Primitives ve BorderStyle
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `BorderStyle` | Varyantlar | `Dashed`, `Solid` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `PaintQuad` | Metotlar | `background`, `border_color`, `border_widths`, `corner_radii` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `PaintQuad` | Alanlar | `background`, `border_color`, `border_style`, `border_widths`, `bounds`, `corner_radii` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 `canvas` ve özel `Element::paint` içinde GPU'ya gönderdiğin primitive'leri şu çağrılarla üretirsin:
 
@@ -532,6 +579,14 @@ window.paint_quad(outline(sinirlar, rgb(0xff0000), BorderStyle::Solid));
 - `border_widths` dört kenara ayrı değer verebilir (`Edges { top, right, bottom, left }`); tek bir değer verdiğinde `Edges::all(px(1.))` kullanılır.
 
 ## Scene ve Primitive Alt Katmanı
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Scene` | Metotlar | `batches`, `clear`, `finish`, `insert_primitive`, `len`, `pop_layer`, `push_layer`, `replay` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Scene` | Alanlar | `paths` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 `Scene`, paint fazında üretilen primitive listesinin sahibidir. Uygulama kodunda `Scene`'i genellikle elle oluşturmazsın; `Window` paint metotları bunu senin için doldurur. Yine de özel renderer, test snapshot'ı veya düşük seviyeli çizim aracı yazarken bu yüzey önemlidir.
 

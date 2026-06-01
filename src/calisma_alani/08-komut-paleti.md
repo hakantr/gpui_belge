@@ -6,6 +6,13 @@
 
 ## CommandPaletteFilter
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `CommandPaletteFilter` | Metotlar | `global_mut`, `hide_action_types`, `hide_namespace`, `is_hidden`, `show_action_types`, `show_namespace`, `try_global` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 `CommandPaletteFilter`, komut paletinde hangi namespace'lerin ve action tiplerinin görüneceğini kontrol eden global bir filtredir. Üç set üzerinden çalışır:
 
 ```rust
@@ -35,6 +42,13 @@ Tipik bir kullanım, `CommandPaletteFilter::update_global(cx, |filtre, _| { ... 
 ---
 
 ## CommandAliases (WorkspaceSettings)
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `WorkspaceSettings` | Alanlar | `autosave`, `cli_default_open_behavior`, `command_aliases`, `focus_follows_mouse` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
 
 `WorkspaceSettings::command_aliases: HashMap<String, ActionName>`. Kullanıcı JSON'una `"command_aliases": { "ag": "search::ToggleSearch" }` yazıldığında komut paleti, sorgu tam olarak `ag` olduğunda bunu `search::ToggleSearch` string'ine çevirir. Bu çeviri fuzzy eşleşme ve interceptor çağrısından önce yapılır; alias bir action nesnesi üretmez, yalnızca palet sorgusunu canonical action adına yaklaştırır. Yeni uygulamada alias, kullanıcının kısa sorgu yazmasını kolaylaştıran bir palet kısayolu olarak düşünmen gerekir. Keymap tarafında canonical action adı kullanman gerekir.
 

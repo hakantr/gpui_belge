@@ -33,6 +33,14 @@ Bu ailede tablo kurarken üç karar birlikte düşünülür; biri değiştiğind
 
 ## Table
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Table` | Metotlar 1 | `disable_base_style`, `empty_table_callback`, `header`, `hide_row_borders`, `hide_row_hover`, `interactable`, `map_row`, `new`, `no_ui_font`, `pin_cols`, `row`, `striped`, `variable_row_height_list`, `width` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Table` | Metotlar 2 | `width_config` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/data_table.rs`
@@ -243,6 +251,14 @@ Dikkat edeceğin noktalar:
 
 ## TableInteractionState
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `TableInteractionState` | Metotlar | `listener`, `new`, `scroll_offset`, `set_scroll_offset`, `with_custom_scrollbar` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `TableInteractionState` | Alanlar | `custom_scrollbar`, `focus_handle`, `horizontal_scroll_handle`, `scroll_handle` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/data_table.rs`
@@ -315,6 +331,14 @@ Dikkat edeceğin noktalar:
 
 ## ColumnWidthConfig
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ColumnWidthConfig` | Metotlar | `auto_with_table_width`, `explicit`, `list_horizontal_sizing`, `redistributable`, `table_width`, `widths_to_render` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ColumnWidthConfig` | Varyantlar | `Redistributable` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/data_table.rs`
@@ -369,6 +393,13 @@ Dikkat edeceğin noktalar:
 - Pinned layout'ta pinned bölümün resize divider'ları yalnızca görsel çizgi olarak render edilir; sürükleme etkileşimi scrollable bölümün divider'larında kalır. Header hücresine çift tıklama ile kolon reset davranışı ise `HeaderResizeInfo` üzerinden çalışmaya devam eder.
 
 ## RedistributableColumnsState
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `RedistributableColumnsState` | Metotlar | `cached_container_width`, `cols`, `commit_preview`, `initial_widths`, `new`, `preview_column_width`, `preview_fractions`, `preview_widths`, `reset_column_to_initial_width`, `resize_behavior`, `set_cached_container_width`, `widths_to_render` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -474,6 +505,13 @@ Dikkat edeceğin noktalar:
 
 ## ResizableColumnsState
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ResizableColumnsState` | Metotlar | `cols`, `new`, `reset_column_to_initial_width`, `resize_behavior`, `set_column_configuration` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/data_table.rs`
@@ -562,6 +600,13 @@ Dikkat edeceğin noktalar:
 - İlk kolonun row number veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanırsın. Zed CSV preview ilk kolonu bu şekilde sabitler. Kullanıcı pinned bölümdeki divider'ı sürükleyemez; boyut değiştirme ihtiyacı scrollable kolonlarda beklenir veya kolon konfigürasyonu state üzerinden güncellenir.
 
 ## TableRow ve UncheckedTableRow
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `TableRow` | Metotlar | `as_slice`, `cols`, `expect_get`, `from_element`, `from_vec`, `get`, `into_vec`, `map`, `map_cloned`, `map_ref`, `try_from_vec` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

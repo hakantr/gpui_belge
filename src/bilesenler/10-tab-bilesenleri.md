@@ -1,5 +1,12 @@
 # 10. Tab Bileşenleri
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Tab` | Metotlar | `close_side`, `container_height`, `content_height`, `end_slot`, `new`, `position`, `start_slot` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Tab bileşenleri yatay bir navigation yüzeyi kurmak için kullanırsın. `Tab` tek bir sekmeyi çizer; `TabBar` ise sekmeleri, soldaki ve sağdaki action alanlarını ve yatay scroll container'ını birlikte düzenler. Seçili tab, aktif index, close davranışı ve tab pozisyonu gibi bilgiler view state'i tarafından hesaplanır. Tab bileşenleri bu bilgiyi kendi başına üretmez.
 
 Hangi durumda hangisini seçeceğin için kısa özet:
@@ -115,6 +122,13 @@ Dikkat edeceğin noktalar:
 - `Tab::new("")` gibi boş bir id yalnızca özel render proxy'lerinde kullanırsın. Normal listelerde sabit bir id tercih edersin.
 
 ## TabBar
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `TabBar` | Metotlar | `end_child`, `end_children`, `end_children_mut`, `new`, `start_child`, `start_children`, `start_children_mut`, `track_scroll` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

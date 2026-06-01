@@ -14,6 +14,13 @@ Feedback bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilg
 
 ## Severity
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Severity` | Varyantlar | `Error`, `Info`, `Success`, `Warning` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/styles/severity.rs`
@@ -32,6 +39,13 @@ Davranış:
 - Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyon ayrı bir button slot'una yerleştirilir.
 
 ## Banner
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Banner` | Metotlar | `action_slot`, `new`, `severity`, `wrap_content` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -115,6 +129,13 @@ Dikkat edeceğin noktalar:
 - Banner, modal içindeki karar alanı gibi kullanmaman gerekir. Modal kararlarının footer aksiyonlarıyla verilmesi beklenir.
 
 ## Callout
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Callout` | Metotlar | `actions_slot`, `border_position`, `description`, `description_slot`, `dismiss_action`, `line_height`, `new`, `severity`, `title` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -212,6 +233,13 @@ Dikkat edeceğin noktalar:
 - Description slot'una scroll yapan karmaşık bir içerik konulduğunda, içerideki metinlerin `min_w_0()` ve `.truncate()` davranışı ayrıca düşünülür.
 
 ## Modal
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Modal` | Metotlar | `footer`, `header`, `new`, `section`, `show_back`, `show_dismiss` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -355,6 +383,13 @@ Dikkat edeceğin noktalar:
 
 ## AlertModal
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AlertModal` | Metotlar | `dismiss_label`, `footer`, `header`, `key_context`, `new`, `on_action`, `primary_action`, `title`, `track_focus`, `width` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/notification/alert_modal.rs`
@@ -451,6 +486,13 @@ Dikkat edeceğin noktalar:
 
 ## AnnouncementToast
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AnnouncementToast` | Metotlar | `bullet_item`, `bullet_items`, `description`, `dismiss_on_click`, `heading`, `illustration`, `new`, `primary_action_label`, `primary_on_click`, `secondary_action_label`, `secondary_on_click` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/notification/announcement_toast.rs`
@@ -539,6 +581,13 @@ Pratik sonuç şudur:
 
 ## CountBadge
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `CountBadge` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/count_badge.rs`
@@ -591,6 +640,13 @@ Dikkat edeceğin noktalar:
 - Badge metni otomatik olarak capped olduğu için, gerçek tam sayının tooltip veya bir detay view'ında gösterilmesi gerekebilir.
 
 ## Indicator
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Indicator` | Metotlar | `bar`, `border_color` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -659,6 +715,13 @@ Dikkat edeceğin noktalar:
 
 ## ProgressBar
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ProgressBar` | Metotlar | `bg_color`, `fg_color`, `max_value`, `new`, `over_color`, `value` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/progress/progress_bar.rs`
@@ -722,6 +785,13 @@ Dikkat edeceğin noktalar:
 - `value > max_value` bilinçli bir over-limit durumudur. Normal "işlem tamamlandı" durumu için `value == max_value` kullanırsın.
 
 ## CircularProgress
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `CircularProgress` | Metotlar | `bg_color`, `max_value`, `new`, `progress_color`, `size`, `stroke_width`, `value` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

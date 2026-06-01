@@ -1,5 +1,15 @@
 # Item, Pane, Modal, Toast ve Notification Sistemi
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Item` | Trait üyeleri | `active_project_path`, `as_searchable` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Pane` | Metotlar 1 | `activate_item`, `activate_last_item`, `activate_next_item`, `activate_previous_item`, `add_item`, `close_active_item`, `close_all_items`, `close_clean_items`, `close_item_by_id`, `close_other_items`, `is_active_preview_item`, `is_zoomed`, `nav_history_for_item`, `navigate_backward` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Pane` | Metotlar 2 | `pinned_count`, `preview_item`, `preview_item_id`, `replace_preview_item_id`, `set_pinned_count`, `set_zoomed`, `split`, `swap_item_left`, `toolbar`, `unpreview_item_if_preview` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Toast` | Metotlar | `autohide` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde tab/pane, modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editör benzeri panel veya komut yazarken bu sözleşmeleri bilmen gerekir.
 
 ![Item, Pane, Modal ve Notification Akışı](assets/item-pane-modal-notification.svg)
@@ -7,6 +17,14 @@ GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde 
 ---
 
 ## Item ve ItemHandle
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ItemHandle` | Trait üyeleri 1 | `breadcrumbs`, `buffer_kind`, `can_split`, `deactivated`, `for_each_project_item`, `include_in_nav_history`, `item_id`, `navigate`, `project_path`, `save`, `save_as`, `tab_content`, `tab_content_text`, `tab_tooltip_text` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `ItemHandle` | Trait üyeleri 2 | `telemetry_event_text`, `workspace_deactivated` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 `crates/workspace/src/item.rs:167+`. Pane içindeki her tab içeriği `Item` trait'ini uygular:
 
@@ -68,6 +86,13 @@ Status bar'ın breadcrumb güncellemesi ve git panelinin aktif dosya tespiti bu 
 
 ## ModalView ve Modal Layer
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ModalView` | Trait üyeleri | `fade_out_background`, `on_before_dismiss`, `render_bare` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
+
 `crates/workspace/src/modal_layer.rs:13+`:
 
 ```rust
@@ -102,6 +127,13 @@ calisma_alani.hide_modal(window, cx);
 ---
 
 ## StatusBar ve StatusItemView
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `StatusItemView` | Trait üyeleri | `hide_setting`, `set_active_pane_item` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 `crates/workspace/src/status_bar.rs`:
 

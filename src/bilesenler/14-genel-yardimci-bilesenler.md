@@ -10,6 +10,13 @@ Bu aileyi kullanırken üç ayrımı akılda tutmak işini kolaylaştırır:
 
 ## Chip
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Chip` | Metotlar | `bg_color`, `border_color`, `height`, `icon_color`, `label_color`, `label_size`, `new`, `tooltip`, `truncate` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/chip.rs`
@@ -75,6 +82,13 @@ Dikkat edeceğin noktalar:
 
 ## DiffStat
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `DiffStat` | Metotlar | `label_size`, `new`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/diff_stat.rs`
@@ -130,6 +144,13 @@ Dikkat edeceğin noktalar:
 - Sıfır değerlerinin gösterilip gösterilmeyeceğine parent karar verir; bileşen kendiliğinden gizlemez.
 
 ## Disclosure
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Disclosure` | Metotlar | `closed_icon`, `new`, `on_toggle_expanded`, `opened_icon` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -195,6 +216,13 @@ Dikkat edeceğin noktalar:
 - `visible_on_hover(...)` kullanıldığında parent elementte aynı group name'in tanımlanmış olması gerekir.
 
 ## GradientFade
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `GradientFade` | Metotlar | `gradient_stop`, `group_name`, `new`, `right`, `width` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -329,6 +357,13 @@ Dikkat edeceğin noktalar:
 
 ## Vector ve Görsel Kullanımı
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Vector` | Metotlar | `size`, `square` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/image.rs`
@@ -418,6 +453,13 @@ fn render_local_thumbnail() -> impl IntoElement {
 
 ## KeyBinding
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `KeyBinding` | Metotlar | `for_action`, `for_action_in`, `from_keystrokes`, `has_binding`, `new`, `platform_style`, `set_vim_mode`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/keybinding.rs`
@@ -494,6 +536,13 @@ Dikkat edeceğin noktalar:
 
 ## KeybindingHint
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `KeybindingHint` | Metotlar | `new`, `prefix`, `size`, `suffix`, `with_prefix`, `with_suffix` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/keybinding_hint.rs`
@@ -551,6 +600,13 @@ Dikkat edeceğin noktalar:
 - Çok uzun bir prefix veya suffix yazılmaması beklenir; bileşen kısa komut açıklamaları için tasarlanmıştır.
 
 ## Navigable
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Navigable` | Metotlar | `entry`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -610,6 +666,13 @@ Dikkat edeceğin noktalar:
 - Entry listesinin, render edilen item sırasıyla aynı tutulması gerekir; aksi halde gezinti beklenmedik bir sıraya kayar.
 
 ## ProjectEmptyState
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ProjectEmptyState` | Metotlar | `new`, `on_clone_repo`, `on_open_project` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

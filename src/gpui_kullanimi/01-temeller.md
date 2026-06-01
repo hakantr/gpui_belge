@@ -68,6 +68,13 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 
 ### Render ve Element Modeli
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Element` | Trait üyeleri | `id`, `into_any`, `PrepaintState`, `RequestLayoutState`, `source_location` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
+
 | Kavram | Basit karşılık | Ne işe yarar? | İlk okurken dikkat |
 |---|---|---|---|
 | View | Ekran parçasını yöneten Rust tipi | GPUI'de "view" çoğu zaman `Render` trait'ini uygulayan ve `Entity<V>` içinde tutulan bir Rust tipidir. Örneğin bir panelin seçili satırı veya açık menüsü bu tipin alanlarında durabilir. | View ayrı bir widget sınıfı değildir; veriyi tutan Rust tipi ile ekrana çizme metodunun birleşimidir. |
@@ -82,6 +89,13 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 | `Animation` | Zaman tabanlı geçiş | Süre ve easing bilgisiyle değerleri ekran kareleri arasında yumuşak şekilde değiştirir. | Animasyonun devam etmesi için pencerenin yeni ekran karesi istemesi gerekir. |
 
 ### Görsel Veri, Ölçü ve Asset
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Asset` | Trait üyeleri | `load`, `Output` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 | Kavram | Basit karşılık | Ne işe yarar? | İlk okurken dikkat |
 |---|---|---|---|

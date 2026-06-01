@@ -11,6 +11,13 @@ Bu ailede iki genel kural vardır:
 
 ## AiSettingItem
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AiSettingItem` | Metotlar | `detail_label`, `details`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/ai/ai_setting_item.rs`
@@ -83,6 +90,13 @@ Dikkat edeceğin noktalar:
 
 ## AgentSetupButton
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AgentSetupButton` | Metotlar | `name`, `new`, `on_click` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/ai/agent_setup_button.rs`
@@ -133,6 +147,14 @@ Dikkat edeceğin noktalar:
 - Disabled durumdayken click handler render edilmez.
 
 ## ThreadItem
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ThreadItem` | Metotlar 1 | `action_slot`, `added`, `archived`, `base_bg`, `custom_icon_from_external_svg`, `focused`, `highlight_positions`, `hovered`, `icon_color`, `icon_visible`, `is_remote`, `is_truncated`, `new`, `notified` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ThreadItem` | Metotlar 2 | `on_click`, `on_hover`, `project_name`, `project_paths`, `removed`, `rounded`, `timestamp`, `title_generating`, `title_label_color`, `title_slot`, `worktrees` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -229,6 +251,13 @@ Dikkat edeceğin noktalar:
 
 ## ConfiguredApiCard
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ConfiguredApiCard` | Metotlar | `button_label`, `button_tab_index`, `new`, `on_click`, `tooltip_label` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/ai/configured_api_card.rs`
@@ -282,6 +311,13 @@ Dikkat edeceğin noktalar:
 - `button_tab_index(...)`, provider setup ekranında klavye sırasını ayarlamak için kullanırsın.
 
 ## SkillsIllustration
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SkillsIllustration` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -345,6 +381,13 @@ Dikkat edeceğin noktalar:
 - `SkillsIllustration::new()` çağrısı parametresizdir; renk veya boyut özelleştirmesi tamamen bileşenin kendi içine bağımlıdır. Farklı bir görsele ihtiyaç doğduğunda, kaynak dosyayı referans alarak özel bir illustration component'i yazmak daha uygun olur.
 
 ## CollabNotification
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `CollabNotification` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -429,6 +472,13 @@ Dikkat edeceğin noktalar:
 - Skill load hataları dismiss edilebilir ama bu kalıcı bir suppress değildir. Alttaki dosya düzelip sonra yeniden bozulursa hata tekrar gösterilir.
 
 ## UpdateButton
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `UpdateButton` | Metotlar | `checking`, `downloading`, `errored`, `icon_animate`, `icon_color`, `installing`, `new`, `on_click`, `on_dismiss`, `tooltip`, `updated`, `with_dismiss` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

@@ -1,5 +1,15 @@
 # SettingsStore
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SettingsStore` | Metotlar 1 | `clear_local_settings`, `configured_settings_profiles`, `edits_for_update`, `error_for_file`, `get`, `get_all_files`, `get_all_locals`, `get_content_for_file`, `get_overrides_for_field`, `get_value_from_file`, `get_value_up_to_file`, `get_vscode_edits`, `import_vscode_settings`, `language_semantic_token_rules` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `SettingsStore` | Metotlar 2 | `local_settings`, `merged_settings`, `new`, `new_text_for_update`, `observe_active_settings_profile_name`, `override_global`, `project_json_schema`, `raw_default_settings`, `raw_user_settings`, `register_setting`, `remove_language_semantic_token_rules`, `set_default_settings`, `set_extension_settings`, `set_global_settings` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `SettingsStore` | Metotlar 3 | `set_language_semantic_token_rules`, `set_local_settings`, `set_server_settings`, `set_user_settings`, `try_get`, `update`, `update_default_settings`, `update_settings_file_with_completion`, `watch_settings_files` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `SettingsStore` | Alanlar | `editorconfig_store` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 `crates/settings/src/settings_store.rs`. `SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip-güvenli store içinde birleştirir. Default, user, global, server, extension ve local katmanları öncelik sırasıyla birleşir. Birleşik içerik daha sonra kayıtlı `Settings` tiplerine yedirilir.
 
 ![SettingsStore Katmanları](assets/settings-store-katmanlari.svg)

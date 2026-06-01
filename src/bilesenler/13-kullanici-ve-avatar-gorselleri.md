@@ -1,5 +1,12 @@
 # 13. Kullanıcı ve Avatar Görselleri
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Avatar` | Metotlar | `border_color`, `grayscale`, `indicator`, `new`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini ekranda göstermek için kullanırsın. Bu gösterim tek bir kişi olabilir ya da küçük, örtüşen bir grup halinde kurulabilir. Görsel kaynağı yüklenemezse her ikisi de fallback bir ikona döner. Ayrıca indicator, border ve boyut gibi ayarlarla avatarın çevresine durum bilgisi ekleyebilirsin.
 
 Bu bileşenlerde iki kuralı baştan netleştirmek faydalıdır:
@@ -96,6 +103,13 @@ Dikkat edeceğin noktalar:
 - Availability indicator için `.avatar_size(...)` değerinin gerçek avatar boyutuyla aynı verilmesi, indicator noktasının oranını doğru hâle getirir.
 
 ## Facepile
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Facepile` | Metotlar | `empty`, `new`, `p_2`, `p_3`, `pb`, `pl`, `pt`, `px`, `px_1`, `px_2`, `py`, `py_0p5`, `py_1` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

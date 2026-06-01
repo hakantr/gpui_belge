@@ -1,10 +1,27 @@
 # 17. Picker Bileşeni
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Picker` | Metotlar 1 | `cancel`, `cycle_selection`, `editor_move_down`, `editor_move_up`, `focus`, `is_scrolled_to_end`, `list`, `list_measure_all`, `max_height`, `nonsearchable_list`, `nonsearchable_uniform_list`, `query`, `refresh`, `refresh_placeholder` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Picker` | Metotlar 2 | `select_first`, `select_next`, `set_query`, `show_scrollbar`, `update_matches_with_options`, `widest_item`, `width` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Picker` | Alanlar | `delegate` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+
+
 `crates/picker/` komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch picker, command palette, model picker ve fuzzy seçim gerektiren her UI bunun üzerine kurarsın. Bu yapı yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
 
 ---
 
 ## `PickerDelegate`
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `PickerDelegate` | Trait üyeleri 1 | `can_select`, `confirm`, `confirm_completion`, `confirm_input`, `confirm_update_query`, `dismissed`, `documentation_aside`, `documentation_aside_index`, `editor_position`, `finalize_update_matches`, `match_count`, `no_matches_text`, `placeholder_text`, `render_footer` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `PickerDelegate` | Trait üyeleri 2 | `render_header`, `render_match`, `select_history`, `select_on_hover`, `selected_index`, `selected_index_changed`, `set_selected_index`, `update_matches` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 Picker UI'ı kendisi durum tutmaz; tüm seçim mantığı bir `PickerDelegate` uygulaması üzerinden işler. Yeni bir picker yazılırken esas iş bu trait'i implement etmektir:
 
@@ -117,6 +134,13 @@ Bu tabloda `Up/Down`, `Start/End` gibi varyantlar için ayrıca alt başlık aç
 ---
 
 ## `PickerPopoverMenu`
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `PickerPopoverMenu` | Metotlar | `new`, `offset`, `with_handle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Picker'ı bir popover içine yerleştiren ince sarmalayıcıdır. `new(picker, trigger, tooltip, anchor, cx)` picker'ın `DismissEvent`'ini popover dismiss olayına bağlar; `with_handle(...)` ve `offset(...)` ile dış popover handle ve konum ayarı yaparsın. Picker bir toolbar butonu veya popover tetikleyicisi arkasında açılacaksa doğrudan modal yerine bu sarmalayıcı tercih edersin.
 

@@ -96,6 +96,13 @@ Dikkat edeceğin noktalar:
 
 ## Button
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Button` | Metotlar | `end_icon`, `key_binding`, `key_binding_position`, `label_size`, `loading`, `new`, `selected_label`, `selected_label_color`, `start_icon`, `truncate` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/button/button.rs`
@@ -188,6 +195,13 @@ Dikkat edeceğin noktalar:
 
 ## IconButton
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `IconButton` | Metotlar | `icon_color`, `icon_size`, `indicator`, `indicator_border_color`, `new`, `on_right_click`, `selected_icon`, `selected_icon_color`, `shape` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/button/icon_button.rs`
@@ -260,6 +274,13 @@ Dikkat edeceğin noktalar:
 - Seçili state'i yalnızca görsel olarak değiştirmek yeterli değildir. View state'i değişiyorsa handler içinde state'i güncellemen ve ardından `cx.notify()` çağırman gerekir.
 
 ## ButtonLike
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ButtonLike` | Metotlar | `height`, `hoverable_tooltip`, `new`, `on_right_click`, `opacity` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -345,6 +366,13 @@ Dikkat edeceğin noktalar:
 
 ## ButtonLink
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ButtonLink` | Metotlar | `label_color`, `label_size`, `new`, `no_icon` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/button/button_link.rs`
@@ -403,6 +431,13 @@ Dikkat edeceğin noktalar:
 - Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca link gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatılır.
 
 ## CopyButton
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `CopyButton` | Metotlar | `custom_on_click`, `icon_size`, `new`, `tooltip_label`, `visible_on_hover` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -464,6 +499,13 @@ Dikkat edeceğin noktalar:
 - `custom_on_click(...)`, varsayılan kopya davranışına ekleme yapmaz; onun yerine geçer. Custom handler hata üretebiliyorsa, hatayı view state'ine taşıman veya görünür biçimde loglaman gerekir; aksi halde kullanıcı kopya başarısız olduğunda fark etmez.
 
 ## SplitButton
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SplitButton` | Metotlar | `new`, `style` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -531,6 +573,13 @@ Dikkat edeceğin noktalar:
 - Sağ parça bir popover veya menu trigger olacaksa, focus kapanma davranışı ilgili `PopoverMenu` ya da `ContextMenu` tarafında yönetilir; SplitButton bu sorumluluğu üstlenmez.
 
 ## ToggleButtonGroup
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ToggleButtonGroup` | Metotlar | `auto_width`, `label_size`, `selected_index`, `single_row`, `size`, `style`, `tab_index`, `two_rows` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

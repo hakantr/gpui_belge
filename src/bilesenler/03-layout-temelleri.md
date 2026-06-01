@@ -151,6 +151,13 @@ Dikkat edeceğin noktalar:
 
 ## Divider
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Divider` | Metotlar | `horizontal_dashed`, `inset`, `render_dashed`, `render_solid`, `vertical`, `vertical_dashed` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/divider.rs`

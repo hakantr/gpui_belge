@@ -1,5 +1,14 @@
 # AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AppState` | Metotlar | `try_global` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `AppState` | Alanlar | `build_window_options`, `client`, `fs`, `languages`, `node_runtime`, `session`, `user_store`, `workspace_store` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `WorkspaceStore` | Metotlar | `new`, `update_followers`, `workspaces`, `workspaces_with_windows` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Zed uygulamasında çalışma alanı açmak yalnızca `open_window` çağrısı değildir. Startup, CLI veya open-url istekleri, çalışma alanı veritabanı ve collab follow durumu birkaç global ve handle üzerinden birbirine bağlanır.
 
 ---

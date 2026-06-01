@@ -160,6 +160,13 @@ Token enum'larının çoğu tek başına uzun anlatım gerektirmez; hangi aileye
 
 ## Spacing token'ları (`DynamicSpacing`)
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `DynamicSpacing` | Varyantlar | `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`, `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`, `Base48` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 Padding, margin ve gap değerleri için her yerde elle `px(...)` veya `rems(...)` yazmak yerine, `crates/ui/src/styles/spacing.rs` içinde tanımlı `DynamicSpacing` ölçeğini tercih etmen daha doğru olur. Bu enum, kullanıcının UI yoğunluk ayarına (`Compact`, `Default`, `Comfortable`) göre tek noktadan ölçek değiştirir. Uygulama yoğunluğu değiştiğinde spacing değerleri de aynı kurala bağlı olarak uyum sağlar.
 
 - Adlandırma: `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`, `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`, `Base48`. `BaseXX` içindeki `XX`, varsayılan yoğunluktaki yaklaşık pixel değeridir (`Base04 ≈ 4px`, `Base16 ≈ 16px`).
@@ -176,6 +183,14 @@ Spacing macro yüzeyi:
 Sabit ve değişmeyen bir aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `gap_2` gibi GPUI yardımcıları yeterlidir. Bu sabitler aynı zamanda `h_group*` ve `v_group*` helper'larının arkasında da kullanılır.
 
 ## Yükseklik / elevation token'ları (`ElevationIndex`)
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `ElevationIndex` | Metotlar | `darker_bg`, `on_elevation_bg`, `shadow` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ElevationIndex` | Varyantlar | `EditorSurface`, `ElevatedSurface`, `ModalSurface` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
 
 `crates/ui/src/styles/elevation.rs` içindeki `ElevationIndex`, bir yüzeyin görsel "z-axis" konumunu anlatır. Doğru elevation seçtiğinde shadow, background ve border kombinasyonu birlikte gelir. Böylece her popover, modal veya panel için aynı görsel ayrıntıları elden ayarlaman gerekmez.
 
@@ -232,6 +247,13 @@ Bu trait'leri ne zaman doğrudan düşünmezsin? Sadece hazır bir `Button`, `Li
 
 ## Platform stili (`PlatformStyle`)
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `PlatformStyle` | Varyantlar | `Mac` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+
+
 `crates/ui/src/styles/platform.rs` içindeki `PlatformStyle`, işletim sistemine bağlı render kararlarını tek bir yerde toplamak için kullanırsın. `cfg!` makrolarını veya platform tespitini her bileşene dağıtmak yerine, platforma göre değişen davranışları bu enum üzerinden ifade edersin.
 
 - Değerler: `Mac`, `Linux`, `Windows`.
@@ -241,6 +263,14 @@ Bu trait'leri ne zaman doğrudan düşünmezsin? Sadece hazır bir `Button`, `Li
 Platforma özel bir davranış kurarken `cfg!` makrolarını her yerde tekrar etmek yerine, `PlatformStyle::platform()` dönüş değerini tek bir noktada saklaman önerilir. Bu yaklaşım testlerde bu değeri override etmeyi de kolaylaştırır.
 
 ## Tipografi yardımcıları (`StyledTypography`, `TextSize`)
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `StyledTypography` | Trait üyeleri | `font_buffer`, `font_ui`, `text_buffer`, `text_ui`, `text_ui_lg`, `text_ui_size`, `text_ui_sm`, `text_ui_xs` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `TextSize` | Metotlar | `pixels`, `rems` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 `crates/ui/src/styles/typography.rs`, `Headline` ve `Label` dışında düz `div()` üzerine de tema tutarlı tipografi uygulamak için `StyledTypography` trait'ini sağlar. `Styled` implement eden her tip otomatik olarak bu trait'i de devralır; ayrıca derive veya impl yazman gerekmez.
 
@@ -285,6 +315,13 @@ Viewport birimleri için `vw(percent)` ve `vh(percent)` yardımcıları vardır.
 | `DefaultAnimations` | `animate_in`, `animate_in_from_bottom`, `animate_in_from_top`, `animate_in_from_left`, `animate_in_from_right` | Styled elementlere standart giriş animasyonları ekler. |
 
 ## `CommonAnimationExt` ve transform kısıtı
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `CommonAnimationExt` | Trait üyeleri | `with_keyed_rotate_animation`, `with_rotate_animation` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
 
 `crates/ui/src/traits/transformable.rs` içindeki `Transformable`, kaynakta `pub trait` olarak görünür; ancak `ui.rs` tarafından crate köküne re-export edilmez ve `ui::prelude::*` içinde de bulunmaz. Bu yüzden tüketici kodu için sabit çağrı yüzeyi `.transform(...)` değildir; doğrudan bu metodu çağırmaya çalışmak crate sınırında trait'i import edememekle sonuçlanır.
 

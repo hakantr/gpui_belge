@@ -136,6 +136,14 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## Application ve App Yaşam Döngüsü
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `App` | Metotlar 1 | `compositor_name`, `cursor_hide_mode`, `default_global`, `focus_handle`, `global_mut`, `has_global`, `is_cursor_visible`, `keyboard_layout`, `keyboard_mapper`, `notify`, `observe_global`, `observe_new`, `quit`, `remove_global` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `App` | Metotlar 2 | `restart`, `set_cursor_hide_mode`, `set_quit_mode`, `set_restart_path`, `shutdown`, `thermal_state`, `window_appearance` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 `Application`, GPUI runtime'ını başlatan dış kabuktur. `App` ise runtime başladıktan sonra tüm callback'lerde dolaşan canlı uygulama bağlamıdır. Bu ayrım önemlidir: platform, asset source, HTTP client ve quit davranışı gibi kurulum kararlarını `Application` üzerinde verirsin; açık pencere, global state, action registry, clipboard, credential ve observer gibi çalışma zamanı kararlarını `App` üzerinde yönetirsin.
 
 `Application` builder zinciri şu sırayla okunur:
@@ -179,6 +187,13 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## `Context<T>` Üzerindeki Entity Merkezli Yüzey
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Context` | Metotlar | `on_action`, `on_app_quit`, `on_app_restart` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 `Context<T>` bir `Entity<T>` güncellenirken kullanılan bağlamdır. `Context<'a, T>: Deref<Target = App>` olduğu için `App` metotlarına da erişirsin; fakat `Context<T>`'nin asıl değeri, o entity'ye özel kimlik, bildirim, event, observer ve task yardımcılarını taşımasıdır.
 
 | API ailesi | Metotlar | Davranış |
@@ -212,6 +227,14 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 `LeakDetector`, `handle_created`, `handle_released`, `snapshot`, `assert_released` ve `assert_no_new_leaks` ile entity handle yaşamını takip eder. Bu aile, "state gerçekten elden çıktı mı?" sorusunun test cevabıdır. Kullanıcıya görünen davranışı değiştirmek için değil, sahiplik hatasını erken yakalamak için kullanılır.
 
 ## AsyncApp ve AsyncWindowContext
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `AsyncApp` | Metotlar | `has_global` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `AsyncWindowContext` | Metotlar | `on_next_frame`, `prompt`, `window_handle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 `AsyncApp`, `App::spawn(...)` içinde verilen ve `await` noktaları boyunca taşınabilen bağlamdır. `AsyncWindowContext` aynı fikri pencereye bağlı işler için genişletir. Bu iki tipteki kritik fark şudur: synchronous `Context<T>` anlık ve ödünç alınmış App/Window erişimi verir; async bağlam ise her erişimde canlılık varsayımını yeniden kurar.
 

@@ -15,6 +15,13 @@ Bu kontrollerin hepsi için ortak kural şudur: görsel durum ile uygulama durum
 
 ## Checkbox
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Checkbox` | Metotlar | `container_size`, `fill`, `label`, `label_color`, `label_size`, `new`, `on_click`, `on_click_ext`, `placeholder`, `style`, `tooltip`, `visualization_only` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/toggle.rs`
@@ -90,6 +97,13 @@ Dikkat edeceğin noktalar:
 
 ## Switch
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Switch` | Metotlar | `full_width`, `key_binding`, `label`, `label_position`, `label_size`, `new`, `on_click`, `tab_index` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
+
 Kaynak:
 
 - Tanım: `../zed/crates/ui/src/components/toggle.rs`
@@ -153,6 +167,13 @@ Dikkat edeceğin noktalar:
 - Disabled bir switch, dış container'da pointer cursor'ı tamamen kaldırmaz. Kullanıcıya neden disabled olduğunu anlatmak gerekiyorsa satıra kısa bir açıklama veya tooltip eklemek bu boşluğu kapatır.
 
 ## SwitchField
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `SwitchField` | Metotlar | `description`, `tab_index`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 
@@ -240,6 +261,13 @@ Form ve toggle yardımcı API'leri:
 | `SwitchLabelPosition` | Switch label'ının `Start` veya `End` tarafında duracağını seçer. |
 
 ## InputField (`ui_input`)
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `InputField` | Metotlar | `is_empty`, `label`, `label_min_width`, `label_size`, `masked`, `start_icon`, `tab_index`, `tab_stop` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 Kaynak:
 

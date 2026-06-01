@@ -1,5 +1,15 @@
 # Uygulama ve Platform
 
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Platform` | Trait üyeleri 1 | `activate`, `active_window`, `add_recent_document`, `app_path`, `background_executor`, `button_layout`, `can_select_mixed_files_and_dirs`, `compositor_name`, `delete_credentials`, `displays`, `foreground_executor`, `get_menus`, `hide`, `hide_other_apps` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Platform` | Trait üyeleri 2 | `is_cursor_visible`, `is_screen_capture_supported`, `keyboard_layout`, `keyboard_mapper`, `on_app_menu_action`, `on_keyboard_layout_change`, `on_open_urls`, `on_quit`, `on_reopen`, `on_thermal_state_change`, `on_validate_app_menu_command`, `on_will_open_app_menu`, `open_url`, `open_window` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Platform` | Trait üyeleri 3 | `open_with_system`, `path_for_auxiliary_executable`, `perform_dock_menu_action`, `primary_display`, `prompt_for_new_path`, `prompt_for_paths`, `quit`, `read_credentials`, `read_from_clipboard`, `read_from_find_pasteboard`, `register_url_scheme`, `restart`, `reveal_path`, `run` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Platform` | Trait üyeleri 4 | `screen_capture_sources`, `set_cursor_style`, `set_dock_menu`, `set_menus`, `should_auto_hide_scrollbars`, `thermal_state`, `unhide_other_apps`, `update_jump_list`, `window_appearance`, `window_stack`, `write_credentials`, `write_to_clipboard`, `write_to_find_pasteboard` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+
+
 ---
 
 ## İçindekiler
@@ -50,6 +60,13 @@ fn main() {
 Görsel olmayan senaryolar için ayrı bir başlatıcı vardır: `gpui_platform::headless()`, test ve başsız (`headless`) çalıştırma için pencere açmayan bir platform üretir. Test desteği gerektiğinde `gpui_platform::current_headless_renderer()` çağırırsın; şu anda yalnızca macOS'ta Metal başsız çizim aracı döner, diğer hedeflerde `None` gelir.
 
 ## Application Yaşam Döngüsü ve Platform Olayları
+
+**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
+
+| Konu | Grup | API | Not |
+|---|---|---|---|
+| `Application` | Metotlar | `new_inaccessible` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+
 
 `Application`, GPUI çalışmaya başlamadan önce kullandığın builder katmanıdır. Asset kaynağı, HTTP istemcisi ve çıkış politikası gibi süreç ömrü boyunca geçerli ayarları burada kurarsın. Tipik kurulum şöyle:
 
