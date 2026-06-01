@@ -655,3 +655,67 @@ Layer shell ayarları, compositor'a yüzeyin nerede ve nasıl davranacağını a
 Bu API yalnızca `#[cfg(all(target_os = "linux", feature = "wayland"))]` altında mevcuttur. Compositor protokolü desteklemediğinde arka uç `LayerShellNotSupportedError` döndürür; bu durumda normal uygulama penceresine düşen bir yedek akış planlaman gerekir.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `WindowDecorations`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Client`, `Server` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `Decorations`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Client`, `Server` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `Tiling`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_tiled`, `tiled` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `bottom`, `left`, `right`, `top` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WindowBounds`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Fullscreen`, `Maximized`, `Windowed` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `centered`, `get_bounds` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `FocusId`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `contains_focused`, `is_focused`, `within_focused` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `WeakFocusHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `upgrade` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `Focusable`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `focus_handle` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `HitboxId`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_hovered`, `should_handle_scroll` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `TooltipId`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_hovered` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

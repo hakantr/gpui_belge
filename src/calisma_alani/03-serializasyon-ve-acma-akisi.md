@@ -247,3 +247,103 @@ Collab ve follow akışı için `FollowableItem` kullanırsın:
 - `serialized_item_kind` global bir namespace gibidir; başka item ile çakıştırılmamalıdır.
 - Search match tipi byte offset, buffer snapshot ve token ile uyumlu tutulmalıdır; bayat match'in yeni buffer üzerinde kullanılması yanlış aralığa gider.
 - `OpenOptions::visible = None` varsayılan olarak çalışma alanına görünür worktree ekleme anlamı taşımaz; path açma davranışı dizin/dosya ayrımı için açıkça seçmen gerekir.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `SerializableItemHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `serialize`, `serialized_item_kind`, `should_serialize` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ProjectItemKind`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Dedup`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `KeepExisting`, `ReplaceExisting` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `Open`
+
+| Grup | API | Not |
+|---|---|---|
+| Assoc const | `DEFAULT` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar | `create_new_window` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `OpenTerminal`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `local`, `working_directory` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WorkspaceId`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `from_i64` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ActiveWorktreeCreation`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `is_switch`, `label` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PreviousWorkspaceState`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `active_file_path`, `dock_structure`, `focused_dock`, `open_file_paths` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ViewId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `creator`, `id` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AutoWatch`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Active`, `Off`, `Paused` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `enabled` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `OpenMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Activate`, `Add`, `NewWindow` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `WorkspaceHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `file_project_paths` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `WorkspaceMatching`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `MatchExact`, `MatchSubdirectory`, `None` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `OpenResult`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `opened_items`, `window`, `workspace` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WorkspacePosition`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `centered_layout`, `display`, `window_bounds` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

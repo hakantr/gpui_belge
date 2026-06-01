@@ -808,3 +808,60 @@ fn render_contextual_file_row() -> impl IntoElement {
         })
 }
 ```
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `IndentGuideColors`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `panel` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `active`, `default`, `hover` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RenderIndentGuideParams`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `indent_guides`, `indent_size`, `item_height` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RenderedIndentGuide`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `hitbox`, `is_active`, `layout` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IndentGuideLayout`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `continues_offscreen`, `length`, `offset` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `EmptyMessage`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Element`, `Text` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ListItemSpacing`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dense`, `ExtraDense`, `Sparse` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `StickyCandidate`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `depth` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `StickyItemsDecoration`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `compute` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+<!-- phase14-api-anchor:end -->

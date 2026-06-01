@@ -302,3 +302,29 @@ pub struct ThemeFamily {
 ```
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `FontSize`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ThemeNotFoundError`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IconThemeNotFoundError`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

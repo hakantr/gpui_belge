@@ -246,3 +246,75 @@ Linux/Windows tarafındaki `screen-capture` özelliği açıkken `gpui::platform
 - UI testlerinde gerçek bir platform penceresi açmak yerine `TestAppContext`, `VisualTestContext` veya çizim aracı fabrikası verilen `HeadlessAppContext` tercih edersin; böylece testler CI ortamlarında ekran olmadan da çalışır.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `QuitMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Default`, `Explicit`, `LastWindowClosed` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `CursorHideMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Never`, `OnTyping`, `OnTypingAndAction` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `EntityInputHandler`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `accepts_text_input`, `bounds_for_range`, `character_index_for_point`, `marked_text_range`, `replace_and_mark_text_in_range`, `replace_text_in_range`, `selected_text_range`, `text_for_range` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `unmark_text` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ElementInputHandler`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ScreenCaptureSource`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `metadata`, `stream` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ScreenCaptureStream`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `metadata` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ScreenCaptureFrame`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PlatformWindow`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds`, `activate`, `appearance`, `background_appearance`, `bounds`, `capslock` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `completed_frame`, `content_size`, `display`, `draw`, `get_title`, `gpu_specs`, `inner_window_bounds`, `is_active` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 3 | `is_fullscreen`, `is_hovered`, `is_maximized`, `is_subpixel_rendering_supported`, `map_window`, `merge_all_windows`, `minimize`, `modifiers` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 4 | `mouse_position`, `move_tab_to_new_window`, `on_active_status_change`, `on_appearance_changed`, `on_button_layout_changed`, `on_close`, `on_hit_test_window_control`, `on_hover_status_change` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 5 | `on_input`, `on_merge_all_windows`, `on_move_tab_to_new_window`, `on_moved`, `on_request_frame`, `on_resize`, `on_select_next_tab`, `on_select_previous_tab` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 6 | `on_should_close`, `on_toggle_tab_bar`, `play_system_bell`, `prompt`, `request_decorations`, `resize`, `scale_factor`, `set_app_id` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 7 | `set_background_appearance`, `set_client_inset`, `set_document_path`, `set_edited`, `set_input_handler`, `set_tabbing_identifier`, `set_title`, `set_traffic_light_position` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 8 | `show_character_palette`, `show_window_menu`, `sprite_atlas`, `start_window_move`, `start_window_resize`, `tab_bar_visible`, `tabbed_windows`, `take_input_handler` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 9 | `titlebar_double_click`, `toggle_fullscreen`, `toggle_window_tab_overview`, `update_ime_position`, `window_bounds`, `window_controls`, `window_decorations`, `zoom` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `InputHandler`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `accepts_text_input`, `apple_press_and_hold_enabled`, `bounds_for_range`, `character_index_for_point`, `marked_text_range`, `prefers_ime_for_printable_keys`, `replace_and_mark_text_in_range`, `replace_text_in_range` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `selected_text_range`, `text_for_range`, `unmark_text` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+<!-- phase14-api-anchor:end -->

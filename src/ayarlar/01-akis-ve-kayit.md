@@ -196,3 +196,357 @@ Akış ve kayıt tarafında karşılaşılan tipik hatalar:
 - `register_setting` `SettingsStore::new` içinde derleme zamanı kayıt listesini tek seferde okur; runtime'da bir tipi geç kaydetmek istendiğinde `Settings::register(cx)` çağrılmalıdır.
 - Yeni ayar eklenirken `settings_content` schema'sı güncellenmelidir; aksi halde JSON schema doğrulaması yeni alanı tanımaz.
 - `override_global` kalıcılaştırılmaz; dosyaya yazmak için `update_settings_file` yardımcısı kullanırsın.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `ActiveSettingsProfileName`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SettingsKey`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait assoc const | `FALLBACK_KEY`, `KEY` | Trait sözleşmesinin public ilişkili sabitleridir. |
+
+### `SettingsLocation`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `path`, `worktree_id` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SettingsFile`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Default`, `Global`, `Project`, `Server`, `User` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `SettingsParseResult`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `expect`, `ok`, `parse_error`, `requires_user_action`, `result`, `unwrap` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `migration_status`, `parse_status` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CursorShape`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Bar`, `Block`, `Hollow`, `Underline` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ExtensionSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `auto_install_extensions`, `auto_update_extensions`, `granted_extension_capabilities` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ExtensionCapabilityContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `DownloadFile`, `NpmInstallPackage`, `ProcessExec` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `HideMouseMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Never`, `OnTyping`, `OnTypingAndAction` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `InstrumentationSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `performance_profiler` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PerformanceProfilerSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `enabled` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FeatureFlagsMap`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ReleaseChannelOverrides`
+
+| Grup | API | Not |
+|---|---|---|
+| Assoc const | `OVERRIDE_KEYS` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Metotlar | `get_by_key` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `dev`, `nightly`, `preview`, `stable` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PlatformOverrides`
+
+| Grup | API | Not |
+|---|---|---|
+| Assoc const | `OVERRIDE_KEYS` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Metotlar | `get_by_key` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `linux`, `macos`, `windows` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ProfileBase`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Default`, `User` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ExtensionsSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `all_languages` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AudioSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `auto_microphone_volume`, `input_audio_device`, `output_audio_device` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AudioOutputDeviceName`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AudioInputDeviceName`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TelemetrySettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `diagnostics`, `metrics` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DebuggerSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `button`, `dock`, `format_dap_log_messages`, `log_dap_communications`, `save_breakpoints`, `stepping_granularity`, `timeout` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SteppingGranularity`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Instruction`, `Line`, `Statement` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `DockPosition`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Bottom`, `Left`, `Right` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `CallSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `mute_on_join`, `share_on_join` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `GitPanelSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `button`, `collapse_untracked_diff`, `commit_title_max_length`, `default_width`, `diff_stats`, `dock`, `fallback_branch_name`, `file_icons` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `folder_icons`, `scrollbar`, `show_count_badge`, `sort_by_path`, `starts_open`, `status_style`, `tree_view` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `StatusStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Icon`, `LabelColor` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ScrollbarSettings`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `show` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PanelSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `button`, `default_width`, `dock` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `MessageEditorSettings`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `auto_replace_emoji_shortcode` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FileFinderSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `file_icons`, `include_channels`, `include_ignored`, `modal_max_width`, `skip_focus_for_active_in_search` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IncludeIgnoredContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `All`, `Indexed`, `Smart` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `FileFinderWidthContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Full`, `Large`, `Medium`, `Small`, `XLarge` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `VimSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `cursor_shape`, `custom_digraphs`, `default_mode`, `gdefault`, `highlight_on_yank_duration`, `show_edit_predictions_in_normal_mode`, `toggle_relative_line_numbers`, `use_regex_search` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `use_smartcase_find`, `use_system_clipboard` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ModeContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Insert`, `Normal` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `UseSystemClipboard`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Always`, `Never`, `OnYank` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `VimInsertModeCursorShape`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Bar`, `Block`, `Hollow`, `Inherit`, `Underline` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `CursorShapeSettings`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `insert`, `normal`, `replace`, `visual` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `JournalSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `hour_format`, `path` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `HourFormat`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Hour12`, `Hour24` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `OutlinePanelSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `auto_fold_dirs`, `auto_reveal_entries`, `button`, `default_width`, `dock`, `expand_outlines_with_depth`, `file_icons`, `folder_icons` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `git_status`, `indent_guides`, `indent_size`, `scrollbar` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DockSide`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Left`, `Right` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ShowIndentGuides`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Always`, `Never` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `IndentGuidesSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `show` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `LineIndicatorFormat`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Long`, `Short` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ImageViewerSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `unit` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ImageFileSizeUnit`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Binary`, `Decimal` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `RemoteSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `dev_container_connections`, `read_ssh_config`, `ssh_connections`, `use_podman`, `wsl_connections` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DevContainerConnection`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `container_id`, `extension_ids`, `name`, `remote_env`, `remote_user`, `use_podman` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SshConnection`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `args`, `connection_timeout`, `host`, `nickname`, `port`, `port_forwards`, `projects`, `upload_binary_over_ssh` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `username` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WslConnection`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `distro_name`, `projects`, `user` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RemoteProject`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `paths` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SshPortForwardOption`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `local_host`, `local_port`, `remote_host`, `remote_port` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ReplSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `inline_output`, `inline_output_max_length`, `max_columns`, `max_lines`, `output_max_height_lines` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WhichKeySettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `delay_ms`, `enabled` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DelayMs`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WindowButtonLayoutContentDiscriminants`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Custom`, `PlatformDefault`, `Standard` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `from_repr` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

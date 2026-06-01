@@ -848,3 +848,37 @@ Dikkat edeceğin noktalar:
 - `format_distance_from_now(...)` çağrısı anlık `Local::now()` okur. Deterministik test veya snapshot üretirken `FormatDistance::new(date, base_date)` daha kontrollüdür.
 - `SearchInputWidth::calc_width(...)` yalnız genişlik hesabı yapar; input'u kendisi render etmez.
 - `TRAFFIC_LIGHT_PADDING` platform cfg'sine bağlıdır. Title bar dışı genel padding için kullanılmamalıdır.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `DividerColor`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Border`, `BorderFaded`, `BorderVariant` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `hsla` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `Key`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new`, `size` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `KeyIcon`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new`, `size` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `NavigableEntry`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `focusable`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `focus_handle`, `scroll_anchor` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

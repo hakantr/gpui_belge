@@ -618,3 +618,95 @@ deferred(
 - Öncelik değeri global bir z-index değildir; yalnızca aynı pencere ekran karesi içindeki ertelenmiş kuyruk için geçerlidir.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `PointRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `x`, `y` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SizeRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `height`, `width` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `BoundsRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `origin`, `size` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `EdgesRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `bottom`, `left`, `right`, `top` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CornersRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `bottom_left`, `bottom_right`, `top_left`, `top_right` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `GridTemplateRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `min_size`, `repeat` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TextStyleRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar 1 | `background_color`, `color`, `font_fallbacks`, `font_family`, `font_features`, `font_size`, `font_style`, `font_weight` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `line_clamp`, `line_height`, `strikethrough`, `text_align`, `text_overflow`, `underline`, `white_space` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TextStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `font`, `highlight`, `line_height_in_pixels`, `to_run` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar 1 | `background_color`, `color`, `font_fallbacks`, `font_family`, `font_features`, `font_size`, `font_style`, `font_weight` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `line_clamp`, `line_height`, `strikethrough`, `text_align`, `text_overflow`, `underline`, `white_space` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `UnderlineStyleRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `color`, `thickness`, `wavy` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `UnderlineStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `color`, `thickness`, `wavy` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `StrikethroughStyleRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `color`, `thickness` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `StrikethroughStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `color`, `thickness` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

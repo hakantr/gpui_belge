@@ -115,3 +115,111 @@
 - Dock değiştiren ayar gözlemcilerinde panel taşınırken boyut durumu ekseni değişiyorsa sıfırlanabilir; bu mevcut `Dock::add_panel`/ayar gözlemci akışında zaten yaparsın.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `PanelEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Activate`, `Close`, `ZoomIn`, `ZoomOut` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `PanelHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `activation_priority`, `default_size`, `enabled`, `has_flexible_size`, `hide_button_setting`, `icon`, `icon_label`, `icon_tooltip` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `initial_size_state`, `is_agent_panel`, `is_zoomed`, `min_size`, `move_to_next_position`, `pane`, `panel_focus_handle`, `panel_id` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 3 | `panel_key`, `persistent_name`, `position`, `position_is_valid`, `remote_id`, `set_active`, `set_flexible_size`, `set_position` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 4 | `set_zoomed`, `size_state_changed`, `supports_flexible_size`, `to_any`, `toggle_action` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `DockPosition`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Bottom`, `Left`, `Right` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `axis` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `PanelSizeState`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `flex`, `size` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PanelButtons`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `PaneRenderResult`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `contains_active_pane`, `element` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PaneRenderContext`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `active_call`, `active_pane`, `app_state`, `follower_states`, `project`, `workspace` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PaneLeaderDecorator`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `active_pane`, `decorate`, `workspace` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ActivePaneDecorator`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `IncreaseActiveDockSize`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `px` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DecreaseActiveDockSize`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `px` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IncreaseOpenDocksSize`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `px` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DecreaseOpenDocksSize`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `px` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ActivePanelModifiers`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `border_size`, `inactive_opacity` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TabBarSettings`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `show`, `show_nav_history_buttons`, `show_pinned_tabs_in_separate_row`, `show_tab_bar_buttons` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `StatusBarSettings`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `active_encoding_button`, `active_language_button`, `cursor_position_button`, `line_endings_button`, `show`, `show_active_file` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

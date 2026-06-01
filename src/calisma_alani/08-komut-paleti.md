@@ -168,3 +168,35 @@ Filter ve interceptor kullanımında karşılaşılan yaygın sorunlar:
 - `hide_action_types` ile gizlenen tipin kaydedilmiş olması gerekir; aksi halde filtreye eklenmesine rağmen komut paleti listesinde zaten görünmez.
 - `Interceptor::set` mevcut interceptor'ı ezer; çoklu kaynak gerektiğinde zincirin kendi kodunda kurman gerekir (örneğin önce Vim, başarısızsa AI agent gibi).
 - `CommandInterceptResult::exclusive = true` yoğun şekilde kullanıldığında kullanıcı normal action listesinden komutlara ulaşamaz; gerçekten "tek doğru sonuç var" durumunda ayarlanır.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `CommandPalette`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `set_query`, `toggle` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `CommandInterceptItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `action`, `positions`, `string` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CommandInterceptResult`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `exclusive`, `results` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `GlobalCommandPaletteInterceptor`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `clear`, `intercept`, `set` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

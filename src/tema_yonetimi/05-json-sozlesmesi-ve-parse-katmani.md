@@ -1197,3 +1197,133 @@ Tek satırlık bir helper gibi görünür, ama birkaç pratik faydası vardır:
 - Parser ayrıntısı helper içinde kaldığı için tüketici crate'ler doğrudan `serde_json_lenient` API'sine bağlanmaz.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `RootUserSettings`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `parse_json`, `parse_json_with_comments` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `UserSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `content`, `platform_overrides`, `profiles`, `release_channel_overrides` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ThemeStyleContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `accents`, `colors`, `players`, `status`, `syntax`, `window_background_appearance` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AccentContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PlayerColorContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `background`, `cursor`, `selection` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ThemeColorsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `background`, `border`, `border_disabled`, `border_focused`, `border_selected`, `border_transparent`, `border_variant`, `debugger_accent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `deprecated_scrollbar_thumb_background`, `drop_target_background`, `drop_target_border`, `editor_active_line_background`, `editor_active_line_number`, `editor_active_wrap_guide`, `editor_background`, `editor_debugger_active_line_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 3 | `editor_diff_hunk_added_background`, `editor_diff_hunk_added_hollow_background`, `editor_diff_hunk_added_hollow_border`, `editor_diff_hunk_deleted_background`, `editor_diff_hunk_deleted_hollow_background`, `editor_diff_hunk_deleted_hollow_border`, `editor_document_highlight_bracket_background`, `editor_document_highlight_read_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 4 | `editor_document_highlight_write_background`, `editor_foreground`, `editor_gutter_background`, `editor_highlighted_line_background`, `editor_hover_line_number`, `editor_indent_guide`, `editor_indent_guide_active`, `editor_invisible` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 5 | `editor_line_number`, `editor_subheader_background`, `editor_wrap_guide`, `element_active`, `element_background`, `element_disabled`, `element_hover`, `element_selected` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 6 | `element_selection_background`, `elevated_surface_background`, `ghost_element_active`, `ghost_element_background`, `ghost_element_disabled`, `ghost_element_hover`, `ghost_element_selected`, `icon` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 7 | `icon_accent`, `icon_disabled`, `icon_muted`, `icon_placeholder`, `link_text_hover`, `minimap_thumb_active_background`, `minimap_thumb_background`, `minimap_thumb_border` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 8 | `minimap_thumb_hover_background`, `pane_focused_border`, `pane_group_border`, `panel_background`, `panel_focused_border`, `panel_indent_guide`, `panel_indent_guide_active`, `panel_indent_guide_hover` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 9 | `panel_overlay_background`, `panel_overlay_hover`, `scrollbar_thumb_active_background`, `scrollbar_thumb_background`, `scrollbar_thumb_border`, `scrollbar_thumb_hover_background`, `scrollbar_track_background`, `scrollbar_track_border` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 10 | `search_active_match_background`, `search_match_background`, `status_bar_background`, `surface_background`, `tab_active_background`, `tab_bar_background`, `tab_inactive_background`, `terminal_ansi_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 11 | `terminal_ansi_black`, `terminal_ansi_blue`, `terminal_ansi_bright_black`, `terminal_ansi_bright_blue`, `terminal_ansi_bright_cyan`, `terminal_ansi_bright_green`, `terminal_ansi_bright_magenta`, `terminal_ansi_bright_red` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 12 | `terminal_ansi_bright_white`, `terminal_ansi_bright_yellow`, `terminal_ansi_cyan`, `terminal_ansi_dim_black`, `terminal_ansi_dim_blue`, `terminal_ansi_dim_cyan`, `terminal_ansi_dim_green`, `terminal_ansi_dim_magenta` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 13 | `terminal_ansi_dim_red`, `terminal_ansi_dim_white`, `terminal_ansi_dim_yellow`, `terminal_ansi_green`, `terminal_ansi_magenta`, `terminal_ansi_red`, `terminal_ansi_white`, `terminal_ansi_yellow` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 14 | `terminal_background`, `terminal_bright_foreground`, `terminal_dim_foreground`, `terminal_foreground`, `text`, `text_accent`, `text_disabled`, `text_muted` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 15 | `text_placeholder`, `title_bar_background`, `title_bar_inactive_background`, `toolbar_background`, `version_control_added`, `version_control_conflict`, `version_control_conflict_marker_ours`, `version_control_conflict_marker_theirs` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 16 | `version_control_conflict_ours_background`, `version_control_conflict_theirs_background`, `version_control_deleted`, `version_control_ignored`, `version_control_modified`, `version_control_renamed`, `version_control_word_added`, `version_control_word_deleted` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 17 | `vim_helix_jump_label_foreground`, `vim_helix_normal_background`, `vim_helix_normal_foreground`, `vim_helix_select_background`, `vim_helix_select_foreground`, `vim_insert_background`, `vim_insert_foreground`, `vim_normal_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 18 | `vim_normal_foreground`, `vim_replace_background`, `vim_replace_foreground`, `vim_visual_background`, `vim_visual_block_background`, `vim_visual_block_foreground`, `vim_visual_foreground`, `vim_visual_line_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 19 | `vim_visual_line_foreground`, `vim_yank_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `HighlightStyleContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_empty` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `background_color`, `color`, `font_style`, `font_weight` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `StatusColorsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `conflict`, `conflict_background`, `conflict_border`, `created`, `created_background`, `created_border`, `deleted`, `deleted_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `deleted_border`, `error`, `error_background`, `error_border`, `hidden`, `hidden_background`, `hidden_border`, `hint` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 3 | `hint_background`, `hint_border`, `ignored`, `ignored_background`, `ignored_border`, `info`, `info_background`, `info_border` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 4 | `modified`, `modified_background`, `modified_border`, `predictive`, `predictive_background`, `predictive_border`, `renamed`, `renamed_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 5 | `renamed_border`, `success`, `success_background`, `success_border`, `unreachable`, `unreachable_background`, `unreachable_border`, `warning` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 6 | `warning_background`, `warning_border` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WindowBackgroundContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Blurred`, `Opaque`, `Transparent` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `FontStyleContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Italic`, `Normal`, `Oblique` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `FontWeightContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Assoc const 1 | `BLACK`, `BOLD`, `EXTRA_BOLD`, `EXTRA_LIGHT`, `LIGHT`, `MEDIUM`, `NORMAL`, `SEMIBOLD` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Assoc const 2 | `THIN` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IconThemeContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `appearance`, `chevron_icons`, `directory_icons`, `file_icons`, `file_stems`, `file_suffixes`, `name`, `named_directory_icons` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DirectoryIconsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `collapsed`, `expanded` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ChevronIconsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `collapsed`, `expanded` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IconDefinitionContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `path` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AppearanceContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dark`, `Light` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

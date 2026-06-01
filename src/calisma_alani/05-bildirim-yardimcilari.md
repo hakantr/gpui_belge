@@ -60,3 +60,44 @@ Bildirim yardımcılarında atlanan noktalar:
 - `detach_and_log_err` yalnızca loglar; kullanıcıya görünür bir hata isteniyorsa çalışma alanı notification veya prompt yardımcılarından biri tercih edersin.
 - `show_app_notification` aynı id ile birden fazla çalışma alanında gösterim yapabilir; id `NotificationId::named` veya `composite` ile bilinçli seçmen gerekir.
 - `MessageNotification` tıklama işleyicileri `Window` ve `App` alır; çalışma alanı durumu gerekiyorsa weak çalışma alanı veya entity yakalanır ve düşmüş olma ihtimali ele alırsın.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `NotificationFrame`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new`, `on_close`, `show_close_button`, `show_suppress_button`, `with_content`, `with_suffix`, `with_title` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `MessageNotification`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `dismiss`, `more_info_message`, `more_info_url`, `new`, `new_from_builder`, `primary_icon`, `primary_icon_color`, `primary_message` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `primary_on_click`, `primary_on_click_arc`, `secondary_icon`, `secondary_icon_color`, `secondary_message`, `secondary_on_click`, `secondary_on_click_arc`, `show_close_button` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 3 | `show_suppress_button`, `with_title` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `NotifyResultExt`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait assoc type | `Ok` | Trait sözleşmesinin public ilişkili tipleridir. |
+| Trait metotları | `notify_app_err`, `notify_err`, `notify_workspace_async_err` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `NotifyTaskExt`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `detach_and_notify_err` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `DetachAndPromptErr`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `detach_and_prompt_err`, `prompt_err` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+<!-- phase14-api-anchor:end -->

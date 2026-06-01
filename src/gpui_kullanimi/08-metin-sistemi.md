@@ -211,3 +211,17 @@ Shift+tıklama artık seçimi genişletir: mevcut seçimin kuyruğunu sabit tuta
 `Markdown::first_code_block_language()` belgedeki ilk fenced kod bloğunun `Arc<Language>`'ini döndürür. Özellikle içeriği bir dil sunucusuna yönlendirecek veya sözdizim vurgusu uygulayacak kod için hangi dilin aktif olduğunu hızlıca öğrenirken kullanılır.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `TextRun`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `background_color`, `color`, `font`, `len`, `strikethrough`, `underline` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

@@ -967,3 +967,122 @@ impl Render for Toolbar {
 > **JSON anahtarı `"unstable.ui_density"`'dir** (`settings_content/src/theme.rs:166`). `ThemeSettingsContent.ui_density` alanı `#[serde(rename = "unstable.ui_density")]` ile işaretlenir. Düz bir `"ui_density"` anahtarı **tanınmaz**, parse aşamasında `None` kalır ve default değer (`UiDensity::Default`) etkin olur. Mirror tarafta aynı rename konulmalıdır; çünkü hedeflenen Zed sözleşmesinde geçerli anahtar budur. `"ui_density"` gibi alternatif anahtarlar desteklenmez.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `EditorSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `auto_signature_help`, `autoscroll_on_clicks`, `code_lens`, `completion_detail_alignment`, `completion_menu_item_kind`, `completion_menu_scrollbar`, `current_line_highlight`, `cursor_blink` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `cursor_shape`, `diagnostics_max_severity`, `diff_view_style`, `double_click_in_multibuffer`, `drag_and_drop_selection`, `excerpt_context_lines`, `expand_excerpt_lines`, `fast_scroll_sensitivity` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 3 | `go_to_definition_fallback`, `go_to_definition_scroll_strategy`, `gutter`, `horizontal_scroll_margin`, `hover_popover_delay`, `hover_popover_enabled`, `hover_popover_hiding_delay`, `hover_popover_sticky` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 4 | `inline_code_actions`, `jupyter`, `lsp_document_colors`, `lsp_document_links`, `lsp_highlight_debounce`, `middle_click_paste`, `minimap`, `minimum_contrast_for_highlights` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 5 | `minimum_split_diff_width`, `mouse_wheel_zoom`, `multi_cursor_modifier`, `redact_private_values`, `relative_line_numbers`, `rounded_selection`, `scroll_beyond_last_line`, `scroll_sensitivity` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 6 | `scrollbar`, `search`, `search_wrap`, `seed_search_query_from_cursor`, `selection_highlight`, `show_signature_help_after_edits`, `snippet_sort_order`, `sticky_scroll` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 7 | `toolbar`, `use_smartcase_search`, `vertical_scroll_margin` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ModifiersContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `alt`, `control`, `function`, `platform`, `shift` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SettingsProfile`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `base`, `settings` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FontFeaturesContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ThemeSettingsContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `agent_buffer_font_size`, `agent_ui_font_size`, `buffer_font_fallbacks`, `buffer_font_family`, `buffer_font_features`, `buffer_font_size`, `buffer_font_weight`, `buffer_line_height` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `experimental_theme_overrides`, `git_commit_buffer_font_size`, `icon_theme`, `markdown_preview_code_font_family`, `markdown_preview_font_family`, `markdown_preview_theme`, `theme`, `theme_overrides` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 3 | `ui_density`, `ui_font_fallbacks`, `ui_font_family`, `ui_font_features`, `ui_font_size`, `ui_font_weight`, `unnecessary_code_fade` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CodeFade`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ThemeSelectionDiscriminants`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `from_repr` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ThemeSelection`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `IconThemeSelectionDiscriminants`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `from_repr` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `IconThemeSelection`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `FontFamilyName`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `BufferLineHeightDiscriminants`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Comfortable`, `Custom`, `Standard` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `from_repr` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `BufferLineHeight`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Comfortable`, `Custom`, `Standard` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ThemeSelection`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `mode`, `name` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `IconThemeSelection`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `mode`, `name` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `BufferLineHeight`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Comfortable`, `Custom`, `Standard` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `value` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

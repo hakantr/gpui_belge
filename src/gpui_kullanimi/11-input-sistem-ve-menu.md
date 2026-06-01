@@ -186,3 +186,101 @@ cx.set_menus(vec![
 **Tuzak.** Aynı action birden çok menü öğesine bağlandığında keymap'te tek bir kısayol gösterilir. `os_action` yalnızca macOS yerel düzenleme menüsü eşlemesini etkiler; diğer platformlarda sıradan bir action gibi davranır.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `ExternalPaths`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `paths` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PathPromptOptions`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `directories`, `files`, `multiple`, `prompt` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PromptLevel`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Critical`, `Info`, `Warning` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `PromptButton`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Cancel`, `Ok`, `Other` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `cancel`, `is_cancel`, `label`, `new`, `ok` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ClipboardItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `entries`, `into_entries`, `metadata`, `new_image`, `new_string`, `new_string_with_json_metadata`, `new_string_with_metadata`, `text` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `entries` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ClipboardEntry`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `ExternalPaths`, `Image`, `String` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `OsMenu`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `owned` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `menu_type`, `name` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SystemMenuType`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Services` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `MenuItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Action`, `Separator`, `Submenu`, `SystemMenu` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar 1 | `action`, `checked`, `disabled`, `is_checked`, `is_disabled`, `os_action`, `os_submenu`, `owned` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `separator`, `submenu` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `OwnedOsMenu`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `menu_type`, `name` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `OwnedMenu`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `disabled`, `items`, `name` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `OwnedMenuItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Action`, `Separator`, `Submenu`, `SystemMenu` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `OsAction`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Copy`, `Cut`, `Paste`, `Redo`, `SelectAll`, `Undo` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `PromptResponse`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

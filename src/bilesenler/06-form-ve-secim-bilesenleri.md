@@ -497,3 +497,42 @@ impl Render for SettingsView {
     }
 }
 ```
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `ToggleStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Custom`, `ElevationBased`, `Ghost` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `SwitchColor`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Accent`, `Custom` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `SwitchLabelPosition`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `End`, `Start` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ErasedEditor`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `as_any`, `clear`, `focus_handle`, `move_selection_to_end`, `render`, `set_masked`, `set_placeholder_text`, `set_text` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `subscribe`, `text` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ErasedEditorEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Blurred`, `BufferEdited` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

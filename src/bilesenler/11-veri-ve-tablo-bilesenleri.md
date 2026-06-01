@@ -824,3 +824,45 @@ Karar rehberi olarak şu kısa özet işe yarar:
 - Container genişliği sabit kalmalı ama kolon oranları değişmeliyse `RedistributableColumnsState` devreye girer.
 - Kolonlar mutlak genişlikte olacak ve yatay scroll oluşabilecekse `ResizableColumnsState` seçersin.
 - Header, gövde ve ek görsel bölgeler aynı kolon state'ini paylaşacaksa düşük seviyeli render ve resize helper'larına inilir.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `StaticColumnWidths`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Auto`, `Explicit` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `TableRenderContext`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `for_column_widths` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar 1 | `column_widths`, `disable_base_cell_style`, `h_scroll_handle`, `map_row`, `pinned_cols`, `show_row_borders`, `show_row_hover`, `striped` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `total_row_count`, `use_ui_font` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IntoTableRow`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `into_table_row` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `TableResizeBehavior`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `MinSize`, `None`, `Resizable` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `is_resizable`, `min_size` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `HeaderResizeInfo`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `from_redistributable`, `from_resizable`, `reset_column` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `resize_behavior` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

@@ -116,3 +116,23 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 Zed'in `crates/ui` içindeki `Button`, `Icon`, `Label`, `Modal`, `Tooltip` gibi bileşenleri bu çekirdek kavramların üstüne kuruludur. GPUI sana veri ve durum, pencere, element, kullanıcı girdisi ve çizim altyapısını verir; Zed UI ise bu altyapıyı kullanarak ürün içinde tekrar edilen hazır bileşenleri sağlar.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `AssetSource`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `list`, `load` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `RenderOnce`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `render` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+<!-- phase14-api-anchor:end -->

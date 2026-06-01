@@ -510,3 +510,88 @@ Olayları yaymak ve dinlemek için şu yöntemleri kullanırsın:
 | Fare/Tuş Olayları | Element ağacında `.on_click`, `.on_mouse_down` veya kısayol basıldığında fırlatılan UI olayları. |
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `KeyDownEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `is_held`, `keystroke`, `prefer_character_input` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `KeyUpEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `keystroke` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ModifiersChangedEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `capslock`, `modifiers` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PressureStage`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Force`, `Normal`, `Zero` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `MousePressureEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `modifiers`, `position`, `pressure`, `stage` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ClickEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Keyboard`, `Mouse` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar 1 | `click_count`, `first_focus`, `is_keyboard`, `is_middle_click`, `is_right_click`, `modifiers`, `mouse_position`, `position` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `standard_click` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `MouseButton`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Left`, `Middle`, `Navigate`, `Right` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `all` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ScrollDelta`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Lines`, `Pixels` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `coalesce`, `pixel_delta`, `precise` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `UTF16Selection`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `range`, `reversed` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AsKeystroke`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `as_keystroke` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `KeybindingKeystroke`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `from_keystroke`, `inner`, `key`, `modifiers`, `new_with_mapper`, `remove_key_char`, `set_key`, `set_modifiers` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `unparse` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `FocusOutEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `blurred` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

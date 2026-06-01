@@ -183,3 +183,35 @@ Dikkat edeceğin noktalar:
 
 - Overlap görünümünün düzgün okunması için, avatar border renginin parent background ile eşleşmesi iyi bir tercih olur.
 - Çok fazla avatarı yan yana sıkıştırmak yerine, ilk birkaç kişiyi gösterip kalan sayıyı ayrı bir göstergeyle belirtmek okunabilirliği korur.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `AudioStatus`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Deafened`, `Muted` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `AvatarAudioStatusIndicator`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new`, `tooltip` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `CollaboratorAvailability`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Busy`, `Free` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `AvatarAvailabilityIndicator`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `avatar_size`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

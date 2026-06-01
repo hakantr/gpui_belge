@@ -303,3 +303,144 @@ Item ve çalışma alanı tarafında dikkat edilmesi gereken yaygın hatalar:
 - `NotificationId::Unique(TypeId::of::<T>())` ile aynı tipte iki notification açıldığında ikincisi birincinin yerine geçer; farklı bir sub-id isteniyorsa `Composite(TypeId, ElementId)` kullanırsın.
 - `Toast` autohide süresi varsayılan değildir; uzun mesajlarda elle `dismiss_toast` çağrısı gerekebilir.
 - `ModalView::on_before_dismiss` `Pending` döndürürse modal kapanma akışı beklemeye girer; testte `run_until_parked()` ile resolve sürecinin ilerletilmesi gerekir.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `ItemEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `CloseItem`, `Edit`, `UpdateBreadcrumbs`, `UpdateTab` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `TabContentParams`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `text_color` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `deemphasized`, `detail`, `preview`, `selected` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TabTooltipContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Custom`, `Text` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ItemBufferKind`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Multibuffer`, `None`, `Singleton` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `WeakItemHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `boxed_clone`, `id`, `upgrade` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `FollowEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Unfollow` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `FollowableItemHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `add_event_to_update_proto`, `apply_update_proto`, `dedup`, `downgrade`, `is_project_item`, `remote_id`, `set_leader_id`, `to_follow_event` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `to_state_proto`, `update_agent_location` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `WeakFollowableItemHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `upgrade` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `DismissDecision`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dismiss`, `Pending` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `NotificationId`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Composite`, `Named`, `Unique` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `composite`, `named`, `unique` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `LanguageServerPrompt`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ErrorMessagePrompt`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new`, `with_link_button` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `Event`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar 1 | `ActivateItem`, `AddItem`, `ChangeItemTitle`, `Focus`, `ItemPinned`, `ItemUnpinned`, `JoinAll`, `JoinIntoNext` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Varyantlar 2 | `Remove`, `RemovedItem`, `Split`, `UserSavedItem`, `ZoomIn`, `ZoomOut` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `HideStatusItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `apply`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ToastView`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `action`, `auto_dismiss` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ToastAction`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `id`, `label`, `on_click` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ToastLayer`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `active_toast`, `clear_dismiss_timer`, `has_active_toast`, `hide_toast`, `new`, `restart_dismiss_timer`, `show_toast`, `start_dismiss_timer` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `toggle_toast` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `PaneSearchBarCallbacks`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `setup_search_bar`, `wrap_div_with_search_actions` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FollowableViewRegistry`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `from_state_proto`, `register`, `to_followable_view` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `Event`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar 1 | `Activate`, `ActiveItemChanged`, `ContactRequestedJoin`, `ItemAdded`, `ItemRemoved`, `ModalOpened`, `OpenBundledFile`, `PaneAdded` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Varyantlar 2 | `PanelAdded`, `PaneRemoved`, `UserSavedItem`, `WorkspaceCreated`, `WorktreeCreationChanged`, `ZoomChanged` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `OpenVisible`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `All`, `None`, `OnlyDirectories`, `OnlyFiles` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

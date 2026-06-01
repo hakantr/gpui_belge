@@ -137,3 +137,23 @@ Crate `Rgba` parse'ı için ayrıca renk yardımcıları içerir; importer modü
 - `VsCodeSettings::load_user_settings` aday path listesinde dosyayı bulamazsa anlaşılır bir hata mesajı üretir; bu hata `notify_app_err` ile kullanıcıya yansıtılmalıdır.
 - `import_vscode_settings` `update_settings_file` ile aynı atomic-write yolunu kullanır; yazma sırasında store'un eski user metnine sahip olduğu varsayılır. Eş zamanlı kullanıcı düzenlemeleri sırasında değişikliği reddedmek yerine önce `update_settings_file_with_completion` üzerinden bir senkron yazma tamamlanmalıdır.
 - VS Code ayarlarındaki `editor.fontFamily` gibi tek değer-çoklu fallback alanları Zed'in `buffer_font_fallbacks` listesine bölünür; tek string formatı doğrudan tek aileyi temsil eder, virgülle ayrılmış stringler bölünür.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `EditorconfigEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `ExternalConfigChanged` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `InvalidSettingsError`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Debug`, `DefaultSettings`, `Editorconfig`, `LocalSettings`, `ServerSettings`, `Tasks`, `UserSettings` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

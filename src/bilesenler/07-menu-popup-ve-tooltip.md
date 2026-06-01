@@ -610,3 +610,56 @@ fn render_toolbar_menu(window: &mut Window, cx: &mut App) -> impl IntoElement {
         )
 }
 ```
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `ContextMenuItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `CustomEntry`, `Entry`, `Header`, `HeaderWithLink`, `Label`, `Separator`, `Submenu` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `custom_entry` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ContextMenuEntry`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `action`, `custom_icon_path`, `custom_icon_svg`, `disabled`, `documentation_aside`, `handler`, `icon`, `icon_color` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `icon_position`, `icon_size`, `new`, `secondary_handler`, `toggle`, `toggleable` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `DocumentationSide`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Left`, `Right` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `DocumentationAside`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `render`, `side` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DropdownStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Ghost`, `Outlined`, `Solid`, `Subtle` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `PopoverMenuHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `hide`, `is_deployed`, `is_focused`, `refresh_menu`, `show`, `toggle` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `LinkPreview`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

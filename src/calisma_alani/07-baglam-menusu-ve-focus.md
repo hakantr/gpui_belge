@@ -120,3 +120,53 @@ Bu yardımcı katmanlarda dikkat edilmesi gerekenler:
 - Bağlam menüsü action'ları odaktaki element context'ine göre enable veya disable olur; menü odak bağlamı olmadan kurulduğunda bazı action'lar görünür ama çalışmayabilir.
 - ApplicationMenu platform menü çubuğu değildir; macOS yerel menüsü ayrı platform menü akışından gelir.
 - Focus-follows-mouse global debounce durumu kullanır; aynı anda birden çok hover hedefi yarışabilir, bu nedenle daha spesifik alt kontrol kaldırılmamalıdır.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `SaveOptions`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `autosave`, `force_format`, `format` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PreviewTabsSettings`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `enable_keep_preview_on_code_navigation`, `enable_preview_file_from_code_navigation`, `enable_preview_from_file_finder`, `enable_preview_from_multibuffer`, `enable_preview_from_project_panel`, `enable_preview_multibuffer_from_code_navigation`, `enabled` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseActiveItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `close_pinned`, `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseOtherItems`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `close_pinned`, `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseAllItems`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `close_pinned`, `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SaveAll`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Save`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

@@ -650,3 +650,60 @@ Bu test yalnızca `Theme` struct'ının kendi alanlarını doğrular. **Tüketic
 7. **Mock tema'nın `Theme.id` değerinin aynı bırakılması**: Test'te birden fazla tema kurulduğunda farklı `id`'lerin (`"test-1"`, `"test-2"`) vermen gerekir; aksi halde `Theme.id` üzerinden yapılan equality testi yanlış sonuç verebilir.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `CompletionMenuItemKind`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Off`, `Symbol` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ParseStatus`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Failed`, `Success`, `Unchanged` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ThemeAppearanceMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dark`, `Light`, `System` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ThemeName`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IconThemeName`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `IconThemeFamilyContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `author`, `name`, `themes` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ThemeStylesRefinement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `accents`, `colors`, `player`, `status`, `syntax`, `system`, `window_background_appearance` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ThemeFamilyContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `author`, `name`, `themes` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

@@ -152,3 +152,17 @@ Pratik kontrol listesi:
 - Toggle, seçim, genişleme ve sayısal değer state'ini render çıktısındaki gerçek state ile aynı yerde üret.
 - Tekrarlı dinamik metinlerde açık `text!(id = ..., metin)` kullan.
 - Parent `aria_label(...)` zaten aynı bilgiyi veriyorsa dekoratif veya tekrarlı alt metni `Text::new_inaccessible(...)` ile gizle.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `A11yCallbacks`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `action`, `activation`, `deactivation` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

@@ -302,3 +302,312 @@ image_cache(retain_all("image-cache"))
         .with_loading(|_, _| div().size_full().into_any_element())
         .with_fallback(|_, _| Icon::new(IconName::Image).into_any_element()))
 ```
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `IntoElement`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait assoc type | `Element` | Trait sözleşmesinin public ilişkili tipleridir. |
+| Trait metotları | `into_any_element`, `into_element` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ParentElement`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `child`, `children`, `extend` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `AnchoredFitMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `SnapToWindow`, `SnapToWindowWithMargin`, `SwitchAnchor` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `AnchoredPositionMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Local`, `Window` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `Animation`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new`, `repeat`, `with_easing` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `duration`, `easing`, `oneshot` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AnimationExt`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `with_animation`, `with_animations` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `AnimationElement`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `map_element` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `Deferred`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `priority`, `with_priority` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `GroupStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `group`, `style` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DragMoveEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `drag`, `dragged_item` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `bounds`, `event` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `InteractiveElement`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `block_mouse_except_scroll`, `can_drop`, `capture_action`, `capture_any_mouse_down`, `capture_any_mouse_up`, `capture_key_down`, `capture_key_up`, `capture_mouse_pressure` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `capture_pinch`, `debug_selector`, `drag_over`, `focus`, `focus_visible`, `group`, `group_drag_over`, `group_hover` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 3 | `hover`, `id`, `in_focus`, `interactivity`, `key_context`, `occlude`, `on_action`, `on_any_mouse_down` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 4 | `on_boxed_action`, `on_drag_move`, `on_drop`, `on_key_down`, `on_key_up`, `on_modifiers_changed`, `on_mouse_down`, `on_mouse_down_out` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 5 | `on_mouse_move`, `on_mouse_pressure`, `on_mouse_up`, `on_mouse_up_out`, `on_pinch`, `on_scroll_wheel`, `tab_group`, `tab_index` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 6 | `tab_stop`, `track_focus`, `window_control_area` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `StatefulInteractiveElement`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `active`, `anchor_scroll`, `aria_column_count`, `aria_column_index`, `aria_expanded`, `aria_label`, `aria_level`, `aria_max_numeric_value` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `aria_min_numeric_value`, `aria_numeric_value`, `aria_orientation`, `aria_position_in_set`, `aria_row_count`, `aria_row_index`, `aria_selected`, `aria_size_of_set` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 3 | `aria_toggled`, `focusable`, `group_active`, `hoverable_tooltip`, `on_a11y_action`, `on_aux_click`, `on_click`, `on_drag` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 4 | `on_hover`, `overflow_scroll`, `overflow_x_scroll`, `overflow_y_scroll`, `role`, `tooltip`, `track_scroll` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `Div`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `image_cache`, `on_children_prepainted`, `with_dynamic_prepaint_order` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `DivInspectorState`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `base_style`, `bounds`, `content_size` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ElementClickedState`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `element`, `group` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ElementHoverState`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `element`, `group` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ScrollAnchor`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `for_handle`, `scroll_to` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `AnyImageCache`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `load` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ImageCacheItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Loaded`, `Loading` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `get` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ImageCacheProvider`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `provide` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `RetainAllImageCache`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `clear`, `is_empty`, `len`, `load`, `new`, `remove` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ImageSource`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Custom`, `Image`, `Render`, `Resource` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `remove_asset` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `StyledImage`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `grayscale`, `image_style`, `object_fit`, `with_fallback`, `with_loading` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `Img`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `extensions`, `image_cache` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ImageCacheError`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Asset`, `BadStatus`, `Image`, `Io`, `Other`, `Usvg` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ListState`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `bounds_for_item`, `is_following_tail`, `is_scrollbar_dragging`, `is_scrolled_to_end`, `item_count`, `item_is_above_viewport`, `item_is_below_viewport`, `logical_scroll_top` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `max_offset_for_scrollbar`, `measure_all`, `new`, `remeasure`, `remeasure_items`, `reset`, `scroll_by`, `scroll_px_offset_for_scrollbar` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 3 | `scroll_to`, `scroll_to_end`, `scroll_to_reveal_item`, `scrollbar_drag_ended`, `scrollbar_drag_started`, `set_follow_mode`, `set_offset_from_scrollbar`, `set_scroll_handler` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 4 | `splice`, `splice_focusable`, `viewport_bounds` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `FollowMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Normal`, `Tail` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ListAlignment`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Bottom`, `Top` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ListScrollEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `count`, `is_following_tail`, `is_scrolled`, `visible_range` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ListSizingBehavior`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Auto`, `Infer` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ListMeasuringBehavior`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Measure`, `Visible` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ListHorizontalSizingBehavior`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `FitList`, `Unconstrained` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ListOffset`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `item_ix`, `offset_in_item` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SurfaceSource`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Surface` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `Svg`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `external_path`, `path`, `with_transformation` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `UniformListScrollHandle`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `is_scrollable`, `is_scrolled_to_end`, `new`, `scroll_to_bottom`, `scroll_to_item`, `scroll_to_item_strict`, `scroll_to_item_strict_with_offset`, `scroll_to_item_with_offset` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `y_flipped` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ScrollStrategy`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Bottom`, `Center`, `Nearest`, `Top` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `DeferredScrollToItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `item_index`, `offset`, `scroll_strict`, `strategy` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `UniformListScrollState`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `base_handle`, `deferred_scroll_to_item`, `last_item_size`, `y_flipped` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ItemSize`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `contents`, `item` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `UniformListDecoration`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `compute` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `Quad`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `background`, `border_color`, `border_style`, `border_widths`, `bounds`, `content_mask`, `corner_radii`, `order` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Underline`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `color`, `content_mask`, `order`, `pad`, `thickness`, `wavy` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Shadow`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `blur_radius`, `bounds`, `color`, `content_mask`, `corner_radii`, `element_bounds`, `element_corner_radii`, `inset` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `order`, `pad` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `MonochromeSprite`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `color`, `content_mask`, `order`, `pad`, `tile`, `transformation` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SubpixelSprite`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `color`, `content_mask`, `order`, `pad`, `tile`, `transformation` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PolychromeSprite`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `content_mask`, `corner_radii`, `grayscale`, `opacity`, `order`, `pad`, `tile` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

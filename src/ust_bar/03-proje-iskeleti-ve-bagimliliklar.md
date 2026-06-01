@@ -265,3 +265,23 @@ CI workflow'una aşağıdaki adım eklersin:
 ```
 
 **Bölüm III çıkış kriteri:** `cargo check -p kvs_titlebar -p kvs_app_titlebar` komutu temiz çalışmalıdır. Bu aşamada tiplerin gövdeleri boş veya `unimplemented!()` olabilir. Önemli olan modül ağacının hazır olması, derlemenin sorunsuz akması ve lisans-temiz dependency listesinin `cargo deny` tarafından doğrulanmasıdır. Bu üç koşul sağlandığında platform kabuğunun gerçek davranışını yazmak için zemin hazırdır.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `WindowControlStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `background`, `background_hover`, `default`, `icon`, `icon_hover` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `WindowControl`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `custom_style`, `new`, `new_close` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

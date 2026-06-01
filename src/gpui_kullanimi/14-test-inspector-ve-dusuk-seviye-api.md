@@ -869,3 +869,626 @@ Test yardımcı fonksiyonları `gpui::test` modülünde toplanır: `seed_strateg
 Profiler yardımcıları `add_task_timing(...)` ve `get_current_thread_task_timings()` thread-local task timing toplama için kullanılır. Metin yedek yardımcıları `font_name_with_fallbacks(...)` ve `font_name_with_fallbacks_shared(...)` platform font ailesi yedek adını döndürür. `swap_rgba_pa_to_bgra(...)` önceden çarpılmış RGBA byte buffer'ını platform BGRA düzenine çevirmek için renk veya bitmap alt katmanında kullanılır.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `AnyDrag`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `cursor_offset`, `cursor_style`, `value`, `view` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `KeystrokeEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `action`, `context_stack`, `keystroke` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Resource`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Embedded`, `Path`, `Uri` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ImageId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RenderImageParams`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `frame_index`, `image_id` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RenderImage`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `as_bytes`, `delay`, `frame_count`, `new`, `size` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `id` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Drawable`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `element` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Text`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `id`, `new`, `new_inaccessible`, `text`, `with_id` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `BackgroundExecutor`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `is_main_thread`, `new`, `now`, `num_cpus`, `scheduler_executor`, `scoped`, `scoped_priority`, `spawn` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `spawn_with_priority`, `timer` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ForegroundExecutor`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `block_on`, `block_with_timeout`, `new`, `spawn`, `spawn_with_priority` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `Scope`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `num_cpus`, `spawn` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ReadGlobal`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `global` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `UpdateGlobal`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `set_global`, `update_global` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `BorrowAppContext`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `set_global`, `update_default_global`, `update_global` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `GpuSpecs`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `device_name`, `driver_info`, `driver_name`, `is_software_emulated` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `InspectorElementId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `instance_id`, `path` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `InspectorElementPath`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `global_id`, `source_location` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FunctionReflection`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `invoke` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `_type`, `documentation`, `function`, `name` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `InputEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `to_platform_input` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `TouchPhase`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Ended`, `Moved`, `Started` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `MouseDownEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_focusing` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `button`, `click_count`, `first_mouse`, `modifiers`, `position` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `MouseUpEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `is_focusing` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `button`, `click_count`, `modifiers`, `position` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `MouseClickEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `down`, `up` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `KeyboardClickEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `button` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `KeyboardButton`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Enter`, `Space` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `NavigationDirection`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Back`, `Forward` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `MouseMoveEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `dragging` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `modifiers`, `position`, `pressed_button` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ScrollWheelEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `delta`, `modifiers`, `position`, `touch_phase` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PinchEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `delta`, `modifiers`, `phase`, `position` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `MouseExitEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `modifiers`, `position`, `pressed_button` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FileDropEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Entered`, `Exited`, `Pending`, `Submit` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `KeyBinding`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `action`, `action_input`, `keystrokes`, `load`, `match_keystrokes`, `meta`, `new`, `predicate` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `set_meta`, `with_meta` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `KeyBindingMetaIndex`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ContextEntry`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `key`, `value` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PlatformDisplay`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `bounds`, `default_bounds`, `id`, `uuid`, `visible_bounds` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ThermalState`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Critical`, `Fair`, `Nominal`, `Serious` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `SourceMetadata`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `id`, `is_main`, `label`, `resolution` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DisplayId`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `WindowControls`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `fullscreen`, `maximize`, `minimize`, `window_menu` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WindowButton`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Close`, `Maximize`, `Minimize` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `id` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `WindowButtonLayout`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `left`, `right` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RequestFrameOptions`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `force_render`, `require_presentation` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PlatformTextSystem`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `add_fonts`, `advance`, `all_font_names`, `font_id`, `font_metrics`, `glyph_dilation_for_color`, `glyph_for_char`, `glyph_raster_bounds` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `layout_line`, `rasterize_glyph`, `recommended_rendering_mode`, `typographic_bounds` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `NoopTextSystem`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `AtlasKey`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Glyph`, `Image`, `Svg` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `texture_kind` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `PlatformAtlas`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `get_or_insert_with`, `remove` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `AtlasTile`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `padding`, `texture_id`, `tile_id` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AtlasTextureId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `index`, `kind` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `AtlasTextureKind`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Monochrome`, `Polychrome`, `Subpixel` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `TileId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PlatformInputHandler`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `accepts_text_input`, `apple_press_and_hold_enabled`, `bounds_for_range`, `character_index_for_point`, `dispatch_input`, `marked_text_range`, `new`, `query_accepts_text_input` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `query_prefers_ime_for_printable_keys`, `replace_and_mark_text_in_range`, `replace_text_in_range`, `selected_bounds`, `selected_text_range`, `text_for_range`, `unmark_text` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `WindowOptions`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `app_id`, `display_id`, `focus`, `icon`, `is_minimizable`, `is_movable`, `is_resizable`, `kind` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `show`, `tabbing_identifier`, `titlebar`, `window_background`, `window_bounds`, `window_decorations`, `window_min_size` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WindowParams`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar 1 | `bounds`, `display_id`, `focus`, `icon`, `is_minimizable`, `is_movable`, `is_resizable`, `kind` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `show`, `tabbing_identifier`, `titlebar`, `window_min_size` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TitlebarOptions`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `appears_transparent`, `title`, `traffic_light_position` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WindowBackgroundAppearance`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Blurred`, `MicaAltBackdrop`, `MicaBackdrop`, `Opaque`, `Transparent` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `TextRenderingMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Grayscale`, `PlatformDefault`, `Subpixel` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ImageFormat`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar 1 | `Bmp`, `Gif`, `Ico`, `Jpeg`, `Png`, `Pnm`, `Svg`, `Tiff` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Varyantlar 2 | `Webp` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `from_mime_type`, `mime_type` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ClipboardString`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `into_text`, `metadata_json`, `new`, `text`, `text_hash`, `with_json_metadata` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `metadata`, `text` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PlatformKeyboardLayout`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `id`, `name` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `PlatformKeyboardMapper`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `get_key_equivalents`, `map_key_equivalent` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `InvalidKeystrokeError`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `keystroke` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Capslock`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `on` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SerializedLocation`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `column`, `file`, `line` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SerializedTaskTiming`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `convert` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `duration`, `location`, `start` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SerializedThreadTaskTimings`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `convert` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `thread_id`, `thread_name`, `timings` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PrimitiveBatch`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `MonochromeSprites`, `Paths`, `PolychromeSprites`, `Quads`, `Shadows`, `SubpixelSprites`, `Surfaces`, `Underlines` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `PaintSurface`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `content_mask`, `image_buffer`, `order` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PathId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `PathVertex`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `scale` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `content_mask`, `st_position`, `xy_position` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RenderSvgParams`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `path`, `size` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SvgRenderer`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new`, `render_single_frame` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `TabStopOrderNodeSummary`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `tab_stops` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FontId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FontFamilyId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TextSystem`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `add_fonts`, `advance`, `all_font_names`, `ascent`, `baseline_offset`, `bounding_box`, `cap_height`, `ch_advance` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `ch_width`, `descent`, `em_advance`, `em_width`, `get_font_for_id`, `layout_width`, `line_wrapper`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 3 | `resolve_font`, `typographic_bounds`, `units_per_em`, `x_height` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `WindowTextSystem`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `em_layout_width`, `layout_line`, `layout_line_by_hash`, `layout_width`, `new`, `shape_line`, `shape_line_by_hash`, `shape_text` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `try_layout_line_by_hash` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `GlyphId`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RenderGlyphParams`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `dilation`, `font_id`, `font_size`, `glyph_id`, `is_emoji`, `scale_factor`, `subpixel_rendering`, `subpixel_variant` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FontMetrics`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `ascent`, `bounding_box`, `cap_height`, `descent`, `line_gap`, `underline_position`, `underline_thickness`, `x_height` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar 1 | `ascent`, `bounding_box`, `cap_height`, `descent`, `line_gap`, `underline_position`, `underline_thickness`, `units_per_em` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Alanlar 2 | `x_height` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FontFallbacks`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `fallback_list`, `from_fonts` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FontFeatures`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `disable_ligatures`, `is_calt_enabled`, `tag_value_list` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `GlyphRasterData`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `bounds`, `params` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DecorationRun`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `background_color`, `color`, `len`, `strikethrough`, `underline` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ShapedLine`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `len`, `paint`, `paint_background`, `split_at`, `width`, `with_len` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `text` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WrappedLine`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `len`, `paint`, `paint_background` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `text` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `LineLayout`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `closest_index_for_x`, `font_id_for_index`, `index_for_x`, `x_for_index` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `ascent`, `descent`, `font_size`, `len`, `runs`, `width` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ShapedRun`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `font_id`, `glyphs` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ShapedGlyph`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `id`, `index`, `is_emoji`, `position` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WrappedLineLayout`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar 1 | `ascent`, `closest_index_for_position`, `descent`, `font_size`, `index_for_position`, `len`, `position_for_index`, `runs` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Metotlar 2 | `size`, `width`, `wrap_boundaries` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `unwrapped_layout`, `wrap_boundaries`, `wrap_width` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `WrapBoundary`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `glyph_ix`, `run_ix` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FontRun`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `font_id`, `len` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TruncateFrom`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `End`, `Start` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `LineWrapper`
+
+| Grup | API | Not |
+|---|---|---|
+| Assoc const | `MAX_INDENT` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+| Metotlar | `should_truncate_line`, `truncate_line`, `truncate_wrapped_line`, `wrap_line` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `LineFragment`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Element`, `Text` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `element`, `text` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `Boundary`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `ix`, `next_indent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `FutureExt`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `with_timeout` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ArenaClearNeeded`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `clear` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

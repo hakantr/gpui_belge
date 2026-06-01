@@ -724,3 +724,30 @@ div()
 - Kareler arası ilerleme değeri executor saatinden hesaplanır; normal `TestAppContext`/`VisualTestContext` testlerinde `cx.background_executor.advance_clock(...)` veya `TestApp::advance_clock(...)`'i kullanırsın. macOS'a özel `VisualTestAppContext` üzerinde ayrıca doğrudan `advance_clock(...)` yardımcısı vardır.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `AnyTooltip`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `check_visible_and_update`, `mouse_position`, `view` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SvgSize`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `ScaleFactor`, `Size` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ContentMask`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `intersect`, `scale` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `bounds` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

@@ -182,3 +182,278 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 - Çalışma alanı tutma veya ayırma davranışı sidebar açık/kapalı durumuna bağlanmamalıdır; güncel karar kaynağı `multi_workspace_enabled(cx)` sonucudur.
 - Nav history preview item'ı ayrı işaretler; preview tab gerçek tab'a sabitlendiğinde history girişleri buna göre güncellenmelidir.
 - Split yönü sabit kodlanmış olarak verilmek yerine kullanıcı ayarlı varsayılan isteniyorsa `SplitDirection::vertical(cx)` veya `horizontal(cx)` kullanırsın.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `SelectedEntry`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `entry_id`, `worktree_id` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DraggedSelection`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `items` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `active_selection`, `marked_selections` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ActivateItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseMultibufferItems`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `close_pinned`, `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseCleanItems`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `close_pinned` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseItemsToTheRight`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `close_pinned` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseItemsToTheLeft`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `close_pinned` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `RevealInProjectPanel`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `entry_id` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DeploySearch`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `case_sensitive`, `excluded_files`, `include_ignored`, `included_files`, `query`, `regex`, `replace_enabled`, `whole_word` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SplitMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `ClonePane`, `EmptyPane`, `MovePane` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `SplitDown`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `mode` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SplitHorizontal`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `mode` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SplitLeft`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `mode` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SplitRight`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `mode` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SplitUp`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `mode` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SplitVertical`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `mode` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ActivatePreviousItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `wrap_around` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ActivateNextItem`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `wrap_around` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ActivationHistoryEntry`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `entity_id`, `timestamp` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ItemNavHistory`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `navigation_entry`, `pop_backward`, `pop_forward`, `push`, `push_tag` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `NavigationMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `ClosingItem`, `Disabled`, `GoingBack`, `GoingForward`, `Normal`, `ReopeningClosedItem` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `TagNavigationMode`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Newer`, `Older` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `NavigationEntry`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `data`, `is_preview`, `item`, `row`, `timestamp` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `TagStackEntry`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `origin`, `target` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `DraggedTab`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `detail`, `is_active`, `item`, `ix`, `pane` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `Side`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Left`, `Right` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `Member`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Axis`, `Pane` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `mark_positions`, `render` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `PaneAxis`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `load`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+| Alanlar | `axis`, `bounding_boxes`, `flexes`, `members` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ToolbarItemEvent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `ChangeLocation` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ToolbarItemLocation`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Hidden`, `PrimaryLeft`, `PrimaryRight`, `Secondary` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `TerminalProvider`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `spawn` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `DebuggerProvider`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları | `active_thread_state`, `debug_scenario_scheduled`, `debug_scenario_scheduled_last`, `spawn_task_or_modal`, `start_session`, `task_scheduled` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `ActivatePane`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `MoveItemToPane`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `clone`, `destination`, `focus` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `MoveItemToPaneInDirection`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `clone`, `direction`, `focus` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `NewFileSplit`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseAllItemsAndPanes`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseInactiveTabsAndPanes`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseItemInAllPanes`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `close_pinned`, `save_intent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `SendKeystrokes`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `ToggleFileFinder`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `separate_history` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `NewCenterTerminal`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `local` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `NewTerminal`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `local` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `CloseIntent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `CloseWindow`, `Quit`, `ReplaceWindow` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

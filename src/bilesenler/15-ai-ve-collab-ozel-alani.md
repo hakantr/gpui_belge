@@ -648,3 +648,41 @@ Bu bölümdeki bileşenlerin nerede tercih edileceğini özetleyen kısa bir kar
 - AI ayar satırı için `AiSettingItem`; provider credential state'i için `ConfiguredApiCard`; agent thread listesi için `ThreadItem`.
 - Agent skills özelliği için onboarding veya illustration alanı gerekiyorsa `SkillsIllustration` (yalnızca dekoratif).
 - Collaboration toast layout'u için `CollabNotification`; title bar update state'i için `UpdateButton`.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `AiSettingItemStatus`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Authenticating`, `AuthRequired`, `ClientSecretRequired`, `Error`, `Running`, `Starting`, `Stopped` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `AiSettingItemSource`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Custom`, `Extension`, `Registry` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `AgentThreadStatus`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Completed`, `Error`, `Running`, `WaitingForConfirmation` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `WorktreeKind`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Linked`, `Main` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ThreadItemWorktreeInfo`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `branch_name`, `full_path`, `highlight_positions`, `kind`, `worktree_name` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->

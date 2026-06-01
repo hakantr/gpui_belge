@@ -285,3 +285,29 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 Async bağlamda temel kural şudur: Task sonucunda ekrana yansıyacak state değişiyorsa entity'yi `update`/`update_in` ile günceller ve `cx.notify()` çağırırsın. Task yalnız arka plan cache'ini veya global state'i değiştiriyorsa ilgili global observer'ın render'ı tetikleyeceğinden emin olursun.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `EntityId`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `as_non_zero_u64`, `as_u64` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `AnyWeakEntity`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `entity_id`, `is_upgradable`, `new_invalid`, `upgrade` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `WindowId`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `as_u64` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

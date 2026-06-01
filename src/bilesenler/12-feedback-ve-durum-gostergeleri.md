@@ -1003,3 +1003,47 @@ Bütün bu bileşenlerin kullanım kararı için kısa bir özet işe yarar:
 - Var/yok veya nokta düzeyinde bir state için `Indicator`.
 - Belirli bir yatay ilerleme için `ProgressBar`.
 - Belirli bir kompakt ilerleme için `CircularProgress`.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `BorderPosition`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Bottom`, `Top` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ModalHeader`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `description`, `headline`, `icon`, `new`, `show_back_button`, `show_dismiss_button` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ModalRow`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `ModalFooter`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `end_slot`, `new`, `start_slot` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `Section`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `contained`, `header`, `meta`, `new`, `new_contained`, `padded` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+### `SectionHeader`
+
+| Grup | API | Not |
+|---|---|---|
+| Metotlar | `end_slot`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

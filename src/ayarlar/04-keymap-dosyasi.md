@@ -244,3 +244,41 @@ pub struct ActionSequence(pub Vec<Box<dyn Action>>);
 - `unbind` her zaman `bindings`'ten önce işlendiği için aynı section içinde bir keystroke'u önce serbest bırakıp sonra yeni action'a bağlamak güvenlidir; başka section'a bağlanmış aynı keystroke yine üst katmandan gelirse override gerekebilir.
 - `KeyBindingValidator` action kaydedilmeden kaydedilmek üzere `inventory::submit!` ile gönderilmelidir; aksi halde validator listede görünmez ve doğrulama atlanır.
 - `KeybindUpdateOperation::Replace` `target_keybind_source = Default` ile çağrılırsa default keymap dosyasına yazma denemesi yapılmaz; kullanıcı dosyasına ek bir kayıt yazılır ve gerekirse `unbind` girişi eklersin.
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `KeyBindingValidatorRegistration`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `KeymapSection`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `context` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `KeymapFileLoadResult`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `JsonParseFailure`, `SomeFailedToLoad`, `Success` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `ActionWithArguments`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+### `BaseKeymapContent`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Atom`, `Cursor`, `Emacs`, `JetBrains`, `None`, `SublimeText`, `TextMate`, `VSCode` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

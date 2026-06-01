@@ -442,3 +442,24 @@ let guncellenen = KeymapFile::update_keybinding(
 - Kullanıcı JSON'u bozuksa `update_keybinding` dosyayı değiştirmez; önce ayrıştırma başarıyla geçmesi gerekir.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `ActionBuildError`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `BuildError`, `NotFound` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `KeyBindingContextPredicate`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `And`, `Descendant`, `Equal`, `Identifier`, `Not`, `NotEqual`, `Or` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+| Metotlar | `depth_of`, `eval`, `eval_inner`, `is_superset`, `parse` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

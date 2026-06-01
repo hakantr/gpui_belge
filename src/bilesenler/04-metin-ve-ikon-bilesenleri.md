@@ -816,3 +816,36 @@ fn render_indexing_row() -> impl IntoElement {
         .child(LoadingLabel::new("Indexing project").size(LabelSize::Small))
 }
 ```
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `IconDecorationKind`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dot`, `Triangle`, `X` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `LineHeightStyle`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `TextLabel`, `UiLabel` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+### `LabelCommon`
+
+| Grup | API | Not |
+|---|---|---|
+| Trait metotları 1 | `alpha`, `buffer_font`, `color`, `inline_code`, `italic`, `line_height_style`, `single_line`, `size` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+| Trait metotları 2 | `strikethrough`, `truncate`, `underline`, `weight` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
+
+### `SpinnerVariant`
+
+| Grup | API | Not |
+|---|---|---|
+| Varyantlar | `Dots`, `DotsVariant`, `Sand` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
+
+<!-- phase14-api-anchor:end -->

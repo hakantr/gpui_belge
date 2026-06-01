@@ -1120,3 +1120,17 @@ fn handle_tema_secimi(secilen: &str, cx: &mut App) {
 4. **Frame budget aşımı**: Çok karmaşık UI'da `refresh_windows` çağrısı 16 ms'yi aşabilir ve bir frame skip olarak görünebilir. Bu noktada profilling yapılması yerinde olur; gerçek bir bug söz konusudur.
 
 ---
+
+<!-- phase14-api-anchor:start -->
+
+## Ek public API kapsamı
+
+Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `ThemeMeta`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `appearance`, `name` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
+
+<!-- phase14-api-anchor:end -->
