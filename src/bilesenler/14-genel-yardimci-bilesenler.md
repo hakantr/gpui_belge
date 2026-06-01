@@ -10,6 +10,13 @@ Bu aileyi kullanırken üç ayrımı akılda tutmak işini kolaylaştırır:
 
 ## Chip
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Chip` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -82,6 +89,13 @@ Dikkat edeceğin noktalar:
 
 ## DiffStat
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `DiffStat` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -144,6 +158,13 @@ Dikkat edeceğin noktalar:
 - Sıfır değerlerinin gösterilip gösterilmeyeceğine parent karar verir; bileşen kendiliğinden gizlemez.
 
 ## Disclosure
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Disclosure` | `cursor_style`, `description`, `on_click`, `scope`, `toggle_state`, `visible_on_hover` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
@@ -357,6 +378,13 @@ Dikkat edeceğin noktalar:
 
 ## Vector ve Görsel Kullanımı
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Vector` | `description`, `name`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -453,6 +481,13 @@ fn render_local_thumbnail() -> impl IntoElement {
 
 ## KeyBinding
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `KeyBinding` | `description`, `name`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -535,6 +570,13 @@ Dikkat edeceğin noktalar:
 - Bir action'a bağlı shortcut gösterilirken binding bulunamama durumunun UI'da düşünmen gerekir; çünkü component bu durumda boş render edebilir.
 
 ## KeybindingHint
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `KeybindingHint` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 

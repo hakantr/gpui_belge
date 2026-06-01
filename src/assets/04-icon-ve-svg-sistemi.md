@@ -33,6 +33,13 @@ Her bölgenin tüketicisi farklıdır:
 
 ## 2. `IconName` registry'si
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `IconName` | `Err`, `Error`, `from`, `iter`, `Iterator`, `serialize` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |

@@ -68,6 +68,13 @@ cx.focus_view(&alt_varlik, window);
 
 ## Fare, Sürükle-Bırak ve Hitbox
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Hitbox` | `deref`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -408,6 +415,14 @@ window.handle_input(
 - Girdi dinleyicisi ekran karesine bağlıdır; odaktaki element çizilmediğinde platform girdi dinleyicisi de düşer.
 
 ## Keystroke, Modifiers ve Platform Bağımsız Kısayollar
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Keystroke` | `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `Modifiers` | `hash`, `Output` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 

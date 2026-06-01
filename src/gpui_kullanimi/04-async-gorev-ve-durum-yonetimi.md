@@ -702,6 +702,13 @@ Geri çağrıdan view verisine geri dönmek için uygun adaptörü seçersin:
 
 #### `ElementId` Tam Varyantları
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `ElementId` | `Error`, `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |

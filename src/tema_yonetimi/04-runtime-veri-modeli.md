@@ -6,6 +6,13 @@ GPUI tipleri tanındıktan sonra, uygulamanın bellekte taşıyacağı tema mode
 
 ## 12. `Theme` ve `ThemeStyles` üst yapısı
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `ThemeStyles` | `from`, `is_superset_of`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Kaynak modül:** `kvs_tema/src/kvs_tema.rs` (lib kökü).
 
 Tema'nın **üst düzey** sözleşmesi iki struct'a ayrılır: `Theme` ve `ThemeStyles`. `Theme`, metadata ile stil kabını bir araya getirir. `ThemeStyles` ise tüm renk ve stil gruplarını taşır. Bu ayrım, ilerideki okuma ve klonlama işlemlerinin neden ucuz kaldığını da gösterir.
@@ -128,6 +135,13 @@ Bu değerler bir tema paleti alanı değildir; kullanıcı temasından override 
 ---
 
 ## 13. `ThemeColors` alan kataloğu ve reflection API
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `ThemeColors` | `from`, `is_superset_of`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
@@ -321,6 +335,13 @@ Sonuçta eksik alanlar baseline'dan gelir; kullanıcının verdiği alanlar base
 
 ### `all_theme_colors` ve `ThemeColorField` — reflection API
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `ThemeColorField` | `as_ref`, `iter`, `Iterator` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -510,6 +531,13 @@ for ((a, label), (b, _)) in zed.iter().zip(user.iter()) {
 
 ## 14. `StatusColors`: fg/bg/border üçlüsü deseni
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `StatusColors` | `from`, `is_superset_of`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -691,6 +719,14 @@ impl Theme {
 
 ## 15. `PlayerColors`, `PlayerColor`, slot semantiği
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `PlayerColor` | `deserialize` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `PlayerColors` | `deserialize` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -821,6 +857,14 @@ div().bg(katilimci.selection)
 ---
 
 ## 16. `AccentColors`, `SystemColors`, `Appearance`
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `AccentColors` | `deserialize` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `Appearance` | `deserialize`, `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 

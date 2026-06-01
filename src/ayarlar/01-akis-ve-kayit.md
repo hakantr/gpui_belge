@@ -147,6 +147,13 @@ Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; 
 
 ## Kök `SettingsContent` schema yüzeyi
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `SettingsContent` | `deserialize`, `parse_json`, `parse_json_with_comments`, `serialize` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |

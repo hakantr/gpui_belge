@@ -96,6 +96,14 @@ Dikkat edeceğin noktalar:
 
 ## Button
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Button` (1) | `cursor_style`, `description`, `DOCS`, `full_width`, `id`, `layer`, `on_click`, `scope`, `selected_style`, `size`, `sort_name`, `style`, `tab_index`, `toggle_state` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `Button` (2) | `tooltip`, `track_focus`, `width` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -195,6 +203,13 @@ Dikkat edeceğin noktalar:
 
 ## IconButton
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `IconButton` | `cursor_style`, `description`, `from`, `full_width`, `on_click`, `scope`, `sort_name`, `toggle_state`, `visible_on_hover`, `width` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -274,6 +289,13 @@ Dikkat edeceğin noktalar:
 - Seçili state'i yalnızca görsel olarak değiştirmek yeterli değildir. View state'i değişiyorsa handler içinde state'i güncellemen ve ardından `cx.notify()` çağırman gerekir.
 
 ## ButtonLike
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `ButtonLike` | `cursor_style`, `description`, `DOCS`, `extend`, `from`, `full_width`, `on_click`, `scope`, `selected_style`, `sort_name`, `toggle_state`, `visible_on_hover`, `width` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
@@ -366,6 +388,13 @@ Dikkat edeceğin noktalar:
 
 ## ButtonLink
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `ButtonLink` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -431,6 +460,13 @@ Dikkat edeceğin noktalar:
 - Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca link gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatılır.
 
 ## CopyButton
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `CopyButton` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
@@ -573,6 +609,13 @@ Dikkat edeceğin noktalar:
 - Sağ parça bir popover veya menu trigger olacaksa, focus kapanma davranışı ilgili `PopoverMenu` ya da `ContextMenu` tarafında yönetilir; SplitButton bu sorumluluğu üstlenmez.
 
 ## ToggleButtonGroup
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `ToggleButtonGroup` | `description`, `full_width`, `name`, `scope`, `sort_name`, `width` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 

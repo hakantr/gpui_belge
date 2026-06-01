@@ -349,6 +349,13 @@ window.with_global_id("gorsel-onbellegi".into(), |genel_id, window| {
 
 ## AnyElement, Component ve Interactivity Yüzeyi
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `AnyElement` | `id`, `into_any_element`, `into_element`, `PrepaintState`, `RequestLayoutState` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -439,6 +446,13 @@ div()
 - `map` element tipini değiştirebilir; `when` ise tipi değiştirmez (refinement zincirinde kalır). Bu yüzden `map` kullanımını dikkatli yaparsın.
 
 ## Refineable, StyleRefinement ve MergeFrom
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `StyleRefinement` | `is_empty`, `is_superset_of`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 

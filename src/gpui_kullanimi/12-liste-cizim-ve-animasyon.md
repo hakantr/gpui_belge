@@ -63,6 +63,14 @@ capa.scroll_to(window, cx);
 
 ## List ve UniformList Sanallaştırma
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `List` | `style` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `UniformList` | `style` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -176,6 +184,13 @@ uniform_list("arama-sonuclari", self.ogeler.len(), move |aralik, window, cx| {
 
 ## Asset, Image ve SVG Yükleme
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Image` | `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -276,6 +291,13 @@ Zed'in bilinen ikon setinden bir simge çizeceksen `Icon::new(IconName::...)` en
 - Yol sınıflandırıcı veya ayarlar güvenlik kontrolü yazarken macOS ve Windows'un varsayılan büyük/küçük harfe duyarsız dosya sistemlerini atlamaman gerekir. `util::paths::component_matches_ignore_ascii_case(component, ".zed")` gibi ASCII duyarsız yardımcıları tercih edersin; `.ZED/settings.json` gibi varyantları düz `== ".zed"` karşılaştırmasıyla kaçırmaman gerekir.
 
 ## Asset, ImageCache ve Surface Boru Hattı
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Surface` | `style` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
@@ -519,6 +541,13 @@ Anchored element ağaca normal bir alt öğe gibi eklenir; ancak yerleşim fazı
 - Anchored alt öğesi kendi içinde overflow `Visible` davranır; içerik pencereyi taşırsa scroll için ekstra bir sarmalayıcıya ihtiyacın olur.
 
 ## PaintQuad, Window Paint Primitives ve BorderStyle
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `BorderStyle` | `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 

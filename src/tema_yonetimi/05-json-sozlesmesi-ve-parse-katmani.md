@@ -8,6 +8,13 @@ Runtime modeli kurulduktan sonra sıra JSON sözleşmesine gelir. Burada üç ko
 
 ## 19. `ThemeContent` ve serde flatten/rename desenleri
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `ThemeContent` | `deserialize`, `json_schema`, `serialize` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |

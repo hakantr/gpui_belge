@@ -474,6 +474,13 @@ Buna ek olarak şuna dikkat etmek gerekir: `cx.refresh_windows()` (Konu 38) zate
 
 ## 35. `SystemAppearance` ve sistem mod takibi
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `SystemAppearance` | `deref`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |

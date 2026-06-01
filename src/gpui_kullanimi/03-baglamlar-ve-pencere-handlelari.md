@@ -49,6 +49,15 @@ zayif.update(cx, |durum, cx| {
 
 ## WindowHandle, AnyWindowHandle ve VisualContext
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `AnyWindowHandle` | `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `VisualContext` | `focus`, `new_window_entity`, `replace_root_view`, `update_window_entity`, `window_handle` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `WindowHandle` | `deref`, `hash`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 `open_window` ve test yardımcıları, açılan pencereyi temsil eden tipli bir `WindowHandle<V>` döndürür. Bu handle, kök view'un tipini derleme zamanında taşır. Buna karşılık `AnyWindowHandle` kök tipini çalışma zamanında tutar; gerektiğinde alta `downcast` edebilirsin.
 
 İki handle arasında doğrudan bir Deref ilişkisi vardır: `WindowHandle<V>` `#[derive(Deref, DerefMut)]` sayesinde içindeki `AnyWindowHandle` değerine deref olur. Bu yüzden bazı metotlar tipli handle üzerinden çağrılabilir gibi görünür, oysa o metotların asıl sahibi `AnyWindowHandle`'dır. API yüzeyini okurken `Owner::method -> dönüş tipi -> hata davranışı` üçlüsünü birlikte düşünmen gerekir. Yalnız metot adına bakmak burada kolayca yanıltır.
@@ -136,6 +145,13 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## Application ve App Yaşam Döngüsü
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `App` | `borrow`, `borrow_mut` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -187,6 +203,14 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## `Context<T>` Üzerindeki Entity Merkezli Yüzey
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `Context` | `deref`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `Entity` | `deref`, `focus_handle`, `from`, `hash`, `into_element`, `provide`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -212,6 +236,14 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## Entity, WeakEntity ve AnyEntity Ailesi
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `AnyEntity` | `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+| `WeakEntity` | `deref`, `from`, `hash`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 `Entity<T>`, GPUI tarafından yönetilen state'e tipli ve güçlü bir referanstır. `WeakEntity<T>` aynı state'e sahiplik uzatmadan bakar. `AnyEntity` ve `AnyWeakEntity` ise tip silinmiş hallerdir; generic olmayan koleksiyonlarda, pencere köklerinde ve çalışma zamanı `downcast` gerektiren yerlerde kullanılır.
 
 | Tip | Metotlar | Kullanım notu |
@@ -227,6 +259,13 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 `LeakDetector`, `handle_created`, `handle_released`, `snapshot`, `assert_released` ve `assert_no_new_leaks` ile entity handle yaşamını takip eder. Bu aile, "state gerçekten elden çıktı mı?" sorusunun test cevabıdır. Kullanıcıya görünen davranışı değiştirmek için değil, sahiplik hatasını erken yakalamak için kullanılır.
 
 ## AsyncApp ve AsyncWindowContext
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `AsyncWindowContext` | `deref`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 

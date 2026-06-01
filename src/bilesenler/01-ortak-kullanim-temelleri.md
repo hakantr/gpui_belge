@@ -160,6 +160,13 @@ Token enum'larının çoğu tek başına uzun anlatım gerektirmez; hangi aileye
 
 ## Spacing token'ları (`DynamicSpacing`)
 
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `DynamicSpacing` | `cmp` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
+
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
 | Konu | Grup | API | Not |
@@ -246,6 +253,13 @@ Pratik builder'lar `StyledExt` üzerinden gelir:
 Bu trait'leri ne zaman doğrudan düşünmezsin? Sadece hazır bir `Button`, `ListItem` veya `DropdownMenu` kuruyorsan bileşenin kendi bölümündeki builder listesi yeterlidir. Ortak trait ayrımına ancak aynı davranışı birden fazla component ailesinde tutarlı uygularken veya custom component yazarken ihtiyaç duyarsın.
 
 ## Platform stili (`PlatformStyle`)
+
+**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
+
+| Konu | Üyeler | Not |
+|---|---|---|
+| `PlatformStyle` | `cmp` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
+
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
