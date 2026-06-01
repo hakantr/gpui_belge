@@ -19,6 +19,16 @@ Ana referanslar: `crates/workspace/src/workspace.rs`, `crates/workspace/src/dock
 | `pane_group` | Split ağacı ve pane resize/swap/taşıma davranışı. |
 | `path_list` | Workspace path kümeleri ve recent history path normalizasyonu. |
 
+Workspace crate kökü ve `item` modülünden gelen küçük re-export/action kayıtları:
+
+| API | Kısa anlamı |
+| :-- | :-- |
+| `CloseProject`, `CloseWindow`, `Reload`, `Mute`, `OpenComponentPreview`, `Feedback` | Workspace action tipleridir; komut paleti, menü veya titlebar gibi yüzeyler bu action'ları dispatch eder. |
+| `reload`, `client_side_decorations` | Workspace reload ve client-side decoration kararını veren crate-level helper'lardır. |
+| `ModalLayer` | Modal view'leri workspace üst katmanında tutan modeldir; ayrıntısı item/modal/toast bölümündedir. |
+| `ItemSettings`, `SettingsLocation`, `RegisterSetting`, `Settings` | `workspace::item` tarafının settings entegrasyon re-export'larıdır; item davranışı için settings crate yüzeyine bağlanır. |
+| `SidebarRenderState`, `item`, `ui` | Sidebar render durumu, item modülü ve UI re-export kapısıdır; üst bar/bileşen belgelerinde geçen kullanımların API sahibi yine `workspace` olur. |
+
 Bölüm hangi alt dosyada hangi yüzeyi anlatır:
 
 - **Dock ve Panel modeli** — `Workspace` iskeleti, `Dock`, `Panel` trait'i ve `toggle_dock` akışı.

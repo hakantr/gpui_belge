@@ -1359,6 +1359,8 @@ pub struct IconThemeFamily {
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `IconDefinition` | `path: SharedString` | `file_icons` map'inde icon key'ini gerçek asset path'ine bağlayan runtime kaydıdır. |
+| `DirectoryIcons` | `collapsed`, `expanded` | Klasör ikonlarının kapalı/açık slotlarını runtime'da taşır. |
+| `ChevronIcons` | `collapsed`, `expanded` | Tree chevron ikonlarının kapalı/açık slotlarını runtime'da taşır. |
 | `IconThemeFamily` | `id`, `name`, `author`, `themes` | Bir icon tema paketinin metadata'sını ve light/dark gibi varyantlarını tek koleksiyonda taşır. |
 
 **JSON Content sözleşmesi:**

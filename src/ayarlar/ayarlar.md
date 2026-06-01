@@ -39,3 +39,9 @@ Kök `settings` crate'i çok sayıda küçük public yardımcıyı re-export ede
 | `FallibleOption` | toleranslı alan parse sözleşmesi | Hatalı alanın tüm ayar dosyasını düşürmesini önleyen fallible option modelidir. |
 | `fallible_options` | modül/re-export | `FallibleOption` ve toleranslı parse yardımcılarının modül kapısıdır. |
 | `settings_file` | modül/re-export | Ayar dosyası izleme, boş tema ve update helper'larının kaynak modülüdür. |
+| `settings::init`, `SettingsAssets`, `IntoGpui` | startup kurulumu, paketlenmiş settings asset'leri ve content-to-GPUI dönüşümü | Kök `settings` crate'inin en sık kullanılan uygulama girişleridir. |
+| `default_settings`, `default_keymap`, `vim_keymap`, `default_semantic_token_rules` | paketlenmiş default settings/keymap ve semantic token payload'ları | Startup ve test kurulumları bu helper'larla asset içeriğini çözer. |
+| `initial_user_settings_content`, `initial_server_settings_content`, `initial_project_settings_content`, `initial_keymap_content`, `initial_tasks_content`, `initial_debug_tasks_content`, `initial_local_debug_tasks_content` | kullanıcıya veya projeye ilk kez yazılacak boş/örnek dosya içerikleri | Yeni ayar, keymap, task ve debug dosyası oluşturma akışının seed metinleridir. |
+| `settings_json`, `parse_json`, `update_settings_file_with_completion` | JSON parse re-export'u ve tamamlanma sinyalli settings dosyası güncelleme helper'ı | Settings UI ve import akışında düşük seviye JSON helper'larına köprü kurar. |
+| `settings_macros`, `MergeFrom`, `with_fallible_options` | derive ve attribute macro crate yüzeyi | `RegisterSetting` ile birlikte settings content schema'sının merge ve toleranslı parse davranışını üretir. |
+| `infer_json_indent_size`, `parse_json_with_comments`, `update_value_in_json_text` | `settings_json` crate'inin indentation, yorumlu parse ve path bazlı JSON güncelleme helper'ları | Ayar dosyasını biçim koruyarak güncelleyen alt katmanda kullanılır. |

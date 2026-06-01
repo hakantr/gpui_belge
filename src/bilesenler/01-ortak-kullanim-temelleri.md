@@ -361,6 +361,22 @@ Tarih farkı yardımcıları (`format_distance` modülü):
 | `DateTimeType` | `Naive`, `Local`, `to_naive` | Tarih kaynağını local veya naive biçimde normalize eder. |
 | `FormatDistance` | `new`, `include_seconds`, `add_suffix`, `hide_prefix`, `format` | İnsan okunur tarih mesafesi metnini builder olarak üretir. |
 
+## Crate kökü ve prelude hızlı kapsamı
+
+Bu tablo, `ui` ve `ui_input` crate'lerinde başka konu dosyalarında kullanılan ama bileşenler bölümünün beklenen sahiplik alanında kısa anchor isteyen public yüzeyi toplar:
+
+| API | Kısa anlamı |
+| :-- | :-- |
+| `component::init`, `component_preview::init` | Bileşen ve component preview crate'lerinin GPUI uygulama başlangıcında çağrılan kayıt/kurulum girişleridir. |
+| `prelude`, `ui`, `styles` | `ui` crate'inin ergonomik import, crate kökü ve style re-export kapılarıdır. |
+| `App`, `Context`, `Window`, `AnyElement`, `Element`, `RenderOnce`, `Styled`, `ElementId` | GPUI'den `ui::prelude` üzerinden gelen temel render/context tipleridir. |
+| `AbsoluteLength`, `DefiniteLength`, `Pixels`, `Rems`, `SharedString`, `Color`, `ActiveTheme` | UI bileşenlerinin ölçü, metin, renk ve tema erişiminde kullandığı prelude tipleridir. |
+| `KnockoutIconName`, `VectorName` | Icon decoration ve raster/vector image seçiminde kullanılan public isim taşıyıcılarıdır. |
+| `h_group_sm`, `h_group_lg`, `h_group_xl`, `indent_guides` | Grup layout ve indent guide factory yardımcılarıdır. |
+| `inner_corner_radius`, `is_light`, `platform_title_bar_height`, `ui_density` | Corner, tema aydınlık/koyuluk, titlebar yüksekliği ve density okuma yardımcılarıdır. |
+| `find_method`, `methods` | `StyledExt` reflection metadata'sında kullanılan method listeleme yardımcılarıdır; uygulama akışında doğrudan çağrı yüzeyi değildir. |
+| `input_field`, `InputFieldStyle` | `ui_input` crate'inin input field modülü ve stil taşıyıcısıdır; form bileşenleri bu yüzeyi sarmalar. |
+
 ## Hata yönetimi
 
 UI olay işleyicilerinden veya async task'lardan dönen `Result` değerlerini sessizce yok saymaman gerekir. Bir hata oluştuğunda kullanıcının gerekirse bunu görmesi, geliştiricinin loglarda iz sürebilmesi ve view state'inin tutarlı kalması gerekir. Bu yüzden aynı kuralı her yerde izlemen önemlidir:

@@ -761,6 +761,17 @@ Renk ve geometri kısa fonksiyonları:
 - Background: `solid_background(color)`, `linear_color_stop(color, percentage)`, `linear_gradient(angle, from, to)`, `pattern_slash(color, width, interval)`, `checkerboard(color, size)`.
 - Geometri: `point(x, y)`, `size(width, height)`, `px(f32)`, `rems(f32)`, `relative(f32)`, `percentage(f32)`, `radians(f32)`, `auto()`, `phi()`.
 
+| API | Kısa anlamı |
+| :-- | :-- |
+| `BorrowAppContext` | `App` ve context taşıyıcılarını ortak okuma/güncelleme yardımcılarına bağlayan düşük seviye trait'tir; normal kod çoğu zaman somut `App`/`Context<T>` imzalarıyla kalır. |
+| `ImageAssetLoader`, `ImgResourceLoader`, `RenderImage`, `Resource` | `img()` ve image cache hattının asset, async yükleme ve cache sonucu taşıyıcılarıdır. |
+| `SvgRenderer`, `SMOOTH_SVG_SCALE_FACTOR` | SVG rasterleştirme worker'ı ve yumuşak SVG render ölçeğidir. |
+| `TextSystem`, `FontFeatures` | Platform font sistemi ve OpenType feature map taşıyıcısıdır. |
+| `KeyBinding`, `keymap`, `is_no_action`, `is_unbind` | GPUI keymap bağlama modeli, keymap modülü ve no-op/unbind yardımcılarıdır. |
+| `WindowBackgroundAppearance`, `WindowControls`, `WindowButton`, `WindowButtonLayout`, `TitlebarOptions`, `MAX_BUTTONS_PER_SIDE` | Platform pencere arka planı, native kontrol butonları ve titlebar seçeneklerinin GPUI tarafındaki düşük seviye yüzeyidir. |
+| `assets`, `colors`, `input`, `inspector`, `inspector_reflection`, `interactive` | Crate kökünden yeniden açılan alt modüllerdir; derin davranış ilgili konu dosyalarında anlatılır. |
+| `prelude`, `refineable` | Ergonomik import ve refinement macro/trait yüzeyine geçiş noktalarıdır; yeni davranış katmanı değil, mevcut GPUI yüzeyinin re-export kapısıdır. |
+
 #### Kök Yeniden Dışa Aktarım ve Makro Yüzeyi
 
 `gpui.rs` crate kökünde yalnız GPUI modüllerini değil, bazı yardımcı crate'leri de yeniden dışa aktarır:
