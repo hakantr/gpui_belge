@@ -35,6 +35,13 @@ pub struct KeymapSection {
 | `KeymapSection` | `context`, `use_key_equivalents`, `unbind`, `bindings`, `unrecognized_fields` | Tek keymap JSON section'ını ve bağlam predicate'ini taşır. |
 | `KeymapAction` | `Value`, `null`, string action adı, `[name, args]` | Binding hedef action'ının JSON gösterimidir. |
 
+`settings_content` tarafındaki action/keymap schema yardımcıları keymap dosyasının runtime action registry'siyle birleştiği noktayı oluşturur:
+
+| API | Rol | Not |
+| :-- | :-- | :-- |
+| `ActionWithArguments` | GPUI action adı ve argument payload'ını iki elemanlı JSON array olarak temsil eder | `JsonSchema` placeholder döndürür; gerçek action schema'sı runtime registry bilgisiyle `KeymapFile::generate_json_schema` içinde üretilir. |
+| `BaseKeymapContent` | `base_keymap` ayarının VSCode, JetBrains, Sublime Text, Atom, TextMate, Emacs, Cursor veya None seçimini taşır | User keymap üstüne hangi paketlenmiş base keymap'in yedirileceğini belirler. |
+
 ---
 
 ## Yükleme ve sonuç

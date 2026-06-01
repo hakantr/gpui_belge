@@ -138,6 +138,34 @@ Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; 
 
 ---
 
+## Kök `SettingsContent` schema yüzeyi
+
+`settings_content::SettingsContent`, kullanıcı JSON'unun düz görünen alanlarını domain content tiplerine dağıtır. `project`, `theme`, `extension`, `workspace`, `editor` ve `remote` alanları `#[serde(flatten)]` ile birleşir; aşağıdaki daha küçük content tipleri ise top-level alanların schema, merge ve default davranışını taşır. Bu tipler runtime `Settings` implementasyonu değildir; `SettingsStore` içindeki ham `SettingsContent` merge hattının sözleşmesidir.
+
+| API | JSON/settings rolü | Not |
+| :-- | :-- | :-- |
+| `AudioSettingsContent`, `AudioInputDeviceName`, `AudioOutputDeviceName` | `audio` ve deneysel giriş/çıkış cihazı ayarları | Cihaz adları `#[serde(transparent)]` newtype olarak taşınır. |
+| `CallSettingsContent` | `calls` altında sesli çağrı başlangıç tercihleri | `mute_on_join` ve `share_on_join` gibi bool alanları içerir. |
+| `TelemetrySettingsContent` | `telemetry` altında diagnostics ve metrics tercihleri | Varsayılan implementasyonu iki alanı da `true` yapar. |
+| `DebuggerSettingsContent`, `SteppingGranularity` | `debugger` stepping, breakpoint ve DAP log ayarları | Dock alanı settings crate'indeki `DockPosition` değerine bağlanır. |
+| `GitPanelSettingsContent`, `StatusStyle`, `ScrollbarSettings` | Git paneli görünümü, dock, scrollbar ve commit başlığı sınırları | `StatusStyle` dosya durumunun ikon mu renkli label mı gösterileceğini seçer. |
+| `PanelSettingsContent`, `DockSide` | Collaboration ve benzeri panel genişliği/dock schema'sı | Tek panel content taşıyıcısı birden çok panel alanında kullanılır. |
+| `FileFinderSettingsContent`, `FileFinderWidthContent`, `IncludeIgnoredContent` | File finder ikon, genişlik ve ignored dosya stratejisi | `IncludeIgnoredContent::Smart` default seçimdir. |
+| `VimSettingsContent`, `ModeContent`, `UseSystemClipboard`, `CursorShapeSettings`, `VimInsertModeCursorShape` | Vim modu davranışı ve cursor shape override'ları | `CursorShapeSettings` editor `CursorShape` ile Vim insert shape enum'unu birleştirir. |
+| `JournalSettingsContent`, `HourFormat` | Journal dizini ve saat formatı | `HourFormat` `hour12` / `hour24` JSON değerlerini taşır. |
+| `OutlinePanelSettingsContent`, `IndentGuidesSettingsContent`, `ShowIndentGuides`, `LineIndicatorFormat` | Outline panel görünümü, indent guide ve satır göstergesi formatı | `LineIndicatorFormat` kısa/uzun gösterim seçimini saklar. |
+| `ImageViewerSettingsContent`, `ImageFileSizeUnit` | Görsel görüntüleyici dosya boyutu birimi | Binary ve decimal birim ayrımı content enum'udur. |
+| `RemoteSettingsContent`, `SshConnection`, `WslConnection`, `DevContainerConnection`, `RemoteProject`, `SshPortForwardOption` | SSH, WSL ve dev container bağlantı tanımları | Remote ayarları `SettingsContent.remote` flatten alanının schema sınırıdır. |
+| `ReplSettingsContent`, `WhichKeySettingsContent`, `DelayMs` | REPL scrollback/inline çıktı ve which-key gecikmesi | `DelayMs` display çıktısında `ms` son eki kullanır. |
+| `FeatureFlagsMap`, `InstrumentationSettingsContent`, `PerformanceProfilerSettingsContent` | Feature flag override ve profiler/tracing ayarları | `FeatureFlagsMap` özel `JsonSchema` adıyla runtime schema değişimine izin verir. |
+| `PlatformOverrides`, `ReleaseChannelOverrides`, `ProfileBase` | OS, release kanalı ve profil taban override'ları | `settings_overrides!` macro'su `OVERRIDE_KEYS` ve `get_by_key` üretir. |
+| `ExtensionsSettingsContent`, `ExtensionSettingsContent`, `ExtensionCapabilityContent` | Uzantı ve uzantı capability payload'ları | Extension content, settings schema'sına ayrı flatten katmanı olarak girer. |
+| `HideMouseMode`, `MessageEditorSettings` | Global mouse gizleme ve message editor davranışı | `HideMouseMode` typing/action kaynaklı cursor gizlemeyi seçer. |
+| `WindowButtonLayoutContentDiscriminants` | Title bar pencere düğmesi layout enum discriminant'ı | Selector/schema tarafında variant listesini content katmanından verir. |
+| `default_true`, `serialize_optional_f32_with_two_decimal_places` | Serde default ve float serialize yardımcıları | Content alanlarının schema/JSON kararlılığında kullanılan küçük helper'lardır. |
+
+---
+
 ## Tuzaklar
 
 Akış ve kayıt tarafında karşılaşılan tipik hatalar:

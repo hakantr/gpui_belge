@@ -176,6 +176,101 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 
 ---
 
+## `SettingsContent` domain schema aileleri
+
+`SettingsStore` içindeki `merged_settings: Rc<SettingsContent>` tek bir büyük runtime sözleşme gibi görünür, ama kaynakta bu sözleşme dosya/domain bazlı content ailelerine ayrılır. Aşağıdaki tablolar bu content tiplerini kullanıcı yüzeyindeki doğal aileleriyle okur; alan detayları gerektiğinde ilgili runtime bölümünde genişletilir.
+
+### Editör content ailesi
+
+| API | Kapsadığı davranış | Not |
+| :-- | :-- | :-- |
+| `RelativeLineNumbers`, `CompletionDetailAlignment`, `ToolbarContent` | Satır numarası, completion detay hizası ve editor toolbar tercihleri | Editor schema'sının küçük enum/struct taşıyıcılarıdır. |
+| `ScrollbarContent`, `ScrollbarAxesContent`, `ScrollbarDiagnostics` | Editor scrollbar görünümü, eksenleri ve diagnostic işaretleri | Terminal scrollbar content'inden ayrı tutulur. |
+| `StickyScrollContent`, `MinimapContent`, `MinimapThumb`, `MinimapThumbBorder` | Sticky scroll ve minimap görünüm ayarları | Minimap thumb ve border davranışı ayrı enum'larla seçilir. |
+| `GutterContent`, `CodeLens`, `DocumentColorsRenderMode`, `CurrentLineHighlight` | Gutter, code lens, document color ve aktif satır vurgusu | Dil sunucusu çıktısını editor görünümüne bağlayan schema parçalarıdır. |
+| `DoubleClickInMultibuffer`, `MultiCursorModifier`, `ScrollBeyondLastLine`, `CursorShape` | Çoklu buffer tıklama, multicursor modifier, scroll sınırı ve cursor şekli | Editor etkileşim davranışını JSON'dan taşır. |
+| `GoToDefinitionFallback`, `GoToDefinitionScrollStrategy` | Definition bulunamadığında fallback ve hedefe scroll stratejisi | Navigation davranışı editor content katmanında kalır. |
+| `SnippetSortOrder`, `DiffViewStyle`, `DiffViewStyleIter` | Snippet sıralaması ve diff görünümü | `DiffViewStyleIter` variant dolaşımı için üretilen yardımcıdır. |
+| `SearchSettingsContent`, `JupyterContent`, `DragAndDropSelectionContent` | Arama, Jupyter ve drag-selection tercihleri | Editor içindeki feature-specific alt struct'lardır. |
+| `ShowMinimap`, `DisplayIn`, `MinimumContrast`, `InactiveOpacity`, `CenteredPaddingSettings` | Minimap gösterimi, gösterim hedefi, kontrast, opacity ve centered layout padding | Tema ile kesişen görsel değerler de editor schema sahibi olarak kalır. |
+
+### Dil ve formatter content ailesi
+
+| API | Kapsadığı davranış | Not |
+| :-- | :-- | :-- |
+| `AllLanguageSettingsContent`, `LanguageSettingsContent`, `LanguageToSettingsMap` | Dile özel settings map'i ve tek dil content'i | `SettingsContent.project.all_languages` altında path/language merge hattına girer. |
+| `EditPredictionProvider`, `EditPredictionSettingsContent`, `CustomEditPredictionProviderSettingsContent`, `EditPredictionPromptFormatContent` | Edit prediction provider, özel provider ve prompt format ayarları | Copilot, Codestral ve Ollama içerikleriyle birlikte değerlendirilir. |
+| `CopilotSettingsContent`, `CodestralSettingsContent`, `OllamaModelName`, `OllamaEditPredictionSettingsContent` | Built-in edit prediction provider payload'ları | Provider-specific URL/model ayarları schema'da ayrı tiplenir. |
+| `EditPredictionDataCollectionChoice`, `EditPredictionsMode` | Edit prediction veri toplama ve çalışma modu | Kullanıcı consent ve mod seçimi enum'larıdır. |
+| `AutoIndentMode`, `SoftWrap`, `ShowWhitespaceSetting`, `WhitespaceMapContent`, `RewrapBehavior` | Indent, wrap, whitespace ve rewrap davranışı | EditorConfig ve VS Code import akışında da bu alanlara yazılır. |
+| `JsxTagAutoCloseSettingsContent`, `InlayHintSettingsContent`, `InlayHintKind`, `CompletionSettingsContent`, `LspInsertMode`, `WordsCompletionMode` | JSX kapanış, inlay hint, completion ve LSP insert davranışı | Dil server çıktısını editor davranışına çeviren content katmanıdır. |
+| `FormatOnSave`, `FormatterList`, `Formatter`, `LanguageServerFormatterSpecifier`, `LineEndingSetting`, `PrettierSettingsContent` | Format-on-save, formatter zinciri ve line ending seçimi | Formatter listesi language server, external code action ve Prettier yollarını aynı schema'da toplar. |
+| `IndentGuideSettingsContent`, `IndentGuideColoring`, `IndentGuideBackgroundColoring`, `LanguageTaskSettingsContent` | Dil bazlı indent guide ve task content'i | Worktree/local ayarlar ile global language ayarları aynı content tiplerini kullanır. |
+
+### Project, LSP ve Git content ailesi
+
+| API | Kapsadığı davranış | Not |
+| :-- | :-- | :-- |
+| `ProjectSettingsContent`, `WorktreeSettingsContent`, `SessionSettingsContent` | Proje, worktree ve session top-level payload'ları | `SettingsContent.project` flatten alanının ana parçalarıdır. |
+| `LspSettingsMap`, `LspSettings`, `GlobalLspSettingsContent`, `LspNotificationSettingsContent`, `LspPullDiagnosticsSettingsContent` | LSP server ayarı, bildirim ve pull diagnostic ayarları | LSP schema URL'leri `SettingsStore::json_schema` üretiminde bu tiplerden beslenir. |
+| `DapSettingsContent`, `ContextServerSettingsContent`, `ContextServerCommand`, `OAuthClientSettings` | Debug adapter, context server ve OAuth client ayarları | Project content içinde araç/server entegrasyonlarını taşır. |
+| `DiagnosticsSettingsContent`, `InlineDiagnosticsSettingsContent`, `DiagnosticSeverityContent` | Diagnostics ve inline diagnostics davranışı | Severity enum'u kullanıcı JSON'unda diagnostic eşiğini temsil eder. |
+| `GitSettings`, `GitEnabledSettings`, `GitGutterSetting`, `GitHunkStyleSetting`, `GitPathStyle` | Git entegrasyonu, gutter ve hunk görünümü | Editor/git panel kullanımındaki Git davranış ayarlarının schema sahibidir. |
+| `InlineBlameSettings`, `BlameSettings`, `BranchPickerSettingsContent` | Blame ve branch picker davranışı | Git UI feature'ları project content altında tiplenir. |
+| `GitHostingProviderConfig`, `GitHostingProviderKind` | Git hosting provider bağlantı tipi | Provider kind enum'u hosting entegrasyonu seçimini saklar. |
+| `SemanticTokenRule`, `SemanticTokenColorOverride`, `SemanticTokenFontStyle`, `SemanticTokenFontWeight` | Semantic token style override kuralları | Theme syntax renkleriyle kesişir ama schema sahibi project content'tir. |
+| `NodeBinarySettings`, `BinarySettings`, `FetchSettings`, `DirenvSettings` | Node binary, generic binary fetch ve direnv ayarları | Toolchain keşfi ve dış süreç davranışını JSON'dan taşır. |
+
+### Workspace ve panel content ailesi
+
+| API | Kapsadığı davranış | Not |
+| :-- | :-- | :-- |
+| `WorkspaceSettingsContent`, `ItemSettingsContent`, `PreviewTabsSettingsContent`, `TabBarSettingsContent`, `StatusBarSettingsContent` | Workspace, item/tab ve status bar görünümü | `SettingsContent.workspace` flatten alanına ve root panel alanlarına bağlanır. |
+| `ActivePaneModifiers`, `CloseWindowWhenNoItems`, `CliDefaultOpenBehavior`, `AutosaveSettingDiscriminants` | Aktif pane modifier'ları, pencere kapanış, CLI açılış ve autosave discriminant'ları | Workspace davranışının enum/newtype schema yüzeyidir. |
+| `PaneSplitDirectionHorizontal`, `PaneSplitDirectionVertical`, `CenteredLayoutSettings`, `OnLastWindowClosed` | Pane split yönü, centered layout ve son pencere kapanış davranışı | Pencere/workspace yerleşim ayarlarını taşır. |
+| `ProjectPanelSettingsContent`, `ProjectPanelAutoOpenSettings`, `ProjectPanelEntrySpacing`, `ProjectPanelIndentGuidesSettings` | Project panel ana content'i, auto-open, spacing ve indent guide ayarları | File tree görünümünü kullanıcı JSON'una bağlar. |
+| `ProjectPanelScrollbarSettingsContent`, `ProjectPanelSortMode`, `ProjectPanelSortOrder` | Project panel scrollbar ve sıralama ayarları | Sort mode/order ayrı enum'larla schema'da görünür. |
+| `SemanticTokens`, `DocumentFoldingRanges`, `DocumentSymbols` | Workspace seviyesinde semantic token, folding range ve outline/document symbol kullanımı | Dil server feature toggles workspace ayarı olarak tiplenir. |
+
+### Terminal content ailesi
+
+| API | Kapsadığı davranış | Not |
+| :-- | :-- | :-- |
+| `ProjectTerminalSettingsContent`, `TerminalSettingsContent` | Proje terminali ve global terminal ayarları | Project-local terminal content ile top-level terminal content ayrıdır. |
+| `WorkingDirectory`, `WorkingDirectoryDiscriminants`, `ShellDiscriminants` | Terminal çalışma dizini ve shell discriminant'ları | `strum`/schema tarafında variant listesini görünür kılar. |
+| `ScrollbarSettingsContent`, `TerminalLineHeight`, `TerminalToolbarContent` | Terminal scrollbar, line height ve toolbar görünümü | Editor scrollbar content'inden ayrı bir terminal schema yüzeyidir. |
+| `CursorShapeContent`, `TerminalBlink`, `AlternateScroll`, `TerminalBell` | Terminal cursor, blink, alternate scroll ve bell davranışı | PTY/terminal etkileşim tercihlerini JSON'dan taşır. |
+| `CondaManager`, `VenvSettings`, `VenvSettingsContent`, `PathHyperlinkRegex` | Conda/venv aktivasyonu ve path hyperlink regexp seçimi | Ortam aktivasyon script'i ile hyperlink yakalama terminal content'te birleşir. |
+| `TerminalDockPosition`, `ActivateScript` | Terminal dock ve environment activation script davranışı | Project terminal ayarları global terminal ayarını tamamlar. |
+
+### Agent content ailesi
+
+| API | Kapsadığı davranış | Not |
+| :-- | :-- | :-- |
+| `AgentSettingsContent`, `AgentProfileContent`, `ContextServerPresetContent` | Agent panel, profil ve context server preset ayarları | Agent top-level alanı model, panel ve izinleri aynı content altında toplar. |
+| `AllAgentServersSettings`, `CustomAgentServerSettings` | Agent server ayar koleksiyonu ve custom server seçimi | External agent server davranışını settings JSON'una bağlar. |
+| `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve provider-specific parametre override'ları | `language_models` provider ayarlarından ayrı, agent kullanım seçimini taşır. |
+| `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel layout, düşünme bloğu, bildirim ve ses davranışı | Kullanıcı etkileşimiyle ilgili enum payload'larıdır. |
+| `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool izinleri, regex kuralları ve izin modu | Tool çağrısı policy'si content schema seviyesinde tiplenir. |
+
+### Language model provider content ailesi
+
+| API | Kapsadığı davranış | Not |
+| :-- | :-- | :-- |
+| `language_model`, `AllLanguageModelSettingsContent` | Kök re-export ve tüm provider ayar koleksiyonu | `SettingsContent.language_models` alanının top-level schema'sıdır. |
+| `AnthropicSettingsContent`, `AnthropicAvailableModel`, `LanguageModelCacheConfiguration` | Anthropic API URL, model listesi ve cache yapılandırması | Model entry'leri display name, token limitleri ve tool override taşıyabilir. |
+| `AmazonBedrockSettingsContent`, `BedrockAvailableModel`, `BedrockAuthMethodContent` | Bedrock region, endpoint, auth ve model listesi | Auth enum'u named profile, SSO, API key ve automatic yollarını ayırır. |
+| `OllamaSettingsContent`, `OllamaAvailableModel`, `KeepAlive` | Ollama API, auto-discover ve keep-alive davranışı | `KeepAlive` saniye veya duration string olarak deserialize edilir. |
+| `OpenCodeSettingsContent`, `OpenCodeAvailableModel`, `OpenCodeModelSubscription` | OpenCode API ve subscription bazlı model listesi | Zen/Go/Free subscription enum'u provider content'inin parçasıdır. |
+| `LmStudioSettingsContent`, `LmStudioAvailableModel`, `DeepseekSettingsContent`, `DeepseekAvailableModel` | LM Studio ve DeepSeek provider payload'ları | Her provider kendi available model struct'ını kullanır. |
+| `MistralSettingsContent`, `MistralAvailableModel`, `OpenAiSettingsContent`, `OpenAiAvailableModel`, `OpenAiModelCapabilities` | Mistral ve OpenAI provider ayarları | Token, completion, reasoning ve tool/image capability alanları provider schema'sında kalır. |
+| `OpenAiCompatibleSettingsContent`, `OpenAiCompatibleAvailableModel`, `OpenAiCompatibleModelCapabilities` | OpenAI-compatible named provider map'i | `HashMap<Arc<str>, ...>` ile birden çok custom provider tanımlanabilir. |
+| `VercelAiGatewaySettingsContent`, `VercelAiGatewayAvailableModel`, `GoogleSettingsContent`, `GoogleAvailableModel` | Vercel AI Gateway ve Google provider ayarları | Gateway/provider ayarları `language_models` altında ayrı key'lerle tutulur. |
+| `XAiSettingsContent`, `XaiAvailableModel`, `ZedDotDevSettingsContent`, `ZedDotDevAvailableModel`, `ZedDotDevAvailableProvider` | xAI ve `zed.dev` provider ayarları | `zed.dev` JSON key'i serde rename ile korunur. |
+| `OpenRouterSettingsContent`, `OpenRouterAvailableModel`, `OpenRouterProvider`, `DataCollection` | OpenRouter provider, model metadata ve veri toplama tercihi | OpenRouter provider bilgisi model entry'sinden ayrı tiplenir. |
+
+---
+
 ## Tuzaklar
 
 - Store'un `Global` olması demek, her testte ayrı bir store gerektiği anlamına gelir; `SettingsStore::test(cx)` veya `SettingsStore::new(cx, ...)` ile yenisi kurulmadan testler birbirinin durumunu kirletebilir.

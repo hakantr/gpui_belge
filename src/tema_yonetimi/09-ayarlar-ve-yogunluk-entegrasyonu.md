@@ -768,6 +768,7 @@ Bu alanların yardımcı tipleri de şemaya dahildir:
 | `BufferLineHeight` | `comfortable`, `standard`, `custom(f32)` | custom değer `>= 1.0` olmalıdır |
 | `CodeFade` | gereksiz kod fade oranı | schema aralığı `0.0..=0.9` |
 | `DEFAULT_LIGHT_THEME` / `DEFAULT_DARK_THEME` | ayar fallback adları | `"One Light"` / `"One Dark"` tek kaynak olarak korunur |
+| `ThemeSelectionDiscriminants`, `IconThemeSelectionDiscriminants`, `BufferLineHeightDiscriminants` | Content enum'larının variant/discriminant görünümü | Selector UI, schema ve strum tabanlı variant listelerinde content enum varyantlarını ayrı tip olarak görünür kılar |
 
 `agent_ui_font_size`, `agent_buffer_font_size` ve `git_commit_buffer_font_size` provider trait'inde yer almaz; her biri kendi tüketici alanında ayar katmanında kalır. `git_commit_buffer_font_size` varsayılanı 12 pikseldir (`default.json`'da belgelenmiştir); git paneli ve commit modal'ındaki editörün yazı tipi boyutunu diğer tampon boyutlarından bağımsız olarak denetler. `theme`, `icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides` ve `theme_overrides` selector ve override akışına gider; typography helper'ları ise provider üzerinden `ui_font`, `buffer_font`, `ui_font_size`, `buffer_font_size` ve `ui_density` değerlerini okur. `markdown_preview_code_font_family` provider trait'ine eklenmez; markdown preview tüketicisi `ThemeSettings` üzerinden okur. Değer boşsa `buffer_font.family` kullanır.
 
