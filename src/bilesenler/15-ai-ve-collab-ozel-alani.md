@@ -11,20 +11,6 @@ Bu ailede iki genel kural vardır:
 
 ## AiSettingItem
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AiSettingItem` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `AiSettingItem` | Metotlar | `detail_label`, `details`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -97,20 +83,6 @@ Dikkat edeceğin noktalar:
 
 ## AgentSetupButton
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AgentSetupButton` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `AgentSetupButton` | Metotlar | `name`, `new`, `on_click` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -161,21 +133,6 @@ Dikkat edeceğin noktalar:
 - Disabled durumdayken click handler render edilmez.
 
 ## ThreadItem
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ThreadItem` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ThreadItem` | Metotlar 1 | `action_slot`, `added`, `archived`, `base_bg`, `custom_icon_from_external_svg`, `focused`, `highlight_positions`, `hovered`, `icon_color`, `icon_visible`, `is_remote`, `is_truncated`, `new`, `notified` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ThreadItem` | Metotlar 2 | `icon_char`, `on_click`, `on_hover`, `project_name`, `project_paths`, `removed`, `rounded`, `timestamp`, `title_generating`, `title_label_color`, `title_slot`, `worktrees` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -273,20 +230,6 @@ Dikkat edeceğin noktalar:
 
 ## ConfiguredApiCard
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ConfiguredApiCard` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ConfiguredApiCard` | Metotlar | `button_label`, `button_tab_index`, `new`, `on_click`, `tooltip_label` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -340,13 +283,6 @@ Dikkat edeceğin noktalar:
 - `button_tab_index(...)`, provider setup ekranında klavye sırasını ayarlamak için kullanırsın.
 
 ## SkillsIllustration
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `SkillsIllustration` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -410,20 +346,6 @@ Dikkat edeceğin noktalar:
 - `SkillsIllustration::new()` çağrısı parametresizdir; renk veya boyut özelleştirmesi tamamen bileşenin kendi içine bağımlıdır. Farklı bir görsele ihtiyaç doğduğunda, kaynak dosyayı referans alarak özel bir illustration component'i yazmak daha uygun olur.
 
 ## CollabNotification
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `CollabNotification` | `description`, `extend`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `CollabNotification` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -508,20 +430,6 @@ Dikkat edeceğin noktalar:
 - Skill load hataları dismiss edilebilir ama bu kalıcı bir suppress değildir. Alttaki dosya düzelip sonra yeniden bozulursa hata tekrar gösterilir.
 
 ## UpdateButton
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `UpdateButton` | `description`, `name`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `UpdateButton` | Metotlar | `checking`, `downloading`, `errored`, `icon_animate`, `icon_color`, `installing`, `new`, `on_click`, `on_dismiss`, `tooltip`, `updated`, `with_dismiss` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -649,41 +557,3 @@ Bu bölümdeki bileşenlerin nerede tercih edileceğini özetleyen kısa bir kar
 - AI ayar satırı için `AiSettingItem`; provider credential state'i için `ConfiguredApiCard`; agent thread listesi için `ThreadItem`.
 - Agent skills özelliği için onboarding veya illustration alanı gerekiyorsa `SkillsIllustration` (yalnızca dekoratif).
 - Collaboration toast layout'u için `CollabNotification`; title bar update state'i için `UpdateButton`.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `AiSettingItemStatus`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Authenticating`, `AuthRequired`, `ClientSecretRequired`, `Error`, `Running`, `Starting`, `Stopped` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `AiSettingItemSource`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Custom`, `Extension`, `Registry` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `AgentThreadStatus`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Completed`, `Error`, `Running`, `WaitingForConfirmation` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `WorktreeKind`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Linked`, `Main` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ThreadItemWorktreeInfo`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `branch_name`, `full_path`, `highlight_positions`, `kind`, `worktree_name` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-<!-- phase14-api-anchor:end -->

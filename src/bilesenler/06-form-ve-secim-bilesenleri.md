@@ -15,20 +15,6 @@ Bu kontrollerin hepsi için ortak kural şudur: görsel durum ile uygulama durum
 
 ## Checkbox
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Checkbox` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Checkbox` | Metotlar | `container_size`, `fill`, `label`, `label_color`, `label_size`, `new`, `on_click`, `on_click_ext`, `placeholder`, `style`, `tooltip`, `visualization_only` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -104,20 +90,6 @@ Dikkat edeceğin noktalar:
 
 ## Switch
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Switch` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Switch` | Metotlar | `full_width`, `key_binding`, `label`, `label_position`, `label_size`, `new`, `on_click`, `tab_index` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -181,20 +153,6 @@ Dikkat edeceğin noktalar:
 - Disabled bir switch, dış container'da pointer cursor'ı tamamen kaldırmaz. Kullanıcıya neden disabled olduğunu anlatmak gerekiyorsa satıra kısa bir açıklama veya tooltip eklemek bu boşluğu kapatır.
 
 ## SwitchField
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `SwitchField` | `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `SwitchField` | Metotlar | `description`, `tab_index`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -282,20 +240,6 @@ Form ve toggle yardımcı API'leri:
 | `SwitchLabelPosition` | Switch label'ının `Start` veya `End` tarafında duracağını seçer. |
 
 ## InputField (`ui_input`)
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `InputField` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `InputField` | Metotlar | `is_empty`, `label`, `label_min_width`, `label_size`, `masked`, `start_icon`, `tab_index`, `tab_stop` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -497,42 +441,3 @@ impl Render for SettingsView {
     }
 }
 ```
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `ToggleStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Custom`, `ElevationBased`, `Ghost` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `SwitchColor`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Accent`, `Custom` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `SwitchLabelPosition`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `End`, `Start` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ErasedEditor`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları 1 | `as_any`, `clear`, `focus_handle`, `move_selection_to_end`, `render`, `set_masked`, `set_placeholder_text`, `set_text` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-| Trait metotları 2 | `subscribe`, `text` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `ErasedEditorEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Blurred`, `BufferEdited` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

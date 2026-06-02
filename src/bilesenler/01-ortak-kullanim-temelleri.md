@@ -160,20 +160,6 @@ Token enum'larının çoğu tek başına uzun anlatım gerektirmez; hangi aileye
 
 ## Spacing token'ları (`DynamicSpacing`)
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `DynamicSpacing` | `cmp` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `DynamicSpacing` | Varyantlar | `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`, `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`, `Base48` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
-
 Padding, margin ve gap değerleri için her yerde elle `px(...)` veya `rems(...)` yazmak yerine, `ui` crate'inde tanımlı `DynamicSpacing` ölçeğini tercih etmen daha doğru olur. Bu enum, kullanıcının UI yoğunluk ayarına (`Compact`, `Default`, `Comfortable`) göre tek noktadan ölçek değiştirir. Uygulama yoğunluğu değiştiğinde spacing değerleri de aynı kurala bağlı olarak uyum sağlar.
 
 - Adlandırma: `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`, `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`, `Base48`. `BaseXX` içindeki `XX`, varsayılan yoğunluktaki yaklaşık pixel değeridir (`Base04 ≈ 4px`, `Base16 ≈ 16px`).
@@ -190,14 +176,6 @@ Spacing macro yüzeyi:
 Sabit ve değişmeyen bir aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `gap_2` gibi GPUI yardımcıları yeterlidir. Bu sabitler aynı zamanda `h_group*` ve `v_group*` helper'larının arkasında da kullanılır.
 
 ## Yükseklik / elevation token'ları (`ElevationIndex`)
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ElevationIndex` | Metotlar | `darker_bg`, `on_elevation_bg`, `shadow` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ElevationIndex` | Varyantlar | `EditorSurface`, `ElevatedSurface`, `ModalSurface` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
 
 `ui` crate'indeki `ElevationIndex`, bir yüzeyin görsel "z-axis" konumunu anlatır. Doğru elevation seçtiğinde shadow, background ve border kombinasyonu birlikte gelir. Böylece her popover, modal veya panel için aynı görsel ayrıntıları elden ayarlaman gerekmez.
 
@@ -254,20 +232,6 @@ Bu trait'leri ne zaman doğrudan düşünmezsin? Sadece hazır bir `Button`, `Li
 
 ## Platform stili (`PlatformStyle`)
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `PlatformStyle` | `cmp` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `PlatformStyle` | Varyantlar | `Mac` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
-
 `ui` crate'indeki `PlatformStyle`, işletim sistemine bağlı render kararlarını tek bir yerde toplamak için kullanırsın. `cfg!` makrolarını veya platform tespitini her bileşene dağıtmak yerine, platforma göre değişen davranışları bu enum üzerinden ifade edersin.
 
 - Değerler: `Mac`, `Linux`, `Windows`.
@@ -277,14 +241,6 @@ Bu trait'leri ne zaman doğrudan düşünmezsin? Sadece hazır bir `Button`, `Li
 Platforma özel bir davranış kurarken `cfg!` makrolarını her yerde tekrar etmek yerine, `PlatformStyle::platform()` dönüş değerini tek bir noktada saklaman önerilir. Bu yaklaşım testlerde bu değeri override etmeyi de kolaylaştırır.
 
 ## Tipografi yardımcıları (`StyledTypography`, `TextSize`)
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `StyledTypography` | Trait üyeleri | `font_buffer`, `font_ui`, `text_buffer`, `text_ui`, `text_ui_lg`, `text_ui_size`, `text_ui_sm`, `text_ui_xs` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `TextSize` | Metotlar | `pixels`, `rems` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 `ui` crate'i, `Headline` ve `Label` dışında düz `div()` üzerine de tema tutarlı tipografi uygulamak için `StyledTypography` trait'ini sağlar. `Styled` implement eden her tip otomatik olarak bu trait'i de devralır; ayrıca derive veya impl yazman gerekmez.
 
@@ -329,13 +285,6 @@ Viewport birimleri için `vw(percent)` ve `vh(percent)` yardımcıları vardır.
 | `DefaultAnimations` | `animate_in`, `animate_in_from_bottom`, `animate_in_from_top`, `animate_in_from_left`, `animate_in_from_right` | Styled elementlere standart giriş animasyonları ekler. |
 
 ## `CommonAnimationExt` ve transform kısıtı
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `CommonAnimationExt` | Trait üyeleri | `with_keyed_rotate_animation`, `with_rotate_animation` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
 
 `ui` crate'indeki `Transformable`, kaynakta `pub trait` olarak görünür; ancak `ui` tarafından crate köküne re-export edilmez ve `ui::prelude::*` içinde de bulunmaz. Bu yüzden tüketici kodu için sabit çağrı yüzeyi `.transform(...)` değildir; doğrudan bu metodu çağırmaya çalışmak crate sınırında trait'i import edememekle sonuçlanır.
 
@@ -439,204 +388,3 @@ UI olay işleyicilerinden veya async task'lardan dönen `Result` değerlerini se
 - Panik üreten kısa yollar ve `let _ = ...?` yerine açık eşleştirme yapman beklenir. `let _ = ...` üretim kodunda yalnızca hatayı bilinçli olarak yok saydığın ender durumlarda kabul edilir; o durumlarda da nedenini yorum satırıyla belirtmen gerekir.
 
 `anyhow::Result` ve `anyhow::Context`, Zed crate'lerinde standart hâle gelmiştir. `?` operatörü ile bir hata yayılırken mesaja `with_context(|| ...)` eklediğinde, log'da hatanın kaynağı çok daha anlaşılır biçimde görünür.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `ComponentStatus`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Deprecated`, `EngineeringReady`, `Live`, `WorkInProgress` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `description` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ComponentScope`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar 1 | `Agent`, `Collaboration`, `DataDisplay`, `Editor`, `Images`, `Input`, `Layout`, `Loading` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Varyantlar 2 | `Navigation`, `None`, `Notification`, `Onboarding`, `Overlays`, `Status`, `Typography`, `Utilities` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Varyantlar 3 | `VersionControl` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ComponentExample`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `description`, `new`, `width` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `description`, `element`, `variant_name`, `width` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ComponentExampleGroup`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `grow`, `new`, `vertical`, `width`, `with_title` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `examples`, `grow`, `title`, `vertical`, `width` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `TintColor`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Accent`, `Error`, `Success`, `Warning` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ButtonStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Filled`, `Outlined`, `OutlinedCustom`, `OutlinedGhost`, `Subtle`, `Tinted`, `Transparent` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ButtonSize`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Compact`, `Default`, `Large`, `Medium`, `None` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `rems` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `KnockoutIconName`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `DotBg`, `DotFg`, `TriangleBg`, `TriangleFg`, `XBg`, `XFg` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `path` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `VectorName`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `BusinessStamp`, `Grid`, `ProTrialStamp`, `ProUserStamp`, `StudentStamp`, `ZedLogo`, `ZedXCopilot` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `path` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `LabelSize`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Custom`, `Default`, `Large`, `Small`, `XSmall` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ScrollbarStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Editor`, `Regular` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `to_pixels` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `AnimationDuration`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Fast`, `Instant`, `Slow` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `duration` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `AnimationDirection`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `FromBottom`, `FromLeft`, `FromRight`, `FromTop` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `DefaultAnimations`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `animate_in`, `animate_in_from_bottom`, `animate_in_from_left`, `animate_in_from_right`, `animate_in_from_top` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `Color`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar 1 | `Accent`, `Conflict`, `Created`, `Custom`, `Debugger`, `Default`, `Deleted`, `Disabled` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Varyantlar 2 | `Error`, `Hidden`, `Hint`, `Ignored`, `Info`, `Modified`, `Muted`, `Placeholder` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Varyantlar 3 | `Player`, `Selected`, `Success`, `VersionControlAdded`, `VersionControlConflict`, `VersionControlDeleted`, `VersionControlIgnored`, `VersionControlModified` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Varyantlar 4 | `Warning` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `color` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `HeadlineSize`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Large`, `Medium`, `Small`, `XLarge`, `XSmall` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `line_height`, `rems` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `Clickable`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `cursor_style`, `on_click` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `Disableable`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `disabled` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `FixedWidth`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `full_width`, `width` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `StyledExt`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları 1 | `border_muted`, `border_primary`, `debug_bg_blue`, `debug_bg_cyan`, `debug_bg_green`, `debug_bg_magenta`, `debug_bg_red`, `debug_bg_yellow` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-| Trait metotları 2 | `elevation_1`, `elevation_1_borderless`, `elevation_2`, `elevation_2_borderless`, `elevation_3`, `elevation_3_borderless`, `h_flex`, `v_flex` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `Toggleable`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `toggle_state` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `ToggleState`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Indeterminate`, `Selected`, `Unselected` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `from_any_and_all`, `inverse`, `selected` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `Transformable`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `transform` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `VisibleOnHover`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `visible_on_hover` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `CornerSolver`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `add_child`, `corner_radius`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `DateTimeType`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Local`, `Naive` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `to_naive` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `FormatDistance`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `add_suffix`, `from_now`, `hide_prefix`, `include_seconds`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `SearchInputWidth`
-
-| Grup | API | Not |
-|---|---|---|
-| Assoc const | `MAX_WIDTH`, `THRESHOLD_WIDTH` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Metotlar | `calc_width` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `WithRemSize`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new`, `occlude` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

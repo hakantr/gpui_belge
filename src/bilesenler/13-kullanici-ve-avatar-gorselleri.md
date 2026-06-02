@@ -1,19 +1,5 @@
 # 13. Kullanıcı ve Avatar Görselleri
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Avatar` | `description`, `DOCS`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Avatar` | Metotlar | `border_color`, `grayscale`, `indicator`, `new`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini ekranda göstermek için kullanırsın. Bu gösterim tek bir kişi olabilir ya da küçük, örtüşen bir grup halinde kurulabilir. Görsel kaynağı yüklenemezse her ikisi de fallback bir ikona döner. Ayrıca indicator, border ve boyut gibi ayarlarla avatarın çevresine durum bilgisi ekleyebilirsin.
 
 Bu bileşenlerde iki kuralı baştan netleştirmek faydalıdır:
@@ -111,20 +97,6 @@ Dikkat edeceğin noktalar:
 
 ## Facepile
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Facepile` | `description`, `DOCS`, `extend`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Facepile` | Metotlar | `empty`, `new`, `p_2`, `p_3`, `pb`, `pl`, `pt`, `px`, `px_1`, `px_2`, `py`, `py_0p5`, `py_1` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -183,35 +155,3 @@ Dikkat edeceğin noktalar:
 
 - Overlap görünümünün düzgün okunması için, avatar border renginin parent background ile eşleşmesi iyi bir tercih olur.
 - Çok fazla avatarı yan yana sıkıştırmak yerine, ilk birkaç kişiyi gösterip kalan sayıyı ayrı bir göstergeyle belirtmek okunabilirliği korur.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `AudioStatus`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Deafened`, `Muted` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `AvatarAudioStatusIndicator`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new`, `tooltip` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `CollaboratorAvailability`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Busy`, `Free` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `AvatarAvailabilityIndicator`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `avatar_size`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

@@ -14,13 +14,6 @@ Feedback bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilg
 
 ## Severity
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Severity` | Varyantlar | `Error`, `Info`, `Success`, `Warning` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -39,20 +32,6 @@ Davranış:
 - Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyon ayrı bir button slot'una yerleştirilir.
 
 ## Banner
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Banner` | `description`, `extend`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Banner` | Metotlar | `action_slot`, `new`, `severity`, `wrap_content` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -136,20 +115,6 @@ Dikkat edeceğin noktalar:
 - Banner, modal içindeki karar alanı gibi kullanmaman gerekir. Modal kararlarının footer aksiyonlarıyla verilmesi beklenir.
 
 ## Callout
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Callout` | `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Callout` | Metotlar | `actions_slot`, `border_position`, `description`, `description_slot`, `dismiss_action`, `line_height`, `new`, `severity`, `title` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -247,20 +212,6 @@ Dikkat edeceğin noktalar:
 - Description slot'una scroll yapan karmaşık bir içerik konulduğunda, içerideki metinlerin `min_w_0()` ve `.truncate()` davranışı ayrıca düşünülür.
 
 ## Modal
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Modal` | `extend` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Modal` | Metotlar | `footer`, `header`, `new`, `section`, `show_back`, `show_dismiss` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -404,20 +355,6 @@ Dikkat edeceğin noktalar:
 
 ## AlertModal
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AlertModal` | `description`, `extend`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `AlertModal` | Metotlar | `dismiss_label`, `footer`, `header`, `key_context`, `new`, `on_action`, `primary_action`, `title`, `track_focus`, `width` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -514,20 +451,6 @@ Dikkat edeceğin noktalar:
 
 ## AnnouncementToast
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AnnouncementToast` | `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `AnnouncementToast` | Metotlar | `bullet_item`, `bullet_items`, `description`, `dismiss_on_click`, `heading`, `illustration`, `new`, `primary_action_label`, `primary_on_click`, `secondary_action_label`, `secondary_on_click` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -616,20 +539,6 @@ Pratik sonuç şudur:
 
 ## CountBadge
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `CountBadge` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `CountBadge` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -682,20 +591,6 @@ Dikkat edeceğin noktalar:
 - Badge metni otomatik olarak capped olduğu için, gerçek tam sayının tooltip veya bir detay view'ında gösterilmesi gerekebilir.
 
 ## Indicator
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Indicator` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Indicator` | Metotlar | `bar`, `border_color` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -764,20 +659,6 @@ Dikkat edeceğin noktalar:
 
 ## ProgressBar
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ProgressBar` | `description`, `DOCS`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ProgressBar` | Metotlar | `bg_color`, `fg_color`, `max_value`, `new`, `over_color`, `value` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -841,20 +722,6 @@ Dikkat edeceğin noktalar:
 - `value > max_value` bilinçli bir over-limit durumudur. Normal "işlem tamamlandı" durumu için `value == max_value` kullanırsın.
 
 ## CircularProgress
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `CircularProgress` | `description`, `DOCS`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `CircularProgress` | Metotlar | `bg_color`, `max_value`, `new`, `progress_color`, `size`, `stroke_width`, `value` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -1003,47 +870,3 @@ Bütün bu bileşenlerin kullanım kararı için kısa bir özet işe yarar:
 - Var/yok veya nokta düzeyinde bir state için `Indicator`.
 - Belirli bir yatay ilerleme için `ProgressBar`.
 - Belirli bir kompakt ilerleme için `CircularProgress`.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `BorderPosition`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Bottom`, `Top` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ModalHeader`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `description`, `headline`, `icon`, `new`, `show_back_button`, `show_dismiss_button` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ModalRow`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ModalFooter`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `end_slot`, `new`, `start_slot` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `Section`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `contained`, `header`, `meta`, `new`, `new_contained`, `padded` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `SectionHeader`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `end_slot`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

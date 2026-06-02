@@ -18,20 +18,6 @@ Hangi durumda hangisini seçeceğini şu ayrımla düşünebilirsin:
 
 ## List
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `List` | `description`, `extend`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `List` | Metotlar | `empty_message`, `header`, `new`, `toggle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -108,21 +94,6 @@ Dikkat edeceğin noktalar:
 - Empty state custom bir element ise `.into_any_element()` çağrısıyla iletilmesi gerekir.
 
 ## ListItem
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ListItem` | `description`, `extend`, `scope`, `toggle_state` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ListItem` | Metotlar 1 | `always_show_disclosure_icon`, `docked_right`, `end_slot`, `end_slot_on_hover`, `focused`, `group_name`, `height`, `indent_level`, `indent_step_size`, `inset`, `new`, `on_click`, `on_hover`, `on_secondary_mouse_down` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ListItem` | Metotlar 2 | `on_toggle`, `outlined`, `overflow_x`, `rounded`, `selectable`, `show_end_slot_on_hover`, `spacing`, `start_slot`, `toggle`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -231,20 +202,6 @@ Dikkat edeceğin noktalar:
 
 ## ListHeader
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ListHeader` | `description`, `scope`, `toggle_state` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ListHeader` | Metotlar | `end_hover_slot`, `end_slot`, `inset`, `new`, `on_toggle`, `start_slot`, `toggle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -299,20 +256,6 @@ Dikkat edeceğin noktalar:
 - `end_hover_slot(...)`, normal `end_slot` ile aynı alanı paylaşır. Bu yüzden count ve hover action birlikte tasarlanırken, ikisinin görsel olarak nasıl yer değiştireceği önceden düşünülür.
 
 ## ListSubHeader
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ListSubHeader` | `description`, `scope`, `toggle_state` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ListSubHeader` | Metotlar | `end_slot`, `inset`, `left_icon`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -407,20 +350,6 @@ fn render_grouped_actions() -> impl IntoElement {
 
 ## ListBulletItem
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ListBulletItem` | `description`, `extend`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ListBulletItem` | Metotlar | `label_color`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -450,20 +379,6 @@ Dikkat edeceğin noktalar:
 - Kaynakta iç `ListItem` id'si sabittir; bu yüzden keyed bir satır state'inin gerektiği dinamik listelerde `ListItem` ile özel bir satır kurmak daha doğru bir tercih olur.
 
 ## TreeViewItem
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `TreeViewItem` | `description`, `scope`, `toggle_state` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `TreeViewItem` | Metotlar | `default_expanded`, `expanded`, `focused`, `group_name`, `new`, `on_click`, `on_hover`, `on_secondary_mouse_down`, `on_toggle`, `root_item`, `tab_index`, `tooltip`, `track_focus` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -548,20 +463,6 @@ Dikkat edeceğin noktalar:
 
 ## StickyItems
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `StickyItems` | `compute` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `StickyItems` | Metotlar | `with_decoration` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -631,20 +532,6 @@ Dikkat edeceğin noktalar:
 - `render_fn` birden fazla sticky ancestor döndürebilir; bu elemanların yüksekliklerinin uniform list item height ile uyumlu olması gerekir.
 
 ## IndentGuides
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `IndentGuides` | `compute` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `IndentGuides` | Metotlar | `on_click`, `with_compute_indents_fn`, `with_render_fn` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -808,60 +695,3 @@ fn render_contextual_file_row() -> impl IntoElement {
         })
 }
 ```
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `IndentGuideColors`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `panel` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `active`, `default`, `hover` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `RenderIndentGuideParams`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `indent_guides`, `indent_size`, `item_height` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `RenderedIndentGuide`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `bounds`, `hitbox`, `is_active`, `layout` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `IndentGuideLayout`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `continues_offscreen`, `length`, `offset` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `EmptyMessage`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Element`, `Text` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ListItemSpacing`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dense`, `ExtraDense`, `Sparse` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `StickyCandidate`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `depth` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `StickyItemsDecoration`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `compute` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-<!-- phase14-api-anchor:end -->

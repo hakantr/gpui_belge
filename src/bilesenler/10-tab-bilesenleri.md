@@ -1,19 +1,5 @@
 # 10. Tab Bileşenleri
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Tab` | `description`, `extend`, `interactivity`, `scope`, `toggle_state` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Tab` | Metotlar | `close_side`, `container_height`, `content_height`, `end_slot`, `new`, `position`, `start_slot` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Tab bileşenleri yatay bir navigation yüzeyi kurmak için kullanırsın. `Tab` tek bir sekmeyi çizer; `TabBar` ise sekmeleri, soldaki ve sağdaki action alanlarını ve yatay scroll container'ını birlikte düzenler. Seçili tab, aktif index, close davranışı ve tab pozisyonu gibi bilgiler view state'i tarafından hesaplanır. Tab bileşenleri bu bilgiyi kendi başına üretmez.
 
 Hangi durumda hangisini seçeceğin için kısa özet:
@@ -129,20 +115,6 @@ Dikkat edeceğin noktalar:
 - `Tab::new("")` gibi boş bir id yalnızca özel render proxy'lerinde kullanırsın. Normal listelerde sabit bir id tercih edersin.
 
 ## TabBar
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `TabBar` | `description`, `extend`, `name`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `TabBar` | Metotlar | `end_child`, `end_children`, `end_children_mut`, `new`, `start_child`, `start_children`, `start_children_mut`, `track_scroll` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -287,23 +259,3 @@ impl Render for ScrollableTabs {
     }
 }
 ```
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `TabPosition`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `First`, `Last`, `Middle` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `TabCloseSide`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `End`, `Start` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

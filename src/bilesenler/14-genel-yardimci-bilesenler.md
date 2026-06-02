@@ -10,20 +10,6 @@ Bu aileyi kullanırken üç ayrımı akılda tutmak işini kolaylaştırır:
 
 ## Chip
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Chip` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Chip` | Metotlar | `bg_color`, `border_color`, `height`, `icon_color`, `label_color`, `label_size`, `new`, `tooltip`, `truncate` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -89,20 +75,6 @@ Dikkat edeceğin noktalar:
 
 ## DiffStat
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `DiffStat` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `DiffStat` | Metotlar | `label_size`, `new`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -158,20 +130,6 @@ Dikkat edeceğin noktalar:
 - Sıfır değerlerinin gösterilip gösterilmeyeceğine parent karar verir; bileşen kendiliğinden gizlemez.
 
 ## Disclosure
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Disclosure` | `cursor_style`, `description`, `on_click`, `scope`, `toggle_state`, `visible_on_hover` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Disclosure` | Metotlar | `closed_icon`, `new`, `on_toggle_expanded`, `opened_icon`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -238,13 +196,6 @@ Dikkat edeceğin noktalar:
 - `visible_on_hover(...)` kullanıldığında parent elementte aynı group name'in tanımlanmış olması gerekir.
 
 ## GradientFade
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `GradientFade` | Metotlar | `gradient_stop`, `group_name`, `new`, `right`, `width` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -379,20 +330,6 @@ Dikkat edeceğin noktalar:
 
 ## Vector ve Görsel Kullanımı
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Vector` | `description`, `name`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Vector` | Metotlar | `size`, `square` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -482,20 +419,6 @@ fn render_local_thumbnail() -> impl IntoElement {
 
 ## KeyBinding
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `KeyBinding` | `description`, `name`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `KeyBinding` | Metotlar | `for_action`, `for_action_in`, `from_keystrokes`, `has_binding`, `new`, `platform_style`, `set_vim_mode`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -572,20 +495,6 @@ Dikkat edeceğin noktalar:
 
 ## KeybindingHint
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `KeybindingHint` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `KeybindingHint` | Metotlar | `new`, `prefix`, `size`, `suffix`, `with_prefix`, `with_suffix` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -643,13 +552,6 @@ Dikkat edeceğin noktalar:
 - Çok uzun bir prefix veya suffix yazılmaması beklenir; bileşen kısa komut açıklamaları için tasarlanmıştır.
 
 ## Navigable
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Navigable` | Metotlar | `entry`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -709,13 +611,6 @@ Dikkat edeceğin noktalar:
 - Entry listesinin, render edilen item sırasıyla aynı tutulması gerekir; aksi halde gezinti beklenmedik bir sıraya kayar.
 
 ## ProjectEmptyState
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ProjectEmptyState` | Metotlar | `new`, `on_clone_repo`, `on_open_project` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -849,37 +744,3 @@ Dikkat edeceğin noktalar:
 - `format_distance_from_now(...)` çağrısı anlık `Local::now()` okur. Deterministik test veya snapshot üretirken `FormatDistance::new(date, base_date)` daha kontrollüdür.
 - `SearchInputWidth::calc_width(...)` yalnız genişlik hesabı yapar; input'u kendisi render etmez.
 - `TRAFFIC_LIGHT_PADDING` platform cfg'sine bağlıdır. Title bar dışı genel padding için kullanılmamalıdır.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `DividerColor`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Border`, `BorderFaded`, `BorderVariant` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `hsla` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `Key`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new`, `size` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `KeyIcon`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new`, `size` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `NavigableEntry`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `focusable`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `focus_handle`, `scroll_anchor` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-<!-- phase14-api-anchor:end -->

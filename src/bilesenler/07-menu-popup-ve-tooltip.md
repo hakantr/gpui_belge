@@ -1,19 +1,5 @@
 # 7. Menü, Popup ve Tooltip
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Tooltip` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Tooltip` | Metotlar | `for_action`, `for_action_in`, `for_action_title`, `for_action_title_in`, `key_binding`, `meta`, `new_element`, `simple`, `text`, `with_meta`, `with_meta_in` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Bu bölüm, bir kontrolün arkasından geçici bir yüzey açan bileşenleri anlatır. Önceki bölümde form ve seçim state'inin nasıl tutulduğunu gördük; burada odak biraz değişir. Artık asıl soru "değer nerede duruyor" değil, "seçenekler nasıl sunulacak, menü içeriği hangi modelle kurulacak, popup nasıl açılıp kapanacak" sorusudur.
 
 Hangi durumda hangisini seçeceğini kabaca şöyle ayırabilirsin:
@@ -30,20 +16,6 @@ Hangi durumda hangisini seçeceğini kabaca şöyle ayırabilirsin:
 Menü ve popup bileşenleri kendi başlarına değer saklamaz. Entry handler'ları view veya model state'ini günceller. Popup'ın açılıp kapanma davranışı ise ilgili menu, popover veya parent lifecycle tarafından yönetilir.
 
 ## DropdownMenu
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `DropdownMenu` | `description`, `name`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `DropdownMenu` | Metotlar | `attach`, `full_width`, `new`, `new_with_element`, `no_chevron`, `offset`, `style`, `tab_index`, `trigger_icon`, `trigger_size`, `trigger_tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -111,23 +83,6 @@ Dikkat edeceğin noktalar:
 - `full_width(true)`, trigger ile popover'ın genişliklerini birlikte etkiler. Dar formlarda parent width'i de bilinçli ayarlaman gerekir.
 
 ## ContextMenu
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ContextMenu` | `focus_handle` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ContextMenu` | Metotlar 1 | `action_checked`, `action_checked_with_disabled`, `action_disabled_when`, `build`, `build_persistent`, `cancel`, `clear_selected`, `confirm`, `custom_entry`, `custom_entry_with_docs`, `custom_row`, `end_slot`, `end_slot_action`, `entry` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ContextMenu` | Metotlar 2 | `entry_with_end_slot`, `entry_with_end_slot_on_hover`, `extend`, `fixed_width`, `header`, `header_with_link`, `item`, `keep_open_on_confirm`, `key_context`, `label`, `link`, `link_with_handler`, `new`, `on_action_dispatch` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ContextMenu` | Metotlar 3 | `on_blur_subscription`, `push_item`, `rebuild`, `secondary_confirm`, `select_first`, `select_last`, `select_next`, `select_previous`, `select_submenu_child`, `select_submenu_parent`, `selectable`, `selected_index`, `separator`, `submenu` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ContextMenu` | Metotlar 4 | `submenu_with_colored_icon`, `submenu_with_icon`, `toggleable_entry`, `trigger_end_slot_handler` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -259,20 +214,6 @@ Dikkat edeceğin noktalar:
 
 ## PopoverMenu
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `PopoverMenu` | `id`, `paint`, `prepaint`, `request_layout`, `source_location` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `PopoverMenu` | Metotlar | `anchor`, `attach`, `full_width`, `offset`, `on_open`, `trigger`, `trigger_with_tooltip`, `with_handle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -364,20 +305,6 @@ Dikkat edeceğin noktalar:
 
 ## RightClickMenu
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `RightClickMenu` | `id`, `paint`, `prepaint`, `PrepaintState`, `request_layout`, `RequestLayoutState`, `source_location` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `RightClickMenu` | Metotlar | `anchor`, `attach`, `menu`, `trigger` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -447,20 +374,6 @@ Dikkat edeceğin noktalar:
 - Sağ tık menüsünün içinde sol tıkla çalışan custom kontroller varsa, event propagation davranışını ve menu dismiss akışını test etmen gerekir; yoksa sürpriz davranışlar ortaya çıkabilir.
 
 ## Popover
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Popover` | `extend` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Popover` | Metotlar | `aside`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -610,56 +523,3 @@ fn render_toolbar_menu(window: &mut Window, cx: &mut App) -> impl IntoElement {
         )
 }
 ```
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `ContextMenuItem`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `CustomEntry`, `Entry`, `Header`, `HeaderWithLink`, `Label`, `Separator`, `Submenu` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `custom_entry` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ContextMenuEntry`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar 1 | `action`, `custom_icon_path`, `custom_icon_svg`, `disabled`, `documentation_aside`, `handler`, `icon`, `icon_color` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Metotlar 2 | `icon_position`, `icon_size`, `new`, `secondary_handler`, `toggle`, `toggleable` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `DocumentationSide`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Left`, `Right` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `DocumentationAside`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `render`, `side` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `DropdownStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Ghost`, `Outlined`, `Solid`, `Subtle` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `PopoverMenuHandle`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `hide`, `is_deployed`, `is_focused`, `refresh_menu`, `show`, `toggle` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `LinkPreview`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

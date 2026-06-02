@@ -14,21 +14,6 @@ Genel tercih sırası şöyle:
 
 ## Label
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Label` | `buffer_font`, `description`, `inline_code`, `italic`, `line_height_style`, `scope`, `single_line`, `size`, `strikethrough`, `truncate`, `underline`, `weight` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Label` | Metotlar 1 | `flex_1`, `flex_grow`, `flex_none`, `flex_shrink`, `flex_shrink_0`, `mb`, `ml_neg_1`, `mr`, `mt`, `mx`, `mx_1p5`, `my`, `my_1p5`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Label` | Metotlar 2 | `render_code_spans`, `set_text`, `truncate_start` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -103,20 +88,6 @@ Dikkat edeceğin noktalar:
 
 ## LabelLike
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `LabelLike` | `description`, `extend`, `name`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `LabelLike` | Metotlar | `mb`, `ml_neg_1`, `mr`, `mt`, `mx`, `mx_1p5`, `my`, `my_1p5`, `new`, `truncate_start` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -171,20 +142,6 @@ fn render_inline_hint(action: SharedString, cx: &App) -> impl IntoElement {
 ```
 
 ## Headline
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Headline` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Headline` | Metotlar | `new`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -295,20 +252,6 @@ Dikkat edeceğin noktalar:
 
 ## HighlightedLabel
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `HighlightedLabel` | `buffer_font`, `description`, `inline_code`, `italic`, `line_height_style`, `name`, `scope`, `single_line`, `size`, `strikethrough`, `truncate`, `underline`, `weight` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `HighlightedLabel` | Metotlar | `flex_1`, `flex_grow`, `flex_none`, `flex_shrink`, `flex_shrink_0`, `from_ranges`, `highlight_indices`, `new`, `text`, `truncate_start` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -390,13 +333,6 @@ Dikkat edeceğin noktalar:
 
 ## LoadingLabel
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `LoadingLabel` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -445,20 +381,6 @@ Dikkat edeceğin noktalar:
 - Bu component bir async task başlatmaz; yalnızca görsel bir animasyon sağlar. Asıl işi başka bir yerde yönetirsin.
 
 ## SpinnerLabel
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `SpinnerLabel` | `description`, `name`, `scope`, `sort_name` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `SpinnerLabel` | Metotlar | `dots`, `dots_variant`, `new`, `sand`, `with_variant` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -511,29 +433,6 @@ fn render_compact_spinner() -> impl IntoElement {
 ```
 
 ## Icon, IconName ve IconSize
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Icon` | `description`, `from`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Icon` | Metotlar | `from_external_svg`, `from_path`, `new`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `IconSize` | Metotlar | `rems`, `square`, `square_components` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `IconSize` | Varyantlar | `Custom`, `Medium`, `Small`, `XLarge`, `XSmall` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-| `IconName` | AI ve sağlayıcı ikonları | `AiDeepSeek`, `AiEdit`, `AiGemini`, `AiGoogle`, `AiLmStudio`, `AiMistral`, `AiOllama`, `AiOpenAi`, `AiOpenAiCompat`, `AiOpenCode`, `AiOpenRouter`, `AiVercel`, `AiXAi`, `AiZed`, `ZedAgentTwo`, `ZedAssistant`, `ZedPredict`, `ZedPredictDisabled`, `ZedPredictDown`, `ZedPredictError` | Agent, model sağlayıcı, öneri ve AI durum yüzeylerinde seçilen semantik SVG adlarıdır. |
-| `IconName` | Oklar, gezinme ve klavye | `ArrowCircle`, `ArrowDown`, `ArrowDown10`, `ArrowDownRight`, `ArrowRightLeft`, `ArrowUp`, `Backspace`, `ChevronDownUp`, `ChevronLeft`, `ChevronUp`, `Escape`, `ExpandDown`, `ExpandUp`, `ExpandVertical`, `FastForward`, `FastForwardOff`, `ForwardArrow`, `ForwardArrowUp`, `PageDown`, `PageUp`, `ReplyArrowRight`, `Return`, `Shift`, `Space`, `Tab`, `TriangleRight` | Açılır yüzey, sayfalama, hareket, yönlendirme ve klavye ipucu satırlarında kullanılır. |
-| `IconName` | Bildirim, ses ve iletişim | `AtSign`, `AudioOff`, `AudioOn`, `BellDot`, `BellOff`, `BellRing`, `Envelope`, `Mic`, `MicMute`, `QueueMessage`, `Thread`, `ThreadFromSummary`, `ThreadsSidebarLeftClosed`, `ThreadsSidebarLeftOpen`, `ThreadsSidebarRightClosed`, `ThreadsSidebarRightOpen`, `ThumbsDown`, `ThumbsUp` | Mesaj, thread, bildirim, mikrofon ve geri bildirim durumları için seçilir. |
-| `IconName` | Genel UI eylemleri ve kontroller | `Blocks`, `BoltFilled`, `BoltOutlined`, `Bookmark`, `BoxOpen`, `CaseSensitive`, `CheckDouble`, `CircleHelp`, `Clock`, `Close`, `CloudDownload`, `Command`, `CountdownTimer`, `Crosshair`, `CursorIBeam`, `Eraser`, `Exit`, `Eye`, `EyeOff`, `Flame`, `FontSize`, `GenericClose`, `GenericMaximize`, `GenericMinimize`, `GenericRestore`, `Keyboard`, `LineHeight`, `LocationEdit`, `Maximize`, `MaximizeAlt`, `Menu`, `MenuAltTemp`, `Minimize`, `OpenFolder`, `Paperclip`, `Pencil`, `PencilUnavailable`, `Pin`, `PlayOutlined`, `Power`, `Quote`, `Reader`, `RefreshTitle`, `Rerun`, `RotateCcw`, `Scissors`, `Screen`, `SelectAll`, `Sliders`, `SplitAlt`, `SquareDot`, `SquareMinus`, `SquarePlus`, `Star`, `StarFilled`, `Unpin`, `WholeWord`, `XCircleFilled` | Toolbar, menü, editor aracı, pencere kontrolü ve seçim eylemlerinin semantik ikon setidir. |
-| `IconName` | Debug, editor ve diff araçları | `Code`, `DatabaseZap`, `DebugBreakpoint`, `DebugContinue`, `DebugDetach`, `DebugDisabledBreakpoint`, `DebugDisabledLogBreakpoint`, `DebugIgnoreBreakpoints`, `DebugLogBreakpoint`, `DebugPause`, `DebugStepInto`, `DebugStepOut`, `DebugStepOver`, `DiffSplit`, `DiffSplitAuto`, `DiffUnified`, `EditorAtom`, `EditorCursor`, `EditorEmacs`, `EditorJetBrains`, `EditorSublime`, `EditorVsCode`, `Json`, `ReplNeutral`, `ReplaceAll`, `ReplaceNext`, `Terminal`, `TerminalAlt`, `TextSnippet`, `ThinkingMode`, `ThinkingModeOff` | Debugger, diff görünümü, terminal, REPL ve editor entegrasyon yüzeylerinde görünür. |
-| `IconName` | Dosya, klasör, belge ve Git | `Book`, `BookCopy`, `FileCode`, `FileDiff`, `FileGeneric`, `FileGit`, `FileLock`, `FileMarkdown`, `FileRust`, `FileTextFilled`, `FileTextOutlined`, `FileToml`, `FileTree`, `FoldVertical`, `FolderOpen`, `FolderOpenAdd`, `FolderSearch`, `GitBranchPlus`, `GitCommit`, `GitGraph`, `GitMergeConflict`, `GitWorktree`, `Github`, `HistoryRerun`, `Library`, `ListCollapse`, `ListFilter`, `ListTodo`, `ListTree`, `ListX`, `Notepad`, `PullRequest` | Project panel, dosya türü, kaynak kontrolü, liste ve belge satırlarında kullanılan adlardır. |
-| `IconName` | Agent araçları, kullanıcı ve durum | `Copilot`, `CopilotDisabled`, `CopilotError`, `CopilotInit`, `Inception`, `NewThread`, `Server`, `SignalHigh`, `SignalLow`, `SignalMedium`, `TodoComplete`, `TodoPending`, `TodoProgress`, `ToolCopy`, `ToolDeleteFile`, `ToolDiagnostics`, `ToolFolder`, `ToolHammer`, `ToolNotification`, `ToolPencil`, `ToolSearch`, `ToolTerminal`, `ToolThink`, `UserCheck`, `UserGroup`, `UserRoundPen` | Assistant, tool call, kullanıcı, bağlantı ve görev durumu satırlarında tercih edilir. |
-
 
 Kaynak:
 
@@ -609,22 +508,6 @@ Dikkat edeceğin noktalar:
 
 ## IconWithIndicator ve AnyIcon
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AnyIcon` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `AnyIcon` | Metotlar | `map` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `AnyIcon` | Varyantlar | `Icon`, `AnimatedIcon` | Düz icon veya animasyon sarılmış icon payload'ını tek slotta taşır. |
-| `IconWithIndicator` | Metotlar | `indicator`, `indicator_border_color`, `indicator_color`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -675,21 +558,6 @@ Dikkat edeceğin noktalar:
 - Indicator anlamı yalnız renge bırakılmamalıdır. Kullanıcı state'i okuyacaksa yanında tooltip veya label kullanırsın.
 
 ## DecoratedIcon ve IconDecoration
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `DecoratedIcon` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `DecoratedIcon` | Metotlar | `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `IconDecoration` | Metotlar | `group_name`, `kind`, `knockout_color`, `knockout_hover_color`, `new`, `position`, `size` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -825,36 +693,3 @@ fn render_indexing_row() -> impl IntoElement {
         .child(LoadingLabel::new("Indexing project").size(LabelSize::Small))
 }
 ```
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `IconDecorationKind`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dot`, `Triangle`, `X` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `LineHeightStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `TextLabel`, `UiLabel` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `LabelCommon`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları 1 | `alpha`, `buffer_font`, `color`, `inline_code`, `italic`, `line_height_style`, `single_line`, `size` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-| Trait metotları 2 | `strikethrough`, `truncate`, `underline`, `weight` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `SpinnerVariant`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dots`, `DotsVariant`, `Sand` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

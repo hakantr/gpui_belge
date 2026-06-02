@@ -33,21 +33,6 @@ Bu ailede tablo kurarken üç karar birlikte düşünülür; biri değiştiğind
 
 ## Table
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Table` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Table` | Metotlar 1 | `disable_base_style`, `empty_table_callback`, `header`, `hide_row_borders`, `hide_row_hover`, `interactable`, `map_row`, `new`, `no_ui_font`, `pin_cols`, `row`, `striped`, `variable_row_height_list`, `width` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Table` | Metotlar 2 | `width_config` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -258,14 +243,6 @@ Dikkat edeceğin noktalar:
 
 ## TableInteractionState
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `TableInteractionState` | Metotlar | `listener`, `new`, `scroll_offset`, `set_scroll_offset`, `with_custom_scrollbar` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `TableInteractionState` | Alanlar | `custom_scrollbar`, `focus_handle`, `horizontal_scroll_handle`, `scroll_handle` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -338,14 +315,6 @@ Dikkat edeceğin noktalar:
 
 ## ColumnWidthConfig
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ColumnWidthConfig` | Metotlar | `auto_with_table_width`, `explicit`, `list_horizontal_sizing`, `redistributable`, `table_width`, `widths_to_render` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ColumnWidthConfig` | Varyantlar | `Static`, `Redistributable`, `Resizable` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -400,13 +369,6 @@ Dikkat edeceğin noktalar:
 - Pinned layout'ta pinned bölümün resize divider'ları yalnızca görsel çizgi olarak render edilir; sürükleme etkileşimi scrollable bölümün divider'larında kalır. Header hücresine çift tıklama ile kolon reset davranışı ise `HeaderResizeInfo` üzerinden çalışmaya devam eder.
 
 ## RedistributableColumnsState
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `RedistributableColumnsState` | Metotlar | `cached_container_width`, `cols`, `commit_preview`, `initial_widths`, `new`, `preview_column_width`, `preview_fractions`, `preview_widths`, `reset_column_to_initial_width`, `resize_behavior`, `set_cached_container_width`, `widths_to_render` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -512,13 +474,6 @@ Dikkat edeceğin noktalar:
 
 ## ResizableColumnsState
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ResizableColumnsState` | Metotlar | `cols`, `new`, `reset_column_to_initial_width`, `resize_behavior`, `set_column_configuration` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -607,20 +562,6 @@ Dikkat edeceğin noktalar:
 - İlk kolonun row number veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanırsın. Zed CSV preview ilk kolonu bu şekilde sabitler. Kullanıcı pinned bölümdeki divider'ı sürükleyemez; boyut değiştirme ihtiyacı scrollable kolonlarda beklenir veya kolon konfigürasyonu state üzerinden güncellenir.
 
 ## TableRow ve UncheckedTableRow
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `TableRow` | `index` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `TableRow` | Metotlar | `as_slice`, `cols`, `expect_get`, `from_element`, `from_vec`, `get`, `into_vec`, `map`, `map_cloned`, `map_ref`, `try_from_vec` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -824,45 +765,3 @@ Karar rehberi olarak şu kısa özet işe yarar:
 - Container genişliği sabit kalmalı ama kolon oranları değişmeliyse `RedistributableColumnsState` devreye girer.
 - Kolonlar mutlak genişlikte olacak ve yatay scroll oluşabilecekse `ResizableColumnsState` seçersin.
 - Header, gövde ve ek görsel bölgeler aynı kolon state'ini paylaşacaksa düşük seviyeli render ve resize helper'larına inilir.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `StaticColumnWidths`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Auto`, `Explicit` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `TableRenderContext`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `for_column_widths` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar 1 | `column_widths`, `disable_base_cell_style`, `h_scroll_handle`, `map_row`, `pinned_cols`, `show_row_borders`, `show_row_hover`, `striped` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 2 | `total_row_count`, `use_ui_font` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `IntoTableRow`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `into_table_row` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `TableResizeBehavior`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `MinSize`, `None`, `Resizable` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `is_resizable`, `min_size` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `HeaderResizeInfo`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `from_redistributable`, `from_resizable`, `reset_column` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `resize_behavior` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-<!-- phase14-api-anchor:end -->

@@ -96,21 +96,6 @@ Dikkat edeceğin noktalar:
 
 ## Button
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Button` (1) | `cursor_style`, `description`, `DOCS`, `full_width`, `id`, `layer`, `on_click`, `scope`, `selected_style`, `size`, `sort_name`, `style`, `tab_index`, `toggle_state` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Button` (2) | `tooltip`, `track_focus`, `width` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Button` | Metotlar | `end_icon`, `key_binding`, `key_binding_position`, `label_size`, `loading`, `new`, `selected_label`, `selected_label_color`, `start_icon`, `truncate` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -203,20 +188,6 @@ Dikkat edeceğin noktalar:
 
 ## IconButton
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `IconButton` | `cursor_style`, `description`, `from`, `full_width`, `on_click`, `scope`, `sort_name`, `toggle_state`, `visible_on_hover`, `width` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `IconButton` | Metotlar | `icon_color`, `icon_size`, `indicator`, `indicator_border_color`, `new`, `on_right_click`, `selected_icon`, `selected_icon_color`, `shape` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -289,20 +260,6 @@ Dikkat edeceğin noktalar:
 - Seçili state'i yalnızca görsel olarak değiştirmek yeterli değildir. View state'i değişiyorsa handler içinde state'i güncellemen ve ardından `cx.notify()` çağırman gerekir.
 
 ## ButtonLike
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ButtonLike` | `cursor_style`, `description`, `DOCS`, `extend`, `from`, `full_width`, `on_click`, `scope`, `selected_style`, `sort_name`, `toggle_state`, `visible_on_hover`, `width` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ButtonLike` | Metotlar | `height`, `hoverable_tooltip`, `new`, `on_right_click`, `opacity` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -388,20 +345,6 @@ Dikkat edeceğin noktalar:
 
 ## ButtonLink
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ButtonLink` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ButtonLink` | Metotlar | `label_color`, `label_size`, `new`, `no_icon` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 Kaynak:
 
 - Tanım: `ui` crate'i
@@ -460,20 +403,6 @@ Dikkat edeceğin noktalar:
 - Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca link gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatılır.
 
 ## CopyButton
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `CopyButton` | `description`, `scope` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `CopyButton` | Metotlar | `custom_on_click`, `icon_size`, `new`, `tooltip_label`, `visible_on_hover` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -535,13 +464,6 @@ Dikkat edeceğin noktalar:
 - `custom_on_click(...)`, varsayılan kopya davranışına ekleme yapmaz; onun yerine geçer. Custom handler hata üretebiliyorsa, hatayı view state'ine taşıman veya görünür biçimde loglaman gerekir; aksi halde kullanıcı kopya başarısız olduğunda fark etmez.
 
 ## SplitButton
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `SplitButton` | Metotlar | `new`, `style` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -609,20 +531,6 @@ Dikkat edeceğin noktalar:
 - Sağ parça bir popover veya menu trigger olacaksa, focus kapanma davranışı ilgili `PopoverMenu` ya da `ContextMenu` tarafında yönetilir; SplitButton bu sorumluluğu üstlenmez.
 
 ## ToggleButtonGroup
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ToggleButtonGroup` | `description`, `full_width`, `name`, `scope`, `sort_name`, `width` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ToggleButtonGroup` | Metotlar | `auto_width`, `label_size`, `selected_index`, `single_row`, `size`, `style`, `tab_index`, `two_rows` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Kaynak:
 
@@ -759,89 +667,3 @@ fn render_api_key_actions(masked_key: SharedString, docs_url: &'static str) -> i
         .child(ButtonLink::new("Provider docs", docs_url).label_size(LabelSize::Small))
 }
 ```
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `SelectableButton`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `selected_style` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `ButtonCommon`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `id`, `layer`, `size`, `style`, `tab_index`, `tooltip`, `track_focus` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `IconPosition`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `End`, `Start` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `KeybindingPosition`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `End`, `Start` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `IconButtonShape`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Square`, `Wide` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `SplitButtonStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Filled`, `Outlined`, `Transparent` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `SplitButtonKind`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `ButtonLike`, `IconButton` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ToggleButtonPosition`
-
-| Grup | API | Not |
-|---|---|---|
-| Assoc const | `HORIZONTAL_FIRST`, `HORIZONTAL_LAST`, `HORIZONTAL_MIDDLE` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ButtonBuilder`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `into_configuration` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `ToggleButtonSimple`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new`, `selected`, `tooltip` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ToggleButtonWithIcon`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new`, `selected`, `tooltip` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ToggleButtonGroupStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Filled`, `Outlined`, `Transparent` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ToggleButtonGroupSize`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Custom`, `Default`, `Large`, `Medium` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->
