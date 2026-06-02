@@ -194,13 +194,14 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 
 | API | Kapsadığı davranış | Not |
 | :-- | :-- | :-- |
+| `EditorSettingsContent` | Editor top-level schema payload'ı | Cursor, hover popover, scrollbar, minimap, gutter, arama, completion ve LSP editor davranışlarını tek content altında toplar. |
 | `RelativeLineNumbers`, `CompletionDetailAlignment`, `ToolbarContent` | Satır numarası, completion detay hizası ve editor toolbar tercihleri | Editor schema'sının küçük enum/struct taşıyıcılarıdır. |
 | `ScrollbarContent`, `ScrollbarAxesContent`, `ScrollbarDiagnostics` | Editor scrollbar görünümü, eksenleri ve diagnostic işaretleri | Terminal scrollbar content'inden ayrı tutulur. |
 | `StickyScrollContent`, `MinimapContent`, `MinimapThumb`, `MinimapThumbBorder` | Sticky scroll ve minimap görünüm ayarları | Minimap thumb ve border davranışı ayrı enum'larla seçilir. |
 | `GutterContent`, `CodeLens`, `DocumentColorsRenderMode`, `CurrentLineHighlight` | Gutter, code lens, document color ve aktif satır vurgusu | Dil sunucusu çıktısını editor görünümüne bağlayan schema parçalarıdır. |
 | `DoubleClickInMultibuffer`, `MultiCursorModifier`, `ScrollBeyondLastLine`, `CursorShape` | Çoklu buffer tıklama, multicursor modifier, scroll sınırı ve cursor şekli | Editor etkileşim davranışını JSON'dan taşır. |
 | `GoToDefinitionFallback`, `GoToDefinitionScrollStrategy` | Definition bulunamadığında fallback ve hedefe scroll stratejisi | Navigation davranışı editor content katmanında kalır. |
-| `SnippetSortOrder`, `DiffViewStyle`, `DiffViewStyleIter` | Snippet sıralaması ve diff görünümü | `DiffViewStyleIter` variant dolaşımı için üretilen yardımcıdır. |
+| `SnippetSortOrder`, `DiffViewStyle`, `DiffViewStyleIter`, `CompletionMenuItemKind` | Snippet sıralaması, diff görünümü ve completion menü satır tipi | `CompletionMenuItemKind` completion menüsünde sembol türünün gösterilip gösterilmeyeceğini seçer. |
 | `SearchSettingsContent`, `JupyterContent`, `DragAndDropSelectionContent` | Arama, Jupyter ve drag-selection tercihleri | Editor içindeki feature-specific alt struct'lardır. |
 | `ShowMinimap`, `DisplayIn`, `MinimumContrast`, `InactiveOpacity`, `CenteredPaddingSettings` | Minimap gösterimi, gösterim hedefi, kontrast, opacity ve centered layout padding | Tema ile kesişen görsel değerler de editor schema sahibi olarak kalır. |
 
@@ -215,7 +216,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `AutoIndentMode`, `SoftWrap`, `ShowWhitespaceSetting`, `WhitespaceMapContent`, `RewrapBehavior` | Indent, wrap, whitespace ve rewrap davranışı | EditorConfig ve VS Code import akışında da bu alanlara yazılır. |
 | `JsxTagAutoCloseSettingsContent`, `InlayHintSettingsContent`, `InlayHintKind`, `CompletionSettingsContent`, `LspInsertMode`, `WordsCompletionMode` | JSX kapanış, inlay hint, completion ve LSP insert davranışı | Dil server çıktısını editor davranışına çeviren content katmanıdır. |
 | `FormatOnSave`, `FormatterList`, `Formatter`, `LanguageServerFormatterSpecifier`, `LineEndingSetting`, `PrettierSettingsContent` | Format-on-save, formatter zinciri ve line ending seçimi | Formatter listesi language server, external code action ve Prettier yollarını aynı schema'da toplar. |
-| `IndentGuideSettingsContent`, `IndentGuideColoring`, `IndentGuideBackgroundColoring`, `LanguageTaskSettingsContent` | Dil bazlı indent guide ve task content'i | Worktree/local ayarlar ile global language ayarları aynı content tiplerini kullanır. |
+| `IndentGuideSettingsContent`, `IndentGuideColoring`, `IndentGuideBackgroundColoring`, `LanguageTaskSettingsContent`, `ModifiersContent` | Dil bazlı indent guide, task content'i ve modifier tuş seti | Worktree/local ayarlar ile global language ayarları aynı content tiplerini kullanır; modifier content keybinding/gesture tercihlerini schema'ya taşır. |
 
 ### Project, LSP ve Git content ailesi
 
@@ -241,6 +242,19 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `ProjectPanelSettingsContent`, `ProjectPanelAutoOpenSettings`, `ProjectPanelEntrySpacing`, `ProjectPanelIndentGuidesSettings` | Project panel ana content'i, auto-open, spacing ve indent guide ayarları | File tree görünümünü kullanıcı JSON'una bağlar. |
 | `ProjectPanelScrollbarSettingsContent`, `ProjectPanelSortMode`, `ProjectPanelSortOrder` | Project panel scrollbar ve sıralama ayarları | Sort mode/order ayrı enum'larla schema'da görünür. |
 | `SemanticTokens`, `DocumentFoldingRanges`, `DocumentSymbols` | Workspace seviyesinde semantic token, folding range ve outline/document symbol kullanımı | Dil server feature toggles workspace ayarı olarak tiplenir. |
+
+### Tema ve görünüm content ailesi
+
+| API | Kapsadığı davranış | Not |
+| :-- | :-- | :-- |
+| `ThemeSettingsContent` | Tema, font ve UI density top-level payload'ı | `theme`, `icon_theme`, UI/buffer fontları, markdown preview fontu, code fade ve theme override alanlarını taşır. |
+| `ThemeSelection`, `ThemeSelectionDiscriminants`, `ThemeName`, `DEFAULT_LIGHT_THEME`, `DEFAULT_DARK_THEME` | Tema seçimi ve varsayılan tema adları | Static veya light/dark dynamic seçim yapılır; varsayılan seçim `One Light` / `One Dark` adlarını kullanır. |
+| `IconThemeSelection`, `IconThemeSelectionDiscriminants`, `IconThemeName` | Icon theme seçimi | Icon teması da static veya light/dark dynamic payload ile seçilebilir. |
+| `ThemeAppearanceMode`, `UiDensity` | Görünüm modu ve yoğunluk | `Light`, `Dark`, `System` tema modunu; `Compact`, `Default`, `Comfortable` spacing oranını belirler. |
+| `FontFeaturesContent`, `FontSize`, `FontStyleContent`, `FontWeightContent`, `BufferLineHeight`, `BufferLineHeightDiscriminants`, `CodeFade` | Font feature, ölçü ve satır yüksekliği değerleri | OpenType feature map'i, iki ondalıklı font/code fade sayıları, font style/weight ve buffer line-height schema'sını taşır. |
+| `ThemeStyleContent`, `AccentContent`, `PlayerColorContent` | Theme override dosyasının üst yapısı | Window background, accent listesi, player renkleri, syntax highlight ve renk/status flatten alanlarını birleştirir. |
+| `ThemeColorsContent`, `StatusColorsContent`, `HighlightStyleContent` | Tema renkleri, status renkleri ve syntax highlight stili | Renk token'larını ve syntax `color`, `background_color`, `font_style`, `font_weight` parçalarını JSON sözleşmesine bağlar. |
+| `WindowBackgroundContent` | Pencere arka plan görünümü | `Opaque`, `Transparent`, `Blurred` değerleriyle tema kaynaklı pencere background seçimini taşır. |
 
 ### Terminal content ailesi
 
@@ -285,12 +299,14 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | API | Kapsadığı davranış | Not |
 | :-- | :-- | :-- |
 | `ActionName` | Action adını JSON string olarak taşır | Runtime action registry ile schema autocomplete bağlanırken kullanılır. |
-| `ExtendingVec`, `SaturatingBool` | Özel merge semantiği olan collection ve bool newtype'ları | `ExtendingVec` biriktirir, `SaturatingBool` bir kez `true` olduğunda geri düşmez. |
+| `ExtendingVec`, `SaturatingBool`, `MergeFromTrait` | Özel merge semantiği olan collection, bool newtype ve re-export trait adı | `ExtendingVec` biriktirir, `SaturatingBool` bir kez `true` olduğunda geri düşmez; `MergeFromTrait` settings macro çıktısının public trait re-export'udur. |
+| `RootUserSettings`, `SettingsProfile` | Root settings parse trait'i ve profil override payload'ı | `RootUserSettings` yorumlu/yorumsuz JSON parse girişlerini sağlar; `SettingsProfile` kullanıcı profilinin base ve settings override içeriğini taşır. |
 | `SeedQuerySetting`, `ActivateOnClose`, `ClosePosition`, `ShowCloseButton`, `ShowDiagnostics` | Editor/workspace davranışındaki küçük enum ve content seçimleri | Tek başına uzun konu istemeyen schema seçenekleridir. |
 | `AutosaveSetting`, `RestoreOnStartupBehavior`, `EncodingDisplayOptions`, `TextRenderingMode`, `WindowDecorations`, `BottomDockLayout`, `FocusFollowsMouse` | Workspace başlatma, kaydetme, encoding, text render ve pencere dekorasyon ayarları | `WorkspaceSettingsContent` ailesinin alt enum/struct yüzeyidir. |
 | `Shell`, `ShowScrollbar` | Terminal shell ve scrollbar gösterim ayarları | `TerminalSettingsContent` altında terminal davranışını seçer. |
 | `SidebarSide` | Agent sidebar tarafının internal/content eşleşmesi | `SidebarDockPosition` public settings enum'unu tamamlayan küçük taşıyıcıdır. |
 | `TitleBarSettingsContent`, `WindowButtonLayoutContent`, `title_bar` | Title bar ayar payload'ı, pencere düğmesi layout content'i ve re-export modülü | Üst bar dokümanı derin anlatır; settings content tarafında JSON schema sahibi olarak görünür. |
+| `serialize_f32_with_two_decimal_places`, `settings_content::serde_helper::serialize_f32_with_two_decimal_places` | `f32` değerlerini iki ondalıkla yazan serializer | `FontSize`, `CodeFade` ve benzer transparent numeric content tiplerinin settings JSON çıktısını sabit biçimde tutar. |
 
 ---
 
