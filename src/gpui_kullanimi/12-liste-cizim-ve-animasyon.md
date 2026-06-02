@@ -614,14 +614,14 @@ window.paint_quad(outline(sinirlar, rgb(0xff0000), BorderStyle::Solid));
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `Scene` | Metotlar | `batches`, `clear`, `finish`, `insert_primitive`, `len`, `pop_layer`, `push_layer`, `replay` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Scene` | Alanlar | `paths` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `Scene` | Alanlar | `shadows`, `quads`, `paths`, `underlines`, `monochrome_sprites`, `subpixel_sprites`, `polychrome_sprites`, `surfaces` | Paint primitive listeleri renderer'a türlerine göre ayrılmış batch girdileri olarak taşınır. |
 
 
 `Scene`, paint fazında üretilen primitive listesinin sahibidir. Uygulama kodunda `Scene`'i genellikle elle oluşturmazsın; `Window` paint metotları bunu senin için doldurur. Yine de özel renderer, test snapshot'ı veya düşük seviyeli çizim aracı yazarken bu yüzey önemlidir.
 
 - `Scene::clear()`, `len()`, `push_layer(bounds)`, `pop_layer()`, `insert_primitive(primitive)`, `replay(...)`, `finish()` ve `batches()` çizim listesini yönetir.
 - `Primitive` varyantları quad, shadow, underline, image, SVG, path, surface ve sprite türlerini taşır; `Primitive::bounds()` ve `content_mask()` çizim alanı ve kırpma bilgisini verir.
-- `PrimitiveBatch`, `DrawOrder`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite`, `PaintSurface`, `PathId`, `PathVertex<Pixels>` ve `PathVertex_ScaledPixels` renderer'ın batch ve sprite atlas verileridir.
+- `PrimitiveBatch`, `DrawOrder`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite`, `PaintSurface`, `PathId`, `PathVertex<Pixels>` ve `PathVertex_ScaledPixels` renderer'ın batch ve sprite atlas verileridir. `Scene` bu veriyi `shadows`, `quads`, `underlines`, sprite listeleri ve `surfaces` alanlarında türüne göre saklar.
 - `clipped_bounds(...)`, path veya primitive'in aktif içerik maskesiyle kesilmiş sınırını hesaplar.
 
 Bu tipler "ekrana ne çizilecek?" sorusunun son cevabıdır. Bir buton, liste veya kart yazarken `Scene` yerine element API'lerini kullanırsın; yalnız GPUI renderer hattını genişletirken primitive seviyesine inersin.

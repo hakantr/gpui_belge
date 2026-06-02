@@ -140,6 +140,7 @@ Element listener'ları çoğu zaman olay tipini senin yerine seçer; yine de öz
 | `KeybindingKeystroke` | fiziksel/karakter eşleşme verisi | Keymap tarafında gerçek basılan tuş ile beklenen binding arasındaki karşılaştırmayı taşır. |
 | `KeyDownEvent`, `KeyUpEvent` | `keystroke`, `is_held`, `prefer_character_input`; release keystroke | Platform klavye basma/bırakma olaylarıdır; action dispatch veya metin girdisi katmanına çevrilir. |
 | `ModifiersChangedEvent` | `modifiers`, `capslock`, `Deref<Target = Modifiers>` | Modifier state değişimini taşır; `olay.secondary()` gibi `Modifiers` metotları doğrudan çağrılabilir. |
+| `PlatformInput` | `KeyDown`, `KeyUp`, `ModifiersChanged`, `MouseDown`, `MouseUp`, `MouseMove`, `MousePressure`, `MouseExited`, `ScrollWheel`, `Pinch`, `FileDrop` | Platformdan gelen ham keyboard, mouse, gesture ve dosya bırakma olaylarını tek enum altında dispatch ağacına taşır. |
 | `ClickEvent` | `Mouse`, `Keyboard`, `modifiers`, `position`, `is_right_click`, `standard_click`, `first_focus`, `click_count` | `.on_click(...)` için mouse ve klavye click kaynaklarını tek enum altında toplar. |
 | `MouseButton` | `Left`, `Right`, `Middle`, `Navigate(Back/Forward)`, `all` | Fare butonu ve navigation button modelidir. |
 | `MousePressureEvent`, `PressureStage` | `pressure`, `stage`, `position`, `modifiers`; `Zero`, `Normal`, `Force` | Force-sensitive trackpad basınç bilgisini taşır. |

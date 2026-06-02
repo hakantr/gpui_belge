@@ -286,7 +286,7 @@ Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Cor
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `Style` | Alanlar 1 | `aspect_ratio`, `background`, `border_color`, `border_style`, `border_widths`, `corner_radii`, `debug`, `debug_below`, `display`, `flex_basis`, `flex_grow`, `flex_shrink`, `flex_wrap`, `gap` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `Style` | Alanlar 2 | `grid_cols`, `grid_rows`, `inset`, `margin`, `max_size`, `opacity`, `overflow`, `padding`, `position`, `scrollbar_width`, `size`, `text`, `visibility` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `Style` | Alanlar 2 | `align_content`, `align_items`, `align_self`, `allow_concurrent_scroll`, `box_shadow`, `flex_direction`, `grid_cols`, `grid_rows`, `grid_location`, `inset`, `justify_content`, `margin`, `max_size`, `mouse_cursor`, `opacity`, `overflow`, `padding`, `position`, `restrict_scroll_to_axis`, `scrollbar_width`, `size`, `text`, `visibility` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
 Stil ve geometri dosyasında geçen bazı tipler doğrudan fluent zincirde görünmez, ama özel element, canvas, popover veya renderer entegrasyonu yazarken karşına çıkar.
@@ -338,7 +338,7 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ### Style ve StyleRefinement
 
-`Style::text_style()` aktif metin stilini türetir; `has_opaque_background()` opak zemin olup olmadığını söyler; `overflow_mask(bounds)` overflow kırpma maskesini üretir; `paint(bounds, window, cx, paint_child)` arka plan, border, shadow ve çocuk çizimini doğru sırada uygular. `StyleRefinement::grid_location_mut()` grid placement alanını oluşturup döndürür; grid row/column metotları arka planda bunu kullanır. Bu metotlar style zincirinin alt katmanıdır, sıradan `div()` zincirinde elle çağırman gerekmez.
+`Style::text_style()` aktif metin stilini türetir; `has_opaque_background()` opak zemin olup olmadığını söyler; `overflow_mask(bounds)` overflow kırpma maskesini üretir; `paint(bounds, window, cx, paint_child)` arka plan, border, `box_shadow` ve çocuk çizimini doğru sırada uygular. `align_items`, `align_self`, `align_content`, `justify_content` ve `flex_direction` Taffy yerleşim kararına iner; `allow_concurrent_scroll` ile `restrict_scroll_to_axis` scroll davranışını, `mouse_cursor` hover imleç stilini, `grid_location` ise grid satır/kolon yerleşimini taşır. `StyleRefinement::grid_location_mut()` grid placement alanını oluşturup döndürür; grid row/column metotları arka planda bunu kullanır. Bu metotlar style zincirinin alt katmanıdır, sıradan `div()` zincirinde elle çağırman gerekmez.
 
 | API | Alt özellikler | Kısa anlamı |
 |---|---|---|

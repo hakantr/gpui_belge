@@ -5,7 +5,8 @@
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `NavHistory` | Metotlar | `clear`, `disable`, `enable`, `for_each_entry`, `path_for_item`, `pop`, `pop_tag`, `remove_item`, `rename_item`, `set_mode` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `PaneGroup` | Metotlar | `bounding_box_for_pane`, `find_pane_in_direction`, `move_to_border`, `pane_at_pixel_position`, `remove`, `reset_pane_sizes`, `resize`, `split`, `swap` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `PaneGroup` | Metotlar | `bounding_box_for_pane`, `find_pane_in_direction`, `first_pane`, `full_height_column_count`, `invert_axies`, `last_pane`, `move_to_border`, `pane_at_pixel_position`, `remove`, `reset_pane_sizes`, `resize`, `set_is_center`, `split`, `swap`, `with_root` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `PaneGroup` | Alanlar | `root`, `is_center` | Split ağacının kök `Member` değerini ve grubun merkez pane alanı olarak işaretlenip işaretlenmediğini taşır. |
 | `Toolbar` | Metotlar | `add_item`, `focus_changed`, `set_active_item`, `set_can_navigate` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
@@ -33,9 +34,12 @@ Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağa
 `PaneGroup` merkez veya dock içindeki pane ağacını taşır. Kök `Member::Pane` veya `Member::Axis(PaneAxis)` olabilir.
 
 - `PaneGroup::new(pane)` tek bir pane ile başlar.
+- `PaneGroup::with_root(root)` hazır `Member` ağacından grup kurar; restore veya test akışında kök split ağacı zaten eldeyse kullanılır.
+- `PaneGroup::set_is_center(true)` grubun workspace merkez alanı olduğunu işaretler; dock içindeki pane gruplarıyla merkez pane grubu bu alan üzerinden ayrışır.
 - `split(old_pane, new_pane, SplitDirection, cx)` ağaca yeni pane ekler; `old_pane` bulunamazsa ilk pane yedek olarak kullanırsın.
 - `remove`, `resize`, `reset_pane_sizes`, `swap`, `move_to_border` split ağacını değiştirir.
-- `pane_at_pixel_position(point)`, `bounding_box_for_pane(pane)`, `find_pane_in_direction` sürükle-bırak ve klavyeyle pane gezinme için kullanırsın.
+- `pane_at_pixel_position(point)`, `bounding_box_for_pane(pane)`, `find_pane_in_direction`, `first_pane()` ve `last_pane()` sürükle-bırak, fallback odak ve klavyeyle pane gezinme için kullanırsın.
+- `full_height_column_count()` merkez alanın tam yüksekliğe yayılan kolon sayısını döndürür; `invert_axies(cx)` split ağacındaki eksenleri tersleyip pane konumlarını yeniden işaretler.
 - `SplitDirection::{Up, Down, Left, Right}`; `vertical(cx)` ve `horizontal(cx)` kullanıcı ayarına göre varsayılan split yönünü üretir.
 - `SplitDirection::all()` dört yönü `[Up, Down, Left, Right]` sırasıyla verir; yön taraması veya key binding üretimi için kullanılır.
 - `SplitDirection::axis()`, `opposite()`, `edge(bounds)`, `along_edge(bounds, length)` resize ve bırakma göstergesi hesaplarında kullanırsın.

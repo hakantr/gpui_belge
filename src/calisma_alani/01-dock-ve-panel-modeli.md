@@ -11,7 +11,8 @@
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `Dock` | Metotlar | `activate_panel`, `active_panel`, `new`, `position`, `remove_panel`, `resize_active_panel`, `resize_all_panels`, `set_open`, `toggle_action`, `visible_panel` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Dock` | Metotlar 1 | `activate_panel`, `active_panel`, `active_panel_index`, `active_panel_size`, `clamp_panel_size`, `first_enabled_panel_idx`, `has_agent_panel`, `is_open`, `new`, `panel_for_id`, `panel_index_for_persistent_name`, `panel_index_for_proto_id`, `panel_index_for_type`, `panels_len`, `position`, `remove_panel`, `restore_state` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Dock` | Metotlar 2 | `resize_active_panel`, `resize_all_panels`, `set_open`, `set_panel_zoomed`, `stored_active_panel_size`, `stored_panel_size`, `stored_panel_size_state`, `toggle_action`, `toggle_panel_flexible_size`, `visible_panel`, `zoom_out`, `zoomed_panel` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 | `Panel` | Trait üyeleri 1 | `activation_priority`, `default_size`, `enabled`, `has_flexible_size`, `hide_button_setting`, `icon_label`, `icon_tooltip`, `initial_size_state`, `is_agent_panel`, `is_zoomed`, `min_size`, `pane`, `panel_key`, `persistent_name` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 | `Panel` | Trait üyeleri 2 | `position`, `position_is_valid`, `remote_id`, `set_active`, `set_flexible_size`, `set_position`, `set_zoomed`, `size_state_changed`, `starts_open`, `supports_flexible_size`, `toggle_action` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
@@ -55,7 +56,11 @@
 **Dock davranışı.** Dock entity'sinin panel ekleme ve görünürlük yönetimi şu şekildedir:
 
 - `Dock::add_panel` paneli `activation_priority` sırasına göre ekler. Aynı priority'i kullanan iki panel hata ayıklama build'inde panic'e yol açar; her panel benzersiz bir priority seçmelidir.
-- `Dock::set_open`, `activate_panel`, `active_panel`, `visible_panel`, `panel::<T>()`, `remove_panel`, `resize_active_panel`, `resize_all_panels` temel yönetim API'leridir.
+- `Dock::set_open`, `activate_panel`, `active_panel`, `active_panel_index`, `visible_panel`, `panel::<T>()`, `panel_for_id`, `panel_index_for_type`, `panel_index_for_proto_id`, `panel_index_for_persistent_name`, `remove_panel`, `panels_len` ve `first_enabled_panel_idx` temel görünürlük, arama ve seçim API'leridir.
+- `active_panel_size`, `stored_active_panel_size`, `stored_panel_size`, `stored_panel_size_state`, `resize_active_panel`, `resize_all_panels`, `clamp_panel_size` ve `toggle_panel_flexible_size` panel boyutu ve esnek boyut geçişlerini yönetir.
+- `restore_state`, serialize edilmiş dock durumundan aktif panel, açık/kapalı durum ve zoom bilgisini geri yükler.
+- `set_panel_zoomed`, `zoomed_panel` ve `zoom_out` panel zoom katmanı ile çalışma alanı serileştirmesini birlikte günceller.
+- `has_agent_panel` dock içinde agent paneli var mı sorusunu cevaplar; AI/multi-workspace sidebar durumunu değerlendirirken kullanılır.
 - Panel `PanelEvent::Activate` yaydığında dock açılır, panel aktiflenir ve odak panele taşınır.
 - `PanelEvent::Close` aktif görünür paneli kapatır.
 - `PanelEvent::ZoomIn/ZoomOut` çalışma alanı zoom katmanı durumunu günceller.

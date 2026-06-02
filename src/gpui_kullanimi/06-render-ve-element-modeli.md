@@ -461,7 +461,7 @@ div()
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `StyleRefinement` | Alanlar 1 | `aspect_ratio`, `background`, `border_color`, `border_style`, `border_widths`, `corner_radii`, `debug`, `debug_below`, `display`, `flex_basis`, `flex_grow`, `flex_shrink`, `flex_wrap`, `gap` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `StyleRefinement` | Alanlar 2 | `grid_cols`, `grid_rows`, `inset`, `margin`, `max_size`, `min_size`, `opacity`, `overflow`, `padding`, `position`, `scrollbar_width`, `size`, `text`, `visibility` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `StyleRefinement` | Alanlar 2 | `align_content`, `align_items`, `align_self`, `allow_concurrent_scroll`, `box_shadow`, `flex_direction`, `grid_cols`, `grid_rows`, `grid_location`, `inset`, `justify_content`, `margin`, `max_size`, `min_size`, `mouse_cursor`, `opacity`, `overflow`, `padding`, `position`, `restrict_scroll_to_axis`, `scrollbar_width`, `size`, `text`, `visibility` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
 ![Refineable / Cascade / MergeFrom Boru Hattı](assets/stil-cascade.svg)
@@ -525,7 +525,7 @@ style.refine(&StyleRefinement::default()
     .font_weight(FontWeight::SEMIBOLD));
 ```
 
-Element fluent zinciri (örneğin `div().text_size(px(14.)).bg(rgb(0xff))`) arka planda bir `StyleRefinement` biriktirir; çizim sırasında temel stil üzerine refine eder. `TextStyle`/`TextStyleRefinement`, `HighlightStyle`, `PlayerColors`, `ThemeColors` gibi tüm tema yapıları aynı kalıbı kullanır.
+Element fluent zinciri (örneğin `div().text_size(px(14.)).bg(rgb(0xff))`) arka planda bir `StyleRefinement` biriktirir; çizim sırasında temel stil üzerine refine eder. Bu refinement içinde alignment (`align_items`, `align_self`, `align_content`, `justify_content`), flex yönü (`flex_direction`), grid yerleşimi (`grid_location`), scroll politikası (`allow_concurrent_scroll`, `restrict_scroll_to_axis`), gölge (`box_shadow`) ve imleç (`mouse_cursor`) gibi kısmi alanlar yalnız dokunulduğunda temel stili ezer. `TextStyle`/`TextStyleRefinement`, `HighlightStyle`, `PlayerColors`, `ThemeColors` gibi tüm tema yapıları aynı kalıbı kullanır.
 
 `refined(self, refinement)` ise değiştirilemez bir kopya üretir; "ek stil ile yeni temel değer elde et" senaryolarında uygundur.
 
