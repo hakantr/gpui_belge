@@ -1,3 +1,4 @@
 [submodule ".agents"]
 	path = .agents
 	url = git@github.com:hakantr/agents.git
+	branch = main
