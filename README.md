@@ -16,7 +16,8 @@ Ana icindekiler [src/SUMMARY.md](src/SUMMARY.md) dosyasinda bulunur. Kitap su bo
 - [Ayarlar](src/ayarlar/ayarlar.md): `settings` crate'i, `SettingsStore`, ayar dosyasi izleme, keymap dosyalari, EditorConfig ve VS Code ice aktarimi.
 - [Tema Yonetimi](src/tema_yonetimi/tema_yonetimi.md): Zed uyumlu tema sozlesmesi, runtime tema modeli, JSON parse katmani, refinement, registry ve UI tuketimi.
 - [Asset Yonetimi](src/assets/assets.md): `AssetSource`, `RustEmbed`, font, ikon, SVG, raster gorsel, ses ve JSON varlik akislari.
-- [Ust Bar](src/ust_bar/ust_bar.md): Platform titlebar davranisi, pencere kontrolleri, native pencere sekmeleri ve urun titlebar'i entegrasyonu.
+- [Platform Ust Bari](src/platform_ust_bar/platform_ust_bar.md): `platform_title_bar` crate'i; platform titlebar davranisi, pencere kontrolleri ve native pencere sekmeleri.
+- [Ust Bar](src/ust_bar/ust_bar.md): `title_bar` crate'i; urun baslik cubugu, uygulama/proje/kullanici menuleri, collab, plan chip, guncelleme bildirimi ve onboarding banner.
 
 ## Okuma Yolu
 
@@ -29,7 +30,7 @@ Belirli bir uygulama yuzeyi tasiyorsan:
 - dock, pane, modal ve komut paleti icin `calisma_alani/`,
 - tema ve renk sistemi icin `tema_yonetimi/`,
 - gomulu varliklar icin `assets/`,
-- platform baslik cubugu icin `ust_bar/` altindaki konu dosyalarina bak.
+- platform pencere kabugu icin `platform_ust_bar/`, urun baslik cubugu icin `ust_bar/` altindaki konu dosyalarina bak.
 
 ## Yerel Calistirma
 

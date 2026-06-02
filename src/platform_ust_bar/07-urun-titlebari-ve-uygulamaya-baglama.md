@@ -36,7 +36,7 @@ Bu davranış `PlatformTitleBar` render sözleşmesini değiştirmez. Zayıf `Mu
 
 ## 16. Başlık çubuğuna içerik yerleştirme
 
-`PlatformTitleBar` kendi başına yalnızca platform kabuğunu sağlar. Kullanıcının gördüğü gerçek başlık içeriği bu tipin sorumluluğunda değildir. Zed'in gerçek ürün başlığı `crates/title_bar/src/title_bar.rs` dosyasındaki `TitleBar` tarafından üretilir. Bu üst katman platform kabuğuna child olarak şunları geçirir:
+`PlatformTitleBar` kendi başına yalnızca platform kabuğunu sağlar. Kullanıcının gördüğü gerçek başlık içeriği bu tipin sorumluluğunda değildir. Zed'in gerçek ürün başlığı `title_bar` crate'indeki `TitleBar` tarafından üretilir. Bu üst katman platform kabuğuna child olarak şunları geçirir:
 
 - Uygulama menüsü.
 - Proje adı / recent projects popover.
@@ -47,9 +47,9 @@ Bu davranış `PlatformTitleBar` render sözleşmesini değiştirmez. Zayıf `Mu
 - Feature flag'e bağlı onboarding/announcement banner'ları.
 - Update bildirimi tooltip'i (`Update to Version: ...` gibi).
 
-Update tooltip'inin metin biçimi, `crates/title_bar/src/update_version.rs:66-75` aralığındaki `version_tooltip_message` fonksiyonunda oluşturulur. Sürüm semantik ise `SemanticVersion::to_string()` çıktısı kullanırsın. Commit SHA durumunda ise `AppCommitSha::full()` ile kısaltılmamış 40 karakterlik hash döner. Tooltip metni her durumda `"Update to Version:"` önekiyle başlar. Port hedefinde tooltip kabuğu yazılırken bu uzun string'in tek satıra sığacağı varsayılmamalıdır. `Tooltip::text` veya muadili bir mekanizmada genişlik sınırı düşünülür. Aksi halde tooltip taşıp ekran kenarında okunmaz hale gelebilir.
+Update tooltip'inin metin biçimi, `version_tooltip_message` fonksiyonunda oluşturulur. Sürüm semantik ise `SemanticVersion::to_string()` çıktısı kullanırsın. Commit SHA durumunda ise `AppCommitSha::full()` ile kısaltılmamış 40 karakterlik hash döner. Tooltip metni her durumda `"Update to Version:"` önekiyle başlar. Port hedefinde tooltip kabuğu yazılırken bu uzun string'in tek satıra sığacağı varsayılmamalıdır. `Tooltip::text` veya muadili bir mekanizmada genişlik sınırı düşünülür. Aksi halde tooltip taşıp ekran kenarında okunmaz hale gelebilir.
 
-Update bildiriminin görsel kabuğu `crates/ui/src/components/collab/update_button.rs` içindeki `UpdateButton` tipidir. `UpdateVersion::Render`, auto-update durumuna göre beş constructor'dan birini seçer: `checking`, `downloading`, `installing`, `updated`, `errored`. Bunlardan ilk üçü (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) tıklamaya kapalıdır. Constructor'larında `disabled(true)` çağrılır ve render edilen düğme `disabled` bayrağına geçer.
+Update bildiriminin görsel kabuğu `ui` crate'indeki `UpdateButton` tipidir. `UpdateVersion::Render`, auto-update durumuna göre beş constructor'dan birini seçer: `checking`, `downloading`, `installing`, `updated`, `errored`. Bunlardan ilk üçü (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) tıklamaya kapalıdır. Constructor'larında `disabled(true)` çağrılır ve render edilen düğme `disabled` bayrağına geçer.
 
 Bu üç durumda butonun sınır rengi `colors().border` üzerinden gelir. `updated` ve `errored` durumlarında ise sınır `colors().text.opacity(0.15)` ile çizilir. İkonografi de aynı şekilde durum-koşullu seçilir: `Checking` ve `Installing` `IconName::LoadCircle` ile iki turluk bir dönüş animasyonu uygular, `Downloading` durağan `Download` ikonu kullanır, `errored` ise uyarı rengiyle `Warning` ikonunu gösterir ve dismiss tutamağı ekler. Errored etiketi `"Failed to Update"` biçimindedir; daha önceki `"Failed to update Zed"` metni bırakılmaz.
 

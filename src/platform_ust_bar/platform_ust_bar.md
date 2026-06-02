@@ -1,6 +1,8 @@
-# Üst Bar
+# Platform Üst Barı
 
-Bu rehber, Zed'deki üst bar davranışını GPUI tabanlı bir uygulamaya lisans-temiz biçimde taşımak için hazırlanmıştır. Konu yalnızca "ekrana bir başlık çubuğu çizmek" değildir. Pencerenin sürüklenmesi, Linux ve Windows pencere butonları, macOS trafik ışıkları, native pencere sekmeleri, sidebar çakışmaları, tema renkleri ve uygulamanın close/new-window gibi iş kuralları birlikte düşünülür.
+Bu rehber, Zed'in `platform_title_bar` crate'ini, yani platforma özgü pencere kabuğunu GPUI tabanlı bir uygulamaya lisans-temiz biçimde taşımak için hazırlanmıştır. Konu yalnızca "ekrana bir başlık çubuğu çizmek" değildir. Pencerenin sürüklenmesi, Linux ve Windows pencere butonları, macOS trafik ışıkları, native pencere sekmeleri, sidebar çakışmaları, tema renkleri ve uygulamanın close/new-window gibi iş kuralları birlikte düşünülür.
+
+> **Kapsam ayrımı.** `platform_title_bar` yalnız platform kabuğunu (sürükleme alanı, pencere kontrolleri, native sekmeler) sağlar; `gpui`, `theme` ve `settings` dışında ağır bir bağımlılığı yoktur. Zed'in kullanıcıya görünen *ürün* başlık çubuğu ise ayrı bir crate olan `title_bar` tarafından bu kabuğun üstüne kurulur (uygulama menüsü, proje/kullanıcı menüleri, collab, plan chip, güncelleme bildirimi, onboarding banner). Ürün katmanı [Üst Bar](../ust_bar/ust_bar.md) bölümünde işlenir; bu bölüm yalnız platform kabuğunu anlatır.
 
 Okuma sırası özellikle önemlidir. İlk bölümler sınırları koyar: neyin platform kabuğuna, neyin ürün başlığına, neyin uygulama state'ine ait olduğunu anlatır. Orta bölümler gerçek render akışına ve platform farklarına iner. Son bölümler ise port sırasında bakılacak kontrol listelerini, sık hataları ve kaynak doğrulama komutlarını toplar.
 

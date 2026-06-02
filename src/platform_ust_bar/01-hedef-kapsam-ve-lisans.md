@@ -123,7 +123,7 @@ Zed'in `platform_title_bar` ve `title_bar` crate'leri **GPL-3.0-or-later** lisan
 
 | Yapılabilir | Yapılamaz |
 |-------------|-----------|
-| API imzalarını gözlemleyip yeniden yazmak (örn. `pub fn set_button_layout(...)`) | `crates/platform_title_bar/src/*.rs` kod gövdesini kopyalamak |
+| API imzalarını gözlemleyip yeniden yazmak (örn. `pub fn set_button_layout(...)`) | `platform_title_bar` crate'inin kaynak kod gövdesini kopyalamak |
 | Davranışı tarif edip kendi kelimelerinle implement etmek | Doc comment'i kelime kelime taşımak |
 | `WindowControlArea` enum varyantlarını mirror etmek (gpui'den, Apache-2.0) | Zed'in `LinuxWindowControls` impl'ini taşımak |
 | `WindowButton` enum varyantlarını ve `WindowButtonLayout` struct şeklini mirror etmek (gpui'den) | Zed'in render fonksiyonlarını birebir Rust → Rust kopyalamak |
@@ -183,7 +183,7 @@ pub fn render_left_window_controls(...) -> Option<impl IntoElement> { ... }
 
 ### Tuzaklar
 
-1. **"Hangi dosya GPL?" sorusunu hiç sormamak.** `crates/platform_title_bar/` altındaki **her dosya** GPL'dir. Buradan tek bir küçük helper fonksiyon bile taşınırsa lisans ihlali oluşur. "Küçük bir parça sorun olmaz" varsayımı burada güvenli değildir.
+1. **"Hangi dosya GPL?" sorusunu hiç sormamak.** `platform_title_bar` crate'indeki **her dosya** GPL'dir. Buradan tek bir küçük helper fonksiyon bile taşınırsa lisans ihlali oluşur. "Küçük bir parça sorun olmaz" varsayımı burada güvenli değildir.
 2. **API imzasını "yeniden yazmak" sanıp gövdeyi kelime farkıyla kopyalamak.** `pub fn render_right_window_controls(button_layout, close_action, window)` ile aynı isim ve parametreleri kullanmak imza paritesidir; tek başına kopya sayılmaz. Buna karşılık **gövde** içindeki match/if/loop zincirini birebir taşımak açık bir kopyadır. Gövde her zaman yeniden çözülmeli; kendi koduyla yazılmalıdır.
 3. **Lisans kontrolünü "sonra bakarız" diye ertelemek.** GPL kod bir kez taşındığında uygulamanın tamamı GPL etkisine girer. Bunu sonradan fark etmek çoğu zaman `cargo deny` gibi araçlarla bile kolay yakalanmaz. Bu yüzden lisans yaklaşımı **ilk port satırı yazılmadan önce** netleştirilir.
 4. **`cargo deny check licenses` çalıştırmamak.** Yanlışlıkla transit bir GPL dependency'si projeye sızarsa bu komut CI'da uyarı verir (Bölüm III, Konu 8 sonunda detayı vardır). Komutun çalıştırılmaması ihlalin geç fark edilmesine yol açar.
@@ -206,7 +206,7 @@ Bu paket bir uygulamaya alınırken iki ana yaklaşım söz konusudur:
 1. **Zed ekosistemi içinde doğrudan kullanım.** `platform_title_bar` crate'i olduğu gibi tüketilir. Bu yolun ön koşulu, uygulamada Zed'in `workspace`, `settings`, `theme`, `ui`, `project` ve `zed_actions` crate'lerinin de mevcut olmasıdır.
 2. **Bağımsız GPUI uygulaması için port.** Render davranışı korunur, ama Zed'e özgü action ve ayarlar ürünün kendi tipleriyle değiştirilir. Zed dışında bir uygulama için bu, kontrolün elde tutulduğu daha temiz yoldur.
 
-Hangi yol seçilirse seçilsin, kod kopyalama veya birebir uyarlama gündeme geldiğinde `crates/platform_title_bar` paketinin `GPL-3.0-or-later` lisanslı olduğu unutulmamalıdır. Karar bu bilgiyle vermen gerekir.
+Hangi yol seçilirse seçilsin, kod kopyalama veya birebir uyarlama gündeme geldiğinde `platform_title_bar` paketinin `GPL-3.0-or-later` lisanslı olduğu unutulmamalıdır. Karar bu bilgiyle vermen gerekir.
 
 ---
 

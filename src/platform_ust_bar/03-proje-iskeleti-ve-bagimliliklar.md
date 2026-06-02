@@ -213,7 +213,7 @@ gpui  ──published from──>  zed workspace (Apache-2.0)
 
 Bu grafiğin yönü tersine işlemez. Yani `gpui` asla `kvs_titlebar`'a bağlanmaz; `kvs_titlebar` da asla `kvs_app_titlebar`'a bağlanmaz. Bu kural keyfi değildir. Zed upstream'inde bir değişiklik olduğunda etkilenme yüzeyini sınırlamak için vardır. Bağımlılık yönü ters çevrilirse en alttaki Zed kaynaklı bir değişiklik bile dolaylı olarak ürün crate'lerini tetikler hale gelir.
 
-### Lib kökü iskeleti (`kvs_titlebar/src/kvs_titlebar.rs`)
+### Lib kökü iskeleti
 
 ```rust
 //! kvs_titlebar — Zed-uyumlu, lisans-temiz platform title bar.

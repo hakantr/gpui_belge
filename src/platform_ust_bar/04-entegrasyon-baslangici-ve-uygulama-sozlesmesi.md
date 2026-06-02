@@ -49,8 +49,8 @@ Bu sarmal yazılmasa da başlık çubuğu görünür; temel olarak çalışır. 
 
 **İstenen decoration ile gerçekleşen decoration aynı kabul edilemez.** `WindowOptions.window_decorations` alanı yalnızca bir istek değeridir. Render sırasında bağlayıcı olan değer, her zaman `window.window_decorations()` çağrısının döndürdüğü gerçek durumdur. Kaynakta bu fark iki platformda açıkça görünür:
 
-- Wayland'da server-side decoration istenir ama compositor decoration protokolünü desteklemezse GPUI `WindowDecorations::Client`'a düşer (`gpui_linux/src/linux/wayland/window.rs:1469-1484`).
-- X11'de client-side decoration istenir ama compositor desteği yoksa GPUI server-side decoration'a döner; `window_decorations()` da doğrudan `Decorations::Server` verir (`gpui_linux/src/linux/x11/window.rs:1742-1748`, `1818-1828`).
+- Wayland'da server-side decoration istenir ama compositor decoration protokolünü desteklemezse GPUI `WindowDecorations::Client`'a düşer.
+- X11'de client-side decoration istenir ama compositor desteği yoksa GPUI server-side decoration'a döner; `window_decorations()` da doğrudan `Decorations::Server` verir.
 
 Bu davranışlar nedeniyle `PlatformTitleBar::effective_button_layout(...)` ve `render_left/right_window_controls(...)` fonksiyonları doğru sonucu vermek için ayar değerine değil, **gerçekleşmiş** `Decorations::Client` durumuna bakar. İstek ile sonucu eşit kabul eden bir port en sık görülen hatalardan birini yapar: kullanıcı CSD istemiş gibi görünür, fakat compositor başka türlü davranmış olabilir.
 
