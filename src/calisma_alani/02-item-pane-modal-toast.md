@@ -11,9 +11,12 @@
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `Item` | Trait üyeleri | `active_project_path`, `as_searchable` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `Pane` | Metotlar 1 | `activate_item`, `activate_last_item`, `activate_next_item`, `activate_previous_item`, `add_item`, `close_active_item`, `close_all_items`, `close_clean_items`, `close_item_by_id`, `close_other_items`, `is_active_preview_item`, `is_zoomed`, `nav_history_for_item`, `navigate_backward` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Pane` | Metotlar 2 | `pinned_count`, `preview_item`, `preview_item_id`, `replace_preview_item_id`, `set_pinned_count`, `set_zoomed`, `split`, `swap_item_left`, `toolbar`, `unpreview_item_if_preview` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Item` | Trait üyeleri 1 | `act_as_type`, `active_project_path`, `added_to_workspace`, `as_searchable`, `breadcrumb_location`, `breadcrumb_prefix`, `can_save`, `can_save_as`, `capability`, `clone_on_split`, `discarded`, `handle_drop`, `has_conflict`, `has_deleted_file`, `is_dirty`, `on_removed` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Item` | Trait üyeleri 2 | `pane_changed`, `pixel_position_of_cursor`, `preserve_preview`, `set_nav_history`, `show_toolbar`, `suggested_filename`, `tab_extra_context_menu_actions`, `tab_icon`, `tab_tooltip_content`, `to_item_events`, `toggle_read_only` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `Pane` | Metotlar 1 | `activate_item`, `activate_last_item`, `activate_next_item`, `activate_previous_item`, `activation_history`, `active_item_index`, `add_item`, `add_item_inner`, `autosave_item`, `can_navigate_backward`, `can_navigate_forward`, `close_active_item`, `close_all_items`, `close_clean_items`, `close_current_preview_item`, `close_item_by_id`, `close_items`, `close_items_for_project_path`, `close_items_to_the_left_by_id`, `close_items_to_the_right_by_id`, `close_items_to_the_side_by_id`, `close_multibuffer_items`, `close_other_items` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Pane` | Metotlar 2 | `context_menu_focused`, `disable_history`, `display_nav_history_buttons`, `drag_split_direction`, `enable_history`, `focus_active_item`, `fork_nav_history`, `go_to_newer_tag`, `go_to_older_tag`, `handle_deleted_project_item`, `handle_item_edit`, `handle_tab_drop`, `has_focus`, `icon_color`, `in_center_group`, `index_for_item`, `is_active_item_pinned`, `is_active_preview_item`, `is_zoomed`, `item_for_entry`, `item_for_index`, `item_for_path`, `items_len` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Pane` | Metotlar 3 | `nav_history`, `nav_history_for_item`, `nav_history_mut`, `navigate_backward`, `new_item_context_menu_handle`, `pinned_count`, `preview_item`, `preview_item_id`, `preview_item_idx`, `project_item_restoration_data`, `remove_item_and_focus_on_pane`, `render_menu_overlay`, `replace_preview_item_id`, `save_item`, `set_can_split`, `set_can_toggle_zoom`, `set_close_pane_if_empty`, `set_pinned_count`, `set_render_tab_bar`, `set_render_tab_bar_buttons`, `set_should_display_tab_bar`, `set_should_display_welcome_page`, `set_zoom_out_on_close`, `set_zoomed` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Pane` | Metotlar 4 | `skip_save_on_close`, `split`, `split_item_context_menu_handle`, `swap_item_left`, `swap_item_right`, `take_active_item`, `toggle_zoom`, `toolbar`, `track_alternate_file_items`, `unpreview_item_if_preview`, `zoom_in` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 | `Toast` | Metotlar | `autohide` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
@@ -29,8 +32,8 @@ GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde 
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `ItemHandle` | Trait üyeleri 1 | `breadcrumbs`, `buffer_kind`, `can_split`, `deactivated`, `for_each_project_item`, `include_in_nav_history`, `item_id`, `navigate`, `project_path`, `save`, `save_as`, `tab_content`, `tab_content_text`, `tab_tooltip_text` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `ItemHandle` | Trait üyeleri 2 | `telemetry_event_text`, `workspace_deactivated` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `ItemHandle` | Trait üyeleri 1 | `added_to_pane`, `breadcrumbs`, `buffer_kind`, `can_autosave`, `can_split`, `deactivated`, `downgrade_item`, `dragged_tab_content`, `for_each_project_item`, `include_in_nav_history`, `item_focus_handle`, `item_id`, `navigate`, `on_release`, `project_entry_ids`, `project_item_model_ids`, `project_path`, `project_paths`, `relay_action`, `save`, `save_as`, `subscribe_to_item_events` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `ItemHandle` | Trait üyeleri 2 | `tab_content`, `tab_content_text`, `tab_tooltip_text`, `telemetry_event_text`, `to_any_view`, `to_followable_item_handle`, `to_searchable_item_handle`, `to_serializable_item_handle`, `workspace_deactivated`, `workspace_settings` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
 `crates/workspace/src/item.rs:167+`. Pane içindeki her tab içeriği `Item` trait'ini uygular:
@@ -58,7 +61,9 @@ pub trait Item: Focusable + EventEmitter<Self::Event> + Render + Sized {
 }
 ```
 
-`ItemHandle` boxed veya dyn karşılığıdır; pane API'leri çoğunlukla `Box<dyn ItemHandle>` ile çalışır. `FollowableItem` ise collab takibi (çalışma alanı follow) için ek bir sözleşmedir.
+`ItemHandle` boxed veya dyn karşılığıdır; pane API'leri çoğunlukla `Box<dyn ItemHandle>` ile çalışır. `to_any_view`, `to_followable_item_handle`, `to_serializable_item_handle`, `to_searchable_item_handle` ve `downgrade_item` tip silinmiş view/search/follow/serialization köprüleridir. `project_paths`, `project_entry_ids`, `project_item_model_ids`, `workspace_settings`, `item_focus_handle`, `subscribe_to_item_events`, `relay_action`, `added_to_pane`, `on_release`, `dragged_tab_content` ve `can_autosave` ise pane lifecycle, focus, tab sürükleme, autosave ve action yönlendirme tarafında kullanılır. `FollowableItem` collab takibi için ek bir sözleşmedir.
+
+`Item` hook'ları tab görünümü, lifecycle ve capability davranışını aynı trait içinde toplar. `tab_icon`, `tab_tooltip_content`, `suggested_filename`, `breadcrumb_location`, `breadcrumb_prefix`, `show_toolbar` ve `tab_extra_context_menu_actions` tab/breadcrumb UI'ını besler. `can_save`, `can_save_as`, `is_dirty`, `capability`, `toggle_read_only`, `has_deleted_file` ve `has_conflict` save ve dosya durumu kararlarını verir. `added_to_workspace`, `pane_changed`, `discarded`, `on_removed`, `set_nav_history`, `preserve_preview`, `pixel_position_of_cursor`, `handle_drop`, `to_item_events`, `act_as_type` ve `clone_on_split` ise pane lifecycle, preview, drag/drop, event çevirimi ve split davranışının extension noktalarıdır.
 
 **`active_project_path`.** `Item` trait'inde varsayılan bir yöntem olarak tanımlıdır; `ItemHandle::project_path` ise buna yönlendirilmiştir:
 

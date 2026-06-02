@@ -47,10 +47,13 @@ Tipik bir kullanım, `CommandPaletteFilter::update_global(cx, |filtre, _| { ... 
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `WorkspaceSettings` | Alanlar | `autosave`, `cli_default_open_behavior`, `command_aliases`, `focus_follows_mouse` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `WorkspaceSettings` | Alanlar 1 | `active_pane_modifiers`, `autosave`, `bottom_dock_layout`, `cli_default_open_behavior`, `close_on_file_delete`, `close_panel_on_toggle`, `command_aliases`, `confirm_quit`, `drop_target_size`, `focus_follows_mouse`, `max_tabs`, `on_last_window_closed`, `pane_split_direction_horizontal`, `pane_split_direction_vertical`, `resize_all_panels_in_dock`, `restore_on_file_reopen`, `restore_on_startup` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `WorkspaceSettings` | Alanlar 2 | `show_call_status_icon`, `text_rendering_mode`, `use_system_path_prompts`, `use_system_prompts`, `use_system_window_tabs`, `when_closing_with_no_tabs`, `window_decorations`, `zoomed_padding` | Workspace davranışı, prompt/pencere politikası ve görünüm ayarlarının kalan alanlarıdır. |
 
 
 `WorkspaceSettings::command_aliases: HashMap<String, ActionName>`. Kullanıcı JSON'una `"command_aliases": { "ag": "search::ToggleSearch" }` yazıldığında komut paleti, sorgu tam olarak `ag` olduğunda bunu `search::ToggleSearch` string'ine çevirir. Bu çeviri fuzzy eşleşme ve interceptor çağrısından önce yapılır; alias bir action nesnesi üretmez, yalnızca palet sorgusunu canonical action adına yaklaştırır. Yeni uygulamada alias, kullanıcının kısa sorgu yazmasını kolaylaştıran bir palet kısayolu olarak düşünmen gerekir. Keymap tarafında canonical action adı kullanman gerekir.
+
+`WorkspaceSettings` aynı zamanda tab ve dock davranışı için `max_tabs`, `bottom_dock_layout`, `resize_all_panels_in_dock`, `close_panel_on_toggle`, `zoomed_padding` ve `active_pane_modifiers` alanlarını; pencere yaşam döngüsü için `confirm_quit`, `when_closing_with_no_tabs`, `on_last_window_closed`, `restore_on_startup`, `restore_on_file_reopen`, `close_on_file_delete`, `window_decorations` ve `use_system_window_tabs` kararlarını taşır. Prompt ve render politikası `use_system_prompts`, `use_system_path_prompts`, `text_rendering_mode` ve `show_call_status_icon` alanlarından okunur; split yönü de `pane_split_direction_horizontal` ve `pane_split_direction_vertical` ile workspace settings katmanında kalır.
 
 ---
 

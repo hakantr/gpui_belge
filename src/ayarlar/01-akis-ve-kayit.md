@@ -158,10 +158,12 @@ Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; 
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `SettingsContent` | Alanlar | `agent`, `base_keymap`, `diagnostics`, `extension`, `git`, `log`, `node`, `project`, `remote`, `session`, `status_bar`, `tab_bar`, `terminal`, `vim` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `SettingsContent` | Alanlar 1 | `agent`, `agent_servers`, `auto_update`, `base_keymap`, `collaboration_panel`, `credentials_url`, `diagnostics`, `extension`, `feature_flags`, `file_finder`, `git`, `git_panel`, `global_lsp_settings`, `helix_mode`, `hide_mouse`, `image_viewer`, `instrumentation`, `journal`, `log`, `message_editor`, `node`, `outline_panel`, `project`, `project_panel`, `remote`, `session`, `status_bar`, `tab_bar`, `tabs`, `terminal`, `vim`, `vim_mode`, `which_key` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `SettingsContent` | Alanlar 2 | `line_indicator_format`, `modeline_lines`, `preview_tabs`, `repl`, `server_url` | Kök settings schema'sındaki küçük global/top-level taşıyıcı alanlardır. |
+| `SettingsContent` | Yardımcılar | `languages_mut` | Dil ayar map'ini mutable okumak için kullanılan içerik yardımcısıdır; local/global merge akışında `all_languages` alanıyla birlikte düşünülür. |
 
 
-`settings_content::SettingsContent`, kullanıcı JSON'unun düz görünen alanlarını domain content tiplerine dağıtır. `project`, `theme`, `extension`, `workspace`, `editor` ve `remote` alanları `#[serde(flatten)]` ile birleşir; aşağıdaki daha küçük content tipleri ise top-level alanların schema, merge ve default davranışını taşır. Bu tipler runtime `Settings` implementasyonu değildir; `SettingsStore` içindeki ham `SettingsContent` merge hattının sözleşmesidir.
+`settings_content::SettingsContent`, kullanıcı JSON'unun düz görünen alanlarını domain content tiplerine dağıtır. `project`, `theme`, `extension`, `workspace`, `editor`, `remote`, `tabs`, `preview_tabs`, `file_finder`, `project_panel`, `git_panel`, `outline_panel`, `collaboration_panel`, `agent`, `agent_servers`, `message_editor`, `image_viewer`, `repl` ve `which_key` alanları farklı domain content'lerini aynı kök merge hattında birleştirir; aşağıdaki daha küçük content tipleri ise top-level alanların schema, merge ve default davranışını taşır. Bu tipler runtime `Settings` implementasyonu değildir; `SettingsStore` içindeki ham `SettingsContent` merge hattının sözleşmesidir.
 
 | API | JSON/settings rolü | Not |
 | :-- | :-- | :-- |
