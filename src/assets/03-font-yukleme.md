@@ -40,7 +40,7 @@ Yani font ekleme yalnızca dosya kopyalama işidir; kodda string referansı veya
 
 ## 2. `load_embedded_fonts`: ana font yükleme yolu
 
-Zed'in `crates/zed/src/main.rs` dosyasındaki font yükleyici:
+Zed'in `zed` crate'indeki font yükleyici:
 
 ```rust
 fn load_embedded_fonts(cx: &App) {
@@ -83,7 +83,7 @@ Akış altı adımdan oluşur:
 
 ## 3. `Assets::load_fonts`: kütüphane içi yardımcı
 
-`crates/assets/src/assets.rs` aynı işi struct üzerinde method olarak da sunar:
+`assets` crate'i aynı işi struct üzerinde method olarak da sunar:
 
 ```rust
 impl Assets {
@@ -136,7 +136,6 @@ Bu metot yalnızca tek bir font yükler: `Lilex-Regular.ttf`. Gerekçe şudur: t
 `SvgRenderer` SVG dosyalarındaki `<text>` etiketlerini doğru render edebilmek için ayrı bir font veritabanı tutar. Bu veritabanı `usvg::fontdb::Database` türündedir ve iki kaynaktan beslenir:
 
 ```rust
-// crates/gpui/src/svg_renderer.rs içinden
 fn load_bundled_fonts(asset_source: &dyn AssetSource, db: &mut usvg::fontdb::Database) {
     let font_paths = [
         "fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf",

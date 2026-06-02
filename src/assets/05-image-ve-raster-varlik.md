@@ -21,7 +21,7 @@ assets/images/
 └── zed_x_copilot.svg
 ```
 
-`crates/ui/src/components/image.rs` içindeki `VectorName` enum'u bu dosyaları registry'ye bağlar:
+`ui` crate'indeki `VectorName` enum'u bu dosyaları registry'ye bağlar:
 
 ```rust
 #[derive(
@@ -118,7 +118,7 @@ impl RenderOnce for Vector {
 
 ## 3. `img()` element'i ve `ImageSource`
 
-Raster image'lar, uzak URL'ler ve filesystem'deki büyük görseller için `img()` element'i kullanırsın. `crates/gpui/src/elements/img.rs` içindeki tanımı dört kaynak türünü desteklemek üzere tasarlanmıştır:
+Raster image'lar, uzak URL'ler ve filesystem'deki büyük görseller için `img()` element'i kullanırsın. `gpui` crate'indeki tanımı dört kaynak türünü desteklemek üzere tasarlanmıştır:
 
 ```rust
 #[derive(Clone)]
@@ -143,7 +143,7 @@ Dört varyantın anlamı:
 
 ### 3.1 String'den ImageSource'a tip dönüşümleri
 
-`img(...)` çağrısının kabul ettiği değer tip karmaşıklığı sayesinde tek çağrıyla yönetilir. `crates/gpui/src/elements/img.rs` dosyasındaki kritik dönüşüm:
+`img(...)` çağrısının kabul ettiği değer tip karmaşıklığı sayesinde tek çağrıyla yönetilir. `gpui` crate'indeki kritik dönüşüm:
 
 ```rust
 impl<'a> From<&'a str> for ImageSource {
@@ -169,7 +169,7 @@ Bu otomatik dönüşüm zinciri, bileşen yazarlarının kaynak türünü açık
 
 ## 4. `Resource` enum'u ve üç kaynak yolu
 
-`crates/gpui/src/asset_cache.rs` içindeki `Resource` enum'u, kaynak türünü ayrıştırır:
+`gpui` crate'indeki `Resource` enum'u, kaynak türünü ayrıştırır:
 
 ```rust
 pub enum Resource {
@@ -283,7 +283,7 @@ pub type ImgResourceLoader = AssetLogger<ImageAssetLoader>;
 
 Üç nokta önemlidir:
 
-- **`AssetLogger<T>` sarmalayıcısı:** `crates/gpui/src/asset_cache.rs` içinde tanımlı bu adapter, `T::Output` `Result` olduğunda `Err` varyantını log'a düşürür. Pratikte `img()` element'i `ImgResourceLoader = AssetLogger<ImageAssetLoader>` ile çalışır; yani hata durumunda log'a açıklayıcı bir mesaj girer, fakat exception fırlatılmaz.
+- **`AssetLogger<T>` sarmalayıcısı:** `gpui` crate'inde tanımlı bu adapter, `T::Output` `Result` olduğunda `Err` varyantını log'a düşürür. Pratikte `img()` element'i `ImgResourceLoader = AssetLogger<ImageAssetLoader>` ile çalışır; yani hata durumunda log'a açıklayıcı bir mesaj girer, fakat exception fırlatılmaz.
 - **`cx.svg_renderer()` ve `cx.http_client()` clone'ları async kapanışa kapatılır:** Trait `'static` Future istediği için async kapanış kendi `cx` referansını taşıyamaz. Bu yüzden ihtiyaç duyulan servisler (svg renderer, http client, asset source) kapanış başlangıcında ödenir.
 - **Output `Arc<RenderImage>`:** Yüklenmiş image cache'lenmiş şekilde döner; aynı kaynak için ikinci çağrı aynı `Arc` referansını döndürür. `RenderImage` `ImageId` taşır ve GPU sprite atlas'ında bu id ile aranır.
 

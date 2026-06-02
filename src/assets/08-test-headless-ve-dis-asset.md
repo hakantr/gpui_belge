@@ -46,7 +46,6 @@ Bu davranışın test ortamındaki anlamı: tüm `cx.asset_source().load(path)` 
 GPUI'de iki test yüzeyi yan yana durur. `#[gpui::test]` makrosunun verdiği klasik `TestAppContext`, `TestAppContext::build` içinde boş `Arc::new(())` asset source ile kurarsın. Daha yeni ve sade test API'si olan `TestApp` ise gerçek veya mock asset source geçirmek için ayrı bir yapıcı sunar:
 
 ```rust
-// crates/gpui/src/app/test_app.rs
 impl TestApp {
     pub fn with_seed(seed: u64) -> Self {
         Self::build(seed, None, Arc::new(()))
@@ -81,7 +80,7 @@ Bu yüzden üç ayrımı doğru yapmak gerekir:
 - **`TestApp::with_text_system`** — Metin shaping testi için gerçek `PlatformTextSystem` yüklenir ama asset source boş kalır. Tipik kullanım: metin layout'unu doğrulayan ama ikon içermeyen testler.
 - **`TestApp::with_text_system_and_assets`** — Hem metin sistemi hem asset source gerçek yüklenir. Tipik kullanım: SVG ikonları render eden, font dosyalarını okuyan testler.
 
-Son yapıcı testlerin `crates/assets` crate'ine dependency eklemesini gerektirir; bu Zed test kodlarında genellikle yaparsın:
+Son yapıcı testlerin `assets` crate'ine dependency eklemesini gerektirir; bu Zed test kodlarında genellikle yaparsın:
 
 ```rust
 use assets::Assets;

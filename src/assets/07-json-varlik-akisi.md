@@ -61,8 +61,8 @@ assets/
 
 İki ayrı `RustEmbed` struct'ı bu klasörleri taşır:
 
-- `Assets` (`crates/assets`): `themes/` klasörünü taşır. `badge/` runtime'da kullanılmaz; `Assets` include listesinde yer almaz, sadece repository'deki asset topolojisinin parçasıdır.
-- `SettingsAssets` (`crates/settings`): `keymaps/` ve `settings/`.
+- `Assets` (`assets`): `themes/` klasörünü taşır. `badge/` runtime'da kullanılmaz; `Assets` include listesinde yer almaz, sadece repository'deki asset topolojisinin parçasıdır.
+- `SettingsAssets` (`settings`): `keymaps/` ve `settings/`.
 
 Tema sistemi `cx.asset_source()` üzerinden okur (yani `Assets` struct'ı runtime'a `with_assets` ile bağlandıktan sonra erişilebilir). Keymap ve settings doğrudan `SettingsAssets::get` üzerinden senkron okur. `App` runtime'ı kurulmadan da çağrılabilir. Bu ayrım asset altyapısının kuruluş sırasındaki kritik bir kararıdır. Sonraki bölümlerde örneklenir.
 
@@ -70,7 +70,7 @@ Tema sistemi `cx.asset_source()` üzerinden okur (yani `Assets` struct'ı runtim
 
 ## 2. Tema JSON'larının akışı
 
-Tema JSON'larının yüklenmesi `crates/theme_settings/src/theme_settings.rs` içindeki `load_bundled_themes` fonksiyonunda yaparsın:
+Tema JSON'larının yüklenmesi `theme_settings` crate'indeki `load_bundled_themes` fonksiyonunda yaparsın:
 
 ```rust
 pub fn load_bundled_themes(registry: &ThemeRegistry) {
@@ -168,7 +168,7 @@ Filesystem'den okuma asenkron yapılır; binary'deki tema yükleme ise senkron `
 
 ## 3. Keymap JSON'ları ve `SettingsAssets` yolu
 
-Keymap dosyaları farklı bir tüketim yolu izler. `crates/settings/src/settings.rs`:
+Keymap dosyaları farklı bir tüketim yolu izler. `settings` crate'i:
 
 ```rust
 #[cfg(target_os = "macos")]
@@ -297,7 +297,7 @@ Bu ayrım önemli bir tasarım kararıdır: default değerin değişmesi tüm ku
 
 ### 4.1 `SettingsStore` ve default değer enjeksiyonu
 
-`crates/settings/src/settings.rs` içindeki `init`:
+`settings` crate'indeki `init`:
 
 ```rust
 pub fn init(cx: &mut App) {

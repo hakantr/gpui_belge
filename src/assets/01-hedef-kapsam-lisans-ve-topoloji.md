@@ -40,7 +40,6 @@ Zed iki ayrı `RustEmbed` struct'ı kullanır:
 İlk struct büyük ve sık değişmeyen asset klasörlerini paketler:
 
 ```rust
-// crates/assets/src/assets.rs
 #[derive(RustEmbed)]
 #[folder = "../../assets"]
 #[include = "fonts/**/*"]
@@ -58,7 +57,6 @@ pub struct Assets;
 İkinci struct yalnızca settings ve keymap JSON'larını taşır:
 
 ```rust
-// crates/settings/src/settings.rs
 #[derive(RustEmbed)]
 #[folder = "../../assets"]
 #[include = "settings/*"]
@@ -67,7 +65,7 @@ pub struct Assets;
 pub struct SettingsAssets;
 ```
 
-İki struct birden olmasının teknik bir gerekçesi vardır: `RustEmbed` macro'sunun derleme süresinde tarama maliyeti, klasör büyüdükçe ciddi şekilde artar. `Assets` struct'ı; font, ikon ve tema klasörleri büyük olduğu için Zed binary'sinin sık yeniden derlenmesi sırasında her seferinde taranmasın diye **ayrı bir crate** olarak (`crates/assets`) tutulur. Bu kararın yorumu kaynak dosyasının ilk satırında açıkça yazılıdır: "incremental build sırasında bir-iki saniye kazandırmak için ayrıldı". `SettingsAssets` ise yalnızca settings ve keymap JSON'larını tutar; bu klasörler küçük olduğundan settings crate'iyle aynı yerde bulunması yeniden derleme maliyetini büyütmez.
+İki struct birden olmasının teknik bir gerekçesi vardır: `RustEmbed` macro'sunun derleme süresinde tarama maliyeti, klasör büyüdükçe ciddi şekilde artar. `Assets` struct'ı; font, ikon ve tema klasörleri büyük olduğu için Zed binary'sinin sık yeniden derlenmesi sırasında her seferinde taranmasın diye **ayrı bir crate** olarak (`assets`) tutulur. Bu kararın yorumu kaynak dosyasının ilk satırında açıkça yazılıdır: "incremental build sırasında bir-iki saniye kazandırmak için ayrıldı". `SettingsAssets` ise yalnızca settings ve keymap JSON'larını tutar; bu klasörler küçük olduğundan settings crate'iyle aynı yerde bulunması yeniden derleme maliyetini büyütmez.
 
 `RustEmbed` davranışı build moduna göre ikiye ayrılır: release build'de veya `debug-embed` feature'ı açıkken dosyalar binary içinden gelir; normal debug build'de aynı path'ler filesystem'den okunur. Zed dokümanlarında "gömülü asset" denildiğinde üretim davranışı kastedilir, fakat kendi uygulamanızda debug modda canlı dosya okuma davranışını da hesaba katmak gerekir.
 
@@ -77,7 +75,7 @@ pub struct SettingsAssets;
 
 ## 2.1. `Assets` public yüzeyi ve gömülü gruplar
 
-`crates/assets/src/assets.rs` içinde `Assets` tek public `RustEmbed` taşıyıcısıdır. Ayrı crate olarak tutulmasının amacı, büyük asset ağacını Zed ana crate'i her yeniden derlendiğinde tekrar taratmamak ve GPUI runtime'a yalnız `AssetSource` sözleşmesiyle bağlamaktır.
+`assets` crate'inde `Assets` tek public `RustEmbed` taşıyıcısıdır. Ayrı crate olarak tutulmasının amacı, büyük asset ağacını Zed ana crate'i her yeniden derlendiğinde tekrar taratmamak ve GPUI runtime'a yalnız `AssetSource` sözleşmesiyle bağlamaktır.
 
 | API | Kapsam | Kullanım notu |
 |-----|--------|---------------|
@@ -194,7 +192,7 @@ assets/
 
 ## 5. Lisans katmanlaması
 
-Asset altyapısının kendi kodu (yani `crates/assets/src/assets.rs` içindeki `AssetSource` implementasyonu) küçük ve standart bir `RustEmbed` sarmalayıcısıdır. Kod mantığında özel bir telif riski yoktur; ancak varlıkların kendileri farklı lisanslara tabidir ve her biri ayrı değerlendirilmelidir.
+Asset altyapısının kendi kodu (yani `assets` crate'indeki `AssetSource` implementasyonu) küçük ve standart bir `RustEmbed` sarmalayıcısıdır. Kod mantığında özel bir telif riski yoktur; ancak varlıkların kendileri farklı lisanslara tabidir ve her biri ayrı değerlendirilmelidir.
 
 | Katman | Lisans tarafı |
 |--------|---------------|
@@ -209,7 +207,7 @@ Asset altyapısının kendi kodu (yani `crates/assets/src/assets.rs` içindeki `
 
 | Yapılabilir | Yapılamaz |
 |-------------|-----------|
-| `RustEmbed` ile kendi asset klasörünü kurmak ve `AssetSource` trait'ini implement etmek | Zed'in `crates/assets` modülünün gövdesini kopyalamak yerine yeniden yazmak gerekir |
+| `RustEmbed` ile kendi asset klasörünü kurmak ve `AssetSource` trait'ini implement etmek | Zed'in `assets` modülünün gövdesini kopyalamak yerine yeniden yazmak gerekir |
 | OFL lisanslı IBM Plex Sans ve Lilex fontlarını lisans dosyalarıyla birlikte taşımak | Lisans dosyası olmadan font dosyası taşımak (OFL bunu açıkça yasaklar) |
 | Zed dışında MIT/Apache lisanslı kendi ikonlarını eklemek | `icons/*.svg` dosyalarını GPL-3 sınırı dışında bir uygulamaya doğrudan kopyalamak |
 | Yapısal akışı (RustEmbed → AssetSource → SvgRenderer → svg element) anlayıp kendi koduyla yeniden yazmak | `cx.asset_source()` çağrı zincirindeki kod parçalarını birebir kopyalamak |

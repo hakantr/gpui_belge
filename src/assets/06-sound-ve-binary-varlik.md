@@ -20,7 +20,7 @@ assets/sounds/
 └── unmute.wav
 ```
 
-Her dosya `crates/audio/src/audio.rs` içindeki `Sound` enum'unun bir varyantı ile eşleşir:
+Her dosya `audio` crate'indeki `Sound` enum'unun bir varyantı ile eşleşir:
 
 ```rust
 #[derive(Debug, Copy, Clone, Eq, Hash, PartialEq)]
@@ -59,7 +59,7 @@ impl Sound {
 
 ## 2. `Audio::play_sound` ve senkron yükleme
 
-`crates/audio/src/audio_pipeline.rs` içindeki ses pipeline'ı, asset yüklemeyi rodio decoder'ı ile birlikte ele alır:
+`audio` crate'indeki ses pipeline'ı, asset yüklemeyi rodio decoder'ı ile birlikte ele alır:
 
 ```rust
 pub fn play_sound(sound: Sound, cx: &mut App) {

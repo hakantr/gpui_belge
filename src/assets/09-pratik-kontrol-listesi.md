@@ -40,7 +40,7 @@ Asset boru hattı uygulama başlatma akışında birkaç sert bağımlılığa s
 
 1. SVG dosyası **monochrome** ve `currentColor` kullanan biçimde olmalıdır. Aksi halde `text_color` ile boyama beklenmedik sonuç verir.
 2. Dosya `assets/icons/snake_case_isim.svg` olarak konur.
-3. `crates/icons/src/icons.rs` içindeki `IconName` enum'una `CamelCase` varyantı eklersin. Sıralama enum içinde alfabetik tutulur; bu bir derleme gereksinimi değil okuma kolaylığı için tercih edilen bir kural.
+3. `icons` crate'indeki `IconName` enum'una `CamelCase` varyantı eklersin. Sıralama enum içinde alfabetik tutulur; bu bir derleme gereksinimi değil okuma kolaylığı için tercih edilen bir kural.
 4. Kod tarafında `Icon::new(IconName::YeniIkon)` ile kullanırsın.
 
 **Sık görülen hatalar:**
@@ -71,7 +71,7 @@ Asset boru hattı uygulama başlatma akışında birkaç sert bağımlılığa s
 Font eklerken iki ayrı tüketici güncellenir:
 
 - `assets/fonts/<aile>/` altına `.ttf` dosyaları konur; `load_embedded_fonts` recursive listeleme yaparak otomatik bulur.
-- `crates/gpui/src/svg_renderer.rs` içindeki `load_bundled_fonts` listesinin güncellenmesi gerekip gerekmediği değerlendirilir. SVG'lerde bu fontun kullanılacağı düşünülüyorsa path eklenmeli; aksi halde fontu sadece `TextSystem` görür.
+- `gpui` crate'indeki `load_bundled_fonts` listesinin güncellenmesi gerekip gerekmediği değerlendirilir. SVG'lerde bu fontun kullanılacağı düşünülüyorsa path eklenmeli; aksi halde fontu sadece `TextSystem` görür.
 
 **Sık unutulan ayrıntı:** OFL ile lisanslı font'lar için lisans dosyası (`OFL.txt` veya `license.txt`) font klasörünün içine konmalıdır. Bu dosyalar `.ttf` filtresi tarafından dışlandığı için TextSystem'e yüklenmez ama asset paketinde durur ve dağıtım gereksinimini karşılar.
 
@@ -84,7 +84,7 @@ Font eklerken iki ayrı tüketici güncellenir:
 Ses ekleme akışı şudur:
 
 1. WAV dosyası `assets/sounds/<dosya_adi>.wav` olarak konur. `rodio::Decoder` PCM WAV ve LPCM destekler; başka format kullanılmaz.
-2. `crates/audio/src/audio.rs` içindeki `Sound` enum'una varyant eklersin.
+2. `audio` crate'indeki `Sound` enum'una varyant eklersin.
 3. `Sound::file` match bloğuna `Self::YeniSes => "yeni_ses"` girilir.
 
 **Kontrol:**
@@ -154,14 +154,14 @@ Bu optimizasyonlar Zed'in yapmadığı tercihlerdir; release için standart davr
 
 Asset boru hattının crate organizasyonu net bir desene oturur:
 
-- `crates/assets` — `Assets` struct'ı. Yalnızca `RustEmbed` macro'sunu çağırır; başka bir bağımlılık almaz.
-- `crates/settings` — `SettingsAssets` struct'ı + keymap/settings default API'leri. `gpui` ve `assets`'ten bağımsızdır.
-- `crates/icons` — `IconName` enum'u. Yalnızca `strum` ve `serde` üzerine kuruludur; başka bağımlılık almaz.
-- `crates/theme` — `ThemeRegistry`, `Theme`. `gpui::AssetSource` ile çalışır ama `Assets` struct'ını bilmez.
-- `crates/audio` — `Sound` enum'u + `Audio::play_sound`. `cx.asset_source()` üzerinden okur.
-- `crates/ui` — `Icon`, `Vector` bileşenleri. `icons` ve `gpui` üzerine kurarsın.
+- `assets` — `Assets` struct'ı. Yalnızca `RustEmbed` macro'sunu çağırır; başka bir bağımlılık almaz.
+- `settings` — `SettingsAssets` struct'ı + keymap/settings default API'leri. `gpui` ve `assets`'ten bağımsızdır.
+- `icons` — `IconName` enum'u. Yalnızca `strum` ve `serde` üzerine kuruludur; başka bağımlılık almaz.
+- `theme` — `ThemeRegistry`, `Theme`. `gpui::AssetSource` ile çalışır ama `Assets` struct'ını bilmez.
+- `audio` — `Sound` enum'u + `Audio::play_sound`. `cx.asset_source()` üzerinden okur.
+- `ui` — `Icon`, `Vector` bileşenleri. `icons` ve `gpui` üzerine kurarsın.
 
-Bu hiyerarşinin bozulması (örneğin `crates/icons`'a `gpui` dependency eklemek) iki sorun yaratır:
+Bu hiyerarşinin bozulması (örneğin `icons`'a `gpui` dependency eklemek) iki sorun yaratır:
 
 1. **Döngüsel bağımlılık riski.** `gpui` ileride `icons`'u kullanmak isterse cycle olur.
 2. **Yeniden derleme maliyeti.** Düşük seviyede crate'lerin bağımlılıkları arttıkça incremental build maliyeti büyür.

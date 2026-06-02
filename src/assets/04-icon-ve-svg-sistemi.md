@@ -23,7 +23,7 @@ Her bölgenin tüketicisi farklıdır:
 
 | Alt klasör | Path formatı | Tüketici | Eşleme yapısı |
 |------------|--------------|----------|---------------|
-| `icons/*.svg` | `icons/<snake_case_isim>.svg` | `Icon` bileşeni | `IconName` enum'u (`crates/icons`) veya doğrudan path |
+| `icons/*.svg` | `icons/<snake_case_isim>.svg` | `Icon` bileşeni | `IconName` enum'u (`icons`) veya doğrudan path |
 | `icons/file_icons/*.svg` | `icons/file_icons/<isim>.svg` | `IconTheme` tarafından dolaylı | `FILE_ICONS`, `DirectoryIcons`, `ChevronIcons` |
 | `icons/knockouts/*.svg` | `icons/knockouts/<isim>.svg` | `IconDecoration` bileşeni | `KnockoutIconName` enum'u |
 
@@ -51,7 +51,7 @@ Her bölgenin tüketicisi farklıdır:
 | `IconName` | Varyantlar 5 | `Triangle`, `Undo`, `Warning`, `XCircle`, `ZedAgent`, `ZedPredictUp`, `ZedSrcCustom`, `ZedSrcExtension` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
 
 
-İkon eşlemenin tek doğru kaynağı `crates/icons/src/icons.rs` içindeki `IconName` enum'udur:
+İkon eşlemenin tek doğru kaynağı `icons` crate'indeki `IconName` enum'udur:
 
 ```rust
 #[derive(
@@ -102,7 +102,7 @@ Bu sözleşmenin yönü tek taraflıdır: her `IconName` varyantının dosyası 
 
 ## 3. `Icon` bileşeni ve üç kaynak türü
 
-`crates/ui/src/components/icon.rs` içindeki `Icon` bileşeni, üç farklı kaynak türünü birden destekler:
+`ui` crate'indeki `Icon` bileşeni, üç farklı kaynak türünü birden destekler:
 
 ```rust
 #[derive(Clone)]
@@ -183,7 +183,7 @@ impl RenderOnce for Icon {
 
 ## 4. `svg()` element'inin path ayrımı
 
-GPUI'nin `crates/gpui/src/elements/svg.rs` dosyasındaki `Svg` struct'ı iki path alanı tutar:
+GPUI'nin `gpui` crate'indeki `Svg` struct'ı iki path alanı tutar:
 
 ```rust
 pub struct Svg {
@@ -259,7 +259,7 @@ impl Asset for SvgAsset {
 
 ## 5. `SvgRenderer` ve rasterleştirme
 
-`crates/gpui/src/svg_renderer.rs` içindeki `SvgRenderer`, ham SVG byte'larını piksel buffer'ına çevirir. Yapısı sade tutulur:
+`gpui` crate'indeki `SvgRenderer`, ham SVG byte'larını piksel buffer'ına çevirir. Yapısı sade tutulur:
 
 ```rust
 pub struct SvgRenderer {
@@ -319,7 +319,7 @@ SVG ikonları daima istenen boyutun iki katı çözünürlükte render edilir, s
 
 ## 6. `IconTheme` ve `file_icons/`
 
-Dosya ağacında dosya tiplerine göre değişen ikonlar `IconTheme` üzerinden yönetilir. `crates/theme/src/icon_theme.rs`:
+Dosya ağacında dosya tiplerine göre değişen ikonlar `IconTheme` üzerinden yönetilir. `theme` crate'i:
 
 ```rust
 pub struct IconTheme {
@@ -409,7 +409,7 @@ Bu yapının pratik karşılığı şudur: ikona "kapalı/devre dışı" göster
 
 ## 8. `Vector` bileşeni ve `images/` ilişkisi
 
-`crates/ui/src/components/image.rs` içindeki `Vector` bileşeni, ikon ile vektör görsel arasındaki ayrımı somutlaştırır:
+`ui` crate'indeki `Vector` bileşeni, ikon ile vektör görsel arasındaki ayrımı somutlaştırır:
 
 ```rust
 pub enum VectorName {
@@ -450,7 +450,7 @@ Pratik bir özet olarak, "bir tipli UI ikonu eklemek" için izlenmesi gereken ad
 
 1. SVG dosyası **tek renkli** (monochrome) olacak şekilde hazırlanır. Renk değerleri `currentColor` veya yer tutucu olarak `#000` bırakılır; runtime'da `text_color` ile boyanır.
 2. Dosya `assets/icons/yeni_ikon.svg` olarak konur (snake_case dosya adı).
-3. `crates/icons/src/icons.rs` içindeki `IconName` enum'una `YeniIkon` varyantı eklersin.
+3. `icons` crate'indeki `IconName` enum'una `YeniIkon` varyantı eklersin.
 4. UI kodunda `Icon::new(IconName::YeniIkon)` ile kullanırsın. Boyut için `.size(IconSize::Small)`, renk için `.color(Color::Accent)` zincirlenir.
 
 Adımlardan herhangi biri eksikse şu tipik sorunlar görülür:
