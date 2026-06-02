@@ -117,6 +117,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 
 - `MultiWorkspace::register_sidebar(entity, cx)` sidebar'ı handle olarak saklar, gözlemler ve `SidebarEvent::SerializeNeeded` geldiğinde serileştirir.
 - `ProjectGroup { key: ProjectGroupKey, workspaces, expanded }` ve `SerializedProjectGroupState` çoklu workspace gruplarının kalıcı anahtarını ve açık/kapalı durumunu taşır.
+- `add_background_workspace(workspace, window, cx)` gelen workspace'i kayıt ve tutma defterine ekler, fakat aktif workspace'i değiştirmez ve odağı taşımaz. Agent `create_thread` gibi kullanıcının mevcut bağlamını bölmeden sibling worktree açan akışlarda bu metodla yeni workspace arka planda sidebar grubuna alınır.
 - `toggle_sidebar`, `open_sidebar`, `close_sidebar`, `focus_sidebar` görünürlük ve odak akışıdır.
 - `prepare_for_focus`, `toggle_thread_switcher`, `cycle_project` ve `cycle_thread` focus ön hazırlığı ile proje/thread MRU geçişlerini sidebar implementasyonuna devreder.
 - `set_sidebar_overlay(Some(AnyView), cx)` sidebar üzerine kaplama yerleştirir.
@@ -142,6 +143,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 | `SidebarSide` | Sidebar'ın pencere tarafını seçer; titlebar ve render tarafı bu değeri kullanır. |
 | `ToolbarItemEvent` | Toolbar item'ın konum değiştirme isteğini `ChangeLocation(ToolbarItemLocation)` olarak yayar. |
 | `ToolbarItemLocation` | `Hidden`, `PrimaryLeft`, `PrimaryRight`, `Secondary` yerleşimlerini tanımlar. |
+| `MultiWorkspace::add_background_workspace` | Yeni workspace'i retained background tab olarak ekler; aktif workspace ve focus olduğu yerde kalır. |
 | `dock` | Dock içindeki pane grupları ve center pane ile yan/alt panel ayrımını bağlayan modüldür. |
 | `pane` | Tab listesi, preview/pin ve split eylemlerinin ana modülüdür. |
 | `pane_group` | Split ağacı ve pane resize/swap/move davranışının modülüdür. |
