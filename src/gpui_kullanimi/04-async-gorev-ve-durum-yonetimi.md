@@ -170,7 +170,7 @@ Test özelliği açıkken `BackgroundExecutor::simulate_random_delay()`, `advanc
 | `TaskExt` | Trait üyeleri | `detach_and_log_err`, `detach_and_log_err_with_backtrace` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
-`Task<T>`, GPUI'ın scheduler katmanından yeniden dışa aktardığı ve `await` edilebilen temel async handle'dır. İç yapısı uygulama kodu için önemli değildir; önemli olan sahiplik davranışıdır: `Task` saklarsan iş yaşamaya devam eder, elden çıkarırsan iptal olur, bilinçli şekilde bağımsız bırakacaksan `detach` ailesini kullanırsın. Yardımcı trait `TaskExt` (`crates/gpui/src/executor.rs:33+`) `Task<Result<T, E>>` tipleri üzerine ek metotlar bindirir:
+`Task<T>`, GPUI'ın scheduler katmanından yeniden dışa aktardığı ve `await` edilebilen temel async handle'dır. İç yapısı uygulama kodu için önemli değildir; önemli olan sahiplik davranışıdır: `Task` saklarsan iş yaşamaya devam eder, elden çıkarırsan iptal olur, bilinçli şekilde bağımsız bırakacaksan `detach` ailesini kullanırsın. Yardımcı trait `TaskExt` (`gpui` crate'i) `Task<Result<T, E>>` tipleri üzerine ek metotlar bindirir:
 
 ```rust
 pub trait TaskExt<T, E> {
@@ -347,7 +347,7 @@ Pratik karar şudur: veri uygulama çapında tek kavramsa `Global`; belirli bir 
 ![EventEmitter ve Subscription Yaşam Döngüsü](assets/event-emitter-subscription.svg)
 
 
-`crates/gpui/src/subscription.rs`.
+`gpui` crate'i.
 
 `Subscription`, opak (`opaque`) bir tiptir; elden çıktığında içindeki geri çağrı kaydı silinir. Bu davranış üç farklı kullanım desenine yol açar; aralarındaki seçim abonelik kaydının ne kadar yaşaması gerektiğine bağlıdır:
 
@@ -396,7 +396,7 @@ cx.observe_new(|calisma_alani: &mut Workspace, window, cx| {
 ```
 
 - `App::observe_new<T>(|durum, Option<&mut Window>, &mut Context<T>| ...)`, belirli türde bir entity oluşturulduğunda çalışır. Entity bir pencere içinde yaratıldıysa geri çağrıya `Some(window)` gelir; başsız ya da uygulama seviyesindeki yaratımda `None` gelebilir.
-- Zed `zed.rs`, `toast_layer`, `theme_preview`, `telemetry_log`, `move_to_applications` gibi modüllerde workspace, project veya editor yaratıldığında uygulama geneli kanca takmak için bu deseni kullanır.
+- Zed `zed`, `toast_layer`, `theme_preview`, `telemetry_log`, `move_to_applications` gibi modüllerde workspace, project veya editor yaratıldığında uygulama geneli kanca takmak için bu deseni kullanır.
 - Dönen `Subscription`'ı saklarsın ya da uygulama ömrü boyunca gerekiyorsa `detach()` edersin.
 
 **Pencere bağlamıyla observe ve subscribe.** İçinde pencere bağlamı gerektiren abonelikleri ayrı bir yardımcı ailesiyle yaparsın:
@@ -446,7 +446,6 @@ self._abonelik = cx.subscribe_in(&modal, window, |gorunum, modal, olay, window, 
 | `Reservation` | Metotlar | `entity_id` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
-`crates/gpui/src/app/async_context.rs:43+` ve `app.rs::reserve_entity`/`insert_entity`.
 
 Bazen bir entity oluştururken başka bir entity'nin kimliğini veya zayıf handle'ını önceden bilmen gerekir; en tipik örnek `Workspace` ve `Pane` ikilisidir. Bunu kuvvetli referans döngüsü kurmadan yapmak için `Reservation` deseni mevcuttur. Önce kimliği rezerve edersin, sonra entity'yi bu rezervasyona yerleştirirsin:
 
@@ -579,7 +578,7 @@ Bu bölüm GPUI çekirdeğinde genel olan ama günlük kullanımda kolay atlanan
 
 ##### Deref ile gizlenmiş yüzey (tipli handle üzerinden tipsiz metot)
 
-`Entity<T>` ve `WeakEntity<T>`, `#[derive(Deref, DerefMut)]` ile içlerindeki tipsiz handle'a deref eder (`crates/gpui/src/app/entity_map.rs:413` ve `:739`):
+`Entity<T>` ve `WeakEntity<T>`, `#[derive(Deref, DerefMut)]` ile içlerindeki tipsiz handle'a deref eder (`gpui` crate'i ve `:739`):
 
 ```rust
 #[derive(Deref, DerefMut)]

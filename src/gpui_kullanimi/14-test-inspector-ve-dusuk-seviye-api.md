@@ -32,7 +32,7 @@ GPUI test yazımında izlediğin genel disiplinler şunlar:
 ![Test Ortamı Seçim Haritası](assets/test-ortami-secim.svg)
 
 
-`crates/gpui/src/app/test_context.rs`, `crates/gpui/src/app/visual_test_context.rs`.
+`gpui` crate'i, `gpui` crate'i.
 
 `#[gpui::test]` makrosu bir `TestAppContext` sağlar. Görsel test için `add_window` bir `WindowHandle<V>` döndürür ve `VisualTestContext` ile sürersin. İsim benzerliğine dikkat: `VisualTestContext` test penceresini kendi içinde tutar; macOS `test-support` altındaki `VisualTestAppContext` ise window handle'ı açık argüman olarak alan ayrı bir bağlamdır.
 
@@ -70,7 +70,7 @@ fn kaydetmeyi_test_et(cx: &mut TestAppContext) {
 - `cx.dispatch_action(action)` — yine `self.window` üzerinden dispatch eder.
 - `cx.run_until_parked()`, `cx.window_title()`, `cx.document_path()` — window'suz yardımcılardır.
 
-Fare simülasyon metotları `VisualTestContext` üzerinde de `self.window` ile çalışır ve window argümanı almaz (`test_context.rs:764-809`):
+Fare simülasyon metotları `VisualTestContext` üzerinde de `self.window` ile çalışır ve window argümanı almaz (`test_context`):
 
 - `cx.simulate_mouse_move(position, button, modifiers)`
 - `cx.simulate_mouse_down(position, button, modifiers)`
@@ -114,12 +114,12 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
 
 ## Inspector ve Hata Ayıklama Yardımcıları
 
-`crates/gpui/src/inspector.rs` (feature: `inspector`).
+`gpui` crate'i (feature: `inspector`).
 
 `gpui` crate'i `inspector` özelliği ile (veya `debug_assertions` açıkken) derlendiğinde dev tool entegrasyonu sağlar:
 
 - `InspectorElementId` — her element için `(file, line, instance)` tabanlı kimlik.
-- `InspectorElementPath` (`inspector.rs:30`) — bir elementin `GlobalElementId` zincirini ve yapıdan gelen `&'static Location` kaynak konumunu (`source location`) birleştiren kimlik. Element seçildiğinde inspector UI'ı bu path üzerinden kaynak bağlantı gösterir. Hem alanları hem `Clone` impl'i özellik kapısı altındadır.
+- `InspectorElementPath` (`inspector`) — bir elementin `GlobalElementId` zincirini ve yapıdan gelen `&'static Location` kaynak konumunu (`source location`) birleştiren kimlik. Element seçildiğinde inspector UI'ı bu path üzerinden kaynak bağlantı gösterir. Hem alanları hem `Clone` impl'i özellik kapısı altındadır.
 - Element kaynak konumu `#[track_caller]` ile yakalanır ve `InspectorElementPath.source_location` alanına yazılır.
 - Element seçimi pencerede `Inspector` global durum üzerinden tetiklenir.
 - `Inspector::start_picking()` seçim kipini açar, `Inspector::is_picking()` bu kipin açık olup olmadığını döndürür.
@@ -127,7 +127,7 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
 - `Window::toggle_inspector(cx)` inspector panelini açar veya kapatır.
 - `Window::is_inspector_picking(cx)` pencerenin inspector seçim kipinde olup olmadığını okur; `Window::insert_inspector_hitbox(hitbox_id, inspector_id, cx)` seçim yapılabilecek hitbox'ı inspector kimliğiyle eşler.
 - `Window::with_inspector_state(...)` aktif elemente özel geçici inspector durumu tutar.
-- `App::set_inspector_renderer(InspectorRenderer)` inspector UI'ını bağlar. `InspectorRenderer` (`inspector.rs:55`) şu tip takma adıdır:
+- `App::set_inspector_renderer(InspectorRenderer)` inspector UI'ını bağlar. `InspectorRenderer` (`inspector`) şu tip takma adıdır:
 
   ```rust
   pub type InspectorRenderer =
@@ -137,12 +137,12 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
   Inspector panelinin içeriği bu closure tarafından üretilir; argümanlar Inspector durumu, ait olduğu Window ve Inspector için Context'tir.
 - `App::register_inspector_element(...)` belirli bir element tipinin inspector panel çizimini kaydeder; altta `InspectorElementRegistry::register(...)` type id'ye göre renderer closure'ını saklar. Element seçildiğinde durum için özel UI çizilir.
 
-**Yansıma katmanı.** `Styled` metotlarını çalışma zamanında listeleyebilmek için bir yansıma mekanizması vardır. `Styled` trait `cfg(any(feature = "inspector", debug_assertions))` altında `#[gpui_macros::derive_inspector_reflection]` ile işaretlenir (`styled.rs:18-21`). Bu macro yan etki olarak iki API üretir:
+**Yansıma katmanı.** `Styled` metotlarını çalışma zamanında listeleyebilmek için bir yansıma mekanizması vardır. `Styled` trait `cfg(any(feature = "inspector", debug_assertions))` altında `#[gpui_macros::derive_inspector_reflection]` ile işaretlenir (`styled`). Bu macro yan etki olarak iki API üretir:
 
 - **`gpui::styled_reflection`** — proc macro çıktısı modül.
   - `pub fn methods<T: Styled + 'static>() -> Vec<FunctionReflection<T>>` — `Styled` trait'inin tüm yansıtılabilir metotlarını belirli bir somut tip için sarar.
   - `pub fn find_method<T: Styled + 'static>(name: &str) -> Option<FunctionReflection<T>>` — aynı listeyi isim eşleşmesine göre filtreler.
-- **`gpui::inspector_reflection::FunctionReflection<T>`** (`inspector.rs:233`):
+- **`gpui::inspector_reflection::FunctionReflection<T>`** (`inspector`):
 
   ```rust
   pub struct FunctionReflection<T> {
@@ -153,7 +153,7 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
   }
   ```
 
-  `documentation` alanı trait metodunun `///` doc yorumundan çıkarılır (`gpui_macros::extract_doc_comment`). Inspector UI bu metni markdown olarak çizer — örneğin `inspector_ui/src/div_inspector.rs:670` Styled metodu otomatik tamamlamasında `CompletionDocumentation::MultiLineMarkdown` formuna sarar. Tailwind doc bağlantısı gibi ham bağlantılar da bu yolla köprüye dönüşür.
+  `documentation` alanı trait metodunun `///` doc yorumundan çıkarılır (`gpui_macros::extract_doc_comment`). Inspector UI bu metni markdown olarak çizer — örneğin `inspector_ui` crate'i Styled metodu otomatik tamamlamasında `CompletionDocumentation::MultiLineMarkdown` formuna sarar. Tailwind doc bağlantısı gibi ham bağlantılar da bu yolla köprüye dönüşür.
 - `FunctionReflection::invoke(deger: T) -> T` — metodu çalışma zamanında çağırır; inspector "method picker" akışında kullanıcı bir style metodunu seçtiğinde mevcut elementin `StyleRefinement`'ı bu invoke ile dönüştürülür.
 
 Üretim build'inde inspector kodu sıfır maliyetlidir; yansıma modülü ve `FunctionReflection` da özellik kapısının dışında derlenmediği için release Zed binary'sinde bulunmaz.
@@ -161,7 +161,7 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
 **Diğer hata ayıklama yardımcıları.** Inspector dışında küçük yardımcılar da mevcuttur:
 
 - `div().debug_selector(|| "my-button")` — test ve inspector'da seçici atar.
-- `crates/gpui/src/profiler.rs` — executor task timing buffer'ları; aşağıdaki "Profiler" başlığında detaylı anlatılır.
+- `gpui` crate'i — executor task timing buffer'ları; aşağıdaki "Profiler" başlığında detaylı anlatılır.
 - `WindowInvalidator::debug_assert_paint()`, `debug_assert_prepaint()` ve `debug_assert_paint_or_prepaint()` özel element veya pencere içi helper'ın doğru çizim fazında çağrıldığını denetler. Bunları uygulama davranışı için koşul olarak kullanmazsın; yanlış fazdaki `paint_*`, hitbox veya ölçüm çağrılarını debug build'de erken yakalatmak için vardır.
 - `RUST_LOG=gpui=debug` ile olay/key dispatch log seviyesi yükselir.
 - `debug_selector` değerleri testte `VisualTestContext::debug_bounds(selector)` üzerinden okunur; üretim kaplaması için ayrı bir env bayrağı gerekir.
@@ -197,7 +197,7 @@ assert!(sinirlar.size.height > px(0.));
 
 ## Profiler
 
-`crates/gpui/src/profiler.rs` GPUI scheduler'ının ön plan ve arka plan executor'larının çalıştırdığı task'ların başlangıç, yield ve runtime bilgilerini thread başına toplar. Bu yüzey iki katmanlıdır: ucuz istatistikler sürekli güncellenebilir, ayrıntılı trace buffer'ı ise `set_trace_enabled` ile açılır. Veriyi başarım analizi, reliability log'u veya geliştirici aracı üzerinden serileştirilebilir tiplerle okursun.
+`gpui` crate'i GPUI scheduler'ının ön plan ve arka plan executor'larının çalıştırdığı task'ların başlangıç, yield ve runtime bilgilerini thread başına toplar. Bu yüzey iki katmanlıdır: ucuz istatistikler sürekli güncellenebilir, ayrıntılı trace buffer'ı ise `set_trace_enabled` ile açılır. Veriyi başarım analizi, reliability log'u veya geliştirici aracı üzerinden serileştirilebilir tiplerle okursun.
 
 **Profilleme açma/kapama.**
 
@@ -426,7 +426,7 @@ Bu küçük API'ler ana çizim modelinin parçası değildir; ancak Zed başlang
 
 Aşağıdaki sabitler her seferinde araştırılmak yerine tek noktada toplanır. Sık başvurduğun platform enum'ları ve hangi alanda anlam taşıdıkları kısaca özetlenir.
 
-#### `CursorStyle` (`crates/gpui/src/platform.rs:1745+`)
+#### `CursorStyle` (`gpui` crate'i)
 
 CSS cursor karşılıklarıyla birlikte:
 
@@ -445,7 +445,7 @@ CSS cursor karşılıklarıyla birlikte:
 
 Element üzerinde `.cursor(CursorStyle::PointingHand)` ya da kısayolları `.cursor_pointer()`, `.cursor_text()`, `.cursor_grab()`, `.cursor_default()` kullanırsın.
 
-#### `FontWeight` (`crates/gpui/src/text_system.rs:871+`)
+#### `FontWeight` (`gpui` crate'i)
 
 CSS weight değerleriyle birebir:
 
@@ -474,7 +474,7 @@ CSS weight değerleriyle birebir:
 
 `Normal`, `Italic`, `Oblique`. `.italic()` fluent kısayolu Italic'e ayarlar.
 
-#### `WindowControlArea` (`crates/gpui/src/window.rs:564`)
+#### `WindowControlArea` (`gpui` crate'i)
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
@@ -485,7 +485,7 @@ CSS weight değerleriyle birebir:
 
 `Drag`, `Close`, `Max`, `Min`. Özel bir başlık çubuğu yazarken Windows yerel hit-test için zorunludur.
 
-#### `HitboxBehavior` (`crates/gpui/src/window.rs:692`)
+#### `HitboxBehavior` (`gpui` crate'i)
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
@@ -496,7 +496,7 @@ CSS weight değerleriyle birebir:
 
 `Normal`, `BlockMouse`, `BlockMouseExceptScroll`. `.occlude()` ve `.block_mouse_except_scroll()` element kısayolları sırasıyla son ikisini ayarlar.
 
-#### `BorderStyle` (`crates/gpui/src/scene.rs:544`)
+#### `BorderStyle` (`gpui` crate'i)
 
 `Solid`, `Dashed`. `Style::border_style` veya `paint_quad` ile geçirirsin.
 
@@ -514,7 +514,7 @@ Anchored elementte kullandığın tip `gpui::Anchor`'dır: `TopLeft`, `TopRight`
 
 `Corners<T>` farklı bir tiptir; kenarlık yarıçapı ve quad köşe yarıçapları içindir. Layer-shell modülündeki `Anchor` ise bitflag yapısındadır (`TOP | BOTTOM | LEFT | RIGHT`); anchored element `Anchor`'ı ile karıştırmaman gerekir.
 
-#### `ResizeEdge` (`crates/gpui/src/platform.rs:358`)
+#### `ResizeEdge` (`gpui` crate'i)
 
 **Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
 
@@ -527,7 +527,7 @@ Anchored elementte kullandığın tip `gpui::Anchor`'dır: `TopLeft`, `TopRight`
 
 ## Kalan GPUI Tipleri: Dış API ve Crate-İçi Sınır
 
-Bu bölüm iki farklı yüzeyi ayırır: `crates/gpui/src/gpui.rs` üzerinden dışarı export edilen genel API ve private modüllerde `pub` tanımlanmış olsa da yalnız crate içinde erişilebilen taşıyıcılar. `pub` kelimesi tek başına dış API anlamına gelmez; dış kullanıcı açısından asıl sınır `gpui.rs` içindeki `pub use ...` / `pub(crate) use ...` kararlarıdır.
+Bu bölüm iki farklı yüzeyi ayırır: `gpui` crate'i üzerinden dışarı export edilen genel API ve private modüllerde `pub` tanımlanmış olsa da yalnız crate içinde erişilebilen taşıyıcılar. `pub` kelimesi tek başına dış API anlamına gelmez; dış kullanıcı açısından asıl sınır `gpui` içindeki `pub use ...` / `pub(crate) use ...` kararlarıdır.
 
 ### Düşük seviye GPUI audit kapsam tabloları
 
@@ -535,7 +535,7 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
-| `app` | crate kök reexport | `crates/gpui/src/app.rs` yüzeyini kök namespace'e taşır; normal kullanım `App`, `Context<T>` ve test context'leri üzerinden olur. |
+| `app` | crate kök reexport | `gpui` crate'i yüzeyini kök namespace'e taşır; normal kullanım `App`, `Context<T>` ve test context'leri üzerinden olur. |
 | `executor` | crate kök reexport | Scheduler sarmalayıcılarını kök namespace'e taşır; uygulama kodu çoğunlukla `cx.background_executor()` ve `cx.foreground_executor()` okur. |
 | `geometry` | crate kök reexport | `Point`, `Size`, `Bounds`, `px`, `rems`, `percentage`, `radians` gibi geometri ve ölçü yardımcılarını toplar. |
 | `profiler` | modül ve crate kök reexport | Task/action timing, trace ve istatistik toplama yüzeyidir; ayrıntılı trace için `set_trace_enabled` kullanılır. |
@@ -644,19 +644,19 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 
 #### Style ve Yerleşim Enumları
 
-`style.rs` tarafındaki temel enum ve tip takma adları `Styled` fluent metotlarının arkasındaki ham değerlerdir:
+`style` tarafındaki temel enum ve tip takma adları `Styled` fluent metotlarının arkasındaki ham değerlerdir:
 
 - Hizalama: `AlignItems`, `AlignSelf`, `JustifyItems`, `JustifySelf`, `AlignContent`, `JustifyContent`.
 - Flex: `FlexDirection`, `FlexWrap`.
 - Görünürlük ve metin: `Visibility`, `WhiteSpace`, `TextOverflow`, `TextAlign`.
-- Dolgu: `Fill` (`style.rs:808`); şu anda tek varyantı `Color(Background)`'tır. Tek varyantlı bir enum olmasının nedeni gelecekte ek dolgu tipleri (örneğin örüntü tabanlı fill) eklenebilmesi için API'yi sabit tutmaktır. Solid renk dışında bir şey üretmen gerektiğinde `Background` tipinin `linear_gradient`, `pattern_slash` veya `checkerboard` yapıcılarını kullanırsın.
+- Dolgu: `Fill` (`style`); şu anda tek varyantı `Color(Background)`'tır. Tek varyantlı bir enum olmasının nedeni gelecekte ek dolgu tipleri (örneğin örüntü tabanlı fill) eklenebilmesi için API'yi sabit tutmaktır. Solid renk dışında bir şey üretmen gerektiğinde `Background` tipinin `linear_gradient`, `pattern_slash` veya `checkerboard` yapıcılarını kullanırsın.
 - Hata ayıklama: `DebugBelow`, yalnız `debug_assertions` altında derlenir; `debug_below` styling'ini özel element içinden okumak için global işaretleyici olarak kullanırsın.
 
 Uygulama kodunda genellikle bu enum'ları doğrudan inşa etmezsin. `.items_center()`, `.justify_between()`, `.flex_col()`, `.whitespace_nowrap()`, `.text_ellipsis()` gibi yardımcı metotları kullanırsın. Özel element veya style refinement yazarken ham enum'lara ihtiyaç duyarsın.
 
 #### Geometri Yardımcıları
 
-`geometry.rs` genel yüzeyindeki düşük seviye yardımcılar:
+`geometry` genel yüzeyindeki düşük seviye yardımcılar:
 
 - `Axis` ve `Along` — yatay/dikey eksene göre `Point`, `Size`, `Bounds` gibi tiplerden ilgili boyutu seçmek için kullanırsın.
 - `Half` ve `IsZero` — generic geometri hesaplarında yarıya bölme ve sıfır testi sağlayan trait'lerdir.
@@ -679,7 +679,7 @@ Normal uygulama kodunda bu durum tiplerini çoğunlukla doğrudan tutmazsın; `d
 
 #### Girdi Olay Tipleri
 
-`interactive.rs` olay ailesi:
+`interactive` olay ailesi:
 
 - Trait sınıfları: `InputEvent`, `KeyEvent`, `MouseEvent`, `GestureEvent`.
 - Klavye: `ModifiersChangedEvent`, `KeyboardClickEvent`, `KeyboardButton`.
@@ -690,7 +690,7 @@ Normal uygulama kodunda bu durum tiplerini çoğunlukla doğrudan tutmazsın; `d
 
 Element geri çağrılarında somut olay tipi çoğunlukla otomatik gelir: `.on_mouse_down(|olay, window, cx| ...)`, `.on_scroll_wheel(...)`, `.on_modifiers_changed(...)` gibi. Yapay test olayı veya platform girdi çevirimi yazarken `InputEvent::to_platform_input()` hattı önemlidir.
 
-**Modifiers deref aliasing (asimetrik).** Aşağıdaki dört olay açıkça `impl Deref for X { type Target = Modifiers; }` taşır (`crates/gpui/src/interactive.rs:77`, `:450`, `:502`, `:590`):
+**Modifiers deref aliasing (asimetrik).** Aşağıdaki dört olay açıkça `impl Deref for X { type Target = Modifiers; }` taşır (`gpui` crate'i, `:450`, `:502`, `:590`):
 
 - `ModifiersChangedEvent`
 - `ScrollWheelEvent`
@@ -706,7 +706,7 @@ Bu sayede `Modifiers` üzerindeki tüm `&self` metotlarını — `secondary()`, 
 Görsel ve SVG hattında genel ama genelde framework tarafından taşınan tipler:
 
 - `ImageId`, `ImageFormat`, `ClipboardString`.
-- `ImageFormatIter` — `ImageFormat` üzerindeki `#[derive(EnumIter)]` (`platform.rs:1973`) ile otomatik üretilen iterator tipidir. Uygulama kodu doğrudan adlandırmaz; `ImageFormat::iter()` (strum'dan) bu tipi döndürür. `from_mime_type` fonksiyonu kendi içinde `Self::iter().find(...)` ile pano içeriğini "olası en yaygın formattan başlayarak" eşleştirir; varyant sırası — Png, Jpeg, Webp, Gif, Svg, Bmp, Tiff, Ico, Pnm — kasıtlıdır; iter sonucunu doğrudan etkiler.
+- `ImageFormatIter` — `ImageFormat` üzerindeki `#[derive(EnumIter)]` (`platform`) ile otomatik üretilen iterator tipidir. Uygulama kodu doğrudan adlandırmaz; `ImageFormat::iter()` (strum'dan) bu tipi döndürür. `from_mime_type` fonksiyonu kendi içinde `Self::iter().find(...)` ile pano içeriğini "olası en yaygın formattan başlayarak" eşleştirir; varyant sırası — Png, Jpeg, Webp, Gif, Svg, Bmp, Tiff, Ico, Pnm — kasıtlıdır; iter sonucunu doğrudan etkiler.
 - `ImageStyle`, `ImageAssetLoader`, `ImageCacheProvider`, `AnyImageCache`, `ImageCacheItem`, `ImageLoadingTask`, `RetainAllImageCacheProvider`.
 - `RenderImageParams` ve `RenderSvgParams` — renderer'a verdiğin rasterization parametrelerini taşır.
 
@@ -718,9 +718,9 @@ Platform uygulaması veya başsız renderer yazmadığın sürece aşağıdaki t
 
 - Display ve tanı: `DisplayId`, `ThermalState`, `SourceMetadata`, `RequestFrameOptions`, `WindowParams`, `InputLatencySnapshot`.
 - Dispatcher ve executor: rustdoc genel yüzeyinde `Scope`, `FallibleTask`, `SchedulerLocalExecutor` ve `RunnableMeta` görünür. Buna ek olarak platform sınırında `#[doc(hidden)]` tutulan `PlatformDispatcher`, `RunnableVariant` (`Runnable<RunnableMeta>` tip takma adı) ve `TimerResolutionGuard` vardır; bunlar `target/doc/gpui/all.html` listesinde görünmez ve uygulama API'si olarak kullanmaman gerekir. Detay:
-  - `RunnableMeta { location: &'static Location<'static>, spawned: SpawnTime }` (`scheduler/src/scheduler.rs:59`) — her scheduled task'a iliştirilen hata ayıklama meta verisi. `track_caller` ile yakalanan kaynak konumunu ve spawn zamanını taşır; profiler ve log akışı doc-hidden `RunnableVariant` üzerinden bu alana ulaşır.
-  - `FallibleTask<T>` (`scheduler/src/executor.rs:250`) — `Task::fallible(self)` çağrısının döndürdüğü sarmalayıcı. Future olarak poll edildiğinde `Option<T>` döner; iptal edilirse panik atmaz, `None` üretir. `must_use` işaretli olduğu için sessizce drop edilirse derleme uyarısı verir.
-  - `SchedulerLocalExecutor` — `gpui::executor.rs:9` `pub use scheduler::LocalExecutor as SchedulerLocalExecutor` yeniden dışa aktarımıdır. GPUI tarafındaki `ForegroundExecutor` bunun üzerinde bir sarmalayıcıdır; ham scheduler handle'ına `ForegroundExecutor::scheduler_executor()` (`executor.rs:378`) çağrısıyla inilir, `BackgroundExecutor::scheduler_executor()` de paralel `scheduler::BackgroundExecutor` döner. Uygulama kodu genelde `cx.foreground_executor()` veya `cx.background_executor()` kullanır; scheduler handle yalnız scheduler crate'iyle doğrudan etkileşim gerektiğinde çekilir.
+  - `RunnableMeta { location: &'static Location<'static>, spawned: SpawnTime }` (`scheduler` crate'i) — her scheduled task'a iliştirilen hata ayıklama meta verisi. `track_caller` ile yakalanan kaynak konumunu ve spawn zamanını taşır; profiler ve log akışı doc-hidden `RunnableVariant` üzerinden bu alana ulaşır.
+  - `FallibleTask<T>` (`scheduler` crate'i) — `Task::fallible(self)` çağrısının döndürdüğü sarmalayıcı. Future olarak poll edildiğinde `Option<T>` döner; iptal edilirse panik atmaz, `None` üretir. `must_use` işaretli olduğu için sessizce drop edilirse derleme uyarısı verir.
+  - `SchedulerLocalExecutor` — `gpui::executor` `pub use scheduler::LocalExecutor as SchedulerLocalExecutor` yeniden dışa aktarımıdır. GPUI tarafındaki `ForegroundExecutor` bunun üzerinde bir sarmalayıcıdır; ham scheduler handle'ına `ForegroundExecutor::scheduler_executor()` (`executor`) çağrısıyla inilir, `BackgroundExecutor::scheduler_executor()` de paralel `scheduler::BackgroundExecutor` döner. Uygulama kodu genelde `cx.foreground_executor()` veya `cx.background_executor()` kullanır; scheduler handle yalnız scheduler crate'iyle doğrudan etkileşim gerektiğinde çekilir.
 - Metin ve klavye: `PlatformTextSystem`, `NoopTextSystem`, `PlatformKeyboardLayout`, `PlatformKeyboardMapper`, `DummyKeyboardMapper`, `PlatformInputHandler`.
 - GPU atlas: `PlatformAtlas`, `AtlasKey`, `AtlasTextureList<T>`, `AtlasTile`, `AtlasTextureId`, `AtlasTextureKind`, `TileId`.
 - Başsız ve ekran yakalama: `PlatformHeadlessRenderer`, `scap_screen_sources(...)`.
@@ -731,13 +731,13 @@ Bu tiplerin doğru sahibi `gpui_platform` uygulamalarıdır. Zed uygulama katman
 
 #### Scene, Primitive ve Crate-İçi Arena Taşıyıcıları
 
-`scene.rs`, `arena.rs` ve `taffy.rs` renderer ve yerleşim boru hattının alt katmanıdır:
+`scene`, `arena` ve `taffy` renderer ve yerleşim boru hattının alt katmanıdır:
 
 - Scene tarafı dış API'ye yeniden dışa aktarılır: `Scene`, `Primitive`, `PrimitiveBatch`, `DrawOrder`, `Quad`, `Underline`, `Shadow`, `PaintSurface`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite`, `PathId`, `PathVertex<P>`, `PathVertex_ScaledPixels`.
-- Yerleşim tarafında `AvailableSpace` ve `LayoutId` crate kökünden genel olarak dışa aktarılır. `TaffyLayoutEngine` ise `taffy` private modülünde `pub struct` olsa da `gpui.rs` yalnız `use taffy::TaffyLayoutEngine` yaptığı için dış API değildir.
-- Arena tarafında `Arena` ve `ArenaBox<T>` `arena` private modülünde `pub` olarak tanımlanır; ancak `gpui.rs` bunları `pub(crate) use arena::*` ile yalnız crate içine açar; dış uygulama kodunun API'si değildir.
+- Yerleşim tarafında `AvailableSpace` ve `LayoutId` crate kökünden genel olarak dışa aktarılır. `TaffyLayoutEngine` ise `taffy` private modülünde `pub struct` olsa da `gpui` yalnız `use taffy::TaffyLayoutEngine` yaptığı için dış API değildir.
+- Arena tarafında `Arena` ve `ArenaBox<T>` `arena` private modülünde `pub` olarak tanımlanır; ancak `gpui` bunları `pub(crate) use arena::*` ile yalnız crate içine açar; dış uygulama kodunun API'si değildir.
 
-Uygulama kodunda genellikle bu tipleri elle üretmezsin. `Element` uygulamaları `window.paint_quad`, `window.paint_image`, `window.paint_path`, `window.paint_layer` gibi API'ler üzerinden scene'e primitive ekler. Arena yönetimi `Window::draw` boyunca dahili olarak yapılır; arena'yı açıp kapatan `ElementArenaScope` da `window.rs` içinde `pub(crate)` olduğu için uygulama kodu doğrudan kullanmaz, `AnyElement`/`Element` API'leri üzerinden çalışırsın.
+Uygulama kodunda genellikle bu tipleri elle üretmezsin. `Element` uygulamaları `window.paint_quad`, `window.paint_image`, `window.paint_path`, `window.paint_layer` gibi API'ler üzerinden scene'e primitive ekler. Arena yönetimi `Window::draw` boyunca dahili olarak yapılır; arena'yı açıp kapatan `ElementArenaScope` da `window` içinde `pub(crate)` olduğu için uygulama kodu doğrudan kullanmaz, `AnyElement`/`Element` API'leri üzerinden çalışırsın.
 
 **Scene genel metotları.** Aşağıdaki metotlar scene seviyesinde doğrudan erişilebilir:
 
@@ -748,7 +748,7 @@ Uygulama kodunda genellikle bu tipleri elle üretmezsin. `Element` uygulamaları
 
 #### Metin Sistemi ve Satır Yerleşim Taşıyıcıları
 
-`text_system.rs` ve alt modülleri font şekillendirme, sarma ve glif rasterleme verilerini genel tiplerle taşır:
+`text_system` ve alt modülleri font şekillendirme, sarma ve glif rasterleme verilerini genel tiplerle taşır:
 
 - Font ve glif kimlikleri: `TextSystem`, `FontId`, `FontFamilyId`, `GlyphId`, `FontMetrics`, `RenderGlyphParams`, `GlyphRasterData`.
 - Satır şekillendirme: `ShapedLine`, `ShapedRun`, `ShapedGlyph`, `LineLayout`, `WrappedLine`, `WrappedLineLayout`, `FontRun`.
@@ -804,7 +804,7 @@ Doğrudan kullanıcı akışında nadiren gördüğün genel yardımcılar:
 
 - Menu: `SystemMenuType`, `OwnedOsMenu`.
 - Keymap: `KeymapVersion`, `BindingIndex`, `KeyBindingMetaIndex`, `ContextEntry`.
-- Tab sırası: `TabStopOperation` `tab_stop.rs` içinde `pub enum` olsa da modül `gpui.rs` tarafından `pub(crate) use tab_stop::*` ile açılır; dış API değildir. `TabStopOrderNodeSummary` rustdoc JSON'da public item olarak görünür, fakat private `tab_stop::sum_tree_impl` yolunda kaldığı için normal uygulama API'si sayılmaz. Odak gezinmesi için dış kod `FocusHandle`, `tab_stop`, `tab_group` ve `tab_index` API'lerini kullanır.
+- Tab sırası: `TabStopOperation` `tab_stop` içinde `pub enum` olsa da modül `gpui` tarafından `pub(crate) use tab_stop::*` ile açılır; dış API değildir. `TabStopOrderNodeSummary` rustdoc JSON'da public item olarak görünür, fakat private `tab_stop::sum_tree_impl` yolunda kaldığı için normal uygulama API'si sayılmaz. Odak gezinmesi için dış kod `FocusHandle`, `tab_stop`, `tab_group` ve `tab_index` API'lerini kullanır.
 - Action registry: `MacroActionBuilder`, `MacroActionData`, `generate_list_of_all_registered_actions()`.
 - Test: `TestAppWindow<V>` ve macOS `test-support` için `VisualTestAppContext`.
 - App iç tipleri: `AppCell`, `AppRef`, `AppRefMut`, `ArenaClearNeeded`, `KeystrokeEvent`, `AnyDrag`, `LeakDetectorSnapshot`.
@@ -864,7 +864,7 @@ Renk ve geometri kısa fonksiyonları:
 
 #### Kök Yeniden Dışa Aktarım ve Makro Yüzeyi
 
-`gpui.rs` crate kökünde yalnız GPUI modüllerini değil, bazı yardımcı crate'leri de yeniden dışa aktarır:
+`gpui` crate kökünde yalnız GPUI modüllerini değil, bazı yardımcı crate'leri de yeniden dışa aktarır:
 
 - `Result` — `anyhow::Result` takma adıdır; GPUI API'leriyle aynı hata tipini kullanmak için tercih edersin.
 - `ArcCow` — `gpui_util::arc_cow::ArcCow`; clone maliyeti düşük copy-on-write paylaşımlı veri taşımak içindir.
@@ -873,7 +873,7 @@ Renk ve geometri kısa fonksiyonları:
 - `ctor` — action registration veya benzeri startup registration desenleri için yeniden dışa aktarılır.
 - `http_client` — GPUI platform HTTP client trait'lerine crate kökünden erişim sağlar.
 - `proptest` — yalnız `test-support` veya test build'lerinde property test yardımcılarını dışa aktarır.
-- Makrolar: `Action`, `IntoElement`, `AppContext`, `VisualContext`, `register_action`, `test`, `property_test`, `bench`. `gpui.rs` ayrıca `Render` derive'ını da yeniden dışa aktarır. Macro kaynağında `#[doc(hidden)]` olduğu için `target/doc/gpui/all.html` içinde listelenmez ve `derive.Render.html` sayfası üretilmez. Bu derive yalnız boş bir `Render` impl'i üretir; `render` gövdesi `gpui::Empty` döndürür. Gerçek UI üreten view'lerde elle `impl Render` yazarsın.
+- Makrolar: `Action`, `IntoElement`, `AppContext`, `VisualContext`, `register_action`, `test`, `property_test`, `bench`. `gpui` ayrıca `Render` derive'ını da yeniden dışa aktarır. Macro kaynağında `#[doc(hidden)]` olduğu için `target/doc/gpui/all.html` içinde listelenmez ve `derive.Render.html` sayfası üretilmez. Bu derive yalnız boş bir `Render` impl'i üretir; `render` gövdesi `gpui::Empty` döndürür. Gerçek UI üreten view'lerde elle `impl Render` yazarsın.
 
 Rustdoc listesindeki `Action`, `IntoElement`, `Refineable`, `AppContext` ve `VisualContext` kısa adları tek bir öğe değildir; trait ve derive macro yüzeyleri ayrı namespace'lerde yaşar. `#[derive(AppContext)]` struct içinde `#[app]` ile işaretlenmiş `&mut App` alanını bulur ve `AppContext` metotlarını o alana delege eder. `#[derive(VisualContext)]` hem `#[app]` hem `#[window]` ister; `VisualContext` için `type Result<T> = T` üretir, `window_handle`, `update_window_entity`, `new_window_entity`, `replace_root_view` ve `focus` çağrılarını ilgili `App`/`Window` alanlarına indirir. `prelude::IntoElement`, `prelude::Refineable` ve `prelude::VisualContext` rustdoc'ta görünen derive macro takma adlarıdır; yeni bir trait veya farklı bir çalışma zamanı davranışı değildir.
 

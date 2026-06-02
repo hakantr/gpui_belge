@@ -38,7 +38,7 @@ let tutamac = cx.open_window(
 
 **`WindowOptions` alanları.** Aşağıdaki alanlar pencerenin oluşumunda sorumluluğu olan başlıca parametreleri tanımlar:
 
-- `window_bounds`: `None` verirsen GPUI, ekran için varsayılan sınırları seçer. `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını belirler. Varsayılan seçimde iki sabit kullanılır: `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095, ana Zed penceresi için) ve `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` (900×750, 6:5 oranında settings veya rules library benzeri ek pencereler için). Kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa bu değerlere güvenebilirsin (`window.rs:70,74`).
+- `window_bounds`: `None` verirsen GPUI, ekran için varsayılan sınırları seçer. `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını belirler. Varsayılan seçimde iki sabit kullanılır: `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095, ana Zed penceresi için) ve `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` (900×750, 6:5 oranında settings veya rules library benzeri ek pencereler için). Kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa bu değerlere güvenebilirsin (`window`).
 - `titlebar`: `Some(TitlebarOptions)`'ı sistem başlık çubuğu ayarı için kullanırsın. `None` verdiğinde özel başlık çubuğu yolu açılır.
 - `focus`: pencere oluşturulduğu anda klavye odağını alıp almayacağını belirler.
 - `show`: pencerenin hemen gösterilip gösterilmeyeceğini kontrol eder. Zed ana pencereleri başlangıçta `show: false`, `focus: false` ile açar ve hazır olduğunda gösterir.
@@ -62,7 +62,7 @@ let tutamac = cx.open_window(
 
 ## Zed'de Ana Pencere Nasıl Açılır?
 
-Zed'in ana pencere açma akışı `crates/zed/src/zed.rs::build_window_options` fonksiyonunda toplanır. Yeni bir workspace penceresi açacaksan bu fonksiyonu tercih edersin:
+Zed'in ana pencere açma akışı `build_window_options` fonksiyonunda toplanır. Yeni bir workspace penceresi açacaksan bu fonksiyonu tercih edersin:
 
 ```rust
 let secenekler = zed::build_window_options(ekran_uuid, cx);
@@ -82,7 +82,7 @@ Fonksiyon kendi içinde şu işleri sırayla yapar:
 - Linux/FreeBSD'de uygulama ikonunu ekler.
 - macOS yerel sekmeleme istendiğinde `tabbing_identifier: Some("zed")` verir.
 
-Modal veya About benzeri küçük pencerelerde bu fonksiyonu kullanmak yerine doğrudan `WindowOptions` kurmak daha yaygın bir desendir. Örneğin `crates/zed/src/zed.rs::about` şu seçenekleri kullanır:
+Modal veya About benzeri küçük pencerelerde bu fonksiyonu kullanmak yerine doğrudan `WindowOptions` kurmak daha yaygın bir desendir. Örneğin `about` şu seçenekleri kullanır:
 
 - Merkezlenmiş sınırlar
 - `appears_transparent: true`
@@ -156,7 +156,7 @@ WindowOptions {
 }
 ```
 
-Zed içindeki örnekler `crates/agent_ui/src/ui/agent_notification.rs` ve `crates/collab_ui/src/collab_ui.rs` dosyalarındadır.
+Zed içindeki örnekler `agent_ui` crate'i ve `collab_ui` crate'i dosyalarındadır.
 
 ## Başlık Çubuğu ve Pencere Süslemesi
 
@@ -307,7 +307,7 @@ Böylece kaydedilmemiş arabellek (`dirty buffer`) kontrolü, kullanıcıya sorm
 
 **Linux `WindowButtonLayout`.** Linux tarafında buton düzeni esnektir ve kullanıcı tarafında özelleştirilebilir:
 
-- `WindowButton::{Minimize, Maximize, Close}`, sıralı kontrol tipleridir; düzen, sol ve sağ taraf için `Option<WindowButton>` yuva dizileri tutar. Yuva başına sayı `gpui::MAX_BUTTONS_PER_SIDE: usize = 3` (`platform.rs:457`) ile sabittir; `WindowButtonLayout::{left, right}` bu sayıda elemanlı dizilerdir.
+- `WindowButton::{Minimize, Maximize, Close}`, sıralı kontrol tipleridir; düzen, sol ve sağ taraf için `Option<WindowButton>` yuva dizileri tutar. Yuva başına sayı `gpui::MAX_BUTTONS_PER_SIDE: usize = 3` (`platform`) ile sabittir; `WindowButtonLayout::{left, right}` bu sayıda elemanlı dizilerdir.
 - Düzen, platformdan `cx.button_layout()` ile gelir.
 - GNOME tarzı `"close,minimize:maximize"` biçimini ayrıştırabilirsin.
 - Varsayılan Linux yedeği `WindowButtonLayout::linux_default()` ile üretilir; sağda küçültme, ekranı kaplama, kapatma şeklindedir.
@@ -418,7 +418,7 @@ Desteklenen setting değerleri `opaque`, `transparent` ve `blurred`'dir. `MicaBa
 
 - Tema rafine edilirken `WindowBackgroundContent` -> `WindowBackgroundAppearance` dönüştürülür.
 - Ana pencere açılırken `window_background: cx.theme().window_background_appearance()` verilir.
-- Ayarlar veya tema değiştiğinde `crates/zed/src/main.rs`, tüm açık pencerelere `window.set_background_appearance(background_appearance)` çağrısı yapar.
+- Ayarlar veya tema değiştiğinde `zed` crate'i, tüm açık pencerelere `window.set_background_appearance(background_appearance)` çağrısı yapar.
 - UI tarafında genel yol `ui::theme_is_transparent(cx)`'tir; şeffaf veya bulanıksa `true` döner. Opak arka plan varsayan bileşenler buna göre davranmalıdır.
 
 **Platform davranışı.** Aynı enum değeri her platformda farklı bir mekanizmayla ifade edilir:
@@ -537,7 +537,7 @@ macOS yerel pencere sekmesi için ek bir API ailesi vardır:
 
 ## Pencere Sınırlarının Saklanması ve Geri Yüklenmesi
 
-`crates/gpui/src/platform.rs::WindowBounds`, Zed tarafında `crates/workspace/src/persistence/`, `crates/workspace/src/workspace.rs` ve `crates/zed/src/zed.rs`.
+`WindowBounds`, Zed tarafında `workspace` ve `zed` crate'lerinde kalıcılaştırılır.
 
 `WindowBounds` enum'u pencerenin üç ana durumunu kapsar:
 

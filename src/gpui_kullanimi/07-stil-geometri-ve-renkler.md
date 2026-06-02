@@ -11,7 +11,7 @@
 | `Styled` | Trait üyeleri | `col_end_auto`, `col_start_auto`, `debug`, `debug_below`, `row_end_auto`, `row_start_auto`, `style` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
-`Styled`, `crates/gpui/src/styled.rs` içindeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu taşır; `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList`, `Deferred`, `AnimationElement` ve çok sayıda Zed UI bileşeni bu trait üzerinden aynı fluent stil sözlüğünü kullanır.
+`Styled`, `gpui` crate'indeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu taşır; `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList`, `Deferred`, `AnimationElement` ve çok sayıda Zed UI bileşeni bu trait üzerinden aynı fluent stil sözlüğünü kullanır.
 
 GPUI stil sistemi CSS ve Tailwind'e benzeyen fluent metotlardan oluşur. Arka planda Rust tipleri olduğu için neyin hangi değeri aldığı daha nettir. Örnek bir stil zinciri:
 
@@ -41,7 +41,7 @@ div()
 | Cursor ve taşma | `cursor`, `cursor_*`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `overflow_hidden`, `overflow_x_hidden`, `overflow_y_hidden`, `scrollbar_width` | Pointer görünümü, taşma kırpması ve scrollbar için ayrılacak layout alanını belirler. |
 | Aspect ve grid | `aspect_ratio`, `aspect_square`, `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`, `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full` | En-boy oranı ve grid template/placement değerlerini yazar; altta `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement` kullanılır. |
 
-Yukarıdaki fluent metotların büyük çoğunluğu `Styled` trait gövdesinde tek tek yazılmaz; bir grup proc macro tarafından üretilir. `crates/gpui/src/styled.rs` içinde bu makrolar tek satırda çağrılır ve `gpui_macros` crate'i her çağrı için onlarca metot üretir. Hangi makronun hangi metotları ürettiğini aşağıdaki tablodan takip edebilirsin:
+Yukarıdaki fluent metotların büyük çoğunluğu `Styled` trait gövdesinde tek tek yazılmaz; bir grup proc macro tarafından üretilir. `gpui` crate'inde bu makrolar tek satırda çağrılır ve `gpui_macros` crate'i her çağrı için onlarca metot üretir. Hangi makronun hangi metotları ürettiğini aşağıdaki tablodan takip edebilirsin:
 
 | Proc macro (`gpui_macros::...!()`) | Üretilen fluent metotlar (Styled trait üyesi olarak) |
 |---|---|
@@ -99,7 +99,7 @@ div()
 
 ## Geometri Tipleri ve Birim Yönetimi
 
-`crates/gpui/src/geometry.rs`.
+`gpui` crate'i.
 
 ### Pixels, ScaledPixels ve DevicePixels
 
@@ -264,7 +264,7 @@ Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Cor
 
 ### phi
 
-`phi() -> DefiniteLength` (`geometry.rs:3698`), altın oranı `relative(1.618_034)` olarak döndürür — yani üst öğenin **1.618 katı**, %50 değil. GPUI, varsayılan `TextStyle::line_height` değeri olarak `phi()` kullanır (`style.rs:451`); bir yazı tipi için satır yüksekliği `font_size * 1.618` olur. Yerleşim oranlamada (örneğin altın oranla iki sütun) üst öğenin katı olarak ifade gerekiyorsa aynı sabiti kullanabilirsin.
+`phi() -> DefiniteLength` (`geometry`), altın oranı `relative(1.618_034)` olarak döndürür — yani üst öğenin **1.618 katı**, %50 değil. GPUI, varsayılan `TextStyle::line_height` değeri olarak `phi()` kullanır (`style`); bir yazı tipi için satır yüksekliği `font_size * 1.618` olur. Yerleşim oranlamada (örneğin altın oranla iki sütun) üst öğenin katı olarak ifade gerekiyorsa aynı sabiti kullanabilirsin.
 
 **Tuzaklar.** Geometri tarafında sıkça yapılan yanılgılar:
 
@@ -443,7 +443,7 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ## Renkler, Gradient ve Background
 
-`crates/gpui/src/color.rs` ve `colors.rs`.
+`gpui` crate'i ve `colors`.
 
 ### Rgba ve Hsla
 
@@ -487,7 +487,7 @@ let gri = opaque_grey(0.5, 1.0);            // gri yardımcısı
 
 ### Hazır renk sabitleri
 
-Tümü `pub const fn ... -> Hsla` biçiminde tanımlıdır (`color.rs:344+`):
+Tümü `pub const fn ... -> Hsla` biçiminde tanımlıdır (`color`):
 
 | Fonksiyon | HSLA değeri | Not |
 |---|---|---|
@@ -502,7 +502,7 @@ Tümü `pub const fn ... -> Hsla` biçiminde tanımlıdır (`color.rs:344+`):
 
 Bu sabitler Zed tasarım sisteminden bağımsızdır; tema renklerine ihtiyaç duyduğunda `cx.theme().colors()`'ı kullanırsın. Debug placeholder, GPU shader testi veya tema-bağımsız palet örnekleri gerektiğinde bu hazır sabitler iş görür. `transparent_black()` `linear_gradient` ucu olarak en yaygın kullanılan tek parça çağrıdır (örneğin fade-out maskeleri için).
 
-**Sık kullanılan metotlar** (`color.rs:472+`):
+**Sık kullanılan metotlar** (`color`):
 
 | API | Alt özellikler | Kısa anlamı |
 |---|---|---|
@@ -518,7 +518,7 @@ Bu sabitler Zed tasarım sisteminden bağımsızdır; tema renklerine ihtiyaç d
 | `LinearColorStop` | Alanlar | `percentage` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
-Background yalnızca düz renk değildir; gradient ve desen de aynı çatı altındadır (`color.rs:763+`):
+Background yalnızca düz renk değildir; gradient ve desen de aynı çatı altındadır (`color`):
 
 ```rust
 solid_background(rgb(0xffffff))
@@ -599,7 +599,7 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 | `SharedUri` | `deref`, `from`, `hash`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
 
 
-`SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri` ise `crates/gpui/src/shared_uri.rs` içinde bu string tipini sarar.
+`SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri` ise `gpui` crate'inde bu string tipini sarar.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -651,7 +651,7 @@ impl Render for Baslik {
 | `WindowAppearance` | Varyantlar | `Dark`, `VibrantDark`, `VibrantLight` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
 
 
-`crates/gpui/src/platform.rs:1604` içinde tanımlıdır:
+`gpui` crate'inde tanımlıdır:
 
 ```rust
 pub enum WindowAppearance {
@@ -672,7 +672,7 @@ pub enum WindowAppearance {
 - `cx.observe_window_appearance(window, |gorunum, window, cx| ...)` — `Context<T>` içinden değişimi view verisi ile birlikte izler.
 - `window.observe_button_layout_changed(...)` ve `cx.observe_button_layout_changed(window, ...)` — platform pencere kontrol butonu düzeni değiştiğinde çalışır.
 
-Zed örüntüsü `crates/zed/src/main.rs` içinde tema seçimine şu şekilde bağlanır:
+Zed örüntüsü `zed` crate'inde tema seçimine şu şekilde bağlanır:
 
 ```rust
 cx.observe_window_appearance(window, |_, window, cx| {

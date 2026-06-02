@@ -19,7 +19,7 @@
 | `Font` | Alanlar | `family`, `features`, `fallbacks`, `style`, `weight` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
-Metin sisteminin ana tipleri `crates/gpui/src/text_system.rs`, `style.rs` ve `elements/text.rs` içinde toplanır. Bir metni doğru çizebilmek için stil, font ve ölçüm tipleri birlikte çalışır. Her birinin sorumluluğu ayrıdır:
+Metin sisteminin ana tipleri `gpui` crate'i, `style` ve `elements/text` içinde toplanır. Bir metni doğru çizebilmek için stil, font ve ölçüm tipleri birlikte çalışır. Her birinin sorumluluğu ayrıdır:
 
 ![GPUI Metin Sistemi Bileşen Hiyerarşisi](assets/metin-sistemi-hiyerarsisi.svg)
 
@@ -104,7 +104,7 @@ Buradaki `.into()` yalnız okunabilirlik kısaltması değildir; `&'static str`,
 - `text_ellipsis`, `line_clamp` ve `white_space` gibi taşma davranışları yerleşim genişliğine bağlıdır; üst öğenin genişliği belirsizse kırpma beklenen biçimde çalışmaz.
 - Sondan üç nokta ile kırpma yapılırken kırpılan parçanın sonundaki boşluk ve ASCII noktalama temizlenir; `"başlık -…"` yerine daha temiz `"başlık…"` çıktısı üretir. Başlangıçtan kırpma davranışı ayrı `TruncateFrom::Start` yoludur.
 - `line_clamp` ile `wrap_width` ikisi birlikte ayarlıysa `LineWrapper::truncate_wrapped_line` devreye girer. Bu yöntem kırpma noktasını kelime sınırı sarımını da hesaba katarak belirler: satırları tek geçişte yürürken hem sarım sınırlarını hem kırpma noktasını paralel izler ve son satır taşmadan hemen önce sözcük sınırında keser. Önceki `truncate_line` tabanlı davranış `width × satır_sayısı` üzerinden düz bir bütçe hesabı yapıyordu; bu, gerçek görsel sarımla uyumsuz kırpma üretiyordu. Yeni yol sarımı değil görsel sonucu baz alır. `max_lines == 1` veya `TruncateFrom::Start` durumlarında yöntem eskiden olduğu gibi `truncate_line`'a düşer.
-- Uygulamanın genel metin çizim kipini `cx.set_text_rendering_mode(...)` ile `PlatformDefault`, `Subpixel` ve `Grayscale` arasında seçersin. Subpixel akışında her glif için yatayda `gpui::SUBPIXEL_VARIANTS_X: u8 = 4`, dikeyde `gpui::SUBPIXEL_VARIANTS_Y: u8 = 1` farklı varyant rasterize edilir (`text_system.rs:45,48`); başka bir deyişle glif atlası boyutu yatay subpixel konumuna duyarlıdır, dikey konumda değildir.
+- Uygulamanın genel metin çizim kipini `cx.set_text_rendering_mode(...)` ile `PlatformDefault`, `Subpixel` ve `Grayscale` arasında seçersin. Subpixel akışında her glif için yatayda `gpui::SUBPIXEL_VARIANTS_X: u8 = 4`, dikeyde `gpui::SUBPIXEL_VARIANTS_Y: u8 = 1` farklı varyant rasterize edilir (`text_system`); başka bir deyişle glif atlası boyutu yatay subpixel konumuna duyarlıdır, dikey konumda değildir.
 - WGPU/Linux metin arka ucu (`CosmicTextSystem`) `Font.fallbacks` değerini font önbellek anahtarına dahil eder ve `layout_line` içinde kullanıcı yedek zincirini grapheme cluster sınırlarını koruyarak uygular. ASCII karakterlerinde birincil font tercih edilir; combining mark ve ZWJ emoji cluster'ları yedek aralığının içinde bölünmez. Özel font yedek ayarı incelenirken yalnızca aile adını değil yedek listesini de önbellek/ölçüm girdisi sayman gerekir.
 
 ## StyledText, TextLayout ve InteractiveText

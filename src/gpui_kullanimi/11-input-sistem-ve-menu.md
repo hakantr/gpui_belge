@@ -14,7 +14,7 @@ Element seviyesinde GPUI birçok girdi olayını tek tipli bir fluent API üzeri
 - Sürükle-bırak: `.on_drag`, `.on_drag_move`, `.on_drop`.
 - Action: `.capture_action::<A>`, `.on_action::<A>`, `.on_boxed_action`.
 
-Olay tipleri `interactive.rs` ve `platform.rs` içinde tanımlıdır: `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`, `FileDropEvent`, `ExternalPaths`, `ClickEvent`. `ScrollDelta::pixel_delta(line_height)`, satır tabanlı scroll'u piksele çevirir; `coalesce` aynı yöndeki delta'ları birleştirir.
+Olay tipleri `interactive` ve `platform` içinde tanımlıdır: `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`, `FileDropEvent`, `ExternalPaths`, `ClickEvent`. `ScrollDelta::pixel_delta(line_height)`, satır tabanlı scroll'u piksele çevirir; `coalesce` aynı yöndeki delta'ları birleştirir.
 
 **Pano.** Pano okuma ve yazmayı sade çağrılarla yaparsın:
 
@@ -101,7 +101,7 @@ let secilen_sira = yanit.await?;
 | `PromptResponse` | seçilen buton indeksi | Özel prompt view'unun `EventEmitter` üzerinden yaydığı cevaptır. |
 | `fallback_prompt_renderer` | fallback GPUI prompt builder | Sistem prompt'u kullanılmadığında GPUI içinde çizilen varsayılan prompt renderer'ını kurar. |
 
-**Zed entegrasyonu** (`crates/ui_prompt`):
+**Zed entegrasyonu** (`ui_prompt`):
 
 - `ui_prompt::init(cx)`, `WorkspaceSettings::use_system_prompts` ayarını `SettingsStore` üzerinden gözlemler. Sistem prompt'ları açıksa `cx.reset_prompt_builder()` çağrılarak platform diyaloğuna düşülür; aksi halde `cx.set_prompt_builder(zed_prompt_renderer)` ile GPUI içindeki markdown destekli prompt akışına geçilir. Linux/FreeBSD'de sistem prompt'u yoksayılır, daima Zed çizimi kullanılır.
 - `ZedPromptRenderer`, `pub` bir struct'tır: `Markdown` entity'siyle mesaj ve detay metnini çizer; cancel ve confirm action'larını içeride yönlendirir. Uygulama kodu doğrudan oluşturmaz; yalnızca prompt builder fonksiyonu tarafından kurulur.
@@ -126,7 +126,7 @@ cx.set_prompt_builder(|seviye, mesaj, ayrinti, eylemler, tutamac, window, cx| {
 
 ## Uygulama Menüsü ve Dock
 
-`crates/gpui/src/platform/app_menu.rs`.
+`gpui` crate'i.
 
 Menü modeli birkaç ana tip etrafında kurulur:
 

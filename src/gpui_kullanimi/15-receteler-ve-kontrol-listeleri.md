@@ -301,24 +301,24 @@ Bu başlık altında rehber boyunca en çok sorulan dört konunun kısa özeti y
 
 Aşağıdaki liste, rehberde anlatılan kavramların kodda hangi dosyada bulunduğunu tek bakışta verir. Yeni bir bileşen yazarken benzer örneğin nerede olduğunu hızla bulmana yarar.
 
-- Pencere açma API'si: `crates/gpui/src/app.rs::open_window`
-- Pencere seçenekleri: `crates/gpui/src/platform.rs::WindowOptions`
-- Platform penceresi sözleşmesi: `crates/gpui/src/platform.rs::PlatformWindow`
-- Pencere sarmalayıcı metotları: `crates/gpui/src/window.rs`
-- Element ve çizim trait'leri: `crates/gpui/src/element.rs`, `view.rs`
-- Style fluent API: `crates/gpui/src/styled.rs`
-- Interactivity fluent API: `crates/gpui/src/elements/div.rs`
-- Platform seçimi: `crates/gpui_platform/src/gpui_platform.rs`
-- macOS pencere davranışı: `crates/gpui_macos/src/window.rs`
-- Windows pencere davranışı: `crates/gpui_windows/src/window.rs`, `events.rs`
-- Linux Wayland davranışı: `crates/gpui_linux/src/linux/wayland/window.rs`
-- Linux X11 davranışı: `crates/gpui_linux/src/linux/x11/window.rs`
-- Zed ana window options: `crates/zed/src/zed.rs::build_window_options`
-- Zed platform başlık çubuğu: `crates/platform_title_bar/src/platform_title_bar.rs`
-- Linux kontroller: `crates/platform_title_bar/src/platforms/platform_linux.rs`
-- Windows kontroller: `crates/platform_title_bar/src/platforms/platform_windows.rs`
-- Workspace istemci süslemesi: `crates/workspace/src/workspace.rs::client_side_decorations`
-- Zed başlık çubuğu kompozisyonu: `crates/title_bar/src/title_bar.rs`
-- Tema arka plan görünüşü: `crates/theme/src/theme.rs`, `crates/theme_settings/src/theme_settings.rs`, `crates/settings/src/content_into_gpui.rs`
-- UI bileşen dışa aktarım listesi: `crates/ui/src/components.rs`
-- UI input: `crates/ui_input/src/ui_input.rs`, `input_field.rs`
+- Pencere açma API'si: `open_window`
+- Pencere seçenekleri: `WindowOptions`
+- Platform penceresi sözleşmesi: `PlatformWindow`
+- Pencere sarmalayıcı metotları: `gpui` crate'i
+- Element ve çizim trait'leri: `gpui` crate'i, `view`
+- Style fluent API: `gpui` crate'i
+- Interactivity fluent API: `gpui` crate'i
+- Platform seçimi: `gpui_platform` crate'i
+- macOS pencere davranışı: `gpui_macos` crate'i
+- Windows pencere davranışı: `gpui_windows` crate'i, `events`
+- Linux Wayland davranışı: `gpui_linux` crate'i
+- Linux X11 davranışı: `gpui_linux` crate'i
+- Zed ana window options: `build_window_options`
+- Zed platform başlık çubuğu: `platform_title_bar` crate'i
+- Linux kontroller: `platform_title_bar` crate'i
+- Windows kontroller: `platform_title_bar` crate'i
+- Workspace istemci süslemesi: `client_side_decorations`
+- Zed başlık çubuğu kompozisyonu: `title_bar` crate'i
+- Tema arka plan görünüşü: `theme` crate'i, `theme_settings` crate'i, `settings` crate'i
+- UI bileşen dışa aktarım listesi: `ui` crate'i
+- UI input: `ui_input` crate'i, `input_field`

@@ -400,7 +400,7 @@ Normal bileşen kodunda bu imperative yüzey yanlış seviyedir; element fluent 
 | `FluentBuilder` | Trait üyeleri | `map`, `when`, `when_else`, `when_none`, `when_some` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
-`crates/gpui/src/util.rs::FluentBuilder` trait'i tüm element tiplerine üç yardımcı ekler ve fluent zincirin if/match bloklarıyla kırılmasını engeller:
+`FluentBuilder` trait'i tüm element tiplerine üç yardımcı ekler ve fluent zincirin if/match bloklarıyla kırılmasını engeller:
 
 ```rust
 pub trait FluentBuilder {
@@ -470,7 +470,7 @@ GPUI ve Zed'de iki kompozisyon deseni paralel çalışır: çizim zincirinde `Re
 
 #### Refineable
 
-`crates/refineable/src/refineable.rs`:
+`refineable` crate'i:
 
 ```rust
 pub trait Refineable: Clone {
@@ -501,22 +501,22 @@ Trait sözleşmesi göründüğünden zengindir ve birkaç ince detay içerir:
 
 `#[derive(Refineable)]` (gpui re-export'lu): orijinal struct ile aynı alanlara sahip, ama her alanı `Option`'lı hale getirilmiş bir `XRefinement` türü üretir. `refine` çağrısı yalnızca `Some` alanları yazar. Aşağıdaki somut türler her zaman derive ile üretilir, ayrıca elle yazmaya gerek kalmaz:
 
-| Refinement türü | Üreten struct | Kaynak |
-|---|---|---|
-| `StyleRefinement` | `Style` | `style.rs:178` |
-| `TextStyleRefinement` | `TextStyle` | `style.rs` |
-| `UnderlineStyleRefinement` | `UnderlineStyle` | `style.rs` |
-| `StrikethroughStyleRefinement` | `StrikethroughStyle` | `style.rs` |
-| `BoundsRefinement` | `Bounds` | `geometry.rs` |
-| `PointRefinement` | `Point` | `geometry.rs` |
-| `SizeRefinement` | `Size` | `geometry.rs` |
-| `EdgesRefinement` | `Edges` | `geometry.rs` |
-| `CornersRefinement` | `Corners` | `geometry.rs` |
-| `GridTemplateRefinement` | `GridTemplate` | `geometry.rs` |
+| Refinement türü | Üreten struct |
+| --- | --- |
+| `StyleRefinement` | `Style` |
+| `TextStyleRefinement` | `TextStyle` |
+| `UnderlineStyleRefinement` | `UnderlineStyle` |
+| `StrikethroughStyleRefinement` | `StrikethroughStyle` |
+| `BoundsRefinement` | `Bounds` |
+| `PointRefinement` | `Point` |
+| `SizeRefinement` | `Size` |
+| `EdgesRefinement` | `Edges` |
+| `CornersRefinement` | `Corners` |
+| `GridTemplateRefinement` | `GridTemplate` |
 
 Bu `*Refinement` tiplerini çoğunlukla doğrudan adlandırarak kullanmazsın; fluent API zinciri onları arka planda toplar. Doğrudan elle inşa etmen gereken tek tip genellikle `StyleRefinement`'tır — örneğin `.hover(|style| style.bg(...))` geri çağrısının (`callback`) imzasında bu tip görünür.
 
-Tipik kullanım `Style`/`StyleRefinement` (`crates/gpui/src/style.rs:178`) üzerinden ilerler:
+Tipik kullanım `Style`/`StyleRefinement` (`gpui` crate'i) üzerinden ilerler:
 
 ```rust
 let mut style = Style::default();
@@ -531,7 +531,7 @@ Element fluent zinciri (örneğin `div().text_size(px(14.)).bg(rgb(0xff))`) arka
 
 #### Cascade ve CascadeSlot
 
-`Refineable` tek başına iki katmanı (temel değer + refinement) birleştirir. Daha derin hover/focus/active akışları için `crates/refineable/src/refineable.rs:80,93` katman yığını sunar:
+`Refineable` tek başına iki katmanı (temel değer + refinement) birleştirir. Daha derin hover/focus/active akışları için `refineable` crate'i katman yığını sunar:
 
 ```rust
 pub struct Cascade<S: Refineable>(Vec<Option<S::Refinement>>);
@@ -547,13 +547,13 @@ API yüzeyi şöyledir:
 - `cascade.merged() -> S::Refinement`, slot 0 üzerine diğer dolu slotları sırayla `refine` eder; sonraki slot önceki slotu ezer.
 - `Refineable::from_cascade(&cascade) -> Self`, `default().refined(merged())` kısayoludur; çizim sırasında nihai stili üretmek için kullanırsın.
 
-**Önemli not.** GPUI'nın kendi `Interactivity` katmanı (`.hover(...)`, `.active(...)`, `.focus(...)`, `.focus_visible(...)`, `.in_focus(...)`, `.group_hover(...)`, `.group_active(...)` zinciri) **`Cascade`/`CascadeSlot` kullanmaz**. `Interactivity` struct'ı her durum için ayrı bir `Option<Box<StyleRefinement>>` alanı tutar (`elements/div.rs:1681+`'deki `hover_style`, `active_style`, `focus_style`, `in_focus_style`, `focus_visible_style`, `group_hover_style`, `group_active_style`) ve çizim aşamasında bu refinement'ları sırayla `refine` eder. Yani hover stilinde verdiğin `StyleRefinement::bg(...)` temel arka planı ezer; ama `font_size`'a dokunmayan bir refinement temel `font_size` değerini korur. `None` alan "etki yok" anlamına gelir.
+**Önemli not.** GPUI'nın kendi `Interactivity` katmanı (`.hover(...)`, `.active(...)`, `.focus(...)`, `.focus_visible(...)`, `.in_focus(...)`, `.group_hover(...)`, `.group_active(...)` zinciri) **`Cascade`/`CascadeSlot` kullanmaz**. `Interactivity` struct'ı her durum için ayrı bir `Option<Box<StyleRefinement>>` alanı tutar (`elements/div`'deki `hover_style`, `active_style`, `focus_style`, `in_focus_style`, `focus_visible_style`, `group_hover_style`, `group_active_style`) ve çizim aşamasında bu refinement'ları sırayla `refine` eder. Yani hover stilinde verdiğin `StyleRefinement::bg(...)` temel arka planı ezer; ama `font_size`'a dokunmayan bir refinement temel `font_size` değerini korur. `None` alan "etki yok" anlamına gelir.
 
 `Cascade<S>` ve `CascadeSlot` arayüzü `refineable` crate'inde genel olarak durur; ancak GPUI çekirdeği veya Zed bu sürümde içeriden kullanmaz. Çoklu katmanlı (3+) refinement yığınını dışarıdan kurmak isteyen kütüphane yazarları için bir uzantı noktasıdır.
 
 #### MergeFrom
 
-`crates/settings_content/src/merge_from.rs`:
+`settings_content` crate'i:
 
 ```rust
 pub trait MergeFrom {

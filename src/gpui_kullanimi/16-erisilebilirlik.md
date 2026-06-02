@@ -6,11 +6,11 @@ GPUI'nin mevcut public yüzeyi erişilebilirlik bilgisini AccessKit üzerinden t
 
 Bu bölümde anlatılan ana kaynaklar:
 
-- `crates/gpui/src/elements/div.rs`: `StatefulInteractiveElement` erişilebilirlik fluent metotları.
-- `crates/gpui/src/elements/text.rs`: `Text`, `Text::new`, `Text::new_inaccessible` ve `text!` makrosu.
-- `crates/gpui/src/window.rs`: platform action yönlendirmesi ve `Window::on_a11y_action`.
-- `crates/gpui/src/app.rs`: `Application::new_inaccessible(...)`.
-- `crates/gpui/src/platform.rs`: platform arka uçlarının uyguladığı erişilebilirlik köprüsü.
+- `gpui` crate'i: `StatefulInteractiveElement` erişilebilirlik fluent metotları.
+- `gpui` crate'i: `Text`, `Text::new`, `Text::new_inaccessible` ve `text!` makrosu.
+- `gpui` crate'i: platform action yönlendirmesi ve `Window::on_a11y_action`.
+- `gpui` crate'i: `Application::new_inaccessible(...)`.
+- `gpui` crate'i: platform arka uçlarının uyguladığı erişilebilirlik köprüsü.
 
 ## Temel Model
 

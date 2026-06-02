@@ -11,7 +11,7 @@
 | `ScrollHandle` | Metotlar | `bottom_item`, `bounds`, `bounds_for_item`, `children_count`, `logical_scroll_bottom`, `logical_scroll_top`, `max_offset`, `new`, `offset`, `scroll_to_bottom`, `scroll_to_item`, `scroll_to_top_of_item`, `set_offset`, `top_item` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
-`crates/gpui/src/elements/div.rs:3387+`.
+`gpui` crate'i.
 
 `ScrollHandle`, scroll offset'ini paylaşılabilir bir handle olarak tutar. `Rc<RefCell<ScrollHandleState>>` üzerinden çalışır ve view'lar arasında ucuz biçimde klonlanabilir. Aynı handle'ı birden fazla yerden okuyup değiştirebilirsin.
 
@@ -43,7 +43,7 @@ div()
 
 `overflow_scroll`, `overflow_x_scroll` ve `overflow_y_scroll` `StatefulInteractiveElement` metotlarıdır; pratikte önce `.id(...)` çağrısı yapılarak `Stateful<Div>` üretilir. Overflow `Scroll` olduğunda girdi `wheel` veya touch olayını bu kapsayıcı içinde tüketirsin. `track_scroll` aynı handle'ı çizim geçişleri arasında bağlar; bu sayede handle'ı başka yerden de okuyup değiştirebilirsin.
 
-`ScrollAnchor` (`div.rs:3332+`) bir handle ile çalışan yardımcıdır. Ağaçta doğrudan alt öğe olmayan bir elementin görünür kalmasını ister:
+`ScrollAnchor` (`div`) bir handle ile çalışan yardımcıdır. Ağaçta doğrudan alt öğe olmayan bir elementin görünür kalmasını ister:
 
 ```rust
 let capa = ScrollAnchor::for_handle(tutamac.clone());
@@ -199,7 +199,7 @@ uniform_list("arama-sonuclari", self.ogeler.len(), move |aralik, window, cx| {
 | `Image` | Alanlar | `bytes`, `id` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
-`crates/gpui/src/asset_cache.rs`, `assets.rs`, `elements/img.rs`, `svg.rs`.
+`gpui` crate'i, `assets`, `elements/img`, `svg`.
 
 `Asset` trait'i asenkron yükleyici sözleşmesidir; her özel kaynak türü bu trait'i uygular:
 
@@ -221,7 +221,7 @@ pub trait Asset: 'static {
 - `Resource::Uri(SharedUri)` — `http://`, `https://`, `file://` vb.
 - `Resource::Embedded(SharedString)` — `AssetSource` üzerinden gömülü asset.
 
-`AssetSource` trait'i `App::with_assets` ile kurulan genel asset sağlayıcısıdır. `crates/assets` Zed binary'sinde `RustEmbed` ile SVG ve ikonları gömer. Kayıtlı kaynak gerektiğinde `cx.asset_source()` ile okuyabilirsin; çoğu UI kodu bunu doğrudan değil `Resource::Embedded`, `svg().path(...)` veya `window.use_asset` üzerinden kullanır.
+`AssetSource` trait'i `App::with_assets` ile kurulan genel asset sağlayıcısıdır. `assets` Zed binary'sinde `RustEmbed` ile SVG ve ikonları gömer. Kayıtlı kaynak gerektiğinde `cx.asset_source()` ile okuyabilirsin; çoğu UI kodu bunu doğrudan değil `Resource::Embedded`, `svg().path(...)` veya `window.use_asset` üzerinden kullanır.
 
 **Görsel elementi.** `img` çağrısı farklı kaynak tiplerini kabul eder ve yükleme/yedek slotları sunar:
 
@@ -286,7 +286,7 @@ Zed'in bilinen ikon setinden bir simge çizeceksen `Icon::new(IconName::...)` en
 - URL ayrıştırma başarısız olduğunda string embedded asset sayılır; gerçek dosya yolu için `PathBuf` kullanmadığında yanlış kaynaktan arama yapılır.
 - Özel closure `'static` olmalı; `Window` ve `App`'i yalnızca closure çağrısında parametre olarak kullanırsın.
 - `with_fallback` yalnız yükleme tamamlandığında ve hatalıysa yedeği çizer.
-- `with_loading` yükleme 200 ms'den uzun sürerse yükleme yedeğini çizer. Bu eşik `gpui::LOADING_DELAY: Duration` sabitiyle tanımlıdır (`elements/img.rs:31`); benzer bir gecikmeli yedek akışında aynı değeri ödünç alabilirsin.
+- `with_loading` yükleme 200 ms'den uzun sürerse yükleme yedeğini çizer. Bu eşik `gpui::LOADING_DELAY: Duration` sabitiyle tanımlıdır (`elements/img`); benzer bir gecikmeli yedek akışında aynı değeri ödünç alabilirsin.
 - `RenderImage` GIF veya animasyonlu WebP için `frame_count()` ve `delay(frame_index)` sağlar. `img` elementi aktif pencerede kare ilerletir ve animasyon karesi ister.
 - Yol sınıflandırıcı veya ayarlar güvenlik kontrolü yazarken macOS ve Windows'un varsayılan büyük/küçük harfe duyarsız dosya sistemlerini atlamaman gerekir. `util::paths::component_matches_ignore_ascii_case(component, ".zed")` gibi ASCII duyarsız yardımcıları tercih edersin; `.ZED/settings.json` gibi varyantları düz `== ".zed"` karşılaştırmasıyla kaçırmaman gerekir.
 
@@ -386,7 +386,7 @@ GPUI görsel hattı hem uygulama geliştiricisine açık elementleri hem de rend
 
 ## Path Çizimi ve Özel Çizim
 
-`crates/gpui/src/path_builder.rs`, `scene.rs`, `elements/canvas.rs`.
+`gpui` crate'i, `scene`, `elements/canvas`.
 
 GPUI doğrudan path API'si yerine `canvas` elementi ve `PathBuilder` ile vektör çizimi sunar. `PathBuilder`, lyon tessellator'ının ince bir sarmalayıcısıdır.
 
@@ -458,7 +458,7 @@ Bu kalıpta `insert_hitbox` prepaint'te yapılır; `set_cursor_style`, `paint_qu
 
 **Tessellator parametreleri** (`PathStyle`, `FillOptions`, `StrokeOptions`, `FillRule`).
 
-GPUI bu tipleri lyon'dan yeniden dışa aktarır (`pub use lyon::tessellation::{FillOptions, FillRule, StrokeOptions}`, `path_builder.rs:11-12`). `PathBuilder::with_style(...)`, hazır `fill()` veya `stroke(width)` builder'ının stilini açık bir `PathStyle` ile değiştirmek içindir. `PathBuilder::build_path(buf)` ise lyon tessellator'ından gelen `VertexBuffers` değerini `Path<Pixels>` modeline dönüştüren düşük seviye köprüdür; normal kullanımda `build()` bunu senin adına çağırır. `PathBuilder.style: PathStyle` alanı `pub` görünürlüktedir; iki varyantı vardır:
+GPUI bu tipleri lyon'dan yeniden dışa aktarır (`pub use lyon::tessellation::{FillOptions, FillRule, StrokeOptions}`, `path_builder`). `PathBuilder::with_style(...)`, hazır `fill()` veya `stroke(width)` builder'ının stilini açık bir `PathStyle` ile değiştirmek içindir. `PathBuilder::build_path(buf)` ise lyon tessellator'ından gelen `VertexBuffers` değerini `Path<Pixels>` modeline dönüştüren düşük seviye köprüdür; normal kullanımda `build()` bunu senin adına çağırır. `PathBuilder.style: PathStyle` alanı `pub` görünürlüktedir; iki varyantı vardır:
 
 ```rust
 pub enum PathStyle {
@@ -505,7 +505,7 @@ Lyon API'sine inmek istiyorsan `lyon::tessellation::FillOptions::tolerance(0.5)`
 | `Anchored` | Metotlar | `anchor`, `offset`, `position`, `position_mode`, `snap_to_window`, `snap_to_window_with_margin` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
-`crates/gpui/src/elements/anchored.rs`.
+`gpui` crate'i.
 
 `anchored()` fonksiyonu bir `Anchored` builder döndürür. Popover, menü ve tooltip benzeri konumlandırmaları bu element üzerinde kurarsın:
 
@@ -577,7 +577,7 @@ window.paint_quad(
 window.paint_quad(outline(sinirlar, rgb(0xff0000), BorderStyle::Solid));
 ```
 
-**`PaintQuad` builder yardımcıları** (`window.rs:5848+`):
+**`PaintQuad` builder yardımcıları** (`window`):
 
 - `.corner_radii(impl Into<Corners<Pixels>>)`
 - `.border_widths(impl Into<Edges<Pixels>>)`
@@ -598,7 +598,7 @@ window.paint_quad(outline(sinirlar, rgb(0xff0000), BorderStyle::Solid));
 - `window.paint_inset_shadows(bounds, corner_radii, &[BoxShadow])` — `inset: true` iç gölge seti; genellikle element arka planından sonra çağrılır.
 - `window.paint_layer(bounds, |window| ...)` — aynı bounds üzerinde kırpma ile yeni çizim katmanı; taşma gizleme ve dönüşüm için.
 
-`BorderStyle` (`crates/gpui/src/scene.rs:544`) iki değer alır: `Solid` ve `Dashed`. `Corners<P>`, `Edges<P>`, `Bounds<P>`, `Hsla` ve `Background` zaten önceden bilinen geometri ve renk tipleridir; her builder bunları `Into` üzerinden kabul eder.
+`BorderStyle` (`gpui` crate'i) iki değer alır: `Solid` ve `Dashed`. `Corners<P>`, `Edges<P>`, `Bounds<P>`, `Hsla` ve `Background` zaten önceden bilinen geometri ve renk tipleridir; her builder bunları `Into` üzerinden kabul eder.
 
 **Tuzaklar.** Paint çağrılarında dikkat edeceğin noktalar:
 
@@ -645,7 +645,7 @@ Bu tipler "ekrana ne çizilecek?" sorusunun son cevabıdır. Bir buton, liste ve
 
 - `window.set_window_cursor_style(style)` — hitbox'a bağlı olmayan, tüm pencere için imleç isteği. Paint fazında çağırırsın ve hitbox imleçlerine göre önceliklidir.
 - `window.set_tooltip(AnyTooltip) -> TooltipId` — tooltip isteği prepaint fazında kaydedilir.
-- `window.paint_svg(...)` — `SvgRenderer` ve sprite atlas üzerinden monokrom SVG maskesi çizer. SVG her zaman hedef boyutun `gpui::SMOOTH_SVG_SCALE_FACTOR: f32 = 2.0` (`svg_renderer.rs:81`) katı çözünürlükte rasterize edilip sonra küçültülür; bu nedenle `paint_svg` çağrısı küçük ikon boyutlarında bile yumuşak kenar üretir. `paint_image` kodu çözülmüş raster kare, `paint_surface` ise macOS yerel surface'i içindir.
+- `window.paint_svg(...)` — `SvgRenderer` ve sprite atlas üzerinden monokrom SVG maskesi çizer. SVG her zaman hedef boyutun `gpui::SMOOTH_SVG_SCALE_FACTOR: f32 = 2.0` (`svg_renderer`) katı çözünürlükte rasterize edilip sonra küçültülür; bu nedenle `paint_svg` çağrısı küçük ikon boyutlarında bile yumuşak kenar üretir. `paint_image` kodu çözülmüş raster kare, `paint_surface` ise macOS yerel surface'i içindir.
 
 **Jenerik asset yükleme.** Asset bekleme ve önbellek paylaşımı için üç yardımcı bulunur:
 
@@ -688,7 +688,7 @@ svg()
 
 ## Animasyon Sistemi
 
-Animasyon API'si `crates/gpui/src/elements/animation.rs` içinde yer alır.
+Animasyon API'si `gpui` crate'inde yer alır.
 
 `Animation` üç alandan oluşur: `duration: Duration`, `oneshot: bool` (false ise tekrar eder), `easing: Rc<dyn Fn(f32) -> f32>`. İnşa için `Animation::new(duration)` doğrusal easing ile tek seferlik animasyon oluşturur. `.repeat()` döngüye alır, `.with_easing(fn)` easing'i değiştirir.
 
@@ -710,7 +710,7 @@ div()
 
 Çoklu animasyon zinciri için `with_animations(id, vec![anim_a, anim_b], |el, ix, delta| ...)`'i kullanırsın. Closure'a (element, animation_index, delta_in_animation) parametreleri verilir; `ix` aktif animasyonun vec içindeki sırası, `delta` ise o animasyona göre 0..1 ilerlemesidir. Sıralı veya çoklu fazlı geçiş yazarken `ix` ile `match` yaparsın.
 
-**Yerleşik easing fonksiyonları** (`crates/gpui/src/elements/animation.rs:211+`): `linear`, `quadratic`, `ease_in_out`, `ease_out_quint()`, `bounce(inner)`, `pulsating_between(min, max)`. `pulsating_between` yön değiştirerek değer döndürür (yükleme göstergesi için ideal; `Animation::repeat()` ile birleştirirsin).
+**Yerleşik easing fonksiyonları** (`gpui` crate'i): `linear`, `quadratic`, `ease_in_out`, `ease_out_quint()`, `bounce(inner)`, `pulsating_between(min, max)`. `pulsating_between` yön değiştirerek değer döndürür (yükleme göstergesi için ideal; `Animation::repeat()` ile birleştirirsin).
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |

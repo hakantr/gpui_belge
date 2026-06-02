@@ -101,7 +101,7 @@ uygulama.run(|cx| {
 | :-- | :-- | :-- |
 | `QuitMode` | `Default`, `LastWindowClosed`, `Explicit` | Uygulamanın son pencere kapandığında mı yoksa açık quit isteğiyle mi sonlanacağını belirler. |
 | `CursorHideMode` | platform cursor gizleme politikası | Yazma/fare/action etkileşimlerinden sonra imlecin ne zaman görünür kalacağını App seviyesinde ayarlar. |
-- `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 200ms` (`app.rs:75`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar iptal olur ve GPUI platform çıkışını sürdürür. Bu yüzden uzun kapanış işlerini bağımsız bırakılan bir `Task`'e değil, bir yaşam döngüsü gözlemcisine bağla.
+- `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 200ms` (`app`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar iptal olur ve GPUI platform çıkışını sürdürür. Bu yüzden uzun kapanış işlerini bağımsız bırakılan bir `Task`'e değil, bir yaşam döngüsü gözlemcisine bağla.
 - `cx.activate(ignoring_other_apps)`, `cx.hide()`, `cx.hide_other_apps()`, `cx.unhide_other_apps()` platform genelindeki uygulama durumunu değiştirir.
 - `window.activate_window()`, `window.minimize_window()`, `window.toggle_fullscreen()` ise pencere seviyesindeki kontrolleri verir.
 
@@ -123,7 +123,7 @@ uygulama.run(|cx| {
 
 ## Platform Servisleri
 
-`App` üzerinden ulaştığın platform servisleri uygulamanın dış dünyaya açılan kapılarıdır. Pencere yönetimi, panoya yazma, kimlik bilgileri, URL açma ve ekran yakalama buradan ilerler. Sarmalayıcılar (`wrapper`'lar) `crates/gpui/src/app.rs` içinde tanımlıdır; asıl davranış platforma özgü `Platform` trait uygulamasında yaşar. Aşağıdaki gruplama, hangi işin nereden çağrılacağını hızlıca bulmak içindir.
+`App` üzerinden ulaştığın platform servisleri uygulamanın dış dünyaya açılan kapılarıdır. Pencere yönetimi, panoya yazma, kimlik bilgileri, URL açma ve ekran yakalama buradan ilerler. Sarmalayıcılar (`wrapper`'lar) `gpui` crate'inde tanımlıdır; asıl davranış platforma özgü `Platform` trait uygulamasında yaşar. Aşağıdaki gruplama, hangi işin nereden çağrılacağını hızlıca bulmak içindir.
 
 - **Uygulama yaşam döngüsü:** `quit`, `restart`, `set_restart_path`, `on_app_quit(|cx| async ...)`, `on_app_restart(|cx| ...)`, `activate`, `hide`, `hide_other_apps`, `unhide_other_apps`.
 - **Pencereler:** `windows`, `active_window`, `window_stack`, `refresh_windows`.
@@ -140,7 +140,7 @@ uygulama.run(|cx| {
 - **İmleç görünürlüğü:** `cursor_hide_mode`, `set_cursor_hide_mode`, `is_cursor_visible`. İşaretçinin görsel stilini, pencere veya hitbox bağlamında `window.set_cursor_style(style, &hitbox)` ile, sürükleme sırasında ise `cx.set_active_drag_cursor_style(...)` ile belirlersin.
 - **Ekran yakalama:** `is_screen_capture_supported`, `screen_capture_sources`.
 - **Klavye:** `keyboard_layout()`, `keyboard_mapper()`, `on_keyboard_layout_change(|cx| ...)`.
-- **HTTP istemcisi:** `http_client() -> Arc<dyn HttpClient>`, `set_http_client(Arc<dyn HttpClient>)`. `Application::with_http_client(...)` ile başlangıçta da ayarlayabilirsin; tipik olarak `crates/http_client` içindeki Zed varsayılanı tercih edilir.
+- **HTTP istemcisi:** `http_client() -> Arc<dyn HttpClient>`, `set_http_client(Arc<dyn HttpClient>)`. `Application::with_http_client(...)` ile başlangıçta da ayarlayabilirsin; tipik olarak `http_client` içindeki Zed varsayılanı tercih edilir.
 - **Uygulama yolu ve compositor:** `app_path() -> Result<PathBuf>` (macOS bundle yolu ya da Linux'ta çalıştırılabilir dosya), `path_for_auxiliary_executable(name)` (yardımcı çalıştırılabilirler için bundle araması), `compositor_name() -> &'static str` (Linux'ta `wayland`, `x11`, `xwayland` gibi adlar; diğer platformlarda boş metin).
 
 `Window` üzerinden gelen pencereye özgü kontroller ise şunlardır:
@@ -204,7 +204,7 @@ GPUI'nın platform modülünde görünen bazı public tipler uygulama geliştiri
 
 ## Başsız Çalışma, Ekran Yakalama ve Test Çizim Aracı
 
-Görsel arayüz olmadan da bir GPUI uygulamasını başlatabilirsin. Bu yol özellikle CLI alt komutları, toplu işler, sunucu süreçleri ve başarım ölçüm (`benchmark`) senaryolarında işine yarar. İlgili modüller `crates/gpui/src/platform.rs::screen_capture_sources` ve `crates/gpui_platform/src/gpui_platform.rs::headless()` içinde yer alır.
+Görsel arayüz olmadan da bir GPUI uygulamasını başlatabilirsin. Bu yol özellikle CLI alt komutları, toplu işler, sunucu süreçleri ve başarım ölçüm (`benchmark`) senaryolarında işine yarar. İlgili modüller `screen_capture_sources` ve `headless()` içinde yer alır.
 
 Başsız bir uygulamayı şu biçimde başlatırsın:
 

@@ -158,7 +158,6 @@ Element listener'ları çoğu zaman olay tipini senin yerine seçer; yine de öz
 
 ## Sürükleme ve Bırakma İçeriği Üretimi
 
-`crates/gpui/src/elements/div.rs:572+` ve `1271+`.
 
 GPUI'da sürükleme sırasında, sürüklenen elementin yerine ayrı bir hayalet (`ghost`) view oluşur ve fare ile birlikte bu view hareket eder:
 
@@ -285,7 +284,7 @@ Yakalama aktifken ilgili hitbox üzerinde durulmuş (`hovered`) sayılır. Yenid
 
 ## Tab Sırası ve Klavye Navigasyonu
 
-`crates/gpui/src/tab_stop.rs`, `window.rs:397`.
+`gpui` crate'i, `window`.
 
 Tab navigasyonunu `FocusHandle` üzerindeki iki bayrak yardımıyla kontrol edersin; ikisini de fluent zincirde okursun:
 
@@ -353,7 +352,7 @@ Zed'de form tipindeki tek satırlık girdi için doğrudan düzenleyici yazmak y
 - `InputFieldStyle`, `pub` bir struct olarak görünür ancak alanları private'dır; dışarıdan stil üzerine yazma sözleşmesi değil, çizim içi tema anlık görüntüsüdür.
 - `ErasedEditor` trait'i düzenleyici köprüsüdür; `text`, `set_text`, `clear`, `set_placeholder_text`, `move_selection_to_end`, `set_masked`, `focus_handle`, `subscribe`, `render`, `as_any` metotlarını içerir.
 - `ErasedEditorEvent::{BufferEdited, Blurred}`, picker veya arama gibi üst bileşenlerin düzenleme ve odak kaybı akışını dinlemesi için yayınlanır.
-- `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn ErasedEditor>>`, düzenleyici crate'i tarafından kurulur. Zed'de `crates/editor/src/editor.rs` init akışında bu fabrika, `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile atanır. Fabrika atanmamışken `InputField::new` `panic` üretir; bu yüzden uygulama init sırasında, düzenleyici kurulumu tamamlandıktan sonra `InputField` üretimine güvenmen gerekir.
+- `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn ErasedEditor>>`, düzenleyici crate'i tarafından kurulur. Zed'de `editor` crate'i init akışında bu fabrika, `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile atanır. Fabrika atanmamışken `InputField::new` `panic` üretir; bu yüzden uygulama init sırasında, düzenleyici kurulumu tamamlandıktan sonra `InputField` üretimine güvenmen gerekir.
 
 ## Metin Girdisi Dinleyicisi ve IME Derin Akışı
 
@@ -435,13 +434,13 @@ window.handle_input(
 | `Modifiers` | Alanlar | `control`, `function`, `shift` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
-`crates/gpui/src/platform/keystroke.rs`, klavye girdisinin normalize edilmiş modelini içerir. Keymap yalnızca action bağlama değildir; tamamlanmamış girdi, IME durumu ve gösterim metni de bu tiplerle taşınır.
+`gpui` crate'i, klavye girdisinin normalize edilmiş modelini içerir. Keymap yalnızca action bağlama değildir; tamamlanmamış girdi, IME durumu ve gösterim metni de bu tiplerle taşınır.
 
 **Ana tipler.** Klavye dünyasını ifade eden tipler birbirini destekleyecek şekilde tasarlanmıştır:
 
 - `Keystroke { modifiers, key, key_char }` — gerçek tuş vuruşu. `key`, basılan tuşun ASCII karşılığıdır (örneğin `option-s` için `s`); `key_char` o tuşla üretilebilecek karakteri tutar (`option-s` için `Some("ß")`, `cmd-s` için `None`). ASCII'ye çevrilemeyen düzenlerde `key` yine ASCII karşılığı olur; asıl yazılan karakter `key_char`'a düşer. Ayrı bir `ime_key` alanı yoktur.
 - `KeybindingKeystroke` — kısayol dosyalarında görünen görsel `modifier`/`key` ile eşleşme için kullandığın sarmalayıcı tip.
-- `InvalidKeystrokeError` — ayrıştırma hatası. Hatanın `Display` çıktısı, `gpui::KEYSTROKE_PARSE_EXPECTED_MESSAGE: &str` sabitini şablon olarak kullanır (`platform/keystroke.rs:69`); kullanıcı keymap ayrıştırıcısında aynı beklenti cümlesinin gösterilmesi için bu sabite bağlanırsın.
+- `InvalidKeystrokeError` — ayrıştırma hatası. Hatanın `Display` çıktısı, `gpui::KEYSTROKE_PARSE_EXPECTED_MESSAGE: &str` sabitini şablon olarak kullanır (`platform/keystroke`); kullanıcı keymap ayrıştırıcısında aynı beklenti cümlesinin gösterilmesi için bu sabite bağlanırsın.
 - `Modifiers` — `control`, `alt`, `shift`, `platform`, `function` alanları.
 - `AsKeystroke` — hem `Keystroke` hem de görsel sarmalayıcılar üzerinden ortak keystroke erişimi sağlayan küçük trait.
 - `Capslock { on }` — platform girdi anlık görüntüsünde Caps Lock durumunu taşır.

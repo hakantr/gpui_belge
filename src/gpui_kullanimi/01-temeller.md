@@ -14,13 +14,13 @@ GPUI, birbirinin üzerine kurulan üç katmandan oluşur. Her katman bir alttaki
 
 Zed bu üç katmanın üstüne kendi tasarım sistemini koyar. Bunlar GPUI'nin parçası değil; GPUI üzerine yazılmış son kullanıcı bileşenleridir:
 
-- `crates/ui` — Button, Icon, Label, Modal, ContextMenu, Tooltip, Tab, Table, Toggle ve benzeri yeniden kullanılan bileşenleri barındırır. Tutarlı bir görsel dil ve davranış kalıbı sağlar; uygulama içindeki ekranları bu kit'ten bileşen alarak kurarsın. Zed uygulama kodu çoğu zaman `use ui::prelude::*;` ile başlar. Bu prelude GPUI çekirdek trait'lerini ve Zed'in sık kullanılan UI bileşenlerini birlikte getirir. Yalnız çekirdek GPUI örneği yazarken `gpui::prelude::*` yeterli olabilir.
+- `ui` — Button, Icon, Label, Modal, ContextMenu, Tooltip, Tab, Table, Toggle ve benzeri yeniden kullanılan bileşenleri barındırır. Tutarlı bir görsel dil ve davranış kalıbı sağlar; uygulama içindeki ekranları bu kit'ten bileşen alarak kurarsın. Zed uygulama kodu çoğu zaman `use ui::prelude::*;` ile başlar. Bu prelude GPUI çekirdek trait'lerini ve Zed'in sık kullanılan UI bileşenlerini birlikte getirir. Yalnız çekirdek GPUI örneği yazarken `gpui::prelude::*` yeterli olabilir.
 
   ```rust
   use ui::prelude::*; // Zed UI + GPUI çekirdek trait'leri
   ```
-- `crates/platform_title_bar` — platforma göre pencere kontrol butonlarını ve başlık çubuğu davranışını çizer. Linux ve Windows tarafında istemci tarafı süslemesi (`client-side decoration`) gerektiğinde başlık çubuğunu da bu paket üretir.
-- `crates/workspace` — ana çalışma alanını, istemci tarafı süslemesi gölgesini, pencere köşelerindeki yeniden boyutlandırma bölgelerini ve pencere içeriğini tek bir bütün halinde birleştirir. Uygulamanın iskeleti, panellerin yerleşimi ve pencere kromu burada toplanır.
+- `platform_title_bar` — platforma göre pencere kontrol butonlarını ve başlık çubuğu davranışını çizer. Linux ve Windows tarafında istemci tarafı süslemesi (`client-side decoration`) gerektiğinde başlık çubuğunu da bu paket üretir.
+- `workspace` — ana çalışma alanını, istemci tarafı süslemesi gölgesini, pencere köşelerindeki yeniden boyutlandırma bölgelerini ve pencere içeriğini tek bir bütün halinde birleştirir. Uygulamanın iskeleti, panellerin yerleşimi ve pencere kromu burada toplanır.
 
 Kısacası alttan yukarıya doğru sıralama şöyle: platform → durum → çizim. Zed bu temelin üstüne kendi UI bileşen setini ekler ve uygulamanın tanıdık görünümünü buradan kurar. İlerleyen bölümler önce bu üç katmanı açar; son bölümler ise Zed'in üst tabakasına döner.
 
@@ -113,7 +113,7 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 - "Async iş bitince hâlâ aynı view var mı?" sorusu `Task<T>`, `WeakEntity<T>` ve `AsyncApp` ile ilgilidir.
 - "Bu veri bütün uygulamanın ortak bilgisi mi, yoksa yalnızca tek bir ekran parçasının bilgisi mi?" ayrımı `Global` ile `Entity<T>` arasındaki ana seçimdir.
 
-Zed'in `crates/ui` içindeki `Button`, `Icon`, `Label`, `Modal`, `Tooltip` gibi bileşenleri bu çekirdek kavramların üstüne kuruludur. GPUI sana veri ve durum, pencere, element, kullanıcı girdisi ve çizim altyapısını verir; Zed UI ise bu altyapıyı kullanarak ürün içinde tekrar edilen hazır bileşenleri sağlar.
+Zed'in `ui` içindeki `Button`, `Icon`, `Label`, `Modal`, `Tooltip` gibi bileşenleri bu çekirdek kavramların üstüne kuruludur. GPUI sana veri ve durum, pencere, element, kullanıcı girdisi ve çizim altyapısını verir; Zed UI ise bu altyapıyı kullanarak ürün içinde tekrar edilen hazır bileşenleri sağlar.
 
 ---
 

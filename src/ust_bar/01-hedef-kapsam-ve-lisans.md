@@ -44,7 +44,7 @@ Bu rehber üçüncü yolu anlatır. Collab, plan chip ve güncelleme gibi Zed'e 
 
 ## 4. Lisans
 
-`title_bar` crate'i de `platform_title_bar` gibi **GPL-3.0-or-later** lisanslıdır. Kod gövdesi kopyalanamaz; ancak gözlemlenebilir davranış ve API imzaları kendi kelimelerinle yeniden kurulabilir. Bu rehberdeki örneklerin tamamı bu kuralı izler: "Zed başlıkta proje adını şu sözleşmeyle gösteriyor" gözlemi yasak değildir; ama `crates/title_bar` altındaki bir fonksiyonun gövdesini birebir taşımak ihlaldir.
+`title_bar` crate'i de `platform_title_bar` gibi **GPL-3.0-or-later** lisanslıdır. Kod gövdesi kopyalanamaz; ancak gözlemlenebilir davranış ve API imzaları kendi kelimelerinle yeniden kurulabilir. Bu rehberdeki örneklerin tamamı bu kuralı izler: "Zed başlıkta proje adını şu sözleşmeyle gösteriyor" gözlemi yasak değildir; ama `title_bar` crate'indeki bir fonksiyonun gövdesini birebir taşımak ihlaldir.
 
 Ürün başlığında lisans hassasiyeti pratikte daha düşüktür, çünkü ürün içeriğini zaten kendi tasarımınla yeniden yazarsın. Yine de proje/branch/menü gibi parçaları Zed'den birebir uyarlarken aynı GPL sınırını gözetmek gerekir.
 
