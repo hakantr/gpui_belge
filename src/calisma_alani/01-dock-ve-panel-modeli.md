@@ -23,7 +23,7 @@
 
 ![Çalışma Alanı İskeleti](assets/workspace-iskeleti.svg)
 
-`workspace` crate'i GPUI çekirdeğinin üstüne `Workspace` adında merkezi bir uygulama görüntüsü koyar; merkezde pane grubunu, solda `left_dock`'u, sağda `right_dock`'u ve altta `bottom_dock`'u bir arada tutar. Aşağıdaki kaynaklar bu modelin tamamına yön verir: `crates/workspace/src/workspace.rs`, `crates/workspace/src/dock.rs`, `crates/workspace/src/pane.rs`.
+`workspace` crate'i GPUI çekirdeğinin üstüne `Workspace` adında merkezi bir uygulama görüntüsü koyar; merkezde pane grubunu, solda `left_dock`'u, sağda `right_dock`'u ve altta `bottom_dock`'u bir arada tutar. Aşağıdaki kaynaklar bu modelin tamamına yön verir: `workspace` crate'i, `workspace` crate'i, `workspace` crate'i.
 
 **Panel yardımcı yüzeyi.** Panel UI'ı yazarken aşağıdaki sınırları bilmen gerekir:
 

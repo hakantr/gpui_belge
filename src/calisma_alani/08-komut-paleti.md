@@ -104,7 +104,7 @@ Action trait'inin `documentation()` yüzeyi komut paleti ile karıştırılmamal
 
 ## Çalışma Zamanı Akışı
 
-`crates/command_palette/src/command_palette.rs` Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adımlarla işler:
+Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adımlarla işler:
 
 1. `command_palette::init(cx)` hook global'lerini kurar ve `cx.observe_new(CommandPalette::register).detach()` ile her yeni `Workspace` için `zed_actions::command_palette::Toggle` action'ını kaydeder.
 2. `CommandPalette::toggle(calisma_alani, sorgu, window, cx)` mevcut focus handle'ını alır. Focus yoksa palet açılmaz. Ardından `calisma_alani.toggle_modal(...)` ile `CommandPalette` modal view olarak oluşturulur.
@@ -141,23 +141,23 @@ Action trait'inin `documentation()` yüzeyi komut paleti ile karıştırılmamal
 
 ## Public API kapsamı
 
-Komut paleti yüzeyinde her public taşıyıcı için ayrı öğretici başlık açmak gereksiz olur; çoğu tip paletin tek runtime akışındaki küçük bir rolü taşır. Aşağıdaki tablo, `crates/command_palette` ve `crates/command_palette_hooks` public yüzeyini doğal kullanım noktasına bağlar.
+Komut paleti yüzeyinde her public taşıyıcı için ayrı öğretici başlık açmak gereksiz olur; çoğu tip paletin tek runtime akışındaki küçük bir rolü taşır. Aşağıdaki tablo, `command_palette` ve `command_palette_hooks` public yüzeyini doğal kullanım noktasına bağlar.
 
-| API | Kaynak | Görev |
-|-----|--------|-------|
-| `command_palette` | `crates/command_palette/src/command_palette.rs` | Workspace modalı olarak çalışan komut paleti UI'ının crate/modül sınırıdır. |
-| `command_palette::init` | Başlatma fonksiyonu | Hook global'lerini kurar ve yeni `Workspace` entity'leri için `zed_actions::command_palette::Toggle` action'ını kaydeder. |
-| `CommandPalette` | Modal view | `ModalView`, `Focusable`, `Render` ve `EventEmitter<DismissEvent>` davranışını taşır; public tüketimde `toggle` ve `set_query` önemlidir. |
-| `CommandPalette::toggle` | Açma yardımcısı | Önceki focus handle'ını saklar, workspace modal layer içinde paleti açar ve başlangıç sorgusunu `Picker` editörüne verir. |
-| `CommandPalette::set_query` | Programatik sorgu güncelleme | Açık palette sorguyu dışarıdan değiştirir; UI testleri ve "paleti belirli aramayla aç" akışları için kullanılır. |
-| `CommandPaletteDelegate` | `PickerDelegate` taşıyıcısı | Komut listesi, fuzzy sonuçlar, interceptor sonucu, seçim ve geçmiş sorgu durumunu taşır; doğrudan kurulmak yerine `CommandPalette::toggle` üzerinden oluşur. |
-| `humanize_action_name` | İsim normalleştirme | `editor::GoToDefinition` gibi canonical action adlarını palette okunur hale getirir. |
-| `normalize_action_query` | Sorgu normalleştirme | `_` karakterlerini boşluğa çevirir, ardışık boşluk ve `::` tekrarlarını sadeleştirir. |
-| `command_palette_hooks` | `crates/command_palette_hooks/src/command_palette_hooks.rs` | Filtre ve interceptor global'lerini UI crate'inden ayrıştıran hook crate'idir. |
-| `CommandPaletteFilter` | Global filtre | Namespace ve action tipi bazlı gizleme/gösterme kararını verir. |
-| `CommandInterceptItem` | Interceptor sonucu satırı | `action`, görüntülenecek `string` ve vurgu `positions` alanlarını taşır. |
-| `CommandInterceptResult` | Interceptor sonucu grubu | `results` listesini ve normal sonuçların gösterilip gösterilmeyeceğini belirleyen `exclusive` bayrağını taşır. |
-| `GlobalCommandPaletteInterceptor` | Global interceptor | `set`, `clear` ve `intercept` ile sorgu string'ini özel action sonuçlarına çevirmek için kullanılır. |
+| API | Görev |
+| ----- | ------- |
+| `command_palette` | Workspace modalı olarak çalışan komut paleti UI'ının crate/modül sınırıdır. |
+| `command_palette::init` | Hook global'lerini kurar ve yeni `Workspace` entity'leri için `zed_actions::command_palette::Toggle` action'ını kaydeder. |
+| `CommandPalette` | `ModalView`, `Focusable`, `Render` ve `EventEmitter<DismissEvent>` davranışını taşır; public tüketimde `toggle` ve `set_query` önemlidir. |
+| `CommandPalette::toggle` | Önceki focus handle'ını saklar, workspace modal layer içinde paleti açar ve başlangıç sorgusunu `Picker` editörüne verir. |
+| `CommandPalette::set_query` | Açık palette sorguyu dışarıdan değiştirir; UI testleri ve "paleti belirli aramayla aç" akışları için kullanılır. |
+| `CommandPaletteDelegate` | Komut listesi, fuzzy sonuçlar, interceptor sonucu, seçim ve geçmiş sorgu durumunu taşır; doğrudan kurulmak yerine `CommandPalette::toggle` üzerinden oluşur. |
+| `humanize_action_name` | `editor::GoToDefinition` gibi canonical action adlarını palette okunur hale getirir. |
+| `normalize_action_query` | `_` karakterlerini boşluğa çevirir, ardışık boşluk ve `::` tekrarlarını sadeleştirir. |
+| `command_palette_hooks` | Filtre ve interceptor global'lerini UI crate'inden ayrıştıran hook crate'idir. |
+| `CommandPaletteFilter` | Namespace ve action tipi bazlı gizleme/gösterme kararını verir. |
+| `CommandInterceptItem` | `action`, görüntülenecek `string` ve vurgu `positions` alanlarını taşır. |
+| `CommandInterceptResult` | `results` listesini ve normal sonuçların gösterilip gösterilmeyeceğini belirleyen `exclusive` bayrağını taşır. |
+| `GlobalCommandPaletteInterceptor` | `set`, `clear` ve `intercept` ile sorgu string'ini özel action sonuçlarına çevirmek için kullanılır. |
 
 `CommandInterceptItem` ve `CommandInterceptResult` alanları bu tabloda yeterince açıklanır: `action` çalıştırılacak gerçek action nesnesidir, `string` palette görünen metindir, `positions` vurgulama indeksleridir; `exclusive` true olduğunda normal action eşleşmeleri gizlenir.
 

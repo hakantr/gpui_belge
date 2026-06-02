@@ -36,7 +36,7 @@ GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde 
 | `ItemHandle` | Trait üyeleri 2 | `tab_content`, `tab_content_text`, `tab_tooltip_text`, `telemetry_event_text`, `to_any_view`, `to_followable_item_handle`, `to_searchable_item_handle`, `to_serializable_item_handle`, `workspace_deactivated`, `workspace_settings` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
-`crates/workspace/src/item.rs:167+`. Pane içindeki her tab içeriği `Item` trait'ini uygular:
+Pane içindeki her tab içeriği `Item` trait'ini uygular:
 
 ```rust
 pub trait Item: Focusable + EventEmitter<Self::Event> + Render + Sized {
@@ -105,7 +105,7 @@ Status bar'ın breadcrumb güncellemesi ve git panelinin aktif dosya tespiti bu 
 | `ModalView` | Trait üyeleri | `fade_out_background`, `on_before_dismiss`, `render_bare` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
-`crates/workspace/src/modal_layer.rs:13+`:
+`ModalView` trait'i şu sözleşmeyi taşır:
 
 ```rust
 pub trait ModalView: ManagedView {
@@ -147,7 +147,7 @@ calisma_alani.hide_modal(window, cx);
 | `StatusItemView` | Trait üyeleri | `hide_setting`, `set_active_pane_item` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
-`crates/workspace/src/status_bar.rs`:
+`workspace` crate'i:
 
 ```rust
 pub trait StatusItemView: Render {
@@ -177,7 +177,7 @@ Status item'lar aktif pane item değiştikçe `set_active_pane_item` ile bilgile
 
 ## Notification ve Toast Sistemi
 
-`crates/workspace/src/notifications.rs`:
+`workspace` crate'i:
 
 ```rust
 pub trait Notification:

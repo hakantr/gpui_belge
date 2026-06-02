@@ -170,7 +170,7 @@ Normal dosya açma `project::ProjectItem::try_open` üzerinden item'i çözer; h
 
 ## `path_link` — Metin İçindeki Yolu Çözümleme
 
-`crates/workspace/src/path_link.rs`. Terminalde veya diff çıktısında görünen bir yol dizgesini worktree girişine veya dosya sistemi meta verisine çeviren altyapıdır. Terminal çıktısından dosya açma, git diff yolu çözümleme ve hover bağlantısı gibi akışlar bu modülü kullanır.
+Terminalde veya diff çıktısında görünen bir yol dizgesini worktree girişine veya dosya sistemi meta verisine çeviren altyapıdır. Terminal çıktısından dosya açma, git diff yolu çözümleme ve hover bağlantısı gibi akışlar bu modülü kullanır.
 
 **Ana tipler:**
 

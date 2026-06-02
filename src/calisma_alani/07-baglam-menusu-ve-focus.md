@@ -1,6 +1,6 @@
-# Item Ayarları, Bağlam Menüsü, ApplicationMenu ve Focus-Follows-Mouse
+# Item Ayarları, Bağlam Menüsü ve Focus-Follows-Mouse
 
-Zed UI kodunda sık görülen ama GPUI çekirdeği olmayan birkaç yardımcı katman daha vardır; bunlar item davranışı, bağlam menüsü, uygulama menüsü ve focus-follows-mouse gibi konuları kapsar.
+Zed UI kodunda sık görülen ama GPUI çekirdeği olmayan birkaç yardımcı katman daha vardır; bunlar item davranışı, bağlam menüsü ve focus-follows-mouse gibi konuları kapsar.
 
 ---
 
@@ -72,14 +72,9 @@ Item ve tab davranışını ayarlar tarafına bağlayan tipler şunlardır:
 
 ---
 
-## İstemci Tarafı ApplicationMenu
+## İstemci tarafı uygulama menüsü (çapraz referans)
 
-macOS dışındaki istemci tarafı application menüsü `title_bar::ApplicationMenu` ile çizilir:
-
-- `ApplicationMenu::new(window, cx)` `cx.get_menus()` ile platform ve app menülerini okur; her üst seviye menü için bir `PopoverMenuHandle<ContextMenu>` saklar.
-- `OpenApplicationMenu(String)` action'ı belirli menüyü açar.
-- `ActivateMenuLeft` ve `ActivateMenuRight` client-side menü bar içinde yatay gezinmeyi sağlar.
-- `ApplicationMenu` boş alt menüleri ve ardışık veya izleyen ayırıcıları temizler, sonra `OwnedMenuItem::{Action, Submenu, Separator, SystemMenu}` değerlerini işler. `Action`, `Submenu` ve `Separator` `ContextMenu` girişlerine dönüşür; `SystemMenu(_)` client-side context'te anlamlı olmadığı için yok sayılır.
+İstemci tarafı uygulama menüsü (`ApplicationMenu`), `workspace` crate'ine değil `title_bar` ürün katmanına aittir; kaynakta da private bir modülde durduğu için dış API değildir. Davranışı (menü kaynağı, `OpenApplicationMenu`, klavye gezinmesi, menü modu) [Üst Bar](../ust_bar/ust_bar.md) bölümünde anlatılır. Burada yalnız ayrımı not ediyoruz: yukarıda anlatılan `ContextMenu`/`PopoverMenu` genel `ui` bileşenleridir ve her yüzeyde kullanılır; uygulama menüsü ise yalnız ürün başlığında kurulur.
 
 ---
 
@@ -118,7 +113,6 @@ oge.focus_follows_mouse(WorkspaceSettings::get_global(cx).focus_follows_mouse, c
 Bu yardımcı katmanlarda dikkat edilmesi gerekenler:
 
 - Bağlam menüsü action'ları odaktaki element context'ine göre enable veya disable olur; menü odak bağlamı olmadan kurulduğunda bazı action'lar görünür ama çalışmayabilir.
-- ApplicationMenu platform menü çubuğu değildir; macOS yerel menüsü ayrı platform menü akışından gelir.
 - Focus-follows-mouse global debounce durumu kullanır; aynı anda birden çok hover hedefi yarışabilir, bu nedenle daha spesifik alt kontrol kaldırılmamalıdır.
 
 <!-- phase14-api-anchor:start -->
