@@ -52,26 +52,26 @@ Tema sistemi **iki crate** olarak konumlanır:
             └── src/kvs_syntax_tema.rs
 ```
 
-**Modül adlandırma kuralı:** Lib kökü `mod.rs` olarak değil, **crate adıyla aynı isimli bir dosya** olarak tutulur; örneğin `kvs_tema.rs`. Böylece editör başlığında hangi crate'in kök dosyasında çalışıldığı hemen görülür. Zed projesinin kendi konvansiyonu da bu yöndedir.
+**Modül adlandırma kuralı:** Lib kökü `mod` olarak değil, **crate adıyla aynı isimli bir dosya** olarak tutulur; örneğin `kvs_tema.rs`. Böylece editör başlığında hangi crate'in kök dosyasında çalışıldığı hemen görülür. Zed projesinin kendi konvansiyonu da bu yöndedir.
 
 **Modüllerin sorumluluk haritası:**
 
 | Modül | İçerir | Dış API mı? |
 |-------|--------|-------------|
 | `kvs_tema.rs` (lib kökü) | Re-export'lar, `Theme`, `Appearance`, `ThemeFamily`; crate-içi `ThemeStyles` | Kısmen |
-| `styles/colors.rs` | `ThemeColors` | Evet |
-| `styles/status.rs` | `StatusColors` | Evet |
-| `styles/players.rs` | `PlayerColors`, `PlayerColor` | Evet |
-| `styles/accents.rs` | `AccentColors` | Evet |
-| `styles/system.rs` | `SystemColors` | Evet |
-| `schema.rs` | `*Content` tipleri, `try_parse_color` | Evet (Zed sözleşmesine bağlı) |
-| `refinement.rs` | `*_refinement()` fonksiyonları, `apply_*_defaults` | Crate-içi |
-| `registry.rs` | `ThemeRegistry`, `ThemeNotFoundError`, `IconThemeNotFoundError` | Evet |
-| `runtime.rs` | `GlobalTheme`, `ActiveTheme` trait, `SystemAppearance`, `init` | Evet |
-| `icon_theme.rs` | `IconTheme` ve içerik tipleri | Evet |
-| `fallback.rs` | `kvs_default_dark()`, `kvs_default_light()` | Evet |
+| `styles/colors` | `ThemeColors` | Evet |
+| `styles/status` | `StatusColors` | Evet |
+| `styles/players` | `PlayerColors`, `PlayerColor` | Evet |
+| `styles/accents` | `AccentColors` | Evet |
+| `styles/system` | `SystemColors` | Evet |
+| `schema` | `*Content` tipleri, `try_parse_color` | Evet (Zed sözleşmesine bağlı) |
+| `refinement` | `*_refinement()` fonksiyonları, `apply_*_defaults` | Crate-içi |
+| `registry` | `ThemeRegistry`, `ThemeNotFoundError`, `IconThemeNotFoundError` | Evet |
+| `runtime` | `GlobalTheme`, `ActiveTheme` trait, `SystemAppearance`, `init` | Evet |
+| `icon_theme` | `IconTheme` ve içerik tipleri | Evet |
+| `fallback` | `kvs_default_dark()`, `kvs_default_light()` | Evet |
 
-`schema.rs`, mevcut Zed JSON sözleşmesinin taşıyıcısıdır. Bu modüle doğrudan dayanan bir tüketici, uygulamanın hedeflediği Zed sözleşmesine bağlanmış olur. Sözleşme güncellenecekse mirror struct'ları ve test fixture'ları birlikte güncellenir.
+`schema`, mevcut Zed JSON sözleşmesinin taşıyıcısıdır. Bu modüle doğrudan dayanan bir tüketici, uygulamanın hedeflediği Zed sözleşmesine bağlanmış olur. Sözleşme güncellenecekse mirror struct'ları ve test fixture'ları birlikte güncellenir.
 
 ---
 
@@ -181,7 +181,7 @@ Syntax crate'in tek bağımlılığı `gpui` ile sınırlıdır. Buna yalnızca 
 | `uuid` | Unique id | `Theme::from_content` içinde tema id'si |
 | `inventory` | Link-time static registration | Zed'de `#[derive(RegisterSetting)]` `inventory::submit!` ile setting tipini ekler; `SettingsStore::new` ise `inventory::iter` ile bunları toplar. Mirror tarafında `kvs_tema_ayarlari` setting'leri otomatik kayıt edilecekse zorunlu hale gelir — alternatifi, register listesini elle tutmaktır |
 | `settings_macros` (Zed iç crate) | Derive ve attribute macro'ları | `RegisterSetting`, `MergeFrom`, `with_fallible_options`. Mirror tarafında `kvs_ayarlari_macros` veya benzeri ayrı bir crate kurulur (proc-macro crate'ler diğer crate tipleriyle aynı pakette tutulamaz) |
-| `derive_more` | Newtype ergonomi türevleri | `FontSize` newtype'ında `derive_more::FromStr` ile `from_str` üretmek için (`settings_content/src/theme.rs:197`). Mirror tarafında opsiyoneldir; elle de implement edilebilir |
+| `derive_more` | Newtype ergonomi türevleri | `FontSize` newtype'ında `derive_more::FromStr` ile `from_str` üretmek için (`settings_content` crate'i). Mirror tarafında opsiyoneldir; elle de implement edilebilir |
 | `serde_path_to_error` | Parse hatasında field path | `settings_json::parse_json_with_comments` bu crate'i kullanır; hata mesajları `theme.colors.background: ...` biçiminde alan yolunu gösterir. Mirror tarafında kullanıcı deneyimi açısından tavsiye edilir |
 
 **Sürüm uyumu:**

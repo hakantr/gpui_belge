@@ -24,11 +24,11 @@ Bu bölüm, tema sisteminin hangi amaçla kurulduğunu ve sınırlarının nered
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Veri sözleşmesi (en alt katman) — `mirror`:** Bu katman, Zed'in JSON tema dosyalarını kayıpsız okuyabilmek için kurulan struct katmanıdır. Alan adları, JSON anahtarları ve hangi alanın opsiyonel olduğu; hepsi Zed'in `crates/theme/src/styles/` ve `crates/settings_content/src/theme.rs` dosyalarındaki yapıyla **aynı şekilde** yazılır. Burada yaratıcı davranılmaz; hedef, sözleşme paritesini tam sağlamaktır. Bölüm IV ve V bu katmanı anlatır.
+**Veri sözleşmesi (en alt katman) — `mirror`:** Bu katman, Zed'in JSON tema dosyalarını kayıpsız okuyabilmek için kurulan struct katmanıdır. Alan adları, JSON anahtarları ve hangi alanın opsiyonel olduğu; hepsi Zed'in `theme` ve `settings_content` crate'lerindeki yapıyla **aynı şekilde** yazılır. Burada yaratıcı davranılmaz; hedef, sözleşme paritesini tam sağlamaktır. Bölüm IV ve V bu katmanı anlatır.
 
 **Refinement (orta katman) — `davranış`:** Bu katman, kullanıcının yazdığı temayı baseline tema ile birleştirir. Kullanıcı teması çoğu zaman eksik alanlar içerir; fallback tema bu boşlukları doldurur. Zed'in `refineable` crate'inden gelen `Refineable` derive macro'su, her struct için `Option<T>` alanlı bir `*Refinement` ikizi üretir. Birleştirme de bu ikiz üzerinden `original.refine(&refinement)` çağrısıyla yaparsın. Foreground rengi var ama background yok gibi yarı tanımlı durumları tamamlayan yardımcılar da (`apply_status_color_defaults` ve benzerleri) bu katmandadır. Davranış Zed'den **öğrenilir**, fakat kod bağımsız sözcüklerle yeniden yazılır; GPL-3 nedeniyle kod gövdesi birebir kopyalanmaz. Bölüm VII bu katmanı anlatır.
 
-**Runtime (en üst katman) — `uygulama tasarımı`:** Aktif temayı `cx.theme()` ile okumak, `GlobalTheme::update_theme` ile değiştirmek ve sistemin light/dark modunu izlemek bu katmanın işidir. Bu bölüm tamamen uygulamanın kendi tasarımına göre şekillenir. Zed'in `crates/theme_settings/` veya `crates/theme_selector/` crate'lerini taklit etmek gerekmez. Entegrasyon, uygulamanın kendi config sistemi ve kendi UI'ı üzerinden kurarsın. Bölüm VIII bu katmanı anlatır.
+**Runtime (en üst katman) — `uygulama tasarımı`:** Aktif temayı `cx.theme()` ile okumak, `GlobalTheme::update_theme` ile değiştirmek ve sistemin light/dark modunu izlemek bu katmanın işidir. Bu bölüm tamamen uygulamanın kendi tasarımına göre şekillenir. Zed'in `theme_settings` veya `theme_selector` crate'lerini taklit etmek gerekmez. Entegrasyon, uygulamanın kendi config sistemi ve kendi UI'ı üzerinden kurarsın. Bölüm VIII bu katmanı anlatır.
 
 **Bağımlılık yönü:**
 
@@ -73,9 +73,9 @@ Zed'in tema sistemi **GPL-3.0-or-later** lisansına tabidir. Kod gövdesi kopyal
 | Yapılabilir | Yapılamaz |
 |-------------|-----------|
 | Alan adlarını okuyup yeniden yazmak | Kod gövdesini birebir kopyalamak |
-| JSON anahtarlarını birebir mirror etmek | Default renk paletini (`default_colors.rs` HSL değerleri) taşımak |
+| JSON anahtarlarını birebir mirror etmek | Default renk paletini (`default_colors` HSL değerleri) taşımak |
 | Doc comment'i bağımsız bir anlatımla yeniden yazmak | Doc comment'i kelime kelime kopyalamak |
-| Refinement davranışını anlayıp ayrı bir kodla yeniden yazmak | `fallback_themes.rs`'nin algoritmasını birebir taşımak |
+| Refinement davranışını anlayıp ayrı bir kodla yeniden yazmak | `fallback_themes`'nin algoritmasını birebir taşımak |
 | Fixture testleri için MIT/Apache lisanslı tema JSON'larını, lisans dosyasıyla birlikte kopyalamak | Lisans dosyası olmadan tema JSON'u taşımak |
 
 **Güvenli dependency'ler (hepsi Apache-2.0; Zed workspace'inden alınabilir):**

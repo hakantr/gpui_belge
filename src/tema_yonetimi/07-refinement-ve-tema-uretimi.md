@@ -21,7 +21,7 @@ Bu bölüm üç katmanlı boru hattının orta halkasını anlatır. Davranış 
 | Katman | Tip | Soru | Üretildiği yer |
 |--------|-----|------|----------------|
 | **Content** | `Option<String>` alanlar | Kullanıcı bu alanı yazdı mı? | JSON parse (Bölüm V) |
-| **Refinement** | `Option<Hsla>` alanlar | Yazdıysa parse edilebildi mi? | `refinement.rs` (Konu 30) |
+| **Refinement** | `Option<Hsla>` alanlar | Yazdıysa parse edilebildi mi? | `refinement` (Konu 30) |
 | **Theme** | `Hsla` alanlar | Sonuç nedir? | `Theme::from_content` (Konu 32) |
 
 ### Neden iki ayrı `Option` katmanı?
@@ -78,15 +78,15 @@ theme.styles.colors.refine(&refinement);
 
 ### Refinement katmanının üç dönüşümü
 
-`refinement.rs` modülünün sorumlulukları şunlardır:
+`refinement` modülünün sorumlulukları şunlardır:
 
 1. **String → Hsla**: `theme_colors_refinement`, `status_colors_refinement` ve dolaylı olarak `accents`/`players`/`syntax` (`Theme::from_content` içinde).
 2. **Türetme** (`apply_status_color_defaults`): foreground verilmiş ama background verilmemiş status alanlarına %25 alpha bg üretir.
-3. **Refineable çağrısı**: `baseline.refine(&refinement)` ile baseline güncellenir. (Bu adım Konu 32'de işlenir; `refinement.rs` kendi içinde `refine` çağırmaz, yalnızca Refinement üretir.)
+3. **Refineable çağrısı**: `baseline.refine(&refinement)` ile baseline güncellenir. (Bu adım Konu 32'de işlenir; `refinement` kendi içinde `refine` çağırmaz, yalnızca Refinement üretir.)
 
 ### Modülün dış arayüzü
 
-`refinement.rs` dış API'leri (Zed `crates/theme_settings/src/schema.rs` paritesinde):
+`refinement` dış API'leri (Zed `theme_settings` crate'i paritesinde):
 
 ```rust
 pub fn theme_colors_refinement(
@@ -119,7 +119,7 @@ Crate-içi helper'lar:
 fn color(s: &Option<String>) -> Option<gpui::Hsla>;  // tek-satır parse
 ```
 
-> **Konu 4'teki modül haritasında `refinement.rs` "crate-içi" olarak işaretlenmişti.** Tek istisna, `Theme::from_content` tarafından çağrılan `apply_status_color_defaults` ve `*_refinement` fonksiyonlarıdır. Tüketici UI katmanı bu modüle doğrudan dokunmaz.
+> **Konu 4'teki modül haritasında `refinement` "crate-içi" olarak işaretlenmişti.** Tek istisna, `Theme::from_content` tarafından çağrılan `apply_status_color_defaults` ve `*_refinement` fonksiyonlarıdır. Tüketici UI katmanı bu modüle doğrudan dokunmaz.
 
 ### Saflık ve test edilebilirlik
 
@@ -187,7 +187,7 @@ Some("bozuk")   →  None             (parse hatası yutulur)
 1. `s.as_deref()`: `&Option<String>` → `Option<&str>`. Klonsuz ve sıfır maliyetli bir dönüşümdür.
 2. `and_then(|s| try_parse_color(s).ok())`: `Some(s)` ise parse denenir; `Err` çıktığında sonuç `None`'a düşer. `try_parse_color` Konu 21'de ayrıntılı işlenmiştir.
 
-`color()` `refinement.rs` modülünün **dahili** yardımcısıdır; `pub` değildir. Her renk alanı için gereken tek satırlık parse mantığını tek noktada toplar.
+`color()` `refinement` modülünün **dahili** yardımcısıdır; `pub` değildir. Her renk alanı için gereken tek satırlık parse mantığını tek noktada toplar.
 
 ### `theme_colors_refinement` deseni
 
@@ -330,7 +330,7 @@ Aynı kalıp burada da geçerlidir. Her status üçlüsü (fg, bg, border) ayrı
 - **Derleme süresi**: Üç ek satır × 150 alan = 450 satır kod. Macro proc-macro derleme süresinden daha hızlıdır.
 - **IDE deneyimi**: `color(&c.border_variant)` üzerinde "go to definition" çağrısı Content alanına gider; macro tarafında IDE indirgemelerin tamamına henüz aşina değildir.
 
-Zed kendi `refinement.rs` dosyasında da macro kullanmaz; aynı tek-satır deseni tercih edilmiştir.
+Zed kendi `refinement` dosyasında da macro kullanmaz; aynı tek-satır deseni tercih edilmiştir.
 
 ### `From` trait impl alternatifi
 
@@ -425,7 +425,7 @@ pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement) {
 | `renamed` | ✗ | VCS — bg uyumsuz türetilebilir |
 | `unreachable` | ✗ | Kod — bg genelde transparan |
 
-> **Bu seçim Zed'in `refine_theme_family` davranışını izler.** Listenin değiştirilmesi gündeme gelirse önce Zed kaynağına bakılmalı (`crates/theme/...`), ardından değişiklik yerel API genişletmesi olarak değerlendirilmelidir.
+> **Bu seçim Zed'in `refine_theme_family` davranışını izler.** Listenin değiştirilmesi gündeme gelirse önce Zed kaynağına (`theme` crate'i) bakılmalı, ardından değişiklik yerel API genişletmesi olarak değerlendirilmelidir.
 
 ### `_border` türetilmez
 
@@ -544,7 +544,7 @@ fn neither_fg_nor_bg() {
 
 ### `apply_theme_color_defaults` — refinement default'ları
 
-**Kaynak:** `crates/theme/src/fallback_themes.rs:47`.
+**Kaynak:** `theme` crate'i.
 
 Konu 31'in başında `apply_status_color_defaults` için %25 alpha türetme kuralı işlenmişti. Zed'in `ThemeColors` için **ikinci** bir default uygulama fonksiyonu daha vardır:
 
@@ -636,7 +636,7 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
     };
 
     // ---
-    // Aşağıdaki adımlar Zed `refine_theme` (theme_settings.rs:275)
+    // Aşağıdaki adımlar Zed `refine_theme`
     // sırasını birebir takip eder. Sıra önemlidir:
     //   - status_refinement, theme_refinement'tan ÖNCE çünkü
     //     theme_colors_refinement(`status_colors`) ona ihtiyaç duyar.
@@ -673,7 +673,7 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
 
     // 5. Accents: boş ise baseline'a dokunma; dolu ise parse edilebilen
     //    renkleri topla. Zed paritesi (`merge_accent_colors`,
-    //    theme_settings/src/theme_settings.rs:395): parse edilebilen renkler
+    //): parse edilebilen renkler
     //    boş çıkarsa accent listesini değiştirme; aksi halde baseline
     //    `Arc<[Hsla]>`'i tamamen değiştir.
     let mut accents = baseline.styles.accents.clone();
@@ -682,7 +682,7 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
     // Player merge bu noktada ZATEN çalıştırıldı — adım 3.
     // Aşağıdaki kalan kod blokları sadece syntax ve window bg adımlarını içerir.
     // 6. Syntax listesini kur. Zed `refine_theme` burada
-    //    `theme_settings/src/schema.rs::syntax_overrides` helper'ını
+    //    `schema::syntax_overrides` helper'ını
     //    çağırmaz; aynı dönüşümü inline yapıp `SyntaxTheme::new(...)`
     //    ile yeni syntax theme üretir. `SyntaxTheme::merge(...)`
     //    yalnız runtime theme override akışında kullanılır.
@@ -785,7 +785,7 @@ let syntax_highlights = syntax_overrides(&content.style);
 let syntax = Arc::new(SyntaxTheme::new(syntax_highlights));
 ```
 
-Zed `theme_settings::refine_theme` bu dönüşümü şu an inline yazar (`theme_settings.rs:313-331`); `syntax_overrides(style)` helper'ı aynı `IndexMap` → `Vec<(String, HighlightStyle)>` dönüşümünü ürettiği için mirror tarafta da kullanabilirsin. Buradaki kritik ayrım şu şekildedir:
+Zed `theme_settings::refine_theme` bu dönüşümü şu an inline yazar (`theme_settings`); `syntax_overrides(style)` helper'ı aynı `IndexMap` → `Vec<(String, HighlightStyle)>` dönüşümünü ürettiği için mirror tarafta da kullanabilirsin. Buradaki kritik ayrım şu şekildedir:
 
 - **Tam user theme yüklemesi** (`refine_theme_family` / `refine_theme`): syntax bölümü `SyntaxTheme::new(...)` ile kurarsın. Baseline syntax üzerine field-bazlı bir merge yapılmaz. **Pratik sonuç:** Tema JSON'ında `syntax` bölümü boş veya eksik olduğunda `syntax_overrides` boş bir vec döner ve `SyntaxTheme::new([])` çağrılır — sonuç **tamamen boş bir syntax theme** olur. Editor renklerinin görünebilmesi için tema yazarının `syntax: { ... }` bloğunu mutlaka doldurması gerekir; aksi takdirde syntax highlight'sız bir editör ekranı ortaya çıkar.
 - **Runtime theme override** (`ThemeSettings::apply_theme_overrides` → private `modify_theme`): mevcut `base_theme.styles.syntax` üstüne `SyntaxTheme::merge(base, syntax_overrides(theme_overrides))` uygularsın. Bu yol field-bazlı option-or birleştirme yapar; override'da olmayan bir capture baseline'daki `HighlightStyle`'ı korur.
@@ -876,7 +876,7 @@ fn parses_zed_one_dark() {
 
 ### Zed paritesi: `refine_theme*`, `merge_*`, `load_user_theme`
 
-Yukarıdaki `Theme::from_content` `kvs_tema` için önerilen tasarımdır. Zed'de aynı işi parçalara bölen **dört public fonksiyon** bulunur (`crates/theme_settings/src/theme_settings.rs`):
+Yukarıdaki `Theme::from_content` `kvs_tema` için önerilen tasarımdır. Zed'de aynı işi parçalara bölen **dört public fonksiyon** bulunur (`theme_settings` crate'i):
 
 | Fonksiyon | Sorumluluk | Karşılık |
 |-----------|------------|----------|
@@ -888,7 +888,6 @@ Yukarıdaki `Theme::from_content` `kvs_tema` için önerilen tasarımdır. Zed'd
 Ayrıca `pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8]) -> Result<()>` ve `pub fn deserialize_user_theme(bytes: &[u8]) -> Result<ThemeFamilyContent>` fonksiyonları kullanıcı tema dosyasını disk'ten parse eden public yüzeyi sunar:
 
 ```rust
-// theme_settings/src/theme_settings.rs:225-251
 pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8]) -> Result<()> {
     let theme = deserialize_user_theme(bytes)?;
     let refined = refine_theme_family(theme);

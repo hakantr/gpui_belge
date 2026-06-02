@@ -22,7 +22,7 @@ Fallback temalar runtime için bir **güvenlik ağıdır**. Kullanıcı temasın
 
 ### Palet seçimi disiplini
 
-Zed'in `default_colors.rs` dosyasındaki HSL değerleri **GPL-3 telif altındadır**. Bunlar birebir kopyalanamaz. Güvenli ilerlemek için iki yol vardır:
+Zed'in `default_colors` dosyasındaki HSL değerleri **GPL-3 telif altındadır**. Bunlar birebir kopyalanamaz. Güvenli ilerlemek için iki yol vardır:
 
 **1. Sıfırdan tasarım:** Tek bir "anchor hue" belirlenir ve türetme kuralları bu ana rengin üzerine kurarsın.
 
@@ -319,7 +319,7 @@ fn fallback_temalari_tam_dolu() {
 2. **`unsafe { std::mem::zeroed() }` kullanımı**: Sonuç yine sıfır `Hsla` olur. Şablon kodda görüldüğünde silinmeli, gerçek kodda hiç kullanmaman gerekir.
 3. **Anchor olmadan rastgele HSL**: Her alan için farklı hue/saturation = dağınık bir tema demektir. Anchor hue + opacity disiplini şarttır.
 4. **`palette` sürümünün sabitlenmemesi**: Aynı `hsla(0.583, 0.10, 0.12)` ifadesi, farklı `palette` major sürümlerinde **ufak miktarda farklı sRGB** üretebilir. Cargo.lock dosyası ile kullanılan sürümün sabitlenmesi yerinde olur.
-5. **Zed'in `default_colors.rs` HSL değerlerini birebir kopyalamak**: GPL-3 ihlali demektir (Bölüm I/Konu 3). Bağımsız anchor değerleri seçmen gerekir.
+5. **Zed'in `default_colors` HSL değerlerini birebir kopyalamak**: GPL-3 ihlali demektir (Bölüm I/Konu 3). Bağımsız anchor değerleri seçmen gerekir.
 6. **Light temasını dark'tan otomatik türetmek**: `l = 1.0 - dark_l` gibi formüller **çalışmaz** — gözün light ve dark algısı doğrusal değildir. Light tema, ayrı bir tasarım kararı olarak yazılır.
 7. **`syntax: Arc::new(SyntaxTheme::new(vec![]))` ile yetinmek**: Fallback olarak boş syntax kabul edilir; ancak UI'da kod gösteriliyorsa en azından 5–10 temel kategori (comment, string, keyword, number, function) doldurman gerekir. `Theme.styles.syntax` alanı `Arc<SyntaxTheme>` tipi beklediği için, içerik boş olsa bile `Arc::new(...)` sarması zorunludur.
 
@@ -671,15 +671,15 @@ assets/themes/
 
 ### Lisans matrisi
 
-| Kaynak | Tip | Lisans | Sözleşme |
-|--------|-----|--------|----------|
-| `gpui` (Zed workspace) | Code dependency | Apache-2.0 | Doğrudan dep olarak kullanılır |
-| `refineable` | Code dependency | Apache-2.0 | Doğrudan dep |
-| `collections` | Code dependency | Apache-2.0 | Doğrudan dep |
-| Zed `theme` / `syntax_theme` | Code reference | GPL-3.0-or-later | **Mirror edilir, kopyalanmaz** (Bölüm I/Konu 3) |
-| Zed `theme_settings` / `theme_selector` | Code reference | GPL-3.0-or-later | **Yalnızca referans için okunur, dep olarak alınmaz** |
-| Zed tema JSON'ları | Data fixture | Tema-özel (MIT/Apache/GPL) | **Lisans dosyasıyla birlikte kopyalanır** |
-| `default_colors.rs` HSL değerleri | Design data | GPL-3.0-or-later | **Kopyalanmaz; bağımsız palet seçilir** |
+| Tip | Lisans | Sözleşme |
+| ----- | -------- | ---------- |
+| Code dependency | Apache-2.0 | Doğrudan dep olarak kullanılır |
+| Code dependency | Apache-2.0 | Doğrudan dep |
+| Code dependency | Apache-2.0 | Doğrudan dep |
+| Code reference | GPL-3.0-or-later | **Mirror edilir, kopyalanmaz** (Bölüm I/Konu 3) |
+| Code reference | GPL-3.0-or-later | **Yalnızca referans için okunur, dep olarak alınmaz** |
+| Data fixture | Tema-özel (MIT/Apache/GPL) | **Lisans dosyasıyla birlikte kopyalanır** |
+| Design data | GPL-3.0-or-later | **Kopyalanmaz; bağımsız palet seçilir** |
 
 ### Zed tema lisansları
 
@@ -741,7 +741,7 @@ Dosya adı `LICENSE` olduğunda içerik tema ile birlikte saklarsın. MIT, Apach
 
 Bu konu Bölüm I/Konu 3 ile Konu 25'te işlenmişti; özet olarak:
 
-- Zed'in `default_colors.rs` HSL değerleri **birebir kopyalanmaz**.
+- Zed'in `default_colors` HSL değerleri **birebir kopyalanmaz**.
 - Açık lisanslı paletten (Tailwind, Catppuccin, Nord, Solarized) esinlenilebilir; esin kaynağının atıf metninde belirtilmesi gerekir.
 - `kvs_default_dark` ve `kvs_default_light` **uygulamanın kendi tasarım kararıdır**; lisansı da uygulamanın lisansıyla (MIT/Apache vb.) uyumludur.
 
@@ -783,7 +783,7 @@ kvs_tema/tests/
 └── refinement.rs               ← Refinement davranış testleri
 ```
 
-### `tests/parse_fixture.rs` — gerçek tema testleri
+### `tests/parse_fixture` — gerçek tema testleri
 
 ```rust
 use kvs_tema::{schema::ThemeFamilyContent, Theme, fallback};
@@ -831,7 +831,7 @@ fn parses_zed_ayu() {
 - `serde_json_lenient`, Zed JSON'unda yer alan yorum ve trailing comma toleransını sağlar.
 - `from_content` çağrısı ile **tam akış** test edilir: parse + refinement + `Theme` yapısı.
 
-### `tests/synthetic.rs` — kenar durumlar
+### `tests/synthetic` — kenar durumlar
 
 ```rust
 use kvs_tema::{schema::ThemeFamilyContent, Theme, fallback};
@@ -911,7 +911,7 @@ fn unknown_enum_variant_falls_to_none() {
 }
 ```
 
-### `tests/refinement.rs` — refinement davranışları
+### `tests/refinement` — refinement davranışları
 
 ```rust
 use kvs_tema::*;
@@ -998,11 +998,11 @@ fn tema_degistir_aktifi_gunceller(cx: &mut TestAppContext) {
 
 | Test türü | Hedef | Dosya |
 |-----------|-------|-------|
-| Gerçek tema parse | Sözleşme paritesi | `parse_fixture.rs` |
-| Sentetik kenar durum | `treat_error_as_none`, bilinmeyen alan hatası, geçersiz hex | `synthetic.rs` |
-| Refinement davranışı | `apply_status_color_defaults`, `refine` | `refinement.rs` |
-| Runtime kurulum | `init`, `temayi_degistir`, registry | `runtime.rs` + `TestAppContext` |
-| Fallback bütünlüğü | Tüm alanların dolu olması | `fallback.rs` |
+| Gerçek tema parse | Sözleşme paritesi | `parse_fixture` |
+| Sentetik kenar durum | `treat_error_as_none`, bilinmeyen alan hatası, geçersiz hex | `synthetic` |
+| Refinement davranışı | `apply_status_color_defaults`, `refine` | `refinement` |
+| Runtime kurulum | `init`, `temayi_degistir`, registry | `runtime` + `TestAppContext` |
+| Fallback bütünlüğü | Tüm alanların dolu olması | `fallback` |
 
 ### Tuzaklar
 

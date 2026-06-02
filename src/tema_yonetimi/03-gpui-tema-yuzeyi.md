@@ -150,7 +150,7 @@ Tema sisteminde isimler `SharedString` üzerinden taşınır. Registry içinde b
 
 ### `HighlightStyle`
 
-**Kaynak:** `gpui::HighlightStyle` (`text_system.rs`).
+**Kaynak:** `gpui::HighlightStyle` (`text_system`).
 
 Bir syntax token'a uygulanacak görünüm bilgisini taşır. Tüm alanlar opsiyoneldir:
 
@@ -190,7 +190,7 @@ pub struct StrikethroughStyle {
 }
 ```
 
-Zed'in tema JSON sözleşmesinde syntax stilleri için `underline`/`strikethrough` alanları **doğrudan parse edilmez**. `refine_theme` / `modify_theme` syntax bloğunda yalnızca `color`, `background_color`, `font_style` ve `font_weight` alanları işlenir (`refine_theme`, `theme_settings.rs:313-329`). Bu yüzden `underline`/`strikethrough`/`fade_out` alanları her zaman `Default::default()` değerinden, yani `None` veya nötr değerden gelir. Pratik sonuç şudur: tema yazarı bir syntax token'ı tema dosyası üzerinden altı çizili gösteremez. Bu sınır Zed referansında da vardır; mirror tarafta da aynı sınır korunmalıdır. Aksi halde tema sözleşmesi Zed'den ayrılır ve gereksiz yere genişler.
+Zed'in tema JSON sözleşmesinde syntax stilleri için `underline`/`strikethrough` alanları **doğrudan parse edilmez**. `refine_theme` / `modify_theme` syntax bloğunda yalnızca `color`, `background_color`, `font_style` ve `font_weight` alanları işlenir (`refine_theme`, `theme_settings`). Bu yüzden `underline`/`strikethrough`/`fade_out` alanları her zaman `Default::default()` değerinden, yani `None` veya nötr değerden gelir. Pratik sonuç şudur: tema yazarı bir syntax token'ı tema dosyası üzerinden altı çizili gösteremez. Bu sınır Zed referansında da vardır; mirror tarafta da aynı sınır korunmalıdır. Aksi halde tema sözleşmesi Zed'den ayrılır ve gereksiz yere genişler.
 
 **Tema'da kullanım** (`Theme::from_content` içinde):
 
@@ -265,7 +265,7 @@ Burada iki ayrı pencere kavramı vardır: tema yazarının seçtiği **arka pla
 
 ### `WindowBackgroundAppearance`
 
-**Kaynak:** `gpui::WindowBackgroundAppearance` (`window.rs`).
+**Kaynak:** `gpui::WindowBackgroundAppearance` (`window`).
 
 Tema JSON'unda `"background.appearance"` alanından gelir:
 
@@ -286,7 +286,6 @@ pub enum WindowBackgroundAppearance {
 **Tema'da yer:**
 
 ```rust
-// kvs_tema/src/kvs_tema.rs
 pub(crate) struct ThemeStyles {
     pub(crate) window_background_appearance: WindowBackgroundAppearance,
     // ...
@@ -316,7 +315,7 @@ Bu değer `open_window` argümanı olarak verirsin. Pencere yöneticisi de pence
 
 ### `WindowAppearance`
 
-**Kaynak:** `gpui::WindowAppearance` (`platform.rs:1604`).
+**Kaynak:** `gpui::WindowAppearance` (`platform`).
 
 ```rust
 pub enum WindowAppearance {
@@ -608,7 +607,7 @@ Tema sözleşmesinde fiilen kullanılanlar şunlardır:
 
 ### Alan-bazlı sarmalama kuralları (`derive_refineable` davranışı)
 
-Macro, alan tipine göre üç farklı sarmalama yapar (`refineable/derive_refineable/src/derive_refineable.rs:524-548`):
+Macro, alan tipine göre üç farklı sarmalama yapar (`refineable` crate'i):
 
 | Alan tipi (input) | Refinement'taki tip | Davranış |
 |-------------------|---------------------|----------|
@@ -616,7 +615,7 @@ Macro, alan tipine göre üç farklı sarmalama yapar (`refineable/derive_refine
 | `Option<T>` (zaten Option) | `Option<T>` **aynen** (tekrar sarmalanmaz) | Boş ↔ dolu durumu kullanıcı seviyesinden gelir; macro yeniden `Option<Option<T>>` üretmez |
 | `#[refineable] U` (nested refineable) | `URefinement` (nested refinement tipi) | Recursive olarak `refine` çağrılır |
 
-`is_optional_field` (`refineable/derive_refineable/src/derive_refineable.rs:512-522`) bu kararı **alan tipinin son segmentinin `Option` olup olmadığına** bakarak verir. `Option<T>` sayılır, `core::option::Option<T>` sayılır; ancak `MyOption<T>` veya generic alias **sayılmaz**. Bu pratikte nadiren sorun çıkarır. Yine de mirror tarafta alan tiplerini açıkça `Option<T>` formunda yazmak en güvenli tercihtir.
+`is_optional_field` (`refineable` crate'i) bu kararı **alan tipinin son segmentinin `Option` olup olmadığına** bakarak verir. `Option<T>` sayılır, `core::option::Option<T>` sayılır; ancak `MyOption<T>` veya generic alias **sayılmaz**. Bu pratikte nadiren sorun çıkarır. Yine de mirror tarafta alan tiplerini açıkça `Option<T>` formunda yazmak en güvenli tercihtir.
 
 **Refinement içi yuva (`type Refinement = Self::Refinement`):** Refinement tipi kendi başına da `Refineable` impl eder ve `type Refinement = Self::Refinement` ilişkisini kurar; yani Refinement'in Refinement'i yine kendisidir. Bu sabit-nokta sayesinde `Cascade<S>` slot listesindeki her slot aynı tipte refinement taşır.
 

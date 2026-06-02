@@ -53,7 +53,7 @@ pub struct ThemeRegistry {
 
 ### Hata tipleri
 
-**Zed kaynak sözleşmesi** (`crates/theme/src/registry.rs:27`, `:32`): hata tipi adları `ThemeNotFoundError` ve `IconThemeNotFoundError` biçimindedir. Sonda `Error` suffix'i bulunur. `kvs_tema` mirror'ında da aynı isimler kullanırsın:
+**Zed kaynak sözleşmesi** (`theme` crate'i, `:32`): hata tipi adları `ThemeNotFoundError` ve `IconThemeNotFoundError` biçimindedir. Sonda `Error` suffix'i bulunur. `kvs_tema` mirror'ında da aynı isimler kullanırsın:
 
 ```rust
 use thiserror::Error;
@@ -88,7 +88,7 @@ impl Global for GlobalThemeRegistry {}
 
 ### Public API yüzeyi
 
-Zed'in `crates/theme/src/registry.rs` dosyasındaki public yüzeye paraleldir. Üç önemli davranış farkı yorum satırlarında belirtilmiştir:
+Zed'in `theme` crate'indeki public yüzeye paraleldir. Üç önemli davranış farkı yorum satırlarında belirtilmiştir:
 
 ```rust
 impl ThemeRegistry {
@@ -342,7 +342,7 @@ Init öncesinde `GlobalTheme::update_theme` veya bu yerel sarmalayıcılar çağ
 
 ### `ActiveTheme` trait
 
-**Zed kaynak sözleşmesi** (`crates/theme/src/theme.rs:119`):
+**Zed kaynak sözleşmesi** (`theme` crate'i):
 
 ```rust
 pub trait ActiveTheme {
@@ -408,7 +408,7 @@ impl Render for AnaPanel {
 `use kvs_tema::ActiveTheme;` zorunludur — trait metodu import edilmediği sürece görünmez. Tipik bir desen, prelude modülü kullanmaktır:
 
 ```rust
-// kvs_tema/src/prelude.rs (opsiyonel)
+//(opsiyonel)
 pub use crate::runtime::ActiveTheme;
 pub use crate::Theme;
 pub use crate::IconTheme;
@@ -495,7 +495,7 @@ OS'un light/dark mod tercihini taşır. Tema seçim mantığı bu değeri okur v
 
 ### Yapı
 
-**Zed kaynak sözleşmesi** (`crates/theme/src/theme.rs:132`):
+**Zed kaynak sözleşmesi** (`theme` crate'i):
 
 ```rust
 #[derive(Debug, Clone, Copy)]
@@ -580,7 +580,7 @@ impl SystemAppearance {
 `init` çağrısı yalnızca **başlangıçta** yaparsın. OS theme değişimini takip etmek için observer gerekir. Observer kurmak `Window` referansı ister; `init` ise `&mut App` aldığı için bunu içeride yapamaz. Bu yüzden tüketici, pencere açıldıktan sonra ayrı bir public fonksiyon çağırır:
 
 ```rust
-// kvs_tema/src/runtime.rs — public API
+//— public API
 pub fn observe_system_appearance<V: 'static>(
     window: &mut Window,
     cx: &mut Context<V>,
@@ -651,11 +651,11 @@ pub fn sistemden_tema_sec(cx: &mut App) -> anyhow::Result<()> {
 
 ### `Appearance` ile `SystemAppearance` ve `WindowAppearance` ayrımı
 
-| Tip | Anlamı | Kaynak |
-|-----|--------|--------|
-| `WindowAppearance` (GPUI) | OS'un raporladığı raw mode (Light/Dark/Vibrant*) | `cx.window_appearance()` |
-| `SystemAppearance` (tema) | OS modunun **iki kategoriye** indirgenmiş hali (Light/Dark) | `SystemAppearance::init` |
-| `Appearance` (tema) | Bir **tema'nın nominal modu** | `Theme.appearance` |
+| Tip | Anlamı |
+| ----- | -------- |
+| `WindowAppearance` (GPUI) | OS'un raporladığı raw mode (Light/Dark/Vibrant*) |
+| `SystemAppearance` (tema) | OS modunun **iki kategoriye** indirgenmiş hali (Light/Dark) |
+| `Appearance` (tema) | Bir **tema'nın nominal modu** |
 
 Bu üç tip farklı kavramları temsil eder; karıştırılmamalıdır:
 
@@ -709,7 +709,7 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
     let registry = Arc::new(ThemeRegistry::new(assets));
 
     // Font picker dropdown'u ve `setup_ui_font` runtime hazırlığı.
-    // Zed paritesi (`theme::init`, theme.rs:103): registry kurulduktan
+    // Zed paritesi (`theme::init`): registry kurulduktan
     // hemen sonra font ailesi önbelleği init edilir. Atlamak ayar UI
     // tarafında "fontlar yüklenmedi" race condition'ına yol açar.
     FontFamilyCache::init_global(cx);
@@ -734,7 +734,7 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
 }
 ```
 
-> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar. `theme::init` önce font cache, registry ve fallback dark temasını kurarsın. Daha sonra üst seviyede `theme_settings::init` (`theme_settings/src/theme_settings.rs:68`) çağırırsın. Bu ikinci adım `set_theme_settings_provider` ile typography/density provider'ını kurar, `LoadThemes::All` durumunda `assets/themes/*.json` altındaki bundled tema asset'lerini yükler, `configured_theme(cx)` ile settings dosyasından gelen seçimi çözer ve aktif tema'yı **fallback dark'tan settings'in istediği temaya** geçirir. Kullanıcı disk temaları bu adımın parçası değildir; onlar `load_user_theme(registry, bytes)` veya `deserialize_user_theme(bytes)` yoluyla ayrıca registry'ye eklersin. Mirror tarafta da bu ayrım korunmalıdır: `kvs_tema::init` registry + `GlobalTheme` default'unu kurar, `kvs_tema_ayarlari::init` ise provider + settings observer + `configured_theme` akışını kurarsın. Bunları tek init'te birleştirmek `kvs_tema` crate'ini settings crate'ine zorunlu bağlar ve Konu 5'teki bağımlılık kararıyla çelişir.
+> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar. `theme::init` önce font cache, registry ve fallback dark temasını kurarsın. Daha sonra üst seviyede `theme_settings::init` (`theme_settings` crate'i) çağırırsın. Bu ikinci adım `set_theme_settings_provider` ile typography/density provider'ını kurar, `LoadThemes::All` durumunda `assets/themes/*.json` altındaki bundled tema asset'lerini yükler, `configured_theme(cx)` ile settings dosyasından gelen seçimi çözer ve aktif tema'yı **fallback dark'tan settings'in istediği temaya** geçirir. Kullanıcı disk temaları bu adımın parçası değildir; onlar `load_user_theme(registry, bytes)` veya `deserialize_user_theme(bytes)` yoluyla ayrıca registry'ye eklersin. Mirror tarafta da bu ayrım korunmalıdır: `kvs_tema::init` registry + `GlobalTheme` default'unu kurar, `kvs_tema_ayarlari::init` ise provider + settings observer + `configured_theme` akışını kurarsın. Bunları tek init'te birleştirmek `kvs_tema` crate'ini settings crate'ine zorunlu bağlar ve Konu 5'teki bağımlılık kararıyla çelişir.
 
 ### 5 adımlı kuruluş
 
@@ -915,9 +915,9 @@ fn init_kurar_fallback_temalari(cx: &mut TestAppContext) {
 
 ### `LoadThemes` — yükleme modu enum'u
 
-**Kaynak:** `crates/theme/src/theme.rs:81`.
+**Kaynak:** `theme` crate'i.
 
-Zed'in `init` fonksiyonu, `crates/theme/assets/themes/` altındaki temaların yüklenip yüklenmeyeceğini bir enum üzerinden kontrol eder:
+Zed'in `init` fonksiyonu, paketlenmiş temaların yüklenip yüklenmeyeceğini bir enum üzerinden kontrol eder:
 
 ```rust
 pub enum LoadThemes {
@@ -985,7 +985,7 @@ pub fn init(themes_to_load: LoadThemes, cx: &mut App) {
 
 ## 37. `font_family_cache` — font ailesi önbellek
 
-**Kaynak:** `crates/theme/src/font_family_cache.rs:18`.
+**Kaynak:** `theme` crate'i.
 
 Zed sistem font ailelerini her sorguda yeniden almak yerine global bir önbellekte tutar:
 
@@ -1079,7 +1079,7 @@ cx.refresh_windows();
 `temayi_degistir` çağrısının helper içine sarılması tüketici kodlarda tekrarın önüne geçer:
 
 ```rust
-// kvs_tema/src/runtime.rs (public API)
+//(public API)
 pub fn temayi_degistir(ad: &str, cx: &mut App) -> Result<(), ThemeNotFoundError> {
     let registry = ThemeRegistry::global(cx);
     let yeni = registry.get(ad)?;

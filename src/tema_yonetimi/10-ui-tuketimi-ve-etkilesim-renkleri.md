@@ -104,7 +104,6 @@ use kvs_tema::Appearance;
 Prelude modülü bu üç import'u tek satıra indirir:
 
 ```rust
-// kvs_tema/src/prelude.rs
 pub use crate::runtime::ActiveTheme;
 pub use crate::{Appearance, Theme, ThemeFamily};
 pub use crate::styles::*;
@@ -230,7 +229,7 @@ impl Render for Button {
 
 ### `Theme::darken` ile appearance-aware koyulaştırma
 
-Zed'in `Theme::darken(color, light_amount, dark_amount)` (`theme.rs:274`) yardımcısı, bir rengi appearance'a göre **lightness** azaltarak koyulaştırır. Light tema modunda `light_amount`, dark tema modunda `dark_amount` kullanırsın. Sonuç `l = (l - amount).max(0.0)` ile alt sınırlanır. Aynı bileşenin iki temada da yeterli kontrastı koruması için iki ayrı miktar verirsin.
+Zed'in `Theme::darken(color, light_amount, dark_amount)` (`theme`) yardımcısı, bir rengi appearance'a göre **lightness** azaltarak koyulaştırır. Light tema modunda `light_amount`, dark tema modunda `dark_amount` kullanırsın. Sonuç `l = (l - amount).max(0.0)` ile alt sınırlanır. Aynı bileşenin iki temada da yeterli kontrastı koruması için iki ayrı miktar verirsin.
 
 ```rust
 use kvs_tema::ActiveTheme;
@@ -258,21 +257,21 @@ Markdown preview hattı, tema tüketicisi olarak şu alanları kullanır:
 - Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutulur. `MarkdownStyle::default` constructor'ı code block ve inline code TextStyleRefinement'ında bu accessor'dan dönen değeri kullanır; `is_preview` bayrağı `false` ise (örn. agent panel anlatımı) doğrudan `buffer_font.family` okunur, böylece markdown preview ile in-app markdown render aynı yardımcı imzasını paylaşır.
 - Mermaid render hattı artık aktif tema renklerinden kendi renderer temasını üretir. Renkler renderer'a `#rrggbb` CSS hex olarak verilir; alpha kanalı taşınmaz, o yüzden şeffaflık gerekiyorsa renk önce tema tarafında uygun zemine blend edilmelidir. Hangi `ThemeColors` slot'unun hangi Mermaid alanına gittiğini şu tablo gösterir:
 
-| Mermaid alanı | Kaynak | Kullanım |
-|---------------|--------|----------|
-| `background`, `edge_label_background` | `colors.editor_background` | Diyagramın genel arka planı ve kenar etiket arkası |
-| `primary_color` | `colors.surface_background` | Birincil node fill (flowchart, ER) |
-| `primary_text_color`, `text_color`, `pie_title_text_color`, `pie_legend_text_color`, `git_commit_label_color`, `git_tag_label_color` | `colors.text` | Tüm metin tonları |
-| `primary_border_color`, `line_color`, `pie_stroke_color`, `pie_outer_stroke_color`, `git_tag_label_border` | `colors.border` | Birincil border ve hat çizgileri |
-| `secondary_color`, `git_commit_label_background`, `git_tag_label_background` | `colors.element_background` | İkincil yüzey ve git rozet arka planı |
-| `tertiary_color`, `sequence_activation_fill` | `colors.ghost_element_hover` | Üçüncül vurgu ve sequence aktivasyon kutusu |
-| `cluster_background` | `colors.panel_background` | Subgraph cluster arka planı |
-| `cluster_border`, `sequence_note_border` | `colors.border_variant` | Cluster ve sequence note çerçevesi |
-| `sequence_actor_fill`, `sequence_actor_border`, `sequence_actor_line`, `sequence_note_fill`, `sequence_activation_border` | `colors.element_background`, `colors.border`, `colors.surface_background` | Sequence actor lifeline ve note alanları |
-| `pie_colors` (12 slot) | `accents().color_for_index(i)` | Pie dilimleri; index mod sayfa içi accent listesine sarılır |
-| `pie_section_text_color`, `git_branch_label_colors` | sabit `"#fff"` | Yüksek kontrast için sabit beyaz; tema'dan bağımsızdır |
-| `git_colors` | `players().0[i % len].cursor` | Git graph commit halkaları |
-| `git_inv_colors` | `players().0[i % len].background` | Git graph commit boya alanları |
+| Mermaid alanı | Kullanım |
+| --------------- | ---------- |
+| `background`, `edge_label_background` | Diyagramın genel arka planı ve kenar etiket arkası |
+| `primary_color` | Birincil node fill (flowchart, ER) |
+| `primary_text_color`, `text_color`, `pie_title_text_color`, `pie_legend_text_color`, `git_commit_label_color`, `git_tag_label_color` | Tüm metin tonları |
+| `primary_border_color`, `line_color`, `pie_stroke_color`, `pie_outer_stroke_color`, `git_tag_label_border` | Birincil border ve hat çizgileri |
+| `secondary_color`, `git_commit_label_background`, `git_tag_label_background` | İkincil yüzey ve git rozet arka planı |
+| `tertiary_color`, `sequence_activation_fill` | Üçüncül vurgu ve sequence aktivasyon kutusu |
+| `cluster_background` | Subgraph cluster arka planı |
+| `cluster_border`, `sequence_note_border` | Cluster ve sequence note çerçevesi |
+| `sequence_actor_fill`, `sequence_actor_border`, `sequence_actor_line`, `sequence_note_fill`, `sequence_activation_border` | Sequence actor lifeline ve note alanları |
+| `pie_colors` (12 slot) | Pie dilimleri; index mod sayfa içi accent listesine sarılır |
+| `pie_section_text_color`, `git_branch_label_colors` | Yüksek kontrast için sabit beyaz; tema'dan bağımsızdır |
+| `git_colors` | Git graph commit halkaları |
+| `git_inv_colors` | Git graph commit boya alanları |
 
 - Mermaid fontu `ThemeSettings::ui_font.family` üzerinden gelir ve GPUI'nin font fallback çözümlemesinden geçirilir. Sanal Zed font adları burada normalize edilir: `.ZedSans` ve `Zed Plex Sans` `IBM Plex Sans`, `.ZedMono` `Lilex`, `.SystemUIFont` ise `system-ui` olarak çözülür. Tanımsız bir ad gelirse renderer'a olduğu gibi geçer.
 - Mermaid `accent0..accentN` class'ları player renklerinden üretilir; fill rengi light/dark appearance'a göre okunabilir bir kontrasta çekilir. Bu durum, player slot'larının yalnızca collab cursor için değil, görsel markdown diyagramları için de tüketildiği anlamına gelir. Kontrast adımı WCAG ölçütüne yaklaştırılmış sabit luminance hedefleri kullanır: light tema için relative luminance hedefi `>= 0.35` (siyah metinle yaklaşık 8:1 kontrast), dark tema için `<= 0.18` (beyaz metinle yaklaşık 4.6:1). Lightness değeri en fazla 50 adımda `±0.02` artırılarak hedefe yaklaşır; tutmazsa son adımdaki renk kabul edilir. Metin rengi light tema'da `gpui::black()`, dark tema'da `gpui::white()` olur. Bu sabitler mirror tarafta da aynı değerlerde tutulmalıdır; aksi halde aynı player paleti farklı kontrast üretir.

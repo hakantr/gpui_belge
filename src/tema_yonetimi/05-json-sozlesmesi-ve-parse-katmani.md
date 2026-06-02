@@ -134,7 +134,7 @@ pub struct HighlightStyleContent {
 impl HighlightStyleContent {
     /// 4 alanın hepsi `None` ise true. Selector preview ve test'lerde
     /// "syntax override boş mu" sorusu için kullanılır.
-    /// Zed paritesi: `settings_content/src/theme.rs:1128`.
+    /// Zed paritesi (`settings_content`).
     pub fn is_empty(&self) -> bool {
         self.color.is_none()
             && self.background_color.is_none()
@@ -593,7 +593,7 @@ Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevapl
 
 ### `MergeFrom` derive davranış matrisi
 
-`settings_content` tarafındaki kullanıcı settings content tipleri `#[derive(..., MergeFrom)]` ile işaretlenir. Zed settings hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**. `default` baz değerleri sağlar; kullanıcı ve proje settings'i bunun üstüne merge edilir. Tema dosyası payload'ı olan `theme_settings::ThemeFamilyContent` ve `ThemeContent` ise bu merge hattının parçası değildir. Onlar doğrudan deserialize edilir ve runtime tema'ya refine edilir. `MergeFrom` trait'i `settings_content/src/merge_from.rs` içinde tanımlıdır ve alan tipine göre davranışı değişir:
+`settings_content` tarafındaki kullanıcı settings content tipleri `#[derive(..., MergeFrom)]` ile işaretlenir. Zed settings hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**. `default` baz değerleri sağlar; kullanıcı ve proje settings'i bunun üstüne merge edilir. Tema dosyası payload'ı olan `theme_settings::ThemeFamilyContent` ve `ThemeContent` ise bu merge hattının parçası değildir. Onlar doğrudan deserialize edilir ve runtime tema'ya refine edilir. `MergeFrom` trait'i `settings_content` crate'inde tanımlıdır ve alan tipine göre davranışı değişir:
 
 | Alan tipi | `merge_from(self, other)` davranışı | Etki |
 |-----------|-------------------------------------|------|
@@ -661,7 +661,7 @@ pub fn try_parse_color(s: &str) -> anyhow::Result<Hsla> {
 let rgba = gpui::Rgba::try_from(s)?;
 ```
 
-`gpui::Rgba::try_from` (`gpui/src/color.rs:162`) **dört** hex formatını kabul eder:
+`gpui::Rgba::try_from` (`gpui` crate'i) **dört** hex formatını kabul eder:
 
 | Format | Hex hanesi | Alpha kaynağı | Çiftleme |
 |--------|-----------|---------------|----------|
@@ -833,7 +833,7 @@ Enum alanlarda varsayılan davranış farklıdır: serde bilinmeyen bir variant 
 
 2. **`fallible_options::deserialize` fonksiyonu**: Tek tek alanı çağırır; bir hata varsa thread-local `ERRORS` listesine ekler ve `Default::default()` (yani `None`) döndürür. `ERRORS` `None` ise (`parse_json` çağrılmadıysa) hatayı yutmaz; doğrudan yukarı kabarcıklayarak iletir.
 
-3. **`fallible_options::parse_json::<T>(json)`**: Top-level çağrı noktasıdır. `ERRORS` thread-local'ını sıfırlar, parse'ı çalıştırır, parse bittikten sonra biriken hataları toplar ve `(Option<T>, ParseStatus)` döndürür. `ParseStatus` **üç variantlıdır** (`settings_content::ParseStatus`, `settings_content/src/settings_content.rs:76`): `Success`, `Unchanged` (kaynak dosya değişmediği için parse atlanır) ve `Failed { error: String }`. `Unchanged` yalnızca settings dosya yönetim katmanından gelir (file watcher değişiklik olmadığına karar verdiğinde); `parse_json` doğrudan çağrıldığında yalnızca `Success` veya `Failed` döner.
+3. **`fallible_options::parse_json::<T>(json)`**: Top-level çağrı noktasıdır. `ERRORS` thread-local'ını sıfırlar, parse'ı çalıştırır, parse bittikten sonra biriken hataları toplar ve `(Option<T>, ParseStatus)` döndürür. `ParseStatus` **üç variantlıdır** (`settings_content::ParseStatus`, `settings_content` crate'i): `Success`, `Unchanged` (kaynak dosya değişmediği için parse atlanır) ve `Failed { error: String }`. `Unchanged` yalnızca settings dosya yönetim katmanından gelir (file watcher değişiklik olmadığına karar verdiğinde); `parse_json` doğrudan çağrıldığında yalnızca `Success` veya `Failed` döner.
 
 Public tüketici yolu genelde doğrudan `fallible_options::parse_json` değildir. `settings_content::RootUserSettings` trait'i, `SettingsContent`, `Option<SettingsContent>` ve `UserSettingsContent` için `parse_json(json) -> (Option<Self>, ParseStatus)` ile `parse_json_with_comments(json) -> anyhow::Result<Self>` metotlarını sağlar. İç helper olan `fallible_options::deserialize` ise `pub(crate)` kalır; yalnızca `#[with_fallible_options]` macro'sunun eklediği serde attribute'u tarafından crate içinden çağırırsın.
 
@@ -1068,7 +1068,7 @@ Yaygın renk grupları için Rust ↔ JSON eşlemesi:
 | `error_background` | `error.background` |
 | `version_control_added` | `version_control.added` |
 
-> **Kaynak eşleşmesi:** Bu tablo Zed'in `crates/settings_content/src/theme.rs` dosyasındaki `#[serde(rename = "...")]` annotation'larıyla birebir aynı anahtarları kullanır.
+> **Kaynak eşleşmesi:** Bu tablo Zed'in `settings_content` crate'indeki `#[serde(rename = "...")]` annotation'larıyla birebir aynı anahtarları kullanır.
 
 ### Tuzaklar
 
@@ -1131,7 +1131,7 @@ API yüzeyi `serde_json` ile uyumludur; aradaki tek fark import yolundadır.
 
 ## 24. `deserialize_icon_theme` — IconTheme JSON helper'ı
 
-**Kaynak:** `crates/theme/src/theme.rs:286`.
+**Kaynak:** `theme` crate'i.
 
 Konu 18 içinde icon tema JSON yüklemesi ele alınmıştı. Zed bu işlemi tek satırlık bir helper ile sarmalar:
 
