@@ -170,7 +170,7 @@ Dikkat edeceğin noktalar:
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `Disclosure` | Metotlar | `closed_icon`, `new`, `on_toggle_expanded`, `opened_icon` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Disclosure` | Metotlar | `closed_icon`, `new`, `on_toggle_expanded`, `opened_icon`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
 Kaynak:
@@ -197,6 +197,7 @@ Temel API:
 - `.opened_icon(IconName)`.
 - `.closed_icon(IconName)`.
 - `.disabled(bool)`.
+- `.tooltip(|window, cx| ...)`: chevron button'a, kapanıp açılma niyetini anlatan bir tooltip view bağlar. Closure her gösterimde `AnyView` döndürür ve tooltip'i altta üretilen `IconButton`'a iletir.
 - `Clickable`: `.on_click(...)`, `.cursor_style(...)`.
 - `Toggleable`: `.toggle_state(selected)`.
 - `VisibleOnHover`: `.visible_on_hover(group_name)`.

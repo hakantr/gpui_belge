@@ -306,7 +306,7 @@ Dikkat edeceğin noktalar:
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `HighlightedLabel` | Metotlar | `flex_1`, `flex_grow`, `flex_none`, `flex_shrink`, `flex_shrink_0`, `from_ranges`, `highlight_indices`, `new`, `text` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `HighlightedLabel` | Metotlar | `flex_1`, `flex_grow`, `flex_none`, `flex_shrink`, `flex_shrink_0`, `from_ranges`, `highlight_indices`, `new`, `text`, `truncate_start` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
 Kaynak:
@@ -332,6 +332,7 @@ Temel API:
 - Düşük seviye yardımcı: `highlight_ranges(text: &str, indices: &[usize], style: HighlightStyle) -> Vec<(Range<usize>, HighlightStyle)>`. Ardışık byte indekslerini char sınırlarına oturmuş tek bir range içinde birleştirir. `HighlightedLabel` içeride bu fonksiyonu kullanır; aynı dönüşümün `StyledText` veya başka rich text yüzeylerinde de tekrar etmen gerektiğinde bu yardımcıyı doğrudan import edebilirsin.
 - Okuma yöntemleri: `.text()`, `.highlight_indices()`.
 - `LabelCommon` builder'ları: `.size(...)`, `.color(...)`, `.weight(...)`, `.italic()`, `.underline()`, `.truncate()`, `.single_line()`.
+- `.truncate_start()`: etiketi baştan kırpar, sonunu görünür tutar. İçeride taban `Label`'ın `truncate_start()` ayarını yazar; dosya yolu veya branch adı gibi anlamlı kısmı sonda olan eşleşme satırlarında tercih edersin.
 - Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow_1()`, `.flex_grow(f32)`, `.flex_shrink_1()`, `.flex_shrink(f32)`, `.flex_shrink_0()`.
 
 Vurgu yardımcısı:

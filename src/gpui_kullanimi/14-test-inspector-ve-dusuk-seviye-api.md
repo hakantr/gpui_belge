@@ -858,13 +858,15 @@ Renk ve geometri kısa fonksiyonları:
 - `ctor` — action registration veya benzeri startup registration desenleri için yeniden dışa aktarılır.
 - `http_client` — GPUI platform HTTP client trait'lerine crate kökünden erişim sağlar.
 - `proptest` — yalnız `test-support` veya test build'lerinde property test yardımcılarını dışa aktarır.
-- Makrolar: `Action`, `IntoElement`, `AppContext`, `VisualContext`, `register_action`, `test`, `property_test`. `gpui.rs` ayrıca `Render` derive'ını da yeniden dışa aktarır. Macro kaynağında `#[doc(hidden)]` olduğu için `target/doc/gpui/all.html` içinde listelenmez ve `derive.Render.html` sayfası üretilmez. Bu derive yalnız boş bir `Render` impl'i üretir; `render` gövdesi `gpui::Empty` döndürür. Gerçek UI üreten view'lerde elle `impl Render` yazarsın.
+- Makrolar: `Action`, `IntoElement`, `AppContext`, `VisualContext`, `register_action`, `test`, `property_test`, `bench`. `gpui.rs` ayrıca `Render` derive'ını da yeniden dışa aktarır. Macro kaynağında `#[doc(hidden)]` olduğu için `target/doc/gpui/all.html` içinde listelenmez ve `derive.Render.html` sayfası üretilmez. Bu derive yalnız boş bir `Render` impl'i üretir; `render` gövdesi `gpui::Empty` döndürür. Gerçek UI üreten view'lerde elle `impl Render` yazarsın.
 
 Rustdoc listesindeki `Action`, `IntoElement`, `Refineable`, `AppContext` ve `VisualContext` kısa adları tek bir öğe değildir; trait ve derive macro yüzeyleri ayrı namespace'lerde yaşar. `#[derive(AppContext)]` struct içinde `#[app]` ile işaretlenmiş `&mut App` alanını bulur ve `AppContext` metotlarını o alana delege eder. `#[derive(VisualContext)]` hem `#[app]` hem `#[window]` ister; `VisualContext` için `type Result<T> = T` üretir, `window_handle`, `update_window_entity`, `new_window_entity`, `replace_root_view` ve `focus` çağrılarını ilgili `App`/`Window` alanlarına indirir. `prelude::IntoElement`, `prelude::Refineable` ve `prelude::VisualContext` rustdoc'ta görünen derive macro takma adlarıdır; yeni bir trait veya farklı bir çalışma zamanı davranışı değildir.
 
 Bu yeniden dışa aktarımlar yeni bir API anlamına gelmez; modüllerde anlatılan aynı yüzeyin crate kökünden ergonomik erişimidir. Özellikle `property_test` ve `proptest` yalnız test kodunda, `ctor` ise registration altyapısı gibi dar alanlarda kullanırsın.
 
 Test yardımcı fonksiyonları `gpui::test` modülünde toplanır: `seed_strategy()`, `apply_seed_to_proptest_config(...)`, `run_test_once(...)`, `run_test(...)` ve `Observation<T>`. Bunlar `#[gpui::test]` ve `#[gpui::property_test]` makrolarının altyapısıdır; normal uygulama kodu çağırmaz.
+
+Başarım ölçümü (benchmark) için GPUI, Criterion ile aynı şekli koruyan ince bir köprü sunar. `#[gpui::bench]` öznitelik makrosu bir ölçüm fonksiyonunu işaretler; `gpui::bench_group!` ve `gpui::bench_main!` makroları `criterion::criterion_group!` ve `criterion::criterion_main!` çağrılarını birebir sarmalar, böylece bir GPUI benchmark dosyası sıradan bir Criterion benchmark dosyasıyla aynı iskelete sahip olur. Ölçüm gövdesi içinde GPUI çalışma zamanına `BenchAppContext` ve `BenchWindowContext` ile erişirsin; bunlar `App` ve `Window` yüzeyini ölçüm akışına uyarlar. Bu üç bağlam tipi ve makro altyapısı yalnız `test` veya `test-support` özelliği açıkken derlenir; ürün kodu bunları görmez.
 
 Profiler yardımcıları `add_task_timing(...)` ve `get_current_thread_task_timings()` thread-local task timing toplama için kullanılır. Metin yedek yardımcıları `font_name_with_fallbacks(...)` ve `font_name_with_fallbacks_shared(...)` platform font ailesi yedek adını döndürür. `swap_rgba_pa_to_bgra(...)` önceden çarpılmış RGBA byte buffer'ını platform BGRA düzenine çevirmek için renk veya bitmap alt katmanında kullanılır.
 
@@ -875,6 +877,13 @@ Profiler yardımcıları `add_task_timing(...)` ve `get_current_thread_task_timi
 ## Ek public API kapsamı
 
 Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
+
+### `bench`, `bench_group`, `bench_main` ve Benchmark Bağlamları
+
+| Grup | API | Not |
+|---|---|---|
+| Makrolar | `bench`, `bench_group`, `bench_main` | `#[gpui::bench]` ölçüm fonksiyonunu işaretler; `bench_group!` ve `bench_main!` Criterion'ın `criterion_group!`/`criterion_main!` makrolarını birebir sarmalar. |
+| Bağlamlar | `BenchAppContext`, `BenchWindowContext` | `App` ve `Window` yüzeyini ölçüm akışına uyarlar. Üçü de yalnız `test` veya `test-support` özelliği açıkken derlenir; ürün kodunda görünmez. |
 
 ### `AnyDrag`
 
