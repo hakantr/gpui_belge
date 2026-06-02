@@ -1,25 +1,5 @@
 # Item, Pane, Modal, Toast ve Notification Sistemi
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Pane` | `focus_handle` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Item` | Trait üyeleri 1 | `act_as_type`, `active_project_path`, `added_to_workspace`, `as_searchable`, `breadcrumb_location`, `breadcrumb_prefix`, `can_save`, `can_save_as`, `capability`, `clone_on_split`, `discarded`, `handle_drop`, `has_conflict`, `has_deleted_file`, `is_dirty`, `on_removed` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `Item` | Trait üyeleri 2 | `pane_changed`, `pixel_position_of_cursor`, `preserve_preview`, `set_nav_history`, `show_toolbar`, `suggested_filename`, `tab_extra_context_menu_actions`, `tab_icon`, `tab_tooltip_content`, `to_item_events`, `toggle_read_only` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `Pane` | Metotlar 1 | `activate_item`, `activate_last_item`, `activate_next_item`, `activate_previous_item`, `activation_history`, `active_item_index`, `add_item`, `add_item_inner`, `autosave_item`, `can_navigate_backward`, `can_navigate_forward`, `close_active_item`, `close_all_items`, `close_clean_items`, `close_current_preview_item`, `close_item_by_id`, `close_items`, `close_items_for_project_path`, `close_items_to_the_left_by_id`, `close_items_to_the_right_by_id`, `close_items_to_the_side_by_id`, `close_multibuffer_items`, `close_other_items` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Pane` | Metotlar 2 | `context_menu_focused`, `disable_history`, `display_nav_history_buttons`, `drag_split_direction`, `enable_history`, `focus_active_item`, `fork_nav_history`, `go_to_newer_tag`, `go_to_older_tag`, `handle_deleted_project_item`, `handle_item_edit`, `handle_tab_drop`, `has_focus`, `icon_color`, `in_center_group`, `index_for_item`, `is_active_item_pinned`, `is_active_preview_item`, `is_zoomed`, `item_for_entry`, `item_for_index`, `item_for_path`, `items_len` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Pane` | Metotlar 3 | `nav_history`, `nav_history_for_item`, `nav_history_mut`, `navigate_backward`, `new_item_context_menu_handle`, `pinned_count`, `preview_item`, `preview_item_id`, `preview_item_idx`, `project_item_restoration_data`, `remove_item_and_focus_on_pane`, `render_menu_overlay`, `replace_preview_item_id`, `save_item`, `set_can_split`, `set_can_toggle_zoom`, `set_close_pane_if_empty`, `set_pinned_count`, `set_render_tab_bar`, `set_render_tab_bar_buttons`, `set_should_display_tab_bar`, `set_should_display_welcome_page`, `set_zoom_out_on_close`, `set_zoomed` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Pane` | Metotlar 4 | `skip_save_on_close`, `split`, `split_item_context_menu_handle`, `swap_item_left`, `swap_item_right`, `take_active_item`, `toggle_zoom`, `toolbar`, `track_alternate_file_items`, `unpreview_item_if_preview`, `zoom_in` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Toast` | Metotlar | `autohide` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde tab/pane, modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editör benzeri panel veya komut yazarken bu sözleşmeleri bilmen gerekir.
 
 ![Item, Pane, Modal ve Notification Akışı](assets/item-pane-modal-notification.svg)
@@ -27,14 +7,6 @@ GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde 
 ---
 
 ## Item ve ItemHandle
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ItemHandle` | Trait üyeleri 1 | `added_to_pane`, `breadcrumbs`, `buffer_kind`, `can_autosave`, `can_split`, `deactivated`, `downgrade_item`, `dragged_tab_content`, `for_each_project_item`, `include_in_nav_history`, `item_focus_handle`, `item_id`, `navigate`, `on_release`, `project_entry_ids`, `project_item_model_ids`, `project_path`, `project_paths`, `relay_action`, `save`, `save_as`, `subscribe_to_item_events` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `ItemHandle` | Trait üyeleri 2 | `tab_content`, `tab_content_text`, `tab_tooltip_text`, `telemetry_event_text`, `to_any_view`, `to_followable_item_handle`, `to_searchable_item_handle`, `to_serializable_item_handle`, `workspace_deactivated`, `workspace_settings` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
 
 Pane içindeki her tab içeriği `Item` trait'ini uygular:
 
@@ -98,13 +70,6 @@ Status bar'ın breadcrumb güncellemesi ve git panelinin aktif dosya tespiti bu 
 
 ## ModalView ve Modal Layer
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ModalView` | Trait üyeleri | `fade_out_background`, `on_before_dismiss`, `render_bare` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
-
 `ModalView` trait'i şu sözleşmeyi taşır:
 
 ```rust
@@ -139,13 +104,6 @@ calisma_alani.hide_modal(window, cx);
 ---
 
 ## StatusBar ve StatusItemView
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `StatusItemView` | Trait üyeleri | `hide_setting`, `set_active_pane_item` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
 
 `workspace` crate'i:
 
@@ -308,144 +266,3 @@ Item ve çalışma alanı tarafında dikkat edilmesi gereken yaygın hatalar:
 - `NotificationId::Unique(TypeId::of::<T>())` ile aynı tipte iki notification açıldığında ikincisi birincinin yerine geçer; farklı bir sub-id isteniyorsa `Composite(TypeId, ElementId)` kullanırsın.
 - `Toast` autohide süresi varsayılan değildir; uzun mesajlarda elle `dismiss_toast` çağrısı gerekebilir.
 - `ModalView::on_before_dismiss` `Pending` döndürürse modal kapanma akışı beklemeye girer; testte `run_until_parked()` ile resolve sürecinin ilerletilmesi gerekir.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `ItemEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `CloseItem`, `Edit`, `UpdateBreadcrumbs`, `UpdateTab` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `TabContentParams`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `text_color` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `deemphasized`, `detail`, `preview`, `selected` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `TabTooltipContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Custom`, `Text` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ItemBufferKind`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Multibuffer`, `None`, `Singleton` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `WeakItemHandle`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `boxed_clone`, `id`, `upgrade` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `FollowEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Unfollow` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `FollowableItemHandle`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları 1 | `add_event_to_update_proto`, `apply_update_proto`, `dedup`, `downgrade`, `is_project_item`, `remote_id`, `set_leader_id`, `to_follow_event` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-| Trait metotları 2 | `to_state_proto`, `update_agent_location` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `WeakFollowableItemHandle`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `upgrade` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `DismissDecision`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dismiss`, `Pending` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `NotificationId`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Composite`, `Named`, `Unique` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `composite`, `named`, `unique` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `LanguageServerPrompt`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ErrorMessagePrompt`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new`, `with_link_button` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `Event`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar 1 | `ActivateItem`, `AddItem`, `ChangeItemTitle`, `Focus`, `ItemPinned`, `ItemUnpinned`, `JoinAll`, `JoinIntoNext` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Varyantlar 2 | `Remove`, `RemovedItem`, `Split`, `UserSavedItem`, `ZoomIn`, `ZoomOut` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `HideStatusItem`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `apply`, `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ToastView`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `action`, `auto_dismiss` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `ToastAction`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `id`, `label`, `on_click` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ToastLayer`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar 1 | `active_toast`, `clear_dismiss_timer`, `has_active_toast`, `hide_toast`, `new`, `restart_dismiss_timer`, `show_toast`, `start_dismiss_timer` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Metotlar 2 | `toggle_toast` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `PaneSearchBarCallbacks`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `setup_search_bar`, `wrap_div_with_search_actions` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `FollowableViewRegistry`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `from_state_proto`, `register`, `to_followable_view` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `Event`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar 1 | `Activate`, `ActiveItemChanged`, `ContactRequestedJoin`, `ItemAdded`, `ItemRemoved`, `ModalOpened`, `OpenBundledFile`, `PaneAdded` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Varyantlar 2 | `PanelAdded`, `PaneRemoved`, `UserSavedItem`, `WorkspaceCreated`, `WorktreeCreationChanged`, `ZoomChanged` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `OpenVisible`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `All`, `None`, `OnlyDirectories`, `OnlyFiles` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

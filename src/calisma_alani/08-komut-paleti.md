@@ -6,13 +6,6 @@
 
 ## CommandPaletteFilter
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `CommandPaletteFilter` | Metotlar | `global_mut`, `hide_action_types`, `hide_namespace`, `is_hidden`, `show_action_types`, `show_namespace`, `try_global` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 `CommandPaletteFilter`, komut paletinde hangi namespace'lerin ve action tiplerinin görüneceğini kontrol eden global bir filtredir. Üç set üzerinden çalışır:
 
 ```rust
@@ -42,14 +35,6 @@ Tipik bir kullanım, `CommandPaletteFilter::update_global(cx, |filtre, _| { ... 
 ---
 
 ## CommandAliases (WorkspaceSettings)
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `WorkspaceSettings` | Alanlar 1 | `active_pane_modifiers`, `autosave`, `bottom_dock_layout`, `cli_default_open_behavior`, `close_on_file_delete`, `close_panel_on_toggle`, `command_aliases`, `confirm_quit`, `drop_target_size`, `focus_follows_mouse`, `max_tabs`, `on_last_window_closed`, `pane_split_direction_horizontal`, `pane_split_direction_vertical`, `resize_all_panels_in_dock`, `restore_on_file_reopen`, `restore_on_startup` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `WorkspaceSettings` | Alanlar 2 | `show_call_status_icon`, `text_rendering_mode`, `use_system_path_prompts`, `use_system_prompts`, `use_system_window_tabs`, `when_closing_with_no_tabs`, `window_decorations`, `zoomed_padding` | Workspace davranışı, prompt/pencere politikası ve görünüm ayarlarının kalan alanlarıdır. |
-
 
 `WorkspaceSettings::command_aliases: HashMap<String, ActionName>`. Kullanıcı JSON'una `"command_aliases": { "ag": "search::ToggleSearch" }` yazıldığında komut paleti, sorgu tam olarak `ag` olduğunda bunu `search::ToggleSearch` string'ine çevirir. Bu çeviri fuzzy eşleşme ve interceptor çağrısından önce yapılır; alias bir action nesnesi üretmez, yalnızca palet sorgusunu canonical action adına yaklaştırır. Yeni uygulamada alias, kullanıcının kısa sorgu yazmasını kolaylaştıran bir palet kısayolu olarak düşünmen gerekir. Keymap tarafında canonical action adı kullanman gerekir.
 
@@ -171,35 +156,3 @@ Filter ve interceptor kullanımında karşılaşılan yaygın sorunlar:
 - `hide_action_types` ile gizlenen tipin kaydedilmiş olması gerekir; aksi halde filtreye eklenmesine rağmen komut paleti listesinde zaten görünmez.
 - `Interceptor::set` mevcut interceptor'ı ezer; çoklu kaynak gerektiğinde zincirin kendi kodunda kurman gerekir (örneğin önce Vim, başarısızsa AI agent gibi).
 - `CommandInterceptResult::exclusive = true` yoğun şekilde kullanıldığında kullanıcı normal action listesinden komutlara ulaşamaz; gerçekten "tek doğru sonuç var" durumunda ayarlanır.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `CommandPalette`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `set_query`, `toggle` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `CommandInterceptItem`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `action`, `positions`, `string` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `CommandInterceptResult`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `exclusive`, `results` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `GlobalCommandPaletteInterceptor`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `clear`, `intercept`, `set` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

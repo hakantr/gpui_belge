@@ -6,20 +6,6 @@ Zed klavye bağlamalarını kullanıcı keymap.json, paketlenmiş varsayılan ke
 
 ## `KeymapFile` yapısı
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `KeymapFile` | `deserialize`, `json_schema` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `KeymapFile` | Metotlar | `action_schema_generator`, `generate_json_schema_for_registered_actions`, `generate_json_schema_from_inventory`, `get_action_schema_by_name`, `load`, `load_asset`, `load_asset_allow_partial_failure`, `load_keymap_file`, `parse_action`, `sections`, `update_keybinding` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 `KeymapFile`, birden fazla bağlam bloğu içeren bir keymap JSON dosyasının ayrıştırılmış halidir. Her blok bir `KeymapSection` olarak tutulur:
 
 ```rust
@@ -95,21 +81,6 @@ API üzerinde sık kullanılan yapıcılar şunlardır:
 
 ## `KeybindSource`
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `KeybindSource` | `cmp`, `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `KeybindSource` | Metotlar | `from_meta`, `meta`, `name` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `KeybindSource` | Varyantlar | `Base`, `Unknown`, `User`, `Vim` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
-
 ```rust
 pub enum KeybindSource {
     User, Vim, Base, Default, Unknown,
@@ -134,15 +105,6 @@ API:
 ---
 
 ## `KeybindUpdateOperation` ve `KeybindUpdateTarget`
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `KeybindUpdateOperation` | Metotlar | `add`, `generate_telemetry` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `KeybindUpdateOperation` | Varyantlar | `Add`, `Remove`, `Replace` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-| `KeybindUpdateTarget` | Alanlar | `action_arguments`, `action_name`, `keystrokes` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
 
 Programatik keymap güncellemesi (örneğin "Add/Change Keybinding" UI'ı veya komut paleti üzerinden binding düzenleme) `KeybindUpdateOperation` üzerinden modellenir:
 
@@ -183,13 +145,6 @@ pub struct KeybindUpdateTarget<'a> {
 
 ## `KeyBindingValidator`
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `KeyBindingValidator` | Trait üyeleri | `action_type_id`, `validate` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
-
 Bazı action'lar için ek doğrulama (örneğin "bu action'a yalnız Editor bağlamında bağlanabilirsin") gereklidir. `KeyBindingValidator` trait'i her action tipi için ayrı doğrulayıcı kaydı yapar:
 
 ```rust
@@ -212,13 +167,6 @@ inventory::collect!(KeyBindingValidatorRegistration);
 ---
 
 ## `ActionSequence`
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ActionSequence` | `build`, `name` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
 
 Tek bir tuş kombinasyonuna birden fazla action bağlamak için kullanılan kapsayıcıdır:
 
@@ -244,41 +192,3 @@ pub struct ActionSequence(pub Vec<Box<dyn Action>>);
 - `unbind` her zaman `bindings`'ten önce işlendiği için aynı section içinde bir keystroke'u önce serbest bırakıp sonra yeni action'a bağlamak güvenlidir; başka section'a bağlanmış aynı keystroke yine üst katmandan gelirse override gerekebilir.
 - `KeyBindingValidator` action kaydedilmeden kaydedilmek üzere `inventory::submit!` ile gönderilmelidir; aksi halde validator listede görünmez ve doğrulama atlanır.
 - `KeybindUpdateOperation::Replace` `target_keybind_source = Default` ile çağrılırsa default keymap dosyasına yazma denemesi yapılmaz; kullanıcı dosyasına ek bir kayıt yazılır ve gerekirse `unbind` girişi eklersin.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `KeyBindingValidatorRegistration`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `KeymapSection`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `context` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `KeymapFileLoadResult`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `JsonParseFailure`, `SomeFailedToLoad`, `Success` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ActionWithArguments`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `BaseKeymapContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Atom`, `Cursor`, `Emacs`, `JetBrains`, `None`, `SublimeText`, `TextMate`, `VSCode` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->
