@@ -47,7 +47,7 @@ Menü ve popup bileşenleri kendi başlarına değer saklamaz. Entry handler'lar
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/dropdown_menu.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::DropdownMenu`, `ui::DropdownStyle`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for DropdownMenu`.
@@ -101,8 +101,8 @@ fn render_sort_dropdown(window: &mut Window, cx: &mut App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/acp_tools/src/acp_tools.rs`: connection selector.
-- Component preview: `../zed/crates/ui/src/components/dropdown_menu.rs`.
+- `acp_tools` crate'i: connection selector.
+- Component preview: `ui` crate'i.
 
 Dikkat edeceğin noktalar:
 
@@ -131,7 +131,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/context_menu.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ContextMenu`, `ui::ContextMenuEntry`, `ui::ContextMenuItem`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan bir component preview yok; `DropdownMenu` ve gerçek kullanım örnekleri üzerinden görünür hale gelir.
@@ -188,9 +188,9 @@ fn build_file_menu(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/language_tools/src/lsp_log_view.rs`: LSP server ve log view menüleri.
-- `../zed/crates/git_ui/src/git_panel.rs`: git panel eylem menüleri.
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: filtre ve keybinding menüleri.
+- `language_tools` crate'i: LSP server ve log view menüleri.
+- `git_ui` crate'i: git panel eylem menüleri.
+- `keymap_editor` crate'i: filtre ve keybinding menüleri.
 
 Özel entry'ler oluşturulduğunda menü çok daha esnek bir hâle gelir:
 
@@ -275,7 +275,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/popover_menu.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::PopoverMenu`, `ui::PopoverMenuHandle`, `ui::PopoverTrigger`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan bir component preview yok; gerçek kullanım menu trigger bileşenleri üzerinden ortaya çıkar.
@@ -352,9 +352,9 @@ fn render_more_actions(window: &mut Window, cx: &mut App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/language_tools/src/lsp_log_view.rs`: LSP seçim menüleri.
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: add context ve permission menüleri.
-- `../zed/crates/git_ui/src/git_panel.rs`: repository, branch ve commit kontrolleri.
+- `language_tools` crate'i: LSP seçim menüleri.
+- `agent_ui` crate'i: add context ve permission menüleri.
+- `git_ui` crate'i: repository, branch ve commit kontrolleri.
 
 Dikkat edeceğin noktalar:
 
@@ -380,7 +380,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/right_click_menu.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::RightClickMenu`, `ui::right_click_menu`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan bir component preview yok.
@@ -437,9 +437,9 @@ fn render_project_row(window: &mut Window, cx: &mut App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/platform_title_bar/src/system_window_tabs.rs`: sistem tab sağ tık menüsü.
-- `../zed/crates/editor/src/element.rs`: buffer header bağlam menüsü.
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: context entry sağ tık menüleri.
+- `platform_title_bar` crate'i: sistem tab sağ tık menüsü.
+- `editor` crate'i: buffer header bağlam menüsü.
+- `agent_ui` crate'i: context entry sağ tık menüleri.
 
 Dikkat edeceğin noktalar:
 
@@ -464,7 +464,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/popover.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Popover`, `ui::POPOVER_Y_PADDING`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan bir component preview yok.
@@ -524,7 +524,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/tooltip.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Tooltip`, `ui::LinkPreview`, `ui::tooltip_container`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Tooltip`.
@@ -575,9 +575,9 @@ fn render_refresh_button() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: action ve binding tooltip'leri.
-- `../zed/crates/git_ui/src/git_panel.rs`: git panel buton tooltip'leri.
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: action, disabled state ve meta açıklamaları.
+- `keymap_editor` crate'i: action ve binding tooltip'leri.
+- `git_ui` crate'i: git panel buton tooltip'leri.
+- `agent_ui` crate'i: action, disabled state ve meta açıklamaları.
 
 Dikkat edeceğin noktalar:
 

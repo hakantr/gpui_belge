@@ -26,7 +26,7 @@ Bu aileyi kullanırken üç ayrımı akılda tutmak işini kolaylaştırır:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/chip.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Chip`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Chip`.
@@ -77,9 +77,9 @@ fn render_branch_chip(branch: SharedString) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/extensions_ui/src/extensions_ui.rs`: extension capability etiketleri.
-- `../zed/crates/agent_ui/src/ui/model_selector_components.rs`: model metadata ve cost bilgisi.
-- `../zed/crates/title_bar/src/plan_chip.rs`: plan adı gösterimi.
+- `extensions_ui` crate'i: extension capability etiketleri.
+- `agent_ui` crate'i: model metadata ve cost bilgisi.
+- `title_bar` crate'i: plan adı gösterimi.
 
 Dikkat edeceğin noktalar:
 
@@ -105,7 +105,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/diff_stat.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::DiffStat`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for DiffStat`.
@@ -148,9 +148,9 @@ fn render_file_change_summary() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: tool result ve thread değişiklik özetleri.
-- `../zed/crates/git_ui/src/project_diff.rs`: project diff metadata'sı.
-- `../zed/crates/git_graph/src/git_graph.rs`: commit metadata.
+- `agent_ui` crate'i: tool result ve thread değişiklik özetleri.
+- `git_ui` crate'i: project diff metadata'sı.
+- `git_graph` crate'i: commit metadata.
 
 Dikkat edeceğin noktalar:
 
@@ -175,7 +175,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/disclosure.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Disclosure`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Disclosure`.
@@ -228,9 +228,9 @@ fn render_collapsible_header(is_open: bool) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/ui/src/components/tree_view_item.rs`: tree item expansion.
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: plan, queue ve edit detay açılımları.
-- `../zed/crates/repl/src/outputs/json.rs`: JSON node expansion.
+- `ui` crate'i: tree item expansion.
+- `agent_ui` crate'i: plan, queue ve edit detay açılımları.
+- `repl` crate'i: JSON node expansion.
 
 Dikkat edeceğin noktalar:
 
@@ -248,7 +248,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/gradient_fade.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::GradientFade`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Hayır.
@@ -301,8 +301,8 @@ fn render_fading_row(cx: &App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/ui/src/components/ai/thread_item.rs`: action slot ve metadata fade overlay.
-- `../zed/crates/sidebar/src/sidebar.rs`: sidebar satır hover fade.
+- `ui` crate'i: action slot ve metadata fade overlay.
+- `sidebar` crate'i: sidebar satır hover fade.
 
 Dikkat edeceğin noktalar:
 
@@ -313,8 +313,8 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Divider: `../zed/crates/ui/src/components/divider.rs`
-- Group helper'ları: `../zed/crates/ui/src/components/group.rs`
+- Divider: `ui` crate'i
+- Group helper'ları: `ui` crate'i
 - Export: `ui::Divider`, `ui::DividerColor`, `ui::divider`, `ui::vertical_divider`, `ui::h_flex`, `ui::v_flex`, `ui::h_group*`, `ui::v_group*`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Divider`.
@@ -395,7 +395,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/image.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Vector`, `ui::VectorName`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Vector`.
@@ -470,13 +470,13 @@ fn render_local_thumbnail() -> impl IntoElement {
 
 `ImageSource` aşağıdaki kaynaklardan otomatik dönüşür:
 
-| Kaynak | Notlar |
-| :-- | :-- |
-| `&str`, `String`, `SharedString` | URL veya yerel yol; URL ise asenkron yüklenir. |
-| `SharedUri` | Tip güvenli URL gösterimi; `Avatar::new("https://...")` örtük bu yolu kullanır. |
-| `&Path`, `Arc<Path>`, `PathBuf` | Dosya sistemi yolu; senkron olarak okunur. |
-| `Arc<RenderImage>`, `Arc<Image>` | Önceden decode edilmiş image bytes. |
-| `F: Fn(&mut Window, &mut App) -> ImageSource` | Çağrı sırasında dinamik kaynak üretmek için. |
+| Notlar |
+| :-- |
+| URL veya yerel yol; URL ise asenkron yüklenir. |
+| Tip güvenli URL gösterimi; `Avatar::new("https://...")` örtük bu yolu kullanır. |
+| Dosya sistemi yolu; senkron olarak okunur. |
+| Önceden decode edilmiş image bytes. |
+| Çağrı sırasında dinamik kaynak üretmek için. |
 
 `Avatar::new`, bu `Into<ImageSource>` zincirinin üzerine kuruludur. Ham bir `img(...)` kullanılırken `flex_none()` ve sabit bir `size(...)` verilmediğinde layout taşmaları yaşanması olasıdır. SVG bir ikon için her zaman `Icon` veya `Vector` tercih edilir; `img(...)` SVG path'lerini raster gibi muamele eder ve o yüzden recolor edemez.
 
@@ -498,7 +498,7 @@ fn render_local_thumbnail() -> impl IntoElement {
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/keybinding.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::KeyBinding`, `ui::Key`, `ui::KeyIcon`, `ui::render_keybinding_keystroke`, `ui::text_for_action`, `ui::text_for_keystrokes`, `ui::text_for_keybinding_keystrokes`, `ui::render_modifiers`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for KeyBinding`.
@@ -588,7 +588,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/keybinding_hint.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::KeybindingHint`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for KeybindingHint`.
@@ -634,8 +634,8 @@ fn render_command_hint(cx: &App) -> AnyElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/settings_ui/src/settings_ui.rs`: ayar UI kısayol ipuçları.
-- `../zed/crates/git_ui/src/commit_modal.rs`: modal shortcut hint'i.
+- `settings_ui` crate'i: ayar UI kısayol ipuçları.
+- `git_ui` crate'i: modal shortcut hint'i.
 
 Dikkat edeceğin noktalar:
 
@@ -653,7 +653,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/navigable.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Navigable`, `ui::NavigableEntry`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Hayır.
@@ -719,7 +719,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/project_empty_state.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ProjectEmptyState`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan `impl Component` yok.
@@ -764,10 +764,10 @@ fn render_empty_panel(
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/project_panel/src/project_panel.rs`: worktree yokken project panel boş durumu.
-- `../zed/crates/agent_ui/src/agent_panel.rs`: proje yokken agent panel boş durumu.
-- `../zed/crates/git_ui/src/git_panel.rs`: worktree yokken git panel boş durumu.
-- `../zed/crates/sidebar/src/sidebar.rs`: threads sidebar boş proje durumu.
+- `project_panel` crate'i: worktree yokken project panel boş durumu.
+- `agent_ui` crate'i: proje yokken agent panel boş durumu.
+- `git_ui` crate'i: worktree yokken git panel boş durumu.
+- `sidebar` crate'i: threads sidebar boş proje durumu.
 
 Dikkat edeceğin noktalar:
 
@@ -778,8 +778,8 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Modül: `../zed/crates/ui/src/utils.rs`
-- Alt modüller: `utils/apca_contrast.rs`, `utils/color_contrast.rs`, `utils/constants.rs`, `utils/corner_solver.rs`, `utils/format_distance.rs`, `utils/search_input.rs`, `utils/with_rem_size.rs`.
+- Modül: `ui` crate'i
+- Alt modüller: `utils/apca_contrast`, `utils/color_contrast`, `utils/constants`, `utils/corner_solver`, `utils/format_distance`, `utils/search_input`, `utils/with_rem_size`.
 - Export: `ui::utils::*`.
 - Prelude: Hayır; `use ui::utils::{...};` ile açık import yaparsın.
 

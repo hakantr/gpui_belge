@@ -25,7 +25,7 @@ Bu bileşenlerde iki kuralı baştan netleştirmek faydalıdır:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/avatar.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Avatar`, `ui::AvatarAudioStatusIndicator`, `ui::AvatarAvailabilityIndicator`, `ui::AudioStatus`, `ui::CollaboratorAvailability`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Avatar`.
@@ -99,9 +99,9 @@ fn render_muted_participant(avatar_url: SharedString) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/collab_ui/src/collab_panel.rs`: contact ve participant satırları.
-- `../zed/crates/title_bar/src/collab.rs`: title bar collaborator avatarları.
-- `../zed/crates/editor/src/git.rs`: author avatarları.
+- `collab_ui` crate'i: contact ve participant satırları.
+- `title_bar` crate'i: title bar collaborator avatarları.
+- `editor` crate'i: author avatarları.
 
 Dikkat edeceğin noktalar:
 
@@ -127,7 +127,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/facepile.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Facepile`, `ui::EXAMPLE_FACES`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Facepile`.
@@ -176,8 +176,8 @@ fn render_reviewers() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/collab_ui/src/collab_panel.rs`: channel ve participant özetlerinde.
-- `../zed/crates/ui/src/components/facepile.rs`: default ve custom size preview örnekleri.
+- `collab_ui` crate'i: channel ve participant özetlerinde.
+- `ui` crate'i: default ve custom size preview örnekleri.
 
 Dikkat edeceğin noktalar:
 

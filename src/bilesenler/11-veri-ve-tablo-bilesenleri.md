@@ -23,7 +23,7 @@ Karar matrisi:
 | Değişken yükseklik, çok satır | `gpui::list(...) + ListState` veya `Table::variable_row_height_list(...)`. |
 | Hiyerarşik ya da sticky parent | `uniform_list(...)` ile birlikte `IndentGuides` ve `StickyItems`. |
 
-`gpui::ListAlignment` (`Top`, `Bottom`) ve `ListSizingBehavior` (`Fill`, `Infer`) için tip referansları `gpui` crate'inde tanımlıdır. UI tarafında bu değerleri kullanan örnekler `crates/keymap_editor`, `crates/csv_preview` ve `crates/project_panel` içinde yer alır.
+`gpui::ListAlignment` (`Top`, `Bottom`) ve `ListSizingBehavior` (`Fill`, `Infer`) için tip referansları `gpui` crate'inde tanımlıdır. UI tarafında bu değerleri kullanan örnekler `keymap_editor`, `csv_preview` ve `project_panel` içinde yer alır.
 
 Bu ailede tablo kurarken üç karar birlikte düşünülür; biri değiştiğinde diğerleri de genellikle etkilenir:
 
@@ -50,7 +50,7 @@ Bu ailede tablo kurarken üç karar birlikte düşünülür; biri değiştiğind
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/data_table.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Table`, `ui::UncheckedTableRow`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Table`.
@@ -244,10 +244,10 @@ impl Render for LogTable {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/ui/src/components/data_table.rs`: component preview içindeki basit, striped ve karışık içerikli tablo örnekleri.
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: keymap tablosu, `uniform_list`, `TableInteractionState` ve redistributable kolonlar.
-- `../zed/crates/csv_preview/src/renderer/render_table.rs`: CSV için `ResizableColumnsState`, `disable_base_style()` ve iki farklı render mekanizması. İlk kolon `pin_cols(1)` ile yatay scroll sırasında sabitlenir.
-- `../zed/crates/edit_prediction_ui/src/edit_prediction_context_view.rs`: metadata için küçük, UI fontu kapatılmış bir tablo.
+- `ui` crate'i: component preview içindeki basit, striped ve karışık içerikli tablo örnekleri.
+- `keymap_editor` crate'i: keymap tablosu, `uniform_list`, `TableInteractionState` ve redistributable kolonlar.
+- `csv_preview` crate'i: CSV için `ResizableColumnsState`, `disable_base_style()` ve iki farklı render mekanizması. İlk kolon `pin_cols(1)` ile yatay scroll sırasında sabitlenir.
+- `edit_prediction_ui` crate'i: metadata için küçük, UI fontu kapatılmış bir tablo.
 
 Dikkat edeceğin noktalar:
 
@@ -268,7 +268,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/data_table.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::TableInteractionState`.
 - Prelude: Hayır; ayrıca import edersin.
 - Render modeli: `Entity<TableInteractionState>` olarak view state'inde tutulur.
@@ -326,9 +326,9 @@ impl AuditTable {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: custom scrollbar ile interactable bir keymap tablosu.
-- `../zed/crates/csv_preview/src/csv_preview.rs`: CSV önizleme scroll state'i.
-- `../zed/crates/git_graph/src/git_graph.rs`: tablo focus handle'ını selection davranışıyla birleştiren örnek.
+- `keymap_editor` crate'i: custom scrollbar ile interactable bir keymap tablosu.
+- `csv_preview` crate'i: CSV önizleme scroll state'i.
+- `git_graph` crate'i: tablo focus handle'ını selection davranışıyla birleştiren örnek.
 
 Dikkat edeceğin noktalar:
 
@@ -348,7 +348,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/data_table.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ColumnWidthConfig`, `ui::StaticColumnWidths`.
 - Prelude: Hayır; ayrıca import edersin.
 
@@ -410,7 +410,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/redistributable_columns.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::RedistributableColumnsState`.
 - İlgili tipler: `ui::TableResizeBehavior`, `ui::HeaderResizeInfo`.
 - Prelude: Hayır; ayrıca import edersin.
@@ -501,8 +501,8 @@ impl KeyBindingTable {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: oranlı kolonlar ile resize edilebilir bir keybinding tablosu.
-- `../zed/crates/git_graph/src/git_graph.rs`: graph alanı ve commit tablosu aynı redistributable state ile hizalanır.
+- `keymap_editor` crate'i: oranlı kolonlar ile resize edilebilir bir keybinding tablosu.
+- `git_graph` crate'i: graph alanı ve commit tablosu aynı redistributable state ile hizalanır.
 
 Dikkat edeceğin noktalar:
 
@@ -521,7 +521,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/data_table.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ResizableColumnsState`.
 - İlgili tipler: `ui::TableResizeBehavior`.
 - Prelude: Hayır; ayrıca import edersin.
@@ -596,8 +596,8 @@ impl CsvLikeTable {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/csv_preview/src/csv_preview.rs`: CSV kolon state'i `ResizableColumnsState` ile tutulur.
-- `../zed/crates/csv_preview/src/renderer/render_table.rs`: tablo `ColumnWidthConfig::Resizable(...)` ile render edilir.
+- `csv_preview` crate'i: CSV kolon state'i `ResizableColumnsState` ile tutulur.
+- `csv_preview` crate'i: tablo `ColumnWidthConfig::Resizable(...)` ile render edilir.
 
 Dikkat edeceğin noktalar:
 
@@ -624,7 +624,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/data_table/table_row.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::table_row::TableRow`.
 - Alias: `ui::UncheckedTableRow<T> = Vec<T>`.
 - Prelude: Hayır.
@@ -678,12 +678,12 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- `render_table_row`: `../zed/crates/ui/src/components/data_table.rs`
-- `render_table_header`: `../zed/crates/ui/src/components/data_table.rs`
-- `TableRenderContext`: `../zed/crates/ui/src/components/data_table.rs`
-- `HeaderResizeInfo`: `../zed/crates/ui/src/components/redistributable_columns.rs`
-- `bind_redistributable_columns`: `../zed/crates/ui/src/components/redistributable_columns.rs`
-- `render_redistributable_columns_resize_handles`: `../zed/crates/ui/src/components/redistributable_columns.rs`
+- `render_table_row`: `ui` crate'i
+- `render_table_header`: `ui` crate'i
+- `TableRenderContext`: `ui` crate'i
+- `HeaderResizeInfo`: `ui` crate'i
+- `bind_redistributable_columns`: `ui` crate'i
+- `render_redistributable_columns_resize_handles`: `ui` crate'i
 
 Ne zaman kullanırsın:
 
@@ -765,7 +765,7 @@ fn render_custom_table_header(
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/git_graph/src/git_graph.rs`: graph canvas ve commit tablosu aynı redistributable kolon state'iyle hizalanır; header ve resize handle'ları düşük seviyeli helper'larla kurarsın.
+- `git_graph` crate'i: graph canvas ve commit tablosu aynı redistributable kolon state'iyle hizalanır; header ve resize handle'ları düşük seviyeli helper'larla kurarsın.
 
 Dikkat edeceğin noktalar:
 

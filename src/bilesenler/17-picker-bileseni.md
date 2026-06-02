@@ -16,7 +16,7 @@
 | `Picker` | Alanlar | `delegate` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
-`crates/picker/` komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch picker, command palette, model picker ve fuzzy seçim gerektiren her UI bunun üzerine kurarsın. Bu yapı yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
+`picker` crate'i komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch picker, command palette, model picker ve fuzzy seçim gerektiren her UI bunun üzerine kurarsın. Bu yapı yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
 
 ---
 
@@ -108,7 +108,7 @@ Picker kökü kendi key context'ini ve action dinleyicilerini kurar:
 
 ## Highlighted match yardımcıları
 
-`crates/picker/src/highlighted_match_with_paths.rs` public olarak iki hazır render yardımcısı sağlar:
+`picker` crate'i public olarak iki hazır render yardımcısı sağlar:
 
 - `HighlightedMatch`: `text`, `highlight_positions` ve `color` alanlarını taşıyan tek satırlık highlighted label. `IntoElement` implement eder.
 - `HighlightedMatchWithPaths`: ana match label'ını, opsiyonel prefix'i, path parçalarını ve aktiflik işaretini birlikte render eder.
@@ -168,7 +168,7 @@ Picker'ı bir popover içine yerleştiren ince sarmalayıcıdır. `new(picker, t
 
 Zed içinde picker üzerine kurulu çeşitli akışların kendine özgü davranışları vardır:
 
-- `file_finder` artık `path:line-column` sorgularına ek olarak `path:start-end` satır aralıklarını da anlar. Örneğin `src/app.rs:12-20` dosyayı açıp ilgili satır aralığını seçer; aralık dosya sonunu aşarsa EOF'a kırpılır. Geçersiz veya ters aralıklar `PathWithPosition` davranışına düşer ve tek konuma gider. Sonda kalan tek satır iki noktası `path:12:` biçiminde temizlenir, fakat aralık biçimleri korunur.
+- `file_finder` artık `path:line-column` sorgularına ek olarak `path:start-end` satır aralıklarını da anlar. Örneğin `src/app` dosyayı açıp ilgili satır aralığını seçer; aralık dosya sonunu aşarsa EOF'a kırpılır. Geçersiz veya ters aralıklar `PathWithPosition` davranışına düşer ve tek konuma gider. Sonda kalan tek satır iki noktası `path:12:` biçiminde temizlenir, fakat aralık biçimleri korunur.
 - `git_ui::branch_picker::select_popover(...)` checkout yapmayan seçim popover'ı üretir. Bu mod `BranchSelectionBehavior::Select` kullanır, placeholder olarak `Select branch...` gösterir, footer ve silme aksiyonlarını sunmaz, seçimden sonra `DismissEvent` yayar ve verilen `SelectBranchCallback` ile seçilen `Branch` değerini dışarı taşır. Branch sıralama seçili branch'i, aktif remote üzerindeki branch'leri, aktif/upstream bağlamını ve kalanları önceliklendirir; aynı öncelikte yerel branch'ler uzak branch'lerden önce gelir.
 - Komut paleti picker üzerinde `Picker::uniform_list` ile kurarsın. Sorgu eşleştirme, geçmiş gezinme ve secondary confirm davranışı [Çalışma Alanı → Komut Paleti](../calisma_alani/08-komut-paleti.md) bölümünde anlatılır.
 

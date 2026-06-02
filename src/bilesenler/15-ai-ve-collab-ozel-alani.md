@@ -27,7 +27,7 @@ Bu ailede iki genel kural vardır:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/ai/ai_setting_item.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::AiSettingItem`, `ui::AiSettingItemStatus`, `ui::AiSettingItemSource`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for AiSettingItem`.
@@ -87,8 +87,8 @@ fn render_mcp_setting_row() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/agent_ui/src/agent_configuration.rs`: MCP server ve agent configuration listeleri.
-- `../zed/crates/ui/src/components/ai/ai_setting_item.rs`: running, stopped, starting ve error preview örnekleri.
+- `agent_ui` crate'i: MCP server ve agent configuration listeleri.
+- `ui` crate'i: running, stopped, starting ve error preview örnekleri.
 
 Dikkat edeceğin noktalar:
 
@@ -113,7 +113,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/ai/agent_setup_button.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::AgentSetupButton`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for AgentSetupButton`.
@@ -153,7 +153,7 @@ fn render_agent_setup_button() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/onboarding/src/basics_page.rs`: onboarding sırasında agent setup seçenekleri.
+- `onboarding` crate'i: onboarding sırasında agent setup seçenekleri.
 
 Dikkat edeceğin noktalar:
 
@@ -179,7 +179,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/ai/thread_item.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ThreadItem`, `ui::AgentThreadStatus`, `ui::ThreadItemWorktreeInfo`, `ui::WorktreeKind`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ThreadItem`.
@@ -261,9 +261,9 @@ fn render_agent_thread() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/sidebar/src/thread_switcher.rs`: thread switcher listesi.
-- `../zed/crates/sidebar/src/sidebar.rs`: sidebar thread entries.
-- `../zed/crates/zed/src/visual_test_runner.rs`: geniş thread item varyantları.
+- `sidebar` crate'i: thread switcher listesi.
+- `sidebar` crate'i: sidebar thread entries.
+- `zed` crate'i: geniş thread item varyantları.
 
 Dikkat edeceğin noktalar:
 
@@ -289,7 +289,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/ai/configured_api_card.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ConfiguredApiCard`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ConfiguredApiCard`.
@@ -330,9 +330,9 @@ fn render_configured_key_card() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/language_models/src/provider/open_ai.rs`: provider key state'i.
-- `../zed/crates/language_models/src/provider/anthropic.rs`, `deepseek.rs`, `google.rs`, `open_router.rs`: benzer provider kartları.
-- `../zed/crates/settings_ui/src/pages/edit_prediction_provider_setup.rs`.
+- `language_models` crate'i: provider key state'i.
+- `language_models` crate'i, `deepseek`, `google`, `open_router`: benzer provider kartları.
+- `settings_ui` crate'i.
 
 Dikkat edeceğin noktalar:
 
@@ -350,7 +350,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/ai/skills_illustration.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::SkillsIllustration`.
 - Prelude: Hayır; `use ui::SkillsIllustration;` ayrıca eklersin.
 - Preview: Doğrudan `impl Component for SkillsIllustration` yok; onboarding ve agent skills yüzeylerinde başka component'lerin içinde kullanırsın.
@@ -400,8 +400,8 @@ fn render_skills_onboarding() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/agent_ui/src` ve onboarding ilişkili akışlar: skill özelliğinin tanıtım alanlarında dekoratif bir illustration olarak.
-- `../zed/crates/ui/src/components/ai/skills_illustration.rs`: bileşenin tek tanım dosyası; alt yapı taşları (`Label`, `Icon`, `h_flex`, `v_flex`) doğrudan ui crate'inden tüketilir.
+- `agent_ui` crate'i ve onboarding ilişkili akışlar: skill özelliğinin tanıtım alanlarında dekoratif bir illustration olarak.
+- `ui` crate'i: bileşenin tek tanım dosyası; alt yapı taşları (`Label`, `Icon`, `h_flex`, `v_flex`) doğrudan ui crate'inden tüketilir.
 
 Dikkat edeceğin noktalar:
 
@@ -427,7 +427,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/collab/collab_notification.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::CollabNotification`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for CollabNotification`.
@@ -466,9 +466,9 @@ fn render_project_share_notification() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/collab_ui/src/notifications/project_shared_notification.rs`
-- `../zed/crates/collab_ui/src/notifications/incoming_call_notification.rs`
-- `../zed/crates/collab_ui/src/collab_panel.rs`
+- `collab_ui` crate'i
+- `collab_ui` crate'i
+- `collab_ui` crate'i
 
 Dikkat edeceğin noktalar:
 
@@ -479,10 +479,10 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Completion ve mention: `../zed/crates/agent_ui/src/completion_provider.rs`, `../zed/crates/acp_thread/src/mention.rs`.
-- Thread banner'ları: `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`.
-- Rules migration: `../zed/crates/prompt_store/src/rules_to_skills_migration.rs`.
-- Announcement toast: `../zed/crates/auto_update_ui/src/auto_update_ui.rs`.
+- Completion ve mention: `agent_ui` crate'i, `acp_thread` crate'i.
+- Thread banner'ları: `agent_ui` crate'i.
+- Rules migration: `prompt_store` crate'i.
+- Announcement toast: `auto_update_ui` crate'i.
 
 Ne zaman kullanırsın:
 
@@ -525,7 +525,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/collab/update_button.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::UpdateButton`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for UpdateButton`.
@@ -573,7 +573,7 @@ fn render_ready_update_button() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/auto_update_ui/src/auto_update_ui.rs`: auto-update title bar ve notification akışları.
+- `auto_update_ui` crate'i: auto-update title bar ve notification akışları.
 
 Dikkat edeceğin noktalar:
 

@@ -17,8 +17,8 @@ Hangi durumda hangisini seçeceğini düşünürken şu yol haritası işine yar
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/stack.rs`
-- Altyapı: `../zed/crates/ui/src/traits/styled_ext.rs`
+- Tanım: `ui` crate'i
+- Altyapı: `ui` crate'i
 - Export: `ui::h_flex`, `ui::v_flex`
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: Doğrudan `impl Component` yok.
@@ -84,7 +84,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/group.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::h_group_sm`, `ui::h_group`, `ui::h_group_lg`, `ui::h_group_xl`, `ui::v_group_sm`, `ui::v_group`, `ui::v_group_lg`, `ui::v_group_xl`
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: Doğrudan `impl Component` yok.
@@ -167,7 +167,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/divider.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Divider`, `ui::DividerColor`, `ui::divider`, `ui::vertical_divider`
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Divider`.
@@ -231,9 +231,9 @@ fn render_split_toolbar() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/settings_ui/src/settings_ui.rs`: section alt border'ları.
-- `../zed/crates/recent_projects/src/recent_projects.rs`: proje grupları ve toolbar ayrımları.
-- `../zed/crates/git_ui/src/project_diff.rs`: diff toolbar üzerindeki dikey divider'lar.
+- `settings_ui` crate'i: section alt border'ları.
+- `recent_projects` crate'i: proje grupları ve toolbar ayrımları.
+- `git_ui` crate'i: diff toolbar üzerindeki dikey divider'lar.
 
 Dikkat edeceğin noktalar:
 

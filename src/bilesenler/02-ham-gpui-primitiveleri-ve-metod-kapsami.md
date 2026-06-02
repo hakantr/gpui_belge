@@ -18,16 +18,16 @@ Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements` primi
 
 Kaynakta bakacağın ana yerler:
 
-- `crates/gpui/src/elements/mod.rs`: primitive export kapısı; tüm element ailelerinin toplandığı giriş noktasıdır.
-- `crates/gpui/src/element.rs`: `ParentElement`, `IntoElement`, `Element` trait'lerinin tanımlandığı temel dosya.
-- `crates/gpui/src/styled.rs`: `Styled` ortak stil yüzeyinin yaşadığı yer; bütün element ailesinin ortak stil dilini sağlar.
-- `crates/gpui/src/color.rs`: `Hsla` renk modeli, renk dönüşümleri ve test odaklı proptest yüzeyinin bulunduğu yer.
-- `crates/gpui/src/elements/div.rs`: `Div`, `Interactivity`, `InteractiveElement`, `StatefulInteractiveElement` ve `ScrollHandle` gibi etkileşim çekirdeğini barındırır.
-- `crates/gpui/src/elements/{canvas,img,image_cache,svg,anchored,deferred,surface,text,list,uniform_list,animation}.rs`: her bir özel primitive'in kendi dosyası; özel API'lerin tanım yerleridir.
+- `gpui` crate'i: primitive export kapısı; tüm element ailelerinin toplandığı giriş noktasıdır.
+- `gpui` crate'i: `ParentElement`, `IntoElement`, `Element` trait'lerinin tanımlandığı temel dosya.
+- `gpui` crate'i: `Styled` ortak stil yüzeyinin yaşadığı yer; bütün element ailesinin ortak stil dilini sağlar.
+- `gpui` crate'i: `Hsla` renk modeli, renk dönüşümleri ve test odaklı proptest yüzeyinin bulunduğu yer.
+- `gpui` crate'i: `Div`, `Interactivity`, `InteractiveElement`, `StatefulInteractiveElement` ve `ScrollHandle` gibi etkileşim çekirdeğini barındırır.
+- `gpui` crate'inin elements modülünde her özel primitive kendi dosyasındadır: her bir özel primitive'in kendi dosyası; özel API'lerin tanım yerleridir.
 
 ## Public GPUI element adları
 
-Aşağıdaki liste `crates/gpui/src/elements` altındaki public type, trait, constructor ve constant adlarını tek yerde toplar. Bu bölümü, hangi isimlerin "kullanılabilir resmi yüzey" olduğunu hızlıca görmek için referans olarak kullanırsın:
+Aşağıdaki liste `gpui` crate'i altındaki public type, trait, constructor ve constant adlarını tek yerde toplar. Bu bölümü, hangi isimlerin "kullanılabilir resmi yüzey" olduğunu hızlıca görmek için referans olarak kullanırsın:
 
 ```text
 Anchored, AnchoredFitMode, AnchoredPositionMode, AnchoredState,

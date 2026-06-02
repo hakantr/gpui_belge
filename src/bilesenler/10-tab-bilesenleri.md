@@ -27,7 +27,7 @@ Hangi durumda hangisini seçeceğin için kısa özet:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/tab.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Tab`, `ui::TabPosition`, `ui::TabCloseSide`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Tab`.
@@ -117,8 +117,8 @@ impl EditorTabs {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/workspace/src/pane.rs`: editor/pane tab render'ı; close side, drag/drop, pinned tab ve sağ tık context menu davranışlarıyla birlikte uygularsın.
-- Component preview: `../zed/crates/ui/src/components/tab.rs`.
+- `workspace` crate'i: editor/pane tab render'ı; close side, drag/drop, pinned tab ve sağ tık context menu davranışlarıyla birlikte uygularsın.
+- Component preview: `ui` crate'i.
 
 Dikkat edeceğin noktalar:
 
@@ -146,7 +146,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/tab_bar.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::TabBar`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for TabBar`.
@@ -236,8 +236,8 @@ fn render_editor_tab_bar(active: usize) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/workspace/src/pane.rs`: tek satır, pinned/unpinned ve iki satırlı tab bar kompozisyonları.
-- Component preview: `../zed/crates/ui/src/components/tab_bar.rs`.
+- `workspace` crate'i: tek satır, pinned/unpinned ve iki satırlı tab bar kompozisyonları.
+- Component preview: `ui` crate'i.
 
 Dikkat edeceğin noktalar:
 

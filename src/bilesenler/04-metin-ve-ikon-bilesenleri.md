@@ -31,8 +31,8 @@ Genel tercih sırası şöyle:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/label/label.rs`
-- Ortak stil yüzeyi: `../zed/crates/ui/src/components/label/label_like.rs`
+- Tanım: `ui` crate'i
+- Ortak stil yüzeyi: `ui` crate'i
 - Export: `ui::Label`
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: `impl Component for Label`.
@@ -91,9 +91,9 @@ fn render_command_hint() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/recent_projects/src/recent_projects.rs`: proje adı, branch ve path metinlerinde `Label` ve `HighlightedLabel` birlikte kullanılır.
-- `../zed/crates/remote_connection/src/remote_connection.rs`: uyarı ve durum satırlarında `Icon` ve `Label` kompozisyonu geçer.
-- `../zed/crates/git_ui/src/git_panel.rs`: status, commit ve branch metadata'larında `Label` oldukça yoğun biçimde kullanılır.
+- `recent_projects` crate'i: proje adı, branch ve path metinlerinde `Label` ve `HighlightedLabel` birlikte kullanılır.
+- `remote_connection` crate'i: uyarı ve durum satırlarında `Icon` ve `Label` kompozisyonu geçer.
+- `git_ui` crate'i: status, commit ve branch metadata'larında `Label` oldukça yoğun biçimde kullanılır.
 
 Dikkat edeceğin noktalar:
 
@@ -119,7 +119,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/label/label_like.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::LabelLike`
 - Prelude: Hayır; `use ui::LabelLike;` satırını ayrıca eklersin.
 - Preview: `impl Component for LabelLike`.
@@ -188,7 +188,7 @@ fn render_inline_hint(action: SharedString, cx: &App) -> impl IntoElement {
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/styles/typography.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Headline`
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: `impl Component for Headline`.
@@ -233,9 +233,9 @@ fn render_panel_title() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/extensions_ui/src/extensions_ui.rs`: extension başlıkları ve sayfa başlıkları.
-- `../zed/crates/ui/src/components/modal.rs`: modal header içinde.
-- `../zed/crates/workspace/src/theme_preview.rs`: typography preview alanı.
+- `extensions_ui` crate'i: extension başlıkları ve sayfa başlıkları.
+- `ui` crate'i: modal header içinde.
+- `workspace` crate'i: typography preview alanı.
 
 Dikkat edeceğin noktalar:
 
@@ -245,7 +245,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/styles/typography.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::TextSize`, `ui::StyledTypography`.
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 
@@ -311,7 +311,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/label/highlighted_label.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::HighlightedLabel`
 - Prelude: Hayır; `use ui::HighlightedLabel;` satırını ayrıca eklersin.
 - Preview: `impl Component for HighlightedLabel`.
@@ -379,9 +379,9 @@ fn render_prefix_match() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/recent_projects/src/recent_projects.rs`: son projelerde proje adı eşleşmeleri.
-- `../zed/crates/git_ui/src/branch_picker.rs`: branch adı eşleşmeleri.
-- `../zed/crates/outline_panel/src/outline_panel.rs`: sembol ve path eşleşmeleri.
+- `recent_projects` crate'i: son projelerde proje adı eşleşmeleri.
+- `git_ui` crate'i: branch adı eşleşmeleri.
+- `outline_panel` crate'i: sembol ve path eşleşmeleri.
 
 Dikkat edeceğin noktalar:
 
@@ -399,7 +399,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/label/loading_label.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::LoadingLabel`
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: Doğrudan `impl Component for LoadingLabel` yok.
@@ -462,7 +462,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/label/spinner_label.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::SpinnerLabel`
 - Prelude: Hayır; `use ui::SpinnerLabel;` satırını ayrıca eklersin.
 - Preview: `impl Component for SpinnerLabel`.
@@ -537,8 +537,8 @@ fn render_compact_spinner() -> impl IntoElement {
 
 Kaynak:
 
-- `Icon`, `IconSize`, `AnyIcon`, `IconWithIndicator`: `../zed/crates/ui/src/components/icon.rs`.
-- `IconName`: `../zed/crates/icons/src/icons.rs`, `ui::IconName` adıyla re-export edilir.
+- `Icon`, `IconSize`, `AnyIcon`, `IconWithIndicator`: `ui` crate'i.
+- `IconName`: `icons` crate'i, `ui::IconName` adıyla re-export edilir.
 - Export: `ui::Icon`, `ui::IconName`, `ui::IconSize`.
 - Prelude: `Icon`, `IconName`, `IconSize` otomatik gelir.
 - Preview: `impl Component for Icon`.
@@ -597,13 +597,13 @@ fn render_tool_icon_from_embedded_path() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/remote_connection/src/remote_connection.rs`: warning ve loading status satırları.
-- `../zed/crates/ai_onboarding/src/agent_api_keys_onboarding.rs`: `Icon::new(...)` ve `Icon::from_external_svg(...)` ile provider ikonları.
-- `../zed/crates/editor/src/element.rs`: dosya ve outline ikonları için `Icon::from_path(...)`.
+- `remote_connection` crate'i: warning ve loading status satırları.
+- `ai_onboarding` crate'i: `Icon::new(...)` ve `Icon::from_external_svg(...)` ile provider ikonları.
+- `editor` crate'i: dosya ve outline ikonları için `Icon::from_path(...)`.
 
 Dikkat edeceğin noktalar:
 
-- Kullanacağın `IconName` değerinin `../zed/crates/icons/src/icons.rs` içinde tanımlı olup olmadığını kontrol etmen gerekir; aksi halde derleme hatası alırsın. Son eklenen varyantlar: `Bitbucket`, `Codeberg`, `Forgejo`, `Gitea`, `Gitlab` (uzak depo servisleri) ve `TextWrap`, `TextUnwrap` (kod bloğu sarım durumu için). Sidebar veya uzak kaynak seçici gibi alanlarda bu servislere özgü ikon gösterirken bu yeni değerleri kullanırsın.
+- Kullanacağın `IconName` değerinin `icons` crate'inde tanımlı olup olmadığını kontrol etmen gerekir; aksi halde derleme hatası alırsın. Son eklenen varyantlar: `Bitbucket`, `Codeberg`, `Forgejo`, `Gitea`, `Gitlab` (uzak depo servisleri) ve `TextWrap`, `TextUnwrap` (kod bloğu sarım durumu için). Sidebar veya uzak kaynak seçici gibi alanlarda bu servislere özgü ikon gösterirken bu yeni değerleri kullanırsın.
 - `IconSize::Custom(rems(...))` teknik olarak mümkün olsa da, tasarım sistemiyle tutarlılık açısından standart boyutları tercih etmen önerilir.
 - Harici raster path'lerinde SVG recolor davranışı beklememen gerekir; `from_path`, `icons/` dışındaki yolu image olarak işler ve tema renginden bağımsız olarak basar.
 
@@ -627,7 +627,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/icon.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::IconWithIndicator`, `ui::AnyIcon`.
 - Prelude: Hayır; ayrıca import edersin.
 
@@ -693,8 +693,8 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- `DecoratedIcon`: `../zed/crates/ui/src/components/icon/decorated_icon.rs`.
-- `IconDecoration`, `IconDecorationKind`, `KnockoutIconName`: `../zed/crates/ui/src/components/icon/icon_decoration.rs`.
+- `DecoratedIcon`: `ui` crate'i.
+- `IconDecoration`, `IconDecorationKind`, `KnockoutIconName`: `ui` crate'i.
 - Export: `ui::DecoratedIcon`, `ui::IconDecoration`, `ui::IconDecorationKind`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `DecoratedIcon` için vardır; `IconDecoration` tek başına bir preview taşımaz.
@@ -757,8 +757,8 @@ fn render_file_with_error(cx: &App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/tab_switcher/src/tab_switcher.rs`: tab ikonları üzerine durum dekorasyonu bindirilir.
-- `../zed/crates/zed/src/visual_test_runner.rs`: `ThreadItem` ikon dekorasyonu görsel testlerde kullanılır.
+- `tab_switcher` crate'i: tab ikonları üzerine durum dekorasyonu bindirilir.
+- `zed` crate'i: `ThreadItem` ikon dekorasyonu görsel testlerde kullanılır.
 
 Dikkat edeceğin noktalar:
 

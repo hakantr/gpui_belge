@@ -31,7 +31,7 @@ Bu kontrollerin hepsi için ortak kural şudur: görsel durum ile uygulama durum
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/toggle.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Checkbox`, `ui::checkbox`, `ui::ToggleStyle`
 - Prelude: Hayır; `Checkbox` ve `ToggleStyle` için ayrıca import edersin.
 - `ToggleState` ise prelude içinde otomatik gelir.
@@ -92,9 +92,9 @@ impl Render for PrivacySettings {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/workspace/src/security_modal.rs`: güvenlik modalındaki seçim.
-- `../zed/crates/git_ui/src/git_panel.rs`: staged/unstaged seçimleri.
-- `../zed/crates/language_tools/src/lsp_log_view.rs`: context menu içinde yer alan custom checkbox entry.
+- `workspace` crate'i: güvenlik modalındaki seçim.
+- `git_ui` crate'i: staged/unstaged seçimleri.
+- `language_tools` crate'i: context menu içinde yer alan custom checkbox entry.
 
 Dikkat edeceğin noktalar:
 
@@ -120,7 +120,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/toggle.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Switch`, `ui::switch`, `ui::SwitchColor`, `ui::SwitchLabelPosition`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Switch`.
@@ -198,7 +198,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/toggle.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::SwitchField`
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for SwitchField`.
@@ -299,7 +299,7 @@ Form ve toggle yardımcı API'leri:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui_input/src/input_field.rs`
+- Tanım: `ui_input` crate'i
 - Export: `ui_input::InputField`
 - Prelude: Hayır; `use ui_input::InputField;` ayrıca eklersin.
 - Preview: `impl Component for InputField`.
@@ -313,7 +313,7 @@ Ne zaman kullanmazsın:
 
 - Yalnızca statik bir metin göstermek için `Label` daha basit ve doğru bir çözümdür.
 - Çok satırlı veya editor özellikleri gerektiren bir içerik için doğrudan editor tabanlı bir view kullanmak gerekir.
-- `crates/ui` içine bağımlılık eklerken `ui_input`'u çözüm olarak düşünmemen gerekir; `ui_input`, editor crate'ine bağımlı olduğu için ayrı bir crate olarak tutulur ve bu sınırı korumak istersin.
+- `ui` içine bağımlılık eklerken `ui_input`'u çözüm olarak düşünmemen gerekir; `ui_input`, editor crate'ine bağımlı olduğu için ayrı bir crate olarak tutulur ve bu sınırı korumak istersin.
 
 Temel API:
 
@@ -348,9 +348,9 @@ fn new_api_key_input(window: &mut Window, cx: &mut App) -> Entity<InputField> {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/language_models/src/provider/open_ai.rs`: API key input'u.
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: context ve action input'ları.
-- `../zed/crates/component_preview/src/component_preview.rs`: component arama filter input'u.
+- `language_models` crate'i: API key input'u.
+- `keymap_editor` crate'i: context ve action input'ları.
+- `component_preview` crate'i: component arama filter input'u.
 
 Düşük seviye yüzey — `ErasedEditor`:
 
@@ -448,9 +448,9 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Sayfa verisi: `../zed/crates/settings_ui/src/page_data.rs`.
-- Renderer kayıtları: `../zed/crates/settings_ui/src/settings_ui.rs`.
-- Tool permission setup: `../zed/crates/settings_ui/src/pages/tool_permissions_setup.rs`.
+- Sayfa verisi: `settings_ui` crate'i.
+- Renderer kayıtları: `settings_ui` crate'i.
+- Tool permission setup: `settings_ui` crate'i.
 
 Davranış:
 

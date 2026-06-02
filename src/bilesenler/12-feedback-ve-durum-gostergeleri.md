@@ -23,7 +23,7 @@ Feedback bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilg
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/styles/severity.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Severity`.
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 
@@ -56,7 +56,7 @@ Davranış:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/banner.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Banner`.
 - İlgili tipler: `ui::Severity`.
 - Prelude: Hayır; ayrıca import edersin.
@@ -125,9 +125,9 @@ fn render_provider_warning_banner() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/extensions_ui/src/extensions_ui.rs`: extension upsell ve registry migration banner'ları.
-- `../zed/crates/settings_ui/src/pages/tool_permissions_setup.rs`: ayar sayfası uyarıları.
-- `../zed/crates/language_models/src/provider/opencode.rs`: provider durum mesajları.
+- `extensions_ui` crate'i: extension upsell ve registry migration banner'ları.
+- `settings_ui` crate'i: ayar sayfası uyarıları.
+- `language_models` crate'i: provider durum mesajları.
 
 Dikkat edeceğin noktalar:
 
@@ -153,7 +153,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/callout.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Callout`, `ui::BorderPosition`.
 - İlgili tipler: `ui::Severity`.
 - Prelude: Hayır; ayrıca import edersin.
@@ -237,8 +237,8 @@ fn render_permission_callout() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: agent retry, token ve tool kullanımı uyarıları.
-- `../zed/crates/zed/src/visual_test_runner.rs`: visual test durum mesajları.
+- `agent_ui` crate'i: agent retry, token ve tool kullanımı uyarıları.
+- `zed` crate'i: visual test durum mesajları.
 
 Dikkat edeceğin noktalar:
 
@@ -264,7 +264,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/modal.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Modal`, `ui::ModalHeader`, `ui::ModalRow`, `ui::ModalFooter`, `ui::Section`, `ui::SectionHeader`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan `impl Component` yok.
@@ -420,7 +420,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/notification/alert_modal.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::AlertModal`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for AlertModal`.
@@ -503,8 +503,8 @@ fn render_restricted_workspace_alert(cx: &App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/workspace/src/security_modal.rs`: restricted workspace karar akışı; `key_context`, `track_focus` ve `.on_action(...)` birlikte kullanırsın.
-- `../zed/crates/ui/src/components/notification/alert_modal.rs`: basic ve custom header preview örnekleri.
+- `workspace` crate'i: restricted workspace karar akışı; `key_context`, `track_focus` ve `.on_action(...)` birlikte kullanırsın.
+- `ui` crate'i: basic ve custom header preview örnekleri.
 
 Dikkat edeceğin noktalar:
 
@@ -530,7 +530,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/notification/announcement_toast.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::AnnouncementToast`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for AnnouncementToast`.
@@ -590,7 +590,7 @@ fn render_feature_announcement() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/auto_update_ui/src/auto_update_ui.rs`: announcement toast notification view'ı; click handler'lar telemetry, URL ve dismiss callback'leriyle bağlanır.
+- `auto_update_ui` crate'i: announcement toast notification view'ı; click handler'lar telemetry, URL ve dismiss callback'leriyle bağlanır.
 
 Dikkat edeceğin noktalar:
 
@@ -602,11 +602,11 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Modül: `../zed/crates/ui/src/components/notification.rs`
+- Modül: `ui` crate'i
 - Export: `ui::AlertModal`, `ui::AnnouncementToast`.
 - Prelude: Hayır.
 
-Mevcut `ui` kaynağında standalone bir `Notification` component'i yer almaz. `notification.rs` dosyası yalnızca `alert_modal` ve `announcement_toast` modüllerini re-export eder. Runtime bildirim kuyruğu, dismiss veya suppress event'leri ve notification trait'leri Zed'in daha üst seviyeli notification altyapısında tutulur.
+Mevcut `ui` kaynağında standalone bir `Notification` component'i yer almaz. `notification` dosyası yalnızca `alert_modal` ve `announcement_toast` modüllerini re-export eder. Runtime bildirim kuyruğu, dismiss veya suppress event'leri ve notification trait'leri Zed'in daha üst seviyeli notification altyapısında tutulur.
 
 Pratik sonuç şudur:
 
@@ -632,7 +632,7 @@ Pratik sonuç şudur:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/count_badge.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::CountBadge`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for CountBadge`.
@@ -673,8 +673,8 @@ fn render_notifications_button(count: usize) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/workspace/src/dock.rs`: dock item üzerinde count badge.
-- `../zed/crates/ui/src/components/count_badge.rs`: capped count preview.
+- `workspace` crate'i: dock item üzerinde count badge.
+- `ui` crate'i: capped count preview.
 
 Dikkat edeceğin noktalar:
 
@@ -699,7 +699,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/indicator.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Indicator`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Indicator`.
@@ -752,10 +752,10 @@ fn render_connection_state(connected: bool) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/workspace/src/status_bar.rs`: status bar indicator.
-- `../zed/crates/debugger_ui/src/dropdown_menus.rs`: debug session state.
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: conflict indicator.
-- `../zed/crates/title_bar/src/title_bar.rs`: title bar durum noktaları.
+- `workspace` crate'i: status bar indicator.
+- `debugger_ui` crate'i: debug session state.
+- `keymap_editor` crate'i: conflict indicator.
+- `title_bar` crate'i: title bar durum noktaları.
 
 Dikkat edeceğin noktalar:
 
@@ -780,7 +780,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/progress/progress_bar.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ProgressBar`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ProgressBar`.
@@ -831,8 +831,8 @@ fn render_usage_progress(used: f32, limit: f32, cx: &App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/edit_prediction_ui/src/edit_prediction_button.rs`: kullanım limiti progress bar'ı.
-- `../zed/crates/ui/src/components/progress/progress_bar.rs`: empty, partial ve filled preview örnekleri.
+- `edit_prediction_ui` crate'i: kullanım limiti progress bar'ı.
+- `ui` crate'i: empty, partial ve filled preview örnekleri.
 
 Dikkat edeceğin noktalar:
 
@@ -858,7 +858,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/progress/circular_progress.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::CircularProgress`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for CircularProgress`.
@@ -911,8 +911,8 @@ fn render_token_ring(used: f32, max: f32, cx: &App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: token usage ring'leri.
-- `../zed/crates/ui/src/components/progress/circular_progress.rs`: farklı yüzde değerleri için preview örnekleri.
+- `agent_ui` crate'i: token usage ring'leri.
+- `ui` crate'i: farklı yüzde değerleri için preview örnekleri.
 
 Dikkat edeceğin noktalar:
 
@@ -924,7 +924,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/activity_indicator/src/activity_indicator.rs`
+- Tanım: `activity_indicator` crate'i
 - Export: `activity_indicator::ActivityIndicator`; `ui` crate kökünden re-export edilen genel bir component değildir.
 - Render modeli: `workspace::StatusItemView` olarak workspace status alanına bağlanır.
 

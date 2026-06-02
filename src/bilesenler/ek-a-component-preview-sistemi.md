@@ -1,11 +1,11 @@
 # Ek A. Component Preview Sistemi
 
-Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak incelemek için kullanırsın. Bu sistem `crates/component` crate'i tarafından yönetilir. Üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry` global'i ve `single_example` ile `example_group_with_title` gibi layout helper'ları.
+Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak incelemek için kullanırsın. Bu sistem `component` crate'i tarafından yönetilir. Üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry` global'i ve `single_example` ile `example_group_with_title` gibi layout helper'ları.
 
 Zed uygulamasında bu sistem iki seviyede ele alırsın:
 
 - `workspace::init(app_state, cx)` içinde `component::init()` çağırırsın. Bu çağrı, `inventory::iter::<ComponentFn>()` ile `RegisterComponent` derive'larından gelen kayıt fonksiyonlarını çalıştırır ve `COMPONENT_DATA` registry'sini doldurur.
-- `crates/zed/src/main.rs`, normal uygulama açılışında `component_preview::init(app_state.clone(), cx)` çağrısını yapar. Standalone preview örneği aynı sırayı izler. Önce `component::init()` çalışır. Sonra settings ve theme init tamamlanır. Ardından workspace init gelir. En sonda `component_preview::init(...)` çağrılır.
+- `zed` crate'i, normal uygulama açılışında `component_preview::init(app_state.clone(), cx)` çağrısını yapar. Standalone preview örneği aynı sırayı izler. Önce `component::init()` çalışır. Sonra settings ve theme init tamamlanır. Ardından workspace init gelir. En sonda `component_preview::init(...)` çağrılır.
 - `ComponentPreview::new(...)`, registry'yi `components()` ile okur; `sorted_components()` ve `component_map()` değerlerini kendi view state'ine alır. Filtre editor'ü için `InputField::new(window, cx, "Find components or usages…")` kurar; listeyi `ListState` üzerinden sanallaştırır.
 - Render tarafında preview sayfası `ComponentMetadata::preview()` callback'ini çağırır. Bu callback `fn(&mut Window, &mut App) -> AnyElement` tipindedir; kayıtlı her component için çağrılabilir bir preview elementi beklenir. Anlamlı bir görsel örnek yoksa `empty_example(...)` veya küçük bir placeholder elementi component'in kendi `preview` metodunda döndürülür.
 

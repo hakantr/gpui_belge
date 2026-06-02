@@ -4,7 +4,7 @@ Scrollbar bileşeni, panel, liste, modal ve özel scroll container'larında Zed 
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/scrollbar.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Scrollbars`, `ui::ScrollAxes`, `ui::ScrollbarStyle`, `ui::scrollbars::{ShowScrollbar, ScrollbarAutoHide, ScrollbarVisibility}`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan bir component preview yok; gerçek kullanım örnekleri panel, modal ve tablo kompozisyonlarının içinde görünür.

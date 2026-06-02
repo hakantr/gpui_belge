@@ -34,7 +34,7 @@ Hangi durumda hangisini seçeceğini şu ayrımla düşünebilirsin:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/list/list.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::List`, `ui::EmptyMessage`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for List`.
@@ -97,9 +97,9 @@ fn render_provider_list() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/edit_prediction_ui/src/rate_prediction_modal.rs`: custom empty state'li completion listesi.
-- `../zed/crates/language_models/src/provider/anthropic.rs`: provider ayar listeleri.
-- `../zed/crates/toolchain_selector/src/toolchain_selector.rs`: toolchain seçenekleri.
+- `edit_prediction_ui` crate'i: custom empty state'li completion listesi.
+- `language_models` crate'i: provider ayar listeleri.
+- `toolchain_selector` crate'i: toolchain seçenekleri.
 
 Dikkat edeceğin noktalar:
 
@@ -126,7 +126,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/list/list_item.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ListItem`, `ui::ListItemSpacing`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ListItem`.
@@ -219,9 +219,9 @@ impl Render for FileList {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/picker/src/picker.rs`: picker satırları.
-- `../zed/crates/outline_panel/src/outline_panel.rs`: outline satırları.
-- `../zed/crates/git_ui/src/repository_selector.rs`: repository selector satırları.
+- `picker` crate'i: picker satırları.
+- `outline_panel` crate'i: outline satırları.
+- `git_ui` crate'i: repository selector satırları.
 
 Dikkat edeceğin noktalar:
 
@@ -247,7 +247,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/list/list_header.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ListHeader`
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ListHeader`.
@@ -316,7 +316,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/list/list_sub_header.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ListSubHeader`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ListSubHeader`.
@@ -356,9 +356,9 @@ fn render_pinned_sub_header() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/component_preview/src/component_preview.rs`: preview navigation section başlıkları.
-- `../zed/crates/editor/src/completions.rs`: completion menu group header'ları.
-- `../zed/crates/agent_ui/src/threads_archive_view.rs`: archive view alt bölümleri.
+- `component_preview` crate'i: preview navigation section başlıkları.
+- `editor` crate'i: completion menu group header'ları.
+- `agent_ui` crate'i: archive view alt bölümleri.
 
 Dikkat edeceğin noktalar:
 
@@ -369,7 +369,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/list/list_separator.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ListSeparator`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan `impl Component` yok.
@@ -423,7 +423,7 @@ fn render_grouped_actions() -> impl IntoElement {
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/list/list_bullet_item.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ListBulletItem`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ListBulletItem`.
@@ -467,7 +467,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/tree_view_item.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::TreeViewItem`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for TreeViewItem`.
@@ -538,7 +538,7 @@ impl Render for SymbolTree {
 
 Zed içinden kullanım örnekleri:
 
-- Component preview: `../zed/crates/ui/src/components/tree_view_item.rs`.
+- Component preview: `ui` crate'i.
 - Zed içindeki hiyerarşik panellerin büyük kısmı, daha özelleşmiş `ListItem` ile `uniform_list` kompozisyonlarını kullanır. `TreeViewItem` ise hazır ve basit bir tree row ihtiyacına dönüktür.
 
 Dikkat edeceğin noktalar:
@@ -564,7 +564,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/sticky_items.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::sticky_items`, `ui::StickyItems`, `ui::StickyCandidate`, `ui::StickyItemsDecoration`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan bir component preview yok.
@@ -623,7 +623,7 @@ impl StickyCandidate for StickyOutlineEntry {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/project_panel/src/project_panel.rs`: project tree sticky entries ile indent guide decoration birlikte kullanılır.
+- `project_panel` crate'i: project tree sticky entries ile indent guide decoration birlikte kullanılır.
 
 Dikkat edeceğin noktalar:
 
@@ -648,7 +648,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/indent_guides.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::indent_guides`, `ui::IndentGuides`, `ui::IndentGuideColors`, `ui::IndentGuideLayout`, `ui::RenderIndentGuideParams`, `ui::RenderedIndentGuide`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: Doğrudan bir component preview yok.
@@ -742,9 +742,9 @@ impl Render for OutlineList {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/project_panel/src/project_panel.rs`: project tree indent guide'ları için custom render ve tıklama davranışı uygulanır. Project panel `on_click` içinde `IndentGuideLayout::offset.y` değerinden hedef satırı bulur; secondary modifier aktifse ilgili parent entry collapse edilir.
-- `../zed/crates/outline_panel/src/outline_panel.rs`: outline list indent guide'ları. `with_render_fn(...)` aktif guide'ı hesaplar ve `RenderedIndentGuide::is_active` alanını set eder.
-- `../zed/crates/git_ui/src/git_panel.rs`: hiyerarşik git panel satırları. Git panel custom render ile yalnızca bounds ve layout üretir; `hitbox: None` bırakarak tıklama davranışı eklemez.
+- `project_panel` crate'i: project tree indent guide'ları için custom render ve tıklama davranışı uygulanır. Project panel `on_click` içinde `IndentGuideLayout::offset.y` değerinden hedef satırı bulur; secondary modifier aktifse ilgili parent entry collapse edilir.
+- `outline_panel` crate'i: outline list indent guide'ları. `with_render_fn(...)` aktif guide'ı hesaplar ve `RenderedIndentGuide::is_active` alanını set eder.
+- `git_ui` crate'i: hiyerarşik git panel satırları. Git panel custom render ile yalnızca bounds ve layout üretir; `hitbox: None` bırakarak tıklama davranışı eklemez.
 
 Dikkat edeceğin noktalar:
 

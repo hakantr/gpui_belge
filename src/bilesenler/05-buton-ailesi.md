@@ -18,7 +18,7 @@ Hangi durumda hangisini seçeceğin için şu kısa ayrım yeterli olur:
 
 Kaynak:
 
-- Ortak trait ve token'lar: `../zed/crates/ui/src/components/button/button_like.rs`.
+- Ortak trait ve token'lar: `ui` crate'i.
 - Prelude: `Button`, `IconButton`, `SelectableButton`, `ButtonCommon`, `ButtonSize`, `ButtonStyle` otomatik gelir. `TintColor`, `ButtonLike`, `ButtonLink`, `CopyButton`, `SplitButton` ve toggle button tipleri ise ayrıca import edersin.
 
 Ortak trait'ler:
@@ -113,7 +113,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/button/button.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::Button`
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: `impl Component for Button`.
@@ -191,9 +191,9 @@ fn render_branch_selector(branch: SharedString) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: kaydetme, oluşturma ve JSON düzenleme eylemleri.
-- `../zed/crates/recent_projects/src/recent_projects.rs`: Open, New Window, Delete gibi proje eylemleri.
-- `../zed/crates/git_ui/src/git_panel.rs`: commit, selector ve split button parçaları.
+- `keymap_editor` crate'i: kaydetme, oluşturma ve JSON düzenleme eylemleri.
+- `recent_projects` crate'i: Open, New Window, Delete gibi proje eylemleri.
+- `git_ui` crate'i: commit, selector ve split button parçaları.
 
 Dikkat edeceğin noktalar:
 
@@ -219,7 +219,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/button/icon_button.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::IconButton`
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: `impl Component for IconButton`.
@@ -278,9 +278,9 @@ impl Render for SidebarToggle {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/sidebar/src/sidebar.rs`: sidebar ve terminal toolbar kontrolleri.
-- `../zed/crates/search/src/search_bar.rs`: search control butonları.
-- `../zed/crates/keymap_editor/src/keymap_editor.rs`: filtre ve exact match kontrolleri.
+- `sidebar` crate'i: sidebar ve terminal toolbar kontrolleri.
+- `search` crate'i: search control butonları.
+- `keymap_editor` crate'i: filtre ve exact match kontrolleri.
 
 Dikkat edeceğin noktalar:
 
@@ -306,7 +306,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/button/button_like.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ButtonLike`
 - Prelude: Hayır; `use ui::ButtonLike;` ayrıca eklersin.
 - Preview: `impl Component for ButtonLike`.
@@ -377,9 +377,9 @@ fn render_account_trigger(name: SharedString, email: SharedString) -> impl IntoE
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/recent_projects/src/sidebar_recent_projects.rs`: özel proje açma satırları.
-- `../zed/crates/language_tools/src/highlights_tree_view.rs`: header yüzeyi.
-- `../zed/crates/agent_ui/src/ui/mention_crease.rs`: özel mention yüzeyi.
+- `recent_projects` crate'i: özel proje açma satırları.
+- `language_tools` crate'i: header yüzeyi.
+- `agent_ui` crate'i: özel mention yüzeyi.
 
 Dikkat edeceğin noktalar:
 
@@ -404,7 +404,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/button/button_link.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ButtonLink`
 - Prelude: Hayır; `use ui::ButtonLink;` ayrıca eklersin.
 - Preview: `impl Component for ButtonLink`.
@@ -451,9 +451,9 @@ fn render_provider_link() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/language_models/src/provider/open_ai.rs`.
-- `../zed/crates/language_models/src/provider/anthropic.rs`.
-- `../zed/crates/language_models/src/provider/google.rs`.
+- `language_models` crate'i.
+- `language_models` crate'i.
+- `language_models` crate'i.
 
 Dikkat edeceğin noktalar:
 
@@ -477,7 +477,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/button/copy_button.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::CopyButton`
 - Prelude: Hayır; `use ui::CopyButton;` ayrıca eklersin.
 - Preview: `impl Component for CopyButton`.
@@ -525,9 +525,9 @@ fn render_copyable_sha(short_sha: SharedString, full_sha: SharedString) -> impl 
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/markdown/src/markdown.rs`: code block copy davranışı.
-- `../zed/crates/git_ui/src/commit_tooltip.rs`: commit SHA kopyalama.
-- `../zed/crates/agent_ui/src/conversation_view/thread_view.rs`: komut ve hata metni kopyalama.
+- `markdown` crate'i: code block copy davranışı.
+- `git_ui` crate'i: commit SHA kopyalama.
+- `agent_ui` crate'i: komut ve hata metni kopyalama.
 
 Dikkat edeceğin noktalar:
 
@@ -545,7 +545,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/button/split_button.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::SplitButton`
 - Prelude: Hayır; `use ui::SplitButton;` ayrıca eklersin.
 - Preview: Doğrudan `impl Component for SplitButton` yok.
@@ -599,9 +599,9 @@ fn render_run_split_button() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/git_ui/src/git_panel.rs`: commit split button.
-- `../zed/crates/git_ui/src/commit_modal.rs`: commit modal split button.
-- `../zed/crates/debugger_ui/src/session/running/console.rs`: console action split button.
+- `git_ui` crate'i: commit split button.
+- `git_ui` crate'i: commit modal split button.
+- `debugger_ui` crate'i: console action split button.
 
 Dikkat edeceğin noktalar:
 
@@ -626,7 +626,7 @@ Dikkat edeceğin noktalar:
 
 Kaynak:
 
-- Tanım: `../zed/crates/ui/src/components/button/toggle_button.rs`
+- Tanım: `ui` crate'i
 - Export: `ui::ToggleButtonGroup`, `ui::ToggleButtonSimple`, `ui::ToggleButtonWithIcon`, `ui::ToggleButtonGroupStyle`, `ui::ToggleButtonGroupSize`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ToggleButtonGroup<...>`.
@@ -700,8 +700,8 @@ impl Render for DiffModePicker {
 
 Zed içinden kullanım örnekleri:
 
-- `../zed/crates/git_ui/src/git_picker.rs`: git picker mod seçimi.
-- Component preview: `../zed/crates/ui/src/components/button/toggle_button.rs` içindeki tek satır, ikonlu ve çok satırlı örnekler.
+- `git_ui` crate'i: git picker mod seçimi.
+- Component preview: `ui` crate'indeki tek satır, ikonlu ve çok satırlı örnekler.
 
 Dikkat edeceğin noktalar:
 

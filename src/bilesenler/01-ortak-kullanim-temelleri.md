@@ -125,7 +125,7 @@ Version control variant'ları açık adlarıyla `VersionControlAdded`, `VersionC
 
 `Severity`, mesaj ve feedback bileşenlerinde durum seviyesini ifade eder: `Info`, `Success`, `Warning`, `Error`. `Banner` ve `Callout` gibi bileşenler bu seviyeyi arka plan, ikon ve vurgu rengine otomatik olarak bağlar; aynı "warning" seviyesi her yerde aynı görsel dile çevrilir.
 
-`IconName`, `crates/icons/src/icons.rs` içinde tanımlanan gömülü ikon adıdır ve `Icon::new(IconName::Check)` şeklinde kullanırsın. Harici bir ikon teması veya kendi SVG'i kullanman gereken durumlar için `Icon::from_path(...)` ve `Icon::from_external_svg(...)` yardımcıları mevcuttur.
+`IconName`, `icons` crate'inde tanımlanan gömülü ikon adıdır ve `Icon::new(IconName::Check)` şeklinde kullanırsın. Harici bir ikon teması veya kendi SVG'i kullanman gereken durumlar için `Icon::from_path(...)` ve `Icon::from_external_svg(...)` yardımcıları mevcuttur.
 
 Boyut token'larını component ailesine göre seçersin:
 
@@ -174,7 +174,7 @@ Token enum'larının çoğu tek başına uzun anlatım gerektirmez; hangi aileye
 | `DynamicSpacing` | Varyantlar | `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`, `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`, `Base48` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
 
 
-Padding, margin ve gap değerleri için her yerde elle `px(...)` veya `rems(...)` yazmak yerine, `crates/ui/src/styles/spacing.rs` içinde tanımlı `DynamicSpacing` ölçeğini tercih etmen daha doğru olur. Bu enum, kullanıcının UI yoğunluk ayarına (`Compact`, `Default`, `Comfortable`) göre tek noktadan ölçek değiştirir. Uygulama yoğunluğu değiştiğinde spacing değerleri de aynı kurala bağlı olarak uyum sağlar.
+Padding, margin ve gap değerleri için her yerde elle `px(...)` veya `rems(...)` yazmak yerine, `ui` crate'inde tanımlı `DynamicSpacing` ölçeğini tercih etmen daha doğru olur. Bu enum, kullanıcının UI yoğunluk ayarına (`Compact`, `Default`, `Comfortable`) göre tek noktadan ölçek değiştirir. Uygulama yoğunluğu değiştiğinde spacing değerleri de aynı kurala bağlı olarak uyum sağlar.
 
 - Adlandırma: `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`, `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`, `Base48`. `BaseXX` içindeki `XX`, varsayılan yoğunluktaki yaklaşık pixel değeridir (`Base04 ≈ 4px`, `Base16 ≈ 16px`).
 - Kullanım: `.gap(DynamicSpacing::Base02.px(cx))` veya `.p(DynamicSpacing::Base06.rems(cx))` şeklindedir.
@@ -199,7 +199,7 @@ Sabit ve değişmeyen bir aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `
 | `ElevationIndex` | Varyantlar | `EditorSurface`, `ElevatedSurface`, `ModalSurface` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
 
 
-`crates/ui/src/styles/elevation.rs` içindeki `ElevationIndex`, bir yüzeyin görsel "z-axis" konumunu anlatır. Doğru elevation seçtiğinde shadow, background ve border kombinasyonu birlikte gelir. Böylece her popover, modal veya panel için aynı görsel ayrıntıları elden ayarlaman gerekmez.
+`ui` crate'indeki `ElevationIndex`, bir yüzeyin görsel "z-axis" konumunu anlatır. Doğru elevation seçtiğinde shadow, background ve border kombinasyonu birlikte gelir. Böylece her popover, modal veya panel için aynı görsel ayrıntıları elden ayarlaman gerekmez.
 
 - `Background`: uygulamanın en alt zemini.
 - `Surface`: paneller, pane'ler ve ana yüzey container'ları.
@@ -222,7 +222,7 @@ Pratik builder'lar `StyledExt` üzerinden gelir:
 
 ## Ortak component trait'leri
 
-`crates/ui/src/traits.rs` altında görülen `clickable`, `disableable`, `fixed`, `styled_ext`, `toggleable`, `transformable`, `visible_on_hover` ve `animation_ext` modülleri, bileşenlerin ortak builder dilini kurar. Çoğu tüketici bu modülleri tek tek import etmez; ilgili trait, kullandığın bileşen veya prelude üzerinden zaten görünür olur. Yine de trait adını bilmek önemlidir, çünkü aynı builder farklı bileşenlerde aynı davranışı temsil eder.
+`ui` crate'i altında görülen `clickable`, `disableable`, `fixed`, `styled_ext`, `toggleable`, `transformable`, `visible_on_hover` ve `animation_ext` modülleri, bileşenlerin ortak builder dilini kurar. Çoğu tüketici bu modülleri tek tek import etmez; ilgili trait, kullandığın bileşen veya prelude üzerinden zaten görünür olur. Yine de trait adını bilmek önemlidir, çünkü aynı builder farklı bileşenlerde aynı davranışı temsil eder.
 
 - `Clickable`: `.on_click(...)` ve `.cursor_style(...)` davranışının ortak sözleşmesidir. Buton, disclosure, popover trigger veya custom interactive element aynı tıklama modeline bağlanır.
 - `Disableable`: `.disabled(bool)` çağrısının ortak anlamını verir. Disabled state yalnız renk değil, çoğu bileşende handler bağlanmaması veya etkileşimin kaldırılması demektir.
@@ -268,7 +268,7 @@ Bu trait'leri ne zaman doğrudan düşünmezsin? Sadece hazır bir `Button`, `Li
 | `PlatformStyle` | Varyantlar | `Mac` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
 
 
-`crates/ui/src/styles/platform.rs` içindeki `PlatformStyle`, işletim sistemine bağlı render kararlarını tek bir yerde toplamak için kullanırsın. `cfg!` makrolarını veya platform tespitini her bileşene dağıtmak yerine, platforma göre değişen davranışları bu enum üzerinden ifade edersin.
+`ui` crate'indeki `PlatformStyle`, işletim sistemine bağlı render kararlarını tek bir yerde toplamak için kullanırsın. `cfg!` makrolarını veya platform tespitini her bileşene dağıtmak yerine, platforma göre değişen davranışları bu enum üzerinden ifade edersin.
 
 - Değerler: `Mac`, `Linux`, `Windows`.
 - Mevcut platform için `PlatformStyle::platform()` (const fn) çağırırsın.
@@ -286,7 +286,7 @@ Platforma özel bir davranış kurarken `cfg!` makrolarını her yerde tekrar et
 | `TextSize` | Metotlar | `pixels`, `rems` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
-`crates/ui/src/styles/typography.rs`, `Headline` ve `Label` dışında düz `div()` üzerine de tema tutarlı tipografi uygulamak için `StyledTypography` trait'ini sağlar. `Styled` implement eden her tip otomatik olarak bu trait'i de devralır; ayrıca derive veya impl yazman gerekmez.
+`ui` crate'i, `Headline` ve `Label` dışında düz `div()` üzerine de tema tutarlı tipografi uygulamak için `StyledTypography` trait'ini sağlar. `Styled` implement eden her tip otomatik olarak bu trait'i de devralır; ayrıca derive veya impl yazman gerekmez.
 
 Sık kullandığın yöntemler şu şekildedir:
 
@@ -312,7 +312,7 @@ Viewport birimleri için `vw(percent)` ve `vh(percent)` yardımcıları vardır.
 
 ## Animasyon yardımcıları
 
-`crates/ui/src/styles/animation.rs`, küçük UI animasyonlarını standart süreler ve yönlerle kurmak için bir trait sağlar. Amaç, her yerde ayrı ayrı animasyon parametresi yazmak yerine ortak ve tutarlı bir sözlük kullanmaktır.
+`ui` crate'i, küçük UI animasyonlarını standart süreler ve yönlerle kurmak için bir trait sağlar. Amaç, her yerde ayrı ayrı animasyon parametresi yazmak yerine ortak ve tutarlı bir sözlük kullanmaktır.
 
 - `AnimationDuration`: `Instant` (50ms), `Fast` (150ms), `Slow` (300ms).
 - `AnimationDirection`: `FromBottom`, `FromLeft`, `FromRight`, `FromTop`.
@@ -337,7 +337,7 @@ Viewport birimleri için `vw(percent)` ve `vh(percent)` yardımcıları vardır.
 | `CommonAnimationExt` | Trait üyeleri | `with_keyed_rotate_animation`, `with_rotate_animation` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
-`crates/ui/src/traits/transformable.rs` içindeki `Transformable`, kaynakta `pub trait` olarak görünür; ancak `ui.rs` tarafından crate köküne re-export edilmez ve `ui::prelude::*` içinde de bulunmaz. Bu yüzden tüketici kodu için sabit çağrı yüzeyi `.transform(...)` değildir; doğrudan bu metodu çağırmaya çalışmak crate sınırında trait'i import edememekle sonuçlanır.
+`ui` crate'indeki `Transformable`, kaynakta `pub trait` olarak görünür; ancak `ui` tarafından crate köküne re-export edilmez ve `ui::prelude::*` içinde de bulunmaz. Bu yüzden tüketici kodu için sabit çağrı yüzeyi `.transform(...)` değildir; doğrudan bu metodu çağırmaya çalışmak crate sınırında trait'i import edememekle sonuçlanır.
 
 Pratikte kullanabildiğin public yüzey `ui::CommonAnimationExt`'tir:
 
@@ -355,7 +355,7 @@ fn render_loading_icon() -> impl IntoElement {
 
 ## `ui::utils` modülü
 
-`crates/ui/src/utils.rs` public bir alt modüldür; `is_light`, `reveal_in_file_manager_label` ve `capitalize` doğrudan burada yaşar, geri kalan yardımcılar ise alt modüllerden `ui::utils::*` altında re-export edilir. Bu yardımcılar `ui` crate kökünden ayrıca re-export edilmez; doğru çağrı yolu `ui::utils::is_light`, `ui::utils::WithRemSize`, `ui::utils::FormatDistance` gibi alt modül yoludur. Buna karşılık `BASE_REM_SIZE_IN_PX`, `EDITOR_SCROLLBAR_WIDTH`, `theme_is_transparent` ve `ui_density` ise styles/components re-export zinciri üzerinden doğrudan `ui::...` kökünden erişilebilir; bu fark, sembolün hangi modülde tanımlandığına göre değişir.
+`ui` crate'i public bir alt modüldür; `is_light`, `reveal_in_file_manager_label` ve `capitalize` doğrudan burada yaşar, geri kalan yardımcılar ise alt modüllerden `ui::utils::*` altında re-export edilir. Bu yardımcılar `ui` crate kökünden ayrıca re-export edilmez; doğru çağrı yolu `ui::utils::is_light`, `ui::utils::WithRemSize`, `ui::utils::FormatDistance` gibi alt modül yoludur. Buna karşılık `BASE_REM_SIZE_IN_PX`, `EDITOR_SCROLLBAR_WIDTH`, `theme_is_transparent` ve `ui_density` ise styles/components re-export zinciri üzerinden doğrudan `ui::...` kökünden erişilebilir; bu fark, sembolün hangi modülde tanımlandığına göre değişir.
 
 Temalama ve görsel:
 
@@ -382,8 +382,8 @@ Temalama ve görsel:
 
 Layout ve ölçü yardımcıları:
 
-- `BASE_REM_SIZE_IN_PX: f32 = 16.0` (`styles/units.rs`): rem tabanlı hesaplamalarda referans değer olarak kullanılır.
-- `EDITOR_SCROLLBAR_WIDTH: Pixels` (`components/scrollbar.rs`): `ScrollbarStyle::Editor.to_pixels()` sabitidir. Editor görseliyle gelen scrollbar genişliğini diğer panelle hizalaman gerektiğinde başvurduğun değerdir.
+- `BASE_REM_SIZE_IN_PX: f32 = 16.0` (`styles/units`): rem tabanlı hesaplamalarda referans değer olarak kullanılır.
+- `EDITOR_SCROLLBAR_WIDTH: Pixels` (`components/scrollbar`): `ScrollbarStyle::Editor.to_pixels()` sabitidir. Editor görseliyle gelen scrollbar genişliğini diğer panelle hizalaman gerektiğinde başvurduğun değerdir.
 - `TRAFFIC_LIGHT_PADDING: f32`: macOS pencere kontrolleri (kapat, küçült, büyüt) için title bar'da ayırman gereken sol padding'i ifade eder. SDK 26 öncesi 71px, sonrası 78px sabit değer alır.
 - `platform_title_bar_height(window: &Window) -> Pixels`: Windows'ta sabit 32px, diğer platformlarda `1.75 * window.rem_size()` (minimum 34px) döndürür.
 - `inner_corner_radius(parent_radius, parent_border, parent_padding, self_border) -> Pixels`: iç içe geçmiş yuvarlatılmış köşelerde child elemanın radius'unu hesaplar; dış elemanın radius'una göre iç köşenin doğru gözükmesini sağlar.
