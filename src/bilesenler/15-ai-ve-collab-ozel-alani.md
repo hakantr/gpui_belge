@@ -174,7 +174,7 @@ Dikkat edeceğin noktalar:
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `ThreadItem` | Metotlar 1 | `action_slot`, `added`, `archived`, `base_bg`, `custom_icon_from_external_svg`, `focused`, `highlight_positions`, `hovered`, `icon_color`, `icon_visible`, `is_remote`, `is_truncated`, `new`, `notified` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ThreadItem` | Metotlar 2 | `on_click`, `on_hover`, `project_name`, `project_paths`, `removed`, `rounded`, `timestamp`, `title_generating`, `title_label_color`, `title_slot`, `worktrees` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `ThreadItem` | Metotlar 2 | `icon_char`, `on_click`, `on_hover`, `project_name`, `project_paths`, `removed`, `rounded`, `timestamp`, `title_generating`, `title_label_color`, `title_slot`, `worktrees` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
 Kaynak:
@@ -195,6 +195,7 @@ Temel API:
 - `.timestamp(text)`.
 - `.icon(IconName)`, `.icon_color(Color)`, `.icon_visible(bool)`.
 - `.custom_icon_from_external_svg(svg)`.
+- `.icon_char(text)`, icon slot'unda tek karakterlik agent/thread simgesi gösterir.
 - `.notified(bool)`.
 - `.status(AgentThreadStatus)`.
 - `.title_generating(bool)`, `.title_label_color(Color)`, `.highlight_positions(Vec<usize>)`.

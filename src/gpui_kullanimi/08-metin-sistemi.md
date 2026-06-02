@@ -16,7 +16,7 @@
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `Font` | Metotlar | `bold`, `italic` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Font` | Alanlar | `fallbacks`, `style`, `weight` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `Font` | Alanlar | `family`, `features`, `fallbacks`, `style`, `weight` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
 Metin sisteminin ana tipleri `crates/gpui/src/text_system.rs`, `style.rs` ve `elements/text.rs` içinde toplanır. Bir metni doğru çizebilmek için stil, font ve ölçüm tipleri birlikte çalışır. Her birinin sorumluluğu ayrıdır:
@@ -72,7 +72,7 @@ Bu metotlar özel editör, ölçüm önbelleği veya metin renderer'ı yazarken 
 
 **WindowTextSystem.** Pencereye bağlı sistem `shape_line(...)`, `shape_line_by_hash(...)`, `shape_text(...)`, `layout_line(...)`, `try_layout_line_by_hash(...)` ve `layout_line_by_hash(...)` metotlarıyla şekillendirme ve layout cache'ini birlikte yönetir. Hash'li varyantlar aynı metin/stil girdisini tekrar ölçerken cache kullanır. Metin ölçümü ekran karesine ve pencerenin font/scale durumuna bağlıysa `WindowTextSystem`'ı tercih edersin; uygulama geneli font keşfinde `TextSystem` yeterlidir.
 
-**Font, fallback ve feature yardımcıları.** `Font::bold()` ve `Font::italic()` mevcut font modeline kalın veya italik varyantı uygular. `FontFallbacks::from_fonts(...)` kullanıcı yedek zinciri üretir, `fallback_list()` zinciri okur. `FontFeatures::disable_ligatures()`, `tag_value_list()` ve `is_calt_enabled()` OpenType feature listesini yönetir; kod editörü gibi ligature davranışını bilinçli kontrol eden yüzeylerde kullanılır. Basit UI metninde bu ayarları elle kurmak yerine tema/font ayarlarına güvenirsin.
+**Font, fallback ve feature yardımcıları.** `Font` public modelinde `family` birincil aile adını, `features` OpenType feature set'ini, `fallbacks` kullanıcı yedek zincirini, `style` ve `weight` ise varyant seçimini taşır. `Font::bold()` ve `Font::italic()` mevcut font modeline kalın veya italik varyantı uygular. `FontFallbacks::from_fonts(...)` kullanıcı yedek zinciri üretir, `fallback_list()` zinciri okur. `FontFeatures::disable_ligatures()`, `tag_value_list()` ve `is_calt_enabled()` OpenType feature listesini yönetir; kod editörü gibi ligature davranışını bilinçli kontrol eden yüzeylerde kullanılır. Basit UI metninde bu ayarları elle kurmak yerine tema/font ayarlarına güvenirsin.
 
 **Başarım ipucu: `SharedString`.** GPUI metin taşıyan birçok API'de `SharedString` kullanır; çünkü bu tip Arc tabanlı, paylaşımlı sahiplikli ve klonlaması ucuz bir metin taşıyıcısıdır. Bir bileşen aynı etiketi birden fazla render'da veya alt bileşene aktarırken `String`'i tekrar kopyalamak yerine `SharedString`'i klonlarsın. Bu yüzden bileşen alanlarını genellikle `SharedString` tutarsın ve çağıran tarafta `"Kaydet".into()` yazarsın:
 

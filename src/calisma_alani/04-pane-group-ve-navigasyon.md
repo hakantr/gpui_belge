@@ -4,9 +4,9 @@
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `NavHistory` | Metotlar | `clear`, `disable`, `enable`, `for_each_entry`, `pop`, `pop_tag`, `set_mode` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `NavHistory` | Metotlar | `clear`, `disable`, `enable`, `for_each_entry`, `path_for_item`, `pop`, `pop_tag`, `remove_item`, `rename_item`, `set_mode` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 | `PaneGroup` | Metotlar | `bounding_box_for_pane`, `find_pane_in_direction`, `move_to_border`, `pane_at_pixel_position`, `remove`, `reset_pane_sizes`, `resize`, `split`, `swap` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Toolbar` | Metotlar | `add_item`, `set_active_item` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `Toolbar` | Metotlar | `add_item`, `focus_changed`, `set_active_item`, `set_can_navigate` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
 Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağacı, gezinme geçmişi, toolbar item'ları ve çoklu çalışma alanı sidebar birlikte çalışır.
@@ -26,7 +26,7 @@ Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağa
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `SplitDirection` | Metotlar | `along_edge`, `axis`, `edge`, `horizontal`, `opposite`, `vertical` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `SplitDirection` | Metotlar | `all`, `along_edge`, `axis`, `edge`, `horizontal`, `increasing`, `opposite`, `vertical` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 | `SplitDirection` | Varyantlar | `Down`, `Left`, `Right`, `Up` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
 
 
@@ -37,7 +37,9 @@ Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağa
 - `remove`, `resize`, `reset_pane_sizes`, `swap`, `move_to_border` split ağacını değiştirir.
 - `pane_at_pixel_position(point)`, `bounding_box_for_pane(pane)`, `find_pane_in_direction` sürükle-bırak ve klavyeyle pane gezinme için kullanırsın.
 - `SplitDirection::{Up, Down, Left, Right}`; `vertical(cx)` ve `horizontal(cx)` kullanıcı ayarına göre varsayılan split yönünü üretir.
+- `SplitDirection::all()` dört yönü `[Up, Down, Left, Right]` sırasıyla verir; yön taraması veya key binding üretimi için kullanılır.
 - `SplitDirection::axis()`, `opposite()`, `edge(bounds)`, `along_edge(bounds, length)` resize ve bırakma göstergesi hesaplarında kullanırsın.
+- `SplitDirection::increasing()` yönün koordinat ekseninde artan tarafa gidip gitmediğini bildirir; `Down` ve `Right` artan, `Up` ve `Left` azalan yöndür.
 
 ---
 
@@ -56,6 +58,7 @@ Pane item listesinde preview ve sabitlenmiş ayrımı vardır; her ikisi de benz
 - `Pane::nav_history_for_item(item)` item'e bağlı bir `ItemNavHistory` üretir.
 - `ItemNavHistory::push(data, row, cx)` item geçmişine giriş ekler; item `include_in_nav_history()` `false` döndürdüğünde eklenmez.
 - `NavHistory::pop(GoingBack/GoingForward, cx)`, `clear`, `disable`, `enable`, `set_mode`, `for_each_entry` geçmiş yönetimini yapar.
+- `NavHistory::path_for_item(item_id)` item için kaydedilmiş proje/absolute path çiftini okur; `rename_item(item_id, project_path, abs_path)` bu kaydı günceller, `remove_item(item_id)` ise item kapanınca backward, forward, closed ve tag stack kayıtlarından temizler.
 - `push_tag` ve `pop_tag` tanım veya referans gibi tag gezinme yığınını yönetir.
 
 ---
@@ -89,6 +92,7 @@ pub trait ToolbarItemView: Render + EventEmitter<ToolbarItemEvent> {
 - Item kendi yerini değiştirmek isterse `ToolbarItemEvent::ChangeLocation(...)` yayar.
 - `Toolbar::add_item(varlik, window, cx)` item'i kaydeder.
 - `Toolbar::set_active_item` aktif pane item değiştiğinde tüm toolbar item'larını günceller.
+- `Toolbar::focus_changed(focused, window, cx)` pane odağı değiştiğinde toolbar item'larına durumu iletir; `set_can_navigate(can_navigate, cx)` geri/ileri gezinme kontrolünün etkinliğini saklar ve toolbar'ı yeniden bildirir.
 - `contribute_context` görünür toolbar item'larının key context'e katkı vermesini sağlar.
 
 ---

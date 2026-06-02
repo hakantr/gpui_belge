@@ -54,6 +54,7 @@ EditorConfig sonucu Zed tarafında `EditorconfigProperties` üzerinden tüketili
 | :-- | :-- | :-- |
 | `Editorconfig` | `is_root`, `sections`, `from_str` | `.editorconfig` içeriğinin parse edilmiş kök ve section listesidir. |
 | `EditorconfigEvent` | `ExternalConfigChanged { path, content, affected_worktree_ids }` | External `.editorconfig` değiştiğinde etkilenen worktree listesini yayınlar. |
+| `EditorconfigStore` | `set_configs`, `local_editorconfig_settings`, `discover_local_external_configs_chain`, `properties` | Worktree içi/dışı config kayıtlarını yedirir, yerel kaynak zincirini listeler, parent dizinlerde external `.editorconfig` keşfi başlatır ve path için birleşik property sonucunu üretir. |
 | `EditorconfigProperties` | `ec4rs::Properties` type alias'ı | EditorConfig property sonucunun tüketim tipidir. |
 | `InvalidSettingsError` | `LocalSettings`, `UserSettings`, `ServerSettings`, `DefaultSettings`, `Editorconfig`, `Tasks`, `Debug` | Ayar, task, debug veya EditorConfig parse hatalarını sınıflandırır. |
 | `LocalSettingsPath` | `InWorktree`, `OutsideWorktree` | EditorConfig dosyasının worktree içinde mi dışında mı bulunduğunu ayırır. |

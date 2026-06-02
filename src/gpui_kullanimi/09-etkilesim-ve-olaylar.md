@@ -80,7 +80,7 @@ cx.focus_view(&alt_varlik, window);
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `Hitbox` | Metotlar | `is_hovered`, `should_handle_scroll` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Hitbox` | Alanlar | `bounds`, `content_mask`, `id` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
+| `Hitbox` | Alanlar | `behavior`, `bounds`, `content_mask`, `id` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
 
 ![Hitbox ve Sürükle-Bırak State Machine](assets/hitbox-surukle-birak.svg)

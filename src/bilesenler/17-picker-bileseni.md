@@ -26,8 +26,8 @@
 
 | Konu | Grup | API | Not |
 |---|---|---|---|
-| `PickerDelegate` | Trait üyeleri 1 | `can_select`, `confirm`, `confirm_completion`, `confirm_input`, `confirm_update_query`, `dismissed`, `documentation_aside`, `documentation_aside_index`, `editor_position`, `finalize_update_matches`, `match_count`, `no_matches_text`, `placeholder_text`, `render_footer` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `PickerDelegate` | Trait üyeleri 2 | `render_header`, `render_match`, `select_history`, `select_on_hover`, `selected_index`, `selected_index_changed`, `set_selected_index`, `update_matches` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `PickerDelegate` | Trait üyeleri 1 | `can_select`, `confirm`, `confirm_completion`, `confirm_input`, `confirm_update_query`, `dismissed`, `documentation_aside`, `documentation_aside_index`, `editor_position`, `finalize_update_matches`, `match_count`, `no_matches_text`, `placeholder_text`, `render_editor`, `render_footer` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
+| `PickerDelegate` | Trait üyeleri 2 | `render_header`, `render_match`, `select_history`, `select_on_hover`, `selected_index`, `selected_index_changed`, `separators_after_indices`, `set_selected_index`, `should_dismiss`, `update_matches` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
 
 
 Picker UI'ı kendisi durum tutmaz; tüm seçim mantığı bir `PickerDelegate` uygulaması üzerinden işler. Yeni bir picker yazılırken esas iş bu trait'i implement etmektir:
@@ -58,10 +58,13 @@ Picker farklı senaryolara uydurmak için opsiyonel hook'lar sağlar:
 - `select_history(Direction, sorgu, ...) -> Option<String>` — yukarı veya aşağı oklarını varsayılan seçim yerine sorgu geçmişinde gezdirmek için.
 - `can_select(sira, ...)`, `select_on_hover()`, `selected_index_changed(...)` — seçebilirsin satırları ve hover/seçim yan etkilerini yönetir.
 - `no_matches_text(...)`, `render_header(...)`, `render_footer(...)` — boş durum ile sabit üst ve alt alanlar.
+- `render_editor(editor, window, cx)` — varsayılan arama editörü kabını değiştirir; custom padding, divider veya kompozisyon gerekiyorsa kullanılır.
 - `documentation_aside(...)` ve `documentation_aside_index()` — seçili veya hover edilen öğe için sağda dokümantasyon paneli göstermek.
 - `confirm_update_query(...)`, `confirm_input(...)`, `confirm_completion(...)` — enter'ın seçimi onaylamak yerine sorguyu dönüştürdüğü veya birebir girdiyi action'a çevirdiği picker türleri.
+- `separators_after_indices()` — belirli satır indekslerinden sonra divider çizdirir; gruplu sonuç listelerinde görsel ayrım sağlar.
 - `editor_position() -> PickerEditorPosition::{Start, End}` — arama editörünün listenin üstünde mi altında mı duracağını belirler.
 - `finalize_update_matches(sorgu, sure, ...) -> bool` — arka plan eşleştirmesini kısa süreliğine bloklayarak ilk çizim ve onay yarışını azaltır.
+- `should_dismiss() -> bool` — picker'ın confirm/dismiss akışında kapanıp kapanmayacağını belirleyen son karardır.
 
 ---
 

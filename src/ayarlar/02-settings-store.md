@@ -5,7 +5,7 @@
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `SettingsStore` | Metotlar 1 | `clear_local_settings`, `configured_settings_profiles`, `edits_for_update`, `error_for_file`, `get`, `get_all_files`, `get_all_locals`, `get_content_for_file`, `get_overrides_for_field`, `get_value_from_file`, `get_value_up_to_file`, `get_vscode_edits`, `import_vscode_settings`, `language_semantic_token_rules` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `SettingsStore` | Metotlar 2 | `local_settings`, `merged_settings`, `new`, `new_text_for_update`, `observe_active_settings_profile_name`, `override_global`, `project_json_schema`, `raw_default_settings`, `raw_user_settings`, `register_setting`, `remove_language_semantic_token_rules`, `set_default_settings`, `set_extension_settings`, `set_global_settings` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `SettingsStore` | Metotlar 2 | `load_settings`, `local_settings`, `merged_settings`, `new`, `new_text_for_update`, `observe_active_settings_profile_name`, `override_global`, `project_json_schema`, `raw_default_settings`, `raw_user_settings`, `register_setting`, `remove_language_semantic_token_rules`, `set_default_settings`, `set_extension_settings`, `set_global_settings` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 | `SettingsStore` | Metotlar 3 | `set_language_semantic_token_rules`, `set_local_settings`, `set_server_settings`, `set_user_settings`, `try_get`, `update`, `update_default_settings`, `update_settings_file_with_completion`, `watch_settings_files` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 | `SettingsStore` | Alanlar | `editorconfig_store` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
 
@@ -72,7 +72,7 @@ SettingsStore::observe_active_settings_profile_name(cx).detach();
 
 `SettingsStore::update(cx, |store, cx| { ... })` herhangi bir `BorrowAppContext` üzerinden `cx.update_global` çağrısını sarmalar. Kaynak içinde doğrudan `SettingsStore::update_global(cx, ...)` kullanımı da GPUI `UpdateGlobal` trait'inden gelir; kayıt ekleme, üzerine yazma veya yeni içerik yedirme bu blok içinde yaparsın.
 
-`SettingsStore::watch_settings_files(fs, cx, callback)` kullanıcı ve global ayar dosyalarını `watch_config_file` ile bağlar; her değişimde ilgili `SettingsFile`, `SettingsParseResult` ve `App` callback'e verirsin.
+`SettingsStore::load_settings(fs)` kullanıcı `settings.json` metnini async olarak okuyan düşük seviye yardımcıdır; yazma/diff akışları eski metne ihtiyaç duyduğunda bunu kullanır. `SettingsStore::watch_settings_files(fs, cx, callback)` kullanıcı ve global ayar dosyalarını `watch_config_file` ile bağlar; her değişimde ilgili `SettingsFile`, `SettingsParseResult` ve `App` callback'e verirsin.
 
 `SettingsStore::register_setting::<T>()` derive üzerinden `inventory` kayıt listesi zaten doluyken nadir kullanılır; manuel kayıt isteniyorsa burası ana giriştir.
 
@@ -158,11 +158,12 @@ Ayrı kaynakları doğrudan ayarlamak için store API'leri vardır:
 - `set_extension_settings(content, cx)` — uzantıdan gelen ayarları yedirir.
 - `set_language_semantic_token_rules(...)` ve `remove_language_semantic_token_rules(...)` — dil bazlı semantik token tanımlarını ekler veya temizler; `language_semantic_token_rules(language)` ile sorgulanır.
 
-`SettingsParseResult` her dosya için ayrıştırma sonucunu taşır; başarılı durumda `parse_status = ParseStatus::Success` ve `migration_status = MigrationStatus::NotNeeded` varsayılanı kullanırsın. Hata varsa parse veya migrasyon mesajı burada saklarsın. `SettingsStore::error_for_file(file)` belirli bir dosyanın hata durumunu okur. `MigrationStatus` migrasyon adımının başarılı olup olmadığını bildirir; uygulama kodunda birleşik sonuç `SettingsParseResult::result() -> Result<bool>` ile ele alman gerekir. Dönen `bool`, dosyanın otomatik migrasyon gerektirip gerektirmediğini bildirir.
+`SettingsParseResult` her dosya için ayrıştırma sonucunu taşır; başarılı durumda `parse_status = ParseStatus::Success` ve `migration_status = MigrationStatus::NotNeeded` varsayılanı kullanırsın. `ParseStatus::Unchanged` ise dosya içeriği değişmediği için yeniden parse gerekmeyen durumları ayırır. Hata varsa parse veya migrasyon mesajı burada saklarsın. `SettingsStore::error_for_file(file)` belirli bir dosyanın hata durumunu okur. `MigrationStatus` migrasyon adımının başarılı olup olmadığını bildirir; uygulama kodunda birleşik sonuç `SettingsParseResult::result() -> Result<bool>` ile ele alman gerekir. Dönen `bool`, dosyanın otomatik migrasyon gerektirip gerektirmediğini bildirir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `SettingsParseResult` | `parse_status`, `migration_status`, `unwrap`, `expect`, `result`, `requires_user_action`, `ok`, `parse_error` | Parse ve migrasyon sonucunu UI veya log akışına çevirmek için kullanılır. |
+| `ParseStatus` | `Success`, `Failed`, `Unchanged` | Parse sonucunun başarı, hata veya değişmeyen içerik durumunu taşır. |
 | `MigrationStatus` | `NotNeeded`, `Succeeded`, `Failed { error }` | Ayar dosyasının otomatik migrasyon durumunu bildirir. |
 
 ---
@@ -201,7 +202,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `GutterContent`, `CodeLens`, `DocumentColorsRenderMode`, `CurrentLineHighlight` | Gutter, code lens, document color ve aktif satır vurgusu | Dil sunucusu çıktısını editor görünümüne bağlayan schema parçalarıdır. |
 | `DoubleClickInMultibuffer`, `MultiCursorModifier`, `ScrollBeyondLastLine`, `CursorShape` | Çoklu buffer tıklama, multicursor modifier, scroll sınırı ve cursor şekli | Editor etkileşim davranışını JSON'dan taşır. |
 | `GoToDefinitionFallback`, `GoToDefinitionScrollStrategy` | Definition bulunamadığında fallback ve hedefe scroll stratejisi | Navigation davranışı editor content katmanında kalır. |
-| `SnippetSortOrder`, `DiffViewStyle`, `DiffViewStyleIter`, `CompletionMenuItemKind` | Snippet sıralaması, diff görünümü ve completion menü satır tipi | `CompletionMenuItemKind` completion menüsünde sembol türünün gösterilip gösterilmeyeceğini seçer. |
+| `SnippetSortOrder`, `DiffViewStyle`, `DiffViewStyleIter`, `CompletionMenuItemKind` | Snippet sıralaması, diff görünümü ve completion menü satır tipi | `CompletionMenuItemKind::Symbol` completion menüsünde sembol türü bilgisinin gösterildiği modu seçer. |
 | `SearchSettingsContent`, `JupyterContent`, `DragAndDropSelectionContent` | Arama, Jupyter ve drag-selection tercihleri | Editor içindeki feature-specific alt struct'lardır. |
 | `ShowMinimap`, `DisplayIn`, `MinimumContrast`, `InactiveOpacity`, `CenteredPaddingSettings` | Minimap gösterimi, gösterim hedefi, kontrast, opacity ve centered layout padding | Tema ile kesişen görsel değerler de editor schema sahibi olarak kalır. |
 
@@ -216,7 +217,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `AutoIndentMode`, `SoftWrap`, `ShowWhitespaceSetting`, `WhitespaceMapContent`, `RewrapBehavior` | Indent, wrap, whitespace ve rewrap davranışı | EditorConfig ve VS Code import akışında da bu alanlara yazılır. |
 | `JsxTagAutoCloseSettingsContent`, `InlayHintSettingsContent`, `InlayHintKind`, `CompletionSettingsContent`, `LspInsertMode`, `WordsCompletionMode` | JSX kapanış, inlay hint, completion ve LSP insert davranışı | Dil server çıktısını editor davranışına çeviren content katmanıdır. |
 | `FormatOnSave`, `FormatterList`, `Formatter`, `LanguageServerFormatterSpecifier`, `LineEndingSetting`, `PrettierSettingsContent` | Format-on-save, formatter zinciri ve line ending seçimi | Formatter listesi language server, external code action ve Prettier yollarını aynı schema'da toplar. |
-| `IndentGuideSettingsContent`, `IndentGuideColoring`, `IndentGuideBackgroundColoring`, `LanguageTaskSettingsContent`, `ModifiersContent` | Dil bazlı indent guide, task content'i ve modifier tuş seti | Worktree/local ayarlar ile global language ayarları aynı content tiplerini kullanır; modifier content keybinding/gesture tercihlerini schema'ya taşır. |
+| `IndentGuideSettingsContent`, `IndentGuideColoring`, `IndentGuideBackgroundColoring`, `LanguageTaskSettingsContent`, `ModifiersContent` | Dil bazlı indent guide, task content'i ve modifier tuş seti | Worktree/local ayarlar ile global language ayarları aynı content tiplerini kullanır; modifier content `control`, `alt`, `shift`, `platform` ve `function` alanlarıyla keybinding/gesture tercihlerini schema'ya taşır. |
 
 ### Project, LSP ve Git content ailesi
 
@@ -248,11 +249,11 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | API | Kapsadığı davranış | Not |
 | :-- | :-- | :-- |
 | `ThemeSettingsContent` | Tema, font ve UI density top-level payload'ı | `theme`, `icon_theme`, UI/buffer fontları, markdown preview fontu, code fade ve theme override alanlarını taşır. |
-| `ThemeSelection`, `ThemeSelectionDiscriminants`, `ThemeName`, `DEFAULT_LIGHT_THEME`, `DEFAULT_DARK_THEME` | Tema seçimi ve varsayılan tema adları | Static veya light/dark dynamic seçim yapılır; varsayılan seçim `One Light` / `One Dark` adlarını kullanır. |
-| `IconThemeSelection`, `IconThemeSelectionDiscriminants`, `IconThemeName` | Icon theme seçimi | Icon teması da static veya light/dark dynamic payload ile seçilebilir. |
-| `ThemeAppearanceMode`, `UiDensity` | Görünüm modu ve yoğunluk | `Light`, `Dark`, `System` tema modunu; `Compact`, `Default`, `Comfortable` spacing oranını belirler. |
-| `FontFeaturesContent`, `FontSize`, `FontStyleContent`, `FontWeightContent`, `BufferLineHeight`, `BufferLineHeightDiscriminants`, `CodeFade` | Font feature, ölçü ve satır yüksekliği değerleri | OpenType feature map'i, iki ondalıklı font/code fade sayıları, font style/weight ve buffer line-height schema'sını taşır. |
-| `ThemeStyleContent`, `AccentContent`, `PlayerColorContent` | Theme override dosyasının üst yapısı | Window background, accent listesi, player renkleri, syntax highlight ve renk/status flatten alanlarını birleştirir. |
+| `ThemeSelection`, `ThemeSelectionDiscriminants`, `ThemeName`, `DEFAULT_LIGHT_THEME`, `DEFAULT_DARK_THEME` | Tema seçimi ve varsayılan tema adları | Static veya `Dynamic` light/dark payload seçimi yapılır; varsayılan seçim `One Light` / `One Dark` adlarını kullanır. |
+| `IconThemeSelection`, `IconThemeSelectionDiscriminants`, `IconThemeName` | Icon theme seçimi | Icon teması da static veya `Dynamic` light/dark payload ile seçilebilir. |
+| `ThemeAppearanceMode`, `UiDensity` | Görünüm modu ve yoğunluk | `Light`, `Dark`, `System` tema modunu; `Compact`, `Default`, `Comfortable` spacing oranını belirler. `UiDensity::spacing_ratio()` bu seçimi sayısal boşluk katsayısına çevirir. |
+| `FontFeaturesContent`, `FontSize`, `FontStyleContent`, `FontWeightContent`, `BufferLineHeight`, `BufferLineHeightDiscriminants`, `CodeFade` | Font feature, ölçü ve satır yüksekliği değerleri | OpenType feature map'i, iki ondalıklı font/code fade sayıları, `FontStyleContent::Oblique`, font weight ve buffer line-height schema'sını taşır. |
+| `ThemeStyleContent`, `AccentContent`, `PlayerColorContent` | Theme override dosyasının üst yapısı | `window_background_appearance`, `accents`, `colors`, `status`, `players` ve syntax highlight alanlarını birleştirir. |
 | `ThemeColorsContent`, `StatusColorsContent`, `HighlightStyleContent` | Tema renkleri, status renkleri ve syntax highlight stili | Renk token'larını ve syntax `color`, `background_color`, `font_style`, `font_weight` parçalarını JSON sözleşmesine bağlar. |
 | `WindowBackgroundContent` | Pencere arka plan görünümü | `Opaque`, `Transparent`, `Blurred` değerleriyle tema kaynaklı pencere background seçimini taşır. |
 
@@ -299,7 +300,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | API | Kapsadığı davranış | Not |
 | :-- | :-- | :-- |
 | `ActionName` | Action adını JSON string olarak taşır | Runtime action registry ile schema autocomplete bağlanırken kullanılır. |
-| `ExtendingVec`, `SaturatingBool`, `MergeFromTrait` | Özel merge semantiği olan collection, bool newtype ve re-export trait adı | `ExtendingVec` biriktirir, `SaturatingBool` bir kez `true` olduğunda geri düşmez; `MergeFromTrait` settings macro çıktısının public trait re-export'udur. |
+| `ExtendingVec`, `SaturatingBool`, `MergeFrom`, `MergeFromTrait` | Özel merge semantiği olan collection, bool newtype ve re-export trait adı | `ExtendingVec` biriktirir, `SaturatingBool` bir kez `true` olduğunda geri düşmez; `MergeFrom::merge_from_option` opsiyonel katmanı varsa birleştirir, `MergeFromTrait` settings macro çıktısının public trait re-export'udur. |
 | `RootUserSettings`, `SettingsProfile` | Root settings parse trait'i ve profil override payload'ı | `RootUserSettings` yorumlu/yorumsuz JSON parse girişlerini sağlar; `SettingsProfile` kullanıcı profilinin base ve settings override içeriğini taşır. |
 | `SeedQuerySetting`, `ActivateOnClose`, `ClosePosition`, `ShowCloseButton`, `ShowDiagnostics` | Editor/workspace davranışındaki küçük enum ve content seçimleri | Tek başına uzun konu istemeyen schema seçenekleridir. |
 | `AutosaveSetting`, `RestoreOnStartupBehavior`, `EncodingDisplayOptions`, `TextRenderingMode`, `WindowDecorations`, `BottomDockLayout`, `FocusFollowsMouse` | Workspace başlatma, kaydetme, encoding, text render ve pencere dekorasyon ayarları | `WorkspaceSettingsContent` ailesinin alt enum/struct yüzeyidir. |

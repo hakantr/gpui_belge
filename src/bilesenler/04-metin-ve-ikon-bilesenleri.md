@@ -614,6 +614,7 @@ Dikkat edeceğin noktalar:
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `AnyIcon` | Metotlar | `map` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `AnyIcon` | Varyantlar | `Icon`, `AnimatedIcon` | Düz icon veya animasyon sarılmış icon payload'ını tek slotta taşır. |
 | `IconWithIndicator` | Metotlar | `indicator`, `indicator_border_color`, `indicator_color`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 

@@ -343,7 +343,7 @@ Dikkat edeceğin noktalar:
 | Konu | Grup | API | Not |
 |---|---|---|---|
 | `ColumnWidthConfig` | Metotlar | `auto_with_table_width`, `explicit`, `list_horizontal_sizing`, `redistributable`, `table_width`, `widths_to_render` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ColumnWidthConfig` | Varyantlar | `Redistributable` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
+| `ColumnWidthConfig` | Varyantlar | `Static`, `Redistributable`, `Resizable` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
 
 
 Kaynak:

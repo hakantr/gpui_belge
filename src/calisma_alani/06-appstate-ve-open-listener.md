@@ -6,7 +6,7 @@
 |---|---|---|---|
 | `AppState` | Metotlar | `try_global` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 | `AppState` | Alanlar | `build_window_options`, `client`, `fs`, `languages`, `node_runtime`, `session`, `user_store`, `workspace_store` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `WorkspaceStore` | Metotlar | `new`, `update_followers`, `workspaces`, `workspaces_with_windows` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
+| `WorkspaceStore` | Metotlar | `handle_follow`, `new`, `update_followers`, `workspaces`, `workspaces_with_windows` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
 
 
 Zed uygulamasında çalışma alanı açmak yalnızca `open_window` çağrısı değildir. Startup, CLI veya open-url istekleri, çalışma alanı veritabanı ve collab follow durumu birkaç global ve handle üzerinden birbirine bağlanır.
@@ -35,6 +35,7 @@ Zed uygulamasında çalışma alanı açmak yalnızca `open_window` çağrısı 
 `WorkspaceStore` açık workspace'leri `AnyWindowHandle + WeakEntity<Workspace>` çifti olarak izler. Collab tarafındaki follow ve update follower mesajları bu store üzerinden uygun workspace'e yönlendirilir.
 
 - `WorkspaceStore::new(client, cx)` client request ve message işleyicilerini kaydeder.
+- `WorkspaceStore::handle_follow(...)` collab follow isteğini ilgili workspace'e yönlendiren async request handler'dır.
 - `workspaces()` weak workspace iterator'ı döndürür.
 - `workspaces_with_windows()` window handle ile birlikte verir.
 - `update_followers(project_id, update, cx)` aktif call üzerinden follower update mesajı yollar.
