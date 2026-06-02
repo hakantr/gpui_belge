@@ -6,31 +6,31 @@ Bu rehber, Zed'in `title_bar` crate'ini, yani kullanıcıya görünen **ürün b
 
 > **Bağımlılık uyarısı.** `title_bar`, `platform_title_bar`'ın aksine `call`, `client` ve `remote` gibi Zed'in işbirliği/hesap yığınına bağlıdır. Bir geliştirici bu crate'i kendi uygulamasında kullandığında bu yığını da projesine taşır. Çoğu uygulama için doğru yaklaşım, `title_bar`'a doğrudan bağımlanmak yerine bu bölümdeki kalıpları kendi ürün başlık entity'sine **port etmektir**.
 
+## Bu bölümün okuma sözleşmesi
+
+Ürün başlık çubuğu, platform kabuğunun aksine "evrensel davranış paritesi" peşinde değildir. Buradaki parçaların çoğu (collab, plan chip, güncelleme bildirimi) Zed'in ürün kararlarıdır ve birebir taşınmaları beklenmez. Bu yüzden her bölümde önce **parçanın ne işe yaradığı**, sonra **`TitleBar` içinde nasıl kurulup render edildiği**, en sonda da **kendi uygulamanda karşılığını nasıl kurarsın** anlatılır. Amaç kodu kopyalamak değil; Zed'in ürün başlığını hangi sözleşmelerle kurduğunu öğrenip aynı modeli kendi tasarımınla yeniden yazmandır.
+
 ## Ürün yüzeyi (`title_bar` crate'i)
 
 | API | Tür | Konu |
 | :-- | :-- | :-- |
 | `TitleBar` | struct | Ürün başlık çubuğunu birleştiren ana entity. |
-| `title_bar::init` | fn | Crate kurulum çağrısı. |
-| `ToggleProjectMenu`, `ToggleUserMenu`, `SwitchBranch` | action struct | Menü ve branch aksiyonları. |
-| `collab::{toggle_mute, toggle_deafen, toggle_screen_sharing}` | fn | Çağrı/oda kontrolleri. |
-| `SimulateUpdateAvailable` | action struct | Güncelleme bildirimi testi. |
-| `restore_banner` | fn | Onboarding banner'ı geri getirme. |
+| `title_bar::init` | fn | Platform kabuğunu hazırlar ve her `Workspace` için `TitleBar` kurar. |
+| `ToggleProjectMenu`, `ToggleUserMenu`, `SwitchBranch` | action struct | Proje menüsü, kullanıcı menüsü ve branch değiştirme aksiyonları. |
+| `collab::{toggle_mute, toggle_deafen, toggle_screen_sharing}` | fn | Aktif çağrıda mikrofon, dinleme ve ekran paylaşımı kontrolleri. |
+| `SimulateUpdateAvailable` | action struct | Güncelleme bildirimi yüzeyini test etmek için debug aksiyonu. |
+| `restore_banner` | fn | Kapatılmış onboarding banner'ını yeniden görünür yapar. |
 | Pencere sekmesi action'ları | reexport | `platform_title_bar`'tan: `DraggedWindowTab`, `MergeAllWindows`, `MoveTabToNewWindow`, `ShowNextWindowTab`, `ShowPreviousWindowTab`. |
 
-> Not: `application_menu` ve `update_version` Zed kaynağında **private modüldür** (`mod application_menu;`); `ApplicationMenu` ve `UpdateVersion` tipleri crate dışına açılmaz. Bunlar `TitleBar` içinde child entity olarak kullanılır ve bu bölümde davranışlarıyla anlatılır, dış API olarak değil.
+> Not: `ApplicationMenu`, `UpdateVersion`, `OnboardingBanner`, `PlanChip` ve `TitleBarSettings` tipleri Zed kaynağında **private modüldedir**; crate dışına açılmazlar. `TitleBar` içinde child entity veya yardımcı olarak kullanılırlar. Bu bölüm onları dış API olarak değil, davranışlarıyla anlatır.
 
 ## Bölümler
 
-> Bu bölümün ayrıntılı konu sayfaları, faz planındaki **Üst Bar (title_bar ürün katmanı) içerik üretimi** fazında kaynaktan doğrulanarak yazılacaktır. Planlanan başlıklar:
-
-1. Hedef, kapsam ve lisans
-2. Kaynak haritası ve `platform_title_bar` köprüsü
-3. `TitleBar` entity'si: kuruluş, `init` ve render iskeleti
-4. Uygulama menüsü ve proje/kullanıcı menüleri
-5. Git branch, proje host ve restricted mode göstergeleri
-6. Collab ve ekran paylaşımı kontrolleri
-7. Plan chip, kullanıcı menüsü ve sign-in
-8. Güncelleme bildirimi ve onboarding banner
-9. Pratik uygulama ve port
-10. Referans ve doğrulama
+1. [Hedef, kapsam ve lisans](01-hedef-kapsam-ve-lisans.md)
+2. [Kaynak haritası ve `platform_title_bar` köprüsü](02-kaynak-haritasi-ve-kopru.md)
+3. [`TitleBar` entity'si, `init` ve iki render modu](03-titlebar-entity-ve-render.md)
+4. [Ayarlar ve uygulama menüsü](04-ayarlar-ve-uygulama-menusu.md)
+5. [Proje, branch, host ve restricted mode göstergeleri](05-proje-branch-host-restricted.md)
+6. [Collab ve ekran paylaşımı kontrolleri](06-collab-ve-ekran-paylasimi.md)
+7. [Kullanıcı menüsü, sign-in, plan chip, güncelleme ve banner](07-kullanici-update-banner.md)
+8. [Pratik uygulama, port ve doğrulama](08-pratik-uygulama-ve-dogrulama.md)

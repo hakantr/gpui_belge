@@ -257,21 +257,7 @@ Zed ürün titlebar action ve collab helper kapsamı:
 | `SimulateUpdateAvailable`, `SwitchBranch`, `ToggleProjectMenu`, `ToggleUserMenu` | Ürün titlebar'ında update simülasyonu, branch değiştirme, proje menüsü ve kullanıcı menüsünü açma action'larıdır. |
 | `toggle_screen_sharing`, `toggle_mute`, `toggle_deafen` | Titlebar collab kontrollerinden ekran paylaşımı, mikrofon mute ve deafen state'ini workspace call state'ine bağlayan helper fonksiyonlardır. |
 
-Zed'in ürün titlebar'ı, duyuru banner'larını da `TitleBar` katmanında yönetir. Pratik örnek şudur: Skills duyurusu `SkillsFeatureFlag` bayrağına bağlı olarak görünür hale gelir; ilgili migration bilgi action'ını dispatch eder. `onboarding_banner.rs` dosyası artık "şimdilik kullanılmıyor" kabul edilmez; güncel kullanım Skills duyurusudur. Eski Claude Agent ve ACP banner kullanımları bu rehber için referans alınmaz. Port hedefinde benzer bir duyuru bileşeni gerekiyorsa, bu bileşenin yeri `AppTitleBar` child grubu olmalıdır. Bu sorumluluk platform kabuğuna eklenmez; çünkü duyuru içeriği ürünün diline aittir ve platform kabuğunu ürüne bağımlı hale getirir.
-
-`OnboardingBanner` örneği, görünürlük koşulunu builder zincirinin sonundaki `.visible_when(|cx| cx.has_flag::<SkillsFeatureFlag>())` çağrısıyla alır. Bu kalıp port hedefinde de kullanabilirsin. Banner kurucusuna bir predicate kapanışı verirsin. Bu kapanış her render geçişinde tekrar çağrılır ve `App`/`Context` üzerinden gelen feature flag ya da ayar durumuna göre banner tamamen gizlenebilir.
-
-`title_bar.rs` içindeki bu çağrı, `feature_flags` crate'inden gelen `FeatureFlagAppExt` trait'i ile `cx.has_flag::<...>()` çağrısına dayanır. Port hedefinde aynı yardımcı yoksa benzer bir `AppSettings`/`AppFlags` API'si yeterlidir. `TitleBar::new` içinde banner `Some(...)` olarak kurulur; görünürlük kararı `visible_when` predicate'iyle alırsın. Bu yüzden port hedefinde banner state'i ayrıca geçmiş bir başlangıç durumuna göre değil, doğrudan güncel feature flag veya ayar değerine göre yönetilmelidir.
-
-`OnboardingBanner::new(...)` çağrısı, bu rehber yazıldığı sıradaki imzasıyla şu parametreleri alır:
-
-- Telemetri/dismiss kimliği olarak kullanılacak string: `"Skills Migration Announcement"`.
-- İkon: `IconName::Sparkle`.
-- Banner üzerindeki sabit metin: `"Skills"`.
-- Opsiyonel ön ek: `Some("Introducing:".into())`.
-- Tıklama anında dispatch edilecek boxed action: `zed_actions::agent::OpenRulesToSkillsMigrationInfo.boxed_clone()`.
-
-Etiket migration sonucuna veya kullanıcının taşıyacak Rules içeriği olup olmamasına göre değişmez. Migration'a özel özet modal içinde gösterilir. Port hedefinde eski metin varyantları için geriye uyumluluk katmanı tutulmaz. Somut içerik, ikon ve action ürünün ihtiyacına göre belirlersin.
+Ürün başlığı katmanının ayrıntıları (duyuru banner'ı, güncelleme bildirimi, kullanıcı menüsü, collab) platform kabuğunun değil, `title_bar` crate'inin konusudur ve [Üst Bar](../ust_bar/ust_bar.md) bölümünde işlenir. Burada yalnız platform kabuğuyla kesişen kural önemlidir: bu ürün varlıkları `PlatformTitleBar` içine gömülmez; `TitleBar` katmanında üretilip platform kabuğuna child olarak teslim edilir. `OnboardingBanner` mekanizması crate'te hazır olmakla birlikte güncel sürümde `TitleBar`'a bağlı değildir (banner alanı `None`); ayrıntı ve doğru durum Üst Bar bölümündedir.
 
 `UpdateVersion` tarafında da eski tooltip formatı taşınmaz. `version_tooltip_message(...)` semantic version için `SemanticVersion::to_string()`, commit için `AppCommitSha::full()` çıktısını kullanır ve her iki durumda da sonucu `"Update to Version: {version}"` kalıbına sarar. `Downloading`, `Installing` ve `Updated` render kolları bu string'i `UpdateButton` kurucularına artık `tooltip` adıyla değil, doğrudan `version` değişkeni olarak geçirir. Port hedefinde kullanıcıya hâlâ kısa SHA göstermek isteniyorsa bu bilinçli bir ürün farkı olarak kaydedilir; Zed paritesi değildir.
 
