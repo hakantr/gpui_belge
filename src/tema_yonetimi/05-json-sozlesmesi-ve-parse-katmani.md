@@ -8,20 +8,6 @@ Runtime modeli kurulduktan sonra sıra JSON sözleşmesine gelir. Burada üç ko
 
 ## 19. `ThemeContent` ve serde flatten/rename desenleri
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ThemeContent` | `deserialize`, `json_schema`, `serialize` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ThemeContent` | Alanlar | `name`, `style` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 **Kaynak modül:** `kvs_tema/src/schema.rs`.
 
 JSON tema dosyalarını parse eden tip hiyerarşisi üç seviyeden oluşur:
@@ -390,7 +376,7 @@ pub struct StatusColorsContent {
 **Davranış kuralları (özet):**
 
 | Tip | Opsiyonellik | Yanlış değer davranışı |
-|-----|--------------|------------------------|
+| ----- | -------------- | ------------------------ |
 | `AppearanceContent` | `ThemeContent.appearance` **zorunlu** | Deserialize hatası (tema hiç yüklenmez) |
 | `WindowBackgroundContent` | `ThemeStyleContent` üstünde `#[with_fallible_options]` bulunur | User settings `RootUserSettings::parse_json` hattında `None` + `ParseStatus::Failed`; tema dosyası normal serde hattında deserialize hatası |
 | `FontStyleContent` | `Option` + `treat_error_as_none` | `None` |
@@ -441,7 +427,7 @@ Rust alan adı snake_case, JSON anahtarı ise dot.separated biçimindedir:
 pub border_variant: Option<String>,
 ```
 
-Detaylar Konu 23'te ele alırsın.
+Detaylar ilgili bölümde ele alırsın.
 
 ### `#[serde(rename_all = "snake_case")]` — enum variant adları
 
@@ -485,13 +471,13 @@ pub players: Vec<PlayerColorContent>,    // Yoksa boş Vec
 ### Hiyerarşik özet
 
 | Attribute | Etkisi | Tema'da örnek |
-|-----------|--------|---------------|
+| ----------- | -------- | --------------- |
 | `#[serde(flatten)]` | Alt struct'ı aynı seviyede açar | `ThemeColorsContent`/`StatusColorsContent` flatten ile düz |
 | `#[serde(rename = "x.y")]` | Alan adını bağlar | `border_variant` ↔ `"border.variant"` |
 | `#[serde(rename_all = "snake_case")]` | Tüm variant'lara uygulanır | `AppearanceContent::Light` ↔ `"light"` |
 | `#[serde(transparent)]` | Newtype'ı saydamlaştırır | `FontWeightContent(700.0)` ↔ `700` |
 | `#[serde(default)]` | Eksik alana default verir | `players: []` veya yok ise boş Vec |
-| `#[serde(deserialize_with = "fn")]` | Custom deserializer kurar | `treat_error_as_none` (Konu 22) |
+| `#[serde(deserialize_with = "fn")]` | Custom deserializer kurar | `treat_error_as_none` |
 
 ### Tuzaklar
 
@@ -511,7 +497,7 @@ Content tipleri **tek bir ana kuralı** izler: her renk alanı `Option<String>`,
 
 **1. Kullanıcı her alanı yazmak zorunda değildir.**
 
-Zed temalarında tipik bir tema dosyası 150 alandan yalnızca 30-50 kadarını yazar; gerisi baseline'dan dolar. Eksik alanların parse hatası vermek yerine `None` olarak gelmesi gerekir. Refinement katmanı (Bölüm VII), hangi alanın override edildiğini ve hangisinin baseline'dan kalacağını bu `Some`/`None` ayrımına bakarak belirler.
+Zed temalarında tipik bir tema dosyası 150 alandan yalnızca 30-50 kadarını yazar; gerisi baseline'dan dolar. Eksik alanların parse hatası vermek yerine `None` olarak gelmesi gerekir. Refinement katmanı, hangi alanın override edildiğini ve hangisinin baseline'dan kalacağını bu `Some`/`None` ayrımına bakarak belirler.
 
 **2. Renk parse hatası tüm temayı bozmamalıdır.**
 
@@ -527,7 +513,7 @@ Zed temalarında tipik bir tema dosyası 150 alandan yalnızca 30-50 kadarını 
 
 **3. Tip sözleşmesi seçilen Zed referansına bağlı kalır.**
 
-Geçerli enum değerleri seçilen Zed referansındaki listeyle sınırlıdır. Örneğin `font_style: "semi_oblique"` mevcut sözleşmede yoksa bu değer geçersiz kabul edilir. **Ancak `font_style: Option<FontStyleContent>`** olduğunda, `treat_error_as_none` deserializer'ı (Konu 22) geçersiz varyantı `None`'a düşürür ve tema yüklemesi kalan alanlarla devam eder.
+Geçerli enum değerleri seçilen Zed referansındaki listeyle sınırlıdır. Örneğin `font_style: "semi_oblique"` mevcut sözleşmede yoksa bu değer geçersiz kabul edilir. **Ancak `font_style: Option<FontStyleContent>`** olduğunda, `treat_error_as_none` deserializer'ı geçersiz varyantı `None`'a düşürür ve tema yüklemesi kalan alanlarla devam eder.
 
 ### İki katmanlı opsiyonellik
 
@@ -547,7 +533,7 @@ yok           None                 None             baseline'dan
 İki ayrı katman, iki farklı durumu ayırmamızı sağlar:
 
 | Senaryo | Content katmanı | Refinement katmanı | Sonuç |
-|---------|-----------------|--------------------|---------|
+| --------- | ----------------- | -------------------- | --------- |
 | Alan yok | `None` | `None` | Baseline |
 | Alan var, geçerli hex | `Some("#...")` | `Some(Hsla(...))` | Kullanıcı override |
 | Alan var, geçersiz hex | `Some("bozuk")` | `None` | Baseline (sessizce) |
@@ -589,14 +575,14 @@ Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevapl
 2. **`Option<Hsla>` kullanmak (parse'ı Deserialize'a sokmak)**: Custom Deserialize implementasyonu test edilemez, hata mesajları zayıf kalır ve parser katmanı sözleşmeye gömülmüş olur. Mevcut iki-katman yaklaşımı bu senaryoya tercih edersin.
 3. **`Default::default()` türevini atlamak**: `#[derive(Default)]` bulunmayan bir Content tipi `#[serde(default)]` kullanamaz; struct seviyesinde default şarttır.
 4. **`Default` ile dolu Hsla beklemek**: Content tipinin `Default` çağrısı tüm alanları `None` döndürür. Default'tan doğrudan Theme inşa edilmez; refinement aşaması baseline ile birleştirir. "Boş tema dosyasını yüklemek = baseline" denkliği bilinçli bir tasarım sonucudur.
-5. **Bilinmeyen enum'a panic**: `font_style: "semi_oblique"` ifadesinde `FontStyleContent` `SemiOblique`'i tanımıyorsa, default deserialize panic atar. Çözüm: `HighlightStyleContent` içinde `treat_error_as_none`; diğer option-heavy content tiplerinde ise `#[with_fallible_options]` macro'su (Konu 22).
+5. **Bilinmeyen enum'a panic**: `font_style: "semi_oblique"` ifadesinde `FontStyleContent` `SemiOblique`'i tanımıyorsa, default deserialize panic atar. Çözüm: `HighlightStyleContent` içinde `treat_error_as_none`; diğer option-heavy content tiplerinde ise `#[with_fallible_options]` macro'su.
 
 ### `MergeFrom` derive davranış matrisi
 
 `settings_content` tarafındaki kullanıcı settings content tipleri `#[derive(..., MergeFrom)]` ile işaretlenir. Zed settings hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**. `default` baz değerleri sağlar; kullanıcı ve proje settings'i bunun üstüne merge edilir. Tema dosyası payload'ı olan `theme_settings::ThemeFamilyContent` ve `ThemeContent` ise bu merge hattının parçası değildir. Onlar doğrudan deserialize edilir ve runtime tema'ya refine edilir. `MergeFrom` trait'i `settings_content` crate'inde tanımlıdır ve alan tipine göre davranışı değişir:
 
 | Alan tipi | `merge_from(self, other)` davranışı | Etki |
-|-----------|-------------------------------------|------|
+| ----------- | ------------------------------------- | ------ |
 | Primitive (`u16`, `u32`, `i*`, `bool`, `f32`, `f64`, `char`, `usize`, `NonZeroUsize`, `NonZeroU32`) | `*self = other.clone()` | **Overwrite** — kullanıcı değeri default'u tamamen ezer |
 | `String`, `Arc<str>`, `PathBuf`, `Arc<Path>` | overwrite | Aynı: tek bir scalar değer üstüne yazılır |
 | `Option<T>` | `None` ise yok sayar; mevcut `Some` + yeni `Some` → recursive merge (`this.merge_from(other)`); mevcut `None` + yeni `Some` → `replace(other.clone())` | Recursive merge için en uygun tip |
@@ -608,7 +594,7 @@ Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevapl
 
 **Tema sözleşmesi için kritik sonuçlar:**
 
-1. **`accents: Vec<AccentContent>` overwrite davranır.** Kullanıcı `experimental.theme_overrides.accents = ["#abc"]` yazdığında, temanın baseline accent listesi silinir. Bunun istenmeyen bir yan etkisi vardır: tek bir rengi değiştirmek için kullanıcı tüm listeyi yeniden yazmak zorunda kalır. `merge_accent_colors` (Konu 32 Adım 5) bu davranışı `theme_overrides` zinciri içinde **partial fallback** ile yumuşatır; yine de JSON merge seviyesinde liste hâlâ atomic olarak davranır.
+1. **`accents: Vec<AccentContent>` overwrite davranır.** Kullanıcı `experimental.theme_overrides.accents = ["#abc"]` yazdığında, temanın baseline accent listesi silinir. Bunun istenmeyen bir yan etkisi vardır: tek bir rengi değiştirmek için kullanıcı tüm listeyi yeniden yazmak zorunda kalır. `merge_accent_colors` (ilgili bölüm Adım 5) bu davranışı `theme_overrides` zinciri içinde **partial fallback** ile yumuşatır; yine de JSON merge seviyesinde liste hâlâ atomic olarak davranır.
 
 2. **`theme_overrides: HashMap<String, ThemeStyleContent>` key-bazlı merge.** Kullanıcı yalnızca `"One Dark": { ... }` yazsa bile `default.json` içinde bulunan diğer tema override'ları korunur. Aynı tema adı için iki katmanda override varsa, içleri recursive merge ile birleştirilir.
 
@@ -664,7 +650,7 @@ let rgba = gpui::Rgba::try_from(s)?;
 `gpui::Rgba::try_from` (`gpui` crate'i) **dört** hex formatını kabul eder:
 
 | Format | Hex hanesi | Alpha kaynağı | Çiftleme |
-|--------|-----------|---------------|----------|
+| -------- | ----------- | --------------- | ---------- |
 | `#rgb` | 3 | `0xf` (`1.0`) | `0xa → 0xaa` (her hane çiftlenir) |
 | `#rgba` | 4 | 4. hane | `0xa → 0xaa` (4 hane de çiftlenir) |
 | `#rrggbb` | 6 | `0xff` (`1.0`) | yok |
@@ -719,7 +705,7 @@ gpui::hsla(
 İki crate'in `Hsla` yapısı birbirine **uyumsuzdur**:
 
 | Alan | palette | gpui |
-|------|---------|------|
+| ------ | --------- | ------ |
 | `hue` | Derece (0–360°), `palette::RgbHue` newtype | Normalize (0.0–1.0), düz `f32` |
 | `saturation` | 0.0–1.0 | 0.0–1.0 |
 | `lightness` | 0.0–1.0 | 0.0–1.0 |
@@ -737,7 +723,7 @@ fn color(s: &Option<String>) -> Option<gpui::Hsla> {
 }
 ```
 
-Bu desen Bölüm VII/Konu 30'da ayrıntılı olarak ele alırsın: `Some(geçersiz hex) → None`.
+Bu desen ilgili bölümde ayrıntılı olarak ele alırsın: `Some(geçersiz hex) → None`.
 
 ### Test ve idempotans
 
@@ -763,7 +749,7 @@ fn rejects_named_color() {
 
 `palette` major sürüm farkı color-space dönüşümünü değiştirebilir. Aynı hex değeri farklı bir `Hsla` üretebilir. Bu nedenle:
 
-- `palette` sürümünün Zed'in kullandığı sürümle uyumlu tutulması gerekir (Bölüm II/Konu 5).
+- `palette` sürümünün Zed'in kullandığı sürümle uyumlu tutulması gerekir.
 - Fixture testleri `assert_eq!(...)` yerine `assert!((a - b).abs() < epsilon)` ile yazılır — küçük floating-point sapmaları beklenen bir durumdur.
 
 ### Başarım
@@ -890,7 +876,7 @@ pub struct HighlightStyleContent {
 ### Hata tolerans matrisi
 
 | Senaryo | Default davranış | İstenen | Çözüm |
-|---------|------------------|---------|-------|
+| --------- | ------------------ | --------- | ------- |
 | Bilinmeyen alan | Görmezden gelir | Hata verilsin | Allowlist anahtar validasyonu |
 | Bilinmeyen enum variant | Err | None'a düş | `treat_error_as_none` veya `#[with_fallible_options]` |
 | Yanlış tip (örn. number bekleniyor, string geldi) | Err | None'a düş | `treat_error_as_none` veya `#[with_fallible_options]` |
@@ -946,7 +932,7 @@ Tema JSON dosyalarında alan adları **dot.separated** yazılır; Rust alan adla
 ### Konvansiyon
 
 | Konum | Stil | Örnek |
-|-------|------|-------|
+| ------- | ------ | ------- |
 | Zed JSON dosyası | `dot.separated` | `border.variant`, `element.hover`, `text.muted`, `terminal.ansi.red` |
 | Rust alan adı | `snake_case` | `border_variant`, `element_hover`, `text_muted`, `terminal_ansi_red` |
 | `#[serde(rename = "...")]` | Bağlantı | `#[serde(rename = "border.variant")]` |
@@ -1001,7 +987,7 @@ Dot konvansiyonu sayesinde **mantıksal gruplar** yan yana kalır. `border` aile
 Bazı alanlar **iki seviyeli** dot konvansiyonu taşır:
 
 | JSON | Rust |
-|------|------|
+| ------ | ------ |
 | `terminal.ansi.red` | `terminal_ansi_red` |
 | `terminal.ansi.bright_red` | `terminal_ansi_bright_red` |
 | `version_control.added` | `version_control_added` |
@@ -1022,7 +1008,7 @@ pub terminal_ansi_bright_red: Option<String>,
 `StatusColors` içinde `_background` ve `_border` Rust suffix'leri JSON tarafında **ayrı bir dot seviyesi** olarak görünür:
 
 | Rust alan | JSON anahtarı |
-|-----------|---------------|
+| ----------- | --------------- |
 | `error` | `error` |
 | `error_background` | `error.background` |
 | `error_border` | `error.border` |
@@ -1044,7 +1030,7 @@ pub error_border: Option<String>,
 Yaygın renk grupları için Rust ↔ JSON eşlemesi:
 
 | Rust | JSON |
-|------|------|
+| ------ | ------ |
 | `border` | `border` |
 | `border_variant` | `border.variant` |
 | `border_focused` | `border.focused` |
@@ -1081,7 +1067,7 @@ Yaygın renk grupları için Rust ↔ JSON eşlemesi:
 
 ### `serde_json_lenient` ile JSON yazım kolaylığı
 
-Zed tema dosyaları pratikte **standart JSON'dan biraz daha esnektir**: yorum satırları ve trailing comma içerebilir. Bu yapıların parse edilebilmesi için `serde_json_lenient` kullanılır (Konu 5 bağımlılık matrisinde yer alır).
+Zed tema dosyaları pratikte **standart JSON'dan biraz daha esnektir**: yorum satırları ve trailing comma içerebilir. Bu yapıların parse edilebilmesi için `serde_json_lenient` kullanılır (ilgili bölüm bağımlılık matrisinde yer alır).
 
 **Desteklenen genişletmeler:**
 
@@ -1133,14 +1119,14 @@ API yüzeyi `serde_json` ile uyumludur; aradaki tek fark import yolundadır.
 
 **Kaynak:** `theme` crate'i.
 
-Konu 18 içinde icon tema JSON yüklemesi ele alınmıştı. Zed bu işlemi tek satırlık bir helper ile sarmalar:
+İlgili bölüm içinde icon tema JSON yüklemesi ele alınmıştı. Zed bu işlemi tek satırlık bir helper ile sarmalar:
 
 ### Icon theme content tipleri
 
 `deserialize_icon_theme` yalnızca byte parse etmez; hedef tipi `IconThemeFamilyContent` olduğu için icon tema JSON sözleşmesinin public giriş kapısıdır. Bu sözleşmede aile kökü `name`, `author` ve `themes` alanlarını taşır. `themes` içindeki her öğe bir `IconThemeContent` değeridir.
 
 | Tip | JSON'daki rol | Boş bırakma davranışı |
-|-----|---------------|-----------------------|
+| ----- | --------------- | ----------------------- |
 | `IconThemeContent` | Tek icon tema varyantı; `name`, `appearance`, dosya/dizin/chevron eşlemelerini taşır. | Harita alanları `#[serde(default)]` ile boş map'e düşer. |
 | `DirectoryIconsContent` | Generic veya isimli klasör icon'u için `collapsed` ve `expanded` path'leri. | İki alan da `Option<SharedString>` olduğu için tek yönlü icon verilebilir. |
 | `ChevronIconsContent` | Tree disclosure chevron'ları için `collapsed` ve `expanded` path'leri. | Eksik path lookup sırasında default icon theme'e düşebilir. |
@@ -1197,133 +1183,3 @@ Tek satırlık bir helper gibi görünür, ama birkaç pratik faydası vardır:
 - Parser ayrıntısı helper içinde kaldığı için tüketici crate'ler doğrudan `serde_json_lenient` API'sine bağlanmaz.
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `RootUserSettings`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `parse_json`, `parse_json_with_comments` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `UserSettingsContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `content`, `platform_overrides`, `profiles`, `release_channel_overrides` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ThemeStyleContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `accents`, `colors`, `players`, `status`, `syntax`, `window_background_appearance` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `AccentContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `PlayerColorContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `background`, `cursor`, `selection` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ThemeColorsContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar 1 | `background`, `border`, `border_disabled`, `border_focused`, `border_selected`, `border_transparent`, `border_variant`, `debugger_accent` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 2 | `deprecated_scrollbar_thumb_background`, `drop_target_background`, `drop_target_border`, `editor_active_line_background`, `editor_active_line_number`, `editor_active_wrap_guide`, `editor_background`, `editor_debugger_active_line_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 3 | `editor_diff_hunk_added_background`, `editor_diff_hunk_added_hollow_background`, `editor_diff_hunk_added_hollow_border`, `editor_diff_hunk_deleted_background`, `editor_diff_hunk_deleted_hollow_background`, `editor_diff_hunk_deleted_hollow_border`, `editor_document_highlight_bracket_background`, `editor_document_highlight_read_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 4 | `editor_document_highlight_write_background`, `editor_foreground`, `editor_gutter_background`, `editor_highlighted_line_background`, `editor_hover_line_number`, `editor_indent_guide`, `editor_indent_guide_active`, `editor_invisible` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 5 | `editor_line_number`, `editor_subheader_background`, `editor_wrap_guide`, `element_active`, `element_background`, `element_disabled`, `element_hover`, `element_selected` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 6 | `element_selection_background`, `elevated_surface_background`, `ghost_element_active`, `ghost_element_background`, `ghost_element_disabled`, `ghost_element_hover`, `ghost_element_selected`, `icon` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 7 | `icon_accent`, `icon_disabled`, `icon_muted`, `icon_placeholder`, `link_text_hover`, `minimap_thumb_active_background`, `minimap_thumb_background`, `minimap_thumb_border` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 8 | `minimap_thumb_hover_background`, `pane_focused_border`, `pane_group_border`, `panel_background`, `panel_focused_border`, `panel_indent_guide`, `panel_indent_guide_active`, `panel_indent_guide_hover` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 9 | `panel_overlay_background`, `panel_overlay_hover`, `scrollbar_thumb_active_background`, `scrollbar_thumb_background`, `scrollbar_thumb_border`, `scrollbar_thumb_hover_background`, `scrollbar_track_background`, `scrollbar_track_border` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 10 | `search_active_match_background`, `search_match_background`, `status_bar_background`, `surface_background`, `tab_active_background`, `tab_bar_background`, `tab_inactive_background`, `terminal_ansi_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 11 | `terminal_ansi_black`, `terminal_ansi_blue`, `terminal_ansi_bright_black`, `terminal_ansi_bright_blue`, `terminal_ansi_bright_cyan`, `terminal_ansi_bright_green`, `terminal_ansi_bright_magenta`, `terminal_ansi_bright_red` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 12 | `terminal_ansi_bright_white`, `terminal_ansi_bright_yellow`, `terminal_ansi_cyan`, `terminal_ansi_dim_black`, `terminal_ansi_dim_blue`, `terminal_ansi_dim_cyan`, `terminal_ansi_dim_green`, `terminal_ansi_dim_magenta` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 13 | `terminal_ansi_dim_red`, `terminal_ansi_dim_white`, `terminal_ansi_dim_yellow`, `terminal_ansi_green`, `terminal_ansi_magenta`, `terminal_ansi_red`, `terminal_ansi_white`, `terminal_ansi_yellow` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 14 | `terminal_background`, `terminal_bright_foreground`, `terminal_dim_foreground`, `terminal_foreground`, `text`, `text_accent`, `text_disabled`, `text_muted` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 15 | `text_placeholder`, `title_bar_background`, `title_bar_inactive_background`, `toolbar_background`, `version_control_added`, `version_control_conflict`, `version_control_conflict_marker_ours`, `version_control_conflict_marker_theirs` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 16 | `version_control_conflict_ours_background`, `version_control_conflict_theirs_background`, `version_control_deleted`, `version_control_ignored`, `version_control_modified`, `version_control_renamed`, `version_control_word_added`, `version_control_word_deleted` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 17 | `vim_helix_jump_label_foreground`, `vim_helix_normal_background`, `vim_helix_normal_foreground`, `vim_helix_select_background`, `vim_helix_select_foreground`, `vim_insert_background`, `vim_insert_foreground`, `vim_normal_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 18 | `vim_normal_foreground`, `vim_replace_background`, `vim_replace_foreground`, `vim_visual_background`, `vim_visual_block_background`, `vim_visual_block_foreground`, `vim_visual_foreground`, `vim_visual_line_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 19 | `vim_visual_line_foreground`, `vim_yank_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `HighlightStyleContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_empty` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `background_color`, `color`, `font_style`, `font_weight` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `StatusColorsContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar 1 | `conflict`, `conflict_background`, `conflict_border`, `created`, `created_background`, `created_border`, `deleted`, `deleted_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 2 | `deleted_border`, `error`, `error_background`, `error_border`, `hidden`, `hidden_background`, `hidden_border`, `hint` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 3 | `hint_background`, `hint_border`, `ignored`, `ignored_background`, `ignored_border`, `info`, `info_background`, `info_border` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 4 | `modified`, `modified_background`, `modified_border`, `predictive`, `predictive_background`, `predictive_border`, `renamed`, `renamed_background` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 5 | `renamed_border`, `success`, `success_background`, `success_border`, `unreachable`, `unreachable_background`, `unreachable_border`, `warning` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 6 | `warning_background`, `warning_border` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `WindowBackgroundContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Blurred`, `Opaque`, `Transparent` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `FontStyleContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Italic`, `Normal`, `Oblique` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `FontWeightContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Assoc const 1 | `BLACK`, `BOLD`, `EXTRA_BOLD`, `EXTRA_LIGHT`, `LIGHT`, `MEDIUM`, `NORMAL`, `SEMIBOLD` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Assoc const 2 | `THIN` | Inherent impl üzerinde public sabit yüzeyidir; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `IconThemeContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `appearance`, `chevron_icons`, `directory_icons`, `file_icons`, `file_stems`, `file_suffixes`, `name`, `named_directory_icons` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `DirectoryIconsContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `collapsed`, `expanded` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ChevronIconsContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `collapsed`, `expanded` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `IconDefinitionContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `path` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `AppearanceContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dark`, `Light` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

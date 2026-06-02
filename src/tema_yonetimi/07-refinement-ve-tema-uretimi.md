@@ -19,10 +19,10 @@ Bu bölüm üç katmanlı boru hattının orta halkasını anlatır. Davranış 
 ### Üç katmanın rolü
 
 | Katman | Tip | Soru | Üretildiği yer |
-|--------|-----|------|----------------|
-| **Content** | `Option<String>` alanlar | Kullanıcı bu alanı yazdı mı? | JSON parse (Bölüm V) |
-| **Refinement** | `Option<Hsla>` alanlar | Yazdıysa parse edilebildi mi? | `refinement` (Konu 30) |
-| **Theme** | `Hsla` alanlar | Sonuç nedir? | `Theme::from_content` (Konu 32) |
+| -------- | ----- | ------ | ---------------- |
+| **Content** | `Option<String>` alanlar | Kullanıcı bu alanı yazdı mı? | JSON parse |
+| **Refinement** | `Option<Hsla>` alanlar | Yazdıysa parse edilebildi mi? | `refinement` |
+| **Theme** | `Hsla` alanlar | Sonuç nedir? | `Theme::from_content` |
 
 ### Neden iki ayrı `Option` katmanı?
 
@@ -30,7 +30,7 @@ Bu bölüm üç katmanlı boru hattının orta halkasını anlatır. Davranış 
 
 **Cevap:** İki **farklı hata türünün** ayırt edilmesi gerekir:
 
-- **Tip-yapısal hata** (Content katmanı): JSON anahtarı yanlış, tip yanlış veya bilinmeyen enum varyantı. Serde bu durumu deserialize sırasında yakalar. `treat_error_as_none` (Konu 22) ile sonuç `None`'a düşer.
+- **Tip-yapısal hata** (Content katmanı): JSON anahtarı yanlış, tip yanlış veya bilinmeyen enum varyantı. Serde bu durumu deserialize sırasında yakalar. `treat_error_as_none` ile sonuç `None`'a düşer.
 - **Değer-içerik hatası** (Refinement katmanı): String alanı doludur ama hex değildir (`"rebeccapurple"`) veya hex'in formatı bozuktur (`"#zzz"`). `try_parse_color` `Err` döndürür; refinement bu hatayı sessizce `None`'a yutar.
 
 İki katman sayesinde her hata kendi yerinde ele alınır ve üst katmanlara taşınmaz.
@@ -45,7 +45,7 @@ Kullanıcı tema JSON'unda şu satır bulunsun:
 
 Adımlar sırasıyla şöyle ilerler:
 
-**1. Content katmanı** (Bölüm V):
+**1. Content katmanı**:
 
 ```rust
 ThemeColorsContent {
@@ -56,7 +56,7 @@ ThemeColorsContent {
 }
 ```
 
-**2. Refinement katmanı** (Konu 30):
+**2. Refinement katmanı**:
 
 ```rust
 ThemeColorsRefinement {
@@ -67,7 +67,7 @@ ThemeColorsRefinement {
 }
 ```
 
-**3. Theme katmanı** (Konu 32):
+**3. Theme katmanı**:
 
 ```rust
 let mut theme = baseline.clone();
@@ -82,7 +82,7 @@ theme.styles.colors.refine(&refinement);
 
 1. **String → Hsla**: `theme_colors_refinement`, `status_colors_refinement` ve dolaylı olarak `accents`/`players`/`syntax` (`Theme::from_content` içinde).
 2. **Türetme** (`apply_status_color_defaults`): foreground verilmiş ama background verilmemiş status alanlarına %25 alpha bg üretir.
-3. **Refineable çağrısı**: `baseline.refine(&refinement)` ile baseline güncellenir. (Bu adım Konu 32'de işlenir; `refinement` kendi içinde `refine` çağırmaz, yalnızca Refinement üretir.)
+3. **Refineable çağrısı**: `baseline.refine(&refinement)` ile baseline güncellenir. (Bu adım ilgili bölümde işlenir; `refinement` kendi içinde `refine` çağırmaz, yalnızca Refinement üretir.)
 
 ### Modülün dış arayüzü
 
@@ -119,7 +119,7 @@ Crate-içi helper'lar:
 fn color(s: &Option<String>) -> Option<gpui::Hsla>;  // tek-satır parse
 ```
 
-> **Konu 4'teki modül haritasında `refinement` "crate-içi" olarak işaretlenmişti.** Tek istisna, `Theme::from_content` tarafından çağrılan `apply_status_color_defaults` ve `*_refinement` fonksiyonlarıdır. Tüketici UI katmanı bu modüle doğrudan dokunmaz.
+> **İlgili bölümdeki modül haritasında `refinement` "crate-içi" olarak işaretlenmişti.** Tek istisna, `Theme::from_content` tarafından çağrılan `apply_status_color_defaults` ve `*_refinement` fonksiyonlarıdır. Tüketici UI katmanı bu modüle doğrudan dokunmaz.
 
 ### Saflık ve test edilebilirlik
 
@@ -155,7 +155,7 @@ fn invalid_hex_is_swallowed_to_none() {
 
 1. **Refinement'ı tüketici API'ye sızdırmak**: UI katmanı yalnızca `Theme` görmelidir. `Refinement` tipinin dışarı export edilmesi, tüketici kodu JSON sözleşmesinin iç ayrıntılarına bağlar ve tema üretim sırasını dağıtır.
 2. **Refinement'ı gereksiz klonlamak**: `Refinement` 150 `Option<Hsla>` alanı içerir; klon görece ucuz olsa da gereksizdir. Referansla (`&refinement`) geçirilmesi daha doğrudur.
-3. **`refine()` öncesi `apply_status_color_defaults`'ın atlanması**: Türetme uygulanmadığında fg-only status temaları baseline'ın background'unu tutar; sonuç kullanıcı renkleriyle uyumsuz bir görüntüye dönüşür. Bu adım şarttır (Konu 31).
+3. **`refine()` öncesi `apply_status_color_defaults`'ın atlanması**: Türetme uygulanmadığında fg-only status temaları baseline'ın background'unu tutar; sonuç kullanıcı renkleriyle uyumsuz bir görüntüye dönüşür. Bu adım şarttır.
 4. **Refinement'ı global tutmak**: Refinement geçici bir nesnedir; `from_content` çağrısı içinde yaratılır, kullanılır ve düşürülür. `static` veya `Arc` ile tutulmasının anlamı yoktur.
 
 ---
@@ -185,7 +185,7 @@ Some("bozuk")   →  None             (parse hatası yutulur)
 Üç ana dal vardır:
 
 1. `s.as_deref()`: `&Option<String>` → `Option<&str>`. Klonsuz ve sıfır maliyetli bir dönüşümdür.
-2. `and_then(|s| try_parse_color(s).ok())`: `Some(s)` ise parse denenir; `Err` çıktığında sonuç `None`'a düşer. `try_parse_color` Konu 21'de ayrıntılı işlenmiştir.
+2. `and_then(|s| try_parse_color(s).ok())`: `Some(s)` ise parse denenir; `Err` çıktığında sonuç `None`'a düşer. `try_parse_color` ilgili bölümde ayrıntılı işlenmiştir.
 
 `color()` `refinement` modülünün **dahili** yardımcısıdır; `pub` değildir. Her renk alanı için gereken tek satırlık parse mantığını tek noktada toplar.
 
@@ -266,7 +266,7 @@ pub fn theme_colors_refinement(
 - **Fallback zincirli alanlar**: Bazı alanlar doğrudan `color(...)` çağrısından değil, öncelikli bir fallback zincirinden değer alır. Kanonik liste şudur:
 
 | Alan | Düşüş sırası |
-|------|--------------|
+| ------ | -------------- |
 | `scrollbar_thumb_active_background` | `→ scrollbar_thumb_background` |
 | `search_active_match_background` | `→ search_match_background` |
 | `version_control_added` | `→ status_colors.created` |
@@ -349,7 +349,7 @@ Mevcut fonksiyon yaklaşımı **görünür bir API** sunar. Refinement modülün
 
 Bu üç katman `*Content` opsiyonelliğinden çok **liste/map** sözleşmesi taşır. Tek alan-bazlı refinement burada yeterli olmaz. Bu yüzden `Theme::from_content` içinde inline işlenirler:
 
-- `accents: Vec<Option<String>>` — refinement değil, **boş ise baseline, dolu ise listeyi yeniden parse etme** kararıdır (Konu 32).
+- `accents: Vec<Option<String>>` — refinement değil, **boş ise baseline, dolu ise listeyi yeniden parse etme** kararıdır.
 - `players: Vec<PlayerColorContent>` — aynı boş/dolu kararı.
 - `syntax: IndexMap<String, HighlightStyleContent>` — `Vec<(String, HighlightStyle)>` üretimi.
 
@@ -409,7 +409,7 @@ pub fn apply_status_color_defaults(r: &mut StatusColorsRefinement) {
 **6 status:** `deleted`, `created`, `modified`, `conflict`, `error`, `hidden`.
 
 | Status | Türetme uygulanır mı | Neden |
-|--------|---------------------|-------|
+| -------- | --------------------- | ------- |
 | `deleted` | ✓ | VCS göstergesi — fg/bg ilişkisi anlamlı |
 | `created` | ✓ | VCS göstergesi |
 | `modified` | ✓ | VCS göstergesi |
@@ -459,7 +459,7 @@ for (fg, bg) in pairs {
 - `bg.is_none()`: background verilmemiş.
 - `let Some(fg) = fg.as_ref()`: if-let chain (Rust 2024) — foreground verilmiş.
 - `**bg = ...`: `bg` `&mut &mut Option<Hsla>` tipindedir (içeri çıkmak için iki deref); değer atarsın.
-- `fg.opacity(0.25)`: `Hsla::opacity` Konu 6'da işlenmiştir.
+- `fg.opacity(0.25)`: `Hsla::opacity` ilgili bölümde işlenmiştir.
 
 ### Çağrı yeri
 
@@ -473,15 +473,15 @@ status.refine(&status_refinement);
 ```
 
 Sıralama:
-1. Content'ten refinement üretilir (Konu 30).
-2. Refinement'a türetme uygulanır (Konu 31).
-3. Baseline'a refinement uygulanır (Konu 32).
+1. Content'ten refinement üretilir.
+2. Refinement'a türetme uygulanır.
+3. Baseline'a refinement uygulanır.
 
 ### `theme_color_defaults` muadili?
 
 `ThemeColors` için genel bir foreground/background türetme yardımcısı yoktur. Sebep basittir: UI renklerinde status renklerindeki gibi düzenli bir foreground/background ilişkisi bulunmaz. `border_variant` ile `surface_background` birbirinden bağımsız alanlardır. Genel türetme bu yüzden yapay kalır.
 
-Zed'de `apply_theme_color_defaults` adında bir fonksiyon bulunur, ancak tam davranışı Konu 31'de işlenir: yalnızca `element_selection_background` alanını türetir ve kaynak rengi `player_colors.local().selection` değeridir (text_accent veya başka bir alan değil). Kaynak rengin alpha'sı `1.0` olduğunda sonuç alpha'sı `0.25`'e çekilir; aksi durumda değer olduğu gibi atarsın. Yani sabit bir `× 0.25` formülü **söz konusu değildir**; alpha < 1.0 olan bir player selection'ı aynen kopyalanır. `apply_theme_color_defaults` tarafındaki ek türetme kuralları Konu 31'de ayrıca ele alırsın.
+Zed'de `apply_theme_color_defaults` adında bir fonksiyon bulunur, ancak tam davranışı ilgili bölümde işlenir: yalnızca `element_selection_background` alanını türetir ve kaynak rengi `player_colors.local().selection` değeridir (text_accent veya başka bir alan değil). Kaynak rengin alpha'sı `1.0` olduğunda sonuç alpha'sı `0.25`'e çekilir; aksi durumda değer olduğu gibi atarsın. Yani sabit bir `× 0.25` formülü **söz konusu değildir**; alpha < 1.0 olan bir player selection'ı aynen kopyalanır. `apply_theme_color_defaults` tarafındaki ek türetme kuralları ilgili bölümde ayrıca ele alırsın.
 
 ### Test örnekleri
 
@@ -546,7 +546,7 @@ fn neither_fg_nor_bg() {
 
 **Kaynak:** `theme` crate'i.
 
-Konu 31'in başında `apply_status_color_defaults` için %25 alpha türetme kuralı işlenmişti. Zed'in `ThemeColors` için **ikinci** bir default uygulama fonksiyonu daha vardır:
+İlgili bölümün başında `apply_status_color_defaults` için %25 alpha türetme kuralı işlenmişti. Zed'in `ThemeColors` için **ikinci** bir default uygulama fonksiyonu daha vardır:
 
 ```rust
 pub fn apply_theme_color_defaults(
@@ -597,7 +597,7 @@ let baseline_refinement = ThemeColorsRefinement {
 let user_refinement = theme_colors_refinement(&content.style.colors);
 
 let mut merged = baseline_refinement;
-merged.refine(&user_refinement);  // Konu 31 birleştirme
+merged.refine(&user_refinement);  // ilgili bölüm birleştirme
 
 apply_theme_color_defaults(&mut merged, &player_colors);
 apply_status_color_defaults(&mut status_merged);
@@ -719,19 +719,19 @@ pub fn from_content(content: ThemeContent, baseline: &Theme) -> Self {
 
 **Adım 1 — Appearance enum dönüşümü.**
 
-`AppearanceContent::Light` (Bölüm V) → `Appearance::Light` (Bölüm IV). Burada iki ayrı enum tipi vardır. Content tipi serde için, Theme tipi runtime için kullanırsın. Doğrudan cast yapılmaz; açık bir `match` yazılır.
+`AppearanceContent::Light` → `Appearance::Light`. Burada iki ayrı enum tipi vardır. Content tipi serde için, Theme tipi runtime için kullanırsın. Doğrudan cast yapılmaz; açık bir `match` yazılır.
 
 **Adım 2 — Status refinement + %25 alpha türetme.**
 
-`status_colors_refinement` Konu 30'da, `apply_status_color_defaults` ise Konu 31'de ele alınmıştır. Türetme `theme_colors_refinement`'tan **önce** çalıştırılır; çünkü `theme_colors_refinement`, `version_control_added`/`version_control_deleted` alanları için `status_refinement.created`/`status_refinement.deleted` değerlerine düşer (Konu 30 fallback tablosu).
+`status_colors_refinement` ilgili bölümde, `apply_status_color_defaults` ise ilgili bölümde ele alınmıştır. Türetme `theme_colors_refinement`'tan **önce** çalıştırılır; çünkü `theme_colors_refinement`, `version_control_added`/`version_control_deleted` alanları için `status_refinement.created`/`status_refinement.deleted` değerlerine düşer (ilgili bölüm fallback tablosu).
 
 **Adım 3 — Player merge.**
 
-`merge_player_colors(&mut player, &content.style.players)` çağrısı baseline player listesini index başına field-bazlı override eder. Bu adımın theme color refinement'tan **önce** olması gerekir; çünkü `apply_theme_color_defaults`, `player.local().selection` rengini okur (Konu 31).
+`merge_player_colors(&mut player, &content.style.players)` çağrısı baseline player listesini index başına field-bazlı override eder. Bu adımın theme color refinement'tan **önce** olması gerekir; çünkü `apply_theme_color_defaults`, `player.local().selection` rengini okur.
 
 **Adım 4 — Theme color refinement + türetme.**
 
-`theme_colors_refinement(content, &status_refinement, is_light)` üç parametreyle çağrılır; Konu 30'daki imza tablosu bunu açıklar. Ardından `apply_theme_color_defaults(refinement, &player)` çağrılır ve `element_selection_background` türetilir. Bu sıra, status türetmesinden sonra ve baseline'a uygulamadan öncedir.
+`theme_colors_refinement(content, &status_refinement, is_light)` üç parametreyle çağrılır; ilgili bölümdeki imza tablosu bunu açıklar. Ardından `apply_theme_color_defaults(refinement, &player)` çağrılır ve `element_selection_background` türetilir. Bu sıra, status türetmesinden sonra ve baseline'a uygulamadan öncedir.
 
 **Adım 4 (devam) — Baseline.refine() detayı.**
 
@@ -740,7 +740,7 @@ let mut colors = baseline.styles.colors.clone();
 colors.refine(&color_refinement);
 ```
 
-`Refineable::refine` (Bölüm III/Konu 11) — `Some` alanları override eder, `None` ise baseline'dan kalır. Adım 2'de `status.refine(&status_refinement)` aynı şekilde uygularsın.
+`Refineable::refine` — `Some` alanları override eder, `None` ise baseline'dan kalır. Adım 2'de `status.refine(&status_refinement)` aynı şekilde uygularsın.
 
 **`.clone()` neden gereklidir?** `baseline: &Theme` immutable bir referanstır; doğrudan üzerinde `refine` çağrılamaz. Baseline registry'de paylaşıldığı için değiştirilemez; her tema kendi kopyasını alır.
 
@@ -759,7 +759,7 @@ merge_player_colors(&mut player, &content.style.players);
 - Player 0'ın cursor'u `#abc`, background ve selection ise **baseline player 0**'dan (baseline'ın `local()` slot'undan) gelir.
 - Player 1'in cursor'u `#def`, background ve selection ise **baseline player 1**'den (slot semantiğine göre turuncu tonları) gelir.
 
-Yani fallback **index başına** uygulanır; tüm eksikler `local()` slot'undan gelmez. Bu davranış Zed'in `merge_player_colors` sözleşmesiyle eşleşir ve slot semantiğini korur (Konu 15).
+Yani fallback **index başına** uygulanır; tüm eksikler `local()` slot'undan gelmez. Bu davranış Zed'in `merge_player_colors` sözleşmesiyle eşleşir ve slot semantiğini korur.
 
 Player slot'u baseline kapasitesinden büyük bir index ise, örneğin baseline 8 slot tutarken tema 10 slot tanımlamışsa, eksik fallback `PlayerColor::default()` ile doldurulur.
 
@@ -778,7 +778,7 @@ Zed kaynağındaki `theme_settings::theme_settings::merge_accent_colors` şu dav
 
 **Adım 6 — Syntax: `IndexMap` → `Vec<(String, HighlightStyle)>` → `Arc::new(SyntaxTheme::new(...))`.**
 
-`theme_settings::schema::syntax_overrides` helper'ı (yukarıdaki Konu 30 imza tablosunda yer alır), Content tarafındaki `IndexMap<String, HighlightStyleContent>` yapısını `Vec<(String, gpui::HighlightStyle)>` haline çevirir. `HighlightStyleContent`'in 4 alanı (`color`, `background_color`, `font_style`, `font_weight`) parse edilir; gerisi `Default::default()`'tan gelir (underline, strikethrough, fade_out vb.).
+`theme_settings::schema::syntax_overrides` helper'ı (yukarıdaki ilgili bölüm imza tablosunda yer alır), Content tarafındaki `IndexMap<String, HighlightStyleContent>` yapısını `Vec<(String, gpui::HighlightStyle)>` haline çevirir. `HighlightStyleContent`'in 4 alanı (`color`, `background_color`, `font_style`, `font_weight`) parse edilir; gerisi `Default::default()`'tan gelir (underline, strikethrough, fade_out vb.).
 
 ```rust
 let syntax_highlights = syntax_overrides(&content.style);
@@ -790,7 +790,7 @@ Zed `theme_settings::refine_theme` bu dönüşümü şu an inline yazar (`theme_
 - **Tam user theme yüklemesi** (`refine_theme_family` / `refine_theme`): syntax bölümü `SyntaxTheme::new(...)` ile kurarsın. Baseline syntax üzerine field-bazlı bir merge yapılmaz. **Pratik sonuç:** Tema JSON'ında `syntax` bölümü boş veya eksik olduğunda `syntax_overrides` boş bir vec döner ve `SyntaxTheme::new([])` çağrılır — sonuç **tamamen boş bir syntax theme** olur. Editor renklerinin görünebilmesi için tema yazarının `syntax: { ... }` bloğunu mutlaka doldurması gerekir; aksi takdirde syntax highlight'sız bir editör ekranı ortaya çıkar.
 - **Runtime theme override** (`ThemeSettings::apply_theme_overrides` → private `modify_theme`): mevcut `base_theme.styles.syntax` üstüne `SyntaxTheme::merge(base, syntax_overrides(theme_overrides))` uygularsın. Bu yol field-bazlı option-or birleştirme yapar; override'da olmayan bir capture baseline'daki `HighlightStyle`'ı korur.
 
-Bu nedenle `SyntaxTheme::merge` Konu 18'de ve override akışında kanonik helper olarak işlev görür; ancak Konu 32'deki tam JSON → `Theme` pipeline'ının son adımı **değildir**. Bu ayrım karıştırılırsa, user theme yüklemesinde aslında olmayan bir baseline syntax mirası varmış gibi anlatılır.
+Bu nedenle `SyntaxTheme::merge` ilgili bölümde ve override akışında kanonik helper olarak işlev görür; ancak ilgili bölümdeki tam JSON → `Theme` pipeline'ının son adımı **değildir**. Bu ayrım karıştırılırsa, user theme yüklemesinde aslında olmayan bir baseline syntax mirası varmış gibi anlatılır.
 
 **Adım 7 — Pencere bg: enum dönüşümü veya fallback.**
 
@@ -814,7 +814,7 @@ Tema yazarı değer vermediyse baseline'dan gelir. Değer verdiyse Content enum'
 ### Edge case'ler
 
 | Senaryo | Davranış |
-|---------|----------|
+| --------- | ---------- |
 | Tüm Content tipleri default (boş tema) | Tüm renkler baseline'dan; `name` boş String → boş `SharedString` |
 | `appearance: "dark"` ama baseline light tema | `appearance = Dark`, renkler baseline light'tan (mixed); bu kullanıcının kararıdır |
 | Aynı baseline ile iki kez `from_content` | İki ayrı `Theme` (farklı `id`); değerler aynı |
@@ -826,7 +826,7 @@ Tema yazarı değer vermediyse baseline'dan gelir. Değer verdiyse Content enum'
 ### Başarım profili
 
 | Adım | Maliyet | Not |
-|------|---------|-----|
+| ------ | --------- | ----- |
 | Appearance match | <1 µs | Trivial |
 | Refinement üretimi (2 fn) | ~10–30 µs | 150 + 42 alan, her biri Option + and_then |
 | `apply_status_color_defaults` | <1 µs | 6 iterasyon |
@@ -840,7 +840,7 @@ Tema yazarı değer vermediyse baseline'dan gelir. Değer verdiyse Content enum'
 
 `Theme::from_content` iki ana yerden çağrılır:
 
-1. **Bundled tema yükleme** (Bölüm VI): `assets/themes/*.json` → `ThemeFamilyContent` → her `ThemeContent` için `from_content`.
+1. **Bundled tema yükleme**: `assets/themes/*.json` → `ThemeFamilyContent` → her `ThemeContent` için `from_content`.
 2. **Kullanıcı tema yükleme** (runtime API): Kullanıcı bir tema dosyası eklediğinde → `serde_json_lenient::from_str` → `from_content`.
 
 Test fixture'larında da kullanırsın:
@@ -868,7 +868,7 @@ fn parses_zed_one_dark() {
    };
    ```
 2. **`from_content`'in her render'da çağrılması**: Hot path olmasa bile gereksizdir. Tema yüklenirken bir kez çağrılır ve sonuç cache'lenir.
-3. **`uuid` dependency'sinin unutulması**: Cargo.toml'a `uuid = { version = "1", features = ["v4"] }` eklersin. Bölüm II/Konu 5 listesinde de yer alır.
+3. **`uuid` dependency'sinin unutulması**: Cargo.toml'a `uuid = { version = "1", features = ["v4"] }` eklersin. İlgili bölüm listesinde de yer alır.
 4. **`SystemColors`'un override edilmesi**: Sözleşmede SystemColors tema yazarı tarafından override edilmez. Şu anki Content tipinde bu alana karşılık gelen bir yer yoktur; istense bile yazılamaz. Bu durum kasıtlıdır.
 5. **`Theme.id` üzerinden equality**: İki tema farklı id'lere sahip olduğunda aynı içeriği taşısa bile farklı sayılır. Equality için `name` veya `styles` karşılaştırılmalıdır.
 6. **Accents `filter_map` null davranışı**: Zed davranışı, parse edilemeyen veya `null` accent girdilerini eler; liste boş kaldığında baseline korunur.
@@ -879,11 +879,11 @@ fn parses_zed_one_dark() {
 Yukarıdaki `Theme::from_content` `kvs_tema` için önerilen tasarımdır. Zed'de aynı işi parçalara bölen **dört public fonksiyon** bulunur (`theme_settings` crate'i):
 
 | Fonksiyon | Sorumluluk | Karşılık |
-|-----------|------------|----------|
+| ----------- | ------------ | ---------- |
 | `pub fn refine_theme(theme: &ThemeContent) -> Theme` | Tek bir `ThemeContent` → `Theme`. Baseline `appearance`'a göre `ThemeColors::light`/`dark` üzerinden alınır; refinement + merge + parse pipeline'ı çalıştırılır | `Theme::from_content` ile aynı akış |
 | `pub fn refine_theme_family(content: ThemeFamilyContent) -> ThemeFamily` | Tüm aileyi `refine_theme` ile çevirip `ThemeFamily { themes, scales: default_color_scales(), … }` üretir | Aile-bazlı yardımcı; tek tema için `refine_theme` yeterli |
-| `pub fn merge_player_colors(&mut PlayerColors, &[PlayerColorContent])` | Adım 3'ün kanonik implementasyonu (idx başına field bazında merge) | Konu 32 Adım 3 |
-| `pub fn merge_accent_colors(&mut AccentColors, &[AccentContent])` | Adım 5'in kanonik implementasyonu (parse edilen liste boş değilse `Arc<[Hsla]>`'i tamamen değiştir) | Konu 32 Adım 5 |
+| `pub fn merge_player_colors(&mut PlayerColors, &[PlayerColorContent])` | Adım 3'ün kanonik implementasyonu (idx başına field bazında merge) | ilgili bölüm Adım 3 |
+| `pub fn merge_accent_colors(&mut AccentColors, &[AccentContent])` | Adım 5'in kanonik implementasyonu (parse edilen liste boş değilse `Arc<[Hsla]>`'i tamamen değiştir) | ilgili bölüm Adım 5 |
 
 Ayrıca `pub fn load_user_theme(registry: &ThemeRegistry, bytes: &[u8]) -> Result<()>` ve `pub fn deserialize_user_theme(bytes: &[u8]) -> Result<ThemeFamilyContent>` fonksiyonları kullanıcı tema dosyasını disk'ten parse eden public yüzeyi sunar:
 

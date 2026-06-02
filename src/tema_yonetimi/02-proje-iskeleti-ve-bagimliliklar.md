@@ -9,7 +9,7 @@ Sözleşme sınırları netleştiğinde sıradaki iş, crate yapısını ve bağ
 Tema sistemi **iki crate** olarak konumlanır:
 
 | Crate | Sorumluluk | Lisans |
-|-------|-----------|--------|
+| ------- | ----------- | -------- |
 | `kvs_tema` | `Theme`, `ThemeColors`, `IconTheme`, JSON schema, registry, runtime | uygulamanın kendi lisansı |
 | `kvs_syntax_tema` | `SyntaxTheme` — kod renkleri | uygulamanın kendi lisansı |
 
@@ -57,7 +57,7 @@ Tema sistemi **iki crate** olarak konumlanır:
 **Modüllerin sorumluluk haritası:**
 
 | Modül | İçerir | Dış API mı? |
-|-------|--------|-------------|
+| ------- | -------- | ------------- |
 | `kvs_tema.rs` (lib kökü) | Re-export'lar, `Theme`, `Appearance`, `ThemeFamily`; crate-içi `ThemeStyles` | Kısmen |
 | `styles/colors` | `ThemeColors` | Evet |
 | `styles/status` | `StatusColors` | Evet |
@@ -111,7 +111,7 @@ publish = false
 path = "src/kvs_tema.rs" # mod.rs değil
 
 [dependencies]
-# Zed workspace (Apache-2.0; publish = false uyarısı için bkz. Konu 3)
+# Zed workspace (Apache-2.0; publish = false uyarısı)
 gpui = { workspace = true }
 refineable = { workspace = true }
 collections = { workspace = true }
@@ -138,7 +138,7 @@ gpui = { workspace = true, features = ["test-support"] }
 approx = "0.5"
 
 [features]
-# Tüketici crate'ler için test helper'larını açar (Bölüm XI/Konu 44).
+# Tüketici crate'ler için test helper'larını açar.
 test-util = []
 ```
 
@@ -164,9 +164,9 @@ Syntax crate'in tek bağımlılığı `gpui` ile sınırlıdır. Buna yalnızca 
 **Her dependency'nin rolü ve kabul ettiği değer:**
 
 | Crate | Rol | Tipik kullanım |
-|-------|-----|----------------|
+| ------- | ----- | ---------------- |
 | `gpui` | Renk + bağlam tipleri | `Hsla`, `Rgba`, `SharedString`, `HighlightStyle`, `App`, `Global`, `WindowBackgroundAppearance`, `WindowAppearance` |
-| `refineable` | Derive macro | `#[derive(Refineable)]` + `#[refineable(...)]` attribute'leri (Bölüm III/Konu 11) |
+| `refineable` | Derive macro | `#[derive(Refineable)]` + `#[refineable(...)]` attribute'leri |
 | `collections` | Map'ler | `HashMap` (deterministik iter), `IndexMap` |
 | `kvs_syntax_tema` | Kardeş crate | `SyntaxTheme::new(highlights)` |
 | `anyhow` | Hata propagation | `try_parse_color() -> anyhow::Result<Hsla>` |
@@ -219,7 +219,7 @@ Bu grafiğin yönü tersine işlemez; `gpui` hiçbir zaman `kvs_tema`'ya bağlan
 ```rust
 //! kvs_tema — Zed-uyumlu, lisans-temiz tema sistemi.
 
-pub(crate) mod refinement;   // crate-içi — Bölüm XI/Konu 43
+pub(crate) mod refinement;   // crate-içi
 pub mod fallback;            // namespace: `kvs_tema::fallback::kvs_default_dark`
 mod icon_theme;
 mod registry;
@@ -264,7 +264,7 @@ pub struct Theme {
     pub id: String,
     pub name: SharedString,
     pub appearance: Appearance,
-    pub(crate) styles: ThemeStyles,   // accessor'lar üzerinden — Konu 12
+    pub(crate) styles: ThemeStyles,   // accessor'lar üzerinden
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -278,7 +278,7 @@ pub(crate) struct ThemeStyles {
     pub(crate) syntax: Arc<kvs_syntax_tema::SyntaxTheme>,
 }
 
-// Accessor metotları — public okuma yolu (Konu 12, 41, 43)
+// Accessor metotları — public okuma yolu
 impl Theme {
     pub fn colors(&self)  -> &ThemeColors   { &self.styles.colors }
     pub fn status(&self)  -> &StatusColors  { &self.styles.status }
@@ -302,29 +302,3 @@ pub struct ThemeFamily {
 ```
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `FontSize`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ThemeNotFoundError`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `IconThemeNotFoundError`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-<!-- phase14-api-anchor:end -->

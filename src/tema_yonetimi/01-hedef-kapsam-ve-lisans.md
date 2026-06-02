@@ -24,11 +24,11 @@ Bu bölüm, tema sisteminin hangi amaçla kurulduğunu ve sınırlarının nered
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Veri sözleşmesi (en alt katman) — `mirror`:** Bu katman, Zed'in JSON tema dosyalarını kayıpsız okuyabilmek için kurulan struct katmanıdır. Alan adları, JSON anahtarları ve hangi alanın opsiyonel olduğu; hepsi Zed'in `theme` ve `settings_content` crate'lerindeki yapıyla **aynı şekilde** yazılır. Burada yaratıcı davranılmaz; hedef, sözleşme paritesini tam sağlamaktır. Bölüm IV ve V bu katmanı anlatır.
+**Veri sözleşmesi (en alt katman) — `mirror`:** Bu katman, Zed'in JSON tema dosyalarını kayıpsız okuyabilmek için kurulan struct katmanıdır. Alan adları, JSON anahtarları ve hangi alanın opsiyonel olduğu; hepsi Zed'in `theme` ve `settings_content` crate'lerindeki yapıyla **aynı şekilde** yazılır. Burada yaratıcı davranılmaz; hedef, sözleşme paritesini tam sağlamaktır. İlgili bölümler bu katmanı anlatır.
 
-**Refinement (orta katman) — `davranış`:** Bu katman, kullanıcının yazdığı temayı baseline tema ile birleştirir. Kullanıcı teması çoğu zaman eksik alanlar içerir; fallback tema bu boşlukları doldurur. Zed'in `refineable` crate'inden gelen `Refineable` derive macro'su, her struct için `Option<T>` alanlı bir `*Refinement` ikizi üretir. Birleştirme de bu ikiz üzerinden `original.refine(&refinement)` çağrısıyla yaparsın. Foreground rengi var ama background yok gibi yarı tanımlı durumları tamamlayan yardımcılar da (`apply_status_color_defaults` ve benzerleri) bu katmandadır. Davranış Zed'den **öğrenilir**, fakat kod bağımsız sözcüklerle yeniden yazılır; GPL-3 nedeniyle kod gövdesi birebir kopyalanmaz. Bölüm VII bu katmanı anlatır.
+**Refinement (orta katman) — `davranış`:** Bu katman, kullanıcının yazdığı temayı baseline tema ile birleştirir. Kullanıcı teması çoğu zaman eksik alanlar içerir; fallback tema bu boşlukları doldurur. Zed'in `refineable` crate'inden gelen `Refineable` derive macro'su, her struct için `Option<T>` alanlı bir `*Refinement` ikizi üretir. Birleştirme de bu ikiz üzerinden `original.refine(&refinement)` çağrısıyla yaparsın. Foreground rengi var ama background yok gibi yarı tanımlı durumları tamamlayan yardımcılar da (`apply_status_color_defaults` ve benzerleri) bu katmandadır. Davranış Zed'den **öğrenilir**, fakat kod bağımsız sözcüklerle yeniden yazılır; GPL-3 nedeniyle kod gövdesi birebir kopyalanmaz. İlgili bölüm bu katmanı anlatır.
 
-**Runtime (en üst katman) — `uygulama tasarımı`:** Aktif temayı `cx.theme()` ile okumak, `GlobalTheme::update_theme` ile değiştirmek ve sistemin light/dark modunu izlemek bu katmanın işidir. Bu bölüm tamamen uygulamanın kendi tasarımına göre şekillenir. Zed'in `theme_settings` veya `theme_selector` crate'lerini taklit etmek gerekmez. Entegrasyon, uygulamanın kendi config sistemi ve kendi UI'ı üzerinden kurarsın. Bölüm VIII bu katmanı anlatır.
+**Runtime (en üst katman) — `uygulama tasarımı`:** Aktif temayı `cx.theme()` ile okumak, `GlobalTheme::update_theme` ile değiştirmek ve sistemin light/dark modunu izlemek bu katmanın işidir. Bu bölüm tamamen uygulamanın kendi tasarımına göre şekillenir. Zed'in `theme_settings` veya `theme_selector` crate'lerini taklit etmek gerekmez. Entegrasyon, uygulamanın kendi config sistemi ve kendi UI'ı üzerinden kurarsın. İlgili bölüm bu katmanı anlatır.
 
 **Bağımlılık yönü:**
 
@@ -43,7 +43,7 @@ Ters yön yasaktır: veri sözleşmesi refinement katmanına, refinement da runt
 **Lisans katmanlama:**
 
 | Katman | Lisans tarafı |
-|--------|---------------|
+| -------- | --------------- |
 | Veri sözleşmesi | Alan adları ve JSON anahtarları telif kapsamında değildir; mirror edilmesi serbesttir |
 | Refinement | Davranış öğrenilir, kod bağımsız sözcüklerle yeniden yazılır (GPL-3 kod gövdesinin kopyalanması yasaktır) |
 | Runtime | Tamamen uygulamaya özgüdür; Zed'in `theme_settings`/`theme_selector` koduyla hiçbir bağı yoktur |
@@ -71,7 +71,7 @@ Zed'in tema sistemi **GPL-3.0-or-later** lisansına tabidir. Kod gövdesi kopyal
 **Yapılabilir / Yapılamaz:**
 
 | Yapılabilir | Yapılamaz |
-|-------------|-----------|
+| ------------- | ----------- |
 | Alan adlarını okuyup yeniden yazmak | Kod gövdesini birebir kopyalamak |
 | JSON anahtarlarını birebir mirror etmek | Default renk paletini (`default_colors` HSL değerleri) taşımak |
 | Doc comment'i bağımsız bir anlatımla yeniden yazmak | Doc comment'i kelime kelime kopyalamak |

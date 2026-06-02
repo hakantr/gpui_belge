@@ -6,22 +6,6 @@ Runtime çalışır hale geldikten sonra kullanıcı ayarları devreye girer. Bu
 
 ## 39. Settings entegrasyonu: `ThemeSettings`, `RegisterSetting`, `IntoGpui`, `ThemeSettingsProvider`, font runtime API'leri
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ThemeSettings` | `from_settings` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ThemeSettings` | Metotlar | `agent_buffer_font_size`, `agent_buffer_font_size_settings`, `agent_ui_font_size`, `agent_ui_font_size_settings`, `apply_theme_overrides`, `buffer_font_size`, `buffer_font_size_settings`, `git_commit_buffer_font_size`, `git_commit_buffer_font_size_settings`, `line_height`, `markdown_preview_code_font_family`, `markdown_preview_font_family`, `ui_font_size`, `ui_font_size_settings` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ThemeSettings` | Alanlar | `buffer_font`, `buffer_line_height`, `experimental_theme_overrides`, `icon_theme`, `markdown_preview_theme`, `theme_overrides`, `ui_density`, `ui_font`, `unnecessary_code_fade` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `ThemeSettingsProvider` | Trait üyeleri | `buffer_font`, `buffer_font_size`, `ui_density`, `ui_font`, `ui_font_size` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
-
 ### Ayar / override / selector köprüsü
 
 Zed-benzeri bir kontrol için tek bir `ad: String` yeterli değildir. Minimum settings modeli şu dört özelliği taşımalıdır:
@@ -94,7 +78,7 @@ pub const DEFAULT_DARK_THEME: &str = "One Dark";
 #[derive(Clone, Debug, Default, serde::Serialize, serde::Deserialize)]
 #[serde(default)]
 pub struct ThemeSettingsContent {
-    // Font ve typography alanları Konu 39'de listelenir.
+    // Font ve typography alanları ilgili bölümde listelenir.
     pub theme: Option<ThemeSelection>,
     pub icon_theme: Option<IconThemeSelection>,
 
@@ -262,7 +246,7 @@ impl SettingsStore {
 `ThemeSettings` struct'ında alanların görünürlüğü Zed paritesinde **karışıktır** (`theme_settings` crate'i):
 
 | Alan | Görünürlük | Erişim yolu |
-|------|-----------|-------------|
+| ------ | ----------- | ------------- |
 | `ui_font_size: Pixels` | **private** | `theme_settings.ui_font_size(cx)` accessor |
 | `ui_font: Font` | `pub` | doğrudan alan |
 | `buffer_font_size: Pixels` | **private** | `theme_settings.buffer_font_size(cx)` accessor |
@@ -281,7 +265,7 @@ impl SettingsStore {
 | `ui_density: UiDensity` | `pub` | doğrudan alan |
 | `unnecessary_code_fade: f32` | `pub` | doğrudan alan |
 
-**Gerekçe:** Font size değerleri `*FontSize` override global'lerinden etkilenir (Konu 39). Accessor metotlar bu override'ı uygular ve **etkin değeri** döndürür. Doğrudan alan okuması ise settings dosyasındaki ham değeri verir. Bu yüzden font size alanları bilinçli olarak private tutulur. Okuyucu ya `.ui_font_size(cx)` accessor'ını kullanır ya da ham değer için `.ui_font_size_settings()` accessor'ına gider (Konu 43 tablosunda yer alır). Markdown preview font family alanları da private tutulur; düz markdown metni UI fontuna, inline code ve code block ise buffer fontuna fallback eder.
+**Gerekçe:** Font size değerleri `*FontSize` override global'lerinden etkilenir. Accessor metotlar bu override'ı uygular ve **etkin değeri** döndürür. Doğrudan alan okuması ise settings dosyasındaki ham değeri verir. Bu yüzden font size alanları bilinçli olarak private tutulur. Okuyucu ya `.ui_font_size(cx)` accessor'ını kullanır ya da ham değer için `.ui_font_size_settings()` accessor'ına gider (ilgili bölüm tablosunda yer alır). Markdown preview font family alanları da private tutulur; düz markdown metni UI fontuna, inline code ve code block ise buffer fontuna fallback eder.
 
 Mirror tarafta `TemaAyarlari` struct'ında font size'ların private tutulması ve accessor metotlarla okunması Zed paritesi açısından zorunludur. Aksi halde override drop davranışı yanlış uygularsın.
 
@@ -292,7 +276,7 @@ Mirror tarafta `TemaAyarlari` struct'ında font size'ların private tutulması v
 3. `ThemeSettings::get_global(cx)` çalıştığında `cx.global::<SettingsStore>().get(None)` üzerinden cache'lenmiş güncel `&ThemeSettings` döner.
 4. `SettingsLocation { worktree_id, path }` ile path-scoped lookup yapıldığında proje-local `.zed/settings.json` override'ları uygularsın.
 
-**Mirror tarafında:** `kvs_tema` `Settings` trait'ine doğrudan bağımlı değildir (Konu 5 bağımlılık matrisi). Ancak `kvs_tema_ayarlari` crate'i `kvs_ayarlari::Settings` benzeri bir trait sözleşmesini takip eder. `ThemeSettingsProvider` (Konu 39) bu bağlantının soyutlanmış arayüzüdür. `kvs_tema`, provider'dan typography ve density okur; `Settings` trait'ini doğrudan kullanmaz. Auto-registration için `#[derive(KaydetAyar)]` benzeri bir macro mirror edilebilir; alternatif olarak `init` fonksiyonunda elle `Settings::register` çağırırsın.
+**Mirror tarafında:** `kvs_tema` `Settings` trait'ine doğrudan bağımlı değildir (ilgili bölüm bağımlılık matrisi). Ancak `kvs_tema_ayarlari` crate'i `kvs_ayarlari::Settings` benzeri bir trait sözleşmesini takip eder. `ThemeSettingsProvider` bu bağlantının soyutlanmış arayüzüdür. `kvs_tema`, provider'dan typography ve density okur; `Settings` trait'ini doğrudan kullanmaz. Auto-registration için `#[derive(KaydetAyar)]` benzeri bir macro mirror edilebilir; alternatif olarak `init` fonksiyonunda elle `Settings::register` çağırırsın.
 
 ### `IntoGpui` trait — Settings → Runtime köprüsü
 
@@ -308,7 +292,7 @@ pub trait IntoGpui {
 Tüm impl'ler `settings` crate'inde toplanır (mirror tarafında `kvs_ayarlari` veya `kvs_ayarlari_icerik` köprü modülü):
 
 | Source (Content) | Output (Runtime) | Davranış |
-|------------------|-----------------|----------|
+| ------------------ | ----------------- | ---------- |
 | `FontStyleContent` | `gpui::FontStyle` | Variant 1:1 (Normal/Italic/Oblique) |
 | `FontWeightContent` | `gpui::FontWeight` | `FontWeight(self.0.clamp(100., 950.))` — CSS aralığında zorlama |
 | `FontFeaturesContent` | `gpui::FontFeatures` | `FontFeatures(Arc::new(map.collect()))` |
@@ -521,7 +505,7 @@ pub fn set_mode(content: &mut SettingsContent, mode: ThemeAppearanceMode);
 ```
 
 | Fonksiyon | İş yaptığı yer | Karar mantığı |
-|-----------|----------------|---------------|
+| ----------- | ---------------- | --------------- |
 | `set_theme` | `settings.theme.theme` (`Option<ThemeSelection>`) | `Static` ise adı değiştirir, `Dynamic` ise `theme_appearance`'a göre `light` veya `dark` slot'unu günceller. `mode == System` iken seçilen appearance sistem appearance'ından farklıysa `mode`'u seçilen tarafa kilitler |
 | `set_icon_theme` | `settings.theme.icon_theme` | `Dynamic` modda mevcut mode'a göre `light` veya `dark` slot'unu yazar; `Static` durumunda tek slot'u günceller. `Option<IconThemeSelection>` `None` ise `Static` ile başlatır |
 | `set_mode` | `settings.theme.theme` | Mevcut `Static` seçimi `Dynamic { mode = System, light = DEFAULT_LIGHT_THEME, dark = DEFAULT_DARK_THEME }` ile değiştirir; mevcut `Dynamic` ise yalnızca `mode`'u günceller; `None` durumunda `Dynamic`'i baştan kurar |
@@ -539,10 +523,10 @@ pub fn confirm_selection(
     let mut content = SettingsStore::global(cx).user_settings_content().clone();
     set_theme(&mut content, secilen.name.clone(), secilen.appearance, system);
 
-    // 2. Diske persist et (file watcher Konu 26 ile reload'u tetikler).
+    // 2. Diske persist et (file watcher ilgili bölüm ile reload'u tetikler).
     SettingsStore::global(cx).write_user_settings(content)?;
 
-    // 3. Observer (Konu 38) reload_theme'i çağırır; explicit
+    // 3. Observer reload_theme'i çağırır; explicit
     //    GlobalTheme::update_theme + refresh_windows burada GEREKMEZ.
     Ok(())
 }
@@ -650,11 +634,11 @@ pub fn temayi_yeniden_yukle(
 ### Başarım
 
 | Operasyon | Süre | Hot path? |
-|-----------|------|-----------|
+| ----------- | ------ | ----------- |
 | `registry.get(name)` | O(1) HashMap lookup | Sık (her tema değişimde) |
 | `GlobalTheme::update_theme` | Global update + observer trigger | Sık |
 | `refresh_windows` | Tüm açık view ağaçları | Sık |
-| `Theme::from_content` (reload) | ~25–60 µs (Konu 32) | Nadir |
+| `Theme::from_content` (reload) | ~25–60 µs | Nadir |
 | Tek tema değişimi toplam | ~2–5 ms (next frame'de görünür) | Kullanıcı tetikler |
 
 ### Tuzaklar
@@ -664,7 +648,6 @@ pub fn temayi_yeniden_yukle(
 3. **Async reload'da `cx` lifetime'ı**: `cx.spawn` içinde `cx` `AsyncApp`'tir; sync bağlamaya `cx.update(|cx| ...)` ile geçiş yaparsın.
 
 ---
-
 
 ### `ThemeSettingsProvider` — settings entegrasyon trait'i
 
@@ -753,7 +736,7 @@ fn main() {
 - Test ortamında `MockTemaAyarSaglayici` enjekte edilebilir; gerçek bir ayar store'u kurmaya gerek kalmaz.
 - Ayar dosya formatı değişirse (`config.toml` → `settings.json`) trait imzası değişmeden kalır.
 
-**Konu 38 (`temayi_degistir`) ile ilişki:** `temayi_degistir` çağrıldığında ayar dosyasının da güncellenmesi istenirse `tema_ayarlari(cx)` üzerinden mutable bir API tasarlanır; Zed'de bunu `update_settings_file` üstlenir. `kvs_tema` `settings` crate'inin sözleşmesine bağımlı olmadığı için bu çağrı **tüketici tarafında** kalır.
+**İlgili bölüm (`temayi_degistir`) ile ilişki:** `temayi_degistir` çağrıldığında ayar dosyasının da güncellenmesi istenirse `tema_ayarlari(cx)` üzerinden mutable bir API tasarlanır; Zed'de bunu `update_settings_file` üstlenir. `kvs_tema` `settings` crate'inin sözleşmesine bağımlı olmadığı için bu çağrı **tüketici tarafında** kalır.
 
 **`ThemeSettingsContent` alan modeli:**
 
@@ -773,7 +756,7 @@ unnecessary_code_fade, experimental_theme_overrides, theme_overrides
 Bu alanların yardımcı tipleri de şemaya dahildir:
 
 | Tip | Rol | Kritik sözleşme |
-|-----|-----|-----------------|
+| ----- | ----- | ----------------- |
 | `ThemeSettingsContent` | Kullanıcı ayar dosyasındaki tema/font/density alanları | 22 alan; `#[serde(default)]` ve `MergeFrom` davranışı korunur |
 | `FontSize` | `f32` pixel newtype'ı | Serialize edilirken iki ondalık basamak tutar |
 | `FontFamilyName` | font family adı | `#[serde(transparent)]`, `Arc<str>` |
@@ -875,7 +858,7 @@ Yani `BufferLineHeight::Custom(0.5)` gibi geçersiz değerler bile accessor sevi
 **`kvs_tema` karşılığı:** Bu API ailesi `kvs_tema` runtime crate'inin değil, **settings/UI köprüsünün** sorumluluğudur. Mirror tarafta üç strateji vardır:
 
 | Strateji | Açıklama | Ne zaman |
-|----------|----------|----------|
+| ---------- | ---------- | ---------- |
 | Provider trait'ini genişletme | `TemaAyarSaglayici`'a `adjust_*`/`reset_*` eklenir | `kvs_tema` tüketicilerinin font değişimini dinlemesi gerekiyorsa |
 | Sade newtype mirror | `BufferFontSize` vb. global'leri `kvs_tema_ayarlari` crate'inde tutulur, `adjust_*`/`reset_*` orada implement edilir | Settings UI'sı bağımsız bir crate olduğunda |
 | Atlama | UI yoksa hiç mirror edilmez | Font picker kapsam dışı bırakıldıysa |
@@ -885,21 +868,6 @@ Sözleşme parite bayrağı şudur: bu fonksiyonlar `kvs_tema` public API'sinde 
 ---
 
 ## 40. `UiDensity` — UI yoğunluk ayarı
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `UiDensity` | `cmp`, `deserialize`, `from`, `hash`, `json_schema`, `serialize` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `UiDensity` | Metotlar | `spacing_ratio` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `UiDensity` | Varyantlar | `Comfortable`, `Compact` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
 
 **Kaynak:** `theme` crate'i.
 
@@ -964,122 +932,3 @@ impl Render for Toolbar {
 > **JSON anahtarı `"unstable.ui_density"`'dir** (`settings_content` crate'i). `ThemeSettingsContent.ui_density` alanı `#[serde(rename = "unstable.ui_density")]` ile işaretlenir. Düz bir `"ui_density"` anahtarı **tanınmaz**, parse aşamasında `None` kalır ve default değer (`UiDensity::Default`) etkin olur. Mirror tarafta aynı rename konulmalıdır; çünkü hedeflenen Zed sözleşmesinde geçerli anahtar budur. `"ui_density"` gibi alternatif anahtarlar desteklenmez.
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `EditorSettingsContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar 1 | `auto_signature_help`, `autoscroll_on_clicks`, `code_lens`, `completion_detail_alignment`, `completion_menu_item_kind`, `completion_menu_scrollbar`, `current_line_highlight`, `cursor_blink` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 2 | `cursor_shape`, `diagnostics_max_severity`, `diff_view_style`, `double_click_in_multibuffer`, `drag_and_drop_selection`, `excerpt_context_lines`, `expand_excerpt_lines`, `fast_scroll_sensitivity` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 3 | `go_to_definition_fallback`, `go_to_definition_scroll_strategy`, `gutter`, `horizontal_scroll_margin`, `hover_popover_delay`, `hover_popover_enabled`, `hover_popover_hiding_delay`, `hover_popover_sticky` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 4 | `inline_code_actions`, `jupyter`, `lsp_document_colors`, `lsp_document_links`, `lsp_highlight_debounce`, `middle_click_paste`, `minimap`, `minimum_contrast_for_highlights` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 5 | `minimum_split_diff_width`, `mouse_wheel_zoom`, `multi_cursor_modifier`, `redact_private_values`, `relative_line_numbers`, `rounded_selection`, `scroll_beyond_last_line`, `scroll_sensitivity` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 6 | `scrollbar`, `search`, `search_wrap`, `seed_search_query_from_cursor`, `selection_highlight`, `show_signature_help_after_edits`, `snippet_sort_order`, `sticky_scroll` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 7 | `toolbar`, `use_smartcase_search`, `vertical_scroll_margin` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ModifiersContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `alt`, `control`, `function`, `platform`, `shift` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `SettingsProfile`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `base`, `settings` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `FontFeaturesContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ThemeSettingsContent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar 1 | `agent_buffer_font_size`, `agent_ui_font_size`, `buffer_font_fallbacks`, `buffer_font_family`, `buffer_font_features`, `buffer_font_size`, `buffer_font_weight`, `buffer_line_height` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 2 | `experimental_theme_overrides`, `git_commit_buffer_font_size`, `icon_theme`, `markdown_preview_code_font_family`, `markdown_preview_font_family`, `markdown_preview_theme`, `theme`, `theme_overrides` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 3 | `ui_density`, `ui_font_fallbacks`, `ui_font_family`, `ui_font_features`, `ui_font_size`, `ui_font_weight`, `unnecessary_code_fade` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `CodeFade`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ThemeSelectionDiscriminants`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `from_repr` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ThemeSelection`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `IconThemeSelectionDiscriminants`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `from_repr` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `IconThemeSelection`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `FontFamilyName`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `0` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `BufferLineHeightDiscriminants`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Comfortable`, `Custom`, `Standard` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `from_repr` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `BufferLineHeight`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Comfortable`, `Custom`, `Standard` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `ThemeSelection`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `mode`, `name` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `IconThemeSelection`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Dynamic`, `Static` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `mode`, `name` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `BufferLineHeight`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Comfortable`, `Custom`, `Standard` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `value` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

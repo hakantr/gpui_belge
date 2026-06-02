@@ -32,7 +32,7 @@ pub struct Rgba { pub r: f32, pub g: f32, pub b: f32, pub a: f32 }
 **Constructor tablosu:**
 
 | Çağrı | Sonuç | Notlar |
-|-------|-------|--------|
+| ------- | ------- | -------- |
 | `hsla(h, s, l, a)` | `Hsla` | Free function, en yaygın yol. |
 | `rgb(0xff0000)` | `Rgba` | 24-bit RGB; alpha 1.0. |
 | `rgba(0xff000080)` | `Rgba` | 32-bit RGBA; son byte alpha. |
@@ -234,7 +234,7 @@ CSS weight değerleriyle birebir, sabit olarak tanımlıdır:
 ![FontWeight Ölçeği](assets/font-weight-olcegi.svg)
 
 | Sabit | Değer | CSS karşılığı |
-|-------|-------|---------------|
+| ------- | ------- | --------------- |
 | `FontWeight::THIN` | 100.0 | thin |
 | `FontWeight::EXTRA_LIGHT` | 200.0 | extra-light |
 | `FontWeight::LIGHT` | 300.0 | light |
@@ -255,7 +255,7 @@ Tema JSON anahtarı `"font_weight": 700` veya `"font_weight": 700.0` biçimini k
 2. **`FontWeight(700.0)` ile `FontWeight::BOLD` arasındaki tercih**: Davranış açısından ikisi de aynı sonucu verir; ancak okunabilirlik açısından sabit kullanmak çok daha açıklayıcıdır.
 3. **`underline`, `strikethrough`, `fade_out` sınırını karıştırmak**: `HighlightStyle` tipi bu alanları taşır, ancak Zed tema JSON'u syntax bloğunda bunları doğrudan kabul etmez. Mirror tarafında da bu ayrımı korumak gerekir: runtime tipinin kapasitesi ile JSON sözleşmesinin izin verdiği alanlar aynı şey değildir.
 4. **`FontStyle::Oblique` render farkı**: Çoğu OS font'unda Italic ile aynı şekilde render edilir, ancak bazı font'larda ayrı bir glyph seti bulunabilir. "Italic seçildi ama Oblique göründü" şeklinde bir bildirim geldiğinde gözlerin font katmanına çevrilmesi yerinde olur.
-5. **`HighlightStyle::default()` nötrdür ama syntax katmanında **görünmezdir**:** Tüm alanlar `None` döndürür (color dahil). Bir syntax kategorisi için `Default::default()` konulduğunda token şeffaf kalır. `Hsla::default()` görünmezliğin renk tarafıdır; `HighlightStyle::default()` ise stil tarafının görünmezliğidir. Fallback syntax kurulurken (Konu 25) her kategoriye en az `color: Some(...)` verilmesi, görünmezliğin önüne geçer.
+5. **`HighlightStyle::default()` nötrdür ama syntax katmanında **görünmezdir**:** Tüm alanlar `None` döndürür (color dahil). Bir syntax kategorisi için `Default::default()` konulduğunda token şeffaf kalır. `Hsla::default()` görünmezliğin renk tarafıdır; `HighlightStyle::default()` ise stil tarafının görünmezliğidir. Fallback syntax kurulurken her kategoriye en az `color: Some(...)` verilmesi, görünmezliğin önüne geçer.
 
 ---
 
@@ -278,7 +278,7 @@ pub enum WindowBackgroundAppearance {
 ```
 
 | Değer | Davranış | Platform notu |
-|-------|----------|---------------|
+| ------- | ---------- | --------------- |
 | `Opaque` (default) | Pencere arka planı tam dolu; altındaki masaüstü görünmez. | Her yerde çalışır. |
 | `Transparent` | Pencere altındaki masaüstü/diğer pencereler doğrudan görünür. Bunun için tema'nın `background` rengi alpha < 1 olmalı. | macOS, Windows, Wayland evet. X11 compositor'a bağlı. |
 | `Blurred` | macOS Mica/Vibrancy benzeri blur. | macOS evet, Windows 11 evet, Linux kısıtlı (Wayland: layer-shell). |
@@ -290,7 +290,7 @@ pub(crate) struct ThemeStyles {
     pub(crate) window_background_appearance: WindowBackgroundAppearance,
     // ...
 }
-// Theme accessor (Konu 12)
+// Theme accessor
 impl Theme {
     pub fn window_background_appearance(&self) -> WindowBackgroundAppearance {
         self.styles.window_background_appearance
@@ -412,7 +412,7 @@ impl Render for AnaPanel {
 - `cx.spawn(...)` — async task başlatır.
 - `cx.subscribe(...)`, `cx.observe(...)` — entity'ler arası izleme kurarsın.
 
-Tema sistemi bu metotları **kendi içinde kullanmaz**. UI tüketicisi (Bölüm X), bir entity'yi tema değişimine bağlamak istediğinde bu bağlantıyı `cx.notify()` gibi mekanizmalarla kendisi kurarsın.
+Tema sistemi bu metotları **kendi içinde kullanmaz**. UI tüketicisi, bir entity'yi tema değişimine bağlamak istediğinde bu bağlantıyı `cx.notify()` gibi mekanizmalarla kendisi kurarsın.
 
 ### `Window`
 
@@ -435,7 +435,7 @@ Tema sisteminin global yönetimi bu trait üzerinden işler. Aynı `GlobalTheme:
 **Trait uyum tablosu (tema açısından):**
 
 | Bağlam | `cx.theme()` | `set_global` | `cx.notify()` | `cx.window_appearance()` |
-|--------|--------------|--------------|---------------|---------------------------|
+| -------- | -------------- | -------------- | --------------- | --------------------------- |
 | `&App` | ✓ | ✗ (mut gerek) | ✗ | ✓ |
 | `&mut App` | ✓ | ✓ | ✗ | ✓ |
 | `&Context<T>` | ✓ | ✗ | ✗ | ✓ |
@@ -476,9 +476,9 @@ impl Global for GlobalThemeRegistry {}
 **API metotları (`BorrowAppContext`):**
 
 | Metot | Davranış | Yoksa |
-|--------|----------|-------|
+| -------- | ---------- | ------- |
 | `cx.set_global(g)` | Kurar veya üzerine yazar | OK |
-| `cx.update_global::<G, _>(\|g, cx\| ...)` | Mutate eder | **Panic** |
+| `cx.update_global::<G, _>(\ | g, cx\ | ...)` | Mutate eder | **Panic** |
 | `cx.has_global::<G>()` | Kontrol | `false` |
 | `cx.try_global::<G>()` | Okuma | `None` |
 | `cx.global::<G>()` | Okuma | **Panic** |
@@ -501,12 +501,12 @@ pub fn install_or_update_theme(cx: &mut App, theme: Arc<Theme>) {
 
 İlk çağrıda `set_global`, sonraki çağrılarda ise `update_global` kullanırsın. Bu desen tema sistemine özgü değildir; global state yönetimi için genel ve okunaklı bir kalıptır.
 
-> **İsim çakışmasından kaçınma:** `theme_settings::settings` modülünde `pub fn set_theme(current: &mut SettingsContent, …)` adında **ayrı bir public yardımcı** vardır (Konu 39). Bu fonksiyon kullanıcı ayar dosyasını mutate eder, runtime global'ini değil; ikisinin aynı isme bağlanması okuyucuyu yanıltır. Mirror tarafında runtime fonksiyonunun adı `update_theme` (Zed paritesi) veya `install_or_update_theme` gibi farklı bir kimlikte tutulmalıdır.
+> **İsim çakışmasından kaçınma:** `theme_settings::settings` modülünde `pub fn set_theme(current: &mut SettingsContent, …)` adında **ayrı bir public yardımcı** vardır. Bu fonksiyon kullanıcı ayar dosyasını mutate eder, runtime global'ini değil; ikisinin aynı isme bağlanması okuyucuyu yanıltır. Mirror tarafında runtime fonksiyonunun adı `update_theme` (Zed paritesi) veya `install_or_update_theme` gibi farklı bir kimlikte tutulmalıdır.
 
 ### Tema sisteminin üç global'i
 
 | Global | İçerik | Kim kurar | Kim okur |
-|--------|--------|-----------|----------|
+| -------- | -------- | ----------- | ---------- |
 | `GlobalThemeRegistry` | `Arc<ThemeRegistry>` | `cx.set_global(GlobalThemeRegistry(...))` (Zed'de `pub(crate) ThemeRegistry::set_global` wrapper'ı bunu yapar) | `ThemeRegistry::global(cx)` |
 | `GlobalTheme` | `Arc<Theme>` + `Arc<IconTheme>` (aktif) | `cx.set_global(GlobalTheme::new(...))`, sonra `update_theme` / `update_icon_theme` | `cx.theme()`, `GlobalTheme::icon_theme(cx)` |
 | `GlobalSystemAppearance` | `SystemAppearance` | `SystemAppearance::init` | `SystemAppearance::global(cx)` |
@@ -610,7 +610,7 @@ Tema sözleşmesinde fiilen kullanılanlar şunlardır:
 Macro, alan tipine göre üç farklı sarmalama yapar (`refineable` crate'i):
 
 | Alan tipi (input) | Refinement'taki tip | Davranış |
-|-------------------|---------------------|----------|
+| ------------------- | --------------------- | ---------- |
 | Düz `T` (örn. `Hsla`, `Pixels`) | `Option<T>` | `Some(v)` override eder, `None` baseline'ı korur |
 | `Option<T>` (zaten Option) | `Option<T>` **aynen** (tekrar sarmalanmaz) | Boş ↔ dolu durumu kullanıcı seviyesinden gelir; macro yeniden `Option<Option<T>>` üretmez |
 | `#[refineable] U` (nested refineable) | `URefinement` (nested refinement tipi) | Recursive olarak `refine` çağrılır |
@@ -670,7 +670,7 @@ Tema sistemi bu tipleri kullanmaz; baseline + kullanıcı olmak üzere iki katma
 2. **Public/private uyumsuzluğu**: `pub struct ThemeColors` tanımı varsa Refinement tipi de `pub struct ThemeColorsRefinement` olarak üretilir. Visibility, macro tarafından kopyalanır.
 3. **`refine` ile `refined` arasındaki tercih**: İlki `&mut self` üzerinde çalışır, ikincisi sahip alır. `Hsla` gibi küçük alanlar için `refine` her zaman daha doğal bir seçimdir.
 4. **Nested struct'lar için karar noktası**: Macro yalnızca `#[refineable]` ile işaretli alanlarda recursive birleştirme yapar. `Theme.styles.colors` gibi katmanlarda bu ilişkinin bilinçli kurulması istenmediği durumlarda, `Theme::from_content` her alt struct için ayrı bir `refine` çağrısı yürütür.
-5. **`refineable` crate'inin `publish = false` olması**: Crates.io'ya yayınlanan bir crate'in bu derive'ı kullanabilmesi için fork veya vendor yolu zorunlu olur (bkz. Konu 3).
+5. **`refineable` crate'inin `publish = false` olması**: Crates.io'ya yayınlanan bir crate'in bu derive'ı kullanabilmesi için fork veya vendor yolu zorunlu olur ().
 6. **Refinement tipinin `Default` taşımak zorunda olması**: `..Default::default()` yazılmadığında her alanın açıkça vermen gerekir. Macro `Default` türevini zaten ücretsiz olarak ürettiği için bundan yararlanmak yapılacak en doğal şeydir.
 
 ---

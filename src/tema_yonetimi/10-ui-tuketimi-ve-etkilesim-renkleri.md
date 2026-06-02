@@ -59,7 +59,7 @@ let local = tema.players().local().cursor;
 `ThemeStyles`, `ThemeColors`, `StatusColors`, `PlayerColors`, `AccentColors`, `SystemColors` ve `SyntaxTheme` runtime veri modelinin parçalarıdır; UI tarafında çoğunlukla bu tipleri doğrudan kurmazsın, aktif `Theme` üzerinden okursun. Bu ayrım önemlidir: bileşen kodu tema üreticisi değildir, tema tüketicisidir.
 
 | Runtime tipi | UI'daki erişim yolu | Kullanım |
-|--------------|---------------------|----------|
+| -------------- | --------------------- | ---------- |
 | `ThemeStyles` | Doğrudan okunmaz; `Theme` accessor'ları üzerinden parçalanır. | Tema iç yapısını bir arada tutan kap. |
 | `ThemeColors` | `cx.theme().colors()` | Yüzey, metin, icon, border, editor, terminal ve interaction renkleri. |
 | `StatusColors` | `cx.theme().status()` | Error, warning, info, success, git/diff ve benzeri durum renkleri. |
@@ -147,7 +147,7 @@ impl Render for X {
 }
 ```
 
-**Genel tercih (A), yani stateless yaklaşımdır.** `cx.refresh_windows()` (Bölüm VIII/Konu 38) view'ı yeniden çağırır ve tema yeni değerlerle okunur. (B) yaklaşımı tema değişimine **kapalı** kalır; eski rengi tutmaya devam eder ve bu bug'a dönüşür.
+**Genel tercih (A), yani stateless yaklaşımdır.** `cx.refresh_windows()` view'ı yeniden çağırır ve tema yeni değerlerle okunur. (B) yaklaşımı tema değişimine **kapalı** kalır; eski rengi tutmaya devam eder ve bu bug'a dönüşür.
 
 İstisna: render içinde **hesaplanmış bir değer** (örneğin `bg.opacity(0.5)`) başarım için cache edilebilir. Ancak `cx.theme()` zaten bellek ayırma üretmediği için bu seviyede cache çoğu zaman gereksizdir.
 
@@ -285,7 +285,7 @@ Markdown preview hattı, tema tüketicisi olarak şu alanları kullanır:
 Editor completion menüsündeki `completion_menu_item_kind = "symbol"` ayarı da syntax theme'i editor metni dışında tüketir. Ayar `off` iken rozet yoktur; `symbol` iken her completion için tek harflik bir rozet çizilir ve varsa syntax capture rengiyle boyanır. Noktalı capture adlarında tam ad bulunamazsa parent capture denenir (`function.method` → `function`). Capture yoksa veya capture'ın `color` alanı boşsa rozet yine çizilir, ancak özel renklendirme yapılmaz.
 
 | LSP kind | Rozet | Syntax capture |
-|----------|-------|----------------|
+| ---------- | ------- | ---------------- |
 | `TEXT` | `t` | — |
 | `METHOD` | `m` | `function.method` |
 | `FUNCTION` | `f` | `function` |
@@ -363,7 +363,7 @@ impl Render for InteractiveButton {
 **Önemli noktalar:**
 
 - `.id(...)` çağrısı **şarttır** — Interactivity (hover/active/click) bileşeni stateful bir yapıdadır ve ID olmadan GPUI durumu tanıyamaz.
-- `.hover(|s| ...)` ve `.active(|s| ...)` çağrıları bir `StyleRefinement` callback'i alır (Bölüm III/Konu 11). Bu refinement element üzerine layer'lanır.
+- `.hover(|s| ...)` ve `.active(|s| ...)` çağrıları bir `StyleRefinement` callback'i alır. Bu refinement element üzerine layer'lanır.
 
 ### Hover varyantları
 
@@ -480,13 +480,13 @@ div()
 **Ne zaman ghost kullanılır?**
 
 | Durum | element | ghost_element |
-|-------|---------|---------------|
-| Toolbar icon button | | ✓ |
-| Form button | ✓ | |
-| Sidebar item | | ✓ (genelde) |
-| Modal action | ✓ | |
-| Tab şeridi | | ✓ |
-| Dropdown trigger | ✓ | |
+| ------- | --------- | --------------- |
+| Toolbar icon button |  | ✓ |
+| Form button | ✓ |  |
+| Sidebar item |  | ✓ (genelde) |
+| Modal action | ✓ |  |
+| Tab şeridi |  | ✓ |
+| Dropdown trigger | ✓ |  |
 
 **Genel kural:** Element'in **kendine ait bir kromu** varsa (border, görünür bg) → `element_*` seçersin. Yüzeye yapışmış, yalnızca hover/active'de görünen bir element ise → `ghost_element_*` tercih edersin.
 
@@ -532,7 +532,7 @@ Bileşen interactive mi?
    ```
 3. **Hover ile active sıralamasının tersine yazılması**: `.active(...).hover(...)` yazılsa bile davranış aynıdır (refinement sırası önceden belirlenmiştir); ancak okunabilirlik için `hover → active` sıralaması idiomatik kabul edilir.
 4. **`element_disabled` yerine `element_background.opacity(0.5)` tercih etmek**: İki seçenek farklı tasarım kararlarıdır. Tema yazarı disabled için özel bir renk vermiş olabilir; bu durumda `element_disabled` alanının kullanman gerekir.
-5. **`element_selected`'in her zaman dolu olduğunu varsaymak**: Refinement aşamasında `Some` değer geldiğinde dolu olur; tema yazarı vermediğinde baseline değerinden gelir. Fallback tema değerinin açık doldurulması, sürpriz boşlukların önüne geçer (Bölüm VI/Konu 25).
+5. **`element_selected`'in her zaman dolu olduğunu varsaymak**: Refinement aşamasında `Some` değer geldiğinde dolu olur; tema yazarı vermediğinde baseline değerinden gelir. Fallback tema değerinin açık doldurulması, sürpriz boşlukların önüne geçer.
 6. **Ghost ile element'in karıştırılması**: Toolbar bir element'e `element_background` verildiğinde, beklenen şeffaf görüntü yerine yüzey rengiyle dolar; bu durum tasarım dilinin kaymasına yol açar.
 7. **Etkileşim durumlarının kontrast olmayan renklerle verilmesi**: `element_hover` ile `element_background` arasında yeterli lightness farkı bulunmadığında kullanıcı hover etkisini fark etmez. Tema testlerinde bu farkın gözle doğrulanması yerinde olur.
 
