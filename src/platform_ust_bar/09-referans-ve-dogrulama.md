@@ -52,7 +52,7 @@ Bu dört aşamalı zincirden sonra `.bg(titlebar_color).content_stretch().child(
 
 Burada önemli bir kural vardır: aşamalar **birbirleriyle commutative değildir**. Yani 3. aşamadaki sol padding seçimi, 4. aşamadaki corner rounding'in yatay hizalamasını doğrudan etkiler. Sıralamayı değiştirmek gözle hemen fark edilmeyen hizalama hataları üretebilir.
 
-`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipinde tanımlıdır. Yapı iki element için stack-inline kapasite ayırır. Bunun nedeni Zed'in tipik kullanım kalıbının **sol grup + sağ grup** olmasıdır (rehberin Konu 16'sındaki örneğe bakılabilir). Bu yapıya ikiden fazla element verildiğinde heap bellek ayırma yapılır. Bu yüzden içeriği iki gruba toplamak hem ergonomik açıdan tutarlı kalır hem de bellek ayırma sayısını azaltır.
+`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipinde tanımlıdır. Yapı iki element için stack-inline kapasite ayırır. Bunun nedeni Zed'in tipik kullanım kalıbının **sol grup + sağ grup** olmasıdır (rehberin ilgili bölüm'sındaki örneğe bakılabilir). Bu yapıya ikiden fazla element verildiğinde heap bellek ayırma yapılır. Bu yüzden içeriği iki gruba toplamak hem ergonomik açıdan tutarlı kalır hem de bellek ayırma sayısını azaltır.
 
 ### `platforms::platform_linux`
 
@@ -282,24 +282,3 @@ Bu bilgilerin port hedefi için anlamı şudur: `PlatformTitleBar` tek başına 
 - Zed ürün titlebar katmanı platform kabuğuna ürün banner, user menu veya update button gibi ürün sorumlulukları eklemez; bunlar `TitleBar` child kompozisyonunda kalır.
 
 Bu liste, port eden geliştiricinin davranış paritesini gözden geçirmesi için yeterlidir. Kaynak keşfi ve kapsam taraması gerekiyorsa bunun çalışma notları mdBook dışında tutulur.
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `WindowControlType`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Close`, `Maximize`, `Minimize`, `Restore` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `icon` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `DraggedWindowTab`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `active_background_color`, `handle`, `id`, `inactive_background_color`, `is_active`, `ix`, `title`, `width` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-<!-- phase14-api-anchor:end -->

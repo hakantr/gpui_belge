@@ -78,29 +78,3 @@ Zed uygulamasındaki gerçek yönetim zinciri şu kaynaklardan takip edilir:
 Bu zincirden çıkan port kuralı nettir: `PlatformTitleBar` tek başına tam bir başlık çubuğu uygulaması değildir. O yalnızca render edilen başlık kabuğunu temsil eder. Zed'de bu kabuğu gerçekten çalışır hale getiren şey; `WindowOptions` ayarları, GPUI'nin platform callback'leri, `TitleBarSettings`, `Workspace` lifecycle'ı ve CSD sarmalının birlikte kurduğu bütündür. Port hedefinde de bu beş parça aynı anda düşünmen gerekir. Bunlardan biri eksik kalırsa başlık çubuğunun davranış paritesi bozulur.
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `PlatformTitleBar`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `init`, `is_multi_workspace_enabled`, `new`, `set_button_layout`, `set_children`, `set_multi_workspace`, `title_bar_color`, `with_multi_workspace` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `WindowsWindowControls`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `new` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `TitleBar`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `effective_active_worktree`, `new`, `render_project_host`, `render_restricted_mode`, `render_sign_in_button`, `render_user_menu_button` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

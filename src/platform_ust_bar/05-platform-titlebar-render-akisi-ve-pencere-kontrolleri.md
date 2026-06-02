@@ -201,5 +201,4 @@ Bu mekanizmanın sonucu üç maddede özetlenir:
 - Linux CSD titlebar üzerindeki sağ tık window menu handler'ı, ancak `supported_controls.window_menu` `true` olduğunda eklenir.
 - Port hedefinde `WindowControls::default()` değerinin kalıcı gerçek olduğu sanılmamalıdır. Özellikle Wayland'da capability configure olayı geldikten sonra bu değerler değişebilir ve render buna uyum sağlamalıdır.
 
-
 ---
