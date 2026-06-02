@@ -68,4 +68,4 @@ Menüleri ayrı bir satıra taşıma ihtiyacın varsa, [3. bölümdeki](03-title
 - Başlıktaki tüm interaktif element'ler sürükleme propagation'ını durduruyor mu (buton tıklaması pencereyi sürüklemiyor)?
 - Collab/banner gibi opsiyonel parçalar, karşılığı olmayan bir uygulamada hiç kurulmamış mı?
 
-Bu liste, kaynak dosya veya satır taraması gerektirmeden ürün başlığının davranış paritesini gözden geçirmek için yeterlidir. API isimleri ve davranışlar bu rehberde anlatıldığı gibidir; bir API'nin güncel kaynaktaki tam imzasını veya konumunu doğrulamak gerekirse, bu çalışma `.agents` altındaki API anlık görüntüsü ve veritabanı üzerinden yapılır, rehber metnine taşınmaz.
+Bu liste, ürün başlığının davranış paritesini gözden geçirmek için yeterlidir. API isimleri ve davranışlar bu rehberde anlatıldığı gibidir; bir API'nin güncel tam imzasını teyit etmek istersen Zed kaynağına bakman yeterlidir.
