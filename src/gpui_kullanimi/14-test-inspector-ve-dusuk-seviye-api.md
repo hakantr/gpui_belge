@@ -197,21 +197,27 @@ assert!(sinirlar.size.height > px(0.));
 
 ## Profiler
 
-`crates/gpui/src/profiler.rs` GPUI scheduler'ının ön plan ve arka plan executor'larının çalıştırdığı task'ların başlangıç-bitiş aralıklarını thread başına dairesel bir buffer'da toplar. Bu veriyi, başarım analizi yapacak bir UI veya CLI üzerinden serileştirilebilir tipler üzerinden okursun. Üretim build'inde modül normalde sessizdir; örneklemeyi `set_enabled` ile açtığında task ekleme yolu işler.
+`crates/gpui/src/profiler.rs` GPUI scheduler'ının ön plan ve arka plan executor'larının çalıştırdığı task'ların başlangıç, yield ve runtime bilgilerini thread başına toplar. Bu yüzey iki katmanlıdır: ucuz istatistikler sürekli güncellenebilir, ayrıntılı trace buffer'ı ise `set_trace_enabled` ile açılır. Veriyi başarım analizi, reliability log'u veya geliştirici aracı üzerinden serileştirilebilir tiplerle okursun.
 
 **Profilleme açma/kapama.**
 
 ```rust
-let onceki = gpui::profiler::set_enabled(true);
+let degisti = gpui::profiler::set_trace_enabled(true);
 ```
 
-- `set_enabled(true)` profilleme örneklemesini açar; içeride `PROFILER_ENABLED: AtomicBool` `AcqRel` ile değiştirilir. Önceki değer zaten istenen değere eşitse no-op olur ve `false` döner.
-- `set_enabled(false)` örneklemeyi kapatır ve aktif thread buffer'larını temizler; tekrar açma anında eski veri bilinmediği için aynı oturumun ilerisindeki ölçümle karışmasın diye buffer `shrink_to_fit` ile küçültülür.
-- `set_enabled` değerin gerçekten değiştiği durumda `true`, değişmediği durumda `false` döner; çağıran taraf log satırı yazıp yazmama kararını bunun üzerinden verebilir.
+- `set_trace_enabled(true)` ayrıntılı task trace buffer'ını açar; istatistik toplama bundan bağımsız olarak çalışır.
+- `set_trace_enabled(false)` trace buffer'larını temizler ve sonraki açılışta eski timing kayıtlarının yeni oturumla karışmasını önler.
+- `set_trace_enabled` değerin gerçekten değiştiği durumda `true`, değişmediği durumda `false` döner. `trace_enabled()` o andaki trace bayrağını okur.
+- `TasksIncluded::OnlyCompleted` yalnız tamamlanmış ölçümleri, `TasksIncluded::CompletedAndRunning` ise o anda çalışan task/action bilgisini de snapshot'a katar.
 
 **Serileştirilebilir veri modeli.**
 
 ```rust
+pub enum TasksIncluded {
+    OnlyCompleted,
+    CompletedAndRunning,
+}
+
 pub struct SerializedTaskTiming {
     pub location: SerializedLocation,
     pub start: u128,    // anchor'a göre nanosaniye
@@ -231,13 +237,19 @@ pub struct SerializedLocation {
 }
 ```
 
-- `SerializedTaskTiming::convert(anchor: Instant, &[TaskTiming])` ham `TaskTiming` dizisini base anchor zamanına göre nanosaniye offset'i ve süre çiftine çevirir. Devam eden task'lar (henüz `end` set edilmemiş) süresini `Instant::now()` üzerinden tahmin eder; bu yüzden snapshot zamanına göre canlı task'lar şişebilir. Devam eden ölçüm istemiyorsan snapshot öncesi `set_enabled(false)` çağırır, ardından okursun.
+- `TaskTiming` artık `spawned`, `start` ve `YieldTime(end)` değerlerini taşır. `poll_duration()` tek poll'un yield etmeden önce ne kadar sürdüğünü verir; runtime hesabı spawn zamanından end'e kadardır.
+- `ThreadTaskTimings` thread adı, `ThreadId`, tamamlanmış/canlı `TaskTiming` dizisi, `TaskStatistics` ve `total_pushed` değerini birlikte taşır.
+- `TaskStatistics` en uzun poll sürelerini ve en uzun runtime kayıtlarını beşli listeler halinde saklar. `ThreadTaskStatistics` bu istatistiğin thread bazlı resetlenebilir snapshot'ıdır.
+- `ActionStatistics` ve `ActionTiming`, action dispatch sırasında en uzun bloklayan action'ları izler. `take_action_stats()` bu global action istatistiğini alır ve tamamlanmış listeyi sıfırlar; canlı action bilgisi korunur.
+- `SerializedTaskTiming::convert(anchor: Instant, &[TaskTiming])` ham `TaskTiming` dizisini base anchor zamanına göre nanosaniye offset'i ve süre çiftine çevirir. Devam eden task snapshot'a dahil edildiyse `end` değeri snapshot anındaki `Instant::now()` ile üretilir.
+- `SerializedTaskTiming::from(anchor, timing)` tek bir `TaskTiming` kaydını serileştirir; delta üreticileri bunu iç döngüde kullanır.
 - `SerializedThreadTaskTimings::convert(anchor, ThreadTaskTimings)` thread'in tüm `TaskTiming` dizisini serileştirir, `ThreadId` değerini deterministik hash ile `u64`'e indirir. Anchor genelde app startup zamanıdır; aynı anchor'ı kullanırsan farklı thread snapshot'larını aynı zaman ekseninde karşılaştırabilirsin.
 
 **Snapshot ve delta okuma.**
 
-- Snapshot için `ThreadTaskTimings::convert(&[GlobalThreadTimings])` global olarak bilinen tüm thread buffer'larını bir araya getirir. Çağıran taraf önce `GLOBAL_THREAD_TIMINGS.lock()` üzerinden ham `GlobalThreadTimings` listesini alır; üretim kodu için bu API `#[doc(hidden)]`'dır ve dev tooling tarafında tercih edersin.
-- Delta okumayı `ProfilingCollector` üzerinden yaparsın: collector başlangıç anchor'ını saklar ve `collect_unseen(all_timings)` çağrısı her thread için son `cursor` konumundan ileriyi serileştirir. Buffer dairesel olduğundan cursor geride kaldığında eski kayıtlar silinmiş olabilir; bu durumda buffer'da kalan tüm timing'ler döner ve cursor güncellenir. Devam eden son task delta'ya dahil edilmez (`end = None`); bir sonraki çağrıda tamamlanmışsa sıraya alınır.
+- Snapshot için `get_all_timings(TasksIncluded::...)` global olarak bilinen tüm thread buffer'larını bir araya getirir. Yalnız çağıran thread gerekiyorsa `get_current_thread_timings(TasksIncluded::...)` kullanırsın.
+- İstatistik snapshot'ı için `take_all_stats(TasksIncluded::...)` thread bazlı `TaskStatistics` değerlerini alır ve tamamlanmış istatistikleri resetler. `CompletedAndRunning` seçersen canlı task snapshot anındaki süreyle hesaba katılır.
+- Delta okumayı `ProfilingCollector` üzerinden yaparsın: collector başlangıç anchor'ını saklar ve `collect_unseen(all_timings)` çağrısı her thread için son `cursor` konumundan ileriyi serileştirir. Buffer dairesel olduğundan cursor geride kaldığında eski kayıtlar silinmiş olabilir; bu durumda buffer'da kalan tüm timing'ler döner ve cursor güncellenir.
 - `ProfilingCollector::startup_time()` collector'ın zaman ekseni için kullandığı başlangıç `Instant` değerini döndürür. Harici profil UI'ı aynı anchor ile farklı thread delta'larını aynı zaman çizelgesine yerleştirebilir.
 - `ProfilingCollector::reset()` cursor'ları sıfırlar; yeni bir profil seansı başlatırken kullanırsın.
 
@@ -246,12 +258,12 @@ pub struct SerializedLocation {
 ```rust
 let anchor = scheduler::Instant::now();
 let mut collector = gpui::profiler::ProfilingCollector::new(anchor);
-gpui::profiler::set_enabled(true);
+gpui::profiler::set_trace_enabled(true);
 
 // ... uygulamayı çalıştır, bir süre sonra ...
 
-let snapshot = gpui::profiler::ThreadTaskTimings::convert(
-    &gpui::profiler::GLOBAL_THREAD_TIMINGS.lock(),
+let snapshot = gpui::profiler::get_all_timings(
+    gpui::TasksIncluded::CompletedAndRunning,
 );
 let deltalar = collector.collect_unseen(snapshot);
 for thread in deltalar {
@@ -268,19 +280,20 @@ Bu örnek `ProfilingCollector` ile artımlı okuma yapar; uzun süre çalışan 
 
 **Yardımcı fonksiyonlar.** Crate kökünden yeniden dışa aktarılan thread-local yardımcılar şunlar:
 
-- `gpui::profiler::add_task_timing(timing)` — bir `TaskTiming` kaydını thread-local buffer'a ekler. Profilleme kapalıysa erken döner; üretim build'inde başarım maliyeti `AtomicBool::load(Acquire)` tek bayrak okumasıdır.
-- `gpui::profiler::get_current_thread_task_timings()` — yalnız çağırıldığı thread'in buffer'ını döndürür; debug akışları için.
-- `gpui::add_task_timing(...)` ve `gpui::get_current_thread_task_timings()` aynı fonksiyonların crate kökünden dışa aktarılmış halleridir.
+- `gpui::profiler::update_running_task(spawned, location)` — scheduler poll başlangıcında canlı task bilgisini thread-local buffer'a yazar.
+- `gpui::profiler::save_task_timing()` — canlı task'ı tamamlanmış `TaskTiming` olarak kaydeder, istatistikleri günceller ve trace açıksa dairesel buffer'a ekler.
+- `gpui::profiler::get_current_thread_task_timings(TasksIncluded::...)` — yalnız çağırıldığı thread'in buffer'ını döndürür; debug akışları için.
+- Crate kökü `TaskTiming`, `ThreadTaskTimings`, `ThreadTaskStatistics`, `TaskStatistics`, `ActionStatistics`, `ActionTiming`, `TasksIncluded`, `get_all_timings`, `get_current_thread_timings`, `take_all_stats`, `take_action_stats`, `set_trace_enabled` ve `trace_enabled` adlarını profiler/reliability araçları için yeniden dışa aktarır.
 
-`THREAD_TIMINGS` thread-local `LazyCell` değeridir; ilk erişimde mevcut thread için `ThreadTimings` buffer'ı kurar ve global zayıf referans listesine ekler. `ThreadTimings::get_thread_task_timings()` bu buffer'ı `ThreadTaskTimings` snapshot'ına dönüştürür. Uygulama özelliği yazarken bu thread-local değeri doğrudan kullanmak yerine `get_current_thread_task_timings()` veya `ProfilingCollector` yüzeyiyle ilerlemek daha okunaklıdır.
+`THREAD_TIMINGS` thread-local `LazyCell` değeridir; ilk erişimde mevcut thread için `ThreadTimings` buffer'ı kurar ve global zayıf referans listesine ekler. `ThreadTimings::get_thread_task_timings(TasksIncluded::...)` bu buffer'ı `ThreadTaskTimings` snapshot'ına dönüştürür. Uygulama özelliği yazarken bu thread-local değeri doğrudan kullanmak yerine `get_current_thread_timings(...)`, `get_all_timings(...)`, `take_all_stats(...)` veya `ProfilingCollector` yüzeyiyle ilerlemek daha okunaklıdır.
 
 **Buffer sınırı.** `MAX_TASK_TIMINGS = (16 * 1024 * 1024) / size_of::<TaskTiming>()` her thread için yaklaşık 16 MiB üst sınır verir. Bu sınır aşıldığında en eski kayıt `pop_front()` ile düşer; `total_pushed` yine artar ve delta okuyucu kaybı `cursor < buffer_start` durumundan algılayabilir.
 
 **Tuzaklar.**
 
-- `set_enabled` `true` çağrısının ardından gelen ilk birkaç task buffer'da yer almayabilir; örnekleme açılırken bayrak okuma sırası nedeniyle in-flight task'lar yakalanmaz. Sabit bir snapshot için `set_enabled(true)`'dan sonra workload'u yeniden başlatırsın.
-- `SerializedTaskTiming::convert` devam eden son task'ı `Instant::now()` ile tamamlanmış gibi serileştirir. Bu davranış canlı snapshot'larda istenebilir. Analiz aracı geriye dönük ölçüm yapıyorsa kapalı task'larla canlı task'ları ayırmak için `ProfilingCollector::collect_unseen` çıkışını tercih edersin; orada in-progress kayıt atlanır.
-- `ThreadTimings::add_task_timing` aynı `location` ve `start` ile gelen kaydı önceki entry'nin sonu olarak günceller; yani aynı satırdan ardışık iki kayıt tek bir aralığı uzatır. Bu, scheduler bir görevi parçalı raporladığında zaman çizelgesini bütün tutar ama elle çağıran kodun bunu bilerek kullanması gerekir.
+- `set_trace_enabled` yalnız trace buffer'ını etkiler; en uzun poll/runtime istatistikleri trace kapalıyken de güncellenebilir. Bu yüzden reliability raporlarında `take_all_stats(...)` trace açmadan da anlamlı veri verebilir.
+- `TasksIncluded::CompletedAndRunning` canlı task/action sürelerini snapshot anındaki `Instant::now()` ile hesaplar. Bu davranış reliability log'u için kullanışlıdır; geriye dönük karşılaştırma yapıyorsan `OnlyCompleted` daha sabit sonuç verir.
+- `save_task_timing()` yalnız `update_running_task(...)` sonrası çağrılmalıdır; bu sıra scheduler tarafından sağlanır. Uygulama kodunda elle task timing üretmek yerine executor/profiler köprüsüne yaslanırsın.
 
 ---
 
@@ -525,7 +538,7 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `app` | crate kök reexport | `crates/gpui/src/app.rs` yüzeyini kök namespace'e taşır; normal kullanım `App`, `Context<T>` ve test context'leri üzerinden olur. |
 | `executor` | crate kök reexport | Scheduler sarmalayıcılarını kök namespace'e taşır; uygulama kodu çoğunlukla `cx.background_executor()` ve `cx.foreground_executor()` okur. |
 | `geometry` | crate kök reexport | `Point`, `Size`, `Bounds`, `px`, `rems`, `percentage`, `radians` gibi geometri ve ölçü yardımcılarını toplar. |
-| `profiler` | modül ve crate kök reexport | Task timing toplama ve serileştirme yüzeyidir; üretim path'inde `set_enabled` açılmadıkça sessizdir. |
+| `profiler` | modül ve crate kök reexport | Task/action timing, trace ve istatistik toplama yüzeyidir; ayrıntılı trace için `set_trace_enabled` kullanılır. |
 | `property_test` | test macro reexport | `#[gpui::property_test]` altyapısını test build'lerinde görünür yapar; uygulama runtime API'si değildir. |
 | `AppContext` | trait ve derive macro adı | Trait tarafı App erişimini soyutlar; derive macro tarafı `#[app]` alanına delegasyon üretir. İki namespace aynı adı taşıdığı için dokümanda birlikte anılır. |
 | `FutureExt`, `WithTimeout` | `with_timeout(...)` zinciri | Future'a executor kontrollü timeout ekleyen trait ve onun sarmalayıcı future tipidir. |
@@ -533,7 +546,7 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `ArcCow` | `gpui_util::arc_cow::ArcCow` | Clone maliyeti düşük copy-on-write paylaşımlı veri taşımak için yeniden dışa aktarılır. |
 | `block_on` | `pollster::block_on` | Küçük senkron köprülerde kullanılır; GPUI ana akışında async task/executor tercih edilir. |
 | `AnyDrag`, `KeystrokeEvent`, `ArenaClearNeeded` | drag view/value/cursor, resolved action, arena temizliği | App/window iç durum taşıyıcılarıdır; çoğu uygulama kodu bu tipleri doğrudan sahiplenmez. |
-| `SHUTDOWN_TIMEOUT` | 100ms | `Context::on_app_quit` future'larının quit sırasında çalışabileceği süreyi sınırlar. |
+| `SHUTDOWN_TIMEOUT` | 200ms | `Context::on_app_quit` future'larının quit sırasında çalışabileceği süreyi sınırlar. |
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -546,7 +559,8 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `SerializedLocation` | `file`, `line`, `column` | Profiler timing kaydındaki kaynak konumunu serileştirir. |
 | `SerializedTaskTiming` | `location`, `start`, `duration`, `convert` | Tek task ölçümünü anchor zamana göre nanosaniye offset ve süreye çevirir. |
 | `SerializedThreadTaskTimings` | `thread_name`, `thread_id`, `timings`, `convert` | Bir thread'in task timing listesini serileştirilebilir forma indirir. |
-| `set_enabled` | `true` açar, `false` kapatır ve buffer temizler | Profiler örneklemesini runtime'da açıp kapatır; değer değiştiyse `true` döndürür. |
+| `set_trace_enabled`, `trace_enabled` | trace aç/kapat ve bayrak okuma | Ayrıntılı profiler trace buffer'ını runtime'da yönetir; istatistikler trace kapalıyken de güncellenebilir. |
+| `TasksIncluded` | `OnlyCompleted`, `CompletedAndRunning` | Snapshot'a yalnız tamamlanmış task'ların mı yoksa canlı task/action bilgisinin de mi katılacağını belirler. |
 | `ReadGlobal`, `UpdateGlobal` | `global`, `update_global`, `set_global` | `Global` tipleri için App üzerinden tip güvenli okuma/güncelleme kısayollarıdır. |
 
 | API | Alt özellikler | Kısa anlamı |
@@ -704,7 +718,7 @@ Platform uygulaması veya başsız renderer yazmadığın sürece aşağıdaki t
 
 - Display ve tanı: `DisplayId`, `ThermalState`, `SourceMetadata`, `RequestFrameOptions`, `WindowParams`, `InputLatencySnapshot`.
 - Dispatcher ve executor: rustdoc genel yüzeyinde `Scope`, `FallibleTask`, `SchedulerLocalExecutor` ve `RunnableMeta` görünür. Buna ek olarak platform sınırında `#[doc(hidden)]` tutulan `PlatformDispatcher`, `RunnableVariant` (`Runnable<RunnableMeta>` tip takma adı) ve `TimerResolutionGuard` vardır; bunlar `target/doc/gpui/all.html` listesinde görünmez ve uygulama API'si olarak kullanmaman gerekir. Detay:
-  - `RunnableMeta { location: &'static Location<'static> }` (`scheduler/src/scheduler.rs:59`) — her scheduled task'a iliştirilen hata ayıklama meta verisi. `track_caller` ile yakalanan kaynak konumunu taşır; profiler ve log akışı doc-hidden `RunnableVariant` üzerinden bu alana ulaşır.
+  - `RunnableMeta { location: &'static Location<'static>, spawned: SpawnTime }` (`scheduler/src/scheduler.rs:59`) — her scheduled task'a iliştirilen hata ayıklama meta verisi. `track_caller` ile yakalanan kaynak konumunu ve spawn zamanını taşır; profiler ve log akışı doc-hidden `RunnableVariant` üzerinden bu alana ulaşır.
   - `FallibleTask<T>` (`scheduler/src/executor.rs:250`) — `Task::fallible(self)` çağrısının döndürdüğü sarmalayıcı. Future olarak poll edildiğinde `Option<T>` döner; iptal edilirse panik atmaz, `None` üretir. `must_use` işaretli olduğu için sessizce drop edilirse derleme uyarısı verir.
   - `SchedulerLocalExecutor` — `gpui::executor.rs:9` `pub use scheduler::LocalExecutor as SchedulerLocalExecutor` yeniden dışa aktarımıdır. GPUI tarafındaki `ForegroundExecutor` bunun üzerinde bir sarmalayıcıdır; ham scheduler handle'ına `ForegroundExecutor::scheduler_executor()` (`executor.rs:378`) çağrısıyla inilir, `BackgroundExecutor::scheduler_executor()` de paralel `scheduler::BackgroundExecutor` döner. Uygulama kodu genelde `cx.foreground_executor()` veya `cx.background_executor()` kullanır; scheduler handle yalnız scheduler crate'iyle doğrudan etkileşim gerektiğinde çekilir.
 - Metin ve klavye: `PlatformTextSystem`, `NoopTextSystem`, `PlatformKeyboardLayout`, `PlatformKeyboardMapper`, `DummyKeyboardMapper`, `PlatformInputHandler`.
@@ -761,7 +775,7 @@ Normal UI kodu bunlara `window.text_system()`, `window.line_height()`, `window.t
 
 Başarım ve queue altyapısındaki genel taşıyıcılar:
 
-- Profiler: `TaskTiming`, `ThreadTaskTimings`, `ThreadTimings`, `ThreadTimingsDelta`, `GlobalThreadTimings`, `GuardedTaskTimings`, `SerializedLocation`, `SerializedTaskTiming`, `SerializedThreadTaskTimings`.
+- Profiler: `TaskTiming`, `ActiveTiming`, `YieldTime`, `ThreadTaskTimings`, `ThreadTaskStatistics`, `TaskStatistics`, `ActionStatistics`, `ActionTiming`, `ThreadTimings`, `ThreadTimingsDelta`, `GlobalThreadTimings`, `GuardedTaskTimings`, `SerializedLocation`, `SerializedTaskTiming`, `SerializedThreadTaskTimings`, `TasksIncluded`.
 - Priority queue: `SendError<T>`, `RecvError`, `Iter<T>`, `TryIter<T>`.
 - Global helper trait'leri: `ReadGlobal`, `UpdateGlobal`.
 
@@ -816,7 +830,7 @@ Doğrudan kullanıcı akışında nadiren gördüğün genel yardımcılar:
 - `KEYSTROKE_PARSE_EXPECTED_MESSAGE` — `InvalidKeystrokeError` mesajının "beklenen modifier + key" açıklaması.
 - `LOADING_DELAY = 200ms` — `img()` elementinin yükleme durumunu göstermeden önce beklediği süre.
 - `MAX_BUTTONS_PER_SIDE = 3` — `WindowButtonLayout` içinde bir tarafta tutulabilecek yerel kontrol butonu slot sayısı.
-- `SHUTDOWN_TIMEOUT = 100ms` — `Context::on_app_quit` future'larının app quit sırasında çalışabileceği süre.
+- `SHUTDOWN_TIMEOUT = 200ms` — `Context::on_app_quit` future'larının app quit sırasında çalışabileceği süre.
 - `SMOOTH_SVG_SCALE_FACTOR = 2.0` — SVG'leri daha yumuşak raster etmek için kullanılan yüksek çözünürlük scale'i.
 - `SUBPIXEL_VARIANTS_X = 4`, `SUBPIXEL_VARIANTS_Y = 1` — glif atlas subpixel rasterleme varyant sayıları.
 
@@ -869,7 +883,7 @@ Test yardımcı fonksiyonları `gpui::test` modülünde toplanır: `seed_strateg
 
 Başarım ölçümü (benchmark) için GPUI, Criterion ile aynı şekli koruyan ince bir köprü sunar. `#[gpui::bench]` öznitelik makrosu bir ölçüm fonksiyonunu işaretler; `gpui::bench_group!` ve `gpui::bench_main!` makroları `criterion::criterion_group!` ve `criterion::criterion_main!` çağrılarını birebir sarmalar, böylece bir GPUI benchmark dosyası sıradan bir Criterion benchmark dosyasıyla aynı iskelete sahip olur. Ölçüm gövdesi içinde GPUI çalışma zamanına `BenchAppContext` ve `BenchWindowContext` ile erişirsin; bunlar `App` ve `Window` yüzeyini ölçüm akışına uyarlar. Bu üç bağlam tipi ve makro altyapısı yalnız `test` veya `test-support` özelliği açıkken derlenir; ürün kodu bunları görmez.
 
-Profiler yardımcıları `add_task_timing(...)` ve `get_current_thread_task_timings()` thread-local task timing toplama için kullanılır. Metin yedek yardımcıları `font_name_with_fallbacks(...)` ve `font_name_with_fallbacks_shared(...)` platform font ailesi yedek adını döndürür. `swap_rgba_pa_to_bgra(...)` önceden çarpılmış RGBA byte buffer'ını platform BGRA düzenine çevirmek için renk veya bitmap alt katmanında kullanılır.
+Profiler yardımcıları `get_all_timings(...)`, `get_current_thread_timings(...)`, `take_all_stats(...)`, `take_action_stats(...)`, `set_trace_enabled(...)` ve `trace_enabled()` task/action timing toplama için kullanılır. Metin yedek yardımcıları `font_name_with_fallbacks(...)` ve `font_name_with_fallbacks_shared(...)` platform font ailesi yedek adını döndürür. `swap_rgba_pa_to_bgra(...)` önceden çarpılmış RGBA byte buffer'ını platform BGRA düzenine çevirmek için renk veya bitmap alt katmanında kullanılır.
 
 ---
 

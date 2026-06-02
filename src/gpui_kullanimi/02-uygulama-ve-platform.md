@@ -101,7 +101,7 @@ uygulama.run(|cx| {
 | :-- | :-- | :-- |
 | `QuitMode` | `Default`, `LastWindowClosed`, `Explicit` | Uygulamanın son pencere kapandığında mı yoksa açık quit isteğiyle mi sonlanacağını belirler. |
 | `CursorHideMode` | platform cursor gizleme politikası | Yazma/fare/action etkileşimlerinden sonra imlecin ne zaman görünür kalacağını App seviyesinde ayarlar. |
-- `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 100ms` (`app.rs:71`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar iptal olur ve GPUI platform çıkışını sürdürür. Bu yüzden uzun kapanış işlerini bağımsız bırakılan bir `Task`'e değil, bir yaşam döngüsü gözlemcisine bağla.
+- `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 200ms` (`app.rs:75`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar iptal olur ve GPUI platform çıkışını sürdürür. Bu yüzden uzun kapanış işlerini bağımsız bırakılan bir `Task`'e değil, bir yaşam döngüsü gözlemcisine bağla.
 - `cx.activate(ignoring_other_apps)`, `cx.hide()`, `cx.hide_other_apps()`, `cx.unhide_other_apps()` platform genelindeki uygulama durumunu değiştirir.
 - `window.activate_window()`, `window.minimize_window()`, `window.toggle_fullscreen()` ise pencere seviyesindeki kontrolleri verir.
 
