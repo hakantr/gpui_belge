@@ -4,21 +4,6 @@
 
 ## Metin, Font ve Ölçüm
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Font` | `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Font` | Metotlar | `bold`, `italic` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Font` | Alanlar | `family`, `features`, `fallbacks`, `style`, `weight` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 Metin sisteminin ana tipleri `gpui` crate'i, `style` ve `elements/text` içinde toplanır. Bir metni doğru çizebilmek için stil, font ve ölçüm tipleri birlikte çalışır. Her birinin sorumluluğu ayrıdır:
 
 ![GPUI Metin Sistemi Bileşen Hiyerarşisi](assets/metin-sistemi-hiyerarsisi.svg)
@@ -108,15 +93,6 @@ Buradaki `.into()` yalnız okunabilirlik kısaltması değildir; `&'static str`,
 - WGPU/Linux metin arka ucu (`CosmicTextSystem`) `Font.fallbacks` değerini font önbellek anahtarına dahil eder ve `layout_line` içinde kullanıcı yedek zincirini grapheme cluster sınırlarını koruyarak uygular. ASCII karakterlerinde birincil font tercih edilir; combining mark ve ZWJ emoji cluster'ları yedek aralığının içinde bölünmez. Özel font yedek ayarı incelenirken yalnızca aile adını değil yedek listesini de önbellek/ölçüm girdisi sayman gerekir.
 
 ## StyledText, TextLayout ve InteractiveText
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `InteractiveText` | Metotlar | `new`, `on_click`, `on_hover`, `tooltip` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `StyledText` | Metotlar | `new`, `with_default_highlights`, `with_font_family_overrides`, `with_highlights`, `with_runs` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `TextLayout` | Metotlar | `bounds`, `index_for_position`, `len`, `line_height`, `line_layout_for_index`, `position_for_index`, `text`, `wrapped_text` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Basit bir metni doğrudan `SharedString` olarak bir elementin alt öğesi şeklinde verebilirsin. Ölçüm, vurgu, font üzerine yazma veya tıklanabilir aralık gerektiğinde `StyledText` devreye girer. Tıklama ve hover gerekiyorsa `InteractiveText`'i kullanırsın.
 
@@ -211,17 +187,3 @@ Shift+tıklama artık seçimi genişletir: mevcut seçimin kuyruğunu sabit tuta
 `Markdown::first_code_block_language()` belgedeki ilk fenced kod bloğunun `Arc<Language>`'ini döndürür. Özellikle içeriği bir dil sunucusuna yönlendirecek veya sözdizim vurgusu uygulayacak kod için hangi dilin aktif olduğunu hızlıca öğrenirken kullanılır.
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `TextRun`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `background_color`, `color`, `font`, `len`, `strikethrough`, `underline` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-<!-- phase14-api-anchor:end -->

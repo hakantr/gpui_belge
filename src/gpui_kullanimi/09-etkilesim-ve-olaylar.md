@@ -68,23 +68,7 @@ cx.focus_view(&alt_varlik, window);
 
 ## Fare, Sürükle-Bırak ve Hitbox
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Hitbox` | `deref`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Hitbox` | Metotlar | `is_hovered`, `should_handle_scroll` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Hitbox` | Alanlar | `behavior`, `bounds`, `content_mask`, `id` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 ![Hitbox ve Sürükle-Bırak State Machine](assets/hitbox-surukle-birak.svg)
-
 
 Element seviyesindeki etkileşim API'leri tek bir fluent zincir içinde toplanır; aşağıdaki metotlar farklı fare olaylarına ve sürükle-bırak kalıplarına karşılık gelir:
 
@@ -157,7 +141,6 @@ Element listener'ları çoğu zaman olay tipini senin yerine seçer; yine de öz
 - Scroll ve pinch olaylarında modifier bilgisini doğrudan olay üzerinden okuyabilirsin, ama mouse move/down/up için aynı kısayol geçerli değildir.
 
 ## Sürükleme ve Bırakma İçeriği Üretimi
-
 
 GPUI'da sürükleme sırasında, sürüklenen elementin yerine ayrı bir hayalet (`ghost`) view oluşur ve fare ile birlikte bu view hareket eder:
 
@@ -416,24 +399,6 @@ window.handle_input(
 
 ## Keystroke, Modifiers ve Platform Bağımsız Kısayollar
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Keystroke` | `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Modifiers` | `hash`, `Output` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Keystroke` | Metotlar | `is_ime_in_progress`, `should_match`, `unparse`, `with_simulated_ime` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Keystroke` | Alanlar | `key_char`, `modifiers` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `Modifiers` | Metotlar | `command`, `command_shift`, `control`, `control_shift`, `function`, `is_subset_of`, `modified`, `none`, `number_of_modifiers`, `secondary`, `secondary_key`, `shift`, `super_key`, `windows` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Modifiers` | Alanlar | `control`, `function`, `shift` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 `gpui` crate'i, klavye girdisinin normalize edilmiş modelini içerir. Keymap yalnızca action bağlama değildir; tamamlanmamış girdi, IME durumu ve gösterim metni de bu tiplerle taşınır.
 
 **Ana tipler.** Klavye dünyasını ifade eden tipler birbirini destekleyecek şekilde tasarlanmıştır:
@@ -510,88 +475,3 @@ Olayları yaymak ve dinlemek için şu yöntemleri kullanırsın:
 | Fare/Tuş Olayları | Element ağacında `.on_click`, `.on_mouse_down` veya kısayol basıldığında fırlatılan UI olayları. |
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `KeyDownEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `is_held`, `keystroke`, `prefer_character_input` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `KeyUpEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `keystroke` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ModifiersChangedEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `capslock`, `modifiers` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `PressureStage`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Force`, `Normal`, `Zero` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `MousePressureEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `modifiers`, `position`, `pressure`, `stage` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `ClickEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Keyboard`, `Mouse` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar 1 | `click_count`, `first_focus`, `is_keyboard`, `is_middle_click`, `is_right_click`, `modifiers`, `mouse_position`, `position` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Metotlar 2 | `standard_click` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `MouseButton`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Left`, `Middle`, `Navigate`, `Right` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `all` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `ScrollDelta`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Lines`, `Pixels` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `coalesce`, `pixel_delta`, `precise` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `UTF16Selection`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `range`, `reversed` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `AsKeystroke`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `as_keystroke` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `KeybindingKeystroke`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar 1 | `from_keystroke`, `inner`, `key`, `modifiers`, `new_with_mapper`, `remove_key_char`, `set_key`, `set_modifiers` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Metotlar 2 | `unparse` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `FocusOutEvent`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `blurred` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-<!-- phase14-api-anchor:end -->

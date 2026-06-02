@@ -144,7 +144,6 @@ Accessibility ağacına katılacak özel element'lerde `Element::a11y_role()` `S
 
 ![GPUI Element Trait Zinciri](assets/element-trait-zinciri.svg)
 
-
 - `Render`: entity/view verisini her çizimde element ağacına çevirir.
 - `RenderOnce`: yalnızca element'e dönüştürülecek hafif bileşenler için uygundur.
 - `ParentElement`: alt öğe kabul eden elementlerin trait'idir.
@@ -351,24 +350,6 @@ window.with_global_id("gorsel-onbellegi".into(), |genel_id, window| {
 
 ## AnyElement, Component ve Interactivity Yüzeyi
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AnyElement` | `id`, `into_any_element`, `into_element`, `PrepaintState`, `RequestLayoutState` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `AnyElement` | Metotlar | `downcast_mut`, `layout_as_root`, `paint`, `prepaint`, `prepaint_as_root`, `prepaint_at`, `request_layout` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Interactivity` | Metotlar 1 | `block_mouse_except_scroll`, `can_drop`, `capture_action`, `capture_any_mouse_down`, `capture_any_mouse_up`, `capture_key_down`, `capture_key_up`, `capture_mouse_pressure`, `capture_pinch`, `compute_style`, `hoverable_tooltip`, `new`, `occlude_mouse`, `on_action` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Interactivity` | Metotlar 2 | `on_any_mouse_down`, `on_any_mouse_up`, `on_aux_click`, `on_boxed_action`, `on_click`, `on_drag`, `on_drag_move`, `on_drop`, `on_hover`, `on_key_down`, `on_key_up`, `on_modifiers_changed`, `on_mouse_down`, `on_mouse_down_out` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Interactivity` | Metotlar 3 | `on_mouse_move`, `on_mouse_pressure`, `on_mouse_up`, `on_mouse_up_out`, `on_pinch`, `on_scroll_wheel`, `paint`, `prepaint`, `request_layout`, `source_location`, `tooltip`, `window_control_area` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Interactivity` | Alanlar | `base_style`, `element_id`, `hovered` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 Render katmanında bazı public tipler, uygulama bileşeni yazarken nadiren doğrudan görünür ama element ağacının nasıl çalıştığını anlamak için önemlidir.
 
 **AnyElement.** `AnyElement`, heterojen elementleri tek tipe indirir. `into_any_element()` çağrısı bunun günlük yoludur. Düşük seviyede `downcast_mut::<T>()` ile iç element tipini denetleyebilir, `request_layout(window, cx)`, `layout_as_root(available_space, window, cx)`, `prepaint(window, cx)`, `prepaint_at(origin, window, cx)`, `prepaint_as_root(origin, available_space, window, cx)` ve `paint(window, cx)` ile element yaşam döngüsünü elle sürebilirsin. Bu metotlar özel container, test harness veya framework elementleri içindir; normal view kodunda child elementleri GPUI'nın kendisine bırakırsın.
@@ -392,13 +373,6 @@ Normal bileşen kodunda bu imperative yüzey yanlış seviyedir; element fluent 
 **Arena ve frame taşıyıcıları.** `Arena`, `ArenaBox<T>`, `DivFrameState`, `DivInspectorState`, `ElementClickedState`, `ElementHoverState`, `InteractiveElementState`, `GroupStyle`, `DragMoveEvent<T>`, `AnchoredState`, `Deferred`, `ScrollHandle`, `ScrollAnchor` ve `Reservation<T>` render veya etkileşim fazları arasında veri taşıyan altyapı tipleridir. `Arena::alloc(...)`, `capacity()` ve `clear()` pencere çizim arenasına aittir; uygulama verisi saklamak için kullanılmaz. `DragMoveEvent::drag(cx)` ve `dragged_item()` sürükleme yükünü tipli biçimde okumaya yarar; uygulama tarafında çoğunlukla `.on_drag_move::<T>(...)` callback argümanı olarak gelir.
 
 ## FluentBuilder ve Koşullu Element Üretimi
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `FluentBuilder` | Trait üyeleri | `map`, `when`, `when_else`, `when_none`, `when_some` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
 
 `FluentBuilder` trait'i tüm element tiplerine üç yardımcı ekler ve fluent zincirin if/match bloklarıyla kırılmasını engeller:
 
@@ -448,21 +422,6 @@ div()
 - `map` element tipini değiştirebilir; `when` ise tipi değiştirmez (refinement zincirinde kalır). Bu yüzden `map` kullanımını dikkatli yaparsın.
 
 ## Refineable, StyleRefinement ve MergeFrom
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `StyleRefinement` | `is_empty`, `is_superset_of`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `StyleRefinement` | Alanlar 1 | `aspect_ratio`, `background`, `border_color`, `border_style`, `border_widths`, `corner_radii`, `debug`, `debug_below`, `display`, `flex_basis`, `flex_grow`, `flex_shrink`, `flex_wrap`, `gap` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `StyleRefinement` | Alanlar 2 | `align_content`, `align_items`, `align_self`, `allow_concurrent_scroll`, `box_shadow`, `flex_direction`, `grid_cols`, `grid_rows`, `grid_location`, `inset`, `justify_content`, `margin`, `max_size`, `min_size`, `mouse_cursor`, `opacity`, `overflow`, `padding`, `position`, `restrict_scroll_to_axis`, `scrollbar_width`, `size`, `text`, `visibility` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
 
 ![Refineable / Cascade / MergeFrom Boru Hattı](assets/stil-cascade.svg)
 
@@ -620,95 +579,3 @@ deferred(
 - Öncelik değeri global bir z-index değildir; yalnızca aynı pencere ekran karesi içindeki ertelenmiş kuyruk için geçerlidir.
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `PointRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `x`, `y` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `SizeRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `height`, `width` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `BoundsRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `origin`, `size` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `EdgesRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `bottom`, `left`, `right`, `top` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `CornersRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `bottom_left`, `bottom_right`, `top_left`, `top_right` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `GridTemplateRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `min_size`, `repeat` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `TextStyleRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar 1 | `background_color`, `color`, `font_fallbacks`, `font_family`, `font_features`, `font_size`, `font_style`, `font_weight` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 2 | `line_clamp`, `line_height`, `strikethrough`, `text_align`, `text_overflow`, `underline`, `white_space` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `TextStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `font`, `highlight`, `line_height_in_pixels`, `to_run` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar 1 | `background_color`, `color`, `font_fallbacks`, `font_family`, `font_features`, `font_size`, `font_style`, `font_weight` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-| Alanlar 2 | `line_clamp`, `line_height`, `strikethrough`, `text_align`, `text_overflow`, `underline`, `white_space` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `UnderlineStyleRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `color`, `thickness`, `wavy` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `UnderlineStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `color`, `thickness`, `wavy` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `StrikethroughStyleRefinement`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_some` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `color`, `thickness` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `StrikethroughStyle`
-
-| Grup | API | Not |
-|---|---|---|
-| Alanlar | `color`, `thickness` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-<!-- phase14-api-anchor:end -->

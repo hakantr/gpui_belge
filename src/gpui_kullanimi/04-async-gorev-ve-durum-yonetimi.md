@@ -163,13 +163,6 @@ Test özelliği açıkken `BackgroundExecutor::simulate_random_delay()`, `advanc
 
 ## Task, TaskExt ve Async Hata Yönetimi
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `TaskExt` | Trait üyeleri | `detach_and_log_err`, `detach_and_log_err_with_backtrace` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
-
 `Task<T>`, GPUI'ın scheduler katmanından yeniden dışa aktardığı ve `await` edilebilen temel async handle'dır. İç yapısı uygulama kodu için önemli değildir; önemli olan sahiplik davranışıdır: `Task` saklarsan iş yaşamaya devam eder, elden çıkarırsan iptal olur, bilinçli şekilde bağımsız bırakacaksan `detach` ailesini kullanırsın. Yardımcı trait `TaskExt` (`gpui` crate'i) `Task<Result<T, E>>` tipleri üzerine ek metotlar bindirir:
 
 ```rust
@@ -337,15 +330,7 @@ Pratik karar şudur: veri uygulama çapında tek kavramsa `Global`; belirli bir 
 
 ## Subscription Yaşam Döngüsü
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Subscription` | Metotlar | `detach`, `join`, `new` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 ![EventEmitter ve Subscription Yaşam Döngüsü](assets/event-emitter-subscription.svg)
-
 
 `gpui` crate'i.
 
@@ -438,14 +423,6 @@ self._abonelik = cx.subscribe_in(&modal, window, |gorunum, modal, olay, window, 
 - `focus_self` ertelemeli çalıştığı için hemen sonraki satırda odak değişmiş gibi okumak yanıltıcıdır; sonucu sonraki etki veya ekran karesi akışında gözlemen gerekir.
 
 ## Entity Reservation ve Çift Yönlü Referans
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Reservation` | Metotlar | `entity_id` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 
 Bazen bir entity oluştururken başka bir entity'nin kimliğini veya zayıf handle'ını önceden bilmen gerekir; en tipik örnek `Workspace` ve `Pane` ikilisidir. Bunu kuvvetli referans döngüsü kurmadan yapmak için `Reservation` deseni mevcuttur. Önce kimliği rezerve edersin, sonra entity'yi bu rezervasyona yerleştirirsin:
 
@@ -629,14 +606,6 @@ Bu yüzden `AnyEntity` ve `AnyWeakEntity` üzerindeki bazı metotlar tipli handl
 
 #### AnyView, AnyWeakView ve EmptyView
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `AnyView` | Metotlar | `downcast`, `downgrade`, `entity_id`, `entity_type` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `AnyWeakView` | Metotlar | `upgrade` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 `AnyView`, `Render` uygulayan bir `Entity<V>` için element olarak kullanılabilen, tipi silinmiş view handle'ıdır. Bu sayede farklı view tiplerini tek bir element yuvasına yerleştirebilirsin:
 
 ```rust
@@ -682,14 +651,6 @@ Geri çağrıdan view verisine geri dönmek için uygun adaptörü seçersin:
 
 #### `FocusHandle` Zayıf Handle ve Dispatch
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `FocusHandle` | Metotlar | `contains`, `contains_focused`, `dispatch_action`, `downgrade`, `focus`, `is_focused`, `tab_index`, `tab_stop`, `within_focused` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `FocusHandle` | Alanlar | `tab_index`, `tab_stop` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 `FocusHandle` yalnızca odak vermek için değildir; zayıf handle ve yönlendirme kontrolü de sunar:
 
 - `focus_handle.downgrade() -> WeakFocusHandle`
@@ -700,21 +661,6 @@ Geri çağrıdan view verisine geri dönmek için uygun adaptörü seçersin:
 `contains_focused(window, cx)` "ben veya altımdaki bir düğüm odakta mı?" sorusuna, `within_focused` ise "ben odaktaki düğümün içinde miyim?" sorusuna cevap verir. `within_focused` imzasında `cx: &mut App` vardır; çünkü yönlendirme ve odak yolu hesaplarında uygulama verisiyle çalışır.
 
 #### `ElementId` Tam Varyantları
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `ElementId` | `Error`, `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `ElementId` | Metotlar | `named_usize` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ElementId` | Varyantlar | `CodeLocation`, `Integer`, `Name`, `NamedChild`, `NamedInteger`, `OpaqueId`, `Uuid` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
 
 Sabit element verisi için kullandığın `ElementId` varyantları şunlar:
 

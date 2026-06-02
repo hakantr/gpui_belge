@@ -1,13 +1,5 @@
 # Action ve Keymap
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Action` | Trait üyeleri | `action_json_schema`, `boxed_clone`, `build`, `deprecated_aliases`, `deprecation_message`, `documentation`, `name`, `name_for_type`, `partial_eq` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `Keymap` | Metotlar | `add_bindings`, `all_bindings_for_input`, `bindings`, `bindings_for_action`, `bindings_for_input`, `clear`, `new`, `possible_next_bindings_for_input`, `version` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 ---
 
 ## Action ve Keymap İlişkisi
@@ -166,20 +158,6 @@ Action makrolarının kullanımındaki ince noktalar:
 
 ## Keymap, KeyContext ve Dispatch Stack
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `KeyContext` | `Error`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `KeyContext` | Metotlar | `add`, `clear`, `contains`, `extend`, `get`, `is_empty`, `new_with_defaults`, `primary`, `secondary`, `set` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 ![Action ve Keymap Dispatch Hattı](assets/action-keymap-dispatch.svg)
 
 Action tanımı tek başına yeterli değildir. Kısayolun çalışabilmesi için odaktaki elementin yönlendirme yolunda uygun `KeyContext` bulunması gerekir.
@@ -235,15 +213,6 @@ cx.bind_keys([
 - `KeyBinding::load(keystrokes, action, context_predicate, use_key_equivalents, action_input, keyboard_mapper)`, başarısız olabilen bir yükleyicidir; `KeyBindingKeystroke` eşlemesini de burada kurar. `context_predicate` `Option<Rc<KeyBindingContextPredicate>>`, `action_input` ise `Option<SharedString>` alır ve hata durumunda `InvalidKeystrokeError` döner. Çalışma zamanında `with_meta(...)` ve `set_meta(...)`, kısayolun hangi keymap katmanından geldiğini taşır. `match_keystrokes(...)` tam veya bekleyen eşleşmeyi verirken `keystrokes()`, `action()`, `predicate()`, `meta()` ve `action_input()` okuyucuları tanılama ve komut/keymap UI'larını besler.
 
 ## DispatchPhase, Olay Yayılımı ve DispatchEventResult
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `DispatchEventResult` | Alanlar | `default_prevented`, `propagate` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `DispatchPhase` | Metotlar | `bubble`, `capture` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `DispatchPhase` | Varyantlar | `Bubble`, `Capture` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
 
 Fare, tuş ve action olayları element ağacında iki aşamada akar:
 
@@ -442,24 +411,3 @@ let guncellenen = KeymapFile::update_keybinding(
 - Kullanıcı JSON'u bozuksa `update_keybinding` dosyayı değiştirmez; önce ayrıştırma başarıyla geçmesi gerekir.
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `ActionBuildError`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `BuildError`, `NotFound` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `KeyBindingContextPredicate`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `And`, `Descendant`, `Equal`, `Identifier`, `Not`, `NotEqual`, `Or` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `depth_of`, `eval`, `eval_inner`, `is_superset`, `parse` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

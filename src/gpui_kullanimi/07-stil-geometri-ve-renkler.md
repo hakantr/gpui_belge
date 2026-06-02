@@ -4,13 +4,6 @@
 
 ## Styled
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Styled` | Trait üyeleri | `col_end_auto`, `col_start_auto`, `debug`, `debug_below`, `row_end_auto`, `row_start_auto`, `style` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-
-
 `Styled`, `gpui` crate'indeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu taşır; `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList`, `Deferred`, `AnimationElement` ve çok sayıda Zed UI bileşeni bu trait üzerinden aynı fluent stil sözlüğünü kullanır.
 
 GPUI stil sistemi CSS ve Tailwind'e benzeyen fluent metotlardan oluşur. Arka planda Rust tipleri olduğu için neyin hangi değeri aldığı daha nettir. Örnek bir stil zinciri:
@@ -103,26 +96,6 @@ div()
 
 ### Pixels, ScaledPixels ve DevicePixels
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `DevicePixels` | `add`, `div`, `from`, `half`, `hash`, `is_zero`, `Output`, `sub` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Pixels` | `add`, `div`, `Error`, `from`, `hash`, `Output`, `rem`, `sub` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `ScaledPixels` | `add`, `div`, `from`, `Output`, `rem`, `sub` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `DevicePixels` | Metotlar | `to_bytes` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `DevicePixels` | Alanlar | `0` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `Pixels` | Metotlar | `abs`, `as_f32`, `ceil`, `floor`, `MAX`, `MIN`, `pow`, `round`, `signum`, `to_f64`, `ZERO` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ScaledPixels` | Metotlar | `as_f32`, `ceil`, `floor`, `round` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `ScaledPixels` | Alanlar | `0` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 GPUI üç farklı piksel birimi kullanır. Ekran ölçeği değiştiğinde hangi birimin hangi katmanda kullanıldığını bilmek birçok hatayı baştan önler:
 
 ![GPUI Piksel Birimi Katmanları](assets/piksel-birimleri.svg)
@@ -156,23 +129,6 @@ Bu helper'lar basit yapıcı olduğu için ayrı ayrı uzun anlatım gerektirmez
 
 ### Rems, AbsoluteLength, DefiniteLength ve Length
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AbsoluteLength` | `Error`, `from`, `Output` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `DefiniteLength` | `Error`, `from`, `Output` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Length` | `Error`, `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Rems` | `add`, `div`, `Error`, `Output`, `sub` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Rems` | Alanlar | `0` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 Pixels dışındaki uzunluk tipleri farklı senaryolar için ayrılmıştır:
 
 - `Rems(f32)` — kök yazı tipi boyutuna görelidir (Zed'de `theme.ui_font_size` ile bağlıdır). `.text_sm()` veya `.gap_2()` gibi makro üretimi yardımcılar genellikle Rems üzerinden Pixels üretir.
@@ -197,16 +153,6 @@ div().w(px(120.))           // Pixels
 
 ### Percentage, Radians, Half, IsZero, AvailableSpace ve LayoutId
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AvailableSpace` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `LayoutId` | `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Percentage` | `add`, `div`, `from`, `Output`, `sub` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Radians` | `add`, `div`, `Output`, `sub` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
 Bu yardımcı tipler stil zincirinde doğrudan kullanıcıya görünmeyebilir, ama layout ve çizim hesabının ara değerlerini taşır:
 
 | API | Ne zaman görünür |
@@ -227,24 +173,6 @@ Bu yardımcı tipler stil zincirinde doğrudan kullanıcıya görünmeyebilir, a
 | `AvailableSpace` | `Definite`, `MinContent`, `MaxContent`, `min_size` | Layout ölçümünde kesin, min-content veya max-content alan bilgisini taşır. |
 
 ### Point, Size, Bounds, Edges ve Corners
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Bounds` | `add`, `div`, `from`, `hash`, `is_superset_of`, `Output`, `refine`, `refined`, `sub`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Corners` | `from`, `is_superset_of`, `Output`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Edges` | `from`, `is_superset_of`, `Output`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Point` | `add`, `div`, `from`, `hash`, `is_superset_of`, `Output`, `refine`, `refined`, `sub`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Size` | `add`, `div`, `from`, `hash`, `is_superset_of`, `Output`, `refine`, `refined`, `sub`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Bounds` | Metotlar | `intersect`, `union` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Corners<T>`, çoğu metot için aritmetik destekler (`+`, `-`, `*`, `/`).
 
@@ -274,32 +202,9 @@ Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Cor
 
 ## Layout, Style ve Dönüşüm API Tamamlayıcıları
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Style` | `from`, `is_superset_of`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Style` | Alanlar 1 | `aspect_ratio`, `background`, `border_color`, `border_style`, `border_widths`, `corner_radii`, `debug`, `debug_below`, `display`, `flex_basis`, `flex_grow`, `flex_shrink`, `flex_wrap`, `gap` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-| `Style` | Alanlar 2 | `align_content`, `align_items`, `align_self`, `allow_concurrent_scroll`, `box_shadow`, `flex_direction`, `grid_cols`, `grid_rows`, `grid_location`, `inset`, `justify_content`, `margin`, `max_size`, `mouse_cursor`, `opacity`, `overflow`, `padding`, `position`, `restrict_scroll_to_axis`, `scrollbar_width`, `size`, `text`, `visibility` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 Stil ve geometri dosyasında geçen bazı tipler doğrudan fluent zincirde görünmez, ama özel element, canvas, popover veya renderer entegrasyonu yazarken karşına çıkar.
 
 ### AlignItems, AlignSelf, AlignContent, JustifyItems, JustifySelf ve JustifyContent
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AlignContent` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `AlignItems` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
 
 Bu hizalama tipleri fluent metotların arkasındaki ham modeldir. Uygulama kodunda çoğunlukla `.items_center()`, `.justify_between()` ve `.content_stretch()` gibi helper'ları kullanırsın; özel element veya style editor yazarken `Style` alanlarını doğrudan güncellemen gerekebilir.
 
@@ -309,17 +214,6 @@ Bu hizalama tipleri fluent metotların arkasındaki ham modeldir. Uygulama kodun
 | `AlignContent`, `JustifyContent` | `Start`, `End`, `FlexStart`, `FlexEnd`, `Center`, `Stretch`, `SpaceBetween`, `SpaceEvenly`, `SpaceAround` | Çok satırlı flex/grid içerik dağılımını belirler. |
 
 ### Display, FlexDirection, FlexWrap, Visibility, WhiteSpace, TextOverflow, TextAlign, Overflow, Position ve Fill
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Display` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `FlexDirection` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `FlexWrap` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Overflow` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Position` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
 
 Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararlarını taşır. Alt değerler kısa anlamlı olduğu için tablo başlık açmaktan daha okunaklıdır:
 
@@ -360,26 +254,9 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ### Axis ve Along
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Along` | Trait üyeleri | `Unit`, `along`, `apply_along` | Implementasyonların karşıladığı trait sözleşmesi üyeleridir. |
-| `Axis` | Metotlar | `invert` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Axis` | Varyantlar | `Horizontal`, `Vertical` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
-
 `Axis` ve `Along` yatay/dikey kararları generic hale getirir. `Axis::invert()` yatay ekseni dikeye, dikeyi yataya çevirir; split pane veya resize handle'da ana eksenden çapraz eksene geçerken kullanılır. `Along::Unit`, implementasyonun her eksende taşıdığı birim tipini belirtir. `Along::along(axis)` verilen eksendeki değeri okur, `Along::apply_along(axis, f)` ise yalnız o ekseni dönüştürür. `Anchor::opposite()` bir kutu referansının tam karşısını, `Anchor::other_side_along(axis)` yalnız verilen eksen boyunca karşı tarafı döndürür; `Anchor::is_center()` ise `TopCenter`, `BottomCenter`, `LeftCenter` veya `RightCenter` değerlerini ayırt eder. Scrollbar, popover, anchored element ve iki eksenli layout helper yazarken bu metotlar koordinat dallanmalarını sadeleştirir. Tek bir bileşen yalnız yatay veya yalnız dikey çalışıyorsa bu tipleri okuyucuya göstermek yerine açık `width`/`height` hesabı daha anlaşılırdır.
 
 ### GridTemplate, TemplateColumnMinSize, GridLocation ve GridPlacement
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `GridPlacement` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `GridTemplate` | `from`, `is_superset_of`, `refine`, `refined`, `subtract` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
 
 `GridTemplate` CSS'teki `repeat(<n>, minmax(_, 1fr))` benzeri grid template bilgisini taşır; `TemplateColumnMinSize` bu tekrarın minimum kolon/satır boyutunu seçer. `GridLocation` bir öğenin row/column aralığını tutar; her aralık `GridPlacement` değerlerinden oluşur.
 
@@ -396,20 +273,6 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ### PathBuilder ve PathStyle
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `PathBuilder` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `PathBuilder` | Metotlar | `build_path` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 `PathBuilder::fill()` ve `stroke(width)` ile başlar; `with_style(style)`, `move_to(...)`, `line_to(...)`, `curve_to(...)`, `cubic_bezier_to(...)`, `arc_to(...)`, `relative_arc_to(...)`, `add_polygon(...)`, `close()`, `dash_array(...)`, `translate(...)`, `scale(...)`, `rotate(...)`, `transform(...)` ve `build()` ile tamamlanır. `PathBuilder::with_style(...)`, hazır builder'ın `PathStyle::{Fill, Stroke}` ayarını lyon seçenekleriyle değiştirmek içindir. `PathBuilder::build_path(buf)` ise tessellator'dan gelen `VertexBuffers` değerini doğrudan `Path<Pixels>` modeline çeviren alt seviye köprüdür; normal çizimde çoğunlukla `build()` çağrısının içinden kullanılır. `PathBuilder.style` alanı `PathStyle::{Fill, Stroke}` üzerinden lyon `FillOptions` veya `StrokeOptions` taşır. Kullanıcı etkileşimi olan basit çizimlerde önce `canvas(...)` ve `window.paint_path(...)` yeterli mi diye bakarsın; her frame'de path tessellate etmek yerine mümkünse hesaplamayı cache'lersin.
 
 | API | Alt özellikler | Kısa anlamı |
@@ -418,20 +281,6 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 | `PathBuilder` | `style`, `stroke`, `fill`, `with_style`, `dash_array`, `move_to`, `line_to`, `curve_to`, `cubic_bezier_to`, `arc_to`, `relative_arc_to`, `add_polygon`, `close`, `transform`, `translate`, `scale`, `rotate`, `build` | SVG path komutlarını GPUI `Path<Pixels>` değerine dönüştürür. |
 
 ### Path, Transformation ve TransformationMatrix
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Path` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Path` | Alanlar | `content_mask`, `id`, `order` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
 
 `Path<Pixels>::new`, `scale`, `move_to`, `line_to`, `curve_to`, `push_triangle` ve `clipped_bounds` tessellate edilmiş path verisi üzerinde çalışır; bu seviye artık çizime yakın renderer katmanıdır. `Transformation` SVG elementi için ergonomik dönüşüm builder'ıdır; `TransformationMatrix::unit()`, `translate(...)`, `rotate(...)`, `scale(...)`, `compose(...)` ve `apply(...)` sahne primitive'lerine uygulanacak matrisi üretir. Dönüşüm görseli değiştirir, layout ve hitbox boyutunu otomatik güncellemez.
 
@@ -446,22 +295,6 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 `gpui` crate'i ve `colors`.
 
 ### Rgba ve Hsla
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Hsla` | `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Rgba` | `Error`, `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Hsla` | Metotlar | `black`, `blend`, `blue`, `fade_out`, `grayscale`, `green`, `is_opaque`, `is_transparent`, `opacity`, `red`, `to_rgb`, `transparent_black`, `white` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Rgba` | Metotlar | `blend` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
 
 GPUI renkleri iki temel tipte ifade eder:
 
@@ -511,13 +344,6 @@ Bu sabitler Zed tasarım sisteminden bağımsızdır; tema renklerine ihtiyaç d
 
 ### Background, ColorSpace ve LinearColorStop
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `LinearColorStop` | Alanlar | `percentage` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 Background yalnızca düz renk değildir; gradient ve desen de aynı çatı altındadır (`color`):
 
 ```rust
@@ -554,32 +380,9 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 
 ### HighlightStyle ve combine_highlights
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `HighlightStyle` | `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `HighlightStyle` | Metotlar | `highlight` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `HighlightStyle` | Alanlar | `background_color`, `fade_out`, `font_weight`, `strikethrough`, `underline` | Public veri alanları; runtime, stil veya ayar sözleşmesinin taşınan parçalarıdır. |
-
-
 `LinearColorStop` gradient stop verisidir; `linear_color_stop(...)` helper'ı genellikle doğrudan inşa etmekten daha okunaklıdır. `LinearColorStop::opacity(factor)` stop alfasını düşürür. `HighlightStyle::highlight(...)` metin vurgu katmanlarını üretir; editör ve markdown gibi kısmi metin stillerinde kullanılır. `combine_highlights(...)` birden çok vurgu katmanını birleştirir; uygulama form bileşenlerinde genellikle gerekmez.
 
 ### Colors, GlobalColors, DefaultColors ve DefaultAppearance
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `DefaultAppearance` | `from` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `GlobalColors` | `deref`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
 
 `Colors`, `GlobalColors`, `DefaultColors` ve `DefaultAppearance` temel GPUI paletini taşır. `Colors::light()`, `dark()`, `for_appearance(window)` ve `get_global(cx)` örnekler, testler ve framework varsayılanları için kullanışlıdır; Zed uygulama UI'ında ana kaynak yine tema sistemindeki `cx.theme().colors()` olmalıdır. `swap_rgba_pa_to_bgra(...)` premultiplied-alpha byte dönüşümü içindir; renk seçimi veya theme override için kullanılmaz.
 
@@ -591,13 +394,6 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 | `DefaultAppearance` | `Light`, `Dark` | Varsayılan GPUI renk setinin açık/koyu kipini taşır. |
 
 ## SharedString, SharedUri ve Ucuz Klonlanan Tipler
-
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `SharedUri` | `deref`, `from`, `hash`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
 
 `SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri` ise `gpui` crate'inde bu string tipini sarar.
 
@@ -643,13 +439,6 @@ impl Render for Baslik {
 - Biçim metni (`format string`) her çizimde çalışıyorsa `format!` sonucu da her ekran karesinde bellek ayırması üretir; sonucu önbelleğe almak için entity verisinde tutman gerekir.
 
 ## WindowAppearance ve Tema Modu
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `WindowAppearance` | Varyantlar | `Dark`, `VibrantDark`, `VibrantLight` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
 
 `gpui` crate'inde tanımlıdır:
 

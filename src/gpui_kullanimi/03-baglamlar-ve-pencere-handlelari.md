@@ -49,15 +49,6 @@ zayif.update(cx, |durum, cx| {
 
 ## WindowHandle, AnyWindowHandle ve VisualContext
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AnyWindowHandle` | `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `VisualContext` | `focus`, `new_window_entity`, `replace_root_view`, `update_window_entity`, `window_handle` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `WindowHandle` | `deref`, `hash`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
 `open_window` ve test yardımcıları, açılan pencereyi temsil eden tipli bir `WindowHandle<V>` döndürür. Bu handle, kök view'un tipini derleme zamanında taşır. Buna karşılık `AnyWindowHandle` kök tipini çalışma zamanında tutar; gerektiğinde alta `downcast` edebilirsin.
 
 İki handle arasında doğrudan bir Deref ilişkisi vardır: `WindowHandle<V>` `#[derive(Deref, DerefMut)]` sayesinde içindeki `AnyWindowHandle` değerine deref olur. Bu yüzden bazı metotlar tipli handle üzerinden çağrılabilir gibi görünür, oysa o metotların asıl sahibi `AnyWindowHandle`'dır. API yüzeyini okurken `Owner::method -> dönüş tipi -> hata davranışı` üçlüsünü birlikte düşünmen gerekir. Yalnız metot adına bakmak burada kolayca yanıltır.
@@ -145,21 +136,6 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## Application ve App Yaşam Döngüsü
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `App` | `borrow`, `borrow_mut` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `App` | Metotlar 1 | `compositor_name`, `cursor_hide_mode`, `default_global`, `focus_handle`, `global_mut`, `has_global`, `is_cursor_visible`, `keyboard_layout`, `keyboard_mapper`, `notify`, `observe_global`, `observe_new`, `quit`, `remove_global` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `App` | Metotlar 2 | `restart`, `set_cursor_hide_mode`, `set_quit_mode`, `set_restart_path`, `shutdown`, `thermal_state`, `window_appearance` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 `Application`, GPUI runtime'ını başlatan dış kabuktur. `App` ise runtime başladıktan sonra tüm callback'lerde dolaşan canlı uygulama bağlamıdır. Bu ayrım önemlidir: platform, asset source, HTTP client ve quit davranışı gibi kurulum kararlarını `Application` üzerinde verirsin; açık pencere, global state, action registry, clipboard, credential ve observer gibi çalışma zamanı kararlarını `App` üzerinde yönetirsin.
 
 `Application` builder zinciri şu sırayla okunur:
@@ -203,21 +179,6 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## `Context<T>` Üzerindeki Entity Merkezli Yüzey
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `Context` | `deref`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `Entity` | `deref`, `focus_handle`, `from`, `hash`, `into_element`, `provide`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Context` | Metotlar | `on_action`, `on_app_quit`, `on_app_restart` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 `Context<T>` bir `Entity<T>` güncellenirken kullanılan bağlamdır. `Context<'a, T>: Deref<Target = App>` olduğu için `App` metotlarına da erişirsin; fakat `Context<T>`'nin asıl değeri, o entity'ye özel kimlik, bildirim, event, observer ve task yardımcılarını taşımasıdır.
 
 | API ailesi | Metotlar | Davranış |
@@ -236,14 +197,6 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## Entity, WeakEntity ve AnyEntity Ailesi
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AnyEntity` | `from`, `hash` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-| `WeakEntity` | `deref`, `from`, `hash`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
 `Entity<T>`, GPUI tarafından yönetilen state'e tipli ve güçlü bir referanstır. `WeakEntity<T>` aynı state'e sahiplik uzatmadan bakar. `AnyEntity` ve `AnyWeakEntity` ise tip silinmiş hallerdir; generic olmayan koleksiyonlarda, pencere köklerinde ve çalışma zamanı `downcast` gerektiren yerlerde kullanılır.
 
 | Tip | Metotlar | Kullanım notu |
@@ -260,21 +213,6 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 ## AsyncApp ve AsyncWindowContext
 
-**Trait impl kapsamı.** Bu konu altında ayrı başlık açmayı gerektirmeyen trait implementasyon üyeleri:
-
-| Konu | Üyeler | Not |
-|---|---|---|
-| `AsyncWindowContext` | `deref`, `Target` | Trait impl üzerinden gelen public üyelerdir; çoğu dönüşüm, render, builder veya standart trait köprüsüdür. |
-
-
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `AsyncApp` | Metotlar | `has_global` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `AsyncWindowContext` | Metotlar | `on_next_frame`, `prompt`, `window_handle` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 `AsyncApp`, `App::spawn(...)` içinde verilen ve `await` noktaları boyunca taşınabilen bağlamdır. `AsyncWindowContext` aynı fikri pencereye bağlı işler için genişletir. Bu iki tipteki kritik fark şudur: synchronous `Context<T>` anlık ve ödünç alınmış App/Window erişimi verir; async bağlam ise her erişimde canlılık varsayımını yeniden kurar.
 
 | Tip | Metotlar | Davranış |
@@ -285,29 +223,3 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 Async bağlamda temel kural şudur: Task sonucunda ekrana yansıyacak state değişiyorsa entity'yi `update`/`update_in` ile günceller ve `cx.notify()` çağırırsın. Task yalnız arka plan cache'ini veya global state'i değiştiriyorsa ilgili global observer'ın render'ı tetikleyeceğinden emin olursun.
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `EntityId`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `as_non_zero_u64`, `as_u64` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `AnyWeakEntity`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `entity_id`, `is_upgradable`, `new_invalid`, `upgrade` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `WindowId`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `as_u64` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->

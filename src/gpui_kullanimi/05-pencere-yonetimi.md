@@ -117,13 +117,6 @@ WindowOptions {
 
 ## WindowKind Davranışı
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `WindowKind` | Varyantlar | `Dialog`, `Floating`, `Normal`, `PopUp` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
-
-
 Pencerenin rolünü `WindowKind` ile belirlersin; bu seçim pencerenin odak politikasını, z-order davranışını ve süslemesini doğrudan etkiler:
 
 - `Normal`: ana uygulama penceresi.
@@ -485,24 +478,6 @@ macOS yerel pencere sekmesi için ek bir API ailesi vardır:
 
 ## Window Çalışma Zamanı API Aileleri
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `Window` | Metotlar 1 | `activate_window`, `available_actions`, `bindings_for_action`, `bindings_for_action_in`, `bindings_for_action_in_context`, `blur`, `bounds`, `bounds_changed`, `capslock`, `capture_pointer`, `captured_hitbox`, `client_inset`, `compute_layout`, `content_mask` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 2 | `context_stack`, `current_view`, `default_prevented`, `defer_draw`, `disable_focus`, `dispatch_action`, `dispatch_event`, `dispatch_keystroke`, `display`, `draw`, `drop_image`, `element_offset`, `focus`, `focus_next` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 3 | `focus_prev`, `focused`, `get_asset`, `gpu_specs`, `handle_input`, `handler_for`, `has_pending_keystrokes`, `highest_precedence_binding_for_action`, `highest_precedence_binding_for_action_in`, `highest_precedence_binding_for_action_in_context`, `inner_window_bounds`, `insert_hitbox`, `insert_inspector_hitbox`, `insert_window_control_hitbox` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 4 | `invalidate_character_coordinates`, `is_action_available`, `is_action_available_in`, `is_fullscreen`, `is_inspector_picking`, `is_maximized`, `is_window_active`, `is_window_hovered`, `keystroke_text_for`, `last_input_was_keyboard`, `layout_bounds`, `line_height`, `listener_for`, `merge_all_windows` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 5 | `minimize_window`, `modifiers`, `mouse_position`, `move_tab_to_new_window`, `observe`, `observe_button_layout_changed`, `observe_global`, `observe_release`, `observe_window_appearance`, `on_a11y_action`, `on_action`, `on_action_when`, `on_focus_in`, `on_focus_out` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 6 | `on_key_event`, `on_modifiers_changed`, `on_mouse_event`, `on_next_frame`, `on_window_should_close`, `paint_drop_shadows`, `paint_emoji`, `paint_glyph`, `paint_image`, `paint_inset_shadows`, `paint_layer`, `paint_path`, `paint_quad`, `paint_strikethrough` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 7 | `paint_surface`, `paint_svg`, `paint_underline`, `pending_input_keystrokes`, `pixel_snap`, `pixel_snap_bounds`, `pixel_snap_f64`, `pixel_snap_point`, `play_system_bell`, `possible_bindings_for_input`, `prevent_default`, `prompt`, `refresh`, `release_pointer` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 8 | `rem_size`, `remove_window`, `replace_root`, `request_animation_frame`, `request_autoscroll`, `request_decorations`, `request_layout`, `request_measured_layout`, `resize`, `root`, `scale_factor`, `set_app_id`, `set_background_appearance`, `set_client_inset` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 9 | `set_cursor_style`, `set_document_path`, `set_focus_handle`, `set_key_context`, `set_rem_size`, `set_tabbing_identifier`, `set_tooltip`, `set_traffic_light_position`, `set_view_id`, `set_window_cursor_style`, `set_window_edited`, `set_window_title`, `show_character_palette`, `show_window_menu` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 10 | `spawn`, `spawn_with_priority`, `start_window_move`, `start_window_resize`, `subscribe`, `tab_bar_visible`, `tabbed_windows`, `take_autoscroll`, `text_style`, `titlebar_double_click`, `to_async`, `toggle_fullscreen`, `toggle_inspector`, `toggle_window_tab_overview` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 11 | `transact`, `use_keyed_state`, `use_state`, `viewport_size`, `window_bounds`, `window_controls`, `window_decorations`, `window_handle`, `window_title`, `with_absolute_element_offset`, `with_content_mask`, `with_element_namespace`, `with_element_offset`, `with_element_state` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `Window` | Metotlar 12 | `with_global_id`, `with_id`, `with_image_cache`, `with_inspector_state`, `with_optional_element_state`, `with_rem_size`, `with_tab_group`, `with_text_style`, `zoom_window` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 `Window` yalnız pencereyi büyütüp küçülten bir handle değildir; çizim fazı, focus ağacı, action yönlendirmesi, element state'i, asset yükleme, prompt, tab ve platform tanılarına da kapı açar. Bu yüzeyi tek tek ezberlemek yerine aşağıdaki ailelerle okursun.
 
 **Kök view ve handle yönetimi.** `window.window_handle()` `AnyWindowHandle` verir; tipli kök view için `WindowHandle<V>` kullanılır. `WindowHandle::root(cx)`, `entity(cx)`, `read(cx)`, `read_with(cx, ...)`, `update(cx, ...)` ve `is_active(cx)` pencere kök entity'sini güvenli biçimde okur veya günceller. Tip bilinmiyorsa `AnyWindowHandle::window_id()`, `downcast::<T>()`, `update(cx, ...)` ve `read(cx, ...)` ile çalışırsın. Bu handle'ları uzun süre sakladığında pencere kapanmış olabilir; bu yüzden dönen `Result`'ı iş akışının parçası sayarsın.
@@ -586,14 +561,6 @@ Aynı şekilde `cx.observe_window_appearance(window, ...)` açık veya koyu gör
 
 ## Yerel Pencere Sekmeleri ve SystemWindowTabController
 
-**Public API kapsamı.** Bu başlık altında ayrı alt başlık açmayı gerektirmeyen public alt yüzeyler:
-
-| Konu | Grup | API | Not |
-|---|---|---|---|
-| `SystemWindowTabController` | Metotlar 1 | `add_tab`, `get_next_tab_group_window`, `get_prev_tab_group_window`, `init_visible`, `is_visible`, `merge_all_windows`, `move_tab_to_new_window`, `new`, `remove_tab`, `select_next_tab`, `select_previous_tab`, `set_visible`, `tab_groups`, `update_last_active` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-| `SystemWindowTabController` | Metotlar 2 | `update_tab_position`, `update_tab_title` | Builder, sorgu veya runtime çağrıları; ayrıntı bu konu anlatımındaki kullanım bağlamıyla okunur. |
-
-
 macOS yerel pencere sekmeleri, GPUI'de iki katmanlı bir yapı üzerinde durur:
 
 - `WindowOptions::tabbing_identifier` — aynı tanımlayıcıya sahip pencerelerin yerel sekme grubuna girmesini sağlar.
@@ -655,67 +622,3 @@ Layer shell ayarları, compositor'a yüzeyin nerede ve nasıl davranacağını a
 Bu API yalnızca `#[cfg(all(target_os = "linux", feature = "wayland"))]` altında mevcuttur. Compositor protokolü desteklemediğinde arka uç `LayerShellNotSupportedError` döndürür; bu durumda normal uygulama penceresine düşen bir yedek akış planlaman gerekir.
 
 ---
-
-<!-- phase14-api-anchor:start -->
-
-## Ek public API kapsamı
-
-Bu bölüm, mevcut HEAD API snapshot envanterinde bu dosyanın konu alanına bağlı olan ama ayrı anlatım başlığı gerektirmeyen public field, variant ve member yüzeylerini toplar. Adlar kaynak API sembolleriyle aynı tutulur; ayrıntı için ilgili ana konu anlatımı esas alınır.
-
-### `WindowDecorations`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Client`, `Server` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `Decorations`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Client`, `Server` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-
-### `Tiling`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_tiled`, `tiled` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-| Alanlar | `bottom`, `left`, `right`, `top` | Public veri sözleşmesinin alanlarıdır; kullanım bağlamı bu dosyadaki ana açıklamayla okunur. |
-
-### `WindowBounds`
-
-| Grup | API | Not |
-|---|---|---|
-| Varyantlar | `Fullscreen`, `Maximized`, `Windowed` | Public enum sözleşmesinin varyantlarıdır; davranış bu dosyadaki konu bağlamıyla okunur. |
-| Metotlar | `centered`, `get_bounds` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `FocusId`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `contains_focused`, `is_focused`, `within_focused` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `WeakFocusHandle`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `upgrade` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `Focusable`
-
-| Grup | API | Not |
-|---|---|---|
-| Trait metotları | `focus_handle` | Trait sözleşmesinin implementor tarafından sağlanan public metotlarıdır. |
-
-### `HitboxId`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_hovered`, `should_handle_scroll` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-### `TooltipId`
-
-| Grup | API | Not |
-|---|---|---|
-| Metotlar | `is_hovered` | Builder, sorgu veya runtime çağrılarıdır; ayrıntı bu dosyadaki kullanım bağlamıyla okunur. |
-
-<!-- phase14-api-anchor:end -->
