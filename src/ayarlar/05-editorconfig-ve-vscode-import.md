@@ -6,7 +6,7 @@
 
 ## `EditorconfigStore`
 
-`crates/settings/src/editorconfig_store.rs` EditorConfig spesifikasyonunu (`ec4rs` üzerinden) çalışma zamanında çözer. Store her worktree'nin internal (`InWorktree`) ve external (`OutsideWorktree`) EditorConfig dosyalarını ayrı ayrı tutar; aynı external dosya birden çok worktree tarafından paylaşılıyorsa yalnız bir kez parse edilir.
+EditorConfig spesifikasyonunu (`ec4rs` üzerinden) çalışma zamanında çözer. Store her worktree'nin internal (`InWorktree`) ve external (`OutsideWorktree`) EditorConfig dosyalarını ayrı ayrı tutar; aynı external dosya birden çok worktree tarafından paylaşılıyorsa yalnız bir kez parse edilir.
 
 ```rust
 pub struct EditorconfigStore {
@@ -72,7 +72,7 @@ EditorConfig sonucu Zed tarafında `EditorconfigProperties` üzerinden tüketili
 | `VsCodeSettingsSource` | Varyantlar | `Cursor`, `VsCode` | Enum seçim değerleri; davranış farkı ilgili konu anlatımında verilir. |
 
 
-`crates/settings/src/vscode_import.rs` mevcut VS Code veya Cursor kullanıcısının ayar dosyasını okuyup Zed kullanıcı JSON'una aktarır.
+mevcut VS Code veya Cursor kullanıcısının ayar dosyasını okuyup Zed kullanıcı JSON'una aktarır.
 
 ```rust
 pub enum VsCodeSettingsSource {

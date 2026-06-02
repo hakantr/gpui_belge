@@ -1,8 +1,8 @@
 # Ayarlar
 
-`settings` crate'i `~/.config/zed/settings.json`, proje seviyesindeki `.zed/settings.json`, sunucu yan ayarları, build-in defaults ve uzaktan iletilen ayar override'larını tek bir tip-güvenli store içinde birleştirir. Bu bölüm, daha önce `gpui_kullanimi/15-zed-settings-ve-theme.md` içinde dağınık duran ve kapsam dışı kalan `crates/settings` yüzeyini ayrı bir ünite olarak toplar; tema tarafı zaten [Tema Yönetimi](../tema_yonetimi/tema_yonetimi.md) içinde anlatılır, bu nedenle burada tekrarlanmaz.
+`settings` crate'i `~/.config/zed/settings.json`, proje seviyesindeki `.zed/settings.json`, sunucu yan ayarları, paketlenmiş varsayılanlar ve uzaktan iletilen ayar override'larını tek bir tip-güvenli store içinde birleştirir. Bu bölüm `settings` yüzeyini ayrı bir ünite olarak toplar; tema tarafı [Tema Yönetimi](../tema_yonetimi/tema_yonetimi.md) içinde anlatıldığı için burada tekrarlanmaz.
 
-Ana referanslar: `crates/settings/src/settings.rs`, `crates/settings/src/settings_store.rs`, `crates/settings/src/settings_file.rs`, `crates/settings/src/keymap_file.rs`, `crates/settings/src/editorconfig_store.rs`, `crates/settings/src/vscode_import.rs`, ayar içeriği için `crates/settings_content/`, derive ve attribute makroları için `crates/settings_macros/`. Güncel Zed ağacında ayrı bir `crates/keymap/` crate'i yoktur; keymap ayar yüzeyi `crates/settings/src/keymap_file.rs` içinde, düşük seviye GPUI binding tipleri ise `crates/gpui/src/keymap/` altında yaşar.
+Bu yüzey `settings` crate'inde toplanır; ayar içeriği `settings_content`, derive ve attribute makroları ise `settings_macros` crate'inde bulunur. Güncel Zed ağacında ayrı bir keymap crate'i yoktur: keymap ayar yüzeyi `settings` crate'inde, düşük seviye GPUI binding tipleri ise `gpui` içinde yaşar.
 
 Bölüm hangi alt dosyada hangi yüzeyi anlatır:
 

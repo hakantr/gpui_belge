@@ -1,6 +1,6 @@
 # Keymap Dosyası
 
-`crates/settings/src/keymap_file.rs`. Zed klavye bağlamalarını kullanıcı keymap.json, paketlenmiş varsayılan keymap dosyaları ve Vim modu keymap'i üzerinden çözer. Bu dosya hem ayrıştırma hem programatik düzenleme hem de telemetri için ortak bir yüzey sağlar.
+Zed klavye bağlamalarını kullanıcı keymap.json, paketlenmiş varsayılan keymap dosyaları ve Vim modu keymap'i üzerinden çözer. `KeymapFile` yüzeyi hem ayrıştırma hem programatik düzenleme hem de telemetri için ortak bir kapı sağlar.
 
 ---
 

@@ -1,6 +1,6 @@
 # Ayar Dosyası İzleme ve Güncelleme
 
-`crates/settings/src/settings_file.rs`. `SettingsStore` ham JSON metnine ihtiyaç duyar; bu metni dosya sisteminden okuyup mpsc kanalları üzerinden taşıyan yardımcılar ayrı bir modülde yaşar. Bu sayede store kendisi `Fs` veya dosya event akışıyla doğrudan ilgilenmez.
+`SettingsStore` ham JSON metnine ihtiyaç duyar; bu metni dosya sisteminden okuyup mpsc kanalları üzerinden taşıyan yardımcılar ayrı bir modülde yaşar. Bu sayede store kendisi `Fs` veya dosya event akışıyla doğrudan ilgilenmez.
 
 ---
 
