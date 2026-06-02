@@ -4,7 +4,7 @@ Bu depo, Zed ve GPUI ekosistemini Turkce anlatan bir mdBook calismasidir. Kitap;
 
 Yayinlanan kitap: <https://hakantr.github.io/gpui_belge/>
 
-Kaynak anlatim, yerel Zed calisma alanindaki guncel kod agacina gore tutulur. Bu nedenle rehber bir gecmis surum uyumluluk dokumani degildir; amac, `$HOME/github/zed` reposunun mevcut HEAD durumundaki API yuzeyini ve kullanim disiplinini ogretmektir.
+Kaynak anlatim, yerel Zed calisma alanindaki guncel kod agacina gore tutulur. Bu nedenle rehber bir gecmis surum uyumluluk dokumani degildir; amac, `$HOME/github/zed` reposunun mevcut HEAD durumundaki API yuzeyini ve kullanim disiplinini elinden geldiğince ogretmektir.
 
 ## Kitap Yapisi
 
