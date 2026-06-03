@@ -694,7 +694,7 @@ Temel API:
 
 - Tema ve metin: `is_light(cx)`, `reveal_in_file_manager_label(is_remote)`, `capitalize(str)`.
 - Kontrast: `calculate_contrast_ratio(fg, bg)`, `apca_contrast(text_color, background_color)`, `ensure_minimum_contrast(foreground, background, minimum_apca_contrast)`.
-- Title bar ölçüleri: `TRAFFIC_LIGHT_PADDING`, `platform_title_bar_height(window)`.
+- Title bar ölçüleri: `TRAFFIC_LIGHT_PADDING`, `MACOS_SDK_26_OR_LATER`, `platform_title_bar_height(window)`.
 - Corner hesapları: `inner_corner_radius(...)`, `CornerSolver::new(root_radius, root_border, root_padding).add_child(border, padding).corner_radius(level)`.
 - Arama genişliği: `SearchInputWidth::THRESHOLD_WIDTH`, `SearchInputWidth::MAX_WIDTH`, `SearchInputWidth::calc_width(container_width)`.
 - Rem override: `WithRemSize::new(rem_size).occlude()`.
@@ -743,4 +743,4 @@ Dikkat edeceğin noktalar:
 
 - `format_distance_from_now(...)` çağrısı anlık `Local::now()` okur. Deterministik test veya snapshot üretirken `FormatDistance::new(date, base_date)` daha kontrollüdür.
 - `SearchInputWidth::calc_width(...)` yalnız genişlik hesabı yapar; input'u kendisi render etmez.
-- `TRAFFIC_LIGHT_PADDING` platform cfg'sine bağlıdır. Title bar dışı genel padding için kullanılmamalıdır.
+- `TRAFFIC_LIGHT_PADDING` değeri public `MACOS_SDK_26_OR_LATER` sabitine (macOS SDK 26 ve sonrası derlemelerde `true`) bağlıdır: doğruysa 78px, değilse 71px. Title bar dışı genel padding için kullanılmamalıdır.
