@@ -6,152 +6,152 @@ Bu bölüm, üst bar portunda dış API sınırını ve davranış paritesini ne
 
 Bu bölümde `pub` anahtar sözcüğünün iki farklı anlamı ayrılır. Bu ayrım gözden kaçarsa "neden bu tipi import edemiyorum?" sorusu sıkça gündeme gelir:
 
-- **Dış API:** Başka crate'lerden path üzerinden doğrudan erişilebilen yüzeydir. Bu tipler dışarıdan kullanılmak üzere kasıtlı olarak açılmıştır.
+- **Dış API:** Başka crate'lerden yol üzerinden doğrudan erişilebilen yüzeydir. Bu tipler dışarıdan kullanılmak üzere kasıtlı olarak açılmıştır.
 - **Lexical `pub`:** Kaynakta `pub` yazsa da, tipi içeren modül crate kökünde private olabilir. Bu durumda öğeye yalnızca crate içinden ulaşılır. Yani `pub` işareti tek başına dış erişim sağlamaz.
 
-Bu ayrımın iyi örneklerinden biri `system_window_tabs.rs` içindeki `SystemWindowTabs` tipidir. Kaynakta `pub struct` olarak yazılmıştır. Fakat modül crate kökünde `mod system_window_tabs;` biçiminde, yani private olarak bağlanır. Bu yüzden dışarıdan `platform_title_bar::system_window_tabs::SystemWindowTabs` yoluyla erişilemez. Crate dışına açılan parçalar yalnızca root dosyadaki `pub use system_window_tabs::{...}` satırlarıdır.
+Bu ayrımın iyi örneklerinden biri `system_window_tabs.rs` içindeki `SystemWindowTabs` tipidir. Kaynakta `pub struct` olarak yazılmıştır. Fakat modül crate kökünde `mod system_window_tabs;` biçiminde, yani private olarak bağlanır. Bu yüzden dışarıdan `platform_title_bar::system_window_tabs::SystemWindowTabs` yoluyla erişilemez. Crate dışına açılan parçalar yalnızca kök dosyadaki `pub use system_window_tabs::{...}` satırlarıdır.
 
 ### Crate kökü (`platform_title_bar`)
 
 | Dış API | İmza / tanım | Not |
 | :-- | :-- | :-- |
-| `pub mod platforms` | `pub mod platforms;` | `platform_title_bar::platforms::{platform_linux, platform_windows}` path'ini açar. **Cfg-gate yoktur**: `platforms.rs` her iki alt modülü de koşulsuz `pub mod` ile expose eder. Yani Windows derlemesinde dahi `platform_title_bar::platforms::platform_linux::LinuxWindowControls` derlenir; runtime seçimi `PlatformStyle::platform()` ile yapılır. |
+| `pub mod platforms` | `pub mod platforms;` | `platform_title_bar::platforms::{platform_linux, platform_windows}` yolunu açar. **Cfg kapısı yoktur**: `platforms.rs` her iki alt modülü de koşulsuz `pub mod` ile dışa açar. Yani Windows derlemesinde dahi `platform_title_bar::platforms::platform_linux::LinuxWindowControls` derlenir; çalışma zamanı seçimi `PlatformStyle::platform()` ile yapılır. |
 | `pub use system_window_tabs::{...}` | `DraggedWindowTab`, `MergeAllWindows`, `MoveTabToNewWindow`, `ShowNextWindowTab`, `ShowPreviousWindowTab` | `SystemWindowTabs` re-export edilmez. |
-| `pub struct PlatformTitleBar` | Private alanlar: `id: ElementId`, `platform_style: PlatformStyle`, `children: SmallVec<[AnyElement; 2]>`, `should_move: bool`, `system_window_tabs: Entity<SystemWindowTabs>` (**strong**), `button_layout: Option<WindowButtonLayout>`, `multi_workspace: Option<WeakEntity<MultiWorkspace>>` (**weak**) | Alanlara dışarıdan erişim yok. **Ownership farkı**: `system_window_tabs` strong `Entity` — titlebar tabs alt-entity'yi sahiplenir ve drop edildiğinde onu da sürükler. `multi_workspace` weak — workspace bağımsız yaşar; titlebar sadece gözlemler. Aksini yapmak (workspace'i strong tutmak) **ownership cycle** üretir. |
-| `PlatformTitleBar::new` | `pub fn new(id: impl Into<ElementId>, cx: &mut Context<Self>) -> Self` | `SystemWindowTabs::new()` ile internal tab entity oluşturur. |
-| `with_multi_workspace` | `pub fn with_multi_workspace(mut self, multi_workspace: WeakEntity<MultiWorkspace>) -> Self` | Builder tarzı ilk bağlantı. |
-| `set_multi_workspace` | `pub fn set_multi_workspace(&mut self, multi_workspace: WeakEntity<MultiWorkspace>)` | Sonradan sidebar state kaynağı bağlar. |
-| `title_bar_color` | `pub fn title_bar_color(&self, window: &mut Window, cx: &mut Context<Self>) -> Hsla` | Linux/FreeBSD'de aktif/pasif ve move state'ine bakar; diğer platformlarda active/inactive ayrımı yapmaz. |
+| `pub struct PlatformTitleBar` | Private alanlar: `id: ElementId`, `platform_style: PlatformStyle`, `children: SmallVec<[AnyElement; 2]>`, `should_move: bool`, `system_window_tabs: Entity<SystemWindowTabs>` (**güçlü**), `button_layout: Option<WindowButtonLayout>`, `multi_workspace: Option<WeakEntity<MultiWorkspace>>` (**zayıf**) | Alanlara dışarıdan erişim yok. **Sahiplik farkı**: `system_window_tabs` güçlü `Entity` — titlebar sekmeleri alt-entity'yi sahiplenir ve drop edildiğinde onu da sürükler. `multi_workspace` zayıf — `Workspace` bağımsız yaşar; titlebar sadece gözlemler. Aksini yapmak (`Workspace`'i güçlü tutmak) **sahiplik döngüsü** üretir. |
+| `PlatformTitleBar::new` | `pub fn new(id: impl Into<ElementId>, cx: &mut Context<Self>) -> Self` | `SystemWindowTabs::new()` ile iç sekme entity'si oluşturur. |
+| `with_multi_workspace` | `pub fn with_multi_workspace(mut self, multi_workspace: WeakEntity<MultiWorkspace>) -> Self` | Kurucu tarzı ilk bağlantı. |
+| `set_multi_workspace` | `pub fn set_multi_workspace(&mut self, multi_workspace: WeakEntity<MultiWorkspace>)` | Sonradan yan panel durum kaynağı bağlar. |
+| `title_bar_color` | `pub fn title_bar_color(&self, window: &mut Window, cx: &mut Context<Self>) -> Hsla` | Linux/FreeBSD'de aktif/pasif ve hareket durumuna bakar; diğer platformlarda etkin/etkin olmayan ayrımı yapmaz. |
 | `set_children` | `pub fn set_children<T>(&mut self, children: T) where T: IntoIterator<Item = AnyElement>` | Render'da `mem::take` ile tüketildiği için her render'da tekrar çağrılır. |
 | `set_button_layout` | `pub fn set_button_layout(&mut self, button_layout: Option<WindowButtonLayout>)` | Sadece Linux + `Decorations::Client` olduğunda `effective_button_layout` tarafından kullanılır. |
 | `PlatformTitleBar::init` | `pub fn init(cx: &mut App)` | Internal `SystemWindowTabs::init(cx)` çağrısıdır. |
-| `is_multi_workspace_enabled` | `pub fn is_multi_workspace_enabled(cx: &App) -> bool` | Zed'de `DisableAiSettings` tersine bağlı feature flag. |
+| `is_multi_workspace_enabled` | `pub fn is_multi_workspace_enabled(cx: &App) -> bool` | Zed'de `DisableAiSettings` tersine bağlı özellik bayrağı. |
 | `render_left_window_controls` | `pub fn render_left_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Yalnız Linux/FreeBSD + CSD; `button_layout.left[0]` boşsa `None`. |
-| `render_right_window_controls` | `pub fn render_right_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Linux/FreeBSD + CSD'de layout kullanır, Windows'ta `WindowsWindowControls::new(height)`, macOS'ta `None`. |
+| `render_right_window_controls` | `pub fn render_right_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Linux/FreeBSD + CSD'de yerleşim kullanır, Windows'ta `WindowsWindowControls::new(height)`, macOS'ta `None`. |
 
 `PlatformTitleBar` tipinin render davranışı çoğu zaman public API imzalarından daha kritiktir. Gerçek port hatalarının büyük kısmı imza farklarından değil, render içindeki ince akışlardan doğar. Aşağıdaki maddeler bu davranışın kaçırılmaması gereken noktalarını sıralar:
 
-- `close_action`, kaynakta sabit olarak `Box::new(workspace::CloseWindow)` ifadesiyle oluşturulur. Buna karşılık serbest render fonksiyonları (`render_left_window_controls`, `render_right_window_controls`) close action'ı dışarıdan `Box<dyn Action>` olarak alır; bu, davranışın yapılandırılabilir olduğu tek noktadır.
-- `button_layout`, private bir helper olan `effective_button_layout(...)` üzerinden çözülür. Bu çözüm yalnızca Linux + CSD durumunda yapılır ve mantığı `self.button_layout.or_else(|| cx.button_layout())` şeklindedir. Yani önce uygulamadan gelen değere bakılır, yoksa platforma sorulur.
+- `close_action`, kaynakta sabit olarak `Box::new(workspace::CloseWindow)` ifadesiyle oluşturulur. Buna karşılık serbest render fonksiyonları (`render_left_window_controls`, `render_right_window_controls`) kapatma eylemini dışarıdan `Box<dyn Action>` olarak alır; bu, davranışın yapılandırılabilir olduğu tek noktadır.
+- `button_layout`, private bir yardımcı olan `effective_button_layout(...)` üzerinden çözülür. Bu çözüm yalnızca Linux + CSD durumunda yapılır ve mantığı `self.button_layout.or_else(|| cx.button_layout())` şeklindedir. Yani önce uygulamadan gelen değere bakılır, yoksa platforma sorulur.
 - Ana titlebar yüzeyi `WindowControlArea::Drag` ile etiketlenir. Buna ek olarak macOS'ta çift tıklama `titlebar_double_click` çağrısına, Linux/FreeBSD'de ise `zoom_window` çağrısına bağlanır.
-- Sol veya sağ sidebar açıkken, sidebar tarafındaki pencere kontrolleri gizlenir. Bu, görsel çakışmayı önlemek içindir.
+- Sol veya sağ yan panel açıkken, yan panel tarafındaki pencere kontrolleri gizlenir. Bu, görsel çakışmayı önlemek içindir.
 - Linux CSD aktifken ve `supported_controls.window_menu` `true` ise, başlık çubuğunda sağ tıklama `window.show_window_menu(ev.position)` çağrısını tetikler.
-- CSD render'ında titlebar, kendi üst köşelerini de düzeltir. Tiled olmayan ve sidebar tarafından kapatılmayan üst köşelere `theme::CLIENT_SIDE_DECORATION_ROUNDING` uygulanır. Ardından şeffaf köşe boşluğunu kapatmak için `.mt(px(-1.)).mb(px(-1.)).border(px(1.))` ölçüleri ve `border_color(titlebar_color)` rengi eklenir.
-- Render zincirinin sonunda, internal `SystemWindowTabs` entity'si child olarak eklenir. Yani sekme çubuğu titlebar'ın görsel olarak hemen altında çizilir.
+- CSD render'ında titlebar, kendi üst köşelerini de düzeltir. Döşeli olmayan ve yan panel tarafından kapatılmayan üst köşelere `theme::CLIENT_SIDE_DECORATION_ROUNDING` uygulanır. Ardından şeffaf köşe boşluğunu kapatmak için `.mt(px(-1.)).mb(px(-1.)).border(px(1.))` ölçüleri ve `border_color(titlebar_color)` rengi eklenir.
+- Render zincirinin sonunda, internal `SystemWindowTabs` entity'si çocuk olarak eklenir. Yani sekme çubuğu titlebar'ın görsel olarak hemen altında çizilir.
 
-**Render pipeline sıralaması**, port hedefinde hangi adımların hangi sırayla uygulanacağını gösterir. `render` fonksiyonu gövdesinde birbirini takip eden dört ayrı dönüşüm aşaması vardır:
+**Render hattı sıralaması**, port hedefinde hangi adımların hangi sırayla uygulanacağını gösterir. `render` fonksiyonu gövdesinde birbirini takip eden dört ayrı dönüşüm aşaması vardır:
 
 | Aşama | İş |
 | :-- | :-- |
-| 1 | **Drag tespiti**: `on_mouse_down/up/down_out/move` zincirinin `should_move` bayrağıyla `window.start_window_move()` tetiklemesi. Bu aşama her zaman ilk uygulanır; sonraki stage'ler bu state'in üstüne kurulur. |
-| 2 | **ID + çift tıklama**: `this.id(self.id.clone())` + Mac/Linux platform branch'leri `on_click`'i `event.click_count() == 2` kontrolüyle `titlebar_double_click` / `zoom_window`'a yönlendirir. Windows branch'i yoktur. |
-| 3 | **Sol kenar padding/kontrolleri**: 4-yollu seçim — fullscreen ise `pl_2`, Mac + show_left_controls ise `pl(TRAFFIC_LIGHT_PADDING)`, Linux + CSD + dolu sol layout ise `render_left_window_controls(...)` child, aksi halde `pl_2` fallback. |
-| 4 | **Decorations branch**: `match decorations` — `Server` ise `el` olduğu gibi; `Client { tiling, .. }` ise tiled olmayan üst köşelere `rounded_tr/tl(CLIENT_SIDE_DECORATION_ROUNDING)` + `mt(-1)/mb(-1)/border(1)` transparent gap düzeltmesi. |
+| 1 | **Sürükleme tespiti**: `on_mouse_down/up/down_out/move` zincirinin `should_move` bayrağıyla `window.start_window_move()` tetiklemesi. Bu aşama her zaman ilk uygulanır; sonraki aşamalar bu durumun üstüne kurulur. |
+| 2 | **ID + çift tıklama**: `this.id(self.id.clone())` + Mac/Linux platform dalları `on_click`'i `event.click_count() == 2` kontrolüyle `titlebar_double_click` / `zoom_window`'a yönlendirir. Windows dalı yoktur. |
+| 3 | **Sol kenar padding/kontrolleri**: 4-yollu seçim — tam ekran ise `pl_2`, Mac + show_left_controls ise `pl(TRAFFIC_LIGHT_PADDING)`, Linux + CSD + dolu sol layout ise `render_left_window_controls(...)` çocuk, aksi halde `pl_2` yedek. |
+| 4 | **Decorations dalı**: `match decorations` — `Server` ise `el` olduğu gibi; `Client { tiling, .. }` ise döşeli olmayan üst köşelere `rounded_tr/tl(CLIENT_SIDE_DECORATION_ROUNDING)` + `mt(-1)/mb(-1)/border(1)` şeffaf boşluk düzeltmesi. |
 
-Bu dört aşamalı zincirden sonra `.bg(titlebar_color).content_stretch().child(div().children(children))` ifadesi gelir. Bu ifade başlık çubuğunun ana içeriğini oluşturur. Ardından `.when(!is_fullscreen, |title_bar| ...)` zinciri sağ kontrolleri ve window_menu sağ-tık handler'ını ekler.
+Bu dört aşamalı zincirden sonra `.bg(titlebar_color).content_stretch().child(div().children(children))` ifadesi gelir. Bu ifade başlık çubuğunun ana içeriğini oluşturur. Ardından `.when(!is_fullscreen, |title_bar| ...)` zinciri sağ kontrolleri ve `window_menu` sağ tık işleyicisini ekler.
 
-Burada önemli bir kural vardır: aşamalar **birbirleriyle commutative değildir**. Yani 3. aşamadaki sol padding seçimi, 4. aşamadaki corner rounding'in yatay hizalamasını doğrudan etkiler. Sıralamayı değiştirmek gözle hemen fark edilmeyen hizalama hataları üretebilir.
+Burada önemli bir kural vardır: aşamalar **birbirleriyle yer değiştirebilir değildir**. Yani 3. aşamadaki sol padding seçimi, 4. aşamadaki köşe yuvarlamasının yatay hizalamasını doğrudan etkiler. Sıralamayı değiştirmek gözle hemen fark edilmeyen hizalama hataları üretebilir.
 
-`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipinde tanımlıdır. Yapı iki element için stack-inline kapasite ayırır. Bunun nedeni Zed'in tipik kullanım kalıbının **sol grup + sağ grup** olmasıdır (rehberin ilgili bölüm'sındaki örneğe bakılabilir). Bu yapıya ikiden fazla element verildiğinde heap bellek ayırma yapılır. Bu yüzden içeriği iki gruba toplamak hem ergonomik açıdan tutarlı kalır hem de bellek ayırma sayısını azaltır.
+`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipinde tanımlıdır. Yapı iki element için yığın içi kapasite ayırır. Bunun nedeni Zed'in tipik kullanım kalıbının **sol grup + sağ grup** olmasıdır (rehberin ilgili bölümündeki örneğe bakılabilir). Bu yapıya ikiden fazla element verildiğinde heap bellek ayırma yapılır. Bu yüzden içeriği iki gruba toplamak hem ergonomik açıdan tutarlı kalır hem de bellek ayırma sayısını azaltır.
 
 ### `platforms::platform_linux`
 
 | Dış API | İmza / tanım | Not |
 | :-- | :-- | :-- |
-| `LinuxWindowControls` | `pub struct LinuxWindowControls` private alanlı | `#[derive(IntoElement)]`; dışarıdan alan set edilemez. |
-| `LinuxWindowControls::new` | `pub fn new(id: &'static str, buttons: [Option<WindowButton>; MAX_BUTTONS_PER_SIDE], close_action: Box<dyn Action>) -> Self` | Layout slotlarını ve close action'ı saklar. Render'da `WindowControls` capability'sine göre minimize/maximize filtrelenir, **`WindowButton::Close => true` arm'ı koşulsuzdur**; `supported_controls.close` false olsa bile close butonu render edilir. |
-| `WindowControlType` | `pub enum WindowControlType { Minimize, Restore, Maximize, Close }` | Variant sırası kaynakta `Minimize, Restore, Maximize, Close`; `WindowButton::Maximize` runtime'da pencere maximized ise `Restore` ikonuna çevrilir. |
+| `LinuxWindowControls` | `pub struct LinuxWindowControls` private alanlı | `#[derive(IntoElement)]`; dışarıdan alan ayarlanamaz. |
+| `LinuxWindowControls::new` | `pub fn new(id: &'static str, buttons: [Option<WindowButton>; MAX_BUTTONS_PER_SIDE], close_action: Box<dyn Action>) -> Self` | Yerleşim slotlarını ve kapatma eylemini saklar. Render'da `WindowControls` yeteneğine göre minimize/maximize filtrelenir, **`WindowButton::Close => true` kolu koşulsuzdur**; `supported_controls.close` false olsa bile kapat butonu render edilir. |
+| `WindowControlType` | `pub enum WindowControlType { Minimize, Restore, Maximize, Close }` | Varyant sırası kaynakta `Minimize, Restore, Maximize, Close`; `WindowButton::Maximize` çalışma zamanında pencere büyütülmüşse `Restore` ikonuna çevrilir. |
 | `WindowControlType::icon` | `pub fn icon(&self) -> IconName` | `GenericMinimize`, `GenericRestore`, `GenericMaximize`, `GenericClose` döner. |
-| `WindowControlStyle` | `pub struct WindowControlStyle` private alanlı | Alanlar public değildir; sadece builder yüzeyi var. |
+| `WindowControlStyle` | `pub struct WindowControlStyle` private alanlı | Alanlar public değildir; sadece kurucu zinciri yüzeyi var. |
 | `WindowControlStyle::default` | `pub fn default(cx: &mut App) -> Self` | `Default` trait impl'i değildir; argümansız `WindowControlStyle::default()` derlenmez. |
-| `background` | `pub fn background(mut self, color: impl Into<Hsla>) -> Self` | Builder. |
-| `background_hover` | `pub fn background_hover(mut self, color: impl Into<Hsla>) -> Self` | Builder. |
-| `icon` | `pub fn icon(mut self, color: impl Into<Hsla>) -> Self` | Builder. |
-| `icon_hover` | `pub fn icon_hover(mut self, color: impl Into<Hsla>) -> Self` | Builder. |
-| `WindowControl` | `pub struct WindowControl` private alanlı | `#[derive(IntoElement)]`; public setter yok. |
-| `WindowControl::new` | `pub fn new(id: impl Into<ElementId>, icon: WindowControlType, cx: &mut App) -> Self` | `close_action: None`; close için kullanılırsa click handler panik atar. |
+| `background` | `pub fn background(mut self, color: impl Into<Hsla>) -> Self` | Kurucu zinciri adımı. |
+| `background_hover` | `pub fn background_hover(mut self, color: impl Into<Hsla>) -> Self` | Kurucu zinciri adımı. |
+| `icon` | `pub fn icon(mut self, color: impl Into<Hsla>) -> Self` | Kurucu zinciri adımı. |
+| `icon_hover` | `pub fn icon_hover(mut self, color: impl Into<Hsla>) -> Self` | Kurucu zinciri adımı. |
+| `WindowControl` | `pub struct WindowControl` private alanlı | `#[derive(IntoElement)]`; public ayarlayıcı yok. |
+| `WindowControl::new` | `pub fn new(id: impl Into<ElementId>, icon: WindowControlType, cx: &mut App) -> Self` | `close_action: None`; kapatma için kullanılırsa tıklama işleyicisi panik atar. |
 | `WindowControl::new_close` | `pub fn new_close(id: impl Into<ElementId>, icon: WindowControlType, close_action: Box<dyn Action>, cx: &mut App) -> Self` | `close_action.boxed_clone()` saklar. |
-| `WindowControl::custom_style` | `pub fn custom_style(id: impl Into<ElementId>, icon: WindowControlType, style: WindowControlStyle) -> Self` | `#[allow(unused)]`; crate içinde çağrılmıyor, close action `None`. |
+| `WindowControl::custom_style` | `pub fn custom_style(id: impl Into<ElementId>, icon: WindowControlType, style: WindowControlStyle) -> Self` | `#[allow(unused)]`; crate içinde çağrılmıyor, kapatma eylemi `None`. |
 
-Linux davranışının kritik private helper'ı `fn create_window_button(...)` dış API değildir; buna rağmen davranış paritesi için zorunlu bir karar noktasıdır. İçinde `WindowButton::Close` branch'i yalnızca `WindowControl::new_close(...)` çağrısını kullanır. Close butonunu `WindowControl::new(...)` ile üretmeye çalışmak da sessiz bir no-op değildir. Runtime'da close action yoksa `Use WindowControl::new_close() for close control.` mesajıyla fail-fast panik fırlatılır. Bu, "yanlış constructor ile close üretme" hatasının sessizce geçmemesi için konmuş bir güvenlik önlemidir.
+Linux davranışının kritik private yardımcısı `fn create_window_button(...)` dış API değildir; buna rağmen davranış paritesi için zorunlu bir karar noktasıdır. İçinde `WindowButton::Close` dalı yalnızca `WindowControl::new_close(...)` çağrısını kullanır. Kapat butonunu `WindowControl::new(...)` ile üretmeye çalışmak da sessiz bir iş yapmadan dönüş değildir. Çalışma zamanında kapatma eylemi yoksa `Use WindowControl::new_close() for close control.` mesajıyla hızlı hata paniki fırlatılır. Bu, "yanlış kurucu ile kapat butonu üretme" hatasının sessizce geçmemesi için konmuş bir güvenlik önlemidir.
 
-**Derive ve clonability haritası**, hangi tipin değer semantiğiyle taşındığını ve hangisinin yalnız element olarak tüketildiğini gösterir:
+**Derive ve klonlanabilirlik haritası**, hangi tipin değer semantiğiyle taşındığını ve hangisinin yalnız element olarak tüketildiğini gösterir:
 
-| Tip | Derive set | Önemi |
+| Tip | Derive kümesi | Önemi |
 | :-- | :-- | :-- |
-| `WindowControlType` | `Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy` | `Hash` + `Copy` — `HashMap` key olabilir, value semantiği. `PartialOrd/Ord` deklarasyon sırasını kullanır: `Minimize < Restore < Maximize < Close`. |
-| `WindowControlStyle` | **Hiçbiri yok** | `Clone`, `Copy`, `Default` impl'i **yoktur**; her yeni instance için `WindowControlStyle::default(cx)` çağrısı gerekir. `Default` trait olmadığı için generic koddan `D: Default` ile alınamaz. |
-| `LinuxWindowControls` | `IntoElement` | `RenderOnce` yüzeyi; build edilip child olarak verilir, alanları tekrar erişilemez. |
+| `WindowControlType` | `Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy` | `Hash` + `Copy` — `HashMap` anahtarı olabilir, değer semantiği taşır. `PartialOrd/Ord` deklarasyon sırasını kullanır: `Minimize < Restore < Maximize < Close`. |
+| `WindowControlStyle` | **Hiçbiri yok** | `Clone`, `Copy`, `Default` impl'i **yoktur**; her yeni örnek için `WindowControlStyle::default(cx)` çağrısı gerekir. `Default` trait olmadığı için generic koddan `D: Default` ile alınamaz. |
+| `LinuxWindowControls` | `IntoElement` | `RenderOnce` yüzeyi; inşa edilip çocuk olarak verilir, alanları tekrar erişilemez. |
 | `WindowControl` | `IntoElement` | Aynı RenderOnce yüzeyi. |
 | `WindowsWindowControls` | `IntoElement` | Aynı. |
-| `DraggedWindowTab` | `Clone` | Drag payload tipi; clone'lanabilir ama `Copy` değil. |
+| `DraggedWindowTab` | `Clone` | Sürükleme yük tipi; clone'lanabilir ama `Copy` değil. |
 | `PlatformTitleBar`, `SystemWindowTabs` | Yok | `Entity` ile yönetilir; trait impl'leri (`Render`, `ParentElement`) yüzeyi sağlar. |
 
 **`WindowControlStyle::default(cx)` çağrısı hangi tema token'larını okur?** Bu soru port hedefinin tema sistemini doğrudan şekillendirir. Cevap aşağıdaki dört tema token'ına karşılık gelir:
 
-| Style alanı | Tema token |
+| Stil alanı | Tema token |
 | :-- | :-- |
 | `background` | `colors.ghost_element_background` |
 | `background_hover` | `colors.ghost_element_hover` |
 | `icon` | `colors.icon` |
 | `icon_hover` | `colors.icon_muted` |
 
-Builder zincirinde override edilmeyen alanlar bu default değerlerinde kalır. Pratik sonuç nettir: port hedefinin tema sistemi **yukarıdaki dört token'ı mutlaka sağlamalıdır**. Aynı liste rehberin diğer bölümlerinde de yer alır. Bunlardan biri eksik kalırsa Linux pencere butonlarının görünümü beklenmeyen renklere düşer.
+Kurucu zincirinde geçersiz kılınmayan alanlar bu varsayılan değerlerinde kalır. Pratik sonuç nettir: port hedefinin tema sistemi **yukarıdaki dört token'ı mutlaka sağlamalıdır**. Aynı liste rehberin diğer bölümlerinde de yer alır. Bunlardan biri eksik kalırsa Linux pencere butonlarının görünümü beklenmeyen renklere düşer.
 
-**Sabit ölçüler.** Linux render closure'larında piksel paritesini korumak için aşağıdaki sabit değerlerin port hedefinde de aynı biçimde kullanman gerekir:
+**Sabit ölçüler.** Linux render kapanımlarında piksel paritesini korumak için aşağıdaki sabit değerlerin port hedefinde de aynı biçimde kullanman gerekir:
 
 | Yer | Değer |
 | :-- | :-- |
-| `LinuxWindowControls` buton container gap'i | `.gap_3()` (12px @ default rem) |
-| `LinuxWindowControls` buton container yatay padding | `.px_3()` |
+| `LinuxWindowControls` buton kapsayıcı aralığı | `.gap_3()` (12px @ varsayılan rem) |
+| `LinuxWindowControls` buton kapsayıcı yatay padding | `.px_3()` |
 | `WindowControl` buton boyutu | `.w_5().h_5()` (≈20px) |
 | `WindowControl` köşe yuvarlama | `.rounded_2xl()` |
 
-**`Box<dyn Action>` klonlama zinciri.** Close action'ının render sırasında kaç defa klonlandığı kolayca gözden kaçar. Başarımı düşünen bir portta bu sayı önemlidir. Zincirin adımları şöyledir:
+**`Box<dyn Action>` klonlama zinciri.** Kapatma eyleminin render sırasında kaç defa klonlandığı kolayca gözden kaçar. Başarımı düşünen bir portta bu sayı önemlidir. Zincirin adımları şöyledir:
 
 | Adım | Tetikleyici | Çağrı |
 | :-- | :-- | :-- |
 | 1 | `render()` başı | `let close_action = Box::new(workspace::CloseWindow);` (ilk Box üretimi, klon değil) |
-| 2 | Fullscreen değil, macOS trafik ışığı padding branch'i seçilmedi ve `show_left_controls` true | `close_action.as_ref().boxed_clone()` — `render_left_window_controls` argümanı |
+| 2 | Tam ekran değil, macOS trafik ışığı padding dalı seçilmedi ve `show_left_controls` true | `close_action.as_ref().boxed_clone()` — `render_left_window_controls` argümanı |
 | 3 | `show_right_controls` true ve `!is_fullscreen` | `close_action.as_ref().boxed_clone()` — `render_right_window_controls` argümanı |
 | 4 | İlgili tarafta `WindowButton::Close` slot'u var | `create_window_button` → `WindowControl::new_close(..., close_action.boxed_clone(), cx)` |
-| 5 | `new_close` gövdesi | `close_action: Some(close_action.boxed_clone())` (parametre move'lanmak yerine yeniden klonlanır) |
-| 6 | Close butonuna **click anı** | Close action yoksa `Use WindowControl::new_close() for close control.` mesajıyla fail-fast panik fırlatılır; aksi halde `boxed_clone()` sonucu `window.dispatch_action(...)` argümanı olur |
+| 5 | `new_close` gövdesi | `close_action: Some(close_action.boxed_clone())` (parametre hareket ettirilmek yerine yeniden klonlanır) |
+| 6 | Kapat butonuna **tıklama anı** | Kapatma eylemi yoksa `Use WindowControl::new_close() for close control.` mesajıyla hızlı hata paniki fırlatılır; aksi halde `boxed_clone()` sonucu `window.dispatch_action(...)` argümanı olur |
 
-Adım 2 ve 3'teki klonlamalar render fonksiyonları çağrılmadan önce yapılır. Bunun anlamı şudur: ilgili tarafta close butonu hiç üretilmese bile klonlama maliyeti doğar. Fullscreen durumunda adım 2 ve 3 atlanır; çünkü fullscreen'de yan kontroller render'a girmez. macOS tarafında sol kenar genellikle trafik ışığı padding branch'i ile çözüldüğü için adım 2 burada çalışmaz. Ancak fullscreen değilse adım 3 hâlâ `render_right_window_controls(...)` çağrısı öncesinde bir klon üretir ve fonksiyon Mac'te zaten `None` döner. Yani Mac'te boşa bir klonlama maliyeti vardır. Windows tarafında `WindowsWindowControls` close action'ı kullanmaz; buna rağmen fullscreen olmadığı sürece adım 2 ve 3 çalışabilir.
+Adım 2 ve 3'teki klonlamalar render fonksiyonları çağrılmadan önce yapılır. Bunun anlamı şudur: ilgili tarafta kapat butonu hiç üretilmese bile klonlama maliyeti doğar. Tam ekran durumunda adım 2 ve 3 atlanır; çünkü tam ekranda yan kontroller render'a girmez. macOS tarafında sol kenar genellikle trafik ışığı padding dalı ile çözüldüğü için adım 2 burada çalışmaz. Ancak tam ekran değilse adım 3 hâlâ `render_right_window_controls(...)` çağrısı öncesinde bir klon üretir ve fonksiyon Mac'te zaten `None` döner. Yani Mac'te boşa bir klonlama maliyeti vardır. Windows tarafında `WindowsWindowControls` kapatma eylemi kullanmaz; buna rağmen tam ekran olmadığı sürece adım 2 ve 3 çalışabilir.
 
-Adım 4 ve 5 yalnızca Linux CSD ortamında ve close butonunun bulunduğu tarafta tetiklenir. Tipik bir Linux GNOME render'ında, yani close sağda ve sidebar kapalıyken, adımlar 2 + 3 + 4 + 5 birlikte çalışır. Bu da **render başına 4 adet `boxed_clone`** anlamına gelir. Adım 6 ise yalnızca close butonuna tıklandığında ek olarak **+1** klon üretir.
+Adım 4 ve 5 yalnızca Linux CSD ortamında ve kapat butonunun bulunduğu tarafta tetiklenir. Tipik bir Linux GNOME render'ında, yani kapat sağda ve yan panel kapalıyken, adımlar 2 + 3 + 4 + 5 birlikte çalışır. Bu da **render başına 4 adet `boxed_clone`** anlamına gelir. Adım 6 ise yalnızca kapat butonuna tıklandığında ek olarak **+1** klon üretir.
 
-`Box<dyn Action>::boxed_clone()` çağrısı trait üzerinden v-table dispatch yapan bir klon işlemidir (`Action::boxed_clone(&self) -> Box<dyn Action>`). Bu klonun maliyeti concrete tipin `Clone` implementasyonuna bağlıdır. `workspace::CloseWindow` gibi unit struct'lar için maliyet neredeyse sıfırdır. Alan taşıyan action'larda ise bu maliyet her render'da çarpan etkisiyle artar. Port hedefinde action tipini alan taşımayacak şekilde tasarlamak bu yolu önemli ölçüde hızlandırır. Ayrıca adım 5 optimize edilebilir: parametre hareket ettirilebilir, yani `Some(close_action)` ile move'lanabilir biçimde alınırsa, bir klon adımı tamamen ortadan kalkar.
+`Box<dyn Action>::boxed_clone()` çağrısı trait üzerinden v-table dispatch yapan bir klon işlemidir (`Action::boxed_clone(&self) -> Box<dyn Action>`). Bu klonun maliyeti somut tipin `Clone` implementasyonuna bağlıdır. `workspace::CloseWindow` gibi unit struct'lar için maliyet neredeyse sıfırdır. Alan taşıyan eylemlerde ise bu maliyet her render'da çarpan etkisiyle artar. Port hedefinde eylem tipini alan taşımayacak şekilde tasarlamak bu yolu önemli ölçüde hızlandırır. Ayrıca adım 5 optimize edilebilir: parametre hareket ettirilebilir, yani `Some(close_action)` ile move'lanabilir biçimde alınırsa, bir klon adımı tamamen ortadan kalkar.
 
 ### `platforms::platform_windows`
 
 | Dış API | İmza / tanım | Not |
 | :-- | :-- | :-- |
-| `WindowsWindowControls` | `pub struct WindowsWindowControls { button_height: Pixels }` private alanlı | `#[derive(IntoElement)]`; dışarıdan sadece constructor var. |
+| `WindowsWindowControls` | `pub struct WindowsWindowControls { button_height: Pixels }` private alanlı | `#[derive(IntoElement)]`; dışarıdan sadece kurucu var. |
 | `WindowsWindowControls::new` | `pub fn new(button_height: Pixels) -> Self` | Render'da minimize, maximize/restore ve close caption butonlarını üretir. |
 
-`WindowsCaptionButton` tipi crate dışına açılmamıştır; yalnızca crate içinde kullanılır. Tipin private metotları `id()`, `icon()` ve `control_area()` sırasıyla şu üç şeyi döner: stable element id, Segoe glyph karakteri ve `WindowControlArea::{Min, Max, Close}` varyantlarından biri. Windows butonları, Linux'taki gibi click handler çağırmaz; bunun yerine `.window_control_area(...)` ile hit-test alanı üretirler ve davranış platform caption katmanı tarafından sürdürülür.
+`WindowsCaptionButton` tipi crate dışına açılmamıştır; yalnızca crate içinde kullanılır. Tipin private metotları `id()`, `icon()` ve `control_area()` sırasıyla şu üç şeyi döner: kararlı element id'si, Segoe glyph karakteri ve `WindowControlArea::{Min, Max, Close}` varyantlarından biri. Windows butonları, Linux'taki gibi tıklama işleyicisi çağırmaz; bunun yerine `.window_control_area(...)` ile hit-test alanı üretirler ve davranış platform caption katmanı tarafından sürdürülür.
 
 **Segoe Fluent Icons glyph kodları.** Windows native paritesini korumak için aşağıdaki dört Unicode codepoint birebir aynen kullanılır:
 
-| Variant | Kodepoint |
+| Varyant | Codepoint |
 | :-- | :-- |
 | `Minimize` | `\u{e921}` |
 | `Restore` | `\u{e923}` |
 | `Maximize` | `\u{e922}` |
 | `Close` | `\u{e8bb}` |
 
-Bu glyph'lerin gösterilmesi için kullanılan font, çalışılan Windows build'ine göre değişir. Font seçimi `WindowsWindowControls::get_font()` fonksiyonunda yapılır. Build numarası 22000 veya üzerindeyse `"Segoe Fluent Icons"` font'u tercih edilir; build numarası bunun altındaysa `"Segoe MDL2 Assets"` kullanılır. Port hedefinin çalıştığı sistemde bu font'lar yoksa glyph'ler boş kareler olarak render olur. Bu durumda SVG ikon fallback'i gerekebilir.
+Bu glyph'lerin gösterilmesi için kullanılan font, çalışılan Windows build'ine göre değişir. Font seçimi `WindowsWindowControls::get_font()` fonksiyonunda yapılır. Build numarası 22000 veya üzerindeyse `"Segoe Fluent Icons"` font'u tercih edilir; build numarası bunun altındaysa `"Segoe MDL2 Assets"` kullanılır. Port hedefinin çalıştığı sistemde bu font'lar yoksa glyph'ler boş kareler olarak render olur. Bu durumda SVG ikon yedeği gerekebilir.
 
-**Renk sabitleri.** Windows pencere butonlarının hover ve active durumlarındaki renkleri sabit olarak tanımlanır. Aşağıdaki tablo bu sabitleri özetler:
+**Renk sabitleri.** Windows pencere butonlarının üzerine gelme ve active durumlarındaki renkleri sabit olarak tanımlanır. Aşağıdaki tablo bu sabitleri özetler:
 
 | Buton | Hover bg | Hover fg | Active bg | Active fg |
 | :-- | :-- | :-- | :-- | :-- |
 | `Close` | `Rgba { r: 232/255, g: 17/255, b: 32/255, a: 1.0 }` = `#E81120` | `gpui::white()` | `color.opacity(0.8)` | `white().opacity(0.8)` |
 | Diğerleri | `theme.ghost_element_hover` | `theme.text` | `theme.ghost_element_active` | `theme.text` |
 
-Burada özellikle dikkat çeken nokta close butonunun kırmızısıdır: `#E81120` **temadan değil, doğrudan koddan gelir**. Bu renk Microsoft'un Windows title bar kapatma kırmızısıdır ve native hissi korumak için sabit tutulur. Port hedefinin tema sistemi farklı bir close vurgu rengi istiyorsa bu sabiti override etmen gerekir. Aksi halde tema değişse bile close hover'ı Microsoft kırmızısında kalır.
+Burada özellikle dikkat çeken nokta kapat butonunun kırmızısıdır: `#E81120` **temadan değil, doğrudan koddan gelir**. Bu renk Microsoft'un Windows title bar kapatma kırmızısıdır ve native hissi korumak için sabit tutulur. Port hedefinin tema sistemi farklı bir kapatma vurgu rengi istiyorsa bu sabiti geçersiz kılman gerekir. Aksi halde tema değişse bile kapatma üzerine gelme rengi Microsoft kırmızısında kalır.
 
 **Sabit ölçüler** (Windows caption butonu):
 
@@ -160,18 +160,18 @@ Burada özellikle dikkat çeken nokta close butonunun kırmızısıdır: `#E8112
 | Caption buton genişliği | `.w(px(36.))` (36px) |
 | Glyph metin boyutu | `.text_size(px(10.0))` (10px) |
 | Buton yüksekliği | `WindowsWindowControls::new(button_height)`'ten `.h_full()` ile yayılır |
-| Mouse propagation | `.occlude()` (alt katmanlara mouse event sızdırmaz) |
+| Fare olay yayılımı | `.occlude()` (alt katmanlara fare olayı sızdırmaz) |
 
-### Root'tan re-export edilen system tab action'ları
+### Kökten re-export edilen sistem sekme eylemleri
 
-Native pencere sekmeleri için gerekli action'lar `actions!(window, [...])` makrosu ile üretilir. Bu makro dört unit struct'ı tek seferde tanımlar. Makro çıktısı şu derive setini otomatik ekler: `Clone`, `PartialEq`, `Default`, `Debug` ve `gpui::Action`. Üretilen tipler şunlardır:
+Native pencere sekmeleri için gerekli eylemler `actions!(window, [...])` makrosu ile üretilir. Bu makro dört unit struct'ı tek seferde tanımlar. Makro çıktısı şu derive kümesini otomatik ekler: `Clone`, `PartialEq`, `Default`, `Debug` ve `gpui::Action`. Üretilen tipler şunlardır:
 
 - `pub struct ShowNextWindowTab;`
 - `pub struct ShowPreviousWindowTab;`
 - `pub struct MergeAllWindows;`
 - `pub struct MoveTabToNewWindow;`
 
-Bu dört action crate kökünden re-export edilir. Ardından Zed'in `title_bar` crate'i aynı adları kendi seviyesinde bir kez daha re-export eder. Bu çift re-export, tüketicilerin tipleri kendileri için en uygun yoldan import etmesine imkan verir.
+Bu dört eylem crate kökünden re-export edilir. Ardından Zed'in `title_bar` crate'i aynı adları kendi seviyesinde bir kez daha re-export eder. Bu çift re-export, tüketicilerin tipleri kendileri için en uygun yoldan import etmesine imkan verir.
 
 `DraggedWindowTab` tipi de aynı şekilde crate kökünden re-export edilir. İmzası şöyledir:
 
@@ -189,7 +189,7 @@ pub struct DraggedWindowTab {
 }
 ```
 
-Bu tip aynı zamanda sürükleme preview olarak kendini çizmek için `Render` trait'ini implement eder. Yani hem veri taşır hem de görsel sunum sağlar.
+Bu tip aynı zamanda sürükleme önizlemesi olarak kendini çizmek için `Render` trait'ini implement eder. Yani hem veri taşır hem de görsel sunum sağlar.
 
 ### Lexical `pub` ama dış API olmayan parçalar
 
@@ -197,41 +197,41 @@ Aşağıdaki tablo, kaynakta `pub` görünmesine rağmen crate sınırının dı
 
 | Öğe | Neden dış API değil? | Kullanım |
 | :-- | :-- | :-- |
-| `SystemWindowTabs` | `system_window_tabs` modülü private | `PlatformTitleBar::new` içinde entity olarak oluşturulur ve render sonunda child yapılır. |
-| `SystemWindowTabs::new` | Private modül içinde lexical `pub` | Internal scroll handle, ölçülen tab genişliği ve `last_dragged_tab` başlangıcı. |
+| `SystemWindowTabs` | `system_window_tabs` modülü private | `PlatformTitleBar::new` içinde entity olarak oluşturulur ve render sonunda çocuk yapılır. |
+| `SystemWindowTabs::new` | Private modül içinde lexical `pub` | İç kaydırma tutamacı, ölçülen sekme genişliği ve `last_dragged_tab` başlangıcı. |
 | `SystemWindowTabs::init` | Private modül içinde lexical `pub` | `PlatformTitleBar::init(cx)` üzerinden çağrılır. |
-| `SystemWindowTabs::render_tab` | Private method | Tab elementlerini, drag/drop'u, middle-click close'u, close button'u ve context menu'yü kurulur. |
-| `handle_tab_drop` | Private method | Sadece same-bar drop reorder: `SystemWindowTabController::update_tab_position(...)`. |
-| `handle_right_click_action` | Private method | Context menu action'larını hedef tab penceresinde çalıştırır. |
+| `SystemWindowTabs::render_tab` | Private method | Sekme elementlerini, sürükle-bırakı, orta tıkla kapatmayı, kapat butonunu ve bağlam menüsünü kurar. |
+| `handle_tab_drop` | Private method | Sadece aynı çubukta bırakma ile yeniden sıralama: `SystemWindowTabController::update_tab_position(...)`. |
+| `handle_right_click_action` | Private method | Bağlam menüsü eylemlerini hedef sekme penceresinde çalıştırır. |
 
-Bu ayrımın port hedefi için anlamı şudur: `SystemWindowTabs` tipi dış API olarak taşınmak zorunda değildir. Tüketicilere doğrudan göstermemek serbestlik sağlar. Ancak davranış mirror edilecekse private event router'ları da ayrı ayrı incelenmelidir; özellikle `handle_tab_drop` ve `handle_right_click_action` önemlidir. Yalnızca public yüzey taşınırsa bu router'ların yaptığı iş atlanır ve sekme davranışı eksik kalır.
+Bu ayrımın port hedefi için anlamı şudur: `SystemWindowTabs` tipi dış API olarak taşınmak zorunda değildir. Tüketicilere doğrudan göstermemek serbestlik sağlar. Ancak davranış birebir taşınacaksa private olay yönlendiricileri de ayrı ayrı incelenmelidir; özellikle `handle_tab_drop` ve `handle_right_click_action` önemlidir. Yalnızca public yüzey taşınırsa bu yönlendiricilerin yaptığı iş atlanır ve sekme davranışı eksik kalır.
 
 ### GPUI native tab destek yüzeyi
 
-Aşağıdaki tipler `platform_title_bar` crate'inden değil, `gpui` crate'inden gelir. Buna rağmen native tab davranışının state kaynağını oluşturdukları için bu bölümde yer almaları gerekir. Port hedefi, sekme controller'ını fiilen bu yüzey üzerinden işletir:
+Aşağıdaki tipler `platform_title_bar` crate'inden değil, `gpui` crate'inden gelir. Buna rağmen native sekme davranışının durum kaynağını oluşturdukları için bu bölümde yer almaları gerekir. Port hedefi, sekme denetleyicisini fiilen bu yüzey üzerinden işletir:
 
 | API | İmza / tanım | Not |
 | :-- | :-- | :-- |
-| `SystemWindowTab` | `#[doc(hidden)] pub struct SystemWindowTab { pub id, pub title, pub handle, pub last_active_at }` | Platform native tab metadata'sı. |
+| `SystemWindowTab` | `#[doc(hidden)] pub struct SystemWindowTab { pub id, pub title, pub handle, pub last_active_at }` | Platform native sekme üst verisi. |
 | `SystemWindowTab::new` | `pub fn new(title: SharedString, handle: AnyWindowHandle) -> Self` | `id` handle'dan, `last_active_at` `Instant::now()` ile gelir. |
-| `SystemWindowTabController::new` | `pub fn new() -> Self` | Empty global controller. |
-| `SystemWindowTabController::init` | `pub fn init(cx: &mut App)` | Global controller'ı resetler. |
-| `tab_groups` | `pub fn tab_groups(&self) -> &FxHashMap<usize, Vec<SystemWindowTab>>` | Grupları doğrudan ref olarak verir. |
-| `tabs` | `pub fn tabs(&self, id: WindowId) -> Option<&Vec<SystemWindowTab>>` | Verilen pencereyle aynı gruptaki tab listesi. |
-| `init_visible` | `pub fn init_visible(cx: &mut App, visible: bool)` | Sadece `visible` `None` ise set eder. |
+| `SystemWindowTabController::new` | `pub fn new() -> Self` | Boş global denetleyici. |
+| `SystemWindowTabController::init` | `pub fn init(cx: &mut App)` | Global denetleyiciyi resetler. |
+| `tab_groups` | `pub fn tab_groups(&self) -> &FxHashMap<usize, Vec<SystemWindowTab>>` | Grupları doğrudan referans olarak verir. |
+| `tabs` | `pub fn tabs(&self, id: WindowId) -> Option<&Vec<SystemWindowTab>>` | Verilen pencereyle aynı gruptaki sekme listesi. |
+| `init_visible` | `pub fn init_visible(cx: &mut App, visible: bool)` | Sadece `visible` `None` ise ayarlar. |
 | `is_visible` | `pub fn is_visible(&self) -> bool` | `None` ise `false`. |
-| `set_visible` | `pub fn set_visible(cx: &mut App, visible: bool)` | Platform toggle callback'i kullanır. |
+| `set_visible` | `pub fn set_visible(cx: &mut App, visible: bool)` | Platform geçiş geri çağrısı kullanır. |
 | `update_last_active` | `pub fn update_last_active(cx: &mut App, id: WindowId)` | Aktif pencere değişiminde çağrılır. |
-| `update_tab_position` | `pub fn update_tab_position(cx: &mut App, id: WindowId, ix: usize)` | Same-bar drag/drop reorder. |
-| `update_tab_title` | `pub fn update_tab_title(cx: &mut App, id: WindowId, title: SharedString)` | Workspace title güncellemesinde kullanılır. |
-| `add_tab` | `pub fn add_tab(cx: &mut App, id: WindowId, tabs: Vec<SystemWindowTab>)` | Platform tab listesinden controller grubu kurulur. |
+| `update_tab_position` | `pub fn update_tab_position(cx: &mut App, id: WindowId, ix: usize)` | Aynı çubukta sürükle-bırak yeniden sıralaması. |
+| `update_tab_title` | `pub fn update_tab_title(cx: &mut App, id: WindowId, title: SharedString)` | Workspace başlığı güncellemesinde kullanılır. |
+| `add_tab` | `pub fn add_tab(cx: &mut App, id: WindowId, tabs: Vec<SystemWindowTab>)` | Platform sekme listesinden denetleyici grubu kurulur. |
 | `remove_tab` | `pub fn remove_tab(cx: &mut App, id: WindowId) -> Option<SystemWindowTab>` | Boş kalan grupları temizler. |
-| `move_tab_to_new_window` | `pub fn move_tab_to_new_window(cx: &mut App, id: WindowId)` | Controller state'inde yeni grup açar; platform move ayrıca çağrılır. |
-| `merge_all_windows` | `pub fn merge_all_windows(cx: &mut App, id: WindowId)` | Controller gruplarını tek grupta birleştirir; platform merge ayrıca çağrılır. |
+| `move_tab_to_new_window` | `pub fn move_tab_to_new_window(cx: &mut App, id: WindowId)` | Denetleyici durumunda yeni grup açar; platform taşıma ayrıca çağrılır. |
+| `merge_all_windows` | `pub fn merge_all_windows(cx: &mut App, id: WindowId)` | Denetleyici gruplarını tek grupta birleştirir; platform birleştirme ayrıca çağrılır. |
 | `select_next_tab` | `pub fn select_next_tab(cx: &mut App, id: WindowId)` | Sonraki handle'ı `activate_window()` ile aktive eder. |
 | `select_previous_tab` | `pub fn select_previous_tab(cx: &mut App, id: WindowId)` | Önceki handle'ı aktive eder. |
-| `get_next_tab_group_window` | `pub fn get_next_tab_group_window(cx: &mut App, id: WindowId) -> Option<&AnyWindowHandle>` | Grup id sırası `HashMap` key sırasından gelir; kaynakta TODO var. |
-| `get_prev_tab_group_window` | `pub fn get_prev_tab_group_window(cx: &mut App, id: WindowId) -> Option<&AnyWindowHandle>` | Aynı key sırası belirsizliği geçerlidir. |
+| `get_next_tab_group_window` | `pub fn get_next_tab_group_window(cx: &mut App, id: WindowId) -> Option<&AnyWindowHandle>` | Grup id sırası `HashMap` anahtar sırasından gelir; kaynakta TODO var. |
+| `get_prev_tab_group_window` | `pub fn get_prev_tab_group_window(cx: &mut App, id: WindowId) -> Option<&AnyWindowHandle>` | Aynı anahtar sırası belirsizliği geçerlidir. |
 
 ### Zed `title_bar` crate'inin public tüketim yüzeyi
 
@@ -239,46 +239,46 @@ Zed uygulaması platform crate'ini iki yoldan tüketir. Bazı parçalar doğruda
 
 | API | İmza / tanım | Not |
 | :-- | :-- | :-- |
-| `pub mod collab` | `pub mod collab;` | Platform titlebar değil, Zed collab UI helper modülü. |
-| Platform re-export'ları | `pub use platform_title_bar::{ self, DraggedWindowTab, MergeAllWindows, MoveTabToNewWindow, PlatformTitleBar, ShowNextWindowTab, ShowPreviousWindowTab }` | Zed içi tüketiciler aynı action/tipleri `title_bar` üzerinden de alabilir. |
-| `restore_banner` | `pub use onboarding_banner::restore_banner` | Product titlebar banner helper'ı. |
-| `init` | `pub fn init(cx: &mut App)` | Platform titlebar init + per-workspace `TitleBar` entity kurulumu. |
-| `TitleBar` | `pub struct TitleBar` private alanlı | Zed ürün başlığıdır; generic platform shell değildir. |
-| `TitleBar::new` | `pub fn new(id: impl Into<ElementId>, workspace: &Workspace, multi_workspace: Option<WeakEntity<MultiWorkspace>>, window: &mut Window, cx: &mut Context<Self>) -> Self` | `PlatformTitleBar::new(...)` entity'sini oluşturur ve `observe_button_layout_changed` subscription'ı kurar. |
-| Product helper'ları | `effective_active_worktree`, `render_restricted_mode`, `render_project_host`, `render_sign_in_button`, `render_user_menu_button` | Zed'e özgü proje/kullanıcı UI yüzeyi; platform titlebar port API'si olarak kopyalanmamalıdır. |
-| Ürün banner'ı | `OnboardingBanner::new(...)` | Feature flag'e bağlı duyuru/ürün mesajı katmanıdır; platform titlebar API'sine taşınmamalıdır. |
-| Update bildirimi | `UpdateVersion::version_tooltip_message(...)` | Tooltip metnini `Update to Version: ...` biçiminde üretir. SHA için `short()` değil `full()` kullanılır. |
-| Update bildiriminin görsel kabuğu | `UpdateButton` | Beş durum için ayrı constructor: `checking`, `downloading`, `installing`, `updated`, `errored`. İlk üçü `disabled(true)` ile gelir; render sırasında düğme `disabled` bayrağına geçer ve sınırı `colors().border` ile çizilir. `updated`/`errored` durumlarında sınır `colors().text.opacity(0.15)` üzerinden hesaplanır. Animated ikon her zaman `IconName::LoadCircle` (iki turluk dönüş); statik `Download` ikonu yalnız `downloading` constructor'ında kullanılır. Errored mesajı `"Failed to Update"`; eski `"Failed to update Zed"` biçimi korunmaz. |
+| `pub mod collab` | `pub mod collab;` | Platform titlebar değil, Zed collab UI yardımcı modülü. |
+| Platform re-export'ları | `pub use platform_title_bar::{ self, DraggedWindowTab, MergeAllWindows, MoveTabToNewWindow, PlatformTitleBar, ShowNextWindowTab, ShowPreviousWindowTab }` | Zed içi tüketiciler aynı eylem/tipleri `title_bar` üzerinden de alabilir. |
+| `restore_banner` | `pub use onboarding_banner::restore_banner` | Ürün titlebar banner yardımcısı. |
+| `init` | `pub fn init(cx: &mut App)` | Platform titlebar init + her `Workspace` için `TitleBar` entity kurulumu. |
+| `TitleBar` | `pub struct TitleBar` özel alanlı | Zed ürün başlığıdır; genel platform kabuğu değildir. |
+| `TitleBar::new` | `pub fn new(id: impl Into<ElementId>, workspace: &Workspace, multi_workspace: Option<WeakEntity<MultiWorkspace>>, window: &mut Window, cx: &mut Context<Self>) -> Self` | `PlatformTitleBar::new(...)` entity'sini oluşturur ve `observe_button_layout_changed` aboneliği kurar. |
+| Ürün yardımcıları | `effective_active_worktree`, `render_restricted_mode`, `render_project_host`, `render_sign_in_button`, `render_user_menu_button` | Zed'e özgü proje/kullanıcı UI yüzeyi; platform başlık çubuğu port API'si olarak kopyalanmamalıdır. |
+| Ürün duyuru bandı | `OnboardingBanner::new(...)` | Özellik bayrağına bağlı duyuru/ürün mesajı katmanıdır; platform başlık çubuğu API'sine taşınmamalıdır. |
+| Güncelleme bildirimi | `UpdateVersion::version_tooltip_message(...)` | İpucu metnini `"Sürüme Güncelle: ..."` biçiminde üretir. SHA için `short()` değil `full()` kullanılır. |
+| Güncelleme bildiriminin görsel kabuğu | `UpdateButton` | Beş durum için ayrı kurucu: `checking`, `downloading`, `installing`, `updated`, `errored`. İlk üçü `disabled(true)` ile gelir; render sırasında düğme `disabled` bayrağına geçer ve sınırı `colors().border` ile çizilir. `updated`/`errored` durumlarında sınır `colors().text.opacity(0.15)` üzerinden hesaplanır. Animasyonlu ikon her zaman `IconName::LoadCircle` (iki turluk dönüş); statik `Download` ikonu yalnız `downloading` kurucusunda kullanılır. Portta hata görünür metni `"Güncelleme Başarısız"` gibi Türkçe yazılır. |
 
-Zed ürün titlebar action ve collab helper kapsamı:
+Zed ürün başlık çubuğu eylem ve işbirliği yardımcı kapsamı:
 
 | API | Rol |
 | :-- | :-- |
-| `SimulateUpdateAvailable`, `SwitchBranch`, `ToggleProjectMenu`, `ToggleUserMenu` | Ürün titlebar'ında update simülasyonu, branch değiştirme, proje menüsü ve kullanıcı menüsünü açma action'larıdır. |
-| `toggle_screen_sharing`, `toggle_mute`, `toggle_deafen` | Titlebar collab kontrollerinden ekran paylaşımı, mikrofon mute ve deafen state'ini workspace call state'ine bağlayan helper fonksiyonlardır. |
+| `SimulateUpdateAvailable`, `SwitchBranch`, `ToggleProjectMenu`, `ToggleUserMenu` | Ürün başlık çubuğunda güncelleme simülasyonu, dal değiştirme, proje menüsü ve kullanıcı menüsünü açma eylemleridir. |
+| `toggle_screen_sharing`, `toggle_mute`, `toggle_deafen` | Başlık çubuğu işbirliği kontrollerinden ekran paylaşımı, mikrofonu kapatma ve dinlemeyi kapatma durumunu `Workspace` çağrı durumuna bağlayan yardımcı fonksiyonlardır. |
 
-Ürün başlığı katmanının ayrıntıları (duyuru banner'ı, güncelleme bildirimi, kullanıcı menüsü, collab) platform kabuğunun değil, `title_bar` crate'inin konusudur ve [Üst Bar](../ust_bar/ust_bar.md) bölümünde işlenir. Burada yalnız platform kabuğuyla kesişen kural önemlidir: bu ürün varlıkları `PlatformTitleBar` içine gömülmez; `TitleBar` katmanında üretilip platform kabuğuna child olarak teslim edilir. `OnboardingBanner` mekanizması crate'te hazır olmakla birlikte güncel sürümde `TitleBar`'a bağlı değildir (banner alanı `None`); ayrıntı ve doğru durum Üst Bar bölümündedir.
+Ürün başlığı katmanının ayrıntıları (duyuru bandı, güncelleme bildirimi, kullanıcı menüsü, işbirliği) platform kabuğunun değil, `title_bar` crate'inin konusudur ve [Üst Bar](../ust_bar/ust_bar.md) bölümünde işlenir. Burada yalnız platform kabuğuyla kesişen kural önemlidir: bu ürün varlıkları `PlatformTitleBar` içine gömülmez; `TitleBar` katmanında üretilip platform kabuğuna çocuk olarak teslim edilir. `OnboardingBanner` mekanizması crate'te hazır olmakla birlikte güncel sürümde `TitleBar`'a bağlı değildir (`banner` alanı `None`); ayrıntı ve doğru durum Üst Bar bölümündedir.
 
-`UpdateVersion` tarafında `version_tooltip_message(...)` semantic version için `SemanticVersion::to_string()`, commit için `AppCommitSha::full()` çıktısını kullanır ve her iki durumda da sonucu `"Update to Version: {version}"` kalıbına sarar. `Downloading`, `Installing` ve `Updated` render kolları bu string'i `UpdateButton` kurucularına `version` değişkeni olarak geçirir. Port hedefinde kullanıcıya hâlâ kısa SHA göstermek isteniyorsa bu bilinçli bir ürün farkı olarak kaydedilir; Zed paritesi değildir.
+`UpdateVersion` tarafında `version_tooltip_message(...)` semantik sürüm için `SemanticVersion::to_string()`, commit için `AppCommitSha::full()` çıktısını kullanır ve her iki durumda da sonucu port arayüzünde `"Sürüme Güncelle: {version}"` kalıbına sarar. `Downloading`, `Installing` ve `Updated` render kolları bu metni `UpdateButton` kurucularına `version` değişkeni olarak geçirir. Port hedefinde kullanıcıya hala kısa SHA göstermek isteniyorsa bu bilinçli bir ürün farkı olarak kaydedilir; Zed paritesi değildir.
 
-Zed'in `title_bar` crate'indeki `pub struct TitleBarSettings` tipi private bir modülde kaldığı için crate dışı API değildir; yalnızca Zed'in kendi ayar sistemi içinde kullanırsın. Kullanıcı ayarı tarafındaki dış veri tipi ise `settings_content::title_bar::WindowButtonLayoutContent` tipidir. Linux/FreeBSD'de bu tip, `pub fn into_layout(self) -> Option<WindowButtonLayout>` çağrısıyla doğrudan `WindowButtonLayout` değerine dönüştürülür.
+Zed'in `title_bar` crate'indeki `pub struct TitleBarSettings` tipi özel bir modülde kaldığı için crate dışı API değildir; yalnızca Zed'in kendi ayar sistemi içinde kullanırsın. Kullanıcı ayarı tarafındaki dış veri tipi ise `settings_content::title_bar::WindowButtonLayoutContent` tipidir. Linux/FreeBSD'de bu tip, `pub fn into_layout(self) -> Option<WindowButtonLayout>` çağrısıyla doğrudan `WindowButtonLayout` değerine dönüştürülür.
 
-Aynı dosyada `settings_content::title_bar::TitleBarSettingsContent` de public bir ayar payload'ıdır. Şu alanları taşır ve hepsi `Option<...>` sarmalındadır: `show_branch_status_icon`, `show_onboarding_banner`, `show_user_picture`, `show_branch_name`, `show_project_items`, `show_sign_in`, `show_user_menu`, `show_menus` ve `button_layout`. Runtime tarafındaki `TitleBarSettings` tipi bu payload'dan üretilir.
+Aynı dosyada `settings_content::title_bar::TitleBarSettingsContent` de public bir ayar yüküdür. Şu alanları taşır ve hepsi `Option<...>` sarmalındadır: `show_branch_status_icon`, `show_onboarding_banner`, `show_user_picture`, `show_branch_name`, `show_project_items`, `show_sign_in`, `show_user_menu`, `show_menus` ve `button_layout`. Çalışma zamanı tarafındaki `TitleBarSettings` tipi bu yükten üretilir.
 
-Zed uygulamasında `TitleBar`, platform bileşenini iki farklı render modunda besler. Karar doğrudan ayar alanından değil, `application_menu::show_menus(cx)` helper'ından gelir. Bu helper `TitleBarSettings::show_menus` değerini okur; ayrıca macOS'ta cross-platform menü ancak `ZED_USE_CROSS_PLATFORM_MENU` env'i varsa açılır. `show_menus(cx)` sonucu `true` ise `PlatformTitleBar::set_children(...)` yalnız uygulama menüsünü alır; ürün başlığı ikinci bir satır olarak aynı `title_bar_color` ile render edilir. Sonuç `false` ise bu ikinci satır kurulmaz; tüm ürün child'ları doğrudan `PlatformTitleBar` içine verirsin. İki render modunda da ortak olan nokta şudur: `set_button_layout(button_layout)` çağrısı render sırasında yaparsın. Desktop layout değişimleri de `observe_button_layout_changed(...)` subscription'ı üzerinden `cx.notify()` ile yeni render tetikler.
+Zed uygulamasında `TitleBar`, platform bileşenini iki farklı render modunda besler. Karar doğrudan ayar alanından değil, `application_menu::show_menus(cx)` yardımcısından gelir. Bu yardımcı `TitleBarSettings::show_menus` değerini okur; ayrıca macOS'ta cross-platform menü ancak `ZED_USE_CROSS_PLATFORM_MENU` çevre değişkeni varsa açılır. `show_menus(cx)` sonucu `true` ise `PlatformTitleBar::set_children(...)` yalnız uygulama menüsünü alır; ürün başlığı ikinci bir satır olarak aynı `title_bar_color` ile render edilir. Sonuç `false` ise bu ikinci satır kurulmaz; tüm ürün çocukları doğrudan `PlatformTitleBar` içine verirsin. İki render modunda da ortak olan nokta şudur: `set_button_layout(button_layout)` çağrısını render sırasında yaparsın. Masaüstü yerleşimi değişimleri de `observe_button_layout_changed(...)` aboneliği üzerinden `cx.notify()` ile yeni render tetikler.
 
-Bu bilgilerin port hedefi için anlamı şudur: `PlatformTitleBar` tek başına "Zed titlebar UI'si" değildir. Zed ürünü bu platform bileşenini menü moduna ve mevcut settings durumuna göre farklı child setleriyle besler. Port hedefinin ürün titlebar'ı da benzer bir mod farkındalığıyla yazılırsa ayar değişikliklerine doğru tepki veren esnek bir yapıya kavuşur.
+Bu bilgilerin port hedefi için anlamı şudur: `PlatformTitleBar` tek başına "Zed titlebar UI'si" değildir. Zed ürünü bu platform bileşenini menü moduna ve mevcut ayar durumuna göre farklı çocuk setleriyle besler. Port hedefinin ürün titlebar'ı da benzer bir mod farkındalığıyla yazılırsa ayar değişikliklerine doğru tepki veren esnek bir yapıya kavuşur.
 
 ## 22. Davranış doğrulama kontrol listesi
 
 Üst bar davranışı güncellenirken kaynak komutu listesi yerine aşağıdaki karar noktaları tek tek doğrulanır:
 
-- `PlatformTitleBar::new` içindeki `SystemWindowTabs` sahipliği strong `Entity` olarak kalır; `MultiWorkspace` bağlantısı ise weak kalır.
+- `PlatformTitleBar::new` içindeki `SystemWindowTabs` sahipliği güçlü `Entity` olarak kalır; `MultiWorkspace` bağlantısı ise zayıf kalır.
 - Linux ve FreeBSD client-side decoration yolunda `button_layout` önce uygulama ayarından, yoksa platform varsayılanından çözülür.
-- `render_left_window_controls` ve `render_right_window_controls` yalnız ilgili platform ve decoration koşullarında gerçek child üretir.
-- Linux close butonu `WindowControl::new_close` ile kurulur; normal `WindowControl::new` close action taşımaz.
-- Windows caption butonları click handler yerine `WindowControlArea::{Min, Max, Close}` hit-test alanlarıyla çalışır.
-- `SystemWindowTabController` GPUI tarafındaki state kaynağıdır; `platform_title_bar` yalnız bu state üzerinden native tab UI davranışını bağlar.
-- Zed ürün titlebar katmanı platform kabuğuna ürün banner, user menu veya update button gibi ürün sorumlulukları eklemez; bunlar `TitleBar` child kompozisyonunda kalır.
+- `render_left_window_controls` ve `render_right_window_controls` yalnız ilgili platform ve decoration koşullarında gerçek çocuk üretir.
+- Linux kapat butonu `WindowControl::new_close` ile kurulur; normal `WindowControl::new` kapatma eylemi taşımaz.
+- Windows caption butonları tıklama işleyicisi yerine `WindowControlArea::{Min, Max, Close}` hit-test alanlarıyla çalışır.
+- `SystemWindowTabController` GPUI tarafındaki durum kaynağıdır; `platform_title_bar` yalnız bu durum üzerinden native sekme UI davranışını bağlar.
+- Zed ürün titlebar katmanı platform kabuğuna ürün banner'ı, kullanıcı menüsü veya güncelleme butonu gibi ürün sorumlulukları eklemez; bunlar `TitleBar` çocuk kompozisyonunda kalır.
 
 Bu liste, port eden geliştiricinin davranış paritesini gözden geçirmesi için yeterlidir. Kaynak keşfi ve kapsam taraması gerekiyorsa bunun çalışma notları mdBook dışında tutulur.

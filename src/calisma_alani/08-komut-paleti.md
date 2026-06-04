@@ -97,7 +97,7 @@ Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adıml
 4. Her action `CommandPaletteFilter::is_hidden` ile elenir ve görünen action'lar `humanize_action_name(action.name())` sonucuyla `Command { name, action }` haline getirilir.
 5. UI `Picker::uniform_list(temsilci, window, cx)` ile kurulur; ardından başlangıç sorgusu `secici.set_query(sorgu, window, cx)` ile editöre yazılır.
 
-`CommandPalette::set_query(sorgu, window, cx)` açık palette sorguyu programatik olarak günceller. `CommandPaletteDelegate` public bir tiptir ve `Picker` delegate davranışını taşır; normal tüketici akışında doğrudan kurulmaz, `CommandPalette::toggle` üzerinden oluşturulur.
+`CommandPalette::set_query(sorgu, window, cx)` açık palette sorguyu programatik olarak günceller. `CommandPaletteDelegate` dışa açık bir tiptir ve `Picker` delegate davranışını taşır; normal tüketici akışında doğrudan kurulmaz, `CommandPalette::toggle` üzerinden oluşturulur.
 
 **Arama akışı.** Sorgu birkaç aşamadan geçer:
 
@@ -119,20 +119,20 @@ Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adıml
 **Onay davranışı.** Onay akışları iki şekilde işler:
 
 - Normal onay seçili komutu alır, telemetry'ye `source = "command palette"` ile yazar, `CommandPaletteDB` kaydını bir arka plan görevi olarak başlatır, önceden odakta olan handle'a geri odaklanır, modalı kapatır ve `window.dispatch_action(action, cx)` çağırır.
-- İkincil onay seçili action'ın canonical adını `String` olarak alır ve `zed_actions::ChangeKeybinding { action: action_name.to_string() }` action'ını dispatch eder. Buradaki `action` alanı bir action nesnesi değil, registry name string'idir (örneğin `"editor::GoToDefinition"`); keymap editörü bu string'i alır ve bağlama ekleme akışını başlatır. Footer'daki "Add/Change Keybinding" butonu da aynı yolu kullanır.
+- İkincil onay seçili action'ın canonical adını `String` olarak alır ve `zed_actions::ChangeKeybinding { action: action_name.to_string() }` action'ını dispatch eder. Buradaki `action` alanı bir action nesnesi değil, registry name string'idir (örneğin `"editor::GoToDefinition"`); keymap editörü bu string'i alır ve bağlama ekleme akışını başlatır. Footer'daki kaynak `"Add/Change Keybinding"` butonu da aynı yolu kullanır.
 - `finalize_update_matches` bekleyen arka plan sonucu en fazla kısa bir süre ön planda bekleyebilir; bu, palet açılırken boş liste titremesini ve otomasyon sırasında erken enter basma durumunu azaltır.
 
 ---
 
-## Public API kapsamı
+## Dışa Açık API Kapsamı
 
-Komut paleti yüzeyinde her public taşıyıcı için ayrı öğretici başlık açmak gereksiz olur; çoğu tip paletin tek runtime akışındaki küçük bir rolü taşır. Aşağıdaki tablo, `command_palette` ve `command_palette_hooks` public yüzeyini doğal kullanım noktasına bağlar.
+Komut paleti yüzeyinde her dışa açık taşıyıcı için ayrı öğretici başlık açmak gereksiz olur; çoğu tip paletin tek runtime akışındaki küçük bir rolü taşır. Aşağıdaki tablo, `command_palette` ve `command_palette_hooks` dışa açık yüzeyini doğal kullanım noktasına bağlar.
 
 | API | Görev |
 | ----- | ------- |
 | `command_palette` | Workspace modalı olarak çalışan komut paleti UI'ının crate/modül sınırıdır. |
 | `command_palette::init` | Hook global'lerini kurar ve yeni `Workspace` entity'leri için `zed_actions::command_palette::Toggle` action'ını kaydeder. |
-| `CommandPalette` | `ModalView`, `Focusable`, `Render` ve `EventEmitter<DismissEvent>` davranışını taşır; public tüketimde `toggle` ve `set_query` önemlidir. |
+| `CommandPalette` | `ModalView`, `Focusable`, `Render` ve `EventEmitter<DismissEvent>` davranışını taşır; dış tüketimde `toggle` ve `set_query` önemlidir. |
 | `CommandPalette::toggle` | Önceki focus handle'ını saklar, workspace modal layer içinde paleti açar ve başlangıç sorgusunu `Picker` editörüne verir. |
 | `CommandPalette::set_query` | Açık palette sorguyu dışarıdan değiştirir; UI testleri ve "paleti belirli aramayla aç" akışları için kullanılır. |
 | `CommandPaletteDelegate` | Komut listesi, fuzzy sonuçlar, interceptor sonucu, seçim ve geçmiş sorgu durumunu taşır; doğrudan kurulmak yerine `CommandPalette::toggle` üzerinden oluşur. |

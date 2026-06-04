@@ -1,19 +1,19 @@
-# Test, headless ve dış asset kaynakları
+# Test, headless ve dış varlık kaynakları
 
-Bu bölüm, üretim binary'si dışındaki asset senaryolarını ele alır. GPUI test ortamları (`TestApp`, `TestAppContext`, `HeadlessAppContext`, `VisualTestAppContext`) asset boru hattını opsiyonel kabul eder; bu, testlerin asset bağımlılığı olmadan çalışmasını mümkün kılar. Buna karşılık asset rendering'i içeren testler için (örneğin SVG ikonların gerçekten çizildiği görsel testler) gerçek `Assets` struct'ının test ortamına aktarılması gerekir. Bu iki ihtiyaç arasındaki ince çizgiyi netleştirmek, "neden bazı testler asset gerektirir, bazıları gerektirmez?" sorusunu cevaplar. Ayrıca filesystem'deki SVG/PNG dosyalarının runtime'a nasıl alındığı (`SvgAsset`, `Resource::Path`) bu bölümde toparlanır; uygulamanın binary asset'lerin yanı sıra dış kaynaklı varlıkları da bilinçli bir şekilde yönetmesinin nasıl yapıldığı açığa kavuşur.
+Bu bölüm, üretim binary'si dışındaki varlık senaryolarını ele alır. GPUI test ortamları (`TestApp`, `TestAppContext`, `HeadlessAppContext`, `VisualTestAppContext`) varlık hattını opsiyonel kabul eder; bu, testlerin varlık bağımlılığı olmadan çalışmasını mümkün kılar. Buna karşılık varlık render'ı içeren testler için (örneğin SVG ikonların gerçekten çizildiği görsel testler) gerçek `Assets` struct'ının test ortamına aktarılması gerekir. Bu iki ihtiyaç arasındaki ince çizgiyi netleştirmek, "neden bazı testler varlık gerektirir, bazıları gerektirmez?" sorusunu cevaplar. Ayrıca dosya sistemindeki SVG/PNG dosyalarının çalışma zamanına nasıl alındığı (`SvgAsset`, `Resource::Path`) bu bölümde toparlanır; uygulamanın binary varlıkların yanı sıra dış kaynaklı varlıkları da bilinçli bir şekilde yönetmesinin nasıl yapıldığı açığa kavuşur.
 
 ---
 
-## 1. Asset olmayan testler: `()` boş AssetSource
+## 1. Varlık gerektirmeyen testler: `()` boş AssetSource
 
-Çoğu GPUI testi asset boru hattına ihtiyaç duymaz. Layout testi, event dispatch testi, entity testi gibi senaryolar font ve ikon olmadan da çalışır. Bu durumda `App` boş `AssetSource` ile kurarsın:
+Çoğu GPUI testi varlık hattına ihtiyaç duymaz. Layout testi, olay dağıtım testi, entity testi gibi senaryolar font ve ikon olmadan da çalışır. Bu durumda `App` boş `AssetSource` ile kurarsın:
 
 ```rust
 impl Application {
     pub fn with_platform(platform: Rc<dyn Platform>) -> Self {
         Self(App::new_app(
             platform,
-            Arc::new(()),                  // <-- boş AssetSource varsayılan
+            Arc::new(()),                  // <-- boş AssetSource varsayılanı
             Arc::new(NullHttpClient),
         ))
     }
@@ -25,25 +25,25 @@ impl Application {
 
 ```rust
 impl AssetSource for () {
-    fn load(&self, _path: &str) -> Result<Option<Cow<'static, [u8]>>> {
+    fn load(&self, _yol: &str) -> Result<Option<Cow<'static, [u8]>>> {
         Ok(None)
     }
 
-    fn list(&self, _path: &str) -> Result<Vec<SharedString>> {
+    fn list(&self, _yol: &str) -> Result<Vec<SharedString>> {
         Ok(vec![])
     }
 }
 ```
 
-Bu davranışın test ortamındaki anlamı: tüm `cx.asset_source().load(path)` çağrıları `Ok(None)` döner, tüm `list` çağrıları boş vektör verir. Yani SVG render hattı çağrılırsa byte bulamaz ve hata log'lar; font yükleyici hiçbir font bulamaz; tema yükleyici hiçbir gömülü tema yüklemez. Testin etki alanı bu sayede asset varlığına bağlı olmaktan çıkar.
+Bu davranışın test ortamındaki anlamı: tüm `cx.asset_source().load(yol)` çağrıları `Ok(None)` döner, tüm `list` çağrıları boş vektör verir. Yani SVG render hattı çağrılırsa bayt bulamaz ve hata log'lar; font yükleyici hiçbir font bulamaz; tema yükleyici hiçbir gömülü tema yüklemez. Testin etki alanı bu sayede varlığın bulunmasına bağlı olmaktan çıkar.
 
-`()` `Sized` ve `Sync + Send` olduğundan `Arc::new(())` neredeyse maliyetsizdir (boş tip için Rust derleyicisi optimize eder). Başarım açısından "boş source" pratikte sıfır overhead'dir.
+`()` `Sized` ve `Sync + Send` olduğundan `Arc::new(())` neredeyse maliyetsizdir (boş tip için Rust derleyicisi optimize eder). Başarım açısından "boş kaynak" pratikte sıfır ek yüktür.
 
 ---
 
 ## 2. `TestApp::with_text_system_and_assets`
 
-GPUI'de iki test yüzeyi yan yana durur. `#[gpui::test]` makrosunun verdiği klasik `TestAppContext`, `TestAppContext::build` içinde boş `Arc::new(())` asset source ile kurarsın. Daha yeni ve sade test API'si olan `TestApp` ise gerçek veya mock asset source geçirmek için ayrı bir yapıcı sunar:
+GPUI'de iki test yüzeyi yan yana durur. `#[gpui::test]` makrosunun verdiği klasik `TestAppContext`, `TestAppContext::build` içinde boş `Arc::new(())` varlık kaynağı ile kurarsın. Daha yeni ve sade test API'si olan `TestApp` ise gerçek veya sahte varlık kaynağı geçirmek için ayrı bir yapıcı sunar:
 
 ```rust
 impl TestApp {
@@ -51,24 +51,24 @@ impl TestApp {
         Self::build(seed, None, Arc::new(()))
     }
 
-    pub fn with_text_system(text_system: Arc<dyn PlatformTextSystem>) -> Self {
-        Self::build(0, Some(text_system), Arc::new(()))
+    pub fn with_text_system(metin_sistemi: Arc<dyn PlatformTextSystem>) -> Self {
+        Self::build(0, Some(metin_sistemi), Arc::new(()))
     }
 
     pub fn with_text_system_and_assets(
-        text_system: Arc<dyn PlatformTextSystem>,
-        asset_source: Arc<dyn crate::AssetSource>,
+        metin_sistemi: Arc<dyn PlatformTextSystem>,
+        varlik_kaynagi: Arc<dyn crate::AssetSource>,
     ) -> Self {
-        Self::build(0, Some(text_system), asset_source)
+        Self::build(0, Some(metin_sistemi), varlik_kaynagi)
     }
 
     fn build(
         seed: u64,
-        platform_text_system: Option<Arc<dyn PlatformTextSystem>>,
-        asset_source: Arc<dyn crate::AssetSource>,
+        platform_metin_sistemi: Option<Arc<dyn PlatformTextSystem>>,
+        varlik_kaynagi: Arc<dyn crate::AssetSource>,
     ) -> Self {
         // ...
-        let app = App::new_app(platform.clone(), asset_source, http_client);
+        let uygulama = App::new_app(platform.clone(), varlik_kaynagi, http_client);
         // ...
     }
 }
@@ -76,57 +76,57 @@ impl TestApp {
 
 Bu yüzden üç ayrımı doğru yapmak gerekir:
 
-- **`TestAppContext`** — Makro tabanlı testlerin varsayılan bağlamıdır; asset source'u boş gelir ve özel asset source almak için public bir constructor sunmaz.
-- **`TestApp::with_text_system`** — Metin shaping testi için gerçek `PlatformTextSystem` yüklenir ama asset source boş kalır. Tipik kullanım: metin layout'unu doğrulayan ama ikon içermeyen testler.
-- **`TestApp::with_text_system_and_assets`** — Hem metin sistemi hem asset source gerçek yüklenir. Tipik kullanım: SVG ikonları render eden, font dosyalarını okuyan testler.
+- **`TestAppContext`** — Makro tabanlı testlerin varsayılan bağlamıdır; varlık kaynağı boş gelir ve özel varlık kaynağı almak için public bir constructor sunmaz.
+- **`TestApp::with_text_system`** — Metin shaping testi için gerçek `PlatformTextSystem` yüklenir ama varlık kaynağı boş kalır. Tipik kullanım: metin layout'unu doğrulayan ama ikon içermeyen testler.
+- **`TestApp::with_text_system_and_assets`** — Hem metin sistemi hem varlık kaynağı gerçek yüklenir. Tipik kullanım: SVG ikonları render eden, font dosyalarını okuyan testler.
 
-Son yapıcı testlerin `assets` crate'ine dependency eklemesini gerektirir; bu Zed test kodlarında genellikle yaparsın:
+Son yapıcı testlerin `assets` crate'ine bağımlılık eklemesini gerektirir; bu Zed test kodlarında genellikle yaparsın:
 
 ```rust
 use assets::Assets;
 // ...
-let app = TestApp::with_text_system_and_assets(
-    text_system,
+let uygulama = TestApp::with_text_system_and_assets(
+    metin_sistemi,
     Arc::new(Assets),
 );
 ```
 
-`Assets` struct'ı zero-sized type olduğu için `Arc::new(Assets)` yine ucuzdur.
+`Assets` struct'ı sıfır boyutlu tip olduğu için `Arc::new(Assets)` yine ucuzdur.
 
 ---
 
 ## 3. `HeadlessAppContext` ve `VisualTestAppContext`
 
-GPUI iki ek test bağlamı sunar; her ikisi de asset source'u opsiyonel parametre olarak alır.
+GPUI iki ek test bağlamı sunar; her ikisi de varlık kaynağını opsiyonel parametre olarak alır.
 
 ### 3.1 HeadlessAppContext
 
-Headless senaryolar (örneğin CI üzerinde screenshot üretimi, otomasyon testleri):
+Headless senaryolar (örneğin CI üzerinde ekran görüntüsü üretimi, otomasyon testleri):
 
 ```rust
 impl HeadlessAppContext {
-    pub fn new(platform_text_system: Arc<dyn PlatformTextSystem>) -> Self {
-        Self::with_platform(platform_text_system, Arc::new(()), || None)
+    pub fn new(platform_metin_sistemi: Arc<dyn PlatformTextSystem>) -> Self {
+        Self::with_platform(platform_metin_sistemi, Arc::new(()), || None)
     }
 
     pub fn with_asset_source(
-        platform_text_system: Arc<dyn PlatformTextSystem>,
-        asset_source: Arc<dyn AssetSource>,
+        platform_metin_sistemi: Arc<dyn PlatformTextSystem>,
+        varlik_kaynagi: Arc<dyn AssetSource>,
     ) -> Self {
-        Self::with_platform(platform_text_system, asset_source, || None)
+        Self::with_platform(platform_metin_sistemi, varlik_kaynagi, || None)
     }
 
     pub fn with_platform(
-        platform_text_system: Arc<dyn PlatformTextSystem>,
-        asset_source: Arc<dyn AssetSource>,
-        renderer_factory: impl Fn() -> Option<Box<dyn PlatformHeadlessRenderer>> + 'static,
+        platform_metin_sistemi: Arc<dyn PlatformTextSystem>,
+        varlik_kaynagi: Arc<dyn AssetSource>,
+        renderer_fabrikasi: impl Fn() -> Option<Box<dyn PlatformHeadlessRenderer>> + 'static,
     ) -> Self {
         // ...
     }
 }
 ```
 
-Üç yapıcının ilişkisi: `new` `()` ile çağırır; `with_asset_source` özelleştirilmiş asset source ile çağırır; `with_platform` ek olarak headless renderer fabrikası alır. Renderer fabrikası `None` döndürürse window'lar render edilmez ama element ağacı ve layout hesaplanır.
+Üç yapıcının ilişkisi: `new` `()` ile çağırır; `with_asset_source` özelleştirilmiş varlık kaynağı ile çağırır; `with_platform` ek olarak headless renderer fabrikası alır. Renderer fabrikası `None` döndürürse window'lar render edilmez ama element ağacı ve layout hesaplanır.
 
 ### 3.2 VisualTestAppContext
 
@@ -137,19 +137,19 @@ pub fn new(platform: Rc<dyn Platform>) -> Self {
     Self::with_asset_source(platform, Arc::new(()))
 }
 
-/// Use this when you need SVG icons to render properly in visual tests.
-/// Pass the real `Assets` struct to enable icon rendering.
+/// Görsel testlerde SVG ikonların doğru render edilmesi gerektiğinde bunu kullan.
+/// İkon render'ını etkinleştirmek için gerçek `Assets` struct'ını geçir.
 pub fn with_asset_source(
     platform: Rc<dyn Platform>,
-    asset_source: Arc<dyn AssetSource>,
+    varlik_kaynagi: Arc<dyn AssetSource>,
 ) -> Self {
     // ...
 }
 ```
 
-Kaynak kodundaki doc comment net bir kullanım rehberi sunar: SVG ikonların doğru render edilmesi gereken testlerde `with_asset_source(platform, Arc::new(Assets))` çağırılır. Aksi halde testin döndüğü screenshot ikon yerine boş alan içerir.
+Kaynak kodundaki belge yorumu net bir kullanım rehberi sunar: SVG ikonların doğru render edilmesi gereken testlerde `with_asset_source(platform, Arc::new(Assets))` çağırılır. Aksi halde testin döndüğü ekran görüntüsü ikon yerine boş alan içerir.
 
-Bu üç test bağlamının ortak deseni şudur: asset source `Arc<dyn AssetSource>` olarak parametrize edilir; test yazarı senaryosuna göre `Arc::new(())` veya `Arc::new(Assets)` arasında seçim yapar. Asset bağımlılığının opsiyonel tutulması, testlerin asset boyutu değişimine duyarsız kalmasını sağlar.
+Bu üç test bağlamının ortak deseni şudur: varlık kaynağı `Arc<dyn AssetSource>` olarak parametrize edilir; test yazarı senaryosuna göre `Arc::new(())` veya `Arc::new(Assets)` arasında seçim yapar. Varlık bağımlılığının opsiyonel tutulması, testlerin varlık boyutu değişimine duyarsız kalmasını sağlar.
 
 ---
 
@@ -177,18 +177,18 @@ Bu metot yalnızca `Lilex-Regular.ttf` dosyasını yükler. Üç gerekçe vardı
 
 ---
 
-## 5. Filesystem'den SVG yüklemek: `SvgAsset` ve `external_path`
+## 5. Dosya sisteminden SVG yüklemek: `SvgAsset` ve `external_path`
 
-Asset boru hattının ikinci ana ihtiyacı, runtime'da değişken filesystem path'lerinden gelen varlıkları render etmektir. İkon tema extension'ları, kullanıcı SVG'leri ve dinamik üretilen ikonlar bu yoldan geçer.
+Varlık hattının ikinci ana ihtiyacı, çalışma zamanında değişken dosya sistemi yollarından gelen varlıkları render etmektir. İkon tema extension'ları, kullanıcı SVG'leri ve dinamik üretilen ikonlar bu yoldan geçer.
 
-`svg()` element'inin iki path setter'ı vardır:
+`svg()` element'inin iki yol ayarlayıcısı vardır:
 
 ```rust
 .path("icons/x.svg")              // binary'den
-.external_path("/tmp/icon.svg")   // filesystem'den
+.external_path("/tmp/icon.svg")   // dosya sisteminden
 ```
 
-Filesystem yolu `SvgAsset` üzerinden geçer:
+Dosya sistemi yolu `SvgAsset` üzerinden geçer:
 
 ```rust
 enum SvgAsset {}
@@ -198,13 +198,13 @@ impl Asset for SvgAsset {
     type Output = Result<Arc<[u8]>, Arc<std::io::Error>>;
 
     fn load(
-        source: Self::Source,
+        kaynak: Self::Source,
         _cx: &mut App,
     ) -> impl Future<Output = Self::Output> + Send + 'static {
         async move {
-            let bytes = fs::read(Path::new(source.as_ref())).map_err(|e| Arc::new(e))?;
-            let bytes = Arc::from(bytes);
-            Ok(bytes)
+            let baytlar = fs::read(Path::new(kaynak.as_ref())).map_err(|hata| Arc::new(hata))?;
+            let baytlar = Arc::from(baytlar);
+            Ok(baytlar)
         }
     }
 }
@@ -214,29 +214,29 @@ Akış şudur:
 
 ```rust
 // Element paint metodu içinden:
-let Some(bytes) = window
-    .use_asset::<SvgAsset>(path, cx)
-    .and_then(|asset| asset.log_err())
+let Some(baytlar) = window
+    .use_asset::<SvgAsset>(yol, cx)
+    .and_then(|varlik| varlik.log_err())
 else {
     return;
 };
 
 window
-    .paint_svg(bounds, path.clone(), Some(&bytes), transformation, color, cx)
+    .paint_svg(sinirlar, yol.clone(), Some(&baytlar), donusum, renk, cx)
     .log_err();
 ```
 
 Üç ayrıntı dikkat çekicidir:
 
-- **`SvgAsset` `cx.asset_source()`'a hiç bakmaz.** Doğrudan `fs::read` yapar. Yani filesystem yolu binary asset boru hattından bağımsızdır; `with_assets` çağrısı yapılmamış olsa bile çalışır.
-- **`use_asset` cache'i sayesinde aynı dosya birden fazla kez okunmaz.** İlk render'da `fs::read` çalışır, sonraki render'larda cache'lenen Future'dan byte'lar paylaşılır.
-- **`paint_svg`'nin ikinci argümanı `Some(&bytes)`** — Bu, asset source'tan okumaması gerektiğini söyler; doğrudan verilen byte'lar üzerinden çalışır. Bu adım, binary path ile filesystem path arasındaki tek arayüz farkıdır.
+- **`SvgAsset` `cx.asset_source()`'a hiç bakmaz.** Doğrudan `fs::read` yapar. Yani dosya sistemi yolu binary varlık hattından bağımsızdır; `with_assets` çağrısı yapılmamış olsa bile çalışır.
+- **`use_asset` cache'i sayesinde aynı dosya birden fazla kez okunmaz.** İlk render'da `fs::read` çalışır, sonraki render'larda cache'lenen Future'dan baytlar paylaşılır.
+- **`paint_svg`'nin ikinci argümanı `Some(&baytlar)`** — Bu, varlık kaynağından okumaması gerektiğini söyler; doğrudan verilen baytlar üzerinden çalışır. Bu adım, binary yol ile dosya sistemi yolu arasındaki tek arayüz farkıdır.
 
 ---
 
-## 6. Filesystem'den raster image yüklemek: `Resource::Path`
+## 6. Dosya sisteminden raster görsel yüklemek: `Resource::Path`
 
-Raster image'lar için yol `Resource` enum'unun üç varyantı üzerinden işler:
+Raster görseller için yol `Resource` enum'unun üç varyantı üzerinden işler:
 
 ```rust
 pub enum Resource {
@@ -246,156 +246,156 @@ pub enum Resource {
 }
 ```
 
-`img(Path::new("/tmp/screenshot.png"))` çağrısı `Resource::Path` üretir. `ImageAssetLoader::load` bu varyantı senkron `fs::read` ile karşılar:
+`img(Path::new("/tmp/ekran_goruntusu.png"))` çağrısı `Resource::Path` üretir. `ImageAssetLoader::load` bu varyantı senkron `fs::read` ile karşılar:
 
 ```rust
-Resource::Path(uri) => fs::read(uri.as_ref())?,
+Resource::Path(yol) => fs::read(yol.as_ref())?,
 ```
 
 `Resource::Uri` ise HTTP istemcisi üzerinden okur:
 
 ```rust
 Resource::Uri(uri) => {
-    let mut response = client.get(uri.as_ref(), ().into(), true).await
-        .with_context(|| format!("loading image asset from {uri:?}"))?;
-    let mut body = Vec::new();
-    response.body_mut().read_to_end(&mut body).await?;
-    if !response.status().is_success() {
+    let mut yanit = istemci.get(uri.as_ref(), ().into(), true).await
+        .with_context(|| format!("görsel varlığı yüklenemedi: {uri:?}"))?;
+    let mut govde = Vec::new();
+    yanit.body_mut().read_to_end(&mut govde).await?;
+    if !yanit.status().is_success() {
         // ... ImageCacheError::BadStatus
     }
-    body
+    govde
 }
 ```
 
 Ve `Resource::Embedded` `cx.asset_source()` üzerinden gider:
 
 ```rust
-Resource::Embedded(path) => {
-    let data = asset_source.load(&path).ok().flatten();
-    if let Some(data) = data {
-        data.to_vec()
+Resource::Embedded(yol) => {
+    let veri = varlik_kaynagi.load(&yol).ok().flatten();
+    if let Some(veri) = veri {
+        veri.to_vec()
     } else {
         return Err(ImageCacheError::Asset(...));
     }
 }
 ```
 
-Üç yol da aynı decode hattına akar (`image::guess_format`, format decoder, BGRA dönüşüm). Bu, asset boru hattının tipik bir kararıdır: kaynak türü ne olursa olsun, decode adımı tek bir noktada birleşir.
+Üç yol da aynı decode hattına akar (`image::guess_format`, format decoder, BGRA dönüşüm). Bu, varlık hattının tipik bir kararıdır: kaynak türü ne olursa olsun, decode adımı tek bir noktada birleşir.
 
 ### 6.1 HTTP istemcisi ve testler
 
-Testlerde HTTP yolu önemli bir noktadır: hem `TestApp::build` hem `TestAppContext::build` `FakeHttpClient::with_404_response` kurarsın. Yani tüm HTTP image istekleri test ortamında 404 döndürür ve `Resource::Uri` varyantı kullanıldığında `BadStatus` hatası alırsın.
+Testlerde HTTP yolu önemli bir noktadır: hem `TestApp::build` hem `TestAppContext::build` `FakeHttpClient::with_404_response` kurarsın. Yani tüm HTTP görsel istekleri test ortamında 404 döndürür ve `Resource::Uri` varyantı kullanıldığında `BadStatus` hatası alırsın.
 
-Bu davranış kasıtlıdır: testlerin ağa bağımlı olmaması gerekir. Eğer testte HTTP üzerinden image yüklenmesi gerekiyorsa `FakeHttpClient`'ın özel bir yanıt veren varyantı kullanırsın:
+Bu davranış kasıtlıdır: testlerin ağa bağımlı olmaması gerekir. Eğer testte HTTP üzerinden görsel yüklenmesi gerekiyorsa `FakeHttpClient`'ın özel bir yanıt veren varyantı kullanırsın:
 
 ```rust
-let client = FakeHttpClient::with_response_provider(|request| {
-    // ... custom yanıt
+let istemci = FakeHttpClient::with_response_provider(|istek| {
+    // ... özel yanıt
 });
 ```
 
-Bu, asset boru hattının test ortamında nasıl mock'lanabileceğinin örneklerinden biridir.
+Bu, varlık hattının test ortamında nasıl sahte kaynakla çalışabileceğinin örneklerinden biridir.
 
 ---
 
-## 7. Mock AssetSource yazmak
+## 7. Sahte AssetSource yazmak
 
-Bazen testler için tamamen özel bir asset source gerekir. Tipik senaryo: bir testin yalnızca belirli path'lere yanıt vermesini istemek. Trait gereği iki metot implement edilir:
+Bazen testler için tamamen özel bir varlık kaynağı gerekir. Tipik senaryo: bir testin yalnızca belirli yollara yanıt vermesini istemek. Trait gereği iki metot implement edilir:
 
 ```rust
-struct MockAssetSource(HashMap<&'static str, &'static [u8]>);
+struct SahteVarlikKaynagi(HashMap<&'static str, &'static [u8]>);
 
-impl AssetSource for MockAssetSource {
-    fn load(&self, path: &str) -> Result<Option<Cow<'static, [u8]>>> {
-        Ok(self.0.get(path).map(|bytes| Cow::Borrowed(*bytes)))
+impl AssetSource for SahteVarlikKaynagi {
+    fn load(&self, yol: &str) -> Result<Option<Cow<'static, [u8]>>> {
+        Ok(self.0.get(yol).map(|baytlar| Cow::Borrowed(*baytlar)))
     }
 
-    fn list(&self, path: &str) -> Result<Vec<SharedString>> {
+    fn list(&self, yol: &str) -> Result<Vec<SharedString>> {
         Ok(self.0
             .keys()
-            .filter(|p| p.starts_with(path))
-            .map(|p| (*p).into())
+            .filter(|kayit_yolu| kayit_yolu.starts_with(yol))
+            .map(|kayit_yolu| (*kayit_yolu).into())
             .collect())
     }
 }
 
-let mock = Arc::new(MockAssetSource({
-    let mut map = HashMap::new();
-    map.insert("icons/test.svg", &include_bytes!("test.svg")[..]);
-    map
+let sahte_kaynak = Arc::new(SahteVarlikKaynagi({
+    let mut harita = HashMap::new();
+    harita.insert("icons/test.svg", &include_bytes!("test.svg")[..]);
+    harita
 }));
-let app = TestApp::with_text_system_and_assets(text_system, mock);
+let uygulama = TestApp::with_text_system_and_assets(metin_sistemi, sahte_kaynak);
 ```
 
 Üç fayda:
 
 - **Kontrollü erişim:** Yalnızca testte ihtiyaç duyulan dosyalar gömülür; binary'nin tamamı yüklenmez. Bu, derleme süresini ve test başlatma süresini kısaltır.
-- **Hata enjeksiyonu:** Belirli bir path için `Err` döndürmek mümkündür; bu, asset yükleme hatası altındaki UI davranışını test etmeyi sağlar.
-- **Determinizm:** Mock'lar deterministtir; binary asset'lerin dosya sistemi durumuna göre değişmesi riski yoktur.
+- **Hata enjeksiyonu:** Belirli bir yol için `Err` döndürmek mümkündür; bu, varlık yükleme hatası altındaki UI davranışını test etmeyi sağlar.
+- **Determinizm:** Sahte kaynaklar deterministtir; binary varlıkların dosya sistemi durumuna göre değişmesi riski yoktur.
 
-Bu desen GPUI'nin asset boru hattının `dyn AssetSource` üzerinden parametrize edilmesinin pratik karşılığıdır. Trait object esnekliği test yazarına geniş bir alan sağlar.
-
----
-
-## 8. Dış dosya path'lerini güvenli yönetmek
-
-Filesystem'den varlık okumak güvenlik ve sağlamlık açısından dikkat ister:
-
-- **Symlink takibi.** `fs::read` symlink'leri takip eder; uygulamanın kabul ettiği dizinin dışına çıkan bir symlink hassas dosyalara erişim sağlayabilir. Kullanıcı sağladığı path'leri canonicalize edip whitelist edilmiş kök altında doğrulamak gerekir.
-- **Path injection.** Kullanıcı girdisi `Resource::Embedded` olarak yorumlanırsa `../../etc/passwd` gibi path'ler asset source'a sızabilir. `RustEmbed::get` yalnızca include kalıplarıyla kapsanan asset path'lerini döndürür ve debug filesystem kolunda canonical path kontrolü yapar; bu yüzden risk pratikte düşüktür. Buna karşılık `Resource::Path` için aynı garanti yoktur; explicit doğrulama gerekir.
-- **`is_uri` heuristic'i.** `From<&str>` for `ImageSource` `is_uri(s)` ile URI ayrımı yapar; "C:\Users\..." gibi path'ler `is_uri` true dönmediği için `Embedded` olarak yorumlanır. Bu yanlış yorumlama sessiz başarısızlığa yol açar (asset bulunamaz). Path olduğundan emin olunmayan input için `PathBuf::from(input).into()` ile dönüştürmek daha güvenlidir.
-
-Bu kurallar asset boru hattının "hız+esneklik" tasarımının kullanıcı koduna yansıyan boş kısımlarıdır; trait davranışı izin verir, doğrulama uygulamaya kalır.
+Bu desen GPUI'nin varlık hattının `dyn AssetSource` üzerinden parametrize edilmesinin pratik karşılığıdır. Trait object esnekliği test yazarına geniş bir alan sağlar.
 
 ---
 
-## 9. Asset boru hattını devre dışı bırakmak
+## 8. Dış dosya yollarını güvenli yönetmek
 
-Bazı durumlarda asset boru hattının tamamen devre dışı bırakılması gerekir:
+Dosya sisteminden varlık okumak güvenlik ve sağlamlık açısından dikkat ister:
+
+- **Symlink takibi.** `fs::read` symlink'leri takip eder; uygulamanın kabul ettiği dizinin dışına çıkan bir symlink hassas dosyalara erişim sağlayabilir. Kullanıcı sağladığı yolları canonicalize edip izinli kök altında doğrulamak gerekir.
+- **Yol enjeksiyonu.** Kullanıcı girdisi `Resource::Embedded` olarak yorumlanırsa `../../etc/passwd` gibi yollar varlık kaynağına sızabilir. `RustEmbed::get` yalnızca include kalıplarıyla kapsanan varlık yollarını döndürür ve debug dosya sistemi kolunda canonical path kontrolü yapar; bu yüzden risk pratikte düşüktür. Buna karşılık `Resource::Path` için aynı garanti yoktur; açık doğrulama gerekir.
+- **`is_uri` sezgisi.** `From<&str>` for `ImageSource` `is_uri(s)` ile URI ayrımı yapar; "C:\Users\..." gibi yollar `is_uri` true dönmediği için `Embedded` olarak yorumlanır. Bu yanlış yorumlama sessiz başarısızlığa yol açar (varlık bulunamaz). Yol olduğundan emin olunmayan girdi için `PathBuf::from(girdi).into()` ile dönüştürmek daha güvenlidir.
+
+Bu kurallar varlık hattının "hız+esneklik" tasarımının kullanıcı koduna yansıyan boş kısımlarıdır; trait davranışı izin verir, doğrulama uygulamaya kalır.
+
+---
+
+## 9. Varlık hattını devre dışı bırakmak
+
+Bazı durumlarda varlık hattının tamamen devre dışı bırakılması gerekir:
 
 - **Headless CLI:** Komut satırı uygulaması GPUI'yi kullanır ama hiçbir window açmaz; SVG render veya font yükleme gerekmez. Bu senaryoda `Application::with_assets` çağrılmaz, boş `()` kalır.
-- **Çok küçük binary'ler:** Asset gömme binary boyutunu büyütür. Asset'lerin filesystem'den okunduğu portatif binary'ler için `RustEmbed` kullanılmadan `AssetSource` implement edilebilir:
+- **Çok küçük binary'ler:** Varlık gömme binary boyutunu büyütür. Varlıkların dosya sisteminden okunduğu portatif binary'ler için `RustEmbed` kullanılmadan `AssetSource` implement edilebilir:
 
 ```rust
-struct FilesystemAssets {
-    base_dir: PathBuf,
+struct DosyaSistemiVarliklari {
+    taban_dizin: PathBuf,
 }
 
-impl AssetSource for FilesystemAssets {
-    fn load(&self, path: &str) -> Result<Option<Cow<'static, [u8]>>> {
-        let full_path = self.base_dir.join(path);
-        match std::fs::read(&full_path) {
-            Ok(bytes) => Ok(Some(Cow::Owned(bytes))),
-            Err(err) if err.kind() == std::io::ErrorKind::NotFound => Ok(None),
-            Err(err) => Err(err.into()),
+impl AssetSource for DosyaSistemiVarliklari {
+    fn load(&self, yol: &str) -> Result<Option<Cow<'static, [u8]>>> {
+        let tam_yol = self.taban_dizin.join(yol);
+        match std::fs::read(&tam_yol) {
+            Ok(baytlar) => Ok(Some(Cow::Owned(baytlar))),
+            Err(hata) if hata.kind() == std::io::ErrorKind::NotFound => Ok(None),
+            Err(hata) => Err(hata.into()),
         }
     }
 
-    fn list(&self, path: &str) -> Result<Vec<SharedString>> {
-        // ... walkdir veya benzer yardımıyla recursive listeleme
+    fn list(&self, yol: &str) -> Result<Vec<SharedString>> {
+        // ... walkdir veya benzer yardımıyla özyinelemeli listeleme
         todo!()
     }
 }
 ```
 
-Bu desen, üretim binary'sinin asset'leri gömülü taşırken testlerin veya alternatif binary'lerin filesystem'den okumasını sağlar. Aynı `cx.asset_source()` yüzeyinden çalıştığı için diğer kod yolları değişmez.
+Bu desen, üretim binary'sinin varlıkları gömülü taşırken testlerin veya alternatif binary'lerin dosya sisteminden okumasını sağlar. Aynı `cx.asset_source()` yüzeyinden çalıştığı için diğer kod yolları değişmez.
 
 ---
 
-## 10. Asset boru hattının test edilebilirlik özeti
+## 10. Varlık hattının test edilebilirlik özeti
 
 `AssetSource` trait'inin esnek tasarımı dört farklı test/dış senaryoyu birden destekler:
 
 | Senaryo | AssetSource türü | Test bağlamı |
 |---------|------------------|--------------|
-| Asset olmayan makro testleri | `Arc::new(())` | `TestAppContext` (`#[gpui::test]`) |
-| Asset olmayan sade testler | `Arc::new(())` | `TestApp::new` veya `TestApp::with_text_system` |
-| Gerçek asset'lerle metin testi | `Arc::new(Assets)` | `TestApp::with_text_system_and_assets` |
-| Mock asset'lerle birim testi | `Arc::new(MockAssetSource(...))` | `TestApp::with_text_system_and_assets` |
-| Filesystem'den okuyan portatif binary | `Arc::new(FilesystemAssets { ... })` | `Application::with_assets` (production) |
+| Varlık gerektirmeyen makro testleri | `Arc::new(())` | `TestAppContext` (`#[gpui::test]`) |
+| Varlık gerektirmeyen sade testler | `Arc::new(())` | `TestApp::new` veya `TestApp::with_text_system` |
+| Gerçek varlıklarla metin testi | `Arc::new(Assets)` | `TestApp::with_text_system_and_assets` |
+| Sahte varlıklarla birim testi | `Arc::new(SahteVarlikKaynagi(...))` | `TestApp::with_text_system_and_assets` |
+| Dosya sisteminden okuyan portatif binary | `Arc::new(DosyaSistemiVarliklari { ... })` | `Application::with_assets` (üretim) |
 | Görsel snapshot testi | `Arc::new(Assets)` | `VisualTestAppContext::with_asset_source` |
-| Headless CI render testi | `Arc::new(Assets)` veya mock | `HeadlessAppContext::with_asset_source` |
+| Headless CI render testi | `Arc::new(Assets)` veya sahte kaynak | `HeadlessAppContext::with_asset_source` |
 
-Bu çoklu kullanım modelinin gerçekleşebilmesi, `AssetSource` trait'inin minimal arayüzünden kaynaklanır. Trait yalnızca iki metot tanımlar; her implementasyon kendi maliyet profili ve davranışını seçer. Bu, asset altyapısının "uzak ya da yakın, gömülü ya da filesystem, üretim ya da test" sorularını tek bir kod yolundan cevaplayabilmesinin sebebidir.
+Bu çoklu kullanım modelinin gerçekleşebilmesi, `AssetSource` trait'inin minimal arayüzünden kaynaklanır. Trait yalnızca iki metot tanımlar; her implementasyon kendi maliyet profili ve davranışını seçer. Bu, varlık altyapısının "uzak ya da yakın, gömülü ya da dosya sistemi, üretim ya da test" sorularını tek bir kod yolundan cevaplayabilmesinin sebebidir.
 
 ---

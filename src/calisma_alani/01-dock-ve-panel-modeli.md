@@ -6,12 +6,12 @@
 
 ![Çalışma Alanı İskeleti](assets/workspace-iskeleti.svg)
 
-`workspace` crate'i GPUI çekirdeğinin üstüne `Workspace` adında merkezi bir uygulama görüntüsü koyar; merkezde pane grubunu, solda `left_dock`'u, sağda `right_dock`'u ve altta `bottom_dock`'u bir arada tutar. Aşağıdaki kaynaklar bu modelin tamamına yön verir: `workspace` crate'i, `workspace` crate'i, `workspace` crate'i.
+`workspace` crate'i GPUI çekirdeğinin üstüne `Workspace` adında merkezi bir uygulama görüntüsü koyar; merkezde pane grubunu, solda `left_dock`'u, sağda `right_dock`'u ve altta `bottom_dock`'u bir arada tutar. Bu modelin ana kaynak yüzeyi `workspace` crate'inin dock, pane ve panel modülleridir.
 
 **Panel yardımcı yüzeyi.** Panel UI'ı yazarken aşağıdaki sınırları bilmen gerekir:
 
 - `panel::PanelHeader` varsayılan `header_height` veya `panel_header_container` sağlayan bir yardımcı trait değildir; `workspace::Panel` üstünde işaretleyici bir trait'tir. Başlık yüksekliği gerekiyorsa doğrudan `Tab::container_height(cx)`, kapsayıcı gerekiyorsa `h_flex()`/`v_flex()` ve `ui::Button`/`ui::IconButton` bileşenleri kurarsın.
-- `panel_button`, `panel_filled_button`, `panel_icon_button` ve `panel_filled_icon_button` serbest fonksiyon yardımcıları yoktur. Panel UI'ında buton layer/size/style kararları doğrudan bileşen üzerinde açıkça belirtilir.
+- `panel_button`, `panel_filled_button`, `panel_icon_button` ve `panel_filled_icon_button` serbest fonksiyon yardımcıları yoktur. Panel UI'ında buton katman/boyut/stil kararları doğrudan bileşen üzerinde açıkça belirtilir.
 - Git paneli `GitPanelTab::{Changes, History}` durumuyla iki tab çizer. Changes sekmesi staged/unstaged liste ve commit footer akışını taşır; History sekmesi commit geçmişini `UniformListScrollHandle` ile sanallaştırır, ok tuşlarıyla `focused_history_entry` seçer ve confirm ile `CommitView::open` çağırır. Panel action dinleyicilerine `ActivateChangesTab` ve `ActivateHistoryTab` eklemen gerekir.
 - Branch diff görünümü toolbar'daki `Base: ...` popover'ı ile diff baz branch'ini değiştirir. Picker `branch_picker::select_popover(...)` üzerinden checkout yapmadan branch seçer, geri çağrı `DiffBase::Merge { base_ref }` ayarlar ve `BranchDiff::set_diff_base` `BranchDiffEvent::DiffBaseChanged` yayar. Ağaç tabanlı merge-base diff hesabı sürerken `is_tree_base_loading()` true döner; boş görünümler bunu yükleme göstergesiyle ayırmalı, eski statik baz varsayımına dönmemelidir.
 
@@ -68,7 +68,7 @@
 | `ZoomIn` | Aktif pane veya panel görünümünü zoom katmanına taşır. |
 | `ZoomOut` | Zoom durumunu kapatır ve normal pane/panel yerleşimine döner. |
 
-**Dock, panel ve sidebar ek API kapsamı.** Aşağıdaki public yüzeyler dock modelinin ayar, serileştirme, render ve sidebar bağlantı parçalarıdır. Birçoğu re-export olduğu için ayrı başlık yerine ait olduğu karar hattında okunmalıdır.
+**Dock, panel ve sidebar ek API kapsamı.** Aşağıdaki dışa açık yüzeyler dock modelinin ayar, serileştirme, render ve sidebar bağlantı parçalarıdır. Birçoğu re-export olduğu için ayrı başlık yerine ait olduğu karar hattında okunmalıdır.
 
 | API | Rol |
 | :-- | :-- |
@@ -83,7 +83,7 @@
 | `MoveProjectToNewWindow`, `MultiWorkspaceEvent`, `MultiWorkspaceState`, `SerializedProjectGroup` | Multi-workspace penceresinde proje grubunu yeni pencereye taşıma, event ve persist state modelini taşır. |
 | `NextProject`, `PreviousProject`, `NextThread`, `PreviousThread`, `NewThread` | Sidebar MRU geçişinde proje/thread ileri-geri gezinme ve yeni thread açma action'larıdır. |
 | `PathList`, `SerializedPathList`, `RecentWorkspace`, `RemoteConnectionIdentity` | Recent workspace ve remote workspace açma akışında path listesi, serialize edilen path listesi ve remote kimliğini taşır. |
-| `remote_connection_identity`, `same_remote_connection_identity`, `sidebar_side_context_menu` | Remote kimlik karşılaştırması ve sidebar tarafı bağlam menüsü için re-export edilen helper'lardır. |
+| `remote_connection_identity`, `same_remote_connection_identity`, `sidebar_side_context_menu` | Remote kimlik karşılaştırması ve sidebar tarafı bağlam menüsü için re-export edilen yardımcılardır. |
 
 **`toggle_dock` akışı.** Dock'u açıp kapatan tipik akış birkaç adımdan oluşur:
 

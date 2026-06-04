@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 440">
-  <title>Native Sekme Akışı</title>
+  <title>Yerel Sekme Akışı</title>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
@@ -15,8 +15,8 @@
     </style>
   </defs>
   <rect width="980" height="440" rx="10" fill="#f8fafc"/>
-  <text x="490" y="36" text-anchor="middle" class="title">Native Sekme Akışı</text>
-  <text x="490" y="60" text-anchor="middle" class="sub">Settings, controller state'i ve platform çağrısı aynı görünürlüğü belirler.</text>
+  <text x="490" y="36" text-anchor="middle" class="title">Yerel Sekme Akışı</text>
+  <text x="490" y="60" text-anchor="middle" class="sub">Settings, denetleyici durumu ve platform çağrısı aynı görünürlüğü belirler.</text>
 
   <rect x="44" y="124" width="170" height="96" rx="8" class="card"/>
   <rect x="44" y="124" width="170" height="30" rx="8" fill="#334155"/>
@@ -30,27 +30,27 @@
   <path d="M284 98 H470 V106 H284 Z" fill="#0284c7"/>
   <text x="300" y="96" class="head">tabbing_identifier</text>
   <text x="300" y="128" class="body">pencereye yazılır</text>
-  <text x="300" y="146" class="small">macOS native izin</text>
+  <text x="300" y="146" class="small">macOS yerel izin</text>
 
   <rect x="284" y="244" width="186" height="96" rx="8" class="card"/>
   <rect x="284" y="244" width="186" height="30" rx="8" fill="#7c3aed"/>
   <path d="M284 266 H470 V274 H284 Z" fill="#7c3aed"/>
   <text x="300" y="264" class="head">Controller</text>
-  <text x="300" y="296" class="body">visible + tab groups</text>
+  <text x="300" y="296" class="body">görünürlük + sekme grupları</text>
   <text x="300" y="314" class="small">WindowId haritası</text>
 
   <rect x="548" y="76" width="178" height="96" rx="8" class="card"/>
   <rect x="548" y="76" width="178" height="30" rx="8" fill="#059669"/>
   <path d="M548 98 H726 V106 H548 Z" fill="#059669"/>
-  <text x="564" y="96" class="head">render tabs</text>
+  <text x="564" y="96" class="head">sekmeleri render et</text>
   <text x="564" y="128" class="body">register_action_renderer</text>
-  <text x="564" y="146" class="small">koşullu binding</text>
+  <text x="564" y="146" class="small">koşullu bağlama</text>
 
   <rect x="548" y="244" width="178" height="96" rx="8" class="card"/>
   <rect x="548" y="244" width="178" height="30" rx="8" fill="#d97706"/>
   <path d="M548 266 H726 V274 H548 Z" fill="#d97706"/>
-  <text x="564" y="264" class="head">drag/drop</text>
-  <text x="564" y="296" class="body">bar içi reorder</text>
+  <text x="564" y="264" class="head">sürükle/bırak</text>
+  <text x="564" y="296" class="body">çubuk içi yeniden sıralama</text>
   <text x="564" y="314" class="small">bar dışı yeni pencere</text>
 
   <rect x="802" y="160" width="128" height="96" rx="8" class="card"/>
@@ -58,7 +58,7 @@
   <path d="M802 182 H930 V190 H802 Z" fill="#be123c"/>
   <text x="818" y="180" class="head">Platform</text>
   <text x="818" y="212" class="body">NSWindow</text>
-  <text x="818" y="230" class="small">veya fallback</text>
+  <text x="818" y="230" class="small">veya yedek</text>
 
   <path d="M214 164 C250 140 252 124 284 124" class="arrow"/>
   <path d="M214 184 C252 230 252 292 284 292" class="arrow"/>

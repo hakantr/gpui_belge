@@ -1,19 +1,19 @@
 # 7. Menü, Popup ve Tooltip
 
-Bu bölüm, bir kontrolün arkasından geçici bir yüzey açan bileşenleri anlatır. Önceki bölümde form ve seçim state'inin nasıl tutulduğunu gördük; burada odak biraz değişir. Artık asıl soru "değer nerede duruyor" değil, "seçenekler nasıl sunulacak, menü içeriği hangi modelle kurulacak, popup nasıl açılıp kapanacak" sorusudur.
+Bu bölüm, bir kontrolün arkasından geçici bir yüzey açan bileşenleri anlatır. Önceki bölümde form ve seçim durumunun nasıl tutulduğunu gördük; burada odak biraz değişir. Artık asıl soru "değer nerede duruyor" değil, "seçenekler nasıl sunulacak, menü içeriği hangi modelle kurulacak, popup nasıl açılıp kapanacak" sorusudur.
 
 Hangi durumda hangisini seçeceğini kabaca şöyle ayırabilirsin:
 
 ![Menü, Popup ve Tooltip Seçimi](assets/menu-popup-secimi.svg)
 
-- Seçili değeri trigger üzerinde gösteren bir seçenek listesi için `DropdownMenu` uygundur.
-- Menü içeriğinde entry, separator, submenu ve action dispatch akışı gerekiyorsa `ContextMenu` doğru yapı taşıdır.
-- Buton veya ikon trigger ile açılan ve içinde managed bir view bulunan menüler için `PopoverMenu` tercih edersin.
+- Seçili değeri tetikleyici üzerinde gösteren bir seçenek listesi için `DropdownMenu` uygundur.
+- Menü içeriğinde girdi, ayırıcı, alt menü ve action dispatch akışı gerekiyorsa `ContextMenu` doğru yapı taşıdır.
+- Buton veya ikon tetikleyici ile açılan ve içinde yönetilen bir view bulunan menüler için `PopoverMenu` tercih edersin.
 - İkincil tıklamayla (sağ tık) açılan bir bağlam menüsü için `right_click_menu` vardır.
 - Bir popup yüzeyinin içeriğini doğru elevation ve padding ile çizmek için `Popover` kullanırsın.
-- Kısa hover açıklamaları veya shortcut bilgilerini göstermek için ise `Tooltip` doğru yüzeydir.
+- Kısa hover açıklamaları veya kısayol bilgilerini göstermek için ise `Tooltip` doğru yüzeydir.
 
-Menü ve popup bileşenleri kendi başlarına değer saklamaz. Entry handler'ları view veya model state'ini günceller. Popup'ın açılıp kapanma davranışı ise ilgili menu, popover veya parent lifecycle tarafından yönetilir.
+Menü ve popup bileşenleri kendi başlarına değer saklamaz. Girdi işleyicileri view veya model durumunu günceller. Popup'ın açılıp kapanma davranışı ise ilgili menu, popover veya üst bileşen yaşam döngüsü tarafından yönetilir.
 
 ## DropdownMenu
 
@@ -26,14 +26,14 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Seçili değerin trigger üzerinde göründüğü option picker'larda.
-- Liste kısa olduğu, ancak inline bir segment kontrol için fazla uzun kaldığı durumlarda.
+- Seçili değerin tetikleyici üzerinde göründüğü seçenek picker'larında.
+- Liste kısa olduğu, ancak satır içi bir segment kontrol için fazla uzun kaldığı durumlarda.
 - Menü içeriğinin doğal olarak bir `ContextMenu` ile ifade edilebildiği yapılarda.
 
 Ne zaman kullanmazsın:
 
-- Trigger üzerindeki değer değişmiyor ve yalnızca bir eylem listesi açılıyorsa, doğrudan `PopoverMenu<ContextMenu>` kullanmak niyeti daha açık gösterir.
-- Geniş bir arama veya filtre deneyimi gerekiyorsa, bir picker bileşeni veya özel managed view tercih edersin.
+- Tetikleyici üzerindeki değer değişmiyor ve yalnızca bir eylem listesi açılıyorsa, doğrudan `PopoverMenu<ContextMenu>` kullanmak niyeti daha açık gösterir.
+- Geniş bir arama veya filtre deneyimi gerekiyorsa, bir picker bileşeni veya özel yönetilen view tercih edersin.
 
 Temel API:
 
@@ -44,11 +44,11 @@ Temel API:
 
 Davranış:
 
-- Text label durumunda arka planda bir `Button` üretilir; özel element label durumunda ise bir `ButtonLike` kullanılır.
+- Metin label durumunda arka planda bir `Button` üretilir; özel element label durumunda ise bir `ButtonLike` kullanılır.
 - İçeride `PopoverMenu::new((id, "popover"))` kurulur.
-- Varsayılan trigger ikonu `IconName::ChevronUpDown`'dur; `.no_chevron()` bu oku kaldırır.
+- Varsayılan tetikleyici ikonu `IconName::ChevronUpDown`'dur; `.no_chevron()` bu oku kaldırır.
 - Varsayılan attach noktası `Anchor::BottomRight`'tır.
-- `DropdownStyle` değerleri button stiline şu şekilde eşlenir: `Solid -> Filled`, `Outlined -> Outlined`, `Subtle -> Subtle`, `Ghost -> Transparent`.
+- `DropdownStyle` değerleri buton stiline şu şekilde eşlenir: `Solid -> Filled`, `Outlined -> Outlined`, `Subtle -> Subtle`, `Ghost -> Transparent`.
 
 Örnek:
 
@@ -56,31 +56,31 @@ Davranış:
 use ui::prelude::*;
 use ui::{ContextMenu, DropdownMenu, DropdownStyle, Tooltip};
 
-fn render_sort_dropdown(window: &mut Window, cx: &mut App) -> impl IntoElement {
-    let menu = ContextMenu::build(window, cx, |menu, _, _| {
-        menu.header("Sort by")
-            .toggleable_entry("Name", true, IconPosition::Start, None, |_, _| {})
-            .toggleable_entry("Updated", false, IconPosition::Start, None, |_, _| {})
+fn siralama_dropdown_render(window: &mut Window, cx: &mut App) -> impl IntoElement {
+    let menu_icerigi = ContextMenu::build(window, cx, |icerik, _, _| {
+        icerik.header("Sıralama")
+            .toggleable_entry("Ad", true, IconPosition::Start, None, |_, _| {})
+            .toggleable_entry("Güncellenme", false, IconPosition::Start, None, |_, _| {})
             .separator()
-            .entry("Reverse order", None, |_, _| {})
+            .entry("Sıralamayı tersine çevir", None, |_, _| {})
     });
 
-    DropdownMenu::new("sort-dropdown", "Name", menu)
+    DropdownMenu::new("siralama-dropdown", "Ad", menu_icerigi)
         .style(DropdownStyle::Outlined)
-        .trigger_tooltip(Tooltip::text("Change sort order"))
+        .trigger_tooltip(Tooltip::text("Sıralamayı değiştir"))
 }
 ```
 
 Zed içinden kullanım örnekleri:
 
-- `acp_tools` crate'i: connection selector.
-- Component preview: `ui` crate'i.
+- `acp_tools` crate'i: bağlantı seçici.
+- Bileşen önizleme: `ui` crate'i.
 
 Dikkat edeceğin noktalar:
 
-- `DropdownMenu`, menu entity'sini dışarıdan alır. Menü entry handler'ları seçili değeri view veya model state'ine yazmalıdır; dropdown bu yazımı kendi başına yapmaz.
+- `DropdownMenu`, menu entity'sini dışarıdan alır. Menü girdi işleyicileri seçili değeri view veya model durumuna yazmalıdır; dropdown bu yazımı kendi başına yapmaz.
 - Dinamik bir label kullanıyorsan mevcut seçili değeri her render'da label'a yansıtman gerekir. Aksi halde kontrol seçim değişse bile eski etiketi göstermeye devam eder.
-- `full_width(true)`, trigger ile popover'ın genişliklerini birlikte etkiler. Dar formlarda parent width'i de bilinçli ayarlaman gerekir.
+- `full_width(true)`, tetikleyici ile popover'ın genişliklerini birlikte etkiler. Dar formlarda üst genişliği de bilinçli ayarlaman gerekir.
 
 ## ContextMenu
 
@@ -89,16 +89,16 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::ContextMenu`, `ui::ContextMenuEntry`, `ui::ContextMenuItem`.
 - Prelude: Hayır; ayrıca import edersin.
-- Preview: Doğrudan bir component preview yok; `DropdownMenu` ve gerçek kullanım örnekleri üzerinden görünür hale gelir.
+- Preview: Doğrudan bir bileşen önizlemesi yok; `DropdownMenu` ve gerçek kullanım örnekleri üzerinden görünür hale gelir.
 
 Ne zaman kullanırsın:
 
-- Entry, separator, header, checked state, submenu ve action dispatch içeren bir menü içeriği oluşturmak için.
+- Girdi, ayırıcı, header, checked durumu, alt menü ve action dispatch içeren bir menü içeriği oluşturmak için.
 - Aynı menü modelinin hem dropdown veya popover içinde hem de sağ tık menüsünde tekrar tekrar kullanılması gereken durumlarda.
 
 Ne zaman kullanmazsın:
 
-- Bir menü değil de serbest layout içeren bir popup yüzeyi gerekiyorsa, bir `Popover` içinde özel bir managed view kurmak daha doğru bir çözümdür.
+- Bir menü değil de serbest layout içeren bir popup yüzeyi gerekiyorsa, bir `Popover` içinde özel bir yönetilen view kurmak daha doğru bir çözümdür.
 - Yalnızca tek bir buton eylemi söz konusuysa bir menü kurmaya gerek kalmaz; sade bir buton yeterlidir.
 
 Temel API:
@@ -106,17 +106,17 @@ Temel API:
 - `ContextMenu::build(window, cx, |menu, window, cx| menu...)`.
 - `ContextMenu::build_persistent(window, cx, builder)` ise menünün açık kalmasını ve yeniden kurulabilmesini gerektiren durumlarda kullanırsın.
 - Yapı builder'ları: `.context(focus_handle)`, `.header(...)`, `.header_with_link(...)`, `.separator()`, `.label(...)`, `.entry(...)`, `.toggleable_entry(...)`, `.custom_row(...)`, `.custom_entry(...)`, `.custom_entry_with_docs(...)`, `.entry_with_end_slot(...)`, `.entry_with_end_slot_on_hover(...)`, `.selectable(bool)`, `.action(...)`, `.action_checked(...)`, `.action_checked_with_disabled(...)`, `.action_disabled_when(...)`, `.link(...)`, `.link_with_handler(...)`, `.submenu(...)`, `.submenu_with_icon(...)`, `.submenu_with_colored_icon(...)`, `.keep_open_on_confirm(bool)`, `.fixed_width(...)`, `.key_context(...)`, `.end_slot_action(action)`.
-- Dinamik item ekleme builder'ları: `.item(item: impl Into<ContextMenuItem>)` ve `.extend(items: impl IntoIterator<Item = impl Into<ContextMenuItem>>)` zincirleme kullanım için uygundur. `&mut self` üzerinden mutate eden `.push_item(item)` ise builder zinciri dışında menü içeriğini değiştirmek için (örneğin bir event callback içinde) tercih edersin.
-- Programatik mutator'lar: `.rebuild(window, cx)`, `build_persistent` ile açık kalan menünün içeriğini yeniden kurar; `.trigger_end_slot_handler( window, cx)` ise aktif entry'nin end slot handler'ını programatik olarak çalıştırır.
-- Action ve navigation metodları: `.selected_index()`, `.confirm(...)`, `.secondary_confirm(...)`, `.cancel(...)`, `.end_slot(...)`, `.clear_selected()`, `.select_first(...)`, `.select_last(...)`, `.select_next(...)`, `.select_previous(...)`, `.select_submenu_child(...)`, `.select_submenu_parent(...)`, `.on_action_dispatch(...)`, `.on_blur_subscription(...)`. Bunlar büyük çoğunlukla keymap ve action bağlarından çağrılır; normal menü inşası sırasında builder zincirine karıştırılmaz.
-- Entry builder'ları: `ContextMenuEntry::new(label).icon(...).toggleable(...)` zincirine ek olarak `.custom_icon_path(...)`, `.custom_icon_svg(...)`, `.icon_position(...)`, `.icon_size(...)`, `.icon_color(...)`, `.action(...)`, `.handler(...)`, `.secondary_handler(...)`, `.disabled(...)`, `.documentation_aside(...)` builder'ları vardır.
-- `ContextMenuItem` variant'ları: `Separator`, `Header`, `HeaderWithLink`, `Label`, `Entry`, `CustomEntry`, `Submenu`. Builder zincirleri çoğu durumda bu enum'u doğrudan üretir; dinamik bir menü listesi saklanacaksa `ContextMenuItem` koleksiyonu da bu amaçla kullanabilirsin.
+- Dinamik item ekleme builder'ları: `.item(item: impl Into<ContextMenuItem>)` ve `.extend(items: impl IntoIterator<Item = impl Into<ContextMenuItem>>)` zincirleme kullanım için uygundur. `&mut self` üzerinden menüyü değiştiren `.push_item(item)` ise builder zinciri dışında menü içeriğini güncellemek için (örneğin bir olay geri çağrısı içinde) tercih edilir.
+- Programatik değiştiriciler: `.rebuild(window, cx)`, `build_persistent` ile açık kalan menünün içeriğini yeniden kurar; `.trigger_end_slot_handler(window, cx)` ise aktif girdinin end slot işleyicisini programatik olarak çalıştırır.
+- Action ve gezinme metodları: `.selected_index()`, `.confirm(...)`, `.secondary_confirm(...)`, `.cancel(...)`, `.end_slot(...)`, `.clear_selected()`, `.select_first(...)`, `.select_last(...)`, `.select_next(...)`, `.select_previous(...)`, `.select_submenu_child(...)`, `.select_submenu_parent(...)`, `.on_action_dispatch(...)`, `.on_blur_subscription(...)`. Bunlar büyük çoğunlukla keymap ve action bağlarından çağrılır; normal menü inşası sırasında builder zincirine karıştırılmaz.
+- Girdi builder'ları: `ContextMenuEntry::new(label).icon(...).toggleable(...)` zincirine ek olarak `.custom_icon_path(...)`, `.custom_icon_svg(...)`, `.icon_position(...)`, `.icon_size(...)`, `.icon_color(...)`, `.action(...)`, `.handler(...)`, `.secondary_handler(...)`, `.disabled(...)`, `.documentation_aside(...)` builder'ları vardır.
+- `ContextMenuItem` varyantları: `Separator`, `Header`, `HeaderWithLink`, `Label`, `Entry`, `CustomEntry`, `Submenu`. Builder zincirleri çoğu durumda bu enum'u doğrudan üretir; dinamik bir menü listesi saklanacaksa `ContextMenuItem` koleksiyonu da bu amaçla kullanılabilir.
 
 Davranış:
 
 - `Focusable` ve `EventEmitter<DismissEvent>` implement eder.
-- Blur olduğunda menü kapanır; bir submenu açıkken focus orada korunuyorsa kapanma ertelenir.
-- Confirm edilen entry handler'ı çalıştırılır. `keep_open_on_confirm(false)` durumunda menü `DismissEvent` yayınlar ve kapanır.
+- Blur olduğunda menü kapanır; bir alt menü açıkken odak orada korunuyorsa kapanma ertelenir.
+- Confirm edilen girdi işleyicisi çalıştırılır. `keep_open_on_confirm(false)` durumunda menü `DismissEvent` yayınlar ve kapanır.
 - `build_persistent(...)` ile kurulan menü hem rebuild edilebilir hem de açık kalabilir.
 - Klavye gezintisi için menünün kendi action'ları ve `key_context` değeri birlikte kullanılır.
 
@@ -126,16 +126,16 @@ Davranış:
 use ui::prelude::*;
 use ui::ContextMenu;
 
-fn build_file_menu(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
-    ContextMenu::build(window, cx, |menu, _, _| {
-        menu.header("File")
-            .entry("Rename", None, |_, _| {})
-            .entry("Duplicate", None, |_, _| {})
+fn dosya_menusu_olustur(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
+    ContextMenu::build(window, cx, |icerik, _, _| {
+        icerik.header("Dosya")
+            .entry("Yeniden adlandır", None, |_, _| {})
+            .entry("Çoğalt", None, |_, _| {})
             .separator()
-            .toggleable_entry("Show hidden files", true, IconPosition::Start, None, |_, _| {})
-            .submenu("Open with", |menu, _, _| {
-                menu.entry("Text editor", None, |_, _| {})
-                    .entry("System app", None, |_, _| {})
+            .toggleable_entry("Gizli dosyaları göster", true, IconPosition::Start, None, |_, _| {})
+            .submenu("Birlikte aç", |alt_menu, _, _| {
+                alt_menu.entry("Metin editörü", None, |_, _| {})
+                    .entry("Sistem uygulaması", None, |_, _| {})
             })
     })
 }
@@ -147,37 +147,37 @@ Zed içinden kullanım örnekleri:
 - `git_ui` crate'i: git panel eylem menüleri.
 - `keymap_editor` crate'i: filtre ve keybinding menüleri.
 
-Özel entry'ler oluşturulduğunda menü çok daha esnek bir hâle gelir:
+Özel girdiler oluşturulduğunda menü çok daha esnek bir hâle gelir:
 
 ```rust
 use gpui::IntoElement;
 use ui::prelude::*;
 use ui::{Chip, ContextMenu};
 
-fn build_menu_with_custom_entries(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
-    ContextMenu::build(window, cx, |menu, _, _| {
-        menu.header_with_link(
-            "Available Tools",
-            "Docs",
+fn ozel_girdili_menu_olustur(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
+    ContextMenu::build(window, cx, |icerik, _, _| {
+        icerik.header_with_link(
+            "Kullanılabilir Araçlar",
+            "Belgeler",
             "https://zed.dev/docs/tools",
         )
         .custom_entry(
             |_, _| {
                 h_flex()
                     .gap_2()
-                    .child(Label::new("Run Selection"))
+                    .child(Label::new("Seçimi çalıştır"))
                     .child(Chip::new("beta").label_color(Color::Accent))
                     .into_any_element()
             },
             |_, _| {},
         )
         .custom_entry_with_docs(
-            |_, _| Label::new("Open Workspace Settings").into_any_element(),
+            |_, _| Label::new("Çalışma alanı ayarlarını aç").into_any_element(),
             |_, _| {},
             Some(ui::DocumentationAside::new(
                 ui::DocumentationSide::Right,
                 std::rc::Rc::new(|_| {
-                    Label::new("Workspace ayarları sadece bu proje için geçerlidir.")
+                    Label::new("Çalışma alanı ayarları sadece bu proje için geçerlidir.")
                         .into_any_element()
                 }),
             )),
@@ -188,29 +188,29 @@ fn build_menu_with_custom_entries(window: &mut Window, cx: &mut App) -> Entity<C
 
 `header_with_link(...)` üç parametre alır: başlık, link etiketi ve link URL'i. Render edilen header'a tıklandığında URL `cx.open_url(...)` ile açılır.
 
-`custom_entry(render_fn, handler)`, entry görselini sıfırdan üretmeye olanak verir. Varsayılan olarak selectable'dır; entry'nin yalnızca görsel kalması istendiğinde (yani bir label gibi davranması beklendiğinde) `.selectable(false)` ile bu davranış kapatılır.
+`custom_entry(render_fn, handler)`, girdi görselini sıfırdan üretmeye olanak verir. Varsayılan olarak seçilebilir; girdinin yalnızca görsel kalması istendiğinde (yani bir label gibi davranması beklendiğinde) `.selectable(false)` ile bu davranış kapatılır.
 
-`custom_entry_with_docs(render_fn, handler, documentation_aside)` ise entry'nin yanında bir popover olarak küçük bir dokümantasyon paneli açılmasını sağlar. Aynı davranış normal `entry(...)` zinciri üzerine `.documentation_aside(side, render)` çağrılarak da ekleyebilirsin.
+`custom_entry_with_docs(render_fn, handler, documentation_aside)` ise girdinin yanında bir popover olarak küçük bir dokümantasyon paneli açılmasını sağlar. Aynı davranış normal `entry(...)` zinciri üzerine `.documentation_aside(side, render)` çağrılarak da ekleyebilirsin.
 
 Action ve link yardımcıları:
 
-- `action(label, action)`: önce varsa context focus handle'ına focus verir, ardından action dispatch eder.
-- `action_checked(...)` ve `action_checked_with_disabled(...)`: action entry'ye sırasıyla checked ve disabled durumlarını ekler.
-- `action_disabled_when(disabled, label, action)`: disabled koşulunu entry oluştururken doğrudan bağlar.
-- `link(...)` ve `link_with_handler(...)`: entry'nin sonuna bir `ArrowUpRight` ikonu ekler, custom handler'ı çalıştırır ve ardından action dispatch eder.
+- `action(label, action)`: önce varsa context odak handle'ına odak verir, ardından action dispatch eder.
+- `action_checked(...)` ve `action_checked_with_disabled(...)`: action girdisine sırasıyla checked ve disabled durumlarını ekler.
+- `action_disabled_when(disabled, label, action)`: disabled koşulunu girdi oluştururken doğrudan bağlar.
+- `link(...)` ve `link_with_handler(...)`: girdinin sonuna bir `ArrowUpRight` ikonu ekler, özel işleyiciyi çalıştırır ve ardından action dispatch eder.
 
 End slot ve ikon yardımcıları:
 
-- `entry_with_end_slot(...)`, entry'nin sağ tarafına ikinci bir icon action koyar; yani satırın sağında ek bir kontrol yer alır.
+- `entry_with_end_slot(...)`, girdinin sağ tarafına ikinci bir icon action koyar; yani satırın sağında ek bir kontrol yer alır.
 - `entry_with_end_slot_on_hover(...)`, aynı action'ı yalnızca satırın üzerine gelindiğinde gösterir.
 - `custom_icon_path(...)` ve `custom_icon_svg(...)`, `ContextMenuEntry` üzerinde normal bir `IconName` yerine harici bir ikon kaynağı seçer.
-- `submenu_with_colored_icon(...)`, submenu label'ına semantik `Color` ile renklendirilmiş bir ikon ekler.
+- `submenu_with_colored_icon(...)`, alt menü label'ına semantik `Color` ile renklendirilmiş bir ikon ekler.
 
 Dikkat edeceğin noktalar:
 
 - `ContextMenu` tek başına bir açma mekanizması değildir. Kullanıcının görmesi için `DropdownMenu`, `PopoverMenu` veya `right_click_menu` yüzeylerinden biriyle sunulur.
-- Handler içinde view state'i değiştirilecekse, ilgili entity üzerinden `window.handler_for(...)`, `cx.listener(...)` veya local model update pattern'i kullanırsın. Yukarıdaki örneklerde yer alan boş handler'lar yalnızca API şeklini gösterir.
-- Submenu builder'ları yeni bir `ContextMenu` değerini döndürmelidir. Parent menüdeki state'i kopyalayarak kullanman gerektiğinde, closure capture'larını sade tutman okunabilirliği artırır.
+- İşleyici içinde view durumu değiştirilecekse, ilgili entity üzerinden `window.handler_for(...)`, `cx.listener(...)` veya yerel model güncelleme desenini kullanırsın. Yukarıdaki örneklerde yer alan boş işleyiciler yalnızca API şeklini gösterir.
+- Alt menü builder'ları yeni bir `ContextMenu` değerini döndürmelidir. Üst menüdeki durumu kopyalayarak kullanman gerektiğinde, closure capture'larını sade tutman okunabilirliği artırır.
 
 ## PopoverMenu
 
@@ -219,12 +219,12 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::PopoverMenu`, `ui::PopoverMenuHandle`, `ui::PopoverTrigger`.
 - Prelude: Hayır; ayrıca import edersin.
-- Preview: Doğrudan bir component preview yok; gerçek kullanım menu trigger bileşenleri üzerinden ortaya çıkar.
+- Preview: Doğrudan bir bileşen önizlemesi yok; gerçek kullanım menu tetikleyici bileşenleri üzerinden ortaya çıkar.
 
 Ne zaman kullanırsın:
 
-- Bir `Button`, `IconButton` veya `ButtonLike` trigger'ına bağlı bir popover veya menü açmak gerektiğinde.
-- Menü açıldığında trigger'ın seçili görünmesi ve menü kapanınca eski focus'un geri gelmesi istendiğinde.
+- Bir `Button`, `IconButton` veya `ButtonLike` tetikleyicisine bağlı bir popover veya menü açmak gerektiğinde.
+- Menü açıldığında tetikleyicinin seçili görünmesi ve menü kapanınca eski odağın geri gelmesi istendiğinde.
 - `ContextMenu` dışında başka bir `ManagedView`'in popup olarak sunulacağı durumlarda.
 
 Ne zaman kullanmazsın:
@@ -240,31 +240,31 @@ Temel API:
 
 Davranış:
 
-- Trigger tipi `PopoverTrigger` trait'ini sağlamalıdır. Bu trait, `IntoElement + Clickable + Toggleable + 'static` kombinasyonunun public bir alias yüzeyidir.
-- Trigger tıklandığında menu builder bir `Option<Entity<M>>` döndürür; `None` döndürdüğünde menü açılmaz.
-- Açılan menu `DismissEvent` yayınladığında handle temizlenir ve mümkünse önceki focus geri verilir.
-- Menü deferred olarak render edildiği için focus iki `on_next_frame` sonrasında uygulanır.
-- Trigger'a menü açıkken tekrar tıklanırsa menü dismiss edilir ve event propagation durdurulur.
-- `PopoverMenuElementState` açık menü entity'sini ve trigger bounds bilgisini frame'ler arasında saklar. `PopoverMenuFrameState` ise layout pass sırasında trigger element'i, menu element'i ve layout id bilgisini taşır. Bunlar public görünse de normal uygulama kodunun kuracağı değerler değildir; `PopoverMenu` element lifecycle'ı tarafından yönetilir.
+- Tetikleyici tipi `PopoverTrigger` trait'ini sağlamalıdır. Bu trait, `IntoElement + Clickable + Toggleable + 'static` kombinasyonunun public bir alias yüzeyidir.
+- Tetikleyici tıklandığında menu builder bir `Option<Entity<M>>` döndürür; `None` döndürdüğünde menü açılmaz.
+- Açılan menu `DismissEvent` yayınladığında handle temizlenir ve mümkünse önceki odak geri verilir.
+- Menü deferred olarak render edildiği için odak iki `on_next_frame` sonrasında uygulanır.
+- Tetikleyiciye menü açıkken tekrar tıklanırsa menü dismiss edilir ve olay yayılımı durdurulur.
+- `PopoverMenuElementState` açık menü entity'sini ve tetikleyici sınır bilgisini frame'ler arasında saklar. `PopoverMenuFrameState` ise layout pass sırasında tetikleyici elementi, menu elementi ve layout id bilgisini taşır. Bunlar public görünse de normal uygulama kodunun kuracağı değerler değildir; `PopoverMenu` element yaşam döngüsü tarafından yönetilir.
 
 **Menu ve popover yardımcı API kapsamı.** Aşağıdaki tipler bu bölümdeki davranışların küçük taşıyıcılarıdır:
 
 | API | Alt özellikler | Kullanım notu |
 |-----|----------------|---------------|
-| `DropdownStyle` | `Solid`, `Outlined`, `Subtle`, `Ghost` | Dropdown trigger'ının button stiline eşlenen görsel yüzeyidir. |
+| `DropdownStyle` | `Solid`, `Outlined`, `Subtle`, `Ghost` | Dropdown tetikleyicisinin buton stiline eşlenen görsel yüzeyidir. |
 | `ContextMenuItem` | `Separator`, `Header`, `HeaderWithLink`, `Label`, `Entry`, `CustomEntry`, `Submenu` | Menü içeriğini saklamak veya dinamik üretmek için kullanılan enum modelidir. |
 | `ContextMenuEntry` | `toggle`, `label`, `icon`, `custom_icon_path`, `custom_icon_svg`, `handler`, `secondary_handler`, `action`, `disabled`, `documentation_aside`, end-slot alanları | Tek bir seçilebilir menü satırının bütün görsel ve davranış bilgisini taşır. |
-| `DocumentationSide` | `Left`, `Right` | Entry dokümantasyon panelinin menünün hangi yanında açılacağını belirtir. |
-| `DocumentationAside` | `side`, `render`; `new` | Entry veya picker yanında küçük açıklama paneli render etmek için kullanılır. |
+| `DocumentationSide` | `Left`, `Right` | Girdi dokümantasyon panelinin menünün hangi yanında açılacağını belirtir. |
+| `DocumentationAside` | `side`, `render`; `new` | Girdi veya picker yanında küçük açıklama paneli render etmek için kullanılır. |
 | `PopoverMenuHandle` | `show`, `hide`, `toggle`, `is_deployed`, `is_focused`, `refresh_menu` | Popover'ın dışarıdan açma/kapama ve içerik yenileme tutamacıdır. |
-| `PopoverTrigger` | `IntoElement + Clickable + Toggleable + 'static` | Popover tetikleyicisi olabilecek button-like elementleri sınırlayan trait alias yüzeyidir. |
-| `PopoverMenuElementState` | `menu`, `child_bounds` | Açık menü entity'si ve trigger bounds bilgisini element state olarak saklar. |
-| `PopoverMenuFrameState` | `child_layout_id`, `child_element`, `menu_element`, `menu_handle` | Popover layout pass sırasında kullanılan geçici frame state'tir. |
+| `PopoverTrigger` | `IntoElement + Clickable + Toggleable + 'static` | Popover tetikleyicisi olabilecek buton benzeri elementleri sınırlayan trait alias yüzeyidir. |
+| `PopoverMenuElementState` | `menu`, `child_bounds` | Açık menü entity'si ve tetikleyici sınır bilgisini element durumu olarak saklar. |
+| `PopoverMenuFrameState` | `child_layout_id`, `child_element`, `menu_element`, `menu_handle` | Popover layout pass sırasında kullanılan geçici frame durumudur. |
 | `MenuHandleElementState` | `menu`, `position` | Sağ tık menüsünün açık entity'sini ve cursor/handle pozisyonunu saklar. |
-| `RequestLayoutState` | `child_layout_id`, `child_element`, `menu_element` | `right_click_menu` elementinin layout sırasında child ve menu elementlerini taşıdığı state'tir. |
+| `RequestLayoutState` | `child_layout_id`, `child_element`, `menu_element` | `right_click_menu` elementinin layout sırasında child ve menu elementlerini taşıdığı durumdur. |
 | `PrepaintState` | `hitbox`, `child_bounds` | `right_click_menu` için prepaint aşamasında hitbox ve child bounds bilgisini taşır. |
 | `POPOVER_Y_PADDING` | `Pixels` sabiti | `Popover` yüzeyinin dikey iç boşluğuna eklenen sabit değerdir. |
-| `tooltip_container` | `AppContext` tabanlı helper | Tooltip ve link preview yüzeylerine ortak elevation, font, padding ve metin rengini uygular. |
+| `tooltip_container` | `AppContext` tabanlı yardımcı | Tooltip ve link preview yüzeylerine ortak elevation, font, padding ve metin rengini uygular. |
 | `LinkPreview` | `new(url, cx)` | Uzun URL'i 100 karakterlik satırlara bölüp 500 karakterde kırpan tooltip view'idir. |
 | `popover_menu` | `picker` crate alt modülü | `PickerPopoverMenu` sarmalayıcısını sağlar; picker'ı `PopoverMenu` içinde trigger arkasına yerleştirir. |
 
@@ -274,19 +274,19 @@ Davranış:
 use ui::prelude::*;
 use ui::{ContextMenu, PopoverMenu, Tooltip};
 
-fn render_more_actions(window: &mut Window, cx: &mut App) -> impl IntoElement {
-    let menu = ContextMenu::build(window, cx, |menu, _, _| {
-        menu.entry("Rename", None, |_, _| {})
-            .entry("Delete", None, |_, _| {})
+fn ek_eylemleri_render(window: &mut Window, cx: &mut App) -> impl IntoElement {
+    let menu_icerigi = ContextMenu::build(window, cx, |icerik, _, _| {
+        icerik.entry("Yeniden adlandır", None, |_, _| {})
+            .entry("Sil", None, |_, _| {})
     });
 
-    PopoverMenu::new("more-actions")
-        .menu(move |_, _| Some(menu.clone()))
+    PopoverMenu::new("ek-eylemler")
+        .menu(move |_, _| Some(menu_icerigi.clone()))
         .trigger_with_tooltip(
-            IconButton::new("more-actions-trigger", IconName::Menu)
+            IconButton::new("ek-eylemler-tetikleyici", IconName::Menu)
                 .icon_size(IconSize::Small)
                 .style(ButtonStyle::Subtle),
-            Tooltip::text("More actions"),
+            Tooltip::text("Ek eylemler"),
         )
 }
 ```
@@ -294,14 +294,14 @@ fn render_more_actions(window: &mut Window, cx: &mut App) -> impl IntoElement {
 Zed içinden kullanım örnekleri:
 
 - `language_tools` crate'i: LSP seçim menüleri.
-- `agent_ui` crate'i: add context ve permission menüleri.
+- `agent_ui` crate'i: bağlam ekleme ve izin menüleri.
 - `git_ui` crate'i: repository, branch ve commit kontrolleri.
 
 Dikkat edeceğin noktalar:
 
-- `trigger_with_tooltip(...)`, menü açıkken trigger tooltip'inin görünmesini engeller. İkon-only trigger'larda bu davranış genellikle istenir.
-- `with_handle(...)` kullanıldığında handle'ın view state'inde saklaman gerekir. Her render'da yeni bir handle oluşturulması, dışarıdan show ve hide kontrolünü işlemez hâle getirir.
-- `anchor` menünün hangi köşesinin konumlanacağını belirler; `attach` ise trigger'ın hangi köşesine bağlanacağını ifade eder. İkisi birlikte popup'ın görsel olarak nereye yapışacağını yönetir.
+- `trigger_with_tooltip(...)`, menü açıkken tetikleyici tooltip'inin görünmesini engeller. Yalnız ikonlu tetikleyicilerde bu davranış genellikle istenir.
+- `with_handle(...)` kullanıldığında handle'ın view durumunda saklanması gerekir. Her render'da yeni bir handle oluşturulması, dışarıdan show ve hide kontrolünü işlemez hâle getirir.
+- `anchor` menünün hangi köşesinin konumlanacağını belirler; `attach` ise tetikleyicinin hangi köşesine bağlanacağını ifade eder. İkisi birlikte popup'ın görsel olarak nereye yapışacağını yönetir.
 
 ## RightClickMenu
 
@@ -310,16 +310,16 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::RightClickMenu`, `ui::right_click_menu`.
 - Prelude: Hayır; ayrıca import edersin.
-- Preview: Doğrudan bir component preview yok.
+- Preview: Doğrudan bir bileşen önizlemesi yok.
 
 Ne zaman kullanırsın:
 
-- Dosya, tab, satır, liste item'i veya editor yüzeyi üzerinde sağ tıkla bir bağlam menüsünün açılması gerektiğinde.
+- Dosya, tab, satır, liste öğesi veya editor yüzeyi üzerinde sağ tıkla bir bağlam menüsünün açılması gerektiğinde.
 - Menü konumunun varsayılan olarak cursor pozisyonuna göre belirlenmesi istendiğinde.
 
 Ne zaman kullanmazsın:
 
-- Sol tık trigger'lı bir menü için `PopoverMenu` daha uygundur.
+- Sol tık tetikleyicili bir menü için `PopoverMenu` daha uygundur.
 - Seçili değeri gösteren bir kontrol için `DropdownMenu` daha doğru bir yüzeydir.
 
 Temel API:
@@ -330,10 +330,10 @@ Temel API:
 Davranış:
 
 - Sağ tık (`MouseButton::Right`) hovered hitbox üzerinde bubble phase'de yakalandığında menü açılır.
-- Açılma sırasında `prevent_default()` ve `stop_propagation()` çağrılır; böylece browser veya parent kontrolü olayı işlemez.
-- `attach(...)` verildiğinde, menünün pozisyonu cursor yerine trigger bounds'unun belirtilen köşesine bağlanır.
-- Açılan managed view `DismissEvent` yayınladığında menu state'i temizlenir ve mümkünse focus önceki elemana döner.
-- `MenuHandleElementState`, açık menüyü ve son cursor/attach pozisyonunu saklar. `RequestLayoutState` child layout id'sini ve menü element'ini, `PrepaintState` ise child hitbox'ı ile bounds bilgisini taşır. Bu state tiplerini elle üretmezsin; sağ tık menüsünün cursor konumu, focus dönüşü ve deferred menu render'ı için element sistemi kullanır.
+- Açılma sırasında `prevent_default()` ve `stop_propagation()` çağrılır; böylece browser veya üst kontrol olayı işlemez.
+- `attach(...)` verildiğinde, menünün pozisyonu cursor yerine tetikleyici sınırının belirtilen köşesine bağlanır.
+- Açılan yönetilen view `DismissEvent` yayınladığında menu durumu temizlenir ve mümkünse odak önceki elemana döner.
+- `MenuHandleElementState`, açık menüyü ve son cursor/attach pozisyonunu saklar. `RequestLayoutState` child layout id'sini ve menü elementini, `PrepaintState` ise child hitbox'ı ile bounds bilgisini taşır. Bu durum tiplerini elle üretmezsin; sağ tık menüsünün cursor konumu, odak dönüşü ve deferred menu render'ı için element sistemi kullanır.
 
 Örnek:
 
@@ -341,24 +341,24 @@ Davranış:
 use ui::prelude::*;
 use ui::{ContextMenu, right_click_menu};
 
-fn render_project_row(window: &mut Window, cx: &mut App) -> impl IntoElement {
-    let menu = ContextMenu::build(window, cx, |menu, _, _| {
-        menu.entry("Open", None, |_, _| {})
-            .entry("Reveal in Finder", None, |_, _| {})
+fn proje_satiri_render(window: &mut Window, cx: &mut App) -> impl IntoElement {
+    let menu_icerigi = ContextMenu::build(window, cx, |icerik, _, _| {
+        icerik.entry("Aç", None, |_, _| {})
+            .entry("Finder'da göster", None, |_, _| {})
             .separator()
-            .entry("Remove from Recent Projects", None, |_, _| {})
+            .entry("Son projelerden kaldır", None, |_, _| {})
     });
 
-    right_click_menu("recent-project-row-menu")
-        .trigger(|menu_open, _window, cx| {
+    right_click_menu("son-proje-satiri-menusu")
+        .trigger(|menu_acik, _window, cx| {
             h_flex()
                 .w_full()
                 .px_2()
                 .py_1()
-                .when(menu_open, |this| this.bg(cx.theme().colors().element_hover))
+                .when(menu_acik, |this| this.bg(cx.theme().colors().element_hover))
                 .child(Label::new("zed").truncate())
         })
-        .menu(move |_, _| menu.clone())
+        .menu(move |_, _| menu_icerigi.clone())
 }
 ```
 
@@ -366,12 +366,12 @@ Zed içinden kullanım örnekleri:
 
 - `platform_title_bar` crate'i: sistem tab sağ tık menüsü.
 - `editor` crate'i: buffer header bağlam menüsü.
-- `agent_ui` crate'i: context entry sağ tık menüleri.
+- `agent_ui` crate'i: context girdisi sağ tık menüleri.
 
 Dikkat edeceğin noktalar:
 
-- Trigger closure'ı içinde gelen `is_menu_active` değeri, hover veya selected görseli için kullanabilirsin. Bu değerin bir uygulama state'i olarak saklanmaması beklenir; çünkü zaten menü tarafından yönetilir.
-- Sağ tık menüsünün içinde sol tıkla çalışan custom kontroller varsa, event propagation davranışını ve menu dismiss akışını test etmen gerekir; yoksa sürpriz davranışlar ortaya çıkabilir.
+- Tetikleyici closure'ı içinde gelen `is_menu_active` değeri, hover veya selected görseli için kullanılabilir. Bu değerin bir uygulama durumu olarak saklanmaması beklenir; çünkü zaten menü tarafından yönetilir.
+- Sağ tık menüsünün içinde sol tıkla çalışan özel kontroller varsa, olay yayılımı davranışını ve menu dismiss akışını test etmen gerekir; yoksa sürpriz davranışlar ortaya çıkabilir.
 
 ## Popover
 
@@ -380,18 +380,18 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::Popover`, `ui::POPOVER_Y_PADDING`.
 - Prelude: Hayır; ayrıca import edersin.
-- Preview: Doğrudan bir component preview yok.
+- Preview: Doğrudan bir bileşen önizlemesi yok.
 
 Ne zaman kullanırsın:
 
 - Açılmış bir popup yüzeyinin içeriğini standart elevation ve padding ile çizmek için.
-- Menü olmayan ama trigger'a bağlı küçük bir seçenek paneli, açıklama paneli veya yardımcı içerik gerektiğinde.
+- Menü olmayan ama tetikleyiciye bağlı küçük bir seçenek paneli, açıklama paneli veya yardımcı içerik gerektiğinde.
 - Ana içeriğe ek olarak yan tarafta bir açıklama alanı gerekiyorsa `.aside(...)` builder'ı bu rolü üstlenir.
 
 Ne zaman kullanmazsın:
 
-- Popup'ı açmak veya kapatmak için tek başına yeterli değildir; bu iş için `PopoverMenu` veya başka managed view akışı gerekir.
-- Sıradan bir context menu entry listesi için `ContextMenu` daha doğru bir yüzeydir.
+- Popup'ı açmak veya kapatmak için tek başına yeterli değildir; bu iş için `PopoverMenu` veya başka bir yönetilen view akışı gerekir.
+- Sıradan bir context menu girdi listesi için `ContextMenu` daha doğru bir yüzeydir.
 
 Temel API:
 
@@ -411,17 +411,17 @@ Davranış:
 use ui::prelude::*;
 use ui::Popover;
 
-fn render_filter_popover() -> impl IntoElement {
+fn filtre_popover_render() -> impl IntoElement {
     Popover::new()
         .child(
             v_flex()
                 .gap_2()
                 .px_2()
-                .child(Label::new("Filter").size(LabelSize::Small).color(Color::Muted))
-                .child(Label::new("Open files only")),
+                .child(Label::new("Filtre").size(LabelSize::Small).color(Color::Muted))
+                .child(Label::new("Yalnız açık dosyalar")),
         )
         .aside(
-            Label::new("Applies to the current workspace.")
+            Label::new("Geçerli çalışma alanına uygulanır.")
                 .size(LabelSize::Small)
                 .color(Color::Muted),
         )
@@ -431,7 +431,7 @@ fn render_filter_popover() -> impl IntoElement {
 Dikkat edeceğin noktalar:
 
 - `Popover` konumlandırma yapmaz. Bir `ManagedView` render'ı içinde kullanılıp, o view'in `PopoverMenu` ile açılması gerekir.
-- İçerik genişliği child layout aracılığıyla kontrol edilir; `Popover` kendi başına sabit bir width vermez.
+- İçerik genişliği child layout aracılığıyla kontrol edilir; `Popover` kendi başına sabit bir genişlik vermez.
 
 ## Tooltip
 
@@ -444,7 +444,7 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- İkon-only bir butonun anlamını anlatmak için.
+- Yalnız ikonlu bir butonun anlamını anlatmak için.
 - Disabled veya karmaşık kontrollerde kısa bir neden veya metaveri göstermek için.
 - Bir action'a bağlı klavye kısayolunun tooltip içinde gösterilmesi istendiğinde.
 
@@ -457,13 +457,13 @@ Temel API:
 
 - Basit builder closure: `Tooltip::text(title)`.
 - Immediate view: `Tooltip::simple(title, cx)`.
-- Action shortcut'lı builder: `Tooltip::for_action_title(title, action)`, `Tooltip::for_action_title_in(title, action, focus_handle)`.
-- Action shortcut'lı immediate view: `Tooltip::for_action(...)`, `Tooltip::for_action_in(...)`.
+- Action kısayollu builder: `Tooltip::for_action_title(title, action)`, `Tooltip::for_action_title_in(title, action, focus_handle)`.
+- Action kısayollu immediate view: `Tooltip::for_action(...)`, `Tooltip::for_action_in(...)`.
 - Meta açıklamalı view: `Tooltip::with_meta(...)`, `Tooltip::with_meta_in(...)`.
 - Özel element: `Tooltip::element(...)`, `Tooltip::new_element(...)`.
 - Instance builder'ları: `Tooltip::new(title).meta(...).key_binding(...)`.
-- `tooltip_container(cx, |div, cx| ...)`: Zed tooltip yüzeyini özel içerikle yeniden kullanmak için kullanılan düşük seviyeli helper.
-- `LinkPreview::new(url: &str, cx: &mut App) -> AnyView`: uzun bir URL'i 100 karakterlik parçalara bölüp, en fazla 500 karakterde keserek tooltip yüzeyi içinde yumuşak satır kırma ile render eden basit bir URL önizleme view'ı. Dönen `AnyView`, doğrudan `Tooltip::new_element(...)` veya entity tabanlı tooltip slot'larına geçirilebilir. Bu yapı tek başına bir network çağrısı, başlık çekme veya metadata akışı içermez; bunlar parent tooltip view'ında elle uygularsın.
+- `tooltip_container(cx, |div, cx| ...)`: Zed tooltip yüzeyini özel içerikle yeniden kullanmak için kullanılan düşük seviyeli yardımcı.
+- `LinkPreview::new(url: &str, cx: &mut App) -> AnyView`: uzun bir URL'i 100 karakterlik parçalara bölüp, en fazla 500 karakterde keserek tooltip yüzeyi içinde yumuşak satır kırma ile render eden basit bir URL önizleme view'ı. Dönen `AnyView`, doğrudan `Tooltip::new_element(...)` veya entity tabanlı tooltip slot'larına geçirilebilir. Bu yapı tek başına ağ çağrısı, başlık çekme veya metadata akışı içermez; bunlar üst tooltip view'ında elle uygulanır.
 
 Davranış:
 
@@ -479,10 +479,10 @@ Davranış:
 use ui::prelude::*;
 use ui::Tooltip;
 
-fn render_refresh_button() -> impl IntoElement {
-    IconButton::new("refresh-models", IconName::RotateCw)
+fn yenile_butonu_render() -> impl IntoElement {
+    IconButton::new("modelleri-yenile", IconName::RotateCw)
         .icon_size(IconSize::Small)
-        .tooltip(Tooltip::text("Refresh models"))
+        .tooltip(Tooltip::text("Modelleri yenile"))
 }
 ```
 
@@ -490,36 +490,36 @@ Zed içinden kullanım örnekleri:
 
 - `keymap_editor` crate'i: action ve binding tooltip'leri.
 - `git_ui` crate'i: git panel buton tooltip'leri.
-- `agent_ui` crate'i: action, disabled state ve meta açıklamaları.
+- `agent_ui` crate'i: action, disabled durumu ve meta açıklamaları.
 
 Dikkat edeceğin noktalar:
 
 - `.tooltip(Tooltip::text(...))` en yaygın ve en sade kullanım biçimidir.
-- Shortcut göstermek isteniyorsa action tabanlı helper'lar tercih edilir; kısayolu elle string olarak yazmak, keymap değişikliklerinde tutarsızlığa yol açar.
+- Kısayol göstermek isteniyorsa action tabanlı yardımcılar tercih edilir; kısayolu elle string olarak yazmak, keymap değişikliklerinde tutarsızlığa yol açar.
 - Tooltip metninin uzun bir açıklama değil; kısa bir eylem adı veya kısa bir neden olarak tutulması okunabilirliği korur.
 
 ## Menü ve Popup Kompozisyon Örnekleri
 
-Bir toolbar üzerindeki ek eylem menüsü, `PopoverMenu` ve `ContextMenu`'nün en doğal kombinasyonudur. Bir ikon trigger'a tooltip eklenir, menü içeriği ise dışarıda `ContextMenu::build` ile hazırlanır:
+Bir toolbar üzerindeki ek eylem menüsü, `PopoverMenu` ve `ContextMenu`'nün en doğal kombinasyonudur. Bir ikon tetikleyiciye tooltip eklenir, menü içeriği ise dışarıda `ContextMenu::build` ile hazırlanır:
 
 ```rust
 use ui::prelude::*;
 use ui::{ContextMenu, PopoverMenu, Tooltip};
 
-fn render_toolbar_menu(window: &mut Window, cx: &mut App) -> impl IntoElement {
-    let menu = ContextMenu::build(window, cx, |menu, _, _| {
-        menu.entry("New File", None, |_, _| {})
-            .entry("New Folder", None, |_, _| {})
+fn arac_cubugu_menusu_render(window: &mut Window, cx: &mut App) -> impl IntoElement {
+    let menu_icerigi = ContextMenu::build(window, cx, |icerik, _, _| {
+        icerik.entry("Yeni dosya", None, |_, _| {})
+            .entry("Yeni klasör", None, |_, _| {})
             .separator()
-            .entry("Open Settings", None, |_, _| {})
+            .entry("Ayarları aç", None, |_, _| {})
     });
 
-    PopoverMenu::new("toolbar-create-menu")
-        .menu(move |_, _| Some(menu.clone()))
+    PopoverMenu::new("arac-cubugu-olustur-menusu")
+        .menu(move |_, _| Some(menu_icerigi.clone()))
         .trigger_with_tooltip(
-            IconButton::new("toolbar-create-menu-trigger", IconName::Plus)
+            IconButton::new("arac-cubugu-olustur-tetikleyici", IconName::Plus)
                 .icon_size(IconSize::Small),
-            Tooltip::text("Create"),
+            Tooltip::text("Oluştur"),
         )
 }
 ```

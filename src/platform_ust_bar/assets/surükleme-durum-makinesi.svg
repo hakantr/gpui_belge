@@ -65,10 +65,10 @@
   <rect x="60" y="306" width="700" height="110" rx="8" fill="#fff" stroke="#fde68a" stroke-width="1.5" />
   <rect x="60" y="306" width="700" height="24" rx="8" fill="#b45309" />
   <path d="M 60 323 H 760 V 330 H 60 Z" fill="#b45309" />
-  <text x="80" y="321" style="font: 700 12px system-ui; fill: #fff;">Linux: 3 stop_propagation noktası — eksik biri davranışı bozar</text>
+  <text x="80" y="321" style="font: 700 12px system-ui; fill: #fff;">Linux: 3 stop_propagation noktası; eksik biri davranışı bozar</text>
 
-  <text x="80" y="350" class="body"><tspan font-weight="bold">1.</tspan> LinuxWindowControls h_flex:  on_mouse_down(Left) — buton grubuna basıldığında titlebar drag başlamasını engeller.</text>
-  <text x="80" y="370" class="body"><tspan font-weight="bold">2.</tspan> WindowControl:  on_mouse_move — buton üzerinde mouse gezerken drag tetiklenmesini engeller.</text>
-  <text x="80" y="390" class="body"><tspan font-weight="bold">3.</tspan> WindowControl on_click:  stop_propagation() — click action dispatch'ten önce; should_move = true set edilmesini engeller.</text>
+  <text x="80" y="350" class="body"><tspan font-weight="bold">1.</tspan> LinuxWindowControls h_flex:  on_mouse_down(Left); buton grubuna basıldığında başlık çubuğu sürüklemesini engeller.</text>
+  <text x="80" y="370" class="body"><tspan font-weight="bold">2.</tspan> WindowControl:  on_mouse_move; buton üzerinde fare gezerken sürükleme tetiklenmesini engeller.</text>
+  <text x="80" y="390" class="body"><tspan font-weight="bold">3.</tspan> WindowControl on_click:  stop_propagation(); tıklama eylem gönderiminden önce should_move = true yapılmasını engeller.</text>
 
 </svg>

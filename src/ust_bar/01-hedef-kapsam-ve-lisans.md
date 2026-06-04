@@ -6,8 +6,8 @@
 
 Zed'in başlık çubuğu iki ayrı crate'in üst üste binmesinden oluşur:
 
-- **`platform_title_bar`** — pencere kabuğu. Sürükleme alanı, Linux/Windows pencere kontrolleri, macOS trafik ışığı boşluğu, native pencere sekmeleri. Bu katman [Platform Üst Barı](../platform_ust_bar/platform_ust_bar.md) bölümünde anlatılır.
-- **`title_bar`** — ürün başlığı. `platform_title_bar`'ı `pub use` ile yeniden dışa aktarıp onun üstüne Zed'in kullanıcıya gösterdiği içeriği kurar: proje adı ve menüsü, git branch göstergesi, uygulama menüsü, kullanıcı menüsü, collab kontrolleri, abonelik plan chip'i, güncelleme bildirimi ve onboarding banner'ı.
+- **`platform_title_bar`** — pencere kabuğu. Sürükleme alanı, Linux/Windows pencere kontrolleri, macOS trafik ışığı boşluğu, yerel pencere sekmeleri. Bu katman [Platform Üst Barı](../platform_ust_bar/platform_ust_bar.md) bölümünde anlatılır.
+- **`title_bar`** — ürün başlığı. `platform_title_bar`'ı `pub use` ile yeniden dışa aktarıp onun üstüne Zed'in kullanıcıya gösterdiği içeriği kurar: proje adı ve menüsü, Git dal göstergesi, uygulama menüsü, kullanıcı menüsü, işbirliği kontrolleri, abonelik plan çipi, güncelleme bildirimi ve ilk karşılama duyuru bandı.
 
 Bu ayrım rastgele değildir. Platform kabuğu "pencere nasıl davranır" sorusunu yanıtlar; ürün başlığı ise "kullanıcı başlıkta neyi görür ve neye tıklar" sorusunu yanıtlar. Birincisi her uygulamada aynı kalmalıdır; ikincisi her uygulamada tamamen farklıdır.
 
@@ -15,14 +15,14 @@ Bu ayrım rastgele değildir. Platform kabuğu "pencere nasıl davranır" sorusu
 ┌──────────────────────────────────────────────────────────────┐
 │  title_bar (ürün başlığı — Zed'e özgü)                        │
 │  - TitleBar entity: tüm ürün parçalarını birleştirir          │
-│  - Proje/branch/host göstergeleri, uygulama menüsü            │
-│  - Kullanıcı menüsü, sign-in, plan chip                       │
-│  - Collab kontrolleri, güncelleme bildirimi, banner           │
+│  - Proje/dal/sunucu göstergeleri, uygulama menüsü             │
+│  - Kullanıcı menüsü, oturum açma, plan çipi                   │
+│  - İşbirliği kontrolleri, güncelleme bildirimi, duyuru bandı  │
 │  - Görünürlük TitleBarSettings ile yönetilir                  │
 ├──────────────────────────────────────────────────────────────┤
 │  platform_title_bar (platform kabuğu — genel)                 │
-│  - PlatformTitleBar: TitleBar bunu child olarak besler        │
-│  - Sürükleme, pencere kontrolleri, native sekmeler            │
+│  - PlatformTitleBar: TitleBar bunu çocuk olarak besler        │
+│  - Sürükleme, pencere kontrolleri, yerel sekmeler             │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -36,17 +36,17 @@ Bu bağımlılıklar, ürün başlığının neden ayrı tutulduğunu da açıkl
 
 | Yaklaşım | Sonuç | Kullanım koşulu |
 | :-- | :-- | :-- |
-| Doğrudan `title_bar` dependency | Tüm Zed collab/hesap/güncelleme yığını projeye gelir; uygulaman pratikte Zed ürün modeline bağlanır | Zed ekosistemi içinde, GPL hedefiyle çalışıyorsan |
-| `TitleBar`'ı vendor'la | Aynı yığın yine gelir; bakım yükü sende | Nadiren mantıklıdır |
+| Doğrudan `title_bar` bağımlılığı | Tüm Zed işbirliği/hesap/güncelleme yığını projeye gelir; uygulaman pratikte Zed ürün modeline bağlanır | Zed ekosistemi içinde, GPL hedefiyle çalışıyorsan |
+| `TitleBar`'ı projeye al | Aynı yığın yine gelir; bakım yükü sende | Nadiren mantıklıdır |
 | Kalıbı kendi ürün başlığına yaz | Yalnız ihtiyacın olan parçaları (proje adı, menü, kullanıcı) kendi tasarımınla kurarsın | **Lisans-temiz ve bağımsız hedef için doğru yol** |
 
-Bu rehber üçüncü yolu anlatır. Collab, plan chip ve güncelleme gibi Zed'e özgü parçalar çoğu uygulamada hiç bulunmaz; bunların anlatımı "bu yüzeyi kendin kurmak istersen Zed nasıl kuruyor" perspektifiyle okunur.
+Bu rehber üçüncü yolu anlatır. İşbirliği, plan çipi ve güncelleme gibi Zed'e özgü parçalar çoğu uygulamada hiç bulunmaz; bunların anlatımı "bu yüzeyi kendin kurmak istersen Zed nasıl kuruyor" perspektifiyle okunur.
 
 ## 4. Lisans
 
 `title_bar` crate'i de `platform_title_bar` gibi **GPL-3.0-or-later** lisanslıdır. Kod gövdesi kopyalanamaz; ancak gözlemlenebilir davranış ve API imzaları kendi kelimelerinle yeniden kurulabilir. Bu rehberdeki örneklerin tamamı bu kuralı izler: "Zed başlıkta proje adını şu sözleşmeyle gösteriyor" gözlemi yasak değildir; ama `title_bar` crate'indeki bir fonksiyonun gövdesini birebir taşımak ihlaldir.
 
-Ürün başlığında lisans hassasiyeti pratikte daha düşüktür, çünkü ürün içeriğini zaten kendi tasarımınla yeniden yazarsın. Yine de proje/branch/menü gibi parçaları Zed'den birebir uyarlarken aynı GPL sınırını gözetmek gerekir.
+Ürün başlığında lisans hassasiyeti pratikte daha düşüktür, çünkü ürün içeriğini zaten kendi tasarımınla yeniden yazarsın. Yine de proje/dal/menü gibi parçaları Zed'den birebir uyarlarken aynı GPL sınırını gözetmek gerekir.
 
 ## 5. Bu bölümün kapsamı
 
@@ -54,9 +54,9 @@ Bu bölüm `title_bar` crate'inin ürün yüzeyini kaynaktan doğrulanmış davr
 
 - `TitleBar` entity'sinin kuruluşu, `init` akışı ve iki render modu.
 - `TitleBarSettings` ile görünürlük yönetimi ve uygulama menüsü (`ApplicationMenu`).
-- Proje adı, git branch, uzak host ve restricted mode göstergeleri.
-- Collab (mikrofon, deafen, ekran paylaşımı, katılımcı listesi) kontrolleri.
-- Kullanıcı menüsü, sign-in, plan chip, güncelleme bildirimi ve onboarding banner.
+- Proje adı, Git dalı, uzak sunucu ve kısıtlı mod göstergeleri.
+- İşbirliği (mikrofon, dinlemeyi kapatma, ekran paylaşımı, katılımcı listesi) kontrolleri.
+- Kullanıcı menüsü, oturum açma, plan çipi, güncelleme bildirimi ve ilk karşılama duyuru bandı.
 - Pratik port önerileri ve davranış doğrulama listesi.
 
-Pencere kontrolleri, sürükleme ve native sekmeler bu bölümün dışındadır; onlar için Platform Üst Barı bölümüne bakılır.
+Pencere kontrolleri, sürükleme ve yerel sekmeler bu bölümün dışındadır; onlar için Platform Üst Barı bölümüne bakılır.

@@ -85,16 +85,16 @@
   <text x="94" y="496" class="label">Ölçüm notları</text>
   <text x="94" y="524" class="body">Text ve image gibi içerik ölçen elementler</text>
   <text x="94" y="541" class="body">Taffy'ye measure callback sağlayabilir.</text>
-  <text x="94" y="574" class="body">Layout invalidation:</text>
+  <text x="94" y="574" class="body">Yerleşim geçersizleştirme:</text>
   <text x="94" y="591" class="mono">cx.notify()</text>
   <text x="94" y="608" class="mono">style veya child listesi değişimi</text>
-  <text x="94" y="625" class="mono">window size / DPI değişimi</text>
+  <text x="94" y="625" class="mono">pencere boyutu / DPI değişimi</text>
 
   <rect x="550" y="466" width="540" height="210" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
   <text x="574" y="496" class="label">Sık karıştırılan sınır</text>
   <text x="574" y="524" class="body">request_layout çizim yapmaz; yalnızca yapı ve ölçüm isteği üretir.</text>
-  <text x="574" y="548" class="body">prepaint hitbox ve ara state toplar; paint komutları burada çağrılmaz.</text>
-  <text x="574" y="572" class="body">paint yalnızca önceden çözülmüş bounds ve prepaint state'i tüketir.</text>
+  <text x="574" y="548" class="body">prepaint hitbox ve ara durum toplar; paint komutları burada çağrılmaz.</text>
+  <text x="574" y="572" class="body">paint yalnızca önceden çözülmüş bounds ve prepaint durumunu tüketir.</text>
   <text x="574" y="606" class="body">Bu ayrım debug derlemede aşama kontrolleriyle korunur.</text>
 
   <path d="M 190 404 L 190 430 L 790 430 L 790 404" class="arrowDash" />

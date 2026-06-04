@@ -106,7 +106,7 @@ API:
 
 ## `KeybindUpdateOperation` ve `KeybindUpdateTarget`
 
-Programatik keymap güncellemesi (örneğin "Add/Change Keybinding" UI'ı veya komut paleti üzerinden binding düzenleme) `KeybindUpdateOperation` üzerinden modellenir:
+Programatik keymap güncellemesi (örneğin kaynaktaki `"Add/Change Keybinding"` UI'ı veya komut paleti üzerinden binding düzenleme) `KeybindUpdateOperation` üzerinden modellenir:
 
 ```rust
 pub enum KeybindUpdateOperation<'a> {
@@ -137,7 +137,7 @@ pub struct KeybindUpdateTarget<'a> {
 - `Add` doğrudan yeni bir binding ekler. `from` verildiyse "şu binding'in yanına" gibi bir referans noktası belirtir.
 - `Remove` belirtilen hedefi unbind eder; `target_keybind_source` `User` ise tam kaldırma, aksi halde `unbind` girişi eklenerek üst katmandaki kayıt iptal edilir.
 - `KeybindUpdateOperation::add(source)` `Add { from: None }` kısayoludur.
-- `KeybindUpdateOperation::generate_telemetry()` `(new_binding, removed_binding, source)` üçlüsünü döndürür; ChangeKeybinding flow'u telemetry'ye bunu yollar.
+- `KeybindUpdateOperation::generate_telemetry()` `(new_binding, removed_binding, source)` üçlüsünü döndürür; ChangeKeybinding akışı telemetry'ye bunu yollar.
 
 `KeymapFile::update_keybinding(operation, keymap_contents, tab_size, keyboard_mapper)` mevcut user `keymap.json` metnini alır, verilen `KeybindUpdateOperation`'ı uygular ve yeni metni üretir. `tab_size` dosyanın girintileme biçimini korumak, `keyboard_mapper` ise platform klavye eşdeğerlerini hesaplamak için kullanırsın. Yazma yine `update_settings_file`'a benzer atomic-write akışı üzerinden yaparsın.
 

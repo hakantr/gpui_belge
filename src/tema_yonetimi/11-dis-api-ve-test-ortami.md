@@ -1,6 +1,6 @@
 # Dış API ve test ortamı
 
-Bu bölüm iki işi netleştirir: tüketiciye açılacak public API sınırı ve test ortamında tema mock düzeni. İyi çizilmiş bir public API sınırı, mevcut Zed sözleşmesinde hangi parçaların bilinçli olarak açıldığını gösterir. İyi kurulmuş bir test ortamı ise bileşenlerin tema değişimi karşısında doğru davrandığını sürdürülebilir biçimde doğrular.
+Bu bölüm iki işi netleştirir: tüketiciye açılacak public API sınırı ve test ortamında sahte tema düzeni. İyi çizilmiş bir public API sınırı, mevcut Zed sözleşmesinde hangi parçaların bilinçli olarak açıldığını gösterir. İyi kurulmuş bir test ortamı ise bileşenlerin tema değişimi karşısında doğru davrandığını sürdürülebilir biçimde doğrular.
 
 ---
 
@@ -267,7 +267,7 @@ Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema cr
 | `Theme::darken(color, light_amount, dark_amount)` | Appearance'a göre lightness azaltan bir yardımcıdır; bileşen tarafında kullanılacaksa helper olarak mirror edilebilir |
 | `SystemAppearance::global_mut(cx)` | Sistem görünümünü testte veya platform event'inde güncellemek için bir kapıdır |
 | `ThemeRegistry::insert_themes`, `.clear()` | Test, import ve kullanıcı tema yenileme akışında gerekir |
-| `ThemeRegistry::register_test_themes`, `.register_test_icon_themes` | `test-support` gated helper'dır; üretim API'si olarak expose edilmez |
+| `ThemeRegistry::register_test_themes`, `.register_test_icon_themes` | `test-support` gated helper'dır; üretim API'si olarak dışa açılmaz |
 | `Redistributable değildir: FontFamilyCache` | Sözleşmenin dışında kalır, ancak public metotları 43.8'de not edilmiştir |
 | `ThemeSettingsProvider::ui_font`, `.buffer_font` | Provider font objesini de verir; yalnızca font size/density ile sınırlı değildir |
 | `ThemeSettingsContent` typography alanları | `FontSize`, `FontFamilyName`, `FontFeaturesContent`, `BufferLineHeight`, `CodeFade` ilgili bölüme eklenmiştir |
@@ -425,31 +425,31 @@ Bu metotlar rehberin ana akışını değiştirmez. Ancak tema editörü, collab
 
 ---
 
-## 44. Test ortamında tema mock'lama
+## 44. Test ortamında tema sahteleme
 
-UI bileşenleri test edilirken **tüm tema sistemini** init etmek çoğu zaman gerekmez. Yalnızca bileşenin renk ihtiyacını karşılayacak kadar bir mock tema kurmak yeterli olabilir.
+UI bileşenleri test edilirken **tüm tema sistemini** init etmek çoğu zaman gerekmez. Yalnızca bileşenin renk ihtiyacını karşılayacak kadar bir sahte tema kurmak yeterli olabilir.
 
 ### Strateji 1: Tam init (`kvs_tema::init`)
 
-En basit yol. Test'in başında tüm runtime kurarsın:
+En basit yol. Test'in başında tüm çalışma zamanını kurarsın:
 
 ```rust
 use gpui::TestAppContext;
 use kvs_tema::ActiveTheme;
 
 #[gpui::test]
-fn button_uses_theme_colors(cx: &mut TestAppContext) {
+fn buton_tema_renklerini_kullanir(cx: &mut TestAppContext) {
     cx.update(|cx| {
         kvs_tema::init(cx);  // Fallback temaları kurar
 
-        let theme = cx.theme();
-        assert_eq!(theme.appearance, kvs_tema::Appearance::Dark);
-        assert_ne!(theme.colors().background, gpui::Hsla::default());
+        let tema = cx.theme();
+        assert_eq!(tema.appearance, kvs_tema::Appearance::Dark);
+        assert_ne!(tema.colors().background, gpui::Hsla::default());
     });
 }
 ```
 
-**Avantaj:** Production akışına en yakın yöntemdir. Init bug'ları erken aşamada yakalanır.
+**Avantaj:** Üretim akışına en yakın yöntemdir. Init bug'ları erken aşamada yakalanır.
 
 **Dezavantaj:** Her test fallback tema oluşumu için ~50 µs harcar. Yüzlerce test koşulduğunda bu süre birikir.
 
@@ -468,21 +468,21 @@ use crate::{
     AccentColors, SystemColors, Appearance,
 };
 
-pub(crate) fn test_theme(bg: gpui::Hsla, fg: gpui::Hsla) -> Theme {
+pub(crate) fn test_temasi(arka_plan: gpui::Hsla, on_plan: gpui::Hsla) -> Theme {
     Theme {
         id: "test".into(),
-        name: "Test Theme".into(),
+        name: "Test Teması".into(),
         appearance: Appearance::Dark,
         styles: ThemeStyles {
             window_background_appearance: gpui::WindowBackgroundAppearance::Opaque,
             system: SystemColors::default(),
             colors: ThemeColors {
-                background: bg,
-                text: fg,
-                // ... diğer alanlar için dummy değer
-                ..fallback_colors_dark()  // ← kalanlar fallback'ten
+                background: arka_plan,
+                text: on_plan,
+                // ... diğer alanlar için sahte değer
+                ..yedek_koyu_renkler()  // ← kalanlar yedekten
             },
-            status: fallback_status_dark(),
+            status: yedek_koyu_durum(),
             player: PlayerColors::default(),
             accents: AccentColors::default(),
             syntax: Arc::new(kvs_syntax_tema::SyntaxTheme::new(Vec::<(String, HighlightStyle)>::new())),
@@ -491,7 +491,7 @@ pub(crate) fn test_theme(bg: gpui::Hsla, fg: gpui::Hsla) -> Theme {
 }
 ```
 
-> **`..fallback_colors_dark()` yapılabilmesi için:** `ThemeColors`'a `Default` türevi eklenmesi veya `pub(crate) fn fallback_colors_dark() -> ThemeColors` adında bir yardımcı tanımlanması gerekir. Mevcut yapıda `ThemeColors`'ın `Default` türevi bulunmaz; tüm alanlar zorunludur. Bu nedenle test helper'ı yazılması beklenir.
+> **`..yedek_koyu_renkler()` yapılabilmesi için:** `ThemeColors`'a `Default` türevi eklenmesi veya `pub(crate) fn yedek_koyu_renkler() -> ThemeColors` adında bir yardımcı tanımlanması gerekir. Mevcut yapıda `ThemeColors`'ın `Default` türevi bulunmaz; tüm alanlar zorunludur. Bu nedenle test helper'ı yazılması beklenir.
 >
 > **Dış crate'ten test:** `kvs_ui/tests/` içinde bu strateji çalışmaz. `feature = "test-util"` üzerinden Strateji 3'ün public helper'ları çağırırsın.
 
@@ -506,35 +506,36 @@ pub mod test {
     use std::sync::Arc;
 
     /// Test için minimal tema kurar.
-    pub fn init_test(cx: &mut gpui::App) {
+    pub fn test_ortamini_baslat(cx: &mut gpui::App) -> anyhow::Result<()> {
         // ThemeRegistry::new AssetSource ister — testte `()` kullanılır.
-        let registry = Arc::new(ThemeRegistry::new(Box::new(()) as Box<dyn gpui::AssetSource>));
-        registry.insert_themes([test_theme()]);
-        let theme = registry.get("Test")?;
-        let icon_theme = registry.default_icon_theme()?;
+        let kayit = Arc::new(ThemeRegistry::new(Box::new(()) as Box<dyn gpui::AssetSource>));
+        kayit.insert_themes([test_temasi()]);
+        let tema = kayit.get("Test Teması")?;
+        let ikon_tema = kayit.default_icon_theme()?;
         // ThemeRegistry::set_global Zed'de pub(crate); test helper'ı
         // kvs_tema'nın test-support feature'ı altında public açar veya
         // doğrudan GlobalThemeRegistry newtype'ını cx.set_global ile kurar.
-        cx.set_global(GlobalThemeRegistry(registry.clone()));
-        cx.set_global(GlobalTheme::new(theme, icon_theme));
+        cx.set_global(GlobalThemeRegistry(kayit.clone()));
+        cx.set_global(GlobalTheme::new(tema, ikon_tema));
+        Ok(())
     }
 
     /// Yeniden kullanılabilir test tema'sı.
-    pub fn test_theme() -> Theme {
+    pub fn test_temasi() -> Theme {
         // Tüm alanları açık ama belirgin renklerle doldur
-        // (debug için kolayca ayırt edilir)
-        let red = gpui::hsla(0.0, 1.0, 0.5, 1.0);
-        let green = gpui::hsla(0.333, 1.0, 0.5, 1.0);
+        // (hata ayıklama için kolayca ayırt edilir)
+        let kirmizi = gpui::hsla(0.0, 1.0, 0.5, 1.0);
+        let yesil = gpui::hsla(0.333, 1.0, 0.5, 1.0);
         Theme {
             id: "test".into(),
-            name: "Test".into(),
+            name: "Test Teması".into(),
             appearance: Appearance::Dark,
             styles: ThemeStyles {
                 colors: ThemeColors {
-                    background: red,
-                    border: green,
-                    text: green,
-                    // ... her alan benzersiz renkte (debug için)
+                    background: kirmizi,
+                    border: yesil,
+                    text: yesil,
+                    // ... her alan benzersiz renkte (hata ayıklama için)
                 },
                 // ...
             },
@@ -551,16 +552,18 @@ kvs_tema = { path = "../kvs_tema", features = ["test-util"] }
 ```
 
 ```rust
-use kvs_tema::test::init_test;
+use kvs_tema::test::test_ortamini_baslat;
 
 #[gpui::test]
-fn render_uses_test_theme(cx: &mut TestAppContext) {
-    cx.update(|cx| {
-        init_test(cx);
+fn render_test_temasini_kullanir(cx: &mut TestAppContext) -> anyhow::Result<()> {
+    cx.update(|cx| -> anyhow::Result<()> {
+        test_ortamini_baslat(cx)?;
 
-        let theme = cx.theme();
-        assert_eq!(theme.name.as_ref(), "Test");
-    });
+        let tema = cx.theme();
+        assert_eq!(tema.name.as_ref(), "Test Teması");
+        Ok(())
+    })?;
+    Ok(())
 }
 ```
 
@@ -569,44 +572,48 @@ fn render_uses_test_theme(cx: &mut TestAppContext) {
 Tema değerlerinin **belirli yerlerde** kullanıldığını doğrulamak için:
 
 ```rust
-use kvs_tema::test::{init_test, test_theme};
+use kvs_tema::test::{test_ortamini_baslat, test_temasi};
 
 #[gpui::test]
-fn button_renders_with_theme_background(cx: &mut TestAppContext) {
-    cx.update(|cx| {
-        init_test(cx);
+fn buton_tema_arka_planiyla_cizilir(cx: &mut TestAppContext) -> anyhow::Result<()> {
+    cx.update(|cx| -> anyhow::Result<()> {
+        test_ortamini_baslat(cx)?;
 
-        let theme = test_theme();
-        let expected_bg = theme.colors().element_background;
+        let tema = test_temasi();
+        let beklenen_arka_plan = tema.colors().element_background;
 
-        let button = cx.new(|_| Button::new("OK".into()));
+        let buton = cx.new(|_| Buton::new("Tamam".into()));
 
-        // Element ağacını inspect et (test API'ları rehber.md #75'te)
-        // Veya rendered scene'i query et:
-        let render_output = /* ... */;
-        assert!(render_output.contains_bg(expected_bg));
-    });
+        // Element ağacını incele (test API'ları rehber.md #75'te).
+        // Veya çizilmiş sahneyi sorgula:
+        let render_ciktisi = /* ... */;
+        assert!(render_ciktisi.arka_plan_icerir(beklenen_arka_plan));
+        Ok(())
+    })?;
+    Ok(())
 }
 ```
 
-> **GPUI test API'ları:** `TestAppContext::simulate_input`, `find_view` vb. rehber.md #75'te ayrıntılı işlenir. Render output'unun test edilmesi tema'nın doğru okunduğunu doğrular; tema'nın **kendi** doğruluğu için ilgili bölüm fixture testleri yeterli olur.
+> **GPUI test API'ları:** `TestAppContext::simulate_input`, `find_view` vb. rehber.md #75'te ayrıntılı işlenir. Render çıktısının test edilmesi tema'nın doğru okunduğunu doğrular; tema'nın **kendi** doğruluğu için ilgili bölüm fixture testleri yeterli olur.
 
 ### Tema değişimi simülasyonu
 
 ```rust
 #[gpui::test]
-fn ui_updates_on_theme_change(cx: &mut TestAppContext) {
-    cx.update(|cx| {
+fn ui_tema_degisiminde_guncellenir(cx: &mut TestAppContext) -> anyhow::Result<()> {
+    cx.update(|cx| -> anyhow::Result<()> {
         kvs_tema::init(cx);
-        let initial = cx.theme().name.clone();
+        let ilk = cx.theme().name.clone();
 
-        // Light'a geç
-        kvs_tema::temayi_degistir("Kvs Default Light", cx)?;
+        // Açık temaya geç.
+        kvs_tema::temayi_degistir("Kvs Varsayılan Açık", cx)?;
 
-        let new_theme = cx.theme();
-        assert_ne!(new_theme.name, initial);
-        assert_eq!(new_theme.appearance, kvs_tema::Appearance::Light);
-    });
+        let yeni_tema = cx.theme();
+        assert_ne!(yeni_tema.name, ilk);
+        assert_eq!(yeni_tema.appearance, kvs_tema::Appearance::Light);
+        Ok(())
+    })?;
+    Ok(())
 }
 ```
 
@@ -616,14 +623,14 @@ fn ui_updates_on_theme_change(cx: &mut TestAppContext) {
 
 UI bileşeninin gerçekten yeniden render edilip edilmediğini doğrulamak için `VisualTestContext` gerekir (rehber.md #75) — pencereyi açar, render eder ve snapshot karşılaştırması yapar.
 
-### Tema mock'lamayı yanlış yapmak
+### Tema sahtelemeyi yanlış yapmak
 
 ```rust
 // YANLIŞ: cx olmadan, struct literal ile tema oluşturmak
 // (dış crate'te zaten derlenmez — `styles` pub(crate))
-let theme = kvs_tema::fallback::kvs_default_dark();
-let bg = theme.colors().background;
-let button_bg = bg;  // ← bileşen rendering'i ile bağlantısı yok
+let tema = kvs_tema::fallback::kvs_default_dark();
+let arka_plan = tema.colors().background;
+let buton_arka_plan = arka_plan;  // ← bileşen rendering'i ile bağlantısı yok
 ```
 
 Bu test yalnızca `Theme` struct'ının kendi alanlarını doğrular. **Tüketici kodun `cx.theme()` çağrısının doğru çalıştığını test etmez.** Bir UI testi hedefleniyorsa `TestAppContext::update` üzerinden global kurulum yapman gerekir.
@@ -633,19 +640,19 @@ Bu test yalnızca `Theme` struct'ının kendi alanlarını doğrular. **Tüketic
 | Test türü | Strateji | Bileşen |
 | ----------- | ---------- | --------- |
 | Sözleşme doğrulama (parse, refinement) | `#[test]` + fixture | — |
-| Runtime init/registry | `#[gpui::test]` + `init` | Strateji 1 |
+| Çalışma zamanı init/registry | `#[gpui::test]` + `init` | Strateji 1 |
 | Bileşen tema okuma | `#[gpui::test]` + custom theme | Strateji 2 veya 3 |
-| Visual snapshot (render output) | `VisualTestContext` | rehber.md #75 |
+| Visual snapshot (render çıktısı) | `VisualTestContext` | rehber.md #75 |
 | Tema değişim akışı | `#[gpui::test]` + `temayi_degistir` | ilgili bölüm + bu konu |
 
 ### Tuzaklar
 
 1. **`kvs_tema::init(cx)` çağrılmadan `cx.theme()` çağırmak**: Panic atar. Her testin ilk satırının init veya manuel `cx.set_global(GlobalTheme::new(...))` olması beklenir.
 2. **`TestAppContext::run` yerine `update`**: Tema testleri sync çalışır; `update` doğru tercihtir. `run` async bir event loop kurar ve burada gerekmez.
-3. **`test_theme()` çağrısının her testte yeniden yapılması**: `set_global` her çağrıda üstüne yazar; cumulative bug üretmez ama başarım maliyeti vardır. Test fixture olarak `Arc<Theme>` paylaşılabilir.
-4. **`feature = "test-util"`'ın production'da açık bırakılması**: `#[cfg(any(test, feature = "test-util"))]` koşulu kurulur; release build'de kapalı kalmalıdır.
-5. **Test tema'sının tüm alanlarının sıfır bırakılması**: `unsafe { zeroed() }` ile doldurulan bir test = production'da görünmez bir UI'a karşılık gelir. Test sırasında bile tüm alanların açık değerle doldurulması, bug yakalama gücünü yükseltir.
+3. **`test_temasi()` çağrısının her testte yeniden yapılması**: `set_global` her çağrıda üstüne yazar; birikimli bug üretmez ama başarım maliyeti vardır. Test fixture olarak `Arc<Theme>` paylaşılabilir.
+4. **`feature = "test-util"`'ın üretimde açık bırakılması**: `#[cfg(any(test, feature = "test-util"))]` koşulu kurulur; release build'de kapalı kalmalıdır.
+5. **Test tema'sının tüm alanlarının sıfır bırakılması**: `unsafe { zeroed() }` ile doldurulan bir test = üretimde görünmez bir UI'a karşılık gelir. Test sırasında bile tüm alanların açık değerle doldurulması, bug yakalama gücünü yükseltir.
 6. **`refresh_windows`'un test'te etkisiz sanılması**: `TestAppContext` üzerinde etkisi olmaz ama global state güncel kalır; test mantığı `cx.theme()` ile yeni değeri okur. `VisualTestContext` kullanıldığında ise render gerçek anlamda tetiklersin.
-7. **Mock tema'nın `Theme.id` değerinin aynı bırakılması**: Test'te birden fazla tema kurulduğunda farklı `id`'lerin (`"test-1"`, `"test-2"`) vermen gerekir; aksi halde `Theme.id` üzerinden yapılan equality testi yanlış sonuç verebilir.
+7. **Sahte tema'nın `Theme.id` değerinin aynı bırakılması**: Test'te birden fazla tema kurulduğunda farklı `id`'lerin (`"test-1"`, `"test-2"`) vermen gerekir; aksi halde `Theme.id` üzerinden yapılan equality testi yanlış sonuç verebilir.
 
 ---

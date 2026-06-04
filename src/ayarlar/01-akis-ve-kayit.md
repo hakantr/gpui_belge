@@ -133,7 +133,7 @@ Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; 
 | `SettingsLocation` | `worktree_id`, `path` | Okumanın hangi worktree/path için yapılacağını söyler. |
 | `SettingsParseResult` | `parse_status`, `migration_status`, `result`, `requires_user_action`, `ok`, `parse_error` | Dosya parse ve migrasyon sonucunu tek yapıda toplar. |
 | `SettingsFile` | merge önceliği: `Project` > `Server` > `User` > `Global` > `Default` | Override katmanlarında hangi kaynağın kazanacağını belirler. |
-| `base_keymap_setting` | re-export modül | Base keymap ayarını tipli settings yüzeyine bağlayan helper modülüdür. |
+| `base_keymap_setting` | re-export modül | Base keymap ayarını tipli settings yüzeyine bağlayan yardımcı modüldür. |
 | `editable_setting_control` | re-export modül | Ayarlar UI'ında düzenlenebilir setting control modelini settings crate kökünden erişilebilir kılar. |
 
 ---
@@ -162,7 +162,7 @@ Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; 
 | `ExtensionsSettingsContent`, `ExtensionSettingsContent`, `ExtensionCapabilityContent` | Uzantı ve uzantı capability payload'ları | Extension content, settings schema'sına ayrı flatten katmanı olarak girer. |
 | `HideMouseMode`, `MessageEditorSettings` | Global mouse gizleme ve message editor davranışı | `HideMouseMode` typing/action kaynaklı cursor gizlemeyi seçer. |
 | `WindowButtonLayoutContentDiscriminants` | Title bar pencere düğmesi layout enum discriminant'ı | Selector/schema tarafında variant listesini content katmanından verir. |
-| `default_true`, `serialize_optional_f32_with_two_decimal_places` | Serde default ve float serialize yardımcıları | Content alanlarının schema/JSON kararlılığında kullanılan küçük helper'lardır. |
+| `default_true`, `serialize_optional_f32_with_two_decimal_places` | Serde default ve float serialize yardımcıları | Content alanlarının schema/JSON kararlılığında kullanılan küçük yardımcılardır. |
 
 ---
 

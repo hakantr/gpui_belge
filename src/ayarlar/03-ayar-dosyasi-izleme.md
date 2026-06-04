@@ -20,7 +20,7 @@ Davranış:
 
 - `fs.canonicalize(&path)` ile sembolik bağ ev dizinine kurulu `~/.config/zed` gibi yollar normalleştirilir; canonical alma başarısız olsa bile özgün path ile devam eder.
 - `fs.watch(&path, 100ms)` event akışını açar; ilk olarak `fs.load(&path)` ile mevcut içerik kanala yazılır, ardından her event sonrası yeniden yüklenir.
-- Alıcı düşmüşse (UI kapandı, store yenilendi) loop sessizce sonlanır; sahibinin geri çağrı kanalı doldurmaması için.
+- Alıcı düşmüşse (UI kapandı, store yenilendi) döngü sessizce sonlanır; sahibinin geri çağrı kanalı doldurmaması için.
 - Geri dönen `Task` izleme döngüsünün sahibidir; düşürülürse arka plan görevi iptal olur. Aynı `Task` `_settings_files_watcher` alanında `SettingsStore` tarafından saklarsın.
 
 Tipik kullanım:
@@ -88,7 +88,7 @@ pub fn update_settings_file_with_completion(
 Davranış:
 
 - Yardımcılar global `SettingsStore` üzerinden çalışır; doğrudan `SettingsStore::update_settings_file(...)` çağrısının ergonomik sarmalayıcısıdır.
-- Closure'a verilen `&mut SettingsContent` mevcut kullanıcı dosyasının ayrıştırılmış halidir; in-place mutate edilir.
+- Closure'a verilen `&mut SettingsContent` mevcut kullanıcı dosyasının ayrıştırılmış halidir; yerinde değiştirilir.
 - Mutasyon sonrası store fark üretir, JSON metnini minimum diff stratejisiyle yeniden yazar ve `fs.atomic_write(...)` üzerinden dosyaya kaydeder. JSON formatlayıcısı yorumları korur ve kullanıcı girintilemesini (`infer_json_indent_size`) saygılı tutar.
 - `update_settings_file_with_completion` aynı işi yapar ama yazma tamamlanınca alıcısına `Ok` veya hata yollar. UI "kaydedildi" göstergesi veya yazma sonrası başka bir adım gerekiyorsa bu form tercih edersin.
 - Hatalar `SettingsParseResult` ile değil doğrudan `anyhow::Error` ile döner; kalıcı ayrıştırma sorunu varsa dosya yeniden okunmadan store'a yedirilmez.

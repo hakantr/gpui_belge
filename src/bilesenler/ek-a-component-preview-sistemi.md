@@ -1,19 +1,19 @@
 # Ek A. Component Preview Sistemi
 
-Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak incelemek için kullanırsın. Bu sistem `component` crate'i tarafından yönetilir. Üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry` global'i ve `single_example` ile `example_group_with_title` gibi layout helper'ları.
+Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak incelemek için kullanırsın. Bu sistem `component` crate'i tarafından yönetilir. Üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry` global'i ve `single_example` ile `example_group_with_title` gibi layout yardımcıları.
 
 Zed uygulamasında bu sistem iki seviyede ele alırsın:
 
 - `workspace::init(app_state, cx)` içinde `component::init()` çağırırsın. Bu çağrı, `inventory::iter::<ComponentFn>()` ile `RegisterComponent` derive'larından gelen kayıt fonksiyonlarını çalıştırır ve `COMPONENT_DATA` registry'sini doldurur.
 - `zed` crate'i, normal uygulama açılışında `component_preview::init(app_state.clone(), cx)` çağrısını yapar. Standalone preview örneği aynı sırayı izler. Önce `component::init()` çalışır. Sonra settings ve theme init tamamlanır. Ardından workspace init gelir. En sonda `component_preview::init(...)` çağrılır.
-- `ComponentPreview::new(...)`, registry'yi `components()` ile okur; `sorted_components()` ve `component_map()` değerlerini kendi view state'ine alır. Filtre editor'ü için `InputField::new(window, cx, "Find components or usages…")` kurar; listeyi `ListState` üzerinden sanallaştırır.
+- `ComponentPreview::new(...)`, registry'yi `components()` ile okur; `sorted_components()` ve `component_map()` değerlerini kendi view durumuna alır. Filtre editor'ü için `InputField::new(window, cx, "Find components or usages…")` kurar; listeyi `ListState` üzerinden sanallaştırır.
 - Render tarafında preview sayfası `ComponentMetadata::preview()` callback'ini çağırır. Bu callback `fn(&mut Window, &mut App) -> AnyElement` tipindedir; kayıtlı her component için çağrılabilir bir preview elementi beklenir. Anlamlı bir görsel örnek yoksa `empty_example(...)` veya küçük bir placeholder elementi component'in kendi `preview` metodunda döndürülür.
 
 Bu nedenle uygulama içi component sistemi bir runtime UI dependency injection mekanizması değildir. Asıl görevi **görsel inceleme ve dokümantasyon registry'si** olmaktır. Production ekranları bileşenleri doğrudan `ui::Button`, `ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır. Component registry yalnızca preview tool'u, dokümantasyon ve arama ekranları için devrede tutulur.
 
 `ui::prelude::*` yalnızca `Component`, `ComponentScope`, `example_group`, `example_group_with_title`, `single_example` ve `RegisterComponent` derive makrosunu getirir. Programatik registry erişimi (`ComponentRegistry`, `ComponentMetadata`, `ComponentStatus`, `ComponentId`, `register_component`, `empty_example`, `ComponentExample`, `ComponentExampleGroup`, `ComponentFn`) gerektiğinde `use component::*;` veya doğrudan tek tek import kullanırsın.
 
-`component_preview` crate'inin kendi public yüzeyi ise preview tool'unun workspace item katmanıdır:
+`component_preview` crate'inin kendi dışa açık yüzeyi ise preview tool'unun workspace item katmanıdır:
 
 - `component_preview::init(app_state, cx)`: `OpenComponentPreview` action'ını ve `ComponentPreview` serializable item'ını workspace'e kaydeder.
 - `ComponentPreview`: component registry'yi okuyan, filtre editor'ünü tutan ve preview sayfasını render eden workspace item'dır.
@@ -47,22 +47,22 @@ Bu tipler production UI'da component seçmek için genel amaçlı bir API olarak
 `ComponentScope` enum'unun tüm variant'ları, yani gallery'deki grup başlıkları aşağıdaki gibidir:
 
 ```text
-Agent, Collaboration, DataDisplay ("Data Display"), Editor,
-Images ("Images & Icons"), Input ("Forms & Input"),
-Layout ("Layout & Structure"), Loading ("Loading & Progress"),
-Navigation, None ("Unsorted"), Notification,
-Overlays ("Overlays & Layering"), Onboarding, Status,
-Typography, Utilities, VersionControl ("Version Control")
+Agent, Collaboration, DataDisplay ("Veri Gösterimi"), Editor,
+Images ("Görseller ve İkonlar"), Input ("Formlar ve Girdi"),
+Layout ("Yerleşim ve Yapı"), Loading ("Yükleme ve İlerleme"),
+Navigation, None ("Sıralanmamış"), Notification,
+Overlays ("Katmanlar ve Yerleşen Yüzeyler"), Onboarding, Status,
+Typography, Utilities, VersionControl ("Sürüm Kontrolü")
 ```
 
 `ComponentStatus` variant'ları ve anlamları:
 
-| Variant | Anlam | Gallery davranışı |
+| Varyant | Anlam | Galeri davranışı |
 | :-- | :-- | :-- |
 | `Live` (varsayılan) | Üretimde kullanabilirsin | Normal olarak listelenir |
-| `WorkInProgress` | Hâlâ tasarlanıyor veya kısmi olarak implement edilmiş | "WIP" badge'i; üretim kodunda kullanılmamalı |
-| `EngineeringReady` | Tasarım tamamlanmış, implementasyon bekleniyor | "Ready to Build" badge'i |
-| `Deprecated` | Mevcut uygulama kodu için hedef yüzey değildir | Gallery'de uyarı badge'iyle gösterilir |
+| `WorkInProgress` | Hala tasarlanıyor veya kısmi olarak implement edilmiş | `"Devam Ediyor"` rozeti; üretim kodunda kullanılmamalı |
+| `EngineeringReady` | Tasarım tamamlanmış, implementasyon bekleniyor | `"Geliştirmeye Hazır"` rozeti |
+| `Deprecated` | Mevcut uygulama kodu için hedef yüzey değildir | Galeride uyarı rozetiyle gösterilir |
 
 Preview'a dahil edilecek küçük bir örnek component şu yapıyı izler:
 
@@ -71,19 +71,19 @@ use ui::component_prelude::*;
 use ui::prelude::*;
 
 #[derive(IntoElement, RegisterComponent)]
-struct ExampleButtonSet;
+struct OrnekButonKumesi;
 
-impl RenderOnce for ExampleButtonSet {
+impl RenderOnce for OrnekButonKumesi {
     fn render(self, _window: &mut Window, _cx: &mut App) -> impl IntoElement {
         h_flex()
             .gap_1()
-            .child(Button::new("default", "Default"))
-            .child(Button::new("primary", "Primary").style(ButtonStyle::Filled))
-            .child(IconButton::new("settings", IconName::Settings))
+            .child(Button::new("varsayilan", "Varsayılan"))
+            .child(Button::new("birincil", "Birincil").style(ButtonStyle::Filled))
+            .child(IconButton::new("ayarlar", IconName::Settings))
     }
 }
 
-impl Component for ExampleButtonSet {
+impl Component for OrnekButonKumesi {
     fn scope() -> ComponentScope {
         ComponentScope::Input
     }
@@ -94,8 +94,8 @@ impl Component for ExampleButtonSet {
 
     fn preview(_window: &mut Window, _cx: &mut App) -> AnyElement {
         example_group_with_title(
-            "Buttons",
-            vec![single_example("Button set", ExampleButtonSet.into_any_element())],
+            "Butonlar",
+            vec![single_example("Buton kümesi", OrnekButonKumesi.into_any_element())],
         )
         .into_any_element()
     }
@@ -110,7 +110,7 @@ Preview'ları Zed reposunda görsel olarak incelemek için aşağıdaki komut ç
 cargo run -p component_preview --example component_preview
 ```
 
-Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda alınmış tüm bileşenleri sol panelden gezilebilir kategoriler altında (`ComponentScope`) listeler. Yeni bir bileşene preview eklendiğinde derive makrosu kaydı kendisi yapar; ayrı bir kayıt çağrısına ihtiyaç kalmaz. Preview için doğrudan `impl Component` yazılan tipler (struct olmadan) gallery'ye eklenmez. Bu yüzden en az boş bir `#[derive(IntoElement, RegisterComponent)] struct ExampleComponent;` ile sarılması gerekir.
+Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda alınmış tüm bileşenleri sol panelden gezilebilir kategoriler altında (`ComponentScope`) listeler. Yeni bir bileşene preview eklendiğinde derive makrosu kaydı kendisi yapar; ayrı bir kayıt çağrısına ihtiyaç kalmaz. Preview için doğrudan `impl Component` yazılan tipler (struct olmadan) gallery'ye eklenmez. Bu yüzden en az boş bir `#[derive(IntoElement, RegisterComponent)] struct OrnekBilesen;` ile sarılması gerekir.
 
 **Programatik registry erişimi.** Bir component preview tool'u, dokümantasyon üretici veya custom gallery yazılıyorsa `component` crate'inin registry API'sine doğrudan erişilebilir:
 
@@ -119,16 +119,16 @@ use component::{ComponentRegistry, ComponentScope, ComponentStatus, components, 
 
 fn canli_input_bilesenleri() -> Vec<String> {
     init_components();
-    let registry: ComponentRegistry = components();
+    let kayit: ComponentRegistry = components();
 
-    registry
+    kayit
         .sorted_components()
         .into_iter()
-        .filter(|meta| meta.scope() == ComponentScope::Input)
-        .filter(|meta| meta.status() == ComponentStatus::Live)
-        .map(|meta| {
-            let aciklama = meta.description();
-            format!("{} ({}): {}", meta.name(), meta.id().0, aciklama)
+        .filter(|ustveri| ustveri.scope() == ComponentScope::Input)
+        .filter(|ustveri| ustveri.status() == ComponentStatus::Live)
+        .map(|ustveri| {
+            let aciklama = ustveri.description();
+            format!("{} ({}): {}", ustveri.name(), ustveri.id().0, aciklama)
         })
         .collect()
 }
@@ -160,7 +160,7 @@ fn canli_input_bilesenleri() -> Vec<String> {
 | `RegisterComponent` | derive macro | `register_component::<T>()` çağrısını `inventory` kaydı olarak üretir. |
 | `ui_macros` | macro crate/modül | `RegisterComponent` derive makrosunun kaynak crate'idir. |
 
-**Layout helper detayları.** Preview alanını kurarken üç farklı çıktı tipi vardır:
+**Layout yardımcı detayları.** Preview alanını kurarken üç farklı çıktı tipi vardır:
 
 ```rust
 use component::{
@@ -169,25 +169,25 @@ use component::{
 };
 
 // Tek varyant
-let example: ComponentExample =
-    single_example("Default", Button::new("d", "Default").into_any_element())
+let ornek: ComponentExample =
+    single_example("Varsayılan", Button::new("varsayilan", "Varsayılan").into_any_element())
         .description("Birincil eylem için varsayılan stil.")
         .width(px(160.));
 
 // Boş slot (henüz implement edilmemiş varyant)
-let placeholder: ComponentExample = empty_example("Coming Soon");
+let yer_tutucu: ComponentExample = empty_example("Yakında");
 
 // Başlıksız grup
-let group: ComponentExampleGroup = example_group(vec![example, placeholder])
+let grup: ComponentExampleGroup = example_group(vec![ornek, yer_tutucu])
     .vertical();
 
 // Başlıklı grup
-let titled: ComponentExampleGroup = example_group_with_title(
-    "Variants",
+let baslikli: ComponentExampleGroup = example_group_with_title(
+    "Varyantlar",
     vec![
-        single_example("Subtle", Button::new("s", "Subtle").into_any_element()),
-        single_example("Filled",
-            Button::new("f", "Filled").style(ButtonStyle::Filled).into_any_element()),
+        single_example("Sade", Button::new("sade", "Sade").into_any_element()),
+        single_example("Dolu",
+            Button::new("dolu", "Dolu").style(ButtonStyle::Filled).into_any_element()),
     ],
 )
 .grow();
@@ -195,9 +195,9 @@ let titled: ComponentExampleGroup = example_group_with_title(
 
 `ComponentExample` builder yüzeyi: `.description(text)`, `.width(pixels)`. `ComponentExampleGroup` builder yüzeyi: `.width(pixels)`, `.grow()`, `.vertical()` ile birlikte `with_title(title, examples)` constructor'ı.
 
-`ComponentExample` public alanları: `variant_name`, `description`, `element`, `width`. Normal kullanımda bu alanları doğrudan mutasyona açmak yerine `single_example(...)`, `empty_example(...)`, `.description(...)` ve `.width(...)` helper'larının kullanılması beklenir. `variant_name` gallery'de görünen varyant başlığıdır; test ve dokümantasyon üretici kodlarda doğrudan okunabilir.
+`ComponentExample` dışa açık alanları: `variant_name`, `description`, `element`, `width`. Normal kullanımda bu alanları doğrudan mutasyona açmak yerine `single_example(...)`, `empty_example(...)`, `.description(...)` ve `.width(...)` yardımcılarının kullanılması beklenir. `variant_name` gallery'de görünen varyant başlığıdır; test ve dokümantasyon üretici kodlarda doğrudan okunabilir.
 
-`ComponentExampleGroup` public alanları: `title`, `examples`, `width`, `grow`, `vertical`. Bunlar `RenderOnce` sırasında layout kararına çevrilir; üretim preview kodunda builder metotlarının kullanılması daha okunaklı bir sonuç verir.
+`ComponentExampleGroup` dışa açık alanları: `title`, `examples`, `width`, `grow`, `vertical`. Bunlar `RenderOnce` sırasında layout kararına çevrilir; üretim preview kodunda builder metotlarının kullanılması daha okunaklı bir sonuç verir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -220,15 +220,15 @@ use ui::prelude::*;
 
 /// Birincil eylemler için varsayılan buton.
 #[derive(IntoElement, RegisterComponent, Documented)]
-struct PrimaryButtonExample;
+struct BirincilButonOrnegi;
 
-impl Component for PrimaryButtonExample {
+impl Component for BirincilButonOrnegi {
     fn description() -> &'static str {
         Self::DOCS
     }
 
     fn preview(_window: &mut Window, _cx: &mut App) -> AnyElement {
-        empty_example("Primary Button").into_any_element()
+        empty_example("Birincil buton").into_any_element()
     }
 }
 ```

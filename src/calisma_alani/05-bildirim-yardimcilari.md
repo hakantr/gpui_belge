@@ -42,7 +42,7 @@ Hangi yardımcının seçileceği bağlama göre belirlersin:
 | `notifications` | Notification listesi, app-level notification ve async hata yardımcılarının modül sınırıdır. |
 | `NotificationFrame` | Başlık, içerik, suffix, suppress ve close butonlarını standart bir bildirim çerçevesinde birleştirir. |
 | `simple_message_notification` | Hazır mesaj notification view'ini barındıran alt modüldür. |
-| `MessageNotification` | Birincil/ikincil mesaj, ikon, click handler, close/suppress ve more-info URL alanlarını builder metodlarıyla kurar. |
+| `MessageNotification` | Birincil/ikincil mesaj, ikon, click işleyicisi, close/suppress ve more-info URL alanlarını builder metodlarıyla kurar. |
 | `NotificationId` | `unique`, `composite` ve `named` yardımcılarıyla bildirim dedupe kimliği üretir. |
 | `NotifyResultExt` | `Result` değerini workspace veya app notification'a çeviren extension trait'tir. |
 | `NotifyTaskExt` | `Task<Result<_>>` sonucunu spawn edip hatayı notification olarak gösterir. |

@@ -70,19 +70,13 @@ cx.focus_view(&alt_varlik, window);
 
 ![Hitbox ve Sürükle-Bırak State Machine](assets/hitbox-surukle-birak.svg)
 
-Element seviyesindeki etkileşim API'leri tek bir fluent zincir içinde toplanır; aşağıdaki metotlar farklı fare olaylarına ve sürükle-bırak kalıplarına karşılık gelir:
+Element seviyesindeki etkileşim API'leri tek bir fluent zincir içinde toplanır; doğru metodu seçmek için önce etkileşimin hangi sınıfa girdiğini ayırırsın:
 
-- `.on_click(...)`
-- `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)`
-- `.on_mouse_down_out(...)`, `.on_mouse_up_out(...)`
-- `.on_scroll_wheel(...)`
-- `.on_pinch(...)`
-- `.on_drag_move::<T>(...)`
-- `.drag_over::<T>(...)`
-- `.on_drop::<T>(...)`
-- `.can_drop(...)`
-- `.occlude()` veya `.block_mouse_except_scroll()`
-- `.cursor_pointer()`, `.cursor(...)`
+- **Tıklama ve temel fare hareketi:** `.on_click(...)`, mouse down/up aynı hedefte eşleştiğinde `ClickEvent` üretir; buton gibi komut yüzeylerinde bunu kullanırsın. `.on_mouse_down(...)`, `.on_mouse_up(...)` ve `.on_mouse_move(...)` doğrudan fare olaylarını dinler; sürükleme başlatma, özel basılı durum veya anlık imleç takibi gerektiğinde seçilir.
+- **Dışarı tıklama/kapatma akışı:** `.on_mouse_down_out(...)` ve `.on_mouse_up_out(...)`, fare olayı element hitbox'ının dışında gerçekleştiğinde capture aşamasında çalışır. Popover, menü veya modal dışına tıklanınca `DismissEvent` yaymak için bu aile kullanılır.
+- **Kaydırma ve gesture:** `.on_scroll_wheel(...)`, hitbox kaydırma alabiliyorsa scroll olayını dinler; düz hover kontrolünden daha güvenilirdir. `.on_pinch(...)`, trackpad pinch gibi yakınlaştırma gesture'larını yakalar.
+- **Sürükleme ve bırakma:** `.on_drag_move::<T>(...)`, sürükleme element sınırı dışına çıksa bile aynı tipteki aktif drag boyunca hareket bilgisi verir; resize veya split handle gibi klasik drop olmayan sürüklemelerde kullanılır. `.drag_over::<T>(...)` kabul edilebilir sürükleme hedefi üstündeyken geçici stil üretir; `.can_drop(...)` hedefin bırakmayı kabul edip etmeyeceğine karar verir; `.on_drop::<T>(...)` başarılı bırakma tamamlandığında çalışır.
+- **Arkayı engelleme ve imleç:** `.occlude()` arkadaki fare etkileşimlerini kapatır; scroll'un arkaya geçmesi gereken üst katmanlarda `.block_mouse_except_scroll()` daha doğru seçimdir. `.cursor_pointer()` hazır işaretçi stilini verir; `.cursor(...)` özel `CursorStyle` gerektiğinde kullanılır.
 
 Pencere kontrol hitbox'ı istiyorsan fluent API üzerinden işaretlersin:
 
@@ -301,17 +295,17 @@ div()
 
 ## Metin Girdisi ve IME
 
-Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Düzenleyici benzeri metin alanlarının aşağıdaki metot ailesini sağlaması gerekir:
+Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Düzenleyici benzeri metin alanlarının sağladığı metotlar üç soruya cevap verir: hangi metin seçili, IME hangi aralığı oluşturuyor ve platform aday penceresini nereye koymalı?
 
-- `selected_text_range`
-- `marked_text_range`
-- `text_for_range`
-- `replace_text_in_range`
-- `replace_and_mark_text_in_range`
-- `unmark_text`
-- `bounds_for_range`
-- `character_index_for_point`
-- `accepts_text_input`
+- `selected_text_range(ignore_disabled_input, ...)`, kullanıcının mevcut seçimini UTF-16 aralığı olarak döndürür. Seçim yoksa imleç konumunu sıfır uzunluklu aralıkla temsil edersin; metin girdisi devre dışıysa `ignore_disabled_input` kararını kendi bileşen politikanla birlikte ele alırsın.
+- `marked_text_range(...)`, IME'nin henüz kesinleşmemiş işaretli metin aralığını verir. Japonca, Korece veya Çince gibi bileşimli girişlerde aday metin bu aralıkta yaşar.
+- `text_for_range(range_utf16, adjusted_range, ...)`, platformun istediği UTF-16 aralığındaki metni döndürür. Aralık bileşenin gerçek sınırlarına uydurulursa `adjusted_range` ile düzeltilmiş aralığı bildirirsin.
+- `replace_text_in_range(range, text, ...)`, kesinleşmiş metni seçili veya verilen aralığa yazar. Normal karakter ekleme ve paste akışı bu yoldan gelir.
+- `replace_and_mark_text_in_range(range, new_text, new_selected_range, ...)`, yeni metni yazar ve aynı anda IME bileşim durumu olarak işaretler. Aday seçimi sürerken metin görünür olur ama henüz kalıcı seçim gibi ele alınmaz.
+- `unmark_text(...)`, IME bileşim durumunu temizler; aday metin kesinleştiğinde veya iptal edildiğinde çağrılır.
+- `bounds_for_range(range_utf16, ...)`, verilen UTF-16 aralığının ekran koordinatlarındaki dikdörtgenini döndürür. IME aday penceresinin imlecin yanında kalması buna bağlıdır.
+- `character_index_for_point(point, ...)`, ekran noktasını UTF-16 karakter ofsetine çevirir. Platformun tıklama veya aday konumu sorgularında kullanılır.
+- `accepts_text_input(...)`, bu handler'ın o anda metin eklemeyi kabul edip etmediğini söyler. `false` döndüğünde platform printable key akışını metin olarak içeri sokmayabilir.
 
 Ham `InputHandler` uygulaması yazarken ayrıca `prefers_ime_for_printable_keys`'i üzerine yazabilirsin. Bununla birlikte yaygın view yolu olan `EntityInputHandler` + `ElementInputHandler` ikilisinde bu ayrı bir kanca (`hook`) değildir; mevcut sarmalayıcı, `prefers_ime_for_printable_keys` sorusunu `accepts_text_input` sonucunu kullanarak yanıtlar. IME ve kısayol önceliğinin `accepts_text_input`'tan bağımsız yönetilmesi gerekiyorsa doğrudan `InputHandler` uygulayan özel bir dinleyici yazarsın.
 

@@ -28,7 +28,7 @@
   <text x="520" y="84" text-anchor="middle" class="hdr">Windows (caption)</text>
 
   <rect x="618" y="60" width="192" height="38" rx="4" fill="#334155"/>
-  <text x="714" y="84" text-anchor="middle" class="hdr">macOS (native)</text>
+  <text x="714" y="84" text-anchor="middle" class="hdr">macOS (yerel)</text>
 
   <!-- Satır arkaplanları -->
   <rect x="10" y="104" width="800" height="38" rx="0" fill="#f1f5f9"/>
@@ -60,7 +60,7 @@
   <text x="248" y="162" class="cell">linux_default():</text>
   <text x="248" y="178" class="cell">Sağ: [Minimize][Maximize][Close]</text>
   <text x="436" y="167" class="cell">Sistem caption, değiştirilemez.</text>
-  <text x="624" y="167" class="cell">Sol: native trafik ışıkları.</text>
+  <text x="624" y="167" class="cell">Sol: yerel trafik ışıkları.</text>
 
   <!-- Satır 3: Özel yerleşim -->
   <text x="20"  y="207" class="feat">Özel yerleşim</text>

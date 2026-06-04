@@ -54,7 +54,7 @@ Zed uygulamasında çalışma alanı açmak yalnızca `open_window` çağrısı 
 - `HistoryManager::update_history(id, entry, cx)` yakın zamanlı listeyi günceller ve platform jump list'ini yeniler.
 - `HistoryManager::delete_history(id, cx)` boşaltılan çalışma alanını geçmişten kaldırır.
 
-**Open/restore servis API kapsamı.** Bu public yüzeyler startup, restore ve dış açma isteklerinde birlikte görülür:
+**Open/restore servis API kapsamı.** Bu dışa açık yüzeyler startup, restore ve dış açma isteklerinde birlikte görülür:
 
 | API | Rol |
 |-----|-----|

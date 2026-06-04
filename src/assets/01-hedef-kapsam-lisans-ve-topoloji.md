@@ -1,14 +1,14 @@
 # Hedef, kapsam, lisans ve klasör topolojisi
 
-Bu bölüm, asset altyapısının hangi amaçla kurulduğunu ve sınırlarının nerede çizildiğini netleştirir. Sonraki bölümler bu cevapların üzerine kurulur. Bu nedenle kararları burada açıkça koymak, aynı konuları ileride tekrar tekrar açmadan ilerlemeyi mümkün kılar.
+Bu bölüm, varlık altyapısının hangi amaçla kurulduğunu ve sınırlarının nerede çizildiğini netleştirir. Sonraki bölümler bu cevapların üzerine kurulur. Bu nedenle kararları burada açıkça koymak, aynı konuları ileride tekrar tekrar açmadan ilerlemeyi mümkün kılar.
 
-Üç soru özellikle önemlidir: Asset altyapısı hangi varlık türlerini taşır? Bu varlıklar release binary'ye nasıl katılır veya debug modda filesystem'den nasıl okunur? Hangi parçalar GPL-3 sınırı içinde, hangileri uygulamanın özgür alanındadır?
+Üç soru özellikle önemlidir: Varlık altyapısı hangi varlık türlerini taşır? Bu varlıklar release binary'ye nasıl katılır veya debug modda dosya sisteminden nasıl okunur? Hangi parçalar GPL-3 sınırı içinde, hangileri uygulamanın özgür alanındadır?
 
 ---
 
-## 1. Asset altyapısının kapsamı
+## 1. Varlık altyapısının kapsamı
 
-Bir GPUI uygulamasında asset altyapısı, binary içine gömülü veya filesystem'den okunan tüm "veri" parçalarını UI runtime'ına taşıyan tek köprüdür. Aşağıdaki yedi varlık türü Zed'de bu köprü üzerinden ilerler:
+Bir GPUI uygulamasında varlık altyapısı, binary içine gömülü veya dosya sisteminden okunan tüm "veri" parçalarını UI çalışma zamanına taşıyan tek köprüdür. Aşağıdaki yedi varlık türü Zed'de bu köprü üzerinden ilerler:
 
 | Varlık türü | Klasör | Format | Tüketici |
 |-------------|--------|--------|----------|
@@ -20,16 +20,16 @@ Bir GPUI uygulamasında asset altyapısı, binary içine gömülü veya filesyst
 | Tema | `themes/<aile>/` | `.json` | `ThemeRegistry`, `load_bundled_themes` |
 | Klavye/ayar | `keymaps/`, `settings/` | `.json` | `SettingsStore`, keymap parser |
 
-Buna ek olarak `badge/v0.json` dosyası README üzerindeki shields.io rozetini besler ve runtime tarafından okunmaz; klasör topolojisinin parçası olarak listelenir ama asset boru hattına dahil değildir.
+Buna ek olarak `badge/v0.json` dosyası README üzerindeki shields.io rozetini besler ve çalışma zamanı tarafından okunmaz; klasör topolojisinin parçası olarak listelenir ama varlık hattına dahil değildir.
 
 **İlke:** Tek bir klasör hiyerarşisi tüm bu varlıkları taşır, fakat her klasör kendi tüketicisi tarafından okunur. Yani `fonts/` klasörünü `TextSystem` okur, `themes/` klasörünü `ThemeRegistry` okur. `AssetSource` trait'i hepsine ortak yüzey sağlar; bunun ötesinde her tüketici kendi sözleşmesini koyar (örneğin font için `.ttf` filtresi, tema için `.json` filtresi).
 
-**Sonuç:** Asset eklerken iki karar birlikte alırsın:
+**Sonuç:** Varlık eklerken iki karar birlikte alırsın:
 
 1. Dosya hangi klasöre konulur?
-2. Hangi tüketici kodu, hangi macro veya runtime API ile bu dosyayı çağırır?
+2. Hangi tüketici kodu, hangi macro veya çalışma zamanı API'si ile bu dosyayı çağırır?
 
-Bir SVG dosyasını `icons/` altına koymak yetmez; o ikona ait bir `IconName` varyantı da eklemen gerekir. Aynı şekilde bir `.wav` eklemek için `Sound` enum'una varyant girmek gerekir. Yapısal eşleşme tüm asset türleri için geçerlidir.
+Bir SVG dosyasını `icons/` altına koymak yetmez; o ikona ait bir `IconName` varyantı da eklemen gerekir. Aynı şekilde bir `.wav` eklemek için `Sound` enum'una varyant girmek gerekir. Yapısal eşleşme tüm varlık türleri için geçerlidir.
 
 ---
 
@@ -37,7 +37,7 @@ Bir SVG dosyasını `icons/` altına koymak yetmez; o ikona ait bir `IconName` v
 
 Zed iki ayrı `RustEmbed` struct'ı kullanır:
 
-İlk struct büyük ve sık değişmeyen asset klasörlerini paketler:
+İlk struct büyük ve sık değişmeyen varlık klasörlerini paketler:
 
 ```rust
 #[derive(RustEmbed)]
@@ -67,38 +67,38 @@ pub struct SettingsAssets;
 
 İki struct birden olmasının teknik bir gerekçesi vardır: `RustEmbed` macro'sunun derleme süresinde tarama maliyeti, klasör büyüdükçe ciddi şekilde artar. `Assets` struct'ı; font, ikon ve tema klasörleri büyük olduğu için Zed binary'sinin sık yeniden derlenmesi sırasında her seferinde taranmasın diye **ayrı bir crate** olarak (`assets`) tutulur. Bu kararın yorumu kaynak dosyasının ilk satırında açıkça yazılıdır: "incremental build sırasında bir-iki saniye kazandırmak için ayrıldı". `SettingsAssets` ise yalnızca settings ve keymap JSON'larını tutar; bu klasörler küçük olduğundan settings crate'iyle aynı yerde bulunması yeniden derleme maliyetini büyütmez.
 
-`RustEmbed` davranışı build moduna göre ikiye ayrılır: release build'de veya `debug-embed` feature'ı açıkken dosyalar binary içinden gelir; normal debug build'de aynı path'ler filesystem'den okunur. Zed dokümanlarında "gömülü asset" denildiğinde üretim davranışı kastedilir, fakat kendi uygulamanızda debug modda canlı dosya okuma davranışını da hesaba katmak gerekir.
+`RustEmbed` davranışı build moduna göre ikiye ayrılır: release build'de veya `debug-embed` feature'ı açıkken dosyalar binary içinden gelir; normal debug build'de aynı path'ler dosya sisteminden okunur. Zed dokümanlarında "gömülü varlık" denildiğinde üretim davranışı kastedilir, fakat kendi uygulamanızda debug modda canlı dosya okuma davranışını da hesaba katmak gerekir.
 
-**Önemli ayrıntı:** `Assets` struct'ı `AssetSource` trait'ini implement eder ve runtime'a `Application::with_assets(Assets)` zinciriyle bağlanır. `SettingsAssets` ise `RustEmbed::get` üzerinden senkron olarak `asset_str()` yardımıyla okunur; runtime'a global olarak kaydedilmez. Bu ayrım üçüncü bölümde derinlemesine işlenir.
+**Önemli ayrıntı:** `Assets` struct'ı `AssetSource` trait'ini implement eder ve çalışma zamanına `Application::with_assets(Assets)` zinciriyle bağlanır. `SettingsAssets` ise `RustEmbed::get` üzerinden senkron olarak `asset_str()` yardımıyla okunur; çalışma zamanına global olarak kaydedilmez. Bu ayrım üçüncü bölümde derinlemesine işlenir.
 
 ---
 
 ## 2.1. `Assets` public yüzeyi ve gömülü gruplar
 
-`assets` crate'inde `Assets` tek public `RustEmbed` taşıyıcısıdır. Ayrı crate olarak tutulmasının amacı, büyük asset ağacını Zed ana crate'i her yeniden derlendiğinde tekrar taratmamak ve GPUI runtime'a yalnız `AssetSource` sözleşmesiyle bağlamaktır.
+`assets` crate'inde `Assets` tek public `RustEmbed` taşıyıcısıdır. Ayrı crate olarak tutulmasının amacı, büyük varlık ağacını Zed ana crate'i her yeniden derlendiğinde tekrar taratmamak ve GPUI çalışma zamanına yalnız `AssetSource` sözleşmesiyle bağlamaktır.
 
 | API | Kapsam | Kullanım notu |
 |-----|--------|---------------|
-| `Assets` | `RustEmbed` struct'ı ve `AssetSource` implementasyonu | `Application::with_assets(Assets)` ile runtime'a verilir; `load` ve `list` çağrıları buradan karşılanır. |
+| `Assets` | `RustEmbed` struct'ı ve `AssetSource` implementasyonu | `Application::with_assets(Assets)` ile çalışma zamanına verilir; `load` ve `list` çağrıları buradan karşılanır. |
 | `fonts` | `#[include = "fonts/**/*"]` | `.ttf` dosyaları `Assets::load_fonts` ve testte `load_test_fonts` üzerinden `TextSystem` içine yüklenir. |
 | `icons` | `#[include = "icons/**/*"]` | `IconName`, `SvgRenderer` ve `svg()` tüketicilerinin path sözleşmesini besler. |
 | `images` | `#[include = "images/**/*"]` | `Vector` ve görsel SVG tüketiminde kullanılır; raster image cache ile karıştırılmaz. |
 | `themes` | `#[include = "themes/**/*"]`, `#[exclude = "themes/src/*"]` | Bundled tema JSON'ları ve lisans dosyaları buradan okunur; kaynak tema üretim klasörü paketlenmez. |
-| `sounds` | `#[include = "sounds/**/*"]` | `Sound` enum'u ve audio pipeline için `.wav` varlıklarını taşır. |
+| `sounds` | `#[include = "sounds/**/*"]` | `Sound` enum'u ve ses hattı için `.wav` varlıklarını taşır. |
 | `prompts` | `#[include = "prompts/**/*"]` | Handlebars prompt şablonları için kullanılır. |
-| `markdown` | `#[include = "*.md"]` | Kök Markdown dosyalarını kapsar; mevcut ağaçta runtime ana akışına yük bindiren geniş bir grup değildir. |
+| `markdown` | `#[include = "*.md"]` | Kök Markdown dosyalarını kapsar; mevcut ağaçta çalışma zamanı ana akışına yük bindiren geniş bir grup değildir. |
 | `Assets::get` | `RustEmbed` tarafından üretilen statik erişim | Tek path için `EmbeddedFile` döndürür; `AssetSource::load` bu çağrıyı `Result<Option<Cow<[u8]>>>` sözleşmesine sarar. |
 | `Assets::iter` | `RustEmbed` tarafından üretilen iterator | `AssetSource::list` içinde prefix filtrelemesi için kullanılır. |
-| `Assets::load_fonts` | Runtime font yükleme yardımcısı | `fonts` altındaki `.ttf` dosyalarını listeler, byte'ları `cx.asset_source()` üzerinden alır ve `TextSystem::add_fonts` çağırır. |
+| `Assets::load_fonts` | Çalışma zamanı font yükleme yardımcısı | `fonts` altındaki `.ttf` dosyalarını listeler, byte'ları `cx.asset_source()` üzerinden alır ve `TextSystem::add_fonts` çağırır. |
 | `Assets::load_test_fonts` | Test font yükleme yardımcısı | Minimum Lilex fontunu yükleyerek headless/test ortamının metin ölçümünü çalışır hale getirir. |
 
-Bu tablo, `Assets` içindeki alt özelliklerin tamamını başlık yapmak yerine sözleşme türüne göre açıklar: klasör grupları path kapsamını, `get`/`iter` `RustEmbed` yüzeyini, `load_fonts`/`load_test_fonts` ise GPUI runtime etkisini anlatır.
+Bu tablo, `Assets` içindeki alt özelliklerin tamamını başlık yapmak yerine sözleşme türüne göre açıklar: klasör grupları path kapsamını, `get`/`iter` `RustEmbed` yüzeyini, `load_fonts`/`load_test_fonts` ise GPUI çalışma zamanı etkisini anlatır.
 
 ---
 
 ## 3. AssetSource trait'inin sözleşmesi
 
-GPUI tarafında asset altyapısının tek yüzeyi `AssetSource` trait'idir:
+GPUI tarafında varlık altyapısının tek yüzeyi `AssetSource` trait'idir:
 
 ```rust
 pub trait AssetSource: 'static + Send + Sync {
@@ -112,13 +112,13 @@ pub trait AssetSource: 'static + Send + Sync {
 - `load`: Verilen path için ham byte içeriği döner. Dönüş tipindeki `Option`, bazı kaynakların "dosya yok" durumunu `Ok(None)` ile ifade edebilmesine izin verir; fakat her implementasyon bunu kullanmak zorunda değildir. Zed'in `Assets` implementasyonu `RustEmbed::get(path)` `None` döndürürse `with_context` üzerinden `Err` üretir, boş `()` implementasyonu ise her zaman `Ok(None)` döndürür.
 - `list`: Verilen prefix ile başlayan tüm path'leri döner. Recursive davranır; örneğin `list("fonts")` çağrısı `fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf` gibi alt klasörlerdeki dosyaları da listeler.
 
-GPUI ayrıca `AssetSource` için `()` (unit type) üzerinden boş bir implementation sağlar. Bu, asset gerektirmeyen testler ve headless senaryolar için varsayılan davranıştır: `load` her zaman `Ok(None)` döner ve `list` boş vektör verir. `Application::with_assets` çağrılmadığı sürece `App` bu boş kaynağı kullanır.
+GPUI ayrıca `AssetSource` için `()` (unit type) üzerinden boş bir implementation sağlar. Bu, varlık gerektirmeyen testler ve headless senaryolar için varsayılan davranıştır: `load` her zaman `Ok(None)` döner ve `list` boş vektör verir. `Application::with_assets` çağrılmadığı sürece `App` bu boş kaynağı kullanır.
 
 ---
 
 ## 4. Klasör topolojisi detayları
 
-`assets/` klasörünün yapısı aşağıdaki gibidir; her satırdaki açıklama, klasörün hangi runtime parçası tarafından okunduğunu belirtir.
+`assets/` klasörünün yapısı aşağıdaki gibidir; her satırdaki açıklama, klasörün hangi çalışma zamanı parçası tarafından okunduğunu belirtir.
 
 ```text
 assets/
@@ -158,7 +158,7 @@ assets/
 │   │   └── LICENSE
 │   ├── gruvbox/
 │   └── LICENSES/                # paketlenmiş tema lisansları
-├── sounds/                      # Audio pipeline okur
+├── sounds/                      # Ses hattı okur
 │   └── *.wav                    # Sound enum varyantlarıyla 1:1 eşleşir
 ├── keymaps/                     # SettingsAssets üzerinden okunur
 │   ├── default-linux.json
@@ -183,16 +183,16 @@ assets/
 │   ├── content_prompt_v2.hbs
 │   └── terminal_assistant_prompt.hbs
 └── badge/
-    └── v0.json                  # runtime tarafından okunmaz; README rozeti
+    └── v0.json                  # çalışma zamanı tarafından okunmaz; README rozeti
 ```
 
-**Tüketici-klasör eşlemesi:** Bir klasörün runtime'da değer üretebilmesi için iki şart aynı anda sağlanmalıdır. İlk olarak ilgili `RustEmbed` struct'ında `#[include]` ile beyan edilmiş olmalıdır; aksi halde `list` ve `load` o klasörü hiç görmez. İkinci olarak klasörü okuyan bir tüketici (font yükleyici, ikon enum'u, ses pipeline'ı vb.) çağırılmalıdır. İki şarttan biri eksikse asset release binary'de veya debug filesystem ağacında durur ama UI'da görünmez.
+**Tüketici-klasör eşlemesi:** Bir klasörün çalışma zamanında değer üretebilmesi için iki şart aynı anda sağlanmalıdır. İlk olarak ilgili `RustEmbed` struct'ında `#[include]` ile beyan edilmiş olmalıdır; aksi halde `list` ve `load` o klasörü hiç görmez. İkinci olarak klasörü okuyan bir tüketici (font yükleyici, ikon enum'u, ses hattı vb.) çağırılmalıdır. İki şarttan biri eksikse varlık release binary'de veya debug dosya sistemi ağacında durur ama UI'da görünmez.
 
 ---
 
 ## 5. Lisans katmanlaması
 
-Asset altyapısının kendi kodu (yani `assets` crate'indeki `AssetSource` implementasyonu) küçük ve standart bir `RustEmbed` sarmalayıcısıdır. Kod mantığında özel bir telif riski yoktur; ancak varlıkların kendileri farklı lisanslara tabidir ve her biri ayrı değerlendirilmelidir.
+Varlık altyapısının kendi kodu (yani `assets` crate'indeki `AssetSource` implementasyonu) küçük ve standart bir `RustEmbed` sarmalayıcısıdır. Kod mantığında özel bir telif riski yoktur; ancak varlıkların kendileri farklı lisanslara tabidir ve her biri ayrı değerlendirilmelidir.
 
 | Katman | Lisans tarafı |
 |--------|---------------|
@@ -207,34 +207,34 @@ Asset altyapısının kendi kodu (yani `assets` crate'indeki `AssetSource` imple
 
 | Yapılabilir | Yapılamaz |
 |-------------|-----------|
-| `RustEmbed` ile kendi asset klasörünü kurmak ve `AssetSource` trait'ini implement etmek | Zed'in `assets` modülünün gövdesini kopyalamak yerine yeniden yazmak gerekir |
+| `RustEmbed` ile kendi varlık klasörünü kurmak ve `AssetSource` trait'ini implement etmek | Zed'in `assets` modülünün gövdesini kopyalamak yerine yeniden yazmak gerekir |
 | OFL lisanslı IBM Plex Sans ve Lilex fontlarını lisans dosyalarıyla birlikte taşımak | Lisans dosyası olmadan font dosyası taşımak (OFL bunu açıkça yasaklar) |
 | Zed dışında MIT/Apache lisanslı kendi ikonlarını eklemek | `icons/*.svg` dosyalarını GPL-3 sınırı dışında bir uygulamaya doğrudan kopyalamak |
 | Yapısal akışı (RustEmbed → AssetSource → SvgRenderer → svg element) anlayıp kendi koduyla yeniden yazmak | `cx.asset_source()` çağrı zincirindeki kod parçalarını birebir kopyalamak |
 
-**Sonuç:** Asset altyapısının yapısı (RustEmbed + AssetSource + tüketici zincirleri) açık bir desendir; telif kapsamında değildir. Ancak varlıkların kendisi (font, ikon, ses, prompt) lisans dosyasıyla birlikte taşınır. Kendi uygulamasını kuran geliştirici, Zed'in font ve tema dosyalarını lisanslarıyla birlikte taşıyabilir. SVG ikon ve WAV ses dosyaları GPL-3 sınırı dışında kullanılacaksa yeniden üretilmeli ya da MIT/Apache eşdeğerleriyle değiştirilmelidir.
+**Sonuç:** Varlık altyapısının yapısı (RustEmbed + AssetSource + tüketici zincirleri) açık bir desendir; telif kapsamında değildir. Ancak varlıkların kendisi (font, ikon, ses, prompt) lisans dosyasıyla birlikte taşınır. Kendi uygulamasını kuran geliştirici, Zed'in font ve tema dosyalarını lisanslarıyla birlikte taşıyabilir. SVG ikon ve WAV ses dosyaları GPL-3 sınırı dışında kullanılacaksa yeniden üretilmeli ya da MIT/Apache eşdeğerleriyle değiştirilmelidir.
 
 ---
 
 ## 6. Bağımlılık yönü
 
-Asset altyapısının bağımlılık grafiği iki katmanlıdır:
+Varlık altyapısının bağımlılık grafiği iki katmanlıdır:
 
 ```text
-RustEmbed erişim kümesi (release embed / debug filesystem)
+RustEmbed erişim kümesi (release embed / debug dosya sistemi)
        │
        ▼
 AssetSource trait (gpui)
        │
        ▼
-Application::with_assets ──> svg_renderer, asset cache, text_system
+Application::with_assets ──> svg_renderer, varlık cache'i, text_system
        │
        ▼
 Tüketiciler (Icon, Vector, img, Sound, Theme, Settings, Prompt)
 ```
 
-Ters yön yasaktır: `AssetSource` trait'i tüketici kodlarına referans vermez. Yani `gpui::AssetSource` ne `Icon`'u ne `Sound`'u ne de `Theme`'i bilir; sadece byte döner. Bu sayede asset altyapısı sakin tutulur: yeni bir varlık türü eklemek için `AssetSource` arayüzü değişmez, yalnızca yeni bir tüketici eklersin.
+Ters yön yasaktır: `AssetSource` trait'i tüketici kodlarına referans vermez. Yani `gpui::AssetSource` ne `Icon`'u ne `Sound`'u ne de `Theme`'i bilir; sadece byte döner. Bu sayede varlık altyapısı sakin tutulur: yeni bir varlık türü eklemek için `AssetSource` arayüzü değişmez, yalnızca yeni bir tüketici eklersin.
 
-Bu kararın pratikteki anlamı şudur: uygulama bir asset türünü zamanla değiştirmek isterse (örneğin SVG ikonları PDF'e döndürmek), `AssetSource` katmanı bundan etkilenmez. Yalnızca tüketici tarafındaki path eşleştirme ve render kodu değişir.
+Bu kararın pratikteki anlamı şudur: uygulama bir varlık türünü zamanla değiştirmek isterse (örneğin SVG ikonları PDF'e döndürmek), `AssetSource` katmanı bundan etkilenmez. Yalnızca tüketici tarafındaki path eşleştirme ve render kodu değişir.
 
 ---

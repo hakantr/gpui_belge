@@ -1,16 +1,16 @@
-# 12. Feedback ve Durum Göstergeleri
+# 12. Geri Bildirim ve Durum Göstergeleri
 
-Feedback bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilgi, başarı, uyarı, hata, ilerleme, sayaç veya dikkat gerektiren kararlar bu grubun çatısı altına girer. Hepsi aynı tema token'larını paylaşır, fakat görsel yoğunlukları farklıdır. Bu yüzden önce mesajın ne kadar dikkat çekmesi gerektiğine karar verilir, sonra uygun yüzey seçersin:
+Geri bildirim bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilgi, başarı, uyarı, hata, ilerleme, sayaç veya dikkat gerektiren kararlar bu grubun çatısı altına girer. Hepsi aynı tema token'larını paylaşır, fakat görsel yoğunlukları farklıdır. Bu yüzden önce mesajın ne kadar dikkat çekmesi gerektiğine karar verilir, sonra uygun yüzey seçersin:
 
 - `Banner`: sayfa veya panel üstünde kısa ve akışı bölmeyen bir mesaj vermek için kullanırsın.
 - `Callout`: içerik akışı içinde, kullanıcının okuması ve gerekirse karar vermesi beklenen daha açıklayıcı bir mesaj için kullanırsın.
-- `Modal`: kendi modal içeriğini kurmak için bir shell sağlar.
+- `Modal`: kendi modal içeriğini kurmak için bir iskelet sağlar.
 - `AlertModal`: kısa karar akışları veya uyarı diyalogları için.
-- `AnnouncementToast`: yeni özellik veya duyuru kartı; lifecycle'ı parent notification sistemi tarafından yönetilir.
+- `AnnouncementToast`: yeni özellik veya duyuru kartı; yaşam döngüsü üst bildirim sistemi tarafından yönetilir.
 - `CountBadge`, `Indicator`, `ProgressBar`, `CircularProgress`: küçük durum ve ilerleme göstergeleri.
-- `ActivityIndicator`: workspace status alanında LSP, debug, git, filesystem, extension ve formatlama aktivitelerini tek bir kompakt trigger altında toplar.
+- `ActivityIndicator`: workspace status alanında LSP, debug, git, dosya sistemi, extension ve formatlama aktivitelerini tek bir kompakt tetikleyici altında toplar.
 
-![Feedback Yüzeyi Seçimi](assets/feedback-yuzey-secimi.svg)
+![Geri Bildirim Yüzeyi Seçimi](assets/feedback-yuzey-secimi.svg)
 
 ## Severity
 
@@ -29,7 +29,7 @@ Davranış:
 
 - `Banner` ve `Callout`, severity değerinden icon ile status renklerini türetir.
 - `Info` nötr ya da muted, `Success` yeşil, `Warning` sarı, `Error` kırmızı status token'larını kullanır.
-- Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyon ayrı bir button slot'una yerleştirilir.
+- Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyon ayrı bir buton slot'una yerleştirilir.
 
 ## Banner
 
@@ -49,9 +49,9 @@ Ne zaman kullanırsın:
 
 Ne zaman kullanmazsın:
 
-- Uzun açıklama, bullet listesi veya ayrıntılı bir karar gerekiyorsa `Callout` daha uygun bir yüzeydir.
+- Uzun açıklama, madde listesi veya ayrıntılı bir karar gerekiyorsa `Callout` daha uygun bir yüzeydir.
 - Kullanıcının devam etmeden önce karar vermesi zorunluysa `AlertModal` daha doğru bir araçtır.
-- Kısa süreli bir global bildirim lifecycle'ı gerekiyorsa, uygulama notification altyapısı ile uygun notification view birlikte kullanırsın.
+- Kısa süreli bir global bildirim yaşam döngüsü gerekiyorsa, uygulama bildirim altyapısı ile uygun bildirim view'ı birlikte kullanılır.
 
 Temel API:
 
@@ -73,12 +73,12 @@ Davranış:
 ```rust
 use ui::{Banner, Button, Icon, IconName, IconSize, Severity, prelude::*};
 
-fn render_sync_banner() -> impl IntoElement {
+fn senkron_banner_render() -> impl IntoElement {
     Banner::new()
         .severity(Severity::Info)
-        .child(Label::new("Sync in progress"))
+        .child(Label::new("Senkronizasyon sürüyor"))
         .action_slot(
-            Button::new("view-sync", "View")
+            Button::new("senkronizasyonu-gor", "Görüntüle")
                 .end_icon(Icon::new(IconName::ArrowUpRight).size(IconSize::Small)),
         )
 }
@@ -89,13 +89,13 @@ fn render_sync_banner() -> impl IntoElement {
 ```rust
 use ui::{Banner, Severity, prelude::*};
 
-fn render_provider_warning_banner() -> impl IntoElement {
+fn saglayici_uyari_banner_render() -> impl IntoElement {
     Banner::new()
         .severity(Severity::Warning)
         .wrap_content(true)
         .child(
             Label::new(
-                "This setting is not available for the selected provider.",
+                "Bu ayar seçili sağlayıcı için kullanılamaz.",
             )
             .size(LabelSize::Small),
         )
@@ -111,7 +111,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - Banner kısa kalmalıdır. Birden fazla paragraf veya liste gerektiren içerikler için `Callout` daha uygundur.
-- `action_slot(...)` içinde birden çok aksiyon yer alacaksa, `h_flex().gap_1()` ile açık bir spacing kurulması okunabilirliği artırır.
+- `action_slot(...)` içinde birden çok aksiyon yer alacaksa, `h_flex().gap_1()` ile açık bir aralık kurulması okunabilirliği artırır.
 - Banner, modal içindeki karar alanı gibi kullanmaman gerekir. Modal kararlarının footer aksiyonlarıyla verilmesi beklenir.
 
 ## Callout
@@ -168,15 +168,15 @@ Davranış:
 ```rust
 use ui::{Button, Callout, IconButton, IconName, IconSize, Severity, prelude::*};
 
-fn render_retry_callout() -> impl IntoElement {
+fn yeniden_dene_callout_render() -> impl IntoElement {
     Callout::new()
         .severity(Severity::Warning)
         .icon(IconName::Warning)
-        .title("Connection failed")
-        .description("Retrying in 10 seconds. Check your network settings if this continues.")
-        .actions_slot(Button::new("retry-now", "Retry now").label_size(LabelSize::Small))
+        .title("Bağlantı başarısız")
+        .description("10 saniye içinde yeniden denenecek. Sorun sürerse ağ ayarlarını kontrol et.")
+        .actions_slot(Button::new("simdi-yeniden-dene", "Şimdi yeniden dene").label_size(LabelSize::Small))
         .dismiss_action(
-            IconButton::new("dismiss-retry", IconName::Close).icon_size(IconSize::Small),
+            IconButton::new("yeniden-deneme-uyarisini-kapat", IconName::Close).icon_size(IconSize::Small),
         )
 }
 ```
@@ -186,16 +186,16 @@ fn render_retry_callout() -> impl IntoElement {
 ```rust
 use ui::{Callout, IconName, Severity, prelude::*};
 
-fn render_permission_callout() -> impl IntoElement {
+fn izin_callout_render() -> impl IntoElement {
     Callout::new()
         .severity(Severity::Error)
         .icon(IconName::XCircle)
-        .title("Permission denied")
+        .title("İzin reddedildi")
         .description_slot(
             v_flex()
                 .gap_1()
-                .child(Label::new("The selected command cannot run in this workspace."))
-                .child(Label::new("Open workspace settings to allow it.").color(Color::Muted)),
+                .child(Label::new("Seçili komut bu çalışma alanında çalıştırılamaz."))
+                .child(Label::new("İzin vermek için çalışma alanı ayarlarını aç.").color(Color::Muted)),
         )
 }
 ```
@@ -250,15 +250,15 @@ Modal alt yapı taşları:
 
 | API | Rol |
 | :-- | :-- |
-| `ModalHeader` | Modal başlığını, açıklamasını, icon'unu ve dismiss/back button görünürlüğünü yönetir. |
-| `ModalRow` | Section içinde tek satırlık ayar veya içerik satırı kurmak için parent element yüzeyidir. |
+| `ModalHeader` | Modal başlığını, açıklamasını, icon'unu ve dismiss/back buton görünürlüğünü yönetir. |
+| `ModalRow` | Section içinde tek satırlık ayar veya içerik satırı kurmak için üst element yüzeyidir. |
 | `ModalFooter` | Modal alt aksiyon alanını `start_slot` ve `end_slot` ile düzenler. |
 | `Section` | Modal veya panel içinde padded/contained alt bölüm yüzeyi oluşturur. |
 | `SectionHeader` | Section başlığı ve opsiyonel sağ slot için küçük header bileşenidir. |
 
 Davranış:
 
-- Modal root `size_full()`, `flex_1()` ve `overflow_hidden()` kullanır; modal container'ı genellikle parent overlay tarafından sağlanır.
+- Modal root `size_full()`, `flex_1()` ve `overflow_hidden()` kullanır; modal kapsayıcısı genellikle üst overlay tarafından sağlanır.
 - `scroll_handle` verildiğinde body `overflow_y_scroll()` ve `track_scroll(...)` ile bağlanır.
 - `show_dismiss(true)` ve `show_back(true)`, header'da Zed'in `menu::Cancel` aksiyonunu dispatch eden icon button'lar üretir.
 - `Section::new_contained()` border'lı bir iç yüzey oluşturur; normal `Section` ise daha düz bir akış verir.
@@ -270,68 +270,68 @@ use ui::{
     Button, Modal, ModalFooter, ModalHeader, ModalRow, Section, SectionHeader, prelude::*,
 };
 
-fn render_project_settings_modal() -> impl IntoElement {
-    Modal::new("project-settings-modal", None)
+fn proje_ayarlari_modal_render() -> impl IntoElement {
+    Modal::new("proje-ayarlari-modal", None)
         .show_dismiss(true)
         .header(
             ModalHeader::new()
-                .headline("Project Settings")
-                .description("Changes apply to the current workspace."),
+                .headline("Proje ayarları")
+                .description("Değişiklikler geçerli çalışma alanına uygulanır."),
         )
         .section(
             Section::new()
-                .header(SectionHeader::new("Behavior"))
+                .header(SectionHeader::new("Davranış"))
                 .child(
                     ModalRow::new()
-                        .child(Label::new("Format on save").flex_1())
-                        .child(Label::new("Enabled").color(Color::Muted)),
+                        .child(Label::new("Kaydederken biçimlendir").flex_1())
+                        .child(Label::new("Etkin").color(Color::Muted)),
                 ),
         )
-        .footer(ModalFooter::new().end_slot(Button::new("save-settings", "Save")))
+        .footer(ModalFooter::new().end_slot(Button::new("ayarlari-kaydet", "Kaydet")))
 }
 ```
 
-Modal lifecycle ve workspace entegrasyonu:
+Modal Yaşam Döngüsü ve Workspace Entegrasyonu:
 
-Zed UI tarafındaki `Modal` bileşeni yalnızca bir içerik shell'idir. Bir modal'ın açılıp kapanma davranışı bu bileşenin değil; asıl olarak `workspace::ModalLayer` ile `workspace::ModalView` trait'inin sorumluluğundadır.
+Zed UI tarafındaki `Modal` bileşeni yalnızca bir içerik iskeletidir. Bir modal'ın açılıp kapanma davranışı bu bileşenin değil; asıl olarak `workspace::ModalLayer` ile `workspace::ModalView` trait'inin sorumluluğundadır.
 
 ```rust
 use gpui::{Entity, ManagedView};
 use ui::{Modal, ModalFooter, ModalHeader, Section, prelude::*};
 use workspace::{ModalView, Workspace};
 
-struct ProjectSettingsModal {
-    focus_handle: gpui::FocusHandle,
+struct ProjeAyarlariModal {
+    odak_handle: gpui::FocusHandle,
 }
 
-impl gpui::EventEmitter<gpui::DismissEvent> for ProjectSettingsModal {}
+impl gpui::EventEmitter<gpui::DismissEvent> for ProjeAyarlariModal {}
 
-impl gpui::Focusable for ProjectSettingsModal {
+impl gpui::Focusable for ProjeAyarlariModal {
     fn focus_handle(&self, _cx: &App) -> gpui::FocusHandle {
-        self.focus_handle.clone()
+        self.odak_handle.clone()
     }
 }
 
-impl ManagedView for ProjectSettingsModal {}
-impl ModalView for ProjectSettingsModal {}
+impl ManagedView for ProjeAyarlariModal {}
+impl ModalView for ProjeAyarlariModal {}
 
-impl Render for ProjectSettingsModal {
+impl Render for ProjeAyarlariModal {
     fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
-        Modal::new("project-settings-modal", None)
-            .header(ModalHeader::new().headline("Project Settings"))
+        Modal::new("proje-ayarlari-modal", None)
+            .header(ModalHeader::new().headline("Proje ayarları"))
             .section(Section::new().child(Label::new("…")))
-            .footer(ModalFooter::new().end_slot(Button::new("close", "Close")))
+            .footer(ModalFooter::new().end_slot(Button::new("kapat", "Kapat")))
     }
 }
 
-fn open_project_settings(
+fn proje_ayarlarini_ac(
     workspace: &mut Workspace,
     window: &mut Window,
     cx: &mut Context<Workspace>,
 ) {
-    workspace.toggle_modal::<ProjectSettingsModal, _>(window, cx, |_window, cx| {
-        ProjectSettingsModal {
-            focus_handle: cx.focus_handle(),
+    workspace.toggle_modal::<ProjeAyarlariModal, _>(window, cx, |_window, cx| {
+        ProjeAyarlariModal {
+            odak_handle: cx.focus_handle(),
         }
     });
 }
@@ -342,14 +342,14 @@ fn open_project_settings(
 - `ManagedView` üzerinden gelen `Render + Focusable + EventEmitter<DismissEvent>` zorunluluğu.
 - `on_before_dismiss(window, cx) -> DismissDecision`: kapanmadan önce bir validation veya kullanıcı onayı istenebilir. `DismissDecision::Pending` kapanmayı erteler; `DismissDecision::Dismiss(false)` ise iptal eder.
 - `fade_out_background(&self) -> bool`: ekrandaki diğer içeriği soluklaştırmak için override edilebilir.
-- `render_bare(&self) -> bool`: workspace tarafındaki `ModalLayer`'ın varsayılan elevation yüzeyini bypass etmek gerektiğinde kullanırsın.
+- `render_bare(&self) -> bool`: workspace tarafındaki `ModalLayer`'ın varsayılan elevation yüzeyini atlamak gerektiğinde kullanırsın.
 
-`Workspace::toggle_modal::<V, _>(window, cx, build_fn)` çağrısı, aynı modal türü zaten açıksa onu kapatır; farklı bir modal açıksa onu kapatıp yenisini açar. `ModalLayer`, dismiss event'ini dinler ve focus'u önceki elemana otomatik olarak geri verir.
+`Workspace::toggle_modal::<V, _>(window, cx, build_fn)` çağrısı, aynı modal türü zaten açıksa onu kapatır; farklı bir modal açıksa onu kapatıp yenisini açar. `ModalLayer`, dismiss olayını dinler ve odağı önceki elemana otomatik olarak geri verir.
 
 Dikkat edeceğin noktalar:
 
-- `Modal` yalnızca bir içerik shell'idir; açma ve kapama lifecycle'ı modal host veya parent view tarafından yönetilir.
-- Header'daki dismiss ve back button'ları `menu::Cancel` dispatch eder; bu aksiyonun parent context tarafından ele alınması beklenir.
+- `Modal` yalnızca bir içerik iskeletidir; açma ve kapama yaşam döngüsü modal host veya üst view tarafından yönetilir.
+- Header'daki dismiss ve back butonları `menu::Cancel` dispatch eder; bu aksiyonun üst context tarafından ele alınması beklenir.
 - Section içinde çok sayıda ayar satırı yer alıyorsa, body için bir scroll handle vermen gerekir.
 - `Modal`, bir `AlertModal` yerine kullanılsa bile yine de workspace üzerinden `toggle_modal` ile sunulur; ayrı bir overlay altyapısı kurmaya gerek yoktur.
 
@@ -391,22 +391,22 @@ Temel API:
 Davranış:
 
 - Varsayılan genişlik `px(440.)`'tır.
-- `.title(...)` verildiğinde küçük bir `Headline` içeren bir default header üretilir.
-- `.primary_action(...)` veya `.dismiss_label(...)` verildiğinde bir default footer üretilir. Label verilmediği durumda primary `"Ok"`, dismiss ise `"Cancel"` olur.
-- Default footer button'ları yalnızca görünümü kurar; karar akışının Zed action sistemi üzerinden `.on_action(...)` veya parent lifecycle ile bağlanması gerekir.
-- `.header(...)` ve `.footer(...)` verildiğinde, default header veya footer yerine tamamen özel bir element render edilir.
+- `.title(...)` verildiğinde küçük bir `Headline` içeren bir varsayılan başlık üretilir.
+- `.primary_action(...)` veya `.dismiss_label(...)` verildiğinde bir varsayılan altlık üretilir. Etiket verilmediği durumda birincil metin `"Tamam"`, kapatma metni ise `"İptal"` olur.
+- Varsayılan altlık butonları yalnızca görünümü kurar; karar akışının Zed eylem sistemi üzerinden `.on_action(...)` veya üst yaşam döngüsü ile bağlanması gerekir.
+- `.header(...)` ve `.footer(...)` verildiğinde, varsayılan başlık veya altlık yerine tamamen özel bir element render edilir.
 
 Örnek:
 
 ```rust
 use ui::{AlertModal, prelude::*};
 
-fn render_delete_alert() -> impl IntoElement {
-    AlertModal::new("delete-project-alert")
-        .title("Delete project?")
-        .child("This removes the project from the recent projects list.")
-        .primary_action("Delete")
-        .dismiss_label("Cancel")
+fn proje_silme_uyarisi_render() -> impl IntoElement {
+    AlertModal::new("proje-silme-uyarisi")
+        .title("Proje silinsin mi?")
+        .child("Bu işlem projeyi son projeler listesinden kaldırır.")
+        .primary_action("Sil")
+        .dismiss_label("İptal")
 }
 ```
 
@@ -415,8 +415,8 @@ fn render_delete_alert() -> impl IntoElement {
 ```rust
 use ui::{AlertModal, Icon, IconName, prelude::*};
 
-fn render_restricted_workspace_alert(cx: &App) -> impl IntoElement {
-    AlertModal::new("restricted-workspace-alert")
+fn sinirli_calisma_alani_uyarisi_render(cx: &App) -> impl IntoElement {
+    AlertModal::new("sinirli-calisma-alani-uyarisi")
         .width(rems(40.))
         .header(
             v_flex()
@@ -429,25 +429,25 @@ fn render_restricted_workspace_alert(cx: &App) -> impl IntoElement {
                     h_flex()
                         .gap_2()
                         .child(Icon::new(IconName::Warning).color(Color::Warning))
-                        .child(Label::new("Unrecognized Workspace")),
+                        .child(Label::new("Tanınmayan çalışma alanı")),
                 ),
         )
-        .child("Restricted mode prevents workspace commands from running automatically.")
-        .primary_action("Trust Workspace")
-        .dismiss_label("Stay Restricted")
+        .child("Kısıtlı mod, çalışma alanı komutlarının otomatik çalışmasını engeller.")
+        .primary_action("Çalışma alanına güven")
+        .dismiss_label("Kısıtlı kal")
 }
 ```
 
 Zed içinden kullanım örnekleri:
 
 - `workspace` crate'i: restricted workspace karar akışı; `key_context`, `track_focus` ve `.on_action(...)` birlikte kullanırsın.
-- `ui` crate'i: basic ve custom header preview örnekleri.
+- `ui` crate'i: basic ve özel header önizleme örnekleri.
 
 Dikkat edeceğin noktalar:
 
 - AlertModal kısa ve karar odaklı tutulur. Birden fazla section gerekiyorsa doğru araç `Modal`'dır.
-- Tehlikeli aksiyonlarda primary label'in net olması beklenir; `"Ok"` yerine `"Delete"` veya `"Trust Workspace"` gibi doğrudan eylemi anlatan bir metin tercih edersin.
-- Focus ve keyboard action davranışı gerekiyorsa `key_context(...)` ile `track_focus(...)` bağlanmadan yalnızca görsel bir modal üretilmesi doğru değildir; aksi halde modal klavye ile etkileşemez.
+- Tehlikeli aksiyonlarda primary label'ın net olması beklenir; `"Ok"` yerine doğrudan eylemi anlatan bir metin tercih edersin.
+- Odak ve klavye action davranışı gerekiyorsa `key_context(...)` ile `track_focus(...)` bağlanmadan yalnızca görsel bir modal üretilmesi doğru değildir; aksi halde modal klavye ile etkileşemez.
 
 ## AnnouncementToast
 
@@ -461,12 +461,12 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - Yeni özellik, önemli değişiklik veya üründeki görünür duyuruları kart biçiminde göstermek için.
-- İllüstrasyon, başlık, açıklama, bullet listesi ve iki aksiyonlu duyuru gerektiğinde.
+- İllüstrasyon, başlık, açıklama, madde listesi ve iki aksiyonlu duyuru gerektiğinde.
 
 Ne zaman kullanmazsın:
 
 - Hata, retry veya inline bir durum mesajı için `Banner` ya da `Callout` daha uygundur.
-- Basit bir toast ihtiyacı için parent notification sisteminin daha küçük view'ı kullanırsın.
+- Basit bir toast ihtiyacı için üst bildirim sisteminin daha küçük view'ı kullanılır.
 - Kullanıcının devam etmeden karar vermesi gerekiyorsa `AlertModal` daha doğru bir yüzeydir.
 
 Temel API:
@@ -486,25 +486,25 @@ Temel API:
 Davranış:
 
 - Varsayılan primary label `"Try Now"`, secondary label ise `"Learn More"` olarak gelir.
-- Click handler'ları boş bir default closure ile gelir; gerçek davranışın bağlanması parent view'in dismiss veya navigation callback'leri üzerinden olur.
+- Click işleyicileri boş bir default closure ile gelir; gerçek davranışın bağlanması üst view'in dismiss veya navigation geri çağrıları üzerinden olur.
 - Root element `occlude()`, `relative()`, `w_full()` ve `elevation_3(cx)` kullanır.
-- Sağ üstte bir close icon button render edilir; dismiss lifecycle'ı `.dismiss_on_click(...)` callback'ine bırakırsın.
+- Sağ üstte bir close icon button render edilir; dismiss yaşam döngüsü `.dismiss_on_click(...)` geri çağrısına bırakılır.
 
 Örnek:
 
 ```rust
 use ui::{AnnouncementToast, ListBulletItem, prelude::*};
 
-fn render_feature_announcement() -> impl IntoElement {
+fn ozellik_duyurusu_render() -> impl IntoElement {
     div().w_80().child(
         AnnouncementToast::new()
-            .heading("Parallel agents")
-            .description("Run multiple agent threads across projects.")
-            .bullet_item(ListBulletItem::new("Launch agents in isolated worktrees"))
-            .bullet_item(ListBulletItem::new("Review progress without changing tabs"))
-            .primary_action_label("Try Now")
+            .heading("Paralel agent'lar")
+            .description("Birden çok agent thread'ini projeler arasında çalıştır.")
+            .bullet_item(ListBulletItem::new("Agent'ları izole worktree'lerde başlat"))
+            .bullet_item(ListBulletItem::new("Tab değiştirmeden ilerlemeyi gözden geçir"))
+            .primary_action_label("Şimdi dene")
             .primary_on_click(|_, _window, cx| cx.open_url("https://zed.dev"))
-            .secondary_action_label("Learn More")
+            .secondary_action_label("Daha fazla bilgi")
             .secondary_on_click(|_, _window, cx| cx.open_url("https://zed.dev/docs"))
             .dismiss_on_click(|_, _window, _cx| {}),
     )
@@ -513,12 +513,12 @@ fn render_feature_announcement() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `auto_update_ui` crate'i: announcement toast notification view'ı; click handler'lar telemetry, URL ve dismiss callback'leriyle bağlanır.
+- `auto_update_ui` crate'i: announcement toast notification view'ı; click işleyicileri telemetry, URL ve dismiss geri çağrılarıyla bağlanır.
 
 Dikkat edeceğin noktalar:
 
-- `AnnouncementToast` tek başına notification lifecycle'ını yönetmez. Dismiss, suppress veya route davranışının parent notification view'ı içinde uygulaman gerekir.
-- Bullet sayısı sınırlı tutulur; çok uzun bir duyuru kartı kullanıcıyı akıştan koparır.
+- `AnnouncementToast` tek başına notification yaşam döngüsünü yönetmez. Dismiss, suppress veya route davranışını üst notification view'ı içinde uygulaman gerekir.
+- Madde sayısı sınırlı tutulur; çok uzun bir duyuru kartı kullanıcıyı akıştan koparır.
 - İllüstrasyon eklendiğinde toast'ın üstünde render edilir ve body'den border ile ayrılır.
 
 ## Notification Modülü
@@ -529,13 +529,13 @@ Kaynak:
 - Export: `ui::AlertModal`, `ui::AnnouncementToast`.
 - Prelude: Hayır.
 
-Mevcut `ui` kaynağında standalone bir `Notification` component'i yer almaz. `notification` dosyası yalnızca `alert_modal` ve `announcement_toast` modüllerini re-export eder. Runtime bildirim kuyruğu, dismiss veya suppress event'leri ve notification trait'leri Zed'in daha üst seviyeli notification altyapısında tutulur.
+Mevcut `ui` kaynağında standalone bir `Notification` bileşeni yer almaz. `notification` dosyası yalnızca `alert_modal` ve `announcement_toast` modüllerini re-export eder. Runtime bildirim kuyruğu, dismiss veya suppress olayları ve notification trait'leri Zed'in daha üst seviyeli notification altyapısında tutulur.
 
 Pratik sonuç şudur:
 
-- UI component olarak `AlertModal` veya `AnnouncementToast` render edilir.
-- Gösterme, saklama, kapatma ve tekrar göstermeme kararı parent notification view'ı içinde yönetilir.
-- Toast içindeki click handler'larda gerekirse telemetry, URL açma ve dismiss akışı birlikte bağlanır.
+- UI bileşeni olarak `AlertModal` veya `AnnouncementToast` render edilir.
+- Gösterme, saklama, kapatma ve tekrar göstermeme kararı üst notification view'ı içinde yönetilir.
+- Toast içindeki click işleyicilerinde gerekirse telemetry, URL açma ve dismiss akışı birlikte bağlanır.
 
 ## CountBadge
 
@@ -563,8 +563,8 @@ Temel API:
 Davranış:
 
 - `count > 99` durumunda `"99+"` olarak gösterilir.
-- `absolute()`, `top_0()` ve `right_0()` ile parent'ın sağ üst köşesine yerleşir.
-- Parent element `relative()` değilse, badge beklenen konuma oturmaz.
+- `absolute()`, `top_0()` ve `right_0()` ile üst öğenin sağ üst köşesine yerleşir.
+- Üst element `relative()` değilse, badge beklenen konuma oturmaz.
 - Background, editor background ile error status renginin blend edilmesiyle hesaplanır.
 
 Örnek:
@@ -572,22 +572,22 @@ Davranış:
 ```rust
 use ui::{CountBadge, IconButton, IconName, prelude::*};
 
-fn render_notifications_button(count: usize) -> impl IntoElement {
+fn bildirim_butonu_render(sayi: usize) -> impl IntoElement {
     div()
         .relative()
-        .child(IconButton::new("notifications", IconName::Bell))
-        .when(count > 0, |this| this.child(CountBadge::new(count)))
+        .child(IconButton::new("bildirimler", IconName::Bell))
+        .when(sayi > 0, |this| this.child(CountBadge::new(sayi)))
 }
 ```
 
 Zed içinden kullanım örnekleri:
 
 - `workspace` crate'i: dock item üzerinde count badge.
-- `ui` crate'i: capped count preview.
+- `ui` crate'i: capped count önizlemesi.
 
 Dikkat edeceğin noktalar:
 
-- Parent'ın hitbox'ı ile badge'in absolute konumunun birlikte düşünmen gerekir. Çok küçük icon button'larda badge, tıklanabilir alanı görsel olarak kalabalıklaştırabilir.
+- Üst öğenin hitbox'ı ile badge'in absolute konumunu birlikte düşünmen gerekir. Çok küçük icon button'larda badge, tıklanabilir alanı görsel olarak kalabalıklaştırabilir.
 - Badge metni otomatik olarak capped olduğu için, gerçek tam sayının tooltip veya bir detay view'ında gösterilmesi gerekebilir.
 
 ## Indicator
@@ -621,7 +621,7 @@ Temel API:
 Davranış:
 
 - Dot varyantı `w_1p5()`, `h_1p5()` ve `rounded_full()` kullanır.
-- Bar varyantı `w_full()`, `h_1p5()` ve `rounded_t_sm()` kullanır; bu yüzden parent genişliği önemlidir.
+- Bar varyantı `w_full()`, `h_1p5()` ve `rounded_t_sm()` kullanır; bu yüzden üst genişlik önemlidir.
 - Icon indicator, ikonu `custom_size(rems_from_px(8.))` ile çok küçük bir biçimde render eder.
 - `border_color(...)` yalnızca dot ve bar varyantları için bir border uygular.
 
@@ -630,25 +630,25 @@ Davranış:
 ```rust
 use ui::{Indicator, prelude::*};
 
-fn render_connection_state(connected: bool) -> impl IntoElement {
+fn baglanti_durumu_render(bagli: bool) -> impl IntoElement {
     h_flex()
         .gap_1()
         .items_center()
         .child(
-            Indicator::dot().color(if connected {
+            Indicator::dot().color(if bagli {
                 Color::Success
             } else {
                 Color::Error
             }),
         )
-        .child(Label::new(if connected { "Connected" } else { "Disconnected" }))
+        .child(Label::new(if bagli { "Bağlı" } else { "Bağlı değil" }))
 }
 ```
 
 Zed içinden kullanım örnekleri:
 
 - `workspace` crate'i: status bar indicator.
-- `debugger_ui` crate'i: debug session state.
+- `debugger_ui` crate'i: debug session durumu.
 - `keymap_editor` crate'i: conflict indicator.
 - `title_bar` crate'i: title bar durum noktaları.
 
@@ -669,7 +669,7 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - İşlemin belirli bir `value / max_value` oranı varsa.
-- Yatay alanda dosya indirme, kullanım limiti, sync veya task progress göstermek için.
+- Yatay alanda dosya indirme, kullanım limiti, senkronizasyon veya task progress göstermek için.
 
 Ne zaman kullanmazsın:
 
@@ -697,23 +697,23 @@ Davranış:
 ```rust
 use ui::{ProgressBar, prelude::*};
 
-fn render_usage_progress(used: f32, limit: f32, cx: &App) -> impl IntoElement {
+fn kullanim_ilerlemesi_render(kullanilan: f32, limit: f32, cx: &App) -> impl IntoElement {
     v_flex()
         .gap_1()
         .child(
             h_flex()
                 .justify_between()
-                .child(Label::new("Usage"))
-                .child(Label::new(format!("{used:.0} / {limit:.0}")).color(Color::Muted)),
+                .child(Label::new("Kullanım"))
+                .child(Label::new(format!("{kullanilan:.0} / {limit:.0}")).color(Color::Muted)),
         )
-        .child(ProgressBar::new("usage-progress", used, limit, cx))
+        .child(ProgressBar::new("kullanim-ilerlemesi", kullanilan, limit, cx))
 }
 ```
 
 Zed içinden kullanım örnekleri:
 
 - `edit_prediction_ui` crate'i: kullanım limiti progress bar'ı.
-- `ui` crate'i: empty, partial ve filled preview örnekleri.
+- `ui` crate'i: empty, partial ve filled önizleme örnekleri.
 
 Dikkat edeceğin noktalar:
 
@@ -763,23 +763,23 @@ Davranış:
 ```rust
 use ui::{CircularProgress, prelude::*};
 
-fn render_token_ring(used: f32, max: f32, cx: &App) -> impl IntoElement {
+fn token_halkasi_render(kullanilan: f32, maks: f32, cx: &App) -> impl IntoElement {
     h_flex()
         .gap_1()
         .items_center()
         .child(
-            CircularProgress::new(used, max, px(18.), cx)
+            CircularProgress::new(kullanilan, maks, px(18.), cx)
                 .stroke_width(px(2.))
                 .progress_color(cx.theme().status().info),
         )
-        .child(Label::new(format!("{used:.0}/{max:.0}")).size(LabelSize::Small))
+        .child(Label::new(format!("{kullanilan:.0}/{maks:.0}")).size(LabelSize::Small))
 }
 ```
 
 Zed içinden kullanım örnekleri:
 
 - `agent_ui` crate'i: token usage ring'leri.
-- `ui` crate'i: farklı yüzde değerleri için preview örnekleri.
+- `ui` crate'i: farklı yüzde değerleri için önizleme örnekleri.
 
 Dikkat edeceğin noktalar:
 
@@ -792,45 +792,45 @@ Dikkat edeceğin noktalar:
 Kaynak:
 
 - Tanım: `activity_indicator` crate'i
-- Export: `activity_indicator::ActivityIndicator`; `ui` crate kökünden re-export edilen genel bir component değildir.
+- Export: `activity_indicator::ActivityIndicator`; `ui` crate kökünden re-export edilen genel bir bileşen değildir.
 - Render modeli: `workspace::StatusItemView` olarak workspace status alanına bağlanır.
 
 Ne zaman kullanırsın:
 
-- Workspace genelinde devam eden LSP, debug, git, dosya sistemi, extension update veya formatlama hatası gibi aktiviteleri tek bir status trigger'ında göstermek için.
-- Bir aktivite kullanıcı aksiyonu gerektiriyorsa aynı trigger üzerinden click handler veya popover menu vermek için.
+- Workspace genelinde devam eden LSP, debug, git, dosya sistemi, extension update veya formatlama hatası gibi aktiviteleri tek bir status tetikleyicisinde göstermek için.
+- Bir aktivite kullanıcı aksiyonu gerektiriyorsa aynı tetikleyici üzerinden click işleyicisi veya popover menu vermek için.
 
 Davranış:
 
 - İçeriği `ActivityIcon` ayrımıyla seçersin: bilinmeyen süreli işler `LoadingSpinner`, statik durumlar ise `Icon(IconName)` taşır.
 - Spinner görünümü doğrudan `Button::loading(true)` üzerinden gelir; bu yüzden loading durumunda start icon yerine `IconName::LoadCircle` çizilir.
-- Warning, download ve benzeri statik durumlarda trigger `Button::start_icon(...)` kullanır; ikon `Color::Muted` ile çizilir.
-- Language server work listesi trigger'a yalnızca içerikte özel bir click handler yoksa popover olarak bağlanır. Menü en az bir cancellable work varsa açılır; cancellable entry'ler `Close` ikonu ve `Cancel ...` label'ıyla render edilir.
-- Environment error, formatting failure veya extension failure gibi durumlar kendi click handler'larını taşıyorsa language server work menüsü aynı trigger'a eklenmez.
+- Warning, download ve benzeri statik durumlarda tetikleyici `Button::start_icon(...)` kullanır; ikon `Color::Muted` ile çizilir.
+- Language server work listesi tetikleyiciye yalnızca içerikte özel bir click işleyicisi yoksa popover olarak bağlanır. Menü en az bir cancellable work varsa açılır; cancellable entry'ler `Close` ikonu ve `Cancel ...` label'ıyla render edilir.
+- Environment error, formatting failure veya extension failure gibi durumlar kendi click işleyicilerini taşıyorsa language server work menüsü aynı tetikleyiciye eklenmez.
 - Extension install ve remove durumları loading spinner kullanır; extension upgrade ve download durumları download ikonu kullanır.
 
 Dikkat edeceğin noktalar:
 
-- `ActivityIndicator`, genel amaçlı bir progress component'i değildir. Bir panel içinde belirli bir iş oranı göstermek için `ProgressBar`, kompakt oran için `CircularProgress`, bilinmeyen süreli yerel loading için `Button::loading(...)` veya `SpinnerLabel` tercih edersin.
-- Popover menüsünde yalnızca iptal edilebilir işler aksiyon üretir. İptal edilemeyen işler tek başına menüyü açtırmaz; bu yüzden kullanıcıya tıklanabilir bir affordance gerekiyorsa ilgili durumun `on_click` callback'i açıkça bağlanmalıdır.
+- `ActivityIndicator`, genel amaçlı bir progress bileşeni değildir. Bir panel içinde belirli bir iş oranı göstermek için `ProgressBar`, kompakt oran için `CircularProgress`, bilinmeyen süreli yerel loading için `Button::loading(...)` veya `SpinnerLabel` tercih edersin.
+- Popover menüsünde yalnızca iptal edilebilir işler aksiyon üretir. İptal edilemeyen işler tek başına menüyü açtırmaz; bu yüzden kullanıcıya tıklanabilir bir affordance gerekiyorsa ilgili durumun `on_click` geri çağrısı açıkça bağlanmalıdır.
 
-## Feedback Kompozisyon Örnekleri
+## Geri Bildirim Kompozisyon Örnekleri
 
-Bir sync sürecinde hem genel bir banner hem de yüzdeyi gösteren bir progress bar bir arada görünebilir:
+Bir senkronizasyon sürecinde hem genel bir banner hem de yüzdeyi gösteren bir progress bar bir arada görünebilir:
 
 ```rust
 use ui::{Banner, ProgressBar, Severity, prelude::*};
 
-fn render_sync_feedback(progress: f32, cx: &App) -> impl IntoElement {
+fn senkron_geri_bildirimi_render(ilerleme: f32, cx: &App) -> impl IntoElement {
     v_flex()
         .gap_2()
         .child(
             Banner::new()
                 .severity(Severity::Info)
-                .child(Label::new("Sync in progress"))
-                .child(Label::new("Remote changes are being applied.").color(Color::Muted)),
+                .child(Label::new("Senkronizasyon sürüyor"))
+                .child(Label::new("Uzak değişiklikler uygulanıyor.").color(Color::Muted)),
         )
-        .child(ProgressBar::new("sync-progress", progress, 1.0, cx))
+        .child(ProgressBar::new("senkron-ilerlemesi", ilerleme, 1.0, cx))
 }
 ```
 
@@ -839,18 +839,18 @@ Bir toolbar üzerinde hem bir count badge hem de küçük bir indicator birlikte
 ```rust
 use ui::{CountBadge, IconButton, IconName, Indicator, prelude::*};
 
-fn render_review_toolbar_item(issue_count: usize, has_errors: bool) -> impl IntoElement {
+fn inceleme_arac_cubugu_ogesi_render(sorun_sayisi: usize, hata_var: bool) -> impl IntoElement {
     h_flex()
         .gap_2()
         .items_center()
         .child(
             div()
                 .relative()
-                .child(IconButton::new("review", IconName::Check))
-                .when(issue_count > 0, |this| this.child(CountBadge::new(issue_count))),
+                .child(IconButton::new("inceleme", IconName::Check))
+                .when(sorun_sayisi > 0, |this| this.child(CountBadge::new(sorun_sayisi))),
         )
         .child(
-            Indicator::dot().color(if has_errors {
+            Indicator::dot().color(if hata_var {
                 Color::Error
             } else {
                 Color::Success
@@ -865,8 +865,8 @@ Bütün bu bileşenlerin kullanım kararı için kısa bir özet işe yarar:
 - İçerik içinde açıklama, aksiyon ve dismiss bir arada gerekiyorsa `Callout`.
 - Çok bölümlü bir modal içerik için `Modal`.
 - Kısa bir karar veya uyarı diyalogu için `AlertModal`.
-- Yeni özellik duyurusu için `AnnouncementToast` ile notification lifecycle birlikte.
+- Yeni özellik duyurusu için `AnnouncementToast` ile notification yaşam döngüsü birlikte.
 - Bir ikon üzerine sayaç bindirmek için `CountBadge`.
-- Var/yok veya nokta düzeyinde bir state için `Indicator`.
+- Var/yok veya nokta düzeyinde bir durum için `Indicator`.
 - Belirli bir yatay ilerleme için `ProgressBar`.
 - Belirli bir kompakt ilerleme için `CircularProgress`.

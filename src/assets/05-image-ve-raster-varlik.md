@@ -1,6 +1,6 @@
 # Görsel ve raster varlık akışı
 
-Bu bölüm, vektörel logolar ve raster (PNG/JPG/WebP/GIF) görseller için kullanılan boru hattını anlatır. İkon sistemiyle paylaşılan bir SVG render hattı vardır, ama tüketim yüzeyi farklıdır. `images/` klasörü serbest boyutlu vektör görsellere ev sahipliği yapar. Raster image'lar ise `img()` element'i ve `ImageSource` enum'u üzerinden akar. Bu ayrım, uzaktan URL'den gelen görsel ile binary'ye gömülü logonun aynı arayüzü nasıl paylaştığını açıklar.
+Bu bölüm, vektörel logolar ve raster (PNG/JPG/WebP/GIF) görseller için kullanılan hattı anlatır. İkon sistemiyle paylaşılan bir SVG render hattı vardır, ama tüketim yüzeyi farklıdır. `images/` klasörü serbest boyutlu vektör görsellere ev sahipliği yapar. Raster image'lar ise `img()` element'i ve `ImageSource` enum'u üzerinden akar. Bu ayrım, uzaktan URL'den gelen görsel ile binary'ye gömülü logonun aynı arayüzü nasıl paylaştığını açıklar.
 
 Bölüm boyunca `Resource::Embedded` ve `Resource::Path` koşullarının ne zaman seçildiğini görürsün. `ImageAssetLoader` format desteği ve image cache davranışı da aynı akış içinde ele alınır.
 
@@ -40,8 +40,8 @@ pub enum VectorName {
 
 impl VectorName {
     pub fn path(&self) -> Arc<str> {
-        let file_stem: &'static str = self.into();
-        format!("images/{file_stem}.svg").into()
+        let dosya_govdesi: &'static str = self.into();
+        format!("images/{dosya_govdesi}.svg").into()
     }
 }
 ```
@@ -67,17 +67,17 @@ pub struct Vector {
 }
 
 impl Vector {
-    pub fn new(vector: VectorName, width: Rems, height: Rems) -> Self {
+    pub fn new(vektor: VectorName, genislik: Rems, yukseklik: Rems) -> Self {
         Self {
-            path: vector.path(),
+            path: vektor.path(),
             color: Color::default(),
-            size: Size { width, height },
+            size: Size { width: genislik, height: yukseklik },
             transformation: Transformation::default(),
         }
     }
 
-    pub fn square(vector: VectorName, size: Rems) -> Self {
-        Self::new(vector, size, size)
+    pub fn square(vektor: VectorName, boyut: Rems) -> Self {
+        Self::new(vektor, boyut, boyut)
     }
 }
 ```
@@ -98,13 +98,13 @@ impl Vector {
 ```rust
 impl RenderOnce for Vector {
     fn render(self, _window: &mut Window, cx: &mut App) -> impl IntoElement {
-        let width = self.size.width;
-        let height = self.size.height;
+        let genislik = self.size.width;
+        let yukseklik = self.size.height;
 
         svg()
             .flex_none()
-            .w(width)
-            .h(height)
+            .w(genislik)
+            .h(yukseklik)
             .path(self.path)
             .text_color(self.color.color(cx))
             .with_transformation(self.transformation)
@@ -118,18 +118,18 @@ impl RenderOnce for Vector {
 
 ## 3. `img()` element'i ve `ImageSource`
 
-Raster image'lar, uzak URL'ler ve filesystem'deki büyük görseller için `img()` element'i kullanırsın. `gpui` crate'indeki tanımı dört kaynak türünü desteklemek üzere tasarlanmıştır:
+Raster image'lar, uzak URL'ler ve dosya sistemindeki büyük görseller için `img()` element'i kullanırsın. `gpui` crate'indeki tanımı dört kaynak türünü desteklemek üzere tasarlanmıştır:
 
 ```rust
 #[derive(Clone)]
 pub enum ImageSource {
-    /// The image content will be loaded from some resource location
+    /// Görsel içeriği bir kaynak konumundan yüklenecek.
     Resource(Resource),
-    /// Cached image data
+    /// Cache'lenmiş görsel verisi.
     Render(Arc<RenderImage>),
-    /// Cached image data
+    /// Cache'lenmiş görsel verisi.
     Image(Arc<Image>),
-    /// A custom loading function to use
+    /// Kullanılacak özel yükleme fonksiyonu.
     Custom(Arc<dyn Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>>),
 }
 ```
@@ -147,11 +147,11 @@ Dört varyantın anlamı:
 
 ```rust
 impl<'a> From<&'a str> for ImageSource {
-    fn from(s: &'a str) -> Self {
-        if is_uri(s) {
-            Self::Resource(Resource::Uri(s.to_string().into()))
+    fn from(metin: &'a str) -> Self {
+        if is_uri(metin) {
+            Self::Resource(Resource::Uri(metin.to_string().into()))
         } else {
-            Self::Resource(Resource::Embedded(s.to_string().into()))
+            Self::Resource(Resource::Embedded(metin.to_string().into()))
         }
     }
 }
@@ -183,25 +183,25 @@ pub enum Resource {
 
 ```rust
 async move {
-    let bytes = match source.clone() {
+    let baytlar = match kaynak.clone() {
         Resource::Path(uri) => fs::read(uri.as_ref())?,
         Resource::Uri(uri) => {
-            let mut response = client.get(uri.as_ref(), ().into(), true).await
-                .with_context(|| format!("loading image asset from {uri:?}"))?;
-            let mut body = Vec::new();
-            response.body_mut().read_to_end(&mut body).await?;
-            if !response.status().is_success() {
+            let mut yanit = istemci.get(uri.as_ref(), ().into(), true).await
+                .with_context(|| format!("görsel varlığı yüklenemedi: {uri:?}"))?;
+            let mut govde = Vec::new();
+            yanit.body_mut().read_to_end(&mut govde).await?;
+            if !yanit.status().is_success() {
                 // ... ImageCacheError::BadStatus döner
             }
-            body
+            govde
         }
-        Resource::Embedded(path) => {
-            let data = asset_source.load(&path).ok().flatten();
-            if let Some(data) = data {
-                data.to_vec()
+        Resource::Embedded(yol) => {
+            let veri = varlik_kaynagi.load(&yol).ok().flatten();
+            if let Some(veri) = veri {
+                veri.to_vec()
             } else {
                 return Err(ImageCacheError::Asset(
-                    format!("Embedded resource not found: {}", path).into(),
+                    format!("Gömülü kaynak bulunamadı: {}", yol).into(),
                 ));
             }
         }
@@ -268,10 +268,10 @@ impl Asset for ImageAssetLoader {
     type Source = Resource;
     type Output = Result<Arc<RenderImage>, ImageCacheError>;
 
-    fn load(source: Self::Source, cx: &mut App) -> impl Future<Output = Self::Output> + Send + 'static {
-        let client = cx.http_client();
+    fn load(kaynak: Self::Source, cx: &mut App) -> impl Future<Output = Self::Output> + Send + 'static {
+        let istemci = cx.http_client();
         let svg_renderer = cx.svg_renderer();
-        let asset_source = cx.asset_source().clone();
+        let varlik_kaynagi = cx.asset_source().clone();
         async move {
             // ... yukarıdaki üç yol
         }
@@ -284,23 +284,23 @@ pub type ImgResourceLoader = AssetLogger<ImageAssetLoader>;
 Üç nokta önemlidir:
 
 - **`AssetLogger<T>` sarmalayıcısı:** `gpui` crate'inde tanımlı bu adapter, `T::Output` `Result` olduğunda `Err` varyantını log'a düşürür. Pratikte `img()` element'i `ImgResourceLoader = AssetLogger<ImageAssetLoader>` ile çalışır; yani hata durumunda log'a açıklayıcı bir mesaj girer, fakat exception fırlatılmaz.
-- **`cx.svg_renderer()` ve `cx.http_client()` clone'ları async kapanışa kapatılır:** Trait `'static` Future istediği için async kapanış kendi `cx` referansını taşıyamaz. Bu yüzden ihtiyaç duyulan servisler (svg renderer, http client, asset source) kapanış başlangıcında ödenir.
+- **`cx.svg_renderer()` ve `cx.http_client()` clone'ları async kapanışa kapatılır:** Trait `'static` Future istediği için async kapanış kendi `cx` referansını taşıyamaz. Bu yüzden ihtiyaç duyulan servisler (svg renderer, http client, varlık kaynağı) kapanış başlangıcında ödenir.
 - **Output `Arc<RenderImage>`:** Yüklenmiş image cache'lenmiş şekilde döner; aynı kaynak için ikinci çağrı aynı `Arc` referansını döndürür. `RenderImage` `ImageId` taşır ve GPU sprite atlas'ında bu id ile aranır.
 
 ### 5.1 `use_asset` cache mekaniği
 
-`ImageSource::use_data` çağrısı `window.use_asset::<ImgResourceLoader>(resource, cx)` ile asset cache'ine girer:
+`ImageSource::use_data` çağrısı `window.use_asset::<ImgResourceLoader>(kaynak, cx)` ile asset cache'ine girer:
 
 ```rust
-pub fn use_asset<A: Asset>(&mut self, source: &A::Source, cx: &mut App) -> Option<A::Output> {
-    let (task, is_first) = cx.fetch_asset::<A>(source);
-    task.clone().now_or_never().or_else(|| {
-        if is_first {
+pub fn use_asset<A: Asset>(&mut self, kaynak: &A::Source, cx: &mut App) -> Option<A::Output> {
+    let (gorev, ilk_mi) = cx.fetch_asset::<A>(kaynak);
+    gorev.clone().now_or_never().or_else(|| {
+        if ilk_mi {
             let entity_id = self.current_view();
             self.spawn(cx, {
-                let task = task.clone();
+                let gorev = gorev.clone();
                 async move |cx| {
-                    task.await;
+                    gorev.await;
 
                     cx.on_next_frame(move |_, cx| {
                         cx.notify(entity_id);
@@ -316,7 +316,7 @@ pub fn use_asset<A: Asset>(&mut self, source: &A::Source, cx: &mut App) -> Optio
 
 Akış:
 
-1. `cx.fetch_asset::<A>(source)` cache'te task var mı bakar. Yoksa yeni Future başlatır.
+1. `cx.fetch_asset::<A>(kaynak)` cache'te task var mı bakar. Yoksa yeni Future başlatır.
 2. `now_or_never()` Future hazırsa sonucu döner; aksi halde `None` döner ve view'in re-render edilmesi için bir tetikleyici kurarsın.
 3. İlk çağrıda (`is_first == true`) Future tamamlandığında `cx.notify(entity_id)` çağrılır; böylece görsel yüklenince view yeniden çizilir ve `use_asset` ikinci çağrıda sonucu döner.
 
@@ -335,7 +335,7 @@ Image cache'in iki seviyesi vardır:
 
 ```rust
 h_flex()
-    .image_cache(gpui::retain_all("all icons"))
+    .image_cache(gpui::retain_all("tum ikonlar"))
     .flex_wrap()
     .gap_2()
     .children(<IconName as strum::IntoEnumIterator>::iter().map(...))
@@ -398,7 +398,7 @@ img("https://example.com/avatars/user_42.png")
     .with_fallback(|| Icon::new(IconName::User).into_any_element())
 
 // 4. Filesystem'deki ekran görüntüsü
-img(Path::new(&path_to_screenshot))
+img(Path::new(&ekran_goruntusu_yolu))
     .object_fit(ObjectFit::Contain)
     .with_loading(|| div().child("Yükleniyor..."))
 ```
@@ -420,14 +420,14 @@ img("images/x.png")
     ▼ String -> ImageSource (heuristic)
 ImageSource::Resource(Resource::Embedded("images/x.png"))
     │
-    ▼ window.use_asset::<ImgResourceLoader>(resource, cx)
-cx.fetch_asset::<ImgResourceLoader>(resource)
+    ▼ window.use_asset::<ImgResourceLoader>(kaynak, cx)
+cx.fetch_asset::<ImgResourceLoader>(kaynak)
     │
     ▼ task cache: ilk çağrıda Future başlat
 ImageAssetLoader::load
     ├── Resource::Path -> fs::read
     ├── Resource::Uri  -> cx.http_client().get(...)
-    └── Resource::Embedded -> cx.asset_source().load(&path)
+    └── Resource::Embedded -> cx.asset_source().load(&yol)
     │
     ▼ image::guess_format(bytes)
     │
@@ -444,8 +444,8 @@ ImageAssetLoader::load
 
 Üç noktanın altı çizilmelidir:
 
-- **Resource tabanlı image yükleme async'dir**, render zamanı sıfır değildir. İlk frame'de görsel görünmez kalabilir; loading state'i bilinçli yönetilmelidir. `ImageSource::Render` gibi önceden decode edilmiş kaynaklarda bu bekleme yoktur.
+- **Resource tabanlı image yükleme async'dir**, render zamanı sıfır değildir. İlk frame'de görsel görünmez kalabilir; yükleme durumu bilinçli yönetilmelidir. `ImageSource::Render` gibi önceden decode edilmiş kaynaklarda bu bekleme yoktur.
 - **`ImgResourceLoader` üç kaynak türünü birden taşır**; bu yüzden `img()` element'i URL, path ve embedded path için aynı API'yi sunar.
-- **Cache hash'i Resource türünü içerir**; aynı path string'i bir kez URI bir kez Embedded olarak yorumlanırsa farklı cache anahtarları üretilir. Bu pratik olarak çakışma yaratmaz çünkü dönüşüm deterministtir, fakat custom loader yazılırken hash davranışı dikkate alınmalıdır.
+- **Cache hash'i Resource türünü içerir**; aynı path string'i bir kez URI bir kez Embedded olarak yorumlanırsa farklı cache anahtarları üretilir. Bu pratik olarak çakışma yaratmaz çünkü dönüşüm deterministtir, fakat özel loader yazılırken hash davranışı dikkate alınmalıdır.
 
 ---

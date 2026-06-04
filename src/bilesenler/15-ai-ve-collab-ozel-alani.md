@@ -1,11 +1,11 @@
 # 15. AI ve Collab Özel Alanı
 
-Bu bölümdeki bileşenler Zed'in AI, agent, provider, collaboration ve update akışlarına yakından bağlıdır. Bu yüzden genel bir uygulamada kullanılmadan önce domain modelinin bu API'lere gerçekten uyup uymadığı kontrol edilmelidir. Aksi halde component görsel olarak hazır görünür, fakat modelin ihtiyaçlarıyla çelişebilir.
+Bu bölümdeki bileşenler Zed'in AI, agent, provider, collaboration ve update akışlarına yakından bağlıdır. Bu yüzden genel bir uygulamada kullanılmadan önce alan modelinin bu API'lere gerçekten uyup uymadığı kontrol edilmelidir. Aksi halde bileşen görsel olarak hazır görünür, fakat modelin ihtiyaçlarıyla çelişebilir.
 
 Bu ailede iki genel kural vardır:
 
-- Domain'e bağlı bileşenlerde gerçek servis state'i component'in içine taşınmaz. Component'e yalnızca render için gereken label, status, ikon, callback ve metadata verirsin.
-- AI ve Collab bileşenleri başka panellerde kompoze edilirken domain state'i view'da tutulur. Bu component'ler yalnızca o state'i görsel olarak düzenler.
+- Alana bağlı bileşenlerde gerçek servis durumu bileşenin içine taşınmaz. Bileşene yalnızca render için gereken etiket, durum, ikon, callback ve üstveri verirsin.
+- AI ve Collab bileşenleri başka panellerde kompoze edilirken alan durumu view'da tutulur. Bu bileşenler yalnızca o durumu görsel olarak düzenler.
 
 ![AI ve Collab Domain Haritası](assets/ai-collab-domain-haritasi.svg)
 
@@ -20,8 +20,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- MCP server, agent provider veya AI integration için ayar satırı göstermek gerektiğinde.
-- Status indicator, source icon, detail label, action button ve detay satırını tek bir kompakt row'da toplamak için.
+- MCP server, agent sağlayıcısı veya AI entegrasyonu için ayar satırı göstermek gerektiğinde.
+- Durum göstergesi, kaynak ikonu, detay etiketi, eylem butonu ve detay satırını tek bir kompakt row'da toplamak için.
 
 Temel API:
 
@@ -42,10 +42,10 @@ AI ayar satırı enum'ları:
 
 Davranış:
 
-- Bir icon verilmediğinde, label'ın ilk harfinden küçük bir avatar otomatik olarak üretilir.
+- Bir icon verilmediğinde, etiketin ilk harfinden küçük bir avatar otomatik olarak üretilir.
 - `Starting` ve `Authenticating` durumlarında ikon, opacity üzerinden pulse animasyonu alır.
-- Status ile source için tooltip otomatik üretilir.
-- Status indicator, `IconDecorationKind::Dot` ile ikonun köşesine yerleşir.
+- Status ve source için tooltip otomatik üretilir.
+- Durum göstergesi, `IconDecorationKind::Dot` ile ikonun köşesine yerleşir.
 
 Örnek:
 
@@ -55,16 +55,16 @@ use ui::{
     prelude::*,
 };
 
-fn render_mcp_setting_row() -> impl IntoElement {
+fn mcp_ayar_satiri_render() -> impl IntoElement {
     AiSettingItem::new(
         "postgres-mcp",
         "Postgres",
         AiSettingItemStatus::Running,
         AiSettingItemSource::Extension,
     )
-    .detail_label("3 tools")
+    .detail_label("3 araç")
     .action(
-        IconButton::new("postgres-settings", IconName::Settings)
+        IconButton::new("postgres-ayarlari", IconName::Settings)
             .icon_size(IconSize::Small)
             .icon_color(Color::Muted),
     )
@@ -92,8 +92,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Onboarding veya provider setup ekranında bir agent seçeneğini bir card-button şeklinde göstermek için.
-- Üstte ikon veya isim, altta state bilgisi olan küçük bir seçim yüzeyi gerektiğinde.
+- Onboarding veya provider setup ekranında bir agent seçeneğini kart buton şeklinde göstermek için.
+- Üstte ikon veya isim, altta durum bilgisi olan küçük bir seçim yüzeyi gerektiğinde.
 
 Temel API:
 
@@ -106,19 +106,19 @@ Temel API:
 
 Davranış:
 
-- Disabled değilse ve bir `on_click` bağlanmışsa, hover sırasında pointer cursor, hover background ve border rengi uygulanır.
-- `state(...)` verildiğinde, alt bölüm border-top ile subtle bir background ile ayrılır.
+- Disabled değilse ve bir `on_click` bağlanmışsa, hover sırasında pointer cursor, hover arka planı ve border rengi uygulanır.
+- `state(...)` verildiğinde, alt bölüm border-top ve subtle arka plan ile ayrılır.
 
 Örnek:
 
 ```rust
 use ui::{AgentSetupButton, Icon, IconName, IconSize, prelude::*};
 
-fn render_agent_setup_button() -> impl IntoElement {
-    AgentSetupButton::new("setup-zed-agent")
+fn ajan_kurulum_butonu_render() -> impl IntoElement {
+    AgentSetupButton::new("zed-ajani-kur")
         .icon(Icon::new(IconName::ZedAgent).size(IconSize::Small))
         .name("Zed Agent")
-        .state(Label::new("Ready").size(LabelSize::Small).color(Color::Success))
+        .state(Label::new("Hazır").size(LabelSize::Small).color(Color::Success))
         .on_click(|_, _window, _cx| {})
 }
 ```
@@ -129,8 +129,8 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Boş bir card üretmemek için en azından icon ile name veya state verilmesi beklenir.
-- Disabled durumdayken click handler render edilmez.
+- Boş bir kart üretmemek için en azından icon ile name veya state verilmesi beklenir.
+- Disabled durumdayken click işleyicisi render edilmez.
 
 ## ThreadItem
 
@@ -143,8 +143,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Bir agent thread listesinde title, status, timestamp, worktree metadata'sı ve diff özetini tek satırda göstermek için.
-- Hover action slot'u ve selected/focused görsel state'i gerektiren thread listelerinde.
+- Bir agent thread listesinde başlık, durum, zaman bilgisi, worktree üstverisi ve diff özetini tek satırda göstermek için.
+- Hover eylem alanı ve selected/focused görsel durumu gerektiren thread listelerinde.
 
 Temel API:
 
@@ -172,17 +172,17 @@ Thread metadata taşıyıcıları:
 | :-- | :-- |
 | `AgentThreadStatus` | Thread satırının tamamlanmış, çalışıyor, onay bekliyor veya hata durumunda olduğunu seçer. |
 | `ThreadItemWorktreeInfo` | Thread satırında gösterilecek worktree adı, branch adı, tam path, highlight pozisyonları ve worktree türünü taşır. |
-| `WorktreeKind` | Worktree bilgisini `Main` veya `Linked` olarak sınıflandırır; component yalnız gösterilebilir linked metadata'yı öne çıkarır. |
+| `WorktreeKind` | Worktree bilgisini `Main` veya `Linked` olarak sınıflandırır; bileşen yalnız gösterilebilir linked üstveriyi öne çıkarır. |
 
 Davranış:
 
-- `Running` status, `LoadCircle` ikonunu rotate animation ile birlikte gösterir.
+- `Running` status'u, `LoadCircle` ikonunu rotate animation ile birlikte gösterir.
 - `WaitingForConfirmation` warning ikonu ve bir tooltip üretir.
 - `Error` durumu close ikonu ve bir tooltip üretir.
 - `notified(true)` accent bir circle kullanır.
-- Metadata satırında linked worktree bilgisi, project name veya path, diff stat ve timestamp sırayla render edilir.
-- `title_slot(...)` verildiğinde başlık metnini component değil verilen element çizer; bu yol özel ikon, badge veya zengin başlık kompozisyonu için ayrılmıştır.
-- `is_truncated(false)` gradient taşma katmanını kapatır; parent layout başlık taşmasını kendisi yönetecekse kullanılır.
+- Üstveri satırında linked worktree bilgisi, project name veya path, diff stat ve timestamp sırayla render edilir.
+- `title_slot(...)` verildiğinde başlık metnini bileşen değil verilen element çizer; bu yol özel ikon, badge veya zengin başlık kompozisyonu için ayrılmıştır.
+- `is_truncated(false)` gradient taşma katmanını kapatır; üst yerleşim başlık taşmasını kendisi yönetecekse kullanılır.
 - `action_slot(...)` yalnızca `.hovered(true)` durumunda görünür.
 
 Örnek:
@@ -193,15 +193,15 @@ use ui::{
     ThreadItemWorktreeInfo, WorktreeKind, prelude::*,
 };
 
-fn render_agent_thread() -> impl IntoElement {
-    ThreadItem::new("thread-parser", "Fix parser error recovery")
+fn ajan_thread_satiri_render() -> impl IntoElement {
+    ThreadItem::new("parser-thread", "Parser hata toparlamasını düzelt")
         .icon(IconName::AiClaude)
         .status(AgentThreadStatus::Running)
         .timestamp("12m")
         .worktrees(vec![ThreadItemWorktreeInfo {
-            worktree_name: Some("parser-fix".into()),
-            branch_name: Some("fix/parser-recovery".into()),
-            full_path: "/worktrees/parser-fix".into(),
+            worktree_name: Some("parser-duzeltme".into()),
+            branch_name: Some("fix/parser-hata-toparlama".into()),
+            full_path: "/worktrees/parser-duzeltme".into(),
             highlight_positions: Vec::new(),
             kind: WorktreeKind::Linked,
         }])
@@ -209,7 +209,7 @@ fn render_agent_thread() -> impl IntoElement {
         .removed(7)
         .hovered(true)
         .action_slot(
-            IconButton::new("delete-thread", IconName::Trash)
+            IconButton::new("thread-sil", IconName::Trash)
                 .icon_size(IconSize::Small)
                 .icon_color(Color::Muted),
         )
@@ -224,9 +224,9 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- `ThreadItem` yoğun bir domain component'idir. Genel bir liste satırı ihtiyacı için `ListItem` veya özel bir `h_flex()` kompozisyonu çok daha temiz bir çözüm sunar.
-- Worktree metadata'sında yalnızca `WorktreeKind::Linked` olan ve worktree veya branch bilgisi bulunan girdiler gösterilir; diğerleri bileşen tarafından filtrelenir.
-- Hover state'i component içinde ölçülmez. Parent view, `.hovered(...)` değerini doğru şekilde yönetmek durumundadır.
+- `ThreadItem` yoğun bir alan bileşenidir. Genel bir liste satırı ihtiyacı için `ListItem` veya özel bir `h_flex()` kompozisyonu çok daha temiz bir çözüm sunar.
+- Worktree üstverisinde yalnızca `WorktreeKind::Linked` olan ve worktree veya branch bilgisi bulunan girdiler gösterilir; diğerleri bileşen tarafından filtrelenir.
+- Hover durumu bileşen içinde ölçülmez. Üst view, `.hovered(...)` değerini doğru şekilde yönetmek durumundadır.
 
 ## ConfiguredApiCard
 
@@ -240,7 +240,7 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - Bir API key veya provider credential'ın yapılandırılmış olduğu durumu göstermek için.
-- Reset veya remove key aksiyonunu aynı satırda sunmak için.
+- Anahtarı sıfırlama veya kaldırma aksiyonunu aynı satırda sunmak için.
 
 Temel API:
 
@@ -253,20 +253,20 @@ Temel API:
 
 Davranış:
 
-- Sol tarafta success rengiyle bir `Check` ikonu ve label render edilir.
+- Sol tarafta success rengiyle bir `Check` ikonu ve etiket render edilir.
 - Button label verilmediğinde varsayılan olarak `"Reset Key"` gelir.
 - Button'ın start ikonu `Undo`'dur.
-- `disabled(true)`, button'ı disabled hâle getirir ve click handler bağlanmaz.
+- `disabled(true)`, button'ı disabled hâle getirir ve click işleyicisi bağlanmaz.
 
 Örnek:
 
 ```rust
 use ui::{ConfiguredApiCard, prelude::*};
 
-fn render_configured_key_card() -> impl IntoElement {
-    ConfiguredApiCard::new("OpenAI API key configured")
-        .button_label("Reset Key")
-        .tooltip_label("Click to replace the current key")
+fn yapilandirilmis_anahtar_karti_render() -> impl IntoElement {
+    ConfiguredApiCard::new("OpenAI API anahtarı yapılandırıldı")
+        .button_label("Anahtarı sıfırla")
+        .tooltip_label("Geçerli anahtarı değiştirmek için tıkla")
         .on_click(|_, _window, _cx| {})
 }
 ```
@@ -279,7 +279,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Card yalnızca configured durumu temsil eder; bir credential giriş formu değildir.
+- Kart yalnızca configured durumu temsil eder; bir credential giriş formu değildir.
 - `button_tab_index(...)`, provider setup ekranında klavye sırasını ayarlamak için kullanırsın.
 
 ## SkillsIllustration
@@ -294,25 +294,25 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - Onboarding, "what's new" veya agent skills özelliklerini tanıtan boş durum ekranlarında. Skill adları ve source bilgisiyle küçük bir görsel tanıtım alanı gerektiğinde.
-- Henüz veri olmayan ama özelliğin görsel anlamını anlatmak gereken alanlarda dekoratif bir illustration olarak.
+- Henüz veri olmayan ama özelliğin görsel anlamını anlatmak gereken alanlarda dekoratif bir illüstrasyon olarak.
 
 Ne zaman kullanmazsın:
 
 - Gerçek bir agent thread listesi için: `ThreadItem` ile `List` kompozisyonu kullanırsın.
 - Etkileşim gerektiren agent provider seçimi için: `AgentSetupButton` veya `AiSettingItem` çok daha uygundur.
-- Gerçek skill katalogu, arama veya seçim listesi için bu component kullanılmaz; yalnızca statik bir illustration'dır ve click handler veya state yüzeyi sunmaz.
+- Gerçek skill katalogu, arama veya seçim listesi için bu bileşen kullanılmaz; yalnızca statik bir illüstrasyondur ve click işleyicisi veya durum yüzeyi sunmaz.
 
 Temel API:
 
 - Constructor: `SkillsIllustration::new()`. Bu çağrı argümansızdır.
 - `RenderOnce` implement eder; sonradan eklenen bir style builder zinciri yoktur.
-- Konteyner içinde yerleştirildiğinde yüksekliği 150px civarında sabittir; genişliği ise parent layout belirler.
+- Kapsayıcı içinde yerleştirildiğinde yüksekliği 150px civarında sabittir; genişliği ise üst yerleşim belirler.
 
 Davranış:
 
 - Üç satırlı bir skill listesi çizer. Her satırda iki küçük skill etiketi yer alır.
 - Her skill etiketi `Sparkle` ikonu, skill adı ve parantez içinde source bilgisini gösterir.
-- Üst katmanda editor background renginden transparana giden bir gradient fade bulunur.
+- Üst katmanda editor arka plan renginden transparana giden bir gradient fade bulunur.
 - Renkler `cx.theme().colors().border`, `element_active` ve `editor_background` token'larından beslenir; bu sayede tema değişikliklerinde otomatik uyum sağlar.
 
 Örnek:
@@ -321,12 +321,12 @@ Davranış:
 use ui::prelude::*;
 use ui::SkillsIllustration;
 
-fn render_skills_onboarding() -> impl IntoElement {
+fn skills_tanitim_render() -> impl IntoElement {
     v_flex()
         .gap_2()
-        .child(Headline::new("Use agent skills").size(HeadlineSize::Large))
+        .child(Headline::new("Ajan becerilerini kullan").size(HeadlineSize::Large))
         .child(
-            Label::new("Attach focused skills to give the agent reusable context.")
+            Label::new("Ajana yeniden kullanılabilir bağlam vermek için odaklı beceriler ekle.")
                 .size(LabelSize::Small)
                 .color(Color::Muted),
         )
@@ -336,14 +336,14 @@ fn render_skills_onboarding() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `agent_ui` crate'i ve onboarding ilişkili akışlar: skill özelliğinin tanıtım alanlarında dekoratif bir illustration olarak.
+- `agent_ui` crate'i ve onboarding ilişkili akışlar: skill özelliğinin tanıtım alanlarında dekoratif bir illüstrasyon olarak.
 - `ui` crate'i: bileşenin tek tanım dosyası; alt yapı taşları (`Label`, `Icon`, `h_flex`, `v_flex`) doğrudan ui crate'inden tüketilir.
 
 Dikkat edeceğin noktalar:
 
-- Bu bileşen yalnızca görsel bir illustration'dır; gerçek thread, worktree veya agent verisi göstermek için kullanılmaması beklenir.
+- Bu bileşen yalnızca görsel bir illüstrasyondur; gerçek thread, worktree veya agent verisi göstermek için kullanılmaması beklenir.
 - İçindeki skill adları statiktir; gerçek proje veya kullanıcı skill listesinden beslenmez.
-- `SkillsIllustration::new()` çağrısı parametresizdir; renk veya boyut özelleştirmesi tamamen bileşenin kendi içine bağımlıdır. Farklı bir görsele ihtiyaç doğduğunda, kaynak dosyayı referans alarak özel bir illustration component'i yazmak daha uygun olur.
+- `SkillsIllustration::new()` çağrısı parametresizdir; renk veya boyut özelleştirmesi tamamen bileşenin kendi içine bağımlıdır. Farklı bir görsele ihtiyaç doğduğunda, kaynak dosyayı referans alarak özel bir illüstrasyon bileşeni yazmak daha uygun olur.
 
 ## CollabNotification
 
@@ -356,8 +356,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Incoming call, project share, contact request veya channel invite gibi iki aksiyonlu collaboration notification view'ı için.
-- Avatar, metin ve accept/dismiss buton düzenini standart bir şekilde tutmak için.
+- Gelen çağrı, proje paylaşımı, kişi isteği veya channel invite gibi iki aksiyonlu collaboration notification view'ı için.
+- Avatar, metin ve kabul/kapat buton düzenini standart bir şekilde tutmak için.
 
 Temel API:
 
@@ -367,7 +367,7 @@ Temel API:
 Davranış:
 
 - Avatar `px(40.)` boyutunda render edilir.
-- Sağ tarafta iki button dikey olarak yerleşir.
+- Sağ tarafta iki buton dikey olarak yerleşir.
 - İçerik `SmallVec<[AnyElement; 2]>` üzerinden tutulur ve bir `v_flex().truncate()` içinde render edilir.
 
 Örnek:
@@ -375,13 +375,13 @@ Davranış:
 ```rust
 use ui::{Button, CollabNotification, prelude::*};
 
-fn render_project_share_notification() -> impl IntoElement {
+fn proje_paylasim_bildirimi_render() -> impl IntoElement {
     CollabNotification::new(
         "https://avatars.githubusercontent.com/u/67129314?v=4",
-        Button::new("open-shared-project", "Open"),
-        Button::new("dismiss-shared-project", "Dismiss"),
+        Button::new("paylasilan-projeyi-ac", "Aç"),
+        Button::new("paylasimi-kapat", "Kapat"),
     )
-    .child(Label::new("Ada shared a project with you"))
+    .child(Label::new("Ada seninle bir proje paylaştı"))
     .child(Label::new("zed").color(Color::Muted))
 }
 ```
@@ -394,7 +394,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Accept ve dismiss button'larının callback'leri parent notification view'ında bağlanmalıdır.
+- Kabul ve kapat butonlarının callback'leri üst notification view'ında bağlanmalıdır.
 - Uzun kullanıcı veya proje adlarında, child label'lara bir truncate davranışının eklemen gerekir; aksi halde satır taşabilir.
 
 ## Agent Skills UI
@@ -418,14 +418,14 @@ Davranış:
 - Slash autocomplete açıldığında provider önce delegate'e `slash_autocomplete_invoked(...)` bildirir; native agent bunu global ve proje-local skills taramasını başlatmak için kullanır.
 - Slash listesinde Skills, Agent Commands grubundan önce sıralanır. Skill completion label'ında ad ve scope/source birlikte gösterilir; documentation alanında skill description yer alır.
 - Skill seçildiğinde metne `MentionUri::Skill` link'i eklersin. Link veya mention açıldığında ilgili `SKILL.md` dosyası workspace içinde absolute path ile açılır.
-- `SkillLoadingErrorsUpdated` event'leri thread view'da warning `Callout` olarak render edilir. Her callout `Open File` butonu ve dismiss icon button'ı taşır; dosya düzeltildiğinde veya kaldırıldığında dismiss kaydı da temizlenir.
+- `SkillLoadingErrorsUpdated` event'leri thread view'da warning `Callout` olarak render edilir. Her callout kaynakta `Open File` butonu ve dismiss ikon butonu taşır; dosya düzeltildiğinde veya kaldırıldığında dismiss kaydı da temizlenir.
 - Rules-to-Skills migration tek seferlik ve non-destructive çalışır; tüm kullanıcılar için aynı şekilde uygulanır. `MIGRATION_DONE_KEY` global KVP anahtarıyla bir kez çalışacak şekilde korunur. Non-default Rules global skills dizinine `SKILL.md` olarak taşınır; Default Rules ve özelleştirilmiş built-in prompt gövdeleri global `AGENTS.md` dosyasına eklersin. Sonuç `rules_to_skills_migration_result` anahtarıyla saklarsın.
 - Skills announcement toast'u `auto_update_ui` içinde "Introducing Skills Support" başlığıyla kurarsın. Migration sonucu boş değilse Rules dönüşümünü anlatan ek bullet gösterir; primary action agent paneline focus eder, secondary action skills dokümantasyonuna gider. Toast `skills_announcement_dismissed` KVP anahtarıyla bir kez dismiss edilir.
 - Tool permissions setup sayfasında `skill` aracı ayrı bir satırdır. Regex pattern'leri skill adıyla değil, skill'in `SKILL.md` dosyasının absolute path'iyle eşleşir.
 
 Dikkat edeceğin noktalar:
 
-- Skill gövdesi component state'ine kopyalanmaz; UI catalog metadata'sını, dosya yolunu ve yükleme hatalarını gösterir. Gövde, ihtiyaç anında skill tool tarafından okunur.
+- Skill gövdesi bileşen durumuna kopyalanmaz; UI catalog metadata'sını, dosya yolunu ve yükleme hatalarını gösterir. Gövde, ihtiyaç anında skill tool tarafından okunur.
 - Project-local skill ile global skill aynı adı kullanıyorsa, kullanıcı arayüzünde scope/source gösterilmelidir; aksi halde slash completion'da hangi skill'in seçildiği belirsizleşir.
 - Skill load hataları dismiss edilebilir ama bu kalıcı bir suppress değildir. Alttaki dosya düzelip sonra yeniden bozulursa hata tekrar gösterilir.
 
@@ -457,22 +457,22 @@ Temel API:
 
 Davranış:
 
-- `icon_animate(true)` çağrısı, ikona rotate animation uygular.
-- `.with_dismiss()` sağ tarafta bir dismiss icon button gösterir.
-- `.disabled(true)`, ana `ButtonLike` alanını disable eder. Bunun yanında checking, downloading ve installing convenience constructor'ları bu durumu kendileri uygular.
-- Ana alan `ButtonLike::new("update-button")` üzerinden render edilir.
-- Tooltip verildiğinde ana button area'ya bağlanır.
-- `checking()` ile `installing(...)` dönen `IconName::LoadCircle` kullanır; animation süresi 2 saniyedir. `downloading(...)` `IconName::Download`, `errored(...)` ise `IconName::Warning` ile çizilir.
-- Convenience constructor'ların varsayılan mesajları şu şekildedir: `checking()` "Checking for Zed Updates…", `downloading(...)` "Downloading Zed Update…", `installing(...)` "Installing Zed Update…", `errored(...)` ise "Failed to Update". Özel bir metin gerektiğinde `UpdateButton::new(...)` ile açıkça bir state kurarsın.
-- Kenarlık rengi disabled state'e göre değişir: aktif konumda `colors().text.opacity(0.15)` ile yumuşatılmış bir border, disabled konumda ise standart `colors().border` kullanırsın. Bu nedenle aktif `updated(...)` ve `errored(...)` durumları, disabled olan checking, downloading ve installing durumlarından daha belirgin bir kenarlık taşır.
-- Title bar'daki `UpdateVersion` tooltip'i `Update to Version: ...` biçimindedir; SHA tabanlı bir version'da kısaltılmış SHA yerine tam SHA gösterilir.
+- `icon_animate(true)` çağrısı, ikona dönme animasyonu uygular.
+- `.with_dismiss()` sağ tarafta bir kapatma ikon butonu gösterir.
+- `.disabled(true)`, ana `ButtonLike` alanını devre dışı bırakır. Bunun yanında `checking`, `downloading` ve `installing` hazır kurucuları bu durumu kendileri uygular.
+- Ana alan `ButtonLike::new("guncelleme-butonu")` üzerinden render edilir.
+- İpucu verildiğinde ana buton alanına bağlanır.
+- `checking()` ile `installing(...)` dönen `IconName::LoadCircle` kullanır; animasyon süresi 2 saniyedir. `downloading(...)` `IconName::Download`, `errored(...)` ise `IconName::Warning` ile çizilir.
+- Hazır kurucuların port arayüzünde ürettiği varsayılan mesajlar şu biçimde olmalıdır: `checking()` `"Zed güncellemeleri denetleniyor…"`, `downloading(...)` `"Zed güncellemesi indiriliyor…"`, `installing(...)` `"Zed güncellemesi kuruluyor…"`, `errored(...)` ise `"Güncelleme Başarısız"`. Özel bir metin gerektiğinde `UpdateButton::new(...)` ile açıkça bir durum kurarsın.
+- Kenarlık rengi devre dışı duruma göre değişir: aktif konumda `colors().text.opacity(0.15)` ile yumuşatılmış bir kenarlık, devre dışı konumda ise standart `colors().border` kullanırsın. Bu nedenle aktif `updated(...)` ve `errored(...)` durumları, devre dışı olan `checking`, `downloading` ve `installing` durumlarından daha belirgin bir kenarlık taşır.
+- Başlık çubuğundaki `UpdateVersion` ipucu `"Sürüme Güncelle: ..."` biçimindedir; SHA tabanlı bir sürümde kısaltılmış SHA yerine tam SHA gösterilir.
 
 Örnek:
 
 ```rust
 use ui::{UpdateButton, prelude::*};
 
-fn render_ready_update_button() -> impl IntoElement {
+fn hazir_guncelleme_butonu_render() -> impl IntoElement {
     UpdateButton::updated("1.99.0")
         .on_click(|_, _window, _cx| {})
         .on_dismiss(|_, _window, _cx| {})
@@ -485,8 +485,8 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Bu component title bar bağlamına göre tasarlanmıştır; genel bir sayfa CTA'sı olarak kullanılması beklenmez.
-- `checking()`, `downloading(...)` ve `installing(...)` constructor'ları zaten disabled bir hâlde gelir. Bu yüzden bu durumlarda click handler bağlamak anlamsızdır; kullanıcı bir aksiyon yapabilmeliyse `updated(...)`, `errored(...)` veya `UpdateButton::new(...)` ile açıkça bir state kurmak gerekir.
+- Bu bileşen title bar bağlamına göre tasarlanmıştır; genel bir sayfa CTA'sı olarak kullanılması beklenmez.
+- `checking()`, `downloading(...)` ve `installing(...)` constructor'ları zaten disabled bir hâlde gelir. Bu yüzden bu durumlarda click işleyicisi bağlamak anlamsızdır; kullanıcı bir aksiyon yapabilmeliyse `updated(...)`, `errored(...)` veya `UpdateButton::new(...)` ile açıkça bir durum kurmak gerekir.
 - `updated(...)` ve `errored(...)` dismiss gösterir; bir dismiss callback'i bağlanmadığında button görünür kalır ama state temizlenmez.
 
 ## AI/Collab Kompozisyon Örnekleri
@@ -496,7 +496,7 @@ Bir collab özet satırı için Facepile, Chip ve DiffStat birlikte kullanabilir
 ```rust
 use ui::{Avatar, Chip, DiffStat, Facepile, prelude::*};
 
-fn render_collab_summary() -> impl IntoElement {
+fn collab_ozeti_render() -> impl IntoElement {
     h_flex()
         .gap_2()
         .items_center()
@@ -508,10 +508,10 @@ fn render_collab_summary() -> impl IntoElement {
         .child(
             v_flex()
                 .min_w_0()
-                .child(Label::new("Reviewing changes").truncate())
-                .child(Chip::new("2 reviewers").label_color(Color::Muted)),
+                .child(Label::new("Değişiklikler inceleniyor").truncate())
+                .child(Chip::new("2 inceleyen").label_color(Color::Muted)),
         )
-        .child(DiffStat::new("review-summary-diff", 12, 3))
+        .child(DiffStat::new("inceleme-ozeti-diff", 12, 3))
 }
 ```
 
@@ -523,7 +523,7 @@ use ui::{
     IconButton, IconName, IconSize, prelude::*,
 };
 
-fn render_agent_settings_summary() -> impl IntoElement {
+fn ajan_ayarlari_ozeti_render() -> impl IntoElement {
     v_flex()
         .gap_2()
         .child(
@@ -533,27 +533,27 @@ fn render_agent_settings_summary() -> impl IntoElement {
                 AiSettingItemStatus::Running,
                 AiSettingItemSource::Extension,
             )
-            .detail_label("Ready")
+            .detail_label("Hazır")
             .action(
-                IconButton::new("agent-settings", IconName::Settings)
+                IconButton::new("ajan-ayarlari", IconName::Settings)
                     .icon_size(IconSize::Small)
                     .icon_color(Color::Muted),
             ),
         )
-        .child(ConfiguredApiCard::new("Anthropic API key configured"))
+        .child(ConfiguredApiCard::new("Anthropic API anahtarı yapılandırıldı"))
 }
 ```
 
 Bu bölümdeki bileşenlerin nerede tercih edileceğini özetleyen kısa bir karar rehberi şöyle özetlenebilir:
 
 - Kişi görseli için `Avatar`; kişi grubu için `Facepile`.
-- Kompakt metadata etiketi için `Chip`.
+- Kompakt üstveri etiketi için `Chip`.
 - Eklenen ve silinen satır özetleri için `DiffStat`.
 - Açılır veya kapanır bir icon button için `Disclosure`.
-- Sağ kenarda yumuşak bir fade overlay için `GradientFade`.
-- Bundled bir SVG için `Vector`; raster veya dış kaynaklı bir görsel için GPUI `img(...)`.
-- Shortcut render için `KeyBinding`; açıklamalı bir shortcut hint için `KeybindingHint`.
+- Sağ kenarda yumuşak bir fade katmanı için `GradientFade`.
+- Paketlenmiş bir SVG için `Vector`; raster veya dış kaynaklı bir görsel için GPUI `img(...)`.
+- Kısayol render için `KeyBinding`; açıklamalı bir kısayol ipucu için `KeybindingHint`.
 - Focus ve scroll traversal için `Navigable`.
 - AI ayar satırı için `AiSettingItem`; provider credential state'i için `ConfiguredApiCard`; agent thread listesi için `ThreadItem`.
-- Agent skills özelliği için onboarding veya illustration alanı gerekiyorsa `SkillsIllustration` (yalnızca dekoratif).
-- Collaboration toast layout'u için `CollabNotification`; title bar update state'i için `UpdateButton`.
+- Agent skills özelliği için onboarding veya illüstrasyon alanı gerekiyorsa `SkillsIllustration` (yalnızca dekoratif).
+- Collaboration toast yerleşimi için `CollabNotification`; title bar update state'i için `UpdateButton`.

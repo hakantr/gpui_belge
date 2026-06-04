@@ -1,6 +1,6 @@
 # Serileştirme, OpenOptions, ProjectItem ve SearchableItem
 
-Çalışma alanında item açma yalnız `Pane::add_item` çağrısından ibaret değildir. Zed session restore, project item çözme, search bar ve collab follow gibi katmanlar da item trait'leri üzerinden bağlanır.
+Çalışma alanında item açma yalnız `Pane::add_item` çağrısından ibaret değildir. Zed oturum geri yükleme, project item çözme, search bar ve collab follow gibi katmanlar da item trait'leri üzerinden bağlanır.
 
 ---
 
@@ -92,17 +92,17 @@ Path bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve di
 | `register_serializable_item` | Bir `SerializableItem` tipini restore registry'sine ekler. |
 | `pane` | Open/restore sonucunda item'ların yerleştirildiği tab ve split yönetim modülüdür. |
 
-**Open, restore ve workspace konumu ek kapsamı.** Bu kayıtlar çalışma alanı açma hattının edge-case'lerini taşır: mevcut pencere bulma, local/remote proje açma, restore state ve workspace konum persist'i.
+**Open, restore ve workspace konumu ek kapsamı.** Bu kayıtlar çalışma alanı açma hattının sınır durumlarını taşır: mevcut pencere bulma, local/remote proje açma, restore state ve workspace konum persist'i.
 
 | API | Rol |
 | :-- | :-- |
 | `ActiveWorktreeCreation`, `AutoWatch`, `AddFolderToProject` | Worktree oluşturma state'i, auto-watch tercihi ve mevcut projeye klasör ekleme action'ını kapsar. |
 | `PreviousWorkspaceState`, `WorkspacePosition`, `WorkspaceHandle`, `ViewId` | Önceki workspace state'i, pencere/workspace konumu, workspace weak handle sözleşmesi ve view kimliği taşıyıcılarıdır. |
-| `SERIALIZATION_THROTTLE_TIME`, `delete_unloaded_items`, `apply_restored_multiworkspace_state`, `restore_multiworkspace` | Session serialization debounce sabiti, unload cleanup ve multi-workspace restore helper'larıdır. |
+| `SERIALIZATION_THROTTLE_TIME`, `delete_unloaded_items`, `apply_restored_multiworkspace_state`, `restore_multiworkspace` | Session serialization debounce sabiti, unload cleanup ve multi-workspace restore yardımcılarıdır. |
 | `last_opened_workspace_location`, `last_session_workspace_locations`, `remote_workspace_position_from_db` | DB veya session state'ten son local/remote workspace konumlarını okur. |
 | `workspace_windows_for_location`, `find_existing_workspace`, `get_any_active_multi_workspace`, `activate_any_workspace_window` | Açma isteği için yeniden kullanılabilecek pencere/workspace'i bulur veya aktif pencereye geçer. |
 | `with_active_or_new_workspace`, `open_new`, `prompt_for_open_path_and_open` | Aktif workspace'i kullanma, yeni pencere açma veya kullanıcıdan path isteyip açma akışlarını başlatır. |
-| `create_and_open_local_file`, `open_remote_project_with_new_connection`, `open_remote_project_with_existing_connection` | Yerel yeni dosya oluşturup açma ve uzak proje bağlantısını yeni veya mevcut bağlantıyla açma helper'larıdır. |
+| `create_and_open_local_file`, `open_remote_project_with_new_connection`, `open_remote_project_with_existing_connection` | Yerel yeni dosya oluşturup açma ve uzak proje bağlantısını yeni veya mevcut bağlantıyla açma yardımcılarıdır. |
 | `register_project_item`, `clone_active_item`, `move_item`, `move_active_item` | Project item tiplerini kaydeder; aktif item clone/taşıma işlemlerinin çalışma alanı tarafındaki düşük seviye girişleridir. |
 | `OpenLog`, `RevealLogInFileManager`, `OpenInTerminal`, `OpenTerminal` | Log dosyasını açma/gösterme ve terminali workspace veya dosya bağlamında açma action'larıdır. |
 | `ClearBookmarks`, `ClearNavigationHistory`, `ClearTrustedWorktrees`, `ToggleWorktreeSecurity` | Workspace kalıcılığında bookmark/navigation history/trusted worktree kayıtlarını temizler veya aktif worktree güvenlik durumunu değiştirir. |

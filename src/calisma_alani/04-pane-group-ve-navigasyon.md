@@ -1,6 +1,6 @@
 # PaneGroup, NavHistory, Toolbar ve Sidebar Entegrasyonu
 
-Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağacı, gezinme geçmişi, toolbar item'ları ve çoklu çalışma alanı sidebar birlikte çalışır.
+Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağacı, gezinme geçmişi, toolbar öğeleri ve çoklu çalışma alanı sidebar birlikte çalışır.
 
 ---
 
@@ -63,9 +63,9 @@ pub trait ToolbarItemView: Render + EventEmitter<ToolbarItemEvent> {
 - `ToolbarItemLocation::{Hidden, PrimaryLeft, PrimaryRight, Secondary}` çizim yerini belirler.
 - Item kendi yerini değiştirmek isterse `ToolbarItemEvent::ChangeLocation(...)` yayar.
 - `Toolbar::add_item(varlik, window, cx)` item'i kaydeder.
-- `Toolbar::set_active_item` aktif pane item değiştiğinde tüm toolbar item'larını günceller.
-- `Toolbar::focus_changed(focused, window, cx)` pane odağı değiştiğinde toolbar item'larına durumu iletir; `set_can_navigate(can_navigate, cx)` geri/ileri gezinme kontrolünün etkinliğini saklar ve toolbar'ı yeniden bildirir.
-- `contribute_context` görünür toolbar item'larının key context'e katkı vermesini sağlar.
+- `Toolbar::set_active_item` aktif pane item değiştiğinde tüm toolbar öğelerini günceller.
+- `Toolbar::focus_changed(focused, window, cx)` pane odağı değiştiğinde toolbar öğelerine durumu iletir; `set_can_navigate(can_navigate, cx)` geri/ileri gezinme kontrolünün etkinliğini saklar ve toolbar'ı yeniden bildirir.
+- `contribute_context` görünür toolbar öğelerinin key context'e katkı vermesini sağlar.
 
 ---
 
@@ -105,7 +105,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 - Sidebar ve panel boş durum akışları kök yolu olmayan çalışma alanında yeni thread veya terminal oluşturmaz; kullanıcı önce bir proje açmaya yönlendirilir.
 - Taslak thread girişleri ayrı icon ve kapatma davranışıyla gösterilir. Taslak başlığı mesaj editör içeriğinden üretildiği için sidebar görünür taslak editör'leri gözlemleyip yazıldıkça girişleri yeniler.
 
-**PaneGroup, toolbar ve sidebar API kapsamı.** Aşağıdaki public tiplerin ayrıntılı davranışı üstteki akışlarda yer alır; tablo, taşıyıcıların hangi kararı temsil ettiğini özetler.
+**PaneGroup, toolbar ve sidebar API kapsamı.** Aşağıdaki dışa açık tiplerin ayrıntılı davranışı üstteki akışlarda yer alır; tablo, taşıyıcıların hangi kararı temsil ettiğini özetler.
 
 | API | Rol |
 |-----|-----|
@@ -131,7 +131,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 | API | Rol |
 | :-- | :-- |
 | `ActivateItem`, `ActivatePreviousItem`, `ActivateNextItem`, `ActivateLastItem` | Aktif pane içindeki tab seçimini doğrudan, önceki/sonraki veya son aktif item yönünde değiştirir. |
-| `ActivatePane`, `ActivatePreviousPane`, `ActivateNextPane`, `ActivateLastPane` | Workspace içindeki pane seçimini explicit pane id, MRU veya sıra mantığıyla değiştirir. |
+| `ActivatePane`, `ActivatePreviousPane`, `ActivateNextPane`, `ActivateLastPane` | Workspace içindeki pane seçimini açık pane id, MRU veya sıra mantığıyla değiştirir. |
 | `ActivatePaneUp`, `ActivatePaneDown`, `ActivatePaneLeft`, `ActivatePaneRight` | Split ağacında yön bilgisine göre komşu pane'e odaklanır. |
 | `ActivatePreviousWindow`, `ActivateNextWindow` | Uygulamadaki çalışma alanı pencereleri arasında önceki/sonraki pencereye geçer. |
 | `FocusCenterPane` | Odak panel, dock veya modal tarafındayken merkez pane alanına geri döndürür. |
@@ -139,13 +139,13 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 | `NavigationMode`, `NavigationEntry`, `TagNavigationMode`, `TagStackEntry`, `ActivationHistoryEntry` | Geri/ileri navigation, tag yığını ve item aktivasyon geçmişinin taşıyıcı modelleridir. |
 | `CloseCleanItems`, `CloseItemsToTheLeft`, `CloseItemsToTheRight`, `CloseMultibufferItems` | Aktif pane içinde dirty olmayanları, tab'ın sol/sağ tarafını veya multibuffer item'ları kapatır. |
 | `CloseAllItemsAndPanes`, `CloseInactiveTabsAndPanes`, `CloseItemInAllPanes`, `CloseIntent`, `UnpinAllTabs` | Workspace/pane düzeyinde toplu kapatma, inactive cleanup, tüm pane'lerde aynı item'ı kapatma, close niyeti ve pin temizleme kararlarını taşır. |
-| `SplitMode`, `SplitUp`, `SplitDown`, `SplitLeft`, `SplitRight`, `SplitHorizontal`, `SplitVertical` | Mevcut item veya pane içeriğini yeni split yönüne göre ayırır; yatay/dikey helper'lar kullanıcı ayarlı varsayılanlarla birlikte düşünülür. |
+| `SplitMode`, `SplitUp`, `SplitDown`, `SplitLeft`, `SplitRight`, `SplitHorizontal`, `SplitVertical` | Mevcut item veya pane içeriğini yeni split yönüne göre ayırır; yatay/dikey yardımcılar kullanıcı ayarlı varsayılanlarla birlikte düşünülür. |
 | `SplitAndMoveUp`, `SplitAndMoveDown`, `SplitAndMoveLeft`, `SplitAndMoveRight` | Aktif item'ı yeni split'e taşıyarak bölme ve taşıma işlemini tek action'da birleştirir. |
 | `NewFileSplit`, `NewFileSplitHorizontal`, `NewFileSplitVertical` | Yeni dosya item'ını mevcut pane yerine split içinde açar. |
 | `MoveItemToPane`, `MoveItemToPaneInDirection`, `move_item`, `move_active_item`, `clone_active_item` | Aktif veya seçili item'ı hedef pane'e taşır ya da klonlar; düşük seviye fonksiyonlar action handler'ların ortak taşıma çekirdeğidir. |
 | `MovePaneUp`, `MovePaneDown`, `MovePaneLeft`, `MovePaneRight`, `SwapPaneAdjacent` | Pane'in split ağacındaki konumunu taşır veya komşu pane ile yer değiştirir. |
 | `SwapPaneUp`, `SwapPaneDown`, `SwapPaneLeft`, `SwapPaneRight`, `SwapItemLeft`, `SwapItemRight` | Pane veya tab sırasını yön bazlı swap işlemiyle değiştirir. |
-| `SelectedEntry`, `DraggedSelection`, `DraggedTab`, `Side` | Tab/pane drag-drop ve seçim state'inde kullanılan küçük veri taşıyıcılarıdır; `Side` sol/sağ drop tarafını seçer. |
+| `SelectedEntry`, `DraggedSelection`, `DraggedTab`, `Side` | Tab/pane drag-drop ve seçim durumunda kullanılan küçük veri taşıyıcılarıdır; `Side` sol/sağ drop tarafını seçer. |
 | `render_item_indicator`, `tab_details` | Tab render'ında dirty/diagnostic/pin gibi göstergeleri ve tooltip/detail metnini üretmeye yardım eden düşük seviye fonksiyonlardır. |
 | `DeploySearch`, `NewSearch`, `ToggleFileFinder`, `ToggleProjectSymbols` | Pane search bar, yeni search item, file finder ve project symbols yüzeylerini açıp kapatan command tipleridir. |
 | `NewFile`, `NewTerminal`, `NewCenterTerminal`, `OpenTerminal`, `OpenInTerminal`, `OpenFiles` | Workspace içinde yeni dosya, terminal veya dosya listesi açma yollarını temsil eder. |

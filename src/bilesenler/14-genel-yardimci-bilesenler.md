@@ -1,12 +1,12 @@
 # 14. Genel Yardımcı Bileşenler
 
-Bu bölümdeki bileşenler tek bir amaca hizmet eden küçük yapı taşlarıdır. Çoğunlukla görsel bir yardımcı, klavye ipucu veya navigation yüzeyi sunarlar. Liste satırı, toolbar, panel başlığı veya empty state gibi alanlarda önceki bölümlerdeki büyük bileşenlerin yanında sık kullanılırlar. Küçük görünseler de ekranın okunabilirliğini ve etkileşim kalitesini doğrudan etkilerler.
+Bu bölümdeki bileşenler tek bir amaca hizmet eden küçük yapı taşlarıdır. Çoğunlukla görsel bir yardımcı, klavye ipucu veya gezinti yüzeyi sunarlar. Liste satırı, araç çubuğu, panel başlığı veya boş durum gibi alanlarda önceki bölümlerdeki büyük bileşenlerin yanında sık kullanılırlar. Küçük görünseler de ekranın okunabilirliğini ve etkileşim kalitesini doğrudan etkilerler.
 
 Bu aileyi kullanırken üç ayrımı akılda tutmak işini kolaylaştırır:
 
-- `ui::KeyBinding` ile `gpui::KeyBinding` aynı adı taşısa da farklı şeylerdir. UI tarafındaki bileşen shortcut'ı görsel olarak render eder; GPUI tarafındaki tip ise keymap'e bir binding tanımlar.
-- `Image` adında public bir Zed UI component'i yoktur. Bundled SVG için `Vector` kullanılır; raster veya dış kaynaklı görsel için GPUI tarafındaki `img(...)` ve `ImageSource` yüzeyi devreye girer.
-- Disclosure, Chip ve DiffStat gibi kompakt parçalar liste veya toolbar içinde kullanılırken parent container'a `min_w_0` ve uygun gap'ler vermek taşma kontrolünü ciddi biçimde kolaylaştırır.
+- `ui::KeyBinding` ile `gpui::KeyBinding` aynı adı taşısa da farklı şeylerdir. UI tarafındaki bileşen kısayolu görsel olarak render eder; GPUI tarafındaki tip ise keymap'e bir binding tanımlar.
+- `Image` adında dışa açık bir Zed UI bileşeni yoktur. Paketlenmiş SVG için `Vector` kullanılır; raster veya dış kaynaklı görsel için GPUI tarafındaki `img(...)` ve `ImageSource` yüzeyi devreye girer.
+- Disclosure, Chip ve DiffStat gibi kompakt parçalar liste veya araç çubuğu içinde kullanılırken üst kapsayıcıya `min_w_0` ve uygun gap'ler vermek taşma kontrolünü ciddi biçimde kolaylaştırır.
 
 ## Chip
 
@@ -19,8 +19,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Filtre, plan adı, provider tipi, branch adı, metadata veya küçük bir status label'ı göstermek için.
-- İkon ile kısa label kombinasyonunu düşük vurgu ile göstermek için.
+- Filtre, plan adı, sağlayıcı tipi, dal adı, üstveri veya küçük bir durum etiketi göstermek için.
+- İkon ile kısa etiket kombinasyonunu düşük vurgu ile göstermek için.
 
 Ne zaman kullanmazsın:
 
@@ -42,9 +42,9 @@ Temel API:
 
 Davranış:
 
-- Varsayılan label size `LabelSize::XSmall`'dur.
-- Label, buffer font ile render edilir.
-- `.truncate()` parent içinde shrink edilmesine izin verir; uzun chip metinlerinde bu davranışın açık olması önerilir.
+- Varsayılan etiket boyutu `LabelSize::XSmall`'dur.
+- Etiket, buffer font ile render edilir.
+- `.truncate()` üst öğe içinde küçülmesine izin verir; uzun chip metinlerinde bu davranışın açık olması önerilir.
 - Tooltip closure'ı bir `AnyView` döndürür.
 
 Örnek:
@@ -52,8 +52,8 @@ Davranış:
 ```rust
 use ui::{Chip, IconName, prelude::*};
 
-fn render_branch_chip(branch: SharedString) -> impl IntoElement {
-    Chip::new(branch)
+fn dal_etiketi_render(dal: SharedString) -> impl IntoElement {
+    Chip::new(dal)
         .icon(IconName::GitBranch)
         .icon_color(Color::Muted)
         .label_color(Color::Muted)
@@ -64,14 +64,14 @@ fn render_branch_chip(branch: SharedString) -> impl IntoElement {
 Zed içinden kullanım örnekleri:
 
 - `extensions_ui` crate'i: extension capability etiketleri.
-- `agent_ui` crate'i: model metadata ve cost bilgisi.
+- `agent_ui` crate'i: model üstverisi ve maliyet bilgisi.
 - `title_bar` crate'i: plan adı gösterimi.
 
 Dikkat edeceğin noktalar:
 
-- Chip küçük bir bilgi kapsülüdür; primary action yerine kullanmaman gerekir.
-- Custom background kullanılıyorsa border renginin de bu seçimle uyumlu olması görsel tutarlılığı korur.
-- Dar bir toolbar içinde `.truncate()` olmadan uzun bir label kullanmak layout'u bozabilir.
+- Chip küçük bir bilgi kapsülüdür; birincil eylem yerine kullanmaman gerekir.
+- Özel arka plan kullanılıyorsa border renginin de bu seçimle uyumlu olması görsel tutarlılığı korur.
+- Dar bir araç çubuğu içinde `.truncate()` olmadan uzun bir etiket kullanmak yerleşimi bozabilir.
 
 ## DiffStat
 
@@ -85,11 +85,11 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - Eklenen ve silinen satır sayılarını kompakt biçimde göstermek için.
-- Commit, branch, thread veya file diff metadata'sının yanında.
+- Commit, dal, thread veya dosya diff üstverisinin yanında.
 
 Ne zaman kullanmazsın:
 
-- Ayrıntılı bir file diff görünümü için bu component yeterli değildir.
+- Ayrıntılı bir dosya diff görünümü için bu bileşen yeterli değildir.
 - Yalnızca toplam değişiklik sayısı gerekiyorsa bir `Label` veya `CountBadge` daha doğru bir araç olur.
 
 Temel API:
@@ -101,7 +101,7 @@ Temel API:
 Davranış:
 
 - Added değeri `Color::Success`, removed değeri ise `Color::Error` ile render edilir.
-- Removed label'ı görsel olarak typographic minus karakterini kullanır.
+- Removed etiketi görsel olarak typographic minus karakterini kullanır.
 - Tooltip verildiğinde `Tooltip::text(...)` bağlanır.
 
 Örnek:
@@ -109,25 +109,25 @@ Davranış:
 ```rust
 use ui::{DiffStat, prelude::*};
 
-fn render_file_change_summary() -> impl IntoElement {
+fn dosya_degisiklik_ozeti_render() -> impl IntoElement {
     h_flex()
         .gap_2()
         .items_center()
         .child(Label::new("src/main.rs").truncate())
-        .child(DiffStat::new("main-rs-diff", 12, 3).tooltip("12 additions, 3 deletions"))
+        .child(DiffStat::new("main-rs-diff", 12, 3).tooltip("12 ekleme, 3 silme"))
 }
 ```
 
 Zed içinden kullanım örnekleri:
 
 - `agent_ui` crate'i: tool result ve thread değişiklik özetleri.
-- `git_ui` crate'i: project diff metadata'sı.
-- `git_graph` crate'i: commit metadata.
+- `git_ui` crate'i: project diff üstverisi.
+- `git_graph` crate'i: commit üstverisi.
 
 Dikkat edeceğin noktalar:
 
 - Verilen `id` değerinin sabit olması beklenir; aynı listede tekrar eden bir id kullanmak hatalı davranışa yol açar.
-- Sıfır değerlerinin gösterilip gösterilmeyeceğine parent karar verir; bileşen kendiliğinden gizlemez.
+- Sıfır değerlerinin gösterilip gösterilmeyeceğine üst öğe karar verir; bileşen kendiliğinden gizlemez.
 
 ## Disclosure
 
@@ -140,8 +140,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Açılır veya kapanır bir bölüm, bir tree satırı ya da bir detay satırı için chevron button gerektiğinde.
-- Parent state'in açılma durumunu kontrol ettiği "controlled" bir toggle için.
+- Açılır veya kapanır bir bölüm, bir tree satırı ya da bir detay satırı için chevron butonu gerektiğinde.
+- Üst öğenin açılma durumunu tuttuğu kontrollü bir toggle için.
 
 Ne zaman kullanmazsın:
 
@@ -155,7 +155,7 @@ Temel API:
 - `.opened_icon(IconName)`.
 - `.closed_icon(IconName)`.
 - `.disabled(bool)`.
-- `.tooltip(|window, cx| ...)`: chevron button'a, kapanıp açılma niyetini anlatan bir tooltip view bağlar. Closure her gösterimde `AnyView` döndürür ve tooltip'i altta üretilen `IconButton`'a iletir.
+- `.tooltip(|window, cx| ...)`: chevron butonuna, kapanıp açılma niyetini anlatan bir tooltip view bağlar. Closure her gösterimde `AnyView` döndürür ve tooltip'i altta üretilen `IconButton`'a iletir.
 - `Clickable`: `.on_click(...)`, `.cursor_style(...)`.
 - `Toggleable`: `.toggle_state(selected)`.
 - `VisibleOnHover`: `.visible_on_hover(group_name)`.
@@ -164,7 +164,7 @@ Davranış:
 
 - Açıkken default ikon `ChevronDown`; kapalıyken `ChevronRight`'tır.
 - Render sonucu bir `IconButton` üzerinden gelir.
-- `is_open` değeri internal bir state değildir; parent her render'da güncel değeri vermelidir.
+- `is_open` değeri bileşen içinde tutulan bir durum değildir; üst öğe her render'da güncel değeri vermelidir.
 - **`Clickable::on_click` ve `on_toggle_expanded` aynı slotu yazar.** Kaynak implementasyon `on_click`'i `self.on_toggle_expanded = Some(Arc::new(handler))` olarak depolar; bu yüzden iki metod birlikte çağrılırsa **sonuncu** kazanır. Karışıklığı önlemek için yalnızca birinin kullanılması önerilir.
 
 Örnek:
@@ -172,15 +172,15 @@ Davranış:
 ```rust
 use ui::{Disclosure, prelude::*};
 
-fn render_collapsible_header(is_open: bool) -> impl IntoElement {
+fn acilir_baslik_render(acik_mi: bool) -> impl IntoElement {
     h_flex()
         .gap_1()
         .items_center()
         .child(
-            Disclosure::new("advanced-toggle", is_open)
+            Disclosure::new("gelismis-toggle", acik_mi)
                 .on_click(|_, _window, cx| cx.stop_propagation()),
         )
-        .child(Label::new("Advanced"))
+        .child(Label::new("Gelişmiş"))
 }
 ```
 
@@ -192,8 +192,8 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Toggle state'i parent'ta tutulur ve click handler bu state'i güncellemekle yükümlüdür.
-- `visible_on_hover(...)` kullanıldığında parent elementte aynı group name'in tanımlanmış olması gerekir.
+- Toggle durumu üst öğede tutulur ve click işleyicisi bu durumu güncellemekle yükümlüdür.
+- `visible_on_hover(...)` kullanıldığında üst elementte aynı group name'in tanımlanmış olması gerekir.
 
 ## GradientFade
 
@@ -206,12 +206,12 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Sağ kenarda taşan bir içerik veya hover action alanı üzerinde yumuşak bir fade overlay gerektiğinde.
-- Sidebar item gibi tek satırda metadata ile action geçişini maskelemek için.
+- Sağ kenarda taşan bir içerik veya hover eylem alanı üzerinde yumuşak bir fade katmanı gerektiğinde.
+- Sidebar satırı gibi tek satırda üstveri ile eylem geçişini maskelemek için.
 
 Ne zaman kullanmazsın:
 
-- Genel bir background dekorasyonu için bu bileşen tasarlanmamıştır.
+- Genel bir arka plan dekorasyonu için bu bileşen tasarlanmamıştır.
 - Scrollbar veya gerçek bir clipping'in yerine geçecek şekilde kullanılması doğru olmaz.
 
 Temel API:
@@ -225,47 +225,47 @@ Temel API:
 Davranış:
 
 - Absolute pozisyonludur; `top_0()`, `h_full()` ve sağ kenara bağlıdır.
-- Renkleri app background ile blend ederek opaklık etkisi yaratmaya çalışır.
-- `group_name(...)` verildiğinde, parent hover veya active durumunda gradient rengi otomatik olarak değişir.
+- Renkleri app arka planıyla blend ederek opaklık etkisi yaratmaya çalışır.
+- `group_name(...)` verildiğinde, üst öğe hover veya active durumunda gradient rengi otomatik olarak değişir.
 
 Örnek:
 
 ```rust
 use ui::{GradientFade, prelude::*};
 
-fn render_fading_row(cx: &App) -> impl IntoElement {
-    let base = cx.theme().colors().panel_background;
-    let hover = cx.theme().colors().element_hover;
+fn solan_satir_render(cx: &App) -> impl IntoElement {
+    let taban = cx.theme().colors().panel_background;
+    let uzerine_gelme = cx.theme().colors().element_hover;
 
     h_flex()
-        .group("metadata-row")
+        .group("ustveri-satiri")
         .relative()
         .overflow_hidden()
-        .child(Label::new("A very long metadata value that fades near the action").truncate())
+        .child(Label::new("Eyleme yakın yerde solan çok uzun bir üstveri değeri").truncate())
         .child(
-            GradientFade::new(base, hover, hover)
+            GradientFade::new(taban, uzerine_gelme, uzerine_gelme)
                 .width(px(64.))
-                .group_name("metadata-row"),
+                .group_name("ustveri-satiri"),
         )
 }
 ```
 
 Zed içinden kullanım örnekleri:
 
-- `ui` crate'i: action slot ve metadata fade overlay.
+- `ui` crate'i: eylem alanı ve üstveri fade katmanı.
 - `sidebar` crate'i: sidebar satır hover fade.
 
 Dikkat edeceğin noktalar:
 
-- Parent elemanın `relative()` ve `overflow_hidden()` olması gerekir; aksi halde fade beklenen konuma oturmaz.
-- Fade gerçek bir layout alanı ayırmaz. Action slot veya trailing content için ayrıca padding ya da boşluk bırakılması gerekir.
+- Üst elemanın `relative()` ve `overflow_hidden()` olması gerekir; aksi halde fade beklenen konuma oturmaz.
+- Fade gerçek bir yerleşim alanı ayırmaz. Eylem alanı veya sonda görünen içerik için ayrıca padding ya da boşluk bırakılması gerekir.
 
-## Divider ve group helper'ları
+## Divider ve group yardımcıları
 
 Kaynak:
 
 - Divider: `ui` crate'i
-- Group helper'ları: `ui` crate'i
+- Group yardımcıları: `ui` crate'i
 - Export: `ui::Divider`, `ui::DividerColor`, `ui::divider`, `ui::vertical_divider`, `ui::h_flex`, `ui::v_flex`, `ui::h_group*`, `ui::v_group*`.
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Divider`.
@@ -273,14 +273,14 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - Aynı panel içinde iki görsel grubu ince bir çizgiyle ayırmak için `Divider`.
-- Toolbar, metadata veya kısa stack düzenlerinde tutarlı küçük gap'ler için `h_group*` ve `v_group*`.
-- Basit helper fonksiyonuyla hızlı divider üretmek için `divider()` veya `vertical_divider()`.
+- Araç çubuğu, üstveri veya kısa stack düzenlerinde tutarlı küçük gap'ler için `h_group*` ve `v_group*`.
+- Basit yardımcı fonksiyonuyla hızlı divider üretmek için `divider()` veya `vertical_divider()`.
 
 Ne zaman kullanmazsın:
 
-- Menü içindeki ayrım için `ContextMenu::separator()` kullanırsın; menu separator'ı focus ve item ölçüleriyle uyumlu gelir.
+- Menü içindeki ayrım için `ContextMenu::separator()` kullanırsın; menu separator'ı focus ve öğe ölçüleriyle uyumlu gelir.
 - Liste bölüm başlığı gerekiyorsa `ListHeader` veya `ListSubHeader` daha doğru semantiktir.
-- Genel sayfa bölümü ayırmak için büyük dekoratif çizgiler eklemek yerine layout spacing'i ve gerçek section başlığı tercih edilir.
+- Genel sayfa bölümü ayırmak için büyük dekoratif çizgiler eklemek yerine yerleşim boşluğu ve gerçek section başlığı tercih edilir.
 
 Temel API:
 
@@ -288,45 +288,45 @@ Temel API:
 - `.inset()` divider'ın kendi yönüne göre iç margin uygular.
 - `.color(DividerColor::Border | BorderFaded | BorderVariant)`.
 - `divider()` yatay solid divider, `vertical_divider()` dikey solid divider döndürür.
-- `h_flex()` yatay, `v_flex()` dikey bir flex container döndürür. Bunlar `div().flex()` ve `div().flex().flex_col()` çağrılarını daha okunur hale getiren temel kısayollardır.
+- `h_flex()` yatay, `v_flex()` dikey bir flex kapsayıcı döndürür. Bunlar `div().flex()` ve `div().flex().flex_col()` çağrılarını daha okunur hale getiren temel kısayollardır.
 - `h_group_sm()`, `h_group()`, `h_group_lg()`, `h_group_xl()` sırasıyla yaklaşık 2px, 4px, 6px, 8px yatay gap verir.
-- `v_group_sm()`, `v_group()`, `v_group_lg()`, `v_group_xl()` aynı ölçeği dikey flex container için uygular.
+- `v_group_sm()`, `v_group()`, `v_group_lg()`, `v_group_xl()` aynı ölçeği dikey flex kapsayıcı için uygular.
 
-Divider ve group helper kapsamı:
+Divider ve group yardımcı kapsamı:
 
 | API | Rol |
 | :-- | :-- |
 | `DividerColor` | Divider rengini `Border`, `BorderFaded` veya `BorderVariant` tema token'ından seçer. |
-| `divider` | Yatay solid divider üretir; kısa toolbar veya panel ayrımlarında `Divider::horizontal()` kısayoludur. |
-| `vertical_divider` | Dikey solid divider üretir; parent yüksekliği belirliyse toolbar ayrımı için kullanılır. |
-| `v_group_sm` | Dikey flex container'a küçük, yaklaşık 2px gap verir. |
-| `v_group_lg` | Dikey flex container'a orta-büyük, yaklaşık 6px gap verir. |
-| `v_group_xl` | Dikey flex container'a büyük, yaklaşık 8px gap verir. |
+| `divider` | Yatay solid divider üretir; kısa araç çubuğu veya panel ayrımlarında `Divider::horizontal()` kısayoludur. |
+| `vertical_divider` | Dikey solid divider üretir; üst öğe yüksekliği belirliyse araç çubuğu ayrımı için kullanılır. |
+| `v_group_sm` | Dikey flex kapsayıcıya küçük, yaklaşık 2px gap verir. |
+| `v_group_lg` | Dikey flex kapsayıcıya orta-büyük, yaklaşık 6px gap verir. |
+| `v_group_xl` | Dikey flex kapsayıcıya büyük, yaklaşık 8px gap verir. |
 
 Davranış:
 
-- Solid divider doğrudan tema border rengini background olarak kullanır.
-- Dashed divider, GPUI `canvas(...)` üzerinde `PathBuilder` ile çizilir; bu yüzden çizgi parent bounds'una bağlıdır.
-- `h_flex()` ve `v_flex()` gap vermez; yalnız yön seçer. Group helper'ları ise aynı temel container'a küçük sabit gap uygular. Başka layout davranışı, renk veya border eklemezler.
+- Solid divider doğrudan tema border rengini arka plan olarak kullanır.
+- Dashed divider, GPUI `canvas(...)` üzerinde `PathBuilder` ile çizilir; bu yüzden çizgi üst öğe sınırlarına bağlıdır.
+- `h_flex()` ve `v_flex()` gap vermez; yalnız yön seçer. Group yardımcıları ise aynı temel kapsayıcıya küçük sabit gap uygular. Başka yerleşim davranışı, renk veya border eklemezler.
 
 Örnek:
 
 ```rust
 use ui::{Divider, DividerColor, h_group, prelude::*};
 
-fn render_toolbar_separator() -> impl IntoElement {
+fn arac_cubugu_ayirici_render() -> impl IntoElement {
     h_group()
         .items_center()
-        .child(IconButton::new("previous", IconName::ArrowLeft))
+        .child(IconButton::new("onceki", IconName::ArrowLeft))
         .child(Divider::vertical().color(DividerColor::BorderFaded).inset())
-        .child(IconButton::new("next", IconName::ArrowRight))
+        .child(IconButton::new("sonraki", IconName::ArrowRight))
 }
 ```
 
 Dikkat edeceğin noktalar:
 
-- Dikey divider'ın görünmesi için parent'ın yüksekliği belirli olmalıdır; aksi halde `h_full()` anlamlı bir alan bulamayabilir.
-- Group helper'ları yoğun ve kısa UI parçaları içindir. Form, modal veya liste section'larında `DynamicSpacing` ile açık spacing seçmek daha okunabilir olur.
+- Dikey divider'ın görünmesi için üst öğenin yüksekliği belirli olmalıdır; aksi halde `h_full()` anlamlı bir alan bulamayabilir.
+- Group yardımcıları yoğun ve kısa UI parçaları içindir. Form, modal veya liste section'larında `DynamicSpacing` ile açık boşluk seçmek daha okunabilir olur.
 
 ## Vector ve Görsel Kullanımı
 
@@ -340,7 +340,7 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - Zed içinde paketlenmiş SVG görsellerini belirli bir boyutta render etmek için.
-- Logo, stamp veya product mark gibi standart ikon ailesine girmeyen vektörler için.
+- Logo, damga veya ürün işareti gibi standart ikon ailesine girmeyen vektörler için.
 
 Ne zaman kullanmazsın:
 
@@ -361,7 +361,7 @@ Vector enum yardımcıları:
 
 | API | Rol |
 | :-- | :-- |
-| `VectorNameIter` | `strum::EnumIter` çıktısıdır; preview ve doğrulama araçlarında bundled vector adlarını dolaşmak için kullanılır. |
+| `VectorNameIter` | `strum::EnumIter` çıktısıdır; önizleme ve doğrulama araçlarında paketlenmiş vector adlarını dolaşmak için kullanılır. |
 
 Davranış:
 
@@ -374,15 +374,15 @@ Davranış:
 ```rust
 use ui::{Vector, VectorName, prelude::*};
 
-fn render_zed_mark() -> impl IntoElement {
+fn zed_isareti_render() -> impl IntoElement {
     Vector::square(VectorName::ZedLogo, rems(3.)).color(Color::Accent)
 }
 ```
 
 Dikkat edeceğin noktalar:
 
-- `Image` adında public bir Zed UI component'i yoktur. Rehberde bir görsel ihtiyacı varsa `Vector`, `Avatar`, `Icon` ve GPUI `img(...)` ayrımının yapılması beklenir.
-- `VectorName` yalnızca kaynakta tanımlanmış olan bundled asset'leri kapsar; dışarıdan yeni isim eklenmez.
+- `Image` adında dışa açık bir Zed UI bileşeni yoktur. Rehberde bir görsel ihtiyacı varsa `Vector`, `Avatar`, `Icon` ve GPUI `img(...)` ayrımının yapılması beklenir.
+- `VectorName` yalnızca kaynakta tanımlanmış olan paketlenmiş asset'leri kapsar; dışarıdan yeni isim eklenmez.
 
 GPUI `img(...)` ve `ImageSource` (raster veya dış görsel için) şu şekilde kullanırsın:
 
@@ -390,7 +390,7 @@ GPUI `img(...)` ve `ImageSource` (raster veya dış görsel için) şu şekilde 
 use gpui::{ImageSource, SharedUri, img};
 use ui::prelude::*;
 
-fn render_remote_thumbnail() -> impl IntoElement {
+fn uzak_kucuk_gorsel_render() -> impl IntoElement {
     img(ImageSource::from(SharedUri::from(
         "https://zed.dev/img/banner.png",
     )))
@@ -398,7 +398,7 @@ fn render_remote_thumbnail() -> impl IntoElement {
     .rounded_md()
 }
 
-fn render_local_thumbnail() -> impl IntoElement {
+fn yerel_kucuk_gorsel_render() -> impl IntoElement {
     img(ImageSource::from(std::path::Path::new("/tmp/preview.png")))
         .size(px(96.))
         .rounded_md()
@@ -415,7 +415,7 @@ fn render_local_thumbnail() -> impl IntoElement {
 | Önceden decode edilmiş image bytes. |
 | Çağrı sırasında dinamik kaynak üretmek için. |
 
-`Avatar::new`, bu `Into<ImageSource>` zincirinin üzerine kuruludur. Ham bir `img(...)` kullanılırken `flex_none()` ve sabit bir `size(...)` verilmediğinde layout taşmaları yaşanması olasıdır. SVG bir ikon için her zaman `Icon` veya `Vector` tercih edilir; `img(...)` SVG path'lerini raster gibi muamele eder ve o yüzden recolor edemez.
+`Avatar::new`, bu `Into<ImageSource>` zincirinin üzerine kuruludur. Ham bir `img(...)` kullanılırken `flex_none()` ve sabit bir `size(...)` verilmediğinde yerleşim taşmaları yaşanması olasıdır. SVG bir ikon için her zaman `Icon` veya `Vector` tercih edilir; `img(...)` SVG path'lerini raster gibi muamele eder ve o yüzden recolor edemez.
 
 ## KeyBinding
 
@@ -428,8 +428,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- UI içinde bir action'a bağlı shortcut göstermek için.
-- Explicit bir keystroke dizisini platforma uygun tuş görseli olarak render etmek için.
+- UI içinde bir action'a bağlı kısayol göstermek için.
+- Açıkça verilen bir keystroke dizisini platforma uygun tuş görseli olarak render etmek için.
 - Tooltip, command palette veya bir ayar satırında klavye kısayolu göstermek için.
 
 Ne zaman kullanmazsın:
@@ -449,7 +449,7 @@ Temel API:
 - `.has_binding(window)`.
 - `KeyBinding::set_vim_mode(cx, enabled)`.
 - `Key::new(key: impl Into<SharedString>, color: Option<Color>)` ve `KeyIcon::new(icon: IconName, color: Option<Color>)`: tekil tuş veya ikonlu tuş yüzeyi.
-- `render_modifiers(modifiers: &Modifiers, platform_style: PlatformStyle, color: Option<Color>, size: Option<AbsoluteLength>, trailing_separator: bool) -> impl Iterator<Item = AnyElement>`: bir modifier dizisini platform stiline göre ikon veya metin elementlerine çeviren düşük seviyeli helper. `trailing_separator`, son modifier'dan sonra bir `+` ayırıcısı ekler.
+- `render_modifiers(modifiers: &Modifiers, platform_style: PlatformStyle, color: Option<Color>, size: Option<AbsoluteLength>, trailing_separator: bool) -> impl Iterator<Item = AnyElement>`: bir modifier dizisini platform stiline göre ikon veya metin elementlerine çeviren düşük seviyeli yardımcı. `trailing_separator`, son modifier'dan sonra bir `+` ayırıcısı ekler.
 - `text_for_keystroke(modifiers: &Modifiers, key: &str, cx: &App) -> String`: tek bir keystroke için platforma duyarlı bir metin üretir.
 
 Keybinding yardımcı yüzeyi:
@@ -462,8 +462,8 @@ Keybinding yardımcı yüzeyi:
 | `render_modifiers` | Modifier listesini macOS'ta ikon, diğer platformlarda metin ve separator olarak render eder. |
 | `text_for_action` | Bir action için geçerli binding metnini action map üzerinden üretir. |
 | `text_for_keystrokes` | Keystroke dizisini platforma uygun okunabilir metne çevirir. |
-| `text_for_keybinding_keystrokes` | `KeybindingKeystroke` koleksiyonunu kullanıcıya gösterilecek shortcut metnine dönüştürür. |
-| `text_for_keystroke` | Tek bir modifier/key çiftinden platforma uygun shortcut metni üretir. |
+| `text_for_keybinding_keystrokes` | `KeybindingKeystroke` koleksiyonunu kullanıcıya gösterilecek kısayol metnine dönüştürür. |
+| `text_for_keystroke` | Tek bir modifier/key çiftinden platforma uygun kısayol metni üretir. |
 
 Davranış:
 
@@ -478,20 +478,20 @@ Davranış:
 use gpui::{AnyElement, KeybindingKeystroke, Keystroke};
 use ui::{KeyBinding, prelude::*};
 
-fn render_save_shortcut() -> AnyElement {
-    let Ok(parsed) = Keystroke::parse("cmd-s") else {
+fn kaydet_kisayolu_render() -> AnyElement {
+    let Ok(cozumlenen) = Keystroke::parse("cmd-s") else {
         return div().into_any_element();
     };
-    let keystroke = KeybindingKeystroke::from_keystroke(parsed);
+    let tus_vurusu = KeybindingKeystroke::from_keystroke(cozumlenen);
 
-    KeyBinding::from_keystrokes(vec![keystroke].into(), false).into_any_element()
+    KeyBinding::from_keystrokes(vec![tus_vurusu].into(), false).into_any_element()
 }
 ```
 
 Dikkat edeceğin noktalar:
 
 - `ui::KeyBinding` ile `gpui::KeyBinding` aynı dosyada birlikte import edilirken, ikisine de alias verilmesi okunabilirliği artırır.
-- Bir action'a bağlı shortcut gösterilirken binding bulunamama durumunun UI'da düşünmen gerekir; çünkü component bu durumda boş render edebilir.
+- Bir action'a bağlı kısayol gösterilirken binding bulunamama durumunun UI'da düşünmen gerekir; çünkü bileşen bu durumda boş render edebilir.
 
 ## KeybindingHint
 
@@ -504,8 +504,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Bir shortcut'ı prefix veya suffix metniyle birlikte açıklamak için.
-- Tooltip veya empty state içinde kısa bir klavye ipucu göstermek için.
+- Bir kısayolu prefix veya suffix metniyle birlikte açıklamak için.
+- Tooltip veya boş durum içinde kısa bir klavye ipucu göstermek için.
 
 Temel API:
 
@@ -528,15 +528,15 @@ Davranış:
 use gpui::{AnyElement, KeybindingKeystroke, Keystroke};
 use ui::{KeyBinding, KeybindingHint, prelude::*};
 
-fn render_command_hint(cx: &App) -> AnyElement {
-    let Ok(parsed) = Keystroke::parse("cmd-shift-p") else {
+fn komut_ipucu_render(cx: &App) -> AnyElement {
+    let Ok(cozumlenen) = Keystroke::parse("cmd-shift-p") else {
         return div().into_any_element();
     };
-    let keystroke = KeybindingKeystroke::from_keystroke(parsed);
-    let binding = KeyBinding::from_keystrokes(vec![keystroke].into(), false);
+    let tus_vurusu = KeybindingKeystroke::from_keystroke(cozumlenen);
+    let baglama = KeyBinding::from_keystrokes(vec![tus_vurusu].into(), false);
 
-    KeybindingHint::new(binding, cx.theme().colors().surface_background)
-        .prefix("Open command palette:")
+    KeybindingHint::new(baglama, cx.theme().colors().surface_background)
+        .prefix("Komut paletini aç:")
         .into_any_element()
 }
 ```
@@ -544,11 +544,11 @@ fn render_command_hint(cx: &App) -> AnyElement {
 Zed içinden kullanım örnekleri:
 
 - `settings_ui` crate'i: ayar UI kısayol ipuçları.
-- `git_ui` crate'i: modal shortcut hint'i.
+- `git_ui` crate'i: modal kısayol ipucu.
 
 Dikkat edeceğin noktalar:
 
-- `background_color` parent yüzeyine yakın seçmen gerekir; hint kendi border ve fill rengini bu değerden türetir.
+- `background_color` üst öğe yüzeyine yakın seçmen gerekir; hint kendi border ve fill rengini bu değerden türetir.
 - Çok uzun bir prefix veya suffix yazılmaması beklenir; bileşen kısa komut açıklamaları için tasarlanmıştır.
 
 ## Navigable
@@ -571,7 +571,7 @@ Temel API:
 - `NavigableEntry::focusable(cx)`.
 - `Navigable::new(child: AnyElement)`.
 - `.entry(NavigableEntry)`.
-- `NavigableEntry` public alanları: `focus_handle` ve `scroll_anchor: Option<ScrollAnchor>`. `new(...)` scroll anchor'lı bir entry üretir; `focusable(...)` ise `scroll_anchor: None` olan bir entry döndürür.
+- `NavigableEntry` dışa açık alanları: `focus_handle` ve `scroll_anchor: Option<ScrollAnchor>`. `new(...)` scroll anchor'lı bir entry üretir; `focusable(...)` ise `scroll_anchor: None` olan bir entry döndürür.
 
 Navigable entry:
 
@@ -581,8 +581,8 @@ Navigable entry:
 
 Davranış:
 
-- Entry'lerin ekleme sırası, traversal sırasıdır.
-- Select next veya previous aksiyonu focused entry'yi bulur, hedef entry'nin focus handle'ını focus eder ve bir scroll anchor varsa görünür alana scroll yapar.
+- Entry'lerin ekleme sırası, gezinti sırasıdır.
+- SelectNext veya SelectPrevious aksiyonu focused entry'yi bulur, hedef entry'nin focus handle'ını focus eder ve bir scroll anchor varsa görünür alana scroll yapar.
 - `NavigableEntry::focusable(...)`, scroll anchor olmadan focusable bir entry üretir.
 
 Örnek:
@@ -591,24 +591,24 @@ Davranış:
 use gpui::ScrollHandle;
 use ui::{Navigable, NavigableEntry, prelude::*};
 
-fn render_navigable_rows(scroll_handle: &ScrollHandle, cx: &App) -> impl IntoElement {
-    let first = NavigableEntry::new(scroll_handle, cx);
-    let second = NavigableEntry::new(scroll_handle, cx);
+fn gezilebilir_satirlar_render(scroll_handle: &ScrollHandle, cx: &App) -> impl IntoElement {
+    let ilk = NavigableEntry::new(scroll_handle, cx);
+    let ikinci = NavigableEntry::new(scroll_handle, cx);
 
     let content = v_flex()
-        .child(div().track_focus(&first.focus_handle).child(Label::new("First")))
-        .child(div().track_focus(&second.focus_handle).child(Label::new("Second")));
+        .child(div().track_focus(&ilk.focus_handle).child(Label::new("İlk")))
+        .child(div().track_focus(&ikinci.focus_handle).child(Label::new("İkinci")));
 
     Navigable::new(content.into_any_element())
-        .entry(first)
-        .entry(second)
+        .entry(ilk)
+        .entry(ikinci)
 }
 ```
 
 Dikkat edeceğin noktalar:
 
 - Wrapper yalnızca action routing ile focus/scroll geçişini kurar; her child'ın kendisi yine `track_focus` ile focus track etmelidir.
-- Entry listesinin, render edilen item sırasıyla aynı tutulması gerekir; aksi halde gezinti beklenmedik bir sıraya kayar.
+- Entry listesinin, render edilen öğe sırasıyla aynı tutulması gerekir; aksi halde gezinti beklenmedik bir sıraya kayar.
 
 ## ProjectEmptyState
 
@@ -621,8 +621,8 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Bir panel veya sidebar bir proje veya worktree olmadan açıldığında aynı boş durum eylemlerini göstermek için.
-- "Open Project" ve "Clone Repository" seçeneklerinin aynı focus, keybinding ve spacing düzeniyle görünmesinin istendiği yerlerde.
+- Bir panel veya yan panel bir proje veya çalışma ağacı olmadan açıldığında aynı boş durum eylemlerini göstermek için.
+- `"Proje Aç"` ve `"Depoyu Klonla"` seçeneklerinin aynı odak, kısayol ve boşluk düzeniyle görünmesinin istendiği yerlerde.
 
 Temel API:
 
@@ -632,10 +632,10 @@ Temel API:
 
 Davranış:
 
-- Render edilen root, bir `v_flex()` içinde `track_focus(&focus_handle)` çağrısı yapar.
-- Üst metin `Choose one of the options below to use the {label}` biçiminde üretilir.
-- İlk action `Button::new("open_project", "Open Project")` ve verilen `KeyBinding` ile render edilir; ikinci action ise `Button::new("clone_repo", "Clone Repository")` olarak gelir.
-- İki action arasında bir `Divider::horizontal().color(DividerColor::Border)` ile küçük bir `or` label'ı kullanırsın.
+- Render edilen kök, bir `v_flex()` içinde `track_focus(&focus_handle)` çağrısı yapar.
+- Üst metin port arayüzünde `"{label} kullanmak için aşağıdaki seçeneklerden birini seç"` biçiminde üretilir.
+- İlk eylem `Button::new("proje-ac", "Proje Aç")` ve verilen `KeyBinding` ile render edilir; ikinci eylem ise `Button::new("depoyu-klonla", "Depoyu Klonla")` olarak gelir.
+- İki eylem arasında bir `Divider::horizontal().color(DividerColor::Border)` ile küçük bir `"veya"` etiketi kullanırsın.
 
 Örnek:
 
@@ -643,11 +643,11 @@ Davranış:
 use gpui::FocusHandle;
 use ui::{KeyBinding, ProjectEmptyState, prelude::*};
 
-fn render_empty_panel(
+fn bos_panel_render(
     focus_handle: FocusHandle,
     open_project_key_binding: KeyBinding,
 ) -> impl IntoElement {
-    ProjectEmptyState::new("Project Panel", focus_handle, open_project_key_binding)
+    ProjectEmptyState::new("Proje Paneli", focus_handle, open_project_key_binding)
         .on_open_project(|_, window, cx| {
             window.dispatch_action(workspace::Open::default().boxed_clone(), cx);
         })
@@ -666,8 +666,8 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Bu bileşen yalnızca iki standart proje eylemini render eder. Farklı action setleri veya farklı bir açıklama metni gerekiyorsa, özel bir `v_flex()` layout kurmak daha doğru bir tercih olur.
-- Handler verilmediğinde ilgili button yine render edilir ama tıklama davranışı bağlanmaz.
+- Bu bileşen yalnızca iki standart proje eylemini render eder. Farklı action setleri veya farklı bir açıklama metni gerekiyorsa, özel bir `v_flex()` yerleşimi kurmak daha doğru bir tercih olur.
+- Handler verilmediğinde ilgili buton yine render edilir ama tıklama davranışı bağlanmaz.
 
 ## UI yardımcı fonksiyonları ve ölçü araçları
 
@@ -680,13 +680,13 @@ Kaynak:
 
 Ne zaman kullanırsın:
 
-- Tema açık/koyu bilgisini veya contrast hesabını custom çizimlerde kullanmak için.
-- Title bar, corner radius, search input width veya rem ölçeği gibi düşük seviyeli layout hesaplarında.
+- Tema açık/koyu bilgisini veya contrast hesabını özel çizimlerde kullanmak için.
+- Title bar, corner radius, search input width veya rem ölçeği gibi düşük seviyeli yerleşim hesaplarında.
 - Kullanıcıya göreceli tarih metni ya da platforma uygun "Reveal in ..." etiketi göstermek için.
 
 Ne zaman kullanmazsın:
 
-- Hazır component zaten bu hesabı yapıyorsa aynı davranışı dışarıda tekrar hesaplamazsın. Örneğin `Label`, `Button`, `Callout` ve `Banner` renk/token kararlarını içeride verir.
+- Hazır bileşen zaten bu hesabı yapıyorsa aynı davranışı dışarıda tekrar hesaplamazsın. Örneğin `Label`, `Button`, `Callout` ve `Banner` renk/token kararlarını içeride verir.
 - Genel iş mantığı veya domain formatlama için `ui::utils` modülüne bağımlı hale gelinmez. Bu modül UI kararları içindir.
 - Locale-aware metin dönüşümü gerekiyorsa `capitalize(...)` yeterli değildir; sadece ilk karakteri büyütür.
 
@@ -704,14 +704,14 @@ Utils alt modülleri:
 
 | API | Rol |
 | :-- | :-- |
-| `color_contrast` | Contrast ratio ve APCA tabanlı minimum contrast hesaplarını taşıyan utility modülüdür. |
+| `color_contrast` | Contrast ratio ve APCA tabanlı minimum contrast hesaplarını taşıyan yardımcı modüldür. |
 | `constants` | Title bar padding ve platforma bağlı UI ölçü sabitlerini barındırır. |
 | `search_input` | `SearchInputWidth` ile arama input'u genişlik hesabını sağlar; input'u kendisi render etmez. |
 | `with_rem_size` | Alt ağacı farklı rem size ile layout/prepaint etmek için `WithRemSize` yüzeyini sağlar. |
 
 Davranış:
 
-- `is_light(cx)`, etkin tema appearance değerini okur. Custom canvas ya da image overlay gibi hazır component'in kapsamadığı görsel hesaplarda kullanılır.
+- `is_light(cx)`, etkin tema appearance değerini okur. Özel canvas ya da image overlay gibi hazır bileşenin kapsamadığı görsel hesaplarda kullanılır.
 - APCA sonucu pozitifse koyu metin/açık arka plan, negatifse açık metin/koyu arka plan polarity'sini ifade eder. `ensure_minimum_contrast(...)`, foreground lightness değerini değiştirerek eşik sağlamaya çalışır.
 - `platform_title_bar_height(window)`, Windows'ta 32px döndürür; diğer platformlarda rem size'a bağlı, minimum 34px olan bir değer üretir.
 - `WithRemSize`, alt ağacı farklı bir rem size ile layout/prepaint eder. `.occlude()` pointer event'lerinin alt çocuklara ulaşmasını engeller.
@@ -727,15 +727,15 @@ use ui::{
     v_group,
 };
 
-fn render_search_caption(container_width: Pixels) -> impl IntoElement {
-    let input_width = SearchInputWidth::calc_width(container_width);
-    let updated_at = FormatDistance::from_now(DateTimeType::Local(Local::now()))
+fn arama_aciklamasi_render(kapsayici_genisligi: Pixels) -> impl IntoElement {
+    let giris_genisligi = SearchInputWidth::calc_width(kapsayici_genisligi);
+    let guncellenme_zamani = FormatDistance::from_now(DateTimeType::Local(Local::now()))
         .add_suffix(true)
         .to_string();
 
     v_group()
-        .child(div().w(input_width).child(Label::new("Search")))
-        .child(Label::new(updated_at).size(LabelSize::Small).color(Color::Muted))
+        .child(div().w(giris_genisligi).child(Label::new("Ara")))
+        .child(Label::new(guncellenme_zamani).size(LabelSize::Small).color(Color::Muted))
 }
 ```
 
@@ -743,4 +743,4 @@ Dikkat edeceğin noktalar:
 
 - `format_distance_from_now(...)` çağrısı anlık `Local::now()` okur. Deterministik test veya snapshot üretirken `FormatDistance::new(date, base_date)` daha kontrollüdür.
 - `SearchInputWidth::calc_width(...)` yalnız genişlik hesabı yapar; input'u kendisi render etmez.
-- `TRAFFIC_LIGHT_PADDING` değeri public `MACOS_SDK_26_OR_LATER` sabitine (macOS SDK 26 ve sonrası derlemelerde `true`) bağlıdır: doğruysa 78px, değilse 71px. Title bar dışı genel padding için kullanılmamalıdır.
+- `TRAFFIC_LIGHT_PADDING` değeri dışa açık `MACOS_SDK_26_OR_LATER` sabitine (macOS SDK 26 ve sonrası derlemelerde `true`) bağlıdır: doğruysa 78px, değilse 71px. Title bar dışı genel padding için kullanılmamalıdır.

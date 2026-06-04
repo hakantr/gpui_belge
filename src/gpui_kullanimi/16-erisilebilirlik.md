@@ -116,21 +116,21 @@ impl Render for SayacArayuzu {
 }
 ```
 
-Bu örnekte framework tipleri İngilizce kalır; uygulama state'i ve yardımcı değişkenler Türkçe adlandırılır. Action listener'ları view state'ini `WeakEntity` üzerinden günceller ve sonuçta `cx.notify()` çağırır.
+Bu örnekte framework tipleri İngilizce kalır; uygulama durumu ve yardımcı değişkenler Türkçe adlandırılır. Action listener'ları view durumunu `WeakEntity` üzerinden günceller ve sonuçta `cx.notify()` çağırır.
 
 ## Platform ve Test Notları
 
 `Application::new_inaccessible(platform)` GPUI uygulamasını AccessKit entegrasyonu olmadan başlatır. Bu yol başsız test, screenshot üretimi veya erişilebilirlik köprüsünün bilinçli olarak kapatıldığı ortamlar içindir. Böyle bir uygulamada `.role(...)` ve `.aria_*()` zincirleri element üstünde kalır, fakat platform adapter'ına erişilebilirlik ağacı gönderilmez.
 
-Platform arka ucu yazıyorsan erişilebilirlik köprüsü `A11yCallbacks` ve `PlatformWindow` üzerindeki `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds` çağrılarıyla kurulur. Uygulama veya component kodu bu seviyeye normalde inmez. Ekran okuyucudan gelen action'ı bağlamak için düşük seviyeli `Window::on_a11y_action(node_id, action, listener)` yerine element üzerindeki `.on_a11y_action(...)` fluent metodunu tercih edersin.
+Platform arka ucu yazıyorsan erişilebilirlik köprüsü `A11yCallbacks` ve `PlatformWindow` üzerindeki `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds` çağrılarıyla kurulur. Uygulama veya bileşen kodu bu seviyeye normalde inmez. Ekran okuyucudan gelen action'ı bağlamak için düşük seviyeli `Window::on_a11y_action(node_id, action, listener)` yerine element üzerindeki `.on_a11y_action(...)` fluent metodunu tercih edersin.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `accesskit` | crate kök reexport | AccessKit tiplerini GPUI kökünden erişilebilir yapar. |
 | `AccessibleAction` | `accesskit::Action` reexport'u | Ekran okuyucudan gelen click/increment/decrement gibi action isteklerini temsil eder. |
 | `Role` | AccessKit role reexport'u | Elementin semantik rolünü belirtir. |
-| `Orientation` | `Horizontal`, `Vertical` | Slider/list/tree gibi yönlü accessibility yüzeylerinde yön bilgisini taşır. |
-| `Toggled` | `True`, `False`, `Mixed` | Toggle/switch/checkbox state'ini accessibility ağacına aktarır. |
+| `Orientation` | `Horizontal`, `Vertical` | Slider/list/tree gibi yönlü erişilebilirlik yüzeylerinde yön bilgisini taşır. |
+| `Toggled` | `True`, `False`, `Mixed` | Toggle/switch/checkbox durumunu erişilebilirlik ağacına aktarır. |
 | `A11yCallbacks` | init/tree/window-bounds callbacks | `PlatformWindow` erişilebilirlik köprüsünde platforma ait callback setidir. |
 | `PlatformWindow` | `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds` | Erişilebilirlik ağacını platform penceresine taşıyan düşük seviye trait yüzeyidir. |
 | `_accessibility` | rustdoc-only modül | GPUI'nin AccessKit re-export ve accessibility doc yüzeyini bir arada gösteren gizli/dokümantasyon amaçlı modül sınırıdır; uygulama kodu doğrudan import etmez. |
@@ -139,6 +139,6 @@ Pratik kontrol listesi:
 
 - Etkileşimli her ham `div()` için stabil `.id(...)` ver.
 - Kontrolün görünür metni belirsizse veya ikon-only ise `aria_label(...)` ekle.
-- Toggle, seçim, genişleme ve sayısal değer state'ini render çıktısındaki gerçek state ile aynı yerde üret.
+- Toggle, seçim, genişleme ve sayısal değer durumunu render çıktısındaki gerçek durumla aynı yerde üret.
 - Tekrarlı dinamik metinlerde açık `text!(id = ..., metin)` kullan.
 - Parent `aria_label(...)` zaten aynı bilgiyi veriyorsa dekoratif veya tekrarlı alt metni `Text::new_inaccessible(...)` ile gizle.

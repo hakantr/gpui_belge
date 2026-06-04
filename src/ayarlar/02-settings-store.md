@@ -1,6 +1,6 @@
 # SettingsStore
 
-`SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip-güvenli store içinde birleştirir. Default, user, global, server, extension ve local katmanları öncelik sırasıyla birleşir. Birleşik içerik daha sonra kayıtlı `Settings` tiplerine yedirilir.
+`SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip güvenli store içinde birleştirir. Default, user, global, server, extension ve local katmanları öncelik sırasıyla birleşir. Birleşik içerik daha sonra kayıtlı `Settings` tiplerine yedirilir.
 
 ![SettingsStore Katmanları](assets/settings-store-katmanlari.svg)
 
@@ -128,11 +128,11 @@ Düşük seviye yardımcılar:
 - `SettingsStore::update_user_settings(...)` yalnız test bağlamlarında mevcuttur; uygulama kodunda kalıcı yazma için `update_settings_file` yolu tercih edersin.
 - `SettingsStore::import_vscode_settings(fs, vscode_settings, cx)` `VsCodeSettings` içeriğini kullanıcı ayar dosyasına aktarır; aşağıdaki "VS Code içe aktarımı" bölümünde detaylandırılır.
 
-JSON metin güncelleme helper'ları:
+JSON metin güncelleme yardımcıları:
 
 | API | Rol |
 | :-- | :-- |
-| `replace_value_in_json_text` | JSON metni içinde hedef path'teki değeri pretty biçim korunarak değiştirir; settings UI yazma akışının düşük seviye helper'ıdır. |
+| `replace_value_in_json_text` | JSON metni içinde hedef path'teki değeri pretty biçim korunarak değiştirir; settings UI yazma akışının düşük seviye yardımcısıdır. |
 | `replace_top_level_array_value_in_json_text` | Kök seviyedeki array değerlerinden birini bulup değiştirir. |
 | `append_top_level_array_value_in_json_text` | Kök seviyedeki array'e yeni değer ekler. |
 | `to_pretty_json` | `serde_json::Value` değerini Zed settings dosyasının beklediği pretty JSON metnine dönüştürür. |
@@ -282,7 +282,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve provider-specific parametre override'ları | `language_models` provider ayarlarından ayrı, agent kullanım seçimini taşır. |
 | `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel layout, düşünme bloğu, bildirim ve ses davranışı | Kullanıcı etkileşimiyle ilgili enum payload'larıdır. |
 | `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool izinleri, regex kuralları ve izin modu | Tool çağrısı policy'si content schema seviyesinde tiplenir. |
-| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | "Allow always" seçimiyle kalıcı hale gelen ağ, yazma yolu ve sandbox dışı çalışma izinlerini taşır. |
+| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kaynaktaki `"Allow always"` seçimiyle kalıcı hale gelen ağ, yazma yolu ve sandbox dışı çalışma izinlerini taşır. |
 
 ### Language model provider content ailesi
 

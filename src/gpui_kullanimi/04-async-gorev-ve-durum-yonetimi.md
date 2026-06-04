@@ -247,14 +247,14 @@ abonelikler.push(cx.subscribe(&belge, |gorunum, belge, _: &Kaydedildi, cx| {
 }));
 ```
 
-**Pencere bazlı gözlem.** Pencerenin kendisine ait değişimler için ayrı bir gözlemci ailesi vardır; her biri ilgili pencere değişiminde tetiklenir:
+**Pencere bazlı gözlem.** Pencerenin kendisine ait değişimler için ayrı bir gözlemci ailesi vardır; her biri ilgili pencere değişiminde tetiklenir ve geri çağrıya yine aynı view ile `Window` bağlamını verir:
 
-- `cx.observe_window_bounds(window, ...)`
-- `cx.observe_window_activation(window, ...)`
-- `cx.observe_window_appearance(window, ...)`
-- `cx.observe_button_layout_changed(window, ...)`
-- `cx.observe_pending_input(window, ...)`
-- `cx.observe_keystrokes(...)`
+- `cx.observe_window_bounds(window, ...)`, pencere yeniden boyutlandığında veya konumu/boyutu değiştiğinde çalışır. Yerleşimden türeyen başlık, gölge, panel boyutu veya ekran kenarı hesabını güncellemek için kullanırsın.
+- `cx.observe_window_activation(window, ...)`, pencere aktif ya da pasif olduğunda tetiklenir. Başlık çubuğu rengi, odak göstergesi veya aktif pencereye bağlı çalışma alanı seçimi burada yenilenir.
+- `cx.observe_window_appearance(window, ...)`, pencerenin açık/koyu görünüm modu değiştiğinde çalışır. Tema veya native pencere süslemesi görünümü bu değişime bağlanır.
+- `cx.observe_button_layout_changed(window, ...)`, platform pencere butonlarının yerleşimi değiştiğinde tetiklenir. Başlık çubuğu kendi kontrol alanlarını çiziyorsa bu bilgiyle yeniden hizalanır.
+- `cx.observe_pending_input(window, ...)`, pencerenin henüz action'a dönüşmemiş bekleyen tuş girdisi değiştiğinde çalışır. Which-key veya key-context gösterimi gibi "kullanıcı şu ana kadar ne bastı?" yüzeyleri bunu dinler.
+- `cx.observe_keystrokes(...)`, uygulamadaki herhangi bir pencerede keystroke alındıktan ve action/event çözümlemesi tamamlandıktan sonra çalışır; olay yayılımı durdurulduysa çağrılmaz. Tanılama, Vim modu göstergesi veya kısayol izleme gibi sonradan gözleyen yüzeyler için uygundur.
 
 ## Uygulama Geneli Veri Yardımcıları ve `cx.defer`
 

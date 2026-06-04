@@ -224,14 +224,20 @@ Bu desen fire-and-forget yenileme için uygundur. Kullanıcı pencereyi kapattı
 
 Git Graph commit bağlam menüsünden özel bir task çalıştırmak için global `tasks.json` içine `git-command` etiketli bir task eklersin. Worktree yerel task'lar bu akışta desteklenmez. Task seçili commit ve repository bağlamıyla çözülür; varsayılan çalışma dizini seçili repository köküdür.
 
-Desteklenen Git değişkenleri şu şekildedir:
+Desteklenen Git değişkenleri seçili commit ve onun bağlı olduğu repository
+bağlamından üretilir. Bu bağlamda yalnız Git değişkenleri sağlanır. `ZED_FILE`,
+`ZED_SELECTED_TEXT`, `ZED_WORKTREE_ROOT`, `ZED_MAIN_GIT_WORKTREE` gibi
+editör/worktree değişkenleri varsayılan değer taşımadıkça çözümlenmez.
 
-Bu bağlamda yalnız Git değişkenleri sağlanır. `ZED_FILE`, `ZED_SELECTED_TEXT`, `ZED_WORKTREE_ROOT`, `ZED_MAIN_GIT_WORKTREE` gibi editör/worktree değişkenleri varsayılan değer taşımadıkça çözümlenmez.
-
-- `ZED_GIT_SHA`
-- `ZED_GIT_SHA_SHORT`
-- `ZED_GIT_REPOSITORY_NAME`
-- `ZED_GIT_REPOSITORY_PATH`
+- `ZED_GIT_SHA` seçili commit'in tam SHA değeridir; `git show`, `git branch
+  --contains` veya özel script argümanı olarak kullanırsın.
+- `ZED_GIT_SHA_SHORT` aynı commit'in kısa gösterimidir; task etiketi veya kullanıcıya
+  görünen çıktı için uygundur.
+- `ZED_GIT_REPOSITORY_PATH` seçili commit'in geldiği repository'nin çalışma dizini
+  yoludur; task `cwd` değeri için en güvenli seçimdir.
+- `ZED_GIT_REPOSITORY_NAME` repository path'inin son bileşeninden türetilir; task
+  etiketi veya environment değişkeninde kullanıcıya okunabilir repository adı
+  gerektiğinde kullanılır.
 
 Tipik bir tanım şöyledir:
 

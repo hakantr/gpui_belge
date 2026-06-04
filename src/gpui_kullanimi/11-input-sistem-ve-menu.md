@@ -4,15 +4,15 @@
 
 ## Girdi, Pano, Prompt ve Platform Servisleri
 
-Element seviyesinde GPUI birçok girdi olayını tek tipli bir fluent API üzerinden açar. Aşağıdaki listeler, farklı olay tiplerini hangi metotlarla yakaladığını özetler:
+Element seviyesinde GPUI birçok girdi olayını tek tipli bir fluent API üzerinden açar. Olay metotlarını tek tek ezberlemek yerine hangi girdi sınıfını yakaladığını ve dispatch aşamasını birlikte düşünürsün:
 
 ![GPUI Element Girdi Olay Kategorileri](assets/girdi-olay-kategorileri.svg)
 
-- Klavye: `.on_key_down`, `.capture_key_down`, `.on_key_up`, `.capture_key_up`.
-- Fare: `.on_mouse_down`, `.capture_any_mouse_down`, `.on_mouse_up`, `.capture_any_mouse_up`, `.on_mouse_move`, `.on_mouse_down_out`, `.on_mouse_up_out`, `.on_click`, `.on_hover`.
-- Hareket ve scroll: `.on_scroll_wheel`, `.on_pinch`, `.capture_pinch`.
-- Sürükle-bırak: `.on_drag`, `.on_drag_move`, `.on_drop`.
-- Action: `.capture_action::<A>`, `.on_action::<A>`, `.on_boxed_action`.
+- **Klavye:** `.on_key_down` ve `.on_key_up` odak yolunda bubble aşamasında çalışır; bileşenin kendi tuş davranışı için kullanılır. `.capture_key_down` ve `.capture_key_up` aynı olayları kökten hedefe giderken yakalar; modal veya genel engelleme gibi üstten karar verilmesi gereken durumlarda seçilir.
+- **Fare:** `.on_mouse_down`, `.on_mouse_up` ve `.on_mouse_move` hitbox üstündeki temel fare akışıdır. `.capture_any_mouse_down` ve `.capture_any_mouse_up` buton ayrımı yapmadan capture aşamasında çalışır. `.on_mouse_down_out` ve `.on_mouse_up_out` dışarı tıklamayla kapanan yüzeyler içindir. `.on_click` basma/bırakma aynı hedefte eşleştiğinde çalışır; `.on_hover` ise hover durumunu view verisine taşır.
+- **Hareket ve scroll:** `.on_scroll_wheel` scroll alabilen hitbox üstünde wheel veya trackpad delta'sını işler. `.on_pinch` yakınlaştırma gesture'ını bubble aşamasında yakalar; `.capture_pinch` aynı gesture'ı üst katmandan önce görmek için kullanılır.
+- **Sürükle-bırak:** `.on_drag` sürükleme yükünü ve hayalet view'u başlatır. `.on_drag_move` aktif sürükleme boyunca hareket bilgisini verir; resize veya split handle gibi drop olmayan sürüklemelerde de kullanılır. `.on_drop` aynı tipteki yük hedefe bırakıldığında çalışır.
+- **Action:** `.capture_action::<A>` action'ı kökten hedefe giden aşamada yakalar. `.on_action::<A>` odaklanan elementten köke dönen normal action dinleyicisidir. `.on_boxed_action` tipin derleme zamanında bilinmediği kayıt veya yönlendirme katmanlarında kullanılır.
 
 Olay tipleri `interactive` ve `platform` içinde tanımlıdır: `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`, `FileDropEvent`, `ExternalPaths`, `ClickEvent`. `ScrollDelta::pixel_delta(line_height)`, satır tabanlı scroll'u piksele çevirir; `coalesce` aynı yöndeki delta'ları birleştirir.
 
@@ -59,7 +59,7 @@ if let Some(oge) = cx.read_from_clipboard()
 
 **Platform ve prompt davranışı.** Diyaloglarda platforma özel davranışlar sürpriz oluşturabilir; bilmen gereken birkaç nokta:
 
-- macOS `Window::prompt` NSAlert akışında Return ilk butona, Escape Cancel'a gider; Space ile odak son "iptal olmayan ve varsayılan olmayan" butona taşınır. "Save / Don't Save / Cancel" gibi üçlü prompt'larda orta seçenek klavyeyle erişilebilir kalır.
+- macOS `Window::prompt` NSAlert akışında Return ilk butona, Escape iptal akışına gider; Space ile odak son "iptal olmayan ve varsayılan olmayan" butona taşınır. `"Kaydet / Kaydetme / İptal"` gibi üçlü prompt'larda orta seçenek klavyeyle erişilebilir kalır.
 - Wayland'da pano ve primary selection yazılırken, tuş veya fare basma türüne göre süzülmüş seri yerine alınan en güncel compositor serisi kullanılır; aksi halde bazı compositor'lar seçim isteğini sessizce reddedebilir.
 - `open_path_prompt` sonuç sıralaması `ProjectPanelSettings.sort_mode` ile uyumlu çalışır. Proje panelindeki "önce dizinler / önce dosyalar / karışık" seçimi, dosya yolu prompt'unun aday listesinde de aynı şekilde uygulanır.
 

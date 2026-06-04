@@ -1,6 +1,6 @@
 # Ayarlar
 
-`settings` crate'i `~/.config/zed/settings.json`, proje seviyesindeki `.zed/settings.json`, sunucu yan ayarları, paketlenmiş varsayılanlar ve uzaktan iletilen ayar override'larını tek bir tip-güvenli store içinde birleştirir. Bu bölüm `settings` yüzeyini ayrı bir ünite olarak toplar; tema tarafı [Tema Yönetimi](../tema_yonetimi/tema_yonetimi.md) içinde anlatıldığı için burada tekrarlanmaz.
+`settings` crate'i `~/.config/zed/settings.json`, proje seviyesindeki `.zed/settings.json`, sunucu yan ayarları, paketlenmiş varsayılanlar ve uzaktan iletilen ayar override'larını tek bir tip güvenli store içinde birleştirir. Bu bölüm `settings` yüzeyini ayrı bir ünite olarak toplar; tema tarafı [Tema Yönetimi](../tema_yonetimi/tema_yonetimi.md) içinde anlatıldığı için burada tekrarlanmaz.
 
 Bu yüzey `settings` crate'inde toplanır; ayar içeriği `settings_content`, derive ve attribute makroları ise `settings_macros` crate'inde bulunur. Güncel Zed ağacında ayrı bir keymap crate'i yoktur: keymap ayar yüzeyi `settings` crate'inde, düşük seviye GPUI binding tipleri ise `gpui` içinde yaşar.
 
@@ -12,19 +12,19 @@ Bölüm hangi alt dosyada hangi yüzeyi anlatır:
 - **Keymap dosyası** — `KeymapFile`, `KeymapSection`, `KeymapAction`, `KeybindSource`, `KeybindUpdateOperation`, `KeybindUpdateTarget`, `KeyBindingValidator`.
 - **EditorConfig ve VS Code içe aktarımı** — `EditorconfigStore`, `Editorconfig`, `EditorconfigEvent`, `VsCodeSettings` ve `VsCodeSettingsSource`.
 
-Kök crate'in daha küçük ama public yardımcıları da bu bölümün kapsamındadır:
+Kök crate'in daha küçük ama dışa açık yardımcıları da bu bölümün kapsamındadır:
 
 - `SettingsAssets`, `DEFAULT_KEYMAP_PATH`, `VIM_KEYMAP_PATH` ve `EMPTY_THEME_NAME` paketlenmiş default ayar, keymap ve test tema varlıklarını bağlar.
 - `DefaultSemanticTokenRules` global semantic token default'ını, `BaseKeymap` ise seçilen temel keymap adını GPUI ayar modeline taşır.
 - `IntoGpui` ve `EditableSettingControl` ayar içeriğinin UI/editör kontrol tiplerine çevrilmesinde kullanılan yardımcı trait'lerdir.
 - `settings::fallible_options` modülü `FallibleOption` ve `parse_json` re-export'larını sağlar; `settings_macros` tarafındaki `with_fallible_options` attribute'u bu akışı alan bazlı toleranslı parse için kullanır.
-- `settings_macros` crate'i public olarak `MergeFrom`, `RegisterSetting` ve `with_fallible_options` makrolarını üretir.
+- `settings_macros` crate'i dışa açık olarak `MergeFrom`, `RegisterSetting` ve `with_fallible_options` makrolarını üretir.
 - `RegisteredSetting` doğrudan uygulama kodu için değil, `RegisterSetting` derive'ının `inventory` kaydına yazdığı iç köprü tipidir.
 - `UserSettingsContentExt` aktif profil, release kanalı ve işletim sistemi override'larını `UserSettingsContent` üzerinden okumak için kullanılan extension trait'tir.
 
 ## Kök crate yardımcıları
 
-Kök `settings` crate'i çok sayıda küçük public yardımcıyı re-export eder. Bunların çoğu ayrı uzun bölüm istemez; hangi değerleri taşıdıklarını bilmek yeterlidir:
+Kök `settings` crate'i çok sayıda küçük dışa açık yardımcıyı re-export eder. Bunların çoğu ayrı uzun bölüm istemez; hangi değerleri taşıdıklarını bilmek yeterlidir:
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -38,7 +38,7 @@ Kök `settings` crate'i çok sayıda küçük public yardımcıyı re-export ede
 | `UserSettingsContentExt` | `for_profile`, `for_release_channel`, `for_os` | Aktif profil, release kanalı ve OS override katmanlarını okur. |
 | `FallibleOption` | toleranslı alan parse sözleşmesi | Hatalı alanın tüm ayar dosyasını düşürmesini önleyen fallible option modelidir. |
 | `fallible_options` | modül/re-export | `FallibleOption` ve toleranslı parse yardımcılarının modül kapısıdır. |
-| `settings_file` | modül/re-export | Ayar dosyası izleme, boş tema ve update helper'larının kaynak modülüdür. |
+| `settings_file` | modül/re-export | Ayar dosyası izleme, boş tema ve update yardımcılarının kaynak modülüdür. |
 | `settings::init`, `SettingsAssets`, `IntoGpui` | startup kurulumu, paketlenmiş settings asset'leri ve content-to-GPUI dönüşümü | Kök `settings` crate'inin en sık kullanılan uygulama girişleridir. |
 | `default_settings`, `default_keymap`, `vim_keymap`, `default_semantic_token_rules` | paketlenmiş default settings/keymap ve semantic token payload'ları | Startup ve test kurulumları bu helper'larla asset içeriğini çözer. |
 | `initial_user_settings_content`, `initial_server_settings_content`, `initial_project_settings_content`, `initial_keymap_content`, `initial_tasks_content`, `initial_debug_tasks_content`, `initial_local_debug_tasks_content` | kullanıcıya veya projeye ilk kez yazılacak boş/örnek dosya içerikleri | Yeni ayar, keymap, task ve debug dosyası oluşturma akışının seed metinleridir. |

@@ -1,15 +1,15 @@
 # 16. Entegre Örnek Sayfaları
 
-Bileşenleri tek tek doğru kullanmak yeterli değildir. Gerçek bir ekranda asıl önemli olan state'in hangi view'da tutulduğu, event'lerin hangi sınırdan geçtiği, asenkron işlerin nasıl izlendiği ve görsel state değişiminden sonra render'ın nasıl yenilendiğidir. Tek başına anlaşılmış bileşenler, ancak bu akış içinde bir araya geldiklerinde anlamlı bir uygulama parçasına dönüşür.
+Bileşenleri tek tek doğru kullanmak yeterli değildir. Gerçek bir ekranda asıl önemli olan durumun hangi view'da tutulduğu, event'lerin hangi sınırdan geçtiği, asenkron işlerin nasıl izlendiği ve görsel durum değişiminden sonra render'ın nasıl yenilendiğidir. Tek başına anlaşılmış bileşenler, ancak bu akış içinde bir araya geldiklerinde anlamlı bir uygulama parçasına dönüşür.
 
-Bu bölümdeki örnekler tam ekran uygulama değildir. Daha çok, kendi domain tiplerinin, ayar servislerinin ve action tiplerinin bağlanacağı iskeletlerdir. Kullanılan component API'leri `../zed` çalışma ağacındaki kaynak dosyalara göre düzenlenmiştir.
+Bu bölümdeki örnekler tam ekran uygulama değildir. Daha çok, kendi alan tiplerinin, ayar servislerinin ve action tiplerinin bağlanacağı iskeletlerdir. Kullanılan component API'leri `../zed` çalışma ağacındaki kaynak dosyalara göre düzenlenmiştir.
 
 Ortak uygulama kuralları:
 
-- View'a ait geçici UI state'i view struct'ında tutulur: seçili satır, açık menü, pending async task, hata mesajı ve progress değeri gibi alanlar burada yer alır.
-- Paylaşılan veya servis kaynaklı state doğrudan component içinde saklanmaz. Bunun yerine render sırasında component'e label, status, icon, callback ve metadata olarak aktarılır.
-- View state'i değiştiren handler'larda `cx.listener(...)` kullanırsın. Bu sayede closure view instance'ına güvenli bir şekilde ulaşır.
-- Görsel sonucu olan bir state değişiminden sonra `cx.notify()` çağırırsın. Özellikle `selected`, `expanded`, `saving`, `error` ve `progress` gibi alanlarda bunu atlamamak gerekir.
+- View'a ait geçici UI durumu view struct'ında tutulur: seçili satır, açık menü, bekleyen async task, hata mesajı ve ilerleme değeri gibi alanlar burada yer alır.
+- Paylaşılan veya servis kaynaklı durum doğrudan component içinde saklanmaz. Bunun yerine render sırasında component'e label, status, icon, callback ve metadata olarak aktarılır.
+- View durumunu değiştiren handler'larda `cx.listener(...)` kullanırsın. Bu sayede closure view instance'ına güvenli bir şekilde ulaşır.
+- Görsel sonucu olan bir durum değişiminden sonra `cx.notify()` çağırırsın. Özellikle `selected`, `expanded`, `saving`, `error` ve `progress` gibi alanlarda bunu atlamamak gerekir.
 - Tamamlanması izlenmesi gereken asenkron işler bir `Task` alanında saklarsın. UI'ı değiştirmeyen fire-and-forget bir iş içinse `.detach_and_log_err(cx)` tercih edersin.
 - Menü içerikleri `ContextMenu::build(...)` içinde oluşturulur. Menünün açılması ise `PopoverMenu` veya `right_click_menu(...)` gibi taşıyıcı bir bileşene bağlanır.
 
@@ -27,10 +27,10 @@ Neden bir arada:
 
 State:
 
-- `format_on_save`: switch'in render state'i.
-- `saving`: button'ı disable etmek ve progress metni için geçici state.
-- `last_error`: yalnızca bir hata varsa `Callout` render edilir.
-- `_save_task`: ayar yazımı bitene kadar task'ın drop edilmemesi için saklarsın.
+- `kaydederken_bicimlendir`: switch'in render durumudur.
+- `kaydediliyor`: button'ı disable etmek ve ilerleme metni için geçici durumdur.
+- `son_hata`: yalnızca bir hata varsa `Callout` render edilir.
+- `_kaydetme_gorevi`: ayar yazımı bitene kadar task'ın drop edilmemesi için saklarsın.
 
 Örnek:
 
@@ -41,40 +41,40 @@ use ui::{
     Label, LabelSize, Severity, SwitchField, ToggleState, prelude::*,
 };
 
-struct EditorSettingsRow {
-    format_on_save: bool,
-    saving: bool,
-    last_error: Option<SharedString>,
-    _save_task: Option<Task<anyhow::Result<()>>>,
+struct EditorAyarlariSatiri {
+    kaydederken_bicimlendir: bool,
+    kaydediliyor: bool,
+    son_hata: Option<SharedString>,
+    _kaydetme_gorevi: Option<Task<anyhow::Result<()>>>,
 }
 
-impl EditorSettingsRow {
-    fn set_format_on_save(&mut self, selected: bool, cx: &mut Context<Self>) {
-        self.format_on_save = selected;
-        self.saving = true;
-        self.last_error = None;
+impl EditorAyarlariSatiri {
+    fn kaydederken_bicimlendirmeyi_ayarla(&mut self, secili: bool, cx: &mut Context<Self>) {
+        self.kaydederken_bicimlendir = secili;
+        self.kaydediliyor = true;
+        self.son_hata = None;
         cx.notify();
 
-        self._save_task = Some(cx.spawn(async move |this, cx| {
-            save_format_on_save(selected).await?;
+        self._kaydetme_gorevi = Some(cx.spawn(async move |this, cx| {
+            kaydederken_bicimlendirmeyi_kaydet(secili).await?;
             this.update(cx, |this, cx| {
-                this.saving = false;
+                this.kaydediliyor = false;
                 cx.notify();
             })?;
             anyhow::Ok(())
         }));
     }
 
-    fn retry_save(&mut self, cx: &mut Context<Self>) {
-        self.set_format_on_save(self.format_on_save, cx);
+    fn kaydetmeyi_yeniden_dene(&mut self, cx: &mut Context<Self>) {
+        self.kaydederken_bicimlendirmeyi_ayarla(self.kaydederken_bicimlendir, cx);
     }
 }
 
-impl Render for EditorSettingsRow {
+impl Render for EditorAyarlariSatiri {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         v_flex()
             .gap_3()
-            .child(Headline::new("Editor").size(HeadlineSize::Small))
+            .child(Headline::new("Düzenleyici").size(HeadlineSize::Small))
             .child(
                 h_flex()
                     .justify_between()
@@ -83,49 +83,49 @@ impl Render for EditorSettingsRow {
                     .child(
                         v_flex()
                             .gap_0p5()
-                            .child(Label::new("Format on save"))
+                            .child(Label::new("Kaydederken biçimlendir"))
                             .child(
-                                Label::new("Runs the configured formatter before writing files.")
+                                Label::new("Dosyaları yazmadan önce yapılandırılmış biçimlendiriciyi çalıştırır.")
                                     .size(LabelSize::Small)
                                     .color(Color::Muted),
                             ),
                     )
                     .child(
                         SwitchField::new(
-                            "format-on-save",
-                            Some("Enabled"),
-                            Some("Apply formatting automatically".into()),
-                            ToggleState::from(self.format_on_save),
+                            "kaydederken-bicimlendir",
+                            Some("Etkin"),
+                            Some("Biçimlendirmeyi otomatik uygula".into()),
+                            ToggleState::from(self.kaydederken_bicimlendir),
                             cx.listener(
                                 |this, selection: &ToggleState, _window, cx| {
-                                    this.set_format_on_save(selection.selected(), cx);
+                                    this.kaydederken_bicimlendirmeyi_ayarla(selection.selected(), cx);
                                 },
                             ),
                         )
-                        .disabled(self.saving),
+                        .disabled(self.kaydediliyor),
                     ),
             )
             .child(
-                Button::new("save-editor-settings", "Save Now")
+                Button::new("editor-ayarlari-kaydet", "Şimdi kaydet")
                     .size(ButtonSize::Compact)
                     .style(ButtonStyle::Filled)
-                    .disabled(self.saving)
+                    .disabled(self.kaydediliyor)
                     .on_click(cx.listener(
-                        |this, _: &ClickEvent, _window, cx| this.retry_save(cx),
+                        |this, _: &ClickEvent, _window, cx| this.kaydetmeyi_yeniden_dene(cx),
                     )),
             )
-            .when_some(self.last_error.clone(), |this, error| {
+            .when_some(self.son_hata.clone(), |this, hata| {
                 this.child(
                     Callout::new()
                         .severity(Severity::Error)
                         .icon(IconName::Warning)
-                        .title("Settings could not be saved")
-                        .description(error)
+                        .title("Ayarlar kaydedilemedi")
+                        .description(hata)
                         .actions_slot(
-                            Button::new("retry-editor-settings", "Retry")
+                            Button::new("editor-ayarlari-yeniden-dene", "Yeniden dene")
                                 .size(ButtonSize::Compact)
                                 .on_click(cx.listener(
-                                    |this, _: &ClickEvent, _window, cx| this.retry_save(cx),
+                                    |this, _: &ClickEvent, _window, cx| this.kaydetmeyi_yeniden_dene(cx),
                                 )),
                         ),
                 )
@@ -142,7 +142,7 @@ Dikkat edeceğin noktalar:
 
 ## Toolbar ve Komut Menüsü
 
-Bu örnekte `Button`, `IconButton`, `SplitButton`, `PopoverMenu`, `ContextMenu`, `Tooltip` ve `KeybindingHint` aynı toolbar davranışını birlikte tamamlar.
+Bu örnekte `Button`, `IconButton`, `SplitButton`, `PopoverMenu`, `ContextMenu`, `Tooltip` ve `KeybindingHint` aynı araç çubuğu davranışını birlikte tamamlar.
 
 Neden bir arada:
 
@@ -151,7 +151,7 @@ Neden bir arada:
 - `SplitButton`, birincil eylem ile varyant menüsünü tek bir kontrol gibi gösterir.
 - `PopoverMenu`, tetikleyici ile `ContextMenu` view'ını ilişkilendirir.
 - `Tooltip`, icon-only kontrollerin niyetini açıklar.
-- `KeybindingHint`, gerçek keymap'ten gelen shortcut bilgisini görünür kılar.
+- `KeybindingHint`, gerçek keymap'ten gelen kısayol bilgisini görünür kılar.
 
 Örnek:
 
@@ -162,43 +162,43 @@ use ui::{
     PopoverMenu, SplitButton, SplitButtonStyle, Tooltip, prelude::*,
 };
 
-struct CommandToolbar {
-    can_run: bool,
+struct KomutAracCubugu {
+    calistirabilir: bool,
 }
 
-impl CommandToolbar {
-    fn run_default(&mut self, _window: &mut Window, cx: &mut Context<Self>) {
-        self.can_run = false;
+impl KomutAracCubugu {
+    fn varsayilan_komutu_calistir(&mut self, _window: &mut Window, cx: &mut Context<Self>) {
+        self.calistirabilir = false;
         cx.notify();
 
-        cx.spawn(async move |_this, _cx| run_default_command().await)
+        cx.spawn(async move |_this, _cx| varsayilan_gorevi_calistir().await)
             .detach_and_log_err(cx);
     }
 }
 
-impl Render for CommandToolbar {
+impl Render for KomutAracCubugu {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let left = ButtonLike::new_rounded_left("run-default")
+        let sol = ButtonLike::new_rounded_left("varsayilan-calistir")
             .size(ButtonSize::Default)
-            .disabled(!self.can_run)
-            .child(Label::new("Run"))
+            .disabled(!self.calistirabilir)
+            .child(Label::new("Çalıştır"))
             .on_click(cx.listener(
-                |this, _: &ClickEvent, window, cx| this.run_default(window, cx),
+                |this, _: &ClickEvent, window, cx| this.varsayilan_komutu_calistir(window, cx),
             ))
-            .tooltip(|_window, cx| Tooltip::simple("Run default command", cx));
+            .tooltip(|_window, cx| Tooltip::simple("Varsayılan komutu çalıştır", cx));
 
-        let right = PopoverMenu::<ContextMenu>::new("run-menu")
+        let sag = PopoverMenu::<ContextMenu>::new("calistir-menusu")
             .trigger(
-                IconButton::new("run-menu-trigger", IconName::ChevronDown)
+                IconButton::new("calistir-menusu-tetikleyici", IconName::ChevronDown)
                     .size(ButtonSize::Default)
-                    .tooltip(|_window, cx| Tooltip::simple("More run commands", cx)),
+                    .tooltip(|_window, cx| Tooltip::simple("Daha fazla çalıştırma komutu", cx)),
             )
             .menu(|window, cx| {
                 Some(ContextMenu::build(window, cx, |menu, _window, _cx| {
-                    menu.entry("Run All", None, |_window, _cx| {})
-                        .entry("Run Selection", None, |_window, _cx| {})
+                    menu.entry("Tümünü çalıştır", None, |_window, _cx| {})
+                        .entry("Seçimi çalıştır", None, |_window, _cx| {})
                         .separator()
-                        .entry("Configure Task...", None, |_window, _cx| {})
+                        .entry("Görevi yapılandır...", None, |_window, _cx| {})
                 }))
             });
 
@@ -206,13 +206,13 @@ impl Render for CommandToolbar {
             .gap_1()
             .items_center()
             .child(
-                SplitButton::new(left, right.into_any_element())
+                SplitButton::new(sol, sag.into_any_element())
                     .style(SplitButtonStyle::Outlined),
             )
             .child(
-                IconButton::new("stop-task", IconName::Stop)
-                    .disabled(self.can_run)
-                    .tooltip(|_window, cx| Tooltip::simple("Stop running task", cx)),
+                IconButton::new("gorevi-durdur", IconName::Stop)
+                    .disabled(self.calistirabilir)
+                    .tooltip(|_window, cx| Tooltip::simple("Çalışan görevi durdur", cx)),
             )
     }
 }
@@ -220,8 +220,8 @@ impl Render for CommandToolbar {
 
 `KeybindingHint` için pratik kurallar:
 
-- Shortcut sabit bir string olarak yazılmaz. Mümkün olduğunda uygulamadaki action veya keymap çözümünden bir `ui::KeyBinding` üretilir.
-- Hint her toolbar'da görünmek zorunda değildir. Asıl değerli olduğu yerler komut palette, empty state veya onboarding gibi bağlamlardır.
+- Kısayol sabit bir string olarak yazılmaz. Mümkün olduğunda uygulamadaki action veya keymap çözümünden bir `ui::KeyBinding` üretilir.
+- Hint her araç çubuğunda görünmek zorunda değildir. Asıl değerli olduğu yerler komut palette, empty state veya onboarding gibi bağlamlardır.
 - Icon-only bir buton varsa `Tooltip` zorunlu kabul edilir; label'lı bir buton üzerinde tooltip ise yalnızca ek bir bağlam sağlıyorsa kullanırsın.
 
 ## Proje Listesi
@@ -230,7 +230,7 @@ Bu örnekte `List`, `ListItem`, `TreeViewItem`, `Disclosure`, `IndentGuides` ve 
 
 Neden bir arada:
 
-- `List`, liste container'ı ve empty state davranışı için temel yapıdır.
+- `List`, liste kapsayıcısı ve boş durum davranışı için temel yapıdır.
 - `ListItem`, satır slot'larını, selected state'i ve secondary click'i destekler.
 - `TreeViewItem`, dosya ağacı gibi expand veya collapse ile focus davranışı olan satırlarda kullanırsın.
 - `Disclosure`, özel satır layout'larında aç/kapat ikonunu ayrı bir parça olarak yerleştirmeye yarar.
@@ -242,7 +242,7 @@ State:
 - `expanded_project_ids`: hangi root veya klasörlerin açık olduğu.
 - `selected_path`: tek seçili proje veya dosya yolu.
 - `pending_context_menu_path`: sağ tık menüsü açılırken kullanılan yol.
-- Büyük listelerde scroll ve virtualization state'i bileşenlerin dışında tutulur.
+- Büyük listelerde scroll ve virtualization durumu bileşenlerin dışında tutulur.
 
 Örnek:
 
@@ -254,81 +254,81 @@ use ui::{
     TreeViewItem, prelude::*,
 };
 
-struct ProjectList {
-    expanded: HashSet<SharedString>,
-    selected_path: Option<SharedString>,
+struct ProjeListesi {
+    acik: HashSet<SharedString>,
+    secili_yol: Option<SharedString>,
 }
 
-impl ProjectList {
-    fn toggle_project(&mut self, project_id: SharedString, cx: &mut Context<Self>) {
-        if !self.expanded.insert(project_id.clone()) {
-            self.expanded.remove(&project_id);
+impl ProjeListesi {
+    fn projeyi_ac_kapat(&mut self, proje_id: SharedString, cx: &mut Context<Self>) {
+        if !self.acik.insert(proje_id.clone()) {
+            self.acik.remove(&proje_id);
         }
         cx.notify();
     }
 
-    fn select_path(&mut self, path: SharedString, cx: &mut Context<Self>) {
-        self.selected_path = Some(path);
+    fn yolu_sec(&mut self, yol: SharedString, cx: &mut Context<Self>) {
+        self.secili_yol = Some(yol);
         cx.notify();
     }
 }
 
-impl Render for ProjectList {
+impl Render for ProjeListesi {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let project_id: SharedString = "zed".into();
-        let project_open = self.expanded.contains(&project_id);
-        let src_path: SharedString = "zed/crates/ui/src".into();
+        let proje_id: SharedString = "zed".into();
+        let proje_acik = self.acik.contains(&proje_id);
+        let kaynak_yolu: SharedString = "zed/crates/ui/src".into();
 
         List::new()
             .header(
-                ListHeader::new("Projects")
+                ListHeader::new("Projeler")
                     .end_slot(CountBadge::new(3))
-                    .toggle(Some(project_open))
+                    .toggle(Some(proje_acik))
                     .on_toggle(cx.listener({
-                        let project_id = project_id.clone();
+                        let proje_id = proje_id.clone();
                         move |this, _: &ClickEvent, _window, cx| {
-                            this.toggle_project(project_id.clone(), cx);
+                            this.projeyi_ac_kapat(proje_id.clone(), cx);
                         }
                     })),
             )
             .child(
-                ListItem::new("project-zed")
-                    .toggle_state(self.selected_path.as_ref() == Some(&project_id))
+                ListItem::new("proje-zed")
+                    .toggle_state(self.secili_yol.as_ref() == Some(&proje_id))
                     .start_slot(
-                        Disclosure::new("project-zed-disclosure", project_open)
+                        Disclosure::new("proje-zed-disclosure", proje_acik)
                             .on_click(cx.listener({
-                                let project_id = project_id.clone();
+                                let proje_id = proje_id.clone();
                                 move |this, _: &ClickEvent, _window, cx| {
-                                    this.toggle_project(project_id.clone(), cx);
+                                    this.projeyi_ac_kapat(proje_id.clone(), cx);
                                 }
                             })),
                     )
                     .end_slot(CountBadge::new(12))
                     .child(Label::new("zed"))
                     .on_click(cx.listener({
-                        let project_id = project_id.clone();
+                        let proje_id = proje_id.clone();
                         move |this, _: &ClickEvent, _window, cx| {
-                            this.select_path(project_id.clone(), cx);
+                            this.yolu_sec(proje_id.clone(), cx);
                         }
                     })),
             )
-            .when(project_open, |this| {
+            .when(proje_acik, |this| {
                 this.child(
-                    TreeViewItem::new("project-zed-src", "crates/ui/src")
+                    TreeViewItem::new("proje-zed-src", "crates/ui/src")
                         .expanded(true)
-                        .toggle_state(self.selected_path.as_ref() == Some(&src_path))
+                        .toggle_state(self.secili_yol.as_ref() == Some(&kaynak_yolu))
                         .on_click(cx.listener({
-                            let src_path = src_path.clone();
+                            let kaynak_yolu = kaynak_yolu.clone();
                             move |this, _: &ClickEvent, _window, cx| {
-                                this.select_path(src_path.clone(), cx);
+                                this.yolu_sec(kaynak_yolu.clone(), cx);
                             }
                         })),
                 )
                 .child(
-                    ListItem::new("project-zed-components")
+                    ListItem::new("proje-zed-bilesenler")
                         .indent_level(2)
                         .start_slot(Icon::new(IconName::Folder))
-                        .child(Label::new("components"))
+                        .child(Label::new("bileşenler"))
                         .end_slot(CountBadge::new(41)),
                 )
             })
@@ -349,17 +349,17 @@ Bu örnekte `Table`, `TableInteractionState`, `RedistributableColumnsState`, `In
 Neden bir arada:
 
 - `Table`, satır ve sütun düzenini, header davranışını sağlar.
-- `TableInteractionState`, scroll ve focus state'ini view dışında tutulabilir hâle getirir.
+- `TableInteractionState`, scroll ve focus durumunu view dışında tutulabilir hâle getirir.
 - `RedistributableColumnsState`, sabit bir toplam genişlik içinde kullanıcıya sütun yeniden dağıtımı seçeneği verir.
-- `Indicator`, satırdaki kısa status bilgisini gösterir.
+- `Indicator`, satırdaki kısa durum bilgisini gösterir.
 - `ProgressBar`, tabloyu besleyen async işlerin ilerlemesini gösterir.
 
 State:
 
-- `interaction_state: Entity<TableInteractionState>`.
-- `columns_state: Entity<RedistributableColumnsState>`.
-- `rows: Vec<RowVm>`.
-- `sync_progress: Option<(f32, f32)>`.
+- `etkilesim_durumu: Entity<TableInteractionState>`.
+- `sutun_durumu: Entity<RedistributableColumnsState>`.
+- `satirlar: Vec<SatirVm>`.
+- `senkron_ilerlemesi: Option<(f32, f32)>`.
 
 Örnek:
 
@@ -369,56 +369,56 @@ use ui::{
     Table, TableInteractionState, TableResizeBehavior, prelude::*,
 };
 
-struct PackageRow {
-    name: SharedString,
-    version: SharedString,
-    status: PackageStatus,
+struct PaketSatiri {
+    ad: SharedString,
+    surum: SharedString,
+    durum: PaketDurumu,
 }
 
-enum PackageStatus {
-    Ready,
-    Updating,
-    Failed,
+enum PaketDurumu {
+    Hazir,
+    Guncelleniyor,
+    Basarisiz,
 }
 
-struct PackageTable {
-    interaction_state: Entity<TableInteractionState>,
-    columns_state: Entity<RedistributableColumnsState>,
-    rows: Vec<PackageRow>,
-    sync_progress: Option<(f32, f32)>,
+struct PaketTablosu {
+    etkilesim_durumu: Entity<TableInteractionState>,
+    sutun_durumu: Entity<RedistributableColumnsState>,
+    satirlar: Vec<PaketSatiri>,
+    senkron_ilerlemesi: Option<(f32, f32)>,
 }
 
-impl Render for PackageTable {
+impl Render for PaketTablosu {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let table = self.rows.iter().fold(
+        let tablo = self.satirlar.iter().fold(
             Table::new(3)
-                .interactable(&self.interaction_state)
+                .interactable(&self.etkilesim_durumu)
                 .width_config(ColumnWidthConfig::redistributable(
-                    self.columns_state.clone(),
+                    self.sutun_durumu.clone(),
                 ))
                 .striped()
-                .header(vec!["Status", "Package", "Version"]),
-            |table, row| {
-                let color = match row.status {
-                    PackageStatus::Ready => Color::Success,
-                    PackageStatus::Updating => Color::Info,
-                    PackageStatus::Failed => Color::Error,
+                .header(vec!["Durum", "Paket", "Sürüm"]),
+            |tablo, satir| {
+                let renk = match satir.durum {
+                    PaketDurumu::Hazir => Color::Success,
+                    PaketDurumu::Guncelleniyor => Color::Info,
+                    PaketDurumu::Basarisiz => Color::Error,
                 };
 
-                table.row(vec![
-                    Indicator::dot().color(color).into_any_element(),
-                    row.name.clone().into_any_element(),
-                    row.version.clone().into_any_element(),
+                tablo.row(vec![
+                    Indicator::dot().color(renk).into_any_element(),
+                    satir.ad.clone().into_any_element(),
+                    satir.surum.clone().into_any_element(),
                 ])
             },
         );
 
         v_flex()
             .gap_2()
-            .when_some(self.sync_progress, |this, (value, max)| {
-                this.child(ProgressBar::new("package-sync-progress", value, max, cx))
+            .when_some(self.senkron_ilerlemesi, |this, (deger, ust_sinir)| {
+                this.child(ProgressBar::new("paket-senkron-ilerlemesi", deger, ust_sinir, cx))
             })
-            .child(table)
+            .child(tablo)
     }
 }
 ```
@@ -426,10 +426,10 @@ impl Render for PackageTable {
 Kurulum notu:
 
 ```rust
-fn new(cx: &mut Context<PackageTable>) -> PackageTable {
-    PackageTable {
-        interaction_state: cx.new(|cx| TableInteractionState::new(cx)),
-        columns_state: cx.new(|_| {
+fn new(cx: &mut Context<PaketTablosu>) -> PaketTablosu {
+    PaketTablosu {
+        etkilesim_durumu: cx.new(|cx| TableInteractionState::new(cx)),
+        sutun_durumu: cx.new(|_| {
             RedistributableColumnsState::new(
                 3,
                 vec![rems(5.), rems(16.), rems(8.)],
@@ -440,8 +440,8 @@ fn new(cx: &mut Context<PackageTable>) -> PackageTable {
                 ],
             )
         }),
-        rows: Vec::new(),
-        sync_progress: None,
+        satirlar: Vec::new(),
+        senkron_ilerlemesi: None,
     }
 }
 ```
@@ -450,7 +450,7 @@ Dikkat edeceğin noktalar:
 
 - `Table::row(...)` küçük ve sabit listeler için yeterlidir. Büyük bir veri setinde `uniform_list(...)` veya `variable_row_height_list(...)` kullanırsın.
 - `RedistributableColumnsState::new(cols, widths, resize_behavior)` içinde `cols`, width sayısı ve resize behavior sayısı birbirine eşit olmalıdır.
-- Progress değeri değiştiğinde `sync_progress` güncellenir ve hemen ardından `cx.notify()` çağırırsın.
+- Progress değeri değiştiğinde `senkron_ilerlemesi` güncellenir ve hemen ardından `cx.notify()` çağırırsın.
 
 ## Bildirim Merkezi
 
@@ -460,7 +460,7 @@ Neden bir arada:
 
 - `Banner`, ekran veya panel üstündeki non-blocking bir duyuruyu gösterir.
 - `NotificationFrame`, workspace notification stack'inde başlığı, içeriği, close ve suppress davranışını birlikte çerçeveler.
-- `AnnouncementToast`, ürün duyurusu veya yeni özellik tanıtımı için hazır bir layout sağlar.
+- `AnnouncementToast`, ürün duyurusu veya yeni özellik tanıtımı için hazır bir yerleşim sağlar.
 - `AlertModal`, kısa ve blocking bir karar anında devreye girer.
 - `Button`, banner, toast ve modal action yüzeylerinin tamamlayıcısıdır.
 
@@ -474,56 +474,56 @@ use ui::{
 };
 use workspace::notifications::NotificationFrame;
 
-struct NotificationCenterPreview {
-    show_restart_alert: bool,
+struct BildirimMerkeziOnizleme {
+    yeniden_baslatma_uyarisi_goster: bool,
 }
 
-impl Render for NotificationCenterPreview {
+impl Render for BildirimMerkeziOnizleme {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         v_flex()
             .gap_3()
             .child(
                 Banner::new()
                     .severity(Severity::Warning)
-                    .child("Language server restarted after a crash.")
+                    .child("Dil sunucusu çökmeden sonra yeniden başlatıldı.")
                     .action_slot(
-                        Button::new("open-lsp-log", "Open Log")
+                        Button::new("lsp-log-ac", "Logu aç")
                             .size(ButtonSize::Compact),
                     ),
             )
             .child(
                 NotificationFrame::new()
-                    .with_title(Some("Indexing project"))
-                    .with_content("Symbols are still being indexed.")
-                    .with_suffix(Button::new("hide-indexing", "Hide").size(ButtonSize::Compact))
+                    .with_title(Some("Proje indeksleniyor"))
+                    .with_content("Semboller hâlâ indeksleniyor.")
+                    .with_suffix(Button::new("indekslemeyi-gizle", "Gizle").size(ButtonSize::Compact))
                     .on_close(|suppress, _window, _cx| {
                         if *suppress {
-                            persist_notification_suppression();
+                            bildirim_susturmayi_kaydet();
                         }
                     }),
             )
             .child(
                 AnnouncementToast::new()
-                    .heading("Agent threads can now be restored")
-                    .description("Recent work is available from the thread history.")
-                    .bullet_item(ListBulletItem::new("Open previous agent sessions"))
-                    .bullet_item(ListBulletItem::new("Continue from saved context"))
-                    .primary_action_label("Open Threads")
-                    .primary_on_click(|_event, _window, _cx| open_thread_history())
-                    .secondary_action_label("Learn More")
-                    .secondary_on_click(|_event, _window, _cx| open_release_notes())
-                    .dismiss_on_click(|_event, _window, _cx| dismiss_announcement()),
+                    .heading("Agent oturumları artık geri yüklenebilir")
+                    .description("Son çalışmalar oturum geçmişinden kullanılabilir.")
+                    .bullet_item(ListBulletItem::new("Önceki agent oturumlarını aç"))
+                    .bullet_item(ListBulletItem::new("Kaydedilmiş bağlamdan devam et"))
+                    .primary_action_label("Oturumları aç")
+                    .primary_on_click(|_event, _window, _cx| thread_gecmisini_ac())
+                    .secondary_action_label("Daha fazla bilgi")
+                    .secondary_on_click(|_event, _window, _cx| surum_notlarini_ac())
+                    .dismiss_on_click(|_event, _window, _cx| duyuruyu_kapat()),
             )
-            .when(self.show_restart_alert, |this| {
+            .when(self.yeniden_baslatma_uyarisi_goster, |this| {
                 this.child(
-                    AlertModal::new("restart-required")
-                        .title("Restart required")
-                        .child("The update will be applied after restarting the application.")
-                        .primary_action("Restart")
-                        .dismiss_label("Later")
+                    AlertModal::new("yeniden-baslatma-gerekli")
+                        .title("Yeniden başlatma gerekli")
+                        .child("Güncelleme, uygulama yeniden başlatıldıktan sonra uygulanacak.")
+                        .primary_action("Yeniden başlat")
+                        .dismiss_label("Sonra")
                         .on_action(cx.listener(
                             |this, _: &menu::Confirm, _window, cx| {
-                                this.show_restart_alert = false;
+                                this.yeniden_baslatma_uyarisi_goster = false;
                                 cx.notify();
                             },
                         )),
@@ -546,9 +546,9 @@ Bu örnekte `ConfiguredApiCard`, `AiSettingItem`, `AgentSetupButton`, `ThreadIte
 Neden bir arada:
 
 - `AiSettingItem`, bir agent veya provider satırının status ve kaynak bilgisini taşır.
-- `ConfiguredApiCard`, credential var/yok state'ini güvenli ve kısa bir kartla gösterir.
+- `ConfiguredApiCard`, credential var/yok durumunu güvenli ve kısa bir kartla gösterir.
 - `AgentSetupButton`, bir provider veya agent kurulumu için action satırı sağlar.
-- `ThreadItem`, son agent oturumlarını listelemek için domain'e özel bir satır sunar.
+- `ThreadItem`, son agent oturumlarını listelemek için alana özel bir satır sunar.
 - `UpdateButton`, AI alanının dışında bir update veya collab özel durumu yaşandığında da aynı kompakt status/action modelini gösterir.
 
 Örnek:
@@ -561,12 +561,12 @@ use ui::{
     ThreadItem, UpdateButton, prelude::*,
 };
 
-struct AiProviderPanel {
-    provider_running: bool,
-    selected_thread_id: Option<SharedString>,
+struct AiSaglayiciPaneli {
+    saglayici_calisiyor: bool,
+    secili_thread_id: Option<SharedString>,
 }
 
-impl Render for AiProviderPanel {
+impl Render for AiSaglayiciPaneli {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let thread_id: SharedString = "thread-42".into();
 
@@ -576,7 +576,7 @@ impl Render for AiProviderPanel {
                 AiSettingItem::new(
                     "openai-provider",
                     "OpenAI",
-                    if self.provider_running {
+                    if self.saglayici_calisiyor {
                         AiSettingItemStatus::Running
                     } else {
                         AiSettingItemStatus::Stopped
@@ -584,46 +584,46 @@ impl Render for AiProviderPanel {
                     AiSettingItemSource::Custom,
                 )
                 .icon(Icon::new(IconName::ZedAgent))
-                .detail_label("Used by Assistant and inline edits")
+                .detail_label("Asistan ve satır içi düzenlemeler tarafından kullanılır")
                 .action(
-                    IconButton::new("openai-settings", IconName::Settings)
-                        .on_click(|_event, _window, _cx| open_provider_settings()),
+                    IconButton::new("openai-ayarlari", IconName::Settings)
+                        .on_click(|_event, _window, _cx| saglayici_ayarlarini_ac()),
                 )
                 .details(
-                    ConfiguredApiCard::new("API key configured")
-                        .button_label("Reset Key")
-                        .tooltip_label("Replace the stored API key")
-                        .on_click(|_event, _window, _cx| reset_provider_key()),
+                    ConfiguredApiCard::new("API anahtarı yapılandırıldı")
+                        .button_label("Anahtarı sıfırla")
+                        .tooltip_label("Saklanan API anahtarını değiştir")
+                        .on_click(|_event, _window, _cx| saglayici_anahtarini_sifirla()),
                 ),
             )
             .child(
-                AgentSetupButton::new("setup-local-agent")
+                AgentSetupButton::new("yerel-ajan-kur")
                     .icon(Icon::new(IconName::Terminal))
-                    .name("Local Agent")
-                    .state(Label::new("Not configured").color(Color::Muted))
-                    .on_click(|_event, _window, _cx| open_agent_setup()),
+                    .name("Yerel ajan")
+                    .state(Label::new("Yapılandırılmadı").color(Color::Muted))
+                    .on_click(|_event, _window, _cx| ajan_kurulumunu_ac()),
             )
             .child(
-                ThreadItem::new(thread_id.clone(), "Refactor settings panel")
-                    .timestamp("2m ago")
+                ThreadItem::new(thread_id.clone(), "Ayarlar panelini yeniden düzenle")
+                    .timestamp("2 dk önce")
                     .status(AgentThreadStatus::Running)
                     .project_name("gpui_belge")
-                    .selected(self.selected_thread_id.as_ref() == Some(&thread_id))
+                    .selected(self.secili_thread_id.as_ref() == Some(&thread_id))
                     .notified(true)
                     .added(12)
                     .removed(4)
-                    .action_slot(IconButton::new("archive-thread-42", IconName::Archive))
+                    .action_slot(IconButton::new("thread-42-arsivle", IconName::Archive))
                     .on_click(cx.listener({
                         let thread_id = thread_id.clone();
                         move |this, _: &ClickEvent, _window, cx| {
-                            this.selected_thread_id = Some(thread_id.clone());
+                            this.secili_thread_id = Some(thread_id.clone());
                             cx.notify();
                         }
                     })),
             )
             .child(
                 UpdateButton::checking()
-                    .tooltip("Checking provider metadata"),
+                    .tooltip("Sağlayıcı üstverisi kontrol ediliyor"),
             )
     }
 }
@@ -631,8 +631,8 @@ impl Render for AiProviderPanel {
 
 Dikkat edeceğin noktalar:
 
-- Provider secret veya token değerleri bir component'e verilmez. `ConfiguredApiCard` yalnızca "configured" state'ini ve reset action'ını taşıdığı için bu sınır net şekilde korunur.
-- `AiSettingItemStatus::Authenticating` ve `AuthRequired` gibi state'ler servis state'inden türetilmelidir; kullanıcı tıklamasıyla optimistik olarak değiştirilmesi yanıltıcı olabilir.
+- Provider secret veya token değerleri bir component'e verilmez. `ConfiguredApiCard` yalnızca configured durumunu ve reset action'ını taşıdığı için bu sınır net şekilde korunur.
+- `AiSettingItemStatus::Authenticating` ve `AuthRequired` gibi state'ler servis durumundan türetilmelidir; kullanıcı tıklamasıyla optimistik olarak değiştirilmesi yanıltıcı olabilir.
 - `ThreadItem` action slot'unda destructive bir action varsa, tooltip ve onay akışını eklemen gerekir.
 
 ## Collaboration Özeti
@@ -643,9 +643,9 @@ Neden bir arada:
 
 - `Avatar`, tek bir kullanıcıyı veya çağrı katılımcısını gösterir.
 - `Facepile`, aktif collaborator grubunu az yer kaplayarak bir arada sunar.
-- `CollabNotification`, bir davet veya paylaşım aksiyonu için hazır bir layout verir.
+- `CollabNotification`, bir davet veya paylaşım aksiyonu için hazır bir yerleşim verir.
 - `DiffStat`, collaboration sırasında değişen satır sayısını özetler.
-- `Chip`, branch, role, room veya permission gibi kısa metadata'yı taşır.
+- `Chip`, branch, rol, oda veya izin gibi kısa üstveriyi taşır.
 
 Örnek:
 
@@ -655,7 +655,7 @@ use ui::{
     prelude::*,
 };
 
-fn render_collab_summary() -> impl IntoElement {
+fn collab_ozeti_render() -> impl IntoElement {
     v_flex()
         .gap_3()
         .child(
@@ -668,17 +668,17 @@ fn render_collab_summary() -> impl IntoElement {
                         .child(Avatar::new("https://example.com/b.png").size(px(20.)))
                         .child(Avatar::new("https://example.com/c.png").size(px(20.))),
                 )
-                .child(Chip::new("Live").icon(IconName::Circle).label_color(Color::Success))
-                .child(DiffStat::new("collab-diff", 24, 7).tooltip("Shared branch diff")),
+                .child(Chip::new("Canlı").icon(IconName::Circle).label_color(Color::Success))
+                .child(DiffStat::new("collab-diff", 24, 7).tooltip("Paylaşılan dal diff'i")),
         )
         .child(
             CollabNotification::new(
                 "https://example.com/avatar.png",
-                Button::new("accept-share", "Accept"),
-                Button::new("dismiss-share", "Dismiss").color(Color::Muted),
+                Button::new("paylasimi-kabul-et", "Kabul et"),
+                Button::new("paylasimi-kapat", "Kapat").color(Color::Muted),
             )
-            .child("Hakan invited you to join a shared project.")
-            .child(Chip::new("read/write").truncate()),
+            .child("Hakan seni paylaşılan bir projeye davet etti.")
+            .child(Chip::new("okuma/yazma").truncate()),
         )
 }
 ```

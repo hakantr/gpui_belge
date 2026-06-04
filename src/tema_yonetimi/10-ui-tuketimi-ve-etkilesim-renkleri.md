@@ -1,6 +1,6 @@
 # UI tüketimi ve etkileşim renkleri
 
-Bileşen tarafında tema okuma yolu `cx.theme()` çağrısıdır. Hover, active, disabled ve selected gibi durumlar da tema alanlarından beslenir. Bu bölüm, bileşenlerin tema değerlerine nasıl ulaştığını ve etkileşim durumlarında hangi alanları kullanması gerektiğini anlatır.
+Bileşen tarafında tema okuma yolu `cx.theme()` çağrısıdır. Hover, basılı, devre dışı ve seçili gibi durumlar da tema alanlarından beslenir. Bu bölüm, bileşenlerin tema değerlerine nasıl ulaştığını ve etkileşim durumlarında hangi alanları kullanması gerektiğini anlatır.
 
 ![UI Tema Tüketim Akışı](assets/ui-tema-tuketim-akisi.svg)
 
@@ -21,7 +21,7 @@ struct AnaPanel;
 impl Render for AnaPanel {
     fn render(
         &mut self,
-        _w: &mut Window,
+        _window: &mut Window,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let tema = cx.theme();
@@ -46,44 +46,44 @@ impl Render for AnaPanel {
 
 ```rust
 // Accessor metotları (dış crate için zorunlu yol)
-let bg = tema.colors().background;
-let muted = tema.colors().text_muted;
-let error = tema.status().error;
-let local = tema.players().local().cursor;
+let arka_plan = tema.colors().background;
+let soluk_metin = tema.colors().text_muted;
+let hata = tema.status().error;
+let yerel_imlec = tema.players().local().cursor;
 ```
 
 **Accessor metotları neden tercih edilir?** `styles` alanı tema modelinin iç yerleşimidir; tüketici bileşenlerin bu iç yerleşime bağlanması istenmez. Accessor yöntemi, mevcut Zed sözleşmesinde okunacak alanı `theme.colors()` gibi açık bir kapıdan verir ve UI kodunu daha anlaşılır tutar.
 
-### Runtime renk ailelerini UI'da tüketme
+### Çalışma zamanı renk ailelerini UI'da tüketme
 
-`ThemeStyles`, `ThemeColors`, `StatusColors`, `PlayerColors`, `AccentColors`, `SystemColors` ve `SyntaxTheme` runtime veri modelinin parçalarıdır; UI tarafında çoğunlukla bu tipleri doğrudan kurmazsın, aktif `Theme` üzerinden okursun. Bu ayrım önemlidir: bileşen kodu tema üreticisi değildir, tema tüketicisidir.
+`ThemeStyles`, `ThemeColors`, `StatusColors`, `PlayerColors`, `AccentColors`, `SystemColors` ve `SyntaxTheme` çalışma zamanı veri modelinin parçalarıdır; UI tarafında çoğunlukla bu tipleri doğrudan kurmazsın, aktif `Theme` üzerinden okursun. Bu ayrım önemlidir: bileşen kodu tema üreticisi değildir, tema tüketicisidir.
 
-| Runtime tipi | UI'daki erişim yolu | Kullanım |
+| Çalışma zamanı tipi | UI'daki erişim yolu | Kullanım |
 | -------------- | --------------------- | ---------- |
 | `ThemeStyles` | Doğrudan okunmaz; `Theme` accessor'ları üzerinden parçalanır. | Tema iç yapısını bir arada tutan kap. |
-| `ThemeColors` | `cx.theme().colors()` | Yüzey, metin, icon, border, editor, terminal ve interaction renkleri. |
-| `StatusColors` | `cx.theme().status()` | Error, warning, info, success, git/diff ve benzeri durum renkleri. |
+| `ThemeColors` | `cx.theme().colors()` | Yüzey, metin, icon, border, editor, terminal ve etkileşim renkleri. |
+| `StatusColors` | `cx.theme().status()` | Hata, uyarı, bilgi, başarı, git/diff ve benzeri durum renkleri. |
 | `PlayerColors` | `cx.theme().players()` | Collab cursor, selection, agent/remote participant ve Mermaid/git graph gibi döngüsel renkler. |
 | `AccentColors` | `cx.theme().accents()` | İndent guide, rainbow bracket, grafik dilimi gibi index bazlı vurgu renkleri. |
 | `SystemColors` | `cx.theme().system()` | `transparent` ve platform kromu için macOS traffic light renkleri. |
 | `SyntaxTheme` | `cx.theme().syntax()` | Tree-sitter capture adlarından `HighlightStyle` çözme. |
 
-`ThemeColorField` ve `all_theme_colors(cx)` normal bileşen render'ı için değil, tema editörü, color picker, debug inspector ve snapshot ekranı için düşünülür. `ThemeColorField` `ThemeColors` alanlarının reflection alt kümesini isimlendirir; `all_theme_colors(cx)` aktif temadan bu alanları `(Hsla, SharedString)` listesi olarak verir. Bir button arka planı çizeceksen `all_theme_colors` dolaşmazsın; doğrudan `theme.colors().element_background` okursun.
+`ThemeColorField` ve `all_theme_colors(cx)` normal bileşen render'ı için değil, tema editörü, color picker, debug inspector ve snapshot ekranı için düşünülür. `ThemeColorField` `ThemeColors` alanlarının reflection alt kümesini isimlendirir; `all_theme_colors(cx)` aktif temadan bu alanları `(Hsla, SharedString)` listesi olarak verir. Bir buton arka planı çizeceksen `all_theme_colors` dolaşmazsın; doğrudan `theme.colors().element_background` okursun.
 
 ```rust
 let tema = cx.theme();
-let colors = tema.colors();
-let status = tema.status();
+let renkler = tema.colors();
+let durum = tema.status();
 let oyuncular = tema.players();
 
-let hata_rengi = status.diagnostic().error;
+let hata_rengi = durum.diagnostic().error;
 let yerel_secim = oyuncular.local().selection;
 let katilimci = oyuncular.color_for_participant(katilimci_indeksi);
 let salt_okunur = oyuncular.read_only();
 let yok_katilimci = oyuncular.absent();
 ```
 
-`StatusColors::diagnostic()` yalnızca üçlü bir `DiagnosticColors` görünümü üretir: `error`, `warning` ve `info`. Diagnostic panel, inline error stripe veya status badge bu üç alanı okuyabilir; ama `created`, `deleted`, `modified` gibi VCS renkleri bu helper'da yoktur. Onlar için doğrudan `theme.status().created` gibi alan okursun.
+`StatusColors::diagnostic()` yalnızca üçlü bir `DiagnosticColors` görünümü üretir: `error`, `warning` ve `info`. Diagnostic panel, satır içi hata şeridi veya durum rozeti bu üç alanı okuyabilir; ama `created`, `deleted`, `modified` gibi VCS renkleri bu helper'da yoktur. Onlar için doğrudan `theme.status().created` gibi alan okursun.
 
 `PlayerColor` tek katılımcının `cursor`, `background` ve `selection` üçlüsüdür. `PlayerColors::color_for_participant(index)` local oyuncuyu atlayıp remote katılımcılar arasında modulo ile döner; bu yüzden collab katılımcı rengi seçerken kullanılır. `PlayerColors::read_only()` local rengi grayscale'e çeker; salt-okunur veya pasif kullanıcı göstergesinde işe yarar. `PlayerColors::absent()` ise son renk slot'unu döndürür ve bulunmayan/ayrılmış katılımcı durumunda kullanılır. Liste boşsa bu helper'ların güvenli çalışması beklenmez; fallback tema en az bir player rengi sağlamalıdır.
 
@@ -121,35 +121,35 @@ use kvs_tema::prelude::*;
 > use kvs_tema::prelude::*;
 > ```
 
-### Stateless okuma ile cached değer karşılaştırması
+### Durumsuz okuma ile cache'li değer karşılaştırması
 
 ```rust
-// (A) Stateless — her render'da tema okur
-impl Render for X {
-    fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+// (A) Durumsuz — her render'da tema okur
+impl Render for DurumsuzPanel {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         div().bg(cx.theme().colors().background)
     }
 }
 
-// (B) Cached — state'te tutar
-struct X {
-    bg: Hsla,
+// (B) Cache'li — durum alanında tutar
+struct CacheliPanel {
+    arka_plan: Hsla,
 }
-impl X {
+impl CacheliPanel {
     fn new(cx: &mut Context<Self>) -> Self {
-        Self { bg: cx.theme().colors().background }
+        Self { arka_plan: cx.theme().colors().background }
     }
 }
-impl Render for X {
-    fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        div().bg(self.bg)  // ← tema değişirse güncellenmez!
+impl Render for CacheliPanel {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        div().bg(self.arka_plan)  // ← tema değişirse güncellenmez!
     }
 }
 ```
 
-**Genel tercih (A), yani stateless yaklaşımdır.** `cx.refresh_windows()` view'ı yeniden çağırır ve tema yeni değerlerle okunur. (B) yaklaşımı tema değişimine **kapalı** kalır; eski rengi tutmaya devam eder ve bu bug'a dönüşür.
+**Genel tercih (A), yani durumsuz yaklaşımdır.** `cx.refresh_windows()` view'ı yeniden çağırır ve tema yeni değerlerle okunur. (B) yaklaşımı tema değişimine **kapalı** kalır; eski rengi tutmaya devam eder ve bu bug'a dönüşür.
 
-İstisna: render içinde **hesaplanmış bir değer** (örneğin `bg.opacity(0.5)`) başarım için cache edilebilir. Ancak `cx.theme()` zaten bellek ayırma üretmediği için bu seviyede cache çoğu zaman gereksizdir.
+İstisna: render içinde **hesaplanmış bir değer** (örneğin `arka_plan.opacity(0.5)`) başarım için cache edilebilir. Ancak `cx.theme()` zaten bellek ayırma üretmediği için bu seviyede cache çoğu zaman gereksizdir.
 
 ### Birden fazla alan okuma
 
@@ -158,19 +158,19 @@ impl Render for X {
 ```rust
 // İYİ
 let tema = cx.theme();
-let colors = tema.colors();
-let status = tema.status();
+let renkler = tema.colors();
+let durum = tema.status();
 
 div()
-    .bg(colors.background)
-    .text_color(colors.text)
-    .border_color(if has_error { status.error } else { colors.border })
+    .bg(renkler.background)
+    .text_color(renkler.text)
+    .border_color(if hata_var_mi { durum.error } else { renkler.border })
 
 // KÖTÜ (her çağrı `cx.global` lookup yapar)
 div()
     .bg(cx.theme().colors().background)
     .text_color(cx.theme().colors().text)
-    .border_color(if has_error {
+    .border_color(if hata_var_mi {
         cx.theme().status().error
     } else {
         cx.theme().colors().border
@@ -186,45 +186,45 @@ UI bileşenleri için **tema okuma sözleşmesi**:
 ```rust
 use kvs_tema::prelude::*;
 
-struct Button {
-    label: SharedString,
-    on_click: Box<dyn Fn(&mut Window, &mut App)>,
+struct Buton {
+    etiket: SharedString,
+    tiklandiginda: Box<dyn Fn(&mut Window, &mut App)>,
 }
 
-impl Render for Button {
+impl Render for Buton {
     fn render(
         &mut self,
-        _w: &mut Window,
+        _window: &mut Window,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
-        let colors = cx.theme().colors();
+        let renkler = cx.theme().colors();
 
         div()
             .px_3()
             .py_2()
-            .bg(colors.element_background)
-            .text_color(colors.text)
+            .bg(renkler.element_background)
+            .text_color(renkler.text)
             .rounded_md()
             .border_1()
-            .border_color(colors.border)
-            .child(self.label.clone())
+            .border_color(renkler.border)
+            .child(self.etiket.clone())
     }
 }
 ```
 
 **Sözleşme noktaları:**
 
-- Bileşen tema değerini kendi içinde okur; parent'tan renk parametresi almaz.
+- Bileşen tema değerini kendi içinde okur; üst bileşenden renk parametresi almaz.
 - Bileşen `Theme` tipini import etmez; yalnızca `ActiveTheme` trait'ini (prelude ile) kullanır.
-- Bileşen state'inde `Hsla` tutmaz — her render'da temayı fresh olarak okur.
+- Bileşen durum alanında `Hsla` tutmaz — her render'da temayı taze olarak okur.
 
 ### Tuzaklar
 
 1. **`use kvs_tema::ActiveTheme;` import'unun unutulması**: `cx.theme()` "method not found" hatası verir. En yaygın import bug'ıdır; prelude kullanmak bunu pratikte ortadan kaldırır.
 2. **`cx.theme().clone()` çağrısı**: `&Arc<Theme>` zaten ucuz bir referanstır; `.clone()` refcount artırır ancak çoğu durumda referans yeterlidir. Gereksiz bir maliyet doğurur.
-3. **Bileşen state'inde rengin cache'lenmesi**: Tema değişiminde stale kalır. Stateless okuma tercih edersin.
+3. **Bileşen durum alanında rengin cache'lenmesi**: Tema değişiminde eski kalır. Durumsuz okuma tercih edersin.
 4. **`tema.styles.colors.X` zinciri**: Dış crate'ten erişildiğinde compile hatası verir. Accessor (`theme.colors()`) tek doğru yoldur.
-5. **Render dışında `cx.theme()` çağrılması**: `&mut Context<Self>` `App`'ten `cx.theme()` çağrısına izin verir; ancak render fazı dışındaki bir çağrı çoğunlukla yanlış bir soyutlama belirtisidir — bileşen state'te tutar ve tema değişiminde yeniden okunmaz. Çağrı render fazıyla sınırlandırılmalıdır.
+5. **Render dışında `cx.theme()` çağrılması**: `&mut Context<Self>` `App`'ten `cx.theme()` çağrısına izin verir; ancak render fazı dışındaki bir çağrı çoğunlukla yanlış bir soyutlama belirtisidir — bileşen durum alanında tutar ve tema değişiminde yeniden okunmaz. Çağrı render fazıyla sınırlandırılmalıdır.
 6. **`Context<T>` yerine `&Window` ile erişim denemek**: `Window` üzerinden `cx.theme()` yapılamaz; `Window` `App`'e deref etmez. Render imzası `(&mut Window, &mut Context<Self>)` biçimindedir — iki parametre birbirinden ayrıdır.
 
 ### `Theme::darken` ile appearance-aware koyulaştırma
@@ -234,14 +234,14 @@ Zed'in `Theme::darken(color, light_amount, dark_amount)` (`theme`) yardımcısı
 ```rust
 use kvs_tema::ActiveTheme;
 
-impl Render for HoverChip {
-    fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+impl Render for VurguCipi {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let tema = cx.theme();
-        // Hover'da background'u light'ta 0.06, dark'ta 0.04 koyulaştır.
-        let hover_bg = tema.darken(tema.colors().element_background, 0.06, 0.04);
+        // Hover'da arka planı light'ta 0.06, dark'ta 0.04 koyulaştır.
+        let hover_arka_plan = tema.darken(tema.colors().element_background, 0.06, 0.04);
         div()
             .bg(tema.colors().element_background)
-            .hover(|s| s.bg(hover_bg))
+            .hover(|s| s.bg(hover_arka_plan))
             .text_color(tema.colors().text)
     }
 }
@@ -249,12 +249,12 @@ impl Render for HoverChip {
 
 **Sınırlar:** `darken` yalnızca lightness değerini etkiler; alpha, saturation ve hue olduğu gibi kalır. Şeffaf renkler yine şeffaftır. Mirror tarafta aynı imzanın korunması parite açısından önemlidir. Daha gelişmiş bir varyant (`OkLab` veya `palette::Mix`) yerel API genişletmesi olarak ele alırsın.
 
-### Markdown preview, code fontu ve Mermaid tema tüketimi
+### Markdown önizleme, code fontu ve Mermaid tema tüketimi
 
-Markdown preview hattı, tema tüketicisi olarak şu alanları kullanır:
+Markdown önizleme hattı, tema tüketicisi olarak şu alanları kullanır:
 
-- Düz markdown metni preview modunda `markdown_preview_font_family()` ile okunur; bu alan set edilmemişse `ui_font.family` kullanırsın.
-- Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutulur. `MarkdownStyle::default` constructor'ı code block ve inline code TextStyleRefinement'ında bu accessor'dan dönen değeri kullanır; `is_preview` bayrağı `false` ise (örn. agent panel anlatımı) doğrudan `buffer_font.family` okunur, böylece markdown preview ile in-app markdown render aynı yardımcı imzasını paylaşır.
+- Düz markdown metni önizleme modunda `markdown_preview_font_family()` ile okunur; bu alan set edilmemişse `ui_font.family` kullanırsın.
+- Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutulur. `MarkdownStyle::default` constructor'ı code block ve inline code TextStyleRefinement'ında bu accessor'dan dönen değeri kullanır; `is_preview` bayrağı `false` ise (örn. agent panel anlatımı) doğrudan `buffer_font.family` okunur, böylece markdown önizleme ile uygulama içi markdown render aynı yardımcı imzasını paylaşır.
 - Mermaid render hattı aktif tema renklerinden kendi renderer temasını üretir. Renkler renderer'a `#rrggbb` CSS hex olarak verilir; alpha kanalı taşınmaz, o yüzden şeffaflık gerekiyorsa renk önce tema tarafında uygun zemine blend edilmelidir. Hangi `ThemeColors` slot'unun hangi Mermaid alanına gittiğini şu tablo gösterir:
 
 | Mermaid alanı | Kullanım |
@@ -275,10 +275,10 @@ Markdown preview hattı, tema tüketicisi olarak şu alanları kullanır:
 
 - Mermaid fontu `ThemeSettings::ui_font.family` üzerinden gelir ve GPUI'nin font fallback çözümlemesinden geçirilir. Sanal Zed font adları burada normalize edilir: `.ZedSans` ve `Zed Plex Sans` `IBM Plex Sans`, `.ZedMono` `Lilex`, `.SystemUIFont` ise `system-ui` olarak çözülür. Tanımsız bir ad gelirse renderer'a olduğu gibi geçer.
 - Mermaid `accent0..accentN` class'ları player renklerinden üretilir; fill rengi light/dark appearance'a göre okunabilir bir kontrasta çekilir. Bu durum, player slot'larının yalnızca collab cursor için değil, görsel markdown diyagramları için de tüketildiği anlamına gelir. Kontrast adımı WCAG ölçütüne yaklaştırılmış sabit luminance hedefleri kullanır: light tema için relative luminance hedefi `>= 0.35` (siyah metinle yaklaşık 8:1 kontrast), dark tema için `<= 0.18` (beyaz metinle yaklaşık 4.6:1). Lightness değeri en fazla 50 adımda `±0.02` artırılarak hedefe yaklaşır; tutmazsa son adımdaki renk kabul edilir. Metin rengi light tema'da `gpui::black()`, dark tema'da `gpui::white()` olur. Bu sabitler mirror tarafta da aynı değerlerde tutulmalıdır; aksi halde aynı player paleti farklı kontrast üretir.
-- Mermaid kaynağı yazılırken `%%{init}%%`, elle `classDef` ve temadan bağımsız hex renkler kullanılmaz. Vurgu gerekiyorsa `A:::accent0 --> B:::accent1` gibi `accent0..accent7` class'ları kullanılır; yalnızca birebir marka/ürün rengi gerekiyorsa hardcoded renk kabul edilir. Renderer'a verilen kaynak `format!("{}\n{}", contents, accent_classdefs)` ile tema'dan üretilen `classDef accentN fill:...,stroke:...,color:...` blokları eklenerek beslenir; bu yüzden kullanıcı kaynağında aynı sınıf adlarının yeniden tanımlanması override edilmiş bir tema rengi üretir.
+- Mermaid kaynağı yazılırken `%%{init}%%`, elle `classDef` ve temadan bağımsız hex renkler kullanılmaz. Vurgu gerekiyorsa `A:::accent0 --> B:::accent1` gibi `accent0..accent7` class'ları kullanılır; yalnızca birebir marka/ürün rengi gerekiyorsa sabit kodlu renk kabul edilir. Renderer'a verilen kaynak `format!("{}\n{}", contents, accent_classdefs)` ile tema'dan üretilen `classDef accentN fill:...,stroke:...,color:...` blokları eklenerek beslenir; bu yüzden kullanıcı kaynağında aynı sınıf adlarının yeniden tanımlanması geçersiz kılınmış bir tema rengi üretir.
 - Diyagramın render edilebilmesi için fenced code block'un **kapanmış olması** gerekir (`metadata.is_fenced_closed`). Açık (henüz kapanmamış) bir blok parse sırasında atlanır; bu sayede yarı yazılmış markdown önizleme akışında parser yanlış zamanlama nedeniyle hata üretmez.
 - İki kaynak türü desteklenir. İlk tür klasik `~~~mermaid` etiketli fenced blok'tur; `mermaid` etiketinden sonra opsiyonel sayı `scale` olarak parse edilir (`mermaid 200` → %200). İkinci tür `~~~src` ile başlayan ve `.mermaid` veya `.mmd` uzantılı bir dosyaya işaret eden `FencedSrc` blok'tur; bu durumda scale sabit `100` kabul edilir. Diğer uzantılar bu yola girmez.
-- Render başarılı olduğunda blok `Preview | Code` sekme başlığıyla birlikte çizilir; varsayılan sekme görsel önizleme, `Code` sekmesi ise diyagramın kaynağıdır. Hangi blok'un hangi sekmede olduğu `Markdown.mermaid_showing_code: HashSet<usize>` içinde tutulur; her offset için `toggle_mermaid_tab(offset)` çağrısı aynı kümeyi flip eder. Render başarısız olur veya cache henüz hazır değilse sekme başlığı çizilmez ve kullanıcıya doğrudan kaynak gösterilir. Render bekleme satırı `top-1 right-2` köşesinde "Rendering..." etiketiyle pulsing animasyon olarak çıkar.
+- Render başarılı olduğunda blok `Önizleme | Kod` sekme başlığıyla birlikte çizilir; varsayılan sekme görsel önizleme, `Kod` sekmesi ise diyagramın kaynağıdır. Hangi blok'un hangi sekmede olduğu `Markdown.mermaid_showing_code: HashSet<usize>` içinde tutulur; her offset için `toggle_mermaid_tab(offset)` çağrısı aynı kümeyi flip eder. Render başarısız olur veya cache henüz hazır değilse sekme başlığı çizilmez ve kullanıcıya doğrudan kaynak gösterilir. Render bekleme satırı `top-1 right-2` köşesinde "Oluşturuluyor..." etiketiyle pulsing animasyon olarak çıkar.
 - Kopya butonunun ve sarım butonunun görünürlüğü tüketici tarafından kontrol edilir. `MarkdownElement` `CodeBlockRenderer::Default { copy_button_visibility, wrap_button_visibility, .. }` taşıyorsa Mermaid blok'u bu değerleri okur. `CopyButtonVisibility::Hidden` seçildiğinde sekme başlığı ve kopya butonu çizilmez; `WrapButtonVisibility::Hidden` ise sarım düğmesini gizler. Her iki düğme de aynı `h_flex` konteynerinde bulunur; biri `AlwaysVisible` ise konteyner herzaman görünür. Bu çoğunlukla agent panel gibi minimal görünüm gerektiren tüketicilerde kullanırsın. `CodeBlockRenderer::Default` iki alan taşıdığı için `{ copy_button_visibility, .. }` deseni çalışır; ancak struct literal yazarken `wrap_button_visibility` alanı da sağlanmalıdır.
 - Mermaid SVG çıktısı blok başına bir kez render edilip `MermaidState::cache` içinde tutulur. Tema veya `ThemeSettings` değiştiğinde cache geçersizleştirilmelidir; aksi takdirde markdown preview önceki tema renkleriyle kalır. Bunun için `Markdown::invalidate_mermaid_cache(&mut Context<Self>)` public metodu eklersin. Metot `options.render_mermaid_diagrams` açıkken `mermaid_state.clear()` çağırır, parsed markdown'u yeniden render kuyruğuna atar ve `cx.notify()` ile yeniden çizim tetikler. Agent panel gibi tema değişimini observe eden tüketiciler bu çağrıyı `cx.observe_window_appearance` veya tema observer'ına bağlar. `MarkdownOptions { render_mermaid_diagrams: true, ..Default::default() }` bayrağı kapatıldığında ise hem cache hem `mermaid_showing_code` kümesi tamamen boşaltılır.
 
@@ -325,9 +325,9 @@ ThemeColors:
 ├── element_background    ← varsayılan
 ├── element_hover         ← .hover(|s| s.bg(...))
 ├── element_active        ← .active(|s| s.bg(...))
-├── element_selected      ← seçili state (uygulama mantığı)
-├── element_selection_background  ← metin seçim bg
-├── element_disabled      ← disabled state
+├── element_selected      ← seçili durum (uygulama mantığı)
+├── element_selection_background  ← metin seçim arka planı
+├── element_disabled      ← devre dışı durum
 │
 ├── ghost_element_background  ← transparan varyant
 ├── ghost_element_hover
@@ -342,20 +342,20 @@ ThemeColors:
 use gpui::{div, prelude::*};
 use kvs_tema::prelude::*;
 
-impl Render for InteractiveButton {
-    fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let colors = cx.theme().colors();
+impl Render for EtkilesimliButon {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let renkler = cx.theme().colors();
 
         div()
-            .id("btn")                              // ← Interactivity için ID şart
+            .id("buton")                            // ← Interactivity için ID şart
             .px_3()
             .py_2()
-            .bg(colors.element_background)
-            .text_color(colors.text)
+            .bg(renkler.element_background)
+            .text_color(renkler.text)
             .rounded_md()
-            .hover(|s| s.bg(colors.element_hover))
-            .active(|s| s.bg(colors.element_active))
-            .child("Click")
+            .hover(|s| s.bg(renkler.element_hover))
+            .active(|s| s.bg(renkler.element_active))
+            .child("Tıkla")
     }
 }
 ```
@@ -369,88 +369,88 @@ impl Render for InteractiveButton {
 
 ```rust
 // 1. Tek alan değişimi
-div().bg(colors.element_background)
-    .hover(|s| s.bg(colors.element_hover))
+div().bg(renkler.element_background)
+    .hover(|s| s.bg(renkler.element_hover))
 
 // 2. Hover'da border ekleme
-div().border_1().border_color(colors.border)
-    .hover(|s| s.border_color(colors.border_focused))
+div().border_1().border_color(renkler.border)
+    .hover(|s| s.border_color(renkler.border_focused))
 
-// 3. Hover'da text rengi değişimi
-div().text_color(colors.text_muted)
-    .hover(|s| s.text_color(colors.text))
+// 3. Hover'da metin rengi değişimi
+div().text_color(renkler.text_muted)
+    .hover(|s| s.text_color(renkler.text))
 ```
 
-### Active (basılı) state
+### Active (basılı) durum
 
 ```rust
 div()
-    .bg(colors.element_background)
-    .hover(|s| s.bg(colors.element_hover))
-    .active(|s| s.bg(colors.element_active))
+    .bg(renkler.element_background)
+    .hover(|s| s.bg(renkler.element_hover))
+    .active(|s| s.bg(renkler.element_active))
 ```
 
-**Sıralama önemlidir:** GPUI önce hover'ı uygular, ardından active'i yerleştirir. Active'de verilen alan hover'ın üstüne yazılır. Active state, mouse button basılıyken etkin olur.
+**Sıralama önemlidir:** GPUI önce hover'ı uygular, ardından active'i yerleştirir. Active'de verilen alan hover'ın üstüne yazılır. Active durum, mouse button basılıyken etkin olur.
 
-### Disabled state
+### Disabled durum
 
-GPUI doğrudan bir `.disabled(|s| ...)` callback'i sunmaz; disabled mantığı uygulama tarafında yönetilir:
+GPUI doğrudan bir `.disabled(|s| ...)` callback'i sunmaz; devre dışı mantığı uygulama tarafında yönetilir:
 
 ```rust
-let bg = if self.is_disabled {
-    colors.element_disabled
+let arka_plan = if self.devre_disi_mi {
+    renkler.element_disabled
 } else {
-    colors.element_background
+    renkler.element_background
 };
 
-let text = if self.is_disabled {
-    colors.text_disabled
+let metin = if self.devre_disi_mi {
+    renkler.text_disabled
 } else {
-    colors.text
+    renkler.text
 };
 
 div()
-    .id("btn")
-    .bg(bg)
-    .text_color(text)
-    .when(!self.is_disabled, |this| {
-        this.hover(|s| s.bg(colors.element_hover))
-            .active(|s| s.bg(colors.element_active))
+    .id("buton")
+    .bg(arka_plan)
+    .text_color(metin)
+    .when(!self.devre_disi_mi, |oge| {
+        oge.hover(|s| s.bg(renkler.element_hover))
+            .active(|s| s.bg(renkler.element_active))
             .on_click(/* ... */)
     })
 ```
 
-`.when(cond, |this| ...)` koşullu bir fluent yardımcısıdır. Disabled durumda hover, active ve click handler tamamen atlanır.
+`.when(kosul, |oge| ...)` koşullu bir fluent yardımcısıdır. Devre dışı durumda hover, active ve click handler tamamen atlanır.
 
-> **Alternatif:** `element_disabled` zaten "soluk" bir renk taşır; hover davranışı disabled'da tamamen kapatılmak yerine yalnızca görsel feedback'in farklılaştırılması da yeterli olabilir. Bu noktada karar tasarım tercihine kalır.
+> **Alternatif:** `element_disabled` zaten "soluk" bir renk taşır; hover davranışı devre dışı durumda tamamen kapatılmak yerine yalnızca görsel geri bildirimin farklılaştırılması da yeterli olabilir. Bu noktada karar tasarım tercihine kalır.
 
-### Selected state
+### Selected durum
 
 Seçili öğeler için durum bilgisini **uygulama mantığı** taşır; tema yalnızca rengi sağlar:
 
 ```rust
-struct ListItem {
-    label: SharedString,
-    is_selected: bool,
+struct ListeOgesi {
+    etiket: SharedString,
+    secili_mi: bool,
 }
 
-impl Render for ListItem {
-    fn render(&mut self, _w: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        let colors = cx.theme().colors();
+impl Render for ListeOgesi {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        let renkler = cx.theme().colors();
 
-        let bg = if self.is_selected {
-            colors.element_selected
+        let arka_plan = if self.secili_mi {
+            renkler.element_selected
         } else {
-            colors.element_background
+            renkler.element_background
         };
 
         div()
-            .id(SharedString::from(format!("item-{}", self.label)))
+            .id(SharedString::from(format!("oge-{}", self.etiket)))
             .px_3().py_2()
-            .bg(bg)
-            .text_color(colors.text)
-            .hover(|s| s.bg(colors.element_hover))
-            .child(self.label.clone())
+            .bg(arka_plan)
+            .text_color(renkler.text)
+            .hover(|s| s.bg(renkler.element_hover))
+            .child(self.etiket.clone())
     }
 }
 ```
@@ -463,16 +463,16 @@ impl Render for ListItem {
 
 ### Ghost element family
 
-"Ghost" terimi, transparan arka planlı bir elementi tanımlar. Toolbar icon button'ları gibi yüzeye yapışmış görünen bileşenlerde kullanırsın.
+"Ghost" terimi, transparan arka planlı bir elementi tanımlar. Araç çubuğu ikon butonları gibi yüzeye yapışmış görünen bileşenlerde kullanırsın.
 
 ```rust
 div()
-    .id("toolbar-btn")
+    .id("arac-cubugu-dugmesi")
     .p_2()
-    .bg(colors.ghost_element_background)         // transparan
-    .text_color(colors.icon)
-    .hover(|s| s.bg(colors.ghost_element_hover)) // hover'da görünür ol
-    .active(|s| s.bg(colors.ghost_element_active))
+    .bg(renkler.ghost_element_background)         // transparan
+    .text_color(renkler.icon)
+    .hover(|s| s.bg(renkler.ghost_element_hover)) // hover'da görünür ol
+    .active(|s| s.bg(renkler.ghost_element_active))
 ```
 
 `ghost_element_background` genellikle `hsla(0, 0, 0, 0)` (tamamen şeffaf) olarak tutulur. Hover durumunda `ghost_element_hover` (çoğunlukla `elevated_surface_background` rengine yakın bir değer) devreye girer ve element görünür hale gelir.
@@ -481,34 +481,34 @@ div()
 
 | Durum | element | ghost_element |
 | ------- | --------- | --------------- |
-| Toolbar icon button |  | ✓ |
+| Araç çubuğu ikon butonu |  | ✓ |
 | Form button | ✓ |  |
 | Sidebar item |  | ✓ (genelde) |
 | Modal action | ✓ |  |
 | Tab şeridi |  | ✓ |
 | Dropdown trigger | ✓ |  |
 
-**Genel kural:** Element'in **kendine ait bir kromu** varsa (border, görünür bg) → `element_*` seçersin. Yüzeye yapışmış, yalnızca hover/active'de görünen bir element ise → `ghost_element_*` tercih edersin.
+**Genel kural:** Element'in **kendine ait bir kromu** varsa (border, görünür arka plan) → `element_*` seçersin. Yüzeye yapışmış, yalnızca hover/active'de görünen bir element ise → `ghost_element_*` tercih edersin.
 
-### Drop target (drag & drop)
+### Bırakma hedefi (drag & drop)
 
 ```rust
 div()
-    .bg(colors.background)
-    .when(self.is_drop_target_active, |this| {
-        this.bg(colors.drop_target_background)
+    .bg(renkler.background)
+    .when(self.birakma_hedefi_aktif_mi, |oge| {
+        oge.bg(renkler.drop_target_background)
             .border_2()
-            .border_color(colors.drop_target_border)
+            .border_color(renkler.drop_target_border)
     })
 ```
 
-Drop target alanları, sürükleme işlemi sırasında kullanıcıya "buraya bırakılabilir" geri bildirimi vermek için kullanırsın.
+Bırakma hedefi alanları, sürükleme işlemi sırasında kullanıcıya "buraya bırakılabilir" geri bildirimi vermek için kullanırsın.
 
 ### Etkileşim alanı seçim akış şeması
 
 ```text
 Bileşen interactive mi?
-├── Hayır → element_background (statik bg) + text
+├── Hayır → element_background (statik arka plan) + metin
 │
 └── Evet
     ├── Yüzeye yapışmış mı? (toolbar/sidebar/tab)
@@ -527,11 +527,11 @@ Bileşen interactive mi?
    ```
    `cx` callback dışında bağlandığı için bu kapsamda erişim mümkün olmaz. Doğru yol, değeri önceden bağlamaktır:
    ```rust
-   let hover_bg = colors.element_hover;
-   .hover(move |s| s.bg(hover_bg))
+   let hover_arka_plan = renkler.element_hover;
+   .hover(move |s| s.bg(hover_arka_plan))
    ```
 3. **Hover ile active sıralamasının tersine yazılması**: `.active(...).hover(...)` yazılsa bile davranış aynıdır (refinement sırası önceden belirlenmiştir); ancak okunabilirlik için `hover → active` sıralaması idiomatik kabul edilir.
-4. **`element_disabled` yerine `element_background.opacity(0.5)` tercih etmek**: İki seçenek farklı tasarım kararlarıdır. Tema yazarı disabled için özel bir renk vermiş olabilir; bu durumda `element_disabled` alanının kullanman gerekir.
+4. **`element_disabled` yerine `element_background.opacity(0.5)` tercih etmek**: İki seçenek farklı tasarım kararlarıdır. Tema yazarı devre dışı durum için özel bir renk vermiş olabilir; bu durumda `element_disabled` alanını kullanman gerekir.
 5. **`element_selected`'in her zaman dolu olduğunu varsaymak**: Refinement aşamasında `Some` değer geldiğinde dolu olur; tema yazarı vermediğinde baseline değerinden gelir. Fallback tema değerinin açık doldurulması, sürpriz boşlukların önüne geçer.
 6. **Ghost ile element'in karıştırılması**: Toolbar bir element'e `element_background` verildiğinde, beklenen şeffaf görüntü yerine yüzey rengiyle dolar; bu durum tasarım dilinin kaymasına yol açar.
 7. **Etkileşim durumlarının kontrast olmayan renklerle verilmesi**: `element_hover` ile `element_background` arasında yeterli lightness farkı bulunmadığında kullanıcı hover etkisini fark etmez. Tema testlerinde bu farkın gözle doğrulanması yerinde olur.

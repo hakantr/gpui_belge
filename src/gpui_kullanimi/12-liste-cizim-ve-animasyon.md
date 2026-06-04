@@ -140,14 +140,25 @@ uniform_list("arama-sonuclari", self.ogeler.len(), move |aralik, window, cx| {
 .with_width_from_item(Some(0))
 ```
 
-`UniformListScrollHandle` üzerindeki metotlar listenin tipik scroll ihtiyaçlarını karşılar:
+`UniformListScrollHandle` üzerindeki metotlar listenin tipik scroll ihtiyaçlarını
+karşılar. `scroll_to_item(ix, strategy)` non-strict davranır: hedef satır zaten
+tamamen görünüyorsa pozisyonu değiştirmez, görünmüyorsa seçilen
+`ScrollStrategy` ile onu görünür alana alacak en küçük hareketi yapar.
+`scroll_to_item_strict(ix, strategy)` aynı hedefi her çağrıda stratejinin tam
+konumuna taşır; seçili satırı ekranın merkezine sabitlemek veya odak değişiminde
+deterministik kaydırma yapmak için uygundur.
 
-- `scroll_to_item(ix, ScrollStrategy::Nearest)`
-- `scroll_to_item_strict(ix, ScrollStrategy::Center)`
-- `scroll_to_item_with_offset(ix, strategy, offset)`
-- `scroll_to_bottom()`
-- `is_scrollable()`, `is_scrolled_to_end()`
-- `y_flipped(true)` — item 0 altta olacak şekilde ters akış.
+`scroll_to_item_with_offset(ix, strategy, offset)` hedef pozisyonu satır sayısı
+cinsinden bir tamponla hesaplar. `ScrollStrategy::Top` ve
+`ScrollStrategy::Center` için etkili görünüm üstten, `ScrollStrategy::Bottom`
+için alttan daralır; böylece seçili öğenin çevresinde bağlam satırları
+bırakılabilir. Strict sürümü, hedef görünür olsa bile bu tamponlu pozisyonu
+yeniden uygular. `scroll_to_bottom()` listenin sonuna gitmek için hazır kısayoldur.
+`is_scrollable()` içerik yüksekliği görünüm yüksekliğini aşıyorsa `true` döner;
+`is_scrolled_to_end()` liste kaydırılabilir değilse `None`, aksi halde son konuma
+ulaşılıp ulaşılmadığını bildirir. `y_flipped(true)` item 0 altta olacak şekilde
+akışı ters çevirir; sohbet veya günlük akışı gibi yeni öğenin altta belirdiği
+yüzeylerde kullanılır.
 
 **Karar.** Hangi listeyi seçeceğin şu kurallara göre belirlenir:
 
@@ -493,12 +504,11 @@ window.paint_quad(
 window.paint_quad(outline(sinirlar, rgb(0xff0000), BorderStyle::Solid));
 ```
 
-**`PaintQuad` builder yardımcıları** (`window`):
-
-- `.corner_radii(impl Into<Corners<Pixels>>)`
-- `.border_widths(impl Into<Edges<Pixels>>)`
-- `.border_color(impl Into<Hsla>)`
-- `.background(impl Into<Background>)`
+**`PaintQuad` builder yardımcıları** (`window`). `corner_radii` köşe
+yuvarlaklığını, `border_widths` her kenarın kalınlığını, `border_color` kenarlık
+rengini, `background` ise düz renk veya arka plan türünü kurar. Bu yapı layout
+üretmez; çağıran taraf `bounds` değerini kendisi hesaplar ve GPU boyama kuyruğuna
+yalnızca çizilecek dikdörtgeni verir.
 
 **Diğer paint API'leri.** Window üzerinde çağırabileceğin paint yardımcıları geniş bir yelpazeyi kapsar:
 

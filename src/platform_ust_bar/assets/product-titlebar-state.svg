@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420">
-  <title>Ürün Titlebar State Haritası</title>
+  <title>Ürün Başlık Çubuğu Durum Haritası</title>
   <defs>
     <style>
       .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
@@ -11,36 +11,36 @@
     </style>
   </defs>
   <rect width="960" height="420" rx="10" fill="#f8fafc"/>
-  <text x="480" y="36" text-anchor="middle" class="title">Ürün Titlebar State Haritası</text>
-  <text x="480" y="60" text-anchor="middle" class="sub">Platform kabuğu mekanik kalır; ürün başlığı domain state'ini görsele çevirir.</text>
+  <text x="480" y="36" text-anchor="middle" class="title">Ürün Başlık Çubuğu Durum Haritası</text>
+  <text x="480" y="60" text-anchor="middle" class="sub">Platform kabuğu mekanik kalır; ürün başlığı alan durumunu görsele çevirir.</text>
 
   <rect x="54" y="110" width="180" height="122" rx="8" class="card"/>
   <rect x="54" y="110" width="180" height="30" rx="8" fill="#334155"/>
   <path d="M54 132 H234 V140 H54 Z" fill="#334155"/>
-  <text x="70" y="130" class="head">App state</text>
+  <text x="70" y="130" class="head">Uygulama durumu</text>
   <text x="70" y="162" class="body">workspace adı</text>
-  <text x="70" y="180" class="body">update state</text>
-  <text x="70" y="198" class="body">feature flag</text>
+  <text x="70" y="180" class="body">güncelleme durumu</text>
+  <text x="70" y="198" class="body">özellik bayrağı</text>
   <text x="70" y="216" class="small">ürün katmanı</text>
 
   <rect x="300" y="82" width="180" height="98" rx="8" class="card"/>
   <rect x="300" y="82" width="180" height="30" rx="8" fill="#0284c7"/>
   <path d="M300 104 H480 V112 H300 Z" fill="#0284c7"/>
   <text x="316" y="102" class="head">AppTitleBar</text>
-  <text x="316" y="134" class="body">menu + project</text>
-  <text x="316" y="152" class="small">children üretir</text>
+  <text x="316" y="134" class="body">menü + proje</text>
+  <text x="316" y="152" class="small">çocukları üretir</text>
 
   <rect x="300" y="220" width="180" height="98" rx="8" class="card"/>
   <rect x="300" y="220" width="180" height="30" rx="8" fill="#7c3aed"/>
   <path d="M300 242 H480 V250 H300 Z" fill="#7c3aed"/>
   <text x="316" y="240" class="head">UpdateButton</text>
-  <text x="316" y="272" class="body">checking/downloading</text>
-  <text x="316" y="290" class="small">duruma göre disabled</text>
+  <text x="316" y="272" class="body">denetleme/indirme</text>
+  <text x="316" y="290" class="small">duruma göre devre dışı</text>
 
   <rect x="558" y="82" width="180" height="98" rx="8" class="card"/>
   <rect x="558" y="82" width="180" height="30" rx="8" fill="#059669"/>
   <path d="M558 104 H738 V112 H558 Z" fill="#059669"/>
-  <text x="574" y="102" class="head">Banner</text>
+  <text x="574" y="102" class="head">Duyuru Bandı</text>
   <text x="574" y="134" class="body">Skills duyurusu</text>
   <text x="574" y="152" class="small">visible_when</text>
 
@@ -48,14 +48,14 @@
   <rect x="558" y="220" width="180" height="30" rx="8" fill="#d97706"/>
   <path d="M558 242 H738 V250 H558 Z" fill="#d97706"/>
   <text x="574" y="240" class="head">PlatformTitleBar</text>
-  <text x="574" y="272" class="body">window controls</text>
+  <text x="574" y="272" class="body">pencere kontrolleri</text>
   <text x="574" y="290" class="small">set_children alır</text>
 
   <rect x="800" y="150" width="112" height="96" rx="8" class="card"/>
   <rect x="800" y="150" width="112" height="30" rx="8" fill="#be123c"/>
   <path d="M800 172 H912 V180 H800 Z" fill="#be123c"/>
   <text x="816" y="170" class="head">Window</text>
-  <text x="816" y="202" class="body">drag</text>
+  <text x="816" y="202" class="body">sürükleme</text>
   <text x="816" y="220" class="small">close/min/max</text>
 
   <path d="M234 158 H300" stroke="#334155" stroke-width="2"/>

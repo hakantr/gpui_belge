@@ -147,7 +147,7 @@ Aralıklar yine byte index aralıklarıdır; Unicode metinde karakter sınırlar
 
 **Markdown çizim davranışı.** Markdown ekosistemi metin sisteminin üzerine özel davranışlar bindirir; bunları bilmek sürpriz davranışları azaltır:
 
-- Markdown görsel çizimi `StyledImage::with_fallback` kullanarak yüklenemeyen görsel için tıklanabilir bir "Failed to Load: ..." yedeği üretir. Yedek etiketi önce alt metin değerini, yoksa hedef URL'yi kullanır; tıklama ile `cx.open_url` çağrılır.
+- Markdown görsel çizimi `StyledImage::with_fallback` kullanarak yüklenemeyen görsel için tıklanabilir bir `"Yüklenemedi: ..."` yedeği üretir. Yedek etiketi önce alt metin değerini, yoksa hedef URL'yi kullanır; tıklama ile `cx.open_url` çağrılır.
 - Mermaid kod blokları yalnızca kapalı fenced block biçimindeyse diyagram olarak çıkarılır. ` ```mermaid` etiketinin yanı sıra `.mermaid` veya `.mmd` uzantılı kaynak yolu işaret edilen bloklar da diyagram olarak sayılır.
 - Mermaid diyagram arayüzü önizleme ve kod sekmelerini, ayrıca kopyalama butonunu gösterebilir; çizim başarısızsa veya henüz tamamlanmadıysa kaynak kodu görünümü yedek olarak çizilir.
 
@@ -163,7 +163,7 @@ CodeBlockRenderer::Default {
 }
 ```
 
-`WrapButtonVisibility` üç değer alır: `Hidden` (sarım düğmesi hiç gösterilmez), `AlwaysVisible`, `VisibleOnHover`. Kullanıcı sarım düğmesine tıklayınca `Markdown` yapısının `wrapped_code_blocks` kümesi değişir ve kod bloğu yatay kaydırma yerine sözcük sarımına geçer. `WrapButtonVisibility::Hidden` olmayan tüm durumlarda düğme satırı kopyalama düğmesiyle aynı `h_flex` konteynerini paylaşır; birinin görünürlük kuralı `AlwaysVisible` ise her ikisi de herzaman görünür.
+`WrapButtonVisibility` üç değer alır: `Hidden` (sarım düğmesi hiç gösterilmez), `AlwaysVisible`, `VisibleOnHover`. Kullanıcı sarım düğmesine tıklayınca `Markdown` yapısının `wrapped_code_blocks` kümesi değişir ve kod bloğu yatay kaydırma yerine sözcük sarımına geçer. `WrapButtonVisibility::Hidden` olmayan tüm durumlarda düğme satırı kopyalama düğmesiyle aynı `h_flex` konteynerini paylaşır; birinin görünürlük kuralı `AlwaysVisible` ise her ikisi de her zaman görünür.
 
 `CodeBlockRenderer::Default` alanlarının tümü zorunludur; yapıyı kurarken `copy_button_visibility`, `wrap_button_visibility` ve `border`'ı birlikte verirsin.
 

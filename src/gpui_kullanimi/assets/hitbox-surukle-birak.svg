@@ -60,7 +60,7 @@
   <rect x="410" y="260" width="290" height="78" rx="8" class="card" />
 <rect x="410" y="260" width="290" height="30" rx="8" fill="#334155" />
 <path d="M 410 282 H 700 V 290 H 410 Z" fill="#334155" />
-<text x="424" y="280" class="cardTitle">Click ürünü</text>
+<text x="424" y="280" class="cardTitle">Tıklama ürünü</text>
 <text x="424" y="312" class="body">on_mouse_up sonrası .on_click(...) çalışır.</text>
 
   <path d="M 955 188 L 955 260" class="arrowSoft" /><text x="970" y="224" class="edge">fare hareketi</text>

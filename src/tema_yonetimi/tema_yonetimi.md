@@ -26,10 +26,10 @@ Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam
 
 10. [UI tüketimi ve etkileşim renkleri](10-ui-tuketimi-ve-etkilesim-renkleri.md) Bileşenlerin `cx.theme()` ile tema okumasını ve hover/active/disabled gibi etkileşim renklerini nasıl seçeceğini gösterir.
 
-11. [Dış API ve test ortamı](11-dis-api-ve-test-ortami.md) Public API sınırını, crate-içi kalması gereken parçaları ve test ortamında tema mock'lama stratejilerini toplar.
+11. [Dış API ve test ortamı](11-dis-api-ve-test-ortami.md) Dışa açık API sınırını, crate-içi kalması gereken parçaları ve test ortamında tema mock'lama stratejilerini toplar.
 
 12. [Pratik kontrol listesi](12-pratik-kontrol-listesi.md) Yaygın tuzakları, mirror kararlarını ve son kontrol listesini kısa maddeler halinde verir.
 
 ## Okuma önerisi
 
-İlk kez okuyorsan 1-8 arası bölümleri sırayla takip etmek en sağlıklı yoldur. Mevcut bir uygulamaya tema sistemi ekliyorsan 1, 2, 5, 7 ve 8. bölümler önce okunmalıdır. UI bileşenleri yazıyorsan 10. bölüm doğrudan pratik ihtiyaçlara cevap verir. Test veya public API sınırı üzerinde çalışıyorsan 11 ve 12. bölümler kontrol noktası olarak kullanabilirsin.
+İlk kez okuyorsan 1-8 arası bölümleri sırayla takip etmek en sağlıklı yoldur. Mevcut bir uygulamaya tema sistemi ekliyorsan 1, 2, 5, 7 ve 8. bölümler önce okunmalıdır. UI bileşenleri yazıyorsan 10. bölüm doğrudan pratik ihtiyaçlara cevap verir. Test veya dışa açık API sınırı üzerinde çalışıyorsan 11 ve 12. bölümler kontrol noktası olarak kullanabilirsin.

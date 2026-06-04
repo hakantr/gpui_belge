@@ -263,8 +263,8 @@ platform_baslik_cubugu.into_any_element()
 
 Zed'in başlık çubuğu davranışında dikkat çeken iki ayrıntı vardır:
 
-- `TitleBar`, `SkillsFeatureFlag` açıkken `OnboardingBanner` ile "Introducing: Skills" afişini kurar; afiş tıklaması, agent veya skills bilgilendirme modalını açan action'ı yönlendirir. Başlık çubuğu etiketi bu modalın sonucuna göre değişmez.
-- `UpdateButton::checking`, `downloading` ve `installing` durumları pasif buton olarak görünür. Sürüm ipucu metni `"Update to Version: ..."` biçimindedir; SHA tabanlı sürümde kısa SHA yerine tam SHA görünür.
+- `TitleBar`, `SkillsFeatureFlag` açıkken `OnboardingBanner` ile port arayüzünde `"Tanıtım: Skills"` gibi Türkçe bir afiş kurar; afiş tıklaması, agent veya skills bilgilendirme modalını açan eylemi yönlendirir. Başlık çubuğu etiketi bu modalın sonucuna göre değişmez.
+- `UpdateButton::checking`, `downloading` ve `installing` durumları pasif buton olarak görünür. Sürüm ipucu metni `"Sürüme Güncelle: ..."` biçimindedir; SHA tabanlı sürümde kısa SHA yerine tam SHA görünür.
 
 ## Kontrol Butonlarını Nasıl Yönetirsin?
 
@@ -441,40 +441,15 @@ Desteklenen setting değerleri `opaque`, `transparent` ve `blurred`'dir. `MicaBa
 
 ## Pencere Üzerinden Yapılan İşlemler
 
-Pencerenin durumuna ve görünümüne dair sık kullandığın `Window` API'leri şunlar; her biri ilgili platform çağrısının sade bir kapısıdır:
+Pencerenin durumuna ve görünümüne dair sık kullandığın `Window` API'lerini amaçlarına göre okursan seçim daha kolay olur. Her grup ilgili platform çağrısının sade bir kapısıdır:
 
-- `window.bounds()` — genel ekran koordinatlarındaki sınırlar.
-- `window.window_bounds()` — tekrar açma ve geri yükleme için `WindowBounds`.
-- `window.inner_window_bounds()` — Linux inset hariç sınırlar.
-- `window.viewport_size()` — çizilebilir içerik boyutu.
-- `window.resize(size)` — içerik boyutunu değiştirir.
-- `window.is_fullscreen()`, `window.is_maximized()`
-- `window.activate_window()`
-- `window.minimize_window()`
-- `window.zoom_window()`
-- `window.toggle_fullscreen()`
-- `window.remove_window()`
-- `window.set_window_title(title)`
-- `window.set_app_id(app_id)`
-- `window.set_background_appearance(appearance)`
-- `window.set_window_edited(true/false)` — macOS değiştirildi göstergesi.
-- `window.set_document_path(path)` — macOS belge erişilebilirliği ve yolu.
-- `window.show_window_menu(position)` — Linux başlık çubuğu bağlam menüsü.
-- `window.start_window_move()`, `window.start_window_resize(edge)`
-- `window.request_decorations(WindowDecorations::Client/Server)`
-- `window.window_decorations()`
-- `window.window_controls()`
-- `window.prompt(...)`
-- `window.play_system_bell()`
+- **Sınır ve içerik ölçüsü:** `window.bounds()` canlı ekran koordinatlarını, `window.window_bounds()` geri yüklenebilir `WindowBounds` değerini, `window.inner_window_bounds()` istemci inset'i hesaba katılmış iç sınırı, `window.viewport_size()` ise çizilebilir içerik boyutunu verir. `window.resize(size)` içerik boyutunu değiştirir; kalıcı pencere saklamada hangi sınırı kullanacağını bu ayrım belirler.
+- **Pencere durumu ve yaşamı:** `window.is_fullscreen()` ve `window.is_maximized()` canlı durumu okur. `window.activate_window()`, `window.minimize_window()`, `window.zoom_window()` ve `window.toggle_fullscreen()` kullanıcıya görünen pencere durumunu platform üzerinden değiştirir. `window.remove_window()` pencereyi çalışma zamanından çıkarır; Zed workspace kapatma gibi doğrulama isteyen akışlarda çoğu zaman doğrudan bu çağrı yerine kapatma action'ını yönlendirirsin.
+- **Başlık, kimlik ve arka plan:** `window.set_window_title(title)`, `window.set_app_id(app_id)` ve `window.set_background_appearance(appearance)` platform penceresinin görünen kimliğini ve arka plan kipini günceller. macOS belge davranışı gerekiyorsa `window.set_window_edited(true/false)` değiştirildi göstergesini, `window.set_document_path(path)` ise belge yolunu platforma bildirir.
+- **Süsleme ve hareket:** `window.show_window_menu(position)` Linux başlık çubuğu bağlam menüsünü açar. `window.start_window_move()` ve `window.start_window_resize(edge)` istemci tarafı başlık çubuğu yazarken platform taşıma/yeniden boyutlandırma akışını başlatır. `window.request_decorations(...)` istenen süsleme kipini bildirir; `window.window_decorations()` fiili sonucu, `window.window_controls()` ise platformun sunduğu kontrol yeteneklerini okur.
+- **Kullanıcı uyarısı ve sistem geri bildirimi:** `window.prompt(...)` pencereye bağlı yerel veya özel prompt akışını açar. `window.play_system_bell()` platformun sistem uyarı sesini tetikler; iş mantığı hatası yerine kısa, yerel geri bildirim gerektiğinde kullanılır.
 
-macOS yerel pencere sekmesi için ek bir API ailesi vardır:
-
-- `window.tabbed_windows()`
-- `window.tab_bar_visible()`
-- `window.merge_all_windows()`
-- `window.move_tab_to_new_window()`
-- `window.toggle_window_tab_overview()`
-- `window.set_tabbing_identifier(...)`
+macOS yerel pencere sekmesi için ek API ailesi işletim sistemi düzeyindeki sekme grubunu yönetir. `window.set_tabbing_identifier(...)` aynı tanımlayıcıya sahip üst düzey pencereleri yerel sekme grubuna sokar. `window.tabbed_windows()` grup bilgisini `Option<Vec<SystemWindowTab>>` olarak okur; platform desteklemiyorsa `None` gelebilir. `window.tab_bar_visible()` yerel sekme çubuğunun görünürlük durumunu söyler. `window.merge_all_windows()`, `window.move_tab_to_new_window()` ve `window.toggle_window_tab_overview()` kullanıcı menüsündeki yerel sekme komutlarının pencere sarmalayıcısıdır.
 
 ## Window Çalışma Zamanı API Aileleri
 

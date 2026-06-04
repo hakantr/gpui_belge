@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
-  <title>Modal, Popover ve Overlay Katmanları</title>
+  <title>Modal, Açılır Panel ve Katman Yüzeyleri</title>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
@@ -17,8 +17,8 @@
     </style>
   </defs>
   <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">Modal, Popover ve Overlay Katmanları</text>
-  <text x="580" y="62" text-anchor="middle" class="subtitle">Workspace ana içeriği üzerinde z-order ile çizilen geçici UI yüzeyleri.</text>
+  <text x="580" y="36" text-anchor="middle" class="title">Modal, Açılır Panel ve Katman Yüzeyleri</text>
+  <text x="580" y="62" text-anchor="middle" class="subtitle">Workspace ana içeriği üzerinde z-sırası ile çizilen geçici UI yüzeyleri.</text>
 
   <rect x="150" y="116" width="760" height="500" rx="14" fill="#e2e8f0" stroke="#334155" stroke-width="1.6" />
   <text x="180" y="148" class="label">Window / Workspace</text>
@@ -31,11 +31,11 @@
   <text x="370" y="326" text-anchor="middle" class="mono">anchored / popup</text>
 
   <rect x="560" y="254" width="220" height="74" rx="8" fill="#ccfbf1" stroke="#0f766e" />
-  <text x="670" y="280" text-anchor="middle" class="label">Tooltip</text>
+  <text x="670" y="280" text-anchor="middle" class="label">İpucu</text>
   <text x="670" y="300" text-anchor="middle" class="mono">hover gecikmesi</text>
 
   <rect x="430" y="364" width="260" height="96" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
-  <text x="560" y="396" text-anchor="middle" class="label">Popover</text>
+  <text x="560" y="396" text-anchor="middle" class="label">Açılır Panel</text>
   <text x="560" y="418" text-anchor="middle" class="small">Anchor bounds'a göre konumlanır.</text>
   <text x="560" y="438" text-anchor="middle" class="mono">focus dışı click ile kapanabilir</text>
 
@@ -70,5 +70,5 @@
   <rect x="770" y="660" width="310" height="96" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="1.2" />
   <text x="794" y="690" class="label">Hitbox etkisi</text>
   <text x="794" y="718" class="body">Modal overlay alttaki hitbox'ları kapatır.</text>
-  <text x="794" y="735" class="body">Tooltip genelde pointer'ı engellemez.</text>
+  <text x="794" y="735" class="body">İpucu genelde işaretçiyi engellemez.</text>
 </svg>
