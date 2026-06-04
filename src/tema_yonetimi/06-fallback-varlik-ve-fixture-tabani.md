@@ -1,6 +1,6 @@
 # Yedek tema, varlık ve örnek veri tabanı
 
-Tema üretmeye başlamadan önce üç temel zemin kurulmalıdır: lisans açısından temiz yedek tema, uygulamayla gelen yerleşik varlıklar ve test örnek veri tabanı. Refinement akışı bu tabanın üzerine uygulanır. Bu yüzden burada verilen kararlar sonraki bölümlerin dayandığı zemini oluşturur.
+Tema üretmeye başlamadan önce üç temel zemin kurman gerekir: lisans açısından temiz yedek tema, uygulamayla gelen yerleşik varlıklar ve test örnek veri tabanı. Refinement akışı bu tabanın üzerine uygularsın. Bu yüzden burada verilen kararlar sonraki bölümlerin dayandığı zemini oluşturur.
 
 ---
 
@@ -24,7 +24,7 @@ Yedek temalar çalışma zamanı için bir **güvenlik ağıdır**. Kullanıcı 
 
 Zed'in `default_colors` dosyasındaki HSL değerleri **GPL-3 telif altındadır**. Bunlar birebir kopyalanamaz. Güvenli ilerlemek için iki yol vardır:
 
-**1. Sıfırdan tasarım:** Tek bir "çapa hue" belirlenir ve türetme kuralları bu ana rengin üzerine kurulur.
+**1. Sıfırdan tasarım:** Tek bir "çapa hue" belirlenir ve türetme kuralları bu ana rengin üzerine kurarsın.
 
 ```rust
 pub fn kvs_default_dark() -> Theme {
@@ -44,7 +44,7 @@ pub fn kvs_default_dark() -> Theme {
 
 **Çapa hue stratejisi:** Tüm nötr renkler (arka plan/yüzey/yükseltilmiş/metin/kenarlık) aynı hue'dan beslenir; yalnızca **lightness** değişir. Bu monokrom temel, temanın dağınık görünmesini engeller ve tutarlı bir zemin sağlar.
 
-**2. Açık lisanslı paletten esinlenme:** Tailwind, Catppuccin, Nord, Solarized gibi paletlerin HSL değerleri **public domain veya açık lisanslı** olabilir. Bu kaynaklar kullanılabilir; ancak şu üç nokta gözetilmelidir:
+**2. Açık lisanslı paletten esinlenme:** Tailwind, Catppuccin, Nord, Solarized gibi paletlerin HSL değerleri **public domain veya açık lisanslı** olabilir. Bu kaynaklar kullanabilirsin; ancak şu üç nokta gözetilmelidir:
 
 - Lisans dosyasının `LICENSES/` altına eklenmesi.
 - Esin kaynağının tema atıflarında belirtilmesi.
@@ -135,7 +135,7 @@ fn durum_renkleri_koyu() -> StatusColors {
 
 > **Uyarı:** Eksik alanlar `..unsafe { std::mem::zeroed() }` veya `..Default::default()` ile **doldurulmamalıdır**. `Hsla::default()` = `(0, 0, 0, 0)` değerini verir ve bu UI'da görünmez. **Tüm 42 alanın açık değerle doldurulması** beklenir. Kalan 10 durum (`conflict`, `created`, `deleted`, `hidden` vb.) için de aynı kalıp tekrarlanır. Seçilen çapalar (`red`, `green`, `yellow`, `blue`) çoğu durumda yeterlidir; her durum bu çapalardan birine eşlenebilir. Örneğin `modified = yellow`, `deleted = red`, `created = green`.
 
-**Açık eşleniği** (`durum_renkleri_acik()`): Aynı çapa renkler kullanılır. Yalnızca **lightness değerleri biraz koyulaşır**; böylece açık arka plan üzerinde okunaklılık korunur. Arka plan ve kenarlık opacity'leri de açık zemine göre biraz daha düşük tutulur.
+**Açık eşleniği** (`durum_renkleri_acik()`): Aynı çapa renkler kullanırsın. Yalnızca **lightness değerleri biraz koyulaşır**; böylece açık arka plan üzerinde okunaklılık korunur. Arka plan ve kenarlık opacity'leri de açık zemine göre biraz daha düşük tutulur.
 
 ```rust
 fn durum_renkleri_acik() -> StatusColors {
@@ -367,7 +367,7 @@ Tüketici bileşen `list_font_families` çağrısını her render'da yapmamalıd
 
 ## 26. Yerleşik tema paketleme ve `AssetSource`
 
-Yerleşik temalar, uygulama ile **birlikte dağıtılan** JSON tema dosyalarıdır. Bunları paketlemek için üç strateji vardır; seçim ihtiyaca göre yapılır.
+Yerleşik temalar, uygulama ile **birlikte dağıtılan** JSON tema dosyalarıdır. Bunları paketlemek için üç strateji vardır; seçim ihtiyaca göre yaparsın.
 
 ### Strateji 1: Diskten yükleme (en basit)
 
@@ -438,7 +438,7 @@ for girdi in girdiler.flatten() {
 
 ### Strateji 2: `RustEmbed` ile derleme zamanı gömme
 
-Üretim binary'lerinde yaygın olarak tercih edilir. Tema dosyaları **derleme zamanında** binary'ye gömülür; çalışma zamanında disk erişimi gerekmez.
+Üretim binary'lerinde yaygın olarak tercih edersin. Tema dosyaları **derleme zamanında** binary'ye gömülür; çalışma zamanında disk erişimi gerekmez.
 
 `Cargo.toml`:
 
@@ -590,7 +590,7 @@ pub fn varlik_kaynagiyla_yukle(
 | --------- | ---------- |
 | Geliştirme/prototip; tema'ların editörden anlık değiştirilmesi | **1 — diskten** |
 | Üretim için tek binary dağıtım, az sayıda tema (<20) | **2 — RustEmbed** |
-| GPUI varlık hattıyla tutarlı; tema sayısı çok veya kullanıcı ekleyebilir | **3 — AssetSource** |
+| GPUI varlık hattıyla tutarlı; tema sayısı çok veya kullanıcı ekleyebilirsin | **3 — AssetSource** |
 | Karma kullanım: yerleşik + kullanıcı tema dizini | Strateji 2 + ek kullanıcı dizin yüklemesi |
 
 ### Sıcak yeniden yükleme (dosya izleyici)
@@ -663,7 +663,7 @@ assets/themes/
 4. **Aynı isim çakışması**: Yerleşik "One Dark" teması ile kullanıcının "One Dark" teması karşılaştığında, kullanıcı teması **üzerine yazar** (`insert` semantiği). Bu davranış bilinçlidir; kullanıcının modifikasyonu önceliklidir.
 5. **Taban seçiminin atlanması**: Dark bir temanın tabanı yanlış biçimde light olarak verilirse, eksik alanlar açık tema değerlerinden gelir ve görsel olarak uyumsuz bir tema ortaya çıkar. Tabanın `appearance` değerine göre seçilmesi şarttır.
 6. **`include_bytes!` yerine `RustEmbed`**: `include_bytes!` tek dosya gömme için yeterlidir; onlarca tema için `RustEmbed` tek bir macro çağrısıyla aynı işi yapar.
-7. **Sıcak yeniden yüklemenin üretimde açık kalması**: Dosya izleyici CPU/IO maliyetinin yanı sıra güvenlik açısından da risk taşır (kullanıcı yol enjeksiyonu). `cfg(debug_assertions)` ile sınırlandırılması tercih edilir.
+7. **Sıcak yeniden yüklemenin üretimde açık kalması**: Dosya izleyici CPU/IO maliyetinin yanı sıra güvenlik açısından da risk taşır (kullanıcı yol enjeksiyonu). `cfg(debug_assertions)` ile sınırlandırılması tercih edersin.
 
 ---
 
@@ -1026,7 +1026,7 @@ fn tema_degistir_aktifi_gunceller(cx: &mut TestAppContext) -> anyhow::Result<()>
 
 1. **`include_str!` ile mutlak yol**: Yol test dosyasına göre çözülür; `include_str!("fixtures/one-dark.json")` ifadesi `tests/fixtures/...` olarak yorumlanır. Mutlak yol verilmesi gerekmez.
 2. **Örnek veri lisansının unutulması**: Dosya kopyalanırken `*.LICENSE_*` dosyalarının atlamaman gerekir; örnek veri JSON'u ile lisans dosyası bir arada tutulur.
-3. **Test'lerin `init` çağrısı**: `kvs_tema::init(cx)` her test başında elle çağrılır; otomatik bir kurulum mekanizması yoktur. Çağrı, `TestAppContext::update` callback'i içinde yapılır.
+3. **Test'lerin `init` çağrısı**: `kvs_tema::init(cx)` her test başında elle çağrılır; otomatik bir kurulum mekanizması yoktur. Çağrı, `TestAppContext::update` callback'i içinde yaparsın.
 4. **`assert_eq!` ile Hsla karşılaştırması**: Floating point eşitlik yanıltıcı sonuçlara yol açabilir. `assert!((a.h - b.h).abs() < 1e-6)` gibi bir epsilon karşılaştırması tercih edilmelidir.
 5. **`#[gpui::test]` ile `#[test]` arasındaki seçim**: GPUI çalışma zamanı testleri `gpui::test`; saf sözleşme testleri ise `test` ile yazılır. Karıştırılması gereksiz bir ek yük yaratır.
 6. **Örnek veri dosyasının yerinde değiştirilmesi**: Test örnek verisine yama uyguladığında, testler kendi verisini yazıp doğrulamış olur. Örnek veri dosyaları **salt okunur** kabul edilmelidir; sentetik kenar durumları ayrı dosyalarda veya satır içi string'lerde tutulur.

@@ -13,7 +13,7 @@ Tema sistemi **iki crate** olarak konumlanır:
 | `kvs_tema` | `Theme`, `ThemeColors`, `IconTheme`, JSON şeması, kayıt, çalışma zamanı | uygulamanın kendi lisansı |
 | `kvs_syntax_tema` | `SyntaxTheme` — kod renkleri | uygulamanın kendi lisansı |
 
-> **Crate adlandırma:** Bu rehberde `kvs_*` öneki yalnızca bir örnek olarak kullanılır. Uygulama tarafında `app_tema`, `core_tema` veya farklı bir isim de tercih edilebilir; rehberin ortaya koyduğu kalıplar isim değişse de aynen geçerli kalır.
+> **Crate adlandırma:** Bu rehberde `kvs_*` öneki yalnızca bir örnek olarak kullanırsın. Uygulama tarafında `app_tema`, `core_tema` veya farklı bir isim de tercih edilebilir; rehberin ortaya koyduğu kalıplar isim değişse de aynen geçerli kalır.
 
 **Neden iki crate var?** `SyntaxTheme`, UI temasından ayrı yaşayabilen bir pakettir. Bir uygulama UI temasına ihtiyaç duyup sözdizimi renklendirmesine ihtiyaç duymayabilir; tersi de mümkün olabilir. Ayrıca sözdizimi teması tarafı ileride `tree-sitter` gibi farklı bağımlılıklara açılabilir. Bu olasılığı UI tema crate'inden ayrı tutmak, hem derleme süresini hem de dışa açık API yüzeyini daha sade bırakır.
 

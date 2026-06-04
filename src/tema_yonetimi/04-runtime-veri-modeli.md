@@ -120,7 +120,7 @@ Bu değerler bir tema paleti alanı değildir; kullanıcı temasından geçersiz
 
 ### Tuzaklar
 
-1. **`id` ile `name` arasında karışıklık**: `name` `SharedString` tipindedir ve registry'de anahtar olarak kullanılır. `id` (uuid) yalnızca tema-içi tanımlama amacıyla tutulur; ikisinin birbirinin yerine konulması registry akışını bozar.
+1. **`id` ile `name` arasında karışıklık**: `name` `SharedString` tipindedir ve registry'de anahtar olarak kullanırsın. `id` (uuid) yalnızca tema-içi tanımlama amacıyla tutulur; ikisinin birbirinin yerine konulması registry akışını bozar.
 2. **`styles` alanını `pub` yapmak**: Bu, dış sözleşmeyi doğrudan iç yapıya bağlar. Bu rehberin kararı `pub(crate)` yönündedir. Tüketicinin tek okuma yolu erişim metotlarıdır (`theme.colors()`, `theme.status()` vb.).
 3. **`appearance` çalışma zamanında değişmez**: Bir tema *Light* olarak yüklendi diye çalışma zamanında Dark olarak yeniden işlenmez. Tema değişimi için `GlobalTheme::update_theme` çağrısı yapılarak yeni bir `Arc<Theme>` aktive edilmelidir.
 4. **`SystemColors::default()` ile doldurmanın yeterliliği**: Tema yazarı sistem renklerini özelleştirmek istemiyorsa `Default::default()` yeterlidir. Bazı geliştiriciler bu alanı atlayıp `unsafe zeroed` ile karıştırıp yapıyı görünmez hale getirme yoluna gider; bu yaklaşım sonradan zor takip edilen hatalara yol açar.
@@ -172,7 +172,7 @@ Aşağıdaki tablo, alan adlandırma öneklerini ve her grubun **ne işe yaradı
 | **Vim** | `vim_normal_*`, `vim_visual_*`, `vim_helix_*`, `vim_yank_background` | Vim/Helix modu vurgusu | 18 |
 | **Pane group** | `pane_group_border`, `pane_focused_border` | Editor pane sınırları | ~2 |
 
-> **Bu tablo yaklaşık sayılar verir.** Tam liste için `theme` crate'i çalışma zamanı alanları ve `settings_content` crate'i Content alanları esas alınır.
+> **Bu tablo yaklaşık sayılar verir.** Tam liste için `theme` crate'i çalışma zamanı alanları ve `settings_content` crate'i Content alanları esas alırsın.
 
 ### Tam alan paritesi
 
@@ -598,11 +598,11 @@ Detaylar ilgili bölümde işlenir. Burada bilinmesi gereken nokta şudur: **yal
 }
 ```
 
-> **Not:** JSON anahtarında `.background` (`error.background`) kullanılır; Rust alan adında ise `_background` (`error_background`). İki taraf arasındaki köprü `#[serde(rename = "error.background")]` ile kurulur.
+> **Not:** JSON anahtarında `.background` (`error.background`) kullanılır; Rust alan adında ise `_background` (`error_background`). İki taraf arasındaki köprü `#[serde(rename = "error.background")]` ile kurarsın.
 
 ### Tüm alanlar Hsla, hiçbiri Option değil
 
-`StatusColors` da `ThemeColors` gibi her alanı `Hsla` olarak tutar. Eksik alanlar çalışma zamanı struct'ında değil, refinement katmanında ele alınır. `StatusColorsRefinement` her alanı otomatik olarak `Option<Hsla>` haline getirir.
+`StatusColors` da `ThemeColors` gibi her alanı `Hsla` olarak tutar. Eksik alanlar çalışma zamanı struct'ında değil, refinement katmanında ele alırsın. `StatusColorsRefinement` her alanı otomatik olarak `Option<Hsla>` haline getirir.
 
 ### Editor için `DiagnosticColors` projeksiyonu
 
@@ -660,7 +660,7 @@ impl Theme {
 
 **Kaynak modül:** `kvs_tema/src/styles/players.rs`.
 
-"Player" terimi Zed'in collaboration sisteminden gelir. Aynı dosyada eş zamanlı düzenleme yapan her kullanıcıya ayrı bir **cursor**, **selection** ve **background** rengi atanır. Bu yapı tek kullanıcılı uygulamalarda da işe yarar; örneğin çoklu imleç görünümlerinde kullanılabilir.
+"Player" terimi Zed'in collaboration sisteminden gelir. Aynı dosyada eş zamanlı düzenleme yapan her kullanıcıya ayrı bir **cursor**, **selection** ve **background** rengi atarsın. Bu yapı tek kullanıcılı uygulamalarda da işe yarar; örneğin çoklu imleç görünümlerinde kullanabilirsin.
 
 ```rust
 #[derive(Clone, Debug, PartialEq)]
@@ -737,7 +737,7 @@ impl PlayerColors {
 
 - Liste boş olduğunda `local()`, `agent()`, `absent()`, `read_only()` ve `color_for_participant()` metotlarının hepsi panic atar. Bu yüzden yedek temalarda en az bir `PlayerColor` bulunmalıdır. Collaboration veya katılımcı renkleri kullanılacaksa en az iki slot gerekir.
 - `color_for_participant(N)` çağrısı yerel slot'u atlar: katılımcı 0, liste indeks 1'ini kullanır. 8 slot bulunduğu varsayıldığında uzak slotlar indeks 1 ile 7 arasında döner.
-- `agent()` ve `absent()` aynı slot'u döndürür: listenin son elemanı. Semantik ayrım tüketici tarafında yapılır. Bir kullanım agent UI'sı, diğeri offline kullanıcı olabilir.
+- `agent()` ve `absent()` aynı slot'u döndürür: listenin son elemanı. Semantik ayrım tüketici tarafında yaparsın. Bir kullanım agent UI'sı, diğeri offline kullanıcı olabilir.
 - `read_only()` çağrı anında yerel slot'tan gri tonlama türevi üretir; yedek temada yerel değer dolu olduğu sürece otomatik çalışır.
 - Bu API boş veya tek elemanlı listeyi tolere etmez; listenin çalışma zamanına ulaşmadan önce yedek veya fixture testleriyle garanti altına alınması gerekir.
 
@@ -842,7 +842,7 @@ impl AccentColors {
 **Davranış:**
 
 - Modulo ile döner; vurgu listesi tükendiğinde başa sarar.
-- Boş liste durumu sözleşmeyle dışarıda bırakılır. Yine de savunmacı kod gerektiren yerlerde `Default::default()` ile yedek kurmak gerekir; aksi halde sıfır eleman panic riski oluşturur.
+- Boş liste durumu sözleşmeyle dışarıda bırakılır. Yine de savunmacı kod gerektiren yerlerde `Default::default()` ile yedek kurman gerekir; aksi halde sıfır eleman panic riski oluşturur.
 
 **JSON şeması:**
 
@@ -1152,7 +1152,7 @@ Bu kaynaklardaki HSL değerleri referans olarak alınabilir; bunları tema için
 
 ## 18. `ThemeFamily`, `SyntaxTheme`, `IconTheme`
 
-Bu üç tip, tema'nın **paketleme ve uzantı** tarafını taşır. `ThemeFamily` bir paket içindeki birden fazla varyantı tek çatı altında toplar. `SyntaxTheme` sözdizimi token'larının ayrı sözleşmesini taşır. `IconTheme` ise ikon tema sözleşmesinin çalışma zamanı modelini kurar.
+Bu üç tip, tema'nın **paketleme ve uzantı** tarafını taşır. `ThemeFamily` bir paket içindeki birden fazla varyantı tek çatı altında toplar. `SyntaxTheme` sözdizimi token'larının ayrı sözleşmesini taşır. `IconTheme` ise ikon tema sözleşmesinin çalışma zamanı modelini kurarsın.
 
 ### `ThemeFamily`
 
@@ -1183,7 +1183,7 @@ pub struct ThemeFamily {
 | `themes` | Bu paketin içindeki tüm varyantlar (light + dark). |
 | `scales` | Aileye bağlı palet matrisi — `ColorScales` (43.5'te detay). |
 
-> **`scales` alanı için karar:** `kvs_tema` `ColorScale` ayna etmiyorsa (ilgili bölüm tavsiyesi) bu alan da alınmaz; ayna ediyorsa hedeflenen Zed sözleşmesindeki sırayla eklenir.
+> **`scales` alanı için karar:** `kvs_tema` `ColorScale` ayna etmiyorsa (ilgili bölüm tavsiyesi) bu alan da alınmaz; ayna ediyorsa hedeflenen Zed sözleşmesindeki sırayla eklersin.
 
 **JSON şeması:**
 
@@ -1278,7 +1278,7 @@ impl SyntaxTheme {
 
 JSON tarafında bu yapı bir object olarak yer alır. Sırası `IndexMap` ile korunur. Rust çalışma zamanına `Vec<(String, HighlightStyle)>` listesi olarak iletilir. `SyntaxTheme::new` bu listeyi tüketir; iki iç alana (`highlights` ve `capture_name_map`) ayırır.
 
-**`new()` `Self` döner; `Arc` sarmalı çağıran tarafta kurulur:**
+**`new()` `Self` döner; `Arc` sarmalı çağıran tarafta kurarsın:**
 
 ```rust
 let sozdizimi = Arc::new(SyntaxTheme::new(vurgular));
@@ -1302,7 +1302,7 @@ let ad = cx.theme().syntax().get_capture_name(0)?;
 
 > **Alan iterasyonu:** `highlights` iç bir `Vec<HighlightStyle>`'dır ve capture adları bu vektörde tutulmaz. Capture adlarına erişmek için `get_capture_name(idx)` döngüsü kullanılır veya `highlight_id` ile aramaya başvurulur.
 
-Editor entegrasyonu ilgili bölümlerde ele alınır. `SyntaxTheme::merge(taban, gecersiz_kilma)` yardımcısı geçersiz kılmaları tabanın üstüne uygular ve yeni bir `Arc` döndürür. Tema geçersiz kılmaları bu yardımcıyı çağırır.
+Editor entegrasyonu ilgili bölümlerde ele alırsın. `SyntaxTheme::merge(taban, gecersiz_kilma)` yardımcısı geçersiz kılmaları tabanın üstüne uygular ve yeni bir `Arc` döndürür. Tema geçersiz kılmaları bu yardımcıyı çağırır.
 
 ### `IconTheme`
 
@@ -1446,7 +1446,7 @@ impl IconTheme {
 }
 ```
 
-UI temasından farklı olarak burada **refinement katmanı yoktur**. Yani `Refineable` türevli alan-bazlı tema geçersiz kılma hattı icon tema için çalışmaz. Buna rağmen Zed'in yükleme ve arama davranışı "tam değiştirme" de değildir. `ThemeRegistry::load_icon_theme`, kullanıcı temasının `file_stems`, `file_suffixes` ve `named_directory_icons` haritalarını varsayılan icon theme'in üstüne genişletir. `directory_icons`, `chevron_icons` ve `file_icons` alanları çalışma zamanı objesine kullanıcının verdiği biçimde girer. Arama sırasında ise eksik dosya tipi, klasör ve chevron yolları aktif temadan varsayılan icon theme'e düşebilir. Ayna tarafta bu iki aşama ayrı düşünülmelidir: schema/refinement yoktur, ama registry yükleme ve UI arama yedeği vardır.
+UI temasından farklı olarak burada **refinement katmanı yoktur**. Yani `Refineable` türevli alan-bazlı tema geçersiz kılma hattı icon tema için çalışmaz. Buna rağmen Zed'in yükleme ve arama davranışı "tam değiştirme" de değildir. `ThemeRegistry::load_icon_theme`, kullanıcı temasının `file_stems`, `file_suffixes` ve `named_directory_icons` haritalarını varsayılan icon theme'in üstüne genişletir. `directory_icons`, `chevron_icons` ve `file_icons` alanları çalışma zamanı objesine kullanıcının verdiği biçimde girer. Arama sırasında ise eksik dosya tipi, klasör ve chevron yolları aktif temadan varsayılan icon theme'e düşebilir. Ayna tarafta bu iki aşama ayrı düşünmen gerekir: schema/refinement yoktur, ama registry yükleme ve UI arama yedeği vardır.
 
 ### Varsayılan icon tema sabiti
 

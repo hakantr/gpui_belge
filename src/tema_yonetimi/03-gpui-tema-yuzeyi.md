@@ -211,7 +211,7 @@ fn vurgulama_stili(icerik: &HighlightStyleContent) -> HighlightStyle {
 }
 ```
 
-Üretilen `HighlightStyle` örnekleri `Vec<(String, HighlightStyle)>` listesi olarak `SyntaxTheme::new(...)` kurucusuna verilir. Kurucu da stilleri içerideki `Vec<HighlightStyle>` içine, capture adlarını ise `BTreeMap<String, usize>` içine ayırır.
+Üretilen `HighlightStyle` örnekleri `Vec<(String, HighlightStyle)>` listesi olarak `SyntaxTheme::new(...)` kurucusuna verirsin. Kurucu da stilleri içerideki `Vec<HighlightStyle>` içine, capture adlarını ise `BTreeMap<String, usize>` içine ayırır.
 
 ### `FontStyle`
 
@@ -311,7 +311,7 @@ WindowOptions {
 
 Bu değer `open_window` argümanı olarak verirsin. Pencere yöneticisi de pencereyi bu arka plan tipine göre oluşturur.
 
-**Çalışma zamanı değişimi:** Pencere açıldıktan sonra arka plan tipinin değiştirilmesi gerekiyorsa `window.set_background_appearance(yeni_gorunum)` çağrısı kullanılır.
+**Çalışma zamanı değişimi:** Pencere açıldıktan sonra arka plan tipinin değiştirilmesi gerekiyorsa `window.set_background_appearance(yeni_gorunum)` çağrısı kullanırsın.
 
 ### `WindowAppearance`
 
@@ -326,7 +326,7 @@ pub enum WindowAppearance {
 }
 ```
 
-`Vibrant*` varyantları macOS'a özgüdür. Diğer platformlarda üretilmezler, ama enum her zaman dört değeri taşır. Tema seçimi için çoğu zaman yalnızca `Light`/`Dark` ayrımı yeterlidir; vibrancy ayrı bir özellik gibi düşünülmelidir.
+`Vibrant*` varyantları macOS'a özgüdür. Diğer platformlarda üretilmezler, ama enum her zaman dört değeri taşır. Tema seçimi için çoğu zaman yalnızca `Light`/`Dark` ayrımı yeterlidir; vibrancy ayrı bir özellik gibi düşünmen gerekir.
 
 **Erişim:**
 
@@ -412,7 +412,7 @@ impl Render for AnaPanel {
 - `cx.spawn(...)` — async task başlatır.
 - `cx.subscribe(...)`, `cx.observe(...)` — entity'ler arası izleme kurarsın.
 
-Tema sistemi bu metotları **kendi içinde kullanmaz**. UI tüketicisi, bir entity'yi tema değişimine bağlamak istediğinde bu bağlantıyı `cx.notify()` gibi mekanizmalarla kendisi kurar.
+Tema sistemi bu metotları **kendi içinde kullanmaz**. UI tüketicisi, bir entity'yi tema değişimine bağlamak istediğinde bu bağlantıyı `cx.notify()` gibi mekanizmalarla kendisi kurarsın.
 
 ### `Window`
 
@@ -430,7 +430,7 @@ pub trait BorrowAppContext {
 }
 ```
 
-Tema sisteminin global yönetimi bu trait üzerinden işler. Aynı `GlobalTheme::update_theme(cx, tema)` çağrısı `App`, `Context<T>` ve async bağlam üzerinden kullanılabilir.
+Tema sisteminin global yönetimi bu trait üzerinden işler. Aynı `GlobalTheme::update_theme(cx, tema)` çağrısı `App`, `Context<T>` ve async bağlam üzerinden kullanabilirsin.
 
 **Trait uyum tablosu (tema açısından):**
 
@@ -444,7 +444,7 @@ Tema sisteminin global yönetimi bu trait üzerinden işler. Aynı `GlobalTheme:
 
 **Tuzaklar:**
 
-1. **`cx.theme()` panic potansiyeli**: `GlobalTheme` kurulmadıysa panic atar. Bu yüzden `kvs_tema::init(cx)` çağrısını uygulama başında mümkün olan en erken noktada yapmak gerekir.
+1. **`cx.theme()` panic potansiyeli**: `GlobalTheme` kurulmadıysa panic atar. Bu yüzden `kvs_tema::init(cx)` çağrısını uygulama başında mümkün olan en erken noktada yapman gerekir.
 2. **`Context<T>` içinden `set_global` çağırmak**: Teknik olarak çalışır, ama tema değişimi tüm view'ları etkilediğinden bireysel bir entity'den tetiklenmesi mantığa uymaz; tema değişim akışı `App` düzeyinde tutulduğunda akış çok daha okunaklı olur.
 3. **AsyncApp üzerinden tema erişimi**: `&App` yerine `WeakEntity` ve `update` kullanılması tercih edilir; tema durumu okuma anında değişebileceği için doğrudan referans tutmak risklidir.
 4. **`Window` referansını saklamak**: Pencere kapandığında handle bayatlar. Bu yüzden `WindowHandle<T>` veya `WeakEntity` tercih edilmelidir.
@@ -500,7 +500,7 @@ pub fn temayi_kur_veya_guncelle(cx: &mut App, tema: Arc<Theme>) -> anyhow::Resul
 }
 ```
 
-İlk çağrıda `set_global`, sonraki çağrılarda ise `update_global` kullanılır. Bu desen tema sistemine özgü değildir; global durum yönetimi için genel ve okunaklı bir kalıptır.
+İlk çağrıda `set_global`, sonraki çağrılarda ise `update_global` kullanırsın. Bu desen tema sistemine özgü değildir; global durum yönetimi için genel ve okunaklı bir kalıptır.
 
 > **İsim çakışmasından kaçınma:** `theme_settings::settings` modülünde `pub fn set_theme(current: &mut SettingsContent, …)` adında **ayrı bir dışa açık yardımcı** vardır. Bu fonksiyon kullanıcı ayar dosyasını değiştirir, çalışma zamanı global'ini değil; ikisinin aynı isme bağlanması okuyucuyu yanıltır. Ayna tarafta çalışma zamanı fonksiyonunun adı `update_theme` (Zed paritesi) veya `temayi_kur_veya_guncelle` gibi farklı bir kimlikte tutulmalıdır.
 
@@ -599,7 +599,7 @@ Listedeki öğeler, **Refinement tipine eklenecek türetmelerdir**:
 #[refineable(Debug, serde::Deserialize)]
 ```
 
-Refinement tipi zaten `Default + Clone` türevlidir; bu öznitelik ile üstüne `Debug` ve `serde::Deserialize` eklenir.
+Refinement tipi zaten `Default + Clone` türevlidir; bu öznitelik ile üstüne `Debug` ve `serde::Deserialize` eklersin.
 
 Tema sözleşmesinde fiilen kullanılanlar şunlardır:
 
@@ -650,9 +650,9 @@ Tema sisteminin gerçekten kullandığı yüzey oldukça **dardır**: çoğunluk
 ### Tema'da nerede kullanılır
 
 - `ThemeColors` ve `StatusColors` `#[derive(Refineable)]` ile işaretlenir; bunun sonucunda `ThemeColorsRefinement` ve `StatusColorsRefinement` tipleri otomatik üretilir.
-- `Theme::from_content` akışı şu adımları izler: 1. Taban `Theme` klonlanır. 2. Content'ten refinement üretilir (`theme_colors_refinement`, `status_colors_refinement`). 3. `apply_status_color_defaults` çağrısı ile türetme uygulanır. 4. `colors.refine(&refinement)` çağrısı ile birleştirme tamamlanır.
+- `Theme::from_content` akışı şu adımları izler: 1. Taban `Theme` klonlanır. 2. Content'ten refinement üretilir (`theme_colors_refinement`, `status_colors_refinement`). 3. `apply_status_color_defaults` çağrısı ile türetme uygularsın. 4. `colors.refine(&refinement)` çağrısı ile birleştirme tamamlanır.
 
-Sonuçta eksik alanlar taban temadan gelir, dolu alanlar ise kullanıcı temasından alınır.
+Sonuçta eksik alanlar taban temadan gelir, dolu alanlar ise kullanıcı temasından alırsın.
 
 ### `Cascade` (bilgi — tema'da kullanılmaz)
 
@@ -667,11 +667,11 @@ Tema sistemi bu tipleri kullanmaz; taban + kullanıcı olmak üzere iki katman y
 
 ### Tuzaklar
 
-1. **`#[refineable(...)]` özniteliğini unutmak**: Eklenmediği durumda Refinement tipi yalnızca `Default + Clone` taşır. Serde gereği duyulan senaryolarda `#[refineable(serde::Deserialize)]` çağrısını elle eklemek gerekir.
+1. **`#[refineable(...)]` özniteliğini unutmak**: Eklenmediği durumda Refinement tipi yalnızca `Default + Clone` taşır. Serde gereği duyulan senaryolarda `#[refineable(serde::Deserialize)]` çağrısını elle eklemen gerekir.
 2. **Dışa açık/iç uyumsuzluğu**: `pub struct ThemeColors` tanımı varsa Refinement tipi de `pub struct ThemeColorsRefinement` olarak üretilir. Görünürlük, makro tarafından kopyalanır.
 3. **`refine` ile `refined` arasındaki tercih**: İlki `&mut self` üzerinde çalışır, ikincisi sahip alır. `Hsla` gibi küçük alanlar için `refine` her zaman daha doğal bir seçimdir.
 4. **İç içe struct'lar için karar noktası**: Makro yalnızca `#[refineable]` ile işaretli alanlarda özyinelemeli birleştirme yapar. `Theme.styles.colors` gibi katmanlarda bu ilişkinin bilinçli kurulması istenmediği durumlarda, `Theme::from_content` her alt struct için ayrı bir `refine` çağrısı yürütür.
 5. **`refineable` crate'inin `publish = false` olması**: Crates.io'ya yayınlanan bir crate'in bu türetmeyi kullanabilmesi için fork veya vendor yolu zorunlu olur.
-6. **Refinement tipinin `Default` taşımak zorunda olması**: `..Default::default()` yazılmadığında her alanın açıkça verilmesi gerekir. Makro `Default` türevini zaten ücretsiz olarak ürettiği için bundan yararlanmak yapılacak en doğal şeydir.
+6. **Refinement tipinin `Default` taşımak zorunda olması**: `..Default::default()` yazılmadığında her alanın açıkça vermen gerekir. Makro `Default` türevini zaten ücretsiz olarak ürettiği için bundan yararlanmak yapılacak en doğal şeydir.
 
 ---

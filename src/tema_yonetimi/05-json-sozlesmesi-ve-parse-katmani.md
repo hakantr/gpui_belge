@@ -427,11 +427,11 @@ Rust alan adı snake_case, JSON anahtarı ise dot.separated biçimindedir:
 pub border_variant: Option<String>,
 ```
 
-Detaylar ilgili bölümde ele alınır.
+Detaylar ilgili bölümde ele alırsın.
 
 ### `#[serde(rename_all = "snake_case")]` — enum varyant adları
 
-`AppearanceContent`, `WindowBackgroundContent`, `FontStyleContent` gibi **enum'lar** için varyant adlarını JSON'a `snake_case` olarak aktarmak amacıyla kullanılır:
+`AppearanceContent`, `WindowBackgroundContent`, `FontStyleContent` gibi **enum'lar** için varyant adlarını JSON'a `snake_case` olarak aktarmak amacıyla kullanırsın:
 
 ```rust
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -442,7 +442,7 @@ pub enum AppearanceContent {
 }
 ```
 
-Bu sayede JSON'da `"appearance": "light"` yazılır. Rust varyant adı `Light` olsa bile JSON tarafında küçük harf kullanılır. `rename_all = "snake_case"` özniteliği, her varyant için tek tek `rename` yazma yükünü kaldırır.
+Bu sayede JSON'da `"appearance": "light"` yazılır. Rust varyant adı `Light` olsa bile JSON tarafında küçük harf kullanırsın. `rename_all = "snake_case"` özniteliği, her varyant için tek tek `rename` yazma yükünü kaldırır.
 
 ### `#[serde(transparent)]` — newtype'ı saydamlaştır
 
@@ -485,7 +485,7 @@ pub players: Vec<PlayerColorContent>,    // Yoksa boş Vec
 2. **`flatten` başarımı**: Serde flatten, serde_derive'ın daha ağır kod üretmesine yol açar. Tema deserialize'ı sıcak yolda olmadığı için bu genelde sorun değildir; ancak settings veya config gibi sık çağrılan struct'larda dikkat gerektirir.
 3. **`rename` ile alan-bazlı `default` çakışması**: Doğru yazım `#[serde(rename = "x.y", default)]` biçimindedir; iki öznitelik aynı `serde` parantezi içinde virgülle ayrılır.
 4. **`Serialize` türetmenin gerekliliği**: Yalnızca deserialize yapan bir tema için `Serialize` türetilmesi şart değildir; ancak `schemars::JsonSchema` veya round-trip test ihtiyacı varsa türetilmesi yerinde olur.
-5. **`JsonSchema` türetimi**: `schemars`, IDE otomatik tamamlama desteği için tema dosyalarına JSON şeması üretebilir. Türetim ücretsiz değildir (derleme zamanı maliyeti vardır); kullanılmadığı durumda bırakılmaması tercih edilir.
+5. **`JsonSchema` türetimi**: `schemars`, IDE otomatik tamamlama desteği için tema dosyalarına JSON şeması üretebilir. Türetim ücretsiz değildir (derleme zamanı maliyeti vardır); kullanılmadığı durumda bırakılmaması tercih edersin.
 
 ---
 
@@ -509,7 +509,7 @@ Zed temalarında tipik bir tema dosyası 150 alandan yalnızca 30-50 kadarını 
 }
 ```
 
-`border: String` yani zorunlu alan olarak tanımlansaydı, tek bir hatalı alan yüzünden tüm tema yüklenemezdi. `border: Option<String>` olduğunda değer string olarak gelir. Ardından `try_parse_color` bir `Result` döndürür; hata olursa refinement `None`'a düşer ve taban değer kullanılır.
+`border: String` yani zorunlu alan olarak tanımlansaydı, tek bir hatalı alan yüzünden tüm tema yüklenemezdi. `border: Option<String>` olduğunda değer string olarak gelir. Ardından `try_parse_color` bir `Result` döndürür; hata olursa refinement `None`'a düşer ve taban değeri kullanırsın.
 
 **3. Tip sözleşmesi seçilen Zed referansına bağlı kalır.**
 
@@ -551,7 +551,7 @@ pub struct ThemeColorsContent {
 }
 ```
 
-`Default` türetilir; tüm alanlar `Option<_>` olduğundan varsayılan değerin karşılığı "tüm alanlar `None`" olur. `#[serde(default)]` struct seviyesinde tüm alanlara uygulanır.
+`Default` türetilir; tüm alanlar `Option<_>` olduğundan varsayılan değerin karşılığı "tüm alanlar `None`" olur. `#[serde(default)]` struct seviyesinde tüm alanlara uygularsın.
 
 Bu sayede JSON'da bütün bir struct (`colors`, `status` vb.) eksik olabilir. Serde flatten katmanı `Default::default()` çağırır ve ayrıştırma işlemine devam eder.
 
@@ -572,7 +572,7 @@ Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevapl
 ### Tuzaklar
 
 1. **`String` (Option olmadan) kullanmak**: Zorunlu alan = bir eksik alanın tüm temayı patlatması demektir. Sözleşmeye uymaz.
-2. **`Option<Hsla>` kullanmak (ayrıştırmayı Deserialize'a sokmak)**: Özel Deserialize implementasyonu test edilemez, hata mesajları zayıf kalır ve ayrıştırıcı katmanı sözleşmeye gömülmüş olur. Mevcut iki katmanlı yaklaşım bu senaryoya tercih edilir.
+2. **`Option<Hsla>` kullanmak (ayrıştırmayı Deserialize'a sokmak)**: Özel Deserialize implementasyonu test edilemez, hata mesajları zayıf kalır ve ayrıştırıcı katmanı sözleşmeye gömülmüş olur. Mevcut iki katmanlı yaklaşımı bu senaryoya tercih edersin.
 3. **`Default::default()` türevini atlamak**: `#[derive(Default)]` bulunmayan bir Content tipi `#[serde(default)]` kullanamaz; struct seviyesinde varsayılan şarttır.
 4. **`Default` ile dolu Hsla beklemek**: Content tipinin `Default` çağrısı tüm alanları `None` döndürür. Default'tan doğrudan Theme inşa edilmez; refinement aşaması taban ile birleştirir. "Boş tema dosyasını yüklemek = taban" denkliği bilinçli bir tasarım sonucudur.
 5. **Bilinmeyen enum'a panic**: `font_style: "semi_oblique"` ifadesinde `FontStyleContent` `SemiOblique`'i tanımıyorsa, varsayılan deserialize panic atar. Çözüm: `HighlightStyleContent` içinde `treat_error_as_none`; diğer yoğun `Option` taşıyan content tiplerinde ise `#[with_fallible_options]` makrosu.
@@ -604,7 +604,7 @@ Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevapl
 
 Bu davranış matrisi `treat_error_as_none` ve `with_fallible_options` mekanizmalarından bağımsızdır. Onlar **ayrıştırma seviyesinde**, `MergeFrom` ise **ayrıştırma sonrası merge seviyesinde** çalışır.
 
-> **Ayna disiplini:** `kvs_tema` veya `kvs_ayarlari_icerik` crate'i bir `MergeFrom` türetme makrosunu ayna etmelidir; alternatif olarak `settings_macros` doğrudan bağımlılık yapılabilir. Tema sözleşmesi `MergeFrom` üzerine kurulduğu için her `*Content` tipi için elle `merge_from` yazmak dağınık ve hata üretmeye açık bir yola dönüşür.
+> **Ayna disiplini:** `kvs_tema` veya `kvs_ayarlari_icerik` crate'i bir `MergeFrom` türetme makrosunu ayna etmelidir; alternatif olarak `settings_macros` doğrudan bağımlılık yaparsın. Tema sözleşmesi `MergeFrom` üzerine kurulduğu için her `*Content` tipi için elle `merge_from` yazmak dağınık ve hata üretmeye açık bir yola dönüşür.
 
 ---
 
@@ -689,7 +689,7 @@ GPUI'nin `Rgba` tipi ile palette crate'inin `Srgba` tipi aynı değerleri taşı
 let hsla = palette::Hsla::from_color(srgba);
 ```
 
-`palette::Hsla` ile `palette::Srgba` farklı renk uzaylarında bulunur. Burada sRGB küpünden HSL silindirine matematiksel bir dönüşüm yapılır. `palette` crate'inin asıl işi bu adımdadır.
+`palette::Hsla` ile `palette::Srgba` farklı renk uzaylarında bulunur. Burada sRGB küpünden HSL silindirine matematiksel bir dönüşüm yaparsın. `palette` crate'inin asıl işi bu adımdadır.
 
 **Adım 4 — `palette::Hsla` → `gpui::Hsla`:**
 
@@ -723,7 +723,7 @@ fn renk(metin: &Option<String>) -> Option<gpui::Hsla> {
 }
 ```
 
-Bu desen ilgili bölümde ayrıntılı olarak ele alınır: `Some(geçersiz hex) → None`.
+Bu desen ilgili bölümde ayrıntılı olarak ele alırsın: `Some(geçersiz hex) → None`.
 
 ### Test ve idempotans
 
@@ -755,12 +755,12 @@ fn adlandirilmis_rengi_reddeder() {
 
 ### Başarım
 
-Her renk alanı için tek bir `try_parse_color` çağrısı yapılır. Yaklaşık 150 renkli bir tema için yaklaşık 150 fonksiyon çağrısı gerçekleşir. Tek bir tema yüklemesi mikrosaniye seviyesinde kalır. Bu fonksiyon sıcak yolda yer almaz.
+Her renk alanı için tek bir `try_parse_color` çağrısı yaparsın. Yaklaşık 150 renkli bir tema için yaklaşık 150 fonksiyon çağrısı gerçekleşir. Tek bir tema yüklemesi mikrosaniye seviyesinde kalır. Bu fonksiyon sıcak yolda yer almaz.
 
 ### Tuzaklar
 
-1. **3-hex shorthand desteksizliği**: `#abc` (CSS shorthand) Zed paritesinde desteklenmesine rağmen, beklenmedik bir hex formatıyla karşılaşıldığında ayrıştırma hatası alınabilir; kullanıcı temalarında bu durum düşünülmelidir.
-2. **`palette` ihmali**: Elle sRGB → HSL dönüşümü yazmak (palette olmadan) Zed davranışından sapar; bu yüzden `palette` kullanılır.
+1. **3-hex shorthand desteksizliği**: `#abc` (CSS shorthand) Zed paritesinde desteklenmesine rağmen, beklenmedik bir hex formatıyla karşılaşıldığında ayrıştırma hatası alınabilir; kullanıcı temalarında bu durumun düşünmen gerekir.
+2. **`palette` ihmali**: Elle sRGB → HSL dönüşümü yazmak (palette olmadan) Zed davranışından sapar; bu yüzden `palette` kullanırsın.
 3. **Negatif hue koruması**: `palette::Hsla::from_color` zaman zaman `hue = -30°` döndürür; `into_positive_degrees()` çağrısı zorunludur, atlanması durumunda `h = -30/360 = -0.083` olur ve GPUI bunu 0.917'ye sarmaz, doğrudan **clamp eder**.
 4. **`alpha = 0.0` hata gibi görünür**: Geçerli bir tema rengi (örneğin `transparent_black`) alpha 0 olabilir. `try_parse_color` `Ok` döner ve `Hsla.a = 0.0` verir. UI'da görünmez ama bu bir ayrıştırma hatası değildir; davranışın bilinmesi gerekir.
 5. **Refinement aşamasında hatanın yutulması**: `try_parse_color(s).ok()` hata mesajını sessizce siler. Debug için bir log eklenmesi yerinde olur: `try_parse_color(s).inspect_err(|hata| tracing::warn!("hatalı renk: {}", hata)).ok()`. Default'ta log kapalı tutulduğunda kullanıcı tarafında gürültü olmaz, ama debug ihtiyacında bilgi hazır bulunur.
@@ -769,7 +769,7 @@ Her renk alanı için tek bir `try_parse_color` çağrısı yapılır. Yaklaşı
 
 ## 22. Hata toleransı: `treat_error_as_none` ve açık sözleşme
 
-Bu rehberde hata toleransı, alternatif sözleşmeleri destekleyen ayrı bir katman anlamına gelmez. Hedef, seçilen Zed referansındaki JSON sözleşmesini açık biçimde taşımaktır. Bu yüzden bilinmeyen alanlar ile bilinen alanlardaki hatalı değerler ayrı ele alınır: bilinmeyen alan sözleşme dışıdır; hatalı değer ise bilinen bir alanın ayrıştırılamayan içeriğidir.
+Bu rehberde hata toleransı, alternatif sözleşmeleri destekleyen ayrı bir katman anlamına gelmez. Hedef, seçilen Zed referansındaki JSON sözleşmesini açık biçimde taşımaktır. Bu yüzden bilinmeyen alanlar ile bilinen alanlardaki hatalı değerler ayrı ele alırsın: bilinmeyen alan sözleşme dışıdır; hatalı değer ise bilinen bir alanın ayrıştırılamayan içeriğidir.
 
 ### Vektör 1: Bilinmeyen alanlar — açık hata
 
@@ -794,7 +794,7 @@ fn tema_stil_anahtarlarini_dogrula(stil: &serde_json::Map<String, serde_json::Va
 
 **Bu kural nettir:** Mevcut Zed sözleşmesinde olmayan alanlar kabul edilmez. `ThemeStyleContent` `#[serde(flatten)]` kullandığı için pratik çözüm `deny_unknown_fields` değil, hedef sözleşmedeki anahtarları tutan açık bir izin listesi validasyonudur. Zed referansı güncellenecekse önce ayna struct'ları, sonra izin listesi, fixture ve snapshot testleri güncellenir.
 
-Pratik yükleme yardımcısı bu yüzden iki aşamalı yazılır: önce JSON toleranslı biçimde `serde_json::Value` olarak okunur, `themes[*].style` içindeki anahtarlar `TEMA_STIL_ANAHTARLARI` ile doğrulanır, sonra aynı değer `ThemeFamilyContent` tipine deserialize edilir. Bu rehberde örnek yardımcı adı `tema_ailesini_kati_ayristir(baytlar)` olarak kullanılır.
+Pratik yükleme yardımcısı bu yüzden iki aşamalı yazılır: önce JSON toleranslı biçimde `serde_json::Value` olarak okunur, `themes[*].style` içindeki anahtarlar `TEMA_STIL_ANAHTARLARI` ile doğrulanır, sonra aynı değer `ThemeFamilyContent` tipine deserialize edilir. Bu rehberde örnek yardımcı adı `tema_ailesini_kati_ayristir(baytlar)` olarak kullanırsın.
 
 ### Vektör 2: Bilinmeyen enum değerleri — iki tolerans hattı
 
@@ -822,7 +822,7 @@ Enum alanlarda varsayılan davranış farklıdır: serde bilinmeyen bir varyant 
 
 3. **`fallible_options::parse_json::<T>(json)`**: Üst seviye çağrı noktasıdır. `ERRORS` thread-local'ını sıfırlar, ayrıştırmayı çalıştırır, ayrıştırma bittikten sonra biriken hataları toplar ve `(Option<T>, ParseStatus)` döndürür. `ParseStatus` **üç varyantlıdır** (`settings_content::ParseStatus`, `settings_content` crate'i): `Success`, `Unchanged` (kaynak dosya değişmediği için ayrıştırma atlanır) ve `Failed { error: String }`. `Unchanged` yalnızca settings dosya yönetim katmanından gelir (file watcher değişiklik olmadığına karar verdiğinde); `parse_json` doğrudan çağrıldığında yalnızca `Success` veya `Failed` döner.
 
-Dış tüketici yolu genelde doğrudan `fallible_options::parse_json` değildir. `settings_content::RootUserSettings` trait'i, `SettingsContent`, `Option<SettingsContent>` ve `UserSettingsContent` için `parse_json(json) -> (Option<Self>, ParseStatus)` ile `parse_json_with_comments(json) -> anyhow::Result<Self>` metotlarını sağlar. İç yardımcı olan `fallible_options::deserialize` ise `pub(crate)` kalır; yalnızca `#[with_fallible_options]` makrosunun eklediği serde özniteliği tarafından crate içinden çağrılır.
+Dış tüketici yolu genelde doğrudan `fallible_options::parse_json` değildir. `settings_content::RootUserSettings` trait'i, `SettingsContent`, `Option<SettingsContent>` ve `UserSettingsContent` için `parse_json(json) -> (Option<Self>, ParseStatus)` ile `parse_json_with_comments(json) -> anyhow::Result<Self>` metotlarını sağlar. İç yardımcı olan `fallible_options::deserialize` ise `pub(crate)` kalır; yalnızca `#[with_fallible_options]` makrosunun eklediği serde özniteliği tarafından crate içinden çağırırsın.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -835,7 +835,7 @@ Bu tolerans **yalnızca `fallible_options::parse_json` veya `RootUserSettings` h
 **Mekanizma (kullanıcı tarafından görünmeyen):**
 
 1. `parse_json::<ThemeColorsContent>(json)` çağırırsın.
-2. Her `Option<T>` alanı için makro tarafından eklenen `fallible_options::deserialize` çağrılır.
+2. Her `Option<T>` alanı için makro tarafından eklenen `fallible_options::deserialize` çağırırsın.
 3. Bir alan ayrıştırma hatası verdiğinde → hata thread-local'a yazılır, alan `None` olarak atanır, ayrıştırma devam eder.
 4. Tüm ayrıştırma tamamlandığında `ParseStatus` döner; UI gerekirse uyarı gösterir, eksik alan tabandan doldurulur.
 
@@ -921,8 +921,8 @@ fn bilinmeyen_font_stili_none_olur() -> anyhow::Result<()> {
 1. **Bilinmeyen alanı sessizce atlamak**: Bu, kullanıcı yazım hatalarını saklar ve sözleşme dışı anahtarların destekleniyormuş gibi algılanmasına yol açar. Mevcut Zed sözleşmesinde olmayan alanlar açık hataya düşmelidir.
 2. **`treat_error_as_none` her yere koymak**: Zed bunu yalnızca `HighlightStyleContent`'te seçili alanlara koyar. Genel settings content'inde makro kullanılır; syntax highlight struct'ında ise mevcut özel davranışın değiştirilmesi tercih edilmez.
 3. **Hata yutmayı sessizce yapmak**: Üretimde `tracing::warn!` ile log alınması yerinde olur; amaç kullanıcının tema dosyasındaki bir yazım hatasını fark etmesi değil, debug akışı için bilgi bırakmaktır. Log seviyesi varsayılan olarak kapalı tutulabilir.
-4. **`#[serde(default)]` unutmak**: `deserialize_with` yazıldığında varsayılan davranış değişir; `default` özniteliği bu durumda şart hale gelir, aksi takdirde alan eksik olduğunda hata alınır.
-5. **`serde_json::Value` başarımı**: `treat_error_as_none` her alanı bir kez `Value`'ya, sonra tipe çevirir; yani iki kez ayrıştırma yapılır. Tema yüklemesi sıcak yolda olmadığı için bu maliyet pratikte sorun yaratmaz.
+4. **`#[serde(default)]` unutmak**: `deserialize_with` yazıldığında varsayılan davranış değişir; `default` özniteliği bu durumda şart hale gelir, aksi takdirde alan eksik olduğunda hata alırsın.
+5. **`serde_json::Value` başarımı**: `treat_error_as_none` her alanı bir kez `Value`'ya, sonra tipe çevirir; yani iki kez ayrıştırma yaparsın. Tema yüklemesi sıcak yolda olmadığı için bu maliyet pratikte sorun yaratmaz.
 
 ---
 

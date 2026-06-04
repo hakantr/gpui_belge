@@ -642,7 +642,7 @@ impl Theme {
 
 **İmza ayrıntısı:**
 
-- `icerik: ThemeContent` — **sahip alır** (move). Çağıran, fonksiyon sonrası Content'i kullanamaz; ancak Content tipi zaten ayrıştırma sonrası bir kez kullanılır ve atılır.
+- `icerik: ThemeContent` — **sahip alır** (move). Çağıran, fonksiyon sonrası Content'i kullanamaz; ancak Content tipi zaten ayrıştırma sonrası bir kez kullanılır ve atarsın.
 - `taban: &Theme` — **referanstır**. Taban tema kaydında durur. Klon gerektiğinde fonksiyon içinde `.clone()` çağırırsın.
 - Dönüş: `Self` (`Theme`).
 

@@ -1,6 +1,6 @@
 # Hedef, kapsam ve lisans
 
-Bu bölüm, tema sisteminin hangi amaçla kurulduğunu ve sınırlarının nerede başlayıp nerede bittiğini netleştirir. Özellikle üç soru önemlidir: Hangi parçalar Zed ile birebir uyumlu tutulacak, hangi parçalar uygulamaya özgü kalacak ve GPL sınırı nereden geçecek? Sonraki bölümler bu cevapların üzerine kurulur. Bu yüzden kararları burada açıkça koymak, aynı konuları ileride tekrar tekrar açmadan ilerlemeyi sağlar.
+Bu bölüm, tema sisteminin hangi amaçla kurulduğunu ve sınırlarının nerede başlayıp nerede bittiğini netleştirir. Özellikle üç soru önemlidir: Hangi parçalar Zed ile birebir uyumlu tutulacak, hangi parçalar uygulamaya özgü kalacak ve GPL sınırı nereden geçecek? Sonraki bölümler bu cevapların üzerine kurarsın. Bu yüzden kararları burada açıkça koymak, aynı konuları ileride tekrar tekrar açmadan ilerlemeyi sağlar.
 
 ---
 
