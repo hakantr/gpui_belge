@@ -1,16 +1,6 @@
 # Erişilebilirlik
 
-## Sürüm Analiz Raporu
-
 GPUI'nin mevcut public yüzeyi erişilebilirlik bilgisini AccessKit üzerinden taşır. `gpui` crate kökü `accesskit` modülünü ve sık kullanılan `Action`, `Role`, `Orientation`, `Toggled` tiplerini yeniden dışa aktarır; `Action` dışarıda `AccessibleAction` adıyla kullanılır. Uygulama kodunda erişilebilirlik bilgisi çoğunlukla `div().id(...).role(...).aria_*()` zinciri ve `text!` makrosu üzerinden verilir.
-
-Bu bölümde anlatılan ana kaynaklar:
-
-- `gpui` crate'i: `StatefulInteractiveElement` erişilebilirlik fluent metotları.
-- `gpui` crate'i: `Text`, `Text::new`, `Text::new_inaccessible` ve `text!` makrosu.
-- `gpui` crate'i: platform action yönlendirmesi ve `Window::on_a11y_action`.
-- `gpui` crate'i: `Application::new_inaccessible(...)`.
-- `gpui` crate'i: platform arka uçlarının uyguladığı erişilebilirlik köprüsü.
 
 ## Temel Model
 

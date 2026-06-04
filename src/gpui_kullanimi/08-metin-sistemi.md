@@ -88,7 +88,7 @@ Buradaki `.into()` yalnız okunabilirlik kısaltması değildir; `&'static str`,
 - `SharedString` kopyalama maliyetini azaltır; çizim alt öğelerinde `String` yerine bu tipi tercih edersin.
 - `text_ellipsis`, `line_clamp` ve `white_space` gibi taşma davranışları yerleşim genişliğine bağlıdır; üst öğenin genişliği belirsizse kırpma beklenen biçimde çalışmaz.
 - Sondan üç nokta ile kırpma yapılırken kırpılan parçanın sonundaki boşluk ve ASCII noktalama temizlenir; `"başlık -…"` yerine daha temiz `"başlık…"` çıktısı üretir. Başlangıçtan kırpma davranışı ayrı `TruncateFrom::Start` yoludur.
-- `line_clamp` ile `wrap_width` ikisi birlikte ayarlıysa `LineWrapper::truncate_wrapped_line` devreye girer. Bu yöntem kırpma noktasını kelime sınırı sarımını da hesaba katarak belirler: satırları tek geçişte yürürken hem sarım sınırlarını hem kırpma noktasını paralel izler ve son satır taşmadan hemen önce sözcük sınırında keser. Önceki `truncate_line` tabanlı davranış `width × satır_sayısı` üzerinden düz bir bütçe hesabı yapıyordu; bu, gerçek görsel sarımla uyumsuz kırpma üretiyordu. Yeni yol sarımı değil görsel sonucu baz alır. `max_lines == 1` veya `TruncateFrom::Start` durumlarında yöntem eskiden olduğu gibi `truncate_line`'a düşer.
+- `line_clamp` ile `wrap_width` ikisi birlikte ayarlıysa `LineWrapper::truncate_wrapped_line` devreye girer. Bu yöntem kırpma noktasını kelime sınırı sarımını da hesaba katarak belirler: satırları tek geçişte yürürken hem sarım sınırlarını hem kırpma noktasını paralel izler ve son satır taşmadan hemen önce sözcük sınırında keser; yani kırpmayı `width × satır_sayısı` gibi düz bir satır bütçesiyle değil, gerçek görsel sarımla hizalar. `max_lines == 1` veya `TruncateFrom::Start` durumlarında yöntem `truncate_line`'a düşer.
 - Uygulamanın genel metin çizim kipini `cx.set_text_rendering_mode(...)` ile `PlatformDefault`, `Subpixel` ve `Grayscale` arasında seçersin. Subpixel akışında her glif için yatayda `gpui::SUBPIXEL_VARIANTS_X: u8 = 4`, dikeyde `gpui::SUBPIXEL_VARIANTS_Y: u8 = 1` farklı varyant rasterize edilir (`text_system`); başka bir deyişle glif atlası boyutu yatay subpixel konumuna duyarlıdır, dikey konumda değildir.
 - WGPU/Linux metin arka ucu (`CosmicTextSystem`) `Font.fallbacks` değerini font önbellek anahtarına dahil eder ve `layout_line` içinde kullanıcı yedek zincirini grapheme cluster sınırlarını koruyarak uygular. ASCII karakterlerinde birincil font tercih edilir; combining mark ve ZWJ emoji cluster'ları yedek aralığının içinde bölünmez. Özel font yedek ayarı incelenirken yalnızca aile adını değil yedek listesini de önbellek/ölçüm girdisi sayman gerekir.
 
@@ -151,21 +151,21 @@ Aralıklar yine byte index aralıklarıdır; Unicode metinde karakter sınırlar
 - Mermaid kod blokları yalnızca kapalı fenced block biçimindeyse diyagram olarak çıkarılır. ` ```mermaid` etiketinin yanı sıra `.mermaid` veya `.mmd` uzantılı kaynak yolu işaret edilen bloklar da diyagram olarak sayılır.
 - Mermaid diyagram arayüzü önizleme ve kod sekmelerini, ayrıca kopyalama butonunu gösterebilir; çizim başarısızsa veya henüz tamamlanmadıysa kaynak kodu görünümü yedek olarak çizilir.
 
-**Markdown API'ye eklenen yeni yüzeyler.**
+**Markdown çiziminin ek yüzeyleri.**
 
-`CodeBlockRenderer::Default` artık `wrap_button_visibility` alanına sahiptir:
+`CodeBlockRenderer::Default`, kod bloğunun kopyalama ve sarım düğmelerinin görünürlüğünü iki ayrı alanla yönetir:
 
 ```rust
 CodeBlockRenderer::Default {
     copy_button_visibility: CopyButtonVisibility::VisibleOnHover,
-    wrap_button_visibility: WrapButtonVisibility::Hidden, // yeni alan
+    wrap_button_visibility: WrapButtonVisibility::Hidden,
     border: false,
 }
 ```
 
 `WrapButtonVisibility` üç değer alır: `Hidden` (sarım düğmesi hiç gösterilmez), `AlwaysVisible`, `VisibleOnHover`. Kullanıcı sarım düğmesine tıklayınca `Markdown` yapısının `wrapped_code_blocks` kümesi değişir ve kod bloğu yatay kaydırma yerine sözcük sarımına geçer. `WrapButtonVisibility::Hidden` olmayan tüm durumlarda düğme satırı kopyalama düğmesiyle aynı `h_flex` konteynerini paylaşır; birinin görünürlük kuralı `AlwaysVisible` ise her ikisi de herzaman görünür.
 
-Kendi oluşturduğun `CodeBlockRenderer::Default` yapısına `wrap_button_visibility` alanını eklemeyi unutursan derleme hatası alırsın — yeni alan mevcut desenleri kıran bir struct güncelleme değişikliğidir.
+`CodeBlockRenderer::Default` alanlarının tümü zorunludur; yapıyı kurarken `copy_button_visibility`, `wrap_button_visibility` ve `border`'ı birlikte verirsin.
 
 `on_code_span_link` ile satır içi kod yaylarına bağlantı ekleyebilirsin:
 
@@ -182,8 +182,8 @@ MarkdownElement::new(markdown, style)
 
 `CodeSpanLinkCallback = Arc<dyn Fn(&str, &App) -> Option<SharedString>>` döndürürse bağlantı stili uygulanır; `None` döndürürse normal kod stili kullanılır. Geri çağrı yalnızca kod bloğunun dışında ve bağlantı içinde olmayan durumlarda çalışır.
 
-Shift+tıklama artık seçimi genişletir: mevcut seçimin kuyruğunu sabit tutarak tıklama noktasına kadar aralığı uzatır. Önceki davranışta shift kontrolü yoktu; tüm tıklamalar imleci tek bir konuma sıfırlıyordu.
+Shift+tıklama seçimi genişletir: mevcut seçimin kuyruğunu sabit tutar ve tıklama noktasına kadar aralığı uzatır. Shift'siz tıklama ise imleci tek bir konuma taşır.
 
-`Markdown::first_code_block_language()` belgedeki ilk fenced kod bloğunun `Arc<Language>`'ini döndürür. Özellikle içeriği bir dil sunucusuna yönlendirecek veya sözdizim vurgusu uygulayacak kod için hangi dilin aktif olduğunu hızlıca öğrenirken kullanılır.
+`Markdown::first_code_block_language()` belgedeki ilk fenced kod bloğunun dilini `Option<Arc<Language>>` olarak döndürür; böyle bir blok yoksa `None` döner. Özellikle içeriği bir dil sunucusuna yönlendirecek veya sözdizim vurgusu uygulayacak kod için hangi dilin aktif olduğunu hızlıca öğrenirken kullanılır.
 
 ---

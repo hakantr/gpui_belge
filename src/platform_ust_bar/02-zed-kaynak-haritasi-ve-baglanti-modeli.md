@@ -14,8 +14,8 @@
 | `SystemWindowTabs` | Native pencere sekmeleri, sekme menüsü, sürükle-bırak ve pencere birleştirme davranışları. Modül private olduğu için dış crate API'si değildir; `PlatformTitleBar` içinde child entity olarak kullanılır. |
 | `TitleBar` | Zed'in uygulama başlığı, proje adı, menü, kullanıcı ve workspace state'ini `PlatformTitleBar` içine bağlayan üst seviye bileşen. |
 | `OnboardingBanner` | Ürün titlebar'ı için duyuru banner'ı altyapısı (`title_bar` crate'inde). Güncel sürümde `TitleBar`'a bağlı değildir; ayrıntı [Üst Bar](../ust_bar/ust_bar.md) bölümünde. |
-| `UpdateVersion` | Auto-update durumunu üst barda gösterir ve update tooltip metnini üretir. Tooltip artık eski `Version:` biçimini kullanmaz; `Update to Version:` öneki ve SHA için tam commit değeri kullanılır. |
-| `UpdateButton` | `UpdateVersion` tarafından kullanılan görsel kabuk. `checking`, `downloading`, `installing`, `updated`, `errored` durumları için ayrı constructor'lar sağlar. `Checking/Downloading/Installing` durumlarında butona artık `disabled(true)` set edilir; bu süre içinde tıklama davranışı kapalıdır. Animated ikon `LoadCircle` (2 turluk dönüş) ile gelir; eski `ArrowCircle` ikonu yalnız `updated` ve `errored` dışındaki spinning state'lerden kalkmıştır. Errored mesajı `"Failed to Update"` biçimindedir; `Failed to update Zed` metni bırakılmaz. |
+| `UpdateVersion` | Auto-update durumunu üst barda gösterir ve update tooltip metnini üretir. Tooltip `Update to Version:` önekini, SHA için de tam commit değerini kullanır. |
+| `UpdateButton` | `UpdateVersion` tarafından kullanılan görsel kabuk. `checking`, `downloading`, `installing`, `updated`, `errored` durumları için ayrı constructor'lar sağlar. `Checking/Downloading/Installing` durumlarında butona `disabled(true)` set edilir; bu süre içinde tıklama davranışı kapalıdır. Spinning state'lerde animated ikon `LoadCircle` (2 turluk dönüş) kullanılır. Errored mesajı `"Failed to Update"` biçimindedir. |
 | `client_side_decorations` | CSD pencere gölgesi, border, resize kenarları ve inset yönetimi. |
 | `WindowOptions` | Pencere dekorasyonu, titlebar options ve native tabbing identifier ayarları. |
 

@@ -429,7 +429,7 @@ GPUI ve Zed'de iki kompozisyon deseni paralel çalışır: çizim zincirinde `Re
 
 #### Refineable
 
-`refineable` crate'i:
+`Refineable` trait'i `refineable` crate'inde tanımlıdır; sözleşmesi şöyledir:
 
 ```rust
 pub trait Refineable: Clone {
@@ -512,7 +512,7 @@ API yüzeyi şöyledir:
 
 #### MergeFrom
 
-`settings_content` crate'i:
+`MergeFrom` trait'i `settings_content` crate'inde tanımlıdır:
 
 ```rust
 pub trait MergeFrom {

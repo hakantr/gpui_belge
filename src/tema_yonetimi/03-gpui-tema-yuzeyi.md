@@ -670,7 +670,7 @@ Tema sistemi bu tipleri kullanmaz; baseline + kullanıcı olmak üzere iki katma
 2. **Public/private uyumsuzluğu**: `pub struct ThemeColors` tanımı varsa Refinement tipi de `pub struct ThemeColorsRefinement` olarak üretilir. Visibility, macro tarafından kopyalanır.
 3. **`refine` ile `refined` arasındaki tercih**: İlki `&mut self` üzerinde çalışır, ikincisi sahip alır. `Hsla` gibi küçük alanlar için `refine` her zaman daha doğal bir seçimdir.
 4. **Nested struct'lar için karar noktası**: Macro yalnızca `#[refineable]` ile işaretli alanlarda recursive birleştirme yapar. `Theme.styles.colors` gibi katmanlarda bu ilişkinin bilinçli kurulması istenmediği durumlarda, `Theme::from_content` her alt struct için ayrı bir `refine` çağrısı yürütür.
-5. **`refineable` crate'inin `publish = false` olması**: Crates.io'ya yayınlanan bir crate'in bu derive'ı kullanabilmesi için fork veya vendor yolu zorunlu olur ().
+5. **`refineable` crate'inin `publish = false` olması**: Crates.io'ya yayınlanan bir crate'in bu derive'ı kullanabilmesi için fork veya vendor yolu zorunlu olur.
 6. **Refinement tipinin `Default` taşımak zorunda olması**: `..Default::default()` yazılmadığında her alanın açıkça vermen gerekir. Macro `Default` türevini zaten ücretsiz olarak ürettiği için bundan yararlanmak yapılacak en doğal şeydir.
 
 ---

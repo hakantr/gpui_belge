@@ -24,7 +24,7 @@ Ayrıca bu API'nin bir kısıtı daha vardır: `register_action_renderer` bağla
 
 ### Sekme butonları
 
-`SystemWindowTabs` içindeki sekme kapatma yollarının tamamı ortak olarak **`workspace::CloseWindow` sabit action'ını** dispatch eder. Bu yolların kaç tane olduğunu görmek için `Box::new\(CloseWindow\)` deseniyle yapılan awk taraması altı farklı çağrı noktası çıkarır:
+`SystemWindowTabs` içindeki sekme kapatma yollarının tamamı ortak olarak **`workspace::CloseWindow` sabit action'ını** dispatch eder. Bu kapatma yolu altı farklı çağrı noktasında bulunur:
 
 | # | Tetikleyici | Hedef pencere |
 | - | :-- | :-- |
@@ -37,7 +37,7 @@ Ayrıca bu API'nin bir kısıtı daha vardır: `register_action_renderer` bağla
 
 Bu altı yolun her birinde **aynı sabit action dispatch edilir**. Dış crate'in verdiği `close_action` prop'u bu kapatma yollarına ulaşmaz. Dışarıdan gelen close action yalnızca Linux tarafındaki `LinuxWindowControls`/`WindowControl` zincirinde kullanırsın. Port hedefinde sekme kapatma davranışı farklılaştırılacaksa, bu altı çağrı noktasının her biri ayrı ayrı ele alman gerekir. Tek bir flag açıp kapatmak hepsini aynı anda değiştirmeye yetmez.
 
-**Cross-window dispatch deseni**, yani `handle.update(cx, |_, window, cx| { ... })` çağrı zinciri, bu sekme yollarının dördünde merkezi rol oynar. Bu yollar çağrı anında "**hedef pencere mevcut pencere mi?**" sorusunu sorar. Hedef başka bir pencereyse `item.handle.update(cx, |_view, window, cx| { window.dispatch_action(...) })` yapısıyla tab'ın `AnyWindowHandle`'ı üzerinden ilgili pencerenin context'ine geçilir ve action o pencerede dispatch edilir. Aynı `handle\.update\(` deseninin awk taraması altı çağrı noktası gösterir:
+**Cross-window dispatch deseni**, yani `handle.update(cx, |_, window, cx| { ... })` çağrı zinciri, bu sekme yollarının dördünde merkezi rol oynar. Bu yollar çağrı anında "**hedef pencere mevcut pencere mi?**" sorusunu sorar. Hedef başka bir pencereyse `item.handle.update(cx, |_view, window, cx| { window.dispatch_action(...) })` yapısıyla tab'ın `AnyWindowHandle`'ı üzerinden ilgili pencerenin context'ine geçilir ve action o pencerede dispatch edilir. Aynı `handle.update(...)` deseni altı çağrı noktasında geçer:
 
 - Settings observer'da her pencere için `set_tabbing_identifier` ve tab listesi yenileme.
 - Tab click → o pencereyi `activate_window()`.
@@ -50,7 +50,7 @@ Bu çağrıların hepsi `let _ = handle.update(...)` deyimine sarılıdır. Çü
 
 Port hedefinde aynı deseni karşılamak için üç şey birlikte sağlanmalıdır. Her tab metadata yapısı bir handle veya proxy taşımalıdır. Cross-window işlemler bu proxy üzerinden ilgili pencerenin context'ine girip işi orada yapmalıdır. Proxy çağrısı da **fail-soft** davranmalı; hedef pencere ortadan kalkmışsa sessizce geçilmelidir. Bu üç kural birlikte uygulanmazsa kapanmış pencerelere yapılan çağrılar uygulamayı çökertebilir.
 
-**Conditional Option idiom'u**, `platform_title_bar.rs` içinde `248-255` ve `299-306` aralıklarında geçer. Sol ve sağ kontroller şu desenle dahil edilir: `show_X_controls.then(|| render_X_window_controls(...)).flatten()`.
+**Conditional Option idiom'u** sol ve sağ pencere kontrollerini şu desenle dahil eder: `show_X_controls.then(|| render_X_window_controls(...)).flatten()`.
 
 Bu desen şöyle çalışır: `bool::then(|| fn)` ifadesi boolean `true` ise `Some(fn())`, `false` ise `None` döner. `render_X_window_controls` fonksiyonu zaten `Option<AnyElement>` döndürdüğü için dış sarmal `Option<Option<...>>` olur; `.flatten()` ile tek seviye `Option`'a iner. Burada gözden kaçabilecek bir yan etki vardır. `then` closure'u, boolean `true` olduğunda gövdesini çalıştırır; gövde içinde **clone işlemi** gerçekleşir. İleride bahsedilecek `boxed_clone` zincirindeki adım 2 ve 3'ün her render'da çalışmasının nedeni budur. Aynı sonuç daha açık şekilde `if show_X { Some(render_X(...)) } else { None }` ifadesiyle de yazılabilir. `then().flatten()` formu yalnızca daha kısadır; ek bir avantaj sağlamaz.
 

@@ -2,15 +2,6 @@
 
 Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements` primitive'lerini anlatır. Günlük Zed ekran kodunda önce hazır `ui` bileşenlerine bakarsın. Ham GPUI primitive'lerine ise ancak daha özel bir ihtiyaç çıktığında inersin: kendine özgü bir layout, özel çizim, metin ölçümü, görsel cache, sanal liste veya hazır bileşenlerin sunmadığı bir etkileşim gibi. Kısaca, üst katman çoğu işi karşılar; alt katmana inmek ise genellikle bilinçli bir ihtiyaç sonucudur.
 
-Kaynakta bakacağın ana yerler:
-
-- `gpui` crate'i: primitive export kapısı; tüm element ailelerinin toplandığı giriş noktasıdır.
-- `gpui` crate'i: `ParentElement`, `IntoElement`, `Element` trait'lerinin tanımlandığı temel dosya.
-- `gpui` crate'i: `Styled` ortak stil yüzeyinin yaşadığı yer; bütün element ailesinin ortak stil dilini sağlar.
-- `gpui` crate'i: `Hsla` renk modeli, renk dönüşümleri ve test odaklı proptest yüzeyinin bulunduğu yer.
-- `gpui` crate'i: `Div`, `Interactivity`, `InteractiveElement`, `StatefulInteractiveElement` ve `ScrollHandle` gibi etkileşim çekirdeğini barındırır.
-- `gpui` crate'inin elements modülünde her özel primitive kendi dosyasındadır: her bir özel primitive'in kendi dosyası; özel API'lerin tanım yerleridir.
-
 ## Public GPUI element adları
 
 Aşağıdaki liste `gpui` crate'i altındaki public type, trait, constructor ve constant adlarını tek yerde toplar. Bu bölümü, hangi isimlerin "kullanılabilir resmi yüzey" olduğunu hızlıca görmek için referans olarak kullanırsın:

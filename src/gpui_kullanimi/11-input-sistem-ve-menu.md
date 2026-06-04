@@ -121,8 +121,6 @@ cx.set_prompt_builder(|seviye, mesaj, ayrinti, eylemler, tutamac, window, cx| {
 
 ## Uygulama Menüsü ve Dock
 
-`gpui` crate'i.
-
 Menü modeli birkaç ana tip etrafında kurulur:
 
 - `Menu { name, items, disabled }`

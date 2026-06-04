@@ -332,9 +332,7 @@ Pratik karar şudur: veri uygulama çapında tek kavramsa `Global`; belirli bir 
 
 ![EventEmitter ve Subscription Yaşam Döngüsü](assets/event-emitter-subscription.svg)
 
-`gpui` crate'i.
-
-`Subscription`, opak (`opaque`) bir tiptir; elden çıktığında içindeki geri çağrı kaydı silinir. Bu davranış üç farklı kullanım desenine yol açar; aralarındaki seçim abonelik kaydının ne kadar yaşaması gerektiğine bağlıdır:
+`Subscription` (`gpui` crate'i), opak (`opaque`) bir tiptir; elden çıktığında içindeki geri çağrı kaydı silinir. Bu davranış üç farklı kullanım desenine yol açar; aralarındaki seçim abonelik kaydının ne kadar yaşaması gerektiğine bağlıdır:
 
 ```rust
 // 1. Alanda sakla
@@ -555,7 +553,7 @@ Bu bölüm GPUI çekirdeğinde genel olan ama günlük kullanımda kolay atlanan
 
 ##### Deref ile gizlenmiş yüzey (tipli handle üzerinden tipsiz metot)
 
-`Entity<T>` ve `WeakEntity<T>`, `#[derive(Deref, DerefMut)]` ile içlerindeki tipsiz handle'a deref eder (`gpui` crate'i ve `:739`):
+`Entity<T>` ve `WeakEntity<T>`, `#[derive(Deref, DerefMut)]` ile içlerindeki tipsiz handle'a deref eder (`gpui` crate'i):
 
 ```rust
 #[derive(Deref, DerefMut)]

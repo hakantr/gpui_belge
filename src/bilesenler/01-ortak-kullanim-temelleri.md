@@ -383,7 +383,7 @@ UI olay işleyicilerinden veya async task'lardan dönen `Result` değerlerini se
 
 - Çağıran fonksiyon `Result` taşıyabiliyorsa hatayı `?` ile yayman en doğal yoldur.
 - View içinde fire-and-forget bir task çalıştırdığında, hatanın log'a düşürülmesi için `task.detach_and_log_err(cx)`'i tercih edersin. Buna karşılık düz `task.detach()` hatayı sessizce yok eder ve sebebi sonradan tespit etmek mümkün olmaz.
-- Async iş bitiminde view state'inin güncellenmesi gerekiyorsa, task'ı view struct'ı içinde `Task<anyhow::Result<()>>` alanı olarak saklaman ve task içinde `this.update(cx, ...)?` çağrısı ile entity'ye geri dönmen uygun bir pattern'dır. Bu yaklaşım Bölüm 15'te "Ayarlar Paneli Satırı" örneğinde uygulanır.
+- Async iş bitiminde view state'inin güncellenmesi gerekiyorsa, task'ı view struct'ı içinde `Task<anyhow::Result<()>>` alanı olarak saklaman ve task içinde `this.update(cx, ...)?` çağrısı ile entity'ye geri dönmen uygun bir pattern'dır. Bu yaklaşım [Entegre Örnek Sayfaları](16-entegre-ornek-sayfalari.md)'ndaki "Ayarlar Paneli Satırı" örneğinde uygulanır.
 - Tek seferlik bir async sonuç kullanıcıya gösterilecekse, hatayı `last_error: Option<SharedString>` gibi bir state alanına yazıp `Callout` veya `Banner` ile sunmayı tercih edersin. Görsel durum değiştiği için ayrıca `cx.notify()` çağrısı da gerekir; aksi halde state güncellense bile ekran yenilenmez.
 - Panik üreten kısa yollar ve `let _ = ...?` yerine açık eşleştirme yapman beklenir. `let _ = ...` üretim kodunda yalnızca hatayı bilinçli olarak yok saydığın ender durumlarda kabul edilir; o durumlarda da nedenini yorum satırıyla belirtmen gerekir.
 

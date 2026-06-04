@@ -54,9 +54,9 @@ fn active_project_path(&self, cx: &App) -> Option<ProjectPath> {
 
 Tekli arabellek (`Singleton`) item'lar bu varsayılanı miras alır; tek proje öğelerinin yolunu döndürür. Çok-arabellek item'lar (`MultiBuffer`, `ProjectDiff`, `MultiDiffView` gibi) birincil imlecin altındaki arabelleğin yolunu döndürmek için bu yöntemi geçersiz kılar. `Editor` ise `active_buffer(cx)` üzerinden aktif tamponu bularak uygulamasını geçersiz kılar. `SplittableEditor` da sağ taraf editörüne yönlendirir.
 
-`ItemHandle::project_path` artık `<T as Item>::active_project_path` çağrısına yönlendirilmiştir; dolayısıyla eski `for_each_project_item` mantığı tek bir yerde toplanmış ve geçersiz kılma mekanizması tutarlı hale gelmiştir.
+`ItemHandle::project_path`, `<T as Item>::active_project_path` çağrısına yönlendirir; geçersiz kılma (override) tek bir noktada tanımlanır ve tutarlı çalışır.
 
-Status bar'ın breadcrumb güncellemesi ve git panelinin aktif dosya tespiti bu yol üzerinden çalışır. `ItemEvent::UpdateBreadcrumbs` olayı geldiğinde — aktif panedeki aktif item bu olayı yayarsa — çalışma alanı `active_item_path_changed(false, window, cx)` çağrısını tetikler. Bu bağlantı önceden eksikti: olay `_ => {}` dalına düşüyor, herhangi bir yol değişikliği bildirilmiyordu. Artık bu dal açıkça ele alınmaktadır.
+Status bar'ın breadcrumb güncellemesi ve git panelinin aktif dosya tespiti bu yol üzerinden çalışır. `ItemEvent::UpdateBreadcrumbs` olayı geldiğinde — aktif panedeki aktif item bu olayı yayarsa — çalışma alanı `active_item_path_changed(false, window, cx)` çağrısını tetikler.
 
 **Tipik akış.** Yeni bir tab türü oluşturmak şu adımlardan geçer:
 

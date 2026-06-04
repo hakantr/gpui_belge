@@ -4,8 +4,6 @@
 
 ## ScrollHandle ve Scroll Davranışı
 
-`gpui` crate'i.
-
 `ScrollHandle`, scroll offset'ini paylaşılabilir bir handle olarak tutar. `Rc<RefCell<ScrollHandleState>>` üzerinden çalışır ve view'lar arasında ucuz biçimde klonlanabilir. Aynı handle'ı birden fazla yerden okuyup değiştirebilirsin.
 
 **Genel API.** Handle üzerinden ulaştığın başlıca metotlar şunlar:
@@ -160,8 +158,6 @@ uniform_list("arama-sonuclari", self.ogeler.len(), move |aralik, window, cx| {
 ---
 
 ## Asset, Image ve SVG Yükleme
-
-`gpui` crate'i, `assets`, `elements/img`, `svg`.
 
 `Asset` trait'i asenkron yükleyici sözleşmesidir; her özel kaynak türü bu trait'i uygular:
 
@@ -333,8 +329,6 @@ GPUI görsel hattı hem uygulama geliştiricisine açık elementleri hem de rend
 
 ## Path Çizimi ve Özel Çizim
 
-`gpui` crate'i, `scene`, `elements/canvas`.
-
 GPUI doğrudan path API'si yerine `canvas` elementi ve `PathBuilder` ile vektör çizimi sunar. `PathBuilder`, lyon tessellator'ının ince bir sarmalayıcısıdır.
 
 `canvas(prepaint, paint)` iki closure alır. GPUI'de ayrı bir public `PaintContext` tipi yerine bu closure'lar `Window` ile çalışır. Prepaint closure'ı hitbox veya ölçüm gibi yerleşim zamanı işlerini yapar ve paint closure'ına aktarılacak bir değer döndürür. Paint closure'ı ise `window.paint_*` çağrılarıyla sahneye primitive ekler.
@@ -444,8 +438,6 @@ Lyon API'sine inmek istiyorsan `lyon::tessellation::FillOptions::tolerance(0.5)`
 - Stroke genişliği mantıksal Pixels'dir; DPI'si yüksek ekranlarda çok ince kalmaması için `px(1.0).max(...)` ile zemini tutarsın.
 
 ## Anchored ve Popover Konumlandırma
-
-`gpui` crate'i.
 
 `anchored()` fonksiyonu bir `Anchored` builder döndürür. Popover, menü ve tooltip benzeri konumlandırmaları bu element üzerinde kurarsın:
 

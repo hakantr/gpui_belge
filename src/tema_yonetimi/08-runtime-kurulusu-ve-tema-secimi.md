@@ -53,7 +53,7 @@ pub struct ThemeRegistry {
 
 ### Hata tipleri
 
-**Zed kaynak sözleşmesi** (`theme` crate'i, `:32`): hata tipi adları `ThemeNotFoundError` ve `IconThemeNotFoundError` biçimindedir. Sonda `Error` suffix'i bulunur. `kvs_tema` mirror'ında da aynı isimler kullanırsın:
+**Zed kaynak sözleşmesi** (`theme` crate'i): hata tipi adları `ThemeNotFoundError` ve `IconThemeNotFoundError` biçimindedir. Sonda `Error` suffix'i bulunur. `kvs_tema` mirror'ında da aynı isimler kullanırsın:
 
 ```rust
 use thiserror::Error;

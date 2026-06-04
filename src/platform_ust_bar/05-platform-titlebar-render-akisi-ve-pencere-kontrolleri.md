@@ -19,7 +19,7 @@ Başlık çubuğuna yerleştirilen interaktif elementler, kendi mouse down/click
 - `on_mouse_up(Left, ...)` olayında `should_move` yine `false` yaparsın. Bu, sürükleme hiç başlamamış olsa bile state'in temiz kalmasını sağlar.
 - `on_mouse_down_out(...)` olayında da `should_move` `false` yaparsın. Bu sayede başlık çubuğunun dışına tıklanması durumunda bayrak geriden gelip ileride başka bir drag'i tetiklemez; state sızıntısı önlenmiş olur.
 
-Linux pencere kontrol katmanı, **üç ayrı `stop_propagation()` noktası** kullanır. Bu üç nokta tek tek bakıldığında kolayca gözden kaçar. Dağınık satırlara yayıldıkları için `rg` çıktısı tek başına resmi toparlamaz; awk taramasıyla birlikte okumak daha güvenlidir:
+Linux pencere kontrol katmanı, **üç ayrı `stop_propagation()` noktası** kullanır. Bu üç nokta koda dağılmış olduğu için tek tek bakıldığında kolayca gözden kaçar:
 
 | Yer | Olay | Neyi engeller? |
 | :-- | :-- | :-- |
@@ -61,7 +61,7 @@ macOS tarafında `window.titlebar_double_click()` çağrısının her zaman "zoo
 
 `title_bar_color` fonksiyonu çalıştığı platforma göre farklı davranır. Linux/FreeBSD tarafında aktif pencere için `title_bar_background` token'ı kullanılır. Pencere pasifse veya taşınıyorsa `title_bar_inactive_background` token'ına geçilir. Diğer platformlarda bu ayrım yapılmaz; doğrudan `title_bar_background` döner.
 
-Bu davranışın amacı, başlık çubuğu ile alttaki sekme çubuğu arasındaki görsel ayrımı korumaktır. Port hedefinin tema sisteminde en az aşağıdaki token'ların tanımlı olması gerekir. Liste, `cx\.theme\(\)\.colors\(\)\.X` desenli awk taramasının tam çıktısıdır:
+Bu davranışın amacı, başlık çubuğu ile alttaki sekme çubuğu arasındaki görsel ayrımı korumaktır. Port hedefinin tema sisteminde en az aşağıdaki `cx.theme().colors()` token'larının tanımlı olması gerekir:
 
 ![Platform Renk Token Matrisi](assets/platform-renk-matrisi.svg)
 

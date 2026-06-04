@@ -802,7 +802,7 @@ Ne zaman kullanırsın:
 
 Davranış:
 
-- İçerik artık `ActivityIcon` ayrımıyla seçersin: bilinmeyen süreli işler `LoadingSpinner`, statik durumlar ise `Icon(IconName)` taşır.
+- İçeriği `ActivityIcon` ayrımıyla seçersin: bilinmeyen süreli işler `LoadingSpinner`, statik durumlar ise `Icon(IconName)` taşır.
 - Spinner görünümü doğrudan `Button::loading(true)` üzerinden gelir; bu yüzden loading durumunda start icon yerine `IconName::LoadCircle` çizilir.
 - Warning, download ve benzeri statik durumlarda trigger `Button::start_icon(...)` kullanır; ikon `Color::Muted` ile çizilir.
 - Language server work listesi trigger'a yalnızca içerikte özel bir click handler yoksa popover olarak bağlanır. Menü en az bir cancellable work varsa açılır; cancellable entry'ler `Close` ikonu ve `Cancel ...` label'ıyla render edilir.

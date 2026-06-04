@@ -130,7 +130,7 @@ Picker'ı bir popover içine yerleştiren ince sarmalayıcıdır. `new(picker, t
 
 Zed içinde picker üzerine kurulu çeşitli akışların kendine özgü davranışları vardır:
 
-- `file_finder` artık `path:line-column` sorgularına ek olarak `path:start-end` satır aralıklarını da anlar. Örneğin `src/app` dosyayı açıp ilgili satır aralığını seçer; aralık dosya sonunu aşarsa EOF'a kırpılır. Geçersiz veya ters aralıklar `PathWithPosition` davranışına düşer ve tek konuma gider. Sonda kalan tek satır iki noktası `path:12:` biçiminde temizlenir, fakat aralık biçimleri korunur.
+- `file_finder` hem `path:line-column` sorgularını hem de `path:start-end` satır aralıklarını anlar. Örneğin `src/app` dosyayı açıp ilgili satır aralığını seçer; aralık dosya sonunu aşarsa EOF'a kırpılır. Geçersiz veya ters aralıklar `PathWithPosition` davranışına düşer ve tek konuma gider. Sonda kalan tek satır iki noktası `path:12:` biçiminde temizlenir, fakat aralık biçimleri korunur.
 - `git_ui::branch_picker::select_popover(...)` checkout yapmayan seçim popover'ı üretir. Bu mod `BranchSelectionBehavior::Select` kullanır, placeholder olarak `Select branch...` gösterir, footer ve silme aksiyonlarını sunmaz, seçimden sonra `DismissEvent` yayar ve verilen `SelectBranchCallback` ile seçilen `Branch` değerini dışarı taşır. Branch sıralama seçili branch'i, aktif remote üzerindeki branch'leri, aktif/upstream bağlamını ve kalanları önceliklendirir; aynı öncelikte yerel branch'ler uzak branch'lerden önce gelir.
 - Komut paleti picker üzerinde `Picker::uniform_list` ile kurarsın. Sorgu eşleştirme, geçmiş gezinme ve secondary confirm davranışı [Çalışma Alanı → Komut Paleti](../calisma_alani/08-komut-paleti.md) bölümünde anlatılır.
 

@@ -92,8 +92,6 @@ div()
 
 ## Geometri Tipleri ve Birim Yönetimi
 
-`gpui` crate'i.
-
 ### Pixels, ScaledPixels ve DevicePixels
 
 GPUI üç farklı piksel birimi kullanır. Ekran ölçeği değiştiğinde hangi birimin hangi katmanda kullanıldığını bilmek birçok hatayı baştan önler:
@@ -291,8 +289,6 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 | `TransformationMatrix` | `rotation_scale`, `translation`, `unit`, `translate`, `rotate`, `scale`, `compose`, `apply` | Sahne primitive'lerine uygulanacak matris değeridir. |
 
 ## Renkler, Gradient ve Background
-
-`gpui` crate'i ve `colors`.
 
 ### Rgba ve Hsla
 

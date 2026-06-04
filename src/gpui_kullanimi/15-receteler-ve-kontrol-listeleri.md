@@ -297,9 +297,9 @@ Bu başlık altında rehber boyunca en çok sorulan dört konunun kısa özeti y
 
 **Platform farklarının soyutlanacağı yer.** Davranış pencere ile ilgiliyse GPUI `Platform` ve `PlatformWindow` katmanına bağlanır. Zed UI görünümüyle ilgiliyse `PlatformStyle::platform()` ve `platform_title_bar` bileşenlerini kullanırsın. Ayar farkı gerekiyorsa `settings_content` şeması ve `settings` dönüşümleri devreye girer.
 
-## Dosya Yoluna Göre Ne Nerede?
+## Kavram → Crate/Modül Eşlemesi
 
-Aşağıdaki liste, rehberde anlatılan kavramların kodda hangi dosyada bulunduğunu tek bakışta verir. Yeni bir bileşen yazarken benzer örneğin nerede olduğunu hızla bulmana yarar.
+Aşağıdaki liste, rehberde anlatılan kavramların hangi crate veya modülde yer aldığını tek bakışta verir. Yeni bir bileşen yazarken benzer örneğin nerede tanımlı olduğunu hızla bulmana yarar.
 
 - Pencere açma API'si: `open_window`
 - Pencere seçenekleri: `WindowOptions`

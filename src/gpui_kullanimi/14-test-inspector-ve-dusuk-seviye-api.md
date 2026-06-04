@@ -24,8 +24,6 @@ GPUI test yazımında izlediğin genel disiplinler şunlar:
 
 ![Test Ortamı Seçim Haritası](assets/test-ortami-secim.svg)
 
-`gpui` crate'i, `gpui` crate'i.
-
 `#[gpui::test]` makrosu bir `TestAppContext` sağlar. Görsel test için `add_window` bir `WindowHandle<V>` döndürür ve `VisualTestContext` ile sürersin. İsim benzerliğine dikkat: `VisualTestContext` test penceresini kendi içinde tutar; macOS `test-support` altındaki `VisualTestAppContext` ise window handle'ı açık argüman olarak alan ayrı bir bağlamdır.
 
 ```rust
@@ -105,8 +103,6 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
 ---
 
 ## Inspector ve Hata Ayıklama Yardımcıları
-
-`gpui` crate'i (feature: `inspector`).
 
 `gpui` crate'i `inspector` özelliği ile (veya `debug_assertions` açıkken) derlendiğinde dev tool entegrasyonu sağlar:
 
@@ -229,7 +225,7 @@ pub struct SerializedLocation {
 }
 ```
 
-- `TaskTiming` artık `spawned`, `start` ve `YieldTime(end)` değerlerini taşır. `poll_duration()` tek poll'un yield etmeden önce ne kadar sürdüğünü verir; runtime hesabı spawn zamanından end'e kadardır.
+- `TaskTiming` `spawned`, `start` ve `YieldTime(end)` değerlerini taşır. `poll_duration()` tek poll'un yield etmeden önce ne kadar sürdüğünü verir; runtime hesabı spawn zamanından end'e kadardır.
 - `ThreadTaskTimings` thread adı, `ThreadId`, tamamlanmış/canlı `TaskTiming` dizisi, `TaskStatistics` ve `total_pushed` değerini birlikte taşır.
 - `TaskStatistics` en uzun poll sürelerini ve en uzun runtime kayıtlarını beşli listeler halinde saklar. `ThreadTaskStatistics` bu istatistiğin thread bazlı resetlenebilir snapshot'ıdır.
 - `ActionStatistics` ve `ActionTiming`, action dispatch sırasında en uzun bloklayan action'ları izler. `take_action_stats()` bu global action istatistiğini alır ve tamamlanmış listeyi sıfırlar; canlı action bilgisi korunur.
@@ -622,7 +618,7 @@ Normal uygulama kodunda bu durum tiplerini çoğunlukla doğrudan tutmazsın; `d
 
 Element geri çağrılarında somut olay tipi çoğunlukla otomatik gelir: `.on_mouse_down(|olay, window, cx| ...)`, `.on_scroll_wheel(...)`, `.on_modifiers_changed(...)` gibi. Yapay test olayı veya platform girdi çevirimi yazarken `InputEvent::to_platform_input()` hattı önemlidir.
 
-**Modifiers deref aliasing (asimetrik).** Aşağıdaki dört olay açıkça `impl Deref for X { type Target = Modifiers; }` taşır (`gpui` crate'i, `:450`, `:502`, `:590`):
+**Modifiers deref aliasing (asimetrik).** Aşağıdaki dört olay açıkça `impl Deref for X { type Target = Modifiers; }` taşır (`gpui` crate'i):
 
 - `ModifiersChangedEvent`
 - `ScrollWheelEvent`

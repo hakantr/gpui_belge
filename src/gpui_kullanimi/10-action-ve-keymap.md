@@ -15,8 +15,6 @@ Bir eylemin tetiklenmesi için iki şeye ihtiyacın var: Eylemin ağaçta dinlen
 
 ## Action Sistemi Derinlemesine
 
-`gpui` crate'i, `key_dispatch`.
-
 Action tanımını iki ana yolla yaparsın. Hangi yolu seçeceğin, action'ın veri taşıyıp taşımamasına bağlıdır.
 
 **Veri taşımayan action.** Yalnız adı olan action'lar için makro tek satırda iş görür:

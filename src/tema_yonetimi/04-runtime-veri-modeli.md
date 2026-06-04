@@ -67,7 +67,7 @@ impl Theme {
 | Alan | Tip | Niye böyle |
 | ------ | ----- | ------------ |
 | `id` | `String` | Unique tema id'sidir; runtime'da `uuid::Uuid::new_v4()` ile üretilir. Map key olarak kullanılmadığı için hash ihtiyacı yoktur. |
-| `name` | `SharedString` | İnsan-okunabilir ad (örn. "Kvs Default Dark"). Registry map key'i olarak çok klonlandığından `Arc<str>` ucuzluğu burada kazanç sağlar (). |
+| `name` | `SharedString` | İnsan-okunabilir ad (örn. "Kvs Default Dark"). Registry map key'i olarak çok klonlandığından `Arc<str>` ucuzluğu burada kazanç sağlar. |
 | `appearance` | `Appearance` | `Light` veya `Dark`. UI tarafının sistem moduna göre tema seçmesini mümkün kılar. |
 | `styles` | `ThemeStyles` | Tüm renk grupları. Ayrı bir struct olarak tutulmasının nedeni: `Theme` klonlanırken `styles`'ın boyutunu (~150 `Hsla` + diğerleri) tek alan altında bir arada tutmaktır. |
 
@@ -143,7 +143,7 @@ pub struct ThemeColors {
 }
 ```
 
-`#[derive(Refineable)]` attribute'u sayesinde `ThemeColorsRefinement` ikizi otomatik olarak üretilir ().
+`#[derive(Refineable)]` attribute'u sayesinde `ThemeColorsRefinement` ikizi otomatik olarak üretilir.
 
 ### Alan grupları (semantik kategoriler)
 
@@ -1259,7 +1259,7 @@ impl SyntaxTheme {
 
 **Yapı için önemli notlar:**
 
-- İki **private** alan bulunur: `highlights: Vec<HighlightStyle>` yalnızca stil vektörüdür, capture adı taşımaz. `capture_name_map: BTreeMap<String, usize>` ise capture adından indexe gider. Eski API'deki `Vec<(String, HighlightStyle)>` artık dış crate'lere açılmaz; tüketici `style_for_name`, `get` ve `highlight_id` üzerinden okur.
+- İki **private** alan bulunur: `highlights: Vec<HighlightStyle>` yalnızca stil vektörüdür, capture adı taşımaz. `capture_name_map: BTreeMap<String, usize>` ise capture adından indexe gider. Bu iki alan dış crate'lere açılmaz; tüketici `style_for_name`, `get` ve `highlight_id` üzerinden okur.
 - `new(...)` `Self` döndürür ve **`Arc::new` sarmalamaz** — `Arc` sözleşmesi caller tarafında kurulur (`Arc::new(SyntaxTheme::new(...))`).
 - `style_for_name` `BTreeMap` lookup'u yapar. "İlk eşleşme kazanır" gibi bir davranış yoktur; anahtar uniq tutulur. Aynı capture iki kez verilirse `new` çağrısı sırasında ikincisi haritada birincisinin üstüne yazar.
 - `highlight_id` prefix-eşleşmeli aramaya izin verir: `"string.escape"` capture'ı `"string"` highlight'ına düşer. Tree-sitter integration'da alt kapsama kuralının çalışma biçimi budur.

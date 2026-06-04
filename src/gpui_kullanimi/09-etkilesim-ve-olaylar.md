@@ -194,9 +194,8 @@ div()
 - `.can_drop(|payload: &dyn Any, window, cx| -> bool)` — bırakmanın kabul edilip edilmeyeceğine karar verir. Tip kontrolü için `downcast_ref::<T>()`'i kullanırsın.
 - `.on_drop::<T>(listener)` — bırakma tamamlandığında çalışır.
 - `.on_drag_move::<T>(listener)` — sürükleme süresince fare konumu bilgisi verir.
-- `cx.has_active_drag()` — uygulama genelinde aktif bir sürükleme olup olmadığını döner.
-- `cx.active_drag_cursor_style()` — aktif sürükleme için imleç üzerine yazma değerini verir.
-- `cx.stop_active_drag(window)` — aktif sürüklemeyi temizler, pencereyi yeniden çizim için işaretler ve gerçekten bir sürükleme varsa `true` döner. Escape veya iptal yollarında kullanırsın.
+- `cx.has_active_drag()` — o an uygulamada (herhangi bir element üzerinde) bir sürükleme sürüyor mu, `true`/`false` döner. Asıl kullanımı **davranışı sürükleme durumuna göre kapılamaktır**: çakışan bir etkileşimi durdurmak (ör. araya bir drag girince scrollbar sürüklemesini iptal etmek), süren bir drag varken ikinci bir drag başlatmamak ya da yalnızca sürükleme sırasında bırakma bölgelerini vurgulamak için bakarsın.
+- `cx.stop_active_drag(window)` — süren sürüklemeyi iptal eder: aktif drag varsa temizler, pencereyi yeniden çizime işaretler ve `true` döner; yoksa `false`. Tipik yeri `Cancel`/Escape akışıdır ("önce sürüklemeyi iptal et, yoksa sıradaki iptal davranışına geç"). İmleç stilini okuma/değiştirme aşağıda "İmleç" başlığındadır.
 
 **Harici sürükleme.** Dosya sisteminden sürükleyip bırakma akışı için `FileDropEvent` ve `ExternalPaths` tipleri kullanılır. Platform `FileDropEvent::Entered/Pending/Submit/Exited` üretir; `Window::dispatch_event` bu olayları dahili `active_drag` durumuna ve `ExternalPaths` yüküne çevirir. UI tarafında normal sürükle-bırak API'siyle yakalarsın:
 
@@ -256,8 +255,7 @@ Yakalama aktifken ilgili hitbox üzerinde durulmuş (`hovered`) sayılır. Yenid
 
 - `window.set_cursor_style(style, &hitbox)` — hitbox üzerinde durulmuşsa imleç stilini ayarlar.
 - `window.set_window_cursor_style(style)` — pencere genelindeki imleç durumunu ayarlar.
-- `cx.set_active_drag_cursor_style(style, window)` — aktif sürükleme yükü için imleç üzerine yazma.
-- `cx.active_drag_cursor_style()` — mevcut sürükleme imlecini okur.
+- `cx.set_active_drag_cursor_style(style, window)` / `cx.active_drag_cursor_style()` — süren bir sürüklemenin imlecini değiştirir / okur. Sürükleme imleci başta sürüklenen elementin kendi `.cursor(...)` stilinden gelir; sürükleme sürerken hedefe göre güncellersin: geçerli hedefte `CursorStyle::DragCopy`, geçersizde `CursorStyle::OperationNotAllowed` vererek "buraya bırakırsan ne olur" geri bildirimini verirsin. Drag aktif değilken `set_active_drag_cursor_style` `false` döner ve bir şey yapmaz.
 
 **Tuzaklar.** Hitbox ve imleç tarafında dikkat edeceğin noktalar:
 
@@ -266,8 +264,6 @@ Yakalama aktifken ilgili hitbox üzerinde durulmuş (`hovered`) sayılır. Yenid
 - İşaretçi yakalama serbest bırakılmadığında sonraki fare hareketlerinde yanlış hitbox üstte kalabilir.
 
 ## Tab Sırası ve Klavye Navigasyonu
-
-`gpui` crate'i, `window`.
 
 Tab navigasyonunu `FocusHandle` üzerindeki iki bayrak yardımıyla kontrol edersin; ikisini de fluent zincirde okursun:
 
