@@ -107,7 +107,7 @@ macOS'taki yerel sekmeleme için `set_tabbing_identifier(Some(...))` çağrısı
 - Sekme çubuğu dışında sol fare bırakma gerçekleşirse, `last_dragged_tab.take()` ile durum alınır ve iki şey arka arkaya çalışır: önce `SystemWindowTabController::move_tab_to_new_window(cx, tab.id)`, sonra platform tarafındaki `window.move_tab_to_new_window()` çağrısı.
 - `merge_all_windows` ise sürükleme yükü üzerinden veya sağ tık "Tüm Sekmeleri Göster" menüsünden tetiklenmez. Yalnızca `MergeAllWindows` eylem render işleyicisi, denetleyicideki birleştirme fonksiyonunu ve platform birleştirme çağrısını birlikte tetikler. Sağ tıktaki "Tüm Sekmeleri Göster" ise yalnız `window.toggle_window_tab_overview()` çağrısı yapar; birleştirme işlemi değildir.
 
-Bu farklar nedeniyle yerel sekme portunda sürükle-bırak davranışı yalnızca `DraggedWindowTab` alanlarını taşımakla çözülmez. Davranış aynı zamanda **olayın hangi hedefte gerçekleştiğine göre** birebir kurulmalıdır. "Bırakma nerede oldu?" sorusunun cevabına göre üç ayrı dal vardır ve bu dalların hepsi ayrı ayrı kodlanır.
+Bu farklar nedeniyle yerel sekme portunda sürükle-bırak davranışı yalnızca `DraggedWindowTab` alanlarını taşımakla çözülmez. Davranışı aynı zamanda **olayın hangi hedefte gerçekleştiğine göre** birebir kurman gerekir. "Bırakma nerede oldu?" sorusunun cevabına göre üç ayrı dal vardır ve bu dalların hepsi ayrı ayrı kodlanır.
 
 Sekme sürükleme yük tipi `DraggedWindowTab`:
 
