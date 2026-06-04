@@ -51,7 +51,7 @@ Davranış:
 - `RenderOnce`, `Toggleable` ve `ParentElement` implement eder.
 - `toggle_state(true)`, aktif tab renklerini ve border düzenini seçer.
 - `TabPosition` aktif tab çevresindeki border'ları belirler. `Middle(Ordering)` içindeki `Ordering`, ilgili tabın seçili taba göre solda mı yoksa sağda mı olduğunu anlatır; bu bilgi border'ın hangi tarafta görüneceğini etkiler.
-- `close_side(TabCloseSide::Start)` çağrısı, start ve end slot'ların görsel tarafını değiştirir. Workspace sekmelerinde kapatma butonunun sol ya da sağ tarafta görünmesi bu seçim üzerinden uygulanır.
+- `close_side(TabCloseSide::Start)` çağrısı, start ve end slot'ların görsel tarafını değiştirir. Workspace sekmelerinde kapatma butonunun sol ya da sağ tarafta görünmesi bu seçim üzerinden uygularsın.
 - Child içerik, `text_color(...)` atanmış bir `h_flex` içinde çizilir.
 
 Örnek:
@@ -103,7 +103,7 @@ impl EditorTablari {
 
 Zed içinden kullanım örnekleri:
 
-- `workspace` crate'i: editor/pane tab render'ı; close side, drag/drop, pinned tab ve sağ tık context menu davranışlarıyla birlikte kullanılır.
+- `workspace` crate'i: editor/pane tab render'ı; close side, drag/drop, pinned tab ve sağ tık context menu davranışlarıyla birlikte uygularsın.
 - Bileşen önizleme: `ui` crate'i.
 
 Dikkat edeceğin noktalar:
@@ -138,7 +138,7 @@ Temel API:
 
 - Constructor: `TabBar::new(id)`.
 - Builder'lar: `.track_scroll(&ScrollHandle)`, `.start_child(...)`, `.start_children(...)`, `.end_child(...)`, `.end_children(...)`.
-- Düşük seviye değiştiriciler: `.start_children_mut() -> &mut SmallVec<[AnyElement; 2]>` ve `.end_children_mut() -> &mut SmallVec<[AnyElement; 2]>`. Bunlar builder zinciri dışında, üst durum içinden start veya end slot listesinin elle değiştirilmesi gerektiğinde kullanılır. Normal kompozisyonda tercih edilmezler.
+- Düşük seviye değiştiriciler: `.start_children_mut() -> &mut SmallVec<[AnyElement; 2]>` ve `.end_children_mut() -> &mut SmallVec<[AnyElement; 2]>`. Bunlar builder zinciri dışında, üst durum içinden start veya end slot listesinin elle değiştirilmesi gerektiğinde kullanırsın. Normal kompozisyonda tercih edilmezler.
 - `ParentElement` implement eder; tablar `.child(...)` veya `.children(...)` ile orta scroll alanına eklersin.
 
 Davranış:

@@ -8,7 +8,7 @@ Hangi durumda hangisini seçeceğini belirlemek için şu ayrım iş görür:
 
 - Birbirinden bağımsız çoklu bir seçim varsa `Checkbox` doğru araçtır.
 - Bir ayarı aç/kapat anlamı taşıyan tek bir değer için `Switch` daha uygundur.
-- Label, açıklama ve switch birlikte düzenli bir tek satır ayar olarak görünecekse `SwitchField` bu üçlüyü tek seferde kurar.
+- Label, açıklama ve switch birlikte düzenli bir tek satır ayar olarak görünecekse `SwitchField` bu üçlüyü tek seferde kurarsın.
 - Tek satır metin girişi için ise `ui_input::InputField` kullanırsın.
 
 Bu kontrollerin hepsi için ortak kural şudur: görsel durum ile uygulama durumu birbirinden ayrı düşünülür. Checkbox, switch veya giriş alanı yalnızca o anki durumu ekrana yansıtır. Gerçek değer view durumunda veya uygulama modelinde tutulur ve işleyici içinde güncellenir. Bu ayrımı net tutmak, sahnenin tutarlı kalmasını sağlar.
@@ -216,7 +216,7 @@ impl Render for AsistanAyarlari {
 
 Dikkat edeceğin noktalar:
 
-- `SwitchField`, tam genişlikte bir ayar satırı davranışı kurar. Toolbar gibi dar alanlarda bu fazla yer kaplar; orada doğrudan `Switch` tercih edersin.
+- `SwitchField`, tam genişlikte bir ayar satırı davranışı kurarsın. Toolbar gibi dar alanlarda bu fazla yer kaplar; orada doğrudan `Switch` tercih edersin.
 - Tooltip yalnızca label varlığında görsel bir ikonla birlikte çizilir; label'sız kullanımda tooltip görünmez.
 
 Ortak `ToggleState` modeli:
@@ -384,7 +384,7 @@ impl ApiAnahtariFormu {
 Dikkat edeceğin noktalar:
 
 - `InputField` `RenderOnce` değildir; her render'da yeniden yaratmak yerine entity olarak saklanır ve view durumunda tutulur.
-- Metin değeri `field.read(cx).text(cx)` ile okunur. Değer değişimine tepki verilecekse yukarıdaki `subscribe` örneği izlenir ve dönen `Subscription` view alanında saklanır.
+- Metin değeri `field.read(cx).text(cx)` ile okunur. Değer değişimine tepki verilecekse yukarıdaki `subscribe` örneği izlenir ve dönen `Subscription` view alanında saklarsın.
 - `ERASED_EDITOR_FACTORY` kurulmadan `InputField::new` çağrılırsa panic oluşur; bu yüzden editor crate'inin init fonksiyonunun uygulama başlangıcında çalıştığından emin olman gerekir.
 - `label_min_width(...)` adında "label" ifadesi geçse de, kaynakta bu metod input kapsayıcısının `min_width` değerini ayarlar.
 

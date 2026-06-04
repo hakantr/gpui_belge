@@ -9,7 +9,7 @@ Hangi durumda hangisini seçeceğin için şu kısa ayrım yeterli olur:
 - İçerik standart label/icon düzeninden ayrılıyorsa `ButtonLike` daha esnek bir yüzey sunar.
 - Harici bir URL'i açan metin linki için `ButtonLink` vardır.
 - Clipboard'a kopyalama davranışı için `CopyButton` doğrudan kullanırsın.
-- Bir ana eylem ve onun yanında açılır seçenekler gerekiyorsa `SplitButton` bu birleşik yapıyı kurar.
+- Bir ana eylem ve onun yanında açılır seçenekler gerekiyorsa `SplitButton` bu birleşik yapıyı kurarsın.
 - Aynı grupta birbirini dışlayan seçimler için `ToggleButtonGroup` tercih edersin.
 
 ![Buton Ailesi Seçim Matrisi](assets/buton-secim-matrisi.svg)

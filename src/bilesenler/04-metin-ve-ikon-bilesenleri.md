@@ -502,7 +502,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Kullanacağın `IconName` değerinin `icons` crate'inde tanımlı olup olmadığını kontrol etmen gerekir; aksi halde derleme hatası alırsın. Uzak depo servisleri için `Bitbucket`, `Codeberg`, `Forgejo`, `Gitea`, `Gitlab`; kod bloğu sarım durumu için `TextWrap` ve `TextUnwrap` kullanılır.
+- Kullanacağın `IconName` değerinin `icons` crate'inde tanımlı olup olmadığını kontrol etmen gerekir; aksi halde derleme hatası alırsın. Uzak depo servisleri için `Bitbucket`, `Codeberg`, `Forgejo`, `Gitea`, `Gitlab`; kod bloğu sarım durumu için `TextWrap` ve `TextUnwrap` kullanırsın.
 - `IconSize::Custom(rems(...))` teknik olarak mümkün olsa da, tasarım sistemiyle tutarlılık açısından standart boyutları tercih etmen önerilir.
 - Harici raster path'lerinde SVG recolor davranışı beklememen gerekir; `from_path`, `icons/` dışındaki yolu image olarak işler ve tema renginden bağımsız olarak basar.
 

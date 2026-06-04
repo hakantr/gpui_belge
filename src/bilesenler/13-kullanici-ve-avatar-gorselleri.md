@@ -1,6 +1,6 @@
 # 13. Kullanıcı ve Avatar Görselleri
 
-Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini ekranda göstermek için kullanılır. Bu gösterim tek bir kişi olabilir ya da küçük, örtüşen bir grup halinde kurulabilir. Görsel kaynağı yüklenemezse her ikisi de yedek bir ikona döner. Ayrıca gösterge, border ve boyut gibi ayarlarla avatarın çevresine durum bilgisi ekleyebilirsin.
+Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini ekranda göstermek için kullanırsın. Bu gösterim tek bir kişi olabilir ya da küçük, örtüşen bir grup halinde kurulabilir. Görsel kaynağı yüklenemezse her ikisi de yedek bir ikona döner. Ayrıca gösterge, border ve boyut gibi ayarlarla avatarın çevresine durum bilgisi ekleyebilirsin.
 
 Bu bileşenlerde iki kuralı baştan netleştirmek faydalıdır:
 
@@ -50,7 +50,7 @@ Davranış:
 
 - Varsayılan avatar boyutu `1rem`'dir.
 - Görsel yüklenemediğinde `IconName::Person` ikonu ile bir yedek render edilir.
-- `border_color(...)` çağrısı avatar çevresinde `1px` bir border açar. Bu border, özellikle facepile gibi örtüşen görünümlerde avatarların arasında görsel bir boşluk yaratmak için kullanılır.
+- `border_color(...)` çağrısı avatar çevresinde `1px` bir border açar. Bu border, özellikle facepile gibi örtüşen görünümlerde avatarların arasında görsel bir boşluk yaratmak için kullanırsın.
 - Gösterge, avatar kapsayıcısının bir child'ı olarak render edilir; göstergenin konumu kendi elementinde absolute olarak ayarlanır.
 
 Örnek:

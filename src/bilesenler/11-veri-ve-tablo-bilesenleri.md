@@ -364,7 +364,7 @@ Dikkat edeceğin noktalar:
 
 - `.width(width)` aslında `ColumnWidthConfig::auto_with_table_width(width)` ifadesinin kısaltmasıdır. Resize gerekiyorsa `.width_config(...)` doğrudan kullanırsın.
 - `explicit(widths)` içinde `widths.len()` ile tablo kolon sayısının birbirine eşit olması gerekir.
-- `Resizable` için associated bir constructor yoktur; enum varyantı doğrudan `ColumnWidthConfig::Resizable(entity)` biçiminde kullanılır.
+- `Resizable` için associated bir constructor yoktur; enum varyantı doğrudan `ColumnWidthConfig::Resizable(entity)` biçiminde kullanırsın.
 - `Table::pin_cols(n)` yalnızca `ColumnWidthConfig::Resizable(entity)` ile anlamlıdır. `Auto`, `Explicit` ve `Redistributable` modlarında pinned split layout devreye girmez.
 - Pinned layout'ta pinned bölümün resize divider'ları yalnızca görsel çizgi olarak render edilir; sürükleme etkileşimi scrollable bölümün divider'larında kalır. Header hücresine çift tıklama ile kolon reset davranışı ise `HeaderResizeInfo` üzerinden çalışmaya devam eder.
 
@@ -590,7 +590,7 @@ Davranış:
 
 - `from_vec(...)` uzunluk eşleşmezse panic üretir.
 - `try_from_vec(...)`, uzunluk hatasını `Result::Err` olarak döndürür.
-- `Table::header(...)`, `Table::row(...)`, `.uniform_list(...)` ve `.variable_row_height_list(...)` public API'sinde `Vec<T>` kabul eder; `TableRow` dönüşümü içeride yapılır.
+- `Table::header(...)`, `Table::row(...)`, `.uniform_list(...)` ve `.variable_row_height_list(...)` public API'sinde `Vec<T>` kabul eder; `TableRow` dönüşümü içeride yaparsın.
 - `IntoTableRow` trait'i, `Vec<T>` için tek bir `.into_table_row(expected_length)` yöntemi sağlar; uzunluk eşleşmezse panic üretir. Kaynakta `Table` bunu içeride kullandığı için normal kullanımda import etmeye gerek yoktur. Düşük seviyeli yardımcılara inildiğinde ise `use ui::table_row::IntoTableRow as _;` ifadesiyle çağrılabilir. Doğrulanmış (`Result` döndüren) bir dönüşüm için ise doğrudan `TableRow::try_from_vec(data, expected_length)` kullanılır; `try_into_table_row` adlı bir trait yöntemi yoktur.
 
 Satır doğrulama API'leri:
@@ -647,7 +647,7 @@ Temel API:
 - `render_table_row(row_index, items, table_context, window, cx)`.
 - `HeaderResizeInfo::from_redistributable(&columns_state, cx)`.
 - `HeaderResizeInfo::from_resizable(&columns_state, cx)`.
-  - `resize_behavior: TableRow<TableResizeBehavior>` public alanı, header hücresinin resizable olup olmadığını okumak için kullanırsın. İlgili kolon durumu public bir alan değildir; reset ve durum güncelleme için `reset_column(...)` çağrılır.
+- `resize_behavior: TableRow<TableResizeBehavior>` public alanı, header hücresinin resizable olup olmadığını okumak için kullanırsın. İlgili kolon durumu public bir alan değildir; reset ve durum güncelleme için `reset_column(...)` çağırırsın.
 - `bind_redistributable_columns(container, columns_state)`.
 - `render_redistributable_columns_resize_handles(&columns_state, window, cx)`.
 
@@ -713,7 +713,7 @@ Dikkat edeceğin noktalar:
 - `bind_redistributable_columns(...)`, drag move sırasında preview width'i günceller ve drop sırasında commit eder.
 - `render_redistributable_columns_resize_handles(...)`, kolon durumundan divider'ları üretir; kapsayıcının `relative()` olması handle yerleşimini çok daha öngörülebilir hâle getirir.
 - `render_table_header(...)` içinde çift tıklama ile kolon reset davranışı `HeaderResizeInfo` üzerinden bağlanır.
-- Header ve row için aynı `TableRenderContext` genişlik modelinin kullanılması gerekir; aksi halde hücreler hizalanmaz.
+- Header ve row için aynı `TableRenderContext` genişlik modelini kullanman gerekir; aksi halde hücreler hizalanmaz.
 - Pinned kolonlu özel bir render akışı kuruluyorsa, `TableRenderContext.pinned_cols` ile `TableRenderContext.h_scroll_handle` birlikte ayarlanmalıdır. Normal `Table::pin_cols(...)` kullanımı bu iki alanı kendi içinde zaten doldurur. Scrollable satır ve header bölümleri `overflow_x_scroll()` ile aynı handle'ı takip eder; ayrıca resize sürükleme koordinatı bu yatay offset'e göre düzeltilir.
 
 ## Veri Tablosu Kompozisyon Örnekleri

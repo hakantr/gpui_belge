@@ -106,11 +106,11 @@ Temel API:
 - `ContextMenu::build(window, cx, |menu, window, cx| menu...)`.
 - `ContextMenu::build_persistent(window, cx, builder)` ise menünün açık kalmasını ve yeniden kurulabilmesini gerektiren durumlarda kullanırsın.
 - Yapı builder'ları: `.context(focus_handle)`, `.header(...)`, `.header_with_link(...)`, `.separator()`, `.label(...)`, `.entry(...)`, `.toggleable_entry(...)`, `.custom_row(...)`, `.custom_entry(...)`, `.custom_entry_with_docs(...)`, `.entry_with_end_slot(...)`, `.entry_with_end_slot_on_hover(...)`, `.selectable(bool)`, `.action(...)`, `.action_checked(...)`, `.action_checked_with_disabled(...)`, `.action_disabled_when(...)`, `.link(...)`, `.link_with_handler(...)`, `.submenu(...)`, `.submenu_with_icon(...)`, `.submenu_with_colored_icon(...)`, `.keep_open_on_confirm(bool)`, `.fixed_width(...)`, `.key_context(...)`, `.end_slot_action(action)`.
-- Dinamik item ekleme builder'ları: `.item(item: impl Into<ContextMenuItem>)` ve `.extend(items: impl IntoIterator<Item = impl Into<ContextMenuItem>>)` zincirleme kullanım için uygundur. `&mut self` üzerinden menüyü değiştiren `.push_item(item)` ise builder zinciri dışında menü içeriğini güncellemek için (örneğin bir olay geri çağrısı içinde) tercih edilir.
+- Dinamik item ekleme builder'ları: `.item(item: impl Into<ContextMenuItem>)` ve `.extend(items: impl IntoIterator<Item = impl Into<ContextMenuItem>>)` zincirleme kullanım için uygundur. `&mut self` üzerinden menüyü değiştiren `.push_item(item)` ise builder zinciri dışında menü içeriğini güncellemek için (örneğin bir olay geri çağrısı içinde) tercih edersin.
 - Programatik değiştiriciler: `.rebuild(window, cx)`, `build_persistent` ile açık kalan menünün içeriğini yeniden kurar; `.trigger_end_slot_handler(window, cx)` ise aktif girdinin end slot işleyicisini programatik olarak çalıştırır.
 - Action ve gezinme metodları: `.selected_index()`, `.confirm(...)`, `.secondary_confirm(...)`, `.cancel(...)`, `.end_slot(...)`, `.clear_selected()`, `.select_first(...)`, `.select_last(...)`, `.select_next(...)`, `.select_previous(...)`, `.select_submenu_child(...)`, `.select_submenu_parent(...)`, `.on_action_dispatch(...)`, `.on_blur_subscription(...)`. Bunlar büyük çoğunlukla keymap ve action bağlarından çağrılır; normal menü inşası sırasında builder zincirine karıştırılmaz.
 - Girdi builder'ları: `ContextMenuEntry::new(label).icon(...).toggleable(...)` zincirine ek olarak `.custom_icon_path(...)`, `.custom_icon_svg(...)`, `.icon_position(...)`, `.icon_size(...)`, `.icon_color(...)`, `.action(...)`, `.handler(...)`, `.secondary_handler(...)`, `.disabled(...)`, `.documentation_aside(...)` builder'ları vardır.
-- `ContextMenuItem` varyantları: `Separator`, `Header`, `HeaderWithLink`, `Label`, `Entry`, `CustomEntry`, `Submenu`. Builder zincirleri çoğu durumda bu enum'u doğrudan üretir; dinamik bir menü listesi saklanacaksa `ContextMenuItem` koleksiyonu da bu amaçla kullanılabilir.
+- `ContextMenuItem` varyantları: `Separator`, `Header`, `HeaderWithLink`, `Label`, `Entry`, `CustomEntry`, `Submenu`. Builder zincirleri çoğu durumda bu enum'u doğrudan üretir; dinamik bir menü listesi saklanacaksa `ContextMenuItem` koleksiyonu da bu amaçla kullanabilirsin.
 
 Davranış:
 
@@ -300,7 +300,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - `trigger_with_tooltip(...)`, menü açıkken tetikleyici tooltip'inin görünmesini engeller. Yalnız ikonlu tetikleyicilerde bu davranış genellikle istenir.
-- `with_handle(...)` kullanıldığında handle'ın view durumunda saklanması gerekir. Her render'da yeni bir handle oluşturulması, dışarıdan show ve hide kontrolünü işlemez hâle getirir.
+- `with_handle(...)` kullanıldığında handle'ı view durumunda saklaman gerekir. Her render'da yeni bir handle oluşturulması, dışarıdan show ve hide kontrolünü işlemez hâle getirir.
 - `anchor` menünün hangi köşesinin konumlanacağını belirler; `attach` ise tetikleyicinin hangi köşesine bağlanacağını ifade eder. İkisi birlikte popup'ın görsel olarak nereye yapışacağını yönetir.
 
 ## RightClickMenu
@@ -370,7 +370,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Tetikleyici closure'ı içinde gelen `is_menu_active` değeri, hover veya selected görseli için kullanılabilir. Bu değerin bir uygulama durumu olarak saklanmaması beklenir; çünkü zaten menü tarafından yönetilir.
+- Tetikleyici closure'ı içinde gelen `is_menu_active` değeri, hover veya selected görseli için kullanabilirsin. Bu değerin bir uygulama durumu olarak saklanmaması beklenir; çünkü zaten menü tarafından yönetilir.
 - Sağ tık menüsünün içinde sol tıkla çalışan özel kontroller varsa, olay yayılımı davranışını ve menu dismiss akışını test etmen gerekir; yoksa sürpriz davranışlar ortaya çıkabilir.
 
 ## Popover
@@ -463,7 +463,7 @@ Temel API:
 - Özel element: `Tooltip::element(...)`, `Tooltip::new_element(...)`.
 - Instance builder'ları: `Tooltip::new(title).meta(...).key_binding(...)`.
 - `tooltip_container(cx, |div, cx| ...)`: Zed tooltip yüzeyini özel içerikle yeniden kullanmak için kullanılan düşük seviyeli yardımcı.
-- `LinkPreview::new(url: &str, cx: &mut App) -> AnyView`: uzun bir URL'i 100 karakterlik parçalara bölüp, en fazla 500 karakterde keserek tooltip yüzeyi içinde yumuşak satır kırma ile render eden basit bir URL önizleme view'ı. Dönen `AnyView`, doğrudan `Tooltip::new_element(...)` veya entity tabanlı tooltip slot'larına geçirilebilir. Bu yapı tek başına ağ çağrısı, başlık çekme veya metadata akışı içermez; bunlar üst tooltip view'ında elle uygulanır.
+- `LinkPreview::new(url: &str, cx: &mut App) -> AnyView`: uzun bir URL'i 100 karakterlik parçalara bölüp, en fazla 500 karakterde keserek tooltip yüzeyi içinde yumuşak satır kırma ile render eden basit bir URL önizleme view'ı. Dönen `AnyView`, doğrudan `Tooltip::new_element(...)` veya entity tabanlı tooltip slot'larına geçirilebilir. Bu yapı tek başına ağ çağrısı, başlık çekme veya metadata akışı içermez; bunlar üst tooltip view'ında elle uygularsın.
 
 Davranış:
 

@@ -1,6 +1,6 @@
 # 9. Liste ve Tree Bileşenleri
 
-Liste bileşenleri, aynı görsel ritme sahip satırları, bölüm başlıklarını, boş durumları ve hiyerarşik gezinme yüzeylerini kurmak için kullanırsın. Küçük ve orta ölçekli statik listelerde `List` ile `ListItem` çoğu zaman yeterlidir. Satır sayısı büyüdüğünde ve satır yüksekliği aynı kaldığında ise GPUI tarafının `uniform_list(...)` çağrısı daha doğru olur. `StickyItems` ve `IndentGuides` gibi yardımcılar da bu düşük seviyeli listenin üstüne süsleme olarak eklenir.
+Liste bileşenleri, aynı görsel ritme sahip satırları, bölüm başlıklarını, boş durumları ve hiyerarşik gezinme yüzeylerini kurmak için kullanırsın. Küçük ve orta ölçekli statik listelerde `List` ile `ListItem` çoğu zaman yeterlidir. Satır sayısı büyüdüğünde ve satır yüksekliği aynı kaldığında ise GPUI tarafının `uniform_list(...)` çağrısı daha doğru olur. `StickyItems` ve `IndentGuides` gibi yardımcılar da bu düşük seviyeli listenin üstüne süsleme olarak eklersin.
 
 Hangi durumda hangisini seçeceğini şu ayrımla düşünebilirsin:
 
@@ -673,7 +673,7 @@ impl Render for BagimlilikListesi {
 }
 ```
 
-Sağ tık destekli bir satırda ise `ListItem::on_secondary_mouse_down` olayı, sağ tıklamayı yakalar ve istenirse `right_click_menu(...)` ile birlikte kullanılabilir. Aşağıdaki örnek yalnızca olayı tutmayı gösterir:
+Sağ tık destekli bir satırda ise `ListItem::on_secondary_mouse_down` olayı, sağ tıklamayı yakalar ve istenirse `right_click_menu(...)` ile birlikte kullanabilirsin. Aşağıdaki örnek yalnızca olayı tutmayı gösterir:
 
 ```rust
 use ui::prelude::*;

@@ -51,7 +51,7 @@ Ne zaman kullanmazsın:
 
 - Uzun açıklama, madde listesi veya ayrıntılı bir karar gerekiyorsa `Callout` daha uygun bir yüzeydir.
 - Kullanıcının devam etmeden önce karar vermesi zorunluysa `AlertModal` daha doğru bir araçtır.
-- Kısa süreli bir global bildirim yaşam döngüsü gerekiyorsa, uygulama bildirim altyapısı ile uygun bildirim view'ı birlikte kullanılır.
+- Kısa süreli bir global bildirim yaşam döngüsü gerekiyorsa, uygulama bildirim altyapısı ile uygun bildirim view'ı birlikte kullanırsın.
 
 Temel API:
 
@@ -466,7 +466,7 @@ Ne zaman kullanırsın:
 Ne zaman kullanmazsın:
 
 - Hata, retry veya inline bir durum mesajı için `Banner` ya da `Callout` daha uygundur.
-- Basit bir toast ihtiyacı için üst bildirim sisteminin daha küçük view'ı kullanılır.
+- Basit bir toast ihtiyacı için üst bildirim sisteminin daha küçük view'ı kullanırsın.
 - Kullanıcının devam etmeden karar vermesi gerekiyorsa `AlertModal` daha doğru bir yüzeydir.
 
 Temel API:
@@ -488,7 +488,7 @@ Davranış:
 - Varsayılan primary label `"Try Now"`, secondary label ise `"Learn More"` olarak gelir.
 - Click işleyicileri boş bir default closure ile gelir; gerçek davranışın bağlanması üst view'in dismiss veya navigation geri çağrıları üzerinden olur.
 - Root element `occlude()`, `relative()`, `w_full()` ve `elevation_3(cx)` kullanır.
-- Sağ üstte bir close icon button render edilir; dismiss yaşam döngüsü `.dismiss_on_click(...)` geri çağrısına bırakılır.
+- Sağ üstte bir close icon button render edilir; dismiss yaşam döngüsü `.dismiss_on_click(...)` geri çağrısına bırakırsın.
 
 Örnek:
 
