@@ -484,12 +484,13 @@ impl Global for GlobalThemeRegistry {}
 
 `Arc<ThemeRegistry>` tipini doğrudan global yapmak yerine onu bir **newtype'a sarmak** iyi bir pratiktir. Çünkü `Arc<ThemeRegistry>` başka bir yerde başka bir amaçla da global yapılabilir. Global anahtarı `GlobalThemeRegistry` gibi ayrı bir tip olduğunda bu çakışma baştan önlenir.
 
-**Global yönetimi metotları** (`set_global`/`update_global` `BorrowAppContext`'te; `has_global`/`try_global`/`global` ise `App` üzerinde inherent metottur):
+**Global yönetimi metotları** (`set_global`/`update_global`/`update_default_global` `BorrowAppContext`'te; `has_global`/`try_global`/`global` ise `App` üzerinde inherent metottur):
 
 | Metot | Davranış | Yoksa |
 | -------- | ---------- | ------- |
 | `cx.set_global(g)` | Kurar veya üzerine yazar | OK |
-| `cx.update_global::<G, _>(\ | g, cx\ | ...)` | Değiştirir | **Panic** |
+| `cx.update_global::<G, _>(\|g, cx\| ...)` | Değiştirir | **Panic** |
+| `cx.update_default_global::<G, _>(\|g, cx\| ...)` | Değiştirir | Default ile kurar |
 | `cx.has_global::<G>()` | Kontrol | `false` |
 | `cx.try_global::<G>()` | Okuma | `None` |
 | `cx.global::<G>()` | Okuma | **Panic** |

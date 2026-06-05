@@ -56,7 +56,7 @@ Bu davranışlar nedeniyle `PlatformTitleBar::effective_button_layout(...)` ve `
 
 ## 10. Uygulama katmanına önerilen model
 
-Üst bar davranışını merkezi yönetmek için aşağıdaki trait sözleşmesi yeterlidir. Bu sözleşme, platform kabuğunun uygulamayla konuşacağı en küçük yüzeyi tanımlar:
+Üst bar davranışını merkezi yönetmek için aşağıdaki gibi bir trait sözleşmesi önerilir. Bu trait bir port kurgusudur; Zed'de `TitleBarController` adında bir trait yoktur. Zed'de `PlatformTitleBar` uygulama durumuna doğrudan bağlanır: kapatma için sabit `workspace::CloseWindow` eylemini kullanır, yan panel durumunu `WeakEntity<MultiWorkspace>` üzerinden okur ve buton yerleşimini `App::button_layout()` ile alır. Port tarafında bu doğrudan bağları tek bir trait ardına toplaman, platform kabuğunun uygulamayla konuşacağı en küçük yüzeyi tek yerde tutmanı sağlar:
 
 ```rust
 trait TitleBarController {
@@ -67,6 +67,8 @@ trait TitleBarController {
     fn sistem_pencere_sekmeleri_kullanilsin_mi(&self, cx: &App) -> bool;
 }
 ```
+
+Koddaki `ShellSidebarState` de port kurgusudur; Zed'de bu adda bir tip bulunmaz. Gerçek karşılığı `workspace::SidebarRenderState`'tir; `open: bool` ve `side: SidebarSide` alanlarını taşır ve `MultiWorkspace::sidebar_render_state(cx)` ile üretilir. Buna karşılık `WindowButtonLayout` port kurgusu değil, doğrudan `gpui` tipidir ve `App::button_layout()` ile alınır.
 
 Bu sözleşme sayesinde platform titlebar, render anında uygulama durumuna şu beş soruyu sorar:
 

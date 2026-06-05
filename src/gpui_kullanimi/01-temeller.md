@@ -8,7 +8,7 @@ GPUI, birbirinin üzerine kurulan üç katmandan oluşur. Her katman bir alttaki
 
 ![GPUI Katman Mimarisi](assets/mimari.svg)
 
-1. **Platform katmanı.** İşletim sistemine doğrudan dokunan kısımdır. GPUI macOS, Windows, Linux, web ve test ortamlarını aynı arayüzün arkasına gizler. Uygulama kodun "pencere aç", "girdi al", "ekrana çiz" gibi istekleri ortak bir sözleşme ile anlatır. Bu sözleşmeyi `Platform` ve `PlatformWindow` trait'leri taşır. Pencere oluşturma, ekran listesi, pano (`clipboard`), sürükle-bırak, sistem zili ve dosya seçici gibi platforma özgü yetenekler bu iki trait üzerinden açılır. Her platform için ayrı bir uygulama (`implementation`) yazılır; ama üstteki uygulama kodu tek bir API ile konuşur.
+1. **Platform katmanı.** İşletim sistemine doğrudan dokunan kısımdır. GPUI macOS, Windows, Linux, web ve test ortamlarını aynı arayüzün arkasına gizler. Uygulama kodun "pencere aç", "girdi al", "ekrana çiz" gibi istekleri ortak bir sözleşme ile anlatır. Bu sözleşmeyi `Platform` ve `PlatformWindow` trait'leri taşır. Pencere oluşturma, ekran listesi, pano (`clipboard`), sürükle-bırak, sistem zili ve dosya seçici gibi platforma özgü yetenekler bu iki trait üzerinden açılır. Bu trait'lerin macOS, Windows, Linux, web ve test arka uçlarını GPUI/Zed tarafındaki platform crate'leri uygular; senin uygulama kodun normalde aynı `App`, `Window` ve element API'siyle konuşur. Böylece uygulamanı her platform için ayrı bir uygulama katmanı yazarak değil, ortak GPUI yüzeyini kullanarak geliştirirsin.
 2. **Uygulama/durum katmanı.** Uygulamanın yaşam döngüsü ve bellekteki tüm durum burada yaşar. `Application` süreç başlangıcını ve olay döngüsünü (`event loop`) yönetir. `App` uygulama genelindeki duruma erişilen ana kapıdır. `Context<T>`, belirli bir varlık güncellenirken `App`'in üstüne eklenen daha geniş bir bağlamdır. `Entity<T>` ve `WeakEntity<T>` ise `heap`'te (dinamik bellekte) tutulan durum kutularına güçlü ve zayıf erişim sağlar. `Task` arka plan işlerini temsil eder; `Subscription` ise olay dinleme aboneliklerini. İkisi de değer elden çıktığında kaydı otomatik temizleyen sahiplik araçlarıdır. `Global` uygulama açık kaldığı sürece tek kopya kalması gereken kaynaklar içindir. Olay sistemi de varlıklar arasında tipli mesajlaşmayı kurar.
 3. **Render/element katmanı.** Ekrandaki ağacı üretip çizen kısımdır. `Render` trait'i, kendi verisini taşıyan entity'lerin her ekran karesinde yeni bir element ağacı üretmesini sağlar. `RenderOnce` ve `IntoElement` ise yeniden kullanılabilir, kendi kalıcı verisini taşımayan bileşenleri tanımlar. `Element` trait'i yerleşim ile çizim sözleşmesinin kendisidir. `div`, `canvas`, `list`, `uniform_list`, `img`, `svg`, `anchored` ve `surface` (yalnız macOS) bu trait'in hazır uygulamalarıdır. Üstüne `Styled` ve `InteractiveElement` zincirleri eklenir. Flex/grid stil zinciri, renkler, tıklama, sürükleme, klavye odağı ve scroll davranışı bu zincirler üzerinden çalışır.
 
@@ -20,9 +20,14 @@ Zed bu üç katmanın üstüne kendi tasarım sistemini koyar. Bunlar GPUI'nin p
   use ui::prelude::*; // Zed UI + GPUI çekirdek trait'leri
   ```
 - `platform_title_bar` — platforma göre pencere kontrol butonlarını ve başlık çubuğu davranışını çizer. Linux ve Windows tarafında istemci tarafı süslemesi (`client-side decoration`) gerektiğinde başlık çubuğunu da bu paket üretir.
+
+  ![platform_title_bar katmanı](assets/platform-titlebar-katmani.svg)
+
 - `workspace` — ana çalışma alanını, istemci tarafı süslemesi gölgesini, pencere köşelerindeki yeniden boyutlandırma bölgelerini ve pencere içeriğini tek bir bütün halinde birleştirir. Uygulamanın iskeleti, panellerin yerleşimi ve pencere kromu burada toplanır.
 
-Kısacası alttan yukarıya doğru sıralama şöyle: platform → durum → çizim. Zed bu temelin üstüne kendi UI bileşen setini ekler ve uygulamanın tanıdık görünümünü buradan kurar. İlerleyen bölümler önce bu üç katmanı açar; son bölümler ise Zed'in üst tabakasına döner.
+  ![workspace kabuk katmanı](assets/workspace-kabuk-katmani.svg)
+
+Kısacası alttan yukarıya doğru sıralama şöyle: platform → durum → çizim. Bu rehber önce bu üç GPUI katmanını açar; sonraki Zed UI, `platform_title_bar` ve `workspace` bölümlerinde ise Zed'in bu katmanları nasıl kullandığını referans alıp aynı yaklaşımı kendi GPUI uygulamana nasıl uyarlayacağını gösterir.
 
 ## GPUI Kavram Sözlüğü: Temel Kavramlara Giriş
 
@@ -43,8 +48,8 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 
 | Kavram | Basit karşılık | Ne işe yarar? | İlk okurken dikkat |
 |---|---|---|---|
-| `Application` | Programın dış kabı | `main` tarafında platformu, asset kaynağını ve olay döngüsünü (`event loop`) kurar. Uygulama hazır olduğunda `run` geri çağrısı içinde sana `&mut App` verir. | Günlük UI kodunda çok sık görünmez; daha çok uygulamanın başlangıç ayarlarında karşına çıkar. |
-| `App` | Çalışan uygulamanın merkezi | Uygulama genelindeki verilere, pencerelere, entity listesine, kısayol tablosuna, async çalıştırıcılara, platform servislerine ve asset sistemine erişim sağlar. | Kodda çoğu zaman `cx` adıyla geçer. Her `cx` aynı şey değildir; bazen yalnızca `App`, bazen de bir entity'ye bağlı `Context<T>` olabilir. |
+| `Application` | Programın dış kabı | `main` tarafında platformu, asset kaynağını ve olay döngüsünü (`event loop`) kurar. Uygulama hazır olduğunda `run` geri çağrısı içinde sana `&mut App` verir. | Genellikle uygulama başlangıcında bir kez tanımlarsın. Sonraki ekran, pencere ve özellikleri yeni bir `Application` kurarak değil, çalışan `App`, `Window` ve `Entity` yüzeyleriyle geliştirirsin. |
+| `App` | Çalışan uygulamanın merkezi | Uygulama genelindeki verilere, pencerelere, entity listesine, kısayol tablosuna, async çalıştırıcılara, platform servislerine ve asset sistemine erişim sağlar. | `cx` adı bir zorunluluk değil, GPUI/Zed kodlarında bağlam değişkeni için yaygın kullanılan bir isimlendirme tercihidir. Aynı ad farklı bağlamlarda farklı tipi gösterebilir: bazen yalnızca `App`, bazen de bir entity'ye bağlı `Context<T>` olur. |
 | `Global` | Her yerden erişilen ortak veri | Tema, ayarlar, uygulama oturumu veya tüm pencerelerin paylaşması gereken servisler gibi uygulama açık kaldığı sürece tek kopya durması gereken veriler için kullanırsın. | Sadece tek bir panelin kullandığı arama metni, seçili satır, açık/kapalı durumu gibi bilgileri burada tutmazsın; bunları o paneli yöneten Rust struct'ının alanlarında tutarsın. Bu struct genellikle `Entity<T>` içinde yaşar. |
 | `Entity<T>` | Tipli, kalıcı veri kaydı | `T` değerini GPUI'nin entity listesinde tutar. Okuma ve güncellemeyi `varlik.read(cx)` ve `varlik.update(cx, ...)` üzerinden yaparsın. | `Entity<T>` ekrandaki kutu veya buton değildir; ekrana ne çizileceğini belirleyen veriyi tutar. |
 | `WeakEntity<T>` | Entity'yi hayatta tutmayan referans | Async işler, abonelikler veya iki nesnenin birbirini işaret ettiği durumlarda entity'ye geri dönmek için kullanırsın; ama entity'yi tek başına canlı tutmaz. | `upgrade` veya `update` başarısız olabilir; çünkü kullanıcı ilgili pencereyi kapatmış ve entity artık silinmiş olabilir. |
@@ -64,7 +69,7 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 | `Hitbox` | Mouse ile test edilen alan | Prepaint aşamasında kaydedilen dikdörtgen veya bölge üzerinden hover, tıklama, sürükleme gibi davranışların hedefini belirler. | Görsel olarak çizilmiş olmak tek başına tıklanabilir olmak demek değildir; hitbox gerekir. |
 | `ScrollHandle` | Scroll konumunu tutan referans | Bir scroll alanının konumunu ve scroll davranışını ekran kareleri arasında korur. | Scroll konumu kaybolmasın istiyorsan aynı alan için sabit bir element id'si kullanırsın ve `ScrollHandle`'ı uygun yerde saklarsın. |
 | `Action` | Kullanıcı komutu | Menü, kısayol veya komut paleti üzerinden gelen "kaydet", "sekmeyi kapat", "satırı seç" gibi niyeti temsil eder. | Action "şu tuşa basıldı" değil, "şu komut istendi" bilgisidir. |
-| `Keymap` | Kısayol eşleme tablosu | Tuş kombinasyonlarını aktif bağlama göre action'lara bağlar. | Aynı tuş editörde başka, terminalde başka komut çalıştırabilir. Bu yüzden klavye odağını ve `key_context`'i birlikte düşünürsün. |
+| `Keymap` | Kısayol eşleme tablosu | Tuş kombinasyonlarını aktif bağlama göre action'lara bağlar. | Bir tuşa basıldığında GPUI önce klavye odağının hangi element ağacında olduğunu, sonra o ağacın `key_context` etiketlerini dikkate alır. Bu yüzden aynı kısayol editör bağlamında "satırı sil", terminal bağlamında "terminal girdisini temizle" gibi farklı action'lara çözülebilir. |
 
 ### Render ve Element Modeli
 
@@ -88,14 +93,14 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 | `Pixels` | Mantıksal piksel | Boyut, konum, padding ve sınır (`bounds`) değerlerinde kullandığın ana ölçü birimidir. | Fiziksel ekran pikseliyle bire bir aynı olmak zorunda değildir; scale factor devrededir. |
 | `Hsla` / `Rgba` | Renk tipleri | UI renklerini HSLA veya RGBA uzayında taşır. | Zed tarafında çoğu renk doğrudan sabit değil, tema üzerinden gelir. |
 | `Background` | Dolgu tanımı | Düz renk, gradient veya pattern gibi arka plan dolgularını temsil eder. | Renk ile dolgu aynı şey değildir; dolgu daha geniş bir tariftir. |
-| `AssetSource` | Asset byte kaynağı | SVG, image, font veya paketlenmiş dosya gibi varlıkların nereden okunacağını uygulamaya söyler. | Başlangıçta `Application` üzerinde kurulur; elementler asset isterken bu kaynağa dayanır. |
+| `AssetSource` | Asset byte kaynağı | SVG, image, font veya paketlenmiş dosya gibi varlıkların nereden okunacağını uygulamaya söyler. | Başlangıçta `Application` üzerinde kurarsın; elementler asset isterken bu kaynağa dayanır. |
 
 ### Hangi Kavramı Ne Zaman Aramalıyım?
 
 - "Bu veri ekranda değişince görüntü de değişsin" diyorsan `Entity<T>`, `Context<T>` ve `cx.notify()` üçlüsüne bakarsın.
 - "Bu iş bir pencerenin klavye odağı, imleci, boyutu veya çizim aşaması ile ilgili" diyorsan `Window` tarafındasın.
 - "Bu şey ekranda nasıl görünüyor?" sorusu `Render`, `RenderOnce`, `IntoElement`, `Element` ve `Styled` zincirine çıkar.
-- "Kullanıcı bir komut verdi" diyorsan `Action`, `Keymap`, klavye odağı ve `key_context` birlikte değerlendirilir.
+- "Kullanıcı bir komut verdi" diyorsan `Action`, `Keymap`, klavye odağı ve `key_context`'i birlikte değerlendirirsin.
 - "Async iş bitince hâlâ aynı view var mı?" sorusu `Task<T>`, `WeakEntity<T>` ve `AsyncApp` ile ilgilidir.
 - "Bu veri bütün uygulamanın ortak bilgisi mi, yoksa yalnızca tek bir ekran parçasının bilgisi mi?" ayrımı `Global` ile `Entity<T>` arasındaki ana seçimdir.
 

@@ -13,7 +13,7 @@
 
 ## Platform Başlatma
 
-Bir GPUI uygulamasının ilk adımı platform seçimidir. Platform, işletim sistemiyle konuşan tarafı temsil eder. Pencere açmak, klavye okumak ve ekrana çizmek gibi işler bu seçilen platform üzerinden yürür. Standart başlangıç şu kalıbı izler:
+Bir GPUI uygulamasının ilk adımı platform arka ucunu başlatmaktır. Normal uygulama kodunda bu, platforma göre ayrı başlangıç dosyaları yazman anlamına gelmez; `gpui_platform::application()` çalıştığı işletim sistemine uygun GPUI platform implementasyonunu otomatik bağlar. Pencere açmak, klavye okumak ve ekrana çizmek gibi işler bu arka uç üzerinden yürürken sen `App`, `Window` ve element API'leriyle aynı kod yüzeyinde kalırsın. Standart başlangıç şu kalıbı izler:
 
 ```rust
 use gpui::{App, AppContext as _, Window, WindowOptions, div, prelude::*};
@@ -38,7 +38,7 @@ fn main() {
 }
 ```
 
-`application()` çağrısı çalıştığı işletim sistemine göre doğru platform uygulamasını otomatik döndürür. Zed'deki seçim kabaca şöyle:
+`application()` çağrısı çalıştığı işletim sistemine göre doğru platform arka ucunu otomatik döndürür. Zed'deki seçim kabaca şöyle:
 
 ![GPUI Platform Seçim Akışı](assets/platform-secim-akisi.svg)
 
