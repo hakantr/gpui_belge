@@ -118,12 +118,12 @@ let yerel = tema.players().local().cursor;
 
 Bu değerler bir tema paleti alanı değildir; kullanıcı temasından geçersiz kılınmaz. Bir uygulama Zed'e benzer pencere kromu çiziyorsa aynı sabitleri pencere dekorasyonu katmanında kullanır. Bileşenlerin hover, border veya surface renklerini belirlerken bu sabitlere bakılmaz; o işler `ThemeColors` alanlarından yürür.
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **`id` ile `name` arasında karışıklık**: `name` `SharedString` tipindedir ve registry'de anahtar olarak kullanırsın. `id` (uuid) yalnızca tema-içi tanımlama amacıyla tutulur; ikisinin birbirinin yerine konulması registry akışını bozar.
 2. **`styles` alanını `pub` yapmak**: Bu, dış sözleşmeyi doğrudan iç yapıya bağlar. Bu rehberin kararı `pub(crate)` yönündedir. Tüketicinin tek okuma yolu erişim metotlarıdır (`theme.colors()`, `theme.status()` vb.).
 3. **`appearance` çalışma zamanında değişmez**: Bir tema *Light* olarak yüklendi diye çalışma zamanında Dark olarak yeniden işlenmez. Tema değişimi için `GlobalTheme::update_theme` çağrısı yapılarak yeni bir `Arc<Theme>` aktive edilmelidir.
-4. **`SystemColors::default()` ile doldurmanın yeterliliği**: Tema yazarı sistem renklerini özelleştirmek istemiyorsa `Default::default()` yeterlidir. Bazı geliştiriciler bu alanı atlayıp `unsafe zeroed` ile karıştırıp yapıyı görünmez hale getirme yoluna gider; bu yaklaşım sonradan zor takip edilen hatalara yol açar.
+4. **`SystemColors::default()` ile doldurmanın yeterliliği**: Tema yazarı sistem renklerini özelleştirmek istemiyorsa `Default::default()` yeterlidir. Bu alanı atlayıp `unsafe zeroed` ile doldurmak yapıyı görünmez hale getirebilir ve sonradan zor takip edilen sorunlara yol açar.
 
 ---
 
@@ -302,9 +302,9 @@ Sonuçta eksik alanlar tabandan gelir; kullanıcının verdiği alanlar tabanın
 | `ThemeColorsRefinement` | `ThemeColors` alanlarının `Option<Hsla>` karşılıkları | Kullanıcı temasında verilen UI renklerini taşır; `None` alanlar tabandan kalır. |
 | `StatusColorsRefinement` | `StatusColors` alanlarının `Option<Hsla>` karşılıkları | Durum ön plan/arka plan/kenarlık geçersiz kılmalarını taşır; arka plan türetme `apply_status_color_defaults` ile yapılır. |
 
-### Tuzaklar
+### Dikkat Noktaları
 
-1. **Sıra önemlidir (sözleşme açısından değil, okunabilirlik açısından)**: Zed dosyasındaki sıralamanın korunması, yeni alanların yerinin anlaşılmasını kolaylaştırır. Alfabetik sıralama ise yanlış bir tercih olur ve ileride parite kontrolünü zorlaştırır.
+1. **Sıra önemlidir (sözleşme açısından değil, okunabilirlik açısından)**: Zed dosyasındaki sıralamanın korunması, yeni alanların yerinin anlaşılmasını kolaylaştırır. Alfabetik sıralama ise ileride parite kontrolünü zorlaştıran bir tercih olur.
 2. **Grup yorumlarını silmek**: `// Kenarlıklar`, `// Yüzeyler` gibi semantik yorumlar grup sınırını gösterir; yeni alan grupları eklenirken bu yorumlar referans noktası olarak iş görür.
 3. **Yeni grup eklendiğinde ilgili bölüm tablosunu güncellememek**: Yeni bir semantik grup eklendiyse rehberin bu bölümündeki tabloya satır eklemen gerekir; aksi halde dokümantasyon kodun gerisinde kalır.
 4. **Editor / debugger / vcs alanlarını dışlamak**: "Henüz editor yok" geçerli bir dışlama sebebi olarak kabul edilmez. Tüm alanlar eklenir, UI'da okunması sonraya bırakılabilir.
@@ -476,7 +476,7 @@ fn tema_renk_sayisi_zed_referansiyla_eslesir() {
 }
 ```
 
-Bu test tek başına yeterli değildir. `ThemeColorField` etiketlerinin tamamı gerçek bir `ThemeColors` alanına denk gelmelidir. Dışarıda kalan 32 alanın da yukarıdaki listeyle birebir eşleşmesi beklenir. Aksi halde yeni eklenen bir alan sessizce yansıtma dışında kalabilir ya da yanlışlıkla yansıtmaya eklenip Zed paritesi bozulabilir.
+Bu test tek başına yeterli değildir. `ThemeColorField` etiketlerinin tamamı gerçek bir `ThemeColors` alanına denk gelmelidir. Dışarıda kalan 32 alanın da yukarıdaki listeyle birebir eşleşmesi beklenir. Aksi halde yeni eklenen bir alan sessizce yansıtma dışında kalabilir ya da istemeden yansıtmaya eklenip Zed paritesi bozulabilir.
 
 ```rust
 // Yansıtma karşılaştırması
@@ -647,9 +647,9 @@ impl Theme {
 
 **Sözleşme sınırı:** `DiagnosticColors` alanları hedeflenen Zed diagnostic önem derecesi modelini izler. Bu model güncellendiğinde `kvs_tema` çalışma zamanı tipi de aynı çalışma kapsamında güncellenir; iki farklı önem derecesi setini aynı anda taşıyan ayrı bir katman kurulmaz.
 
-### Tuzaklar
+### Dikkat Noktaları
 
-1. **Türetme kuralının atlanması**: Kullanıcı yalnızca `error` rengini verdiyse ve `apply_status_color_defaults` çağrılmadıysa, `error_background` tabandan kalır. Sonuç olarak kullanıcı temasının ana rengi var ama arka plan tabanın yarı saydam mavisidir; UI dağınık görünür.
+1. **Türetme kuralının uygulanması**: Kullanıcı yalnızca `error` rengini verdiyse ve `apply_status_color_defaults` çağrılmadıysa, `error_background` tabandan kalır. Sonuç olarak kullanıcı temasının ana rengi var ama arka plan tabanın yarı saydam mavisidir; UI dağınık görünür.
 2. **14 status'un tamamını dahil etmek**: Tema yazarı yalnızca `error` ve `warning` kullanıyor olsa bile, struct'ta `predictive`, `unreachable`, `renamed` vb. **bulunmak zorundadır**. UI'da okunmayan alanın maliyeti sıfırdır.
 3. **`_background` ve `_border` farklı türetilebilir**: Arka plan için %25 alpha makul bir tercihtir; kenarlık için %50 alpha çoğu zaman daha doğal durur. Mevcut yardımcı fonksiyon yalnızca `_background` için tanımlıdır; `_border` için ayrı bir türetme istendiğinde ek bir fonksiyonun yazılması yerinde olur.
 4. **Yeni status tipi**: Zed sözleşmesindeki her status tipi ön plan/arka plan/kenarlık üçlüsüyle temsil edilir; yalnız ön plan türetme gerektiren senaryolar `apply_status_color_defaults` içinde toplanır.
@@ -692,46 +692,22 @@ impl Default for PlayerColors {
 
 `PlayerColors(Vec<PlayerColor>)` sıralı bir listedir. **İndeks 0 yerel kullanıcıya ayrılır**. Sonraki indeksler katılımcı slotlarıdır.
 
-**Zed kaynak sözleşmesinin tüm metotları** (`theme` crate'i):
+**Zed kaynak sözleşmesinin metot özeti** (`theme` crate'i):
 
 ```rust
 impl PlayerColors {
     pub fn dark() -> Self { /* 8 player slot */ }
     pub fn light() -> Self { /* 8 player slot */ }
-
-    /// İlk slot — yerel kullanıcı. Liste boşsa panic eder.
-    pub fn local(&self) -> PlayerColor {
-        *self.0.first()?
-    }
-
-    /// Agent slot — listenin son elemanı.
-    pub fn agent(&self) -> PlayerColor {
-        *self.0.last()?
-    }
-
-    /// Absent (yerelde olmayan) kullanıcı — agent ile aynı son slot.
-    pub fn absent(&self) -> PlayerColor {
-        *self.0.last()?
-    }
-
-    /// Read-only katılımcı — yerel renklerin grayscale projeksiyonu.
-    pub fn read_only(&self) -> PlayerColor {
-        let yerel = self.local();
-        PlayerColor {
-            cursor: yerel.cursor.grayscale(),
-            background: yerel.background.grayscale(),
-            selection: yerel.selection.grayscale(),
-        }
-    }
-
-    /// Belirli bir katılımcı indeksine renk atar. İndeks 0 yerel slot'u
-    /// atlar; modulo ile slot havuzu sarmal döner.
-    pub fn color_for_participant(&self, participant_index: u32) -> PlayerColor {
-        let len = self.0.len() - 1;
-        self.0[(participant_index as usize % len) + 1]
-    }
 }
 ```
+
+| Metot | Döndürdüğü slot | Liste sınırı |
+| --- | --- | --- |
+| `local()` | İlk slot | Liste boşsa panic eder |
+| `agent()` | Son slot | Liste boşsa panic eder |
+| `absent()` | Son slot | Liste boşsa panic eder |
+| `read_only()` | Yerel slot'un grayscale projeksiyonu | `local()` üzerinden aynı boş-liste sınırını taşır |
+| `color_for_participant(index)` | `(index % (len - 1)) + 1` | Liste tek elemanlıysa modulo-by-zero riski taşır |
 
 **Davranış kuralları:**
 
@@ -766,7 +742,7 @@ let katilimci = cx.theme().players().color_for_participant(3);
 div().bg(katilimci.selection)
 ```
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **Boş `PlayerColors`**: `Vec` boş olduğunda `local()` panic eder; yalnız tek bir slot varsa `color_for_participant` modulo-by-zero hatasına yol açar. Yedek temalarda **en az bir yerel slot**, katılımcı kullanılan senaryolarda ise **en az iki slot** bulundurulmalıdır:
    ```rust
@@ -775,7 +751,7 @@ div().bg(katilimci.selection)
 2. **`color_for_participant(0)` ile `local()` arasındaki fark**: Bu iki çağrı aynı sonucu vermez. `local()` indeks 0'a karşılık gelir; `color_for_participant(0)` ise indeks 1'i döndürür. Uzak katılımcı renkleri böylelikle yerel renkten ayrı tutulur.
 3. **Modulo yerine clamp düşünmek**: Modulo davranışı kasıtlıdır — slot sayısı yetmediğinde "sarmal" bir döngü oluşturur. Clamp seçildiğinde ise son slot, sınırı aşan tüm katılımcılarda aynı renk olur ve katılımcılar birbirinden ayırt edilemez hale gelir.
 4. **`cursor` alpha değeri**: Bu alan genellikle 1.0 (tam opak) verilir; `background` ve `selection` ise yarı saydam tutulur. Üçünün de tam opak olduğu durumda metin görünmez hale gelir.
-5. **Tema yazarının `players` alanını atlaması**: `players: []` verilmesi veya alanın hiç olmaması durumunda tabanın player paleti korunur. Bu davranış kasıtlıdır; her tema kendi player paletini sunmak zorunda değildir.
+5. **`players` alanı verilmediğinde**: `players: []` verilmesi veya alanın hiç olmaması durumunda tabanın player paleti korunur. Bu davranış kasıtlıdır; her tema kendi player paletini sunmak zorunda değildir.
 
 ---
 
@@ -882,8 +858,8 @@ impl Default for SystemColors {
         Self {
             transparent: hsla(0., 0., 0., 0.),
             mac_os_traffic_light_red: hsla(0.0139, 0.79, 0.65, 1.0),
-            mac_os_traffic_light_yellow: hsla(0.0986, 0.84, 0.62, 1.0),
-            mac_os_traffic_light_green: hsla(0.3194, 0.49, 0.55, 1.0),
+            mac_os_traffic_light_yellow: hsla(0.114, 0.88, 0.63, 1.0),
+            mac_os_traffic_light_green: hsla(0.313, 0.49, 0.55, 1.0),
         }
     }
 }
@@ -962,7 +938,7 @@ if aktif_tema.appearance.is_light() {
 }
 ```
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **`AccentColors` listesinin boş başlatılması**: Boş liste arama sırasında panic riski oluşturur. Yedek temalarda en az 4-6 vurgu rengi doldurmak, görsel çeşitliliği koruyan en pratik yaklaşımdır.
 2. **`SystemColors`'un sıfır bırakılması**: `Default::default()` kullanmak yeterlidir. Elle doldurma yolu seçildiğinde macOS traffic light renklerinin elle hesaplanması gerekir, bu da gereksiz bir bakım yükü getirir.
@@ -1392,19 +1368,19 @@ pub struct IconThemeContent {
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 pub struct DirectoryIconsContent {
-    pub collapsed: Option<String>,
-    pub expanded: Option<String>,
+    pub collapsed: Option<SharedString>,
+    pub expanded: Option<SharedString>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 pub struct ChevronIconsContent {
-    pub collapsed: Option<String>,
-    pub expanded: Option<String>,
+    pub collapsed: Option<SharedString>,
+    pub expanded: Option<SharedString>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct IconDefinitionContent {
-    pub path: String,
+    pub path: SharedString,
 }
 ```
 
@@ -1423,23 +1399,23 @@ impl IconTheme {
                 AppearanceContent::Dark => Appearance::Dark,
             },
             directory_icons: DirectoryIcons {
-                collapsed: icerik.directory_icons.collapsed.map(SharedString::from),
-                expanded: icerik.directory_icons.expanded.map(SharedString::from),
+                collapsed: icerik.directory_icons.collapsed,
+                expanded: icerik.directory_icons.expanded,
             },
             named_directory_icons: icerik.named_directory_icons.into_iter()
                 .map(|(anahtar, deger)| (anahtar, DirectoryIcons {
-                    collapsed: deger.collapsed.map(SharedString::from),
-                    expanded: deger.expanded.map(SharedString::from),
+                    collapsed: deger.collapsed,
+                    expanded: deger.expanded,
                 }))
                 .collect(),
             chevron_icons: ChevronIcons {
-                collapsed: icerik.chevron_icons.collapsed.map(SharedString::from),
-                expanded: icerik.chevron_icons.expanded.map(SharedString::from),
+                collapsed: icerik.chevron_icons.collapsed,
+                expanded: icerik.chevron_icons.expanded,
             },
             file_stems: icerik.file_stems,
             file_suffixes: icerik.file_suffixes,
             file_icons: icerik.file_icons.into_iter()
-                .map(|(anahtar, deger)| (anahtar, IconDefinition { path: deger.path.into() }))
+                .map(|(anahtar, deger)| (anahtar, IconDefinition { path: deger.path }))
                 .collect(),
         }
     }
@@ -1588,20 +1564,10 @@ pub fn gomulu_ikon_temalarini_yukle(
 
 **`kvs_tema::init` ile entegrasyon:**
 
-`init`, UI tema registry'sinin yanı sıra icon tema registry'sini de kurabilir. Bu adım opsiyoneldir; uygulama icon teması kullanmıyorsa atlanabilir:
+`init`, UI tema registry'sinin yanı sıra icon tema registry'sini de kurabilir. Zed'in düşük seviye `theme::init` akışı `SystemAppearance`, `ThemeRegistry`, `FontFamilyCache` ve başlangıç `GlobalTheme` değerini kurar; `theme_settings::init` ise bunun üstüne ayarlardan seçilen UI tema ve icon temasını yükleyip `GlobalTheme::update_theme` / `update_icon_theme` çağırır. Ayna tarafta aynı iki aşamayı tek bir yardımcıda sadeleştirebilirsin:
 
 ```rust
-pub fn init(cx: &mut App) -> anyhow::Result<()> {
-    SystemAppearance::init(cx);
-
-    // UI tema registry
-    let tema_kaydi = Arc::new(ThemeRegistry::new(Box::new(()) as Box<dyn AssetSource>));
-    tema_kaydi.insert_themes([
-        fallback::kvs_default_dark(),
-        fallback::kvs_default_light(),
-    ]);
-    // set_global Zed'de pub(crate); kvs_tema aynasında dışa açık yapmak
-    // mümkün, ama init yardımcısı kullanmak daha tutarlı.
+pub fn tema_runtime_baslat(cx: &mut App) -> anyhow::Result<()> {
     kvs_tema::init(LoadThemes::JustBase, cx);
 
     let tema_kaydi = ThemeRegistry::global(cx);
@@ -1610,17 +1576,19 @@ pub fn init(cx: &mut App) -> anyhow::Result<()> {
     let aktif_ikon_temasi = tema_kaydi
         .default_icon_theme()?;
 
-    cx.set_global(GlobalTheme::new(aktif_tema, aktif_ikon_temasi));
+    GlobalTheme::update_theme(cx, aktif_tema);
+    GlobalTheme::update_icon_theme(cx, aktif_ikon_temasi);
+    cx.refresh_windows();
     Ok(())
 }
 ```
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **`ThemeFamily.id` kullanılmıyorsa**: Registry yalnızca `Theme`'leri isim üzerinden indeksler. `ThemeFamily.id` çalışma zamanında neredeyse hiç sorgulanmaz; saklanması daha çok debug ve isimlendirme amacıyla anlamlıdır. Ekstra üst bilgi için ihtiyaç duyulmuyorsa atlanması da mümkündür, ancak Zed paritesini koruma adına tutulmasında fayda vardır.
 2. **`SyntaxTheme::new()`'nun `Arc` döndüğünü varsaymak**: Zed sözleşmesi `Self` döndürür; `Arc` sözleşmesi çağıran tarafta kurulur (`Arc::new(SyntaxTheme::new(...))`).
 3. **`SyntaxTheme.highlights` alanına dışarıdan erişmeye çalışmak**: Bu alan içtir; tüketici yalnızca `style_for_name`, `get`, `get_capture_name` ve `highlight_id` üzerinden okur. `IndexMap`/`HashMap` tartışması tarihseldir: gerçek implementasyon iki ayrı yapıyı bir arada kullanır (`Vec<HighlightStyle>` ve `BTreeMap<String, usize>`).
 4. **`IconTheme` ile `Theme` arasında bağ kurmak**: İki sözleşme ayrıdır. Birbirine bağlama denemesi (`Theme.icon: IconTheme` gibi) senkronizasyon disiplinini bozar; Zed ikisini ayrı tutar ve aynı yaklaşımın ayna tarafta da korunması beklenir.
-5. **`IconTheme` aynasının ertelenmesi**: "Henüz icon tema kullanmıyorum" geçerli bir dışlama sebebi olarak kabul edilmez. Struct'ın tanımlanması ve çalışma zamanı implementasyonunun `unimplemented!()` yer tutucusuyla sonraya bırakılması yeterli bir yaklaşımdır.
+5. **`IconTheme` aynasının ertelenmesi**: "Henüz icon tema kullanmıyorum" geçerli bir dışlama sebebi olarak kabul edilmez. Struct'ı tanımlayıp minimum çalışan varsayılan icon tema ile başlatman, arama ve registry sözleşmesini canlı tutar; ayrıntılı asset setini sonraki aşamada genişletebilirsin.
 
 ---

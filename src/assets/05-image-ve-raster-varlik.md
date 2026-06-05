@@ -367,7 +367,7 @@ Tek `img()` element'inin altında bu kadar farklı yolun durması, kullanıcı t
 
 ## 8. `RenderImage` ve `Image` ayrımı
 
-Boru hattının en sonunda iki ayrı türün bulunması ilk bakışta kafa karıştırıcıdır:
+Boru hattının en sonunda iki ayrı tür bulunur; pratikte ayrım şudur:
 
 - **`Image`** — Format tespit edilmiş ama henüz BGRA'ya decode edilmemiş ham image. `to_image_data(renderer)` çağrısı `RenderImage`'a çevirir.
 - **`RenderImage`** — BGRA buffer içeren, ImageId taşıyan ve GPU atlas'ında konumlandırılabilen son hal.

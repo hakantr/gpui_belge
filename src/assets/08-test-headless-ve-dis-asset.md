@@ -155,15 +155,15 @@ Bu üç test bağlamının ortak deseni şudur: varlık kaynağı `Arc<dyn Asset
 
 ## 4. `Assets::load_test_fonts` ile minimum font kümesi
 
-Test ortamında metin shaping yapılması gerekiyorsa ama tüm font'ları yüklemek istenmiyorsa, `Assets::load_test_fonts` çağrılır:
+Test ortamında metin shaping yapılması gerekiyorsa ama tüm font'ları yüklemek istenmiyorsa, kaynak kodda test helper'ı olarak `Assets::load_test_fonts` çağrılır. Zed'deki helper fail-fast test varsayımıyla yazılmıştır; aynı akışı uygulama kodunda hata yayarak şöyle ifade edersin:
 
 ```rust
-pub fn load_test_fonts(&self, cx: &App) {
-    cx.text_system()
-        .add_fonts(vec![
-            self.load("fonts/lilex/Lilex-Regular.ttf")??,
-        ])
-        ?
+pub fn load_test_fonts_sonuc(&self, cx: &App) -> anyhow::Result<()> {
+    let font = self
+        .load("fonts/lilex/Lilex-Regular.ttf")?
+        .with_context(|| "Lilex test fontu varlık paketinde bulunamadı")?;
+
+    cx.text_system().add_fonts(vec![font])
 }
 ```
 
@@ -173,7 +173,7 @@ Bu metot yalnızca `Lilex-Regular.ttf` dosyasını yükler. Üç gerekçe vardı
 - **Monospace garantisi:** Lilex monospace font'tur; karakter genişlikleri tutarlıdır. Bu, snapshot testlerinde piksel düzeyinde tutarlılık sağlamak için kritiktir.
 - **Lisans sürtünmesi yok:** Lilex OFL ile dağıtılır; test fixture'ları için kullanılırken ek lisans dikkati gerekmez.
 
-`load_test_fonts` `Application::with_assets(Assets)` çağrısından sonra çağırırsın. Çoğu test bağlamında bu adım manuel olarak eklenir, otomatik yapılmaz; testler font'a ihtiyaç duymadığı sürece atlanır.
+`load_test_fonts` `Application::with_assets(Assets)` çağrısından sonra çağırırsın. Çoğu test bağlamında bu adım manuel olarak eklenir, otomatik yapılmaz; font gerekmeyen testlerde bu yükleme adımı eklenmez.
 
 ---
 
@@ -286,11 +286,13 @@ Resource::Embedded(yol) => {
 
 Testlerde HTTP yolu önemli bir noktadır: hem `TestApp::build` hem `TestAppContext::build` `FakeHttpClient::with_404_response` kurarsın. Yani tüm HTTP görsel istekleri test ortamında 404 döndürür ve `Resource::Uri` varyantı kullanıldığında `BadStatus` hatası alırsın.
 
-Bu davranış kasıtlıdır: testlerin ağa bağımlı olmaması gerekir. Eğer testte HTTP üzerinden görsel yüklenmesi gerekiyorsa `FakeHttpClient`'ın özel bir yanıt veren varyantı kullanırsın:
+Bu davranış kasıtlıdır: testlerin ağa bağımlı olmaması gerekir. Eğer testte HTTP üzerinden görsel yüklenmesi gerekiyorsa `FakeHttpClient::create` ile özel yanıt döndüren bir handler kurarsın:
 
 ```rust
-let istemci = FakeHttpClient::with_response_provider(|istek| {
-    // ... özel yanıt
+let istemci = FakeHttpClient::create(|_istek| async move {
+    Ok(Response::builder()
+        .status(200)
+        .body(AsyncBody::from("<svg></svg>"))?)
 });
 ```
 
@@ -343,7 +345,7 @@ Dosya sisteminden varlık okumak güvenlik ve sağlamlık açısından dikkat is
 
 - **Symlink takibi.** `fs::read` symlink'leri takip eder; uygulamanın kabul ettiği dizinin dışına çıkan bir symlink hassas dosyalara erişim sağlayabilir. Kullanıcı sağladığı yolları canonicalize edip izinli kök altında doğrulamak gerekir.
 - **Yol enjeksiyonu.** Kullanıcı girdisi `Resource::Embedded` olarak yorumlanırsa `../../etc/passwd` gibi yollar varlık kaynağına sızabilir. `RustEmbed::get` yalnızca include kalıplarıyla kapsanan varlık yollarını döndürür ve debug dosya sistemi kolunda canonical path kontrolü yapar; bu yüzden risk pratikte düşüktür. Buna karşılık `Resource::Path` için aynı garanti yoktur; açık doğrulama gerekir.
-- **`is_uri` sezgisi.** `From<&str>` for `ImageSource` `is_uri(s)` ile URI ayrımı yapar; "C:\Users\..." gibi yollar `is_uri` true dönmediği için `Embedded` olarak yorumlanır. Bu yanlış yorumlama sessiz başarısızlığa yol açar (varlık bulunamaz). Yol olduğundan emin olunmayan girdi için `PathBuf::from(girdi).into()` ile dönüştürmek daha güvenlidir.
+- **`is_uri` sezgisi.** `From<&str>` for `ImageSource` `is_uri(s)` ile URI ayrımı yapar; "C:\Users\..." gibi yollar `is_uri` true dönmediği için `Embedded` olarak yorumlanır. Bu durumda varlık yolu bulunamayabilir. Girdinin dosya sistemi yolu olabileceği durumlarda `PathBuf::from(girdi).into()` ile dönüştürmek daha güvenlidir.
 
 Bu kurallar varlık hattının "hız+esneklik" tasarımının kullanıcı koduna yansıyan boş kısımlarıdır; trait davranışı izin verir, doğrulama uygulamaya kalır.
 
@@ -372,8 +374,23 @@ impl AssetSource for DosyaSistemiVarliklari {
     }
 
     fn list(&self, yol: &str) -> Result<Vec<SharedString>> {
-        // ... walkdir veya benzer yardımıyla özyinelemeli listeleme
-        todo!()
+        let baslangic = self.taban_dizin.join(yol);
+        let mut bekleyenler = vec![baslangic];
+        let mut yollar = Vec::new();
+
+        while let Some(dizin) = bekleyenler.pop() {
+            for kayit in std::fs::read_dir(&dizin)? {
+                let kayit = kayit?;
+                let tam_yol = kayit.path();
+                if tam_yol.is_dir() {
+                    bekleyenler.push(tam_yol);
+                } else if let Ok(goreli_yol) = tam_yol.strip_prefix(&self.taban_dizin) {
+                    yollar.push(goreli_yol.to_string_lossy().replace('\\', "/").into());
+                }
+            }
+        }
+
+        Ok(yollar)
     }
 }
 ```
@@ -384,7 +401,7 @@ Bu desen, üretim binary'sinin varlıkları gömülü taşırken testlerin veya 
 
 ## 10. Varlık hattının test edilebilirlik özeti
 
-`AssetSource` trait'inin esnek tasarımı dört farklı test/dış senaryoyu birden destekler:
+`AssetSource` trait'inin esnek tasarımı birden fazla test ve dış kaynak senaryosunu destekler:
 
 | Senaryo | AssetSource türü | Test bağlamı |
 |---------|------------------|--------------|

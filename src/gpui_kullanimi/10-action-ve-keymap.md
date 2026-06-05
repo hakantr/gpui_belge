@@ -81,7 +81,7 @@ Gerçek ayrıştırıcı yalnızca şu operatörleri tanır: `>`, `&&`, `||`, `=
 
 `.key_context("Duzenleyici")` çağrısı element ağacına bağlam ekler; alt öğeler üst bağlamları görür. Aynı kısayol birden fazla bağlamda eşleşirse en özgül (en derin) olan kazanır.
 
-**Tuzaklar.** Action tanımlama tarafında sık karşılaştığın hatalar:
+**Dikkat noktaları.** Action tanımlama tarafında hataya açık kullanımlar:
 
 - Action kayda alınmadan kısayol tanımladığında keymap ayrıştırmasında hata oluşur; `actions!` veya `#[derive(Action)]`'ı mutlaka ana modülde derlemiş olmalısın.
 - Bubble aşamasında dinleyici `cx.propagate()` çağırmadığı sürece üst öğedeki action dinleyicilerine ulaşılmaz (varsayılan davranış).
@@ -146,7 +146,7 @@ Action'ları çalışma zamanında sorgulamak ve tetiklemek için bazı yardımc
 - `window.dispatch_action(action.boxed_clone(), cx)` — pencereye özel sürüm.
 - `cx.build_action(name, json_value)` — keymap girdisinden çalışma zamanı action'ı üretir; şema yoksa `ActionBuildError` döner.
 
-#### Tuzaklar
+#### Dikkat Noktaları
 
 Action makrolarının kullanımındaki ince noktalar:
 
@@ -203,7 +203,7 @@ cx.bind_keys([
 - `NoAction` ve `Unbind` kısayollarını devre dışı bırakma için kullanırsın.
 - Yazdırılabilir girdi IME'ye gidecekse `InputHandler::prefers_ime_for_printable_keys`, kısayol yakalamasının önceliğini düşürebilir. `EntityInputHandler` kullanan view'larda bu değer, `ElementInputHandler` tarafından `accepts_text_input` sonucundan türetilir; ayrı bir karar istiyorsan ham `InputHandler` yazarsın.
 
-**Tuzaklar.** Bu sistemde sık karşılaştığın hatalar:
+**Dikkat noktaları.** Bu sistemde hataya açık kullanımlar:
 
 - `.key_context(...)` bulunmayan bir alt ağaçta bağlam yüklemli kısayol çalışmaz.
 - Dinleyici odak yolunda değilse action yayılımı oraya ulaşmaz; genel dinleyici için `cx.on_action(...)`'ı, yerel dinleyici için element üzerinde `.on_action(...)`'ı kullanırsın.
@@ -247,7 +247,7 @@ pub struct DispatchEventResult {
 3. Action dinleyicisi varsayılan davranışı korumak istiyorsa `cx.propagate()` ile yayılımı yeniden açar.
 4. Varsayılan odak aktarımı gibi GPUI içi bir davranışı bastıracaksan `window.prevent_default()` çağırırsın.
 
-**Tuzaklar.** Bu akışta dikkat edeceğin noktalar:
+**Dikkat noktaları.** Bu akışta dikkat edeceğin noktalar:
 
 - `capture_*` dinleyicileri odak yolu bilinmeden çalışır; pencere genelinde kısayol veya gözlemci için kullanırsın; ama veri değiştireceksen odaktaki elementi çalışma zamanında kontrol etmen gerekir.
 - Action yayılımı davranışı, fare veya tuş olaylarından ters çalışır. Yeni bir action dinleyicisinde refleksle `stop_propagation` yazmak, üst öğedeki action'ları engelleyebilir.
@@ -315,7 +315,7 @@ let yonlendirme_oncesi = cx.intercept_keystrokes(|olay, _window, cx| {
 
 **TabStopMap düşük seviyesi.** `TabStopMap::begin_group(...)`, `end_group(...)`, `replay(...)` ve `paint_index()` focus traversal ağacının frame içi işlemleridir. `TabStopMap::next(focused_id)` ve `TabStopMap::prev(focused_id)` mevcut focus'a göre bir sonraki veya önceki `FocusHandle` değerini döndürür; odak yoksa sıranın ilk veya son tab stop'una sarar. `TabStopOperation`, `TabStopOrderNodeSummary` ve `TabStopCount` bu ağacın operasyon ve özet taşıyıcılarıdır. Uygulama bileşeninde `.tab_group()`, `.tab_index(...)`, `.tab_stop(...)`, `window.focus_next(cx)` ve `window.focus_prev(cx)` kullanırsın; `TabStopMap`'i elle yönetmek yalnız özel traversal altyapısı yazarken gerekir.
 
-**Tuzaklar.** İnceleme yüzeyini kullanırken atladığın noktalar:
+**Dikkat noktaları.** İnceleme yüzeyinde atlanması kolay noktalar:
 
 - `all_action_names` içinde görünen bir action'ın o anda kullanılabilir olması garanti değildir; UI öğesini etkin veya pasif yapmak için `available_actions`'ı ya da `is_action_available`'ı tercih edersin.
 - Kısayol gösteriminde bağlam yığınını dikkate almayan `cx.all_bindings_for_input` yerine mümkün olduğunda pencere veya odak handle'ı bazlı sorguyu kullanırsın.
@@ -340,7 +340,7 @@ let tus_haritasi = KeymapFile::parse(&icerik)?;
 let sonuc = KeymapFile::load(&icerik, cx);
 ```
 
-`load_asset(varlik_yolu, kaynak, cx)`, paketlenmiş (`bundled`) keymap dosyalarını yükler ve `KeybindSource` üst verisini ayarlayabilir. `load_panic_on_failure` yalnızca başlangıç ve test gibi "asset bozuksa devam etmeyelim" yolları içindir.
+`load_asset(varlik_yolu, kaynak, cx)`, paketlenmiş (`bundled`) keymap dosyalarını yükler ve `KeybindSource` üst verisini ayarlayabilir. `load_panic_on_failure`, `test-support` derleme özelliği altında kalan test yolları gibi "asset bozuksa devam etmeyelim" akışları içindir.
 
 **Temel keymap.** Hangi temel keymap'in seçili olduğu enum'da tutulur:
 
@@ -377,7 +377,7 @@ let sonuc = KeymapFile::load(&icerik, cx);
   ["zed::Unbind", "editor::NewLine"]
   ```
 
-  Keymap ayrıştırıcısı bu nöbetçiyi gördüğünde aynı keystroke'a aynı action adıyla ileriden gelen tüm kısayolları **action bağlamından bağımsız olarak** iptal eder (`keymap`'deki `is_unbind` kolu). Yani `editor::NewLine` için `enter` tuşunun tüm bağlamlarda unbind edilmesi gerektiğinde kullanırsın.
+  Bu nöbetçi kendi context yüklemi eşleştiğinde aynı keystroke'a aynı action adıyla daha düşük öncelikte kalan kısayolları iptal eder; hedef binding'in kendi context ayrıntısı ayrıca eşleştirilmez (`keymap`'deki `is_unbind` kolu). Yani `editor::NewLine` için `enter` tuşunu tüm bağlamlarda unbind etmek istiyorsan unbind girdisinin context'ini geniş tutarsın.
 
 **Nöbetçi kontrol API'leri.** Nöbetçi action'ları çalışma zamanında tespit etmek için iki ufak yardımcı vardır:
 
@@ -402,7 +402,7 @@ let guncellenen = KeymapFile::update_keybinding(
 - `Remove { target, target_keybind_source }` — kullanıcı kısayolunu dosyadan siler; kullanıcı dışı bir kısayolu kaldırmak için `unbind` yazar.
 - `KeybindUpdateTarget`, action adı, isteğe bağlı action argümanları, bağlam ve `KeybindingKeystroke` dizisini taşır.
 
-**Tuzaklar.** Dosya güncellemeyle ilgili dikkat noktaları:
+**Dikkat noktaları.** Dosya güncellemeyle ilgili dikkat noktaları:
 
 - `use_key_equivalents` yalnızca destekleyen platformlarda anlamlıdır; klavye eşleyicisi (`keyboard mapper`) sağlanmadan dosya güncellemesi doğru keystroke metnini üretemez.
 - Kullanıcı dışı bir kısayolu "silmek" gerçek kaynağı değiştirmez; kullanıcı keymap'ine bastırma yapan bir `unbind` girdisi yazılır.

@@ -211,7 +211,7 @@ pub fn initial_keymap_content() -> Cow<'static, str> {
 
   Bu fonksiyon `RustEmbed::get` çağrısını yapar (yani `cx.asset_source()` değil), baytları UTF-8 string'e çevirir ve `Cow<'static, str>` döner. Bu yapı sayesinde keymap ve settings dosyaları `App` çalışma zamanı kurulmadan da okunabilir; özellikle erken kuruluş aşamasında settings store'a varsayılan değerleri vermek için kritiktir.
 
-- **Sert paketleme kontratı.** `A::get(yol)` `None` döndürürse kaynak kodu fail-fast davranır. Bu, keymap dosyalarının `SettingsAssets` erişim kümesinde mutlaka bulunması gerektiğini söyleyen bir paketleme varsayımıdır. Eğer dosya silinirse veya `#[include]` filtresi yanlışsa, uygulama başlatılırken panik atar; bu da dağıtım öncesi tespit edilebilir bir hatadır.
+- **Sert paketleme kontratı.** `A::get(yol)` `None` döndürürse kaynak kodu fail-fast davranır. Bu, keymap dosyalarının `SettingsAssets` erişim kümesinde mutlaka bulunması gerektiğini söyleyen bir paketleme varsayımıdır. Dosya silindiğinde veya `#[include]` filtresi uyumsuz kaldığında uygulama başlatma sırasında erken durur; bu durum dağıtım öncesi doğrulamada yakalanmalıdır.
 
 Burada küçük ama önemli bir paketleme ayrıntısı vardır: `SettingsAssets` kaynak kodunda `#[include = "keymaps/*"]` olarak görünür, buna rağmen tüketilen yollar `keymaps/macos/atom.json` ve `keymaps/linux/jetbrains.json` gibi alt dizinlerdedir. Bunun nedeni `rust-embed` 8.11'in `include-exclude` özelliğinde kullanılan `globset` varsayılanlarının `*` karakterini yol ayırıcısını da eşleyebilecek şekilde değerlendirmesidir. Yani Zed'in mevcut kalıbı alt paketleri kapsar; yine de bu kalıp değiştirilirken kök `keymaps/*.json` dosyalarının yanı sıra platform alt paketlerinin de gömülü kaldığı mutlaka doğrulanmalıdır. Daha açık bir ifade istenirse `keymaps/**/*` kalıbı tercih edebilirsin.
 
@@ -289,7 +289,8 @@ Sekiz fonksiyon iki anlam grubuna ayrılır:
 | Grup | Dosya | Anlamı |
 |------|-------|--------|
 | **Default** | `default.json`, `default_semantic_token_rules.json` | Çalışma zamanında varsayılan değer kaynağı; her settings okumasında yedek olarak kullanılır |
-| **Initial** | `initial_user_settings.json`, `initial_server_settings.json`, `initial_local_settings.json`, `initial_tasks.json`, `initial_debug_tasks.json`, `initial_local_debug_tasks.json` | Kullanıcı dosyası ilk kez oluşturulurken diske yazılan şablon içerik |
+| **Initial settings/tasks** | `initial_user_settings.json`, `initial_server_settings.json`, `initial_local_settings.json`, `initial_tasks.json`, `initial_debug_tasks.json`, `initial_local_debug_tasks.json` | Kullanıcı dosyası ilk kez oluşturulurken diske yazılan şablon içerik |
+| **Initial keymap** | `keymaps/initial.json` | Kullanıcı keymap dosyası ilk kez oluşturulurken diske yazılan şablon içerik |
 
 **Default ve Initial farkı:** Default dosyalar `SettingsStore`'a varsayılan değer enjekte eder; her settings çağrısı bu değerleri okur. Initial dosyalar yalnızca yeni kullanıcı kurulumunda kullanılır; mevcut bir kullanıcı dosyası varsa initial dosyalara dokunulmaz.
 
@@ -309,7 +310,7 @@ pub fn init(cx: &mut App) {
 
 `SettingsStore::new` çağrısı `default_settings()` çıktısını (yani `settings/default.json` içeriği) ayrıştırır ve ayarların başlangıç değerlerini bu içerikten çıkarır. Kullanıcı dosyaları sonradan yüklendiğinde bu varsayılan değerlerin üzerine yazılır.
 
-Önemli ayrıntı: `default_settings()` çağrısı **panic atabilir**. `asset_str::<SettingsAssets>` içindeki varlık okuma kontratı dosya yoksa panik atar. Yani settings sisteminin başlatılması, varsayılan JSON dosyasının `SettingsAssets` erişim kümesinde bulunmasına sıkı sıkıya bağlıdır. Bu kasıtlı bir sertliktir: settings olmadan Zed başlatılamaz, fail-fast davranışı kabul edilir.
+Önemli ayrıntı: `default_settings()` çağrısı fail-fast paketleme kontratına bağlıdır. `asset_str::<SettingsAssets>` içindeki varlık okuma kontratı dosya yoksa erken durur. Yani settings sisteminin başlatılması, varsayılan JSON dosyasının `SettingsAssets` erişim kümesinde bulunmasına sıkı sıkıya bağlıdır. Bu kasıtlı bir sertliktir: settings olmadan Zed başlatılamaz, fail-fast davranışı kabul edilir.
 
 ---
 
@@ -342,7 +343,7 @@ Bu dosyanın varlık klasöründe durmasının iki gerekçesi vardır:
 1. **Versiyonlama:** `v0.json` adı, ileride badge formatı değişirse `v1.json` eklenerek geriye uyumluluğun korunabileceğini gösterir. Eski README rozetleri eski formatı okumaya devam eder.
 2. **Sahiplik:** `assets/` klasörü görsel sözleşmenin merkezi olduğundan, projeyi temsil eden bir badge dosyasının da burada durması anlamlıdır. `.github/` klasörüne konulabilirdi ama görsel kimlik açısından `assets/badge/` daha keşfedilebilir.
 
-**Sonuç:** Varlık klasörü her dosyanın çalışma zamanı tüketicisi olduğu varsayımı yanlıştır. Yeni bir dosya eklerken include kalıplarını bilinçli yönetmek, binary boyutunu ve çalışma zamanı sözleşmesini koruma altına alır.
+**Sonuç:** Varlık klasöründeki her dosyanın çalışma zamanı tüketicisi yoktur. Yeni bir dosya eklerken include kalıplarını bilinçli yönetmek, binary boyutunu ve çalışma zamanı sözleşmesini koruma altına alır.
 
 ---
 

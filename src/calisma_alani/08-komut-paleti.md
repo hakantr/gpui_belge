@@ -73,7 +73,7 @@ pub struct CommandInterceptItem {
 }
 ```
 
-Tipik akış şudur: Vim modu açıkken `:w<CR>` gibi komutlar intercept edilip `SaveActiveItem` action'ına çevrilir. Benzer şekilde başka extension veya agent türleri de aynı mekanizmayı kullanır. Komut paleti interceptor sonuçlarını normal fuzzy action eşleşmeleriyle birleştirir. Aynı action zaten normal eşleşmelerde yer alıyorsa interceptor sonucu eklenmeden önce normal sonuçtan çıkarılır. `exclusive = true` olduğunda yalnız interceptor sonuçları gösterilir; `exclusive = false` ise interceptor sonuçları listenin başına eklenir ve normal eşleşmeler arkadan gelir.
+Tipik akış şudur: Vim modu açıkken `:w<CR>` gibi komutlar intercept edilip `VimSave` gibi Vim'e özgü action'lara veya `workspace::Save`/`workspace::CloseActiveItem` gibi workspace action'larına çevrilir. Benzer şekilde başka extension veya agent türleri de aynı mekanizmayı kullanır. Komut paleti interceptor sonuçlarını normal fuzzy action eşleşmeleriyle birleştirir. Aynı action zaten normal eşleşmelerde yer alıyorsa interceptor sonucu eklenmeden önce normal sonuçtan çıkarılır. `exclusive = true` olduğunda yalnız interceptor sonuçları gösterilir; `exclusive = false` ise interceptor sonuçları listenin başına eklenir ve normal eşleşmeler arkadan gelir.
 
 ---
 
@@ -114,7 +114,7 @@ Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adıml
 - `write_command_invocation(command_name, user_query)` çalıştırılan komutu ve kullanıcının yazdığı sorguyu kaydeder. Tablo 1000 kaydı geçtiğinde en eski kayıt silinir.
 - `get_command_usage(command)` tek komut için kullanım sayısı ve son kullanım zamanını döndürür.
 - `list_commands_used()` komut başına invocation sayısı ile son kullanım zamanını döndürür; palet açılırken hit sayısı yüksek komutlar önce sıralanır.
-- `list_recent_queries()` boş olmayan kullanıcı sorgularını son kullanım zamanına göre getirir; komut paletinde yukarı/aşağı gezinilirken aynı önek ile sorgu geçmişine dönülebilir.
+- `list_recent_queries()` boş olmayan kullanıcı sorgularını son kullanım zamanına göre getirir; DB sonucu eskiden yeniye sıralanır, picker ise geçmişte gezinirken aynı öneke sahip son kayıtlara sondan geriye doğru gider.
 
 **Onay davranışı.** Onay akışları iki şekilde işler:
 
@@ -148,11 +148,11 @@ Komut paleti yüzeyinde her dışa açık taşıyıcı için ayrı öğretici ba
 
 ---
 
-## Tuzaklar
+## Dikkat Noktaları
 
-Filter ve interceptor kullanımında karşılaşılan yaygın sorunlar:
+Filter ve interceptor kullanımında hataya açık noktalar:
 
-- `CommandPaletteFilter` global durumdur; testlerde bir özellik açıldığında sonraki test başlamadan sıfırlanması gerekebilir.
+- `CommandPaletteFilter` global durumdur; testlerde bir özellik açıldığında sonraki test başlamadan sıfırlaman gerekebilir.
 - `hide_action_types` ile gizlenen tipin kaydedilmiş olması gerekir; aksi halde filtreye eklenmesine rağmen komut paleti listesinde zaten görünmez.
 - `Interceptor::set` mevcut interceptor'ı ezer; çoklu kaynak gerektiğinde zincirin kendi kodunda kurman gerekir (örneğin önce Vim, başarısızsa AI agent gibi).
-- `CommandInterceptResult::exclusive = true` yoğun şekilde kullanıldığında kullanıcı normal action listesinden komutlara ulaşamaz; gerçekten "tek doğru sonuç var" durumunda ayarlanır.
+- `CommandInterceptResult::exclusive = true` yoğun şekilde kullanıldığında kullanıcı normal action listesinden komutlara ulaşamaz; bu bayrağı gerçekten "tek doğru sonuç var" durumunda ayarlaman gerekir.

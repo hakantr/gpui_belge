@@ -1,6 +1,6 @@
 # İkon sistemi ve SVG render hattı
 
-Bu bölüm, varlık altyapısının en sık tüketilen parçasını anlatır: SVG ikonları. Zed'de yüzlerce SVG dosyası `icons/` klasörü altında durur. UI'da `Icon` ya da `Vector` bileşenleriyle render edilir. Yüzeyde basit görünse de hat dört ayrı katmandan oluşur: dosya yerleşimi, path eşleme kayıt sistemi (`IconName` ve `KnockoutIconName`), gpui'nin `svg()` element'i ve `SvgRenderer`'ın rasterleştirme adımı. Her katmanın ne yaptığını ayırmak, "yeni bir ikon nasıl eklenir, neden bazı ikonlar tema renkleriyle boyanırken bazıları çok renkli kalır, dış ikon temalarını nasıl destekleriz?" gibi soruları cevaplamayı kolaylaştırır.
+Bu bölüm, varlık altyapısının en sık tüketilen parçasını anlatır: SVG ikonları. Zed'de yüzlerce SVG dosyası `icons/` klasörü altında durur. UI'da `Icon` ya da `Vector` bileşenleriyle render edilir. Yüzeyde basit görünse de akış dört ayrı katmandan oluşur: dosya yerleşimi, path eşleme kayıt sistemi (`IconName` ve `KnockoutIconName`), gpui'nin `svg()` element'i ve `SvgRenderer`'ın rasterleştirme adımı. Her katmanın ne yaptığını ayırmak, "yeni bir ikon nasıl eklenir, neden bazı ikonlar tema renkleriyle boyanırken bazıları çok renkli kalır, dış ikon temalarını nasıl destekleriz?" gibi soruları cevaplamayı kolaylaştırır.
 
 ![İkon Kaynak Kararı](images/icon-kaynak-karari.svg)
 
@@ -435,7 +435,7 @@ Pratik bir özet olarak, "bir tipli UI ikonu eklemek" için izlenmesi gereken ad
 3. `icons` crate'indeki `IconName` enum'una `YeniIkon` varyantı eklersin.
 4. UI kodunda `Icon::new(IconName::YeniIkon)` ile kullanırsın. Boyut için `.size(IconSize::Small)`, renk için `.color(Color::Accent)` zincirlenir.
 
-Adımlardan herhangi biri eksikse şu tipik sorunlar görülür:
+Bu akışta dikkat edilmesi gereken tipik durumlar şunlardır:
 
 - Dosya `assets/icons/` altında ama `IconName` varyantı yok: `Icon::from_path("icons/yeni_ikon.svg")` ile çağrılarak çalışır ama tipli enum yardımı, serileştirme ve önizleme iterasyonu dışında kalır.
 - `IconName` varyantı eklendi ama dosya konulmadı: `svg()` element'i `path` yükleyemez; ikon görünmez kalır ve log'a hata düşer.

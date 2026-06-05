@@ -83,16 +83,16 @@ dinleyici.open(RawOpenRequest {
     diff_all: tumunu_karsilastir,
     dev_container: gelistirme_konteyneri,
     wsl: wsl_istegi,
-    cwd: calisma_dizini,
+    open_behavior: acma_davranisi,
 });
 ```
 
 - `OpenListener` bir `Global`'dir; `open(...)` isteği sınırsız bir kanala gönderir.
-- `RawOpenRequest` ham CLI veya URL alanlarını taşır.
+- `RawOpenRequest` ham URL, diff, WSL, dev container ve open-behavior alanlarını taşır. CLI connection üzerinden gelen `cwd` ham request içinde değil, `handle_cli_connection` tarafından `open_workspaces` ve `open_local_workspace` hattına ayrı argüman olarak aktarılır.
 - `OpenRequest::parse(raw, cx)` bunları tipli `OpenRequest`'a çevirir.
-- `OpenRequestKind` kaynak türünü belirtir: CLI connection, extension, agent panel, shared agent thread, dock menu action, builtin JSON schema, setting, git clone, git commit vb.
+- `OpenRequestKind` kaynak türünü belirtir: CLI connection, focus app, extension, agent panel, shared agent thread, install skill, dock menu action, builtin JSON schema, setting, git clone, git commit vb.
 - Linux ve FreeBSD'de `listen_for_cli_connections` release-channel socket'i üzerinden CLI isteklerini alır.
-- `RawOpenRequest::cwd` CLI işleminin çalışma dizinini taşır. Yalnızca `--diff` path'leri verildiğinde çalışma alanı bağlamı için bu cwd kullanılır; Zed app işleminin `std::env::current_dir()` değeri macOS bundle veya zaten çalışan örnek yüzünden güvenilir değildir.
+- CLI connection hattında yalnızca `--diff` path'leri verildiğinde çalışma alanı bağlamı için CLI `cwd` kullanılır; Zed app işleminin `std::env::current_dir()` değeri macOS bundle veya zaten çalışan örnek yüzünden güvenilir kabul edilmez.
 - SSH URL ayrıştırma akışı normal URL'lere ek olarak SCP veya git tarzı `ssh://user@host:~/project` ve `ssh://user@host:/absolute/path` biçimlerini normalleştirir. Kullanıcı adı ve parola URL kodu çözülür; IPv6 SCP-style authority ve çift port benzeri belirsiz biçimler reddedilir.
 - `open_paths_with_positions` diff path kanonikleştirme için `app_state.fs` kullanır; hataları `opened_items` listesine taşıyarak diğer path'leri açmaya devam eder.
 
@@ -104,11 +104,11 @@ dinleyici.open(RawOpenRequest {
 
 ---
 
-## Tuzaklar
+## Dikkat Noktaları
 
-Open akışı ve global durum ile çalışırken karşılaşılan hatalar:
+Open akışı ve global durum ile çalışırken hataya açık kullanımlar:
 
-- Çalışma alanı açma akışında `AppState::build_window_options` kullanılır; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, sınır geri yükleme ve platform ayarlarını atlar.
+- Çalışma alanı açma akışında `AppState::build_window_options` kullanılır; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, pencere dekorasyonu, sistem sekmeleri ve platform ikon/arka plan ayarlarını atlar.
 - `WorkspaceStore` weak workspace tutar; iterasyon sırasında upgrade başarısız olabilir.
 - `OpenListener::open` dinleyici yokken hatayı loglar; talebin teslim edildiği varsayımıyla kullanıcı akışının başlatılmaması gerekir.
 - DB restore yolunda serializable item kind eksikse item restore edilemez; yeni bir item türü eklenirken `register_serializable_item` startup init'inde çağrılmalıdır.

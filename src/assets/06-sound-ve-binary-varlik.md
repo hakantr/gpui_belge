@@ -133,13 +133,13 @@ Yeni bir ses eklemek için izlenmesi gereken adımlar:
 3. `Sound::file` `match` koluna `Self::YeniSes => "yeni_ses"` satırı eklersin.
 4. UI kodunda `Audio::play_sound(Sound::YeniSes, cx)` ile tetiklersin.
 
-Adımlardan herhangi biri eksikse uyarı verir:
+Bu akışta dikkat edilmesi gereken durumlar şunlardır:
 
 - Dosya yok ama enum varyantı eklendi: ilk çağrıda `Assets::load` veya `with_context` kaynaklı hata log'a düşer, ses çalmaz.
 - `Sound::file` güncellenmedi: derleme zamanı hatası verir (`match` exhaustive değildir).
 - Varyant yok ama dosya var: dosya varlık kümesine dahil kalır ama çağrı yolu yoktur; release'te binary boyutunu büyüten ölü varlık olarak durur.
 
-Derleme zamanı kontrolünün yalnızca `Sound::file` `match` kapsayıcılığı üzerinden geçtiğine dikkat etmek gerekir; dosya varlığı çalışma zamanına kadar doğrulanmaz. Bu davranış, varlık hattının tipik bir karakteristiğidir: tip sistemi enum varlığını sağlar, dosya varlığını sağlamaz.
+Derleme zamanı kontrolünün yalnızca `Sound::file` `match` kapsayıcılığı üzerinden geçtiğine dikkat edersin; dosya varlığı çalışma zamanına kadar doğrulanmaz. Bu davranış, varlık hattının tipik bir karakteristiğidir: tip sistemi enum varlığını sağlar, dosya varlığını sağlamaz.
 
 ---
 

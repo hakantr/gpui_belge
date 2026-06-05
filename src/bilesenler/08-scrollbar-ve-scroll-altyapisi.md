@@ -24,7 +24,7 @@ Temel API:
 - `Scrollbars::new(show_along: ScrollAxes)`.
 - `Scrollbars::always_visible(show_along)`.
 - `Scrollbars::for_settings::<S: ScrollbarVisibility>()`.
-- `.id(ElementId)`, `.notify_content()`, `.tracked_entity(EntityId)`, `.tracked_scroll_handle(handle)`, `.show_along(axes)`, `.style(style)`, `.with_track_along(axes, bg)`, `.with_stable_track_along(axes, bg)`.
+- `.id(ElementId)`, `.notify_content()`, `.tracked_entity(EntityId)`, `.tracked_scroll_handle(&handle)`, `.show_along(axes)`, `.style(style)`, `.with_track_along(axes, bg)`, `.with_stable_track_along(axes, bg)`.
 - `WithScrollbar`: elementlere `.vertical_scrollbar_for(...)` ve `.custom_scrollbars(...)` metodlarını ekleyen bir extension trait'tir. Kaynakta yatay ve çift yönlü yardımcı taslakları yorum satırı olarak durur; bu yardımcılar public API değildir.
 - `ScrollableHandle`: kendi handle'ını yazıyorsan, `max_offset`, `set_offset`, `offset`, `viewport` ve opsiyonel olarak sürükleme hook'larını sağlaman gerekir. Bu sözleşme, `Scrollbars`'ın handle ile nasıl konuşacağını belirler.
 - `on_new_scrollbars::<S>(cx)`: scrollbar global setting tipinin değiştiği durumlarda, yeni `ScrollbarState` entity'lerinin bu ayar değişikliklerine abone olmasını sağlayan kurulum yardımcısıdır.
@@ -49,27 +49,27 @@ Scrollbar altyapı yüzeyi:
 
 Davranış:
 
-- `Scrollbars::new(ScrollAxes::Vertical)` varsayılan olarak tema scrollbar ayarına bağlı şekilde görünür. `always_visible(...)` ayarı ise bu tercihi yok sayar ve scrollbar'ı her zaman çizer.
-- `tracked_scroll_handle(...)` ile harici bir `ScrollableHandle` (örneğin bir `ScrollHandle` veya `UniformListScrollHandle`) bağlanır; scrollbar bu handle üzerinden okuma ve yazma yapar.
+- `Scrollbars::new(ScrollAxes::Vertical)` varsayılan `ShowScrollbar::Auto` davranışıyla autohide çalışır. Global ayar tipine bağlamak istediğinde `Scrollbars::for_settings::<S>()` kullanırsın. `always_visible(...)` ayarı ise görünürlük tercihini yok sayar ve scrollbar'ı her zaman çizer.
+- `tracked_scroll_handle(&handle)` ile harici bir `ScrollableHandle` (örneğin bir `ScrollHandle` veya `UniformListScrollHandle`) bağlanır; scrollbar bu handle üzerinden okuma ve yazma yapar.
 - `Table::interactable(...)` ile `TableInteractionState::with_custom_scrollbar(...)` birlikte kullanıldığında `Scrollbars`, tablonun yatay ve dikey scroll handle'larına bağlanır; yani tablo kendi scroll davranışını dış bir scrollbar üzerinden sürer.
 - `ScrollbarStyle::Editor`, editor görseliyle gelen scrollbar genişliğinde çizim yapar; panel ve listelerde ise `Regular` daha uygundur.
 - `ListState` tabanlı variable-height listelerde scrollbar sürükleme durumu `scrollbar_drag_started()`, `scrollbar_drag_ended()` ve `is_scrollbar_dragging()` ile izlenir. `set_offset_from_scrollbar(point)` çağrısında aşağı yöndeki scroll negatif `y` offset'iyle temsil edilir; `point(px(0.), px(-150.))` içeriğin 150px aşağı kaydırıldığı durumu ifade eder.
 - Sürükleme sırasında liste içeriği büyürse scrollbar konumu sürükleme başlangıcındaki içerik yüksekliğine göre korunur. Kullanıcı sürüklemeyi frozen track'in sonuna getirirse tail-follow yeniden etkinleşir; bu özellikle günlük, terminal ve agent conversation gibi sona akması gereken listelerde elle scroll ile otomatik takip arasındaki ayrımı korur.
-- `ScrollbarPrepaintState`, prepaint aşamasında üst hitbox'ı ve yatay/dikey thumb layout'larını tutar. Public görünür ama tüketici kodunun inşa edeceği bir model değildir; thumb hit test'i, track tıklaması ve sürükleme başlangıcı için `Scrollbars` elementi tarafından kullanılır.
+- `ScrollbarPrepaintState`, prepaint aşamasında üst hitbox'ı ve yatay/dikey thumb layout'larını tutar. Struct public görünür ama alanları private olduğu için tüketici kodunun inşa edeceği bir model değildir; thumb hit test'i, track tıklaması ve sürükleme başlangıcı için `Scrollbars` elementi tarafından kullanılır.
 
 Örnek:
 
 ```rust
 use gpui::ScrollHandle;
 use ui::prelude::*;
-use ui::{ScrollAxes, Scrollbars};
+use ui::{ScrollAxes, Scrollbars, WithScrollbar};
 
 struct GunlukPaneli {
     kaydirma: ScrollHandle,
 }
 
 impl Render for GunlukPaneli {
-    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         v_flex()
             .size_full()
             .child(
@@ -78,11 +78,13 @@ impl Render for GunlukPaneli {
                     .flex_1()
                     .overflow_y_scroll()
                     .track_scroll(&self.kaydirma)
-                    .child(Label::new("…")),
-            )
-            .child(
-                Scrollbars::new(ScrollAxes::Vertical)
-                    .tracked_scroll_handle(self.kaydirma.clone()),
+                    .child(Label::new("…"))
+                    .custom_scrollbars(
+                        Scrollbars::new(ScrollAxes::Vertical)
+                            .tracked_scroll_handle(&self.kaydirma),
+                        window,
+                        cx,
+                    ),
             )
     }
 }
@@ -94,4 +96,4 @@ Dikkat edeceğin noktalar:
 - Tek bir scroll kapsayıcısına doğrudan bağlanılıyorsa `WithScrollbar` yardımcılarını kullanmak, ayrı bir `Scrollbars` child'ı yazmaya göre hem daha kısa hem de daha az hataya açıktır.
 - `with_stable_track_along(...)`, scroll alanı henüz yokken bile track için yer ayırır. Bu sayede scrollbar görünür ya da gizli olarak değiştiğinde layout aniden zıplamaz; sahne sabit kalır.
 - Birden fazla scroll alanı bulunuyorsa, her birine `.id(...)` üzerinden benzersiz bir id vermen gerekir; aksi halde GPUI scroll durumlarını karıştırabilir.
-- `set_offset_from_scrollbar(...)` için pozitif offset kullanımı güncel sözleşmeye uymaz. Scrollbar handle yazarken `offset()` ve `set_offset(...)` değerlerinin aynı işaret yönünü kullandığından emin olunmalıdır.
+- `set_offset_from_scrollbar(...)` için pozitif offset kullanımı güncel sözleşmeye uymaz. Scrollbar handle yazarken `offset()` ve `set_offset(...)` değerlerinin aynı işaret yönünü kullandığından emin olman gerekir.

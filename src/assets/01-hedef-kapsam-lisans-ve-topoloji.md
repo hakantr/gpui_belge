@@ -67,7 +67,7 @@ pub struct SettingsAssets;
 
 İki struct birden olmasının teknik bir gerekçesi vardır: `RustEmbed` macro'sunun derleme süresinde tarama maliyeti, klasör büyüdükçe ciddi şekilde artar. `Assets` struct'ı; font, ikon ve tema klasörleri büyük olduğu için Zed binary'sinin sık yeniden derlenmesi sırasında her seferinde taranmasın diye **ayrı bir crate** olarak (`assets`) tutulur. Bu kararın yorumu kaynak dosyasının ilk satırında açıkça yazılıdır: "incremental build sırasında bir-iki saniye kazandırmak için ayrıldı". `SettingsAssets` ise yalnızca settings ve keymap JSON'larını tutar; bu klasörler küçük olduğundan settings crate'iyle aynı yerde bulunması yeniden derleme maliyetini büyütmez.
 
-`RustEmbed` davranışı build moduna göre ikiye ayrılır: release build'de veya `debug-embed` feature'ı açıkken dosyalar binary içinden gelir; normal debug build'de aynı path'ler dosya sisteminden okunur. Zed dokümanlarında "gömülü varlık" denildiğinde üretim davranışı kastedilir, fakat kendi uygulamanızda debug modda canlı dosya okuma davranışını da hesaba katmak gerekir.
+`RustEmbed` davranışı build moduna göre ikiye ayrılır: release build'de veya `debug-embed` feature'ı açıkken dosyalar binary içinden gelir; normal debug build'de aynı path'ler dosya sisteminden okunur. Zed dokümanlarında "gömülü varlık" denildiğinde üretim davranışı kastedilir, fakat kendi uygulamanda debug modda canlı dosya okuma davranışını da hesaba katmak gerekir.
 
 **Önemli ayrıntı:** `Assets` struct'ı `AssetSource` trait'ini implement eder ve çalışma zamanına `Application::with_assets(Assets)` zinciriyle bağlanır. `SettingsAssets` ise `RustEmbed::get` üzerinden senkron olarak `asset_str()` yardımıyla okunur; çalışma zamanına global olarak kaydedilmez. Bu ayrım üçüncü bölümde derinlemesine işlenir.
 
@@ -107,7 +107,7 @@ pub trait AssetSource: 'static + Send + Sync {
 }
 ```
 
-İki metoda dikkat etmek gerekir:
+İki metoda dikkat edersin:
 
 - `load`: Verilen path için ham byte içeriği döner. Dönüş tipindeki `Option`, bazı kaynakların "dosya yok" durumunu `Ok(None)` ile ifade edebilmesine izin verir; fakat her implementasyon bunu kullanmak zorunda değildir. Zed'in `Assets` implementasyonu `RustEmbed::get(path)` `None` döndürürse `with_context` üzerinden `Err` üretir, boş `()` implementasyonu ise her zaman `Ok(None)` döndürür.
 - `list`: Verilen prefix ile başlayan tüm path'leri döner. Recursive davranır; örneğin `list("fonts")` çağrısı `fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf` gibi alt klasörlerdeki dosyaları da listeler.

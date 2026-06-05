@@ -28,9 +28,9 @@ Bu ayrım rastgele değildir. Platform kabuğu "pencere nasıl davranır" sorusu
 
 ## 2. Neden ayrı bir crate
 
-`title_bar` crate'i `platform_title_bar`'dan çok daha ağır bir bağımlılık grafiğine sahiptir. Çünkü ürün başlığı; aktif çağrıyı (`call`), oturum ve hesap bilgisini (`client`, `cloud_api_types`), proje ve git deposunu (`project`), otomatik güncellemeyi (`auto_update`) ve özellik bayraklarını (`feature_flags`) bilmek zorundadır.
+`title_bar` crate'i `platform_title_bar`'dan çok daha ağır bir bağımlılık grafiğine sahiptir. Çünkü ürün başlığı; aktif çağrıyı (`call`), oturum ve hesap bilgisini (`client`, `cloud_api_types`), proje ve git deposunu (`project`), otomatik güncellemeyi (`auto_update`) ve ürün ayarlarını (`settings`, `agent_settings`) bilmek zorundadır.
 
-Bu bağımlılıklar, ürün başlığının neden ayrı tutulduğunu da açıklar: platform kabuğu yalnız `gpui`, `theme` ve `settings`'e yaslanırken; ürün başlığı Zed'in neredeyse tüm ürün yığınına dokunur. Bu yığını taşımadan ürün başlığını birebir kullanmak mümkün değildir. Bu yüzden bir geliştirici için doğru yaklaşım genellikle **kalıbı öğrenip kendi ürün başlığını yazmaktır**.
+Bu bağımlılıklar, ürün başlığının neden ayrı tutulduğunu da açıklar: platform kabuğu daha çok pencere kabuğu, tema, ayar ve workspace köprüsüne yaslanırken; ürün başlığı Zed'in hesap, çağrı, proje, uzak bağlantı, güncelleme ve bildirim yığınına dokunur. Bu yığını taşımadan ürün başlığını birebir kullanmak mümkün değildir. Bu yüzden bir geliştirici için doğru yaklaşım genellikle **kalıbı öğrenip kendi ürün başlığını yazmaktır**.
 
 ## 3. Üç port yaklaşımı
 

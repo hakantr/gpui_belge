@@ -4,12 +4,12 @@ Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bil
 
 ## GPUI uniform_list ile köprü
 
-`Table::uniform_list(...)` ve Bölüm 9'daki büyük listeler GPUI'nin `uniform_list(...)` elementine bağlanır. Bu element yalnızca görünür satır aralığını render eder; böylece binlerce satırlık listeler gereksiz render maliyeti yaratmadan ekrana basılabilir. Kullanırken şu kurallara dikkat etmek gerekir:
+`Table::uniform_list(...)` ve Bölüm 9'daki büyük listeler GPUI'nin `uniform_list(...)` elementine bağlanır. Bu element yalnızca görünür satır aralığını render eder; böylece binlerce satırlık listeler gereksiz render maliyeti yaratmadan ekrana basılabilir. Kullanırken şu kurallara dikkat edersin:
 
 - `uniform_list(id, item_count, |range, window, cx| Vec<AnyElement>)` imzası bir id ile bir satır sayısı alır; kalan kısımda yalnızca görünür `range` için satırlar üretilir. Aralık içindeki indeks dizisi `range.map(|indeks| ...)` ifadesiyle dolaşılır.
 - Satır yüksekliğinin homojen olması beklenir. İçerik her satırda farklı bir yükseklik gerektiriyorsa, GPUI tarafındaki `list(...)` elementi ve `ListState` ile çalışan `Table::variable_row_height_list(...)` daha uygun bir seçim olur.
 - Scroll davranışı için `UniformListScrollHandle` view yapısında saklanır ve `.track_scroll(&handle)` ile bağlanır. Tablo tarafında `Table::interactable(...)` çağrısı kullanıldığında bu, içerideki `TableInteractionState` üzerinden yönetilir.
-- `with_sizing_behavior(ListSizingBehavior::Infer)`, listenin içeriğine göre yükseklik almasını sağlar; `Fill` ise üst yüksekliği kullanır.
+- `with_sizing_behavior(ListSizingBehavior::Infer)`, listenin içeriğine göre yükseklik hesaplatır. `Auto` ise liste için sabit bir ölçü hesaplatmaz; boyut kararını üst layout ve flex akışına bırakırsın.
 - `with_decoration(...)` slot'una `IndentGuides` ve `StickyItems` gibi süslemeler bağlanır; bu süslemelerin `UniformListDecoration` trait'ini implement etmesi gerekir.
 
 ![Tablo Satır Modeli Seçimi](assets/tablo-satir-modeli.svg)
@@ -23,7 +23,7 @@ Karar matrisi:
 | Değişken yükseklik, çok satır | `gpui::list(...) + ListState` veya `Table::variable_row_height_list(...)`. |
 | Hiyerarşik ya da sticky üst öğe | `uniform_list(...)` ile birlikte `IndentGuides` ve `StickyItems`. |
 
-`gpui::ListAlignment` (`Top`, `Bottom`) ve `ListSizingBehavior` (`Fill`, `Infer`) için tip referansları `gpui` crate'inde tanımlıdır. UI tarafında bu değerleri kullanan örnekler `keymap_editor`, `csv_preview` ve `project_panel` içinde yer alır.
+`gpui::ListAlignment` (`Top`, `Bottom`) ve `ListSizingBehavior` (`Infer`, `Auto`) için tip referansları `gpui` crate'inde tanımlıdır. UI tarafındaki `Table`, sanallaştırılmış satırlarda `Auto` kullanır; `project_panel` gibi ağaç listelerinde `Infer` örneğini görürsün.
 
 Bu ailede tablo kurarken üç karar birlikte düşünülür; biri değiştiğinde diğerleri de genellikle etkilenir:
 
@@ -310,7 +310,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - `TableInteractionState` doğrudan bir struct alanı olarak değil, bir `Entity` içinde tutulmalıdır.
-- Scroll offset elle set ediliyorsa, aynı frame içinde veri sayısının veya liste durumunun değişiklikleriyle çakışmamasına dikkat etmek gerekir.
+- Scroll offset elle set ediliyorsa, aynı frame içinde veri sayısının veya liste durumunun değişiklikleriyle çakışmamasına dikkat edersin.
 - Focus davranışı gerekiyorsa, `focus_handle` alanı public olduğu için Zed'deki örnekler gibi `tab_index(...)` veya `tab_stop(...)` ile yapılandırılabilir.
 
 ## ColumnWidthConfig
@@ -365,7 +365,7 @@ Dikkat edeceğin noktalar:
 - `.width(width)` aslında `ColumnWidthConfig::auto_with_table_width(width)` ifadesinin kısaltmasıdır. Resize gerekiyorsa `.width_config(...)` doğrudan kullanırsın.
 - `explicit(widths)` içinde `widths.len()` ile tablo kolon sayısının birbirine eşit olması gerekir.
 - `Resizable` için associated bir constructor yoktur; enum varyantı doğrudan `ColumnWidthConfig::Resizable(entity)` biçiminde kullanırsın.
-- `Table::pin_cols(n)` yalnızca `ColumnWidthConfig::Resizable(entity)` ile anlamlıdır. `Auto`, `Explicit` ve `Redistributable` modlarında pinned split layout devreye girmez.
+- `Table::pin_cols(n)` yalnızca `ColumnWidthConfig::Resizable(entity)` ile anlamlı ve destekli kullanımdır. `Auto`, `Explicit` ve `Redistributable` modlarında pinned split davranışına güvenmezsin.
 - Pinned layout'ta pinned bölümün resize divider'ları yalnızca görsel çizgi olarak render edilir; sürükleme etkileşimi scrollable bölümün divider'larında kalır. Header hücresine çift tıklama ile kolon reset davranışı ise `HeaderResizeInfo` üzerinden çalışmaya devam eder.
 
 ## RedistributableColumnsState

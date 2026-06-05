@@ -99,7 +99,7 @@
 - `position_is_valid` alt ve yan sınırlamalarını net tanımlamalıdır.
 - `toggle_action()` action'ı önceden kaydedilmiş olmalıdır.
 - `activation_priority()` benzersiz olmalıdır.
-- `set_active` içinde UI durumu değiştiriliyorsa `cx.notify()` çağrısı unutulmamalıdır.
+- `set_active` içinde UI durumu değiştiriliyorsa `cx.notify()` çağrısı bu akışa eklenmelidir.
 - Dock değiştiren ayar gözlemcilerinde panel taşınırken boyut durumu ekseni değişiyorsa sıfırlanabilir; bu mevcut `Dock::add_panel`/ayar gözlemci akışında zaten yaparsın.
 
 ---

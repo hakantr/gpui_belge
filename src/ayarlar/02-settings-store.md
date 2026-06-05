@@ -1,6 +1,6 @@
 # SettingsStore
 
-`SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip güvenli store içinde birleştirir. Default, user, global, server, extension ve local katmanları öncelik sırasıyla birleşir. Birleşik içerik daha sonra kayıtlı `Settings` tiplerine yedirilir.
+`SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip güvenli store içinde birleştirir. Runtime global değerler `Default` üstüne `Extension`, `Global`, kullanıcı/profil/release/OS override'ları ve `Server` katmanlarıyla kurulur; worktree/path hedefli okumada `local_settings` bunun üstüne eklenir. Birleşik içerik daha sonra kayıtlı `Settings` tiplerine yedirilir.
 
 ![SettingsStore Katmanları](assets/settings-store-katmanlari.svg)
 
@@ -82,7 +82,7 @@ pub enum SettingsFile {
 }
 ```
 
-`Ord` uygulaması `Project` > `Server` > `User` > `Global` > `Default` sırasıyla çözer. `merged_settings` bu sıraya göre `merge_from` ile inşa edilir. Aynı kullanıcının birden çok worktree dosyası varsa daha derin path daha yüksek önceliği alır.
+`Ord` uygulaması dosya raporlama ve override analizi için `Project` > `Server` > `User` > `Global` > `Default` sırasını verir. `merged_settings` ise store'un runtime merge hattında `Default` üstüne `Extension`, `Global`, kullanıcı/profil/release/OS override'ları ve `Server` katmanlarıyla inşa edilir; path hedefli okuma yaparsan local proje ayarları bu değerin üstüne eklenir. Aynı kullanıcının birden çok worktree dosyası varsa daha derin path daha yüksek önceliği alır.
 
 `SettingsLocation { worktree_id, path }` sorgulayan tarafa "bana bu yol için geçerli değeri ver" der; store öncelik zincirinde local katmanları yer almıyorsa global değere düşer.
 
@@ -92,7 +92,7 @@ pub enum SettingsFile {
 | :-- | :-- | :-- |
 | `SettingsFile` | `Default`, `Global`, `User`, `Server`, `Project((WorktreeId, Arc<RelPath>))` | Store'a yedirilen ayar kaynağını ve merge önceliğini taşır. |
 | `SettingsLocation` | `worktree_id`, `path` | Worktree/path özel ayar okumasında hedef konumu belirtir. |
-| `LocalSettingsKind` | `Settings`, `Tasks`, `Editorconfig`, `Debug` | Worktree yerel dosyasının hangi içerik modeline göre parse edileceğini seçer. |
+| `LocalSettingsKind` | `Settings`, `Tasks`, `Editorconfig`, `Debug` | Worktree yerel dosyasının hangi işlem yoluna ayrılacağını seçer; `Tasks` ve `Debug` settings store içine kabul edilmez, `Editorconfig` ayrı store'a gider. |
 | `LocalSettingsPath` | `InWorktree`, `OutsideWorktree`, `is_outside_worktree`, `to_proto`, `from_proto` | Yerel dosya yolunun worktree içinde mi dışında mı olduğunu ve proto dönüşümünü taşır. |
 | `WorktreeId` | `from_usize`, `from_proto`, `to_proto` | Worktree kimliğini store ve proto sınırında taşır. |
 
@@ -114,7 +114,7 @@ Düşük seviye yardımcılar:
 - `SettingsStore::raw_default_settings() -> &SettingsContent` — default'ı görüntülemek için.
 - `SettingsStore::configured_settings_profiles()` — kullanıcı tarafında tanımlanmış profil adlarını listeler.
 - `SettingsStore::get_all_locals::<T>()` — bir `Settings` tipinin worktree başı tüm local değerlerini döndürür.
-- `SettingsStore::get_all_files()` — store'a yedirilmiş tüm `SettingsFile` kaynaklarını döndürür; UI ayarlar görünümü hangi dosyaların aktif olduğunu bu liste üzerinden gösterir.
+- `SettingsStore::get_all_files()` — UI/override analizi için proje, server, user ve default `SettingsFile` kaynaklarını döndürür; global ve extension katmanları bu listede bilinçli olarak yer almaz.
 - `SettingsStore::get_content_for_file(file)` — belirli bir kaynağın ham `SettingsContent` referansını verir.
 - `SettingsStore::get_overrides_for_field(...)`, `get_value_from_file(...)`, `get_value_up_to_file(...)` — belirli bir alanın hangi kaynakta hangi değeri taşıdığını açıklayan analitik yardımcılar; ayarlar UI'ında "bu değer hangi dosyadan geliyor?" sorusunu yanıtlamak için kullanırsın.
 
@@ -148,7 +148,7 @@ Ayrı kaynakları doğrudan ayarlamak için store API'leri vardır:
 - `set_extension_settings(content, cx)` — uzantıdan gelen ayarları yedirir.
 - `set_language_semantic_token_rules(...)` ve `remove_language_semantic_token_rules(...)` — dil bazlı semantik token tanımlarını ekler veya temizler; `language_semantic_token_rules(language)` ile sorgulanır.
 
-`SettingsParseResult` her dosya için ayrıştırma sonucunu taşır; başarılı durumda `parse_status = ParseStatus::Success` ve `migration_status = MigrationStatus::NotNeeded` varsayılanı kullanırsın. `ParseStatus::Unchanged` ise dosya içeriği değişmediği için yeniden parse gerekmeyen durumları ayırır. Hata varsa parse veya migrasyon mesajı burada saklarsın. `SettingsStore::error_for_file(file)` belirli bir dosyanın hata durumunu okur. `MigrationStatus` migrasyon adımının başarılı olup olmadığını bildirir; uygulama kodunda birleşik sonuç `SettingsParseResult::result() -> Result<bool>` ile ele alman gerekir. Dönen `bool`, dosyanın otomatik migrasyon gerektirip gerektirmediğini bildirir.
+`SettingsParseResult` user, global ve project settings parse akışlarında ayrıştırma sonucunu taşır; başarılı durumda `parse_status = ParseStatus::Success` ve `migration_status = MigrationStatus::NotNeeded` varsayılanı kullanırsın. `ParseStatus::Unchanged` ise dosya içeriği değişmediği için yeniden parse gerekmeyen durumları ayırır. Hata varsa parse veya migrasyon mesajı burada saklarsın. `SettingsStore::error_for_file(file)` belirli bir dosyanın hata durumunu okur. `MigrationStatus` migrasyon adımının başarılı olup olmadığını bildirir; uygulama kodunda birleşik sonuç `SettingsParseResult::result() -> Result<bool>` ile ele alman gerekir. Dönen `bool`, dosyanın otomatik migrasyon gerektirip gerektirmediğini bildirir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -318,7 +318,7 @@ Provider settings struct'larının çoğunda `custom_headers: Option<HashMap<Str
 
 ---
 
-## Tuzaklar
+## Dikkat Noktaları
 
 - Store'un `Global` olması demek, her testte ayrı bir store gerektiği anlamına gelir; `SettingsStore::test(cx)` veya `SettingsStore::new(cx, ...)` ile yenisi kurulmadan testler birbirinin durumunu kirletebilir.
 - `merged_settings` `Rc` paylaşımındadır; aynı `App`'te uzun süre tutulan referanslar yeni hesap sonrası eskimiş içerikten okumaya neden olabilir. Sorgu sırasında `get` çağrısı her zaman güncel `Rc`'yi çözmelidir.

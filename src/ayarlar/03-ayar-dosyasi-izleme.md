@@ -89,7 +89,7 @@ Davranış:
 
 - Yardımcılar global `SettingsStore` üzerinden çalışır; doğrudan `SettingsStore::update_settings_file(...)` çağrısının ergonomik sarmalayıcısıdır.
 - Closure'a verilen `&mut SettingsContent` mevcut kullanıcı dosyasının ayrıştırılmış halidir; yerinde değiştirilir.
-- Mutasyon sonrası store fark üretir, JSON metnini minimum diff stratejisiyle yeniden yazar ve `fs.atomic_write(...)` üzerinden dosyaya kaydeder. JSON formatlayıcısı yorumları korur ve kullanıcı girintilemesini (`infer_json_indent_size`) saygılı tutar.
+- Mutasyon sonrası store fark üretir, JSON metnini minimum diff stratejisiyle yeniden yazar ve `fs.atomic_write(...)` üzerinden dosyaya kaydeder. JSON güncelleme hattı değişmeyen yorumları ve kullanıcı girintilemesini (`infer_json_indent_size`) korur.
 - `update_settings_file_with_completion` aynı işi yapar ama yazma tamamlanınca alıcısına `Ok` veya hata yollar. UI "kaydedildi" göstergesi veya yazma sonrası başka bir adım gerekiyorsa bu form tercih edersin.
 - Hatalar `SettingsParseResult` ile değil doğrudan `anyhow::Error` ile döner; kalıcı ayrıştırma sorunu varsa dosya yeniden okunmadan store'a yedirilmez.
 
@@ -124,9 +124,9 @@ Bu yardımcılar `cfg(any(test, feature = "test-support"))` altındadır; üreti
 
 ---
 
-## Tuzaklar
+## Dikkat Noktaları
 
-- `watch_config_dir` dosya yokken `Created` olayını bekler; symlink hedefi sonradan oluşturulan yapılandırmalarda ilk yüklemenin ardından sessizce sıralanmaya başlar. İlk değer hiç gelmiyorsa dosyanın gerçekten yaratıldığını ve symlink path'inin canonical'da göründüğünü doğrulamak gerekir.
+- `watch_config_dir` dosya yokken `Created` olayını bekler; symlink hedefi sonradan oluşturulan yapılandırmalarda ilk yüklemenin ardından sessizce sıralanmaya başlar. İlk değer hiç gelmiyorsa dosyanın gerçekten yaratıldığını ve symlink path'inin canonical'da göründüğünü doğrulaman gerekir.
 - `update_settings_file` user dosyasına yazar; proje yerel `.zed/settings.json` için aynı API yoktur. Proje yerel dosyayı düzenlemek için `Project::update_local_settings` veya doğrudan `fs.atomic_write` yolu kullanılır ve değişim ayrı bir `watch_config_dir` ile store'a yedirilir.
-- Closure içinde panik veya hata bırakmak (`return`) yazma akışını sessizce keser; UI'da görünür olması için `update_settings_file_with_completion` veya çevresel kayıt mekanizması seçmen gerekir.
-- Kanal alıcısı çok yavaş tüketirse `UnboundedReceiver` bellek tüketir; tüketici store update'i kısa sürede yapmalı veya akışı throttling'e almalıdır.
+- Closure içinde erken `return` kullanırsan yazma akışı hata üretmez; yalnız o ana kadar yaptığın mutasyonlar uygulanır. UI'da yazma sonucunu görünür kılmak için `update_settings_file_with_completion` veya çevresel kayıt mekanizması seçmen gerekir.
+- Kanal alıcısı çok yavaş tüketirse `UnboundedReceiver` bellek tüketir; tüketici store update'ini kısa sürede yapman veya akışı throttling'e alman gerekir.

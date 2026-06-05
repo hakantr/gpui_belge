@@ -80,7 +80,7 @@ Derleme zamanı farkı gerekiyorsa `cfg!(target_os = "...")` veya `#[cfg(...)]`'
 
 #### Başlık Çubuğu Sürükleme ve Çift Tıklama
 
-Sürükleme ve çift tıklama davranışını tek bir tıklama işleyicisi içinde toplarsın. Çift tıklamada platforma göre yerel ya da fluent yardımcıyı kullanırsın:
+Sürükleme alanını önce `WindowControlArea::Drag` ile işaretlersin. Çift tıklamada platforma göre yerel ya da fluent yardımcıyı kullanırsın:
 
 ```rust
 h_flex()
@@ -254,7 +254,7 @@ Tipik bir tanım şöyledir:
 
 ## Sık Hatalar ve Doğru Desenler
 
-Aşağıdaki liste rehber boyunca anlatılan tuzakları tek bir noktada toparlar; her madde belirtisi ile birlikte altta yatan nedeni de işaret eder.
+Aşağıdaki liste rehber boyunca anlatılan dikkat noktalarıı tek bir noktada toparlar; her madde belirtisi ile birlikte altta yatan nedeni de işaret eder.
 
 - **İstenen süslemeye güvenme** — `WindowOptions.window_decorations` yalnız bir istektir. Çizim sırasında fiili sonucu `window.window_decorations()` çağrısı verir; kararını bu sonuca dayandırman gerekir.
 - **Bulanıklık görünmüyor** — Kök view veya tema tamamen opak bir renk çiziyor olabilir. Bulanıklık efektinin görünmesi için saydam bir surface ve içerikte alfa bırakman şarttır.
@@ -263,14 +263,14 @@ Aşağıdaki liste rehber boyunca anlatılan tuzakları tek bir noktada toparlar
 - **Kapatma davranışı atlanıyor** — Zed workspace penceresinde doğrudan `remove_window` yerine `workspace::CloseWindow` action'ını dispatch etmen gerekir; aksi halde kirli buffer ve kullanıcı onayı akışları atlanır.
 - **Async task çalışırken yok oluyor** — Dönen `Task`'ı saklamamış ya da detach etmemişsin; drop edildiği anda iş iptal olur.
 - **Entity sızıntı** — Uzun yaşayan task veya abonelik içinde güçlü `Entity` yakalamak döngü üretir; bunun yerine `WeakEntity`'yi kullanman gerekir.
-- **Çizim güncellenmiyor** — Durum değişiminden sonra `cx.notify()` unutulmuştur; view aynı verilerle yeniden çizilir.
+- **Çizim güncellenmiyor** — Durum değişiminden sonra `cx.notify()` çağrısı eksik kalmıştır; view aynı verilerle yeniden çizilir.
 - **Odak geri çağrısı tetiklenmiyor** — Element `.track_focus(&odak_tutamagi)` ile ağaca bağlanmamış olabilir.
 - **Özel başlık çubuğu altında içerik tıklanamıyor** — Sürükleme veya window control hitbox'ı fazla geniş tutulmuş ya da `.occlude()` yanlış yere konmuş olabilir.
 - **İstemci süslemesi gölge boşluğu** — `set_client_inset` ve dış sarmalayıcının padding/shadow değerlerini birlikte yönetmen gerekir; aralarındaki uyumsuzluk görünür bir boşluk üretir.
 
 ## Yeni Pencere Eklerken Kontrol Listesi
 
-Yeni bir pencere eklerken aşağıdaki kontrol listesi unutulan bir ayrıntı kalmaması için sana bir hatırlatma görevi görür:
+Yeni bir pencere eklerken aşağıdaki kontrol listesi atlanması kolay ayrıntıları görünür tutan bir hatırlatma görevi görür:
 
 1. Bu pencerenin workspace mi, modal mı, popup mu olduğuna karar verir ve uygun `WindowKind`'ı seçersin.
 2. Ana Zed penceresi ise `build_window_options`'ı kullanırsın.

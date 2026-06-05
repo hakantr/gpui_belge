@@ -288,7 +288,7 @@ Temel API:
 - `.inset()` divider'ın kendi yönüne göre iç margin uygular.
 - `.color(DividerColor::Border | BorderFaded | BorderVariant)`.
 - `divider()` yatay solid divider, `vertical_divider()` dikey solid divider döndürür.
-- `h_flex()` yatay, `v_flex()` dikey bir flex kapsayıcı döndürür. Bunlar `div().flex()` ve `div().flex().flex_col()` çağrılarını daha okunur hale getiren temel kısayollardır.
+- `h_flex()` yatay bir flex kapsayıcı döndürür ve `items_center()` uygular. `v_flex()` ise dikey bir flex kapsayıcı döndürür. Bunlar sırasıyla `div().h_flex()` ve `div().v_flex()` çağrılarını daha okunur hale getiren temel kısayollardır.
 - `h_group_sm()`, `h_group()`, `h_group_lg()`, `h_group_xl()` sırasıyla yaklaşık 2px, 4px, 6px, 8px yatay gap verir.
 - `v_group_sm()`, `v_group()`, `v_group_lg()`, `v_group_xl()` aynı ölçeği dikey flex kapsayıcı için uygular.
 
@@ -307,7 +307,7 @@ Davranış:
 
 - Solid divider doğrudan tema border rengini arka plan olarak kullanır.
 - Dashed divider, GPUI `canvas(...)` üzerinde `PathBuilder` ile çizilir; bu yüzden çizgi üst öğe sınırlarına bağlıdır.
-- `h_flex()` ve `v_flex()` gap vermez; yalnız yön seçer. Group yardımcıları ise aynı temel kapsayıcıya küçük sabit gap uygular. Başka yerleşim davranışı, renk veya border eklemezler.
+- `h_flex()` ve `v_flex()` gap vermez. `h_flex()` yatay yönle birlikte `items_center()` uygular; `v_flex()` dikey yön seçer. Group yardımcıları ise aynı temel kapsayıcıya küçük sabit gap uygular. Başka renk veya border eklemezler.
 
 Örnek:
 
@@ -407,13 +407,13 @@ fn yerel_kucuk_gorsel_render() -> impl IntoElement {
 
 `ImageSource` aşağıdaki kaynaklardan otomatik dönüşür:
 
-| Notlar |
-| :-- |
-| URL veya yerel yol; URL ise asenkron yüklenir. |
-| Tip güvenli URL gösterimi; `Avatar::new("https://...")` örtük bu yolu kullanır. |
-| Dosya sistemi yolu; senkron olarak okunur. |
-| Önceden decode edilmiş image bytes. |
-| Çağrı sırasında dinamik kaynak üretmek için. |
+| Kaynak | Notlar |
+| :-- | :-- |
+| `&str`, `String`, `SharedString` | URL ise `Resource::Uri` olarak asenkron yüklenir; URL değilse embedded resource adı olarak değerlendirilir. |
+| `SharedUri` | Tip güvenli URL gösterimi sağlar; `Avatar::new("https://...")` URL string'iyle örtük olarak aynı kaynak türüne gider. |
+| `&Path`, `PathBuf`, `Arc<Path>` | Dosya sistemi yolu olarak `Resource::Path` üzerinden okunur. |
+| `Arc<RenderImage>`, `Arc<Image>` | Önceden hazırlanmış/cached image verisini doğrudan taşır. |
+| `Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>` | Çağrı sırasında dinamik kaynak üretmek için kullanılır. |
 
 `Avatar::new`, bu `Into<ImageSource>` zincirinin üzerine kuruludur. Ham bir `img(...)` kullanılırken `flex_none()` ve sabit bir `size(...)` verilmediğinde yerleşim taşmaları yaşanması olasıdır. SVG bir ikon için her zaman `Icon` veya `Vector` tercih edilir; `img(...)` SVG path'lerini raster gibi muamele eder ve o yüzden recolor edemez.
 
@@ -471,6 +471,8 @@ Davranış:
 - Bir focus handle verildiğinde, action için önce focus bağlamındaki binding aranır.
 - Binding bulunamadığında `Empty` render edilir.
 - Platform stili macOS için modifier ikonlarını, Linux ve Windows için ise metin ve `+` separator'larını kullanır.
+- `.platform_style(...)` alanı set eder, ancak mevcut render gövdesi doğrudan `PlatformStyle::platform()` kullanır. Belirli bir platform stilini zorlamak istediğinde düşük seviyeli `render_keybinding_keystroke(...)` veya `render_modifiers(...)` yardımcılarına platform stilini açıkça verirsin.
+- `.has_binding(window)` mevcut kaynakta yalnız focus handle'lı action source için `true` dönebilir; `for_action(...)` ile focus handle verilmeden oluşturulan bileşende render yine binding arar, fakat `has_binding(...)` kontrolü `false` kalır.
 
 Örnek:
 
@@ -622,7 +624,7 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - Bir panel veya yan panel bir proje veya çalışma ağacı olmadan açıldığında aynı boş durum eylemlerini göstermek için.
-- `"Proje Aç"` ve `"Depoyu Klonla"` seçeneklerinin aynı odak, kısayol ve boşluk düzeniyle görünmesinin istendiği yerlerde.
+- `"Open Project"` ve `"Clone Repository"` seçeneklerinin aynı odak, kısayol ve boşluk düzeniyle görünmesinin istendiği yerlerde.
 
 Temel API:
 
@@ -633,9 +635,9 @@ Temel API:
 Davranış:
 
 - Render edilen kök, bir `v_flex()` içinde `track_focus(&focus_handle)` çağrısı yapar.
-- Üst metin port arayüzünde `"{label} kullanmak için aşağıdaki seçeneklerden birini seç"` biçiminde üretilir.
-- İlk eylem `Button::new("proje-ac", "Proje Aç")` ve verilen `KeyBinding` ile render edilir; ikinci eylem ise `Button::new("depoyu-klonla", "Depoyu Klonla")` olarak gelir.
-- İki eylem arasında bir `Divider::horizontal().color(DividerColor::Border)` ile küçük bir `"veya"` etiketi kullanırsın.
+- Üst metni `Choose one of the options below to use the {label}` biçiminde görürsün.
+- İlk eylemi `Button::new("open_project", "Open Project")` ve verilen `KeyBinding` ile görürsün; ikinci eylem ise `Button::new("clone_repo", "Clone Repository")` olarak gelir.
+- İki eylem arasında bir `Divider::horizontal().color(DividerColor::Border)` ile küçük bir `"or"` etiketi görürsün.
 
 Örnek:
 

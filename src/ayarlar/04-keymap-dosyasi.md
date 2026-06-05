@@ -24,7 +24,7 @@ pub struct KeymapSection {
 - `use_key_equivalents` macOS'ta QWERTY konum eşlemesini aktive eder; AZERTY/Dvorak gibi düzenlerde `cmd-shift-4` gibi key'lerin fiziksel konumdan üretilmesi içindir.
 - `unbind` aynı section'da `bindings` ayrıştırılmadan önce ele alınır; aynı section içinde bir keystroke önce unbind edilip ardından farklı bir action'a tekrar bağlanabilir.
 - `bindings` keystroke string'inden `KeymapAction`'a giden eşlemedir. Keystroke'lar boşluklarla ayrılır; her keystroke modifier (`ctrl`, `alt`, `shift`, `fn`, `cmd`, `super`, `win`) ve key sırası `-` ile yazılır. Aynı keystroke aynı context derinliğinde birden fazla tanımlanırsa dosyada sonraki kayıt öncelikli olur.
-- `unrecognized_fields` ileri uyumluluk içindir; bilinmeyen alanlar parser'ı kırmaz ama loglanır.
+- `unrecognized_fields` ileri uyumluluk içindir; bilinmeyen alanlar JSON parse aşamasını kırmaz, fakat yükleme sonucunda kısmi hata mesajına eklenir ve başarılı binding'ler yine dönebilir.
 
 `KeymapAction(Value)` `null`, string adı veya `[name, args]` array'i olarak yorumlanabilen JSON değeridir. JSON schema schemars üzerinden manuel `JsonSchema` impl'i ile üretilir ve `KeymapFile::generate_json_schema` içinde tüm action setine genişletilir.
 
@@ -91,7 +91,7 @@ Her binding'in nereden geldiğini sınıflandırır. `KeyBindingMetaIndex` üzer
 
 - `KeybindSource::User` — kullanıcı keymap dosyası.
 - `KeybindSource::Vim` — paketlenmiş `vim.json` keymap'i.
-- `KeybindSource::Base` — kullanıcının seçtiği temel keymap (`base_keymap` ayarı: Atom, VS Code, Sublime, JetBrains, None).
+- `KeybindSource::Base` — kullanıcının seçtiği temel keymap (`base_keymap` ayarı: VSCode, JetBrains, SublimeText, Atom, TextMate, Emacs, Cursor veya None).
 - `KeybindSource::Default` — paketlenmiş platform varsayılan keymap'i.
 - `KeybindSource::Unknown` — kaynak haritasına yerleştirilmemiş bindings.
 
@@ -174,7 +174,7 @@ Tek bir tuş kombinasyonuna birden fazla action bağlamak için kullanılan kaps
 pub struct ActionSequence(pub Vec<Box<dyn Action>>);
 ```
 
-`ActionSequence` bir keystroke'a birden çok action bağlamak için kullanırsın. Sequence içindeki action'lar sırayla dispatch edilir; asenkron action'ların tamamlanması beklenmez. Keymap içinde array formu ile yazılır (örneğin `["editor::Newline", "editor::AcceptInlineCompletion"]`).
+`ActionSequence` bir keystroke'a birden çok action bağlamak için kullanırsın. Sequence içindeki action'lar sırayla dispatch edilir; asenkron action'ların tamamlanması beklenmez. Keymap içinde `["action::Sequence", [...]]` formu ile yazılır; örneğin `["action::Sequence", ["editor::Newline", "editor::AcceptInlineCompletion"]]`. Bu action, dispatch tarafında onu dinleyen yüzeylerde çalışır; Zed ana workspace'i bu listener'ı kendi action zincirine ekler.
 
 ---
 
@@ -186,9 +186,9 @@ pub struct ActionSequence(pub Vec<Box<dyn Action>>);
 
 ---
 
-## Tuzaklar
+## Dikkat Noktaları
 
-- Aynı keystroke aynı context'te iki kere tanımlanırsa dosyada sonraki kazanır; ancak UI'da iki kayıt arasında "winning binding" işareti yalnız `KeybindSource` farklıysa görünür. Aynı User kaydının iki kez tanımlanması karmaşadır; düzenleme akışı önce mevcut kaydı kaldırır.
+- Aynı keystroke aynı context'te iki kere tanımlanırsa dosyada sonraki kazanır; ancak UI'da iki kayıt arasında "winning binding" işareti yalnız `KeybindSource` farklıysa görünür. Aynı User kaydını iki kez tanımlamak yerine düzenleme akışında önce mevcut kaydı kaldırman gerekir.
 - `unbind` her zaman `bindings`'ten önce işlendiği için aynı section içinde bir keystroke'u önce serbest bırakıp sonra yeni action'a bağlamak güvenlidir; başka section'a bağlanmış aynı keystroke yine üst katmandan gelirse override gerekebilir.
-- `KeyBindingValidator` action kaydedilmeden kaydedilmek üzere `inventory::submit!` ile gönderilmelidir; aksi halde validator listede görünmez ve doğrulama atlanır.
+- `KeyBindingValidator` factory'sini `inventory::submit!` ile derleme zamanı kaydetmen gerekir; aksi halde validator listede görünmez ve doğrulama atlanır.
 - `KeybindUpdateOperation::Replace` `target_keybind_source = Default` ile çağrılırsa default keymap dosyasına yazma denemesi yapılmaz; kullanıcı dosyasına ek bir kayıt yazılır ve gerekirse `unbind` girişi eklersin.

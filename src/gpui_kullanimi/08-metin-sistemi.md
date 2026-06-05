@@ -49,17 +49,17 @@ div()
 
 - Font keşfi ve çözme: `all_font_names()`, `add_fonts(...)`, `resolve_font(...)`, `get_font_for_id(...)`.
 - Glif ve satır ölçümü: `bounding_box(...)`, `typographic_bounds(...)`, `advance(...)`, `layout_width(...)`.
-- Em/ch ölçüleri: `em_width(...)`, `em_advance(...)`, `em_layout_width(...)`, `ch_width(...)`, `ch_advance(...)`.
+- Em/ch ölçüleri: `em_width(...)`, `em_advance(...)`, `ch_width(...)`, `ch_advance(...)`.
 - Font metrikleri: `units_per_em(...)`, `cap_height(...)`, `x_height(...)`, `ascent(...)`, `descent(...)`, `baseline_offset(...)`.
 - Sarma altyapısı: `line_wrapper(...)`, aynı font/size için `LineWrapper` havuzundan uygun sarmalayıcıyı verir.
 
 Bu metotlar özel editör, ölçüm önbelleği veya metin renderer'ı yazarken değerlidir. Sıradan etiket ve paragraflarda `div().child(...)`, `StyledText`, `InteractiveText` ve fluent text style metotları daha doğru seviyedir.
 
-**WindowTextSystem.** Pencereye bağlı sistem `shape_line(...)`, `shape_line_by_hash(...)`, `shape_text(...)`, `layout_line(...)`, `try_layout_line_by_hash(...)` ve `layout_line_by_hash(...)` metotlarıyla şekillendirme ve layout cache'ini birlikte yönetir. Hash'li varyantlar aynı metin/stil girdisini tekrar ölçerken cache kullanır. Metin ölçümü ekran karesine ve pencerenin font/scale durumuna bağlıysa `WindowTextSystem`'ı tercih edersin; uygulama geneli font keşfinde `TextSystem` yeterlidir.
+**WindowTextSystem.** Pencereye bağlı sistem `shape_line(...)`, `shape_line_by_hash(...)`, `shape_text(...)`, `layout_line(...)`, `try_layout_line_by_hash(...)`, `layout_line_by_hash(...)`, `layout_width(...)` ve `em_layout_width(...)` metotlarıyla şekillendirme ve layout cache'ini birlikte yönetir. Hash'li varyantlar aynı metin/stil girdisini tekrar ölçerken cache kullanır. Metin ölçümü ekran karesine ve pencerenin font/scale durumuna bağlıysa `WindowTextSystem`'ı tercih edersin; uygulama geneli font keşfinde `TextSystem` yeterlidir.
 
 **Font, fallback ve feature yardımcıları.** `Font` public modelinde `family` birincil aile adını, `features` OpenType feature set'ini, `fallbacks` kullanıcı yedek zincirini, `style` ve `weight` ise varyant seçimini taşır. `Font::bold()` ve `Font::italic()` mevcut font modeline kalın veya italik varyantı uygular. `FontFallbacks::from_fonts(...)` kullanıcı yedek zinciri üretir, `fallback_list()` zinciri okur. `FontFeatures::disable_ligatures()`, `tag_value_list()` ve `is_calt_enabled()` OpenType feature listesini yönetir; kod editörü gibi ligature davranışını bilinçli kontrol eden yüzeylerde kullanılır. Basit UI metninde bu ayarları elle kurmak yerine tema/font ayarlarına güvenirsin.
 
-**Başarım ipucu: `SharedString`.** GPUI metin taşıyan birçok API'de `SharedString` kullanır; çünkü bu tip Arc tabanlı, paylaşımlı sahiplikli ve klonlaması ucuz bir metin taşıyıcısıdır. Bir bileşen aynı etiketi birden fazla render'da veya alt bileşene aktarırken `String`'i tekrar kopyalamak yerine `SharedString`'i klonlarsın. Bu yüzden bileşen alanlarını genellikle `SharedString` tutarsın ve çağıran tarafta `"Kaydet".into()` yazarsın:
+**Başarım ipucu: `SharedString`.** GPUI metin taşıyan birçok API'de `SharedString` kullanır; bu tip `gpui_shared_string` crate'inden yeniden dışa aktarılır ve güncel kaynakta `SmolStr` ile desteklenen ucuz klonlanabilir bir metin taşıyıcısıdır. Bir bileşen aynı etiketi birden fazla render'da veya alt bileşene aktarırken yeni `String` üretmek yerine `SharedString`'i klonlarsın. Bu yüzden bileşen alanlarını genellikle `SharedString` tutarsın ve çağıran tarafta `"Kaydet".into()` yazarsın:
 
 ```rust
 struct EtiketGorunumu {
@@ -82,9 +82,9 @@ impl Render for EtiketGorunumu {
 
 Buradaki `.into()` yalnız okunabilirlik kısaltması değildir; `&'static str`, `String` veya mevcut `SharedString` değerini aynı alana kabul etmeyi sağlar. Statik metinlerde doğrudan string literal vermek yeterlidir, ancak view alanında saklanan veya sık aktarılan metinlerde `SharedString` tercih etmek gereksiz kopyaları azaltır.
 
-**Tuzaklar.** Metin sisteminde dikkat edeceğin birkaç önemli nokta:
+**Dikkat noktaları.** Metin sisteminde dikkat edeceğin birkaç önemli nokta:
 
-- Vurgu aralıkları byte aralığıdır; mutlaka UTF-8 karakter sınırlarına oturması gerekir. Çok-byte'lı karakterlerin ortasına denk gelen aralık hata üretir.
+- Vurgu ve font override aralıkları byte aralığıdır; UTF-8 karakter sınırlarına oturtman gerekir. `with_highlights(...)` ve `with_font_family_overrides(...)` yanlış sınırları debug derlemelerde `debug_assert!` ile yakalar; `with_runs(...)` ise run uzunlukları metni tam tüketmezse `panic` üretir. Çok dilli metinde aralıkları karakter veya grapheme hesabından byte sınırına bilinçli çevirirsin.
 - `SharedString` kopyalama maliyetini azaltır; çizim alt öğelerinde `String` yerine bu tipi tercih edersin.
 - `text_ellipsis`, `line_clamp` ve `white_space` gibi taşma davranışları yerleşim genişliğine bağlıdır; üst öğenin genişliği belirsizse kırpma beklenen biçimde çalışmaz.
 - Sondan üç nokta ile kırpma yapılırken kırpılan parçanın sonundaki boşluk ve ASCII noktalama temizlenir; `"başlık -…"` yerine daha temiz `"başlık…"` çıktısı üretir. Başlangıçtan kırpma davranışı ayrı `TruncateFrom::Start` yoludur.
@@ -124,7 +124,7 @@ let yerlesim = metin.layout().clone();
 - `WrappedLine` `len()`, `paint(...)` ve `paint_background(...)` ile sarılmış satır çıktısını çizer.
 - `LineLayout` `index_for_x(...)`, `closest_index_for_x(...)`, `x_for_index(...)` ve `font_id_for_index(...)` ile tek satırda piksel/byte index dönüşümü yapar.
 - `WrappedLineLayout` `len()`, `width()`, `size()`, `ascent()`, `descent()`, `wrap_boundaries()`, `font_size()`, `runs()`, `index_for_position(...)`, `closest_index_for_position(...)` ve `position_for_index(...)` ile çok satırlı yerleşimi sorgular.
-- `LineWrapper` `wrap_line(...)`, `should_truncate_line(...)` ve `truncate_line(...)` ile sarma ve kırpma kararını verir. `LineWrapper::MAX_INDENT` / `MAX_INDENT` satır sarmada uygulanabilecek girintiyi 256 ile sınırlar; kullanıcıdan gelen veya markdown/code block'tan türeyen aşırı girintiler layout hesabını patlatmasın diye bu sınırı altyapı uygular.
+- `LineWrapper` `wrap_line(...)`, `should_truncate_line(...)` ve `truncate_line(...)` ile sarma ve kırpma kararını verir. `LineWrapper::MAX_INDENT` satır sarmada uygulanabilecek girintiyi 256 ile sınırlar; kullanıcıdan gelen veya markdown/code block'tan türeyen aşırı girintiler layout hesabını patlatmasın diye bu sınırı altyapı uygular.
 
 `LineLayoutCache` aynı satır yerleşimlerini frame içinde tekrar kullanır; `reuse_layouts(...)`, `truncate_layouts(...)`, `finish_frame(...)`, `layout_index(...)`, `layout_wrapped_line(...)`, `try_layout_line_by_hash(...)` ve `layout_line_by_hash(...)` özel metin renderer'ı veya editör gibi yüksek hacimli ölçüm yapan kodlar içindir. Sıradan bileşenlerde cache'i elle yönetmezsin.
 
@@ -147,7 +147,7 @@ Aralıklar yine byte index aralıklarıdır; Unicode metinde karakter sınırlar
 
 **Markdown çizim davranışı.** Markdown ekosistemi metin sisteminin üzerine özel davranışlar bindirir; bunları bilmek sürpriz davranışları azaltır:
 
-- Markdown görsel çizimi `StyledImage::with_fallback` kullanarak yüklenemeyen görsel için tıklanabilir bir `"Yüklenemedi: ..."` yedeği üretir. Yedek etiketi önce alt metin değerini, yoksa hedef URL'yi kullanır; tıklama ile `cx.open_url` çağrılır.
+- Markdown görsel çizimi `StyledImage::with_fallback` kullanarak yüklenemeyen görsel için tıklanabilir bir `"Failed to Load: ..."` yedeği üretir. Yedek etiketi önce alt metin değerini, yoksa hedef URL'yi kullanır; tıklama ile `cx.open_url` çağrılır.
 - Mermaid kod blokları yalnızca kapalı fenced block biçimindeyse diyagram olarak çıkarılır. ` ```mermaid` etiketinin yanı sıra `.mermaid` veya `.mmd` uzantılı kaynak yolu işaret edilen bloklar da diyagram olarak sayılır.
 - Mermaid diyagram arayüzü önizleme ve kod sekmelerini, ayrıca kopyalama butonunu gösterebilir; çizim başarısızsa veya henüz tamamlanmadıysa kaynak kodu görünümü yedek olarak çizilir.
 
@@ -163,7 +163,7 @@ CodeBlockRenderer::Default {
 }
 ```
 
-`WrapButtonVisibility` üç değer alır: `Hidden` (sarım düğmesi hiç gösterilmez), `AlwaysVisible`, `VisibleOnHover`. Kullanıcı sarım düğmesine tıklayınca `Markdown` yapısının `wrapped_code_blocks` kümesi değişir ve kod bloğu yatay kaydırma yerine sözcük sarımına geçer. `WrapButtonVisibility::Hidden` olmayan tüm durumlarda düğme satırı kopyalama düğmesiyle aynı `h_flex` konteynerini paylaşır; birinin görünürlük kuralı `AlwaysVisible` ise her ikisi de her zaman görünür.
+`WrapButtonVisibility` üç değer alır: `Hidden` (sarım düğmesi hiç gösterilmez), `AlwaysVisible`, `VisibleOnHover`. Kullanıcı sarım düğmesine tıklayınca `Markdown` yapısının `wrapped_code_blocks` kümesi değişir ve kod bloğu yatay kaydırma yerine sözcük sarımına geçer. `WrapButtonVisibility::Hidden` olmayan tüm durumlarda düğme satırı kopyalama düğmesiyle aynı `h_flex` konteynerini paylaşır; oluşturulan düğmelerden herhangi birinin görünürlük kuralı `AlwaysVisible` ise satır hover beklemeden görünür, `Hidden` olan düğme yine oluşturulmaz.
 
 `CodeBlockRenderer::Default` alanlarının tümü zorunludur; yapıyı kurarken `copy_button_visibility`, `wrap_button_visibility` ve `border`'ı birlikte verirsin.
 
@@ -180,7 +180,7 @@ MarkdownElement::new(markdown, style)
     })
 ```
 
-`CodeSpanLinkCallback = Arc<dyn Fn(&str, &App) -> Option<SharedString>>` döndürürse bağlantı stili uygulanır; `None` döndürürse normal kod stili kullanılır. Geri çağrı yalnızca kod bloğunun dışında ve bağlantı içinde olmayan durumlarda çalışır.
+`CodeSpanLinkCallback = Arc<dyn Fn(&str, &App) -> Option<SharedString>>` döndürürse bağlantı stili uygulanır; `None` döndürürse normal kod stili kullanılır. Geri çağrı yalnızca kod bloğunun dışında, bağlantı içinde olmayan ve `MarkdownStyle.prevent_mouse_interaction` kapalı olan durumlarda çalışır.
 
 Shift+tıklama seçimi genişletir: mevcut seçimin kuyruğunu sabit tutar ve tıklama noktasına kadar aralığı uzatır. Shift'siz tıklama ise imleci tek bir konuma taşır.
 

@@ -185,9 +185,9 @@ pub fn possible_open_target(
 
 `sanitize_path_text` ve `first_unbalanced_open_paren` yardımcıları ham metinden önce noktalama ve dengesiz parantez temizliği yapar; böylece `"src/main.rs:42,"` gibi terminale yapıştırılmış yollar temiz ayrıştırılır.
 
-**Tuzaklar:**
+**Dikkat noktaları:**
 
-- `BackgroundFsChecks::Disabled` yalnızca test ve uzak proje senaryolarında kullanılır; yerel projelerde arka plan kontrolleri her zaman açıktır.
+- `BackgroundFsChecks::Disabled` yalnızca test/test-support helper'ı üzerinden açıkça verilir. Normal `possible_open_target` akışında yerel projelerde arka plan dosya sistemi kontrolü açıktır; uzak projelerde bu kontrol kapalı kalır.
 - `cwd` bilgisi verilmezse göreli yollar worktree köklerine birleştirilerek denenir; belirsizlik çözümlenmez, ilk eşleşme alınır.
 
 ---
@@ -219,7 +219,7 @@ Collab ve follow akışı için `FollowableItem` kullanırsın:
 - `update_agent_location(location, window, cx)` ajan konumu gibi ek takip bilgisini item'e işler.
 - `dedup(existing, ...) -> Option<Dedup>` uzak item açılırken mevcut item ile birleştirme veya değiştirme kararıdır.
 
-**Tuzaklar.** Serileştirme, seçenekler ve search tarafında karşılaşılabilen hatalar:
+**Dikkat noktaları.** Serileştirme, seçenekler ve search tarafında hataya açık kullanımlar:
 
 - Serializable item kaydedilmediğinde `deserialize` hiç çağrılmaz; session restore sessiz biçimde geçersiz item'e düşebilir.
 - `serialized_item_kind` global bir namespace gibidir; başka item ile çakıştırılmamalıdır.

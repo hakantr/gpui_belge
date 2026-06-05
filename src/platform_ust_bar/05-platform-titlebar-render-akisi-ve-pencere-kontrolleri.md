@@ -8,7 +8,7 @@ Bu bölümden itibaren doğrudan başlık çubuğunun render davranışına giri
 
 Ana başlık çubuğu yüzeyi `WindowControlArea::Drag` etiketiyle işaretlenir. Bu etiket, alanı platforma "sürüklenebilir başlık" olarak tanıtır. Buna ek olarak sol fare basma ve fare hareketi olaylarının zincirinde `window.start_window_move()` çağrısı tetiklersin. Bu iki mekanizma birlikte çalışır. Yalnızca işaretleme yapmak ya da yalnızca manuel çağrıya güvenmek yeterli olmaz.
 
-Başlık çubuğuna yerleştirilen etkileşimli elementler, kendi fare basma/tıklama olaylarında yayılımı durdurmalıdır. Buna butonlar, menü tetikleyicileri ve arama kutuları dahildir. Aksi halde aynı tıklama hem ilgili element hem de altındaki "sürükle" yüzeyi tarafından algılanır. Sonuçta kullanıcı menüye basmak isterken pencereyi yanlışlıkla sürükleyebilir.
+Başlık çubuğuna yerleştirilen etkileşimli elementler, kendi fare basma/tıklama olaylarında yayılımı durdurmalıdır. Buna butonlar, menü tetikleyicileri ve arama kutuları dahildir. Aksi halde aynı tıklama hem ilgili element hem de altındaki "sürükle" yüzeyi tarafından algılanır. Sonuçta kullanıcı menüye basmak isterken pencere de hareket edebilir.
 
 ![Başlık Çubuğu Sürükleme Durum Makinesi](assets/surükleme-durum-makinesi.svg)
 
@@ -19,7 +19,7 @@ Başlık çubuğuna yerleştirilen etkileşimli elementler, kendi fare basma/tı
 - `on_mouse_up(Left, ...)` olayında `hareket_etmeli` yine `false` yaparsın. Bu, sürükleme hiç başlamamış olsa bile durumun temiz kalmasını sağlar.
 - `on_mouse_down_out(...)` olayında da `hareket_etmeli` `false` yaparsın. Bu sayede başlık çubuğunun dışına tıklanması durumunda bayrak geriden gelip ileride başka bir sürüklemeyi tetiklemez; durum sızıntısı önlenmiş olur.
 
-Linux pencere kontrol katmanı, **üç ayrı `stop_propagation()` noktası** kullanır. Bu üç nokta koda dağılmış olduğu için tek tek bakıldığında kolayca gözden kaçar:
+Linux pencere kontrol katmanı, **üç ayrı `stop_propagation()` noktası** kullanır. Bu üç nokta koda dağılmış olduğu için birlikte izlenmesi gereken bir davranış kümesi oluşturur:
 
 | Yer | Olay | Neyi engeller? |
 | :-- | :-- | :-- |
@@ -27,7 +27,7 @@ Linux pencere kontrol katmanı, **üç ayrı `stop_propagation()` noktası** kul
 | `WindowControl` (her buton) | `on_mouse_move` | Buton üzerinde fare gezerken başlık çubuğu sürüklemesinin tetiklenmesini engeller. |
 | `WindowControl` `on_click` geri çağrı gövdesi | `cx.stop_propagation()` ilk satır | Tıklama olayının yukarı kabarıp başka işleyicilere ulaşmasını. Eylem gönderiminden ÖNCE çalışır. |
 
-Bu üç engel birlikte yoksa üç ayrı sorun doğar. Önce, butonun üstüne yapılan `mouse_down` olayı alttaki sürükleme yüzeyini tetikler ve pencere sürüklenmeye başlar. Sonra, buton üzerindeki fare hareketi yine sürüklemeyi ateşleyebilir. Son olarak kapatma eylemi gönderilirken aynı tıklama `PlatformTitleBar` katmanına kadar kabarır ve `hareket_etmeli = true` bayrağını ayarlar. Bu yüzden port hedefinde bu üç noktanın her birine **eşdeğer engeller** yerleştirilir. Eksik kalan tek bir nokta bile davranışı bozar.
+Bu üç engel birlikte yoksa üç ayrı sorun doğar. Önce, butonun üstüne yapılan `mouse_down` olayı alttaki sürükleme yüzeyini tetikler ve pencere sürüklenmeye başlar. Sonra, buton üzerindeki fare hareketi yine sürüklemeyi ateşleyebilir. Son olarak kapatma eylemi gönderilirken aynı tıklama `PlatformTitleBar` katmanına kadar kabarır ve `hareket_etmeli = true` bayrağını ayarlar. Bu yüzden port hedefinde bu üç noktanın her birine **eşdeğer engeller** yerleştirilir. Bu noktalardan biri yoksa davranış paritesi bozulur.
 
 Windows tarafında aynı amaca hizmet eden daha kısa bir ifade vardır: `.occlude()` çağrısı. Bu çağrı, caption butonu üzerindeki fare olaylarının alt katmanlara sızmasını engeller. Linux'taki üç ayrı `stop_propagation()` çağrısının yaptığı işi Windows tarafında bu tek çağrı toparlar.
 
@@ -55,7 +55,7 @@ Trafik ışığı konumu pencere açıldıktan sonra da değiştirilebilir. macO
 
 Port hedefinde çift tıklamanın maximize yerine örneğin minimize gibi farklı bir davranış izlemesi istenirse, bu nokta dışarıdan parametreleştirilecek şekilde tasarlanmalıdır. Aksi halde davranış sabit kalır ve sonradan değiştirmek zorlaşır.
 
-macOS tarafında `window.titlebar_double_click()` çağrısının her zaman "zoom" anlamına geldiği sanılmamalıdır. `gpui_macos` platform implementasyonu çağrı anında `NSGlobalDomain/AppleActionOnDoubleClick` değerini okur ve buna göre davranır. Değer `"None"` ise hiçbir şey yapmaz. `"Minimize"` için `miniaturize_` çağrılır. `"Maximize"` ve `"Fill"` için `zoom_` çağrılır. Bilinmeyen bir değer geldiğinde de varsayılan olarak yine `zoom_` çalışır. Buna karşılık Linux tarafındaki `window.zoom_window()` çağrısı bu macOS kullanıcı ayarını taklit etmez; her durumda doğrudan maximize/restore davranışını uygular.
+macOS tarafında `window.titlebar_double_click()` çağrısı her zaman "zoom" anlamına gelmez. `gpui_macos` platform implementasyonu çağrı anında `NSGlobalDomain/AppleActionOnDoubleClick` değerini okur ve buna göre davranır. Değer `"None"` ise hiçbir şey yapmaz. `"Minimize"` için `miniaturize_` çağrılır. `"Maximize"` ve `"Fill"` için `zoom_` çağrılır. Bilinmeyen bir değer geldiğinde de varsayılan olarak yine `zoom_` çalışır. Buna karşılık Linux tarafındaki `window.zoom_window()` çağrısı bu macOS kullanıcı ayarını taklit etmez; her durumda doğrudan maximize/restore davranışını uygular.
 
 ### Renk
 
@@ -87,7 +87,7 @@ Zed, başlık çubuğu yüksekliğini `platform_title_bar_height(window)` fonksi
 - Windows'ta sabit `32px` değeri kullanılır.
 - Diğer platformlarda hesap `1.75 * rem_size` formülüyle yapılır ve minimum `34px` değeriyle sınırlandırılır.
 
-Bu yükseklik değeri yalnızca başlık çubuğunda kullanılmaz. Windows pencere butonu yüksekliği ve diğer yardımcı başlık hizalamaları da **aynı kaynaktan** beslenmelidir. Farklı yerlere farklı sabitler yazılırsa hizalama bozulur ve bu hata sonradan piksel piksel kovalanır.
+Bu yükseklik değeri yalnızca başlık çubuğunda kullanılmaz. Windows pencere butonu yüksekliği ve diğer yardımcı başlık hizalamaları da **aynı kaynaktan** beslenmelidir. Farklı yerlere farklı sabitler yazılırsa hizalama bozulur ve sorun sonradan piksel düzeyinde izlenmek zorunda kalır.
 
 ## 12. Buton yerleşimi ve ayar yönetimi
 
@@ -108,7 +108,7 @@ pub struct WindowButtonLayout {
 - `Maximize`
 - `Close`
 
-GPUI tarafındaki `WindowButton`, bu üç değerle birlikte dış API olarak kullanıma açıktır. Üzerinde `#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]` derive kümesi vardır. `pub fn id(&self) -> &'static str` metodu ise varyantlara karşılık olarak `"minimize"`, `"maximize"` ve `"close"` kararlı element id'lerini döndürür. Bu id'ler Linux tarafındaki `WindowControl::new(...)` çağrılarında doğrudan kullanılır. Bu yüzden port hedefinde anahtar/id uyumu korunmalıdır. Aksi halde Zed'le uyumlu olması beklenen element id'leri sapar ve test ya da araç bağlamalarında ince hatalar çıkar.
+GPUI tarafındaki `WindowButton`, bu üç değerle birlikte dış API olarak kullanıma açıktır. Üzerinde `#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]` derive kümesi vardır. `pub fn id(&self) -> &'static str` metodu ise varyantlara karşılık olarak `"minimize"`, `"maximize"` ve `"close"` kararlı element id'lerini döndürür. Bu id'ler Linux tarafındaki `WindowControl::new(...)` çağrılarında doğrudan kullanılır. Bu yüzden port hedefinde anahtar/id uyumu korunmalıdır. Aksi halde Zed'le uyumlu olması beklenen element id'leri sapar ve test ya da araç bağlamalarında ince uyumsuzluklar oluşur.
 
 `WindowButtonLayout` tipi üç public öğeyle gelir:
 
@@ -118,7 +118,7 @@ GPUI tarafındaki `WindowButton`, bu üç değerle birlikte dış API olarak kul
 | `WindowButtonLayout::linux_default` | `pub fn linux_default() -> Self` | Sol taraf boş, sağ taraf `Minimize, Maximize, Close`. Yalnız Linux/FreeBSD cfg'inde derlenir. |
 | `WindowButtonLayout::parse` | `pub fn parse(yerlesim_dizgesi: &str) -> Result<Self>` | GNOME tarzı `left:right` dizgesini okur; `:` yoksa sol boş, tüm dizge sağ taraf sayılır. |
 
-`parse(...)` fonksiyonunda kolay atlanabilecek iki ince nokta vardır. İlki geçersiz isimlerin ele alınma biçimidir. Dizge içinde tanınmayan adlar geçerse, en az bir geçerli buton bulunduğu sürece bu adlar **sessizce yok sayılır**. Yalnızca dizgenin tamamı geçersiz olduğunda hata döner. İkincisi tekrar davranışıdır. Aynı buton iki farklı tarafta veya aynı tarafın içinde tekrar edilirse, ilk görülen slot tutulur ve sonraki tekrarlar atlanır. Bu yüzden `"close,foo"` geçerli bir yerleşim üretir; yalnız `"foo"` yazıldığında ise hata alırsın.
+`parse(...)` fonksiyonunda dikkat edilmesi gereken iki ince nokta vardır. İlki geçersiz isimlerin ele alınma biçimidir. Dizge içinde tanınmayan adlar geçerse, en az bir geçerli buton bulunduğu sürece bu adlar **sessizce yok sayılır**. Yalnızca dizgenin tamamı geçersiz olduğunda hata döner. İkincisi tekrar davranışıdır. Aynı buton iki farklı tarafta veya aynı tarafın içinde tekrar edilirse, ilk görülen slot tutulur ve sonraki tekrarlar yok sayılır. Bu yüzden `"close,foo"` geçerli bir yerleşim üretir; yalnız `"foo"` yazıldığında ise hata döner.
 
 Render tarafında bir tarafın "var olup olmadığı" yalnız o tarafın ilk slotuna bakılarak belirlenir. `render_left_window_controls(...)` için `button_layout.left[0].is_none()` ise tüm sol taraf `None` döner. Aynı kontrol `render_right_window_controls(...)` için `button_layout.right[0].is_none()` ile yapılır. Bunun pratik sonucu şudur: manuel yerleşim verilirken `[None, Some(Close), ...]` gibi bir dizi yazılırsa o taraf bütünüyle gizlenir, çünkü ilk slot boştur. İlk slot doluysa ve sonrasındaki slotlardan biri `None` ise, bu `None` slotlar `LinuxWindowControls` render'ındaki `filter_map(|b| *b)` adımıyla atlanır; bütün taraf düşmez.
 
@@ -199,6 +199,6 @@ Bu mekanizmanın sonucu üç maddede özetlenir:
 
 - `LinuxWindowControls`, minimize ve maximize butonlarını bu yetenek değerine göre filtreler; kapat ise her durumda render edilebilir.
 - Linux CSD başlık çubuğu üzerindeki sağ tık pencere menüsü işleyicisi, ancak `supported_controls.window_menu` `true` olduğunda eklenir.
-- Port hedefinde `WindowControls::default()` değerinin kalıcı gerçek olduğu sanılmamalıdır. Özellikle Wayland'da yetenek configure olayı geldikten sonra bu değerler değişebilir ve render buna uyum sağlamalıdır.
+- Port hedefinde `WindowControls::default()` değerinin geçici başlangıç varsayımı olduğu kabul edilmelidir. Özellikle Wayland'da yetenek configure olayı geldikten sonra bu değerler değişebilir ve render buna uyum sağlamalıdır.
 
 ---

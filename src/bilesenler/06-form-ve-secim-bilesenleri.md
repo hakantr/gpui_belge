@@ -120,6 +120,7 @@ Davranış:
 
 - `ToggleState::Selected` açık, diğer durumlar kapalı görünür.
 - Click işleyicisine `self.toggle_state.inverse()` gönderilir; yani Switch da Checkbox gibi hedef durumu taşır.
+- `.label(...)` tek başına label'ı çizdirmez; label'ın görünmesi için ayrıca `.label_position(Some(SwitchLabelPosition::Start))` veya `.label_position(Some(SwitchLabelPosition::End))` verirsin.
 - `full_width(true)` switch ile label'ı satır içinde iki uca doğru yayar; böylece label solda, switch sağda görünür.
 - `tab_index(...)` verildiğinde switch odak görünür bir border kazanır ve klavye odak sırasına dahil olur.
 
@@ -310,9 +311,12 @@ Düşük seviye yüzey — `ErasedEditor`:
 
 ```rust
 // Uygulama başlangıcında (genellikle editor crate'inin init fonksiyonu kurar):
-ui_input::ERASED_EDITOR_FACTORY
+if ui_input::ERASED_EDITOR_FACTORY
     .set(|window, cx| Arc::new(OrnekEditorAdaptoru::new(window, cx)))
-    .ok();
+    .is_err()
+{
+    // Fabrika daha önce kurulduysa mevcut adaptörü kullanırsın.
+}
 ```
 
 `ErasedEditor` trait metodları:
@@ -400,9 +404,9 @@ Davranış:
 
 - `settings_ui::init_renderers(...)`, `settings::CompletionMenuItemKind` için açılır seçim renderer'ı kaydeder. Bu ayar `editor.completion_menu_item_kind` JSON yolu ile görünür; değerler `off` ve `symbol` olur.
 - Ayar sayfasındaki `"Tamamlama Menüsü Öğe Türü"` satırı, tamamlama menüsünde LSP öğe türü bilgisinin gösterilip gösterilmeyeceğini seçtirir. `off` öğe türünü gizler, `symbol` sözdizimi teması ile renklendirilmiş tek harfli rozet gösterir.
-- `"Sürüm Kontrolü / Git Hunkları"` bölümünde `"Hazırlama/Geri Yükleme Butonlarını Göster"` satırı `git.show_stage_restore_buttons` boolean ayarını yazar. Bu değer `false` olduğunda diff hunk üstündeki `"Hazırla"`, `"Hazırlıktan Çıkar"` ve `"Geri Yükle"` butonları render edilmez.
-- `"Araç İzinleri"` kurulum listesindeki `skill` aracı `"Ajan beceri yönergeleri yükleniyor"` açıklamasıyla gelir. Regex açıklaması skill adına değil, skill'in `SKILL.md` dosyasının mutlak yoluna göre eşleştiğini belirtir.
-- Ayar araması boş sorguda sonuç döndürmez. Sorgu birden fazla kelime içerdiğinde sonuç, sorgu kelimelerinin tamamının ilgili dokümandaki bir sözcük önekiyle eşleşmesini bekler.
+- `"Version Control / Git Hunks"` bölümünde `"Show Stage/Restore Buttons"` satırı `git.show_stage_restore_buttons` boolean ayarını yazar. Bu değer `false` olduğunda diff hunk üstündeki `"Stage"`, `"Unstage"` ve `"Restore"` butonları render edilmez.
+- `"Araç İzinleri"` kurulum listesindeki `skill` aracı kaynakta `"Loading agent skill instructions"` açıklamasıyla gelir. Regex açıklaması skill adına değil, skill'in `SKILL.md` dosyasının mutlak yoluna göre eşleştiğini belirtir.
+- Ayar araması boş sorguda filtre uygulamaz; sayfa listesi resetlenir. Tam eşleşme yolunda sorgu birden fazla kelime içerdiğinde, kelimelerin tamamının ilgili dokümandaki bir sözcük önekiyle eşleşmesi beklenir.
 
 Dikkat edeceğin noktalar:
 

@@ -7,8 +7,8 @@ Başlığın sağ grubu hesap ve uygulama durumunu özetler: oturum açık mı, 
 Render geçişi, kullanıcı ve `Client` bağlantı durumuna bakarak sağ grupta üç farklı şeyden birini gösterir:
 
 - **Oturum açık** (`current_user` var): kullanıcı menüsü butonu çizilir.
-- **Oturum açılıyor** (kullanıcı henüz yok ama durum `Authenticating`/`Authenticated`/`Connecting`): titreşen bir `"Oturum açılıyor…"` etiketi gösterilir. Bu etiket 2 saniyelik bir animasyonla 0.4-0.8 arası alfa değerinde nabız gibi yanıp söner; kullanıcıya "bekle, bağlanıyorum" sinyali verir.
-- **Oturum kapalı veya kimlik hatası** (`SignedOut`/`AuthenticationError`) ve `show_sign_in` açık: `"Oturum Aç"` butonu çizilir.
+- **Oturum açılıyor** (kullanıcı henüz yok ama durum `Authenticating`/`Authenticated`/`Connecting`): kaynak arayüzde titreşen bir `"Signing in…"` etiketi gösterilir. Bu etiket 2 saniyelik bir animasyonla 0.4-0.8 arası alfa değerinde nabız gibi yanıp söner; kullanıcıya "bekle, bağlanıyorum" sinyali verir. Türkçe portta görünür metin `"Oturum açılıyor…"` gibi yerelleştirilebilir.
+- **Oturum kapalı veya kimlik hatası** (`SignedOut`/`AuthenticationError`) ve `show_sign_in` açık: kaynak arayüzde `"Sign In"` butonu çizilir. Türkçe portta görünür metin `"Oturum Aç"` gibi yerelleştirilebilir.
 
 ```rust
 pub fn render_sign_in_button(&mut self, _: &mut Context<Self>) -> Button
@@ -47,7 +47,7 @@ Plan bilgisi yalnız kullanıcının bir abonelik dönemi varsa gösterilir; esk
 | `Downloading { version }` | İndirme göstergesi; ipucunda sürüm. |
 | `Installing { version }` | Kurulum göstergesi; ipucunda sürüm. |
 | `Updated { version }` | Tıklanınca çalışma alanı yeniden yüklenir; kapatılabilir. |
-| `Errored { error }` | `"Güncelleme Başarısız"` mesajı; tıklanınca uygulama günlüğü açılır; kapatılabilir. |
+| `Errored { error }` | `"Failed to Update"` mesajı; tıklanınca uygulama günlüğü açılır; kapatılabilir. Türkçe portta görünür metin anlam korunarak yerelleştirilir. |
 | `Idle` (ve manuel olmayan `Checking`) | Hiçbir şey çizilmez. |
 
 Görsel kabuk, `ui` crate'indeki `UpdateButton` bileşenidir ve bu durumların her biri için ayrı bir kurucu sunar. `Checking`, `Downloading`, `Installing` durumlarında buton `disabled(true)` ile gelir; yani indirme/kurulum sürerken kullanıcı tekrar tıklayıp aynı işi başlatamaz.
@@ -58,7 +58,7 @@ Görsel kabuk, `ui` crate'indeki `UpdateButton` bileşenidir ve bu durumların h
 fn version_tooltip_message(version: &VersionCheckType) -> String
 ```
 
-Port edilen arayüzde metin her durumda `"Sürüme Güncelle: {version}"` kalıbında olmalıdır. Sürüm semantik bir versiyon ise sürüm numarası, commit SHA ise **kısaltılmamış tam SHA** kullanılır. Yani başlıkta kısa SHA değil, tam hash gösterilir.
+Kaynak arayüzde metin her durumda `"Update to Version: {version}"` kalıbındadır. Sürüm semantik bir versiyon ise sürüm numarası, commit SHA ise **kısaltılmamış tam SHA** kullanılır. Türkçe portta bu metin yerelleştirilecekse aynı veri ayrımı korunur; başlıkta kısa SHA değil, tam hash gösterilir.
 
 `SimulateUpdateAvailable` eylemi, bu yüzeyi geliştirme sırasında test etmek içindir: `toggle_update_simulation` aracılığıyla `UpdateVersion`'ı durumlar arasında döndürür, böylece her durumun görünümü gerçek bir güncelleme beklemeden denenebilir.
 

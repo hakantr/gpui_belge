@@ -190,7 +190,7 @@ Tüketici kodun güvenle yapabileceği işlemler:
 - ✓ `cx.theme().colors().background` okunabilir.
 - ✓ `kvs_tema::Theme` ve `kvs_tema::ThemeColors` import edilebilir.
 - ✓ `ThemeRegistry::global(cx)` ile registry sorgulanabilir.
-- ✓ `kvs_tema::init(cx)` çağrılabilir.
+- ✓ `kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx)` çağrılabilir.
 - ✓ `kvs_tema::temayi_degistir(ad, cx)` ile tema değiştirilebilir.
 - ✓ `kvs_tema::temayi_yeniden_yukle(yol, cx)` ile disk'ten reload yapılabilir.
 - ✓ `kvs_tema::observe_system_appearance(window, cx)` ile sistem mod takibi kurulabilir.
@@ -207,7 +207,7 @@ Tüketicinin yapmaması gereken işlemler (compile geçer ama kötü pratik):
 
 - ✗ `kvs_tema::ThemeColorsContent` üzerinde UI davranışı kurma; bu tip schema JSON ayrıntısıdır.
 - ✗ `kvs_tema::try_parse_color(...)` çağrısını doğrudan yapma; `Theme::from_content` zaten bu işlemi sarmalar.
-- ✗ Tema yüklenirken `baseline`'ı yanlış appearance ile seçme.
+- ✗ Tema yüklenirken `baseline` appearance'ını aktif görünümden bağımsız seçme.
 
 ### `pub(crate)` ile gerçek izolasyon
 
@@ -233,7 +233,7 @@ cargo doc -p kvs_tema --no-deps --open
 
 Doc sayfasında `theme_colors_refinement` veya `apply_status_color_defaults` görünüyorsa `pub use` zincirinin gözden geçirilmesi gerekir; bir sızıntı söz konusudur.
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **`pub use crate::*` içinde `refinement`'in yakalanması**: `pub use crate::refinement::*` yazıp ardından modülün `pub(crate)` olarak tutulması bir compile hatasına yol açar ("re-exporting private module"). İki tarafın tutarlı olması gerekir.
 2. **`Theme.styles` alanının public yapılması (`pub`)**: Bu durumda alan public hale gelir ve iç düzen sızar. Accessor metotları sunulduktan sonra `styles` `pub(crate)` olarak tutulur ve okumalar yalnızca accessor üzerinden yaparsın.
@@ -287,7 +287,7 @@ Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema cr
 | `pub fn syntax_overrides(style) -> Vec<(String, HighlightStyle)>` | Override map'i `IndexMap<String, HighlightStyleContent>` → `Vec<(String, gpui::HighlightStyle)>` çevirir. 4 alan (`color`, `background_color`, `font_style`, `font_weight`) parse edilir; underline/strikethrough/fade_out `Default::default()`'tan gelir. `ThemeSettings::modify_theme` içindeki `SyntaxTheme::merge`'in beklediği imzadır |
 | `ThemeSettings::modify_theme` override akışı | Full `refine_theme` değildir: `apply_status_color_defaults` veya `apply_theme_color_defaults` çağırmaz; status/theme refinement'ı doğrudan uygular, player/accent merge eder ve syntax için `SyntaxTheme::merge(base, syntax_overrides(...))` kullanır |
 | `SyntaxTheme::merge(base, overrides) -> Arc<Self>` | **Field-bazlı merge**: aynı capture varsa `new.<f>.or(existing.<f>)` ile birleştirir; capture yeni ise listenin sonuna eklenir. Override boşsa baseline klonsuz döner. İlgili bölüm + settings seviyesi theme override akışında kanonik kullanımdır |
-| `ThemeName`, `IconThemeName`, `ThemeAppearanceMode`, `FontFamilyName` re-export zinciri | Owner `settings_content`'tir; `theme_settings` `pub use` ile köprü kurulur. Mirror'da `kvs_ayarlari_icerik` (veya muadili) tek kaynaktır, `kvs_tema_ayarlari` yalnızca `pub use` ile yeniden açar — aksi halde aynı tipin iki yerde tanımlanması bug'ı doğar |
+| `ThemeName`, `IconThemeName`, `ThemeAppearanceMode`, `FontFamilyName` re-export zinciri | Owner `settings_content`'tir; `theme_settings` `pub use` ile köprü kurulur. Mirror'da `kvs_ayarlari_icerik` (veya muadili) tek kaynaktır, `kvs_tema_ayarlari` yalnızca `pub use` ile yeniden açar; aynı tipin iki yerde tanımlanması tip kimliği ayrışmasına yol açar |
 | `Theme.styles` görünürlüğü | Zed'de **`pub styles: ThemeStyles`** (alan-bazlı). Yerel tasarım accessor disiplini için `pub(crate)` seçebilirsin; bu yerel bir sıkılaştırmadır. Zed paritesi `pub`'tır |
 | `ThemeStylesRefinement` | `#[derive(Refineable)]` tarafından `ThemeStyles` için üretilen public refinement tipidir. Nested `colors` ve `status` override zinciri için kullanılır; mirror tarafında derive çıktısı veya elle yazılmış eşdeğeri public kapsama dahil edilmelidir |
 | `ThemeColorFieldIter` | `ThemeColorField` üzerindeki `EnumIter` derive çıktısıdır. Doğrudan elle import etmek yerine `ThemeColorField::iter()` ve `all_theme_colors(cx)` üzerinden tüketilmesi önerilir; rustdoc public API'de ayrı tip olarak görünür |
@@ -301,7 +301,7 @@ Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema cr
 | `try_parse_color` (`theme` crate'i) | ilgili bölümde ayrıntılıdır; 43.9'da public helper olarak teyit edilir |
 | `gpui::Rgba::try_from(&str)` desteklediği formatlar | **Dört format**: `#rgb` (3 hane, çiftleme), `#rgba` (4 hane, çiftleme), `#rrggbb` (6 hane), `#rrggbbaa` (8 hane). `#` zorunludur; trim yapılır. İlgili bölümde ayrıntılı |
 | `AppearanceContent` (`theme` crate'i) | JSON `appearance` alanının enum mirror'ı (`Light` / `Dark`); ilgili bölümde kullanılır |
-| `theme_settings::init` observer 7 değişken tracking'i | Ayar değişiminde `reset_*_font_size` (4), `reload_theme` (theme_name veya overrides) (1+1=2), `reload_icon_theme` (1). Toplam 7 izleme alanı vardır; eksik tracking font size değerlerinin stale kalmasına yol açar. İlgili bölümde ayrıntılı |
+| `theme_settings::init` observer 8 değişken tracking'i | Ayar değişiminde `reset_*_font_size` (buffer, UI, agent UI, agent buffer, git commit buffer = 5), `reload_theme` (theme_name veya overrides = 2) ve `reload_icon_theme` (1) izlenir. Toplam 8 izleme değeri vardır; bu alanlardan biri takip edilmediğinde ilgili runtime override güncel ayarla uyumsuz kalır. İlgili bölümde ayrıntılı |
 | `theme_settings::init` 2 katmanlı init paritesi | `theme::init` (registry + fallback dark + GlobalTheme) çağrıldıktan sonra `set_theme_settings_provider`, `load_bundled_themes` (LoadThemes::All ise), `configured_theme` ile settings'ten gelen seçim çözülür ve `GlobalTheme::update_theme` + `update_icon_theme` ile aktif tema atarsın. Mirror'da iki ayrı `init` fonksiyonunun korunması gerekir; tek `kvs_tema::init`'te birleştirilmesi bağımlılık matrisini bozar |
 | `Theme.styles.syntax` baseline davranışı | `refine_theme` `Arc::new(SyntaxTheme::new(syntax_overrides))` çağırır — yani baseline syntax kullanılmaz, **tema JSON'unda syntax bloğu boşsa sonuç boş syntax theme** olur. Yazarın `syntax: { ... }` doldurması beklenir; aksi halde editor highlight'sız kalır. İlgili bölümde ayrıntılı |
 | `ThemeSettings::modify_theme` görünürlüğü | Aslında `fn` — **private**. `pub fn apply_theme_overrides(&self, arc_theme: Arc<Theme>) -> Arc<Theme>` üzerinden çağrılır; tüketici doğrudan `modify_theme` çağıramaz. Public yüzey `apply_theme_overrides`'tır |
@@ -337,23 +337,23 @@ Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema cr
 | `HighlightStyleContent::is_empty()` | 4 alanın hepsi `None` ise `true` döner. Selector preview, snapshot test ve `MergeFrom` "no-op detection" akışında kullanılır. `Refineable.is_empty` trait'inin elle muadilidir |
 | `Refineable` derive `Option<T>` sarmalama kuralı | Düz `T` → `Option<T>`; `Option<T>` aynen `Option<T>` (tekrar sarmalanmaz); `#[refineable] U` → `URefinement` (nested recursive). İlgili bölümde tablo eklenmiştir |
 | `configured_theme`, `configured_icon_theme` görünürlüğü | Aslında `fn` — **private**. Mirror tarafında `pub fn` yapmak yerel bir API genişletmesi anlamına gelir. Zed paritesinde `init` ve `reload_theme` bu helper'ları çağırır, tüketici doğrudan erişmez |
-| `load_bundled_themes` hata davranışı | Her tema asset'i `log_err()` ile sarılır; parse hatası **panic etmez**, log'lanır ve sonraki asset'e geçilir. Bu sayede tek bir bozuk bundled tema tüm Zed başlatmasını engellemez. Mirror tarafında aynı davranış zorunludur |
+| `load_bundled_themes` hata davranışı | Her tema asset'i `log_err()` ile sarılır; parse hatası başlatmayı durdurmaz, log'lanır ve sonraki asset'e geçilir. Bu sayede tek bir bozuk bundled tema tüm Zed başlatmasını engellemez. Mirror tarafında aynı davranış zorunludur |
 | `#[derive(RegisterSetting)]` auto-registration | Setting tipini `inventory::submit!` ile static registry'ye ekler. `SettingsStore::new` → `load_settings_types` → `inventory::iter` ile **link-time** olarak otomatik kaydedilir. `ThemeSettings` `#[derive(Clone, PartialEq, RegisterSetting)]` ile işaretlidir; `theme_settings::init` **elle register çağırmaz**. İlgili bölümde tam akış verilir |
 | `inventory` crate auto-registration | Rust'ın link-time static registration için kullandığı crate'dir. Setting tipi tanımının yapıldığı yerde `submit!`, toplama tarafında `collect!` kullanılır. Mirror'da alternatif (elle register listesi) seçildiğinde iki pattern'in karıştırılmaması gerekir; aksi halde sessiz kayıt eksiklikleri oluşur |
-| `SettingsStore::override_global<T>` davranışı | Test ve runtime override için kullanılır. `setting_values[TypeId::of::<T>()].set_global_value(Box::new(value))`. Doc note: "The given value will be overwritten if the user settings file changes" — yani settings dosyası değiştiğinde override drop edilir (observer akışı bunu garanti altına alır). Tip kayıtlı değilse `panic!("unregistered setting type ...")` üretir |
+| `SettingsStore::override_global<T>` davranışı | Test ve runtime override için kullanılır. `setting_values[TypeId::of::<T>()].set_global_value(Box::new(value))`. Doc note: "The given value will be overwritten if the user settings file changes" — yani settings dosyası değiştiğinde override drop edilir (observer akışı bunu garanti altına alır). Tip kayıtlı değilse kayıtlı olmayan setting tipi için fail-fast çalışır |
 | `ThemeSettings` alan görünürlükleri | Font size alanları (`ui_font_size`, `buffer_font_size`, `agent_*_font_size`, `markdown_preview_font_family`, `markdown_preview_code_font_family`) **private**'tır; accessor metotlar (`ui_font_size(cx)`, `buffer_font_size(cx)` vb.) override-aware okuma yapar. Diğer alanlar (`ui_font`, `buffer_font`, `theme`, `icon_theme`, `theme_overrides`, `experimental_theme_overrides`, `buffer_line_height`, `markdown_preview_theme`, `ui_density`, `unnecessary_code_fade`) `pub`'tır. İlgili bölümde tam tablo verilir |
 | `theme` crate'i `#![deny(missing_docs)]` | Crate-level lint zorlamasıdır: tüm public öğeler doc yorumu gerektirir. Mirror tarafında aynısı uygulandığında public API kalitesi artar; yeni bir alan eklendiğinde "doc yok" hatası sayesinde sözleşme atlanmaz |
 | `theme` crate mod görünürlükleri | Tüm modüller (`default_colors`, `fallback_themes`, `font_family_cache`, `icon_theme`, `icon_theme_schema`, `registry`, `scale`, `schema`, `styles`, `theme_settings_provider`, `ui_density`) **private** `mod`'dur. Public yüzey yalnızca `pub use crate::<mod>::*` re-export ile gelir. `fallback_themes` istisnasında yalnızca `apply_status_color_defaults` ve `apply_theme_color_defaults` `pub use` ile açılır — diğer iç fonksiyonlar (`zed_default_dark` vb.) `pub(crate)` kalır |
 | `ui::is_light(cx)` public helper | `cx.theme().appearance.is_light()` çağırır. UI tüketicileri için tekrar eden bir pattern; `kvs_ui` veya `kvs_bilesen` mirror'ında benzeri sağlanabilir. `ui::prelude` `pub use theme::ActiveTheme` ile trait'i tüketici crate'lere açar |
 | `settings::IntoGpui` trait + 7 impl | `*Content` tiplerini GPUI runtime tiplerine çeviren tek köprüdür. İmpl edilen tipler: `FontStyleContent`, `FontWeightContent` (100-950 clamp), `FontFeaturesContent`, `WindowBackgroundContent`, `ModifiersContent`, `FontSize` (`px(self.0)`), `FontFamilyName` (`SharedString::from(self.0)`). `ThemeSettings::from_settings` her font alanında bu trait'i çağırır. Mirror tarafında `KvsIntoRuntime` veya benzeri bir trait gerekir |
 | `markdown_preview_code_font_family` settings alanı | Markdown preview içindeki inline code ve code block fontunu ayrı seçer. Boş bırakıldığında `buffer_font.family` kullanılır; düz preview metni `markdown_preview_font_family` boş ise `ui_font.family` kullanmaya devam eder. Provider trait'i değişmez |
-| Mermaid tema tüketimi | Mermaid renderer teması aktif `ThemeColors`, `AccentColors`, `PlayerColors`, `Appearance` ve `ThemeSettings::ui_font` üstünden üretilir. `Hsla` renkleri renderer'a alpha'sız `#rrggbb` olarak verilir. Flowchart, sequence, pie ve git diyagramları için ayrı slot'lar (`primary_*`, `sequence_actor_*`, `pie_colors`, `git_colors`, `git_inv_colors`) doldurulur. `pie_section_text_color` ve `git_branch_label_colors` sabit `#fff`'tir. Light tema'da `relative_luminance >= 0.35`, dark tema'da `<= 0.18` hedefi tutturulana kadar `accent_fill_and_text` lightness'i adım adım kaydırır. `accent0..accentN` class'ları player slot'larından üretilir; pie renkleri `AccentColors::color_for_index` ile beslenir. Diyagram fenced blok kapanmış (`metadata.is_fenced_closed`) olmalıdır; `~~~src` `.mermaid`/`.mmd` dosyaları da render hattına girer |
+| Mermaid tema tüketimi | Mermaid renderer teması aktif `ThemeColors`, `PlayerColors`, `StatusColors`, `Appearance` ve `ThemeSettings::ui_font` üstünden üretilir. `Hsla` renkleri renderer'a alpha'sız `#rrggbb` olarak verilir. Güncel `MermaidTheme` alanları `background`, `primary_*`, `secondary_color`, `tertiary_color`, `line_color`, `text_color`, `edge_label_background`, `cluster_*`, `note_*`, `actor_*`, `activation_*`, `git_branch_colors`, `git_branch_label_colors`, `er_attr_bg_*`, `error_color`, `warning_color` ve `accent_colors` set'idir. Git branch label renkleri `text_color_for_background` ile hesaplanır; vurgu sınıfları `.zed-accent-0..N` adlarıyla player slot'larından üretilir ve fill rengi `0.15` opacity ile Mermaid arka planına blend edilir. Diyagram fenced blok kapanmış (`metadata.is_fenced_closed`) olmalıdır; `~~~src` `.mermaid`/`.mmd` dosyaları da render hattına girer |
 | `Markdown::invalidate_mermaid_cache` | `pub fn invalidate_mermaid_cache(&mut self, cx: &mut Context<Self>)`. `options.render_mermaid_diagrams` açıkken `mermaid_state` cache'ini temizler, parsed markdown'u yeniden render kuyruğuna atar ve `cx.notify()` çağırır. Tema observer'larından çağrılır; aksi halde tema değişimi mermaid SVG cache'inde kalır. `mermaid_showing_code: HashSet<usize>` Preview/Code sekme durumunu offset bazında tutar; `toggle_mermaid_tab(offset)` ve `is_mermaid_showing_code(offset)` `pub(crate)` yardımcılarıyla yönetilir |
-| `MarkdownOptions::render_mermaid_diagrams`, `CopyButtonVisibility`, `WrapButtonVisibility` | `MarkdownOptions { render_mermaid_diagrams: true, ..Default::default() }` mermaid pipeline'ını açar; kapatıldığında hem cache hem `mermaid_showing_code` boşaltılır. `CopyButtonVisibility::{Hidden, VisibleOnHover}` ve `WrapButtonVisibility::{Hidden, AlwaysVisible, VisibleOnHover}` `CodeBlockRenderer::Default { copy_button_visibility, wrap_button_visibility, .. }` yapısından okunur; `CopyButtonVisibility::Hidden` seçildiğinde Mermaid sekme başlığı ve kopya butonu çizilmez. Struct literal yazarken her iki alan da verilmek zorundadır. Bu yüzey markdown render hattının parçasıdır, tema crate'inde değildir |
+| `MarkdownOptions::render_mermaid_diagrams`, `CopyButtonVisibility`, `WrapButtonVisibility` | `MarkdownOptions { render_mermaid_diagrams: true, ..Default::default() }` mermaid pipeline'ını açar; kapatıldığında hem cache hem `mermaid_showing_code` boşaltılır. Mermaid render fonksiyonu sekme başlığı ve kopya butonu için `copy_button_visibility` değerini okur; `CopyButtonVisibility::Hidden` seçildiğinde ikisi de çizilmez. `wrap_button_visibility` normal code block toolbar sözleşmesinin alanıdır ve Mermaid render fonksiyonu tarafından kullanılmaz, ancak `CodeBlockRenderer::Default` struct literal'i yazarken alanın sağlanması gerekir. Bu yüzey markdown render hattının parçasıdır, tema crate'inde değildir |
 | `gpui::Hsla::opaque_strategy`, `Arbitrary for Hsla` | `proptest` feature'ı altında renk property testleri için resmi generator'dır. Kontrast/türetme helper'larında sentetik örneklerin yanına property test ekleyebilirsin |
 | `CompletionMenuItemKind` ve syntax rengi | `EditorSettingsContent.completion_menu_item_kind` enum'u `off` / `symbol` değerlerini taşır. `symbol` açıkken completion kind rozetleri `constructor`, `constant`, `enum`, `function.method`, `function`, `namespace`, `operator`, `property`, `string`, `type`, `variable`, `variant`, `keyword` capture'larından beslenir; noktalı capture yoksa parent capture fallback'i denenir. Bu ayar `ThemeSettingsContent` alanı değildir |
 | Content/Runtime tip duplication ve `From` impls | `ThemeSelection`, `IconThemeSelection`, `BufferLineHeight` **iki yerde tanımlıdır**: settings_content (Content, `JsonSchema/MergeFrom/EnumDiscriminants`) ve theme_settings (Runtime, daha az derive). Aralarında `From<settings::*>` impl bulunur. `UiDensity` için `ui_density_from_settings` `pub(crate)` helper kullanılır (`From` değil). İlgili bölüm ve 43.3'te açıklanmıştır |
-| `ThemeSettings::from_settings` panic kontratı | Her font ve theme alanı fail-fast açılır — yani `default.json` zorunlu alanları (`ui_font_size/family/features/weight`, `buffer_font_*`, `buffer_line_height`, `theme`, `icon_theme`, `unnecessary_code_fade`) doldurmak zorundadır. Boş olduğunda init panic eder. Mirror'da `kvs_default_settings.json` aynı zorunlu set'i taşımalıdır |
+| `ThemeSettings::from_settings` fail-fast kontratı | Her font ve theme alanı fail-fast açılır — yani `default.json` zorunlu alanları (`ui_font_size/family/features/weight`, `buffer_font_*`, `buffer_line_height`, `theme`, `icon_theme`, `unnecessary_code_fade`) doldurmak zorundadır. Boş olduğunda init erken durur. Mirror'da `kvs_default_settings.json` aynı zorunlu set'i taşımalıdır |
 | `ThemeSelection::Default`, `IconThemeSelection` derive list'i | Content tipleri `JsonSchema, MergeFrom, EnumDiscriminants, VariantArray, VariantNames, FromRepr` derive eder. `ThemeSelection::default() = Dynamic { mode: System, light: "One Light", dark: "One Dark" }`. Selector UI tabbed picker için `strum::VariantArray` ve `EnumDiscriminants` kullanılır |
 | `ThemeAppearanceMode` derive ve default | `Copy + Default + strum::VariantArray + strum::VariantNames` derive'larıyla birlikte gelir; `#[default] System` varyantını taşır. `serde(rename_all = "snake_case")` ile JSON'da `"light"`, `"dark"`, `"system"` biçiminde görünür |
 | `BufferLineHeight::Custom` 1.0 alt sınır deserializer | `#[serde(deserialize_with = "deserialize_line_height")] f32` özel fonksiyonu kullanılır; 1.0 altındaki değer **deserialize hatası** üretir. Çift savunma: parse'ta 1.0 alt sınır + runtime `ThemeSettings::line_height()` `f32::max(.., MIN_LINE_HEIGHT)` |
@@ -362,7 +362,7 @@ Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, ama tema cr
 | `FontFamilyName` impls | `#[serde(transparent)]` newtype + `AsRef<str>` + `From<String>` + `From<FontFamilyName> for String`. `Arc<str>` taşır, klonsuz `SharedString`'e dönüşür (`IntoGpui::into_gpui()`) |
 | `FontWeightContent::into_gpui()` 100-950 clamp | `FontWeight(self.0.clamp(100., 950.))` — CSS font-weight aralığında zorlama yapar. `FontWeightContent::{THIN, EXTRA_LIGHT, ..., BLACK}` const'larının GPUI `FontWeight` const'larıyla eşleştiği test ile doğrulanır (`content_into_gpui`) |
 | `settings::private` modülü | `pub mod private { pub use inventory; pub use crate::settings_store::{RegisteredSetting, SettingValue}; }`. `RegisterSetting` derive macro `settings::private::inventory::submit!` çağırır. Mirror tarafında `kvs_ayarlari::private` benzeri bir modül zorunludur; aksi halde macro çıktısı derlenmez |
-| `theme_settings` re-export listesi | `schema::{FontStyleContent, FontWeightContent, HighlightStyleContent, StatusColorsContent, ThemeColorsContent, ThemeContent, ThemeFamilyContent, ThemeStyleContent, WindowBackgroundContent, status_colors_refinement, syntax_overrides, theme_colors_refinement}` ve `settings::{AgentBufferFontSize, AgentUiFontSize, BufferLineHeight, FontFamilyName, IconThemeName, IconThemeSelection, ThemeAppearanceMode, ThemeName, ThemeSelection, ThemeSettings, adjust_*, reset_*, adjusted_font_size, appearance_to_mode, clamp_font_size, default_theme, observe_buffer_font_size_adjustment, set_icon_theme, set_mode, set_theme, setup_ui_font}` + `pub use theme::UiDensity`. Mirror tarafında bu sembollerin tek kaynak crate'inden re-export edilmesi gerekir |
+| `theme_settings` re-export listesi | `schema::{FontStyleContent, FontWeightContent, HighlightStyleContent, StatusColorsContent, ThemeColorsContent, ThemeContent, ThemeFamilyContent, ThemeStyleContent, WindowBackgroundContent, status_colors_refinement, syntax_overrides, theme_colors_refinement}` ve `settings::{AgentBufferFontSize, AgentUiFontSize, GitCommitBufferFontSize, BufferLineHeight, FontFamilyName, IconThemeName, IconThemeSelection, ThemeAppearanceMode, ThemeName, ThemeSelection, ThemeSettings, adjust_*, reset_*, adjusted_font_size, appearance_to_mode, clamp_font_size, default_theme, observe_buffer_font_size_adjustment, set_icon_theme, set_mode, set_theme, setup_ui_font}` + `pub use theme::UiDensity`. Mirror tarafında bu sembollerin tek kaynak crate'inden re-export edilmesi gerekir |
 
 Küçük metot yüzeyleri:
 
@@ -404,6 +404,7 @@ ThemeSettings::buffer_font_size(cx)
 ThemeSettings::ui_font_size(cx)
 ThemeSettings::agent_ui_font_size(cx)
 ThemeSettings::agent_buffer_font_size(cx)
+ThemeSettings::git_commit_buffer_font_size(cx)
 ThemeSettings::markdown_preview_font_family()
 ThemeSettings::markdown_preview_code_font_family()
 Markdown::invalidate_mermaid_cache(cx)
@@ -411,6 +412,7 @@ ThemeSettings::buffer_font_size_settings()
 ThemeSettings::ui_font_size_settings()
 ThemeSettings::agent_ui_font_size_settings()
 ThemeSettings::agent_buffer_font_size_settings()
+ThemeSettings::git_commit_buffer_font_size_settings()
 ThemeSettings::line_height()
 ThemeSettings::apply_theme_overrides(arc_theme)
 Theme::darken(color, light_amount, dark_amount)
@@ -440,7 +442,7 @@ use kvs_tema::ActiveTheme;
 #[gpui::test]
 fn buton_tema_renklerini_kullanir(cx: &mut TestAppContext) {
     cx.update(|cx| {
-        kvs_tema::init(cx);  // Fallback temaları kurar
+        kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx);  // Fallback temaları kurar
 
         let tema = cx.theme();
         assert_eq!(tema.appearance, kvs_tema::Appearance::Dark);
@@ -449,7 +451,7 @@ fn buton_tema_renklerini_kullanir(cx: &mut TestAppContext) {
 }
 ```
 
-**Avantaj:** Üretim akışına en yakın yöntemdir. Init bug'ları erken aşamada yakalanır.
+**Avantaj:** Üretim akışına en yakın yöntemdir. Init uyumsuzlukları erken aşamada yakalanır.
 
 **Dezavantaj:** Her test fallback tema oluşumu için ~50 µs harcar. Yüzlerce test koşulduğunda bu süre birikir.
 
@@ -493,29 +495,25 @@ pub(crate) fn test_temasi(arka_plan: gpui::Hsla, on_plan: gpui::Hsla) -> Theme {
 
 > **`..yedek_koyu_renkler()` yapılabilmesi için:** `ThemeColors`'a `Default` türevi eklenmesi veya `pub(crate) fn yedek_koyu_renkler() -> ThemeColors` adında bir yardımcı tanımlanması gerekir. Mevcut yapıda `ThemeColors`'ın `Default` türevi bulunmaz; tüm alanlar zorunludur. Bu nedenle test helper'ı yazılması beklenir.
 >
-> **Dış crate'ten test:** `kvs_ui/tests/` içinde bu strateji çalışmaz. `feature = "test-util"` üzerinden Strateji 3'ün public helper'ları çağırırsın.
+> **Dış crate'ten test:** `kvs_ui/tests/` içinde bu strateji çalışmaz. `feature = "test-support"` üzerinden Strateji 3'ün public helper'ları çağırırsın.
 
 ### Strateji 3: `kvs_tema` test helper'ı
 
-`kvs_tema/src/test.rs` (yeni modül, `#[cfg(any(test, feature = "test-util"))]`):
+`kvs_tema/src/test.rs` (yeni modül, `#[cfg(any(test, feature = "test-support"))]`):
 
 ```rust
-#[cfg(any(test, feature = "test-util"))]
+#[cfg(any(test, feature = "test-support"))]
 pub mod test {
     use crate::*;
-    use std::sync::Arc;
 
     /// Test için minimal tema kurar.
     pub fn test_ortamini_baslat(cx: &mut gpui::App) -> anyhow::Result<()> {
         // ThemeRegistry::new AssetSource ister — testte `()` kullanılır.
-        let kayit = Arc::new(ThemeRegistry::new(Box::new(()) as Box<dyn gpui::AssetSource>));
+        ThemeRegistry::set_global(Box::new(()) as Box<dyn gpui::AssetSource>, cx);
+        let kayit = ThemeRegistry::global(cx);
         kayit.insert_themes([test_temasi()]);
         let tema = kayit.get("Test Teması")?;
         let ikon_tema = kayit.default_icon_theme()?;
-        // ThemeRegistry::set_global Zed'de pub(crate); test helper'ı
-        // kvs_tema'nın test-support feature'ı altında public açar veya
-        // doğrudan GlobalThemeRegistry newtype'ını cx.set_global ile kurar.
-        cx.set_global(GlobalThemeRegistry(kayit.clone()));
         cx.set_global(GlobalTheme::new(tema, ikon_tema));
         Ok(())
     }
@@ -548,7 +546,7 @@ Tüketici tarafında (`kvs_ui/tests/...`):
 
 ```rust
 [dev-dependencies]
-kvs_tema = { path = "../kvs_tema", features = ["test-util"] }
+kvs_tema = { path = "../kvs_tema", features = ["test-support"] }
 ```
 
 ```rust
@@ -602,7 +600,7 @@ fn buton_tema_arka_planiyla_cizilir(cx: &mut TestAppContext) -> anyhow::Result<(
 #[gpui::test]
 fn ui_tema_degisiminde_guncellenir(cx: &mut TestAppContext) -> anyhow::Result<()> {
     cx.update(|cx| -> anyhow::Result<()> {
-        kvs_tema::init(cx);
+        kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx);
         let ilk = cx.theme().name.clone();
 
         // Açık temaya geç.
@@ -623,10 +621,10 @@ fn ui_tema_degisiminde_guncellenir(cx: &mut TestAppContext) -> anyhow::Result<()
 
 UI bileşeninin gerçekten yeniden render edilip edilmediğini doğrulamak için `VisualTestContext` gerekir (rehber.md #75) — pencereyi açar, render eder ve snapshot karşılaştırması yapar.
 
-### Tema sahtelemeyi yanlış yapmak
+### Tema Sahtelemede Dikkat Edilmesi Gereken Kullanım
 
 ```rust
-// YANLIŞ: cx olmadan, struct literal ile tema oluşturmak
+// Bağlam dışı örnek: cx olmadan, struct literal ile tema oluşturmak
 // (dış crate'te zaten derlenmez — `styles` pub(crate))
 let tema = kvs_tema::fallback::kvs_default_dark();
 let arka_plan = tema.colors().background;
@@ -645,14 +643,14 @@ Bu test yalnızca `Theme` struct'ının kendi alanlarını doğrular. **Tüketic
 | Visual snapshot (render çıktısı) | `VisualTestContext` | rehber.md #75 |
 | Tema değişim akışı | `#[gpui::test]` + `temayi_degistir` | ilgili bölüm + bu konu |
 
-### Tuzaklar
+### Dikkat Noktaları
 
-1. **`kvs_tema::init(cx)` çağrılmadan `cx.theme()` çağırmak**: Panic atar. Her testin ilk satırının init veya manuel `cx.set_global(GlobalTheme::new(...))` olması beklenir.
+1. **`kvs_tema::init(...)` veya test helper kurulumu**: `cx.theme()` global tema kurulmadan çağrıldığında çalışma zamanı erken durur. Her testin ilk adımında init veya manuel `cx.set_global(GlobalTheme::new(...))` kurulumu bulunmalıdır.
 2. **`TestAppContext::run` yerine `update`**: Tema testleri sync çalışır; `update` doğru tercihtir. `run` async bir event loop kurar ve burada gerekmez.
-3. **`test_temasi()` çağrısının her testte yeniden yapılması**: `set_global` her çağrıda üstüne yazar; birikimli bug üretmez ama başarım maliyeti vardır. Test fixture olarak `Arc<Theme>` paylaşılabilir.
-4. **`feature = "test-util"`'ın üretimde açık bırakılması**: `#[cfg(any(test, feature = "test-util"))]` koşulu kurulur; release build'de kapalı kalmalıdır.
-5. **Test tema'sının tüm alanlarının sıfır bırakılması**: `unsafe { zeroed() }` ile doldurulan bir test = üretimde görünmez bir UI'a karşılık gelir. Test sırasında bile tüm alanların açık değerle doldurulması, bug yakalama gücünü yükseltir.
-6. **`refresh_windows`'un test'te etkisiz sanılması**: `TestAppContext` üzerinde etkisi olmaz ama global state güncel kalır; test mantığı `cx.theme()` ile yeni değeri okur. `VisualTestContext` kullanıldığında ise render gerçek anlamda tetiklersin.
-7. **Sahte tema'nın `Theme.id` değerinin aynı bırakılması**: Test'te birden fazla tema kurulduğunda farklı `id`'lerin (`"test-1"`, `"test-2"`) vermen gerekir; aksi halde `Theme.id` üzerinden yapılan equality testi yanlış sonuç verebilir.
+3. **`test_temasi()` fixture maliyeti**: `set_global` her çağrıda üstüne yazar; birikimli state üretmez ama başarım maliyeti vardır. Test fixture olarak `Arc<Theme>` paylaşılabilir.
+4. **`feature = "test-support"` kapsamı**: `#[cfg(any(test, feature = "test-support"))]` koşulu kurulur; release build'de kapalı kalmalıdır.
+5. **Test tema'sının tüm alanlarının açık doldurulması**: `unsafe { zeroed() }` ile doldurulan bir test = üretimde görünmez bir UI'a karşılık gelir. Test sırasında bile tüm alanların açık değerle doldurulması, yakalama gücünü yükseltir.
+6. **`refresh_windows` ve headless test ilişkisi**: `TestAppContext` üzerinde görünür render etkisi olmaz ama global state güncel kalır; test mantığı `cx.theme()` ile yeni değeri okur. `VisualTestContext` kullanıldığında ise render gerçek anlamda tetiklersin.
+7. **Sahte tema için `Theme.id` ayrımı**: Test'te birden fazla tema kurulduğunda farklı `id`'leri (`"test-1"`, `"test-2"`) vermen gerekir; aksi halde `Theme.id` üzerinden yapılan equality testi beklenen ayrımı göstermez.
 
 ---

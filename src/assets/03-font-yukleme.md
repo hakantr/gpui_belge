@@ -40,42 +40,39 @@ Yani font ekleme yalnızca dosya kopyalama işidir; kodda string referansı veya
 
 ## 2. `load_embedded_fonts`: ana font yükleme yolu
 
-Zed'in `zed` crate'indeki font yükleyici:
+Zed'in `zed` crate'indeki font yükleyici aynı list+load invariant'ını uygular. Güncel kaynakta bu iş background executor kapsamı içinde fail-fast açmayla yapılır; rehberde aynı akışın `Result` döndüren eşdeğeri gösterilir:
 
 ```rust
-fn load_embedded_fonts(cx: &App) {
+use anyhow::Context as _;
+
+fn load_embedded_fonts(cx: &App) -> anyhow::Result<()> {
     let varlik_kaynagi = cx.asset_source();
     let font_yollari = varlik_kaynagi.list("fonts")?;
-    let gomulu_fontlar = Mutex::new(Vec::new());
-    let yurutucu = cx.background_executor();
+    let mut gomulu_fontlar = Vec::new();
 
-    cx.foreground_executor().block_on(yurutucu.scoped(|kapsam| {
-        for font_yolu in &font_yollari {
-            if !font_yolu.ends_with(".ttf") {
-                continue;
-            }
-
-            kapsam.spawn(async {
-                let font_baytlari = varlik_kaynagi.load(font_yolu)??;
-                gomulu_fontlar.lock().push(font_baytlari);
-            });
+    for font_yolu in &font_yollari {
+        if !font_yolu.ends_with(".ttf") {
+            continue;
         }
-    }));
+
+        let font_baytlari = varlik_kaynagi
+            .load(font_yolu)?
+            .with_context(|| format!("font varlığı bulunamadı: {font_yolu}"))?;
+        gomulu_fontlar.push(font_baytlari);
+    }
 
     cx.text_system()
-        .add_fonts(gomulu_fontlar.into_inner())
-        ?;
+        .add_fonts(gomulu_fontlar)?;
+    Ok(())
 }
 ```
 
-Akış altı adımdan oluşur:
+Akış dört adımdan oluşur:
 
 1. **`varlik_kaynagi.list("fonts")`** — Recursive listeleme yapılır; `fonts/ibm-plex-sans/...` ve `fonts/lilex/...` altındaki tüm dosyalar tek listede toplanır.
 2. **`.ttf` filtresi** — `license.txt` ve `OFL.txt` gibi dosyalar dışlanır. Filtre yalnızca path uzantısına bakar; klasör adına bakmaz. Yeni bir font klasörü eklendiğinde bu filtre otomatik genişler.
-3. **Paralel yükleme** — Her font dosyası background executor üzerinde ayrı bir task olarak okunur. `block_on` çağrısı tüm task'ler bitene kadar bekler. `Mutex<Vec>` paylaşımlı toplama tamponudur; her task kendi byte'larını oraya iter.
-4. **Tekrarlı fail-fast açma** — Kaynak kodu önce `Result`, sonra `Option` katmanını doğrudan açar. İlk katman okuma hatasını, ikinci katman "varlık var" garantisini temsil eder. Burada panik tasarım gereğidir: `list` çağrısının döndürdüğü bir path mutlaka load edilebilir olmalıdır. Eğer olmuyorsa bu derleme zamanı veya `RustEmbed` davranışı düzeyinde bir bug demektir, çalışma zamanında kurtarmaya çalışmak doğru tepki değildir.
-5. **`cx.text_system().add_fonts(...)`** — Tüm byte'lar tek bir çağrıyla `TextSystem`'e verirsin. Bu çağrı font'ları platform metin sistemine (CoreText, DirectWrite, freetype) kaydeder; uygulama bu noktadan sonra `font_family("IBM Plex Sans")` veya `font_family("Lilex")` ile bu aileleri kullanabilir.
-6. **`Mutex::into_inner()`** — Tüm task'ler bittikten sonra Mutex açılıp Vec çıkarılır. Bu sayede `add_fonts` çağrısına `Vec<Cow<'static, [u8]>>` aktarılır.
+3. **List+load invariant'ı** — Kaynak kodu önce `Result`, sonra `Option` katmanını açar. İlk katman okuma hatasını, ikinci katman "varlık var" garantisini temsil eder. `list` çağrısının döndürdüğü bir path'in `load` ile okunabilir olması gerekir; bu invariant bozulduğunda varlık paketi veya `RustEmbed` eşleşmesi gözden geçirilir.
+4. **`cx.text_system().add_fonts(...)`** — Tüm byte'lar tek bir çağrıyla `TextSystem`'e verirsin. Bu çağrı font'ları platform metin sistemine (CoreText, DirectWrite, freetype) kaydeder; uygulama bu noktadan sonra `font_family("IBM Plex Sans")` veya `font_family("Lilex")` ile bu aileleri kullanabilir.
 
 **Çağrı noktası:** `load_embedded_fonts(cx)` Zed'in uygulama kurulumunda pencere açılmadan önce çağırırsın. Güncel `main.rs` içinde `Application::with_assets(Assets)` en başta kurulur, font yükleme ise birçok global init'ten sonra ama editor/workspace pencereleri açılmadan önce yaparsın. Sert gereksinim budur: varlık kaynağı kurulmadan `cx.asset_source()` boş `()` döner ve `list("fonts")` sonuç vermez; pencere açıldıktan sonra çağrılırsa ilk frame font yedeğe düşebilir.
 
@@ -95,7 +92,7 @@ impl Assets {
                 let font_baytlari = cx
                     .asset_source()
                     .load(&font_yolu)?
-                    ?;
+                    .with_context(|| format!("font varlığı bulunamadı: {font_yolu}"))?;
                 gomulu_fontlar.push(font_baytlari);
             }
         }
@@ -105,9 +102,9 @@ impl Assets {
 }
 ```
 
-Bu metot ile `main.rs` içindeki `load_embedded_fonts` arasındaki tek belirgin fark **paralel yükleme**dir: `load_fonts` senkron tek thread üzerinde çalışır, `load_embedded_fonts` ise background executor task'leri kullanır. Üretim binary'sinde Zed paralel yükleyiciyi tercih eder; çünkü on civarı font dosyasının senkron okunması başlangıçta gözle görülür bir gecikme yapar.
+Bu metot ile `main.rs` içindeki `load_embedded_fonts` arasındaki tek belirgin fark **çağrı konumu**dur: `load_fonts` kütüphane yardımcısı olarak `Assets` üstünde durur, `load_embedded_fonts` ise Zed'in uygulama girişinde aynı list+load fikrini background executor ile yürütür. Alternatif binary veya örnek uygulama tarafında `Application::with_assets(Assets)` çağrısından sonra `Assets.load_fonts(cx)?` yeterlidir.
 
-`Assets::load_fonts` daha çok ikinci kullanım için durur: bir kütüphane veya alternatif binary `Assets` struct'ını kendi kuruluş yolunda doğrudan çağırmak isteyebilir. O senaryolarda `Application::with_assets(Assets)` çağrısından sonra tek satır `Assets.load_fonts(cx)?` çağrısı yeterlidir.
+`Assets::load_fonts` özellikle ikinci kullanım için durur: bir kütüphane veya alternatif binary `Assets` struct'ını kendi kuruluş yolunda doğrudan çağırmak isteyebilir. O senaryolarda `Application::with_assets(Assets)` çağrısından sonra tek satır `Assets.load_fonts(cx)?` çağrısı yeterlidir.
 
 ---
 
@@ -116,12 +113,14 @@ Bu metot ile `main.rs` içindeki `load_embedded_fonts` arasındaki tek belirgin 
 `Assets` struct'ı test senaryoları için ayrı bir yardımcı da sağlar:
 
 ```rust
-pub fn load_test_fonts(&self, cx: &App) {
-    cx.text_system()
-        .add_fonts(vec![
-            self.load("fonts/lilex/Lilex-Regular.ttf")??,
-        ])
-        ?
+use anyhow::Context as _;
+
+pub fn load_test_fonts(&self, cx: &App) -> anyhow::Result<()> {
+    let font_baytlari = self
+        .load("fonts/lilex/Lilex-Regular.ttf")?
+        .with_context(|| "test fontu bulunamadı: fonts/lilex/Lilex-Regular.ttf")?;
+
+    cx.text_system().add_fonts(vec![font_baytlari])
 }
 ```
 
@@ -156,7 +155,7 @@ Güncel Zed kodunda bu zenginleştirilmiş fontdb, `SvgRenderer::new` anında de
 Burada dikkat edilmesi gereken üç ayrıntı vardır:
 
 - **Sabit kodlu path listesi:** USVG yalnızca iki regular varyantı yükler. Bold, italic ve bold-italic gibi varyantlar dahil edilmez. Gerekçe: SVG'lerde nadiren bold metin bulunur; pratikte regular varyantlar render kalitesi için yeterlidir ve veritabanı boyutu küçük kalır.
-- **Hata toleransı:** `load` çağrısı `None` ya da `Err` döndürürse uyarı log'lanır, fakat panik atılmaz. Bu davranış GPUI'yi varlık bağımlılığından koruyan bir tampon görevi yapar; varlık hattı kurulu olmasa bile SVG render hattı çalışmaya devam eder, sadece yerleşik font'lar olmayacaktır.
+- **Hata toleransı:** `load` çağrısı `None` ya da `Err` döndürürse uyarı log'lanır, fakat fail-fast çalışmaz. Bu davranış GPUI'yi varlık bağımlılığından koruyan bir tampon görevi yapar; varlık hattı kurulu olmasa bile SVG render hattı çalışmaya devam eder, sadece yerleşik font'lar olmayacaktır.
 - **Sistem font'ları ile birleştirme:** `load_bundled_fonts` çağrılmadan önce sistemde kurulu olan tüm font'lar `db.load_system_fonts()` ile veritabanına eklenmiştir. Yani bundled font'lar sistem font'larının üzerine eklenir; çakışma durumunda hangi varyantın seçileceği `usvg`'nin kendi önceliklendirme kuralına kalır.
 
 ### 5.1 Generic family yedeği
@@ -204,7 +203,7 @@ const EMOJI_FONT_FAMILIES: &[&str] = &[
 
 1. **Idempotent değildir:** Aynı font ikinci kez eklenirse platform sistemi genellikle "zaten var" cevabı verir; çakışma davranışı platforma göre değişebilir. Bu yüzden `load_embedded_fonts` uygulama yaşam süresi boyunca tek seferlik çağrılmak üzere tasarlanmıştır.
 2. **Lifetime:** Byte'lar `Cow<'static>` olarak geldiğinden font verisi binary boyunca canlı kalır. Yani add_fonts'a verilen byte tamponu sonradan serbest bırakılmaz; binary'nin .data segmentinde durur.
-3. **Çağrı zamanı:** `add_fonts` çağrısı **pencere açılmadan önce** yapman gerekir; aksi halde ilk frame'de font bulunamadığı için yedeğe düşülür ve metin yanlış render edilir. Zed bu yüzden font yüklemeyi `Application::with_assets` çağrısından sonra ama `cx.open_window` çağrılarından önce yapar.
+3. **Çağrı zamanı:** `add_fonts` çağrısı **pencere açılmadan önce** yapman gerekir; aksi halde ilk frame'de font bulunamadığı için yedeğe düşülür ve metin beklenen fontla render edilmez. Zed bu yüzden font yüklemeyi `Application::with_assets` çağrısından sonra ama `cx.open_window` çağrılarından önce yapar.
 
 ---
 

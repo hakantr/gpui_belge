@@ -158,7 +158,7 @@ Callout kenar seçimi:
 Davranış:
 
 - Varsayılan severity `Severity::Info`'dur.
-- `.icon(...)` çağrılmadığında icon alanı render edilmez; çağrıldığında ikon rengi severity'den türetilir.
+- `.icon(...)` çağrılmadığında icon alanı render edilmez. Çağrıldığında mevcut render akışında görünen icon adı ve rengi severity'den türetilir; verdiğin `IconName` alanın gösterileceğini belirtir.
 - `.description_slot(...)` ile `.description(...)` aynı anda verildiğinde slot önceliklidir.
 - Açıklama alanı `max_h_32()` ve `overflow_y_scroll()` özelliklerini kullanır; bu sayede uzun bir içerikte callout'un yüksekliği kontrol altında tutulur.
 - Aksiyon ve dismiss slot'ları title satırının sağında render edilir.
@@ -392,7 +392,7 @@ Davranış:
 
 - Varsayılan genişlik `px(440.)`'tır.
 - `.title(...)` verildiğinde küçük bir `Headline` içeren bir varsayılan başlık üretilir.
-- `.primary_action(...)` veya `.dismiss_label(...)` verildiğinde bir varsayılan altlık üretilir. Etiket verilmediği durumda birincil metin `"Tamam"`, kapatma metni ise `"İptal"` olur.
+- `.primary_action(...)` veya `.dismiss_label(...)` verildiğinde bir varsayılan altlık üretilir. Etiket verilmediği durumda birincil metin `"Ok"`, kapatma metni ise `"Cancel"` olur.
 - Varsayılan altlık butonları yalnızca görünümü kurar; karar akışının Zed eylem sistemi üzerinden `.on_action(...)` veya üst yaşam döngüsü ile bağlanması gerekir.
 - `.header(...)` ve `.footer(...)` verildiğinde, varsayılan başlık veya altlık yerine tamamen özel bir element render edilir.
 

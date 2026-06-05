@@ -4,7 +4,7 @@
 
 ## Styled
 
-`Styled`, `gpui` crate'indeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu taşır; `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList`, `Deferred`, `AnimationElement` ve çok sayıda Zed UI bileşeni bu trait üzerinden aynı fluent stil sözlüğünü kullanır.
+`Styled`, `gpui` crate'indeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu taşır; GPUI çekirdeğinde `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList` ve `Surface` bu trait üzerinden aynı fluent stil sözlüğünü kullanır. Zed UI bileşenlerinin çoğu da kendi style alanlarını bu trait'e bağlar.
 
 GPUI stil sistemi CSS ve Tailwind'e benzeyen fluent metotlardan oluşur. Arka planda Rust tipleri olduğu için neyin hangi değeri aldığı daha nettir. Örnek bir stil zinciri:
 
@@ -192,7 +192,7 @@ Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Cor
 
 `phi() -> DefiniteLength` (`geometry`), altın oranı `relative(1.618_034)` olarak döndürür — yani üst öğenin **1.618 katı**, %50 değil. GPUI, varsayılan `TextStyle::line_height` değeri olarak `phi()` kullanır (`style`); bir yazı tipi için satır yüksekliği `font_size * 1.618` olur. Yerleşim oranlamada (örneğin altın oranla iki sütun) üst öğenin katı olarak ifade gerekiyorsa aynı sabiti kullanabilirsin.
 
-**Tuzaklar.** Geometri tarafında sıkça yapılan yanılgılar:
+**Dikkat noktaları.** Geometri tarafında sıkça yapılan yanılgılar:
 
 - `Bounds::contains(point)`, yarı açık aralıklara göre çalışır; sınır pikseli `false` dönebilir.
 - `Pixels` ile `ScaledPixels` aritmetiği, `From` veya `Into` üzerinden açık dönüşüm ister; örtük çevirme yapılmaz.
@@ -371,12 +371,12 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 **Pratik notlar.** Renk ve gradient kullanırken karşılaşılan yaygın durumlar:
 
 - Alfa 0 olan bir rengin opak arka plan üstünde sonucu yine opak görünür; bu yüzden gerçekten saydam bir alan istemiyorsan temadaki opak rengi tercih edersin.
-- Gradient durakları (`stop`) `0.0` ve `1.0` arasında sıralı verilmelidir; aksi halde GPU `shader`'ı beklenmedik bir dağılım çizebilir.
-- Hsla'da hue 1.0'a sarılmaz, kırpılır (`clamp`); döndürme için `hue + delta`'yı modulo 1.0 ile hesaplaman gerekir.
+- Gradient duraklarında (`stop`) `LinearColorStop::percentage` alanı kaynakta `0.0` ve `1.0` aralığı olarak tanımlıdır; `linear_color_stop(...)` helper'ı bu değeri ayrıca kırpmaz.
+- `hsla(...)` helper'ında hue 1.0'a sarılmaz, kırpılır (`clamp`); döndürme için `hue + delta`'yı modulo 1.0 ile hesaplaman gerekir.
 
 ### HighlightStyle ve combine_highlights
 
-`LinearColorStop` gradient stop verisidir; `linear_color_stop(...)` helper'ı genellikle doğrudan inşa etmekten daha okunaklıdır. `LinearColorStop::opacity(factor)` stop alfasını düşürür. `HighlightStyle::highlight(...)` metin vurgu katmanlarını üretir; editör ve markdown gibi kısmi metin stillerinde kullanılır. `combine_highlights(...)` birden çok vurgu katmanını birleştirir; uygulama form bileşenlerinde genellikle gerekmez.
+`LinearColorStop` gradient stop verisidir; `linear_color_stop(...)` helper'ı genellikle doğrudan inşa etmekten daha okunaklıdır. `LinearColorStop::opacity(factor)` stop alfasını düşürür. `TextStyle::highlight(...)` bir highlight stilini çözümlenmiş metin stiline uygular; `HighlightStyle::highlight(other)` ise iki highlight stilini birleştirir. `combine_highlights(...)` aralık taşıyan birden çok vurgu katmanını birleştirir; uygulama form bileşenlerinde genellikle gerekmez.
 
 ### Colors, GlobalColors, DefaultColors ve DefaultAppearance
 
@@ -400,7 +400,7 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 
 UI ağacı her çizimde yeniden oluşturulduğu için string ve URI kopyalama maliyeti hızla birikebilir. GPUI bu yükü azaltmak için `Arc` tabanlı tipler sunar:
 
-- `SharedString` — `&'static str` veya `Arc<str>`. `Clone` ucuzdur (referans sayısı). `Display`, `AsRef<str>` ve `Into<SharedString>` uygulamaları hazırdır. `&'static str`, `String` ve `Cow<'_, str>` ücretsiz dönüşür.
+- `SharedString` — `gpui_shared_string::SharedString` re-export'udur. Kaynakta `Arc<str>` ve `&'static str` üzerinde soyutlama olarak tanımlanır, güncel uygulaması `SmolStr` ile desteklenir. `Clone`, `Display`, `AsRef<str>` ve `From<&str>`, `From<String>`, `From<Box<str>>`, `From<Arc<str>>`, `From<Cow<'_, str>>` uygulamaları hazırdır.
 - `SharedUri` — aynı stratejiyle URI tutar; `ImageSource::Resource(Resource::Uri(...))` `SharedUri` bekler.
 
 Render içinde her seferinde `String` üretip kopyalamak yerine entity verisinde `SharedString` saklamak yaygın bir desendir:
@@ -428,9 +428,9 @@ impl Render for Baslik {
 - `Hsla` ve `Rgba` — `Copy` tipler oldukları için doğrudan değer geçirilir.
 - `ElementId` — `Clone`'dur ve içinde iç ID veya metin varyantları taşır.
 
-**Tuzaklar.** Ucuz klon tiplerinden faydalanırken atladığın noktalar:
+**Dikkat noktaları.** Ucuz klon tiplerinden faydalanırken atlanması kolay noktalar:
 
-- `SharedString::from(String)` çağrısı bir kez bellek ayırması (`allocation`) yapar; sonraki klonlar ucuzdur. Sık çalışan yollarda tekrar tekrar `String` üretmekten kaçınman gerekir.
+- `SharedString::from(String)` dönüşümü kaynakta `SmolStr::from(text)` üzerinden yapılır; kısa ve uzun metinlerde depolama ayrıntısını bu tip belirler. Sık çalışan yollarda tekrar tekrar yeni `String` üretmekten kaçınman gerekir.
 - `to_string()` çağrısı yeni bir `String` bellek ayırması üretir; gerekmiyorsa `as_ref()` veya `Display` üzerinden yazmak daha ekonomiktir.
 - Biçim metni (`format string`) her çizimde çalışıyorsa `format!` sonucu da her ekran karesinde bellek ayırması üretir; sonucu önbelleğe almak için entity verisinde tutman gerekir.
 
@@ -457,7 +457,7 @@ pub enum WindowAppearance {
 - `cx.observe_window_appearance(window, |gorunum, window, cx| ...)` — `Context<T>` içinden değişimi view verisi ile birlikte izler.
 - `window.observe_button_layout_changed(...)` ve `cx.observe_button_layout_changed(window, ...)` — platform pencere kontrol butonu düzeni değiştiğinde çalışır.
 
-Zed örüntüsü `zed` crate'inde tema seçimine şu şekilde bağlanır:
+Zed örüntüsü `workspace` crate'inde tema seçimine şu şekilde bağlanır:
 
 ```rust
 cx.observe_window_appearance(window, |_, window, cx| {
@@ -468,10 +468,10 @@ cx.observe_window_appearance(window, |_, window, cx| {
 }).detach();
 ```
 
-**Tuzaklar.** WindowAppearance ile çalışırken dikkat edeceğin noktalar:
+**Dikkat noktaları.** WindowAppearance ile çalışırken dikkat edeceğin noktalar:
 
 - macOS dışında `VibrantLight` ve `VibrantDark` değerleri üretilmez; ancak eşleştirme tablolarında yine de dört değerin tamamını ele alman gerekir.
-- Sistem teması pencere açıldıktan sonra değişirse `window_background_appearance` otomatik tetiklenmez; tema akışında elle `window.set_background_appearance(...)` çağırman gerekir.
-- `Vibrant*` kipleriyle birlikte `WindowBackgroundAppearance::Blurred` kullanılırsa macOS'ta bulanıklığın üzerine ek bir `vibrancy` bindirilir; tasarım sisteminde bu katmanlardan birini seçmen tutarlılık açısından önemlidir.
+- `observe_window_appearance` akışı Zed'de sistem görünümünü günceller ve tema/icon tema yeniden yüklemesi yapar; pencere arka planı için `zed/src/main.rs` içindeki `SettingsStore` observer'ı `window.set_background_appearance(cx.theme().window_background_appearance())` çağrısını ayrıca uygular.
+- `WindowBackgroundAppearance::Blurred` platforma özgü bir arka plan davranışıdır. macOS uygulaması eski sürümlerde `CGSSetWindowBackgroundBlurRadius`, yeni sürümlerde `NSVisualEffectView` kullanır; bu davranışı `Vibrant*` varyantlarıyla aynı şey gibi düşünmemen gerekir.
 
 ---

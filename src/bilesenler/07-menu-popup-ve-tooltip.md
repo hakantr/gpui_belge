@@ -56,7 +56,7 @@ Davranış:
 use ui::prelude::*;
 use ui::{ContextMenu, DropdownMenu, DropdownStyle, Tooltip};
 
-fn siralama_dropdown_render(window: &mut Window, cx: &mut App) -> impl IntoElement {
+fn siralama_acilir_menusunu_render_et(window: &mut Window, cx: &mut App) -> impl IntoElement {
     let menu_icerigi = ContextMenu::build(window, cx, |icerik, _, _| {
         icerik.header("Sıralama")
             .toggleable_entry("Ad", true, IconPosition::Start, None, |_, _| {})
@@ -253,16 +253,16 @@ Davranış:
 |-----|----------------|---------------|
 | `DropdownStyle` | `Solid`, `Outlined`, `Subtle`, `Ghost` | Dropdown tetikleyicisinin buton stiline eşlenen görsel yüzeyidir. |
 | `ContextMenuItem` | `Separator`, `Header`, `HeaderWithLink`, `Label`, `Entry`, `CustomEntry`, `Submenu` | Menü içeriğini saklamak veya dinamik üretmek için kullanılan enum modelidir. |
-| `ContextMenuEntry` | `toggle`, `label`, `icon`, `custom_icon_path`, `custom_icon_svg`, `handler`, `secondary_handler`, `action`, `disabled`, `documentation_aside`, end-slot alanları | Tek bir seçilebilir menü satırının bütün görsel ve davranış bilgisini taşır. |
+| `ContextMenuEntry` | `toggle`, `toggleable`, label alanı, `icon`, `custom_icon_path`, `custom_icon_svg`, `handler`, `secondary_handler`, `action`, `disabled`, `documentation_aside`, end-slot alanları | Tek bir seçilebilir menü satırının bütün görsel ve davranış bilgisini taşır. |
 | `DocumentationSide` | `Left`, `Right` | Girdi dokümantasyon panelinin menünün hangi yanında açılacağını belirtir. |
 | `DocumentationAside` | `side`, `render`; `new` | Girdi veya picker yanında küçük açıklama paneli render etmek için kullanılır. |
 | `PopoverMenuHandle` | `show`, `hide`, `toggle`, `is_deployed`, `is_focused`, `refresh_menu` | Popover'ın dışarıdan açma/kapama ve içerik yenileme tutamacıdır. |
 | `PopoverTrigger` | `IntoElement + Clickable + Toggleable + 'static` | Popover tetikleyicisi olabilecek buton benzeri elementleri sınırlayan trait alias yüzeyidir. |
-| `PopoverMenuElementState` | `menu`, `child_bounds` | Açık menü entity'si ve tetikleyici sınır bilgisini element durumu olarak saklar. |
-| `PopoverMenuFrameState` | `child_layout_id`, `child_element`, `menu_element`, `menu_handle` | Popover layout pass sırasında kullanılan geçici frame durumudur. |
-| `MenuHandleElementState` | `menu`, `position` | Sağ tık menüsünün açık entity'sini ve cursor/handle pozisyonunu saklar. |
-| `RequestLayoutState` | `child_layout_id`, `child_element`, `menu_element` | `right_click_menu` elementinin layout sırasında child ve menu elementlerini taşıdığı durumdur. |
-| `PrepaintState` | `hitbox`, `child_bounds` | `right_click_menu` için prepaint aşamasında hitbox ve child bounds bilgisini taşır. |
+| `PopoverMenuElementState` | private alanlar: `menu`, `child_bounds` | Açık menü entity'si ve tetikleyici sınır bilgisini element durumu olarak saklar. |
+| `PopoverMenuFrameState` | private alanlar: `child_layout_id`, `child_element`, `menu_element`, `menu_handle` | Popover layout pass sırasında kullanılan geçici frame durumudur. |
+| `MenuHandleElementState` | private alanlar: `menu`, `position` | Sağ tık menüsünün açık entity'sini ve cursor/handle pozisyonunu saklar. |
+| `RequestLayoutState` | private alanlar: `child_layout_id`, `child_element`, `menu_element` | `right_click_menu` elementinin layout sırasında child ve menu elementlerini taşıdığı durumdur. |
+| `PrepaintState` | private alanlar: `hitbox`, `child_bounds` | `right_click_menu` için prepaint aşamasında hitbox ve child bounds bilgisini taşır. |
 | `POPOVER_Y_PADDING` | `Pixels` sabiti | `Popover` yüzeyinin dikey iç boşluğuna eklenen sabit değerdir. |
 | `tooltip_container` | `AppContext` tabanlı yardımcı | Tooltip ve link preview yüzeylerine ortak elevation, font, padding ve metin rengini uygular. |
 | `LinkPreview` | `new(url, cx)` | Uzun URL'i 100 karakterlik satırlara bölüp 500 karakterde kırpan tooltip view'idir. |
@@ -274,7 +274,7 @@ Davranış:
 use ui::prelude::*;
 use ui::{ContextMenu, PopoverMenu, Tooltip};
 
-fn ek_eylemleri_render(window: &mut Window, cx: &mut App) -> impl IntoElement {
+fn ek_eylemleri_render_et(window: &mut Window, cx: &mut App) -> impl IntoElement {
     let menu_icerigi = ContextMenu::build(window, cx, |icerik, _, _| {
         icerik.entry("Yeniden adlandır", None, |_, _| {})
             .entry("Sil", None, |_, _| {})
@@ -341,7 +341,7 @@ Davranış:
 use ui::prelude::*;
 use ui::{ContextMenu, right_click_menu};
 
-fn proje_satiri_render(window: &mut Window, cx: &mut App) -> impl IntoElement {
+fn proje_satirini_render_et(window: &mut Window, cx: &mut App) -> impl IntoElement {
     let menu_icerigi = ContextMenu::build(window, cx, |icerik, _, _| {
         icerik.entry("Aç", None, |_, _| {})
             .entry("Finder'da göster", None, |_, _| {})
@@ -411,7 +411,7 @@ Davranış:
 use ui::prelude::*;
 use ui::Popover;
 
-fn filtre_popover_render() -> impl IntoElement {
+fn filtre_popoverini_render_et() -> impl IntoElement {
     Popover::new()
         .child(
             v_flex()
@@ -479,7 +479,7 @@ Davranış:
 use ui::prelude::*;
 use ui::Tooltip;
 
-fn yenile_butonu_render() -> impl IntoElement {
+fn yenile_butonunu_render_et() -> impl IntoElement {
     IconButton::new("modelleri-yenile", IconName::RotateCw)
         .icon_size(IconSize::Small)
         .tooltip(Tooltip::text("Modelleri yenile"))
@@ -506,7 +506,7 @@ Bir toolbar üzerindeki ek eylem menüsü, `PopoverMenu` ve `ContextMenu`'nün e
 use ui::prelude::*;
 use ui::{ContextMenu, PopoverMenu, Tooltip};
 
-fn arac_cubugu_menusu_render(window: &mut Window, cx: &mut App) -> impl IntoElement {
+fn arac_cubugu_menusunu_render_et(window: &mut Window, cx: &mut App) -> impl IntoElement {
     let menu_icerigi = ContextMenu::build(window, cx, |icerik, _, _| {
         icerik.entry("Yeni dosya", None, |_, _| {})
             .entry("Yeni klasör", None, |_, _| {})

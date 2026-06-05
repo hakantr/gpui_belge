@@ -256,9 +256,9 @@ let gorev = calisma_alani.open_paths(
 
 ---
 
-## Tuzaklar
+## Dikkat Noktaları
 
-Item ve çalışma alanı tarafında dikkat edilmesi gereken yaygın hatalar:
+Item ve çalışma alanı tarafında dikkat edilmesi gereken hataya açık kullanımlar:
 
 - `Item` uygulamasında `Self::Event` türünün doğru tanımlanması ve `EventEmitter<Self::Event>` uygulanması şarttır; aksi halde `Item` trait bound'u tutmaz.
 - `Pane::add_item` `Box::new(view)` ile yapılır; pane item sahipliğini alır.

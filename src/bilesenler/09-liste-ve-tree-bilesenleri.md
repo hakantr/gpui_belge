@@ -459,7 +459,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - `TreeViewItem`, child listesini kendi içinde tutmaz. Açık bir root'un altındaki child öğelerini üst layout tarafından eklemen gerekir.
-- Disabled durumu, hover ve tıklama davranışını tamamen kaldırmaz. Click işleyicisi disabled olduğunda bağlanmaz, ancak görsel durumun tasarımda da disabled olarak ifade edilmesine dikkat etmek gerekir.
+- Disabled durumu, hover ve tıklama davranışını tamamen kaldırmaz. Click işleyicisi disabled olduğunda bağlanmaz, ancak görsel durumu tasarımda da disabled olarak ifade etmeye dikkat edersin.
 
 ## StickyItems
 
@@ -631,7 +631,7 @@ Zed içinden kullanım örnekleri:
 
 - `project_panel` crate'i: project tree indent guide'ları için özel render ve tıklama davranışı uygulanır. Project panel `on_click` içinde `IndentGuideLayout::offset.y` değerinden hedef satırı bulur; secondary modifier aktifse ilgili üst girdi kapatılır.
 - `outline_panel` crate'i: outline list indent guide'ları. `with_render_fn(...)` aktif guide'ı hesaplar ve `RenderedIndentGuide::is_active` alanını ayarlar.
-- `git_ui` crate'i: hiyerarşik git panel satırları. Git panel özel render ile yalnızca bounds ve layout üretir; `hitbox: None` bırakarak tıklama davranışı eklemez.
+- `git_ui` crate'i: hiyerarşik git panel satırları. Git panel özel render ile yalnızca bounds ve layout üretir; `.on_click(...)` bağlamadığı için guide'lar yalnızca görsel kalır. `hitbox: None` verildiğinde, etkileşim açıksa `bounds` hitbox olarak kullanılır.
 
 Dikkat edeceğin noktalar:
 

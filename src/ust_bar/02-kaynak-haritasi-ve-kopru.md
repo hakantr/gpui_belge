@@ -10,7 +10,7 @@ Bu bölüm `title_bar` crate'inin parçalarını bir haritada toplar ve en kriti
 | `ApplicationMenu` | İstemci tarafı uygulama menüsü (Dosya, Düzen, Görünüm…). Yalnız platform menüsü kullanılmadığında çizilir. |
 | `collab` modülü | Aktif çağrı sırasındaki mikrofon, dinlemeyi kapatma, ekran paylaşımı ve katılımcı listesi yüzeyi. |
 | `UpdateVersion` | Otomatik güncelleme durumunu (`checking`, `downloading`, `installing`, `updated`, `errored`) gösteren entity. |
-| `OnboardingBanner` | Özellik bayrağına bağlı duyuru bandı (güncel kullanım: Skills duyurusu). |
+| `OnboardingBanner` | Özellik bayrağına bağlanabilen duyuru bandı altyapısı. Kaynak modül yorumu Skills duyurusunu anar; güncel `TitleBar::new` ise `banner = None` ile başlar. |
 | `PlanChip` | Kullanıcının abonelik planını gösteren küçük etiket. |
 | `TitleBarSettings` | Başlık çubuğunun hangi parçalarının görüneceğini belirleyen ayar tipi. |
 

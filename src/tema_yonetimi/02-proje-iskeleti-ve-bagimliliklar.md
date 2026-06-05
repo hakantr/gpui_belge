@@ -111,7 +111,7 @@ publish = false
 path = "src/kvs_tema.rs" # mod.rs değil
 
 [dependencies]
-# Zed workspace (Apache-2.0; publish = false uyarısı)
+# Zed workspace (Apache-2.0; `refineable` ve `collections` için publish uyarısı)
 gpui = { workspace = true }
 refineable = { workspace = true }
 collections = { workspace = true }
@@ -209,7 +209,10 @@ kvs_tema  ──bağımlı──>  gpui, refineable, collections, kvs_syntax_tem
 
 kvs_syntax_tema  ──bağımlı──>  gpui
 
-gpui, refineable, collections  ──kaynak──>  zed workspace (Apache-2.0)
+gpui, refineable, collections  ──kaynak──>  zed workspace (Apache-2.0;
+                                            `gpui` publish edilebilir,
+                                            `refineable` ve `collections`
+                                            publish = false)
 ```
 
 Bu grafiğin yönü tersine işlemez; `gpui` hiçbir zaman `kvs_tema`'ya bağlanmaz. Bu kural sayesinde Zed'in upstream'inde bir değişiklik olduğunda tema crate'i yalnızca üç yerden etkilenir: **tip imzası**, **davranış** ve **isim/yol değişimi**. Böylece upstream'i takip ederken nereye bakılacağı baştan bellidir ve beklenmedik geri etkiler azalır.

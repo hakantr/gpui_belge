@@ -9,7 +9,7 @@ Ortak uygulama kuralları:
 - View'a ait geçici UI durumu view struct'ında tutulur: seçili satır, açık menü, bekleyen async task, hata mesajı ve ilerleme değeri gibi alanlar burada yer alır.
 - Paylaşılan veya servis kaynaklı durum doğrudan component içinde saklanmaz. Bunun yerine render sırasında component'e label, status, icon, callback ve metadata olarak aktarılır.
 - View durumunu değiştiren handler'larda `cx.listener(...)` kullanırsın. Bu sayede closure view instance'ına güvenli bir şekilde ulaşır.
-- Görsel sonucu olan bir durum değişiminden sonra `cx.notify()` çağırırsın. Özellikle `selected`, `expanded`, `saving`, `error` ve `progress` gibi alanlarda bunu atlamamak gerekir.
+- Görsel sonucu olan bir durum değişiminden sonra `cx.notify()` çağırırsın. Özellikle `selected`, `expanded`, `saving`, `error` ve `progress` gibi alanlarda bu çağrıyı state değişimiyle birlikte düşünürsün.
 - Tamamlanması izlenmesi gereken asenkron işler bir `Task` alanında saklarsın. UI'ı değiştirmeyen fire-and-forget bir iş içinse `.detach_and_log_err(cx)` tercih edersin.
 - Menü içerikleri `ContextMenu::build(...)` içinde oluşturulur. Menünün açılması ise `PopoverMenu` veya `right_click_menu(...)` gibi taşıyıcı bir bileşene bağlanır.
 
@@ -56,9 +56,12 @@ impl EditorAyarlariSatiri {
         cx.notify();
 
         self._kaydetme_gorevi = Some(cx.spawn(async move |this, cx| {
-            kaydederken_bicimlendirmeyi_kaydet(secili).await?;
+            let sonuc = kaydederken_bicimlendirmeyi_kaydet(secili).await;
             this.update(cx, |this, cx| {
                 this.kaydediliyor = false;
+                if let Err(hata) = sonuc {
+                    this.son_hata = Some(hata.to_string().into());
+                }
                 cx.notify();
             })?;
             anyhow::Ok(())
@@ -171,7 +174,14 @@ impl KomutAracCubugu {
         self.calistirabilir = false;
         cx.notify();
 
-        cx.spawn(async move |_this, _cx| varsayilan_gorevi_calistir().await)
+        cx.spawn(async move |this, cx| {
+            let sonuc = varsayilan_gorevi_calistir().await;
+            this.update(cx, |this, cx| {
+                this.calistirabilir = true;
+                cx.notify();
+            })?;
+            sonuc
+        })
             .detach_and_log_err(cx);
     }
 }
@@ -536,7 +546,7 @@ impl Render for BildirimMerkeziOnizleme {
 Notification yaşam döngüsü:
 
 - Workspace notification stack'e girecek bir view, `workspace::notifications::Notification` trait sınırını karşılamalıdır: `Render`, `Focusable`, `EventEmitter<DismissEvent>` ve `EventEmitter<SuppressEvent>` birlikte beklenir.
-- Dismiss veya suppress state'i bileşen içinde unutulmaz. Kullanıcı tercihi kalıcı olarak saklanacaksa, ayarlar veya bir KV store tarafında tutulması gerekir.
+- Dismiss veya suppress state'i bileşen içinde kalıcı kabul edilmez. Kullanıcı tercihi kalıcı olarak saklanacaksa, ayarlar veya bir KV store tarafında tutulması gerekir.
 - Bloklayıcı bir karar gerekmiyorsa, `AlertModal` yerine bir `Banner` veya `NotificationFrame` çok daha uygun bir seçim olur.
 
 ## AI Sağlayıcı Kartları

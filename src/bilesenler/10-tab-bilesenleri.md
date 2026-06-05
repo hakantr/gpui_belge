@@ -6,7 +6,7 @@ Hangi durumda hangisini seçeceğin için kısa özet:
 
 - Tek bir tab yüzeyi için `Tab` yeterlidir.
 - Tab koleksiyonu, soldaki/sağdaki toolbar kontrolleri ve yatay scroll alanı birlikte çizilecekse `TabBar` doğru üst yapıdır.
-- Dosya veya editor sekmeleri gibi bitişik border davranışının önemli olduğu durumlarda, her tab için doğru `TabPosition` değerinin vermen gerekir.
+- Dosya veya editor sekmeleri gibi bitişik border davranışının önemli olduğu durumlarda, her tab için doğru `TabPosition` değerini vermen gerekir.
 - Tab içeriğinde icon, değişiklik göstergesi veya kapatma/pin butonu gerekiyorsa `start_slot(...)` ve `end_slot(...)` yardımcıları kullanırsın.
 
 ## Tab

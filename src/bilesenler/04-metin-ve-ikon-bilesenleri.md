@@ -39,7 +39,7 @@ Temel API:
 - Constructor: `Label::new(label: impl Into<SharedString>)`.
 - Sık builder'lar: `.size(LabelSize::...)`, `.color(Color::...)`, `.weight(FontWeight::...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(f32)`, `.truncate()`, `.truncate_start()`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`, `.render_code_spans()`.
 - Mutator: `.set_text(text: impl Into<SharedString>)` çağrısı `&mut self` üzerinden label metnini günceller. `Label` örneği view alanında saklanıyorsa, render dışından yeni bir `Label` üretmeden mevcut örneğin metnini değiştirmek için bunu kullanırsın. Bu metod builder zincirinde değil, daha önce oluşturduğun bir örnek üzerinde çağrılır.
-- Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow_1()`, `.flex_grow(f32)`, `.flex_shrink_1()`, `.flex_shrink(f32)`, `.flex_shrink_0()` ile çeşitli margin style yöntemleri.
+- Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow()`, `.flex_shrink()`, `.flex_shrink_0()` ile çeşitli margin style yöntemleri.
 - Trait: `LabelCommon`.
 
 Davranış:
@@ -276,7 +276,7 @@ Temel API:
 - Okuma yöntemleri: `.text()`, `.highlight_indices()`.
 - `LabelCommon` builder'ları: `.size(...)`, `.color(...)`, `.weight(...)`, `.italic()`, `.underline()`, `.truncate()`, `.single_line()`.
 - `.truncate_start()`: etiketi baştan kırpar, sonunu görünür tutar. İçeride taban `Label`'ın `truncate_start()` ayarını yazar; dosya yolu veya branch adı gibi anlamlı kısmı sonda olan eşleşme satırlarında tercih edersin.
-- Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow_1()`, `.flex_grow(f32)`, `.flex_shrink_1()`, `.flex_shrink(f32)`, `.flex_shrink_0()`.
+- Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow()`, `.flex_shrink()`, `.flex_shrink_0()`.
 
 Vurgu yardımcısı:
 
@@ -590,8 +590,8 @@ Dekorasyon türleri:
 | API | Rol |
 | :-- | :-- |
 | `IconDecorationKind` | Overlay biçimini seçer: `X` hata/silme, `Dot` küçük durum noktası, `Triangle` köşe uyarısı için kullanılır. |
-| `IconDecorationKindIter` | `IconDecorationKind` varyantlarını preview veya doğrulama kodunda dolaşmak için `strum::EnumIter` tarafından üretilen iterator tipidir. |
-| `KnockoutIconNameIter` | Knockout SVG enum varyantlarını listelemek için üretilen iterator tipidir; normal bileşen tüketicisi genellikle doğrudan kullanmaz. |
+| `IconDecorationKind::iter()` | `IconDecorationKind` varyantlarını preview veya doğrulama kodunda dolaşmak için `strum::IntoEnumIterator` üzerinden kullanılır. |
+| `KnockoutIconName::iter()` | Knockout SVG enum varyantlarını listelemek için `strum::IntoEnumIterator` üzerinden kullanılır; normal bileşen tüketicisi genellikle doğrudan çağırmaz. |
 
 Davranış:
 

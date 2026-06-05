@@ -1,6 +1,6 @@
 # Pratik kontrol listesi
 
-Bu bölüm, önceki bölümlerdeki açıklamaların özünü tek noktaya toplar. Varlık altyapısını kurarken, genişletirken veya bir sorunu ararken sık karşılaşılan tuzakları kısa maddeler halinde görürsün. Tipik karar noktaları ve son kontrol adımları da aynı yerde durur. Amaç, sıfırdan rehberi yeniden okumadan referans olarak kullanılabilen bir özet sunmaktır.
+Bu bölüm, önceki bölümlerdeki açıklamaların özünü tek noktaya toplar. Varlık altyapısını kurarken, genişletirken veya bir sorunu ararken dikkat edilmesi gereken noktaları kısa maddeler halinde görürsün. Tipik karar noktaları ve son kontrol adımları da aynı yerde durur. Amaç, sıfırdan rehberi yeniden okumadan referans olarak kullanılabilen bir özet sunmaktır.
 
 ---
 
@@ -8,42 +8,42 @@ Bu bölüm, önceki bölümlerdeki açıklamaların özünü tek noktaya toplar.
 
 Varlık hattı uygulama başlatma akışında birkaç sert bağımlılığa sahiptir. Zed'in `main.rs` dosyasındaki gerçek sıra kabaca şöyledir: varlık kaynağı en başta kurulur, settings erken yüklenir, tema sistemi settings ve extension altyapısından sonra gelir. Prompt şablonları daha sonra handlebars motoruna kaydedilir. Font yükleme ise pencere açılmadan önce, editor/workspace init'lerinden hemen önce çalışır. Yani tek doğru olan aşağıdaki sıra değil, bu bağımlılıkların korunmasıdır:
 
-1. **`Application::with_platform(...).with_assets(Assets)`** — Varlık kaynağı `App`'e bağlanır. Bu çağrı atlanırsa `cx.asset_source()` boş `()` döner ve `list/load` çağrıları sonuç vermez.
-2. **`settings::init(cx)`** — `SettingsStore` `default_settings()` çıktısıyla kurarsın. `asset_str::<SettingsAssets>("settings/default.json")` çağrısı bu noktada panik atabilir; dosya binary'de olmazsa uygulama açılmaz.
+1. **`Application::with_platform(...).with_assets(Assets)`** — Varlık kaynağı `App`'e bağlanır. Bu çağrı yoksa `cx.asset_source()` boş `()` döner ve `list/load` çağrıları sonuç vermez.
+2. **`settings::init(cx)`** — `SettingsStore` `default_settings()` çıktısıyla kurarsın. `asset_str::<SettingsAssets>("settings/default.json")` çağrısı bu noktada fail-fast paketleme kontratına bağlıdır; dosya binary'de olmazsa uygulama açılmaz.
 3. **`theme_settings::init(LoadThemes::All(Box::new(Assets)), cx)`** — Tema sistemi kurulur; `ThemeRegistry` global duruma konur ve gömülü temalar yüklenir. Settings'e bakan tema seçimi için `settings::init` bundan önce tamamlanmış olmalıdır.
 4. **`PromptBuilder::load(fs, ..., cx)`** — Prompt şablonları handlebars motoruna kaydedilir. Dosya sistemi izleyicisi arka planda geçersiz kılma klasörünü izlemeye başlar.
 5. **`load_embedded_fonts(cx)` (veya `Assets.load_fonts(cx)`)** — `TextSystem`'e fontlar yüklenir. Pencere açılmadan önce yapman gerekir; aksi halde ilk karede font yedek değere düşer.
 6. **`cx.open_window(...)`** — Pencere açıldıktan sonra UI render hattı SVG ikonları okumaya başlar; varlık hattının önceki adımları tamamlanmış olmalıdır.
 
-**Kontrol:** Uygulama çökmüyor ama ikonlar görünmüyorsa `with_assets` çağrısı atlanmış olabilir. Font'lar yanlış render ediliyorsa `load_embedded_fonts` çağrısının pencere açılmadan **önce** yapılıp yapılmadığını kontrol et.
+**Kontrol:** Uygulama çalışıyor ama ikonlar görünmüyorsa `with_assets` bağlantısını kontrol et. Font'lar beklenen aileyle render edilmiyorsa `load_embedded_fonts` çağrısının pencere açılmadan **önce** yapılıp yapılmadığını kontrol et.
 
 ---
 
 ## 2. RustEmbed kalıplarını tutarlı tutmak
 
-`#[include]` ve `#[exclude]` direktifleri paketlenecek dosya kümesini belirler; release/debug-embed modunda içerik binary'ye girer, normal debug modda ise aynı eşleşme dosya sisteminden okuma için kullanırsın. Tipik tuzaklar:
+`#[include]` ve `#[exclude]` direktifleri paketlenecek dosya kümesini belirler; release/debug-embed modunda içerik binary'ye girer, normal debug modda ise aynı eşleşme dosya sisteminden okuma için kullanırsın. Dikkat edilmesi gereken yerler:
 
 - **Exclude önceliklidir.** `rust-embed` 8.11, include ve exclude kalıplarını `globset` ile ayrı kümeler olarak değerlendirir; exclude eşleşmesi include'u ezer. Direktif sırası "ilk eşleşen kazanır" şeklinde çalışmaz.
 - **Glob kalıbına dikkat.** RustEmbed'in kullandığı `globset::Glob::new` varsayılanında `*` yol ayırıcısını da eşleyebilir; Zed'in `#[include = "keymaps/*"]` kalıbı bu yüzden platform alt dizinlerini kapsar. Yine de yeni özyinelemeli kalıplarda `**/*` kullanmak niyeti daha açık gösterir.
-- **`*.DS_Store` exclude'unu unutmamak.** macOS finder bu gizli dosyaları üretir; include kalıbı geniş tutulduğunda binary'ye sızar.
+- **`*.DS_Store` exclude'unu eklemek.** macOS finder bu gizli dosyaları üretir; include kalıbı geniş tutulduğunda binary'ye sızar.
 - **Derleme cache'i geçersiz kılma sorunu.** `RustEmbed` dosya değişikliklerini izleyemediği durumlarda eski içerik gömülmüş kalır. Belirgin bir varlık değişikliği sonrası beklenen davranış görünmüyorsa `cargo clean -p assets` (veya ilgili crate) ile cache temizlemek gerekir.
 
 **Kontrol:** Varlık eklendi ama çalışma zamanında görünmüyorsa şu üç şey ardarda doğrulanır: (a) dosya `assets/` altında doğru yerde mi, (b) `RustEmbed` include kalıbı bu klasörü kapsıyor mu, (c) ilgili crate yeniden derlendi mi?
 
-**Eksik yol davranışı:** `Assets::load` eksik dosyada `Ok(None)` dönmez; `varlık yolu yüklenemedi: ...` bağlamıyla hata üretir. `Ok(None)` davranışı boş `()` kaynağı veya bunu özellikle seçen özel `AssetSource` implementasyonları içindir. Log'da bu mesaj görülüyorsa sorun genellikle yanlış yol, eksik dosya veya include kalıbıdır.
+**Eksik yol davranışı:** `Assets::load` eksik dosyada `Ok(None)` dönmez; `varlık yolu yüklenemedi: ...` bağlamıyla hata üretir. `Ok(None)` davranışı boş `()` kaynağı veya bunu özellikle seçen özel `AssetSource` implementasyonları içindir. Log'da bu mesaj görülüyorsa kaynak genellikle uyumsuz yol, eksik dosya veya include kalıbıdır.
 
 ---
 
 ## 3. SVG ikon ekleme akışı
 
-İkon eklerken sıkça unutulan adımlar:
+İkon eklerken kontrol edilecek adımlar:
 
 1. SVG dosyası **monochrome** ve `currentColor` kullanan biçimde olmalıdır. Aksi halde `text_color` ile boyama beklenmedik sonuç verir.
 2. Dosya `assets/icons/snake_case_isim.svg` olarak konur.
 3. `icons` crate'indeki `IconName` enum'una `CamelCase` varyantı eklersin. Sıralama enum içinde alfabetik tutulur; bu bir derleme gereksinimi değil okuma kolaylığı için tercih edilen bir kural.
 4. Kod tarafında `Icon::new(IconName::YeniIkon)` ile kullanırsın.
 
-**Sık görülen hatalar:**
+**Dikkat edilmesi gereken yerler:**
 
 - Dosya adı CamelCase yazıldı (örneğin `YeniIkon.svg`): `IconName::path()` `snake_case` üretir, dosya bulunmaz.
 - SVG `viewBox` tanımı yok: `SvgRenderer` boyutu hesaplayamaz, render başarısız olur. `viewBox="0 0 16 16"` gibi bir tanım her SVG için zorunludur.
@@ -60,7 +60,7 @@ Varlık hattı uygulama başlatma akışında birkaç sert bağımlılığa sahi
 - `icons/knockouts/<isim>_fg.svg` — süslemenin asıl şekli
 - `icons/knockouts/<isim>_bg.svg` — arka maske
 
-`KnockoutIconName` enum'una yeni bir varyant eklenirken her iki dosyanın da konulması gerekir; tek dosyalı süsleme çalışma zamanında `_fg` veya `_bg` taraflarından birini boş bırakır ve ikonu yanlış maskeler.
+`KnockoutIconName` enum'una yeni bir varyant eklenirken her iki dosyanın da konulması gerekir; tek dosyalı süsleme çalışma zamanında `_fg` veya `_bg` taraflarından birini boş bırakır ve beklenen maskeyi üretmez.
 
 `_bg` dosyası `_fg` dosyasıyla aynı silüete sahip ama biraz daha kalındır; arka maskenin altındaki ikonu kazımak için. Piksel sapması küçük olmalıdır (1-2 px), aksi halde süsleme ile ikon arasında gözle görülür bir aralık oluşur.
 
@@ -73,7 +73,7 @@ Font eklerken iki ayrı tüketici güncellenir:
 - `assets/fonts/<aile>/` altına `.ttf` dosyaları konur; `load_embedded_fonts` özyinelemeli listeleme yaparak otomatik bulur.
 - `gpui` crate'indeki `load_bundled_fonts` listesinin güncellenmesi gerekip gerekmediği değerlendirilir. SVG'lerde bu fontun kullanılacağı düşünülüyorsa yol eklenmeli; aksi halde fontu sadece `TextSystem` görür.
 
-**Sık unutulan ayrıntı:** OFL ile lisanslı font'lar için lisans dosyası (`OFL.txt` veya `license.txt`) font klasörünün içine konmalıdır. Bu dosyalar `.ttf` filtresi tarafından dışlandığı için `TextSystem`'e yüklenmez ama varlık paketinde durur ve dağıtım gereksinimini karşılar.
+**Dikkat edilmesi gereken lisans ayrıntısı:** OFL ile lisanslı font'lar için lisans dosyası (`OFL.txt` veya `license.txt`) font klasörünün içine konmalıdır. Bu dosyalar `.ttf` filtresi tarafından dışlandığı için `TextSystem`'e yüklenmez ama varlık paketinde durur ve dağıtım gereksinimini karşılar.
 
 **Generic family yedeği:** Eğer SVG'lerde `font-family="sans-serif"` veya `font-family="monospace"` kullanılıyorsa ve Linux'ta render sorunu görülüyorsa `fix_generic_font_families` fonksiyonundaki yedek eşleme güncellenmelidir. Yeni eklenen bir font ailesi varsayılan eşleme haline getirilmek istenirse oraya girer.
 
@@ -89,7 +89,7 @@ Ses ekleme akışı şudur:
 
 **Kontrol:**
 
-- `match` bloğu kapsayıcı değilse derleme hatası verir; bu noktayı atlamak mümkün değildir.
+- `match` bloğu kapsayıcı değilse derleme hatası verir; derleyici eksik kolu zaten yakalar.
 - Dosya format sorunu durumunda `Decoder::new` hata döner; `Audio::play_sound` log'a düşer ve sessizce devam eder. Çıktı duyulmuyorsa log'lar incelenmelidir.
 - WAV dosyasının örnekleme oranı uygulamayla uyumlu olmalı (Zed `SAMPLE_RATE: nz!(48000)` kullanır); aksi halde ses hattı resample yapar veya bozulma olur.
 
@@ -103,7 +103,7 @@ Yeni tema eklerken:
 - Aile için `LICENSE` dosyası klasöre konur; `themes/LICENSES/` altına atribusyon eklersin.
 - JSON sözleşmesi Zed'in `ThemeFamilyContent` struct'ıyla parite olmalıdır. Eksik alanlar `refine_theme_family` tarafından doldurulur ama bilinmeyen alanlar serde tarafından reddedilebilir.
 
-**Sık görülen hatalar:**
+**Dikkat edilmesi gereken yerler:**
 
 - `appearance` alanı `"light"` veya `"dark"` dışında bir değere sahip: ayrıştırma başarısız olur, tema yüklenmez.
 - JSON'da sondaki virgül var: `serde_json` katı modda reddeder.
@@ -176,7 +176,7 @@ Varlık altyapısı çalıştırıldıktan sonra geçilmesi gereken son sağlaml
 
 - [ ] `with_assets(Assets)` çağrısı `Application::with_platform` zincirine eklenmiş mi?
 - [ ] `load_embedded_fonts(cx)` pencere açılmadan **önce** çağrılıyor mu?
-- [ ] `theme::init(LoadThemes::All(Box::new(Assets)), cx)` (veya muadili) ile tema sistemi başlatılmış mı?
+- [ ] `theme_settings::init(LoadThemes::All(Box::new(Assets)), cx)` (veya muadili) ile tema sistemi başlatılmış mı?
 - [ ] `settings::init(cx)` çağrısı önce yapılıp, sonra `default_settings()` ile varsayılanlar yüklü mü?
 - [ ] Yeni eklenen her ikon için `IconName` varyantı var mı? Dosya adı snake_case mı?
 - [ ] Yeni eklenen her ses için `Sound` enum'u, `Sound::file` eşlemesi ve WAV dosyası senkron mu?

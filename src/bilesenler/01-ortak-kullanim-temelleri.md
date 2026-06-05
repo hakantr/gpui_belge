@@ -23,15 +23,15 @@ use ui::{Callout, ContextMenu, DropdownMenu, List, ListItem, Tooltip};
 
 ## Prelude ve Bileşen Önizleme Import Sınırı
 
-`ui::prelude::*`, çalışma zamanı UI yazarken kullandığın kısa yoldur. `ActiveTheme`, `DynamicSpacing`, `RegisterComponent`, `Button`, `Icon`, `Label`, `Color`, `Severity`, `ToggleState` ve sık kullanılan GPUI tiplerini aynı import altında toplar. Bu yüzden normal uygulama ekranında önce `use ui::prelude::*;` yazılır, sonra yalnız özel bileşenler için ek import yapılır.
+`ui::prelude::*`, çalışma zamanı UI yazarken kullandığın kısa yoldur. `ActiveTheme`, `DynamicSpacing`, `RegisterComponent`, `Button`, `Icon`, `Label`, `Color`, `Severity`, `ToggleState`, ortak trait'ler ve sık kullanılan GPUI tiplerini aynı import altında toplar. Bu yüzden normal uygulama ekranında önce `use ui::prelude::*;` yazılır, sonra yalnız özel bileşenler için ek import yapılır.
 
-`ui::component_prelude::*` ise çalışma zamanı ekran kodu için değil, bileşen önizleme veya bileşen galerisi kaydı yazarken kullanılır. Bu prelude `Component`, `ComponentScope`, `ComponentStatus`, `RegisterComponent`, `Documented`, `single_example`, `example_group`, `example_group_with_title` ve `empty_example` gibi önizleme sistemine ait yardımcıları getirir. Üretim UI'da bir butonu render etmek için `component_prelude` gerekmez; önizleme yazarken ise `RegisterComponent` derive'ı ve `Documented` derive'ı aynı dosyada kısa importla kullanılabilir.
+`ui::component_prelude::*` ise çalışma zamanı ekran kodu için değil, bileşen önizleme veya bileşen galerisi kaydı yazarken kullanılır. Bu prelude `Component`, `ComponentId`, `ComponentScope`, `ComponentStatus`, `RegisterComponent`, `Documented`, `single_example`, `example_group` ve `example_group_with_title` gibi önizleme sistemine ait yardımcıları getirir. Üretim UI'da bir butonu render etmek için `component_prelude` gerekmez; önizleme yazarken ise `RegisterComponent` derive'ı ve `Documented` derive'ı aynı dosyada kısa importla kullanılabilir.
 
 `ui::prelude` ve `ui::component_prelude` ikisini aynı dosyada karıştırmadan önce dosyanın rolünü netleştirmen gerekir. Dosya gerçek bir Zed ekranı render ediyorsa `ui::prelude::*` yeterlidir. Dosya yalnız önizleme kaydına örnek ekliyorsa `ui::component_prelude::*` eklenir. Aksi halde bileşen registry API'leri, çalışma zamanı UI bağımlılığıymış gibi görünür ve okuyucu için yanlış bir model oluşur.
 
 | Prelude | İçerik | Kullanım yeri |
 | :-- | :-- | :-- |
-| `component_prelude` | `Component`, `ComponentScope`, `ComponentStatus`, `RegisterComponent`, `Documented`, `single_example`, `example_group`, `example_group_with_title`, `empty_example` | Bileşen önizleme/galeri kaydı yazarken. |
+| `component_prelude` | `Component`, `ComponentId`, `ComponentScope`, `ComponentStatus`, `RegisterComponent`, `Documented`, `single_example`, `example_group`, `example_group_with_title` | Bileşen önizleme/galeri kaydı yazarken. |
 | `single_example` | tek `ComponentExample` üretir | Tek varyantlı önizleme slotu. |
 | `example_group` | başlıksız `ComponentExampleGroup` üretir | Birden fazla önizleme örneğini aynı blokta toplar. |
 | `example_group_with_title` | başlıklı `ComponentExampleGroup` üretir | Varyantları başlıklı bir grup altında gösterir. |
@@ -64,7 +64,7 @@ fn render_status_title() -> impl IntoElement {
 }
 ```
 
-View durumu tutan ekran parçalarında ise `Render` kullanırsın. Bu durumda view, kendi alanlarında durum bilgisi saklar ve kullanıcı etkileşimine göre bu bilgi değişir. Etkileşim view durumunu değiştirdiyse, ekrana çizilen çıktının da yenilenmesi için `cx.notify()` çağırman gerekir. Bu çağrıyı unutursan durum değişmiş olur, fakat kullanıcı aynı eski render sonucunu görmeye devam eder:
+View durumu tutan ekran parçalarında ise `Render` kullanırsın. Bu durumda view, kendi alanlarında durum bilgisi saklar ve kullanıcı etkileşimine göre bu bilgi değişir. Etkileşim view durumunu değiştirdiyse, ekrana çizilen çıktının da yenilenmesi için `cx.notify()` çağırman gerekir. Bu çağrı eksik kaldığında durum değişmiş olur, fakat kullanıcı aynı eski render sonucunu görmeye devam eder:
 
 ```rust
 use ui::prelude::*;
@@ -98,7 +98,7 @@ impl Render for AyarSatiri {
 
 `AnyElement`, farklı somut element tiplerini tek bir slotta tutman gerektiğinde kullanırsın. Örneğin bir list item'in başlangıç slotu bazen `Icon`, bazen özel bir `div()` olabilir. Bu çeşitliliği `AnyElement` ile aynı tipin arkasında toplarsın. Buna karşılık public builder API'si generic bir `impl IntoElement` kabul ediyorsa, çağıran tarafın özellikle `AnyElement` üretmesine gerek yoktur; dönüşüm zaten builder tarafından yapılır.
 
-`AnyView`, entity tabanlı ve dinamik view döndüren tooltip, popover veya önizleme gibi API'lerde sık karşılaştığın bir tiptir. Bir view'in yaşam döngüsü GPUI entity sistemi tarafından yönetiliyorsa, elementten daha uygun olan yüzey `AnyView`'dir; çünkü entity yaşam döngüsü ile element yaşam döngüsü farklı çalışır.
+`AnyView`, entity tabanlı ve dinamik view döndüren tooltip, popover veya önizleme gibi API'lerde sık kullanacağın bir tiptir. Bir view'in yaşam döngüsü GPUI entity sistemi tarafından yönetiliyorsa, elementten daha uygun olan yüzey `AnyView`'dir; çünkü entity yaşam döngüsü ile element yaşam döngüsü farklı çalışır.
 
 `Entity<ContextMenu>`, `DropdownMenu` ve menü tabanlı popup'larda sıkça görürsün. Menü içeriği odak, odak kaybı ve action dispatch davranışı taşıdığı için düz bir `AnyElement` yerine entity olarak tutulur; bu sayede menüye dair durumlar bir frame'den diğerine korunur:
 
@@ -152,7 +152,7 @@ Token enum'larının çoğu tek başına uzun anlatım gerektirmez; hangi aileye
 | `ToggleState` | `Selected`, `Unselected`, `Indeterminate`, `from_any_and_all` | İkili veya üç durumlu seçim modelini taşır. |
 | `LabelSize` | label ailesinin metin boyutları | `Label` ve label benzeri bileşenlerde metin ölçeği seçer. |
 | `HeadlineSize` | headline ailesinin başlık boyutları | `Headline` için başlık ölçeği seçer. |
-| `ScrollbarStyle` | `Legacy`, `System`, `Editor` gibi stiller | Scrollbar'ın görsel genişlik ve stil modelini belirler. |
+| `ScrollbarStyle` | `Regular`, `Editor` | Scrollbar'ın görsel genişlik ve stil modelini belirler. |
 | `BASE_REM_SIZE_IN_PX` | `16.0` | Rem tabanlı UI hesapları için referans piksel değeridir. |
 | `EDITOR_SCROLLBAR_WIDTH` | `ScrollbarStyle::Editor.to_pixels()` | Editor scrollbar genişliğini panel ve tablo yüzeyleriyle hizalamak için kullanılır. |
 | `TRAFFIC_LIGHT_PADDING` | macOS SDK sürümüne göre `71.0` veya `78.0` | macOS pencere kontrol butonları için ayrılacak sol titlebar boşluğudur. |
@@ -318,12 +318,12 @@ Temalama ve görsel:
 
 | Helper | Tür | Kısa anlamı |
 | :-- | :-- | :-- |
-| `apca_contrast` | fonksiyon/modül export'u | Metin ve arka plan rengi için APCA Lc kontrastını hesaplar; aynı adlı modül APCA yardımcılarının kaynak modülüdür. |
+| `apca_contrast` | fonksiyon | Metin ve arka plan rengi için APCA Lc kontrastını hesaplar. |
 | `calculate_contrast_ratio` | fonksiyon | WCAG 2 kontrast oranını hesaplar. |
 | `ensure_minimum_contrast` | fonksiyon | Foreground rengin lightness değerini APCA eşiğini sağlayacak şekilde ayarlar. |
 | `capitalize` | fonksiyon | İlk karakteri büyük harfe çevirir. |
 | `reveal_in_file_manager_label` | fonksiyon | Platforma uygun dosya yöneticisinde gösterme etiketini döndürür. |
-| `format_distance` | fonksiyon/modül export'u | İki tarih arasını insan okunur süre metnine çevirir; aynı adlı modül tarih mesafesi yardımcılarının kaynak modülüdür. |
+| `format_distance` | fonksiyon | İki tarih arasını insan okunur süre metnine çevirir. |
 | `format_distance_from_now` | fonksiyon | Verilen zamanı `Local::now()` ile karşılaştırarak süre metni üretir. |
 | `theme_is_transparent` | fonksiyon | Etkin pencere arka planı transparent/blurred mı diye bakar. |
 | `vh` | fonksiyon | Viewport yüksekliğine göre `Length` üretir. |
@@ -359,7 +359,7 @@ Tarih farkı yardımcıları (`format_distance` modülü):
 | `SearchInputWidth` | `THRESHOLD_WIDTH`, `MAX_WIDTH`, `calc_width` | Arama input genişliğini kapsayıcı genişliğine göre sınırlar. |
 | `WithRemSize` | `new`, `occlude` | Alt ağaç için özel rem boyutu ve pointer occlusion davranışı uygular. |
 | `DateTimeType` | `Naive`, `Local`, `to_naive` | Tarih kaynağını local veya naive biçimde normalize eder. |
-| `FormatDistance` | `new`, `include_seconds`, `add_suffix`, `hide_prefix`, `format` | İnsan okunur tarih mesafesi metnini builder olarak üretir. |
+| `FormatDistance` | `new`, `from_now`, `include_seconds`, `add_suffix`, `hide_prefix`, `Display` | İnsan okunur tarih mesafesi metnini builder olarak üretir. |
 
 ## Crate kökü ve prelude hızlı kapsamı
 

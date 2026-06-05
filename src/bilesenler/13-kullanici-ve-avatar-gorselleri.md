@@ -1,6 +1,6 @@
 # 13. Kullanıcı ve Avatar Görselleri
 
-Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini ekranda göstermek için kullanırsın. Bu gösterim tek bir kişi olabilir ya da küçük, örtüşen bir grup halinde kurulabilir. Görsel kaynağı yüklenemezse her ikisi de yedek bir ikona döner. Ayrıca gösterge, border ve boyut gibi ayarlarla avatarın çevresine durum bilgisi ekleyebilirsin.
+Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini ekranda göstermek için kullanırsın. Bu gösterim tek bir kişi olabilir ya da küçük, örtüşen bir grup halinde kurulabilir. Görsel kaynağı yüklenemezse `Avatar`, `IconName::Person` yedeğine döner; `Facepile` ise kendi fallback'ini üretmez, içindeki avatarların davranışını taşır. Ayrıca gösterge, border ve boyut gibi ayarlarla avatarın çevresine durum bilgisi ekleyebilirsin.
 
 Bu bileşenlerde iki kuralı baştan netleştirmek faydalıdır:
 

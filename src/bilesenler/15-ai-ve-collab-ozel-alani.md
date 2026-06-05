@@ -79,7 +79,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - Source enum'u, gerçek kurulum kaynağıyla eşleşmelidir; tooltip metni bu değerden türetilir.
-- `.details(...)` uzun bir hata metni için kullanabilirsin. Yine de ana satırın kalabalıklaşmamasına dikkat etmek gerekir.
+- `.details(...)` uzun bir hata metni için kullanabilirsin. Yine de ana satırın kalabalıklaşmamasına dikkat edersin.
 
 ## AgentSetupButton
 
@@ -152,7 +152,7 @@ Temel API:
 - `.timestamp(text)`.
 - `.icon(IconName)`, `.icon_color(Color)`, `.icon_visible(bool)`.
 - `.custom_icon_from_external_svg(svg)`.
-- `.icon_char(text)`, icon slot'unda tek karakterlik agent/thread simgesi gösterir.
+- `.icon_char(text)`, icon slot'unda tek karakterlik agent/thread simgesi gösterir; verildiğinde `.icon(...)` ve `.custom_icon_from_external_svg(...)` değerlerinden önceliklidir.
 - `.notified(bool)`.
 - `.status(AgentThreadStatus)`.
 - `.title_generating(bool)`, `.title_label_color(Color)`, `.highlight_positions(Vec<usize>)`.
@@ -388,9 +388,9 @@ fn proje_paylasim_bildirimi_render() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `collab_ui` crate'i
-- `collab_ui` crate'i
-- `collab_ui` crate'i
+- `collab_ui` crate'i: `IncomingCallNotification` içinde gelen çağrı/proje paylaşımı bildirimi.
+- `collab_ui` crate'i: `ProjectSharedNotification` içinde paylaşılan proje daveti.
+- `collab_ui` crate'i: `CollabNotificationToast` içinde panel odaklayan genel collaboration toast yüzeyi.
 
 Dikkat edeceğin noktalar:
 
@@ -419,7 +419,7 @@ Davranış:
 - Slash listesinde Skills, Agent Commands grubundan önce sıralanır. Skill completion label'ında ad ve scope/source birlikte gösterilir; documentation alanında skill description yer alır.
 - Skill seçildiğinde metne `MentionUri::Skill` link'i eklersin. Link veya mention açıldığında ilgili `SKILL.md` dosyası workspace içinde absolute path ile açılır.
 - `SkillLoadingErrorsUpdated` event'leri thread view'da warning `Callout` olarak render edilir. Her callout kaynakta `Open File` butonu ve dismiss ikon butonu taşır; dosya düzeltildiğinde veya kaldırıldığında dismiss kaydı da temizlenir.
-- Rules-to-Skills migration tek seferlik ve non-destructive çalışır; tüm kullanıcılar için aynı şekilde uygulanır. `MIGRATION_DONE_KEY` global KVP anahtarıyla bir kez çalışacak şekilde korunur. Non-default Rules global skills dizinine `SKILL.md` olarak taşınır; Default Rules ve özelleştirilmiş built-in prompt gövdeleri global `AGENTS.md` dosyasına eklersin. Sonuç `rules_to_skills_migration_result` anahtarıyla saklarsın.
+- Rules-to-Skills migration tek seferlik ve non-destructive çalışır; tüm kullanıcılar için aynı şekilde uygulanır. `MIGRATION_DONE_KEY` sabitinin değeri olan `rules_to_skills_migration_done` global KVP anahtarıyla bir kez çalışacak şekilde korunur. Non-default Rules global skills dizinine `SKILL.md` olarak taşınır; Default Rules ve özelleştirilmiş built-in prompt gövdelerini Zed global `AGENTS.md` dosyasına ekler. Sonuç `MIGRATION_RESULT_KEY` sabitinin değeri olan `rules_to_skills_migration_result` anahtarıyla saklanır.
 - Skills announcement toast'u `auto_update_ui` içinde "Introducing Skills Support" başlığıyla kurarsın. Migration sonucu boş değilse Rules dönüşümünü anlatan ek bullet gösterir; primary action agent paneline focus eder, secondary action skills dokümantasyonuna gider. Toast `skills_announcement_dismissed` KVP anahtarıyla bir kez dismiss edilir.
 - Tool permissions setup sayfasında `skill` aracı ayrı bir satırdır. Regex pattern'leri skill adıyla değil, skill'in `SKILL.md` dosyasının absolute path'iyle eşleşir.
 
@@ -460,12 +460,12 @@ Davranış:
 - `icon_animate(true)` çağrısı, ikona dönme animasyonu uygular.
 - `.with_dismiss()` sağ tarafta bir kapatma ikon butonu gösterir.
 - `.disabled(true)`, ana `ButtonLike` alanını devre dışı bırakır. Bunun yanında `checking`, `downloading` ve `installing` hazır kurucuları bu durumu kendileri uygular.
-- Ana alan `ButtonLike::new("guncelleme-butonu")` üzerinden render edilir.
+- Ana alan `ButtonLike::new("update-button")` üzerinden render edilir.
 - İpucu verildiğinde ana buton alanına bağlanır.
 - `checking()` ile `installing(...)` dönen `IconName::LoadCircle` kullanır; animasyon süresi 2 saniyedir. `downloading(...)` `IconName::Download`, `errored(...)` ise `IconName::Warning` ile çizilir.
-- Hazır kurucuların port arayüzünde ürettiği varsayılan mesajlar şu biçimde olmalıdır: `checking()` `"Zed güncellemeleri denetleniyor…"`, `downloading(...)` `"Zed güncellemesi indiriliyor…"`, `installing(...)` `"Zed güncellemesi kuruluyor…"`, `errored(...)` ise `"Güncelleme Başarısız"`. Özel bir metin gerektiğinde `UpdateButton::new(...)` ile açıkça bir durum kurarsın.
+- Hazır kurucuların arayüzde ürettiği varsayılan mesajlar şu biçimdedir: `checking()` `"Checking for Zed Updates…"`, `downloading(...)` `"Downloading Zed Update…"`, `installing(...)` `"Installing Zed Update…"`, `updated(...)` `"Restart to Update"`, `errored(...)` ise `"Failed to Update"`. Özel bir metin gerektiğinde `UpdateButton::new(...)` ile açıkça bir durum kurarsın.
 - Kenarlık rengi devre dışı duruma göre değişir: aktif konumda `colors().text.opacity(0.15)` ile yumuşatılmış bir kenarlık, devre dışı konumda ise standart `colors().border` kullanırsın. Bu nedenle aktif `updated(...)` ve `errored(...)` durumları, devre dışı olan `checking`, `downloading` ve `installing` durumlarından daha belirgin bir kenarlık taşır.
-- Başlık çubuğundaki `UpdateVersion` ipucu `"Sürüme Güncelle: ..."` biçimindedir; SHA tabanlı bir sürümde kısaltılmış SHA yerine tam SHA gösterilir.
+- Başlık çubuğundaki `UpdateVersion` ipucu `"Update to Version: ..."` biçimindedir; SHA tabanlı bir sürümde kısaltılmış SHA yerine tam SHA gösterilir.
 
 Örnek:
 

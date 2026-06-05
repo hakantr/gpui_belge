@@ -36,9 +36,10 @@ fn kaydetmeyi_test_et(cx: &mut TestAppContext) {
     cx.simulate_keystrokes(window, "cmd-s");
     cx.run_until_parked();
 
-    window.read_with(cx, |duzenleyici, _| {
-        assert!(duzenleyici.temiz_mi);
-    });
+    assert!(matches!(
+        window.read_with(cx, |duzenleyici, _| duzenleyici.temiz_mi),
+        Ok(true)
+    ));
 }
 ```
 
@@ -73,12 +74,12 @@ Pencere argümanı isteyen yardımcılar `TestAppContext` üzerindeki `simulate_
 
 **Pratik kurallar.** Test akışında dikkat edeceğin noktalar:
 
-- Gerçek tutarlılık için `smol::Timer` yerine `cx.background_executor.timer(d)`'yi tercih edersin.
+- Gerçek tutarlılık için `smol::Timer` yerine `cx.background_executor().timer(d)`'yi tercih edersin.
 - `run_until_parked` ile `advance_clock`'u kombine ederken önce clock'u ilerletir, sonra park beklersin. `VisualTestContext` `TestAppContext`'in içine deref ettiği için normal yolda `cx.background_executor.advance_clock(d)` kullanırsın; doğrudan `advance_clock(d)` yardımcısı `VisualTestAppContext` üzerinde yer alır.
 - Async test için `#[gpui::test]` `async fn(cx: &mut TestAppContext)` formunu destekler; ön plan task'larını orada `cx.spawn` ile kurarsın.
-- Pencerenin gerçekten çizilmesi için `VisualTestContext::draw(...)`, `TestApp::draw()` veya doğrudan `window.draw(cx).clear()` kullanan bir pencere güncellemesi gerekebilir; aksi halde hata ayıklama sınırları veya yerleşim bilgisi üretilmez.
+- Pencerenin gerçekten çizilmesi için `VisualTestContext::draw(...)`, `TestAppWindow::draw()` veya doğrudan `window.draw(cx).clear()` kullanan bir pencere güncellemesi gerekebilir; aksi halde hata ayıklama sınırları veya yerleşim bilgisi üretilmez.
 
-**Tuzaklar.** Test simulasyonunda atladığın noktalar:
+**Dikkat noktaları.** Test simulasyonunda atlanması kolay noktalar:
 
 - `simulate_keystrokes` action dispatch'ini tetikler ancak keymap binding'inin kayıtlı olması gerekir; testte `cx.bind_keys([...])` çağırmadığında beklenen action ulaşmaz.
 - `run_until_parked` zamanı ilerletmez; yalnız bekleyen future'ları sürer. Timer beklediğinde `advance_clock` da yapman gerekir.
@@ -96,7 +97,7 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
 
 **HeadlessAppContext.** Başsız testlerde `HeadlessAppContext::with_platform(...)` ve `with_asset_source(...)` ile uygulama başlatılır. `open_window(...)` ekran göstermeden pencere kurar, `capture_screenshot(...)` renderer destekliyorsa görüntü alır, `run_until_parked()` ve `advance_clock(...)` async/timer akışını sürer. `allow_parking()` ve `forbid_parking()` test dispatcher'ının park davranışını denetler. Görsel karşılaştırma için renderer desteği gerekir; yalnız durum ve async davranış test ediliyorsa başsız bağlam daha hızlıdır.
 
-**VisualTestContext ve VisualTestAppContext.** `VisualTestContext` tek pencereyi görsel olarak doğrulayan bağlamdır. `from_window(...)` var olan handle'dan bağlam üretir; `update(...)`, `dispatch_action(...)`, `dispatch_keystrokes(...)`, `simulate_input(...)` ve fare/modifier yardımcıları seçili pencereyi sürer; `draw(...)`, `debug_bounds(...)`, `window_title()` ve `document_path()` çizim çıktısını ve platform metadata'sını okumaya yarar. macOS test-support tarafındaki `VisualTestAppContext` ise `open_offscreen_window(...)`, `capture_screenshot(...)`, `wait_for(...)`, `wait_for_animations()`, `is_screen_capture_supported()` ve window argümanlı simülasyon metotlarıyla daha platforma yakın çalışır. Hangi bağlamı seçtiğini test adında veya kurulumunda belli etmek, ileride test flake'lerini ayıklamayı kolaylaştırır.
+**VisualTestContext ve VisualTestAppContext.** `VisualTestContext` tek pencereyi görsel olarak doğrulayan bağlamdır. `from_window(...)` var olan handle'dan bağlam üretir; `update(...)`, `dispatch_action(...)`, `simulate_keystrokes(...)`, `simulate_input(...)` ve fare/modifier yardımcıları seçili pencereyi sürer; `draw(...)`, `debug_bounds(...)`, `window_title()` ve `document_path()` çizim çıktısını ve platform metadata'sını okumaya yarar. macOS test-support tarafındaki `VisualTestAppContext` ise `open_offscreen_window(...)`, `capture_screenshot(...)`, `wait_for(...)`, `wait_for_animations()`, `is_screen_capture_supported()` ve window argümanlı simülasyon metotlarıyla daha platforma yakın çalışır. Hangi bağlamı seçtiğini test adında veya kurulumunda belli etmek, ileride test flake'lerini ayıklamayı kolaylaştırır.
 
 **Test platformu.** `TestPlatform` ve `TestDispatcher` üretim platformunun kontrollü kopyasını kurar. `new(...)`, `with_text_system(...)` ve `with_platform(...)` metin sistemi/platform varyantını seçer; dispatcher tarafındaki `advance_clock(...)`, `advance_clock_to_next_timer()`, `tick()` ve `run_until_parked()` zaman ve task kuyruğunu deterministik yönetir. `allow_parking()` ve `forbid_parking()` testin beklenmeyen park noktalarını yakalamaya, `set_num_cpus(...)` CPU sayısına duyarlı kodu sınamaya yarar. `TestWindow`, `TestDisplay`, `TestAtlas`, `TestScreenCaptureSource` ve `VisualTestPlatform` platform arka ucunu taklit eder. Üretim özelliği yazarken bu tipleri kullanmazsın; test koşumunu özelleştirirken kullanırsın.
 
@@ -173,12 +174,10 @@ fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl Into
 Görsel testte aynı selector üzerinden son çizilen sınırları okuyabilirsin:
 
 ```rust
-let sinirlar = cx
-    .debug_bounds("kaydet-butonu")
-    ?;
-
-assert!(sinirlar.size.width > px(0.));
-assert!(sinirlar.size.height > px(0.));
+if let Some(sinirlar) = cx.debug_bounds("kaydet-butonu") {
+    assert!(sinirlar.size.width > px(0.));
+    assert!(sinirlar.size.height > px(0.));
+}
 ```
 
 `.debug()` yalnız `debug_assertions` açıkken vardır ve elementin kendi sınırına kırmızı debug çerçevesi çizer. `.debug_below()` aynı debug etkisini alt ağaçtaki uygun elementlere yayar. `.debug_selector(...)` ise test-support/test yolunda bounds haritasına anahtar yazar; release build'de no-op olduğu için üretim davranışına güvenlik veya iş mantığı bağlamaman gerekir.
@@ -277,7 +276,7 @@ Bu örnek `ProfilingCollector` ile artımlı okuma yapar; uzun süre çalışan 
 
 **Buffer sınırı.** `MAX_TASK_TIMINGS = (16 * 1024 * 1024) / size_of::<TaskTiming>()` her thread için yaklaşık 16 MiB üst sınır verir. Bu sınır aşıldığında en eski kayıt `pop_front()` ile düşer; `total_pushed` yine artar ve delta okuyucu kaybı `cursor < buffer_start` durumundan algılayabilir.
 
-**Tuzaklar.**
+**Dikkat noktaları.**
 
 - `set_trace_enabled` yalnız trace buffer'ını etkiler; en uzun poll/runtime istatistikleri trace kapalıyken de güncellenebilir. Bu yüzden reliability raporlarında `take_all_stats(...)` trace açmadan da anlamlı veri verebilir.
 - `TasksIncluded::CompletedAndRunning` canlı task/action sürelerini snapshot anındaki `Instant::now()` ile hesaplar. Bu davranış reliability log'u için kullanışlıdır; geriye dönük karşılaştırma yapıyorsan `OnlyCompleted` daha sabit sonuç verir.
@@ -356,9 +355,9 @@ window.defer(cx, |window, cx| {
 
 Bu küçük API'ler ana çizim modelinin parçası değildir; ancak Zed başlangıcı, editör metin davranışı ve görsel önbellek gibi yerlerde devreye girer.
 
-**Application ve platform kurulumu.** Application yapıcısı tek seçimle gelir; platform yardımcılarını ise üst katmanda yaygın olarak kullanırsın:
+**Application ve platform kurulumu.** Application kurarken normal yol platformu açıkça seçen yapıcıdan geçer; platform yardımcılarını ise üst katmanda yaygın olarak kullanırsın:
 
-- `Application::with_platform(Rc<dyn Platform>)` Application kurmak için tek yapıcıdır; `Application::new()` diye sade bir yapıcı yoktur.
+- `Application::with_platform(Rc<dyn Platform>)` normal Application kurma yoludur; `Application::new()` diye sade bir yapıcı yoktur. Erişilebilirlik köprüsünü bilinçli kapatman gereken ender durumda `Application::new_inaccessible(platform)` aynı platformla başlar ve AccessKit entegrasyonunu no-op hale getirir.
 - Üretim kodu genellikle bu yapıcıyı doğrudan çağırmaz; `gpui_platform` yardımcılarını kullanırsın:
   - `gpui_platform::application()` → `Application::with_platform(current_platform(false))`.
   - `gpui_platform::headless()` → `Application::with_platform(current_platform(true))`.
@@ -387,7 +386,7 @@ Bu küçük API'ler ana çizim modelinin parçası değildir; ancak Zed başlang
 - `window.show_character_palette()`, `window.play_system_bell()`, `window.set_window_edited(...)`, `window.set_document_path(...)` gibi çağrılar platform entegrasyonudur; çapraz platform davranışı platform trait uygulamasına bağlıdır.
 - `window.gpu_specs()` ve özellik kapılı `window.input_latency_snapshot()` tanı ekranlar veya başarım analizi içindir; uygulama durum akışının kaynağı olarak kullanmaman gerekir.
 
-**Tuzaklar.** Bu düşük seviyeli servisleri yanlış kullanmak görünmez sorunlar üretir:
+**Dikkat noktaları.** Bu düşük seviyeli servisleri yanlış kullanmak görünmez sorunlar üretir:
 
 - `cx.svg_renderer()` veya `cx.drop_image(...)` gibi düşük seviye servisleri bileşen API'si yerine kullanmak sahiplik ve önbellek sorumluluğunu da çağırana yükler.
 - `Application::with_platform` üretimde tek platform seçimini startup'ta yapar; çalışma zamanında platform değiştirme mekanizması değildir.
@@ -498,9 +497,9 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `ThermalState` | `Nominal`, `Fair`, `Serious`, `Critical` | Sistem ısıl baskısını sınıflandırır; yoğun arka plan işlerini azaltmak için tanı bilgisidir. |
 | `GpuSpecs` | `is_software_emulated`, `device_name`, `driver_name`, `driver_info` | GPUI'ın çalıştığı GPU/driver bilgisini taşır; `window.gpu_specs()` Linux/Vulkan tarafında tanı için bunu döndürebilir. |
 | `SourceMetadata` | `id`, `label`, `is_main`, `resolution` | Screen capture kaynağının kullanıcıya gösterilebilir metadata'sıdır. |
-| `RequestFrameOptions` | animasyon/kare isteği seçenekleri | Platformdan yeni frame talep ederken taşınan düşük seviye ayar paketidir. |
-| `WindowParams` | `bounds`, `titlebar`, `kind`, `is_movable`, `is_resizable`, `focus`, `show`, `display_id`, `window_min_size` | `WindowOptions` çözümlendikten sonra platform backend'ine giden pencere açma parametreleridir. |
-| `DEFAULT_WINDOW_SIZE`, `DEFAULT_ADDITIONAL_WINDOW_SIZE` | ana pencere ve ek pencere varsayılan boyutları | `WindowOptions.window_bounds` verilmediğinde veya ikincil pencere açıldığında kullanılan ölçü sabitleridir. |
+| `RequestFrameOptions` | `require_presentation`, `force_render` | Platformdan yeni frame talep ederken taşınan düşük seviye ayar paketidir. |
+| `WindowParams` | `bounds`, `titlebar`, `kind`, `is_movable`, `is_resizable`, `is_minimizable`, `focus`, `show`, `icon`, `display_id`, `window_min_size` | `WindowOptions` çözümlendikten sonra platform backend'ine giden pencere açma parametreleridir. |
+| `DEFAULT_WINDOW_SIZE`, `DEFAULT_ADDITIONAL_WINDOW_SIZE` | ana pencere ve ek pencere varsayılan boyutları | `WindowOptions.window_bounds` verilmediğinde display `default_bounds()` hesabının temel aldığı ana ölçü ve Zed'in yardımcı pencerelerde kullandığı ek ölçüdür. Aktif pencere varsa GPUI önce onun sınırından kademeli yerleşim üretir. |
 | `TextRenderingMode` | `PlatformDefault`, `Subpixel`, `Grayscale` | Platform text system'in glif rasterleme modunu bildirir. |
 | `Platform` | `hide_cursor_until_mouse_moves` | Platform arka ucunda imleci bir sonraki fare hareketine kadar gizleyen düşük seviye çağrıdır; pencere `CursorHideMode` akışı bunu kullanır. |
 | `PlatformTextSystem`, `NoopTextSystem` | font yükleme, metrics, glyph, raster, layout | Platform metin motoru trait'i ve test/headless için no-op implementasyondur. |
@@ -518,7 +517,7 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `Capslock` | capslock state taşıyıcı | Modifier değişimlerinde platform capslock durumunu taşır. |
 | `ModifiersChangedEvent` | `modifiers`, `capslock`, `Deref<Target = Modifiers>` | Platform modifier state değişimini taşır; doğrudan `Modifiers` metotlarını çağırabilirsin. |
 | `KeyboardButton`, `KeyboardClickEvent` | `Enter`, `Space`; `button`, `bounds` | Klavye ile tetiklenen click olayını temsil eder. |
-| `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent` | `button`, `position`, `modifiers`, `click_count`, `dragging`, `is_focusing` | Fare press/release/move ham olaylarıdır; modifier alanı doğrudan `modifiers` üzerinden okunur. |
+| `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent` | down/up: `button`, `position`, `modifiers`, `click_count`, `is_focusing`; move: `position`, `pressed_button`, `modifiers`, `dragging()` | Fare press/release/move ham olaylarıdır; modifier alanı doğrudan `modifiers` üzerinden okunur. |
 | `MouseClickEvent`, `MouseExitEvent` | down/up çifti; exit `position`, `pressed_button`, `modifiers` | Click sentezi ve pencere dışına çıkış olayıdır; `MouseExitEvent` `Modifiers` için `Deref` taşır. |
 | `ScrollWheelEvent`, `PinchEvent` | `delta`, `touch_phase`; `delta`, `phase` | Scroll ve pinch gesture olaylarıdır; ikisi de `Modifiers` için `Deref` taşır. |
 | `TouchPhase` | `Started`, `Moved`, `Ended` | Touch/scroll/pinch fazını sınıflandırır. |
@@ -745,7 +744,7 @@ Doğrudan kullanıcı akışında nadiren gördüğün genel yardımcılar:
 
 `target/doc/gpui/all.html` altında ayrı listelenen sabitler:
 
-- `DEFAULT_WINDOW_SIZE = 1536x1095` — `WindowOptions.window_bounds` verilmediğinde varsayılan yerleşim için kullanılan ana pencere boyutu.
+- `DEFAULT_WINDOW_SIZE = 1536x1095` — `WindowOptions.window_bounds` verilmediğinde, aktif pencere bulunamadığı durumda display `default_bounds()` hesabının kırpıp merkezlediği ana pencere boyutu.
 - `DEFAULT_ADDITIONAL_WINDOW_SIZE = 900x750` — ayarlar veya rules library gibi ek işlevsel pencereler için önerilen minimum oranlı boyut.
 - `KEYSTROKE_PARSE_EXPECTED_MESSAGE` — `InvalidKeystrokeError` mesajının "beklenen modifier + key" açıklaması.
 - `LOADING_DELAY = 200ms` — `img()` elementinin yükleme durumunu göstermeden önce beklediği süre.

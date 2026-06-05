@@ -4,7 +4,7 @@ Bu bölüm, üst bar portunda dış API sınırını ve davranış paritesini ne
 
 ## 21. Dış API sınırı ve davranış paritesi
 
-Bu bölümde `pub` anahtar sözcüğünün iki farklı anlamı ayrılır. Bu ayrım gözden kaçarsa "neden bu tipi import edemiyorum?" sorusu sıkça gündeme gelir:
+Bu bölümde `pub` anahtar sözcüğünün iki farklı anlamı ayrılır. Bu ayrım netleşmediğinde "neden bu tipi import edemiyorum?" sorusu sıkça gündeme gelir:
 
 - **Dış API:** Başka crate'lerden yol üzerinden doğrudan erişilebilen yüzeydir. Bu tipler dışarıdan kullanılmak üzere kasıtlı olarak açılmıştır.
 - **Lexical `pub`:** Kaynakta `pub` yazsa da, tipi içeren modül crate kökünde private olabilir. Bu durumda öğeye yalnızca crate içinden ulaşılır. Yani `pub` işareti tek başına dış erişim sağlamaz.
@@ -29,7 +29,7 @@ Bu ayrımın iyi örneklerinden biri `system_window_tabs.rs` içindeki `SystemWi
 | `render_left_window_controls` | `pub fn render_left_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Yalnız Linux/FreeBSD + CSD; `button_layout.left[0]` boşsa `None`. |
 | `render_right_window_controls` | `pub fn render_right_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Linux/FreeBSD + CSD'de yerleşim kullanır, Windows'ta `WindowsWindowControls::new(height)`, macOS'ta `None`. |
 
-`PlatformTitleBar` tipinin render davranışı çoğu zaman public API imzalarından daha kritiktir. Gerçek port hatalarının büyük kısmı imza farklarından değil, render içindeki ince akışlardan doğar. Aşağıdaki maddeler bu davranışın kaçırılmaması gereken noktalarını sıralar:
+`PlatformTitleBar` tipinin render davranışı çoğu zaman public API imzalarından daha kritiktir. Port uyumsuzluklarının büyük kısmı imza farklarından değil, render içindeki ince akışlardan doğar. Aşağıdaki maddeler bu davranışta doğrulanacak noktaları sıralar:
 
 - `close_action`, kaynakta sabit olarak `Box::new(workspace::CloseWindow)` ifadesiyle oluşturulur. Buna karşılık serbest render fonksiyonları (`render_left_window_controls`, `render_right_window_controls`) kapatma eylemini dışarıdan `Box<dyn Action>` olarak alır; bu, davranışın yapılandırılabilir olduğu tek noktadır.
 - `button_layout`, private bir yardımcı olan `effective_button_layout(...)` üzerinden çözülür. Bu çözüm yalnızca Linux + CSD durumunda yapılır ve mantığı `self.button_layout.or_else(|| cx.button_layout())` şeklindedir. Yani önce uygulamadan gelen değere bakılır, yoksa platforma sorulur.
@@ -50,7 +50,7 @@ Bu ayrımın iyi örneklerinden biri `system_window_tabs.rs` içindeki `SystemWi
 
 Bu dört aşamalı zincirden sonra `.bg(titlebar_color).content_stretch().child(div().children(children))` ifadesi gelir. Bu ifade başlık çubuğunun ana içeriğini oluşturur. Ardından `.when(!is_fullscreen, |title_bar| ...)` zinciri sağ kontrolleri ve `window_menu` sağ tık işleyicisini ekler.
 
-Burada önemli bir kural vardır: aşamalar **birbirleriyle yer değiştirebilir değildir**. Yani 3. aşamadaki sol padding seçimi, 4. aşamadaki köşe yuvarlamasının yatay hizalamasını doğrudan etkiler. Sıralamayı değiştirmek gözle hemen fark edilmeyen hizalama hataları üretebilir.
+Burada önemli bir kural vardır: aşamalar **birbirleriyle yer değiştirebilir değildir**. Yani 3. aşamadaki sol padding seçimi, 4. aşamadaki köşe yuvarlamasının yatay hizalamasını doğrudan etkiler. Sıralamayı değiştirmek gözle hemen fark edilmeyen hizalama uyumsuzlukları üretebilir.
 
 `PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipinde tanımlıdır. Yapı iki element için yığın içi kapasite ayırır. Bunun nedeni Zed'in tipik kullanım kalıbının **sol grup + sağ grup** olmasıdır (rehberin ilgili bölümündeki örneğe bakılabilir). Bu yapıya ikiden fazla element verildiğinde heap bellek ayırma yapılır. Bu yüzden içeriği iki gruba toplamak hem ergonomik açıdan tutarlı kalır hem de bellek ayırma sayısını azaltır.
 
@@ -73,7 +73,7 @@ Burada önemli bir kural vardır: aşamalar **birbirleriyle yer değiştirebilir
 | `WindowControl::new_close` | `pub fn new_close(id: impl Into<ElementId>, icon: WindowControlType, close_action: Box<dyn Action>, cx: &mut App) -> Self` | `close_action.boxed_clone()` saklar. |
 | `WindowControl::custom_style` | `pub fn custom_style(id: impl Into<ElementId>, icon: WindowControlType, style: WindowControlStyle) -> Self` | `#[allow(unused)]`; crate içinde çağrılmıyor, kapatma eylemi `None`. |
 
-Linux davranışının kritik private yardımcısı `fn create_window_button(...)` dış API değildir; buna rağmen davranış paritesi için zorunlu bir karar noktasıdır. İçinde `WindowButton::Close` dalı yalnızca `WindowControl::new_close(...)` çağrısını kullanır. Kapat butonunu `WindowControl::new(...)` ile üretmeye çalışmak da sessiz bir iş yapmadan dönüş değildir. Çalışma zamanında kapatma eylemi yoksa `Use WindowControl::new_close() for close control.` mesajıyla hızlı hata paniki fırlatılır. Bu, "yanlış kurucu ile kapat butonu üretme" hatasının sessizce geçmemesi için konmuş bir güvenlik önlemidir.
+Linux davranışının kritik private yardımcısı `fn create_window_button(...)` dış API değildir; buna rağmen davranış paritesi için zorunlu bir karar noktasıdır. İçinde `WindowButton::Close` dalı yalnızca `WindowControl::new_close(...)` çağrısını kullanır. Kapat butonunu `WindowControl::new(...)` ile üretmeye çalışmak da sessiz bir iş yapmadan dönüş değildir. Çalışma zamanında kapatma eylemi yoksa `Use WindowControl::new_close() for close control.` mesajıyla hızlı hata paniki fırlatılır. Bu, kapat butonu için uyumsuz kurucu kullanılmasının sessizce geçmemesi için konmuş bir güvenlik önlemidir.
 
 **Derive ve klonlanabilirlik haritası**, hangi tipin değer semantiğiyle taşındığını ve hangisinin yalnız element olarak tüketildiğini gösterir:
 
@@ -96,7 +96,7 @@ Linux davranışının kritik private yardımcısı `fn create_window_button(...
 | `icon` | `colors.icon` |
 | `icon_hover` | `colors.icon_muted` |
 
-Kurucu zincirinde geçersiz kılınmayan alanlar bu varsayılan değerlerinde kalır. Pratik sonuç nettir: port hedefinin tema sistemi **yukarıdaki dört token'ı mutlaka sağlamalıdır**. Aynı liste rehberin diğer bölümlerinde de yer alır. Bunlardan biri eksik kalırsa Linux pencere butonlarının görünümü beklenmeyen renklere düşer.
+Kurucu zincirinde geçersiz kılınmayan alanlar bu varsayılan değerlerinde kalır. Pratik sonuç nettir: port hedefinin tema sistemi **yukarıdaki dört token'ı mutlaka sağlamalıdır**. Aynı liste rehberin diğer bölümlerinde de yer alır. Bu token'lardan biri sağlanmazsa Linux pencere butonlarının görünümü beklenmeyen renklere düşer.
 
 **Sabit ölçüler.** Linux render kapanımlarında piksel paritesini korumak için aşağıdaki sabit değerlerin port hedefinde de aynı biçimde kullanman gerekir:
 
@@ -107,7 +107,7 @@ Kurucu zincirinde geçersiz kılınmayan alanlar bu varsayılan değerlerinde ka
 | `WindowControl` buton boyutu | `.w_5().h_5()` (≈20px) |
 | `WindowControl` köşe yuvarlama | `.rounded_2xl()` |
 
-**`Box<dyn Action>` klonlama zinciri.** Kapatma eyleminin render sırasında kaç defa klonlandığı kolayca gözden kaçar. Başarımı düşünen bir portta bu sayı önemlidir. Zincirin adımları şöyledir:
+**`Box<dyn Action>` klonlama zinciri.** Kapatma eyleminin render sırasında kaç defa klonlandığı başarımı düşünen bir portta önemlidir. Zincirin adımları şöyledir:
 
 | Adım | Tetikleyici | Çağrı |
 | :-- | :-- | :-- |
@@ -151,7 +151,7 @@ Bu glyph'lerin gösterilmesi için kullanılan font, çalışılan Windows build
 | `Close` | `Rgba { r: 232/255, g: 17/255, b: 32/255, a: 1.0 }` = `#E81120` | `gpui::white()` | `color.opacity(0.8)` | `white().opacity(0.8)` |
 | Diğerleri | `theme.ghost_element_hover` | `theme.text` | `theme.ghost_element_active` | `theme.text` |
 
-Burada özellikle dikkat çeken nokta kapat butonunun kırmızısıdır: `#E81120` **temadan değil, doğrudan koddan gelir**. Bu renk Microsoft'un Windows title bar kapatma kırmızısıdır ve native hissi korumak için sabit tutulur. Port hedefinin tema sistemi farklı bir kapatma vurgu rengi istiyorsa bu sabiti geçersiz kılman gerekir. Aksi halde tema değişse bile kapatma üzerine gelme rengi Microsoft kırmızısında kalır.
+Burada özellikle dikkat çeken nokta kapat butonunun kırmızısıdır: `#E81120` **temadan değil, doğrudan koddan gelir**. Bu renk Microsoft'un Windows title bar kapatma kırmızısıdır ve native hissi korumak için sabit tutulur. Port hedefinin tema sistemi farklı bir kapatma vurgu rengi istiyorsa bu sabiti geçersiz kılman gerekir. Bu sabit değiştirilmezse tema değişse bile kapatma üzerine gelme rengi Microsoft kırmızısında kalır.
 
 **Sabit ölçüler** (Windows caption butonu):
 
@@ -204,7 +204,7 @@ Aşağıdaki tablo, kaynakta `pub` görünmesine rağmen crate sınırının dı
 | `handle_tab_drop` | Private method | Sadece aynı çubukta bırakma ile yeniden sıralama: `SystemWindowTabController::update_tab_position(...)`. |
 | `handle_right_click_action` | Private method | Bağlam menüsü eylemlerini hedef sekme penceresinde çalıştırır. |
 
-Bu ayrımın port hedefi için anlamı şudur: `SystemWindowTabs` tipi dış API olarak taşınmak zorunda değildir. Tüketicilere doğrudan göstermemek serbestlik sağlar. Ancak davranış birebir taşınacaksa private olay yönlendiricileri de ayrı ayrı incelenmelidir; özellikle `handle_tab_drop` ve `handle_right_click_action` önemlidir. Yalnızca public yüzey taşınırsa bu yönlendiricilerin yaptığı iş atlanır ve sekme davranışı eksik kalır.
+Bu ayrımın port hedefi için anlamı şudur: `SystemWindowTabs` tipi dış API olarak taşınmak zorunda değildir. Tüketicilere doğrudan göstermemek serbestlik sağlar. Ancak davranış birebir taşınacaksa private olay yönlendiricileri de ayrı ayrı incelenmelidir; özellikle `handle_tab_drop` ve `handle_right_click_action` önemlidir. Yalnızca public yüzey taşınırsa bu yönlendiricilerin yaptığı iş dışarıda kalır ve sekme davranışı eksik kalır.
 
 ### GPUI native tab destek yüzeyi
 
@@ -247,8 +247,8 @@ Zed uygulaması platform crate'ini iki yoldan tüketir. Bazı parçalar doğruda
 | `TitleBar::new` | `pub fn new(id: impl Into<ElementId>, workspace: &Workspace, multi_workspace: Option<WeakEntity<MultiWorkspace>>, window: &mut Window, cx: &mut Context<Self>) -> Self` | `PlatformTitleBar::new(...)` entity'sini oluşturur ve `observe_button_layout_changed` aboneliği kurar. |
 | Ürün yardımcıları | `effective_active_worktree`, `render_restricted_mode`, `render_project_host`, `render_sign_in_button`, `render_user_menu_button` | Zed'e özgü proje/kullanıcı UI yüzeyi; platform başlık çubuğu port API'si olarak kopyalanmamalıdır. |
 | Ürün duyuru bandı | `OnboardingBanner::new(...)` | Özellik bayrağına bağlı duyuru/ürün mesajı katmanıdır; platform başlık çubuğu API'sine taşınmamalıdır. |
-| Güncelleme bildirimi | `UpdateVersion::version_tooltip_message(...)` | İpucu metnini `"Sürüme Güncelle: ..."` biçiminde üretir. SHA için `short()` değil `full()` kullanılır. |
-| Güncelleme bildiriminin görsel kabuğu | `UpdateButton` | Beş durum için ayrı kurucu: `checking`, `downloading`, `installing`, `updated`, `errored`. İlk üçü `disabled(true)` ile gelir; render sırasında düğme `disabled` bayrağına geçer ve sınırı `colors().border` ile çizilir. `updated`/`errored` durumlarında sınır `colors().text.opacity(0.15)` üzerinden hesaplanır. Animasyonlu ikon her zaman `IconName::LoadCircle` (iki turluk dönüş); statik `Download` ikonu yalnız `downloading` kurucusunda kullanılır. Portta hata görünür metni `"Güncelleme Başarısız"` gibi Türkçe yazılır. |
+| Güncelleme bildirimi | `UpdateVersion::version_tooltip_message(...)` | İpucu metnini `"Update to Version: ..."` biçiminde üretir. SHA için `short()` değil `full()` kullanılır. |
+| Güncelleme bildiriminin görsel kabuğu | `UpdateButton` | Beş durum için ayrı kurucu: `checking`, `downloading`, `installing`, `updated`, `errored`. İlk üçü `disabled(true)` ile gelir; render sırasında düğme `disabled` bayrağına geçer ve sınırı `colors().border` ile çizilir. `updated`/`errored` durumlarında sınır `colors().text.opacity(0.15)` üzerinden hesaplanır. Döner ikon yalnız `checking` ve `installing` durumlarında `IconName::LoadCircle` ile iki turluk dönüş yapar; `downloading` ve `updated` durumlarında `Download`, `errored` durumunda `Warning` ikonu kullanılır. Kaynak hata görünür metni `"Failed to Update"` biçimindedir; yerelleştirilmiş portta anlam korunarak Türkçeleştirilir. |
 
 Zed ürün başlık çubuğu eylem ve işbirliği yardımcı kapsamı:
 
@@ -259,7 +259,7 @@ Zed ürün başlık çubuğu eylem ve işbirliği yardımcı kapsamı:
 
 Ürün başlığı katmanının ayrıntıları (duyuru bandı, güncelleme bildirimi, kullanıcı menüsü, işbirliği) platform kabuğunun değil, `title_bar` crate'inin konusudur ve [Üst Bar](../ust_bar/ust_bar.md) bölümünde işlenir. Burada yalnız platform kabuğuyla kesişen kural önemlidir: bu ürün varlıkları `PlatformTitleBar` içine gömülmez; `TitleBar` katmanında üretilip platform kabuğuna çocuk olarak teslim edilir. `OnboardingBanner` mekanizması crate'te hazır olmakla birlikte güncel sürümde `TitleBar`'a bağlı değildir (`banner` alanı `None`); ayrıntı ve doğru durum Üst Bar bölümündedir.
 
-`UpdateVersion` tarafında `version_tooltip_message(...)` semantik sürüm için `SemanticVersion::to_string()`, commit için `AppCommitSha::full()` çıktısını kullanır ve her iki durumda da sonucu port arayüzünde `"Sürüme Güncelle: {version}"` kalıbına sarar. `Downloading`, `Installing` ve `Updated` render kolları bu metni `UpdateButton` kurucularına `version` değişkeni olarak geçirir. Port hedefinde kullanıcıya hala kısa SHA göstermek isteniyorsa bu bilinçli bir ürün farkı olarak kaydedilir; Zed paritesi değildir.
+`UpdateVersion` tarafında `version_tooltip_message(...)` semantik sürüm için `SemanticVersion::to_string()`, commit için `AppCommitSha::full()` çıktısını kullanır ve her iki durumda da sonucu kaynak arayüzünde `"Update to Version: {version}"` kalıbına sarar. `Downloading`, `Installing` ve `Updated` render kolları bu metni `UpdateButton` kurucularına `version` değişkeni olarak geçirir. Port hedefinde kullanıcıya kısa SHA göstermek isteniyorsa bu bilinçli bir ürün farkı olarak kaydedilir; Zed paritesi değildir.
 
 Zed'in `title_bar` crate'indeki `pub struct TitleBarSettings` tipi özel bir modülde kaldığı için crate dışı API değildir; yalnızca Zed'in kendi ayar sistemi içinde kullanırsın. Kullanıcı ayarı tarafındaki dış veri tipi ise `settings_content::title_bar::WindowButtonLayoutContent` tipidir. Linux/FreeBSD'de bu tip, `pub fn into_layout(self) -> Option<WindowButtonLayout>` çağrısıyla doğrudan `WindowButtonLayout` değerine dönüştürülür.
 

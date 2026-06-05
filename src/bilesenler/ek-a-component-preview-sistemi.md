@@ -11,7 +11,7 @@ Zed uygulamasında bu sistem iki seviyede ele alırsın:
 
 Bu nedenle uygulama içi component sistemi bir runtime UI dependency injection mekanizması değildir. Asıl görevi **görsel inceleme ve dokümantasyon registry'si** olmaktır. Production ekranları bileşenleri doğrudan `ui::Button`, `ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır. Component registry yalnızca preview tool'u, dokümantasyon ve arama ekranları için devrede tutulur.
 
-`ui::prelude::*` yalnızca `Component`, `ComponentScope`, `example_group`, `example_group_with_title`, `single_example` ve `RegisterComponent` derive makrosunu getirir. Programatik registry erişimi (`ComponentRegistry`, `ComponentMetadata`, `ComponentStatus`, `ComponentId`, `register_component`, `empty_example`, `ComponentExample`, `ComponentExampleGroup`, `ComponentFn`) gerektiğinde `use component::*;` veya doğrudan tek tek import kullanırsın.
+Component tarafında `ui::prelude::*`, `Component`, `ComponentScope`, `example_group`, `example_group_with_title`, `single_example` ve `RegisterComponent` derive makrosunu da getirir; aynı prelude GPUI ve temel UI yapı taşlarını da içerir. `ui::component_prelude::*` buna ek olarak `ComponentId`, `ComponentStatus` ve `documented::Documented` gibi component preview odaklı öğeleri taşır. Programatik registry erişimi (`ComponentRegistry`, `ComponentMetadata`, `register_component`, `empty_example`, `ComponentExample`, `ComponentExampleGroup`, `ComponentFn`) gerektiğinde `use component::*;` veya doğrudan tek tek import kullanırsın.
 
 `component_preview` crate'inin kendi dışa açık yüzeyi ise preview tool'unun workspace item katmanıdır:
 
@@ -44,15 +44,15 @@ Bu tipler production UI'da component seçmek için genel amaçlı bir API olarak
 | `description() -> &'static str` | Açıklama metni | Zorunlu | `documented::Documented` derive ile doc comment `Self::DOCS` üzerinden açıklamaya dönüştürülebilir |
 | `preview(window, cx) -> AnyElement` | Preview elementi | Zorunlu | Gallery'de gösterilen örnek alanı; boş durum için `empty_example(...)` döndürülebilir |
 
-`ComponentScope` enum'unun tüm variant'ları, yani gallery'deki grup başlıkları aşağıdaki gibidir:
+`ComponentScope` enum'unun tüm variant'ları ve kaynak `Display` çıktısındaki gallery grup başlıkları aşağıdaki gibidir:
 
 ```text
-Agent, Collaboration, DataDisplay ("Veri Gösterimi"), Editor,
-Images ("Görseller ve İkonlar"), Input ("Formlar ve Girdi"),
-Layout ("Yerleşim ve Yapı"), Loading ("Yükleme ve İlerleme"),
-Navigation, None ("Sıralanmamış"), Notification,
-Overlays ("Katmanlar ve Yerleşen Yüzeyler"), Onboarding, Status,
-Typography, Utilities, VersionControl ("Sürüm Kontrolü")
+Agent, Collaboration, DataDisplay ("Data Display"), Editor,
+Images ("Images & Icons"), Input ("Forms & Input"),
+Layout ("Layout & Structure"), Loading ("Loading & Progress"),
+Navigation, None ("Unsorted"), Notification,
+Overlays ("Overlays & Layering"), Onboarding, Status,
+Typography, Utilities, VersionControl ("Version Control")
 ```
 
 `ComponentStatus` variant'ları ve anlamları:
@@ -60,8 +60,8 @@ Typography, Utilities, VersionControl ("Sürüm Kontrolü")
 | Varyant | Anlam | Galeri davranışı |
 | :-- | :-- | :-- |
 | `Live` (varsayılan) | Üretimde kullanabilirsin | Normal olarak listelenir |
-| `WorkInProgress` | Hala tasarlanıyor veya kısmi olarak implement edilmiş | `"Devam Ediyor"` rozeti; üretim kodunda kullanılmamalı |
-| `EngineeringReady` | Tasarım tamamlanmış, implementasyon bekleniyor | `"Geliştirmeye Hazır"` rozeti |
+| `WorkInProgress` | Hala tasarlanıyor veya kısmi olarak implement edilmiş | `"Work In Progress"` rozeti; üretim kodunda kullanılmamalı |
+| `EngineeringReady` | Tasarım tamamlanmış, implementasyon bekleniyor | `"Ready To Build"` rozeti |
 | `Deprecated` | Mevcut uygulama kodu için hedef yüzey değildir | Galeride uyarı rozetiyle gösterilir |
 
 Preview'a dahil edilecek küçük bir örnek component şu yapıyı izler:

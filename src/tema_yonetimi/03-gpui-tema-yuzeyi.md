@@ -1,6 +1,6 @@
 # GPUI'nin tema için kullanılan yüzeyi
 
-Tema sistemi neredeyse her adımda GPUI tipleriyle konuşur. Renkler, font stilleri, pencere görünümü ve global durum bu yüzeyin parçasıdır. Bu tipler önceden anlaşılırsa, veri modeli ve çalışma zamanı kararları sonraki bölümlerde çok daha rahat takip edilir. Bu bölüm, tema kodunun sık kullandığı GPUI parçalarını görevleriyle ve yaygın tuzaklarıyla birlikte anlatır.
+Tema sistemi neredeyse her adımda GPUI tipleriyle konuşur. Renkler, font stilleri, pencere görünümü ve global durum bu yüzeyin parçasıdır. Bu tipler önceden anlaşılırsa, veri modeli ve çalışma zamanı kararları sonraki bölümlerde çok daha rahat takip edilir. Bu bölüm, tema kodunun sık kullandığı GPUI parçalarını görevleriyle ve yaygın dikkat noktalarıyla birlikte anlatır.
 
 ---
 
@@ -21,7 +21,7 @@ pub struct Hsla {
 }
 ```
 
-> **Hue alanı 0-1 aralığında çalışır, 0-360 derece değil.** CSS tarafındaki `hsl(210, 75%, 60%)` ifadesinin Rust karşılığı `hsla(210.0 / 360.0, 0.75, 0.60, 1.0)` biçimindedir. En yaygın hata, derece değerini doğrudan `hsla` içine vermektir.
+> **Hue alanı 0-1 aralığında çalışır, 0-360 derece değil.** CSS tarafındaki `hsl(210, 75%, 60%)` ifadesinin Rust karşılığı `hsla(210.0 / 360.0, 0.75, 0.60, 1.0)` biçimindedir. Hataya açık kullanım, derece değerini doğrudan `hsla` içine vermektir.
 
 **`Rgba`** — sRGB renk uzayı (genelde hex ayrıştırmadan üretilir):
 
@@ -88,10 +88,10 @@ pub struct ThemeColors {
 
 Tüm çalışma zamanı renk alanları `Hsla` tipindedir. JSON tarafında string olarak gelen renkler, deserializasyon veya refinement hazırlığı sırasında `try_parse_color` üzerinden `Hsla`'ya çevrilir ve struct'a bu biçimde yerleşir.
 
-**Tuzaklar:**
+**Dikkat noktaları:**
 
-1. **Hue'yu 0–360 aralığında yazmak**: `hsla(210.0, ...)` yazıldığında `210 mod 1 = 0` olarak hesaplanır ve sonuç kırmızıya yakın bir renk olur. Hue mutlaka `/ 360.0` bölümü ile normalize edilmelidir.
-2. **`Default::default()` görünmezliği**: `Hsla::default()` çıktısı `(0, 0, 0, 0)` olur. Alfa sıfır olduğu için UI'da hiçbir şey görünmez. Durum renklerinde `unsafe { std::mem::zeroed() }` ile struct doldurmak da aynı tuzağa düşer.
+1. **Hue'yu 0–360 aralığında yazmak**: `hsla(210.0, ...)` yazıldığında `hsla` kurucusu hue değerini `0.0..=1.0` aralığına clamp eder; `210.0` değeri `1.0` olur ve pratikte kırmızı uç noktasına denk gelir. Hue mutlaka `/ 360.0` bölümü ile normalize edilmelidir.
+2. **`Default::default()` görünmezliği**: `Hsla::default()` çıktısı `(0, 0, 0, 0)` olur. Alfa sıfır olduğu için UI'da hiçbir şey görünmez. Durum renklerinde `unsafe { std::mem::zeroed() }` ile struct doldurmak da aynı görünmezlik sonucunu üretir.
 3. **`opacity` ile `alpha` arasındaki fark**: `opacity(0.5)` mevcut alfa değerini `0.5` ile **çarpar**; `alpha(0.5)` ise alfa değerini doğrudan `0.5`'e **atar**. Yarı şeffaf bir rengi tam şeffaf yapmak için `opacity(0)` işe yaramaz; bunun yerine `alpha(0)` veya `transparent_black()` tercih edilmelidir.
 4. **`green()` davranışının farkı**: Diğer temel renk fonksiyonlarından farklı olarak `green()` lightness değerini 0.5 yerine 0.25 verir. Yedek renkler hazırlanırken bu detayın gözetilmesi, beklenmedik koyu yeşil tonlarının önüne geçer.
 5. **sRGB ↔ HSL kayması**: Aynı hex değeri farklı `palette` major versiyonlarında çok küçük miktarda farklı bir `Hsla` üretebilir. Bu yüzden hedeflenen Zed referansıyla aynı `palette` major versiyonunun kullanılması, exact karşılaştırma yapan testlerin tutarlı kalması için gereklidir.
@@ -142,7 +142,7 @@ pub struct ThemeNotFoundError(pub SharedString);
 
 Tema sisteminde isimler `SharedString` üzerinden taşınır. Registry içinde bu isimler hem map anahtarı olarak kullanılır hem de değer olarak sıkça klonlanır ve hash'lenir. Her noktada `String::clone()` ile bellek ayırma üretmek zamanla gereksiz bir maliyete dönüşür.
 
-**Tuzaklar:**
+**Dikkat noktaları:**
 
 1. **`SharedString::from(String)` ilk dönüşümde bellek ayırır**: İlk dönüşüm sırasında bellek ayırma yapılır; sonraki klonlar ücretsizdir. Bu yüzden sıcak yolda her seferinde aynı string'i `String`'den yeniden üretmek yerine, bir kez `SharedString`'e dönüştürüp saklamak çok daha verimli olur.
 2. **Büyük/küçük harf duyarlılığı**: "Kvs Varsayılan" ve "kvs varsayılan" iki farklı anahtar olarak kabul edilir. Registry'deki `get` çağrılarının başarılı olması için isim **birebir** vermen gerekir.
@@ -249,13 +249,13 @@ CSS weight değerleriyle birebir, sabit olarak tanımlıdır:
 
 Tema JSON anahtarı `"font_weight": 700` veya `"font_weight": 700.0` biçimini kabul eder; `FontWeightContent` `transparent` newtype olduğu için doğrudan sayı ayrıştırabilir.
 
-**Tuzaklar:**
+**Dikkat noktaları:**
 
 1. **`HighlightStyle` katman karışımı**: Editor, semantic highlight ile tree-sitter highlight'ını **birleştirerek** çalışır. Tema tarafında `Italic` verilmiş olsa bile semantic katman `Some(Normal)` döndürdüğünde italik etkisi kaybolur. Bu davranış tema tarafının kontrolünde değildir ve tema yazarı için sürpriz olabilir.
 2. **`FontWeight(700.0)` ile `FontWeight::BOLD` arasındaki tercih**: Davranış açısından ikisi de aynı sonucu verir; ancak okunabilirlik açısından sabit kullanmak çok daha açıklayıcıdır.
 3. **`underline`, `strikethrough`, `fade_out` sınırını karıştırmak**: `HighlightStyle` tipi bu alanları taşır, ancak Zed tema JSON'u sözdizimi bloğunda bunları doğrudan kabul etmez. Ayna tarafta da bu ayrımı korumak gerekir: çalışma zamanı tipinin kapasitesi ile JSON sözleşmesinin izin verdiği alanlar aynı şey değildir.
 4. **`FontStyle::Oblique` çizim farkı**: Çoğu OS font'unda Italic ile aynı şekilde render edilir, ancak bazı font'larda ayrı bir glif seti bulunabilir. "Italic seçildi ama Oblique göründü" şeklinde bir bildirim geldiğinde font katmanına bakmak yerinde olur.
-5. **`HighlightStyle::default()` nötrdür ama sözdizimi katmanında **görünmezdir**:** Tüm alanlar `None` döndürür (color dahil). Bir sözdizimi kategorisi için `Default::default()` konulduğunda token şeffaf kalır. `Hsla::default()` görünmezliğin renk tarafıdır; `HighlightStyle::default()` ise stil tarafının görünmezliğidir. Yedek sözdizimi kurulurken her kategoriye en az `color: Some(...)` verilmesi, görünmezliğin önüne geçer.
+5. **`HighlightStyle::default()` nötrdür ve kendi başına renk katkısı vermez:** Tüm alanlar `None` döndürür (color dahil). Bir sözdizimi kategorisi için `Default::default()` konulduğunda token üst/default metin stilinden görünür kalabilir, ama tema o kategoriye özel renk üretmemiş olur. Yedek sözdizimi kurulurken vurgulamak istediğin kategorilere en az `color: Some(...)` vermen gerekir.
 
 ---
 
@@ -267,13 +267,14 @@ Burada iki ayrı pencere kavramı vardır: tema yazarının seçtiği **arka pla
 
 **Kaynak:** `gpui::WindowBackgroundAppearance` (`window`).
 
-Tema JSON'unda `"background.appearance"` alanından gelir:
+GPUI enum'u pencere arka planı için şu değerleri taşır. Tema/settings JSON sözleşmesindeki `"background.appearance"` alanı ise `WindowBackgroundContent` üzerinden yalnız `Opaque`, `Transparent` ve `Blurred` değerlerini GPUI'ye çevirir; `MicaBackdrop` bu sürümde düşük seviye GPUI yüzeyinde kalır ve tema JSON'undan doğrudan gelmez:
 
 ```rust
 pub enum WindowBackgroundAppearance {
     Opaque,
     Transparent,
     Blurred,
+    MicaBackdrop,
 }
 ```
 
@@ -281,7 +282,8 @@ pub enum WindowBackgroundAppearance {
 | ------- | ---------- | --------------- |
 | `Opaque` (varsayılan) | Pencere arka planı tam dolu; altındaki masaüstü görünmez. | Her yerde çalışır. |
 | `Transparent` | Pencere altındaki masaüstü/diğer pencereler doğrudan görünür. Bunun için tema'nın `background` rengi alpha < 1 olmalı. | macOS, Windows, Wayland evet. X11 compositor'a bağlı. |
-| `Blurred` | macOS Mica/Vibrancy benzeri blur. | macOS evet, Windows 11 evet, Linux kısıtlı (Wayland: layer-shell). |
+| `Blurred` | Arka planı bulanıklaştıran platform etkisini ister. | Platform desteğine bağlıdır; destek yoksa pencere yöneticisi yedek davranışa düşebilir. |
+| `MicaBackdrop` | Windows 11 Mica backdrop materyalini ister. | GPUI enum'unda vardır; Zed tema/settings JSON sözleşmesi bu değeri doğrudan parse etmez. |
 
 **Tema'da yer:**
 
@@ -298,7 +300,7 @@ impl Theme {
 }
 ```
 
-JSON Content tarafında ise `WindowBackgroundContent` (`Opaque`/`Transparent`/`Blurred`) karşılığıyla birebir eşlenir.
+JSON Content tarafında ise `WindowBackgroundContent` (`Opaque`/`Transparent`/`Blurred`) üçlüsü `IntoGpui` dönüşümüyle bu enum'un ilk üç varyantına eşlenir.
 
 **Pencere açılırken aktarma:**
 
@@ -358,7 +360,7 @@ cx.observe_window_appearance(window, |_, window, cx| {
 
 `.detach()` çağrısı zorunludur. `Subscription` düşerse gözlemci ölür ve sistem değişimleri sessizce kaybolur.
 
-**Tuzaklar:**
+**Dikkat noktaları:**
 
 1. **`Transparent` ile opak arka plan ikilemi**: `WindowBackgroundAppearance::Transparent` seçilmesine rağmen temanın `colors.background` alfa değeri 1.0 ise sonuç yine opak bir pencere olur. Transparent moddan görsel olarak yararlanmak için arka plan alfa değeri < 1 olmalıdır.
 2. **`Blurred` modunun platform yedeği**: Linux X11 üzerinde blur desteklenmiyorsa GPUI sessizce opak görünüme düşer. Tema yazarına platform farkındalığı taşıyan bir uyarı vermek, geliştirici tarafında elle kurulması gereken bir kolaylıktır.
@@ -442,7 +444,7 @@ Tema sisteminin global yönetimi bu trait üzerinden işler. Aynı `GlobalTheme:
 | `&mut Context<T>` | ✓ | ✓ | ✓ | ✓ |
 | `&AsyncApp` | `try_global` ile | ✗ | ✗ | `window` üzerinden |
 
-**Tuzaklar:**
+**Dikkat noktaları:**
 
 1. **`cx.theme()` panic potansiyeli**: `GlobalTheme` kurulmadıysa panic atar. Bu yüzden `kvs_tema::init(cx)` çağrısını uygulama başında mümkün olan en erken noktada yapman gerekir.
 2. **`Context<T>` içinden `set_global` çağırmak**: Teknik olarak çalışır, ama tema değişimi tüm view'ları etkilediğinden bireysel bir entity'den tetiklenmesi mantığa uymaz; tema değişim akışı `App` düzeyinde tutulduğunda akış çok daha okunaklı olur.
@@ -535,13 +537,13 @@ pub fn temayi_degistir(ad: &str, cx: &mut App) -> anyhow::Result<()> {
 - Pencerelere özgü durum (odak, kaydırma konumu vb.) korunur.
 - GPU kaynakları yeniden kullanılır; yalnızca yerleşim ve boyama adımları yeniden çalışır.
 
-**Tuzaklar:**
+**Dikkat noktaları:**
 
 1. **Init sıralaması**: `cx.theme()` çağrısı `GlobalTheme` kurulmadan yapılırsa panic atar. `kvs_tema::init(cx)` ana akışın en erken noktasında çağrılmalıdır.
 2. **`set_global` çakışması**: Aynı tipin yeniden kurulması mevcut global'i siler. Bu yüzden tema dışı bir global durum aynı tipte tutulmamalıdır.
-3. **`refresh_windows` çağrısının unutulması**: Pratikte en sık görülen hatalardan biridir; tema değişir, ancak UI eski renkte kalır. `GlobalTheme::update_theme` çağrısının (veya onu saran yerel yardımcının) her zaman `refresh_windows` ile eşleşmesi gerekir. Bu eşleşme tek bir yardımcı fonksiyon içinde tutulduğunda hatanın tekrar etmesi önlenmiş olur.
+3. **`refresh_windows` eşleşmesi**: Tema değiştiğinde UI'nın eski renkte kalmaması için `GlobalTheme::update_theme` çağrısını (veya onu saran yerel yardımcıyı) her zaman `refresh_windows` ile eşleştirmen gerekir. Bu eşleşmeyi tek bir yardımcı fonksiyon içinde tuttuğunda aynı yenileme kuralını tüm akışta korursun.
 4. **`update_global` içinde `set_global` çağırmak**: Aynı tip üzerinde yeniden giriş hatasına yol açar. Update geri çağırımı içinde yalnızca alan değiştirilmeli, yeni bir kurma işlemi yapılmamalıdır.
-5. **Gözlemci üzerinde `detach()` unutmak**: `cx.observe_window_appearance(...)` çağrısı bir `Subscription` döndürür; bu değer üzerinde `.detach()` çağrılmadığında `Subscription` düşer ve gözlemci ölür, o yüzden sistem değişimleri kaybolur.
+5. **Gözlemci aboneliğinin yaşaması**: `cx.observe_window_appearance(...)` çağrısı bir `Subscription` döndürür; bu değer üzerinde `.detach()` çağrılmadığında `Subscription` düşer ve gözlemci ölür, o yüzden sistem değişimleri kaybolur.
 
 ---
 
@@ -616,7 +618,7 @@ Makro, alan tipine göre üç farklı sarmalama yapar (`refineable` crate'i):
 | `Option<T>` (zaten Option) | `Option<T>` **aynen** (tekrar sarmalanmaz) | Boş ↔ dolu durumu kullanıcı seviyesinden gelir; makro yeniden `Option<Option<T>>` üretmez |
 | `#[refineable] U` (iç içe refineable) | `URefinement` (iç içe refinement tipi) | Özyinelemeli olarak `refine` çağrılır |
 
-`is_optional_field` (`refineable` crate'i) bu kararı **alan tipinin son segmentinin `Option` olup olmadığına** bakarak verir. `Option<T>` sayılır, `core::option::Option<T>` sayılır; ancak `BenimOption<T>` veya generic alias **sayılmaz**. Bu pratikte nadiren sorun çıkarır. Yine de ayna tarafta alan tiplerini açıkça `Option<T>` formunda yazmak en güvenli tercihtir.
+`is_optional_field` (`refineable` crate'i) bu kararı **tip yolunun tek segmentli `Option` olup olmadığına** bakarak verir. Yalın `Option<T>` sayılır; `core::option::Option<T>`, `std::option::Option<T>`, `BenimOption<T>` veya generic alias **sayılmaz**. Ayna tarafta alan tiplerini açıkça `Option<T>` formunda yazman bu yüzden en güvenli tercihtir.
 
 **Refinement içi yuva (`type Refinement = Self::Refinement`):** Refinement tipi kendi başına da `Refineable` uygular ve `type Refinement = Self::Refinement` ilişkisini kurar; yani Refinement'in Refinement'i yine kendisidir. Bu sabit nokta sayesinde `Cascade<S>` slot listesindeki her slot aynı tipte refinement taşır.
 
@@ -665,9 +667,9 @@ pub struct CascadeSlot(usize);
 
 Tema sistemi bu tipleri kullanmaz; taban + kullanıcı olmak üzere iki katman yeterlidir. GPUI'nin `Interactivity` katmanı bile `Cascade` yerine `Option<Box<StyleRefinement>>` alanları tutar. Yani üç veya daha fazla refinement katmanına pratikte sık ihtiyaç duyulmaz. Bu yüzeyi bilmek yararlıdır, ama tema sistemi şimdilik onu hazırda bekletmekle yetinir.
 
-### Tuzaklar
+### Dikkat Noktaları
 
-1. **`#[refineable(...)]` özniteliğini unutmak**: Eklenmediği durumda Refinement tipi yalnızca `Default + Clone` taşır. Serde gereği duyulan senaryolarda `#[refineable(serde::Deserialize)]` çağrısını elle eklemen gerekir.
+1. **`#[refineable(...)]` özniteliği gerektiren durumlar**: Eklenmediği durumda Refinement tipi yalnızca `Default + Clone` taşır. Serde gereği duyulan senaryolarda `#[refineable(serde::Deserialize)]` çağrısını elle eklemen gerekir.
 2. **Dışa açık/iç uyumsuzluğu**: `pub struct ThemeColors` tanımı varsa Refinement tipi de `pub struct ThemeColorsRefinement` olarak üretilir. Görünürlük, makro tarafından kopyalanır.
 3. **`refine` ile `refined` arasındaki tercih**: İlki `&mut self` üzerinde çalışır, ikincisi sahip alır. `Hsla` gibi küçük alanlar için `refine` her zaman daha doğal bir seçimdir.
 4. **İç içe struct'lar için karar noktası**: Makro yalnızca `#[refineable]` ile işaretli alanlarda özyinelemeli birleştirme yapar. `Theme.styles.colors` gibi katmanlarda bu ilişkinin bilinçli kurulması istenmediği durumlarda, `Theme::from_content` her alt struct için ayrı bir `refine` çağrısı yürütür.

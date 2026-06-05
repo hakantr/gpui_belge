@@ -38,7 +38,7 @@ let tutamac = cx.open_window(
 
 **`WindowOptions` alanları.** Aşağıdaki alanlar pencerenin oluşumunda sorumluluğu olan başlıca parametreleri tanımlar:
 
-- `window_bounds`: `None` verirsen GPUI, ekran için varsayılan sınırları seçer. `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını belirler. Varsayılan seçimde iki sabit kullanılır: `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095, ana Zed penceresi için) ve `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` (900×750, 6:5 oranında settings veya rules library benzeri ek pencereler için). Kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa bu değerlere güvenebilirsin (`window`).
+- `window_bounds`: `None` verirsen GPUI önce aktif pencerenin geri yüklenebilir sınırını bulup yeni pencereyi 25 px kademeli açmaya çalışır; aktif pencere yoksa hedef display'in `default_bounds()` değerini kullanır. Bu display varsayılanı `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095) değerini ekran boyutuna kırparak merkezler. `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını belirler; `Maximized` ve `Fullscreen` içindeki bounds geri yükleme boyutu olarak saklanır. Ek veya yardımcı pencerelerde Zed tarafında sık kullanılan diğer sabit `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` değeridir (900×750, 6:5 oranında settings veya rules library benzeri pencereler için). Kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa `None` yolunun kademeli/default davranışına güvenebilirsin.
 - `titlebar`: `Some(TitlebarOptions)`'ı sistem başlık çubuğu ayarı için kullanırsın. `None` verdiğinde özel başlık çubuğu yolu açılır.
 - `focus`: pencere oluşturulduğu anda klavye odağını alıp almayacağını belirler.
 - `show`: pencerenin hemen gösterilip gösterilmeyeceğini kontrol eder. Zed ana pencereleri başlangıçta `show: false`, `focus: false` ile açar ve hazır olduğunda gösterir.
@@ -263,8 +263,8 @@ platform_baslik_cubugu.into_any_element()
 
 Zed'in başlık çubuğu davranışında dikkat çeken iki ayrıntı vardır:
 
-- `TitleBar`, `SkillsFeatureFlag` açıkken `OnboardingBanner` ile port arayüzünde `"Tanıtım: Skills"` gibi Türkçe bir afiş kurar; afiş tıklaması, agent veya skills bilgilendirme modalını açan eylemi yönlendirir. Başlık çubuğu etiketi bu modalın sonucuna göre değişmez.
-- `UpdateButton::checking`, `downloading` ve `installing` durumları pasif buton olarak görünür. Sürüm ipucu metni `"Sürüme Güncelle: ..."` biçimindedir; SHA tabanlı sürümde kısa SHA yerine tam SHA görünür.
+- `OnboardingBanner` modülü, başlık çubuğunda özellik tanıtımı göstermek için hazır altyapıyı taşır; güncel `TitleBar::new` akışında `banner` alanı `None` olarak kurulur. Bu yüzden yeni bir afiş bağlayacaksan banner entity'sini ayrıca oluşturup görünürlük koşulunu ve action'ını açıkça vermen gerekir.
+- `UpdateButton::checking`, `downloading` ve `installing` durumları pasif buton olarak görünür. Sürüm ipucu metni `"Update to Version: ..."` biçimindedir; SHA tabanlı sürümde kısa SHA yerine tam SHA görünür.
 
 ## Kontrol Butonlarını Nasıl Yönetirsin?
 
@@ -459,7 +459,7 @@ macOS yerel pencere sekmesi için ek API ailesi işletim sistemi düzeyindeki se
 
 **Async pencere bağlamı.** `window.to_async(cx)` veya `Context::spawn_in(...)` seni `AsyncWindowContext` yüzeyine taşır. `AsyncWindowContext::window_handle()` bağlı pencereyi verir; `update(...)` pencere ve `App` üzerinde çalışır; `update_root(...)` kök view'a da erişir; `on_next_frame(...)` işi sonraki kareye bırakır; `read_global(...)` ve `update_global(...)` global state'e döner; `spawn(...)` pencereye bağlı yeni async iş başlatır; `prompt(...)` pencere kapanmış olabilir durumunu `Result`/receiver üzerinden görünür kılar. Pencere yaşamı önemli değilse `AsyncApp`, pencere state'i ve prompt gerekiyorsa `AsyncWindowContext` kullanırsın.
 
-**Kök değiştirme ve frame yaşamı.** `replace_root(...)`, `root::<E>()`, `refresh()`, `remove_window()`, `draw(cx)`, `bounds_changed(cx)`, `render_to_image()` ve `request_animation_frame()` pencerenin render döngüsünü etkiler. Uygulama view'ı genellikle `cx.notify()` ile kendi yeniden çizimini ister; tüm pencere veya özel test/render yakalama gerektiğinde `window.refresh()` ve `draw(...)` seviyesine inersin. `ArenaClearNeeded` çizim arenasının ne zaman temizleneceğini taşıyan frame içi bir yardımcıdır; normal bileşen state'i değildir.
+**Kök değiştirme ve frame yaşamı.** `replace_root(...)`, `root::<E>()`, `refresh()`, `remove_window()`, `draw(cx)`, `bounds_changed(cx)`, `request_animation_frame()` ve test/test-support altında `render_to_image()` pencerenin render döngüsünü etkiler. Uygulama view'ı genellikle `cx.notify()` ile kendi yeniden çizimini ister; tüm pencere veya özel test/render yakalama gerektiğinde `window.refresh()` ve `draw(...)` seviyesine inersin. `ArenaClearNeeded` çizim arenasının ne zaman temizleneceğini taşıyan frame içi bir yardımcıdır; normal bileşen state'i değildir.
 
 **Focus ve tab gezinmesi.** `focused(cx)`, `focus(handle, cx)`, `blur()`, `disable_focus()`, `focus_next(cx)` ve `focus_prev(cx)` pencere focus ağacını yönetir. `FocusHandle::tab_index(...)`, `tab_stop(...)`, `downgrade()`, `focus(...)`, `is_focused(...)`, `contains_focused(...)`, `within_focused(...)`, `contains(...)` ve `dispatch_action(...)` odaklanabilir bileşenin doğrudan yüzeyidir. `WeakFocusHandle::upgrade()` odak handle'ını uzun yaşayan yapılarda saklamak için vardır. `FocusId` aynı sorguların düşük seviyeli kimlik karşılığıdır; uygulama kodunda çoğunlukla `FocusHandle` yeterlidir.
 
@@ -528,7 +528,7 @@ cx.observe_window_bounds(window, |gorunum, window, _cx| {
 
 Aynı şekilde `cx.observe_window_appearance(window, ...)` açık veya koyu görünüm değişimini, `cx.observe_window_activation(window, ...)` ise ön plan veya arka plan değişimini takip eder.
 
-**Tuzaklar.** Sınırlar tarafında karşılaştığın tipik karışıklıklar şunlar:
+**Dikkat noktaları.** Sınırlar tarafında karşılaştığın tipik karışıklıklar şunlar:
 
 - `window.bounds()` (canlı ekran dikdörtgeni), `window.window_bounds()` ve `window.inner_window_bounds()` farklı olabilir; geri yükleme veya saklama akışında hangi dikdörtgenin beklendiğini mevcut Zed çağrı noktasına göre seçersin.
 - Ekranı kaplama ve tam ekran enum'larının içindeki `Bounds<Pixels>`, geri yükleme boyutudur; canlı platform sınırları ekranı tamamen kaplasa bile geri yükleme sonrasında bu pencereli sınırlara geri dönülür.
@@ -558,7 +558,7 @@ macOS yerel pencere sekmeleri, GPUI'de iki katmanlı bir yapı üzerinde durur:
 
 **SystemWindowTabController yüzeyi.** Denetleyici `Global` olarak tutulur ve platformdan gelen yerel tab gruplarını GPUI içinde izler. `SystemWindowTabController::init(cx)` ilk kurulumu yapar; `init_visible(cx, visible)`, `is_visible()` ve `set_visible(cx, visible)` yerel tab bar görünürlüğünü yönetir. `tab_groups()` ve `tabs(window_id)` ham grup/tabs okuması verir. `add_tab(cx, id, tabs)`, `remove_tab(cx, id)`, `update_tab_position(cx, id, ix)`, `update_tab_title(cx, id, title)` ve `update_last_active(cx, id)` platformdan gelen değişimleri kaydeder. `get_next_tab_group_window(cx, id)`, `get_prev_tab_group_window(cx, id)`, `select_next_tab(cx, id)`, `select_previous_tab(cx, id)`, `move_tab_to_new_window(cx, id)` ve `merge_all_windows(cx, id)` ise yerel tab komutlarını uygular. Uygulama içi pane sekmelerini bu denetleyiciyle modelleme; bu yüzey yalnız işletim sistemi pencereleri içindir.
 
-**Tuzaklar.** Yerel sekme kullanırken dikkat edeceklerin:
+**Dikkat noktaları.** Yerel sekme kullanırken dikkat edeceklerin:
 
 - Yerel pencere sekmesi ile Zed pane sekmesi aynı kavram değildir; kalıcılık ve komut yönlendirmesi farklıdır.
 - Pencere başlığı değiştiğinde yerel sekme başlığı için `window.set_window_title(...)` ve denetleyici güncellemesini birlikte düşünmen gerekir.

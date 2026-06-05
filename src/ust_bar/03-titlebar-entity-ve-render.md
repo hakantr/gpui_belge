@@ -76,7 +76,7 @@ Hangi parçanın görüneceği büyük ölçüde `TitleBarSettings` alanlarına 
 
 ## 4. İki render modu: menü içeride mi, ayrı satırda mı?
 
-Render'ın sonunda `show_menus` değeri iki ayrı yerleşim seçer. Bu, ürün başlığının en kolay kaçırılan kararıdır.
+Render'ın sonunda `show_menus` değeri iki ayrı yerleşim seçer. Bu, ürün başlığında dikkat isteyen kararlardan biridir.
 
 **Mod A — `show_menus == false` (tek satır):** Tüm ürün çocukları doğrudan platform kabuğuna teslim edilir ve sonuç yalnız platform kabuğudur:
 

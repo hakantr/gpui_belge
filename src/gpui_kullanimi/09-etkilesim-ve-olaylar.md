@@ -51,7 +51,7 @@ cx.focus_view(&alt_varlik, window);
 - `window.on_focus_out(tutamac, cx, |olay, window, cx| ...)` — aynı olayın view verisi almayan, daha düşük seviyeli `Window` varyantıdır; sonucu `Subscription` olarak döner.
 - `cx.on_focus_lost(window, ...)` — pencere içinde hiçbir handle odakta kalmadığında çalışır.
 
-`WindowFocusEvent::is_focus_in(focus_id)` ve `WindowFocusEvent::is_focus_out(focus_id)`, önceki ve mevcut focus path'lerini karşılaştırır. Bir parent focus handle altındaki çocuk odağa geçerken yalnız path'e yeni giren handle için `is_focus_in`, path'ten çıkan handle için `is_focus_out` anlamlıdır; bu yüzden modal, form grubu veya nested picker gibi alt odak ağacı olan bileşenlerde düz eşitlik kontrolünden daha güvenilir sonuç verir.
+Bu aboneliklerin arkasındaki pencere odak olayı, önceki ve mevcut focus path'lerini karşılaştırır. Bir parent focus handle altındaki çocuk odağa geçerken `on_focus_in`, yalnız path'e yeni giren handle için; `on_focus_out` ise path'ten çıkan handle için çalışır. Modal, form grubu veya nested picker gibi alt odak ağacı olan bileşenlerde bu abonelikleri düz eşitlik kontrolüne tercih edersin.
 
 **Klavye action akışı.** Tuşların action'a bağlanması birkaç adımdan oluşur; bu adımları her özel kısayol için tekrarlarsın:
 
@@ -128,7 +128,7 @@ Element listener'ları çoğu zaman olay tipini senin yerine seçer; yine de öz
 | `FocusOutEvent` | `blurred: WeakFocusHandle` | Focus dışına çıkış aboneliğinde odağı kaybeden handle'ın zayıf referansını verir. |
 | `actions` | macro | Veri taşımayan action unit struct'larını ve kayıt altyapısını üretir; olay/kısayol sisteminin kısa tanım yoludur. |
 
-**Tuzaklar.** Platform input modeline inerken dikkat edeceğin noktalar:
+**Dikkat noktaları.** Platform input modeline inerken dikkat edeceğin noktalar:
 
 - Metin girişi için ham `KeyDownEvent` yeterli değildir; IME ve dead-key dilleri için `InputHandler` gerekir.
 - `ClickEvent` yalnız mouse down ve mouse up aynı tıklama hedefinde kaldığında oluşur; sürüklemeye dönen akışta click listener bekleme.
@@ -195,18 +195,18 @@ div()
 
 ```rust
 div()
-    .on_drag_move::<HariciYollar>(cx.listener(|gorunum, olay, window, cx| {
+    .on_drag_move::<ExternalPaths>(cx.listener(|gorunum, olay, window, cx| {
         let yollar = olay.drag(cx).paths();
         gorunum.harici_birakmayi_onizle(yollar, olay.bounds, window, cx);
     }))
-    .on_drop(cx.listener(|gorunum, yollar: &HariciYollar, window, cx| {
+    .on_drop(cx.listener(|gorunum, yollar: &ExternalPaths, window, cx| {
         gorunum.harici_yollari_birakmayi_isle(yollar, window, cx);
     }))
 ```
 
 `ExternalPaths::paths()` `&[PathBuf]` döner. Hayalet view, dosya ikonları olarak platform tarafından çizilir; GPUI tarafındaki `Render for ExternalPaths` bilerek `Empty` döndürür.
 
-**Tuzaklar.** Sürükle-bırak yazarken karşılaştığın yaygın hatalar:
+**Dikkat noktaları.** Sürükle-bırak yazarken hataya açık kullanımlar:
 
 - Sürüklenen tip `T: 'static` olmalıdır; ödünç alma süresi (`lifetime`) taşıyan tipler kabul edilmez.
 - Aynı element üzerinde `on_drag`'i iki kez çağırdığında `panic` oluşur ("calling on_drag more than once on the same element is not supported").
@@ -251,7 +251,7 @@ Yakalama aktifken ilgili hitbox üzerinde durulmuş (`hovered`) sayılır. Yenid
 - `window.set_window_cursor_style(style)` — pencere genelindeki imleç durumunu ayarlar.
 - `cx.set_active_drag_cursor_style(style, window)` / `cx.active_drag_cursor_style()` — süren bir sürüklemenin imlecini değiştirir / okur. Sürükleme imleci başta sürüklenen elementin kendi `.cursor(...)` stilinden gelir; sürükleme sürerken hedefe göre güncellersin: geçerli hedefte `CursorStyle::DragCopy`, geçersizde `CursorStyle::OperationNotAllowed` vererek "buraya bırakırsan ne olur" geri bildirimini verirsin. Drag aktif değilken `set_active_drag_cursor_style` `false` döner ve bir şey yapmaz.
 
-**Tuzaklar.** Hitbox ve imleç tarafında dikkat edeceğin noktalar:
+**Dikkat noktaları.** Hitbox ve imleç tarafında dikkat edeceğin noktalar:
 
 - `Hitbox::is_hovered`, klavye girdi kipi sırasında `false` dönebilir; scroll dinleyicisi yazarken `should_handle_scroll`'u tercih edersin.
 - Üst katman elementleri `.occlude()` kullanmazsa arkadaki butonlar hover ve tıklama almaya devam edebilir.
@@ -271,7 +271,7 @@ let tutamac = cx.focus_handle()
 
 1. Aynı grup içinde `tab_index` küçükten büyüğe sıralanır.
 2. `tab_index` eşit olduğunda element ağaç sırası (DFS) belirleyicidir.
-3. `tab_stop(false)` olan handle, sıradaki konumunu korur ama klavyeyle durak olmaz. Negatif `tab_index` özel olarak "devre dışı" anlamına gelmez; yalnızca sıralamada daha erken bir yol değeri üretir.
+3. `tab_stop(false)` olan handle, `TabStopMap` içinde düğüm olarak görülebilir ama `focus_next` / `focus_prev` onu klavye durağı olarak atlar. Negatif `tab_index` özel olarak "devre dışı" anlamına gelmez; yalnızca sıralamada daha erken bir yol değeri üretir.
 
 **Gruplar.** Bir grup tanımlamak için element tarafında `.tab_group()` kullanırsın; grubun sırası gerekiyorsa aynı elemente `.tab_index(index)` verirsin. `TabStopMap::begin_group` ve `end_group`, gezinme algoritmasının iç operasyonlarıdır; uygulama kodunda doğrudan çağırmazsın.
 
@@ -372,7 +372,7 @@ window.handle_input(
 );
 ```
 
-**Kurallar.** IME entegrasyonunda sıkça gözden kaçan noktalar şunlar:
+**Kurallar.** IME entegrasyonunda dikkat edilmesi gereken noktalar şunlar:
 
 - Aralık (`Range`) değerleri UTF-16 ofsetidir; Rust byte index'iyle karıştırma.
 - `bounds_for_range`, ekran veya aday penceresi konumlandırması için doğru mutlak sınırları döndürmelidir.
@@ -381,7 +381,7 @@ window.handle_input(
 - Ham `InputHandler::prefers_ime_for_printable_keys` `true` olduğunda, ASCII dışı IME aktifken yazdırılabilir tuşlar kısayoldan önce IME'ye gider. `ElementInputHandler` sarmalı `EntityInputHandler` için GPUI bu kararı `accepts_text_input` üzerinden verir; trait'te ayrı bir üzerine yazma noktası yoktur.
 - Pencere ekran karesi geçişinde platform girdi dinleyicisi `Vec<Option<_>>` slot'ları `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılır; bir sonraki ekran karesinde aynı slot'a geri yerleştirilir. `reuse_paint` önbelleğindeki `paint_range` indeksleri bu yüzden sabit kalır. Özel düşük seviyeli pencere veya ekran karesi kodu yazarken girdi dinleyicisi dizisinin uzunluğunu, indeks önbelleği varken değiştirme.
 
-**Tuzaklar.** IME ile çalışırken sık yapılan hatalar:
+**Dikkat noktaları.** IME ile çalışırken hataya açık kullanımlar:
 
 - Yalnızca `.on_key_down` ile metin düzenleyici yazmak, IME ve ölü tuşlu (`dead key`) dillerde bozulur.
 - UTF-16 aralığını doğrudan byte dilimine uygulamak, çok byte'lı karakterlerde `panic` ya da yanlış seçim üretir.

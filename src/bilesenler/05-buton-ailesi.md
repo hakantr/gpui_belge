@@ -86,7 +86,7 @@ Buton ailesindeki küçük taşıyıcı ve trait yüzeyleri şu tabloda toplanı
 | `ToggleButtonWithIcon` | `new`, `selected`, `tooltip` | Label + icon toggle button girdisidir. |
 | `ToggleButtonGroupStyle` | `Transparent`, `Filled`, `Outlined` | Toggle group yüzey stilini seçer. |
 | `ToggleButtonGroupSize` | `Default`, `Medium`, `Large`, `Custom(Rems)` | Toggle group ölçüsünü seçer. |
-| `ToggleButtonStyle` | private marker trait | `ToggleButtonSimple` ve `ToggleButtonWithIcon` dışındaki tiplerin `ButtonBuilder` olmasını sınırlar. |
+| `private::ToggleButtonStyle` | private marker trait | `ToggleButtonSimple` ve `ToggleButtonWithIcon` dışındaki tiplerin `ButtonBuilder` olmasını sınırlar; crate dışından import edemezsin. |
 
 Dikkat edeceğin noktalar:
 
@@ -167,8 +167,8 @@ impl Render for AracCubuguDurumu {
 ```rust
 use ui::prelude::*;
 
-fn render_branch_selector(branch: SharedString) -> impl IntoElement {
-    Button::new("branch-selector", branch)
+fn dal_seciciyi_render_et(dal: SharedString) -> impl IntoElement {
+    Button::new("dal-secici", dal)
         .end_icon(Icon::new(IconName::ChevronDown).size(IconSize::Small))
         .truncate(true)
 }
@@ -294,9 +294,9 @@ Yuvarlama davranışı:
 
 | İç sabit | Kaynak görünürlüğü | Public karşılığı |
 | :-- | :-- | :-- |
-| `ButtonLikeRounding::ALL` | `pub const ALL: Self` | Tüm köşeler yuvarlatılır; dışarıdan `ButtonLike::new_rounded_all(...)` ile seçilir. |
-| `ButtonLikeRounding::LEFT` | `pub const LEFT: Self` | Sol parça yuvarlatılır, sağ kenar düz kalır; dışarıdan `ButtonLike::new_rounded_left(...)` ile seçilir. |
-| `ButtonLikeRounding::RIGHT` | `pub const RIGHT: Self` | Sağ parça yuvarlatılır, sol kenar düz kalır; dışarıdan `ButtonLike::new_rounded_right(...)` ile seçilir. |
+| `ButtonLikeRounding::ALL` | crate içi sabit | Tüm köşeler yuvarlatılır; dışarıdan `ButtonLike::new_rounded_all(...)` ile seçilir. |
+| `ButtonLikeRounding::LEFT` | crate içi sabit | Sol parça yuvarlatılır, sağ kenar düz kalır; dışarıdan `ButtonLike::new_rounded_left(...)` ile seçilir. |
+| `ButtonLikeRounding::RIGHT` | crate içi sabit | Sağ parça yuvarlatılır, sol kenar düz kalır; dışarıdan `ButtonLike::new_rounded_right(...)` ile seçilir. |
 
 Split button veya bitişik toolbar parçası kurarken sol ve sağ constructor'ları kullanırsın. Tek başına duran özel yüzeylerde varsayılan `ButtonLike::new(...)` zaten tüm köşeleri yuvarlatır; yalnız kaynak paritesi gerektiğinde `new_rounded_all(...)` adı davranışı açık hale getirir.
 
@@ -427,7 +427,7 @@ Davranış:
 
 - Render sırasında keyed bir `CopyButtonState` kullanır.
 - Varsayılan tıklama davranışı, verilen `message` string'ini clipboard'a yazar.
-- Kopyalama sonrasında iki saniye boyunca `IconName::Check`, `Color::Success` ile birlikte `"Kopyalandı!"` ipucu gösterir.
+- Kopyalama sonrasında iki saniye boyunca `IconName::Check`, `Color::Success` ile birlikte kaynakta tanımlı `"Copied!"` ipucu gösterir.
 - İki saniyelik durum yenilemesi için `cx.background_executor().timer(...)` kullanan bir task detach edilir; yani süre dolduğunda görsel kendiliğinden eski hâline döner.
 - `custom_on_click(...)` verildiğinde, varsayılan clipboard yazma davranışı yerine özel işleyici çalışır.
 
@@ -437,13 +437,13 @@ Davranış:
 use ui::prelude::*;
 use ui::CopyButton;
 
-fn render_copyable_sha(short_sha: SharedString, full_sha: SharedString) -> impl IntoElement {
+fn kopyalanabilir_sha_render_et(kisa_sha: SharedString, tam_sha: SharedString) -> impl IntoElement {
     h_flex()
         .group("sha-row")
         .gap_1()
-        .child(Label::new(short_sha).size(LabelSize::Small).color(Color::Muted))
+        .child(Label::new(kisa_sha).size(LabelSize::Small).color(Color::Muted))
         .child(
-            CopyButton::new("copy-commit-sha", full_sha)
+            CopyButton::new("commit-sha-kopyala", tam_sha)
                 .tooltip_label("Copy commit SHA")
                 .visible_on_hover("sha-row"),
         )
@@ -574,23 +574,23 @@ Davranış:
 use ui::prelude::*;
 use ui::{ToggleButtonGroup, ToggleButtonGroupStyle, ToggleButtonSimple};
 
-struct DiffModePicker {
+struct DiffModuSecici {
     selected: usize,
 }
 
-impl Render for DiffModePicker {
+impl Render for DiffModuSecici {
     fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         ToggleButtonGroup::single_row(
             "diff-mode",
             [
                 ToggleButtonSimple::new("Unified", cx.listener(
-                    |this: &mut DiffModePicker, _, _, cx| {
+                    |this: &mut DiffModuSecici, _, _, cx| {
                         this.selected = 0;
                         cx.notify();
                     },
                 )),
                 ToggleButtonSimple::new("Split", cx.listener(
-                    |this: &mut DiffModePicker, _, _, cx| {
+                    |this: &mut DiffModuSecici, _, _, cx| {
                         this.selected = 1;
                         cx.notify();
                     },

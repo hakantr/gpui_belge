@@ -2,7 +2,7 @@
 
 Zed'in `workspace` crate'i GPUI çekirdeğinin üstüne uygulama seviyesinde bir oturum modeli koyar. Bu bölüm, yeni bir Zed-benzeri uygulama yazılırken sık karşılaşılan workspace katmanını ayrı bir ünite olarak toplar.
 
-`workspace` crate'inin dışa açık modül yüzeyi şu dosya ailelerinden oluşur: `active_file_name`, `dock`, `history_manager`, `invalid_item_view`, `item`, `notifications`, `pane`, `pane_group`, `path_list`, `searchable`, `security_modal`, `shared_screen`, `focus_follows_mouse`, `tasks` ve `welcome`. Bu bölüm ana uygulama akışında sık kullanılan `Workspace`, dock/pane/item, modal, notification, open/restore ve command palette sözleşmelerine odaklanır. `welcome`, `tasks`, `shared_screen` gibi daha özel modüller burada kaynak yüzeyi olarak izlenir; ayrı öğretici reçete olarak genişletilmez.
+`workspace` crate'inin dışa açık dosya ve modül yüzeyi `active_file_name`, `dock`, `history_manager`, `invalid_item_view`, `item`, `notifications`, `pane`, `pane_group`, `path_list`, `searchable`, `security_modal`, `shared_screen`, `focus_follows_mouse`, `tasks` ve `welcome` ailelerinden oluşur. Bu bölüm ana uygulama akışında sık kullanılan `Workspace`, dock/pane/item, modal, notification, open/restore ve command palette sözleşmelerine odaklanır. `welcome`, `tasks`, `shared_screen` gibi daha özel modüller burada kaynak yüzeyi olarak izlenir; ayrı öğretici reçete olarak genişletilmez.
 
 | Modül/crate | Bu bölümdeki doğal yeri |
 |-------------|-------------------------|

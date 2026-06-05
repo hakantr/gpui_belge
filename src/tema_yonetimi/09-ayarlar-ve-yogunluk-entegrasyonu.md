@@ -275,7 +275,7 @@ impl SettingsStore {
 
 **Gerekçe:** Font boyutu değerleri `*FontSize` geçersiz kılma global'lerinden etkilenir. Accessor metotlar bu geçersiz kılmayı uygular ve **etkin değeri** döndürür. Doğrudan alan okuması ise ayarlar dosyasındaki ham değeri verir. Bu yüzden font boyutu alanları bilinçli olarak private tutulur. Okuyucu ya `.ui_font_size(cx)` accessor'ını kullanır ya da ham değer için `.ui_font_size_settings()` accessor'ına gider (ilgili bölüm tablosunda yer alır). Markdown preview font family alanları da private tutulur; düz markdown metni UI fontuna, inline code ve code block ise buffer fontuna fallback eder.
 
-Mirror tarafta `TemaAyarlari` struct'ında font boyutlarının private tutulması ve accessor metotlarla okunması Zed paritesi açısından zorunludur. Aksi halde geçersiz kılma düşürme davranışını yanlış uygularsın.
+Mirror tarafta `TemaAyarlari` struct'ında font boyutlarının private tutulması ve accessor metotlarla okunması Zed paritesi açısından zorunludur. Aksi halde geçersiz kılma düşürme davranışı Zed akışından sapar.
 
 **Çalışma akışı:**
 
@@ -322,7 +322,7 @@ ui_font: Font {
 },
 ```
 
-**Çok kritik bir davranış:** `ThemeSettings::from_settings` içinde birçok zorunlu alan fail-fast açılır. Yani **`default.json` bu alanları doldurmak zorundadır**. `ui_font_size`, `ui_font_family`, `ui_font_features`, `ui_font_weight`, `buffer_font_family`, `buffer_font_features`, `buffer_font_weight`, `buffer_font_size`, `buffer_line_height`, `theme`, `icon_theme` ve `unnecessary_code_fade` boş kalırsa çalışma zamanı tipi üretilirken panic oluşur. Mirror tarafta `kvs_default_settings.json` bu zorunlu alanları içermelidir; aksi halde `init` panic atar.
+**Önemli davranış:** `ThemeSettings::from_settings` içinde birçok zorunlu alan fail-fast açılır. Yani **`default.json` bu alanları doldurmak zorundadır**. `ui_font_size`, `ui_font_family`, `ui_font_features`, `ui_font_weight`, `buffer_font_family`, `buffer_font_features`, `buffer_font_weight`, `buffer_font_size`, `buffer_line_height`, `theme`, `icon_theme` ve `unnecessary_code_fade` boş kalırsa çalışma zamanı tipi üretilemez ve başlangıç fail-fast durur. Mirror tarafta `kvs_default_settings.json` bu zorunlu alanları içermelidir.
 
 ### Content/çalışma zamanı tip yinelemesi ve `From` impls
 
@@ -537,12 +537,12 @@ pub fn secimi_onayla(
     SettingsStore::global(cx).write_user_settings(icerik)?;
 
     // 3. Gözlemci reload_theme'i çağırır; açıkça
-    //    GlobalTheme::update_theme + refresh_windows burada GEREKMEZ.
+    //    GlobalTheme::update_theme + refresh_windows burada gerekmez.
     Ok(())
 }
 ```
 
-**Tuzak:** Seçici önizlemesi için `GlobalTheme::update_theme` + `refresh_windows` çağrıldıktan sonra kullanıcı onay yerine vazgeç seçerse, settings dosyası yazılmamış olur ama çalışma zamanı hâlâ önizleme temasını gösterir. İptal akışında önizleme öncesi tema adı saklanmalı ve `GlobalTheme::update_theme(cx, eski)` ile geri yüklenmelidir.
+**Dikkat noktası:** Seçici önizlemesi için `GlobalTheme::update_theme` + `refresh_windows` çağrıldıktan sonra kullanıcı onay yerine vazgeç seçerse, settings dosyası yazılmamış olur ama çalışma zamanı hâlâ önizleme temasını gösterir. İptal akışında önizleme öncesi tema adı saklanmalı ve `GlobalTheme::update_theme(cx, eski)` ile geri yüklenmelidir.
 
 ### `reload_theme` / `reload_icon_theme` — observer reaksiyonu
 
@@ -577,7 +577,7 @@ pub fn sistem_modu_tema_takibini_gozle(
         };
 
         // SystemAppearance değerini güncelle.
-        cx.set_global(GlobalSystemAppearance(SystemAppearance(kategori)));
+        *SystemAppearance::global_mut(cx) = SystemAppearance(kategori);
 
         // Mevcut temanın appearance değeri sistemle uyumlu mu?
         let mevcut = cx.theme();
@@ -592,7 +592,7 @@ pub fn sistem_modu_tema_takibini_gozle(
 }
 ```
 
-> **Kullanıcı tercihini ezme uyarısı:** Bu fonksiyon sistem değişiminde otomatik tema değiştirir. Bu, kullanıcının manuel seçiminin sistem değişiminde kaybolması anlamına gelebilir. Üretim akışında `ayar.mod_takibi: bool` bayrağı ile koşullu çalıştırılması yerinde olur.
+> **Kullanıcı tercihiyle çakışma olasılığı:** Bu fonksiyon sistem değişiminde otomatik tema değiştirir. Bu, kullanıcının manuel seçiminin sistem değişiminde kaybolması anlamına gelebilir. Üretim akışında `ayar.mod_takibi: bool` bayrağı ile koşullu çalıştırılması yerinde olur.
 
 ### Tema reload
 
@@ -651,9 +651,9 @@ pub fn tema_dosyasini_yeniden_yukle(
 | `Theme::from_content` (yeniden yükleme) | ~25–60 µs | Nadir |
 | Tek tema değişimi toplam | ~2–5 ms (sonraki frame'de görünür) | Kullanıcı tetikler |
 
-### Tuzaklar
+### Dikkat Noktaları
 
-1. **`kayit.get` sonucunu doğrudan açmak**: Hata UI'da görünür kılınmalı, panic'e dönüşmemelidir. `?` ile yayma ya da bir match deseni kullanırsın.
+1. **`kayit.get` sonucunu hatasız varsaymak**: Hata UI'da görünür kılınmalı, çalışma zamanı kırılmasına dönüşmemelidir. `?` ile yayma ya da bir match deseni kullanırsın.
 2. **Sistem mod takipli akışta kullanıcı tercihinin ezilmesi**: `ayar.mod_takibi` bayrağı ile koşullu çalıştırma yerinde olur.
 3. **Async yeniden yüklemede `cx` lifetime'ı**: `cx.spawn` içinde `cx` `AsyncApp`'tir; sync bağlama `cx.update(|cx| ...)` ile geçiş yaparsın.
 
@@ -730,9 +730,12 @@ impl TemaAyarSaglayici for KvsAyarSaglayici {
     }
 }
 
-fn main() {
-    Application::new().run(|cx| {
-        kvs_tema::init(LoadThemes::All(Box::new(KvsVarliklari)), cx);
+fn uygulamayi_baslat(platform: std::rc::Rc<dyn gpui::Platform>) {
+    Application::with_platform(platform).run(|cx| {
+        if let Err(hata) = kvs_tema::init(LoadThemes::All(Box::new(KvsVarliklari)), cx) {
+            tracing::error!("tema sistemi başlatılamadı: {}", hata);
+            return;
+        }
         kvs_ayarlari::init(cx);
         kvs_tema::set_tema_ayar_saglayici(Box::new(KvsAyarSaglayici), cx);
         // ...
@@ -871,7 +874,7 @@ Yani `BufferLineHeight::Custom(0.5)` gibi geçersiz değerler bile accessor sevi
 | ---------- | ---------- | ---------- |
 | Sağlayıcı trait'ini genişletme | `TemaAyarSaglayici`'a `adjust_*`/`reset_*` eklenir | `kvs_tema` tüketicilerinin font değişimini dinlemesi gerekiyorsa |
 | Sade newtype mirror | `BufferFontSize` vb. global'leri `kvs_tema_ayarlari` crate'inde tutulur, `adjust_*`/`reset_*` orada implement edilir | Settings UI'sı bağımsız bir crate olduğunda |
-| Atlama | UI yoksa hiç mirror edilmez | Font picker kapsam dışı bırakıldıysa |
+| Kapsam dışı bırakma | UI yoksa hiç mirror edilmez | Font picker kapsam dışı bırakıldıysa |
 
 Sözleşme parite bayrağı şudur: bu fonksiyonlar `kvs_tema` public API'sinde yer almaz.
 

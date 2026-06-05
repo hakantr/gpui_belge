@@ -16,7 +16,7 @@
 Bir GPUI uygulamasının ilk adımı platform seçimidir. Platform, işletim sistemiyle konuşan tarafı temsil eder. Pencere açmak, klavye okumak ve ekrana çizmek gibi işler bu seçilen platform üzerinden yürür. Standart başlangıç şu kalıbı izler:
 
 ```rust
-use gpui::{App, AppContext as _, WindowOptions, div, prelude::*};
+use gpui::{App, AppContext as _, Window, WindowOptions, div, prelude::*};
 use gpui_platform::application;
 
 struct KokGorunum;
@@ -47,7 +47,7 @@ fn main() {
 - Linux/FreeBSD: `gpui_linux::current_platform(headless)`; Wayland veya X11 arka ucunu platform crate'i kendi içinde seçer.
 - Web/WASM: `gpui_web::WebPlatform`
 
-Görsel olmayan senaryolar için ayrı bir başlatıcı vardır: `gpui_platform::headless()`, test ve başsız (`headless`) çalıştırma için pencere açmayan bir platform üretir. Test desteği gerektiğinde `gpui_platform::current_headless_renderer()` çağırırsın; şu anda yalnızca macOS'ta Metal başsız çizim aracı döner, diğer hedeflerde `None` gelir.
+Görsel olmayan senaryolar için ayrı bir başlatıcı vardır: `gpui_platform::headless()`, `current_platform(true)` üzerinden başsız modda bir `Application` kurar. Bu yolu pencere açmadan arka plan işi veya test kurulumu çalıştırmak istediğinde kullanırsın. Test desteği gerektiğinde `gpui_platform::current_headless_renderer()` çağırırsın; şu anda yalnızca macOS'ta Metal başsız çizim aracı döner, diğer hedeflerde `None` gelir.
 
 ## Application Yaşam Döngüsü ve Platform Olayları
 
@@ -99,7 +99,7 @@ uygulama.run(|cx| {
 - `cx.set_quit_mode(mode)` — çıkış politikasını çalışma zamanında değiştirir; builder tarafındaki `.with_quit_mode(...)` ile aynı alanı besler.
 - `cx.on_window_closed(|cx, window_id| ...)` — pencere kapandıktan *sonra* çalışır; bu noktada pencereye artık erişemezsin, geri çağrı yalnızca `WindowId` alır.
 
-**Tuzaklar.** Bu API'lerde sık görülen birkaç yanlış anlama var:
+**Dikkat noktaları.** Bu API'lerde dikkat edilmesi gereken birkaç yorum farkı var:
 
 - `on_open_urls` geri çağrısı `&mut App` almaz; uygulama verisi gerekiyorsa URL'leri kendi kuyruğuna veya bir `Global`'e taşıyacak bir köprü kurman gerekir.
 - `on_reopen` özellikle macOS'ta Dock veya uygulama ikonuna tıklamayla yeniden açılma senaryosunda devreye girer; açık pencere yoksa yeni bir çalışma alanı açma mantığını burada tetiklersin.
@@ -167,7 +167,7 @@ Uygulama kodu `Platform` veya `PlatformWindow` trait'lerini doğrudan çağırma
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
-| `PlatformWindow` | pencere yaşam döngüsü, bounds, prompt, clipboard/input, accessibility, render/test hook'ları | İşletim sistemi pencere arka ucunun ana trait'idir; uygulama kodu `Window` sarmalayıcısını kullanır. |
+| `PlatformWindow` | pencere yaşam döngüsü, bounds, prompt, input handler, accessibility, render/test hook'ları | İşletim sistemi pencere arka ucunun ana trait'idir; uygulama kodu `Window` sarmalayıcısını kullanır. |
 | `ScreenCaptureSource`, `ScreenCaptureStream`, `ScreenCaptureFrame` | `metadata`, `stream`, frame callback payload | Platform ekran yakalama kaynaklarını ve akan kareleri temsil eder. |
 | `ElementInputHandler`, `EntityInputHandler` | input handler bağlayıcıları | Platform input kararlarını view/entity `InputHandler` uygulamasına taşır. |
 - Trait üzerinde varsayılan metot "desteklenmiyor" anlamına gelir; sarmalayıcı üzerinden dönen `None` veya işlem yapmayan (`no-op`) sonuçları, o platformun yeteneksizliği olarak değerlendirirsin.
@@ -184,7 +184,7 @@ GPUI'nın platform modülünde görünen bazı public tipler uygulama geliştiri
 
 **Platform yardımcı fonksiyonları.** `guess_compositor()` Linux/Wayland/X11 arka ucunun compositor adını tahmin eden düşük seviye yardımcıdır; uygulama tarafında `cx.compositor_name()` daha doğru seviyedir. `get_gamma_correction_ratios(gamma)` glif/atlas gamma düzeltmesi içindir; tema rengi, kontrast veya tasarım paleti seçimi için kullanılmaz. Ekran yakalama tarafındaki `scap_screen_sources(...)`, `scap` arka ucunu `ScreenCaptureSource` sözleşmesine uyarlar; kullanıcıya dönük akışta `cx.screen_capture_sources()` sarmalayıcısını tercih edersin.
 
-**Doğru tercih.** Platform tipleriyle karşılaştığında şu karar çizgisi iş görür: uygulama penceresi açıyor, menü kuruyor, prompt gösteriyor veya asset çiziyorsan `App`, `Window` ve element API'lerini kullanırsın. Yeni işletim sistemi arka ucu, test platformu, headless renderer veya GPU atlas entegrasyonu yazıyorsan `Platform`, `PlatformWindow`, `PlatformTextSystem`, `PlatformInputHandler`, `PlatformAtlas` ve ilgili taşıyıcıları implement edersin.
+**Doğru tercih.** Platform tipleriyle karşılaştığında şu karar çizgisi iş görür: uygulama penceresi açıyor, menü kuruyor, prompt gösteriyor veya asset çiziyorsan `App`, `Window` ve element API'lerini kullanırsın. Yeni işletim sistemi arka ucu, test platformu, headless renderer veya GPU atlas entegrasyonu yazıyorsan `Platform`, `PlatformWindow`, `PlatformTextSystem` ve `PlatformAtlas` trait'lerini karşılarsın; `PlatformInputHandler` gibi taşıyıcı struct'ları ise bu düşük seviyeli sözleşmeler arasında dolaştırırsın.
 
 ## Başsız Çalışma, Ekran Yakalama ve Test Çizim Aracı
 
@@ -198,7 +198,7 @@ gpui_platform::headless().run(|cx: &mut App| {
 });
 ```
 
-Bu yapı pencere açmaz; o yüzden görsel doğrulama veya ekran görüntüsü (`screenshot`) üretimi için uygun değildir. UI testi gerektiğinde `gpui_platform::headless` yerine `HeadlessAppContext` veya `VisualTestContext` tercih edersin. `gpui_platform::current_headless_renderer()` ise yalnızca `test-support` özelliği (`feature`) altında derlenir; şu anda macOS'ta Metal başsız çizim aracı döndürebilir, diğer platformlarda `None` döner.
+Bu örnek hiçbir `open_window` çağırmadığı için pencere oluşturmaz; o yüzden tek başına görsel doğrulama veya ekran görüntüsü (`screenshot`) üretimi için uygun değildir. UI testi gerektiğinde `gpui_platform::headless` yerine `HeadlessAppContext` veya `VisualTestContext` tercih edersin. `gpui_platform::current_headless_renderer()` ise yalnızca `test-support` özelliği (`feature`) altında derlenir; şu anda macOS'ta Metal başsız çizim aracı döndürebilir, diğer platformlarda `None` döner.
 
 **Ekran yakalama API'si.** Ekran yakalama akışını GPUI `oneshot` kanallar üzerinde kurar ve ekran karelerini bir geri çağrıya iletir:
 
@@ -223,7 +223,7 @@ if let Some(kaynak) = kaynaklar.first() {
 
 Linux/Windows tarafındaki `screen-capture` özelliği açıkken `gpui::platform::scap_screen_capture` modülü, `scap` arka ucunu `ScreenCaptureSource` ve `ScreenCaptureStream` trait'lerine uyarlar. Uygulama kodu çoğunlukla bu modüle inmez; özellik/platform ayrımını `cx.is_screen_capture_supported()` ve `cx.screen_capture_sources()` sarmalayıcıları üzerinden yönetirsin.
 
-**Tuzaklar.** Ekran yakalama ve başsız çalışma tarafında dikkat edilecek birkaç nokta var:
+**Dikkat noktaları.** Ekran yakalama ve başsız çalışma tarafında dikkat edilecek birkaç nokta var:
 
 - macOS'ta `Screen Recording` izni kullanıcı onayı gerektirir; ilk çağrıda sistem bir izin penceresi açar, onaydan sonra ileriki çalıştırmalarda da izin geçerli kalır.
 - Bazı platformlarda ekran yakalama desteklenmez; `is_screen_capture_supported()` `false` dönebilir veya kaynak listesi boş gelebilir. Bu durumu uygulama tarafında kullanıcıya açıklayıcı bir mesajla ele alman gerekir.

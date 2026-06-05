@@ -95,7 +95,7 @@ let sonuc = gorev
     .await?;
 ```
 
-**Ön plan önceliği.** Aciliyet seviyeleri ön plan tarafında yoklama (`polling`) sırasını belirler; öncelikli işler çalıştırıcı kuyruğunda öne geçer:
+**Ön plan önceliği.** `App::spawn_with_priority(...)` ve `ForegroundExecutor::spawn_with_priority(...)` imza olarak `Priority` alır; bugünkü kaynakta ön plan çalıştırıcısı bu değeri yok sayar ve işleri ana iş parçacığında sırayla çalıştırır. Bu yüzden öncelik parametresini burada davranış garantisi değil, çağrı niyetini açık eden bir API yüzeyi olarak okursun:
 
 ```rust
 cx.spawn_with_priority(Priority::High, async move |cx| {
@@ -140,7 +140,7 @@ fn onbellekten_veya_async(onbellekteki: Option<Veri>, cx: &App) -> Task<anyhow::
 - `advance_clock(duration)` yalnızca sahte saati (`fake clock`) ilerletir; ilerlettiğin süreyle gelinen noktada hazır olan işleri çalıştırmak için ayrıca `run_until_parked()` çağırman gerekir.
 - `allow_parking()`'i, bekleyen görev varken `parked` olmayı testte bilerek kabul etmek için kullanırsın; üretim akışlarına taşıman doğru değildir.
 - `block_with_timeout` zaman aşımı olduğunda future'ı geri verir; bu davranış, işi iptal etmek veya daha sonra yeniden yoklamak konusundaki kararı çağırana bırakır.
-- `PriorityQueueSender<T>` / `PriorityQueueReceiver<T>` yalnızca Windows, Linux ve wasm `cfg`'lerinde yeniden dışa aktarılır. `send(priority, item)`, `spin_send(priority, item)`, `try_pop()`, `spin_try_pop()`, `pop()`, `try_iter()` ve `iter()` metotları high, medium ve low kuyruklarını ağırlıklı seçimle tüketir; `Priority::RealtimeAudio` bu kuyruğa girmez. `spin_send` ve `spin_try_pop`, executor'ın kilitsiz hızlı yolunda kısa süreli dönerek kuyruk erişimi denediği için sıradan uygulama mesajlaşmasında değil scheduler/platform sınırında anlamlıdır.
+- `PriorityQueueSender<T>` / `PriorityQueueReceiver<T>` GPUI kökünden yeniden dışa aktarılır. `send(priority, item)`, `spin_send(priority, item)`, `try_pop()`, `spin_try_pop()`, `pop()`, `try_iter()` ve `iter()` metotları high, medium ve low kuyruklarını ağırlıklı seçimle tüketir; `Priority::RealtimeAudio` bu kuyruğa girmez. `spin_send` ve `spin_try_pop`, executor'ın kilitsiz hızlı yolunda kısa süreli dönerek kuyruk erişimi denediği için sıradan uygulama mesajlaşmasında değil scheduler/platform sınırında anlamlıdır.
 
 **Executor tam yüzeyi.** `BackgroundExecutor` ve `ForegroundExecutor` aynı scheduler ailesini sarsalar da kullanım sınırları farklıdır:
 
@@ -199,7 +199,7 @@ cx.spawn_in(window, async move |gorunum, cx| {
 - Çağıran kod sonucu beklemeyecekse görevi geri döndürmek gereksizdir; doğrudan `detach_and_log_err(cx)` çağırmak niyeti daha açık gösterir.
 - `Result`'ı log'a düşürmemek için elle `if let Err(e) = task.await { ... }` yazman gereksizdir; `detach_and_log_err` zaten `track_caller` ile log konumunu kayda alır.
 
-**Tuzaklar.** Bu API'lerle ilgili sık yapılan hatalar şunlar:
+**Dikkat noktaları.** Bu API'lerle ilgili hataya açık kullanımlar:
 
 - `Result` tipinin `E` argümanı `Display + Debug` istemelidir; `anyhow::Error` ve standart özel hata tipleri otomatik uyar.
 - Görevleri `Vec<Task<()>>` içinde topladığında elden çıkma sırası sürpriz olabilir; iptalin amaçlanmadığı tipik akışlarda `detach()` daha açık bir niyet bildirir.
@@ -279,10 +279,10 @@ abonelikler.push(cx.subscribe(&belge, |gorunum, belge, _: &Kaydedildi, cx| {
 - `window.refresh()`, pencereyi bir sonraki ekran karesinde yeniden çizim için işaretler.
 - `cx.refresh_windows()`, tüm pencereler için aynı işi yapar.
 
-**Tuzaklar.** `Global`'ler ve `defer` kullanımında dikkat edeceklerin:
+**Dikkat noktaları.** `Global`'ler ve `defer` kullanımında dikkat edeceklerin:
 
 - `cx.global<T>()` ve `cx.global_mut<T>()` global yoksa `panic` üretir; kurulum kontrolünün yapılmadığı çağrı noktalarında `try_global` veya `has_global`'i tercih edersin.
-- `update_global` sırasında aynı global yeniden güncellenirse `panic` verir; iç içe çağrılar varsa erteleme için `defer` güvenli yoldur.
+- `update_global` closure'ı çalışırken ilgili global geçici olarak App içindeki global haritasından ödünç alınır ve closure bitince geri konur. Aynı global'i bu closure içinde yeniden `update_global` ile almak istersen kaynak global o anda haritada olmadığı için `panic` görürsün; iç içe çağrı gerekiyorsa işi `cx.defer(...)` ile sonraki etki döngüsüne bırakırsın.
 - `Subscription`'a `detach()` çağırmazsan sahibinin düşmesiyle iptal olur; uzun yaşaması gereken gözlemcileri bir struct alanında saklarsın.
 
 **Pencere arası iletişim seçimi.** Birden fazla pencerenin aynı değişiklikten etkilenmesi gerektiğinde iki ana model vardır:
@@ -358,7 +358,7 @@ let _abonelik = cx.observe(&varlik, |...| { ... });
 
 `Subscription::new(unsubscribe)`, özel bir kaynak için "handle düşerse temizle" davranışı kurar. `Subscription::detach()` geri çağrıyı handle ömründen koparır; `Subscription::join(a, b)` iki aboneliği tek handle altında toplar ve drop edildiğinde ikisini de kapatır. `SubscriberSet::insert`, `remove` ve `retain` GPUI'nın kendi observe/subscribe altyapısının iç haritasıdır; uygulama kodunda olay dinlemek için bu set'i yönetmez, yukarıdaki bağlam metotlarını kullanırsın.
 
-**Tuzaklar.** Abonelik kullanımında dikkat edeceğin noktalar:
+**Dikkat noktaları.** Abonelik kullanımında dikkat edeceğin noktalar:
 
 - `detach()`, uzun yaşayan bir geri çağrıyı view ömründen koparır; view düştükten sonra geri çağrı hâlâ çalışıyorsa veri erişimi için `WeakEntity` ile koruma şart olur.
 - Birden çok abonelik birbirini etkiliyorsa elden çıkma sırasına davranış bağlamak hatalıdır; açık bir kapatma metodu veya tek sahipli struct kullanmak güvenli yoldur.
@@ -414,7 +414,7 @@ self._abonelik = cx.subscribe_in(&modal, window, |gorunum, modal, olay, window, 
 - `cx.focus_self(window)` — o anki entity `Focusable` ise odağı kendine taşır. İçeride `window.defer(...)` kullanır; bu nedenle çizim ya da action geri çağrısı içinde çağırdığında odak değişimi etki döngüsünün sonunda uygulanır.
 - `window.disable_focus()` — pencerenin odağını sıfırlar ve ardından `focus_enabled` bayrağını `false` yapar. Tersine çeviren bir API yoktur; yani çağırdıktan sonra `focus_next` / `focus_prev` / `focus(...)` çağrıları sessizce işlem yapmaz. Uygulama bileşenlerinde genellikle gerekmez; yalnızca pencere ömrü boyunca klavye odağını kalıcı kapatmak isteyen ender durumlarda kullanırsın.
 
-**Tuzaklar.** Bu yardımcı aileleri kullanılırken gözden kaçabilecek noktalar:
+**Dikkat noktaları.** Bu yardımcı aileleri kullanılırken gözden kaçabilecek noktalar:
 
 - `observe_new` geri çağrısında `window`'un her zaman var olduğunu varsayma; başsız test ve uygulama seviyesindeki entity yaratımı `None` üretebilir.
 - Pencereye bağlı aboneliği bir struct alanında saklamazsan geri çağrı hemen düşer.
@@ -445,7 +445,7 @@ let bolme = cx.insert_entity(bolme_rezervasyonu, |cx| {
 
 **Deseni.** Alt entity, üst öğeye `WeakEntity` ile bağlanır; rezervasyon sayesinde üst öğeyi oluştururken alt öğenin handle'ının önceden bilinmesi gereken durumlarda da döngü oluşmaz. Aynı API'yi `AsyncApp` üzerinden de çağırabilirsin.
 
-**Tuzaklar.** Rezervasyon kullanırken karşılaşabileceğin hata desenleri:
+**Dikkat noktaları.** Rezervasyon kullanırken hataya açık desenler:
 
 - Rezervasyon kullanmadan iki `Entity<T>`'yi birbirine güçlü sahiplikle bağladığında, hiçbir handle düşmediği için bellek sızıntısı oluşur.
 - `insert_entity` çağırmadan rezervasyonu elden çıkardığında entity hiç oluşturulmamış sayılır; daha önce `entity_id()` ile yaydığın kimlik artık geçersizdir.
@@ -499,7 +499,7 @@ let sizinti_anlik_gorunumu = cx.leak_detector_snapshot();
 cx.assert_no_new_leaks(&sizinti_anlik_gorunumu);
 ```
 
-**Tuzaklar.** Temizlik ve serbest bırakma çalışmasında dikkat edeceklerin:
+**Dikkat noktaları.** Temizlik ve serbest bırakma çalışmasında dikkat edeceklerin:
 
 - `Subscription`'ı saklamazsan hemen düşer ve dinleyici iptal olur.
 - Karşılıklı `Entity<T>` alanları döngü üretir; bir tarafın `WeakEntity<T>` olması gerekir.

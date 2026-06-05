@@ -172,7 +172,7 @@ impl Application {
 
 Üç gözlem önemlidir:
 
-1. **`with_assets` çağrılmadıysa varsayılan değer boş `()`'tır.** Yani varlık hattını kurmak unutulursa uygulama çökmez, sadece her ikon ve font "yok" döner. Bu davranış testler için faydalıdır ama üretimde `with_assets` çağrısının atlanması SVG ve font yükleme hatalarına yol açar.
+1. **`with_assets` bağlantısı kurulmadığında varsayılan değer boş `()`'tır.** Yani varlık hattı yokken uygulama çökmez, sadece her ikon ve font "yok" döner. Bu davranış testler için faydalıdır ama üretimde `with_assets` bağlantısı SVG ve font yükleme hattı için gereklidir.
 2. **`SvgRenderer` constructor'ı varlık kaynağını alır.** Bu sayede `svg()` element'i path string'ini doğrudan ham byte'lara çevirebilir; ekstra bir köprü gerekmez. `SvgRenderer::new` çağrısı varlık kaynağının `Arc` clone'unu kendi içine kopyalar, böylece SVG render hattı `App` lock'una girmeden varlık okuyabilir.
 3. **`Arc<dyn AssetSource>`:** Trait object olarak saklarsın. Bu, farklı varlık kaynaklarının (RustEmbed, dosya sistemi, ağ) aynı çalışma zamanı üzerinde yan yana taşınmasını mümkün kılar. Pratikte Zed yalnızca tek bir varlık kaynağı kullanır ama trait object esnekliği test ortamında değer kazanır.
 
@@ -210,7 +210,7 @@ for font_yolu in &font_yollari {
 }
 ```
 
-Bu desen font yükleme (`load_embedded_fonts`) ve tema yükleme (`load_bundled_themes`) gibi uygulama başlatma yollarında kullanırsın. Senkron çağrıdır; bu yüzden release'te binary içinden gelen veya debug'da yerel dosya sisteminden hızlı okunan küçük varlıklar için uygundur. Ağ veya büyük dosya sistemi varlıkları için `Asset` trait'i tercih edersin.
+Bu desen font yükleme (`Assets::load_fonts`) ve tema yükleme (`load_bundled_themes`) gibi uygulama başlatma yollarında kullanırsın. Senkron çağrıdır; bu yüzden release'te binary içinden gelen veya debug'da yerel dosya sisteminden hızlı okunan küçük varlıklar için uygundur. Ağ veya büyük dosya sistemi varlıkları için `Asset` trait'i tercih edersin.
 
 **Tek varlık yükleme (senkron):**
 
@@ -236,7 +236,7 @@ Varlık altyapısı tek arayüze sahiptir, ama tüketici tarafında üç farklı
 
 | Desen | Tipik tüketici | Yaşam süresi | Maliyet profili |
 |-------|---------------|--------------|-----------------|
-| **Toplu liste+load** | `load_embedded_fonts`, `load_bundled_themes` | Uygulama başlatma anında bir kez | O(varlık sayısı); önyüklenmiş varlıklar için ucuz |
+| **Toplu liste+load** | `Assets::load_fonts`, `load_bundled_themes` | Uygulama başlatma anında bir kez | O(varlık sayısı); önyüklenmiş varlıklar için ucuz |
 | **Tek dosya senkron load** | `Audio::sound_source`, `default_settings` | Talep anında | O(1); ufak dosyalar için ideal |
 | **Asenkron çekme (Asset trait)** | `ImageAssetLoader`, `SvgAsset` | Talep anında, cache'li | Background executor; büyük dosyalar veya ağ kaynaklı için |
 
@@ -262,7 +262,7 @@ Bu üçlü mimarinin pratik sonucu şudur: bir varlığı sadece "alıp byte'lar
 
 ## 7. Kendi GPUI uygulamasında minimum kurulum
 
-Zed'in yaklaşımını kendi uygulamanızda sergilemek için Zed'in asset dosyalarını veya crate gövdesini kopyalamak gerekmez. Aynı desen küçük bir `RustEmbed` struct'ı ve `AssetSource` implementasyonu ile kurulabilir:
+Zed'in yaklaşımını kendi uygulamanda sergilemek için Zed'in asset dosyalarını veya crate gövdesini kopyalamak gerekmez. Aynı desen küçük bir `RustEmbed` struct'ı ve `AssetSource` implementasyonu ile kurulabilir:
 
 ```rust
 use anyhow::Context as _;

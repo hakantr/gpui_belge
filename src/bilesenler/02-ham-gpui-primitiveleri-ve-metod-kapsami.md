@@ -20,7 +20,7 @@ ListHorizontalSizingBehavior, ListMeasuringBehavior, ListOffset,
 ListPrepaintState, ListScrollEvent, ListSizingBehavior, ListState,
 RetainAllImageCache, RetainAllImageCacheProvider, ScrollAnchor,
 ScrollHandle, ScrollStrategy, Stateful, StatefulInteractiveElement,
-StyledImage, StyledText, Surface, SurfaceSource, Svg, TextLayout,
+StyledImage, StyledText, Surface, SurfaceSource, Svg, Text, TextLayout,
 Transformation, UniformList, UniformListDecoration, UniformListFrameState,
 UniformListScrollHandle, UniformListScrollState, anchored, canvas, deferred,
 div, image_cache, img, list, retain_all, surface, svg, uniform_list
@@ -161,23 +161,23 @@ Aşağıdaki tablo her primitive'in nasıl üretildiğini, hangi özel metodlara
 | `ScrollHandle` | `ScrollHandle::new()` | `.offset()`, `.max_offset()`, `.top_item()`, `.bottom_item()`, `.bounds()`, `.bounds_for_item(ix)`, `.scroll_to_item(ix)`, `.scroll_to_top_of_item(ix)`, `.scroll_to_bottom()`, `.set_offset(point)`, `.logical_scroll_top()`, `.logical_scroll_bottom()`, `.children_count()` | `overflow_*_scroll` ve `.track_scroll(&handle)` ile bağlarsın |
 | `ScrollAnchor` | `ScrollAnchor::for_handle(handle)` | `.scroll_to(window, cx)` | Nested child'ın parent scroll alanına anchor edilmesi gerektiğinde tercih edersin |
 | `canvas` / `Canvas<T>` | `canvas(prepaint, paint)` | `Styled`; prepaint closure durum döndürür, paint closure bu durum ile çizim yapar | Sadece özel render gerektiğinde devreye girer; layout `Styled` boyutlarıyla sabitlenir |
-| `img` / `Img` | `img(source)` | `Img::extensions()`, `.image_cache(entity)`; `StyledImage`: `.grayscale(bool)`, `.object_fit(ObjectFit)`, `.with_fallback(fn)`, `.with_loading(fn)` | Yükleme ve yedek UI'sı belirlenmemiş uzak/asset görsel bırakmaman gerekir |
+| `img` / `Img` | `img(source)` | `Img::extensions()`, `.image_cache(entity)`; `StyledImage`: `.grayscale(bool)`, `.object_fit(ObjectFit)`, `.with_fallback(|| ...)`, `.with_loading(|| ...)` | Yükleme ve yedek UI'sı belirlenmemiş uzak/asset görsel bırakmaman gerekir |
 | `ImageSource` | `ImageSource::{Resource, Custom, Render, Image}` | `.remove_asset(cx)` | Asset yaşam döngüsü açıkça temizlenecekse kullanılır |
 | `image_cache` / `ImageCacheElement` | `image_cache(provider)` | `ParentElement`, `Styled`; alt ağaçtaki `img` yüklerini provider önbelleğine bağlar | Aynı ekran içinde tekrar tekrar görünen görsellerde tercih edersin |
 | `AnyImageCache` | `Entity<I: ImageCache>` üzerinden `From` | `.load(resource, window, cx)` | Cache sağlayıcılarının type erasure katmanı |
 | `ImageCache` | trait | `.load(resource, window, cx)` | Uygulamaya özel önbellek stratejisi gerekiyorsa bu trait'i implement edersin |
 | `ImageCacheProvider` | trait | `.provide(window, cx)` | Render veya request-layout aşamasında önbellek sağlar |
-| `RetainAllImageCache` | `RetainAllImageCache::new(cx)` | `.load(source, window, cx)`, `.clear(window, cx)`, `.remove(source, window, cx)`, `.len()`, `.is_empty()` | Basit "her şeyi tut" stratejisidir; uzun ömürlü ekranlarda clear/remove sorumluluğunu unutmaman gerekir |
+| `RetainAllImageCache` | `RetainAllImageCache::new(cx)` | `.load(source, window, cx)`, `.clear(window, cx)`, `.remove(source, window, cx)`, `.len()`, `.is_empty()` | Basit "her şeyi tut" stratejisidir; uzun ömürlü ekranlarda clear/remove sorumluluğunu açıkça yönetmen gerekir |
 | `retain_all` | `retain_all(id)` | `RetainAllImageCacheProvider` üretir | Inline önbellek provider gerektiğinde kullanılır |
 | `svg` / `Svg` | `svg()` | `.path(path)`, `.external_path(path)`, `.with_transformation(transformation)` | Icon ihtiyaçları için `Icon`'u tercih edersin; ham SVG yalnızca asset transform gerektiğinde anlamlıdır |
 | `Transformation` | `Transformation::scale(size)`, `::translate(point)`, `::rotate(radians)` | `.with_scaling(size)`, `.with_translation(point)`, `.with_rotation(radians)` | Birden fazla transform gerektiğinde builder zinciriyle tek `Transformation` oluşturulur |
 | `anchored` / `Anchored` | `anchored()` | `.anchor(anchor)`, `.position(point)`, `.offset(point)`, `.position_mode(mode)`, `.snap_to_window()`, `.snap_to_window_with_margin(edges)`; `AnchoredFitMode`, `AnchoredPositionMode`, `AnchoredState` | Popover veya menu gibi hazır yüzeyler yeterliyse önce onları tercih edersin; özel overlay'de pencere sınırı snap'ini açıkça seçilir |
-| `deferred` / `Deferred` | `deferred(child)` | `.with_priority(priority)`; `DeferredScrollToItem::priority(priority)` | Ağır alt ağaçların render sırasını ayarlar; etkileşim açısından kritik kontrolleri geciktirmezsin |
+| `deferred` / `Deferred` | `deferred(child)` | `.with_priority(priority)`, `.priority(priority)` | Ağır alt ağaçların render sırasını ayarlar; etkileşim açısından kritik kontrolleri geciktirmezsin |
 | `surface` / `Surface` | `surface(source)` | `.object_fit(ObjectFit)`; `SurfaceSource` macOS `CVPixelBuffer` taşır | macOS native surface dışında kullanmaman gerekir; platform cfg sınırı korunur |
 | `list` / `List` | `list(state, render_item)` | `.with_sizing_behavior(ListSizingBehavior)`; `ListAlignment`, `ListHorizontalSizingBehavior`, `ListMeasuringBehavior`, `ListOffset`, `ListScrollEvent`, `FollowMode` | Satır yüksekliği değişken olduğunda kullanılır; durum view alanında saklanır |
 | `ListState` | `ListState::new(item_count, alignment, overdraw)` | `.measure_all()`, `.reset(count)`, `.remeasure()`, `.remeasure_items(range)`, `.item_count()`, `.is_scrolled_to_end()`, `.splice(range, count)`, `.splice_focusable(...)`, `.set_scroll_handler(...)`, `.logical_scroll_top()`, `.scroll_by(distance)`, `.scroll_to_end()`, `.set_follow_mode(mode)`, `.is_following_tail()`, `.scroll_to(offset)`, `.scroll_to_reveal_item(ix)`, `.bounds_for_item(ix)`, `.item_is_above_viewport(ix)`, `.item_is_below_viewport(ix)`, `.scrollbar_drag_started()`, `.scrollbar_drag_ended()`, `.is_scrollbar_dragging()`, `.set_offset_from_scrollbar(point)`, `.max_offset_for_scrollbar()`, `.scroll_px_offset_for_scrollbar()`, `.viewport_bounds()` | Veri değiştiğinde `splice` veya `reset`, ölçüm değiştiğinde `remeasure*` çağrılır |
-| `uniform_list` / `UniformList` | `uniform_list(id, item_count, render_item)` | `.with_width_from_item(index)`, `.with_sizing_behavior(...)`, `.with_horizontal_sizing_behavior(...)`, `.with_decoration(decoration)`, `.track_scroll(handle)`, `.y_flipped(bool)`; `UniformListDecoration`, `UniformListFrameState`, `UniformListScrollState` | Sabit satır geometrisi ve çok büyük veri için tercih edersin |
-| `UniformListScrollHandle` | `UniformListScrollHandle::new()` | `.scroll_to_item(ix, strategy)`, `.scroll_to_item_strict(ix, strategy)`, `.scroll_to_item_with_offset(ix, strategy, offset)`, `.scroll_to_item_strict_with_offset(ix, strategy, offset)`, `.y_flipped()`, `.logical_scroll_top_index()`, `.is_scrollable()`, `.is_scrolled_to_end()`, `.scroll_to_bottom()`; `ScrollStrategy` | Dışarıdan scroll komutu verme ve scroll durumunu okuma için handle'ı saklanır |
+| `uniform_list` / `UniformList` | `uniform_list(id, item_count, render_item)` | `.with_width_from_item(Some(index))`, `.with_sizing_behavior(...)`, `.with_horizontal_sizing_behavior(...)`, `.with_decoration(decoration)`, `.track_scroll(handle)`, `.y_flipped(bool)`; `UniformListDecoration`, `UniformListFrameState`, `UniformListScrollState` | Sabit satır geometrisi ve çok büyük veri için tercih edersin |
+| `UniformListScrollHandle` | `UniformListScrollHandle::new()` | `.scroll_to_item(ix, strategy)`, `.scroll_to_item_strict(ix, strategy)`, `.scroll_to_item_with_offset(ix, strategy, offset)`, `.scroll_to_item_strict_with_offset(ix, strategy, offset)`, `.y_flipped()`, `.is_scrollable()`, `.is_scrolled_to_end()`, `.scroll_to_bottom()`; test/test-support altında `.logical_scroll_top_index()`; `ScrollStrategy` | Dışarıdan scroll komutu verme ve scroll durumunu okuma için handle'ı saklanır |
 | `StyledText` | `StyledText::new(text)` | `.layout()`, `.with_default_highlights(...)`, `.with_highlights(...)`, `.with_font_family_overrides(...)`, `.with_runs(runs)` | Vurgu ve zengin metin gerektiğinde tercih edersin; normal etiket için `Label` daha doğru bir yüzeydir |
 | `TextLayout` | `StyledText::layout()` | `.index_for_position(point)`, `.position_for_index(index)`, `.line_layout_for_index(index)`, `.bounds()`, `.line_height()`, `.len()`, `.text()`, `.wrapped_text()` | Hit-test ve ölçüm bilgisi prepaint veya layout sonrası anlam kazanır |
 | `InteractiveText` | `InteractiveText::new(id, styled_text)` | `.on_click(range, listener)`, `.on_hover(range, listener)`, `.tooltip(range, builder)`; `InteractiveTextState` | Inline link, mention veya span tooltip için kullanılır |
@@ -200,7 +200,7 @@ Bazı GPUI tiplerinde asıl kullanım bilgisini taşıyan şey, türün adından
 | `ListHorizontalSizingBehavior` | `FitList`, `Unconstrained` | Satır genişliği listeye mi sığacak, en geniş item'a göre taşabilecek mi sorusunu yanıtlar |
 | `AnchoredFitMode` | `SnapToWindow`, `SnapToWindowWithMargin`, `SwitchAnchor` | `anchored()` overlay'lerinde pencere sınırına nasıl sığdırılacağını belirler |
 | `AnchoredPositionMode` | `Window`, `Local` | Anchor koordinatının pencereye mi parent'a mı göre yorumlanacağını belirler |
-| `ImageCacheError` | `Io`, `Usvg`, `Other` | Görsel yükleme veya render hatalarını sınıflandırır; yedek render için ayırt edici bilgi taşır |
+| `ImageCacheError` | `Other`, `Io`, `BadStatus`, `Asset`, `Image`, `Usvg` | Görsel yükleme veya render hatalarını sınıflandırır; yedek render için ayırt edici bilgi taşır |
 | `ImageCacheItem` | `Loading`, `Loaded` | Önbelleğin iç durumudur; tüketici çoğu zaman doğrudan bunu değil, `ImageCache::load` sonucunu kullanır |
 
 Public durum alanları:
@@ -263,6 +263,6 @@ Görsel önbellek örüntüsü ise alt ağaçtaki tüm `img` çağrılarını or
 image_cache(retain_all("image-cache"))
     .child(img(ImageSource::Resource(resource))
         .object_fit(ObjectFit::Cover)
-        .with_loading(|_, _| div().size_full().into_any_element())
-        .with_fallback(|_, _| Icon::new(IconName::Image).into_any_element()))
+        .with_loading(|| div().size_full().into_any_element())
+        .with_fallback(|| Icon::new(IconName::Image).into_any_element()))
 ```

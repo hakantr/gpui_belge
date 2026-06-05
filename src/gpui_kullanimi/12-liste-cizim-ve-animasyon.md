@@ -38,10 +38,16 @@ div()
 
 ```rust
 let capa = ScrollAnchor::for_handle(tutamac.clone());
-capa.scroll_to(window, cx);
+
+div()
+    .id("secili-satir")
+    .anchor_scroll(Some(capa.clone()))
+    .child(/* ... */);
+
+capa.scroll_to(window, cx); // sonraki frame'de handle offset'ini ayarlar
 ```
 
-**Tuzaklar.** Scroll handle ile çalışırken atladığın noktalar:
+**Dikkat noktaları.** Scroll handle ile çalışırken atlanması kolay noktalar:
 
 - `id(...)` çağırılmadan `overflow_*_scroll` çalışmaz; element etkileşimli olmaz.
 - `track_scroll` çağırılmadığında handle değerleri güncel kalmaz; offset doğru okunmaz.
@@ -50,7 +56,7 @@ capa.scroll_to(window, cx);
 **Liste elementlerine özel durum/handle tipleri.** Büyük listelerde `ScrollHandle` yerine bu tiplere geçersin:
 
 - `ListState` — `scroll_by`, `scroll_to`, `scroll_to_reveal_item`, `scroll_to_end`, `set_follow_mode(FollowMode::Tail)`, `logical_scroll_top`, `is_scrolled_to_end`, `is_following_tail`, `viewport_bounds`, `item_is_above_viewport`, `item_is_below_viewport`.
-- `UniformListScrollHandle` — `scroll_to_item(..., ScrollStrategy)`, `scroll_to_item_strict`, `scroll_to_item_with_offset`, `scroll_to_item_strict_with_offset`, `logical_scroll_top_index`, `is_scrolled_to_end`, `scroll_to_bottom`.
+- `UniformListScrollHandle` — `scroll_to_item(..., ScrollStrategy)`, `scroll_to_item_strict`, `scroll_to_item_with_offset`, `scroll_to_item_strict_with_offset`, `is_scrollable`, `is_scrolled_to_end`, `scroll_to_bottom`, `y_flipped`. `logical_scroll_top_index` yalnız `test-support` veya test derlemesinde public olur.
 
 ## List ve UniformList Sanallaştırma
 
@@ -113,7 +119,7 @@ list(self.liste_durumu.clone(), |sira, window, cx| {
 - `viewport_bounds() -> Bounds<Pixels>` — son layout'ta ölçülen viewport rect'i.
 - `item_is_above_viewport(ix) -> Option<bool>` — item'ın viewport'un üstünde kalıp kalmadığını söyler; ölçüm yoksa `None`.
 - `item_is_below_viewport(ix) -> Option<bool>` — item'ın viewport'un altında kalıp kalmadığını söyler; ölçüm yoksa `None`.
-- `set_scroll_handler(...)` — görünür aralık ve takip durumu izleme.
+- `set_scroll_handler(...)` — `ListScrollEvent` ile `visible_range`, `count`, `is_scrolled` ve `is_following_tail` bilgisini izlersin.
 
 **Özel scrollbar API'si.** Kendi scrollbar widget'ını yazdığında bu metotlar üzerinden çalışırsın (`ui::Scrollbars` da aslında bu yüzeyin üstünde kuruludur):
 
@@ -207,7 +213,7 @@ img(PathBuf::from("yol/ikon.png"))
 
 - `Resource(Resource)`
 - `Render(Arc<RenderImage>)` — önceden rasterize edilmiş kareler.
-- `Image(Arc<Image>)` — kodlanmış byte'lar (PNG/JPEG/WebP).
+- `Image(Arc<Image>)` — `ImageFormat` ile etiketlenmiş kodlanmış byte'lar.
 - `Custom(Arc<dyn Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>>)`
 
 URL biçimindeki string otomatik olarak `Uri` olarak ayrıştırılır. URL olmayan `&str` veya `String` `Resource::Embedded` sayılır ve `AssetSource` içinden aranır. Dosya sistemi path'i için `Path`, `PathBuf` veya `Arc<Path>` geçirirsin.
@@ -248,9 +254,9 @@ h_flex()
 
 Zed'in bilinen ikon setinden bir simge çizeceksen `Icon::new(IconName::...)` en okunaklı yoldur; tema rengi, boyut ve Zed UI sözleşmeleri bu bileşende toplanır. AssetSource içindeki özel bir SVG dosyasını doğrudan çizeceksen `svg().path(...)`'i, URL veya dosya kaynaklı raster görsel çizeceksen `img(...)`'i kullanırsın.
 
-**Önbellek davranışı.** İki katmanlıdır: `window.use_asset::<A>(kaynak, cx)` aynı kaynak için tek asenkron yükleme görevini paylaşır ve tamamlandığında o anki view'i yeniden çizdirir. `ImageCache` ise kodu çözülmüş `RenderImage`'ı tutar. Element bazında `.image_cache(&varlik)` veya ağacın üstünde `image_cache(retain_all("id"))` kullanabilirsin. Hata kaydı `ImgResourceLoader = AssetLogger<...>` ile otomatiktir.
+**Önbellek davranışı.** İki katmanlıdır: `window.use_asset::<A>(kaynak, cx)` aynı asset türü ve kaynak için tek asenkron yükleme görevini paylaşır ve ilk yükleme tamamlandığında o anki view'i sonraki frame'de yeniden çizdirir. `window.get_asset::<A>(...)` aynı görevi yoklar, fakat tamamlanınca redraw planlamaz. `ImageCache` ise kodu çözülmüş `RenderImage`'ı tutar. Element bazında `.image_cache(&varlik)` veya ağacın üstünde `image_cache(retain_all("id"))` kullanabilirsin. Hata kaydı `ImgResourceLoader = AssetLogger<...>` ile otomatiktir.
 
-**Tuzaklar.** Asset yüklerken karşılaşabileceğin durumlar:
+**Dikkat noktaları.** Asset yüklerken karşılaşabileceğin durumlar:
 
 - URL ayrıştırma başarısız olduğunda string embedded asset sayılır; gerçek dosya yolu için `PathBuf` kullanmadığında yanlış kaynaktan arama yapılır.
 - Özel closure `'static` olmalı; `Window` ve `App`'i yalnızca closure çağrısında parametre olarak kullanırsın.
@@ -306,7 +312,7 @@ impl ImageCache for GorselOnbellegi {
 
 **`Surface`.** Ayrı bir yol izler: macOS'ta `CVPixelBuffer` gibi platform surface kaynaklarını `surface(buffer).object_fit(...)` ile çizmek için kullanırsın. Genel görsel asset önbelleği yerine `window.paint_surface(...)` boru hattını kullanır ve şu anda platforma bağlıdır.
 
-**Tuzaklar.** Önbellek ve surface tarafında atladığın noktalar:
+**Dikkat noktaları.** Önbellek ve surface tarafında atlanması kolay noktalar:
 
 - Önbellek ID'si değişirse kodu çözülmüş görsel durumu düşer.
 - `img("literal")` URL değilse embedded resource olarak yorumlanır; dosya sistemi için `PathBuf` veya `Arc<Path>` vermen gerekir.
@@ -320,9 +326,9 @@ GPUI görsel hattı hem uygulama geliştiricisine açık elementleri hem de rend
 
 **Raster kaynak tipleri.** `Image` pano ve platform image verisini taşır; `Image::empty()`, `from_bytes(...)`, `id()`, `use_render_image(...)`, `get_render_image(...)`, `remove_asset(...)`, `to_image_data(...)`, `format()` ve `bytes()` görsel byte'ı ile decode edilmiş `RenderImage` arasındaki köprüyü kurar. `ImageFormat::{Png, Jpeg, Webp, Gif, Svg, Bmp, Tiff, Ico, Pnm}` `mime_type()` ve `from_mime_type(...)` ile pano/clipboard ve dosya formatı eşleşmesini sağlar. UI çiziminde doğrudan `Image` yerine `img(source)` veya `window.paint_image(...)` kullanmak daha doğal olur.
 
-**RenderImage.** `RenderImage::new(...)`, `size()`, `as_bytes()`, `delay(frame_index)` ve `frame_count()` decode edilmiş raster kareleri temsil eder. Animasyonlu GIF/WebP için frame sayısı ve gecikme buradan okunur; `img` elementi aktif pencerede sonraki kareyi ister. `RenderImageParams`, `RenderSvgParams`, `ImageId` ve `ImageLoadingTask` renderer/önbellek parametreleridir; uygulama state modelinde domain verisi gibi saklamazsın.
+**RenderImage.** `RenderImage::new(...)`, `size(frame_index)`, `as_bytes(frame_index)`, `delay(frame_index)` ve `frame_count()` decode edilmiş raster kareleri temsil eder. Animasyonlu GIF/WebP için frame sayısı ve gecikme buradan okunur; `img` elementi aktif pencerede sonraki kareyi ister. `RenderImageParams`, `RenderSvgParams`, `ImageId` ve `ImageLoadingTask` renderer/önbellek parametreleridir; uygulama state modelinde domain verisi gibi saklamazsın.
 
-**Img ve ImageSource.** `img(source)` `ImageSource::{Resource, Render, Image, Custom}` değerine dönüşebilen kaynakları kabul eder. `Img::extensions(...)`, `image_cache(...)`, `with_loading(...)`, `with_fallback(...)`, `object_fit(...)` ve style zinciri görsel elementin davranışını belirler. `ImageSource::remove_asset(...)` kaynak değiştiğinde önbellekten düşürme için kullanılır. `LOADING_DELAY` yükleme yedeği görünmeden önceki gecikmedir; yavaş ağ görsellerinde yanıp sönen placeholder üretmemek için bu gecikmeye güvenirsin.
+**Img ve ImageSource.** `img(source)` `ImageSource::{Resource, Render, Image, Custom}` değerine dönüşebilen kaynakları kabul eder. `Img::extensions()`, `image_cache(...)`, `with_loading(...)`, `with_fallback(...)`, `object_fit(...)` ve style zinciri görsel elementin davranışını belirler. `Img::extensions()` `image::ImageFormat::from_extension` listesini ve `svg` uzantısını kapsar (`avif`, `jpg`, `png`, `gif`, `webp`, `tiff`, `bmp`, `ico`, `qoi`, `svg` vb.). `ImageSource::remove_asset(...)` kaynak değiştiğinde asset sisteminden düşürme için kullanılır; `Custom` ve hazır `Render` kaynaklarında iş yapmaz. `LOADING_DELAY` yükleme yedeği görünmeden önceki gecikmedir; yavaş ağ görsellerinde yanıp sönen placeholder üretmemek için bu gecikmeye güvenirsin.
 
 **ImageCache zinciri.** `image_cache(provider)` element wrapper'ı, `retain_all(id)` hazır sağlayıcısı, `ImageCacheProvider`, `ImageCache`, `AnyImageCache`, `ImageCacheItem`, `RetainAllImageCache`, `RetainAllImageCacheProvider` ve `ImageCacheError` aynı zincirin parçalarıdır. `RetainAllImageCache::new(cx)`, `load(resource, window, cx)`, `remove(resource, window, cx)`, `clear(window, cx)`, `len()` ve `is_empty()` küçük/orta ölçekli görsel kümeleri için yeterlidir. Sınırsız büyüyen veya zamanla tahliye isteyen cache'te kendi `ImageCache` implementasyonunu yazarsın.
 
@@ -442,7 +448,7 @@ Lyon API'sine inmek istiyorsan `lyon::tessellation::FillOptions::tolerance(0.5)`
 - `window.paint_image(...)` — raster görsel çizimi.
 - `window.paint_layer(bounds, |window| ...)` — aynı çizim sırasında toplanan geometri için yeni bir katman açar; çoğunlukla başarım ve overdraw kontrolü için kullanırsın.
 
-**Tuzaklar.** Path çizimde dikkat edeceğin noktalar:
+**Dikkat noktaları.** Path çizimde dikkat edeceğin noktalar:
 
 - Tessellation pahalıdır; her karede yeni path inşa etmek FPS'i düşürür. Mümkün olduğunda prepaint'te inşa edip paint'te yalnız çizersin.
 - Path bounds dışına taşan kısım kırpılmaz; `paint_layer` ile elle kırpma uygularsın.
@@ -477,7 +483,7 @@ anchored()
 
 Anchored element ağaca normal bir alt öğe gibi eklenir; ancak yerleşim fazında üst öğe sınırlarını yok sayar ve mutlak konumlandırma gibi davranır. Tooltip, popover ve ContextMenu altta bu element üzerinde çalışır.
 
-**Tuzaklar.** Anchored kullanırken yaptığın hatalar:
+**Dikkat noktaları.** Anchored kullanırken hataya açık kullanımlar:
 
 - `Local` modda position üst öğenin içerik orijinine görelidir; window modda ise ekranda mutlak değil, **pencere içi** koordinatlardır.
 - Snap fonksiyonları arasında en son çağırdığın kazanır.
@@ -522,13 +528,13 @@ yalnızca çizilecek dikdörtgeni verir.
 - `window.paint_surface(bounds, CVPixelBuffer)` — yalnız macOS yerel surface'i.
 - `window.paint_drop_shadows(bounds, corner_radii, &[BoxShadow])` — `inset: false` gölge seti; genellikle arka plan ve border'dan önce çağrılır.
 - `window.paint_inset_shadows(bounds, corner_radii, &[BoxShadow])` — `inset: true` iç gölge seti; genellikle element arka planından sonra çağrılır.
-- `window.paint_layer(bounds, |window| ...)` — aynı bounds üzerinde kırpma ile yeni çizim katmanı; taşma gizleme ve dönüşüm için.
+- `window.paint_layer(bounds, |window| ...)` — aynı bounds üzerinde kırpma ile yeni çizim katmanı; taşma gizleme ve batch/draw order kontrolü için.
 
 `BorderStyle` (`gpui` crate'i) iki değer alır: `Solid` ve `Dashed`. `Corners<P>`, `Edges<P>`, `Bounds<P>`, `Hsla` ve `Background` zaten önceden bilinen geometri ve renk tipleridir; her builder bunları `Into` üzerinden kabul eder.
 
-**Tuzaklar.** Paint çağrılarında dikkat edeceğin noktalar:
+**Dikkat noktaları.** Paint çağrılarında dikkat edeceğin noktalar:
 
-- `paint_*` çağrıları yalnız `Element::paint` fazında geçerlidir; prepaint veya yerleşim fazında panic verir.
+- `paint_*` çağrıları yalnız `Element::paint` fazında geçerlidir; GPUI kaynak kodu bunu `debug_assert_paint()` ile denetler.
 - `paint_path` her karede yeniden tessellate edilirse FPS düşer; mümkünse path'i prepaint'te oluşturup element durumunda saklarsın.
 - `paint_layer` kırpma uyguladığı için içerik bounds dışına taşan kısımlar gizlenir; gölge gibi taşan efektleri katman dışında çizmen gerekir.
 - `border_widths` dört kenara ayrı değer verebilir (`Edges { top, right, bottom, left }`); tek bir değer verdiğinde `Edges::all(px(1.))` kullanılır.
@@ -538,7 +544,7 @@ yalnızca çizilecek dikdörtgeni verir.
 `Scene`, paint fazında üretilen primitive listesinin sahibidir. Uygulama kodunda `Scene`'i genellikle elle oluşturmazsın; `Window` paint metotları bunu senin için doldurur. Yine de özel renderer, test snapshot'ı veya düşük seviyeli çizim aracı yazarken bu yüzey önemlidir.
 
 - `Scene::clear()`, `len()`, `push_layer(bounds)`, `pop_layer()`, `insert_primitive(primitive)`, `replay(...)`, `finish()` ve `batches()` çizim listesini yönetir.
-- `Primitive` varyantları quad, shadow, underline, image, SVG, path, surface ve sprite türlerini taşır; `Primitive::bounds()` ve `content_mask()` çizim alanı ve kırpma bilgisini verir.
+- `Primitive` varyantları `Shadow`, `Quad`, `Path`, `Underline`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite` ve `Surface` türlerini taşır; raster image ve SVG çizimleri renderer katmanında sprite primitive'lerine dönüşür. `Primitive::bounds()` ve `content_mask()` çizim alanı ve kırpma bilgisini verir.
 - `PrimitiveBatch`, `DrawOrder`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite`, `PaintSurface`, `PathId`, `PathVertex<Pixels>` ve `PathVertex_ScaledPixels` renderer'ın batch ve sprite atlas verileridir. `Scene` bu veriyi `shadows`, `quads`, `underlines`, sprite listeleri ve `surfaces` alanlarında türüne göre saklar.
 - `clipped_bounds(...)`, path veya primitive'in aktif içerik maskesiyle kesilmiş sınırını hesaplar.
 
@@ -562,7 +568,7 @@ Bu tipler "ekrana ne çizilecek?" sorusunun son cevabıdır. Bir buton, liste ve
 **Kare ve paint yardımcıları.** Pencere üzerindeki bazı işler doğrudan çizim bağlamını etkiler:
 
 - `window.set_window_cursor_style(style)` — hitbox'a bağlı olmayan, tüm pencere için imleç isteği. Paint fazında çağırırsın ve hitbox imleçlerine göre önceliklidir.
-- `window.set_tooltip(AnyTooltip) -> TooltipId` — tooltip isteği prepaint fazında kaydedilir.
+- `window.set_tooltip(AnyTooltip) -> TooltipId` — tooltip isteği prepaint fazında kaydedilir; kaynak gövdede `debug_assert_prepaint()` ile denetlenir.
 - `window.paint_svg(...)` — `SvgRenderer` ve sprite atlas üzerinden monokrom SVG maskesi çizer. SVG her zaman hedef boyutun `gpui::SMOOTH_SVG_SCALE_FACTOR: f32 = 2.0` (`svg_renderer`) katı çözünürlükte rasterize edilip sonra küçültülür; bu nedenle `paint_svg` çağrısı küçük ikon boyutlarında bile yumuşak kenar üretir. `paint_image` kodu çözülmüş raster kare, `paint_surface` ise macOS yerel surface'i içindir.
 
 **Jenerik asset yükleme.** Asset bekleme ve önbellek paylaşımı için üç yardımcı bulunur:
@@ -596,7 +602,7 @@ svg()
 - Düşük seviyeli `TransformationMatrix::{unit, translate, rotate, scale}` sahne primitive'lerinde kullanılır.
 - `SvgSize` `SvgRenderer` çizim isteğinin raster boyutunu tanımlar: `Size(Size<DevicePixels>)` mutlak boyut, `ScaleFactor(f32)` SVG'nin bildirdiği boyuta çarpan uygular.
 
-**Tuzaklar.** Bu çizim bağlamı API'lerinde dikkat edeceğin noktalar:
+**Dikkat noktaları.** Bu çizim bağlamı API'lerinde dikkat edeceğin noktalar:
 
 - `with_content_mask` yalnızca kırpma maskesidir; hitbox veya yerleşimi otomatik küçültmez.
 - `use_asset` yeniden çizimi o anki view entity'sine bağlar; view dışı bir yardımcıda çağırıyorsan o anki view beklentisini bozmaman gerekir.
@@ -634,7 +640,7 @@ div()
 | :-- | :-- | :-- |
 | `pulsating_between` | min/max arası yön değiştiren easing | Tekrarlanan animasyonlarda nefes alma/yükleme göstergesi benzeri değer üretir. |
 
-**Tuzaklar.** Animasyon kullanımında atladığın noktalar:
+**Dikkat noktaları.** Animasyon kullanımında atlanması kolay noktalar:
 
 - Element ID çizim boyunca sabit olmalıdır; değiştiği anda animasyon durumu sıfırlanır.
 - Animator closure `'static` olduğundan dış durumu `Rc`, `Arc` veya `clone` ile yakalarsın.

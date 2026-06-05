@@ -28,7 +28,7 @@ Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam
 
 11. [Dış API ve test ortamı](11-dis-api-ve-test-ortami.md) Dışa açık API sınırını, crate-içi kalması gereken parçaları ve test ortamında tema mock'lama stratejilerini toplar.
 
-12. [Pratik kontrol listesi](12-pratik-kontrol-listesi.md) Yaygın tuzakları, mirror kararlarını ve son kontrol listesini kısa maddeler halinde verir.
+12. [Pratik kontrol listesi](12-pratik-kontrol-listesi.md) Yaygın dikkat noktalarını, mirror kararlarını ve son kontrol listesini kısa maddeler halinde verir.
 
 ## Okuma önerisi
 

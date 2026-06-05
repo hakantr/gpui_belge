@@ -1,6 +1,6 @@
 # Yerel pencere sekmeleri
 
-Yerel pencere sekmeleri, özellikle macOS'taki sistem sekmeleri, başlık çubuğunun en karmaşık parçasıdır. Bu yüzden ayrı bir aşama olarak ele alırsın. Burada kararlar tek başına verilmez; `SystemWindowTabController` durumu, platform çağrıları ve sürükle-bırak hedefleri birlikte düşünülür. Bu üç parça ayrı ayrı yazılırsa aralarında uyumsuzluk çıkması çok kolaydır.
+Yerel pencere sekmeleri, özellikle macOS'taki sistem sekmeleri, başlık çubuğunun en karmaşık parçasıdır. Bu yüzden ayrı bir aşama olarak ele alırsın. Burada kararlar tek başına verilmez; `SystemWindowTabController` durumu, platform çağrıları ve sürükle-bırak hedefleri birlikte düşünülür. Bu üç parça birlikte tasarlanmadığında aralarında uyumsuzluk oluşabilir.
 
 ![Yerel Sekme Akışı](assets/native-tabs-akisi.svg)
 
@@ -32,8 +32,8 @@ Ayrıca bu API'nin bir kısıtı daha vardır: `register_action_renderer` bağla
 | 2 | Sekme üzerinde orta tık (başka sekme) | `item.handle.update(...)` ile o pencere |
 | 3 | Sekme kapatma (X) butonu tıklaması (aktif sekme) | Mevcut pencere |
 | 4 | Sekme kapatma (X) butonu tıklaması (başka sekme) | `item.handle.update(...)` ile o pencere |
-| 5 | Sağ tık → "Sekmeyi Kapat" | `handle_right_click_action` ile sekme tutamacı |
-| 6 | Sağ tık → "Diğer Sekmeleri Kapat" | Diğer her sekme tutamacı |
+| 5 | Sağ tık → `"Close Tab"` | `handle_right_click_action` ile sekme tutamacı |
+| 6 | Sağ tık → `"Close Other Tabs"` | Diğer her sekme tutamacı |
 
 Bu altı yolun her birinde **aynı sabit eylem gönderilir**. Dış crate'in verdiği `close_action` özelliği bu kapatma yollarına ulaşmaz. Dışarıdan gelen kapatma eylemini yalnızca Linux tarafındaki `LinuxWindowControls`/`WindowControl` zincirinde kullanırsın. Port hedefinde sekme kapatma davranışı farklılaştırılacaksa, bu altı çağrı noktasının her biri ayrı ayrı ele alman gerekir. Tek bir bayrak açıp kapatmak hepsini aynı anda değiştirmeye yetmez.
 
@@ -43,16 +43,16 @@ Bu altı yolun her birinde **aynı sabit eylem gönderilir**. Dış crate'in ver
 - Sekme tıklaması → o pencereyi `activate_window()`.
 - Orta tıkla kapatma başka sekmede gerçekleşirse → o pencereye `CloseWindow`.
 - X butonu tıklaması başka sekmede gerçekleşirse → o pencereye `CloseWindow`.
-- `handle_right_click_action` yardımcısı ("Sekmeyi Kapat"/"Diğer Sekmeleri Kapat" bağlam menüsü).
+- `handle_right_click_action` yardımcısı (`"Close Tab"` / `"Close Other Tabs"` bağlam menüsü).
 - Sekme çubuğu dışına bırakma → o pencerede `move_tab_to_new_window()`.
 
 Bu çağrıların hepsi `let _ = handle.update(...)` deyimine sarılıdır. Çünkü `update()` fonksiyonu `Result<R, ()>` döndürür; çağrı sırasında pencere zaten kapanmış olabilir. Böyle bir durumda sonuç bilinçli olarak yutulur ve hata fırlatılmaz.
 
-Port hedefinde aynı deseni karşılamak için üç şey birlikte sağlanmalıdır. Her sekme üst veri yapısı bir tutamak veya proxy taşımalıdır. Pencereler arası işlemler bu proxy üzerinden ilgili pencerenin bağlamına girip işi orada yapmalıdır. Proxy çağrısı da **hata yumuşatma** davranışı göstermelidir: hedef pencere ortadan kalkmışsa sessizce geçilmelidir. Bu üç kural birlikte uygulanmazsa kapanmış pencerelere yapılan çağrılar uygulamayı çökertebilir.
+Port hedefinde aynı deseni karşılamak için üç şey birlikte sağlanmalıdır. Her sekme üst veri yapısı bir tutamak veya proxy taşımalıdır. Pencereler arası işlemler bu proxy üzerinden ilgili pencerenin bağlamına girip işi orada yapmalıdır. Proxy çağrısı da **hata yumuşatma** davranışı göstermelidir: hedef pencere ortadan kalkmışsa sessizce geçilmelidir. Bu üç kural birlikte uygulanmadığında kapanmış pencerelere yapılan çağrılar başarısız olabilir; kaynak deseni bu sonucu yumuşatır.
 
 **Koşullu `Option` deyimi** sol ve sağ pencere kontrollerini şu desenle dahil eder: `sol_kontroller_gosterilsin.then(|| sol_pencere_kontrollerini_render_et(...)).flatten()`.
 
-Bu desen şöyle çalışır: `bool::then(|| fn)` ifadesi mantıksal değer `true` ise `Some(fn())`, `false` ise `None` döner. `sol_pencere_kontrollerini_render_et` fonksiyonu zaten `Option<AnyElement>` döndürdüğü için dış sarmal `Option<Option<...>>` olur; `.flatten()` ile tek seviye `Option`'a iner. Burada gözden kaçabilecek bir yan etki vardır. `then` kapanımı (`closure`) mantıksal değer `true` olduğunda gövdesini çalıştırır; gövde içinde **clone işlemi** gerçekleşir. İleride bahsedilecek `boxed_clone` zincirindeki adım 2 ve 3'ün her render geçişinde çalışmasının nedeni budur. Aynı sonuç daha açık şekilde `if sol_kontroller_gosterilsin { Some(sol_pencere_kontrollerini_render_et(...)) } else { None }` ifadesiyle de yazılabilir. `then().flatten()` formu yalnızca daha kısadır; ek bir avantaj sağlamaz.
+Bu desen şöyle çalışır: `bool::then(|| fn)` ifadesi mantıksal değer `true` ise `Some(fn())`, `false` ise `None` döner. `sol_pencere_kontrollerini_render_et` fonksiyonu zaten `Option<AnyElement>` döndürdüğü için dış sarmal `Option<Option<...>>` olur; `.flatten()` ile tek seviye `Option`'a iner. Burada dikkat edilmesi gereken yan etki, `then` kapanımının (`closure`) mantıksal değer `true` olduğunda gövdesini çalıştırmasıdır; gövde içinde **clone işlemi** gerçekleşir. İleride bahsedilecek `boxed_clone` zincirindeki adım 2 ve 3'ün her render geçişinde çalışmasının nedeni budur. Aynı sonuç daha açık şekilde `if sol_kontroller_gosterilsin { Some(sol_pencere_kontrollerini_render_et(...)) } else { None }` ifadesiyle de yazılabilir. `then().flatten()` formu yalnızca daha kısadır; ek bir avantaj sağlamaz.
 
 Sağ tık menüsü `ui::right_click_menu(ix).trigger(...).menu(...)` kurucu zinciriyle kurulur. Yapı şudur:
 
@@ -61,10 +61,10 @@ right_click_menu(ix)
     .trigger(|_, _, _| tab)               // tetikleyici element (sekmenin kendisi)
     .menu(move |window, cx| {
         ContextMenu::build(window, cx, move |mut menu, _, _| {
-            menu = menu.entry("Sekmeyi Kapat", None, ...);
-            menu = menu.entry("Diğer Sekmeleri Kapat", None, ...);
-            menu = menu.entry("Sekmeyi Yeni Pencereye Taşı", None, ...);
-            menu = menu.entry("Tüm Sekmeleri Göster", None, ...);
+            menu = menu.entry("Close Tab", None, ...);
+            menu = menu.entry("Close Other Tabs", None, ...);
+            menu = menu.entry("Move Tab to New Window", None, ...);
+            menu = menu.entry("Show All Tabs", None, ...);
             menu.context(focus_handle)     // odak yakalama
         })
     })
@@ -76,10 +76,10 @@ Buradan ilginç bir bellek davranışı doğar: `tabs` vektörü **dört defa cl
 
 Menüye konulan dört işlem şunlardır:
 
-- Sekmeyi Kapat (#5)
-- Diğer Sekmeleri Kapat (#6)
-- Sekmeyi Yeni Pencereye Taşı (`SystemWindowTabController::move_tab_to_new_window` + `window.move_tab_to_new_window()`)
-- Tüm Sekmeleri Göster (`window.toggle_window_tab_overview()`)
+- `Close Tab` (#5)
+- `Close Other Tabs` (#6)
+- `Move Tab to New Window` (`SystemWindowTabController::move_tab_to_new_window` + `window.move_tab_to_new_window()`)
+- `Show All Tabs` (`window.toggle_window_tab_overview()`)
 
 Sekme barının alt sağ köşesindeki artı butonu, tıklama anında `zed_actions::OpenRecent { create_new_window: true }` eylemini gönderir. Bu davranış da sabit şekilde gömülüdür. Port hedefinde bu noktanın değiştirilmesi büyük ihtimalle gerekir. Bağımsız bir uygulamada bu eylem genellikle `YeniPencere`, `CalismaAlaniniAc` veya `BelgePenceresiOlustur` gibi ürünün kendi eylemi ile değiştirilir.
 
@@ -96,7 +96,7 @@ Sekme çubuğunun boş dönmesi iki durumda mümkündür:
 
 **Burada önemli bir platform farkı vardır.** `Platform::tab_bar_visible()` trait'inin varsayılan implementasyonu `false` döner. Bu varsayılanı **yalnızca macOS** geçersiz kılar. Bunun sonucu olarak Linux ve Windows'ta yukarıdaki ilk koşulun ilk parçası daima `true` kabul edilir. Yani sekme çubuğunun görünürlüğü **tamamen `SystemWindowTabController::is_visible(...)` durumuna** bağlanır.
 
-`is_visible` fonksiyonu `visible` alanı boşsa `false` kabul eder. Denetleyici, `App` oluşturulurken `visible: None` ile başlar; pencere başlangıcı aşamasında ise `SystemWindowTabController::init_visible(cx, window.tab_bar_visible())` çağrılır. Linux ve Windows'ta `tab_bar_visible()` varsayılan olarak `false` döndüğü için ilk pencere açıldığında denetleyici çoğunlukla `Some(false)` durumuna geçer; sekme çubuğu gizli kalır. macOS dışındaki platformlarda sekme çubuğunun görünmesi için denetleyicinin `set_visible(...)` veya platform geçiş geri çağrısıyla açıkça görünür duruma alınması gerekir. Yalnızca `tab_bar_visible` çağrısını aramak yetmez. Bu noktayı atlayan bir port, "neden Linux'ta sekmeler hiç görünmüyor?" sorusuyla çok zaman kaybedebilir.
+`is_visible` fonksiyonu `visible` alanı boşsa `false` kabul eder. Denetleyici, `App` oluşturulurken `visible: None` ile başlar; pencere başlangıcı aşamasında ise `SystemWindowTabController::init_visible(cx, window.tab_bar_visible())` çağrılır. Linux ve Windows'ta `tab_bar_visible()` varsayılan olarak `false` döndüğü için ilk pencere açıldığında denetleyici çoğunlukla `Some(false)` durumuna geçer; sekme çubuğu gizli kalır. macOS dışındaki platformlarda sekme çubuğunun görünmesi için denetleyicinin `set_visible(...)` veya platform geçiş geri çağrısıyla açıkça görünür duruma alınması gerekir. Yalnızca `tab_bar_visible` çağrısını aramak yeterli değildir; görünürlük denetleyici durumuyla birlikte ele alınmalıdır.
 
 macOS'taki yerel sekmeleme için `set_tabbing_identifier(Some(...))` çağrısı yalnızca pencereye kimlik yazmaz. Aynı çağrı paralel olarak `NSWindow::setAllowsAutomaticWindowTabbing:YES` fonksiyonunu da çağırır. Ters yönde, `None` değeri geldiğinde aynı global izin `NO` yapılır ve pencerenin tabbing kimliği `nil` olur. Bu yüzden Zed'in `SystemWindowTabs::init(cx)` içindeki Settings gözlemcisi yalnız denetleyici durumunu değil, macOS'un yerel sekmeleme politikasını da açıp kapatır.
 
@@ -105,7 +105,7 @@ macOS'taki yerel sekmeleme için `set_tabbing_identifier(Some(...))` çağrısı
 - `render_tab(...).on_drag(...)` çağrısı bir `DraggedWindowTab` yükü üretir ve `last_dragged_tab = Some(tab.clone())` ifadesiyle geçici durumu ayarlar.
 - Aynı sekme çubuğu üzerinde tetiklenen `.on_drop(...)` çağrısı yalnızca `SystemWindowTabController::update_tab_position(cx, dragged_tab.id, ix)` fonksiyonunu çalıştırır; başka bir iş yapmaz. Burada hedef, mevcut çubuk içinde sekmenin yerini değiştirmektir.
 - Sekme çubuğu dışında sol fare bırakma gerçekleşirse, `last_dragged_tab.take()` ile durum alınır ve iki şey arka arkaya çalışır: önce `SystemWindowTabController::move_tab_to_new_window(cx, tab.id)`, sonra platform tarafındaki `window.move_tab_to_new_window()` çağrısı.
-- `merge_all_windows` ise sürükleme yükü üzerinden veya sağ tık "Tüm Sekmeleri Göster" menüsünden tetiklenmez. Yalnızca `MergeAllWindows` eylem render işleyicisi, denetleyicideki birleştirme fonksiyonunu ve platform birleştirme çağrısını birlikte tetikler. Sağ tıktaki "Tüm Sekmeleri Göster" ise yalnız `window.toggle_window_tab_overview()` çağrısı yapar; birleştirme işlemi değildir.
+- `merge_all_windows` ise sürükleme yükü üzerinden veya sağ tık `Show All Tabs` menüsünden tetiklenmez. Yalnızca `MergeAllWindows` eylem render işleyicisi, denetleyicideki birleştirme fonksiyonunu ve platform birleştirme çağrısını birlikte tetikler. Sağ tıktaki `Show All Tabs` ise yalnız `window.toggle_window_tab_overview()` çağrısı yapar; birleştirme işlemi değildir.
 
 Bu farklar nedeniyle yerel sekme portunda sürükle-bırak davranışı yalnızca `DraggedWindowTab` alanlarını taşımakla çözülmez. Davranışı aynı zamanda **olayın hangi hedefte gerçekleştiğine göre** birebir kurman gerekir. "Bırakma nerede oldu?" sorusunun cevabına göre üç ayrı dal vardır ve bu dalların hepsi ayrı ayrı kodlanır.
 
@@ -152,7 +152,7 @@ Bu kullanımda `prepaint` boş bırakılır (`|_, _, _| ()`). Asıl ölçümü *
 
 Bu yapının döngüsel davranışı şöyle işler: yeni bir sekme eklendiğinde, mevcut bir sekme silindiğinde veya pencere yeniden boyutlandığında `paint` tekrar çağrılır. `measured_tab_width` güncellenir ve sonraki render geçişinde `DraggedWindowTab.width` yükünü besler. Gerçek sekme elementinin genişliği ise bu değerden doğrudan ayarlanmaz; sarmalayıcı taraftaki `flex_1()` ve `min_w(rem_size * 10)` kurallarıyla belirlenir. `paint` sırasında oluşan bu yan etki, özellikle sürükleme önizlemesinin güncel genişlikle çizilebilmesi için bir sonraki karede geri beslemeyi tetikler.
 
-Burada bölme hatasına karşı bir güvence vardır. `number_of_tabs` ifadesi `tab_items.len().max(1)` ile en az 1'e sınırlandırılır. Böylece sekme sayısı sıfır olduğunda bile bölme işlemi güvenli kalır. Port hedefinde aynı geri besleme döngüsü kurman gerekir. Aksi halde sekme genişliği ya `0px` çıkar ya da hiç güncellenmeden statik kalır.
+Burada bölme hatasına karşı bir güvence vardır. `number_of_tabs` ifadesi `tab_items.len().max(1)` ile en az 1'e sınırlandırılır. Böylece sekme sayısı sıfır olduğunda bile bölme işlemi güvenli kalır. Port hedefinde aynı geri besleme döngüsü kurman gerekir. Bu döngü yoksa sekme genişliği ya `0px` çıkar ya da hiç güncellenmeden statik kalır.
 
 **Sekme ölçüleri, kapatma ayarı ve bırakma işaretleri** konularını birlikte ele alırsın. Burada gözlenmesi gereken altı detay vardır:
 
@@ -184,7 +184,7 @@ sekme sürükleme sekme çubuğu dışında fare bırakma
 
 bağlam menüsü / eylem
   -> MoveTabToNewWindow: denetleyici + platform taşıma
-  -> sağ tık Tüm Sekmeleri Göster: platform sekme genel görünüm geçişi; birleştirme değil
+  -> sağ tık Show All Tabs: platform sekme genel görünüm geçişi; birleştirme değil
   -> MergeAllWindows eylemi: denetleyici + platform birleştirme
   -> ShowNext/PreviousWindowTab: denetleyici sekme tutamacını activate_window()
 ```

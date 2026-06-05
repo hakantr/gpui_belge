@@ -120,7 +120,7 @@ Bu örnekte framework tipleri İngilizce kalır; uygulama durumu ve yardımcı d
 
 ## Platform ve Test Notları
 
-`Application::new_inaccessible(platform)` GPUI uygulamasını AccessKit entegrasyonu olmadan başlatır. Bu yol başsız test, screenshot üretimi veya erişilebilirlik köprüsünün bilinçli olarak kapatıldığı ortamlar içindir. Böyle bir uygulamada `.role(...)` ve `.aria_*()` zincirleri element üstünde kalır, fakat platform adapter'ına erişilebilirlik ağacı gönderilmez.
+`Application::new_inaccessible(platform)` GPUI uygulamasını AccessKit entegrasyonu olmadan başlatır. Bu yol başsız test, screenshot üretimi veya erişilebilirlik köprüsünün bilinçli olarak kapatıldığı ortamlar içindir. Böyle bir uygulamada `.role(...)` ve `.aria_*()` zincirlerini yazabilirsin, fakat erişilebilirlik entegrasyonu zorla kapatıldığı için AccessKit adapter çağrıları yapılmaz.
 
 Platform arka ucu yazıyorsan erişilebilirlik köprüsü `A11yCallbacks` ve `PlatformWindow` üzerindeki `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds` çağrılarıyla kurulur. Uygulama veya bileşen kodu bu seviyeye normalde inmez. Ekran okuyucudan gelen action'ı bağlamak için düşük seviyeli `Window::on_a11y_action(node_id, action, listener)` yerine element üzerindeki `.on_a11y_action(...)` fluent metodunu tercih edersin.
 
@@ -131,7 +131,7 @@ Platform arka ucu yazıyorsan erişilebilirlik köprüsü `A11yCallbacks` ve `Pl
 | `Role` | AccessKit role reexport'u | Elementin semantik rolünü belirtir. |
 | `Orientation` | `Horizontal`, `Vertical` | Slider/list/tree gibi yönlü erişilebilirlik yüzeylerinde yön bilgisini taşır. |
 | `Toggled` | `True`, `False`, `Mixed` | Toggle/switch/checkbox durumunu erişilebilirlik ağacına aktarır. |
-| `A11yCallbacks` | init/tree/window-bounds callbacks | `PlatformWindow` erişilebilirlik köprüsünde platforma ait callback setidir. |
+| `A11yCallbacks` | `activation`, `action`, `deactivation` | `PlatformWindow` erişilebilirlik köprüsünde platform adapter'ının çağırdığı callback setidir. |
 | `PlatformWindow` | `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds` | Erişilebilirlik ağacını platform penceresine taşıyan düşük seviye trait yüzeyidir. |
 | `_accessibility` | rustdoc-only modül | GPUI'nin AccessKit re-export ve accessibility doc yüzeyini bir arada gösteren gizli/dokümantasyon amaçlı modül sınırıdır; uygulama kodu doğrudan import etmez. |
 

@@ -102,7 +102,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 - `sidebar_has_notifications(cx)` başlık çubuğu veya durum göstergesi için kullanırsın.
 - Çalışma alanı aktivasyonunda tutma kararı sidebar'ın açık olmasına bağlı değildir. Çoklu çalışma alanı etkinse aktif çalışma alanı ve son transient aktif çalışma alanı tutulur; çoklu çalışma alanı devre dışıysa transient çalışma alanı ayrılır. Ayar değişiminde etkin durumdan devre dışına geçiş `collapse_to_single_workspace` ile tüm grupları atar.
 - Threads sidebar thread'lerle birlikte terminal girişlerini de MRU switcher'a dahil eder; terminal aktivasyonu `AgentPanel::activate_terminal` üzerinden yapılır ve `ArchiveSelectedThread` aktif terminalde kapatma davranışına bağlanır.
-- Sidebar ve panel boş durum akışları kök yolu olmayan çalışma alanında yeni thread veya terminal oluşturmaz; kullanıcı önce bir proje açmaya yönlendirilir.
+- Sidebar ve panel boş durum akışları kök yolu olmayan çalışma alanında yeni thread veya terminal oluşturmaz; thread listesi bu durumda `ProjectEmptyState` çizer.
 - Taslak thread girişleri ayrı icon ve kapatma davranışıyla gösterilir. Taslak başlığı mesaj editör içeriğinden üretildiği için sidebar görünür taslak editör'leri gözlemleyip yazıldıkça girişleri yeniler.
 
 **PaneGroup, toolbar ve sidebar API kapsamı.** Aşağıdaki dışa açık tiplerin ayrıntılı davranışı üstteki akışlarda yer alır; tablo, taşıyıcıların hangi kararı temsil ettiğini özetler.
@@ -153,10 +153,10 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 | `ToggleZoom`, `ToggleCenteredLayout`, `ToggleReadOnlyFile`, `ToggleEditPrediction`, `SendKeystrokes` | Pane veya aktif item üzerinde zoom, centered layout, read-only, edit prediction ve sentetik keystroke davranışını tetikler. |
 | `ShutdownDebugAdapters`, `DebuggerProvider`, `TerminalProvider` | Debug adapter kapatma action'ı ile workspace'in terminal/debug sağlayıcı trait sınırlarını kapsar. |
 
-**Tuzaklar.** Bu entegrasyonlarda dikkat edilmesi gerekenler:
+**Dikkat noktaları.** Bu entegrasyonlarda dikkat edilmesi gerekenler:
 
 - Toolbar item `set_active_pane_item` içinde konum döndürür; ancak daha sonra yer değiştireceği zaman olay yaymalıdır, sadece durum değiştirip `cx.notify()` yeterli değildir.
-- Sidebar durumu serileştirilecekse `SidebarEvent::SerializeNeeded` yaymak unutulmamalıdır.
+- Sidebar durumu serileştirilecekse `SidebarEvent::SerializeNeeded` yayma adımı akışa eklenmelidir.
 - Çalışma alanı tutma veya ayırma davranışı sidebar açık/kapalı durumuna bağlanmamalıdır; güncel karar kaynağı `multi_workspace_enabled(cx)` sonucudur.
 - Nav history preview item'ı ayrı işaretler; preview tab gerçek tab'a sabitlendiğinde history girişleri buna göre güncellenmelidir.
 - Split yönü sabit kodlanmış olarak verilmek yerine kullanıcı ayarlı varsayılan isteniyorsa `SplitDirection::vertical(cx)` veya `horizontal(cx)` kullanırsın.

@@ -98,17 +98,17 @@ Yeni bir davranış eklenirken yer kararını üç soru ile vermek yeterlidir:
 2. **Bu davranış uygulamanın iş kuralına mı bağlı?** Cevap evet ise yer **ürün katmanı** veya `UygulamaDurumu`'dur.
 3. **Bu davranış hangi katmanda kalırsa aynı kabuk başka uygulamalarda da kullanabilirsin?** Doğru cevap genellikle buradadır. Genel olan platformda, ürüne özel olan ürün katmanında kalır.
 
-> **Örnek hatalı yerleşim:** "Kapat butonuna tıklandığında KaydetmeModalı aç" kuralı **ürün katmanında** olmalıdır. Platform kabuğu yalnızca "kapatma niyeti" gönderir. Modal açılıp açılmayacağına `UygulamaDurumu` karar verir. Bu karar platforma sızarsa kabuk tek bir uygulamaya bağlanır ve başka projede rahatça kullanılamaz.
+> **Sınır dışı yerleşim örneği:** "Kapat butonuna tıklandığında KaydetmeModalı aç" kuralı **ürün katmanında** olmalıdır. Platform kabuğu yalnızca "kapatma niyeti" gönderir. Modal açılıp açılmayacağına `UygulamaDurumu` karar verir. Bu karar platforma sızarsa kabuk tek bir uygulamaya bağlanır ve başka projede rahatça kullanılamaz.
 
 ### "Tema rehberindeki Temel ilke ile farkı"
 
 Tema rehberinin ilgili bölümü **veri sözleşmesinde dışlama yok** kuralını anlatıyordu: Zed'in tema alanlarının tamamı mirror edilmeli. Bu rehberin ilgili bölümü ise **kapsam farkını** anlatır: platform, ürün ve durum birbirine karıştırılmaz. İki kural aynı düşünceye dayanır: Zed'den gelen sözleşme temiz biçimde korunur, ürünün anlamı ise uygulamanın kendi kodunda kalır.
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **Kapatma eylemini platforma sabitlemek.** `PlatformTitleBar` içine doğrudan `kapat_eylemi: Box::new(workspace::CloseWindow)` yazılırsa platform kabuğu Zed'in kendi eylem tipine bağlanır ve başka bir uygulamaya bu haliyle taşınamaz. Bu yüzden kapatma eylemi **her zaman dışarıdan**, controller veya parametre yoluyla geçirilir.
 2. **Çift tıklama davranışını ürüne sızdırmak.** macOS tarafında çift tıklama `window.titlebar_double_click()` ile sisteme devredilir. Bu davranış platform sözleşmesinin parçasıdır. Ürün burada araya girip `cx.dispatch_action(ZoomWorkspace)` çağırırsa macOS kullanıcısının sistem ayarları yok sayılmış olur.
-3. **Sidebar açıkken pencere kontrollerini gizleme kararını yanlış yere koymak.** Bu konu ilgili bölümde ele alırsın. Sidebar bilgisi `TitleBarController` üzerinden gelir. Platform kabuğu doğrudan workspace durumunu sorgulamaz; çünkü "sidebar" kavramı platforma değil, ürüne aittir.
+3. **Sidebar açıkken pencere kontrollerini gizleme kararının katmanını net tutmak.** Bu konu ilgili bölümde ele alırsın. Sidebar bilgisi `TitleBarController` üzerinden gelir. Platform kabuğu doğrudan workspace durumunu sorgulamaz; çünkü "sidebar" kavramı platforma değil, ürüne aittir.
 4. **Native tab kararını ürüne kapatmak.** `tabbing_identifier` alanının verilip verilmemesi tek başına ürün içeriğinde çözülmez. Bu bilgi `TitleBarController::use_system_window_tabs` üzerinden okunur. Platform kabuğu native tab desteğinin açık olup olmadığına kendi başına karar vermez.
 
 ---
@@ -159,7 +159,7 @@ Bu rehber **üçüncü yolu** anlatır. Birinci veya ikinci yolu seçenler için
 
 ### Belge yorumu yazımı
 
-Zed kaynak dosyasındaki bir fonksiyon imzası mirror ediliyorsa, belge yorumu da **kendi sözcüklerimizle** yeniden yazılır. Orijinal cümle aynen taşınmaz. Örnek:
+Zed kaynak dosyasındaki bir fonksiyon imzası mirror ediliyorsa, belge yorumu da **kendi sözcüklerinle** yeniden yazılır. Orijinal cümle aynen taşınmaz. Örnek:
 
 ```rust
 // Zed'de (mirror EDİLMEZ — birebir kopyalama):
@@ -181,12 +181,12 @@ pub fn sol_pencere_kontrollerini_render_et(...) -> Option<impl IntoElement> { ..
 2. **Fork yayınlama:** Publish edilmeyen yardımcı crate'ler kendi adları altında crates.io'ya yayımlanır.
 3. **Yalnızca dahili kullanım:** Uygulama binary olarak (kütüphane olarak değil) dağıtılıyorsa git bağımlılığı yeterlidir.
 
-### Tuzaklar
+### Dikkat Noktaları
 
-1. **"Hangi dosya GPL?" sorusunu hiç sormamak.** `platform_title_bar` crate'indeki **her dosya** GPL'dir. Buradan tek bir küçük yardımcı fonksiyon bile taşınırsa lisans ihlali oluşur. "Küçük bir parça sorun olmaz" varsayımı burada güvenli değildir.
+1. **GPL dosya sınırını baştan netleştirmek.** `platform_title_bar` crate'indeki **her dosya** GPL'dir. Buradan tek bir küçük yardımcı fonksiyon bile taşınırsa lisans ihlali oluşur. "Küçük bir parça sorun olmaz" varsayımı burada güvenli değildir.
 2. **API imzasını "yeniden yazmak" sanıp gövdeyi kelime farkıyla kopyalamak.** `pub fn sag_pencere_kontrollerini_render_et(buton_yerlesimi, kapat_eylemi, window)` gibi eşdeğer imza ve parametreleri kullanmak parite kurmaktır; tek başına kopya sayılmaz. Buna karşılık **gövde** içindeki `match`/`if`/`loop` zincirini birebir taşımak açık bir kopyadır. Gövde her zaman yeniden çözülmeli; kendi koduyla yazılmalıdır.
-3. **Lisans kontrolünü "sonra bakarız" diye ertelemek.** GPL kod bir kez taşındığında uygulamanın tamamı GPL etkisine girer. Bunu sonradan fark etmek çoğu zaman `cargo deny` gibi araçlarla bile kolay yakalanmaz. Bu yüzden lisans yaklaşımı **ilk port satırı yazılmadan önce** netleştirilir.
-4. **`cargo deny check licenses` çalıştırmamak.** Yanlışlıkla geçişli bir GPL bağımlılığı projeye sızarsa bu komut CI'da uyarı verir (ilgili bölümde detayı vardır). Komutun çalıştırılmaması ihlalin geç fark edilmesine yol açar.
+3. **Lisans kontrolünü başlangıç adımı yapmak.** GPL kod bir kez taşındığında uygulamanın tamamı GPL etkisine girer. Bunu sonradan fark etmek çoğu zaman `cargo deny` gibi araçlarla bile kolay yakalanmaz. Bu yüzden lisans yaklaşımı **ilk port satırı yazılmadan önce** netleştirilir.
+4. **`cargo deny check licenses` kontrolünü CI'a eklemek.** Geçişli bir GPL bağımlılığı projeye girerse bu komut CI'da uyarı verir (ilgili bölümde detayı vardır). Komutun CI dışında kalması ihlalin geç fark edilmesine yol açar.
 
 ---
 
@@ -206,6 +206,6 @@ Bu paket bir uygulamaya alınırken iki ana yaklaşım söz konusudur:
 1. **Zed ekosistemi içinde doğrudan kullanım.** `platform_title_bar` crate'i olduğu gibi tüketilir. Bu yolun ön koşulu, uygulamada Zed'in `workspace`, `settings`, `theme`, `ui`, `project` ve `zed_actions` crate'lerinin de mevcut olmasıdır.
 2. **Bağımsız GPUI uygulaması için port.** Render davranışı korunur, ama Zed'e özgü eylem ve ayarlar ürünün kendi tipleriyle değiştirilir. Zed dışında bir uygulama için bu, kontrolün elde tutulduğu daha temiz yoldur.
 
-Hangi yol seçilirse seçilsin, kod kopyalama veya birebir uyarlama gündeme geldiğinde `platform_title_bar` paketinin `GPL-3.0-or-later` lisanslı olduğu unutulmamalıdır. Karar bu bilgiyle vermen gerekir.
+Hangi yol seçilirse seçilsin, kod kopyalama veya birebir uyarlama gündeme geldiğinde `platform_title_bar` paketinin `GPL-3.0-or-later` lisanslı olduğu dikkate alınmalıdır. Kararı bu bilgiyle verirsin.
 
 ---

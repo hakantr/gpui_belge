@@ -22,7 +22,7 @@ Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam
 
 8. [Test, headless ve dış asset kaynakları](08-test-headless-ve-dis-asset.md) `()` boş `AssetSource` davranışını, `TestApp::with_text_system_and_assets` yolunu, `load_test_fonts` yardımını ve filesystem'den dış SVG/path yüklemenin nasıl yapıldığını gösterir.
 
-9. [Pratik kontrol listesi](09-pratik-kontrol-listesi.md) Yaygın tuzakları (eksik `#[include]`, MIME karışıklığı, knockout eşleşmesi, kullanılmayan asset şişmesi vb.), build davranışını ve son kontrol listesini kısa maddeler halinde verir.
+9. [Pratik kontrol listesi](09-pratik-kontrol-listesi.md) Yaygın dikkat noktalarını (eksik `#[include]`, MIME karışıklığı, knockout eşleşmesi, kullanılmayan asset şişmesi vb.), build davranışını ve son kontrol listesini kısa maddeler halinde verir.
 
 ## Okuma önerisi
 

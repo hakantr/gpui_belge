@@ -128,7 +128,7 @@ Karar kuralı kesindir:
 2. `prepaint(...) -> PrepaintState` — yerleşim sonucu artık bilinir; o yüzden element'in son konum ve boyutuna göre yapacağın işler burada gerçekleşir: hitbox kaydı, scroll konumunun hazırlanması, element başına saklanan verinin okunması ve gerekli ölçümler.
 3. `paint(...)` — sahneye çizilecek temel şekiller (`primitive`) üretilir. `paint_quad`, `paint_path`, `paint_image`, `paint_svg`, `set_cursor_style` gibi çağrılar bu aşamaya aittir.
 
-`Window` üzerindeki hata ayıklama kontrolleri (`debug assertion`) aşama ihlallerini yakalar: `insert_hitbox` yalnızca prepaint'te; `paint_*` çağrıları paint'te; `with_text_style` ve bazı ölçüm yardımcıları ise prepaint veya paint aşamalarında geçerlidir. Yanlış aşamada yaptığın bir çağrı, hata ayıklama derlemesinde `panic` ile sonuçlanır; böylece sorunları erken yakalarsın.
+`Window` üzerindeki hata ayıklama kontrolleri (`debug assertion`) aşama ihlallerini yakalar: `insert_hitbox` yalnızca prepaint'te; `paint_*` çağrıları paint'te; `with_text_style` ve bazı ölçüm yardımcıları ise prepaint veya paint aşamalarında geçerlidir. Yanlış aşamada yapılan bir çağrı, hata ayıklama derlemesinde `panic` ile sonuçlanır; böylece sorunları erken yakalarsın.
 
 Accessibility ağacına katılacak özel element'lerde `Element::a11y_role()` `Some(accesskit::Role)` döndürür; `None` dönen element'ler accessibility tree'ye eklenmez. `write_a11y_info(node)` yalnız role bulunduğunda çağrılır ve label, checked state veya benzeri accesskit node özelliklerini doldurmak için kullanılır. Bu hook'lar çizimden ayrı düşünülür: önce role ile düğümün varlığı seçilir, sonra node bilgisi yazılır.
 
@@ -303,8 +303,8 @@ Farklı türden elementleri aynı listede saklaman gerekiyorsa her öğeyi `into
 
 GPUI'da her çizimde element ağacı sıfırdan kurulur. Buna rağmen hover, scroll ve önbellek (cache) gibi durumların ekran kareleri arasında korunması gerekir. Bu kalıcılığı sabit ID'ler sağlar. İlgili ana tipler şunlar:
 
-- `ElementId` — `Name`, `Integer`, `NamedInteger`, `Path`, `Uuid`, `FocusHandle`, `CodeLocation` gibi varyantlar taşır.
-- `GlobalElementId` — üst öğelerin isim alanı (`namespace`) zinciriyle birleşerek tam yol oluşturur.
+- `ElementId` — `View`, `Integer`, `Name`, `Uuid`, `FocusHandle`, `NamedInteger`, `Path`, `CodeLocation`, `NamedChild` ve `OpaqueId` varyantlarını taşır.
+- `GlobalElementId` — pencerenin element id yığınındaki yerel id'leri birleştirerek tam yol oluşturur.
 - `AnyElement` — element için tip soyutlaması (`type erasure`); alt öğe listelerinde farklı türden element tutmak için kullanırsın.
 - `AnyView` / `AnyEntity` — view veya entity için tip soyutlaması.
 
@@ -415,7 +415,7 @@ div()
 - Closure içine geçen element'in tipi korunur; alt öğe eklemeye devam etmek serbesttir.
 - `map`'i zincirin dışına kontrollü çıkmak için kullanırsın; keyfi bir dönüşüm gerektiğinde işine yarar.
 
-**Tuzaklar.** Aynı kolaylıkların yanlış kullanımı küçük sorunlar üretebilir:
+**Dikkat noktaları.** Aynı kolaylıkların yanlış kullanımı küçük sorunlar üretebilir:
 
 - `when` closure her çizimde çalışır; içinde ağır hesap yapman başarım sorunu doğurur.
 - Aynı element üzerinde defalarca `when_some` zincirlemek okunabilirliği bozuyorsa, veriyi önce normal bir `if let` ile önceden hesaplarsın ve tek bir `.child(...)` çağrısı yaparsın.
@@ -531,15 +531,16 @@ Varsayılan kurallar şöyledir:
 
 `#[derive(MergeFrom)]` derive'ı, struct alanları için özyinelemeli birleştirme üretir. Bu varsayılan davranışı değiştirmek için `ExtendingVec<T>` (her birleştirmede sona ekleme yapar) ve `SaturatingBool` (bir kez `true` olunca öyle kalır) gibi sarıcılar hazırdır.
 
-**Ayar (`Settings`) yükleme zinciri.** Ayarlar okunurken katmanlar belli bir sırayla birleştirilir:
+**Ayar (`Settings`) yükleme zinciri.** `SettingsStore::recompute_values` global değerleri her yeniden hesapladığında katmanları şu sırayla birleştirir:
 
-1. `assets/settings/default.json` → `SettingsContent::default()` baz alınır.
-2. Kullanıcının `~/.config/zed/settings.json` dosyası ayrıştırılır → `merge_from_option`.
-3. Aktif profil → `merge_from_option`.
-4. Worktree `.zed/settings.json` → `merge_from_option`.
-5. Sonuç, `Settings::from_settings(content)` ile somut bir struct'a çevrilir.
+1. `assets/settings/default.json` içeriği `parse_default_settings` ile okunur; release-channel ve platform override'ları bu temel değere baştan katılır.
+2. Extension ayarları (`extension_settings`) ve global ayarlar (`global_settings`) sırayla eklenir.
+3. Kullanıcı ayarları varsa aktif profilin `base` değerine bakılır. Profil tabanı `User` ise kullanıcı içeriği, release-channel override'ı ve OS override'ı eklenir; sonra aktif profilin kendi `settings` alanı eklenir.
+4. Server ayarları (`server_settings`) eklenir.
+5. Global değer için bütün local/project ayarlarındaki `project.disable_ai` alanı ayrıca `SaturatingBool` mantığıyla birleştirilir.
+6. Dosya veya klasör bağlamlı yerel değerlerde, yukarıdaki global temelin üstüne ilgili `local_settings` girdileri yol derinliğine göre sırayla eklenir.
 
-**Tuzaklar.** Refineable ve MergeFrom kullanımlarında karşılaşacağın hatalı kalıplar şunlar:
+**Dikkat noktaları.** Refineable ve MergeFrom kullanımlarında karşılaşacağın hatalı kalıplar şunlar:
 
 - `Refineable` zincirinde `default()` temel değeri her seferinde yeniden hesaplanır; ağır temel stilleri bir önbelleğe almalısın.
 - `MergeFrom` sıralaması alt-üst değildir: en spesifik kaynağı en sona koymalısın (`local > profile > user > default`).
@@ -548,7 +549,7 @@ Varsayılan kurallar şöyledir:
 
 ## Ertelenmiş Çizim, Çizim Hazırlığı Sırası ve Üst Katman
 
-`deferred(child)` çağrısı, alt öğenin yerleşimini bulunduğu yerde hesaplar; ama çizimini, üst öğelerin çizimleri tamamlandıktan sonraya erteler. Bu davranış popover, sağ tıklama menüsü, yeniden boyutlandırma tutamacı (`resize handle`) ve dock üzerine bırakma alanı (`dock drop overlay`) gibi "üstte çizilmesi ama yerleşimde yer kaplamaması gereken" parçalar için tasarlanmıştır:
+`deferred(child)` çağrısı, alt öğenin yerleşimini bulunduğu yerde hesaplar; ama çizimini, üst öğelerin çizimleri tamamlandıktan sonraya erteler. Bu davranış popover, sağ tıklama menüsü, yeniden boyutlandırma tutamacı (`resize handle`) ve dock üzerine bırakma alanı (`dock drop overlay`) gibi üstte çizilmesi gereken parçalar için tasarlanmıştır:
 
 ```rust
 deferred(
@@ -572,7 +573,7 @@ deferred(
 - `on_children_prepainted(|bounds, window, cx| ...)` — alt öğelerin son konum ve boyutunu ölçer, sonraki çizim için veri üretir.
 - `with_dynamic_prepaint_order(...)` — alt öğelerin çizim hazırlığı sırasını çalışma zamanında belirler. Özellikle bir alt öğenin otomatik kaydırması veya ölçüm sonucu diğer alt öğeyi etkilediği durumlarda kullanırsın.
 
-**Tuzaklar.** Ertelenmiş çizim kullanımında dikkat edeceğin noktalar:
+**Dikkat noktaları.** Ertelenmiş çizim kullanımında dikkat edeceğin noktalar:
 
 - Ertelenmiş alt öğe yerleşimde yer tuttuğu için `absolute`/`anchored` konumlandırma hâlâ doğru üst öğe sınırlarına bağlıdır.
 - Üst katmanın fare olaylarını engellemesini istiyorsan alt öğe içinde `.occlude()` veya `.block_mouse_except_scroll()` kullanırsın.

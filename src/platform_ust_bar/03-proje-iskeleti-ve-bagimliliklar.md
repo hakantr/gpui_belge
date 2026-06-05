@@ -184,8 +184,8 @@ Zed'in `platform_title_bar` ve `title_bar` crate'leri, çalışmak için Zed eko
 | `WorkspaceSettings::use_system_window_tabs` | `TitleBarController::use_system_window_tabs(cx)` |
 | `ItemSettings::close_position`, `ItemSettings::show_close_button` | Senin kendi `SekmeAyarlari` veya uygulama yapılandırması |
 | `DisableAiSettings` | Senin kendi özellik bayrağın (`SidebarSettings::enabled` vb.) |
-| `feature_flags::FeatureFlagAppExt`, `SkillsFeatureFlag` (`title_bar/Cargo.toml` ve `title_bar.rs`) | Kendi özellik bayrağı altyapısı; `cx.has_flag::<FooFlag>()` benzeri bir yardımcı veya boolean ayar ile değiştirilir. Zed `title_bar` crate'i bu bağımlılığı `OnboardingBanner` görünürlüğünü kapatıp açmak için kullanır. |
-| `zed_actions::agent::OpenRulesToSkillsMigrationInfo` | Ürünün kendi duyuru/migration modali eylemi; banner tıklandığında gönderilir. |
+| `TitleBarSettings::show_onboarding_banner`, `OnboardingBanner::visible_when(...)` | Kendi banner görünürlük ayarın veya özellik bayrağı predicate'in. Güncel Zed'de `TitleBar::new` başlangıçta `banner = None` kurar; banner bağlanacaksa ürün katmanı bunu bilinçli ekler. |
+| `BannerDetails::action` | Ürünün kendi duyuru/migration modali eylemi; banner tıklandığında gönderilir. |
 | `theme::Theme::colors()::title_bar_background` | `kvs_tema::ActiveTheme` + `cx.theme().colors().title_bar_background` |
 | `theme::Theme::colors()::title_bar_inactive_background` | `cx.theme().colors().title_bar_inactive_background` |
 | `ui::prelude::*`, `ui::IconButton`, `ui::Tooltip` | Kendi UI bileşen kütüphanen |
@@ -245,14 +245,17 @@ allow = ["MIT", "Apache-2.0", "BSD-3-Clause", "MPL-2.0", "ISC", "Unicode-DFS-201
 deny = ["GPL-3.0", "GPL-2.0", "AGPL-3.0", "LGPL-3.0"]
 
 [bans]
-# Zed'in GPL crate'lerini kazara bağımlılık olarak ekleme
+# Zed'in GPL crate'lerini istemeden bağımlılık olarak ekleme
 deny = [
     { name = "platform_title_bar" },
     { name = "title_bar" },
     { name = "workspace" },
+    { name = "project" },
+    { name = "settings" },
     { name = "theme" },
     { name = "theme_settings" },
     { name = "theme_selector" },
+    { name = "ui" },
     { name = "zed_actions" },
 ]
 ```
@@ -264,4 +267,4 @@ CI iş akışına aşağıdaki adım eklersin:
   run: cargo deny check licenses bans
 ```
 
-**İlgili bölüm çıkış kriteri:** `cargo check -p kvs_titlebar -p kvs_app_titlebar` komutu temiz çalışmalıdır. Bu aşamada tiplerin gövdeleri boş veya `unimplemented!()` olabilir. Önemli olan modül ağacının hazır olması, derlemenin sorunsuz akması ve lisans-temiz bağımlılık listesinin `cargo deny` tarafından doğrulanmasıdır. Bu üç koşul sağlandığında platform kabuğunun gerçek davranışını yazmak için zemin hazırdır.
+**İlgili bölüm çıkış kriteri:** `cargo check -p kvs_titlebar -p kvs_app_titlebar` komutu temiz çalışmalıdır. Bu aşamada tiplerin gövdeleri minimal, derlenen stub uygulamalar olabilir; önemli olan modül ağacının hazır olması, derlemenin sorunsuz akması ve lisans-temiz bağımlılık listesinin `cargo deny` tarafından doğrulanmasıdır. Bu üç koşul sağlandığında platform kabuğunun gerçek davranışını yazmak için zemin hazırdır.

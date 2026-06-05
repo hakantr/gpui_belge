@@ -48,7 +48,7 @@ Item ve tab davranışını ayarlar tarafına bağlayan tipler şunlardır:
 - `ContextMenuItem::{Separator, Header, HeaderWithLink, Label, Entry, CustomEntry, Submenu}`.
 - `ContextMenuEntry` label, icon, checked/toggle, action, disabled, secondary işleyici, documentation aside ve end-slot gibi alanları taşır.
 - `ContextMenu::build(window, cx, |menu, window, cx| ...)` menü entity'sini üretir.
-- `menu.context(focus_handle)` menü action kullanabilirsinliği ve keybinding görüntüsü için belirli bir odak bağlamını kullanır.
+- `menu.context(focus_handle)` menü action'larının çalışacağı odak bağlamını ve keybinding görüntüsünü belirler.
 
 `PopoverMenu<M: ManagedView>` anchor element ile yönetilen menü view'ini bağlar:
 
@@ -79,9 +79,9 @@ oge.focus_follows_mouse(WorkspaceSettings::get_global(cx).focus_follows_mouse, c
 
 ---
 
-## Tuzaklar
+## Dikkat Noktaları
 
 Bu yardımcı katmanlarda dikkat edilmesi gerekenler:
 
-- Bağlam menüsü action'ları odaktaki element context'ine göre etkin veya disabled olur; menü odak bağlamı olmadan kurulduğunda bazı action'lar görünür ama çalışmayabilir.
-- Focus-follows-mouse global debounce durumu kullanır; aynı anda birden çok hover hedefi yarışabilir, bu nedenle daha spesifik alt kontrol kaldırılmamalıdır.
+- Bağlam menüsü action'ları odaktaki element context'ine göre etkin veya disabled olur; menüyü odak bağlamı olmadan kurarsan bazı action'lar görünür ama çalışmayabilir.
+- Focus-follows-mouse global debounce durumu kullanır; aynı anda birden çok hover hedefi yarışabilir, bu nedenle daha spesifik alt kontrolü koruman gerekir.

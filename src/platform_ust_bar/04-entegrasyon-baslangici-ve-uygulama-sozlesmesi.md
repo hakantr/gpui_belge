@@ -52,7 +52,7 @@ Bu sarmal yazılmasa da başlık çubuğu görünür; temel olarak çalışır. 
 - Wayland'da server-side decoration istenir ama compositor decoration protokolünü desteklemezse GPUI `WindowDecorations::Client`'a düşer.
 - X11'de client-side decoration istenir ama compositor desteği yoksa GPUI server-side decoration'a döner; `window_decorations()` da doğrudan `Decorations::Server` verir.
 
-Bu davranışlar nedeniyle `PlatformTitleBar::effective_button_layout(...)` ve `render_left/right_window_controls(...)` fonksiyonları doğru sonucu vermek için ayar değerine değil, **gerçekleşmiş** `Decorations::Client` durumuna bakar. İstek ile sonucu eşit kabul eden bir port en sık görülen hatalardan birini yapar: kullanıcı CSD istemiş gibi görünür, fakat compositor başka türlü davranmış olabilir.
+Bu davranışlar nedeniyle `PlatformTitleBar::effective_button_layout(...)` ve `render_left/right_window_controls(...)` fonksiyonları doğru sonucu vermek için ayar değerine değil, **gerçekleşmiş** `Decorations::Client` durumuna bakar. İstek ile sonucu eşit kabul etmek hataya açık bir varsayımdır: kullanıcı CSD istemiş gibi görünür, fakat compositor başka türlü davranmış olabilir.
 
 ## 10. Uygulama katmanına önerilen model
 

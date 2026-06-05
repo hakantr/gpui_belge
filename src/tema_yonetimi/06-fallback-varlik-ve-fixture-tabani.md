@@ -1,6 +1,6 @@
 # Yedek tema, varlık ve örnek veri tabanı
 
-Tema üretmeye başlamadan önce üç temel zemin kurman gerekir: lisans açısından temiz yedek tema, uygulamayla gelen yerleşik varlıklar ve test örnek veri tabanı. Refinement akışı bu tabanın üzerine uygularsın. Bu yüzden burada verilen kararlar sonraki bölümlerin dayandığı zemini oluşturur.
+Tema üretmeye başlamadan önce üç temel zemin kurman gerekir: lisans açısından temiz yedek tema, uygulamayla gelen yerleşik varlıklar ve test örnek veri tabanı. Refinement akışını bu tabanın üzerine uygularsın. Bu yüzden burada verilen kararlar sonraki bölümlerin dayandığı zemini oluşturur.
 
 ---
 
@@ -44,7 +44,7 @@ pub fn kvs_default_dark() -> Theme {
 
 **Çapa hue stratejisi:** Tüm nötr renkler (arka plan/yüzey/yükseltilmiş/metin/kenarlık) aynı hue'dan beslenir; yalnızca **lightness** değişir. Bu monokrom temel, temanın dağınık görünmesini engeller ve tutarlı bir zemin sağlar.
 
-**2. Açık lisanslı paletten esinlenme:** Tailwind, Catppuccin, Nord, Solarized gibi paletlerin HSL değerleri **public domain veya açık lisanslı** olabilir. Bu kaynaklar kullanabilirsin; ancak şu üç nokta gözetilmelidir:
+**2. Açık lisanslı paletten esinlenme:** Tailwind, Catppuccin, Nord, Solarized gibi paletlerin HSL değerleri **public domain veya açık lisanslı** olabilir. Bu kaynakları kullanabilirsin; ancak şu üç nokta gözetilmelidir:
 
 - Lisans dosyasının `LICENSES/` altına eklenmesi.
 - Esin kaynağının tema atıflarında belirtilmesi.
@@ -125,15 +125,14 @@ fn durum_renkleri_koyu() -> StatusColors {
         success_background: yesil.opacity(0.2),
         success_border: yesil.opacity(0.5),
 
-        // 14 × 3 = 42 alan — her birinin açık bir değer alması gerekir.
+        // Kalan durumlar aynı çapalarla açıkça doldurulur:
         // conflict, created, deleted, hidden, hint, ignored, modified,
-        // predictive, renamed, unreachable
-        ..eksik_varsayilan()  // ← YANLIŞ, aşağıdaki nota bakılır
+        // predictive, renamed, unreachable.
     }
 }
 ```
 
-> **Uyarı:** Eksik alanlar `..unsafe { std::mem::zeroed() }` veya `..Default::default()` ile **doldurulmamalıdır**. `Hsla::default()` = `(0, 0, 0, 0)` değerini verir ve bu UI'da görünmez. **Tüm 42 alanın açık değerle doldurulması** beklenir. Kalan 10 durum (`conflict`, `created`, `deleted`, `hidden` vb.) için de aynı kalıp tekrarlanır. Seçilen çapalar (`red`, `green`, `yellow`, `blue`) çoğu durumda yeterlidir; her durum bu çapalardan birine eşlenebilir. Örneğin `modified = yellow`, `deleted = red`, `created = green`.
+> **Uyarı:** Eksik alanlar `..unsafe { std::mem::zeroed() }` veya `..Default::default()` ile **doldurulmamalıdır**. `Hsla::default()` = `(0, 0, 0, 0)` değerini verir ve bu UI'da görünmez. **Tüm 42 alanın açık değerle doldurulması** beklenir. Yukarıdaki blok kısaltılmıştır; gerçek `StatusColors` literal'inde kalan 10 durum (`conflict`, `created`, `deleted`, `hidden` vb.) için de aynı kalıp açıkça yazılır. Seçilen çapalar (`red`, `green`, `yellow`, `blue`) çoğu durumda yeterlidir; her durum bu çapalardan birine eşlenebilir. Örneğin `modified = yellow`, `deleted = red`, `created = green`.
 
 **Açık eşleniği** (`durum_renkleri_acik()`): Aynı çapa renkler kullanırsın. Yalnızca **lightness değerleri biraz koyulaşır**; böylece açık arka plan üzerinde okunaklılık korunur. Arka plan ve kenarlık opacity'leri de açık zemine göre biraz daha düşük tutulur.
 
@@ -230,7 +229,7 @@ fn sozdizimi_temasi_koyu(vurgu: Hsla, metin: Hsla, soluk_metin: Hsla) -> Arc<Syn
 }
 ```
 
-**Bu kategoriler tree-sitter dilleri arasında ortaktır**: `comment`, `string`, `keyword`, `number`, `function`, `type`, `constant`, `variable`. Zed'in `languages/*/highlights.scm` dosyalarında bu adlar kullanırsın. Kullanıcı teması `function.builtin` veya `string.escape` gibi daha zengin kategorilere genişleyebilir. Yedek tema ise garanti edilen minimum kategori setini sunar.
+**Bu kategoriler tree-sitter dilleri arasında ortaktır**: `comment`, `string`, `keyword`, `number`, `function`, `type`, `constant`, `variable`. Zed'in `languages/*/highlights.scm` dosyalarındaki bu adları referans alırsın. Kullanıcı teması `function.builtin` veya `string.escape` gibi daha zengin kategorilere genişleyebilir. Yedek tema ise garanti edilen minimum kategori setini sunar.
 
 ### Player ve accent yedeği
 
@@ -247,8 +246,8 @@ ThemeStyles {
 }
 ```
 
-- **Player listesinde en az 1 girdi bulunmalıdır** — aksi halde `local()` çağrısı panic atar.
-- **Vurgu listesinde en az 1 girdi bulunmalıdır**. Aksi takdirde `color_for_index(idx)` modulo'da `len() == 0` paniğine yol açar. Zed kaynağında `Default::default()` `Self::dark()` döndürdüğü için bu liste her zaman 13 elemanlıdır.
+- **Player listesinde en az 1 girdi bulunmalıdır** — boş listede `local()` çağrısı çalışma zamanında hata üretir.
+- **Vurgu listesinde en az 1 girdi bulunmalıdır**. Boş listede `color_for_index(idx)` modulo hesabı yapılamaz. Zed kaynağında `Default::default()` `Self::dark()` döndürdüğü için bu liste her zaman 13 elemanlıdır.
 - **Syntax boş bir `Vec` ile başlatılabilir**. `SyntaxTheme::new`'a boş tuple iter geçirilmesinde teknik olarak sakınca yoktur. Bu durumda çalışma zamanında `style_for_name` çağrısı her zaman `None` döndürür.
 
 ### Açık tema simetrisi
@@ -313,7 +312,7 @@ fn yedek_temalar_tam_dolu() {
 }
 ```
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **`Default::default()` ile eksik alanların doldurulması**: `Hsla::default()` görünmezdir. 150 + 42 alanın tamamının açık bir değerle doldurulması gerekir.
 2. **`unsafe { std::mem::zeroed() }` kullanımı**: Sonuç yine sıfır `Hsla` olur. Şablon kodda görüldüğünde silinmeli, gerçek kodda hiç kullanmaman gerekir.
@@ -321,7 +320,7 @@ fn yedek_temalar_tam_dolu() {
 4. **`palette` sürümünün sabitlenmemesi**: Aynı `hsla(0.583, 0.10, 0.12)` ifadesi, farklı `palette` major sürümlerinde **ufak miktarda farklı sRGB** üretebilir. Cargo.lock dosyası ile kullanılan sürümün sabitlenmesi yerinde olur.
 5. **Zed'in `default_colors` HSL değerlerini birebir kopyalamak**: GPL-3 ihlali demektir. Bağımsız çapa değerleri seçmen gerekir.
 6. **Light temasını dark'tan otomatik türetmek**: `l = 1.0 - dark_l` gibi formüller **çalışmaz** — gözün light ve dark algısı doğrusal değildir. Light tema, ayrı bir tasarım kararı olarak yazılır.
-7. **`syntax: Arc::new(SyntaxTheme::new(vec![]))` ile yetinmek**: Yedek olarak boş syntax kabul edilir; ancak UI'da kod gösteriliyorsa en azından 5–10 temel kategori (`comment`, `string`, `keyword`, `number`, `function`) doldurman gerekir. `Theme.styles.syntax` alanı `Arc<SyntaxTheme>` tipi beklediği için, içerik boş olsa bile `Arc::new(...)` sarması zorunludur.
+7. **Boş syntax yedeği**: Yedek olarak boş syntax kabul edilir; ancak UI'da kod gösteriliyorsa en azından 5–10 temel kategori (`comment`, `string`, `keyword`, `number`, `function`) doldurman gerekir. `Theme.styles.syntax` alanı `Arc<SyntaxTheme>` tipi beklediği için, içerik boş olsa bile `Arc::new(...)` sarması zorunludur.
 
 ### Zed yedek public API karşılığı
 
@@ -334,7 +333,7 @@ Ayna uygulamada bu fonksiyonu birebir kopyalamazsın; lisans ve ürün kimliği 
 - `ThemeRegistry::new` veya `init` akışı bu yedek temayı ilk kaynak olarak ekler.
 - `ColorScales` aynalanıyorsa `default_color_scales()` çıktısı aileye bağlanır; edilmiyorsa bu alan için yerel bir karar açıkça verilir.
 
-`apply_status_color_defaults` ve `apply_theme_color_defaults` ise yedek tema üretiminden farklı bir katmandadır: bunlar kullanıcı temasından gelen eksik refinement alanlarını doldurur. `apply_status_color_defaults`, yalnızca `deleted`, `created`, `modified`, `conflict`, `error` ve `hidden` ön plan alanlarından eksik `*_background` alanlarını türetir; türetme alpha değeri `0.25` olan ön plan rengidir. `warning`, `info`, `success`, `hint` gibi tüm durum alanlarını otomatik doldurduğunu varsaymak yanlıştır.
+`apply_status_color_defaults` ve `apply_theme_color_defaults` ise yedek tema üretiminden farklı bir katmandadır: bunlar kullanıcı temasından gelen eksik refinement alanlarını doldurur. `apply_status_color_defaults`, yalnızca `deleted`, `created`, `modified`, `conflict`, `error` ve `hidden` ön plan alanlarından eksik `*_background` alanlarını türetir; türetme alpha değeri `0.25` olan ön plan rengidir. `warning`, `info`, `success`, `hint` gibi tüm durum alanları bu yardımcı tarafından otomatik doldurulmaz.
 
 `apply_theme_color_defaults`, `ThemeColorsRefinement` içinde yalnızca `element_selection_background` boşsa devreye girer. Kaynak renk `player_colors.local().selection` değeridir. Kaynak alpha `1.0` ise alpha `0.25` yapılır; kaynak zaten yarı saydamsa olduğu gibi kullanılır. Bu yüzden `element_selection_background = text_accent.opacity(0.25)` gibi başka bir formül yazmak Zed davranışıyla eşleşmez.
 
@@ -524,8 +523,8 @@ impl AssetSource for KvsVarliklari {
 }
 
 // Uygulama girişinde:
-fn main() {
-    gpui::Application::new()
+fn uygulamayi_baslat(platform: std::rc::Rc<dyn gpui::Platform>) {
+    gpui::Application::with_platform(platform)
         .with_assets(KvsVarliklari)
         .run(|cx| {
             kvs_tema::init(cx);
@@ -535,7 +534,7 @@ fn main() {
 }
 ```
 
-GPUI'nin `cx.asset_source()` API'sı ile tema dosyalarına `Resource::Embedded(...)` üzerinden erişim mümkün olur:
+GPUI'nin `cx.asset_source()` API'sı ile tema dosyalarını doğrudan aynı varlık kaynağından okuyabilirsin. `Resource::Embedded(...)` de bu kaynağı kullanan GPUI tüketicileriyle, örneğin gömülü görsel ve ikon yollarıyla, aynı paketleme düzenini paylaşır:
 
 ```rust
 pub fn varlik_kaynagiyla_yukle(
@@ -632,20 +631,22 @@ pub fn sicak_yeniden_yuklemeyi_baslat(
 
 ### Tema dosyası yapısı
 
-`assets/themes/` altında izlenen konvansiyon:
+`assets/themes/` altında Zed'in izlediği konvansiyon tema başına alt dizindir:
 
 ```text
 assets/themes/
-├── one.LICENSE_MIT       ← <stem>.LICENSE_<tip>
-├── ayu.LICENSE_MIT
-├── README.md             ← Hangi tema hangi lisans
-├── one.json              ← One Light + One Dark
-└── ayu.json              ← Ayu varyantları
+├── LICENSES              ← toplu lisans notları
+├── one/
+│   ├── LICENSE
+│   └── one.json          ← One Light + One Dark
+└── ayu/
+    ├── LICENSE
+    └── ayu.json          ← Ayu varyantları
 ```
 
 **Her tema dosyası bir `ThemeFamilyContent`'tir** — birden fazla varyant (light + dark) içerebilir.
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **`temalar_dizini` çalışma dizini bağımlılığı**: Disk yüklemesinde `assets/themes` göreli bir yoldur; binary nereden çalıştırılırsa yola göre çözülür. **Mutlak yol** üretilmesi yerinde olur:
    ```rust
@@ -656,12 +657,13 @@ assets/themes/
    ```toml
    #[derive(RustEmbed)]
    #[folder = "assets/"]
-   #[include = "themes/*.json"]
-   #[include = "themes/*.LICENSE_*"]
+   #[include = "themes/**/*.json"]
+   #[include = "themes/**/LICENSE"]
+   #[include = "themes/LICENSES"]
    ```
 3. **Async yüklemede `cx` lifetime'ı**: `cx.spawn` içinde `AsyncApp` bulunur; eşzamanlı bağlama geçmek için `cx.update(|cx| ...)` kullanılır.
 4. **Aynı isim çakışması**: Yerleşik "One Dark" teması ile kullanıcının "One Dark" teması karşılaştığında, kullanıcı teması **üzerine yazar** (`insert` semantiği). Bu davranış bilinçlidir; kullanıcının modifikasyonu önceliklidir.
-5. **Taban seçiminin atlanması**: Dark bir temanın tabanı yanlış biçimde light olarak verilirse, eksik alanlar açık tema değerlerinden gelir ve görsel olarak uyumsuz bir tema ortaya çıkar. Tabanın `appearance` değerine göre seçilmesi şarttır.
+5. **Taban seçiminin görünür olması**: Dark bir temanın tabanı light olarak verilirse, eksik alanlar açık tema değerlerinden gelir ve görsel olarak uyumsuz bir tema ortaya çıkar. Tabanı `appearance` değerine göre seçmen gerekir.
 6. **`include_bytes!` yerine `RustEmbed`**: `include_bytes!` tek dosya gömme için yeterlidir; onlarca tema için `RustEmbed` tek bir macro çağrısıyla aynı işi yapar.
 7. **Sıcak yeniden yüklemenin üretimde açık kalması**: Dosya izleyici CPU/IO maliyetinin yanı sıra güvenlik açısından da risk taşır (kullanıcı yol enjeksiyonu). `cfg(debug_assertions)` ile sınırlandırılması tercih edersin.
 
@@ -700,7 +702,7 @@ zed/assets/themes/
     └── gruvbox.json
 ```
 
-**Paket adlandırma konvansiyonu:**
+**Düz dizin seçilirse paket adlandırma konvansiyonu:**
 
 Tüm temalar Zed'in alt dizin yapısı yerine **düz bir dizinde** tutuluyorsa, lisans dosyalarının çakışmaması için her dosya tema adıyla isimlendirilmelidir:
 
@@ -715,7 +717,7 @@ kvs_ui/assets/themes/
 └── gruvbox.LICENSE_MIT
 ```
 
-**Konvansiyon kuralları:**
+**Düz dizin konvansiyon kuralları:**
 
 1. Her tema JSON dosyasının **aynı stem** (uzantı öncesi ad) ile bir `<stem>.LICENSE_<tip>` dosyasının bulunması gerekir.
 2. `<tip>` SPDX kodlarının kısa karşılığı olur: `MIT`, `APACHE`, `BSD3`, `MPL2` gibi.
@@ -735,7 +737,7 @@ kvs_ui/assets/themes/
     └── LICENSE
 ```
 
-Hangi yapı seçilirse seçilsin, `RustEmbed`/`AssetSource` filtreleri buna göre güncellenmelidir. `include = "themes/**/*.json"` ile `include = "themes/*.json"` aynı şeyi kapsamaz. Bu rehberin örnekleri **düz dizin** yapısını varsayar; alt dizin tercih edilirse yol manipülasyonu da farklılaşır.
+Hangi yapı seçilirse seçilsin, `RustEmbed`/`AssetSource` filtrelerini buna göre güncellemen gerekir. `include = "themes/**/*.json"` ile `include = "themes/*.json"` aynı şeyi kapsamaz. Bu rehberin ana örnekleri Zed'e yakın **tema başına alt dizin** yapısını varsayar; düz dizin tercih edilirse yol manipülasyonu ve lisans dosyası adları da farklılaşır.
 
 Dosya adı `LICENSE` olduğunda içerik tema ile birlikte saklarsın. MIT, Apache ve BSD gibi uyumlu lisanslar paket içine alınabilir. GPL veya lisansı belirsiz tema dosyaları ise pakete dahil edilmez. Her paketlenen tema için kaynak repo, yol, lisans ve telif bilgisi atıf dosyasında yer almalıdır.
 
@@ -747,12 +749,12 @@ Bu konu ilgili bölümlerde işlenmişti; özet olarak:
 - Açık lisanslı paletten (Tailwind, Catppuccin, Nord, Solarized) esinlenilebilir; esin kaynağının atıf metninde belirtilmesi gerekir.
 - `kvs_default_dark` ve `kvs_default_light` **uygulamanın kendi tasarım kararıdır**; lisansı da uygulamanın lisansıyla (MIT/Apache vb.) uyumludur.
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **Lisans dosyasını "sonradan eklemek"**: Derleme sırasında binary'ye tema JSON'u girer ama LICENSE girmezse, **dağıtım anında lisans ihlali** oluşur.
 2. **`LICENSE_GPL` görmezden gelmek**: Tema dosyasındaki HSL değerlerinin "yalnızca JSON" olarak görülmesi telif ihlaline yol açar. GPL temalarının kullanılmaması gerekir.
 3. **Atıf README'sinin güncellenmemesi**: Yeni bir tema eklendikten sonra atıf eklenmediğinde, "hangi tema kim tarafından yazıldı?" sorusu cevapsız kalır; lisansın "telif sahibi gösterimi" şartı ihlal edilmiş olur.
-4. **Cargo dep'lerinde GPL kullanmak**: Yanlışlıkla GPL bir crate eklendiğinde uygulamanın **tamamı** GPL'e tabi hale gelir.
+4. **Cargo dep'lerinde GPL kullanımı**: GPL bir crate eklendiğinde uygulamanın **tamamı** GPL'e tabi hale gelir.
 5. **`palette` / `refineable` lisans karıştırması**: `palette` MIT/Apache çift lisanslıdır; `refineable` Apache-2.0'dır. Paket ve NOTICE metni bu ayrımı doğru yansıtmalıdır.
 6. **Örnek veri dosyasını bir fork'tan almak**: Tema JSON'larının Zed'in **upstream** reposundan alınması gerekir; bir fork'tan kopyalandığında o fork'un lisans değişikliği veya patch'leri de bulaşır.
 7. **Sıcak yeniden yükleme yolundan kullanıcı dosyası**: Kullanıcının `~/.config/kvs/themes/` dizinine koyduğu tema kullanıcının kendi sorumluluğundadır; uygulamanın lisans matrisini etkilemez. Yerleşik kaynaklar ile kullanıcı kaynakları ayrı tutulmalıdır.
@@ -1022,10 +1024,10 @@ fn tema_degistir_aktifi_gunceller(cx: &mut TestAppContext) -> anyhow::Result<()>
 | Çalışma zamanı kurulumu | `init`, `temayi_degistir`, kayit | `runtime` + `TestAppContext` |
 | Yedek tema bütünlüğü | Tüm alanların dolu olması | `fallback` |
 
-### Tuzaklar
+### Dikkat Noktaları
 
 1. **`include_str!` ile mutlak yol**: Yol test dosyasına göre çözülür; `include_str!("fixtures/one-dark.json")` ifadesi `tests/fixtures/...` olarak yorumlanır. Mutlak yol verilmesi gerekmez.
-2. **Örnek veri lisansının unutulması**: Dosya kopyalanırken `*.LICENSE_*` dosyalarının atlamaman gerekir; örnek veri JSON'u ile lisans dosyası bir arada tutulur.
+2. **Örnek veri lisansının birlikte taşınması**: Dosya kopyalanırken `*.LICENSE_*` dosyalarını da taşıman gerekir; örnek veri JSON'u ile lisans dosyası bir arada tutulur.
 3. **Test'lerin `init` çağrısı**: `kvs_tema::init(cx)` her test başında elle çağrılır; otomatik bir kurulum mekanizması yoktur. Çağrı, `TestAppContext::update` callback'i içinde yaparsın.
 4. **`assert_eq!` ile Hsla karşılaştırması**: Floating point eşitlik yanıltıcı sonuçlara yol açabilir. `assert!((a.h - b.h).abs() < 1e-6)` gibi bir epsilon karşılaştırması tercih edilmelidir.
 5. **`#[gpui::test]` ile `#[test]` arasındaki seçim**: GPUI çalışma zamanı testleri `gpui::test`; saf sözleşme testleri ise `test` ile yazılır. Karıştırılması gereksiz bir ek yük yaratır.

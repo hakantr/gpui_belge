@@ -123,7 +123,7 @@ cx.observe_global::<SettingsStore>(|cx| {
 - `for_release_channel` `release_channel::RELEASE_CHANNEL.dev_name()` üzerinden eşleşen `release_channel_overrides` girişini açar.
 - `for_os` `env::consts::OS` üzerinden eşleşen `platform_overrides` girişini açar.
 
-Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; sıra: `Project` > `Server` > `User` > `Global` > `Default`.
+Dosya hata/rapor sıralamasında `SettingsFile::cmp` önceliği `Project` > `Server` > `User` > `Global` > `Default` şeklindedir. Runtime merge hattında global değerler `Default` üstüne `Extension`, `Global`, kullanıcı içeriği/profil/release/OS override'ları ve `Server` katmanlarıyla kurulur; path hedefli okumada proje/local ayarlar bunun üstüne eklenir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -131,7 +131,7 @@ Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; 
 | `SettingsKey` | `KEY`, `FALLBACK_KEY` | JSON kök/alt anahtar eşleşmesini tip seviyesinde tutar. |
 | `SettingsFile` | `Default`, `Global`, `User`, `Server`, `Project` | Ayar kaynağını ve merge öncelik sırasını temsil eder. |
 | `SettingsLocation` | `worktree_id`, `path` | Okumanın hangi worktree/path için yapılacağını söyler. |
-| `SettingsParseResult` | `parse_status`, `migration_status`, `result`, `requires_user_action`, `ok`, `parse_error` | Dosya parse ve migrasyon sonucunu tek yapıda toplar. |
+| `SettingsParseResult` | `parse_status`, `migration_status`, `result()`, `requires_user_action()`, `ok()`, `parse_error()` | Dosya parse ve migrasyon sonucunu tek yapıda toplar. |
 | `SettingsFile` | merge önceliği: `Project` > `Server` > `User` > `Global` > `Default` | Override katmanlarında hangi kaynağın kazanacağını belirler. |
 | `base_keymap_setting` | re-export modül | Base keymap ayarını tipli settings yüzeyine bağlayan yardımcı modüldür. |
 | `editable_setting_control` | re-export modül | Ayarlar UI'ında düzenlenebilir setting control modelini settings crate kökünden erişilebilir kılar. |
@@ -166,12 +166,12 @@ Bu katmanların birleşim önceliği `SettingsFile::cmp` üzerinden belirlenir; 
 
 ---
 
-## Tuzaklar
+## Dikkat Noktaları
 
-Akış ve kayıt tarafında karşılaşılan tipik hatalar:
+Akış ve kayıt tarafında hataya açık noktalar:
 
 - `from_settings` panic ediyorsa varsayılan JSON eksiktir; her alanın `assets/settings/default.json` içinde tanımlanması gerekir.
 - Dile özel ayar gerekiyorsa `Settings::get(Some(SettingsLocation { worktree_id, path }), cx)` çağrısı worktree özel üzerine yazmaları otomatik getirir.
-- `register_setting` `SettingsStore::new` içinde derleme zamanı kayıt listesini tek seferde okur; runtime'da bir tipi geç kaydetmek istendiğinde `Settings::register(cx)` çağrılmalıdır.
-- Yeni ayar eklenirken `settings_content` schema'sı güncellenmelidir; aksi halde JSON schema doğrulaması yeni alanı tanımaz.
+- `register_setting` `SettingsStore::new` içinde derleme zamanı kayıt listesini tek seferde okur; runtime'da bir tipi geç kaydetmek istediğinde `Settings::register(cx)` çağırman gerekir.
+- Yeni ayar eklerken `settings_content` schema'sını güncellemen gerekir; aksi halde JSON schema doğrulaması yeni alanı tanımaz.
 - `override_global` kalıcılaştırılmaz; dosyaya yazmak için `update_settings_file` yardımcısı kullanırsın.

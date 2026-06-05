@@ -1,6 +1,6 @@
 # Hedef, kapsam ve lisans
 
-Bu bölüm, tema sisteminin hangi amaçla kurulduğunu ve sınırlarının nerede başlayıp nerede bittiğini netleştirir. Özellikle üç soru önemlidir: Hangi parçalar Zed ile birebir uyumlu tutulacak, hangi parçalar uygulamaya özgü kalacak ve GPL sınırı nereden geçecek? Sonraki bölümler bu cevapların üzerine kurarsın. Bu yüzden kararları burada açıkça koymak, aynı konuları ileride tekrar tekrar açmadan ilerlemeyi sağlar.
+Bu bölüm, tema sisteminin hangi amaçla kurulduğunu ve sınırlarının nerede başlayıp nerede bittiğini netleştirir. Özellikle üç soru önemlidir: Hangi parçalar Zed ile birebir uyumlu tutulacak, hangi parçalar uygulamaya özgü kalacak ve GPL sınırı nereden geçecek? Sonraki bölümleri bu cevapların üzerine kurarsın. Bu yüzden kararları burada açıkça koymak, aynı konuları ileride tekrar tekrar açmadan ilerlemeyi sağlar.
 
 ---
 
@@ -86,10 +86,10 @@ Zed'in tema sistemi **GPL-3.0-or-later** lisansına tabidir. Kod gövdesi kopyal
 
 **GPL-3 crate'ler (`theme`, `syntax_theme`, `theme_settings`, `theme_selector`, `theme_importer`, `theme_extension`):** Bu crate'ler yalnızca referans olarak **okunur**. `Cargo.toml` içine dependency olarak eklenmez. Bu kural nettir; ihlal edilirse üretilen uygulama da GPL-3 sözleşmesinin altına girer ve bunu sonradan temizlemek zor, masraflı ve zaman alan bir işe dönüşür.
 
-**Publishing uyarısı:** `gpui`, `refineable` ve `collections` crate'leri Zed workspace'inde `publish = false` ile işaretlenmiştir. Bu yüzden crates.io üzerinden yayınlanacak bir crate, dependency listesinde bunları git veya path dependency olarak taşıyamaz. Bu kısıtla çalışmak için üç yol vardır:
+**Publishing uyarısı:** Mevcut Zed HEAD'inde `gpui` Apache-2.0 lisanslı ve yayınlanabilir işaretlidir; buna karşılık `refineable` ve `collections` `publish = false` durumundadır. Bu yüzden crates.io üzerinden yayınlanacak bir crate, dependency listesinde `refineable` ve `collections` için git veya path dependency taşıyamaz. Bu kısıtla çalışmak için üç yol vardır:
 
 1. **Vendor:** Kaynak kod, lisans ve atribusyon dosyalarıyla birlikte uygulamanın kendi monorepo'suna kopyalanır.
-2. **Fork yayınlama:** `gpui` ve `refineable` ayrı bir hesap adıyla crates.io üzerine yeniden yayınlanır.
+2. **Fork yayınlama:** Yayınlanamayan yardımcı crate'ler ayrı bir hesap adıyla crates.io üzerine yeniden yayınlanır.
 3. **Yalnızca dahili kullanım:** Uygulama bir kütüphane olarak değil binary olarak dağıtılıyorsa Cargo.toml'da git dep tutmak yeterli olur; çünkü bu senaryoda crates.io yayını söz konusu değildir.
 
 **Doc comment yazımı:** Zed kaynak dosyasındaki bir struct alanı mirror edildiğinde, doc comment orijinaliyle birebir aynı bırakılmaz. Aynı anlam **bağımsız sözcüklerle** yeniden yazılır. Örnek:

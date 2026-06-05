@@ -30,7 +30,7 @@ if let Some(oge) = cx.read_from_clipboard()
 
 `ClipboardItem` birden çok `ClipboardEntry` taşıyabilir: `String`, `Image` veya `ExternalPaths`. `String` girdisine üst veri eklemek istediğinde `new_string_with_metadata` veya `new_string_with_json_metadata`'yı kullanırsın. `ClipboardItem::new_image(&image)` görseli pano girdisine çevirir; `ClipboardItem::into_entries()` ise öğeyi tüketip sahipli `ClipboardEntry` iterator'ı verir. Linux/FreeBSD için primary selection `read_from_primary`/`write_to_primary`; macOS Find pasteboard için `read_from_find_pasteboard`/`write_to_find_pasteboard`, `cfg` koşullu API'lerdir.
 
-`ClipboardString` metnin yanında isteğe bağlı format/metadata taşır. `ClipboardString::text()` veya `ClipboardItem::text()` ile düz metne inmeyi tercih edersin; sahipli metin gerekiyorsa `ClipboardString::into_text()` değeri tüketir. JSON metadata için `ClipboardString::with_json_metadata(...)` yazma, `ClipboardString::metadata_json::<T>()` okuma tarafıdır. `ClipboardString::text_hash(text)` özellikle Linux/FreeBSD pano değişimi izleme yollarında metnin değişip değişmediğini ucuzca ayırmak için kullanılır. Metadata yalnız aynı uygulama ailesi içinde zengin yapıştırma davranışı gerektiğinde anlamlıdır. Görsel pano girdilerinde `Image` ve `ImageFormat` boru hattı devreye girer; normal metin kopyalama için `ClipboardItem::new_string(...)` yeterlidir.
+`ClipboardString` metnin yanında isteğe bağlı format/metadata taşır. `ClipboardString::text()` veya `ClipboardItem::text()` ile düz metne inmeyi tercih edersin; sahipli metin gerekiyorsa `ClipboardString::into_text()` değeri tüketir. JSON metadata için `ClipboardString::with_json_metadata(...)` yazma, `ClipboardString::metadata_json::<T>()` okuma tarafıdır. `ClipboardString::text_hash(text)` macOS ve Windows pano köprülerinde metnin değişip değişmediğini ucuzca ayırmak için kullanılır. Metadata yalnız aynı uygulama ailesi içinde zengin yapıştırma davranışı gerektiğinde anlamlıdır. Görsel pano girdilerinde `Image` ve `ImageFormat` boru hattı devreye girer; normal metin kopyalama için `ClipboardItem::new_string(...)` yeterlidir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -40,7 +40,7 @@ if let Some(oge) = cx.read_from_clipboard()
 | `MousePressureEvent`, `ScrollDelta` | pressure ve scroll delta modeli | Gelişmiş pointer/scroll girdisini platformdan element listener'ına taşır. |
 | `EntityInputHandler`, `ElementInputHandler` | input handler trait'i ve element bağlayıcısı | IME, selection bounds ve printable key kararlarını view state'ine bağlar. |
 
-**PlatformInputHandler sınırı.** `PlatformInputHandler` platform penceresinin aktif metin girdi dinleyicisini temsil eder. Uygulama düzeyinde bunu doğrudan saklamazsın; `EntityInputHandler` ve `ElementInputHandler` view'ı platforma bağlar, `window.handle_input(...)` da frame içinde bu bağı kaydeder. Platform arka ucu bu sarmalayıcı üzerinden `apple_press_and_hold_enabled()`, `dispatch_input(input, window, cx)`, `selected_bounds(window, cx)`, `query_accepts_text_input()` ve `query_prefers_ime_for_printable_keys()` çağrılarını yapar. Böylece platform, IME kabulü, seçili metin sınırı ve printable tuşların IME'ye mi kısayola mı gideceği kararını view'ın gerçek `InputHandler` uygulamasından sorar. Doğrudan `PlatformInputHandler` implement etmek, yeni platform arka ucu veya çok özel editör entegrasyonu yazdığında gerekir.
+**PlatformInputHandler sınırı.** `PlatformInputHandler` platform penceresinin aktif metin girdi dinleyicisini temsil eden bir sarmalayıcı struct'tır. Uygulama düzeyinde bunu doğrudan saklamazsın; `EntityInputHandler` ve `ElementInputHandler` view'ı platforma bağlar, `window.handle_input(...)` da frame içinde bu bağı kaydeder. Platform arka ucu bu sarmalayıcı üzerinden `apple_press_and_hold_enabled()`, `dispatch_input(input, window, cx)`, `selected_bounds(window, cx)`, `query_accepts_text_input()` ve `query_prefers_ime_for_printable_keys()` çağrılarını yapar. Böylece platform, IME kabulü, seçili metin sınırı ve printable tuşların IME'ye mi kısayola mı gideceği kararını view'ın gerçek `InputHandler` uygulamasından sorar. Doğrudan yazacağın taraf `PlatformInputHandler` değil, bu sarmalayıcının içine alınan özel `InputHandler` uygulamasıdır.
 
 `selected_bounds(window, cx)`'in döndürdüğü sınır, IME aday penceresinin (composition popup) yerleştirileceği noktadır. Aktif bir composition (marked range) varsa bu nokta imlecin bulunduğu **görsel satırın başına** çapalanır: metot imleçten geriye doğru yürüyüp Y konumunun ilk değiştiği yeri (önceki satıra geçiş) bularak satır başını saptar, böyle bir kırılma yoksa marked range'in başını kullanır. Composition yoksa seçimin uç noktası (ters seçimde başlangıç, düz seçimde bitiş) kullanılır. Aynı hesabı `window`/`cx` elinde olmadan yapman gerekirse `ime_candidate_bounds(&mut self)` varyantı handler'ın kendi `marked_text_range`/`selected_text_range`/`bounds_for_range` metotlarıyla aynı sonucu üretir; iki varyant da ortak `compute_ime_candidate_bounds(marked_range, selection, bounds_for_range)` saf yardımcısına dayanır.
 
@@ -113,7 +113,7 @@ cx.set_prompt_builder(|seviye, mesaj, ayrinti, eylemler, tutamac, window, cx| {
 });
 ```
 
-**Tuzaklar.** Prompt'larla çalışırken dikkat edeceğin noktalar:
+**Dikkat noktaları.** Prompt'larla çalışırken dikkat edeceğin noktalar:
 
 - GPUI iç içe (`re-entrant`) prompt desteklemez; bir prompt açıkken aynı pencerede ikinci prompt'un nasıl açılacağını ayrıca tasarlaman gerekir.
 - Özel prompt `Focusable` sağlamalıdır; aksi halde `PromptHandle::with_view`, odak geri yükleme zincirini tamamlayamaz.
@@ -154,7 +154,7 @@ cx.set_menus(vec![
 
 `MenuItem::action(name, action)`, veri taşımayan `unit struct` action'lar için bir kısayoldur. Veri taşıyan action'larda da doğrudan action değerini geçirebilirsin: `MenuItem::action("Satıra Git", SatiraGit { satir: 1 })`. Action öğesinin durumunu okumak için `MenuItem::is_checked()` ve `MenuItem::is_disabled()` kullanılır; bunlar platform menüsünde checkmark ve pasif görünüm üretirken işine yarar. Yerel sistem alt menüsü gerektiğinde `MenuItem::os_submenu(name, SystemMenuType::...)` kullanırsın; macOS Services gibi platforma ait alt menüler normal action ağacından ayrı kalır. Aynı menü modelini klonlamak istersen `Menu::owned()` ve `MenuItem::owned()`'ı kullanırsın; bu dönüşüm platform tarafının sakladığı `OwnedMenu` / `OwnedMenuItem` modelini üretir.
 
-**MenuItem tam modeli.** `MenuItem::submenu(menu)`, `separator()`, `action(name, action)`, `os_action(name, action, os_action)`, `os_submenu(name, menu_type)`, `checked(checked)` ve `disabled(disabled)` builder'ları aynı enum'un varyantlarını kurar. `MenuItem::owned()` platforma verilecek sahipli modele iner; UI tarafında yeniden çizim yaparken kaynak `MenuItem` değerini tutmak daha okunaklıdır. `SystemMenuType` ve `OwnedOsMenu` yerel sistem menülerini temsil eder; normal uygulama menüsü için `MenuItem::SystemMenu(OsMenu::...)` veya hazır builder'lar yeterlidir.
+**MenuItem tam modeli.** `MenuItem::submenu(menu)`, `separator()`, `action(name, action)`, `os_action(name, action, os_action)`, `os_submenu(name, menu_type)`, `checked(checked)` ve `disabled(disabled)` builder'ları aynı enum'un varyantlarını kurar. `MenuItem::owned()` platforma verilecek sahipli modele iner; UI tarafında yeniden çizim yaparken kaynak `MenuItem` değerini tutmak daha okunaklıdır. `SystemMenuType` ve `OwnedOsMenu` yerel sistem menülerini temsil eder; normal uygulama menüsü için `MenuItem::SystemMenu(OsMenu { name, menu_type })` veya hazır builder'lar yeterlidir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -176,6 +176,6 @@ cx.set_menus(vec![
 - Windows ve Linux, platform durumunu `OwnedMenu` olarak saklar; Zed bu modeli uygulama içi menü ve çizim katmanlarında kullanır.
 - Linux dock menüsü arka uçta `todo` veya işlem yapmayan (`no-op`) durumdadır; dock veya jump-list davranışı için platforma özel bir yedek akış hazırlaman gerekir.
 
-**Tuzak.** Aynı action birden çok menü öğesine bağlandığında keymap'te tek bir kısayol gösterilir. `os_action` yalnızca macOS yerel düzenleme menüsü eşlemesini etkiler; diğer platformlarda sıradan bir action gibi davranır.
+**Dikkat noktası.** Aynı action birden çok menü öğesine bağlandığında keymap'te tek bir kısayol gösterilir. `os_action` yalnızca macOS yerel düzenleme menüsü eşlemesini etkiler; diğer platformlarda sıradan bir action gibi davranır.
 
 ---

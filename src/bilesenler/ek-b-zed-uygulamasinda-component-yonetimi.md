@@ -14,8 +14,8 @@ Component preview ise bundan ayrı, kendi içinde bir registry akışıdır:
 | API | Katman | Kısa anlamı |
 | :-- | :-- | :-- |
 | `ui_macros` | derive macro crate | `RegisterComponent` derive makrosunu üretir ve registry kaydını `inventory` üzerinden bağlar. |
-| `component_layout` | component crate re-export'u | Component preview/layout yardımcılarını tek modül altında dışa açar; üretim ekran yaşam döngüsü yerine gallery düzeniyle ilgilidir. |
-| `scrollbars` | ui modülü | `Scrollbars` ve scrollbar yardımcılarının kaynak modülüdür. |
+| `component_layout` | component crate re-export'u | Component preview/layout yardımcıları `component` crate'i tarafından dışa açılır; üretim ekran yaşam döngüsü yerine gallery düzeniyle ilgilidir. |
+| `scrollbars` | scrollbar alt modülü | `ShowScrollbar`, `ScrollbarVisibility` ve `ScrollbarAutoHide` ayar tiplerinin kaynak modülüdür; `Scrollbars` helper'ı aynı `scrollbar.rs` dosyasından `ui` üzerinden re-export edilir. |
 | `Scrollbars` | runtime UI helper | Panel, tablo ve preview navigasyonu gibi alanlarda scroll handle ile birlikte scrollbar yüzeyi render eder. |
 
 Gerçek uygulama kullanımı için en rahat okuma sırası şudur:
