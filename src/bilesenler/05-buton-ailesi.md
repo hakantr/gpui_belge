@@ -31,7 +31,7 @@ Ortak trait'ler:
 - `FixedWidth`: `.width(impl Into<DefiniteLength>)`, `.full_width()`.
 - `VisibleOnHover`: `.visible_on_hover(impl Into<SharedString>)`.
 
-> **`key_binding` ve `key_binding_position` trait'te yer almaz.** Bu iki builder, `Button` struct'ının kendisine ait inherent (impl) metotlardır ve `IconButton`, `ButtonLike`, `SplitButton` üzerinde **çalışmaz**. Bu üç buton tipinde kısayol ipucu göstermek için elle bir `KeyBinding` widget'ı eklenir (bkz. Bölüm 14, `KeyBinding`). `KeybindingPosition` enum'unun değerleri (`Start`, `End` — varsayılan olarak `End`) ise yalnızca `Button::key_binding_position(...)` parametresi bağlamında anlam taşır.
+> **`key_binding` ve `key_binding_position` trait'te yer almaz.** Bu iki builder, `Button` struct'ının kendisine ait inherent (impl) metotlardır ve `IconButton`, `ButtonLike`, `SplitButton` üzerinde **çalışmaz**. Bu üç buton tipinde kısayol ipucu göstermek için elle bir `KeyBinding` widget'ı eklersin (bkz. Bölüm 14, `KeyBinding`). `KeybindingPosition` enum'unun değerleri (`Start`, `End` — varsayılan olarak `End`) ise yalnızca `Button::key_binding_position(...)` parametresi bağlamında anlam taşır.
 
 Buton stilleri:
 
@@ -127,7 +127,7 @@ Davranış:
 - `RenderOnce` implement eder ve render sonunda arka planda bir `ButtonLike` üretir.
 - `loading(true)` olduğunda `start_icon` yerine dönen `IconName::LoadCircle` ikonu çizilir.
 - Disabled durumda label ve icon `Color::Disabled` ile çizilir.
-- `truncate(true)` yalnızca dinamik ve taşma riski olan label'larda kullanılır; kaynak yorumunda statik label'lar için kullanılmaması gerektiği özellikle belirtilir.
+- `truncate(true)`'ü yalnızca dinamik ve taşma riski olan label'larda kullanırsın; kaynak yorumunda statik label'lar için kullanılmaması gerektiği özellikle belirtilir.
 
 Örnekler:
 
@@ -182,7 +182,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Dinamik bir label için `truncate(true)` eklenirken, parent container'a da `min_w_0` gibi taşmayı sınırlayacak bir layout davranışının vermen gerekir; aksi halde truncate beklendiği gibi çalışmaz.
+- Dinamik bir label için `truncate(true)` eklerken, parent container'a da `min_w_0` gibi taşmayı sınırlayacak bir layout davranışı verirsin; aksi halde truncate beklendiği gibi çalışmaz.
 - Loading durumu yalnızca görsel bir spinner sağlar. Async işin hatasını view durumuna taşımak yine view tarafının sorumluluğudur.
 - Tinted stiller için kullanılan `TintColor` prelude içinde gelmez; ayrıca import edersin.
 
@@ -256,7 +256,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - Yalnız ikonlu bir kontrol çoğunlukla bir tooltip ister; aksi halde simgenin anlamı kullanıcı için kaybolur.
-- `.visible_on_hover(group_name)` kullanıldığında, parent element üzerinde aynı isimle `.group(group_name)` çağrılmış olmalıdır; yoksa hover etkisi beklenen şekilde tetiklenmez.
+- `.visible_on_hover(group_name)` kullandığında, parent element üzerinde aynı isimle `.group(group_name)` çağırmış olmalısın; yoksa hover etkisi beklenen şekilde tetiklenmez.
 - Seçili durumu yalnızca görsel olarak değiştirmek yeterli değildir. View durumu değişiyorsa işleyici içinde durumu güncellemen ve ardından `cx.notify()` çağırman gerekir.
 
 ## ButtonLike
@@ -294,9 +294,9 @@ Yuvarlama davranışı:
 
 | İç sabit | Kaynak görünürlüğü | Public karşılığı |
 | :-- | :-- | :-- |
-| `ButtonLikeRounding::ALL` | crate içi sabit | Tüm köşeler yuvarlatılır; dışarıdan `ButtonLike::new_rounded_all(...)` ile seçilir. |
-| `ButtonLikeRounding::LEFT` | crate içi sabit | Sol parça yuvarlatılır, sağ kenar düz kalır; dışarıdan `ButtonLike::new_rounded_left(...)` ile seçilir. |
-| `ButtonLikeRounding::RIGHT` | crate içi sabit | Sağ parça yuvarlatılır, sol kenar düz kalır; dışarıdan `ButtonLike::new_rounded_right(...)` ile seçilir. |
+| `ButtonLikeRounding::ALL` | crate içi sabit | Tüm köşeler yuvarlatılır; dışarıdan `ButtonLike::new_rounded_all(...)` ile seçersin. |
+| `ButtonLikeRounding::LEFT` | crate içi sabit | Sol parça yuvarlatılır, sağ kenar düz kalır; dışarıdan `ButtonLike::new_rounded_left(...)` ile seçersin. |
+| `ButtonLikeRounding::RIGHT` | crate içi sabit | Sağ parça yuvarlatılır, sol kenar düz kalır; dışarıdan `ButtonLike::new_rounded_right(...)` ile seçersin. |
 
 Split button veya bitişik toolbar parçası kurarken sol ve sağ constructor'ları kullanırsın. Tek başına duran özel yüzeylerde varsayılan `ButtonLike::new(...)` zaten tüm köşeleri yuvarlatır; yalnız kaynak paritesi gerektiğinde `new_rounded_all(...)` adı davranışı açık hale getirir.
 
@@ -398,7 +398,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca link gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatılır.
+- Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca link gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatırsın.
 
 ## CopyButton
 
@@ -458,7 +458,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- `visible_on_hover(...)` için parent elementte aynı isimle `.group(...)` bulunmalıdır.
+- `visible_on_hover(...)` için parent elementte aynı isimle `.group(...)` çağırman gerekir.
 - `custom_on_click(...)`, varsayılan kopya davranışına ekleme yapmaz; onun yerine geçer. Özel işleyici hata üretebiliyorsa, hatayı view durumuna taşıman veya görünür biçimde loglaman gerekir; aksi halde kullanıcı kopya başarısız olduğunda fark etmez.
 
 ## SplitButton
@@ -525,7 +525,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Sol ve sağ parça kendi click işleyicilerini taşımalıdır; `SplitButton` yalnızca görsel bir kompozisyon sağlar, eylemleri birleştirmez.
+- Sol ve sağ parçaya kendi click işleyicilerini verirsin; `SplitButton` yalnızca görsel bir kompozisyon sağlar, eylemleri birleştirmez.
 - Sağ parça bir popover veya menu trigger olacaksa, focus kapanma davranışı ilgili `PopoverMenu` ya da `ContextMenu` tarafında yönetilir; SplitButton bu sorumluluğu üstlenmez.
 
 ## ToggleButtonGroup
@@ -612,7 +612,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - `selected_index` bir sınır kontrolü yapmaz; verilen indeksin girdi sayısıyla uyumlu olması gerekir.
-- `tab_index(&mut isize)` çağrısı, verilen değişkeni buton sayısı kadar artırır. Aynı form içinde sonraki odaklanabilir elemanların hesaba katılması gerekir; aksi halde tab sırası beklenmedik bir noktaya kayar.
+- `tab_index(&mut isize)` çağrısı, verilen değişkeni buton sayısı kadar artırır. Aynı form içinde sonraki odaklanabilir elemanları hesaba katman gerekir; aksi halde tab sırası beklenmedik bir noktaya kayar.
 - `ToggleButtonGroup` yalnızca görsel seçim davranışını kurar; asıl seçili durumu view struct'ı içinde bir alanda tutman ve click işleyicisinde güncellemen gerekir.
 
 ## Buton Kompozisyon Örnekleri

@@ -283,7 +283,7 @@ Action tanımlama ve yönlendirme önceki bölümlerde işlenmiştir. Zed komut 
 | :-- | :-- | :-- |
 | `ActionBuildError` | `NotFound`, `BuildError` | `cx.build_action(...)` action adını veya JSON payload'ını çözemediğinde dönen hatadır. |
 | `actions` | macro | Veri taşımayan action unit struct'larını ve registry kayıtlarını üretir. |
-| `NoAction` | special unit action | Keymap'te belirli bağlamdaki binding'i sessize almak için kullanılır. |
+| `NoAction` | special unit action | Keymap'te belirli bağlamdaki binding'i sessize almak için kullanırsın. |
 | `AsKeystroke`, `KeybindingKeystroke` | keystroke dönüşümü ve binding eşleşme taşıyıcısı | Keymap input sorgularının string/keystroke girdisini ve fiziksel/karakter eşleşmesini yönetir. |
 | `KeyBindingContextPredicate` | `parse`, `eval`, `depth_of`, `is_superset` | Keymap context yüklem dilini temsil eder. |
 | `EntityInputHandler`, `ElementInputHandler` | input handler trait'i ve element sarmalayıcısı | Kısayol/metin girdisi ayrımının IME ve printable key tarafında view'a bağlanmasını sağlar. |
@@ -384,7 +384,7 @@ let sonuc = KeymapFile::load(&icerik, cx);
 - `gpui::is_no_action(&dyn Action) -> bool` (`action`) — `as_any().is::<NoAction>()` üzerinden alta dönüştürme yapar. Özel keymap UI veya komut paleti listesinde "(disabled)" göstergesi koymak için uygundur.
 - `gpui::is_unbind(&dyn Action) -> bool` (`action`) — aynı şekilde `Unbind` nesnesini alta dönüştürür.
 
-`KeymapFile::update_keybinding`, `KeybindUpdateOperation::Remove` için bu iki nöbetçiyi bağlama göre üretir. Kullanıcı kısayolları `Remove` ile doğrudan dosyadan silinir. Çatı (`framework`) veya varsayılan kısayollar sessize alınacaksa kullanıcı keymap'ine `null` (NoAction) ya da `["zed::Unbind", ...]` girdisi yazılır.
+`KeymapFile::update_keybinding`, `KeybindUpdateOperation::Remove` için bu iki nöbetçiyi bağlama göre üretir. Kullanıcı kısayolları `Remove` ile doğrudan dosyadan silinir. Çatı (`framework`) veya varsayılan kısayolları sessize alacaksan kullanıcı keymap'ine `null` (NoAction) ya da `["zed::Unbind", ...]` girdisi yazarsın.
 
 **Dosya güncelleme.** Keymap dosyasını programatik olarak değiştirmek için şu fonksiyonu kullanırsın:
 

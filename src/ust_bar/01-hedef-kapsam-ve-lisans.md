@@ -1,6 +1,6 @@
 # Hedef, kapsam ve lisans
 
-Ürün başlık çubuğuna geçmeden önce neyin port edildiğini, hangi sorumluluğun bu katmana ait olduğunu ve lisans sınırının nereden geçtiğini netleştirmek gerekir. Platform Üst Barı bölümünde platform kabuğunun "davranış paritesi" peşinde olduğunu görmüştük. Ürün başlığı katmanı ise farklıdır: burada Zed'in kendi ürün kararları devreye girer ve bu kararların birebir taşınması beklenmez.
+Ürün başlık çubuğuna geçmeden önce neyi port ettiğini, hangi sorumluluğun bu katmana ait olduğunu ve lisans sınırının nereden geçtiğini netleştirmen gerekir. Platform Üst Barı bölümünde platform kabuğunun "davranış paritesi" peşinde olduğunu görmüştük. Ürün başlığı katmanı ise farklıdır: burada Zed'in kendi ürün kararları devreye girer ve bu kararların birebir taşınması beklenmez.
 
 ## 1. Ürün başlığı katmanı nedir, ne değildir
 
@@ -44,7 +44,7 @@ Bu rehber üçüncü yolu anlatır. İşbirliği, plan çipi ve güncelleme gibi
 
 ## 4. Lisans
 
-`title_bar` crate'i de `platform_title_bar` gibi **GPL-3.0-or-later** lisanslıdır. Kod gövdesi kopyalanamaz; ancak gözlemlenebilir davranış ve API imzaları kendi kelimelerinle yeniden kurulabilir. Bu rehberdeki örneklerin tamamı bu kuralı izler: "Zed başlıkta proje adını şu sözleşmeyle gösteriyor" gözlemi yasak değildir; ama `title_bar` crate'indeki bir fonksiyonun gövdesini birebir taşımak ihlaldir.
+`title_bar` crate'i de `platform_title_bar` gibi **GPL-3.0-or-later** lisanslıdır. Kod gövdesi kopyalanamaz; ancak gözlemlenebilir davranışı ve API imzalarını kendi kelimelerinle yeniden kurarsın. Bu rehberdeki örneklerin tamamı bu kuralı izler: "Zed başlıkta proje adını şu sözleşmeyle gösteriyor" gözlemi yasak değildir; ama `title_bar` crate'indeki bir fonksiyonun gövdesini birebir taşımak ihlaldir.
 
 Ürün başlığında lisans hassasiyeti pratikte daha düşüktür, çünkü ürün içeriğini zaten kendi tasarımınla yeniden yazarsın. Yine de proje/dal/menü gibi parçaları Zed'den birebir uyarlarken aynı GPL sınırını gözetmek gerekir.
 
@@ -59,4 +59,4 @@ Bu bölüm `title_bar` crate'inin ürün yüzeyini kaynaktan doğrulanmış davr
 - Kullanıcı menüsü, oturum açma, plan çipi, güncelleme bildirimi ve ilk karşılama duyuru bandı.
 - Pratik port önerileri ve davranış doğrulama listesi.
 
-Pencere kontrolleri, sürükleme ve yerel sekmeler bu bölümün dışındadır; onlar için Platform Üst Barı bölümüne bakılır.
+Pencere kontrolleri, sürükleme ve yerel sekmeler bu bölümün dışındadır; onlar için Platform Üst Barı bölümüne bakarsın.

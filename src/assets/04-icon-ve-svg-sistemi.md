@@ -438,8 +438,8 @@ impl VectorName {
 
 Pratik bir özet olarak, "bir tipli UI ikonu eklemek" için izlenmesi gereken adımlar:
 
-1. SVG dosyası **tek renkli** (monochrome) olacak şekilde hazırlanır. Renk değerleri `currentColor` veya yer tutucu olarak `#000` bırakılır; çalışma zamanında `text_color` ile boyanır.
-2. Dosya `assets/icons/yeni_ikon.svg` olarak konur (snake_case dosya adı).
+1. SVG dosyasını **tek renkli** (monochrome) olacak şekilde hazırlarsın. Renk değerlerini `currentColor` veya yer tutucu olarak `#000` bırakırsın; çalışma zamanında `text_color` ile boyanır.
+2. Dosyayı `assets/icons/yeni_ikon.svg` olarak koyarsın (snake_case dosya adı).
 3. `icons` crate'indeki `IconName` enum'una `YeniIkon` varyantı eklersin.
 4. UI kodunda `Icon::new(IconName::YeniIkon)` ile kullanırsın. Boyut için `.size(IconSize::Small)`, renk için `.color(Color::Accent)` zincirlenir.
 

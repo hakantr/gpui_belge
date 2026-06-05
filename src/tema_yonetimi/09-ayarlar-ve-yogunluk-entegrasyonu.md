@@ -558,8 +558,8 @@ pub fn reload_icon_theme(cx: &mut App);
 
 Davranış (`theme_settings`):
 
-1. `configured_theme(cx)` (veya `configured_icon_theme(cx)`) ile aktif seçim ve geçersiz kılmalar yeniden çözülür.
-2. `GlobalTheme::update_theme` veya `update_icon_theme` ile global yazılır.
+1. `configured_theme(cx)` (veya `configured_icon_theme(cx)`) ile aktif seçimi ve geçersiz kılmaları yeniden çözersin.
+2. `GlobalTheme::update_theme` veya `update_icon_theme` ile global'i yazarsın.
 3. `cx.refresh_windows()` çağırırsın.
 
 Settings gözlemcisi (`init` içindeki `cx.observe_global::<SettingsStore>`) font boyutu, tema adı, ikon tema adı veya tema geçersiz kılmalarının değiştiğini fark ettiğinde ilgili yeniden yükleme helper'ını çağırır. Yani Settings'i değiştirmek otomatik olarak çalışma zamanına yansır; seçici onay akışında ek bir `update_theme` çağrısına gerek kalmaz (önizleme yazılmadığı sürece).
@@ -639,10 +639,10 @@ pub fn tema_dosyasini_yeniden_yukle(
 
 **Akış:**
 
-1. Disk'ten okunur ve parse edilir.
-2. Her tema varyantı için uygun taban seçilir (light → light tabanı).
+1. Disk'ten okur ve parse edersin.
+2. Her tema varyantı için uygun tabanı seçersin (light → light tabanı).
 3. `kayit.insert_themes` çağrısı eski kaydın üstüne yazar — aynı isim güncellenir.
-4. Aktif tema yeniden yüklendiyse `GlobalTheme::update_theme` ile global güncellenir ve `refresh_windows` çağırırsın.
+4. Aktif tema yeniden yüklendiyse `GlobalTheme::update_theme` ile global'i güncellersin ve `refresh_windows` çağırırsın.
 
 ### Başarım
 

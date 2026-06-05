@@ -207,7 +207,7 @@ Tüketicinin yapmaması gereken işlemler (compile geçer ama kötü pratik):
 
 - ✗ `kvs_tema::ThemeColorsContent` üzerinde UI davranışı kurma; bu tip schema JSON ayrıntısıdır.
 - ✗ `kvs_tema::try_parse_color(...)` çağrısını doğrudan yapma; `Theme::from_content` zaten bu işlemi sarmalar.
-- ✗ Tema yüklenirken `baseline` appearance'ını aktif görünümden bağımsız seçme.
+- ✗ Tema yüklerken `baseline` appearance'ını aktif görünümden bağımsız seçme.
 
 ### `pub(crate)` ile gerçek izolasyon
 
@@ -236,7 +236,7 @@ Doc sayfasında `theme_colors_refinement` veya `apply_status_color_defaults` gö
 ### Dikkat Noktaları
 
 1. **`pub use crate::*` içinde `refinement`'in yakalanması**: `pub use crate::refinement::*` yazıp ardından modülün `pub(crate)` olarak tutulması bir compile hatasına yol açar ("re-exporting private module"). İki tarafın tutarlı olması gerekir.
-2. **`Theme.styles` alanının public yapılması (`pub`)**: Bu durumda alan public hale gelir ve iç düzen sızar. Accessor metotları sunulduktan sonra `styles` `pub(crate)` olarak tutulur ve okumalar yalnızca accessor üzerinden yaparsın.
+2. **`Theme.styles` alanının public yapılması (`pub`)**: Bu durumda alan public hale gelir ve iç düzen sızar. Accessor metotlarını sunduktan sonra `styles`'ı `pub(crate)` olarak tutarsın ve okumaları yalnızca accessor üzerinden yaparsın.
 3. **`schema::*` glob ile public ihraç**: Schema tiplerinin tamamı dışa açılır; iç tipler de otomatik olarak public olur. Bunun yerine tek tek `pub use` yapılması doğru tercihtir:
    ```rust
    pub use crate::schema::{
@@ -493,7 +493,7 @@ pub(crate) fn test_temasi(arka_plan: gpui::Hsla, on_plan: gpui::Hsla) -> Theme {
 }
 ```
 
-> **`..yedek_koyu_renkler()` yapılabilmesi için:** `ThemeColors`'a `Default` türevi eklenmesi veya `pub(crate) fn yedek_koyu_renkler() -> ThemeColors` adında bir yardımcı tanımlanması gerekir. Mevcut yapıda `ThemeColors`'ın `Default` türevi bulunmaz; tüm alanlar zorunludur. Bu nedenle test helper'ı yazılması beklenir.
+> **`..yedek_koyu_renkler()` yapılabilmesi için:** `ThemeColors`'a `Default` türevi eklenmesi veya `pub(crate) fn yedek_koyu_renkler() -> ThemeColors` adında bir yardımcı tanımlanması gerekir. Mevcut yapıda `ThemeColors`'ın `Default` türevi bulunmaz; tüm alanlar zorunludur. Bu nedenle test helper'ını yazman beklenir.
 >
 > **Dış crate'ten test:** `kvs_ui/tests/` içinde bu strateji çalışmaz. `feature = "test-support"` üzerinden Strateji 3'ün public helper'ları çağırırsın.
 
@@ -648,7 +648,7 @@ Bu test yalnızca `Theme` struct'ının kendi alanlarını doğrular. **Tüketic
 1. **`kvs_tema::init(...)` veya test helper kurulumu**: `cx.theme()` global tema kurulmadan çağrıldığında çalışma zamanı erken durur. Her testin ilk adımında init veya manuel `cx.set_global(GlobalTheme::new(...))` kurulumu bulunmalıdır.
 2. **`TestAppContext::run` yerine `update`**: Tema testleri sync çalışır; `update` doğru tercihtir. `run` async bir event loop kurar ve burada gerekmez.
 3. **`test_temasi()` fixture maliyeti**: `set_global` her çağrıda üstüne yazar; birikimli state üretmez ama başarım maliyeti vardır. Test fixture olarak `Arc<Theme>` paylaşılabilir.
-4. **`feature = "test-support"` kapsamı**: `#[cfg(any(test, feature = "test-support"))]` koşulu kurulur; release build'de kapalı kalmalıdır.
+4. **`feature = "test-support"` kapsamı**: `#[cfg(any(test, feature = "test-support"))]` koşulunu kurarsın; release build'de kapalı kalır.
 5. **Test tema'sının tüm alanlarının açık doldurulması**: `unsafe { zeroed() }` ile doldurulan bir test = üretimde görünmez bir UI'a karşılık gelir. Test sırasında bile tüm alanların açık değerle doldurulması, yakalama gücünü yükseltir.
 6. **`refresh_windows` ve headless test ilişkisi**: `TestAppContext` üzerinde görünür render etkisi olmaz ama global state güncel kalır; test mantığı `cx.theme()` ile yeni değeri okur. `VisualTestContext` kullanıldığında ise render gerçek anlamda tetiklersin.
 7. **Sahte tema için `Theme.id` ayrımı**: Test'te birden fazla tema kurulduğunda farklı `id`'leri (`"test-1"`, `"test-2"`) vermen gerekir; aksi halde `Theme.id` üzerinden yapılan equality testi beklenen ayrımı göstermez.

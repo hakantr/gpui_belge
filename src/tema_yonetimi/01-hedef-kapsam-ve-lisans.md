@@ -24,7 +24,7 @@ Bu bölüm, tema sisteminin hangi amaçla kurulduğunu ve sınırlarının nered
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Veri sözleşmesi (en alt katman) — `mirror`:** Bu katman, Zed'in JSON tema dosyalarını kayıpsız okuyabilmek için kurulan struct katmanıdır. Alan adları, JSON anahtarları ve hangi alanın opsiyonel olduğu; hepsi Zed'in `theme` ve `settings_content` crate'lerindeki yapıyla **aynı şekilde** yazılır. Burada yaratıcı davranılmaz; hedef, sözleşme paritesini tam sağlamaktır. İlgili bölümler bu katmanı anlatır.
+**Veri sözleşmesi (en alt katman) — `mirror`:** Bu katman, Zed'in JSON tema dosyalarını kayıpsız okuyabilmek için kurulan struct katmanıdır. Alan adlarını, JSON anahtarlarını ve hangi alanın opsiyonel olduğunu; hepsini Zed'in `theme` ve `settings_content` crate'lerindeki yapıyla **aynı şekilde** yazarsın. Burada yaratıcı davranmazsın; hedefin sözleşme paritesini tam sağlamaktır. İlgili bölümler bu katmanı anlatır.
 
 **Refinement (orta katman) — `davranış`:** Bu katman, kullanıcının yazdığı temayı baseline tema ile birleştirir. Kullanıcı teması çoğu zaman eksik alanlar içerir; fallback tema bu boşlukları doldurur. Zed'in `refineable` crate'inden gelen `Refineable` derive macro'su, her struct için `Option<T>` alanlı bir `*Refinement` ikizi üretir. Birleştirme de bu ikiz üzerinden `original.refine(&refinement)` çağrısıyla yaparsın. Foreground rengi var ama background yok gibi yarı tanımlı durumları tamamlayan yardımcılar da (`apply_status_color_defaults` ve benzerleri) bu katmandadır. Davranış Zed'den **öğrenilir**, fakat kod bağımsız sözcüklerle yeniden yazılır; GPL-3 nedeniyle kod gövdesi birebir kopyalanmaz. İlgili bölüm bu katmanı anlatır.
 
@@ -57,7 +57,7 @@ Zed'in JSON tema sözleşmesindeki **hiçbir alan bilerek dışarıda bırakılm
 **Gerekçe:**
 
 - Bu rehber, tüm Zed alanlarını destekleyebilecek bir uygulamayı esas alır. Geliştiricinin terminal, debugger veya diff görünümü gibi özellikleri ileride ekleyip eklemeyeceği baştan bilinmez. Bu yüzden varsayılan tutum "hepsi eklenir" olmalıdır.
-- Struct tarafında karşılığı bulunmayan bir alan, referans alınan Zed sözleşmesinde yer almıyor demektir. Böyle bir alan tema dosyasında görülürse bu durum sessizce geçilecek bir detay değil, sözleşme veya yazım hatası olarak ele alman gerekir.
+- Struct tarafında karşılığı bulunmayan bir alan, referans alınan Zed sözleşmesinde yer almıyor demektir. Böyle bir alanı tema dosyasında görürsen bunu sessizce geçilecek bir detay değil, sözleşme veya yazım hatası olarak ele alman gerekir.
 - Bir alanın struct içinde tutulmasının, UI tarafından okunmadığı sürece **hiçbir maliyeti yoktur** — değer baseline'dan veya kullanıcı temasından doldurulur ve yalnızca kullanılmadan bekler. Yani "ileride lazım olur" diye alan bırakmanın somut bir bedeli yoktur.
 
 **Bir alanı dışarıda bırakmak için kalıcı ve net bir gerekçe gerekir.** Örneğin bir lisans çakışması ya da platforma özgü bir kısıt böyle bir gerekçe olabilir. "Henüz UI'da kullanılmıyor" yeterli değildir. Zed sözleşmesinde yer alan bir alan, tüketici UI tarafından okunmasa bile mirror struct'ında yerini korur.
@@ -88,11 +88,11 @@ Zed'in tema sistemi **GPL-3.0-or-later** lisansına tabidir. Kod gövdesi kopyal
 
 **Publishing uyarısı:** Mevcut Zed HEAD'inde `gpui` Apache-2.0 lisanslı ve yayınlanabilir işaretlidir; buna karşılık `refineable` ve `collections` `publish = false` durumundadır. Bu yüzden crates.io üzerinden yayınlanacak bir crate, dependency listesinde `refineable` ve `collections` için git veya path dependency taşıyamaz. Bu kısıtla çalışmak için üç yol vardır:
 
-1. **Vendor:** Kaynak kod, lisans ve atribusyon dosyalarıyla birlikte uygulamanın kendi monorepo'suna kopyalanır.
-2. **Fork yayınlama:** Yayınlanamayan yardımcı crate'ler ayrı bir hesap adıyla crates.io üzerine yeniden yayınlanır.
+1. **Vendor:** Kaynak kodu, lisans ve katkı dosyalarıyla birlikte uygulamanın kendi monorepo'suna kopyalarsın.
+2. **Fork yayınlama:** Yayınlanamayan yardımcı crate'leri ayrı bir hesap adıyla crates.io üzerine yeniden yayınlarsın.
 3. **Yalnızca dahili kullanım:** Uygulama bir kütüphane olarak değil binary olarak dağıtılıyorsa Cargo.toml'da git dep tutmak yeterli olur; çünkü bu senaryoda crates.io yayını söz konusu değildir.
 
-**Doc comment yazımı:** Zed kaynak dosyasındaki bir struct alanı mirror edildiğinde, doc comment orijinaliyle birebir aynı bırakılmaz. Aynı anlam **bağımsız sözcüklerle** yeniden yazılır. Örnek:
+**Doc comment yazımı:** Zed kaynak dosyasındaki bir struct alanını mirror ederken, doc comment'i orijinaliyle birebir aynı bırakmazsın; aynı anlamı **bağımsız sözcüklerle** yeniden yazarsın. Örnek:
 
 ```rust
 // Zed'deki orijinal (mirror EDİLMEZ):

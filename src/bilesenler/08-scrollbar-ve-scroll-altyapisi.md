@@ -50,7 +50,7 @@ Scrollbar altyapı yüzeyi:
 Davranış:
 
 - `Scrollbars::new(ScrollAxes::Vertical)` varsayılan `ShowScrollbar::Auto` davranışıyla autohide çalışır. Global ayar tipine bağlamak istediğinde `Scrollbars::for_settings::<S>()` kullanırsın. `always_visible(...)` ayarı ise görünürlük tercihini yok sayar ve scrollbar'ı her zaman çizer.
-- `tracked_scroll_handle(&handle)` ile harici bir `ScrollableHandle` (örneğin bir `ScrollHandle` veya `UniformListScrollHandle`) bağlanır; scrollbar bu handle üzerinden okuma ve yazma yapar.
+- `tracked_scroll_handle(&handle)` ile harici bir `ScrollableHandle` (örneğin bir `ScrollHandle` veya `UniformListScrollHandle`) bağlarsın; scrollbar bu handle üzerinden okuma ve yazma yapar.
 - `Table::interactable(...)` ile `TableInteractionState::with_custom_scrollbar(...)` birlikte kullanıldığında `Scrollbars`, tablonun yatay ve dikey scroll handle'larına bağlanır; yani tablo kendi scroll davranışını dış bir scrollbar üzerinden sürer.
 - `ScrollbarStyle::Editor`, editor görseliyle gelen scrollbar genişliğinde çizim yapar; panel ve listelerde ise `Regular` daha uygundur.
 - `ListState` tabanlı variable-height listelerde scrollbar sürükleme durumu `scrollbar_drag_started()`, `scrollbar_drag_ended()` ve `is_scrollbar_dragging()` ile izlenir. `set_offset_from_scrollbar(point)` çağrısında aşağı yöndeki scroll negatif `y` offset'iyle temsil edilir; `point(px(0.), px(-150.))` içeriğin 150px aşağı kaydırıldığı durumu ifade eder.
@@ -92,7 +92,7 @@ impl Render for GunlukPaneli {
 
 Dikkat edeceğin noktalar:
 
-- `Scrollbars` kendi başına içerik kaydırmaz. İçeriğin gerçekten scroll olabilmesi için bir `ScrollableHandle` ile bağlanması veya bir `ScrollHandle::new()` üzerinden takip edilmesi gerekir.
+- `Scrollbars` kendi başına içerik kaydırmaz. İçeriğin gerçekten scroll olabilmesi için onu bir `ScrollableHandle` ile bağlaman veya bir `ScrollHandle::new()` üzerinden takip etmen gerekir.
 - Tek bir scroll kapsayıcısına doğrudan bağlanılıyorsa `WithScrollbar` yardımcılarını kullanmak, ayrı bir `Scrollbars` child'ı yazmaya göre hem daha kısa hem de daha az hataya açıktır.
 - `with_stable_track_along(...)`, scroll alanı henüz yokken bile track için yer ayırır. Bu sayede scrollbar görünür ya da gizli olarak değiştiğinde layout aniden zıplamaz; sahne sabit kalır.
 - Birden fazla scroll alanı bulunuyorsa, her birine `.id(...)` üzerinden benzersiz bir id vermen gerekir; aksi halde GPUI scroll durumlarını karıştırabilir.

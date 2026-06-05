@@ -30,7 +30,7 @@ assets/fonts/
 
 **Genişleme:** Yeni bir font eklendiğinde yapılması gereken üç şey vardır:
 
-1. `.ttf` dosyası `fonts/<aile_adi>/` altına konur.
+1. `.ttf` dosyasını `fonts/<aile_adi>/` altına koyarsın.
 2. Aile için lisans dosyası aynı klasöre eklersin.
 3. `Assets` struct'ının `#[include = "fonts/**/*"]` direktifi recursive olduğundan ek değişiklik gerekmez; dosyalar `RustEmbed` erişim kümesine otomatik girer. Release/debug-embed build'de binary'ye gömülür, normal debug build'de aynı path'lerden dosya sistemi üzerinden okunur.
 

@@ -6,7 +6,7 @@
 
 ## SerializableItem ve Restore
 
-`SerializableItem`, çalışma alanı kapanırken veya item olayı geldiğinde item durumunu çalışma alanı veritabanına yazmak için kullanılır. Aynı veri daha sonra restore akışında geri yüklenir:
+`SerializableItem`'ı, çalışma alanı kapanırken veya item olayı geldiğinde item durumunu çalışma alanı veritabanına yazmak için kullanırsın. Aynı veri daha sonra restore akışında geri yüklenir:
 
 ```rust
 pub trait SerializableItem: Item {

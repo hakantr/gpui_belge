@@ -4,7 +4,7 @@ Avatar ve Facepile bileşenleri, kullanıcı veya collaborator görsellerini ekr
 
 Bu bileşenlerde iki kuralı baştan netleştirmek faydalıdır:
 
-- Avatar kaynağı (`ImageSource`) view veya bir servis tarafında çözümlenir. Bileşene yalnızca hazır URL veya asset verilir; kaynak çözümleme işini bileşenin yapması beklenmez.
+- Avatar kaynağı (`ImageSource`) view veya bir servis tarafında çözümlenir. Bileşene yalnızca hazır URL veya asset verirsin; kaynak çözümleme işini bileşenin yapması beklenmez.
 - Birden fazla katılımcı yan yana gösterilecekse `Facepile`, tek bir katılımcı için doğrudan `Avatar` kullanırsın.
 
 ## Avatar
@@ -92,8 +92,8 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - `.size(...)` için hem `px(...)` hem de `rems(...)` kullanabilirsin. Facepile içinde aynı boyutun korunması görsel olarak çok daha temiz bir sonuç verir.
-- Bir ses durumu için tooltip gerekiyorsa `AvatarAudioStatusIndicator::tooltip(...)` üzerinden bağlanır.
-- Availability indicator için `.avatar_size(...)` değerinin gerçek avatar boyutuyla aynı verilmesi, gösterge noktasının oranını doğru hâle getirir.
+- Bir ses durumu için tooltip gerekiyorsa `AvatarAudioStatusIndicator::tooltip(...)` üzerinden bağlarsın.
+- Availability indicator için `.avatar_size(...)` değerini gerçek avatar boyutuyla aynı vermen, gösterge noktasının oranını doğru hâle getirir.
 
 ## Facepile
 

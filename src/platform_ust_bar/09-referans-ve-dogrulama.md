@@ -271,7 +271,7 @@ Bu bilgilerin port hedefi için anlamı şudur: `PlatformTitleBar` tek başına 
 
 ## 22. Davranış doğrulama kontrol listesi
 
-Üst bar davranışı güncellenirken kaynak komutu listesi yerine aşağıdaki karar noktaları tek tek doğrulanır:
+Üst bar davranışı güncellenirken kaynak komutu listesi yerine aşağıdaki karar noktalarını tek tek doğrularsın:
 
 - `PlatformTitleBar::new` içindeki `SystemWindowTabs` sahipliği güçlü `Entity` olarak kalır; `MultiWorkspace` bağlantısı ise zayıf kalır.
 - Linux ve FreeBSD client-side decoration yolunda `button_layout` önce uygulama ayarından, yoksa platform varsayılanından çözülür.

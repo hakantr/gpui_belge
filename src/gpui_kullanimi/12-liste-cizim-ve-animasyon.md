@@ -164,7 +164,7 @@ yeniden uygular. `scroll_to_bottom()` listenin sonuna gitmek için hazır kısay
 `is_scrolled_to_end()` liste kaydırılabilir değilse `None`, aksi halde son konuma
 ulaşılıp ulaşılmadığını bildirir. `y_flipped(true)` item 0 altta olacak şekilde
 akışı ters çevirir; sohbet veya günlük akışı gibi yeni öğenin altta belirdiği
-yüzeylerde kullanılır.
+yüzeylerde kullanırsın.
 
 **Karar.** Hangi listeyi seçeceğin şu kurallara göre belirlenir:
 

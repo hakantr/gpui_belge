@@ -60,7 +60,7 @@ Status bar'ın breadcrumb güncellemesi ve git panelinin aktif dosya tespiti bu 
 
 **Tipik akış.** Yeni bir tab türü oluşturmak şu adımlardan geçer:
 
-- `impl Item for BenimGorunumum` yazılır.
+- `impl Item for BenimGorunumum` yazarsın.
 - `Workspace::open_path`, `open_paths` veya `open_abs_path` zaten `ProjectItem` üreterek doğru `Item` view'ini açar; özel bir akışta `Pane::add_item(Box::new(view), ...)` kullanırsın.
 - `Pane::activate_item`, `close_active_item`, `split` (split direction ile yeni pane) Pane API'leridir; `navigate_backward` ise `GoBack` action'ının işleyicisidir.
 - `Workspace::split_pane(pane, direction, cx)` mevcut pane'i böler.
@@ -260,8 +260,8 @@ let gorev = calisma_alani.open_paths(
 
 Item ve çalışma alanı tarafında dikkat edilmesi gereken hataya açık kullanımlar:
 
-- `Item` uygulamasında `Self::Event` türünün doğru tanımlanması ve `EventEmitter<Self::Event>` uygulanması şarttır; aksi halde `Item` trait bound'u tutmaz.
-- `Pane::add_item` `Box::new(view)` ile yapılır; pane item sahipliğini alır.
+- `Item` uygulamasında `Self::Event` türünü doğru tanımlaman ve `EventEmitter<Self::Event>` uygulaman şarttır; aksi halde `Item` trait bound'u tutmaz.
+- `Pane::add_item`'ı `Box::new(view)` ile çağırırsın; pane item sahipliğini alır.
 - `Workspace::register_action` geri çağrı imzası `Fn(&mut Self, &A, &mut Window, &mut Context<Self>)` biçimindedir; diğer GPUI `on_action` dinleyicilerinden farklı bir pozisyonel düzene sahiptir (`&A` ortada).
 - `NotificationId::Unique(TypeId::of::<T>())` ile aynı tipte iki notification açıldığında ikincisi birincinin yerine geçer; farklı bir sub-id isteniyorsa `Composite(TypeId, ElementId)` kullanırsın.
 - `Toast` autohide süresi varsayılan değildir; uzun mesajlarda elle `dismiss_toast` çağrısı gerekebilir.

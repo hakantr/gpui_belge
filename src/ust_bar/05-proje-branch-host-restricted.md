@@ -29,7 +29,7 @@ const MAX_BRANCH_NAME_LENGTH: usize = 40;
 const MAX_SHORT_SHA_LENGTH: usize = 8;
 ```
 
-Port hedefinde git göstergesi tamamen opsiyoneldir. Bir git arayüzün varsa aynı kalıbı kurarsın: aktif dalı kısaltarak göster, tıklanınca dal değiştirme yüzeyini aç, opsiyonel olarak bir durum ikonu ekle. Detached HEAD gibi kenar durumları için (dal yok, yalnız SHA var) bir yedek metin hazırlanır.
+Port hedefinde git göstergesi tamamen opsiyoneldir. Bir git arayüzün varsa aynı kalıbı kurarsın: aktif dalı kısaltarak göster, tıklanınca dal değiştirme yüzeyini aç, opsiyonel olarak bir durum ikonu ekle. Detached HEAD gibi kenar durumları için (dal yok, yalnız SHA var) bir yedek metin hazırlarsın.
 
 ## 3. Uzak proje sunucusu
 

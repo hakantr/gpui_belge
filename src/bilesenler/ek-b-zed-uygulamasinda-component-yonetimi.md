@@ -1,6 +1,6 @@
 # Ek B. Zed Uygulamasında Component Yönetimi
 
-Zed'de `ui` bileşenleri runtime'da merkezi bir "component manager" tarafından yaratılmaz. Normal uygulama ekranlarında akış GPUI'ye aittir: view veya entity durumu `Render` implementasyonunda tutulur, küçük ve stateless UI parçaları `RenderOnce` builder'larıyla oluşturulur; `ui::prelude::*` ya da doğrudan `use ui::{...}` import'larıyla çağırırsın. `Button::new`, `IconButton::new`, `ListItem::new`, `ContextMenu::build`, `PopoverMenu::new`, `Scrollbars::for_settings` ve `Table::new` gibi constructor'lar Zed uygulama crate'lerinde doğrudan kullanırsın.
+Zed'de `ui` bileşenleri runtime'da merkezi bir "component manager" tarafından yaratılmaz. Normal uygulama ekranlarında akış GPUI'ye aittir: view veya entity durumunu `Render` implementasyonunda tutarsın, küçük ve stateless UI parçalarını `RenderOnce` builder'larıyla oluşturursun; `ui::prelude::*` ya da doğrudan `use ui::{...}` import'larıyla çağırırsın. `Button::new`, `IconButton::new`, `ListItem::new`, `ContextMenu::build`, `PopoverMenu::new`, `Scrollbars::for_settings` ve `Table::new` gibi constructor'lar Zed uygulama crate'lerinde doğrudan kullanırsın.
 
 Component preview ise bundan ayrı, kendi içinde bir registry akışıdır:
 
@@ -20,8 +20,8 @@ Component preview ise bundan ayrı, kendi içinde bir registry akışıdır:
 
 Gerçek uygulama kullanımı için en rahat okuma sırası şudur:
 
-1. Builder imzası ve export yolu için önce `ui` crate'i ile ilgili alt modül dosyası okunur.
-2. Registry ve preview davranışı için `component`, `ui_macros` ve `component_preview` akışı izlenir.
-3. Uygulama kompozisyonu için bileşenin Zed'deki gerçek çağrı yerlerine bakılır. Örnekler arasında `title_bar` menü trigger'ları, `project_panel` scrollbars ve list item kullanımı, `keymap_editor` data table kullanımı, `git_ui` branch ve commit picker'ları, `workspace::notifications` toast ve notification frame kullanımı yer alır.
+1. Builder imzası ve export yolu için önce `ui` crate'inin ilgili alt modül dosyasını okursun.
+2. Registry ve preview davranışı için `component`, `ui_macros` ve `component_preview` akışını izlersin.
+3. Uygulama kompozisyonu için bileşenin Zed'deki gerçek çağrı yerlerine bakarsın. Örnekler arasında `title_bar` menü trigger'ları, `project_panel` scrollbars ve list item kullanımı, `keymap_editor` data table kullanımı, `git_ui` branch ve commit picker'ları, `workspace::notifications` toast ve notification frame kullanımı yer alır.
 
 Bu ayrım önemlidir: `impl Component for T`, üretim ekranındaki yaşam döngüsünü değil, preview ve gallery metadata'sını anlatır. Üretim ekranındaki yaşam döngüsü GPUI tarafında `Entity`, `Context`, `Window`, `FocusHandle`, `Task` ve gerektiğinde workspace katmanındaki `ModalLayer`, notification stack veya popover/menu state handle'ları tarafından yönetilir.

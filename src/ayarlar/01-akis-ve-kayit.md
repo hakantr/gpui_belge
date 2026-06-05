@@ -14,7 +14,7 @@ Ayar akışı şu sırayla işler:
 4. Store, kayıtlı `Settings` tiplerinin değerlerini birleştirilmiş `SettingsContent` üzerinden yeniden hesaplar ve global olarak GPUI `App`'e bildirir.
 5. UI tarafları `cx.observe_global::<SettingsStore>(...)` ile değişimi izler ve yeniden çizer.
 
-`settings::init(cx)` startup sırasında çağrılır; içerde `SettingsStore::new(cx, &default_settings())` çalışır ve oluşan store `cx.set_global(...)` ile global hale getirilir. `default_settings()` paketlenmiş `settings/default.json` dosyasını döndürür.
+`settings::init(cx)`'i startup sırasında çağırırsın; içerde `SettingsStore::new(cx, &default_settings())` çalışır ve oluşan store `cx.set_global(...)` ile global hale getirilir. `default_settings()` paketlenmiş `settings/default.json` dosyasını döndürür.
 
 ---
 
@@ -38,7 +38,7 @@ pub trait Settings: 'static + Send + Sync + Sized {
 ```
 
 - Tek zorunlu (gövdesiz) metot `from_settings`'tir; `register`, `get`, `get_global`, `try_get`, `try_read_global` ve `override_global` ise `#[track_caller]` ve `where Self: Sized` ile gelen, varsayılan gövdeye sahip metotlardır. Bunları kendi tipinde yeniden yazman gerekmez.
-- `from_settings` birleştirilmiş `SettingsContent` üzerinden tipi inşa eder. Varsayılan değerleri `assets/settings/default.json` tarafından sağlamak gerekir; aksi halde panic riski vardır.
+- `from_settings` birleştirilmiş `SettingsContent` üzerinden tipi inşa eder. Varsayılan değerleri `assets/settings/default.json` içinde sağlarsın; aksi halde panic riski vardır.
 - `PRESERVED_KEYS` versiyon etiketi gibi alanların ayar dosyasında daima yazılı kalmasını ister. Tip etiketli içeriklerde "schema_version" gibi kayıtların kaybolmaması içindir.
 - `get` ve `get_global` `SettingsStore::get` üzerinden değer döndürür. `path` parametresi `SettingsLocation { worktree_id, path }` ile worktree veya proje yolu hedefli üzerine yazmaları katmanlı olarak birleştirir.
 - `try_get` store mevcut değilse `None` döndürür; test bağlamlarında ve henüz başlatma yapılmamış erken kodlarda işe yarar.

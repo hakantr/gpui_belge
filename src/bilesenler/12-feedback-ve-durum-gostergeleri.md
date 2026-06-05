@@ -1,6 +1,6 @@
 # 12. Geri Bildirim ve Durum Göstergeleri
 
-Geri bildirim bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilgi, başarı, uyarı, hata, ilerleme, sayaç veya dikkat gerektiren kararlar bu grubun çatısı altına girer. Hepsi aynı tema token'larını paylaşır, fakat görsel yoğunlukları farklıdır. Bu yüzden önce mesajın ne kadar dikkat çekmesi gerektiğine karar verilir, sonra uygun yüzey seçersin:
+Geri bildirim bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilgi, başarı, uyarı, hata, ilerleme, sayaç veya dikkat gerektiren kararlar bu grubun çatısı altına girer. Hepsi aynı tema token'larını paylaşır, fakat görsel yoğunlukları farklıdır. Bu yüzden önce mesajın ne kadar dikkat çekmesi gerektiğine karar verir, sonra uygun yüzeyi seçersin:
 
 - `Banner`: sayfa veya panel üstünde kısa ve akışı bölmeyen bir mesaj vermek için kullanırsın.
 - `Callout`: içerik akışı içinde, kullanıcının okuması ve gerekirse karar vermesi beklenen daha açıklayıcı bir mesaj için kullanırsın.
@@ -29,7 +29,7 @@ Davranış:
 
 - `Banner` ve `Callout`, severity değerinden icon ile status renklerini türetir.
 - `Info` için sade bir `info_background` tonu ve muted ikon rengi seçilir; `Success` yeşil, `Warning` sarı, `Error` kırmızı status token'larını kullanır.
-- Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyon ayrı bir buton slot'una yerleştirilir.
+- Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyonu ayrı bir buton slot'una yerleştirirsin.
 
 ## Banner
 
@@ -112,7 +112,7 @@ Dikkat edeceğin noktalar:
 
 - Banner kısa kalmalıdır. Birden fazla paragraf veya liste gerektiren içerikler için `Callout` daha uygundur.
 - `action_slot(...)` içinde birden çok aksiyon yer alacaksa, `h_flex().gap_1()` ile açık bir aralık kurulması okunabilirliği artırır.
-- Banner, modal içindeki karar alanı gibi kullanmaman gerekir. Modal kararlarının footer aksiyonlarıyla verilmesi beklenir.
+- Banner, modal içindeki karar alanı gibi kullanmaman gerekir. Modal kararlarını footer aksiyonlarıyla verirsin.
 
 ## Callout
 
@@ -209,7 +209,7 @@ Dikkat edeceğin noktalar:
 
 - `Callout` içeriği flow içinde yer alır; viewport'u kaplayan bir overlay gibi davranmaz.
 - İkon gösterilmesi gerekiyorsa `.icon(...)` çağrısı açıkça yapman gerekir.
-- Description slot'una scroll yapan karmaşık bir içerik konulduğunda, içerideki metinlerin `min_w_0()` ve `.truncate()` davranışı ayrıca düşünülür.
+- Description slot'una scroll yapan karmaşık bir içerik konulduğunda, içerideki metinlerin `min_w_0()` ve `.truncate()` davranışını ayrıca düşünürsün.
 
 ## Modal
 
@@ -349,7 +349,7 @@ fn proje_ayarlarini_ac(
 Dikkat edeceğin noktalar:
 
 - `Modal` yalnızca bir içerik iskeletidir; açma ve kapama yaşam döngüsü modal host veya üst view tarafından yönetilir.
-- Header'daki dismiss ve back butonları `menu::Cancel` dispatch eder; bu aksiyonun üst context tarafından ele alınması beklenir.
+- Header'daki dismiss ve back butonları `menu::Cancel` dispatch eder; bu aksiyonu üst context'inde ele alırsın.
 - Section içinde çok sayıda ayar satırı yer alıyorsa, body için bir scroll handle vermen gerekir.
 - `Modal`, bir `AlertModal` yerine kullanılsa bile yine de workspace üzerinden `toggle_modal` ile sunulur; ayrı bir overlay altyapısı kurmaya gerek yoktur.
 
@@ -393,7 +393,7 @@ Davranış:
 - Varsayılan genişlik `px(440.)`'tır.
 - `.title(...)` verildiğinde küçük bir `Headline` içeren bir varsayılan başlık üretilir.
 - `.primary_action(...)` veya `.dismiss_label(...)` verildiğinde bir varsayılan altlık üretilir. Etiket verilmediği durumda birincil metin `"Ok"`, kapatma metni ise `"Cancel"` olur.
-- Varsayılan altlık butonları yalnızca görünümü kurar; karar akışının Zed eylem sistemi üzerinden `.on_action(...)` veya üst yaşam döngüsü ile bağlanması gerekir.
+- Varsayılan altlık butonları yalnızca görünümü kurar; karar akışını Zed eylem sistemi üzerinden `.on_action(...)` veya üst yaşam döngüsü ile bağlarsın.
 - `.header(...)` ve `.footer(...)` verildiğinde, varsayılan başlık veya altlık yerine tamamen özel bir element render edilir.
 
 Örnek:
@@ -535,7 +535,7 @@ Pratik sonuç şudur:
 
 - UI bileşeni olarak `AlertModal` veya `AnnouncementToast` render edilir.
 - Gösterme, saklama, kapatma ve tekrar göstermeme kararı üst notification view'ı içinde yönetilir.
-- Toast içindeki click işleyicilerinde gerekirse telemetry, URL açma ve dismiss akışı birlikte bağlanır.
+- Toast içindeki click işleyicilerinde gerekirse telemetry, URL açma ve dismiss akışını birlikte bağlarsın.
 
 ## CountBadge
 
@@ -588,7 +588,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - Üst öğenin hitbox'ı ile badge'in absolute konumunu birlikte düşünmen gerekir. Çok küçük icon button'larda badge, tıklanabilir alanı görsel olarak kalabalıklaştırabilir.
-- Badge metni otomatik olarak capped olduğu için, gerçek tam sayının tooltip veya bir detay view'ında gösterilmesi gerekebilir.
+- Badge metni otomatik olarak capped olduğu için, gerçek tam sayıyı tooltip veya bir detay view'ında göstermen gerekebilir.
 
 ## Indicator
 
@@ -608,7 +608,7 @@ Ne zaman kullanırsın:
 Ne zaman kullanmazsın:
 
 - İşlem ilerlemesi için `ProgressBar` ya da `CircularProgress` kullanırsın.
-- Metinsel bir açıklama gerekiyorsa yanına bir `Label` eklenir; indicator tek başına erişilebilir bir anlam taşımaz.
+- Metinsel bir açıklama gerekiyorsa yanına bir `Label` eklersin; indicator tek başına erişilebilir bir anlam taşımaz.
 
 Temel API:
 
@@ -654,8 +654,8 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Rengin `Color::Success`, `Warning`, `Error`, `Info` veya `Muted` gibi semantik token'lardan seçilmesi tutarlılığı korur.
-- Indicator tek bilgi kaynağı olarak kullanılmaz; özellikle error ve warning durumlarında tooltip veya label ile anlamın belirtilmesi gerekir.
+- Rengi `Color::Success`, `Warning`, `Error`, `Info` veya `Muted` gibi semantik token'lardan seçmen tutarlılığı korur.
+- Indicator tek bilgi kaynağı olarak kullanılmaz; özellikle error ve warning durumlarında tooltip veya label ile anlamı belirtmen gerekir.
 
 ## ProgressBar
 
@@ -718,7 +718,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - `value` ve `max_value` aynı birimde olmalıdır.
-- Progress bar'a sadece renk yüklenmemeli; yanında bir label veya tooltip ile bağlam verilmesi okunabilirliği artırır.
+- Progress bar'a sadece renk yüklenmemeli; yanında bir label veya tooltip ile bağlam vermen okunabilirliği artırır.
 - `value > max_value` bilinçli bir over-limit durumudur. Normal "işlem tamamlandı" durumu için `value == max_value` kullanırsın.
 
 ## CircularProgress
@@ -812,7 +812,7 @@ Davranış:
 Dikkat edeceğin noktalar:
 
 - `ActivityIndicator`, genel amaçlı bir progress bileşeni değildir. Bir panel içinde belirli bir iş oranı göstermek için `ProgressBar`, kompakt oran için `CircularProgress`, bilinmeyen süreli yerel loading için `Button::loading(...)` veya `SpinnerLabel` tercih edersin.
-- Popover menüsünde yalnızca iptal edilebilir işler aksiyon üretir. İptal edilemeyen işler tek başına menüyü açtırmaz; bu yüzden kullanıcıya tıklanabilir bir affordance gerekiyorsa ilgili durumun `on_click` geri çağrısı açıkça bağlanmalıdır.
+- Popover menüsünde yalnızca iptal edilebilir işler aksiyon üretir. İptal edilemeyen işler tek başına menüyü açtırmaz; bu yüzden kullanıcıya tıklanabilir bir affordance gerekiyorsa ilgili durumun `on_click` geri çağrısını açıkça bağlarsın.
 
 ## Geri Bildirim Kompozisyon Örnekleri
 

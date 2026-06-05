@@ -156,7 +156,7 @@ Zed içindeki örnekler `agent_ui` crate'i ve `collab_ui` crate'i dosyalarındad
 
 Başlık çubuğu ve pencere süslemesi iki ayrı kavramdır. Karışmasın diye ikisinin sorumluluğunu ayrı düşünmen gerekir:
 
-- `TitlebarOptions`: macOS ve Windows yerel başlık çubuğunun görünümü, başlık metni ve macOS traffic light konumu burada belirlenir.
+- `TitlebarOptions`: macOS ve Windows yerel başlık çubuğunun görünümünü, başlık metnini ve macOS traffic light konumunu burada belirlersin.
 - `WindowDecorations`: Linux, Wayland ve X11 tarafında süslemenin sunucu tarafında mı (`server-side`) yoksa istemci tarafında mı (`client-side`) olacağını söyler.
 
 GPUI tarafındaki tipler şunlar:
@@ -271,7 +271,7 @@ Zed'in başlık çubuğu davranışında dikkat çeken iki ayrıntı vardır:
 
 Pencere kontrol butonları her platformda farklı çizilir; doğru bileşeni seçtiğin sürece çizim ayrıntıları kullanıcının önüne çıkmaz:
 
-- macOS: yerel traffic light devreye girer; Zed iç boşluk ve `traffic_light_position` değerini birlikte yönetir. Pencere açıldıktan sonra konum değişecekse `Window::set_traffic_light_position(position: Point<Pixels>)` çağrısı kullanılır.
+- macOS: yerel traffic light devreye girer; Zed iç boşluk ve `traffic_light_position` değerini birlikte yönetir. Pencere açıldıktan sonra konumu değiştireceksen `Window::set_traffic_light_position(position: Point<Pixels>)`'ı çağırırsın.
 - Windows: `platform_title_bar::platforms::platform_windows::WindowsWindowControls`, başlık butonlarını çizer; her buton `WindowControlArea` üzerinden yerel çarpışma testi alanına bağlanır.
 - Linux: `platform_title_bar::platforms::platform_linux::LinuxWindowControls`, `WindowButtonLayout` ve `WindowControls` bilgilerine göre kapatma, küçültme ve ekranı kaplama butonlarını çizer.
 

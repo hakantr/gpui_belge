@@ -62,7 +62,7 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 
 33. **`#[gpui::test]` `cx.update` içinde init kurulumu.** Test başında `kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx)` veya `test_ortamini_baslat(cx)` çağrısı gerekir.
 34. **Hsla'nın `assert_eq!` ile karşılaştırılması.** Float eşitliği yanıltıcıdır; epsilon karşılaştırması tercih edersin.
-35. **`feature = "test-support"` kapsamı.** `#[cfg(any(test, feature = "test-support"))]` koşulu kurulur; release build'inde kapatılmalıdır.
+35. **`feature = "test-support"` kapsamı.** `#[cfg(any(test, feature = "test-support"))]` koşulunu kurarsın; release build'inde kapatırsın.
 
 ### API yüzeyi
 

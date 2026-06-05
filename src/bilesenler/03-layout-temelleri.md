@@ -77,7 +77,7 @@ fn arac_cubugu_basligini_render_et(yol: SharedString) -> impl IntoElement {
 Dikkat edeceğin noktalar:
 
 - `h_flex()` varsayılan olarak `items_center()` uygular. Üstten hizalama gerektiğinde bunu `.items_start()` ile override etmen gerekir.
-- Uzun metin taşıyan h-flex satırlarında üst elemana `.min_w_0()` ve etiket elemanına `.truncate()` eklemen beklenir; aksi halde flex algoritması metni kısaltmak yerine satırı taşırabilir.
+- Uzun metin taşıyan h-flex satırlarında üst elemana `.min_w_0()`, etiket elemanına da `.truncate()` eklersin; aksi halde flex algoritması metni kısaltmak yerine satırı taşırabilir.
 - `v_flex()` kendiliğinden gap eklemez. Dikey boşluğu `.gap_*()` ya da padding ile açıkça kurman gerekir.
 
 ## h_group ve v_group

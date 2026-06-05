@@ -17,16 +17,16 @@
 
 **Çalışma alanı yapısı.** Çalışma alanı üç ana dock'u ve merkezdeki pane grubunu bir arada tutar:
 
-- **Oluşturma:** Zaten hazırlanmış bir `Project` entity'si için `Workspace::new(workspace_id, project, app_state, window, cx)` kullanılır; path listesinden yeni çalışma alanı açma akışında ise yüksek seviyeli `Workspace::new_local(...)` tercih edersin.
+- **Oluşturma:** Zaten hazırlanmış bir `Project` entity'si için `Workspace::new(workspace_id, project, app_state, window, cx)` kullanırsın; path listesinden yeni çalışma alanı açma akışında ise yüksek seviyeli `Workspace::new_local(...)` tercih edersin.
   - `workspace_id`: Varsa kalıcı çalışma alanı kimliği; yeni oturumlarda `None` verilebilir.
   - `project`: Dosya, arama, dil ve terminal servislerini sağlayan çekirdek proje entity'si.
   - `app_state`: Genel istemci (`client`), kullanıcı ve dil (`LanguageRegistry`) kayıtlarını barındıran durum.
 - `Workspace` merkezde pane grubunu, solda `left_dock`'u, sağda `right_dock`'u ve altta `bottom_dock`'u taşır.
-- Dock entity'si `DockPosition::{Left, Bottom, Right}` ile konumlanır.
-- `Workspace::left_dock()`, `right_dock()`, `bottom_dock()`, `all_docks()`, `dock_at_position(position)` ile erişim sağlanır.
+- Dock entity'sini `DockPosition::{Left, Bottom, Right}` ile konumlandırırsın.
+- `Workspace::left_dock()`, `right_dock()`, `bottom_dock()`, `all_docks()`, `dock_at_position(position)` ile erişirsin.
 - Aksiyonlar: `ToggleLeftDock`, `ToggleRightDock`, `ToggleBottomDock`, `ToggleAllDocks`, `CloseActiveDock`, `CloseAllDocks`, `Increase/DecreaseActiveDockSize`, `ResetActiveDockSize` gibi.
 
-**Panel yazma.** Yeni bir panel `Panel` trait'i uygulanarak tanımlanır:
+**Panel yazma.** Yeni bir paneli `Panel` trait'ini uygulayarak tanımlarsın:
 
 - `persistent_name()` dock durumu serileştirmesinde ve telemetry'de kullanılan kimliktir; `panel_key()` ise boyut durumu kalıcılaştırma ve keymap context kimliğidir.
 - `position`, `position_is_valid`, `set_position` panelin hangi dock'ta oturduğunu yönetir.
@@ -38,7 +38,7 @@
 
 **Dock davranışı.** Dock entity'sinin panel ekleme ve görünürlük yönetimi şu şekildedir:
 
-- `Dock::add_panel` paneli `activation_priority` sırasına göre ekler. Aynı priority'i kullanan iki panel hata ayıklama build'inde panic'e yol açar; her panel benzersiz bir priority seçmelidir.
+- `Dock::add_panel` paneli `activation_priority` sırasına göre ekler. Aynı priority'i kullanan iki panel hata ayıklama build'inde panic'e yol açar; her panele benzersiz bir priority seçersin.
 - `Dock::set_open`, `activate_panel`, `active_panel`, `active_panel_index`, `visible_panel`, `panel::<T>()`, `panel_for_id`, `panel_index_for_type`, `panel_index_for_proto_id`, `panel_index_for_persistent_name`, `remove_panel`, `panels_len` ve `first_enabled_panel_idx` temel görünürlük, arama ve seçim API'leridir.
 - `active_panel_size`, `stored_active_panel_size`, `stored_panel_size`, `stored_panel_size_state`, `resize_active_panel`, `resize_all_panels`, `clamp_panel_size` ve `toggle_panel_flexible_size` panel boyutu ve esnek boyut geçişlerini yönetir.
 - `restore_state`, serialize edilmiş dock durumundan aktif panel, açık/kapalı durum ve zoom bilgisini geri yükler.
@@ -87,11 +87,11 @@
 
 **`toggle_dock` akışı.** Dock'u açıp kapatan tipik akış birkaç adımdan oluşur:
 
-1. Dock görünürse açık pozisyonlar kaydedilir.
-2. Dock açık durumu terslenir.
-3. Aktif panel yoksa ilk etkin panel aktif edilir.
-4. Açılıyorsa odak, panelin focus handle'ına taşınır; kapanıyorsa odaktaki panelden geliniyorsa orta pane'e geri verirsin.
-5. Çalışma alanı serileştirilir.
+1. Dock görünürse açık pozisyonları kaydedersin.
+2. Dock açık durumunu terslersin.
+3. Aktif panel yoksa ilk etkin paneli aktif edersin.
+4. Açılıyorsa odağı panelin focus handle'ına taşırsın; kapanırken odak o panelden geliyorsa orta pane'e geri verirsin.
+5. Çalışma alanını serileştirirsin.
 
 **Yeni panel eklerken kontrol.** Aşağıdaki noktalar yeni bir panel hazırlanırken gözden geçirilmelidir:
 

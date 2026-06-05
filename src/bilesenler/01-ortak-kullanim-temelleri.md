@@ -23,11 +23,11 @@ use ui::{Callout, ContextMenu, DropdownMenu, List, ListItem, Tooltip};
 
 ## Prelude ve Bileşen Önizleme Import Sınırı
 
-`ui::prelude::*`, çalışma zamanı UI yazarken kullandığın kısa yoldur. `ActiveTheme`, `DynamicSpacing`, `RegisterComponent`, `Button`, `Icon`, `Label`, `Color`, `Severity`, `ToggleState`, ortak trait'ler ve sık kullanılan GPUI tiplerini aynı import altında toplar. Bu yüzden normal uygulama ekranında önce `use ui::prelude::*;` yazılır, sonra yalnız özel bileşenler için ek import yapılır.
+`ui::prelude::*`, çalışma zamanı UI yazarken kullandığın kısa yoldur. `ActiveTheme`, `DynamicSpacing`, `RegisterComponent`, `Button`, `Icon`, `Label`, `Color`, `Severity`, `ToggleState`, ortak trait'ler ve sık kullanılan GPUI tiplerini aynı import altında toplar. Bu yüzden normal uygulama ekranında önce `use ui::prelude::*;` yazarsın, sonra yalnız özel bileşenler için ek import eklersin.
 
-`ui::component_prelude::*` ise çalışma zamanı ekran kodu için değil, bileşen önizleme veya bileşen galerisi kaydı yazarken kullanılır. Bu prelude `Component`, `ComponentId`, `ComponentScope`, `ComponentStatus`, `RegisterComponent`, `Documented`, `single_example`, `example_group` ve `example_group_with_title` gibi önizleme sistemine ait yardımcıları getirir. Üretim UI'da bir butonu render etmek için `component_prelude` gerekmez; önizleme yazarken ise `RegisterComponent` derive'ı ve `Documented` derive'ı aynı dosyada kısa importla kullanılabilir.
+`ui::component_prelude::*` ise çalışma zamanı ekran kodu için değil, bileşen önizleme veya bileşen galerisi kaydı yazarken kullanılır. Bu prelude `Component`, `ComponentId`, `ComponentScope`, `ComponentStatus`, `RegisterComponent`, `Documented`, `single_example`, `example_group` ve `example_group_with_title` gibi önizleme sistemine ait yardımcıları getirir. Üretim UI'da bir butonu render etmek için `component_prelude` gerekmez; önizleme yazarken ise `RegisterComponent` derive'ı ve `Documented` derive'ını aynı dosyada kısa importla kullanırsın.
 
-`ui::prelude` ve `ui::component_prelude` ikisini aynı dosyada karıştırmadan önce dosyanın rolünü netleştirmen gerekir. Dosya gerçek bir Zed ekranı render ediyorsa `ui::prelude::*` yeterlidir. Dosya yalnız önizleme kaydına örnek ekliyorsa `ui::component_prelude::*` eklenir. Aksi halde bileşen registry API'leri, çalışma zamanı UI bağımlılığıymış gibi görünür ve okuyucu için yanlış bir model oluşur.
+`ui::prelude` ve `ui::component_prelude` ikisini aynı dosyada karıştırmadan önce dosyanın rolünü netleştirmen gerekir. Dosya gerçek bir Zed ekranı render ediyorsa `ui::prelude::*` yeterlidir. Dosya yalnız önizleme kaydına örnek ekliyorsa `ui::component_prelude::*` eklersin. Aksi halde bileşen registry API'leri, çalışma zamanı UI bağımlılığıymış gibi görünür ve okuyucu için yanlış bir model oluşur.
 
 | Prelude | İçerik | Kullanım yeri |
 | :-- | :-- | :-- |
@@ -92,7 +92,7 @@ impl Render for AyarSatiri {
 
 ## Temel veri tipleri
 
-`ElementId`, bileşen durumu ve hitbox takibi için kullanılan sabit kimliktir. Button, tab, list item, table row ve toggle gibi etkileşimli bileşenlere anlamlı ve birbiriyle çakışmayan bir id vermen beklenir. Aksi halde GPUI hangi elementin hangi durumu taşıdığını ayırt etmekte zorlanır.
+`ElementId`, bileşen durumu ve hitbox takibi için kullanılan sabit kimliktir. Button, tab, list item, table row ve toggle gibi etkileşimli bileşenlere anlamlı ve birbiriyle çakışmayan bir id verirsin. Aksi halde GPUI hangi elementin hangi durumu taşıdığını ayırt etmekte zorlanır.
 
 `SharedString`, UI metinleri için tercih ettiğin string tipidir. `&'static str`, `String` veya `Arc<str>` kaynaklı metinleri, gereksiz bir kopya üretmeden elementlere taşımana yarar. Render sırasında her metnin tekrar tekrar kopyalanması yerine paylaşılan bir referans üzerinden hareket edersin.
 
@@ -351,7 +351,7 @@ Tarih farkı yardımcıları (`format_distance` modülü):
 - `DateTimeType::Naive(NaiveDateTime)` veya `DateTimeType::Local(DateTime<Local>)` iki olası kaynağı temsil eder. `.to_naive()` her ikisini de `NaiveDateTime`'a çevirir.
 - `format_distance(date, base_date, include_seconds, add_suffix, hide_prefix) -> String`: iki tarih arasındaki mesafeyi "less than a minute ago", "about 2 hours ago", "3 months from now" gibi insan okuyabilir bir metne çevirir.
 - `format_distance_from_now(datetime, include_seconds, add_suffix, hide_prefix) -> String`: aynı işi yapar, ancak `base_date` olarak otomatik `Local::now()` kullanılır.
-- `FormatDistance::new(date, base_date).include_seconds(...).add_suffix(...) .hide_prefix(...)`: builder yüzeyidir; thread item, git commit ve activity feed gibi yerlerde tercih edersin. Yeni kod yazarken mevcut Zed çalışma ağacında kullanılan tarih formatlama yardımcılarıyla aynı çizgide kalman gerekir.
+- `FormatDistance::new(date, base_date).include_seconds(...).add_suffix(...) .hide_prefix(...)`: builder yüzeyidir; thread item, git commit ve activity feed gibi yerlerde tercih edersin. Yeni kod yazarken Zed çalışma ağacını referans alıp aynı tarih formatlama yardımcılarını tutarlı biçimde kullanırsın.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -385,6 +385,6 @@ UI olay işleyicilerinden veya async task'lardan dönen `Result` değerlerini se
 - View içinde fire-and-forget bir task çalıştırdığında, hatanın log'a düşürülmesi için `task.detach_and_log_err(cx)`'i tercih edersin. Buna karşılık düz `task.detach()` hatayı sessizce yok eder ve sebebi sonradan tespit etmek mümkün olmaz.
 - Async iş bitiminde view durumunun güncellenmesi gerekiyorsa, task'ı view struct'ı içinde `Task<anyhow::Result<()>>` alanı olarak saklaman ve task içinde `this.update(cx, ...)?` çağrısı ile entity'ye geri dönmen uygun bir desendir. Bu yaklaşım [Entegre Örnek Sayfaları](16-entegre-ornek-sayfalari.md)'ndaki "Ayarlar Paneli Satırı" örneğinde uygulanır.
 - Tek seferlik bir async sonuç kullanıcıya gösterilecekse, hatayı `last_error: Option<SharedString>` gibi bir durum alanına yazıp `Callout` veya `Banner` ile sunmayı tercih edersin. Görsel durum değiştiği için ayrıca `cx.notify()` çağrısı da gerekir; aksi halde durum güncellense bile ekran yenilenmez.
-- Panik üreten kısa yollar ve `let _ = ...?` yerine açık eşleştirme yapman beklenir. `let _ = ...` üretim kodunda yalnızca hatayı bilinçli olarak yok saydığın ender durumlarda kabul edilir; o durumlarda da nedenini yorum satırıyla belirtmen gerekir.
+- Panik üreten kısa yollar ve `let _ = ...?` yerine açık eşleştirme yaparsın. `let _ = ...` üretim kodunda yalnızca hatayı bilinçli olarak yok saydığın ender durumlarda kabul edilir; o durumlarda da nedenini yorum satırıyla belirtmen gerekir.
 
 `anyhow::Result` ve `anyhow::Context`, Zed crate'lerinde standart hâle gelmiştir. `?` operatörü ile bir hata yayılırken mesaja `with_context(|| ...)` eklediğinde, log'da hatanın kaynağı çok daha anlaşılır biçimde görünür.

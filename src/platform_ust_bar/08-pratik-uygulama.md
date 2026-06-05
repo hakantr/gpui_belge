@@ -4,7 +4,7 @@
 
 ## 18. Özelleştirme noktaları
 
-Aşağıdaki tablo, üst barda en sık değiştirilen davranışların hangi dosya veya alanda ele alındığını gösterir. Yeni bir özelleştirme ihtiyacı doğduğunda önce buraya bakılır; tablodaki giriş ilgili kodun kapısını açar.
+Aşağıdaki tablo, üst barda en sık değiştirilen davranışların hangi dosya veya alanda ele alındığını gösterir. Yeni bir özelleştirme ihtiyacı doğduğunda önce buraya bakarsın; tablodaki giriş ilgili kodun kapısını açar.
 
 | İhtiyaç | Değiştirilecek yer |
 | :-- | :-- |
@@ -24,53 +24,53 @@ Aşağıdaki tablo, üst barda en sık değiştirilen davranışların hangi dos
 
 ## 19. Kontrol listesi
 
-Aşağıdaki listeler, üst bar entegrasyonu tamamlandıktan sonra hızlıca gözden geçirilmesi gereken maddeleri toplar. Bunları pratik bir son kontrol denetimi gibi kullanmak gerekir. Her madde kabaca bir kod parçasına veya teste karşılık gelir.
+Aşağıdaki listeler, üst bar entegrasyonu tamamlandıktan sonra hızlıca gözden geçirilmesi gereken maddeleri toplar. Bunları pratik bir son kontrol denetimi gibi kullanırsın. Her madde kabaca bir kod parçasına veya teste karşılık gelir.
 
 ### Genel
 
-- `PlatformTitleBar::init(cx)` uygulama başlangıcında **bir kez** çağrılıyor mu kontrol edilir. İki kez çağrılması, gözlemcilerin çift çalışmasına yol açar.
-- Pencerenin `WindowOptions.titlebar` alanı şeffaf başlık çubuğu değeriyle açılıyor mu doğrulanır.
-- Linux CSD ihtiyacı varsa `WindowDecorations::Client` isteniyor mu bakılır.
-- CSD kullanılıyorsa pencere gölgesi, kenarlığı ve yeniden boyutlandırma davranışı için ayrı bir sarmal uygulanıyor mu kontrol edilir. Bu sarmal olmadan başlık çubuğu yine render olur, ama pencere kenarı yerel hissettirmez.
-- Başlık çubuğu çocukları her render geçişinde `set_children(...)` ile yenileniyor mu doğrulanır.
-- Başlık çubuğu üzerindeki etkileşimli çocuk elementler sürükleme olay yayılımı ile çakışıyor mu test edilir; bir buton tıklamasının pencereyi sürüklemediğinden emin olunur.
-- Tema token'ları aktif, pasif ve üzerine gelme durumlarının hepsini kapsıyor mu kontrol edilir; eksik bir token render'da bariz görsel boşluklar bırakır.
-- Ürün duyuru bantları `PlatformTitleBar` içine gömülmeden, `UygulamaBaslikCubugu` çocuk grubu olarak kuruluyor mu kontrol edilir.
-- Duyuru bantlarının görünürlüğünün başlangıçta tek sefer hesaplanmadığı, render sırasında güncel ayar koşulu ve kapatılma durumu ile gizlenip gösterildiği doğrulanır. Görünürlük `should_show = !dismissed && visible_when(cx)` biçiminde değerlendirilir; `visible_when` bir koşul kapanışıdır ve kapatılma durumu kalıcı saklanır.
-- Güncelleme ipucu semantik sürüm için de SHA için de kaynak davranıştaki `"Update to Version:"` önekini ve tam SHA bilgisini koruyor mu kontrol edilir. Port görünür metinleri Türkçeyse bu veri ayrımı yerelleştirilmiş metinde de korunur.
-- Güncelleme butonunun geçici durumları (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) sırasında tıklamanın kapalı olduğu doğrulanır; `checking` ve `installing` durumlarında döner `LoadCircle` ikonunun her turu 2 saniyede tamamlayan sürekli (sonsuz tekrarlı) bir dönüş yaptığı, `downloading` durumunda ise `Download` ikonunun animasyonsuz olarak kullanıldığı kontrol edilir. Port görünür metinleri Türkçeyse bu durumlar `"Denetleniyor…"`, `"İndiriliyor…"`, `"Kuruluyor…"` gibi yazılır.
-- Mevcut pencereye/yan panele proje açan `Activate` akışı pencereyi öne alıyor ve başlık çubuğu durumunu güncelliyor mu test edilir.
+- `PlatformTitleBar::init(cx)` uygulama başlangıcında **bir kez** çağrılıyor mu diye kontrol edersin. İki kez çağrılması, gözlemcilerin çift çalışmasına yol açar.
+- Pencerenin `WindowOptions.titlebar` alanı şeffaf başlık çubuğu değeriyle açılıyor mu diye doğrularsın.
+- Linux CSD ihtiyacı varsa `WindowDecorations::Client` isteniyor mu diye bakarsın.
+- CSD kullanılıyorsa pencere gölgesi, kenarlığı ve yeniden boyutlandırma davranışı için ayrı bir sarmal uygulanıyor mu diye kontrol edersin. Bu sarmal olmadan başlık çubuğu yine render olur, ama pencere kenarı yerel hissettirmez.
+- Başlık çubuğu çocukları her render geçişinde `set_children(...)` ile yenileniyor mu diye doğrularsın.
+- Başlık çubuğu üzerindeki etkileşimli çocuk elementler sürükleme olay yayılımı ile çakışıyor mu diye test edersin; bir buton tıklamasının pencereyi sürüklemediğinden emin olursun.
+- Tema token'ları aktif, pasif ve üzerine gelme durumlarının hepsini kapsıyor mu diye kontrol edersin; eksik bir token render'da bariz görsel boşluklar bırakır.
+- Ürün duyuru bantları `PlatformTitleBar` içine gömülmeden, `UygulamaBaslikCubugu` çocuk grubu olarak kuruluyor mu diye kontrol edersin.
+- Duyuru bantlarının görünürlüğünün başlangıçta tek sefer hesaplanmadığını, render sırasında güncel ayar koşulu ve kapatılma durumu ile gizlenip gösterildiğini doğrularsın. Görünürlük `should_show = !dismissed && visible_when(cx)` biçiminde değerlendirilir; `visible_when` bir koşul kapanışıdır ve kapatılma durumu kalıcı saklanır.
+- Güncelleme ipucu semantik sürüm için de SHA için de kaynak davranıştaki `"Update to Version:"` önekini ve tam SHA bilgisini koruyor mu diye kontrol edersin. Port görünür metinleri Türkçeyse bu veri ayrımı yerelleştirilmiş metinde de korunur.
+- Güncelleme butonunun geçici durumları (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) sırasında tıklamanın kapalı olduğunu doğrularsın; `checking` ve `installing` durumlarında döner `LoadCircle` ikonunun her turu 2 saniyede tamamlayan sürekli (sonsuz tekrarlı) bir dönüş yaptığını, `downloading` durumunda ise `Download` ikonunun animasyonsuz olarak kullanıldığını kontrol edersin. Port görünür metinleri Türkçeyse bu durumlar `"Denetleniyor…"`, `"İndiriliyor…"`, `"Kuruluyor…"` gibi yazılır.
+- Mevcut pencereye/yan panele proje açan `Activate` akışı pencereyi öne alıyor ve başlık çubuğu durumunu güncelliyor mu diye test edersin.
 
 ### Linux/FreeBSD
 
-- `cx.button_layout()` veya uygulama ayarı yoluyla `WindowButtonLayout` geliyor mu kontrol edilir.
-- Sol ve sağ buton dizilerinin boş slotlarının doğru davrandığı test edilir (ilk slot boş ise tarafın tamamen gizlendiği dikkate alınır).
-- Masaüstü yerleşimi değiştiğinde başlık çubuğunun otomatik olarak yeniden render olup olmadığı doğrulanır.
-- `window.window_controls()` yetenek sonucu, minimize ve maximize desteğini doğru filtreliyor mu sınanır.
-- Sağ tık ile açılan sistem pencere menüsü ürünün istediği davranışla uyumlu mu kontrol edilir. Bazı uygulamalar bu menüyü tamamen kapatmayı tercih edebilir.
+- `cx.button_layout()` veya uygulama ayarı yoluyla `WindowButtonLayout` geliyor mu diye kontrol edersin.
+- Sol ve sağ buton dizilerinin boş slotlarının doğru davrandığını test edersin (ilk slot boş ise tarafın tamamen gizlendiğini dikkate alırsın).
+- Masaüstü yerleşimi değiştiğinde başlık çubuğunun otomatik olarak yeniden render olup olmadığını doğrularsın.
+- `window.window_controls()` yetenek sonucu, minimize ve maximize desteğini doğru filtreliyor mu diye sınarsın.
+- Sağ tık ile açılan sistem pencere menüsü ürünün istediği davranışla uyumlu mu diye kontrol edersin. Bazı uygulamalar bu menüyü tamamen kapatmayı tercih edebilir.
 
 ### Windows
 
-- Caption button alanlarının `WindowControlArea::{Min, Max, Close}` olarak kaldığı doğrulanır; bu eşleme değişirse Windows yerel caption davranışıyla uyumsuzluk oluşur.
-- Sağ taraftaki ürün butonlarının caption button hitbox'ları ile çakışmadığı test edilir.
-- `platform_title_bar_height` değerinin Windows için `32px` varsayımını koruduğu veya bilinçli olarak değiştirildiği netleştirilir.
-- Kapat butonunun üzerine gelme rengi (Microsoft'un kırmızısı), tema politikasıyla uyumlu mu kontrol edilir.
+- Caption button alanlarının `WindowControlArea::{Min, Max, Close}` olarak kaldığını doğrularsın; bu eşleme değişirse Windows yerel caption davranışıyla uyumsuzluk oluşur.
+- Sağ taraftaki ürün butonlarının caption button hitbox'ları ile çakışmadığını test edersin.
+- `platform_title_bar_height` değerinin Windows için `32px` varsayımını koruduğunu veya bilinçli olarak değiştirildiğini netleştirirsin.
+- Kapat butonunun üzerine gelme rengi (Microsoft'un kırmızısı), tema politikasıyla uyumlu mu diye kontrol edersin.
 
 ### macOS
 
-- Trafik ışıkları için sol padding korunuyor mu doğrulanır.
-- `traffic_light_position` ile başlık çubuğu çocuklarının çakışmadığı test edilir.
-- Trafik ışıklarının başlangıç konumu, pencere oluşturulurken `TitlebarOptions.traffic_light_position` ile verilir; Zed'in kendisi çalışma zamanında bu konumu yeniden ayarlamaz. Çalışma zamanında başlık çubuğu yüksekliği, duyuru bandı veya yoğunluk değişiyorsa yerel buton konumunu güncellemek porta özgü bir gerekliliktir; bu durumda `window.set_traffic_light_position(...)` çağrısıyla konumun güncellenmesi doğrulanır.
-- Tam ekran ve yerel sekme davranışının ayrı senaryolarda doğru çalıştığı kontrol edilir; iki özelliğin birlikte etkinleştiği durumlar ayrıca test edilir.
-- Çift tıklamanın sistem davranışına mı yoksa ürünün özel davranışına mı yönlendirileceği bilinçli olarak karara bağlanır.
+- Trafik ışıkları için sol padding korunuyor mu diye doğrularsın.
+- `traffic_light_position` ile başlık çubuğu çocuklarının çakışmadığını test edersin.
+- Trafik ışıklarının başlangıç konumu, pencere oluşturulurken `TitlebarOptions.traffic_light_position` ile verilir; Zed'in kendisi çalışma zamanında bu konumu yeniden ayarlamaz. Çalışma zamanında başlık çubuğu yüksekliği, duyuru bandı veya yoğunluk değişiyorsa yerel buton konumunu güncellemek porta özgü bir gerekliliktir; bu durumda `window.set_traffic_light_position(...)` çağrısıyla konumun güncellendiğini doğrularsın.
+- Tam ekran ve yerel sekme davranışının ayrı senaryolarda doğru çalıştığını kontrol edersin; iki özelliğin birlikte etkinleştiği durumları ayrıca test edersin.
+- Çift tıklamanın sistem davranışına mı yoksa ürünün özel davranışına mı yönlendirileceğini bilinçli olarak karara bağlarsın.
 
 ### Yerel sekmeler
 
-- `tabbing_identifier` değerinin aynı tab grubuna ait tüm pencerelerde birbirinin aynısı olduğu doğrulanır.
-- Sekme kapatma eylemi kirli doküman veya çalışma alanı durumunu kontrol ediyor mu test edilir; bu kontrol yoksa kaydedilmemiş çalışmalar için ürünün koruma akışı devreye giremez.
-- Sekmenin yeni bir pencereye taşınmasının ardından uygulama durumunun doğru pencerede oluştuğu doğrulanır.
-- Artı butonunun ürünün istediği yeni pencere/çalışma alanı eylemini gönderdiği test edilir; kaynak `OpenRecent` davranışı değiştirilecekse bu seçim bilinçli biçimde yapılır.
-- Sağ tık menüsündeki metinler ve eylemler ürünün diline ve davranışına göre uyarlanmış mı kontrol edilir.
+- `tabbing_identifier` değerinin aynı tab grubuna ait tüm pencerelerde birbirinin aynısı olduğunu doğrularsın.
+- Sekme kapatma eylemi kirli doküman veya çalışma alanı durumunu kontrol ediyor mu diye test edersin; bu kontrol yoksa kaydedilmemiş çalışmalar için ürünün koruma akışı devreye giremez.
+- Sekmenin yeni bir pencereye taşınmasının ardından uygulama durumunun doğru pencerede oluştuğunu doğrularsın.
+- Artı butonunun ürünün istediği yeni pencere/çalışma alanı eylemini gönderdiğini test edersin; kaynak `OpenRecent` davranışı değiştirilecekse bu seçimi bilinçli biçimde yaparsın.
+- Sağ tık menüsündeki metinler ve eylemler ürünün diline ve davranışına göre uyarlanmış mı diye kontrol edersin.
 
 ## 20. Dikkat Edilmesi Gereken Kullanımlar
 

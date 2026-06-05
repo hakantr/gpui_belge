@@ -128,7 +128,7 @@ Maliyet hesabı: Sekiz WAV dosyasının decode edilmiş hali en fazla birkaç MB
 
 Yeni bir ses eklemek için izlenmesi gereken adımlar:
 
-1. `assets/sounds/yeni_ses.wav` dosyası eklenir (ya da hangi snake_case ad uygunsa).
+1. `assets/sounds/yeni_ses.wav` dosyasını eklersin (ya da hangi snake_case ad uygunsa).
 2. `Sound` enum'una `YeniSes` varyantı eklersin.
 3. `Sound::file` `match` koluna `Self::YeniSes => "yeni_ses"` satırı eklersin.
 4. UI kodunda `Audio::play_sound(Sound::YeniSes, cx)` ile tetiklersin.

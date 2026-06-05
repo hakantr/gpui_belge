@@ -200,7 +200,7 @@ Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Cor
 
 ## Layout, Style ve Dönüşüm API Tamamlayıcıları
 
-Stil ve geometri dosyasında geçen bazı tipler doğrudan fluent zincirde görünmez, ama özel element, canvas, popover veya renderer entegrasyonu yazarken karşına çıkar.
+Stil ve geometri dosyasında geçen bazı tipler doğrudan fluent zincirde görünmez, ama özel element, canvas, popover veya renderer entegrasyonu yazarken bu tiplerle karşılaşırsın.
 
 ### AlignItems, AlignSelf, AlignContent, JustifyItems, JustifySelf ve JustifyContent
 

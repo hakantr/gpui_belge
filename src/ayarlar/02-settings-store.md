@@ -50,7 +50,7 @@ impl Global for SettingsStore {}
 
 ## Kurulum
 
-En küçük kurulumda store oluşturulur, global state'e konur ve aktif profil değişimi izlenir:
+En küçük kurulumda store oluşturur, global state'e koyar ve aktif profil değişimini izlersin:
 
 ```rust
 let ayarlar = SettingsStore::new(cx, &default_settings());

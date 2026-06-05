@@ -57,7 +57,7 @@ Menüleri ayrı bir satıra taşıma ihtiyacın varsa, [3. bölümdeki](03-title
 
 ## 4. Davranış doğrulama listesi
 
-Ürün başlığı entegrasyonu tamamlandığında aşağıdaki karar noktaları tek tek doğrulanır:
+Ürün başlığı entegrasyonu tamamlandığında aşağıdaki karar noktalarını tek tek doğrularsın:
 
 - `init` her çalışma alanı için bir ürün başlık entity'si kuruyor ve platform kabuğunu bir kez hazırlıyor mu?
 - Ürün çocukları her render geçişinde yeniden teslim ediliyor; başlık ikinci karede boşalmıyor mu?

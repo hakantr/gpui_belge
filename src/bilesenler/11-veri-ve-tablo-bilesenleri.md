@@ -8,9 +8,9 @@ Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bil
 
 - `uniform_list(id, item_count, |range, window, cx| Vec<AnyElement>)` imzası bir id ile bir satır sayısı alır; kalan kısımda yalnızca görünür `range` için satırlar üretilir. Aralık içindeki indeks dizisi `range.map(|indeks| ...)` ifadesiyle dolaşılır.
 - Satır yüksekliğinin homojen olması beklenir. İçerik her satırda farklı bir yükseklik gerektiriyorsa, GPUI tarafındaki `list(...)` elementi ve `ListState` ile çalışan `Table::variable_row_height_list(...)` daha uygun bir seçim olur.
-- Scroll davranışı için `UniformListScrollHandle` view yapısında saklanır ve `.track_scroll(&handle)` ile bağlanır. Tablo tarafında `Table::interactable(...)` çağrısı kullanıldığında bu, içerideki `TableInteractionState` üzerinden yönetilir.
+- Scroll davranışı için `UniformListScrollHandle` değerini view yapısında saklar ve `.track_scroll(&handle)` ile bağlarsın. Tablo tarafında `Table::interactable(...)` çağrısı kullanıldığında bu, içerideki `TableInteractionState` üzerinden yönetilir.
 - `with_sizing_behavior(ListSizingBehavior::Infer)`, listenin içeriğine göre yükseklik hesaplatır. `Auto` ise liste için sabit bir ölçü hesaplatmaz; boyut kararını üst layout ve flex akışına bırakırsın.
-- `with_decoration(...)` slot'una `IndentGuides` ve `StickyItems` gibi süslemeler bağlanır; bu süslemelerin `UniformListDecoration` trait'ini implement etmesi gerekir.
+- `with_decoration(...)` slot'una `IndentGuides` ve `StickyItems` gibi süslemeleri bağlarsın; bu süslemelerin `UniformListDecoration` trait'ini implement etmesi gerekir.
 
 ![Tablo Satır Modeli Seçimi](assets/tablo-satir-modeli.svg)
 
@@ -172,7 +172,7 @@ impl Render for PaketTablosu {
 }
 ```
 
-Değişken yükseklikli satırlarda ise `ListState` ile birlikte `.variable_row_height_list(...)` kullanırsın. Veri her değiştiğinde durumun `reset(...)` veya uygun bir `splice(...)` ile güncellenmesi gerekir:
+Değişken yükseklikli satırlarda ise `ListState` ile birlikte `.variable_row_height_list(...)` kullanırsın. Veri her değiştiğinde durumu `reset(...)` veya uygun bir `splice(...)` ile güncellemen gerekir:
 
 ```rust
 use gpui::{Entity, ListAlignment, ListState};

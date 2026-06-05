@@ -1,11 +1,11 @@
 # 15. AI ve Collab Özel Alanı
 
-Bu bölümdeki bileşenler Zed'in AI, agent, provider, collaboration ve update akışlarına yakından bağlıdır. Bu yüzden genel bir uygulamada kullanılmadan önce alan modelinin bu API'lere gerçekten uyup uymadığı kontrol edilmelidir. Aksi halde bileşen görsel olarak hazır görünür, fakat modelin ihtiyaçlarıyla çelişebilir.
+Bu bölümdeki bileşenler Zed'in AI, agent, provider, collaboration ve update akışlarına yakından bağlıdır. Bu yüzden genel bir uygulamada kullanmadan önce alan modelinin bu API'lere gerçekten uyup uymadığını kontrol edersin. Aksi halde bileşen görsel olarak hazır görünür, fakat modelin ihtiyaçlarıyla çelişebilir.
 
 Bu ailede iki genel kural vardır:
 
-- Alana bağlı bileşenlerde gerçek servis durumu bileşenin içine taşınmaz. Bileşene yalnızca render için gereken etiket, durum, ikon, callback ve üstveri verirsin.
-- AI ve Collab bileşenleri başka panellerde kompoze edilirken alan durumu view'da tutulur. Bu bileşenler yalnızca o durumu görsel olarak düzenler.
+- Alana bağlı bileşenlerde gerçek servis durumunu bileşenin içine taşımazsın. Bileşene yalnızca render için gereken etiket, durum, ikon, callback ve üstveri verirsin.
+- AI ve Collab bileşenlerini başka panellerde kompoze ederken alan durumunu view'da tutarsın. Bu bileşenler yalnızca o durumu görsel olarak düzenler.
 
 ![AI ve Collab Domain Haritası](assets/ai-collab-domain-haritasi.svg)
 
@@ -129,7 +129,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Boş bir kart üretmemek için en azından icon ile name veya state verilmesi beklenir.
+- Boş bir kart üretmemek için en azından icon ile name veya state verirsin.
 - Disabled durumdayken click işleyicisi render edilmez.
 
 ## ThreadItem
@@ -341,7 +341,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Bu bileşen yalnızca görsel bir illüstrasyondur; gerçek thread, worktree veya agent verisi göstermek için kullanılmaması beklenir.
+- Bu bileşen yalnızca görsel bir illüstrasyondur; gerçek thread, worktree veya agent verisi göstermek için kullanmazsın.
 - İçindeki skill adları statiktir; gerçek proje veya kullanıcı skill listesinden beslenmez.
 - `SkillsIllustration::new()` çağrısı parametresizdir; renk veya boyut özelleştirmesi tamamen bileşenin kendi içine bağımlıdır. Farklı bir görsele ihtiyaç doğduğunda, kaynak dosyayı referans alarak özel bir illüstrasyon bileşeni yazmak daha uygun olur.
 
@@ -394,7 +394,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Kabul ve kapat butonlarının callback'leri üst notification view'ında bağlanmalıdır.
+- Kabul ve kapat butonlarının callback'lerini üst notification view'ında bağlarsın.
 - Uzun kullanıcı veya proje adlarında, child label'lara bir truncate davranışının eklemen gerekir; aksi halde satır taşabilir.
 
 ## Agent Skills UI
@@ -417,16 +417,16 @@ Davranış:
 - Prompt context tipi `skill` olarak geçer ve UI label'ı `Skills`, ikonu `IconName::Sparkle` olur.
 - Slash autocomplete açıldığında provider önce delegate'e `slash_autocomplete_invoked(...)` bildirir; native agent bunu global ve proje-local skills taramasını başlatmak için kullanır.
 - Slash listesinde Skills, Agent Commands grubundan önce sıralanır. Skill completion label'ında ad ve scope/source birlikte gösterilir; documentation alanında skill description yer alır.
-- Skill seçildiğinde metne `MentionUri::Skill` link'i eklersin. Link veya mention açıldığında ilgili `SKILL.md` dosyası workspace içinde absolute path ile açılır.
+- Skill seçildiğinde native agent metne `MentionUri::Skill` link'i ekler. Link veya mention açıldığında ilgili `SKILL.md` dosyası workspace içinde absolute path ile açılır.
 - `SkillLoadingErrorsUpdated` event'leri thread view'da warning `Callout` olarak render edilir. Her callout kaynakta `Open File` butonu ve dismiss ikon butonu taşır; dosya düzeltildiğinde veya kaldırıldığında dismiss kaydı da temizlenir.
-- Rules-to-Skills migration tek seferlik ve non-destructive çalışır; tüm kullanıcılar için aynı şekilde uygulanır. `MIGRATION_DONE_KEY` sabitinin değeri olan `rules_to_skills_migration_done` global KVP anahtarıyla bir kez çalışacak şekilde korunur. Non-default Rules global skills dizinine `SKILL.md` olarak taşınır; Default Rules ve özelleştirilmiş (customized) built-in prompt gövdelerini Zed global `AGENTS.md` dosyasına ekler. Özelleştirilmemiş (uncustomized) built-in prompt'ları `AGENTS.md`'ye aktarmaz; bunlar zaten kullanıcının kişisel `AGENTS.md`'sine enjekte edildiğinden, hiç yazmadığı metni dosyaya eklemekten kaçınır. Sonuç `MIGRATION_RESULT_KEY` sabitinin değeri olan `rules_to_skills_migration_result` anahtarıyla saklanır.
-- Skills announcement toast'u `auto_update_ui` içinde "Introducing Skills Support" başlığıyla kurarsın. Migration sonucu boş değilse Rules dönüşümünü anlatan ek bullet gösterir; `"Try Now"` etiketli primary action agent paneline focus eder, `"Read Documentation"` etiketli secondary action skills dokümantasyonuna gider. Toast `skills_announcement_dismissed` KVP anahtarıyla bir kez dismiss edilir.
+- Rules-to-Skills migration tek seferlik ve non-destructive çalışır; tüm kullanıcılar için aynı şekilde uygulanır. `MIGRATION_DONE_KEY` sabitinin değeri olan `rules_to_skills_migration_done` global KVP anahtarıyla bir kez çalışacak şekilde korunur. Zed, non-default Rules'u global skills dizinine `SKILL.md` olarak taşır; Default Rules ve özelleştirilmiş (customized) built-in prompt gövdelerini global `AGENTS.md` dosyasına ekler. Özelleştirilmemiş (uncustomized) built-in prompt'ları `AGENTS.md`'ye aktarmaz; bunlar zaten kullanıcının kişisel `AGENTS.md`'sine enjekte edildiğinden, hiç yazmadığı metni dosyaya eklemekten kaçınır. Sonuç `MIGRATION_RESULT_KEY` sabitinin değeri olan `rules_to_skills_migration_result` anahtarıyla saklanır.
+- Zed, skills announcement toast'unu `auto_update_ui` içinde "Introducing Skills Support" başlığıyla kurar. Migration sonucu boş değilse Rules dönüşümünü anlatan ek bullet gösterir; `"Try Now"` etiketli primary action agent paneline focus eder, `"Read Documentation"` etiketli secondary action skills dokümantasyonuna gider. Toast `skills_announcement_dismissed` KVP anahtarıyla bir kez dismiss edilir.
 - Tool permissions setup sayfasında `skill` aracı ayrı bir satırdır. Regex pattern'leri skill adıyla değil, skill'in `SKILL.md` dosyasının absolute path'iyle eşleşir.
 
 Dikkat edeceğin noktalar:
 
 - Skill gövdesi bileşen durumuna kopyalanmaz; UI catalog metadata'sını, dosya yolunu ve yükleme hatalarını gösterir. Gövde, ihtiyaç anında skill tool tarafından okunur.
-- Project-local skill ile global skill aynı adı kullanıyorsa, kullanıcı arayüzünde scope/source gösterilmelidir; aksi halde slash completion'da hangi skill'in seçildiği belirsizleşir.
+- Project-local skill ile global skill aynı adı kullanıyorsa, kullanıcı arayüzünde scope/source gösterirsin; aksi halde slash completion'da hangi skill'in seçildiği belirsizleşir.
 - Skill load hataları dismiss edilebilir ama bu kalıcı bir suppress değildir. Alttaki dosya düzelip sonra yeniden bozulursa hata tekrar gösterilir.
 
 ## UpdateButton
@@ -485,7 +485,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Bu bileşen title bar bağlamına göre tasarlanmıştır; genel bir sayfa CTA'sı olarak kullanılması beklenmez.
+- Bu bileşen title bar bağlamına göre tasarlanmıştır; genel bir sayfa CTA'sı olarak kullanmazsın.
 - `checking()`, `downloading(...)` ve `installing(...)` constructor'ları zaten disabled bir hâlde gelir. Bu yüzden bu durumlarda click işleyicisi bağlamak anlamsızdır; kullanıcı bir aksiyon yapabilmeliyse `updated(...)`, `errored(...)` veya `UpdateButton::new(...)` ile açıkça bir durum kurmak gerekir.
 - `updated(...)` ve `errored(...)` dismiss gösterir; bir dismiss callback'i bağlanmadığında button görünür kalır ama state temizlenmez.
 

@@ -325,7 +325,7 @@ pub fn status_colors_refinement(icerik: &StatusColorsContent) -> StatusColorsRef
 }
 ```
 
-Aynı kalıp burada da geçerlidir. Her durum üçlüsü (ön plan, arka plan, kenarlık) ayrı bir satırda yazılır.
+Aynı kalıp burada da geçerlidir. Her durum üçlüsünü (ön plan, arka plan, kenarlık) ayrı bir satırda yazarsın.
 
 ### Neden macro veya `From` impl değil?
 
@@ -737,7 +737,7 @@ pub fn from_content(icerik: ThemeContent, taban: &Theme) -> Self {
 
 **Adım 1 — Appearance enum dönüşümü.**
 
-`AppearanceContent::Light` → `Appearance::Light`. Burada iki ayrı enum tipi vardır. Content tipi serde için, Theme tipi çalışma zamanı için kullanırsın. Doğrudan cast yapılmaz; açık bir `match` yazılır.
+`AppearanceContent::Light` → `Appearance::Light`. Burada iki ayrı enum tipi vardır. Content tipini serde için, Theme tipini çalışma zamanı için kullanırsın. Doğrudan cast yapmazsın; açık bir `match` yazarsın.
 
 **Adım 2 — Durum refinement + %25 alpha türetme.**
 

@@ -11,7 +11,7 @@ Metin sisteminin ana tipleri `gpui` crate'i, `style` ve `elements/text` içinde 
 - `TextStyle` — renk, font ailesi, font boyutu, satır yüksekliği, kalınlık/stil, dekorasyon, boşluk, taşma, hizalama ve satır kısıtlaması gibi metin genelindeki görünüm parametrelerini taşır.
 - `HighlightStyle` — belirli aralıklara uygulayacağın kısmi (`partial`) stildir; taban stilin üstüne biner.
 - `TextRun` — UTF-8 byte uzunluğu, font ve renk/dekorasyon bilgisini taşır. Run'ların toplam uzunluğu metnin byte uzunluğunu tam olarak karşılamak zorundadır.
-- `StyledText` — `SharedString` ile birlikte run, vurgu ve font üzerine yazmalarını birleştirerek çizilir.
+- `StyledText` — `SharedString` metnini run, vurgu ve font üzerine yazmalarıyla birleştirip çizer.
 - `InteractiveText` — karakter veya aralık bazlı tıklama, hover ve tooltip davranışı sağlar.
 - `Font`, `FontWeight`, `FontStyle`, `FontFeatures`, `FontFallbacks` — font seçimi ve özelliklerini tanımlayan yardımcı tiplerdir.
 
@@ -57,7 +57,7 @@ Bu metotlar özel editör, ölçüm önbelleği veya metin renderer'ı yazarken 
 
 **WindowTextSystem.** Pencereye bağlı sistem `shape_line(...)`, `shape_line_by_hash(...)`, `shape_text(...)`, `layout_line(...)`, `try_layout_line_by_hash(...)`, `layout_line_by_hash(...)`, `layout_width(...)` ve `em_layout_width(...)` metotlarıyla şekillendirme ve layout cache'ini birlikte yönetir. Hash'li varyantlar aynı metin/stil girdisini tekrar ölçerken cache kullanır. Metin ölçümü ekran karesine ve pencerenin font/scale durumuna bağlıysa `WindowTextSystem`'ı tercih edersin; uygulama geneli font keşfinde `TextSystem` yeterlidir.
 
-**Font, fallback ve feature yardımcıları.** `Font` public modelinde `family` birincil aile adını, `features` OpenType feature set'ini, `fallbacks` kullanıcı yedek zincirini, `style` ve `weight` ise varyant seçimini taşır. `Font::bold()` ve `Font::italic()` mevcut font modeline kalın veya italik varyantı uygular. `FontFallbacks::from_fonts(...)` kullanıcı yedek zinciri üretir, `fallback_list()` zinciri okur. `FontFeatures::disable_ligatures()`, `tag_value_list()` ve `is_calt_enabled()` OpenType feature listesini yönetir; kod editörü gibi ligature davranışını bilinçli kontrol eden yüzeylerde kullanılır. Basit UI metninde bu ayarları elle kurmak yerine tema/font ayarlarına güvenirsin.
+**Font, fallback ve feature yardımcıları.** `Font` public modelinde `family` birincil aile adını, `features` OpenType feature set'ini, `fallbacks` kullanıcı yedek zincirini, `style` ve `weight` ise varyant seçimini taşır. `Font::bold()` ve `Font::italic()` mevcut font modeline kalın veya italik varyantı uygular. `FontFallbacks::from_fonts(...)` kullanıcı yedek zinciri üretir, `fallback_list()` zinciri okur. `FontFeatures::disable_ligatures()`, `tag_value_list()` ve `is_calt_enabled()` OpenType feature listesini yönetir; bunları kod editörü gibi ligature davranışını bilinçli kontrol eden yüzeylerde kullanırsın. Basit UI metninde bu ayarları elle kurmak yerine tema/font ayarlarına güvenirsin.
 
 **Başarım ipucu: `SharedString`.** GPUI metin taşıyan birçok API'de `SharedString` kullanır; bu tip `gpui_shared_string` crate'inden yeniden dışa aktarılır ve güncel kaynakta `SmolStr` ile desteklenen ucuz klonlanabilir bir metin taşıyıcısıdır. Bir bileşen aynı etiketi birden fazla render'da veya alt bileşene aktarırken yeni `String` üretmek yerine `SharedString`'i klonlarsın. Bu yüzden bileşen alanlarını genellikle `SharedString` tutarsın ve çağıran tarafta `"Kaydet".into()` yazarsın:
 
@@ -147,7 +147,7 @@ Aralıklar yine byte index aralıklarıdır; Unicode metinde karakter sınırlar
 
 **Markdown çizim davranışı.** Markdown ekosistemi metin sisteminin üzerine özel davranışlar bindirir; bunları bilmek sürpriz davranışları azaltır:
 
-- Markdown görsel çizimi `StyledImage::with_fallback` kullanarak yüklenemeyen görsel için tıklanabilir bir `"Failed to Load: ..."` yedeği üretir. Yedek etiketi önce alt metin değerini, yoksa hedef URL'yi kullanır; tıklama ile `cx.open_url` çağrılır.
+- Markdown görsel çizimini Zed'i referans alarak kurarsın: `StyledImage::with_fallback` kullanıp yüklenemeyen görsel için tıklanabilir bir `"Failed to Load: ..."` yedeği üretirsin. Yedek etiketinde önce alt metin değerini, yoksa hedef URL'yi kullanırsın; tıklamada `cx.open_url` çağırırsın.
 - Mermaid kod blokları yalnızca kapalı fenced block biçimindeyse diyagram olarak çıkarılır. ` ```mermaid` etiketinin yanı sıra `.mermaid` veya `.mmd` uzantılı kaynak yolu işaret edilen bloklar da diyagram olarak sayılır.
 - Mermaid diyagram arayüzü önizleme ve kod sekmelerini, ayrıca kopyalama butonunu gösterebilir; çizim başarısızsa veya henüz tamamlanmadıysa kaynak kodu görünümü yedek olarak çizilir.
 
@@ -184,6 +184,6 @@ MarkdownElement::new(markdown, style)
 
 Shift+tıklama seçimi genişletir: mevcut seçimin kuyruğunu sabit tutar ve tıklama noktasına kadar aralığı uzatır. Shift'siz tıklama ise imleci tek bir konuma taşır.
 
-`Markdown::first_code_block_language()` belgedeki ilk fenced kod bloğunun dilini `Option<Arc<Language>>` olarak döndürür; böyle bir blok yoksa `None` döner. Özellikle içeriği bir dil sunucusuna yönlendirecek veya sözdizim vurgusu uygulayacak kod için hangi dilin aktif olduğunu hızlıca öğrenirken kullanılır.
+`Markdown::first_code_block_language()` belgedeki ilk fenced kod bloğunun dilini `Option<Arc<Language>>` olarak döndürür; böyle bir blok yoksa `None` döner. Özellikle içeriği bir dil sunucusuna yönlendirecek veya sözdizim vurgusu uygulayacak kod için hangi dilin aktif olduğunu hızlıca öğrenirken kullanırsın.
 
 ---

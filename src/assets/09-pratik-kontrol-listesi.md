@@ -39,7 +39,7 @@ Varlık hattı uygulama başlatma akışında birkaç sert bağımlılığa sahi
 İkon eklerken kontrol edilecek adımlar:
 
 1. SVG dosyası **monochrome** ve `currentColor` kullanan biçimde olmalıdır. Aksi halde `text_color` ile boyama beklenmedik sonuç verir.
-2. Dosya `assets/icons/snake_case_isim.svg` olarak konur.
+2. Dosyayı `assets/icons/snake_case_isim.svg` olarak koyarsın.
 3. `icons` crate'indeki `IconName` enum'una `CamelCase` varyantı eklersin. Sıralama enum içinde alfabetik tutulur; bu bir derleme gereksinimi değil okuma kolaylığı için tercih edilen bir kural.
 4. Kod tarafında `Icon::new(IconName::YeniIkon)` ile kullanırsın.
 
@@ -68,10 +68,10 @@ Varlık hattı uygulama başlatma akışında birkaç sert bağımlılığa sahi
 
 ## 5. Font ekleme ve generic family yedeği
 
-Font eklerken iki ayrı tüketici güncellenir:
+Font eklerken iki ayrı tüketiciyi güncellersin:
 
-- `assets/fonts/<aile>/` altına `.ttf` dosyaları konur; `load_embedded_fonts` özyinelemeli listeleme yaparak otomatik bulur.
-- `gpui` crate'indeki `load_bundled_fonts` listesinin güncellenmesi gerekip gerekmediği değerlendirilir. SVG'lerde bu fontun kullanılacağı düşünülüyorsa yol eklenmeli; aksi halde fontu sadece `TextSystem` görür.
+- `assets/fonts/<aile>/` altına `.ttf` dosyaları koyarsın; `load_embedded_fonts` özyinelemeli listeleme yaparak otomatik bulur.
+- `gpui` crate'indeki `load_bundled_fonts` listesini güncellemen gerekip gerekmediğini değerlendirirsin. SVG'lerde bu fontun kullanılacağını düşünüyorsan yol eklersin; aksi halde fontu sadece `TextSystem` görür.
 
 **Dikkat edilmesi gereken lisans ayrıntısı:** OFL ile lisanslı font'lar için lisans dosyası (`OFL.txt` veya `license.txt`) font klasörünün içine konmalıdır. Bu dosyalar `.ttf` filtresi tarafından dışlandığı için `TextSystem`'e yüklenmez ama varlık paketinde durur ve dağıtım gereksinimini karşılar.
 
@@ -83,9 +83,9 @@ Font eklerken iki ayrı tüketici güncellenir:
 
 Ses ekleme akışı şudur:
 
-1. WAV dosyası `assets/sounds/<dosya_adi>.wav` olarak konur. `rodio::Decoder` yalnızca WAV (PCM) çözer; başka format kullanılmaz.
+1. WAV dosyasını `assets/sounds/<dosya_adi>.wav` olarak koyarsın. `rodio::Decoder` yalnızca WAV (PCM) çözer; başka format kullanılmaz.
 2. `audio` crate'indeki `Sound` enum'una varyant eklersin.
-3. `Sound::file` `match` bloğuna `Self::YeniSes => "yeni_ses"` girilir.
+3. `Sound::file` `match` bloğuna `Self::YeniSes => "yeni_ses"` satırını girersin.
 
 **Kontrol:**
 
@@ -99,8 +99,8 @@ Ses ekleme akışı şudur:
 
 Yeni tema eklerken:
 
-- Dosya `assets/themes/<aile>/<aile>.json` olarak konur (aile adı klasör ve dosya adında aynı tutulur).
-- Aile için `LICENSE` dosyası klasöre konur; `themes/LICENSES/` altına atribusyon eklersin.
+- Dosyayı `assets/themes/<aile>/<aile>.json` olarak koyarsın (aile adı klasör ve dosya adında aynı tutulur).
+- Aile için `LICENSE` dosyasını klasöre koyarsın; `themes/LICENSES/` altına atribusyon eklersin.
 - JSON sözleşmesi Zed'in `ThemeFamilyContent` struct'ıyla parite olmalıdır. Eksik alanlar `refine_theme_family` tarafından doldurulur ama bilinmeyen alanlar serde tarafından reddedilebilir.
 
 **Dikkat edilmesi gereken yerler:**
@@ -125,7 +125,7 @@ Keymap dosyalarını değiştirirken:
 
 - Platforma özgü dosyalar (`default-macos.json`, `default-linux.json`, `default-windows.json`) ayrı ayrı yönetilir. Aynı kısayolu üç platforma da eklemek için üç dosyayı da güncellemek gerekir.
 - Editor emülasyon paketleri (`keymaps/macos/jetbrains.json` vb.) opsiyoneldir; kullanıcı `BaseKeymap` ayarı ile seçer.
-- `initial.json` kullanıcının ilk keymap dosyası şablonudur; örnek kısayollar konulur ama hiçbir bağlayıcı kural yoktur.
+- `initial.json` kullanıcının ilk keymap dosyası şablonudur; örnek kısayollar koyarsın ama hiçbir bağlayıcı kural yoktur.
 
 ---
 

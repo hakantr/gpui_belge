@@ -108,7 +108,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- `Tab`, aktif tabı kendi başına değiştirmez. Click işleyicisi içinde view durumu güncellenir ve ardından `cx.notify()` çağrılır.
+- `Tab`, aktif tabı kendi başına değiştirmez. Click işleyicisi içinde view durumunu günceller, ardından `cx.notify()` çağırırsın.
 - `TabPosition` verilmediğinde varsayılan değer `First` olur. Bu yüzden çoklu bir tab bar içinde her tab için doğru pozisyon hesaplanmalıdır; aksi halde border'lar tutarsız görünür.
 - Close butonu gibi `end_slot` kontrolleri için ayrı ve sabit bir id kullanılması beklenir; aksi halde tıklamalar yanlış elemana yönlendirilebilir.
 - Tab label'ının aktif veya pasif metin rengini doğrudan miras almasını istemek gerekiyorsa, basit bir string child kullanmak yeterlidir. Özel label veya kısaltma gerektiğinde renk davranışını ayrıca kontrol etmen gerekir.
@@ -214,8 +214,8 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - Start ve end children, tab scroll alanına dahil değildir. Bu yüzden gezinme ve global tab eylemleri için uygundur; tabların kendisiyle karışmadan ayrı bir alanda yaşar.
-- Tabların taşması bekleniyorsa, bir `ScrollHandle` view durumunda saklanır ve `.track_scroll(...)` ile bağlanır.
-- Pinned ile unpinned tabları ayrı satırlarda göstermek gerekiyorsa, iki ayrı `TabBar` compose edilir. Kaynakta workspace pane tam olarak bu yaklaşımı kullanır.
+- Tabların taşması bekleniyorsa, bir `ScrollHandle` değerini view durumunda saklar ve `.track_scroll(...)` ile bağlarsın.
+- Pinned ile unpinned tabları ayrı satırlarda göstermek gerekiyorsa, iki ayrı `TabBar` compose edersin. Kaynakta workspace pane tam olarak bu yaklaşımı kullanır.
 
 ## Tab Kompozisyon Örnekleri
 

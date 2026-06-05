@@ -89,9 +89,9 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- `List`, kendi başına bir scroll davranışı sağlamaz. Scroll gerekiyorsa üst kapsayıcıya `overflow_y_scroll()` eklenir; büyük listelerde ise `uniform_list(...)` tercih edersin.
+- `List`, kendi başına bir scroll davranışı sağlamaz. Scroll gerekiyorsa üst kapsayıcıya `overflow_y_scroll()` eklersin; büyük listelerde ise `uniform_list(...)` tercih edersin.
 - Dinamik çocuklar üretilirken sabit bir `ElementId` kullanılması önerilir. Yalnızca indeks üzerinden id vermek, yeniden sıralanan listelerde durum ve odak takibini zorlaştırır.
-- Boş durum özel bir element ise `.into_any_element()` çağrısıyla iletilmesi gerekir.
+- Boş durum özel bir element ise onu `.into_any_element()` çağrısıyla iletmen gerekir.
 
 ## ListItem
 
@@ -131,7 +131,7 @@ Satır yoğunluğu:
 Davranış:
 
 - `RenderOnce`, `Disableable`, `Toggleable` ve `ParentElement` implement eder.
-- `toggle_state(true)` satırı seçili arka plan ile çizer; ama uygulama durumunu kendisi değiştirmez. Seçili bilgisinin arkasındaki gerçek değerin view tarafında tutulması gerekir.
+- `toggle_state(true)` satırı seçili arka plan ile çizer; ama uygulama durumunu kendisi değiştirmez. Seçili bilgisinin arkasındaki gerçek değeri view tarafında tutman gerekir.
 - `disabled(true)` click işleyicisini devre dışı bırakır.
 - `.toggle(Some(is_open))` bir disclosure ikonu render eder; çocukların gerçekten gösterilip gösterilmeyeceğini üst view kontrol eder.
 - `end_slot_on_hover(...)`, normal end slot'u hover sırasında verilen hover slot'uyla değiştirir. `.show_end_slot_on_hover()` ise mevcut end slot'u yalnızca hover anında görünür kılar.
@@ -252,8 +252,8 @@ fn son_projeler_basligi_render(sayi: usize) -> impl IntoElement {
 
 Dikkat edeceğin noktalar:
 
-- Header collapse durumunun view durumunda tutulması gerekir; `.toggle(...)` yalnızca disclosure görünümünü ayarlar, gerçek açık/kapalı bilgisini taşımaz.
-- `end_hover_slot(...)`, normal `end_slot` ile aynı alanı paylaşır. Bu yüzden sayaç ve hover action birlikte tasarlanırken, ikisinin görsel olarak nasıl yer değiştireceği önceden düşünülür.
+- Header collapse durumunu view durumunda tutman gerekir; `.toggle(...)` yalnızca disclosure görünümünü ayarlar, gerçek açık/kapalı bilgisini taşımaz.
+- `end_hover_slot(...)`, normal `end_slot` ile aynı alanı paylaşır. Bu yüzden sayaç ve hover action birlikte tasarlanırken, ikisinin görsel olarak nasıl yer değiştireceğini önceden düşünürsün.
 
 ## ListSubHeader
 
@@ -306,7 +306,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - `end_slot(...)` generic değildir; slot elementini `.into_any_element()` çağrısıyla iletmen gerekir.
-- Subheader'ın selected durumu yalnızca görseldir; gerçek gezinme durumu üst view'da tutulur.
+- Subheader'ın selected durumu yalnızca görseldir; gerçek gezinme durumunu üst view'da tutarsın.
 
 ## ListSeparator
 

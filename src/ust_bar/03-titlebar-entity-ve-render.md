@@ -76,7 +76,7 @@ Tablo başlığın ana durum kaynaklarıyla sınırlıdır; struct'ta ayrıca ab
 1. **Sol grup** (`h_flex`): `show_menus` kapalıysa uygulama menüsü, ardından kısıtlı mod göstergesi, proje sunucusu, proje adı ve çalışma ağacı ile dal yüzeyi. Çalışma ağacı ve dal birlikte çizilir; bu blok git'in etkin olmasına (`git.enabled`) ve `show_project_items`/`show_branch_name` ayarlarına bağlıdır. Bu grup sol fare basma olayında yayılımı durdurur (sürükleme ile çakışmasın).
 2. **Katılımcı listesi**: aktif çağrıda proje paylaşımı katılımcıları.
 3. **İlk karşılama duyuru bandı**: yalnız `show_onboarding_banner` ayarı açık ve `banner` alanı `Some` ise. (Güncel HEAD'de `banner` her zaman `None` olduğu için pratikte çizilmez; ayrıntı [7. bölümde](07-kullanici-update-banner.md).)
-4. **Sağ grup** (`h_flex`): işbirliği kontrolleri, bağlantı durumu, güncelleme bildirimi, oturum açma butonu, oturum açılırken titreşen durum etiketi ve kullanıcı menüsü. Bu grup da sol grup gibi sol fare basma olayında yayılımı durdurur (aynı sürükleme çakışmasını önlemek için). Port hedefinde bu görünür metinler `"Oturum Aç"` ve `"Oturum açılıyor…"` gibi Türkçe yazılır.
+4. **Sağ grup** (`h_flex`): işbirliği kontrolleri, bağlantı durumu, güncelleme bildirimi, oturum açma butonu, oturum açılırken titreşen durum etiketi ve kullanıcı menüsü. Bu grup da sol grup gibi sol fare basma olayında yayılımı durdurur (aynı sürükleme çakışmasını önlemek için). Port hedefinde bu görünür metinleri `"Oturum Aç"` ve `"Oturum açılıyor…"` gibi Türkçe yazarsın.
 
 Hangi parçanın görüneceği büyük ölçüde `TitleBarSettings` alanlarına bağlıdır (`show_project_items`, `show_branch_name`, `show_sign_in`, `show_user_menu` …). Ayarlar [4. bölümde](04-ayarlar-ve-uygulama-menusu.md) ayrıntılı işlenir.
 

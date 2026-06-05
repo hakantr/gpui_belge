@@ -108,7 +108,7 @@ dinleyici.open(RawOpenRequest {
 
 Open akışı ve global durum ile çalışırken hataya açık kullanımlar:
 
-- Çalışma alanı açma akışında `AppState::build_window_options` kullanılır; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, pencere dekorasyonu, sistem sekmeleri ve platform ikon/arka plan ayarlarını atlar.
+- Çalışma alanı açma akışında `AppState::build_window_options` kullanırsın; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, pencere dekorasyonu, sistem sekmeleri ve platform ikon/arka plan ayarlarını atlar.
 - `WorkspaceStore` weak workspace tutar; iterasyon sırasında upgrade başarısız olabilir.
 - `OpenListener::open` dinleyici yokken hatayı loglar; talebin teslim edildiği varsayımıyla kullanıcı akışının başlatılmaması gerekir.
 - DB restore yolunda serializable item kind eksikse item restore edilemez; yeni bir item türü eklenirken `register_serializable_item` startup init'inde çağrılmalıdır.

@@ -1,6 +1,6 @@
 # JSON sözleşmesi ve ayrıştırma katmanı
 
-Çalışma zamanı modeli kurulduktan sonra sıra JSON sözleşmesine gelir. Burada üç konu birlikte düşünülür: Zed uyumlu JSON yapısı, alanların opsiyonel ele alınması ve ayrıştırma sırasında ne kadar hata toleransı gösterileceği. Bu kararlar birbirine sıkı bağlıdır; birindeki tercih diğer ikisinin davranışını doğrudan etkiler.
+Çalışma zamanı modeli kurulduktan sonra sıra JSON sözleşmesine gelir. Burada üç konuyu birlikte düşünürsün: Zed uyumlu JSON yapısı, alanların opsiyonel ele alınması ve ayrıştırma sırasında ne kadar hata toleransı göstereceğin. Bu kararlar birbirine sıkı bağlıdır; birindeki tercih diğer ikisinin davranışını doğrudan etkiler.
 
 ![JSON Ayrıştırma Boru Hattı](assets/json-parse-pipeline.svg)
 
@@ -446,7 +446,7 @@ pub enum AppearanceContent {
 }
 ```
 
-Bu sayede JSON'da `"appearance": "light"` yazılır. Rust varyant adı `Light` olsa bile JSON tarafında küçük harf kullanırsın. `rename_all = "snake_case"` özniteliği, her varyant için tek tek `rename` yazma yükünü kaldırır.
+Bu sayede tema dosyanda `"appearance": "light"` yazarsın. Rust varyant adı `Light` olsa bile JSON tarafında küçük harf kullanırsın. `rename_all = "snake_case"` özniteliği, her varyant için tek tek `rename` yazma yükünü kaldırır.
 
 ### `#[serde(transparent)]` — newtype'ı saydamlaştır
 
@@ -456,7 +456,7 @@ Bu sayede JSON'da `"appearance": "light"` yazılır. Rust varyant adı `Light` o
 pub struct FontWeightContent(pub f32);
 ```
 
-Bu öznitelik sayesinde JSON'da `{ "font_weight": { "0": 700 } }` yerine doğrudan `{ "font_weight": 700 }` yazılır. Newtype'ın sarmaladığı tek alan saydam görünür; JSON tüketicisi `FontWeightContent`'in newtype olduğunu fark etmez.
+Bu öznitelik sayesinde JSON'da `{ "font_weight": { "0": 700 } }` yerine doğrudan `{ "font_weight": 700 }` yazarsın. Newtype'ın sarmaladığı tek alan saydam görünür; JSON tüketicisi `FontWeightContent`'in newtype olduğunu fark etmez.
 
 `FontWeightContent` için `JsonSchema` türetilmez; elle impl edilir. Türetme yalnızca "sayı" derdi; elle yazılan şema ise geçerli aralığı (`100`–`900`) ve varsayılanı (`400`) şemaya da taşır, böylece editör otomatik tamamlaması sınırların dışındaki değerleri uyarabilir:
 
@@ -486,7 +486,7 @@ impl schemars::JsonSchema for FontWeightContent {
 pub colors: ThemeColorsContent,
 ```
 
-JSON'da `colors` alanı yoksa `ThemeColorsContent::default()` çağrılır ve tüm alanlar `None` olarak gelir. `default` özniteliği alan bazında da verilebilir:
+JSON'da `colors` alanı yoksa `ThemeColorsContent::default()` çağrılır ve tüm alanlar `None` olarak gelir. `default` özniteliğini alan bazında da verebilirsin:
 
 ```rust
 #[serde(default)]
@@ -604,7 +604,7 @@ Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevapl
 
 ### `MergeFrom` derive davranış matrisi
 
-`settings_content` tarafındaki kullanıcı settings content tipleri `#[derive(..., MergeFrom)]` ile işaretlenir. Zed settings hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**. `default` baz değerleri sağlar; kullanıcı ve proje settings'i bunun üstüne merge edilir. Tema dosyası yükü olan `theme_settings::ThemeFamilyContent` ve `ThemeContent` ise bu merge hattının parçası değildir. Onlar doğrudan deserialize edilir ve çalışma zamanı temasına refine edilir. `MergeFrom` trait'i `settings_content` crate'inde tanımlıdır; derive macro'su `settings_macros` crate'inden gelir ve alan tipine göre davranışı değişir:
+`settings_content` tarafındaki kullanıcı settings content tiplerini `#[derive(..., MergeFrom)]` ile işaretlersin. Zed settings hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**. `default` baz değerleri sağlar; kullanıcı ve proje settings'i bunun üstüne merge edilir. Tema dosyası yükü olan `theme_settings::ThemeFamilyContent` ve `ThemeContent` ise bu merge hattının parçası değildir. Onlar doğrudan deserialize edilir ve çalışma zamanı temasına refine edilir. `MergeFrom` trait'i `settings_content` crate'inde tanımlıdır; derive macro'su `settings_macros` crate'inden gelir ve alan tipine göre davranışı değişir:
 
 | Alan tipi | `merge_from(self, other)` davranışı | Etki |
 | ----------- | ------------------------------------- | ------ |
@@ -817,7 +817,7 @@ fn tema_stil_anahtarlarini_dogrula(stil: &serde_json::Map<String, serde_json::Va
 - Anahtar validasyonu AÇIK: Tema yüklemesi alan yolunu gösteren bir hatayla durur. Hata hızlıca bulunur.
 - Anahtar validasyonu YOK: Alan sessizce atlanır. JSON'da renk verilmiş gibi görünür, ama uygulama taban değeri kullanır.
 
-**Bu kural nettir:** Mevcut Zed sözleşmesinde olmayan alanlar kabul edilmez. `ThemeStyleContent` `#[serde(flatten)]` kullandığı için pratik çözüm `deny_unknown_fields` değil, hedef sözleşmedeki anahtarları tutan açık bir izin listesi validasyonudur. Zed referansı güncellenecekse önce ayna struct'ları, sonra izin listesi, fixture ve snapshot testleri güncellenir.
+**Bu kural nettir:** Mevcut Zed sözleşmesinde olmayan alanlar kabul edilmez. `ThemeStyleContent` `#[serde(flatten)]` kullandığı için pratik çözüm `deny_unknown_fields` değil, hedef sözleşmedeki anahtarları tutan açık bir izin listesi validasyonudur. Zed referansını güncelleyeceksen önce ayna struct'larını, sonra izin listesini, fixture ve snapshot testlerini güncellersin.
 
 Pratik yükleme yardımcısı bu yüzden iki aşamalı yazılır: önce JSON toleranslı biçimde `serde_json::Value` olarak okunur, `themes[*].style` içindeki anahtarlar `TEMA_STIL_ANAHTARLARI` ile doğrulanır, sonra aynı değer `ThemeFamilyContent` tipine deserialize edilir. Bu rehberde örnek yardımcı adı `tema_ailesini_kati_ayristir(baytlar)` olarak kullanırsın.
 

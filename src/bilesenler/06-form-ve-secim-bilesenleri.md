@@ -11,7 +11,7 @@ Hangi durumda hangisini seçeceğini belirlemek için şu ayrım iş görür:
 - Label, açıklama ve switch birlikte düzenli bir tek satır ayar olarak görünecekse `SwitchField` bu üçlüyü tek seferde kurarsın.
 - Tek satır metin girişi için ise `ui_input::InputField` kullanırsın.
 
-Bu kontrollerin hepsi için ortak kural şudur: görsel durum ile uygulama durumu birbirinden ayrı düşünülür. Checkbox, switch veya giriş alanı yalnızca o anki durumu ekrana yansıtır. Gerçek değer view durumunda veya uygulama modelinde tutulur ve işleyici içinde güncellenir. Bu ayrımı net tutmak, sahnenin tutarlı kalmasını sağlar.
+Bu kontrollerin hepsi için ortak kural şudur: görsel durum ile uygulama durumunu birbirinden ayrı düşünürsün. Checkbox, switch veya giriş alanı yalnızca o anki durumu ekrana yansıtır. Gerçek değeri view durumunda veya uygulama modelinde tutar, işleyici içinde güncellersin. Bu ayrımı net tutmak, sahnenin tutarlı kalmasını sağlar.
 
 ## Checkbox
 
@@ -84,8 +84,8 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- İşleyiciye gelen durum mevcut durum değil, hedef durumdur. `self.tanilama_paylasimi = durum.selected()` gibi doğrudan uygulama durumuna yazılır; tekrar tersine çevirmeye gerek yoktur.
-- Kısmi bir seçim gösteriliyorsa `ToggleState::from_any_and_all(...)` yardımcısının kullanılması, manuel `if` koşullarına göre çok daha okunabilir bir sonuç verir.
+- İşleyiciye gelen durum mevcut durum değil, hedef durumdur. `self.tanilama_paylasimi = durum.selected()` gibi doğrudan uygulama durumuna yazarsın; tekrar tersine çevirmene gerek yoktur.
+- Kısmi bir seçim gösteriliyorsa `ToggleState::from_any_and_all(...)` yardımcısını kullanırsan, manuel `if` koşullarına göre çok daha okunabilir bir sonuç alırsın.
 - Checkbox bir label'a sahipse, click alanı tüm satıra yayılır. Satır içinde iç içe başka bir tıklanabilir element yer alacaksa, olay yayılımını bilinçli olarak ele alman gerekir.
 
 ## Switch
@@ -391,7 +391,7 @@ impl ApiAnahtariFormu {
 Dikkat edeceğin noktalar:
 
 - `InputField` `RenderOnce` değildir; her render'da yeniden yaratmak yerine entity olarak saklanır ve view durumunda tutulur.
-- Metin değeri `field.read(cx).text(cx)` ile okunur. Değer değişimine tepki verilecekse yukarıdaki `subscribe` örneği izlenir ve dönen `Subscription` view alanında saklarsın.
+- Metin değerini `field.read(cx).text(cx)` ile okursun. Değer değişimine tepki vereceksen yukarıdaki `subscribe` örneğini izler ve dönen `Subscription` değerini view alanında saklarsın.
 - `ERASED_EDITOR_FACTORY` kurulmadan `InputField::new` çağrılırsa panic oluşur; bu yüzden editor crate'inin init fonksiyonunun uygulama başlangıcında çalıştığından emin olman gerekir.
 - `label_min_width(...)` adında "label" ifadesi geçse de, kaynakta bu metod input kapsayıcısının `min_width` değerini ayarlar.
 

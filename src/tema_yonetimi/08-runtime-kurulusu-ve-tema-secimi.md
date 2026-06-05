@@ -1,6 +1,6 @@
 # Çalışma zamanı kuruluşu ve tema seçimi
 
-Üretilen temalar önce tema kaydına ve global duruma yerleştirilir. Ardından sistem görünümü izlenir. Tema değiştiğinde pencereler yenilenir. Bu bölüm bu akışı sırayla anlatır: tema nerede tutulur, aktif tema nasıl seçilir ve UI yeni renkleri nasıl görür?
+Ürettiğin temaları önce tema kaydına ve global duruma yerleştirirsin. Ardından sistem görünümünü izlersin. Tema değiştiğinde pencereleri yenilersin. Bu bölüm bu akışı sırayla anlatır: tema nerede tutulur, aktif temayı nasıl seçersin ve UI yeni renkleri nasıl görür?
 
 ![Tema Çalışma Zamanı Akışı](assets/theme-runtime-akisi.svg)
 
@@ -81,7 +81,7 @@ struct GlobalThemeRegistry(Arc<ThemeRegistry>);
 impl Global for GlobalThemeRegistry {}
 ```
 
-`Arc<ThemeRegistry>`'yi `App` global'i yapmak için bir newtype kullanılır. `Arc<ThemeRegistry>`'yi doğrudan global yapmak iki nedenle uygun değildir:
+`Arc<ThemeRegistry>`'yi `App` global'i yapmak için bir newtype kullanırsın. `Arc<ThemeRegistry>`'yi doğrudan global yapmak iki nedenle uygun değildir:
 
 - `Arc<T>` zaten `'static + Send + Sync` özelliklerini taşır; ancak global key olarak `Arc` kullanmak başka kodlarla, örneğin başka bir `Arc<ThemeRegistry>` tutan kodla çakışma yaratır.
 - Newtype, bu özel kaydın **kendine ait bir global anahtarına** sahip olduğunu garanti altına alır.
@@ -217,7 +217,7 @@ pub fn list_names(&self) -> Vec<SharedString> {
 - `Arc<ThemeRegistry>` **`Send + Sync`**'tir; çünkü `RwLock` iki özelliği de garanti eder.
 - Lock hold süresi minimaldir — `insert`/`get` çağrısı tek bir HashMap operasyonundan ibarettir. Race condition oluşmaz.
 
-> **Kilit zinciri uyarısı:** `registry.read()` guard'ı tutulurken başka bir kilide girilmesi, örneğin `GlobalTheme` güncellenmesi, **deadlock riski** doğurur. Tema değişiminde önce `registry.get()` çağrılır, dönen `Arc` alınır, lock düşer ve sonra `GlobalTheme::update_theme(...)` çağırırsın. Mevcut API bu deseni zaten teşvik eder.
+> **Kilit zinciri uyarısı:** `registry.read()` guard'ı tutulurken başka bir kilide girilmesi, örneğin `GlobalTheme` güncellenmesi, **deadlock riski** doğurur. Tema değişiminde önce `registry.get()` çağırırsın, dönen `Arc`'ı alırsın, lock düşer ve sonra `GlobalTheme::update_theme(...)` çağırırsın. Mevcut API bu deseni zaten teşvik eder.
 
 ### Zed uyumlu tamamlanmış API
 
@@ -234,7 +234,7 @@ Zed-benzeri selector/settings/icon-theme akışı hedefleniyorsa aşağıdaki me
 | `remove_icon_themes` | Extension/user icon theme yenileme. |
 | `extensions_loaded`, `set_extensions_loaded` | Extension temaları gelmeden önce fallback'e sessiz düşme, geldikten sonra gerçek hata loglama. |
 
-Bu metotlardan biri public API'ye eklenmeyecekse, bu karar açıkça kapsam dışı tasarım kararı olarak yazılmalıdır. "Şimdilik UI yok" yeterli bir gerekçe değildir; selector UI ileride gelse bile registry sözleşmesinin hazır olması beklenir.
+Bu metotlardan birini public API'ye eklemeyeceksen, bu kararı açıkça kapsam dışı bir tasarım kararı olarak yazmalısın. "Şimdilik UI yok" yeterli bir gerekçe değildir; selector UI ileride gelse bile registry sözleşmesinin hazır olması beklenir.
 
 ### Dikkat Noktaları
 
@@ -266,7 +266,7 @@ pub struct GlobalTheme {
 impl Global for GlobalTheme {}
 ```
 
-`Theme` ve `IconTheme` doğrudan global yapılmaz; bunun yerine bir newtype wrapper kullanılır (ilgili bölüm kuralı). Alanlar private'tır. Dışarıdan erişim `theme()`/`icon_theme()` ve update metotları üzerinden yaparsın.
+`Theme` ve `IconTheme`'i doğrudan global yapmazsın; bunun yerine bir newtype wrapper kullanırsın (ilgili bölüm kuralı). Alanlar private'tır. Dışarıdan erişimi `theme()`/`icon_theme()` ve update metotları üzerinden yaparsın.
 
 ### `GlobalTheme` API
 
@@ -353,7 +353,7 @@ impl ActiveTheme for App {
 
 **`kvs_tema` için iki seçenek:**
 
-1. **Paritede kalmak** — trait Zed'deki gibi tek metotlu tutulur; icon tema'ya `GlobalTheme::icon_theme(cx)` veya bağımsız bir `IconActiveTheme` trait'i üzerinden erişilir:
+1. **Paritede kalmak** — trait'i Zed'deki gibi tek metotlu tutarsın; icon tema'ya `GlobalTheme::icon_theme(cx)` veya bağımsız bir `IconActiveTheme` trait'i üzerinden erişirsin:
 
    ```rust
    pub trait ActiveTheme {
@@ -720,7 +720,7 @@ pub fn init(yuklenecek_temalar: LoadThemes, cx: &mut App) -> anyhow::Result<()> 
 
 **Adım 1 — `SystemAppearance::init(cx)`:**
 
-Sistem mod sorgulanır ve global kurarsın. **İlk** adım olmasının nedeni, sonraki adımların gerektiğinde sistem mod'una bakabilmesidir (`init` sırasında olmasa bile observer eklenirken).
+Sistem modunu sorgular ve global'i kurarsın. **İlk** adım olmasının nedeni, sonraki adımların gerektiğinde sistem mod'una bakabilmesidir (`init` sırasında olmasa bile observer eklenirken).
 
 **Adım 2 — Registry yaratma:**
 
@@ -782,7 +782,7 @@ cx.set_global(GlobalThemeRegistry(kayit.clone()));
 cx.set_global(GlobalTheme::new(varsayilan, varsayilan_ikon));
 ```
 
-Sıra önemlidir: önce registry global'i kurulur, ardından aktif UI tema + aktif icon tema aynı `GlobalTheme` içinde kurarsın. `cx.theme()` ve `GlobalTheme::icon_theme(cx)` bu noktadan sonra güvenle çağrılabilir.
+Sıra önemlidir: önce registry global'ini kurarsın, ardından aktif UI tema + aktif icon tema'yı aynı `GlobalTheme` içinde kurarsın. `cx.theme()` ve `GlobalTheme::icon_theme(cx)` bu noktadan sonra güvenle çağrılabilir.
 
 ### Çağrı yeri
 
@@ -1013,7 +1013,7 @@ impl FontFamilyCache {
 
 ## 38. Tema değiştirme ve `cx.refresh_windows()`
 
-Tema değişimi iki temel işlemdir: aktif tema güncellenir ve pencereler yenilenir. Pencereler yenilenmezse UI eski renkte kalır.
+Tema değişimi iki temel işlemdir: aktif temayı güncellersin ve pencereleri yenilersin. Pencereleri yenilemezsen UI eski renkte kalır.
 
 ### Temel akış
 
@@ -1101,7 +1101,7 @@ fn handle_tema_secimi(secilen: &str, cx: &mut App) {
 
 1. **`refresh_windows` çağrısının yeri**: Tema değişimi sonrasında UI eski renkte kalabilir ve yeni renk ancak sonraki etkileşimle (örn. hover) görünür. Helper fonksiyona sarılması bu hataya açık akışın önüne geçer.
 2. **`cx.notify()` kapsamı**: `notify` yalnızca lokal entity'i yeniler — tüm view'ları kapsamaz. Tema değişiminde `refresh_windows` şarttır.
-3. **Reload sonrası `aktif_ad` lookup'ının başarısız olması**: Tema dosyasından o isim silinmiş olabilir. `get(&aktif_ad).is_err()` durumunda varsayılan yedeğe düşülür:
+3. **Reload sonrası `aktif_ad` lookup'ının başarısız olması**: Tema dosyasından o isim silinmiş olabilir. `get(&aktif_ad).is_err()` durumunda varsayılan yedeğe düşersin:
    ```rust
    match kayit.get(&aktif_ad) {
        Ok(tema) => GlobalTheme::update_theme(cx, tema),

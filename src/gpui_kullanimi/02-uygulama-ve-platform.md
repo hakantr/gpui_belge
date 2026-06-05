@@ -161,7 +161,7 @@ Uygulama kodu `Platform` veya `PlatformWindow` trait'lerini doğrudan çağırma
 
 **Sarmalayıcı sınırı.** Trait ve sarmalayıcı arasındaki en kritik ayrımlar şu:
 
-- `Platform::set_cursor_style`, genel platform imlecini ayarlar; uygulama UI'ında hitbox'a bağlı stil gerekiyorsa `Window::set_cursor_style` tercih edilir.
+- `Platform::set_cursor_style`, genel platform imlecini ayarlar; uygulama UI'ında hitbox'a bağlı stil gerekiyorsa `Window::set_cursor_style`'ı tercih edersin.
 - `PlatformWindow::prompt`, yerel bir prompt döndürebilir; `Window::prompt` ise gerektiğinde özel prompt yedeğini de yönetir.
 - `PlatformWindow::map_window`, Linux'ta `map` ve `show` ayrımı için vardır; uygulama kodunda doğrudan çağırmazsın, `WindowOptions.show` ve pencere sarmalayıcısının davranışı bu işi karşılar.
 

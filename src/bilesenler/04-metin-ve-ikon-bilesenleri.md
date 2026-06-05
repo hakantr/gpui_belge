@@ -38,7 +38,7 @@ Temel API:
 
 - Constructor: `Label::new(label: impl Into<SharedString>)`.
 - Sık builder'lar: `.size(LabelSize::...)`, `.color(Color::...)`, `.weight(FontWeight::...)`, `.line_height_style(...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(f32)`, `.truncate()`, `.truncate_start()`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`, `.render_code_spans()`.
-- Mutator: `.set_text(text: impl Into<SharedString>)` çağrısı `&mut self` üzerinden label metnini günceller. `Label` örneği view alanında saklanıyorsa, render dışından yeni bir `Label` üretmeden mevcut örneğin metnini değiştirmek için bunu kullanırsın. Bu metod builder zincirinde değil, daha önce oluşturduğun bir örnek üzerinde çağrılır.
+- Mutator: `.set_text(text: impl Into<SharedString>)` çağrısı `&mut self` üzerinden label metnini günceller. `Label` örneği view alanında saklanıyorsa, render dışından yeni bir `Label` üretmeden mevcut örneğin metnini değiştirmek için bunu kullanırsın. Bu metodu builder zincirinde değil, daha önce oluşturduğun bir örnek üzerinde çağırırsın.
 - Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow()`, `.flex_shrink()`, `.flex_shrink_0()` ile çeşitli margin style yöntemleri.
 - Trait: `LabelCommon`.
 
@@ -555,7 +555,7 @@ fn render_online_icon() -> impl IntoElement {
 Dikkat edeceğin noktalar:
 
 - `indicator_color(...)` çağrısı indicator yoksa yeni bir indicator oluşturmaz. Önce `Some(Indicator::dot())` vermen gerekir.
-- Indicator anlamı yalnız renge bırakılmamalıdır. Kullanıcı durumu okuyacaksa yanında tooltip veya label kullanırsın.
+- Indicator'ın anlamını yalnız renge bırakmazsın. Kullanıcı durumu okuyacaksa yanında tooltip veya label kullanırsın.
 
 ## DecoratedIcon ve IconDecoration
 

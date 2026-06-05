@@ -52,7 +52,7 @@ Tema sistemi **iki crate** olarak konumlanır:
             └── src/kvs_syntax_tema.rs
 ```
 
-**Modül adlandırma kuralı:** Lib kökü `mod` olarak değil, **crate adıyla aynı isimli bir dosya** olarak tutulur; örneğin `kvs_tema.rs`. Böylece editör başlığında hangi crate'in kök dosyasında çalışıldığı hemen görülür. Zed projesinin kendi konvansiyonu da bu yöndedir.
+**Modül adlandırma kuralı:** Lib kökü `mod` olarak değil, **crate adıyla aynı isimli bir dosya** olarak tutulur; örneğin `kvs_tema.rs`. Böylece editör başlığında hangi crate'in kök dosyasında çalıştığını hemen görürsün. Zed projesinin kendi konvansiyonu da bu yöndedir.
 
 **Modüllerin sorumluluk haritası:**
 
@@ -71,7 +71,7 @@ Tema sistemi **iki crate** olarak konumlanır:
 | `icon_theme` | `IconTheme` ve içerik tipleri | Evet |
 | `fallback` | `kvs_default_dark()`, `kvs_default_light()` | Evet |
 
-`schema` modülünün bütün `*Content` tiplerini tek çatı altında toplaması bilinçli bir **port tercihidir**; Zed'in mevcut yapısını birebir yansıtmaz. Zed'de `schema.rs` yalnızca `AppearanceContent` ile `try_parse_color`'ı taşır; `ThemeColorsContent`, `ThemeContent`, `ThemeStyleContent` gibi diğer içerik tipleri `settings_content` ve `theme_settings` tarafındadır. Bu rehber bu ayna struct'larını okunabilirlik için tek modülde toplar. Yine de bu tiplere doğrudan dayanan bir tüketici, uygulamanın hedeflediği Zed JSON sözleşmesine bağlanmış olur; sözleşme güncellenecekse ayna struct'ları ve test fixture'ları birlikte güncellenir.
+`schema` modülünün bütün `*Content` tiplerini tek çatı altında toplaması bilinçli bir **port tercihidir**; Zed'in mevcut yapısını birebir yansıtmaz. Zed'de `schema.rs` yalnızca `AppearanceContent` ile `try_parse_color`'ı taşır; `ThemeColorsContent`, `ThemeContent`, `ThemeStyleContent` gibi diğer içerik tipleri `settings_content` ve `theme_settings` tarafındadır. Bu rehber bu ayna struct'larını okunabilirlik için tek modülde toplar. Yine de bu tiplere doğrudan dayanan bir tüketici, uygulamanın hedeflediği Zed JSON sözleşmesine bağlanmış olur; sözleşmeyi güncelleyeceksen ayna struct'larını ve test fixture'larını birlikte güncellersin.
 
 ---
 
@@ -95,7 +95,7 @@ refineable  = { git = "https://github.com/zed-industries/zed", branch = "main" }
 collections = { git = "https://github.com/zed-industries/zed", branch = "main" }
 ```
 
-Alt crate'ler bu bağımlılıkları `gpui = { workspace = true }` biçiminde workspace'ten alır. Böylece kaynak güncellemesi tek bir noktadan yapılır ve crate'ler arasında sürüm sapması oluşmaz.
+Alt crate'ler bu bağımlılıkları `gpui = { workspace = true }` biçiminde workspace'ten alır. Böylece kaynak güncellemesini tek bir noktadan yaparsın; crate'ler arasında sürüm sapması oluşmaz.
 
 `kvs_tema/Cargo.toml`:
 
@@ -221,7 +221,7 @@ gpui, refineable, collections  ──kaynak──>  zed workspace (Apache-2.0;
                                             publish = false)
 ```
 
-Bu grafiğin yönü tersine işlemez; `gpui` hiçbir zaman `kvs_tema`'ya bağlanmaz. Bu kural sayesinde Zed'in upstream'inde bir değişiklik olduğunda tema crate'i yalnızca üç yerden etkilenir: **tip imzası**, **davranış** ve **isim/yol değişimi**. Böylece upstream'i takip ederken nereye bakılacağı baştan bellidir ve beklenmedik geri etkiler azalır.
+Bu grafiğin yönü tersine işlemez; `gpui` hiçbir zaman `kvs_tema`'ya bağlanmaz. Bu kural sayesinde Zed'in upstream'inde bir değişiklik olduğunda tema crate'i yalnızca üç yerden etkilenir: **tip imzası**, **davranış** ve **isim/yol değişimi**. Böylece upstream'i takip ederken nereye bakacağını baştan bilirsin ve beklenmedik geri etkiler azalır.
 
 **Lib kökü iskeleti (`src/kvs_tema.rs`):**
 

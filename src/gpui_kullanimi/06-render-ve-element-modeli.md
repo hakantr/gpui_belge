@@ -82,7 +82,7 @@ impl Render for ProfilPenceresi {
 }
 ```
 
-Bu örnekte `eposta_taslagi`, `kaydedildi_mi` ve `hata` element ağacının değil `ProfilPenceresi` view'unun alanlarıdır. Kullanıcı epostayı değiştirirse veya kaydetme sonucu gelirse bu alanlar güncellenir ve `cx.notify()` çağırırsın. Sonra aynı `Entity<ProfilPenceresi>` yeniden render edilir. Başka kodlar güncel epostayı kullanacaksa kaynak burasıdır; geçici element veya mesaj bileşeni değildir.
+Bu örnekte `eposta_taslagi`, `kaydedildi_mi` ve `hata` element ağacının değil `ProfilPenceresi` view'unun alanlarıdır. Kullanıcı epostayı değiştirirse veya kaydetme sonucu gelirse bu alanları günceller ve `cx.notify()` çağırırsın. Sonra aynı `Entity<ProfilPenceresi>` yeniden render edilir. Başka kodlar güncel epostayı kullanacaksa kaynak burasıdır; geçici element veya mesaj bileşeni değildir.
 
 `RenderOnce` ise bu pencerenin içinde kullandığın küçük, tek seferlik UI parçaları içindir. Aşağıdaki başarı mesajı kendi başına eposta düzenlemez, kaydetmez, hata state'i tutmaz ve başka kodlar tarafından güncel veri kaynağı olarak okunmaz. Kendisine verilen epostayı isterse sadece bilgi olarak gösterir:
 
@@ -242,7 +242,7 @@ Bu örnek özellikle iki ayrımı gösterir: `request_layout` yalnız layout ist
 GPUI'nın yerleşik elementleri farklı görevler için ayrı ayrı tasarlanmıştır. Aşağıdaki liste, hangi element'i hangi sorumluluk için seçeceğini hızlıca gösterir:
 
 - `div()` — neredeyse tüm yerleşim ve kapsayıcı işlerinin temel taşıdır. Flex/grid, stil, alt öğe, olay, klavye odağı ve pencere kontrol alanı (`window-control area`) destekler.
-- Metin — `&'static str`, `String`, `SharedString` doğrudan element olur. Ekran okuyucuya görünmesi gereken düz metinlerde `Text` ve `text!` makrosu tercih edilir; bunlar erişilebilirlik ağacı için stabil metin ID'si üretir. Daha karmaşık metin durumlarında `StyledText` ve `InteractiveText` devreye girer.
+- Metin — `&'static str`, `String`, `SharedString` doğrudan element olur. Ekran okuyucuya görünmesi gereken düz metinlerde `Text`'i ve `text!` makrosunu tercih edersin; bunlar erişilebilirlik ağacı için stabil metin ID'si üretir. Daha karmaşık metin durumlarında `StyledText` ve `InteractiveText` devreye girer.
 - `svg()` — satır içi (inline) path veya harici path ile SVG çizimi sağlar.
 - `img(...)` — asset, dosya yolu, URL veya byte kaynağı gibi görsel kaynaklarını çizer; yükleme ve yedek görsel (fallback) bölümlerini de destekler.
 - `canvas(prepaint, paint)`'i, düşük seviyeli çizim ya da hitbox/imleç gibi çizim hazırlığı gerektiren işler için kullanırsın.

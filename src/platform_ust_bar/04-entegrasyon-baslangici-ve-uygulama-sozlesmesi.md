@@ -35,9 +35,9 @@ Bu alanların pratik karşılığı şudur:
 
 ### Client-side decoration sarmalı
 
-`PlatformTitleBar` yalnızca üst başlık çubuğunu üretir. Bu çubuğun etrafındaki pencere gölgesi, kenarlık, yeniden boyutlandırma kenarı ve client inset yönetimi onun sorumluluğunda değildir. Zed'de bu işler `workspace::client_side_decorations(...)` fonksiyonunun oluşturduğu ayrı bir sarmal tarafından yaparsın.
+`PlatformTitleBar` yalnızca üst başlık çubuğunu üretir. Bu çubuğun etrafındaki pencere gölgesi, kenarlık, yeniden boyutlandırma kenarı ve client inset yönetimi onun sorumluluğunda değildir. Zed'de bu işler `workspace::client_side_decorations(...)` fonksiyonunun oluşturduğu ayrı bir sarmal tarafından yapılır.
 
-Bir uygulamada Linux CSD desteği isteniyorsa, aynı sorumlulukları karşılayan bir sarmal port tarafında da yazılmalıdır. Bu sarmalın yüklendiği işler şunlardır:
+Bir uygulamada Linux CSD desteği isteniyorsa, aynı sorumlulukları karşılayan bir sarmalı port tarafında da yazarsın. Bu sarmalın yüklendiği işler şunlardır:
 
 - CSD aktifken `window.set_client_inset(...)` çağrısı yapmak.
 - Pencere kenarlığını ve gölgesini çizmek.

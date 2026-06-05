@@ -26,10 +26,10 @@ Buna ek olarak `badge/v0.json` dosyası README üzerindeki shields.io rozetini b
 
 **Sonuç:** Varlık eklerken iki karar birlikte alırsın:
 
-1. Dosya hangi klasöre konulur?
+1. Dosyayı hangi klasöre koyarsın?
 2. Hangi tüketici kodu, hangi macro veya çalışma zamanı API'si ile bu dosyayı çağırır?
 
-Bir SVG dosyasını `icons/` altına koymak yetmez; o ikona ait bir `IconName` varyantı da eklemen gerekir. Aynı şekilde bir `.wav` eklemek için `Sound` enum'una varyant girmek gerekir. Yapısal eşleşme tüm varlık türleri için geçerlidir.
+Bir SVG dosyasını `icons/` altına koymak yetmez; o ikona ait bir `IconName` varyantı da eklemen gerekir. Aynı şekilde bir `.wav` eklemek için `Sound` enum'una bir varyant girersin. Yapısal eşleşme tüm varlık türleri için geçerlidir.
 
 ---
 
@@ -79,7 +79,7 @@ pub struct SettingsAssets;
 
 | API | Kapsam | Kullanım notu |
 |-----|--------|---------------|
-| `Assets` | `RustEmbed` struct'ı ve `AssetSource` implementasyonu | `Application::with_assets(Assets)` ile çalışma zamanına verilir; `load` ve `list` çağrıları buradan karşılanır. |
+| `Assets` | `RustEmbed` struct'ı ve `AssetSource` implementasyonu | `Application::with_assets(Assets)` ile çalışma zamanına verirsin; `load` ve `list` çağrıları buradan karşılanır. |
 | `fonts` | `#[include = "fonts/**/*"]` | `.ttf` dosyaları `Assets::load_fonts` ve testte `load_test_fonts` üzerinden `TextSystem` içine yüklenir. |
 | `icons` | `#[include = "icons/**/*"]` | `IconName`, `SvgRenderer` ve `svg()` tüketicilerinin path sözleşmesini besler. |
 | `images` | `#[include = "images/**/*"]` | `Vector` ve görsel SVG tüketiminde kullanılır; raster image cache ile karıştırılmaz. |
@@ -210,7 +210,7 @@ Varlık altyapısının kendi kodu (yani `assets` crate'indeki `AssetSource` imp
 
 | Yapılabilir | Yapılamaz |
 |-------------|-----------|
-| `RustEmbed` ile kendi varlık klasörünü kurmak ve `AssetSource` trait'ini implement etmek | Zed'in `assets` modülünün gövdesini kopyalamak yerine yeniden yazmak gerekir |
+| `RustEmbed` ile kendi varlık klasörünü kurmak ve `AssetSource` trait'ini implement etmek | Zed'in `assets` modülünün gövdesini kopyalamak yerine yeniden yazarsın |
 | OFL lisanslı IBM Plex Sans ve Lilex fontlarını lisans dosyalarıyla birlikte taşımak | Lisans dosyası olmadan font dosyası taşımak (OFL bunu açıkça yasaklar) |
 | Lucide (ISC) ikonlarını `icons/LICENSES` dosyasıyla birlikte taşımak veya MIT/Apache lisanslı kendi ikonlarını eklemek | `icons/*.svg` dosyalarını `icons/LICENSES` lisans metni olmadan taşımak (ISC, telif ve izin bildiriminin korunmasını şart koşar) |
 | Yapısal akışı (RustEmbed → AssetSource → SvgRenderer → svg element) anlayıp kendi koduyla yeniden yazmak | `cx.asset_source()` çağrı zincirindeki kod parçalarını birebir kopyalamak |

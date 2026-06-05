@@ -6,7 +6,7 @@
 
 ![GPUI Bağlam Dönüşüm Haritası](assets/context-donusum-haritasi.svg)
 
-GPUI'de neredeyse her işi bir bağlam (`context`) üzerinden yaparsın. Kodda bu bağlam genellikle `cx` adıyla görünür. Bağlam, o anda hangi katmandan konuşulduğunu ve nelere erişebildiğini belirler. Birden fazla bağlam tipi vardır ve her birinin sorumluluğu farklıdır:
+GPUI'de neredeyse her işi bir bağlam (`context`) üzerinden yaparsın. `cx`, bağlam değişkeni için yaygın bir isimlendirme tercihidir; zorunluluk değildir. Bağlam, o anda hangi katmandan konuşulduğunu ve nelere erişebildiğini belirler. Birden fazla bağlam tipi vardır ve her birinin sorumluluğu farklıdır:
 
 - **`App`**: uygulamanın kök bağlamıdır. Global durum, açık pencerelerin listesi, platform servisleri, keymap, global'ler, yeni entity oluşturma ve pencere açma gibi süreç ömrü boyu geçerli işleri buradan yaparsın.
 - **`Context<T>`**: belirli bir `Entity<T>` güncellenirken karşılaştığın bağlamdır. `App` üzerine deref eder, yani `App`'in tüm metotlarına buradan da ulaşabilirsin; ek olarak `cx.notify()`, `cx.emit(...)`, `cx.listener(...)`, `cx.observe(...)`, `cx.subscribe(...)`, `cx.spawn(...)` gibi entity'ye özel API'leri açar.
@@ -148,7 +148,7 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 | `Application::with_quit_mode(mode)` | Son pencere kapanınca uygulamanın nasıl davranacağını belirler. | Menü çubuğu yaşayan macOS tarzı uygulama ile tüm pencere kapanınca çıkan uygulama davranışı arasında seçim yaparken. |
 | `Application::on_open_urls(...)` | Platformdan gelen URL açma isteklerini yakalar. | Custom URL scheme veya dosya açma akışını uygulama state'ine yönlendirmek için; `run`'dan önce kaydedersin. |
 | `Application::on_reopen(...)` | Platformun "uygulamayı yeniden aç" olayını yakalar. | macOS dock ikonuna tıklama gibi durumlarda yeni pencere açmak veya mevcut pencereyi öne almak için; bunu da `run`'dan önce kaydedersin. |
-| `Application::run(|cx| ...)` | Event loop'u başlatır ve ilk `App` bağlamını verir. | Global state, keymap, action ve ilk pencere kurulumu burada yapılır. `run` self'i tükettiği ve olay döngüsünü bloklayan son çağrı olduğu için zincirin sonunda gelir. |
+| `Application::run(|cx| ...)` | Event loop'u başlatır ve ilk `App` bağlamını verir. | Global state, keymap, action ve ilk pencere kurulumunu burada yaparsın. `run` self'i tükettiği ve olay döngüsünü bloklayan son çağrı olduğu için zincirin sonunda gelir. |
 | `Application::background_executor()`, `foreground_executor()`, `text_system()`, `path_for_auxiliary_executable(...)` | Kurulum sonrası servisleri okur. | Launcher seviyesinde task, metin sistemi veya yardımcı executable yolu gerekiyorsa; çoğu view kodunda aynı servisleri `App` üzerinden alırsın. |
 
 `App` tarafında yaşam döngüsü birkaç ayrı aileye ayrılır. `quit()`, `restart()`, `shutdown()` ve `SHUTDOWN_TIMEOUT` aynı sahnenin farklı katmanlarıdır. `quit()` platforma çıkış isteği gönderir. `restart()` restart path'i kullanarak süreci yeniden başlatma niyeti taşır. `shutdown()` ise quit observer'larını çalıştırır, açık pencereleri kapatır ve bekleyen quit görevlerini `SHUTDOWN_TIMEOUT` boyunca bekler; normal view kodundan çağrılması beklenmez. `SHUTDOWN_TIMEOUT`, kapanış sırasında task'ların beklenebileceği kısa süreyi belirleyen sabittir.
@@ -184,7 +184,7 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 
 | API ailesi | Metotlar | Davranış |
 |---|---|---|
-| Entity kimliği | `entity_id()`, `entity()`, `weak_entity()` | Güncellenen entity'nin güçlü veya zayıf handle'ını verir. Uzun yaşayan task ve callback'lerde `weak_entity()` tercih edilir. |
+| Entity kimliği | `entity_id()`, `entity()`, `weak_entity()` | Güncellenen entity'nin güçlü veya zayıf handle'ını verir. Uzun yaşayan task ve callback'lerde `weak_entity()`'yi tercih edersin. |
 | Ekranı yenileme | `notify()` | Entity'nin yeniden çizilmesi gerektiğini işaretler. State değiştiği halde `notify()` çağrılmazsa render sonucu değişmeyebilir. |
 | Event yayma | `emit(event)` | `EventEmitter` üzerinden dinleyicilere tipli event gönderir. Event, state değişikliğinin kendisi değildir; başka parçaların bu değişiklikten haberdar olmasını sağlar. |
 | Listener üretme | `listener(...)`, `processor(...)` | UI callback'lerini entity state'ine güvenli bağlar. `listener` zayıf handle kullanır; entity düşmüşse sessizce hiçbir şey yapmaz ve değer döndürmez. `processor` güçlü handle kullanır; geri çağrının dönüş değerini sana verir (senkron `update`), bu yüzden bir sonuç gerektiğinde tercih edersin. |
@@ -194,7 +194,7 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 | Yaşam sonu | `on_release(...)`, `on_release_in(...)`, `on_drop(...)` | Entity elden çıkarken temizlik veya son event yazımı için kullanılır. UI state'i zaten elden çıkıyorsa yeni render varsayımı yapmazsın. |
 | Async iş | `spawn(...)`, `spawn_in(window, ...)`, `spawn_in_with_priority(...)`, `defer_in(...)`, `on_next_frame(...)` | `spawn` App'e bağlı async iş başlatır ve geri çağrıya entity'nin `WeakEntity`'sini ve `&mut AsyncApp`'i birlikte verir; `spawn_in` ek olarak pencereyi de bağlar. `defer_in` mevcut update bittikten sonra çalışacak işi sıraya alır; aynı update içinde yeniden girişli değişiklik yapmak yerine bunu kullanırsın. |
 
-`Context<T>` ile `App` arasındaki sınırı şöyle düşün: Uygulama geneline ait bir servis veya kayıt gerekiyorsa `App` metodu; mevcut entity'nin state'i, event'i, subscription'ı veya render bildirimi gerekiyorsa `Context<T>` metodu kullanılır.
+`Context<T>` ile `App` arasındaki sınırı şöyle düşün: Uygulama geneline ait bir servis veya kayıt gerekiyorsa `App` metodunu, mevcut entity'nin state'i, event'i, subscription'ı veya render bildirimi gerekiyorsa `Context<T>` metodunu kullanırsın.
 
 ## Entity, WeakEntity ve AnyEntity Ailesi
 

@@ -5,7 +5,7 @@ Bu bölümdeki bileşenler tek bir amaca hizmet eden küçük yapı taşlarıdı
 Bu aileyi kullanırken üç ayrımı akılda tutmak işini kolaylaştırır:
 
 - `ui::KeyBinding` ile `gpui::KeyBinding` aynı adı taşısa da farklı şeylerdir. UI tarafındaki bileşen kısayolu görsel olarak render eder; GPUI tarafındaki tip ise keymap'e bir binding tanımlar.
-- `Image` adında dışa açık bir Zed UI bileşeni yoktur. Paketlenmiş SVG için `Vector` kullanılır; raster veya dış kaynaklı görsel için GPUI tarafındaki `img(...)` ve `ImageSource` yüzeyi devreye girer.
+- `Image` adında dışa açık bir Zed UI bileşeni yoktur. Paketlenmiş SVG için `Vector` kullanırsın; raster veya dış kaynaklı görsel için GPUI tarafındaki `img(...)` ve `ImageSource` yüzeyi devreye girer.
 - Disclosure, Chip ve DiffStat gibi kompakt parçalar liste veya araç çubuğu içinde kullanılırken üst kapsayıcıya `min_w_0` ve uygun gap'ler vermek taşma kontrolünü ciddi biçimde kolaylaştırır.
 
 ## Chip
@@ -101,7 +101,7 @@ Temel API:
 Davranış:
 
 - Added değeri `Color::Success`, removed değeri ise `Color::Error` ile render edilir.
-- Removed etiketini rakam genişliğinde bir tire (figure dash, `U+2012`) ile ince boşluğu birleştirerek biçimlersin; added etiketini ise düz bir artı (`+`) ile ince boşluğu birleştirerek yazarsın.
+- DiffStat, removed etiketini rakam genişliğinde bir tire (figure dash, `U+2012`) ile ince boşluğu birleştirerek biçimler; added etiketini ise düz bir artı (`+`) ile ince boşluğu birleştirerek yazar.
 - Tooltip verildiğinde `Tooltip::text(...)` bağlanır.
 
 Örnek:
@@ -258,7 +258,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - Üst elemanın `relative()` ve `overflow_hidden()` olması gerekir; aksi halde fade beklenen konuma oturmaz.
-- Fade gerçek bir yerleşim alanı ayırmaz. Eylem alanı veya sonda görünen içerik için ayrıca padding ya da boşluk bırakılması gerekir.
+- Fade gerçek bir yerleşim alanı ayırmaz. Eylem alanı veya sonda görünen içerik için ayrıca padding ya da boşluk bırakman gerekir.
 
 ## Divider ve group yardımcıları
 
@@ -280,7 +280,7 @@ Ne zaman kullanmazsın:
 
 - Menü içindeki ayrım için `ContextMenu::separator()` kullanırsın; menu separator'ı focus ve öğe ölçüleriyle uyumlu gelir.
 - Liste bölüm başlığı gerekiyorsa `ListHeader` veya `ListSubHeader` daha doğru semantiktir.
-- Genel sayfa bölümü ayırmak için büyük dekoratif çizgiler eklemek yerine yerleşim boşluğu ve gerçek section başlığı tercih edilir.
+- Genel sayfa bölümü ayırmak için büyük dekoratif çizgiler eklemek yerine yerleşim boşluğu ve gerçek section başlığı tercih edersin.
 
 Temel API:
 
@@ -367,7 +367,7 @@ Davranış:
 
 - `VectorName::path()` çağrısı `images/<name>.svg` yolunu üretir.
 - SVG `flex_none()` ile birlikte verilen width ve height rem değerleri üzerinden render edilir.
-- `.color(...)` ayarı, SVG'ye `text_color(...)` üzerinden uygularsın.
+- Vector, `.color(...)` ayarını SVG'ye `text_color(...)` üzerinden uygular.
 
 Örnek:
 
@@ -381,7 +381,7 @@ fn zed_isareti_render() -> impl IntoElement {
 
 Dikkat edeceğin noktalar:
 
-- `Image` adında dışa açık bir Zed UI bileşeni yoktur. Rehberde bir görsel ihtiyacı varsa `Vector`, `Avatar`, `Icon` ve GPUI `img(...)` ayrımının yapılması beklenir.
+- `Image` adında dışa açık bir Zed UI bileşeni yoktur. Rehberde bir görsel ihtiyacı varsa `Vector`, `Avatar`, `Icon` ve GPUI `img(...)` ayrımını yaparsın.
 - `VectorName` yalnızca kaynakta tanımlanmış olan paketlenmiş asset'leri kapsar; dışarıdan yeni isim eklenmez.
 
 GPUI `img(...)` ve `ImageSource` (raster veya dış görsel için) şu şekilde kullanırsın:
@@ -415,7 +415,7 @@ fn yerel_kucuk_gorsel_render() -> impl IntoElement {
 | `Arc<RenderImage>`, `Arc<Image>` | Önceden hazırlanmış/cached image verisini doğrudan taşır. |
 | `Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>` | Çağrı sırasında dinamik kaynak üretmek için kullanılır. |
 
-`Avatar::new`, bu `Into<ImageSource>` zincirinin üzerine kuruludur. Ham bir `img(...)` kullanılırken `flex_none()` ve sabit bir `size(...)` verilmediğinde yerleşim taşmaları yaşanması olasıdır. SVG bir ikon için her zaman `Icon` veya `Vector` tercih edilir; `img(...)` SVG path'lerini raster gibi muamele eder ve o yüzden recolor edemez.
+`Avatar::new`, bu `Into<ImageSource>` zincirinin üzerine kuruludur. Ham bir `img(...)` kullanılırken `flex_none()` ve sabit bir `size(...)` verilmediğinde yerleşim taşmaları yaşanması olasıdır. SVG bir ikon için her zaman `Icon` veya `Vector` tercih edersin; `img(...)` SVG path'lerini raster gibi muamele eder ve o yüzden recolor edemez.
 
 ## KeyBinding
 
@@ -492,7 +492,7 @@ fn kaydet_kisayolu_render() -> AnyElement {
 
 Dikkat edeceğin noktalar:
 
-- `ui::KeyBinding` ile `gpui::KeyBinding` aynı dosyada birlikte import edilirken, ikisine de alias verilmesi okunabilirliği artırır.
+- `ui::KeyBinding` ile `gpui::KeyBinding` aynı dosyada birlikte import edilirken, ikisine de alias vermen okunabilirliği artırır.
 - Bir action'a bağlı kısayol gösterilirken binding bulunamama durumunun UI'da düşünmen gerekir; çünkü bileşen bu durumda boş render edebilir.
 
 ## KeybindingHint
@@ -551,7 +551,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edeceğin noktalar:
 
 - `background_color` üst öğe yüzeyine yakın seçmen gerekir; hint kendi border ve fill rengini bu değerden türetir.
-- Çok uzun bir prefix veya suffix yazılmaması beklenir; bileşen kısa komut açıklamaları için tasarlanmıştır.
+- Çok uzun bir prefix veya suffix yazmazsın; bileşen kısa komut açıklamaları için tasarlanmıştır.
 
 ## Navigable
 
@@ -610,7 +610,7 @@ fn gezilebilir_satirlar_render(scroll_handle: &ScrollHandle, cx: &App) -> impl I
 Dikkat edeceğin noktalar:
 
 - Wrapper yalnızca action routing ile focus/scroll geçişini kurar; her child'ın kendisi yine `track_focus` ile focus track etmelidir.
-- Entry listesinin, render edilen öğe sırasıyla aynı tutulması gerekir; aksi halde gezinti beklenmedik bir sıraya kayar.
+- Entry listesini, render edilen öğe sırasıyla aynı tutarsın; aksi halde gezinti beklenmedik bir sıraya kayar.
 
 ## ProjectEmptyState
 
@@ -635,9 +635,9 @@ Temel API:
 Davranış:
 
 - Render edilen kök, bir `v_flex()` içinde `track_focus(&focus_handle)` çağrısı yapar.
-- Üst metni `Choose one of the options below to use the {label}` biçiminde görürsün.
-- İlk eylemi `Button::new("open_project", "Open Project")` ve verilen `KeyBinding` ile görürsün; ikinci eylem ise `Button::new("clone_repo", "Clone Repository")` olarak gelir.
-- İki eylem arasında bir `Divider::horizontal().color(DividerColor::Border)` ile küçük bir `"or"` etiketi görürsün.
+- Üst metni `Choose one of the options below to use the {label}` biçiminde render eder.
+- İlk eylemi `Button::new("open_project", "Open Project")` ve verilen `KeyBinding` ile render eder; ikinci eylem ise `Button::new("clone_repo", "Clone Repository")` olarak gelir.
+- İki eylem arasında bir `Divider::horizontal().color(DividerColor::Border)` ile küçük bir `"or"` etiketi render eder.
 
 Örnek:
 
@@ -745,4 +745,4 @@ Dikkat edeceğin noktalar:
 
 - `format_distance_from_now(...)` çağrısı anlık `Local::now()` okur. Deterministik test veya snapshot üretirken `FormatDistance::new(date, base_date)` daha kontrollüdür.
 - `SearchInputWidth::calc_width(...)` yalnız genişlik hesabı yapar; input'u kendisi render etmez.
-- `TRAFFIC_LIGHT_PADDING` değeri dışa açık `MACOS_SDK_26_OR_LATER` sabitine (macOS SDK 26 ve sonrası derlemelerde `true`) bağlıdır: doğruysa 78px, değilse 71px. Title bar dışı genel padding için kullanılmamalıdır.
+- `TRAFFIC_LIGHT_PADDING` değeri dışa açık `MACOS_SDK_26_OR_LATER` sabitine (macOS SDK 26 ve sonrası derlemelerde `true`) bağlıdır: doğruysa 78px, değilse 71px. Title bar dışı genel padding için kullanmazsın.

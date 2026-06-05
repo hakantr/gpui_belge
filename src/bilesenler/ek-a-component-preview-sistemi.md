@@ -7,7 +7,7 @@ Zed uygulamasında bu sistem iki seviyede ele alırsın:
 - `workspace::init(app_state, cx)` içinde `component::init()` çağırırsın. Bu çağrı, `inventory::iter::<ComponentFn>()` ile `RegisterComponent` derive'larından gelen kayıt fonksiyonlarını çalıştırır ve `COMPONENT_DATA` registry'sini doldurur.
 - `zed` crate'i, normal uygulama açılışında `component_preview::init(app_state.clone(), cx)` çağrısını yapar. Ana `zed` uygulamasında sıra şöyledir: önce `settings::init` ve theme init tamamlanır; ardından `workspace::init(...)` çağrılır ve `component::init()` bu çağrının içinden, yani settings/theme init'inden sonra çalışır; en sonda `component_preview::init(...)` gelir. Standalone preview örneği ise bu bağımlılıkları kendi içinde daha sade bir akışla kurduğundan, orada `component::init()` çağrısını settings/theme kurulumundan önce de görebilirsin; bu sıralama yalnızca o örneğe özgüdür.
 - `ComponentPreview::new(...)`, registry'yi `components()` ile okur; `sorted_components()` ve `component_map()` değerlerini kendi view durumuna alır. Filtre editor'ü için `InputField::new(window, cx, "Find components or usages…")` kurar; listeyi `ListState` üzerinden sanallaştırır.
-- Render tarafında preview sayfası `ComponentMetadata::preview()` callback'ini çağırır. Bu callback `fn(&mut Window, &mut App) -> AnyElement` tipindedir; kayıtlı her component için çağrılabilir bir preview elementi beklenir. Anlamlı bir görsel örnek yoksa `empty_example(...)` veya küçük bir placeholder elementi component'in kendi `preview` metodunda döndürülür.
+- Render tarafında preview sayfası `ComponentMetadata::preview()` callback'ini çağırır. Bu callback `fn(&mut Window, &mut App) -> AnyElement` tipindedir; kayıtlı her component için çağrılabilir bir preview elementi beklenir. Anlamlı bir görsel örnek yoksa `empty_example(...)` veya küçük bir placeholder elementini component'in kendi `preview` metodunda döndürürsün.
 
 Bu nedenle uygulama içi component sistemi bir runtime UI dependency injection mekanizması değildir. Asıl görevi **görsel inceleme ve dokümantasyon registry'si** olmaktır. Production ekranları bileşenleri doğrudan `ui::Button`, `ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır. Component registry yalnızca preview tool'u, dokümantasyon ve arama ekranları için devrede tutulur.
 
@@ -104,15 +104,15 @@ impl Component for OrnekButonKumesi {
 
 Preview kodunda `scope()` çağrısı, bileşenin gallery'de hangi grupta gösterileceğini belirler. `preview()` herhangi bir `AnyElement` döndürebilir. Tek bir örnek için `single_example`, ilişkili varyantları gruplayarak göstermek için `example_group_with_title` kullanırsın.
 
-Preview'ları Zed reposunda görsel olarak incelemek için aşağıdaki komut çalıştırılır:
+Preview'ları Zed reposunda görsel olarak incelemek için aşağıdaki komutu çalıştırırsın:
 
 ```sh
 cargo run -p component_preview --example component_preview
 ```
 
-Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda alınmış tüm bileşenleri sol panelden gezilebilir kategoriler altında (`ComponentScope`) listeler. Yeni bir bileşene preview eklendiğinde derive makrosu kaydı kendisi yapar; ayrı bir kayıt çağrısına ihtiyaç kalmaz. Bir tipin gallery'ye girmesi struct olmasına değil, kayda alınmasına bağlıdır: `RegisterComponent` derive'ı (veya elle yapılan bir `register_component::<T>()` çağrısı) olmayan tipler gallery'ye eklenmez. Bu yüzden en az boş bir `#[derive(IntoElement, RegisterComponent)] struct OrnekBilesen;` ile sarılması gerekir.
+Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda alınmış tüm bileşenleri sol panelden gezilebilir kategoriler altında (`ComponentScope`) listeler. Yeni bir bileşene preview eklendiğinde derive makrosu kaydı kendisi yapar; ayrı bir kayıt çağrısına ihtiyaç kalmaz. Bir tipin gallery'ye girmesi struct olmasına değil, kayda alınmasına bağlıdır: `RegisterComponent` derive'ı (veya elle yapılan bir `register_component::<T>()` çağrısı) olmayan tipler gallery'ye eklenmez. Bu yüzden en az boş bir `#[derive(IntoElement, RegisterComponent)] struct OrnekBilesen;` ile sararsın.
 
-**Programatik registry erişimi.** Bir component preview tool'u, dokümantasyon üretici veya custom gallery yazılıyorsa `component` crate'inin registry API'sine doğrudan erişilebilir:
+**Programatik registry erişimi.** Bir component preview tool'u, dokümantasyon üretici veya custom gallery yazıyorsan `component` crate'inin registry API'sine doğrudan erişirsin:
 
 ```rust
 use component::{ComponentRegistry, ComponentScope, ComponentStatus, components, init as init_components};
