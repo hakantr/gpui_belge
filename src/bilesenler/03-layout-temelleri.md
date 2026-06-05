@@ -114,7 +114,7 @@ Davranış:
 
 - `h_group*` yardımcıları `items_center()` eklemez. Satırdaki elemanların dikey hizası bir konu olarak öne çıkıyorsa `.items_center()` veya `.items_start()` çağrılarını elle eklemen gerekir.
 - `v_group*` yardımcıları otomatik olarak `flex_col()` ekler; yani dikey istif baştan kurulmuş gelir.
-- Yardımcı isimleri aralık ölçeğini doğrudan anlatır: `sm` küçük boşluk, isimsiz varyant varsayılan, `lg` biraz daha büyük, `xl` ise grubun içerebileceği en geniş boşluğu ifade eder.
+- Yardımcı isimleri aralık ölçeğini doğrudan anlatır: `sm` küçük boşluk, isimsiz varyant varsayılan, `lg` biraz daha büyük, `xl` ise bu yardımcı ailesindeki en geniş ölçeği ifade eder. Daha geniş bir boşluk istiyorsan bu sabit ölçeklere bağlı kalmaz, `.gap_4()` gibi açık bir değer kurarsın.
 
 Örnek:
 
@@ -175,14 +175,14 @@ Temel API:
 - Helper constructor'lar: `divider()`, `vertical_divider()`.
 - Associated constructor'lar: `Divider::horizontal()`, `Divider::vertical()`, `Divider::horizontal_dashed()`, `Divider::vertical_dashed()`.
 - Builder'lar: `.inset()`, `.color(DividerColor)`.
-- `DividerColor`: `Border`, `BorderFaded`, `BorderVariant`.
+- `DividerColor`: `Border`, `BorderFaded`, `BorderVariant` (varsayılan).
 
 Davranış:
 
 - Varsayılan renk `DividerColor::BorderVariant`'tır; yani ayırıcı sahnenin içine fazla bağırmaz.
 - Solid divider arka planda `Divider::render_solid(base, cx)` ile `bg(...)` uygulanarak çizilir.
 - Dashed divider ise `Divider::render_dashed(base)` içinde `canvas(...)` ve `PathBuilder::stroke(px(1.)).dash_array(...)` kullanılarak çizilir; bu yüzden solid'e göre daha pahalı bir çizim yapar.
-- Horizontal divider geometri olarak `h_px().w_full()`, vertical divider ise `w_px().h_full()` kullanır.
+- Horizontal divider geometri olarak `min_w_0().h_px().w_full()`, vertical divider ise `min_w_0().w_px().h_full()` kullanır.
 - `.inset()` çağrısı horizontal divider'da `mx_1p5()`, vertical divider'da `my_1p5()` ekler; yani kenarlardan içeri çekme davranışı sağlar.
 - Vertical divider'ın görünür olabilmesi için parent kapsayıcının belirli bir yüksekliği olması veya yüksekliğin içerikten otomatik türemesi gerekir; aksi halde dikey çizgi 0 boy alıp kaybolur.
 

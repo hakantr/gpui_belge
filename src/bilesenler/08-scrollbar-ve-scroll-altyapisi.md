@@ -23,16 +23,16 @@ Temel API:
 
 - `Scrollbars::new(show_along: ScrollAxes)`.
 - `Scrollbars::always_visible(show_along)`.
-- `Scrollbars::for_settings::<S: ScrollbarVisibility>()`.
+- `Scrollbars::for_settings::<S: ScrollbarVisibility + Default>()`.
 - `.id(ElementId)`, `.notify_content()`, `.tracked_entity(EntityId)`, `.tracked_scroll_handle(&handle)`, `.show_along(axes)`, `.style(style)`, `.with_track_along(axes, bg)`, `.with_stable_track_along(axes, bg)`.
 - `WithScrollbar`: elementlere `.vertical_scrollbar_for(...)` ve `.custom_scrollbars(...)` metodlarını ekleyen bir extension trait'tir. Kaynakta yatay ve çift yönlü yardımcı taslakları yorum satırı olarak durur; bu yardımcılar public API değildir.
 - `ScrollableHandle`: kendi handle'ını yazıyorsan, `max_offset`, `set_offset`, `offset`, `viewport` ve opsiyonel olarak sürükleme hook'larını sağlaman gerekir. Bu sözleşme, `Scrollbars`'ın handle ile nasıl konuşacağını belirler.
-- `on_new_scrollbars::<S>(cx)`: scrollbar global setting tipinin değiştiği durumlarda, yeni `ScrollbarState` entity'lerinin bu ayar değişikliklerine abone olmasını sağlayan kurulum yardımcısıdır.
+- `on_new_scrollbars::<S>(cx)`: scrollbar global setting tipinin değiştiği durumlarda, yeni kurulan scrollbar durumlarını bu ayar değişikliklerine abone eden ve değişiklikte yeniden hesaplatan kurulum yardımcısıdır.
 - `ScrollAxes`: `Horizontal`, `Vertical`, `Both`.
 - `ScrollbarStyle`: `Regular` (6px), `Editor` (15px).
 - `EDITOR_SCROLLBAR_WIDTH`: `ScrollbarStyle::Editor.to_pixels()` ile aynı değeri taşıyan 15px sabitidir. Editor scrollbar'ı ile aynı genişlikte boşluk ayırman veya panel hizalaman gerekiyorsa kullanırsın.
 - `ShowScrollbar`: `Auto`, `System`, `Always`, `Never`.
-- `ScrollbarAutoHide::should_hide()`: platform veya ayar katmanından gelen otomatik gizleme bayrağını okur. `Scrollbars::for_settings::<S>()` gibi ayara bağlı kurulumlarda bu değer görünürlüğü belirler; bileşen içinde elle polling yapmak yerine ayar tipini scrollbar'a bağlamak daha doğrudur.
+- `ScrollbarAutoHide::should_hide()`: platform veya ayar katmanından gelen otomatik gizleme bayrağını okur. Bu değer her ayar kurulumunda değil, yalnız ayar `ShowScrollbar::System` olduğunda görünürlüğü belirler; bu durumda scrollbar autohide ile sistem tercihini izler. Bileşen içinde elle polling yapmak yerine ayar tipini scrollbar'a bağlamak daha doğrudur.
 
 Scrollbar altyapı yüzeyi:
 
@@ -45,7 +45,7 @@ Scrollbar altyapı yüzeyi:
 | `ScrollbarVisibility` | Global ayar tipinin scrollbar görünürlük tercihini public trait olarak sağlar. |
 | `ScrollbarAutoHide` | Platform veya ayardan gelen otomatik gizleme bilgisini `should_hide()` ile okuyan küçük sarmalayıcıdır. |
 | `ScrollbarPrepaintState` | Üst hitbox ve thumb prepaint bilgisini tutar; `Scrollbars` elementinin iç hit test ve sürükleme hazırlığında kullanılır. |
-| `on_new_scrollbars` | Yeni `ScrollbarState` entity'lerini ayar değişikliklerine abone etmek için kullanılan kurulum yardımcısıdır. |
+| `on_new_scrollbars` | Yeni kurulan scrollbar durumlarını ayar değişikliklerine abone edip değişiklikte yeniden hesaplatan kurulum yardımcısıdır. |
 
 Davranış:
 

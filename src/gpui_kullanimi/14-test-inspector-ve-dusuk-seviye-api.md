@@ -46,7 +46,7 @@ fn kaydetmeyi_test_et(cx: &mut TestAppContext) {
 **Sık kullandığın API'ler.** Test akışında en çok karşılaştığın yardımcılar:
 
 - `TestAppContext::single()` — çoklu istemci kurmayan testlerde tek bir test uygulaması başlatır. `#[gpui::test]` çoğu zaman bunu senin yerine kurar; elle test koşumu yazarken anlamlıdır.
-- `cx.add_window(|window, cx| cx.new(...))` — yeni bir offscreen pencere açar.
+- `cx.add_window(|window, cx| cx.new(...))` — test ekranı boyutunda (maximized) yeni bir test penceresi açar.
 - `cx.simulate_keystrokes(window, "cmd-s left")` — boşlukla ayrılmış keystroke dizisini simüle eder.
 - `cx.simulate_input(window, "hello")` — metin girdisi simulasyonu yapar.
 - `cx.dispatch_action(window, action)`.
@@ -77,7 +77,7 @@ Pencere argümanı isteyen yardımcılar `TestAppContext` üzerindeki `simulate_
 - Gerçek tutarlılık için `smol::Timer` yerine `cx.background_executor().timer(d)`'yi tercih edersin.
 - `run_until_parked` ile `advance_clock`'u kombine ederken önce clock'u ilerletir, sonra park beklersin. `VisualTestContext` `TestAppContext`'in içine deref ettiği için normal yolda `cx.background_executor.advance_clock(d)` kullanırsın; doğrudan `advance_clock(d)` yardımcısı `VisualTestAppContext` üzerinde yer alır.
 - Async test için `#[gpui::test]` `async fn(cx: &mut TestAppContext)` formunu destekler; ön plan task'larını orada `cx.spawn` ile kurarsın.
-- Pencerenin gerçekten çizilmesi için `VisualTestContext::draw(...)`, `TestAppWindow::draw()` veya doğrudan `window.draw(cx).clear()` kullanan bir pencere güncellemesi gerekebilir; aksi halde hata ayıklama sınırları veya yerleşim bilgisi üretilmez.
+- Pencerenin gerçekten çizilmesi için `VisualTestContext::draw(...)`, `TestAppWindow::draw()` veya doğrudan `window.draw(cx)` çağrısının dönüşünü temizleyen bir pencere güncellemesi gerekebilir; `draw` bir `ArenaClearNeeded` değeri döndürür ve sonraki çizimden önce onun `clear()` çağrısıyla element arena'sını boşaltırsın, aksi halde hata ayıklama sınırları veya yerleşim bilgisi üretilmez.
 
 **Dikkat noktaları.** Test simulasyonunda atlanması kolay noktalar:
 
@@ -142,7 +142,7 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
   }
   ```
 
-  `documentation` alanı trait metodunun `///` doc yorumundan çıkarılır (`gpui_macros::extract_doc_comment`). Inspector UI bu metni markdown olarak çizer — örneğin `inspector_ui` crate'i Styled metodu otomatik tamamlamasında `CompletionDocumentation::MultiLineMarkdown` formuna sarar. Tailwind doc bağlantısı gibi ham bağlantılar da bu yolla köprüye dönüşür.
+  `derive_inspector_reflection` makrosu metodun `///` doc yorumunu `documentation` alanına yazar. Inspector UI bu metni markdown olarak çizer — örneğin `inspector_ui` crate'i Styled metodu otomatik tamamlamasında `CompletionDocumentation::MultiLineMarkdown` formuna sarar. Tailwind doc bağlantısı gibi ham bağlantılar da bu yolla köprüye dönüşür.
 - `FunctionReflection::invoke(deger: T) -> T` — metodu çalışma zamanında çağırır; inspector "method picker" akışında kullanıcı bir style metodunu seçtiğinde mevcut elementin `StyleRefinement`'ı bu invoke ile dönüştürülür.
 
 Üretim build'inde inspector kodu sıfır maliyetlidir; yansıma modülü ve `FunctionReflection` da özellik kapısının dışında derlenmediği için release Zed binary'sinde bulunmaz.
@@ -517,7 +517,7 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `Capslock` | capslock state taşıyıcı | Modifier değişimlerinde platform capslock durumunu taşır. |
 | `ModifiersChangedEvent` | `modifiers`, `capslock`, `Deref<Target = Modifiers>` | Platform modifier state değişimini taşır; doğrudan `Modifiers` metotlarını çağırabilirsin. |
 | `KeyboardButton`, `KeyboardClickEvent` | `Enter`, `Space`; `button`, `bounds` | Klavye ile tetiklenen click olayını temsil eder. |
-| `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent` | down/up: `button`, `position`, `modifiers`, `click_count`, `is_focusing`; move: `position`, `pressed_button`, `modifiers`, `dragging()` | Fare press/release/move ham olaylarıdır; modifier alanı doğrudan `modifiers` üzerinden okunur. |
+| `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent` | down: `button`, `position`, `modifiers`, `click_count`, `first_mouse` alanı (`is_focusing()` ile sorgulanır); up: `button`, `position`, `modifiers`, `click_count` (`is_focusing()` ile sorgulanır); move: `position`, `pressed_button`, `modifiers`, `dragging()` | Fare press/release/move ham olaylarıdır; modifier alanı doğrudan `modifiers` üzerinden okunur. |
 | `MouseClickEvent`, `MouseExitEvent` | down/up çifti; exit `position`, `pressed_button`, `modifiers` | Click sentezi ve pencere dışına çıkış olayıdır; `MouseExitEvent` `Modifiers` için `Deref` taşır. |
 | `ScrollWheelEvent`, `PinchEvent` | `delta`, `touch_phase`; `delta`, `phase` | Scroll ve pinch gesture olaylarıdır; ikisi de `Modifiers` için `Deref` taşır. |
 | `TouchPhase` | `Started`, `Moved`, `Ended` | Touch/scroll/pinch fazını sınıflandırır. |

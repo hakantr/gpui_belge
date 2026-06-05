@@ -181,7 +181,7 @@ Sabit ve değişmeyen bir aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `
 
 - `Background`: uygulamanın en alt zemini.
 - `Surface`: paneller, pane'ler ve ana yüzey kapsayıcıları.
-- `EditorSurface`: editable buffer yüzeyleri; genellikle `Surface` ile aynı renge sahiptir.
+- `EditorSurface`: editable buffer yüzeyleri içindir; arka planı `editor_background`'tan gelir ve uygulama zemini `Background` ile aynı tonu paylaşır, `Surface` ile değil.
 - `ElevatedSurface`: popover ve dropdown gibi paneller üstünde yer alan yüzeyler.
 - `ModalSurface`: dialog, alert, modal gibi uygulamayı geçici olarak kilitleyen yüzeyler.
 
@@ -343,7 +343,7 @@ Layout ve ölçü yardımcıları:
 Erişilebilirlik ve renk kontrastı:
 
 - `calculate_contrast_ratio(fg: Hsla, bg: Hsla) -> f32`: WCAG 2 standardına göre kontrast oranını hesaplar.
-- `apca_contrast(text_color: Hsla, background_color: Hsla) -> f32`: APCA Lc (lightness contrast) ölçeğini döndürür. Pozitif değer normal polarity (koyu metin, açık arka plan), negatif değer ters polarity anlamına gelir. Tipik eşikler: `Lc 45` UI metni için minimum, `Lc 60` küçük metin için, `Lc 75` gövde metni için referans alırsın.
+- `apca_contrast(text_color: Hsla, background_color: Hsla) -> f32`: APCA Lc (lightness contrast) ölçeğini döndürür. Pozitif değer normal polarity (koyu metin, açık arka plan), negatif değer ters polarity anlamına gelir. Tipik eşikler: `Lc 45` büyük ve akıcı metin (36px ve üstü) için minimum, `Lc 60` diğer içerik metni için minimum, `Lc 75` gövde metni için minimum, `Lc 90` ise gövde metni için tercih edilen değerdir.
 - `ensure_minimum_contrast(foreground: Hsla, background: Hsla, minimum_apca_contrast: f32) -> Hsla`: foreground rengin lightness değerini ayarlayarak verdiğin APCA eşiğini sağlayan en yakın rengi döndürür. Tema türetimi sırasında hesaplanan renklerin okunabilir kalmasını garantilemek için en uygun yoldur.
 
 Tarih farkı yardımcıları (`format_distance` modülü):

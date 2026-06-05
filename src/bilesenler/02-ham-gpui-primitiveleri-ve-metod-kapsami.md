@@ -56,7 +56,7 @@ Hangi ihtiyaç için hangi API'yi seçeceğini ve ne zaman ham GPUI'ye inmen ger
 | :-- | :-- | :-- |
 | `ParentElement` | `.extend(elements)`, `.child(child)`, `.children(children)` | `child` ve `children`, `IntoElement` kabul eder; `extend` ise `AnyElement` koleksiyonu ister |
 
-`Styled`, `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu ve makroyla üretilen ortak yardımcı metodları taşır. `Div`, `Img`, `Svg`, `Canvas`, `Surface`, `ImageCacheElement`, `List`, `UniformList`, `Deferred`, `AnimationElement` ve birçok Zed `ui` bileşeni bu yüzeyi miras alır. Bu yüzden bu elementlerin büyük kısmı aynı stil sözlüğünü konuşur.
+`Styled`, `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu ve makroyla üretilen ortak yardımcı metodları taşır. `Div`, `Img`, `Svg`, `Canvas`, `Surface`, `ImageCacheElement`, `List`, `UniformList` ve birçok Zed `ui` bileşeni bu yüzeyi miras alır. Bu yüzden bu elementlerin büyük kısmı aynı stil sözlüğünü konuşur.
 
 `Styled` manuel metodları aşağıdaki gibidir:
 
@@ -118,7 +118,7 @@ Action ve klavye ailesinde `capture_action(...)`, `on_action(...)`, `on_boxed_ac
 
 `Interactivity` daha düşük seviyeli iç taşıyıcıdır; yukarıdaki fluent API'nin gerçek listener ve hitbox kayıtlarını saklar. Uygulama kodunda mümkün olduğu sürece fluent `InteractiveElement` ve `StatefulInteractiveElement` metotlarını tercih edersin; `Interactivity`'yi doğrudan yalnız özel bir element yazarken kullanırsın.
 
-Framework implementer metotları `source_location`, `request_layout`, `prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder API değildir; günlük UI yazımında kullanmazsın. Yalnızca `Element` implementasyonu yazarken veya GPUI içinde değişiklik yaparken devreye girerler. `GroupHitboxes::get/push/pop`, grup hover/active hitbox durumunun iç global stack yönetimini yapar; üst seviye kodun bunu doğrudan kullanması beklenmez. `DraggedItem<T>::drag(cx)` ve `.dragged_item()` ise sürükleme verisini okumak için kullandığın olay yardımcılarıdır.
+Framework implementer metotları `source_location`, `request_layout`, `prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder API değildir; günlük UI yazımında kullanmazsın. Yalnızca `Element` implementasyonu yazarken veya GPUI içinde değişiklik yaparken devreye girerler. `GroupHitboxes::get/push/pop`, grup hover/active hitbox durumunun iç global stack yönetimini yapar; üst seviye kodun bunu doğrudan kullanması beklenmez. `DragMoveEvent<T>::drag(cx)` ve `.dragged_item()` ise sürükleme verisini okumak için kullandığın olay yardımcılarıdır.
 
 Animasyon easing yardımcıları `linear(delta)`, `quadratic(delta)`, `ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla export edilir. Test modülünde yer alan `select_next` veya `select_previous` gibi örnek view metotları ise bileşen API'si değildir; sadece test amaçlı örneklerdir.
 
@@ -157,7 +157,7 @@ Aşağıdaki tablo her primitive'in nasıl üretildiğini, hangi özel metodlara
 
 | API | Constructor | Özel metodlar / ilişkili tipler | Kullanım disiplini |
 | :-- | :-- | :-- | :-- |
-| `Div` | `div()` | `Styled`, `ParentElement`, `InteractiveElement`, `StatefulInteractiveElement`; ayrıca `.on_children_prepainted(...)`, `.image_cache(...)`, `.with_dynamic_prepaint_order(...)` | Her özel layout'un tabanı olabilir; standart kontrol yerine kullanacaksan odak, hover, tooltip ve action bağlarını açıkça kurulur |
+| `Div` | `div()` | `Styled`, `ParentElement`, `InteractiveElement` (`StatefulInteractiveElement` yalnız `.id()` sonrası); ayrıca `.on_children_prepainted(...)`, `.image_cache(...)`, `.with_dynamic_prepaint_order(...)` | Her özel layout'un tabanı olabilir; standart kontrol yerine kullanacaksan odak, hover, tooltip ve action bağlarını açıkça kurulur |
 | `ScrollHandle` | `ScrollHandle::new()` | `.offset()`, `.max_offset()`, `.top_item()`, `.bottom_item()`, `.bounds()`, `.bounds_for_item(ix)`, `.scroll_to_item(ix)`, `.scroll_to_top_of_item(ix)`, `.scroll_to_bottom()`, `.set_offset(point)`, `.logical_scroll_top()`, `.logical_scroll_bottom()`, `.children_count()` | `overflow_*_scroll` ve `.track_scroll(&handle)` ile bağlarsın |
 | `ScrollAnchor` | `ScrollAnchor::for_handle(handle)` | `.scroll_to(window, cx)` | Nested child'ın parent scroll alanına anchor edilmesi gerektiğinde tercih edersin |
 | `canvas` / `Canvas<T>` | `canvas(prepaint, paint)` | `Styled`; prepaint closure durum döndürür, paint closure bu durum ile çizim yapar | Sadece özel render gerektiğinde devreye girer; layout `Styled` boyutlarıyla sabitlenir |
@@ -231,17 +231,15 @@ div()
     .on_click(cx.listener(|this, _event, window, cx| {
         this.activate(window, cx);
     }))
-    .tooltip(|window, cx| Tooltip::text("Açıklama", window, cx))
+    .tooltip(Tooltip::text("Açıklama"))
     .child(Label::new("Etiket"))
 ```
 
-Değişken yükseklikli liste örüntüsü şu şekildedir. Burada `list(...)` bir durum nesnesi ve bir render closure'u alır; closure'un içinde verilen aralığı satır satır render edersin:
+Değişken yükseklikli liste örüntüsü şu şekildedir. Burada `list(...)` bir durum nesnesi ve bir render closure'u alır; closure verilen satır indeksini alıp o satıra karşılık gelen tek bir element döndürür:
 
 ```rust
-list(self.list_state.clone(), move |range, window, cx| {
-    range
-        .map(|ix| self.render_row(ix, window, cx).into_any_element())
-        .collect()
+list(self.list_state.clone(), move |ix, window, cx| {
+    self.render_row(ix, window, cx).into_any_element()
 })
 .with_sizing_behavior(ListSizingBehavior::Infer)
 ```

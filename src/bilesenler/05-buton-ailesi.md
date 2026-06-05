@@ -19,7 +19,7 @@ Hangi durumda hangisini seçeceğin için şu kısa ayrım yeterli olur:
 Kaynak:
 
 - Ortak trait ve token'lar: `ui` crate'i.
-- Prelude: `Button`, `IconButton`, `SelectableButton`, `ButtonCommon`, `ButtonSize`, `ButtonStyle` otomatik gelir. `TintColor`, `ButtonLike`, `ButtonLink`, `CopyButton`, `SplitButton` ve toggle button tipleri ise ayrıca import edersin.
+- Prelude: `Button`, `IconButton`, `SelectableButton`, `ButtonCommon`, `ButtonSize`, `ButtonStyle`, `IconPosition` otomatik gelir. `TintColor`, `ButtonLike`, `ButtonLink`, `CopyButton`, `SplitButton` ve toggle button tipleri ise ayrıca import edersin.
 
 Ortak trait'ler:
 
@@ -210,7 +210,7 @@ Temel API:
 
 - Constructor: `IconButton::new(id, icon)`.
 - İkon builder'ları: `.icon_size(...)`, `.icon_color(...)`, `.selected_icon(...)`, `.selected_icon_color(...)`, `.alpha(...)`.
-- Şekil: `.shape(IconButtonShape::Square | Wide)`.
+- Şekil: `.shape(IconButtonShape::Square | Wide)`. Varsayılan şekil `IconButtonShape::Wide`'dir; kare bir yüzey istiyorsan `Square`'i açıkça verirsin.
 - Durum ve davranış: `.indicator(...)`, `.indicator_border_color(...)`, `.toggle_state(...)`, `.selected_style(...)`, `.disabled(...)`, `.on_click(...)`, `.on_right_click(...)`, `.visible_on_hover(...)`.
 - Ortak builder'lar: `.style(...)`, `.size(...)`, `.tooltip(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.width(...)`, `.full_width()`, `.cursor_style(...)`.
 
@@ -429,7 +429,7 @@ Davranış:
 - Varsayılan tıklama davranışı, verilen `message` string'ini clipboard'a yazar.
 - Kopyalama sonrasında iki saniye boyunca `IconName::Check`, `Color::Success` ile birlikte kaynakta tanımlı `"Copied!"` ipucu gösterir.
 - İki saniyelik durum yenilemesi için `cx.background_executor().timer(...)` kullanan bir task detach edilir; yani süre dolduğunda görsel kendiliğinden eski hâline döner.
-- `custom_on_click(...)` verildiğinde, varsayılan clipboard yazma davranışı yerine özel işleyici çalışır.
+- İki saniyelik "Copied!" görsel durumu (`IconName::Check` + `Color::Success`) her tıklamada gösterilir; `custom_on_click(...)` versen bile bu görsel geri bildirim çalışır. Özel işleyici yalnızca clipboard yazma adımının yerine geçer, kopyalandı göstergesini devre dışı bırakmaz.
 
 Örnek:
 

@@ -28,7 +28,7 @@ Ne zaman kullanırsın:
 Davranış:
 
 - `Banner` ve `Callout`, severity değerinden icon ile status renklerini türetir.
-- `Info` nötr ya da muted, `Success` yeşil, `Warning` sarı, `Error` kırmızı status token'larını kullanır.
+- `Info` için sade bir `info_background` tonu ve muted ikon rengi seçilir; `Success` yeşil, `Warning` sarı, `Error` kırmızı status token'larını kullanır.
 - Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyon ayrı bir buton slot'una yerleştirilir.
 
 ## Banner

@@ -101,7 +101,7 @@ Temel API:
 Davranış:
 
 - Added değeri `Color::Success`, removed değeri ise `Color::Error` ile render edilir.
-- Removed etiketi görsel olarak typographic minus karakterini kullanır.
+- Removed etiketini rakam genişliğinde bir tire (figure dash, `U+2012`) ile ince boşluğu birleştirerek biçimlersin; added etiketini ise düz bir artı (`+`) ile ince boşluğu birleştirerek yazarsın.
 - Tooltip verildiğinde `Tooltip::text(...)` bağlanır.
 
 Örnek:
@@ -449,7 +449,7 @@ Temel API:
 - `.has_binding(window)`.
 - `KeyBinding::set_vim_mode(cx, enabled)`.
 - `Key::new(key: impl Into<SharedString>, color: Option<Color>)` ve `KeyIcon::new(icon: IconName, color: Option<Color>)`: tekil tuş veya ikonlu tuş yüzeyi.
-- `render_modifiers(modifiers: &Modifiers, platform_style: PlatformStyle, color: Option<Color>, size: Option<AbsoluteLength>, trailing_separator: bool) -> impl Iterator<Item = AnyElement>`: bir modifier dizisini platform stiline göre ikon veya metin elementlerine çeviren düşük seviyeli yardımcı. `trailing_separator`, son modifier'dan sonra bir `+` ayırıcısı ekler.
+- `render_modifiers(modifiers: &Modifiers, platform_style: PlatformStyle, color: Option<Color>, size: Option<AbsoluteLength>, trailing_separator: bool) -> impl Iterator<Item = AnyElement>`: bir modifier dizisini platform stiline göre ikon veya metin elementlerine çeviren düşük seviyeli yardımcı. `trailing_separator`, son modifier'dan sonra bir ayırıcı ekler; ancak bu ayırıcı yalnızca Linux ve Windows stilinde `+` olduğundan, macOS stilinde ayırıcı bulunmaz ve bayrak burada etkisiz kalır.
 - `text_for_keystroke(modifiers: &Modifiers, key: &str, cx: &App) -> String`: tek bir keystroke için platforma duyarlı bir metin üretir.
 
 Keybinding yardımcı yüzeyi:

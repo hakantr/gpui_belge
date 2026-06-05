@@ -305,7 +305,7 @@ Zed içinden kullanım örnekleri:
 
 - `keymap_editor` crate'i: özel scrollbar ile interactable bir keymap tablosu.
 - `csv_preview` crate'i: CSV önizleme scroll durumu.
-- `git_graph` crate'i: tablo odak handle'ını selection davranışıyla birleştiren örnek.
+- `git_ui` crate'inin `git_graph` modülü: tablo odak handle'ını selection davranışıyla birleştiren örnek.
 
 Dikkat edeceğin noktalar:
 
@@ -464,7 +464,7 @@ impl KisayolTablosu {
 Zed içinden kullanım örnekleri:
 
 - `keymap_editor` crate'i: oranlı kolonlar ile resize edilebilir bir keybinding tablosu.
-- `git_graph` crate'i: graph alanı ve commit tablosu aynı redistributable durum ile hizalanır.
+- `git_ui` crate'inin `git_graph` modülü: graph alanı ve commit tablosu aynı redistributable durum ile hizalanır.
 
 Dikkat edeceğin noktalar:
 
@@ -706,7 +706,7 @@ fn ozel_tablo_basligi_render(
 
 Zed içinden kullanım örnekleri:
 
-- `git_graph` crate'i: graph canvas ve commit tablosu aynı redistributable kolon durumuyla hizalanır; header ve resize handle'ları düşük seviyeli yardımcılarla kurarsın.
+- `git_ui` crate'inin `git_graph` modülü: graph canvas ve commit tablosu aynı redistributable kolon durumuyla hizalanır; header ve resize handle'ları düşük seviyeli yardımcılarla kurarsın.
 
 Dikkat edeceğin noktalar:
 

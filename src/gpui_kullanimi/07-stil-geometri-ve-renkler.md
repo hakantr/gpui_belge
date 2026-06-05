@@ -53,7 +53,7 @@ Flex faktörü yazarken iki farklı kullanım vardır. Özel oran gerektiğinde 
 
 ### BoxShadow
 
-`BoxShadow` gölgenin içe mi dışa mı çizileceğini `inset: bool` alanıyla taşır. Hazır `shadow_sm()`, `shadow_md()` ve benzeri helper'lar drop shadow üretir; iç gölge gerektiğinde açık `BoxShadow` verirsin. `Style::paint(...)` sırası drop shadow'ları arka plan ve border'dan önce, inset shadow'ları ise içerik arka planı çizildikten sonra işler.
+`BoxShadow` gölgenin içe mi dışa mı çizileceğini `inset: bool` alanıyla taşır. Hazır `shadow_sm()`, `shadow_md()` ve benzeri helper'lar drop shadow üretir; iç gölge gerektiğinde açık `BoxShadow` verirsin. `Style::paint(...)` sırası drop shadow'ları arka plan ve border'dan önce, inset shadow'ları ise elementin arka planından sonra, çocuk içeriğinden önce işler.
 
 | Alan | Kısa anlamı |
 |---|---|
@@ -185,7 +185,7 @@ Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Cor
 | `Corners<T>` | `top_left`, `top_right`, `bottom_right`, `bottom_left`, `all`, `corner`, `to_pixels`, `scale`, `max`, `clamp_radii_for_quad_size`, `map` | Dört köşe yarıçapını ve köşe bazlı erişimi taşır. |
 | `Pixels` | `as_f32`, `floor`, `round`, `ceil`, `scale`, `pow`, `abs`, `signum`, `to_f64` | Mantıksal piksel değerinde yuvarlama, ölçekleme ve ham değer erişimi sağlar. |
 | `ScaledPixels` | `as_f32`, `floor`, `round`, `ceil` | Ölçeklenmiş piksel değerini çizim katmanına uygun yuvarlar. |
-| `Rems` | `is_zero`, `to_pixels`, `to_rems` | Rem değerini piksele veya rem'e dönüştürür. |
+| `Rems` | `is_zero`, `to_pixels`, `half` | Rem değerini piksele çevirir ve sıfır kontrolü/yarıya bölme sağlar. |
 | `DevicePixels` | `to_bytes` | Fiziksel piksel sayısından buffer byte miktarı hesaplar. |
 
 ### phi
@@ -230,7 +230,7 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ### Style ve StyleRefinement
 
-`Style::text_style()` aktif metin stilini türetir; `has_opaque_background()` opak zemin olup olmadığını söyler; `overflow_mask(bounds)` overflow kırpma maskesini üretir; `paint(bounds, window, cx, paint_child)` arka plan, border, `box_shadow` ve çocuk çizimini doğru sırada uygular. `align_items`, `align_self`, `align_content`, `justify_content` ve `flex_direction` Taffy yerleşim kararına iner; `allow_concurrent_scroll` ile `restrict_scroll_to_axis` scroll davranışını, `mouse_cursor` hover imleç stilini, `grid_location` ise grid satır/kolon yerleşimini taşır. `StyleRefinement::grid_location_mut()` grid placement alanını oluşturup döndürür; grid row/column metotları arka planda bunu kullanır. Bu metotlar style zincirinin alt katmanıdır, sıradan `div()` zincirinde elle çağırman gerekmez.
+`Style::text_style()` aktif metin stilini türetir; `has_opaque_background()` opak zemin olup olmadığını söyler; `overflow_mask(...)` bounds ve rem boyutundan overflow kırpma maskesini üretir; `paint(bounds, window, cx, paint_child)` arka plan, border, `box_shadow` ve çocuk çizimini doğru sırada uygular. `align_items`, `align_self`, `align_content`, `justify_content` ve `flex_direction` Taffy yerleşim kararına iner; `allow_concurrent_scroll` ile `restrict_scroll_to_axis` scroll davranışını, `mouse_cursor` hover imleç stilini, `grid_location` ise grid satır/kolon yerleşimini taşır. `StyleRefinement::grid_location_mut()` grid placement alanını oluşturup döndürür; grid row/column metotları arka planda bunu kullanır. Bu metotlar style zincirinin alt katmanıdır, sıradan `div()` zincirinde elle çağırman gerekmez.
 
 | API | Alt özellikler | Kısa anlamı |
 |---|---|---|
@@ -284,7 +284,7 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 | API | Alt özellikler | Kısa anlamı |
 |---|---|---|
-| `Path` | `vertices`, `indices`, `bounds`, `new`, `scale`, `move_to`, `line_to`, `curve_to`, `push_triangle`, `clipped_bounds` | Tessellate edilmiş çizim geometrisini taşır. |
+| `Path` | `vertices`, `bounds`, `new`, `scale`, `move_to`, `line_to`, `curve_to`, `push_triangle`, `clipped_bounds` | Tessellate edilmiş çizim geometrisini taşır. |
 | `Transformation` | `scale`, `rotate`, `translate`, `with_scaling`, `with_translation`, `with_rotation` | SVG dönüşüm tanımını ergonomik builder olarak taşır. |
 | `TransformationMatrix` | `rotation_scale`, `translation`, `unit`, `translate`, `rotate`, `scale`, `compose`, `apply` | Sahne primitive'lerine uygulanacak matris değeridir. |
 
@@ -312,7 +312,7 @@ let gri = opaque_grey(0.5, 1.0);            // gri yardımcısı
 | `rgba(value)` | `0xRRGGBBAA` biçiminden alfa dahil `Rgba` üretir. |
 | `hsla(h, s, l, a)` | Normalleştirilmiş HSLA bileşenlerinden `Hsla` üretir. |
 | `opaque_grey(value, opacity)` | Eşit RGB bileşenli gri `Hsla` üretir. |
-| `swap_rgba_pa_to_bgra(value)` | Premultiplied-alpha RGBA byte sırasını BGRA byte sırasına çevirir. |
+| `swap_rgba_pa_to_bgra(&mut [u8])` | Bir byte dilimini yerinde premultiplied-alpha RGBA'dan BGRA'ya dönüştürür. |
 
 ### Hazır renk sabitleri
 
@@ -380,7 +380,7 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 
 ### Colors, GlobalColors, DefaultColors ve DefaultAppearance
 
-`Colors`, `GlobalColors`, `DefaultColors` ve `DefaultAppearance` temel GPUI paletini taşır. `Colors::light()`, `dark()`, `for_appearance(window)` ve `get_global(cx)` örnekler, testler ve framework varsayılanları için kullanışlıdır; Zed uygulama UI'ında ana kaynak yine tema sistemindeki `cx.theme().colors()` olmalıdır. `swap_rgba_pa_to_bgra(...)` premultiplied-alpha byte dönüşümü içindir; renk seçimi veya theme override için kullanılmaz.
+`Colors`, `GlobalColors`, `DefaultColors` ve `DefaultAppearance` temel GPUI paletini taşır. `Colors::light()`, `dark()`, `for_appearance(window)` ve `get_global(cx)` örnekler, testler ve framework varsayılanları için kullanışlıdır; Zed uygulama UI'ında ana kaynak yine tema sistemindeki `cx.theme().colors()` olmalıdır. `swap_rgba_pa_to_bgra(...)` bir byte dilimini yerinde premultiplied-alpha RGBA'dan BGRA'ya dönüştürür; renk seçimi veya theme override için kullanılmaz.
 
 | API | Alt özellikler | Kısa anlamı |
 |---|---|---|

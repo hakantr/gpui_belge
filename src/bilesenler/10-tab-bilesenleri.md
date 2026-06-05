@@ -35,7 +35,7 @@ Temel API:
 - Constructor: `Tab::new(id)`.
 - Builder'lar: `.position(TabPosition)`, `.close_side(TabCloseSide)`, `.start_slot(...)`, `.end_slot(...)`, `.toggle_state(bool)`.
 - Ölçü yardımcıları: `Tab::content_height(cx)`, `Tab::container_height(cx)`.
-- `TabPosition`: `First`, `Middle(Ordering)`, `Last`.
+- `TabPosition`: `First`, `Middle(Ordering)`, `Last` (`Middle` içindeki `Ordering`, ilgili tabın seçili taba göre konumunu temsil eder).
 - `TabCloseSide`: `Start`, `End`.
 - `InteractiveElement` ve `StatefulInteractiveElement` implement eder; bu sayede `.on_click(...)`, drag/drop ve tooltip gibi GPUI etkileşim builder'ları doğrudan kullanabilirsin.
 
@@ -112,7 +112,7 @@ Dikkat edeceğin noktalar:
 - `TabPosition` verilmediğinde varsayılan değer `First` olur. Bu yüzden çoklu bir tab bar içinde her tab için doğru pozisyon hesaplanmalıdır; aksi halde border'lar tutarsız görünür.
 - Close butonu gibi `end_slot` kontrolleri için ayrı ve sabit bir id kullanılması beklenir; aksi halde tıklamalar yanlış elemana yönlendirilebilir.
 - Tab label'ının aktif veya pasif metin rengini doğrudan miras almasını istemek gerekiyorsa, basit bir string child kullanmak yeterlidir. Özel label veya kısaltma gerektiğinde renk davranışını ayrıca kontrol etmen gerekir.
-- `Tab::new("")` gibi boş bir id yalnızca özel render proxy'lerinde kullanırsın. Normal listelerde sabit bir id tercih edersin.
+- Bir tab'a normalde sabit ve benzersiz bir id verirsin; çoklu bir listede her tab'ın kendi id'siyle ayrışması beklenir. Boş bir id desteklenen bir kullanım değildir, yalnız özel render proxy'leri gibi sınırlı durumlarda son çare olarak düşünülür.
 
 ## TabBar
 
@@ -144,9 +144,9 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder.
-- Start children varsa, sol tarafta border'lı ve flex-none bir alan oluşturulur.
+- Start children varsa, sol tarafta flex-none bir alan oluşturulur; bu alanın tablara bakan sağ kenarında bir border çizilir.
 - Orta tab alanı `overflow_x_scroll()` kullanan bir `h_flex` içinde render edilir.
-- End children varsa, sağ tarafta border'lı ve flex-none bir alan oluşturulur.
+- End children varsa, sağ tarafta flex-none bir alan oluşturulur; bu alanın tablara bakan sol kenarında bir border çizilir.
 - `.track_scroll(...)`, iç tab scroll kapsayıcısına bir scroll handle bağlar.
 - TabBar, çocuk tabların `TabPosition` veya seçili durumunu hesaplamaz; bu sorumluluk view tarafına aittir.
 

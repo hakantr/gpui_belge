@@ -330,7 +330,7 @@ if ui_input::ERASED_EDITOR_FACTORY
 | `move_selection_to_end(window, cx)` | `(&self, &mut Window, &mut App)` | İmleci sona taşır |
 | `set_masked(masked, window, cx)` | `(&self, bool, &mut Window, &mut App)` | Şifre maskesi aç/kapat |
 | `focus_handle(cx)` | `(&self, &App) -> FocusHandle` | Odak yönetimi |
-| `subscribe(callback, window, cx)` | `Subscription` döner | Olay aboneliği |
+| `subscribe(callback, window, cx)` | callback: `FnMut(ErasedEditorEvent, &mut Window, &mut App)`, `Subscription` döner | Olay aboneliği; geri çağrıya olay değerle taşınır |
 | `render(window, cx)` | `(&self, &mut Window, &App) -> AnyElement` | Manuel render (InputField içeride çağırır) |
 | `as_any()` | `&dyn Any` | Downcast için |
 
@@ -362,18 +362,21 @@ impl ApiAnahtariFormu {
                 .masked(true)
         });
 
+        let zayif = cx.weak_entity();
         let abonelik = giris.read(cx).editor().subscribe(
-            Box::new(cx.listener(|this: &mut Self, olay, _window, cx| {
-                match olay {
-                    ErasedEditorEvent::BufferEdited => {
-                        this.gecerli_deger = this.giris.read(cx).text(cx);
-                        cx.notify();
-                    }
-                    ErasedEditorEvent::Blurred => {
-                        // Doğrulama veya kaydet
-                    }
-                }
-            })),
+            Box::new(move |olay, window, cx| {
+                zayif
+                    .update(cx, |this: &mut Self, cx| match olay {
+                        ErasedEditorEvent::BufferEdited => {
+                            this.gecerli_deger = this.giris.read(cx).text(cx);
+                            cx.notify();
+                        }
+                        ErasedEditorEvent::Blurred => {
+                            // Doğrulama veya kaydetme
+                        }
+                    })
+                    .ok();
+            }),
             window,
             cx,
         );
@@ -403,7 +406,7 @@ Kaynak:
 Davranış:
 
 - `settings_ui::init_renderers(...)`, `settings::CompletionMenuItemKind` için açılır seçim renderer'ı kaydeder. Bu ayar `editor.completion_menu_item_kind` JSON yolu ile görünür; değerler `off` ve `symbol` olur.
-- Ayar sayfasındaki `"Tamamlama Menüsü Öğe Türü"` satırı, tamamlama menüsünde LSP öğe türü bilgisinin gösterilip gösterilmeyeceğini seçtirir. `off` öğe türünü gizler, `symbol` sözdizimi teması ile renklendirilmiş tek harfli rozet gösterir.
+- Ayar sayfasındaki `"Completion Menu Item Kind"` (tamamlama menüsü öğe türü) satırı, tamamlama menüsünde LSP öğe türü bilgisinin gösterilip gösterilmeyeceğini seçtirir. `off` öğe türünü gizler, `symbol` sözdizimi teması ile renklendirilmiş tek harfli rozet gösterir.
 - `"Version Control / Git Hunks"` bölümünde `"Show Stage/Restore Buttons"` satırı `git.show_stage_restore_buttons` boolean ayarını yazar. Bu değer `false` olduğunda diff hunk üstündeki `"Stage"`, `"Unstage"` ve `"Restore"` butonları render edilmez.
 - `"Araç İzinleri"` kurulum listesindeki `skill` aracı kaynakta `"Loading agent skill instructions"` açıklamasıyla gelir. Regex açıklaması skill adına değil, skill'in `SKILL.md` dosyasının mutlak yoluna göre eşleştiğini belirtir.
 - Ayar araması boş sorguda filtre uygulamaz; sayfa listesi resetlenir. Tam eşleşme yolunda sorgu birden fazla kelime içerdiğinde, kelimelerin tamamının ilgili dokümandaki bir sözcük önekiyle eşleşmesi beklenir.

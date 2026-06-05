@@ -49,17 +49,20 @@ cx.open_window(
 Bildirim ve kaplama pencerelerinde tipik olarak başlık çubuğunu kapatır, pencerenin odak almamasını ayarlar ve arka planı saydam yaparsın:
 
 ```rust
-WindowOptions {
-    titlebar: None,
-    focus: false,
-    show: true,
-    kind: WindowKind::PopUp,
-    is_movable: false,
-    is_resizable: false,
-    window_background: WindowBackgroundAppearance::Transparent,
-    window_decorations: Some(WindowDecorations::Client),
-    ..Default::default()
-}
+cx.open_window(
+    WindowOptions {
+        titlebar: None,
+        focus: false,
+        show: true,
+        kind: WindowKind::PopUp,
+        is_movable: false,
+        is_resizable: false,
+        window_background: WindowBackgroundAppearance::Transparent,
+        window_decorations: Some(WindowDecorations::Client),
+        ..Default::default()
+    },
+    |window, cx| cx.new(|cx| BildirimGorunumu::new(window, cx)),
+)?;
 ```
 
 Bulanıklık istiyorsan `Transparent` yerine `Blurred`'i kullanırsın; bunun için içerik kökünün tamamen opak bir arka plan çizmediğinden emin olman gerekir, aksi halde bulanıklık görünmez kalır.
@@ -254,11 +257,11 @@ Tipik bir tanım şöyledir:
 
 ## Sık Hatalar ve Doğru Desenler
 
-Aşağıdaki liste rehber boyunca anlatılan dikkat noktalarıı tek bir noktada toparlar; her madde belirtisi ile birlikte altta yatan nedeni de işaret eder.
+Aşağıdaki liste rehber boyunca anlatılan dikkat noktalarını tek bir noktada toparlar; her madde belirtisi ile birlikte altta yatan nedeni de işaret eder.
 
 - **İstenen süslemeye güvenme** — `WindowOptions.window_decorations` yalnız bir istektir. Çizim sırasında fiili sonucu `window.window_decorations()` çağrısı verir; kararını bu sonuca dayandırman gerekir.
 - **Bulanıklık görünmüyor** — Kök view veya tema tamamen opak bir renk çiziyor olabilir. Bulanıklık efektinin görünmesi için saydam bir surface ve içerikte alfa bırakman şarttır.
-- **Linux kontrol butonları yanlış tarafta** — Doğru kaynak `cx.button_layout()`'tur ve değişimini `observe_button_layout_changed` ile izlemen gerekir.
+- **Linux kontrol butonları yanlış tarafta** — Doğru kaynak `cx.button_layout()`'tur ve değişimini pencerenin `observe_button_layout_changed` çağrısıyla izlemen gerekir.
 - **Windows başlık butonları tıklanmıyor** — Butonlarda `window_control_area(Close/Max/Min)` çağrısının eksik kalması yerel hit-test'i bozar.
 - **Kapatma davranışı atlanıyor** — Zed workspace penceresinde doğrudan `remove_window` yerine `workspace::CloseWindow` action'ını dispatch etmen gerekir; aksi halde kirli buffer ve kullanıcı onayı akışları atlanır.
 - **Async task çalışırken yok oluyor** — Dönen `Task`'ı saklamamış ya da detach etmemişsin; drop edildiği anda iş iptal olur.

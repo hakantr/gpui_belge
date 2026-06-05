@@ -24,7 +24,7 @@ use gpui::actions;
 actions!(benim_ad_alanim, [Kaydet, Kapat, Yenile]);
 ```
 
-`actions!` makrosu her isim için bir `unit struct` ve `Action` uygulaması üretir; namespace `benim_ad_alanim::Kaydet` adıyla kayıt defterine (`registry`) eklenir.
+`actions!` makrosu her isim için bir `unit struct` üretir ve bunun üzerinde `Action`'ın yanı sıra `Clone`, `PartialEq`, `Default`, `Debug` türetmelerini de uygular; namespace `benim_ad_alanim::Kaydet` adıyla kayıt defterine (`registry`) eklenir.
 
 **Veri taşıyan action.** Yanında veri götürmesi gereken action'lar için derive ve attribute kullanırsın:
 
@@ -142,7 +142,7 @@ Action'ları çalışma zamanında sorgulamak ve tetiklemek için bazı yardımc
 
 - `cx.is_action_available(&action) -> bool` — odaktaki element yolunda bu action'ı dinleyen biri var mı? Menü öğelerini pasifleştirmek için idealdir.
 - `window.is_action_available(&action, cx)` — pencereye özel sürüm.
-- `cx.dispatch_action(&action)` — odaktaki pencereye yayınlar.
+- `cx.dispatch_action(&action)` — aktif pencere varsa ona, yoksa genel action dinleyicisine gönderir.
 - `window.dispatch_action(action.boxed_clone(), cx)` — pencereye özel sürüm.
 - `cx.build_action(name, json_value)` — keymap girdisinden çalışma zamanı action'ı üretir; şema yoksa `ActionBuildError` döner.
 
@@ -151,7 +151,7 @@ Action'ları çalışma zamanında sorgulamak ve tetiklemek için bazı yardımc
 Action makrolarının kullanımındaki ince noktalar:
 
 - `partial_eq` varsayılan olarak `PartialEq` impl'ini kullanır; derive eklenmemişse karşılaştırma yanlış sonuç verebilir.
-- Aynı `name()` döndüren iki action kayda alındığında, inventory başlangıçta `panic` üretir; namespace kullanımı çakışmaları önler.
+- Aynı `name()` döndüren iki action kayda alındığında, `App` oluşturulurken (kayıt defteri kurulurken) `panic` üretir; namespace kullanımı çakışmaları önler.
 - `no_json` ile işaretlenmiş bir action keymap dosyasından çağrılamaz; yalnızca kod içinden `dispatch_action` ile tetiklersin.
 
 ## Keymap, KeyContext ve Dispatch Stack
@@ -190,7 +190,7 @@ cx.bind_keys([
 - `Keymap::possible_next_bindings_for_input(input, context_stack)` — mevcut akor önekini (`chord prefix`) takip edebilecek kısayolları öncelik sırasında verir.
 - `Keymap::version() -> KeymapVersion` — kısayol seti değiştikçe artan sayaçtır; kısayol UI önbelleklerinde geçersizleştirme anahtarı olarak kullanabilirsin.
 - `Keymap::new(bindings)`, `add_bindings(bindings)`, `bindings()`, `bindings_for_action(action)`, `all_bindings_for_input(input)` ve `clear()`, ham keymap tablosunu kurma, sorgulama ve sıfırlama yüzeyidir. Uygulama akışında çoğunlukla `cx.bind_keys(...)` ve settings yükleyicisini tercih edersin; bu metotları test, doğrulayıcı, tanılama ve özel keymap UI'ı için kullanırsın.
-- `window.context_stack()` — odaktaki düğümden köke, yönlendirme yolundaki bağlamları verir.
+- `window.context_stack()` — kökten odaktaki düğüme, yönlendirme yolundaki bağlamları verir.
 - `window.keystroke_text_for(&action)` — UI'da gösterilecek en yüksek öncelikli kısayol metni.
 - `window.possible_bindings_for_input(&[keystroke])` — akor veya bekleyen yardım UI'ları için kullanırsın.
 - `cx.key_bindings() -> Rc<RefCell<Keymap>>` — keymap'e düşük seviyeli erişim. Üretim kodunda mümkün olduğu kadar `bind_keys`'i, keymap dosyasını ve doğrulayıcı akışını tercih edersin; bu handle test, tanılama ve özel keymap UI'ı için uygundur.
@@ -208,7 +208,7 @@ cx.bind_keys([
 - `.key_context(...)` bulunmayan bir alt ağaçta bağlam yüklemli kısayol çalışmaz.
 - Dinleyici odak yolunda değilse action yayılımı oraya ulaşmaz; genel dinleyici için `cx.on_action(...)`'ı, yerel dinleyici için element üzerinde `.on_action(...)`'ı kullanırsın.
 - `KeyBinding::new`, ayrıştırma hatasında `panic` verebilir; kullanıcı JSON'undan yükleme yapıldığında `KeyBinding::load`'u ve hata raporlamayı tercih edersin.
-- `KeyBinding::load(keystrokes, action, context_predicate, use_key_equivalents, action_input, keyboard_mapper)`, başarısız olabilen bir yükleyicidir; `KeyBindingKeystroke` eşlemesini de burada kurar. `context_predicate` `Option<Rc<KeyBindingContextPredicate>>`, `action_input` ise `Option<SharedString>` alır ve hata durumunda `InvalidKeystrokeError` döner. Çalışma zamanında `with_meta(...)` ve `set_meta(...)`, kısayolun hangi keymap katmanından geldiğini taşır. `match_keystrokes(...)` tam veya bekleyen eşleşmeyi verirken `keystrokes()`, `action()`, `predicate()`, `meta()` ve `action_input()` okuyucuları tanılama ve komut/keymap UI'larını besler.
+- `KeyBinding::load(keystrokes, action, context_predicate, use_key_equivalents, action_input, keyboard_mapper)`, başarısız olabilen bir yükleyicidir; `KeybindingKeystroke` eşlemesini de burada kurar. `context_predicate` `Option<Rc<KeyBindingContextPredicate>>`, `action_input` ise `Option<SharedString>` alır ve hata durumunda `InvalidKeystrokeError` döner. Çalışma zamanında `with_meta(...)` ve `set_meta(...)`, kısayolun hangi keymap katmanından geldiğini taşır. `match_keystrokes(...)` tam veya bekleyen eşleşmeyi verirken `keystrokes()`, `action()`, `predicate()`, `meta()` ve `action_input()` okuyucuları tanılama ve komut/keymap UI'larını besler.
 
 ## DispatchPhase, Olay Yayılımı ve DispatchEventResult
 
@@ -216,8 +216,8 @@ Fare, tuş ve action olayları element ağacında iki aşamada akar:
 
 ```rust
 pub enum DispatchPhase {
-    Capture, // kök → odaktaki element
     Bubble,  // odaktaki element → kök (varsayılan)
+    Capture, // kök → odaktaki element
 }
 ```
 
@@ -307,7 +307,7 @@ let yonlendirme_oncesi = cx.intercept_keystrokes(|olay, _window, cx| {
 - `intercept_keystrokes`, yönlendirmeden önce çalışır; burada `cx.stop_propagation()` çağrısı action yönlendirmesini engeller.
 - Her ikisi de `Subscription` döner; bu değer elden çıkınca gözlemci düşer.
 
-**ActionRegistry ve macro action verisi.** `ActionRegistry` normal uygulama kodunun oluşturduğu bir nesne değildir; `App` içinde tutulur ve `actions!`, `#[derive(Action)]`, `register_action!` çıktılarından beslenir. `ActionRegistry::build_action_type(...)` isim + JSON değerinden action üretir; deprecated alias varsa tercih edilen ada yönlendirir. `ActionRegistry::deprecation_messages()` eski action adları için uyarı metinlerini döndürür. `MacroActionBuilder` ve `MacroActionData`, `actions!` makrosunun ürettiği veri taşımayan action'ları registry'ye bağlayan taşıyıcılardır. `generate_list_of_all_registered_actions()` registry içeriğini dokümantasyon, komut paleti veya test doğrulaması için çıkarır; bir action'ın o anda kullanılabilir olup olmadığını söylemez.
+**ActionRegistry ve macro action verisi.** `ActionRegistry` normal uygulama kodunun oluşturduğu bir nesne değildir; `App` içinde tutulur ve `actions!`, `#[derive(Action)]`, `register_action!` çıktılarından beslenir. `ActionRegistry::build_action_type(...)` bir tip kimliğinden (`TypeId`) action üretir; isim + JSON değerinden üreten metot ise `build_action`'dır. `build_action_type`, deprecated alias varsa tercih edilen ada yönlendirir. `ActionRegistry::deprecation_messages()` eski action adları için uyarı metinlerini döndürür. `MacroActionBuilder` ve `MacroActionData`, `actions!` makrosunun ürettiği veri taşımayan action'ları registry'ye bağlayan taşıyıcılardır. `generate_list_of_all_registered_actions()` registry içeriğini dokümantasyon, komut paleti veya test doğrulaması için çıkarır; bir action'ın o anda kullanılabilir olup olmadığını söylemez.
 
 **DispatchTree ve ReusedSubtree.** `DispatchTree`, çizilen element ağacının action, key context, focus ve hitbox dispatch bilgisini tutar. `window.context_stack()`, `window.available_actions(cx)`, `window.dispatch_keystroke(...)`, `window.dispatch_event(...)` ve action yayılımı bu ağaçtan beslenir. `DispatchTree::push_node()`, `set_active_node(...)`, `set_focus_id(...)`, `pop_node()` ve `reuse_subtree(...)` frame içinde dispatch düğümlerini kurar; `root_node_id()`, `active_node_id()`, `focusable_node_id(...)`, `dispatch_path(...)`, `focus_path(...)`, `view_path_reversed(...)` ve `focus_contains(parent, child)` kurulmuş ağacı sorgular. Tuş akorlarında `dispatch_key(...)` eşleşen binding, pending input ve replay bilgisini üretir; `flush_dispatch(...)` ise timeout sonrası bekleyen prefix'i yeniden oynatma olaylarına çevirir. `ReusedSubtree`, önceki frame'den tekrar kullanılan alt ağaçların dispatch bilgisini taşır; `ReusedSubtree::refresh_node_id(old_id)` eski node id'yi yeni frame aralığına eşler, `ReusedSubtree::contains_focus()` yeniden kullanılan alt ağacın aktif focus'u içerip içermediğini söyler. Uygulama kodunda bu tipleri elle kurmazsın; özel element veya renderer altyapısı yazıyorsan dispatch node'unun hangi fazda üretildiğini anlamak için okursun.
 
@@ -353,7 +353,7 @@ let sonuc = KeymapFile::load(&icerik, cx);
 - Git paneli iki sekmelidir: `git_panel::ActivateChangesTab` ve `git_panel::ActivateHistoryTab` için varsayılan kısayol macOS'ta `cmd-1` ile `cmd-2`, Linux/Windows'ta `ctrl-1` ile `ctrl-2`'dir.
 - Worktree seçici, `worktree_picker::ForceDeleteWorktree` action'ını destekler. Varsayılan kısayol macOS'ta `cmd-alt-shift-backspace`, Linux/Windows'ta `ctrl-alt-shift-backspace`'tir; UI tarafında silme ikonu üzerinde `alt` basılıysa zorla silme yolu çalışır.
 - `buffer_search::UseSelectionForFind` seçimi, seçim yoksa imleç altındaki kelimeyi arama sorgusu olarak kullanır. Ayarın atlanması gereken çağrılar, `SeedQuerySetting::Always` üzerine yazmasını vermelidir.
-- Vim kullanırken Helix tarzında kelimeye atlama `vim::HelixJumpToWord` aksiyonudur. Varsayılan kısayol verilmez; kullanıcı normal veya visual mod bağlamında örneğin `"g w"` bağlayabilir. Normal modda hedef kelimenin başına taşır, visual modda seçimi hedef kelime başına kadar genişletir. Vim'in varsayılan `g w` yeniden sarma (`rewrap`) davranışını korumak isteyenler bu kısayolu eklememelidir.
+- Vim kullanırken Helix tarzında kelimeye atlama `vim::HelixJumpToWord` aksiyonudur. Helix modlarında (`vim_mode == helix_normal || vim_mode == helix_select`) varsayılan olarak `g w` kısayoluna bağlıdır; standart Vim modunda varsayılan değildir. `helix_normal` modunda hedef kelimenin başına taşır, `helix_select` modunda seçimi hedef kelime başına kadar genişletir. Standart Vim modunda `g w` yerleşik olarak yeniden sarma (`rewrap`) davranışını sürdürür.
 
 **Doğrulayıcı.** Belirli action tiplerine özel doğrulama mantığı ekleyebilirsin:
 

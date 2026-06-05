@@ -72,7 +72,7 @@ Bu aboneliklerin arkasındaki pencere odak olayı, önceki ve mevcut focus path'
 
 Element seviyesindeki etkileşim API'leri tek bir fluent zincir içinde toplanır; doğru metodu seçmek için önce etkileşimin hangi sınıfa girdiğini ayırırsın:
 
-- **Tıklama ve temel fare hareketi:** `.on_click(...)`, mouse down/up aynı hedefte eşleştiğinde `ClickEvent` üretir; buton gibi komut yüzeylerinde bunu kullanırsın. `.on_mouse_down(...)`, `.on_mouse_up(...)` ve `.on_mouse_move(...)` doğrudan fare olaylarını dinler; sürükleme başlatma, özel basılı durum veya anlık imleç takibi gerektiğinde seçilir.
+- **Tıklama ve temel fare hareketi:** `.on_click(...)`, mouse down/up aynı hedefte eşleştiğinde `ClickEvent` üretir; buton gibi komut yüzeylerinde bunu kullanırsın. `.on_mouse_down(...)`, `.on_mouse_up(...)` ve `.on_mouse_move(...)` doğrudan fare olaylarını dinler; sürükleme başlatma, özel basılı durum veya anlık imleç takibi gerektiğinde seçilir. Burada bir ayrımı bilmen gerekir: `.on_click(...)`, `.on_drag(...)` ve `.on_hover(...)` `.id(...)` verilmiş bir elementte (yani `StatefulInteractiveElement`) bulunur; `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)` ile bırakma ailesi (`.drag_over(...)`, `.can_drop(...)`, `.on_drop(...)`) ise id'siz `InteractiveElement` üzerindedir.
 - **Dışarı tıklama/kapatma akışı:** `.on_mouse_down_out(...)` ve `.on_mouse_up_out(...)`, fare olayı element hitbox'ının dışında gerçekleştiğinde capture aşamasında çalışır. Popover, menü veya modal dışına tıklanınca `DismissEvent` yaymak için bu aile kullanılır.
 - **Kaydırma ve gesture:** `.on_scroll_wheel(...)`, hitbox kaydırma alabiliyorsa scroll olayını dinler; düz hover kontrolünden daha güvenilirdir. `.on_pinch(...)`, trackpad pinch gibi yakınlaştırma gesture'larını yakalar.
 - **Sürükleme ve bırakma:** `.on_drag_move::<T>(...)`, sürükleme element sınırı dışına çıksa bile aynı tipteki aktif drag boyunca hareket bilgisi verir; resize veya split handle gibi klasik drop olmayan sürüklemelerde kullanılır. `.drag_over::<T>(...)` kabul edilebilir sürükleme hedefi üstündeyken geçici stil üretir; `.can_drop(...)` hedefin bırakmayı kabul edip etmeyeceğine karar verir; `.on_drop::<T>(...)` başarılı bırakma tamamlandığında çalışır.
@@ -209,7 +209,7 @@ div()
 **Dikkat noktaları.** Sürükle-bırak yazarken hataya açık kullanımlar:
 
 - Sürüklenen tip `T: 'static` olmalıdır; ödünç alma süresi (`lifetime`) taşıyan tipler kabul edilmez.
-- Aynı element üzerinde `on_drag`'i iki kez çağırdığında `panic` oluşur ("calling on_drag more than once on the same element is not supported").
+- Aynı element üzerinde `on_drag`'i iki kez çağırdığında debug derlemesinde bir doğrulama (`debug_assert`) tetiklenir ("calling on_drag more than once on the same element is not supported"); release derlemesinde bu kontrol devre dışıdır.
 - Hayalet view her sürüklemede yeni bir `cx.new(...)` ile yaratılır; yapıcı içinde yan etkiden kaçınman gerekir.
 - `can_drop` `false` döndüğünde `drag_over` ve `group_drag_over` stilleri uygulanmaz, `on_drop` çağrılmaz. Kabul edilmeyen hedef için ayrı bir görsel geri bildirim göstereceksen `on_drag_move`'u kullanırsın.
 
@@ -240,10 +240,10 @@ window.release_pointer();
 
 Yakalama aktifken ilgili hitbox üzerinde durulmuş (`hovered`) sayılır. Yeniden boyutlandırma tutamacı ve sürükleme etkileşimlerinde fare element sınırlarının dışına çıksa bile hareketi takip edebilirsin. `window.captured_hitbox()` aktif yakalama id'sini döndürür; özel element hata ayıklaması veya iç içe sürükleme verisini ayrıştırma dışında genelde kullanmazsın.
 
-**Otomatik kaydırma.** Sürükleme sırasında görünür alanın kenarına yaklaşıldığında otomatik kaydırma talep etmek için iki yardımcı vardır:
+**Otomatik kaydırma.** Bu, sürüklemeye özgü değil; prepaint aşamasında çalışan genel bir mekanizmadır: bir element "beni görünür kıl" der, onu saran kapsayıcı da talebi karşılar. Sürükleme sırasında görünür alanın kenarına yaklaşıldığında otomatik kaydırma yalnızca tek bir örnek senaryodur; aynı yolu `List` içi otomatik kaydırma gibi durumlarda da kullanırsın. İki yardımcı vardır:
 
-- `window.request_autoscroll(bounds)` — sürükleme sırasında görünür alan kenarına yakın bölge için otomatik kaydırma talep eder.
-- `window.take_autoscroll()` — scroll kapsayıcısı tarafında bu talebi tüketir.
+- `window.request_autoscroll(bounds)` — prepaint sırasında bir elementin verilen sınırların görünür kılınmasını talep etmesini sağlar.
+- `window.take_autoscroll()` — saran kapsayıcı (örneğin `List`) tarafında bu talebi tüketir.
 
 **İmleç.** İmleç stilini hitbox veya pencere bağlamında ayarlarsın:
 

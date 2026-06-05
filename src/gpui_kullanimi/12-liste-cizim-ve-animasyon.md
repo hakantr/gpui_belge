@@ -129,7 +129,7 @@ list(self.liste_durumu.clone(), |sira, window, cx| {
 - `max_offset_for_scrollbar() -> Point<Pixels>` — ölçülmüş item'lara göre maksimum scroll. Sürükleme sırasında bu değer sabit kalır; böylece scrollbar sıçramaz.
 - `set_offset_from_scrollbar(point)` — scrollbar sürüklemesinden veya tıklamasından gelen offset'i uygular.
 - `scrollbar_drag_started()` / `scrollbar_drag_ended()` — sürükleme sırasında overdraw ölçümünden kaynaklı yükseklik dalgalanmasını dondurmak veya serbest bırakmak için. Sürüklemeye girerken `started`, bırakırken `ended` çağırmazsan scrollbar sürükleme boyunca beklenmedik biçimde kayabilir.
-- `is_scrollbar_dragging() -> bool` — `scrollbar_drag_started` ile `scrollbar_drag_ended` arasındaki elle sürükleme durumunu okur. Wheel veya trackpad scroll ile scrollbar thumb sürüklemesini ayırmak için kullanırsın; sürükleme sırasında otomatik tail-follow davranışını da bastırır.
+- `is_scrollbar_dragging() -> bool` — `scrollbar_drag_started` ile `scrollbar_drag_ended` arasındaki elle sürükleme durumunu okur. Wheel veya trackpad scroll ile scrollbar thumb sürüklemesini ayırmak için kullanırsın; sürükleme sırasında otomatik tail-follow davranışını bastırmak için bu durumu okursun.
 - `set_offset_from_scrollbar(point)` tarafında scroll offset'inin Y bileşeni, içerik yukarı kaydıkça negatiftir; özel scrollbar yazarken pozitif "başlangıçtan uzaklık" yerine `point(px(0.), -distance)` üretmek doğru sonucu verir. Sürükleme sırasında içerik büyürse başlangıçtaki içerik yüksekliği dondurulur; thumb donmuş alta sürüklenirse `FollowMode::Tail` tekrar `is_following = true` olur.
 
 **Uniform liste.** Sabit yükseklikli item'larda virtualizasyon daha agresiftir:
@@ -434,7 +434,7 @@ Varsayılan yapıcılar, lyon'un varsayılan parametrelerini ayarlar (`PathBuild
 | `path_builder` | crate kök reexport | Path çizim ve lyon tessellation yardımcılarını kök namespace'e taşır. |
 | `Orientation` | `Horizontal`, `Vertical` | Path fill sweep orientation ve erişilebilirlik yön bilgisinde kullanılan ortak yön enum'udur. |
 | `ContentMask` | `bounds`, `intersect` | Paint/prepaint sırasında aktif kırpma sınırını taşır. |
-| `outline` | bounds, color, border style | Özel çizim/debug path'inde outline quad üretmek için kullanılan window helper'ıdır. |
+| `outline` | bounds, color, border style | `fill`/`quad` gibi modül düzeyinde serbest bir fonksiyondur; ürettiği `PaintQuad`'ı `window.paint_quad(...)`'a verirsin. |
 - `StrokeOptions` — `line_width` (varsayılan 1.0), `start_cap` ve `end_cap` (her sub-path için başlangıç ve bitiş ucu, varsayılan `LineCap::Butt`), `line_join` (varsayılan `LineJoin::Miter`), `miter_limit` (varsayılan 4.0), `tolerance` (varsayılan 0.1). Tüm sabitler `lyon_tessellation::StrokeOptions::{DEFAULT_LINE_CAP, DEFAULT_LINE_JOIN, DEFAULT_MITER_LIMIT, DEFAULT_LINE_WIDTH, DEFAULT_TOLERANCE}` const'larında bulunur.
 - `FillRule::EvenOdd` (lyon ve gpui varsayılanı): SVG even-odd kuralıdır; iç içe path'lerde delik üretir. İki üst üste binen kapalı path'in çakışan bölgesi şeffaf olur. `FillRule::NonZero`: SVG non-zero winding kuralıdır; yön birleşimine göre kapsama hesaplar, çakışan path'ler genelde dolu kalır. Karmaşık kompozit şekiller için bilinçli olarak `non_zero()`'ı seçersin.
 
@@ -510,7 +510,7 @@ window.paint_quad(
 window.paint_quad(outline(sinirlar, rgb(0xff0000), BorderStyle::Solid));
 ```
 
-**`PaintQuad` builder yardımcıları** (`window`). `corner_radii` köşe
+**`PaintQuad` builder yardımcıları** (`PaintQuad`). `corner_radii` köşe
 yuvarlaklığını, `border_widths` her kenarın kalınlığını, `border_color` kenarlık
 rengini, `background` ise düz renk veya arka plan türünü kurar. Bu yapı layout
 üretmez; çağıran taraf `bounds` değerini kendisi hesaplar ve GPU boyama kuyruğuna
@@ -546,7 +546,7 @@ yalnızca çizilecek dikdörtgeni verir.
 - `Scene::clear()`, `len()`, `push_layer(bounds)`, `pop_layer()`, `insert_primitive(primitive)`, `replay(...)`, `finish()` ve `batches()` çizim listesini yönetir.
 - `Primitive` varyantları `Shadow`, `Quad`, `Path`, `Underline`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite` ve `Surface` türlerini taşır; raster image ve SVG çizimleri renderer katmanında sprite primitive'lerine dönüşür. `Primitive::bounds()` ve `content_mask()` çizim alanı ve kırpma bilgisini verir.
 - `PrimitiveBatch`, `DrawOrder`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite`, `PaintSurface`, `PathId`, `PathVertex<Pixels>` ve `PathVertex_ScaledPixels` renderer'ın batch ve sprite atlas verileridir. `Scene` bu veriyi `shadows`, `quads`, `underlines`, sprite listeleri ve `surfaces` alanlarında türüne göre saklar.
-- `clipped_bounds(...)`, path veya primitive'in aktif içerik maskesiyle kesilmiş sınırını hesaplar.
+- `clipped_bounds(...)`, path'in aktif içerik maskesiyle kesilmiş sınırını hesaplar.
 
 Bu tipler "ekrana ne çizilecek?" sorusunun son cevabıdır. Bir buton, liste veya kart yazarken `Scene` yerine element API'lerini kullanırsın; yalnız GPUI renderer hattını genişletirken primitive seviyesine inersin.
 

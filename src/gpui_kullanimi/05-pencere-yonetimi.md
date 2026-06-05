@@ -38,14 +38,14 @@ let tutamac = cx.open_window(
 
 **`WindowOptions` alanları.** Aşağıdaki alanlar pencerenin oluşumunda sorumluluğu olan başlıca parametreleri tanımlar:
 
-- `window_bounds`: `None` verirsen GPUI önce aktif pencerenin geri yüklenebilir sınırını bulup yeni pencereyi 25 px kademeli açmaya çalışır; aktif pencere yoksa hedef display'in `default_bounds()` değerini kullanır. Bu display varsayılanı `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095) değerini ekran boyutuna kırparak merkezler. `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını belirler; `Maximized` ve `Fullscreen` içindeki bounds geri yükleme boyutu olarak saklanır. Ek veya yardımcı pencerelerde Zed tarafında sık kullanılan diğer sabit `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` değeridir (900×750, 6:5 oranında settings veya rules library benzeri pencereler için). Kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa `None` yolunun kademeli/default davranışına güvenebilirsin.
+- `window_bounds`: `None` verirsen GPUI bir temel sınır seçer ve onun başlangıç köşesine 25 px kademeli kaydırma (cascade) ekler. Temel sınır, aktif pencere varsa onun geri yüklenebilir sınırı; aktif pencere yoksa hedef display'in `default_bounds()` değeridir. Kademeli kaydırma her iki dalda da uygulanır; yani aktif pencere yokken bile display varsayılanının üzerine 25 px eklenir. Kaydırılan pencere ekranın görünür alanının dışına taşarsa görünür sınıra kelepçelenir. Display varsayılanı, `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095) değerini ekran boyutuna kırparak merkezler. `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını belirler; `Maximized` ve `Fullscreen` içindeki bounds geri yükleme boyutu olarak saklanır. Ek veya yardımcı pencerelerde Zed tarafında sık kullanılan diğer sabit `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` değeridir (900×750, 6:5 oranında settings veya rules library benzeri pencereler için). Kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa `None` yolunun kademeli/default davranışına güvenebilirsin.
 - `titlebar`: `Some(TitlebarOptions)`'ı sistem başlık çubuğu ayarı için kullanırsın. `None` verdiğinde özel başlık çubuğu yolu açılır.
 - `focus`: pencere oluşturulduğu anda klavye odağını alıp almayacağını belirler.
 - `show`: pencerenin hemen gösterilip gösterilmeyeceğini kontrol eder. Zed ana pencereleri başlangıçta `show: false`, `focus: false` ile açar ve hazır olduğunda gösterir.
 - `kind`: `Normal`, `PopUp`, `Floating`, `Dialog`; Linux Wayland özelliğiyle birlikte `LayerShell` de mevcuttur.
 - `is_movable`, `is_resizable`, `is_minimizable`: platform seviyesindeki pencere kabiliyetleridir.
 - `display_id`: belirli bir monitörü hedefler.
-- `window_background`: `Opaque`, `Transparent`, `Blurred` değerleri; Windows için ayrıca `MicaBackdrop` ve `MicaAltBackdrop` seçenekleri de vardır.
+- `window_background`: `Opaque`, `Transparent`, `Blurred` değerlerinin yanı sıra `MicaBackdrop` ve `MicaAltBackdrop` değerleri de enum'da her platformda bulunur; yalnız bu iki değerin görsel etkisi Windows 11'de (DWM ile) gerçekleşir.
 - `app_id`: Linux masaüstlerinde uygulama gruplandırması ve görev çubuğu davranışı için kullanırsın.
 - `window_min_size`: minimum içerik boyutu.
 - `window_decorations`: `Server` veya `Client` seçimini taşır. Linux'ta kritik bir alandır; macOS ve Windows tarafında ise pratikte `TitlebarOptions` daha belirleyicidir.
@@ -58,7 +58,8 @@ let tutamac = cx.open_window(
 2. `platform_window.set_background_appearance(window_background)` çağrılır.
 3. Pencere sınırları `Fullscreen` ise tam ekran, `Maximized` ise yakınlaştırma uygulanır.
 4. Platform geri çağrıları bağlanır.
-5. İlk çizim gerçekleştirilir.
+
+İlk çizim `Window::new` içinde gerçekleşmez. Bunu bir üst katmanda `open_window` yapar: kök view'u kurduktan sonra pencere en az bir kez çizilsin diye `window.draw(...)`'ı çağırır ve handle'ı öyle döndürür.
 
 ## Zed'de Ana Pencere Nasıl Açılır?
 
@@ -88,7 +89,7 @@ Modal veya About benzeri küçük pencerelerde bu fonksiyonu kullanmak yerine do
 - `appears_transparent: true`
 - `is_resizable: false`
 - `is_minimizable: false`
-- `kind: Normal`
+- `kind: WindowKind::Floating`
 
 ## Ekran ve Çoklu Monitör
 
@@ -125,13 +126,13 @@ Pencerenin rolünü `WindowKind` ile belirlersin; bu seçim pencerenin odak poli
 - `Dialog`: üst pencerenin etkileşimini engelleyen modal platform penceresi.
 - `LayerShell`: Wayland `layer-shell` özelliği aktifken dock, üst katman veya duvar kağıdı benzeri yüzeyler için.
 
-GPUI içinde modal, popover ve menu gibi yaşam döngüsü başka bir view tarafından yönetilen parçalar `ManagedView` sözleşmesine uyar. Bu sözleşme `Focusable + EventEmitter<DismissEvent> + Render` birleşimidir; view `DismissEvent` yaydığında onu sunan üst katman modalı veya geçici yüzeyi kapatabilir.
+GPUI içinde modal, popover ve menu gibi yaşam döngüsü başka bir view tarafından yönetilen parçalar `ManagedView` sözleşmesine uyar. Bu sözleşme `Focusable + EventEmitter<DismissEvent> + Render` birleşimidir; view `DismissEvent` yaydığında onu sunan üst katman modalı veya geçici yüzeyi kapatabilir. `ManagedView` ve `DismissEvent`'in uygulama içi (view tabanlı) modal, popover ve menüler için olduğunu unutmazsın; bunlar `WindowKind::Dialog` platform pencere türünden farklıdır.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `ManagedView` | `Focusable + EventEmitter<DismissEvent> + Render` | Modal, popover ve menu gibi üst katman tarafından yönetilen view sözleşmesidir. |
 | `DismissEvent` | boş event struct | Managed view'in kapanmak istediğini üst katmana bildirir. |
-| `Focusable` | `focus_handle(&self, cx)` | View'in odak handle'ını dışarı verir; `window.focus_view(...)` bu sözleşmeye dayanır. |
+| `Focusable` | `focus_handle(&self, cx)` | View'in odak handle'ını dışarı verir; `cx.focus_view(view, window)` bu sözleşmeye dayanır. |
 | `FocusId`, `WeakFocusHandle` | opaque focus id, `upgrade` | Odak ağacı kimliği ve düşürülebilir focus handle referansıdır. |
 
 Pop-up ve bildirim pencerelerinde tipik konfigürasyon şuna benzer:

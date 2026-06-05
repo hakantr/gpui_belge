@@ -5,7 +5,7 @@ Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olara
 Zed uygulamasında bu sistem iki seviyede ele alırsın:
 
 - `workspace::init(app_state, cx)` içinde `component::init()` çağırırsın. Bu çağrı, `inventory::iter::<ComponentFn>()` ile `RegisterComponent` derive'larından gelen kayıt fonksiyonlarını çalıştırır ve `COMPONENT_DATA` registry'sini doldurur.
-- `zed` crate'i, normal uygulama açılışında `component_preview::init(app_state.clone(), cx)` çağrısını yapar. Standalone preview örneği aynı sırayı izler. Önce `component::init()` çalışır. Sonra settings ve theme init tamamlanır. Ardından workspace init gelir. En sonda `component_preview::init(...)` çağrılır.
+- `zed` crate'i, normal uygulama açılışında `component_preview::init(app_state.clone(), cx)` çağrısını yapar. Ana `zed` uygulamasında sıra şöyledir: önce `settings::init` ve theme init tamamlanır; ardından `workspace::init(...)` çağrılır ve `component::init()` bu çağrının içinden, yani settings/theme init'inden sonra çalışır; en sonda `component_preview::init(...)` gelir. Standalone preview örneği ise bu bağımlılıkları kendi içinde daha sade bir akışla kurduğundan, orada `component::init()` çağrısını settings/theme kurulumundan önce de görebilirsin; bu sıralama yalnızca o örneğe özgüdür.
 - `ComponentPreview::new(...)`, registry'yi `components()` ile okur; `sorted_components()` ve `component_map()` değerlerini kendi view durumuna alır. Filtre editor'ü için `InputField::new(window, cx, "Find components or usages…")` kurar; listeyi `ListState` üzerinden sanallaştırır.
 - Render tarafında preview sayfası `ComponentMetadata::preview()` callback'ini çağırır. Bu callback `fn(&mut Window, &mut App) -> AnyElement` tipindedir; kayıtlı her component için çağrılabilir bir preview elementi beklenir. Anlamlı bir görsel örnek yoksa `empty_example(...)` veya küçük bir placeholder elementi component'in kendi `preview` metodunda döndürülür.
 
@@ -37,8 +37,8 @@ Bu tipler production UI'da component seçmek için genel amaçlı bir API olarak
 | Metot | Dönen | Varsayılan | Kullanım |
 | :-- | :-- | :-- | :-- |
 | `id() -> ComponentId` | `ComponentId(name)` | Otomatik | Registry lookup'u için sabit bir kimlik; aynı görünür ada sahip iki bileşeni ayırt etmek için override edilir |
-| `scope() -> ComponentScope` | `ComponentScope::None` | Override edilir | Gallery'de grup başlığını belirler |
-| `status() -> ComponentStatus` | `ComponentStatus::Live` | İhtiyaca göre | Gallery filtreleme ve "production'a hazır mı" işareti |
+| `scope() -> ComponentScope` | `ComponentScope::None` | `ComponentScope::None` | Gallery'de grup başlığını belirler; gruplamak istediğinde override edersin |
+| `status() -> ComponentStatus` | `ComponentStatus::Live` | `ComponentStatus::Live` | Gallery filtreleme ve "production'a hazır mı" işareti; farklı bir durum gerektiğinde override edersin |
 | `name() -> &'static str` | `type_name::<Self>()` | Genelde override | Gallery'de görünen ad; `type_name` modül yolunu da içerir |
 | `sort_name() -> &'static str` | `Self::name()` | Bilinçli sıralama istendiğinde override | İlişkili bileşenleri sıralı tutmak için (örn. `ButtonA`, `ButtonB`, `ButtonC`) |
 | `description() -> &'static str` | Açıklama metni | Zorunlu | `documented::Documented` derive ile doc comment `Self::DOCS` üzerinden açıklamaya dönüştürülebilir |
@@ -110,7 +110,7 @@ Preview'ları Zed reposunda görsel olarak incelemek için aşağıdaki komut ç
 cargo run -p component_preview --example component_preview
 ```
 
-Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda alınmış tüm bileşenleri sol panelden gezilebilir kategoriler altında (`ComponentScope`) listeler. Yeni bir bileşene preview eklendiğinde derive makrosu kaydı kendisi yapar; ayrı bir kayıt çağrısına ihtiyaç kalmaz. Preview için doğrudan `impl Component` yazılan tipler (struct olmadan) gallery'ye eklenmez. Bu yüzden en az boş bir `#[derive(IntoElement, RegisterComponent)] struct OrnekBilesen;` ile sarılması gerekir.
+Çalıştırılan örnek pencere, `RegisterComponent` derive ile kayda alınmış tüm bileşenleri sol panelden gezilebilir kategoriler altında (`ComponentScope`) listeler. Yeni bir bileşene preview eklendiğinde derive makrosu kaydı kendisi yapar; ayrı bir kayıt çağrısına ihtiyaç kalmaz. Bir tipin gallery'ye girmesi struct olmasına değil, kayda alınmasına bağlıdır: `RegisterComponent` derive'ı (veya elle yapılan bir `register_component::<T>()` çağrısı) olmayan tipler gallery'ye eklenmez. Bu yüzden en az boş bir `#[derive(IntoElement, RegisterComponent)] struct OrnekBilesen;` ile sarılması gerekir.
 
 **Programatik registry erişimi.** Bir component preview tool'u, dokümantasyon üretici veya custom gallery yazılıyorsa `component` crate'inin registry API'sine doğrudan erişilebilir:
 
@@ -138,7 +138,7 @@ fn canli_input_bilesenleri() -> Vec<String> {
 
 | Metot | Dönen | Kullanım |
 | :-- | :-- | :-- |
-| `previews() -> impl Iterator<Item = &ComponentMetadata>` | Kayıtlı component metadata iterator'ı | Gallery liste kaynağı |
+| `previews() -> impl Iterator<Item = &ComponentMetadata>` | Kayıtlı component metadata iterator'ı | Sıralanmamış ham metadata erişimi; gallery listesini bundan değil `sorted_components()`'tan kurar |
 | `sorted_previews() -> Vec<ComponentMetadata>` | Aynı kayıtlar, `name()` değerine göre sıralı | Sabit sıralı liste |
 | `components() -> Vec<&ComponentMetadata>` | Tüm kayıtlı bileşenler | Programatik inceleme |
 | `sorted_components() -> Vec<ComponentMetadata>` | Aynı kayıtlar, `name()` değerine göre sıralı | Sabit sıralı |

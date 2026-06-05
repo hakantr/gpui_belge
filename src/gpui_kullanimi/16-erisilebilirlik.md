@@ -9,7 +9,7 @@ GPUI erişilebilirlik ağacını element ağacından üretir, fakat her görsel 
 - Stabil bir element kimliği: `div().id("kaydet")` veya tekrar eden öğelerde kayıt kimliğine bağlı bir ID.
 - Anlamlı rol ve özellikler: `role(Role::Button)`, `aria_label(...)`, `aria_selected(...)`, `aria_toggled(...)` gibi metotlar.
 
-`role(Role::GenericContainer)` kullanma; bu rol GPUI erişilebilirlik ağacında filtrelenir ve etkili bir node üretmez. Sıradan layout kapsayıcılarında rol vermemek genellikle daha doğrudur. Erişilebilirlik bilgisi, kullanıcının etkileştiği veya ekran okuyucuda duyulması gereken semantik yüzeylere verilmelidir.
+`role(Role::GenericContainer)` kullanma; bu rol GPUI erişilebilirlik ağacında filtrelenir. `role(Role::GenericContainer)` çağrısı debug derlemede bir doğrulama (`debug_assert`) tetikler, yani debug'da panik verir; release derlemede ise etkili bir node üretmez. Sıradan layout kapsayıcılarında rol vermemek genellikle daha doğrudur. Erişilebilirlik bilgisi, kullanıcının etkileştiği veya ekran okuyucuda duyulması gereken semantik yüzeylere verilmelidir.
 
 ID kararlılığı erişilebilirlik için de önemlidir. Aynı kontrol her render'da farklı ID alırsa ekran okuyucu bunu güncellenen bir node olarak değil, silinen ve yeniden eklenen bir node olarak algılar. Liste satırlarında sıra numarası yerine mümkünse domain kimliği kullanırsın.
 
@@ -28,7 +28,7 @@ Tek bir `text!` çağrısını tekrar eden satır builder'ında kullanırken dik
 
 Erişilebilirlik fluent metotları `StatefulInteractiveElement` üzerinde bulunur; pratikte önce `.id(...)` çağırıp sonra semantik bilgiyi eklersin:
 
-- `role(Role::Button)`, `role(Role::Checkbox)`, `role(Role::Switch)`, `role(Role::SpinButton)` gibi AccessKit rolleri.
+- `role(Role::Button)`, `role(Role::CheckBox)`, `role(Role::Switch)`, `role(Role::SpinButton)` gibi AccessKit rolleri.
 - `aria_label(text)` görünür metinden bağımsız duyurulacak etiketi verir.
 - `aria_selected(bool)`, `aria_expanded(bool)`, `aria_toggled(Toggled::True | Toggled::False | Toggled::Mixed)` seçim, açılma ve toggle durumunu taşır.
 - `aria_numeric_value(f64)`, `aria_min_numeric_value(f64)`, `aria_max_numeric_value(f64)` sayaç, slider veya spinbutton gibi sayısal kontroller içindir.

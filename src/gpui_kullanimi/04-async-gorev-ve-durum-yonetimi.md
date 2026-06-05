@@ -140,7 +140,7 @@ fn onbellekten_veya_async(onbellekteki: Option<Veri>, cx: &App) -> Task<anyhow::
 - `advance_clock(duration)` yalnızca sahte saati (`fake clock`) ilerletir; ilerlettiğin süreyle gelinen noktada hazır olan işleri çalıştırmak için ayrıca `run_until_parked()` çağırman gerekir.
 - `allow_parking()`'i, bekleyen görev varken `parked` olmayı testte bilerek kabul etmek için kullanırsın; üretim akışlarına taşıman doğru değildir.
 - `block_with_timeout` zaman aşımı olduğunda future'ı geri verir; bu davranış, işi iptal etmek veya daha sonra yeniden yoklamak konusundaki kararı çağırana bırakır.
-- `PriorityQueueSender<T>` / `PriorityQueueReceiver<T>` GPUI kökünden yeniden dışa aktarılır. `send(priority, item)`, `spin_send(priority, item)`, `try_pop()`, `spin_try_pop()`, `pop()`, `try_iter()` ve `iter()` metotları high, medium ve low kuyruklarını ağırlıklı seçimle tüketir; `Priority::RealtimeAudio` bu kuyruğa girmez. `spin_send` ve `spin_try_pop`, executor'ın kilitsiz hızlı yolunda kısa süreli dönerek kuyruk erişimi denediği için sıradan uygulama mesajlaşmasında değil scheduler/platform sınırında anlamlıdır.
+- `PriorityQueueSender<T>` / `PriorityQueueReceiver<T>` GPUI kökünden yeniden dışa aktarılır ve metotları iki ayrı tipe aittir. Gönderici tarafında `send(priority, item)` ve `spin_send(priority, item)` öğeyi sıraya koyar; alıcı tarafında `try_pop()`, `spin_try_pop()`, `pop()`, `try_iter()` ve `iter()` high, medium ve low kuyruklarını ağırlıklı seçimle tüketir. `Priority::RealtimeAudio` bu kuyruğa girmez. `spin_send` ve `spin_try_pop`, executor'ın kilitsiz hızlı yolunda kısa süreli dönerek kuyruk erişimi denediği için sıradan uygulama mesajlaşmasında değil scheduler/platform sınırında anlamlıdır.
 
 **Executor tam yüzeyi.** `BackgroundExecutor` ve `ForegroundExecutor` aynı scheduler ailesini sarsalar da kullanım sınırları farklıdır:
 
@@ -172,7 +172,7 @@ pub trait TaskExt<T, E> {
 }
 ```
 
-`detach_and_log_err`, görevi arka plana atar ve hata oluşması durumunda hatayı `log::error!("...: {err}")` biçiminde loglar. `_with_backtrace` varyantı aynı işi `{:?}` biçimiyle yapar; bu sayede `anyhow::Error` gibi geri izleme (`backtrace`) taşıyan tipler tam çağrı yığınıyla loglanır.
+`detach_and_log_err`, görevi bir log sarmalayıcısına sarıp ön plan (`foreground`) çalıştırıcısına yerleştirir ve hata oluşması durumunda hatayı orada `log::error!("...: {err}")` biçiminde loglar. Görevi hiçbir log olmadan tümüyle bırakan `detach()` ile karıştırmamaya dikkat edersin. `_with_backtrace` varyantı aynı işi `{:?}` biçimiyle yapar; bu sayede `anyhow::Error` gibi geri izleme (`backtrace`) taşıyan tipler tam çağrı yığınıyla loglanır.
 
 **Pratik akış.** Tipik bir async UI iş parçası, ağdan veri çekmek ve sonra view verisini güncellemekten oluşur:
 
@@ -362,7 +362,7 @@ let _abonelik = cx.observe(&varlik, |...| { ... });
 
 - `detach()`, uzun yaşayan bir geri çağrıyı view ömründen koparır; view düştükten sonra geri çağrı hâlâ çalışıyorsa veri erişimi için `WeakEntity` ile koruma şart olur.
 - Birden çok abonelik birbirini etkiliyorsa elden çıkma sırasına davranış bağlamak hatalıdır; açık bir kapatma metodu veya tek sahipli struct kullanmak güvenli yoldur.
-- `observe` geri çağrısının içinden entity'yi güncellemek `panic` verir; bunun yerine `cx.spawn(..)` ile async akışa taşırsın veya `cx.defer(|cx| ...)` ile sonraki etki döngüsüne ertelersin.
+- `observe` geri çağrısının içinden, o sırada güncellenmekte olan (ödünç alınmış) entity'yi yeniden `update`'e sokmak `panic` verir; çünkü o entity güncelleme süresince haritadan alınmıştır ve özyinelemeli ödünç oluşur. Bunun yerine `cx.spawn(..)` ile async akışa taşırsın veya `cx.defer(|cx| ...)` ile sonraki etki döngüsüne ertelersin. Başka bir entity'yi güncellemek bu kısıtlamaya girmez.
 
 ## Pencere Bağlı Gözlemci, Release ve Odak Yardımcı Desenleri
 

@@ -83,8 +83,8 @@ uygulama.run(|cx| {
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `QuitMode` | `Default`, `LastWindowClosed`, `Explicit` | Uygulamanın son pencere kapandığında mı yoksa açık quit isteğiyle mi sonlanacağını belirler. |
-| `CursorHideMode` | platform cursor gizleme politikası | Yazma/fare/action etkileşimlerinden sonra imlecin ne zaman görünür kalacağını App seviyesinde ayarlar. |
-- `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 200ms` (`app`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar iptal olur ve GPUI platform çıkışını sürdürür. Bu yüzden uzun kapanış işlerini bağımsız bırakılan bir `Task`'e değil, bir yaşam döngüsü gözlemcisine bağla.
+| `CursorHideMode` | klavye girdisine tepki olarak imleci gizleme politikası | Yalnız klavye girdisine (yazım, ve eylem üreten kısayol) tepki olarak imlecin ne zaman gizleneceğini App seviyesinde ayarlar; geri gösterme fare hareketiyle platform tarafında yapılır. |
+- `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 200ms` (`app`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar artık beklenmez (bırakılır), bir hata günlüğü yazılır ve GPUI platform çıkışını sürdürür. Bu yüzden uzun kapanış işlerini bağımsız bırakılan bir `Task`'e değil, bir yaşam döngüsü gözlemcisine bağla.
 **Uygulama etkinliği ve görünürlüğü.** `cx.activate(ignoring_other_apps)` uygulamayı platform düzeyinde öne getirir. `ignoring_other_apps = true` seçimi özellikle yeni pencere açma veya dış URL ile uygulamaya dönme akışlarında kullanılır; yalnız mevcut uygulamayı tekrar odaklamak istiyorsan `false` daha yumuşak bir istektir. `cx.hide()` uygulamanın tamamını gizler. `cx.hide_other_apps()` ve `cx.unhide_other_apps()` ise macOS tarzı uygulama menüsü action'larında olduğu gibi diğer uygulamaları gizleme ya da geri gösterme komutlarını platforma iletir. Bu dört metot tek bir view durumunu değiştirmez; işletim sistemi kabuğuna uygulama düzeyi niyet bildirir.
 
 **Pencere etkinliği ve görünürlüğü.** `window.activate_window()` yalnız ilgili platform penceresini öne alır. `window.minimize_window()` aynı pencereyi küçültür; `window.toggle_fullscreen()` ise tam ekran modunu tersine çevirir. Bir komut bütün uygulamayı ilgilendiriyorsa `App`, tek pencereyi ilgilendiriyorsa `Window` tarafında kalırsın.
@@ -97,7 +97,7 @@ uygulama.run(|cx| {
 - `cx.set_cursor_hide_mode(CursorHideMode::...)` — yazım veya action sonrasında imleci gizleme politikasını ayarlar.
 - `cx.refresh_windows()` — tüm pencereleri tek bir etki döngüsü (`effect cycle`) içinde yeniden çizmeye zorlar.
 - `cx.set_quit_mode(mode)` — çıkış politikasını çalışma zamanında değiştirir; builder tarafındaki `.with_quit_mode(...)` ile aynı alanı besler.
-- `cx.on_window_closed(|cx, window_id| ...)` — pencere kapandıktan *sonra* çalışır; bu noktada pencereye artık erişemezsin, geri çağrı yalnızca `WindowId` alır.
+- `cx.on_window_closed(|cx, window_id| ...)` — pencere kapandıktan *sonra* çalışır; bu noktada pencereye artık erişemezsin, geri çağrı `&mut App` ile birlikte kapanan pencerenin `WindowId`'sini alır.
 
 **Dikkat noktaları.** Bu API'lerde dikkat edilmesi gereken birkaç yorum farkı var:
 
@@ -124,8 +124,8 @@ uygulama.run(|cx| {
 - **İmleç görünürlüğü:** `cursor_hide_mode`, `set_cursor_hide_mode`, `is_cursor_visible`. İşaretçinin görsel stilini, pencere veya hitbox bağlamında `window.set_cursor_style(style, &hitbox)` ile, sürükleme sırasında ise `cx.set_active_drag_cursor_style(...)` ile belirlersin.
 - **Ekran yakalama:** `is_screen_capture_supported`, `screen_capture_sources`.
 - **Klavye:** `keyboard_layout()`, `keyboard_mapper()`, `on_keyboard_layout_change(|cx| ...)`.
-- **HTTP istemcisi:** `http_client() -> Arc<dyn HttpClient>`, `set_http_client(Arc<dyn HttpClient>)`. `Application::with_http_client(...)` ile başlangıçta da ayarlayabilirsin; tipik olarak `http_client` içindeki Zed varsayılanı tercih edilir.
-- **Uygulama yolu ve compositor:** `app_path() -> Result<PathBuf>` (macOS bundle yolu ya da Linux'ta çalıştırılabilir dosya), `path_for_auxiliary_executable(name)` (yardımcı çalıştırılabilirler için bundle araması), `compositor_name() -> &'static str` (Linux'ta `wayland`, `x11`, `xwayland` gibi adlar; diğer platformlarda boş metin).
+- **HTTP istemcisi:** `http_client() -> Arc<dyn HttpClient>`, `set_http_client(Arc<dyn HttpClient>)`. `Application::with_http_client(...)` ile başlangıçta da ayarlayabilirsin; GPUI'nin yerleşik varsayılanı işlem yapmayan bir istemcidir (`NullHttpClient`), bu yüzden gerçek ağ gerektiğinde `with_http_client(...)` ile gerçek bir istemci verirsin.
+- **Uygulama yolu ve compositor:** `app_path() -> Result<PathBuf>` (macOS bundle yolu ya da Linux'ta çalıştırılabilir dosya), `path_for_auxiliary_executable(name)` (yardımcı çalıştırılabilirler için bundle araması), `compositor_name() -> &'static str` (Linux'ta `"Wayland"`, `"X11"` veya başsız oturumda `"Headless"`; diğer platformlarda boş metin).
 
 `Window` üzerinden gelen pencereye özgü kontroller ise şunlardır:
 
@@ -182,13 +182,13 @@ GPUI'nın platform modülünde görünen bazı public tipler uygulama geliştiri
 
 **Çalıştırıcı ve platform dispatcher.** `PlatformDispatcher`, `RunnableMeta`, `RunnableVariant` ve `TimerResolutionGuard` task scheduling ile platform event loop'u arasında kalır. Uygulama kodunda bunların karşılığı `cx.background_executor()`, `cx.foreground_executor()`, `cx.spawn(...)`, `Task` ve testlerde `run_until_parked()` yardımcılarıdır. `RunnableMeta` kaynak konumu bilgisini taşır; profiler ve debug tooling bunu kullanır. Normal bir uygulama özelliği için bu tipleri state modeline koymazsın.
 
-**Platform yardımcı fonksiyonları.** `guess_compositor()` Linux/Wayland/X11 arka ucunun compositor adını tahmin eden düşük seviye yardımcıdır; uygulama tarafında `cx.compositor_name()` daha doğru seviyedir. `get_gamma_correction_ratios(gamma)` glif/atlas gamma düzeltmesi içindir; tema rengi, kontrast veya tasarım paleti seçimi için kullanılmaz. Ekran yakalama tarafındaki `scap_screen_sources(...)`, `scap` arka ucunu `ScreenCaptureSource` sözleşmesine uyarlar; kullanıcıya dönük akışta `cx.screen_capture_sources()` sarmalayıcısını tercih edersin.
+**Platform yardımcı fonksiyonları.** `guess_compositor()` yalnız Linux/FreeBSD'de bulunur; bağlanmayı denemeden, kullanılacak compositor'ı tahmin edip `"Wayland"`, `"X11"` veya `"Headless"` değerlerinden birini döndüren düşük seviye yardımcıdır; uygulama tarafında `cx.compositor_name()` daha doğru seviyedir. `get_gamma_correction_ratios(gamma)` glif/atlas gamma düzeltmesi içindir; tema rengi, kontrast veya tasarım paleti seçimi için kullanılmaz. Ekran yakalama tarafındaki `scap_screen_sources(...)`, `scap` arka ucunu `ScreenCaptureSource` sözleşmesine uyarlar; kullanıcıya dönük akışta `cx.screen_capture_sources()` sarmalayıcısını tercih edersin.
 
 **Doğru tercih.** Platform tipleriyle karşılaştığında şu karar çizgisi iş görür: uygulama penceresi açıyor, menü kuruyor, prompt gösteriyor veya asset çiziyorsan `App`, `Window` ve element API'lerini kullanırsın. Yeni işletim sistemi arka ucu, test platformu, headless renderer veya GPU atlas entegrasyonu yazıyorsan `Platform`, `PlatformWindow`, `PlatformTextSystem` ve `PlatformAtlas` trait'lerini karşılarsın; `PlatformInputHandler` gibi taşıyıcı struct'ları ise bu düşük seviyeli sözleşmeler arasında dolaştırırsın.
 
 ## Başsız Çalışma, Ekran Yakalama ve Test Çizim Aracı
 
-Görsel arayüz olmadan da bir GPUI uygulamasını başlatabilirsin. Bu yol özellikle CLI alt komutları, toplu işler, sunucu süreçleri ve başarım ölçüm (`benchmark`) senaryolarında işine yarar. İlgili modüller `screen_capture_sources` ve `headless()` içinde yer alır.
+Görsel arayüz olmadan da bir GPUI uygulamasını başlatabilirsin. Bu yol özellikle CLI alt komutları, toplu işler, sunucu süreçleri ve başarım ölçüm (`benchmark`) senaryolarında işine yarar. İlgili giriş noktaları `headless()` fonksiyonu ile `App` üzerindeki `screen_capture_sources` metodudur.
 
 Başsız bir uygulamayı şu biçimde başlatırsın:
 
@@ -209,7 +209,7 @@ let kaynak_alici = cx.update(|cx| cx.screen_capture_sources());
 let kaynaklar = kaynak_alici.await??;
 if let Some(kaynak) = kaynaklar.first() {
     let akis_alici = kaynak.stream(
-        cx.foreground_executor(),
+        &cx.foreground_executor(),
         Box::new(|kare| {
             // kare: ScreenCaptureFrame
         }),
@@ -221,7 +221,7 @@ if let Some(kaynak) = kaynaklar.first() {
 
 `ScreenCaptureSource`, her platformda farklı bir kaynak listesi sunar (ekran, pencere, alan gibi). Yakalama `ScreenCaptureSource::stream(&ForegroundExecutor, frame_callback)` ile başlar. Geri dönen `oneshot::Receiver<Result<Box<dyn ScreenCaptureStream>>>`, akış handle'ını taşır; ekran karelerini ise GPUI geri çağrına `ScreenCaptureFrame` olarak iletir.
 
-Linux/Windows tarafındaki `screen-capture` özelliği açıkken `gpui::platform::scap_screen_capture` modülü, `scap` arka ucunu `ScreenCaptureSource` ve `ScreenCaptureStream` trait'lerine uyarlar. Uygulama kodu çoğunlukla bu modüle inmez; özellik/platform ayrımını `cx.is_screen_capture_supported()` ve `cx.screen_capture_sources()` sarmalayıcıları üzerinden yönetirsin.
+Linux/FreeBSD/Windows tarafındaki `screen-capture` özelliği açıkken `gpui::platform::scap_screen_capture` modülü, `scap` arka ucunu `ScreenCaptureSource` ve `ScreenCaptureStream` trait'lerine uyarlar. Uygulama kodu çoğunlukla bu modüle inmez; özellik/platform ayrımını `cx.is_screen_capture_supported()` ve `cx.screen_capture_sources()` sarmalayıcıları üzerinden yönetirsin.
 
 **Dikkat noktaları.** Ekran yakalama ve başsız çalışma tarafında dikkat edilecek birkaç nokta var:
 

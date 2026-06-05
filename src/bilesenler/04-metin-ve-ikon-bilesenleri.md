@@ -37,7 +37,7 @@ Ne zaman kullanmazsın:
 Temel API:
 
 - Constructor: `Label::new(label: impl Into<SharedString>)`.
-- Sık builder'lar: `.size(LabelSize::...)`, `.color(Color::...)`, `.weight(FontWeight::...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(f32)`, `.truncate()`, `.truncate_start()`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`, `.render_code_spans()`.
+- Sık builder'lar: `.size(LabelSize::...)`, `.color(Color::...)`, `.weight(FontWeight::...)`, `.line_height_style(...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(f32)`, `.truncate()`, `.truncate_start()`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`, `.render_code_spans()`.
 - Mutator: `.set_text(text: impl Into<SharedString>)` çağrısı `&mut self` üzerinden label metnini günceller. `Label` örneği view alanında saklanıyorsa, render dışından yeni bir `Label` üretmeden mevcut örneğin metnini değiştirmek için bunu kullanırsın. Bu metod builder zincirinde değil, daha önce oluşturduğun bir örnek üzerinde çağrılır.
 - Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow()`, `.flex_shrink()`, `.flex_shrink_0()` ile çeşitli margin style yöntemleri.
 - Trait: `LabelCommon`.
@@ -274,7 +274,7 @@ Temel API:
 - Range constructor: `HighlightedLabel::from_ranges(label, highlight_ranges)`.
 - Düşük seviye yardımcı: `highlight_ranges(text: &str, indices: &[usize], style: HighlightStyle) -> Vec<(Range<usize>, HighlightStyle)>`. Ardışık byte indekslerini char sınırlarına oturmuş tek bir range içinde birleştirir. `HighlightedLabel` içeride bu fonksiyonu kullanır; aynı dönüşümün `StyledText` veya başka zengin metin yüzeylerinde de tekrar etmen gerektiğinde bu yardımcıyı doğrudan import edebilirsin.
 - Okuma yöntemleri: `.text()`, `.highlight_indices()`.
-- `LabelCommon` builder'ları: `.size(...)`, `.color(...)`, `.weight(...)`, `.italic()`, `.underline()`, `.truncate()`, `.single_line()`.
+- `LabelCommon` builder'ları: `.size(...)`, `.color(...)`, `.weight(...)`, `.line_height_style(...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(...)`, `.truncate()`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`.
 - `.truncate_start()`: etiketi baştan kırpar, sonunu görünür tutar. İçeride taban `Label`'ın `truncate_start()` ayarını yazar; dosya yolu veya branch adı gibi anlamlı kısmı sonda olan eşleşme satırlarında tercih edersin.
 - Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow()`, `.flex_shrink()`, `.flex_shrink_0()`.
 
@@ -402,7 +402,7 @@ Ne zaman kullanmazsın:
 Temel API:
 
 - Constructor: `SpinnerLabel::new()`.
-- Varyantlar: `SpinnerLabel::dots()`, `.dots_variant()`, `.sand()`, `SpinnerLabel::with_variant(SpinnerVariant::...)`.
+- Varyantlar: `SpinnerLabel::dots()`, `SpinnerLabel::dots_variant()`, `SpinnerLabel::sand()`, `SpinnerLabel::with_variant(SpinnerVariant::...)`.
 - `SpinnerVariant`: `Dots`, `DotsVariant`, `Sand`.
 - `LabelCommon` builder'ları: `.size(...)`, `.color(...)`, `.weight(...)`, `.alpha(...)`.
 
@@ -460,7 +460,7 @@ Temel API:
 - `Icon::from_external_svg(svg_path)`.
 - `.size(IconSize::...)`.
 - `.color(Color::...)`.
-- `IconSize`: `Indicator` 10px, `XSmall` 12px, `Small` 14px, `Medium` 16px, `XLarge` 48px, ayrıca `Custom(Rems)` özel boyut için.
+- `IconSize`: `Indicator` 10px, `XSmall` 12px, `Small` 14px, `Medium` 16px (varsayılan), `XLarge` 48px, ayrıca `Custom(Rems)` özel boyut için.
 - Ölçü yardımcıları: `IconSize::rems() -> Rems`, `IconSize::square(window, cx) -> Pixels` (ikonu ve simetrik padding'i içeren kare ölçüyü verir) ve `IconSize::square_components(window, cx) -> (Pixels, Pixels)` (ikon ölçüsü ile tek taraf padding'ini ayrı ayrı döndürür). `IconButtonShape::Square` ve özel ikon konteynerlerinin hizalamasında işine yarar.
 - `IconName::path()` gömülü ikonun `icons/<name>.svg` yolunu döndürür.
 
