@@ -42,16 +42,16 @@ Bu davranış `PlatformTitleBar` render sözleşmesini değiştirmez. Zayıf `Mu
 - Proje adı / son projeler açılır paneli.
 - Git dal adı ve durum ikonu.
 - Kısıtlı mod göstergesi.
-- Kullanıcı menüsü, oturum açma butonu, plan çipi, güncelleme bildirimi.
+- Kullanıcı menüsü, oturum açma butonu, kullanıcı menüsü içindeki plan çipi, güncelleme bildirimi.
 - İşbirliği/ekran paylaşımı göstergeleri.
 - Özellik bayrağına bağlı ilk karşılama/duyuru bantları.
 - Güncelleme bildirimi ipucu (`Update to Version: ...`).
 
-Güncelleme ipucunun biçimi, `version_tooltip_message` fonksiyonunda oluşturulur. Sürüm semantik ise `SemanticVersion::to_string()` çıktısı kullanırsın. Commit SHA durumunda ise `AppCommitSha::full()` ile kısaltılmamış 40 karakterlik hash döner. Zed kaynak metni `"Update to Version:"` önekini kullanır. Port hedefinde bu etiketi Türkçeleştireceksen aynı veri ayrımını korursun; ayrıca uzun metnin tek satıra sığacağı varsayılmaz. `Tooltip::text` veya muadili bir mekanizmada genişlik sınırı düşünülür. Genişlik sınırı yoksa ipucu taşıp ekran kenarında okunmaz hale gelebilir.
+Güncelleme ipucunun biçimi, `version_tooltip_message` fonksiyonunda oluşturulur. Sürüm semantik ise `semver::Version` (`Version`) değerinin `to_string()` çıktısını kullanırsın. Commit SHA durumunda ise `AppCommitSha::full()` çağrısı saklanan tam SHA dizgesini olduğu gibi döndürür; bu yardımcı `short()` gibi karakter sayısını kırpmaz. Zed kaynak metni `"Update to Version:"` önekini kullanır. Port hedefinde bu etiketi Türkçeleştireceksen aynı veri ayrımını korursun; ayrıca uzun metnin tek satıra sığacağı varsayılmaz. `Tooltip::text` veya muadili bir mekanizmada genişlik sınırı düşünülür. Genişlik sınırı yoksa ipucu taşıp ekran kenarında okunmaz hale gelebilir.
 
 Güncelleme bildiriminin görsel kabuğu `ui` crate'indeki `UpdateButton` tipidir. `UpdateVersion::Render`, otomatik güncelleme durumuna göre beş kurucudan birini seçer: `checking`, `downloading`, `installing`, `updated`, `errored`. Bunlardan ilk üçü tıklamaya kapalıdır; kurucularında `disabled(true)` çağrılır ve render edilen düğme `disabled` bayrağına geçer. Zed kaynak metinleri sırasıyla `"Checking for Zed Updates…"`, `"Downloading Zed Update…"`, `"Installing Zed Update…"`, `"Restart to Update"` ve `"Failed to Update"` biçimindedir. Port hedefinde bu metinleri ürün diline çevireceksen durum ayrımı aynı kalır.
 
-Bu üç durumda butonun sınır rengi `colors().border` üzerinden gelir. `updated` ve `errored` durumlarında ise sınır `colors().text.opacity(0.15)` ile çizilir. İkonografi de aynı şekilde durum-koşullu seçilir: `Checking` ve `Installing` `IconName::LoadCircle` ile iki turluk bir dönüş animasyonu uygular, `Downloading` durağan `Download` ikonu kullanır, `errored` ise uyarı rengiyle `Warning` ikonunu gösterir ve kapatma tutamağı ekler.
+Bu üç durumda butonun sınır rengi `colors().border` üzerinden gelir. `updated` ve `errored` durumlarında ise sınır `colors().text.opacity(0.15)` ile çizilir. İkonografi de aynı şekilde durum-koşullu seçilir: `Checking` ve `Installing` `IconName::LoadCircle` ile her turu 2 saniyede tamamlayan sürekli (sonsuz tekrarlı) bir dönüş animasyonu uygular, `Downloading` durağan `Download` ikonu kullanır, `errored` ise uyarı rengiyle `Warning` ikonunu gösterir ve kapatma tutamağı ekler.
 
 Port hedefinde aynı bileşen kurulurken bu beş durumun her biri ayrı bir kurucu olarak ifade edilmelidir. Böylece ürün başlık çubuğu otomatik güncelleme durum makinesinin dilini doğrudan yansıtır ve durum geçişi sırasında butonun tıklanabilirlik durumu doğru korunur.
 
@@ -163,7 +163,7 @@ Zed dışında bir uygulamada doğrudan `platform_title_bar` crate'ine bağımla
 
 Pratik port sınırı şu şekilde özetlenebilir:
 
-- `platform_title_bar.rs` dosyasının içinden Zed `Workspace` bağımlılıkları temizlenir; bu dosya yalnızca platform sözleşmesini ve `TitleBarController` sözleşmesini bilmeli, hiçbir `Workspace` tipiyle doğrudan ilgilenmemelidir.
+- `platform_title_bar.rs` dosyası bugün `workspace` crate'inin `MultiWorkspace`, `SidebarRenderState`, `SidebarSide` ve `CloseWindow` tiplerine doğrudan bağlıdır. Port hedefinde bu bağımlılık daraltılır; dosya yalnızca platform sözleşmesini bilir hale getirilir ve yan panel durumu ile kapatma eylemi gibi bilgiler, ürünün kendi kabuk durum ve eylem tipleri üzerinden verilir.
 - `system_window_tabs.rs` içindeki eylem ve settings kullanımları ürünün kendi eylem ve ayar tipleriyle değiştirilir. Bu maliyetli görünüyorsa native sekme desteği proje kararına göre kapalı başlatılır; ihtiyaç doğduğunda etkinleştirilir. Buradaki bağımlılıklar diğer parçalara göre daha geniştir.
 - `platforms/platform_linux.rs` ve `platforms/platform_windows.rs` dosyaları diğer parçalara göre daha taşınabilirdir. Çoğu uygulamada bu dosyalar yalnız küçük değişikliklerle çalışır; özellikle Windows caption davranışı çoğunlukla olduğu gibi kalır.
 

@@ -28,7 +28,7 @@
 
 **Panel yazma.** Yeni bir panel `Panel` trait'i uygulanarak tanımlanır:
 
-- `persistent_name()` ve `panel_key()` persist, keymap ve telemetry kimliğidir.
+- `persistent_name()` dock durumu serileştirmesinde ve telemetry'de kullanılan kimliktir; `panel_key()` ise boyut durumu kalıcılaştırma ve keymap context kimliğidir.
 - `position`, `position_is_valid`, `set_position` panelin hangi dock'ta oturduğunu yönetir.
 - `default_size`, `min_size`, `initial_size_state`, `size_state_changed`, `supports_flexible_size`, `has_flexible_size`, `set_flexible_size` boyut ve kalıcılık davranışını belirler.
 - `icon`, `icon_tooltip`, `icon_label`, `toggle_action`, `activation_priority` status bar butonunu ve sıralamayı tanımlar.
@@ -65,8 +65,8 @@
 | `CloseAllDocks` | Üç dock'u da kapatır. |
 | `DecreaseActiveDockSize` | `px` alanındaki piksel miktarı kadar aktif dock boyutunu azaltır. |
 | `ResetActiveDockSize` | Aktif dock panel boyutunu varsayılan boyuta döndürür. |
-| `ZoomIn` | Aktif pane veya panel görünümünü zoom katmanına taşır. |
-| `ZoomOut` | Zoom durumunu kapatır ve normal pane/panel yerleşimine döner. |
+| `ZoomIn` | Aktif pane'i zoom katmanına taşır. |
+| `ZoomOut` | Pane zoom'unu kapatır ve normal pane yerleşimine döner. |
 
 **Dock, panel ve sidebar ek API kapsamı.** Aşağıdaki dışa açık yüzeyler dock modelinin ayar, serileştirme, render ve sidebar bağlantı parçalarıdır. Birçoğu re-export olduğu için ayrı başlık yerine ait olduğu karar hattında okunmalıdır.
 
@@ -74,7 +74,7 @@
 | :-- | :-- |
 | `DockData`, `DockStructure` | Dock/pane ağacının restore ve serialization sırasında taşınan veri modelidir. |
 | `PanelId`, `PanelButtons`, `DraggedSidebar`, `SidebarHandle` | Panel kimliği, panel buton seti, sidebar drag payload'u ve sidebar entity handle sınırını temsil eder. |
-| `ActivePanelModifiers`, `StatusBarSettings`, `TabBarSettings` | Workspace ayarlarından dock/panel/tab/status davranışına yansıyan küçük settings taşıyıcılarıdır. |
+| `StatusBarSettings`, `TabBarSettings` | Status bar ve tab bar davranışını taşıyan settings parçalarıdır. |
 | `AutosaveSetting`, `BottomDockLayout`, `EncodingDisplayOptions`, `RestoreOnStartupBehavior` | Workspace'in settings content re-export'larıdır; autosave, alt dock düzeni, encoding görünümü ve startup restore davranışını bağlar. |
 | `IncreaseActiveDockSize`, `DecreaseOpenDocksSize`, `IncreaseOpenDocksSize`, `ResetOpenDocksSize` | Aktif veya açık dock'ların piksel/flex boyutunu büyütme, küçültme ve sıfırlama action'larıdır. |
 | `ActivePaneDecorator`, `PaneRenderContext`, `PaneRenderResult`, `HANDLE_HITBOX_SIZE` | Pane group render'ında aktif pane vurgusu, drag/resize hitbox ölçüsü ve render sonucu taşıyıcılarını kapsar. |

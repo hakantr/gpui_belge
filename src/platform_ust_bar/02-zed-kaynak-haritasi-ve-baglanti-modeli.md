@@ -14,8 +14,8 @@
 | `SystemWindowTabs` | Yerel pencere sekmeleri, sekme menüsü, sürükle-bırak ve pencere birleştirme davranışları. Modül özel olduğu için dış crate API'si değildir; `PlatformTitleBar` içinde çocuk entity olarak kullanılır. |
 | `TitleBar` | Zed'in uygulama başlığı, proje adı, menü, kullanıcı ve workspace durumunu `PlatformTitleBar` içine bağlayan üst seviye bileşen. |
 | `OnboardingBanner` | Ürün başlık çubuğu için duyuru bandı altyapısı (`title_bar` crate'inde). Güncel sürümde `TitleBar`'a bağlı değildir; ayrıntı [Üst Bar](../ust_bar/ust_bar.md) bölümünde. |
-| `UpdateVersion` | Otomatik güncelleme durumunu üst barda gösterir ve güncelleme ipucu metnini üretir. İpucu `"Update to Version:"` önekini, SHA için de tam commit değerini kullanır. |
-| `UpdateButton` | `UpdateVersion` tarafından kullanılan görsel kabuk. `checking`, `downloading`, `installing`, `updated`, `errored` durumları için ayrı yapıcılar sağlar. `Checking/Downloading/Installing` durumlarında butona `disabled(true)` ayarlanır; bu süre içinde tıklama davranışı kapalıdır. Döner durumlarda animasyonlu ikon `LoadCircle` kullanılır. Hata durumu mesajı `"Failed to Update"` biçimindedir. |
+| `UpdateVersion` | Otomatik güncelleme durumunu üst barda gösterir ve güncelleme ipucu metnini üretir. İpucu `"Update to Version: "` önekini, SHA için de `sha.full()` ile kısaltılmamış tam commit değerini kullanır. |
+| `UpdateButton` | `UpdateVersion` tarafından kullanılan görsel kabuk. `checking`, `downloading`, `installing`, `updated`, `errored` durumları için ayrı yapıcılar sağlar. `Checking/Downloading/Installing` durumlarında butona `disabled(true)` ayarlanır; bu süre içinde tıklama davranışı kapalıdır. Animasyonlu döner `LoadCircle` ikonu yalnız `checking` ve `installing` durumlarında çalışır; `downloading` ise durağan `IconName::Download` ikonunu kullanır. `updated` durumunun metni `"Restart to Update"`, ikonu `IconName::Download` olup yanında bir kapatma düğmesi (`.with_dismiss()`) taşır ve `disabled` değildir. Hata durumu mesajı `"Failed to Update"` biçimindedir. |
 | `client_side_decorations` | CSD pencere gölgesi, kenarlık, resize kenarları ve inset yönetimi. |
 | `WindowOptions` | Pencere dekorasyonu, titlebar seçenekleri ve yerel tabbing identifier ayarları. |
 
@@ -64,12 +64,12 @@ Zed uygulamasındaki gerçek yönetim zinciri şu kaynaklardan takip edilir:
 
 | Aşama | Ne yapıyor? |
 | :-- | :-- |
-| Pencere açılışı | `ZED_WINDOW_DECORATIONS` çevre değişkeni veya `WorkspaceSettings::window_decorations` ile client/server decoration seçer; `TitlebarOptions { appears_transparent: true, traffic_light_position: Some(point(px(9), px(9))) }`, `is_movable: true`, `window_decorations`, `tabbing_identifier` ayarlarını verir. |
+| Pencere açılışı | `ZED_WINDOW_DECORATIONS` çevre değişkeni veya `WorkspaceSettings::window_decorations` ile client/server decoration seçer; `TitlebarOptions { appears_transparent: true, traffic_light_position: Some(point(px(9.0), px(9.0))) }`, `is_movable: true`, `window_decorations`, `tabbing_identifier` ayarlarını verir. |
 | GPUI pencere başlangıcı | Platform yerel sekme görünürlüğünü `SystemWindowTabController::init_visible` ile başlatır ve platform `tabbed_windows()` listesini denetleyiciye ekler. |
 | Başlık çubuğu kurulumu | `PlatformTitleBar::init(cx)` çağrılır; her yeni `Workspace` için `TitleBar::new(...)` entity'si oluşturulup `workspace.set_titlebar_item(...)` ile workspace'e bağlanır. |
 | Ürün başlık çubuğu render geçişi | `TitleBar`, her render geçişinde `set_button_layout(...)` ve `set_children(...)` çağırır. `show_menus(cx)` sonucu açıksa platform kabuğu ile ürün başlığı iki satıra ayrılır; kapalıysa ürün çocukları doğrudan `PlatformTitleBar` içine verilir. Bu yardımcı yalnız ayarı değil, macOS'ta `ZED_USE_CROSS_PLATFORM_MENU` çevre değişkeni koşulunu da dikkate alır. |
 | Ürün başlık çubuğu duyuru bandı | Duyuru bandı `TitleBar` katmanında yönetilir; platform kabuğu bunu bilmez. Duyuru bandı altyapısı güncel sürümde bağlı değildir (alan `None`). Ayrıntı [Üst Bar](../ust_bar/ust_bar.md) bölümünde. |
-| Güncelleme bildirimi | İndirme, kurulum ve güncellendi durumları ipucu metnini `version_tooltip_message(...)` üzerinden alır. Metin `"Update to Version:"` biçimindedir; SHA kısaltılmaz. |
+| Güncelleme bildirimi | İndirme, kurulum ve güncellendi durumları ipucu metnini `version_tooltip_message(...)` üzerinden alır. Metin `"Update to Version: "` biçimindedir; SHA kısaltılmaz. |
 | Platform başlık çubuğu render geçişi | Sürükleme alanı, çift tıklama, yan panel çakışması, Linux/Windows pencere kontrolleri, sağ tık pencere menüsü ve `SystemWindowTabs` çocuğu burada birleşir. |
 | CSD dış sarmal | `client_side_decorations(...)` gölge, kenarlık, yeniden boyutlandırma kenarı, imleç ve `window.set_client_inset(...)` davranışlarını sağlar. Başlık çubuğu tek başına CSD penceresinin tamamı değildir. |
 | Workspace/proje aktivasyonu | `OpenMode::NewWindow` yanında `OpenMode::Activate` de `window.activate_window()` çağırır. Mevcut pencereye/yan panele açılan proje aktif hale getirildiğinde başlık çubuğu durumu da pencere öne alınmış kabulüyle güncellenmelidir. |

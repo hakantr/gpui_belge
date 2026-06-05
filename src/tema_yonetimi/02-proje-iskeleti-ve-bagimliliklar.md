@@ -58,20 +58,20 @@ Tema sistemi **iki crate** olarak konumlanır:
 
 | Modül | İçerir | Dış API mı? |
 | ------- | -------- | ------------- |
-| `kvs_tema.rs` (lib kökü) | Yeniden ihraçlar, `Theme`, `Appearance`, `ThemeFamily`; crate-içi `ThemeStyles` | Kısmen |
+| `kvs_tema.rs` (lib kökü) | Yeniden ihraçlar, `Theme`, `Appearance`, `ThemeFamily`; `ThemeStyles` (port tercihiyle crate-içi; Zed'de `pub`) | Kısmen |
 | `styles/colors` | `ThemeColors` | Evet |
 | `styles/status` | `StatusColors` | Evet |
 | `styles/players` | `PlayerColors`, `PlayerColor` | Evet |
 | `styles/accents` | `AccentColors` | Evet |
 | `styles/system` | `SystemColors` | Evet |
-| `schema` | `*Content` tipleri, `try_parse_color` | Evet (Zed sözleşmesine bağlı) |
+| `schema` | `*Content` tipleri, `try_parse_color` (port tercihi; aşağıdaki nota bak) | Evet |
 | `refinement` | `*_refinement()` fonksiyonları, `apply_*_defaults` | Crate-içi |
 | `registry` | `ThemeRegistry`, `ThemeNotFoundError`, `IconThemeNotFoundError` | Evet |
 | `runtime` | `GlobalTheme`, `ActiveTheme` trait, `SystemAppearance`, `init` | Evet |
 | `icon_theme` | `IconTheme` ve içerik tipleri | Evet |
 | `fallback` | `kvs_default_dark()`, `kvs_default_light()` | Evet |
 
-`schema`, mevcut Zed JSON sözleşmesinin taşıyıcısıdır. Bu modüle doğrudan dayanan bir tüketici, uygulamanın hedeflediği Zed sözleşmesine bağlanmış olur. Sözleşme güncellenecekse ayna struct'ları ve test fixture'ları birlikte güncellenir.
+`schema` modülünün bütün `*Content` tiplerini tek çatı altında toplaması bilinçli bir **port tercihidir**; Zed'in mevcut yapısını birebir yansıtmaz. Zed'de `schema.rs` yalnızca `AppearanceContent` ile `try_parse_color`'ı taşır; `ThemeColorsContent`, `ThemeContent`, `ThemeStyleContent` gibi diğer içerik tipleri `settings_content` ve `theme_settings` tarafındadır. Bu rehber bu ayna struct'larını okunabilirlik için tek modülde toplar. Yine de bu tiplere doğrudan dayanan bir tüketici, uygulamanın hedeflediği Zed JSON sözleşmesine bağlanmış olur; sözleşme güncellenecekse ayna struct'ları ve test fixture'ları birlikte güncellenir.
 
 ---
 
@@ -121,10 +121,11 @@ kvs_syntax_tema = { path = "../kvs_syntax_tema" }
 
 # Üçüncü taraf
 anyhow = "1"
-indexmap = { version = "2", features = ["serde"] }
 palette = { version = "0.7", default-features = false, features = ["std"] }
 parking_lot = "0.12"
-schemars = "0.8"
+# IndexMap ayrı bir doğrudan bağımlılık değildir; sıra koruyan map'ler için
+# şema desteğini schemars'ın `indexmap2` özelliği sağlar.
+schemars = { version = "1", features = ["indexmap2"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_json_lenient = "0.2"
@@ -155,11 +156,17 @@ publish = false
 [lib]
 path = "src/kvs_syntax_tema.rs"
 
+[features]
+# Paket-içi temaları derlemeye gömmek istersen serde tabanını açar.
+bundled-themes = ["dep:serde", "dep:serde_json"]
+
 [dependencies]
 gpui = { workspace = true }
+serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
 ```
 
-Sözdizimi crate'inin tek bağımlılığı `gpui` ile sınırlıdır. Buna yalnızca `HighlightStyle` ve renk tipleri için ihtiyaç vardır. Bu izolasyon bilinçli bir tercihtir: sözdizimi tarafına ileride `tree-sitter` eklense bile UI tema crate'i bu değişiklikten etkilenmez.
+Varsayılan derlemede sözdizimi crate'inin tek zorunlu bağımlılığı `gpui`'dir; buna yalnızca `HighlightStyle` ve renk tipleri için ihtiyaç vardır. `serde` ile `serde_json` opsiyoneldir ve yalnızca paket-içi tema özelliği (`bundled-themes`) altında devreye girer. Bu izolasyon bilinçli bir tercihtir: sözdizimi tarafına ileride `tree-sitter` eklense bile UI tema crate'i bu değişiklikten etkilenmez.
 
 **Her bağımlılığın rolü ve kabul ettiği değer:**
 
@@ -168,21 +175,20 @@ Sözdizimi crate'inin tek bağımlılığı `gpui` ile sınırlıdır. Buna yaln
 | `gpui` | Renk + bağlam tipleri | `Hsla`, `Rgba`, `SharedString`, `HighlightStyle`, `App`, `Global`, `WindowBackgroundAppearance`, `WindowAppearance` |
 | `refineable` | Türetme makrosu | `#[derive(Refineable)]` + `#[refineable(...)]` öznitelikleri |
 | `collections` | Map'ler | `HashMap` (deterministik iter), `IndexMap` |
-| `kvs_syntax_tema` | Kardeş crate | `SyntaxTheme::new(highlights)` |
+| `kvs_syntax_tema` | Kardeş crate | `SyntaxTheme::new(highlights)` — ad/stil ikili demet yineleyicisi (`impl IntoIterator<Item = (String, HighlightStyle)>`) alır |
 | `anyhow` | Hata yayma | `try_parse_color() -> anyhow::Result<Hsla>` |
-| `indexmap` | Sıra koruyan map | `IndexMap<String, HighlightStyleContent>` (syntax'ta sıra anlamlı) |
 | `palette` | Renk uzay dönüşümü | sRGB → HSL, `try_parse_color` içinde |
 | `parking_lot` | Hızlı kilit | `RwLock<HashMap<...>>` registry'de |
-| `schemars` | JSON şeması üretimi | IDE otomatik tamamlama desteği için tema dosyalarına şema üretmek (opsiyonel) |
+| `schemars` | JSON şeması üretimi | IDE otomatik tamamlama desteği için tema dosyalarına şema üretmek; `indexmap2` özelliği üzerinden `IndexMap` tipleri için şema desteği eklenir (opsiyonel) |
 | `serde` | Deserialize çekirdeği | Tüm `*Content` tipleri için |
-| `serde_json` | Standart JSON | Programatik JSON üretimi |
+| `serde_json` | Standart JSON | Zed tarafında theme crate'inde esasen testlerde devreye girer; programatik JSON üretimine ihtiyaç duyarsan port tercihi olarak eklersin |
 | `serde_json_lenient` | Yorum ve sonda virgül toleranslı | Zed JSON dosyalarını ayrıştırmak için **şart** |
 | `thiserror` | Hata türetme | `#[derive(Error)] ThemeNotFoundError` |
-| `uuid` | Benzersiz kimlik | `Theme::from_content` içinde tema id'si |
+| `uuid` | Benzersiz kimlik | İkon teması yüklenirken (`load_icon_theme` içinde) `uuid::Uuid::new_v4()` ile benzersiz id üretmek |
 | `inventory` | Bağlama zamanında statik kayıt | Zed'de `#[derive(RegisterSetting)]` `inventory::submit!` ile ayar tipini ekler; `SettingsStore::new` ise `inventory::iter` ile bunları toplar. Ayna tarafta `kvs_tema_ayarlari` ayarları otomatik kayıt edilecekse zorunlu hale gelir; alternatifi, kayıt listesini elle tutmaktır |
 | `settings_macros` (Zed iç crate) | Türetme ve öznitelik makroları | `RegisterSetting`, `MergeFrom`, `with_fallible_options`. Ayna tarafta `kvs_ayarlari_macros` veya benzeri ayrı bir crate kurulur (proc-macro crate'ler diğer crate tipleriyle aynı pakette tutulamaz) |
 | `derive_more` | `newtype` ergonomisi türevleri | `FontSize` newtype'ında `derive_more::FromStr` ile `from_str` üretmek için (`settings_content` crate'i). Ayna tarafta opsiyoneldir; elle de implement edilebilir |
-| `serde_path_to_error` | Ayrıştırma hatasında alan yolu | `settings_json::parse_json_with_comments` bu crate'i kullanır; hata mesajları `theme.colors.background: ...` biçiminde alan yolunu gösterir. Ayna tarafta kullanıcı deneyimi açısından tavsiye edilir |
+| `serde_path_to_error` | Ayrıştırma hatasında alan yolu | Zed'de bu crate'i `settings_json` kullanır; ayrıştırma hatasında hangi alanın hatalı olduğunu `theme.colors.background: ...` biçiminde gösterir. Ayna tarafta kullanıcı deneyimi açısından tavsiye edilir |
 
 **Sürüm uyumu:**
 
@@ -205,7 +211,7 @@ Branch takibi Zed'deki değişimleri otomatik alır; `rev` ile sabitleme ise han
 ```text
 kvs_tema  ──bağımlı──>  gpui, refineable, collections, kvs_syntax_tema
                            palette, parking_lot, serde, serde_json_lenient,
-                           indexmap, schemars, thiserror, anyhow, uuid
+                           schemars, thiserror, anyhow, uuid
 
 kvs_syntax_tema  ──bağımlı──>  gpui
 
@@ -236,8 +242,9 @@ pub use crate::registry::*;
 pub use crate::runtime::*;
 pub use crate::styles::*;
 
-// Schema — Zed sözleşmesine bağlı; tek tek ihraç,
-// glob asla (yeni iç tip eklenince istemeden dışa açık olmasın).
+// Schema — Zed tarafı `pub use crate::schema::*;` ile glob ihraç yapar.
+// Burada tek tek ihraç bir port tercihidir: yeni bir iç tip eklenince
+// istemeden dışa açık olmasın diye dışa açık yüzey elle tutulur.
 pub use crate::schema::{
     AppearanceContent, FontStyleContent, FontWeightContent,
     HighlightStyleContent, PlayerColorContent, StatusColorsContent,
@@ -270,6 +277,8 @@ pub struct Theme {
     pub(crate) styles: ThemeStyles,   // erişim metotları üzerinden
 }
 
+// Port tercihi: Zed'de `Theme.styles` ve `ThemeStyles` `pub`'tır. Burada
+// erişim metotlarıyla okutmak için kapsülleme bilerek daraltılmıştır.
 #[derive(Clone, Debug, PartialEq)]
 pub(crate) struct ThemeStyles {
     pub(crate) window_background_appearance: gpui::WindowBackgroundAppearance,

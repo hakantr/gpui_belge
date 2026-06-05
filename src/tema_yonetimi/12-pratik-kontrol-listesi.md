@@ -33,7 +33,7 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 ### GPUI tipleri
 
 14. **Hue'nun 0–360 aralığında yazılması.** GPUI hue 0–1 normalizedir; `hsla(210.0, ...)` aslında `hsla(210.0 / 360.0, ...)` biçiminde olmalıdır.
-15. **`Hsla::default()` ile struct doldurmak.** `(0,0,0,0)` görünmez bir değer üretir. 150 + 42 alanın tamamı açık değerlerle doldurman gerekir.
+15. **`Hsla::default()` ile struct doldurmak.** `(0,0,0,0)` görünmez bir değer üretir. `ThemeColors`'ın 143 alanı ile `StatusColors`'ın 42 alanının tamamını açık değerlerle doldurman gerekir.
 16. **`opacity` ile `alpha` arasındaki farkın karıştırılması.** `opacity(x)` mevcut alpha'yı `* x` ile çarpar; `alpha(x)` ise doğrudan set eder.
 17. **`use kvs_tema::ActiveTheme;` import'u.** Trait kapsamda olmadığında `cx.theme()` çağrısı "method not found" hatası verir. Prelude kullanılması pratik bir çözüm sağlar.
 
@@ -46,7 +46,7 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 22. **Completion rozet ayarını tema ayarı sanmak.** `completion_menu_item_kind` `EditorSettingsContent` alanıdır; `ThemeSettingsContent` veya provider trait'ine eklenmez. Renk tüketimi syntax theme üstünden yaparsın.
 23. **Markdown önizleme metin fontu ile code fontunu birleştirmek.** Düz önizleme metni `markdown_preview_font_family`, inline code ve code block ise `markdown_preview_code_font_family` kullanır. İki alanın fallback hedefleri farklıdır.
 24. **Tema değişiminden sonra Mermaid cache'inin geçersiz kılınmaması.** SVG çıktısı `MermaidState::cache` içinde tutulur; tema veya `ThemeSettings` değiştiğinde `Markdown::invalidate_mermaid_cache(cx)` çağrılmazsa diyagramlar eski renkleri taşımaya devam eder. Tema observer'ı bu çağrıyı kendi mantığına bağlamalıdır.
-25. **Mermaid kaynağına alpha taşıyan renk vermek.** Renderer hex çıkışını `#rrggbb` formatına kısaltır; alpha kanalı düşer. Şeffaflık gerekiyorsa renk önce uygun zemine blend edilmelidir.
+25. **Mermaid kaynağına alpha taşıyan renk vermek.** Renderer alpha'yı **düşürmez**: opak renkleri `#rrggbb`, yarı saydam renkleri `#rrggbbaa` olarak yazar; alpha kanalı korunur. Bu yüzden tema renginde istenmeyen bir alpha doğrudan SVG'ye taşınır. Diyagramda tam dolgu beklediğin yerlerde renkleri **kasıtlı opak** vermen gerekir; yarı saydamlık ancak bilerek istendiğinde kullanılmalıdır.
 26. **Yarı yazılmış fenced blok için render beklentisi.** Mermaid pipeline'ı yalnızca `metadata.is_fenced_closed` olan fenced blok'ları toplar; açık kalmış bir blok atlanır, parse hatası üretmez. Bu, akış halinde gelen markdown önizlemelerinde sessiz davranışın kaynağıdır.
 27. **`~~~src` ile başka uzantı bağlamak.** Mermaid `FencedSrc` yolu yalnızca `.mermaid` ve `.mmd` uzantılarını tanır; diğerleri sessizce atlanır. Etiketli `~~~mermaid` blok'u her zaman alternatiftir.
 

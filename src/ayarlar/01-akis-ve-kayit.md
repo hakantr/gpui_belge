@@ -37,6 +37,7 @@ pub trait Settings: 'static + Send + Sync + Sized {
 }
 ```
 
+- Tek zorunlu (gövdesiz) metot `from_settings`'tir; `register`, `get`, `get_global`, `try_get`, `try_read_global` ve `override_global` ise `#[track_caller]` ve `where Self: Sized` ile gelen, varsayılan gövdeye sahip metotlardır. Bunları kendi tipinde yeniden yazman gerekmez.
 - `from_settings` birleştirilmiş `SettingsContent` üzerinden tipi inşa eder. Varsayılan değerleri `assets/settings/default.json` tarafından sağlamak gerekir; aksi halde panic riski vardır.
 - `PRESERVED_KEYS` versiyon etiketi gibi alanların ayar dosyasında daima yazılı kalmasını ister. Tip etiketli içeriklerde "schema_version" gibi kayıtların kaybolmaması içindir.
 - `get` ve `get_global` `SettingsStore::get` üzerinden değer döndürür. `path` parametresi `SettingsLocation { worktree_id, path }` ile worktree veya proje yolu hedefli üzerine yazmaları katmanlı olarak birleştirir.
@@ -86,7 +87,7 @@ Ayar tipleri iki yoldan kaydedilir:
   }
   ```
 
-  `RegisterSetting` `inventory::collect!` ile derleme zamanı kayıt listesi üretir. `SettingsStore::new` veya `register_setting` çağrısı bu listeyi okur ve tipleri otomatik olarak kaydeder.
+  `RegisterSetting` derive'ı her tip için `inventory::submit!` ile envanter listesine bir giriş ekler; listenin kendisi `SettingsStore` crate'inde `inventory::collect!` ile tanımlanır. `SettingsStore::new` (içeride `load_settings_types`) bu listeyi tek seferde okuyup tüm tipleri kaydeder.
 
 - **Elle kayıt:**
 
@@ -123,7 +124,7 @@ cx.observe_global::<SettingsStore>(|cx| {
 - `for_release_channel` `release_channel::RELEASE_CHANNEL.dev_name()` üzerinden eşleşen `release_channel_overrides` girişini açar.
 - `for_os` `env::consts::OS` üzerinden eşleşen `platform_overrides` girişini açar.
 
-Dosya hata/rapor sıralamasında `SettingsFile::cmp` önceliği `Project` > `Server` > `User` > `Global` > `Default` şeklindedir. Runtime merge hattında global değerler `Default` üstüne `Extension`, `Global`, kullanıcı içeriği/profil/release/OS override'ları ve `Server` katmanlarıyla kurulur; path hedefli okumada proje/local ayarlar bunun üstüne eklenir.
+Dosya hata/rapor sıralamasında `SettingsFile::cmp` önceliği `Project` > `Server` > `User` > `Global` > `Default` şeklindedir. Runtime merge hattında global değerler şu sırayla kurulur: `Default` üstüne `Extension`, `Global`, kullanıcı içeriği, kullanıcı release kanalı (`for_release_channel`), kullanıcı OS (`for_os`), aktif profil ve son olarak `Server`. Yani aktif profil, kullanıcının release/OS override'larından sonra, `Server` katmanından önce uygulanır. Path hedefli okumada proje/local ayarlar bunun üstüne eklenir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -172,6 +173,6 @@ Akış ve kayıt tarafında hataya açık noktalar:
 
 - `from_settings` panic ediyorsa varsayılan JSON eksiktir; her alanın `assets/settings/default.json` içinde tanımlanması gerekir.
 - Dile özel ayar gerekiyorsa `Settings::get(Some(SettingsLocation { worktree_id, path }), cx)` çağrısı worktree özel üzerine yazmaları otomatik getirir.
-- `register_setting` `SettingsStore::new` içinde derleme zamanı kayıt listesini tek seferde okur; runtime'da bir tipi geç kaydetmek istediğinde `Settings::register(cx)` çağırman gerekir.
+- `SettingsStore::new` envanter kayıt listesini başta tek seferde okuyup tüm tipleri kaydeder; runtime'da bir tipi geç kaydetmek istediğinde `Settings::register(cx)` çağırman gerekir.
 - Yeni ayar eklerken `settings_content` schema'sını güncellemen gerekir; aksi halde JSON schema doğrulaması yeni alanı tanımaz.
 - `override_global` kalıcılaştırılmaz; dosyaya yazmak için `update_settings_file` yardımcısı kullanırsın.

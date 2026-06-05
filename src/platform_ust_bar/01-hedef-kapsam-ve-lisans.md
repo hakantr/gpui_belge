@@ -203,7 +203,7 @@ pub fn sol_pencere_kontrollerini_render_et(...) -> Option<impl IntoElement> { ..
 
 Bu paket bir uygulamaya alınırken iki ana yaklaşım söz konusudur:
 
-1. **Zed ekosistemi içinde doğrudan kullanım.** `platform_title_bar` crate'i olduğu gibi tüketilir. Bu yolun ön koşulu, uygulamada Zed'in `workspace`, `settings`, `theme`, `ui`, `project` ve `zed_actions` crate'lerinin de mevcut olmasıdır.
+1. **Zed ekosistemi içinde doğrudan kullanım.** `platform_title_bar` crate'i olduğu gibi tüketilir. Bu yolun ön koşulu, uygulamada Zed'in `workspace`, `settings`, `theme`, `theme_settings`, `ui`, `project` ve `zed_actions` crate'lerinin de mevcut olmasıdır.
 2. **Bağımsız GPUI uygulaması için port.** Render davranışı korunur, ama Zed'e özgü eylem ve ayarlar ürünün kendi tipleriyle değiştirilir. Zed dışında bir uygulama için bu, kontrolün elde tutulduğu daha temiz yoldur.
 
 Hangi yol seçilirse seçilsin, kod kopyalama veya birebir uyarlama gündeme geldiğinde `platform_title_bar` paketinin `GPL-3.0-or-later` lisanslı olduğu dikkate alınmalıdır. Kararı bu bilgiyle verirsin.

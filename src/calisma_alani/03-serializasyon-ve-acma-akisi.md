@@ -97,7 +97,7 @@ Path bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve di
 | API | Rol |
 | :-- | :-- |
 | `ActiveWorktreeCreation`, `AutoWatch`, `AddFolderToProject` | Worktree oluşturma state'i, auto-watch tercihi ve mevcut projeye klasör ekleme action'ını kapsar. |
-| `PreviousWorkspaceState`, `WorkspacePosition`, `WorkspaceHandle`, `ViewId` | Önceki workspace state'i, pencere/workspace konumu, workspace weak handle sözleşmesi ve view kimliği taşıyıcılarıdır. |
+| `PreviousWorkspaceState`, `WorkspacePosition`, `WorkspaceHandle`, `ViewId` | Önceki workspace state'i, pencere/workspace konumu, `Entity<Workspace>` üzerinde projedeki dosya yollarını veren sözleşme ve view kimliği taşıyıcılarıdır. |
 | `SERIALIZATION_THROTTLE_TIME`, `delete_unloaded_items`, `apply_restored_multiworkspace_state`, `restore_multiworkspace` | Session serialization debounce sabiti, unload cleanup ve multi-workspace restore yardımcılarıdır. |
 | `last_opened_workspace_location`, `last_session_workspace_locations`, `remote_workspace_position_from_db` | DB veya session state'ten son local/remote workspace konumlarını okur. |
 | `workspace_windows_for_location`, `find_existing_workspace`, `get_any_active_multi_workspace`, `activate_any_workspace_window` | Açma isteği için yeniden kullanılabilecek pencere/workspace'i bulur veya aktif pencereye geçer. |
@@ -217,7 +217,7 @@ Collab ve follow akışı için `FollowableItem` kullanırsın:
 - `set_leader_id` takip edilen kullanıcı bilgisini item durumuna işler.
 - `is_project_item(window, cx)` takip edilen item'in project kaynaklı olup olmadığını bildirir.
 - `update_agent_location(location, window, cx)` ajan konumu gibi ek takip bilgisini item'e işler.
-- `dedup(existing, ...) -> Option<Dedup>` uzak item açılırken mevcut item ile birleştirme veya değiştirme kararıdır.
+- `dedup(existing, ...) -> Option<Dedup>` uzak item açılırken mevcut item'i koruma veya değiştirme kararıdır.
 
 **Dikkat noktaları.** Serileştirme, seçenekler ve search tarafında hataya açık kullanımlar:
 

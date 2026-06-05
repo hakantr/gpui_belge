@@ -53,8 +53,8 @@ Item ve tab davranışını ayarlar tarafına bağlayan tipler şunlardır:
 `PopoverMenu<M: ManagedView>` anchor element ile yönetilen menü view'ini bağlar:
 
 - `PopoverMenu::new(id)`, `.menu(...)`, `.with_handle(handle)`, `.anchor(...)`, `.attach(...)`, `.offset(...)`, `.full_width(...)`, `.on_open(...)`.
-- `PopoverMenuHandle<M>` dışarıdan toggle, kapatma ve açık menü entity'sine erişmek için saklarsın.
-- Popover konumlandırması `window.layout_bounds` ve çift `on_next_frame` desenini kullanabilir; anchor sınırları (`bounds`) ilk karede, menü sınırları bir sonraki karede bilinir.
+- `PopoverMenuHandle<M>` menüyü dışarıdan açmak, kapatmak ya da aç-kapat yapmak ve menünün açık mı odaklı mı olduğunu sorgulamak için saklarsın; genel yüzeyi `show`/`hide`/`toggle`/`is_deployed`/`is_focused`/`refresh_menu` ile sınırlıdır, açık menü entity'sine erişim vermez.
+- Konumlandırma ile odaklama iki ayrı mekanizmadır. Anchor'a bağlı çocuk elemanın sınırları bir çizim geçişinde `window.layout_bounds(...)` ile yakalanıp eleman durumunda saklanır; menü bir sonraki düzen geçişinde bu sınırlardan konumlandırılır. Çift `on_next_frame` deseni ise konumlandırmayla ilgili değildir: ertelenmiş çizilen menü çizildikten sonra menünün focus handle'ını odaklayarak sekme düğmelerinin titremesini önler.
 
 ---
 

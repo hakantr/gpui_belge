@@ -22,7 +22,7 @@
 
   <rect width="820" height="400" rx="10" fill="#f8fafc" />
   <text x="410" y="34" text-anchor="middle" class="title">GPUI Platform Seçim Akışı</text>
-  <text x="410" y="56" text-anchor="middle" class="sub">application() çağrısı işletim sistemine göre doğru platform uygulamasını otomatik döndürür.</text>
+  <text x="410" y="56" text-anchor="middle" class="sub">application() çağrısı işletim sistemine göre doğru platform arka ucunu otomatik döndürür.</text>
 
   <!-- Giriş -->
   <rect x="300" y="72" width="220" height="46" rx="8" fill="#334155" />

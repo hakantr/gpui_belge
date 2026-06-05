@@ -16,7 +16,7 @@ Aşağıdaki tablo, üst barda en sık değiştirilen davranışların hangi dos
 | Yerel sekmeler kapatılmalı | `SystemWindowTabs` render çocuk bileşeni özellik bayrağı ile boş döndürülür; denetleyici kaldırılmaz, böylece ihtiyaç doğduğunda etkinleştirmek kolaydır. |
 | Sekme artı butonu yeni pencere açmalı | `zed_actions::OpenRecent` yerine uygulamanın kendi `YeniPencere` eylemi gönderilir. |
 | Yan panel açıkken kontroller gizlenmemeli | `sidebar_render_state` ve `show_left/right_controls` koşulları değiştirilir. |
-| Ürün duyuru bandı gösterilmeli | `UygulamaBaslikCubugu` içinde `OnboardingBanner` muadili bir çocuk bileşen kurulur; görünürlük özellik bayrağı/ayar koşulundan gelir, platform kabuğuna taşınmaz. |
+| Ürün duyuru bandı gösterilmeli | `UygulamaBaslikCubugu` içinde `OnboardingBanner` muadili bir çocuk bileşen kurulur; görünürlük bir ayar koşulu (`show_onboarding_banner`) ile kalıcı saklanan kapatılma durumundan gelir, platform kabuğuna taşınmaz. |
 | Güncelleme ipucu değişmeli | `UpdateVersion` muadili bileşendeki ipucu üreticisi güncellenir; kaynak davranıştaki `"Update to Version:"` öneki ve tam SHA bilgisi korunur. |
 | Güncelleme butonunun durumları ayrıştırılmalı | `UpdateButton` muadilinde `checking`, `downloading`, `installing`, `updated`, `errored` için ayrı kurucular tutulur; `checking` ve `installing` durumları döner `LoadCircle` ikonuyla, `downloading` durumu `Download` ikonuyla ve ilk üç durum `disabled(true)` ile işaretlenir. |
 | Sağ tık pencere menüsü kapatılmalı | Linux CSD'deki `window.show_window_menu(ev.position)` bağı kaldırılır veya bir ayara bağlanır. |
@@ -36,9 +36,9 @@ Aşağıdaki listeler, üst bar entegrasyonu tamamlandıktan sonra hızlıca gö
 - Başlık çubuğu üzerindeki etkileşimli çocuk elementler sürükleme olay yayılımı ile çakışıyor mu test edilir; bir buton tıklamasının pencereyi sürüklemediğinden emin olunur.
 - Tema token'ları aktif, pasif ve üzerine gelme durumlarının hepsini kapsıyor mu kontrol edilir; eksik bir token render'da bariz görsel boşluklar bırakır.
 - Ürün duyuru bantları `PlatformTitleBar` içine gömülmeden, `UygulamaBaslikCubugu` çocuk grubu olarak kuruluyor mu kontrol edilir.
-- Özellik bayrağına bağlı duyuru bantlarının başlangıçta tek sefer hesaplanmadığı, render sırasında güncel koşul ile gizlenip gösterildiği doğrulanır.
+- Duyuru bantlarının görünürlüğünün başlangıçta tek sefer hesaplanmadığı, render sırasında güncel ayar koşulu ve kapatılma durumu ile gizlenip gösterildiği doğrulanır. Görünürlük `should_show = !dismissed && visible_when(cx)` biçiminde değerlendirilir; `visible_when` bir koşul kapanışıdır ve kapatılma durumu kalıcı saklanır.
 - Güncelleme ipucu semantik sürüm için de SHA için de kaynak davranıştaki `"Update to Version:"` önekini ve tam SHA bilgisini koruyor mu kontrol edilir. Port görünür metinleri Türkçeyse bu veri ayrımı yerelleştirilmiş metinde de korunur.
-- Güncelleme butonunun geçici durumları (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) sırasında tıklamanın kapalı olduğu doğrulanır; `checking` ve `installing` durumlarında döner `LoadCircle` ikonunun iki turluk dönüş yaptığı, `downloading` durumunda ise `Download` ikonunun kullanıldığı kontrol edilir. Port görünür metinleri Türkçeyse bu durumlar `"Denetleniyor…"`, `"İndiriliyor…"`, `"Kuruluyor…"` gibi yazılır.
+- Güncelleme butonunun geçici durumları (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) sırasında tıklamanın kapalı olduğu doğrulanır; `checking` ve `installing` durumlarında döner `LoadCircle` ikonunun her turu 2 saniyede tamamlayan sürekli (sonsuz tekrarlı) bir dönüş yaptığı, `downloading` durumunda ise `Download` ikonunun animasyonsuz olarak kullanıldığı kontrol edilir. Port görünür metinleri Türkçeyse bu durumlar `"Denetleniyor…"`, `"İndiriliyor…"`, `"Kuruluyor…"` gibi yazılır.
 - Mevcut pencereye/yan panele proje açan `Activate` akışı pencereyi öne alıyor ve başlık çubuğu durumunu güncelliyor mu test edilir.
 
 ### Linux/FreeBSD
@@ -60,7 +60,7 @@ Aşağıdaki listeler, üst bar entegrasyonu tamamlandıktan sonra hızlıca gö
 
 - Trafik ışıkları için sol padding korunuyor mu doğrulanır.
 - `traffic_light_position` ile başlık çubuğu çocuklarının çakışmadığı test edilir.
-- Çalışma zamanında başlık çubuğu yüksekliği, duyuru bandı veya yoğunluk değişiyorsa `window.set_traffic_light_position(...)` ile yerel buton konumu da güncelleniyor mu kontrol edilir.
+- Trafik ışıklarının başlangıç konumu, pencere oluşturulurken `TitlebarOptions.traffic_light_position` ile verilir; Zed'in kendisi çalışma zamanında bu konumu yeniden ayarlamaz. Çalışma zamanında başlık çubuğu yüksekliği, duyuru bandı veya yoğunluk değişiyorsa yerel buton konumunu güncellemek porta özgü bir gerekliliktir; bu durumda `window.set_traffic_light_position(...)` çağrısıyla konumun güncellenmesi doğrulanır.
 - Tam ekran ve yerel sekme davranışının ayrı senaryolarda doğru çalıştığı kontrol edilir; iki özelliğin birlikte etkinleştiği durumlar ayrıca test edilir.
 - Çift tıklamanın sistem davranışına mı yoksa ürünün özel davranışına mı yönlendirileceği bilinçli olarak karara bağlanır.
 

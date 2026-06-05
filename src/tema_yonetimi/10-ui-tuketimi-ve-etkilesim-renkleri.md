@@ -254,7 +254,7 @@ impl Render for VurguCipi {
 Markdown önizleme hattı, tema tüketicisi olarak şu alanları kullanır:
 
 - Düz markdown metni önizleme modunda `markdown_preview_font_family()` ile okunur; bu alan set edilmemişse `ui_font.family` kullanırsın.
-- Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutulur. `MarkdownStyle::default` constructor'ı code block ve inline code TextStyleRefinement'ında bu accessor'dan dönen değeri kullanır; `is_preview` bayrağı `false` ise (örn. agent panel anlatımı) doğrudan `buffer_font.family` okunur, böylece markdown önizleme ile uygulama içi markdown render aynı yardımcı imzasını paylaşır.
+- Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutulur. `MarkdownStyle::themed` / `themed_with_overrides` kurucusu, geçirilen `MarkdownFont` değerine göre `let is_preview = matches!(font, MarkdownFont::Preview)` ayrımını yapar; code block ve inline code TextStyleRefinement'ında preview modunda bu accessor'dan dönen değeri kullanır, `is_preview` `false` ise (örn. agent panel anlatımı) doğrudan `buffer_font.family` okur, böylece markdown önizleme ile uygulama içi markdown render aynı yardımcı imzasını paylaşır.
 - Mermaid render hattı aktif tema renklerinden kendi renderer temasını üretir. Renkler renderer'a `#rrggbb` CSS hex olarak verilir; alpha kanalı taşınmaz, o yüzden şeffaflık gerekiyorsa renk önce tema tarafında uygun zemine blend edilmelidir. Hangi `ThemeColors` slot'unun hangi Mermaid alanına gittiğini şu tablo gösterir:
 
 | MermaidTheme alanı | Tema kaynağı |
@@ -474,7 +474,7 @@ div()
     .active(|s| s.bg(renkler.ghost_element_active))
 ```
 
-`ghost_element_background` genellikle `hsla(0, 0, 0, 0)` (tamamen şeffaf) olarak tutulur. Hover durumunda `ghost_element_hover` (çoğunlukla `elevated_surface_background` rengine yakın bir değer) devreye girer ve element görünür hale gelir.
+`ghost_element_background` genellikle `hsla(0, 0, 0, 0)` (tamamen şeffaf) olarak tutulur. Hover durumunda `ghost_element_hover` devreye girer ve element görünür hale gelir. Bu alan opak bir yüzey rengi değil, şeffaf zemin üstüne serilen ince, düşük-alpha bir nötr katmandır (light temada `neutral().light_alpha().step_3()`, dark temada `step_4()`); `elevated_surface_background` ise opak bir nötr basamaktır (`neutral().*().step_2()`), o yüzden ikisi karıştırılmamalıdır.
 
 **Ne zaman ghost kullanılır?**
 

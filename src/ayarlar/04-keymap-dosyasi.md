@@ -70,7 +70,7 @@ API üzerinde sık kullanılan yapıcılar şunlardır:
 
 - `KeymapFile::parse(content) -> Result<Self>` — boş içerik için boş bir `KeymapFile` döndürür; aksi halde `parse_json_with_comments` ile ayrıştırır.
 - `KeymapFile::load(content, cx) -> KeymapFileLoadResult` — string içeriği `Vec<KeyBinding>`'e çevirir.
-- `KeymapFile::load_asset(asset_path, source, cx)` — paketlenmiş asset üzerinden yükler ve `KeybindSource` belirtilmişse her binding'in metasına bunu yazar. Paketlenmiş keymap'ler için bu yol kullanırsın.
+- `KeymapFile::load_asset(asset_path, source, cx) -> Result<Vec<KeyBinding>>` — paketlenmiş asset üzerinden yükler ve `KeybindSource` belirtilmişse her binding'in metasına bunu yazar. Paketlenmiş keymap'ler için bu yolu kullanır, dönen `Result`'ı `?` ile ele alırsın; yükleme `SomeFailedToLoad` veya `JsonParseFailure` ile dönerse içeride `bail!` ile hataya çevrilir, yani kısmi yüklemeyi sessizce kabul etmez.
 - `KeymapFile::load_asset_allow_partial_failure(...)` — kısmen yüklemeye izin verir; `SomeFailedToLoad` mesajını UI tarafına geri yansıtır.
 - `KeymapFile::load_panic_on_failure(content, cx)` — `test-support` build'lerinde yalnızca başarı bekleyen yollar için.
 - `KeymapFile::load_keymap_file(fs)` — kullanıcı `keymap.json` dosyasını async yükler; dosya yoksa paketlenmiş `initial_keymap_content()` metnine düşer.
@@ -139,7 +139,7 @@ pub struct KeybindUpdateTarget<'a> {
 - `KeybindUpdateOperation::add(source)` `Add { from: None }` kısayoludur.
 - `KeybindUpdateOperation::generate_telemetry()` `(new_binding, removed_binding, source)` üçlüsünü döndürür; ChangeKeybinding akışı telemetry'ye bunu yollar.
 
-`KeymapFile::update_keybinding(operation, keymap_contents, tab_size, keyboard_mapper)` mevcut user `keymap.json` metnini alır, verilen `KeybindUpdateOperation`'ı uygular ve yeni metni üretir. `tab_size` dosyanın girintileme biçimini korumak, `keyboard_mapper` ise platform klavye eşdeğerlerini hesaplamak için kullanırsın. Yazma yine `update_settings_file`'a benzer atomic-write akışı üzerinden yaparsın.
+`KeymapFile::update_keybinding(operation, keymap_contents, tab_size, keyboard_mapper)` mevcut user `keymap.json` metnini alır, verilen `KeybindUpdateOperation`'ı uygular ve yalnız yeni metni döndürür. `tab_size` dosyanın girintileme biçimini korumak, `keyboard_mapper` ise platform klavye eşdeğerlerini hesaplamak için kullanırsın. Kaydetme tarafında dönen metni `fs.write(paths::keymap_file(), ...)` ile düz yazarsın; keymap kaydetme ayar dosyasındaki gibi `update_settings_file` ya da `atomic_write` akışını kullanmaz.
 
 ---
 

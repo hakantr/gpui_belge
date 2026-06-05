@@ -111,7 +111,7 @@ pub fn syntax_overrides(
 | `StatusColorsRefinement` | `Option<Hsla>` durum ön plan/arka plan/kenarlık alanları | `status_colors_refinement` çıktısıdır; ön plan verilip arka plan boşsa `apply_status_color_defaults` %25 alpha arka plan türetir. |
 | `AccentContent` | `Option<String>` newtype | Vurgu geçersiz kılma listesinde tek renk girdisini temsil eder; ayrıştırılan liste boş değilse vurgu paleti tamamen değiştirilir. |
 
-> **Önemli:** `theme_colors_refinement` **üç parametre alır**, tek parametre değildir. `status_colors` parametresi `version_control_added`/`version_control_deleted` alanlarının `status.created`/`status.deleted` değerlerine düşebilmesi için gerekir. `is_light` parametresi ise `editor_diff_hunk_*` alanlarının appearance'a göre doğru opacity sabitini seçmesini sağlar.
+> **Önemli:** `theme_colors_refinement` **üç parametre alır**, tek parametre değildir. `status_colors` parametresi çeşitli VCS alanlarının ve helix jump label alanının durum renklerine düşebilmesi için gerekir: başta `version_control_added`/`version_control_deleted` → `status.created`/`status.deleted` olmak üzere, `version_control_modified`/`version_control_renamed` → `status.modified`, `version_control_conflict`/`version_control_ignored` → `status.ignored` ve `vim_helix_jump_label_foreground` → `status.error` bu yoldan beslenir. `is_light` parametresi ise `editor_diff_hunk_*` alanlarının appearance'a göre doğru opacity sabitini seçmesini sağlar.
 
 Crate-içi yardımcılar:
 
@@ -335,7 +335,7 @@ Aynı kalıp burada da geçerlidir. Her durum üçlüsü (ön plan, arka plan, k
 
 - **Görsel arama**: Bir alanın refinement'ta nasıl ele alındığını bulmak için `grep "border_variant"` yeterlidir. Macro kullanılırsa bu zincir saklanır ve gözle takip zorlaşır.
 - **Alan görünürlüğü**: Yeni bir alan eklendiğinde manuel ekleme zorunluluğu, alanın refinement zincirinde görünür kalmasını sağlar. Macro otomatik üretim yaptığında alanın gerçekten doldurulup doldurulmadığını fark etmek zorlaşır.
-- **Derleme süresi**: Üç ek satır × 150 alan = 450 satır kod. Macro proc-macro derleme süresinden daha hızlıdır.
+- **Derleme süresi**: Her renk alanı için birkaç ek satır, toplamda birkaç yüz satır düz kod demektir. Macro proc-macro derleme süresinden daha hızlıdır.
 - **IDE deneyimi**: `renk(&icerik.border_variant)` üzerinde "go to definition" çağrısı Content alanına gider; macro tarafında IDE indirgemelerin tamamına henüz aşina değildir.
 
 Zed kendi `refinement` dosyasında da macro kullanmaz; aynı tek satır deseni tercih edilmiştir.
@@ -357,7 +357,7 @@ Mevcut fonksiyon yaklaşımı **görünür bir API** sunar. Refinement modülün
 
 Bu üç katman `*Content` opsiyonelliğinden çok **liste/map** sözleşmesi taşır. Tek alan bazlı refinement burada yeterli olmaz. Bu yüzden `Theme::from_content` içinde satır içi işlenirler:
 
-- `accents: Vec<Option<String>>` — refinement değil, **boş ise taban, dolu ise listeyi yeniden ayrıştırma** kararıdır.
+- `accents: Vec<AccentContent>` (her girdi içi `Option<String>` newtype) — refinement değil, **boş ise taban, dolu ise listeyi yeniden ayrıştırma** kararıdır.
 - `players: Vec<PlayerColorContent>` — aynı boş/dolu kararı.
 - `syntax: IndexMap<String, HighlightStyleContent>` — `Vec<(String, HighlightStyle)>` üretimi.
 

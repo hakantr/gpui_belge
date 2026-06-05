@@ -284,7 +284,7 @@ pub fn kvs_default_light() -> Theme {
 - Aynı `ana_renk_tonu` (örneğin 220°) — açık ve koyu arasında **renk ailesi tutarlı** kalır.
 - Lightness değerleri tersine çevrilir: koyuda 0.12 olan arka plan, açıkta 0.98 olur.
 - Saturation çoğunlukla aynı tutulur; kullanıcı baktığında "aynı tema, ters mod" hissini almalıdır.
-- Vurgu için koyudaki hue (örn. 210°) açıkta biraz **daha koyu** konumlanır (l=0.50 yerine 0.60); açık arka plan üzerinde okunaklılık için.
+- Vurgu için koyudaki hue (örn. 210°) açıkta biraz **daha koyu** konumlanır (koyudaki l=0.60 yerine açıkta l=0.50); açık arka plan üzerinde okunaklılık için.
 
 ### Yedek tema test örneği
 
@@ -314,7 +314,7 @@ fn yedek_temalar_tam_dolu() {
 
 ### Dikkat Noktaları
 
-1. **`Default::default()` ile eksik alanların doldurulması**: `Hsla::default()` görünmezdir. 150 + 42 alanın tamamının açık bir değerle doldurulması gerekir.
+1. **`Default::default()` ile eksik alanların doldurulması**: `Hsla::default()` görünmezdir. 143 + 42 alanın tamamının açık bir değerle doldurulması gerekir.
 2. **`unsafe { std::mem::zeroed() }` kullanımı**: Sonuç yine sıfır `Hsla` olur. Şablon kodda görüldüğünde silinmeli, gerçek kodda hiç kullanmaman gerekir.
 3. **Çapa olmadan rastgele HSL**: Her alan için farklı hue/saturation = dağınık bir tema demektir. Çapa hue + opacity disiplini şarttır.
 4. **`palette` sürümünün sabitlenmemesi**: Aynı `hsla(0.583, 0.10, 0.12)` ifadesi, farklı `palette` major sürümlerinde **ufak miktarda farklı sRGB** üretebilir. Cargo.lock dosyası ile kullanılan sürümün sabitlenmesi yerinde olur.

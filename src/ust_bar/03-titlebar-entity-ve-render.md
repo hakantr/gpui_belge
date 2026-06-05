@@ -10,11 +10,15 @@ Crate'in giriş noktası `init` fonksiyonudur:
 pub fn init(cx: &mut App)
 ```
 
-`init` iki iş yapar. Önce platform kabuğunu hazırlamak için `PlatformTitleBar::init(cx)` çağırır. Sonra `cx.observe_new(...)` ile her yeni `Workspace` açıldığında bir `TitleBar` entity'si üretir ve bunu `workspace.set_titlebar_item(...)` ile `Workspace` başlık alanına yerleştirir:
+`init` üç iş yapar. Önce platform kabuğunu hazırlamak için `PlatformTitleBar::init(cx)` çağırır. Sonra komut paletindeki panel düzeni eylemlerini (`UseClassicLayout`, `UseAgenticLayout`) yapay zekâ durumuna göre süzen süzgeci kurar: `update_layout_action_filter` bir kez doğrudan çağrılır ve `cx.observe_global::<SettingsStore>(...)` ile ayar her değiştiğinde yeniden çalışacak biçimde bağlanır; yapay zekâ kapalıysa bu eylemler palette gizlenir, açıksa gösterilir. Son olarak `cx.observe_new(...)` ile pencereye sahip her yeni `Workspace` için bir `TitleBar` entity'si üretir ve bunu `workspace.set_titlebar_item(...)` ile `Workspace` başlık alanına yerleştirir:
 
 ```rust
 pub fn init(cx: &mut App) {
     platform_title_bar::PlatformTitleBar::init(cx);
+
+    update_layout_action_filter(cx);
+    cx.observe_global::<SettingsStore>(update_layout_action_filter)
+        .detach();
 
     cx.observe_new(|calisma_alani: &mut Workspace, window, cx| {
         let Some(window) = window else { return };
@@ -29,7 +33,7 @@ pub fn init(cx: &mut App) {
 }
 ```
 
-Aynı blokta birkaç eylem `Workspace` içine bağlanır: `SimulateUpdateAvailable` (güncelleme yüzeyini test için), ve yalnız macOS dışında `OpenApplicationMenu`, `ActivateMenuLeft`, `ActivateMenuRight` (uygulama menüsünü açma ve menüler arası gezinme). Bu eylemler `Workspace` üzerinden gelir, başlık öğesini bulur ve ilgili `TitleBar` metoduna yönlendirir.
+Aynı blokta birkaç eylem `Workspace` içine bağlanır: her platformda `UseClassicLayout` ve `UseAgenticLayout` (klasik ve yapay zekâ panel düzeni arasında geçiş) ile `SimulateUpdateAvailable` (güncelleme yüzeyini test için); yalnız macOS dışında ayrıca `OpenApplicationMenu`, `ActivateMenuLeft`, `ActivateMenuRight` (uygulama menüsünü açma ve menüler arası gezinme). Bu eylemler `Workspace` üzerinden gelir, başlık öğesini bulur ve ilgili `TitleBar` metoduna ya da düzen ayarına yönlendirir.
 
 Port hedefinde aynı kalıbı kurarsın: uygulama başlangıcında platform kabuğunu hazırla, sonra her pencere/çalışma alanı için bir ürün başlık entity'si üretip pencereye bağla.
 
@@ -59,18 +63,20 @@ pub fn new(
 | `update_version` | Güncelleme bildirimi | çocuk entity |
 | `banner` | İlk karşılama duyuru bandı | opsiyonel; güncel HEAD'de `None` |
 
+Tablo başlığın ana durum kaynaklarıyla sınırlıdır; struct'ta ayrıca abonelik tutan `_subscriptions`, ekran paylaşımı açılır menüsünü süren `screen_share_popover_handle` ve tanı aboneliğini tutan `_diagnostics_subscription` alanları da bulunur.
+
 `new` ayrıca bir dizi abonelik kurar; her biri ilgili durum değiştiğinde `cx.notify()` ile yeniden render tetikler: `Workspace` değişimi, aktif çağrı (`ActiveCall`), pencere aktivasyonu, git store olayları (aktif repo/repo güncellemesi), kullanıcı store, çalışma ağacı oluşturma, pencere butonu yerleşimi değişimi ve varsa güvenilir çalışma ağacı (`TrustedWorktrees`) değişimi. Bu abonelikler, başlığın dört hızlı değişen alanını (proje, dal, bağlantı, kullanıcı) güncel tutmanın yoludur.
 
-`application_menu` alanı platforma göre kurulur: macOS'ta yalnız `ZED_USE_CROSS_PLATFORM_MENU` ortam değişkeni varsa, Linux ve Windows'ta ise her zaman bir `ApplicationMenu` entity'si üretilir. macOS'ta varsayılan olarak `None` kalır; çünkü orada yerel menü çubuğu kullanılır.
+`application_menu` alanı platforma göre kurulur: macOS'ta yalnız derleme sırasında tanımlı `ZED_USE_CROSS_PLATFORM_MENU` derleme ortam değişkeni varsa, Linux ve Windows'ta ise her zaman bir `ApplicationMenu` entity'si üretilir. macOS'ta varsayılan olarak `None` kalır; çünkü orada yerel menü çubuğu kullanılır.
 
 ## 3. Render: çocuk grubunun hazırlanması
 
 `TitleBar::render`, ürün çocuklarını sabit kapasiteli bir `ArrayVec` içinde toplar. Sıra ve içerik şudur:
 
-1. **Sol grup** (`h_flex`): `show_menus` kapalıysa uygulama menüsü, ardından kısıtlı mod göstergesi, proje sunucusu, proje adı ve Git dal yüzeyi. Bu grup sol fare basma olayında yayılımı durdurur (sürükleme ile çakışmasın).
+1. **Sol grup** (`h_flex`): `show_menus` kapalıysa uygulama menüsü, ardından kısıtlı mod göstergesi, proje sunucusu, proje adı ve çalışma ağacı ile dal yüzeyi. Çalışma ağacı ve dal birlikte çizilir; bu blok git'in etkin olmasına (`git.enabled`) ve `show_project_items`/`show_branch_name` ayarlarına bağlıdır. Bu grup sol fare basma olayında yayılımı durdurur (sürükleme ile çakışmasın).
 2. **Katılımcı listesi**: aktif çağrıda proje paylaşımı katılımcıları.
 3. **İlk karşılama duyuru bandı**: yalnız `show_onboarding_banner` ayarı açık ve `banner` alanı `Some` ise. (Güncel HEAD'de `banner` her zaman `None` olduğu için pratikte çizilmez; ayrıntı [7. bölümde](07-kullanici-update-banner.md).)
-4. **Sağ grup** (`h_flex`): işbirliği kontrolleri, bağlantı durumu, güncelleme bildirimi, oturum açma butonu, oturum açılırken titreşen durum etiketi ve kullanıcı menüsü. Port hedefinde bu görünür metinler `"Oturum Aç"` ve `"Oturum açılıyor…"` gibi Türkçe yazılır.
+4. **Sağ grup** (`h_flex`): işbirliği kontrolleri, bağlantı durumu, güncelleme bildirimi, oturum açma butonu, oturum açılırken titreşen durum etiketi ve kullanıcı menüsü. Bu grup da sol grup gibi sol fare basma olayında yayılımı durdurur (aynı sürükleme çakışmasını önlemek için). Port hedefinde bu görünür metinler `"Oturum Aç"` ve `"Oturum açılıyor…"` gibi Türkçe yazılır.
 
 Hangi parçanın görüneceği büyük ölçüde `TitleBarSettings` alanlarına bağlıdır (`show_project_items`, `show_branch_name`, `show_sign_in`, `show_user_menu` …). Ayarlar [4. bölümde](04-ayarlar-ve-uygulama-menusu.md) ayrıntılı işlenir.
 

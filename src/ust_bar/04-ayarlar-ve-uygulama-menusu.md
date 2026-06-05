@@ -47,13 +47,13 @@ pub(crate) fn show_menus(cx: &mut App) -> bool
 Mantık iki katmanlıdır:
 
 - Önce `TitleBarSettings` içindeki `show_menus` ayarı okunur.
-- Sonra platform koşulu uygulanır: **macOS'ta** istemci tarafı menü yalnız `ZED_USE_CROSS_PLATFORM_MENU` ortam değişkeni tanımlıysa gösterilir; aksi halde macOS'un yerel menü çubuğu kullanılır ve `show_menus` etkisini yitirir. **Linux ve Windows'ta** ayar açıksa menü her zaman istemci tarafında çizilir.
+- Sonra platform koşulu uygulanır: **macOS'ta** istemci tarafı menü yalnız derleme sırasında tanımlı `ZED_USE_CROSS_PLATFORM_MENU` derleme ortam değişkeni varsa gösterilir; aksi halde macOS'un yerel menü çubuğu kullanılır ve `show_menus` etkisini yitirir. Bu koşul çalışma zamanında ortam okuyarak değil, derleme zamanında belirlenir. **Linux ve Windows'ta** ayar açıksa menü her zaman istemci tarafında çizilir.
 
 Bu yüzden "menüler nerede?" sorusunun cevabı tek bir ayara değil, ayar ve platformun birlikte verdiği karara bağlıdır. [3. bölümde](03-titlebar-entity-ve-render.md#4-i̇ki-render-modu-menü-içeride-mi-ayrı-satırda-mı) görüldüğü gibi bu karar aynı zamanda başlığın tek mi iki satır mı olacağını belirler.
 
 ## 3. `ApplicationMenu`: istemci tarafı menü çubuğu
 
-`ApplicationMenu`, Zed kaynağında özel bir modüldedir; crate dışına açılmaz ve `TitleBar` içinde çocuk entity olarak yaşar. Görevi, yerel menü çubuğunun kullanılmadığı durumlarda (Linux/Windows veya `ZED_USE_CROSS_PLATFORM_MENU` ile macOS) Dosya/Düzen/Görünüm gibi menüleri başlıkta çizmektir.
+`ApplicationMenu` struct'ı `pub` işaretli olsa da içinde tanımlandığı modül (`mod application_menu;`) private bildirildiğinden tip crate dışına açılmaz; `TitleBar` içinde çocuk entity olarak yaşar. Görevi, yerel menü çubuğunun kullanılmadığı durumlarda (Linux/Windows veya `ZED_USE_CROSS_PLATFORM_MENU` ile macOS) Dosya/Düzen/Görünüm gibi menüleri başlıkta çizmektir.
 
 Menü girişleri statik değildir: `ApplicationMenu::new`, menü listesini doğrudan uygulamanın menü kaydından (GPUI'nin sağladığı menü tanımları) okur. Böylece menü içeriği uygulamanın eylem/menü tanımlarıyla otomatik aynı kalır.
 
@@ -68,20 +68,24 @@ pub fn all_menus_shown(&self, cx: &mut Context<Self>) -> bool
 
 - `open_menu`, `OpenApplicationMenu(String)` eylemindeki menü adını alıp ilgili menüyü açmaya işaretler. (Yalnız macOS dışı.)
 - `navigate_menus_in_direction`, açık menüden sağa veya sola komşu menüye döngüsel olarak geçer; `ActivateMenuLeft` / `ActivateMenuRight` eylemleriyle tetiklenir. (Yalnız macOS dışı.)
-- `all_menus_shown`, menü çubuğunun fiilen görünür olup olmadığını söyler; bu bilgi `TitleBar` render'ında proje öğelerinin menüyle çakışmaması için kullanılır.
+- `all_menus_shown`, menü çubuğunun fiilen yer kapladığını söyler; bunu üç koşulun mantıksal VEYA'sı olarak hesaplar: ya `show_menus(cx)` ayar+platform kararı menüyü gösteriyordur, ya menü girişlerinden herhangi biri o an açıktır (`is_deployed()`), ya da bir menü açılışı beklemededir (`pending_menu_open.is_some()`). Bu bilgi `TitleBar` render'ında proje öğelerinin menüyle çakışmaması için kullanılır.
 
 Menü açılışı açılır panel tabanlıdır: her menü bir tetikleyiciye ve bir açılır panele sahiptir; menü üzerine gelince açılır, klavyeyle yukarı/aşağı gezinilir, `Escape` ile kapanır ve sağ/sol eylemleriyle komşu menüye geçilir.
 
 ## 4. Menüye bağlı eylemler
 
 ```rust
+#[derive(Clone, Deserialize, JsonSchema, PartialEq, Default, Action)]
 #[action(namespace = app_menu)]
 pub struct OpenApplicationMenu(String);   // açılacak menü adını taşır
 
-pub enum ActivateDirection { Left, Right }  // menüler arası yön
+// ActivateMenuRight ve ActivateMenuLeft, ayrı struct'lar olarak değil,
+// actions! makrosundan üretilir (kaynak sıra: önce Right, sonra Left):
+actions!(app_menu, [ActivateMenuRight, ActivateMenuLeft]);
 
-ActivateMenuLeft   // soldaki menüye geç
-ActivateMenuRight  // sağdaki menüye geç
+// Yön enum'u yalnız macOS dışında derlenir:
+#[cfg(not(target_os = "macos"))]
+pub enum ActivateDirection { Left, Right }  // menüler arası yön
 ```
 
 Bu eylemler yalnız istemci tarafı menü çiziminde anlamlıdır. macOS'un yerel menü çubuğunda etkisizdirler; bu yüzden `init` içinde yalnız macOS dışında kayıtlıdırlar. Bir başka deyişle aynı klavye kısayolları macOS'ta sistem menüsüne, diğer platformlarda Zed'in kendi menü çubuğuna bağlanır.

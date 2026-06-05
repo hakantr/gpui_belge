@@ -37,7 +37,7 @@ Zed uygulamasında çalışma alanı açmak yalnızca `open_window` çağrısı 
 | API | Rol |
 | :-- | :-- |
 | `AnyActiveCall`, `GlobalAnyActiveCall`, `ActiveCallEvent` | Aktif çağrı view'ini tip silinmiş trait/global olarak tutar ve çağrı state değişimlerini event olarak yayar. |
-| `CollaboratorId`, `ParticipantLocation`, `RemoteCollaborator` | Katılımcıyı, hangi workspace/pane/item konumunda olduğunu ve remote collaborator metadata'sını taşır. |
+| `CollaboratorId`, `ParticipantLocation`, `RemoteCollaborator` | `CollaboratorId` katılımcının kimliğidir (`PeerId` veya `Agent`); `ParticipantLocation` yalnız proje düzeyi konumu (`SharedProject`, `UnsharedProject`, `External`) tutar; `RemoteCollaborator` uzaktaki katılımcının proje düzeyi durum ve metadata'sını taşır. |
 | `CopyRoomId`, `ShareProject`, `JoinAll`, `JoinIntoNext`, `join_channel` | Oda kimliğini kopyalama, projeyi paylaşma, çağrı/kanal katılımı ve join davranışlarını tetikleyen action/helper yüzeyleridir. |
 | `Deafen`, `LeaveCall`, `ScreenShare`, `OpenChannelNotes`, `OpenChannelNotesById` | Ses/çağrı state'i, ekran paylaşımı ve kanal notlarını açma action'larını kapsar. |
 | `FollowNextCollaborator`, `Unfollow`, `SharedScreen` | Sıradaki collaborator'ı takip etme, takipten çıkma ve paylaşılan ekran handle'ını çalışma alanı tarafında taşır. |
@@ -98,7 +98,7 @@ dinleyici.open(RawOpenRequest {
 
 **Global agent yönergesi.** Kullanıcının kişisel AGENTS.md dosyası şu akışla ele alırsın:
 
-- Startup sırasında `zed::watch_user_agents_md(app_state.fs.clone(), cx)` çağırırsın. Bu, `paths::agents_file()` (`~/.config/zed/AGENTS.md`, platforma göre eşdeğer) dosyasını izler ve `agent::UserAgentsMd` global'ine yükler.
+- Startup sırasında `zed::watch_user_agents_md(app_state.fs.clone(), cx)` çağırırsın. Bu, `paths::agents_file()` (`~/.config/zed/AGENTS.md`, platforma göre eşdeğer) dosyasını izler ve `agent_settings::UserAgentsMd` global'ine yükler.
 - Boş veya yalnızca boşluk içeren dosya `UserAgentsMdState::Empty`, başarılı okuma `Loaded`, okunamayan ama mevcut dosya `Error` olur. Hata durumunda ayar hatalarıyla aynı app seviyesindeki notification yolu kullanırsın.
 - Yerel agent system prompt'u kişisel `AGENTS.md` içeriğini "Personal `AGENTS.md`" olarak project rules'tan önce çizer; çakışma durumunda project rules daha sonra geldiği için daha spesifik kabul edilir.
 

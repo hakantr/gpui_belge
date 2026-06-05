@@ -309,18 +309,21 @@ Tüm impl'ler `settings` crate'inde toplanır (mirror tarafında `kvs_ayarlari` 
 | `FontSize` | `gpui::Pixels` | `px(self.0)` |
 | `FontFamilyName` | `gpui::SharedString` | `SharedString::from(self.0)` (klonsuz `Arc<str>` taşır) |
 
-`ThemeSettings::from_settings` font-bazlı her alanda `into_gpui()` zinciri ile bu trait'i kullanır:
+`ThemeSettings::from_settings` font-bazlı her alanda `into_gpui()` zinciri ile bu trait'i kullanır. İmzası `from_settings(content) -> Self` biçimindedir; bir `Result` döndürmez. Zorunlu alanlar fail-fast ile açılır; `?` operatörüyle dışarı taşınmaz. Aşağıdaki blok bu yüzden sözde-koddur — alan eşlemesinin biçimini gösterir, derlenebilir bir parça değildir (zorunlu alan açma noktaları `‹zorunlu›` ile imlenir):
 
-```rust
-ui_font_size: clamp_font_size(content.ui_font_size?.into_gpui()),
+```text
+// sözde-kod — gerçek imza: from_settings(content) -> Self
+ui_font_size: clamp_font_size(content.ui_font_size‹zorunlu›.into_gpui()),
 ui_font: Font {
-    family: content.ui_font_family.as_ref()?.0.clone().into(),
-    features: content.ui_font_features.clone()?.into_gpui(),
+    family: content.ui_font_family.as_ref()‹zorunlu›.0.clone().into(),
+    features: content.ui_font_features.clone()‹zorunlu›.into_gpui(),
     fallbacks: font_fallbacks_from_settings(content.ui_font_fallbacks.clone()),
-    weight: content.ui_font_weight?.into_gpui(),
+    weight: content.ui_font_weight‹zorunlu›.into_gpui(),
     style: Default::default(),
 },
 ```
+
+`‹zorunlu›` ile imlenen her nokta, alan boş geldiğinde başlangıçta fail-fast durur (aşağıdaki davranış notuna bakarsın). Bu yüzden `default.json`'un bu alanları doldurması bir sözleşmedir; çalışma zamanı tipi ancak o zaman üretilir.
 
 **Önemli davranış:** `ThemeSettings::from_settings` içinde birçok zorunlu alan fail-fast açılır. Yani **`default.json` bu alanları doldurmak zorundadır**. `ui_font_size`, `ui_font_family`, `ui_font_features`, `ui_font_weight`, `buffer_font_family`, `buffer_font_features`, `buffer_font_weight`, `buffer_font_size`, `buffer_line_height`, `theme`, `icon_theme` ve `unnecessary_code_fade` boş kalırsa çalışma zamanı tipi üretilemez ve başlangıç fail-fast durur. Mirror tarafta `kvs_default_settings.json` bu zorunlu alanları içermelidir.
 
@@ -518,7 +521,7 @@ pub fn set_mode(content: &mut SettingsContent, mode: ThemeAppearanceMode);
 | ----------- | ---------------- | --------------- |
 | `set_theme` | `settings.theme.theme` (`Option<ThemeSelection>`) | `Static` ise adı değiştirir, `Dynamic` ise `theme_appearance`'a göre `light` veya `dark` slot'unu günceller. `mode == System` iken seçilen appearance sistem appearance'ından farklıysa `mode`'u seçilen tarafa kilitler |
 | `set_icon_theme` | `settings.theme.icon_theme` | `Dynamic` modda mevcut mode'a göre `light` veya `dark` slot'unu yazar; `Static` durumunda tek slot'u günceller. `Option<IconThemeSelection>` `None` ise `Static` ile başlatır |
-| `set_mode` | `settings.theme.theme` | Mevcut `Static` seçimi `Dynamic { mode = System, light = DEFAULT_LIGHT_THEME, dark = DEFAULT_DARK_THEME }` ile değiştirir; mevcut `Dynamic` ise yalnızca `mode`'u günceller; `None` durumunda `Dynamic`'i baştan kurar |
+| `set_mode` | `settings.theme.theme` **ve** `settings.theme.icon_theme` | Tema tarafında: mevcut `Static` seçimi `Dynamic { mode = System, light = DEFAULT_LIGHT_THEME, dark = DEFAULT_DARK_THEME }` ile değiştirir; mevcut `Dynamic` ise yalnızca `mode`'u günceller; `None` durumunda `Dynamic`'i baştan kurar. İkon tarafında: `Static` seçimi `Dynamic { mode, light = mevcut ikon, dark = mevcut ikon }`'e çevirir; `Dynamic` ise yalnızca `mode`'u günceller; `None` durumunda `Static(varsayılan ikon teması)` ile kurar |
 
 **`kvs_tema` karşılığı:** Bu üç fonksiyon `kvs_tema` çalışma zamanı API'sinin değil, seçici / settings UI köprüsünün sorumluluğudur. Mirror crate yapısında ya `kvs_tema_ayarlari` ya da `kvs_secici` modülünde tutulur. Seçici onay akışında dosya yazma sırası şöyle kurarsın:
 
@@ -770,7 +773,7 @@ Bu alanların yardımcı tipleri de şemaya dahildir:
 
 | Tip | Rol | Kritik sözleşme |
 | ----- | ----- | ----------------- |
-| `ThemeSettingsContent` | Kullanıcı ayar dosyasındaki tema/font/density alanları | 22 alan; `#[serde(default)]` ve `MergeFrom` davranışı korunur |
+| `ThemeSettingsContent` | Kullanıcı ayar dosyasındaki tema/font/density alanları | 23 alan; container düzeyinde `#[with_fallible_options]`, `#[serde(default)]` ise alan bazlı (örneğin `theme_overrides`) uygulanır; `MergeFrom` davranışı korunur |
 | `FontSize` | `f32` pixel newtype'ı | Serialize edilirken iki ondalık basamak tutar |
 | `FontFamilyName` | font family adı | `#[serde(transparent)]`, `Arc<str>` |
 | `FontFeaturesContent` | OpenType feature map'i | 4 karakter alfanumerik key; boolean veya unsigned integer value |
@@ -885,7 +888,10 @@ Sözleşme parite bayrağı şudur: bu fonksiyonlar `kvs_tema` public API'sinde 
 **Kaynak:** `theme` crate'i.
 
 ```rust
-#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[derive(
+    Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash, Clone, Copy,
+    serde::Serialize, serde::Deserialize, schemars::JsonSchema,
+)]
 #[serde(rename_all = "snake_case")]
 pub enum UiDensity {
     Compact,

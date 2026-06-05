@@ -69,7 +69,7 @@ impl IconName {
 
 | API | Rol |
 | :-- | :-- |
-| `IconNameIter` | `strum::EnumIter` çıktısıdır; component önizleme, ikon galerisi veya doğrulama araçlarında tüm `IconName` varyantlarını dolaşmak için kullanılır. |
+| `IconNameIter` | `strum::EnumIter`'in ürettiği `iter()` çağrısının dönüş türüdür; component önizleme, ikon galerisi veya doğrulama araçlarında tüm `IconName` varyantlarını dolaşmak için kullanılır. Pratikte iterasyon `IntoEnumIterator::iter()` üzerinden başlatılır, tür adı çağrı tarafında doğrudan yazılmaz. |
 
 **Genişleme adımları:** Yeni bir tipli UI ikonu eklerken iki dosya değişir:
 
@@ -271,7 +271,14 @@ pub(crate) fn render_alpha_mask(
     params: &RenderSvgParams,
     bytes: Option<&[u8]>,
 ) -> Result<Option<(Size<DevicePixels>, Vec<u8>)>> {
-    // ...
+    anyhow::ensure!(!params.size.is_zero(), "can't render at a zero size");
+
+    // render_pixmap burada gövde içi yerel bir closure'dır; pixmap'i
+    // rasterleştirip alpha kanalını çıkarır.
+    let render_pixmap = |bytes| {
+        // ... pixmap'i alpha mask'e çevir
+    };
+
     if let Some(bytes) = bytes {
         render_pixmap(bytes)
     } else if let Some(baytlar) = self.asset_source.load(&params.path)? {
@@ -287,7 +294,7 @@ pub(crate) fn render_alpha_mask(
 - **`render_single_frame`** — Tam renkli BGRA çıktısı üretir. `RenderImage` (ImageId taşıyan ham buffer) döner. Bu yol çok renkli SVG'ler ve `Asset` cache'i tarafından kullanırsın.
 - **`render_alpha_mask`** — Yalnızca alpha kanalını çıkarır. UI ikonları için kullanılır; çünkü tek renkli SVG'ler yalnızca silüet bilgisine ihtiyaç duyar ve render hattı bu silüeti `text_color` ile boyar. Alpha mask, BGRA buffer'a göre çok daha az bellek harcar. GPU tarafında atlas'lanması da kolaydır.
 
-`render_alpha_mask`'in tasarımı önemlidir: `bytes` parametresi `Option<&[u8]>` tipindedir. `Some(bytes)` geçildiğinde önceden yüklenmiş byte'lar kullanılır; `None` geçildiğinde `self.asset_source.load(&params.path)?` ile binary'den okunur. Yani aynı metot hem `Embedded` hem `ExternalSvg` yolunu besler.
+`render_alpha_mask`'in tasarımı önemlidir: gövde, istenen boyut sıfırsa erken hata döndüren bir guard ile açılır (sıfır boyutta render edilemez), böylece sıfır genişlik veya yükseklikte boş bir pixmap oluşturma denemesi baştan engellenir. Asıl rasterleştirme `render_pixmap` adlı gövde içi yerel bir closure'da yapılır; bu, `SvgRenderer`'ın ayrı bir `render_pixmap` metodu olmasına rağmen ondan bağımsız, yalnızca bu fonksiyonun içinde yaşayan kısa bir yardımcıdır. `bytes` parametresi `Option<&[u8]>` tipindedir: `Some(bytes)` geçildiğinde önceden yüklenmiş byte'lar kullanılır; `None` geçildiğinde `self.asset_source.load(&params.path)?` ile binary'den okunur. Yani aynı metot hem `Embedded` hem `ExternalSvg` yolunu besler.
 
 ### 5.2 `SMOOTH_SVG_SCALE_FACTOR`
 
@@ -331,14 +338,15 @@ const FILE_ICONS: &[(&str, &str)] = &[
 ];
 ```
 
-Tablo iki kademeli eşleme kurar:
+Tablo üç sabit tablonun katmanlanmasıyla kurulur:
 
-1. `FILE_SUFFIXES_BY_ICON_KEY`: `("cpp", &["cpp", "h++", "cxx", ...])` gibi suffix → icon key eşlemesi.
-2. `FILE_ICONS`: `("cpp", "icons/file_icons/cpp.svg")` gibi icon key → path eşlemesi.
+1. `FILE_STEMS_BY_ICON_KEY`: dosya adı tabanı → icon key eşlemesi. Burada uzantı değil, tam dosya adı gövdesi eşlenir; ör. `Podfile` ruby ikonuna, `Dockerfile` docker ikonuna bağlanır. Bir dosyanın uzantısı olmasa da yalnızca adından ikon türetebilirsin.
+2. `FILE_SUFFIXES_BY_ICON_KEY`: `("cpp", &["c++", "h++", "cc", "cpp", ...])` gibi suffix → icon key eşlemesi. Dizinin elemanları bir icon key'e bağlanan uzantılardır; ör. `c++` da `cc` de aynı `cpp` ikonuna düşer.
+3. `FILE_ICONS`: `("cpp", "icons/file_icons/cpp.svg")` gibi icon key → path eşlemesi.
 
-`default_icon_theme()` bu iki tabloyu birleştirip `IconTheme` instance'ı üretir. Ayrıca klasör ve chevron ikonları `DirectoryIcons` ve `ChevronIcons` alanlarından gelir (`folder.svg`, `folder_open.svg`, `chevron_right.svg`, `chevron_down.svg`). Bu yüzden `icons/file_icons/` altındaki her dosya `FILE_ICONS` tablosunda görünmek zorunda değildir; bazı dosyalar dosya tipi değil, proje paneli davranışı için destek ikonudur. Path string'leri doğrudan `icons/file_icons/` altındadır; yani UI bu path'leri `Icon::from_path` veya direkt `svg().path()` ile tüketir.
+`default_icon_theme()` bu üç tabloyu katmanlayıp `IconTheme` instance'ı üretir; dosya adı tabanı ve uzantı katmanları bir icon key'e indirger, son tablo icon key'i path'e çevirir. Ayrıca klasör ve chevron ikonları `DirectoryIcons` ve `ChevronIcons` alanlarından gelir (`icons/file_icons/folder.svg`, `icons/file_icons/folder_open.svg`, `icons/file_icons/chevron_right.svg`, `icons/file_icons/chevron_down.svg`). Bu yüzden `icons/file_icons/` altındaki her dosya `FILE_ICONS` tablosunda görünmek zorunda değildir; bazı dosyalar dosya tipi değil, proje paneli davranışı için destek ikonudur. Path string'leri doğrudan `icons/file_icons/` altındadır; yani UI bu path'leri `Icon::from_path` veya direkt `svg().path()` ile tüketir.
 
-**Genişleme:** Yeni bir dosya tipi eklemek için iki tabloya da girilmesi gerekir; ikisinin senkron olmaması durumunda dosya tipi eşleşse de path bulunmaz veya tam tersi.
+**Genişleme:** Yeni bir dosya tipi eklemek için eşleme tablosuna (adın tabanına göre `FILE_STEMS_BY_ICON_KEY`, uzantıya göre `FILE_SUFFIXES_BY_ICON_KEY`) ve `FILE_ICONS` tablosuna girilmesi gerekir; ikisinin senkron olmaması durumunda dosya tipi eşleşse de path bulunmaz veya tam tersi.
 
 ### 6.1 Dış ikon temaları ve raster yedek
 

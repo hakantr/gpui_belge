@@ -102,7 +102,7 @@ impl Assets {
 }
 ```
 
-Bu metot ile `main.rs` içindeki `load_embedded_fonts` arasındaki tek belirgin fark **çağrı konumu**dur: `load_fonts` kütüphane yardımcısı olarak `Assets` üstünde durur, `load_embedded_fonts` ise Zed'in uygulama girişinde aynı list+load fikrini background executor ile yürütür. Alternatif binary veya örnek uygulama tarafında `Application::with_assets(Assets)` çağrısından sonra `Assets.load_fonts(cx)?` yeterlidir.
+Bu metot ile `main.rs` içindeki `load_embedded_fonts` arasında iki belirgin fark vardır. Birincisi **çağrı konumu**dur: `load_fonts` kütüphane yardımcısı olarak `Assets` üstünde durur, `load_embedded_fonts` ise Zed'in uygulama girişinde aynı list+load fikrini yürütür. İkincisi **okuma biçimi**dir: `load_embedded_fonts` font dosyalarını `background_executor().scoped(...)` ile paralel okur ve her birini ayrı bir görev içinde yükler; `Assets::load_fonts` ise dosyaları sıralı bir `for` döngüsünde tek tek okur. Alternatif binary veya örnek uygulama tarafında `Application::with_assets(Assets)` çağrısından sonra `Assets.load_fonts(cx)?` yeterlidir.
 
 `Assets::load_fonts` özellikle ikinci kullanım için durur: bir kütüphane veya alternatif binary `Assets` struct'ını kendi kuruluş yolunda doğrudan çağırmak isteyebilir. O senaryolarda `Application::with_assets(Assets)` çağrısından sonra tek satır `Assets.load_fonts(cx)?` çağrısı yeterlidir.
 
@@ -132,7 +132,7 @@ Bu metot yalnızca tek bir font yükler: `Lilex-Regular.ttf`. Gerekçe şudur: t
 
 ## 5. USVG fontdb entegrasyonu
 
-`SvgRenderer` SVG dosyalarındaki `<text>` etiketlerini doğru render edebilmek için ayrı bir font veritabanı tutar. Bu veritabanı `usvg::fontdb::Database` türündedir ve iki kaynaktan beslenir:
+`SvgRenderer` SVG dosyalarındaki `<text>` etiketlerini doğru render edebilmek için ayrı bir font veritabanı tutar. Bu veritabanı `usvg::fontdb::Database` türündedir ve iki kaynaktan beslenir: sistemde kurulu font'lar ile Zed'in gömülü font'ları. Sistem font'ları, paylaşılan bir `SYSTEM_FONT_DB` (`LazyLock` ile bir kez kurulan) veritabanında tutulur; bu veritabanı program ömründe yalnızca bir kez `load_system_fonts()` ile doldurulur. Zenginleştirme gerektiğinde bu paylaşılan veritabanı **klonlanır** ve gömülü font'lar klon üstüne eklenir; böylece paylaşılan sistem veritabanı değişmeden kalır:
 
 ```rust
 fn load_bundled_fonts(varlik_kaynagi: &dyn AssetSource, db: &mut usvg::fontdb::Database) {
@@ -156,11 +156,11 @@ Burada dikkat edilmesi gereken üç ayrıntı vardır:
 
 - **Sabit kodlu path listesi:** USVG yalnızca iki regular varyantı yükler. Bold, italic ve bold-italic gibi varyantlar dahil edilmez. Gerekçe: SVG'lerde nadiren bold metin bulunur; pratikte regular varyantlar render kalitesi için yeterlidir ve veritabanı boyutu küçük kalır.
 - **Hata toleransı:** `load` çağrısı `None` ya da `Err` döndürürse uyarı log'lanır, fakat fail-fast çalışmaz. Bu davranış GPUI'yi varlık bağımlılığından koruyan bir tampon görevi yapar; varlık hattı kurulu olmasa bile SVG render hattı çalışmaya devam eder, sadece yerleşik font'lar olmayacaktır.
-- **Sistem font'ları ile birleştirme:** `load_bundled_fonts` çağrılmadan önce sistemde kurulu olan tüm font'lar `db.load_system_fonts()` ile veritabanına eklenmiştir. Yani bundled font'lar sistem font'larının üzerine eklenir; çakışma durumunda hangi varyantın seçileceği `usvg`'nin kendi önceliklendirme kuralına kalır.
+- **Sistem font'ları ile birleştirme:** `load_bundled_fonts` doğrudan paylaşılan `SYSTEM_FONT_DB` üstünde değil, onun bir klonu üstünde çalışır. Sistemde kurulu font'lar bu paylaşılan veritabanına bir kez `load_system_fonts()` ile yüklenmiştir; her zenginleştirmede veritabanı klonlanır ve bundled font'lar klona eklenir. Yani bundled font'lar sistem font'larının üzerine biner; çakışma durumunda hangi varyantın seçileceği `usvg`'nin kendi önceliklendirme kuralına kalır.
 
 ### 5.1 Generic family yedeği
 
-USVG fontdb'nin ilginç bir davranışı vardır: generic CSS aileleri (`sans-serif`, `serif`, `monospace`, `cursive`, `fantasy`) sistemde tanımlı değilse `query` çağrıları `None` döner. Linux sistemlerinde fontconfig genellikle bunları doldurur ama her zaman güvenilir değildir. Zed bu boşluğu kapatmak için `fix_generic_font_families` fonksiyonunu kullanır:
+USVG fontdb'nin ilginç bir davranışı vardır: generic CSS aileleri (`sans-serif`, `serif`, `monospace`, `cursive`, `fantasy`) varsayılan olarak Microsoft font'larına (Arial, Times New Roman) bağlanır. Bu font'lar çoğu Linux dağıtımında kurulu olmadığından, fontconfig bu varsayılanları düzeltmediği durumda generic aile `query` çağrıları `None` döner. Linux sistemlerinde fontconfig genellikle bunları doldurur ama her zaman güvenilir değildir. Zed bu boşluğu kapatmak için `fix_generic_font_families` fonksiyonunu kullanır:
 
 ```rust
 let aileler_ve_yedekler: &[(Family<'_>, &str)] = &[
@@ -201,9 +201,9 @@ const EMOJI_FONT_FAMILIES: &[&str] = &[
 
 `cx.text_system().add_fonts(vec)` çağrısı font byte'larını platforma özgü metin sistemine (macOS CoreText, Windows DirectWrite, Linux freetype) verir. Detaylar metin sistemi bölümünde işlenir; bu bölüm için bilinmesi gereken üç davranış vardır:
 
-1. **Idempotent değildir:** Aynı font ikinci kez eklenirse platform sistemi genellikle "zaten var" cevabı verir; çakışma davranışı platforma göre değişebilir. Bu yüzden `load_embedded_fonts` uygulama yaşam süresi boyunca tek seferlik çağrılmak üzere tasarlanmıştır.
-2. **Lifetime:** Byte'lar `Cow<'static>` olarak geldiğinden font verisi binary boyunca canlı kalır. Yani add_fonts'a verilen byte tamponu sonradan serbest bırakılmaz; binary'nin .data segmentinde durur.
-3. **Çağrı zamanı:** `add_fonts` çağrısı **pencere açılmadan önce** yapman gerekir; aksi halde ilk frame'de font bulunamadığı için yedeğe düşülür ve metin beklenen fontla render edilmez. Zed bu yüzden font yüklemeyi `Application::with_assets` çağrısından sonra ama `cx.open_window` çağrılarından önce yapar.
+1. **Idempotent değildir:** Aynı font ikinci kez eklenirse hiçbir platform "zaten var" cevabı döndürmez; her platform tekrar çağrıda font'u koşulsuz yeniden ekler. macOS, Windows ve Linux tarafının üçü de gelen byte'ları doğrudan platform font veritabanına yeniden kaydeder, var olup olmadığını sorgulamaz. Bu yüzden `add_fonts` tek seferlik çağrılmak üzere tasarlanmıştır.
+2. **Lifetime:** Byte'lar `Cow<'static>` olarak gelir; `'static` lifetime burada iki ayrı sahiplik biçimini birden kapsar. `Cow::Borrowed` durumu release embed yoludur: byte'lar binary'ye gömülüdür ve binary'nin statik (`.data`) segmentinde durur, çalışma sırasında ayrı bir bellek ayrılmaz. `Cow::Owned` durumu ise dosya sisteminden okuma yoludur: byte'lar heap'te ayrılır ve `Arc` ile sarılarak font verisi olarak tutulur. İki durumda da veri uygulama boyunca canlı kalır; fark verinin nerede durduğudur.
+3. **Çağrı zamanı:** `add_fonts` çağrısı **pencere açılmadan önce** yapman gerekir; aksi halde ilk frame'de font bulunamadığı için yedeğe düşülür ve metin beklenen fontla render edilmez. Zed bu yüzden font yüklemeyi `Application::with_assets` çağrısından sonra, fakat editor ve workspace pencereleri açılmadan önce yapar.
 
 ---
 

@@ -113,9 +113,9 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 | `Member` | Pane split ağacının düğümüdür; `Pane` yapraklarını ve `Axis(PaneAxis)` iç düğümlerini taşır. |
 | `PaneAxis` | `axis`, `members`, `flexes`, `bounding_boxes` alanlarıyla yatay/dikey split kolunu temsil eder; `new` ve `load` ile kurulur. |
 | `ProjectGroup` | MultiWorkspace sidebar'da birlikte gruplanan workspace listesini taşır. |
-| `ProjectGroupKey` | Project group kalıcı kimliğidir; sıralama ve serileştirme bu anahtarla yapılır. |
-| `SerializedProjectGroupState` | Project group açık/kapalı ve sıra bilgisinin persist edilen halidir. |
-| `SidebarEvent` | Sidebar'ın serileştirme veya görünürlük/yeniden çizim ihtiyacını workspace'e bildirir. |
+| `ProjectGroupKey` | Project group kalıcı kimliğidir; anahtar grubun kimlik ve serileştirme ayrımı için kullanılır, sıra ise grup listesindeki konumla tutulur. |
+| `SerializedProjectGroupState` | Project group açık/kapalı bilgisinin persist edilen halidir. |
+| `SidebarEvent` | Sidebar'ın serileştirme ihtiyacını workspace'e bildirir. |
 | `SidebarSide` | Sidebar'ın pencere tarafını seçer; titlebar ve render tarafı bu değeri kullanır. |
 | `ToolbarItemEvent` | Toolbar item'ın konum değiştirme isteğini `ChangeLocation(ToolbarItemLocation)` olarak yayar. |
 | `ToolbarItemLocation` | `Hidden`, `PrimaryLeft`, `PrimaryRight`, `Secondary` yerleşimlerini tanımlar. |

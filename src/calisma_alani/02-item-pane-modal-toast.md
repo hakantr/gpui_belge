@@ -52,7 +52,7 @@ fn active_project_path(&self, cx: &App) -> Option<ProjectPath> {
 }
 ```
 
-Tekli arabellek (`Singleton`) item'lar bu varsayılanı miras alır; tek proje öğelerinin yolunu döndürür. Çok-arabellek item'lar (`MultiBuffer`, `ProjectDiff`, `MultiDiffView` gibi) birincil imlecin altındaki arabelleğin yolunu döndürmek için bu yöntemi geçersiz kılar. `Editor` ise `active_buffer(cx)` üzerinden aktif tamponu bularak uygulamasını geçersiz kılar. `SplittableEditor` da sağ taraf editörüne yönlendirir.
+Tekli arabellek (`Singleton`) item'lar bu varsayılanı miras alır; tek proje öğelerinin yolunu döndürür. Çok-arabellek item'lar (`ProjectDiff`, `MultiDiffView` gibi editör sarmalayıcıları) birincil imlecin altındaki arabelleğin yolunu döndürmek için bu yöntemi geçersiz kılar. `Editor` ise `active_buffer(cx)` üzerinden aktif tamponu bularak uygulamasını geçersiz kılar. `SplittableEditor` da sağ taraf editörüne yönlendirir.
 
 `ItemHandle::project_path`, `<T as Item>::active_project_path` çağrısına yönlendirir; geçersiz kılma (override) tek bir noktada tanımlanır ve tutarlı çalışır.
 
@@ -62,7 +62,7 @@ Status bar'ın breadcrumb güncellemesi ve git panelinin aktif dosya tespiti bu 
 
 - `impl Item for BenimGorunumum` yazılır.
 - `Workspace::open_path`, `open_paths` veya `open_abs_path` zaten `ProjectItem` üreterek doğru `Item` view'ini açar; özel bir akışta `Pane::add_item(Box::new(view), ...)` kullanırsın.
-- `Pane::activate_item`, `close_active_item`, `navigate_backward`, `navigate_forward`, `split` (split direction ile yeni pane) Pane API'leridir.
+- `Pane::activate_item`, `close_active_item`, `split` (split direction ile yeni pane) Pane API'leridir; `navigate_backward` ise `GoBack` action'ının işleyicisidir.
 - `Workspace::split_pane(pane, direction, cx)` mevcut pane'i böler.
 - `Workspace::register_action::<A>(|workspace, &A, window, cx| ...)` çalışma alanı seviyesinde global action'ları ekler (komut paleti veya keymap üzerinden tetiklenir).
 
@@ -265,4 +265,4 @@ Item ve çalışma alanı tarafında dikkat edilmesi gereken hataya açık kulla
 - `Workspace::register_action` geri çağrı imzası `Fn(&mut Self, &A, &mut Window, &mut Context<Self>)` biçimindedir; diğer GPUI `on_action` dinleyicilerinden farklı bir pozisyonel düzene sahiptir (`&A` ortada).
 - `NotificationId::Unique(TypeId::of::<T>())` ile aynı tipte iki notification açıldığında ikincisi birincinin yerine geçer; farklı bir sub-id isteniyorsa `Composite(TypeId, ElementId)` kullanırsın.
 - `Toast` autohide süresi varsayılan değildir; uzun mesajlarda elle `dismiss_toast` çağrısı gerekebilir.
-- `ModalView::on_before_dismiss` `Pending` döndürürse modal kapanma akışı beklemeye girer; testte `run_until_parked()` ile resolve sürecinin ilerletilmesi gerekir.
+- `ModalView::on_before_dismiss` `Pending` (ya da `Dismiss(false)`) döndürürse modal kapatılmaz; açık kalır. Burada bir bekleme veya async çözümleme yoktur; kapanmayı kendin istediğinde modeli güncelleyip kapatma akışını yeniden çağırman gerekir.

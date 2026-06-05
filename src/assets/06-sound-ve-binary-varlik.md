@@ -53,7 +53,7 @@ impl Sound {
 
 İkonlardaki `strum` türetmesinin aksine `Sound::file` manuel olarak yazılır. Bu bilinçli bir tasarım kararıdır: dosya adları enum varyant adından farklı snake_case dönüşümlere sahiptir (`Joined` → `joined_call`). `strum` ile otomatik dönüşüm yapılsaydı isimler `joined` veya `joined_call` arasında tutarsız olabilirdi; manuel eşleştirme adlandırmayı denetim altına alır.
 
-**Sözleşme:** Her `Sound` varyantı için `assets/sounds/<file()>.wav` dosyasının bulunması zorunludur. Aksi halde `Audio::play_sound` çağrısı çalışma zamanında `bail!` ile hata döner ve hata log'a düşer; uygulama çökmez ama o ses çalmaz.
+**Sözleşme:** Her `Sound` varyantı için `assets/sounds/<file()>.wav` dosyasının bulunması zorunludur. `Audio::play_sound` dönüşü `()`'dir ve bir hata döndürmez; dosya yoksa ses kaynağı oluşturma adımı `with_context` ile bir hata mesajı üretir, bu hata `play_sound` içinde `.log_err()` ile log'a düşürülür. Uygulama çökmez, yalnızca o ses çalmaz.
 
 ---
 
@@ -102,7 +102,7 @@ Akış altı adımdadır:
 1. **Cache araması.** `source_cache: HashMap<Sound, Buffered<Decoder<Cursor<Vec<u8>>>>>` haritası, her sesin decode edilmiş halini tutar. İlk çağrı bu cache'i doldurur, sonraki çağrılar doğrudan oradan okur.
 2. **Yol inşası.** `format!("sounds/{}.wav", sound.file())` ile yol üretilir. Dinamik string olduğu için her seferinde küçük bir tahsis vardır; ses çalma sıklığı düşük olduğundan bu maliyet gözardı edilebilir.
 3. **`cx.asset_source().load(&yol)` senkron çağrı.** `?` operatörü önce `Result<Option<Cow>>` sonucunu açar. Gerçek `Assets` kaynağında eksik yol zaten `Err` olarak döner; boş `()` veya `Ok(None)` döndüren özel kaynaklarda ise `with_context` ikinci aşamada `Bu yol için varlık yok: ...` mesajını üretir. Her iki durumda da hata `play_sound` içinde log'a düşer ve uygulama çalışmaya devam eder.
-4. **`into_owned()`.** `Cow<'static, [u8]>` `Vec<u8>` haline getirilir. `RustEmbed`'in döndürdüğü `Cow::Borrowed` zaten 'static yaşam süresinde olsa da `rodio::Decoder` Vec ister.
+4. **`into_owned()`.** `Cow<'static, [u8]>` `Vec<u8>` haline getirilir. `RustEmbed`'in döndürdüğü Cow build türüne bağlıdır: release build'de byte'lar binary'ye gömülü olduğundan `Cow::Borrowed`, debug build'de ise (rust-embed `debug-embed` özelliği kapalı olduğu için içerik dosya sisteminden okunur) `Cow::Owned` döner. Her iki durumda da `rodio::Decoder` bir `Vec` istediği için `into_owned()` çağrılır.
 5. **`Decoder::new(cursor)?`.** WAV dosyası decode edilir. Format hatası varsa `?` ile yukarı atılır ve `play_sound` log'a düşer.
 6. **`buffered()` çağrısı.** Decode edilmiş ses örnekleri buffer'lanır; aynı kaynak birden fazla mixer'a verilebilir hale gelir.
 
@@ -183,7 +183,7 @@ Beş ayrıntı önemlidir:
 - **`Assets.list("prompts")`** — `AssetSource::list` çağrısı; `prompts/content_prompt.hbs` gibi tüm yolları döner.
 - **`yol.split('/').next_back().and_then(|parca| parca.strip_suffix(".hbs"))`** — Yolun son segmentinden uzantıyı çıkararak şablon kimliğini üretir. `prompts/content_prompt_v2.hbs` → `content_prompt_v2`. Bu kimlikleri ileride `sablon_motoru.render("content_prompt_v2", &baglam)` çağrılarında kullanırsın.
 - **`String::from_utf8_lossy`** — Şablon byte'ları string'e çevrilirken UTF-8 hataları replacement character'a dönüşür. Bozuk encoding render'ı durdurmaz; sadece o bölüm okunaksız hale gelir.
-- **`LineEnding::normalize_cow`** — Windows'ta üretilmiş şablonlar CRLF içerebilir; Handlebars motoru LF bekler. `gpui_util::LineEnding::normalize_cow` `\r\n` → `\n` dönüşümünü yapar. `Cow` döndüğü için zaten LF olan içerik ekstra kopyalanmaz.
+- **`LineEnding::normalize_cow`** — Windows'ta üretilmiş şablonlar CRLF içerebilir; Handlebars motoru LF bekler. Tip `text` crate'inde durur (`use text::LineEnding;`); `text::LineEnding::normalize_cow` satır sonlarını `\n`'e çevirir. Yalnız `\r\n` değil, tek başına `\r` de `\n`'e normalize edilir. `Cow` döndüğü için zaten LF olan içerik ekstra kopyalanmaz.
 - **`Assets.load(yol.as_ref()).log_err().flatten()`** — `Assets` struct'ı doğrudan static metot olarak çağrılır; `cx.asset_source()` üzerinden değil. Bu, `PromptBuilder::new`'in `App` referansına ihtiyaç duymadan çalışabilmesini sağlar.
 
 ### 5.2 Dosya sistemi geçersiz kılma mekanizması

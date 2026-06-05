@@ -21,7 +21,7 @@ JSON dosyaları üç klasör altında dağılmıştır:
 assets/
 ├── themes/
 │   ├── one/
-│   │   ├── one.json          # 4 tema (Light, Dark, Light Gentler, Dark Gentler)
+│   │   ├── one.json          # 2 tema (One Dark, One Light)
 │   │   └── LICENSE
 │   ├── ayu/
 │   ├── gruvbox/
@@ -104,7 +104,7 @@ Akış altı adımdadır:
 1. **`kayit.assets().list("themes/")`** — Özyinelemeli listeleme; `themes/one/one.json`, `themes/ayu/ayu.json`, `themes/LICENSES/...` gibi tüm yollar döner.
 2. **`.json` filtresi** — `LICENSE` dosyaları ve klasörler dışlanır. Filtre uzantı bazlıdır.
 3. **`assets().load(&yol)` çağrısı** — Her tema dosyası ham byte olarak yüklenir. `log_err().flatten()` deseni, hata varsa log'a düşürür ve `None` döndürür; aksi halde `Some(baytlar)` ile devam edilir.
-4. **`serde_json::from_slice`** — Baytlar `ThemeFamilyContent` struct'ına ayrıştırılır. Bu struct Zed tema JSON sözleşmesini yansıtır; tüm renk alanlarını `Option<T>` olarak tutar.
+4. **`serde_json::from_slice`** — Baytlar `ThemeFamilyContent` struct'ına ayrıştırılır. Bu struct Zed tema JSON sözleşmesini yansıtır; kendisi yalnızca `name`, `author` ve `themes` alanlarını taşır. Renk alanları ise iç içe yapıda durur: her tema `ThemeContent` içinde bir `ThemeStyleContent` tutar, o da `ThemeColorsContent` ile durum renklerini barındırır ve bu alanların her biri `Option<String>` olduğu için eksik renkler atlanabilir.
 5. **`refine_theme_family`** — `Content` → `Refinement` → `Theme` dönüşümü uygularsın. Bu adım tema sistemi bölümünde detaylıdır; özetle: kullanıcı temasındaki eksik alanlar yedek değerlerle doldurulur ve çalışma zamanında kullanıma hazır `Theme` struct'ı üretilir.
 6. **`kayit.insert_theme_families`** — Hazır tema ailesi `ThemeRegistry`'ye eklenir; `cx.theme()` artık bu temaya erişebilir.
 
@@ -112,7 +112,7 @@ Akış altı adımdadır:
 
 ### 2.1 `LoadThemes` kademeleri ve varlık bağımlılığı
 
-Tema sistemi başlatılırken üç farklı varlık davranışı seçebilirsin:
+Tema sistemini başlatan `theme::init`, `LoadThemes` parametresine göre iki farklı varlık davranışı seçer:
 
 ```rust
 pub enum LoadThemes {
@@ -122,6 +122,7 @@ pub enum LoadThemes {
     All(Box<dyn AssetSource>),
 }
 
+// theme::init
 pub fn init(yuklenecek_temalar: LoadThemes, cx: &mut App) {
     SystemAppearance::init(cx);
     let varliklar = match yuklenecek_temalar {
@@ -130,13 +131,13 @@ pub fn init(yuklenecek_temalar: LoadThemes, cx: &mut App) {
     };
     ThemeRegistry::set_global(varliklar, cx);
     FontFamilyCache::init_global(cx);
-    // ...
+    // gömülü temaları yüklemez; bu işi theme_settings::init üstlenir
 }
 ```
 
-`JustBase` modu test ortamı için kritiktir: `()` boş `AssetSource` ile geçilirse `load_bundled_themes` çağrısı boş liste döner; kayıt yalnızca yedek temayla kalır. Tema JSON'ları olmayan bir test ortamı da bu mod ile çalışır.
+`JustBase` modu test ortamı için kritiktir: bu modda `theme::init` kaydı boş `()` `AssetSource` ile kurar ve kayıt yalnızca yedek temayla kalır. Asıl önemli ayrım üstteki katmandadır: gömülü temaları yükleyen `load_bundled_themes` çağrısını `theme::init` değil, onu saran `theme_settings::init` yapar ve bu çağrıyı yalnızca `LoadThemes::All` geldiğinde tetikler. `JustBase` modunda `load_bundled_themes` tümden atlanır; bu yüzden tema JSON'ları olmayan bir test ortamı da sorunsuz çalışır.
 
-`All(varliklar)` modu üretim için kullanırsın. `Box<dyn AssetSource>` parametresi `Assets` struct'ından bir referans ister; `Assets` struct'ı tema klasörünü include eder (yukarıdaki `#[include = "themes/**/*"]` direktifi).
+`All(varliklar)` modunu üretim için kullanırsın. `Box<dyn AssetSource>` parametresi `Assets` struct'ından bir değer ister; `Assets` struct'ı tema klasörünü include eder (yukarıdaki `#[include = "themes/**/*"]` direktifi). Bu modda `theme_settings::init` `theme::init`'ten sonra `load_bundled_themes`'i çağırarak gömülü temaları kayda ekler.
 
 Zed'in `main.rs` dosyasındaki kuruluş:
 
@@ -156,13 +157,15 @@ fn kullanici_temalarini_arkada_yukle(dosya_sistemi: Arc<dyn fs::Fs>, cx: &mut Ap
         let dosya_sistemi = dosya_sistemi.clone();
         async move |cx| {
             // ... temalar_dizini taranır, her .json dosyası dosya_sistemi.load ile okunur
-            // kullanici_temasini_yukle(kayit, baytlar) ile kayda eklenir
+            // load_user_theme(kayit, &baytlar) ile kayda eklenir
         }
     })
 }
 ```
 
 Dosya sisteminden okuma asenkron yapılır; binary'deki tema yükleme ise senkron `list+load` döngüsüdür. İki yol birleştiğinde aynı `ThemeRegistry`'ye akar ve fark gözlemlenemez. Bu, "binary'deki varlık + dosya sistemi geçersiz kılması" deseninin tema sistemindeki karşılığıdır.
+
+İki yolun ayrıştırma katmanında ince bir fark bulunur: `load_user_theme` kullanıcı temasını `serde_json_lenient` ile okur; böylece yorum içeren ve sondaki virgülü hoş gören kullanıcı dosyaları da kabul edilir. Gömülü temalar ise `load_bundled_themes` içinde düz `serde_json` ile ayrıştırılır; çünkü binary'ye giren dosyalar zaten katı JSON biçimindedir.
 
 ---
 
@@ -354,8 +357,8 @@ JSON varlık türlerinin tüketim profillerini özetlemek gerekirse:
 | Varlık türü | Tüketici | Yükleme zamanı | Format | Geçersiz kılma mekanizması |
 |-------------|----------|----------------|--------|---------------------|
 | Tema | `ThemeRegistry` | Uygulama başlatma (eager) | `serde_json` ile `ThemeFamilyContent` | `~/.config/zed/themes/*.json` |
-| Default keymap | `KeymapFile::load_settings_file` | Uygulama başlatma | Özel keymap ayrıştırıcısı | `~/.config/zed/keymap.json` |
-| Base keymap (Atom/JetBrains/...) | Kullanıcı seçimi sonrası | Setting değişimi anında | Özel keymap ayrıştırıcısı | Yok (sabit dosya) |
+| Default keymap | `KeymapFile::load_asset` | Uygulama başlatma | Özel keymap ayrıştırıcısı | `~/.config/zed/keymap.json` |
+| Base keymap (Atom/JetBrains/...) | `KeymapFile::load_asset` (kullanıcı seçimi sonrası) | Setting değişimi anında | Özel keymap ayrıştırıcısı | Yok (sabit dosya) |
 | Default settings | `SettingsStore::new` | Uygulama başlatma | `serde_json` ile `SettingsContent` | `~/.config/zed/settings.json` |
 | Initial settings | İlk kurulum | Diske yazılır | Salt metin | - (yeni kullanıcı oluşumunda kullanılır) |
 | Badge | Çalışma zamanı yok | - | - | - |

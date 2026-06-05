@@ -18,6 +18,7 @@ ThemeFamilyContent      ← dosya kökü, "themes" dizisi taşır
     └── ThemeStyleContent ← tüm renk grupları düz yapıda
         ├── ThemeColorsContent  (flatten)
         ├── StatusColorsContent (flatten)
+        ├── Vec<AccentContent> (accents)
         ├── Vec<PlayerColorContent>
         ├── IndexMap<String, HighlightStyleContent>  (syntax)
         └── Option<WindowBackgroundContent>
@@ -70,14 +71,14 @@ pub struct ThemeStyleContent {
 
 ```rust
 // ─── Enum'lar — snake_case rename
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum AppearanceContent {
     Light,
     Dark,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize, JsonSchema, MergeFrom)]
 #[serde(rename_all = "snake_case")]
 pub enum WindowBackgroundContent {
     Opaque,
@@ -85,7 +86,7 @@ pub enum WindowBackgroundContent {
     Blurred,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, MergeFrom, PartialEq)]
 #[serde(rename_all = "snake_case")]
 pub enum FontStyleContent {
     Normal,
@@ -93,12 +94,13 @@ pub enum FontStyleContent {
     Oblique,
 }
 
-// ─── Newtype — saydam
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+// ─── Newtype — saydam.
+// JsonSchema türetilmez; aşağıda elle impl edilir (sınır 100–900, varsayılan 400).
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize, MergeFrom, derive_more::FromStr)]
 #[serde(transparent)]
 pub struct FontWeightContent(pub f32);
 
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, MergeFrom, PartialEq)]
 pub struct AccentContent(pub Option<String>);
 
 // ─── HighlightStyleContent (syntax token sözleşmesi)
@@ -130,7 +132,9 @@ impl HighlightStyleContent {
 }
 
 // ─── PlayerColorContent (collaboration slot'ları)
-#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+// Default türetmez; eksik bir bileşen çalışma zamanında `unwrap_or_default()` ile
+// `PlayerColor::default`'tan gelir.
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, MergeFrom, PartialEq)]
 pub struct PlayerColorContent {
     pub cursor: Option<String>,
     pub background: Option<String>,
@@ -371,7 +375,7 @@ pub struct StatusColorsContent {
 }
 ```
 
-`ThemeColorsContent`, hedeflenen Zed sözleşmesindeki çalışma zamanı `ThemeColors` alanlarına karşılık gelen `Option<String>` alanları taşır. Bu rehberde ayrıca alias alanlar eklenmez. Örneğin `scrollbar_thumb.background` gibi sözleşme dışı anahtarlar yerine mevcut sözleşmedeki `scrollbar.thumb.background` anahtarı beklenir.
+`ThemeColorsContent`, hedeflenen Zed sözleşmesindeki çalışma zamanı `ThemeColors` alanlarına karşılık gelen `Option<String>` alanları taşır. Örneğin `scrollbarr.thumb.background` gibi yazım hatalı, sözleşmede hiç bulunmayan bir anahtar yerine mevcut sözleşmedeki `scrollbar.thumb.background` anahtarı beklenir. (Bunun aksine `scrollbar_thumb.background` anahtarı sözleşmenin tanınan ama artık önerilmeyen bir parçasıdır; deprecated bir alanı besler ve yazıldığında bir uyarıyla yine de okunur.)
 
 **Davranış kuralları (özet):**
 
@@ -384,7 +388,7 @@ pub struct StatusColorsContent {
 | `HighlightStyleContent.color` | `Option<String>`; özel deserializer yok | Geçersiz hex string → refinement'ta `None`; yanlış JSON tipi → deserialize hatası |
 | `HighlightStyleContent` (diğer) | `Option<...>` + `treat_error_as_none` | `None` |
 | `PlayerColorContent` (3 alan) | hepsi `Option<String>` | Eksik alan aynı indeksteki taban player slot'undan; yeni slot eklenirse eksik bileşenler `Default` değerinden |
-| `ThemeColorsContent` (143 alan) | her biri `Option<String>` | Refinement → taban |
+| `ThemeColorsContent` (146 alan, 3'ü deprecated) | her biri `Option<String>` | Refinement → taban |
 | `StatusColorsContent` (42 alan) | her biri `Option<String>` | Refinement → taban (ön plan→arka plan türetme uygulanır) |
 
 > **`AppearanceContent` neden `Option` değil?** Bir tema'nın "Light mı, Dark mı?" sorusu **kritiktir**. Bu bilgi eksik olduğunda renk seçimi anlamını yitirir. Bu yüzden alan, sözleşmenin zorunlu enum alanı olarak tutulur.
@@ -434,7 +438,7 @@ Detaylar ilgili bölümde ele alırsın.
 `AppearanceContent`, `WindowBackgroundContent`, `FontStyleContent` gibi **enum'lar** için varyant adlarını JSON'a `snake_case` olarak aktarmak amacıyla kullanırsın:
 
 ```rust
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[derive(Debug, PartialEq, Clone, Copy, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum AppearanceContent {
     Light,
@@ -447,12 +451,33 @@ Bu sayede JSON'da `"appearance": "light"` yazılır. Rust varyant adı `Light` o
 ### `#[serde(transparent)]` — newtype'ı saydamlaştır
 
 ```rust
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema)]
+#[derive(Clone, Copy, Debug, PartialEq, PartialOrd, Serialize, Deserialize, MergeFrom, derive_more::FromStr)]
 #[serde(transparent)]
 pub struct FontWeightContent(pub f32);
 ```
 
 Bu öznitelik sayesinde JSON'da `{ "font_weight": { "0": 700 } }` yerine doğrudan `{ "font_weight": 700 }` yazılır. Newtype'ın sarmaladığı tek alan saydam görünür; JSON tüketicisi `FontWeightContent`'in newtype olduğunu fark etmez.
+
+`FontWeightContent` için `JsonSchema` türetilmez; elle impl edilir. Türetme yalnızca "sayı" derdi; elle yazılan şema ise geçerli aralığı (`100`–`900`) ve varsayılanı (`400`) şemaya da taşır, böylece editör otomatik tamamlaması sınırların dışındaki değerleri uyarabilir:
+
+```rust
+impl schemars::JsonSchema for FontWeightContent {
+    fn schema_name() -> std::borrow::Cow<'static, str> {
+        "FontWeightContent".into()
+    }
+
+    fn json_schema(_: &mut schemars::SchemaGenerator) -> schemars::Schema {
+        use schemars::json_schema;
+        json_schema!({
+            "type": "number",
+            "minimum": Self::THIN.0,    // 100
+            "maximum": Self::BLACK.0,   // 900
+            "default": Self::NORMAL.0,  // 400
+            "description": "Font weight value between 100 (thin) and 900 (black)"
+        })
+    }
+}
+```
 
 ### `#[serde(default)]` — eksik alana varsayılan değer
 
@@ -773,7 +798,7 @@ Bu rehberde hata toleransı, alternatif sözleşmeleri destekleyen ayrı bir kat
 
 ### Vektör 1: Bilinmeyen alanlar — açık hata
 
-Serde varsayılan olarak bilinmeyen alanları **görmezden gelir**. Bu davranış yazım farklarını saklayabilir: `scrollbar.thumb.background` yerine `scrollbar_thumb.background` yazıldığında tema yüklenir ama beklenen renk uygulanmaz. Bu rehberde bilinmeyen alanların sessizce kabul edilmesi istenmez.
+Serde varsayılan olarak bilinmeyen alanları **görmezden gelir**. Bu davranış yazım farklarını saklayabilir: `scrollbar.thumb.background` yerine `scrollbarr.thumb.background` (fazladan bir `r`) yazıldığında tema yüklenir ama beklenen renk uygulanmaz. Bu rehberde bilinmeyen alanların sessizce kabul edilmesi istenmez.
 
 ```rust
 fn tema_stil_anahtarlarini_dogrula(stil: &serde_json::Map<String, serde_json::Value>) -> anyhow::Result<()> {
@@ -787,7 +812,7 @@ fn tema_stil_anahtarlarini_dogrula(stil: &serde_json::Map<String, serde_json::Va
 }
 ```
 
-**Senaryo:** Kullanıcı tema JSON'unda `scrollbar_thumb.background` yazdı. Mevcut sözleşmede doğru anahtar `scrollbar.thumb.background` olmalıdır.
+**Senaryo:** Kullanıcı tema JSON'unda `scrollbarr.thumb.background` yazdı (fazladan bir `r` ile yazım hatası). Mevcut sözleşmede böyle bir anahtar hiç yoktur; doğru anahtar `scrollbar.thumb.background` olmalıdır.
 
 - Anahtar validasyonu AÇIK: Tema yüklemesi alan yolunu gösteren bir hatayla durur. Hata hızlıca bulunur.
 - Anahtar validasyonu YOK: Alan sessizce atlanır. JSON'da renk verilmiş gibi görünür, ama uygulama taban değeri kullanır.
@@ -822,11 +847,11 @@ Enum alanlarda varsayılan davranış farklıdır: serde bilinmeyen bir varyant 
 
 3. **`fallible_options::parse_json::<T>(json)`**: Üst seviye çağrı noktasıdır. `ERRORS` thread-local'ını sıfırlar, ayrıştırmayı çalıştırır, ayrıştırma bittikten sonra biriken hataları toplar ve `(Option<T>, ParseStatus)` döndürür. `ParseStatus` **üç varyantlıdır** (`settings_content::ParseStatus`, `settings_content` crate'i): `Success`, `Unchanged` (kaynak dosya değişmediği için ayrıştırma atlanır) ve `Failed { error: String }`. `Unchanged` yalnızca settings dosya yönetim katmanından gelir (file watcher değişiklik olmadığına karar verdiğinde); `parse_json` doğrudan çağrıldığında yalnızca `Success` veya `Failed` döner.
 
-Dış tüketici yolu genelde doğrudan `fallible_options::parse_json` değildir. `settings_content::RootUserSettings` trait'i, `SettingsContent`, `Option<SettingsContent>` ve `UserSettingsContent` için `parse_json(json) -> (Option<Self>, ParseStatus)` ile `parse_json_with_comments(json) -> anyhow::Result<Self>` metotlarını sağlar. İç yardımcı olan `fallible_options::deserialize` ise `pub(crate)` kalır; yalnızca `#[with_fallible_options]` makrosunun eklediği serde özniteliği tarafından crate içinden çağırırsın.
+Dış tüketici yolu genelde doğrudan `fallible_options::parse_json` değildir. `settings_content::RootUserSettings` trait'i, `SettingsContent`, `Option<SettingsContent>`, `UserSettingsContent` ve ayrıca `ProjectSettingsContent` için (en az dört tip) `parse_json(json) -> (Option<Self>, ParseStatus)` ile `parse_json_with_comments(json) -> anyhow::Result<Self>` metotlarını sağlar. İç yardımcı olan `fallible_options::deserialize` ise `pub(crate)` kalır; yalnızca `#[with_fallible_options]` makrosunun eklediği serde özniteliği tarafından crate içinden çağırırsın.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
-| `RootUserSettings` | `parse_json`, `parse_json_with_comments` | Kök settings yüklerini aynı ayrıştırma arayüzünden geçirir; blanket impl yerine yalnız `SettingsContent`, `Option<SettingsContent>` ve `UserSettingsContent` için açık impl vardır. |
+| `RootUserSettings` | `parse_json`, `parse_json_with_comments` | Kök settings yüklerini aynı ayrıştırma arayüzünden geçirir; blanket impl yerine açık impl'ler vardır (`SettingsContent`, `Option<SettingsContent>`, `UserSettingsContent` ve ayrıca `ProjectSettingsContent` — en az dört tip). |
 
 Bu tolerans **yalnızca `fallible_options::parse_json` veya `RootUserSettings` hattında** tam davranışını gösterir. Tema dosyaları farklı bir yoldan gelir: `load_bundled_themes`, gömülü `assets/themes/*.json` için `serde_json::from_slice` kullanır; `deserialize_user_theme`, kullanıcı tema dosyası için `serde_json_lenient::from_slice` kullanır. Bu normal serde yollarında `ERRORS` thread-local'ı kurulmadığı için `fallible_options::deserialize` hatayı yutmaz; doğrudan deserialize hatası döndürür. `HighlightStyleContent` içindeki yerel `treat_error_as_none` ise bu thread-local'a bağlı değildir ve tema dosyası ayrıştırmasında da seçili alanları `None`'a düşürür.
 
@@ -895,7 +920,7 @@ fn bilinmeyen_alan_reddedilir() -> anyhow::Result<()> {
             "name": "Koyu", "appearance": "dark",
             "style": {
                 "background": "#000000ff",
-                "scrollbar_thumb.background": "#ffffffff"   // ← sözleşme dışı anahtar
+                "scrollbarr.thumb.background": "#ffffffff"   // ← sözleşmede olmayan yazım hatalı anahtar
             }
         }]
     }"#;

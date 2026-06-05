@@ -430,10 +430,13 @@ Sonuç:
 .text_color(cx.theme().colors().text)
 ```
 
-Icon okuma:
+Icon okuma — dosya ikonu çözümü bir `&Path` alır ve aktif icon tema'yı `cx` üzerinden okuyup ikon adını `Option<SharedString>` olarak döner (ikon yoksa `None`):
 
 ```rust
-let yol = kvs_tema::icon_for_file("Cargo.toml", GlobalTheme::icon_theme(cx));
+use std::path::Path;
+
+let ikon_adi: Option<SharedString> =
+    FileIcons::get_icon(Path::new("Cargo.toml"), cx);
 ```
 
 ### Subscribe pattern (observer)
@@ -711,7 +714,7 @@ pub fn init(yuklenecek_temalar: LoadThemes, cx: &mut App) -> anyhow::Result<()> 
 }
 ```
 
-> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar. `theme::init` önce font cache, registry ve fallback dark temasını kurar. Daha sonra üst seviyede `theme_settings::init` (`theme_settings` crate'i) çağrılır. Bu ikinci adım `set_theme_settings_provider` ile typography/density provider'ını kurar, `LoadThemes::All` durumunda `assets/themes/**/*.json` altındaki bundled tema asset'lerini yükler, `configured_theme(cx)` ile settings dosyasından gelen seçimi çözer ve aktif tema'yı **fallback dark'tan settings'in istediği temaya** geçirir. Kullanıcı disk temaları bu adımın parçası değildir; onlar `load_user_theme(registry, bytes)` veya `deserialize_user_theme(bytes)` yoluyla ayrıca registry'ye eklersin. Mirror tarafta da bu ayrım korunmalıdır: `kvs_tema::init` registry + `GlobalTheme` default'unu kurar, `kvs_tema_ayarlari::init` ise provider + settings observer + `configured_theme` akışını kurar. Bunları tek init'te birleştirmek `kvs_tema` crate'ini settings crate'ine zorunlu bağlar ve ilgili bölümdeki bağımlılık kararıyla çelişir.
+> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar. `theme::init` ayrı bir yedek tema eklemez; registry'yi (kuruluşunda `zed_default_themes()` ailesini ve varsayılan icon tema'yı zaten içeren kayıt) ve font önbelleğini kurar, ardından aktif tema'yı varsayılan koyu tema `One Dark` olarak ayarlar — bu koyu varsayılan kaydın `zed_default_themes()` içeriğinden gelir. Daha sonra üst seviyede `theme_settings::init` (`theme_settings` crate'i) çağrılır. Bu ikinci adım `set_theme_settings_provider` ile typography/density provider'ını kurar, `LoadThemes::All` durumunda `assets/themes/**/*.json` altındaki bundled tema asset'lerini yükler, `configured_theme(cx)` ile settings dosyasından gelen seçimi çözer ve aktif tema'yı **varsayılan koyu temadan settings'in istediği temaya** geçirir. Kullanıcı disk temaları bu adımın parçası değildir; onlar `load_user_theme(registry, bytes)` veya `deserialize_user_theme(bytes)` yoluyla ayrıca registry'ye eklersin. Mirror tarafta da bu ayrım korunmalıdır: `kvs_tema::init` registry + `GlobalTheme` default'unu kurar, `kvs_tema_ayarlari::init` ise provider + settings observer + `configured_theme` akışını kurar. Bunları tek init'te birleştirmek `kvs_tema` crate'ini settings crate'ine zorunlu bağlar ve ilgili bölümdeki bağımlılık kararıyla çelişir.
 
 ### 5 adımlı kuruluş
 
@@ -735,6 +738,8 @@ kayit.insert_themes([
     crate::fallback::kvs_default_light(),
 ]);
 ```
+
+Bu adım ayna uygulamaya özgü bir genişletmedir: Zed'in `init`'i ayrı bir yedek tema insert etmez; oradaki koyu varsayılan, Adım 2'deki `zed_default_themes()` ailesinin içinden gelir. Ayna tarafta `kvs_default_dark`/`kvs_default_light` temalarını açıkça eklemen, ürünün kendi yedek çiftini kayıtta garanti altına alır.
 
 İki "varsayılan" tema her zaman kayıtta bulunur. Bunun nedenleri:
 
@@ -856,13 +861,11 @@ pub fn kullanici_temalariyla_baslat(
             let aile: ThemeFamilyContent = serde_json_lenient::from_slice(&baytlar)?;
             cx.update(|cx| -> anyhow::Result<()> {
                 let kayit = ThemeRegistry::global(cx);
-                let taban = fallback::kvs_default_dark();
-                let temalar: Vec<Theme> = aile
-                    .themes
-                    .into_iter()
-                    .map(|tema_icerigi| Theme::from_content(tema_icerigi, &taban))
-                    .collect();
-                kayit.insert_themes(temalar);
+                // `refine_theme_family` aileyi tek seferde çözer; her tema
+                // varyantının taban renkleri (light/dark) fonksiyonun
+                // içinde uygulanır, ayrı bir taban argümanı geçmezsin.
+                let aile = refine_theme_family(aile);
+                kayit.insert_theme_families([aile]);
                 Ok(())
             })?;
         }

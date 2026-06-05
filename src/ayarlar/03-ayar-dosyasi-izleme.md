@@ -21,7 +21,7 @@ Davranış:
 - `fs.canonicalize(&path)` ile sembolik bağ ev dizinine kurulu `~/.config/zed` gibi yollar normalleştirilir; canonical alma başarısız olsa bile özgün path ile devam eder.
 - `fs.watch(&path, 100ms)` event akışını açar; ilk olarak `fs.load(&path)` ile mevcut içerik kanala yazılır, ardından her event sonrası yeniden yüklenir.
 - Alıcı düşmüşse (UI kapandı, store yenilendi) döngü sessizce sonlanır; sahibinin geri çağrı kanalı doldurmaması için.
-- Geri dönen `Task` izleme döngüsünün sahibidir; düşürülürse arka plan görevi iptal olur. Aynı `Task` `_settings_files_watcher` alanında `SettingsStore` tarafından saklarsın.
+- Geri dönen `Task` izleme döngüsünün sahibidir; düşürülürse arka plan görevi iptal olur. `SettingsStore`'un `_settings_files_watcher` alanında saklanan ise bu izleyici değil, `cx.spawn` ile yarattığın tüketici görevidir; içinde gelen içeriği `set_user_settings`'e verir ve ardından `cx.refresh_windows()` çağırırsın. `watch_config_file`'ın döndürdüğü izleyici görevi alana doğrudan koymazsın; tüketici görevin gövdesine taşıyarak orada canlı tutarsın.
 
 Tipik kullanım:
 
@@ -67,7 +67,7 @@ Davranış:
 
 ---
 
-## `update_settings_file` ve completion kanalı
+## `update_settings_file` ve tamamlanma kanalı
 
 Kullanıcı ayar dosyasına programatik yazma için iki yardımcı vardır:
 
@@ -90,7 +90,7 @@ Davranış:
 - Yardımcılar global `SettingsStore` üzerinden çalışır; doğrudan `SettingsStore::update_settings_file(...)` çağrısının ergonomik sarmalayıcısıdır.
 - Closure'a verilen `&mut SettingsContent` mevcut kullanıcı dosyasının ayrıştırılmış halidir; yerinde değiştirilir.
 - Mutasyon sonrası store fark üretir, JSON metnini minimum diff stratejisiyle yeniden yazar ve `fs.atomic_write(...)` üzerinden dosyaya kaydeder. JSON güncelleme hattı değişmeyen yorumları ve kullanıcı girintilemesini (`infer_json_indent_size`) korur.
-- `update_settings_file_with_completion` aynı işi yapar ama yazma tamamlanınca alıcısına `Ok` veya hata yollar. UI "kaydedildi" göstergesi veya yazma sonrası başka bir adım gerekiyorsa bu form tercih edersin.
+- `update_settings_file_with_completion` aynı işi yapar ama yazma ve ardından gelen store güncellemesi tamamlanınca alıcısına `Ok` veya hata yollar; sinyali yalnız `atomic_write` bitince değil, onu izleyen `set_user_settings` adımı da bittikten sonra gönderir. UI "kaydedildi" göstergesi veya yazma sonrası başka bir adım gerekiyorsa bu form tercih edersin.
 - Hatalar `SettingsParseResult` ile değil doğrudan `anyhow::Error` ile döner; kalıcı ayrıştırma sorunu varsa dosya yeniden okunmadan store'a yedirilmez.
 
 Tipik kullanım:
@@ -115,7 +115,7 @@ let sonuc = alici.await?;
 
 ## Test ortamı yardımcıları
 
-Görsel ve birim testlerde paketlenmiş `default.json` üzerine font ve tema override'ı uygulayan iki yardımcı bulunur:
+Görsel ve birim testlerde paketlenmiş `default.json` üzerine font ve tema üzerine yazımını uygulayan iki yardımcı bulunur:
 
 - `visual_test_settings()` — UI font olarak `.SystemUIFont`, buffer font olarak `Menlo` (macOS), boyut 14 ve tema `empty-theme` verir. Ekran görüntüsü veya yerleşim ölçüm testlerinde tutarlı yazı tipi gerektiğinde kullanırsın.
 - `test_settings()` — Linux/macOS'ta `Courier`, Windows'ta `Courier New` ile sabit genişlikli font seçer. `EMPTY_THEME_NAME = "empty-theme"` minimum tema'yı bağlar.
@@ -127,6 +127,6 @@ Bu yardımcılar `cfg(any(test, feature = "test-support"))` altındadır; üreti
 ## Dikkat Noktaları
 
 - `watch_config_dir` dosya yokken `Created` olayını bekler; symlink hedefi sonradan oluşturulan yapılandırmalarda ilk yüklemenin ardından sessizce sıralanmaya başlar. İlk değer hiç gelmiyorsa dosyanın gerçekten yaratıldığını ve symlink path'inin canonical'da göründüğünü doğrulaman gerekir.
-- `update_settings_file` user dosyasına yazar; proje yerel `.zed/settings.json` için aynı API yoktur. Proje yerel dosyayı düzenlemek için `Project::update_local_settings` veya doğrudan `fs.atomic_write` yolu kullanılır ve değişim ayrı bir `watch_config_dir` ile store'a yedirilir.
+- `update_settings_file` user dosyasına yazar; proje yerel `.zed/settings.json` için aynı API yoktur. Proje yerel dosya tarafında JSON metnini yeniden yazan ayrı bir yardımcı bulunmaz; ayrıştırılmış içeriği `SettingsStore::set_local_settings` ile store'un bellek içindeki `local_settings` haritasına işlersin ve bu çağrı dosyaya yazmaz. Dosya tarafındaki değişimi store'a taşıyan yine ayrı bir `watch_config_dir` akışıdır.
 - Closure içinde erken `return` kullanırsan yazma akışı hata üretmez; yalnız o ana kadar yaptığın mutasyonlar uygulanır. UI'da yazma sonucunu görünür kılmak için `update_settings_file_with_completion` veya çevresel kayıt mekanizması seçmen gerekir.
-- Kanal alıcısı çok yavaş tüketirse `UnboundedReceiver` bellek tüketir; tüketici store update'ini kısa sürede yapman veya akışı throttling'e alman gerekir.
+- Kanal alıcısı çok yavaş tüketirse `UnboundedReceiver` bellek tüketir; tüketici store güncellemesini kısa sürede yapman veya akış hızını sınırlaman gerekir.

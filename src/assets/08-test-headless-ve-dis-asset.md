@@ -230,7 +230,7 @@ window
 
 - **`SvgAsset` `cx.asset_source()`'a hiç bakmaz.** Doğrudan `fs::read` yapar. Yani dosya sistemi yolu binary varlık hattından bağımsızdır; `with_assets` çağrısı yapılmamış olsa bile çalışır.
 - **`use_asset` cache'i sayesinde aynı dosya birden fazla kez okunmaz.** İlk render'da `fs::read` çalışır, sonraki render'larda cache'lenen Future'dan baytlar paylaşılır.
-- **`paint_svg`'nin ikinci argümanı `Some(&baytlar)`** — Bu, varlık kaynağından okumaması gerektiğini söyler; doğrudan verilen baytlar üzerinden çalışır. Bu adım, binary yol ile dosya sistemi yolu arasındaki tek arayüz farkıdır.
+- **`paint_svg`'nin üçüncü argümanı `Some(&baytlar)`** — `paint_svg(bounds, path, data, transformation, color, cx)` imzasında `data` üçüncü konumsal argümandır (yukarıdaki kod bloğunda da `Some(&baytlar)` üçüncü sırada durur). Bu argüman dolu geldiğinde `paint_svg` varlık kaynağından okumaz; doğrudan verilen baytlar üzerinden çalışır. Bu adım, binary yol ile dosya sistemi yolu arasındaki tek arayüz farkıdır.
 
 ---
 
@@ -344,8 +344,8 @@ Bu desen GPUI'nin varlık hattının `dyn AssetSource` üzerinden parametrize ed
 Dosya sisteminden varlık okumak güvenlik ve sağlamlık açısından dikkat ister:
 
 - **Symlink takibi.** `fs::read` symlink'leri takip eder; uygulamanın kabul ettiği dizinin dışına çıkan bir symlink hassas dosyalara erişim sağlayabilir. Kullanıcı sağladığı yolları canonicalize edip izinli kök altında doğrulamak gerekir.
-- **Yol enjeksiyonu.** Kullanıcı girdisi `Resource::Embedded` olarak yorumlanırsa `../../etc/passwd` gibi yollar varlık kaynağına sızabilir. `RustEmbed::get` yalnızca include kalıplarıyla kapsanan varlık yollarını döndürür ve debug dosya sistemi kolunda canonical path kontrolü yapar; bu yüzden risk pratikte düşüktür. Buna karşılık `Resource::Path` için aynı garanti yoktur; açık doğrulama gerekir.
-- **`is_uri` sezgisi.** `From<&str>` for `ImageSource` `is_uri(s)` ile URI ayrımı yapar; "C:\Users\..." gibi yollar `is_uri` true dönmediği için `Embedded` olarak yorumlanır. Bu durumda varlık yolu bulunamayabilir. Girdinin dosya sistemi yolu olabileceği durumlarda `PathBuf::from(girdi).into()` ile dönüştürmek daha güvenlidir.
+- **Yol enjeksiyonu.** Kullanıcı girdisi `Resource::Embedded` olarak yorumlanırsa `../../etc/passwd` gibi yollar varlık kaynağına sızabilir. `RustEmbed::get` yalnızca include kalıplarıyla kapsanan varlık yollarını döndürür; bu yüzden risk pratikte düşüktür. Mevcut yapılandırmada `debug-embed` özelliği kapalı olduğundan debug derlemelerde `get` varlıkları dosya sisteminden okur ve bu kolda canonical path kontrolü devreye girer; release derlemelerde ise varlıklar binary'ye gömülüdür ve bu dosya sistemi kolu hiç çalışmaz. Buna karşılık `Resource::Path` için aynı garanti yoktur; açık doğrulama gerekir.
+- **`is_uri` sezgisi.** `From<&str>` for `ImageSource` `is_uri(s)` ile URI ayrımı yapar; bu işlev `url::Url::from_str` başarılı olursa true döner. `C:\Users\...\icon.svg` gibi Windows yollarında sürücü harfi `c:` bir URL şeması sanılır, ayrıştırma `Ok` döner ve `is_uri` true verir. Bu yüzden böyle bir girdi `Embedded` değil `Resource::Uri` olarak yorumlanır; geçersiz bir URI'ye dönüşür ve yüklenemez. Girdinin dosya sistemi yolu olabileceği durumlarda string yerine `PathBuf::from(girdi).into()` ile aktarmak daha güvenlidir.
 
 Bu kurallar varlık hattının "hız+esneklik" tasarımının kullanıcı koduna yansıyan boş kısımlarıdır; trait davranışı izin verir, doğrulama uygulamaya kalır.
 

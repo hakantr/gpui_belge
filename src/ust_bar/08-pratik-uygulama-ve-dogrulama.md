@@ -64,7 +64,7 @@ Menüleri ayrı bir satıra taşıma ihtiyacın varsa, [3. bölümdeki](03-title
 - Menü modu (iki satır) etkinken ikinci satırın rengi ve yüksekliği platform kabuğuyla eşleşiyor mu? macOS'ta yerel menü tercih ediliyor mu?
 - Proje adı, dal adı, sunucu ve kısıtlı mod göstergeleri ilgili görünürlük ayarlarına doğru tepki veriyor mu?
 - Oturum durum makinesi (açık/açılıyor/kapalı) doğru çalışıyor; aynı anda yalnız bir hâl mi görünüyor?
-- Güncelleme butonu, süren işlemler sırasında devre dışı mı? İpucu kaynak davranıştaki `"Update to Version:"` kalıbını ve tam SHA bilgisini koruyor mu? Türkçe portta metin yerelleştiriliyorsa aynı veri ayrımı sürüyor mu?
+- Güncelleme butonu, süren işlemler sırasında devre dışı mı? Sürüm taşıyan durumların (`Downloading`/`Installing`/`Updated`) ipucu kaynak davranıştaki `"Update to Version:"` kalıbını ve (SHA ise) tam hash'i koruyor mu? Türkçe portta metin yerelleştiriliyorsa aynı veri ayrımı sürüyor mu?
 - Başlıktaki tüm etkileşimli elementler sürükleme yayılımını durduruyor mu (buton tıklaması pencereyi sürüklemiyor)?
 - İşbirliği/duyuru bandı gibi opsiyonel parçalar, karşılığı olmayan bir uygulamada hiç kurulmamış mı?
 

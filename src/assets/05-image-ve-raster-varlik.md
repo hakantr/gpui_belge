@@ -138,7 +138,7 @@ Dört varyantın anlamı:
 
 - **`Resource(Resource)`** — Bir path, URI veya embedded path string'idir. En sık kullanılan kaynak türüdür; `From<&str>`, `From<&Path>`, `From<PathBuf>` gibi conversion'lar bu varyantı üretir.
 - **`Render(Arc<RenderImage>)`** — Daha önce decode edilmiş ham BGRA buffer. Cache veya elle üretilmiş image data için kullanılır; ekstra yükleme yapılmaz, doğrudan render edilir.
-- **`Image(Arc<Image>)`** — Decode edilmemiş ama yüklenmiş image instance'ı. Decode adımı yine asenkron yapılır; tipik olarak format dönüştürmesi gereken kaynaklar için.
+- **`Image(Arc<Image>)`** — Decode edilmemiş ama yüklenmiş image instance'ı (format ve ham byte'lar elde, BGRA'ya çevrilmemiş). Tipik kullanım panodan (clipboard) gelen görseldir. Decode'un kendisi senkron bir `to_image_data` çağrısıdır; fakat bu çağrı asset task'ı içinde, yani arka planda koşar, böylece render zamanını bloke etmez.
 - **`Custom(Arc<dyn Fn>)`** — Tamamen özel bir loader. UI bileşeni kendi yüklemesini tanımlamak istediğinde (örneğin clipboard'tan görsel yapıştırma) bu varyant kullanırsın.
 
 ### 3.1 String'den ImageSource'a tip dönüşümleri
@@ -289,7 +289,7 @@ pub type ImgResourceLoader = AssetLogger<ImageAssetLoader>;
 
 ### 5.1 `use_asset` cache mekaniği
 
-`ImageSource::use_data` çağrısı `window.use_asset::<ImgResourceLoader>(kaynak, cx)` ile asset cache'ine girer:
+`ImageSource::use_data` imzası `(&self, cache: Option<AnyImageCache>, window, cx)` biçimindedir; tek bir `kaynak` parametresi almaz, yanına bir `cache` seçeneği de alır. `Resource` varyantında önce bu `cache`'e bakar: element ağacında en yakın bir `ImageCacheElement` varsa `cache.load(resource, window, cx)` çağrılır. Yalnızca lokal görsel önbelleği yoksa (`None`) `window.use_asset::<ImgResourceLoader>(resource, cx)` ile global asset cache'ine düşer:
 
 ```rust
 pub fn use_asset<A: Asset>(&mut self, kaynak: &A::Source, cx: &mut App) -> Option<A::Output> {
@@ -341,7 +341,7 @@ h_flex()
     .children(<IconName as strum::IntoEnumIterator>::iter().map(...))
 ```
 
-`gpui::retain_all` "bu cache hiçbir şeyi atmasın" davranışı verir; tüm ikon galerisi açıkken cache evict olmaz. Diğer cache provider'ları LRU veya boyut sınırlı davranabilir; uygulamanın belleğini koruyarak bellek izini sınırlamak için kullanılırlar.
+`gpui::retain_all` "bu cache hiçbir şeyi atmasın" davranışı verir; tüm ikon galerisi açıkken cache evict olmaz. GPUI'de yerleşik tek `ImageCache` somut türü `RetainAllImageCacheProvider`'ın ürettiği `RetainAllImageCache`'tir ve adı LRU çağrıştırsa da gerçekte hiçbir eviction (ne LRU ne de boyut sınırı) içermez; sadece yükler ve tutar. Eviction stratejisi gerekiyorsa `ImageCache` trait'ini kendin uygulayıp kendi cache'ini yazarsın.
 
 `Img::image_cache(entity)` çağrısı, bir image element'in cache hiyerarşisindeki en yakın `ImageCacheElement`'i yoksaymasını sağlar; doğrudan verilen cache kullanırsın. Bu, "şu görseli özel bir cache'e koy" davranışı için kapı açar.
 

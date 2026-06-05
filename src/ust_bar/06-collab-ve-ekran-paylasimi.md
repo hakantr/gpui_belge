@@ -42,8 +42,8 @@ Uzak bir katılımcıya tıklamak takip etme/takibi bırakma davranışını çe
 | Buton | Koşul | Davranış |
 | :-- | :-- | :-- |
 | Çağrıdan Ayrıl | her zaman | Çağrıdan ayrılır (`ActiveCall` çağrı kapatma). |
-| Bağlantı kalitesi | her zaman | Sinyal ikonu + renk; ipucunda gecikme/jitter/paket kaybı istatistikleri. |
-| Projeyi Paylaş / Paylaşımı Durdur | proje paylaşılabiliyor ve yerelse | Projeyi paylaşır veya paylaşımı durdurur; bazı kanal kurallarında devre dışı olabilir. |
+| Bağlantı kalitesi | her zaman | Sinyal ikonu + renk; ipucunda gecikme, jitter, paket kaybı ve girdi gecikmesi istatistikleri. |
+| Projeyi Paylaş / Paylaşımı Durdur | proje yerel, paylaşılabiliyor ve uzak bağlantı kuruluyor değilse | Projeyi paylaşır veya paylaşımı durdurur; bazı kanal kurallarında devre dışı olabilir. |
 | Mikrofonu Kapat / Aç | mikrofon kullanılabiliyorsa | `toggle_mute`; mikrofon kapalıyken seçili görünür. |
 | Dinlemeyi Kapat / Aç | her zaman | `toggle_deafen`; ipucu dinlemeyi kapatma ve mikrofonu açma ilişkisini açıklar. |
 | Ekran paylaşımı | mikrofon + ekran paylaşımı destekliyse | `toggle_screen_sharing`; platforma göre tek buton veya açılır menülü buton. |

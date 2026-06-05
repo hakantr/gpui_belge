@@ -86,7 +86,7 @@ pub struct SettingsAssets;
 | `themes` | `#[include = "themes/**/*"]`, `#[exclude = "themes/src/*"]` | Bundled tema JSON'ları ve lisans dosyaları buradan okunur; kaynak tema üretim klasörü paketlenmez. |
 | `sounds` | `#[include = "sounds/**/*"]` | `Sound` enum'u ve ses hattı için `.wav` varlıklarını taşır. |
 | `prompts` | `#[include = "prompts/**/*"]` | Handlebars prompt şablonları için kullanılır. |
-| `markdown` | `#[include = "*.md"]` | Kök Markdown dosyalarını kapsar; mevcut ağaçta çalışma zamanı ana akışına yük bindiren geniş bir grup değildir. |
+| `markdown` | `#[include = "*.md"]` | Kural tanımlı olsa da `assets/` kökünde `.md` dosyası bulunmadığından grup şu an boştur; ileride kök Markdown eklenirse bu kapsamla taranır. |
 | `Assets::get` | `RustEmbed` tarafından üretilen statik erişim | Tek path için `EmbeddedFile` döndürür; `AssetSource::load` bu çağrıyı `Result<Option<Cow<[u8]>>>` sözleşmesine sarar. |
 | `Assets::iter` | `RustEmbed` tarafından üretilen iterator | `AssetSource::list` içinde prefix filtrelemesi için kullanılır. |
 | `Assets::load_fonts` | Çalışma zamanı font yükleme yardımcısı | `fonts` altındaki `.ttf` dosyalarını listeler, byte'ları `cx.asset_source()` üzerinden alır ve `TextSystem::add_fonts` çağırır. |
@@ -139,8 +139,9 @@ assets/
 │   ├── *.svg                    # IconName::path() ile eşlenen UI ikonları
 │   ├── file_icons/              # IconTheme::file_icons + chevron/folder
 │   │   └── *.svg
-│   └── knockouts/               # IconDecoration için maskeler
-│       └── *.svg
+│   ├── knockouts/               # IconDecoration için maskeler
+│   │   └── *.svg
+│   └── LICENSES                 # ikon SVG'lerinin lisans kaynağı (Lucide, ISC)
 ├── images/                      # Vector bileşeni okur (SVG raster değil)
 │   ├── zed_logo.svg
 │   ├── zed_x_copilot.svg
@@ -157,7 +158,9 @@ assets/
 │   │   ├── ayu.json
 │   │   └── LICENSE
 │   ├── gruvbox/
-│   └── LICENSES/                # paketlenmiş tema lisansları
+│   │   ├── gruvbox.json
+│   │   └── LICENSE
+│   └── LICENSES                 # paketlenmiş tema lisanslarını toplayan dosya
 ├── sounds/                      # Ses hattı okur
 │   └── *.wav                    # Sound enum varyantlarıyla 1:1 eşleşir
 ├── keymaps/                     # SettingsAssets üzerinden okunur
@@ -198,8 +201,8 @@ Varlık altyapısının kendi kodu (yani `assets` crate'indeki `AssetSource` imp
 |--------|---------------|
 | `AssetSource` implementasyonu | `RustEmbed` etrafında ince sarmalayıcı; standart Rust kodu |
 | Fonts (`fonts/ibm-plex-sans/`, `fonts/lilex/`) | Sırasıyla OFL (Open Font License); lisans dosyaları font klasörünün içinde tutulur |
-| Icons (`icons/*.svg`) | Zed projesi tarafından üretilen SVG'ler; GPL-3 sınırı içindedir |
-| Themes (`themes/*/`) | Her tema ailesinin kendi LICENSE dosyası vardır; `themes/LICENSES/` bunları toplar |
+| Icons (`icons/*.svg`) | Lucide (ISC) kökenli, bir bölümü Feather (MIT) olan SVG'ler; lisans `icons/LICENSES` dosyasıyla taşınır |
+| Themes (`themes/*/`) | Her tema ailesinin kendi `LICENSE` dosyası vardır; `themes/LICENSES` dosyası ise bunları tek metinde toplar |
 | Sounds (`sounds/*.wav`) | Zed projesi tarafından üretilmiş WAV dosyaları; GPL-3 sınırı içindedir |
 | Prompts (`prompts/*.hbs`) | Zed projesi tarafından üretilen şablonlar; GPL-3 sınırı içindedir |
 
@@ -209,10 +212,10 @@ Varlık altyapısının kendi kodu (yani `assets` crate'indeki `AssetSource` imp
 |-------------|-----------|
 | `RustEmbed` ile kendi varlık klasörünü kurmak ve `AssetSource` trait'ini implement etmek | Zed'in `assets` modülünün gövdesini kopyalamak yerine yeniden yazmak gerekir |
 | OFL lisanslı IBM Plex Sans ve Lilex fontlarını lisans dosyalarıyla birlikte taşımak | Lisans dosyası olmadan font dosyası taşımak (OFL bunu açıkça yasaklar) |
-| Zed dışında MIT/Apache lisanslı kendi ikonlarını eklemek | `icons/*.svg` dosyalarını GPL-3 sınırı dışında bir uygulamaya doğrudan kopyalamak |
+| Lucide (ISC) ikonlarını `icons/LICENSES` dosyasıyla birlikte taşımak veya MIT/Apache lisanslı kendi ikonlarını eklemek | `icons/*.svg` dosyalarını `icons/LICENSES` lisans metni olmadan taşımak (ISC, telif ve izin bildiriminin korunmasını şart koşar) |
 | Yapısal akışı (RustEmbed → AssetSource → SvgRenderer → svg element) anlayıp kendi koduyla yeniden yazmak | `cx.asset_source()` çağrı zincirindeki kod parçalarını birebir kopyalamak |
 
-**Sonuç:** Varlık altyapısının yapısı (RustEmbed + AssetSource + tüketici zincirleri) açık bir desendir; telif kapsamında değildir. Ancak varlıkların kendisi (font, ikon, ses, prompt) lisans dosyasıyla birlikte taşınır. Kendi uygulamasını kuran geliştirici, Zed'in font ve tema dosyalarını lisanslarıyla birlikte taşıyabilir. SVG ikon ve WAV ses dosyaları GPL-3 sınırı dışında kullanılacaksa yeniden üretilmeli ya da MIT/Apache eşdeğerleriyle değiştirilmelidir.
+**Sonuç:** Varlık altyapısının yapısı (RustEmbed + AssetSource + tüketici zincirleri) açık bir desendir; telif kapsamında değildir. Ancak varlıkların kendisi (font, ikon, ses, prompt) lisans dosyasıyla birlikte taşınır. Kendi uygulamasını kuran geliştirici, Zed'in font ve tema dosyalarını lisanslarıyla birlikte taşıyabilir; Lucide (ISC) kökenli SVG ikonları da `icons/LICENSES` metniyle birlikte serbestçe taşınabilir. WAV ses dosyaları ise Zed tarafından üretilmiş olup GPL-3 sınırı içindedir; bu sınır dışında kullanılacaksa yeniden üretilmeli ya da uygun lisanslı eşdeğerleriyle değiştirilmelidir.
 
 ---
 

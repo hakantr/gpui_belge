@@ -30,7 +30,7 @@ Varlık hattı uygulama başlatma akışında birkaç sert bağımlılığa sahi
 
 **Kontrol:** Varlık eklendi ama çalışma zamanında görünmüyorsa şu üç şey ardarda doğrulanır: (a) dosya `assets/` altında doğru yerde mi, (b) `RustEmbed` include kalıbı bu klasörü kapsıyor mu, (c) ilgili crate yeniden derlendi mi?
 
-**Eksik yol davranışı:** `Assets::load` eksik dosyada `Ok(None)` dönmez; `varlık yolu yüklenemedi: ...` bağlamıyla hata üretir. `Ok(None)` davranışı boş `()` kaynağı veya bunu özellikle seçen özel `AssetSource` implementasyonları içindir. Log'da bu mesaj görülüyorsa kaynak genellikle uyumsuz yol, eksik dosya veya include kalıbıdır.
+**Eksik yol davranışı:** `Assets::load` eksik dosyada `Ok(None)` dönmez; yüklenemeyen yolu bağlam olarak ekleyen bir hata üretir. `Ok(None)` davranışı boş `()` kaynağı veya bunu özellikle seçen özel `AssetSource` implementasyonları içindir. Log'da bu türden bir varlık yükleme hatası görülüyorsa kaynak genellikle uyumsuz yol, eksik dosya veya include kalıbıdır.
 
 ---
 
@@ -46,7 +46,7 @@ Varlık hattı uygulama başlatma akışında birkaç sert bağımlılığa sahi
 **Dikkat edilmesi gereken yerler:**
 
 - Dosya adı CamelCase yazıldı (örneğin `YeniIkon.svg`): `IconName::path()` `snake_case` üretir, dosya bulunmaz.
-- SVG `viewBox` tanımı yok: `SvgRenderer` boyutu hesaplayamaz, render başarısız olur. `viewBox="0 0 16 16"` gibi bir tanım her SVG için zorunludur.
+- SVG'de boyut göstergesi hiç yok: `width`, `height` ve `viewBox` üçü birden eksikse `SvgRenderer` boyutu sıfır çözer ve render başarısız olur. usvg, `width`/`height` verilmemişse bunları `100%` varsayar; tek başına `viewBox` olmadan da, ölçüleri belirtilmiş bir SVG render olur. Yine de `viewBox="0 0 16 16"` gibi bir tanım doğru ölçeklenme için güçlü biçimde önerilir; gerçek başarısızlık (sıfır boyut) üç göstergenin de bulunmadığı ya da boyutun sıfıra veya negatife indiği durumda doğar.
 - SVG `width` ve `height` öznitelikleri piksel cinsinden sabit: render boyutu küçük kalır. `width="100%" height="100%"` veya tamamen kaldırmak doğrudur; boyutu element seviyesinde `Icon::size` ile verirsin.
 
 **Renkli SVG notu:** `svg().path(...)`, `Icon` ve `Vector` yolları `Window::paint_svg` üzerinden alpha mask üretir ve tek renkle boyar. Renkli SVG veya logo gerekiyorsa `img("images/foo.svg")` yolunu kullan; bu yol SVG'yi tam renkli `RenderImage` olarak rasterleştirir.
@@ -83,7 +83,7 @@ Font eklerken iki ayrı tüketici güncellenir:
 
 Ses ekleme akışı şudur:
 
-1. WAV dosyası `assets/sounds/<dosya_adi>.wav` olarak konur. `rodio::Decoder` PCM WAV ve LPCM destekler; başka format kullanılmaz.
+1. WAV dosyası `assets/sounds/<dosya_adi>.wav` olarak konur. `rodio::Decoder` yalnızca WAV (PCM) çözer; başka format kullanılmaz.
 2. `audio` crate'indeki `Sound` enum'una varyant eklersin.
 3. `Sound::file` `match` bloğuna `Self::YeniSes => "yeni_ses"` girilir.
 
@@ -109,7 +109,7 @@ Yeni tema eklerken:
 - JSON'da sondaki virgül var: `serde_json` katı modda reddeder.
 - `style` alanındaki `colors` blokunda eksik renk: refinement yedeği devreye girer; pratik bir sorun yaratmaz ama varsayılan temadan miras alan renkler beklenmedik olabilir.
 
-**Tema yüklenmediği zaman tespiti:** `load_bundled_themes` hata loglar ama uygulamayı durdurmaz. Log'da `tema ayrıştırılamadı: "..."` mesajı görünüyorsa o tema dosyasında sorun vardır; geri kalan temalar çalışmaya devam eder.
+**Tema yüklenmediği zaman tespiti:** gömülü tema yükleme yolu hatayı loglar ama uygulamayı durdurmaz. Log'da bir tema dosyasının ayrıştırılamadığını bildiren bir kayıt görünüyorsa o dosyada sorun vardır; geri kalan temalar çalışmaya devam eder.
 
 ---
 
@@ -136,9 +136,11 @@ Release/debug-embed build'de varlıklar `RustEmbed` ile binary'ye gömüldüğü
 | Varlık türü | Tipik boyut | Adet | Toplam etki |
 |-------------|-------------|------|-------------|
 | Font (.ttf) | 100-200 KB | 8 dosya (Zed'de) | ~1.5 MB |
-| Icon (.svg) | 1-5 KB | 280+ dosya | ~1 MB |
-| Tema (.json) | 50-200 KB | 10+ dosya | ~1-2 MB |
+| Icon (.svg) | 1-5 KB | ~400 dosya | ~1 MB |
+| Tema (.json) | 50-200 KB | 3 aile dosyası | ~1-2 MB |
 | Ses (.wav) | 10-100 KB | 8 dosya | ~500 KB |
+
+Gömülü tema ailesi olarak yalnızca üç JSON dosyası (ayu, gruvbox, one) gelir; her dosyanın içinde aynı ailenin birden çok teması (örneğin açık ve koyu varyantlar) barınabildiği için yüklenen tema sayısı dosya sayısından fazladır.
 
 Toplam varlık boyutu Zed binary'sinde 5-10 MB civarındadır. Bu, modern bir desktop uygulaması için kabul edilebilir bir bedeldir; ancak küçük binary'ler hedeflenirse:
 

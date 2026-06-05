@@ -82,7 +82,7 @@ Tipik akış şudur: Vim modu açıkken `:w<CR>` gibi komutlar intercept edilip 
 Action trait'inin `documentation()` yüzeyi komut paleti ile karıştırılmamalıdır:
 
 - Komut paleti satırında şu anda insancıllaştırılmış action adı ve mevcut keybinding görünür; action documentation palet satırında ayrı bir açıklama olarak çizilmez.
-- Komut paleti `window.available_actions(cx)` ile odaktaki dispatch path'ten action tiplerini toplar; `build_action_type(type_id)` ile canonical action adını üretir.
+- Komut paleti `window.available_actions(cx)` ile odaktaki dispatch path'ten action nesnelerini toplar; canonical ad doğrudan `action.name()`'ten gelir, palet satırında görünen biçim ise `humanize_action_name(...)` ile oluşur.
 - Doc yorumu yazımı yine önemlidir: derive makrosu bunu `documentation()` üzerinden ifşa eder ve keymap editörü ile JSON schema gibi action keşif yüzeyleri bu bilgiyi kullanır.
 
 ---
@@ -91,7 +91,7 @@ Action trait'inin `documentation()` yüzeyi komut paleti ile karıştırılmamal
 
 Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adımlarla işler:
 
-1. `command_palette::init(cx)` hook global'lerini kurar ve `cx.observe_new(CommandPalette::register).detach()` ile her yeni `Workspace` için `zed_actions::command_palette::Toggle` action'ını kaydeder.
+1. `command_palette::init(cx)` hook global'lerini kurar ve `cx.observe_new(CommandPalette::register).detach()` ile her yeni `Workspace` için `Toggle` action'ına işleyici bağlar (`workspace.register_action(...)`). Action tipinin kendisi `zed_actions::command_palette` içinde `actions!` ile zaten tanımlıdır; `register` yalnız bu tipe bir işleyici takar.
 2. `CommandPalette::toggle(calisma_alani, sorgu, window, cx)` mevcut focus handle'ını alır. Focus yoksa palet açılmaz. Ardından `calisma_alani.toggle_modal(...)` ile `CommandPalette` modal view olarak oluşturulur.
 3. `CommandPalette::new(onceki_odak_tutamagi, sorgu, calisma_alani, window, cx)` `window.available_actions(cx)` çağırır. Bu liste bütün registry değildir; odaktaki dispatch path üzerinde `.on_action(...)` ile bağlı action'lar ve global action dinleyicileridir.
 4. Her action `CommandPaletteFilter::is_hidden` ile elenir ve görünen action'lar `humanize_action_name(action.name())` sonucuyla `Command { name, action }` haline getirilir.
@@ -105,7 +105,7 @@ Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adıml
 - `normalize_action_query(girdi)` kırpar, ardışık boşluğu tek boşluğa indirir, `_` karakterlerini boşluğa çevirir ve ardışık `::` yazımlarını arama için sadeleştirir.
 - `WorkspaceSettings::command_aliases` tam sorgu eşleşmesini canonical action adı string'ine çevirir.
 - Sorgu bir Zed bağlantısı ise (`parse_zed_link`) palette `OpenZedUrl { url }` action'ını interceptor sonucu gibi listeye ekler.
-- Normal komut listesi arka plan executor'ı üzerinde `fuzzy_nucleo::match_strings_async(..., Case::Smart, LengthPenalty::On, 10000, ...)` ile eşleştirilir. Eşleşmeler hit sayısına göre, sonra alfabetik ada göre sıralanan komut havuzundan gelir.
+- Normal komut listesi arka plan executor'ı üzerinde `fuzzy_nucleo::match_strings_async(..., Case::Smart, LengthPenalty::On, 10000, ...)` ile eşleştirilir. Eşleştirmeye giren komut havuzu önce hit sayısına, sonra alfabetik ada göre sıralanır; ama sonuç listesinin sırasını birincil olarak fuzzy skoru belirler. Hit sayısı ve alfabetik sıra yalnız boş sorguda ve skor eşitliğinde, eşitliği bozan ikincil ölçüt olarak devreye girer; yani gösterim sırasının kendisi sayılmamalıdır.
 - Interceptor sonucu varsa `matches_updated` içinde normal eşleşmelerle birleştirilir; tekrarlanan action'lar `Action::partial_eq` ile ayıklanır.
 
 **Geçmiş ve sıralama.** `CommandPaletteDB` SQLite tablosu komut geçmişini tutar:
@@ -114,12 +114,12 @@ Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adıml
 - `write_command_invocation(command_name, user_query)` çalıştırılan komutu ve kullanıcının yazdığı sorguyu kaydeder. Tablo 1000 kaydı geçtiğinde en eski kayıt silinir.
 - `get_command_usage(command)` tek komut için kullanım sayısı ve son kullanım zamanını döndürür.
 - `list_commands_used()` komut başına invocation sayısı ile son kullanım zamanını döndürür; palet açılırken hit sayısı yüksek komutlar önce sıralanır.
-- `list_recent_queries()` boş olmayan kullanıcı sorgularını son kullanım zamanına göre getirir; DB sonucu eskiden yeniye sıralanır, picker ise geçmişte gezinirken aynı öneke sahip son kayıtlara sondan geriye doğru gider.
+- `list_recent_queries()` boş olmayan kullanıcı sorgularını son kullanım zamanına göre getirir; sorgu `GROUP BY user_query` ile yinelenenleri ayıklayacak şekilde gruplanır, böylece her sorgu tekil `user_query` olarak bir kez döner. DB sonucu eskiden yeniye sıralanır, picker ise geçmişte gezinirken aynı öneke sahip son kayıtlara sondan geriye doğru gider.
 
 **Onay davranışı.** Onay akışları iki şekilde işler:
 
 - Normal onay seçili komutu alır, telemetry'ye `source = "command palette"` ile yazar, `CommandPaletteDB` kaydını bir arka plan görevi olarak başlatır, önceden odakta olan handle'a geri odaklanır, modalı kapatır ve `window.dispatch_action(action, cx)` çağırır.
-- İkincil onay seçili action'ın canonical adını `String` olarak alır ve `zed_actions::ChangeKeybinding { action: action_name.to_string() }` action'ını dispatch eder. Buradaki `action` alanı bir action nesnesi değil, registry name string'idir (örneğin `"editor::GoToDefinition"`); keymap editörü bu string'i alır ve bağlama ekleme akışını başlatır. Footer'daki kaynak `"Add/Change Keybinding"` butonu da aynı yolu kullanır.
+- İkincil onay seçili action'ın canonical adını `String` olarak alır ve `zed_actions::ChangeKeybinding { action: action_name.to_string() }` action'ını dispatch eder. Buradaki `action` alanı bir action nesnesi değil, registry name string'idir (örneğin `"editor::GoToDefinition"`); keymap editörü bu string'i alır ve bağlama ekleme akışını başlatır. Footer'daki buton ise `ChangeKeybinding`'i doğrudan değil `menu::SecondaryConfirm` dispatch eder; bu da aynı ikincil onay yolunu tetikler. Butonun etiketi seçili action'ın mevcut bağlamasına göre değişir: bağlama varsa `"Change Keybinding…"`, yoksa `"Add Keybinding…"` gösterilir.
 - `finalize_update_matches` bekleyen arka plan sonucu en fazla kısa bir süre ön planda bekleyebilir; bu, palet açılırken boş liste titremesini ve otomasyon sırasında erken enter basma durumunu azaltır.
 
 ---

@@ -33,7 +33,7 @@ Kullanıcının abonelik planı, kullanıcı menüsü içinde küçük bir etike
 pub fn new(plan: Plan) -> Self
 ```
 
-`PlanChip`, `cloud_api_types::Plan` değerini alır ve plana göre renklendirilmiş bir etiket çizer: ücretsiz plan nötr renkte, ücretli planlar (Pro, Business, Trial, Student gibi) vurgu renginde ve daha belirgin bir arka planla. Renkler tema token'larından gelir; bu yüzden açık/koyu temada otomatik uyumludur.
+`PlanChip`, `cloud_api_types::Plan` değerini alır ve plana göre renklendirilmiş bir etiket çizer: ücretsiz plan nötr renkte, ücretli planlar (Pro, Business, Pro Trial, Student gibi) vurgu renginde ve daha belirgin bir arka planla. Renkler tema token'larından gelir; bu yüzden açık/koyu temada otomatik uyumludur.
 
 Plan bilgisi yalnız kullanıcının bir abonelik dönemi varsa gösterilir; eski ücretsiz durumdaki kullanıcılarda çip gizlenir. Port hedefinde bir abonelik modelin yoksa bu parça hiç gerekmez; varsa aynı kalıbı kurarsın: planı tek bir enum'dan oku, plana göre renk seç, küçük bir etiket çiz.
 
@@ -47,7 +47,7 @@ Plan bilgisi yalnız kullanıcının bir abonelik dönemi varsa gösterilir; esk
 | `Downloading { version }` | İndirme göstergesi; ipucunda sürüm. |
 | `Installing { version }` | Kurulum göstergesi; ipucunda sürüm. |
 | `Updated { version }` | Tıklanınca çalışma alanı yeniden yüklenir; kapatılabilir. |
-| `Errored { error }` | `"Failed to Update"` mesajı; tıklanınca uygulama günlüğü açılır; kapatılabilir. Türkçe portta görünür metin anlam korunarak yerelleştirilir. |
+| `Errored { error }` | Görünür buton etiketi `"Failed to Update"`; hata ayrıntısı ise ipucuna konan ham hata metnidir. Tıklanınca uygulama günlüğü açılır; kapatılabilir. Türkçe portta görünür etiket anlam korunarak yerelleştirilir. |
 | `Idle` (ve manuel olmayan `Checking`) | Hiçbir şey çizilmez. |
 
 Görsel kabuk, `ui` crate'indeki `UpdateButton` bileşenidir ve bu durumların her biri için ayrı bir kurucu sunar. `Checking`, `Downloading`, `Installing` durumlarında buton `disabled(true)` ile gelir; yani indirme/kurulum sürerken kullanıcı tekrar tıklayıp aynı işi başlatamaz.
@@ -58,7 +58,7 @@ Görsel kabuk, `ui` crate'indeki `UpdateButton` bileşenidir ve bu durumların h
 fn version_tooltip_message(version: &VersionCheckType) -> String
 ```
 
-Kaynak arayüzde metin her durumda `"Update to Version: {version}"` kalıbındadır. Sürüm semantik bir versiyon ise sürüm numarası, commit SHA ise **kısaltılmamış tam SHA** kullanılır. Türkçe portta bu metin yerelleştirilecekse aynı veri ayrımı korunur; başlıkta kısa SHA değil, tam hash gösterilir.
+Bu yardımcı yalnız indirme, kurulum ve güncelleme-hazır durumlarında çağrılır; bu durumların ipucu `"Update to Version: {version}"` kalıbındadır. Sürüm semantik bir versiyon ise sürüm numarası, commit SHA ise **kısaltılmamış tam SHA** kullanılır. Hata durumunda ise ipucu bu kalıba uymaz; doğrudan ham hata metnidir. Manuel kontroldeki `Checking` durumunda hiç ipucu yoktur. Türkçe portta bu metin yerelleştirilecekse aynı veri ayrımı korunur; başlıkta kısa SHA değil, tam hash gösterilir.
 
 `SimulateUpdateAvailable` eylemi, bu yüzeyi geliştirme sırasında test etmek içindir: `toggle_update_simulation` aracılığıyla `UpdateVersion`'ı durumlar arasında döndürür, böylece her durumun görünümü gerçek bir güncelleme beklemeden denenebilir.
 
@@ -83,7 +83,7 @@ pub fn visible_when(self, predicate: impl Fn(&mut App) -> bool + 'static) -> Sel
 pub fn restore_banner(cx: &mut App)
 ```
 
-Tasarım şudur: duyuru bandı bir kaynak kimliği (telemetri/kapatma anahtarı), bir ikon, bir ana metin, opsiyonel bir alt metin ve tıklamada gönderilecek bir eylem alır. `visible_when` ile bir koşul işlevi verilir; bu koşul her render geçişinde çağrılır ve duyuru bandının görünürlüğünü (örneğin bir özellik bayrağına göre) belirler. Kullanıcı bandı tıklarsa eylem gönderilir ve bant kapanır; kapatma (X) butonuna basarsa yalnız kapanır. Her iki durumda da kapatma kalıcı kaydedilir, böylece bant tekrar gösterilmez. `restore_banner` ise bu kaydı silip bandı yeniden görünür yapar (yönetim/test amaçlı).
+Tasarım şudur: duyuru bandı bir kaynak kimliği (telemetri/kapatma anahtarı), bir ikon, bir ana metin, opsiyonel bir alt metin (verilmezse varsayılan olarak `"Introducing:"` öneki kullanılır, dolayısıyla pratikte daima bir alt metin çizilir) ve tıklamada gönderilecek bir eylem alır. `visible_when` ile bir koşul işlevi verilir; bu koşul her render geçişinde çağrılır ve duyuru bandının görünürlüğünü (örneğin bir özellik bayrağına göre) belirler. Kullanıcı bandı tıklarsa eylem gönderilir ve bant kapanır; kapatma (X) butonuna basarsa yalnız kapanır. Her iki durumda da kapatma kalıcı kaydedilir, böylece bant tekrar gösterilmez. `restore_banner` ise bu kaydı silip bandı yeniden görünür yapar (yönetim/test amaçlı).
 
 **Güncel HEAD'in önemli notu:** Bu altyapı kodda hazır olsa da, şu anki Zed sürümünde `TitleBar`'ın `banner` alanı her zaman `None`'dır; `OnboardingBanner::new` hiçbir yerde çağrılmaz. Yani duyuru bandı mekanizması **mevcut ama bağlı değildir**; başlıkta fiilen bir duyuru bandı çizilmez. Render yolu `show_onboarding_banner` ayarı ve `banner` alanının `Some` olması koşuluna bağlı olduğundan, alan `None` kaldıkça bu yol hiç çalışmaz.
 

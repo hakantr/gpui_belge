@@ -18,13 +18,16 @@ pub struct Theme {
     pub(crate) styles: ThemeStyles,   // erişim metotları üzerinden okunur
 }
 
+#[derive(Refineable, Clone, Debug, PartialEq)]
 pub(crate) struct ThemeStyles {
     pub(crate) window_background_appearance: WindowBackgroundAppearance,
     pub(crate) system: SystemColors,
+    pub(crate) accents: AccentColors,
+    #[refineable]
     pub(crate) colors: ThemeColors,
+    #[refineable]
     pub(crate) status: StatusColors,
     pub(crate) player: PlayerColors,
-    pub(crate) accents: AccentColors,
     pub(crate) syntax: Arc<kvs_syntax_tema::SyntaxTheme>,
 }
 
@@ -73,14 +76,16 @@ impl Theme {
 
 ### `ThemeStyles` alt katmanları
 
+`ThemeStyles` de `#[derive(Refineable, Clone, Debug, PartialEq)]` taşır; refinement zinciri bu türevden çalışır. `colors` ve `status` alanları `#[refineable]` işaretlidir, böylece kullanıcı temasının UI ve durum renk geçersiz kılmaları doğrudan bu iki alt katmana iner. Geri kalan alanlar (`accents`, `player`, `system`, `syntax`, `window_background_appearance`) bütün olarak değişir. Görünürlüğün `pub(crate)` tutulması bir port tercihidir; refinement davranışını etkilemez.
+
 | Alt katman | Tip | Bölüm referansı |
 | ----------- | ----- | ----------------- |
 | `window_background_appearance` | `WindowBackgroundAppearance` | — |
 | `system` | `SystemColors` | — |
+| `accents` | `AccentColors` | — |
 | `colors` | `ThemeColors` | — |
 | `status` | `StatusColors` | — |
 | `player` | `PlayerColors` | — |
-| `accents` | `AccentColors` | — |
 | `syntax` | `Arc<SyntaxTheme>` | — |
 
 ### `Arc<SyntaxTheme>` neden Arc?
@@ -957,7 +962,7 @@ if aktif_tema.appearance.is_light() {
 
 **Kaynak:** `theme` crate'i.
 
-Zed'in yedek temalarındaki renk üretim sistemi **Radix UI** color scales modelinden esinlenir. Her renk ailesi 12 adımlı bir skala olarak modellenir. Zed referansında `neutral` adında tek bir alan yoktur; nötr aileler `gray`, `mauve`, `slate`, `sage`, `olive`, `sand` gibi ayrı skala set'leri halinde tutulur. Adım numarası **semantik anlam** taşır:
+Zed'in yedek temalarındaki renk üretim sistemi **Radix UI** color scales modelinden esinlenir. Her renk ailesi 12 adımlı bir skala olarak modellenir. `ColorScales` struct'ında `neutral` adında bir **alan** yoktur; nötr aileler `gray`, `mauve`, `slate`, `sage`, `olive`, `sand` gibi ayrı skala set'leri halinde tutulur. Buna karşılık `neutral` adı tümüyle yok da değildir: `pub(crate) fn neutral() -> ColorScaleSet` biçiminde bir **takma ad fonksiyonu** vardır ve gövdesi doğrudan `sand()` döndürür. Varsayılan renkler (`background`, `border`, `status_bar_background`, ayrıca `predictive` ve `hidden` gibi durum renkleri) bu `neutral()` üzerinden beslenir. Yani "nötr" kavramı bir alan olarak değil, bir skala seçim yardımcısı olarak yaşar. Adım numarası **semantik anlam** taşır:
 
 ```rust
 pub struct ColorScaleStep(usize);
@@ -988,8 +993,8 @@ impl ColorScale {
 pub struct ColorScaleSet {
     name: SharedString,
     light: ColorScale,
-    light_alpha: ColorScale,
     dark: ColorScale,
+    light_alpha: ColorScale,
     dark_alpha: ColorScale,
 }
 
@@ -1186,6 +1191,8 @@ kayit.insert_themes(temalar);
 ```
 
 Aile üst bilgisi registry'ye doğrudan geçirilmez; yalnızca tek tek `Theme` örnekleri kaydedilir. Aile bilgisini `Theme.id` üzerinden veya ek bir üst bilgi tablosunda saklamak istenirse bu ayrıca verilecek opsiyonel bir karardır.
+
+> **`from_content` bir ayna adıdır.** Yukarıdaki `Theme::from_content(tema_icerigi, &taban)` çağrısı bu portun seçtiği imzadır; Zed'de aynı adda bir metot yoktur. Gerçek karşılık `theme_settings` modülünde serbest bir fonksiyondur: `refine_theme(theme: &ThemeContent) -> Theme`. Bu fonksiyon dışarıdan **taban argümanı almaz**; tabanı içerikteki `appearance` değerine göre kendisi seçer (light için açık taban, dark için koyu taban) ve refinement'ı onun üstüne uygular. İçeriği aile düzeyinde işleyen sarmalayıcı ise `refine_theme_family(ThemeFamilyContent) -> ThemeFamily`'dir. Ayna tarafta taban argümanını açıkça geçirmek bir port tercihidir; bunu "Zed sözleşmesi" diye sunma.
 
 ### `SyntaxTheme`
 
@@ -1442,12 +1449,17 @@ struct ThemeRegistryState {
 }
 
 impl ThemeRegistry {
-    pub fn insert_icon_theme(&self, icon_theme: IconTheme) { /* ... */ }
     pub fn get_icon_theme(&self, name: &str) -> Result<Arc<IconTheme>, IconThemeNotFoundError> { /* ... */ }
     pub fn list_icon_themes(&self) -> Vec<ThemeMeta> { /* ... */ }
-    pub fn load_icon_theme(&self, family: IconThemeFamilyContent, icons_root: &Path) -> anyhow::Result<()> { /* ... */ }
+    pub fn load_icon_theme(
+        &self,
+        icon_theme_family: IconThemeFamilyContent,
+        icons_root_dir: &Path,
+    ) -> anyhow::Result<()> { /* ... */ }
 }
 ```
+
+Zed'de **tekil bir `insert_icon_theme` metodu yoktur**. Icon temaları registry'ye bir aile olarak girer: `load_icon_theme(icon_theme_family, icons_root_dir)`, aileyi içerikten çözer, icon yollarını `icons_root_dir`'e göre çözümler ve varsayılan icon tema üstüne yerleştirir. UI temalarında bunun karşılığı `insert_themes`'dir; bu metot zaten hazır `Theme` örneklerini map'e koyar. Ayna tarafta da tekil bir ekleme metodu uydurmak yerine aynı aile-yükleme yolunu korursun.
 
 Aktif icon tema, ayrı bir `GlobalIconTheme` yerine `GlobalTheme` içinde tutulur. Bu seçim, tema değişimi ile icon tema değişimini aynı yenileme modeline bağlar: ayarlar değişir → uygun `Theme` ve `IconTheme` registry'den çözülür → `GlobalTheme::update_theme` ve `update_icon_theme` çağrıları yapılır → `cx.refresh_windows()` ile ekran yenilenir.
 
@@ -1564,7 +1576,7 @@ pub fn gomulu_ikon_temalarini_yukle(
 
 **`kvs_tema::init` ile entegrasyon:**
 
-`init`, UI tema registry'sinin yanı sıra icon tema registry'sini de kurabilir. Zed'in düşük seviye `theme::init` akışı `SystemAppearance`, `ThemeRegistry`, `FontFamilyCache` ve başlangıç `GlobalTheme` değerini kurar; `theme_settings::init` ise bunun üstüne ayarlardan seçilen UI tema ve icon temasını yükleyip `GlobalTheme::update_theme` / `update_icon_theme` çağırır. Ayna tarafta aynı iki aşamayı tek bir yardımcıda sadeleştirebilirsin:
+`init`, UI tema registry'sinin yanı sıra icon tema registry'sini de kurabilir. Zed'in düşük seviye `theme::init` akışı `SystemAppearance`, `ThemeRegistry`, `FontFamilyCache` ve başlangıç `GlobalTheme` değerini kurar. Bu başlangıç değeri boş değildir: `init` daha bu noktada `GlobalTheme`'i **varsayılan koyu tema** ile **varsayılan icon tema** ikilisine bağlar; böylece registry kurulur kurulmaz `cx.theme()` güvenle okunur. `theme_settings::init` ise bunun üstüne ayarlardan seçilen UI tema ve icon temasını yükleyip `GlobalTheme::update_theme` / `update_icon_theme` çağırır; bu çağrılar başlangıçtaki varsayılanı seçilen temayla **değiştirir**. Ayna tarafta aynı iki aşamayı tek bir yardımcıda sadeleştirebilirsin:
 
 ```rust
 pub fn tema_runtime_baslat(cx: &mut App) -> anyhow::Result<()> {

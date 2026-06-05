@@ -110,13 +110,13 @@ pub struct WindowButtonLayout {
 
 GPUI tarafındaki `WindowButton`, bu üç değerle birlikte dış API olarak kullanıma açıktır. Üzerinde `#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]` derive kümesi vardır. `pub fn id(&self) -> &'static str` metodu ise varyantlara karşılık olarak `"minimize"`, `"maximize"` ve `"close"` kararlı element id'lerini döndürür. Bu id'ler Linux tarafındaki `WindowControl::new(...)` çağrılarında doğrudan kullanılır. Bu yüzden port hedefinde anahtar/id uyumu korunmalıdır. Aksi halde Zed'le uyumlu olması beklenen element id'leri sapar ve test ya da araç bağlamalarında ince uyumsuzluklar oluşur.
 
-`WindowButtonLayout` tipi üç public öğeyle gelir:
+Yerleşimle ilgili public öğeler şunlardır:
 
 | Öğe | İmza / değer | Davranış notu |
 | :-- | :-- | :-- |
-| `MAX_BUTTONS_PER_SIDE` | `pub const MAX_BUTTONS_PER_SIDE: usize = 3` | Her taraf en fazla üç slot tutar. |
-| `WindowButtonLayout::linux_default` | `pub fn linux_default() -> Self` | Sol taraf boş, sağ taraf `Minimize, Maximize, Close`. Yalnız Linux/FreeBSD cfg'inde derlenir. |
-| `WindowButtonLayout::parse` | `pub fn parse(yerlesim_dizgesi: &str) -> Result<Self>` | GNOME tarzı `left:right` dizgesini okur; `:` yoksa sol boş, tüm dizge sağ taraf sayılır. |
+| `MAX_BUTTONS_PER_SIDE` | `pub const MAX_BUTTONS_PER_SIDE: usize = 3` | Tipin üyesi değil, ortak modül sabitidir; slot dizilerinin boyutunu verir ve her taraf en fazla üç slot tutar. |
+| `WindowButtonLayout::linux_default` | `pub fn linux_default() -> Self` | Tipin ilişkili fonksiyonudur. Sol taraf boş, sağ taraf `Minimize, Maximize, Close`. Yalnız Linux/FreeBSD cfg'inde derlenir. |
+| `WindowButtonLayout::parse` | `pub fn parse(yerlesim_dizgesi: &str) -> Result<Self>` | Tipin ilişkili fonksiyonudur. GNOME tarzı `left:right` dizgesini okur; `:` yoksa sol boş, tüm dizge sağ taraf sayılır. |
 
 `parse(...)` fonksiyonunda dikkat edilmesi gereken iki ince nokta vardır. İlki geçersiz isimlerin ele alınma biçimidir. Dizge içinde tanınmayan adlar geçerse, en az bir geçerli buton bulunduğu sürece bu adlar **sessizce yok sayılır**. Yalnızca dizgenin tamamı geçersiz olduğunda hata döner. İkincisi tekrar davranışıdır. Aynı buton iki farklı tarafta veya aynı tarafın içinde tekrar edilirse, ilk görülen slot tutulur ve sonraki tekrarlar yok sayılır. Bu yüzden `"close,foo"` geçerli bir yerleşim üretir; yalnız `"foo"` yazıldığında ise hata döner.
 
@@ -126,7 +126,7 @@ Zed'in ayar katmanı bu yerleşim için üç farklı kullanım biçimi sunar:
 
 | Ayar değeri | Sonuç |
 | :-- | :-- |
-| `platform_default` | Platform/masaüstü yapılandırması takip edilir; `cx.button_layout()` yedeği kullanılır. |
+| `platform_default` | Ayar çözümü (`into_layout()`) `None` üretir; render aşamasında `effective_button_layout` bunu `cx.button_layout()` ile yedekler. |
 | `standard` | Zed Linux yedeği: sağda minimize, maximize, close. |
 | GNOME formatında dizge | Örneğin `"close:minimize,maximize"` veya `"close,minimize,maximize:"`. |
 
