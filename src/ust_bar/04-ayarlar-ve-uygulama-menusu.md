@@ -1,6 +1,6 @@
 # Ayarlar ve uygulama menüsü
 
-Ürün başlığının neyi gösterip neyi gizleyeceği tek bir ayar tipiyle yönetirsin. Uygulama menüsü ise platforma göre ya işletim sistemine bırakılır ya da Zed tarafından çizersin. Bu iki konu birlikte ele alırsın, çünkü menünün çizilip çizilmeyeceği de bir ayara bağlıdır.
+Ürün başlığının neyi gösterip neyi gizleyeceği tek bir ayar tipiyle yönetilir. Uygulama menüsü ise platforma göre ya işletim sistemine bırakılır ya da Zed tarafından çizilir. Bu iki konu birlikte ele alınır, çünkü menünün çizilip çizilmeyeceği de bir ayara bağlıdır.
 
 ## 1. `TitleBarSettings`: görünürlük sözleşmesi
 
@@ -34,7 +34,7 @@ pub struct TitleBarSettings {
 
 Bu ayar tipi çalışma zamanı tarafıdır. Kullanıcının `settings.json` dosyasından okunan dış veri tipi `settings_content::title_bar::TitleBarSettingsContent`'tir; tüm alanları `Option<...>` sarmalındadır ve `TitleBarSettings`'e bu içerikten üretilir. `button_layout` alanı özel bir dönüşümle (`WindowButtonLayoutContent::into_layout`) `WindowButtonLayout`'a çevrilir; bu dönüşüm Linux/FreeBSD dışında `None` döner.
 
-Port hedefinde aynı yaklaşımı izlersin: başlığın her parçası için bir görünürlük bayrağı tutan tek bir ayar struct'ı tanımlarsın ve render sırasında her parçayı bu bayrağa göre koşullu çizersin. Render kodunu ayardan bağımsız yazıp parçaları her zaman çizmek, kullanıcıya sade bir başlık sunma imkanını baştan kaybettirir.
+Port hedefinde de benzer bir yaklaşım izlenmelidir: Başlığın her parçası için bir görünürlük bayrağı tutan tek bir ayar struct'ı tanımlanmalı ve render sırasında her parça bu bayrağa göre koşullu olarak çizilmelidir. Render kodunu ayardan bağımsız yazıp parçaları her zaman çizmek, kullanıcıya sade bir başlık sunma imkanını baştan kaybettirir.
 
 ## 2. `show_menus`: menü görünürlüğü ve platform farkı
 
@@ -47,7 +47,7 @@ pub(crate) fn show_menus(cx: &mut App) -> bool
 Mantık iki katmanlıdır:
 
 - Önce `TitleBarSettings` içindeki `show_menus` ayarı okunur.
-- Sonra platform koşulu uygularsın: **macOS'ta** istemci tarafı menü yalnız derleme sırasında tanımlı `ZED_USE_CROSS_PLATFORM_MENU` derleme ortam değişkeni varsa gösterilir; aksi halde macOS'un yerel menü çubuğu kullanılır ve `show_menus` etkisini yitirir. Bu koşul çalışma zamanında ortam okuyarak değil, derleme zamanında belirlersin. **Linux ve Windows'ta** ayar açıksa menü her zaman istemci tarafında çizersin.
+- Sonra platform koşulu uygulanır: **macOS'ta** istemci tarafı menü yalnız derleme sırasında tanımlı `ZED_USE_CROSS_PLATFORM_MENU` derleme ortam değişkeni varsa gösterilir; aksi halde macOS'un yerel menü çubuğu kullanılır ve `show_menus` etkisini yitirir. Bu koşul çalışma zamanında ortam okuyarak değil, derleme zamanında belirlenir. **Linux ve Windows'ta** ayar açık olduğunda menü her zaman istemci tarafında çizilir.
 
 Bu yüzden "menüler nerede?" sorusunun cevabı tek bir ayara değil, ayar ve platformun birlikte verdiği karara bağlıdır. [3. bölümde](03-titlebar-entity-ve-render.md#4-i̇ki-render-modu-menü-içeride-mi-ayrı-satırda-mı) görüldüğü gibi bu karar aynı zamanda başlığın tek mi iki satır mı olacağını belirler.
 
@@ -66,11 +66,11 @@ pub fn navigate_menus_in_direction(&mut self, direction: ActivateDirection, wind
 pub fn all_menus_shown(&self, cx: &mut Context<Self>) -> bool
 ```
 
-- `open_menu`, `OpenApplicationMenu(String)` eylemindeki menü adını alıp ilgili menüyü açmaya işaretler. (Yalnız macOS dışı.)
-- `navigate_menus_in_direction`, açık menüden sağa veya sola komşu menüye döngüsel olarak geçer; `ActivateMenuLeft` / `ActivateMenuRight` eylemleriyle tetiklersin. (Yalnız macOS dışı.)
-- `all_menus_shown`, menü çubuğunun fiilen yer kapladığını söyler; bunu üç koşulun mantıksal VEYA'sı olarak hesaplar: ya `show_menus(cx)` ayar+platform kararı menüyü gösteriyordur, ya menü girişlerinden herhangi biri o an açıktır (`is_deployed()`), ya da bir menü açılışı beklemededir (`pending_menu_open.is_some()`). Bu bilgi `TitleBar` render'ında proje öğelerinin menüyle çakışmaması için kullanırsın.
+- `open_menu`, `OpenApplicationMenu(String)` eylemindeki menü adını alıp ilgili menüyü açılmak üzere işaretler (yalnızca macOS dışı platformlar için geçerlidir).
+- `navigate_menus_in_direction`, açık menüden sağa veya sola komşu menüye döngüsel olarak geçer; `ActivateMenuLeft` / `ActivateMenuRight` eylemleriyle tetiklenir (yalnızca macOS dışı platformlar için geçerlidir).
+- `all_menus_shown`, menü çubuğunun fiilen yer kapladığını söyler; bunu üç koşulun mantıksal VEYA'sı olarak hesaplar: Ya `show_menus(cx)` ayar+platform kararı menüyü gösteriyordur, ya menü girişlerinden herhangi biri o an açıktır (`is_deployed()`), ya da bir menü açılışı beklemededir (`pending_menu_open.is_some()`). Bu bilgi `TitleBar` render'ında proje öğelerinin menüyle çakışmaması için kullanılır.
 
-Menü açılışı açılır panel tabanlıdır: her menü bir tetikleyiciye ve bir açılır panele sahiptir; menü üzerine gelince açılır, klavyeyle yukarı/aşağı gezinilir, `Escape` ile kapanır ve sağ/sol eylemleriyle komşu menüye geçilir.
+Menü açılışı açılır panel tabanlıdır: Her menü bir tetikleyiciye ve bir açılır panele sahiptir; menü üzerine gelince açılır, klavyeyle yukarı/aşağı gezinilir, `Escape` ile kapanır ve sağ/sol eylemleriyle komşu menüye geçilir.
 
 ## 4. Menüye bağlı eylemler
 
@@ -92,8 +92,10 @@ Bu eylemler yalnız istemci tarafı menü çiziminde anlamlıdır. macOS'un yere
 
 ## 5. Port hedefi için
 
-İstemci tarafı menü, Zed'e özgü bir yüzey değildir; menü çubuğunu kendisi çizen her uygulamanın ihtiyaç duyduğu genel bir kalıptır. Port ederken üç şeyi kendi tarafında karşılarsın:
+İstemci tarafı menü, Zed'e özgü bir yüzey değildir; menü çubuğunu kendisi çizen her uygulamanın ihtiyaç duyduğu genel bir kalıptır. Port ederken üç şeyi kendi tarafınızda karşılarsınız:
 
-- **Menü kaynağı:** Zed menüleri uygulamanın menü kaydından dinamik okur. Sen menüleri ister statik tanımla, ister kendi durum ağacından üret; önemli olan başlığın bu kaynağı tek bir yerden okumasıdır.
-- **Platform kararı:** macOS'ta yerel menü çubuğunu kullanmak çoğu zaman doğru tercihtir; Linux/Windows'ta menüyü kendin çizersin. Bu kararı bir ayar + platform kontrolüyle (Zed'in `show_menus` kalıbı gibi) tek noktada ver.
-- **Klavye gezinmesi:** Menüler arası sağ/sol geçiş ve menü-içi yukarı/aşağı gezinme, istemci tarafı menüde senin sorumluluğundur. Bu davranışı eylemlere bağlamak, hem klavye erişilebilirliğini sağlar hem de macOS/diğer platform ayrımını temiz tutar.
+- **Menü Kaynağı:** Zed menüleri uygulamanın menü kaydından dinamik olarak okur. Sen menüleri ister statik tanımla, ister kendi durum ağacından üret; önemli olan başlığın bu kaynağı tek bir yerden okumasıdır.
+- **Platform Kararı:** macOS'ta yerel menü çubuğunu kullanmak çoğu zaman doğru tercihtir; Linux/Windows'ta menüyü kendin çizersin. Bu kararı bir ayar + platform kontrolüyle (Zed'in `show_menus` kalıbı gibi) tek noktada verilir.
+- **Klavye Gezinmesi:** Menüler arası sağ/sol geçiş ve menü-içi yukarı/aşağı gezinme, istemci tarafı menüde senin sorumluluğundur. Bu davranışı eylemlere bağlamak, hem klavye erişilebilirliğini sağlar hem de macOS/diğer platform ayrımını temiz tutar.
+
+---

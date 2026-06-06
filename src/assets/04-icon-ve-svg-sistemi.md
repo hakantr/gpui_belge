@@ -1,6 +1,6 @@
 # İkon sistemi ve SVG render hattı
 
-Bu bölüm, varlık altyapısının en sık tüketilen parçasını anlatır: SVG ikonları. Zed'de yüzlerce SVG dosyası `icons/` klasörü altında durur. UI'da `Icon` ya da `Vector` bileşenleriyle render edersin. Yüzeyde basit görünse de akış dört ayrı katmandan oluşur: dosya yerleşimi, path eşleme kayıt sistemi (`IconName` ve `KnockoutIconName`), gpui'nin `svg()` element'i ve `SvgRenderer`'ın rasterleştirme adımı. Her katmanın ne yaptığını ayırmak, "yeni bir ikon nasıl eklersin, neden bazı ikonlar tema renkleriyle boyanırken bazıları çok renkli kalır, dış ikon temalarını nasıl destekleriz?" gibi soruları cevaplamayı kolaylaştırır.
+Bu bölüm, varlık altyapısının en sık tüketilen bileşeni olan SVG ikonlarını ele almaktadır. Zed bünyesinde yüzlerce SVG dosyası `icons/` klasörü altında saklanır ve kullanıcı arayüzünde (UI) `Icon` veya `Vector` bileşenleri yardımıyla render edilir. Yüzeyde basit görünse de bu akış dört temel katmandan oluşur: dosya yerleşimi, dosya yolu (path) eşleme kayıt sistemi (`IconName` ve `KnockoutIconName`), GPUI'nin `svg()` element yapısı ve `SvgRenderer` vasıtasıyla yürütülen rasterleştirme (rasterization) adımı. Her katmanın üstlendiği görevi ayrıştırmak; yeni bir ikonun nasıl ekleneceği, neden bazı ikonların tema renkleriyle boyanırken bazılarının çok renkli kaldığı ve dış ikon temalarının nasıl destekleneceği gibi soruların yanıtlanmasını kolaylaştırır.
 
 ![İkon Kaynak Kararı](images/icon-kaynak-karari.svg)
 
@@ -27,7 +27,7 @@ Her bölgenin tüketicisi farklıdır:
 | `icons/file_icons/*.svg` | `icons/file_icons/<isim>.svg` | `IconTheme` tarafından dolaylı | `FILE_ICONS`, `DirectoryIcons`, `ChevronIcons` |
 | `icons/knockouts/*.svg` | `icons/knockouts/<isim>.svg` | `IconDecoration` bileşeni | `KnockoutIconName` enum'u |
 
-**Sonuç:** Aynı klasör hiyerarşisinde üç farklı sözleşme yan yana durur. Bu, "her klasör kendi tüketici sözleşmesini besler" prensibinin somut karşılığıdır: bir SVG'yi `icons/` köküne koymak ona tipli UI ikonu davranışı kazandırmaz; aynı dosya için `IconName` varyantı eklemen gerekir. Zed kaynak ağacında `icons/*.svg` altında `IconName`'e bağlı olmayan eski veya doğrudan path ile çağrılabilecek dosyalar da bulunabilir; bunlar `Icon::new(IconName::...)` yüzeyinden değil, ancak açık path ile çağrılırsa görünür olur.
+**Sonuç:** Aynı klasör hiyerarşisinde üç farklı sözleşme yan yana yer alır. Bu durum, 'her klasör kendi tüketici sözleşmesini besler' prensibinin somut bir yansımasıdır: sadece bir SVG dosyasını `icons/` dizininin kök seviyesine yerleştirmek, ona tipli (typed) bir UI ikonu niteliği kazandırmaz; ilgili dosya için `IconName` varyantının da tanımlanması zorunludur. Zed kaynak ağacında `icons/*.svg` altında `IconName` enum yapısına bağlı olmayan eski veya doğrudan dosya yoluyla çağrılabilen dosyalar da barınabilir; fakat bunlar `Icon::new(IconName::...)` arayüzünden değil, yalnızca açık dosya yolu (path) ile çağrıldıklarında görünürlük kazanır.
 
 ---
 
@@ -61,7 +61,7 @@ impl IconName {
 
 Üç tasarım kararı dikkat çekicidir:
 
-- **`#[strum(serialize_all = "snake_case")]`** — Enum varyant adı `AiAnthropic` yazıldığında string formu `ai_anthropic` olur. Path üretimi bu dönüşümün üzerine kuruludur; `format!("icons/{dosya_govdesi}.svg")` ifadesi `icons/ai_anthropic.svg` döner. Yani dosya adı ile enum varyantı isim formu üzerinden 1:1 eşleşir.
+- **`#[strum(serialize_all = "snake_case")]`:** Enum varyant adı `AiAnthropic` olarak yazıldığında, bunun string formu `ai_anthropic` olarak çözümlenir. Dosya yolu üretimi bu dönüşüm modelini esas alır; böylece `format!("icons/{dosya_govdesi}.svg")` ifadesi `icons/ai_anthropic.svg` yolunu üretir. Kısacası, dosya adı ile enum varyantının isim formatı arasında 1:1 eşleşme sağlanır.
 - **`EnumIter`** — Tüm varyantları gezme imkânı verir; `Icon`'un önizleme sayfasında "tüm ikonlar" galerisini üretirken kullanılır (`<IconName as strum::IntoEnumIterator>::iter()`).
 - **`Serialize`/`Deserialize`** — `IconName` settings JSON'larında saklanabilir. Bu, tema veya kullanıcı tercihlerinde "şu eylem için şu ikonu kullan" eşlemelerini mümkün kılar.
 
@@ -69,16 +69,16 @@ impl IconName {
 
 | API | Rol |
 | :-- | :-- |
-| `IconNameIter` | `strum::EnumIter`'in ürettiği `iter()` çağrısının dönüş türüdür; component önizleme, ikon galerisi veya doğrulama araçlarında tüm `IconName` varyantlarını dolaşmak için kullanırsın. Pratikte iterasyon `IntoEnumIterator::iter()` üzerinden başlatılır, tür adı çağrı tarafında doğrudan yazılmaz. |
+| `IconNameIter` | `strum::EnumIter`'in ürettiği `iter()` çağrısının dönüş türüdür; bileşen önizleme, ikon galerisi veya doğrulama araçlarında tüm `IconName` varyantlarını dolaşmak amacıyla kullanılır. Pratikte iterasyon `IntoEnumIterator::iter()` üzerinden başlatılır ve tür adı çağrı tarafında doğrudan yazılmaz. |
 
 **Genişleme adımları:** Yeni bir tipli UI ikonu eklerken iki dosya değişir:
 
-1. `assets/icons/yeni_ikon.svg` dosyası eklersin.
-2. `IconName` enum'una `YeniIkon` varyantı eklersin.
+1. `assets/icons/yeni_ikon.svg` dosyası eklenir.
+2. `IconName` enum yapısına `YeniIkon` varyantı dahil edilir.
 
-Üçüncü bir adım (kayıt, lookup table güncelleme vb.) yoktur; `strum` macro'ları gerisini halleder. `IconName::path()` çağrısı `IntoStaticStr` ile elde edilen statik dosya gövdesini kullanır, sonra `format!("icons/{dosya_govdesi}.svg")` ile küçük bir `Arc<str>` path üretir. Yani lookup tablosu yoktur, fakat path oluştururken küçük bir çalışma zamanı tahsisi yaparsın.
+Herhangi bir üçüncü adım (manuel kayıt, arama tablosu güncellemesi vb.) gerekmez; `strum` makroları kalan işlemleri otomatik olarak yürütür. `IconName::path()` çağrısı, `IntoStaticStr` ile elde edilen statik dosya gövdesini kullanır ve `format!("icons/{dosya_govdesi}.svg")` yardımıyla küçük bir `Arc<str>` dosya yolu (path) üretir. Bu mimaride statik bir lookup tablosu bulunmasa da dosya yolu oluşturma aşamasında küçük bir çalışma zamanı (runtime) tahsisi (allocation) gerçekleştirilir.
 
-Bu sözleşmenin yönü tek taraflıdır: her `IconName` varyantının dosyası bulunmalıdır; fakat `assets/icons/*.svg` altındaki her dosyanın mutlaka `IconName` varyantı olması gerekmez. Zed'in mevcut ağacında bu duruma giren birkaç dosya vardır (`supermaven*.svg`, `repl_*.svg`, bazı eski check ikonları gibi). Kendi uygulamanda public API istiyorsan enum varyantı ekle; yalnızca deneysel veya tek noktalı kullanım varsa doğrudan path yeterli olabilir.
+Bu sözleşmenin yönü tek taraflıdır: her `IconName` varyantına karşılık gelen bir SVG dosyasının bulunması zorunludur; ancak `assets/icons/*.svg` altındaki her dosya için bir `IconName` varyantının tanımlanması şart değildir. Zed'in mevcut kaynak ağacında bu kapsamda yer alan birkaç dosya (`supermaven*.svg`, `repl_*.svg`, bazı eski check ikonları gibi) mevcuttur. Özel bir uygulamada public API kararlılığı hedefleniyorsa enum varyantının eklenmesi önerilir; yalnızca deneysel veya tek bir noktada geçici bir kullanım söz konusuysa doğrudan dosya yolu (path) kullanımı da yeterli olabilir.
 
 ---
 
@@ -105,8 +105,8 @@ enum IconSource {
 Üç varyantın gerekçesi farklıdır:
 
 - **`Embedded`** — En sık kullanılan yol. `IconName::path()` çağrısı `icons/xxx.svg` döner ve `Icon::new(IconName::X)` çağrısı bu path'i içine alır. SVG render hattı `cx.asset_source()` üzerinden okur; release/debug-embed build'de bu binary içinden gelir, normal debug build'de `RustEmbed` aynı path'i dosya sisteminden okuyabilir.
-- **`External`** — Dış ikon temalarını destekler. Üçüncü taraf bir ikon teması yüklendiğinde Zed'in SVG render hattı **çok renkli (polychrome) SVG**'leri tam render edemediğinden bu ikonlar raster image olarak `img()` element'i ile çizersin. PNG ya da JPG döndüren ikon paketleri bu yoldan geçer.
-- **`ExternalSvg`** — Dosya sistemindeki bir SVG dosyasını okur. Zed binary'sinde olmayan ama disk üzerinde mevcut olan SVG'ler için kullanırsın. Bu yol `Asset` trait'inin `SvgAsset` implementasyonu üzerinden async yüklenir; sonraki bölümde detaylanır.
+- **`External`:** Dış ikon temalarını desteklemek üzere tasarlanmıştır. Üçüncü taraf bir ikon teması yüklendiğinde, Zed'in SVG render hattı **çok renkli (polychrome) SVG** dosyalarını tam olarak render edemediğinden bu ikonlar raster görsel formatında `img()` element yapısıyla çizilir. PNG veya JPG formatındaki ikon paketleri bu yol üzerinden işlenir.
+- **`ExternalSvg`:** Dosya sistemindeki bağımsız bir SVG dosyasını okumaya yarar. Zed binary dosyasında yer almayan ancak disk üzerinde fiziksel olarak mevcut olan SVG'ler için tercih edilir. Bu akış, `Asset` trait'inin `SvgAsset` implementasyonu üzerinden asenkron (async) olarak yüklenir ve sonraki aşamalarda detaylandırılır.
 
 `Icon::from_path` heuristik bir ayrım yapar:
 
@@ -118,11 +118,11 @@ pub fn from_path(path: impl Into<SharedString>) -> Self {
     } else {
         IconSource::External(Arc::from(PathBuf::from(yol.as_ref())))
     };
-    // ...
+    kaynak
 }
 ```
 
-Kural basittir: path `icons/` ile başlıyorsa binary'de gömülü kabul edilir; aksi halde dış raster image olarak alırsın. Bu heuristik kasıtlı olarak SVG dışı ikonları (örneğin PNG dosya ikonları) `External` yoluna iter; `from_path` ile çağrılan dış SVG'ler için `from_external_svg` ayrı bir kapı sağlar.
+Kural son derece basittir: dosya yolu (path) `icons/` ile başlıyorsa binary'ye gömülü kabul edilir; aksi takdirde dış raster görsel (raster image) olarak ele alınır. Bu heuristik yaklaşım, SVG dışındaki ikonları (örneğin PNG uzantılı dosya ikonlarını) kasıtlı olarak `External` yoluna yönlendirir; `from_path` ile çağrılan dış SVG'ler için ise `from_external_svg` fonksiyonu bağımsız bir erişim noktası sunar.
 
 ### 3.1 Render davranışı
 
@@ -158,8 +158,8 @@ impl RenderOnce for Icon {
 
 Üç yol birbirinden iki davranış noktasında ayrılır:
 
-- **Path mı external_path mı?** `svg()` element'inin iki ayrı setter'ı vardır: `path()` binary'den okur, `external_path()` dosya sisteminden okur. Bu ayrım element seviyesinde net tutarsın.
-- **`svg()` mi `img()` mi?** SVG render hattı tek renkli SVG'lerde `text_color` ile boyama yapar; çok renkli SVG'ler veya raster image'lar için `img()` element'i gerekir.
+- **Path mi yoksa external_path mi?** `svg()` elementinin iki bağımsız setter metodu bulunur: `path()` binary içerisinden okuma yaparken, `external_path()` dosya sistemini esas alır. Bu ayrım element seviyesinde son derece net korunur.
+- **`svg()` mi yoksa `img()` mi?** SVG render hattı, tek renkli SVG'lerde `text_color` ile renklendirme uygular; çok renkli SVG'ler veya raster görseller için ise doğrudan `img()` element yapısı tercih edilmelidir.
 
 ---
 
@@ -201,10 +201,10 @@ if let Some((yol, renk)) = self.path.as_ref().zip(style.text.color) {
 
 Beş gözlem önemlidir:
 
-1. **`zip(style.text.color)`** — Path doluysa bile text color yoksa render atlanır. SVG ikonu boyanmadan çizilemez; bu kasıtlı bir guard'dır. Renksiz bir ikon görünmez kalır; `style.text.color` setter'ı (`text_color`, `text_xxx`) zorunludur.
+1. **`zip(style.text.color)`:** Dosya yolu belirtilmiş olsa bile, text color (metin rengi) tanımlanmamışsa render işlemi atlanır. SVG ikonlarının boyanmadan çizilmesi engellenmiştir; bu kasıtlı bir koruma (guard) mantığıdır. Renk atanmamış bir ikon görünmez kalacağından, `style.text.color` setter işlevlerinin (`text_color`, `text_xxx`) kullanılması zorunludur.
 2. **`window.paint_svg`** — Düşük seviye render çağrısı; window'un kendi kuyruğuna SVG paint primitive'i ekler. İçeride `SvgRenderer` çağırırsın.
-3. **`paint_svg`'nin ikinci argümanı** — `Embedded` yolunda `None` geçilir (varlık kaynağından okunur); `External` yolunda `Some(&bytes)` geçilir (önceden yüklenmiş byte'lar verilir). Aynı render hattı iki kaynak türü için tek metot ile kullanırsın.
-4. **`window.use_asset::<SvgAsset>(path, cx)`** — Asenkron yükleme yolu. İlk çağrıda task başlatılır; ikinci çağrıda cache'lenmiş Future paylaşılır. Varlık henüz yüklenmemişse `None` döner ve render atlanır; yükleme bitince `cx.notify(entity_id)` ile view yeniden çizersin.
+3. **`paint_svg` işlevinin ikinci argümanı:** `Embedded` akışında `None` değeri geçilerek verinin doğrudan varlık kaynağından okunması sağlanır; `External` akışında ise `Some(&bytes)` geçilerek önceden yüklenmiş byte verileri aktarılır. Böylece aynı render hattı, her iki kaynak türü için de tek bir metot vasıtasıyla kullanılabilir.
+4. **`window.use_asset::<SvgAsset>(path, cx)`:** Asenkron yükleme akışıdır. İlk çağrıda yükleme görevi (task) başlatılır; sonraki çağrılarda ise önbelleğe alınmış (cached) Future yapısı paylaşılır. Varlık henüz yüklenmemişse metot `None` döner ve render işlemi pas geçilir; yükleme tamamlandığında ise `cx.notify(entity_id)` çağrısıyla view bileşeni yeniden çizilir.
 5. **`log_err()`** — Asset yükleme veya render hatası fatal değildir; log'a düşer ve ikon görünmez kalır. Bu davranış UI sağlamlığı için bilinçlidir: bir tek ikon dosyasının bozuk olması tüm pencereyi düşürmez.
 
 ### 4.1 `SvgAsset` implementasyonu
@@ -273,8 +273,6 @@ pub(crate) fn render_alpha_mask(
 ) -> Result<Option<(Size<DevicePixels>, Vec<u8>)>> {
     anyhow::ensure!(!params.size.is_zero(), "can't render at a zero size");
 
-    // render_pixmap burada gövde içi yerel bir closure'dır; pixmap'i
-    // rasterleştirip alpha kanalını çıkarır.
     let render_pixmap = |bytes| {
         // ... pixmap'i alpha mask'e çevir
     };
@@ -291,10 +289,10 @@ pub(crate) fn render_alpha_mask(
 
 İki yolun farkı:
 
-- **`render_single_frame`** — Tam renkli BGRA çıktısı üretir. `RenderImage` (ImageId taşıyan ham buffer) döner. Bu yol çok renkli SVG'ler ve `Asset` cache'i tarafından kullanırsın.
-- **`render_alpha_mask`** — Yalnızca alpha kanalını çıkarır. UI ikonları için kullanılır; çünkü tek renkli SVG'ler yalnızca silüet bilgisine ihtiyaç duyar ve render hattı bu silüeti `text_color` ile boyar. Alpha mask, BGRA buffer'a göre çok daha az bellek harcar. GPU tarafında atlas'lanması da kolaydır.
+- **`render_single_frame`** — Tam renkli BGRA çıktısı üretir. `RenderImage` (ImageId taşıyan ham buffer) döner. Bu yol, çok renkli SVG'ler ve asenkron `Asset` önbellek mekanizmaları tarafından tercih edilir.
+- **`render_alpha_mask`** — Yalnızca alpha (saydamlık) kanalını çıkarır. Kullanıcı arayüzü (UI) ikonları için kullanılır; nitekim tek renkli SVG'ler yalnızca silüet bilgisine gereksinim duyar ve render hattı bu silüeti `text_color` yardımıyla boyar. Alpha mask yapısı, BGRA buffer'larına kıyasla çok daha az bellek tüketir ve GPU tarafında atlas oluşturulmasını (texture atlas) kolaylaştırır.
 
-`render_alpha_mask`'in tasarımı önemlidir: gövde, istenen boyut sıfırsa erken hata döndüren bir guard ile açılır (sıfır boyutta render edilemez), böylece sıfır genişlik veya yükseklikte boş bir pixmap oluşturma denemesi baştan engellenir. Asıl rasterleştirme `render_pixmap` adlı gövde içi yerel bir closure'da yapılır; bu, `SvgRenderer`'ın ayrı bir `render_pixmap` metodu olmasına rağmen ondan bağımsız, yalnızca bu fonksiyonun içinde yaşayan kısa bir yardımcıdır. `bytes` parametresi `Option<&[u8]>` tipindedir: `Some(bytes)` geçildiğinde önceden yüklenmiş byte'lar kullanılır; `None` geçildiğinde `self.asset_source.load(&params.path)?` ile binary'den okunur. Yani aynı metot hem `Embedded` hem `ExternalSvg` yolunu besler.
+`render_alpha_mask` işlevinin tasarımı kritik detaylar barındırır: fonksiyon gövdesi, talep edilen boyut sıfır ise erken hata döndüren bir koruma (guard) ile başlar; bu sayede sıfır genişlik veya yükseklikte geçersiz bir pixmap oluşturma denemesi baştan engellenir. Asel rasterleştirme işlemi, gövde içerisinde yerel bir closure olarak tanımlanan `render_pixmap` vasıtasıyla yürütülür. Bu closure, SvgRenderer'ın genel bir render_pixmap metodu bulunmasına karşın ondan bağımsız çalışan, yalnızca bu fonksiyon içinde geçerli kısa bir yardımcıdır. bytes parametresi Option<&[u8]> tipindedir: Some(bytes) geçildiğinde önceden yüklenmiş byte'lar işlenirken; None geçildiğinde self.asset_source.load(&params.path)? çağrısıyla veri doğrudan binary içerisinden okunur. Dolayısıyla aynı metot hem Embedded hem de ExternalSvg akışlarını besleyebilir.
 
 ### 5.2 `SMOOTH_SVG_SCALE_FACTOR`
 
@@ -302,13 +300,13 @@ pub(crate) fn render_alpha_mask(
 pub const SMOOTH_SVG_SCALE_FACTOR: f32 = 2.;
 ```
 
-SVG ikonları daima istenen boyutun iki katı çözünürlükte render edersin, sonra display scale factor üzerine bindirilir. Gerekçe: anti-alias kalitesini yükseltmek için render iki katı boyutta yapılır; GPU bunu küçültürken yumuşak ara değerler elde edersin. Bu davranış özellikle `IconSize::XSmall` (12px) gibi küçük boyutlarda göze çarpan keskinliği yumuşatır.
+SVG ikonları daima talep edilen boyutun iki katı çözünürlükte render edilir, ardından display scale factor (ekran ölçekleme faktörü) üzerine bindirilir. Gerekçe, kenar yumuşatma (anti-aliasing) kalitesini yükseltmektir; render işlemi iki katı boyutta gerçekleştirildikten sonra GPU bunu küçülterek yumuşak geçişli ara değerler elde eder. Bu davranış modeli özellikle `IconSize::XSmall` (12px) gibi küçük boyutlu ikonlarda oluşabilecek aşırı keskinleşmeyi veya kırılmaları yumuşatır.
 
 ---
 
 ## 6. `IconTheme` ve `file_icons/`
 
-Dosya ağacında dosya tiplerine göre değişen ikonlar `IconTheme` üzerinden yönetirsin. `theme` crate'i:
+Dosya ağacında dosya tiplerine göre değişkenlik gösteren ikonlar `IconTheme` yapısı üzerinden yönetilir. `theme` crate'i:
 
 ```rust
 pub struct IconTheme {
@@ -338,19 +336,19 @@ const FILE_ICONS: &[(&str, &str)] = &[
 ];
 ```
 
-Tablo üç sabit tablonun katmanlanmasıyla kurarsın:
+Tablo yapısı, üç farklı sabit tablonun katmanlanmasıyla kurgulanır:
 
 1. `FILE_STEMS_BY_ICON_KEY`: dosya adı tabanı → icon key eşlemesi. Burada uzantı değil, tam dosya adı gövdesi eşlenir; ör. `Podfile` ruby ikonuna, `Dockerfile` docker ikonuna bağlanır. Bir dosyanın uzantısı olmasa da yalnızca adından ikon türetebilirsin.
-2. `FILE_SUFFIXES_BY_ICON_KEY`: `("cpp", &["c++", "h++", "cc", "cpp", ...])` gibi suffix → icon key eşlemesi. Dizinin elemanları bir icon key'e bağlanan uzantılardır; ör. `c++` da `cc` de aynı `cpp` ikonuna düşer.
+2. `FILE_SUFFIXES_BY_ICON_KEY`: `("cpp", &["c++", "h++", "cc", "cpp", ...])` gibi suffix → icon key eşlemesi. Dizinin elemanları bir icon key'e bağlanlanan uzantılardır; ör. `c++` da `cc` de aynı `cpp` ikonuna düşer.
 3. `FILE_ICONS`: `("cpp", "icons/file_icons/cpp.svg")` gibi icon key → path eşlemesi.
 
-`default_icon_theme()` bu üç tabloyu katmanlayıp `IconTheme` instance'ı üretir; dosya adı tabanı ve uzantı katmanları bir icon key'e indirger, son tablo icon key'i path'e çevirir. Ayrıca klasör ve chevron ikonları `DirectoryIcons` ve `ChevronIcons` alanlarından gelir (`icons/file_icons/folder.svg`, `icons/file_icons/folder_open.svg`, `icons/file_icons/chevron_right.svg`, `icons/file_icons/chevron_down.svg`). Bu yüzden `icons/file_icons/` altındaki her dosya `FILE_ICONS` tablosunda görünmek zorunda değildir; bazı dosyalar dosya tipi değil, proje paneli davranışı için destek ikonudur. Path string'leri doğrudan `icons/file_icons/` altındadır; yani UI bu path'leri `Icon::from_path` veya direkt `svg().path()` ile tüketir.
+`default_icon_theme()` işlevi bu üç tabloyu katmanlayarak bir `IconTheme` örneği (instance) üretir; dosya adı tabanı ve uzantı katmanlarını bir icon key değerine indirger ve son tablo yardımıyla bu key'i dosya yoluna (path) dönüştürür. Ayrıca klasör ve chevron ikonları doğrudan `DirectoryIcons` ve `ChevronIcons` alanlarından beslenir (`icons/file_icons/folder.svg`, `icons/file_icons/folder_open.svg`, `icons/file_icons/chevron_right.svg`, `icons/file_icons/chevron_down.svg`). Bu sebeple `icons/file_icons/` altında yer alan her dosyanın `FILE_ICONS` tablosunda görünmesi zorunlu değildir; bazı dosyalar doğrudan dosya tipi ikonunu değil, proje paneli davranışlarını destekleyen yardımcı ikonları temsil eder. Dosya yolu string'leri doğrudan `icons/file_icons/` altındadır; yani kullanıcı arayüzü bu yolları `Icon::from_path` veya doğrudan `svg().path()` ile tüketebilir.
 
-**Genişleme:** Yeni bir dosya tipi eklemek için eşleme tablosuna (adın tabanına göre `FILE_STEMS_BY_ICON_KEY`, uzantıya göre `FILE_SUFFIXES_BY_ICON_KEY`) ve `FILE_ICONS` tablosuna girilmesi gerekir; ikisinin senkron olmaması durumunda dosya tipi eşleşse de path bulunmaz veya tam tersi.
+**Genişleme:** Yeni bir dosya tipi eklemek için eşleme tablolarına (dosya adı tabanına göre `FILE_STEMS_BY_ICON_KEY`, uzantıya göre `FILE_SUFFIXES_BY_ICON_KEY`) ve `FILE_ICONS` tablosuna giriş yapılması gerekir; bu iki tarafın uyumsuz olması durumunda dosya tipi eşleşse bile dosya yolu bulunamaz veya tam tersi bir durum yaşanır.
 
 ### 6.1 Dış ikon temaları ve raster yedek
 
-`IconSource::External(Arc<Path>)` varyantı dış ikon temaları için kullanırsın. Bunun gerekçesi `IconSource` enum'unun docstring'inde açıkça yazılıdır: Zed'in SVG render hattı polychrome (çok renkli) SVG'leri tam desteklemediği için dış ikonlar PNG/JPG olarak ya da `external_path` üzerinden bir bypass ile render edersin. Pratikte ikon teması extension'ları (`extensions/<name>/icons/...`) dosya yollarını absolute path olarak verir ve `Icon::from_path` heuristic'i bu path'leri `External` koluna ister.
+`IconSource::External(Arc<Path>)` varyantı, dış ikon temalarını desteklemek amacıyla kullanılır. Bunun gerekçesi, `IconSource` enum yapısının docstring açıklamasında açıkça belirtilmiştir: Zed'in SVG render hattı polychrome (çok renkli) SVG'leri tam olarak desteklemediğinden, dış ikonlar PNG/JPG formatında veya `external_path` üzerinden bir geçiş yoluyla (bypass) render edilir. Pratikte ikon teması eklentileri (extension'lar), dosya yollarını mutlak yol (absolute path) olarak sunar ve `Icon::from_path` heuristik mantığı bu yolları doğrudan `External` koluna yönlendirir.
 
 ---
 
@@ -375,8 +373,8 @@ impl KnockoutIconName {
 
 Her süsleme **iki SVG** ile çalışır:
 
-- `*_bg` — Süslemenin arkasında, içine girilen ikonu maskeleyen "delik" formundaki silüet. Bu SVG `knockout_color` ile renklendirilir; tipik olarak ikonun yerleştirildiği container'ın arkaplan rengiyle aynı tutarsın.
-- `*_fg` — Süslemenin asıl şekli. `cx.theme().colors().icon` rengiyle çizersin.
+- `_bg`: Süslemenin arkasında yer alan ve içine yerleştirildiği ikonu maskeleyen 'delik' formundaki silüettir. Bu SVG, `knockout_color` ile renklendirilir; tipik olarak ikonun yerleştirildiği kapsayıcının (container) arka plan rengiyle aynı tonda seçilmesi hedeflenir.
+- `_fg`: Süslemenin asıl biçimidir. Doğrudan `cx.theme().colors().icon` rengiyle çizilir.
 
 `IconDecoration::render` iki katmanı üst üste koyar:
 
@@ -391,9 +389,9 @@ div()
     .child(on_plan)
 ```
 
-Bu yapının pratik karşılığı şudur: ikona "kapalı/devre dışı" göstermek için bir X eklendiğinde, ikon ile X'in çakıştığı alan `_bg` silüetiyle kazınır; X içinde ikonun pikselleri görünmez olur. Knockout SVG'leri olmasaydı X ile ikon birbirine karışır, okunabilirlik düşerdi.
+Bu yapının pratik karşılığı şudur: ikonu 'kapalı/devre dışı' göstermek amacıyla bir X işareti eklendiğinde, ikon ile X'in çakıştığı alan `_bg` silüeti vasıtasıyla maskelenerek temizlenir; böylece X sınırları içinde ikonun kendi pikselleri görünmez hale gelir. Eğer knockout SVG'leri olmasaydı, X işareti ile ikon detayları birbirine karışarak okunabilirliği ciddi ölçüde düşürürdü.
 
-**Sözleşme:** Her `IconDecorationKind` için iki knockout dosyasının `icons/knockouts/<isim>_fg.svg` ve `icons/knockouts/<isim>_bg.svg` olarak bulunması zorunludur. `KnockoutIconName` enum'una yeni varyant eklemeden bu dosyaların eklenmesi çalışma zamanında görünür etki üretmez.
+**Sözleşme:** Her `IconDecorationKind` için iki bağımsız knockout dosyasının `icons/knockouts/<isim>_fg.svg` ve `icons/knockouts/<isim>_bg.svg` adlarıyla dizin altında bulunması zorunludur. `KnockoutIconName` enum yapısına yeni bir varyant dahil edilmeden sadece dosyaların eklenmesi, çalışma zamanında herhangi bir görsel etki üretmez.
 
 ---
 
@@ -430,7 +428,7 @@ impl VectorName {
 | Önerilen ölçek | Tek tip ölçek (IconSize) | Genişlik+yükseklik ayrı |
 | Render | `svg()` element'i | `svg()` element'i |
 
-İki bileşen aynı render hattını paylaşır (`svg()` element'i ve `SvgRenderer`), fakat semantik farklıdır: `Icon` standart boyutlardaki UI ikonları içindir, `Vector` ise logo, damga, dekoratif çizim gibi serbest boyutlu görseller için tasarlanmıştır. Sonraki bölümde `images/` klasörü ve `Vector` bileşeni ayrıca işlersin.
+Her iki bileşen de aynı render hattını (`svg()` elementi ve `SvgRenderer`) paylaşır; ancak semantikleri farklıdır: `Icon` standart boyutlardaki arayüz ikonları için kullanılırken, `Vector` logo, damga veya dekoratif çizim gibi serbest boyutlu görseller için tasarlanmıştır. Sonraki bölümde `images/` klasörü ve `Vector` bileşeni ayrıntılı olarak ele alınacaktır.
 
 ---
 
@@ -438,16 +436,16 @@ impl VectorName {
 
 Pratik bir özet olarak, "bir tipli UI ikonu eklemek" için izlenmesi gereken adımlar:
 
-1. SVG dosyasını **tek renkli** (monochrome) olacak şekilde hazırlarsın. Renk değerlerini `currentColor` veya yer tutucu olarak `#000` bırakırsın; çalışma zamanında `text_color` ile boyanır.
-2. Dosyayı `assets/icons/yeni_ikon.svg` olarak koyarsın (snake_case dosya adı).
-3. `icons` crate'indeki `IconName` enum'una `YeniIkon` varyantı eklersin.
-4. UI kodunda `Icon::new(IconName::YeniIkon)` ile kullanırsın. Boyut için `.size(IconSize::Small)`, renk için `.color(Color::Accent)` zincirlenir.
+1. SVG dosyası **tek renkli** (monochrome) olacak şekilde hazırlanır. Renk değerleri `currentColor` veya yer tutucu olarak `#000` olarak bırakılır; çalışma zamanında `text_color` ile dinamik olarak renklendirilir.
+2. Dosya `assets/icons/yeni_ikon.svg` dizinine yerleştirilir (snake_case dosya adı formatında).
+3. `icons` crate'i içindeki `IconName` enum yapısına `YeniIkon` varyantı eklenir.
+4. Kullanıcı arayüzü kodunda `Icon::new(IconName::YeniIkon)` şeklinde çağrılarak kullanılır. Boyut için `.size(IconSize::Small)`, renk için ise `.color(Color::Accent)` metotları zincirlenebilir.
 
 Bu akışta dikkat edilmesi gereken tipik durumlar şunlardır:
 
-- Dosya `assets/icons/` altında ama `IconName` varyantı yok: `Icon::from_path("icons/yeni_ikon.svg")` ile çağrılarak çalışır ama tipli enum yardımı, serileştirme ve önizleme iterasyonu dışında kalır.
-- `IconName` varyantı eklendi ama dosya konulmadı: `svg()` element'i `path` yükleyemez; ikon görünmez kalır ve log'a hata düşer.
-- SVG çok renkli olarak hazırlandı: `text_color` ile boyandığında beklenmedik sonuç verir. Bu durumda dosyayı `images/` altına alıp `img("images/yeni_logo.svg")` ile tam renkli image hattından geçirmek daha doğru olur; `Vector` de `svg().path` kullandığı için tek renkli alpha-mask davranışını paylaşır.
+- Dosyanın `assets/icons/` altında yer alıp `IconName` varyantının bulunmaması: `Icon::from_path("icons/yeni_ikon.svg")` şeklinde doğrudan çağrılarak çalıştırılabilir; fakat bu durumda tipli enum kolaylıklarından, serileştirme ve önizleme iterasyonlarından yoksun kalacaktır.
+- `IconName` varyantının eklenip dosyanın fiziksel olarak yerleştirilmemesi: `svg()` elementi dosya yolunu (path) yükleyemez; ikon görünmez kalır ve hata log kaydı düşer.
+- SVG dosyasının çok renkli (polychrome) olarak tasarlanması: `text_color` ile renklendirildiğinde beklenmedik ve hatalı sonuçlar doğurur. Bu durumda dosyanın `images/` dizini altına taşınarak `img("images/yeni_logo.svg")` vasıtasıyla tam renkli görsel (raster/polychrome) hattından geçirilmesi daha doğrudur; nitekim `Vector` bileşeni भी `svg().path()` kullandığı için tek renkli alpha-mask davranışını paylaşır.
 
 ---
 
@@ -456,37 +454,37 @@ Bu akışta dikkat edilmesi gereken tipik durumlar şunlardır:
 İkon sisteminin bütününü tek diyagramda görmek istersek:
 
 ```text
-                  IconName::YeniIkon
-                          │
-                          ▼ ::path()
-                  "icons/yeni_ikon.svg"
-                          │
-       ┌──────────────────┴──────────────────┐
-       ▼                                     ▼
-  Icon::new(IconName::X)              svg().path("icons/yeni_ikon.svg")
-       │                                     │
-       │  IconSource::Embedded ──────────────┤
-       │  IconSource::ExternalSvg ──► svg().external_path(...)
-       │  IconSource::External ─────► img(...)
-       │                                     │
-       │            ┌────────────────────────┘
-       ▼            ▼
-  window.paint_svg(bounds, path, bytes?, transformation, color, cx)
-                          │
-                          ▼
-                  SvgRenderer
-                  ├── usvg::Tree::from_data (usvg_options)
-                  ├── resvg::render → Pixmap
-                  └── BGRA + alpha mask çıkışı
-                          │
-                          ▼
-                  GPU sprite atlas + paint kuyruğu
+                   IconName::YeniIkon
+                           │
+                           ▼ ::path()
+                   "icons/yeni_ikon.svg"
+                           │
+        ┌──────────────────┴──────────────────┐
+        ▼                                     ▼
+   Icon::new(IconName::X)              svg().path("icons/yeni_ikon.svg")
+        │                                     │
+        │  IconSource::Embedded ──────────────┤
+        │  IconSource::ExternalSvg ──► svg().external_path(...)
+        │  IconSource::External ─────► img(...)
+        │                                     │
+        │            ┌────────────────────────┘
+        ▼            ▼
+   window.paint_svg(bounds, path, bytes?, transformation, color, cx)
+                           │
+                           ▼
+                   SvgRenderer
+                   ├── usvg::Tree::from_data (usvg_options)
+                   ├── resvg::render → Pixmap
+                   └── BGRA + alpha mask çıkışı
+                           │
+                           ▼
+                   GPU sprite atlas + paint kuyruğu
 ```
 
 Bu akışta üç kararın altı çizilmelidir:
 
-- **Tek tip ikonlar `svg()`, renkli logolar `img()`:** `Icon` ve `Vector` `text_color` ile boyanan alpha-mask SVG hattını kullanır; çok renkli SVG'ler için `img()` veya raster image yolu seçersin.
-- **Varlık path'leri tip güvenli üretilir:** Path'in dosya gövdesi `IconName` varyantından `strum` ile gelir; `IconName::path()` yalnızca `icons/` prefix'i ve `.svg` uzantısını ekleyip `Arc<str>` üretir. SVG render hattı bu path'i hash'leyip rasterleştirilmiş bitmap'i cache'ler; aynı ikon ikinci kez render edildiğinde sadece atlas referansı kullanırsın.
-- **Knockout sözleşmesi 2 dosyayla çalışır:** `IconDecoration` için her süsleme türünün `_fg` ve `_bg` SVG'leri zorunludur. Tek dosya ile aynı görünüm üretilemez çünkü maskelenecek alan açıkça `_bg` silüeti ile tanımlarsın.
+- **Tek renkli ikonlar için `svg()`, renkli logolar için `img()`:** `Icon` ve `Vector` yapıları `text_color` ile renklendirilen alpha-mask SVG hattını kullanır; çok renkli SVG'ler veya raster görseller için ise `img()` element yolu tercih edilir.
+- **Varlık dosya yolları tip güvenli üretilir:** Dosya yolunun gövdesi `IconName` varyantından `strum` yardımıyla elde edilir; `IconName::path()` yalnızca `icons/` prefix'ini ve `.svg` uzantısını ekleyerek bir `Arc<str>` oluşturur. SVG render hattı bu yolu hash'leyerek rasterleştirilmiş bitmap verisini önbelleğe (cache) alır; aynı ikon ikinci kez çizildiğinde sadece atlas referansından yararlanılır.
+- **Knockout sözleşmesi iki ayrı dosya gerektirir:** `IconDecoration` kapsamında her süsleme türünün `_fg` ve `_bg` SVG dosyalarının bulunması zorunludur. Tek bir dosya ile aynı görünüm elde edilemez; çünkü maskelenecek alan açıkça `_bg` silüetiyle tanımlanmaktadır.
 
 ---

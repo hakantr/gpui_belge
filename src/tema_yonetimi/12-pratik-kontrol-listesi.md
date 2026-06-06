@@ -1,74 +1,74 @@
 # Pratik kontrol listesi
 
-Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hızlıca taranabilir bir kontrol listesine çevirir. Her madde özet niteliğindedir; detay gerektiğinde ilgili konuya dönülmelidir.
+Bu son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hızlıca taranabilir pratik bir kontrol listesine dönüştürür. Her bir madde özet niteliğinde olup, daha kapsamlı ayrıntılara ihtiyaç duyulduğunda ilgili konu başlıklarına başvurulmalıdır.
 
 ---
 
 ## 45. Yaygın dikkat noktaları
 
-Önceki bölümlerde geçen dikkat noktaları **tek bir yerde** toplanır. Her madde kısa bir özet içerir ve bölüm referansıyla bağlanır. Ayrıntılı tartışma için ilgili konuya dönülmelidir.
+Önceki bölümlerde ele alınan dikkat noktaları bu başlık altında **tek bir yerde** derlenmiştir. Her bir madde kısa bir özet sunmakta ve ilgili bölüm referansına bağlanmaktadır. Ayrıntılı teknik tartışmalar için ilgili konu başlıklarına başvurulması önerilir.
 
 ### Sözleşme katmanı
 
-1. **Bilinmeyen alanların sessizce atlanması.** Mevcut Zed sözleşmesinde olmayan alanlar açık hataya düşmelidir. `style` alanı `flatten` kullandığı için bu kontrol açık anahtar allowlist'i ile yaparsın.
-2. **JSON'da snake_case beklemek.** Zed `border.variant` yazar; `#[serde(rename = "border.variant")]` şarttır, yoksa alan sessizce boş kalır.
-3. **`Option<Hsla>` yerine `Option<String>` kullanmanın gerekçesi.** Sıkı tipli bir parse hatası tüm temayı bozar; iki katmanlı opsiyonellik (Content katmanı string + Refinement katmanı Hsla) sözleşmenin temelidir.
-4. **Alan gruplarının kapsamda tutulması.** `terminal_ansi`, debugger, diff hunk, vcs, vim, icon theme — UI'da okunmuyor olsa bile struct'ta bulunmalıdır. Aksi halde sözleşme delinir.
-5. **`#[refineable(...)]` attribute'u.** Refinement tipi yalnızca `Default + Clone` türevini taşır; serde/JSON deserialize yolu kapanır.
+1. **Bilinmeyen alanlerin sessizce geçilmesi:** Mevcut Zed sözleşmesinde yer almayan alanların tespit edilmesi durumunda sistem açıkça hataya düşmelidir. `style` alanı `flatten` niteliğini kullandığı için, bu kontrolü açık bir anahtar allowlist (izin verilenler listesi) vasıtasıyla yürütmek gerekir.
+2. **JSON tarafında snake_case formatı beklentisi:** Zed yapılandırma dosyalarında `border.variant` biçiminde anahtarlar yer alır. Bu nedenle `#[serde(rename = "border.variant")]` niteliğinin kullanılması zorunludur; aksi takdirde ilgili alan sessizce boş kalacaktır.
+3. **`Option<Hsla>` yerine `Option<String>` tercih edilmesinin gerekçesi:** Doğrudan sıkı tipli bir parse hatası oluşması tüm temanın yüklenmesini engelleyebilir. Bu durumun önüne geçmek amacıyla tasarlanan iki katmanlı opsiyonellik (Content katmanında String, Refinement katmanında ise Hsla kullanımı) veri sözleşmesinin temel taşlarından biridir.
+4. **Alan gruplarının kapsam dahilinde tutulması:** `terminal_ansi`, debugger, diff hunk, vcs, vim, icon theme gibi alanların (arayüz tarafında doğrudan okunmasa bile) ilgili struct'larda yer alması gerekir. Aksi takdirde Zed veri sözleşmesiyle olan parite bozulmuş olur.
+5. **`#[refineable(...)]` özniteliği:** Üretilen refinement tipi yalnızca `Default + Clone` türevlerini taşır; bu durum serde/JSON deserialize yolunun kapanmasına sebebiyet verir.
 
 ### Refinement
 
-6. **Türetme adımıyla `refine` sırası.** Status alanlarında kullanıcı `error` yazar ama `error_background` yazmazsa, baseline'dan gelen karışım renkler ortaya çıkar. `apply_status_color_defaults` çağrısı şarttır.
-7. **`color()` helper'ında hata mesajının yutulması.** Üretim hata ayıklaması için `inspect_err` ile log ekleyebilirsin; varsayılanda kapalı tutarsın.
-8. **Baseline appearance seçimi.** Light tema yüklenirken dark baseline kullanılması uyumsuz bir görüntü doğurur. Baseline `content.appearance` değerine göre seçmen gerekir.
+6. **Türetme adımları ve `refine` sırası:** Status alanlarında kullanıcı `error` değerini belirttiği halde `error_background` değerini tanımlamamışsa, baseline üzerinden gelen uyumsuz veya karışık renkler ortaya çıkabilir. Bu durumun önüne geçmek için `apply_status_color_defaults` çağrısının yapılması zorunludur.
+7. **`color()` yardımcısında (helper) hata mesajlarının yutulması:** Üretim ortamında hata ayıklama süreçlerini kolaylaştırmak amacıyla `inspect_err` ile loglama mekanizmaları eklenebilir; ancak bu işlevlerin varsayılan olarak kapalı tutulması önerilir.
+8. **Baseline appearance seçimi:** Light tema yüklenirken dark baseline kullanılması görsel uyumsuzluklara yol açar. Bu nedenle baseline seçiminin doğrudan `content.appearance` değerine göre yapılması gerekir.
 
 ### Çalışma zamanı
 
-9. **`cx.refresh_windows()` çağrısı.** Tema değiştiğinde UI'nın yeni renkleri okuması için `GlobalTheme::update_theme + refresh_windows` her zaman bir çift olarak çağırman gerekir.
-10. **`cx.notify()` ile yetinmek.** Yalnızca tek view'ı yeniler; oysa tema değişimi tüm pencerelerde geçerli olur.
-11. **`kvs_tema::init` kurulumu.** Global tema kurulmadan `cx.theme()` çağrısı çalışma zamanında erken durur. `kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx)` çağrısı uygulama girişinin **ilk** satırlarında konumlanır.
-12. **`update_global` içinde `set_global` çağrısı.** Re-entrancy koruması devreye girer. Update callback'i içinde yalnızca field mutate edebilirsin.
-13. **`observe_window_appearance` için `.detach()` saklama noktası.** Subscription drop edildiğinde observer sona erer.
+9. **`cx.refresh_windows()` çağrısı:** Tema değişikliği gerçekleştiğinde kullanıcı arayüzünün yeni renkleri anında yansıtabilmesi için, `GlobalTheme::update_theme` ve `refresh_windows` çağrılarının her zaman birlikte (bir çift olarak) yapılması gerekir.
+10. **Yalnızca `cx.notify()` çağrısıyla yetinilmesi:** Bu yöntem sadece ilgili view bileşenini yeniler; oysa tema değişiminin uygulamadaki tüm pencerelerde geçerli olması hedeflenir.
+11. **`kvs_tema::init` kurulumu:** Global tema tanımlanmadan önce yapılacak bir `cx.theme()` çağrısı, çalışma zamanında hataya (panic/crash) sebebiyet verir. Bu nedenle `kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx)` çağrısının, uygulama giriş noktasının (main fonksiyonunun) **ilk** satırlarında konumlandırılması kritik önem taşır.
+12. **`update_global` bloğu içerisinde `set_global` çağrısının yapılması:** Bu durum re-entrancy (tekrar girilebilirlik) korumasını devreye sokarak çalışma zamanını kilitleyebilir. Güncelleme callback'i içerisinde yalnızca ilgili alanların mutasyona (mutate) uğratılmasına izin verilir.
+13. **`observe_window_appearance` için `.detach()` kullanımı:** Subscription yapısı drop edildiğinde observer işlevi de sona erer. Bu nedenle abonelik referanslarının uygun şekilde saklanması veya detach edilmesi gerekir.
 
 ### GPUI tipleri
 
-14. **Hue'nun 0–360 aralığında yazılması.** GPUI hue 0–1 normalizedir; `hsla(210.0, ...)` aslında `hsla(210.0 / 360.0, ...)` biçiminde olmalıdır.
-15. **`Hsla::default()` ile struct doldurmak.** `(0,0,0,0)` görünmez bir değer üretir. `ThemeColors`'ın 143 alanı ile `StatusColors`'ın 42 alanının tamamını açık değerlerle doldurman gerekir.
-16. **`opacity` ile `alpha` arasındaki farkın karıştırılması.** `opacity(x)` mevcut alpha'yı `* x` ile çarpar; `alpha(x)` ise doğrudan set eder.
-17. **`use kvs_tema::ActiveTheme;` import'u.** Trait kapsamda olmadığında `cx.theme()` çağrısı "method not found" hatası verir. Prelude kullanılması pratik bir çözüm sağlar.
+14. **Hue değerinin 0–360 aralığında tanımlanması:** GPUI bünyesinde hue kanalı 0.0 ile 1.0 arasında normalize edilmiştir; dolayısıyla `hsla(210.0, ...)` kullanımı hatalıdır ve `hsla(210.0 / 360.0, ...)` şeklinde dönüştürülmelidir.
+15. **`Hsla::default()` kullanarak struct alanlarının doldurulması:** Varsayılan Hsla değeri `(0.0, 0.0, 0.0, 0.0)` olduğundan tamamen görünmez bir renk üretir. Hataları önlemek amacıyla, `ThemeColors`'ın 143 alanının ve `StatusColors`'ın 42 alanının tamamının açık ve belirgin değerlerle doldurulması gerekir.
+16. **`opacity` ile `alpha` metotlarının karıştırılması:** `opacity(x)` çağrısı mevcut alpha değerini `x` çarpanıyla çarparak günceller; buna karşın `alpha(x)` doğrudan şeffaflık değerini `x` olarak atar.
+17. **`use kvs_tema::ActiveTheme;` import ifadesinin unutulması:** Bu trait kapsamda (scope) bulunmadığı takdirde, `cx.theme()` çağrısı derleme sırasında 'method not found' hatasıyla sonuçlanır. Kütüphane prelude modülünün kullanılması bu durum için pratik bir çözüm sunar.
 
 ### Etkileşim
 
-18. **`.id()` çağrısının yeri.** Interactivity stateful'dur; ID olmadan hover/active state bağlanmaz ve etkileşim durumu görünmez kalır.
-19. **`element_selected` ile `element_selection_background` karıştırılması.** İlki liste öğesi seçimini, ikincisi metin highlight'ını temsil eder.
-20. **Ghost ile element grubunun karıştırılması.** Toolbar'da `element_*` kullanıldığında yüzey rengiyle dolar ve tasarım dili kayar.
-21. **Mermaid kaynağında tema dışı stil taşımak.** `%%{init}%%`, elle `classDef` veya rastgele hex renkler aktif tema ile çakışır. Vurgu sınıfları renderer postprocess adımında `.zed-accent-0..N` olarak üretilir; cache tema/settings değişiminde geçersiz kılınmalıdır.
-22. **Completion rozet ayarını tema ayarı sanmak.** `completion_menu_item_kind` `EditorSettingsContent` alanıdır; `ThemeSettingsContent` veya provider trait'ine eklenmez. Renk tüketimi syntax theme üstünden yaparsın.
-23. **Markdown önizleme metin fontu ile code fontunu birleştirmek.** Düz önizleme metni `markdown_preview_font_family`, inline code ve code block ise `markdown_preview_code_font_family` kullanır. İki alanın fallback hedefleri farklıdır.
-24. **Tema değişiminden sonra Mermaid cache'inin geçersiz kılınmaması.** SVG çıktısı `MermaidState::cache` içinde tutulur; tema veya `ThemeSettings` değiştiğinde `Markdown::invalidate_mermaid_cache(cx)` çağrılmazsa diyagramlar eski renkleri taşımaya devam eder. Tema observer'ı bu çağrıyı kendi mantığına bağlamalıdır.
-25. **Mermaid kaynağına alpha taşıyan renk vermek.** Renderer alpha'yı **düşürmez**: opak renkleri `#rrggbb`, yarı saydam renkleri `#rrggbbaa` olarak yazar; alpha kanalı korunur. Bu yüzden tema renginde istenmeyen bir alpha doğrudan SVG'ye taşınır. Diyagramda tam dolgu beklediğin yerlerde renkleri **kasıtlı opak** vermen gerekir; yarı saydamlık ancak bilerek istendiğinde kullanman gerekir.
-26. **Yarı yazılmış fenced blok için render beklentisi.** Mermaid pipeline'ı yalnızca `metadata.is_fenced_closed` olan fenced blok'ları toplar; açık kalmış bir blok atlanır, parse hatası üretmez. Bu, akış halinde gelen markdown önizlemelerinde sessiz davranışın kaynağıdır.
-27. **`~~~src` ile başka uzantı bağlamak.** Mermaid `FencedSrc` yolu yalnızca `.mermaid` ve `.mmd` uzantılarını tanır; diğerleri sessizce atlanır. Etiketli `~~~mermaid` blok'u her zaman alternatiftir.
+18. **`.id()` çağrısının önemi:** Etkileşim (interactivity) stateful bir yapıya sahiptir; benzersiz bir kimlik (ID) atanmadığında hover/active durumları bağlanamaz ve etkileşim görsel olarak yansıtılamaz.
+19. **`element_selected` ile `element_selection_background` alanlarının karıştırılması:** İlk alan liste ögesinin seçilme durumunu temsil ederken, ikinci alan doğrudan metin vurgulama (text highlight) arka planını ifade eder.
+20. **Ghost butonlar ile element gruplarının karıştırılması:** Araç çubuğunda (toolbar) `element_*` renkleri kullanıldığında buton yüzeyi dolgulu bir renkle kaplanır ve bu durum minimalist tasarım dilinden uzaklaşılmasına neden olur.
+21. **Mermaid şemasında tema dışı özel stillerin kullanılması:** `%%{init}%%` tanımlamaları, elle eklenmiş `classDef` kuralları veya rastgele hex renk kodları aktif tema renkleriyle çakışabilir. Vurgu sınıfları, renderer'ın postprocess adımında `.zed-accent-0..N` adlarıyla dinamik olarak üretilir; dolayısıyla tema veya ayar değişikliklerinde bu önbelleğin geçersiz kılınması gerekir.
+22. **Completion rozet yapılandırmasının tema ayarı olarak değerlendirilmesi:** `completion_menu_item_kind` alanı doğrudan `EditorSettingsContent` yapısına aittir; `ThemeSettingsContent` ya da provider trait'i içerisine eklenmez. Buradaki renk tüketiminin doğrudan syntax theme üzerinden yürütülmesi hedeflenir.
+23. **Markdown önizlemedeki metin fontu ile kod fontunun birleştirilmesi:** Düz önizleme metni `markdown_preview_font_family` yapılandırmasını esas alırken, satır içi kodlar (inline code) ve kod blokları `markdown_preview_code_font_family` alanından beslenir. Bu iki alanın varsayılan (fallback) hedefleri farklılık gösterir.
+24. **Tema değişiminin ardından Mermaid önbelleğinin geçersiz kılınmaması:** Üretilen SVG çıktıları `MermaidState::cache` yapısı içinde saklanır. Tema ya da `ThemeSettings` değiştiğinde `Markdown::invalidate_mermaid_cache(cx)` çağrısı yapılmazsa, diyagramlar eski renkleriyle çizilmeye devam eder. Bu nedenle tema observer yapısının bu çağrıyı tetikleyecek şekilde kurgulanması gerekir.
+25. **Mermaid girdilerine alpha kanalı içeren renklerin aktarılması:** Renderer yapısı alpha değerini otomatik olarak silmez; opak renkleri `#rrggbb`, yarı saydam renkleri ise `#rrggbbaa` formatında yansıtır ve renk hassasiyetini korur. Bu yüzden tema renginde yer alan şeffaflık doğrudan üretilen SVG dosyasına yansır. Diyagramda tam dolgu yapılması planlanan alanlarda renklerin **bilinçli olarak opak** verilmesi; yarı saydamlığın ise yalnızca özel durumlarda tercih edilmesi önerilir.
+26. **Yarım bırakılmış fenced bloklarında render beklentisi:** Mermaid işlem hattı yalnızca `metadata.is_fenced_closed` niteliği `true` olan (kapatılmış) fenced bloklarını işleme alır. Açık bırakılmış bloklar sessizce atlanır ve herhangi bir parse hatası üretilmez. Bu durum, canlı akan markdown önizlemelerinde bazı blokların görüntülenmemesinin temel sebebidir.
+27. **`~~~src` formatıyla farklı uzantıların bağlanması:** Mermaid `FencedSrc` yolu yalnızca `.mermaid` ve `.mmd` dosya uzantılarını işleyebilir; diğer uzantılar sessizce devre dışı bırakılır. Etiketli standart `~~~mermaid` blok yapısı bu durumlar için her zaman kararlı bir alternatiftir.
 
 ### Bundling / lisans
 
-28. **`palette` sürümünün Zed'le aynı tutulmaması.** Renk dönüşümü kayar; fixture testleri kırılır.
-29. **`refineable` dep'inin üretim yolu.** `publish = false` ayarı crates.io yayını engeller; vendor veya fork şarttır.
-30. **Zed `default_colors` HSL değerlerinin birebir kopyalanması.** GPL-3 ihlalidir. Bağımsız anchor değerleri seçmen gerekir.
-31. **Lisans dosyasını "sonradan eklerim" demek.** Bundled tema'ya atıf eklenmediğinde telif ihlali oluşur.
-32. **GPL lisanslı fixture'ın alınması.** Tema JSON'undaki HSL değerleri bile telif kapsamına girer; yalnızca MIT/Apache gibi uyumlu lisanslı temalar fixture'a alırsın.
+28. **`palette` kütüphane sürümünün Zed referansıyla aynı tutulmaması:** Bu uyumsuzluk renk uzayı dönüşümlerinde kaymalara sebep olur ve fixture testlerinin başarısızlığıyla sonuçlanır.
+29. **`refineable` bağımlılığının dağıtım kanalı:** `publish = false` yapılandırması crates.io platformuna paket gönderilmesini engeller; bu durumda yerel vendor klasörlerinin kurulması veya bağımsız bir fork oluşturulması gerekir.
+30. **Zed `default_colors` HSL değerlerinin birebir kopyalanması:** Bu durum lisans (GPL-3) ihlallerine sebebiyet verebilir. Tasarım aşamasında özgün anchor (çapa) renk değerlerinin belirlenmesi gerekir.
+31. **Lisans veya atıf dosyalarının ertelenmesi:** Dahili (bundled) temalara gerekli telif/lisans atıfları eklenmediğinde yasal hak ihlalleriyle karşılaşılabilir.
+32. **GPL lisanslı fixture dosyalarının projeye dahil edilmesi:** Tema JSON yapılandırmasındaki renk ve şema değerleri dahi telif hakkı kapsamına girebilir; bu sebeple yalnızca MIT/Apache gibi uyumlu ve açık kaynak lisanslarına sahip temalar test fixture'ı olarak tercih edilmelidir.
 
 ### Test
 
-33. **`#[gpui::test]` `cx.update` içinde init kurulumu.** Test başında `kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx)` veya `test_ortamini_baslat(cx)` çağrısı gerekir.
-34. **Hsla'nın `assert_eq!` ile karşılaştırılması.** Float eşitliği yanıltıcıdır; epsilon karşılaştırması tercih edersin.
-35. **`feature = "test-support"` kapsamı.** `#[cfg(any(test, feature = "test-support"))]` koşulunu kurarsın; release build'inde kapatırsın.
+33. **`#[gpui::test]` kapsamındaki başlatma kurulumu:** Her test sürecinin başlangıcında `kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx)` ya da `test_ortamini_baslat(cx)` çağrısı yapılarak gerekli global durumların hazır hale getirilmesi sağlanmalıdır.
+34. **Hsla değerlerinin doğrudan `assert_eq!` ile sınanması:** Küsüratlı sayılardaki (float) hassasiyet farkları nedeniyle doğrudan karşılaştırma yanıltıcı sonuçlar doğurabilir; bu yüzden epsilon tabanlı sınır tolerans karşılaştırmalarının yapılması önerilir.
+35. **`feature = "test-support"` yapılandırması:** Test yardımcılarının yalnızca test aşamalarında derlenmesi ve normal üretim (release) paketlerine sızmaması için `#[cfg(any(test, feature = "test-support"))]` koşullu derleme özniteliğinin kullanılması gerekir.
 
 ### API yüzeyi
 
-36. **`refinement` modülünün public yapılması.** `pub use crate::refinement::*` sözleşmeyi sızdırır. `pub(crate) mod refinement;` zorunludur.
-37. **`schema::*` glob ile public ihraç.** Yeni iç tip otomatik olarak public hale gelir. Tek tek `pub use` yazılmalıdır.
-38. **`Theme.styles` alanının doğrudan public olması.** İç düzen sızıntısına yol açar; accessor metotlarının (`theme.colors()`) tercih edilmesi gerekir.
+36. **`refinement` modülünün public olarak dışa açılması:** `pub use crate::refinement::*` kullanımı içsel iş kurallarını sızdırır. Modülün `pub(crate) mod refinement;` şeklinde tanımlanarak dış dünyadan gizlenmesi şarttır.
+37. **`schema::*` modülünün glob (`*`) ile public ihraç edilmesi:** Bu durum eklenen her iç tipin kontrolsüz şekilde public olmasına yol açar. Schema tiplerinin tek tek seçilerek `pub use` ile sunulması gerekir.
+38. **`Theme.styles` alanının doğrudan public (`pub`) yapılması:** Veri yapısının içsel yerleşim detaylarının sızmasına yol açar; tüm erişimler için accessor metotlarının (`theme.colors()`) tercih edilmesi önem arz eder.
 
 ### Özet karar matrisi
 
@@ -88,19 +88,19 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 | Registry sabitleri / typed error'lar | Registry mirror ediliyorsa **gerekli** | Registry kapsamdaysa |
 | `default_color_scales` / `zed_default_themes` | Karara bağlıdır | Fallback ve scale mirror kararı verildiğinde |
 
-Yukarıdaki öğeler kapsam kararına göre mirror edersin. Public API'ye alınmayan parçalar tüketici sözleşmesinin dışında kalır.
+Yukarıdaki öğelerin proje kapsam kararlarına uygun şekilde mirror edilmesi hedeflenir. Public API kapsamına dahil edilmeyen modüller ve yardımcı tipler, tüketici sözleşmesinin dışında kalacaktır.
 
 
 ---
 
 # Son
 
-Bu rehber, `kvs_tema` ve `kvs_syntax_tema` crate'lerinin **tüm yüzeyini** 12 bölüm ve 45 konu altında, uygulama kurulum sırasını izleyerek toplar. Üç temel kural baştan sona geçerli kalır:
+Bu rehber, `kvs_tema` ve `kvs_syntax_tema` crate'lerinin **tüm yüzeyini** 12 ana bölüm ve 45 konu başlığı altında, uygulama kurulum aşamalarını takip ederek ele almaktadır. Süreç boyunca şu üç temel kural geçerliliğini korur:
 
-1. **Veri sözleşmesinde dışlama yok** — Zed'in tüm alanları mirror edersin.
+1. **Veri sözleşmesinde eksiltme yapılmaması:** Zed'e ait tüm şema alanlarının eksiksiz olarak mirror edilmesi hedeflenir.
 2. **Lisans-temiz çalışma** — kod gövdesi GPL'den kopyalanmaz; yalnızca sözleşme paritesi korunur.
 3. **Sözleşme sınırı** — public API ile crate-içi detaylar birbirinden ayrılır; tüketici yalnızca açıkça desteklenen yüzeye bağlanır.
 
-Beklenmedik bir durumla karşılaşıldığında ilk bakılacak yer ilgili bölümdeki dikkat noktaları listesidir. Daha geniş tartışma için ilgili konuya geri dönülmelidir.
+Beklenmedik bir derleme veya çalışma zamanı hatasıyla karşılaşıldığında öncelikle ilgili bölümdeki dikkat noktaları listesi incelenmelidir. Daha kapsamlı analiz ve çözümler için ilgili konunun ana metnine başvurulması önerilir.
 
 ---

@@ -1,8 +1,8 @@
 # Görsel ve raster varlık akışı
 
-Bu bölüm, vektörel logolar ve raster (PNG/JPG/WebP/GIF) görseller için kullanılan hattı anlatır. İkon sistemiyle paylaşılan bir SVG render hattı vardır, ama tüketim yüzeyi farklıdır. `images/` klasörü serbest boyutlu vektör görsellere ev sahipliği yapar. Raster image'lar ise `img()` element'i ve `ImageSource` enum'u üzerinden akar. Bu ayrım, uzaktan URL'den gelen görsel ile binary'ye gömülü logonun aynı arayüzü nasıl paylaştığını açıklar.
+Bu bölüm, vektörel logolar ve raster (PNG/JPG/WebP/GIF) görseller için kullanılan işlem hattını ele almaktadır. İkon sistemiyle paylaşılan ortak bir SVG render hattı bulunsa da tüketim arayüzü farklılık gösterir. `images/` klasörü serbest boyutlu vektörel görsellere ev sahipliği yapar. Raster görseller ise `img()` elementi ve `ImageSource` enum yapısı üzerinden akar. Bu ayrım, uzak bir URL'den gelen bir görsel ile binary içerisine gömülü bir logonun aynı arayüzü nasıl paylaştığını açıklar.
 
-Bölüm boyunca `Resource::Embedded` ve `Resource::Path` koşullarının ne zaman seçildiğini görürsün. `ImageAssetLoader` format desteği ve image cache davranışı da aynı akış içinde ele alırsın.
+Bölüm boyunca `Resource::Embedded` ve `Resource::Path` koşullarının hangi durumlarda seçildiği incelenecektir. Ayrıca `ImageAssetLoader` format desteği ve görsel önbellek (image cache) davranışları da aynı akış kapsamında ele alınmaktadır.
 
 ---
 
@@ -46,11 +46,11 @@ impl VectorName {
 }
 ```
 
-İkonlardaki `IconName` ile yapısı **bire bir aynıdır**: snake_case dönüşüm, `EnumIter`, `IntoStaticStr`. Tek fark path prefix'idir (`images/` vs `icons/`). Bu kasıtlı tasarım kararı sayesinde yeni bir vektör görsel eklemek için:
+İkonlardaki `IconName` ile yapısal olarak **birebir aynıdır**: snake_case dönüşümü, `EnumIter` ve `IntoStaticStr` özellikleri paylaşılır. Tek fark dosya yolu prefix'idir (`images/` yerine `icons/`). Bu bilinçli tasarım kararı sayesinde yeni bir vektörel görsel eklemek için şu adımlar izlenir:
 
-1. `assets/images/yeni_logo.svg` dosyası eklersin.
-2. `VectorName::YeniLogo` varyantı eklersin.
-3. UI'da `Vector::square(VectorName::YeniLogo, rems_from_px(60.))` ile kullanırsın.
+1. `assets/images/yeni_logo.svg` dosyası eklenir.
+2. `VectorName::YeniLogo` varyantı tanımlanır.
+3. UI kodunda `Vector::square(VectorName::YeniLogo, rems_from_px(60.))` şeklinde çağrılarak kullanılır.
 
 ---
 
@@ -91,9 +91,11 @@ impl Vector {
 | Standart ölçek | `IconSize` enum'u | Çağrı yerinde belirlenir |
 | Renk modeli | Tek renkli (tema rengi) | Tek renkli (tema rengi) |
 
-İki bileşen de aynı `svg()` element'ini ve aynı `SvgRenderer` yolunu kullanır; bu yüzden `Vector` da yalnızca tek renkli SVG'leri doğru render eder. Bunun nedeni `Window::paint_svg` çağrısının SVG'yi alpha mask olarak rasterleştirip tek bir `text_color` ile boyamasıdır. Çok renkli logo veya illüstrasyon gerekiyorsa `Vector` yerine `img("images/logo.svg")` kullanman gerekir; `ImageAssetLoader` SVG byte'larını `SvgRenderer::render_single_frame` ile tam renkli `RenderImage`'a çevirir.
+Her iki bileşen de aynı render hattını (`svg()` elementi ve `SvgRenderer`) paylaşır; ancak semantikleri farklıdır: `Icon` standart boyutlardaki arayüz ikonları için kullanılırken, `Vector` logo, damga veya dekoratif çizim gibi serbest boyutlu görseller için tasarlanmıştır. Sonraki bölümde `images/` klasörü ve `Vector` bileşeni ayrıntılı olarak ele alınacaktır.
 
-`Vector::render` çağrısı sade tutarsın:
+Eğer çok renkli bir logo veya illüstrasyon çizilmesi gerekiyorsa, `Vector` yerine `img("images/logo.svg")` kullanımı tercih edilmelidir; `ImageAssetLoader` SVG byte verilerini `SvgRenderer::render_single_frame` vasıtasıyla tam renkli bir `RenderImage` nesnesine dönüştürür.
+
+`Vector::render` çağrısı son derece sade tutulur:
 
 ```rust
 impl RenderOnce for Vector {
@@ -112,13 +114,13 @@ impl RenderOnce for Vector {
 }
 ```
 
-`svg()` element'ine doğrudan path verirsin, ekstra adım yoktur. Yani `Vector` özünde "iki boyutu ayrı tutan bir SVG ikonu" olarak ele alınabilir.
+`svg()` elementine doğrudan dosya yolu (path) aktarılır, herhangi bir ekstra işleme gerek duyulmaz. Kısacası `Vector`, özünde 'iki boyutu birbirinden bağımsız yönetilen bir SVG ikonu' şeklinde ele alınabilir.
 
 ---
 
 ## 3. `img()` element'i ve `ImageSource`
 
-Raster image'lar, uzak URL'ler ve dosya sistemindeki büyük görseller için `img()` element'i kullanırsın. `gpui` crate'indeki tanımı dört kaynak türünü desteklemek üzere tasarlanmıştır:
+Raster görseller, uzak URL'ler ve dosya sistemindeki büyük görsel dosyaları için `img()` element yapısı tercih edilir. `gpui` crate'indeki tanım dört farklı kaynak türünü destekleyecek şekilde kurgulanmıştır:
 
 ```rust
 #[derive(Clone)]
@@ -139,11 +141,11 @@ Dört varyantın anlamı:
 - **`Resource(Resource)`** — Bir path, URI veya embedded path string'idir. En sık kullanılan kaynak türüdür; `From<&str>`, `From<&Path>`, `From<PathBuf>` gibi conversion'lar bu varyantı üretir.
 - **`Render(Arc<RenderImage>)`** — Daha önce decode edilmiş ham BGRA buffer. Cache veya elle üretilmiş image data için kullanılır; ekstra yükleme yapılmaz, doğrudan render edersin.
 - **`Image(Arc<Image>)`** — Decode edilmemiş ama yüklenmiş image instance'ı (format ve ham byte'lar elde, BGRA'ya çevrilmemiş). Tipik kullanım panodan (clipboard) gelen görseldir. Decode'un kendisi senkron bir `to_image_data` çağrısıdır; fakat bu çağrı asset task'ı içinde, yani arka planda koşar, böylece render zamanını bloke etmez.
-- **`Custom(Arc<dyn Fn>)`** — Tamamen özel bir loader. UI bileşeni kendi yüklemesini tanımlamak istediğinde (örneğin clipboard'tan görsel yapıştırma) bu varyant kullanırsın.
+- **`Custom(Arc<dyn Fn>)`:** Tamamen özel bir yükleyici (loader) mekanizmasıdır. Kullanıcı arayüzü bileşeni kendi yükleme mantığını tanımlamak istediğinde (örneğin clipboard üzerinden görsel yapıştırma işlemlerinde) bu varyanttan yararlanılır.
 
 ### 3.1 String'den ImageSource'a tip dönüşümleri
 
-`img(...)` çağrısının kabul ettiği değer tip karmaşıklığı sayesinde tek çağrıyla yönetirsin. `gpui` crate'indeki kritik dönüşüm:
+`img(...)` çağrısının kabul ettiği parametre tiplerinin esnekliği sayesinde tüm süreç tek bir çağrı ile yönetilebilir. `gpui` crate'indeki kritik dönüşüm yapısı şu şekildedir:
 
 ```rust
 impl<'a> From<&'a str> for ImageSource {
@@ -157,13 +159,13 @@ impl<'a> From<&'a str> for ImageSource {
 }
 ```
 
-Heuristik basittir: `url::Url::from_str(s).is_ok()` true dönerse string bir URI olarak yorumlanır; aksi halde embedded asset path'i kabul edersin. Yani:
+Heuristik son derece basittir: `url::Url::from_str(s).is_ok()` çağrısı `true` döndüğü takdirde ilgili string bir URI olarak yorumlanır; aksi takdirde gömülü bir asset dosya yolu (embedded asset path) kabul edilir. Yani:
 
 - `img("images/zed_logo.svg")` → `Resource::Embedded("images/zed_logo.svg")`
 - `img("https://example.com/avatar.png")` → `Resource::Uri("https://example.com/avatar.png")`
 - `img(&Path::new("/tmp/screenshot.png"))` → `Resource::Path(...)` (ayrı `From<&Path>` impl'i)
 
-Bu otomatik dönüşüm zinciri, bileşen yazarlarının kaynak türünü açıkça belirtmesine gerek bırakmaz. Path olduğundan emin olunmayan bir input için string yerine `PathBuf` veya `Arc<Path>` kullanmak daha sağlamdır. Aksi halde değer "https://..." ile başlamadığı sürece `Embedded` kabul edilir ve binary'den okunmaya çalışılır.
+Bu otomatik dönüşüm zinciri, bileşen geliştiricilerinin kaynak türünü her seferinde açıkça belirtmesi zorunluluğunu ortadan kaldırır. Dosya yolu (path) olduğundan emin olunamayan girdiler için ham string yerine `PathBuf` veya `Arc<Path>` kullanılması daha güvenli bir yaklaşımdandır. Aksi takdirde, girdi 'https://' gibi belirteçlerle başlamadığı sürece `Embedded` kabul edilir ve binary içerisinden okunmaya çalışılır.
 
 ---
 
@@ -179,7 +181,7 @@ pub enum Resource {
 }
 ```
 
-`ImageAssetLoader::load` üç varyantı sırayla işler:
+`ImageAssetLoader::load` işlevi bu üç varyantı sırasıyla işler:
 
 ```rust
 async move {
@@ -207,6 +209,7 @@ async move {
         }
     };
     // ... decode adımı
+    Ok(baytlar)
 }
 ```
 
@@ -232,7 +235,7 @@ if let Ok(format) = image::guess_format(&bytes) {
 }
 ```
 
-`image` crate'i format tespit eder; her format için ayrı bir decoder hattı vardır. GIF için animasyon frame'leri sırayla işlersin, statik formatlar için tek frame üretilir.
+`image` crate'i dosya formatını tespit eder; her format için bağımsız bir decoder hattı mevcuttur. GIF formatı için animasyon kareleri (frame'ler) sırayla işlenirken, statik formatlar için tek bir kare üretilir.
 
 ### 4.1 Desteklenen format listesi
 
@@ -253,7 +256,7 @@ Bu liste `image::ImageFormat::from_extension` çıktısının üzerine `svg` ekl
 - `svg()` ile çağrı: `text_color` ile tek renkli boyama yapılır; ikon tarzı kullanım.
 - `img()` ile çağrı: SVG `SvgRenderer` üzerinden raster image olarak çevirilir; çok renkli dosyalar buradan geçer.
 
-Uygulamadaki gerçek ayrım uzantıdan çok byte içeriğine dayanır. `ImageAssetLoader`, önce `image::guess_format(&bytes)` ile raster formatları yakalar; bu çağrı SVG için format döndürmezse `svg_renderer.render_single_frame(&bytes, 1.0)` fallback'ine geçer. Bu yüzden `Img::extensions()` listesindeki `svg`, "image crate SVG decode ediyor" anlamına değil, `img()` element'inin SVG byte'larını GPUI'nin SVG renderer'ı üzerinden kabul ettiği anlamına gelir.
+Uygulamadaki asıl ayrım dosya uzantısından ziyade byte içeriğine dayanır. `ImageAssetLoader` öncelikle `image::guess_format(&bytes)` yardımıyla raster formatları yakalar; bu çağrı SVG için bir format döndüremediğinde ise `svg_renderer.render_single_frame(&bytes, 1.0)` fallback (varsayılan yedek) mekanizmasına geçer. Dolayısıyla `Img::extensions()` listesinde yer alan `svg` ifade, 'image crate'in SVG formatını doğrudan decode ettiği' anlamına gelmeyip, `img()` elementinin SVG byte verilerini GPUI'nin SVG renderer'ı üzerinden işleme alabildiğini ifade eder.
 
 ---
 
@@ -283,13 +286,13 @@ pub type ImgResourceLoader = AssetLogger<ImageAssetLoader>;
 
 Üç nokta önemlidir:
 
-- **`AssetLogger<T>` sarmalayıcısı:** `gpui` crate'inde tanımlı bu adapter, `T::Output` `Result` olduğunda `Err` varyantını log'a düşürür. Pratikte `img()` element'i `ImgResourceLoader = AssetLogger<ImageAssetLoader>` ile çalışır; yani hata durumunda log'a açıklayıcı bir mesaj girer, fakat exception fırlatılmaz.
-- **`cx.svg_renderer()` ve `cx.http_client()` clone'ları async kapanışa kapatılır:** Trait `'static` Future istediği için async kapanış kendi `cx` referansını taşıyamaz. Bu yüzden ihtiyaç duyulan servisler (svg renderer, http client, varlık kaynağı) kapanış başlangıcında ödenir.
-- **Output `Arc<RenderImage>`:** Yüklenmiş image cache'lenmiş şekilde döner; aynı kaynak için ikinci çağrı aynı `Arc` referansını döndürür. `RenderImage` `ImageId` taşır ve GPU sprite atlas'ında bu id ile aranır.
+- **`AssetLogger<T>` sarmalayıcısı:** `gpui` crate'inde tanımlı olan bu adaptör, `T::Output` değeri `Result` olup `Err` döndüğünde hata durumunu log kaydına yansıtır. Pratikte `img()` elementi `ImgResourceLoader = AssetLogger<ImageAssetLoader>` yapısıyla çalışır; bu sayede hata durumlarında günlüğe açıklayıcı bir mesaj yazılır ancak fatal bir exception fırlatılmaz.
+- **`cx.svg_renderer()` ve `cx.http_client()` klonları async closure içerisine taşınır:** Trait yapısı `'static` bir Future talep ettiği için, asenkron closure kendi kapsamına geçici `cx` referansını dahil edemez. Bu nedenle ihtiyaç duyulan servisler (svg renderer, http client, varlık kaynağı) closure başlangıcında klonlanarak taşınır.
+- **Output `Arc<RenderImage>`:** Yüklenen görsel önbelleğe alınmış (cached) şekilde geri döndürülür; aynı kaynak için yapılan sonraki çağrılar doğrudan aynı `Arc` referansını paylaşır. `RenderImage` nesnesi bir `ImageId` barındırır ve GPU sprite atlas'ı üzerinde bu kimlik (id) yardımıyla aranır.
 
 ### 5.1 `use_asset` cache mekaniği
 
-`ImageSource::use_data` imzası `(&self, cache: Option<AnyImageCache>, window, cx)` biçimindedir; tek bir `kaynak` parametresi almaz, yanına bir `cache` seçeneği de alır. `Resource` varyantında önce bu `cache`'e bakar: element ağacında en yakın bir `ImageCacheElement` varsa `cache.load(resource, window, cx)` çağırırsın. Yalnızca lokal görsel önbelleği yoksa (`None`) `window.use_asset::<ImgResourceLoader>(resource, cx)` ile global asset cache'ine düşer:
+`ImageSource::use_data` metodunun imza yapısı `(&self, cache: Option<AnyImageCache>, window, cx)` şeklindedir; yani tek başına bir kaynak parametresi almakla kalmayıp yanına bir `cache` seçeneği de kabul eder. `Resource` varyantı işlenirken öncelikle bu `cache` kontrol edilir: eğer element ağacında en yakın konumda bir `ImageCacheElement` mevcutsa `cache.load(resource, window, cx)` çağrısı yürütülür. Yalnızca yerel görsel önbelleği bulunmadığında (`None` durumu) `window.use_asset::<ImgResourceLoader>(resource, cx)` aracılığıyla global asset cache'ine yönlendirme yapılır:
 
 ```rust
 pub fn use_asset<A: Asset>(&mut self, kaynak: &A::Source, cx: &mut App) -> Option<A::Output> {
@@ -317,10 +320,10 @@ pub fn use_asset<A: Asset>(&mut self, kaynak: &A::Source, cx: &mut App) -> Optio
 Akış:
 
 1. `cx.fetch_asset::<A>(kaynak)` cache'te task var mı bakar. Yoksa yeni Future başlatır.
-2. `now_or_never()` Future hazırsa sonucu döner; aksi halde `None` döner ve view'in re-render edilmesi için bir tetikleyici kurarsın.
-3. İlk çağrıda (`is_first == true`) Future tamamlandığında `cx.notify(entity_id)` çağrılır; böylece görsel yüklenince view yeniden çizilir ve `use_asset` ikinci çağrıda sonucu döner.
+2. `now_or_never()` çağrısı Future hazır durumdaysa doğrudan sonucu döner; aksi takdirde `None` döner ve ilgili view'in yeniden render edilmesi (re-render) için bir tetikleyici kurulur.
+3. İlk çağrı esnasında (`is_first == true`) Future tamamlandığında `cx.notify(entity_id)` tetiklenir; böylece görsel yüklendiğinde view yeniden çizilir ve `use_asset` sonraki çağrıda başarıyla sonucu geri döndürür.
 
-Pratik sonucu şudur: bir image element ilk render'da "boş" olarak çizersin, byte'lar yüklenip decode edildikten sonra otomatik olarak yenilenir. Bu davranış kullanıcı tarafında titrek bir flash olarak görünür; bunu yumuşatmak için `with_loading(...)` ile yer tutucu UI verilebilir.
+Bunun pratik sonucu şudur: bir image elementi ilk render anında boş olarak çizilir, byte verileri yüklenip decode edildikten sonra ise otomatik olarak güncellenir. Bu davranış kullanıcı tarafında hafif bir titreme (flash) olarak algılanabilir; bunu yumuşatmak amacıyla `with_loading(...)` metodu yardımıyla geçici yer tutucu UI bileşenleri tanımlanabilir.
 
 ---
 
@@ -328,8 +331,8 @@ Pratik sonucu şudur: bir image element ilk render'da "boş" olarak çizersin, b
 
 Image cache'in iki seviyesi vardır:
 
-- **Global cache:** `App` üzerinde `loading_assets` haritası. `use_asset` çağrısı varsayılan olarak buraya düşer.
-- **Lokal cache:** Element ağacındaki bir `ImageCacheElement`. Belirli bir bölgenin image'larını ayrı bir cache'e yönlendirmek için kullanırsın.
+- **Global önbellek (Global Cache):** `App` üzerinde konumlanan `loading_assets` eşleşme tablosudur. `use_asset` çağrısı varsayılan olarak buraya yönlendirilir.
+- **Yerel önbellek (Lokal Cache):** Element ağacında yer alan bağımsız bir `ImageCacheElement` nesnesidir. Belirli bir bölgedeki görsellerin ayrı un cache yapısına yönlendirilmesi hedeflendiğinde tercih edilir.
 
 `Icon::preview` örneğindeki kullanım:
 
@@ -341,9 +344,9 @@ h_flex()
     .children(<IconName as strum::IntoEnumIterator>::iter().map(...))
 ```
 
-`gpui::retain_all` "bu cache hiçbir şeyi atmasın" davranışı verir; tüm ikon galerisi açıkken cache evict olmaz. GPUI'de yerleşik tek `ImageCache` somut türü `RetainAllImageCacheProvider`'ın ürettiği `RetainAllImageCache`'tir ve adı LRU çağrıştırsa da gerçekte hiçbir eviction (ne LRU ne de boyut sınırı) içermez; sadece yükler ve tutar. Eviction stratejisi gerekiyorsa `ImageCache` trait'ini kendin uygulayıp kendi cache'ini yazarsın.
+`gpui::retain_all` çağrısı, 'bu önbellek hiçbir veriyi tahliye etmesin' (evict) davranışını tetikler; böylece tüm ikon galerisi açık olsa bile cache temizliği yapılmaz. GPUI bünyesinde yerleşik olarak sunulan tek `ImageCache` somut türü, `RetainAllImageCacheProvider` tarafından üretilen `RetainAllImageCache` yapısıdır. Bu yapı adı itibarıyla LRU çağrıştırsa da gerçekte herhangi bir tahliye (eviction) stratejisi (boyut sınırı veya LRU) barındırmaz; sadece veriyi yükler ve bellekte tutar. Eğer özel bir eviction (tahliye) stratejisine ihtiyaç duyulursa `ImageCache` trait'inin manuel olarak implement edilip özel bir cache yapısının kurgulanması gerekir.
 
-`Img::image_cache(entity)` çağrısı, bir image element'in cache hiyerarşisindeki en yakın `ImageCacheElement`'i yoksaymasını sağlar; doğrudan verilen cache kullanırsın. Bu, "şu görseli özel bir cache'e koy" davranışı için kapı açar.
+`Img::image_cache(entity)` çağrısı, bir image elementinin cache hiyerarşisindeki en yakın `ImageCacheElement` referansını yoksaymasını (override) sağlayarak doğrudan belirtilen cache yapısının kullanılmasını mümkün kılar. Bu yaklaşım, 'belirli bir görseli özel bir cache alanına yerleştirme' istekleri için esnek bir zemin sunar.
 
 ---
 
@@ -369,13 +372,13 @@ Tek `img()` element'inin altında bu kadar farklı yolun durması, kullanıcı t
 
 Boru hattının en sonunda iki ayrı tür bulunur; pratikte ayrım şudur:
 
-- **`Image`** — Format tespit edilmiş ama henüz BGRA'ya decode edilmemiş ham image. `to_image_data(renderer)` çağrısı `RenderImage`'a çevirir.
-- **`RenderImage`** — BGRA buffer içeren, ImageId taşıyan ve GPU atlas'ında konumlandırılabilen son hal.
+- **`Image`:** Dosya formatı tespit edilmiş fakat henüz BGRA formatına decode edilmemiş ham görsel verisidir. `to_image_data(renderer)` çağrısıyla `RenderImage` nesnesine dönüştürülür.
+- **`RenderImage`:** BGRA piksel buffer'ı barındıran, bir `ImageId` taşıyan ve GPU atlası üzerinde doğrudan konumlandırılabilen nihai görsel çıktısıdır.
 
 Akış: `Resource → bytes → Image → RenderImage → GPU atlas`. `ImgResourceLoader` Resource'tan RenderImage'a kadar tek adımda gider; `ImageDecoder` ise elinde Image olan bir kullanıcıya RenderImage döndürür. Bu ayrım iki kullanım senaryosunu destekler:
 
-1. Image instance'ı uygulama içinde paylaşılıyor (örneğin clipboard'dan paste edilmiş görsel) — `ImageDecoder` ile decode edersin.
-2. Resource path olarak verildi — `ImgResourceLoader` resource'tan başlayıp tüm yolu tek seferde geçer.
+1. Görsel örneği (Image instance) uygulama içerisinde paylaşıldığında (örneğin clipboard üzerinden yapıştırılmış bir görsel) — `ImageDecoder` yardımıyla decode işlemi yürütülür.
+2. Kaynak dosya yolu (Resource path) olarak belirtildiğinde — `ImgResourceLoader` doğrudan resource seviyesinden başlayarak tüm adımları tek seferde tamamlar.
 
 ---
 
@@ -405,10 +408,10 @@ img(Path::new(&ekran_goruntusu_yolu))
 
 Dördüncü örnekte iki ek setter dikkat çekicidir:
 
-- **`with_loading`** — Image yüklenmeden önce gösterilecek yer tutucu UI. Async yüklemede ilk frame'in boş kalmaması için kullanırsın.
-- **`with_fallback`** — Image yüklenemezse (404, decode hatası) gösterilecek alternatif UI. Genellikle ikon veya hata kutusu konur.
+- **`with_loading`** — Görsel henüz yüklenirken arayüzde gösterilecek geçici yer tutucu (loading placeholder) bileşenidir. Asenkron yükleme süreçlerinde ilk karenin boş kalmasını önlemek amacıyla kullanılır.
+- **`with_fallback`** — Görsel yüklenemediğinde (404 hatası veya decode başarısızlığı) devreye girecek alternatif UI bileşenidir. Genellikle bir yedek ikon veya hata kutusu yerleştirilir.
 
-İki callback de `Fn() -> AnyElement` imzasındadır; çağrı sırasında her render'da yeniden çağırırsın, durum tutmaz.
+Her iki callback de `Fn() -> AnyElement` imzasındadır; render süreçleri tetiklendikçe durum tutmaksızın yeniden çağrılırlar.
 
 ---
 
@@ -424,7 +427,8 @@ ImageSource::Resource(Resource::Embedded("images/x.png"))
 cx.fetch_asset::<ImgResourceLoader>(kaynak)
     │
     ▼ task cache: ilk çağrıda Future başlat
-ImageAssetLoader::load
+    │
+    ▼ ImageAssetLoader::load
     ├── Resource::Path -> fs::read
     ├── Resource::Uri  -> cx.http_client().get(...)
     └── Resource::Embedded -> cx.asset_source().load(&yol)
@@ -444,8 +448,8 @@ ImageAssetLoader::load
 
 Üç noktanın altı çizilmelidir:
 
-- **Resource tabanlı image yükleme async'dir**, render zamanı sıfır değildir. İlk frame'de görsel görünmez kalabilir; yükleme durumu bilinçli yönetmen gerekir. `ImageSource::Render` gibi önceden decode edilmiş kaynaklarda bu bekleme yoktur.
-- **`ImgResourceLoader` üç kaynak türünü birden taşır**; bu yüzden `img()` element'i URL, path ve embedded path için aynı API'yi sunar.
-- **Cache hash'i Resource türünü içerir**; aynı path string'i bir kez URI bir kez Embedded olarak yorumlanırsa farklı cache anahtarları üretilir. Bu pratik olarak çakışma yaratmaz çünkü dönüşüm deterministtir, fakat özel loader yazılırken hash davranışı dikkate alman gerekir.
+- **Kaynak tabanlı (Resource-based) görsel yükleme asenkrondur**, dolayısıyla yükleme süresi sıfır değildir. İlk render karesinde görsel görünmeyebilir; bu nedenle yükleme durumunun bilinçli şekilde yönetilmesi önerilir. `ImageSource::Render` gibi önceden decode edilmiş veri kaynaklarında bu asenkron bekleme süreci yaşanmaz.
+- **`ImgResourceLoader` üç kaynak türünü birden yönetebilir**; bu sayede `img()` elementi uzak URL, yerel path ve gömülü (embedded) path seçenekleri için aynı arayüzü sunar.
+- **Önbellek hash algoritması Resource türünü de kapsar**; aynı yol string'i bir kez URI, bir kez de Embedded olarak yorumlanırsa farklı cache anahtarları üretilir. Bu durum dönüşümler deterministik olduğundan pratik olarak bir çakışma yaratmaz; ancak özel bir loader tasarlanırken bu hash davranışının göz önünde bulundurulması gerekir.
 
 ---

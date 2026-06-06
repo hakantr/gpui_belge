@@ -1,8 +1,8 @@
 # Varlık yönetimi
 
-Bu konu, Zed uygulamasındaki varlık altyapısının nasıl kurulduğunu ve uygulamaya nasıl bağlandığını bölüm bölüm anlatır. Amaç sadece `RustEmbed` ile bir klasörü paketlemek değildir. Font, ikon, görsel, ses, prompt şablonu, tema JSON'u ve klavye haritası gibi farklı varlık türleri tek bir `AssetSource` sözleşmesi üzerinden akar. Bölümün odağı, bu sözleşmenin GPUI çalışma zamanına, SVG render hattına, ses hattına ve ayar/tema sistemine nasıl bağlandığını netleştirmektir. `RustEmbed` release build'de gömülü byte üretirken normal debug build'de aynı API ile dosya sisteminden okuma yapabildiği için iki davranış da ayrıca belirtilir.
+Bu konu, Zed uygulamasındaki varlık altyapısının nasıl kurulduğunu ve uygulamaya nasıl bağlandığını bölüm bölüm açıklar. Amaç sadece `RustEmbed` ile bir klasörü paketlemekle sınırlı değildir. Font, ikon, görsel, ses, prompt şablonu, tema JSON'u ve klavye haritası gibi farklı varlık türleri tek bir `AssetSource` sözleşmesi üzerinden akar. Bölümün temel odağı; bu sözleşmenin GPUI çalışma zamanına, SVG render hattına, ses hattına ve ayar/tema sistemine nasıl entegre edildiğini netleştirmektir. `RustEmbed` yapısı release derlemelerinde gömülü byte üretirken, normal debug derlemelerinde aynı API ile dosya sisteminden dinamik okuma yapabildiğinden her iki davranış modeli de ayrıntılı olarak ele alınmaktadır.
 
-Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam ve klasör topolojisi netleşir, sonra `AssetSource` sözleşmesi ile `RustEmbed` entegrasyonu kurarsın. Bu temel oturduktan sonra font, ikon, görsel ve ses gibi binary varlıkların tüketim yolları sırayla işlersin. Son bölümler JSON tabanlı varlıkları (tema, keymap, settings, badge) ve test/headless ortamlardaki ikame stratejilerini toparlar.
+Okuma sırası bilinçli olarak belirli bir mantık çerçevesinde düzenlenmiştir. Öncelikle kapsam ve klasör topolojisi netleştirilir, ardından `AssetSource` sözleşmesi ile `RustEmbed` entegrasyonu kurgulanır. Bu temel yapı oturduktan sonra font, ikon, görsel ve ses gibi binary varlıkların tüketim yolları sırasıyla ele alınır. Son bölümler ise JSON tabanlı varlıkları (tema, keymap, settings, badge) ve test/headless ortamlardaki alternatif ikame stratejilerini özetler.
 
 ## Bölümler
 
@@ -16,7 +16,7 @@ Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam
 
 5. [Görsel ve raster varlık akışı](05-image-ve-raster-varlik.md) `images/` klasörünü, `VectorName` registry'sini, `img()` element'ini, `Resource` enum'unu, `ImageAssetLoader` ve `Asset` trait'inin asenkron yükleme modelini gösterir.
 
-6. [Ses ve diğer binary varlıklar](06-sound-ve-binary-varlik.md) `sounds/` klasöründeki WAV dosyalarının `Audio::play_sound` üzerinden tüketimini, `Sound` enum eşlemesini ve source cache davranışını açıklar. `prompts/` klasöründeki Handlebars şablonlarının handlebars motoruna nasıl kaydedildiğini de gösterir.
+6. [Ses ve diğer binary varlıklar](06-sound-ve-binary-varlik.md) `sounds/` klasöründeki WAV dosyalarının `Audio::play_sound` üzerinden tüketini, `Sound` enum eşlemesini ve source cache davranışını açıklar. `prompts/` klasöründeki Handlebars şablonlarının handlebars motoruna nasıl kaydedildiğini de gösterir.
 
 7. [JSON varlıkları: tema, keymap, settings, badge](07-json-varlik-akisi.md) Tema JSON'larının `load_bundled_themes` üzerinden registry'ye nasıl aktığını açıklar. `SettingsAssets`'in keymap ve settings dosyalarını `asset_str` ile nasıl okuduğunu ve `badge/` klasörünün uygulama dışı kullanım amacını da toplar.
 
@@ -26,4 +26,4 @@ Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam
 
 ## Okuma önerisi
 
-İlk kez okuyan biri için 1-4 arası bölümler sıralı izlenmelidir; çünkü varlık altyapısının temeli bu bölümlerde oturur. Mevcut bir uygulamaya yalnızca ikon eklemek isteyen okuyucu için 1, 2 ve 4. bölümler yeterlidir. Ses veya görsel hattı kuruluyorsa 5 ve 6. bölümler doğrudan pratik karşılığa sahiptir. Tema ve keymap entegrasyonu için 7. bölüm, headless test ortamı için 8. bölüm referans olarak kullanabilirsin. 9. bölüm uygulamanın ilk varlık entegrasyonu tamamlandıktan sonra sapma noktalarını yakalamak için son kontrol noktasıdır.
+İlk defa okuyacak olanlar için 1-4 arası bölümlerin sırayla takip edilmesi önerilir; nitekim varlık altyapısının temeli bu bölümlerde kurulur. Mevcut bir uygulamaya yalnızca ikon eklemek isteyen bir geliştirici için 1, 2 ve 4. bölümler yeterli bir rehberlik sunar. Ses veya görsel hatları inşa ediliyorsa 5 ve 6. bölümler doğrudan pratik uygulamalar barındırır. Tema ve keymap entegrasyonu için 7. bölüm, headless test ortamları için ise 8. bölüm referans olarak kullanılabilir. 9. bölüm ise, uygulamanın ilk varlık entegrasyonu tamamlandıktan sonra olası sapma noktalarını yakalamak üzere tasarlanmış son kontrol listesidir.

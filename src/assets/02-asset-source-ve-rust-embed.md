@@ -1,6 +1,6 @@
 # AssetSource sözleşmesi ve RustEmbed entegrasyonu
 
-Bu bölüm, varlık altyapısının iki ana taşıyıcı parçasını tanıtır: klasörü `get/iter` API'si arkasına alan `RustEmbed` macro'su ve çalışma zamanında bu varlıklara tek tip arayüz sağlayan `AssetSource` trait'i. Her iki parça birbirinden bağımsız tasarlanmıştır; bir uygulama `RustEmbed` kullanmadan da `AssetSource` implement edebilir (örneğin tüm varlıkları dosya sisteminden okuyan bir uygulama), bunun tersi de geçerlidir. Zed bu ikisini birleştiren küçük bir köprü struct'ı yazar; bu bölüm o köprünün hem sözleşmesini hem davranışını ortaya koyar.
+Bu bölüm, varlık altyapısının iki temel bileşenini ele alır: klasör yapısını `get/iter` API'si arkasında sarmalayan `RustEmbed` makrosu ve çalışma zamanında bu varlıklara tek tip arayüz sunan `AssetSource` trait yapısı. Her iki parça birbirinden bağımsız şekilde tasarlanmıştır; bir uygulama `RustEmbed` kullanmadan da `AssetSource` implementasyonunu gerçekleştirebilir (örneğin tüm varlıkları doğrudan dosya sisteminden okuyan bir uygulama), bunun tersi de mümkündür. Zed bu iki yapıyı birleştiren küçük bir köprü struct yapısı tanımlar; bu bölüm o köprünün hem sözleşmesini hem de davranış detaylarını ortaya koymaktadır.
 
 ---
 
@@ -30,7 +30,7 @@ Trait'in üç özelliği bilinçli bir tasarım kararıdır:
 - **`Send + Sync`:** Varlık yükleme arka plan task'lerinde yapılabilir (örneğin `ImageAssetLoader` background executor üzerinde çalışır). Bu yüzden trait thread-safe olmak zorundadır.
 - **`Cow<'static, [u8]>` dönüş tipi:** `RustEmbed` derleme zamanında varlıkları binary'ye gömdüğünde `Cow::Borrowed` döner (kopya yok); dosya sisteminden okuyan bir uygulama ise `Cow::Owned` döner. Tüketici tarafında her iki durum aynı kod yoluyla çalışır.
 
-`load` metodunun `Result<Option<...>>` dönmesi bilinçlidir, fakat "bulunamadı" davranışı implementasyona bırakırsın. Boş veya dosya sistemi tabanlı bir kaynak dosya yokken `Ok(None)` döndürebilir; Zed'in `Assets` sarmalayıcısı ise eksik path'i `Err` kabul eder. Bu sayede tüketici, kullandığı kaynağın kontratına göre "yedeğe geç" veya "log'la ve görünmez bırak" davranışını açıkça seçer.
+`load` metodunun `Result<Option<...>>` şeklinde bir değer döndürmesi bilinçli bir karardır; ancak dosyanın bulunamaması durumundaki davranış modeli doğrudan ilgili implementasyona bırakılır. Boş veya dosya sistemi tabanlı bir varlık kaynağı dosya mevcut değilse `Ok(None)` döndürebilir; Zed bünyesindeki `Assets` sarmalayıcısı ise eksik yolu `Err` kabul eder. Bu sayede tüketici, kullandığı kaynağın sözleşmesine göre 'yedeğe geçme' veya 'hatayı günlüğe kaydedip (log'layıp) nesneyi görünmez bırakma' davranışını açıkça belirleme imkanına kavuşur.
 
 ### 1.1 Boş implementasyon: `()`
 
@@ -59,7 +59,7 @@ Boş implementasyonun varlığı şu pratik sonucu doğurur: bir test veya başl
 
 ## 2. RustEmbed macro'su ve klasör paketleme
 
-`rust-embed` crate'i, bir klasörü tek bir statik erişim API'si arkasına koyan procedural macro sağlar. Zed'in release build'lerinde ve `debug-embed` feature'ı açıkken dosyalar binary'ye gömülür; normal debug build'lerde ise aynı API dosya sisteminden okur. Bu ayrım önemlidir: `Assets::get` ve `Assets::iter` çağrıları her iki modda da aynı görünür, fakat debug modda dosya değişiklikleri yeniden derleme gerektirmeden okunabilirken release modda içerik binary'nin parçasıdır. Zed bu macro'yu iki ayrı struct üzerinde kullanır.
+`rust-embed` crate'i, bir klasörü tek bir statik erişim API'si arkasına alan procedural makroyu sağlar. Zed'in release derlemelerinde ve `debug-embed` feature'ı etkinken dosyalar binary içerisine gömülür; normal debug derlemelerinde ise aynı API doğrudan dosya sisteminden okuma yapar. Bu ayrım kritik önem taşır: `Assets::get` ve `Assets::iter` çağrıları her iki modda da tamamen aynı görünür, fakat debug modunda dosya değişiklikleri yeniden derleme gerektirmeden anında okunabilirken release modunda içerik doğrudan binary'nin sabit bir parçası haline gelir. Zed bu makroyu iki ayrı struct yapısı üzerinde konumlandırır.
 
 ### 2.1 Ana asset struct'ı
 
@@ -81,13 +81,13 @@ pub struct Assets;
 Macro derleme zamanında `assets/` klasörünü tarar ve release/debug-embed kolu için aşağıdaki yapıyı üretir:
 
 - `Assets::get(path) -> Option<EmbeddedFile>`: Verilen path için varlığı döner. `EmbeddedFile` içinde `data: Cow<'static, [u8]>` ve metadata bulunur.
-- `Assets::iter() -> impl Iterator<Item = Cow<'static, str>>`: `RustEmbed` kalıplarıyla eşleşen dosya path'lerini döner. Bu iterator `list` metodunda filtreleme için kullanırsın.
+- `Assets::iter() -> impl Iterator<Item = Cow<'static, str>>`: `RustEmbed` kalıplarıyla eşleşen dosya yollarını döner. Bu iterator, `list` metodunda filtreleme gerçekleştirmek amacıyla kullanılır.
 
 `#[include]` ve `#[exclude]` direktifleri `rust-embed` 8.11'de `globset` ile ayrı kümeler halinde değerlendirilir. Sıra "ilk eşleşen kazanır" şeklinde çalışmaz; exclude kalıpları include kalıplarından önceliklidir. Bu yüzden `themes/src/*` kalıbı, `themes/**/*` include'u ile eşleşen dosyaları da dışarıda bırakır. `*.DS_Store` kalıbı da aynı nedenle konumundan bağımsız olarak eşleşen dosyaları çıkarır.
 
-Bir başka pratik ayrıntı: `globset::Glob::new` varsayılan ayarında `*` path ayırıcısını da eşleyebilir; `SettingsAssets` tarafındaki `#[include = "keymaps/*"]` bu yüzden `keymaps/macos/atom.json` gibi alt dizinlerdeki dosyaları da kapsar. Buna rağmen yeni kalıp yazarken niyeti açık etmek için alt dizin gerekiyorsa `**/*` kullanmak daha okunur ve ileride farklı glob motoruna taşınmayı kolaylaştırır.
+Bir başka pratik ayrıntı: `globset::Glob::new` varsayılan yapılandırmasında `*` yol ayırıcısını da eşleyebilir; bu nedenle `SettingsAssets` tarafındaki `#[include = "keymaps/*"]` özniteliği `keymaps/macos/atom.json` gibi alt dizinlerdeki dosyaları da kapsar. Buna karşın, yeni bir kalıp tanımlanırken niyeti açıkça ortaya koymak adına alt dizin eşlemeleri için `**/*` kalıbının kullanılması okunabilirliği artırır ve gelecekte farklı bir glob motoruna taşınmayı kolaylaştırır.
 
-**Önemli ayrıntı:** Macro, üretilen release kolu için dosya listesini derleme sırasında üretir. Bu maliyet küçük klasörlerde hissedilmez ama Zed gibi yüzlerce ikon ve onlarca temayı taşıyan bir varlık klasörü ile incremental build'lerde fark edilebilir bir gecikme yaratabilir. Bu yüzden Zed `Assets` struct'ını **ayrı bir crate** içine koymuştur (`assets`); `zed` crate'i yeniden derlenirken bu crate'in cache'i değişmez; tarama atlanır. Dosya başındaki yorum bu kararı açıkça doğrular: "...ana zed crate'inden ayrıldı, böylece zed her yeniden derlendiğinde RustEmbed macro'sunu çalıştırmak gerekmez. Incremental build'de bir-iki saniye kazandırır."
+**Önemli ayrıntı:** Makro, üretilen release kolu için dosya listesini derleme sırasında yapılandırır. Bu maliyet küçük boyutlu klasörlerde hissedilmese de, Zed gibi yüzlerce ikon ve onlarca temayı barındıran büyük bir varlık klasörüyle çalışırken artımlı derlemelerde (incremental build) fark edilebilir bir gecikme yaratabilir. Bu nedenle Zed, `Assets` struct yapısını **ayrı bir crate** (`assets` crate'i) içerisine yerleştirmiştir; `zed` ana crate'i yeniden derlendiğinde bu crate'in önbelleği (cache) değişmediği için tarama işlemi atlanır. Dosya başındaki yorum satırı da bu kararı net bir şekilde doğrulamaktadır: '...ana zed crate'inden ayrıldı, böylece zed her yeniden derlendiğinde RustEmbed makrosunu çalıştırmak gerekmez. Bu durum artımlı derlemede bir-iki saniye kazandırır.'
 
 ### 2.2 Ayar ve klavye asset struct'ı
 
@@ -102,8 +102,8 @@ pub struct SettingsAssets;
 
 `SettingsAssets` ayrı tutulmasının iki gerekçesi vardır:
 
-- **Erken erişim:** Settings ve keymap dosyaları uygulama başlatma sırasında `App` çalışma zamanı kurulmadan **önce** okunur. `default_settings()` fonksiyonu `cx.asset_source()` çağırmaz; doğrudan `SettingsAssets::get` üzerinden gider. Eğer bu varlıklar `Assets` içinde olsaydı, settings sisteminin başlatılması `App` kurulumuna bağımlı hale gelir ve döngüsel bağımlılık riski doğardı.
-- **Crate sınırı:** `settings` crate'i `assets` crate'ine ve `Application::with_assets` ile kurulan çalışma zamanı varlık kaynağına bağımlı olmamalıdır. `settings` crate'i `gpui::App` tipini kullanır, fakat default settings/keymap içeriğini `Assets` üzerinden değil kendi `SettingsAssets` struct'ı üzerinden okur. Bu, settings başlatmasını ana varlık crate'inin kuruluş sırasından ayırır. Bağımlılık grafiğini de düzleştirir.
+- **Erken erişim:** Settings ve keymap dosyaları, uygulama başlatma sürecinde `App` çalışma zamanı kurulmadan **önce** okunur. `default_settings()` fonksiyonu `cx.asset_source()` çağrısı yapmaz; doğrudan `SettingsAssets::get` üzerinden veriye erişir. Eğer bu varlıklar `Assets` içinde yer alsaydı, settings sisteminin başlatılması doğrudan `App` kurulumuna bağımlı hale gelirdi ve bu da döngüsel bağımlılık (circular dependency) riskini doğururdu.
+- **Crate sınırı:** `settings` crate'i, `assets` crate'ine ve `Application::with_assets` ile kurulan çalışma zamanı varlık kaynağına bağımlı olmamalıdır. `settings` crate'i `gpui::App` tipini kullansa da, default settings/keymap içeriklerini `Assets` yerine kendi `SettingsAssets` struct yapısı üzerinden okur. Bu yaklaşım settings başlatma süreçlerini ana varlık crate'inin kuruluş sırasından ayırarak bağımlılık grafiğini düzleştirmeye yardımcı olur.
 
 İki struct birden olmasının pratik karşılığı şudur: aynı `assets/` klasöründeki dosyalar iki kez paketlenmez. `#[include]` filtreleri çakışmadığı sürece her dosya yalnızca bir struct tarafından alınır; release build'de bu, aynı byte'ların iki ayrı embed koluna girmemesi anlamına gelir.
 
@@ -137,8 +137,8 @@ impl AssetSource for Assets {
 
 İki metot da basittir ama bazı incelikler vardır:
 
-- `load`: `Self::get` `Option<EmbeddedFile>` döner; `Some(dosya.data)` ile içerdeki `Cow<'static, [u8]>` çıkarılır. `with_context` burada önemlidir: path yoksa `Option::None`, `Err` haline çevrilir; mesaj olarak `varlık yolu yüklenemedi: ...` eklersin. Yani `Assets` için eksik dosya `Ok(None)` değil hatadır. `Ok(None)` davranışını Zed'de özellikle boş `()` kaynağı ve bu yolu seçen özel kaynaklar üretir.
-- `list`: `starts_with` ile prefix filtresi yapar. Yani `list("fonts")` çağrısı `fonts/ibm-plex-sans/...` gibi tüm alt klasörlerdeki path'leri döner. Bu davranış font yükleyici tarafından kullanılır ve recursive listeleme ihtiyacını ortadan kaldırır.
+- `load`: `Self::get` metodu `Option<EmbeddedFile>` döner; `Some(dosya.data)` yardımıyla içerideki `Cow<'static, [u8]>` verisi çıkarılır. `with_context` burada kritik önem taşır: dosya yolu mevcut değilse `Option::None` değeri `Err` haline dönüştürülür ve mesaj olarak `varlık yolu yüklenemedi: ...` ifadesi eklenir. Yani `Assets` için eksik dosya durumu `Ok(None)` değil, doğrudan bir hata olarak kabul edilir. `Ok(None)` davranışını Zed içerisinde özellikle boş `()` kaynağı ve bu yolu bilinçli olarak seçen özel kaynaklar üretir.
+- `list`: `starts_with` yardımıyla prefix filtrelemesi gerçekleştirir. Dolayısıyla `list("fonts")` çağrıları `fonts/ibm-plex-sans/...` gibi alt klasörlerde yer alan tüm dosya yollarını döner. Bu davranış font yükleyici tarafından kullanılır ve recursive listeleme ihtiyacını ortadan kaldırır.
 
 `list` metodunun recursive olması, font ve tema klasörlerindeki alt dizinleri (örneğin `themes/one/`, `themes/ayu/`) ek bir traverse koduna gerek kalmadan keşfetmeyi mümkün kılar. Tüketici sadece sonuçları kendi uzantı filtresinden geçirir (`.ttf`, `.json` vb.).
 
@@ -174,7 +174,7 @@ impl Application {
 
 1. **`with_assets` bağlantısı kurulmadığında varsayılan değer boş `()`'tır.** Yani varlık hattı yokken uygulama çökmez, sadece her ikon ve font "yok" döner. Bu davranış testler için faydalıdır ama üretimde `with_assets` bağlantısı SVG ve font yükleme hattı için gereklidir.
 2. **`SvgRenderer` constructor'ı varlık kaynağını alır.** Bu sayede `svg()` element'i path string'ini doğrudan ham byte'lara çevirebilir; ekstra bir köprü gerekmez. `SvgRenderer::new` çağrısı varlık kaynağının `Arc` clone'unu kendi içine kopyalar, böylece SVG render hattı `App` lock'una girmeden varlık okuyabilir.
-3. **`Arc<dyn AssetSource>`:** Trait object olarak saklarsın. Bu, farklı varlık kaynaklarının (RustEmbed, dosya sistemi, ağ) aynı çalışma zamanı üzerinde yan yana taşınmasını mümkün kılar. Pratikte Zed yalnızca tek bir varlık kaynağı kullanır ama trait object esnekliği test ortamında değer kazanır.
+3. **`Arc<dyn AssetSource>`:** Trait object olarak saklanır. Bu, farklı varlık kaynaklarının (RustEmbed, dosya sistemi, ağ) aynı çalışma zamanı üzerinde yan yana taşınmasını mümkün kılar. Pratikte Zed yalnızca tek bir varlık kaynağı kullanır ama trait object esnekliği test ortamında değer kazanır.
 
 Zed'in `main.rs` dosyasındaki kuruluş zinciri:
 
@@ -210,7 +210,7 @@ for font_yolu in &font_yollari {
 }
 ```
 
-Bu desen font yükleme (`Assets::load_fonts`) ve tema yükleme (`load_bundled_themes`) gibi uygulama başlatma yollarında kullanırsın. Senkron çağrıdır; bu yüzden release'te binary içinden gelen veya debug'da yerel dosya sisteminden hızlı okunan küçük varlıklar için uygundur. Ağ veya büyük dosya sistemi varlıkları için `Asset` trait'i tercih edersin.
+Bu desen, font yükleme (`Assets::load_fonts`) ve tema yükleme (`load_bundled_themes`) gibi uygulama başlatma süreçlerinde tercih edilir. Senkron bir çağrı olduğundan release derlemelerinde binary içinden gelen veya debug modunda yerel dosya sisteminden hızlıca okunan küçük varlıklar için son derece elverişlidir. Ağ tabanlı veya büyük dosya sistemi varlıkları için ise asenkron `Asset` trait yapısı tercih edilir.
 
 **Tek varlık yükleme (senkron):**
 
@@ -254,9 +254,9 @@ pub trait Asset: 'static {
 }
 ```
 
-Bu trait `AssetSource`'tan farklıdır: `AssetSource` ham byte sağlar; `Asset` trait'i ise belirli bir varlık türü için decode/parse/decode-image gibi işlemleri de kapsayan asenkron yükleyicidir. Tipik implementasyonlar `cx.asset_source()` çağrısı yapar, byte'ları alır ve kendi formatına çevirir. `window.use_asset::<T>(source, cx)` ve `cx.fetch_asset::<T>(source)` çağrıları cache mekanizmasını sağlar; aynı kaynak ikinci kez istendiğinde yüklenmiş Future paylaşılır.
+Bu trait `AssetSource`'tan farklıdır: `AssetSource` ham byte sağlar; `Asset` trait'i ise belirli bir varlık varlık türü için decode/parse/decode-image gibi işlemleri de kapsayan asenkron yükleyicidir. Tipik implementasyonlar `cx.asset_source()` çağrısı yapar, byte'ları alır ve kendi formatına çevirir. `window.use_asset::<T>(source, cx)` ve `cx.fetch_asset::<T>(source)` çağrıları cache mekanizmasını sağlar; aynı kaynak ikinci kez istendiğinde yüklenmiş Future paylaşılır.
 
-Bu üçlü mimarinin pratik sonucu şudur: bir varlığı sadece "alıp byte'larına bakmak" gerekiyorsa `AssetSource` yeterlidir; bir varlığı UI render hattına bağlamak ve cache'lemek gerekiyorsa `Asset` trait'inin altına ayrı bir implementasyon yazılır. `SvgAsset` ve `ImageAssetLoader` bu desenin örnekleridir; sonraki bölümlerde her biri tüketici bağlamında ayrıca işlersin.
+Bu üçlü mimarinin pratik sonucu şudur: bir varlığın sadece ham byte verisine erişmek hedefleniyorsa `AssetSource` yeterlidir; ancak bir varlığı kullanıcı arayüzü (UI) render hattına bağlamak ve önbelleğe (cache) almak gerekiyorsa `Asset` trait'i altında ayrı bir implementasyonun kurgulanması gerekir. `SvgAsset` ve `ImageAssetLoader` bu desenin en bariz örnekleridir; sonraki bölümlerde her biri tüketici bağlamında ayrı ayrı ele alınacaktır.
 
 ---
 
@@ -306,6 +306,6 @@ uygulama.run(|cx| {
 });
 ```
 
-Bu minimum kurulumdan sonra `svg().path("icons/search.svg")`, `img("images/logo.svg")`, `cx.asset_source().load("...")` ve `cx.asset_source().list("...")` aynı Zed desenini kullanır. Dosya varlığını tip güvenli yapmak istiyorsan Zed'in `IconName`, `VectorName` ve `Sound` enum'larıyla yaptığı gibi kendi küçük kayıt enum'larını ekle; yalnızca path string'i vermek çalışır, fakat önizleme, serileştirme ve eksik dosya kontrolü zayıf kalır.
+Bu minimum kurulum tamamlandıktan sonra `svg().path("icons/search.svg")`, `img("images/logo.svg")`, `cx.asset_source().load("...")` ve `cx.asset_source().list("...")` gibi kullanımların tamamı aynı Zed desenini esas alır. Dosya varlığını tip güvenli (type-safe) hale getirmek hedefleniyorsa, Zed'in `IconName`, `VectorName` ve `Sound` enum yapılarıyla kurguladığına benzer küçük kayıt enum'larının eklenmesi önerilir; yalnızca path string'i ile ilerlemek de mümkündür ancak bu durumda önizleme, serileştirme ve eksik dosya kontrolleri zayıf kalacaktır.
 
 ---

@@ -1,13 +1,13 @@
 # JSON varlıkları: tema, keymap, settings, badge
 
-Bu bölüm, varlık altyapısının yapılandırılmış varlık katmanını ele alır. JSON dosyaları binary ile birlikte taşınır, fakat tüketim biçimleri birbirinden farklıdır:
+Bu bölüm, varlık altyapısının yapılandırılmış varlık katmanını ele almaktadır. JSON dosyaları binary ile birlikte taşınır; fakat tüketim biçimleri birbirinden farklılık gösterir:
 
-- Tema JSON'ları çalışma zamanında bir kayda eklersin.
-- Keymap JSON'ları kullanıcı tercihine göre seçilip ayrıştırılır.
-- Settings JSON'ları varsayılan değer kaynağı olarak okunur.
-- Badge JSON'u çalışma zamanında hiç tüketilmez.
+- Tema JSON dosyaları çalışma zamanında bir sicile (registry) dahil edilir.
+- Keymap JSON dosyaları kullanıcı tercihlerine göre seçilip ayrıştırılır.
+- Settings JSON dosyaları varsayılan değer kaynağı olarak okunur.
+- Badge JSON dosyası ise çalışma zamanında hiç tüketilmez.
 
-Bu dört yolu birlikte anlatmak, "neden tüm JSON'lar aynı tüketim hattından geçmiyor?" sorusunu cevaplar. Yeni bir JSON tabanlı varlık eklerken hangi modelin seçileceğini de netleştirir.
+Bu dört farklı yolun birlikte ele alınması, 'neden tüm JSON dosyaları aynı tüketim hattından geçmiyor?' sorusunu yanıtlar. Ayrıca yeni bir JSON tabanlı varlık eklenirken hangi modelin tercih edileceğini netleştirir.
 
 ![JSON Varlık Tüketim Yolları](images/json-varlik-yollari.svg)
 
@@ -56,7 +56,7 @@ assets/
 │   ├── initial_debug_tasks.json
 │   └── initial_local_debug_tasks.json
 └── badge/
-	    └── v0.json               # çalışma zamanında okunmaz; README rozeti
+    └── v0.json               # çalışma zamanında okunmaz; README rozeti
 ```
 
 İki ayrı `RustEmbed` struct'ı bu klasörleri taşır:
@@ -64,13 +64,13 @@ assets/
 - `Assets` (`assets`): `themes/` klasörünü taşır. `badge/` çalışma zamanında kullanılmaz; `Assets` include listesinde yer almaz, sadece repository'deki varlık topolojisinin parçasıdır.
 - `SettingsAssets` (`settings`): `keymaps/` ve `settings/`.
 
-Tema sistemi `cx.asset_source()` üzerinden okur (yani `Assets` struct'ı çalışma zamanına `with_assets` ile bağlandıktan sonra erişilebilir). Keymap ve settings doğrudan `SettingsAssets::get` üzerinden senkron okur. `App` çalışma zamanı kurulmadan da çağrılabilir. Bu ayrım varlık altyapısının kuruluş sırasındaki kritik bir kararıdır. Sonraki bölümlerde örneklenir.
+Tema sistemi `cx.asset_source()` üzerinden okuma yapar (yani `Assets` struct yapısı çalışma zamanına `with_assets` ile bağlandıktan sonra erişilebilir hale gelir). Keymap ve settings dosyaları ise doğrudan `SettingsAssets::get` üzerinden senkron olarak okunur. Bu sayede `App` çalışma zamanı henüz kurulmadan bile çağrı yapılabilir. Bu ayrım, varlık altyapısının kuruluş sırasındaki en kritik kararlardan biridir ve sonraki bölümlerde örneklendirilecektir.
 
 ---
 
 ## 2. Tema JSON'larının akışı
 
-Tema JSON'larının yüklenmesi `theme_settings` crate'indeki `load_bundled_themes` fonksiyonunda yaparsın:
+Tema JSON'larının yüklenmesi `theme_settings` crate'i içerisindeki `load_bundled_themes` fonksiyonu vasıtasıyla yürütülür:
 
 ```rust
 pub fn load_bundled_themes(kayit: &ThemeRegistry) {
@@ -103,9 +103,9 @@ Akış altı adımdadır:
 
 1. **`kayit.assets().list("themes/")`** — Özyinelemeli listeleme; `themes/one/one.json`, `themes/ayu/ayu.json`, `themes/LICENSES/...` gibi tüm yollar döner.
 2. **`.json` filtresi** — `LICENSE` dosyaları ve klasörler dışlanır. Filtre uzantı bazlıdır.
-3. **`assets().load(&yol)` çağrısı** — Her tema dosyası ham byte olarak yüklenir. `log_err().flatten()` deseni, hata varsa log'a düşürür ve `None` döndürür; aksi halde `Some(baytlar)` ile devam edersin.
+3. **`assets().load(&yol)` çağrısı:** Her tema dosyası ham byte olarak yüklenir. `log_err().flatten()` deseni, hata durumlarında hatayı günlüğe (log'a) yansıtır ve `None` döndürür; aksi takdirde elde edilen `Some(baytlar)` ile sürece devam edilir.
 4. **`serde_json::from_slice`** — Baytlar `ThemeFamilyContent` struct'ına ayrıştırılır. Bu struct Zed tema JSON sözleşmesini yansıtır; kendisi yalnızca `name`, `author` ve `themes` alanlarını taşır. Renk alanları ise iç içe yapıda durur: her tema `ThemeContent` içinde bir `ThemeStyleContent` tutar, o da `ThemeColorsContent` ile durum renklerini barındırır ve bu alanların her biri `Option<String>` olduğu için eksik renkler atlanabilir.
-5. **`refine_theme_family`** — `Content` → `Refinement` → `Theme` dönüşümü uygularsın. Bu adım tema sistemi bölümünde detaylıdır; özetle: kullanıcı temasındaki eksik alanlar yedek değerlerle doldurulur ve çalışma zamanında kullanıma hazır `Theme` struct'ı üretilir.
+5. **`refine_theme_family`:** `Content` → `Refinement` → `Theme` dönüşümlerini uygular. Bu adım tema sistemi bölümünde detaylandırılmıştır; özetle: kullanıcı temasındaki eksik alanlar yedek varsayılan değerlerle doldurulur ve çalışma zamanında kullanıma hazır hale getirilmiş bir `Theme` struct yapısı üretilir.
 6. **`kayit.insert_theme_families`** — Hazır tema ailesi `ThemeRegistry`'ye eklenir; `cx.theme()` artık bu temaya erişebilir.
 
 **Hata toleransı:** Bozuk bir tema dosyası tüm uygulamayı durdurmaz. Ayrıştırma hatası `log_err()` ile log'a düşer, `continue` ile bir sonraki temaya geçilir. Bu davranış kullanıcı sürtüşmesini azaltır: bir tema dosyası bozuksa kullanıcı yalnızca o temaya erişemez, kalan tema seçimleri çalışmaya devam eder.
@@ -131,13 +131,12 @@ pub fn init(yuklenecek_temalar: LoadThemes, cx: &mut App) {
     };
     ThemeRegistry::set_global(varliklar, cx);
     FontFamilyCache::init_global(cx);
-    // gömülü temaları yüklemez; bu işi theme_settings::init üstlenir
 }
 ```
 
-`JustBase` modu test ortamı için kritiktir: bu modda `theme::init` kaydı boş `()` `AssetSource` ile kurar ve kayıt yalnızca yedek temayla kalır. Asıl önemli ayrım üstteki katmandadır: gömülü temaları yükleyen `load_bundled_themes` çağrısını `theme::init` değil, onu saran `theme_settings::init` yapar ve bu çağrıyı yalnızca `LoadThemes::All` geldiğinde tetikler. `JustBase` modunda `load_bundled_themes` tümden atlanır; bu yüzden tema JSON'ları olmayan bir test ortamı da sorunsuz çalışır.
+`JustBase` modu test ortamları için kritiktir: bu modda `theme::init` işlevi kaydı (registry) boş `()` `AssetSource` ile kurar ve kayıt yalnızca yedek varsayılan temayla sınırlı kalır. Asıl önemli ayrım ise üst katmandadır: gömülü temaları yükleyen `load_bundled_themes` çağrısını `theme::init` değil, onu saran `theme_settings::init` işlevi yapar ve bu çağrıyı yalnızca `LoadThemes::All` seçeneği geldiğinde tetikler. `JustBase` modunda `load_bundled_themes` tamamen atlanır; bu sayede tema JSON dosyaları bulunmayan bir test ortamı da sorunsuz şekilde çalışabilir.
 
-`All(varliklar)` modunu üretim için kullanırsın. `Box<dyn AssetSource>` parametresi `Assets` struct'ından bir değer ister; `Assets` struct'ı tema klasörünü include eder (yukarıdaki `#[include = "themes/**/*"]` direktifi). Bu modda `theme_settings::init` `theme::init`'ten sonra `load_bundled_themes`'i çağırarak gömülü temaları kayda ekler.
+`All(varliklar)` modu ise üretim (production) ortamı için tercih edilir. Burada `Box<dyn AssetSource>` parametresi `Assets` struct yapısından bir değer talep eder; `Assets` struct yapısı de tema klasörünü dahil eder (yukarıdaki `#[include = "themes/**/*"]` direktifi). Bu modda `theme_settings::init` işlevi `theme::init`'in ardından `load_bundled_themes` fonksiyonunu çağırarak gömülü temaları sicile ekler.
 
 Zed'in `main.rs` dosyasındaki kuruluş:
 
@@ -163,9 +162,9 @@ fn kullanici_temalarini_arkada_yukle(dosya_sistemi: Arc<dyn fs::Fs>, cx: &mut Ap
 }
 ```
 
-Dosya sisteminden okuma asenkron yapılır; binary'deki tema yükleme ise senkron `list+load` döngüsüdür. İki yol birleştiğinde aynı `ThemeRegistry`'ye akar ve fark gözlemlenemez. Bu, "binary'deki varlık + dosya sistemi geçersiz kılması" deseninin tema sistemindeki karşılığıdır.
+Dosya sisteminden okuma işlemi asenkron olarak yürütülür; binary içerisindeki tema yükleme süreci ise senkron bir `list+load` döngüsüdür. Her iki yol birleştiğinde aynı `ThemeRegistry` yapısına akar ve dışarıdan herhangi bir fark gözlemlenmez. Bu durum, 'binary'deki varlık + dosya sistemi geçersiz kılması' deseninin tema sistemindeki somut karşılığıdır.
 
-İki yolun ayrıştırma katmanında ince bir fark bulunur: `load_user_theme` kullanıcı temasını `serde_json_lenient` ile okur; böylece yorum içeren ve sondaki virgülü hoş gören kullanıcı dosyaları da kabul edersin. Gömülü temalar ise `load_bundled_themes` içinde düz `serde_json` ile ayrıştırılır; çünkü binary'ye giren dosyalar zaten katı JSON biçimindedir.
+Bu iki yolun ayrıştırma katmanında de ince bir fark mevcuttur: `load_user_theme` kullanıcı temasını `serde_json_lenient` ile okur; böylece yorum satırları içeren ve sondaki virgülleri hoş gören kullanıcı dosyaları da sorunsuzca kabul edilebilir. Gömülü temalar ise `load_bundled_themes` içinde standart `serde_json` ile ayrıştırılır; nitekim binary içerisine paketlenen dosyaların zaten katı JSON formatında olması beklenir.
 
 ---
 
@@ -200,7 +199,7 @@ pub fn initial_keymap_content() -> Cow<'static, str> {
 
 Üç noktanın altını çizmek gerekir:
 
-- **`cfg` ile platform seçimi.** Derleme zamanında platforma göre `DEFAULT_KEYMAP_PATH` farklı bir değere atarsın. macOS binary'si yalnızca `keymaps/default-macos.json`'u kullanır; diğer platform varyantları release paketinde bulunsa da çağrı yolu yoktur. Pratikte üçü de `SettingsAssets` erişim kümesine girer (`keymaps/*` include eder), ama çalışma zamanı yalnızca platforma uygun olanı okur.
+- **`cfg` ile platform seçimi:** Derleme zamanında hedef platforma göre `DEFAULT_KEYMAP_PATH` farklı bir dosya yoluna atanır. Örneğin macOS binary'si yalnızca `keymaps/default-macos.json` yolunu kullanır; diğer platform varyantları release paketinin içinde yer alsa dahi onlara giden bir çağrı yolu bulunmaz. Pratikte üç dosya da `SettingsAssets` erişim kümesinde yer alır (`keymaps/*` include kalıbı ile), ama çalışma zamanı yalnızca aktif platforma uygun olanı okur.
 - **`asset_str::<SettingsAssets>` çağrısı.** `util::asset_str` jenerik bir yardımcıdır:
 
   ```rust
@@ -212,15 +211,15 @@ pub fn initial_keymap_content() -> Cow<'static, str> {
   }
   ```
 
-  Bu fonksiyon `RustEmbed::get` çağrısını yapar (yani `cx.asset_source()` değil), baytları UTF-8 string'e çevirir ve `Cow<'static, str>` döner. Bu yapı sayesinde keymap ve settings dosyaları `App` çalışma zamanı kurulmadan da okunabilir; özellikle erken kuruluş aşamasında settings store'a varsayılan değerleri vermek için kritiktir.
+  Bu fonksiyon doğrudan `RustEmbed::get` çağrısını tetikler (yani `cx.asset_source()` arayüzünden bağımsızdır), byte verilerini UTF-8 string formatına dönüştürür ve `Cow<'static, str>` döner. Bu yapı sayesinde keymap ve settings dosyaları `App` çalışma zamanı kurulmadan önce de okunabilir; bu durum özellikle erken kuruluş aşamasında settings store'a varsayılan değerlerin enjekte edilmesi için kritik önem taşır.
 
-- **Sert paketleme kontratı.** `A::get(yol)` `None` döndürürse kaynak kodu fail-fast davranır. Bu, keymap dosyalarının `SettingsAssets` erişim kümesinde mutlaka bulunması gerektiğini söyleyen bir paketleme varsayımıdır. Dosya silindiğinde veya `#[include]` filtresi uyumsuz kaldığında uygulama başlatma sırasında erken durur; bu durum dağıtım öncesi doğrulamada yakalanmalıdır.
+- **Sert paketleme sözleşmesi:** `A::get(yol)` metodu `None` döndürdüğünde kaynak kod yapısı fail-fast (erken durdurma) davranış sergiler. Bu, keymap dosyalarının `SettingsAssets` erişim kümesinde mutlaka bulunması gerektiğini şart koşan bir paketleme varsayımıdır. Dosya silindiğinde veya `#[include]` filtresi uyumsuz kaldığında, uygulama başlatma esnasında erken durma (panic) yaşanır; bu durumun dağıtım öncesi doğrulama testlerinde yakalanması hedeflenir.
 
-Burada küçük ama önemli bir paketleme ayrıntısı vardır: `SettingsAssets` kaynak kodunda `#[include = "keymaps/*"]` olarak görünür, buna rağmen tüketilen yollar `keymaps/macos/atom.json` ve `keymaps/linux/jetbrains.json` gibi alt dizinlerdedir. Bunun nedeni `rust-embed` 8.11'in `include-exclude` özelliğinde kullanılan `globset` varsayılanlarının `*` karakterini yol ayırıcısını da eşleyebilecek şekilde değerlendirmesidir. Yani Zed'in mevcut kalıbı alt paketleri kapsar; yine de bu kalıp değiştirilirken kök `keymaps/*.json` dosyalarının yanı sıra platform alt paketlerinin de gömülü kaldığı mutlaka doğrulanmalıdır. Daha açık bir ifade istenirse `keymaps/**/*` kalıbı tercih edebilirsin.
+Burada küçük ama önemli bir paketleme detayı mevcuttur: `SettingsAssets` kaynak kodunda `#[include = "keymaps/*"]` şeklinde tanımlanmış olmasına karşın, tüketilen yollar `keymaps/macos/atom.json` ve `keymaps/linux/jetbrains.json` gibi alt dizinlerdedir. Bunun sebebi `rust-embed` 8.11 sürümündeki `include-exclude` özelliğinde kullanılan `globset` varsayılanlarının `*` karakterini yol ayırıcısını da eşleyebilecek şekilde değerlendirmesidir. Dolayısıyla Zed'in mevcut kalıbı alt paketleri de kapsar; yine de bu kalıp değiştirilirken kök `keymaps/*.json` dosyalarının yanı sıra platform alt paketlerinin de gömülü kaldığı mutlaka doğrulanmalıdır. Daha açık bir ifade hedefleniyorsa `keymaps/**/*` kalıbının kullanılması önerilir.
 
 ### 3.1 Platforma özgü editör keymap paketleri
 
-`assets/keymaps/macos/` ve `assets/keymaps/linux/` altında editör emülasyon dosyaları durur (`atom.json`, `cursor.json`, `emacs.json`, `jetbrains.json`, `sublime_text.json`, `textmate.json`). Bunlar `BaseKeymap` enum'u üzerinden seçersin:
+`assets/keymaps/macos/` ve `assets/keymaps/linux/` altında editör emülasyon dosyaları yer alır (`atom.json`, `cursor.json`, `emacs.json`, `jetbrains.json`, `sublime_text.json`, `textmate.json`). Bu dosyalar `BaseKeymap` enum yapısı üzerinden seçilir:
 
 ```rust
 pub fn asset_path(&self) -> Option<&'static str> {
@@ -245,7 +244,7 @@ pub fn asset_path(&self) -> Option<&'static str> {
 - **`BaseKeymap::None` boş keymap'tir.** Tüm kısayollar devre dışı bırakılır; kullanıcı her kısayolu kendisi tanımlar.
 - **Linux'ta TextMate yoktur.** macOS'a özgü bir paketleme tercihidir; `#[cfg]` ile match koluna eklenmez. Bu, "binary'de olsa bile platforma uygun değilse çağırma" davranışının tipik bir örneğidir.
 
-Keymap seçimi `BaseKeymap` ayarından okunur, `BaseKeymap::asset_path` ile yol elde edersin, `SettingsAssets` üzerinden içerik okunur ve varsayılan keymap'in üzerine eklersin. Bu zincir kullanıcı tercihinin varlık hattına nasıl bağlandığını net bir şekilde gösterir.
+Keymap seçimi `BaseKeymap` ayarından okunur, `BaseKeymap::asset_path` yardımıyla dosya yolu elde edilir, `SettingsAssets` üzerinden içerik okunur ve varsayılan keymap'in üzerine enjekte edilir. Bu zincir, kullanıcı tercihlerinin varlık hattına nasıl bağlandığını net bir şekilde gösterir.
 
 ---
 
@@ -313,7 +312,7 @@ pub fn init(cx: &mut App) {
 
 `SettingsStore::new` çağrısı `default_settings()` çıktısını (yani `settings/default.json` içeriği) ayrıştırır ve ayarların başlangıç değerlerini bu içerikten çıkarır. Kullanıcı dosyaları sonradan yüklendiğinde bu varsayılan değerlerin üzerine yazılır.
 
-Önemli ayrıntı: `default_settings()` çağrısı fail-fast paketleme kontratına bağlıdır. `asset_str::<SettingsAssets>` içindeki varlık okuma kontratı dosya yoksa erken durur. Yani settings sisteminin başlatılması, varsayılan JSON dosyasının `SettingsAssets` erişim kümesinde bulunmasına sıkı sıkıya bağlıdır. Bu kasıtlı bir sertliktir: settings olmadan Zed başlatılamaz, fail-fast davranışı kabul edersin.
+Önemli ayrıntı: `default_settings()` çağrısı fail-fast paketleme sözleşmesine tabidir. `asset_str::<SettingsAssets>` içindeki varlık okuma sözleşmesi, dosya mevcut değilse süreci erken durdurur. Yani settings sisteminin başlatılabilmesi, varsayılan JSON dosyasının `SettingsAssets` erişim kümesinde bulunmasına sıkı sıkıya bağlıdır. Bu bilinçli bir sertliktir: settings dosyası olmadan uygulama başlatılamaz, bu nedenle fail-fast davranışı kabul edilir.
 
 ---
 
@@ -324,16 +323,16 @@ JSON varlıklarının üç farklı yoldan tüketildiği görülüyor:
 | Varlık | Yol | `cx.asset_source()` mu? | Kuruluş sırası |
 |--------|-----|------------------------|----------------|
 | Tema JSON'ları | `cx.asset_source().list/load` | Evet | `App` çalışma zamanı kurulduktan sonra |
-| Keymap JSON'ları | `asset_str::<SettingsAssets>` | Hayır (RustEmbed::get) | `App` kurulmadan önce de çağrılabilir |
+| Keymap JSON'ları | `asset_str::<SettingsAssets>` | Hayır (RustEmbed::get) | `App` kurulmadan önce भी çağrılabilir |
 | Settings JSON'ları | `asset_str::<SettingsAssets>` | Hayır | `App` kurulmadan önce de çağrılabilir |
 | Badge JSON | - | Hayır (çalışma zamanında okunmaz) | - |
 
 İki yolun pratikteki anlamı:
 
 - **`cx.asset_source()` yolu (`Assets`)** dinamiktir: çalışma zamanında değiştirilebilir, test ortamında sahte kaynakla çalışabilir (`Arc::new(()) as Arc<dyn AssetSource>`), dosya sistemi yolu ile yer değiştirebilir.
-- **`SettingsAssets::get` yolu** statiktir: derleme zamanında sabit, çalışma zamanında sahte kaynakla çalışamaz. Bu, settings ve keymap'in temel uygulama sözleşmesinin parçası olduğunu söyler; testte bile farklı varsayılanlarla çalışmak istenirse parametre olarak geçersiz kılma geçirmek gerekir.
+- **`SettingsAssets::get` yolu** statiktir: derleme zamanında sabitlenmiştir ve çalışma zamanında sahte bir kaynakla ikame edilemez. Bu durum, settings ve keymap dosyalarının uygulamanın temel sözleşmesinin bir parçası olduğunu gösterir; test ortamlarında bile farklı varsayılanlarla çalışmak istendiğinde parametre olarak geçersiz kılma (override) değerlerinin geçilmesi gerekir.
 
-**Yeni JSON varlık eklerken karar:** Eğer varlık çalışma zamanında değişebiliyorsa (tema gibi: kullanıcı geçersiz kılar, extension ekler) `Assets` yolu kullanırsın. Eğer varlık derleme zamanında sabit ve uygulamanın temel sözleşmesinin parçasıysa (settings varsayılanı, keymap tabanı) `SettingsAssets` yolu seçersin. İkinci yol, çalışma zamanında sahte kaynakla çalışmayı zorlaştırdığı için daha "katı" bir sözleşmedir.
+**Yeni JSON varlığı eklerken karar:** Eğer varlık çalışma zamanında dinamik olarak değişebiliyorsa (kullanıcının geçersiz kılması veya eklentilerle tema eklenmesi gibi) `Assets` yolu tercih edilir. Eğer varlık derleme zamanında sabitlenmiş ve uygulamanın temel sözleşmesinin bir parçası ise (varsayılan ayarlar veya temel keymap tabanı gibi) `SettingsAssets` yolu seçilir. İkinci yol, çalışma zamanında sahte kaynakla çalışmayı sınırladığı için daha 'katı' bir sözleşmedir.
 
 ---
 
@@ -389,11 +388,11 @@ Yeni bir JSON dosyası eklenmesi gerektiğinde aşağıdaki sorular sırayla cev
    └── Hayır → Assets struct'ı + cx.asset_source().load
 ```
 
-Üç noktada karar vermen gerekir:
+Burada üç temel noktada karar verilmesi gerekir:
 
-- **Tüketim yolu (Assets vs SettingsAssets):** Eğer dosya `App` çalışma zamanı kurulmadan okunacaksa veya başlatma sırasında erken çağrılan bir bileşen tarafından okunacaksa `SettingsAssets` tercih edersin. Aksi halde `Assets` daha esnektir (testte sahte kaynakla çalışabilir).
-- **Ayrıştırma stratejisi:** Eğer dosya bir struct'a deserialize edilecekse `serde_json::from_slice` kullanırsın. Eğer dosya UTF-8 string olarak okunup özel bir ayrıştırıcıya verilecekse `asset_str` daha doğrudur (string dönüşümünü kendi içinde yapar).
-- **Geçersiz kılma stratejisi:** Eğer kullanıcı dosyayı geçersiz kılabilmeliyse dosya sistemi izleyicisi kurulur veya `cx.spawn` ile asenkron yükleme yolu eklenir; aksi halde binary içeriği tek otoritedir.
+- **Tüketim yolu (Assets vs SettingsAssets):** Eğer dosya `App` çalışma zamanı kurulmadan önce okunacaksa veya başlatma esnasında erken çağrılan bir bileşen tarafından talep edilecekse `SettingsAssets` tercih edilir. Aksi takdirde `Assets` yapısı daha esnektir (test ortamında sahte kaynakla çalışabilir).
+- **Ayrıştırma stratejisi:** Eğer dosya bir struct yapısına deserialize edilecekse `serde_json::from_slice` kullanılır. Eğer dosya UTF-8 string olarak okunup özel bir ayrıştırıcıya (parser) verilecekse `asset_str` daha doğrudur (string dönüşümünü kendi içinde gerçekleştirir).
+- **Geçersiz kılma stratejisi:** Eğer kullanıcının dosyayı geçersiz kılması hedefleniyorsa dosya sistemi izleyicisi (file watcher) kurulur veya `cx.spawn` ile asenkron yükleme yolu entegre edilir; aksi durumda binary içeriği tek otorite kabul edilir.
 
 Bu karar ağacı, JSON varlıklarının tüketim hattını seçerken üç boyutu birden değerlendirir: erişim zamanı, esneklik ve geçersiz kılma gereksinimi.
 
