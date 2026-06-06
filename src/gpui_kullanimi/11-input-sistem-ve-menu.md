@@ -4,19 +4,19 @@
 
 ## Girdi, Pano, Prompt ve Platform Servisleri
 
-Element seviyesinde GPUI birçok girdi olayını tek tipli bir fluent API üzerinden açar. Olay metotlarını tek tek ezberlemek yerine hangi girdi sınıfını yakaladığını ve dispatch aşamasını birlikte düşünürsün:
+Element seviyesinde GPUI birçok girdi olayını tek tipli bir fluent API üzerinden açar. Olay metotlarını tek tek ezberlemek yerine, hangi girdi sınıfının yakalandığı ve dispatch (yönlendirme) aşaması birlikte düşünülmelidir:
 
 ![GPUI Element Girdi Olay Kategorileri](assets/girdi-olay-kategorileri.svg)
 
-- **Klavye:** `.on_key_down` ve `.on_key_up` odak yolunda bubble aşamasında çalışır; bunları bileşenin kendi tuş davranışı için kullanırsın. `.capture_key_down` ve `.capture_key_up` aynı olayları kökten hedefe giderken yakalar; modal veya genel engelleme gibi üstten karar verilmesi gereken durumlarda bunları seçersin.
-- **Fare:** `.on_mouse_down`, `.on_mouse_up` ve `.on_mouse_move` hitbox üstündeki temel fare akışıdır. `.capture_any_mouse_down` ve `.capture_any_mouse_up` buton ayrımı yapmadan capture aşamasında çalışır. `.on_mouse_down_out` ve `.on_mouse_up_out` dışarı tıklamayla kapanan yüzeyler içindir. `.on_click` basma/bırakma aynı hedefte eşleştiğinde çalışır; `.on_hover` ise hover durumunu view verisine taşır.
-- **Hareket ve scroll:** `.on_scroll_wheel` scroll alabilen hitbox üstünde wheel veya trackpad delta'sını işler. `.on_pinch` yakınlaştırma gesture'ını bubble aşamasında yakalar; `.capture_pinch`'i aynı gesture'ı üst katmandan önce görmek için kullanırsın.
-- **Sürükle-bırak:** `.on_drag` sürükleme yükünü ve hayalet view'u başlatır. `.on_drag_move` aktif sürükleme boyunca hareket bilgisini verir; bunu resize veya split handle gibi drop olmayan sürüklemelerde de kullanırsın. `.on_drop` aynı tipteki yük hedefe bırakıldığında çalışır.
-- **Action:** `.capture_action::<A>` action'ı kökten hedefe giden aşamada yakalar. `.on_action::<A>` odaklanan elementten köke dönen normal action dinleyicisidir. `.on_boxed_action`'ı tipin derleme zamanında bilinmediği kayıt veya yönlendirme katmanlarında kullanırsın.
+- **Klavye:** `.on_key_down` ve `.on_key_up` odak yolunda bubble aşamasında çalışır; bunlar bileşenin kendi tuş davranışı için tercih edilir. `.capture_key_down` ve `.capture_key_up` aynı olayları kökten hedefe giderken yakalar; modal veya genel engelleme gibi üst seviyeden karar verilmesi gereken durumlarda ise capture (yakalama) metotları seçilmelidir.
+- **Fare:** Hitbox üzerindeki temel fare hareketlerini dinlemek amacıyla `.on_mouse_down`, `.on_mouse_up` ve `.on_mouse_move` metotları kullanılır. `.capture_any_mouse_down` ve `.capture_any_mouse_up` buton ayrımı gözetmeksizin capture aşamasında devreye girer. Popover veya modal gibi dışarı tıklanıldığında kapanması gereken alanlarda `.on_mouse_down_out` ve `.on_mouse_up_out` tercih edilir. `.on_click` basma ve bırakma eylemlerinin aynı hedef üzerinde tamamlandığı durumlarda, `.on_hover` ise hover durumunun view verisine taşınmasında tetiklenir.
+- **Hareket ve scroll:** `.on_scroll_wheel` scroll alabilen hitbox üstünde wheel veya trackpad delta'sını işler. `.on_pinch` yakınlaştırma gesture'ını bubble aşamasında yakalar; `.capture_pinch` ise aynı hareketin üst katmanlar tarafından öncelikli olarak dinlenmesi istendiğinde tercih edilir.
+- **Sürükle-bırak:** `.on_drag` sürükleme yükünü ve hayalet (ghost) view'u başlatır. `.on_drag_move` aktif sürükleme boyunca hareket bilgisi sağlar; bu metottan yeniden boyutlandırma veya split handle gibi drop içermeyen sürükleme senaryolarında da yararlanılır. `.on_drop` ise aynı tipteki sürükleme yükü hedefe bırakıldığında tetiklenir.
+- **Action:** `.capture_action::<A>` action'ı kökten hedefe giden aşamada yakalar. `.on_action::<A>` odaklanan elementten köke yönelen standart action dinleyicisidir. `.on_boxed_action` ise tipin derleme zamanında (compile-time) bilinmediği kayıt veya yönlendirme katmanlarında tercih edilir.
 
-Olay tipleri `interactive` içinde tanımlıdır: `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`, `FileDropEvent`, `ExternalPaths`, `ClickEvent`. `ScrollDelta::pixel_delta(line_height)`, satır tabanlı scroll'u piksele çevirir; `coalesce` aynı yöndeki delta'ları birleştirir.
+Olay tipleri `interactive` içinde tanımlıdır: `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`, `FileDropEvent`, `ExternalPaths`, `ClickEvent`. `ScrollDelta::pixel_delta(line_height)` satır tabanlı scroll değerini piksele dönüştürür; `coalesce` ise aynı yöndeki delta değerlerini birleştirir.
 
-**Pano.** Pano okuma ve yazmayı sade çağrılarla yaparsın:
+**Pano.** Panoya okuma ve yazma işlemleri pratik metot çağrılarıyla gerçekleştirilir:
 
 ```rust
 cx.write_to_clipboard(ClipboardItem::new_string("metin".to_string()));
@@ -28,21 +28,21 @@ if let Some(oge) = cx.read_from_clipboard()
 }
 ```
 
-`ClipboardItem` birden çok `ClipboardEntry` taşıyabilir: `String`, `Image` veya `ExternalPaths`. `String` girdisine üst veri eklemek istediğinde `new_string_with_metadata` veya `new_string_with_json_metadata`'yı kullanırsın. `ClipboardItem::new_image(&image)` görseli pano girdisine çevirir; `ClipboardItem::into_entries()` ise öğeyi tüketip sahipli `ClipboardEntry` iterator'ı verir. Linux/FreeBSD için primary selection `read_from_primary`/`write_to_primary`; macOS Find pasteboard için `read_from_find_pasteboard`/`write_to_find_pasteboard`, `cfg` koşullu API'lerdir.
+`ClipboardItem` birden çok `ClipboardEntry` taşıyabilir: `String`, `Image` veya `ExternalPaths`. `String` girdisine üst veri (metadata) eklenmek istendiğinde `new_string_with_metadata` veya `new_string_with_json_metadata` tercih edilir. `ClipboardItem::new_image(&image)` görseli pano girdisine dönüştürür; `ClipboardItem::into_entries()` ise öğeyi tüketerek sahipli `ClipboardEntry` iteratörü sağlar. Linux/FreeBSD için primary selection `read_from_primary`/`write_to_primary`; macOS Find pasteboard için `read_from_find_pasteboard`/`write_to_find_pasteboard`, `cfg` koşullu API'lerdir.
 
-`ClipboardString` metnin yanında isteğe bağlı format/metadata taşır. `ClipboardString::text()` veya `ClipboardItem::text()` ile düz metne inmeyi tercih edersin; sahipli metin gerekiyorsa `ClipboardString::into_text()` değeri tüketir. JSON metadata için `ClipboardString::with_json_metadata(...)` yazma, `ClipboardString::metadata_json::<T>()` okuma tarafıdır. `ClipboardString::text_hash(text)` macOS ve Windows pano köprülerinde metnin değişip değişmediğini ucuzca ayırmak için kullanırsın. Metadata yalnız aynı uygulama ailesi içinde zengin yapıştırma davranışı gerektiğinde anlamlıdır. Görsel pano girdilerinde `Image` ve `ImageFormat` boru hattı devreye girer; normal metin kopyalama için `ClipboardItem::new_string(...)` yeterlidir.
+`ClipboardString` metnin yanı sıra isteğe bağlı biçim ve üst veri (metadata) de taşır. Düz metin verisine ulaşmak için `ClipboardString::text()` veya `ClipboardItem::text()` tercih edilmelidir; sahipli (owned) bir metin gerektiğinde ise `ClipboardString::into_text()` ile değer tüketilir. JSON formatındaki üst veriler için `ClipboardString::with_json_metadata(...)` yazma, `ClipboardString::metadata_json::<T>()` ise okuma amacıyla kullanılır. `ClipboardString::text_hash(text)` metodu macOS ve Windows pano köprülerinde metin içeriğinin değişip değişmediğini düşük maliyetle tespit etmek amacıyla tercih edilir. Üst veri kullanımı, yalnızca aynı uygulama ailesi içinde gelişmiş yapıştırma (rich paste) davranışları tasarlanırken anlam kazanır. Görsel veri barındıran pano girdilerinde `Image` ve `ImageFormat` boru hattı devreye girerken; standart metin kopyalama senaryoları için `ClipboardItem::new_string(...)` kullanımı yeterlidir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `ClipboardEntry` | `String(ClipboardString)`, `Image(Image)`, `ExternalPaths(ExternalPaths)` | `ClipboardItem` içindeki sahipli pano girdisi varyantıdır. |
-| `ClickEvent` | mouse/keyboard click ayrımı | `.on_click(...)` callback'lerinde kaynak, pozisyon, click sayısı ve alternatif mouse butonlarını okumak için kullanırsın. |
+| `ClickEvent` | mouse/keyboard click ayrımı | `.on_click(...)` callback'lerinde kaynak, pozisyon, click sayısı ve alternatif mouse butonlarını okumak için tercih edilir. |
 | `KeyDownEvent`, `KeyUpEvent` | key press/release olayı | Klavye listener ve test girdi simülasyonu tarafında ham key event modelidir. |
 | `MousePressureEvent`, `ScrollDelta` | pressure ve scroll delta modeli | Gelişmiş pointer/scroll girdisini platformdan element listener'ına taşır. |
 | `EntityInputHandler`, `ElementInputHandler` | input handler trait'i ve element bağlayıcısı | IME, selection bounds ve printable key kararlarını view state'ine bağlar. |
 
-**PlatformInputHandler sınırı.** `PlatformInputHandler` platform penceresinin aktif metin girdi dinleyicisini temsil eden bir sarmalayıcı struct'tır. Uygulama düzeyinde bunu doğrudan saklamazsın; `EntityInputHandler` ve `ElementInputHandler` view'ı platforma bağlar, `window.handle_input(...)` da frame içinde bu bağı kaydeder. Platform arka ucu ve GPUI pencere katmanı bu sarmalayıcı üzerinden `apple_press_and_hold_enabled()`, `dispatch_input(input, window, cx)`, `selected_bounds(window, cx)`, `query_accepts_text_input()` ve `query_prefers_ime_for_printable_keys()` çağrılarını yapar. Böylece platform, IME kabulü, seçili metin sınırı ve printable tuşların IME'ye mi kısayola mı gideceği kararını view'ın gerçek `InputHandler` uygulamasından sorar. Doğrudan yazacağın taraf `PlatformInputHandler` değil, bu sarmalayıcının içine alınan özel `InputHandler` uygulamasıdır.
+**PlatformInputHandler Yapısı.** `PlatformInputHandler` platform penceresinin aktif metin girdi dinleyicisini temsil eden bir sarmalayıcı struct'tır. Uygulama düzeyinde bu yapının doğrudan saklanması gerekmez; `EntityInputHandler` ve `ElementInputHandler` view'ı platforma bağlar, `window.handle_input(...)` da frame içinde bu bağı kaydeder. Platform arka ucu ve GPUI pencere katmanı bu sarmalayıcı üzerinden `apple_press_and_hold_enabled()`, `dispatch_input(input, window, cx)`, `selected_bounds(window, cx)`, `query_accepts_text_input()` ve `query_prefers_ime_for_printable_keys()` çağrılarını yapar. Böylece platform; IME kabulü, seçili metin sınırı ve yazdırılabilir tuşların IME'ye mi yoksa kısayollara mı yönlendirileceği kararını görünümün (view) gerçek `InputHandler` uygulamasından sorgular. Doğrudan geliştirilmesi gereken yapı `PlatformInputHandler` değil, bu sarmalayıcının içerisine alınan özel `InputHandler` uygulamasıdır.
 
-`selected_bounds(window, cx)`'in döndürdüğü sınır, IME aday penceresinin (composition popup) yerleştirileceği noktadır. Aktif bir composition (marked range) varsa bu nokta imlecin bulunduğu **görsel satırın başına** çapalanır: metot imleçten geriye doğru yürüyüp Y konumunun ilk değiştiği yeri (önceki satıra geçiş) bularak satır başını saptar, böyle bir kırılma yoksa marked range'in başını kullanır. Composition yoksa seçimin uç noktası (ters seçimde başlangıç, düz seçimde bitiş) kullanırsın. Aynı hesabı `window`/`cx` elinde olmadan yapman gerekirse `ime_candidate_bounds(&mut self)` varyantı handler'ın kendi `marked_text_range`/`selected_text_range`/`bounds_for_range` metotlarıyla aynı sonucu üretir; iki varyant da ortak `compute_ime_candidate_bounds(marked_range, selection, bounds_for_range)` saf yardımcısına dayanır.
+`selected_bounds(window, cx)`'in döndürdüğü sınır, IME aday penceresinin (composition popup) yerleştirileceği noktadır. Aktif bir composition (marked range) varsa bu nokta imlecin bulunduğu **görsel satırın başına** çapalanır: metot imleçten geriye doğru yürüyüp Y konumunun ilk değiştiği yeri (önceki satıra geçiş) bularak satır başını saptar, böyle bir kırılma yoksa marked range'in başını kullanır. Composition yoksa seçimin uç noktası (ters seçimde başlangıç, düz seçimde bitiş) tercih edilir. Aynı hesabı `window`/`cx` elinde olmadan yapman gerekirse `ime_candidate_bounds(&mut self)` varyantı handler'ın kendi `marked_text_range`/`selected_text_range`/`bounds_for_range` metotlarıyla aynı sonucu üretir; iki varyant da ortak `compute_ime_candidate_bounds(marked_range, selection, bounds_for_range)` saf yardımcısına dayanır.
 
 **Prompt ve dosya seçici.** Kullanıcıyla iletişim kuran platform diyalogları da bağlam üzerinden çalışır:
 
@@ -55,17 +55,17 @@ if let Some(oge) = cx.read_from_clipboard()
 - Uygulama yolu ve sistem bilgisi için `cx.app_path()`, `cx.path_for_auxiliary_executable(name)`, `cx.compositor_name()`, `cx.should_auto_hide_scrollbars()`.
 - Yeniden başlatma ve HTTP istemcisi tarafında `cx.set_restart_path(path)`, `cx.restart()`, `cx.http_client()` ve `cx.set_http_client(client)` bulunur.
 
-`PathPromptOptions { files, directories, multiple, prompt }`, dosya seçici davranışını açıkça modellediği için kullanıcı ayarından gelen "dosya mı, dizin mi, ikisi birden mi?" kararını string parametrelerle taşımaktan daha güvenlidir. Platform bazı kombinasyonları desteklemeyebilir; `cx.can_select_mixed_files_and_dirs()` sonucuna göre dosya ve dizini birlikte seçtirme akışına yedek tasarlarsın.
+`PathPromptOptions { files, directories, multiple, prompt }`, dosya seçici davranışını açıkça modellediği için kullanıcı ayarından gelen "dosya mı, dizin mi, ikisi birden mi?" kararını string parametrelerle taşımaktan daha güvenlidir. Platform bazı kombinasyonları desteklemeyebilir; `cx.can_select_mixed_files_and_dirs()` sonucuna göre dosya ve dizinlerin birlikte seçilebildiği akışlar için bir yedek (fallback) planı tasarlanmalıdır.
 
-**Platform ve prompt davranışı.** Diyaloglarda platforma özel davranışlar sürpriz oluşturabilir; bilmen gereken birkaç nokta:
+**Platform ve prompt davranışı.** Diyaloglarda platforma özgü davranışlar beklenmedik sonuçlar doğurabileceğinden, şu hususların göz önünde bulundurulması gerekir:
 
 - macOS `Window::prompt` NSAlert akışında Return ilk butona, Escape iptal akışına gider; Space ile odak son "iptal olmayan ve varsayılan olmayan" butona taşınır. `"Kaydet / Kaydetme / İptal"` gibi üçlü prompt'larda orta seçenek klavyeyle erişilebilir kalır.
 - Wayland'da pano ve primary selection yazılırken, tuş veya fare basma türüne göre süzülmüş seri yerine alınan en güncel compositor serisi kullanılır; aksi halde bazı compositor'lar seçim isteğini sessizce reddedebilir.
-- `open_path_prompt` sonuç sıralaması `ProjectPanelSettings.sort_mode` ile uyumlu çalışır. Proje panelindeki "önce dizinler / önce dosyalar / karışık" seçimi, dosya yolu prompt'unun aday listesinde de aynı şekilde uygularsın.
+- `open_path_prompt` sonuç sıralaması `ProjectPanelSettings.sort_mode` ile uyumlu çalışır. Proje panelindeki "önce dizinler / önce dosyalar / karışık" seçimi, dosya yolu prompt'unun aday listesine भी aynı sıralama mantığı yansıtılmalıdır.
 
 ## Prompt Builder, PromptHandle ve Fallback Prompt
 
-`Window::prompt` platform diyaloğunu açar. Platform prompt'u desteklemiyorsa veya özel bir prompt builder ayarlanmışsa GPUI içinde çizilen prompt'u kullanırsın:
+`Window::prompt` platform diyalog penceresini açar. Platform prompt yapısını desteklemiyorsa veya özel bir prompt builder tanımlanmışsa GPUI içerisinde çizilen prompt tercih edilir:
 
 ```rust
 let yanit = window.prompt(
@@ -86,7 +86,7 @@ let secilen_sira = yanit.await?;
 - `PromptResponse(pub usize)` — özel prompt view'unun seçilen buton indeksini yaydığı olaydır.
 - `Prompt` — `EventEmitter<PromptResponse> + Focusable` trait birleşimidir.
 - `PromptHandle::with_view(view, window, cx)` — özel prompt entity'sini pencereye bağlar, önceki odağı kaydeder ve prompt yanıtında odağı geri verir.
-- `fallback_prompt_renderer(...)` — `set_prompt_builder` ile varsayılan GPUI prompt çizimini zorlamak için kullanırsın.
+- `fallback_prompt_renderer(...)` — `set_prompt_builder` ile varsayılan GPUI prompt çizimini etkinleştirmek için tercih edilir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -98,8 +98,8 @@ let secilen_sira = yanit.await?;
 
 **Zed entegrasyonu** (`ui_prompt`):
 
-- `ui_prompt::init(cx)`, `WorkspaceSettings::use_system_prompts` ayarını `SettingsStore` üzerinden gözlemler. Sistem prompt'ları açıksa `cx.reset_prompt_builder()` çağrılarak platform diyaloğuna düşülür; aksi halde `cx.set_prompt_builder(zed_prompt_renderer)` ile GPUI içindeki markdown destekli prompt akışına geçilir. Linux/FreeBSD'de sistem prompt'u yoksayılır, daima Zed çizimi kullanırsın.
-- `ZedPromptRenderer`, `pub` bir struct'tır: `Markdown` entity'siyle mesaj ve detay metnini çizer; cancel ve confirm action'larını içeride yönlendirir. Uygulama kodu doğrudan oluşturmaz; yalnızca prompt builder fonksiyonu tarafından kurarsın.
+- `ui_prompt::init(cx)`, `WorkspaceSettings::use_system_prompts` ayarını `SettingsStore` üzerinden gözlemler. Sistem prompt'ları açıksa `cx.reset_prompt_builder()` çağrılarak platform diyaloğuna düşülür; aksi halde `cx.set_prompt_builder(zed_prompt_renderer)` ile GPUI içindeki markdown destekli prompt akışına geçilir. Linux/FreeBSD dağıtımlarında sistem prompt yapısı yok sayılır ve daima Zed'in kendi çizimi tercih edilir.
+- `ZedPromptRenderer`, `pub` bir struct'tır: `Markdown` entity'siyle mesaj ve detay metnini çizer; cancel ve confirm action'larını içeride yönlendirir. Uygulama kodu doğrudan oluşturmaz; yalnızca prompt builder fonksiyonu üzerinden yapılandırılır.
 
 **Özel builder.** Tamamen özel bir prompt görsel akışı tanımlamak için builder'ı kayda alırsın:
 
@@ -113,15 +113,15 @@ cx.set_prompt_builder(|seviye, mesaj, ayrinti, eylemler, tutamac, window, cx| {
 });
 ```
 
-**Dikkat noktaları.** Prompt'larla çalışırken dikkat edeceğin noktalar:
+**Dikkat Noktaları.** Prompt yapıları ile çalışırken dikkat edilmesi gereken hususlar:
 
-- GPUI iç içe (`re-entrant`) prompt desteklemez; bir prompt açıkken aynı pencerede ikinci prompt'un nasıl açılacağını ayrıca tasarlaman gerekir.
+- GPUI iç içe (`re-entrant`) prompt desteklemez; bir prompt etkinken aynı pencerede ikinci bir prompt'un nasıl açılacağı ayrıca tasarlanmalıdır.
 - Özel prompt `Focusable` sağlamalıdır; aksi halde `PromptHandle::with_view`, odak geri yükleme zincirini tamamlayamaz.
 - Prompt sonucu buton etiketi değil, `answers` dizisindeki indekstir.
 
 ## Uygulama Menüsü ve Dock
 
-Menü modeli birkaç ana tip etrafında kurarsın:
+Menü modeli birkaç ana tip etrafında şekillenir:
 
 - `Menu { name, items, disabled }`
 - `MenuItem`:
@@ -129,7 +129,7 @@ Menü modeli birkaç ana tip etrafında kurarsın:
   - `Submenu(Menu)`
   - `SystemMenu(OsMenu)` — macOS Services gibi sistem alt menüleri.
   - `Action { name, action, os_action, checked, disabled }`
-- `OsAction`: `Cut`, `Copy`, `Paste`, `SelectAll`, `Undo`, `Redo`. Yerel düzenleme menüsü eşlemesi için kullanırsın.
+- `OsAction`: `Cut`, `Copy`, `Paste`, `SelectAll`, `Undo`, `Redo`. Yerel düzenleme menüsü eşlemelerinde tercih edilir.
 
 **Builder örneği.** Üst seviye menü ağacı kurarken builder kalıbı şu şekildedir:
 
@@ -152,16 +152,16 @@ cx.set_menus(vec![
 ]);
 ```
 
-`MenuItem::action(name, action)`, bir action'ı menü öğesine bağlamanın doğrudan yoludur ve veri taşıyanlar dahil herhangi bir `Action`'ı kabul eder. Veri taşıyan action'larda da doğrudan action değerini geçirebilirsin: `MenuItem::action("Satıra Git", SatiraGit { satir: 1 })`. Action öğesinin durumunu okumak için `MenuItem::is_checked()` ve `MenuItem::is_disabled()` kullanırsın; bunlar platform menüsünde checkmark ve pasif görünüm üretirken işine yarar. Yerel sistem alt menüsü gerektiğinde `MenuItem::os_submenu(name, SystemMenuType::...)` kullanırsın; macOS Services gibi platforma ait alt menüler normal action ağacından ayrı kalır. Aynı menü modelini klonlamak istersen `Menu::owned()` ve `MenuItem::owned()`'ı kullanırsın; bu dönüşüm platform tarafının sakladığı `OwnedMenu` / `OwnedMenuItem` modelini üretir.
+`MenuItem::action(name, action)`, bir action'ı menü öğesine bağlamanın doğrudan yoludur ve veri taşıyanlar dahil herhangi bir `Action` arayüzünü kabul eder. Veri taşıyan action'larda da doğrudan action değeri iletilebilir: `MenuItem::action("Satıra Git", SatiraGit { satir: 1 })`. Action öğesinin durumunu okumak için `MenuItem::is_checked()` ve `MenuItem::is_disabled()` metotları kullanılmaktadır; bu metotlar platform menüsünde checkmark ve devre dışı (disabled) görünümlerini üretirken işlevsellik sağlar. Yerel sistem alt menüsü gerektiğinde `MenuItem::os_submenu(...)` tercih edilir; macOS Services gibi platforma ait alt menüler normal action ağacından ayrı kalır. Aynı menü modelini klonlamak istersen `Menu::owned()` ve `MenuItem::owned()` metotları kullanılır; bu dönüşüm platform tarafının sakladığı `OwnedMenu` / `OwnedMenuItem` modelini üretir.
 
-**MenuItem tam modeli.** `MenuItem::submenu(menu)`, `separator()`, `action(name, action)`, `os_action(name, action, os_action)`, `os_submenu(name, menu_type)`, `checked(checked)` ve `disabled(disabled)` builder'ları aynı enum'un varyantlarını kurar. `MenuItem::owned()` platforma verilecek sahipli modele iner; UI tarafında yeniden çizim yaparken kaynak `MenuItem` değerini tutmak daha okunaklıdır. `SystemMenuType` ve `OwnedOsMenu` yerel sistem menülerini temsil eder; normal uygulama menüsü için `MenuItem::SystemMenu(OsMenu { name, menu_type })` veya hazır builder'lar yeterlidir.
+**MenuItem tam modeli.** `MenuItem::submenu(menu)`, `separator()`, `action(name, action)`, `os_action(name, action, os_action)`, `os_submenu(name, menu_type)`, `checked(checked)` ve `disabled(disabled)` builder'ları aynı enum'un varyantlarını kurar. arayüz tarafında yeniden çizim yapılırken kaynak `MenuItem` değerini muhafaza etmek daha okunaklı bir yaklaşımdır. `SystemMenuType` ve `OwnedOsMenu` yerel sistem menülerini temsil eder; normal uygulama menüsü için `MenuItem::SystemMenu(OsMenu { name, menu_type })` veya hazır builder'lar yeterlidir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
-| `MenuItem` | `Separator`, `Submenu`, `SystemMenu`, `Action`; builder ve `owned` | Uygulama menüsünün ham enum modelidir. |
-| `OsMenu`, `SystemMenuType` | `name`, `menu_type`; `Services` | macOS Services gibi işletim sistemi tarafından yönetilen alt menüleri temsil eder. |
-| `OsAction` | `Cut`, `Copy`, `Paste`, `SelectAll`, `Undo`, `Redo` | Yerel düzenleme menüsü eşlemesini normal GPUI action'ına bağlar. |
-| `OwnedMenu`, `OwnedMenuItem`, `OwnedOsMenu` | sahipli menu/item/os menu modeli | Platform tarafına saklanmak üzere clone edebilirsin, sahipli menü ağacı üretir. |
+| `MenuItem` | `Separator`, `Submenu`, `SystemMenu`, `Action`; builder ve `owned` | Menü öğelerinin ham enum modelidir. |
+| `OsMenu`, `SystemMenuType` | `name`, `menu_type`; `Services` | macOS Services gibi sistem menülerini temsil eder. |
+| `OsAction` | `Cut`, `Copy`, `Paste`, `SelectAll`, `Undo`, `Redo` | Yerel düzenleme eylemlerini platform menülerine bağlar. |
+| `OwnedMenu`, `OwnedMenuItem`, `OwnedOsMenu` | sahipli menu/item/os menu modeli | Platform tarafında saklanmak üzere kopyalanabilir ve sahipli menü ağacı üretilmesini sağlar. |
 
 **Diğer menü API'leri** (`App` üzerinde):
 
@@ -170,11 +170,11 @@ cx.set_menus(vec![
 - `cx.update_jump_list(menus, entries) -> Task<Vec<SmallVec<[PathBuf; 2]>>>` — Windows jump list'ini günceller ve kullanıcının listeden kaldırdığı girişleri `Task` sonucu olarak döndürür. Zed `HistoryManager`, bu sonucu geçmişten siler.
 - `cx.get_menus()` — şu an ayarlanmış menü modelini okur.
 
-**Platform davranışı.** Aynı menü modeli her platformda farklı bir kanal üzerinden çizersin:
+**Platform davranışı.** Aynı menü modeli her platformda farklı bir kanal aracılığıyla çizilir:
 
 - macOS'ta yerel `NSMenu` ile çizilir; klavye kısayolları kısayol kayıtlarından okunur.
 - Windows ve Linux, platform durumunu `OwnedMenu` olarak saklar; Zed bu modeli uygulama içi menü ve çizim katmanlarında kullanır.
-- Linux dock menüsü arka uçta `todo` veya işlem yapmayan (`no-op`) durumdadır; dock veya jump-list davranışı için platforma özel bir yedek akış hazırlaman gerekir.
+- Linux dock menüsü arka uçta `todo` veya işlem yapmayan (`no-op`) durumdadır; dock veya jump-list davranışı için platforma özgü bir yedek (fallback) akış tasarlanmalıdır.
 
 **Dikkat noktası.** Aynı action birden çok menü öğesine bağlandığında keymap'te tek bir kısayol gösterilir. `os_action` yalnızca macOS yerel düzenleme menüsü eşlemesini etkiler; diğer platformlarda sıradan bir action gibi davranır.
 
