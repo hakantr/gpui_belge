@@ -1,12 +1,12 @@
 # AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
 
-Zed uygulamasında çalışma alanı açmak yalnızca `open_window` çağrısı değildir. Startup, CLI veya open-url istekleri, çalışma alanı veritabanı ve collab follow durumu birkaç global ve handle üzerinden birbirine bağlanır.
+Zed uygulamasında çalışma alanı açmak yalnızca basit bir `open_window` çağrısından ibaret değildir. Başlangıç (startup), CLI istekleri, url yönlendirmeleri, çalışma alanı veritabanı ve collab follow (iş birliği takip) durumları; birkaç global servis ve handle üzerinden koordine edilerek birbirine bağlanır.
 
 ---
 
 ## AppState
 
-`AppState` Zed çalışma alanı açma ve restore işlemlerinde taşınan uygulama servis paketidir:
+`AppState`, Zed çalışma alanının açılması ve durumunun geri yüklenmesi (restore) süreçlerinde taşınan uygulama servis paketidir:
 
 - `languages: Arc<LanguageRegistry>`
 - `client: Arc<Client>`
@@ -17,63 +17,63 @@ Zed uygulamasında çalışma alanı açmak yalnızca `open_window` çağrısı 
 - `node_runtime: NodeRuntime`
 - `session: Entity<AppSession>`
 
-`AppState::set_global(durum, cx)` global olarak kurar; `AppState::global(cx)` ve `try_global(cx)` okuma yapar. Testlerde `AppState::test(cx)` sahte FS, test language registry ve test settings store kurarsın.
+`AppState::set_global(durum, cx)` çağrısı bu paketi global olarak kurar; `AppState::global(cx)` ve `try_global(cx)` metotları ise bu verileri okumak için kullanılır. Test süreçlerinde ise `AppState::test(cx)` yardımıyla sahte bir FS (dosya sistemi), test language registry ve test settings store yapılandırılır.
 
 ---
 
 ## WorkspaceStore
 
-`WorkspaceStore` açık workspace'leri `AnyWindowHandle + WeakEntity<Workspace>` çifti olarak izler. Collab tarafındaki follow ve update follower mesajları bu store üzerinden uygun workspace'e yönlendirilir.
+`WorkspaceStore`, açık olan çalışma alanlarını `AnyWindowHandle + WeakEntity<Workspace>` çifti halinde izler. Collab tarafındaki follow (takip etme) ve update follower (takipçileri güncelleme) mesajları bu store aracılığıyla uygun çalışma alanına yönlendirilir.
 
-- `WorkspaceStore::new(client, cx)` client request ve message işleyicilerini kaydeder.
-- `WorkspaceStore::handle_follow(...)` collab follow isteğini ilgili workspace'e yönlendiren async request handler'dır.
-- `workspaces()` weak workspace iterator'ı döndürür.
-- `workspaces_with_windows()` window handle ile birlikte verir.
-- `update_followers(project_id, update, cx)` aktif call üzerinden follower update mesajı yollar.
-- Collab, titlebar ve follow akışlarında client tarafındaki `User`, oda/protokol kimliğini `legacy_id: LegacyUserId` alanında taşır. Proto room role lookup, participant index ve `join_in_room_project` çağrılarında bu alan kullanırsın. Bu client modelinde ayrı bir `user.id` alanı yoktur.
+- `WorkspaceStore::new(client, cx)` metodu client istek ve mesaj işleyicilerini kaydeder.
+- `WorkspaceStore::handle_follow(...)` metodu, collab follow isteklerini ilgili çalışma alanına yönlendiren asenkron bir istek işleyicidir (async request handler).
+- `workspaces()` metodu, zayıf (weak) workspace referansları üzerinde dönen bir iterator döndürür.
+- `workspaces_with_windows()` metodu, bu referansları window handle bilgileriyle birlikte verir.
+- `update_followers(project_id, update, cx)` metodu, aktif çağrı (call) üzerinden takipçilere güncelleme mesajı gönderir.
+- Collab, titlebar ve follow akışlarında client tarafındaki `User` yapısı, oda/protokol kimliğini `legacy_id: LegacyUserId` alanında taşır. Proto room role lookup (oda rolü sorgulama), participant index (katılımcı indeksi) ve `join_in_room_project` çağrılarında bu alandan faydalanılır. Bu client modelinde ayrıca bağımsız bir `user.id` alanı bulunmaz.
 
-**Collab, aktif çağrı ve follower API kapsamı.** Bu yüzeyler `WorkspaceStore` ve aktif call global'i üzerinden oda, ekran paylaşımı, follow ve katılımcı konum bilgisini birbirine bağlar.
+**Collab, Aktif Çağrı ve Follower API Kapsamı.** Bu yüzeyler `WorkspaceStore` ve aktif çağrı globali üzerinden oda, ekran paylaşımı, follow ve katılımcı konum bilgilerini birbirine bağlar:
 
-| API | Rol |
+| API | Rolü |
 | :-- | :-- |
-| `AnyActiveCall`, `GlobalAnyActiveCall`, `ActiveCallEvent` | Aktif çağrı view'ini tip silinmiş trait/global olarak tutar ve çağrı state değişimlerini event olarak yayar. |
-| `CollaboratorId`, `ParticipantLocation`, `RemoteCollaborator` | `CollaboratorId` katılımcının kimliğidir (`PeerId` veya `Agent`); `ParticipantLocation` yalnız proje düzeyi konumu (`SharedProject`, `UnsharedProject`, `External`) tutar; `RemoteCollaborator` uzaktaki katılımcının proje düzeyi durum ve metadata'sını taşır. |
-| `CopyRoomId`, `ShareProject`, `JoinAll`, `JoinIntoNext`, `join_channel` | Oda kimliğini kopyalama, projeyi paylaşma, çağrı/kanal katılımı ve join davranışlarını tetikleyen action/helper yüzeyleridir. |
-| `Deafen`, `LeaveCall`, `ScreenShare`, `OpenChannelNotes`, `OpenChannelNotesById` | Ses/çağrı state'i, ekran paylaşımı ve kanal notlarını açma action'larını kapsar. |
-| `FollowNextCollaborator`, `Unfollow`, `SharedScreen` | Sıradaki collaborator'ı takip etme, takipten çıkma ve paylaşılan ekran handle'ını çalışma alanı tarafında taşır. |
+| `AnyActiveCall`, `GlobalAnyActiveCall`, `ActiveCallEvent` | Aktif çağrı görünümünü tip silinmiş (type-erased) trait/global olarak tutar ve çağrı durum değişimlerini olay (event) olarak yayar. |
+| `CollaboratorId`, `ParticipantLocation`, `RemoteCollaborator` | `CollaboratorId` katılımcının kimliğidir (`PeerId` veya `Agent`); `ParticipantLocation` yalnızca proje düzeyindeki konumu (`SharedProject`, `UnsharedProject`, `External`) tutar; `RemoteCollaborator` ise uzaktaki katılımcının proje düzeyindeki durum ve metadata'sını taşır. |
+| `CopyRoomId`, `ShareProject`, `JoinAll`, `JoinIntoNext`, `join_channel` | Oda kimliğini kopyalama, projeyi paylaşma, çağrıya veya kanala katılım eylemlerini tetikleyen action ve helper bileşenleridir. |
+| `Deafen`, `LeaveCall`, `ScreenShare`, `OpenChannelNotes`, `OpenChannelNotesById` | Ses ve çağrı durumları, ekran paylaşımı ve kanal notlarını açma eylemlerini kapsar. |
+| `FollowNextCollaborator`, `Unfollow`, `SharedScreen` | Sıradaki katılımcıyı takip etme, takipten çıkma ve paylaşılan ekran handle'ını çalışma alanı tarafında yönetme işlevlerini üstlenir. |
 
 ---
 
 ## WorkspaceDb ve HistoryManager
 
-`WorkspaceDb::global(cx)` oturum ve çalışma alanı kalıcılığı için kullanılan SQLite bağlantı sarmalayıcısıdır. Çalışma alanı restore ve yakın zamanlı proje geçmişi şu katmanlara dağılır:
+`WorkspaceDb::global(cx)` oturum ve çalışma alanı kalıcılığı (persistence) için kullanılan SQLite bağlantı sarmalayıcısıdır. Çalışma alanının geri yüklenmesi ve yakın zamanlı proje geçmişi şu katmanlara dağılır:
 
 - `open_workspace_by_id(workspace_id, app_state, requesting_window, cx)` DB'deki serileştirilmiş workspace'i açar.
-- `read_serialized_multi_workspaces`, `SerializedMultiWorkspace`, `SerializedWorkspaceLocation`, `SessionWorkspace`, `ItemId` kalıcılık modelidir.
-- `HistoryManager::global(cx)` yakın zamanlı yerel çalışma alanı geçmişini verir.
-- `HistoryManager::update_history(id, entry, cx)` yakın zamanlı listeyi günceller ve platform jump list'ini yeniler.
-- `HistoryManager::delete_history(id, cx)` boşaltılan çalışma alanını geçmişten kaldırır.
+- `read_serialized_multi_workspaces`, `SerializedMultiWorkspace`, `SerializedWorkspaceLocation`, `SessionWorkspace`, `ItemId` kalıcılık modellerini oluşturur.
+- `HistoryManager::global(cx)` yakın zamanlı yerel çalışma alanı geçmişini sağlar.
+- `HistoryManager::update_history(id, entry, cx)` yakın zamanlı çalışma alanı listesini günceller ve platform jump list (hızlı erişim listesi) yapısını yeniler.
+- `HistoryManager::delete_history(id, cx)` boşaltılan çalışma alanını geçmiş listesinden kaldırır.
 
-**Open/restore servis API kapsamı.** Bu dışa açık yüzeyler startup, restore ve dış açma isteklerinde birlikte görülür:
+**Open/Restore Servis API Kapsamı.** Bu dışa açık arayüzler başlangıç (startup), geri yükleme (restore) ve dış açma isteklerinde birlikte kullanılır:
 
-| API | Rol |
+| API | Rolü |
 |-----|-----|
-| `ItemId` | Serialized workspace içinde item kayıtlarını tanımlar. |
-| `Open` | Dış action olarak dosya/dizin açma isteğini taşır; `create_new_window` yeni pencere davranışını seçer. |
-| `SerializedMultiWorkspace` | Bir pencere içindeki çoklu workspace durumunun persist edilmiş modelidir. |
-| `SerializedWorkspaceLocation` | Workspace'in local/remote konum bilgisini session restore için taşır. |
-| `SessionWorkspace` | Oturum geri yüklemede açılacak workspace girdisini temsil eder. |
-| `open_workspace_by_id` | DB id'sinden workspace'i geri açar; boş workspace ve unsaved content restore yolunda kullanırsın. |
-| `read_serialized_multi_workspaces` | Persist edilmiş multi-workspace pencerelerini restore listesi olarak okur. |
-| `register_serializable_item` | Restore edilebilir item tiplerini startup sırasında kaydeder. |
-| `join_in_room_project` | Collab oda/project bağlantısına katılma akışını workspace açma bağlamına bağlar. |
-| `dock` | Restore edilen workspace'te panel/dock durumunu yeniden kuran modül ailesidir. |
+| `ItemId` | Serileştirilmiş workspace içindeki item (öğe) kayıtlarını tanımlar. |
+| `Open` | Dış eylem olarak dosya ya da dizin açma isteğini taşır; `create_new_window` parametresi yeni pencere davranışını belirler. |
+| `SerializedMultiWorkspace` | Bir pencere içindeki çoklu çalışma alanı durumunun kalıcılaştırılmış (persist edilmiş) modelidir. |
+| `SerializedWorkspaceLocation` | Workspace'in yerel/uzak konum bilgisini oturum geri yükleme (session restore) için taşır. |
+| `SessionWorkspace` | Oturum geri yükleme esnasında açılacak çalışma alanı girdisini temsil eder. |
+| `open_workspace_by_id` | Veritabanı kimliğinden (DB id) çalışma alanını yeniden açar; boş çalışma alanı ve kaydedilmemiş içerik kurtarma (unsaved content restore) akışlarında kullanılır. |
+| `read_serialized_multi_workspaces` | Kalıcılaştırılmış multi-workspace pencerelerini geri yükleme listesi olarak okur. |
+| `register_serializable_item` | Geri yüklenebilir item tiplerini başlangıç (startup) sırasında sisteme kaydeder. |
+| `join_in_room_project` | Collab oda/proje bağlantısına katılma akışını çalışma alanı açma bağlamına bağlar. |
+| `dock` | Geri yüklenen workspace'te panel/dock durumunu yeniden kuran modül ailesidir. |
 
 ---
 
 ## OpenListener ve RawOpenRequest
 
-`zed::open_listener` uygulama dışından gelen açma isteklerini kuyruğa alır:
+`zed::open_listener` modülü, uygulama dışından gelen dosya veya dizin açma isteklerini kuyruğa alır:
 
 ```rust
 let (dinleyici, alici) = OpenListener::new();
@@ -87,28 +87,28 @@ dinleyici.open(RawOpenRequest {
 });
 ```
 
-- `OpenListener` bir `Global`'dir; `open(...)` isteği sınırsız bir kanala gönderir.
-- `RawOpenRequest` ham URL, diff, WSL, dev container ve open-behavior alanlarını taşır. CLI connection üzerinden gelen `cwd` ham request içinde değil, `handle_cli_connection` tarafından `open_workspaces` ve `open_local_workspace` hattına ayrı argüman olarak aktarılır.
-- `OpenRequest::parse(raw, cx)` bunları tipli `OpenRequest`'a çevirir.
+- `OpenListener` bir `Global` yapıdır; `open(...)` aracılığıyla gelen istekleri sınırsız bir kanal (unbounded channel) üzerinden gönderir.
+- `RawOpenRequest` ham URL, diff, WSL, dev container ve open-behavior (açılma şekli) alanlarını taşır. CLI bağlantısı üzerinden gelen `cwd` (çalışma dizini) bilgisi ham istek içinde yer almaz, `handle_cli_connection` tarafından `open_workspaces` ve `open_local_workspace` hattına bağımsız bir argüman olarak aktarılır.
+- `OpenRequest::parse(raw, cx)` bu ham istekleri tipli `OpenRequest` yapısına dönüştürür.
 - `OpenRequestKind` kaynak türünü belirtir: CLI connection, focus app, extension, agent panel, shared agent thread, install skill, dock menu action, builtin JSON schema, setting, git clone, git commit vb.
-- Linux ve FreeBSD'de `listen_for_cli_connections` release-channel socket'i üzerinden CLI isteklerini alır.
-- CLI connection hattında yalnızca `--diff` path'leri verildiğinde çalışma alanı bağlamı için CLI `cwd` kullanılır; Zed app işleminin `std::env::current_dir()` değeri macOS bundle veya zaten çalışan örnek yüzünden güvenilir kabul edilmez.
-- SSH URL ayrıştırma akışı normal URL'lere ek olarak SCP veya git tarzı `ssh://user@host:~/project` ve `ssh://user@host:/absolute/path` biçimlerini normalleştirir. Kullanıcı adı ve parola URL kodu çözülür; IPv6 SCP-style authority ve çift port benzeri belirsiz biçimler reddedilir.
-- `open_paths_with_positions` diff path kanonikleştirme için `app_state.fs` kullanır; hataları `opened_items` listesine taşıyarak diğer path'leri açmaya devam eder.
+- Linux ve FreeBSD platformlarında `listen_for_cli_connections` fonksiyonu, release-channel socket'i üzerinden CLI isteklerini dinler.
+- CLI connection hattında yalnızca `--diff` yolları (path) sağlandığında, çalışma alanı bağlamı için CLI'ın çalıştığı `cwd` kullanılır; zira Zed uygulamasının ana sürecine ait `std::env::current_dir()` değeri, macOS bundle yapısı veya arka planda zaten çalışan başka bir örnek (instance) nedeniyle her zaman güvenilir kabul edilmeyebilir.
+- SSH URL ayrıştırma akışı; standart URL'lere ek olarak SCP veya git benzeri `ssh://user@host:~/project` ve `ssh://user@host:/absolute/path` biçimlerini de normalleştirir. Kullanıcı adı ve parola URL çözücüden (decoder) geçirilir; IPv6 SCP-style authority ve çift port benzeri belirsiz formatlar ise reddedilir.
+- `open_paths_with_positions` fonksiyonu, diff yollarını kanonik hale getirmek için `app_state.fs` yapısını kullanır; hataları `opened_items` listesine taşıyarak diğer yolları açmaya kesintisiz devam eder.
 
-**Global agent yönergesi.** Kullanıcının kişisel AGENTS.md dosyası şu akışla ele alırsın:
+**Global Agent Yönergesi.** Kullanıcının kişisel `AGENTS.md` dosyası şu akışla ele alınır:
 
-- Startup sırasında `zed::watch_user_agents_md(app_state.fs.clone(), cx)` çağırırsın. Bu, `paths::agents_file()` (`~/.config/zed/AGENTS.md`, platforma göre eşdeğer) dosyasını izler ve `agent_settings::UserAgentsMd` global'ine yükler.
-- Boş veya yalnızca boşluk içeren dosya `UserAgentsMdState::Empty`, başarılı okuma `Loaded`, okunamayan ama mevcut dosya `Error` olur. Hata durumunda ayar hatalarıyla aynı app seviyesindeki notification yolu kullanırsın.
-- Yerel agent system prompt'u kişisel `AGENTS.md` içeriğini "Personal `AGENTS.md`" olarak project rules'tan önce çizer; çakışma durumunda project rules daha sonra geldiği için daha spesifik kabul edersin.
+- Başlangıç sırasında `zed::watch_user_agents_md(app_state.fs.clone(), cx)` çağrısı yapılır. Bu çağrı, `paths::agents_file()` (`~/.config/zed/AGENTS.md` veya platforma göre eşdeğeri) dosyasını izler ve `agent_settings::UserAgentsMd` globaline yükler.
+- Dosya boşsa veya yalnızca boşluk karakterlerinden oluşuyorsa `UserAgentsMdState::Empty` durumuna, başarılı okunduğunda `Loaded` durumuna, mevcut ancak okunamıyorsa `Error` durumuna geçilir. Hata durumunda, ayar hatalarıyla aynı uygulama seviyesindeki bildirim (notification) mekanizması kullanılır.
+- Yerel agent sistem yönlendirmesi (system prompt), kişisel `AGENTS.md` içeriğini "Personal `AGENTS.md`" başlığıyla proje kurallarından (project rules) önce ekler; çakışma durumunda ise proje kuralları daha sonra geldiği için daha spesifik kabul edilerek önceliklendirilir.
 
 ---
 
-## Dikkat Noktaları
+## Dikkat Edilmesi Gereken Hususlar
 
-Open akışı ve global durum ile çalışırken hataya açık kullanımlar:
+Açılış akışları ve global durumlar ile çalışırken hataya açık olan durumlar şunlardır:
 
-- Çalışma alanı açma akışında `AppState::build_window_options` kullanırsın; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, pencere dekorasyonu, sistem sekmeleri ve platform ikon/arka plan ayarlarını atlar.
-- `WorkspaceStore` weak workspace tutar; iterasyon sırasında upgrade başarısız olabilir.
-- `OpenListener::open` dinleyici yokken hatayı loglar; talebin teslim edildiği varsayımıyla kullanıcı akışının başlatılmaması gerekir.
-- DB restore yolunda serializable item kind eksikse item restore edilemez; yeni bir item türü eklenirken `register_serializable_item` startup init'inde çağırman gerekir.
+- Çalışma alanı açma akışında `AppState::build_window_options` kullanılmalıdır; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, pencere dekorasyonları, sistem sekmeleri ve platforma özel arka plan/ikon ayarlarının atlanmasına neden olur.
+- `WorkspaceStore` zayıf referanslar (`WeakEntity`) tuttuğu için iterasyon sırasında upgrade işlemleri başarısız olabilir; bu olasılık kod içinde mutlaka kontrol edilmelidir.
+- `OpenListener::open` dinleyici yokken oluşan hataları loglar; talebin başarıyla teslim edildiği varsayımıyla kullanıcı akışının başlatılmaması gerekir.
+- DB restore (veritabanından geri yükleme) yolunda serileştirilebilir öğe türü (serializable item kind) eksikse öğe geri yüklenemez; bu nedenle yeni bir öğe türü eklenirken `register_serializable_item` kaydının başlangıç (startup) init sürecinde çağrılması gerekir.

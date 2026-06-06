@@ -1,12 +1,12 @@
 # Ayar Dosyası İzleme ve Güncelleme
 
-`SettingsStore` ham JSON metnine ihtiyaç duyar; bu metni dosya sisteminden okuyup mpsc kanalları üzerinden taşıyan yardımcılar ayrı bir modülde yaşar. Bu sayede store kendisi `Fs` veya dosya event akışıyla doğrudan ilgilenmez.
+`SettingsStore`, ham JSON metnine ihtiyaç duyar; bu metni dosya sisteminden okuyup mpsc (multi-producer single-consumer) kanalları üzerinden taşıyan yardımcılar ayrı bir modülde yer alır. Bu sayede store'un kendisi `Fs` (dosya sistemi) veya doğrudan dosya olay akışlarıyla ilgilenmek durumunda kalmaz.
 
 ---
 
 ## `watch_config_file`
 
-Tek bir konfigürasyon dosyasını izlemek için kullanırsın:
+Tek bir konfigürasyon dosyasını izlemek için bu fonksiyondan yararlanılır:
 
 ```rust
 pub fn watch_config_file(
@@ -16,14 +16,14 @@ pub fn watch_config_file(
 ) -> (mpsc::UnboundedReceiver<String>, gpui::Task<()>);
 ```
 
-Davranış:
+Davranış Ayrıntıları:
 
-- `fs.canonicalize(&path)` ile sembolik bağ ev dizinine kurulu `~/.config/zed` gibi yollar normalleştirilir; canonical alma başarısız olsa bile özgün path ile devam eder.
-- `fs.watch(&path, 100ms)` event akışını açar; ilk olarak `fs.load(&path)` ile mevcut içerik kanala yazılır, ardından her event sonrası yeniden yüklenir.
-- Alıcı düşmüşse (UI kapandı, store yenilendi) döngü sessizce sonlanır; sahibinin geri çağrı kanalı doldurmaması için.
-- Geri dönen `Task` izleme döngüsünün sahibidir; düşürülürse arka plan görevi iptal olur. `SettingsStore`'un `_settings_files_watcher` alanında saklanan ise bu izleyici değil, `cx.spawn` ile yarattığın tüketici görevidir; içinde gelen içeriği `set_user_settings`'e verir ve ardından `cx.refresh_windows()` çağırırsın. `watch_config_file`'ın döndürdüğü izleyici görevi alana doğrudan koymazsın; tüketici görevin gövdesine taşıyarak orada canlı tutarsın.
+- `fs.canonicalize(&path)` çağrısı ile sembolik bağlar (symlink) üzerinden ev dizinine yönlenen `~/.config/zed` gibi yollar normalleştirilir; kanonik (canonical) yol alma başarısız olsa dahi süreç özgün path ile devam eder.
+- `fs.watch(&path, 100ms)` çağrısı dosya olay akışını başlatır; ilk olarak `fs.load(&path)` ile mevcut dosya içeriği kanala yazılır, ardından gelen her değişiklik olayından sonra dosya yeniden yüklenir.
+- Eğer kanal alıcısı düşmüşse (örneğin arayüz kapandıysa veya store yenilendiyse) arka plandaki döngü sessizce sonlandırılır; böylece geri çağrı (callback) kanalının gereksiz doldurulması engellenir.
+- Geri dönen `Task` nesnesi, izleme döngüsünün sahibidir; bu görev düşürüldüğünde (drop edildiğinde) arka plan görevi de iptal olur. `SettingsStore`'un `_settings_files_watcher` alanında saklanan görev ise bu izleyici görevin kendisi değil, `cx.spawn` ile oluşturulan tüketici görevidir. Bu tüketici görevi, gelen içerikleri `set_user_settings` metoduna aktarır ve ardından `cx.refresh_windows()` çağrısını yapar. `watch_config_file` fonksiyonunun döndürdüğü izleyici görevi doğrudan alana atanmaz; tüketici görevinin gövdesine taşınarak orada canlı tutulur.
 
-Tipik kullanım:
+Tipik Kullanım Örneği:
 
 ```rust
 let (mut alici, _gorev) =
@@ -46,7 +46,7 @@ cx.spawn(async move |cx| {
 
 ## `watch_config_dir`
 
-Birden çok dosyayı içeren bir konfigürasyon klasörü için kullanılır (örneğin `~/.config/zed/` altında `settings.json` ve `keymap.json` gibi):
+Birden çok dosyayı barındıran bir konfigürasyon klasörünü izlemek için kullanılır (örneğin `~/.config/zed/` altındaki `settings.json` ve `keymap.json` dosyalarını birlikte takip etmek için):
 
 ```rust
 pub fn watch_config_dir(
@@ -57,19 +57,19 @@ pub fn watch_config_dir(
 ) -> mpsc::UnboundedReceiver<String>;
 ```
 
-Davranış:
+Davranış Ayrıntıları:
 
-- İlk turda `config_paths` içindeki her dosya mevcutsa yüklenip kanala yazılır.
-- `fs.watch(&dir_path, 100ms)` event döngüsü dosya başına `Created`, `Changed`, `Removed`, `Rescan` durumlarını ayrı ele alır.
-- `Rescan` olayı dosya olayı veya dizin olayı olarak gelebilir; her iki durumda da izlenen dosyaların hepsi yeniden yüklenir. Editör kayıt biçimine bağlı olarak symlink veya sürücü senkronizasyon araçlarının atomic-replace yöntemi `Rescan` üretebilir; bu yüzden bu durum kasıtlı olarak yedek yükleme yolu gibi davranır.
-- `Removed` olayı kanala boş string yazar; tüketici store tarafında "dosya yok" olarak yorumlamalıdır.
-- Geri dönen kanal `Task::detach` üzerinden arka planda yürür; sahip olunmasına gerek olmayan akış için seçersin. Sahiplik gerekirse ayrı bir `Task` yaratıp doğrudan `executor.spawn` döngüsü yazılabilir.
+- İlk taramada `config_paths` içerisinde tanımlanan dosyalardan mevcut olanlar yüklenerek kanala yazılır.
+- `fs.watch(&dir_path, 100ms)` ile başlatılan olay döngüsü; dosya bazında `Created` (oluşturuldu), `Changed` (değiştirildi), `Removed` (silindi) ve `Rescan` (yeniden tara) durumlarını ayrı ayrı ele alır.
+- `Rescan` olayı dosya bazlı ya da genel dizin bazlı tetiklenebilir; her iki durumda da izlenen dosyaların tamamı diskten yeniden yüklenir. Editörlerin dosya kaydetme mekanizmalarına bağlı olarak, sembolik bağlar (symlink) veya bulut senkronizasyon araçlarının atomic-replace (atomik değiştirme) yöntemleri `Rescan` olayına neden olabilir; bu nedenle bu durum yedek bir yükleme yolu gibi işlev görür.
+- `Removed` olayı algılandığında kanala boş bir metin (`""`) yazılır; tüketici tarafındaki store bu boş metni "dosya artık mevcut değil" olarak yorumlar.
+- Geri dönen kanal `Task::detach` üzerinden arka planda bağımsız olarak yürütülür; sahiplik takibi gerektirmeyen akışlar için bu yöntem tercih edilir. Sahiplik takibi gerektiği durumlarda ise ayrı bir `Task` oluşturularak doğrudan `executor.spawn` döngüsü kurulabilir.
 
 ---
 
-## `update_settings_file` ve tamamlanma kanalı
+## `update_settings_file` ve Tamamlanma Kanalı
 
-Kullanıcı ayar dosyasına programatik yazma için iki yardımcı vardır:
+Kullanıcı ayar dosyasına programatik olarak veri yazmak için iki yardımcı fonksiyon sunulur:
 
 ```rust
 pub fn update_settings_file(
@@ -85,15 +85,15 @@ pub fn update_settings_file_with_completion(
 ) -> futures::channel::oneshot::Receiver<anyhow::Result<()>>;
 ```
 
-Davranış:
+Davranış Ayrıntıları:
 
-- Yardımcılar global `SettingsStore` üzerinden çalışır; doğrudan `SettingsStore::update_settings_file(...)` çağrısının ergonomik sarmalayıcısıdır.
-- Closure'a verilen `&mut SettingsContent` mevcut kullanıcı dosyasının ayrıştırılmış halidir; yerinde değiştirilir.
-- Mutasyon sonrası store fark üretir, JSON metnini minimum diff stratejisiyle yeniden yazar ve `fs.atomic_write(...)` üzerinden dosyaya kaydeder. JSON güncelleme hattı değişmeyen yorumları ve kullanıcı girintilemesini (`infer_json_indent_size`) korur.
-- `update_settings_file_with_completion` aynı işi yapar ama yazma ve ardından gelen store güncellemesi tamamlanınca alıcısına `Ok` veya hata yollar; sinyali yalnız `atomic_write` bitince değil, onu izleyen `set_user_settings` adımı da bittikten sonra gönderir. UI "kaydedildi" göstergesi veya yazma sonrası başka bir adım gerekiyorsa bu form tercih edersin.
-- Hatalar `SettingsParseResult` ile değil doğrudan `anyhow::Error` ile döner; kalıcı ayrıştırma sorunu varsa dosya yeniden okunmadan store'a yedirilmez.
+- Bu yardımcılar global `SettingsStore` üzerinden çalışır; doğrudan `SettingsStore::update_settings_file(...)` metodunu çağıran ergonomik sarmalayıcılardır.
+- Closure fonksiyonuna parametre olarak verilen `&mut SettingsContent` referansı, mevcut kullanıcı dosyasının ayrıştırılmış halidir ve bellek üzerinde doğrudan mutasyona uğratılır.
+- Mutasyon tamamlandıktan sonra store farkları (diff) hesaplar, JSON metnini minimum değişiklik stratejisiyle yeniden biçimlendirir ve `fs.atomic_write(...)` üzerinden dosyaya kaydeder. JSON güncelleme hattı; dosyadaki mevcut yorum satırlarını ve kullanıcının girinti boyutunu (`infer_json_indent_size`) koruyacak şekilde tasarlanmıştır.
+- `update_settings_file_with_completion` fonksiyonu da aynı işlemi gerçekleştirir; ancak diske yazma ve ardından gelen store güncellemesi başarıyla tamamlandığında alıcısına `Ok(())` veya hata bilgisini yollar. Sinyal yalnızca `atomic_write` bittiğinde değil, onu takip eden `set_user_settings` adımı da tamamlandıktan sonra gönderilir. Arayüz (UI) üzerinde "kaydedildi" göstergesi gösterilmesi veya yazma eyleminin ardından başka bir mantıksal adımın tetiklenmesi gerekiyorsa bu yöntem tercih edilir.
+- Hatalar `SettingsParseResult` yerine doğrudan `anyhow::Error` ile döndürülür; kalıcı bir ayrıştırma (parse) sorunu varsa dosya yeniden okunmadan store'a yedirilmez.
 
-Tipik kullanım:
+Tipik Kullanım Örneği:
 
 ```rust
 settings::update_settings_file(fs.clone(), cx, |icerik, _cx| {
@@ -102,7 +102,7 @@ settings::update_settings_file(fs.clone(), cx, |icerik, _cx| {
 });
 ```
 
-Tamamlanma bekleniyorsa:
+Tamamlanma Durumunun Beklenmesi:
 
 ```rust
 let alici = settings::update_settings_file_with_completion(fs, cx, |icerik, _| {
@@ -113,20 +113,20 @@ let sonuc = alici.await?;
 
 ---
 
-## Test ortamı yardımcıları
+## Test Ortamı Yardımcıları
 
-Görsel ve birim testlerde paketlenmiş `default.json` üzerine font ve tema üzerine yazımını uygulayan iki yardımcı bulunur:
+Görsel ve birim testlerinde (unit tests), paketlenmiş `default.json` üzerine font ve tema ayarlarının uygulanmasını sağlayan iki yardımcı fonksiyon bulunur:
 
-- `visual_test_settings()` — UI font olarak `.SystemUIFont`, buffer font olarak `Menlo` (macOS), boyut 14 ve tema `empty-theme` verir. Ekran görüntüsü veya yerleşim ölçüm testlerinde tutarlı yazı tipi gerektiğinde kullanırsın.
-- `test_settings()` — Linux/macOS'ta `Courier`, Windows'ta `Courier New` ile sabit genişlikli font seçer. `EMPTY_THEME_NAME = "empty-theme"` minimum tema'yı bağlar.
+- `visual_test_settings()` — Arayüz yazı tipi olarak `.SystemUIFont`, tampon (buffer) yazı tipi olarak `Menlo` (macOS), boyut değeri olarak `14` ve tema olarak `empty-theme` ayarlarını uygular. Ekran görüntüsü veya yerleşim ölçüm testlerinde tutarlı yazı tiplerine ihtiyaç duyulduğunda bu yardımlardan yararlanılır.
+- `test_settings()` — Linux ve macOS platformlarında `Courier`, Windows platformunda ise `Courier New` ile sabit genişlikli font ayarlarını seçer. `EMPTY_THEME_NAME = "empty-theme"` ile en sade tema entegre edilir.
 
-Bu yardımcılar `cfg(any(test, feature = "test-support"))` altındadır; üretim koduna sızdırılmaz.
+Bu yardımcılar yalnızca test derlemelerinde (`cfg(any(test, feature = "test-support"))`) etkindir ve üretim (release) koduna dahil edilmez.
 
 ---
 
-## Dikkat Noktaları
+## Dikkat Edilmesi Gereken Hususlar
 
-- `watch_config_dir` dosya yokken `Created` olayını bekler; symlink hedefi sonradan oluşturulan yapılandırmalarda ilk yüklemenin ardından sessizce sıralanmaya başlar. İlk değer hiç gelmiyorsa dosyanın gerçekten yaratıldığını ve symlink path'inin canonical'da göründüğünü doğrulaman gerekir.
-- `update_settings_file` user dosyasına yazar; proje yerel `.zed/settings.json` için aynı API yoktur. Proje yerel dosya tarafında JSON metnini yeniden yazan ayrı bir yardımcı bulunmaz; ayrıştırılmış içeriği `SettingsStore::set_local_settings` ile store'un bellek içindeki `local_settings` haritasına işlersin ve bu çağrı dosyaya yazmaz. Dosya tarafındaki değişimi store'a taşıyan yine ayrı bir `watch_config_dir` akışıdır.
-- Closure içinde erken `return` kullanırsan yazma akışı hata üretmez; yalnız o ana kadar yaptığın mutasyonlar uygularsın. UI'da yazma sonucunu görünür kılmak için `update_settings_file_with_completion` veya çevresel kayıt mekanizması seçmen gerekir.
-- Kanal alıcısı çok yavaş tüketirse `UnboundedReceiver` bellek tüketir; tüketici store güncellemesini kısa sürede yapman veya akış hızını sınırlaman gerekir.
+- `watch_config_dir` fonksiyonu, dosya henüz mevcut değilse `Created` (oluşturuldu) olayını bekler. Sembolik bağ (symlink) hedefinin sonradan oluşturulduğu senaryolarda, ilk yüklemenin ardından dosya olayları sessizce sıralanmaya başlar. İlk değerin hiç gelmemesi durumunda, dosyanın gerçekten oluşturulduğunu ve sembolik bağ yolunun kanonikleştirilmiş (canonical) olarak göründüğünü doğrulamak gerekir.
+- `update_settings_file` doğrudan kullanıcı ayar dosyasına yazar; proje yerelindeki `.zed/settings.json` dosyası için benzer bir API sunulmamaktadır. Proje yerelindeki dosya tarafında JSON metnini yeniden yazan ayrı bir yardımcı bulunmaz; bunun yerine ayrıştırılmış içerikler `SettingsStore::set_local_settings` ile store'un bellek içindeki `local_settings` haritasına işlenir ve bu çağrı doğrudan dosyaya yazma yapmaz. Dosya tarafındaki değişiklikleri store'a aktaran ise ayrı bir `watch_config_dir` akışıdır.
+- Closure fonksiyonu içinde erken `return` kullanıldığında yazma akışı hata üretmez; yalnızca o ana kadar yapılan mutasyonlar dosyaya uygulanır. Arayüz tarafında yazma sonucunu görünür kılmak için `update_settings_file_with_completion` veya çevresel bir kayıt mekanizmasının seçilmesi gerekir.
+- Kanal alıcısı verileri çok yavaş tüketirse `UnboundedReceiver` aşırı bellek kullanımına yol açabilir; bu nedenle tüketici tarafındaki store güncellemelerinin kısa sürede tamamlanması veya akış hızının sınırlandırılması gerekir.

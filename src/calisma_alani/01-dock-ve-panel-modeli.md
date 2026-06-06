@@ -8,25 +8,25 @@
 
 `workspace` crate'i GPUI çekirdeğinin üstüne `Workspace` adında merkezi bir uygulama görüntüsü koyar; merkezde pane grubunu, solda `left_dock`'u, sağda `right_dock`'u ve altta `bottom_dock`'u bir arada tutar. Bu modelin ana kaynak yüzeyi `workspace` crate'inin dock, pane ve panel modülleridir.
 
-**Panel yardımcı yüzeyi.** Panel UI'ı yazarken aşağıdaki sınırları bilmen gerekir:
+**Panel yardımcı yüzeyi.** Panel UI'ı yazılırken aşağıdaki sınırların bilinmesi gerekir:
 
-- `panel::PanelHeader` varsayılan `header_height` veya `panel_header_container` sağlayan bir yardımcı trait değildir; `workspace::Panel` üstünde işaretleyici bir trait'tir. Başlık yüksekliği gerekiyorsa doğrudan `Tab::container_height(cx)`, kapsayıcı gerekiyorsa `h_flex()`/`v_flex()` ve `ui::Button`/`ui::IconButton` bileşenleri kurarsın.
+- `panel::PanelHeader` varsayılan `header_height` veya `panel_header_container` sağlayan bir yardımcı trait değildir; `workspace::Panel` üstünde işaretleyici bir trait'tir. Başlık yüksekliği gerekiyorsa doğrudan `Tab::container_height(cx)`, kapsayıcı gerekiyorsa `h_flex()`/`v_flex()` ve `ui::Button`/`ui::IconButton` bileşenleri kurulur.
 - `panel_button`, `panel_filled_button`, `panel_icon_button` ve `panel_filled_icon_button` serbest fonksiyon yardımcıları yoktur. Panel UI'ında buton katman/boyut/stil kararları doğrudan bileşen üzerinde açıkça belirtilir.
-- Git paneli `GitPanelTab::{Changes, History}` durumuyla iki tab çizer. Changes sekmesi staged/unstaged liste ve commit footer akışını taşır; History sekmesi commit geçmişini `UniformListScrollHandle` ile sanallaştırır, ok tuşlarıyla `focused_history_entry` seçer ve confirm ile `CommitView::open` çağırır. Panel action dinleyicilerine `ActivateChangesTab` ve `ActivateHistoryTab` eklemen gerekir.
+- Git paneli `GitPanelTab::{Changes, History}` durumuyla iki tab çizer. Changes sekmesi staged/unstaged liste ve commit footer akışını taşır; History sekmesi commit geçmişini `UniformListScrollHandle` ile sanallaştırır, ok tuşlarıyla `focused_history_entry` seçer ve confirm ile `CommitView::open` çağırır. Panel eylem dinleyicilerine `ActivateChangesTab` ve `ActivateHistoryTab` eklenmesi gerekir.
 - Branch diff görünümü toolbar'daki `Base: ...` popover'ı ile diff baz branch'ini değiştirir. Picker `branch_picker::select_popover(...)` üzerinden checkout yapmadan branch seçer, geri çağrı `DiffBase::Merge { base_ref }` ayarlar ve `BranchDiff::set_diff_base` `BranchDiffEvent::DiffBaseChanged` yayar. Ağaç tabanlı merge-base diff hesabı sürerken `is_tree_base_loading()` true döner; boş görünümler bunu yükleme göstergesiyle ayırmalı, eski statik baz varsayımına dönmemelidir.
 
 **Çalışma alanı yapısı.** Çalışma alanı üç ana dock'u ve merkezdeki pane grubunu bir arada tutar:
 
-- **Oluşturma:** Zaten hazırlanmış bir `Project` entity'si için `Workspace::new(workspace_id, project, app_state, window, cx)` kullanırsın; path listesinden yeni çalışma alanı açma akışında ise yüksek seviyeli `Workspace::new_local(...)` tercih edersin.
+- **Oluşturma:** Zaten hazırlanmış bir `Project` entity'si için `Workspace::new(workspace_id, project, app_state, window, cx)` kullanılır; path listesinden yeni çalışma alanı açma akışında ise yüksek seviyeli `Workspace::new_local(...)` tercih edilir.
   - `workspace_id`: Varsa kalıcı çalışma alanı kimliği; yeni oturumlarda `None` verilebilir.
   - `project`: Dosya, arama, dil ve terminal servislerini sağlayan çekirdek proje entity'si.
   - `app_state`: Genel istemci (`client`), kullanıcı ve dil (`LanguageRegistry`) kayıtlarını barındıran durum.
 - `Workspace` merkezde pane grubunu, solda `left_dock`'u, sağda `right_dock`'u ve altta `bottom_dock`'u taşır.
-- Dock entity'sini `DockPosition::{Left, Bottom, Right}` ile konumlandırırsın.
-- `Workspace::left_dock()`, `right_dock()`, `bottom_dock()`, `all_docks()`, `dock_at_position(position)` ile erişirsin.
+- Dock entity'si `DockPosition::{Left, Bottom, Right}` ile konumlandırılır.
+- `Workspace::left_dock()`, `right_dock()`, `bottom_dock()`, `all_docks()`, `dock_at_position(position)` ile erişim sağlanır.
 - Aksiyonlar: `ToggleLeftDock`, `ToggleRightDock`, `ToggleBottomDock`, `ToggleAllDocks`, `CloseActiveDock`, `CloseAllDocks`, `Increase/DecreaseActiveDockSize`, `ResetActiveDockSize` gibi.
 
-**Panel yazma.** Yeni bir paneli `Panel` trait'ini uygulayarak tanımlarsın:
+**Panel yazma.** Yeni bir panel, `Panel` trait'i uygulanarak tanımlanır:
 
 - `persistent_name()` dock durumu serileştirmesinde ve telemetry'de kullanılan kimliktir; `panel_key()` ise boyut durumu kalıcılaştırma ve keymap context kimliğidir.
 - `position`, `position_is_valid`, `set_position` panelin hangi dock'ta oturduğunu yönetir.
@@ -38,12 +38,12 @@
 
 **Dock davranışı.** Dock entity'sinin panel ekleme ve görünürlük yönetimi şu şekildedir:
 
-- `Dock::add_panel` paneli `activation_priority` sırasına göre ekler. Aynı priority'i kullanan iki panel hata ayıklama build'inde panic'e yol açar; her panele benzersiz bir priority seçersin.
+- `Dock::add_panel` paneli `activation_priority` sırasına göre ekler. Aynı priority'i kullanan iki panel hata ayıklama build'inde panic'e yol açar; her panele benzersiz bir öncelik (priority) seçilir.
 - `Dock::set_open`, `activate_panel`, `active_panel`, `active_panel_index`, `visible_panel`, `panel::<T>()`, `panel_for_id`, `panel_index_for_type`, `panel_index_for_proto_id`, `panel_index_for_persistent_name`, `remove_panel`, `panels_len` ve `first_enabled_panel_idx` temel görünürlük, arama ve seçim API'leridir.
 - `active_panel_size`, `stored_active_panel_size`, `stored_panel_size`, `stored_panel_size_state`, `resize_active_panel`, `resize_all_panels`, `clamp_panel_size` ve `toggle_panel_flexible_size` panel boyutu ve esnek boyut geçişlerini yönetir.
 - `restore_state`, serialize edilmiş dock durumundan aktif panel, açık/kapalı durum ve zoom bilgisini geri yükler.
 - `set_panel_zoomed`, `zoomed_panel` ve `zoom_out` panel zoom katmanı ile çalışma alanı serileştirmesini birlikte günceller.
-- `has_agent_panel` dock içinde agent paneli var mı sorusunu cevaplar; AI/multi-workspace sidebar durumunu değerlendirirken kullanırsın.
+- `has_agent_panel` dock içinde agent paneli var mı sorusunu cevaplar; AI/multi-workspace sidebar durumunu değerlendirirken kullanılır.
 - Panel `PanelEvent::Activate` yaydığında dock açılır, panel aktiflenir ve odak panele taşınır.
 - `PanelEvent::Close` aktif görünür paneli kapatır.
 - `PanelEvent::ZoomIn/ZoomOut` çalışma alanı zoom katmanı durumunu günceller.
@@ -87,19 +87,19 @@
 
 **`toggle_dock` akışı.** Dock'u açıp kapatan tipik akış birkaç adımdan oluşur:
 
-1. Dock görünürse açık pozisyonları kaydedersin.
-2. Dock açık durumunu terslersin.
-3. Aktif panel yoksa ilk etkin paneli aktif edersin.
-4. Açılıyorsa odağı panelin focus handle'ına taşırsın; kapanırken odak o panelden geliyorsa orta pane'e geri verirsin.
-5. Çalışma alanını serileştirirsin.
+1. Dock görünür durumdaysa açık pozisyonlar kaydedilir.
+2. Dock açık durumu tersine çevrilir.
+3. Aktif panel yoksa ilk etkin panel aktif hale getirilir.
+4. Açılıyorsa odak panelin focus handle'ına taşınır; kapanırken odak o panelden geliyorsa orta pane'e geri verilir.
+5. Çalışma alanı serileştirilir.
 
 **Yeni panel eklerken kontrol.** Aşağıdaki noktalar yeni bir panel hazırlanırken gözden geçirilmelidir:
 
-- `panel_key` kalıcılaştırma ve keymap kimliğidir; yeni panelde baştan sabit bir değer seçmen gerekir.
+- `panel_key` kalıcılaştırma ve keymap kimliğidir; yeni panelde başlangıçta sabit bir değer seçilmesi gerekir.
 - `position_is_valid` alt ve yan sınırlamalarını net tanımlamalıdır.
 - `toggle_action()` action'ı önceden kaydedilmiş olmalıdır.
 - `activation_priority()` benzersiz olmalıdır.
-- `set_active` içinde UI durumu değiştiriliyorsa `cx.notify()` çağrısı bu akışa eklemen gerekir.
-- Dock değiştiren ayar gözlemcilerinde panel taşınırken boyut durumu ekseni değişiyorsa sıfırlanabilir; bu mevcut `Dock::add_panel`/ayar gözlemci akışında zaten yaparsın.
+- `set_active` içinde UI durumu değiştiriliyorsa `cx.notify()` çağrısının bu akışa eklenmesi gerekir.
+- Dock değiştiren ayar gözlemcilerinde panel taşınırken boyut durumu ekseni değişiyorsa sıfırlanabilir; bu durum mevcut `Dock::add_panel`/ayar gözlemci akışında zaten gerçekleştirilir.
 
 ---
