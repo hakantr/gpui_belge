@@ -1,16 +1,16 @@
 # 11. Veri ve Tablo Bileşenleri
 
-Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)` çağrılarıyla kurarsın. Satır sayısı büyüdüğünde ise tablo, GPUI'nin sanallaştırılmış liste altyapısına bağlanan `.uniform_list(...)` veya `.variable_row_height_list(...)` çağrılarıyla render edersin. Yani tablo tek bir kalıba sıkışmaz; satır modeline göre üç farklı kullanım biçimi sunar.
+Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)` çağrılarıyla kurulur. Satır sayısı arttığında ise tablo, GPUI'nin sanallaştırılmış liste altyapısına bağlanan `.uniform_list(...)` veya `.variable_row_height_list(...)` çağrılarıyla render edilir. Yani tablo tek bir kalıba sıkışmaz; satır modeline göre üç farklı kullanım biçimi sunar.
 
-## GPUI uniform_list ile köprü
+## GPUI uniform_list ile Köprü
 
-`Table::uniform_list(...)` ve Bölüm 9'daki büyük listeler GPUI'nin `uniform_list(...)` elementine bağlanır. Bu element yalnızca görünür satır aralığını render eder; böylece binlerce satırlık listeler gereksiz render maliyeti yaratmadan ekrana basılabilir. Kullanırken şu kurallara dikkat edersin:
+`Table::uniform_list(...)` ve Bölüm 9'daki büyük listeler GPUI'nin `uniform_list(...)` elementine bağlanır. Bu element yalnızca görünür satır aralığını render eder; böylece binlerce satırlık listeler gereksiz render maliyeti yaratmadan ekrana basılabilir. Kullanım esnasında şu kurallara dikkat edilmelidir:
 
-- `uniform_list(id, item_count, |range, window, cx| Vec<AnyElement>)` imzası bir id ile bir satır sayısı alır; kalan kısımda yalnızca görünür `range` için satırlar üretilir. Aralık içindeki indeks dizisi `range.map(|indeks| ...)` ifadesiyle dolaşılır.
-- Satır yüksekliğinin homojen olması beklersin. İçerik her satırda farklı bir yükseklik gerektiriyorsa, GPUI tarafındaki `list(...)` elementi ve `ListState` ile çalışan `Table::variable_row_height_list(...)` daha uygun bir seçim olur.
-- Scroll davranışı için `UniformListScrollHandle` değerini view yapısında saklar ve `.track_scroll(&handle)` ile bağlarsın. Tablo tarafında `Table::interactable(...)` çağrısı kullanıldığında bu, içerideki `TableInteractionState` üzerinden yönetirsin.
-- `with_sizing_behavior(ListSizingBehavior::Infer)`, listenin içeriğine göre yükseklik hesaplatır. `Auto` ise liste için sabit bir ölçü hesaplatmaz; boyut kararını üst layout ve flex akışına bırakırsın.
-- `with_decoration(...)` slot'una `IndentGuides` ve `StickyItems` gibi süslemeleri bağlarsın; bu süslemelerin `UniformListDecoration` trait'ini implement etmesi gerekir.
+- `uniform_list(id, item_count, |range, window, cx| Vec<AnyElement>)` imzası bir kimlik (id) ile bir satır sayısı alır; kalan kısımda yalnızca görünür `range` için satırlar üretilir. Aralık içindeki indeks dizisi `range.map(|indeks| ...)` ifadesiyle dolaşılır.
+- Satır yüksekliğinin homojen (eş değer) olması beklenir. İçerik her satırda farklı bir yükseklik gerektiriyorsa, GPUI tarafındaki `list(...)` elementi ve `ListState` ile çalışan `Table::variable_row_height_list(...)` daha uygun bir seçimdir.
+- Kaydırma (scroll) davranışı için `UniformListScrollHandle` değeri görünüm (view) yapısında saklanır ve `.track_scroll(&handle)` metoduyla bağlanır. Tablo tarafında `Table::interactable(...)` çağrısı kullanıldığında bu süreç, içerideki `TableInteractionState` üzerinden yönetilir.
+- `with_sizing_behavior(ListSizingBehavior::Infer)`, listenin içeriğine göre yükseklik hesaplar. `Auto` ise liste için sabit bir ölçü hesaplamaz; boyut kararı üst yerleşim (layout) ve esnek (flex) akışa bırakılır.
+- `with_decoration(...)` alanına (slot) `IndentGuides` ve `StickyItems` gibi süslemeler bağlanır; bu süslemelerin `UniformListDecoration` trait'ini implement etmesi gerekir.
 
 ![Tablo Satır Modeli Seçimi](assets/tablo-satir-modeli.svg)
 
@@ -18,18 +18,18 @@ Karar matrisi:
 
 | Satır modeli | Kullanım |
 | :-- | :-- |
-| Sabit, az satır | `List::new()` ile `ListItem::new(...)`; scroll doğrudan üst öğe içinde yaparsın. |
+| Sabit, az satır | `List::new()` ile `ListItem::new(...)`; kaydırma doğrudan üst öğe içinde gerçekleştirilir. |
 | Sabit yükseklik, çok satır | `uniform_list(id, count, ...)` veya `Table::uniform_list(...)`. |
 | Değişken yükseklik, çok satır | `gpui::list(...) + ListState` veya `Table::variable_row_height_list(...)`. |
 | Hiyerarşik ya da sticky üst öğe | `uniform_list(...)` ile birlikte `IndentGuides` ve `StickyItems`. |
 
-`gpui::ListAlignment` (`Top`, `Bottom`) ve `ListSizingBehavior` (`Infer`, `Auto`) için tip referansları `gpui` crate'inde tanımlıdır. UI tarafındaki `Table`, sanallaştırılmış satırlarda `Auto` kullanır; `project_panel` gibi ağaç listelerinde `Infer` örneğini görürsün.
+`gpui::ListAlignment` (`Top`, `Bottom`) ve `ListSizingBehavior` (`Infer`, `Auto`) için tip referansları `gpui` crate'inde tanımlıdır. UI tarafındaki `Table`, sanallaştırılmış satırlarda `Auto` kullanır; `project_panel` gibi ağaç listelerinde `Infer` örneği görülür.
 
-Bu ailede tablo kurarken üç karar birlikte düşünülür; biri değiştiğinde diğerleri de genellikle etkilenir:
+Bu ailede tablo kurulurken üç karar birlikte değerlendirilir; biri değiştiğinde diğerleri de genellikle bu durumdan etkilenir:
 
-- **Satır modeli:** sabit bir satır listesi mi, sabit yükseklikli sanallaştırılmış bir liste mi, yoksa değişken yükseklikli sanallaştırılmış bir liste mi.
-- **Kolon genişliği modeli:** otomatik, explicit, redistributable veya resizable.
-- **Etkileşim modeli:** sadece görsel bir tablo mu, yoksa odak, scroll ve resize durumu tutan interactable bir tablo mu.
+- **Satır modeli:** Sabit bir satır listesi mi, sabit yükseklikli sanallaştırılmış bir liste mi, yoksa değişken yükseklikli sanallaştırılmış bir liste mi.
+- **Kolon genişliği modeli:** Otomatik, explicit (belirli), redistributable (yeniden dağıtılabilir) veya resizable (yeniden boyutlandırılabilir).
+- **Etkileşim modeli:** Sadece görsel bir tablo mu, yoksa odak, scroll ve resize durumu tutan etkileşimli (interactable) bir tablo mu.
 
 ## Table
 
@@ -37,20 +37,20 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::Table`, `ui::UncheckedTableRow`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Table`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- Header, satır border'ları, striped görünüm ve kolon hizası gereken veri görünümleri için.
+- Başlıklar (header), satır sınırları, çizgili (striped) görünüm ve kolon hizası gereken veri görünümleri için.
 - Satır sayısı büyüdüğünde sanallaştırma üzerinden performanslı bir şekilde render almak gerektiğinde.
-- Kolon genişliklerinin tek API üzerinden yönetilmesi istendiğinde.
+- Kolon genişliklerinin tek bir API üzerinden yönetilmesi istendiğinde.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
-- Tek kolonlu seçim listelerinde `List` ile `ListItem` çok daha uygundur.
-- Hiyerarşik veri için `TreeViewItem` doğru yüzeydir.
-- Form satırları veya toolbar bilgileri için tablo yerine `h_flex()` veya `v_flex()` ile açık bir layout kurmak genellikle daha okunur olur.
+- Tek kolonlu seçim listelerinde `List` ile `ListItem` kullanımı çok daha uygundur.
+- Hiyerarşik veriler için `TreeViewItem` doğru yüzeydir.
+- Form satırları veya araç çubuğu bilgileri için tablo yerine `h_flex()` veya `v_flex()` ile açık bir yerleşim kurmak genellikle daha okunabilir bir yapı sunar.
 
 Temel API:
 
@@ -68,14 +68,14 @@ Temel API:
 
 Davranış:
 
-- `cols`, tablo satırlarının ve header'ın beklenen kolon sayısıdır.
-- `.header(...)` ve `.row(...)` içine verilen `Vec<T>` içeride bir `TableRow<T>` değerine çevrilir. Eleman sayısı `cols` ile eşleşmezse panic oluşur.
+- `cols`, tablo satırlarının ve başlığının beklenen kolon sayısıdır.
+- `.header(...)` ve `.row(...)` içine verilen `Vec<T>` içeride bir `TableRow<T>` değerine dönüştürülür. Eleman sayısı `cols` ile eşleşmezse panic oluşur.
 - Varsayılan hücre stili `px_1()`, `py_0p5()`, `whitespace_nowrap()`, `text_ellipsis()` ve `overflow_hidden()` özelliklerini uygular.
-- `.disable_base_style()` çağrısı hücre baz stilini kapatır. CSV önizleme gibi her hücrenin kendi layout'unu taşıdığı durumlarda kullanırsın.
+- `.disable_base_style()` çağrısı hücre baz stilini kapatır. CSV önizleme gibi her hücrenin kendi yerleşimini taşıdığı durumlarda tercih edilir.
 - `.row(...)` yalnızca tablo sabit satır modundayken satır ekler. Tablo `.uniform_list(...)` veya `.variable_row_height_list(...)` ile kurulduysa satırlar bir closure üzerinden üretilir.
-- `.map_row(...)`, tablonun ürettiği `Stateful<Div>` satır kapsayıcısını alır. Bu sayede seçili satır, hover durumu, sağ tık veya özel tıklama davranışı gibi ek davranışlar eklemek mümkün hale gelir.
-- `.pin_cols(n)`, ilk `n` kolonu yatay scroll sırasında görünür tutar. Kaynakta yalnızca `ColumnWidthConfig::Resizable` ile desteklenir; `n == 0` veya `n >= cols` durumunda tablo tek bölümlü normal bir layout'a döner.
-- Pinned layout'ta header, satırlar ve resize overlay aynı yatay `ScrollHandle`'ı izler. Pinned kolonlar, scrollable kolonlarla aynı list item içinde render edildiği için değişken yükseklikli satırlarda iki tarafın yüksekliği ayrışmaz. Bu nedenle `.pin_cols(...)` kullanılırken tablonun `.interactable(...)` ile bağlanması pratikte zorunlu hâle gelir.
+- `.map_row(...)`, tablonun ürettiği `Stateful<Div>` satır kapsayıcısını alır. Bu sayede seçili satır, hover durumu, sağ tık veya özel tıklama davranışı gibi ek nitelikler eklemek mümkün hale gelir.
+- `.pin_cols(n)`, ilk `n` kolonu yatay kaydırma sırasında görünür tutar. Kaynakta yalnızca `ColumnWidthConfig::Resizable` ile desteklenir; `n == 0` veya `n >= cols` durumunda tablo tek bölümlü normal bir yerleşime döner.
+- Sabitlenmiş yerleşimde (pinned layout) header, satırlar ve yeniden boyutlandırma katmanı (resize overlay) aynı yatay `ScrollHandle`'ı izler. Sabitlenmiş kolonlar, kaydırılabilir kolonlarla aynı liste öğesi içinde render edildiği için değişken yükseklikli satırlarda iki tarafın yüksekliği ayrışmaz. Bu nedenle `.pin_cols(...)` kullanılırken tablonun `.interactable(...)` ile bağlanması pratikte zorunlu hâle gelir.
 
 Minimum örnek:
 
@@ -118,7 +118,7 @@ fn paket_satiri_tablosu_render() -> impl IntoElement {
 }
 ```
 
-Sabit yükseklikli büyük bir liste için tablo `.uniform_list(...)` ile kurarsın. Burada satır sayısı view içinde tutulur ve sadece görünür aralık render edersin:
+Sabit yükseklikli büyük bir liste için tablo `.uniform_list(...)` ile kurulur. Burada satır sayısı view içinde tutulur ve sadece görünür aralık render edilir:
 
 ```rust
 use gpui::Entity;
@@ -172,7 +172,7 @@ impl Render for PaketTablosu {
 }
 ```
 
-Değişken yükseklikli satırlarda ise `ListState` ile birlikte `.variable_row_height_list(...)` kullanırsın. Veri her değiştiğinde durumu `reset(...)` veya uygun bir `splice(...)` ile güncellemen gerekir:
+Değişken yükseklikli satırlarda ise `ListState` ile birlikte `.variable_row_height_list(...)` kullanılır. Veri her değiştiğinde durumun `reset(...)` veya uygun bir `splice(...)` çağrısıyla güncellenmesi gerekir:
 
 ```rust
 use gpui::{Entity, ListAlignment, ListState};
@@ -229,17 +229,17 @@ impl Render for GunlukTablosu {
 
 Zed içinden kullanım örnekleri:
 
-- `ui` crate'i: bileşen önizlemesindeki basit, striped ve karışık içerikli tablo örnekleri.
-- `keymap_editor` crate'i: keymap tablosu, `uniform_list`, `TableInteractionState` ve redistributable kolonlar.
-- `csv_preview` crate'i: CSV için `ResizableColumnsState`, `disable_base_style()` ve iki farklı render mekanizması. İlk kolon `pin_cols(1)` ile yatay scroll sırasında sabitlenir.
-- `edit_prediction_ui` crate'i: metadata için küçük, UI fontu kapatılmış bir tablo.
+- `ui` crate'i: Bileşen önizlemesindeki basit, çizgili (striped) ve karışık içerikli tablo örnekleri.
+- `keymap_editor` crate'i: Kısayol düzenleyici tablosu; `uniform_list`, `TableInteractionState` ve yeniden dağıtılabilir kolonlar.
+- `csv_preview` crate'i: CSV önizlemeleri için `ResizableColumnsState`, `disable_base_style()` ve iki farklı render mekanizması. İlk kolon `pin_cols(1)` ile yatay kaydırma sırasında sabitlenir.
+- `edit_prediction_ui` crate'i: Metadatalar için küçük, UI yazı tipi (font) kapatılmış bir tablo.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- Header ve tüm satırların aynı kolon sayısında olması gerekir.
-- Bir `Vec` içinde farklı element tipleri kullanılıyorsa, her hücrenin `.into_any_element()` çağrısıyla aynı tipe çevrilmesi gerekir.
+- Başlık (header) ve tüm satırların aynı kolon sayısında olması gerekir.
+- Bir `Vec` içinde farklı element tipleri kullanılıyorsa, her hücrenin `.into_any_element()` çağrısıyla aynı tipe dönüştürülmesi gerekir.
 - Büyük veri setlerinde `.row(...)` ile binlerce satır eklemek beklenmez; bu durumda `.uniform_list(...)` veya `.variable_row_height_list(...)` doğru tercihtir.
-- `variable_row_height_list` için kullanılan `ListState`, satır sayısıyla senkron tutman gerekir. Veri sayısı değiştiğinde `reset(...)` veya uygun `splice(...)` çağrısı yaparsın.
+- `variable_row_height_list` için kullanılan `ListState` durumunun satır sayısıyla senkron tutulması gerekir. Veri sayısı değiştiğinde `reset(...)` veya uygun `splice(...)` çağrısı gerçekleştirilir.
 
 ## TableInteractionState
 
@@ -247,14 +247,14 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::TableInteractionState`.
-- Prelude: Hayır; ayrıca import edersin.
-- Render modeli: `Entity<TableInteractionState>` olarak view durumunda tutarsın.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
+- Render modeli: `Entity<TableInteractionState>` olarak görünüm durumunda saklanır.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - Tablo kendi içinde dikey kaydırma yapacaksa.
-- Kolon resize handle'ları kullanılacaksa.
-- Tablonun odak handle'ı, scroll offset'i veya özel scrollbar ayarı dışarıdan yönetilecekse.
+- Kolon yeniden boyutlandırma tutamaçları (resize handles) kullanılacaksa.
+- Tablonun odak tutamacı (focus handle), kaydırma farkı (scroll offset) veya özel kaydırma çubuğu ayarı dışarıdan yönetilecekse.
 
 Temel API:
 
@@ -266,11 +266,11 @@ Temel API:
 
 Davranış:
 
-- `focus_handle`, `scroll_handle`, `horizontal_scroll_handle` ve isteğe bağlı bir `custom_scrollbar` taşır.
-- `.interactable(&state)` verilmedikçe tablo scroll ve odak durumunu bu entity'ye bağlamaz.
-- Yatay scroll, tablo genişliği modeline bağlıdır. Sabit bir toplam genişlik veya `ResizableColumnsState` yoksa, tablo genellikle kapsayıcıya sığacak şekilde davranır.
-- `Table::pin_cols(...)` kullanılan bir resizable tabloda aynı `horizontal_scroll_handle`, header'ın ve her satırın scrollable bölümünü kilitli tutmak için kullanırsın.
-- `with_custom_scrollbar(...)`, Zed ayarlarından gelen scrollbar davranışını tabloya taşımak için tercih edersin.
+- `focus_handle`, `scroll_handle`, `horizontal_scroll_handle` ve isteğe bağlı bir `custom_scrollbar` barındırır.
+- `.interactable(&state)` verilmedikçe tablo, kaydırma ve odak durumunu bu entity'ye bağlamaz.
+- Yatay kaydırma, tablo genişliği modeline bağlıdır. Sabit bir toplam genişlik veya `ResizableColumnsState` yoksa, tablo genellikle kapsayıcıya sığacak şekilde davranır.
+- `Table::pin_cols(...)` kullanılan bir resizable tabloda aynı `horizontal_scroll_handle`, header'ın ve her satırın scrollable bölümünü kilitli tutmak için kullanılır.
+- `with_custom_scrollbar(...)`, Zed ayarlarından gelen scrollbar davranışını tabloya taşımak amacıyla tercih edilir.
 
 Örnek:
 
@@ -303,15 +303,15 @@ impl DenetimTablosu {
 
 Zed içinden kullanım örnekleri:
 
-- `keymap_editor` crate'i: özel scrollbar ile interactable bir keymap tablosu.
-- `csv_preview` crate'i: CSV önizleme scroll durumu.
-- `git_ui` crate'inin `git_graph` modülü: tablo odak handle'ını selection davranışıyla birleştiren örnek.
+- `keymap_editor` crate'i: Özel kaydırma çubuğu ile etkileşimli bir keymap tablosu.
+- `csv_preview` crate'i: CSV önizlemesindeki kaydırma durumu yönetimi.
+- `git_ui` crate'inin `git_graph` modülü: Tablo odak tutamacını seçim davranışıyla birleştiren örnek.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- `TableInteractionState` doğrudan bir struct alanı olarak değil, bir `Entity` içinde tutman gerekir.
-- Scroll offset elle set ediliyorsa, aynı frame içinde veri sayısının veya liste durumunun değişiklikleriyle çakışmamasına dikkat edersin.
-- Focus davranışı gerekiyorsa, `focus_handle` alanı public olduğu için Zed'deki örnekler gibi `tab_index(...)` veya `tab_stop(...)` ile yapılandırılabilir.
+- `TableInteractionState` doğrudan bir struct alanı olarak değil, bir `Entity` içinde tutulmalıdır.
+- Kaydırma farkı (scroll offset) elle set ediliyorsa, aynı frame içindeki veri sayısının veya liste durumunun değişiklikleriyle çakışmamasına dikkat edilmelidir.
+- Odaklanma (focus) davranışı gerekiyorsa, `focus_handle` alanı public olduğu için Zed'deki örnekler gibi `tab_index(...)` veya `tab_stop(...)` ile yapılandırılabilir.
 
 ## ColumnWidthConfig
 
@@ -319,22 +319,22 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ColumnWidthConfig`, `ui::StaticColumnWidths`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- Kolonların otomatik, oranlı, explicit veya kullanıcı tarafından yeniden boyutlandırılabilir olmasını seçmek için.
-- Sanallaştırılmış bir tabloda yatay sizing davranışını doğru kurmak için.
+- Kolonların otomatik, oranlı, belirli (explicit) veya kullanıcı tarafından yeniden boyutlandırılabilir olmasını ayarlamak için.
+- Sanallaştırılmış bir tabloda yatay boyutlandırma (sizing) davranışını doğru kurmak için.
 
 Temel API:
 
-- `ColumnWidthConfig::auto()`: kolonlar ve tablo otomatik olarak genişler.
+- `ColumnWidthConfig::auto()`: Kolonlar ve tablo otomatik olarak genişler.
 - `ColumnWidthConfig::auto_with_table_width(width)`: `.width(width)` ile aynı davranış; tablo genişliği sabit, kolonlar ise otomatik şekillenir.
-- `ColumnWidthConfig::explicit(widths)`: her kolon için explicit bir `DefiniteLength` alır.
-- `ColumnWidthConfig::redistributable(columns_state)`: toplam alan korunarak kolonlar yeniden paylaştırılır.
-- `ColumnWidthConfig::Resizable(columns_state)`: kolonlar mutlak bir genişlik taşır ve tablo toplam genişliği kolon toplamına göre değişir.
-- `ColumnWidthConfig::table_width(window, cx)`: tablo kapsayıcısının kullanacağı toplam genişliği döndürür. `Resizable` modunda kolon genişliklerini rem boyutuyla piksele çevirip toplar; diğer modlarda konfigürasyondaki sabit tablo genişliğini kullanır.
-- `ColumnWidthConfig::list_horizontal_sizing(window, cx)`: tablo satırlarını taşıyan `uniform_list` için yatay sizing davranışını üretir. Auto, explicit, redistributable ve resizable modların yatay scroll/fill kararını aynı noktadan verir.
+- `ColumnWidthConfig::explicit(widths)`: Her kolon için belirli (explicit) bir `DefiniteLength` alır.
+- `ColumnWidthConfig::redistributable(columns_state)`: Toplam alan korunarak kolonlar yeniden paylaştırılır.
+- `ColumnWidthConfig::Resizable(columns_state)`: Kolonlar mutlak bir genişlik taşır ve tablo toplam genişliği kolon toplamına göre değişir.
+- `ColumnWidthConfig::table_width(window, cx)`: Tablo kapsayıcısının kullanacağı toplam genişliği döndürür. `Resizable` modunda kolon genişliklerini rem boyutuyla piksele çevirip toplar; diğer modlarda konfigürasyondaki sabit tablo genişliğini kullanır.
+- `ColumnWidthConfig::list_horizontal_sizing(window, cx)`: Tablo satırlarını taşıyan `uniform_list` için yatay sizing davranışını üretir. Auto, explicit, redistributable ve resizable modların yatay scroll/fill kararını aynı noktadan verir.
 
 Genişlik taşıyıcıları:
 
@@ -360,13 +360,13 @@ fn acik_genislikli_tablo_render() -> impl IntoElement {
 }
 ```
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- `.width(width)` aslında `ColumnWidthConfig::auto_with_table_width(width)` ifadesinin kısaltmasıdır. Resize gerekiyorsa `.width_config(...)` doğrudan kullanırsın.
+- `.width(width)` aslında `ColumnWidthConfig::auto_with_table_width(width)` ifadesinin kısaltmasıdır. Yeniden boyutlandırma gerekiyorsa `.width_config(...)` doğrudan kullanılır.
 - `explicit(widths)` içinde `widths.len()` ile tablo kolon sayısının birbirine eşit olması gerekir.
-- `Resizable` için associated bir constructor yoktur; enum varyantı doğrudan `ColumnWidthConfig::Resizable(entity)` biçiminde kullanırsın.
-- `Table::pin_cols(n)` yalnızca `ColumnWidthConfig::Resizable(entity)` ile anlamlı ve destekli kullanımdır. `Auto`, `Explicit` ve `Redistributable` modlarında pinned split davranışına güvenmezsin.
-- Pinned layout'ta pinned bölümün resize divider'ları yalnızca görsel çizgi olarak render edilir; sürükleme etkileşimi scrollable bölümün divider'larında kalır. Header hücresine çift tıklama ile kolon reset davranışı ise `HeaderResizeInfo` üzerinden çalışmaya devam eder.
+- `Resizable` için ilişkili bir constructor yoktur; enum varyantı doğrudan `ColumnWidthConfig::Resizable(entity)` biçiminde kullanılır.
+- `Table::pin_cols(n)` yalnızca `ColumnWidthConfig::Resizable(entity)` ile anlamlı ve destekli bir kullanımdır. `Auto`, `Explicit` ve `Redistributable` modlarında sabitlenmiş ayrım (pinned split) davranışına güvenilmemelidir.
+- Sabitlenmiş yerleşimde (pinned layout) sabitlenmiş bölümün resize divider'ları yalnızca görsel çizgi olarak render edilir; sürükleme etkileşimi scrollable bölümün divider'larında kalır. Header hücresine çift tıklama ile kolon sıfırlama (reset) davranışı ise `HeaderResizeInfo` üzerinden çalışmaya devam eder.
 
 ## RedistributableColumnsState
 
@@ -375,15 +375,15 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::RedistributableColumnsState`.
 - İlgili tipler: `ui::TableResizeBehavior`, `ui::HeaderResizeInfo`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - Tablo kapsayıcı genişliği korunacak ve kullanıcı yalnızca kolonların birbirine göre oranını değiştirebilecekse.
-- Keymap editor ve git graph gibi tabloda toplam alanın sabit kalması gereken yerlerde.
+- Kısayol düzenleyici (keymap editor) ve git grafiği gibi tabloda toplam alanın sabit kalması gereken yerlerde.
 - Aynı tabloda hem oranlı hem mutlak başlangıç genişliklerinin kullanılması gerekiyorsa.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
 - CSV veya spreadsheet benzeri bir tabloda kullanıcı tek bir kolonu genişletince toplam tablo genişliği de büyümeliyse, `ResizableColumnsState` çok daha uygundur.
 - Yalnızca sabit oranlı kolon gerekiyorsa `ColumnWidthConfig::explicit(...)` çok daha basit bir çözümdür.
@@ -405,13 +405,13 @@ Temel API:
 
 Davranış:
 
-- Başlangıç genişlikleri `DefiniteLength` alır. Aynı tabloda `DefiniteLength::Fraction(...)` ile `DefiniteLength::Absolute(...)` birlikte kullanabilirsin.
-- Drag sırasında `preview_widths` güncellenir; drop sonrasında `commit_preview()` çağrısıyla kalıcı genişliklere aktarılır.
-- `Table` içinde `.interactable(...)` ve `.width_config(ColumnWidthConfig::redistributable(...))` birlikte kullanıldığında resize handle binding'i normal tablo için otomatik olarak yaparsın.
-- `TableResizeBehavior::None`, ilgili divider yönünde resize yayılımını engeller.
-- `TableResizeBehavior::Resizable`, varsayılan minimum sınırla resize'a izin verir.
+- Başlangıç genişlikleri `DefiniteLength` alır. Aynı tabloda `DefiniteLength::Fraction(...)` ile `DefiniteLength::Absolute(...)` birlikte kullanılabilir.
+- Sürükleme sırasında `preview_widths` güncellenir; bırakma (drop) sonrasında `commit_preview()` çağrısıyla kalıcı genişliklere aktarılır.
+- `Table` içinde `.interactable(...)` ve `.width_config(ColumnWidthConfig::redistributable(...))` birlikte kullanıldığında yeniden boyutlandırma tutamacı bağlantısı (resize handle binding) normal tablo için otomatik olarak gerçekleştirilir.
+- `TableResizeBehavior::None`, ilgili bölücü (divider) yönünde yeniden boyutlandırma yayılımını engeller.
+- `TableResizeBehavior::Resizable`, varsayılan minimum sınırla boyutlandırmaya izin verir.
 - `TableResizeBehavior::MinSize(value)`, redistributable algoritmasında minimum kolon oranı olarak değerlendirilir.
-- `TableResizeBehavior::is_resizable()` `None` dışındaki davranışlarda `true` döner. Header hücresinde resize handle çizimi veya cursor seçimi yaparken enum varyantlarını tekrar `match` etmek yerine bu soruyu sorarsın.
+- `TableResizeBehavior::is_resizable()` metodu `None` dışındaki davranışlarda `true` döner. Header hücresinde yeniden boyutlandırma tutamacı çizimi veya imleç (cursor) seçimi yaparken enum varyantlarını tekrar `match` etmek yerine bu soru sorulur.
 
 Örnek:
 
@@ -463,13 +463,13 @@ impl KisayolTablosu {
 
 Zed içinden kullanım örnekleri:
 
-- `keymap_editor` crate'i: oranlı kolonlar ile resize edilebilir bir keybinding tablosu.
-- `git_ui` crate'inin `git_graph` modülü: graph alanı ve commit tablosu aynı redistributable durum ile hizalanır.
+- `keymap_editor` crate'i: Oranlı kolonlar ile yeniden boyutlandırılabilir bir kısayol tablosu.
+- `git_ui` crate'inin `git_graph` modülü: Grafik alanı ve commit tablosu aynı redistributable durum ile hizalanır.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
 - `cols`, `initial_widths.len()` ve `resize_behavior.len()` değerlerinin birbirine eşit olması gerekir.
-- Normal bir `Table` kullanımında `bind_redistributable_columns(...)` ve `render_redistributable_columns_resize_handles(...)` çağırmaya gerek yoktur; `Table` bunu kendi wrapper'ında zaten yapar.
+- Normal bir `Table` kullanımında `bind_redistributable_columns(...)` ve `render_redistributable_columns_resize_handles(...)` çağırmaya gerek yoktur; `Table` bunu kendi sarmalayıcısında (wrapper) otomatik olarak yapar.
 - Aynı kolon durumu farklı görsel bölgelerde paylaşılıyorsa, düşük seviyeli yardımcıları kullanmak gerekir.
 
 ## ResizableColumnsState
@@ -479,12 +479,12 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::ResizableColumnsState`.
 - İlgili tipler: `ui::TableResizeBehavior`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - Her kolonun mutlak genişliği ayrı ayrı değişecekse.
-- Kullanıcı bir kolonu büyüttüğünde tablonun toplam genişliği büyümeli ve yatay scroll devreye girmeliyse.
+- Kullanıcı bir kolonu büyüttüğünde tablonun toplam genişliği büyümeli ve yatay kaydırma (scroll) devreye girmeliyse.
 - CSV, spreadsheet veya geniş veri önizlemeleri gibi senaryolar için.
 
 Temel API:
@@ -498,9 +498,9 @@ Temel API:
 Davranış:
 
 - Başlangıç genişlikleri `AbsoluteLength` alır.
-- Resize edilen kolonun genişliği değişir; komşu kolonlardan oran çalınmaz.
-- `ColumnWidthConfig::Resizable(entity)` ile tablo toplam genişliğini kolon genişliklerinin toplamı üzerinden hesaplar.
-- `TableResizeBehavior::MinSize(value)` değeri, resizable algoritmasında rem tabanlı bir minimum eşik olarak uygularsın.
+- Yeniden boyutlandırılan kolonun genişliği değişir; komşu kolonlardan genişlik oranı çalınmaz.
+- `ColumnWidthConfig::Resizable(entity)` konfigürasyonuyla tablo toplam genişliğini kolon genişliklerinin toplamı üzerinden hesaplar.
+- `TableResizeBehavior::MinSize(value)` değeri, resizable algoritmasında rem tabanlı bir minimum eşik olarak uygulanır.
 
 Örnek:
 
@@ -551,15 +551,15 @@ impl CsvBenzeriTablo {
 
 Zed içinden kullanım örnekleri:
 
-- `csv_preview` crate'i: CSV kolon durumu `ResizableColumnsState` ile tutarsın.
-- `csv_preview` crate'i: tablo `ColumnWidthConfig::Resizable(...)` ile render edersin.
+- `csv_preview` crate'i: CSV kolon durumunun `ResizableColumnsState` ile saklanması.
+- `csv_preview` crate'i: Tablonun `ColumnWidthConfig::Resizable(...)` ile render edilmesi.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- Bu model yatay scroll üretebilir; bu yüzden tablonun `.interactable(...)` ile bağlanması gerekir.
+- Bu model yatay kaydırma (scroll) üretebilir; bu yüzden tablonun `.interactable(...)` ile bağlanması gerekir.
 - Kolon sayısı değişirse, eski durumu güncellemek yerine yeni bir `ResizableColumnsState` oluşturmak çok daha net bir tercih olur.
 - `set_column_configuration(...)`, çalışma zamanında tek bir kolonun başlangıç ve mevcut genişliğini birlikte günceller.
-- İlk kolonun satır numarası veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanırsın. Zed CSV önizlemesi ilk kolonu bu şekilde sabitler. Kullanıcı pinned bölümdeki divider'ı sürükleyemez; boyut değiştirme ihtiyacı scrollable kolonlarda beklenir veya kolon konfigürasyonu durum üzerinden güncellersin.
+- İlk kolonun satır numarası veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanılır. Zed CSV önizlemesi ilk kolonu bu şekilde sabitler. Kullanıcı sabitlenmiş bölümdeki bölücüyü (divider) sürükleyemez; boyut değiştirme ihtiyacı kaydırılabilir kolonlarda beklenir veya kolon konfigürasyonu durum üzerinden güncellenir.
 
 ## TableRow ve UncheckedTableRow
 
@@ -570,11 +570,11 @@ Kaynak:
 - Alias: `ui::UncheckedTableRow<T> = Vec<T>`.
 - Prelude: Hayır.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- Düşük seviye tablo yardımcılarına doğrulanmış bir satır verilmesi gerektiğinde.
-- Kolon sayısı değişmezinin tek bir noktada kontrol edilmesi istendiğinde.
-- Tablo dışındaki veri motorlarında satırların rectangular biçimde tutulması gerektiğinde.
+- Düşük seviyeli tablo yardımcılarına doğrulanmış bir satır aktarılması gerektiğinde.
+- Kolon sayısı kuralının tek bir noktada denetlenmesi istendiğinde.
+- Tablo dışındaki veri motorlarında satırların dikdörtgensel (rectangular) biçimde tutulması gerektiğinde.
 
 Temel API:
 
@@ -590,14 +590,14 @@ Davranış:
 
 - `from_vec(...)` uzunluk eşleşmezse panic üretir.
 - `try_from_vec(...)`, uzunluk hatasını `Result::Err` olarak döndürür.
-- `Table::header(...)`, `Table::row(...)`, `.uniform_list(...)` ve `.variable_row_height_list(...)` public API'sinde `Vec<T>` kabul eder; `TableRow` dönüşümü içeride yaparsın.
-- `IntoTableRow` trait'i, `Vec<T>` için tek bir `.into_table_row(expected_length)` yöntemi sağlar; uzunluk eşleşmezse panic üretir. Kaynakta `Table` bunu içeride kullandığı için normal kullanımda import etmeye gerek yoktur. Düşük seviyeli yardımcılara inildiğinde ise `use ui::table_row::IntoTableRow as _;` ifadesiyle çağrılabilir. Doğrulanmış (`Result` döndüren) bir dönüşüm için ise doğrudan `TableRow::try_from_vec(data, expected_length)` kullanılır; `try_into_table_row` adlı bir trait yöntemi yoktur.
+- `Table::header(...)`, `Table::row(...)`, `.uniform_list(...)` ve `.variable_row_height_list(...)` genel API'lerinde `Vec<T>` kabul eder; `TableRow` dönüşümü arka planda otomatik olarak gerçekleştirilir.
+- `IntoTableRow` trait'i, `Vec<T>` için tek bir `.into_table_row(expected_length)` yöntemi sağlar; uzunluk eşleşmezse panic üretir. Kaynakta `Table` bunu içeride kullandığı için normal kullanımda import edilmesine gerek yoktur. Düşük seviyeli yardımcılara inildiğinde ise `use ui::table_row::IntoTableRow as _;` ifadesiyle çağrılabilir. Doğrulanmış (`Result` döndüren) bir dönüşüm için ise doğrudan `TableRow::try_from_vec(data, expected_length)` kullanılır.
 
 Satır doğrulama API'leri:
 
 | API | Rol |
 | :-- | :-- |
-| `table_row` | `TableRow` ve `IntoTableRow` düşük seviye modülünü taşır; normal `Table` kullanımında doğrudan modüle inmen gerekmez. |
+| `table_row` | `TableRow` ve `IntoTableRow` düşük seviye modülünü taşır; normal `Table` kullanımında doğrudan modüle inilmesi gerekmez. |
 | `IntoTableRow` | `Vec<T>` değerini beklenen kolon sayısıyla doğrulanmış `TableRow<T>` değerine çeviren trait'tir. |
 
 Örnek:
@@ -610,10 +610,10 @@ fn hucreleri_dogrula(hucreler: Vec<AnyElement>, kolon_sayisi: usize) -> Option<T
 }
 ```
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- Normal `Table` kullanımı sırasında `TableRow` üretmeye gerek yoktur.
-- `expect_get(...)`, veri motoru değişmezi bozulduğunda erken hata vermek için uygundur; kullanıcı girdisinden gelen satırlarda `get(...)` daha güvenli bir seçim olur.
+- Normal `Table` kullanımı sırasında el ile `TableRow` üretmeye gerek yoktur.
+- `expect_get(...)`, veri motoru kuralları bozulduğunda erken hata vermek için uygundur; kullanıcı girdisinden gelen satırlarda `get(...)` daha güvenli bir tercihtir.
 
 ## Düşük Seviye Resize ve Render Yardımcıları
 
@@ -629,25 +629,25 @@ Kaynak:
 Ne zaman kullanırsın:
 
 - Tek bir `Table` yeterli değilse; örneğin header, graph alanı ve tablo gövdesi farklı kapsayıcılarda ama aynı kolon durumuyla hizalanacaksa.
-- Resize handle'larının tablo dışındaki sibling elemanların üzerine bind edilmesi gerekiyorsa.
-- Satır veya header render'ının `Table` dışındaki özel bir layout içinde yeniden kullanılması gerektiğinde.
+- Yeniden boyutlandırma tutamaçlarının tablo dışındaki kardeş (sibling) elemanların üzerine bind edilmesi gerekiyorsa.
+- Satır veya header render'ının `Table` dışındaki özel bir yerleşim (layout) içinde yeniden kullanılması gerektiğinde.
 
 Ne zaman kullanmazsın:
 
-- Normal bir veri tablosu için bu yardımcılara inmeye gerek yoktur. `Table` zaten header, row, scroll ve resize binding'ini tek bir yerde yönetir.
+- Normal bir veri tablosu için bu yardımcılara inilmesine gerek yoktur. `Table` zaten header, row, scroll ve resize binding'ini tek bir yerde yönetir.
 - Sadece genişlik ayarlamak için `bind_redistributable_columns(...)` çağrılmaz; `ColumnWidthConfig` bu amaç için yeterlidir.
 
 Temel API:
 
 - `TableRenderContext::for_column_widths(column_widths, use_ui_font)`:
   - `column_widths`: `Option<TableRow<Length>>`. `None` verildiğinde hücreler sabit bir genişlik almaz. Redistributable veya resizable bir durum üzerinden geliyorsa `columns_state.read(cx).widths_to_render()` çağrısıyla beslenir.
-  - `use_ui_font`: `true` olduğunda hücre içeriği `text_ui(cx)` ile çizilir; `false` olduğunda font ailesi üst öğeden miras alırsın. `Table::no_ui_font()` ile kapatılan davranışla aynıdır. CSV preview monospace bir görünüm için bu değeri `false` verir.
-  - `striped`, `show_row_borders`, `show_row_hover`, `total_row_count`, `disable_base_cell_style`, `map_row`, `pinned_cols` ve `h_scroll_handle` alanları, `Default::default()` benzeri varsayılanlarla doldurulur. Özel bir görünüm gerekiyorsa `for_column_widths(...)` çıktısı alan alan değiştirilebilir.
+  - `use_ui_font`: `true` olduğunda hücre içeriği `text_ui(cx)` ile çizilir; `false` olduğunda font ailesi üst öğeden miras alınır. `Table::no_ui_font()` ile kapatılan davranışla aynıdır. CSV önizleme, monospace bir görünüm için bu değeri `false` yapar.
+  - `striped`, `show_row_borders`, `show_row_hover`, `total_row_count`, `disable_base_cell_style`, `map_row`, `pinned_cols` ve `h_scroll_handle` alanları, `Default::default()` benzeri varsayılanlarla doldurulur. Özel bir görünüm gerekiyorsa `for_column_widths(...)` çıktısı üzerinden ilgili alanlar değiştirilebilir.
 - `render_table_header(headers, table_context, resize_info, entity_id, cx) -> AnyElement`.
 - `render_table_row(row_index, items, table_context, window, cx)`.
 - `HeaderResizeInfo::from_redistributable(&columns_state, cx)`.
 - `HeaderResizeInfo::from_resizable(&columns_state, cx)`.
-- `resize_behavior: TableRow<TableResizeBehavior>` public alanı, header hücresinin resizable olup olmadığını okumak için kullanırsın. İlgili kolon durumu public bir alan değildir; reset ve durum güncelleme için `reset_column(...)` çağırırsın.
+- `resize_behavior: TableRow<TableResizeBehavior>` public alanı, header hücresinin resizable olup olmadığını okumak için kullanılır. İlgili kolon durumu public bir alan değildir; sıfırlama ve durum güncelleme işlemleri için `reset_column(...)` çağrısı gerçekleştirilir.
 - `bind_redistributable_columns(container, columns_state)`.
 - `render_redistributable_columns_resize_handles(&columns_state, window, cx)`.
 
@@ -656,10 +656,10 @@ Düşük seviye tablo yardımcıları:
 | API | Rol |
 | :-- | :-- |
 | `TableRenderContext` | Header ve satır render'ı için kolon genişlikleri, font seçimi, stripe/border/hover davranışı, pinned kolon ve yatay scroll handle bilgisini taşır. |
-| `HeaderResizeInfo` | Header hücresinin resize davranışını ve kolon reset akışını bağlamak için redistributable veya resizable durumdan üretilir. |
-| `bind_redistributable_columns` | Redistributable kolon durumunu drag preview ve drop commit davranışıyla kapsayıcıya bağlar. |
-| `render_redistributable_columns_resize_handles` | Redistributable kolon divider/handle overlay'lerini üretir. |
-| `render_table_header` | Doğrulanmış header hücreleri, render context ve opsiyonel resize bilgisiyle tablo header element'i üretir. |
+| `HeaderResizeInfo` | Header hücresinin resize davranışını ve kolon sıfırlama akışını bağlamak için redistributable veya resizable durumdan üretilir. |
+| `bind_redistributable_columns` | Redistributable kolon durumunu sürükleme önizlemesi ve bırakma kaydetme (drop commit) davranışıyla kapsayıcıya bağlar. |
+| `render_redistributable_columns_resize_handles` | Redistributable kolon bölücü/tutamak katmanlarını (divider/handle overlay) üretir. |
+| `render_table_header` | Doğrulanmış header hücreleri, render bağlamı (context) ve opsiyonel resize bilgisiyle tablo header element'i üretir. |
 | `render_table_row` | Satır indeksi, hücreler ve `TableRenderContext` üzerinden tablo gövde satırını render eder. |
 
 Örnek:
@@ -706,15 +706,15 @@ fn ozel_tablo_basligi_render(
 
 Zed içinden kullanım örnekleri:
 
-- `git_ui` crate'inin `git_graph` modülü: graph canvas ve commit tablosu aynı redistributable kolon durumuyla hizalanır; header ve resize handle'ları düşük seviyeli yardımcılarla kurarsın.
+- `git_ui` crate'inin `git_graph` modülü: Grafik alanı ve commit tablosu aynı redistributable kolon durumuyla hizalanır; başlık ve yeniden boyutlandırma tutamaçları düşük seviyeli yardımcılarla kurulur.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- `bind_redistributable_columns(...)`, drag move sırasında preview width'i günceller ve drop sırasında commit eder.
-- `render_redistributable_columns_resize_handles(...)`, kolon durumundan divider'ları üretir; kapsayıcının `relative()` olması handle yerleşimini çok daha öngörülebilir hâle getirir.
-- `render_table_header(...)` içinde çift tıklama ile kolon reset davranışı `HeaderResizeInfo` üzerinden bağlanır.
-- Header ve row için aynı `TableRenderContext` genişlik modelini kullanman gerekir; aksi halde hücreler hizalanmaz.
-- Pinned kolonlu özel bir render akışı kuruluyorsa, `TableRenderContext.pinned_cols` ile `TableRenderContext.h_scroll_handle` birlikte ayarlanmalıdır. Normal `Table::pin_cols(...)` kullanımı bu iki alanı kendi içinde zaten doldurur. Scrollable satır ve header bölümleri `overflow_x_scroll()` ile aynı handle'ı takip eder; ayrıca resize sürükleme koordinatı bu yatay offset'e göre düzeltilir.
+- `bind_redistributable_columns(...)`, sürükleme hareketi sırasında önizleme genişliğini günceller ve bırakma anında kaydeder.
+- `render_redistributable_columns_resize_handles(...)`, kolon durumundan bölücüleri üretir; kapsayıcının `relative()` olması tutamak yerleşimini çok daha öngörülebilir hâle getirir.
+- `render_table_header(...)` içinde çift tıklama ile kolon sıfırlama davranışı `HeaderResizeInfo` üzerinden bağlanır.
+- Header ve row için aynı `TableRenderContext` genişlik modelinin kullanılması zorunludur; aksi takdirde hücreler hizalanamaz.
+- Sabitlenmiş kolonlu özel bir render akışı kuruluyorsa, `TableRenderContext.pinned_cols` ile `TableRenderContext.h_scroll_handle` birlikte ayarlanmalıdır. Normal `Table::pin_cols(...)` kullanımı bu iki alanı kendi içinde zaten doldurur. Kaydırılabilir satır ve başlık bölümleri `overflow_x_scroll()` ile aynı handle'ı takip eder; ayrıca resize sürükleme koordinatı bu yatay kaydırma farkına göre düzeltilir.
 
 ## Veri Tablosu Kompozisyon Örnekleri
 
@@ -738,7 +738,7 @@ fn bos_is_tablosu_render() -> impl IntoElement {
 }
 ```
 
-Satır seçimi için `map_row(...)` ile satır kapsayıcısının üzerinde özel bir görsel durum uygulayabilirsin. Aşağıdaki örnek seçili satıra arka plan rengi atar:
+Satır seçimi için `map_row(...)` ile satır kapsayıcısının üzerinde özel bir görsel durum uygulanabilir. Aşağıdaki örnek seçili satıra arka plan rengi atar:
 
 ```rust
 use ui::{Table, prelude::*};
@@ -761,7 +761,7 @@ Karar rehberi olarak şu kısa özet işe yarar:
 
 - Az satır ve basit bir görünüm gerekiyorsa `Table::new(...).header(...).row(...)` yeterlidir.
 - Çok satır ama tek satır yüksekliği varsa `.uniform_list(...)` doğru tercihtir.
-- Çok satır ve multiline veya değişken içerik varsa `.variable_row_height_list(...)` kullanırsın.
+- Çok satır ve çok satırlı (multiline) ya da değişken içerik mevcutsa `.variable_row_height_list(...)` kullanılır.
 - Kapsayıcı genişliği sabit kalmalı ama kolon oranları değişmeliyse `RedistributableColumnsState` devreye girer.
-- Kolonlar mutlak genişlikte olacak ve yatay scroll oluşabilecekse `ResizableColumnsState` seçersin.
+- Kolonlar mutlak genişlikte olacak ve yatay kaydırma oluşabilecekse `ResizableColumnsState` seçilir.
 - Header, gövde ve ek görsel bölgeler aynı kolon durumunu paylaşacaksa düşük seviyeli render ve resize yardımcılarına inilir.

@@ -4,30 +4,30 @@ Zed UI bileşenleri, GPUI element modelinin üstüne kurulan daha dar ve daha tu
 
 ## Import düzeni
 
-Zed içinde yeni UI kodu yazarken çoğu dosyaya tek bir import ile başlarsın:
+Zed içinde yeni UI kodu yazılırken çoğu dosyaya tek bir import ile başlanır:
 
 ```rust
 use ui::prelude::*;
 ```
 
-`ui::prelude::*`, `gpui::prelude::*` içeriğini de getirir ve üstüne Zed tasarım sisteminde sık kullanılan tipleri ekler. Bu yüzden sıradan bir view veya küçük bileşen örneğinde `Button`, `Icon`, `Label`, `Color`, `h_flex`, `v_flex`, `Context`, `Window`, `App`, `SharedString`, `AnyElement` ve `RenderOnce` için ayrı ayrı `use` satırı yazmana gerek kalmaz. Bunlar prelude üzerinden hazır gelir.
+`ui::prelude::*` modülü, `gpui::prelude::*` kapsamını da beraberinde getirir ve üstüne Zed tasarım sisteminde sık kullanılan tipleri ekler. Bu sayede sıradan bir view veya küçük bileşen örneğinde `Button`, `Icon`, `Label`, `Color`, `h_flex`, `v_flex`, `Context`, `Window`, `App`, `SharedString`, `AnyElement` ve `RenderOnce` için ayrı ayrı `use` satırı yazılmasına gerek kalmaz. Tüm bu tipler prelude üzerinden hazır olarak sunulur.
 
-Prelude her şeyi getirmez. Daha özel kalan bileşenler için açık import gerekir:
+Prelude her yapıyı kapsamaz. Daha özel bileşenler için açık (explicit) import yapılması gerekir:
 
 ```rust
 use ui::prelude::*;
 use ui::{Callout, ContextMenu, DropdownMenu, List, ListItem, Tooltip};
 ```
 
-`gpui::prelude::*` yalnızca ham GPUI primitive'leriyle çalışırken yeterli olur. Zed UI bileşenlerini kullanacaksan tercih ettiğin yol `ui::prelude::*` olmalıdır. Aksi halde tasarım token'ları ve ortak bileşen trait'leri eksik kalır; bazı builder metotları görünmez.
+`gpui::prelude::*` yalnızca ham GPUI primitive'leriyle çalışırken yeterli olur. Zed UI bileşenleri kullanılacaksa `ui::prelude::*` import'u tercih edilmelidir. Aksi halde tasarım token'ları ve ortak bileşen trait'leri eksik kalır; bazı builder metotlarına erişilemez.
 
 ## Prelude ve Bileşen Önizleme Import Sınırı
 
-`ui::prelude::*`, çalışma zamanı UI yazarken kullandığın kısa yoldur. `ActiveTheme`, `DynamicSpacing`, `RegisterComponent`, `Button`, `Icon`, `Label`, `Color`, `Severity`, `ToggleState`, ortak trait'ler ve sık kullanılan GPUI tiplerini aynı import altında toplar. Bu yüzden normal uygulama ekranında önce `use ui::prelude::*;` yazarsın, sonra yalnız özel bileşenler için ek import eklersin.
+`ui::prelude::*`, çalışma zamanında UI geliştirirken kullanılan bir kısa yoldur. `ActiveTheme`, `DynamicSpacing`, `RegisterComponent`, `Button`, `Icon`, `Label`, `Color`, `Severity`, `ToggleState` gibi ortak trait'leri ve sık kullanılan GPUI tiplerini tek bir import altında toplar. Bu nedenle, normal bir uygulama ekranında önce `use ui::prelude::*;` yazılır, ardından yalnızca özel ihtiyaç duyulan bileşenler için ek import'lar eklenir.
 
-`ui::component_prelude::*` ise çalışma zamanı ekran kodu için değil, bileşen önizleme veya bileşen galerisi kaydı yazarken kullanırsın. Bu prelude `Component`, `ComponentId`, `ComponentScope`, `ComponentStatus`, `RegisterComponent`, `Documented`, `single_example`, `example_group` ve `example_group_with_title` gibi önizleme sistemine ait yardımcıları getirir. Üretim UI'da bir butonu render etmek için `component_prelude` gerekmez; önizleme yazarken ise `RegisterComponent` derive'ı ve `Documented` derive'ını aynı dosyada kısa importla kullanırsın.
+`ui::component_prelude::*` ise çalışma zamanı ekran kodu geliştirmek yerine, bileşen önizleme veya bileşen galerisi kaydı oluştururken tercih edilir. Bu prelude; `Component`, `ComponentId`, `ComponentScope`, `ComponentStatus`, `RegisterComponent`, `Documented`, `single_example`, `example_group` ve `example_group_with_title` gibi önizleme sistemine ait yardımcı araçları getirir. Üretim aşamasındaki bir UI'da butonu render etmek için `component_prelude` gerekmez; önizleme yazarken ise `RegisterComponent` ve `Documented` derive makroları aynı dosyada kısa import yardımıyla kullanılabilir.
 
-`ui::prelude` ve `ui::component_prelude` ikisini aynı dosyada karıştırmadan önce dosyanın rolünü netleştirmen gerekir. Dosya gerçek bir Zed ekranı render ediyorsa `ui::prelude::*` yeterlidir. Dosya yalnız önizleme kaydına örnek ekliyorsa `ui::component_prelude::*` eklersin. Aksi halde bileşen registry API'leri, çalışma zamanı UI bağımlılığıymış gibi görünür ve okuyucu için yanlış bir model oluşur.
+`ui::prelude` ve `ui::component_prelude` yapılarını aynı dosyada karıştırmadan önce dosyanın üstlendiği rolü netleştirmek gerekir. Dosya gerçek bir Zed ekranı render ediyorsa `ui::prelude::*` kullanımı yeterlidir. Eğer dosya yalnızca önizleme kaydına örnek ekleme amacı taşıyorsa `ui::component_prelude::*` dahil edilir. Aksi takdirde, bileşen kayıt (registry) API'leri sanki çalışma zamanı UI bağımlılığıymış gibi görünerek kafa karışıklığına yol açabilir.
 
 | Prelude | İçerik | Kullanım yeri |
 | :-- | :-- | :-- |
@@ -38,7 +38,7 @@ use ui::{Callout, ContextMenu, DropdownMenu, List, ListItem, Tooltip};
 
 ## Render modeli
 
-Zed UI bileşenlerinin büyük kısmı `RenderOnce` implement eder. Bu model, kendi içinde durum taşımayan ve builder zinciriyle kurulan küçük UI parçaları için uygundur. Bileşen o render sırasında üretilir, ekrana çizilir ve işi biter; bir sonraki render'a sakladığı ayrı bir durum yoktur:
+Zed UI bileşenlerinin büyük bir kısmı `RenderOnce` trait'ini implement eder. Bu model, kendi içinde durum (state) barındırmayan ve builder zinciriyle kurulan küçük UI parçaları için son derece uygundur. Bileşen render sırasında üretilerek ekrana çizilir ve görevini tamamlar; bir sonraki render aşamasına saklanan bağımsız bir durumu bulunmaz:
 
 ```rust
 use ui::prelude::*;
@@ -64,7 +64,7 @@ fn render_status_title() -> impl IntoElement {
 }
 ```
 
-View durumu tutan ekran parçalarında ise `Render` kullanırsın. Bu durumda view, kendi alanlarında durum bilgisi saklar ve kullanıcı etkileşimine göre bu bilgi değişir. Etkileşim view durumunu değiştirdiyse, ekrana çizilen çıktının da yenilenmesi için `cx.notify()` çağırman gerekir. Bu çağrı eksik kaldığında durum değişmiş olur, fakat kullanıcı aynı eski render sonucunu görmeye devam eder:
+View durumu (state) saklayan ekran parçalarında ise `Render` tercih edilir. Bu senaryoda view, kendi alanlarında durum bilgisi barındırır ve bu bilgi kullanıcı etkileşimine bağlı olarak güncellenir. Etkileşim view durumunu değiştirdiğinde, ekrana çizilen çıktının da yenilenmesi için `cx.notify()` çağrısı yapılmalıdır. Bu çağrı atlandığında durum değişmiş olsa bile kullanıcı eski render çıktısını görmeye devam eder:
 
 ```rust
 use ui::prelude::*;
@@ -92,15 +92,15 @@ impl Render for AyarSatiri {
 
 ## Temel veri tipleri
 
-`ElementId`, bileşen durumu ve hitbox takibi için kullanılan sabit kimliktir. Button, tab, list item, table row ve toggle gibi etkileşimli bileşenlere anlamlı ve birbiriyle çakışmayan bir id verirsin. Aksi halde GPUI hangi elementin hangi durumu taşıdığını ayırt etmekte zorlanır.
+`ElementId`, bileşen durumu ve hitbox takibi için kullanılan sabit kimliktir. `Button`, `Tab`, `ListItem`, `TableRow` ve toggle gibi etkileşimli bileşenlere anlamlı ve birbiriyle çakışmayan benzersiz bir ID tanımlanması gerekir. Aksi takdirde GPUI, hangi elementin hangi durumu taşıdığını ayırt etmekte zorlanacaktır.
 
-`SharedString`, UI metinleri için tercih ettiğin string tipidir. `&'static str`, `String` veya `Arc<str>` kaynaklı metinleri, gereksiz bir kopya üretmeden elementlere taşımana yarar. Render sırasında her metnin tekrar tekrar kopyalanması yerine paylaşılan bir referans üzerinden hareket edersin.
+`SharedString`, UI metinleri için tercih edilen string tipidir. `&'static str`, `String` veya `Arc<str>` kaynaklı metinlerin, gereksiz bellek kopyalamaları (allocation) yapılmadan elementlere taşınmasını sağlar. Render sırasında her metnin tekrar kopyalanması yerine, paylaşılan bir referans üzerinden işlem gerçekleştirilir.
 
-`AnyElement`, farklı somut element tiplerini tek bir slotta tutman gerektiğinde kullanırsın. Örneğin bir list item'in başlangıç slotu bazen `Icon`, bazen özel bir `div()` olabilir. Bu çeşitliliği `AnyElement` ile aynı tipin arkasında toplarsın. Buna karşılık public builder API'si generic bir `impl IntoElement` kabul ediyorsa, çağıran tarafın özellikle `AnyElement` üretmesine gerek yoktur; dönüşüm zaten builder tarafından yaparsın.
+`AnyElement`, farklı somut element tiplerinin tek bir slotta tutulması gerektiğinde kullanılır. Örneğin bir `ListItem`'in başlangıç slotu bazen `Icon`, bazen de özel bir `div()` olabilir. Bu çeşitlilik `AnyElement` ile aynı arayüzün arkasında toplanabilir. Buna karşılık public builder API'si generic bir `impl IntoElement` kabul ediyorsa, çağıran tarafın özellikle `AnyElement` üretmesine gerek yoktur; ilgili dönüşüm builder metodu tarafından otomatik olarak gerçekleştirilir.
 
-`AnyView`, entity tabanlı ve dinamik view döndüren tooltip, popover veya önizleme gibi API'lerde sık kullanacağın bir tiptir. Bir view'in yaşam döngüsü GPUI entity sistemi tarafından yönetiliyorsa, elementten daha uygun olan yüzey `AnyView`'dir; çünkü entity yaşam döngüsü ile element yaşam döngüsü farklı çalışır.
+`AnyView`, entity tabanlı çalışan ve dinamik view döndüren tooltip, popover veya önizleme benzeri API'lerde sıklıkla tercih edilen bir tiptir. Bir view'in yaşam döngüsü GPUI entity sistemi tarafından yönetildiğinde, entity yaşam döngüsü element yaşam döngüsünden farklı çalıştığı için `AnyView` kullanımı çok daha uygundur.
 
-`Entity<ContextMenu>`, `DropdownMenu` ve menü tabanlı popup'larda sıkça görürsün. Menü içeriği odak, odak kaybı ve action dispatch davranışı taşıdığı için düz bir `AnyElement` yerine entity olarak tutulur; bu sayede menüye dair durumlar bir frame'den diğerine korunur:
+`Entity<ContextMenu>`, `DropdownMenu` ve menü tabanlı popup pencerelerinde sıklıkla karşımıza çıkar. Menü içeriği odaklanma, odak kaybı ve eylem tetikleme (action dispatch) davranışlarına sahip olduğu için düz bir `AnyElement` yerine entity olarak yönetilir. Böylece menüye ait durumlar bir kareden (frame) diğerine korunur:
 
 ```rust
 use ui::prelude::*;
@@ -117,28 +117,28 @@ fn build_sort_menu(window: &mut Window, cx: &mut App) -> Entity<ContextMenu> {
 
 ## Tasarım token'ları
 
-`Color`, tema bağımsız metin ve ikon rengi seçmek için kullandığın ana semantik token'dır. `Color::Default`, `Muted`, `Hidden`, `Disabled`, `Placeholder`, `Accent`, `Info`, `Success`, `Warning`, `Error`, `Hint`, `Created`, `Modified`, `Deleted`, `Conflict`, `Ignored`, `Debugger`, `Player(u32)`, `Selected` ve version-control renkleri etkin temadan gerçek HSLA değerine çevrilir. Kod "uyarı rengi istiyorum" der; o uyarının açık temada mı koyu temada mı nasıl görüneceğine tema karar verir.
+`Color`, temadan bağımsız şekilde metin ve ikon rengi seçmek için kullanılan temel semantik token'dır. `Color::Default`, `Muted`, `Hidden`, `Disabled`, `Placeholder`, `Accent`, `Info`, `Success`, `Warning`, `Error`, `Hint`, `Created`, `Modified`, `Deleted`, `Conflict`, `Ignored`, `Debugger`, `Player(u32)`, `Selected` ve sürüm kontrol (version control) renkleri, etkin temaya göre gerçek HSLA değerine dönüştürülür. Kod düzeyinde yalnızca "uyarı rengi" talep edilir; bu uyarının açık veya koyu temada nasıl görüneceğine ise aktif tema karar verir.
 
-Version control variant'ları açık adlarıyla `VersionControlAdded`, `VersionControlModified`, `VersionControlDeleted`, `VersionControlConflict` ve `VersionControlIgnored` olarak gelir. Diff veya file status UI'larında genel `Created`/`Modified` yerine bu açık adları tercih edersin; bu sayede diff yüzeyleri tema değişikliklerinde tutarlı kalır.
+Sürüm kontrol varyantları açık adlarıyla `VersionControlAdded`, `VersionControlModified`, `VersionControlDeleted`, `VersionControlConflict` ve `VersionControlIgnored` olarak tanımlıdır. Diff veya dosya durumu (file status) arayüzlerinde genel `Created`/`Modified` yerine bu spesifik adların tercih edilmesi, diff yüzeylerinin tema değişikliklerinde tutarlı kalmasını sağlar.
 
-Özel HSLA gerektiğinde `Color::Custom`'ı kullanabilirsin. Yine de tutarlılık için önce semantik renkleri düşünmen gerekir; özel renge geçmek istisna kabul edersin. `Color` ayrıca `Component` önizlemesi olan bir tasarım token'ıdır. Bu sayede bileşen galerisi içinde tema renklerini yan yana karşılaştırabilirsin.
+Özel bir HSLA değeri gerektiğinde `Color::Custom` kullanılabilir. Ancak görsel tutarlılığı korumak adına öncelikle semantik renk seçenekleri değerlendirilmelidir; özel renklere geçiş istisnai bir durum olarak kabul edilmelidir. `Color` aynı zamanda `Component` önizlemesine sahip bir tasarım token'ıdır. Bu sayede bileşen galerisi içinde tema renklerini yan yana karşılaştırmak mümkündür.
 
-`Severity`, mesaj ve feedback bileşenlerinde durum seviyesini ifade eder: `Info`, `Success`, `Warning`, `Error`. `Banner` ve `Callout` gibi bileşenler bu seviyeyi arka plan, ikon ve vurgu rengine otomatik olarak bağlar; aynı "warning" seviyesi her yerde aynı görsel dile çevrilir.
+`Severity`, mesaj ve geri bildirim (feedback) bileşenlerinde durum seviyesini ifade eder: `Info`, `Success`, `Warning`, `Error`. `Banner` ve `Callout` gibi bileşenler bu seviyeyi arka plan, ikon ve vurgu rengine otomatik olarak bağlayarak aynı önem derecesinin her yerde tutarlı bir görsel dille sunulmasını sağlar.
 
-`IconName`, `icons` crate'inde tanımlanan gömülü ikon adıdır ve `Icon::new(IconName::Check)` şeklinde kullanırsın. Harici bir ikon teması veya kendi SVG'i kullanman gereken durumlar için `Icon::from_path(...)` ve `Icon::from_external_svg(...)` yardımcıları mevcuttur.
+`IconName`, `icons` crate'i içinde tanımlanan gömülü ikon adıdır ve `Icon::new(IconName::Check)` şeklinde kullanılır. Harici bir ikon teması veya özel bir SVG dosyası kullanılması gereken durumlar için `Icon::from_path(...)` ve `Icon::from_external_svg(...)` yardımcı metotları sunulmuştur.
 
-Boyut token'larını bileşen ailesine göre seçersin:
+Boyut token'ları bileşen ailesine göre seçilir:
 
-- Metin için `LabelSize`, başlık için `HeadlineSize`'ı kullanırsın.
-- İkon için `IconSize` vardır.
-- Buton için `ButtonSize` ölçeği geçerlidir.
-- Progress veya özel çizim yüzeylerinde, gerektiğinde `Pixels` veya `Rems`'i doğrudan kullanabilirsin.
+- Metin için `LabelSize`, başlıklar için `HeadlineSize` kullanılır.
+- İkon boyutları için `IconSize` enum'ı mevcuttur.
+- Butonlar için `ButtonSize` ölçeği geçerlidir.
+- İlerleme (progress) veya özel çizim yüzeylerinde, gerektiğinde `Pixels` veya `Rems` doğrudan tanımlanabilir.
 
-Buton görünümü için `ButtonStyle`'ı kullanırsın. `Subtle` varsayılan seçimdir ve sade buton ihtiyaçlarının çoğunu karşılar. `Filled` daha güçlü vurgu gerektiren yerlerde, `Tinted(TintColor::...)` semantik durumlarda (örneğin uyarı veya başarı), `Outlined` ve `OutlinedGhost` ise ikincil eylemler için uygundur.
+Buton görünümleri için `ButtonStyle` kullanılır. `Subtle` varsayılan seçenektir ve sade buton ihtiyaçlarının büyük kısmını karşılar. `Filled` daha güçlü bir vurgu gerektiren yerlerde tercih edilirken, `Tinted(TintColor::...)` semantik durumlarda (örneğin uyarı veya başarı), `Outlined` ve `OutlinedGhost` ise ikincil eylemler için son derece uygundur.
 
-Toggle durumunu `ToggleState` ile ifade edersin. `bool` doğrudan `ToggleState`'e dönüşebilir; üç durumlu seçim gerektiğinde `ToggleState::Indeterminate` veya `ToggleState::from_any_and_all(any_checked, all_checked)`'ı kullanırsın. İkinci fonksiyon, "alt öğelerin bir kısmı seçili" gibi karışık durumları otomatik olarak doğru duruma çevirir.
+Toggle durumu `ToggleState` ile temsil edilir. Bir `bool` değeri doğrudan `ToggleState`'e dönüştürülebilir; üç durumlu seçim gerektiğinde ise `ToggleState::Indeterminate` veya `ToggleState::from_any_and_all(any_checked, all_checked)` kullanılır. Bu ikinci fonksiyon, "alt öğelerin bir kısmı seçili olması" gibi karmaşık senaryoları otomatik olarak doğru duruma dönüştürür.
 
-Transparent veya blurred tema kullanan pencere yüzeylerinde arka plan davranışını ayırmak için `ui::theme_is_transparent(cx)` yardımcı fonksiyonu bulunur. Etkin `WindowBackgroundAppearance` değeri `Transparent` veya `Blurred` ise `true` döner ve özel yüzeylerde opak bir yedek gerekip gerekmediğine bu değere göre karar verirsin.
+Şeffaf veya bulanıklaştırılmış (transparent/blurred) temalar kullanan pencere yüzeylerinde arka plan davranışını ayırt etmek amacıyla `ui::theme_is_transparent(cx)` yardımcı fonksiyonu sunulmuştur. Etkin `WindowBackgroundAppearance` değeri `Transparent` veya `Blurred` ise fonksiyon `true` döner ve özel yüzeylerde opak bir yedek katman gerekip gerekmediğine bu sonuca göre karar verilir.
 
 ### Ortak token yüzeyi
 
@@ -154,18 +154,18 @@ Token enum'larının çoğu tek başına uzun anlatım gerektirmez; hangi aileye
 | `HeadlineSize` | headline ailesinin başlık boyutları | `Headline` için başlık ölçeği seçer. |
 | `ScrollbarStyle` | `Regular`, `Editor` | Scrollbar'ın görsel genişlik ve stil modelini belirler. |
 | `BASE_REM_SIZE_IN_PX` | `16.0` | Rem tabanlı UI hesapları için referans piksel değeridir. |
-| `EDITOR_SCROLLBAR_WIDTH` | `ScrollbarStyle::Editor.to_pixels()` | Editor scrollbar genişliğini panel ve tablo yüzeyleriyle hizalamak için kullanırsın. |
+| `EDITOR_SCROLLBAR_WIDTH` | `ScrollbarStyle::Editor.to_pixels()` | Editor scrollbar genişliğini panel ve tablo yüzeyleriyle hizalamak amacıyla kullanılır. |
 | `TRAFFIC_LIGHT_PADDING` | macOS SDK sürümüne göre `71.0` veya `78.0` | macOS pencere kontrol butonları için ayrılacak sol titlebar boşluğudur. |
 | `theme_is_transparent` | `cx` üzerinden pencere arka plan görünümünü okur | Transparent/blurred pencere yüzeylerinde opak yedek gerekip gerekmediğini söyler. |
 
 ## Spacing token'ları (`DynamicSpacing`)
 
-Padding, margin ve gap değerleri için her yerde elle `px(...)` veya `rems(...)` yazmak yerine, `ui` crate'inde tanımlı `DynamicSpacing` ölçeğini tercih etmen daha doğru olur. Bu enum, kullanıcının UI yoğunluk ayarına (`Compact`, `Default`, `Comfortable`) göre tek noktadan ölçek değiştirir. Uygulama yoğunluğu değiştiğinde aralık değerleri de aynı kurala bağlı olarak uyum sağlar.
+Padding, margin ve gap değerleri için her yerde elle `px(...)` veya `rems(...)` tanımlamak yerine, `ui` crate'i içinde yer alan `DynamicSpacing` ölçeğinin tercih edilmesi daha doğru bir yaklaşımdır. Bu enum, kullanıcının arayüz yoğunluk ayarına (`Compact`, `Default`, `Comfortable`) göre tek bir noktadan ölçeklendirmeyi değiştirir. Uygulama yoğunluğu güncellendiğinde, aralık değerleri de bu kurala bağlı olarak otomatik uyum sağlar.
 
-- Adlandırma: `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`, `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`, `Base48`. `BaseXX` içindeki `XX`, varsayılan yoğunluktaki yaklaşık pixel değeridir (`Base04 ≈ 4px`, `Base16 ≈ 16px`).
-- Kullanım: `.gap(DynamicSpacing::Base02.px(cx))` veya `.p(DynamicSpacing::Base06.rems(cx))` şeklindedir.
-- Üç değer manuel verdiğinde (örneğin `(1, 1, 2)`) yoğunluğa göre değişir; tek değer verdiğinde ise `(n-4, n, n+4)` formülü otomatik uygularsın.
-- Mevcut UI yoğunluğunu `ui::ui_density(cx)` ile sorgulayabilirsin. Bu dönen değeri yalnızca görsel kararlar için kullanırsın; doğrudan aralık hesabı yapmak için değil, çünkü asıl ölçek `DynamicSpacing` üzerinden zaten yönetirsin.
+- Adlandırma: `Base00`, `Base01`, `Base02`, `Base03`, `Base04`, `Base06`, `Base08`, `Base12`, `Base16`, `Base20`, `Base24`, `Base32`, `Base40`, `Base48` şeklinde tanımlıdır. `BaseXX` içindeki `XX` ifadesi, varsayılan yoğunluktaki yaklaşık piksel değerini belirtir (`Base04 ≈ 4px`, `Base16 ≈ 16px`).
+- Kullanım: `.gap(DynamicSpacing::Base02.px(cx))` veya `.p(DynamicSpacing::Base06.rems(cx))` biçimindedir.
+- Manuel olarak üç değer tanımlandığında aralıklar yoğunluğa göre uyarlanır; tek bir değer girildiğinde ise `(n-4, n, n+4)` formülü otomatik olarak uygulanır.
+- Mevcut arayüz yoğunluğu `ui::ui_density(cx)` ile sorgulanabilir. Dönen bu değer, doğrudan aralık hesaplamaları yapmak yerine yalnızca özel görsel kararlar almak amacıyla kullanılmalıdır; çünkü asıl aralık ölçeği `DynamicSpacing` üzerinden otomatik olarak yönetilmektedir.
 
 Spacing macro yüzeyi:
 
@@ -173,11 +173,11 @@ Spacing macro yüzeyi:
 | :-- | :-- |
 | `derive_dynamic_spacing` | Spacing enum'larının yoğunluk varyantlarına göre `px(cx)` ve `rems(cx)` gibi yardımcılarını üretir; normal bileşen kodunda doğrudan çağırmazsın. |
 
-Sabit ve değişmeyen bir aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `gap_2` gibi GPUI yardımcıları yeterlidir. Bu sabitler aynı zamanda `h_group*` ve `v_group*` yardımcılarının arkasında da kullanırsın.
+Sabit ve değişmeyen bir aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `gap_2` gibi GPUI yardımcıları yeterli olur. Bu sabitler aynı zamanda `h_group*` ve `v_group*` yardımcılarının arka planında da işlev görür.
 
 ## Yükseklik / elevation token'ları (`ElevationIndex`)
 
-`ui` crate'indeki `ElevationIndex`, bir yüzeyin görsel "z-axis" konumunu anlatır. Doğru elevation seçtiğinde shadow, background ve border kombinasyonu birlikte gelir. Böylece her popover, modal veya panel için aynı görsel ayrıntıları elden ayarlaman gerekmez.
+`ui` crate'i içindeki `ElevationIndex`, bir yüzeyin görsel dikey eksendeki ("z-axis") konumunu ifade eder. Doğru elevation seviyesi seçildiğinde gölge (shadow), arka plan (background) ve kenarlık (border) kombinasyonu birlikte uygulanır. Böylece her popover, modal veya panel için aynı görsel ayrıntıların manuel olarak ayarlanmasına gerek kalmaz.
 
 - `Background`: uygulamanın en alt zemini.
 - `Surface`: paneller, pane'ler ve ana yüzey kapsayıcıları.
@@ -188,27 +188,27 @@ Sabit ve değişmeyen bir aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `
 Pratik builder'lar `StyledExt` üzerinden gelir:
 
 - `.h_flex()` ve `.v_flex()`: herhangi bir `Styled` elementi yatay/dikey flex kapsayıcıya çevirir. `h_flex` ek olarak `items_center()` da uygular, böylece satır içi içerikler dikeyde otomatik ortalanır.
-- `.elevation_1(cx)` ve `.elevation_1_borderless(cx)`: hafif yükseltilmiş bir yüzey için kullanırsın.
+- `.elevation_1(cx)` ve `.elevation_1_borderless(cx)`: hafif yükseltilmiş yüzeyler için tercih edilir.
 - `.elevation_2(cx)` ve `.elevation_2_borderless(cx)`: popover, popovermenu ve tooltip yüzeylerinde geçerlidir.
 - `.elevation_3(cx)` ve `.elevation_3_borderless(cx)`: modal ve announcement yüzeyleri için yüksek elevation sağlar.
 - `.border_primary(cx)` ve `.border_muted(cx)`: tema `border` ve `border_variant` renklerini doğrudan `border_color(...)` olarak uygular.
-- `.debug_bg_red()`, `.debug_bg_green()`, `.debug_bg_blue()`, `.debug_bg_yellow()`, `.debug_bg_cyan()`, `.debug_bg_magenta()`: layout geliştirme sırasında geçici arka plan rengi verir. Bu yardımcıları üretim UI'da bırakmaman gerekir; yalnızca yapı şekillenirken yardımcı olur.
+- `.debug_bg_red()`, `.debug_bg_green()`, `.debug_bg_blue()`, `.debug_bg_yellow()`, `.debug_bg_cyan()`, `.debug_bg_magenta()`: düzen geliştirme sırasında geçici arka plan renkleri tanımlar. Bu yardımcı metotların üretim kodunda (production UI) bırakılmaması gerekir; yalnızca yapının şekillendirilmesi aşamasında kolaylık sağlarlar.
 
-`Popover`, `.elevation_2(cx)` kullanır; `AnnouncementToast` ise `.elevation_3(cx)` ile çalışır. Kendi modal veya dialog yüzeyini elden kurarken aynı yardımcıları çağırman gerekir; aksi halde shadow ve background görsel tutarlılığı kaybeder; aynı dilin parçası gibi de durmaz.
+`Popover` bileşeni `.elevation_2(cx)` kullanırken, `AnnouncementToast` `.elevation_3(cx)` ile çalışır. Özel modal veya diyalog yüzeyleri tasarlanırken aynı yardımcıların çağrılması son derece önemlidir; aksi takdirde gölge ve arka plan görsel tutarlılığını kaybederek ortak tasarım dilinin dışına çıkacaktır.
 
-`ElevationIndex` doğrudan renk de döndürebilir. `ElevationIndex::on_elevation_bg(cx)`, o elevation üstünde dolu bir öğenin kullanacağı karşı yüzey rengini verir; `ElevationIndex::darker_bg(cx)` ise mevcut yüzeye göre daha koyu bir arka plan arar, zemin zaten koyuysa daha açık yedeğe döner. Bu iki metodu ancak özel bir bileşen kendi yüzeyini ve içindeki dolu öğeyi elle çiziyorsa kullanırsın; sıradan panel, popover ve modal için `.elevation_*` yardımcıları daha tutarlı sonuç verir.
+`ElevationIndex` doğrudan renk değerleri de döndürebilir. `ElevationIndex::on_elevation_bg(cx)` ilgili elevation üstünde yer alan dolu bir öğenin kullanacağı karşı yüzey rengini sunar; `ElevationIndex::darker_bg(cx)` ise mevcut yüzeye kıyasla daha koyu bir arka plan rengi belirler (zemin zaten koyuysa daha açık bir renge dönüş yapar). Bu iki metot, yalnızca özel bir bileşenin kendi yüzeyini ve içindeki öğeyi manuel olarak çizdiği durumlarda kullanılmalıdır; sıradan panel, popover ve modal pencereler için `.elevation_*` yardımcıları çok daha tutarlı sonuçlar verir.
 
 ## Ortak Bileşen Trait'leri
 
-`ui` crate'i altında görülen `clickable`, `disableable`, `fixed`, `styled_ext`, `toggleable`, `transformable`, `visible_on_hover` ve `animation_ext` modülleri, bileşenlerin ortak builder dilini kurar. Çoğu tüketici bu modülleri tek tek import etmez; ilgili trait, kullandığın bileşen veya prelude üzerinden zaten görünür olur. Yine de trait adını bilmek önemlidir, çünkü aynı builder farklı bileşenlerde aynı davranışı temsil eder.
+`ui` crate'i altında yer alan `clickable`, `disableable`, `fixed`, `styled_ext`, `toggleable`, `transformable`, `visible_on_hover` ve `animation_ext` modülleri, bileşenlerin ortak builder arayüzünü tanımlar. Geliştiriciler bu modülleri genellikle tek tek import etmez; ilgili trait, kullanılan bileşen veya prelude üzerinden doğrudan erişilebilir hale gelir. Yine de trait isimlerini bilmek yararlıdır, çünkü aynı builder metodu farklı bileşenlerde aynı davranışı temsil eder.
 
 - `Clickable`: `.on_click(...)` ve `.cursor_style(...)` davranışının ortak sözleşmesidir. Buton, disclosure, popover trigger veya özel etkileşimli element aynı tıklama modeline bağlanır.
 - `Disableable`: `.disabled(bool)` çağrısının ortak anlamını verir. Devre dışı durum yalnız renk değil, çoğu bileşende işleyici bağlanmaması veya etkileşimin kaldırılması demektir.
 - `FixedWidth`: `.width(...)` ve `.full_width()` gibi genişlik kararlarının ortak yüzeyidir. Özellikle `Button`, `ButtonLike`, `IconButton` ve benzeri kontrollere aynı hizalama davranışını uygular.
-- `Toggleable`: `.toggle_state(...)` ile seçili veya açık görünümü verir. Bu trait uygulama durumunu değiştirmez; view durumu yine işleyici içinde güncellersin.
-- `VisibleOnHover`: parent `.group(name)` ile child `.visible_on_hover(name)` eşleşmesini kurar. Hover action butonlarında doğru group adı verilmezse element beklenen anda görünmez.
-- `StyledExt`: `.h_flex()`, `.v_flex()`, `.elevation_*`, `.border_primary(cx)` ve debug background yardımcılarını sağlar. Ham `div()` kodu yerine bu yardımcılar tutarlı aralık ve elevation dilini korur.
-- `Transformable`: doğrudan tüketici import'u olarak ele alınmaz; mevcut public kullanım yolu `CommonAnimationExt` üzerinden dönen rotate animation yardımcılarıdır.
+- `Toggleable`: `.toggle_state(...)` ile seçili veya açık görünümü verir. Bu trait uygulama durumunu değiştirmez; view durumu yine işleyici içinde güncellenir.
+- `VisibleOnHover`: parent `.group(name)` ile child `.visible_on_hover(name)` eşleşmesini kurar. Hover eylem butonlarında doğru grup adı tanımlanmazsa element beklenen anda görünmez.
+- `StyledExt`: `.h_flex()`, `.v_flex()`, `.elevation_*`, `.border_primary(cx)` ve debug background yardımcılarını sağlar. Ham `div()` kodu yerine bu yardımcılar tutarlı aralık ve elevation yapısını korur.
+- `Transformable`: doğrudan geliştirici tarafından import edilmez; mevcut public kullanım şekli `CommonAnimationExt` üzerinden dönen döndürme (rotate) animasyon yardımcılarıdır.
 
 | Trait veya modül | Builder/metot yüzeyi | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -218,7 +218,7 @@ Pratik builder'lar `StyledExt` üzerinden gelir:
 | `Toggleable` | `toggle_state` | Seçili/açık görünümünü view durumundan alır. |
 | `VisibleOnHover` | `visible_on_hover` | Parent group hover durumuna göre child görünürlüğünü değiştirir. |
 | `StyledExt` | `h_flex`, `v_flex`, `elevation_*`, `border_primary`, `border_muted`, `debug_bg_*` | Styled elementlere Zed UI'ya özgü layout/elevation yardımcıları ekler. |
-| `Transformable` | `transform` | Public kullanımda doğrudan değil, `CommonAnimationExt` bound'u üzerinden kullanırsın. |
+| `Transformable` | `transform` | Public kullanımda doğrudan değil, `CommonAnimationExt` bound'u üzerinden kullanılır. |
 | `clickable` | modül export'u | `Clickable` trait'inin kaynak modülüdür. |
 | `disableable` | modül export'u | `Disableable` trait'inin kaynak modülüdür. |
 | `fixed` | modül export'u | `FixedWidth` trait'inin kaynak modülüdür. |
@@ -228,28 +228,28 @@ Pratik builder'lar `StyledExt` üzerinden gelir:
 | `visible_on_hover` | modül export'u | `VisibleOnHover` trait'inin kaynak modülüdür. |
 | `animation_ext` | modül export'u | `CommonAnimationExt` ve animasyon yardımcı extension yüzeyinin kaynak modülüdür. |
 
-Bu trait'leri ne zaman doğrudan düşünmezsin? Sadece hazır bir `Button`, `ListItem` veya `DropdownMenu` kuruyorsan bileşenin kendi bölümündeki builder listesi yeterlidir. Ortak trait ayrımına ancak aynı davranışı birden fazla bileşen ailesinde tutarlı uygularken veya özel bileşen yazarken ihtiyaç duyarsın.
+Bu trait'ler normal şartlarda doğrudan düşünülmek zorunda değildir. Sadece hazır bir `Button`, `ListItem` veya `DropdownMenu` kuruluyorsa, bileşenin kendi içindeki builder listesi yeterli olur. Ortak trait ayrımına ancak aynı davranışı birden fazla bileşen ailesinde tutarlı bir biçimde uygularken veya özel bir bileşen geliştirirken ihtiyaç duyulur.
 
 ## Platform stili (`PlatformStyle`)
 
-`ui` crate'indeki `PlatformStyle`, işletim sistemine bağlı render kararlarını tek bir yerde toplamak için kullanırsın. `cfg!` makrolarını veya platform tespitini her bileşene dağıtmak yerine, platforma göre değişen davranışları bu enum üzerinden ifade edersin.
+`ui` crate'i içindeki `PlatformStyle`, işletim sistemine bağlı render kararlarını tek bir noktada toplamak için kullanılır. `cfg!` makrolarını veya platform tespit mantığını her bileşene ayrı ayrı dağıtmak yerine, platforma göre değişen davranışlar bu enum üzerinden tanımlanır.
 
 - Değerler: `Mac`, `Linux`, `Windows`.
-- Mevcut platform için `PlatformStyle::platform()` (const fn) çağırırsın.
+- Mevcut platform bilgisi için `PlatformStyle::platform()` (const fn) çağrısı yapılır.
 - `KeyBinding::platform_style(...)`, modifier tuşunu ikon olarak mı yoksa metin olarak mı göstereceğini bu enum'a bakarak seçer.
 
 Platforma özel bir davranış kurarken `cfg!` makrolarını her yerde tekrar etmek yerine, `PlatformStyle::platform()` dönüş değerini tek bir noktada saklaman önerilir. Bu yaklaşım testlerde bu değeri override etmeyi de kolaylaştırır.
 
 ## Tipografi yardımcıları (`StyledTypography`, `TextSize`)
 
-`ui` crate'i, `Headline` ve `Label` dışında düz `div()` üzerine de tema tutarlı tipografi uygulamak için `StyledTypography` trait'ini sağlar. `Styled` implement eden her tip otomatik olarak bu trait'i de devralır; ayrıca derive veya impl yazman gerekmez.
+`ui` crate'i, `Headline` ve `Label` dışında düz `div()` öğeleri üzerine de temayla uyumlu tipografi uygulamak için `StyledTypography` trait'ini sunar. `Styled` implement eden her tip otomatik olarak bu trait'i de devralır; ayrıca bir derive veya impl yazılması gerekmez.
 
 Sık kullandığın yöntemler şu şekildedir:
 
 - `.font_ui(cx)` ve `.font_buffer(cx)`: tema UI fontunu veya buffer (editor) fontunu uygular.
 - `.text_ui_lg(cx)`, `.text_ui(cx)`, `.text_ui_sm(cx)`, `.text_ui_xs(cx)`: sırasıyla `Large`, `Default`, `Small`, `XSmall` boyutlarını seçer.
-- `.text_buffer(cx)`: kullanıcının buffer font size'ını uygular; yani editor yazısı ne büyüklükte ise metin de o büyüklükte basılır.
-- `.text_ui_size(TextSize::Editor, cx)` ile serbest seçim de yapabilirsin.
+- `.text_buffer(cx)`: kullanıcının buffer font size'ını uygular; yani editor yazısı ne büyüklükte ise metin juga o büyüklükte basılır.
+- `.text_ui_size(TextSize::Editor, cx)` ile serbest seçim de yapılabilir.
 
 `TextSize` değerleri ve karşılık geldikleri rem değerleri aşağıdaki gibidir (16px = 1rem kabulü altında):
 
@@ -262,9 +262,9 @@ Sık kullandığın yöntemler şu şekildedir:
 | `Ui` | settings'teki ui_font_size | dinamik |
 | `Editor` | settings'teki buffer_font_size | dinamik |
 
-`Label` ve `Headline` zaten doğru tipografiyi uygular; ek bir çağrıya gerek yoktur. Ancak `div()` veya `h_flex()` gibi yapı taşlarına doğrudan metin yazdığında `font_ui` ve `text_ui_*` çağrılarını atlamaman gerekir. Atlarsan font ailesi sistemden devralınır, tema değişiklikleri yansımaz ve metin temanın geri kalanından kopuk görünmeye başlar.
+`Label` ve `Headline` zaten doğru tipografiyi uygular; dolayısıyla ek bir çağrıya gerek yoktur. Ancak `div()` veya `h_flex()` gibi temel yapı taşlarına doğrudan metin yazıldığında `font_ui` and `text_ui_*` çağrılarının atlanmaması gerekir. Aksi halde font ailesi sistem varsayılanlarından devralınır, tema değişiklikleri arayüze yansımaz ve metin temanın geri kalanından kopuk görünmeye başlar.
 
-Viewport birimleri için `vw(percent)` ve `vh(percent)` yardımcıları vardır. Bunlar GPUI length değerini viewport genişliği veya yüksekliği üzerinden üretir. Tam ekran overlay, önizleme canvas'ı veya modal host gibi ekran oranına bağlı yüzeylerde kullanırsın. Normal satır, button, label veya panel aralığı için `vw`/`vh` tercih edilmez; bu alanlarda `DynamicSpacing`, `rems_from_px(...)`, `px(...)` veya bileşen boyut token'ları daha öngörülebilirdir.
+Viewport birimleri için `vw(percent)` ve `vh(percent)` yardımcıları tanımlıdır. Bunlar GPUI uzunluk (length) değerini viewport genişliği veya yüksekliği üzerinden dinamik olarak üretir. Genellikle tam ekran kaplamalar (overlay), önizleme alanları (canvas) veya modal sunucuları (host) gibi ekran oranına bağlı yüzeylerde tercih edilir. Sıradan satır, buton, etiket veya panel aralıkları için `vw`/`vh` kullanımı tercih edilmez; bu alanlarda `DynamicSpacing`, `rems_from_px(...)`, `px(...)` veya bileşene özgü boyut token'ları çok daha öngörülebilir sonuçlar sunar.
 
 ## Animasyon yardımcıları
 
@@ -272,11 +272,11 @@ Viewport birimleri için `vw(percent)` ve `vh(percent)` yardımcıları vardır.
 
 - `AnimationDuration`: `Instant` (50ms), `Fast` (150ms), `Slow` (300ms).
 - `AnimationDirection`: `FromBottom`, `FromLeft`, `FromRight`, `FromTop`.
-- `DefaultAnimations` trait yöntemleri: `.animate_in(direction, fade_in)`, `.animate_in_from_bottom(fade)`, `.animate_in_from_top(fade)`, `.animate_in_from_left(fade)`, `.animate_in_from_right(fade)`.
+- `DefaultAnimations` trait yöntemleri: `.animate_in(direction, fade_in)`, `.animate_in_from_bottom(fade)`, `.animate_in_from_top(fade)`, `.animate_in_from_left(fade)`, `.animate_in_from_right(fade)` şeklindedir.
 
-`DefaultAnimations`, `Styled + Element` implement eden her tipe otomatik olarak bağlanır; ekstra import gerekmez. Daha karmaşık animasyonlar gerektiğinde GPUI'nin `Animation`, `AnimationExt`, `with_animation(...)` ve `with_animations(...)` yapılarını doğrudan kullanabilirsin. `LoadingLabel`, `SpinnerLabel`, `AiSettingItem` ve `ThreadItem::Running` durumu bu daha düşük seviyeli yoldan animasyon uygulayan örneklerdir.
+`DefaultAnimations`, `Styled + Element` implement eden her tipe otomatik olarak bağlanır; bu nedenle ek bir import yapılması gerekmez. Daha karmaşık animasyon senaryolarında ise GPUI'nin `Animation`, `AnimationExt`, `with_animation(...)` and `with_animations(...)` yapıları doğrudan kullanılabilir. `LoadingLabel`, `SpinnerLabel`, `AiSettingItem` ve `ThreadItem::Running` durumu, bu daha düşük seviyeli yöntemlerle animasyon uygulayan örneklere örnek gösterilebilir.
 
-`ui::CommonAnimationExt` prelude'a dahil değildir, ancak crate kökünden export edersin. `use ui::CommonAnimationExt as _;` ile import ettiğinde, `Transformable` implement eden bileşenlere `.with_rotate_animation(duration)` ve `.with_keyed_rotate_animation(id, duration)` yardımcıları eklersin. Bir liste içinde ya da tekrarlı bir item içinde aynı animasyon birden fazla kez render edilecekse keyed varyantı seçmen önerilir. Varsayılan varyant call site konumunu element id olarak aldığı için aynı sahnede tekrar edildiğinde çakışma yaşanabilir.
+`ui::CommonAnimationExt` prelude kapsamına dahil değildir, ancak crate kökünden export edilir. `use ui::CommonAnimationExt as _;` şeklinde import edildiğinde, `Transformable` implement eden bileşenlere `.with_rotate_animation(duration)` ve `.with_keyed_rotate_animation(id, duration)` yardımcı metotları eklenir. Bir liste içinde ya da tekrarlı bir öğe (item) içinde aynı animasyon birden fazla kez render edilecekse, anahtarlı (keyed) varyantın seçilmesi önerilir. Varsayılan varyant, çağrı yerini (call site) element ID olarak aldığı için aynı sahnede tekrarlandığında çakışma yaşanabilir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -286,9 +286,9 @@ Viewport birimleri için `vw(percent)` ve `vh(percent)` yardımcıları vardır.
 
 ## `CommonAnimationExt` ve transform kısıtı
 
-`ui` crate'indeki `Transformable`, kaynakta `pub trait` olarak görünür; ancak `ui` tarafından crate köküne re-export edilmez ve `ui::prelude::*` içinde de bulunmaz. Bu yüzden tüketici kodu için sabit çağrı yüzeyi `.transform(...)` değildir; doğrudan bu metodu çağırmaya çalışmak crate sınırında trait'i import edememekle sonuçlanır.
+`ui` crate'i içindeki `Transformable`, kaynak kodda `pub trait` olarak yer alır; fakat `ui` tarafından crate köküne re-export edilmez ve `ui::prelude::*` içinde bulunmaz. Bu nedenle geliştirici kodu için doğrudan çağrılacak metot `.transform(...)` değildir; bu metodu doğrudan çağırmaya çalışmak, derleme aşamasında trait'in import edilememesi hatasıyla sonuçlanır.
 
-Pratikte kullanabildiğin public yüzey `ui::CommonAnimationExt`'tir:
+Pratik kullanımda geliştirici tarafına açılan arayüz `ui::CommonAnimationExt` üzerinden sağlanır:
 
 ```rust
 use ui::{CommonAnimationExt as _, prelude::*};
@@ -300,21 +300,21 @@ fn render_loading_icon() -> impl IntoElement {
 }
 ```
 
-`Icon` ve `Vector` içeride `Transformable` implement eder; bu bound sayesinde `.with_rotate_animation(duration)` ve `.with_keyed_rotate_animation(id, duration)` çağrıları çalışır. Mevcut Zed API yüzeyinde doğrudan tüketici tarafına açılan çağrı `ui::CommonAnimationExt` üzerinden gelir; `.transform(...)`'ı ise public kullanım yolu olarak ele alman gerekmez.
+`Icon` ve `Vector` yapıları arka planda `Transformable` implement eder; bu kısıt (bound) sayesinde `.with_rotate_animation(duration)` ve `.with_keyed_rotate_animation(id, duration)` çağrıları çalışır. Mevcut Zed API yüzeyinde geliştiriciye sunulan arayüz `ui::CommonAnimationExt` üzerinden sağlanır; `.transform(...)` metodunu ise doğrudan genel bir kullanım yöntemi olarak ele almamak gerekir.
 
 ## `ui::utils` modülü
 
-`ui` crate'i public bir alt modüldür; `is_light`, `reveal_in_file_manager_label` ve `capitalize` doğrudan burada yaşar, geri kalan yardımcılar ise alt modüllerden `ui::utils::*` altında re-export edersin. Bu yardımcılar `ui` crate kökünden ayrıca re-export edilmez; doğru çağrı yolu `ui::utils::is_light`, `ui::utils::WithRemSize`, `ui::utils::FormatDistance` gibi alt modül yoludur. Buna karşılık `BASE_REM_SIZE_IN_PX`, `EDITOR_SCROLLBAR_WIDTH`, `theme_is_transparent` ve `ui_density` ise styles/components re-export zinciri üzerinden doğrudan `ui::...` kökünden erişilebilir; bu fark, sembolün hangi modülde tanımlandığına göre değişir.
+`ui` crate'i genel kullanıma açık bir alt modüldür; `is_light`, `reveal_in_file_manager_label` ve `capitalize` doğrudan bu düzeyde yer alır, diğer yardımcı araçlar ise `ui::utils::*` alt modülü altından re-export edilir. Bu yardımcılar `ui` crate kökünden ayrıca dışa aktarılmaz; doğru erişim yolları `ui::utils::is_light`, `ui::utils::WithRemSize`, `ui::utils::FormatDistance` gibi alt modül yollarıdır. Buna karşın `BASE_REM_SIZE_IN_PX`, `EDITOR_SCROLLBAR_WIDTH`, `theme_is_transparent` ve `ui_density` ise styles/components dışa aktarım zinciri üzerinden doğrudan `ui::...` kökünden erişilebilir durumdadır; bu fark, sembolün hangi modülde tanımlandığına göre şekillenir.
 
 Temalama ve görsel:
 
-- `is_light(cx: &mut App) -> bool`: etkin temanın açık mı koyu mu olduğunu söyler. Custom canvas çizimlerinde uygun bir overlay rengi seçmek için kullanışlıdır.
+- `is_light(cx: &mut App) -> bool`: etkin temanın açık mı koyu mu olduğunu belirtir. Özel tuval (canvas) çizimlerinde uygun bir kaplama (overlay) rengi seçmek için oldukça kullanışlıdır.
 - `theme_is_transparent(cx)` (styles modülünde): transparent veya blurred pencere arka planı için aynı işi yapar; arka plan davranışına bakar.
 
 İçerik ve etiket yardımcıları:
 
 - `capitalize(str: &str) -> String`: ilk karakteri büyük harfe çevirip yeni bir `String` döndürür. Yerel ayar duyarlı değildir; hızlıca bir UI etiketini normalize etmek için tasarlanmıştır.
-- `reveal_in_file_manager_label(is_remote: bool) -> &'static str`: macOS'ta `"Reveal in Finder"`, Windows'ta `"Reveal in File Explorer"`, diğer platformlarda `"Reveal in File Manager"` döndürür. `is_remote` true ise her durumda genel etiket döner; çünkü uzak dosyada platform dosya yöneticisi anlamlı değildir.
+- `reveal_in_file_manager_label(is_remote: bool) -> &'static str`: macOS işletim sisteminde `"Reveal in Finder"`, Windows'ta `"Reveal in File Explorer"`, diğer platformlarda ise `"Reveal in File Manager"` etiketini döndürür. `is_remote` değeri true ise uzak dosyalarda yerel platform dosya yöneticisi anlamlı olamayacağı için her durumda genel etiket döndürülür.
 
 | Helper | Tür | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -331,16 +331,16 @@ Temalama ve görsel:
 
 Layout ve ölçü yardımcıları:
 
-- `BASE_REM_SIZE_IN_PX: f32 = 16.0` (`styles/units`): rem tabanlı hesaplamalarda referans değer olarak kullanırsın.
-- `EDITOR_SCROLLBAR_WIDTH: Pixels` (`components/scrollbar`): `ScrollbarStyle::Editor.to_pixels()` sabitidir. Editor görseliyle gelen scrollbar genişliğini diğer panelle hizalaman gerektiğinde başvurduğun değerdir.
-- `TRAFFIC_LIGHT_PADDING: f32`: macOS pencere kontrolleri (kapat, küçült, büyüt) için title bar'da ayırman gereken sol padding'i ifade eder. SDK 26 öncesi 71px, sonrası 78px sabit değer alır.
+- `BASE_REM_SIZE_IN_PX: f32 = 16.0` (`styles/units`): rem tabanlı hesaplamalarda referans değer olarak kullanılır.
+- `EDITOR_SCROLLBAR_WIDTH: Pixels` (`components/scrollbar`): `ScrollbarStyle::Editor.to_pixels()` sabitidir. Editor görseliyle gelen scrollbar genişliğini diğer panellerle hizalamak gerektiğinde başvurulan değerdir.
+- `TRAFFIC_LIGHT_PADDING: f32`: macOS pencere kontrolleri (kapat, küçült, büyüt) için title bar'da ayrılması gereken sol padding boşluğunu ifade eder. SDK 26 öncesi 71px, sonrası 78px sabit değer alır.
 - `platform_title_bar_height(window: &Window) -> Pixels`: Windows'ta sabit 32px, diğer platformlarda `1.75 * window.rem_size()` (minimum 34px) döndürür.
-- `inner_corner_radius(parent_radius, parent_border, parent_padding, self_border) -> Pixels`: iç içe geçmiş yuvarlatılmış köşelerde child elemanın radius'unu hesaplar; dış elemanın radius'una göre iç köşenin doğru gözükmesini sağlar.
-- `CornerSolver::new(root_radius, root_border, root_padding)` ve `.add_child(border, padding).corner_radius(level)`: birden fazla seviyeli nesting için aynı problemin toplu çözümünü verir. Tek elemanın değil, tüm zincirin bir kerede çözülmesi gerektiğinde tercih edersin.
+- `inner_corner_radius(parent_radius, parent_border, parent_padding, self_border) -> Pixels`: iç içe geçmiş yuvarlatılmış köşelerde alt (child) elemanın köşe yarıçapını (radius) hesaplar; dış elemanın yarıçapına göre iç köşenin görsel olarak doğru konumlanmasını sağlar.
+- `CornerSolver::new(root_radius, root_border, root_padding)` ve `.add_child(border, padding).corner_radius(level)`: çok seviyeli iç içe yerleşimlerde (nesting) aynı geometrik problemin toplu çözümünü sunar. Tek bir elemanın değil, tüm hiyerarşik zincirin tek seferde hesaplanması gerektiğinde tercih edilir.
 - `SearchInputWidth::THRESHOLD_WIDTH` / `MAX_WIDTH` (her ikisi de 1200px) ve `SearchInputWidth::calc_width(container_width)`: arama input'unun kapsayıcı genişliğine göre nasıl yayılacağı veya nerede sınırlanacağıyla ilgilenir.
-- `WithRemSize::new(rem_size)`: alt ağaca farklı bir rem boyutunu zorla uygulayan bir elementtir. Kendi ölçeklemesini yöneten settings preview gibi alanlarda kullanırsın. `.occlude()` ile pointer event'lerinin elemana ulaşmasını da engelleyebilirsin.
+- `WithRemSize::new(rem_size)`: alt ağaca farklı bir rem boyutunu zorla uygulayan bir elementtir. Kendi ölçeklemesini yöneten ayarlar önizlemesi (settings preview) benzeri alanlarda tercih edilir. `.occlude()` ile işaretçi olaylarının (pointer events) elemana ulaşması da engellenebilir.
 
-Erişilebilirlik ve renk kontrastı:
+Tasarım ve renk kontrastı:
 
 - `calculate_contrast_ratio(fg: Hsla, bg: Hsla) -> f32`: WCAG 2 standardına göre kontrast oranını hesaplar.
 - `apca_contrast(text_color: Hsla, background_color: Hsla) -> f32`: APCA Lc (lightness contrast) ölçeğini döndürür. Pozitif değer normal polarity (koyu metin, açık arka plan), negatif değer ters polarity anlamına gelir. Tipik eşikler: `Lc 45` büyük ve akıcı metin (36px ve üstü) için minimum, `Lc 60` diğer içerik metni için minimum, `Lc 75` gövde metni için minimum, `Lc 90` ise gövde metni için tercih edilen değerdir.
@@ -350,12 +350,12 @@ Tarih farkı yardımcıları (`format_distance` modülü):
 
 - `DateTimeType::Naive(NaiveDateTime)` veya `DateTimeType::Local(DateTime<Local>)` iki olası kaynağı temsil eder. `.to_naive()` her ikisini de `NaiveDateTime`'a çevirir.
 - `format_distance(date, base_date, include_seconds, add_suffix, hide_prefix) -> String`: iki tarih arasındaki mesafeyi "less than a minute ago", "about 2 hours ago", "3 months from now" gibi insan okuyabilir bir metne çevirir.
-- `format_distance_from_now(datetime, include_seconds, add_suffix, hide_prefix) -> String`: aynı işi yapar, ancak `base_date` olarak otomatik `Local::now()` kullanırsın.
-- `FormatDistance::new(date, base_date).include_seconds(...).add_suffix(...) .hide_prefix(...)`: builder yüzeyidir; thread item, git commit ve activity feed gibi yerlerde tercih edersin. Yeni kod yazarken Zed çalışma ağacını referans alıp aynı tarih formatlama yardımcılarını tutarlı biçimde kullanırsın.
+- `format_distance_from_now(datetime, include_seconds, add_suffix, hide_prefix) -> String`: benzer işlemi gerçekleştirir, fakat `base_date` parametresi olarak otomatik olarak `Local::now()` değerini temel alır.
+- `FormatDistance::new(date, base_date).include_seconds(...).add_suffix(...).hide_prefix(...)`: builder arayüzüdür; genellikle iş parçacığı öğeleri (thread items), git commit kayıtları ve aktivite akışları (activity feed) gibi yerlerde tercih edilir. Yeni kod yazılırken Zed çalışma ağacı referans alınarak aynı tarih formatlama yardımcılarının tutarlı bir biçimde kullanılması önerilir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
-| `CornerSolver` | `new`, `add_child`, `corner_radius` | İç içe geçmiş border/padding zincirlerinde doğru child corner radius değerini hesaplar. |
+| `CornerSolver` | `new`, `add_child`, `corner_radius` | İç içe geçmiş border/padding zincirlerde doğru child corner radius değerini hesaplar. |
 | `SearchInputWidth` | `THRESHOLD_WIDTH`, `MAX_WIDTH`, `calc_width` | Arama input genişliğini kapsayıcı genişliğine göre sınırlar. |
 | `WithRemSize` | `new`, `occlude` | Alt ağaç için özel rem boyutu ve pointer occlusion davranışı uygular. |
 | `DateTimeType` | `Naive`, `Local`, `to_naive` | Tarih kaynağını local veya naive biçimde normalize eder. |
@@ -379,12 +379,12 @@ Bu tablo, `ui` ve `ui_input` crate'lerinde başka konu dosyalarında kullanılan
 
 ## Hata yönetimi
 
-UI olay işleyicilerinden veya async task'lardan dönen `Result` değerlerini sessizce yok saymaman gerekir. Bir hata oluştuğunda kullanıcının gerekirse bunu görmesi, geliştiricinin loglarda iz sürebilmesi ve view durumunun tutarlı kalması gerekir. Bu yüzden aynı kuralı her yerde izlemen önemlidir:
+UI olay işleyicilerinden veya asenkron görevlerden (async tasks) dönen `Result` değerlerinin sessizce yok sayılmaması gerekir. Bir hata oluştuğunda kullanıcının gerektiğinde bunu görebilmesi, geliştiricinin loglarda iz sürebilmesi ve view durumunun tutarlı kalması büyük önem taşır. Bu nedenle, aynı prensibin tüm kod tabanında uygulanması gerekir:
 
-- Çağıran fonksiyon `Result` taşıyabiliyorsa hatayı `?` ile yayman en doğal yoldur.
-- View içinde fire-and-forget bir task çalıştırdığında, hatanın log'a düşürülmesi için `task.detach_and_log_err(cx)`'i tercih edersin. Buna karşılık düz `task.detach()` hatayı sessizce yok eder ve sebebi sonradan tespit etmek mümkün olmaz.
-- Async iş bitiminde view durumunun güncellenmesi gerekiyorsa, task'ı view struct'ı içinde `Task<anyhow::Result<()>>` alanı olarak saklaman ve task içinde `this.update(cx, ...)?` çağrısı ile entity'ye geri dönmen uygun bir desendir. Bu yaklaşım [Entegre Örnek Sayfaları](16-entegre-ornek-sayfalari.md)'ndaki "Ayarlar Paneli Satırı" örneğinde uygularsın.
-- Tek seferlik bir async sonuç kullanıcıya gösterilecekse, hatayı `last_error: Option<SharedString>` gibi bir durum alanına yazıp `Callout` veya `Banner` ile sunmayı tercih edersin. Görsel durum değiştiği için ayrıca `cx.notify()` çağrısı da gerekir; aksi halde durum güncellense bile ekran yenilenmez.
-- Panik üreten kısa yollar ve `let _ = ...?` yerine açık eşleştirme yaparsın. `let _ = ...` üretim kodunda yalnızca hatayı bilinçli olarak yok saydığın ender durumlarda kabul edilir; o durumlarda da nedenini yorum satırıyla belirtmen gerekir.
+- Çağıran fonksiyon `Result` taşıyabiliyorsa hatayı `?` ile yaymak en doğal yoldur.
+- View içinde arka planda çalışıp sonucu beklenmeyen (fire-and-forget) bir görev yürütüldüğünde, oluşan hataların log kayıtlarına yazılması için `task.detach_and_log_err(cx)` metodu tercih edilmelidir. Buna karşılık düz `task.detach()` çağrısı hatayı sessizce yutar ve hatanın nedenini sonradan tespit etmeyi imkansız hale getirir.
+- Asenkron işlemin tamamlanmasının ardından view durumunun güncellenmesi gerekiyorsa, ilgili görevi view struct'ı içinde `Task<anyhow::Result<()>>` alanı olarak saklamak ve görev gövdesinde `this.update(cx, ...)?` çağrısı ile entity bağlamına geri dönmek uygun bir tasarım kalıbıdır. Bu yaklaşım, [Entegre Örnek Sayfaları](16-entegre-ornek-sayfalari.md) altındaki "Ayarlar Paneli Satırı" örneğinde de görülebilir.
+- Tek seferlik bir asenkron işlemin sonucu kullanıcıya gösterilecekse, olası hata durumunu `last_error: Option<SharedString>` benzeri bir durum alanına yazıp `Callout` veya `Banner` bileşenleri yardımıyla sunmak tercih edilir. Görsel durum değiştiği için ayrıca `cx.notify()` çağrısı yapılması gerekir; aksi takdirde durum güncellense bile ekran yenilenmeyecektir.
+- Panik üreten kestirme yöntemler ve `let _ = ...?` kalıbı yerine açık desen eşleme (match veya if let) yapılması önerilir. `let _ = ...` kullanımı, üretim kodunda yalnızca hatanın bilinçli olarak yoksayıldığı nadir durumlarda kabul edilebilir; bu gibi durumlarda da gerekçenin bir yorum satırıyla açıklanması gerekir.
 
-`anyhow::Result` ve `anyhow::Context`, Zed crate'lerinde standart hâle gelmiştir. `?` operatörü ile bir hata yayılırken mesaja `with_context(|| ...)` eklediğinde, log'da hatanın kaynağı çok daha anlaşılır biçimde görünür.
+`anyhow::Result` ve `anyhow::Context` yapıları, Zed crate'leri içerisinde standart hale gelmiştir. `?` operatörü ile bir hata yukarı yayılırken hata mesajına `.with_context(|| ...)` eklendiğinde, log kayıtlarında hatanın asıl kaynağı çok daha anlaşılır bir biçimde görüntülenecektir.

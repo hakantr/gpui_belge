@@ -2,16 +2,16 @@
 
 Bu bölüm, kullanıcıdan değer alan veya var olan bir ayarı değiştiren kontrolleri anlatır. Butonlardan hemen sonra gelmesinin sebebi de budur: checkbox, switch ve giriş alanları aynı olay modeline yaslanır; ayrıca önceki bölümlerdeki label ve icon düzenini tekrar kullanır. Butonların çalışma şeklini anladıysan, bu kontrollerin arkasındaki fikir tanıdık gelecektir.
 
-Hangi durumda hangisini seçeceğini belirlemek için şu ayrım iş görür:
+Hangi durumda hangi kontrolün tercih edileceğine karar verirken aşağıdaki ayrım faydalı olacaktır:
 
 ![Form Kontrolü Seçimi](assets/form-kontrolu-secimi.svg)
 
 - Birbirinden bağımsız çoklu bir seçim varsa `Checkbox` doğru araçtır.
 - Bir ayarı aç/kapat anlamı taşıyan tek bir değer için `Switch` daha uygundur.
-- Label, açıklama ve switch birlikte düzenli bir tek satır ayar olarak görünecekse `SwitchField` bu üçlüyü tek seferde kurarsın.
-- Tek satır metin girişi için ise `ui_input::InputField` kullanırsın.
+- Etiket (label), açıklama ve switch'in bir arada düzenli bir ayar satırı olarak sunulması hedefleniyorsa, `SwitchField` ile bu üçlü tek seferde kurulabilir.
+- Tek satırlık metin girişleri için ise `ui_input::InputField` kullanılır.
 
-Bu kontrollerin hepsi için ortak kural şudur: görsel durum ile uygulama durumunu birbirinden ayrı düşünürsün. Checkbox, switch veya giriş alanı yalnızca o anki durumu ekrana yansıtır. Gerçek değeri view durumunda veya uygulama modelinde tutar, işleyici içinde güncellersin. Bu ayrımı net tutmak, sahnenin tutarlı kalmasını sağlar.
+Tüm bu kontroller için ortak kural şudur: görsel durum (view state) ile uygulama mantığı (business logic) birbirinden ayrı tutulmalıdır. `Checkbox`, `Switch` veya giriş alanları yalnızca o anki durumu ekrana yansıtır. Gerçek değer view durumunda ya da uygulama modelinde saklanır ve ilgili olay işleyicisi (listener) içinde güncellenir. Bu ayrımın net tutulması, arayüzün tutarlılığını korur.
 
 ## Checkbox
 
@@ -23,31 +23,31 @@ Kaynak:
 - `ToggleState` ise prelude içinde otomatik gelir.
 - Preview: `impl Component for Checkbox`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
-- Bir listedeki her seçimin diğerlerinden bağımsız olduğu durumlarda.
-- Çoklu izin, filtre, staged file ve özellik kabiliyeti gibi birden fazla değerin aynı anda seçilebileceği yapılarda.
-- Üst seviye bir seçimin alt öğelerinin yalnızca bir kısmı seçiliyse `ToggleState::Indeterminate` ile bu kısmi durumu göstermek için.
+- Bir listedeki her seçimin diğerlerinden bağımsız olduğu senaryolarda.
+- Çoklu izinler, filtreler, staged dosyalar ve özellik etkinleştirme gibi birden fazla değerin aynı anda seçilebileceği yapılarda.
+- Üst seviye bir seçimin alt öğelerinin yalnızca bir kısmının seçili olduğu durumlarda `ToggleState::Indeterminate` ile bu kısmi durumu göstermek amacıyla.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Yalnızca tek bir ayarı açıp kapatma durumu söz konusuysa `Switch` veya `SwitchField` çok daha açık bir niyet ifade eder.
 - Karşılıklı olarak birbirini dışlayan seçenekler için `ToggleButtonGroup`, `DropdownMenu` veya bir menü girdisi daha doğru yüzeydir.
-- Sadece pasif bir durum göstergesi gerekiyorsa `Indicator`, `Icon` ya da `.visualization_only(true)` ile etkileşimsizleştirilmiş bir checkbox düşünebilirsin.
+- Sadece pasif bir durum göstergesi gerekiyorsa `Indicator`, `Icon` veya `.visualization_only(true)` ile etkileşime kapatılmış bir checkbox tercih edilebilir.
 
 Temel API:
 
 - Constructor: `Checkbox::new(id, checked: ToggleState)`.
 - Yardımcı constructor: `checkbox(id, toggle_state)`.
 - Builder'lar: `.disabled(bool)`, `.placeholder(bool)`, `.fill()`, `.visualization_only(bool)`, `.style(ToggleStyle)`, `.elevation(...)`, `.tooltip(...)`, `.label(...)`, `.label_size(...)`, `.label_color(...)`, `.on_click(...)`, `.on_click_ext(...)`.
-- Statik ölçü yardımcısı: `Checkbox::container_size() -> Pixels` checkbox kutusu için kullanılan sabit yan ölçüsünü (`px(20.0)`) döndürür; bir checkbox satırını diğer kontrollerle hizalamak gerektiğinde başvurduğun değerdir.
+- Statik boyut yardımcısı: `Checkbox::container_size() -> Pixels` checkbox kutusu için kullanılan sabit yan boyut ölçüsünü (`px(20.0)`) döndürür; bir checkbox satırını diğer kontrollerle hizalamak gerektiğinde başvurulan referans değerdir.
 - `ToggleStyle`: `Ghost`, `ElevationBased(ElevationIndex)`, `Custom(Hsla)`.
 
 Davranış:
 
 - `RenderOnce` implement eder.
 - `ToggleState::Selected` için `IconName::Check`, `ToggleState::Indeterminate` için ise `IconName::Dash` ikonunu çizer.
-- Click işleyicisine mevcut durum değil, `self.toggle_state.inverse()` gönderirsin. Yani işleyici her zaman hedef durumu alır.
+- Tıklama (click) işleyicisine mevcut durum değil, `self.toggle_state.inverse()` değeri iletilir. Yani işleyici her zaman hedef durumu alır.
 - `ToggleState::Indeterminate.inverse()` çağrısının sonucu `Selected` olur; bu sayede kısmi seçimden tıklama ile tam seçime geçilir.
 - `disabled(true)` click işleyicisini devre dışı bırakır.
 - `visualization_only(true)` pointer ve hover davranışını kaldırır, ama bileşeni disabled gibi soluk renkle göstermez; yalnızca dokunulamaz hale getirir.
@@ -82,11 +82,11 @@ Zed içinden kullanım örnekleri:
 - `git_ui` crate'i: staged/unstaged seçimleri.
 - `language_tools` crate'i: context menu içinde yer alan özel checkbox girdisi.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- İşleyiciye gelen durum mevcut durum değil, hedef durumdur. `self.tanilama_paylasimi = durum.selected()` gibi doğrudan uygulama durumuna yazarsın; tekrar tersine çevirmene gerek yoktur.
-- Kısmi bir seçim gösteriliyorsa `ToggleState::from_any_and_all(...)` yardımcısını kullanırsan, manuel `if` koşullarına göre çok daha okunabilir bir sonuç alırsın.
-- Checkbox bir label'a sahipse, click alanı tüm satıra yayılır. Satır içinde iç içe başka bir tıklanabilir element yer alacaksa, olay yayılımını bilinçli olarak ele alman gerekir.
+- İşleyiciye gelen durum mevcut durum değil, hedef durumdur. `self.tanilama_paylasimi = durum.selected()` örneğinde olduğu gibi doğrudan uygulama durumuna yazılır; değeri tekrar tersine çevirmeye gerek yoktur.
+- Kısmi bir seçim gösteriliyorsa `ToggleState::from_any_and_all(...)` yardımcısının kullanılması, manuel `if` koşullarına kıyasla çok daha okunabilir kod üretilmesini sağlar.
+- `Checkbox` bir etiketle (label) tanımlandığında, tıklama alanı tüm satıra yayılır. Satır içinde iç içe başka bir tıklanabilir öğe konumlandırılacaksa, olay yayılımının (event propagation) bilinçli olarak yönetilmesi gerekir.
 
 ## Switch
 
@@ -97,13 +97,13 @@ Kaynak:
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for Switch`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
-- Bir ayarı anında açıp kapatan, iki karşıt durumlu kontrollerde.
-- Bir label gerekiyor ama uzun bir açıklama metni gerekmediği durumlarda.
-- Toolbar veya kompakt ayar satırlarında.
+- Bir ayarı anında açıp kapatan, iki karşıt duruma sahip kontrollerde.
+- Bir etiket gerektiği fakat uzun bir açıklama metnine ihtiyaç duyulmadığı durumlarda.
+- Araç çubukları veya kompakt ayar satırlarında.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Açıklama, tooltip ve switch'ten oluşan düzenli bir ayar satırı kuruluyorsa `SwitchField` daha bütünlüklü bir yüzey sağlar.
 - Çoklu bir seçimde checkbox semantiği daha doğrudan bir anlatım sunar.
@@ -120,9 +120,9 @@ Davranış:
 
 - `ToggleState::Selected` açık, diğer durumlar kapalı görünür.
 - Click işleyicisine `self.toggle_state.inverse()` gönderilir; yani Switch da Checkbox gibi hedef durumu taşır.
-- `.label(...)` tek başına label'ı çizdirmez; label'ın görünmesi için ayrıca `.label_position(Some(SwitchLabelPosition::Start))` veya `.label_position(Some(SwitchLabelPosition::End))` verirsin.
-- `full_width(true)` switch ile label'ı satır içinde iki uca doğru yayar; böylece label solda, switch sağda görünür.
-- `tab_index(...)` verildiğinde switch odak görünür bir border kazanır ve klavye odak sırasına dahil olur.
+- `.label(...)` tek başına etiketi çizdirmez; etiketin görünmesi için ayrıca `.label_position(Some(SwitchLabelPosition::Start))` veya `.label_position(Some(SwitchLabelPosition::End))` tanımlanmalıdır.
+- `full_width(true)` switch ile etiketi satır içinde iki uca doğru yayar; böylece etiket solda, switch ise sağda konumlanır.
+- `tab_index(...)` tanımlandığında switch, odaklandığında görünür bir kenarlık (border) kazanır ve klavye odak sırasına dahil olur.
 
 Örnek:
 
@@ -148,10 +148,10 @@ impl Render for EditorAyarlari {
 }
 ```
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- `ToggleState::Indeterminate`, switch için ayrı bir görsel ara durum üretmez. Switch açık/kapalı anlamı taşıdığı için durumun çoğunlukla `bool` üzerinden üretilmesi daha tutarlı bir tercihtir.
-- Disabled bir switch, dış kapsayıcıda pointer cursor'ı tamamen kaldırmaz. Kullanıcıya neden disabled olduğunu anlatmak gerekiyorsa satıra kısa bir açıklama veya tooltip eklemek bu boşluğu kapatır.
+- `ToggleState::Indeterminate`, switch için ayrı bir görsel ara durum üretmez. Switch açık/kapalı mantığı taşıdığı için bu durumun çoğunlukla `bool` üzerinden yönetilmesi daha tutarlı bir tercihtir.
+- Devre dışı (disabled) bir switch, dış kapsayıcıda işaretçi imlecini (pointer cursor) tamamen kaldırmaz. Kullanıcıya neden devre dışı olduğunu açıklamak gerekiyorsa satıra kısa bir açıklama veya tooltip eklenmesi bu boşluğu kapatır.
 
 ## SwitchField
 
@@ -162,13 +162,13 @@ Kaynak:
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for SwitchField`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
-- Ayar ekranlarında label, açıklama ve switch'in bir arada gösterileceği durumlarda.
-- Tek satırda sağda switch, solda metinsel bağlam isteyen seçeneklerde.
+- Ayar ekranlarında etiket, açıklama ve switch'in bir arada gösterileceği durumlarda.
+- Tek satırda sağda switch, solda ise metinsel bağlam sunulmak istenen seçeneklerde.
 - Bir tooltip ikonuyla ek bilgi verilmesi gereken ayarlarda.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Yalnızca kompakt bir switch gerekiyorsa `Switch` daha sade bir yüzey sunar.
 - Birden fazla bağımsız seçim varsa bir `Checkbox` listesi daha doğru bir ifade biçimidir.
@@ -184,9 +184,9 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder.
-- Kapsayıcının kendisine yapılan tıklama ile iç switch'e yapılan tıklama, aynı `on_click` geri çağrısını hedef durum ile çağırır; yani satırın herhangi bir yerine tıklamak da switch'i toggle eder.
-- Tooltip verildiğinde label'ın yanında bir `IconButton::new("tooltip_button", IconName::Info)` render edersin. Bu ikonun click işleyicisi boştur; yani bilgi ikonuna tıklamak switch'i toggle etmez, yalnızca bilgi göstergesi olarak durur.
-- Açıklama verildiğinde, muted renkli bir label olarak çizersin.
+- Kapsayıcının kendisine yapılan tıklama ile iç switch'e yapılan tıklama, aynı `on_click` geri çağrısını hedef durum parametresiyle tetikler; yani satırın herhangi bir yerine tıklamak da switch'i açık/kapalı durumuna getirir.
+- Tooltip tanımlandığında etiketinin yanında bir `IconButton::new("tooltip_button", IconName::Info)` render edilir. Bu ikonun tıklama işleyicisi boştur; yani bilgi ikonuna tıklamak switch'i toggle etmez, yalnızca bilgi göstergesi olarak durur.
+- Açıklama belirtildiğinde, bu içerik muted renkli bir `Label` olarak çizilir.
 
 Örnek:
 
@@ -215,12 +215,12 @@ impl Render for AsistanAyarlari {
 }
 ```
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- `SwitchField`, tam genişlikte bir ayar satırı davranışı kurarsın. Toolbar gibi dar alanlarda bu fazla yer kaplar; orada doğrudan `Switch` tercih edersin.
+- `SwitchField` ile tam genişlikte bir ayar satırı düzeni kurulur. Araç çubukları (toolbar) gibi dar alanlarda bu fazla yer kaplayacağı için doğrudan `Switch` tercih edilmelidir.
 - Tooltip yalnızca label varlığında görsel bir ikonla birlikte çizilir; label'sız kullanımda tooltip görünmez.
 
-Ortak `ToggleState` modeli:
+Ortak `ToggleState` modelnya:
 
 | Varyant | Anlam | Not |
 | :-- | :-- | :-- |
@@ -249,16 +249,16 @@ Kaynak:
 - Prelude: Hayır; `use ui_input::InputField;` ayrıca eklersin.
 - Preview: `impl Component for InputField`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
-- Arama girişi, API key alanı, ayar formu veya modal içi tek satır metin girişi gerektiğinde.
-- Editor tabanlı gerçek metin girişi davranışı, odak handle'ı, placeholder, masked değer ve tab sırası desteği istendiğinde.
+- Arama girişi, API anahtarı alanı, ayar formu veya modal içi tek satırlık metin girişleri gerektiğinde.
+- Editör tabanlı metin girişi davranışı, odak handle'ı, placeholder, maskelenmiş (masked) değer ve tab sırası desteği istendiğinde.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Yalnızca statik bir metin göstermek için `Label` daha basit ve doğru bir çözümdür.
 - Çok satırlı veya editor özellikleri gerektiren bir içerik için doğrudan editor tabanlı bir view kullanmak gerekir.
-- `ui` içine bağımlılık eklerken `ui_input`'u çözüm olarak düşünmemen gerekir; `ui_input`, editor crate'ine bağımlı olduğu için ayrı bir crate olarak tutulur ve bu sınırı korumak istersin.
+- `ui` crate'i içine bağımlılık eklerken `ui_input`'un doğrudan çözüm olarak düşünmelere gerek yoktur; `ui_input`, editor crate'ine bağımlı olduğu için ayrı bir crate olarak tutulur ve bu mimari sınır korunmak istenir.
 
 Temel API:
 
@@ -269,10 +269,10 @@ Temel API:
 
 Davranış:
 
-- `Render` ve `Focusable` implement eder; genellikle `Entity<InputField>` olarak view durumunda tutarsın.
-- `InputField::new(...)` çağrısı, `ui_input::ERASED_EDITOR_FACTORY` fabrika fonksiyonunun önceden kurulmuş olmasını bekler. Zed çalışma zamanı bu fabrikayı editor entegrasyonu sırasında hazırlar.
-- `.masked(true)` verildiğinde sağda bir show/hide `IconButton` render edilir ve bu butona tıklamak maske durumunu günceller.
-- Odak görünümü editor odak handle'ına bağlı border rengiyle çizersin.
+- `Render` ve `Focusable` implement eder; genellikle `Entity<InputField>` olarak view durumunda saklanır.
+- `InputField::new(...)` çağrısı, `ui_input::ERASED_EDITOR_FACTORY` fabrika fonksiyonunun önceden kurulmuş olmasını bekler. Zed çalışma zamanı bu fabrikayı editör entegrasyonu aşamasında hazırlar.
+- `.masked(true)` tanımlandığında sağda bir göster/gizle `IconButton`'ı render edilir ve bu butona tıklamak maskeleme durumunu günceller.
+- Odak görünümü, editör odak handle'ına bağlı kenarlık (border) rengiyle çizilir.
 
 Örnek:
 
@@ -299,13 +299,13 @@ Zed içinden kullanım örnekleri:
 
 Düşük seviye yüzey — `ErasedEditor`:
 
-`.editor()` çağrısıyla elde edilen `Arc<dyn ErasedEditor>` değeri, gerçek bir `Editor` view'una tip silmeli bir kapı sunar. Bu sayede `ui_input` crate'i `editor` crate'ine doğrudan bağımlı olmaz; editor entegrasyonu uygulama başlangıcında bir kez `ERASED_EDITOR_FACTORY: OnceLock<...>` üzerinden kurarsın:
+`.editor()` çağrısıyla elde edilen `Arc<dyn ErasedEditor>` değeri, gerçek bir `Editor` view'una tip silmeli bir kapı sunar. Bu sayede `ui_input` crate'i `editor` crate'ine doğrudan bağımlı olmaz; editor entegrasyonu uygulama başlangıcında bir kez `ERASED_EDITOR_FACTORY: OnceLock<...>` üzerinden kurulur:
 
 `ui_input` köprü API'leri:
 
 | API | Rol |
 | :-- | :-- |
-| `ERASED_EDITOR_FACTORY` | Çalışma zamanında gerçek editor adaptörünü sağlayan global fabrikadır; `InputField::new(...)` bu fabrika kurulduktan sonra çağırman gerekir. |
+| `ERASED_EDITOR_FACTORY` | Çalışma zamanında gerçek adaptörünü sağlayan global fabrikadır; `InputField::new(...)` çağrısının bu fabrika kurulduktan sonra yapılması gerekir. |
 | `ErasedEditor` | Metin okuma/yazma, odak handle'ı, maskeleme, olay aboneliği ve render işlemlerini crate sınırını bozmadan sunan trait yüzeyidir. |
 | `ErasedEditorEvent` | `BufferEdited` ve `Blurred` olaylarıyla giriş değişimi ve odak kaybını bildirir. |
 
@@ -315,7 +315,7 @@ if ui_input::ERASED_EDITOR_FACTORY
     .set(|window, cx| Arc::new(OrnekEditorAdaptoru::new(window, cx)))
     .is_err()
 {
-    // Fabrika daha önce kurulduysa mevcut adaptörü kullanırsın.
+    // Fabrika daha önce kurulduysa mevcut adaptör kullanılır.
 }
 ```
 
@@ -330,7 +330,7 @@ if ui_input::ERASED_EDITOR_FACTORY
 | `move_selection_to_end(window, cx)` | `(&self, &mut Window, &mut App)` | İmleci sona taşır |
 | `set_masked(masked, window, cx)` | `(&self, bool, &mut Window, &mut App)` | Şifre maskesi aç/kapat |
 | `focus_handle(cx)` | `(&self, &App) -> FocusHandle` | Odak yönetimi |
-| `subscribe(callback, window, cx)` | callback: `FnMut(ErasedEditorEvent, &mut Window, &mut App)`, `Subscription` döner | Olay aboneliği; geri çağrıya olay değerle taşınır |
+| `subscribe(callback, window, cx)` | callback: `FnMut(ErasedEditorEvent, &mut Window, &mut App)`, `Subscription` döner | Olay aboneliği; geri çağrıya olay değeri iletilir |
 | `render(window, cx)` | `(&self, &mut Window, &App) -> AnyElement` | Manuel render (InputField içeride çağırır) |
 | `as_any()` | `&dyn Any` | Downcast için |
 
@@ -341,7 +341,7 @@ if ui_input::ERASED_EDITOR_FACTORY
 | `BufferEdited` | Kullanıcı metni değiştirdiğinde (yazma, silme, paste vb.) |
 | `Blurred` | Editor odağı kaybettiğinde |
 
-Değer değişimini takip etmek için view içinde bir abonelik kurman ve bunu saklaman gerekir. Abonelik drop edildiğinde geri çağrı ölür ve olay akışı durur:
+Değer değişimini takip etmek için view içinde bir abonelik (subscription) kurulması ve bunun saklanması gerekir. Abonelik drop edildiğinde geri çağrı sonlanır ve olay akışı durur:
 
 ```rust
 use gpui::{Entity, Subscription};
@@ -388,12 +388,12 @@ impl ApiAnahtariFormu {
 
 > **`_giris_aboneligi` saklamak şart.** `Subscription` drop edilirse geri çağrı ölür ve `BufferEdited` olayı tetiklenmez. Aynı kural diğer GPUI abonelikleri için de geçerlidir.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- `InputField` `RenderOnce` değildir; her render'da yeniden yaratmak yerine entity olarak saklanır ve view durumunda tutarsın.
-- Metin değerini `field.read(cx).text(cx)` ile okursun. Değer değişimine tepki vereceksen yukarıdaki `subscribe` örneğini izler ve dönen `Subscription` değerini view alanında saklarsın.
-- `ERASED_EDITOR_FACTORY` kurulmadan `InputField::new` çağrılırsa panic oluşur; bu yüzden editor crate'inin init fonksiyonunun uygulama başlangıcında çalıştığından emin olman gerekir.
-- `label_min_width(...)` adında "label" ifadesi geçse de, kaynakta bu metod input kapsayıcısının `min_width` değerini ayarlar.
+- `InputField` `RenderOnce` değildir; her render adımında yeniden oluşturulmak yerine bir entity olarak saklanır ve view durumunda tutulur.
+- Metin değeri `field.read(cx).text(cx)` yardımıyla okunur. Değer değişimine tepki verilmek istendiğinde yukarıdaki `subscribe` örneği izlenir ve dönen `Subscription` değeri view alanında saklanır.
+- `ERASED_EDITOR_FACTORY` kurulmadan `InputField::new` çağrılırsa panik oluşur; bu yüzden editör crate'inin init fonksiyonunun uygulama başlangıcında çalıştığından emin olunması gerekir.
+- `label_min_width(...)` adında "label" ifadesi geçse de, kaynak kodda bu metot input kapsayıcısının `min_width` değerini ayarlar.
 
 ## Ayar UI Form Yüzeyi
 
@@ -409,12 +409,12 @@ Davranış:
 - Ayar sayfasındaki `"Completion Menu Item Kind"` (tamamlama menüsü öğe türü) satırı, tamamlama menüsünde LSP öğe türü bilgisinin gösterilip gösterilmeyeceğini seçtirir. `off` öğe türünü gizler, `symbol` sözdizimi teması ile renklendirilmiş tek harfli rozet gösterir.
 - `"Version Control / Git Hunks"` bölümünde `"Show Stage/Restore Buttons"` satırı `git.show_stage_restore_buttons` boolean ayarını yazar. Bu değer `false` olduğunda diff hunk üstündeki `"Stage"`, `"Unstage"` ve `"Restore"` butonları render edilmez.
 - `"Araç İzinleri"` kurulum listesindeki `skill` aracı kaynakta `"Loading agent skill instructions"` açıklamasıyla gelir. Regex açıklaması skill adına değil, skill'in `SKILL.md` dosyasının mutlak yoluna göre eşleştiğini belirtir.
-- Ayar araması boş sorguda filtre uygulamaz; sayfa listesi resetlenir. Tam eşleşme yolunda sorgu birden fazla kelime içerdiğinde, kelimelerin tamamının ilgili dokümandaki bir sözcük önekiyle eşleşmesi beklersin.
+- Ayar araması boş sorguda filtre uygulamaz; sayfa listesi resetlenir. Sorgu birden fazla kelime içerdiğinde, kelimelerin tamamının ilgili belgedeki bir kelime önekiyle eşleşmesi beklenir.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- Yeni enum tabanlı ayarlar için yalnızca `SettingItem` eklemek yetmez; ilgili enum'un `init_renderers(...)` içinde uygun renderer'a kaydedilmesi gerekir.
-- Git hunk butonları ayarla kapatıldığında aynı aksiyonu ikinci bir buton ile geri ekleme. Kullanıcıya görünür yüzey ayar değerini doğrudan izlemelidir.
+- Yeni enum tabanlı ayarlar için yalnızca `SettingItem` eklemek yetersizdir; ilgili enum'un `init_renderers(...)` içinde uygun renderer'a kaydedilmesi gerekir.
+- Git hunk butonları ayarlarla kapatıldığında, aynı eylemi ikinci bir butonla arayüze tekrar eklemeyin. Kullanıcıya sunulan arayüz, ayar değerini doğrudan yansıtmalıdır.
 
 ## Form Kompozisyon Örnekleri
 

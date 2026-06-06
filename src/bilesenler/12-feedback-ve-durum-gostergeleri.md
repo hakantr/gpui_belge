@@ -1,14 +1,14 @@
 # 12. Geri Bildirim ve Durum Göstergeleri
 
-Geri bildirim bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır. Bilgi, başarı, uyarı, hata, ilerleme, sayaç veya dikkat gerektiren kararlar bu grubun çatısı altına girer. Hepsi aynı tema token'larını paylaşır, fakat görsel yoğunlukları farklıdır. Bu yüzden önce mesajın ne kadar dikkat çekmesi gerektiğine karar verir, sonra uygun yüzeyi seçersin:
+Geri bildirim bileşenleri, kullanıcıya uygulamanın o anki durumunu bildirir. Bilgi, başarı, uyarı, hata, ilerleme, sayaç veya dikkat gerektiren kararlar bu grubun çatısı altına girer. Hepsi aynı tema belirteçlerini (tokens) paylaşır, fakat görsel yoğunlukları farklıdır. Bu yüzden öncelikle mesajın ne kadar dikkat çekmesi gerektiğine karar verilir, ardından uygun yüzey seçilir:
 
-- `Banner`: sayfa veya panel üstünde kısa ve akışı bölmeyen bir mesaj vermek için kullanırsın.
-- `Callout`: içerik akışı içinde, kullanıcının okuması ve gerekirse karar vermesi beklenen daha açıklayıcı bir mesaj için kullanırsın.
-- `Modal`: kendi modal içeriğini kurmak için bir iskelet sağlar.
-- `AlertModal`: kısa karar akışları veya uyarı diyalogları için.
-- `AnnouncementToast`: yeni özellik veya duyuru kartı; yaşam döngüsü üst bildirim sistemi tarafından yönetirsin.
-- `CountBadge`, `Indicator`, `ProgressBar`, `CircularProgress`: küçük durum ve ilerleme göstergeleri.
-- `ActivityIndicator`: workspace status alanında LSP, debug, git, dosya sistemi, extension ve formatlama aktivitelerini tek bir kompakt tetikleyici altında toplar.
+- `Banner`: Sayfa veya panel üstünde kısa ve akışı bölmeyen bir mesaj vermek için kullanılır.
+- `Callout`: İçerik akışı içinde, kullanıcının okuması ve gerekirse karar vermesi beklenen daha açıklayıcı bir mesaj için kullanılır.
+- `Modal`: Kendi modal içeriğini kurmak için bir iskelet sağlar.
+- `AlertModal`: Kısa karar akışları veya uyarı diyalogları için kullanılır.
+- `AnnouncementToast`: Yeni özellik veya duyuru kartıdır; yaşam döngüsü üst bildirim sistemi tarafından yönetilir.
+- `CountBadge`, `Indicator`, `ProgressBar`, `CircularProgress`: Küçük durum ve ilerleme göstergeleridir.
+- `ActivityIndicator`: Çalışma alanı durum (workspace status) alanında LSP, debug, git, dosya sistemi, extension ve formatlama aktivitelerini tek bir kompakt tetikleyici altında toplar.
 
 ![Geri Bildirim Yüzeyi Seçimi](assets/feedback-yuzey-secimi.svg)
 
@@ -20,16 +20,16 @@ Kaynak:
 - Export: `ui::Severity`.
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - Bir mesajın tonunu `Info`, `Success`, `Warning` veya `Error` olarak tek bir enum üzerinden seçmek için.
-- `Banner` ve `Callout` gibi bileşenlerde icon, background ve border renginin otomatik olarak eşleşmesi gerektiğinde.
+- `Banner` ve `Callout` gibi bileşenlerde ikon, arka plan ve sınır renginin otomatik olarak eşleşmesi gerektiğinde.
 
 Davranış:
 
-- `Banner` ve `Callout`, severity değerinden icon ile status renklerini türetir.
-- `Info` için sade bir `info_background` tonu ve muted ikon rengi seçilir; `Success` yeşil, `Warning` sarı, `Error` kırmızı status token'larını kullanır.
-- Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, aksiyonu ayrı bir buton slot'una yerleştirirsin.
+- `Banner` ve `Callout`, severity değerinden ikon ile durum renklerini türetir.
+- `Info` için sade bir `info_background` tonu ve sönük (muted) ikon rengi seçilir; `Success` yeşil, `Warning` sarı, `Error` kırmızı durum belirteçlerini kullanır.
+- Severity, kullanıcıya gösterilen mesajın yerine geçmez. Mesaj yine kısa ve açık olmalıdır. Bir aksiyon gerekiyorsa, bu aksiyon ayrı bir buton alanına (slot) yerleştirilir.
 
 ## Banner
 
@@ -38,20 +38,20 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::Banner`.
 - İlgili tipler: `ui::Severity`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Banner`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - Sayfa veya panel içinde kısa bir bilgi, başarı, uyarı veya hata mesajı göstermek için.
-- Kullanıcıyı akıştan koparmadan bir CTA veya düzeltme aksiyonu sunmak için.
-- Bir içeriğin üstünde ya da ilgili bölümün başında non-blocking bir mesaj konumlandırmak için.
+- Kullanıcıyı akıştan koparmadan bir CTA (eyleme çağrı) veya düzeltme aksiyonu sunmak için.
+- Bir içeriğin üstünde ya da ilgili bölümün başında engelleyici olmayan (non-blocking) bir mesaj konumlandırmak için.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
 - Uzun açıklama, madde listesi veya ayrıntılı bir karar gerekiyorsa `Callout` daha uygun bir yüzeydir.
 - Kullanıcının devam etmeden önce karar vermesi zorunluysa `AlertModal` daha doğru bir araçtır.
-- Kısa süreli bir global bildirim yaşam döngüsü gerekiyorsa, uygulama bildirim altyapısı ile uygun bildirim view'ı birlikte kullanırsın.
+- Kısa süreli bir global bildirim yaşam döngüsü gerekiyorsa, uygulama bildirim altyapısı ile uygun bildirim görünümü (view) birlikte kullanılır.
 
 Temel API:
 
@@ -64,9 +64,9 @@ Temel API:
 Davranış:
 
 - Varsayılan severity değeri `Severity::Info`'dur.
-- Severity'ye göre icon, background ve border rengi seçersin.
-- `action_slot(...)` verildiğinde, banner sağ tarafta bir aksiyon alanı açar ve içerik padding'i bu yapıya göre düzenlenir.
-- `.wrap_content(true)`, dar alanlarda içeriğin satıra kırılmasına izin verir.
+- Severity'ye göre ikon, arka plan ve sınır rengi seçilir.
+- `action_slot(...)` verildiğinde, banner sağ tarafta bir aksiyon alanı açar ve içerik iç kenar boşluğu (padding) bu yapıya göre düzenlenir.
+- `.wrap_content(true)`, dar alanlarda içeriğin alt satıra kırılmasına izin verir.
 
 Örnek:
 
@@ -104,15 +104,15 @@ fn saglayici_uyari_banner_render() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `extensions_ui` crate'i: extension upsell ve registry migration banner'ları.
-- `settings_ui` crate'i: ayar sayfası uyarıları.
-- `language_models` crate'i: provider durum mesajları.
+- `extensions_ui` crate'i: Eklenti yükleme teşvikleri ve kayıt geçişi (registry migration) banner'ları.
+- `settings_ui` crate'i: Ayar sayfası uyarıları.
+- `language_models` crate'i: Dil modeli sağlayıcı durum mesajları.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- Banner kısa kalmalıdır. Birden fazla paragraf veya liste gerektiren içerikler için `Callout` daha uygundur.
+- Banner içeriği kısa tutulmalıdır. Birden fazla paragraf veya liste gerektiren içerikler için `Callout` daha uygundur.
 - `action_slot(...)` içinde birden çok aksiyon yer alacaksa, `h_flex().gap_1()` ile açık bir aralık kurulması okunabilirliği artırır.
-- Banner, modal içindeki karar alanı gibi kullanmaman gerekir. Modal kararlarını footer aksiyonlarıyla verirsin.
+- Banner, modal içindeki karar alanı gibi kullanılmamalıdır. Modal kararları footer aksiyonlarıyla verilir.
 
 ## Callout
 
@@ -121,19 +121,19 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::Callout`, `ui::BorderPosition`.
 - İlgili tipler: `ui::Severity`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Callout`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - İçerik içinde kullanıcının okuması gereken bir açıklamayı, sınırlamayı veya kararı göstermek için.
-- Başlığı, açıklamayı, aksiyonu ve dismiss kontrolünü tek bir yüzeyde toplamak için.
-- Markdown veya özel bir element gibi metin dışı bir açıklama içeriği gerekiyorsa `description_slot(...)` ile.
+- Başlığı, açıklamayı, aksiyonu ve kapatma (dismiss) kontrolünü tek bir yüzeyde toplamak için.
+- Markdown veya özel bir element gibi metin dışı bir açıklama içeriği gerekiyorsa `description_slot(...)` ile tasarlamak için.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
 - Yalnızca tek satırlık bir sayfa üstü mesaj için `Banner` çok daha uygundur.
-- Global ve geçici bir bildirim için bir notification host kullanırsın.
+- Global ve geçici bir bildirim için bir bildirim sunucusu (notification host) kullanılır.
 - Bloklayıcı bir karar gerekiyorsa `AlertModal` doğru yüzeydir.
 
 Temel API:
@@ -158,10 +158,10 @@ Callout kenar seçimi:
 Davranış:
 
 - Varsayılan severity `Severity::Info`'dur.
-- `.icon(...)` çağrılmadığında icon alanı render edilmez. Çağrıldığında mevcut render akışında görünen icon adı ve rengi severity'den türetilir; verdiğin `IconName` alanın gösterileceğini belirtir.
+- `.icon(...)` çağrılmadığında ikon alanı render edilmez. Çağrıldığında mevcut render akışında görünen ikon adı ve rengi severity'den türetilir; verilen `IconName` alanın gösterileceğini belirtir.
 - `.description_slot(...)` ile `.description(...)` aynı anda verildiğinde slot önceliklidir.
-- Açıklama alanı `max_h_32()` ve `overflow_y_scroll()` özelliklerini kullanır; bu sayede uzun bir içerikte callout'un yüksekliği kontrol altında tutarsın.
-- Aksiyon ve dismiss slot'ları title satırının sağında render edersin.
+- Açıklama alanı `max_h_32()` ve `overflow_y_scroll()` özelliklerini kullanır; bu sayede uzun bir içerikte callout bileşeninin yüksekliği kontrol altında tutulur.
+- Aksiyon ve dismiss slot'ları başlık satırının sağında render edilir.
 
 Örnek:
 
@@ -202,14 +202,14 @@ fn izin_callout_render() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `agent_ui` crate'i: agent retry, token ve tool kullanımı uyarıları.
-- `zed` crate'i: visual test durum mesajları.
+- `agent_ui` crate'i: Yapay zeka temsilcisi yeniden deneme, token ve araç kullanımı uyarıları.
+- `zed` crate'i: Görsel test durum mesajları.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- `Callout` içeriği flow içinde yer alır; viewport'u kaplayan bir overlay gibi davranmaz.
-- İkon gösterilmesi gerekiyorsa `.icon(...)` çağrısı açıkça yapman gerekir.
-- Description slot'una scroll yapan karmaşık bir içerik konulduğunda, içerideki metinlerin `min_w_0()` ve `.truncate()` davranışını ayrıca düşünürsün.
+- `Callout` içeriği normal akış içinde yer alır; görünüm alanını (viewport) kaplayan bir katman (overlay) gibi davranmaz.
+- İkon gösterilmesi gerekiyorsa `.icon(...)` çağrısının açıkça yapılması gerekir.
+- Açıklama alanına (description slot) kaydırma yapan karmaşık bir içerik yerleştirildiğinde, içerideki metinlerin `min_w_0()` ve `.truncate()` davranışları ayrıca düşünülmelidir.
 
 ## Modal
 
@@ -217,19 +217,19 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::Modal`, `ui::ModalHeader`, `ui::ModalRow`, `ui::ModalFooter`, `ui::Section`, `ui::SectionHeader`.
-- Prelude: Hayır; ayrıca import edersin.
-- Preview: Doğrudan `impl Component` yok.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
+- Preview: Doğrudan `impl Component` yoktur.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - Modal içeriğini Zed'in header, section ve footer düzeniyle kurmak için.
 - Çok bölümlü bir ayar, form veya seçim akışı oluşturulurken.
-- Scroll handle'ı dışarıdan yönetilen bir modal body gerektiğinde.
+- Kaydırma tutamacı (scroll handle) dışarıdan yönetilen bir modal gövdesi (body) gerektiğinde.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
-- Kısa bir uyarı ve iki aksiyonlu bir karar için `AlertModal` daha az kodla doğru davranışı verir.
-- Modal dışı bir panel veya sayfa düzeni için `v_flex()` ile birlikte `Section` dışında bir layout daha uygun olur.
+- Kısa bir uyarı ve iki aksiyonlu bir karar için `AlertModal` daha az kodla doğru davranışı sunar.
+- Modal dışı bir panel veya sayfa düzeni için `v_flex()` ile birlikte `Section` dışında bir yerleşim daha uygun olur.
 
 Temel API:
 
@@ -250,18 +250,18 @@ Modal alt yapı taşları:
 
 | API | Rol |
 | :-- | :-- |
-| `ModalHeader` | Modal başlığını, açıklamasını, icon'unu ve dismiss/back buton görünürlüğünü yönetir. |
-| `ModalRow` | Section içinde tek satırlık ayar veya içerik satırı kurmak için üst element yüzeyidir. |
+| `ModalHeader` | Modal başlığını, açıklamasını, ikonunu ve kapatma/geri buton görünürlüğünü yönetir. |
+| `ModalRow` | Bölüm (section) içinde tek satırlık ayar veya içerik satırı kurmak için üst element yüzeyidir. |
 | `ModalFooter` | Modal alt aksiyon alanını `start_slot` ve `end_slot` ile düzenler. |
-| `Section` | Modal veya panel içinde padded/contained alt bölüm yüzeyi oluşturur. |
-| `SectionHeader` | Section başlığı ve opsiyonel sağ slot için küçük header bileşenidir. |
+| `Section` | Modal veya panel içinde kenar boşluğu atanmış ya da sınırlandırılmış (padded/contained) alt bölüm yüzeyi oluşturur. |
+| `SectionHeader` | Bölüm başlığı ve opsiyonel sağ alan için küçük başlık bileşenidir. |
 
 Davranış:
 
-- Modal root `size_full()`, `flex_1()` ve `overflow_hidden()` kullanır; modal kapsayıcısı genellikle üst overlay tarafından sağlarsın.
-- `scroll_handle` verildiğinde body `overflow_y_scroll()` ve `track_scroll(...)` ile bağlanır.
-- `show_dismiss(true)` ve `show_back(true)`, header'da Zed'in `menu::Cancel` aksiyonunu dispatch eden icon button'lar üretir.
-- `Section::new_contained()` border'lı bir iç yüzey oluşturur; normal `Section` ise daha düz bir akış verir.
+- Modal kökü `size_full()`, `flex_1()` ve `overflow_hidden()` kullanır; modal kapsayıcısı genellikle üst katman (overlay) tarafından sağlanır.
+- `scroll_handle` verildiğinde gövde `overflow_y_scroll()` ve `track_scroll(...)` ile bağlanır.
+- `show_dismiss(true)` ve `show_back(true)`, başlıkta Zed'in `menu::Cancel` aksiyonunu tetikleyen ikon butonları üretir.
+- `Section::new_contained()` kenarlıklı bir iç yüzey oluşturur; normal `Section` ise daha düz bir akış sağlar.
 
 Örnek:
 
@@ -291,7 +291,7 @@ fn proje_ayarlari_modal_render() -> impl IntoElement {
 }
 ```
 
-Modal Yaşam Döngüsü ve Workspace Entegrasyonu:
+Modal Yaşam Döngüsü ve Çalışma Alanı Entegrasyonu:
 
 Zed UI tarafındaki `Modal` bileşeni yalnızca bir içerik iskeletidir. Bir modal'ın açılıp kapanma davranışı bu bileşenin değil; asıl olarak `workspace::ModalLayer` ile `workspace::ModalView` trait'inin sorumluluğundadır.
 
@@ -340,18 +340,18 @@ fn proje_ayarlarini_ac(
 `ModalView` trait sözleşmesi şu maddeleri kapsar:
 
 - `ManagedView` üzerinden gelen `Render + Focusable + EventEmitter<DismissEvent>` zorunluluğu.
-- `on_before_dismiss(window, cx) -> DismissDecision`: kapanmadan önce bir validation veya kullanıcı onayı istenebilir. `DismissDecision::Pending` kapanmayı erteler; `DismissDecision::Dismiss(false)` ise iptal eder.
-- `fade_out_background(&self) -> bool`: ekrandaki diğer içeriği soluklaştırmak için override edebilirsin.
-- `render_bare(&self) -> bool`: workspace tarafındaki `ModalLayer`'ın varsayılan elevation yüzeyini atlamak gerektiğinde kullanırsın.
+- `on_before_dismiss(window, cx) -> DismissDecision`: Kapanmadan önce bir doğrulama veya kullanıcı onayı istenebilir. `DismissDecision::Pending` kapanmayı erteler; `DismissDecision::Dismiss(false)` ise iptal eder.
+- `fade_out_background(&self) -> bool`: Ekrandaki diğer içeriği soluklaştırmak için geçersiz kılınabilir (override edilebilir).
+- `render_bare(&self) -> bool`: Çalışma alanı tarafındaki `ModalLayer`'ın varsayılan yükseklik (elevation) yüzeyini atlamak gerektiğinde kullanılır.
 
-`Workspace::toggle_modal::<V, _>(window, cx, build_fn)` çağrısı, aynı modal türü zaten açıksa onu kapatır; farklı bir modal açıksa onu kapatıp yenisini açar. `ModalLayer`, dismiss olayını dinler ve odağı önceki elemana otomatik olarak geri verir.
+`Workspace::toggle_modal::<V, _>(window, cx, build_fn)` çağrısı, aynı modal türü zaten açıksa onu kapatır; farklı bir modal açıksa onu kapatıp yenisini açar. `ModalLayer`, kapatma (dismiss) olayını dinler ve odağı önceki elemana otomatik olarak geri verir.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- `Modal` yalnızca bir içerik iskeletidir; açma ve kapama yaşam döngüsü modal host veya üst view tarafından yönetirsin.
-- Header'daki dismiss ve back butonları `menu::Cancel` dispatch eder; bu aksiyonu üst context'inde ele alırsın.
-- Section içinde çok sayıda ayar satırı yer alıyorsa, body için bir scroll handle vermen gerekir.
-- `Modal`, bir `AlertModal` yerine kullanılsa bile yine de workspace üzerinden `toggle_modal` ile sunulur; ayrı bir overlay altyapısı kurmaya gerek yoktur.
+- `Modal` yalnızca bir içerik iskeletidir; açma ve kapama yaşam döngüsü modal barındırıcısı (host) veya üst görünüm üzerinden yönetilir.
+- Header'daki dismiss ve back butonları `menu::Cancel` eylemini tetikler; bu aksiyonun üst bağlamda (context) ele alınması gerekir.
+- Bölüm (section) içinde çok sayıda ayar satırı yer alıyorsa, gövde için bir kaydırma tutamacı (scroll handle) atanmalıdır.
+- `Modal`, bir `AlertModal` yerine kullanılsa bile yine de çalışma alanı üzerinden `toggle_modal` ile sunulur; ayrı bir katman altyapısı kurmaya gerek yoktur.
 
 ## AlertModal
 
@@ -359,18 +359,18 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::AlertModal`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for AlertModal`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - Kullanıcıdan kısa bir onay veya iptal kararı almak için.
-- Güvenlik, silme veya workspace trust gibi devam etmeden önce anlaşılması gereken uyarılar için.
+- Güvenlik, silme veya çalışma alanına güvenme (workspace trust) gibi devam etmeden önce anlaşılması gereken uyarılar için.
 - Özel bir header veya footer gerekse de modal iskeletini hızlıca kurmak için.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
-- Non-blocking bir bilgi mesajı için `Banner` veya `Callout` çok daha doğrudan bir araçtır.
+- Engelleyici olmayan bir bilgi mesajı için `Banner` veya `Callout` çok daha doğrudan bir araçtır.
 - Çok bölümlü bir ayar formu için `Modal` daha uygundur.
 - Yeni özellik duyurusu için `AnnouncementToast` daha doğru bir yüzeydir.
 
@@ -392,9 +392,9 @@ Davranış:
 
 - Varsayılan genişlik `px(440.)`'tır.
 - `.title(...)` verildiğinde küçük bir `Headline` içeren bir varsayılan başlık üretilir.
-- `.primary_action(...)` veya `.dismiss_label(...)` verildiğinde bir varsayılan altlık üretilir. Etiket verilmediği durumda birincil metin `"Ok"`, kapatma metni ise `"Cancel"` olur.
-- Varsayılan altlık butonları yalnızca görünümü kurar; karar akışını Zed eylem sistemi üzerinden `.on_action(...)` veya üst yaşam döngüsü ile bağlarsın.
-- `.header(...)` ve `.footer(...)` verildiğinde, varsayılan başlık veya altlık yerine tamamen özel bir element render edersin.
+- `.primary_action(...)` veya `.dismiss_label(...)` verildiğinde varsayılan bir altlık üretilir. Etiket verilmediği durumda birincil metin `"Ok"`, kapatma metni ise `"Cancel"` olur.
+- Varsayılan altlık butonları yalnızca görünümü kurar; karar akışı Zed eylem sistemi üzerinden `.on_action(...)` veya üst yaşam döngüsü ile bağlanır.
+- `.header(...)` ve `.footer(...)` verildiğinde, varsayılan başlık veya altlık yerine tamamen özel bir element render edilir.
 
 Örnek:
 
@@ -440,14 +440,14 @@ fn sinirli_calisma_alani_uyarisi_render(cx: &App) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `workspace` crate'i: restricted workspace karar akışı; `key_context`, `track_focus` ve `.on_action(...)` birlikte kullanırsın.
-- `ui` crate'i: basic ve özel header önizleme örnekleri.
+- `workspace` crate'i: Kısıtlı çalışma alanı karar akışı; `key_context`, `track_focus` ve `.on_action(...)` özellikleri birlikte kullanılır.
+- `ui` crate'i: Temel ve özel başlık (header) önizleme örnekleri.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- AlertModal kısa ve karar odaklı tutarsın. Birden fazla section gerekiyorsa doğru araç `Modal`'dır.
-- Tehlikeli aksiyonlarda primary label'ın net olması beklenir; `"Ok"` yerine doğrudan eylemi anlatan bir metin tercih edersin.
-- Odak ve klavye action davranışı gerekiyorsa `key_context(...)` ile `track_focus(...)` bağlanmadan yalnızca görsel bir modal üretilmesi doğru değildir; aksi halde modal klavye ile etkileşemez.
+- `AlertModal` kısa ve karar odaklı tutulmalıdır. Birden fazla bölüm (section) gerekiyorsa doğru araç `Modal`'dır.
+- Tehlikeli aksiyonlarda birincil etiketin (primary label) net olması beklenir; `"Ok"` yerine doğrudan eylemi anlatan bir metin tercih edilir.
+- Odak ve klavye eylemi davranışı gerekiyorsa `key_context(...)` ile `track_focus(...)` bağlanmadan yalnızca görsel bir modal üretilmesi doğru değildir; aksi halde modal klavye ile etkileşime giremez.
 
 ## AnnouncementToast
 
@@ -455,18 +455,18 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::AnnouncementToast`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for AnnouncementToast`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - Yeni özellik, önemli değişiklik veya üründeki görünür duyuruları kart biçiminde göstermek için.
 - İllüstrasyon, başlık, açıklama, madde listesi ve iki aksiyonlu duyuru gerektiğinde.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
-- Hata, retry veya inline bir durum mesajı için `Banner` ya da `Callout` daha uygundur.
-- Basit bir toast ihtiyacı için üst bildirim sisteminin daha küçük view'ı kullanırsın.
+- Hata, yeniden deneme veya satır içi (inline) bir durum mesajı için `Banner` ya da `Callout` daha uygundur.
+- Basit bir toast ihtiyacı için üst bildirim sisteminin daha küçük görünümü kullanılır.
 - Kullanıcının devam etmeden karar vermesi gerekiyorsa `AlertModal` daha doğru bir yüzeydir.
 
 Temel API:
@@ -486,9 +486,9 @@ Temel API:
 Davranış:
 
 - Varsayılan primary label `"Try Now"`, secondary label ise `"Learn More"` olarak gelir.
-- Click işleyicileri boş bir default closure ile gelir; gerçek davranışın bağlanması üst view'in dismiss veya navigation geri çağrıları üzerinden olur.
-- Root element `occlude()`, `relative()`, `w_full()` ve `elevation_3(cx)` kullanır.
-- Sağ üstte bir close icon button render edilir; dismiss yaşam döngüsü `.dismiss_on_click(...)` geri çağrısına bırakırsın.
+- Tıklama işleyicileri boş bir varsayılan closure ile gelir; gerçek davranışın bağlanması üst görünümün dismiss veya yönlendirme (navigation) geri çağrıları üzerinden olur.
+- Kök eleman `occlude()`, `relative()`, `w_full()` ve `elevation_3(cx)` kullanır.
+- Sağ üstte bir kapatma ikon butonu render edilir; dismiss yaşam döngüsü `.dismiss_on_click(...)` geri çağrısına bırakılır.
 
 Örnek:
 
@@ -513,13 +513,13 @@ fn ozellik_duyurusu_render() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `auto_update_ui` crate'i: announcement toast notification view'ı; click işleyicileri telemetry, URL ve dismiss geri çağrılarıyla bağlanır.
+- `auto_update_ui` crate'i: Güncelleme duyuru görünümü; tıklama işleyicileri telemetri, URL ve kapatma geri çağrılarıyla bağlanır.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- `AnnouncementToast` tek başına notification yaşam döngüsünü yönetmez. Dismiss, suppress veya route davranışını üst notification view'ı içinde uygulaman gerekir.
+- `AnnouncementToast` tek başına bildirim yaşam döngüsünü yönetmez. Kapatma, gizleme veya yönlendirme davranışının üst bildirim görünümü içinde uygulanması gerekir.
 - Madde sayısı sınırlı tutulur; çok uzun bir duyuru kartı kullanıcıyı akıştan koparır.
-- İllüstrasyon eklendiğinde toast'ın üstünde render edilir ve body'den border ile ayrılır.
+- İllüstrasyon eklendiğinde toast'ın üstünde render edilir ve gövdeden kenarlık (border) ile ayrılır.
 
 ## Notification Modülü
 
@@ -529,13 +529,13 @@ Kaynak:
 - Export: `ui::AlertModal`, `ui::AnnouncementToast`.
 - Prelude: Hayır.
 
-Mevcut `ui` kaynağında standalone bir `Notification` bileşeni yer almaz. `notification` dosyası yalnızca `alert_modal` ve `announcement_toast` modüllerini re-export eder. Runtime bildirim kuyruğu, dismiss veya suppress olayları ve notification trait'leri Zed'in daha üst seviyeli notification altyapısında tutarsın.
+Mevcut `ui` kaynağında standalone bir `Notification` bileşeni yer almaz. `notification` dosyası yalnızca `alert_modal` ve `announcement_toast` modüllerini re-export eder. Çalışma zamanı bildirim kuyruğu, dismiss veya suppress olayları ve notification trait'leri Zed'in daha üst seviyeli bildirim altyapısında barındırılır.
 
 Pratik sonuç şudur:
 
-- UI bileşeni olarak `AlertModal` veya `AnnouncementToast` render edersin.
-- Gösterme, saklama, kapatma ve tekrar göstermeme kararı üst notification view'ı içinde yönetirsin.
-- Toast içindeki click işleyicilerinde gerekirse telemetry, URL açma ve dismiss akışını birlikte bağlarsın.
+- UI bileşeni olarak `AlertModal` veya `AnnouncementToast` render edilir.
+- Gösterme, saklama, kapatma ve tekrar göstermeme kararı üst bildirim görünümü (view) içinde yönetilir.
+- Toast içindeki tıklama işleyicilerinde gerekirse telemetri, URL açma ve dismiss akışı birlikte bağlanır.
 
 ## CountBadge
 
@@ -543,17 +543,17 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::CountBadge`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for CountBadge`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- İkon, tab veya kompakt bir toolbar item üzerinde küçük bir sayaç göstermek için.
+- İkon, sekme veya kompakt bir araç çubuğu öğesi üzerinde küçük bir sayaç göstermek için.
 - Bildirim, hata, değişiklik veya bekleyen öğe sayısını küçük bir alanda belirtmek için.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
-- Sayısal değer ana içeriğin kendisiyse, bir `Label` veya tablo hücresi kullanırsın.
+- Sayısal değer ana içeriğin kendisiyse, bir `Label` veya tablo hücresi kullanılır.
 - Durum sadece var/yok şeklindeyse `Indicator::dot()` daha sade bir ifadedir.
 
 Temel API:
@@ -564,8 +564,8 @@ Davranış:
 
 - `count > 99` durumunda `"99+"` olarak gösterilir.
 - `absolute()`, `top_0()` ve `right_0()` ile üst öğenin sağ üst köşesine yerleşir.
-- Üst element `relative()` değilse, badge beklenen konuma oturmaz.
-- Background, editor background ile error status renginin blend edilmesiyle hesaplanır.
+- Üst element `relative()` değilse, rozet (badge) beklenen konuma oturmaz.
+- Arka plan rengi, editör arka planı ile hata durum renginin harmanlanmasıyla hesaplanır.
 
 Örnek:
 
@@ -582,13 +582,13 @@ fn bildirim_butonu_render(sayi: usize) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `workspace` crate'i: dock item üzerinde count badge.
-- `ui` crate'i: capped count önizlemesi.
+- `workspace` crate'i: Panel öğesi üzerinde sayaç rozeti.
+- `ui` crate'i: Sınırlandırılmış sayı önizlemesi.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- Üst öğenin hitbox'ı ile badge'in absolute konumunu birlikte düşünmen gerekir. Çok küçük icon button'larda badge, tıklanabilir alanı görsel olarak kalabalıklaştırabilir.
-- Badge metni otomatik olarak capped olduğu için, gerçek tam sayıyı tooltip veya bir detay view'ında göstermen gerekebilir.
+- Üst öğenin tıklama alanı (hitbox) ile rozetin mutlak (absolute) konumunun birlikte düşünülmesi gerekir. Çok küçük ikon butonlarında rozet, tıklanabilir alanı görsel olarak kalabalıklaştırabilir.
+- Rozet metni otomatik olarak sınırlandırıldığı (capped) için, gerçek tam sayının bir ipucu (tooltip) veya detay görünümünde gösterilmesi gerekebilir.
 
 ## Indicator
 
@@ -596,19 +596,19 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::Indicator`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Indicator`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- Küçük bir durum noktası, üst bar veya icon tabanlı bir durum göstergesi gerektiğinde.
-- Liste satırında bağlantı, breakpoint, conflict, active/inactive gibi hızlı taranabilir durumlar için.
-- Bir icon button veya list item yanında, dikkat çekmeyen bir status işareti için.
+- Küçük bir durum noktası, üst bar veya ikon tabanlı bir durum göstergesi gerektiğinde.
+- Liste satırında bağlantı, kesme noktası (breakpoint), çelişki (conflict), aktif/aktif değil gibi hızlı taranabilir durumlar için.
+- Bir ikon butonu veya liste öğesi yanında, dikkat çekmeyen bir durum işareti sunmak için.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
-- İşlem ilerlemesi için `ProgressBar` ya da `CircularProgress` kullanırsın.
-- Metinsel bir açıklama gerekiyorsa yanına bir `Label` eklersin; indicator tek başına erişilebilir bir anlam taşımaz.
+- İşlem ilerlemesi için `ProgressBar` ya da `CircularProgress` kullanılır.
+- Metinsel bir açıklama gerekiyorsa yanına bir `Label` eklenmelidir; indicator tek başına erişilebilir bir anlam taşımaz.
 
 Temel API:
 
@@ -622,8 +622,8 @@ Davranış:
 
 - Dot varyantı `w_1p5()`, `h_1p5()` ve `rounded_full()` kullanır.
 - Bar varyantı `w_full()`, `h_1p5()` ve `rounded_t_sm()` kullanır; bu yüzden üst genişlik önemlidir.
-- Icon indicator, ikonu `custom_size(rems_from_px(8.))` ile çok küçük bir biçimde render eder.
-- `border_color(...)` yalnızca dot ve bar varyantları için bir border uygular.
+- İkon göstergesi, ikonu `custom_size(rems_from_px(8.))` ile çok küçük bir biçimde render eder.
+- `border_color(...)` yalnızca dot ve bar varyantları için bir kenarlık uygular.
 
 Örnek:
 
@@ -647,15 +647,15 @@ fn baglanti_durumu_render(bagli: bool) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `workspace` crate'i: status bar indicator.
-- `debugger_ui` crate'i: debug session durumu.
-- `keymap_editor` crate'i: conflict indicator.
-- `title_bar` crate'i: title bar durum noktaları.
+- `workspace` crate'i: Durum çubuğu göstergesi.
+- `debugger_ui` crate'i: Hata ayıklama oturum durumu.
+- `keymap_editor` crate'i: Çakışma göstergesi.
+- `title_bar` crate'i: Başlık çubuğu durum noktaları.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- Rengi `Color::Success`, `Warning`, `Error`, `Info` veya `Muted` gibi semantik token'lardan seçmen tutarlılığı korur.
-- Indicator tek bilgi kaynağı olarak kullanılmaz; özellikle error ve warning durumlarında tooltip veya label ile anlamı belirtmen gerekir.
+- Rengin `Color::Success`, `Warning`, `Error`, `Info` veya `Muted` gibi semantik belirteçlerden seçilmesi tutarlılığı korur.
+- Gösterge (indicator) tek bilgi kaynağı olarak kullanılmamalıdır; özellikle hata ve uyarı durumlarında tooltip veya label ile anlamın belirtilmesi gerekir.
 
 ## ProgressBar
 
@@ -663,18 +663,18 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ProgressBar`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for ProgressBar`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
 - İşlemin belirli bir `value / max_value` oranı varsa.
-- Yatay alanda dosya indirme, kullanım limiti, senkronizasyon veya task progress göstermek için.
+- Yatay alanda dosya indirme, kullanım limiti, senkronizasyon veya görev ilerlemesi göstermek için.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
 - İlerleme oranı bilinmiyorsa `LoadingLabel` veya `SpinnerLabel` çok daha uygundur.
-- Çok dar bir inline alanda ring görünümü daha doğal duracaksa `CircularProgress` tercih edersin.
+- Çok dar bir satır içi alanda halka görünümü daha doğal duracaksa `CircularProgress` tercih edilir.
 
 Temel API:
 
@@ -687,10 +687,10 @@ Temel API:
 
 Davranış:
 
-- Fill genişliği `(value / max_value).clamp(0.02, 1.0)` formülüyle hesaplanır.
-- `value > max_value` durumunda fill rengi `over_color` olur.
-- Varsayılan foreground renk `cx.theme().status().info`'dur.
-- `max_value` pozitif bir değer olmalıdır; sıfır veya anlamsız bir max değer üretilmemelidir.
+- Doldurma genişliği `(value / max_value).clamp(0.02, 1.0)` formülüyle hesaplanır.
+- `value > max_value` durumunda doldurma rengi `over_color` olur.
+- Varsayılan ön plan rengi `cx.theme().status().info`'dur.
+- `max_value` pozitif bir değer olmalıdır; sıfır veya anlamsız bir maksimum değer üretilmemelidir.
 
 Örnek:
 
@@ -712,14 +712,14 @@ fn kullanim_ilerlemesi_render(kullanilan: f32, limit: f32, cx: &App) -> impl Int
 
 Zed içinden kullanım örnekleri:
 
-- `edit_prediction_ui` crate'i: kullanım limiti progress bar'ı.
-- `ui` crate'i: empty, partial ve filled önizleme örnekleri.
+- `edit_prediction_ui` crate'i: Kullanım limiti ilerleme çubuğu.
+- `ui` crate'i: Boş, kısmi ve dolu önizleme örnekleri.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
 - `value` ve `max_value` aynı birimde olmalıdır.
-- Progress bar'a sadece renk yüklenmemeli; yanında bir label veya tooltip ile bağlam vermen okunabilirliği artırır.
-- `value > max_value` bilinçli bir over-limit durumudur. Normal "işlem tamamlandı" durumu için `value == max_value` kullanırsın.
+- İlerleme çubuğuna sadece renk yüklenmemeli; yanında bir etiket (label) veya ipucu (tooltip) ile bağlam sunulması okunabilirliği artırır.
+- `value > max_value` durumu bilinçli bir sınır aşımı (over-limit) durumudur. Normal "işlem tamamlandı" durumu için `value == max_value` kullanılır.
 
 ## CircularProgress
 
@@ -727,18 +727,18 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::CircularProgress`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for CircularProgress`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- Dar veya inline bir alanda belirli bir ilerleme oranını ring olarak göstermek için.
-- Token kullanımı, kompakt quota veya küçük status cluster'larında.
+- Dar veya satır içi bir alanda belirli bir ilerleme oranını halka (ring) olarak göstermek için.
+- Belirteç kullanımı, kompakt kota veya küçük durum gruplarında (status clusters).
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
 - Geniş yatay bir alanda metinle birlikte ilerleme göstermek için `ProgressBar` daha okunaklı bir tercihtir.
-- İlerleme oranı bilinmiyorsa spinner veya loading bileşeni kullanırsın.
+- İlerleme oranı bilinmiyorsa spinner veya yükleme (loading) bileşeni kullanılır.
 
 Temel API:
 
@@ -752,11 +752,11 @@ Temel API:
 
 Davranış:
 
-- Canvas üzerinde bir background circle ve bir progress arc çizer.
-- Progress üstten başlar ve saat yönünde ilerler.
-- Progress oranı `(value / max_value).clamp(0.0, 1.0)` ile hesaplanır.
-- `progress >= 0.999` olduğunda tam bir çember çizersin.
-- Varsayılan stroke width `px(4.)`'tür.
+- Tuval (canvas) üzerinde bir arka plan çemberi ve bir ilerleme yayı çizer.
+- İlerleme üstten başlar ve saat yönünde ilerler.
+- İlerleme oranı `(value / max_value).clamp(0.0, 1.0)` ile hesaplanır.
+- `progress >= 0.999` olduğunda tam bir çember çizilir.
+- Varsayılan çizgi kalınlığı (stroke width) `px(4.)`'tür.
 
 Örnek:
 
@@ -778,14 +778,14 @@ fn token_halkasi_render(kullanilan: f32, maks: f32, cx: &App) -> impl IntoElemen
 
 Zed içinden kullanım örnekleri:
 
-- `agent_ui` crate'i: token usage ring'leri.
-- `ui` crate'i: farklı yüzde değerleri için önizleme örnekleri.
+- `agent_ui` crate'i: Yapay zeka temsilcisi belirteç kullanım halkaları.
+- `ui` crate'i: Farklı yüzde değerleri için önizleme örnekleri.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- Ring küçük olduğunda, bir label veya tooltip olmadan oranı okumak zorlaşır.
+- Halka küçük olduğunda, bir etiket veya ipucu olmadan oranı okumak zorlaşır.
 - `max_value` pozitif bir değer olmalıdır.
-- Aynı ekranda çok sayıda animasyonlu veya sık güncellenen canvas progress kullanılıyorsa, repaint maliyeti hesaba katılır.
+- Aynı ekranda çok sayıda animasyonlu veya sık güncellenen tuval ilerleme göstergesi kullanılıyorsa, yeniden çizim (repaint) maliyeti hesaba katılmalıdır.
 
 ## ActivityIndicator
 
@@ -793,30 +793,30 @@ Kaynak:
 
 - Tanım: `activity_indicator` crate'i
 - Export: `activity_indicator::ActivityIndicator`; `ui` crate kökünden re-export edilen genel bir bileşen değildir.
-- Render modeli: `workspace::StatusItemView` olarak workspace status alanına bağlanır.
+- Render modeli: `workspace::StatusItemView` olarak çalışma alanı durum alanına bağlanır.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- Workspace genelinde devam eden LSP, debug, git, dosya sistemi, extension update veya formatlama hatası gibi aktiviteleri tek bir status tetikleyicisinde göstermek için.
-- Bir aktivite kullanıcı aksiyonu gerektiriyorsa aynı tetikleyici üzerinden click işleyicisi veya popover menu vermek için.
+- Çalışma alanı genelinde devam eden LSP, debug, git, dosya sistemi, eklenti güncelleme veya formatlama hatası gibi aktiviteleri tek bir durum tetikleyicisinde göstermek için.
+- Bir aktivite kullanıcı aksiyonu gerekiyorsa aynı tetikleyici üzerinden tıklama işleyicisi veya popover menü sunmak için.
 
 Davranış:
 
-- İçeriği `ActivityIcon` ayrımıyla seçersin: bilinmeyen süreli işler `LoadingSpinner`, statik durumlar ise `Icon(IconName)` taşır.
-- Spinner görünümü doğrudan `Button::loading(true)` üzerinden gelir; bu yüzden loading durumunda start icon yerine `IconName::LoadCircle` çizersin.
-- Warning, download ve benzeri statik durumlarda tetikleyici `Button::start_icon(...)` kullanır; ikon `Color::Muted` ile çizersin.
-- Language server work listesi tetikleyiciye yalnızca içerikte özel bir click işleyicisi yoksa popover olarak bağlanır. Menü en az bir cancellable work varsa açılır; cancellable entry'ler `Close` ikonu ve `Cancel ...` label'ıyla render edersin.
-- Environment error, formatting failure veya extension failure gibi durumlar kendi click işleyicilerini taşıyorsa language server work menüsü aynı tetikleyiciye eklenmez.
-- Extension install ve remove durumları loading spinner kullanır; extension upgrade ve download durumları download ikonu kullanır.
+- İçerik `ActivityIcon` ayrımıyla seçilir: Bilinmeyen süreli işler `LoadingSpinner`, statik durumlar ise `Icon(IconName)` taşır.
+- Spinner görünümü doğrudan `Button::loading(true)` üzerinden gelir; bu yüzden yükleme durumunda başlangıç ikonu yerine `IconName::LoadCircle` çizilir.
+- Uyarı, indirme ve benzeri statik durumlarda tetikleyici `Button::start_icon(...)` kullanır; ikon `Color::Muted` ile çizilir.
+- Dil sunucusu (language server) iş listesi, tetikleyiciye yalnızca içerikte özel bir tıklama işleyicisi yoksa popover olarak bağlanır. Menü en az bir iptal edilebilir iş varsa açılır; iptal edilebilir girdiler `Close` ikonu ve `Cancel ...` etiketiyle render edilir.
+- Ortam hatası (environment error), formatlama hatası veya eklenti hatası gibi durumlar kendi tıklama işleyicilerini taşıyorsa dil sunucusu iş menüsü aynı tetikleyiciye eklenmez.
+- Eklenti yükleme ve kaldırma durumları yükleme çarkını (loading spinner) kullanır; eklenti yükseltme ve indirme durumları indirme ikonunu kullanır.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- `ActivityIndicator`, genel amaçlı bir progress bileşeni değildir. Bir panel içinde belirli bir iş oranı göstermek için `ProgressBar`, kompakt oran için `CircularProgress`, bilinmeyen süreli yerel loading için `Button::loading(...)` veya `SpinnerLabel` tercih edersin.
-- Popover menüsünde yalnızca iptal edilebilir işler aksiyon üretir. İptal edilemeyen işler tek başına menüyü açtırmaz; bu yüzden kullanıcıya tıklanabilir bir affordance gerekiyorsa ilgili durumun `on_click` geri çağrısını açıkça bağlarsın.
+- `ActivityIndicator`, genel amaçlı bir ilerleme bileşeni değildir. Bir panel içinde belirli bir iş oranı göstermek için `ProgressBar`, kompakt oran için `CircularProgress`, bilinmeyen süreli yerel yükleme durumları için ise `Button::loading(...)` veya `SpinnerLabel` tercih edilir.
+- Popover menüsünde yalnızca iptal edilebilir işler aksiyon üretir. İptal edilemeyen işler tek başına menüyü açtırmaz; bu yüzden kullanıcıya tıklanabilir bir görsel ipucu gerekiyorsa ilgili durumun `on_click` geri çağrısı açıkça bağlanır.
 
 ## Geri Bildirim Kompozisyon Örnekleri
 
-Bir senkronizasyon sürecinde hem genel bir banner hem de yüzdeyi gösteren bir progress bar bir arada görünebilir:
+Bir senkronizasyon sürecinde hem genel bir banner hem de yüzdeyi gösteren bir ilerleme çubuğu bir arada görünebilir:
 
 ```rust
 use ui::{Banner, ProgressBar, Severity, prelude::*};
@@ -834,7 +834,7 @@ fn senkron_geri_bildirimi_render(ilerleme: f32, cx: &App) -> impl IntoElement {
 }
 ```
 
-Bir toolbar üzerinde hem bir count badge hem de küçük bir indicator birlikte yer alabilir. Aşağıdaki örnek hem sayaç hem de hata durumu için yan yana bir kullanım gösterir:
+Bir araç çubuğu üzerinde hem bir sayaç rozeti hem de küçük bir gösterge birlikte yer alabilir. Aşağıdaki örnek hem sayaç hem de hata durumu için yan yana bir kullanım gösterir:
 
 ```rust
 use ui::{CountBadge, IconButton, IconName, Indicator, prelude::*};
@@ -861,12 +861,12 @@ fn inceleme_arac_cubugu_ogesi_render(sorun_sayisi: usize, hata_var: bool) -> imp
 
 Bütün bu bileşenlerin kullanım kararı için kısa bir özet işe yarar:
 
-- Kısa, non-blocking ve sayfa veya panel üstü bir mesaj için `Banner`.
-- İçerik içinde açıklama, aksiyon ve dismiss bir arada gerekiyorsa `Callout`.
+- Kısa, engelleyici olmayan ve sayfa veya panel üstü bir mesaj için `Banner`.
+- İçerik içinde açıklama, aksiyon ve kapatma bir arada gerekiyorsa `Callout`.
 - Çok bölümlü bir modal içerik için `Modal`.
 - Kısa bir karar veya uyarı diyalogu için `AlertModal`.
-- Yeni özellik duyurusu için `AnnouncementToast` ile notification yaşam döngüsü birlikte.
-- Bir ikon üzerine sayaç bindirmek için `CountBadge`.
-- Var/yok veya nokta düzeyinde bir durum için `Indicator`.
-- Belirli bir yatay ilerleme için `ProgressBar`.
-- Belirli bir kompakt ilerleme için `CircularProgress`.
+- Yeni özellik duyurusu için `AnnouncementToast` ile bildirim yaşam döngüsü birlikte.
+- Bir ikon üzerine sayaç yerleştirmek için `CountBadge`.
+- Var/yok veya nokta düzeyinde bir durum bildirmek için `Indicator`.
+- Belirli bir yatay ilerleme yüzdesi göstermek için `ProgressBar`.
+- Belirli bir kompakt dairesel ilerleme göstermek için `CircularProgress`.

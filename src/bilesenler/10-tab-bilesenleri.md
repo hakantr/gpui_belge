@@ -1,13 +1,13 @@
 # 10. Tab Bileşenleri
 
-Tab bileşenleri yatay bir gezinme yüzeyi kurmak için kullanırsın. `Tab` tek bir sekmeyi çizer; `TabBar` ise sekmeleri, soldaki ve sağdaki action alanlarını ve yatay scroll kapsayıcısını birlikte düzenler. Seçili tab, aktif indeks, kapatma davranışı ve tab pozisyonu gibi bilgiler view durumu tarafından hesaplanır. Tab bileşenleri bu bilgiyi kendi başına üretmez.
+Tab bileşenleri, arayüz üzerinde yatay bir gezinme yüzeyi inşa etmek amacıyla tercih edilir. `Tab` tek bir sekmeyi oluştururken, `TabBar` sekmelerin genelini, sol ile sağ kenarda konumlanan eylem alanlarını (action slots) ve yatay kaydırma (scroll) kapsayıcısını koordine eder. Hangi sekmenin seçili olduğu, aktif indeks değeri, kapatma davranışı ve sekme yerleşimi gibi kararlar doğrudan ilgili görünüm (view) durumu tarafından hesaplanmalıdır. Sekme bileşenleri bu yönetim mantığını kendi başlarına yürütmez.
 
-Hangi durumda hangisini seçeceğin için kısa özet:
+Kullanım senaryolarına göre tercih kıstasları şu şekildedir:
 
-- Tek bir tab yüzeyi için `Tab` yeterlidir.
-- Tab koleksiyonu, soldaki/sağdaki toolbar kontrolleri ve yatay scroll alanı birlikte çizilecekse `TabBar` doğru üst yapıdır.
-- Dosya veya editor sekmeleri gibi bitişik border davranışının önemli olduğu durumlarda, her tab için doğru `TabPosition` değerini vermen gerekir.
-- Tab içeriğinde icon, değişiklik göstergesi veya kapatma/pin butonu gerekiyorsa `start_slot(...)` ve `end_slot(...)` yardımcıları kullanırsın.
+- Yalnızca tekil bir sekme yüzeyi oluşturulacaksa `Tab` kullanımı yeterli olur.
+- Bir sekme koleksiyonu, sol veya sağ kenar araç çubuğu (toolbar) kontrolleri ve yatay kaydırma alanı bir arada çizilecekse `TabBar` en uygun üst yapıyı sunar.
+- Dosya veya düzenleyici sekmelerindeki gibi bitişik kenarlık (border) hizalamalarının kritik olduğu durumlarda, her bir sekme için doğru `TabPosition` değerinin atanması zorunludur.
+- Sekme içeriğinde ikon, değişiklik durum göstergesi, kapatma veya sabitleme (pin) butonu gibi ek unsurlara ihtiyaç duyulduğunda `start_slot(...)` ve `end_slot(...)` yardımcı metotlarından faydalanılır.
 
 ## Tab
 
@@ -15,44 +15,44 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::Tab`, `ui::TabPosition`, `ui::TabCloseSide`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Tab`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- Editor, pane, önizleme veya ayar ekranında yatay bir sekme satırı çizilirken.
-- Seçili ve seçili olmayan tabların Zed tema renkleriyle uyumlu görünmesi gerektiğinde.
-- Tabın solunda bir durum veya icon, sağında kapatma/pin gibi action butonu bulunması istendiğinde.
+- Düzenleyici (editor), panel (pane), önizleme paneli veya ayarlar ekranında yatay bir sekme dizilimi tasarlanırken.
+- Seçilmiş ve seçilmemiş sekmelerin Zed tema renk paletine tam uyum sağlaması istendiğinde.
+- Sekmenin sol tarafında bir durum veya ikon, sağ tarafında ise kapatma ya da sabitleme (pin) gibi bir eylem butonunun yer alması hedeflendiğinde.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
-- Bir segmented control veya mod seçici için `ToggleButtonGroup` daha doğru bir araçtır.
-- İçeriği değiştirmeyen basit toolbar eylemleri için `Button` veya `IconButton` yeterlidir.
-- Dikey bir gezinme için `ListItem` veya `TreeViewItem` daha uygundur.
+- Parçalı kontrol (segmented control) veya mod seçici arayüzler tasarlanırken `ToggleButtonGroup` bileşeninin kullanılması daha doğru bir yaklaşımdır.
+- Doğrudan içerik geçişi sağlamayan, sadece belirli araç çubuğu eylemlerini tetikleyen durumlarda standart `Button` ya da `IconButton` yeterli işlevselliği sunar.
+- Dikey yönlü gezinme veya hiyerarşik listeleme senaryolarında `ListItem` ya da `TreeViewItem` tercih edilmelidir.
 
 Temel API:
 
 - Constructor: `Tab::new(id)`.
 - Builder'lar: `.position(TabPosition)`, `.close_side(TabCloseSide)`, `.start_slot(...)`, `.end_slot(...)`, `.toggle_state(bool)`.
 - Ölçü yardımcıları: `Tab::content_height(cx)`, `Tab::container_height(cx)`.
-- `TabPosition`: `First`, `Middle(Ordering)`, `Last` (`Middle` içindeki `Ordering`, ilgili tabın seçili taba göre konumunu temsil eder).
+- `TabPosition`: `First`, `Middle(Ordering)`, `Last` (`Middle` içindeki `Ordering`, ilgili sekmenin seçili sekmeye göre konumunu temsil eder).
 - `TabCloseSide`: `Start`, `End`.
-- `InteractiveElement` ve `StatefulInteractiveElement` implement eder; bu sayede `.on_click(...)`, drag/drop ve tooltip gibi GPUI etkileşim builder'ları doğrudan kullanabilirsin.
+- `InteractiveElement` ve `StatefulInteractiveElement` trait'lerini implement eder. Bu sayede `.on_click(...)`, sürükle-bırak (drag/drop) ve tooltip gibi GPUI etkileşim kurucuları (builder) doğrudan kullanılabilir.
 
 Tab yerleşim enum'ları:
 
 | API | Rol |
 | :-- | :-- |
-| `TabPosition` | Tab'ın satırdaki ilk, orta veya son konumunu bildirir; `Middle(Ordering)` aktif tab'a göre sol/sağ border davranışını taşır. |
-| `TabCloseSide` | Close veya aksiyon slot'unun `Start` ya da `End` tarafında görüneceğini seçer. |
+| `TabPosition` | Sekmenin satırdaki ilk, orta veya son konumunu bildirir; `Middle(Ordering)` aktif sekmenin konumuna göre sol/sağ border davranışını belirler. |
+| `TabCloseSide` | Kapatma veya aksiyon slot'unun `Start` ya da `End` tarafında görüneceğini seçer. |
 
 Davranış:
 
-- `RenderOnce`, `Toggleable` ve `ParentElement` implement eder.
-- `toggle_state(true)`, aktif tab renklerini ve border düzenini seçer.
-- `TabPosition` aktif tab çevresindeki border'ları belirler. `Middle(Ordering)` içindeki `Ordering`, ilgili tabın seçili taba göre solda mı yoksa sağda mı olduğunu anlatır; bu bilgi border'ın hangi tarafta görüneceğini etkiler.
-- `close_side(TabCloseSide::Start)` çağrısı, start ve end slot'ların görsel tarafını değiştirir. Workspace sekmelerinde kapatma butonunun sol ya da sağ tarafta görünmesi bu seçim üzerinden uygularsın.
-- Child içerik, `text_color(...)` atanmış bir `h_flex` içinde çizersin.
+- `RenderOnce`, `Toggleable` ve `ParentElement` trait'lerini uygular.
+- `toggle_state(true)` çağrısı, aktif sekme renklerini ve kenarlık düzenini devreye sokar.
+- `TabPosition`, aktif sekme etrafındaki kenarlıkları tayin eder. `Middle(Ordering)` varyantındaki `Ordering` değeri, ilgili sekmenin seçili sekmeye göre konumunu (sol veya sağ) belirtir. Bu konumsal bilgi, kenarlığın hangi tarafta render edileceğini belirler.
+- `close_side(TabCloseSide::Start)` çağrısı, `start` ve `end` alanlarının (slot) yerleşim yönünü değiştirir. Çalışma alanı (workspace) sekmelerinde kapatma butonunun sol veya sağ tarafta konumlandırılması bu seçim üzerinden yönetilir.
+- Çocuk (child) içerik, `text_color(...)` niteliği tanımlanmış bir yatay esnek kutu (`h_flex`) içinde render edilir.
 
 Örnek:
 
@@ -103,16 +103,16 @@ impl EditorTablari {
 
 Zed içinden kullanım örnekleri:
 
-- `workspace` crate'i: editor/pane tab render'ı; close side, drag/drop, pinned tab ve sağ tık context menu davranışlarıyla birlikte uygularsın.
+- `workspace` crate'i: Düzenleyici ve panel sekmelerinin kapatma, sürükleme, sabitleme ve sağ tık bağlam menüsü davranışlarıyla birlikte render edilmesi işlemlerinde kullanılır.
 - Bileşen önizleme: `ui` crate'i.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- `Tab`, aktif tabı kendi başına değiştirmez. Click işleyicisi içinde view durumunu günceller, ardından `cx.notify()` çağırırsın.
-- `TabPosition` verilmediğinde varsayılan değer `First` olur. Bu yüzden çoklu bir tab bar içinde her tab için doğru pozisyon hesaplanmalıdır; aksi halde border'lar tutarsız görünür.
-- Close butonu gibi `end_slot` kontrolleri için ayrı ve sabit bir id kullanılması beklenir; aksi halde tıklamalar yanlış elemana yönlendirilebilir.
-- Tab label'ının aktif veya pasif metin rengini doğrudan miras almasını istemek gerekiyorsa, basit bir string child kullanmak yeterlidir. Özel label veya kısaltma gerektiğinde renk davranışını ayrıca kontrol etmen gerekir.
-- Bir tab'a normalde sabit ve benzersiz bir id verirsin; çoklu bir listede her tab'ın kendi id'siyle ayrışması beklersin. Boş bir id desteklenen bir kullanım değildir, yalnız özel render proxy'leri gibi sınırlı durumlarda son çare olarak düşünülür.
+- `Tab` bileşeni, aktif durumdaki sekmeyi kendi başına değiştirmez. Tıklama (click) işleyicisi içerisinde ilgili görünüm durumunun güncellenmesi ve ardından `cx.notify()` metodunun çağrılması gerekir.
+- `TabPosition` belirtilmediğinde varsayılan olarak `First` değeri atanır. Bu nedenle, çoklu bir sekme çubuğunda her sekme için konumun doğru hesaplanması gerekir; aksi takdirde kenarlıklar görsel olarak tutarsız görünecektir.
+- Kapatma butonu gibi `end_slot` içerisine yerleştirilen kontroller için benzersiz ve sabit bir kimlik (id) atanmalıdır; aksi takdirde tıklama olayları yanlış elemanlara yönlendirilebilir.
+- Sekme etiketinin (label) aktif veya pasif metin rengini doğrudan miras alması isteniyorsa, çocuk öğe olarak yalın bir string geçilmesi yeterlidir. Özel bir etiket şablonu veya kısaltma kullanıldığında, metin renginin ayrıca kontrol edilmesi gerekir.
+- Her bir sekmeye normal şartlarda sabit ve benzersiz bir kimlik (id) atanmalıdır; böylece sekmeler birbirlerinden net bir şekilde ayrışabilir. Boş veya geçersiz bir kimlik kullanımı desteklenmez; bu tür durumlar yalnızca özel görsel vekiller (render proxy) gibi sınırlandırılmış alanlarda son çare olarak değerlendirilmelidir.
 
 ## TabBar
 
@@ -120,35 +120,35 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::TabBar`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for TabBar`.
 
-Ne zaman kullanırsın:
+Tavsiye Edilen Kullanım Alanları:
 
-- Birden fazla `Tab` öğesinin ortak bir tab bar yüzeyinde gösterilmesi istendiğinde.
-- Tabların solunda gezinme veya geçmiş, sağında oluşturma veya ayarlar gibi toolbar eylemleri yer alacaksa.
-- Tab listesi yatayda taşma riski taşıyorsa ve scroll durumunun takip edilmesi gerekiyorsa.
+- Birden fazla `Tab` öğesinin tek bir sekme çubuğu yüzeyinde bir arada sunulması istendiğinde.
+- Sekmelerin solunda geri/ileri gezinme geçmişi, sağında ise yeni dosya oluşturma veya ayarlar menüsü gibi araç çubuğu (toolbar) eylemlerinin konumlandırılması gerektiğinde.
+- Sekme listesinin yatay eksende taşma riski bulunduğunda ve kaydırma durumunun takip edilmesi planlandığında.
 
-Ne zaman kullanmazsın:
+Tercih Edilmemesi Gereken Durumlar:
 
-- Tek bir segment kontrol veya küçük bir mod seçici için `ToggleButtonGroup` çok daha doğru bir tercihtir.
-- Dikey bir gezinme veya tree için `List` veya `TreeViewItem` daha uygundur.
+- Tekil bir parçalı kontrol veya küçük bir çalışma modu seçici için `ToggleButtonGroup` daha uygun bir yapı sunar.
+- Dikey yönlü gezinme veya ağaç yapısı gösterimleri için `List` ya da `TreeViewItem` tercih edilmelidir.
 
 Temel API:
 
 - Constructor: `TabBar::new(id)`.
 - Builder'lar: `.track_scroll(&ScrollHandle)`, `.start_child(...)`, `.start_children(...)`, `.end_child(...)`, `.end_children(...)`.
-- Düşük seviye değiştiriciler: `.start_children_mut() -> &mut SmallVec<[AnyElement; 2]>` ve `.end_children_mut() -> &mut SmallVec<[AnyElement; 2]>`. Bunlar builder zinciri dışında, üst durum içinden start veya end slot listesinin elle değiştirilmesi gerektiğinde kullanırsın. Normal kompozisyonda tercih edilmezler.
-- `ParentElement` implement eder; tablar `.child(...)` veya `.children(...)` ile orta scroll alanına eklersin.
+- Düşük seviyeli değiştirici metotlar: `.start_children_mut() -> &mut SmallVec<[AnyElement; 2]>` ve `.end_children_mut() -> &mut SmallVec<[AnyElement; 2]>`. Bu metotlar, kurucu (builder) zinciri dışındaki bir üst durumdan başlangıç veya bitiş slot listesinin el ile mutasyona uğratılması gerektiğinde kullanılır ve standart kompozisyon akışlarında genellikle tercih edilmez.
+- `ParentElement` trait'ini implement eder; sekmeler `.child(...)` veya `.children(...)` metotlarıyla orta kısımdaki kaydırma alanına dahil edilir.
 
 Davranış:
 
-- `RenderOnce` implement eder.
-- Start children varsa, sol tarafta flex-none bir alan oluşturulur; bu alanın tablara bakan sağ kenarında bir border çizersin.
-- Orta tab alanı `overflow_x_scroll()` kullanan bir `h_flex` içinde render edersin.
-- End children varsa, sağ tarafta flex-none bir alan oluşturulur; bu alanın tablara bakan sol kenarında bir border çizersin.
-- `.track_scroll(...)`, iç tab scroll kapsayıcısına bir scroll handle bağlar.
-- TabBar, çocuk tabların `TabPosition` veya seçili durumunu hesaplamaz; bu sorumluluk view tarafına aittir.
+- `RenderOnce` trait'ini uygular.
+- Başlangıç çocukları (`start_children`) mevcutsa sol tarafta esnemeyen (`flex-none`) bir alan oluşturulur ve bu alanın sekmelere bakan sağ sınırında bir kenarlık render edilir.
+- Orta sekme alanı, `overflow_x_scroll()` özelliği etkinleştirilmiş bir yatay esnek kutu (`h_flex`) içerisinde çizilir.
+- Bitiş çocukları (`end_children`) mevcutsa sağ tarafta esnemeyen bir alan konumlandırılır ve bu alanın sol sınırında kenarlık çizilir.
+- `.track_scroll(...)` çağrısı, sekme kaydırma kapsayıcısına bir kaydırma tutamacı (`ScrollHandle`) bağlar.
+- `TabBar`, içerdiği sekmelerin `TabPosition` veya seçilme durumlarını otomatik olarak hesaplamaz; bu veri yönetimi görünüm (view) tarafının sorumluluğundadır.
 
 Örnek:
 
@@ -208,18 +208,18 @@ fn editor_tab_bari_render(aktif: usize) -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `workspace` crate'i: tek satır, pinned/unpinned ve iki satırlı tab bar kompozisyonları.
+- `workspace` crate'i: Tek satırlı, sabitlenmiş/serbest ve çift satırlı sekme çubuğu kompozisyonlarında kullanılır.
 - Bileşen önizleme: `ui` crate'i.
 
-Dikkat edeceğin noktalar:
+Dikkat Edilmesi Gereken Hususlar:
 
-- Start ve end children, tab scroll alanına dahil değildir. Bu yüzden gezinme ve global tab eylemleri için uygundur; tabların kendisiyle karışmadan ayrı bir alanda yaşar.
-- Tabların taşması bekleniyorsa, bir `ScrollHandle` değerini view durumunda saklar ve `.track_scroll(...)` ile bağlarsın.
-- Pinned ile unpinned tabları ayrı satırlarda göstermek gerekiyorsa, iki ayrı `TabBar` compose edersin. Kaynakta workspace pane tam olarak bu yaklaşımı kullanır.
+- Başlangıç ve bitiş çocukları sekme kaydırma alanına dahil değildir. Bu nedenle global gezinme ve sekme eylemleri için ideal bir yerleşim sunar; sekmelerin kayma alanıyla karışmadan bağımsız bir bölgede kalır.
+- Sekmelerin taşma ihtimali varsa, bir `ScrollHandle` değeri görünüm durumunda tutulmalı ve `.track_scroll(...)` metoduyla ilişkilendirilmelidir.
+- Sabitlenmiş (pinned) ve serbest (unpinned) sekmelerin farklı satırlarda gösterilmesi gerektiğinde, iki bağımsız `TabBar` bileşeni bir araya getirilir (compose edilir). Zed içerisindeki çalışma alanı paneli (`Workspace Pane`) tam olarak bu yöntemi kullanmaktadır.
 
 ## Tab Kompozisyon Örnekleri
 
-Aşağıdaki örnek kapatma butonu solda kalan bir tab gösterir. `TabCloseSide::Start` seçildiğinde start slot ile end slot'un görsel tarafları yer değiştirir:
+Aşağıdaki örnekte kapatma butonu sol tarafta konumlanmış bir sekme tasarımı yer almaktadır. `TabCloseSide::Start` seçeneği aktif edildiğinde başlangıç ve bitiş alanlarının görsel yerleşimleri yer değiştirir:
 
 ```rust
 use ui::prelude::*;
@@ -239,7 +239,7 @@ fn soldan_kapatmali_tab_render() -> impl IntoElement {
 }
 ```
 
-Scroll handle bağlanmış bir tab bar örneğinde ise scroll davranışı view durumunda tutulan bir `ScrollHandle` üzerinden yönetirsin:
+Kaydırma tutamacı bağlanmış bir sekme çubuğu örneğinde ise kaydırma hareketi, görünüm durumunda barındırılan bir `ScrollHandle` referansı üzerinden kontrol edilir:
 
 ```rust
 use gpui::ScrollHandle;
@@ -251,7 +251,7 @@ struct KaydirilabilirTablar {
 }
 
 impl Render for KaydirilabilirTablar {
-    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, _window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         TabBar::new("kaydirilabilir-tablar")
             .track_scroll(&self.kaydirma_tutamaci)
             .child(Tab::new("tab-bir").child("Bir"))

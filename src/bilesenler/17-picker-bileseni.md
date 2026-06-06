@@ -1,12 +1,12 @@
 # 17. Picker Bileşeni
 
-`picker` crate'i komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch seçici, command palette, model seçici ve fuzzy seçim gerektiren her UI bunun üzerine kurarsın. Bu yapı yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
+`picker` crate'i, komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch seçici, command palette, model seçici ve fuzzy seçim gerektiren her türlü kullanıcı arayüzü (UI) bunun üzerine kurulur. Bu yapı, yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
 
 ---
 
 ## `PickerDelegate`
 
-Picker UI'ı kendisi durum tutmaz; tüm seçim mantığı bir `PickerDelegate` uygulaması üzerinden işler. Yeni bir picker yazılırken esas iş bu trait'i uygulamaktır:
+Picker UI bileşeni kendi içinde durum tutmaz; tüm seçim mantığı bir `PickerDelegate` uygulaması üzerinden işler. Yeni bir picker yazılırken esas iş bu trait'i uygulamaktır:
 
 ```rust
 pub trait PickerDelegate: Sized + 'static {
@@ -23,80 +23,80 @@ pub trait PickerDelegate: Sized + 'static {
 }
 ```
 
-Minimum uygulama bu sekiz metottan ibarettir. Picker editöre yazılan her tuşta `update_matches`'i async çağırır; mevcut eşleşme state'i hemen işlersin, task tamamlandığında da liste tekrar güncellersin.
+Minimum uygulama bu sekiz metottan ibarettir. Picker arama kutusuna yazılan her tuş vuruşunda `update_matches` metodunu asenkron olarak çağırır; mevcut eşleşme durumu hemen işlenir, task tamamlandığında da liste tekrar güncellenir.
 
 ---
 
-## Sık üzerine yazılan davranışlar
+## Sık Üzerine Yazılan Davranışlar
 
-Picker farklı senaryolara uydurmak için opsiyonel ek davranış noktaları sağlar:
+Picker, farklı senaryolara uyum sağlamak amacıyla opsiyonel ek davranış noktaları sağlar:
 
-- `select_history(Direction, sorgu, ...) -> Option<String>` — yukarı veya aşağı oklarını varsayılan seçim yerine sorgu geçmişinde gezdirmek için.
-- `can_select(sira, ...)`, `select_on_hover()`, `selected_index_changed(...)` — seçilebilir satırları ve hover/seçim yan etkilerini yönetir.
-- `no_matches_text(...)`, `render_header(...)`, `render_footer(...)` — boş durum ile sabit üst ve alt alanlar.
-- `render_editor(editor, window, cx)` — varsayılan arama editörü kabını değiştirir; özel padding, divider veya kompozisyon gerekiyorsa kullanırsın.
-- `documentation_aside(...)` ve `documentation_aside_index()` — seçili veya hover edilen öğe için sağda dokümantasyon paneli göstermek.
-- `confirm_update_query(...)`, `confirm_input(...)`, `confirm_completion(...)` — enter'ın seçimi onaylamak yerine sorguyu dönüştürdüğü veya birebir girdiyi action'a çevirdiği picker türleri.
-- `separators_after_indices()` — belirli satır indekslerinden sonra divider çizdirir; gruplu sonuç listelerinde görsel ayrım sağlar.
-- `editor_position() -> PickerEditorPosition::{Start, End}` — arama editörünün listenin üstünde mi altında mı duracağını belirler.
-- `finalize_update_matches(sorgu, sure, ...) -> bool` — arka plan eşleştirmesini kısa süreliğine bloklayarak ilk çizim ve onay yarışını azaltır.
-- `should_dismiss() -> bool` — picker'ın cancel/dismiss akışında kapanıp kapanmayacağını belirleyen son karardır.
-
----
-
-## Yapıcı seçimi
-
-Picker üretmek için dört yapıcı vardır:
-
-- `Picker::uniform_list(temsilci, window, cx)` — aramalı picker; tüm satırlar aynı yükseklikteyse tercih edersin ve `gpui::uniform_list` kullanır.
-- `Picker::list(temsilci, window, cx)` — aramalı picker; satır yükseklikleri değişkense kullanırsın.
-- `Picker::nonsearchable_uniform_list(...)` ve `Picker::nonsearchable_list(...)` — arama editörü olmayan seçim listeleri.
-
-`uniform_list` `gpui::uniform_list` üzerinde sanallaştırma kullandığı için çok büyük listelerde tercih edersin. `list` `ListState` tabanlıdır; değişken satır yükseklikleri ölçülürken `list_measure_all()` ile her satır önceden ölçtürülür.
+- `select_history(Direction, sorgu, ...) -> Option<String>`: Yukarı veya aşağı oklarını varsayılan seçim yerine sorgu geçmişinde gezdirmek için kullanılır.
+- `can_select(sira, ...)`, `select_on_hover()`, `selected_index_changed(...)`: Seçilebilir satırları ve hover/seçim yan etkilerini yönetir.
+- `no_matches_text(...)`, `render_header(...)`, `render_footer(...)`: Boş durum ile sabit üst ve alt alanlardır.
+- `render_editor(editor, window, cx)`: Varsayılan arama kutusu kabını değiştirir; özel iç kenar boşluğu (padding), bölücü (divider) veya kompozisyon gerekiyorsa kullanılır.
+- `documentation_aside(...)` ve `documentation_aside_index()`: Seçili veya üzerinde durulan (hover) öğe için sağda dokümantasyon paneli göstermek amacıyla tercih edilir.
+- `confirm_update_query(...)`, `confirm_input(...)`, `confirm_completion(...)`: Enter tuşunun seçimi onaylamak yerine sorguyu dönüştürdüğü veya doğrudan girdiyi eyleme (action) çevirdiği picker türleridir.
+- `separators_after_indices()`: Belirli satır indekslerinden sonra bölücü çizdirir; gruplandırılmış sonuç listelerinde görsel ayrım sağlar.
+- `editor_position() -> PickerEditorPosition::{Start, End}`: Arama kutusunun listenin üstünde mi yoksa altında mı duracağını belirler.
+- `finalize_update_matches(sorgu, sure, ...) -> bool`: Arka plan eşleştirmesini kısa süreliğine bloklayarak ilk çizim ve onay yarışını azaltır.
+- `should_dismiss() -> bool`: Picker bileşeninin kapatma (dismiss) akışında kapanıp kapanmayacağını belirleyen son karardır.
 
 ---
 
-## Kullanılabilir ayarlar
+## Yapıcı (Constructor) Seçimi
 
-Picker davranışı zincir üzerinden ince ayarlanır:
+Picker üretmek için dört yapıcı mevcuttur:
 
-- `width(...)`, `max_height(...)`, `widest_item(...)` — ölçü ve liste genişliği.
-- `show_scrollbar(bool)` — dış scrollbar gösterimi.
-- `modal(bool)` — picker kendi başına modal gibi çiziliyorsa elevation verir; daha büyük bir modalın parçasıysa `false` yaparsın.
-- `list_measure_all()` — `ListState` tabanlı listede tüm öğeleri ölçmek için.
-- `refresh(&mut self, window, cx)`, `update_matches_with_options(..., ScrollBehavior)` — eşleşme akışını dışarıdan tetikleyen değişebilen yardımcılar.
-- `editor_move_up(...)`, `editor_move_down(...)`, `cycle_selection(...)` — picker'ın action binding'leri veya özel key handler'ları tarafından selection'ı hareket ettiren dışa açık yardımcılar.
-- `refresh_placeholder(window, cx)` — delegate'in `placeholder_text(...)` sonucunu editor placeholder'ına tekrar yazar.
-- `query(&self, cx: &App) -> String` — editördeki anlık sorguyu okur.
-- `set_query(&self, sorgu: &str, window: &mut Window, cx: &mut App)` — editör metnini değiştirir; `&self` aldığına dikkat — picker entity'sini bir `update` bloğunun içine sokmak şart değildir, doğrudan picker referansından çağrılabilir. `cx` burada `Context<...>` değil `&mut App` olduğu için entity context gerekiyorsa update bloğundan dışarı çıkmak gerekebilir.
+- `Picker::uniform_list(temsilci, window, cx)`: Aramalı picker'dır; tüm satırlar aynı yükseklikteyse tercih edilir ve arka planda `gpui::uniform_list` kullanır.
+- `Picker::list(temsilci, window, cx)`: Aramalı picker'dır; satır yükseklikleri değişkense kullanılır.
+- `Picker::nonsearchable_uniform_list(...)` ve `Picker::nonsearchable_list(...)`: Arama kutusu olmayan seçim listeleridir.
+
+`uniform_list` varyantı `gpui::uniform_list` üzerinde sanallaştırma kullandığı için çok büyük listelerde tercih edilir. `list` varyantı ise `ListState` tabanlıdır; değişken satır yükseklikleri ölçülürken `list_measure_all()` ile her satır önceden ölçtürülür.
 
 ---
 
-## Action ve key context
+## Kullanılabilir Ayarlar
 
-Picker kökü kendi key context'ini ve action dinleyicilerini kurar:
+Picker davranışı zincir üzerinden ince ayarlarla yapılandırılabilir:
+
+- `width(...)`, `max_height(...)`, `widest_item(...)`: Ölçü ve liste genişliği ayarları.
+- `show_scrollbar(bool)`: Dış kaydırma çubuğu gösterimi.
+- `modal(bool)`: Picker kendi başına modal gibi çiziliyorsa elevation (yükseklik) verir; daha büyük bir modalın parçasıysa `false` yapılır.
+- `list_measure_all()`: `ListState` tabanlı listede tüm öğeleri ölçmek için kullanılır.
+- `refresh(&mut self, window, cx)`, `update_matches_with_options(..., ScrollBehavior)`: Eşleşme akışını dışarıdan tetikleyen yardımcı metotlardır.
+- `editor_move_up(...)`, `editor_move_down(...)`, `cycle_selection(...)`: Picker'ın eylem bağlantıları veya özel tuş işleyicileri (key handlers) tarafından seçimi hareket ettiren dışa açık yardımcılardır.
+- `refresh_placeholder(window, cx)`: Temsilcinin (delegate) `placeholder_text(...)` sonucunu arama kutusu placeholder alanına tekrar yazar.
+- `query(&self, cx: &App) -> String`: Arama kutusundaki anlık sorguyu okur.
+- `set_query(&self, sorgu: &str, window: &mut Window, cx: &mut App)`: Arama kutusu metnini değiştirir. Bu metodun `&self` aldığına dikkat edilmelidir; picker entity'sini bir `update` bloğunun içine sokmak şart değildir, doğrudan picker referansından çağrılabilir. `cx` burada `Context<...>` değil `&mut App` olduğu için entity bağlamı gerekiyorsa update bloğundan dışarı çıkmak gerekebilir.
+
+---
+
+## Eylem (Action) ve Tuş Bağlamı (Key Context)
+
+Picker kökü kendi tuş bağlamını ve eylem dinleyicilerini kurar:
 
 - Çizim kökü `"Picker"` key context'ini ekler.
-- `menu::SelectNext`, `menu::SelectPrevious`, `menu::SelectFirst`, `menu::SelectLast`, `menu::Cancel`, `menu::Confirm`, `menu::SecondaryConfirm`, `editor::MoveUp`, `editor::MoveDown`, `picker::ConfirmCompletion` ve `picker::ConfirmInput` action'larını dinler. `editor::MoveUp` ve `editor::MoveDown` yukarı/aşağı seçim hareketini editör action'ı olarak da karşılar.
+- `menu::SelectNext`, `menu::SelectPrevious`, `menu::SelectFirst`, `menu::SelectLast`, `menu::Cancel`, `menu::Confirm`, `menu::SecondaryConfirm`, `editor::MoveUp`, `editor::MoveDown`, `picker::ConfirmCompletion` ve `picker::ConfirmInput` eylemlerini dinler. `editor::MoveUp` ve `editor::MoveDown` yukarı/aşağı seçim hareketini editör eylemi olarak da karşılar.
 - Tıklama onayı sırasında `cx.stop_propagation()` ve `window.prevent_default()` çağrılır; bu sayede picker satırına tıklama dış elementlere sızmaz.
 
 ---
 
-## Highlighted match yardımcıları
+## Vurgulu Eşleşme (Highlighted Match) Yardımcıları
 
 `picker` crate'i dışa açık olarak iki hazır render yardımcısı sağlar:
 
-- `HighlightedMatch`: `text`, `highlight_positions` ve `color` alanlarını taşıyan tek satırlık highlighted label. `IntoElement` implement eder.
-- `HighlightedMatchWithPaths`: ana match label'ını, opsiyonel prefix'i, path parçalarını ve aktiflik işaretini birlikte render eder.
+- `HighlightedMatch`: `text`, `highlight_positions` ve `color` alanlarını taşıyan tek satırlık vurgulanmış etikettir (highlighted label). `IntoElement` implement eder.
+- `HighlightedMatchWithPaths`: Ana eşleşme etiketini, isteğe bağlı prefix'i, yol (path) parçalarını ve aktiflik işaretini birlikte render eder.
 
 Temel API:
 
-- `HighlightedMatch::join(components, separator) -> HighlightedMatch`: birden çok highlighted parçayı separator ile birleştirir ve byte offset'lerini güvenli şekilde taşır.
-- `HighlightedMatch::color(color) -> HighlightedMatch`: label rengini değiştirir.
-- `HighlightedMatchWithPaths::render_paths_children(element) -> Div`: path çocuklarını verilen container'a ekler.
-- `HighlightedMatchWithPaths::is_active(active) -> HighlightedMatchWithPaths`: aktif satırda check icon gösterir.
+- `HighlightedMatch::join(components, separator) -> HighlightedMatch`: Birden çok vurgulanmış parçayı bir ayırıcı ile birleştirir ve byte offset'lerini güvenli şekilde taşır.
+- `HighlightedMatch::color(color) -> HighlightedMatch`: Etiket rengini değiştirir.
+- `HighlightedMatchWithPaths::render_paths_children(element) -> Div`: Path çocuklarını verilen container'a ekler.
+- `HighlightedMatchWithPaths::is_active(active) -> HighlightedMatchWithPaths`: Aktif satırda check ikonunu gösterir.
 
-Bu tipler özellikle file finder, branch picker veya symbol picker gibi path/label ayrımı yapan delegate'lerde kullanışlıdır. Sadece düz metin satırı gerekiyorsa doğrudan `ListItem` ve `HighlightedLabel` kompozisyonu daha sade kalır.
+Bu tipler özellikle dosya bulucu, branch picker veya sembol seçici gibi yol/etiket ayrımı yapan temsilcilerde (delegate) kullanışlıdır. Sadece düz metin satırı gerekiyorsa doğrudan `ListItem` ve `HighlightedLabel` kompozisyonu daha sade bir çözüm sunar.
 
 ---
 
@@ -106,39 +106,37 @@ Picker crate'indeki dışa açık yardımcıların çoğu, `PickerDelegate` davr
 
 | API | Alt özellikler | Kullanım notu |
 |-----|----------------|---------------|
-| `ConfirmCompletion` | Action struct | Seçili completion'ı onaylayan `picker` namespace action'ıdır; delegate `confirm_completion` ile sorguyu güncelleyebilir. |
-| `ConfirmInput` | `secondary` | Seçili satırı değil, editördeki ham input'u onaylar; secondary confirm bilgisini `secondary` alanıyla taşır. |
+| `ConfirmCompletion` | Action struct | Seçili tamamlama eylemini onaylayan `picker` ad alanı eylemidir; temsilci `confirm_completion` ile sorguyu güncelleyebilir. |
+| `ConfirmInput` | `secondary` | Seçili satırı değil, arama kutusundaki ham girdiyi onaylar; secondary confirm bilgisini `secondary` alanıyla taşır. |
 | `Direction` | `Up`, `Down` | `select_history` içinde yukarı/aşağı geçmiş gezinme yönünü belirtir. |
-| `ScrollBehavior` | `RevealSelected`, `PreserveOffset` | Match güncellenirken seçili satıra scroll etme veya mevcut offset'i koruma kararını taşır. |
-| `PickerEditorPosition` | `Start`, `End` | Arama editörünün listenin üstünde veya altında render edilmesini seçer. |
-| `highlighted_match_with_paths` | Modül | Path'li fuzzy sonuçların label ve path parçalarını ayrı vurgulayan hazır render yardımcılarını barındırır. |
-| `picker::popover_menu` | Modül | `PickerPopoverMenu` tipini barındırır; picker entity'sini `ui::PopoverMenu` trigger'ı arkasında açılan yönetilen view haline getirir. |
-| `HighlightedMatch` | `text`, `highlight_positions`, `color`; `join`, `color` | Tek label üzerindeki byte offset highlight bilgisini taşır; `join` parçaları birleştirirken offset'leri güvenli biçimde kaydırır. |
-| `HighlightedMatchWithPaths` | `prefix`, `match_label`, `paths`, `active`; `render_paths_children`, `is_active` | Ana eşleşme label'ı, opsiyonel prefix, path satırları ve aktif satır check işaretini birlikte render eder. |
-
-Bu tabloda `Up/Down`, `Start/End` gibi varyantlar için ayrıca alt başlık açmak gerekli değildir; isimleri doğrudan davranışı anlatır ve ilgili delegate hook'unda okunur.
+| `ScrollBehavior` | `RevealSelected`, `PreserveOffset` | Eşleşme güncellenirken seçili satıra kaydırma yapma veya mevcut offset'i koruma kararını taşır. |
+| `PickerEditorPosition` | `Start`, `End` | Arama kutusunun listenin üstünde veya altında render edilmesini seçer. |
+| `highlighted_match_with_paths` | Modül | Yol içeren fuzzy sonuçların etiket ve yol parçalarını ayrı ayrı vurgulayan hazır render yardımcılarını barındırır. |
+| `picker::popover_menu` | Modül | `PickerPopoverMenu` tipini barındırır; picker entity'sini `ui::PopoverMenu` tetikleyicisi arkasında açılan yönetilen bir görünüm (view) haline getirir. |
+| `HighlightedMatch` | `text`, `highlight_positions`, `color`; `join`, `color` | Tek label üzerindeki byte offset vurgu bilgisini taşır; `join` parçaları birleştirirken offset'leri güvenli biçimde kaydırır. |
+| `HighlightedMatchWithPaths` | `prefix`, `match_label`, `paths`, `active`; `render_paths_children`, `is_active` | Ana eşleşme etiketi, isteğe bağlı prefix, yol satırları ve aktif satır check işaretini birlikte render eder. |
 
 ---
 
 ## `PickerPopoverMenu`
 
-Picker'ı bir popover içine yerleştiren ince sarmalayıcıdır. `new(picker, trigger, tooltip, anchor, cx)` picker'ın `DismissEvent`'ini popover dismiss olayına bağlar; `with_handle(...)` ve `offset(...)` ile dış popover handle ve konum ayarı yaparsın. Picker bir toolbar butonu veya popover tetikleyicisi arkasında açılacaksa doğrudan modal yerine bu sarmalayıcı tercih edersin.
+Picker'ı bir popover içine yerleştiren ince sarmalayıcıdır. `new(picker, trigger, tooltip, anchor, cx)` yapıcı metodu picker'ın `DismissEvent`'ini popover kapatma olayına bağlar; `with_handle(...)` ve `offset(...)` ile dış popover handle ve konum ayarları yapılır. Picker bir araç çubuğu butonu veya popover tetikleyicisi arkasında açılacaksa doğrudan modal yerine bu sarmalayıcı tercih edilir.
 
 ---
 
-## Pratikteki picker örnekleri
+## Pratikteki Picker Örnekleri
 
 Zed içinde picker üzerine kurulu çeşitli akışların kendine özgü davranışları vardır:
 
-- `file_finder` hem `path:line-column` sorgularını hem de `path:start-end` satır aralıklarını anlar. Örneğin `src/app` dosyayı açıp ilgili satır aralığını seçer; aralık dosya sonunu aşarsa EOF'a kırpılır. Ters numerik aralık (örneğin `10-5`) başlangıç satırını tek konum olarak kullanır; aralık olarak değil, yalnız o satıra gider. Yalnız başlangıcı sayısal olmayan ya da tümüyle bozuk bir aralık ise `PathWithPosition` ayrıştırmasına düşer. Sonda kalan tek satır iki noktası `path:12:` biçiminde temizlenir, fakat aralık biçimleri korunur.
-- `git_ui::branch_picker::select_popover(...)` checkout yapmayan seçim popover'ı üretir. Bu mod `BranchSelectionBehavior::Select` kullanır, placeholder olarak `Select branch…` gösterir, footer ve silme aksiyonlarını sunmaz, seçimde `SelectBranchCallback` ile seçilen `Branch` değerini dışarı taşır ve ardından `DismissEvent` yayar. Branch sıralama seçili branch'i en öne alır; aktif branch'in remote'undaki diğer branch'ler sonra gelir. Kalan branch'ler ile aktif/upstream eşleşmeleri ayrı önceliklere ayrılır; aynı öncelikte yerel branch'ler uzak branch'lerden önce gelir.
-- Komut paleti picker üzerinde `Picker::uniform_list` ile kurarsın. Sorgu eşleştirme, geçmiş gezinme ve secondary confirm davranışı [Çalışma Alanı → Komut Paleti](../calisma_alani/08-komut-paleti.md) bölümünde anlatılır.
+- `file_finder` hem `path:line-column` sorgularını hem de `path:start-end` satır aralıklarını anlar. Örneğin `src/app` dosyasını açıp ilgili satır aralığını seçer; aralık dosya sonunu aşarsa EOF'a kırpılır. Ters sayısal aralık (örneğin `10-5`) başlangıç satırını tek konum olarak kullanır; aralık olarak değil, yalnızca o satıra gider. Yalnız başlangıcı sayısal olmayan ya da tümüyle bozuk bir aralık ise `PathWithPosition` ayrıştırmasına düşer. Sonda kalan tek iki nokta üst üste işareti `path:12:` biçiminde temizlenir, ancak aralık biçimleri korunur.
+- `git_ui::branch_picker::select_popover(...)` dal değiştirme (checkout) yapmayan seçim popover'ı üretir. Bu mod `BranchSelectionBehavior::Select` kullanır, placeholder olarak `Select branch…` gösterir, footer ve silme aksiyonlarını sunmaz, seçim yapıldığında `SelectBranchCallback` ile seçilen `Branch` değerini dışarı taşır ve ardından `DismissEvent` yayar. Dal sıralaması seçili dalı en öne alır; aktif dalın remote'undaki diğer dallar sonra gelir. Kayan dallar ile aktif/upstream eşleşmeleri ayrı önceliklere ayrılır; aynı öncelikte yerel dallar uzak dallardan önce gelir.
+- Komut paleti picker arayüzü `Picker::uniform_list` ile kurulur. Sorgu eşleştirme, geçmiş gezinme ve ikincil onay (secondary confirm) davranışları [Çalışma Alanı → Komut Paleti](../calisma_alani/08-komut-paleti.md) bölümünde detaylandırılmıştır.
 
 ---
 
 ## Dikkat Noktaları
 
-- `PickerDelegate::update_matches` `Task<()>` döner; arka plan eşleştirmesi tamamlanmadan satır sayısını ve seçim state'ini uyumsuz bırakmak tutarsız seçim davranışı üretir. Pratik akış mevcut sonuçları silmeden yenisini hesaplamak ve tek state değişimiyle `matches` ile `selected_index` değerini birlikte güncellemektir.
-- `selected_index` sınır dışı kalırsa liste yine `match_count()` ile sürüldüğü için satırlar çizilir; yalnız hiçbir satır seçili görünmez, picker boş çizilmez. Yine de seçimin kaybolmaması için `update_matches` sonrasında `match_count == 0` durumunu ayrı ele alır, diğer durumlarda index'i `min(match_count - 1, selected_index)` ile yenilersin.
-- Tıklama onayı picker tarafından `cx.stop_propagation()` ve `window.prevent_default()` ile sarılır. Klavye veya özel confirm action'ında bu çağrılar otomatik değildir; dış element'in olay almaması gerekiyorsa delegate kendi durumunu set ettikten sonra ilgili propagation/default davranışını ayrıca yönetmelidir.
-- `PickerPopoverMenu` `DismissEvent`'ini dışarıdaki popover'a aktardığı için picker'ın kendi `dismissed` hook'una yapılması gereken iş yine delegate üzerinde kalır; modal'a özel temizlik kodunu burada yazarsın, popover sarmalayıcısı temizlik yapmaz.
+- `PickerDelegate::update_matches` metodu `Task<()>` döner; arka plan eşleştirmesi tamamlanmadan satır sayısını ve seçim durumunu uyumsuz bırakmak tutarsız seçim davranışına yol açar. Pratik akış mevcut sonuçları silmeden yenisini hesaplamak ve tek durum değişimiyle `matches` ile `selected_index` değerini birlikte güncellemektir.
+- `selected_index` sınır dışı kalırsa liste yine `match_count()` ile sürüldüğü için satırlar çizilir; yalnız hiçbir satır seçili görünmez, picker boş çizilmez. Yine de seçimin kaybolmaması için `update_matches` sonrasında `match_count == 0` durumu ayrı ele alınır, diğer durumlarda indeks `min(match_count - 1, selected_index)` formülüyle yenilenir.
+- Tıklama onayı picker tarafından `cx.stop_propagation()` ve `window.prevent_default()` ile sarılır. Klavye veya özel onay eyleminde bu çağrılar otomatik değildir; dış elementin olay almaması gerekiyorsa delegate kendi durumunu set ettikten sonra ilgili yayılım/varsayılan davranışı ayrıca yönetmelidir.
+- `PickerPopoverMenu` `DismissEvent`'ini dışarıdaki popover'a aktardığı için picker'ın kendi `dismissed` kancasına (hook) yapılması gereken iş yine delegate üzerinde kalır; modal'a özel temizlik kodu burada yazılır, popover sarmalayıcısı temizlik yapmaz.

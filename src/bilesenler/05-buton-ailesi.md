@@ -2,15 +2,15 @@
 
 Buton ailesi, kullanıcı eylemlerini başlatan veya görünür bir UI durumunu değiştiren bileşenlerden oluşur. `Button` metinli eylemler için, `IconButton` yalnızca ikonlu kontroller için, `ButtonLike` ise özel içerikli buton yüzeyleri için tasarlanmıştır. Ailenin diğer üyeleri de bu üç temel yüzeyin üstüne ek davranış veya kompozisyon ekler; arka planda aynı buton disiplinini paylaşırlar.
 
-Hangi durumda hangisini seçeceğin için şu kısa ayrım yeterli olur:
+Hangi durumda hangi buton tipinin tercih edileceğine karar verirken aşağıdaki kısa ayrım yeterli olacaktır:
 
 - Açık metinli bir komut için `Button` ilk seçenektir.
 - Toolbar, panel başlığı veya kompakt bir kontrol için `IconButton` daha uygun düşer.
 - İçerik standart label/icon düzeninden ayrılıyorsa `ButtonLike` daha esnek bir yüzey sunar.
 - Harici bir URL'i açan metin linki için `ButtonLink` vardır.
-- Clipboard'a kopyalama davranışı için `CopyButton` doğrudan kullanırsın.
-- Bir ana eylem ve onun yanında açılır seçenekler gerekiyorsa `SplitButton` bu birleşik yapıyı kurarsın.
-- Aynı grupta birbirini dışlayan seçimler için `ToggleButtonGroup` tercih edersin.
+- Pano (clipboard) kopyalama davranışları için `CopyButton` doğrudan kullanılır.
+- Bir ana eylem ve onun yanında açılır seçenekler sunulacaksa `SplitButton` ile birleşik bir yapı kurulabilir.
+- Aynı grupta birbirini dışlayan seçimler için `ToggleButtonGroup` tercih edilir.
 
 ![Buton Ailesi Seçim Matrisi](assets/buton-secim-matrisi.svg)
 
@@ -19,7 +19,7 @@ Hangi durumda hangisini seçeceğin için şu kısa ayrım yeterli olur:
 Kaynak:
 
 - Ortak trait ve token'lar: `ui` crate'i.
-- Prelude: `Button`, `IconButton`, `SelectableButton`, `ButtonCommon`, `ButtonSize`, `ButtonStyle`, `IconPosition` otomatik gelir. `TintColor`, `ButtonLike`, `ButtonLink`, `CopyButton`, `SplitButton` ve toggle button tipleri ise ayrıca import edersin.
+- Prelude: `Button`, `IconButton`, `SelectableButton`, `ButtonCommon`, `ButtonSize`, `ButtonStyle`, `IconPosition` otomatik gelir. `TintColor`, `ButtonLike`, `ButtonLink`, `CopyButton`, `SplitButton` ve toggle button tipleri ise ayrıca import edilir.
 
 Ortak trait'ler:
 
@@ -31,7 +31,7 @@ Ortak trait'ler:
 - `FixedWidth`: `.width(impl Into<DefiniteLength>)`, `.full_width()`.
 - `VisibleOnHover`: `.visible_on_hover(impl Into<SharedString>)`.
 
-> **`key_binding` ve `key_binding_position` trait'te yer almaz.** Bu iki builder, `Button` struct'ının kendisine ait inherent (impl) metotlardır ve `IconButton`, `ButtonLike`, `SplitButton` üzerinde **çalışmaz**. Bu üç buton tipinde kısayol ipucu göstermek için elle bir `KeyBinding` widget'ı eklersin (bkz. Bölüm 14, `KeyBinding`). `KeybindingPosition` enum'unun değerleri (`Start`, `End` — varsayılan olarak `End`) ise yalnızca `Button::key_binding_position(...)` parametresi bağlamında anlam taşır.
+> **`key_binding` ve `key_binding_position` trait'te yer almaz.** Bu iki builder, `Button` struct'ının kendisine ait inherent (impl) metotlardır ve `IconButton`, `ButtonLike`, `SplitButton` üzerinde **çalışmaz**. Bu üç buton tipinde kısayol ipucu göstermek için manuel olarak bir `KeyBinding` widget'ı eklenir (bkz. Bölüm 14, `KeyBinding`). `KeybindingPosition` enum'unun değerleri (`Start`, `End` — varsayılan olarak `End`) ise yalnızca `Button::key_binding_position(...)` parametresi bağlamında anlam taşır.
 
 Buton stilleri:
 
@@ -39,7 +39,7 @@ Buton stilleri:
 - `ButtonStyle::Filled`: daha fazla vurgu isteyen birincil veya modal eylemler için.
 - `ButtonStyle::Tinted(TintColor::Accent | Error | Warning | Success)`: seçili veya semantik bir vurgu gerektiren durumlar için.
 - `ButtonStyle::Outlined` ve `OutlinedGhost`: ikincil ama sınırla ayrılması istenen eylemler için.
-- `ButtonStyle::OutlinedCustom(hsla)`: özel bir border rengi gerektiğinde kullanırsın.
+- `ButtonStyle::OutlinedCustom(hsla)`: özel bir border rengi gerektiğinde kullanılır.
 - `ButtonStyle::Transparent`: yalnızca foreground ve hover davranışı istenen kompakt kontroller için uygundur.
 
 Buton boyutları:
@@ -48,14 +48,14 @@ Buton boyutları:
 - `ButtonSize::Medium`: 28px.
 - `ButtonSize::Default`: 22px.
 - `ButtonSize::Compact`: 18px.
-- `ButtonSize::None`: 16px; link veya özel kompozisyonlarda tercih edersin.
+- `ButtonSize::None`: 16px; link veya özel kompozisyonlarda tercih edilir.
 
 İkon konumu için iki ayrı enum vardır:
 
-- `IconPosition`: toggleable entry veya menu/button benzeri satırlarda icon'un label'ın başında mı sonunda mı duracağını anlatır. Değerleri `Start` ve `End`'dir; varsayılan `Start` olur. `ContextMenu::toggleable_entry(...)` gibi API'lerde checked ikonunun veya durum ikonunun hangi tarafta görüneceğini bu enum ile seçersin.
+- `IconPosition`: toggleable entry veya menu/button benzeri satırlarda icon'un label'ın başında mı sonunda mı duracağını anlatır. Değerleri `Start` ve `End`'dir; varsayılan `Start` olur. `ContextMenu::toggleable_entry(...)` gibi API'lerde checked ikonunun veya durum ikonunun hangi tarafta görüneceği bu enum ile belirlenir.
 - `KeybindingPosition`: yalnız `Button::key_binding_position(...)` için geçerlidir. Kısayol ipucunu start veya end tarafına taşır; varsayılan `End` olur.
 
-`IconPosition` ile `KeybindingPosition` aynı şey değildir. İlki genel icon slot konumunu, ikincisi yalnız metinli `Button` üzerindeki kısayol ipucunu yönetir. Bir `IconButton` veya `ButtonLike` üzerinde kısayol ipucu göstermek istiyorsan `Button::key_binding_position(...)` beklemek yerine ayrıca `KeyBinding` veya `KeybindingHint` element'i compose etmen gerekir.
+`IconPosition` ile `KeybindingPosition` aynı şey değildir. İlki genel icon slot konumunu, ikincisi yalnız metinli `Button` üzerindeki kısayol ipucu boyutunu yönetir. Bir `IconButton` veya `ButtonLike` üzerinde kısayol ipucu göstermek isteniyorsa `Button::key_binding_position(...)` özelliğini beklemek yerine ayrıca bir `KeyBinding` veya `KeybindingHint` elementi eklenmelidir.
 
 Seçili görünümün nasıl ifade edileceği (`Tinted` mi, `selected_style` mı) sahnenin niyetine göre değişir. Aşağıdaki tablo bu kararı özetler:
 
@@ -66,7 +66,7 @@ Seçili görünümün nasıl ifade edileceği (`Tinted` mi, `selected_style` mı
 | Seçili durumda da `Subtle` görünmeli ama icon/label rengi değişsin | `.toggle_state(true).selected_label_color(Color::Accent)` veya `IconButton::selected_icon_color(...)` | Buton arka planı korunur, yalnızca içerik rengi değişir. |
 | Seçili durumda farklı bir ikon görünmeli | `IconButton::selected_icon(IconName::...)` | Toggle iken icon swap'i `selected_style` ile kombine edebilirsin. |
 
-`SelectableButton` trait'i `Button`, `IconButton` ve `ButtonLike` için `selected_style(ButtonStyle)` yüzeyini ortak bir şekilde sunar; aynı görsel kural birden fazla buton tipinde uygulanacaksa bu helper tek noktadan kullanabilirsin.
+`SelectableButton` trait'i `Button`, `IconButton` ve `ButtonLike` için `selected_style(ButtonStyle)` yüzeyini ortak bir şekilde sunar; aynı görsel kural birden fazla buton tipinde uygulanacaksa bu yardımcı metot tek bir noktadan kullanılabilir.
 
 Buton ailesindeki küçük taşıyıcı ve trait yüzeyleri şu tabloda toplanır:
 
@@ -88,9 +88,9 @@ Buton ailesindeki küçük taşıyıcı ve trait yüzeyleri şu tabloda toplanı
 | `ToggleButtonGroupSize` | `Default`, `Medium`, `Large`, `Custom(Rems)` | Toggle group ölçüsünü seçer. |
 | `private::ToggleButtonStyle` | private marker trait | `ToggleButtonSimple` ve `ToggleButtonWithIcon` dışındaki tiplerin `ButtonBuilder` olmasını sınırlar; crate dışından import edemezsin. |
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- `ButtonCommon::tooltip(...)`, `Tooltip::text(...)` gibi `Fn(&mut Window, &mut App) -> AnyView` döndüren helper'larla birlikte kullanırsın.
+- `ButtonCommon::tooltip(...)` metodu, `Tooltip::text(...)` gibi `Fn(&mut Window, &mut App) -> AnyView` döndüren yardımcılarla birlikte kullanılır.
 - `ButtonLike`, render sırasında click işleyicisi içinde `cx.stop_propagation()` çağırır. Bu yüzden iç içe yerleştirilmiş tıklanabilir yüzeylerde event akışını buna göre düşünmen gerekir.
 - Disabled durumda olan butonlarda tıklama ve right-click işleyicileri uygulanmaz; sahnede görünseler bile etkileşime girmezler.
 
@@ -103,17 +103,17 @@ Kaynak:
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: `impl Component for Button`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
 - Metinle açıklanan kullanıcı eylemleri için: Save, Open, Retry, Apply, Cancel gibi komutlar.
 - Modal footer, form eylemi, callout action veya satır içi komut ihtiyaçlarında.
 - Metin ile birlikte start veya end icon ve bir keybinding ipucunun birlikte gösterilmesi gerektiğinde.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Yalnızca ikon kullanılacaksa `IconButton` daha doğru bir yüzeydir.
 - İçerik özel slot'lardan oluşuyorsa `ButtonLike` esneklik sağlar.
-- Görsel olarak harici bir web linki ifade edilecekse `ButtonLink` tercih edersin.
+- Görsel olarak harici bir web linki ifade edilecekse `ButtonLink` tercih edilir.
 
 Temel API:
 
@@ -125,9 +125,9 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder ve render sonunda arka planda bir `ButtonLike` üretir.
-- `loading(true)` olduğunda `start_icon` yerine dönen `IconName::LoadCircle` ikonu çizersin.
-- Disabled durumda label ve icon `Color::Disabled` ile çizersin.
-- `truncate(true)`'ü yalnızca dinamik ve taşma riski olan label'larda kullanırsın; kaynak yorumunda statik label'lar için kullanılmaması gerektiği özellikle belirtilir.
+- `loading(true)` olduğunda `start_icon` yerine dönen `IconName::LoadCircle` ikonu çizilir.
+- Devre dışı (disabled) durumda etiket ve ikon `Color::Disabled` rengiyle çizilir.
+- `.truncate(true)` yalnızca dinamik ve taşma riski olan etiketlerde kullanılır; kaynak yorumlarında statik etiketler için kullanılmaması gerektiği özellikle vurgulanmaktadır.
 
 Örnekler:
 
@@ -180,11 +180,11 @@ Zed içinden kullanım örnekleri:
 - `recent_projects` crate'i: Open, New Window, Delete gibi proje eylemleri.
 - `git_ui` crate'i: commit, selector ve split button parçaları.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- Dinamik bir label için `truncate(true)` eklerken, parent container'a da `min_w_0` gibi taşmayı sınırlayacak bir layout davranışı verirsin; aksi halde truncate beklendiği gibi çalışmaz.
-- Loading durumu yalnızca görsel bir spinner sağlar. Async işin hatasını view durumuna taşımak yine view tarafının sorumluluğudur.
-- Tinted stiller için kullanılan `TintColor` prelude içinde gelmez; ayrıca import edersin.
+- Dinamik bir etiket için `.truncate(true)` eklenirken, parent kapsayıcıya da `min_w_0` gibi taşmayı sınırlayacak bir düzen (layout) davranışı tanımlanmalıdır; aksi takdirde kırpma işlemi beklendiği gibi çalışmaz.
+- Loading durumu yalnızca görsel bir yükleme spinner'ı sağlar. Asenkron işlerin hatalarını view durumuna yansıtmak yine view tarafının sorumluluğundadır.
+- Tinted stiller için kullanılan `TintColor` prelude içinde sunulmaz; ayrıca import edilmesi gerekir.
 
 ## IconButton
 
@@ -195,13 +195,13 @@ Kaynak:
 - Prelude: `ui::prelude::*` içinde otomatik gelir.
 - Preview: `impl Component for IconButton`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
 - Kompakt toolbar eylemleri, panel kapatma, filtre, refresh, split veya menu trigger gibi yalnızca ikonla tanınan eylemler için.
 - Seçili durum geldiğinde ikonun veya rengin değişmesi gereken senaryolar için.
-- İkonun yanında küçük bir status dot gerektiğinde `.indicator(...)` ile birlikte kullanırsın.
+- İkonun yanında küçük bir durum noktası (status dot) gerektiğinde `.indicator(...)` ile birlikte kullanılır.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Eylem ikonla yeterince anlatılamıyorsa `Button` daha okunabilir bir tercih olur.
 - İçerik ikon dışında özel bir layout gerektiriyorsa `ButtonLike` daha uygundur.
@@ -210,16 +210,16 @@ Temel API:
 
 - Constructor: `IconButton::new(id, icon)`.
 - İkon builder'ları: `.icon_size(...)`, `.icon_color(...)`, `.selected_icon(...)`, `.selected_icon_color(...)`, `.alpha(...)`.
-- Şekil: `.shape(IconButtonShape::Square | Wide)`. Varsayılan şekil `IconButtonShape::Wide`'dir; kare bir yüzey istiyorsan `Square`'i açıkça verirsin.
+- Şekil: `.shape(IconButtonShape::Square | Wide)`. Varsayılan şekil `IconButtonShape::Wide`'dir; kare bir yüzey isteniyorsa `Square` açıkça tanımlanır.
 - Durum ve davranış: `.indicator(...)`, `.indicator_border_color(...)`, `.toggle_state(...)`, `.selected_style(...)`, `.disabled(...)`, `.on_click(...)`, `.on_right_click(...)`, `.visible_on_hover(...)`.
 - Ortak builder'lar: `.style(...)`, `.size(...)`, `.tooltip(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.width(...)`, `.full_width()`, `.cursor_style(...)`.
 
 Davranış:
 
 - `RenderOnce` implement eder ve render sonunda bir `ButtonLike` üretir.
-- Seçili durumda `selected_icon` tanımlanmışsa o ikon çizersin.
-- Seçili durumdayken `selected_style` da verilmişse, ikon rengi bu stile karşılık gelen semantik renkten türetilir. Aksi halde `selected_icon_color` veya `Color::Selected` kullanırsın.
-- `IconButtonShape::Square`, ikonun kare ölçüsünü kullanarak butonun width ve height değerlerini eşitler; yani buton bir kare gibi çizersin.
+- Seçili durumda `selected_icon` tanımlanmışsa o ikon çizilir.
+- Seçili durumdayken `selected_style` da belirtilmişse, ikon rengi bu stile karşılık gelen semantik renkten türetilir. Aksi halde `selected_icon_color` veya `Color::Selected` kullanılır.
+- `IconButtonShape::Square`, ikonun kare ölçüsünü kullanarak butonun genişlik (width) ve yükseklik (height) değerlerini eşitler; yani buton bir kare olarak çizilir.
 
 Örnek:
 
@@ -253,11 +253,11 @@ Zed içinden kullanım örnekleri:
 - `search` crate'i: search control butonları.
 - `keymap_editor` crate'i: filtre ve exact match kontrolleri.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- Yalnız ikonlu bir kontrol çoğunlukla bir tooltip ister; aksi halde simgenin anlamı kullanıcı için kaybolur.
-- `.visible_on_hover(group_name)` kullandığında, parent element üzerinde aynı isimle `.group(group_name)` çağırmış olmalısın; yoksa hover etkisi beklenen şekilde tetiklenmez.
-- Seçili durumu yalnızca görsel olarak değiştirmek yeterli değildir. View durumu değişiyorsa işleyici içinde durumu güncellemen ve ardından `cx.notify()` çağırman gerekir.
+- Yalnızca ikon barındıran kontroller genellikle bir tooltip açıklaması gerektirir; aksi takdirde simgenin anlamı kullanıcı açısından belirsiz kalabilir.
+- `.visible_on_hover(group_name)` kullanıldığında, parent element üzerinde aynı isimle `.group(group_name)` çağrılmış olmalıdır; aksi takdirde hover etkisi tetiklenmez.
+- Seçili durumu yalnızca görsel olarak değiştirmek yeterli değildir. View durumu değiştiğinde işleyici içinde durum güncellenmeli ve ardından `cx.notify()` çağrılmalıdır.
 
 ## ButtonLike
 
@@ -268,13 +268,13 @@ Kaynak:
 - Prelude: Hayır; `use ui::ButtonLike;` ayrıca eklersin.
 - Preview: `impl Component for ButtonLike`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
 - Standart `Button` veya `IconButton` slot modelinin yetmediği özel yüzeylerde.
 - Buton gibi davranan ama içinde birden fazla label, icon, badge veya özel bir layout bulunan satır ve trigger'lar için.
 - Split button'ın sol veya sağ parçasını özel köşe yuvarlamalarıyla oluşturmak gerektiğinde.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Basit bir metinli eylem için `Button` zaten yeterlidir.
 - Yalnızca bir ikon için `IconButton` daha tutarlı bir tercihtir.
@@ -294,11 +294,11 @@ Yuvarlama davranışı:
 
 | İç sabit | Kaynak görünürlüğü | Public karşılığı |
 | :-- | :-- | :-- |
-| `ButtonLikeRounding::ALL` | crate içi sabit | Tüm köşeler yuvarlatılır; dışarıdan `ButtonLike::new_rounded_all(...)` ile seçersin. |
-| `ButtonLikeRounding::LEFT` | crate içi sabit | Sol parça yuvarlatılır, sağ kenar düz kalır; dışarıdan `ButtonLike::new_rounded_left(...)` ile seçersin. |
-| `ButtonLikeRounding::RIGHT` | crate içi sabit | Sağ parça yuvarlatılır, sol kenar düz kalır; dışarıdan `ButtonLike::new_rounded_right(...)` ile seçersin. |
+| `ButtonLikeRounding::ALL` | crate içi sabit | Tüm köşeler yuvarlatılır; dışarıdan `ButtonLike::new_rounded_all(...)` ile seçilir. |
+| `ButtonLikeRounding::LEFT` | crate içi sabit | Sol parça yuvarlatılır, sağ kenar düz kalır; dışarıdan `ButtonLike::new_rounded_left(...)` ile seçilir. |
+| `ButtonLikeRounding::RIGHT` | crate içi sabit | Sağ parça yuvarlatılır, sol kenar düz kalır; dışarıdan `ButtonLike::new_rounded_right(...)` ile seçilir. |
 
-Split button veya bitişik toolbar parçası kurarken sol ve sağ constructor'ları kullanırsın. Tek başına duran özel yüzeylerde varsayılan `ButtonLike::new(...)` zaten tüm köşeleri yuvarlatır; yalnız kaynak paritesi gerektiğinde `new_rounded_all(...)` adı davranışı açık hale getirir.
+Split button veya bitişik araç çubuğu (toolbar) parçaları tasarlanırken sol ve sağ yapıcı metotlar (constructors) kullanılır. Tek başına duran özel yüzeylerde varsayılan `ButtonLike::new(...)` zaten tüm köşeleri yuvarlatır; yalnızca kaynak kodla birebir eşleşme (parite) gerektiğinde `new_rounded_all(...)` adı bu davranışı açıkça belirtir.
 
 Davranış:
 
@@ -338,10 +338,10 @@ Zed içinden kullanım örnekleri:
 - `language_tools` crate'i: header yüzeyi.
 - `agent_ui` crate'i: özel mention yüzeyi.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- `ButtonLike` unconstrained olduğu için tasarım sisteminin dışına çıkmak çok kolaydır; yalnızca gerçekten farklı bir slot ihtiyacı varsa devreye alırsın. Aksi halde uygulamanın tutarlılığı zamanla erir.
-- `new_rounded_left/right/all` constructor'ları split veya bitişik buton grupları için uygundur; tek bir buton için ise normal `new` çoğu zaman yeterli olur.
+- `ButtonLike` sınırlandırılmamış (unconstrained) bir yapı olduğundan tasarım sisteminin dışına çıkılmasına kolayca zemin hazırlayabilir; yalnızca gerçekten farklı bir slot ihtiyacı mevcutsa tercih edilmelidir. Aksi takdirde uygulamanın görsel tutarlılığı zamanla azalabilir.
+- `new_rounded_left/right/all` yapıcı metotları split veya bitişik buton grupları için uygundur; tek bir buton tasarımı için ise normal `new` yapıcı metodu genellikle yeterlidir.
 
 ## ButtonLink
 
@@ -352,15 +352,15 @@ Kaynak:
 - Prelude: Hayır; `use ui::ButtonLink;` ayrıca eklersin.
 - Preview: `impl Component for ButtonLink`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
 - Kullanıcıyı harici bir web sayfasına gönderen inline veya ayar metni içindeki linkler için.
 - Bir linkin buton focus ve tıklama davranışını taşıması, ama görsel olarak underline metin gibi görünmesi gerektiğinde.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Uygulama içi bir action için normal `Button` veya menu entry daha doğrudan bir çözümdür.
-- Link metadata, tooltip veya zengin içerik gerektiriyorsa özel bir `ButtonLike` kompozisyonuna geçmek gerekebilir.
+- Link metadata, tooltip veya zengin içerik gerekiyorsa özel bir `ButtonLike` kompozisyonuna geçmek gerekebilir.
 
 Temel API:
 
@@ -369,10 +369,10 @@ Temel API:
 
 Davranış:
 
-- Render sırasında arka planda bir `ButtonLike::new(...)` kurarsın.
-- Label otomatik olarak underline edersin.
-- Varsayılan olarak `IconName::ArrowUpRight` end icon olarak gösterilir; bu yön oku link metnine "dışa açılır" niteliği verir.
-- Click işleyicisi `cx.open_url(&self.link)` çağırarak bağlantıyı tarayıcıda açar.
+- Render aşamasında arka planda bir `ButtonLike::new(...)` kurulur.
+- Etiket (label) otomatik olarak altı çizili (underline) hale getirilir.
+- Varsayılan olarak `IconName::ArrowUpRight` ikonunun sonda (end icon) gösterilmesi, bu yön okunun link metnine "harici adrese açılır" niteliği katmasını sağlar.
+- Tıklama (click) işleyicisi `cx.open_url(&self.link)` çağrısı yaparak ilgili bağlantıyı web tarayıcısında açar.
 
 Örnek:
 
@@ -396,9 +396,9 @@ Zed içinden kullanım örnekleri:
 
 - `language_models` crate'i: provider ayarları ve belge bağlantıları.
 
-Dikkat edeceğin noktalar:
+Dikkat edinilecek noktalar:
 
-- Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca link gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatırsın.
+- Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca linkin gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatılması önerilir.
 
 ## CopyButton
 
@@ -409,12 +409,12 @@ Kaynak:
 - Prelude: Hayır; `use ui::CopyButton;` ayrıca eklersin.
 - Preview: `impl Component for CopyButton`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
 - Sabit ya da render anında bilinen bir string'i clipboard'a kopyalamak için.
 - SHA, path, komut, hata metni veya diagnostic içeriği gibi alanların yanında küçük bir copy ikonunun durması gerektiğinde.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Kopyalama işlemi async veya başarısız olabilen özel bir akış ise ve hatanın UI'da gösterilmesi gerekiyorsa, davranışı view durumu ile açıkça yöneten özel bir buton daha uygundur.
 
@@ -425,11 +425,11 @@ Temel API:
 
 Davranış:
 
-- Render sırasında keyed bir `CopyButtonState` kullanır.
-- Varsayılan tıklama davranışı, verilen `message` string'ini clipboard'a yazar.
-- Kopyalama sonrasında iki saniye boyunca `IconName::Check`, `Color::Success` ile birlikte kaynakta tanımlı `"Copied!"` ipucu gösterir.
-- İki saniyelik durum yenilemesi için `cx.background_executor().timer(...)` kullanan bir task detach edilir; yani süre dolduğunda görsel kendiliğinden eski hâline döner.
-- İki saniyelik "Copied!" görsel durumu (`IconName::Check` + `Color::Success`) her tıklamada gösterilir; `custom_on_click(...)` versen bile bu görsel geri bildirim çalışır. Özel işleyici yalnızca clipboard yazma adımının yerine geçer, kopyalandı göstergesini devre dışı bırakmaz.
+- Render sırasında anahtarlı (keyed) bir `CopyButtonState` kullanılır.
+- Varsayılan tıklama davranışı, tanımlanan `message` metnini panoya (clipboard) yazar.
+- Kopyalama işleminin ardından iki saniye boyunca `IconName::Check`, `Color::Success` rengiyle birlikte "Copied!" ipucunun gösterilmesini sağlar.
+- İki saniyelik durum yenilemesi için `cx.background_executor().timer(...)` kullanan bir asenkron görev arka plana (detach) gönderilir; böylece süre dolduğunda görünüm otomatik olarak eski haline geri döner.
+- İki saniyelik "Copied!" görsel durumu her tıklamada tetiklenir; `.custom_on_click(...)` belirtilmiş olsa bile bu görsel geri bildirim çalışmaya devam eder. Özel işleyici yalnızca panoya yazma adımının yerine geçer, kopyalandı görsel göstergesini devre dışı bırakmaz.
 
 Örnek:
 
@@ -456,10 +456,10 @@ Zed içinden kullanım örnekleri:
 - `git_ui` crate'i: commit SHA kopyalama.
 - `agent_ui` crate'i: komut ve hata metni kopyalama.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- `visible_on_hover(...)` için parent elementte aynı isimle `.group(...)` çağırman gerekir.
-- `custom_on_click(...)`, varsayılan kopya davranışına ekleme yapmaz; onun yerine geçer. Özel işleyici hata üretebiliyorsa, hatayı view durumuna taşıman veya görünür biçimde loglaman gerekir; aksi halde kullanıcı kopya başarısız olduğunda fark etmez.
+- `.visible_on_hover(...)` için parent element üzerinde aynı isimle `.group(...)` çağrılması gerekir.
+- `.custom_on_click(...)` metodu varsayılan kopyalama davranışına ekleme yapmaz, doğrudan onun yerine geçer. Eğer özel işleyici hata üretebiliyorsa, bu hatanın view durumuna taşınması veya loglanması gerekir; aksi takdirde kullanıcı kopyalama işleminin başarısız olduğunu fark edemez.
 
 ## SplitButton
 
@@ -470,11 +470,11 @@ Kaynak:
 - Prelude: Hayır; `use ui::SplitButton;` ayrıca eklersin.
 - Preview: Doğrudan `impl Component for SplitButton` yok.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
 - Bir ana eylemin yanında aynı kontrol içinde ikinci bir trigger gerektiğinde. Örneğin Commit ile commit seçenekleri ya da Run ile run configuration menüsünün birlikte yer alması bu kalıba uyar.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - İki eylem birbirine eşit önemdeyse ayrı `Button` veya bir toolbar grubu daha okunaklı bir yapı kurarsın.
 - Sağ parça sadece dekoratifse split button bu yapıya gereksiz bir ağırlık katar.
@@ -490,7 +490,7 @@ Davranış:
 
 - `RenderOnce` implement eder.
 - Sol ve sağ parçayı tek bir h-flex kontrol olarak render eder; iki parça görsel olarak tek bir bütünmüş gibi görünür.
-- `Filled` ve `Outlined` stilleri border ile divider çizer; ayrıca `Filled` stilinde surface background ve hafif bir shadow uygularsın.
+- `Filled` ve `Outlined` stilleri border ile divider çizer; ayrıca `Filled` stilinde ise yüzey arka planı (surface background) ve hafif bir gölge (shadow) uygulanır.
 
 Örnek:
 
@@ -523,10 +523,10 @@ Zed içinden kullanım örnekleri:
 - `git_ui` crate'i: commit modal split button.
 - `debugger_ui` crate'i: console action split button.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- Sol ve sağ parçaya kendi click işleyicilerini verirsin; `SplitButton` yalnızca görsel bir kompozisyon sağlar, eylemleri birleştirmez.
-- Sağ parça bir popover veya menu trigger olacaksa, focus kapanma davranışı ilgili `PopoverMenu` ya da `ContextMenu` tarafında yönetilir; SplitButton bu sorumluluğu üstlenmez.
+- Sol ve sağ parçalara bağımsız tıklama (click) işleyicileri atanır; `SplitButton` yalnızca görsel bütünlük sağlar, eylemleri birleştirmez.
+- Sağ parça bir popover veya menü tetikleyicisi (trigger) olacaksa, odak kapanma davranışı ilgili `PopoverMenu` veya `ContextMenu` tarafında yönetilir; `SplitButton` bu sorumluluğu üstlenmez.
 
 ## ToggleButtonGroup
 
@@ -537,12 +537,12 @@ Kaynak:
 - Prelude: Hayır; ayrıca import edersin.
 - Preview: `impl Component for ToggleButtonGroup<...>`.
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
 - Aynı anda tek seçimin aktif olduğu segment kontrol veya mod seçicilerde.
 - Görünüm modu, diff modu, filtre modu veya küçük bir ayar seçicisi gibi durumlar için.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Bağımsız aç/kapat kontrolleri için `Switch`, `Checkbox` veya tekil `IconButton::toggle_state(...)` daha uygun bir araçtır.
 - Seçenek sayısı fazlaysa ya da dinamik olarak değişiyorsa, bir dropdown/menu çözümü daha ölçeklenebilir bir tercih olur.
@@ -560,10 +560,10 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder.
-- Her girdi bir `ButtonLike` olarak render edersin.
-- `selected_index` veya girdinin `.selected(true)` durumu, seçili görünümü birlikte tetikler.
-- Seçili görünüm `ButtonStyle::Tinted(TintColor::Accent)` arka planı ile accent label/icon rengi kombinasyonuyla çizersin.
-- `ToggleButtonPosition` grup içinde ilk, orta veya son segmentin köşe yuvarlamasını ifade eder. Public sabit değerleri vardır (`HORIZONTAL_FIRST`, `HORIZONTAL_MIDDLE`, `HORIZONTAL_LAST`), ancak alanlar private olduğu için normal kullanıcı kodu doğrudan segment durumu kuramaz; bunun yerine `ToggleButtonGroup` aracılığıyla kullanman gerekir.
+- Her girdi bir `ButtonLike` olarak render edilir.
+- `selected_index` veya girdinin `.selected(true)` olması, seçili görünümü birlikte tetikler.
+- Seçili görünüm, `ButtonStyle::Tinted(TintColor::Accent)` arka planı ile accent etiket/ikon rengi kombinasyonuyla çizilir.
+- `ToggleButtonPosition` grup içinde ilk, orta veya son segmentin köşe yuvarlamasını ifade eder. Public sabit değerleri vardır (`HORIZONTAL_FIRST`, `HORIZONTAL_MIDDLE`, `HORIZONTAL_LAST`), ancak alanlar private olduğu için normal geliştirici kodu doğrudan segment durumu oluşturamaz; bunun yerine `ToggleButtonGroup` aracılığıyla kullanılması gerekir.
 - `ButtonBuilder` trait'i public görünmesine rağmen private bir supertrait ile sealed durumdadır. Bu nedenle dış bir crate kendi girdi tipini implement edemez; beklenen giriş noktaları `ToggleButtonSimple` ve `ToggleButtonWithIcon`'dur.
 - Sealed supertrait kaynakta `private::ToggleButtonStyle` adıyla yer alır; crate dışından import edilemez ve tüketici API'si olarak düşünülmemiştir.
 - `ButtonConfiguration` aynı şekilde iç bir taşıyıcı görevindedir; alanları private olduğu için tüketici kodu tarafından elle kurulmaz, yalnızca `ButtonBuilder` implementasyonlarının dönüş değeri olarak ortaya çıkar.
@@ -609,11 +609,11 @@ Zed içinden kullanım örnekleri:
 - `git_ui` crate'i: git picker mod seçimi.
 - Component preview: `ui` crate'indeki tek satır, ikonlu ve çok satırlı örnekler.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
-- `selected_index` bir sınır kontrolü yapmaz; verilen indeksin girdi sayısıyla uyumlu olması gerekir.
-- `tab_index(&mut isize)` çağrısı, verilen değişkeni buton sayısı kadar artırır. Aynı form içinde sonraki odaklanabilir elemanları hesaba katman gerekir; aksi halde tab sırası beklenmedik bir noktaya kayar.
-- `ToggleButtonGroup` yalnızca görsel seçim davranışını kurar; asıl seçili durumu view struct'ı içinde bir alanda tutman ve click işleyicisinde güncellemen gerekir.
+- `selected_index` sınır kontrolü yapmaz; belirtilen indeksin girdi sayısıyla uyumlu olması geliştiricinin sorumluluğundadır.
+- `tab_index(&mut isize)` çağrısı, iletilen değişkeni buton sayısı kadar artırır. Aynı form içindeki sonraki odaklanabilir elemanların da hesaba katılması gerekir; aksi takdirde tab sırası beklenmedik bir noktaya kayabilir.
+- `ToggleButtonGroup` yalnızca görsel seçim davranışını kurar; asıl seçili durumun view struct'ı içinde bir alanda saklanması ve tıklama işleyicisi (click listener) içinde güncellenmesi gerekir.
 
 ## Buton Kompozisyon Örnekleri
 

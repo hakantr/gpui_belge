@@ -4,12 +4,12 @@ Bu bölüm, mevcut Zed `ui` katmanındaki bileşenleri GPUI temeliyle birlikte a
 
 Belgeleri sırayla okumak en rahat yoldur. İlk bölümler ortak kavramları, layout'u, metni, ikonları ve butonları kurar. Sonraki bölümlerde form kontrolleri, menüler, listeler, tablolar, feedback bileşenleri ve daha özel AI ve collaboration yüzeyleri anlatılır. En sonda da bu parçaların gerçek ekran iskeletlerinde nasıl bir araya geldiğini gösteren örnekler bulunur.
 
-Okurken şu ayrımı akılda tutmak işini kolaylaştırır:
+Okurken şu ayrımı akılda tutmak süreci kolaylaştıracaktır:
 
 - GPUI primitive'leri `div()`, `Render`, `RenderOnce`, `ParentElement`, `Styled`, event handler'lar ve sanal liste gibi temel mekanikleri sağlar.
 - Zed `ui` bileşenleri bu temel üstüne daha dar, daha tutarlı ve tema ile uyumlu bir tasarım sistemi kurar.
-- Hazır bir Zed bileşeni ihtiyacını karşılıyorsa önce onu kullanırsın. Ham GPUI primitive'lerine genellikle özel layout, özel çizim, sanallaştırma veya hazır bileşenin kapsamadığı bir etkileşim gerektiğinde inersin.
+- Hazır bir Zed bileşeni ihtiyacı karşılıyorsa öncelikle onun kullanılması tercih edilir. Ham GPUI primitive'lerine genellikle özel düzen (layout), özel çizim, sanallaştırma veya hazır bileşenin kapsamadığı bir etkileşim gerektiğinde başvurulur.
 - Bileşenlerin çoğu değeri kendi içinde saklamaz. Seçili satır, açık menü, pending task, hata mesajı veya ilerleme gibi bilgiler view durumunda durur; bileşen render sırasında bu bilgiyi alır ve ekrana yansıtır.
-- Kullanıcının gördüğü bir durum değiştiğinde `cx.notify()` çağrısı yaparsın. Aksi halde model güncellense bile ekrandaki görünüm aynı kalabilir.
+- Kullanıcının gördüğü bir durum değiştiğinde `cx.notify()` çağrısı gerçekleştirilir. Aksi halde model güncellense bile ekrandaki görünüm eski kalabilir.
 
-Bu rehberdeki örnekler kısa tutulsa da yalnızca "çalışan kod parçası" vermek için yazılmadı. Her bölümde ne zaman kullanırsın, ne zaman kullanılmaz, temel API, davranış ve dikkat edeceğin noktalar ayrı ayrı verirsin. Böylece hem doğru bileşeni seçebilirsin hem de o bileşeni Zed'in beklediği kullanım disipliniyle ekrana yerleştirebilirsin.
+Bu rehberdeki örnekler kısa tutulsa da yalnızca "çalışan kod parçası" sunmak amacıyla yazılmamıştır. Her bölümde bileşenin ne zaman kullanılacağı, ne zaman tercih edilmemesi gerektiği, temel API yapısı, davranış özellikleri ve dikkat edilmesi gereken noktalar ayrıntılı bir biçimde açıklanır. Böylece hem doğru bileşen seçilebilir hem de ilgili bileşen Zed'in beklediği kullanım disipliniyle ekrana yerleştirilebilir.
