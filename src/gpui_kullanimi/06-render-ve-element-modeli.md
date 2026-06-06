@@ -10,15 +10,15 @@
 
 </div>
 
-GPUI'de `Element` ekranda çizilen geçici parçayı, `Render` ise kendi verisini taşıyan ve o veriye göre element ağacı üreten kalıcı yapıyı temsil eder.
+GPUI mimarisinde `Element` ekranda çizilen geçici görsel birimleri; `Render` ise kendi durum verisini (state) barındıran ve bu veriye bağlı olarak geçici element ağaçları üreten kalıcı veri yapısını temsil etmektedir.
 
-| Kavram | Kalıcılık | Görevi |
+| Kavram | Kalıcılık Ömrü | Temel Görevi |
 |---|---|---|
-| `Entity<V> + Render` | Kalıcı (durumu saklar) | Her `cx.notify()` ile verisini kullanarak geçici element ağacını oluşturur. |
-| `RenderOnce` | Tek seferlik (tüketilir) | Kendi yaşam döngüsü olmayan, kendisine verilen veriden yalnızca UI parçası üreten bileşendir. |
-| `Element` | Geçici (her karede yeniden) | Yerleşim (`layout`) ve çizimi (`paint`) gerçekleştirir. Ekrana basılan son uç birimdir. |
+| `Entity<V> + Render` | Kalıcıdır (durum verisini korur) | Her `cx.notify()` çağrısında verisini kullanarak geçici element ağacını yeniden oluşturur. |
+| `RenderOnce` | Tek seferliktir (tüketilir) | Kendi durum yönetim döngüsü olmayan, dışarıdan aldığı parametrelerle yalnızca tek seferlik arayüz parçaları üreten hafif bileşendir. |
+| `Element` | Geçicidir (her karede yeniden üretilir) | Ekran yerleşimini (`layout`) ve boyama (`paint`) aşamalarını yönetir. Ekrana çizilen en uç birimdir. |
 
-Bir element ağacının basit bir örneği şöyledir:
+Basit bir element ağacı tanımı şu şekilde örneklenebilir:
 
 ```rust
 div()
@@ -28,9 +28,9 @@ div()
     .child("Merhaba GPUI!")
 ```
 
-Bir pencerenin kök view'u her zaman bir `Entity<V>` olur. Bu `V` tipi `Render` trait'ini uygulamak zorundadır. `Render::render` veriyi kaydetmez, ağ isteği yapmaz ve kalıcı state oluşturmaz. Görevi yalnızca şudur: view'un alanlarında duran mevcut veriye bakar ve o anda ekranda görünecek geçici element ağacını üretir.
+Herhangi bir pencerenin kök görünümü (root view) her zaman bir `Entity<V>` nesnesidir. Buradaki `V` tipinin `Render` trait'ini uygulaması (implement etmesi) zorunludur. `Render::render` fonksiyonunun görevi veri kaydetmek, ağ istekleri başlatmak veya kalıcı durum verisi (state) oluşturmak değildir. Bu işlevin tek sorumluluğu; görünümın alanlarında (fields) bulunan mevcut verilere bakarak o ekran karesinde çizilecek olan geçici element ağacını üretip geriye döndürmektir.
 
-Eposta düzenleme penceresi bu ayrım için net bir örnektir. Eposta değeri kullanıcı yazdıkça değişecek, kaydedilecek, hata veya başarı durumu gösterecek ve başka kodlar tarafından okunacaksa bu veri `Render` uygulayan kalıcı view'da durur:
+Bir profil güncelleme penceresi bu sorumluluk ayrımı için açıklayıcı bir örnektir. E-posta adresi kullanıcı metin girdikçe değişecek, diske kaydedilecek, hata veya başarı durumları yansıtacak ve uygulamanın diğer bölümleri tarafından okunacaksa; bu verilerin tamamı `Render` trait'ini uygulayan kalıcı görünüm (view) nesnesinde saklanmalıdır:
 
 ```rust
 struct ProfilPenceresi {
@@ -47,8 +47,8 @@ impl ProfilPenceresi {
     }
 
     fn kaydet(&mut self, cx: &mut Context<Self>) {
-        // Kaydetme işi burada, bir action'da veya async task içinde yapılır.
-        // Render::render bu işi yapmaz; sadece sonucu ekrana yansıtır.
+        // Kaydetme işlemi bir eylem (action) veya asenkron görev (task) altında yürütülür.
+        // Render::render bu tür iş mantığı süreçlerini üstlenmez; sadece sonucu ekrana yansıtır.
         self.kaydedildi_mi = true;
         self.hata = None;
         cx.notify();
@@ -82,9 +82,9 @@ impl Render for ProfilPenceresi {
 }
 ```
 
-Bu örnekte `eposta_taslagi`, `kaydedildi_mi` ve `hata` element ağacının değil `ProfilPenceresi` view'unun alanlarıdır. Kullanıcı epostayı değiştirirse veya kaydetme sonucu gelirse bu alanları günceller ve `cx.notify()` çağırırsın. Sonra aynı `Entity<ProfilPenceresi>` yeniden render edersin. Başka kodlar güncel epostayı kullanacaksa kaynak burasıdır; geçici element veya mesaj bileşeni değildir.
+Bu kod yapısında `eposta_taslagi`, `kaydedildi_mi` ve `hata` değişkenleri element ağacının değil, doğrudan `ProfilPenceresi` görünümünün kendi alanlarıdır. Kullanıcı e-postayı güncellediğinde veya kaydetme işleminden bir yanıt döndüğünde bu alanlar mutasyona uğratılır ve ardından `cx.notify()` çağrısı tetiklenir. Bu tetikleme sonucunda aynı `Entity<ProfilPenceresi>` nesnesi tekrar render edilir. Uygulamanın diğer bölümleri güncel e-posta bilgisini okumak istediğinde tek yetkili veri kaynağı bu kalıcı görünümdür; geçici elementler veya mesaj bileşenleri veri kaynağı olarak kullanılmamalıdır.
 
-`RenderOnce` ise bu pencerenin içinde kullandığın küçük, tek seferlik UI parçaları içindir. Aşağıdaki başarı mesajı kendi başına eposta düzenlemez, kaydetmez, hata state'i tutmaz ve başka kodlar tarafından güncel veri kaynağı olarak okunmaz. Kendisine verilen epostayı isterse sadece bilgi olarak gösterir:
+`RenderOnce` trait'i ise bu ana pencere içerisinde kullanılan küçük ve tek seferlik arayüz parçalarının tanımlanmasında rol oynar. Aşağıda örneklenen başarı mesajı bileşeni kendi başına veri mutasyonu gerçekleştirmez, hata durumu yönetmez ve harici kodlar için bir veri kaynağı sunmaz. Yalnızca kendisine parametre olarak iletilen e-posta bilgisini kullanıcıya gösterir:
 
 ```rust
 #[derive(IntoElement)]
@@ -105,55 +105,55 @@ impl RenderOnce for KayitBasariliMesaji {
 }
 ```
 
-Burada `KayitBasariliMesaji` epostayı gösterebilir; bu onu state sahibi yapmaz. Eposta `ProfilPenceresi` içinde yaşamaya devam eder. `KayitBasariliMesaji` ise render sırasında oluşur, `RenderOnce::render(self, ...)` çağrısıyla element'e dönüşür ve tüketilir. Bir sonraki render'da mesaj yine gerekiyorsa üst view yeni bir `KayitBasariliMesaji` oluşturur.
+Bu senaryoda `KayitBasariliMesaji` e-posta adresini ekran üzerinde çizebilir; ancak bu işlem onu durum sahibi (stateful) yapmaz. Asıl veri her zaman `ProfilPenceresi` görünümü bünyesinde yaşamaya devam eder. `KayitBasariliMesaji` ise render aşamasında üretilir, `RenderOnce::render(self, ...)` çağrısıyla birlikte geçici bir elemente dönüştürülerek tüketilir. Bir sonraki ekran karesinde bu mesaja yeniden ihtiyaç duyulursa, üst görünüm yeni bir `KayitBasariliMesaji` nesnesi yapılandırarak ağaca ekler.
 
-Karar kuralı kesindir:
+Arayüz tasarımında şu temel karar kuralları esas alınmalıdır:
 
-- Kullanıcı girdisi, seçili satır, açık/kapalı durumu, hata, yükleniyor bilgisi veya başka kodların daha sonra okuyacağı veri varsa bu verinin sahibi `Entity<T>` içindeki view/model olur; ekrana çizmek için `Render`'ı kullanırsın.
-- Bir struct sadece kendisine verilen metin, ikon, renk veya küçük veriyle UI parçası üretip sonra unutulacaksa `RenderOnce`'ı kullanırsın.
-- `Render::render` kaydetme, doğrulama veya ağ işleminin yeri değildir; bu işlemleri event handler, action, model metodu veya async task içinde yaparsın. `render`, bu işlemlerden sonra değişen state'i ekrana yansıtır.
-- `RenderOnce` içinde görünen veri bilgi amaçlı olabilir; ama güncel verinin kaynağı olarak kullanma.
+- Kullanıcı girdileri, seçilen liste satırı, aktiflik durumları, hata mesajları, yüklenme durumları gibi sonradan sorgulanabilecek her türlü veri kalıcı olarak `Entity<T>` yapısı içerisindeki görünüm (view) veya model bünyesinde tutulmalıdır; bu durumları ekrana çizmek için `Render` trait'inden faydalanılır.
+- Bir veri yapısı (struct) yalnızca dışarıdan aldığı metin, ikon, renk veya küçük parametrelerle hızlıca bir görsel parça oluşturup ardından tüketilecekse `RenderOnce` kullanılmalıdır.
+- `Render::render` gövdesi; veri tabanına kaydetme, doğrulama veya ağ üzerinden veri çekme gibi işlemlerin yürütüleceği yer değildir. Bu tür süreçler olay dinleyicileri (event handlers), eylemler (actions), model metotları veya asenkron görevler (async tasks) içerisinde yönetilmelidir. `render` metodu yalnızca bu işlemler neticesinde değişen durum verilerini (state) ekrana yansıtmakla yükümlüdür.
+- `RenderOnce` yapısında sunulan veriler sadece bilgi amaçlı olup, asla uygulamanın güncel veri kaynağı (source of truth) olarak kabul edilmemelidir.
 
-**Crate kökü ve kapalı trait sınırları.** `gpui` crate kökü bazı düşük seviyeli sembolleri de dışa aktarır. `GPUI_MANIFEST_DIR`, `env!("CARGO_MANIFEST_DIR")` değerini taşıyan `#[doc(hidden)]` bir statik değerdir; asset veya test altyapısı crate'in manifest dizinine ihtiyaç duyduğunda kullanırsın, uygulama verisi yolu veya kullanıcı ayarı yolu olarak kullanılmaz. `Sealed` ise bundan farklıdır: crate kökünden dışa aktarılmaz, private bir modülde durur; dış kod onu adlandıramaz veya göremez. GPUI'nın belirli trait implementasyonlarını yalnız crate içinde tutmak için kullandığı iç (crate-içi) mühürlü trait desenidir; örneğin event trait'lerini bu desenle sınırlar. Bir trait bu mühürlü desenle sınırlandığında uygulama kodu o trait'i yeni bir tipe uygulamaya çalışmak yerine GPUI'nın sağladığı element, input veya event yüzeylerinden ilerlemelidir.
+**Crate kökü ve mühürlü (sealed) trait sınırları.** `gpui` paket kökü, bazı düşük seviyeli sembolleri de dışarıya aktarır. Örneğin `GPUI_MANIFEST_DIR`, derleme anındaki `CARGO_MANIFEST_DIR` değerini taşıyan ve `#[doc(hidden)]` özniteliğiyle gizlenmiş statik bir değişkendir. Bu sabit, yalnızca varlık (asset) veya test altyapısının paketin manifest dizinine erişmesi gerektiği iç süreçlerde kullanılır; uygulama verisi yolu ya da kullanıcı ayarlarının saklanacağı dizinlerin belirlenmesinde tercih edilmez. Mühürlü (`Sealed`) trait deseni ise bundan farklı olarak paket kökünden dışarıya aktarılmaz, özel (private) bir modül altında tutulur; dolayısıyla harici kod bloklarından adlandırılamaz veya erişilemez. GPUI, belirli trait implementasyonlarını yalnızca kendi kütüphane sınırları içerisinde tutmak amacıyla bu mühürleme desenini kullanır; örneğin olay (event) trait'lerini bu desenle korunur. Bir trait bu şekilde mühürlendiğinde, harici uygulama kodlarında o trait'i yeni veri tiplerine uygulamaya çalışmak yerine, GPUI'nın sunduğu standart element, girdi ve olay arayüzleri üzerinden geliştirme yürütülmelidir.
 
-| API | Alt özellikler | Kısa anlamı |
+| Yapı / Desen | Konumu ve Erişimi | Temel İşlevi |
 | :-- | :-- | :-- |
-| `Sealed` (crate-içi) | private modülde mühürlü trait | Crate kökünden dışa aktarılmaz; dış kod onu adlandıramaz. Event gibi trait'lerin dış uygulanmasını engeller, böylece dış kod hazır element/event yüzeyini kullanır. |
+| `Sealed` (mühürlü) | Crate içi özel (private) modül | Paket kökünden ihraç edilmez. Olay (event) gibi kritik trait'lerin harici paketlerce implemente edilmesini engelleyerek, geliştiriciyi hazır element/olay arayüzlerini kullanmaya yönlendirir. |
 
 ## Element Yaşam Döngüsü ve Çizim Aşamaları
 
-`Element` sözleşmesi üç ana aşamadan oluşur. Bu aşamalar aynı ekran karesi içinde sırayla çalışır:
+Bir `Element` nesnesinin yaşam döngüsü üç ana aşamadan oluşur ve bu aşamalar her ekran karesinde sırasıyla işletilir:
 
-1. `request_layout(...) -> (LayoutId, RequestLayoutState)` — stil ve alt öğelerin yerleşim istekleri Taffy yerleşim ağacına verirsin. Bu aşamada çizim yapılmaz; yalnızca "ne kadar yer istiyorum, alt öğelerimin `LayoutId`'leri nedir" bilgisi hazırlanır.
-2. `prepaint(...) -> PrepaintState` — yerleşim sonucu artık bilinir; o yüzden element'in son konum ve boyutuna göre yapacağın işler burada gerçekleşir: hitbox kaydı, scroll konumunun hazırlanması, element başına saklanan verinin okunması ve gerekli ölçümler.
-3. `paint(...)` — sahneye çizilecek temel şekiller (`primitive`) üretilir. `paint_quad`, `paint_path`, `paint_image`, `paint_svg`, `set_cursor_style` gibi çağrılar bu aşamaya aittir.
+1. `request_layout(...) -> (LayoutId, RequestLayoutState)`: Stil tanımlamaları ve alt öğelerin yerleşim talepleri Taffy yerleşim (layout) motoruna iletilir. Bu aşamada herhangi bir görsel çizim gerçekleştirilmez; yalnızca elementin ne kadarlık bir alana ihtiyaç duyduğu ve alt öğelerinin `LayoutId` kimliklerinin neler olduğu bilgisi hazırlanır.
+2. `prepaint(...) -> PrepaintState`: Yerleşim sınırları ve boyutları kesinleştikten sonra, elementin ekran üzerindeki nihai konumuna bağlı işlemler bu aşamada yürütülür: Hitbox kayıtları, kaydırma (scroll) konumlarının hesaplanması, elemente özel durum verilerinin okunması ve dinamik ölçüm işlemleri bu kapsamdadır.
+3. `paint(...)`: Ekrana çizilecek olan temel geometrik şekiller (primitives) üretilir. `paint_quad`, `paint_path`, `paint_image`, `paint_svg` veya `set_cursor_style` gibi görsel çizim çağrıları doğrudan bu aşamada gerçekleştirilir.
 
-`Window` üzerindeki hata ayıklama kontrolleri (`debug assertion`) aşama ihlallerini yakalar: `insert_hitbox` yalnızca prepaint'te; `paint_*` çağrıları paint'te; `with_text_style` ve bazı ölçüm yardımcıları ise prepaint veya paint aşamalarında geçerlidir. Yanlış aşamada yapılan bir çağrı, hata ayıklama derlemesinde `panic` ile sonuçlanır; böylece sorunları erken yakalarsın.
+`Window` nesnesi üzerindeki hata ayıklama denetimleri (debug assertions) bu aşama kurallarının ihlal edilmesini engeller: Örneğin `insert_hitbox` yalnızca prepaint aşamasında; `paint_*` çizim çağrıları paint aşamasında; `with_text_style` ve metin ölçüm yardımcıları ise prepaint ya da paint aşamalarında çağrılabilir. Yanlış aşamada tetiklenen metotlar, hata ayıklama derlemelerinde (debug builds) doğrudan `panic` hatasına yol açarak yazılım hatalarının erken safhada yakalanmasını sağlar.
 
-Accessibility ağacına katılacak özel element'lerde `Element::a11y_role()` `Some(accesskit::Role)` döndürür; `None` dönen element'ler accessibility tree'ye eklenmez. `write_a11y_info(node)` yalnız role bulunduğunda çağrılır ve label, checked state veya benzeri accesskit node özelliklerini doldurmak için kullanırsın. Bu hook'lar çizimden ayrı düşünülür: önce role ile düğümün varlığı seçersin, sonra node bilgisi yazılır.
+Erişilebilirlik (accessibility) ağacına dahil olacak özel elementlerde `Element::a11y_role()` metodu `Some(accesskit::Role)` döndürmelidir; `None` dönen elementler erişilebilirlik ağacına dahil edilmez. `write_a11y_info(node)` işlevi ise yalnızca geçerli bir rol atandığında çağrılır; erişilebilirlik etiketleri, seçilme durumları (checked state) veya benzeri AccessKit düğüm niteliklerini doldurmak amacıyla kullanılır. Bu kancalar (hooks) çizim akışından bağımsız yönetilir: Önce rol atamasıyla düğümün varlığı tescil edilir, ardından ilgili erişilebilirlik verileri yazılır.
 
-**Veri saklama yolları.** Element seviyesinde kalıcı verinin nerede tutulduğu, o verinin ne kadar süre yaşaması gerektiğine göre belirlersin:
+**Veri Saklama Yolları.** Element düzeyinde kalıcı durum verilerinin nerede saklanacağı, ilgili verinin hedeflenen ömür süresine (lifetime) göre belirlenir:
 
-- View verisi: `Entity<T>` alanlarında tutarsın; uygulama boyunca veya view kapanana kadar yaşar.
-- Element başına saklanan veri: sabit bir `id(...)` ile birlikte `window.with_element_state` veya `with_optional_element_state` üzerinden tutarsın. Aynı ID ardışık çizimlerde korunursa veri devam eder; ID değişirse sıfırlanır.
-- Sonraki ekran karesine kayıt: `window.on_next_frame(...)` çağrısıyla yaparsın.
-- Etki (effect) sonuna erteleme: `cx.defer(...)`, `window.defer(cx, ...)`, `cx.defer_in(window, ...)`.
-- Sürekli yeniden çizim: `window.request_animation_frame()` ile yeni bir ekran karesi talep edersin.
+- **Görünüm (View) Verileri:** `Entity<T>` alanları içerisinde muhafaza edilir; uygulama açık kaldığı sürece ya da görünüm kapanana kadar varlığını sürdürür.
+- **Elemente Özel Durum Verileri:** Benzersiz bir `id(...)` tanımlaması ile birlikte `window.with_element_state` veya `with_optional_element_state` arayüzleri üzerinden yönetilir. Aynı ID ardışık ekran karelerinde korunduğu sürece veri korunmaya devam eder; ID değiştiğinde ise sıfırlanır.
+- **Sonraki Ekran Karesine Görev Kaydı:** `window.on_next_frame(...)` çağrısı aracılığıyla sonraki kare çizim sırasına eklenir.
+- **Eylem Sonuna Erteleme:** `cx.defer(...)`, `window.defer(cx, ...)` veya `cx.defer_in(window, ...)` metotlarıyla mevcut etki döngüsünün en sonuna ertelenir.
+- **Sürekli Yeniden Çizim Talebi:** `window.request_animation_frame()` çağrısıyla sisteme kesintisiz olarak yeni bir ekran karesi talebi iletilir.
 
-**Çizim katmanı.** GPUI'da çizim zinciri birkaç trait'in birlikte çalışmasıyla ortaya çıkar; her trait belirli bir yetenek setini temsil eder:
+**Çizim Katmanı Rolleri.** GPUI mimarisinde çizim zinciri, her biri farklı bir yetenek setini temsil eden çeşitli trait sınırlarının bir araya gelmesiyle şekillenir:
 
 ![GPUI Element Trait Zinciri](assets/element-trait-zinciri.svg)
 
-- `Render`: entity/view verisini her çizimde element ağacına çevirir.
-- `RenderOnce`: yalnızca element'e dönüştürülecek hafif bileşenler için uygundur.
-- `ParentElement`: alt öğe kabul eden elementlerin trait'idir.
-- `Styled`: stil refinement zincirine dahil olan elementleri belirler.
-- `InteractiveElement`: klavye odağı, action, tuş, fare, hover ve sürükle-bırak dinleyicilerini açar.
-- `StatefulInteractiveElement`: `id(...)` çağrısından sonra scroll ve klavye odağı gibi ekran kareleri arasında veri korumayı gerektiren interaktif davranışları açar.
+- `Render`: Görünüm durumunu (view state) her çizim karesinde geçici element ağacına dönüştürmekten sorumludur.
+- `RenderOnce`: Yalnızca hafif, durum bilgisi tutmayan görsel bileşenlerin modellenmesinde rol alır.
+- `ParentElement`: Alt öğe (child elements) kabul eden kapsayıcı yapıların ortak arayüzüdür.
+- `Styled`: Stil rafine etme (style refinement) zincirlerine dahil olan elementleri işaretler.
+- `InteractiveElement`: Klavye odağı, eylem eşlemeleri, fare tıklamaları, hover etkileşimleri ve sürükle-bırak dinleyicilerini etkinleştirir.
+- `StatefulInteractiveElement`: `.id(...)` çağrısından sonra, kaydırma (scroll) veya klavye odağı gibi ekran kareleri arasında korunması gereken gelişmiş interaktif durumları yönetir.
 
-**Kritik kural.** `cx.notify()`'ı, view'un çizim çıktısını etkileyen bir veri değiştiğinde çağırırsın. Bu olmadan view yeniden çizilmez. `window.refresh()` ise tüm pencerenin tekrar çizimini ister. Yerel view verisindeki değişimler için önce `cx.notify()`'ı tercih edersin; çünkü daha hedefli bir yenileme yapar.
+**Kritik Kural.** Görünümün ekran üzerindeki çizim çıktısını doğrudan etkileyen bir veri değiştiğinde `cx.notify()` metodu çağrılmalıdır. Bu bildirim yapılmadığı takdirde ilgili görünüm yeniden çizilmez. Tüm pencerenin baştan çizilmesi gerektiğinde ise `window.refresh()` çağrısı kullanılır. Yerel görünüm verilerindeki güncellemeler için, çok daha verimli ve hedefli bir yenileme sunduğundan öncelikle `cx.notify()` tercih edilmelidir.
 
-**Özel `Element` yazımı.** Çoğu durumda `div()`, `canvas(...)`, `img(...)` ve `svg()` yeterlidir. Sıfırdan `Element` uygulamak, yerleşim ve paint fazını elle kontrol etmek gerektiğinde anlamlıdır. Aşağıdaki örnek, stil zincirinden boyut alabilen ve kendi sınırlarına kırmızı kare çizen en küçük element kalıbıdır:
+**Özel `Element` Geliştirme.** Standart arayüz ihtiyaçlarında `div()`, `canvas(...)`, `img(...)` ve `svg()` bileşenleri genellikle tamamen yeterlidir. Sıfırdan bir `Element` yapısı kurmak, yalnızca ekran yerleşim (layout) ve boyama (paint) aşamaları üzerinde tam kontrol kurulması gereken özel senaryolarda anlamlıdır. Aşağıdaki örnek; stil zincirlerinden boyut verisi alabilen ve kendi sınırlarını kırmızı renkli bir kareyle dolduran en yalın özel element şablonunu göstermektedir:
 
 ```rust
 struct KirmiziKare {
@@ -235,36 +235,36 @@ impl Element for KirmiziKare {
 div().child(KirmiziKare::new().size(px(24.)))
 ```
 
-Bu örnek özellikle iki ayrımı gösterir: `request_layout` yalnız layout isteğini üretir; gerçek çizimi `paint` içinde yaparsın. `StyleRefinement` tutulduğu için element, diğer GPUI elementleri gibi `.size(...)`, `.m_*`, `.absolute()` gibi stil zincirlerine katılabilir. `stil.refine(...)` çağrısı için örneğin bulunduğu modülde `refineable::Refineable as _` trait import'u gerekir. Yalnızca kısa süreli özel çizim gerekiyorsa bu kadar düşük seviyeye inmek yerine `canvas(...)`'ı tercih edersin.
+Bu örnek iki kritik ayrımı netleştirmektedir: `request_layout` aşaması yalnızca yerleşim gereksinimlerini hesaplar; fiili çizim işlemleri ise `paint` aşamasında yürütülür. `StyleRefinement` yapısı barındırıldığı için bu özel element de diğer GPUI bileşenleri gibi `.size(...)`, `.m_*` veya `.absolute()` gibi akıcı stil zincirlerine doğrudan katılabilir. `stil.refine(...)` işlevinin derlenebilmesi için ilgili modülde `refineable::Refineable as _` trait'inin içe aktarılması (import) gerekmektedir. Sadece tek seferlik veya basit çizim gereksinimlerinde bu kadar düşük seviyeli yapılara inmek yerine, `canvas(...)` sarmalayıcısından yararlanılması önerilir.
 
 ## Element Haritası
 
-GPUI'nın yerleşik elementleri farklı görevler için ayrı ayrı tasarlanmıştır. Aşağıdaki liste, hangi element'i hangi sorumluluk için seçeceğini hızlıca gösterir:
+GPUI bünyesindeki yerleşik arayüz elementleri, farklı tasarım ihtiyaçlarına yanıt verecek şekilde optimize edilmiştir. Aşağıdaki envanter, hedeflenen sorumluluk sınırlarına göre hangi elementin seçilmesi gerektiğini özetlemektedir:
 
-- `div()` — neredeyse tüm yerleşim ve kapsayıcı işlerinin temel taşıdır. Flex/grid, stil, alt öğe, olay, klavye odağı ve pencere kontrol alanı (`window-control area`) destekler.
-- Metin — `&'static str`, `String`, `SharedString` doğrudan element olur. Ekran okuyucuya görünmesi gereken düz metinlerde `Text`'i ve `text!` makrosunu tercih edersin; bunlar erişilebilirlik ağacı için sabit metin ID'si üretir. Daha karmaşık metin durumlarında `StyledText` ve `InteractiveText` devreye girer.
-- `svg()` — satır içi (inline) path veya harici path ile SVG çizimi sağlar.
-- `img(...)` — asset, dosya yolu, URL veya byte kaynağı gibi görsel kaynaklarını çizer; yükleme ve yedek görsel (fallback) bölümlerini de destekler.
-- `canvas(prepaint, paint)`'i, düşük seviyeli çizim ya da hitbox/imleç gibi çizim hazırlığı gerektiren işler için kullanırsın.
-- `anchored()` — pencereye veya belirli bir noktaya sabitlenen popover ve menü benzeri UI parçaları içindir.
-- `deferred(child)` — öncelikli veya ertelenmiş çizim gerektiren durumlar için.
-- `list(...)` — değişken yükseklikli büyük listelerde tercih edersin.
-- `uniform_list(...)` — sabit veya kolay ölçülen satır yüksekliği olan, yüksek başarım gerektiren listeler için.
-- `surface(...)` — platform/yerel bir yüzey kaynağını (`surface`) element olarak gösterir. Yalnız macOS'ta kullanılabilir (`#[cfg(target_os = "macos")]`).
+- `div()`: Neredeyse tüm yerleşim, kapsayıcı ve hizalama işlerinin temel taşıdır. Flexbox/Grid, stil yönetimi, alt öğe yerleşimleri, olay dinleyicileri, klavye odağı ve işletim sistemi pencere kontrol alanlarını (`WindowControlArea`) destekler.
+- **Metin Birimleri:** `&'static str`, `String` ve `SharedString` tipleri doğrudan element olarak çizilebilir. Ekran okuyucuların doğru algılaması gereken standart metin alanlarında `Text` yapısı ve `text!` makrosu tercih edilmelidir; bu yapılar erişilebilirlik ağacında benzersiz kimlikler oluşturur. Gelişmiş biçimlendirmeler için `StyledText` ve `InteractiveText` yapıları mevcuttur.
+- `svg()`: Satır içi (inline) veya harici dosya yollarından SVG formatındaki vektörel grafikleri çizer.
+- `img(...)`: Varlıklar (assets), yerel dosya yolları, web adresleri veya ham byte dizilerinden görseller yükler; yüklenme ve yükleme hatası durumları için yedek görsel (fallback) yapılandırmalarını destekler.
+- `canvas(prepaint, paint)`: Düşük seviyeli özel çizim operasyonları veya fare etkileşim alanı (hitbox) hazırlıkları için kullanılır.
+- `anchored()`: Pencere sınırlarına veya belirli referans noktalarına sabitlenen popover panelleri ve menü tasarımları için idealdir.
+- `deferred(child)`: Çizim sırasının ertelenmesi veya üst katmanlarda render edilmesi gereken durumlar için kullanılır.
+- `list(...)`: Satır yükseklikleri değişken olan, büyük ölçekli ve dinamik veri listelerinin performanslı çiziminde tercih edilir.
+- `uniform_list(...)`: Tüm satırları eşit yükseklikte olan ve yüksek performans gerektiren verimli listelerin çiziminde kullanılır.
+- `surface(...)`: macOS platformuna özel yerel yüzey (surface) kaynaklarını element ağacına dahil etmeye yarar (`#[cfg(target_os = "macos")]`).
 
-**Sık kullanılan stil grupları.** Fluent API'de tekrar tekrar karşılaşılan zincir parçaları genelde şu gruplar altında toplanır:
+**Sıkça Yararlanılan Stil Grupları.** Akıcı builder (fluent API) zincirinde yaygın olarak gruplanan metotlar şunlardır:
 
-- Yerleşim: `.flex()`, `.flex_col()`, `.flex_row()`, `.grid()`, `.items_center()`, `.justify_between()`, `.content_stretch()`, `.size_full()`, `.w(...)`, `.h(...)`.
-- Boşluk: `.p_*`, `.px_*`, `.gap_*`, `.m_*`.
-- Metin: `.text_color(...)`, `.text_sm()`, `.text_xl()`, `.font_family(...)`, `.truncate()`, `.line_clamp(...)`.
-- Kenarlık ve şekil: `.border_1()`, `.border_color(...)`, `.rounded_sm()`.
-- Konum: `.absolute()`, `.relative()`, `.top(...)`, `.left(...)`.
-- Durum: `.hover(...)`, `.active(...)`, `.focus(...)`, `.focus_visible(...)`, `.group(...)`, `.group_hover(...)`.
-- Etkileşim: `.on_click(...)`, `.on_mouse_down(...)`, `.on_scroll_wheel(...)`, `.on_key_down(...)`, `.on_action(...)`, `.track_focus(...)`, `.key_context(...)`.
+- Yerleşim (Layout): `.flex()`, `.flex_col()`, `.flex_row()`, `.grid()`, `.items_center()`, `.justify_between()`, `.content_stretch()`, `.size_full()`, `.w(...)`, `.h(...)`.
+- Boşluklar (Spacing): `.p_*`, `.px_*`, `.gap_*`, `.m_*`.
+- Metin Biçimleri (Typography): `.text_color(...)`, `.text_sm()`, `.text_xl()`, `.font_family(...)`, `.truncate()`, `.line_clamp(...)`.
+- Kenarlık ve Köşeler: `.border_1()`, `.border_color(...)`, `.rounded_sm()`.
+- Konumlandırma: `.absolute()`, `.relative()`, `.top(...)`, `.left(...)`.
+- Durum Değiştiriciler: `.hover(...)`, `.active(...)`, `.focus(...)`, `.focus_visible(...)`, `.group(...)`, `.group_hover(...)`.
+- Etkileşimler: `.on_click(...)`, `.on_mouse_down(...)`, `.on_scroll_wheel(...)`, `.on_key_down(...)`, `.on_action(...)`, `.track_focus(...)`, `.key_context(...)`.
 
-Zed kod tabanında `ui::prelude::*` genellikle `gpui::prelude::*` yerine tercih edilir; bu prelude tasarım sistemi tiplerini de birlikte getirir, böylece `use` listesi sade kalır. Bu ayrımı koruman gerekir: yukarıdaki örneklerde gördüğün `v_flex` ve `h_flex` gpui `Styled`'ın parçası değildir; bunlar `ui` tasarım sistemi uzantısıdır (`ui::prelude`) ve saf-gpui bağlamında bulunmaz. Buna karşılık `size_full` gpui `Styled`'ın yerel bir yöntemidir.
+Zed kod tabanında, tasarım sistemi tiplerini ve kütüphane prelude tanımlarını bir arada sunduğu için genellikle `gpui::prelude::*` yerine `ui::prelude::*` tercih edilir. Bu ayrımın korunması önemlidir: Örneğin arayüzde kullanılan `v_flex` ve `h_flex` metotları GPUI'nın çekirdek `Styled` trait'inin birer parçası olmayıp, `ui` tasarım sistemi uzantılarıdır (`ui::prelude`). Buna karşın `.size_full()` metodu doğrudan GPUI `Styled` trait'inin yerel bir işlevidir.
 
-**Tek çocuk, çoklu çocuk ve listeden element üretimi.** `ParentElement` trait'i iki temel yardımcı verir: `.child(...)` tek bir `IntoElement` ekler, `.children(...)` ise herhangi bir iterator'ı veya koleksiyonu alt öğe listesine çevirir. Liste render ederken her satırı ayrı ayrı `.child(...)` ile eklemek yerine veri üzerinde `map` kullanmak daha okunaklıdır:
+**Çoklu Öğe ve Koleksiyonlardan Element Üretimi.** `ParentElement` trait'i arayüze alt düğümler eklemek üzere iki temel yardımcı sunar: `.child(...)` tek bir `IntoElement` nesnesi eklerken; `.children(...)` ise herhangi bir iterator veya koleksiyonu doğrudan alt öğe listesine dönüştürür. Dinamik listeleri render ederken satırları tek tek eklemek yerine, veri kümesi üzerinde `map` çağrısı çalıştırmak çok daha temiz bir kod akışı sağlar:
 
 ```rust
 let satir_ogeleri = self.satirlar.iter().enumerate().map(|(sira, satir)| {
@@ -280,9 +280,9 @@ div()
     .children(satir_ogeleri)
 ```
 
-Burada `satir_ogeleri` kalıcı bir widget listesi değildir; yalnızca bu render çağrısında üretilecek element tariflerinin iterator'ıdır. `self.satirlar` view içinde kalıcı veridir, `map` içindeki `div()` değerleri ise ekran karesi için geçici elementlerdir. Satırların hover, scroll, cache veya element durumu koruması gerekiyorsa `.id(("satir", sira))` gibi sabit ID vermen gerekir; sıra yerine gerçek kayıt kimliği varsa onu tercih edersin.
+Bu örnekte `satir_ogeleri` kalıcı bir widget listesi olmayıp, yalnızca o render çağrısında geçici olarak üretilecek element tariflerinin iterator'dır. `self.satirlar` görünüm içindeki kalıcı veriyi (state) temsil ederken; `map` içindeki `div()` yapıları ise o ekran karesine özel geçici elementlerdir. Satırların hover durumlarının, kaydırma konumlarının veya element durumlarının korunabilmesi için `.id(("satir", sira))` şeklinde benzersiz ve sabit bir kimlik atanmalıdır. Sıra numarası yerine varsa veri modelinin kendi veri tabanı kimliğinin kullanılması önerilir.
 
-Koşullu alt öğelerde `Option`'ı da iterator gibi kullanabilirsin:
+Koşullu alt öğe gösterimlerinde `Option` veri tipi de bir iterator gibi kullanılabilir:
 
 ```rust
 div()
@@ -297,18 +297,18 @@ div()
     }))
 ```
 
-Farklı türden elementleri aynı listede saklaman gerekiyorsa her öğeyi `into_any_element()` ile `AnyElement` haline getirirsin. Buna yalnız heterojen koleksiyon gerçekten gerekiyorsa başvurursun; tek tip satır listelerinde iterator + `.children(...)` daha sade kalır.
+Farklı tipteki elementleri aynı dinamik listede bir arada tutmak gerektiğinde, her bir öğe `into_any_element()` çağrısıyla `AnyElement` tipine dönüştürülmelidir. Bu yöntem yalnızca heterojen koleksiyonların zorunlu olduğu durumlarda kullanılmalıdır; tek tip satır listelerinde iterator + `.children(...)` yaklaşımı daha sade ve performanslıdır.
 
 ## Element ID, Element Verisi ve Tip Soyutlaması
 
-GPUI'da her çizimde element ağacı sıfırdan kurarsın. Buna rağmen hover, scroll ve önbellek (cache) gibi durumların ekran kareleri arasında korunması gerekir. Bu kalıcılığı sabit ID'ler sağlar. İlgili ana tipler şunlar:
+GPUI üzerinde her çizim döngüsünde element ağacı baştan aşağı yeniden kurulur. Buna rağmen etkileşim durumlarının (hover, active), kaydırma konumlarının (scroll offsets) ve görsel önbelleklerin ekran kareleri arasında tutarlı biçimde korunması gerekir. Bu süreklilik, elementlere atanan sabit ID'ler aracılığıyla gerçekleştirilir. İlişkili temel veri yapıları şunlardır:
 
-- `ElementId` — `View`, `Integer`, `Name`, `Uuid`, `FocusHandle`, `NamedInteger`, `Path`, `CodeLocation`, `NamedChild` ve `OpaqueId` varyantlarını taşır.
-- `GlobalElementId` — pencerenin element id yığınındaki yerel id'leri birleştirerek tam yol oluşturur.
-- `AnyElement` — element için tip soyutlaması (`type erasure`); alt öğe listelerinde farklı türden element tutmak için kullanırsın.
-- `AnyView` / `AnyEntity` — view veya entity için tip soyutlaması.
+- `ElementId`: `View`, `Integer`, `Name`, `Uuid`, `FocusHandle`, `NamedInteger`, `Path`, `CodeLocation`, `NamedChild` ve `OpaqueId` varyantlarını barındırır.
+- `GlobalElementId`: Pencerenin element ID yığınındaki (ID stack) yerel kimlikleri birleştirerek hiyerarşik tam yolu oluşturur.
+- `AnyElement`: Element tipleri için tip soyutlaması (`type erasure`) sağlar; heterojen alt öğe koleksiyonlarında farklı tipteki elementleri bir arada tutmak için kullanılır.
+- `AnyView` / `AnyEntity`: View veya entity referansları için tip soyutlaması sağlar.
 
-Element başına saklanan veri için API'ler `Window` üzerindedir ve yalnızca element çizimi sırasında çağrılabilir. Yüksek seviyeli API bu veriyi otomatik yönetir:
+Element düzeyinde saklanan verilere erişim API'leri `Window` nesnesi üzerindedir ve yalnızca elementin prepaint/paint çizim aşamalarında çağrılabilir. Yüksek seviyeli API'ler bu veri yönetimini otomatikleştirir:
 
 ```rust
 let satir_durumu = window.use_keyed_state(
@@ -318,7 +318,7 @@ let satir_durumu = window.use_keyed_state(
 );
 ```
 
-Daha düşük seviyeli ihtiyaçlar için global id ve element verisi API'leri doğrudan açıktır:
+Daha düşük seviyeli müdahaleler için global ID ve element durum verisi API'leri doğrudan kullanıma sunumaktadır:
 
 ```rust
 window.with_global_id("gorsel-onbellegi".into(), |genel_id, window| {
@@ -333,49 +333,49 @@ window.with_global_id("gorsel-onbellegi".into(), |genel_id, window| {
 });
 ```
 
-**Kurallar.** Element id'siyle çalışırken gözeteceğin disiplinler şunlar:
+**Element ID Yönetim Disiplini.** Arayüz kimlikleri ile çalışırken şu kurallara dikkat edilmelidir:
 
-- `window.with_id(element_id, |window| ...)` yerel element id yığınına bir id ekler; `with_global_id` bu yığından tam bir `GlobalElementId` üretir.
-- Liste satırlarında `use_state` yerine `use_keyed_state`'i tercih edersin; `use_state` çağrı konumuna göre id üretir ve aynı çizim noktasındaki birden fazla satırı birbirinden ayıramaz.
-- `with_element_namespace(id, ...)`'i özel bir element içinde alt öğe id çakışmalarını önlemek için kullanırsın.
-- Aynı `GlobalElementId` ve aynı veri tipi için iç içe `with_element_state` çağrısı `panic` üretir.
-- ID değiştiğinde önceki ekran karesinin verisi devam etmez; animasyon, hover, scroll, erişilebilirlik node'u ve görsel önbellek verisi sıfırlanır.
-- Dinamik metin listelerinde `text!(id = ..., metin)` veya `Text::new(...)` ile kayıt kimliğine bağlı metin ID'si verirsin. Aynı `text!` çağrı konumu tekrar eden satırlarda kullanılırsa ekran okuyucu ağacında çakışan metin node'ları üretilebilir.
+- `window.with_id(element_id, |window| ...)` çağrısı yerel element ID yığınana yeni bir yerel kimlik ekler; `with_global_id` ise bu yığından tam hiyerarşik `GlobalElementId` değerini üretir.
+- Dinamik liste satırlarında `use_state` yerine daima `use_keyed_state` tercih edilmelidir; zira `use_state` çağrıldığı kod satırı konumuna göre kimlik üretir ve aynı döngü içindeki farklı satır verilerini birbirinden ayırt edemez.
+- `with_element_namespace(id, ...)` metodu, özel bir element tasarlanırken alt öğelerin ID çakışmalarını (namespace collisions) engellemek amacıyla kullanılır.
+- Aynı `GlobalElementId` ve aynı veri tipi için iç içe `with_element_state` çağrısı yapmak derleme veya çalışma zamanında `panic` hatasına yol açar.
+- Element kimliği (ID) değiştiğinde, önceki ekran karesine ait durum verileri korunmaz; animasyonlar, hover etkileşimleri, scroll konumları, erişilebilirlik düğümleri ve görsel önbellek verileri tamamen sıfırlanır.
+- Dinamik metin listelerinde `text!(id = ..., metin)` makrosu ya da `Text::new(...)` yapısı aracılığıyla veri modeli kimliklerine bağlı metin ID'leri tanımlanmalıdır. Aynı `text!` makrosunun tekrar eden satırlarda konum tabanlı çağrılması, erişilebilirlik ağacında çakışan metin düğümlerinin oluşmasına sebebiyet verebilir.
 
-**Tip soyutlaması (type erasure) kararları.** Tipli ve tipsiz element/view arasında seçim yaparken şu yönlendirmeler işine yarar:
+**Tip Soyutlaması (Type Erasure) Tercihleri.** Tipli ve tipsiz yapılar arasında seçim yaparken şu yönergeler izlenmelidir:
 
-- Genel bir bileşen API'si alt öğe kabul ediyorsa `impl IntoElement` almak uygundur.
-- Bir struct içinde saklayacaksan `AnyElement`'i kullanırsın.
-- View veya entity saklıyorsan mümkün olduğu kadar tipli `Entity<T>` tutmayı tercih edersin; yalnızca plugin, dock öğesi veya heterojen koleksiyon gerektiren durumlarda `AnyEntity`/`AnyView`'u seçersin.
+- Genel kullanım amaçlı bir bileşen API'si harici alt öğeler kabul ediyorsa, parametre tipi olarak `impl IntoElement` tercih edilmelidir.
+- Bir veri yapısının (struct) alanında element saklanması gerektiğinde `AnyElement` kullanılmalıdır.
+- View veya entity referansları saklanırken, FFI, plugin (eklenti) mimarileri, dock panelleri veya heterojen koleksiyon gereksinimleri olmadığı sürece daima tipli `Entity<T>` veya `WeakEntity<T>` referansları tercih edilmelidir.
 
 ## AnyElement, Component ve Interactivity Yüzeyi
 
-Render katmanında bazı public tipler, uygulama bileşeni yazarken nadiren doğrudan görünür ama element ağacının nasıl çalıştığını anlamak için önemlidir.
+GPUI render katmanında yer alan bazı halka açık (public) veri yapıları, günlük uygulama geliştirme süreçlerinde nadiren doğrudan kullanılsa da, element ağacının iç işleyişini anlamak açısından büyük öneme sahiptir:
 
-**AnyElement.** `AnyElement`, heterojen elementleri tek tipe indirir. `into_any_element()` çağrısı bunun günlük yoludur. Düşük seviyede `downcast_mut::<T>()` ile iç element tipini denetleyebilir, `request_layout(window, cx)`, `layout_as_root(available_space, window, cx)`, `prepaint(window, cx)`, `prepaint_at(origin, window, cx)`, `prepaint_as_root(origin, available_space, window, cx)` ve `paint(window, cx)` ile element yaşam döngüsünü elle sürebilirsin. Bu metotlar özel container, test harness veya framework elementleri içindir; normal view kodunda child elementleri GPUI'nın kendisine bırakırsın.
+**AnyElement.** `AnyElement` yapısı heterojen element tiplerini tek bir ortak tipe indirger. Günlük kod yazımında `.into_any_element()` metodu bu dönüşümü sağlar. Düşük seviyeli çalışmalarda `downcast_mut::<T>()` ile iç element tipi denetlenebilir; `request_layout`, `layout_as_root`, `prepaint`, `prepaint_at`, `prepaint_as_root` ve `paint` çağrıları vasıtasıyla elementin yaşam döngüsü manuel olarak yönetilebilir. Bu metotlar yalnızca özel kapsayıcılar, test kütüphaneleri veya framework çekirdeği yazılırken tercih edilir; standart görünümlerde alt öğelerin yönetimi GPUI motoruna bırakılır.
 
-**`Component<C>`.** `Component<C: RenderOnce>` `#[derive(IntoElement)]` çıktısının kullandığı sarmalayıcıdır. `Component::new(component)` bir `RenderOnce` değerini element yaşam döngüsüne taşır; render sırasında bileşen bir kez tüketilir. Kendi uygulama kodunda `Component` üretmek yerine `RenderOnce` implement edip `IntoElement` derive'ı kullanman daha okunaklıdır. Bu tipin public görünmesi, macro çıktısının derlenebilmesi içindir.
+**`Component<C>`.** `Component<C: RenderOnce>` sarmalayıcısı, `#[derive(IntoElement)]` makro çıktılarının arka planda yararlandığı bir yapıdır. `Component::new(component)` çağrısı bir `RenderOnce` bileşenini element yaşam döngüsüne dahil eder; render sürecinde bileşen bir defa tüketilerek ekran karesine işlenir. Uygulama kodlarında doğrudan `Component` üretmek yerine, `RenderOnce` implementasyonunun yapılması ve `IntoElement` makrosunun derive edilmesi çok daha okunaklı bir kod yapısı sunar.
 
-**AnyView ve AnyWeakView.** `AnyView` tipli view handle'ını kaybettiğin heterojen alanlar içindir; `AnyWeakView` bunun zayıf karşılığıdır. Dock, modal host, plugin slotu veya test harness gibi farklı view türlerini aynı koleksiyonda saklaman gerektiğinde uygundur. Tek bir view türüyle çalışıyorsan `Entity<T>` ve `WeakEntity<T>` hem daha güvenli hem daha okunaklıdır.
+**AnyView ve AnyWeakView.** `AnyView` tipli view handle referanslarının soyutlandığı heterojen alanlarda saklama yapmayı sağlarken; `AnyWeakView` ise bu yapının zayıf (weak) referans karşılığıdır. Dock sistemleri, modal sunucuları veya eklenti yuvaları gibi farklı tipteki view nesnelerini tek bir koleksiyon altında toplamak gerektiğinde kullanılır. Tek bir görünüm türüyle çalışılan standart durumlarda, daha güvenli ve okunaklı olan tipli `Entity<T>` ve `WeakEntity<T>` referansları tercih edilmelidir.
 
-**Interactivity.** `Interactivity`, `Div` ve benzeri elementlerin etkileşim durumunu taşır: element id, focus handle, scroll handle, key context, grup adı, hover/focus/active style refinement'ları, drag/drop kayıtları, mouse/key/action listener'ları, tooltip builder, tooltip gösterim gecikmesi, window control area, tab index ve hitbox davranışı aynı yerde tutarsın. Uygulama kodu bunu doğrudan doldurmaz; `.id(...)`, `.track_focus(...)`, `.tab_index(...)`, `.key_context(...)`, `.hover(...)`, `.active(...)`, `.group(...)`, `.on_click(...)`, `.on_drag(...)`, `.on_drop(...)`, `.tooltip(...)`, `.tooltip_show_delay(...)`, `.occlude()` ve `.block_mouse_except_scroll()` gibi fluent metotlar bu alanları düzenler.
+**Interactivity Yapısı.** `Interactivity` yapısı, `Div` ve benzeri elementlerin etkileşim durum verilerini (element ID, odak tutamacı, kaydırma handle'ı, tuş bağlamı, grup isimleri, hover/focus/active durumlarına özel stil refinement'ları, sürükle-bırak kayıtları, olay dinleyicileri ve tooltip yapılandırıcıları gibi) tek bir noktada toplar. Uygulama kodlarında bu alanlar doğrudan el ile doldurulmaz. Bunun yerine fluent mimarideki `.id(...)`, `.track_focus(...)`, `.tab_index(...)`, `.hover(...)`, `.active(...)`, `.on_click(...)` veya `.tooltip(...)` gibi metotlar bu alanları dolaylı olarak yapılandırır.
 
-**Imperative interactivity metotları.** Özel element yazarken `Interactivity` üzerindeki düşük seviyeli metotlar işine yarayabilir:
+**Düşük Seviyeli Etkileşim Metotları (Imperative Interactivity).** Özel element geliştirirken `Interactivity` üzerindeki düşük seviyeli şu metotlar kullanılabilir:
 
-- `on_click(...)`, `on_aux_click(...)`, `on_drag(...)`, `on_drag_move(...)`, `on_hover(...)`, `tooltip(...)`, `hoverable_tooltip(...)`, `can_drop(...)` ve `on_drop(...)` olay davranışını ekler.
-- `tooltip_show_delay(delay)` tooltip'in görünme gecikmesini ayarlar (varsayılan 500 ms); akıcı eşdeğeri `.tooltip_show_delay(delay)`'dir.
-- `capture_action(...)`, `capture_key_down(...)`, `capture_key_up(...)`, `capture_any_mouse_down(...)`, `capture_any_mouse_up(...)`, `capture_mouse_pressure(...)` ve `capture_pinch(...)` capture aşaması dinleyicileridir.
-- `occlude_mouse()` ve `block_mouse_except_scroll()` arkadaki hitbox'ların fare alıp almayacağını belirler.
-- `window_control_area(...)` özel başlık çubuğunda platform hit-test alanı üretir.
-- `compute_style(...)` frame sırasında hover/focus/active/group refinement'larını nihai stile birleştirir.
+- `on_click(...)`, `on_aux_click(...)`, `on_drag(...)`, `on_hover(...)` ve `on_drop(...)` gibi metotlar doğrudan olay davranışlarını düğüme kaydeder.
+- `tooltip_show_delay(delay)` tooltip gösterim gecikmesini (varsayılan 500 ms) ayarlar.
+- `capture_action(...)`, `capture_key_down(...)` ve `capture_any_mouse_down(...)` gibi metotlar olay yakalama (capture phase) dinleyicileri ekler.
+- `occlude_mouse()` ve `block_mouse_except_scroll()` metotları, arkada kalan hitbox alanlarının fare olaylarını alıp almayacağını belirler.
+- `window_control_area(...)` özel başlık çubuğu tasarımlarında işletim sistemine özel hit-test alanları kaydeder.
+- `compute_style(...)` ekran karesinin çizimi sırasında hover, focus, active veya grup stillerini nihai görünüm stiliyle birleştirir.
 
-Normal bileşen kodunda bu imperative yüzey yanlış seviyedir; element fluent zinciri aynı işi daha güvenli yapar. Bu metotları ancak kendi `Element` veya framework-level wrapper'ını yazarken seçersin.
+Standart bileşen tasarımlarında bu doğrudan (imperative) metotların kullanımı önerilmez; element fluent zinciri bu işlemleri çok daha güvenli yürütür. Bu metotlar yalnızca özel `Element` sınıfları tasarlanırken tercih edilmelidir.
 
-**Arena ve frame taşıyıcıları.** `Arena`, `ArenaBox<T>`, `DivFrameState`, `DivInspectorState`, `ElementClickedState`, `ElementHoverState`, `InteractiveElementState`, `GroupStyle`, `DragMoveEvent<T>`, `AnchoredState`, `Deferred`, `ScrollHandle`, `ScrollAnchor` ve `Reservation<T>` render veya etkileşim fazları arasında veri taşıyan altyapı tipleridir. `Arena::alloc(...)`, `capacity()` ve `clear()` pencere çizim arenasına aittir; uygulama verisi saklamak için kullanılmaz. `DragMoveEvent::drag(cx)` ve `dragged_item()` sürükleme yükünü tipli biçimde okumaya yarar; uygulama tarafında çoğunlukla `.on_drag_move::<T>(...)` callback argümanı olarak gelir.
+**Arena ve Ekran Karesi Veri Taşıyıcıları.** `Arena`, `ArenaBox<T>`, `DivFrameState`, `InteractiveElementState`, `DragMoveEvent<T>`, `ScrollHandle` ve `Reservation<T>` gibi yapılar, render ve etkileşim fazları arasında veri taşıyan altyapı bileşenleridir. `Arena::alloc(...)`, `capacity()` ve `clear()` metotları pencere çizim arenasına özel bellek yönetimi için tasarlanmıştır; uygulama verilerini saklamak amacıyla kullanılmamalıdır. `DragMoveEvent::drag(cx)` ve `dragged_item()` metotları ise sürükleme yükünü (payload) tipli olarak okumaya yarar; uygulama düzeyinde genellikle `.on_drag_move::<T>(...)` geri çağrı parametresi olarak elde edilir.
 
 ## FluentBuilder ve Koşullu Element Üretimi
 
-`FluentBuilder` trait'i tüm element tiplerine üç yardımcı ekler ve fluent zincirin if/match bloklarıyla kırılmasını engeller:
+`FluentBuilder` trait'i, tüm element tiplerine dinamik yardımcı metotlar kazandırarak akıcı metot zincirlerinin (fluent chains) koşullu `if` veya `match` bloklarıyla kesintiye uğramasını engeller:
 
 ```rust
 pub trait FluentBuilder {
@@ -392,7 +392,7 @@ pub trait FluentBuilder {
 }
 ```
 
-Tipik bir kullanım birden fazla koşullu davranışı tek bir akıcı zincirde toparlar:
+Tipik bir kullanım senaryosu, birden fazla koşullu davranış modelini tek bir akıcı zincir altında birleştirir:
 
 ```rust
 div()
@@ -410,27 +410,25 @@ div()
     })
 ```
 
-**Avantajlar.** Bu yardımcıların getirdiği başlıca kolaylıklar şunlar:
+**Sağladığı Avantajlar.** Bu yardımcıların kod yazımına kazandırdığı başlıca faydalar şunlardır:
 
-- Akıcı zincir (`method chain`) bozulmaz; if/match yapılarına başvurmadan koşullu UI yazabilirsin.
-- Closure içine geçen element'in tipi korunur; alt öğe eklemeye devam etmek serbesttir.
-- `map`'i zincirin dışına kontrollü çıkmak için kullanırsın; keyfi bir dönüşüm gerektiğinde işine yarar.
+- Akıcı metot zinciri bozulmaz; `if`/`match` kontrol bloklarına sapmadan tamamen koşullu arayüzler tasarlanabilir.
+- Closure içerisine iletilen elementin veri tipi aynen korunur; böylece alt öğeler eklemeye kesintisiz devam edilebilir.
+- `.map()` metodu, akıcı zincirin dışına kontrollü biçimde çıkılması ve keyfi tip dönüşümlerinin gerçekleştirilmesi gereken durumlarda kolaylık sağlar.
 
-**Dikkat noktaları.** Aynı kolaylıkların yanlış kullanımı küçük sorunlar üretebilir:
+**Dikkat Edilmesi Gereken Hususlar.** Bu yardımcıların hatalı kullanımları bazı performans veya tasarım sorunlarına yol açabilir:
 
-- `when` closure her çizimde çalışır; içinde ağır hesap yapman başarım sorunu doğurur.
-- Aynı element üzerinde defalarca `when_some` zincirlemek okunabilirliği bozuyorsa, veriyi önce normal bir `if let` ile önceden hesaplarsın ve tek bir `.child(...)` çağrısı yaparsın.
-- `map` element tipini değiştirebilir; `when` ise tipi değiştirmez (refinement zincirinde kalır). Bu yüzden `map` kullanımını dikkatli yaparsın.
+- `.when()` içerisindeki closure her render karesinde yeniden çalıştırılır; bu nedenle bu gövdelerde maliyetli hesaplama işlemlerinin yürütülmesinden kaçınılmalıdır.
+- Aynı element üzerinde çok sayıda `.when_some()` çağrısının zincirlenmesi kodun okunabilirliğini azaltıyorsa, ilgili verilerin önceden standart bir `if let` bloğu ile ayıklanması ve doğrudan tek bir `.child(...)` çağrısıyla eklenmesi tercih edilmelidir.
+- `.map()` yöntemi element tipini değiştirebilir; oysa `.when()` metodu element tipini korur (refinement zincirinde kalmasını sağlar). Bu nedenle `.map()` dönüşümleri bilinçli şekilde kullanılmalıdır.
 
 ## Refineable, StyleRefinement ve MergeFrom
 
-![Refineable / Cascade / MergeFrom Boru Hattı](assets/stil-cascade.svg)
+GPUI ve Zed mimarilerinde iki farklı kompozisyon deseni eş zamanlı olarak çalışır: Çizim süreçlerinde `Refineable`, ayarlar ve tema yükleme aşamalarında ise `MergeFrom`. Her iki desen de 'varsayılan değerlerin üzerine adım adım yeni verileri ekleyerek ezme' mantığını benimser; ancak sistemin farklı alanlarında görev yaparlar:
 
-GPUI ve Zed'de iki kompozisyon deseni paralel çalışır: çizim zincirinde `Refineable`, ayarlar ve tema yüklemesinde `MergeFrom`. İkisi de "varsayılan değerin üstüne adım adım üzerine yazma uygula" mantığını kullanır, ancak farklı yerlerde devreye girer.
+#### Refineable Deseni
 
-#### Refineable
-
-`Refineable` trait'i `refineable` crate'inde tanımlıdır; sözleşmesi şöyledir:
+`Refineable` trait'i `refineable` paketi altında şu sözleşmeyle tanımlanmıştır:
 
 ```rust
 pub trait Refineable: Clone {
@@ -451,17 +449,17 @@ pub trait IsEmpty {
 }
 ```
 
-Trait sözleşmesi göründüğünden zengindir ve birkaç ince detay içerir:
+Bu trait yapısı arayüz esnekliği açısından oldukça zengin kabiliyetler sunar:
 
-- `type Refinement` de `Refineable` olmalıdır; yani refinement'ın kendisi tekrar refine edebilirsin. Bu sayede `refine_a.refine(&refine_b)` zincirleme birleştirme mümkün olur.
-- Aynı `Refinement` ayrıca `IsEmpty + Default` zorunluluğunu taşır. `IsEmpty`, "bu refinement uygulansa hiçbir alan değişir mi?" sorusunu cevaplar; birleştirme, yerleşim önbelleğinin geçersiz sayılması ve `subtract` çıktısı bu kontrole dayanır.
-- `is_superset_of(refinement)`, üzerinde çağırdığın değerin bu refinement'ı zaten kapsayıp kapsamadığını söyler; gereksiz `refine` çağrılarını bu sayede atlarsın.
-- `subtract(refinement)`, iki refinement arasındaki farkı yeni bir refinement olarak verir.
-- `from_cascade(cascade)`, aşağıda anlatılan `Cascade` yapısını varsayılan değer üzerine uygular; tema ve stil katmanlamasının sondaki "düzleştirme" adımıdır.
+- `type Refinement` ilişkili tipi de `Refineable` olmak zorundadır; bu sayede refinement nesnelerinin kendi aralarında da `refine_a.refine(&refine_b)` şeklinde zincirleme birleştirilmesi mümkün kılınır.
+- İlgili `Refinement` aynı zamanda `IsEmpty + Default` sınırlarına uymalıdır. `IsEmpty` niteliği, 'bu refinement uygulandığında nesnede herhangi bir değişiklik oluşur mu?' sorusunu yanıtlar; yerleşim önbelleklerinin geçerlilik denetimleri ve fark çıkarımı (`subtract`) bu kontrole dayanır.
+- `is_superset_of(refinement)` metodu, üzerinde çağrıldığı nesnenin belirtilen refinement'ı zaten tam olarak kapsayıp kapsamadığını kontrol eder; bu sayede gereksiz `refine` güncellemeleri atlanır.
+- `subtract(refinement)` metodu, iki refinement arasındaki farkı hesaplayarak yeni bir refinement nesnesi olarak döndürür.
+- `from_cascade(cascade)` işlevi, aşağıda detaylandırılan `Cascade` yapısını varsayılan değerler üzerine uygulayarak tema ve stil katmanlarının düzleştirilmesini sağlar.
 
-`#[derive(Refineable)]` (gpui re-export'lu): orijinal struct ile aynı alanlara sahip, ama her alanı `Option`'lı hale getirilmiş bir `XRefinement` türü üretir. `refine` çağrısı yalnızca `Some` alanları yazar. Aşağıdaki somut türler her zaman derive ile üretilir, ayrıca elle yazmaya gerek kalmaz:
+`#[derive(Refineable)]` makrosu; orijinal veri yapısıyla aynı alanlara sahip ancak her alanın `Option` ile sarmalandığı bir `XRefinement` tipi üretir. `refine` çağrısı yalnızca `Some` değer taşıyan alanları hedef tipe yazar. Aşağıdaki somut veri tipleri her zaman derive edilerek üretilir ve elle yazılması gerekmez:
 
-| Refinement türü | Üreten struct |
+| Refinement Türü | Üreten Temel Struct |
 | --- | --- |
 | `StyleRefinement` | `Style` |
 | `TextStyleRefinement` | `TextStyle` |
@@ -474,9 +472,9 @@ Trait sözleşmesi göründüğünden zengindir ve birkaç ince detay içerir:
 | `CornersRefinement` | `Corners` |
 | `GridTemplateRefinement` | `GridTemplate` |
 
-Bu `*Refinement` tiplerini çoğunlukla doğrudan adlandırarak kullanmazsın; fluent API zinciri onları arka planda toplar. Doğrudan elle inşa etmen gereken tek tip genellikle `StyleRefinement`'tır — örneğin `.hover(|style| style.bg(...))` geri çağrısının (`callback`) imzasında bu tip görünür.
+Bu `*Refinement` tipleri genellikle doğrudan uygulama kodlarında yazılmaz; fluent stil zincirleri bu verileri arka planda otomatik olarak biriktirir. Geliştiricinin el ile yapılandırması gereken tek tip genellikle `StyleRefinement` yapısıdır; örneğin `.hover(|style| style.bg(...))` olay dinleyicisi imzasında bu tip görünür.
 
-Tipik kullanım `Style`/`StyleRefinement` (`gpui` crate'i) üzerinden ilerler:
+Tipik kullanım senaryoları `Style` ve `StyleRefinement` yapıları üzerinden yürütülür:
 
 ```rust
 let mut style = Style::default();
@@ -485,35 +483,35 @@ style.refine(&StyleRefinement::default()
     .font_weight(FontWeight::SEMIBOLD));
 ```
 
-Element fluent zinciri (örneğin `div().text_size(px(14.)).bg(rgb(0xff))`) arka planda bir `StyleRefinement` biriktirir; çizim sırasında temel stil üzerine refine eder. Bu refinement içinde alignment (`align_items`, `align_self`, `align_content`, `justify_content`), flex yönü (`flex_direction`), grid yerleşimi (`grid_location`), scroll politikası (`allow_concurrent_scroll`, `restrict_scroll_to_axis`), gölge (`box_shadow`) ve imleç (`mouse_cursor`) gibi kısmi alanlar yalnız dokunulduğunda temel stili ezer. `TextStyle`/`TextStyleRefinement`, `HighlightStyle`, `PlayerColors`, `ThemeColors` gibi tüm tema yapıları aynı kalıbı kullanır.
+Element fluent zincirleri (örneğin `div().text_size(px(14.)).bg(rgb(0xffffff))`) arka planda bir `StyleRefinement` biriktirerek çizim aşamasında temel stil üzerine uygular. Bu refinement içerisinde hizalamalar (align, justify), flex yönelimleri, grid konumları, kaydırma politikaları, gölgelendirmeler ve imleç stilleri gibi özellikler, yalnızca atama yapıldığında temel stili ezer; dokunulmayan alanlar ise varsayılan değerlerini korur.
 
-`refined(self, refinement)` ise değiştirilemez bir kopya üretir; "ek stil ile yeni temel değer elde et" senaryolarında uygundur.
+`refined(self, refinement)` metodu ise değiştirilemez (immutable) yeni bir kopya üretir; ek stillerle yeni bir temel değer oluşturulması gereken senaryolarda tercih edilir.
 
-#### Cascade ve CascadeSlot
+#### Cascade ve CascadeSlot Yapıları
 
-`Refineable` tek başına iki katmanı (temel değer + refinement) birleştirir. Daha derin hover/focus/active akışları için `refineable` crate'i katman yığını sunar:
+`Refineable` deseni tek başına iki katmanın (temel değer + refinement) birleştirilmesini sağlar. Daha derin ve çok katmanlı hover, focus veya active akışlarını yönetmek amacıyla `refineable` paketi hiyerarşik bir katman yığını sunar:
 
 ```rust
 pub struct Cascade<S: Refineable>(Vec<Option<S::Refinement>>);
 pub struct CascadeSlot(usize);
 ```
 
-API yüzeyi şöyledir:
+Bu arayüzün temel özellikleri şu şekildedir:
 
-- `Cascade::default()`, slot 0'ı `Some(default)` ile kurar; ek slotlar başta `None`'dur. Slot 0 her zaman dolu kalır ve temel refinement'tır.
-- `cascade.reserve() -> CascadeSlot`, yeni bir `None` slot ekler ve onu sonradan bulmaya yarayan referansı (`handle`) döner. Hover, focus, active gibi her dinamik katman için ayrı bir slot ayrılır.
-- `cascade.base() -> &mut S::Refinement`, slot 0'a değiştirilebilir erişim verir; her yerleşim hesabında asıl stil buraya yazılır.
-- `cascade.set(slot, Option<S::Refinement>)`, belirli bir slot'a refinement koyar veya `None` ile o katmanı devre dışı bırakır.
-- `cascade.merged() -> S::Refinement`, slot 0 üzerine diğer dolu slotları sırayla `refine` eder; sonraki slot önceki slotu ezer.
-- `Refineable::from_cascade(&cascade) -> Self`, `default().refined(merged())` kısayoludur; çizim sırasında nihai stili üretmek için kullanırsın.
+- `Cascade::default()` çağrısı, slot 0 değerini `Some(default)` ile başlatır; ek slotlar başlangıçta `None` durumundadır. Slot 0 her zaman dolu tutulur ve temel refinement değerini taşır.
+- `cascade.reserve() -> CascadeSlot` metodu yeni bir `None` slot ekleyerek, onu sonradan bulmayı sağlayacak benzersiz bir referans tutamacı (handle) döndürür. Hover, focus veya active gibi dinamik katmanların her biri için ayrı bir slot rezerve edilir.
+- `cascade.base() -> &mut S::Refinement` metodu, slot 0 değerine değiştirilebilir (mutable) erişim sağlar; her yerleşim hesaplamasında asıl stil buraya yazılır.
+- `cascade.set(slot, Option<S::Refinement>)` çağrısı, belirli bir slot alanına refinement yerleştirir veya `None` ile o katmanı etkisiz kılar.
+- `cascade.merged() -> S::Refinement` metodu, slot 0 üzerinde diğer dolu slotları sırayla `refine` eder; sonraki slotlar öncekileri ezer.
+- `Refineable::from_cascade(&cascade) -> Self` çağrısı, `default().refined(merged())` kısayoludur; çizim esnasında nihai stilin üretilmesi için kullanılır.
 
-**Önemli not.** GPUI'nın kendi `Interactivity` katmanı (`.hover(...)`, `.active(...)`, `.focus(...)`, `.focus_visible(...)`, `.in_focus(...)`, `.group_hover(...)`, `.group_active(...)` zinciri) **`Cascade`/`CascadeSlot` kullanmaz**. `Interactivity` struct'ı her durum için ayrı bir alan tutar (`elements/div`'deki `hover_style`, `active_style`, `focus_style`, `in_focus_style`, `focus_visible_style`, `group_hover_style`, `group_active_style`) ve çizim aşamasında bunları sırayla `refine` eder. Bu alanların tipleri aynı değildir: `focus_style`, `in_focus_style`, `focus_visible_style`, `hover_style` ve `active_style` birer `Option<Box<StyleRefinement>>`'tır; `group_hover_style` ve `group_active_style` ise `Option<GroupStyle>` tipindedir. Yani hover stilinde verdiğin `StyleRefinement::bg(...)` temel arka planı ezer; ama `font_size`'a dokunmayan bir refinement temel `font_size` değerini korur. `None` alan "etki yok" anlamına gelir.
+**Önemli Not:** GPUI'nın kendi yerleşik `Interactivity` katmanı (örneğin `.hover()`, `.active()`, `.focus()` zincirleri) **`Cascade`/`CascadeSlot` yapılarını kullanmaz**. `Interactivity` yapısı her etkileşim durumu için kendi bünyesinde ayrı bir alan barındırır (örneğin `hover_style`, `active_style`, `focus_style`) ve çizim aşamasında bunları sırayla `refine` eder. Bu stil alanları `Option<Box<StyleRefinement>>` ya da grup stilleri için `Option<GroupStyle>` tipindedir. Dolayısıyla hover stilinde tanımlanan `.bg(...)` ayarı arka plan rengini ezer; ancak yazı boyutuna (`font_size`) dokunmayan bir refinement temel yazı boyutu değerini aynen korur.
 
-`Cascade<S>` ve `CascadeSlot` arayüzü `refineable` crate'inde genel olarak durur; ancak GPUI çekirdeği veya Zed bu sürümde içeriden kullanmaz. Çoklu katmanlı (3+) refinement yığınını dışarıdan kurmak isteyen kütüphane yazarları için bir uzantı noktasıdır.
+`Cascade<S>` ve `CascadeSlot` arayüzleri `refineable` kütüphanesi kapsamında genel amaçlı olarak yer alsa da, GPUI çekirdeği veya Zed bunları bu sürümde dahili olarak kullanmamaktadır. Çok katmanlı stil birleştirme yığınlarını haricen tasarlamak isteyen kütüphane geliştiricileri için birer genişletme noktası sunarlar.
 
-#### MergeFrom
+#### MergeFrom Deseni
 
-`MergeFrom` trait'i `settings_content` crate'inde tanımlıdır:
+`MergeFrom` trait'i `settings_content` paketi altında şu şekilde tanımlanmıştır:
 
 ```rust
 pub trait MergeFrom {
@@ -524,33 +522,33 @@ pub trait MergeFrom {
 }
 ```
 
-Varsayılan kurallar şöyledir:
+Varsayılan birleştirme kuralları şu şekildedir:
 
-- `HashMap`, `BTreeMap`, struct: derin birleştirme — yalnızca `other`'da var olan alanlar yazılır.
-- `Option<T>`: `None` üzerine yazmaz; `Some` özyinelemeli olarak birleşir.
-- Diğer tipler (`Vec`, ilkel tipler): tam üzerine yazma.
+- `HashMap`, `BTreeMap` ve veri yapıları (structs) için derin birleştirme (deep merge) yapılır; yalnızca `other` kaynağında tanımlanmış alanlar hedef nesneye yazılır.
+- `Option<T>` alanlarında `None` değeri hedefi etkilemez; `Some` değerleri ise özyinelemeli (recursive) olarak birleştirilir.
+- Diğer tiplerde (vektörler, ilkel veri tipleri) ise eski değerin üzerine tamamen yeni değer yazılır.
 
-`#[derive(MergeFrom)]` derive'ı, struct alanları için özyinelemeli birleştirme üretir. Bu varsayılan davranışı değiştirmek için `ExtendingVec<T>` (her birleştirmede sona ekleme yapar) ve `SaturatingBool` (bir kez `true` olunca öyle kalır) gibi sarıcılar hazırdır.
+`#[derive(MergeFrom)]` makrosu, struct alanları için otomatik özyinelemeli birleştirme kodları üretir. Bu varsayılan davranışı değiştirmek amacıyla, her birleştirmede veriyi sona ekleyen `ExtendingVec<T>` veya bir kez `true` yapıldıktan sonra o durumu koruyan `SaturatingBool` gibi özel sarmalayıcılar (wrappers) kullanılabilir.
 
-**Ayar (`Settings`) yükleme zinciri.** `SettingsStore::recompute_values` global değerleri her yeniden hesapladığında katmanları şu sırayla birleştirir:
+**Ayar (Settings) Yükleme Hiyerarşisi.** `SettingsStore::recompute_values` işlevi global değerleri her yeniden hesapladığında, ayar katmanlarını şu sıra doğrultusunda birleştirir:
 
-1. `assets/settings/default.json` içeriği `parse_default_settings` ile okunur; release-channel ve platform override'ları bu temel değere baştan katılır.
-2. Extension ayarları (`extension_settings`) ve global ayarlar (`global_settings`) sırayla eklersin.
-3. Kullanıcı ayarları varsa aktif profilin `base` değerine bakılır. Profil tabanı `User` ise kullanıcı içeriği, release-channel override'ı ve OS override'ı eklenir; sonra aktif profilin kendi `settings` alanı eklersin.
-4. Server ayarları (`server_settings`) eklersin.
-5. Global değer için bütün local/project ayarlarındaki `project.disable_ai` alanı ayrıca `SaturatingBool` mantığıyla birleştirilir.
-6. Dosya veya klasör bağlamlı yerel değerlerde, yukarıdaki global temelin üstüne ilgili `local_settings` girdileri yol derinliğine göre sırayla eklersin.
+1. `assets/settings/default.json` içeriği `parse_default_settings` ile okunur; kanal ve platform ezmeleri (overrides) bu temel değere baştan katılır.
+2. Eklenti ayarları (`extension_settings`) ve global ayarlar (`global_settings`) sırasıyla eklenir.
+3. Kullanıcı ayarları mevcutsa aktif profilin taban (`base`) değerine bakılır. Profil tabanı `User` ise kullanıcı içerikleri, kanal ezmeleri ve işletim sistemi ezmeleri eklenir; ardından aktif profilin kendi `settings` alanı dahil edilir.
+4. Sunucu ayarları (`server_settings`) birleştirilir.
+5. Global değerler için tüm yerel/proje ayarlarındaki `project.disable_ai` alanı ayrıca `SaturatingBool` mantığıyla birleştirilir.
+6. Dosya veya dizin bağlamlı yerel değerlerde, yukarıdaki global temelin üzerine ilgili `local_settings` girdileri klasör derinliğine göre sırayla eklenerek ezilir.
 
-**Dikkat noktaları.** Refineable ve MergeFrom kullanımlarında karşılaşacağın hatalı kalıplar şunlar:
+**Dikkat edilmesi gereken hususlar.** Bu iki birleştirme modeliyle çalışırken şu noktalara dikkat edilmelidir:
 
-- `Refineable` zincirinde `default()` temel değeri her seferinde yeniden hesaplanır; ağır temel stilleri bir önbelleğe almalısın.
-- `MergeFrom` sıralaması alt-üst değildir: en spesifik kaynağı en sona koymalısın (`local > profile > user > default`).
-- `Vec`'lere sona eklemek gerekiyorsa `ExtendingVec`'i kullanırsın; üzerine yazmak yeterliyse düz `Vec`'i tercih edersin.
-- `Option<Option<T>>` gibi iç içe seçenek yapıları gerektiğinde `MergeFrom`'un varsayılan davranışı doğru sonucu vermeyebilir; bu durumda özel bir `impl` yazman gerekir.
+- `Refineable` zincirinde `default()` temel stili her seferinde sıfırdan hesaplanır; yüksek maliyetli stil yapılandırmalarının arayüz performansını düşürmemesi için uygun bir önbelleğe alınması önerilir.
+- `MergeFrom` sıralamasında en özel (spesifik) kaynağı en sona yerleştirilmelidir; sıralama her zaman `local > profile > user > default` akışını izlemelidir.
+- Vektör türündeki verilere yeni elemanlar eklemek gerektiğinde `ExtendingVec` tercih edilmelidir; eski listenin tamamen ezilmesi hedefleniyorsa düz `Vec` kullanılmalıdır.
+- `Option<Option<T>>` gibi iç içe sarmalanmış seçenek yapılarında `MergeFrom` varsayılan davranışları hatalı sonuçlar üretebileceğinden, bu istisnai durumlarda özel trait implementasyonları yazılmalıdır.
 
 ## Ertelenmiş Çizim, Çizim Hazırlığı Sırası ve Üst Katman
 
-`deferred(child)` çağrısı, alt öğenin yerleşimini bulunduğu yerde hesaplar; ama çizimini, üst öğelerin çizimleri tamamlandıktan sonraya erteler. Bu davranış popover, sağ tıklama menüsü, yeniden boyutlandırma tutamacı (`resize handle`) ve dock üzerine bırakma alanı (`dock drop overlay`) gibi üstte çizilmesi gereken parçalar için tasarlanmıştır:
+`deferred(child)` sarmalayıcısı, alt öğenin ekran yerleşimini (layout) ağaçtaki normal yerinde hesaplar; ancak fiili çizim (paint) işlemini, diğer tüm normal öğelerin çizimleri tamamlanana kadar geciktirir. Bu davranış; açılır kutular (popovers), sağ tık bağlam menüleri, pencere boyutlandırma tutamakları ve yerleşim bırakma alanları (dock drop overlays) gibi her zaman en üst katmanda çizilmesi gereken arayüz parçaları için tasarlanmıştır:
 
 ```rust
 deferred(
@@ -562,22 +560,20 @@ deferred(
 .with_priority(1)
 ```
 
-**Davranış.** Üç aşama sırasıyla şu işleri yapar:
+**Ertelenmiş Çizim Mekanizması.** Element yaşam döngüsü aşamaları şu şekilde işler:
 
-- `request_layout`: alt öğe normal şekilde yerleşim alır.
-- `prepaint`: alt öğe, `window.defer_draw(...)` ile ertelenmiş kuyruğa taşınır.
-- `paint`: ertelenmiş element kendi çizim aşamasında bir şey üretmez; gerçek çizim, ertelenmiş kuyrukta sıra geldiğinde yaparsın.
-- `with_priority(n)`: aynı ekran karesindeki ertelenmiş elementler arasında üstte/altta sırasını (`z-order`) belirler; yüksek öncelikli element üstte çizersin.
+- `request_layout`: Alt öğe, ağaçtaki konumuna göre standart yerleşim hesaplamalarını alır.
+- `prepaint`: Alt öğe, `window.defer_draw(...)` çağrısı vasıtasıyla en üst katmanda çizilmek üzere ertelenmiş kuyruğa kaydedilir.
+- `paint`: Ertelenmiş element, kendi normal paint aşamasında doğrudan hiçbir çizim yapmaz; gerçek çizim işlemleri, ertelenmiş kuyruktaki öğeler sırayla boyanırken gerçekleştirilir.
+- `with_priority(n)`: Aynı ekran karesinde kuyruğa eklenen ertelenmiş elementlerin kendi aralarındaki dikey sıralamasını (z-order) belirler; öncelik değeri yüksek olan elementler diğer ertelenmiş öğelerin de üstünde çizilir.
 
-**`Div` çizim hazırlığı yardımcıları.** Yerleşim sonuçlarına göre çizim hazırlığı aşamasında aksiyon almak gerektiğinde iki yardımcı vardır:
+**`Div` Çizim Hazırlığı Yardımcıları.** Yerleşim sonuçlarına bağlı olarak prepaint (çizim hazırlığı) aşamasında dinamik kararlar almak amacıyla şu yardımcı metotlar sunulmuştur:
 
-- `on_children_prepainted(|alt_sinirlar, window, cx| ...)` — kapanışa tek bir `bounds` değil, her alt öğe için bir `Bounds<Pixels>` taşıyan bir `Vec<Bounds<Pixels>>` gelir; alt öğelerin son konum ve boyutlarını ölçer, sonraki çizim için veri üretir.
-- `with_dynamic_prepaint_order(...)` — alt öğelerin çizim hazırlığı sırasını çalışma zamanında belirler. Özellikle bir alt öğenin otomatik kaydırması veya ölçüm sonucu diğer alt öğeyi etkilediği durumlarda kullanırsın.
+- `on_children_prepainted(|alt_sinirlar, window, cx| ...)`: Geri çağrıya (callback) tek bir sınır alanı değil, bağlı tüm alt öğelerin sınırlarını barındıran `Vec<Bounds<Pixels>>` listesi iletilir. Alt öğelerin son konum ve boyutlarını ölçerek sonraki çizim adımları için veri üretilmesini sağlar.
+- `with_dynamic_prepaint_order(...)`: Alt öğelerin prepaint aşamasındaki işletilme sırasını çalışma zamanında dinamik olarak belirler. Özellikle bir alt öğenin otomatik kaydırma (autoscroll) veya boyut ölçüm sonuçlarının, diğer alt öğelerin konumlarını etkilediği gelişmiş senaryolarda tercih edilir.
 
-**Dikkat noktaları.** Ertelenmiş çizim kullanımında dikkat edeceğin noktalar:
+**Dikkat Edilmesi Gereken Hususlar.** Ertelenmiş çizimler kullanılırken şu prensiplere uyulmalıdır:
 
-- Ertelenmiş alt öğe yerleşimde yer tuttuğu için `absolute`/`anchored` konumlandırma hâlâ doğru üst öğe sınırlarına bağlıdır.
-- Üst katmanın fare olaylarını engellemesini istiyorsan alt öğe içinde `.occlude()` veya `.block_mouse_except_scroll()` kullanırsın.
-- Öncelik değeri global bir z-index değildir; yalnızca aynı pencere ekran karesi içindeki ertelenmiş kuyruk için geçerlidir.
-
----
+- Ertelenmiş alt öğe yerleşim ağacında yer kapladığı için, `.absolute()` veya `.anchored()` konumlandırmalar hâlâ ilişkili olduğu kök üst öğe sınırlarına bağlı kalır.
+- En üstte çizilen katmanın, arkasındaki fare olaylarını bloke etmesi (engellemesi) hedefleniyorsa, alt öğe içerisinde `.occlude()` veya `.block_mouse_except_scroll()` metotları kullanılmalıdır.
+- Atanan öncelik (`priority`) değeri genel bir z-index niteliğinde değildir; yalnızca aynı pencere ekran karesi içindeki ertelenmiş çizim kuyruğunun kendi içindeki sıralamasını belirler.

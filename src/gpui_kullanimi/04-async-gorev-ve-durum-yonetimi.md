@@ -414,7 +414,40 @@ self._abonelik = cx.subscribe_in(&modal, window, |gorunum, modal, olay, window, 
 
 - `observe_new` geri çağrısında pencere (`window`) parametresinin her zaman geçerli bir değer taşıdığı varsayılmamalıdır; zira penceresiz test ortamları veya uygulama genelindeki bazı nesne yaratımları `None` döndürebilir.
 - Pencere bağlamına dayalı olarak kurulan abonelikler bir struct alanı içinde muhafaza edilmediği takdirde, ilgili kapsam sonlandığında abonelik de hemen sonlanır.
-- `focus_self` işlevi ertelemeli olarak yürütüldüğü için, hemen ardından gelen satırda odağı## Entity Release, Temizlik ve Sızıntı Tespiti
+- `focus_self` işlevi ertelemeli çalıştığı için hemen sonraki satırda odağın değiştiğini varsayarak okuma yapmak yanıltıcı olabilir; odaklanmanın gerçek sonucunu bir sonraki etki döngüsünde veya ekran karesi çizim akışında gözlemlemek gerekir.
+
+## Entity Reservation ve Çift Yönlü Referans
+
+Bazı durumlarda bir entity oluşturulurken, henüz var olmayan başka bir entity'nin kimliğine veya zayıf referansına (handle) önceden ihtiyaç duyulabilir. Bunun en tipik örneği, `Workspace` ve `Pane` yapıları arasındaki karşılıklı bağımlılıktır. Bu tür durumlarda güçlü referans döngüleri (reference cycles) oluşturmadan iki yönlü ilişki kurabilmek amacıyla `Reservation` deseni tercih edilmelidir. Bu yöntemde önce kimlik rezerve edilir, ardından oluşturulan entity bu rezerve edilmiş alana yerleştirilir:
+
+```rust
+let bolme_rezervasyonu: Reservation<Pane> = cx.reserve_entity();
+let bolme_id = bolme_rezervasyonu.entity_id();
+
+let calisma_alani = cx.new(|cx| {
+    Workspace::with_pane_id(bolme_id, cx)
+});
+
+let bolme = cx.insert_entity(bolme_rezervasyonu, |cx| {
+    Pane::new(calisma_alani.downgrade(), cx)
+});
+```
+
+**`Reservation<T>` arayüzü.** Rezerve edilmiş nesne aracılığıyla iki temel işlem yürütülür:
+
+- `entity_id()`: Entity henüz somut olarak üretilmeden önce benzersiz kimliğini (`EntityId`) sağlar.
+- `cx.insert_entity(reservation, build)`: Ayrılmış rezervasyon alanını doldurarak ilgili entity'yi oluşturur ve geriye güçlü `Entity<T>` referansını döndürür.
+- Rezervasyon nesnesi herhangi bir veri yerleştirilmeden kapsam dışına çıkarsa (drop edilirse) rezerve edilen alan otomatik olarak iptal edilir.
+
+**Tasarım kalıbı.** Alt entity nesnesinin üst öğeye `WeakEntity` referansı ile bağlanması önerilir. Rezervasyon mekanizması sayesinde, üst öğeyi yapılandırırken alt öğenin referans kimliğini önceden bilmek mümkün olur ve döngüsel sahipliklerin önüne geçilir. Benzer işlem akışları asenkron süreçlerde `AsyncApp` arayüzü üzerinden de yürütülebilir.
+
+**Dikkat edilmesi gereken hususlar.** Rezervasyon desenleri kullanılırken sıkça karşılaşılan hatalar şunlardır:
+
+- Rezervasyon kullanmaksızın iki `Entity<T>` nesnesinin birbirini doğrudan güçlü referansla tutması durumunda referans sayısı sıfırlanamaz ve bu durum bellek sızıntısına (memory leak) yol açar.
+- `insert_entity` çağrısı yapılmadan rezervasyon nesnesi elden çıkarılırsa entity hiç oluşturulmamış kabul edilir. Bu durumda daha önce `entity_id()` ile elde edilen kimlik tamamen geçersiz kalır.
+- `cx.new` çağrısı, devam eden bir güncelleme işleminin ortasında rezervasyon alanını doldurmaya çalışabilir; iç içe güncelleme sınırlandırmaları rezervasyon işlemleri için de aynen geçerlidir.
+
+## Entity Release, Temizlik ve Sızıntı Tespiti
 
 ![Entity / WeakEntity Sahiplik Modeli](assets/entity-sahiplik.svg)
 
@@ -425,7 +458,7 @@ Entity referansları, referans sayacı (reference counting - Arc) mantığıyla 
 - `cx.on_release(|gorunum, cx| ...)`: Mevcut entity serbest bırakılırken devreye girer.
 - `App::observe_release(&varlik, |serbest_birakilan, cx| ...)`: Uygulama bağlamından, farklı bir entity'nin serbest bırakılma anını izler.
 - `Context<T>::observe_release(&varlik, |gorunum, serbest_birakilan, cx| ...)`: Görünüm (view) verileriyle birlikte başka bir entity'nin serbest bırakılmasını gözlemler.
-- `window.observe_release(&varlik, cx, |serbest_birakilan, window, cx| ...)`: Serbest bırakılma anında pencere bağlamına erişim gerekiyorsa bu metottan yararlanılır.
+- `window.observe_release(&varlik, cx, |serbest_birakilan, window, cx| ...)`: Serbest bırakma anında pencere bağlamına erişim gerekiyorsa bu metottan yararlanılır.
 - `cx.on_drop(...)` ve `AsyncApp::on_drop(...)`: Kapsam sonlandığında çalıştırılmak üzere ertelenmiş bir temizlik işlevi kurar. Entity o esnada zaten bellekten düşmüşse güncelleme başarısız olabilir.
 
 **Örnek.** Resim önbelleğinin serbest bırakılmasını takip eden bir önizleme görünümü bu kalıba iyi bir örnektir:
@@ -591,7 +624,7 @@ div().child(
 )
 ```
 
-Önbellek mekanizması, view kendi üzerinde `cx.notify()` çağırmadığı sürece önceki yerleşim (layout) hesaplamalarını, çizim hazırlıklarını ve render çıktılarını koruyarak yeniden kullanır. Ancak `Window::refresh()` çağrıları önbelleği devre dışı bırakır. Inspector aracı açıkken de hitbox'ların tam olarak taranabilmesi adına önbellek devre dışı kalır. Önbelleğe alma işleminde anahtar olarak; yerleşim sınırları (bounds), aktif maske (`ContentMask`) ve aktif yazı stili (`TextStyle`) bilgileri kullanılır. Bu yüzden `cached(...)` çağrısı sırasında iletilen kök `StyleRefinement` değerinin, view'un gerçek kök yerleşim stiliyle örtüşmesi gerekir; uyumsuz stil tanımları arayüzde hatalı veya güncellenmemiş gösterimlere yol açabilir.
+Önbellek mekanizması, view kendi üzerinde `cx.notify()` çağırmadığı sürece önceki yerleşim (layout) hesaplamalarını, çizim hazırlıklarını ve render çıktılarını koruyarak yeniden kullanır. Ancak `Window::refresh()` çağrıları önbelleği devre dışı bırakır. Inspector aracı açıkken भी hitbox'ların tam olarak taranabilmesi adına önbellek devre dışı kalır. Önbelleğe alma işleminde anahtar olarak; yerleşim sınırları (bounds), aktif maske (`ContentMask`) ve aktif yazı stili (`TextStyle`) bilgileri kullanılır. Bu yüzden `cached(...)` çağrısı sırasında iletilen kök `StyleRefinement` değerinin, view'un gerçek kök yerleşim stiliyle örtüşmesi gerekir; uyumsuz stil tanımları arayüzde hatalı veya güncellenmemiş gösterimlere yol açabilir.
 
 #### Geri Çağırma (Callback) Adaptörleri
 
@@ -630,56 +663,6 @@ Değişmez element tanımlamalarında kullanılan başlıca `ElementId` varyantl
 - `CodeLocation(Location<'static>)`, `NamedChild(Arc<ElementId>, SharedString)`
 - `OpaqueId([u8; 20])`
 
-`ElementId::named_usize(name, usize)` metodu, bir `NamedInteger` varyantı üretir. Tasarım kararlarında şu pratik yaklaşımlar izlenebilir: Hata ayıklama seçicileri veya metin tabanlı statik tanımlayıcılar gerektiğinde `Name` varyantı; liste satırları gibi dinamik olarak tekrar eden yapılarda `NamedInteger` varyantı; metin tutamaçları (text anchor) gibi byte seviyesinde benzersiz kimlik gerektiren durumlarda ise `OpaqueId` yapısı tercih edilmelidir.Name` varyantı; liste satırları gibi dinamik olarak tekrar eden yapılarda `NamedInteger` varyantı; metin tutamaçları (text anchor) gibi byte seviyesinde benzersiz kimlik gerektiren durumlarda ise `OpaqueId` yapısı tercih edilmelidir. amaçlı kullanırsın.
-
-**Önbelleklenmiş view.** `AnyView::cached(style_refinement)`'ı, pahalı bir alt öğe view'unun çizim sonucunu önbelleğe almak için kullanırsın:
-
-```rust
-div().child(
-    AnyView::from(bolme.clone())
-        .cached(StyleRefinement::default().v_flex().size_full()),
-)
-```
-
-Önbellek, view `cx.notify()` çağırmadığı sürece önceki yerleşim, çizim hazırlığı ve çizim aralıklarını yeniden kullanır. `Window::refresh()` çağrısı önbelleği atlatır; inspector seçimi açıkken de hitbox'ların eksiksiz olabilmesi için önbellek devre dışı kalır. Önbellek anahtarı sınırları (`bounds`), aktif `ContentMask` ve aktif `TextStyle`'ı içerir. Bu nedenle `cached(...)` çağrısında verdiğin kök `StyleRefinement`, view'un gerçek kök yerleşim stiliyle uyumlu olmalıdır; yanlış refinement yerleşimi bayat veya hatalı gösterir.
-
-#### Geri Çağrı Adaptörleri
-
-Çoğu element geri çağrısı view verisini doğrudan almaz:
-
-```rust
-Fn(&Event, &mut Window, &mut App)
-```
-
-Geri çağrıdan view verisine geri dönmek için uygun adaptörü seçersin:
-
-- `cx.listener(|gorunum, olay, window, cx| ...)` — `Fn(&Event, &mut Window, &mut App)` üretir. İçeride o anki entity'nin `WeakEntity` handle'ını kullanır; entity düşmüşse geri çağrı sessizce işlem yapmaz.
-- `cx.processor(|gorunum, olay, window, cx| -> R { ... })` — `Fn(Event, &mut Window, &mut App) -> R` üretir. Olayı sahiplenir ve dönüş değeri gerektiğinde tercih edersin.
-- `window.listener_for(&varlik, |durum, olay, window, cx| ...)` — o anki `Context<T>` dışında, elinde tipli `Entity<T>` varken dinleyici üretir.
-- `window.handler_for(&varlik, |durum, window, cx| ...)` — olay parametresi olmayan `Fn(&mut Window, &mut App)` dinleyicisi üretir.
-
-`cx.listener` dışındaki adaptörler, yeniden kullanılabilir bileşenler veya pencere seviyesindeki yardımcılar yazarken devreye girer. Dinleyici içinde veri değiştiğinde `cx.notify()` çağırmak yine çağıranın sorumluluğundadır; adaptör bunu otomatik yapmaz.
-
-#### `FocusHandle` Zayıf Handle ve Dispatch
-
-`FocusHandle` yalnızca odak vermek için değildir; zayıf handle ve yönlendirme kontrolü de sunar:
-
-- `focus_handle.downgrade() -> WeakFocusHandle`
-- `WeakFocusHandle::upgrade() -> Option<FocusHandle>`
-- `focus_handle.contains(&other, window) -> bool` — son çizilen ekran karesindeki odak ağacı ilişkisini kontrol eder.
-- `focus_handle.dispatch_action(&action, window, cx)` — yönlendirmeyi odaktaki düğüm yerine belirli bir odak handle'ının düğümünden başlatır.
-
-`contains_focused(window, cx)` "ben veya altımdaki bir düğüm odakta mı?" sorusuna, `within_focused` ise "ben odaktaki düğümün içinde miyim?" sorusuna cevap verir. `within_focused` imzasında `cx: &mut App` vardır; çünkü yönlendirme ve odak yolu hesaplarında uygulama verisiyle çalışır.
-
-#### `ElementId` Tam Varyantları
-
-Sabit element verisi için kullandığın `ElementId` varyantları şunlar:
-
-- `View(EntityId)`, `Integer(u64)`, `Name(SharedString)`, `Uuid(Uuid)`
-- `FocusHandle(FocusId)`, `NamedInteger(SharedString, u64)`, `Path(Arc<Path>)`
-- `CodeLocation(Location<'static>)`, `NamedChild(Arc<ElementId>, SharedString)`
-- `OpaqueId([u8; 20])`
-
-`ElementId::named_usize(name, usize)`, `NamedInteger` üretir. Pratik seçim şöyledir: hata ayıklama seçicisi veya metin tabanlı ID gerektiğinde `Name`; liste satırı gibi tekrar eden yapılarda `NamedInteger`; metin tutamacı (`text anchor`) gibi byte seviyesinde kimliklerde `OpaqueId`'i tercih edersin.
+`ElementId::named_usize(name, usize)` metodu, bir `NamedInteger` varyantı üretir. Tasarım kararlarında şu pratik yaklaşımlar izlenebilir: Hata ayıklama seçicileri veya metin tabanlı statik tanımlayıcılar gerektiğinde `Name` varyantı; liste satırları gibi dinamik olarak tekrar eden yapılarda `NamedInteger` varyantı; metin tutamaçları (text anchor) gibi byte seviyesinde benzersiz kimlik gerektiren durumlarda ise `OpaqueId` yapısı tercih edilmelidir.
 
 ---

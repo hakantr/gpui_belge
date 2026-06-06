@@ -4,22 +4,22 @@
 
 ## Metin, Font ve Ölçüm
 
-Metin sisteminin ana tipleri `gpui` crate'i, `style` ve `elements/text` içinde toplanır. Bir metni doğru çizebilmek için stil, font ve ölçüm tipleri birlikte çalışır. Her birinin sorumluluğu ayrıdır:
+GPUI metin sisteminin temel veri yapıları `gpui` paketi, `style` modülü ve `elements/text` bileşenleri altında toplanmıştır. Metinlerin ekrana doğru ve net biçimde çizilebilmesi için stil, yazı tipi (font) ve ölçüm veri yapıları bütünleşik bir hiyerarşide çalışır:
 
 ![GPUI Metin Sistemi Bileşen Hiyerarşisi](assets/metin-sistemi-hiyerarsisi.svg)
 
-- `TextStyle` — renk, font ailesi, font boyutu, satır yüksekliği, kalınlık/stil, dekorasyon, boşluk, taşma, hizalama ve satır kısıtlaması gibi metin genelindeki görünüm parametrelerini taşır.
-- `HighlightStyle` — belirli aralıklara uygulayacağın kısmi (`partial`) stildir; taban stilin üstüne biner.
-- `TextRun` — UTF-8 byte uzunluğu, font ve renk/dekorasyon bilgisini taşır. Run'ların toplam uzunluğu metnin byte uzunluğunu tam olarak karşılamak zorundadır.
-- `StyledText` — `SharedString` metnini run, vurgu ve font üzerine yazmalarıyla birleştirip çizer.
-- `InteractiveText` — karakter veya aralık bazlı tıklama, hover ve tooltip davranışı sağlar.
-- `Font`, `FontWeight`, `FontStyle`, `FontFeatures`, `FontFallbacks` — font seçimi ve özelliklerini tanımlayan yardımcı tiplerdir.
+- `TextStyle`: Yazı rengi, yazı tipi ailesi, boyutu, satır yüksekliği, kalınlık (weight), stil (italik vb.), metin dekorasyonları (alt çizgi vb.), harf boşlukları, taşma ve hizalama kuralları gibi metnin genel görsel niteliklerini tanımlar.
+- `HighlightStyle`: Metnin belirli byte aralıklarına uygulanacak kısmi (`partial`) biçimlendirmeleri temsil eder; temel metin stilinin (base style) üzerine bindirilir.
+- `TextRun`: Belirli bir metin parçasının UTF-8 byte uzunluğunu, ilişkili fontunu ve renk/dekorasyon detaylarını taşır. Ağaçtaki tüm run yapılarının uzunluk toplamı, metnin byte uzunluğuyla tam olarak eşleşmek zorundadır.
+- `StyledText`: Bir `SharedString` metnini; run tanımları, stil vurguları ve yazı tipi ezmeleriyle bir araya getirerek ekranda çizer.
+- `InteractiveText`: Karakter veya belirli aralıklar bazında fare tıklamaları, hover (üzerine gelme) etkileşimleri ve ipucu (tooltip) davranışları sunar.
+- `Font`, `FontWeight`, `FontStyle`, `FontFeatures`, `FontFallbacks`: Yazı tipi seçimlerini ve OpenType özelliklerini yapılandırmada rol alan yardımcı veri modelleridir.
 
-| API | Alt özellikler | Kısa anlamı |
+| Yapı / Tip | Desteklenen Nitelikler | Temel İşlevi |
 | :-- | :-- | :-- |
-| `TextRun` | `len`, font/stil/vurgu alanları | Styled text içinde belirli byte aralığının font ve görsel vurgu bilgisini taşır; toplam run uzunluğu metin byte uzunluğuyla tutarlı olmalıdır. |
+| `TextRun` | `len`, font/stil/vurgu alanları | `StyledText` bünyesinde belirli byte aralıklarına özgü görsel stil ve font tanımlarını taşır; toplam run uzunluğunun metnin byte uzunluğuyla tutarlı olması zorunludur. |
 
-Pratikte stil ve vurgu birleşimi şu kalıpta görünür:
+Metin stilleri ile vurgu aralıklarının birleşimi pratik olarak şu şablonda kodlanır:
 
 ```rust
 let metin = StyledText::new("Hata: eksik alan")
@@ -36,30 +36,30 @@ div()
     .child(metin)
 ```
 
-**Metin ölçümü ve yerleşim.** Metnin ne kadar yer kapladığını ve aktif stil değerini aşağıdaki noktalardan okursun:
+**Metin Ölçümü ve Yerleşim.** Metnin kapladığı alanlar ve aktif stil verileri şu pencereler arası arayüzler vasıtasıyla sorgulanır:
 
-- `window.text_style()` — o anda kalıtılan (`inherited`) aktif metin stilini verir.
-- `window.text_system()` — pencereye bağlı `WindowTextSystem` örneği.
-- `App::text_system()` — global text system'a erişimi sağlar.
-- `TextStyle::to_run(len)` — kalıtılan stilden run üretir.
-- `TextStyle::line_height_in_pixels(rem_size)` — line-height değerini piksele çevirir.
-- `window.line_height()` — aktif metin stiline göre satır yüksekliğini döndürür.
+- `window.text_style()`: O anki element hiyerarşisinde devralınan (inherited) aktif metin stilini döndürür.
+- `window.text_system()`: Pencereye bağlı olan `WindowTextSystem` örneğini sağlar.
+- `App::text_system()`: Uygulama genelindeki global `TextSystem` yapısına erişim sunar.
+- `TextStyle::to_run(len)`: Devralınan stili referans alarak yeni bir run parçası üretir.
+- `TextStyle::line_height_in_pixels(rem_size)`: Satır yüksekliği (line-height) değerini piksel cinsine dönüştürür.
+- `window.line_height()`: Aktif metin stiline göre hesaplanan güncel satır yüksekliğini verir.
 
-**TextSystem ölçüm yüzeyi.** `TextSystem` platform metin sistemi ve font önbelleklerinin sahibidir. `TextSystem::new(platform_text_system)` platform uyarlaması veya test kurulumu içindir; uygulama kodunda mevcut sistemi `App::text_system()` ya da `Window::text_system()` üzerinden alırsın. Okuma ve ölçüm metotları şu şekilde gruplanır:
+**`TextSystem` Ölçüm Katmanı.** `TextSystem` yapısı, yerel işletim sistemi metin motorunun ve yazı tipi önbelleklerinin asıl yöneticisidir. `TextSystem::new(platform_text_system)` çağrısı yalnızca düşük seviyeli platform testlerinde veya FFI entegrasyonlarında tercih edilir; standart kod akışında ise bu sisteme `App::text_system()` veya `Window::text_system()` üzerinden erişilir. Sistem bünyesindeki ölçüm metotları şu şekilde sınıflandırılır:
 
-- Font keşfi ve çözme: `all_font_names()`, `add_fonts(...)`, `resolve_font(...)`, `get_font_for_id(...)`.
-- Glif ve satır ölçümü: `bounding_box(...)`, `typographic_bounds(...)`, `advance(...)`, `layout_width(...)`.
-- Em/ch ölçüleri: `em_width(...)`, `em_advance(...)`, `ch_width(...)`, `ch_advance(...)`.
-- Font metrikleri: `units_per_em(...)`, `cap_height(...)`, `x_height(...)`, `ascent(...)`, `descent(...)`, `baseline_offset(...)`.
-- Sarma altyapısı: `line_wrapper(...)`, aynı font/size için `LineWrapper` havuzundan uygun sarmalayıcıyı verir.
+- **Font Keşfi ve Çözümleme:** `all_font_names()`, `add_fonts(...)`, `resolve_font(...)` ve `get_font_for_id(...)`.
+- **Glif (Glyph) ve Satır Ölçümü:** `bounding_box(...)`, `typographic_bounds(...)`, `advance(...)` ve `layout_width(...)`.
+- **Em/Ch Ölçümleri:** `em_width(...)`, `em_advance(...)`, `ch_width(...)` ve `ch_advance(...)`.
+- **Font Metrikleri:** `units_per_em(...)`, `cap_height(...)`, `x_height(...)`, `ascent(...)`, `descent(...)` ve `baseline_offset(...)`.
+- **Metin Satır Sarma Altyapısı:** `line_wrapper(...)` fonksiyonu, aynı font ailesi ve yazı boyutu için önbellek havuzundan (wrapper pool) en uygun `LineWrapper` nesnesini çeker.
 
-Bu metotlar özel editör, ölçüm önbelleği veya metin renderer'ı yazarken değerlidir. Sıradan etiket ve paragraflarda `div().child(...)`, `StyledText`, `InteractiveText` ve fluent text style metotları daha doğru seviyedir.
+Bu metotlar; özel bir kod editörü, metin ölçüm havuzları veya özel metin render motorları tasarlanırken değerlidir. Standart metin etiketlerinde veya paragraflarda `div().child(...)`, `StyledText` veya `InteractiveText` yapıları ile fluent stil metotlarının kullanılması önerilir.
 
-**WindowTextSystem.** Pencereye bağlı sistem `shape_line(...)`, `shape_line_by_hash(...)`, `shape_text(...)`, `layout_line(...)`, `try_layout_line_by_hash(...)`, `layout_line_by_hash(...)`, `layout_width(...)` ve `em_layout_width(...)` metotlarıyla şekillendirme ve layout cache'ini birlikte yönetir. Hash'li varyantlar aynı metin/stil girdisini tekrar ölçerken cache kullanır. Metin ölçümü ekran karesine ve pencerenin font/scale durumuna bağlıysa `WindowTextSystem`'ı tercih edersin; uygulama geneli font keşfinde `TextSystem` yeterlidir.
+**`WindowTextSystem` Yapısı.** Pencere bağlamına bağlı olan bu sistem; `shape_line(...)`, `shape_line_by_hash(...)`, `shape_text(...)`, `layout_line(...)`, `try_layout_line_by_hash(...)`, `layout_line_by_hash(...)`, `layout_width(...)` ve `em_layout_width(...)` metotlarıyla metin şekillendirme (text shaping) ve layout önbelleklerini koordine eder. Hash değerine göre çalışan varyantlar, aynı metin ve stil ikilisi tekrar ölçüldüğünde hesaplama yapmadan önbelleği (layout cache) devreye sokar. Metin ölçümlerinin ekran karesine veya pencerenin aktif ölçeğine (dpi scale) bağlı olduğu senaryolarda `WindowTextSystem` tercih edilmelidir; genel yazı tipi keşiflerinde ise `TextSystem` yapısı yeterlidir.
 
-**Font, fallback ve feature yardımcıları.** `Font` public modelinde `family` birincil aile adını, `features` OpenType feature set'ini, `fallbacks` kullanıcı yedek zincirini, `style` ve `weight` ise varyant seçimini taşır. `Font::bold()` ve `Font::italic()` mevcut font modeline kalın veya italik varyantı uygular. `FontFallbacks::from_fonts(...)` kullanıcı yedek zinciri üretir, `fallback_list()` zinciri okur. `FontFeatures::disable_ligatures()`, `tag_value_list()` ve `is_calt_enabled()` OpenType feature listesini yönetir; bunları kod editörü gibi ligature davranışını bilinçli kontrol eden yüzeylerde kullanırsın. Basit UI metninde bu ayarları elle kurmak yerine tema/font ayarlarına güvenirsin.
+**Yazı Tipi (Font) Yardımcıları.** Halka açık `Font` veri modelinde `family` birincil font ailesi adını, `features` OpenType özellik setini, `fallbacks` kullanıcı yedek font zincirini, `style` ve `weight` ise fontun italik/kalınlık varyantlarını taşır. `Font::bold()` ve `Font::italic()` metotları mevcut font modeline kalınlık veya italik varyantlarını uygular. `FontFallbacks::from_fonts(...)` yedek font zincirleri oluştururken, `fallback_list()` ise bu listeyi okur. `FontFeatures::disable_ligatures()`, `tag_value_list()` ve `is_calt_enabled()` işlevleri OpenType ligatür (bitişik harf) listelerini yönetir; bu özellikler kod editörleri gibi ligatür etkileşimlerinin hassas yönetildiği alanlarda önem taşır. Standart arayüz tasarımlarında bu detaylar doğrudan tema ayarlarına bırakılır.
 
-**Başarım ipucu: `SharedString`.** GPUI metin taşıyan birçok API'de `SharedString` kullanır; bu tip `gpui_shared_string` crate'inden yeniden dışa aktarılır ve güncel kaynakta `SmolStr` ile desteklenen ucuz klonlanabilir bir metin taşıyıcısıdır. Bir bileşen aynı etiketi birden fazla render'da veya alt bileşene aktarırken yeni `String` üretmek yerine `SharedString`'i klonlarsın. Bu yüzden bileşen alanlarını genellikle `SharedString` tutarsın ve çağıran tarafta `"Kaydet".into()` yazarsın:
+**Performans İpucu: `SharedString`.** GPUI, metin kabul eden birçok API metodunda `SharedString` yapısını kullanır. Bu veri tipi `gpui_shared_string` paketi altında tanımlıdır ve arka planda `SmolStr` ile desteklenen, kopyalama maliyeti son derece düşük (cheaply cloneable) bir metin taşıyıcısıdır. Bir bileşen aynı metin etiketini birden fazla render döngüsünde kullandığında veya alt bileşenlere aktardığında, her seferinde yeni bir `String` üretmek yerine mevcut `SharedString` referansını klonlar. Bu nedenle, görünümlerin metin barındıran alanlarının `SharedString` tipinde tanımlanması ve parametre kabul edilirken `"Kaydet".into()` kısayolundan yararlanılması önerilir:
 
 ```rust
 struct EtiketGorunumu {
@@ -69,7 +69,7 @@ struct EtiketGorunumu {
 impl EtiketGorunumu {
     fn metni_guncelle(&mut self, yeni_metin: impl Into<SharedString>, cx: &mut Context<Self>) {
         self.metin = yeni_metin.into();
-        cx.notify(); // Değişikliği ekrana yansıtmak için
+        cx.notify(); // Değişikliği ekrana yansıtmak amacıyla
     }
 }
 
@@ -80,23 +80,23 @@ impl Render for EtiketGorunumu {
 }
 ```
 
-Buradaki `.into()` yalnız okunabilirlik kısaltması değildir; `&'static str`, `String` veya mevcut `SharedString` değerini aynı alana kabul etmeyi sağlar. Statik metinlerde doğrudan string literal vermek yeterlidir, ancak view alanında saklanan veya sık aktarılan metinlerde `SharedString` tercih etmek gereksiz kopyaları azaltır.
+Metot imzalarındaki `impl Into<SharedString>` yapısı sadece bir yazım kolaylığı sunmakla kalmaz; aynı zamanda `&'static str`, `String` veya mevcut bir `SharedString` değerinin herhangi bir ek işleme gerek kalmaksızın doğrudan kabul edilmesini sağlar. Statik metinlerde string literal atamaları yeterliyken; görünüm alanlarında saklanan veya sıkça kopyalanan metinlerde `SharedString` kullanılması bellek kopyalamalarını minimuma indirir.
 
-**Dikkat noktaları.** Metin sisteminde dikkat edeceğin birkaç önemli nokta:
+**Dikkat Edilmesi Gereken Hususlar.** Metin sistemleri yapılandırılırken gözden kaçabilecek kritik detaylar şunlardır:
 
-- Vurgu ve font override aralıkları byte aralığıdır; UTF-8 karakter sınırlarına oturtman gerekir. `with_highlights(...)` ve `with_font_family_overrides(...)` yanlış sınırları debug derlemelerde `debug_assert!` ile yakalar; `with_runs(...)` ise run uzunlukları metni tam tüketmezse `panic` üretir. Çok dilli metinde aralıkları karakter veya grapheme hesabından byte sınırına bilinçli çevirirsin.
-- `SharedString` kopyalama maliyetini azaltır; çizim alt öğelerinde `String` yerine bu tipi tercih edersin.
-- `text_ellipsis`, `line_clamp` ve `white_space` gibi taşma davranışları yerleşim genişliğine bağlıdır; üst öğenin genişliği belirsizse kırpma beklenen biçimde çalışmaz.
-- Sondan üç nokta ile kırpma yapılırken kırpılan parçanın sonundaki boşluk ve ASCII noktalama temizlenir; `"başlık -…"` yerine daha temiz `"başlık…"` çıktısı üretir. Başlangıçtan kırpma davranışı ayrı `TruncateFrom::Start` yoludur.
-- `line_clamp` ile `wrap_width` ikisi birlikte ayarlıysa `LineWrapper::truncate_wrapped_line` devreye girer. Bu yöntem kırpma noktasını kelime sınırı sarımını da hesaba katarak belirler: satırları tek geçişte yürürken hem sarım sınırlarını hem kırpma noktasını paralel izler; yani kırpmayı `width × satır_sayısı` gibi düz bir satır bütçesiyle değil, gerçek görsel sarımla hizalar. Sözcük sınırında sarım yalnız son satırdan önceki satırlar için geçerlidir. Son satırda kesme sözcük sınırına oturmaz; ekin (ellipsis) hâlâ sığdığı son karakterde kesilir ve kuyruğun boşluk/ASCII noktalaması temizlenir; örneğin `"başlık -…"` yerine daha temiz `"başlık…"` çıkar. `max_lines == 1` veya `TruncateFrom::Start` durumlarında yöntem `truncate_line`'a düşer.
-- Uygulamanın genel metin çizim kipini `cx.set_text_rendering_mode(...)` ile `PlatformDefault`, `Subpixel` ve `Grayscale` arasında seçersin. Subpixel akışında her glif için yatayda `gpui::SUBPIXEL_VARIANTS_X: u8 = 4`, dikeyde `gpui::SUBPIXEL_VARIANTS_Y: u8 = 1` farklı varyant rasterize edilir (`text_system`); başka bir deyişle glif atlası boyutu yatay subpixel konumuna duyarlıdır, dikey konumda değildir.
-- WGPU/Linux metin arka ucu (`CosmicTextSystem`) `Font.fallbacks` değerini font önbellek anahtarına dahil eder ve `layout_line` içinde kullanıcı yedek zincirini grapheme cluster sınırlarını koruyarak uygular. ASCII karakterlerinde birincil font tercih edilir; combining mark ve ZWJ emoji cluster'ları yedek aralığının içinde bölünmez. Özel font yedek ayarı incelenirken yalnızca aile adını değil yedek listesini de önbellek/ölçüm girdisi sayman gerekir.
+- Görsel vurgu (highlights) ve yazı tipi ezme (override) aralıkları byte aralıkları cinsinden ifade edilir. Bu aralıkların UTF-8 karakter sınırlarına tam oturması zorunludur. `with_highlights(...)` ve `with_font_family_overrides(...)` metodları hatalı sınır tanımlarını hata ayıklama derlemelerinde `debug_assert!` ile yakalar; `with_runs(...)` çağrısı ise run uzunluklarının metni tam olarak tüketmediği durumlarda `panic` hatasına yol açar. Çok dilli metin yapılarında karakter veya grapheme sınırlarının byte sınırlarına dönüşümü el ile ve dikkatlice yapılmalıdır.
+- `SharedString` bellek kopyalama maliyetlerini düşürür; bu yüzden çizim hiyerarşisindeki alt öğelerde `String` yerine bu tip tercih edilmelidir.
+- `text_ellipsis`, `line_clamp` ve `white_space` gibi metin taşma (overflow) davranışları doğrudan elementlerin yerleşim genişliklerine bağlıdır. Üst öğenin genişliği belirsiz kaldığında metin kırpma işlemleri beklendiği gibi çalışmaz.
+- Metinlerin sonuna üç nokta (`...`) eklenerek yapılan kırpmalarda, kırpma sınırındaki boşluklar ve ASCII noktalama işaretleri otomatik temizlenir; böylelikle `"başlık -..."` yerine çok daha temiz `"başlık..."` çıktısı elde edilir. Metnin başlangıcından itibaren kırpma yapılması hedeflendiğinde ise `TruncateFrom::Start` yapılandırması tercih edilmelidir.
+- `line_clamp` ile `wrap_width` nitelikleri birlikte etkinleştirildiğinde `LineWrapper::truncate_wrapped_line` işlevi devreye girer. Bu mekanizma kırpma noktasını kelime sınırlarını da hesaba katarak hesaplar: Satırları tek bir geçişte işlerken hem sarım (wrapping) sınırlarını hem de kırpma noktalarını eş zamanlı takip eder; dolayısıyla kırpma işlemi basit bir piksel boyutu bütçesiyle değil, gerçek görsel sarım düzenine göre hizalanır. Kelime sınırlarında satır sarma işlemi yalnızca son satırdan önceki satırlarda etkindir. Son satırdaki kesmeler kelime sınırına uymayabilir; üç noktanın sığabileceği son karaktere kadar kesme yapılır ve ardıl boşluklar temizlenir.
+- Uygulamanın genel metin render kipi `cx.set_text_rendering_mode(...)` aracılığıyla `PlatformDefault`, `Subpixel` ve `Grayscale` modları arasında değiştirilebilir. Subpixel akışı tercih edildiğinde, her bir glif için yatay eksende `gpui::SUBPIXEL_VARIANTS_X: u8 = 4`, dikey eksende ise `gpui::SUBPIXEL_VARIANTS_Y: u8 = 1` farklı varyant çizim atlasında rasterize edilir; yani glif atlası boyutu yatay subpixel konumuna duyarlıdır.
+- Linux WGPU tabanlı metin motorunda (`CosmicTextSystem`), `Font.fallbacks` yedek font listesi önbellek anahtarına dahil edilir ve `layout_line` aşamasında yedek yazı tipleri grapheme cluster sınırları korunarak uygulanır. ASCII karakterlerinde her zaman birincil yazı tipi tercih edilirken, combining mark ve ZWJ emoji cluster'ları yedek font sınırlarında bölünmez.
 
-## StyledText, TextLayout ve InteractiveText
+## `StyledText`, `TextLayout` ve `InteractiveText`
 
-Basit bir metni doğrudan `SharedString` olarak bir elementin alt öğesi şeklinde verebilirsin. Ölçüm, vurgu, font üzerine yazma veya tıklanabilir aralık gerektiğinde `StyledText` devreye girer. Tıklama ve hover gerekiyorsa `InteractiveText`'i kullanırsın.
+Yalın metinler doğrudan `SharedString` formatında bir elementin alt öğesi (`.child(...)`) olarak ağaca eklenebilir. Ancak gelişmiş ölçüm operasyonları, aralık vurgulamaları, yazı tipi ezmeleri (overrides) veya tıklanabilir metin bölgeleri gerektiğinde `StyledText`; fare tıklamaları ve üzerine gelme (hover) olaylarında ise `InteractiveText` devreye girer.
 
-**`StyledText` kullanımı.** Vurgu ve font üzerine yazmalarını fluent zincire eklersin:
+**`StyledText` Kullanım Şablonu.** Metin vurguları ve yazı tipi ezmeleri (overrides) akıcı metotlar yardımıyla yapılandırılır:
 
 ```rust
 let metin = StyledText::new("Ayarları aç")
@@ -106,31 +106,31 @@ let metin = StyledText::new("Ayarları aç")
 let yerlesim = metin.layout().clone();
 ```
 
-Önceden hesaplanmış `TextRun` listesi varsa vurguyu gecikmeli (`delayed`) uygulamak yerine `.with_runs(runs)` çağrısı yaparsın. `with_default_highlights(&default_style, ranges)` ise üst öğe stili yerine açık bir `TextStyle`'ı baz alarak run üretir.
+Önceden hesaplanmış `TextRun` listesi mevcut olduğunda, vurguları sonradan dinamik eklemek yerine doğrudan `.with_runs(runs)` metodu çağrılabilir. `with_default_highlights(&default_style, ranges)` ise üst öğenin stili yerine doğrudan iletilen bir `TextStyle` referansını baz alarak run parçaları üretir.
 
-**Ölçüm sonrası `TextLayout`.** Yerleşim veya prepaint tamamlandıktan sonra elde edilen yerleşim nesnesi metin koordinatları üzerinde sorgu yapmana izin verir:
+**Metin Yerleşimi (`TextLayout`).** Yerleşim (layout) veya prepaint aşamaları tamamlandıktan sonra elde edilen yerleşim nesnesi, metin koordinatları üzerinde şu sorguların yapılmasına olanak tanır:
 
-- `index_for_position(point) -> Result<usize, usize>` — piksel konumundan UTF-8 byte index'i.
-- `position_for_index(index) -> Option<Point<Pixels>>` — byte index'ten piksel koordinatı.
-- `line_layout_for_index(index)`, `bounds()`, `line_height()`, `len()`, `text()`, `wrapped_text()`.
+- `index_for_position(point) -> Result<usize, usize>`: Piksel bazlı konum koordinatından metnin UTF-8 byte indeksini hesaplar.
+- `position_for_index(index) -> Option<Point<Pixels>>`: Metnin byte indeksinden piksel koordinat karşılığını üretir.
+- `line_layout_for_index(index)`, `bounds()`, `line_height()`, `len()`, `text()` ve `wrapped_text()` sorgularını yürütür.
 
-`TextLayout` değerleri yerleşim veya prepaint tamamlanmadan okunursa panic üretebilir. Bu yüzden ölçüm sonuçlarına ihtiyaç duyan kod olay işleyici ya da yerleşim sonrası akışta çalışır. Çizim sırasında henüz ölçülmemiş bir yerleşim nesnesine güvenme.
+`TextLayout` verileri yerleşim veya prepaint aşamaları tamamlanmadan önce okunmaya çalışılırsa çalışma zamanında hataya (`panic`) yol açabilir. Bu nedenle, ölçüm sonuçlarına bağımlı olan kod blokları olay işleyicileri (event handlers) veya yerleşim sonrası akışlarda çalıştırılmalıdır.
 
-**Satır ve sarma alt tipleri.** Metin alt katmanındaki taşıyıcıları şu ayrımla okursun:
+**Satır ve Sarma Alt Veri Yapıları:**
 
-- `FontId`, `FontFamilyId`, `GlyphId`, `RenderGlyphParams` ve `GlyphRasterData` glif rasterleme kimlikleri ve parametreleridir; uygulama state'i olarak saklamazsın.
-- `FontMetrics` `ascent()`, `descent()`, `line_gap()`, `underline_position()`, `underline_thickness()`, `cap_height()`, `x_height()` ve `bounding_box()` ile fontun ölçü bilgisini verir.
-- `ShapedLine` `len()`, `width()`, `with_len(...)`, `paint(...)`, `paint_background(...)` ve `split_at(...)` ile şekillendirilmiş tek satırı yönetir.
-- `WrappedLine` `len()`, `paint(...)` ve `paint_background(...)` ile sarılmış satır çıktısını çizer.
-- `LineLayout` `index_for_x(...)`, `closest_index_for_x(...)`, `x_for_index(...)` ve `font_id_for_index(...)` ile tek satırda piksel/byte index dönüşümü yapar.
-- `WrappedLineLayout` `len()`, `width()`, `size()`, `ascent()`, `descent()`, `wrap_boundaries()`, `font_size()`, `runs()`, `index_for_position(...)`, `closest_index_for_position(...)` ve `position_for_index(...)` ile çok satırlı yerleşimi sorgular.
-- `LineWrapper` `wrap_line(...)`, `should_truncate_line(...)` ve `truncate_line(...)` ile sarma ve kırpma kararını verir. `LineWrapper::MAX_INDENT` satır sarmada uygulanabilecek girintiyi 256 ile sınırlar; kullanıcıdan gelen veya markdown/code block'tan türeyen aşırı girintiler layout hesabını patlatmasın diye bu sınırı altyapı uygular.
+- `FontId`, `FontFamilyId`, `GlyphId`, `RenderGlyphParams` ve `GlyphRasterData`: Glif rasterizasyon kimlikleri ve alt parametreleridir; uygulama durum verisi olarak saklanmamalıdır.
+- `FontMetrics`: `ascent()`, `descent()`, `line_gap()`, `underline_position()`, `underline_thickness()`, `cap_height()` ve `x_height()` metotlarıyla yazı tipinin metrik detaylarını sağlar.
+- `ShapedLine`: `len()`, `width()`, `paint()`, `paint_background()` ve `split_at()` metotlarıyla şekillendirilmiş tek bir satırı yönetir.
+- `WrappedLine`: `len()`, `paint()` ve `paint_background()` metotlarıyla ekrana sarılmış satır çıktısını çizer.
+- `LineLayout`: `index_for_x(...)`, `closest_index_for_x(...)` ve `x_for_index(...)` metotlarıyla tek bir satır üzerinde piksel ile byte indeksi arasındaki dönüşümleri hesaplar.
+- `WrappedLineLayout`: `len()`, `width()`, `size()`, `wrap_boundaries()`, `index_for_position(...)` ve `position_for_index(...)` metotlarıyla çok satırlı yerleşim detaylarını sorgular.
+- `LineWrapper`: `wrap_line()`, `should_truncate_line()` ve `truncate_line()` metotlarıyla metin sarma ve kırpma sınırlarını belirler. Satır sarma işlemlerinde uygulanabilecek girinti sınırı `LineWrapper::MAX_INDENT` sabitiyle 256 piksel olarak sınırlandırılmıştır; bu sınır yerleşim hesaplamalarının taşmasını (layout overflow) engellemek amacıyla konulmuştur.
 
-`LineLayoutCache` aynı satır yerleşimlerini frame içinde tekrar kullanan iç bir önbellektir; kullanıcıya açık bir ölçüm yüzeyi değil, GPUI'nin kare boyama hattının çağırdığı bir ayrıntıdır. `reuse_layouts(...)`, `truncate_layouts(...)`, `finish_frame(...)`, `layout_index(...)` ve `layout_wrapped_line(...)` gibi metotları framework kendi içinde yönetir; bu önbelleği elle kurman veya çağırman gerekmez. Yüksek hacimli ölçüme ihtiyaç duyan özel metin renderer'ı veya editör yazarken kullanacağın genel yüzey `WindowTextSystem`'dır: `layout_line(...)`, `shape_line(...)` ve bunların hash'li varyantları (`layout_line_by_hash(...)`, `try_layout_line_by_hash(...)`, `shape_line_by_hash(...)`) aynı girdiyi tekrar ölçerken cache'ten yararlanır.
+`LineLayoutCache`, aynı satır yerleşimlerini ekran karesi çizimi (frame) sırasında yeniden kullanan dahili bir önbellek yapısıdır; uygulama kodlarında doğrudan çağrılması gerekmez. Yüksek hacimli metin ölçüm gereksinimlerinde veya özel metin editörü tasarımlarında `WindowTextSystem` arayüzünün sunduğu `layout_line(...)`, `shape_line(...)` veya bunların hash tabanlı varyantları (`layout_line_by_hash(...)`, `shape_line_by_hash(...)`) tercih edilmelidir.
 
-**Unicode sınırları.** `LineFragment`, `Boundary`, `WrapBoundary`, `WrapBoundaryCandidate::len_utf8()`, `ShapedRun`, `ShapedGlyph`, `FontRun` ve `DecorationRun` metnin Unicode ve font run parçalarını taşır. Bu tipleri gördüğünde aralıkların byte, UTF-16 veya grapheme sınırı mı istediğini kontrol edersin; string'i doğrudan byte dilimlemek çok dilli metinde hatalı sonuç verir.
+**Unicode Sınır Yönetimi.** `LineFragment`, `WrapBoundary`, `ShapedRun` ve `FontRun` gibi yapılar metnin Unicode ve font run parçalarını taşır. Çok dilli metin yapılarında string dilimleme (slice) işlemlerinin doğrudan ham byte sınırları üzerinden yapılması hatalı sonuçlar doğurabileceğinden, aralıkların Unicode standartlarına ve grapheme sınırlarına uygunluğu gözetilmelidir.
 
-**`InteractiveText`.** Tıklama, hover ve tooltip ekleyen sarmalayıcıdır:
+**`InteractiveText` Yapısı.** Metne fare tıklamaları, hover durumları ve ipuçları ekleyen dinamik bir sarmalayıcıdır:
 
 ```rust
 InteractiveText::new("ayarlar-baglantisi", StyledText::new("Ayarları aç"))
@@ -143,17 +143,13 @@ InteractiveText::new("ayarlar-baglantisi", StyledText::new("Ayarları aç"))
     .tooltip(|sira, window, cx| ipucu_olustur(sira, window, cx))
 ```
 
-Aralıklar yine byte index aralıklarıdır; Unicode metinde karakter sınırlarını yanlış hesaplamak hover ve tıklama eşleşmesini bozar. `on_click` yalnızca mouse down ile mouse up aynı verilen aralık içinde kaldığında dinleyiciyi tetikler. Yani bir aralıkta basıp başka bir aralıkta bırakmak tıklama sayılmaz.
+Aralık tanımları byte indeks aralıklarıdır; Unicode metinlerde karakter sınırlarının yanlış hesaplanması tıklama ve hover olaylarının çakışmasına sebep olur. `.on_click` dinleyicisi, yalnızca fareye basılma (mouse down) ve fareyi bırakma (mouse up) eylemlerinin her ikisi de aynı tanımlanan byte aralığı içerisinde gerçekleştiğinde tetiklenir.
 
-**Markdown çizim davranışı.** Markdown ekosistemi metin sisteminin üzerine özel davranışlar bindirir; bunları bilmek sürpriz davranışları azaltır:
+**Markdown Çizim Standartları.** Markdown dökümanlarının çizimi, metin sistemi üzerinde şu özel kurallara tabidir:
 
-- Markdown görsel çizimini Zed'i referans alarak kurarsın: `StyledImage::with_fallback` kullanıp yüklenemeyen görsel için tıklanabilir bir `"Failed to Load: ..."` yedeği üretirsin. Yedek etiketinde önce alt metin değerini, yoksa hedef URL'yi kullanırsın; tıklamada `cx.open_url` çağırırsın.
-- Mermaid kod blokları yalnızca kapalı fenced block biçimindeyse diyagram olarak çıkarılır. ` ```mermaid` etiketinin yanı sıra `.mermaid` veya `.mmd` uzantılı kaynak yolu işaret edilen bloklar da diyagram olarak sayılır.
-- Mermaid diyagram arayüzü önizleme ve kod sekmelerini, ayrıca kopyalama butonunu gösterebilir; çizim başarısızsa veya henüz tamamlanmadıysa kaynak kodu görünümü yedek olarak çizersin.
-
-**Markdown çiziminin ek yüzeyleri.**
-
-`CodeBlockRenderer::Default`, kod bloğunun kopyalama ve sarım düğmelerinin görünürlüğünü iki ayrı alanla yönetir:
+- Görsellerin çiziminde `StyledImage::with_fallback` yapısı tercih edilir; yüklenemeyen görseller için tıklanabilir `"Failed to Load: ..."` yedek alanları üretilir ve tıklandığında `cx.open_url` aracılığıyla hedef adres tarayıcıda açılır.
+- Mermaid şema blokları yalnızca mühürlü fenced block (` ```mermaid `) formatındaysa veya dosya uzantıları `.mermaid`/`.mmd` olarak belirtilmişse grafik olarak render edilir. Çizimin henüz tamamlanmadığı veya başarısız olduğu durumlarda kaynak kod görünümü yedek olarak ekranda sergilenir.
+- `CodeBlockRenderer::Default` yapısı; kod bloklarının kopyalama ve satır sarma butonlarının görünürlük kurallarını yönetir:
 
 ```rust
 CodeBlockRenderer::Default {
@@ -163,11 +159,9 @@ CodeBlockRenderer::Default {
 }
 ```
 
-`WrapButtonVisibility` üç değer alır: `Hidden` (sarım düğmesi hiç gösterilmez), `AlwaysVisible`, `VisibleOnHover`. Kullanıcı sarım düğmesine tıklayınca `Markdown` yapısının `wrapped_code_blocks` kümesi değişir ve kod bloğu yatay kaydırma yerine sözcük sarımına geçer. `WrapButtonVisibility::Hidden` olmayan tüm durumlarda düğme satırı kopyalama düğmesiyle aynı `h_flex` konteynerini paylaşır; oluşturulan düğmelerden herhangi birinin görünürlük kuralı `AlwaysVisible` ise satır hover beklemeden görünür, `Hidden` olan düğme yine oluşturulmaz.
+Kullanıcı satır sarma butonuna tıkladığında, `Markdown` veri modelinin `wrapped_code_blocks` kümesi güncellenir ve kod bloğu yatay kaydırma çubuğu (horizontal scroll) yerine kelime sarma (word wrap) moduna geçer.
 
-`CodeBlockRenderer::Default` alanlarının tümü zorunludur; yapıyı kurarken `copy_button_visibility`, `wrap_button_visibility` ve `border`'ı birlikte verirsin.
-
-`on_code_span_link` ile satır içi kod yaylarına bağlantı ekleyebilirsin:
+- `.on_code_span_link` metoduyla satır içi kod bloklarına bağlantılar eklenebilir:
 
 ```rust
 MarkdownElement::new(markdown, style)
@@ -180,10 +174,6 @@ MarkdownElement::new(markdown, style)
     })
 ```
 
-`CodeSpanLinkCallback = Arc<dyn Fn(&str, &App) -> Option<SharedString>>` döndürürse bağlantı stili uygulanır; `None` döndürürse normal kod stili kullanırsın. Geri çağrı yalnızca kod bloğunun dışında, bağlantı içinde olmayan ve `MarkdownStyle.prevent_mouse_interaction` kapalı olan durumlarda çalışır.
+Geri çağrı fonksiyonunun bir adres (`SharedString`) döndürdüğü durumlarda bağlantı stili, `None` döndürdüğünde ise standart kod stili uygulanır.
 
-Shift+tıklama seçimi genişletir: mevcut seçimin kuyruğunu sabit tutar ve tıklama noktasına kadar aralığı uzatır. Shift'siz tıklama ise imleci tek bir konuma taşır.
-
-`Markdown::first_code_block_language()` belgedeki ilk fenced kod bloğunun dilini `Option<Arc<Language>>` olarak döndürür; böyle bir blok yoksa `None` döner. Özellikle içeriği bir dil sunucusuna yönlendirecek veya sözdizim vurgusu uygulayacak kod için hangi dilin aktif olduğunu hızlıca öğrenirken kullanırsın.
-
----
+- `Markdown::first_code_block_language()` metodu, döküman içerisindeki ilk fenced kod bloğunun dilini `Option<Arc<Language>>` olarak döndürür; özellikle içeriklerin ilgili dil sunucularına iletilmesinde ve doğru sözdizimi vurgulamalarının (syntax highlighting) seçilmesinde kullanılır.

@@ -4,9 +4,9 @@
 
 ## Styled
 
-`Styled`, `gpui` crate'indeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` zorunlu metodunu taşır; GPUI çekirdeğinde `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList` ve `Surface` bu trait üzerinden aynı fluent stil sözlüğünü kullanır. Zed UI bileşenlerinin çoğu da kendi style alanlarını bu trait'e bağlar.
+`Styled`, `gpui` paketi içerisindeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` şeklinde zorunlu bir metot barındırır. GPUI çekirdeğindeki `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList` ve `Surface` bileşenleri bu trait aracılığıyla aynı akıcı (fluent) stil sözlüğünden faydalanır. Benzer şekilde, Zed UI bileşenlerinin büyük kısmı da kendi stil alanlarını bu ortak arayüze bağlar.
 
-GPUI stil sistemi CSS ve Tailwind'e benzeyen fluent metotlardan oluşur. Arka planda Rust tipleri olduğu için neyin hangi değeri aldığı daha nettir. Örnek bir stil zinciri:
+GPUI stil sistemi CSS ve TailwindCSS prensiplerine benzeyen akıcı metot zincirlerinden oluşur. Arka planda Rust veri tipleri yer aldığı için, hangi özelliğin hangi değeri kabul ettiği derleme aşamasında doğrulanmış olur. Örnek bir stil zinciri şu şekildedir:
 
 ```rust
 div()
@@ -16,52 +16,52 @@ div()
     .child("Merhaba")
 ```
 
-`Styled` çok geniş bir API yüzeyi üretir; her kısa yön, kenar veya ölçek yardımcısı için ayrı anlatım başlığı açmak okunabilirliği düşürür. Basit yardımcılar aşağıdaki tabloda kapsanır. Davranış farkı olan aileler ise tablodan sonra ayrıca açıklanır.
+`Styled` oldukça geniş bir API yüzeyi sağlamaktadır. Her bir yön, kenar veya ölçek yardımcısı için ayrı başlıklar açmak yerine, temel yardımcı metotlar aşağıdaki tabloda özetlenmiştir. Belirgin davranış farkı barındıran yapılar ise tablonun ardından detaylandırılmıştır.
 
-| Aile | `Styled` alt özellikleri | Kısa anlamı |
+| Stil Ailesi | `Styled` Fluent Metotları | Temel İşlevi |
 |---|---|---|
-| Görünürlük ve display | `block`, `flex`, `grid`, `hidden`, `visible`, `invisible` | Elementin layout katılımını ve görünürlüğünü belirler. |
-| Boyut | `w`, `h`, `size`, `min_w`, `min_h`, `min_size`, `max_w`, `max_h`, `max_size`, `w_*`, `h_*`, `size_*`, `min_w_*`, `min_h_*`, `max_w_*`, `max_h_*`, `size_full`, `h_auto` | Genişlik, yükseklik, minimum/maksimum sınır ve hazır ölçek değerlerini yazar. |
-| Margin | `m`, `mx`, `my`, `mt`, `mr`, `mb`, `ml`, `m_*`, `mx_*`, `my_*`, `mt_*`, `mr_*`, `mb_*`, `ml_*`, `m_neg_*`, `mx_neg_*`, `my_neg_*`, `mt_neg_*`, `mr_neg_*`, `mb_neg_*`, `ml_neg_*` | Dış boşluk verir; x/y iki ekseni, t/r/b/l tek kenarı temsil eder. |
-| Padding | `p`, `px`, `py`, `pt`, `pr`, `pb`, `pl`, `p_*`, `px_*`, `py_*`, `pt_*`, `pr_*`, `pb_*`, `pl_*` | İç boşluk verir; padding ailesinde auto ve negatif varyant yoktur. |
-| Konum | `relative`, `absolute`, `inset`, `top`, `right`, `bottom`, `left`, `inset_*`, `top_*`, `right_*`, `bottom_*`, `left_*`, `inset_neg_*`, `top_neg_*`, `right_neg_*`, `bottom_neg_*`, `left_neg_*` | `absolute`/`relative` konum kipini ve dört yöndeki offset değerlerini yazar; `top` yukarıdan, `right` sağdan, `bottom` aşağıdan, `left` soldan hizalar. |
-| Flex yönü ve davranışı | `flex_row`, `flex_row_reverse`, `flex_col`, `flex_col_reverse`, `flex_1`, `flex_auto`, `flex_initial`, `flex_none`, `flex_basis`, `flex_grow`, `flex_grow_0`, `flex_grow_1`, `flex_shrink`, `flex_shrink_0`, `flex_shrink_1`, `flex_wrap`, `flex_wrap_reverse`, `flex_nowrap` | Flex container yönünü, wrap davranışını ve child büyüme/küçülme kurallarını ayarlar. |
-| Hizalama | `items_start`, `items_end`, `items_center`, `items_baseline`, `items_stretch`, `self_start`, `self_end`, `self_flex_start`, `self_flex_end`, `self_center`, `self_baseline`, `self_stretch`, `justify_start`, `justify_end`, `justify_center`, `justify_between`, `justify_around`, `justify_evenly`, `content_normal`, `content_start`, `content_end`, `content_center`, `content_between`, `content_around`, `content_evenly`, `content_stretch` | Flex/grid eksenlerinde child, self, main-axis ve multi-line hizalama değerlerini yazar. |
-| Gap | `gap`, `gap_x`, `gap_y`, `gap_*`, `gap_x_*`, `gap_y_*` | Çocuklar arasındaki genel, yatay veya dikey aralığı belirler. |
-| Kenarlık ve radius | `border`, `border_t`, `border_r`, `border_b`, `border_l`, `border_x`, `border_y`, `border_*`, `border_t_*`, `border_r_*`, `border_b_*`, `border_l_*`, `border_x_*`, `border_y_*`, `border_color`, `border_dashed`, `rounded`, `rounded_*` | Kenarlık kalınlığı, kenarlık rengi/stili ve köşe yarıçapı değerlerini ayarlar. |
-| Gölge ve opaklık | `shadow`, `shadow_none`, `shadow_2xs`, `shadow_xs`, `shadow_sm`, `shadow_md`, `shadow_lg`, `shadow_xl`, `shadow_2xl`, `opacity` | Hazır gölge token'larını veya açık `BoxShadow` listesini ve element opaklığını uygular. |
-| Arka plan ve metin | `bg`, `text_style`, `text_color`, `text_bg`, `text_size`, `text_xs`, `text_sm`, `text_base`, `text_lg`, `text_xl`, `text_2xl`, `text_3xl`, `text_ellipsis`, `text_ellipsis_start`, `text_overflow`, `text_align`, `text_left`, `text_center`, `text_right`, `truncate`, `line_clamp`, `font`, `font_weight`, `font_family`, `font_features`, `italic`, `not_italic`, `underline`, `line_through`, `text_decoration_none`, `text_decoration_color`, `text_decoration_solid`, `text_decoration_wavy`, `text_decoration_*`, `line_height`, `whitespace_normal`, `whitespace_nowrap` | Background, metin rengi, font, taşma, hizalama ve dekorasyon ayarlarını cascaded text style alanına yazar. |
-| Cursor ve taşma | `cursor`, `cursor_*`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `overflow_hidden`, `overflow_x_hidden`, `overflow_y_hidden`, `scrollbar_width` | Pointer görünümü, taşma kırpması ve scrollbar için ayrılacak layout alanını belirler. |
-| Aspect ve grid | `aspect_ratio`, `aspect_square`, `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`, `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full` | En-boy oranı ve grid template/placement değerlerini yazar; altta `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement` kullanırsın. |
+| Görünürlük ve Ekran | `block`, `flex`, `grid`, `hidden`, `visible`, `invisible` | Elementin yerleşim (layout) akışına katılımını ve görünürlüğünü belirler. |
+| Boyutlar (Dimensions) | `w`, `h`, `size`, `min_w`, `min_h`, `min_size`, `max_w`, `max_h`, `max_size`, `w_*`, `h_*`, `size_*`, `min_w_*`, `min_h_*`, `max_w_*`, `max_h_*`, `size_full`, `h_auto` | Genişlik, yükseklik, alt/üst sınırları ve hazır ölçeklendirme değerlerini tanımlar. |
+| Dış Boşluk (Margin) | `m`, `mx`, `my`, `mt`, `mr`, `mb`, `ml`, `m_*`, `mx_*`, `my_*`, `mt_*`, `mr_*`, `mb_*`, `ml_*`, `m_neg_*`, `mx_neg_*`, `my_neg_*`, `mt_neg_*`, `mr_neg_*`, `mb_neg_*`, `ml_neg_*` | Element dış boşluklarını belirler. x/y eksenleri, t/r/b/l ise sırasıyla üst, sağ, alt ve sol kenarları temsil eder. Negatif değerler de desteklenir. |
+| İç Boşluk (Padding) | `p`, `px`, `py`, `pt`, `pr`, `pb`, `pl`, `p_*`, `px_*`, `py_*`, `pt_*`, `pr_*`, `pb_*`, `pl_*` | Element iç boşluklarını tanımlar. Margin ailesinden farklı olarak padding üzerinde otomatik (auto) ve negatif değerler kullanılamaz. |
+| Konumlandırma | `relative`, `absolute`, `inset`, `top`, `right`, `bottom`, `left`, `inset_*`, `top_*`, `right_*`, `bottom_*`, `left_*`, `inset_neg_*`, `top_neg_*`, `right_neg_*`, `bottom_neg_*`, `left_neg_*` | Konumlandırma kipini (`absolute`/`relative`) ve dört yöndeki öteleme (offset) değerlerini atar; `top` yukarıdan, `right` sağdan, `bottom` aşağıdan, `left` soldan hizalar. |
+| Flex Yönü ve Davranışı | `flex_row`, `flex_row_reverse`, `flex_col`, `flex_col_reverse`, `flex_1`, `flex_auto`, `flex_initial`, `flex_none`, `flex_basis`, `flex_grow`, `flex_grow_0`, `flex_grow_1`, `flex_shrink`, `flex_shrink_0`, `flex_shrink_1`, `flex_wrap`, `flex_wrap_reverse`, `flex_nowrap` | Flex konteyner akış yönünü, satır taşma (wrap) davranışlarını ve alt öğelerin büyüme/küçülme kurallarını yapılandırır. |
+| Hizalama Kontrolleri | `items_start`, `items_end`, `items_center`, `items_baseline`, `items_stretch`, `self_start`, `self_end`, `self_flex_start`, `self_flex_end`, `self_center`, `self_baseline`, `self_stretch`, `justify_start`, `justify_end`, `justify_center`, `justify_between`, `justify_around`, `justify_evenly`, `content_normal`, `content_start`, `content_end`, `content_center`, `content_between`, `content_around`, `content_evenly`, `content_stretch` | Flex/Grid eksenlerinde alt öğelerin, elementin kendisinin veya çok satırlı blokların yerleşim koordinatlarını düzenler. |
+| Ara Boşluk (Gap) | `gap`, `gap_x`, `gap_y`, `gap_*`, `gap_x_*`, `gap_y_*` | Alt öğeler arasında bırakılacak genel, yatay veya dikey boşluk miktarını tanımlar. |
+| Kenarlık ve Yuvarlama | `border`, `border_t`, `border_r`, `border_b`, `border_l`, `border_x`, `border_y`, `border_*`, `border_t_*`, `border_r_*`, `border_b_*`, `border_l_*`, `border_x_*`, `border_y_*`, `border_color`, `border_dashed`, `rounded`, `rounded_*` | Kenarlık kalınlıkları, kenarlık renkleri/stilleri ve köşe yuvarlama yarıçapı değerlerini ayarlar. |
+| Gölge ve Opaklık | `shadow`, `shadow_none`, `shadow_2xs`, `shadow_xs`, `shadow_sm`, `shadow_md`, `shadow_lg`, `shadow_xl`, `shadow_2xl`, `opacity` | Hazır gölge şablonlarını, özel `BoxShadow` listelerini ve element şeffaflık derecesini (opacity) belirler. |
+| Arka Plan ve Metin | `bg`, `text_style`, `text_color`, `text_bg`, `text_size`, `text_xs`, `text_sm`, `text_base`, `text_lg`, `text_xl`, `text_2xl`, `text_3xl`, `text_ellipsis`, `text_ellipsis_start`, `text_overflow`, `text_align`, `text_left`, `text_center`, `text_right`, `truncate`, `line_clamp`, `font`, `font_weight`, `font_family`, `font_features`, `italic`, `not_italic`, `underline`, `line_through`, `text_decoration_none`, `text_decoration_color`, `text_decoration_solid`, `text_decoration_wavy`, `text_decoration_*`, `line_height`, `whitespace_normal`, `whitespace_nowrap` | Arka plan renklerini, yazı tiplerini, metin hizalamalarını ve süslemelerini hiyerarşik yazı stili alanlarına yazar. |
+| İmleç ve Taşma (Overflow) | `cursor`, `cursor_*`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `overflow_hidden`, `overflow_x_hidden`, `overflow_y_hidden`, `scrollbar_width` | Fare imlecinin görsel şeklini, taşma durumlarında içeriğin kırpılmasını ve kaydırma çubuğu alanlarını denetler. |
+| Grid ve En-Boy Oranı | `aspect_ratio`, `aspect_square`, `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`, `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full` | Grid ızgara şablonlarını, en-boy oranlarını (`Aspect`) ve hücre yerleşim koordinatlarını yapılandırır; arka planda `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement` veri yapılarını kullanır. |
 
-Yukarıdaki fluent metotların büyük çoğunluğu `Styled` trait gövdesinde tek tek yazılmaz; bir grup proc macro tarafından üretilir. `gpui` crate'inde bu makrolar tek satırda çağrılır ve `gpui_macros` crate'i her çağrı için onlarca metot üretir. Hangi makronun hangi metotları ürettiğini aşağıdaki tablodan takip edebilirsin:
+Yukarıdaki akıcı metotların büyük kısmı `Styled` trait gövdesinde el ile kodlanmamıştır; derleme sürecinde bir dizi proc-macro tarafından otomatik olarak üretilir. `gpui` paketi içerisinden çağrılan bu makrolar, `gpui_macros` paketi vasıtasıyla her bir çağrı için çok sayıda metot varyantı oluşturur. Hangi makronun hangi metotları ürettiği aşağıdaki tabloda detaylandırılmıştır:
 
-| Proc macro (`gpui_macros::...!()`) | Üretilen fluent metotlar (Styled trait üyesi olarak) |
+| Üretici Makro (`gpui_macros::...!()`) | Üretilen Akıcı Metotlar (Styled Trait Üyesi Olarak) |
 |---|---|
 | `visibility_style_methods!()` | `visible()`, `invisible()` |
-| `margin_style_methods!()` | `m_*` ile birlikte `mt_`, `mb_`, `my_`, `mx_`, `ml_`, `mr_` ve her birinin spacing scale + `auto` varyantları (`mt_auto()` gibi) |
-| `padding_style_methods!()` | `p_*`, `pt_`, `pb_`, `py_`, `px_`, `pl_`, `pr_` (margin ailesinin padding karşılığı) |
-| `position_style_methods!()` | `relative()`, `absolute()` ve konumlanmış element ofset önekleri: `inset`, `top`, `bottom`, `left`, `right` |
+| `margin_style_methods!()` | `m_*` ile birlikte `mt_`, `mb_`, `my_`, `mx_`, `ml_`, `mr_` ve bunların aralık ölçekleri ile `auto` varyantları (örneğin `mt_auto()`) |
+| `padding_style_methods!()` | `p_*`, `pt_`, `pb_`, `py_`, `px_`, `pl_`, `pr_` (margin ailesinin padding karşılıkları) |
+| `position_style_methods!()` | `relative()`, `absolute()` ve konumlandırma öteleme metotları: `inset`, `top`, `bottom`, `left`, `right` |
 | `overflow_style_methods!()` | `overflow_hidden()`, `overflow_x_hidden()`, `overflow_y_hidden()` |
-| `cursor_style_methods!()` | `cursor(CursorStyle)`, `cursor_default()`, `cursor_pointer()`, `cursor_text()`, `cursor_move()`, `cursor_not_allowed()`, `cursor_context_menu()`, `cursor_crosshair()`, `cursor_vertical_text()`, `cursor_alias()`, `cursor_copy()`, `cursor_no_drop()`, `cursor_grab()`, `cursor_grabbing()` ve yeniden boyutlandırma ailesi: `cursor_ew_resize()`, `cursor_ns_resize()`, `cursor_nesw_resize()`, `cursor_nwse_resize()`, `cursor_col_resize()`, `cursor_row_resize()`, `cursor_n_resize()`, `cursor_e_resize()`, `cursor_s_resize()`, `cursor_w_resize()` |
-| `border_style_methods!()` | `border_color(C)` ve `border_*` genişlik önekleri (`border_*`, `border_t_*`, `border_r_*`, `border_b_*`, `border_l_*`, `border_x_*`, `border_y_*`) × sonek tablosu (`_0`, `_1`, `_2`, `_4`, `_8`, vb.) |
+| `cursor_style_methods!()` | `cursor(CursorStyle)`, `cursor_default()`, `cursor_pointer()`, `cursor_text()`, `cursor_move()`, `cursor_not_allowed()`, `cursor_context_menu()`, `cursor_crosshair()`, `cursor_vertical_text()`, `cursor_alias()`, `cursor_copy()`, `cursor_no_drop()`, `cursor_grab()`, `cursor_grabbing()` ve yeniden boyutlandırma yön imleçleri (örneğin `cursor_ew_resize()`) |
+| `border_style_methods!()` | `border_color(C)` rengi ve `border_*` kalınlık metotları (`border_*`, `border_t_*`, vb.) ile kalınlık sonekleri (`_0`, `_1`, `_2`, `_4`, `_8`, vb.) |
 | `box_shadow_style_methods!()` | `shadow(Vec<BoxShadow>)`, `shadow_none()`, `shadow_2xs()`, `shadow_xs()`, `shadow_sm()`, `shadow_md()`, `shadow_lg()`, `shadow_xl()`, `shadow_2xl()` |
 
-Bu makrolar, `gpui_macros` crate'inden genel proc macro olarak dışa aktarılır ve `gpui::{visibility_style_methods, margin_style_methods, ...}` üzerinden de yeniden dışa aktarılır. Uygulama kodunun bunları doğrudan çağırması gerekmez; fluent metotlar zaten `Styled` trait'inin parçasıdır ve her `Styled` uygulaması bu metotlara otomatik sahip olur.
+Bu makrolar, `gpui_macros` paketi üzerinden dışa aktarılır ve dolaylı olarak `gpui` paket kökünden de erişilebilir kılınır. Uygulama geliştirme süreçlerinde bu makroların manuel çağrılmasına gerek yoktur; zira akıcı stil metotları `Styled` trait'inin yerleşik birer üyesidir ve bu trait'i uygulayan her nesne bu metotlara otomatik olarak sahip olur.
 
-Flex faktörü yazarken iki farklı kullanım vardır. Özel oran gerektiğinde `flex_grow(2.0)` veya `flex_shrink(0.5)` gibi açık faktör verirsin. Normal CSS/Tailwind karşılığı olan `flex-grow: 1` ve `flex-shrink: 1` için `flex_grow_1()` ve `flex_shrink_1()` kullanırsın. Büyüme veya küçülmeyi kapatan yardımcılar `flex_grow_0()` ve `flex_shrink_0()` adlarıyla kalır; tamamen sabit davranacak öğelerde `flex_none()` büyüme, küçülme ve basis ayarını birlikte toparlar.
+Flex faktörlerinin belirlenmesinde iki temel yaklaşım izlenir: Özel oranların hedeflendiği durumlarda `flex_grow(2.0)` veya `flex_shrink(0.5)` gibi doğrudan faktör değerleri atanır. CSS standartlarındaki `flex-grow: 1` ve `flex-shrink: 1` davranışları için ise `flex_grow_1()` ve `flex_shrink_1()` metotlarından yararlanılır. Büyüme veya küçülmeyi tamamen devre dışı bırakmak amacıyla `flex_grow_0()` ve `flex_shrink_0()` metotları kullanılırken; boyutu tamamen sabitlenmiş öğelerde `flex_none()` çağrısı grow, shrink ve basis ayarlarını bir arada yapılandırır.
 
-### BoxShadow
+### `BoxShadow` Yapılandırması
 
-`BoxShadow` gölgenin içe mi dışa mı çizileceğini `inset: bool` alanıyla taşır. Hazır `shadow_sm()`, `shadow_md()` ve benzeri helper'lar drop shadow üretir; iç gölge gerektiğinde açık `BoxShadow` verirsin. `Style::paint(...)` sırası drop shadow'ları arka plan ve border'dan önce, inset shadow'ları ise elementin arka planından sonra, çocuk içeriğinden önce işler.
+`BoxShadow` veri yapısı, gölgenin içe mi yoksa dışa mı çizileceğini belirleyen `inset: bool` alanını barındırır. Hazır sunulan `shadow_sm()`, `shadow_md()` ve benzeri yardımcı metotlar varsayılan olarak dış gölge (drop shadow) üretir; iç gölge (inset shadow) gereksinimlerinde ise doğrudan `BoxShadow` tanımı oluşturulmalıdır. `Style::paint(...)` render süreci dış gölgeleri arka plan ve kenarlıklardan önce, iç gölgeleri ise elementin kendi arka plan çiziminin ardından, alt öğe içeriklerinin çizilmesinden ise önce işleme alır.
 
-| Alan | Kısa anlamı |
+| Nitelik | Temel İşlevi |
 |---|---|
-| `color` | Gölge rengidir. |
-| `offset` | Gölgenin X/Y kaymasıdır. |
-| `blur_radius` | Gölge bulanıklığıdır. |
-| `spread_radius` | Gölgenin yayılma miktarıdır. |
-| `inset` | `true` ise iç gölge, `false` ise dış gölge çizer. |
+| `color` | Gölgenin renk tonunu belirler. |
+| `offset` | Gölgenin X ve Y yönündeki kayma koordinatıdır. |
+| `blur_radius` | Gölge yumuşatma/bulanıklık yarıçapıdır. |
+| `spread_radius` | Gölgenin sınır genişleme/yayılma miktarıdır. |
+| `inset` | `true` ise iç gölge (inset), `false` ise dış gölge (drop shadow) çizer. |
 
 ```rust
 let ic_golge = BoxShadow {
@@ -79,30 +79,30 @@ div()
     .child("İç gölgeli alan")
 ```
 
-`Styled` trait içinde ayrıca `gpui_macros::style_helpers!()` çağrısı vardır. Bu proc macro `#[doc(hidden)]` olarak işaretlendiği ve `gpui` crate'inden yeniden dışa aktarılmadığı için `target/doc/gpui/all.html` makro listesinde görünmez. `w_*`, `h_*`, `size_*`, `min_size_*`, `min_w_*`, `min_h_*`, `max_size_*`, `max_w_*`, `max_h_*`, `gap_*`, `gap_x_*`, `gap_y_*` ve `rounded_*` aileleri bu iç makrodan gelir.
+`Styled` trait yapısı bünyesinde ayrıca `gpui_macros::style_helpers!()` makro çağrısı yer alır. Bu makro `#[doc(hidden)]` özniteliğiyle gizlendiği için standart kütüphane dökümantasyon listelerinde doğrudan sergilenmez. `w_*`, `h_*`, `size_*`, `min_size_*`, `min_w_*`, `min_h_*`, `max_size_*`, `max_w_*`, `max_h_*`, `gap_*`, `gap_x_*`, `gap_y_*` ve `rounded_*` gibi stil ailelerinin tamamı bu dahili makro tarafından üretilir.
 
-Özel bir element için `Styled` uygulandığında trait'in tüm metotları otomatik gelir; bu makroları yeniden çağırman gerekmez. Yalnızca GPUI'nın kendisi gibi yeni bir stil çatısı (`style framework`) yazarken, paralel bir `Styled` benzeri trait için bu makroları yeni trait'in içinde çağırabilirsin. `method_visibility` parametresi genel (`public`) veya `pub(crate)` ayarına izin verir.
+Özel tasarlanan element sınıflarında `Styled` uygulandığında bu metotların tamamı otomatik olarak kazanılır; dolayısıyla makroların yeniden çağrılmasına gerek yoktur. Yalnızca GPUI mimarisinin kendisine benzer yeni bir stil çerçevesi (style framework) yazılacağı durumlarda, paralel bir `Styled` benzeri trait için bu makroların yeni arayüz gövdesinde çağrılması gerekebilir. Buradaki `method_visibility` parametresi, üretilen metotların genel (`public`) ya da paket içi (`pub(crate)`) görünürlük düzeylerini ayarlar.
 
-**Pratik kararlar.** Stil zinciri kurarken faydalı olan birkaç yönlendirici:
+**Tasarım Karar Rehberi.** Stil zincirleri tasarlanırken şu pratik kurallara uyulması önerilir:
 
-- Görünüm veriye bağlıysa `Render` içinde koşullu `.when(...)` kullanırsın; stili sonradan emir kipinde (`imperative`) değiştirmeye çalışma.
-- Scroll, klavye odağı, ipucu ve animasyon gibi kalıcı veriye sahip elementlerde id sabit olmalıdır; aksi halde veri ekran kareleri arasında kaybolur.
-- Üst öğenin yerleşim genişliği belirsiz olduğunda metin taşması, görsel en-boy oranı ve `absolute` alt öğenin konumu beklenen sonucu vermeyebilir; bu yüzden üst öğenin boyutunu önceden belirgin bırakman gerekir.
-- Kart, araç çubuğu veya liste gibi tekrar eden UI parçalarında boyutları `min/max/aspect_ratio` ile sabitlersin; hover ya da yükleme durumlarının yerleşimi oynatmaması tasarımın temel kuralıdır.
+- Görünüm çıktıları dinamik verilere bağlıysa, `Render` gövdesinde akıcı `.when(...)` koşullarından yararlanılmalıdır; stil özelliklerini sonradan eylem kodlarıyla (imperative) güncellenmeye çalışılmamalıdır.
+- Kaydırma (scroll), klavye odağı (focus), ipuçları (tooltips) veya animasyon gibi ekran kareleri arasında durum korunması gereken elementlerin kimlikleri (IDs) mutlaka sabit tutulmalıdır; aksi halde bu veriler render döngüleri arasında kaybolur.
+- Kapsayıcı üst öğenin yerleşim genişliği belirsiz (belirlenmemiş) olduğunda metin taşmaları, görsellerin en-boy oranları ve mutlak konumlandırılmış (`absolute`) alt öğelerin yerleşimleri beklenmeyen sonuçlar doğurabilir. Bu nedenle üst öğelerin boyut sınırlarının önceden belirginleştirilmesi önerilir.
+- Kartlar, araç çubukları veya liste satırları gibi tekrar eden arayüz parçalarında boyutlar `min/max` veya `aspect_ratio` ile sınırlandırılmalıdır; etkileşim (hover) veya yüklenme durumlarının sayfa düzeninde kaymalara yol açmaması arayüz kararlılığı açısından kritik bir kuraldır.
 
 ## Geometri Tipleri ve Birim Yönetimi
 
-### Pixels, ScaledPixels ve DevicePixels
+### `Pixels`, `ScaledPixels` ve `DevicePixels` Ayrımı
 
-GPUI üç farklı piksel birimi kullanır. Ekran ölçeği değiştiğinde hangi birimin hangi katmanda kullanıldığını bilmek birçok hatayı baştan önler:
+GPUI yerleşim ve render süreçlerinde üç farklı piksel birimi kullanır. Ekran ölçeklendirmeleri değiştiğinde hangi birimin hangi katmanda devreye girdiğini bilmek, olası hizalama ve netlik hatalarının önüne geçer:
 
 ![GPUI Piksel Birimi Katmanları](assets/piksel-birimleri.svg)
 
-- `Pixels(f32)` — ölçekten bağımsız mantıksal piksel. UI kodunda neredeyse her zaman bu birimi kullanırsın.
-- `ScaledPixels(f32)` — `Pixels * window.scale_factor()`. Çizim aracına iletilen değerdir.
-- `DevicePixels(i32)` — fiziksel cihaz pikseli; asset ve doku (`texture`) boyutlarında kullanırsın.
+- `Pixels(f32)`: Ölçekten bağımsız mantıksal piksel birimidir. Uygulama arayüz kodlarında neredeyse her zaman bu birim tercih edilir.
+- `ScaledPixels(f32)`: Mantıksal pencerelerin ölçek katsayısıyla (`Pixels * window.scale_factor()`) çarpılmış halidir. Düşük seviyeli çizim motoruna (renderer) iletilen değerdir.
+- `DevicePixels(i32)`: Fiziksel ekran cihaz pikselidir; doku (texture) boyutlarında ve görsel varlıkların (assets) ham çözünürlüklerinde kullanılır.
 
-Yardımcı yapıcıları sıklıkla bu kalıpta görünür:
+Yardımcı yapıcı fonksiyonlar şu şekildedir:
 
 ```rust
 let piksel = px(12.0);             // Pixels
@@ -112,235 +112,236 @@ let boyut = size(px(100.), px(40.)); // Size<Pixels>
 let sinirlar = Bounds::from_corners(point(px(0.), px(0.)), point(px(100.), px(100.)));
 ```
 
-Bu helper'lar basit yapıcı olduğu için ayrı ayrı uzun anlatım gerektirmez; tabloda hangi tipi ürettikleri yeterlidir:
+Bu yardımcıların ürettikleri temel veri tipleri ve kullanım alanları aşağıda özetlenmiştir:
 
-| Helper | Ürettiği değer | Kullanım notu |
+| Yardımcı Fonksiyon | Ürettiği Değer | Temel Kullanım Alanı |
 |---|---|---|
 | `px(value)` | `Pixels` | Mantıksal piksel değeri üretir. |
-| `rems(value)` | `Rems` | Root font boyutuna göre ölçeklenen uzunluk üretir. |
-| `relative(fraction)` | `DefiniteLength::Fraction` | Üst öğe boyutunun kesri olarak ölçü verir. |
-| `percentage(value)` | `Percentage` | 0.0-1.0 aralığında yüzdelik oran taşır. |
-| `radians(value)` | `Radians` | Dönüşüm ve yay çizimi için radyan değeri taşır. |
-| `point(x, y)` | `Point<T>` | X/Y koordinatı üretir. |
-| `size(width, height)` | `Size<T>` | Genişlik/yükseklik çifti üretir. |
-| `bounds(origin, size)` | `Bounds<T>` | Origin ve size ile dikdörtgen üretir. |
+| `rems(value)` | `Rems` | Kök font boyutuna göre ölçeklenen uzunluk üretir. |
+| `relative(fraction)` | `DefiniteLength::Fraction` | Üst öğe boyutunun belirli bir kesri oranında ölçü verir. |
+| `percentage(value)` | `Percentage` | 0.0 - 1.0 aralığındaki yüzdelik oranları temsil eder. |
+| `radians(value)` | `Radians` | Dönüşüm (rotation) ve dairesel çizimler için radyan değeri taşır. |
+| `point(x, y)` | `Point<T>` | İki eksenli koordinat üretir. |
+| `size(width, height)` | `Size<T>` | Genişlik ve yükseklik boyut çifti üretir. |
+| `bounds(origin, size)` | `Bounds<T>` | Başlangıç noktası (origin) ve boyut ile sınır dikdörtgeni üretir. |
 
-### Rems, AbsoluteLength, DefiniteLength ve Length
+### `Rems`, `AbsoluteLength`, `DefiniteLength` ve `Length`
 
-Pixels dışındaki uzunluk tipleri farklı senaryolar için ayrılmıştır:
+Mantıksal piksellerin dışındaki uzunluk tipleri, farklı yerleşim ihtiyaçlarına göre ayrılmıştır:
 
-- `Rems(f32)` — kök yazı tipi boyutuna görelidir (Zed'de `theme.ui_font_size` ile bağlıdır). `.text_sm()` veya `.gap_2()` gibi makro üretimi yardımcılar genellikle Rems üzerinden Pixels üretir.
-- `AbsoluteLength` — `Pixels` veya `Rems`.
-- `DefiniteLength` — `Absolute(AbsoluteLength)` veya `Fraction(f32)`.
-- `Length` — `Definite(DefiniteLength)` veya `Auto`.
+- `Rems(f32)`: Kök yazı tipi boyutuna göre ölçeklenir (Zed bünyesinde `theme.ui_font_size` değerine bağlıdır). `.text_sm()` veya `.gap_2()` gibi otomatik stil yardımcıları, genellikle arka planda Rems üzerinden mantıksal piksellere dönüşüm yapar.
+- `AbsoluteLength`: `Pixels` veya `Rems` mutlak uzunluk varyantlarını barındırır.
+- `DefiniteLength`: Kesin bir mutlak uzunluğu (`Absolute`) veya üst öğeye oranlı bir kesri (`Fraction`) temsil eder.
+- `Length`: Kesin bir uzunluk değerini (`Definite`) ya da yerleşim motorunun kendisinin hesaplayacağı otomatik (`Auto`) modu tanımlar.
 
-| API | Alt özellikler | Kısa anlamı |
+| Veri Yapısı | Desteklenen Metotlar | Temel Görevi |
 |---|---|---|
-| `AbsoluteLength` | `Pixels`, `Rems`, `is_zero`, `to_pixels`, `to_rems` | Mutlak uzunluğu piksel/rem ayrımıyla taşır ve gerektiğinde dönüşüm yapar. |
-| `DefiniteLength` | `Absolute`, `Fraction`, `to_pixels` | Auto olmayan, kesin veya parent oranlı uzunluk değeridir. |
+| `AbsoluteLength` | `is_zero`, `to_pixels`, `to_rems` | Mutlak uzunluğu piksel/rem ayrımıyla taşır ve gerektiğinde dönüşüm yapar. |
+| `DefiniteLength` | `to_pixels` | Auto olmayan, kesin veya parent oranlı uzunluk değeridir. |
 | `Length` | `Definite`, `Auto` | Stil alanlarında kesin ölçü veya layout tarafından hesaplanan auto ölçüyü ayırır. |
 
-Stil API'leri Length türünü kabul ettiği için farklı birimleri aynı zincirde karışık kullanabilirsin:
+Stil API'leri genel `Length` türünü kabul ettiği için, farklı birim tipleri aynı akıcı zincirde bir arada kullanılabilir:
 
 ```rust
-div().w(px(120.))           // Pixels
-    .min_h(rems(2.))        // Rems
-    .flex_basis(relative(0.5)) // Fraction
-    .h_auto()
+div()
+    .w(px(120.))               // Pixels (Mantıksal Piksel)
+    .min_h(rems(2.))            // Rems (Kök Yazı Boyutuna Göreli)
+    .flex_basis(relative(0.5)) // Fraction (Oransal Uzunluk)
+    .h_auto()                  // Length::Auto (Otomatik Yükseklik)
 ```
 
-### Percentage, Radians, Half, IsZero, AvailableSpace ve LayoutId
+### `Percentage`, `Radians`, `Half`, `IsZero`, `AvailableSpace` ve `LayoutId`
 
-Bu yardımcı tipler stil zincirinde doğrudan kullanıcıya görünmeyebilir, ama layout ve çizim hesabının ara değerlerini taşır:
+Bu yardımcı tipler stil zincirlerinde doğrudan geliştiriciye görünmez, ancak yerleşim motoru ve çizim hesaplamalarının ara değerlerini taşımak için kullanılır:
 
-| API | Ne zaman görünür |
+| Veri Yapısı | Kullanım Senaryosu |
 |---|---|
-| `Percentage` | Tam daire yüzdesinden `Radians` üretmek veya oranı açık tipte taşımak gerektiğinde. |
-| `Radians` | `TransformationMatrix::rotate(...)`, path yayları ve SVG dönüşüm hesabında. |
-| `Half` | Sayısal veya geometri değerinin yarısını generic biçimde hesaplayan trait. |
-| `IsZero` | `Pixels`, `Rems`, `ScaledPixels`, `DevicePixels` gibi değerlerde sıfır kontrolünü ortaklaştırır. |
-| `AvailableSpace` | Taffy layout ölçümünde kullanabilirsin, kesin veya minimum/maksimum alan bilgisidir. |
-| `LayoutId` | Taffy tarafındaki layout düğüm kimliğidir; normal UI kodunda kalıcı domain ID yerine kullanılmaz. |
+| `Percentage` | Tam daire oranlarından `Radians` üretmek veya yüzdelik değerleri açık tipler halinde taşımak amacıyla kullanılır. |
+| `Radians` | `TransformationMatrix::rotate(...)` metotlarında, path yaylarında ve SVG rotasyon hesaplarında yer alır. |
+| `Half` | Sayısal veya geometrik değerlerin yarısını generic biçimde hesaplamayı sağlayan trait'dir. |
+| `IsZero` | `Pixels`, `Rems`, `ScaledPixels`, `DevicePixels` gibi tiplerde sıfır kontrolü yapmayı ortaklaştırır. |
+| `AvailableSpace` | Taffy yerleşim motorunun ölçüm süreçlerinde kesin alan veya minimum/maksimum boşluk bilgilerini taşır. |
+| `LayoutId` | Taffy yerleşim ağacındaki düğüm kimlikleridir; uygulama düzeyinde kalıcı kimlik olarak kullanılmaz. |
 
-| API | Alt özellikler | Kısa anlamı |
+| Arayüz / Yapı | Desteklenen Metotlar | Temel İşlevi |
 |---|---|---|
-| `Axis` | `Vertical`, `Horizontal`, `invert` | Ana ekseni seçer ve karşı eksene geçişi sağlar. |
-| `Along` | `along`, `apply_along` | Bir değeri verilen eksende okur veya yalnız o eksende dönüştürür. |
-| `Half` | `half` | Değerin yarısını üretir. |
-| `IsZero` | `is_zero` | Değerin sıfır olup olmadığını söyler. |
-| `AvailableSpace` | `Definite`, `MinContent`, `MaxContent`, `min_size` | Layout ölçümünde kesin, min-content veya max-content alan bilgisini taşır. |
+| `Axis` | `Vertical`, `Horizontal`, `invert` | Ana yerleşim eksenini seçer ve karşı eksene geçişi (invert) sağlar. |
+| `Along` | `along`, `apply_along` | Bir değeri verilen eksende okur veya yalnız o eksen doğrultusunda dönüştürür. |
+| `Half` | `half` | İlgili değerin yarısını hesaplar. |
+| `IsZero` | `is_zero` | Değerin sıfır olup olmadığını denetler. |
+| `AvailableSpace` | `Definite`, `MinContent`, `MaxContent` | Layout ölçümünde kesin, min-content veya max-content alan bilgisini taşır. |
 
-### Point, Size, Bounds, Edges ve Corners
+### `Point`, `Size`, `Bounds`, `Edges` ve `Corners`
 
-Jenerik kapsayıcı tipleri `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>`, `Corners<T>`, çoğu metot için aritmetik destekler (`+`, `-`, `*`, `/`).
+Jenerik geometrik kapsayıcı tipleri olan `Point<T>`, `Size<T>`, `Bounds<T>`, `Edges<T>` ve `Corners<T>`, çoğu veri tipi için standart matematiksel operatör (`+`, `-`, `*`, `/`) aşırı yüklemelerini (operator overloading) destekler.
 
-**Kaynaktaki doğrudan metot yüzeyi.** Geometri tipleri pek çok yardımcı metoda sahiptir; aşağıdaki liste hangi tipin hangi araçları açtığını özetler:
+**Geometri Tiplerinin Sunduğu API Yüzeyi.** Geometri yapıları üzerinde yer alan ve yaygın kullanılan yardımcı fonksiyonlar ile alanlar şunlardır:
 
-| Tip | Alanlar ve metot aileleri | Ne işe yarar |
+| Geometrik Yapı | Sunulan Metotlar ve Alanlar | Temel İşlevi |
 |---|---|---|
-| `Point<T>` | `x`, `y`, `new`, `map`, `scale`, `magnitude`, `relative_to`, `max`, `min`, `clamp` | Konum noktasını dönüştürür, ölçekler ve sınırlar. |
-| `Size<T>` | `width`, `height`, `new`, `map`, `center`, `scale`, `max`, `min`, `full`, `auto`, `to_pixels`, `to_device_pixels` | Genişlik/yükseklik çiftini üretir ve dönüştürür. |
-| `Bounds<T>` | `origin`, `size`, `centered`, `maximized`, `new`, `from_corners`, `from_anchor_and_size`, `centered_at`, `top_center`, `bottom_center`, `left_center`, `right_center`, `intersects`, `center`, `half_perimeter`, `dilate`, `extend`, `inset`, `space_within`, `top`, `bottom`, `left`, `right`, `top_right`, `bottom_right`, `bottom_left`, `corner`, `contains`, `is_contained_within`, `map`, `map_origin`, `map_size`, `localize`, `is_empty`, `scale`, `to_device_pixels`, `to_pixels` | Dikdörtgen alanı, köşeleri, merkezleri, kesişimi ve dönüşümleri hesaplar. |
-| `Edges<T>` | `top`, `right`, `bottom`, `left`, `all`, `map`, `any`, `auto`, `zero`, `to_pixels`, `scale`, `max` | Dört kenar boşluğunu veya inset değerini taşır. |
-| `Corners<T>` | `top_left`, `top_right`, `bottom_right`, `bottom_left`, `all`, `corner`, `to_pixels`, `scale`, `max`, `clamp_radii_for_quad_size`, `map` | Dört köşe yarıçapını ve köşe bazlı erişimi taşır. |
-| `Pixels` | `as_f32`, `floor`, `round`, `ceil`, `scale`, `pow`, `abs`, `signum`, `to_f64` | Mantıksal piksel değerinde yuvarlama, ölçekleme ve ham değer erişimi sağlar. |
-| `ScaledPixels` | `as_f32`, `floor`, `round`, `ceil` | Ölçeklenmiş piksel değerini çizim katmanına uygun yuvarlar. |
-| `Rems` | `is_zero`, `to_pixels`, `half` | Rem değerini piksele çevirir ve sıfır kontrolü/yarıya bölme sağlar. |
-| `DevicePixels` | `to_bytes` | Fiziksel piksel sayısından buffer byte miktarı hesaplar. |
+| `Point<T>` | `x`, `y`, `new`, `map`, `scale`, `magnitude`, `relative_to`, `max`, `min`, `clamp` | Konum koordinatlarını dönüştürür, ölçekler ve sınırlar. |
+| `Size<T>` | `width`, `height`, `new`, `map`, `center`, `scale`, `max`, `min`, `full`, `auto`, `to_pixels`, `to_device_pixels` | Genişlik/yükseklik boyut çiftlerini üretir ve dönüştürür. |
+| `Bounds<T>` | `origin`, `size`, `centered`, `maximized`, `new`, `from_corners`, `from_anchor_and_size`, `centered_at`, `intersects`, `center`, `dilate`, `inset`, `contains`, `scale`, `to_pixels` | Dikdörtgen alanları, köşeleri, merkez koordinatlarını, kesişimleri ve alan dönüşümlerini hesaplar. |
+| `Edges<T>` | `top`, `right`, `bottom`, `left`, `all`, `map`, `any`, `auto`, `zero`, `to_pixels` | Dört kenar boşluğu (padding/margin) veya inset değerini taşır. |
+| `Corners<T>` | `top_left`, `top_right`, `bottom_right`, `bottom_left`, `all`, `corner`, `clamp_radii_for_quad_size`, `map` | Dört köşe yuvarlama yarıçapını ve köşe bazlı erişimleri yönetir. |
+| `Pixels` | `as_f32`, `floor`, `round`, `ceil`, `scale`, `pow`, `abs` | Mantıksal piksel değerlerinde yuvarlama ve ham değer erişimleri sağlar. |
+| `ScaledPixels` | `as_f32`, `floor`, `round`, `ceil` | Ölçeklenmiş piksel değerlerini çizim katmanına uygun biçimde yuvarlar. |
+| `Rems` | `is_zero`, `to_pixels`, `half` | Rem değerlerini piksele dönüştürür ve sıfır/yarıya bölme kontrolleri sunar. |
+| `DevicePixels` | `to_bytes` | Fiziksel piksel sayısından ekran bellek (buffer) byte miktarlarını hesaplar. |
 
-### phi
+### Altın Oran (`phi`) Sabiti
 
-`phi() -> DefiniteLength` (`geometry`), altın oranı `relative(1.618_034)` olarak döndürür — yani üst öğenin **1.618 katı**, %50 değil. GPUI, varsayılan `TextStyle::line_height` değeri olarak `phi()` kullanır (`style`); bir yazı tipi için satır yüksekliği `font_size * 1.618` olur. Yerleşim oranlamada (örneğin altın oranla iki sütun) üst öğenin katı olarak ifade gerekiyorsa aynı sabiti kullanabilirsin.
+`geometry` modülündeki `phi() -> DefiniteLength` fonksiyonu, altın oran katsayısını `relative(1.618_034)` olarak döndürür; bu değer üst öğenin **1.618 katına** tekabül eder. GPUI, varsayılan `TextStyle::line_height` değeri olarak bu `phi()` sabiti kullanır; dolayısıyla bir yazı tipi için satır yüksekliği varsayılan olarak `font_size * 1.618` şeklinde hesaplanır. Arayüz yerleşim oranlamalarında (örneğin altın orana sahip iki sütunlu tasarımlarda) üst öğeye bağlı oransal yükseklikler veya genişlikler atamak için bu sabitten yararlanılabilir.
 
-**Dikkat noktaları.** Geometri tarafında sıkça yapılan yanılgılar:
+**Dikkat Edilmesi gereken Geometrik Detaylar.** Geometri hesaplamalarında sıkça yapılan hatalar şunlardır:
 
-- `Bounds::contains(point)`, yarı açık aralıklara göre çalışır; sınır pikseli `false` dönebilir.
-- `Pixels` ile `ScaledPixels` aritmetiği, `From` veya `Into` üzerinden açık dönüşüm ister; örtük çevirme yapılmaz.
-- `point(x, y)` argüman sırası önce X sonra Y'dir; `size(width, height)` de aynı sırayı izler.
+- `Bounds::contains(point)` kontrolü, sınır çizgilerinde yarı açık aralık kurallarına göre çalışır; dolayısıyla tam sınır pikseli üzerindeki koordinatlar için `false` döndürebilir.
+- `Pixels` ile `ScaledPixels` tipleri arasındaki matematiksel işlemler için `From` veya `Into` trait'leri aracılığıyla açık (explicit) dönüştürme yapılması zorunludur; sistem otomatik gizli çevrim yapmaz.
+- `point(x, y)` koordinat argümanlarının sırası önce X (yatay) ardından Y (dikey) şeklindedir; `size(width, height)` yapısı da aynı sıralama kuralına tabidir.
 
 ## Layout, Style ve Dönüşüm API Tamamlayıcıları
 
-Stil ve geometri dosyasında geçen bazı tipler doğrudan fluent zincirde görünmez, ama özel element, canvas, popover veya renderer entegrasyonu yazarken bu tiplerle karşılaşırsın.
+Stil ve geometri dökümanlarında geçen bazı veri tipleri doğrudan akıcı metot zincirlerinde görünmez. Ancak özel element sınıfları, tuval (canvas) yapıları, popover pencereleri veya düşük seviyeli render motoru entegrasyonları yazılırken bu tiplerle karşılaşılır:
 
-### AlignItems, AlignSelf, AlignContent, JustifyItems, JustifySelf ve JustifyContent
+### `AlignItems`, `AlignSelf`, `AlignContent`, `JustifyItems`, `JustifySelf` ve `JustifyContent`
 
-Bu hizalama tipleri fluent metotların arkasındaki ham modeldir. Uygulama kodunda çoğunlukla `.items_center()`, `.justify_between()` ve `.content_stretch()` gibi helper'ları kullanırsın; özel element veya style editor yazarken `Style` alanlarını doğrudan güncellemen gerekebilir.
+Bu hizalama tipleri, akıcı metotların arka planındaki ham yerleşim modelini oluşturur. Uygulama geliştirilerken genellikle `.items_center()`, `.justify_between()` veya `.content_stretch()` gibi hazır yardımcılar tercih edilir; ancak özel bir element veya stil editörü tasarlanırken `Style` veri yapısının alanlarını doğrudan güncellemek gerekebilir:
 
-| API | Alt değerler | Kısa anlamı |
+| Hizalama Tipi | Desteklenen Varyantlar | Temel İşlevi |
 |---|---|---|
-| `AlignItems`, `AlignSelf`, `JustifyItems`, `JustifySelf` | `Start`, `End`, `FlexStart`, `FlexEnd`, `Center`, `Baseline`, `Stretch` | Tek satır veya tek item hizalama modelidir; self varyantları parent değerini override eder. |
-| `AlignContent`, `JustifyContent` | `Start`, `End`, `FlexStart`, `FlexEnd`, `Center`, `Stretch`, `SpaceBetween`, `SpaceEvenly`, `SpaceAround` | Çok satırlı flex/grid içerik dağılımını belirler. |
+| `AlignItems`, `AlignSelf`, `JustifyItems`, `JustifySelf` | `Start`, `End`, `FlexStart`, `FlexEnd`, `Center`, `Baseline`, `Stretch` | Tek satır veya tek bir öğenin hizalanma modelidir. `self` varyantları, parent (üst öğe) hizalama tercihlerini ezmek için kullanılır. |
+| `AlignContent`, `JustifyContent` | `Start`, `End`, `FlexStart`, `FlexEnd`, `Center`, `Stretch`, `SpaceBetween`, `SpaceEvenly`, `SpaceAround` | Çok satırlı Flex/Grid içeriklerinin eksenler üzerindeki dağılım politikalarını belirler. |
 
-### Display, FlexDirection, FlexWrap, Visibility, WhiteSpace, TextOverflow, TextAlign, Overflow, Position ve Fill
+### `Display`, `FlexDirection`, `FlexWrap`, `Visibility`, `WhiteSpace`, `TextOverflow`, `TextAlign`, `Overflow`, `Position` ve `Fill`
 
-Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararlarını taşır. Alt değerler kısa anlamlı olduğu için tablo başlık açmaktan daha okunaklıdır:
+Bu enum veri yapıları; sayfa düzeni (layout), görünürlük, metin taşmaları ve şekil dolgusu (paint fill) kararlarını taşır:
 
-| API | Alt değerler | Kısa anlamı |
+| Yapı / Enum | Desteklenen Değerler | Temel İşlevi |
 |---|---|---|
-| `Display` | `Block`, `Flex`, `Grid`, `None` | Child layout algoritmasını seçer; `None` layout dışı bırakır. |
-| `FlexDirection` | `Row`, `Column`, `RowReverse`, `ColumnReverse` | Flex ana eksenini ve akış yönünü belirler. |
-| `FlexWrap` | `NoWrap`, `Wrap`, `WrapReverse` | Flex item'ların tek satırda mı kalacağını, yeni satıra nasıl taşacağını belirler. |
-| `Visibility` | `Visible`, `Hidden` | Çizimi açar/kapatır; `Hidden` layout alanını korur. |
-| `WhiteSpace` | `Normal`, `Nowrap` | Metnin satır kırıp kırmayacağını belirler. |
-| `TextOverflow` | `Truncate`, `TruncateStart` | Sığmayan metni sondan veya baştan kısaltır. |
-| `TextAlign` | `Left`, `Center`, `Right` | Metni kutu içinde sola, ortaya veya sağa hizalar. |
-| `Overflow` | `Visible`, `Clip`, `Hidden`, `Scroll` | Taşan child içeriklerinin layout ve scroll davranışını belirler. |
-| `Position` | `Relative`, `Absolute` | Offset'in normal layout sonucuna mı, konumlu üst öğeye mi göre uygulanacağını belirler. |
-| `Fill` | `Color(Background)` | Şekil dolgusunu `Background` üzerinden taşır. |
+| `Display` | `Block`, `Flex`, `Grid`, `None` | Alt öğelerin yerleşim algoritmasını seçer; `None` öğeyi yerleşim akışından tamamen çıkarır. |
+| `FlexDirection` | `Row`, `Column`, `RowReverse`, `ColumnReverse` | Flex konteynerin ana eksenini ve akış yönünü belirler. |
+| `FlexWrap` | `NoWrap`, `Wrap`, `WrapReverse` | Flex öğelerin tek bir satırda mı kalacağını yoksa yeni satırlara mı taşacağını denetler. |
+| `Visibility` | `Visible`, `Hidden` | Elementin çizimini açar veya kapatır; `Hidden` görünürlüğü kapatsa da kapladığı yerleşim alanını korur. |
+| `WhiteSpace` | `Normal`, `Nowrap` | Metinlerin satır sonlarında alt satıra kırılıp kırılmayacağını belirler. |
+| `TextOverflow` | `Truncate`, `TruncateStart` | Sığmayan uzun metinleri sondan veya baştan üç nokta koyarak kısaltır. |
+| `TextAlign` | `Left`, `Center`, `Right` | Metinleri kapsayıcı kutu içinde sola, ortaya veya sağa hizalar. |
+| `Overflow` | `Visible`, `Clip`, `Hidden`, `Scroll` | Taşma yapan alt öğelerin yerleşim ve kaydırma (scroll) sınırlarını belirler. |
+| `Position` | `Relative`, `Absolute` | Konumlandırma ötelemelerinin normal akışa göre mi yoksa konumlandırılmış üst öğeye göre mi hesaplanacağını belirler. |
+| `Fill` | `Color(Background)` | Şekil dolgu rengini `Background` yapısı üzerinden taşır. |
 
-### Style ve StyleRefinement
+### `Style` ve `StyleRefinement`
 
-`Style::text_style()` aktif metin stilini türetir; `has_opaque_background()` opak zemin olup olmadığını söyler; `overflow_mask(...)` bounds ve rem boyutundan overflow kırpma maskesini üretir; `paint(bounds, window, cx, paint_child)` arka plan, border, `box_shadow` ve çocuk çizimini doğru sırada uygular. `align_items`, `align_self`, `align_content`, `justify_content` ve `flex_direction` Taffy yerleşim kararına iner; `allow_concurrent_scroll` ile `restrict_scroll_to_axis` scroll davranışını, `mouse_cursor` hover imleç stilini, `grid_location` ise grid satır/kolon yerleşimini taşır. `StyleRefinement::grid_location_mut()` grid placement alanını oluşturup döndürür; grid row/column metotları arka planda bunu kullanır. Bu metotlar style zincirinin alt katmanıdır, sıradan `div()` zincirinde elle çağırman gerekmez.
+`Style::text_style()` metodu aktif metin stilini türetir; `has_opaque_background()` opak zemin olup olmadığını denetler. `overflow_mask(...)` sınırlar ve rem boyutlarından overflow kırpma maskesini (clipping mask) üretir; `paint(bounds, window, cx, paint_child)` ise arka planı, kenarlıkları, `box_shadow` efektlerini ve alt öğeleri doğru çizim sırasıyla boyar. `align_items`, `align_self`, `align_content`, `justify_content` ve `flex_direction` alanları doğrudan Taffy yerleşim kararlarına iletilir. `allow_concurrent_scroll` ile `restrict_scroll_to_axis` kaydırma davranışlarını, `mouse_cursor` imleç stillerini, `grid_location` ise hücre yerleşimlerini yönetir. `StyleRefinement::grid_location_mut()` grid konumlandırma alanını oluşturup geri döndürür. Bu metotlar stil zincirinin alt katman mekanizmalarıdır; standart `div()` zincirlerinde el ile çağrılmasına gerek yoktur.
 
-| API | Alt özellikler | Kısa anlamı |
+| Veri Yapısı | Desteklenen Metotlar | Temel İşlevi |
 |---|---|---|
-| `Style` | `text_style`, `has_opaque_background`, `overflow_mask`, `paint` | Çözümlenmiş stilin metin, background, overflow ve paint davranışını yürütür. |
-| `StyleRefinement` | `grid_location_mut`, `style` | Fluent zincirin yazdığı kısmi stil alanlarını taşır ve grid konum alanını lazy oluşturur. |
+| `Style` | `text_style`, `has_opaque_background`, `overflow_mask`, `paint` | Çözümlenmiş nihai stilin metin, arka plan, taşma kırpması ve boyama davranışlarını yürütür. |
+| `StyleRefinement` | `grid_location_mut`, `style` | Akıcı metot zincirinin biriktirdiği stil alanlarını taşır ve grid konum verilerini lazy (tembel) olarak oluşturur. |
 
-### ObjectFit
+### `ObjectFit` Yapısı
 
-`ObjectFit::get_bounds(container, image_size)` görselin `Fill`, `Contain`, `Cover`, `ScaleDown` veya `None` davranışlarında hangi dikdörtgene yerleşeceğini hesaplar. `img(...).object_fit(...)` normal kullanım için yeterlidir. Kendi `paint_image` veya özel surface elementini yazıyorsan aynı hesaplamayı tekrar etmemek için bu metodu kullanırsın.
+`ObjectFit::get_bounds(container, image_size)` fonksiyonu; görsellerin `Fill`, `Contain`, `Cover`, `ScaleDown` veya `None` davranışlarında container içerisine hangi dikdörtgen boyutlarıyla yerleşeceğini hesaplar. Standart görsel kullanımlarında `img(...).object_fit(...)` metodu yeterlidir; ancak özel bir `paint_image` veya surface elementi tasarlanırken geometrik hesaplamaların tekrarlanmaması amacıyla bu metot tercih edilmelidir.
 
-| Alt özellik | Kısa anlamı |
+| Varyant / Metot | Temel İşlevi |
 |---|---|
-| `Fill` | Görseli container'a esnetir. |
-| `Contain` | Görselin tamamı görünecek şekilde sığdırır. |
-| `Cover` | Container'ı kaplayacak şekilde büyütür, taşan kısmı kırpılabilir. |
-| `ScaleDown` | Büyük görseli sığdırır; zaten küçükse orijinal boyutu korur. |
-| `None` | Görselin orijinal boyutunu korur. |
-| `get_bounds` | Seçilen davranış için hedef `Bounds<Pixels>` hesaplar. |
+| `Fill` | Görseli kapsayıcı alana sığacak şekilde esnetir. |
+| `Contain` | Görselin tamamı görünecek şekilde, en-boy oranını koruyarak sığdırır. |
+| `Cover` | Kapsayıcı alanı tamamen dolduracak şekilde resmi büyütür; taşan kısımlar kırpılabilir. |
+| `ScaleDown` | Büyük boyutlu görselleri sığdıracak şekilde küçültür; görsel zaten küçükse orijinal boyutları korur. |
+| `None` | Görselin orijinal boyutunu aynen korur. |
+| `get_bounds` | Seçilen yerleşim davranışı için hedef `Bounds<Pixels>` koordinatlarını hesaplar. |
 
-### Axis ve Along
+### `Axis` ve `Along` Yapıları
 
-`Axis` ve `Along` yatay/dikey kararları generic hale getirir. `Axis::invert()` yatay ekseni dikeye, dikeyi yataya çevirir; split pane veya resize handle'da ana eksenden çapraz eksene geçerken kullanırsın. `Along::Unit`, implementasyonun her eksende taşıdığı birim tipini belirtir. `Along::along(axis)` verilen eksendeki değeri okur, `Along::apply_along(axis, f)` ise yalnız o ekseni dönüştürür. `Anchor::opposite()` bir kutu referansının tam karşısını, `Anchor::other_side_along(axis)` yalnız verilen eksen boyunca karşı tarafı döndürür; `Anchor::is_center()` ise `TopCenter`, `BottomCenter`, `LeftCenter` veya `RightCenter` değerlerini ayırt eder. Scrollbar, popover, anchored element ve iki eksenli layout helper yazarken bu metotlar koordinat dallanmalarını sadeleştirir. Tek bir bileşen yalnız yatay veya yalnız dikey çalışıyorsa bu tipleri okuyucuya göstermek yerine açık `width`/`height` hesabı daha anlaşılırdır.
+`Axis` ve `Along` yapıları, yatay veya dikey doğrultu kararlarını generic hale getirir. `Axis::invert()` yatay ekseni dikey eksene (ya da tersine) çevirir; örneğin pencerelerin bölünmesi (split panes) veya yeniden boyutlandırma tutamaklarının eksen dönüşümlerinde kullanılır. `Along::Unit`, ilgili implementasyonun her eksende taşıdığı birim veri tipini belirtir. `Along::along(axis)` verilen eksendeki değeri okur, `Along::apply_along(axis, f)` ise yalnızca o eksen doğrultusunda dönüştürme yapar. `Anchor::opposite()` bir kenetlenme referansının tam karşısını, `Anchor::other_side_along(axis)` yalnızca belirtilen eksen boyunca karşı yönü döndürür; `Anchor::is_center()` ise yatay veya dikey merkezleme durumlarını ayırt eder. Kaydırma çubukları, popover pencereleri ve iki eksenli yerleşim yardımcıları tasarlanırken bu metotlar koordinat hesaplamalarını büyük ölçüde sadeleştirir.
 
-### GridTemplate, TemplateColumnMinSize, GridLocation ve GridPlacement
+### `GridTemplate`, `TemplateColumnMinSize`, `GridLocation` ve `GridPlacement`
 
-`GridTemplate` CSS'teki `repeat(<n>, minmax(_, 1fr))` benzeri grid template bilgisini taşır; `TemplateColumnMinSize` bu tekrarın minimum kolon/satır boyutunu seçer. `GridLocation` bir öğenin row/column aralığını tutar; her aralık `GridPlacement` değerlerinden oluşur.
+`GridTemplate` yapısı, CSS standartlarındaki `repeat(<n>, minmax(_, 1fr))` benzeri ızgara izi şablonlarını tanımlar; `TemplateColumnMinSize` bu izlerin alabileceği minimum genişliği veya yüksekliği belirler. `GridLocation` bir öğenin grid içerisindeki satır/kolon koordinat aralığını tutar; her bir aralık ise `GridPlacement` değerlerinden oluşur.
 
-| API | Alt değerler veya alanlar | Kısa anlamı |
+| Veri Yapısı | Desteklenen Nitelikler | Temel İşlevi |
 |---|---|---|
-| `TemplateColumnMinSize` | `Zero`, `MinContent`, `MaxContent` | Grid track minimumunun sıfır, min-content veya max-content olacağını belirler. |
-| `GridTemplate` | `repeat`, `min_size` | Kaç track üretileceğini ve minimum track boyutunu taşır. |
-| `GridLocation` | `row`, `column` | Öğenin grid içinde kapladığı satır ve kolon aralıklarıdır. |
-| `GridPlacement` | `Line(i16)`, `Span(u16)`, `Auto` | Başlangıç/bitiş çizgisi, span miktarı veya otomatik yerleşim bilgisidir. |
+| `TemplateColumnMinSize` | `Zero`, `MinContent`, `MaxContent` | Grid izi minimum sınırının sıfır, min-content veya max-content olacağını belirler. |
+| `GridTemplate` | `repeat`, `min_size` | Kaç ızgara izi üretileceğini ve minimum iz boyutlarını tanımlar. |
+| `GridLocation` | `row`, `column` | Hücrenin grid içinde kapladığı satır ve kolon aralıklarını belirtir. |
+| `GridPlacement` | `Line(i16)`, `Span(u16)`, `Auto` | Grid başlangıç/bitiş çizgilerini veya otomatik yerleşim verilerini taşır. |
 
-### Ölçü ve layout ara yardımcıları
+### Düşük Seviyeli Ölçüm Yardımcıları
 
-`MIN`, `MAX`, `ZERO`, `bounds(...)`, `union(...)` ve `Bounds::intersect(&other)` düşük seviyeli ölçüm ve yerleşim yardımcılarıdır. `Bounds::intersect` iki dikdörtgenin ortak alanını hesaplar; scroll maskesi, popover görünür alanı veya canvas kırpması üretirken kullanırsın. Bunlar kalıcı domain ölçüsü değildir; Taffy veya özel çizim hesabı sırasında geçici geometri üretmek için kullanırsın.
+`MIN`, `MAX`, `ZERO`, `bounds(...)`, `union(...)` ve `Bounds::intersect(&other)` gibi yapılar, yerleşim motorunun alt katman yardımcılarıdır. `Bounds::intersect` iki dikdörtgenin kesiştiği ortak alanı hesaplar; kaydırma maskeleri (scroll mask), popover pencerelerinin görünürlük alanları veya tuval (canvas) kırpmaları üretilirken kullanılır.
 
-### PathBuilder ve PathStyle
+### `PathBuilder` ve `PathStyle`
 
-`PathBuilder::fill()` ve `stroke(width)` ile başlar; `with_style(style)`, `move_to(...)`, `line_to(...)`, `curve_to(...)`, `cubic_bezier_to(...)`, `arc_to(...)`, `relative_arc_to(...)`, `add_polygon(...)`, `close()`, `dash_array(...)`, `translate(...)`, `scale(...)`, `rotate(...)`, `transform(...)` ve `build()` ile tamamlanır. `PathBuilder::with_style(...)`, hazır builder'ın `PathStyle::{Fill, Stroke}` ayarını lyon seçenekleriyle değiştirmek içindir. `PathBuilder::build_path(buf)` ise tessellator'dan gelen `VertexBuffers` değerini doğrudan `Path<Pixels>` modeline çeviren alt seviye köprüdür; normal çizimde çoğunlukla `build()` çağrısının içinden kullanırsın. `PathBuilder.style` alanı `PathStyle::{Fill, Stroke}` üzerinden lyon `FillOptions` veya `StrokeOptions` taşır. Kullanıcı etkileşimi olan basit çizimlerde önce `canvas(...)` ve `window.paint_path(...)` yeterli mi diye bakarsın; her frame'de path tessellate etmek yerine mümkünse hesaplamayı cache'lersin.
+`PathBuilder::fill()` ve `stroke(width)` ile başlatılan çizim yolları; `move_to`, `line_to`, `curve_to`, `cubic_bezier_to`, `arc_to`, `relative_arc_to`, `add_polygon`, `close` ve `build` metotlarıyla tamamlanır. `PathBuilder::with_style(...)` işlevi, hazır oluşturulmuş builder'ın `PathStyle::{Fill, Stroke}` stil ayarlarını Lyon kütüphanesi seçenekleriyle yapılandırmaya olanak tanır. `PathBuilder::build_path(buf)` metodu, tessellator aşamasından gelen `VertexBuffers` değerlerini doğrudan `Path<Pixels>` geometrisine dönüştüren düşük seviyeli bir köprüdür; normal çizimlerde genellikle `build()` çağrısının içerisinden yürütülür.
 
-| API | Alt özellikler | Kısa anlamı |
+| Çizim Yapısı | Desteklenen Metotlar | Temel İşlevi |
 |---|---|---|
-| `PathStyle` | `Fill`, `Stroke` | Tessellation'ın dolgu mu çizgi mi üreteceğini seçer. |
-| `PathBuilder` | `style`, `stroke`, `fill`, `with_style`, `dash_array`, `move_to`, `line_to`, `curve_to`, `cubic_bezier_to`, `arc_to`, `relative_arc_to`, `add_polygon`, `close`, `transform`, `translate`, `scale`, `rotate`, `build` | SVG path komutlarını GPUI `Path<Pixels>` değerine dönüştürür. |
+| `PathStyle` | `Fill`, `Stroke` | Tessellation (mozaikleme) işleminin dolgu mu yoksa çizgi mi üreteceğini belirler. |
+| `PathBuilder` | `style`, `stroke`, `fill`, `move_to`, `line_to`, `curve_to`, `arc_to`, `close`, `build` | SVG tabanlı çizim komutlarını GPUI `Path<Pixels>` formatına dönüştürür. |
 
-### Path, Transformation ve TransformationMatrix
+### `Path`, `Transformation` ve `TransformationMatrix`
 
-`Path<Pixels>::new`, `scale`, `move_to`, `line_to`, `curve_to`, `push_triangle` ve `clipped_bounds` tessellate edilmiş path verisi üzerinde çalışır; bu seviye artık çizime yakın renderer katmanıdır. `Transformation` SVG elementi için ergonomik dönüşüm builder'ıdır; `TransformationMatrix::unit()`, `translate(...)`, `rotate(...)`, `scale(...)`, `compose(...)` ve `apply(...)` sahne primitive'lerine uygulanacak matrisi üretir. Dönüşüm görseli değiştirir, layout ve hitbox boyutunu otomatik güncellemez.
+`Path<Pixels>::new`, `scale`, `move_to`, `line_to`, `curve_to`, `push_triangle` ve `clipped_bounds` metotları, mozaiklenmiş (tessellated) çizim verileri üzerinde işlem yapar; bu seviye doğrudan çizim motorunun (renderer) işlem katmanını temsil eder. `Transformation` veri yapısı, SVG elementlerine özel ergonomik bir dönüşüm builder'ıdır; `TransformationMatrix::unit()`, `translate(...)`, `rotate(...)`, `scale(...)`, `compose(...)` ve `apply(...)` çağrıları sahne grafiklerine uygulanacak dönüşüm matrislerini üretir. Bu dönüşümler yalnızca görsel sunumu etkiler; yerleşim sınırlarını (layout bounds) veya etkileşim alanlarını (hitbox sizes) otomatik olarak güncellemez.
 
-| API | Alt özellikler | Kısa anlamı |
+| Geometri Dönüşüm Yapısı | Desteklenen Metotlar | Temel İşlevi |
 |---|---|---|
-| `Path` | `vertices`, `bounds`, `new`, `scale`, `move_to`, `line_to`, `curve_to`, `push_triangle`, `clipped_bounds` | Tessellate edilmiş çizim geometrisini taşır. |
-| `Transformation` | `scale`, `rotate`, `translate`, `with_scaling`, `with_translation`, `with_rotation` | SVG dönüşüm tanımını ergonomik builder olarak taşır. |
-| `TransformationMatrix` | `rotation_scale`, `translation`, `unit`, `translate`, `rotate`, `scale`, `compose`, `apply` | Sahne primitive'lerine uygulanacak matris değeridir. |
+| `Path` | `vertices`, `bounds`, `new`, `scale`, `move_to`, `line_to`, `push_triangle`, `clipped_bounds` | Mozaiklenmiş (tessellated) çizim verilerini ve geometrik sınırları taşır. |
+| `Transformation` | `scale`, `rotate`, `translate`, `with_scaling`, `with_translation` | SVG tabanlı dönüşüm tanımlarını akıcı builder formatında yönetir. |
+| `TransformationMatrix` | `rotation_scale`, `translation`, `unit`, `translate`, `rotate`, `scale`, `compose` | Sahne elemanlarına uygulanacak olan matris verilerini saklar. |
 
-## Renkler, Gradient ve Background
+## Renkler, Gradient ve Arka Plan Yönetimi
 
-### Rgba ve Hsla
+### `Rgba` ve `Hsla` Renk Tipleri
 
-GPUI renkleri iki temel tipte ifade eder:
+GPUI renk tanımlamalarını iki temel tipte ifade eder:
 
-- `Rgba { r, g, b, a }` — bileşenler 0.0 ile 1.0 arasında.
-- `Hsla { h, s, l, a }` — bileşenler 0.0 ile 1.0 arasında.
+- `Rgba { r, g, b, a }`: Kırmızı, yeşil, mavi ve alfa bileşenleri 0.0 ile 1.0 aralığındadır.
+- `Hsla { h, s, l, a }`: Hue (renk özü), doygunluk, parlaklık ve alfa bileşenleri 0.0 ile 1.0 aralığındadır.
 
-Yapıcı çağrıları sıklıkla şu biçimde görünür:
+Renk tanımlama çağrıları genellikle şu biçimlerde gerçekleştirilir:
 
 ```rust
 let kirmizi = rgb(0xff0000);                // Rgba, alfa 1.0
-let yari_saydam = rgba(0xff000080);         // 0xRRGGBBAA
-let hsl_rengi = hsla(0.0, 1.0, 0.5, 1.0);   // saf kırmızı
-let gri = opaque_grey(0.5, 1.0);            // gri yardımcısı
+let yari_saydam = rgba(0xff000080);         // 0xRRGGBBAA formatı
+let hsl_rengi = hsla(0.0, 1.0, 0.5, 1.0);   // Saf kırmızı HSLA
+let gri = opaque_grey(0.5, 1.0);            // Gri rengi yardımcısı
 ```
 
-| Helper | Kısa anlamı |
+| Renk Yardımcıları | Temel İşlevi |
 |---|---|
-| `rgb(value)` | `0xRRGGBB` biçiminden opak `Rgba` üretir. |
-| `rgba(value)` | `0xRRGGBBAA` biçiminden alfa dahil `Rgba` üretir. |
-| `hsla(h, s, l, a)` | Normalleştirilmiş HSLA bileşenlerinden `Hsla` üretir. |
-| `opaque_grey(value, opacity)` | Eşit RGB bileşenli gri `Hsla` üretir. |
-| `swap_rgba_pa_to_bgra(&mut [u8])` | Bir byte dilimini yerinde premultiplied-alpha RGBA'dan BGRA'ya dönüştürür. |
+| `rgb(value)` | `0xRRGGBB` formatındaki hex değerinden opak `Rgba` üretir. |
+| `rgba(value)` | `0xRRGGBBAA` formatındaki hex değerinden alfa dahil `Rgba` üretir. |
+| `hsla(h, s, l, a)` | 0.0 - 1.0 aralığındaki bileşenlerden `Hsla` üretir. |
+| `opaque_grey(value, opacity)` | Eşit RGB oranlarına sahip gri renk tonlu `Hsla` üretir. |
+| `swap_rgba_pa_to_bgra(&mut [u8])` | Byte dilimini premultiplied-alpha RGBA formatından BGRA formatına yerinde dönüştürür. |
 
-### Hazır renk sabitleri
+### Hazır Renk Sabitleri
 
-Tümü `pub const fn ... -> Hsla` biçiminde tanımlıdır (`color`):
+Tümü `pub const fn ... -> Hsla` biçiminde tanımlanmış olan hazır renk sabitleri şunlardır:
 
-| Fonksiyon | HSLA değeri | Not |
+| Renk Sabiti | HSLA Değer Karşılığı | Açıklaması |
 |---|---|---|
-| `black()` | `(0.0, 0.0, 0.0, 1.0)` | Saf siyah |
-| `white()` | `(0.0, 0.0, 1.0, 1.0)` | Saf beyaz |
-| `transparent_black()` | `(0.0, 0.0, 0.0, 0.0)` | Tam saydam siyah — gradient ucu olarak kullanışlı |
-| `transparent_white()` | `(0.0, 0.0, 1.0, 0.0)` | Tam saydam beyaz |
-| `red()` | `(0.0, 1.0, 0.5, 1.0)` | %100 doygun kırmızı |
-| `blue()` | `(0.666…, 1.0, 0.5, 1.0)` | %100 doygun mavi |
-| `yellow()` | `(0.166…, 1.0, 0.5, 1.0)` | %100 doygun sarı |
-| `green()` | `(0.333…, 1.0, **0.25**, 1.0)` | Diğerlerinden farklı: lightness 0.25 (koyu yeşil) |
+| `black()` | `(0.0, 0.0, 0.0, 1.0)` | Saf opak siyah |
+| `white()` | `(0.0, 0.0, 1.0, 1.0)` | Saf opak beyaz |
+| `transparent_black()` | `(0.0, 0.0, 0.0, 0.0)` | Tamamen şeffaf siyah (gradient geçişleri için ideal) |
+| `transparent_white()` | `(0.0, 0.0, 1.0, 0.0)` | Tamamen şeffaf beyaz |
+| `red()` | `(0.0, 1.0, 0.5, 1.0)` | Doygun kırmızı |
+| `blue()` | `(0.666…, 1.0, 0.5, 1.0)` | Doygun mavi |
+| `yellow()` | `(0.166…, 1.0, 0.5, 1.0)` | Doygun sarı |
+| `green()` | `(0.333…, 1.0, 0.25, 1.0)` | Lightness (parlaklık) değeri 0.25 olan koyu yeşil renk |
 
-Bu sabitler Zed tasarım sisteminden bağımsızdır; tema renklerine ihtiyaç duyduğunda `cx.theme().colors()`'ı kullanırsın. Debug placeholder, GPU shader testi veya tema-bağımsız palet örnekleri gerektiğinde bu hazır sabitler iş görür. `transparent_black()` `linear_gradient` ucu olarak en yaygın kullanılan tek parça çağrıdır (örneğin fade-out maskeleri için).
+Bu sabitler Zed'in kendi tasarım sistemi temalarından bağımsızdır; dolayısıyla uygulama temasıyla uyumlu renkler için daima `cx.theme().colors()` arayüzü kullanılmalıdır. Hazır renk sabitleri daha çok hata ayıklama yer tutucularında (debug placeholders) veya test ortamlarında tercih edilir.
 
-**Sık kullanılan metotlar** (`color`):
+**Renk Yapıları Üzerindeki Yardımcı Metotlar:**
 
-| API | Alt özellikler | Kısa anlamı |
+| Veri Yapısı | Desteklenen Metotlar | Temel İşlevi |
 |---|---|---|
-| `Rgba` | `r`, `g`, `b`, `a`, `blend` | 0.0-1.0 aralığında RGBA bileşenlerini taşır ve başka bir RGBA değerini alfa ile karıştırabilir. |
-| `Hsla` | `h`, `s`, `l`, `a`, `is_transparent`, `is_opaque`, `opacity`, `alpha`, `fade_out`, `blend`, `grayscale`, `to_rgb` | Alfa, karışım, gri ton ve RGB dönüşüm işlemlerini taşır. |
+| `Rgba` | `r`, `g`, `b`, `a`, `blend` | RGBA bileşenlerini taşır ve renkleri alfa oranına göre birleştirir (blend). |
+| `Hsla` | `h`, `s`, `l`, `a`, `is_transparent`, `fade_out`, `blend`, `grayscale`, `to_rgb` | Alfa geçişleri, gri ton dönüşümleri ve RGB format çevrimlerini yönetir. |
 
-### Background, ColorSpace ve LinearColorStop
+### `Background`, `ColorSpace` ve `LinearColorStop`
 
-Background yalnızca düz renk değildir; gradient ve desen de aynı çatı altındadır (`color`):
+Pencere arka planları yalnızca düz renklerden ibaret değildir; gradient geçişleri ve görsel desenler de arka plan tanımı kapsamındadır:
 
 ```rust
 solid_background(rgb(0xffffff))
@@ -353,60 +354,52 @@ checkerboard(rgb(0xeeeeee), 8.0)
 pattern_slash(rgb(0xff0000), 2.0, 6.0)
 ```
 
-| Helper veya tip | Kısa anlamı |
+| Arka Plan Yardımcıları | Temel İşlevi |
 |---|---|
-| `solid_background(color)` | Tek renkli `Background` üretir. |
-| `linear_gradient(angle, from, to)` | İki stop'lu lineer gradient `Background` üretir. |
-| `linear_color_stop(color, percentage)` | `LinearColorStop` üretir; yüzde 0.0-1.0 aralığındadır. |
-| `checkerboard(color, size)` | Checkerboard pattern `Background` üretir. |
-| `pattern_slash(color, width, interval)` | Çapraz tarama pattern `Background` üretir. |
-| `Background` | `as_solid`, `color_space`, `opacity`, `is_transparent` metotlarıyla düz renk ayrımı, renk uzayı seçimi ve alfa kontrolü yapar. |
-| `ColorSpace` | Gradient interpolasyon uzayını taşır; `Srgb` ve `Oklab` değerleri vardır. |
-| `LinearColorStop` | Gradient stop rengini ve yüzde konumunu taşır. |
+| `solid_background(color)` | Tek renkli opak/saydam `Background` üretir. |
+| `linear_gradient(angle, from, to)` | İki renk durağına sahip doğrusal gradient `Background` üretir. |
+| `linear_color_stop(color, percentage)` | `LinearColorStop` üretir; yüzde oranları 0.0 - 1.0 aralığındadır. |
+| `checkerboard(color, size)` | Kareli desen (checkerboard) formatında `Background` üretir. |
+| `pattern_slash(color, width, interval)` | Çapraz taramalı çizgi deseni formatında `Background` üretir. |
+| `Background` | `as_solid`, `color_space`, `opacity`, `is_transparent` metotlarıyla düz renk sorgusu, renk uzayı denetimi ve saydamlık kontrolleri yapar. |
+| `ColorSpace` | Gradient renk geçişlerinin hesaplanacağı renk uzayını (`Srgb` veya `Oklab`) seçer. |
+| `LinearColorStop` | Gradient renk geçiş durağını ve yüzde konumunu temsil eder. |
 
-`linear_gradient(...).color_space(ColorSpace::Oklab)` ile renk uzayını seçebilirsin; `opacity(factor)` her stop'a uygularsın. `Background::as_solid()` yalnızca düz renk background için `Some(Hsla)` döndürür; gradient veya pattern için `None` döner.
+`linear_gradient(...).color_space(ColorSpace::Oklab)` ile renk geçişlerinin Oklab renk uzayında yapılması sağlanabilir. `solid_background` dışındaki gradient ve desenli kullanımlarda `Background::as_solid()` çağrısı `None` döndürür. `.bg(impl Into<Background>)` stil metodu her `Styled` uygulamasında mevcuttur. Düz `Hsla` renkleri de `Into<Background>` trait'ini uyguladığından, `.bg(theme.colors().panel_background)` şeklinde atamalar sıklıkla tercih edilir.
 
-`.bg(impl Into<Background>)`, her stil fluent API'sinde mevcuttur. Düz `Hsla` da `Into<Background>` uyguladığı için `.bg(theme.colors().panel_background)` çağrısı tipik bir kullanımdır.
+**Renk ve Gradient Kullanım Kuralları:**
 
-**Pratik notlar.** Renk ve gradient kullanırken karşılaşılan yaygın durumlar:
+- Saydamlık (alfa) değeri 0 olan bir renk, opak bir arka plan üzerine çizildiğinde görsel olarak yine opak duracaktır; dolayısıyla gerçekten saydam arayüzler tasarlanmak istendiğinde üst katmanlardaki opak arka planların kaldırılması gerekir.
+- `hsla(...)` yardımcısında hue (renk özü) değeri 1.0 sınırından sonra otomatik sarılmaz (`wrap` edilmez), kırpılır (`clamp`). Bu nedenle renk döndürme (rotation) işlemlerinde `hue + delta` değerinin modulo 1.0 formülüyle el ile hesaplanması gereklidir.
 
-- Alfa 0 olan bir rengin opak arka plan üstünde sonucu yine opak görünür; bu yüzden gerçekten saydam bir alan istemiyorsan temadaki opak rengi tercih edersin.
-- Gradient duraklarında (`stop`) `LinearColorStop::percentage` alanı kaynakta `0.0` ve `1.0` aralığı olarak tanımlıdır; `linear_color_stop(...)` helper'ı bu değeri ayrıca kırpmaz.
-- `hsla(...)` helper'ında hue 1.0'a sarılmaz, kırpılır (`clamp`); döndürme için `hue + delta`'yı modulo 1.0 ile hesaplaman gerekir.
+### `HighlightStyle` ve `combine_highlights`
 
-### HighlightStyle ve combine_highlights
+`TextStyle::highlight(...)` metodu, çözümlenmiş yazı stillerine vurgu (highlight) stilleri uygular; `HighlightStyle::highlight(other)` ise iki farklı vurgu stilini birleştirir. `combine_highlights(...)` işlevi, metin aralıkları taşıyan çoklu vurgu katmanlarını bir araya getirmede rol oynar.
 
-`LinearColorStop` gradient stop verisidir; `linear_color_stop(...)` helper'ı genellikle doğrudan inşa etmekten daha okunaklıdır. `LinearColorStop::opacity(factor)` stop alfasını düşürür. `TextStyle::highlight(...)` bir highlight stilini çözümlenmiş metin stiline uygular; `HighlightStyle::highlight(other)` ise iki highlight stilini birleştirir. `combine_highlights(...)` aralık taşıyan birden çok vurgu katmanını birleştirir; uygulama form bileşenlerinde genellikle gerekmez.
+### `Colors`, `GlobalColors`, `DefaultColors` ve `DefaultAppearance`
 
-### Colors, GlobalColors, DefaultColors ve DefaultAppearance
+`Colors`, `GlobalColors`, `DefaultColors` ve `DefaultAppearance` yapıları, GPUI'nin yerleşik temel renk paletini taşır. `Colors::light()`, `dark()` veya `for_appearance(window)` metotları varsayılan sistem paletlerine erişim sunar. Zed uygulama arayüzlerinde ise asıl renk kaynağı her zaman tema sistemi üzerinden `cx.theme().colors()` olmalıdır.
 
-`Colors`, `GlobalColors`, `DefaultColors` ve `DefaultAppearance` temel GPUI paletini taşır. `Colors::light()`, `dark()`, `for_appearance(window)` ve `get_global(cx)` örnekler, testler ve framework varsayılanları için kullanışlıdır; Zed uygulama UI'ında ana kaynak yine tema sistemindeki `cx.theme().colors()` olmalıdır. `swap_rgba_pa_to_bgra(...)` bir byte dilimini yerinde premultiplied-alpha RGBA'dan BGRA'ya dönüştürür; renk seçimi veya theme override için kullanılmaz.
-
-| API | Alt özellikler | Kısa anlamı |
+| Temel Renk Yapısı | Desteklenen Metotlar | Temel İşlevi |
 |---|---|---|
-| `Colors` | `text`, `selected_text`, `background`, `disabled`, `selected`, `border`, `separator`, `container`, `for_appearance`, `dark`, `light`, `get_global` | GPUI'nin tema sisteminden bağımsız varsayılan paletini taşır. |
-| `GlobalColors` | `0` | `Arc<Colors>` global sarmalayıcısıdır. |
-| `DefaultColors` | `default_colors` | `App` üzerinden global renk paletine erişim trait'idir. |
-| `DefaultAppearance` | `Light`, `Dark` | Varsayılan GPUI renk setinin açık/koyu kipini taşır. |
+| `Colors` | `text`, `selected_text`, `background`, `disabled`, `border`, `container`, `dark`, `light` | GPUI varsayılan renk paletlerini saklar. |
+| `GlobalColors` | `0` | `Arc<Colors>` yapısının global sarmalayıcısıdır. |
+| `DefaultColors` | `default_colors` | `App` bağlamı üzerinden global varsayılan renklere erişim sağlar. |
+| `DefaultAppearance` | `Light`, `Dark` | Varsayılan renk setinin açık/koyu mod durumunu taşır. |
 
-## SharedString, SharedUri ve Ucuz Klonlanan Tipler
+## `SharedString`, `SharedUri` ve Ucuz Klonlanan Tipler
 
-`SharedString` GPUI'nin `gpui_shared_string` re-export'udur; `SharedUri` ise `gpui` crate'inde bu string tipini sarar.
+Arayüz ağaçları her ekran karesinde sıfırdan yeniden oluşturulduğu için, standart metin (`String`) ve adres (URI) kopyalama/bellek ayırma (allocation) maliyetleri performans kayıplarına yol açabilir. GPUI bu maliyetleri en aza indirmek amacıyla `Arc` tabanlı veri tipleri sunar:
 
-| API | Alt özellikler | Kısa anlamı |
-| :-- | :-- | :-- |
-| `gpui_shared_string` | crate kök reexport | `SharedString` kaynağını GPUI kök yüzeyinden erişilebilir yapar. |
-| `shared_uri` | crate kök reexport | `SharedUri` tipinin modülünü GPUI kök yüzeyinden erişilebilir yapar. |
+- `SharedString`: `gpui_shared_string::SharedString` tipinin yeniden ihraç edilmiş halidir. Arka planda `SmolStr` ile desteklenir. `Clone`, `Display`, `AsRef<str>` ve standart Rust string tiplerinden `From` dönüşümlerini tam olarak destekler.
+- `SharedUri`: Benzer stratejiyle URI verilerini saklar; görsel yükleme kaynaklarında (`ImageSource::Resource`) sıklıkla tercih edilir.
 
-UI ağacı her çizimde yeniden oluşturulduğu için string ve URI kopyalama maliyeti hızla birikebilir. GPUI bu yükü azaltmak için `Arc` tabanlı tipler sunar:
-
-- `SharedString` — `gpui_shared_string::SharedString` re-export'udur. Kaynakta `Arc<str>` ve `&'static str` üzerinde soyutlama olarak tanımlarsın, güncel uygulaması `SmolStr` ile desteklenir. `Clone`, `Display`, `AsRef<str>` ve `From<&str>`, `From<String>`, `From<Box<str>>`, `From<Arc<str>>`, `From<Cow<'_, str>>` uygulamaları hazırdır.
-- `SharedUri` — aynı stratejiyle URI tutar; `ImageSource::Resource(Resource::Uri(...))` `SharedUri` bekler.
-
-Render içinde her seferinde `String` üretip kopyalamak yerine entity verisinde `SharedString` saklamak yaygın bir desendir:
+Render süreçlerinde her ekran karesinde dinamik `String` üretmek yerine, görünüm (view) durum verilerinde `SharedString` saklamak yaygın ve performanslı bir tasarım kalıbıdır:
 
 ```rust
-struct Baslik { baslik: SharedString }
+struct Baslik {
+    baslik: SharedString,
+}
 
 impl Baslik {
     fn basligi_ayarla(&mut self, baslik: impl Into<SharedString>, cx: &mut Context<Self>) {
@@ -422,42 +415,42 @@ impl Render for Baslik {
 }
 ```
 
-**İlgili ucuz klon tipleri.** Aynı maliyet hassasiyetiyle hazırlanmış birkaç tip daha vardır:
+**Bellek Dostu Diğer Tipler:**
 
-- `Arc<str>`, `Arc<Path>`, `Arc<[T]>` — GPUI sıkça `Arc` tabanlı dilim ve dosya yolu bekler.
-- `Hsla` ve `Rgba` — `Copy` tipler oldukları için doğrudan değer geçirilir.
-- `ElementId` — `Clone`'dur ve içinde iç ID veya metin varyantları taşır.
+- `Arc<str>`, `Arc<Path>` ve `Arc<[T]>`: GPUI çekirdek API'leri bellek kopyalamalarını azaltmak için yoğun şekilde `Arc` paylaşımlı dilimleri bekler.
+- `Hsla` ve `Rgba`: Kopyalanabilir (`Copy`) tipler oldukları için doğrudan değer olarak geçirilirler.
+- `ElementId`: Hafif bir klonlama (`Clone`) maliyeti barındırır.
 
-**Dikkat noktaları.** Ucuz klon tiplerinden faydalanırken atlanması kolay noktalar:
+**Performans Kuralları:**
 
-- `SharedString::from(String)` dönüşümü kaynakta `SmolStr::from(text)` üzerinden yapılır; kısa ve uzun metinlerde depolama ayrıntısını bu tip belirler. Sık çalışan yollarda tekrar tekrar yeni `String` üretmekten kaçınman gerekir.
-- `to_string()` çağrısı yeni bir `String` bellek ayırması üretir; gerekmiyorsa `as_ref()` veya `Display` üzerinden yazmak daha ekonomiktir.
-- Biçim metni (`format string`) her çizimde çalışıyorsa `format!` sonucu da her ekran karesinde bellek ayırması üretir; sonucu önbelleğe almak için entity verisinde tutman gerekir.
+- `SharedString::from(String)` dönüşümü `SmolStr::from(text)` üzerinden yürütülür. Metinlerin sık yenilenen döngülerde sürekli yeniden üretilmesinden (string allocation) kaçınılmalıdır.
+- `.to_string()` çağrısı bellekte tamamen yeni bir `String` alanı ayırır; zorunlu olmayan durumlarda bunun yerine `.as_ref()` veya doğrudan `Display` trait'i üzerinden okuma tercih edilmelidir.
+- Metin biçimlendirme (`format!`) makroları her ekran karesinde çalıştığında bellek ayırma maliyeti oluşturur; bu nedenle biçimlendirilmiş metinler bildirim tetiklemeleri veya kullanıcı girdileriyle güncellendikten sonra görünüm durum verilerinde önbelleğe alınmalıdır.
 
-## WindowAppearance ve Tema Modu
+## `WindowAppearance` ve Tema Modu
 
-`gpui` crate'inde tanımlıdır:
+`WindowAppearance` enum yapısı sistemin görünüm modlarını temsil eder:
 
 ```rust
 pub enum WindowAppearance {
-    Light,        // macOS: aqua
-    VibrantLight, // macOS: NSAppearanceNameVibrantLight
-    Dark,         // macOS: darkAqua
-    VibrantDark,  // macOS: NSAppearanceNameVibrantDark
+    Light,
+    VibrantLight,
+    Dark,
+    VibrantDark,
 }
 ```
 
-`Vibrant` varyantları, macOS `NSAppearance` değerleriyle doğrudan eşleşir. Diğer platformlar bu enum'u yine taşır; ancak `vibrancy`'nin gerçek etkisi platform uygulamasına bağlıdır. Sistem açık veya koyu kipi tercih ettiğinde GPUI bunu platform görünümü olarak yansıtır; kullanıcı elle tema üzerine yazmadığı sürece Zed teması bu sinyali takip eder.
+`Vibrant` varyantları, macOS işletim sisteminin yerel `NSAppearance` değerleriyle doğrudan eşleşir. Diğer platformlar da bu enum yapısını desteklemekle birlikte, vibrancy efektlerinin görsel karşılıkları hedef işletim sisteminin grafik motoruna bağlıdır. İşletim sistemi açık veya koyu mod tercihini değiştirdiğinde GPUI bu durumu platform görünümü sinyali olarak yansıtır ve Zed temaları da varsayılan olarak bu sinyali takip eder.
 
-**Erişim.** Tema kipini okumak ve değişimini izlemek için birkaç yol vardır:
+**Görünüm Sinyallerini İzleme:**
 
-- `cx.window_appearance() -> WindowAppearance` — uygulama geneli platform tercihi.
-- `window.appearance() -> WindowAppearance` — pencerenin gerçek görünümü (üst öğe üzerine yazabilir).
-- `window.observe_window_appearance(|window, cx| ...)` — entity verisine gerek olmayan doğrudan pencere gözlemcisi.
-- `cx.observe_window_appearance(window, |gorunum, window, cx| ...)` — `Context<T>` içinden değişimi view verisi ile birlikte izler.
-- `window.observe_button_layout_changed(...)` ve `cx.observe_button_layout_changed(window, ...)` — platform pencere kontrol butonu düzeni değiştiğinde çalışır.
+- `cx.window_appearance() -> WindowAppearance`: Uygulama genelindeki platform tercihlerini döndürür.
+- `window.appearance() -> WindowAppearance`: Aktif pencerenin onaylanan gerçek görünümünü verir (üst öğeler bunu ezebilir).
+- `window.observe_window_appearance(|window, cx| ...)`: Pencere düzeyinde görünüm değişikliklerini izler.
+- `cx.observe_window_appearance(window, |gorunum, window, cx| ...)`: `Context<T>` içerisinden görünüm verileriyle birlikte değişiklikleri gözlemler.
+- `window.observe_button_layout_changed(...)` ve `cx.observe_button_layout_changed(window, ...)`: Platform kontrol butonlarının (traffic lights vb.) dizilim düzeni değiştiğinde tetiklenir.
 
-Zed örüntüsü `workspace` crate'inde tema seçimine şu şekilde bağlanır:
+Zed kod tabanında, sistem görünüm modunun izlenmesi ve temaların güncellenmesi şu şekilde koordine edilir:
 
 ```rust
 cx.observe_window_appearance(window, |_, window, cx| {
@@ -468,10 +461,7 @@ cx.observe_window_appearance(window, |_, window, cx| {
 }).detach();
 ```
 
-**Dikkat noktaları.** WindowAppearance ile çalışırken dikkat edeceğin noktalar:
+**Dikkat Edilmesi Gereken Sistem Detayları:**
 
-- macOS dışında `VibrantLight` ve `VibrantDark` değerleri üretilmez; ancak eşleştirme tablolarında yine de dört değerin tamamını ele alman gerekir.
-- `observe_window_appearance` akışı Zed'de sistem görünümünü günceller ve tema/icon tema yeniden yüklemesi yapar; pencere arka planı için `zed/src/main.rs` içindeki `SettingsStore` observer'ı `window.set_background_appearance(cx.theme().window_background_appearance())` çağrısını ayrıca uygular.
-- `WindowBackgroundAppearance::Blurred` platforma özgü bir arka plan davranışıdır. macOS uygulaması eski sürümlerde `CGSSetWindowBackgroundBlurRadius`, yeni sürümlerde `NSVisualEffectView` kullanır; bu davranışı `Vibrant*` varyantlarıyla aynı şey gibi düşünmemen gerekir.
-
----
+- macOS dışında `VibrantLight` ve `VibrantDark` modları üretilmeyebilir; ancak platformlar arası kod uyumluluğu açısından eşleştirme bloklarında bu dört varyantın da ele alınması gereklidir.
+- `observe_window_appearance` akışı tetiklendiğinde, Zed sistem görünümünü güncelliyerek temaları yeniden yükler. Pencere arka plan renklerinin eş zamanlı güncellenmesi için ise `SettingsStore` gözlemcileri aracılığıyla `window.set_background_appearance(cx.theme().window_background_appearance())` çağrısı haricen işletilir.
