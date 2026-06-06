@@ -1,6 +1,6 @@
 # Çalışma zamanı kuruluşu ve tema seçimi
 
-Ürettiğin temaları önce tema kaydına ve global duruma yerleştirirsin. Ardından sistem görünümünü izlersin. Tema değiştiğinde pencereleri yenilersin. Bu bölüm bu akışı sırayla anlatır: tema nerede tutulur, aktif temayı nasıl seçersin ve UI yeni renkleri nasıl görür?
+Ürettiğin temaları önce tema kaydına ve global duruma yerleştirip ardından sistem görünümünü izler, tema değiştiğinde pencereleri yenilersin. Bu bölüm, bu akışı sırasıyla anlatır: tema nerede tutulur, aktif temayı nasıl seçersin ve UI yeni renkleri nasıl görür?
 
 ![Tema Çalışma Zamanı Akışı](assets/theme-runtime-akisi.svg)
 

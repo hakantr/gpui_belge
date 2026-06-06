@@ -83,7 +83,7 @@ Derleme zamanı farkı gerekiyorsa `cfg!(target_os = "...")` veya `#[cfg(...)]`'
 
 #### Başlık Çubuğu Sürükleme ve Çift Tıklama
 
-Sürükleme alanını önce `WindowControlArea::Drag` ile işaretlersin. Çift tıklamada platforma göre yerel ya da fluent yardımcıyı kullanırsın:
+Sürükleme alanını önce `WindowControlArea::Drag` ile işaretler, çift tıklamada platforma göre yerel ya da fluent yardımcıyı kullanırsın:
 
 ```rust
 h_flex()
@@ -109,7 +109,7 @@ Windows tarafında `WindowControlArea::Drag` yerel hit-test üzerinden daha doğ
 
 #### İstemci Tarafı Yeniden Boyutlandırma Tutamacı
 
-İstemci tarafı süslemesi ile birlikte sunulan yeniden boyutlandırma tutamaçlarında kenar hesabı yaparsın. İlgili `ResizeEdge` ile platform çağrısını tetiklersin:
+İstemci tarafı süslemesi ile birlikte sunulan yeniden boyutlandırma tutamaçlarında kenar hesabı yapar, ilgili `ResizeEdge` ile platform çağrısını tetiklersin:
 
 ```rust
 .on_mouse_down(MouseButton::Left, move |olay, window, _| {
