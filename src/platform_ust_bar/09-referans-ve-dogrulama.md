@@ -52,7 +52,7 @@ Bu dört aşamalı zincirden sonra `.bg(titlebar_color).content_stretch().child(
 
 Burada önemli bir kural vardır: aşamalar **birbirleriyle yer değiştirebilir değildir**. Yani 3. aşamadaki sol padding seçimi, 4. aşamadaki köşe yuvarlamasının yatay hizalamasını doğrudan etkiler. Sıralamayı değiştirmek gözle hemen fark edilmeyen hizalama uyumsuzlukları üretebilir.
 
-`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipinde tanımlıdır. Yapı iki element için yığın içi kapasite ayırır. Bunun nedeni Zed'in tipik kullanım kalıbının **sol grup + sağ grup** olmasıdır (rehberin ilgili bölümündeki örneğe bakılabilir). Bu yapıya ikiden fazla element verildiğinde heap bellek ayırma yaparsın. Bu yüzden içeriği iki gruba toplamak hem ergonomik açıdan tutarlı kalır hem de bellek ayırma sayısını azaltır.
+`PlatformTitleBar.children` alanı `SmallVec<[AnyElement; 2]>` tipinde tanımlıdır. Yapı iki element için yığın içi kapasite ayırır. Bunun nedeni Zed'in tipik kullanım kalıbının **sol grup + sağ grup** olmasıdır (rehberin ilgili bölümündeki örneğe bakılabilir). Bu yapıya ikiden fazla element verildiğinde dinamik bellek ayırma yaparsın. Bu yüzden içeriği iki gruba toplamak hem ergonomik açıdan tutarlı kalır hem de bellek ayırma sayısını azaltır.
 
 ### `platforms::platform_linux`
 
