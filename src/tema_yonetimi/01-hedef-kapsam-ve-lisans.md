@@ -66,7 +66,7 @@ Zed'in JSON tema sözleşmesindeki **hiçbir alan bilerek dışarıda bırakılm
 
 ## 3. Lisans sınırları
 
-Zed'in tema sistemi **GPL-3.0-or-later** lisansına tabidir. Kod gövdesi kopyalanamaz. Buna karşılık alan adları, JSON anahtarları ve sözleşme şeması (yani struct'ların alan dizilimi) telif kapsamında değildir; bunlar mirror edilebilir. Rehberin "neyi alıyoruz, neyi kendimiz yazıyoruz?" sorusuna verdiği cevap bu ayrıma dayanır.
+Zed'in tema sistemi **GPL-3.0-or-later** lisansına tabidir. Kod gövdesi kopyalanamaz. Buna karşılık alan adları, JSON anahtarları ve sözleşme şeması (yani struct'ların alan dizilimi) telif kapsamında değildir; bunlar mirror edebilirsin. Rehberin "neyi alıyoruz, neyi kendimiz yazıyoruz?" sorusuna verdiği cevap bu ayrıma dayanır.
 
 **Yapılabilir / Yapılamaz:**
 

@@ -15,7 +15,7 @@ Component preview ise bundan ayrı, kendi içinde bir registry akışıdır:
 | :-- | :-- | :-- |
 | `ui_macros` | derive macro crate | `RegisterComponent` derive makrosunu üretir ve registry kaydını `inventory` üzerinden bağlar. |
 | `component_layout` | component crate re-export'u | Component preview/layout yardımcıları `component` crate'i tarafından dışa açılır; üretim ekran yaşam döngüsü yerine gallery düzeniyle ilgilidir. |
-| `scrollbars` | scrollbar alt modülü | `ShowScrollbar`, `ScrollbarVisibility` ve `ScrollbarAutoHide` ayar tiplerinin kaynak modülüdür; `Scrollbars` helper'ı aynı `scrollbar.rs` dosyasından `ui` üzerinden re-export edilir. |
+| `scrollbars` | scrollbar alt modülü | `ShowScrollbar`, `ScrollbarVisibility` ve `ScrollbarAutoHide` ayar tiplerinin kaynak modülüdür; `Scrollbars` helper'ı aynı `scrollbar.rs` dosyasından `ui` üzerinden re-export edersin. |
 | `Scrollbars` | runtime UI helper | Panel, tablo ve preview navigasyonu gibi alanlarda scroll handle ile birlikte scrollbar yüzeyi render eder. |
 
 Gerçek uygulama kullanımı için en rahat okuma sırası şudur:
@@ -24,4 +24,4 @@ Gerçek uygulama kullanımı için en rahat okuma sırası şudur:
 2. Registry ve preview davranışı için `component`, `ui_macros` ve `component_preview` akışını izlersin.
 3. Uygulama kompozisyonu için bileşenin Zed'deki gerçek çağrı yerlerine bakarsın. Örnekler arasında `title_bar` menü trigger'ları, `project_panel` scrollbars ve list item kullanımı, `keymap_editor` data table kullanımı, `git_ui` branch ve commit picker'ları, `workspace::notifications` toast ve notification frame kullanımı yer alır.
 
-Bu ayrım önemlidir: `impl Component for T`, üretim ekranındaki yaşam döngüsünü değil, preview ve gallery metadata'sını anlatır. Üretim ekranındaki yaşam döngüsü GPUI tarafında `Entity`, `Context`, `Window`, `FocusHandle`, `Task` ve gerektiğinde workspace katmanındaki `ModalLayer`, notification stack veya popover/menu state handle'ları tarafından yönetilir.
+Bu ayrım önemlidir: `impl Component for T`, üretim ekranındaki yaşam döngüsünü değil, preview ve gallery metadata'sını anlatır. Üretim ekranındaki yaşam döngüsü GPUI tarafında `Entity`, `Context`, `Window`, `FocusHandle`, `Task` ve gerektiğinde workspace katmanındaki `ModalLayer`, notification stack veya popover/menu state handle'ları tarafından yönetirsin.

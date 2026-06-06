@@ -43,7 +43,7 @@ Temel API:
 Davranış:
 
 - Varsayılan etiket boyutu `LabelSize::XSmall`'dur.
-- Etiket, buffer font ile render edilir.
+- Etiket, buffer font ile render edersin.
 - `.truncate()` üst öğe içinde küçülmesine izin verir; uzun chip metinlerinde bu davranışın açık olması önerilir.
 - Tooltip closure'ı bir `AnyView` döndürür.
 
@@ -100,7 +100,7 @@ Temel API:
 
 Davranış:
 
-- Added değeri `Color::Success`, removed değeri ise `Color::Error` ile render edilir.
+- Added değeri `Color::Success`, removed değeri ise `Color::Error` ile render edersin.
 - DiffStat, removed etiketini rakam genişliğinde bir tire (figure dash, `U+2012`) ile ince boşluğu birleştirerek biçimler; added etiketini ise düz bir artı (`+`) ile ince boşluğu birleştirerek yazar.
 - Tooltip verildiğinde `Tooltip::text(...)` bağlanır.
 
@@ -299,7 +299,7 @@ Divider ve group yardımcı kapsamı:
 | :-- | :-- |
 | `DividerColor` | Divider rengini `Border`, `BorderFaded` veya `BorderVariant` tema token'ından seçer. |
 | `divider` | Yatay solid divider üretir; kısa araç çubuğu veya panel ayrımlarında `Divider::horizontal()` kısayoludur. |
-| `vertical_divider` | Dikey solid divider üretir; üst öğe yüksekliği belirliyse araç çubuğu ayrımı için kullanılır. |
+| `vertical_divider` | Dikey solid divider üretir; üst öğe yüksekliği belirliyse araç çubuğu ayrımı için kullanırsın. |
 | `v_group_sm` | Dikey flex kapsayıcıya küçük, yaklaşık 2px gap verir. |
 | `v_group_lg` | Dikey flex kapsayıcıya orta-büyük, yaklaşık 6px gap verir. |
 | `v_group_xl` | Dikey flex kapsayıcıya büyük, yaklaşık 8px gap verir. |
@@ -362,12 +362,12 @@ Vector enum yardımcıları:
 
 | API | Rol |
 | :-- | :-- |
-| `VectorNameIter` | `strum::EnumIter` çıktısıdır; önizleme ve doğrulama araçlarında paketlenmiş vector adlarını dolaşmak için kullanılır. |
+| `VectorNameIter` | `strum::EnumIter` çıktısıdır; önizleme ve doğrulama araçlarında paketlenmiş vector adlarını dolaşmak için kullanırsın. |
 
 Davranış:
 
 - `VectorName::path()` çağrısı `images/<name>.svg` yolunu üretir.
-- SVG `flex_none()` ile birlikte verilen width ve height rem değerleri üzerinden render edilir.
+- SVG `flex_none()` ile birlikte verilen width ve height rem değerleri üzerinden render edersin.
 - Vector, `.color(...)` ayarını SVG'ye `text_color(...)` üzerinden uygular.
 
 Örnek:
@@ -414,7 +414,7 @@ fn yerel_kucuk_gorsel_render() -> impl IntoElement {
 | `SharedUri` | Tip güvenli URL gösterimi sağlar; `Avatar::new("https://...")` URL string'iyle örtük olarak aynı kaynak türüne gider. |
 | `&Path`, `PathBuf`, `Arc<Path>` | Dosya sistemi yolu olarak `Resource::Path` üzerinden okunur. |
 | `Arc<RenderImage>`, `Arc<Image>` | Önceden hazırlanmış/cached image verisini doğrudan taşır. |
-| `Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>` | Çağrı sırasında dinamik kaynak üretmek için kullanılır. |
+| `Fn(&mut Window, &mut App) -> Option<Result<Arc<RenderImage>, ImageCacheError>>` | Çağrı sırasında dinamik kaynak üretmek için kullanırsın. |
 
 `Avatar::new`, bu `Into<ImageSource>` zincirinin üzerine kuruludur. Ham bir `img(...)` kullanılırken `flex_none()` ve sabit bir `size(...)` verilmediğinde yerleşim taşmaları yaşanması olasıdır. SVG bir ikon için her zaman `Icon` veya `Vector` tercih edersin; `img(...)` SVG path'lerini raster gibi muamele eder ve o yüzden recolor edemez.
 
@@ -458,7 +458,7 @@ Keybinding yardımcı yüzeyi:
 | API | Rol |
 | :-- | :-- |
 | `Key` | Tekil metinsel tuş kapsülünü render eder; `.size(...)` ile ölçüsü ayarlanır. |
-| `KeyIcon` | Tuş kapsülü içinde icon render eder; platform stili ikon gerektirdiğinde kullanılır. |
+| `KeyIcon` | Tuş kapsülü içinde icon render eder; platform stili ikon gerektirdiğinde kullanırsın. |
 | `render_keybinding_keystroke` | Tek bir `KeybindingKeystroke` değerini platforma uygun tuş elementleri dizisine çevirir. |
 | `render_modifiers` | Modifier listesini macOS'ta ikon, diğer platformlarda metin ve separator olarak render eder. |
 | `text_for_action` | Bir action için geçerli binding metnini action map üzerinden üretir. |
@@ -470,7 +470,7 @@ Davranış:
 
 - Action source kullanıldığında window'daki en yüksek öncelikli binding aranır.
 - Bir focus handle verildiğinde, action için önce focus bağlamındaki binding aranır.
-- Binding bulunamadığında `Empty` render edilir.
+- Binding bulunamadığında `Empty` render edersin.
 - Platform stili macOS için modifier ikonlarını, Linux ve Windows için ise metin ve `+` separator'larını kullanır.
 - `.platform_style(...)` alanı set eder, ancak mevcut render gövdesi doğrudan `PlatformStyle::platform()` kullanır. Belirli bir platform stilini zorlamak istediğinde düşük seviyeli `render_keybinding_keystroke(...)` veya `render_modifiers(...)` yardımcılarına platform stilini açıkça verirsin.
 - `.has_binding(window)` mevcut kaynakta yalnız focus handle'lı action source için `true` dönebilir; `for_action(...)` ile focus handle verilmeden oluşturulan bileşende render yine binding arar, fakat `has_binding(...)` kontrolü `false` kalır.
@@ -521,9 +521,9 @@ Temel API:
 
 Davranış:
 
-- Prefix ve suffix metni italik buffer font ile render edilir.
+- Prefix ve suffix metni italik buffer font ile render edersin.
 - Keybinding parçası bir border, subtle bir background ve hafif bir shadow alır.
-- Background color, theme text ve accent renkleriyle blend edilerek hint yüzeyi oluşturulur.
+- Background color, theme text ve accent renkleriyle blend edilerek hint yüzeyi oluşturursun.
 
 Örnek:
 
@@ -714,7 +714,7 @@ Utils alt modülleri:
 
 Davranış:
 
-- `is_light(cx)`, etkin tema appearance değerini okur. Özel canvas ya da image overlay gibi hazır bileşenin kapsamadığı görsel hesaplarda kullanılır.
+- `is_light(cx)`, etkin tema appearance değerini okur. Özel canvas ya da image overlay gibi hazır bileşenin kapsamadığı görsel hesaplarda kullanırsın.
 - APCA sonucu pozitifse koyu metin/açık arka plan, negatifse açık metin/koyu arka plan polarity'sini ifade eder. `ensure_minimum_contrast(...)`, foreground lightness değerini değiştirerek eşik sağlamaya çalışır.
 - `platform_title_bar_height(window)`, Windows'ta 32px döndürür; diğer platformlarda rem size'a bağlı, minimum 34px olan bir değer üretir.
 - `WithRemSize`, alt ağacı farklı bir rem size ile layout/prepaint eder. `.occlude()` pointer event'lerinin alt çocuklara ulaşmasını engeller.

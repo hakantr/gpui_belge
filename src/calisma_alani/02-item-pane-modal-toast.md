@@ -33,7 +33,7 @@ pub trait Item: Focusable + EventEmitter<Self::Event> + Render + Sized {
 }
 ```
 
-`ItemHandle` boxed veya dyn karşılığıdır; pane API'leri çoğunlukla `Box<dyn ItemHandle>` ile çalışır. `to_any_view`, `to_followable_item_handle`, `to_serializable_item_handle`, `to_searchable_item_handle` ve `downgrade_item` tip silinmiş view/search/follow/serialization köprüleridir. `project_paths`, `project_entry_ids`, `project_item_model_ids`, `workspace_settings`, `item_focus_handle`, `subscribe_to_item_events`, `relay_action`, `added_to_pane`, `on_release`, `dragged_tab_content` ve `can_autosave` ise pane yaşam döngüsü, focus, tab sürükleme, autosave ve action yönlendirme tarafında kullanılır. `FollowableItem` collab takibi için ek bir sözleşmedir.
+`ItemHandle` boxed veya dyn karşılığıdır; pane API'leri çoğunlukla `Box<dyn ItemHandle>` ile çalışır. `to_any_view`, `to_followable_item_handle`, `to_serializable_item_handle`, `to_searchable_item_handle` ve `downgrade_item` tip silinmiş view/search/follow/serialization köprüleridir. `project_paths`, `project_entry_ids`, `project_item_model_ids`, `workspace_settings`, `item_focus_handle`, `subscribe_to_item_events`, `relay_action`, `added_to_pane`, `on_release`, `dragged_tab_content` ve `can_autosave` ise pane yaşam döngüsü, focus, tab sürükleme, autosave ve action yönlendirme tarafında kullanırsın. `FollowableItem` collab takibi için ek bir sözleşmedir.
 
 `Item` ek davranış noktaları tab görünümü, yaşam döngüsü ve capability davranışını aynı trait içinde toplar. `tab_icon`, `tab_tooltip_content`, `suggested_filename`, `breadcrumb_location`, `breadcrumb_prefix`, `show_toolbar` ve `tab_extra_context_menu_actions` tab/breadcrumb UI'ını besler. `can_save`, `can_save_as`, `is_dirty`, `capability`, `toggle_read_only`, `has_deleted_file` ve `has_conflict` save ve dosya durumu kararlarını verir. `added_to_workspace`, `pane_changed`, `discarded`, `on_removed`, `set_nav_history`, `preserve_preview`, `pixel_position_of_cursor`, `handle_drop`, `to_item_events`, `act_as_type` ve `clone_on_split` ise pane yaşam döngüsü, preview, drag/drop, event çevirimi ve split davranışının genişletme noktalarıdır.
 
@@ -129,7 +129,7 @@ calisma_alani.status_bar().update(cx, |durum_cubugu, cx| {
 });
 ```
 
-Status item'lar aktif pane item değiştikçe `set_active_pane_item` ile bilgilendirilir; bu sayede git branch indicator veya imleç konumu gibi item'lar odaktaki buffer'a göre güncellenir. `hide_setting()` `Some(HideStatusItem)` döndürürse status bar sağ tık menüsüne kaynakta `"Hide Button"` kaydı eklenir ve kullanıcı ayar dosyası `update_settings_file` üzerinden güncellenir. Item zaten başka bir ayarla koşullu görünüyorsa `None` döndürülebilir.
+Status item'lar aktif pane item değiştikçe `set_active_pane_item` ile bilgilendirilir; bu sayede git branch indicator veya imleç konumu gibi item'lar odaktaki buffer'a göre güncellersin. `hide_setting()` `Some(HideStatusItem)` döndürürse status bar sağ tık menüsüne kaynakta `"Hide Button"` kaydı eklenir ve kullanıcı ayar dosyası `update_settings_file` üzerinden güncellersin. Item zaten başka bir ayarla koşullu görünüyorsa `None` döndürülebilir.
 
 ---
 
@@ -218,13 +218,13 @@ Bu bölümde bazı tipler davranışın ana başlığıdır (`Item`, `ModalView`
 | :-- | :-- |
 | `ActivateOnClose`, `ClosePosition`, `ShowCloseButton`, `ShowDiagnostics` | Tab kapatma sonrası aktivasyon, close button konumu, close button görünürlüğü ve diagnostic göstergesi ayarlarını item yüzeyine re-export eder. |
 | `HighlightedText` | Tab veya item metadata'sında highlight pozisyonlarıyla birlikte metin taşımak için kullanılan küçük veri modelidir. |
-| `WeakItemHandle`, `WeakFollowableItemHandle`, `FollowableItemHandle` | Item ve followable item'lara strong ownership almadan erişmek veya tip silinmiş follow sözleşmesine bağlanmak için kullanılır. |
+| `WeakItemHandle`, `WeakFollowableItemHandle`, `FollowableItemHandle` | Item ve followable item'lara strong ownership almadan erişmek veya tip silinmiş follow sözleşmesine bağlanmak için kullanırsın. |
 | `FollowEvent`, `FollowableViewRegistry`, `FollowerState`, `LEADER_UPDATE_THROTTLE` | Follow event dönüşümü, remote view registry, follower state ve lider güncelleme throttling sabitini kapsar. |
 | `ActiveModal` | Modal layer içinde açık modal view ve dismiss davranışını taşıyan internal state modelidir. |
 | `ToastLayer`, `RestoreBanner`, `SuppressNotification`, `ClearAllNotifications` | Toast host, restore banner ve notification bastırma/temizleme action'larını temsil eder. |
 | `Notifications`, `LanguageServerPrompt`, `ErrorMessagePrompt` | Workspace notification host'u ile language server ve hata prompt view'lerinin public yüzeyidir. |
 | `PaneSearchBarCallbacks` | Pane search toolbar'ının match navigation ve replace callback'lerini pane dışındaki toolbar view'ına taşır. |
-| `add_hide_button_entry` | Status bar sağ tık menüsüne kaynakta `"Hide Button"` kaydını ekleyen yardımcıdır; `hide_setting()` döndüren item'larla birlikte kullanılır. |
+| `add_hide_button_entry` | Status bar sağ tık menüsüne kaynakta `"Hide Button"` kaydını ekleyen yardımcıdır; `hide_setting()` döndüren item'larla birlikte kullanırsın. |
 
 ---
 

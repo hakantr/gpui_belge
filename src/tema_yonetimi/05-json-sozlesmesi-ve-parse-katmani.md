@@ -375,7 +375,7 @@ pub struct StatusColorsContent {
 }
 ```
 
-`ThemeColorsContent`, hedeflenen Zed sözleşmesindeki çalışma zamanı `ThemeColors` alanlarına karşılık gelen `Option<String>` alanları taşır. Örneğin `scrollbarr.thumb.background` gibi yazım hatalı, sözleşmede hiç bulunmayan bir anahtar yerine mevcut sözleşmedeki `scrollbar.thumb.background` anahtarı beklenir. (Bunun aksine `scrollbar_thumb.background` anahtarı sözleşmenin tanınan ama artık önerilmeyen bir parçasıdır; deprecated bir alanı besler ve yazıldığında bir uyarıyla yine de okunur.)
+`ThemeColorsContent`, hedeflenen Zed sözleşmesindeki çalışma zamanı `ThemeColors` alanlarına karşılık gelen `Option<String>` alanları taşır. Örneğin `scrollbarr.thumb.background` gibi yazım hatalı, sözleşmede hiç bulunmayan bir anahtar yerine mevcut sözleşmedeki `scrollbar.thumb.background` anahtarı beklersin. (Bunun aksine `scrollbar_thumb.background` anahtarı sözleşmenin tanınan ama artık önerilmeyen bir parçasıdır; deprecated bir alanı besler ve yazıldığında bir uyarıyla yine de okunur.)
 
 **Davranış kuralları (özet):**
 
@@ -391,11 +391,11 @@ pub struct StatusColorsContent {
 | `ThemeColorsContent` (146 alan, 3'ü deprecated) | her biri `Option<String>` | Refinement → taban |
 | `StatusColorsContent` (42 alan) | her biri `Option<String>` | Refinement → taban (ön plan→arka plan türetme uygulanır) |
 
-> **`AppearanceContent` neden `Option` değil?** Bir tema'nın "Light mı, Dark mı?" sorusu **kritiktir**. Bu bilgi eksik olduğunda renk seçimi anlamını yitirir. Bu yüzden alan, sözleşmenin zorunlu enum alanı olarak tutulur.
+> **`AppearanceContent` neden `Option` değil?** Bir tema'nın "Light mı, Dark mı?" sorusu **kritiktir**. Bu bilgi eksik olduğunda renk seçimi anlamını yitirir. Bu yüzden alan, sözleşmenin zorunlu enum alanı olarak tutarsın.
 
 ### `#[serde(flatten)]` — alt struct'ları aynı seviyeye açar
 
-JSON dosyasında `style` objesi içinde **150'den fazla alan düz olarak** sıralanır; iç içe `"colors": { ... }` yapısı yoktur. Rust tarafında bu alanlar mantıksal olarak ayrı struct'larda (`ThemeColorsContent`, `StatusColorsContent`) tutulur. JSON ayrıştırılırken ise **aynı seviyeden** deserialize edilirler. `#[serde(flatten)]` bu eşlemeyi sağlar.
+JSON dosyasında `style` objesi içinde **150'den fazla alan düz olarak** sıralanır; iç içe `"colors": { ... }` yapısı yoktur. Rust tarafında bu alanlar mantıksal olarak ayrı struct'larda (`ThemeColorsContent`, `StatusColorsContent`) tutarsın. JSON ayrıştırılırken ise **aynı seviyeden** deserialize edersin. `#[serde(flatten)]` bu eşlemeyi sağlar.
 
 **Davranış:**
 
@@ -420,7 +420,7 @@ JSON:
 }
 ```
 
-İki ayrı struct'ın alanları **aynı JSON objesi** içinden deserialize edilir. Çakışan anahtar bulunmamalıdır. Örneğin `ThemeColorsContent` içinde `"error"` alanı yoktur; bu yüzden `StatusColorsContent.error` ile çatışmaz.
+İki ayrı struct'ın alanları **aynı JSON objesi** içinden deserialize edersin. Çakışan anahtar bulunmamalıdır. Örneğin `ThemeColorsContent` içinde `"error"` alanı yoktur; bu yüzden `StatusColorsContent.error` ile çatışmaz.
 
 ### `#[serde(rename = "...")]` — alan adı eşleme
 
@@ -458,7 +458,7 @@ pub struct FontWeightContent(pub f32);
 
 Bu öznitelik sayesinde JSON'da `{ "font_weight": { "0": 700 } }` yerine doğrudan `{ "font_weight": 700 }` yazarsın. Newtype'ın sarmaladığı tek alan saydam görünür; JSON tüketicisi `FontWeightContent`'in newtype olduğunu fark etmez.
 
-`FontWeightContent` için `JsonSchema` türetilmez; elle impl edilir. Türetme yalnızca "sayı" derdi; elle yazılan şema ise geçerli aralığı (`100`–`900`) ve varsayılanı (`400`) şemaya da taşır, böylece editör otomatik tamamlaması sınırların dışındaki değerleri uyarabilir:
+`FontWeightContent` için `JsonSchema` türetilmez; elle impl edersin. Türetme yalnızca "sayı" derdi; elle yazılan şema ise geçerli aralığı (`100`–`900`) ve varsayılanı (`400`) şemaya da taşır, böylece editör otomatik tamamlaması sınırların dışındaki değerleri uyarabilir:
 
 ```rust
 impl schemars::JsonSchema for FontWeightContent {
@@ -516,7 +516,7 @@ pub players: Vec<PlayerColorContent>,    // Yoksa boş Vec
 
 ## 20. `*Content` tiplerinin opsiyonellik felsefesi
 
-Content tipleri **tek bir ana kuralı** izler: her renk alanı `Option<String>`, her enum alanı ise `Option<EnumContent>` olarak tutulur. Renk alanları doğrudan `Hsla` veya zorunlu `String` yapılmaz.
+Content tipleri **tek bir ana kuralı** izler: her renk alanı `Option<String>`, her enum alanı ise `Option<EnumContent>` olarak tutarsın. Renk alanları doğrudan `Hsla` veya zorunlu `String` yapılmaz.
 
 ### Üç gerekçe
 
@@ -538,7 +538,7 @@ Zed temalarında tipik bir tema dosyası 150 alandan yalnızca 30-50 kadarını 
 
 **3. Tip sözleşmesi seçilen Zed referansına bağlı kalır.**
 
-Geçerli enum değerleri seçilen Zed referansındaki listeyle sınırlıdır. Örneğin `font_style: "semi_oblique"` mevcut sözleşmede yoksa bu değer geçersiz kabul edilir. **Ancak `font_style: Option<FontStyleContent>`** olduğunda, `treat_error_as_none` deserializer'ı geçersiz varyantı `None`'a düşürür ve tema yüklemesi kalan alanlarla devam eder.
+Geçerli enum değerleri seçilen Zed referansındaki listeyle sınırlıdır. Örneğin `font_style: "semi_oblique"` mevcut sözleşmede yoksa bu değer geçersiz kabul edersin. **Ancak `font_style: Option<FontStyleContent>`** olduğunda, `treat_error_as_none` deserializer'ı geçersiz varyantı `None`'a düşürür ve tema yüklemesi kalan alanlarla devam eder.
 
 ### İki katmanlı opsiyonellik
 
@@ -589,7 +589,7 @@ Bu sayede JSON'da bütün bir struct (`colors`, `status` vb.) eksik olabilir. Se
 Mevcut yaklaşımda akış şu şekilde işler:
 
 1. Serde yalnızca "string olarak al" der.
-2. `try_parse_color` ayrı bir fonksiyondur — birim test edilebilir.
+2. `try_parse_color` ayrı bir fonksiyondur — birim test edebilirsin.
 3. Hatalı renk, string olarak content'te kalır; Refinement aşamasında sessizce `None`'a düşer.
 
 Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevaplar, ayrıştırıcı ise "değer geçerli mi?" sorusunu cevaplar.
@@ -604,7 +604,7 @@ Bu **sorumluluk ayrımı** sağlamdır: serde "yapı doğru mu?" sorusunu cevapl
 
 ### `MergeFrom` derive davranış matrisi
 
-`settings_content` tarafındaki kullanıcı settings content tiplerini `#[derive(..., MergeFrom)]` ile işaretlersin. Zed settings hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**. `default` baz değerleri sağlar; kullanıcı ve proje settings'i bunun üstüne merge edilir. Tema dosyası yükü olan `theme_settings::ThemeFamilyContent` ve `ThemeContent` ise bu merge hattının parçası değildir. Onlar doğrudan deserialize edilir ve çalışma zamanı temasına refine edilir. `MergeFrom` trait'i `settings_content` crate'inde tanımlıdır; derive macro'su `settings_macros` crate'inden gelir ve alan tipine göre davranışı değişir:
+`settings_content` tarafındaki kullanıcı settings content tiplerini `#[derive(..., MergeFrom)]` ile işaretlersin. Zed settings hiyerarşisi (`default.json → user.json → project.json`) **`MergeFrom` üzerinden çalışır**. `default` baz değerleri sağlar; kullanıcı ve proje settings'i bunun üstüne merge edersin. Tema dosyası yükü olan `theme_settings::ThemeFamilyContent` ve `ThemeContent` ise bu merge hattının parçası değildir. Onlar doğrudan deserialize edilir ve çalışma zamanı temasına refine edersin. `MergeFrom` trait'i `settings_content` crate'inde tanımlıdır; derive macro'su `settings_macros` crate'inden gelir ve alan tipine göre davranışı değişir:
 
 | Alan tipi | `merge_from(self, other)` davranışı | Etki |
 | ----------- | ------------------------------------- | ------ |
@@ -775,7 +775,7 @@ fn adlandirilmis_rengi_reddeder() {
 
 `palette` major sürüm farkı renk uzayı dönüşümünü değiştirebilir. Aynı hex değeri farklı bir `Hsla` üretebilir. Bu nedenle:
 
-- `palette` sürümünün Zed'in kullandığı sürümle uyumlu tutulması gerekir.
+- `palette` sürümünün Zed'in kullandığı sürümle uyumlu tutman gerekir.
 - Fixture testleri `assert_eq!(...)` yerine `assert!((a - b).abs() < epsilon)` ile yazılır; küçük kayan nokta sapmaları beklenen bir durumdur.
 
 ### Başarım
@@ -819,7 +819,7 @@ fn tema_stil_anahtarlarini_dogrula(stil: &serde_json::Map<String, serde_json::Va
 
 **Bu kural nettir:** Mevcut Zed sözleşmesinde olmayan alanlar kabul edilmez. `ThemeStyleContent` `#[serde(flatten)]` kullandığı için pratik çözüm `deny_unknown_fields` değil, hedef sözleşmedeki anahtarları tutan açık bir izin listesi validasyonudur. Zed referansını güncelleyeceksen önce ayna struct'larını, sonra izin listesini, fixture ve snapshot testlerini güncellersin.
 
-Pratik yükleme yardımcısı bu yüzden iki aşamalı yazılır: önce JSON toleranslı biçimde `serde_json::Value` olarak okunur, `themes[*].style` içindeki anahtarlar `TEMA_STIL_ANAHTARLARI` ile doğrulanır, sonra aynı değer `ThemeFamilyContent` tipine deserialize edilir. Bu rehberde örnek yardımcı adı `tema_ailesini_kati_ayristir(baytlar)` olarak kullanırsın.
+Pratik yükleme yardımcısı bu yüzden iki aşamalı yazılır: önce JSON toleranslı biçimde `serde_json::Value` olarak okunur, `themes[*].style` içindeki anahtarlar `TEMA_STIL_ANAHTARLARI` ile doğrulanır, sonra aynı değer `ThemeFamilyContent` tipine deserialize edersin. Bu rehberde örnek yardımcı adı `tema_ailesini_kati_ayristir(baytlar)` olarak kullanırsın.
 
 ### Vektör 2: Bilinmeyen enum değerleri — iki tolerans hattı
 
@@ -833,7 +833,7 @@ Enum alanlarda varsayılan davranış farklıdır: serde bilinmeyen bir varyant 
 
 **Zed paritesi iki ayrı mekanizmadan oluşur:**
 
-1. **Öznitelik makrosu** (`#[with_fallible_options]`): `ThemeSettingsContent`, `ThemeStyleContent`, `ThemeColorsContent`, `StatusColorsContent` gibi yoğun `Option` taşıyan struct/enum'lar üzerine yerleştirilir. Makro her `Option<T>` alanı için otomatik olarak şu özniteliği ekler:
+1. **Öznitelik makrosu** (`#[with_fallible_options]`): `ThemeSettingsContent`, `ThemeStyleContent`, `ThemeColorsContent`, `StatusColorsContent` gibi yoğun `Option` taşıyan struct/enum'lar üzerine yerleştirirsin. Makro her `Option<T>` alanı için otomatik olarak şu özniteliği ekler:
    ```rust
    #[serde(
        default,
@@ -861,7 +861,7 @@ Bu tolerans **yalnızca `fallible_options::parse_json` veya `RootUserSettings` h
 
 1. `parse_json::<ThemeColorsContent>(json)` çağırırsın.
 2. Her `Option<T>` alanı için makro tarafından eklenen `fallible_options::deserialize` çağırırsın.
-3. Bir alan ayrıştırma hatası verdiğinde → hata thread-local'a yazılır, alan `None` olarak atanır, ayrıştırma devam eder.
+3. Bir alan ayrıştırma hatası verdiğinde → hata thread-local'a yazılır, alan `None` olarak atarsın, ayrıştırma devam eder.
 4. Tüm ayrıştırma tamamlandığında `ParseStatus` döner; UI gerekirse uyarı gösterir, eksik alan tabandan doldurulur.
 
 **Kullanım (mirror tarafı):**
@@ -953,7 +953,7 @@ fn bilinmeyen_font_stili_none_olur() -> anyhow::Result<()> {
 
 ## 23. JSON anahtar konvansiyonu (dot vs snake_case)
 
-Tema JSON dosyalarında alan adları **dot.separated** yazılır; Rust alan adları ise **snake_case** olarak tutulur. İki konvansiyon `#[serde(rename = "...")]` ile birbirine bağlanır.
+Tema JSON dosyalarında alan adları **dot.separated** yazılır; Rust alan adları ise **snake_case** olarak tutarsın. İki konvansiyon `#[serde(rename = "...")]` ile birbirine bağlanır.
 
 ### Konvansiyon
 
@@ -1156,7 +1156,7 @@ API yüzeyi `serde_json` ile uyumludur; aradaki tek fark import yoludur. Ayna ta
 | `IconThemeContent` | Tek icon tema varyantı; `name`, `appearance`, dosya/dizin/chevron eşlemelerini taşır. | Harita alanları `#[serde(default)]` ile boş map'e düşer. |
 | `DirectoryIconsContent` | Jenerik veya isimli klasör icon'u için `collapsed` ve `expanded` yolları. | İki alan da `Option<SharedString>` olduğu için tek yönlü icon verilebilir. |
 | `ChevronIconsContent` | Tree disclosure chevron'ları için `collapsed` ve `expanded` yolları. | Eksik yol arama sırasında varsayılan icon theme'e düşebilir. |
-| `IconDefinitionContent` | `file_icons` map'inde icon anahtarından gerçek varlık yoluna geçiş. | `path` zorunludur; icon anahtarı varsa varlık yolu da verilmelidir. |
+| `IconDefinitionContent` | `file_icons` map'inde icon anahtarından gerçek varlık yoluna geçiş. | `path` zorunludur; icon anahtarı varsa varlık yolu da vermen gerekir. |
 
 Örnek yapı şu şekildedir:
 
@@ -1185,7 +1185,7 @@ API yüzeyi `serde_json` ile uyumludur; aradaki tek fark import yoludur. Ayna ta
 }
 ```
 
-Burada `file_stems` ve `file_suffixes` doğrudan yol taşımaz; yalnızca icon anahtarı üretir. Gerçek varlık yolu `file_icons` içindeki `IconDefinitionContent::path` alanından gelir. Bu ayrım arama akışını okunur tutar: önce dosya adı veya uzantıdan icon anahtarı çözülür, sonra anahtar üzerinden yol bulunur.
+Burada `file_stems` ve `file_suffixes` doğrudan yol taşımaz; yalnızca icon anahtarı üretir. Gerçek varlık yolu `file_icons` içindeki `IconDefinitionContent::path` alanından gelir. Bu ayrım arama akışını okunur tutar: önce dosya adı veya uzantıdan icon anahtarı çözersin, sonra anahtar üzerinden yol bulunur.
 
 ```rust
 pub fn deserialize_icon_theme(baytlar: &[u8]) -> anyhow::Result<IconThemeFamilyContent> {

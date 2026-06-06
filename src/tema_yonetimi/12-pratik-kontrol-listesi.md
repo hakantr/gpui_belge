@@ -19,15 +19,15 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 ### Refinement
 
 6. **Türetme adımıyla `refine` sırası.** Status alanlarında kullanıcı `error` yazar ama `error_background` yazmazsa, baseline'dan gelen karışım renkler ortaya çıkar. `apply_status_color_defaults` çağrısı şarttır.
-7. **`color()` helper'ında hata mesajının yutulması.** Üretim hata ayıklaması için `inspect_err` ile log ekleyebilirsin; varsayılanda kapalı tutulur.
+7. **`color()` helper'ında hata mesajının yutulması.** Üretim hata ayıklaması için `inspect_err` ile log ekleyebilirsin; varsayılanda kapalı tutarsın.
 8. **Baseline appearance seçimi.** Light tema yüklenirken dark baseline kullanılması uyumsuz bir görüntü doğurur. Baseline `content.appearance` değerine göre seçmen gerekir.
 
 ### Çalışma zamanı
 
-9. **`cx.refresh_windows()` çağrısı.** Tema değiştiğinde UI'nın yeni renkleri okuması için `GlobalTheme::update_theme + refresh_windows` her zaman bir çift olarak çağrılmalıdır.
+9. **`cx.refresh_windows()` çağrısı.** Tema değiştiğinde UI'nın yeni renkleri okuması için `GlobalTheme::update_theme + refresh_windows` her zaman bir çift olarak çağırman gerekir.
 10. **`cx.notify()` ile yetinmek.** Yalnızca tek view'ı yeniler; oysa tema değişimi tüm pencerelerde geçerli olur.
 11. **`kvs_tema::init` kurulumu.** Global tema kurulmadan `cx.theme()` çağrısı çalışma zamanında erken durur. `kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx)` çağrısı uygulama girişinin **ilk** satırlarında konumlanır.
-12. **`update_global` içinde `set_global` çağrısı.** Re-entrancy koruması devreye girer. Update callback'i içinde yalnızca field mutate edilebilir.
+12. **`update_global` içinde `set_global` çağrısı.** Re-entrancy koruması devreye girer. Update callback'i içinde yalnızca field mutate edebilirsin.
 13. **`observe_window_appearance` için `.detach()` saklama noktası.** Subscription drop edildiğinde observer sona erer.
 
 ### GPUI tipleri
@@ -46,7 +46,7 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 22. **Completion rozet ayarını tema ayarı sanmak.** `completion_menu_item_kind` `EditorSettingsContent` alanıdır; `ThemeSettingsContent` veya provider trait'ine eklenmez. Renk tüketimi syntax theme üstünden yaparsın.
 23. **Markdown önizleme metin fontu ile code fontunu birleştirmek.** Düz önizleme metni `markdown_preview_font_family`, inline code ve code block ise `markdown_preview_code_font_family` kullanır. İki alanın fallback hedefleri farklıdır.
 24. **Tema değişiminden sonra Mermaid cache'inin geçersiz kılınmaması.** SVG çıktısı `MermaidState::cache` içinde tutulur; tema veya `ThemeSettings` değiştiğinde `Markdown::invalidate_mermaid_cache(cx)` çağrılmazsa diyagramlar eski renkleri taşımaya devam eder. Tema observer'ı bu çağrıyı kendi mantığına bağlamalıdır.
-25. **Mermaid kaynağına alpha taşıyan renk vermek.** Renderer alpha'yı **düşürmez**: opak renkleri `#rrggbb`, yarı saydam renkleri `#rrggbbaa` olarak yazar; alpha kanalı korunur. Bu yüzden tema renginde istenmeyen bir alpha doğrudan SVG'ye taşınır. Diyagramda tam dolgu beklediğin yerlerde renkleri **kasıtlı opak** vermen gerekir; yarı saydamlık ancak bilerek istendiğinde kullanılmalıdır.
+25. **Mermaid kaynağına alpha taşıyan renk vermek.** Renderer alpha'yı **düşürmez**: opak renkleri `#rrggbb`, yarı saydam renkleri `#rrggbbaa` olarak yazar; alpha kanalı korunur. Bu yüzden tema renginde istenmeyen bir alpha doğrudan SVG'ye taşınır. Diyagramda tam dolgu beklediğin yerlerde renkleri **kasıtlı opak** vermen gerekir; yarı saydamlık ancak bilerek istendiğinde kullanman gerekir.
 26. **Yarı yazılmış fenced blok için render beklentisi.** Mermaid pipeline'ı yalnızca `metadata.is_fenced_closed` olan fenced blok'ları toplar; açık kalmış bir blok atlanır, parse hatası üretmez. Bu, akış halinde gelen markdown önizlemelerinde sessiz davranışın kaynağıdır.
 27. **`~~~src` ile başka uzantı bağlamak.** Mermaid `FencedSrc` yolu yalnızca `.mermaid` ve `.mmd` uzantılarını tanır; diğerleri sessizce atlanır. Etiketli `~~~mermaid` blok'u her zaman alternatiftir.
 
@@ -88,7 +88,7 @@ Son bölüm, önceki adımlarda alınan kararları hata sınıflarına göre hı
 | Registry sabitleri / typed error'lar | Registry mirror ediliyorsa **gerekli** | Registry kapsamdaysa |
 | `default_color_scales` / `zed_default_themes` | Karara bağlıdır | Fallback ve scale mirror kararı verildiğinde |
 
-Yukarıdaki öğeler kapsam kararına göre mirror edilir. Public API'ye alınmayan parçalar tüketici sözleşmesinin dışında kalır.
+Yukarıdaki öğeler kapsam kararına göre mirror edersin. Public API'ye alınmayan parçalar tüketici sözleşmesinin dışında kalır.
 
 
 ---
@@ -97,7 +97,7 @@ Yukarıdaki öğeler kapsam kararına göre mirror edilir. Public API'ye alınma
 
 Bu rehber, `kvs_tema` ve `kvs_syntax_tema` crate'lerinin **tüm yüzeyini** 12 bölüm ve 45 konu altında, uygulama kurulum sırasını izleyerek toplar. Üç temel kural baştan sona geçerli kalır:
 
-1. **Veri sözleşmesinde dışlama yok** — Zed'in tüm alanları mirror edilir.
+1. **Veri sözleşmesinde dışlama yok** — Zed'in tüm alanları mirror edersin.
 2. **Lisans-temiz çalışma** — kod gövdesi GPL'den kopyalanmaz; yalnızca sözleşme paritesi korunur.
 3. **Sözleşme sınırı** — public API ile crate-içi detaylar birbirinden ayrılır; tüketici yalnızca açıkça desteklenen yüzeye bağlanır.
 

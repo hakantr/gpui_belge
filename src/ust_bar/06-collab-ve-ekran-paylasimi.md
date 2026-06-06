@@ -20,7 +20,7 @@ pub fn toggle_screen_sharing(
 
 - **`toggle_mute`** — uygulama geneli `ActiveCall` üzerinden aktif odayı bulur ve mikrofonu aç/kapat yapar. Mikrofonu kapatma, "ben konuşamam ama dinlerim" anlamına gelir.
 - **`toggle_deafen`** — aynı yoldan odanın dinlemeyi kapatma durumunu çevirir. Dinlemeyi kapatma, "kimseyi duymam" anlamına gelir; mikrofonu kapatmaktan farkı gelen sesi de kesmesidir.
-- **`toggle_screen_sharing`** — bir ekran/pencere kaynağı (`ScreenCaptureSource`) alır. Aktif oda yoksa erken döner. Verilen kaynak zaten paylaşılıyorsa paylaşımı durdurur; farklı bir kaynaksa öncekini durdurup yenisini başlatır. Paylaşım başlatma asenkron bir görevle yapılır ve hata durumunda kullanıcıya bilgi verilir.
+- **`toggle_screen_sharing`** — bir ekran/pencere kaynağı (`ScreenCaptureSource`) alır. Aktif oda yoksa erken döner. Verilen kaynak zaten paylaşılıyorsa paylaşımı durdurur; farklı bir kaynaksa öncekini durdurup yenisini başlatır. Paylaşım başlatma asenkron bir görevle yapılır ve hata durumunda kullanıcıya bilgi verirsin.
 
 Üçü de durumu doğrudan odaya yazar; değişiklik oda üzerinden tüm katılımcılara yayılır. Başlıktaki butonlar yalnız bu fonksiyonları çağıran tetikleyicilerdir.
 
@@ -30,14 +30,14 @@ Aktif çağrıda başlık, projeye bağlı katılımcıları küçük avatarlarl
 
 - Konuşan katılımcının avatarı vurgulu bir kenarlıkla çevrilir.
 - Mikrofonu kapalı olan katılımcıda bir sessizlik göstergesi belirir.
-- Projede fiziksel olarak bulunmayan katılımcı soluk, gri tonlu çizilir.
+- Projede fiziksel olarak bulunmayan katılımcı soluk, gri tonlu çizersin.
 - Bir katılımcıyı takip edenler, o avatarın etrafında bir avatar yığını olarak gösterilir; kalabalıksa "+N" etiketiyle özetlenir.
 
 Uzak bir katılımcıya tıklamak takip etme/takibi bırakma davranışını çevirir. Bu liste, işbirliği oturumunun başlıktaki canlı özetidir.
 
 ## 3. Çağrı kontrol butonları
 
-Çağrı sırasında sağ grupta bir dizi kontrol butonu çizilir. Hangilerinin görüneceği oda ve izin durumuna bağlıdır:
+Çağrı sırasında sağ grupta bir dizi kontrol butonu çizersin. Hangilerinin görüneceği oda ve izin durumuna bağlıdır:
 
 | Buton | Koşul | Davranış |
 | :-- | :-- | :-- |
@@ -52,16 +52,16 @@ Uzak bir katılımcıya tıklamak takip etme/takibi bırakma davranışını çe
 
 Ekran paylaşımı butonunun yapısı platforma göre değişir:
 
-- **Wayland (Linux)** tarafında buton sadeleştirilir: doğrudan paylaşımı başlatan/durduran tek bir buton kullanılır, kaynak seçim açılır paneli yoktur (Wayland'ın kendi portal tabanlı kaynak seçimi devreye girer).
+- **Wayland (Linux)** tarafında buton sadeleştirilir: doğrudan paylaşımı başlatan/durduran tek bir buton kullanırsın, kaynak seçim açılır paneli yoktur (Wayland'ın kendi portal tabanlı kaynak seçimi devreye girer).
 - **Diğer platformlarda** buton ikiye ayrılır: ana buton varsayılan ekranı otomatik seçip paylaşımı başlatır; yanındaki açılır ok, sistemdeki tüm ekran/pencere kaynaklarını listeleyen bir açılır panel açar.
 
-Açılır panel içindeki her kaynak; bir ikon, bir ad (örneğin `"HDMI-1"` veya port edilen arayüzde `"Pencere: …"`) ve çözünürlük etiketiyle çizilir. Şu an paylaşılan kaynak vurgulu renkle işaretlenir. Bir kaynağa tıklamak `toggle_screen_sharing` çağrısıyla paylaşımı o kaynağa geçirir.
+Açılır panel içindeki her kaynak; bir ikon, bir ad (örneğin `"HDMI-1"` veya port edilen arayüzde `"Pencere: …"`) ve çözünürlük etiketiyle çizersin. Şu an paylaşılan kaynak vurgulu renkle işaretlenir. Bir kaynağa tıklamak `toggle_screen_sharing` çağrısıyla paylaşımı o kaynağa geçirir.
 
 ## 5. `ActiveCall` ve oda entegrasyonu
 
 Tüm bu yüzey, uygulama geneli `ActiveCall` entity'si üzerinden tek bir aktif odaya erişir. Mikrofon, dinlemeyi kapatma ve paylaşım durumları odadan okunur (`is_muted`, `is_deafened`, `is_sharing_screen` gibi) ve oda üzerinde değiştirilir. Katılımcılar, takip ilişkileri ve bağlantı istatistikleri de aynı odadan gelir. Kullanıcı kimliği ve avatarlar `UserStore`'dan, eş kimliği `Client`'tan beslenir.
 
-`TitleBar`, aktif çağrı değiştiğinde yeniden render için `ActiveCall`'a abone olur; ayrıca çağrı sırasında bağlantı tanılamasını ayrı bir abonelik ile izler. Böylece konuşma durumu, katılımcı girişi/çıkışı ve bağlantı kalitesi başlıkta canlı güncellenir.
+`TitleBar`, aktif çağrı değiştiğinde yeniden render için `ActiveCall`'a abone olur; ayrıca çağrı sırasında bağlantı tanılamasını ayrı bir abonelik ile izler. Böylece konuşma durumu, katılımcı girişi/çıkışı ve bağlantı kalitesi başlıkta canlı güncellersin.
 
 ## 6. Port hedefi için
 

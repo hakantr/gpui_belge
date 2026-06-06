@@ -29,7 +29,7 @@ State:
 
 - `kaydederken_bicimlendir`: switch'in render durumudur.
 - `kaydediliyor`: button'ı disable etmek ve ilerleme metni için geçici durumdur.
-- `son_hata`: yalnızca bir hata varsa `Callout` render edilir.
+- `son_hata`: yalnızca bir hata varsa `Callout` render edersin.
 - `_kaydetme_gorevi`: ayar yazımı bitene kadar task'ın drop edilmemesi için saklarsın.
 
 Örnek:
@@ -545,7 +545,7 @@ impl Render for BildirimMerkeziOnizleme {
 
 Notification yaşam döngüsü:
 
-- Workspace notification stack'e girecek bir view, `workspace::notifications::Notification` trait sınırını karşılamalıdır: `Render`, `Focusable`, `EventEmitter<DismissEvent>` ve `EventEmitter<SuppressEvent>` birlikte beklenir.
+- Workspace notification stack'e girecek bir view, `workspace::notifications::Notification` trait sınırını karşılamalıdır: `Render`, `Focusable`, `EventEmitter<DismissEvent>` ve `EventEmitter<SuppressEvent>` birlikte beklersin.
 - Dismiss veya suppress state'i bileşen içinde kalıcı kabul edilmez. Kullanıcı tercihini kalıcı olarak saklayacaksan, ayarlar veya bir KV store tarafında tutarsın.
 - Bloklayıcı bir karar gerekmiyorsa, `AlertModal` yerine bir `Banner` veya `NotificationFrame` çok daha uygun bir seçim olur.
 

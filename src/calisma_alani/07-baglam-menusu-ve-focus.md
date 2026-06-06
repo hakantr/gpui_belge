@@ -60,7 +60,7 @@ Item ve tab davranışını ayarlar tarafına bağlayan tipler şunlardır:
 
 ## İstemci tarafı uygulama menüsü (çapraz referans)
 
-İstemci tarafı uygulama menüsü (`ApplicationMenu`), `workspace` crate'ine değil `title_bar` ürün katmanına aittir; kaynakta da private bir modülde durduğu için dış API değildir. Davranışı (menü kaynağı, `OpenApplicationMenu`, klavye gezinmesi, menü modu) [Üst Bar](../ust_bar/ust_bar.md) bölümünde anlatılır. Burada yalnız ayrımı not ediyoruz: yukarıda anlatılan `ContextMenu`/`PopoverMenu` genel `ui` bileşenleridir ve her yüzeyde kullanılır; uygulama menüsü ise yalnız ürün başlığında kurulur.
+İstemci tarafı uygulama menüsü (`ApplicationMenu`), `workspace` crate'ine değil `title_bar` ürün katmanına aittir; kaynakta da private bir modülde durduğu için dış API değildir. Davranışı (menü kaynağı, `OpenApplicationMenu`, klavye gezinmesi, menü modu) [Üst Bar](../ust_bar/ust_bar.md) bölümünde anlatılır. Burada yalnız ayrımı not ediyoruz: yukarıda anlatılan `ContextMenu`/`PopoverMenu` genel `ui` bileşenleridir ve her yüzeyde kullanılır; uygulama menüsü ise yalnız ürün başlığında kurarsın.
 
 ---
 

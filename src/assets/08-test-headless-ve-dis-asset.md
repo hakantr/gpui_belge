@@ -155,7 +155,7 @@ Bu üç test bağlamının ortak deseni şudur: varlık kaynağı `Arc<dyn Asset
 
 ## 4. `Assets::load_test_fonts` ile minimum font kümesi
 
-Test ortamında metin shaping yapılması gerekiyorsa ama tüm font'ları yüklemek istenmiyorsa, kaynak kodda test helper'ı olarak `Assets::load_test_fonts` çağrılır. Zed'deki helper fail-fast test varsayımıyla yazılmıştır; aynı akışı uygulama kodunda hata yayarak şöyle ifade edersin:
+Test ortamında metin shaping yapılması gerekiyorsa ama tüm font'ları yüklemek istenmiyorsa, kaynak kodda test helper'ı olarak `Assets::load_test_fonts` çağırırsın. Zed'deki helper fail-fast test varsayımıyla yazılmıştır; aynı akışı uygulama kodunda hata yayarak şöyle ifade edersin:
 
 ```rust
 pub fn load_test_fonts_sonuc(&self, cx: &App) -> anyhow::Result<()> {
@@ -173,7 +173,7 @@ Bu metot yalnızca `Lilex-Regular.ttf` dosyasını yükler. Üç gerekçe vardı
 - **Monospace garantisi:** Lilex monospace font'tur; karakter genişlikleri tutarlıdır. Bu, snapshot testlerinde piksel düzeyinde tutarlılık sağlamak için kritiktir.
 - **Lisans sürtünmesi yok:** Lilex OFL ile dağıtılır; test fixture'ları için kullanılırken ek lisans dikkati gerekmez.
 
-`load_test_fonts` `Application::with_assets(Assets)` çağrısından sonra çağırırsın. Çoğu test bağlamında bu adım manuel olarak eklenir, otomatik yapılmaz; font gerekmeyen testlerde bu yükleme adımı eklenmez.
+`load_test_fonts` `Application::with_assets(Assets)` çağrısından sonra çağırırsın. Çoğu test bağlamında bu adım manuel olarak eklersin, otomatik yapılmaz; font gerekmeyen testlerde bu yükleme adımı eklenmez.
 
 ---
 
@@ -302,7 +302,7 @@ Bu, varlık hattının test ortamında nasıl sahte kaynakla çalışabileceğin
 
 ## 7. Sahte AssetSource yazmak
 
-Bazen testler için tamamen özel bir varlık kaynağı gerekir. Tipik senaryo: bir testin yalnızca belirli yollara yanıt vermesini istemek. Trait gereği iki metot implement edilir:
+Bazen testler için tamamen özel bir varlık kaynağı gerekir. Tipik senaryo: bir testin yalnızca belirli yollara yanıt vermesini istemek. Trait gereği iki metot implement edersin:
 
 ```rust
 struct SahteVarlikKaynagi(HashMap<&'static str, &'static [u8]>);
@@ -356,7 +356,7 @@ Bu kurallar varlık hattının "hız+esneklik" tasarımının kullanıcı koduna
 Bazı durumlarda varlık hattının tamamen devre dışı bırakılması gerekir:
 
 - **Headless CLI:** Komut satırı uygulaması GPUI'yi kullanır ama hiçbir window açmaz; SVG render veya font yükleme gerekmez. Bu senaryoda `Application::with_assets` çağrılmaz, boş `()` kalır.
-- **Çok küçük binary'ler:** Varlık gömme binary boyutunu büyütür. Varlıkların dosya sisteminden okunduğu portatif binary'ler için `RustEmbed` kullanılmadan `AssetSource` implement edilebilir:
+- **Çok küçük binary'ler:** Varlık gömme binary boyutunu büyütür. Varlıkların dosya sisteminden okunduğu portatif binary'ler için `RustEmbed` kullanılmadan `AssetSource` implement edebilirsin:
 
 ```rust
 struct DosyaSistemiVarliklari {

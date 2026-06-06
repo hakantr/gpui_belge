@@ -32,7 +32,7 @@ div()
 | Gölge ve opaklık | `shadow`, `shadow_none`, `shadow_2xs`, `shadow_xs`, `shadow_sm`, `shadow_md`, `shadow_lg`, `shadow_xl`, `shadow_2xl`, `opacity` | Hazır gölge token'larını veya açık `BoxShadow` listesini ve element opaklığını uygular. |
 | Arka plan ve metin | `bg`, `text_style`, `text_color`, `text_bg`, `text_size`, `text_xs`, `text_sm`, `text_base`, `text_lg`, `text_xl`, `text_2xl`, `text_3xl`, `text_ellipsis`, `text_ellipsis_start`, `text_overflow`, `text_align`, `text_left`, `text_center`, `text_right`, `truncate`, `line_clamp`, `font`, `font_weight`, `font_family`, `font_features`, `italic`, `not_italic`, `underline`, `line_through`, `text_decoration_none`, `text_decoration_color`, `text_decoration_solid`, `text_decoration_wavy`, `text_decoration_*`, `line_height`, `whitespace_normal`, `whitespace_nowrap` | Background, metin rengi, font, taşma, hizalama ve dekorasyon ayarlarını cascaded text style alanına yazar. |
 | Cursor ve taşma | `cursor`, `cursor_*`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `overflow_hidden`, `overflow_x_hidden`, `overflow_y_hidden`, `scrollbar_width` | Pointer görünümü, taşma kırpması ve scrollbar için ayrılacak layout alanını belirler. |
-| Aspect ve grid | `aspect_ratio`, `aspect_square`, `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`, `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full` | En-boy oranı ve grid template/placement değerlerini yazar; altta `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement` kullanılır. |
+| Aspect ve grid | `aspect_ratio`, `aspect_square`, `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`, `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full` | En-boy oranı ve grid template/placement değerlerini yazar; altta `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement` kullanırsın. |
 
 Yukarıdaki fluent metotların büyük çoğunluğu `Styled` trait gövdesinde tek tek yazılmaz; bir grup proc macro tarafından üretilir. `gpui` crate'inde bu makrolar tek satırda çağrılır ve `gpui_macros` crate'i her çağrı için onlarca metot üretir. Hangi makronun hangi metotları ürettiğini aşağıdaki tablodan takip edebilirsin:
 
@@ -49,7 +49,7 @@ Yukarıdaki fluent metotların büyük çoğunluğu `Styled` trait gövdesinde t
 
 Bu makrolar, `gpui_macros` crate'inden genel proc macro olarak dışa aktarılır ve `gpui::{visibility_style_methods, margin_style_methods, ...}` üzerinden de yeniden dışa aktarılır. Uygulama kodunun bunları doğrudan çağırması gerekmez; fluent metotlar zaten `Styled` trait'inin parçasıdır ve her `Styled` uygulaması bu metotlara otomatik sahip olur.
 
-Flex faktörü yazarken iki farklı kullanım vardır. Özel oran gerektiğinde `flex_grow(2.0)` veya `flex_shrink(0.5)` gibi açık faktör verirsin. Normal CSS/Tailwind karşılığı olan `flex-grow: 1` ve `flex-shrink: 1` için `flex_grow_1()` ve `flex_shrink_1()` kullanılır. Büyüme veya küçülmeyi kapatan yardımcılar `flex_grow_0()` ve `flex_shrink_0()` adlarıyla kalır; tamamen sabit davranacak öğelerde `flex_none()` büyüme, küçülme ve basis ayarını birlikte toparlar.
+Flex faktörü yazarken iki farklı kullanım vardır. Özel oran gerektiğinde `flex_grow(2.0)` veya `flex_shrink(0.5)` gibi açık faktör verirsin. Normal CSS/Tailwind karşılığı olan `flex-grow: 1` ve `flex-shrink: 1` için `flex_grow_1()` ve `flex_shrink_1()` kullanırsın. Büyüme veya küçülmeyi kapatan yardımcılar `flex_grow_0()` ve `flex_shrink_0()` adlarıyla kalır; tamamen sabit davranacak öğelerde `flex_none()` büyüme, küçülme ve basis ayarını birlikte toparlar.
 
 ### BoxShadow
 
@@ -159,7 +159,7 @@ Bu yardımcı tipler stil zincirinde doğrudan kullanıcıya görünmeyebilir, a
 | `Radians` | `TransformationMatrix::rotate(...)`, path yayları ve SVG dönüşüm hesabında. |
 | `Half` | Sayısal veya geometri değerinin yarısını generic biçimde hesaplayan trait. |
 | `IsZero` | `Pixels`, `Rems`, `ScaledPixels`, `DevicePixels` gibi değerlerde sıfır kontrolünü ortaklaştırır. |
-| `AvailableSpace` | Taffy layout ölçümünde kullanılabilir, kesin veya minimum/maksimum alan bilgisidir. |
+| `AvailableSpace` | Taffy layout ölçümünde kullanabilirsin, kesin veya minimum/maksimum alan bilgisidir. |
 | `LayoutId` | Taffy tarafındaki layout düğüm kimliğidir; normal UI kodunda kalıcı domain ID yerine kullanılmaz. |
 
 | API | Alt özellikler | Kısa anlamı |
@@ -252,7 +252,7 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ### Axis ve Along
 
-`Axis` ve `Along` yatay/dikey kararları generic hale getirir. `Axis::invert()` yatay ekseni dikeye, dikeyi yataya çevirir; split pane veya resize handle'da ana eksenden çapraz eksene geçerken kullanılır. `Along::Unit`, implementasyonun her eksende taşıdığı birim tipini belirtir. `Along::along(axis)` verilen eksendeki değeri okur, `Along::apply_along(axis, f)` ise yalnız o ekseni dönüştürür. `Anchor::opposite()` bir kutu referansının tam karşısını, `Anchor::other_side_along(axis)` yalnız verilen eksen boyunca karşı tarafı döndürür; `Anchor::is_center()` ise `TopCenter`, `BottomCenter`, `LeftCenter` veya `RightCenter` değerlerini ayırt eder. Scrollbar, popover, anchored element ve iki eksenli layout helper yazarken bu metotlar koordinat dallanmalarını sadeleştirir. Tek bir bileşen yalnız yatay veya yalnız dikey çalışıyorsa bu tipleri okuyucuya göstermek yerine açık `width`/`height` hesabı daha anlaşılırdır.
+`Axis` ve `Along` yatay/dikey kararları generic hale getirir. `Axis::invert()` yatay ekseni dikeye, dikeyi yataya çevirir; split pane veya resize handle'da ana eksenden çapraz eksene geçerken kullanırsın. `Along::Unit`, implementasyonun her eksende taşıdığı birim tipini belirtir. `Along::along(axis)` verilen eksendeki değeri okur, `Along::apply_along(axis, f)` ise yalnız o ekseni dönüştürür. `Anchor::opposite()` bir kutu referansının tam karşısını, `Anchor::other_side_along(axis)` yalnız verilen eksen boyunca karşı tarafı döndürür; `Anchor::is_center()` ise `TopCenter`, `BottomCenter`, `LeftCenter` veya `RightCenter` değerlerini ayırt eder. Scrollbar, popover, anchored element ve iki eksenli layout helper yazarken bu metotlar koordinat dallanmalarını sadeleştirir. Tek bir bileşen yalnız yatay veya yalnız dikey çalışıyorsa bu tipleri okuyucuya göstermek yerine açık `width`/`height` hesabı daha anlaşılırdır.
 
 ### GridTemplate, TemplateColumnMinSize, GridLocation ve GridPlacement
 
@@ -267,11 +267,11 @@ Bu enum'lar layout, görünürlük, metin taşması ve şekil dolgusu kararları
 
 ### Ölçü ve layout ara yardımcıları
 
-`MIN`, `MAX`, `ZERO`, `bounds(...)`, `union(...)` ve `Bounds::intersect(&other)` düşük seviyeli ölçüm ve yerleşim yardımcılarıdır. `Bounds::intersect` iki dikdörtgenin ortak alanını hesaplar; scroll maskesi, popover görünür alanı veya canvas kırpması üretirken kullanılır. Bunlar kalıcı domain ölçüsü değildir; Taffy veya özel çizim hesabı sırasında geçici geometri üretmek için kullanılır.
+`MIN`, `MAX`, `ZERO`, `bounds(...)`, `union(...)` ve `Bounds::intersect(&other)` düşük seviyeli ölçüm ve yerleşim yardımcılarıdır. `Bounds::intersect` iki dikdörtgenin ortak alanını hesaplar; scroll maskesi, popover görünür alanı veya canvas kırpması üretirken kullanırsın. Bunlar kalıcı domain ölçüsü değildir; Taffy veya özel çizim hesabı sırasında geçici geometri üretmek için kullanırsın.
 
 ### PathBuilder ve PathStyle
 
-`PathBuilder::fill()` ve `stroke(width)` ile başlar; `with_style(style)`, `move_to(...)`, `line_to(...)`, `curve_to(...)`, `cubic_bezier_to(...)`, `arc_to(...)`, `relative_arc_to(...)`, `add_polygon(...)`, `close()`, `dash_array(...)`, `translate(...)`, `scale(...)`, `rotate(...)`, `transform(...)` ve `build()` ile tamamlanır. `PathBuilder::with_style(...)`, hazır builder'ın `PathStyle::{Fill, Stroke}` ayarını lyon seçenekleriyle değiştirmek içindir. `PathBuilder::build_path(buf)` ise tessellator'dan gelen `VertexBuffers` değerini doğrudan `Path<Pixels>` modeline çeviren alt seviye köprüdür; normal çizimde çoğunlukla `build()` çağrısının içinden kullanılır. `PathBuilder.style` alanı `PathStyle::{Fill, Stroke}` üzerinden lyon `FillOptions` veya `StrokeOptions` taşır. Kullanıcı etkileşimi olan basit çizimlerde önce `canvas(...)` ve `window.paint_path(...)` yeterli mi diye bakarsın; her frame'de path tessellate etmek yerine mümkünse hesaplamayı cache'lersin.
+`PathBuilder::fill()` ve `stroke(width)` ile başlar; `with_style(style)`, `move_to(...)`, `line_to(...)`, `curve_to(...)`, `cubic_bezier_to(...)`, `arc_to(...)`, `relative_arc_to(...)`, `add_polygon(...)`, `close()`, `dash_array(...)`, `translate(...)`, `scale(...)`, `rotate(...)`, `transform(...)` ve `build()` ile tamamlanır. `PathBuilder::with_style(...)`, hazır builder'ın `PathStyle::{Fill, Stroke}` ayarını lyon seçenekleriyle değiştirmek içindir. `PathBuilder::build_path(buf)` ise tessellator'dan gelen `VertexBuffers` değerini doğrudan `Path<Pixels>` modeline çeviren alt seviye köprüdür; normal çizimde çoğunlukla `build()` çağrısının içinden kullanırsın. `PathBuilder.style` alanı `PathStyle::{Fill, Stroke}` üzerinden lyon `FillOptions` veya `StrokeOptions` taşır. Kullanıcı etkileşimi olan basit çizimlerde önce `canvas(...)` ve `window.paint_path(...)` yeterli mi diye bakarsın; her frame'de path tessellate etmek yerine mümkünse hesaplamayı cache'lersin.
 
 | API | Alt özellikler | Kısa anlamı |
 |---|---|---|
@@ -364,7 +364,7 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 | `ColorSpace` | Gradient interpolasyon uzayını taşır; `Srgb` ve `Oklab` değerleri vardır. |
 | `LinearColorStop` | Gradient stop rengini ve yüzde konumunu taşır. |
 
-`linear_gradient(...).color_space(ColorSpace::Oklab)` ile renk uzayını seçebilirsin; `opacity(factor)` her stop'a uygulanır. `Background::as_solid()` yalnızca düz renk background için `Some(Hsla)` döndürür; gradient veya pattern için `None` döner.
+`linear_gradient(...).color_space(ColorSpace::Oklab)` ile renk uzayını seçebilirsin; `opacity(factor)` her stop'a uygularsın. `Background::as_solid()` yalnızca düz renk background için `Some(Hsla)` döndürür; gradient veya pattern için `None` döner.
 
 `.bg(impl Into<Background>)`, her stil fluent API'sinde mevcuttur. Düz `Hsla` da `Into<Background>` uyguladığı için `.bg(theme.colors().panel_background)` çağrısı tipik bir kullanımdır.
 
@@ -400,7 +400,7 @@ pattern_slash(rgb(0xff0000), 2.0, 6.0)
 
 UI ağacı her çizimde yeniden oluşturulduğu için string ve URI kopyalama maliyeti hızla birikebilir. GPUI bu yükü azaltmak için `Arc` tabanlı tipler sunar:
 
-- `SharedString` — `gpui_shared_string::SharedString` re-export'udur. Kaynakta `Arc<str>` ve `&'static str` üzerinde soyutlama olarak tanımlanır, güncel uygulaması `SmolStr` ile desteklenir. `Clone`, `Display`, `AsRef<str>` ve `From<&str>`, `From<String>`, `From<Box<str>>`, `From<Arc<str>>`, `From<Cow<'_, str>>` uygulamaları hazırdır.
+- `SharedString` — `gpui_shared_string::SharedString` re-export'udur. Kaynakta `Arc<str>` ve `&'static str` üzerinde soyutlama olarak tanımlarsın, güncel uygulaması `SmolStr` ile desteklenir. `Clone`, `Display`, `AsRef<str>` ve `From<&str>`, `From<String>`, `From<Box<str>>`, `From<Arc<str>>`, `From<Cow<'_, str>>` uygulamaları hazırdır.
 - `SharedUri` — aynı stratejiyle URI tutar; `ImageSource::Resource(Resource::Uri(...))` `SharedUri` bekler.
 
 Render içinde her seferinde `String` üretip kopyalamak yerine entity verisinde `SharedString` saklamak yaygın bir desendir:

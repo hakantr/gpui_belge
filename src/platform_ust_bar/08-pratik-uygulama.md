@@ -8,19 +8,19 @@ Aşağıdaki tablo, üst barda en sık değiştirilen davranışların hangi dos
 
 | İhtiyaç | Değiştirilecek yer |
 | :-- | :-- |
-| Kapat butonu farklı bir eylem göndermeli | `PlatformTitleBar` içine `close_action` alanı eklenir veya doğrudan serbest render fonksiyonları kullanılır. |
-| Linux buton sırası ayardan gelmeli | `set_button_layout(...)` çağrısı uygulamanın ayar durumuna bağlanır; ayar değiştikçe yeniden render tetiklenir. |
-| Linux butonlarının ikonu/rengi değişmeli | `WindowControlStyle` veya `WindowControlType::icon()` port karşılığında değişiklik yapılır. |
+| Kapat butonu farklı bir eylem göndermeli | `PlatformTitleBar` içine `close_action` alanı eklenir veya doğrudan serbest render fonksiyonları kullanırsın. |
+| Linux buton sırası ayardan gelmeli | `set_button_layout(...)` çağrısı uygulamanın ayar durumuna bağlanır; ayar değiştikçe yeniden render tetiklersin. |
+| Linux butonlarının ikonu/rengi değişmeli | `WindowControlStyle` veya `WindowControlType::icon()` port karşılığında değişiklik yaparsın. |
 | Windows kapatma üzerine gelme rengi farklı olmalı | `platform_windows.rs` içindeki `WindowsCaptionButton::Close` (crate-içi enum) renkleri değiştirilir. Tip public değildir; port hedefinde aynı dört varyant kendi enum'unla yeniden yazılır. |
-| Başlık çubuğu yüksekliği değişmeli | `platform_title_bar_height` karşılığı port edilir ve tüm başlık çubuğu/kontrol kullanımlarında aynı değer kullanılır. |
+| Başlık çubuğu yüksekliği değişmeli | `platform_title_bar_height` karşılığı port edilir ve tüm başlık çubuğu/kontrol kullanımlarında aynı değer kullanırsın. |
 | Yerel sekmeler kapatılmalı | `SystemWindowTabs` render çocuk bileşeni özellik bayrağı ile boş döndürülür; denetleyici kaldırılmaz, böylece ihtiyaç doğduğunda etkinleştirmek kolaydır. |
-| Sekme artı butonu yeni pencere açmalı | `zed_actions::OpenRecent` yerine uygulamanın kendi `YeniPencere` eylemi gönderilir. |
+| Sekme artı butonu yeni pencere açmalı | `zed_actions::OpenRecent` yerine uygulamanın kendi `YeniPencere` eylemi gönderirsin. |
 | Yan panel açıkken kontroller gizlenmemeli | `sidebar_render_state` ve `show_left/right_controls` koşulları değiştirilir. |
 | Ürün duyuru bandı gösterilmeli | `UygulamaBaslikCubugu` içinde `OnboardingBanner` muadili bir çocuk bileşen kurulur; görünürlük bir ayar koşulu (`show_onboarding_banner`) ile kalıcı saklanan kapatılma durumundan gelir, platform kabuğuna taşınmaz. |
 | Güncelleme ipucu değişmeli | `UpdateVersion` muadili bileşendeki ipucu üreticisi güncellenir; kaynak davranıştaki `"Update to Version:"` öneki ve tam SHA bilgisi korunur. |
 | Güncelleme butonunun durumları ayrıştırılmalı | `UpdateButton` muadilinde `checking`, `downloading`, `installing`, `updated`, `errored` için ayrı kurucular tutulur; `checking` ve `installing` durumları döner `LoadCircle` ikonuyla, `downloading` durumu `Download` ikonuyla ve ilk üç durum `disabled(true)` ile işaretlenir. |
 | Sağ tık pencere menüsü kapatılmalı | Linux CSD'deki `window.show_window_menu(ev.position)` bağı kaldırılır veya bir ayara bağlanır. |
-| Çift tıklama maximize yerine farklı bir eylem olmalı | Platform tıklama işleyicileri ürünün kendi eylemine yönlendirilir; macOS sistem davranışına bilinçli olarak müdahale edildiği not edilir. |
+| Çift tıklama maximize yerine farklı bir eylem olmalı | Platform tıklama işleyicileri ürünün kendi eylemine yönlendirilir; macOS sistem davranışına bilinçli olarak müdahale edildiği not edersin. |
 
 ## 19. Kontrol listesi
 
@@ -36,7 +36,7 @@ Aşağıdaki listeler, üst bar entegrasyonu tamamlandıktan sonra hızlıca gö
 - Başlık çubuğu üzerindeki etkileşimli çocuk elementler sürükleme olay yayılımı ile çakışıyor mu diye test edersin; bir buton tıklamasının pencereyi sürüklemediğinden emin olursun.
 - Tema token'ları aktif, pasif ve üzerine gelme durumlarının hepsini kapsıyor mu diye kontrol edersin; eksik bir token render'da bariz görsel boşluklar bırakır.
 - Ürün duyuru bantları `PlatformTitleBar` içine gömülmeden, `UygulamaBaslikCubugu` çocuk grubu olarak kuruluyor mu diye kontrol edersin.
-- Duyuru bantlarının görünürlüğünün başlangıçta tek sefer hesaplanmadığını, render sırasında güncel ayar koşulu ve kapatılma durumu ile gizlenip gösterildiğini doğrularsın. Görünürlük `should_show = !dismissed && visible_when(cx)` biçiminde değerlendirilir; `visible_when` bir koşul kapanışıdır ve kapatılma durumu kalıcı saklanır.
+- Duyuru bantlarının görünürlüğünün başlangıçta tek sefer hesaplanmadığını, render sırasında güncel ayar koşulu ve kapatılma durumu ile gizlenip gösterildiğini doğrularsın. Görünürlük `should_show = !dismissed && visible_when(cx)` biçiminde değerlendirilir; `visible_when` bir koşul kapanışıdır ve kapatılma durumu kalıcı saklarsın.
 - Güncelleme ipucu semantik sürüm için de SHA için de kaynak davranıştaki `"Update to Version:"` önekini ve tam SHA bilgisini koruyor mu diye kontrol edersin. Port görünür metinleri Türkçeyse bu veri ayrımı yerelleştirilmiş metinde de korunur.
 - Güncelleme butonunun geçici durumları (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) sırasında tıklamanın kapalı olduğunu doğrularsın; `checking` ve `installing` durumlarında döner `LoadCircle` ikonunun her turu 2 saniyede tamamlayan sürekli (sonsuz tekrarlı) bir dönüş yaptığını, `downloading` durumunda ise `Download` ikonunun animasyonsuz olarak kullanıldığını kontrol edersin. Port görünür metinleri Türkçeyse bu durumlar `"Denetleniyor…"`, `"İndiriliyor…"`, `"Kuruluyor…"` gibi yazılır.
 - Mevcut pencereye/yan panele proje açan `Activate` akışı pencereyi öne alıyor ve başlık çubuğu durumunu güncelliyor mu diye test edersin.

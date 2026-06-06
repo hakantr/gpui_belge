@@ -1,6 +1,6 @@
 # `TitleBar` entity'si, `init` ve iki render modu
 
-Bu bölüm ürün başlığının çekirdeğini anlatır: `TitleBar` entity'si nasıl kurulur, `init` ile uygulamaya nasıl bağlanır ve her render geçişinde iki ayrı moddan birini neden seçer. Sonraki bölümlerdeki tek tek göstergeler bu çekirdeğin üstüne oturur.
+Bu bölüm ürün başlığının çekirdeğini anlatır: `TitleBar` entity'si nasıl kurarsın, `init` ile uygulamaya nasıl bağlanır ve her render geçişinde iki ayrı moddan birini neden seçer. Sonraki bölümlerdeki tek tek göstergeler bu çekirdeğin üstüne oturur.
 
 ## 1. `init`: her `Workspace` için bir `TitleBar`
 
@@ -67,7 +67,7 @@ Tablo başlığın ana durum kaynaklarıyla sınırlıdır; struct'ta ayrıca ab
 
 `new` ayrıca bir dizi abonelik kurar; her biri ilgili durum değiştiğinde `cx.notify()` ile yeniden render tetikler: `Workspace` değişimi, aktif çağrı (`ActiveCall`), pencere aktivasyonu, git store olayları (aktif repo/repo güncellemesi), kullanıcı store, çalışma ağacı oluşturma, pencere butonu yerleşimi değişimi ve varsa güvenilir çalışma ağacı (`TrustedWorktrees`) değişimi. Bu abonelikler, başlığın dört hızlı değişen alanını (proje, dal, bağlantı, kullanıcı) güncel tutmanın yoludur.
 
-`application_menu` alanı platforma göre kurulur: macOS'ta yalnız derleme sırasında tanımlı `ZED_USE_CROSS_PLATFORM_MENU` derleme ortam değişkeni varsa, Linux ve Windows'ta ise her zaman bir `ApplicationMenu` entity'si üretilir. macOS'ta varsayılan olarak `None` kalır; çünkü orada yerel menü çubuğu kullanılır.
+`application_menu` alanı platforma göre kurarsın: macOS'ta yalnız derleme sırasında tanımlı `ZED_USE_CROSS_PLATFORM_MENU` derleme ortam değişkeni varsa, Linux ve Windows'ta ise her zaman bir `ApplicationMenu` entity'si üretilir. macOS'ta varsayılan olarak `None` kalır; çünkü orada yerel menü çubuğu kullanırsın.
 
 ## 3. Render: çocuk grubunun hazırlanması
 
@@ -78,7 +78,7 @@ Tablo başlığın ana durum kaynaklarıyla sınırlıdır; struct'ta ayrıca ab
 3. **İlk karşılama duyuru bandı**: yalnız `show_onboarding_banner` ayarı açık ve `banner` alanı `Some` ise. (Güncel HEAD'de `banner` her zaman `None` olduğu için pratikte çizilmez; ayrıntı [7. bölümde](07-kullanici-update-banner.md).)
 4. **Sağ grup** (`h_flex`): işbirliği kontrolleri, bağlantı durumu, güncelleme bildirimi, oturum açma butonu, oturum açılırken titreşen durum etiketi ve kullanıcı menüsü. Bu grup da sol grup gibi sol fare basma olayında yayılımı durdurur (aynı sürükleme çakışmasını önlemek için). Port hedefinde bu görünür metinleri `"Oturum Aç"` ve `"Oturum açılıyor…"` gibi Türkçe yazarsın.
 
-Hangi parçanın görüneceği büyük ölçüde `TitleBarSettings` alanlarına bağlıdır (`show_project_items`, `show_branch_name`, `show_sign_in`, `show_user_menu` …). Ayarlar [4. bölümde](04-ayarlar-ve-uygulama-menusu.md) ayrıntılı işlenir.
+Hangi parçanın görüneceği büyük ölçüde `TitleBarSettings` alanlarına bağlıdır (`show_project_items`, `show_branch_name`, `show_sign_in`, `show_user_menu` …). Ayarlar [4. bölümde](04-ayarlar-ve-uygulama-menusu.md) ayrıntılı işlersin.
 
 ## 4. İki render modu: menü içeride mi, ayrı satırda mı?
 
@@ -96,7 +96,7 @@ self.platform_titlebar.clone()
 
 Bu modda uygulama menüsü (varsa) sol grubun başına eklenmiştir; başlık tek satırdır.
 
-**Mod B — `show_menus == true` (iki satır):** Platform kabuğuna yalnız **uygulama menüsü** çocuk olarak verilir; ürün içeriği ise platform kabuğunun altında ikinci bir satır olarak çizilir:
+**Mod B — `show_menus == true` (iki satır):** Platform kabuğuna yalnız **uygulama menüsü** çocuk olarak verilir; ürün içeriği ise platform kabuğunun altında ikinci bir satır olarak çizersin:
 
 ```rust
 self.platform_titlebar.update(cx, |baslik_cubugu, _| {

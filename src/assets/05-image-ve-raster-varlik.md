@@ -2,7 +2,7 @@
 
 Bu bölüm, vektörel logolar ve raster (PNG/JPG/WebP/GIF) görseller için kullanılan hattı anlatır. İkon sistemiyle paylaşılan bir SVG render hattı vardır, ama tüketim yüzeyi farklıdır. `images/` klasörü serbest boyutlu vektör görsellere ev sahipliği yapar. Raster image'lar ise `img()` element'i ve `ImageSource` enum'u üzerinden akar. Bu ayrım, uzaktan URL'den gelen görsel ile binary'ye gömülü logonun aynı arayüzü nasıl paylaştığını açıklar.
 
-Bölüm boyunca `Resource::Embedded` ve `Resource::Path` koşullarının ne zaman seçildiğini görürsün. `ImageAssetLoader` format desteği ve image cache davranışı da aynı akış içinde ele alınır.
+Bölüm boyunca `Resource::Embedded` ve `Resource::Path` koşullarının ne zaman seçildiğini görürsün. `ImageAssetLoader` format desteği ve image cache davranışı da aynı akış içinde ele alırsın.
 
 ---
 
@@ -93,7 +93,7 @@ impl Vector {
 
 İki bileşen de aynı `svg()` element'ini ve aynı `SvgRenderer` yolunu kullanır; bu yüzden `Vector` da yalnızca tek renkli SVG'leri doğru render eder. Bunun nedeni `Window::paint_svg` çağrısının SVG'yi alpha mask olarak rasterleştirip tek bir `text_color` ile boyamasıdır. Çok renkli logo veya illüstrasyon gerekiyorsa `Vector` yerine `img("images/logo.svg")` kullanman gerekir; `ImageAssetLoader` SVG byte'larını `SvgRenderer::render_single_frame` ile tam renkli `RenderImage`'a çevirir.
 
-`Vector::render` çağrısı sade tutulur:
+`Vector::render` çağrısı sade tutarsın:
 
 ```rust
 impl RenderOnce for Vector {
@@ -112,7 +112,7 @@ impl RenderOnce for Vector {
 }
 ```
 
-`svg()` element'ine doğrudan path verilir, ekstra adım yoktur. Yani `Vector` özünde "iki boyutu ayrı tutan bir SVG ikonu" olarak ele alınabilir.
+`svg()` element'ine doğrudan path verirsin, ekstra adım yoktur. Yani `Vector` özünde "iki boyutu ayrı tutan bir SVG ikonu" olarak ele alınabilir.
 
 ---
 
@@ -137,13 +137,13 @@ pub enum ImageSource {
 Dört varyantın anlamı:
 
 - **`Resource(Resource)`** — Bir path, URI veya embedded path string'idir. En sık kullanılan kaynak türüdür; `From<&str>`, `From<&Path>`, `From<PathBuf>` gibi conversion'lar bu varyantı üretir.
-- **`Render(Arc<RenderImage>)`** — Daha önce decode edilmiş ham BGRA buffer. Cache veya elle üretilmiş image data için kullanılır; ekstra yükleme yapılmaz, doğrudan render edilir.
+- **`Render(Arc<RenderImage>)`** — Daha önce decode edilmiş ham BGRA buffer. Cache veya elle üretilmiş image data için kullanılır; ekstra yükleme yapılmaz, doğrudan render edersin.
 - **`Image(Arc<Image>)`** — Decode edilmemiş ama yüklenmiş image instance'ı (format ve ham byte'lar elde, BGRA'ya çevrilmemiş). Tipik kullanım panodan (clipboard) gelen görseldir. Decode'un kendisi senkron bir `to_image_data` çağrısıdır; fakat bu çağrı asset task'ı içinde, yani arka planda koşar, böylece render zamanını bloke etmez.
 - **`Custom(Arc<dyn Fn>)`** — Tamamen özel bir loader. UI bileşeni kendi yüklemesini tanımlamak istediğinde (örneğin clipboard'tan görsel yapıştırma) bu varyant kullanırsın.
 
 ### 3.1 String'den ImageSource'a tip dönüşümleri
 
-`img(...)` çağrısının kabul ettiği değer tip karmaşıklığı sayesinde tek çağrıyla yönetilir. `gpui` crate'indeki kritik dönüşüm:
+`img(...)` çağrısının kabul ettiği değer tip karmaşıklığı sayesinde tek çağrıyla yönetirsin. `gpui` crate'indeki kritik dönüşüm:
 
 ```rust
 impl<'a> From<&'a str> for ImageSource {
@@ -157,7 +157,7 @@ impl<'a> From<&'a str> for ImageSource {
 }
 ```
 
-Heuristik basittir: `url::Url::from_str(s).is_ok()` true dönerse string bir URI olarak yorumlanır; aksi halde embedded asset path'i kabul edilir. Yani:
+Heuristik basittir: `url::Url::from_str(s).is_ok()` true dönerse string bir URI olarak yorumlanır; aksi halde embedded asset path'i kabul edersin. Yani:
 
 - `img("images/zed_logo.svg")` → `Resource::Embedded("images/zed_logo.svg")`
 - `img("https://example.com/avatar.png")` → `Resource::Uri("https://example.com/avatar.png")`
@@ -232,7 +232,7 @@ if let Ok(format) = image::guess_format(&bytes) {
 }
 ```
 
-`image` crate'i format tespit eder; her format için ayrı bir decoder hattı vardır. GIF için animasyon frame'leri sırayla işlenir, statik formatlar için tek frame üretilir.
+`image` crate'i format tespit eder; her format için ayrı bir decoder hattı vardır. GIF için animasyon frame'leri sırayla işlersin, statik formatlar için tek frame üretilir.
 
 ### 4.1 Desteklenen format listesi
 
@@ -289,7 +289,7 @@ pub type ImgResourceLoader = AssetLogger<ImageAssetLoader>;
 
 ### 5.1 `use_asset` cache mekaniği
 
-`ImageSource::use_data` imzası `(&self, cache: Option<AnyImageCache>, window, cx)` biçimindedir; tek bir `kaynak` parametresi almaz, yanına bir `cache` seçeneği de alır. `Resource` varyantında önce bu `cache`'e bakar: element ağacında en yakın bir `ImageCacheElement` varsa `cache.load(resource, window, cx)` çağrılır. Yalnızca lokal görsel önbelleği yoksa (`None`) `window.use_asset::<ImgResourceLoader>(resource, cx)` ile global asset cache'ine düşer:
+`ImageSource::use_data` imzası `(&self, cache: Option<AnyImageCache>, window, cx)` biçimindedir; tek bir `kaynak` parametresi almaz, yanına bir `cache` seçeneği de alır. `Resource` varyantında önce bu `cache`'e bakar: element ağacında en yakın bir `ImageCacheElement` varsa `cache.load(resource, window, cx)` çağırırsın. Yalnızca lokal görsel önbelleği yoksa (`None`) `window.use_asset::<ImgResourceLoader>(resource, cx)` ile global asset cache'ine düşer:
 
 ```rust
 pub fn use_asset<A: Asset>(&mut self, kaynak: &A::Source, cx: &mut App) -> Option<A::Output> {
@@ -320,7 +320,7 @@ Akış:
 2. `now_or_never()` Future hazırsa sonucu döner; aksi halde `None` döner ve view'in re-render edilmesi için bir tetikleyici kurarsın.
 3. İlk çağrıda (`is_first == true`) Future tamamlandığında `cx.notify(entity_id)` çağrılır; böylece görsel yüklenince view yeniden çizilir ve `use_asset` ikinci çağrıda sonucu döner.
 
-Pratik sonucu şudur: bir image element ilk render'da "boş" olarak çizilir, byte'lar yüklenip decode edildikten sonra otomatik olarak yenilenir. Bu davranış kullanıcı tarafında titrek bir flash olarak görünür; bunu yumuşatmak için `with_loading(...)` ile yer tutucu UI verilebilir.
+Pratik sonucu şudur: bir image element ilk render'da "boş" olarak çizersin, byte'lar yüklenip decode edildikten sonra otomatik olarak yenilenir. Bu davranış kullanıcı tarafında titrek bir flash olarak görünür; bunu yumuşatmak için `with_loading(...)` ile yer tutucu UI verilebilir.
 
 ---
 
@@ -374,7 +374,7 @@ Boru hattının en sonunda iki ayrı tür bulunur; pratikte ayrım şudur:
 
 Akış: `Resource → bytes → Image → RenderImage → GPU atlas`. `ImgResourceLoader` Resource'tan RenderImage'a kadar tek adımda gider; `ImageDecoder` ise elinde Image olan bir kullanıcıya RenderImage döndürür. Bu ayrım iki kullanım senaryosunu destekler:
 
-1. Image instance'ı uygulama içinde paylaşılıyor (örneğin clipboard'dan paste edilmiş görsel) — `ImageDecoder` ile decode edilir.
+1. Image instance'ı uygulama içinde paylaşılıyor (örneğin clipboard'dan paste edilmiş görsel) — `ImageDecoder` ile decode edersin.
 2. Resource path olarak verildi — `ImgResourceLoader` resource'tan başlayıp tüm yolu tek seferde geçer.
 
 ---
@@ -408,7 +408,7 @@ Dördüncü örnekte iki ek setter dikkat çekicidir:
 - **`with_loading`** — Image yüklenmeden önce gösterilecek yer tutucu UI. Async yüklemede ilk frame'in boş kalmaması için kullanırsın.
 - **`with_fallback`** — Image yüklenemezse (404, decode hatası) gösterilecek alternatif UI. Genellikle ikon veya hata kutusu konur.
 
-İki callback de `Fn() -> AnyElement` imzasındadır; çağrı sırasında her render'da yeniden çağrılır, durum tutmaz.
+İki callback de `Fn() -> AnyElement` imzasındadır; çağrı sırasında her render'da yeniden çağırırsın, durum tutmaz.
 
 ---
 
@@ -444,8 +444,8 @@ ImageAssetLoader::load
 
 Üç noktanın altı çizilmelidir:
 
-- **Resource tabanlı image yükleme async'dir**, render zamanı sıfır değildir. İlk frame'de görsel görünmez kalabilir; yükleme durumu bilinçli yönetilmelidir. `ImageSource::Render` gibi önceden decode edilmiş kaynaklarda bu bekleme yoktur.
+- **Resource tabanlı image yükleme async'dir**, render zamanı sıfır değildir. İlk frame'de görsel görünmez kalabilir; yükleme durumu bilinçli yönetmen gerekir. `ImageSource::Render` gibi önceden decode edilmiş kaynaklarda bu bekleme yoktur.
 - **`ImgResourceLoader` üç kaynak türünü birden taşır**; bu yüzden `img()` element'i URL, path ve embedded path için aynı API'yi sunar.
-- **Cache hash'i Resource türünü içerir**; aynı path string'i bir kez URI bir kez Embedded olarak yorumlanırsa farklı cache anahtarları üretilir. Bu pratik olarak çakışma yaratmaz çünkü dönüşüm deterministtir, fakat özel loader yazılırken hash davranışı dikkate alınmalıdır.
+- **Cache hash'i Resource türünü içerir**; aynı path string'i bir kez URI bir kez Embedded olarak yorumlanırsa farklı cache anahtarları üretilir. Bu pratik olarak çakışma yaratmaz çünkü dönüşüm deterministtir, fakat özel loader yazılırken hash davranışı dikkate alman gerekir.
 
 ---

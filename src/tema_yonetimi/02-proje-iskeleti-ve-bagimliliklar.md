@@ -192,7 +192,7 @@ Varsayılan derlemede sözdizimi crate'inin tek zorunlu bağımlılığı `gpui`
 
 **Sürüm uyumu:**
 
-- **`palette` major versiyonu Zed'in kullandığıyla aynı tutulmalıdır.** Aksi durumda HSL dönüşümü çok küçük miktarda kayabilir ve tema renkleri referans JSON çıktısıyla birebir örtüşmeyebilir. Bu fark gözle zor seçebilirsin, ama exact karşılaştırma yapan testleri bozar.
+- **`palette` major versiyonu Zed'in kullandığıyla aynı tutman gerekir.** Aksi durumda HSL dönüşümü çok küçük miktarda kayabilir ve tema renkleri referans JSON çıktısıyla birebir örtüşmeyebilir. Bu fark gözle zor seçebilirsin, ama exact karşılaştırma yapan testleri bozar.
 
 - **`serde_json_lenient`** Zed'in kullandığı sürümle uyumlu olmalıdır; major versiyon değişikliği yorum ve sonda virgül ayrıştırma davranışını değiştirebilir, bu da bazı geçerli Zed JSON dosyalarının aniden ayrıştırılamamasına yol açabilir.
 

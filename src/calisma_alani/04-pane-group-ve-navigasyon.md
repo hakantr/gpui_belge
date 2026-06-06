@@ -9,14 +9,14 @@ Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağa
 `PaneGroup` merkez veya dock içindeki pane ağacını taşır. Kök `Member::Pane` veya `Member::Axis(PaneAxis)` olabilir.
 
 - `PaneGroup::new(pane)` tek bir pane ile başlar.
-- `PaneGroup::with_root(root)` hazır `Member` ağacından grup kurar; restore veya test akışında kök split ağacı zaten eldeyse kullanılır.
+- `PaneGroup::with_root(root)` hazır `Member` ağacından grup kurar; restore veya test akışında kök split ağacı zaten eldeyse kullanırsın.
 - `PaneGroup::set_is_center(true)` grubun workspace merkez alanı olduğunu işaretler; dock içindeki pane gruplarıyla merkez pane grubu bu alan üzerinden ayrışır.
 - `split(old_pane, new_pane, SplitDirection, cx)` ağaca yeni pane ekler; `old_pane` bulunamazsa ilk pane yedek olarak kullanırsın.
 - `remove`, `resize`, `reset_pane_sizes`, `swap`, `move_to_border` split ağacını değiştirir.
 - `pane_at_pixel_position(point)`, `bounding_box_for_pane(pane)`, `find_pane_in_direction`, `first_pane()` ve `last_pane()` sürükle-bırak, fallback odak ve klavyeyle pane gezinme için kullanırsın.
 - `full_height_column_count()` merkez alanın tam yüksekliğe yayılan kolon sayısını döndürür; `invert_axies(cx)` split ağacındaki eksenleri tersleyip pane konumlarını yeniden işaretler.
 - `SplitDirection::{Up, Down, Left, Right}`; `vertical(cx)` ve `horizontal(cx)` kullanıcı ayarına göre varsayılan split yönünü üretir.
-- `SplitDirection::all()` dört yönü `[Up, Down, Left, Right]` sırasıyla verir; yön taraması veya key binding üretimi için kullanılır.
+- `SplitDirection::all()` dört yönü `[Up, Down, Left, Right]` sırasıyla verir; yön taraması veya key binding üretimi için kullanırsın.
 - `SplitDirection::axis()`, `opposite()`, `edge(bounds)`, `along_edge(bounds, length)` resize ve bırakma göstergesi hesaplarında kullanırsın.
 - `SplitDirection::increasing()` yönün koordinat ekseninde artan tarafa gidip gitmediğini bildirir; `Down` ve `Right` artan, `Up` ve `Left` azalan yöndür.
 
@@ -24,7 +24,7 @@ Pane ve çalışma alanı yalnızca tab listesinden ibaret değildir; split ağa
 
 ## Pane Preview, Pin ve NavHistory
 
-Pane item listesinde preview ve sabitlenmiş ayrımı vardır; her ikisi de benzer ama farklı durumlarda yönetilir:
+Pane item listesinde preview ve sabitlenmiş ayrımı vardır; her ikisi de benzer ama farklı durumlarda yönetirsin:
 
 - `preview_item_id`, `preview_item`, `is_active_preview_item`, `unpreview_item_if_preview`, `replace_preview_item_id` preview tab akışıdır.
 - `pinned_count`, `set_pinned_count` sabitlenmiş tab sınırını yönetir.
@@ -89,11 +89,11 @@ pub trait Sidebar: Focusable + Render + EventEmitter<SidebarEvent> + Sized {
 }
 ```
 
-Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
+Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetirsin:
 
 - `MultiWorkspace::register_sidebar(entity, cx)` sidebar'ı handle olarak saklar, gözlemler ve `SidebarEvent::SerializeNeeded` geldiğinde serileştirir.
 - `ProjectGroup { key: ProjectGroupKey, workspaces, expanded }` ve `SerializedProjectGroupState` çoklu workspace gruplarının kalıcı anahtarını ve açık/kapalı durumunu taşır.
-- `add_background_workspace(workspace, window, cx)` gelen workspace'i kayıt ve tutma defterine ekler, fakat aktif workspace'i değiştirmez ve odağı taşımaz. Agent `create_thread` gibi kullanıcının mevcut bağlamını bölmeden sibling worktree açan akışlarda bu metodla yeni workspace arka planda sidebar grubuna alınır.
+- `add_background_workspace(workspace, window, cx)` gelen workspace'i kayıt ve tutma defterine ekler, fakat aktif workspace'i değiştirmez ve odağı taşımaz. Agent `create_thread` gibi kullanıcının mevcut bağlamını bölmeden sibling worktree açan akışlarda bu metodla yeni workspace arka planda sidebar grubuna alırsın.
 - `toggle_sidebar`, `open_sidebar`, `close_sidebar`, `focus_sidebar` görünürlük ve odak akışıdır.
 - `prepare_for_focus`, `toggle_thread_switcher`, `cycle_project` ve `cycle_thread` focus ön hazırlığı ile proje/thread MRU geçişlerini sidebar implementasyonuna devreder.
 - `set_sidebar_overlay(Some(AnyView), cx)` sidebar üzerine kaplama yerleştirir.
@@ -112,9 +112,9 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 |-----|-----|
 | `ItemNavHistory` | Item'e bağlı gezinme geçmişidir; `push`, `pop_backward`, `pop_forward`, `push_tag` ve `navigation_entry` ile pane history zincirini yönetir. |
 | `Member` | Pane split ağacının düğümüdür; `Pane` yapraklarını ve `Axis(PaneAxis)` iç düğümlerini taşır. |
-| `PaneAxis` | `axis`, `members`, `flexes`, `bounding_boxes` alanlarıyla yatay/dikey split kolunu temsil eder; `new` ve `load` ile kurulur. |
+| `PaneAxis` | `axis`, `members`, `flexes`, `bounding_boxes` alanlarıyla yatay/dikey split kolunu temsil eder; `new` ve `load` ile kurarsın. |
 | `ProjectGroup` | MultiWorkspace sidebar'da birlikte gruplanan workspace listesini taşır. |
-| `ProjectGroupKey` | Project group kalıcı kimliğidir; anahtar grubun kimlik ve serileştirme ayrımı için kullanılır, sıra ise grup listesindeki konumla tutulur. |
+| `ProjectGroupKey` | Project group kalıcı kimliğidir; anahtar grubun kimlik ve serileştirme ayrımı için kullanırsın, sıra ise grup listesindeki konumla tutarsın. |
 | `SerializedProjectGroupState` | Project group açık/kapalı bilgisinin persist edilen halidir. |
 | `SidebarEvent` | Sidebar'ın serileştirme ihtiyacını workspace'e bildirir. |
 | `SidebarSide` | Sidebar'ın pencere tarafını seçer; titlebar ve render tarafı bu değeri kullanır. |
@@ -158,7 +158,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 **Dikkat noktaları.** Bu entegrasyonlarda dikkat edilmesi gerekenler:
 
 - Toolbar item `set_active_pane_item` içinde konum döndürür; ancak daha sonra yer değiştireceği zaman olay yaymalıdır, sadece durum değiştirip `cx.notify()` yeterli değildir.
-- Sidebar durumu serileştirilecekse `SidebarEvent::SerializeNeeded` yayma adımı akışa eklenmelidir.
+- Sidebar durumu serileştirilecekse `SidebarEvent::SerializeNeeded` yayma adımı akışa eklemen gerekir.
 - Çalışma alanı tutma veya ayırma davranışı sidebar açık/kapalı durumuna bağlanmamalıdır; güncel karar kaynağı `multi_workspace_enabled(cx)` sonucudur.
-- Nav history preview item'ı ayrı işaretler; preview tab gerçek tab'a sabitlendiğinde history girişleri buna göre güncellenmelidir.
+- Nav history preview item'ı ayrı işaretler; preview tab gerçek tab'a sabitlendiğinde history girişleri buna göre güncellemen gerekir.
 - Split yönü sabit kodlanmış olarak verilmek yerine kullanıcı ayarlı varsayılan isteniyorsa `SplitDirection::vertical(cx)` veya `horizontal(cx)` kullanırsın.

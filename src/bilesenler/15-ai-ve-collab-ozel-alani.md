@@ -106,7 +106,7 @@ Temel API:
 
 Davranış:
 
-- Disabled değilse ve bir `on_click` bağlanmışsa, hover sırasında pointer cursor, hover arka planı ve border rengi uygulanır.
+- Disabled değilse ve bir `on_click` bağlanmışsa, hover sırasında pointer cursor, hover arka planı ve border rengi uygularsın.
 - `state(...)` verildiğinde, alt bölüm border-top ve subtle arka plan ile ayrılır.
 
 Örnek:
@@ -180,9 +180,9 @@ Davranış:
 - `WaitingForConfirmation` warning ikonu ve bir tooltip üretir.
 - `Error` durumu close ikonu ve bir tooltip üretir.
 - `notified(true)` accent bir circle kullanır.
-- Üstveri satırında linked worktree bilgisi, project name veya path, diff stat ve timestamp sırayla render edilir.
+- Üstveri satırında linked worktree bilgisi, project name veya path, diff stat ve timestamp sırayla render edersin.
 - `title_slot(...)` verildiğinde başlık metnini bileşen değil verilen element çizer; bu yol özel ikon, badge veya zengin başlık kompozisyonu için ayrılmıştır.
-- `is_truncated(false)` gradient taşma katmanını kapatır; üst yerleşim başlık taşmasını kendisi yönetecekse kullanılır.
+- `is_truncated(false)` gradient taşma katmanını kapatır; üst yerleşim başlık taşmasını kendisi yönetecekse kullanırsın.
 - `action_slot(...)` yalnızca `.hovered(true)` durumunda görünür.
 
 Örnek:
@@ -253,7 +253,7 @@ Temel API:
 
 Davranış:
 
-- Sol tarafta success rengiyle bir `Check` ikonu ve etiket render edilir.
+- Sol tarafta success rengiyle bir `Check` ikonu ve etiket render edersin.
 - Button label verilmediğinde varsayılan olarak `"Reset Key"` gelir.
 - Button'ın start ikonu `Undo`'dur.
 - `disabled(true)`, button'ı disabled hâle getirir ve click işleyicisi bağlanmaz.
@@ -366,9 +366,9 @@ Temel API:
 
 Davranış:
 
-- Avatar `px(40.)` boyutunda render edilir.
+- Avatar `px(40.)` boyutunda render edersin.
 - Sağ tarafta iki buton dikey olarak yerleşir.
-- İçerik `SmallVec<[AnyElement; 2]>` üzerinden tutulur ve bir `v_flex().truncate()` içinde render edilir.
+- İçerik `SmallVec<[AnyElement; 2]>` üzerinden tutulur ve bir `v_flex().truncate()` içinde render edersin.
 
 Örnek:
 
@@ -418,9 +418,9 @@ Davranış:
 - Slash autocomplete açıldığında provider önce delegate'e `slash_autocomplete_invoked(...)` bildirir; native agent bunu global ve proje-local skills taramasını başlatmak için kullanır.
 - Slash listesinde Skills, Agent Commands grubundan önce sıralanır. Skill completion label'ında ad ve scope/source birlikte gösterilir; documentation alanında skill description yer alır.
 - Skill seçildiğinde native agent metne `MentionUri::Skill` link'i ekler. Link veya mention açıldığında ilgili `SKILL.md` dosyası workspace içinde absolute path ile açılır.
-- `SkillLoadingErrorsUpdated` event'leri thread view'da warning `Callout` olarak render edilir. Her callout kaynakta `Open File` butonu ve dismiss ikon butonu taşır; dosya düzeltildiğinde veya kaldırıldığında dismiss kaydı da temizlenir.
-- Rules-to-Skills migration tek seferlik ve non-destructive çalışır; tüm kullanıcılar için aynı şekilde uygulanır. `MIGRATION_DONE_KEY` sabitinin değeri olan `rules_to_skills_migration_done` global KVP anahtarıyla bir kez çalışacak şekilde korunur. Zed, non-default Rules'u global skills dizinine `SKILL.md` olarak taşır; Default Rules ve özelleştirilmiş (customized) built-in prompt gövdelerini global `AGENTS.md` dosyasına ekler. Özelleştirilmemiş (uncustomized) built-in prompt'ları `AGENTS.md`'ye aktarmaz; bunlar zaten kullanıcının kişisel `AGENTS.md`'sine enjekte edildiğinden, hiç yazmadığı metni dosyaya eklemekten kaçınır. Sonuç `MIGRATION_RESULT_KEY` sabitinin değeri olan `rules_to_skills_migration_result` anahtarıyla saklanır.
-- Zed, skills announcement toast'unu `auto_update_ui` içinde "Introducing Skills Support" başlığıyla kurar. Migration sonucu boş değilse Rules dönüşümünü anlatan ek bullet gösterir; `"Try Now"` etiketli primary action agent paneline focus eder, `"Read Documentation"` etiketli secondary action skills dokümantasyonuna gider. Toast `skills_announcement_dismissed` KVP anahtarıyla bir kez dismiss edilir.
+- `SkillLoadingErrorsUpdated` event'leri thread view'da warning `Callout` olarak render edersin. Her callout kaynakta `Open File` butonu ve dismiss ikon butonu taşır; dosya düzeltildiğinde veya kaldırıldığında dismiss kaydı da temizlenir.
+- Rules-to-Skills migration tek seferlik ve non-destructive çalışır; tüm kullanıcılar için aynı şekilde uygularsın. `MIGRATION_DONE_KEY` sabitinin değeri olan `rules_to_skills_migration_done` global KVP anahtarıyla bir kez çalışacak şekilde korunur. Zed, non-default Rules'u global skills dizinine `SKILL.md` olarak taşır; Default Rules ve özelleştirilmiş (customized) built-in prompt gövdelerini global `AGENTS.md` dosyasına ekler. Özelleştirilmemiş (uncustomized) built-in prompt'ları `AGENTS.md`'ye aktarmaz; bunlar zaten kullanıcının kişisel `AGENTS.md`'sine enjekte edildiğinden, hiç yazmadığı metni dosyaya eklemekten kaçınır. Sonuç `MIGRATION_RESULT_KEY` sabitinin değeri olan `rules_to_skills_migration_result` anahtarıyla saklarsın.
+- Zed, skills announcement toast'unu `auto_update_ui` içinde "Introducing Skills Support" başlığıyla kurar. Migration sonucu boş değilse Rules dönüşümünü anlatan ek bullet gösterir; `"Try Now"` etiketli primary action agent paneline focus eder, `"Read Documentation"` etiketli secondary action skills dokümantasyonuna gider. Toast `skills_announcement_dismissed` KVP anahtarıyla bir kez dismiss edersin.
 - Tool permissions setup sayfasında `skill` aracı ayrı bir satırdır. Regex pattern'leri skill adıyla değil, skill'in `SKILL.md` dosyasının absolute path'iyle eşleşir.
 
 Dikkat edeceğin noktalar:
@@ -460,9 +460,9 @@ Davranış:
 - `icon_animate(true)` çağrısı, ikona dönme animasyonu uygular.
 - `.with_dismiss()` sağ tarafta bir kapatma ikon butonu gösterir.
 - `.disabled(true)`, ana `ButtonLike` alanını devre dışı bırakır. Bunun yanında `checking`, `downloading` ve `installing` hazır kurucuları bu durumu kendileri uygular.
-- Ana alan `ButtonLike::new("update-button")` üzerinden render edilir.
+- Ana alan `ButtonLike::new("update-button")` üzerinden render edersin.
 - İpucu verildiğinde ana buton alanına bağlanır.
-- `checking()` ile `installing(...)` dönen `IconName::LoadCircle` kullanır; animasyon süresi 2 saniyedir. `downloading(...)` ve `updated(...)` `IconName::Download`, `errored(...)` ise `IconName::Warning` ile çizilir.
+- `checking()` ile `installing(...)` dönen `IconName::LoadCircle` kullanır; animasyon süresi 2 saniyedir. `downloading(...)` ve `updated(...)` `IconName::Download`, `errored(...)` ise `IconName::Warning` ile çizersin.
 - Hazır kurucuların arayüzde ürettiği varsayılan mesajlar şu biçimdedir: `checking()` `"Checking for Zed Updates…"`, `downloading(...)` `"Downloading Zed Update…"`, `installing(...)` `"Installing Zed Update…"`, `updated(...)` `"Restart to Update"`, `errored(...)` ise `"Failed to Update"`. Özel bir metin gerektiğinde `UpdateButton::new(...)` ile açıkça bir durum kurarsın.
 - Kenarlık rengi devre dışı duruma göre değişir: aktif konumda `colors().text.opacity(0.15)` ile yumuşatılmış bir kenarlık, devre dışı konumda ise standart `colors().border` kullanırsın. Bu nedenle aktif `updated(...)` ve `errored(...)` durumları, devre dışı olan `checking`, `downloading` ve `installing` durumlarından daha belirgin bir kenarlık taşır.
 - Başlık çubuğundaki `UpdateVersion` ipucu `"Update to Version: ..."` biçimindedir; SHA tabanlı bir sürümde kısaltılmış SHA yerine tam SHA gösterilir.

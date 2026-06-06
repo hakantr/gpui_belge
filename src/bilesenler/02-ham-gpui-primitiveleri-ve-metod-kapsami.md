@@ -120,7 +120,7 @@ Action ve klavye ailesinde `capture_action(...)`, `on_action(...)`, `on_boxed_ac
 
 Framework implementer metotları `source_location`, `request_layout`, `prepaint`, `paint` ve `Div::compute_style` olarak görünür. Bunlar builder API değildir; günlük UI yazımında kullanmazsın. Yalnızca `Element` implementasyonu yazarken veya GPUI içinde değişiklik yaparken devreye girerler. `GroupHitboxes::get/push/pop`, grup hover/active hitbox durumunun iç global stack yönetimini yapar; üst seviye kodun bunu doğrudan kullanması beklenmez. `DragMoveEvent<T>::drag(cx)` ve `.dragged_item()` ise sürükleme verisini okumak için kullandığın olay yardımcılarıdır.
 
-Animasyon easing yardımcıları `linear(delta)`, `quadratic(delta)`, `ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla export edilir. Test modülünde yer alan `select_next` veya `select_previous` gibi örnek view metotları ise bileşen API'si değildir; sadece test amaçlı örneklerdir.
+Animasyon easing yardımcıları `linear(delta)`, `quadratic(delta)`, `ease_in_out(delta)`, `ease_out_quint()` ve `bounce(easing)` adlarıyla export edersin. Test modülünde yer alan `select_next` veya `select_previous` gibi örnek view metotları ise bileşen API'si değildir; sadece test amaçlı örneklerdir.
 
 ## İç Durum ve Küçük Yardımcı Yüzeyi
 

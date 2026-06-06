@@ -22,7 +22,7 @@ Erişim noktaları şunlardır:
 - `CommandPaletteFilter::global_mut(cx) -> &mut Self`
 - `CommandPaletteFilter::update_global(cx, |filtre, cx| ...)`
 
-`update_global` global yoksa yenisini oluşturmaz; `cx.has_global` kontrolünden sonra çalışır ve global mevcut değilse no-op kalır. Bu nedenle command palette crate'i kullanılmadan yalnızca hook crate'ine erişiliyorsa önce `command_palette_hooks::init(cx)` çağrılmalıdır.
+`update_global` global yoksa yenisini oluşturmaz; `cx.has_global` kontrolünden sonra çalışır ve global mevcut değilse no-op kalır. Bu nedenle command palette crate'i kullanılmadan yalnızca hook crate'ine erişiliyorsa önce `command_palette_hooks::init(cx)` çağırman gerekir.
 
 **Filtre yönetimi.** Komut paletinde hangi action'ların görünür kalacağı filtre üzerinden ayarlanır:
 
@@ -92,12 +92,12 @@ Action trait'inin `documentation()` yüzeyi komut paleti ile karıştırılmamal
 Zed'in gerçek komut paleti akışıdır. Başlatma ve açma sırası şu adımlarla işler:
 
 1. `command_palette::init(cx)` hook global'lerini kurar ve `cx.observe_new(CommandPalette::register).detach()` ile her yeni `Workspace` için `Toggle` action'ına işleyici bağlar (`workspace.register_action(...)`). Action tipinin kendisi `zed_actions::command_palette` içinde `actions!` ile zaten tanımlıdır; `register` yalnız bu tipe bir işleyici takar.
-2. `CommandPalette::toggle(calisma_alani, sorgu, window, cx)` mevcut focus handle'ını alır. Focus yoksa palet açılmaz. Ardından `calisma_alani.toggle_modal(...)` ile `CommandPalette` modal view olarak oluşturulur.
+2. `CommandPalette::toggle(calisma_alani, sorgu, window, cx)` mevcut focus handle'ını alır. Focus yoksa palet açılmaz. Ardından `calisma_alani.toggle_modal(...)` ile `CommandPalette` modal view olarak oluşturursun.
 3. `CommandPalette::new(onceki_odak_tutamagi, sorgu, calisma_alani, window, cx)` `window.available_actions(cx)` çağırır. Bu liste bütün registry değildir; odaktaki dispatch path üzerinde `.on_action(...)` ile bağlı action'lar ve global action dinleyicileridir.
 4. Her action `CommandPaletteFilter::is_hidden` ile elenir ve görünen action'lar `humanize_action_name(action.name())` sonucuyla `Command { name, action }` haline getirilir.
 5. UI `Picker::uniform_list(temsilci, window, cx)` ile kurulur; ardından başlangıç sorgusu `secici.set_query(sorgu, window, cx)` ile editöre yazılır.
 
-`CommandPalette::set_query(sorgu, window, cx)` açık palette sorguyu programatik olarak günceller. `CommandPaletteDelegate` dışa açık bir tiptir ve `Picker` delegate davranışını taşır; normal tüketici akışında doğrudan kurulmaz, `CommandPalette::toggle` üzerinden oluşturulur.
+`CommandPalette::set_query(sorgu, window, cx)` açık palette sorguyu programatik olarak günceller. `CommandPaletteDelegate` dışa açık bir tiptir ve `Picker` delegate davranışını taşır; normal tüketici akışında doğrudan kurulmaz, `CommandPalette::toggle` üzerinden oluşturursun.
 
 **Arama akışı.** Sorgu birkaç aşamadan geçer:
 
@@ -134,7 +134,7 @@ Komut paleti yüzeyinde her dışa açık taşıyıcı için ayrı öğretici ba
 | `command_palette::init` | Hook global'lerini kurar ve yeni `Workspace` entity'leri için `zed_actions::command_palette::Toggle` action'ını kaydeder. |
 | `CommandPalette` | `ModalView`, `Focusable`, `Render` ve `EventEmitter<DismissEvent>` davranışını taşır; dış tüketimde `toggle` ve `set_query` önemlidir. |
 | `CommandPalette::toggle` | Önceki focus handle'ını saklar, workspace modal layer içinde paleti açar ve başlangıç sorgusunu `Picker` editörüne verir. |
-| `CommandPalette::set_query` | Açık palette sorguyu dışarıdan değiştirir; UI testleri ve "paleti belirli aramayla aç" akışları için kullanılır. |
+| `CommandPalette::set_query` | Açık palette sorguyu dışarıdan değiştirir; UI testleri ve "paleti belirli aramayla aç" akışları için kullanırsın. |
 | `CommandPaletteDelegate` | Komut listesi, fuzzy sonuçlar, interceptor sonucu, seçim ve geçmiş sorgu durumunu taşır; doğrudan kurulmak yerine `CommandPalette::toggle` üzerinden oluşur. |
 | `humanize_action_name` | `editor::GoToDefinition` gibi canonical action adlarını palette okunur hale getirir. |
 | `normalize_action_query` | `_` karakterlerini boşluğa çevirir, ardışık boşluk ve `::` tekrarlarını sadeleştirir. |
@@ -142,7 +142,7 @@ Komut paleti yüzeyinde her dışa açık taşıyıcı için ayrı öğretici ba
 | `CommandPaletteFilter` | Namespace ve action tipi bazlı gizleme/gösterme kararını verir. |
 | `CommandInterceptItem` | `action`, görüntülenecek `string` ve vurgu `positions` alanlarını taşır. |
 | `CommandInterceptResult` | `results` listesini ve normal sonuçların gösterilip gösterilmeyeceğini belirleyen `exclusive` bayrağını taşır. |
-| `GlobalCommandPaletteInterceptor` | `set`, `clear` ve `intercept` ile sorgu string'ini özel action sonuçlarına çevirmek için kullanılır. |
+| `GlobalCommandPaletteInterceptor` | `set`, `clear` ve `intercept` ile sorgu string'ini özel action sonuçlarına çevirmek için kullanırsın. |
 
 `CommandInterceptItem` ve `CommandInterceptResult` alanları bu tabloda yeterince açıklanır: `action` çalıştırılacak gerçek action nesnesidir, `string` palette görünen metindir, `positions` vurgulama indeksleridir; `exclusive` true olduğunda normal action eşleşmeleri gizlenir.
 

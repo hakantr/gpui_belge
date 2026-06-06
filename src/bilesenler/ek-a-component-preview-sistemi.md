@@ -1,15 +1,15 @@
 # Ek A. Component Preview Sistemi
 
-Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak incelemek için kullanırsın. Bu sistem `component` crate'i tarafından yönetilir. Üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry` global'i ve `single_example` ile `example_group_with_title` gibi layout yardımcıları.
+Component preview sistemi, bileşen varyantlarını Zed'in içinde görsel olarak incelemek için kullanırsın. Bu sistem `component` crate'i tarafından yönetirsin. Üç ana parçadan oluşur: `Component` trait'i, `ComponentRegistry` global'i ve `single_example` ile `example_group_with_title` gibi layout yardımcıları.
 
 Zed uygulamasında bu sistem iki seviyede ele alırsın:
 
 - `workspace::init(app_state, cx)` içinde `component::init()` çağırırsın. Bu çağrı, `inventory::iter::<ComponentFn>()` ile `RegisterComponent` derive'larından gelen kayıt fonksiyonlarını çalıştırır ve `COMPONENT_DATA` registry'sini doldurur.
 - `zed` crate'i, normal uygulama açılışında `component_preview::init(app_state.clone(), cx)` çağrısını yapar. Ana `zed` uygulamasında sıra şöyledir: önce `settings::init` ve theme init tamamlanır; ardından `workspace::init(...)` çağrılır ve `component::init()` bu çağrının içinden, yani settings/theme init'inden sonra çalışır; en sonda `component_preview::init(...)` gelir. Standalone preview örneği ise bu bağımlılıkları kendi içinde daha sade bir akışla kurduğundan, orada `component::init()` çağrısını settings/theme kurulumundan önce de görebilirsin; bu sıralama yalnızca o örneğe özgüdür.
 - `ComponentPreview::new(...)`, registry'yi `components()` ile okur; `sorted_components()` ve `component_map()` değerlerini kendi view durumuna alır. Filtre editor'ü için `InputField::new(window, cx, "Find components or usages…")` kurar; listeyi `ListState` üzerinden sanallaştırır.
-- Render tarafında preview sayfası `ComponentMetadata::preview()` callback'ini çağırır. Bu callback `fn(&mut Window, &mut App) -> AnyElement` tipindedir; kayıtlı her component için çağrılabilir bir preview elementi beklenir. Anlamlı bir görsel örnek yoksa `empty_example(...)` veya küçük bir placeholder elementini component'in kendi `preview` metodunda döndürürsün.
+- Render tarafında preview sayfası `ComponentMetadata::preview()` callback'ini çağırır. Bu callback `fn(&mut Window, &mut App) -> AnyElement` tipindedir; kayıtlı her component için çağrılabilir bir preview elementi beklersin. Anlamlı bir görsel örnek yoksa `empty_example(...)` veya küçük bir placeholder elementini component'in kendi `preview` metodunda döndürürsün.
 
-Bu nedenle uygulama içi component sistemi bir runtime UI dependency injection mekanizması değildir. Asıl görevi **görsel inceleme ve dokümantasyon registry'si** olmaktır. Production ekranları bileşenleri doğrudan `ui::Button`, `ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır. Component registry yalnızca preview tool'u, dokümantasyon ve arama ekranları için devrede tutulur.
+Bu nedenle uygulama içi component sistemi bir runtime UI dependency injection mekanizması değildir. Asıl görevi **görsel inceleme ve dokümantasyon registry'si** olmaktır. Production ekranları bileşenleri doğrudan `ui::Button`, `ui::ContextMenu`, `ui::Table` gibi builder'larla kullanır. Component registry yalnızca preview tool'u, dokümantasyon ve arama ekranları için devrede tutarsın.
 
 Component tarafında `ui::prelude::*`, `Component`, `ComponentScope`, `example_group`, `example_group_with_title`, `single_example` ve `RegisterComponent` derive makrosunu da getirir; aynı prelude GPUI ve temel UI yapı taşlarını da içerir. `ui::component_prelude::*` buna ek olarak `ComponentId`, `ComponentStatus` ve `documented::Documented` gibi component preview odaklı öğeleri taşır. Programatik registry erişimi (`ComponentRegistry`, `ComponentMetadata`, `register_component`, `empty_example`, `ComponentExample`, `ComponentExampleGroup`, `ComponentFn`) gerektiğinde `use component::*;` veya doğrudan tek tek import kullanırsın.
 
@@ -195,7 +195,7 @@ let baslikli: ComponentExampleGroup = example_group_with_title(
 
 `ComponentExample` builder yüzeyi: `.description(text)`, `.width(pixels)`. `ComponentExampleGroup` builder yüzeyi: `.width(pixels)`, `.grow()`, `.vertical()` ile birlikte `with_title(title, examples)` constructor'ı.
 
-`ComponentExample` dışa açık alanları: `variant_name`, `description`, `element`, `width`. Normal kullanımda bu alanları doğrudan mutasyona açmak yerine `single_example(...)`, `empty_example(...)`, `.description(...)` ve `.width(...)` yardımcılarının kullanılması beklenir. `variant_name` gallery'de görünen varyant başlığıdır; test ve dokümantasyon üretici kodlarda doğrudan okunabilir.
+`ComponentExample` dışa açık alanları: `variant_name`, `description`, `element`, `width`. Normal kullanımda bu alanları doğrudan mutasyona açmak yerine `single_example(...)`, `empty_example(...)`, `.description(...)` ve `.width(...)` yardımcılarının kullanılması beklersin. `variant_name` gallery'de görünen varyant başlığıdır; test ve dokümantasyon üretici kodlarda doğrudan okunabilir.
 
 `ComponentExampleGroup` dışa açık alanları: `title`, `examples`, `width`, `grow`, `vertical`. Bunlar `RenderOnce` sırasında layout kararına çevrilir; üretim preview kodunda builder metotlarının kullanılması daha okunaklı bir sonuç verir.
 

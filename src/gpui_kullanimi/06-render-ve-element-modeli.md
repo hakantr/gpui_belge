@@ -82,7 +82,7 @@ impl Render for ProfilPenceresi {
 }
 ```
 
-Bu örnekte `eposta_taslagi`, `kaydedildi_mi` ve `hata` element ağacının değil `ProfilPenceresi` view'unun alanlarıdır. Kullanıcı epostayı değiştirirse veya kaydetme sonucu gelirse bu alanları günceller ve `cx.notify()` çağırırsın. Sonra aynı `Entity<ProfilPenceresi>` yeniden render edilir. Başka kodlar güncel epostayı kullanacaksa kaynak burasıdır; geçici element veya mesaj bileşeni değildir.
+Bu örnekte `eposta_taslagi`, `kaydedildi_mi` ve `hata` element ağacının değil `ProfilPenceresi` view'unun alanlarıdır. Kullanıcı epostayı değiştirirse veya kaydetme sonucu gelirse bu alanları günceller ve `cx.notify()` çağırırsın. Sonra aynı `Entity<ProfilPenceresi>` yeniden render edersin. Başka kodlar güncel epostayı kullanacaksa kaynak burasıdır; geçici element veya mesaj bileşeni değildir.
 
 `RenderOnce` ise bu pencerenin içinde kullandığın küçük, tek seferlik UI parçaları içindir. Aşağıdaki başarı mesajı kendi başına eposta düzenlemez, kaydetmez, hata state'i tutmaz ve başka kodlar tarafından güncel veri kaynağı olarak okunmaz. Kendisine verilen epostayı isterse sadece bilgi olarak gösterir:
 
@@ -114,7 +114,7 @@ Karar kuralı kesindir:
 - `Render::render` kaydetme, doğrulama veya ağ işleminin yeri değildir; bu işlemleri event handler, action, model metodu veya async task içinde yaparsın. `render`, bu işlemlerden sonra değişen state'i ekrana yansıtır.
 - `RenderOnce` içinde görünen veri bilgi amaçlı olabilir; ama güncel verinin kaynağı olarak kullanma.
 
-**Crate kökü ve kapalı trait sınırları.** `gpui` crate kökü bazı düşük seviyeli sembolleri de dışa aktarır. `GPUI_MANIFEST_DIR`, `env!("CARGO_MANIFEST_DIR")` değerini taşıyan `#[doc(hidden)]` bir statik değerdir; asset veya test altyapısı crate'in manifest dizinine ihtiyaç duyduğunda kullanılır, uygulama verisi yolu veya kullanıcı ayarı yolu olarak kullanılmaz. `Sealed` ise bundan farklıdır: crate kökünden dışa aktarılmaz, private bir modülde durur; dış kod onu adlandıramaz veya göremez. GPUI'nın belirli trait implementasyonlarını yalnız crate içinde tutmak için kullandığı iç (crate-içi) mühürlü trait desenidir; örneğin event trait'lerini bu desenle sınırlar. Bir trait bu mühürlü desenle sınırlandığında uygulama kodu o trait'i yeni bir tipe uygulamaya çalışmak yerine GPUI'nın sağladığı element, input veya event yüzeylerinden ilerlemelidir.
+**Crate kökü ve kapalı trait sınırları.** `gpui` crate kökü bazı düşük seviyeli sembolleri de dışa aktarır. `GPUI_MANIFEST_DIR`, `env!("CARGO_MANIFEST_DIR")` değerini taşıyan `#[doc(hidden)]` bir statik değerdir; asset veya test altyapısı crate'in manifest dizinine ihtiyaç duyduğunda kullanırsın, uygulama verisi yolu veya kullanıcı ayarı yolu olarak kullanılmaz. `Sealed` ise bundan farklıdır: crate kökünden dışa aktarılmaz, private bir modülde durur; dış kod onu adlandıramaz veya göremez. GPUI'nın belirli trait implementasyonlarını yalnız crate içinde tutmak için kullandığı iç (crate-içi) mühürlü trait desenidir; örneğin event trait'lerini bu desenle sınırlar. Bir trait bu mühürlü desenle sınırlandığında uygulama kodu o trait'i yeni bir tipe uygulamaya çalışmak yerine GPUI'nın sağladığı element, input veya event yüzeylerinden ilerlemelidir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -124,15 +124,15 @@ Karar kuralı kesindir:
 
 `Element` sözleşmesi üç ana aşamadan oluşur. Bu aşamalar aynı ekran karesi içinde sırayla çalışır:
 
-1. `request_layout(...) -> (LayoutId, RequestLayoutState)` — stil ve alt öğelerin yerleşim istekleri Taffy yerleşim ağacına verilir. Bu aşamada çizim yapılmaz; yalnızca "ne kadar yer istiyorum, alt öğelerimin `LayoutId`'leri nedir" bilgisi hazırlanır.
+1. `request_layout(...) -> (LayoutId, RequestLayoutState)` — stil ve alt öğelerin yerleşim istekleri Taffy yerleşim ağacına verirsin. Bu aşamada çizim yapılmaz; yalnızca "ne kadar yer istiyorum, alt öğelerimin `LayoutId`'leri nedir" bilgisi hazırlanır.
 2. `prepaint(...) -> PrepaintState` — yerleşim sonucu artık bilinir; o yüzden element'in son konum ve boyutuna göre yapacağın işler burada gerçekleşir: hitbox kaydı, scroll konumunun hazırlanması, element başına saklanan verinin okunması ve gerekli ölçümler.
 3. `paint(...)` — sahneye çizilecek temel şekiller (`primitive`) üretilir. `paint_quad`, `paint_path`, `paint_image`, `paint_svg`, `set_cursor_style` gibi çağrılar bu aşamaya aittir.
 
 `Window` üzerindeki hata ayıklama kontrolleri (`debug assertion`) aşama ihlallerini yakalar: `insert_hitbox` yalnızca prepaint'te; `paint_*` çağrıları paint'te; `with_text_style` ve bazı ölçüm yardımcıları ise prepaint veya paint aşamalarında geçerlidir. Yanlış aşamada yapılan bir çağrı, hata ayıklama derlemesinde `panic` ile sonuçlanır; böylece sorunları erken yakalarsın.
 
-Accessibility ağacına katılacak özel element'lerde `Element::a11y_role()` `Some(accesskit::Role)` döndürür; `None` dönen element'ler accessibility tree'ye eklenmez. `write_a11y_info(node)` yalnız role bulunduğunda çağrılır ve label, checked state veya benzeri accesskit node özelliklerini doldurmak için kullanılır. Bu hook'lar çizimden ayrı düşünülür: önce role ile düğümün varlığı seçilir, sonra node bilgisi yazılır.
+Accessibility ağacına katılacak özel element'lerde `Element::a11y_role()` `Some(accesskit::Role)` döndürür; `None` dönen element'ler accessibility tree'ye eklenmez. `write_a11y_info(node)` yalnız role bulunduğunda çağrılır ve label, checked state veya benzeri accesskit node özelliklerini doldurmak için kullanırsın. Bu hook'lar çizimden ayrı düşünülür: önce role ile düğümün varlığı seçersin, sonra node bilgisi yazılır.
 
-**Veri saklama yolları.** Element seviyesinde kalıcı verinin nerede tutulduğu, o verinin ne kadar süre yaşaması gerektiğine göre belirlenir:
+**Veri saklama yolları.** Element seviyesinde kalıcı verinin nerede tutulduğu, o verinin ne kadar süre yaşaması gerektiğine göre belirlersin:
 
 - View verisi: `Entity<T>` alanlarında tutarsın; uygulama boyunca veya view kapanana kadar yaşar.
 - Element başına saklanan veri: sabit bir `id(...)` ile birlikte `window.with_element_state` veya `with_optional_element_state` üzerinden tutarsın. Aynı ID ardışık çizimlerde korunursa veri devam eder; ID değişirse sıfırlanır.
@@ -242,7 +242,7 @@ Bu örnek özellikle iki ayrımı gösterir: `request_layout` yalnız layout ist
 GPUI'nın yerleşik elementleri farklı görevler için ayrı ayrı tasarlanmıştır. Aşağıdaki liste, hangi element'i hangi sorumluluk için seçeceğini hızlıca gösterir:
 
 - `div()` — neredeyse tüm yerleşim ve kapsayıcı işlerinin temel taşıdır. Flex/grid, stil, alt öğe, olay, klavye odağı ve pencere kontrol alanı (`window-control area`) destekler.
-- Metin — `&'static str`, `String`, `SharedString` doğrudan element olur. Ekran okuyucuya görünmesi gereken düz metinlerde `Text`'i ve `text!` makrosunu tercih edersin; bunlar erişilebilirlik ağacı için stabil metin ID'si üretir. Daha karmaşık metin durumlarında `StyledText` ve `InteractiveText` devreye girer.
+- Metin — `&'static str`, `String`, `SharedString` doğrudan element olur. Ekran okuyucuya görünmesi gereken düz metinlerde `Text`'i ve `text!` makrosunu tercih edersin; bunlar erişilebilirlik ağacı için sabit metin ID'si üretir. Daha karmaşık metin durumlarında `StyledText` ve `InteractiveText` devreye girer.
 - `svg()` — satır içi (inline) path veya harici path ile SVG çizimi sağlar.
 - `img(...)` — asset, dosya yolu, URL veya byte kaynağı gibi görsel kaynaklarını çizer; yükleme ve yedek görsel (fallback) bölümlerini de destekler.
 - `canvas(prepaint, paint)`'i, düşük seviyeli çizim ya da hitbox/imleç gibi çizim hazırlığı gerektiren işler için kullanırsın.
@@ -301,7 +301,7 @@ Farklı türden elementleri aynı listede saklaman gerekiyorsa her öğeyi `into
 
 ## Element ID, Element Verisi ve Tip Soyutlaması
 
-GPUI'da her çizimde element ağacı sıfırdan kurulur. Buna rağmen hover, scroll ve önbellek (cache) gibi durumların ekran kareleri arasında korunması gerekir. Bu kalıcılığı sabit ID'ler sağlar. İlgili ana tipler şunlar:
+GPUI'da her çizimde element ağacı sıfırdan kurarsın. Buna rağmen hover, scroll ve önbellek (cache) gibi durumların ekran kareleri arasında korunması gerekir. Bu kalıcılığı sabit ID'ler sağlar. İlgili ana tipler şunlar:
 
 - `ElementId` — `View`, `Integer`, `Name`, `Uuid`, `FocusHandle`, `NamedInteger`, `Path`, `CodeLocation`, `NamedChild` ve `OpaqueId` varyantlarını taşır.
 - `GlobalElementId` — pencerenin element id yığınındaki yerel id'leri birleştirerek tam yol oluşturur.
@@ -358,7 +358,7 @@ Render katmanında bazı public tipler, uygulama bileşeni yazarken nadiren doğ
 
 **AnyView ve AnyWeakView.** `AnyView` tipli view handle'ını kaybettiğin heterojen alanlar içindir; `AnyWeakView` bunun zayıf karşılığıdır. Dock, modal host, plugin slotu veya test harness gibi farklı view türlerini aynı koleksiyonda saklaman gerektiğinde uygundur. Tek bir view türüyle çalışıyorsan `Entity<T>` ve `WeakEntity<T>` hem daha güvenli hem daha okunaklıdır.
 
-**Interactivity.** `Interactivity`, `Div` ve benzeri elementlerin etkileşim durumunu taşır: element id, focus handle, scroll handle, key context, grup adı, hover/focus/active style refinement'ları, drag/drop kayıtları, mouse/key/action listener'ları, tooltip builder, tooltip gösterim gecikmesi, window control area, tab index ve hitbox davranışı aynı yerde tutulur. Uygulama kodu bunu doğrudan doldurmaz; `.id(...)`, `.track_focus(...)`, `.tab_index(...)`, `.key_context(...)`, `.hover(...)`, `.active(...)`, `.group(...)`, `.on_click(...)`, `.on_drag(...)`, `.on_drop(...)`, `.tooltip(...)`, `.tooltip_show_delay(...)`, `.occlude()` ve `.block_mouse_except_scroll()` gibi fluent metotlar bu alanları düzenler.
+**Interactivity.** `Interactivity`, `Div` ve benzeri elementlerin etkileşim durumunu taşır: element id, focus handle, scroll handle, key context, grup adı, hover/focus/active style refinement'ları, drag/drop kayıtları, mouse/key/action listener'ları, tooltip builder, tooltip gösterim gecikmesi, window control area, tab index ve hitbox davranışı aynı yerde tutarsın. Uygulama kodu bunu doğrudan doldurmaz; `.id(...)`, `.track_focus(...)`, `.tab_index(...)`, `.key_context(...)`, `.hover(...)`, `.active(...)`, `.group(...)`, `.on_click(...)`, `.on_drag(...)`, `.on_drop(...)`, `.tooltip(...)`, `.tooltip_show_delay(...)`, `.occlude()` ve `.block_mouse_except_scroll()` gibi fluent metotlar bu alanları düzenler.
 
 **Imperative interactivity metotları.** Özel element yazarken `Interactivity` üzerindeki düşük seviyeli metotlar işine yarayabilir:
 
@@ -453,7 +453,7 @@ pub trait IsEmpty {
 
 Trait sözleşmesi göründüğünden zengindir ve birkaç ince detay içerir:
 
-- `type Refinement` de `Refineable` olmalıdır; yani refinement'ın kendisi tekrar refine edilebilir. Bu sayede `refine_a.refine(&refine_b)` zincirleme birleştirme mümkün olur.
+- `type Refinement` de `Refineable` olmalıdır; yani refinement'ın kendisi tekrar refine edebilirsin. Bu sayede `refine_a.refine(&refine_b)` zincirleme birleştirme mümkün olur.
 - Aynı `Refinement` ayrıca `IsEmpty + Default` zorunluluğunu taşır. `IsEmpty`, "bu refinement uygulansa hiçbir alan değişir mi?" sorusunu cevaplar; birleştirme, yerleşim önbelleğinin geçersiz sayılması ve `subtract` çıktısı bu kontrole dayanır.
 - `is_superset_of(refinement)`, üzerinde çağırdığın değerin bu refinement'ı zaten kapsayıp kapsamadığını söyler; gereksiz `refine` çağrılarını bu sayede atlarsın.
 - `subtract(refinement)`, iki refinement arasındaki farkı yeni bir refinement olarak verir.
@@ -535,11 +535,11 @@ Varsayılan kurallar şöyledir:
 **Ayar (`Settings`) yükleme zinciri.** `SettingsStore::recompute_values` global değerleri her yeniden hesapladığında katmanları şu sırayla birleştirir:
 
 1. `assets/settings/default.json` içeriği `parse_default_settings` ile okunur; release-channel ve platform override'ları bu temel değere baştan katılır.
-2. Extension ayarları (`extension_settings`) ve global ayarlar (`global_settings`) sırayla eklenir.
-3. Kullanıcı ayarları varsa aktif profilin `base` değerine bakılır. Profil tabanı `User` ise kullanıcı içeriği, release-channel override'ı ve OS override'ı eklenir; sonra aktif profilin kendi `settings` alanı eklenir.
-4. Server ayarları (`server_settings`) eklenir.
+2. Extension ayarları (`extension_settings`) ve global ayarlar (`global_settings`) sırayla eklersin.
+3. Kullanıcı ayarları varsa aktif profilin `base` değerine bakılır. Profil tabanı `User` ise kullanıcı içeriği, release-channel override'ı ve OS override'ı eklenir; sonra aktif profilin kendi `settings` alanı eklersin.
+4. Server ayarları (`server_settings`) eklersin.
 5. Global değer için bütün local/project ayarlarındaki `project.disable_ai` alanı ayrıca `SaturatingBool` mantığıyla birleştirilir.
-6. Dosya veya klasör bağlamlı yerel değerlerde, yukarıdaki global temelin üstüne ilgili `local_settings` girdileri yol derinliğine göre sırayla eklenir.
+6. Dosya veya klasör bağlamlı yerel değerlerde, yukarıdaki global temelin üstüne ilgili `local_settings` girdileri yol derinliğine göre sırayla eklersin.
 
 **Dikkat noktaları.** Refineable ve MergeFrom kullanımlarında karşılaşacağın hatalı kalıplar şunlar:
 
@@ -566,8 +566,8 @@ deferred(
 
 - `request_layout`: alt öğe normal şekilde yerleşim alır.
 - `prepaint`: alt öğe, `window.defer_draw(...)` ile ertelenmiş kuyruğa taşınır.
-- `paint`: ertelenmiş element kendi çizim aşamasında bir şey üretmez; gerçek çizim, ertelenmiş kuyrukta sıra geldiğinde yapılır.
-- `with_priority(n)`: aynı ekran karesindeki ertelenmiş elementler arasında üstte/altta sırasını (`z-order`) belirler; yüksek öncelikli element üstte çizilir.
+- `paint`: ertelenmiş element kendi çizim aşamasında bir şey üretmez; gerçek çizim, ertelenmiş kuyrukta sıra geldiğinde yaparsın.
+- `with_priority(n)`: aynı ekran karesindeki ertelenmiş elementler arasında üstte/altta sırasını (`z-order`) belirler; yüksek öncelikli element üstte çizersin.
 
 **`Div` çizim hazırlığı yardımcıları.** Yerleşim sonuçlarına göre çizim hazırlığı aşamasında aksiyon almak gerektiğinde iki yardımcı vardır:
 

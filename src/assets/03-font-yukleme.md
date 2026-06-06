@@ -74,7 +74,7 @@ Akış dört adımdan oluşur:
 3. **List+load invariant'ı** — Kaynak kodu önce `Result`, sonra `Option` katmanını açar. İlk katman okuma hatasını, ikinci katman "varlık var" garantisini temsil eder. `list` çağrısının döndürdüğü bir path'in `load` ile okunabilir olması gerekir; bu invariant bozulduğunda varlık paketi veya `RustEmbed` eşleşmesi gözden geçirilir.
 4. **`cx.text_system().add_fonts(...)`** — Tüm byte'lar tek bir çağrıyla `TextSystem`'e verirsin. Bu çağrı font'ları platform metin sistemine (CoreText, DirectWrite, freetype) kaydeder; uygulama bu noktadan sonra `font_family("IBM Plex Sans")` veya `font_family("Lilex")` ile bu aileleri kullanabilir.
 
-**Çağrı noktası:** `load_embedded_fonts(cx)` Zed'in uygulama kurulumunda pencere açılmadan önce çağırırsın. Güncel `main.rs` içinde `Application::with_assets(Assets)` en başta kurulur, font yükleme ise birçok global init'ten sonra ama editor/workspace pencereleri açılmadan önce yaparsın. Sert gereksinim budur: varlık kaynağı kurulmadan `cx.asset_source()` boş `()` döner ve `list("fonts")` sonuç vermez; pencere açıldıktan sonra çağrılırsa ilk frame font yedeğe düşebilir.
+**Çağrı noktası:** `load_embedded_fonts(cx)` Zed'in uygulama kurulumunda pencere açılmadan önce çağırırsın. Güncel `main.rs` içinde `Application::with_assets(Assets)` en başta kurarsın, font yükleme ise birçok global init'ten sonra ama editor/workspace pencereleri açılmadan önce yaparsın. Sert gereksinim budur: varlık kaynağı kurulmadan `cx.asset_source()` boş `()` döner ve `list("fonts")` sonuç vermez; pencere açıldıktan sonra çağrılırsa ilk frame font yedeğe düşebilir.
 
 ---
 
@@ -156,7 +156,7 @@ Burada dikkat edilmesi gereken üç ayrıntı vardır:
 
 - **Sabit kodlu path listesi:** USVG yalnızca iki regular varyantı yükler. Bold, italic ve bold-italic gibi varyantlar dahil edilmez. Gerekçe: SVG'lerde nadiren bold metin bulunur; pratikte regular varyantlar render kalitesi için yeterlidir ve veritabanı boyutu küçük kalır.
 - **Hata toleransı:** `load` çağrısı `None` ya da `Err` döndürürse uyarı log'lanır, fakat fail-fast çalışmaz. Bu davranış GPUI'yi varlık bağımlılığından koruyan bir tampon görevi yapar; varlık hattı kurulu olmasa bile SVG render hattı çalışmaya devam eder, sadece yerleşik font'lar olmayacaktır.
-- **Sistem font'ları ile birleştirme:** `load_bundled_fonts` doğrudan paylaşılan `SYSTEM_FONT_DB` üstünde değil, onun bir klonu üstünde çalışır. Sistemde kurulu font'lar bu paylaşılan veritabanına bir kez `load_system_fonts()` ile yüklenmiştir; her zenginleştirmede veritabanı klonlanır ve bundled font'lar klona eklenir. Yani bundled font'lar sistem font'larının üzerine biner; çakışma durumunda hangi varyantın seçileceği `usvg`'nin kendi önceliklendirme kuralına kalır.
+- **Sistem font'ları ile birleştirme:** `load_bundled_fonts` doğrudan paylaşılan `SYSTEM_FONT_DB` üstünde değil, onun bir klonu üstünde çalışır. Sistemde kurulu font'lar bu paylaşılan veritabanına bir kez `load_system_fonts()` ile yüklenmiştir; her zenginleştirmede veritabanı klonlanır ve bundled font'lar klona eklersin. Yani bundled font'lar sistem font'larının üzerine biner; çakışma durumunda hangi varyantın seçileceği `usvg`'nin kendi önceliklendirme kuralına kalır.
 
 ### 5.1 Generic family yedeği
 
@@ -193,7 +193,7 @@ const EMOJI_FONT_FAMILIES: &[&str] = &[
 ];
 ```
 
-`is_emoji_presentation(ch)` true dönerse, `select_emoji_font` bu listedeki ilk uygun ailesini bulup `id` döner. Emoji font'ları Zed binary'sine gömülmez; sistem font'ları beklenir. Bu karar binary boyutu için kritiktir: Apple Color Emoji tek başına 100+ MB olduğundan binary'ye gömmek pratik değildir.
+`is_emoji_presentation(ch)` true dönerse, `select_emoji_font` bu listedeki ilk uygun ailesini bulup `id` döner. Emoji font'ları Zed binary'sine gömülmez; sistem font'ları beklersin. Bu karar binary boyutu için kritiktir: Apple Color Emoji tek başına 100+ MB olduğundan binary'ye gömmek pratik değildir.
 
 ---
 
@@ -202,7 +202,7 @@ const EMOJI_FONT_FAMILIES: &[&str] = &[
 `cx.text_system().add_fonts(vec)` çağrısı font byte'larını platforma özgü metin sistemine (macOS CoreText, Windows DirectWrite, Linux freetype) verir. Detaylar metin sistemi bölümünde işlenir; bu bölüm için bilinmesi gereken üç davranış vardır:
 
 1. **Idempotent değildir:** Aynı font ikinci kez eklenirse hiçbir platform "zaten var" cevabı döndürmez; her platform tekrar çağrıda font'u koşulsuz yeniden ekler. macOS, Windows ve Linux tarafının üçü de gelen byte'ları doğrudan platform font veritabanına yeniden kaydeder, var olup olmadığını sorgulamaz. Bu yüzden `add_fonts` tek seferlik çağrılmak üzere tasarlanmıştır.
-2. **Lifetime:** Byte'lar `Cow<'static>` olarak gelir; `'static` lifetime burada iki ayrı sahiplik biçimini birden kapsar. `Cow::Borrowed` durumu release embed yoludur: byte'lar binary'ye gömülüdür ve binary'nin statik (`.data`) segmentinde durur, çalışma sırasında ayrı bir bellek ayrılmaz. `Cow::Owned` durumu ise dosya sisteminden okuma yoludur: byte'lar heap'te ayrılır ve `Arc` ile sarılarak font verisi olarak tutulur. İki durumda da veri uygulama boyunca canlı kalır; fark verinin nerede durduğudur.
+2. **Lifetime:** Byte'lar `Cow<'static>` olarak gelir; `'static` lifetime burada iki ayrı sahiplik biçimini birden kapsar. `Cow::Borrowed` durumu release embed yoludur: byte'lar binary'ye gömülüdür ve binary'nin statik (`.data`) segmentinde durur, çalışma sırasında ayrı bir bellek ayrılmaz. `Cow::Owned` durumu ise dosya sisteminden okuma yoludur: byte'lar heap'te ayrılır ve `Arc` ile sarılarak font verisi olarak tutarsın. İki durumda da veri uygulama boyunca canlı kalır; fark verinin nerede durduğudur.
 3. **Çağrı zamanı:** `add_fonts` çağrısı **pencere açılmadan önce** yapman gerekir; aksi halde ilk frame'de font bulunamadığı için yedeğe düşülür ve metin beklenen fontla render edilmez. Zed bu yüzden font yüklemeyi `Application::with_assets` çağrısından sonra, fakat editor ve workspace pencereleri açılmadan önce yapar.
 
 ---

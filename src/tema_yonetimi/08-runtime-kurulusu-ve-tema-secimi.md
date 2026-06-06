@@ -1,6 +1,6 @@
 # Çalışma zamanı kuruluşu ve tema seçimi
 
-Ürettiğin temaları önce tema kaydına ve global duruma yerleştirip ardından sistem görünümünü izler, tema değiştiğinde pencereleri yenilersin. Bu bölüm, bu akışı sırasıyla anlatır: tema nerede tutulur, aktif temayı nasıl seçersin ve UI yeni renkleri nasıl görür?
+Ürettiğin temaları önce tema kaydına ve global duruma yerleştirip ardından sistem görünümünü izler, tema değiştiğinde pencereleri yenilersin. Bu bölüm, bu akışı sırasıyla anlatır: tema nerede tutarsın, aktif temayı nasıl seçersin ve UI yeni renkleri nasıl görür?
 
 ![Tema Çalışma Zamanı Akışı](assets/theme-runtime-akisi.svg)
 
@@ -142,7 +142,7 @@ impl ThemeRegistry {
 }
 ```
 
-> **`ThemeRegistry::new` davranış notu:** Yapıcı kendi içinde `insert_theme_families([zed_default_themes()])` çağrısı yapar ve default icon theme'i de ekler. Yani `new`'den dönen kayıt hiçbir zaman tamamen boş değildir. Ayna tarafta `kvs_default_themes()` ailesinin otomatik yüklenmesi beklenir.
+> **`ThemeRegistry::new` davranış notu:** Yapıcı kendi içinde `insert_theme_families([zed_default_themes()])` çağrısı yapar ve default icon theme'i de ekler. Yani `new`'den dönen kayıt hiçbir zaman tamamen boş değildir. Ayna tarafta `kvs_default_themes()` ailesinin otomatik yüklenmesi beklersin.
 
 **Her metodun davranışı:**
 
@@ -234,7 +234,7 @@ Zed-benzeri selector/settings/icon-theme akışı hedefleniyorsa aşağıdaki me
 | `remove_icon_themes` | Extension/user icon theme yenileme. |
 | `extensions_loaded`, `set_extensions_loaded` | Extension temaları gelmeden önce fallback'e sessiz düşme, geldikten sonra gerçek hata loglama. |
 
-Bu metotlardan birini public API'ye eklemeyeceksen, bu kararı açıkça kapsam dışı bir tasarım kararı olarak yazmalısın. "Şimdilik UI yok" yeterli bir gerekçe değildir; selector UI ileride gelse bile registry sözleşmesinin hazır olması beklenir.
+Bu metotlardan birini public API'ye eklemeyeceksen, bu kararı açıkça kapsam dışı bir tasarım kararı olarak yazmalısın. "Şimdilik UI yok" yeterli bir gerekçe değildir; selector UI ileride gelse bile registry sözleşmesinin hazır olması beklersin.
 
 ### Dikkat Noktaları
 
@@ -251,7 +251,7 @@ Bu metotlardan birini public API'ye eklemeyeceksen, bu kararı açıkça kapsam 
 
 **Kaynak modül:** `kvs_tema/src/runtime.rs`.
 
-`GlobalTheme`, aktif UI temasını ve aktif icon temasını taşıyan global'dir. `ActiveTheme` trait'i Zed'de yalnızca `cx.theme()` ergonomisini sağlar. Icon tema registry'de ayrı tutulur, ama aktif seçim aynı global altında saklarsın. Bu sayede settings değişiminde UI ve icon refresh aynı akıştan geçer.
+`GlobalTheme`, aktif UI temasını ve aktif icon temasını taşıyan global'dir. `ActiveTheme` trait'i Zed'de yalnızca `cx.theme()` ergonomisini sağlar. Icon tema registry'de ayrı tutarsın, ama aktif seçim aynı global altında saklarsın. Bu sayede settings değişiminde UI ve icon refresh aynı akıştan geçer.
 
 ### `GlobalTheme` yapısı
 
@@ -308,14 +308,14 @@ impl GlobalTheme {
 
 - Zed public API'sinde `set_theme_and_icon` adında bir metot bulunmaz.
 - `init` sırasında `cx.set_global(GlobalTheme::new(theme, icon_theme))` çağırırsın.
-- Global ilk kez kurulurken iki aktif değerin de hazır olması beklenir.
+- Global ilk kez kurulurken iki aktif değerin de hazır olması beklersin.
 
 **`update_theme` / `update_icon_theme`:**
 
 `init-or-update` deseni burada şöyle işler:
 
 - `init` global'i `GlobalTheme::new` + `cx.set_global` ile kurarsın.
-- Sonraki değişimler `update_global` ile yapılır — mevcut instance mutate edilir, `Drop` çalışmaz (eski `Arc<Theme>` refcount azalır, başka bir tutucu yoksa drop edilir).
+- Sonraki değişimler `update_global` ile yapılır — mevcut instance mutate edersin, `Drop` çalışmaz (eski `Arc<Theme>` refcount azalır, başka bir tutucu yoksa drop edilir).
 
 > **Neden yeni bir `set_global` yerine `update_global`?** İki davranış görünüşte aynıdır, ancak:
 > - `set_global` global tipini **kontrolsüz biçimde değiştirir** — observer'lar bilgilendirilmez.
@@ -380,7 +380,7 @@ Rehberin örnekleri 1. seçeneği varsayar; aktif icon tema için `GlobalTheme::
 
 - Trait **extension method** sağlar — `App` üzerinde `cx.theme()` çağrısını mümkün kılar.
 - `Context<T>: Deref<Target = App>` sayesinde `cx.theme()` `Context<T>` üzerinden de çalışır — ayrı bir trait impl gerekmez; deref coercion yeterlidir.
-- `AsyncApp` üzerinde `theme()` çalışmaz; `AsyncApp` `&App`'e doğrudan deref etmez. Gerektiğinde `cx.try_global::<GlobalTheme>()` ile manuel erişilir.
+- `AsyncApp` üzerinde `theme()` çalışmaz; `AsyncApp` `&App`'e doğrudan deref etmez. Gerektiğinde `cx.try_global::<GlobalTheme>()` ile manuel erişirsin.
 
 ### Tüketici tarafı kullanımı
 
@@ -714,7 +714,7 @@ pub fn init(yuklenecek_temalar: LoadThemes, cx: &mut App) -> anyhow::Result<()> 
 }
 ```
 
-> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar. `theme::init` ayrı bir yedek tema eklemez; registry'yi (kuruluşunda `zed_default_themes()` ailesini ve varsayılan icon tema'yı zaten içeren kayıt) ve font önbelleğini kurar, ardından aktif tema'yı varsayılan koyu tema `One Dark` olarak ayarlar — bu koyu varsayılan kaydın `zed_default_themes()` içeriğinden gelir. Daha sonra üst seviyede `theme_settings::init` (`theme_settings` crate'i) çağrılır. Bu ikinci adım `set_theme_settings_provider` ile typography/density provider'ını kurar, `LoadThemes::All` durumunda `assets/themes/**/*.json` altındaki bundled tema asset'lerini yükler, `configured_theme(cx)` ile settings dosyasından gelen seçimi çözer ve aktif tema'yı **varsayılan koyu temadan settings'in istediği temaya** geçirir. Kullanıcı disk temaları bu adımın parçası değildir; onlar `load_user_theme(registry, bytes)` veya `deserialize_user_theme(bytes)` yoluyla ayrıca registry'ye eklersin. Mirror tarafta da bu ayrım korunmalıdır: `kvs_tema::init` registry + `GlobalTheme` default'unu kurar, `kvs_tema_ayarlari::init` ise provider + settings observer + `configured_theme` akışını kurar. Bunları tek init'te birleştirmek `kvs_tema` crate'ini settings crate'ine zorunlu bağlar ve ilgili bölümdeki bağımlılık kararıyla çelişir.
+> **İki katmanlı init paritesi:** Zed bu kuruluşu **iki adımda** yapar. `theme::init` ayrı bir yedek tema eklemez; registry'yi (kuruluşunda `zed_default_themes()` ailesini ve varsayılan icon tema'yı zaten içeren kayıt) ve font önbelleğini kurar, ardından aktif tema'yı varsayılan koyu tema `One Dark` olarak ayarlar — bu koyu varsayılan kaydın `zed_default_themes()` içeriğinden gelir. Daha sonra üst seviyede `theme_settings::init` (`theme_settings` crate'i) çağırırsın. Bu ikinci adım `set_theme_settings_provider` ile typography/density provider'ını kurar, `LoadThemes::All` durumunda `assets/themes/**/*.json` altındaki bundled tema asset'lerini yükler, `configured_theme(cx)` ile settings dosyasından gelen seçimi çözer ve aktif tema'yı **varsayılan koyu temadan settings'in istediği temaya** geçirir. Kullanıcı disk temaları bu adımın parçası değildir; onlar `load_user_theme(registry, bytes)` veya `deserialize_user_theme(bytes)` yoluyla ayrıca registry'ye eklersin. Mirror tarafta da bu ayrım korunmalıdır: `kvs_tema::init` registry + `GlobalTheme` default'unu kurar, `kvs_tema_ayarlari::init` ise provider + settings observer + `configured_theme` akışını kurar. Bunları tek init'te birleştirmek `kvs_tema` crate'ini settings crate'ine zorunlu bağlar ve ilgili bölümdeki bağımlılık kararıyla çelişir.
 
 ### 5 adımlı kuruluş
 
@@ -1005,7 +1005,7 @@ impl FontFamilyCache {
 }
 ```
 
-**Tema sözleşmesindeki yer:** Yoktur — bu tip `kvs_tema` kapsamı dışında tutulabilir. Font ailesi listesini kullanan settings/picker bileşeni gerektiğinde, `kvs_settings` veya `kvs_ui` crate'inde benzer bir cache implement edilebilir.
+**Tema sözleşmesindeki yer:** Yoktur — bu tip `kvs_tema` kapsamı dışında tutulabilir. Font ailesi listesini kullanan settings/picker bileşeni gerektiğinde, `kvs_settings` veya `kvs_ui` crate'inde benzer bir cache implement edebilirsin.
 
 **Kapsam dışı gerekçesi:** Mirror disiplini `Theme` ve içerdiği tipleri zorunlu kılar; `FontFamilyCache` ise bir runtime önbelleğidir, sözleşmenin parçası değildir.
 
@@ -1046,7 +1046,7 @@ let yeni = kayit.get(ad)?;
 GlobalTheme::update_theme(cx, yeni);
 ```
 
-`init-or-update` pattern burada da geçerlidir. İlk çağrıda global kurulur, sonraki çağrılarda ise içeride mutate edilir. `observe_global::<GlobalTheme>` observer'ları varsa tetiklersin.
+`init-or-update` pattern burada da geçerlidir. İlk çağrıda global kurarsın, sonraki çağrılarda ise içeride mutate edersin. `observe_global::<GlobalTheme>` observer'ları varsa tetiklersin.
 
 **Adım 3 — `cx.refresh_windows()`:**
 

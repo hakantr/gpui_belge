@@ -64,8 +64,8 @@ GPUI'de büyük listeler için iki çekirdek element vardır. İkisi farklı lis
 
 ![GPUI Liste API Seçim Akışı](assets/list-secim-akisi.svg)
 
-- `list(durum, ogeyi_render_et)` — item yükseklikleri değişebilir. Ölçüm önbelleği `ListState` içinde tutulur.
-- `uniform_list(id, item_count, render_range)` — tüm item'lar aynı yükseklikte olduğunda daha hızlıdır; ilk veya örnek item ölçülür ve yalnız görünür aralık çizilir.
+- `list(durum, ogeyi_render_et)` — item yükseklikleri değişebilir. Ölçüm önbelleği `ListState` içinde tutarsın.
+- `uniform_list(id, item_count, render_range)` — tüm item'lar aynı yükseklikte olduğunda daha hızlıdır; ilk veya örnek item ölçülür ve yalnız görünür aralık çizersin.
 
 **Değişken yükseklikli liste.** Durumu view içinde tutarsın ve veri seti değiştiğinde uygun yardımcıları çağırırsın:
 
@@ -166,7 +166,7 @@ ulaşılıp ulaşılmadığını bildirir. `y_flipped(true)` item 0 altta olacak
 akışı ters çevirir; sohbet veya günlük akışı gibi yeni öğenin altta belirdiği
 yüzeylerde kullanırsın.
 
-**Karar.** Hangi listeyi seçeceğin şu kurallara göre belirlenir:
+**Karar.** Hangi listeyi seçeceğin şu kurallara göre belirlersin:
 
 - Item yükseklikleri gerçekten aynıysa `uniform_list`'i tercih edersin.
 - Yükseklik değişebiliyorsa `list`'i ve doğru `splice`/`remeasure` çağrılarını kullanırsın.
@@ -224,7 +224,7 @@ URL biçimindeki string otomatik olarak `Uri` olarak ayrıştırılır. URL olma
 svg().path("icons/check.svg").size(px(16.)).text_color(rgb(0x000000))
 ```
 
-SVG path'i `AssetSource`'tan okunur. `text_color` SVG içindeki `currentColor` referanslarının renklendirilmesinde kullanılır. Özel path string'i yerine türetilmiş `IconName::path()`'i de geçirebilirsin (Zed'de `Icon::new(IconName::Check)` doğrudan kullanılır).
+SVG path'i `AssetSource`'tan okunur. `text_color` SVG içindeki `currentColor` referanslarının renklendirilmesinde kullanırsın. Özel path string'i yerine türetilmiş `IconName::path()`'i de geçirebilirsin (Zed'de `Icon::new(IconName::Check)` doğrudan kullanılır).
 
 Pratikte seçimi şöyle yaparsın:
 
@@ -258,7 +258,7 @@ Zed'in bilinen ikon setinden bir simge çizeceksen `Icon::new(IconName::...)` en
 
 **Dikkat noktaları.** Asset yüklerken karşılaşabileceğin durumlar:
 
-- URL ayrıştırma başarısız olduğunda string embedded asset sayılır; gerçek dosya yolu için `PathBuf` kullanmadığında yanlış kaynaktan arama yapılır.
+- URL ayrıştırma başarısız olduğunda string embedded asset sayılır; gerçek dosya yolu için `PathBuf` kullanmadığında yanlış kaynaktan arama yaparsın.
 - Özel closure `'static` olmalı; `Window` ve `App`'i yalnızca closure çağrısında parametre olarak kullanırsın.
 - `with_fallback` yalnız yükleme tamamlandığında ve hatalıysa yedeği çizer.
 - `with_loading` yükleme 200 ms'den uzun sürerse yükleme yedeğini çizer. Bu eşik `gpui::LOADING_DELAY: Duration` sabitiyle tanımlıdır (`elements/img`); benzer bir gecikmeli yedek akışında aynı değeri ödünç alabilirsin.
@@ -322,7 +322,7 @@ impl ImageCache for GorselOnbellegi {
 
 GPUI görsel hattı hem uygulama geliştiricisine açık elementleri hem de renderer/önbellek taşıyıcılarını içerir. Asset crate'inin kendi gömülü kaynak yönetimi ayrı bir konudur; burada anlatılanlar `gpui` crate'inden gelen çizim ve yükleme yüzeyidir.
 
-**Asset ve Resource.** `Resource::{Path, Uri, Embedded}` görsel veya SVG kaynağının nereden geldiğini söyler. `Asset` trait'i `Source -> Output` asenkron yükleyici sözleşmesidir; `AssetLogger<A>` hata döndüren asset yükleyicisini sarar ve sonucu loglar. `hash(data)` önbellek anahtarı üretiminde kullanılır. Uygulama kodunda çoğu zaman kendi `Asset` implementasyonunu yazmazsın; `window.use_asset::<A>(...)`, `img(...)`, `svg()` veya Zed'in `assets` kaynağı üzerinden ilerlersin.
+**Asset ve Resource.** `Resource::{Path, Uri, Embedded}` görsel veya SVG kaynağının nereden geldiğini söyler. `Asset` trait'i `Source -> Output` asenkron yükleyici sözleşmesidir; `AssetLogger<A>` hata döndüren asset yükleyicisini sarar ve sonucu loglar. `hash(data)` önbellek anahtarı üretiminde kullanırsın. Uygulama kodunda çoğu zaman kendi `Asset` implementasyonunu yazmazsın; `window.use_asset::<A>(...)`, `img(...)`, `svg()` veya Zed'in `assets` kaynağı üzerinden ilerlersin.
 
 **Raster kaynak tipleri.** `Image` pano ve platform image verisini taşır; `Image::empty()`, `from_bytes(...)`, `id()`, `use_render_image(...)`, `get_render_image(...)`, `remove_asset(...)`, `to_image_data(...)`, `format()` ve `bytes()` görsel byte'ı ile decode edilmiş `RenderImage` arasındaki köprüyü kurar. `ImageFormat::{Png, Jpeg, Webp, Gif, Svg, Bmp, Tiff, Ico, Pnm}` `mime_type()` ve `from_mime_type(...)` ile pano/clipboard ve dosya formatı eşleşmesini sağlar. UI çiziminde doğrudan `Image` yerine `img(source)` veya `window.paint_image(...)` kullanmak daha doğal olur.
 
@@ -340,7 +340,7 @@ GPUI görsel hattı hem uygulama geliştiricisine açık elementleri hem de rend
 | `SvgSize` | `Size`, `ScaleFactor` | SVG raster boyutunu mutlak device pixel veya SVG intrinsic boyutuna göre çarpan olarak belirler. |
 | `AnyTooltip`, `TooltipId` | tooltip view/mouse/visibility callback, hovered sorgusu | Popover/tooltip çizim isteğini prepaint ve hit-test yaşamına bağlar. |
 
-**Atlas taşıyıcıları.** Renderer tarafında `AtlasKey::{Glyph, Svg, Image}` doku atlasına girecek kaynağın türünü taşır; `AtlasKey::texture_kind()` bu kaynağın `Monochrome`, `Polychrome` veya `Subpixel` atlas dokusuna mı gideceğini döndürür. `AtlasTextureList<T>` platform atlasındaki doku slotlarını yönetir; `drain()` tüm slotları sahipli olarak boşaltmak, `iter_mut()` ise dolu slotları yerinde güncellemek için kullanılır. Bu API'ler renderer ve platform arka ucu içindir; uygulama bileşeni yazarken görsel kaynağı `img(...)`, `svg()` veya `window.paint_image(...)` seviyesinde bırakman daha doğru olur.
+**Atlas taşıyıcıları.** Renderer tarafında `AtlasKey::{Glyph, Svg, Image}` doku atlasına girecek kaynağın türünü taşır; `AtlasKey::texture_kind()` bu kaynağın `Monochrome`, `Polychrome` veya `Subpixel` atlas dokusuna mı gideceğini döndürür. `AtlasTextureList<T>` platform atlasındaki doku slotlarını yönetir; `drain()` tüm slotları sahipli olarak boşaltmak, `iter_mut()` ise dolu slotları yerinde güncellemek için kullanırsın. Bu API'ler renderer ve platform arka ucu içindir; uygulama bileşeni yazarken görsel kaynağı `img(...)`, `svg()` veya `window.paint_image(...)` seviyesinde bırakman daha doğru olur.
 
 **Dönüşüm ve hitbox ayrımı.** SVG `Transformation` ve scene `TransformationMatrix` yalnız görsel primitive'i değiştirir; element layout'u, hitbox ve focus alanı aynı kalır. Döndürülmüş veya ölçeklenmiş ikon için tıklama alanının da değişmesi gerekiyorsa layout boyutunu ayrıca ayarlarsın.
 
@@ -526,8 +526,8 @@ yalnızca çizilecek dikdörtgeni verir.
 - `window.paint_image(bounds, corner_radii, RenderImage, ...)` — raster görsel.
 - `window.paint_svg(bounds, path, data, transformation, color, cx)` — `SvgRenderer` atlas önbelleği üzerinden monokrom SVG maskesi.
 - `window.paint_surface(bounds, CVPixelBuffer)` — yalnız macOS yerel surface'i.
-- `window.paint_drop_shadows(bounds, corner_radii, &[BoxShadow])` — `inset: false` gölge seti; genellikle arka plan ve border'dan önce çağrılır.
-- `window.paint_inset_shadows(bounds, corner_radii, &[BoxShadow])` — `inset: true` iç gölge seti; genellikle element arka planından sonra çağrılır.
+- `window.paint_drop_shadows(bounds, corner_radii, &[BoxShadow])` — `inset: false` gölge seti; genellikle arka plan ve border'dan önce çağırırsın.
+- `window.paint_inset_shadows(bounds, corner_radii, &[BoxShadow])` — `inset: true` iç gölge seti; genellikle element arka planından sonra çağırırsın.
 - `window.paint_layer(bounds, |window| ...)` — aynı bounds üzerinde kırpma ile yeni çizim katmanı; taşma gizleme ve batch/draw order kontrolü için.
 
 `BorderStyle` (`gpui` crate'i) iki değer alır: `Solid` ve `Dashed`. `Corners<P>`, `Edges<P>`, `Bounds<P>`, `Hsla` ve `Background` zaten önceden bilinen geometri ve renk tipleridir; her builder bunları `Into` üzerinden kabul eder.
@@ -537,7 +537,7 @@ yalnızca çizilecek dikdörtgeni verir.
 - `paint_*` çağrıları yalnız `Element::paint` fazında geçerlidir; GPUI kaynak kodu bunu `debug_assert_paint()` ile denetler.
 - `paint_path` her karede yeniden tessellate edilirse FPS düşer; mümkünse path'i prepaint'te oluşturup element durumunda saklarsın.
 - `paint_layer` kırpma uyguladığı için içerik bounds dışına taşan kısımlar gizlenir; gölge gibi taşan efektleri katman dışında çizmen gerekir.
-- `border_widths` dört kenara ayrı değer verebilir (`Edges { top, right, bottom, left }`); tek bir değer verdiğinde `Edges::all(px(1.))` kullanılır.
+- `border_widths` dört kenara ayrı değer verebilir (`Edges { top, right, bottom, left }`); tek bir değer verdiğinde `Edges::all(px(1.))` kullanırsın.
 
 ## Scene ve Primitive Alt Katmanı
 
@@ -599,7 +599,7 @@ svg()
 - `svg().path(...)` — embedded `AssetSource` içinden SVG okur.
 - `svg().external_path(...)` — dosya sistemi path'inden okur.
 - `Transformation::{scale, translate, rotate}` ve `with_scaling`/`with_translation`/`with_rotation` yalnızca çizimi etkiler; hitbox ve yerleşim boyutu değişmez.
-- Düşük seviyeli `TransformationMatrix::{unit, translate, rotate, scale}` sahne primitive'lerinde kullanılır.
+- Düşük seviyeli `TransformationMatrix::{unit, translate, rotate, scale}` sahne primitive'lerinde kullanırsın.
 - `SvgSize` `SvgRenderer` çizim isteğinin raster boyutunu tanımlar: `Size(Size<DevicePixels>)` mutlak boyut, `ScaleFactor(f32)` SVG'nin bildirdiği boyuta çarpan uygular.
 
 **Dikkat noktaları.** Bu çizim bağlamı API'lerinde dikkat edeceğin noktalar:

@@ -228,7 +228,7 @@ Bu desen fire-and-forget yenileme için uygundur. Kullanıcı pencereyi kapattı
 Git Graph commit bağlam menüsünden özel bir task çalıştırmak için global `tasks.json` içine `git-command` etiketli bir task eklersin. Worktree yerel task'lar bu akışta desteklenmez. Task seçili commit ve repository bağlamıyla çözülür; varsayılan çalışma dizini seçili repository köküdür.
 
 Desteklenen Git değişkenleri seçili commit ve onun bağlı olduğu repository
-bağlamından üretilir. Bu bağlamda yalnız Git değişkenleri sağlanır. `ZED_FILE`,
+bağlamından üretilir. Bu bağlamda yalnız Git değişkenleri sağlarsın. `ZED_FILE`,
 `ZED_SELECTED_TEXT`, `ZED_WORKTREE_ROOT`, `ZED_MAIN_GIT_WORKTREE` gibi
 editör/worktree değişkenleri varsayılan değer taşımadıkça çözümlenmez.
 
@@ -240,7 +240,7 @@ editör/worktree değişkenleri varsayılan değer taşımadıkça çözümlenme
   yoludur; task `cwd` değeri için en güvenli seçimdir.
 - `ZED_GIT_REPOSITORY_NAME` repository path'inin son bileşeninden türetilir; task
   etiketi veya environment değişkeninde kullanıcıya okunabilir repository adı
-  gerektiğinde kullanılır.
+  gerektiğinde kullanırsın.
 
 Tipik bir tanım şöyledir:
 
@@ -266,7 +266,7 @@ Aşağıdaki liste rehber boyunca anlatılan dikkat noktalarını tek bir noktad
 - **Kapatma davranışı atlanıyor** — Zed workspace penceresinde doğrudan `remove_window` yerine `workspace::CloseWindow` action'ını dispatch etmen gerekir; aksi halde kirli buffer ve kullanıcı onayı akışları atlanır.
 - **Async task çalışırken yok oluyor** — Dönen `Task`'ı saklamamış ya da detach etmemişsin; drop edildiği anda iş iptal olur.
 - **Entity sızıntı** — Uzun yaşayan task veya abonelik içinde güçlü `Entity` yakalamak döngü üretir; bunun yerine `WeakEntity`'yi kullanman gerekir.
-- **Çizim güncellenmiyor** — Durum değişiminden sonra `cx.notify()` çağrısı eksik kalmıştır; view aynı verilerle yeniden çizilir.
+- **Çizim güncellenmiyor** — Durum değişiminden sonra `cx.notify()` çağrısı eksik kalmıştır; view aynı verilerle yeniden çizersin.
 - **Odak geri çağrısı tetiklenmiyor** — Element `.track_focus(&odak_tutamagi)` ile ağaca bağlanmamış olabilir.
 - **Özel başlık çubuğu altında içerik tıklanamıyor** — Sürükleme veya window control hitbox'ı fazla geniş tutulmuş ya da `.occlude()` yanlış yere konmuş olabilir.
 - **İstemci süslemesi gölge boşluğu** — `set_client_inset` ve dış sarmalayıcının padding/shadow değerlerini birlikte yönetmen gerekir; aralarındaki uyumsuzluk görünür bir boşluk üretir.

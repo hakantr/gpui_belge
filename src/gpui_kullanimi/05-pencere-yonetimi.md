@@ -38,7 +38,7 @@ let tutamac = cx.open_window(
 
 **`WindowOptions` alanları.** Aşağıdaki alanlar pencerenin oluşumunda sorumluluğu olan başlıca parametreleri tanımlar:
 
-- `window_bounds`: `None` verirsen GPUI bir temel sınır seçer ve onun başlangıç köşesine 25 px kademeli kaydırma (cascade) ekler. Temel sınır, aktif pencere varsa onun geri yüklenebilir sınırı; aktif pencere yoksa hedef display'in `default_bounds()` değeridir. Kademeli kaydırma her iki dalda da uygulanır; yani aktif pencere yokken bile display varsayılanının üzerine 25 px eklenir. Kaydırılan pencere ekranın görünür alanının dışına taşarsa görünür sınıra kelepçelenir. Display varsayılanı, `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095) değerini ekran boyutuna kırparak merkezler. `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını belirler; `Maximized` ve `Fullscreen` içindeki bounds geri yükleme boyutu olarak saklanır. Ek veya yardımcı pencerelerde Zed tarafında sık kullanılan diğer sabit `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` değeridir (900×750, 6:5 oranında settings veya rules library benzeri pencereler için). Kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa `None` yolunun kademeli/default davranışına güvenebilirsin.
+- `window_bounds`: `None` verirsen GPUI bir temel sınır seçer ve onun başlangıç köşesine 25 px kademeli kaydırma (cascade) ekler. Temel sınır, aktif pencere varsa onun geri yüklenebilir sınırı; aktif pencere yoksa hedef display'in `default_bounds()` değeridir. Kademeli kaydırma her iki dalda da uygulanır; yani aktif pencere yokken bile display varsayılanının üzerine 25 px eklersin. Kaydırılan pencere ekranın görünür alanının dışına taşarsa görünür sınıra kelepçelenir. Display varsayılanı, `gpui::DEFAULT_WINDOW_SIZE: Size<Pixels>` (1536×1095) değerini ekran boyutuna kırparak merkezler. `Some` ile gelen değer `Windowed`, `Maximized` veya `Fullscreen` başlangıcını belirler; `Maximized` ve `Fullscreen` içindeki bounds geri yükleme boyutu olarak saklarsın. Ek veya yardımcı pencerelerde Zed tarafında sık kullanılan diğer sabit `gpui::DEFAULT_ADDITIONAL_WINDOW_SIZE` değeridir (900×750, 6:5 oranında settings veya rules library benzeri pencereler için). Kendi varsayılan boyutunu ayrıca ezmek gerekmiyorsa `None` yolunun kademeli/default davranışına güvenebilirsin.
 - `titlebar`: `Some(TitlebarOptions)`'ı sistem başlık çubuğu ayarı için kullanırsın. `None` verdiğinde özel başlık çubuğu yolu açılır.
 - `focus`: pencere oluşturulduğu anda klavye odağını alıp almayacağını belirler.
 - `show`: pencerenin hemen gösterilip gösterilmeyeceğini kontrol eder. Zed ana pencereleri başlangıçta `show: false`, `focus: false` ile açar ve hazır olduğunda gösterir.
@@ -54,9 +54,9 @@ let tutamac = cx.open_window(
 
 `Window::new` çağrısı, GPUI platform penceresini açtıktan sonra şu sırayı izler:
 
-1. `platform_window.request_decorations(...)` çağrılır.
-2. `platform_window.set_background_appearance(window_background)` çağrılır.
-3. Pencere sınırları `Fullscreen` ise tam ekran, `Maximized` ise yakınlaştırma uygulanır.
+1. `platform_window.request_decorations(...)` çağırırsın.
+2. `platform_window.set_background_appearance(window_background)` çağırırsın.
+3. Pencere sınırları `Fullscreen` ise tam ekran, `Maximized` ise yakınlaştırma uygularsın.
 4. Platform geri çağrıları bağlanır.
 
 İlk çizim `Window::new` içinde gerçekleşmez. Bunu bir üst katmanda `open_window` yapar: kök view'u kurduktan sonra pencere en az bir kez çizilsin diye `window.draw(...)`'ı çağırır ve handle'ı öyle döndürür.
@@ -114,7 +114,7 @@ WindowOptions {
 }
 ```
 
-`Bounds` her zaman ekran koordinatlarında ifade edilir. `WindowBounds::centered(size, cx)` çağrısı, ana ya da varsayılan ekran üzerinde merkezleme yapar. Elle konumlandırma gerektiğinde `Bounds::new(origin, size)` kullanırsın.
+`Bounds` her zaman ekran koordinatlarında ifade edersin. `WindowBounds::centered(size, cx)` çağrısı, ana ya da varsayılan ekran üzerinde merkezleme yapar. Elle konumlandırma gerektiğinde `Bounds::new(origin, size)` kullanırsın.
 
 ## WindowKind Davranışı
 
@@ -173,7 +173,7 @@ pub enum Decorations {
 }
 ```
 
-`WindowDecorations`, pencere açılırken istenen kiptir. `Decorations` ise platformun fiili durumudur; `window.window_decorations()` ile okunur. Compositor sınırları nedeniyle istenen kip her zaman aynen karşılanmayabilir; bu yüzden bu ikisi ayrı tutulur.
+`WindowDecorations`, pencere açılırken istenen kiptir. `Decorations` ise platformun fiili durumudur; `window.window_decorations()` ile okunur. Compositor sınırları nedeniyle istenen kip her zaman aynen karşılanmayabilir; bu yüzden bu ikisi ayrı tutarsın.
 
 `Tiling`, istemci tarafı süslemenin ekran kenarlarına döşenmiş olup olmadığını dört kenar (`top`, `left`, `right`, `bottom`) üzerinden taşır. `Tiling::tiled()` tüm kenarları döşenmiş kabul eden hazır değeri üretir; `Tiling::is_tiled()` ise en az bir kenar döşenmişse `true` döner. Kenar hizasına göre resize handle veya titlebar boşluğu hesaplıyorsan bu bilgiyi kullanırsın; sıradan pencere açılışında `WindowOptions.window_decorations` yeterlidir.
 
@@ -264,7 +264,7 @@ platform_baslik_cubugu.into_any_element()
 
 Zed'in başlık çubuğu davranışında dikkat çeken iki ayrıntı vardır:
 
-- `OnboardingBanner` modülü, başlık çubuğunda özellik tanıtımı göstermek için hazır altyapıyı taşır; güncel `TitleBar::new` akışında `banner` alanı `None` olarak kurulur. Bu yüzden yeni bir afiş bağlayacaksan banner entity'sini ayrıca oluşturup görünürlük koşulunu ve action'ını açıkça vermen gerekir.
+- `OnboardingBanner` modülü, başlık çubuğunda özellik tanıtımı göstermek için hazır altyapıyı taşır; güncel `TitleBar::new` akışında `banner` alanı `None` olarak kurarsın. Bu yüzden yeni bir afiş bağlayacaksan banner entity'sini ayrıca oluşturup görünürlük koşulunu ve action'ını açıkça vermen gerekir.
 - `UpdateButton::checking`, `downloading` ve `installing` durumları pasif buton olarak görünür. Sürüm ipucu metni `"Update to Version: ..."` biçimindedir; SHA tabanlı sürümde kısa SHA yerine tam SHA görünür.
 
 ## Kontrol Butonlarını Nasıl Yönetirsin?
@@ -357,7 +357,7 @@ Bu yüzden pencere açılırken istenen kip yerine, her çizimde okuduğun fiili
 
 - `TitlebarOptions::appears_transparent`, özel veya tam içerikli başlık çubuğu için kullanırsın.
 - Başlık butonlarının yerel çarpışma testi davranışı, `WindowControlArea` üzerinden `HTCLOSE`, `HTMAXBUTTON`, `HTMINBUTTON`, `HTCAPTION` değerlerine platform olay katmanında eşlenir.
-- `WindowBackgroundAppearance::MicaBackdrop` ve `MicaAltBackdrop` değerleri, DWM arka plan özniteliği ile uygulanır.
+- `WindowBackgroundAppearance::MicaBackdrop` ve `MicaAltBackdrop` değerleri, DWM arka plan özniteliği ile uygularsın.
 - `WindowControls` çizimini Zed tarafında Windows bileşeni ile yaparsın.
 
 #### Linux/FreeBSD - Wayland
@@ -366,7 +366,7 @@ Bu yüzden pencere açılırken istenen kip yerine, her çizimde okuduğun fiili
 - Compositor sunucu tarafı süslemesi desteklemiyorsa istemci tarafına düşülür.
 - `window_controls()`, Wayland yetenek bilgisinden gelir: tam ekran, ekranı kaplama, küçültme, pencere menüsü.
 - `show_window_menu`, `start_window_move`, `start_window_resize`, `xdg_toplevel` üzerinden compositor'a devredilir.
-- Bulanıklaştırma için compositor `blur_manager` destekliyorsa `Blurred` yüzeye bulanıklık uygulanır.
+- Bulanıklaştırma için compositor `blur_manager` destekliyorsa `Blurred` yüzeye bulanıklık uygularsın.
 
 #### Linux/FreeBSD - X11
 
@@ -379,8 +379,8 @@ Bu yüzden pencere açılırken istenen kip yerine, her çizimde okuduğun fiili
 #### Web/WASM
 
 - Web platformunda yerel pencere süslemesi kavramı bulunmaz.
-- `WindowBackgroundAppearance` şu anda web penceresinde opak veya işlem yapmaz kabul edilir.
-- Giriş noktasında `gpui_platform::web_init()` çağrılır.
+- `WindowBackgroundAppearance` şu anda web penceresinde opak veya işlem yapmaz kabul edersin.
+- Giriş noktasında `gpui_platform::web_init()` çağırırsın.
 
 ## Bulanıklık, Şeffaflık ve Mica Yönetimi
 
@@ -411,11 +411,11 @@ Desteklenen setting değerleri `opaque`, `transparent` ve `blurred`'dir. `MicaBa
 **Zed akışı.** Tema değişimleri tüm açık pencerelere yansıtılır:
 
 - Tema rafine edilirken `WindowBackgroundContent` -> `WindowBackgroundAppearance` dönüştürülür.
-- Ana pencere açılırken `window_background: cx.theme().window_background_appearance()` verilir.
+- Ana pencere açılırken `window_background: cx.theme().window_background_appearance()` verirsin.
 - Ayarlar veya tema değiştiğinde `zed` crate'i, tüm açık pencerelere `window.set_background_appearance(background_appearance)` çağrısı yapar.
-- UI tarafında genel yol `ui::theme_is_transparent(cx)`'tir; şeffaf veya bulanıksa `true` döner. Opak arka plan varsayan bileşenler buna göre davranmalıdır.
+- UI tarafında genel yol `ui::theme_is_transparent(cx)`'tir; şeffaf veya bulanıksa `true` döner. Opak arka plan varsayan bileşenler buna göre davranman gerekir.
 
-**Platform davranışı.** Aynı enum değeri her platformda farklı bir mekanizmayla ifade edilir:
+**Platform davranışı.** Aynı enum değeri her platformda farklı bir mekanizmayla ifade edersin:
 
 - macOS:
   - `Opaque`, pencereyi opak yapar.
@@ -424,11 +424,11 @@ Desteklenen setting değerleri `opaque`, `transparent` ve `blurred`'dir. `MicaBa
 - Windows:
   - `Opaque`: kompozisyon özniteliği kapatılır.
   - `Transparent`: kompozisyon durumu şeffaf olarak işaretlenir.
-  - `Blurred`: acrylic veya bulanıklık benzeri kompozisyon özniteliği uygulanır.
+  - `Blurred`: acrylic veya bulanıklık benzeri kompozisyon özniteliği uygularsın.
   - `MicaBackdrop`: DWM `DWMSBT_MAINWINDOW`.
   - `MicaAltBackdrop`: DWM `DWMSBT_TABBEDWINDOW`.
 - Wayland:
-  - Compositor bulanıklık protokolünü destekliyorsa `Blurred` yüzeye bulanıklık uygulanır.
+  - Compositor bulanıklık protokolünü destekliyorsa `Blurred` yüzeye bulanıklık uygularsın.
   - Aksi durumda bulanıklık isteği gözle görülür bir değişiklik üretmeyebilir.
 - X11:
   - Şeffaf veya bulanık çizim aracı şeffaflığını etkiler; gerçek arka plan bulanıklığı için pencere yöneticisi veya compositor desteği gerekir.
@@ -448,7 +448,7 @@ Pencerenin durumuna ve görünümüne dair sık kullandığın `Window` API'leri
 - **Pencere durumu ve yaşamı:** `window.is_fullscreen()` ve `window.is_maximized()` canlı durumu okur. `window.activate_window()`, `window.minimize_window()`, `window.zoom_window()` ve `window.toggle_fullscreen()` kullanıcıya görünen pencere durumunu platform üzerinden değiştirir. `window.remove_window()` pencereyi çalışma zamanından çıkarır; Zed workspace kapatma gibi doğrulama isteyen akışlarda çoğu zaman doğrudan bu çağrı yerine kapatma action'ını yönlendirirsin.
 - **Başlık, kimlik ve arka plan:** `window.set_window_title(title)`, `window.set_app_id(app_id)` ve `window.set_background_appearance(appearance)` platform penceresinin görünen kimliğini ve arka plan kipini günceller. macOS belge davranışı gerekiyorsa `window.set_window_edited(true/false)` değiştirildi göstergesini, `window.set_document_path(path)` ise belge yolunu platforma bildirir.
 - **Süsleme ve hareket:** `window.show_window_menu(position)` Linux başlık çubuğu bağlam menüsünü açar. `window.start_window_move()` ve `window.start_window_resize(edge)` istemci tarafı başlık çubuğu yazarken platform taşıma/yeniden boyutlandırma akışını başlatır. `window.request_decorations(...)` istenen süsleme kipini bildirir; `window.window_decorations()` fiili sonucu, `window.window_controls()` ise platformun sunduğu kontrol yeteneklerini okur.
-- **Kullanıcı uyarısı ve sistem geri bildirimi:** `window.prompt(...)` pencereye bağlı yerel veya özel prompt akışını açar. `window.play_system_bell()` platformun sistem uyarı sesini tetikler; iş mantığı hatası yerine kısa, yerel geri bildirim gerektiğinde kullanılır.
+- **Kullanıcı uyarısı ve sistem geri bildirimi:** `window.prompt(...)` pencereye bağlı yerel veya özel prompt akışını açar. `window.play_system_bell()` platformun sistem uyarı sesini tetikler; iş mantığı hatası yerine kısa, yerel geri bildirim gerektiğinde kullanırsın.
 
 macOS yerel pencere sekmesi için ek API ailesi işletim sistemi düzeyindeki sekme grubunu yönetir. `window.set_tabbing_identifier(...)` aynı tanımlayıcıya sahip üst düzey pencereleri yerel sekme grubuna sokar. `window.tabbed_windows()` grup bilgisini `Option<Vec<SystemWindowTab>>` olarak okur; platform desteklemiyorsa `None` gelebilir. `window.tab_bar_visible()` yerel sekme çubuğunun görünürlük durumunu söyler. `window.merge_all_windows()`, `window.move_tab_to_new_window()` ve `window.toggle_window_tab_overview()` kullanıcı menüsündeki yerel sekme komutlarının pencere sarmalayıcısıdır.
 
@@ -456,7 +456,7 @@ macOS yerel pencere sekmesi için ek API ailesi işletim sistemi düzeyindeki se
 
 `Window` yalnız pencereyi büyütüp küçülten bir handle değildir; çizim fazı, focus ağacı, action yönlendirmesi, element state'i, asset yükleme, prompt, tab ve platform tanılarına da kapı açar. Bu yüzeyi tek tek ezberlemek yerine aşağıdaki ailelerle okursun.
 
-**Kök view ve handle yönetimi.** `window.window_handle()` `AnyWindowHandle` verir; tipli kök view için `WindowHandle<V>` kullanılır. `WindowHandle::root(cx)`, `entity(cx)`, `read(cx)`, `read_with(cx, ...)`, `update(cx, ...)` ve `is_active(cx)` pencere kök entity'sini güvenli biçimde okur veya günceller. Tip bilinmiyorsa `AnyWindowHandle::window_id()`, `downcast::<T>()`, `update(cx, ...)` ve `read(cx, ...)` ile çalışırsın. Bu handle'ları uzun süre sakladığında pencere kapanmış olabilir; bu yüzden dönen `Result`'ı iş akışının parçası sayarsın.
+**Kök view ve handle yönetimi.** `window.window_handle()` `AnyWindowHandle` verir; tipli kök view için `WindowHandle<V>` kullanırsın. `WindowHandle::root(cx)`, `entity(cx)`, `read(cx)`, `read_with(cx, ...)`, `update(cx, ...)` ve `is_active(cx)` pencere kök entity'sini güvenli biçimde okur veya günceller. Tip bilinmiyorsa `AnyWindowHandle::window_id()`, `downcast::<T>()`, `update(cx, ...)` ve `read(cx, ...)` ile çalışırsın. Bu handle'ları uzun süre sakladığında pencere kapanmış olabilir; bu yüzden dönen `Result`'ı iş akışının parçası sayarsın.
 
 **Async pencere bağlamı.** `window.to_async(cx)` veya `Context::spawn_in(...)` seni `AsyncWindowContext` yüzeyine taşır. `AsyncWindowContext::window_handle()` bağlı pencereyi verir; `update(...)` pencere ve `App` üzerinde çalışır; `update_root(...)` kök view'a da erişir; `on_next_frame(...)` işi sonraki kareye bırakır; `read_global(...)` ve `update_global(...)` global state'e döner; `spawn(...)` pencereye bağlı yeni async iş başlatır; `prompt(...)` pencere kapanmış olabilir durumunu `Result`/receiver üzerinden görünür kılar. Pencere yaşamı önemli değilse `AsyncApp`, pencere state'i ve prompt gerekiyorsa `AsyncWindowContext` kullanırsın.
 
@@ -466,9 +466,9 @@ macOS yerel pencere sekmesi için ek API ailesi işletim sistemi düzeyindeki se
 
 **Girdi, hitbox ve imleç.** `mouse_position()`, `modifiers()`, `capslock()`, `last_input_was_keyboard()`, `capture_pointer(hitbox_id)`, `release_pointer()`, `captured_hitbox()`, `insert_hitbox(...)`, `set_cursor_style(...)`, `set_window_cursor_style(...)`, `request_autoscroll(...)` ve `take_autoscroll()` doğrudan etkileşim altyapısıdır. `HitboxId::is_hovered(...)` ve `should_handle_scroll(...)`, tipli `Hitbox` üzerinde de aynı anlama gelir; scroll sırasında klavye girdi kipi gibi durumları hesaba kattığı için düz hover kontrolünden daha güvenilir olabilir. `TooltipId::is_hovered(...)` tooltip üstüne geçildi mi sorusunu cevaplar.
 
-**Element kimliği ve element state'i.** `with_global_id(...)`, `with_id(...)`, `with_element_namespace(...)`, `use_keyed_state(...)`, `use_state(...)`, `with_element_state(...)` ve `with_optional_element_state(...)` ekran kareleri arasında element başına veri saklar. Liste satırı veya tekrar eden öğelerde `ElementId::named_usize(name, index)` gibi sabit ve anlamlı id üretirsin. Aynı global id ve tip için iç içe state alma `panic` üretebilir; state yaşamını element ağacının stabil id düzenine bağlaman gerekir.
+**Element kimliği ve element state'i.** `with_global_id(...)`, `with_id(...)`, `with_element_namespace(...)`, `use_keyed_state(...)`, `use_state(...)`, `with_element_state(...)` ve `with_optional_element_state(...)` ekran kareleri arasında element başına veri saklar. Liste satırı veya tekrar eden öğelerde `ElementId::named_usize(name, index)` gibi sabit ve anlamlı id üretirsin. Aynı global id ve tip için iç içe state alma `panic` üretebilir; state yaşamını element ağacının sabit id düzenine bağlaman gerekir.
 
-**Çizim bağlamı ve ölçüm.** `text_system()`, `text_style()`, `with_text_style(...)`, `rem_size()`, `set_rem_size(...)`, `with_rem_size(...)`, `line_height()`, `scale_factor()`, `pixel_snap(...)`, `pixel_snap_point(...)`, `pixel_snap_bounds(...)`, `with_content_mask(...)`, `content_mask()`, `with_element_offset(...)`, `with_absolute_element_offset(...)`, `element_offset()`, `transact(...)`, `request_layout(...)`, `request_measured_layout(...)`, `compute_layout(...)` ve `layout_bounds(...)` özel element yazarken kullanılır. Normal `div()` ve Zed UI bileşenlerinde bu seviyeye inmezsin; özel `Element` uygulamasında hangi fazda olduğuna dikkat edersin.
+**Çizim bağlamı ve ölçüm.** `text_system()`, `text_style()`, `with_text_style(...)`, `rem_size()`, `set_rem_size(...)`, `with_rem_size(...)`, `line_height()`, `scale_factor()`, `pixel_snap(...)`, `pixel_snap_point(...)`, `pixel_snap_bounds(...)`, `with_content_mask(...)`, `content_mask()`, `with_element_offset(...)`, `with_absolute_element_offset(...)`, `element_offset()`, `transact(...)`, `request_layout(...)`, `request_measured_layout(...)`, `compute_layout(...)` ve `layout_bounds(...)` özel element yazarken kullanırsın. Normal `div()` ve Zed UI bileşenlerinde bu seviyeye inmezsin; özel `Element` uygulamasında hangi fazda olduğuna dikkat edersin.
 
 **Paint primitive'leri.** `paint_layer(...)`, `paint_drop_shadows(...)`, `paint_inset_shadows(...)`, `paint_quad(...)`, `paint_path(...)`, `paint_underline(...)`, `paint_strikethrough(...)`, `paint_glyph(...)`, `paint_emoji(...)`, `paint_svg(...)`, `paint_image(...)`, `paint_surface(...)` ve `drop_image(...)` yalnız paint fazında anlamlıdır. `fill(bounds, background)`, `quad(...)`, `outline(...)` ve `PaintQuad::corner_radii(...)`, `border_widths(...)`, `border_color(...)`, `background(...)` yardımcıları bu çağrıları besler. Sıradan UI'da `.bg(...)`, `.border_*`, `img(...)` ve `svg()` daha doğru seviyedir.
 
@@ -478,11 +478,11 @@ macOS yerel pencere sekmesi için ek API ailesi işletim sistemi düzeyindeki se
 | `TooltipId` | `is_hovered` | `window.set_tooltip(...)` ile kaydedilen tooltip isteğini tanımlar. |
 | `outline` | bounds, color, border style | Debug/özel çizim için quad outline üretmeye yakın düşük seviye window helper'ıdır. |
 
-**Action ve keymap sorguları.** `dispatch_action(...)`, `dispatch_keystroke(...)`, `dispatch_event(...)`, `prevent_default()`, `default_prevented()`, `context_stack()`, `available_actions(cx)`, `is_action_available(...)`, `is_action_available_in(...)`, `bindings_for_action(...)`, `highest_precedence_binding_for_action(...)`, `bindings_for_action_in_context(...)`, `bindings_for_action_in(...)`, `possible_bindings_for_input(...)`, `keystroke_text_for(...)`, `has_pending_keystrokes()` ve `pending_input_keystrokes()` komut UI'ı, menü etkinliği ve kısayol göstergesi için kullanılır. Bir action'ı çalıştırmak için dispatch yeterlidir; kullanıcının göreceği kısayol metni için bağlam yığınını dikkate alan pencere sorgularını tercih edersin.
+**Action ve keymap sorguları.** `dispatch_action(...)`, `dispatch_keystroke(...)`, `dispatch_event(...)`, `prevent_default()`, `default_prevented()`, `context_stack()`, `available_actions(cx)`, `is_action_available(...)`, `is_action_available_in(...)`, `bindings_for_action(...)`, `highest_precedence_binding_for_action(...)`, `bindings_for_action_in_context(...)`, `bindings_for_action_in(...)`, `possible_bindings_for_input(...)`, `keystroke_text_for(...)`, `has_pending_keystrokes()` ve `pending_input_keystrokes()` komut UI'ı, menü etkinliği ve kısayol göstergesi için kullanırsın. Bir action'ı çalıştırmak için dispatch yeterlidir; kullanıcının göreceği kısayol metni için bağlam yığınını dikkate alan pencere sorgularını tercih edersin.
 
 **Prompt, platform ve tanı yardımcıları.** `prompt(...)`, `show_character_palette()`, `display(cx)`, `gpu_specs()`, `input_latency_snapshot()`, `play_system_bell()`, `window_title()`, `set_window_title(...)`, `set_window_edited(...)`, `set_document_path(...)`, `set_app_id(...)`, `set_background_appearance(...)`, `appearance()`, `is_window_active()` ve `is_window_hovered()` platform entegrasyonudur. Her platform aynı sonucu üretmeyebilir; örneğin GPU tanısı veya karakter paleti bazı arka uçlarda `None` ya da no-op olabilir.
 
-**Frame içi düşük seviye hook'lar.** `set_key_context(...)`, `set_focus_handle(...)`, `set_view_id(...)`, `insert_window_control_hitbox(...)`, `handle_input(...)`, `on_mouse_event(...)`, `on_key_event(...)`, `on_modifiers_changed(...)`, `on_focus_in(...)`, `on_focus_out(...)`, `listener_for(...)`, `handler_for(...)`, `on_action(...)` ve `on_action_when(...)` element implementasyonu veya framework bileşeni yazarken kullanılır. Uygulama view'ında bunların çoğunun karşılığı `.key_context(...)`, `.track_focus(...)`, `.on_click(...)`, `.on_key_down(...)`, `.on_action(...)` gibi fluent element API'leridir.
+**Frame içi düşük seviye hook'lar.** `set_key_context(...)`, `set_focus_handle(...)`, `set_view_id(...)`, `insert_window_control_hitbox(...)`, `handle_input(...)`, `on_mouse_event(...)`, `on_key_event(...)`, `on_modifiers_changed(...)`, `on_focus_in(...)`, `on_focus_out(...)`, `listener_for(...)`, `handler_for(...)`, `on_action(...)` ve `on_action_when(...)` element implementasyonu veya framework bileşeni yazarken kullanırsın. Uygulama view'ında bunların çoğunun karşılığı `.key_context(...)`, `.track_focus(...)`, `.on_click(...)`, `.on_key_down(...)`, `.on_action(...)` gibi fluent element API'leridir.
 
 **WindowInvalidator ve InputRateTracker.** `WindowInvalidator::invalidate_view(...)`, `is_dirty()`, `set_dirty(...)`, `set_phase(...)`, `update_count()`, `take_views()`, `replace_views(...)`, `not_drawing()`, `debug_assert_paint()`, `debug_assert_prepaint()` ve `debug_assert_paint_or_prepaint()` yardımcıları çizim boru hattının kendi tutarlılık denetimidir. `InputRateTracker::record_input()` ve `is_high_rate()` yüksek frekanslı input geldiğinde platformun frame optimizasyonu yapmasına yardım eder. Bu tipleri uygulama state'i olarak kullanmazsın; pencere çalışma zamanının iç kararlarını açıklarlar.
 
@@ -509,12 +509,12 @@ let sinirlar = window.inner_window_bounds();
 serilestir(sinirlar, ekran_uuid);
 ```
 
-Zed varsayılan pencere boyutunu saklarken `inner_window_bounds()` kullanır. Workspace serileştirilirken bazı akışlarda `window.window_bounds()` da tercih edilir. İkisi arasındaki fark, dahil edilen platform veya başlık çubuğu dikdörtgeninin farklı olmasından kaynaklanır. Tam ekran ya da ekranı kaplama durumlarında enum içindeki sınırlar, geri yüklenecek pencereli sınırları temsil eder. Ekran UUID'sini ayrı saklarsın; kullanıcı sonradan monitörü ayırabileceği için bu kimliği pencere sınırlarından bağımsız tutman gerekir.
+Zed varsayılan pencere boyutunu saklarken `inner_window_bounds()` kullanır. Workspace serileştirilirken bazı akışlarda `window.window_bounds()` da tercih edersin. İkisi arasındaki fark, dahil edilen platform veya başlık çubuğu dikdörtgeninin farklı olmasından kaynaklanır. Tam ekran ya da ekranı kaplama durumlarında enum içindeki sınırlar, geri yüklenecek pencereli sınırları temsil eder. Ekran UUID'sini ayrı saklarsın; kullanıcı sonradan monitörü ayırabileceği için bu kimliği pencere sınırlarından bağımsız tutman gerekir.
 
-**Geri yükleme akışı.** Workspace açılırken `zed::build_window_options` üstünde şu sıra izlenir:
+**Geri yükleme akışı.** Workspace açılırken `zed::build_window_options` üstünde şu sıra izlersin:
 
 1. Saklı `display_uuid`, `cx.displays()` içindeki `display.uuid()` değerleriyle eşleştirilir.
-2. Ekran bulunmuşsa `options.display_id` ayarlanır ve kayıtlı `WindowBounds` değeri `options.window_bounds`'a yerleştirilir.
+2. Ekran bulunmuşsa `options.display_id` ayarlanır ve kayıtlı `WindowBounds` değeri `options.window_bounds`'a yerleştirirsin.
 3. Workspace'e özel sınırlar bulunmuyorsa varsayılan pencere sınırları okunur.
 4. Hiç kayıt yoksa `WindowOptions.window_bounds = None` bırakılır ve GPUI, platformun varsayılan veya kademeli sınırlarını seçer.
 

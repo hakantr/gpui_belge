@@ -6,7 +6,7 @@ Geri bildirim bileşenleri, kullanıcıya uygulamanın o anki durumunu anlatır.
 - `Callout`: içerik akışı içinde, kullanıcının okuması ve gerekirse karar vermesi beklenen daha açıklayıcı bir mesaj için kullanırsın.
 - `Modal`: kendi modal içeriğini kurmak için bir iskelet sağlar.
 - `AlertModal`: kısa karar akışları veya uyarı diyalogları için.
-- `AnnouncementToast`: yeni özellik veya duyuru kartı; yaşam döngüsü üst bildirim sistemi tarafından yönetilir.
+- `AnnouncementToast`: yeni özellik veya duyuru kartı; yaşam döngüsü üst bildirim sistemi tarafından yönetirsin.
 - `CountBadge`, `Indicator`, `ProgressBar`, `CircularProgress`: küçük durum ve ilerleme göstergeleri.
 - `ActivityIndicator`: workspace status alanında LSP, debug, git, dosya sistemi, extension ve formatlama aktivitelerini tek bir kompakt tetikleyici altında toplar.
 
@@ -64,7 +64,7 @@ Temel API:
 Davranış:
 
 - Varsayılan severity değeri `Severity::Info`'dur.
-- Severity'ye göre icon, background ve border rengi seçilir.
+- Severity'ye göre icon, background ve border rengi seçersin.
 - `action_slot(...)` verildiğinde, banner sağ tarafta bir aksiyon alanı açar ve içerik padding'i bu yapıya göre düzenlenir.
 - `.wrap_content(true)`, dar alanlarda içeriğin satıra kırılmasına izin verir.
 
@@ -160,8 +160,8 @@ Davranış:
 - Varsayılan severity `Severity::Info`'dur.
 - `.icon(...)` çağrılmadığında icon alanı render edilmez. Çağrıldığında mevcut render akışında görünen icon adı ve rengi severity'den türetilir; verdiğin `IconName` alanın gösterileceğini belirtir.
 - `.description_slot(...)` ile `.description(...)` aynı anda verildiğinde slot önceliklidir.
-- Açıklama alanı `max_h_32()` ve `overflow_y_scroll()` özelliklerini kullanır; bu sayede uzun bir içerikte callout'un yüksekliği kontrol altında tutulur.
-- Aksiyon ve dismiss slot'ları title satırının sağında render edilir.
+- Açıklama alanı `max_h_32()` ve `overflow_y_scroll()` özelliklerini kullanır; bu sayede uzun bir içerikte callout'un yüksekliği kontrol altında tutarsın.
+- Aksiyon ve dismiss slot'ları title satırının sağında render edersin.
 
 Örnek:
 
@@ -258,7 +258,7 @@ Modal alt yapı taşları:
 
 Davranış:
 
-- Modal root `size_full()`, `flex_1()` ve `overflow_hidden()` kullanır; modal kapsayıcısı genellikle üst overlay tarafından sağlanır.
+- Modal root `size_full()`, `flex_1()` ve `overflow_hidden()` kullanır; modal kapsayıcısı genellikle üst overlay tarafından sağlarsın.
 - `scroll_handle` verildiğinde body `overflow_y_scroll()` ve `track_scroll(...)` ile bağlanır.
 - `show_dismiss(true)` ve `show_back(true)`, header'da Zed'in `menu::Cancel` aksiyonunu dispatch eden icon button'lar üretir.
 - `Section::new_contained()` border'lı bir iç yüzey oluşturur; normal `Section` ise daha düz bir akış verir.
@@ -341,14 +341,14 @@ fn proje_ayarlarini_ac(
 
 - `ManagedView` üzerinden gelen `Render + Focusable + EventEmitter<DismissEvent>` zorunluluğu.
 - `on_before_dismiss(window, cx) -> DismissDecision`: kapanmadan önce bir validation veya kullanıcı onayı istenebilir. `DismissDecision::Pending` kapanmayı erteler; `DismissDecision::Dismiss(false)` ise iptal eder.
-- `fade_out_background(&self) -> bool`: ekrandaki diğer içeriği soluklaştırmak için override edilebilir.
+- `fade_out_background(&self) -> bool`: ekrandaki diğer içeriği soluklaştırmak için override edebilirsin.
 - `render_bare(&self) -> bool`: workspace tarafındaki `ModalLayer`'ın varsayılan elevation yüzeyini atlamak gerektiğinde kullanırsın.
 
 `Workspace::toggle_modal::<V, _>(window, cx, build_fn)` çağrısı, aynı modal türü zaten açıksa onu kapatır; farklı bir modal açıksa onu kapatıp yenisini açar. `ModalLayer`, dismiss olayını dinler ve odağı önceki elemana otomatik olarak geri verir.
 
 Dikkat edeceğin noktalar:
 
-- `Modal` yalnızca bir içerik iskeletidir; açma ve kapama yaşam döngüsü modal host veya üst view tarafından yönetilir.
+- `Modal` yalnızca bir içerik iskeletidir; açma ve kapama yaşam döngüsü modal host veya üst view tarafından yönetirsin.
 - Header'daki dismiss ve back butonları `menu::Cancel` dispatch eder; bu aksiyonu üst context'inde ele alırsın.
 - Section içinde çok sayıda ayar satırı yer alıyorsa, body için bir scroll handle vermen gerekir.
 - `Modal`, bir `AlertModal` yerine kullanılsa bile yine de workspace üzerinden `toggle_modal` ile sunulur; ayrı bir overlay altyapısı kurmaya gerek yoktur.
@@ -394,7 +394,7 @@ Davranış:
 - `.title(...)` verildiğinde küçük bir `Headline` içeren bir varsayılan başlık üretilir.
 - `.primary_action(...)` veya `.dismiss_label(...)` verildiğinde bir varsayılan altlık üretilir. Etiket verilmediği durumda birincil metin `"Ok"`, kapatma metni ise `"Cancel"` olur.
 - Varsayılan altlık butonları yalnızca görünümü kurar; karar akışını Zed eylem sistemi üzerinden `.on_action(...)` veya üst yaşam döngüsü ile bağlarsın.
-- `.header(...)` ve `.footer(...)` verildiğinde, varsayılan başlık veya altlık yerine tamamen özel bir element render edilir.
+- `.header(...)` ve `.footer(...)` verildiğinde, varsayılan başlık veya altlık yerine tamamen özel bir element render edersin.
 
 Örnek:
 
@@ -445,7 +445,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- AlertModal kısa ve karar odaklı tutulur. Birden fazla section gerekiyorsa doğru araç `Modal`'dır.
+- AlertModal kısa ve karar odaklı tutarsın. Birden fazla section gerekiyorsa doğru araç `Modal`'dır.
 - Tehlikeli aksiyonlarda primary label'ın net olması beklenir; `"Ok"` yerine doğrudan eylemi anlatan bir metin tercih edersin.
 - Odak ve klavye action davranışı gerekiyorsa `key_context(...)` ile `track_focus(...)` bağlanmadan yalnızca görsel bir modal üretilmesi doğru değildir; aksi halde modal klavye ile etkileşemez.
 
@@ -529,12 +529,12 @@ Kaynak:
 - Export: `ui::AlertModal`, `ui::AnnouncementToast`.
 - Prelude: Hayır.
 
-Mevcut `ui` kaynağında standalone bir `Notification` bileşeni yer almaz. `notification` dosyası yalnızca `alert_modal` ve `announcement_toast` modüllerini re-export eder. Runtime bildirim kuyruğu, dismiss veya suppress olayları ve notification trait'leri Zed'in daha üst seviyeli notification altyapısında tutulur.
+Mevcut `ui` kaynağında standalone bir `Notification` bileşeni yer almaz. `notification` dosyası yalnızca `alert_modal` ve `announcement_toast` modüllerini re-export eder. Runtime bildirim kuyruğu, dismiss veya suppress olayları ve notification trait'leri Zed'in daha üst seviyeli notification altyapısında tutarsın.
 
 Pratik sonuç şudur:
 
-- UI bileşeni olarak `AlertModal` veya `AnnouncementToast` render edilir.
-- Gösterme, saklama, kapatma ve tekrar göstermeme kararı üst notification view'ı içinde yönetilir.
+- UI bileşeni olarak `AlertModal` veya `AnnouncementToast` render edersin.
+- Gösterme, saklama, kapatma ve tekrar göstermeme kararı üst notification view'ı içinde yönetirsin.
 - Toast içindeki click işleyicilerinde gerekirse telemetry, URL açma ve dismiss akışını birlikte bağlarsın.
 
 ## CountBadge
@@ -755,7 +755,7 @@ Davranış:
 - Canvas üzerinde bir background circle ve bir progress arc çizer.
 - Progress üstten başlar ve saat yönünde ilerler.
 - Progress oranı `(value / max_value).clamp(0.0, 1.0)` ile hesaplanır.
-- `progress >= 0.999` olduğunda tam bir çember çizilir.
+- `progress >= 0.999` olduğunda tam bir çember çizersin.
 - Varsayılan stroke width `px(4.)`'tür.
 
 Örnek:
@@ -803,9 +803,9 @@ Ne zaman kullanırsın:
 Davranış:
 
 - İçeriği `ActivityIcon` ayrımıyla seçersin: bilinmeyen süreli işler `LoadingSpinner`, statik durumlar ise `Icon(IconName)` taşır.
-- Spinner görünümü doğrudan `Button::loading(true)` üzerinden gelir; bu yüzden loading durumunda start icon yerine `IconName::LoadCircle` çizilir.
-- Warning, download ve benzeri statik durumlarda tetikleyici `Button::start_icon(...)` kullanır; ikon `Color::Muted` ile çizilir.
-- Language server work listesi tetikleyiciye yalnızca içerikte özel bir click işleyicisi yoksa popover olarak bağlanır. Menü en az bir cancellable work varsa açılır; cancellable entry'ler `Close` ikonu ve `Cancel ...` label'ıyla render edilir.
+- Spinner görünümü doğrudan `Button::loading(true)` üzerinden gelir; bu yüzden loading durumunda start icon yerine `IconName::LoadCircle` çizersin.
+- Warning, download ve benzeri statik durumlarda tetikleyici `Button::start_icon(...)` kullanır; ikon `Color::Muted` ile çizersin.
+- Language server work listesi tetikleyiciye yalnızca içerikte özel bir click işleyicisi yoksa popover olarak bağlanır. Menü en az bir cancellable work varsa açılır; cancellable entry'ler `Close` ikonu ve `Cancel ...` label'ıyla render edersin.
 - Environment error, formatting failure veya extension failure gibi durumlar kendi click işleyicilerini taşıyorsa language server work menüsü aynı tetikleyiciye eklenmez.
 - Extension install ve remove durumları loading spinner kullanır; extension upgrade ve download durumları download ikonu kullanır.
 

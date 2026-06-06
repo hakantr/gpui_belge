@@ -2,7 +2,7 @@
 
 Bu rehber, Zed'in `title_bar` crate'ini, yani kullanıcıya görünen **ürün başlık çubuğunu** GPUI tabanlı bir uygulamaya lisans-temiz biçimde taşımak için hazırlanmıştır. `title_bar`, alttaki platform kabuğunu (`platform_title_bar`) `pub use` ile yeniden dışa aktarır ve onun üstüne Zed'e özgü ürün katmanını kurar: uygulama menüsü, proje ve kullanıcı menüleri, Git dal göstergesi, işbirliği/ekran paylaşımı kontrolleri, abonelik plan çipi, güncelleme bildirimi ve ilk karşılama duyuru bandı.
 
-> **Kapsam ayrımı.** Pencere kabuğu, sürükleme alanı, Linux/Windows pencere kontrolleri ve yerel pencere sekmeleri gibi platforma özgü davranışlar bu bölümün konusu değildir; onlar [Platform Üst Barı](../platform_ust_bar/platform_ust_bar.md) bölümünde işlenir. Bu bölüm yalnız `title_bar` crate'inin ürün yüzeyini anlatır.
+> **Kapsam ayrımı.** Pencere kabuğu, sürükleme alanı, Linux/Windows pencere kontrolleri ve yerel pencere sekmeleri gibi platforma özgü davranışlar bu bölümün konusu değildir; onlar [Platform Üst Barı](../platform_ust_bar/platform_ust_bar.md) bölümünde işlersin. Bu bölüm yalnız `title_bar` crate'inin ürün yüzeyini anlatır.
 
 > **Bağımlılık uyarısı.** `title_bar`, `platform_title_bar`'ın aksine `call`, `client` ve `remote` gibi Zed'in işbirliği/hesap yığınına bağlıdır. Bir geliştirici bu crate'i kendi uygulamasında kullandığında bu yığını da projesine taşır. Çoğu uygulama için doğru yaklaşım, `title_bar`'a doğrudan bağımlanmak yerine bu bölümdeki kalıpları kendi ürün başlık entity'sine **port etmektir**.
 

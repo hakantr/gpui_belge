@@ -83,7 +83,7 @@ uygulama.run(|cx| {
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `QuitMode` | `Default`, `LastWindowClosed`, `Explicit` | Uygulamanın son pencere kapandığında mı yoksa açık quit isteğiyle mi sonlanacağını belirler. |
-| `CursorHideMode` | klavye girdisine tepki olarak imleci gizleme politikası | Yalnız klavye girdisine (yazım, ve eylem üreten kısayol) tepki olarak imlecin ne zaman gizleneceğini App seviyesinde ayarlar; geri gösterme fare hareketiyle platform tarafında yapılır. |
+| `CursorHideMode` | klavye girdisine tepki olarak imleci gizleme politikası | Yalnız klavye girdisine (yazım, ve eylem üreten kısayol) tepki olarak imlecin ne zaman gizleneceğini App seviyesinde ayarlar; geri gösterme fare hareketiyle platform tarafında yaparsın. |
 - `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 200ms` (`app`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar artık beklenmez (bırakılır), bir hata günlüğü yazılır ve GPUI platform çıkışını sürdürür. Bu yüzden uzun kapanış işlerini bağımsız bırakılan bir `Task`'e değil, bir yaşam döngüsü gözlemcisine bağla.
 **Uygulama etkinliği ve görünürlüğü.** `cx.activate(ignoring_other_apps)` uygulamayı platform düzeyinde öne getirir. `ignoring_other_apps = true` seçimi özellikle yeni pencere açma veya dış URL ile uygulamaya dönme akışlarında kullanılır; yalnız mevcut uygulamayı tekrar odaklamak istiyorsan `false` daha yumuşak bir istektir. `cx.hide()` uygulamanın tamamını gizler. `cx.hide_other_apps()` ve `cx.unhide_other_apps()` ise macOS tarzı uygulama menüsü action'larında olduğu gibi diğer uygulamaları gizleme ya da geri gösterme komutlarını platforma iletir. Bu dört metot tek bir view durumunu değiştirmez; işletim sistemi kabuğuna uygulama düzeyi niyet bildirir.
 
@@ -91,7 +91,7 @@ uygulama.run(|cx| {
 
 **Platform sinyalleri.** Uygulama, işletim sisteminden gelen olayları çeşitli kanallarla dinleyebilir:
 
-- `cx.on_keyboard_layout_change(...)` — klavye düzeni değiştiğinde tetiklenir.
+- `cx.on_keyboard_layout_change(...)` — klavye düzeni değiştiğinde tetiklersin.
 - `cx.keyboard_layout()` ve `cx.keyboard_mapper()` — keystroke'ları action'lara eşlemek için gerekli verileri sağlar.
 - `cx.thermal_state()` ve `cx.on_thermal_state_change(...)` — yoğun çizim, dizinleme veya arka plan işlerinde kısıtlama (`throttling`) kararı verirken kullanırsın.
 - `cx.set_cursor_hide_mode(CursorHideMode::...)` — yazım veya action sonrasında imleci gizleme politikasını ayarlar.

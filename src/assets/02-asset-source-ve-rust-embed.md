@@ -256,7 +256,7 @@ pub trait Asset: 'static {
 
 Bu trait `AssetSource`'tan farklıdır: `AssetSource` ham byte sağlar; `Asset` trait'i ise belirli bir varlık türü için decode/parse/decode-image gibi işlemleri de kapsayan asenkron yükleyicidir. Tipik implementasyonlar `cx.asset_source()` çağrısı yapar, byte'ları alır ve kendi formatına çevirir. `window.use_asset::<T>(source, cx)` ve `cx.fetch_asset::<T>(source)` çağrıları cache mekanizmasını sağlar; aynı kaynak ikinci kez istendiğinde yüklenmiş Future paylaşılır.
 
-Bu üçlü mimarinin pratik sonucu şudur: bir varlığı sadece "alıp byte'larına bakmak" gerekiyorsa `AssetSource` yeterlidir; bir varlığı UI render hattına bağlamak ve cache'lemek gerekiyorsa `Asset` trait'inin altına ayrı bir implementasyon yazılır. `SvgAsset` ve `ImageAssetLoader` bu desenin örnekleridir; sonraki bölümlerde her biri tüketici bağlamında ayrıca işlenir.
+Bu üçlü mimarinin pratik sonucu şudur: bir varlığı sadece "alıp byte'larına bakmak" gerekiyorsa `AssetSource` yeterlidir; bir varlığı UI render hattına bağlamak ve cache'lemek gerekiyorsa `Asset` trait'inin altına ayrı bir implementasyon yazılır. `SvgAsset` ve `ImageAssetLoader` bu desenin örnekleridir; sonraki bölümlerde her biri tüketici bağlamında ayrıca işlersin.
 
 ---
 

@@ -4,7 +4,7 @@
 
 ## Klavye Odağı, Odak Kaybı ve Klavye Olayları
 
-Klavye odağı GPUI'de `FocusHandle` ile temsil edilir. Bir view'un odak alıp verebilmesi için kendine ait bir handle tutması ve çizim sırasında bu handle'ı elemente bağlaması gerekir.
+Klavye odağı GPUI'de `FocusHandle` ile temsil edersin. Bir view'un odak alıp verebilmesi için kendine ait bir handle tutması ve çizim sırasında bu handle'ı elemente bağlaması gerekir.
 
 ```rust
 struct Gorunum {
@@ -267,7 +267,7 @@ let tutamac = cx.focus_handle()
     .tab_index(0);         // Sıralama yoluna katılır
 ```
 
-**Sıralama kuralları.** Tab gezinme sırası, `TabStopMap` içindeki düğüm sıralamasına göre belirlenir:
+**Sıralama kuralları.** Tab gezinme sırası, `TabStopMap` içindeki düğüm sıralamasına göre belirlersin:
 
 1. Aynı grup içinde `tab_index` küçükten büyüğe sıralanır.
 2. `tab_index` eşit olduğunda element ağaç sırası (DFS) belirleyicidir.
@@ -277,7 +277,7 @@ let tutamac = cx.focus_handle()
 
 Düşük seviyeli karşılık `window.with_tab_group(Some(index), |window| ...)` çağrısıdır; `None` verirsen grup açılmadan closure çalışır. Normal bileşen kodunda `.tab_group()` fluent API'sini tercih edersin.
 
-**`Window` üzerindeki yardımcılar.** Tab ve Shift-Tab davranışı pencere üzerinden yapılır:
+**`Window` üzerindeki yardımcılar.** Tab ve Shift-Tab davranışı pencere üzerinden yaparsın:
 
 - `window.focus_next(cx)` / `window.focus_prev(cx)` — Tab veya Shift-Tab geldiğinde çağırırsın.
 - `window.focused(cx)` — o anki odak handle'ını verir.
@@ -291,7 +291,7 @@ div()
     .child(/* ... */)
 ```
 
-`tab_stop(true)` olmadan handle yalnızca programatik olarak odak alır; klavyeyle ulaşılamaz. Erişilebilirlik ve form akışı için her interaktif elementin bir handle'a sahip olması beklenir.
+`tab_stop(true)` olmadan handle yalnızca programatik olarak odak alır; klavyeyle ulaşılamaz. Erişilebilirlik ve form akışı için her interaktif elementin bir handle'a sahip olması beklersin.
 
 ## Metin Girdisi ve IME
 
@@ -302,9 +302,9 @@ Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Düzenleyici be
 - `text_for_range(range_utf16, adjusted_range, ...)`, platformun istediği UTF-16 aralığındaki metni döndürür. Aralık bileşenin gerçek sınırlarına uydurulursa `adjusted_range` ile düzeltilmiş aralığı bildirirsin.
 - `replace_text_in_range(range, text, ...)`, kesinleşmiş metni seçili veya verilen aralığa yazar. Normal karakter ekleme ve paste akışı bu yoldan gelir.
 - `replace_and_mark_text_in_range(range, new_text, new_selected_range, ...)`, yeni metni yazar ve aynı anda IME bileşim durumu olarak işaretler. Aday seçimi sürerken metin görünür olur ama henüz kalıcı seçim gibi ele alınmaz.
-- `unmark_text(...)`, IME bileşim durumunu temizler; aday metin kesinleştiğinde veya iptal edildiğinde çağrılır.
+- `unmark_text(...)`, IME bileşim durumunu temizler; aday metin kesinleştiğinde veya iptal edildiğinde çağırırsın.
 - `bounds_for_range(range_utf16, ...)`, verilen UTF-16 aralığının ekran koordinatlarındaki dikdörtgenini döndürür. IME aday penceresinin imlecin yanında kalması buna bağlıdır.
-- `character_index_for_point(point, ...)`, ekran noktasını UTF-16 karakter ofsetine çevirir. Platformun tıklama veya aday konumu sorgularında kullanılır.
+- `character_index_for_point(point, ...)`, ekran noktasını UTF-16 karakter ofsetine çevirir. Platformun tıklama veya aday konumu sorgularında kullanırsın.
 - `accepts_text_input(...)`, bu handler'ın o anda metin eklemeyi kabul edip etmediğini söyler. `false` döndüğünde platform printable key akışını metin olarak içeri sokmayabilir.
 
 Ham `InputHandler` uygulaması yazarken ayrıca `prefers_ime_for_printable_keys`'i üzerine yazabilirsin. Bununla birlikte yaygın view yolu olan `EntityInputHandler` + `ElementInputHandler` ikilisinde bu ayrı bir kanca (`hook`) değildir; mevcut sarmalayıcı, `prefers_ime_for_printable_keys` sorusunu `accepts_text_input` sonucunu kullanarak yanıtlar. IME ve kısayol önceliğinin `accepts_text_input`'tan bağımsız yönetilmesi gerekiyorsa doğrudan `InputHandler` uygulayan özel bir dinleyici yazarsın.
@@ -325,7 +325,7 @@ Zed'de form tipindeki tek satırlık girdi için doğrudan düzenleyici yazmak y
 - `InputFieldStyle`, `pub` bir struct olarak görünür ancak alanları private'dır; dışarıdan stil üzerine yazma sözleşmesi değil, çizim içi tema anlık görüntüsüdür.
 - `ErasedEditor` trait'i düzenleyici köprüsüdür; `text`, `set_text`, `clear`, `set_placeholder_text`, `move_selection_to_end`, `set_masked`, `focus_handle`, `subscribe`, `render`, `as_any` metotlarını içerir.
 - `ErasedEditorEvent::{BufferEdited, Blurred}`, picker veya arama gibi üst bileşenlerin düzenleme ve odak kaybı akışını dinlemesi için yayınlanır.
-- `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn ErasedEditor>>`, düzenleyici crate'i tarafından kurulur. Zed'de `editor` crate'i init akışında bu fabrika, `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile atanır. Fabrika atanmamışken `InputField::new` `panic` üretir; bu yüzden uygulama init sırasında, düzenleyici kurulumu tamamlandıktan sonra `InputField` üretimine güvenmen gerekir.
+- `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn ErasedEditor>>`, düzenleyici crate'i tarafından kurarsın. Zed'de `editor` crate'i init akışında bu fabrika, `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile atarsın. Fabrika atanmamışken `InputField::new` `panic` üretir; bu yüzden uygulama init sırasında, düzenleyici kurulumu tamamlandıktan sonra `InputField` üretimine güvenmen gerekir.
 
 ## Metin Girdisi Dinleyicisi ve IME Derin Akışı
 
@@ -379,7 +379,7 @@ window.handle_input(
 - İmleç veya seçim hareketinden sonra `window.invalidate_character_coordinates()` çağırırsın; aksi halde IME paneli yeni konuma taşınmaz.
 - `accepts_text_input` `false` olduğunda platformun metin eklemesi engellenebilir.
 - Ham `InputHandler::prefers_ime_for_printable_keys` `true` olduğunda, ASCII dışı IME aktifken yazdırılabilir tuşlar kısayoldan önce IME'ye gider. `ElementInputHandler` sarmalı `EntityInputHandler` için GPUI bu kararı `accepts_text_input` üzerinden verir; trait'te ayrı bir üzerine yazma noktası yoktur.
-- Pencere ekran karesi geçişinde platform girdi dinleyicisi `Vec<Option<_>>` slot'ları `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılır; bir sonraki ekran karesinde aynı slot'a geri yerleştirilir. `reuse_paint` önbelleğindeki `paint_range` indeksleri bu yüzden sabit kalır. Özel düşük seviyeli pencere veya ekran karesi kodu yazarken girdi dinleyicisi dizisinin uzunluğunu, indeks önbelleği varken değiştirme.
+- Pencere ekran karesi geçişinde platform girdi dinleyicisi `Vec<Option<_>>` slot'ları `.pop()` ile kısaltılmaz; `.take()` ile boş slot bırakılır; bir sonraki ekran karesinde aynı slot'a geri yerleştirirsin. `reuse_paint` önbelleğindeki `paint_range` indeksleri bu yüzden sabit kalır. Özel düşük seviyeli pencere veya ekran karesi kodu yazarken girdi dinleyicisi dizisinin uzunluğunu, indeks önbelleği varken değiştirme.
 
 **Dikkat noktaları.** IME ile çalışırken hataya açık kullanımlar:
 
@@ -420,7 +420,7 @@ let islendi_mi = window.dispatch_keystroke(tus_vurusu, cx);
 - `Keystroke::is_ime_in_progress()` — IME bileşim (`composition`) sırasında `true` döner.
 - `window.dispatch_keystroke(...)`, test ve simülasyon yolunda `with_simulated_ime()` uygular; doğrudan düşük seviyeli olay üretirken IME durumunu ayrıca düşünmen gerekir.
 
-**`KeybindingKeystroke` yüzeyi.** Görsel ve gerçek keystroke ayrımı bu sarmalayıcı üzerinden yapılır:
+**`KeybindingKeystroke` yüzeyi.** Görsel ve gerçek keystroke ayrımı bu sarmalayıcı üzerinden yaparsın:
 
 - `KeybindingKeystroke::new_with_mapper(inner, use_key_equivalents, keyboard_mapper)` — platform klavye eşleyicisi üzerinden görsel `key` ve `modifier` üretir. `from_keystroke(keystroke)`, platform eşlemesi yapmadan sarar. Windows'ta `new(inner, display_modifiers, display_key)` yapıcısı da vardır; macOS ve Linux derlemelerinde bu yapıcı bulunmaz.
 - `inner()`, `modifiers()`, `key()` okuyucuları (`getter`), görsel ile gerçek keystroke ayrımını saklar. Windows'ta `modifiers()` ve `key()` görsel değeri döndürebilir; gerçek GPUI girdisi için `inner()`'ı okursun.

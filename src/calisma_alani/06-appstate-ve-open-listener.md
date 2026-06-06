@@ -63,7 +63,7 @@ Zed uygulamasında çalışma alanı açmak yalnızca `open_window` çağrısı 
 | `SerializedMultiWorkspace` | Bir pencere içindeki çoklu workspace durumunun persist edilmiş modelidir. |
 | `SerializedWorkspaceLocation` | Workspace'in local/remote konum bilgisini session restore için taşır. |
 | `SessionWorkspace` | Oturum geri yüklemede açılacak workspace girdisini temsil eder. |
-| `open_workspace_by_id` | DB id'sinden workspace'i geri açar; boş workspace ve unsaved content restore yolunda kullanılır. |
+| `open_workspace_by_id` | DB id'sinden workspace'i geri açar; boş workspace ve unsaved content restore yolunda kullanırsın. |
 | `read_serialized_multi_workspaces` | Persist edilmiş multi-workspace pencerelerini restore listesi olarak okur. |
 | `register_serializable_item` | Restore edilebilir item tiplerini startup sırasında kaydeder. |
 | `join_in_room_project` | Collab oda/project bağlantısına katılma akışını workspace açma bağlamına bağlar. |
@@ -100,7 +100,7 @@ dinleyici.open(RawOpenRequest {
 
 - Startup sırasında `zed::watch_user_agents_md(app_state.fs.clone(), cx)` çağırırsın. Bu, `paths::agents_file()` (`~/.config/zed/AGENTS.md`, platforma göre eşdeğer) dosyasını izler ve `agent_settings::UserAgentsMd` global'ine yükler.
 - Boş veya yalnızca boşluk içeren dosya `UserAgentsMdState::Empty`, başarılı okuma `Loaded`, okunamayan ama mevcut dosya `Error` olur. Hata durumunda ayar hatalarıyla aynı app seviyesindeki notification yolu kullanırsın.
-- Yerel agent system prompt'u kişisel `AGENTS.md` içeriğini "Personal `AGENTS.md`" olarak project rules'tan önce çizer; çakışma durumunda project rules daha sonra geldiği için daha spesifik kabul edilir.
+- Yerel agent system prompt'u kişisel `AGENTS.md` içeriğini "Personal `AGENTS.md`" olarak project rules'tan önce çizer; çakışma durumunda project rules daha sonra geldiği için daha spesifik kabul edersin.
 
 ---
 
@@ -111,4 +111,4 @@ Open akışı ve global durum ile çalışırken hataya açık kullanımlar:
 - Çalışma alanı açma akışında `AppState::build_window_options` kullanırsın; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, pencere dekorasyonu, sistem sekmeleri ve platform ikon/arka plan ayarlarını atlar.
 - `WorkspaceStore` weak workspace tutar; iterasyon sırasında upgrade başarısız olabilir.
 - `OpenListener::open` dinleyici yokken hatayı loglar; talebin teslim edildiği varsayımıyla kullanıcı akışının başlatılmaması gerekir.
-- DB restore yolunda serializable item kind eksikse item restore edilemez; yeni bir item türü eklenirken `register_serializable_item` startup init'inde çağrılmalıdır.
+- DB restore yolunda serializable item kind eksikse item restore edilemez; yeni bir item türü eklenirken `register_serializable_item` startup init'inde çağırman gerekir.

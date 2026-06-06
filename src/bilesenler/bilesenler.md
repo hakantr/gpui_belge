@@ -12,4 +12,4 @@ Okurken şu ayrımı akılda tutmak işini kolaylaştırır:
 - Bileşenlerin çoğu değeri kendi içinde saklamaz. Seçili satır, açık menü, pending task, hata mesajı veya ilerleme gibi bilgiler view durumunda durur; bileşen render sırasında bu bilgiyi alır ve ekrana yansıtır.
 - Kullanıcının gördüğü bir durum değiştiğinde `cx.notify()` çağrısı yaparsın. Aksi halde model güncellense bile ekrandaki görünüm aynı kalabilir.
 
-Bu rehberdeki örnekler kısa tutulsa da yalnızca "çalışan kod parçası" vermek için yazılmadı. Her bölümde ne zaman kullanılır, ne zaman kullanılmaz, temel API, davranış ve dikkat edeceğin noktalar ayrı ayrı verilir. Böylece hem doğru bileşeni seçebilirsin hem de o bileşeni Zed'in beklediği kullanım disipliniyle ekrana yerleştirebilirsin.
+Bu rehberdeki örnekler kısa tutulsa da yalnızca "çalışan kod parçası" vermek için yazılmadı. Her bölümde ne zaman kullanırsın, ne zaman kullanılmaz, temel API, davranış ve dikkat edeceğin noktalar ayrı ayrı verirsin. Böylece hem doğru bileşeni seçebilirsin hem de o bileşeni Zed'in beklediği kullanım disipliniyle ekrana yerleştirebilirsin.

@@ -85,11 +85,11 @@ let yok_katilimci = oyuncular.absent();
 
 `StatusColors::diagnostic()` yalnızca üçlü bir `DiagnosticColors` görünümü üretir: `error`, `warning` ve `info`. Diagnostic panel, satır içi hata şeridi veya durum rozeti bu üç alanı okuyabilir; ama `created`, `deleted`, `modified` gibi VCS renkleri bu helper'da yoktur. Onlar için doğrudan `theme.status().created` gibi alan okursun.
 
-`PlayerColor` tek katılımcının `cursor`, `background` ve `selection` üçlüsüdür. `PlayerColors::color_for_participant(index)` local oyuncuyu atlayıp remote katılımcılar arasında modulo ile döner; bu yüzden collab katılımcı rengi seçerken kullanılır. `PlayerColors::read_only()` local rengi grayscale'e çeker; salt-okunur veya pasif kullanıcı göstergesinde işe yarar. `PlayerColors::absent()` ise son renk slot'unu döndürür ve bulunmayan/ayrılmış katılımcı durumunda kullanılır. Liste boşsa bu helper'ların güvenli çalışması beklenmez; fallback tema en az bir player rengi sağlamalıdır.
+`PlayerColor` tek katılımcının `cursor`, `background` ve `selection` üçlüsüdür. `PlayerColors::color_for_participant(index)` local oyuncuyu atlayıp remote katılımcılar arasında modulo ile döner; bu yüzden collab katılımcı rengi seçerken kullanırsın. `PlayerColors::read_only()` local rengi grayscale'e çeker; salt-okunur veya pasif kullanıcı göstergesinde işe yarar. `PlayerColors::absent()` ise son renk slot'unu döndürür ve bulunmayan/ayrılmış katılımcı durumunda kullanırsın. Liste boşsa bu helper'ların güvenli çalışması beklenmez; fallback tema en az bir player rengi sağlamalıdır.
 
 `AccentColors::color_for_index(index)` index'i accent listesine modulo ile sarar. Bu API, sınırsız sayıda indent guide veya Mermaid pie dilimi gibi tekrar eden görsel slotlarda kullanışlıdır. `default_color_scales()` ise `ColorScales` ailesinin built-in palet matrisini üretir; sıradan UI bileşeni bunu çağırmaz. Fallback tema veya tema editörü, scale tabanlı palette preview üretirken bu fonksiyona ihtiyaç duyar.
 
-`SystemColors::transparent` özel bir `Hsla` değeridir ve şeffaf border/background placeholder'larında kullanılır. macOS traffic light alanları ise titlebar/pencere kromu içindir; form bileşenlerinde status rengi gibi kullanılmaz.
+`SystemColors::transparent` özel bir `Hsla` değeridir ve şeffaf border/background placeholder'larında kullanırsın. macOS traffic light alanları ise titlebar/pencere kromu içindir; form bileşenlerinde status rengi gibi kullanılmaz.
 
 ### Prelude modül deseni
 
@@ -115,7 +115,7 @@ Tüketici tarafından kullanım:
 use kvs_tema::prelude::*;
 ```
 
-> **`gpui::prelude` ile çakışma:** GPUI'nin `prelude::*` modülü `Render` trait'ini ve fluent API trait'lerini taşır. `kvs_tema::prelude::*` yanına eklendiğinde iki ayrı `use` satırı tercih edilir:
+> **`gpui::prelude` ile çakışma:** GPUI'nin `prelude::*` modülü `Render` trait'ini ve fluent API trait'lerini taşır. `kvs_tema::prelude::*` yanına eklendiğinde iki ayrı `use` satırı tercih edersin:
 > ```rust
 > use gpui::{prelude::*, div, App, Window, Context};
 > use kvs_tema::prelude::*;
@@ -149,7 +149,7 @@ impl Render for CacheliPanel {
 
 **Genel tercih (A), yani durumsuz yaklaşımdır.** `cx.refresh_windows()` view'ı yeniden çağırır ve render'ın temayı yeni değerlerle okur. (B) yaklaşımı tema değişimine **kapalı** kalır; eski rengi tutmaya devam eder ve tema değişimiyle uyumsuz kalır.
 
-İstisna: render içinde **hesaplanmış bir değer** (örneğin `arka_plan.opacity(0.5)`) başarım için cache edilebilir. Ancak `cx.theme()` zaten bellek ayırma üretmediği için bu seviyede cache çoğu zaman gereksizdir.
+İstisna: render içinde **hesaplanmış bir değer** (örneğin `arka_plan.opacity(0.5)`) başarım için cache edebilirsin. Ancak `cx.theme()` zaten bellek ayırma üretmediği için bu seviyede cache çoğu zaman gereksizdir.
 
 ### Birden fazla alan okuma
 
@@ -220,7 +220,7 @@ impl Render for Buton {
 
 ### Dikkat Noktaları
 
-1. **`use kvs_tema::ActiveTheme;` import'u**: Trait kapsamda olmadığında `cx.theme()` için "method not found" hatası alınır. Prelude kullanımı bu import gereksinimini pratikte görünmez kılar.
+1. **`use kvs_tema::ActiveTheme;` import'u**: Trait kapsamda olmadığında `cx.theme()` için "method not found" hatası alırsın. Prelude kullanımı bu import gereksinimini pratikte görünmez kılar.
 2. **`cx.theme().clone()` çağrısı**: `&Arc<Theme>` zaten ucuz bir referanstır; `.clone()` refcount artırır ancak çoğu durumda referans yeterlidir. Gereksiz bir maliyet doğurur.
 3. **Bileşen durum alanında rengin cache'lenmesi**: Tema değişiminde eski kalır. Durumsuz okuma tercih edersin.
 4. **`tema.styles.colors.X` zinciri**: Dış crate'ten erişildiğinde compile hatası verir. Accessor (`theme.colors()`) tek doğru yoldur.
@@ -254,7 +254,7 @@ impl Render for VurguCipi {
 Markdown önizleme hattı, tema tüketicisi olarak şu alanları kullanır:
 
 - Düz markdown metni önizleme modunda `markdown_preview_font_family()` ile okunur; bu alan set edilmemişse `ui_font.family` kullanırsın.
-- Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutulur. `MarkdownStyle::themed` / `themed_with_overrides` kurucusu, geçirilen `MarkdownFont` değerine göre `let is_preview = matches!(font, MarkdownFont::Preview)` ayrımını yapar; code block ve inline code TextStyleRefinement'ında preview modunda bu accessor'dan dönen değeri kullanır, `is_preview` `false` ise (örn. agent panel anlatımı) doğrudan `buffer_font.family` okur, böylece markdown önizleme ile uygulama içi markdown render aynı yardımcı imzasını paylaşır.
+- Inline code ve code block'lar yeni `markdown_preview_code_font_family()` accessor'ını kullanır; set edilmediğinde `buffer_font.family` değerine düşer. Bu nedenle settings mirror'ında `markdown_preview_font_family` ile `markdown_preview_code_font_family` ayrı alanlar olarak tutarsın. `MarkdownStyle::themed` / `themed_with_overrides` kurucusu, geçirilen `MarkdownFont` değerine göre `let is_preview = matches!(font, MarkdownFont::Preview)` ayrımını yapar; code block ve inline code TextStyleRefinement'ında preview modunda bu accessor'dan dönen değeri kullanır, `is_preview` `false` ise (örn. agent panel anlatımı) doğrudan `buffer_font.family` okur, böylece markdown önizleme ile uygulama içi markdown render aynı yardımcı imzasını paylaşır.
 - Mermaid render hattı aktif tema renklerinden kendi renderer temasını üretir. Renkler renderer'a `#rrggbb` CSS hex olarak verilir; alpha kanalı taşınmaz, o yüzden şeffaflık gerekiyorsa renk önce tema tarafında uygun zemine blend edilmelidir. Hangi `ThemeColors` slot'unun hangi Mermaid alanına gittiğini şu tablo gösterir:
 
 | MermaidTheme alanı | Tema kaynağı |
@@ -272,16 +272,16 @@ Markdown önizleme hattı, tema tüketicisi olarak şu alanları kullanır:
 | `git_branch_label_colors` | `mermaid_render::text_color_for_background(git_branch_color)` |
 | `accent_colors` | Her player slot'u için `{ foreground: cursor, background }` |
 
-- Mermaid fontu `ThemeSettings::ui_font.family` üzerinden gelir ve GPUI'nin font fallback çözümlemesinden geçirilir. Sanal Zed font adları burada normalize edilir: `.ZedSans` ve `Zed Plex Sans` `IBM Plex Sans`, `.ZedMono` `Lilex`, `.SystemUIFont` ise `system-ui` olarak çözülür. Tanımsız bir ad gelirse renderer'a olduğu gibi geçer.
-- Mermaid postprocess katmanı player renklerinden `zed-accent-0..N` sınıfları üretir. Fill rengi player `background` değerinin Mermaid arka planı üstüne `0.15` opacity ile blend edilmesiyle, stroke ise player `cursor` değeriyle oluşturulur. Metin rengi `mermaid_render::text_color_for_background` üzerinden OKLCH tabanlı seçilir: arka plan chroma'sının yaklaşık %15'i korunur, hedef kontrast en az `4.5:1` olur; gerekirse chroma binary search ile düşürülür ve son çare olarak siyah/beyaz fallback kullanılır.
-- Mermaid kaynağını yazarken `%%{init}%%`, elle `classDef` ve temadan bağımsız hex renkler kullanmazsın. Vurgu sınıfları kaynak metinden değil renderer postprocess adımından gelir; bu yüzden kullanıcı kaynağında aynı sınıf adlarının yeniden tanımlanması tema renkleriyle çakışan bir sonuç üretir. Yalnızca birebir marka/ürün rengi gerekiyorsa sabit kodlu renk kabul edilir.
+- Mermaid fontu `ThemeSettings::ui_font.family` üzerinden gelir ve GPUI'nin font fallback çözümlemesinden geçirilir. Sanal Zed font adları burada normalize edersin: `.ZedSans` ve `Zed Plex Sans` `IBM Plex Sans`, `.ZedMono` `Lilex`, `.SystemUIFont` ise `system-ui` olarak çözersin. Tanımsız bir ad gelirse renderer'a olduğu gibi geçer.
+- Mermaid postprocess katmanı player renklerinden `zed-accent-0..N` sınıfları üretir. Fill rengi player `background` değerinin Mermaid arka planı üstüne `0.15` opacity ile blend edilmesiyle, stroke ise player `cursor` değeriyle oluşturursun. Metin rengi `mermaid_render::text_color_for_background` üzerinden OKLCH tabanlı seçersin: arka plan chroma'sının yaklaşık %15'i korunur, hedef kontrast en az `4.5:1` olur; gerekirse chroma binary search ile düşürülür ve son çare olarak siyah/beyaz fallback kullanırsın.
+- Mermaid kaynağını yazarken `%%{init}%%`, elle `classDef` ve temadan bağımsız hex renkler kullanmazsın. Vurgu sınıfları kaynak metinden değil renderer postprocess adımından gelir; bu yüzden kullanıcı kaynağında aynı sınıf adlarının yeniden tanımlanması tema renkleriyle çakışan bir sonuç üretir. Yalnızca birebir marka/ürün rengi gerekiyorsa sabit kodlu renk kabul edersin.
 - Diyagramın render edilebilmesi için fenced code block'un **kapanmış olması** gerekir (`metadata.is_fenced_closed`). Açık (henüz kapanmamış) bir blok parse sırasında dahil edilmez; bu sayede yarı yazılmış markdown önizleme akışında erken hata üretilmez.
-- İki kaynak türü desteklenir. İlk tür klasik `~~~mermaid` etiketli fenced blok'tur; `mermaid` etiketinden sonra opsiyonel sayı `scale` olarak parse edilir (`mermaid 200` → %200) ve `10..=500` aralığına sıkıştırılır. İkinci tür `~~~src` ile başlayan ve `.mermaid` veya `.mmd` uzantılı bir dosyaya işaret eden `FencedSrc` blok'tur; bu durumda scale sabit `100` kabul edilir. Diğer uzantılar bu yola girmez.
+- İki kaynak türü desteklenir. İlk tür klasik `~~~mermaid` etiketli fenced blok'tur; `mermaid` etiketinden sonra opsiyonel sayı `scale` olarak parse edilir (`mermaid 200` → %200) ve `10..=500` aralığına sıkıştırılır. İkinci tür `~~~src` ile başlayan ve `.mermaid` veya `.mmd` uzantılı bir dosyaya işaret eden `FencedSrc` blok'tur; bu durumda scale sabit `100` kabul edersin. Diğer uzantılar bu yola girmez.
 - Render başarılı olduğunda blok `Preview | Code` sekme başlığıyla birlikte çizilir; varsayılan sekme görsel önizleme, `Code` sekmesi ise diyagramın kaynağıdır. Hangi blok'un hangi sekmede olduğu `Markdown.mermaid_showing_code: HashSet<usize>` içinde tutulur; her offset için `toggle_mermaid_tab(offset)` çağrısı aynı kümeyi flip eder. Render başarısız olur veya cache henüz hazır değilse sekme başlığı çizilmez ve kullanıcıya doğrudan kaynak gösterilir. Render bekleme satırı `top-1 right-2` köşesinde `"Rendering..."` etiketiyle pulsing animasyon olarak çıkar.
-- Mermaid bloklarında sekme başlığı ve kopya butonu görünürlüğü `copy_button_visibility` üzerinden kontrol edilir. `MarkdownElement` `CodeBlockRenderer::Default { copy_button_visibility, .. }` taşıyorsa Mermaid blok'u bu değeri okur; `CopyButtonVisibility::Hidden` seçildiğinde sekme başlığı ve kopya butonu çizilmez. `wrap_button_visibility` normal code block renderer sözleşmesinin alanıdır; Mermaid render fonksiyonu bu alanı kullanmaz, ancak `CodeBlockRenderer::Default` struct literal'i yazarken alanın sağlanması gerekir.
-- Mermaid SVG çıktısı blok başına bir kez render edilip `MermaidState::cache` içinde tutulur. Tema veya `ThemeSettings` değiştiğinde cache geçersizleştirilmelidir; aksi takdirde markdown preview önceki tema renkleriyle kalır. Bunun için `Markdown::invalidate_mermaid_cache(&mut Context<Self>)` public metodu eklersin. Metot `options.render_mermaid_diagrams` açıkken `mermaid_state.clear()` çağırır, parsed markdown'u yeniden render kuyruğuna atar ve `cx.notify()` ile yeniden çizim tetikler. Agent panel gibi tema değişimini observe eden tüketiciler bu çağrıyı `cx.observe_window_appearance` veya tema observer'ına bağlar. `MarkdownOptions { render_mermaid_diagrams: true, ..Default::default() }` bayrağı kapatıldığında ise hem cache hem `mermaid_showing_code` kümesi tamamen boşaltılır.
+- Mermaid bloklarında sekme başlığı ve kopya butonu görünürlüğü `copy_button_visibility` üzerinden kontrol edersin. `MarkdownElement` `CodeBlockRenderer::Default { copy_button_visibility, .. }` taşıyorsa Mermaid blok'u bu değeri okur; `CopyButtonVisibility::Hidden` seçildiğinde sekme başlığı ve kopya butonu çizilmez. `wrap_button_visibility` normal code block renderer sözleşmesinin alanıdır; Mermaid render fonksiyonu bu alanı kullanmaz, ancak `CodeBlockRenderer::Default` struct literal'i yazarken alanın sağlanması gerekir.
+- Mermaid SVG çıktısı blok başına bir kez render edilip `MermaidState::cache` içinde tutarsın. Tema veya `ThemeSettings` değiştiğinde cache geçersizleştirilmelidir; aksi takdirde markdown preview önceki tema renkleriyle kalır. Bunun için `Markdown::invalidate_mermaid_cache(&mut Context<Self>)` public metodu eklersin. Metot `options.render_mermaid_diagrams` açıkken `mermaid_state.clear()` çağırır, parsed markdown'u yeniden render kuyruğuna atar ve `cx.notify()` ile yeniden çizim tetikler. Agent panel gibi tema değişimini observe eden tüketiciler bu çağrıyı `cx.observe_window_appearance` veya tema observer'ına bağlar. `MarkdownOptions { render_mermaid_diagrams: true, ..Default::default() }` bayrağı kapatıldığında ise hem cache hem `mermaid_showing_code` kümesi tamamen boşaltılır.
 
-Editor completion menüsündeki `completion_menu_item_kind = "symbol"` ayarı da syntax theme'i editor metni dışında tüketir. Ayar `off` iken rozet yoktur; `symbol` iken her completion için tek harflik bir rozet çizilir ve varsa syntax capture rengiyle boyanır. Noktalı capture adlarında tam ad bulunamazsa parent capture denenir (`function.method` → `function`). Capture yoksa veya capture'ın `color` alanı boşsa rozet yine çizilir, ancak özel renklendirme yapılmaz.
+Editor completion menüsündeki `completion_menu_item_kind = "symbol"` ayarı da syntax theme'i editor metni dışında tüketir. Ayar `off` iken rozet yoktur; `symbol` iken her completion için tek harflik bir rozet çizilir ve varsa syntax capture rengiyle boyanır. Noktalı capture adlarında tam ad bulunamazsa parent capture denenir (`function.method` → `function`). Capture yoksa veya capture'ın `color` alanı boşsa rozet yine çizersin, ancak özel renklendirme yapılmaz.
 
 | LSP kind | Rozet | Syntax capture |
 | ---------- | ------- | ---------------- |
@@ -393,7 +393,7 @@ div()
 
 ### Disabled durum
 
-GPUI doğrudan bir `.disabled(|s| ...)` callback'i sunmaz; devre dışı mantığı uygulama tarafında yönetilir:
+GPUI doğrudan bir `.disabled(|s| ...)` callback'i sunmaz; devre dışı mantığı uygulama tarafında yönetirsin:
 
 ```rust
 let arka_plan = if self.devre_disi_mi {
@@ -474,7 +474,7 @@ div()
     .active(|s| s.bg(renkler.ghost_element_active))
 ```
 
-`ghost_element_background` genellikle `hsla(0, 0, 0, 0)` (tamamen şeffaf) olarak tutulur. Hover durumunda `ghost_element_hover` devreye girer ve element görünür hale gelir. Bu alan opak bir yüzey rengi değil, şeffaf zemin üstüne serilen ince, düşük-alpha bir nötr katmandır (light temada `neutral().light_alpha().step_3()`, dark temada `step_4()`); `elevated_surface_background` ise opak bir nötr basamaktır (`neutral().*().step_2()`), o yüzden ikisi karıştırılmamalıdır.
+`ghost_element_background` genellikle `hsla(0, 0, 0, 0)` (tamamen şeffaf) olarak tutarsın. Hover durumunda `ghost_element_hover` devreye girer ve element görünür hale gelir. Bu alan opak bir yüzey rengi değil, şeffaf zemin üstüne serilen ince, düşük-alpha bir nötr katmandır (light temada `neutral().light_alpha().step_3()`, dark temada `step_4()`); `elevated_surface_background` ise opak bir nötr basamaktır (`neutral().*().step_2()`), o yüzden ikisi karıştırılmamalıdır.
 
 **Ne zaman ghost kullanılır?**
 
@@ -529,7 +529,7 @@ Bileşen interactive mi?
    let hover_arka_plan = renkler.element_hover;
    .hover(move |s| s.bg(hover_arka_plan))
    ```
-3. **Hover ile active sıralamasının tersine yazılması**: `.active(...).hover(...)` yazılsa bile davranış aynıdır (refinement sırası önceden belirlenmiştir); ancak okunabilirlik için `hover → active` sıralaması idiomatik kabul edilir.
+3. **Hover ile active sıralamasının tersine yazılması**: `.active(...).hover(...)` yazılsa bile davranış aynıdır (refinement sırası önceden belirlenmiştir); ancak okunabilirlik için `hover → active` sıralaması idiomatik kabul edersin.
 4. **`element_disabled` yerine `element_background.opacity(0.5)` tercih etmek**: İki seçenek farklı tasarım kararlarıdır. Tema yazarı devre dışı durum için özel bir renk vermiş olabilir; bu durumda `element_disabled` alanını kullanman gerekir.
 5. **`element_selected` tabanı**: Refinement aşamasında `Some` değer geldiğinde dolu olur; tema yazarı vermediğinde baseline değerinden gelir. Fallback tema değerinin açık doldurulması, beklenmeyen boşlukların önüne geçer.
 6. **Ghost ile element seçimi**: Toolbar bir element'e `element_background` verildiğinde, beklenen şeffaf görüntü yerine yüzey rengiyle dolar; bu durum tasarım dilinin kaymasına yol açar.

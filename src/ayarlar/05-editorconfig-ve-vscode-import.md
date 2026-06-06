@@ -6,7 +6,7 @@
 
 ## `EditorconfigStore`
 
-EditorConfig spesifikasyonunu (`ec4rs` üzerinden) çalışma zamanında çözer. Store her worktree'nin internal (`InWorktree`) ve external (`OutsideWorktree`) EditorConfig dosyalarını ayrı ayrı tutar; aynı external dosya birden çok worktree tarafından paylaşılıyorsa yalnız bir kez parse edilir.
+EditorConfig spesifikasyonunu (`ec4rs` üzerinden) çalışma zamanında çözer. Store her worktree'nin internal (`InWorktree`) ve external (`OutsideWorktree`) EditorConfig dosyalarını ayrı ayrı tutar; aynı external dosya birden çok worktree tarafından paylaşılıyorsa yalnız bir kez parse edersin.
 
 ```rust
 pub struct EditorconfigStore {
@@ -85,7 +85,7 @@ pub struct VsCodeSettings {
 - `VsCode` için `paths::vscode_settings_file_paths()`.
 - `Cursor` için `paths::cursor_settings_file_paths()`.
 
-Adaylar `fs.is_file(...)` ile sırayla kontrol edilir; güncel kaynak her eşleşmede `path` değerini güncellediği için liste sırasındaki son mevcut dosya seçersin. Hiçbiri bulunamazsa beklenen yolların listesini içeren `anyhow::Error` döner. Dosya `serde_json_lenient::from_str` ile yorum-toleranslı parse edilir.
+Adaylar `fs.is_file(...)` ile sırayla kontrol edilir; güncel kaynak her eşleşmede `path` değerini güncellediği için liste sırasındaki son mevcut dosya seçersin. Hiçbiri bulunamazsa beklenen yolların listesini içeren `anyhow::Error` döner. Dosya `serde_json_lenient::from_str` ile yorum-toleranslı parse edersin.
 
 **Test yardımcı.** `VsCodeSettings::from_str(content, source)` `test-support` altında string içerikten örnek üretir; CI dışında derlenmez.
 
@@ -128,7 +128,7 @@ Ayrı bir renk okuyucu metot yoktur; VS Code `editor.semanticTokenColorCustomiza
 ## Dikkat Noktaları
 
 - `Editorconfig::from_str` hata verdiğinde store yine yer tutucu bir kayıt saklar; UI parse hatasını göstermek için `EditorconfigEvent` ile birlikte `InvalidSettingsError::Editorconfig` mesajını okuman gerekir.
-- `EditorconfigStore` worktree silindiğinde `worktree_state` girdisini temizler; external dosyalardan başka kimse referans göstermiyorsa external kayıtlar ve izleyici task'ları da kaldırılır. Worktree açma/kapama akışında bu temizlik manuel olarak garanti edilmez; store tarafından yönetilir.
+- `EditorconfigStore` worktree silindiğinde `worktree_state` girdisini temizler; external dosyalardan başka kimse referans göstermiyorsa external kayıtlar ve izleyici task'ları da kaldırılır. Worktree açma/kapama akışında bu temizlik manuel olarak garanti edilmez; store tarafından yönetirsin.
 - `VsCodeSettings::load_user_settings` aday path listesinde dosyayı bulamazsa anlaşılır bir hata mesajı üretir; bu hatayı `notify_app_err` ile kullanıcıya yansıtman gerekir.
-- `import_vscode_settings` ile normal güncelleme aynı yoldan gider; ikisi de eski metni store önbelleğinden değil, her çağrıda doğrudan diskten taze okur. Güncellenecek eski user metni yazımdan hemen önce diskten okunur ve tüm güncellemeler tek bir seri kanalda sırayla işlenir; böylece içe aktarım ile elle düzenleme birbirine girmeden sıraya alınır.
+- `import_vscode_settings` ile normal güncelleme aynı yoldan gider; ikisi de eski metni store önbelleğinden değil, her çağrıda doğrudan diskten taze okur. Güncellenecek eski user metni yazımdan hemen önce diskten okunur ve tüm güncellemeler tek bir seri kanalda sırayla işlenir; böylece içe aktarım ile elle düzenleme birbirine girmeden sıraya alırsın.
 - VS Code ayarlarındaki `editor.fontFamily` gibi tek değer-çoklu fallback alanları Zed'in `buffer_font_fallbacks` listesine bölünür; tek string formatı doğrudan tek aileyi temsil eder, virgülle ayrılmış stringler bölünür.

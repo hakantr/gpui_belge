@@ -35,7 +35,7 @@ Bu alanların pratik karşılığı şudur:
 
 ### Client-side decoration sarmalı
 
-`PlatformTitleBar` yalnızca üst başlık çubuğunu üretir. Bu çubuğun etrafındaki pencere gölgesi, kenarlık, yeniden boyutlandırma kenarı ve client inset yönetimi onun sorumluluğunda değildir. Zed'de bu işler `workspace::client_side_decorations(...)` fonksiyonunun oluşturduğu ayrı bir sarmal tarafından yapılır.
+`PlatformTitleBar` yalnızca üst başlık çubuğunu üretir. Bu çubuğun etrafındaki pencere gölgesi, kenarlık, yeniden boyutlandırma kenarı ve client inset yönetimi onun sorumluluğunda değildir. Zed'de bu işler `workspace::client_side_decorations(...)` fonksiyonunun oluşturduğu ayrı bir sarmal tarafından yaparsın.
 
 Bir uygulamada Linux CSD desteği isteniyorsa, aynı sorumlulukları karşılayan bir sarmalı port tarafında da yazarsın. Bu sarmalın yüklendiği işler şunlardır:
 
@@ -68,7 +68,7 @@ trait TitleBarController {
 }
 ```
 
-Koddaki `ShellSidebarState` de port kurgusudur; Zed'de bu adda bir tip bulunmaz. Gerçek karşılığı `workspace::SidebarRenderState`'tir; `open: bool` ve `side: SidebarSide` alanlarını taşır ve `MultiWorkspace::sidebar_render_state(cx)` ile üretilir. Buna karşılık `WindowButtonLayout` port kurgusu değil, doğrudan `gpui` tipidir ve `App::button_layout()` ile alınır.
+Koddaki `ShellSidebarState` de port kurgusudur; Zed'de bu adda bir tip bulunmaz. Gerçek karşılığı `workspace::SidebarRenderState`'tir; `open: bool` ve `side: SidebarSide` alanlarını taşır ve `MultiWorkspace::sidebar_render_state(cx)` ile üretilir. Buna karşılık `WindowButtonLayout` port kurgusu değil, doğrudan `gpui` tipidir ve `App::button_layout()` ile alırsın.
 
 Bu sözleşme sayesinde platform titlebar, render anında uygulama durumuna şu beş soruyu sorar:
 

@@ -82,7 +82,7 @@ tema.styles.colors.refine(&iyilestirme);
 
 1. **String → Hsla**: `theme_colors_refinement`, `status_colors_refinement` ve dolaylı olarak `accents`/`players`/`syntax` (`Theme::from_content` içinde).
 2. **Türetme** (`apply_status_color_defaults`): ön plan verilmiş ama arka plan verilmemiş durum alanlarına %25 alpha arka plan üretir.
-3. **Refineable çağrısı**: `taban.refine(&iyilestirme)` ile taban güncellenir. (Bu adım ilgili bölümde işlenir; `refinement` kendi içinde `refine` çağırmaz, yalnızca Refinement üretir.)
+3. **Refineable çağrısı**: `taban.refine(&iyilestirme)` ile taban güncellersin. (Bu adım ilgili bölümde işlenir; `refinement` kendi içinde `refine` çağırmaz, yalnızca Refinement üretir.)
 
 ### Modülün dış arayüzü
 
@@ -366,7 +366,7 @@ Bunlar `*_refinement` fonksiyonu altında modellenmez. Çünkü `Refineable` der
 ### Dikkat Noktaları
 
 1. **`renk(icerik.border)` yerine `renk(&icerik.border)`**: Yardımcı `&Option<String>` parametresi bekler, `Option<String>` değil. Move alma istenmeyeceği için referans vermen gerekir.
-2. **`..Default::default()` tabanı**: Yeni bir alan eklendiğinde derleme bozulur. Varsayılan taban yerinde tutulmalıdır; zaten verilen alanları varsayılan değerler geçersiz kılmaz.
+2. **`..Default::default()` tabanı**: Yeni bir alan eklendiğinde derleme bozulur. Varsayılan taban yerinde tutman gerekir; zaten verilen alanları varsayılan değerler geçersiz kılmaz.
 3. **`as_deref` yerine `as_ref().map(String::as_str)`**: Aynı sonucu verir ama daha uzun bir yazımdır. `as_deref()` idiomatik kullanımdır.
 4. **Hata loglaması**: Ayrıştırma hatası sessizce `None`'a düşer. Üretim hata ayıklama ihtiyacı için şu yaklaşım yardımcı olur:
    ```rust
@@ -443,7 +443,7 @@ Yalnızca `_background` türetilir; `_border` `None` ise tabandan gelir. Tema ya
 - `error_background` = türetildi (`#ff555540` benzeri)
 - `error_border` = tabandan (tema yazarı vermediyse)
 
-Bu kasıtlı bir tercihtir. Border renginin %50 alpha versiyonu her durumda makul olmayabilir; bu rengin ayrı bir kararla yazılması beklenir.
+Bu kasıtlı bir tercihtir. Border renginin %50 alpha versiyonu her durumda makul olmayabilir; bu rengin ayrı bir kararla yazılması beklersin.
 
 ### Mekanizma detayı
 
@@ -471,7 +471,7 @@ for (on_plan, arka_plan) in ciftler {
 
 ### Çağrı yeri
 
-`apply_status_color_defaults`, `Theme::from_content` içinde **yalnızca tek bir yerde** çağrılır:
+`apply_status_color_defaults`, `Theme::from_content` içinde **yalnızca tek bir yerde** çağırırsın:
 
 ```rust
 let mut durum_iyilestirme = status_colors_refinement(&icerik.style.status);
@@ -482,14 +482,14 @@ durum.refine(&durum_iyilestirme);
 
 Sıralama:
 1. Content'ten refinement üretilir.
-2. Refinement'a türetme uygulanır.
-3. Tabana refinement uygulanır.
+2. Refinement'a türetme uygularsın.
+3. Tabana refinement uygularsın.
 
 ### `theme_color_defaults` muadili?
 
 `ThemeColors` için genel bir ön plan/arka plan türetme yardımcısı yoktur. Sebep basittir: UI renklerinde durum renklerindeki gibi düzenli bir ön plan/arka plan ilişkisi bulunmaz. `border_variant` ile `surface_background` birbirinden bağımsız alanlardır. Genel türetme bu yüzden yapay kalır.
 
-Zed'de `apply_theme_color_defaults` adında bir fonksiyon bulunur, ancak tam davranışı ilgili bölümde işlenir: yalnızca `element_selection_background` alanını türetir ve kaynak rengi `player_colors.local().selection` değeridir (`text_accent` veya başka bir alan değil). Kaynak rengin alpha'sı `1.0` olduğunda sonuç alpha'sı `0.25`'e çekilir; aksi durumda değer olduğu gibi atarsın. Yani sabit bir `× 0.25` formülü **söz konusu değildir**; alpha < 1.0 olan bir player selection'ı aynen kopyalanır. `apply_theme_color_defaults` tarafındaki ek türetme kuralları ilgili bölümde ayrıca ele alırsın.
+Zed'de `apply_theme_color_defaults` adında bir fonksiyon bulunur, ancak tam davranışı ilgili bölümde işlersin: yalnızca `element_selection_background` alanını türetir ve kaynak rengi `player_colors.local().selection` değeridir (`text_accent` veya başka bir alan değil). Kaynak rengin alpha'sı `1.0` olduğunda sonuç alpha'sı `0.25`'e çekilir; aksi durumda değer olduğu gibi atarsın. Yani sabit bir `× 0.25` formülü **söz konusu değildir**; alpha < 1.0 olan bir player selection'ı aynen kopyalanır. `apply_theme_color_defaults` tarafındaki ek türetme kuralları ilgili bölümde ayrıca ele alırsın.
 
 ### Test örnekleri
 
@@ -557,7 +557,7 @@ fn on_plan_ve_arka_plan_yoksa_bos_kalir() {
    }
    ```
 5. **`_border` türetmesinin eklenmesi**: Sözleşmenin dışına çıkar ve kullanıcı temasıyla uyumsuz bir görüntü riskini doğurur. Bu adımın eklenmesi yerel bir API genişletmesi olarak değerlendirilmelidir.
-6. **Türetme sırası**: `apply_status_color_defaults` `refine()`'dan **önce** çağrılmalıdır. Sonra çağrıldığında tabanın `_background` değeri zaten yazılmış olur ve türetme yerini bulamaz.
+6. **Türetme sırası**: `apply_status_color_defaults` `refine()`'dan **önce** çağırman gerekir. Sonra çağrıldığında tabanın `_background` değeri zaten yazılmış olur ve türetme yerini bulamaz.
 
 ### `apply_theme_color_defaults` — refinement varsayılanları
 
@@ -629,7 +629,7 @@ Varsayılan uygulama, kullanıcı `ThemeColorsRefinement` değeri üretildikten 
 
 **Kaynak modül:** `kvs_tema/src/refinement.rs` veya `kvs_tema.rs` (lib kökü). Yerleşim uygulama tasarımına göre değişebilir; ancak `impl Theme` bloğu tek parçadır.
 
-Refinement katmanının dışarıya verdiği ana kurulum fonksiyonudur. İki bilgiyle çağrılır: kullanıcı tema içeriği ve taban tema. Sonuç olarak tam bir `Theme` nesnesi üretir.
+Refinement katmanının dışarıya verdiği ana kurulum fonksiyonudur. İki bilgiyle çağırırsın: kullanıcı tema içeriği ve taban tema. Sonuç olarak tam bir `Theme` nesnesi üretir.
 
 ```rust
 impl Theme {
@@ -856,7 +856,7 @@ Tema yazarı değer vermediyse `WindowBackgroundAppearance::default()` kullanıl
 
 ### Çağrı yerleri
 
-`Theme::from_content` iki ana yerden çağrılır:
+`Theme::from_content` iki ana yerden çağırırsın:
 
 1. **Yerleşik tema yükleme**: `assets/themes/*.json` → `ThemeFamilyContent` → her `ThemeContent` için `from_content`.
 2. **Kullanıcı tema yükleme** (çalışma zamanı API): Kullanıcı bir tema dosyası eklediğinde → `serde_json_lenient::from_str` → `from_content`.
@@ -886,12 +886,12 @@ fn zed_one_koyu_ayristirir() -> anyhow::Result<()> {
        AppearanceContent::Dark => fallback::kvs_default_dark(),
    };
    ```
-2. **`from_content`'in her render'da çağrılması**: Sıcak yol olmasa bile gereksizdir. Tema yüklenirken bir kez çağrılır ve sonuç önbelleğe alınır.
+2. **`from_content`'in her render'da çağrılması**: Sıcak yol olmasa bile gereksizdir. Tema yüklenirken bir kez çağrılır ve sonuç önbelleğe alırsın.
 3. **`uuid` bağımlılığının eklenmesi**: Cargo.toml'a `uuid = { version = "1", features = ["v4"] }` eklersin. İlgili bölüm listesinde de yer alır.
 4. **`SystemColors`'un geçersiz kılınması**: Sözleşmede SystemColors tema yazarı tarafından override edilmez. Şu anki Content tipinde bu alana karşılık gelen bir yer yoktur; istense bile yazılamaz. Bu durum kasıtlıdır.
 5. **`Theme.id` üzerinden eşitlik**: İki tema farklı id'lere sahip olduğunda aynı içeriği taşısa bile farklı sayılır. Eşitlik için `name` veya `styles` karşılaştırılmalıdır.
 6. **Accents `filter_map` null davranışı**: Zed davranışı, ayrıştırılamayan veya `null` accent girdilerini eler; liste boş kaldığında taban korunur.
-7. **`from_content` çalışma zamanı kırılması potansiyeli**: Mevcut implementasyonda kırılma noktası bulunmaz. Buna karşın sonuçları doğrudan açan bir çağrı eklemek dikkat gerektirir: tema yüklemesinin çalışma zamanında kırılmaması, sessizce tabana düşmesi beklenir.
+7. **`from_content` çalışma zamanı kırılması potansiyeli**: Mevcut implementasyonda kırılma noktası bulunmaz. Buna karşın sonuçları doğrudan açan bir çağrı eklemek dikkat gerektirir: tema yüklemesinin çalışma zamanında kırılmaması, sessizce tabana düşmesi beklersin.
 
 ### Zed paritesi: `refine_theme*`, `merge_*`, `load_user_theme`
 

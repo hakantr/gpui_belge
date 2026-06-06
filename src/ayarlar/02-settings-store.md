@@ -1,6 +1,6 @@
 # SettingsStore
 
-`SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip güvenli store içinde birleştirir. Runtime global değerler `Default` üstüne `Extension`, `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve `Server` katmanlarıyla bu sırayla kurulur; worktree/path hedefli okumada `local_settings` bunun üstüne eklenir. Birleşik içerik daha sonra kayıtlı `Settings` tiplerine yedirilir.
+`SettingsStore` Zed'in tüm ayar kaynaklarını tek bir tip güvenli store içinde birleştirir. Runtime global değerler `Default` üstüne `Extension`, `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve `Server` katmanlarıyla bu sırayla kurulur; worktree/path hedefli okumada `local_settings` bunun üstüne eklersin. Birleşik içerik daha sonra kayıtlı `Settings` tiplerine yedirilir.
 
 ![SettingsStore Katmanları](assets/settings-store-katmanlari.svg)
 
@@ -41,7 +41,7 @@ impl Global for SettingsStore {}
 - `server_settings` SSH proje veya uzak sunucu yan ayar dosyasıdır.
 - `extension_settings` yüklü uzantıların kattığı dile özel ayar içeriğidir (yalnız `all_languages`); genel ayar taşımaz.
 - `local_settings` proje veya worktree içindeki `.zed/settings.json` dosyasını `(WorktreeId, RelPath)` çiftiyle saklar.
-- `merged_settings` öncelik kuralına göre tek bir içerik halinde önbelleğe alınmış sonuçtur; sorgular bu değer üzerinden çözülür.
+- `merged_settings` öncelik kuralına göre tek bir içerik halinde önbelleğe alınmış sonuçtur; sorgular bu değer üzerinden çözersin.
 - `last_user_settings_content` ve `last_global_settings_content` aynı ham metnin tekrar parse edilmesini engelleyen son içerik önbellekleridir.
 - `editorconfig_store` proje içindeki `.editorconfig` dosyalarını ayrı bir entity'de tutar.
 - `_settings_files_watcher`, `_setting_file_updates` ve `setting_file_updates_tx` dosya izleme ile yazma isteklerini store yaşam döngüsüne bağlar.
@@ -82,7 +82,7 @@ pub enum SettingsFile {
 }
 ```
 
-`Ord` uygulaması dosya raporlama ve override analizi için `Project` > `Server` > `User` > `Global` > `Default` sırasını verir. `merged_settings` ise store'un runtime merge hattında `Default` üstüne `Extension`, `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve `Server` katmanlarıyla bu sırayla inşa edilir; yani aktif profil, kullanıcının release/OS override'larından sonra ve server'dan önce uygulanır. Profilin tabanı `Default` ise kullanıcının kendi içeriği, release kanalı ve OS katmanları hiç birleştirilmez; merge doğrudan default üstüne profili uygular. Path hedefli okuma yaparsan local proje ayarları bu değerin üstüne eklenir. Aynı kullanıcının birden çok worktree dosyası varsa daha derin path daha yüksek önceliği alır.
+`Ord` uygulaması dosya raporlama ve override analizi için `Project` > `Server` > `User` > `Global` > `Default` sırasını verir. `merged_settings` ise store'un runtime merge hattında `Default` üstüne `Extension`, `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve `Server` katmanlarıyla bu sırayla inşa edilir; yani aktif profil, kullanıcının release/OS override'larından sonra ve server'dan önce uygularsın. Profilin tabanı `Default` ise kullanıcının kendi içeriği, release kanalı ve OS katmanları hiç birleştirilmez; merge doğrudan default üstüne profili uygular. Path hedefli okuma yaparsan local proje ayarları bu değerin üstüne eklersin. Aynı kullanıcının birden çok worktree dosyası varsa daha derin path daha yüksek önceliği alır.
 
 `SettingsLocation { worktree_id, path }` sorgulayan tarafa "bana bu yol için geçerli değeri ver" der; store öncelik zincirinde local katmanları yer almıyorsa global değere düşer.
 
@@ -152,7 +152,7 @@ Ayrı kaynakları doğrudan ayarlamak için store API'leri vardır:
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
-| `SettingsParseResult` | `parse_status`, `migration_status`, `unwrap`, `expect`, `result`, `requires_user_action`, `ok`, `parse_error` | Parse ve migrasyon sonucunu UI veya log akışına çevirmek için kullanılır. |
+| `SettingsParseResult` | `parse_status`, `migration_status`, `unwrap`, `expect`, `result`, `requires_user_action`, `ok`, `parse_error` | Parse ve migrasyon sonucunu UI veya log akışına çevirmek için kullanırsın. |
 | `ParseStatus` | `Success`, `Failed`, `Unchanged` | Parse sonucunun başarı, hata veya değişmeyen içerik durumunu taşır. |
 | `MigrationStatus` | `NotNeeded`, `Succeeded`, `Failed { error }` | Ayar dosyasının otomatik migrasyon durumunu bildirir. |
 
@@ -172,7 +172,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | :-- | :-- | :-- |
 | `SettingsJsonSchemaParams` | `language_names`, `font_names`, `theme_names`, `icon_theme_names`, `lsp_adapter_names`, `action_names`, `action_documentation`, `deprecations`, `deprecation_messages` | Runtime JSON schema üretiminde kullanılan isim ve dokümantasyon listelerini taşır. |
 | `LSP_SETTINGS_SCHEMA_URL_PREFIX` | `zed://schemas/settings/lsp/` | LSP ayar schema URL'leri için ortak prefix'tir. |
-| `SemanticTokenRules` | language semantic token kuralları | Dil bazlı semantic token ayarları store içinde bu tip üzerinden saklanır. |
+| `SemanticTokenRules` | language semantic token kuralları | Dil bazlı semantic token ayarları store içinde bu tip üzerinden saklarsın. |
 | `language` | `settings_content` reexport | Dil bazlı ayar content tiplerini kök `settings_content` yüzeyine çıkarır; store bu tipleri schema ve path-scoped merge sırasında kullanır. |
 
 ---
@@ -189,8 +189,8 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `EditorSettingsContent` | Etkileşim ve arama alanları | `auto_signature_help`, `autoscroll_on_clicks`, `cursor_blink`, `double_click_in_multibuffer`, `drag_and_drop_selection`, `fast_scroll_sensitivity`, `horizontal_scroll_margin`, `middle_click_paste`, `mouse_wheel_zoom`, `multi_cursor_modifier`, `redact_private_values`, `relative_line_numbers`, `rounded_selection`, `scroll_beyond_last_line`, `scroll_sensitivity`, `search`, `search_wrap`, `seed_search_query_from_cursor`, `selection_highlight`, `show_signature_help_after_edits`, `snippet_sort_order`, `use_smartcase_search`, `vertical_scroll_margin` editor etkileşim ve search davranışını taşır. |
 | `EditorSettingsContent` | LSP, hover ve diff alanları | `code_lens`, `completion_detail_alignment`, `completion_menu_item_kind`, `completion_menu_scrollbar`, `diagnostics_max_severity`, `diff_view_style`, `excerpt_context_lines`, `expand_excerpt_lines`, `go_to_definition_fallback`, `go_to_definition_scroll_strategy`, `hover_popover_delay`, `hover_popover_enabled`, `hover_popover_hiding_delay`, `hover_popover_sticky`, `inline_code_actions`, `jupyter`, `lsp_document_colors`, `lsp_highlight_debounce`, `minimum_contrast_for_highlights`, `minimum_split_diff_width` LSP, hover, completion, diff ve notebook bağlantılı ayar alanlarıdır. |
 | `RelativeLineNumbers`, `CompletionDetailAlignment`, `ToolbarContent` | Satır numarası, completion detay hizası ve editor toolbar tercihleri | Editor schema'sının küçük enum/struct taşıyıcılarıdır. |
-| `ScrollbarContent`, `ScrollbarAxesContent`, `ScrollbarDiagnostics` | Editor scrollbar görünümü, eksenleri ve diagnostic işaretleri | Terminal scrollbar content'inden ayrı tutulur. |
-| `StickyScrollContent`, `MinimapContent`, `MinimapThumb`, `MinimapThumbBorder` | Sticky scroll ve minimap görünüm ayarları | Minimap thumb ve border davranışı ayrı enum'larla seçilir. |
+| `ScrollbarContent`, `ScrollbarAxesContent`, `ScrollbarDiagnostics` | Editor scrollbar görünümü, eksenleri ve diagnostic işaretleri | Terminal scrollbar content'inden ayrı tutarsın. |
+| `StickyScrollContent`, `MinimapContent`, `MinimapThumb`, `MinimapThumbBorder` | Sticky scroll ve minimap görünüm ayarları | Minimap thumb ve border davranışı ayrı enum'larla seçersin. |
 | `GutterContent`, `CodeLens`, `DocumentColorsRenderMode`, `CurrentLineHighlight` | Gutter, code lens, document color ve aktif satır vurgusu | Dil sunucusu çıktısını editor görünümüne bağlayan schema parçalarıdır. |
 | `DoubleClickInMultibuffer`, `MultiCursorModifier`, `ScrollBeyondLastLine`, `CursorShape` | Çoklu buffer tıklama, multicursor modifier, scroll sınırı ve cursor şekli | Editor etkileşim davranışını JSON'dan taşır. |
 | `GoToDefinitionFallback`, `GoToDefinitionScrollStrategy` | Definition bulunamadığında fallback ve hedefe scroll stratejisi | Navigation davranışı editor content katmanında kalır. |
@@ -243,7 +243,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `ThemeSettingsContent` | Tema, font ve UI density top-level payload'ı | `theme`, `icon_theme`, `markdown_preview_theme`, `ui_density`, UI/buffer/agent/git commit font boyutu ve ağırlığı, font family/fallback/features, `unnecessary_code_fade`, `experimental_theme_overrides` ve `theme_overrides` alanlarını taşır. |
 | `ThemeSettingsContent` | Font alanları | `ui_font_family`, `ui_font_fallbacks`, `ui_font_size`, `ui_font_features`, `ui_font_weight`, `buffer_font_weight`, `buffer_line_height`, `buffer_font_features`, `agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size`, `markdown_preview_font_family`, `markdown_preview_code_font_family` tema ayar content'inin font odaklı parçalarıdır. |
 | `ThemeSelection`, `ThemeSelectionDiscriminants`, `ThemeName`, `DEFAULT_LIGHT_THEME`, `DEFAULT_DARK_THEME` | Tema seçimi ve varsayılan tema adları | Static veya `Dynamic` light/dark payload seçimi yapılır; varsayılan seçim `One Light` / `One Dark` adlarını kullanır. |
-| `IconThemeSelection`, `IconThemeSelectionDiscriminants`, `IconThemeName` | Icon theme seçimi | Icon teması da static veya `Dynamic` light/dark payload ile seçilebilir. |
+| `IconThemeSelection`, `IconThemeSelectionDiscriminants`, `IconThemeName` | Icon theme seçimi | Icon teması da static veya `Dynamic` light/dark payload ile seçebilirsin. |
 | `ThemeAppearanceMode`, `UiDensity` | Görünüm modu ve yoğunluk | `Light`, `Dark`, `System` tema modunu; `Compact`, `Default`, `Comfortable` spacing oranını belirler. `UiDensity::spacing_ratio()` bu seçimi sayısal boşluk katsayısına çevirir. |
 | `FontFeaturesContent`, `FontSize`, `FontStyleContent`, `FontWeightContent`, `BufferLineHeight`, `BufferLineHeightDiscriminants`, `CodeFade` | Font feature, ölçü ve satır yüksekliği değerleri | OpenType feature map'i, iki ondalıklı font/code fade sayıları, `FontStyleContent::Oblique`, `FontWeightContent::{THIN, EXTRA_LIGHT, LIGHT, NORMAL, MEDIUM, SEMIBOLD, BOLD, EXTRA_BOLD, BLACK}` sabitleri ve buffer line-height schema'sını taşır. |
 | `ThemeStyleContent`, `AccentContent`, `PlayerColorContent` | Theme override dosyasının üst yapısı | `window_background_appearance`, `accents`, `colors`, `status`, `players` ve syntax highlight alanlarını birleştirir. |
@@ -291,22 +291,22 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `language_model`, `AllLanguageModelSettingsContent` | Kök re-export ve tüm provider ayar koleksiyonu | `SettingsContent.language_models` alanının top-level schema'sıdır. |
 | `AnthropicSettingsContent`, `AnthropicAvailableModel`, `LanguageModelCacheConfiguration` | Anthropic API URL, model listesi ve cache yapılandırması | Model entry'leri display name, token limitleri ve tool override taşıyabilir. |
 | `AmazonBedrockSettingsContent`, `BedrockAvailableModel`, `BedrockAuthMethodContent` | Bedrock region, endpoint, auth ve model listesi | Auth enum'u named profile, SSO, API key ve automatic yollarını ayırır. |
-| `OllamaSettingsContent`, `OllamaAvailableModel`, `KeepAlive` | Ollama API, auto-discover ve keep-alive davranışı | `KeepAlive` saniye veya duration string olarak deserialize edilir. |
+| `OllamaSettingsContent`, `OllamaAvailableModel`, `KeepAlive` | Ollama API, auto-discover ve keep-alive davranışı | `KeepAlive` saniye veya duration string olarak deserialize edersin. |
 | `OpenCodeSettingsContent`, `OpenCodeAvailableModel`, `OpenCodeModelSubscription` | OpenCode API ve subscription bazlı model listesi | Zen/Go/Free subscription enum'u provider content'inin parçasıdır. |
 | `LmStudioSettingsContent`, `LmStudioAvailableModel`, `DeepseekSettingsContent`, `DeepseekAvailableModel` | LM Studio ve DeepSeek provider payload'ları | Her provider kendi available model struct'ını kullanır. |
 | `MistralSettingsContent`, `MistralAvailableModel`, `OpenAiSettingsContent`, `OpenAiAvailableModel`, `OpenAiModelCapabilities` | Mistral ve OpenAI provider ayarları | Token, completion, reasoning ve tool/image capability alanları provider schema'sında kalır. |
 | `OpenAiCompatibleSettingsContent`, `OpenAiCompatibleAvailableModel`, `OpenAiCompatibleModelCapabilities` | OpenAI-compatible named provider map'i | `HashMap<Arc<str>, ...>` ile birden çok custom provider tanımlanabilir. |
-| `VercelAiGatewaySettingsContent`, `VercelAiGatewayAvailableModel`, `GoogleSettingsContent`, `GoogleAvailableModel` | Vercel AI Gateway ve Google provider ayarları | Gateway/provider ayarları `language_models` altında ayrı key'lerle tutulur. |
+| `VercelAiGatewaySettingsContent`, `VercelAiGatewayAvailableModel`, `GoogleSettingsContent`, `GoogleAvailableModel` | Vercel AI Gateway ve Google provider ayarları | Gateway/provider ayarları `language_models` altında ayrı key'lerle tutarsın. |
 | `XAiSettingsContent`, `XaiAvailableModel`, `ZedDotDevSettingsContent`, `ZedDotDevAvailableModel`, `ZedDotDevAvailableProvider` | xAI ve `zed.dev` provider ayarları | `zed.dev` JSON key'i serde rename ile korunur. |
 | `OpenRouterSettingsContent`, `OpenRouterAvailableModel`, `OpenRouterProvider`, `DataCollection` | OpenRouter provider, model metadata ve veri toplama tercihi | OpenRouter provider bilgisi model entry'sinden ayrı tiplenir. |
 
-Provider settings struct'larının çoğunda `custom_headers: Option<HashMap<String, String>>` alanı bulunur. Bunu provider HTTP isteklerine ek başlık geçirmek için kullanırsın; API URL veya model listesinden ayrı tutulur, çünkü ağ katmanına ait bir override'dır.
+Provider settings struct'larının çoğunda `custom_headers: Option<HashMap<String, String>>` alanı bulunur. Bunu provider HTTP isteklerine ek başlık geçirmek için kullanırsın; API URL veya model listesinden ayrı tutarsın, çünkü ağ katmanına ait bir override'dır.
 
 ### Kalan content taşıyıcıları ve modül re-export'ları
 
 | API | Kapsadığı davranış | Not |
 | :-- | :-- | :-- |
-| `ActionName` | Action adını JSON string olarak taşır | Runtime action registry ile schema autocomplete bağlanırken kullanılır. |
+| `ActionName` | Action adını JSON string olarak taşır | Runtime action registry ile schema autocomplete bağlanırken kullanırsın. |
 | `ExtendingVec`, `SaturatingBool`, `MergeFrom`, `MergeFromTrait` | Özel merge semantiği olan collection, bool newtype ve re-export trait adı | `ExtendingVec` biriktirir, `SaturatingBool` bir kez `true` olduğunda geri düşmez; `MergeFrom::merge_from_option` opsiyonel katmanı varsa birleştirir, `MergeFromTrait` settings macro çıktısının public trait re-export'udur. |
 | `RootUserSettings`, `SettingsProfile` | Root settings parse trait'i ve profil override payload'ı | `RootUserSettings` yorumlu/yorumsuz JSON parse girişlerini sağlar; `SettingsProfile` kullanıcı profilinin base ve settings override içeriğini taşır. |
 | `SeedQuerySetting`, `ActivateOnClose`, `ClosePosition`, `ShowCloseButton`, `ShowDiagnostics` | Editor/workspace davranışındaki küçük enum ve content seçimleri | Tek başına uzun konu istemeyen schema seçenekleridir. |
@@ -322,7 +322,7 @@ Provider settings struct'larının çoğunda `custom_headers: Option<HashMap<Str
 
 - Store'un `Global` olması demek, her testte ayrı bir store gerektiği anlamına gelir; `SettingsStore::test(cx)` veya `SettingsStore::new(cx, ...)` ile yenisi kurulmadan testler birbirinin durumunu kirletebilir.
 - `merged_settings` `Rc` paylaşımındadır; aynı `App`'te uzun süre tutulan referanslar yeni hesap sonrası eskimiş içerikten okumaya neden olabilir. Sorgu sırasında `get` çağrısı her zaman güncel `Rc`'yi çözmelidir.
-- `set_local_settings` `kind` parametresi içeriğin hangi işlem yoluna gideceğini belirler; bu yüzden Tasks veya EditorConfig içeriği ayar deposundan dışlanır. `Tasks`/`Debug` worktree içi verildiğinde çağrı doğrudan `Err` döner ve içerik ayar olarak saklanmaz; `Editorconfig` ise ayrı `editorconfig_store`'a gider, ayar deposuna hiç girmez. Akış yine de doğrudan worktree dosyalarını izleyen kod tarafından çağrılmalıdır.
+- `set_local_settings` `kind` parametresi içeriğin hangi işlem yoluna gideceğini belirler; bu yüzden Tasks veya EditorConfig içeriği ayar deposundan dışlanır. `Tasks`/`Debug` worktree içi verildiğinde çağrı doğrudan `Err` döner ve içerik ayar olarak saklanmaz; `Editorconfig` ise ayrı `editorconfig_store`'a gider, ayar deposuna hiç girmez. Akış yine de doğrudan worktree dosyalarını izleyen kod tarafından çağırman gerekir.
 - `SettingsStore::update_user_settings` `test-support` altındadır; üretim kodunda elle çağrılırsa derleme `cfg(test)` dışı build'lerde hata verir.
 
 ## İlgili ek ayar tipleri ve davranışları
@@ -349,7 +349,7 @@ Provider settings struct'larının çoğunda `custom_headers: Option<HashMap<Str
 
 | Grup | API | Not |
 |---|---|---|
-| Varyantlar | `Always`, `Expanded` | Bağlı dizin içeriğinin tarama zamanını seçen public enum; serileştirmede `snake_case` (`always`, `expanded`) kullanılır. |
+| Varyantlar | `Always`, `Expanded` | Bağlı dizin içeriğinin tarama zamanını seçen public enum; serileştirmede `snake_case` (`always`, `expanded`) kullanırsın. |
 
 - `Always`: symlinked dizinler her zaman taranır.
 - `Expanded` (varsayılan): symlinked dizinler yalnız çalışma alanında genişletildiklerinde taranır.

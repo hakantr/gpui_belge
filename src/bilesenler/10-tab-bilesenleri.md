@@ -52,7 +52,7 @@ Davranış:
 - `toggle_state(true)`, aktif tab renklerini ve border düzenini seçer.
 - `TabPosition` aktif tab çevresindeki border'ları belirler. `Middle(Ordering)` içindeki `Ordering`, ilgili tabın seçili taba göre solda mı yoksa sağda mı olduğunu anlatır; bu bilgi border'ın hangi tarafta görüneceğini etkiler.
 - `close_side(TabCloseSide::Start)` çağrısı, start ve end slot'ların görsel tarafını değiştirir. Workspace sekmelerinde kapatma butonunun sol ya da sağ tarafta görünmesi bu seçim üzerinden uygularsın.
-- Child içerik, `text_color(...)` atanmış bir `h_flex` içinde çizilir.
+- Child içerik, `text_color(...)` atanmış bir `h_flex` içinde çizersin.
 
 Örnek:
 
@@ -112,7 +112,7 @@ Dikkat edeceğin noktalar:
 - `TabPosition` verilmediğinde varsayılan değer `First` olur. Bu yüzden çoklu bir tab bar içinde her tab için doğru pozisyon hesaplanmalıdır; aksi halde border'lar tutarsız görünür.
 - Close butonu gibi `end_slot` kontrolleri için ayrı ve sabit bir id kullanılması beklenir; aksi halde tıklamalar yanlış elemana yönlendirilebilir.
 - Tab label'ının aktif veya pasif metin rengini doğrudan miras almasını istemek gerekiyorsa, basit bir string child kullanmak yeterlidir. Özel label veya kısaltma gerektiğinde renk davranışını ayrıca kontrol etmen gerekir.
-- Bir tab'a normalde sabit ve benzersiz bir id verirsin; çoklu bir listede her tab'ın kendi id'siyle ayrışması beklenir. Boş bir id desteklenen bir kullanım değildir, yalnız özel render proxy'leri gibi sınırlı durumlarda son çare olarak düşünülür.
+- Bir tab'a normalde sabit ve benzersiz bir id verirsin; çoklu bir listede her tab'ın kendi id'siyle ayrışması beklersin. Boş bir id desteklenen bir kullanım değildir, yalnız özel render proxy'leri gibi sınırlı durumlarda son çare olarak düşünülür.
 
 ## TabBar
 
@@ -144,9 +144,9 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder.
-- Start children varsa, sol tarafta flex-none bir alan oluşturulur; bu alanın tablara bakan sağ kenarında bir border çizilir.
-- Orta tab alanı `overflow_x_scroll()` kullanan bir `h_flex` içinde render edilir.
-- End children varsa, sağ tarafta flex-none bir alan oluşturulur; bu alanın tablara bakan sol kenarında bir border çizilir.
+- Start children varsa, sol tarafta flex-none bir alan oluşturulur; bu alanın tablara bakan sağ kenarında bir border çizersin.
+- Orta tab alanı `overflow_x_scroll()` kullanan bir `h_flex` içinde render edersin.
+- End children varsa, sağ tarafta flex-none bir alan oluşturulur; bu alanın tablara bakan sol kenarında bir border çizersin.
 - `.track_scroll(...)`, iç tab scroll kapsayıcısına bir scroll handle bağlar.
 - TabBar, çocuk tabların `TabPosition` veya seçili durumunu hesaplamaz; bu sorumluluk view tarafına aittir.
 
@@ -239,7 +239,7 @@ fn soldan_kapatmali_tab_render() -> impl IntoElement {
 }
 ```
 
-Scroll handle bağlanmış bir tab bar örneğinde ise scroll davranışı view durumunda tutulan bir `ScrollHandle` üzerinden yönetilir:
+Scroll handle bağlanmış bir tab bar örneğinde ise scroll davranışı view durumunda tutulan bir `ScrollHandle` üzerinden yönetirsin:
 
 ```rust
 use gpui::ScrollHandle;

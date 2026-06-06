@@ -145,7 +145,7 @@ fn onbellekten_veya_async(onbellekteki: Option<Veri>, cx: &App) -> Task<anyhow::
 **Executor tam yüzeyi.** `BackgroundExecutor` ve `ForegroundExecutor` aynı scheduler ailesini sarsalar da kullanım sınırları farklıdır:
 
 - `BackgroundExecutor::new(dispatcher)` ve `ForegroundExecutor::new(dispatcher)`, platform veya test koşumu kurarken kullanılır; normal uygulama içinde çalıştırıcıyı `cx.background_executor()` ve `cx.foreground_executor()` ile alırsın.
-- `BackgroundExecutor::spawn(...)` ve `spawn_with_priority(...)`, `Send + 'static` future ister; CPU, IO ve timer işleri için kullanılır. `Priority::RealtimeAudio` özel ses iş parçacığına iner, sıradan UI işi için yanlış tercihtir.
+- `BackgroundExecutor::spawn(...)` ve `spawn_with_priority(...)`, `Send + 'static` future ister; CPU, IO ve timer işleri için kullanırsın. `Priority::RealtimeAudio` özel ses iş parçacığına iner, sıradan UI işi için yanlış tercihtir.
 - `ForegroundExecutor::spawn(...)` ana iş parçacığında çalışır; `spawn_with_priority(...)` imzayı korur ama ön plan işleri sıralı çalıştığı için önceliği pratikte yok sayar.
 - `BackgroundExecutor::scoped(...)` ve `scoped_priority(...)`, aynı kapsamda başlattığın işleri bekler; `Scope::spawn(...)` ödünç veriyle çalışan kısa ömürlü işleri güvenli biçimde toplar. Uzun yaşayan UI state'i güncellemek için `Context::spawn` veya `cx.background_spawn` daha okunaklıdır.
 - `BackgroundExecutor::now()` ve `timer(duration)` test saatine bağlıdır; deterministik testlerde `std::time::Instant::now()` ve `smol::Timer` yerine bunları kullanırsın.
@@ -153,7 +153,7 @@ fn onbellekten_veya_async(onbellekteki: Option<Veri>, cx: &App) -> Task<anyhow::
 - `BackgroundExecutor::is_main_thread()`, alttaki `PlatformDispatcher` üzerinden mevcut thread'in UI ana thread'i olup olmadığını söyler. Bu kontrolü UI state'ine erişim izni gibi kullanmazsın; UI verisine dönmek için yine `AsyncApp::update`, `AsyncWindowContext::update`, `Context::spawn` veya `Window::spawn` sınırlarından geçersin.
 - `scheduler_executor()` ve `dispatcher()` ham scheduler/platform handle'larına iner. Bunlar Zed'in alt crate'leri veya platform portları içindir; uygulama özellikleri bu handle'ları saklamamalıdır.
 
-Test özelliği açıkken `BackgroundExecutor::simulate_random_delay()`, `advance_clock(...)`, `tick()`, `run_until_parked()`, `allow_parking()`, `forbid_parking()`, `set_block_on_ticks(...)`, `rng()` ve `set_num_cpus(...)` eklenir. Bunlar üretim zamanlayıcı davranışını değiştirme aracı değildir; testte olası yarışları ortaya çıkarmak, zamanı ilerletmek ve park davranışını bilinçli şekilde kabul etmek için kullanılır.
+Test özelliği açıkken `BackgroundExecutor::simulate_random_delay()`, `advance_clock(...)`, `tick()`, `run_until_parked()`, `allow_parking()`, `forbid_parking()`, `set_block_on_ticks(...)`, `rng()` ve `set_num_cpus(...)` eklersin. Bunlar üretim zamanlayıcı davranışını değiştirme aracı değildir; testte olası yarışları ortaya çıkarmak, zamanı ilerletmek ve park davranışını bilinçli şekilde kabul etmek için kullanırsın.
 
 **Ön plan bloklama köprüleri.** `ForegroundExecutor::block_test(...)` yalnız GPUI test makrosunun async test gövdesini sürmesi içindir. `block_on(...)` ve `block_with_timeout(...)` senkron koddan future beklemek için kullanılabilir; UI event handler içinde uzun future'ı bloklamak pencereyi dondurur. Timeout sonucunda future geri döndüğü için çağıran taraf işi iptal mi edecek, tekrar mı sürecek açık karar vermelidir.
 
@@ -190,7 +190,7 @@ cx.spawn_in(window, async move |gorunum, cx| {
 **Detach varyantları.** Görevi bırakırken niyete göre üç farklı yardımcı vardır:
 
 - `task.detach()` — hata loglanmaz, sessizce yutulur. Yalnızca UI'da gösterilemeyen ve sonucu kaybolsa sorun olmayacak işler için uygundur.
-- `task.detach_and_log_err(cx)` — standart akıştır; üretim kodunda hata yönetiminin varsayılan yolu olarak tercih edilir.
+- `task.detach_and_log_err(cx)` — standart akıştır; üretim kodunda hata yönetiminin varsayılan yolu olarak tercih edersin.
 - `task.detach_and_prompt_err(prompt_label, window, cx, |err, window, cx| ...)` — workspace UI'sında kullanılan ek bir yardımcıdır (workspace crate'inde tanımlıdır); hatayı modal bir prompt ile kullanıcıya gösterir.
 
 **Yazarken kararlar.** Bir görevin imzada nasıl görüneceğini seçerken şu pratik kurallar işine yarar:
@@ -250,9 +250,9 @@ abonelikler.push(cx.subscribe(&belge, |gorunum, belge, _: &Kaydedildi, cx| {
 **Pencere bazlı gözlem.** Pencerenin kendisine ait değişimler için ayrı bir gözlemci ailesi vardır; her biri ilgili pencere değişiminde tetiklenir ve geri çağrıya yine aynı view ile `Window` bağlamını verir:
 
 - `cx.observe_window_bounds(window, ...)`, pencere yeniden boyutlandığında veya konumu/boyutu değiştiğinde çalışır. Yerleşimden türeyen başlık, gölge, panel boyutu veya ekran kenarı hesabını güncellemek için kullanırsın.
-- `cx.observe_window_activation(window, ...)`, pencere aktif ya da pasif olduğunda tetiklenir. Başlık çubuğu rengi, odak göstergesi veya aktif pencereye bağlı çalışma alanı seçimi burada yenilenir.
+- `cx.observe_window_activation(window, ...)`, pencere aktif ya da pasif olduğunda tetiklersin. Başlık çubuğu rengi, odak göstergesi veya aktif pencereye bağlı çalışma alanı seçimi burada yenilenir.
 - `cx.observe_window_appearance(window, ...)`, pencerenin açık/koyu görünüm modu değiştiğinde çalışır. Tema veya native pencere süslemesi görünümü bu değişime bağlanır.
-- `cx.observe_button_layout_changed(window, ...)`, platform pencere butonlarının yerleşimi değiştiğinde tetiklenir. Başlık çubuğu kendi kontrol alanlarını çiziyorsa bu bilgiyle yeniden hizalanır.
+- `cx.observe_button_layout_changed(window, ...)`, platform pencere butonlarının yerleşimi değiştiğinde tetiklersin. Başlık çubuğu kendi kontrol alanlarını çiziyorsa bu bilgiyle yeniden hizalanır.
 - `cx.observe_pending_input(window, ...)`, pencerenin henüz action'a dönüşmemiş bekleyen tuş girdisi değiştiğinde çalışır. Which-key veya key-context gösterimi gibi "kullanıcı şu ana kadar ne bastı?" yüzeyleri bunu dinler.
 - `cx.observe_keystrokes(...)`, uygulamadaki herhangi bir pencerede keystroke alındıktan ve action/event çözümlemesi tamamlandıktan sonra çalışır; olay yayılımı durdurulduysa çağrılmaz. Tanılama, Vim modu göstergesi veya kısayol izleme gibi sonradan gözleyen yüzeyler için uygundur.
 
@@ -271,7 +271,7 @@ abonelikler.push(cx.subscribe(&belge, |gorunum, belge, _: &Kaydedildi, cx| {
 - `cx.remove_global<T>() -> T` — nesneyi geri alır; tekrar ayarlamadığın sürece global yok sayılır.
 - `cx.observe_global<T>(|cx| ...) -> Subscription` — global her bildirim gönderdiğinde geri çağrıyı tetikler.
 
-**Etki döngüsü yönetimi.** GPUI içinde veri değişimleri "etki döngüsü" denilen turlar hâlinde işlenir. İç içe güncelleme yerine işleri ertelemek genellikle daha güvenlidir:
+**Etki döngüsü yönetimi.** GPUI içinde veri değişimleri "etki döngüsü" denilen turlar hâlinde işlersin. İç içe güncelleme yerine işleri ertelemek genellikle daha güvenlidir:
 
 - `cx.defer(|cx| ...)`, mevcut etki döngüsü bittiğinde çalışır. İç içe güncellemeleri kırmak veya entity'leri yığına geri vermek için idealdir.
 - `Context<T>::defer_in(window, |gorunum, window, cx| ...)`, aynı erteleme davranışının pencereye bağlı varyantıdır.
@@ -289,7 +289,7 @@ abonelikler.push(cx.subscribe(&belge, |gorunum, belge, _: &Kaydedildi, cx| {
 
 - Uygulama geneli, tek kopya veri için `Global` kullanırsın. Tema, oturum, ayar veya tüm pencereleri etkileyen özellik bayrağı bu sınıftadır. Her pencere kendi view'unda `observe_global` veya pencere gerekiyorsa `observe_global_in` ile global değişimini dinler.
 - Belirli bir belge, panel veya konu (`domain`) nesnesi birden fazla pencerede görünüyorsa paylaşılan `Entity<T>` saklarsın ve iki pencerenin kök view'una aynı entity klonunu geçirirsin. Bu durumda veri `Global` olmak zorunda değildir; sahiplik konu nesnesindedir.
-- Tek seferlik mesajlar için `EventEmitter` + `subscribe` daha uygundur. Kalıcı durum gerekiyorsa event yerine durumu saklayan `Global` veya `Entity<T>` tercih edilir.
+- Tek seferlik mesajlar için `EventEmitter` + `subscribe` daha uygundur. Kalıcı durum gerekiyorsa event yerine durumu saklayan `Global` veya `Entity<T>` tercih edersin.
 
 Global tabanlı akışta değişikliği tüm gözlemcilere mevcut etki döngüsünün sonunda yayarsın:
 
@@ -349,7 +349,7 @@ let _abonelik = cx.observe(&varlik, |...| { ... });
 
 **Abonelik üreten yöntemler.** `Context<T>` üzerinde abonelik üreten temel metotlar şunlar:
 
-- `cx.observe(entity, f)` — entity `cx.notify()` çağırdığında tetiklenir.
+- `cx.observe(entity, f)` — entity `cx.notify()` çağırdığında tetiklersin.
 - `cx.subscribe(entity, f)` — `EventEmitter<E>` olayları için.
 - `cx.observe_global::<G>(f)` — uygulama geneli veri değiştiğinde.
 - `cx.observe_release(entity, f)` — entity elden çıktığında.
@@ -411,7 +411,7 @@ self._abonelik = cx.subscribe_in(&modal, window, |gorunum, modal, olay, window, 
 **Odak yardımcıları.** Odak akışına müdahale için tipli yardımcılar mevcuttur:
 
 - `cx.focus_view(&entity, window)` — `Focusable` uygulayan başka bir view'a odağı taşır.
-- `cx.focus_self(window)` — o anki entity `Focusable` ise odağı kendine taşır. İçeride `window.defer(...)` kullanır; bu nedenle çizim ya da action geri çağrısı içinde çağırdığında odak değişimi etki döngüsünün sonunda uygulanır.
+- `cx.focus_self(window)` — o anki entity `Focusable` ise odağı kendine taşır. İçeride `window.defer(...)` kullanır; bu nedenle çizim ya da action geri çağrısı içinde çağırdığında odak değişimi etki döngüsünün sonunda uygularsın.
 - `window.disable_focus()` — pencerenin odağını sıfırlar ve ardından `focus_enabled` bayrağını `false` yapar. Tersine çeviren bir API yoktur; yani çağırdıktan sonra `focus_next` / `focus_prev` / `focus(...)` çağrıları sessizce işlem yapmaz. Uygulama bileşenlerinde genellikle gerekmez; yalnızca pencere ömrü boyunca klavye odağını kalıcı kapatmak isteyen ender durumlarda kullanırsın.
 
 **Dikkat noktaları.** Bu yardımcı aileleri kullanılırken gözden kaçabilecek noktalar:
@@ -455,7 +455,7 @@ let bolme = cx.insert_entity(bolme_rezervasyonu, |cx| {
 
 ![Entity / WeakEntity Sahiplik Modeli](assets/entity-sahiplik.svg)
 
-Entity handle'ları referans sayısı (`ref-count`) mantığıyla yaşar; son güçlü `Entity<T>` handle'ı düştüğünde entity serbest bırakılır. `WeakEntity<T>` ise bu davranışı engellemez, yalnızca canlıyken zayıf erişim sağlar.
+Entity handle'ları referans sayısı (`ref-count`) mantığıyla yaşar; son güçlü `Entity<T>` handle'ı düştüğünde entity serbest bırakırsın. `WeakEntity<T>` ise bu davranışı engellemez, yalnızca canlıyken zayıf erişim sağlar.
 
 **Temizlik API'leri.** Serbest bırakma anında yapılacak işler için birkaç farklı geri çağrı biçimi vardır:
 
@@ -508,7 +508,7 @@ cx.assert_no_new_leaks(&sizinti_anlik_gorunumu);
 
 ## Entity Tip Soyutlaması, Geri Çağrı Adaptörleri ve View Önbelleği
 
-Bu bölüm GPUI çekirdeğinde genel olan ama günlük kullanımda kolay atlanan küçük API yüzeylerini toplar. Entity'nin tipli ve tipsiz varyantları, view önbellek mekanizması, geri çağrı adaptörleri ve düşük seviyeli kimlik tipleri burada ele alınır.
+Bu bölüm GPUI çekirdeğinde genel olan ama günlük kullanımda kolay atlanan küçük API yüzeylerini toplar. Entity'nin tipli ve tipsiz varyantları, view önbellek mekanizması, geri çağrı adaptörleri ve düşük seviyeli kimlik tipleri burada ele alırsın.
 
 #### Entity ve WeakEntity Tam Yüzeyi
 
@@ -575,7 +575,7 @@ Bu yüzden `AnyEntity` ve `AnyWeakEntity` üzerindeki bazı metotlar tipli handl
 | `Entity<T>` | `update_in(gorsel_cx, \|&mut T, &mut Window, &mut Context<T>\| ...)` | `C::Result<R>` | Doğrudan. |
 | `Entity<T>` | `as_mut(&mut cx)` | `GpuiBorrow<T>` | Doğrudan; düşerken `cx.notify()`. |
 | `Entity<T>` | `write(&mut cx, deger)` | `()` | Doğrudan; veriyi değiştirir ve bildirim gönderir. |
-| `Entity<T>` deref | `entity_type()` | `TypeId` | Sahip `AnyEntity`; `Entity`'de doğrudan karşılığı yoktur, deref ile çağrılır. |
+| `Entity<T>` deref | `entity_type()` | `TypeId` | Sahip `AnyEntity`; `Entity`'de doğrudan karşılığı yoktur, deref ile çağırırsın. |
 | `Entity<T>` yalnız deref özel durum | `downcast::<U>()` | `Result<Entity<U>, AnyEntity>` | Sahip `AnyEntity::downcast(self)` — **`self`'i tüketir**. Otomatik deref tüketen metoda uygulanmadığı için `varlik.downcast::<U>()` doğrudan derlenmez; `varlik.into_any().downcast::<U>()` yazman gerekir. |
 | `AnyEntity` | `entity_id()` | `EntityId` | Doğrudan. |
 | `AnyEntity` | `entity_type()` | `TypeId` | Doğrudan. |
@@ -591,8 +591,8 @@ Bu yüzden `AnyEntity` ve `AnyWeakEntity` üzerindeki bazı metotlar tipli handl
 | `WeakEntity<T>` | `update_in(cx, \|&mut T, &mut Window, &mut Context<T>\| ...)` | `Result<R>` | Doğrudan; entity'nin son çizildiği pencereyi `App::with_window` ile bulur. |
 | `WeakEntity<T>` | `read_with(cx, \|&T, &App\| ...)` | `Result<R>` | Doğrudan. |
 | `WeakEntity<T>` | `new_invalid()` | `Self` | Doğrudan; aynı adlı `AnyWeakEntity::new_invalid -> AnyWeakEntity` gölgelenir. |
-| `WeakEntity<T>` deref | `entity_id()` | `EntityId` | Sahip `AnyWeakEntity`; deref ile çağrılır. |
-| `WeakEntity<T>` deref | `is_upgradable()` | `bool` | Sahip `AnyWeakEntity`; deref ile çağrılır. |
+| `WeakEntity<T>` deref | `entity_id()` | `EntityId` | Sahip `AnyWeakEntity`; deref ile çağırırsın. |
+| `WeakEntity<T>` deref | `is_upgradable()` | `bool` | Sahip `AnyWeakEntity`; deref ile çağırırsın. |
 | `WeakEntity<T>` deref | `assert_released()` | `()` | Sahip `AnyWeakEntity`; yalnız `test` veya `leak-detection`. |
 | `AnyWeakEntity` | `entity_id()` | `EntityId` | Doğrudan. |
 | `AnyWeakEntity` | `is_upgradable()` | `bool` | Doğrudan. |

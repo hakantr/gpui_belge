@@ -1,6 +1,6 @@
 # GPUI'nin tema için kullanılan yüzeyi
 
-Tema sistemi neredeyse her adımda GPUI tipleriyle konuşur. Renkler, font stilleri, pencere görünümü ve global durum bu yüzeyin parçasıdır. Bu tipler önceden anlaşılırsa, veri modeli ve çalışma zamanı kararları sonraki bölümlerde çok daha rahat takip edilir. Bu bölüm, tema kodunun sık kullandığı GPUI parçalarını görevleriyle ve yaygın dikkat noktalarıyla birlikte anlatır.
+Tema sistemi neredeyse her adımda GPUI tipleriyle konuşur. Renkler, font stilleri, pencere görünümü ve global durum bu yüzeyin parçasıdır. Bu tipler önceden anlaşılırsa, veri modeli ve çalışma zamanı kararları sonraki bölümlerde çok daha rahat takip edersin. Bu bölüm, tema kodunun sık kullandığı GPUI parçalarını görevleriyle ve yaygın dikkat noktalarıyla birlikte anlatır.
 
 ---
 
@@ -54,7 +54,7 @@ pub struct Rgba { pub r: f32, pub g: f32, pub b: f32, pub a: f32 }
 - `color.to_rgb() -> Rgba` — Hsla'dan Rgba'ya çevirir.
 - `color.is_transparent()`, `color.is_opaque()` — alfa kontrolü için.
 
-**Test feature yüzeyi:** `gpui` `proptest` feature'ı ile derlendiğinde `Hsla` için iki ek test API'si gelir. `any::<Hsla>()` tüm kanalları (`h`, `s`, `l`, `a`) `0.0..=1.0` aralığında üretir. `Hsla::opaque_strategy()` ise yalnızca opak renk üretir (`a = 1.0`) ve kontrast, parlaklık veya tema türetme özellik testlerinde alfa belirsizliğini ortadan kaldırır. Bu API production sözleşmesi değildir; test/geliştirme feature'ı altında tutulmalıdır.
+**Test feature yüzeyi:** `gpui` `proptest` feature'ı ile derlendiğinde `Hsla` için iki ek test API'si gelir. `any::<Hsla>()` tüm kanalları (`h`, `s`, `l`, `a`) `0.0..=1.0` aralığında üretir. `Hsla::opaque_strategy()` ise yalnızca opak renk üretir (`a = 1.0`) ve kontrast, parlaklık veya tema türetme özellik testlerinde alfa belirsizliğini ortadan kaldırır. Bu API production sözleşmesi değildir; test/geliştirme feature'ı altında tutman gerekir.
 
 **Renk ayrıştırma boru hattı (`try_parse_color`):**
 
@@ -104,7 +104,7 @@ Tüm çalışma zamanı renk alanları `Hsla` tipindedir. JSON tarafında string
 
 **Kaynak:** `gpui::SharedString` (alt seviyede `gpui_shared_string` crate).
 
-Kavramsal olarak `Arc<str>` veya `&'static str` taşıyabilen, **ucuz klonlanan** değişmez bir string tipidir. Alt seviyede `SmolStr` ile tutulur: belirli bir uzunluğa kadarki kısa metinler yapının içinde (inline) saklanır, yalnızca bu sınırın üstündeki metinler `Arc` tabanlıdır. Her render geçişi kare kare yeniden çalışır. Bu yüzden `String::clone()` her seferinde yeni bellek ayırma üretirse maliyet birikir. `SharedString::clone()` ise kısa metinlerde yapının ucuz bir kopyasını çıkarır, daha uzun metinlerde ise `Arc` referans sayacını artırır; her iki durumda da yeni bir yığın ayırması yapmaz.
+Kavramsal olarak `Arc<str>` veya `&'static str` taşıyabilen, **ucuz klonlanan** değişmez bir string tipidir. Alt seviyede `SmolStr` ile tutarsın: belirli bir uzunluğa kadarki kısa metinler yapının içinde (inline) saklarsın, yalnızca bu sınırın üstündeki metinler `Arc` tabanlıdır. Her render geçişi kare kare yeniden çalışır. Bu yüzden `String::clone()` her seferinde yeni bellek ayırma üretirse maliyet birikir. `SharedString::clone()` ise kısa metinlerde yapının ucuz bir kopyasını çıkarır, daha uzun metinlerde ise `Arc` referans sayacını artırır; her iki durumda da yeni bir yığın ayırması yapmaz.
 
 **Kurucular:**
 
@@ -145,7 +145,7 @@ Tema sisteminde isimler `SharedString` üzerinden taşınır. Registry içinde b
 **Dikkat noktaları:**
 
 1. **`SharedString::from(String)` ilk dönüşümün maliyeti metin uzunluğuna bağlıdır**: Kısa metinler yapının içine kopyalandığı için bu dönüşüm yığın ayırması yapmaz; yalnızca inline sınırının üstündeki metinlerde gerçek bir ayırma çalışır. Her iki durumda da sonraki klonlar ücretsizdir. Bu yüzden sıcak yolda her seferinde aynı string'i `String`'den yeniden üretmek yerine, bir kez `SharedString`'e dönüştürüp saklamak yine de daha verimli olur.
-2. **Büyük/küçük harf duyarlılığı**: "Kvs Varsayılan" ve "kvs varsayılan" iki farklı anahtar olarak kabul edilir. Registry'deki `get` çağrılarının başarılı olması için isim **birebir** vermen gerekir.
+2. **Büyük/küçük harf duyarlılığı**: "Kvs Varsayılan" ve "kvs varsayılan" iki farklı anahtar olarak kabul edersin. Registry'deki `get` çağrılarının başarılı olması için isim **birebir** vermen gerekir.
 3. **`to_string()` bellek ayırma üretir**: Yeni bir `String` ayrılır; bu gerekmiyorsa `.as_ref()` veya `Display` üzerinden yazmak daha doğru bir tercihtir.
 
 ### `HighlightStyle`
@@ -256,7 +256,7 @@ Tema JSON anahtarı `"font_weight": 700` veya `"font_weight": 700.0` biçimini k
 1. **`HighlightStyle` katman karışımı**: Editor, semantic highlight ile tree-sitter highlight'ını **birleştirerek** çalışır. Tema tarafında `Italic` verilmiş olsa bile semantic katman `Some(Normal)` döndürdüğünde italik etkisi kaybolur. Bu davranış tema tarafının kontrolünde değildir ve tema yazarı için sürpriz olabilir.
 2. **`FontWeight(700.0)` ile `FontWeight::BOLD` arasındaki tercih**: Davranış açısından ikisi de aynı sonucu verir; ancak okunabilirlik açısından sabit kullanmak çok daha açıklayıcıdır.
 3. **`underline`, `strikethrough`, `fade_out` sınırını karıştırmak**: `HighlightStyle` tipi bu alanları taşır, ancak Zed tema JSON'u sözdizimi bloğunda bunları doğrudan kabul etmez. Ayna tarafta da bu ayrımı korumak gerekir: çalışma zamanı tipinin kapasitesi ile JSON sözleşmesinin izin verdiği alanlar aynı şey değildir.
-4. **`FontStyle::Oblique` çizim farkı**: Çoğu OS font'unda Italic ile aynı şekilde render edilir, ancak bazı font'larda ayrı bir glif seti bulunabilir. "Italic seçildi ama Oblique göründü" şeklinde bir bildirim geldiğinde font katmanına bakmak yerinde olur.
+4. **`FontStyle::Oblique` çizim farkı**: Çoğu OS font'unda Italic ile aynı şekilde render edersin, ancak bazı font'larda ayrı bir glif seti bulunabilir. "Italic seçildi ama Oblique göründü" şeklinde bir bildirim geldiğinde font katmanına bakmak yerinde olur.
 5. **`HighlightStyle::default()` nötrdür ve kendi başına renk katkısı vermez:** Tüm alanlar `None` döndürür (color dahil). Bir sözdizimi kategorisi için `Default::default()` konulduğunda token üst/default metin stilinden görünür kalabilir, ama tema o kategoriye özel renk üretmemiş olur. Yedek sözdizimi kurulurken vurgulamak istediğin kategorilere en az `color: Some(...)` vermen gerekir.
 
 ---
@@ -514,7 +514,7 @@ pub fn temayi_kur_veya_guncelle(cx: &mut App, tema: Arc<Theme>) -> anyhow::Resul
 
 İlk çağrıda `set_global`, sonraki çağrılarda ise `update_global` kullanırsın. Bu desen tema sistemine özgü değildir; global durum yönetimi için genel ve okunaklı bir kalıptır.
 
-> **İsim çakışmasından kaçınma:** `theme_settings::settings` modülünde `pub fn set_theme(current: &mut SettingsContent, …)` adında **ayrı bir dışa açık yardımcı** vardır. Bu fonksiyon kullanıcı ayar dosyasını değiştirir, çalışma zamanı global'ini değil; ikisinin aynı isme bağlanması okuyucuyu yanıltır. Ayna tarafta çalışma zamanı fonksiyonunun adı `update_theme` (Zed paritesi) veya `temayi_kur_veya_guncelle` gibi farklı bir kimlikte tutulmalıdır.
+> **İsim çakışmasından kaçınma:** `theme_settings::settings` modülünde `pub fn set_theme(current: &mut SettingsContent, …)` adında **ayrı bir dışa açık yardımcı** vardır. Bu fonksiyon kullanıcı ayar dosyasını değiştirir, çalışma zamanı global'ini değil; ikisinin aynı isme bağlanması okuyucuyu yanıltır. Ayna tarafta çalışma zamanı fonksiyonunun adı `update_theme` (Zed paritesi) veya `temayi_kur_veya_guncelle` gibi farklı bir kimlikte tutman gerekir.
 
 ### Tema sisteminin üç global'i
 
@@ -549,7 +549,7 @@ pub fn temayi_degistir(ad: &str, cx: &mut App) -> anyhow::Result<()> {
 
 **Dikkat noktaları:**
 
-1. **Init sıralaması**: `cx.theme()` çağrısı `GlobalTheme` kurulmadan yapılırsa panic atar. `kvs_tema::init(cx)` ana akışın en erken noktasında çağrılmalıdır.
+1. **Init sıralaması**: `cx.theme()` çağrısı `GlobalTheme` kurulmadan yapılırsa panic atar. `kvs_tema::init(cx)` ana akışın en erken noktasında çağırman gerekir.
 2. **`set_global` çakışması**: Aynı tipin yeniden kurulması mevcut global'i siler. Bu yüzden tema dışı bir global durum aynı tipte tutulmamalıdır.
 3. **`refresh_windows` eşleşmesi**: Tema değiştiğinde UI'nın eski renkte kalmaması için `GlobalTheme::update_theme` çağrısını (veya onu saran yerel yardımcıyı) her zaman `refresh_windows` ile eşleştirmen gerekir. Bu eşleşmeyi tek bir yardımcı fonksiyon içinde tuttuğunda aynı yenileme kuralını tüm akışta korursun.
 4. **`update_global` içinde `set_global` çağırmak**: Aynı tip üzerinde yeniden giriş hatasına yol açar. Update geri çağırımı içinde yalnızca alan değiştirilmeli, yeni bir kurma işlemi yapılmamalıdır.
@@ -654,7 +654,7 @@ Tema sisteminin gerçekten kullandığı yüzey oldukça **dardır**: çoğunluk
 
 ### Davranış kuralları
 
-- **İç içe davranış açıktır**: Makro, normal alanları `Option<T>` içine sarar ve değer verildiğinde alanı değiştirir. Yalnızca alan üzerinde `#[refineable]` özniteliği bulunduğunda iç içe refinement tipi kullanılır ve `self.field.refine(...)` çağrılır. `Theme.styles` gibi üst katmanlarda bu otomatik davranış istenmiyorsa alanın işaretlenmemesi yeterlidir; elle orkestrasyon `Theme::from_content` içinde kalır.
+- **İç içe davranış açıktır**: Makro, normal alanları `Option<T>` içine sarar ve değer verildiğinde alanı değiştirir. Yalnızca alan üzerinde `#[refineable]` özniteliği bulunduğunda iç içe refinement tipi kullanılır ve `self.field.refine(...)` çağırırsın. `Theme.styles` gibi üst katmanlarda bu otomatik davranış istenmiyorsa alanın işaretlenmemesi yeterlidir; elle orkestrasyon `Theme::from_content` içinde kalır.
 - **`Some(v)` üzerine yazma, `None` koruma**: JSON deserializasyonu sırasında verilmeyen alan `None` olarak gelir ve taban değer korunur.
 - **Üzerine yazma `clone()` tabanlıdır**: Makro normal alanlar için `value.clone()` üretir. `Hsla` gibi `Copy` türevli tiplerde bu pratikte ucuz bir işlemsiz adımdır; `Copy` olmayan alanlarda gerçek bir klonlama çalışır. Bu yüzden `Refineable` türetilen struct'taki her sarmalanmış alanın `Clone` uygulaması gerekir; aksi halde türetme hata verir ("the trait `Clone` is not implemented for ...").
 - **`Refinement`'in kendisi de `Refineable`'dır**: İki refinement'i zincirleme birleştirmek mümkündür (`birinci_refinement.refine(&ikinci_refinement)`); tema sistemi şimdilik bu kapasiteyi kullanmaz, ama gerektiğinde elde hazır durur.

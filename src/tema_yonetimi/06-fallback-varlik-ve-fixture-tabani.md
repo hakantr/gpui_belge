@@ -132,7 +132,7 @@ fn durum_renkleri_koyu() -> StatusColors {
 }
 ```
 
-> **Uyarı:** Eksik alanlar `..unsafe { std::mem::zeroed() }` veya `..Default::default()` ile **doldurulmamalıdır**. `Hsla::default()` = `(0, 0, 0, 0)` değerini verir ve bu UI'da görünmez. **Tüm 42 alanın açık değerle doldurulması** beklenir. Yukarıdaki blok kısaltılmıştır; gerçek `StatusColors` literal'inde kalan 10 durum (`conflict`, `created`, `deleted`, `hidden` vb.) için de aynı kalıbı açıkça yazarsın. Seçilen çapalar (`red`, `green`, `yellow`, `blue`) çoğu durumda yeterlidir; her durum bu çapalardan birine eşlenebilir. Örneğin `modified = yellow`, `deleted = red`, `created = green`.
+> **Uyarı:** Eksik alanlar `..unsafe { std::mem::zeroed() }` veya `..Default::default()` ile **doldurulmamalıdır**. `Hsla::default()` = `(0, 0, 0, 0)` değerini verir ve bu UI'da görünmez. **Tüm 42 alanın açık değerle doldurulması** beklersin. Yukarıdaki blok kısaltılmıştır; gerçek `StatusColors` literal'inde kalan 10 durum (`conflict`, `created`, `deleted`, `hidden` vb.) için de aynı kalıbı açıkça yazarsın. Seçilen çapalar (`red`, `green`, `yellow`, `blue`) çoğu durumda yeterlidir; her durum bu çapalardan birine eşlenebilir. Örneğin `modified = yellow`, `deleted = red`, `created = green`.
 
 **Açık eşleniği** (`durum_renkleri_acik()`): Aynı çapa renkleri kullanırsın. Yalnızca **lightness değerlerini biraz koyulaştırırsın**; böylece açık arka plan üzerinde okunaklılık korunur. Arka plan ve kenarlık opacity'lerini de açık zemine göre biraz daha düşük tutarsın.
 
@@ -178,7 +178,7 @@ fn durum_renkleri_acik() -> StatusColors {
 
 ### Syntax yedeği — temel kategoriler
 
-`SyntaxTheme::new(vec![])` ile boş bir liste verilirse kod görünümünde tüm token'lar varsayılan text rengiyle çizilir. Sonuç renksiz ve okunması zor bir kod görünümüdür. En azından **8 temel kategorinin** doldurulması iyi bir başlangıçtır:
+`SyntaxTheme::new(vec![])` ile boş bir liste verilirse kod görünümünde tüm token'lar varsayılan text rengiyle çizersin. Sonuç renksiz ve okunması zor bir kod görünümüdür. En azından **8 temel kategorinin** doldurulması iyi bir başlangıçtır:
 
 ```rust
 fn sozdizimi_temasi_koyu(vurgu: Hsla, metin: Hsla, soluk_metin: Hsla) -> Arc<SyntaxTheme> {
@@ -335,7 +335,7 @@ Ayna uygulamada bu fonksiyonu birebir kopyalamazsın; lisans ve ürün kimliği 
 
 `apply_status_color_defaults` ve `apply_theme_color_defaults` ise yedek tema üretiminden farklı bir katmandadır: bunlar kullanıcı temasından gelen eksik refinement alanlarını doldurur. `apply_status_color_defaults`, yalnızca `deleted`, `created`, `modified`, `conflict`, `error` ve `hidden` ön plan alanlarından eksik `*_background` alanlarını türetir; türetme alpha değeri `0.25` olan ön plan rengidir. `warning`, `info`, `success`, `hint` gibi tüm durum alanları bu yardımcı tarafından otomatik doldurulmaz.
 
-`apply_theme_color_defaults`, `ThemeColorsRefinement` içinde yalnızca `element_selection_background` boşsa devreye girer. Kaynak renk `player_colors.local().selection` değeridir. Kaynak alpha `1.0` ise alpha `0.25` yapılır; kaynak zaten yarı saydamsa olduğu gibi kullanılır. Bu yüzden `element_selection_background = text_accent.opacity(0.25)` gibi başka bir formül yazmak Zed davranışıyla eşleşmez.
+`apply_theme_color_defaults`, `ThemeColorsRefinement` içinde yalnızca `element_selection_background` boşsa devreye girer. Kaynak renk `player_colors.local().selection` değeridir. Kaynak alpha `1.0` ise alpha `0.25` yapılır; kaynak zaten yarı saydamsa olduğu gibi kullanırsın. Bu yüzden `element_selection_background = text_accent.opacity(0.25)` gibi başka bir formül yazmak Zed davranışıyla eşleşmez.
 
 ```rust
 pub fn tema_renk_defaultlarini_uygula(
@@ -350,7 +350,7 @@ Bu iki yardımcının yeri yedek tema dosyasıdır, ama çağrıldıkları ana a
 
 ### `FontFamilyCache` — font ailesi listeleme önbelleği
 
-`FontFamilyCache`, tema renk sözleşmesinin parçası değildir; buna rağmen `theme` crate public yüzeyinden re-export edilir ve `theme::init` sırasında global olarak kurulur. Amacı, `cx.text_system().all_font_names()` çağrısının pahalı sonucunu bir kez okuyup sonraki render'larda `SharedString` listesi olarak döndürmektir.
+`FontFamilyCache`, tema renk sözleşmesinin parçası değildir; buna rağmen `theme` crate public yüzeyinden re-export edilir ve `theme::init` sırasında global olarak kurarsın. Amacı, `cx.text_system().all_font_names()` çağrısının pahalı sonucunu bir kez okuyup sonraki render'larda `SharedString` listesi olarak döndürmektir.
 
 | API | Ne yapar | Ne zaman kullanılır |
 | ----- | ---------- | --------------------- |
@@ -496,7 +496,7 @@ pub fn gomulu_temalari_yukle(kayit: &kvs_tema::ThemeRegistry) -> anyhow::Result<
 
 - Tema değiştirmek için yeniden derleme gerekir.
 - Derleme süresi artar (her tema dosyası binary'ye girer).
-- `debug-embed` özelliği ile geliştirme modunda dosyalardan, release profilinde ise gömülü varlık davranışı elde edilir.
+- `debug-embed` özelliği ile geliştirme modunda dosyalardan, release profilinde ise gömülü varlık davranışı elde edersin.
 
 ### Strateji 3: `gpui::AssetSource` entegrasyonu
 
@@ -648,7 +648,7 @@ assets/themes/
 
 ### Dikkat Noktaları
 
-1. **`temalar_dizini` çalışma dizini bağımlılığı**: Disk yüklemesinde `assets/themes` göreli bir yoldur; binary nereden çalıştırılırsa yola göre çözülür. **Mutlak yol** üretilmesi yerinde olur:
+1. **`temalar_dizini` çalışma dizini bağımlılığı**: Disk yüklemesinde `assets/themes` göreli bir yoldur; binary nereden çalıştırılırsa yola göre çözersin. **Mutlak yol** üretilmesi yerinde olur:
    ```rust
    let calistirilabilir_dizini = std::env::current_exe()?.parent()?.to_path_buf();
    let temalar_dizini = calistirilabilir_dizini.join("assets").join("themes");
@@ -687,7 +687,7 @@ assets/themes/
 
 ### Zed tema lisansları
 
-Zed'in `assets/themes/` dizininde **her tema kendi alt dizininde** ve kendi lisansıyla tutulur:
+Zed'in `assets/themes/` dizininde **her tema kendi alt dizininde** ve kendi lisansıyla tutarsın:
 
 ```text
 zed/assets/themes/
@@ -756,8 +756,8 @@ Bu konu ilgili bölümlerde işlenmişti; özet olarak:
 3. **Atıf README'sinin güncellenmemesi**: Yeni bir tema eklendikten sonra atıf eklenmediğinde, "hangi tema kim tarafından yazıldı?" sorusu cevapsız kalır; lisansın "telif sahibi gösterimi" şartı ihlal edilmiş olur.
 4. **Cargo dep'lerinde GPL kullanımı**: GPL bir crate eklendiğinde uygulamanın **tamamı** GPL'e tabi hale gelir.
 5. **`palette` / `refineable` lisans karıştırması**: `palette` MIT/Apache çift lisanslıdır; `refineable` Apache-2.0'dır. Paket ve NOTICE metni bu ayrımı doğru yansıtmalıdır.
-6. **Örnek veri dosyasını bir fork'tan almak**: Tema JSON'larının Zed'in **upstream** reposundan alınması gerekir; bir fork'tan kopyalandığında o fork'un lisans değişikliği veya patch'leri de bulaşır.
-7. **Sıcak yeniden yükleme yolundan kullanıcı dosyası**: Kullanıcının `~/.config/kvs/themes/` dizinine koyduğu tema kullanıcının kendi sorumluluğundadır; uygulamanın lisans matrisini etkilemez. Yerleşik kaynaklar ile kullanıcı kaynakları ayrı tutulmalıdır.
+6. **Örnek veri dosyasını bir fork'tan almak**: Tema JSON'larının Zed'in **upstream** reposundan alman gerekir; bir fork'tan kopyalandığında o fork'un lisans değişikliği veya patch'leri de bulaşır.
+7. **Sıcak yeniden yükleme yolundan kullanıcı dosyası**: Kullanıcının `~/.config/kvs/themes/` dizinine koyduğu tema kullanıcının kendi sorumluluğundadır; uygulamanın lisans matrisini etkilemez. Yerleşik kaynaklar ile kullanıcı kaynakları ayrı tutman gerekir.
 
 ---
 
@@ -1027,7 +1027,7 @@ fn tema_degistir_aktifi_gunceller(cx: &mut TestAppContext) -> anyhow::Result<()>
 ### Dikkat Noktaları
 
 1. **`include_str!` ile mutlak yol**: Yol test dosyasına göre çözülür; `include_str!("fixtures/one-dark.json")` ifadesi `tests/fixtures/...` olarak yorumlanır. Mutlak yol verilmesi gerekmez.
-2. **Örnek veri lisansının birlikte taşınması**: Dosya kopyalanırken `*.LICENSE_*` dosyalarını da taşıman gerekir; örnek veri JSON'u ile lisans dosyası bir arada tutulur.
+2. **Örnek veri lisansının birlikte taşınması**: Dosya kopyalanırken `*.LICENSE_*` dosyalarını da taşıman gerekir; örnek veri JSON'u ile lisans dosyası bir arada tutarsın.
 3. **Test'lerin `init` çağrısı**: `kvs_tema::init(cx)` çağrısını her test başında elle yaparsın; otomatik bir kurulum mekanizması yoktur. Çağrıyı `TestAppContext::update` callback'i içinde yazarsın.
 4. **`assert_eq!` ile Hsla karşılaştırması**: Floating point eşitlik yanıltıcı sonuçlara yol açabilir. `assert!((a.h - b.h).abs() < 1e-6)` gibi bir epsilon karşılaştırması tercih edilmelidir.
 5. **`#[gpui::test]` ile `#[test]` arasındaki seçim**: GPUI çalışma zamanı testleri `gpui::test`; saf sözleşme testleri ise `test` ile yazılır. Karıştırılması gereksiz bir ek yük yaratır.

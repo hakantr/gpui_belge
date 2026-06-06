@@ -52,11 +52,11 @@ Boş durum tipi:
 Davranış:
 
 - `RenderOnce` implement eder.
-- Kapsayıcı, tam genişlikte bir `v_flex()` ve dikey padding ile çizilir.
+- Kapsayıcı, tam genişlikte bir `v_flex()` ve dikey padding ile çizersin.
 - Hiç çocuk yoksa varsayılan olarak `"No items"` mesajı muted bir `Label` şeklinde gösterilir.
 - `.empty_message(...)` ya bir string ya da özel bir `AnyElement` alabilir.
 - `.toggle(Some(false))` verilir ve children boşsa, boş durum da gizlenir.
-- `.header(...)` verildiğinde header, children'dan önce render edilir.
+- `.header(...)` verildiğinde header, children'dan önce render edersin.
 
 Örnek:
 
@@ -135,7 +135,7 @@ Davranış:
 - `disabled(true)` click işleyicisini devre dışı bırakır.
 - `.toggle(Some(is_open))` bir disclosure ikonu render eder; çocukların gerçekten gösterilip gösterilmeyeceğini üst view kontrol eder.
 - `end_slot_on_hover(...)`, normal end slot'u hover sırasında verilen hover slot'uyla değiştirir. `.show_end_slot_on_hover()` ise mevcut end slot'u yalnızca hover anında görünür kılar.
-- `indent_level(...)`, `inset(false)` durumunda girintiyi satırın içinde uygular; `inset(true)` olduğunda ise girinti satırın dışında uygulanır.
+- `indent_level(...)`, `inset(false)` durumunda girintiyi satırın içinde uygular; `inset(true)` olduğunda ise girinti satırın dışında uygularsın.
 
 Örnek:
 
@@ -230,7 +230,7 @@ Davranış:
 - UI density ayarına göre header yüksekliği otomatik olarak değişir.
 - `.toggle(Some(is_open))` çağrısı, başa bir `Disclosure` ekler.
 - `.on_toggle(...)` hem disclosure'a hem de label kapsayıcısının tıklama davranışına aynı anda bağlanır.
-- `.end_hover_slot(...)`, header'ın group hover durumu sırasında sağ tarafta absolute olarak çizilir.
+- `.end_hover_slot(...)`, header'ın group hover durumu sırasında sağ tarafta absolute olarak çizersin.
 
 Örnek:
 
@@ -281,7 +281,7 @@ Temel API:
 Davranış:
 
 - `RenderOnce` ve `Toggleable` implement eder.
-- Label, muted renkte ve `LabelSize::Small` boyutunda çizilir.
+- Label, muted renkte ve `LabelSize::Small` boyutunda çizersin.
 - `.end_slot(...)` doğrudan bir `AnyElement` bekler.
 
 Örnek:
@@ -330,7 +330,7 @@ Ne zaman kullanmazsın:
 Davranış:
 
 - `RenderOnce` implement eder.
-- Tam genişlikte, 1px yükseklikli ve `border_variant` rengiyle çizilir.
+- Tam genişlikte, 1px yükseklikli ve `border_variant` rengiyle çizersin.
 - Dikey margin olarak `DynamicSpacing::Base06` kullanır.
 
 Örnek:
@@ -371,7 +371,7 @@ Temel API:
 
 - Constructor: `ListBulletItem::new(label)`.
 - Builder: `.label_color(Color)`.
-- `ParentElement` implement eder; bir child verildiğinde label yerine child'lar wrap'li satır içi içerik olarak render edilir.
+- `ParentElement` implement eder; bir child verildiğinde label yerine child'lar wrap'li satır içi içerik olarak render edersin.
 
 Dikkat edeceğin noktalar:
 
@@ -407,8 +407,8 @@ Temel API:
 Davranış:
 
 - `RenderOnce`, `Disableable` ve `Toggleable` implement eder.
-- `root_item(true)` olan satırda disclosure ile label aynı satırda çizilir.
-- `root_item(false)` olan bir child satırda, solda bir girinti çizgisi çizilir.
+- `root_item(true)` olan satırda disclosure ile label aynı satırda çizersin.
+- `root_item(false)` olan bir child satırda, solda bir girinti çizgisi çizersin.
 - `.expanded(...)` yalnızca disclosure ikonunun görünümünü belirler; child satırlarının gerçekten render edilip edilmeyeceğine üst view karar verir.
 - `.default_expanded(...)` mevcut kaynakta alanı set eder, ancak render içinde okunmaz. Açık veya kapalı durum için `.expanded(...)` kullanırsın.
 - `.toggle_state(true)` seçili arka plan ile birlikte border davranışını tetikler.
@@ -524,7 +524,7 @@ impl StickyCandidate for SabitAnahatGirdisi {
 
 Zed içinden kullanım örnekleri:
 
-- `project_panel` crate'i: project tree sticky girdileri ile girinti kılavuzu süslemesi birlikte kullanılır.
+- `project_panel` crate'i: project tree sticky girdileri ile girinti kılavuzu süslemesi birlikte kullanırsın.
 
 Dikkat edeceğin noktalar:
 
@@ -575,7 +575,7 @@ Davranış:
 - `UniformListDecoration` olarak kullanıldığında `.with_compute_indents_fn(...)` çağrısı zorunludur; verilmediğinde compute sırasında panic oluşur.
 - Görünür aralık sonrasında daha fazla item varsa, aralık bir satır genişletilir; böylece ekran dışında devam eden bir guide doğru hesaplanır.
 - `.on_click(...)` verildiğinde guide hitbox'ları oluşur, hover rengi uygulanır ve pointing hand cursor görünür.
-- `.with_render_fn(...)` verilmediğinde her guide 1px genişliğinde varsayılan bir çizgi olarak çizilir.
+- `.with_render_fn(...)` verilmediğinde her guide 1px genişliğinde varsayılan bir çizgi olarak çizersin.
 
 Örnek:
 
@@ -629,9 +629,9 @@ impl Render for AnahatListesi {
 
 Zed içinden kullanım örnekleri:
 
-- `project_panel` crate'i: project tree indent guide'ları için özel render ve tıklama davranışı uygulanır. Project panel `on_click` içinde `IndentGuideLayout::offset.y` değerinden hedef satırı bulur; secondary modifier aktifse ilgili üst girdi kapatılır.
+- `project_panel` crate'i: project tree indent guide'ları için özel render ve tıklama davranışı uygularsın. Project panel `on_click` içinde `IndentGuideLayout::offset.y` değerinden hedef satırı bulur; secondary modifier aktifse ilgili üst girdi kapatılır.
 - `outline_panel` crate'i: outline list indent guide'ları. `with_render_fn(...)` aktif guide'ı hesaplar ve `RenderedIndentGuide::is_active` alanını ayarlar.
-- `git_ui` crate'i: hiyerarşik git panel satırları. Git panel özel render ile yalnızca bounds ve layout üretir; `.on_click(...)` bağlamadığı için guide'lar yalnızca görsel kalır. `hitbox: None` verildiğinde, etkileşim açıksa `bounds` hitbox olarak kullanılır.
+- `git_ui` crate'i: hiyerarşik git panel satırları. Git panel özel render ile yalnızca bounds ve layout üretir; `.on_click(...)` bağlamadığı için guide'lar yalnızca görsel kalır. `hitbox: None` verildiğinde, etkileşim açıksa `bounds` hitbox olarak kullanırsın.
 
 Dikkat edeceğin noktalar:
 

@@ -45,7 +45,7 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder.
-- `LabelCommon` ayarlarını arka planda `LabelLike` üzerinden uygular; yani Label görsel olarak `LabelLike`'ın hazır bir şekli gibi düşünülebilir.
+- `LabelCommon` ayarlarını arka planda `LabelLike` üzerinden uygular; yani Label görsel olarak `LabelLike`'ın hazır bir şekli gibi düşünebilirsin.
 - `single_line()` çağrısı, metin içindeki newline karakterlerini tek satırda görünür olacak biçimde dönüştürür; çok satırlı bir metnin satırlara bölünmesini engeller.
 - `render_code_spans()` çağrısı, metindeki eşleşen backtick çiftlerini kaldırır ve bu aralıkları buffer fontuyla, element arka plan rengiyle vurgular. Sonuç olarak "`zed --new` çalıştır" gibi bir metinde sadece `zed --new` kısmı kod gibi görünür.
 
@@ -76,9 +76,9 @@ fn komut_ipucunu_render_et() -> impl IntoElement {
 
 Zed içinden kullanım örnekleri:
 
-- `recent_projects` crate'i: proje adı, branch ve path metinlerinde `Label` ve `HighlightedLabel` birlikte kullanılır.
+- `recent_projects` crate'i: proje adı, branch ve path metinlerinde `Label` ve `HighlightedLabel` birlikte kullanırsın.
 - `remote_connection` crate'i: uyarı ve durum satırlarında `Icon` ve `Label` kompozisyonu geçer.
-- `git_ui` crate'i: status, commit ve branch metadata'larında `Label` oldukça yoğun biçimde kullanılır.
+- `git_ui` crate'i: status, commit ve branch metadata'larında `Label` oldukça yoğun biçimde kullanırsın.
 
 Dikkat edeceğin noktalar:
 
@@ -216,7 +216,7 @@ Ne zaman kullanmazsın:
 
 - Normal kısa UI metni için önce `Label` düşünülür; `Label` zaten doğru font ve size sözleşmesini taşır.
 - Başlık için `Headline` daha doğru bir semantik verir.
-- Layout aralığı hesaplamak için `TextSize` kullanılmaz; aralık tarafında `DynamicSpacing`, `px(...)` veya `rems_from_px(...)` tercih edilir.
+- Layout aralığı hesaplamak için `TextSize` kullanılmaz; aralık tarafında `DynamicSpacing`, `px(...)` veya `rems_from_px(...)` tercih edersin.
 
 Temel API:
 
@@ -282,12 +282,12 @@ Vurgu yardımcısı:
 
 | API | Rol |
 | :-- | :-- |
-| `highlight_ranges` | Byte indekslerinden char sınırlarına güvenli şekilde oturan `Range<usize>` listesi üretir; hazır `HighlightedLabel` dışında özel `StyledText` kompozisyonlarında kullanılır. |
+| `highlight_ranges` | Byte indekslerinden char sınırlarına güvenli şekilde oturan `Range<usize>` listesi üretir; hazır `HighlightedLabel` dışında özel `StyledText` kompozisyonlarında kullanırsın. |
 
 Davranış:
 
 - `RenderOnce` implement eder.
-- Vurgular tema accent text rengiyle çizilir.
+- Vurgular tema accent text rengiyle çizersin.
 - `highlight_indices` parametresi UTF-8 byte pozisyonlarıdır. `new(...)` `#[track_caller]` ile işaretlenmiştir; geçersiz bir byte sınırı içeren indeks tespit edilirse `debug_panic!` tetiklenir ve tüm vurgu listesi silinir — hata ayıklama derlemelerinde programı durdurur, yayın derlemelerinde ise boş vurguyla devam eder. Böylece geçersiz bir indeks yüzünden canlı ortamda çökme yaşanmaz; ancak indeks kaynağının düzeltilmesi gerekir.
 
 Örnekler:
@@ -437,7 +437,7 @@ fn kompakt_doner_gostergeyi_render_et() -> impl IntoElement {
 Kaynak:
 
 - `Icon`, `IconSize`, `AnyIcon`, `IconWithIndicator`: `ui` crate'i.
-- `IconName`: `icons` crate'i, `ui::IconName` adıyla re-export edilir.
+- `IconName`: `icons` crate'i, `ui::IconName` adıyla re-export edersin.
 - Export: `ui::Icon`, `ui::IconName`, `ui::IconSize`.
 - Prelude: `Icon`, `IconName`, `IconSize` otomatik gelir.
 - Preview: `impl Component for Icon`.
@@ -468,7 +468,7 @@ Davranış:
 
 - `RenderOnce` implement eder.
 - `Icon::new` gömülü SVG'yi kullanır ve rengi `text_color` üzerinden uygular.
-- `from_path` için `icons/` ile başlayan yollar gömülü SVG olarak işlenir; diğer yollar ise harici raster image olarak ele alınır.
+- `from_path` için `icons/` ile başlayan yollar gömülü SVG olarak işlenir; diğer yollar ise harici raster image olarak ele alırsın.
 - `from_external_svg` ise harici SVG path'ini `svg().external_path(...)` ile çizer.
 
 Örnekler:
@@ -589,15 +589,15 @@ Dekorasyon türleri:
 
 | API | Rol |
 | :-- | :-- |
-| `IconDecorationKind` | Overlay biçimini seçer: `X` hata/silme, `Dot` küçük durum noktası, `Triangle` köşe uyarısı için kullanılır. |
-| `IconDecorationKind::iter()` | `IconDecorationKind` varyantlarını preview veya doğrulama kodunda dolaşmak için `strum::IntoEnumIterator` üzerinden kullanılır. |
+| `IconDecorationKind` | Overlay biçimini seçer: `X` hata/silme, `Dot` küçük durum noktası, `Triangle` köşe uyarısı için kullanırsın. |
+| `IconDecorationKind::iter()` | `IconDecorationKind` varyantlarını preview veya doğrulama kodunda dolaşmak için `strum::IntoEnumIterator` üzerinden kullanırsın. |
 | `KnockoutIconName::iter()` | Knockout SVG enum varyantlarını listelemek için `strum::IntoEnumIterator` üzerinden kullanılır; normal bileşen tüketicisi genellikle doğrudan çağırmaz. |
 
 Davranış:
 
 - `DecoratedIcon` relative bir kapsayıcı oluşturur, icon boyutunu kapsayıcı boyutu olarak kullanır ve decoration'ı absolute bir kaplama olarak ekler.
 - `IconDecoration`, knockout foreground/background SVG çiftiyle çalışır. `knockout_color` değerinin, ikonun üzerinde durduğu yüzey rengiyle eşleşmesi gerekir; çünkü knockout efekti tam olarak bu eşleşmeden doğar.
-- `group_name(...)` verildiğinde knockout hover rengi group hover üzerinden değişir; vermediğin durumlarda hover style doğrudan elementin kendisine uygulanır.
+- `group_name(...)` verildiğinde knockout hover rengi group hover üzerinden değişir; vermediğin durumlarda hover style doğrudan elementin kendisine uygularsın.
 
 Örnek:
 
@@ -626,7 +626,7 @@ fn render_file_with_error(cx: &App) -> impl IntoElement {
 Zed içinden kullanım örnekleri:
 
 - `tab_switcher` crate'i: tab ikonları üzerine durum dekorasyonu bindirilir.
-- `zed` crate'i: `ThreadItem` ikon dekorasyonu görsel testlerde kullanılır.
+- `zed` crate'i: `ThreadItem` ikon dekorasyonu görsel testlerde kullanırsın.
 
 Dikkat edeceğin noktalar:
 

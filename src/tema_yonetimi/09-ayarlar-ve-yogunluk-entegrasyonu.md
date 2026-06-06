@@ -13,7 +13,7 @@ Zed-benzeri bir kontrol için tek bir `ad: String` yeterli değildir. Minimum se
 1. **Sabit seçim:** Tek bir tema adı her modda kullanırsın.
 2. **Dinamik seçim:** `mode + light + dark` üçlüsü tanımlanır; `mode=system` durumunda OS modu hangi adın seçileceğini belirler.
 3. **Aktif tema geçersiz kılması:** Geçerli temanın üstüne geçici veya deneysel `ThemeStyleContent` uygularsın.
-4. **Tema bazlı geçersiz kılma:** Belirli bir tema adı için özel bir geçersiz kılma haritası tanımlanır.
+4. **Tema bazlı geçersiz kılma:** Belirli bir tema adı için özel bir geçersiz kılma haritası tanımlarsın.
 
 Zed'e denk düşen ayar sözleşmesi:
 
@@ -247,7 +247,7 @@ impl SettingsStore {
 
 `ThemeSettings` aslında `#[derive(Clone, PartialEq, RegisterSetting)]` (`theme_settings` crate'i) ile işaretlenir. `theme_settings::init` **`ThemeSettings::register(cx)` çağırmaz**. Inventory crate'i, `submit!` makrosunun üretildiği yerde static registration yapar. `SettingsStore::new` constructor'ında `inventory::iter::<RegisteredSetting>()` üzerinden tüm linklenen setting tipleri toplanır. Yani üretim akışında setting tiplerini elle `register` etmek gerekmez; bu trait metodu yalnızca testlerde veya `SettingsStore` elle kurulurken kullanırsın.
 
-> **Önemli parite notu:** Mirror tarafta inventory deseninin alternatifi elle kaydetmektir (`kvs_ayarlari::init` veya benzeri). İki yol karıştırılmamalıdır: ya tüm tipler `#[derive(KaydetAyar)]` ile otomatik kaydedilir ya da tamamı elle kaydedilir. Karışık bir mod, yani bazı tiplerin kayıtlı bazılarının kayıtsız olması, sessiz bug üretir.
+> **Önemli parite notu:** Mirror tarafta inventory deseninin alternatifi elle kaydetmektir (`kvs_ayarlari::init` veya benzeri). İki yol karıştırılmamalıdır: ya tüm tipler `#[derive(KaydetAyar)]` ile otomatik kaydedilir ya da tamamı elle kaydedersin. Karışık bir mod, yani bazı tiplerin kayıtlı bazılarının kayıtsız olması, sessiz bug üretir.
 
 ### `ThemeSettings` alan görünürlükleri
 
@@ -273,7 +273,7 @@ impl SettingsStore {
 | `ui_density: UiDensity` | `pub` | doğrudan alan |
 | `unnecessary_code_fade: f32` | `pub` | doğrudan alan |
 
-**Gerekçe:** Font boyutu değerleri `*FontSize` geçersiz kılma global'lerinden etkilenir. Accessor metotlar bu geçersiz kılmayı uygular ve **etkin değeri** döndürür. Doğrudan alan okuması ise ayarlar dosyasındaki ham değeri verir. Bu yüzden font boyutu alanları bilinçli olarak private tutulur. Okuyucu ya `.ui_font_size(cx)` accessor'ını kullanır ya da ham değer için `.ui_font_size_settings()` accessor'ına gider (ilgili bölüm tablosunda yer alır). Markdown preview font family alanları da private tutulur; düz markdown metni UI fontuna, inline code ve code block ise buffer fontuna fallback eder.
+**Gerekçe:** Font boyutu değerleri `*FontSize` geçersiz kılma global'lerinden etkilenir. Accessor metotlar bu geçersiz kılmayı uygular ve **etkin değeri** döndürür. Doğrudan alan okuması ise ayarlar dosyasındaki ham değeri verir. Bu yüzden font boyutu alanları bilinçli olarak private tutarsın. Okuyucu ya `.ui_font_size(cx)` accessor'ını kullanır ya da ham değer için `.ui_font_size_settings()` accessor'ına gider (ilgili bölüm tablosunda yer alır). Markdown preview font family alanları da private tutulur; düz markdown metni UI fontuna, inline code ve code block ise buffer fontuna fallback eder.
 
 Mirror tarafta `TemaAyarlari` struct'ında font boyutlarının private tutulması ve accessor metotlarla okunması Zed paritesi açısından zorunludur. Aksi halde geçersiz kılma düşürme davranışı Zed akışından sapar.
 
@@ -343,7 +343,7 @@ impl From<settings::BufferLineHeight> for BufferLineHeight { /* variant kopyala 
 `UiDensity` için ise `pub(crate) fn ui_density_from_settings(val) -> UiDensity` helper'ı bulunur (`From` trait kullanılmaz). Bu iki kat tip katmanı kasıtlıdır:
 
 - **Content tipleri** (`settings_content::theme::*`): `JsonSchema, MergeFrom, serde::{Serialize, Deserialize}, strum::EnumDiscriminants` derive'larıyla birlikte gelir; JSON sözleşmesi, schema üretimi ve user/default/project cascade için ayarlanır.
-- **Runtime tipleri** (`theme_settings::settings::*`): Daha az derive taşır, çalışma zamanı sıcak yolu için optimize edilir. Seçici UI ile `ThemeSettings.theme.name(appearance)` gibi metotlar burada yer alır.
+- **Runtime tipleri** (`theme_settings::settings::*`): Daha az derive taşır, çalışma zamanı sıcak yolu için optimize edersin. Seçici UI ile `ThemeSettings.theme.name(appearance)` gibi metotlar burada yer alır.
 
 Mirror tarafta bu yineleme korunmalıdır: `kvs_ayarlari_icerik::TemaSecimi` (content) ve `kvs_tema_ayarlari::TemaSecimi` (runtime), aralarında `From` impl ile bağlanır. Tek tipe indirgeme yapılırsa serde derive'ı çalışma zamanı tarafına taşınır. Seçici UI'nın `EnumDiscriminants` kullanımı bozulabilir.
 
@@ -394,7 +394,7 @@ pub fn tema_gecersiz_kilmalarini_uygula(
 }
 ```
 
-`modify_theme` aynı düşük seviyeli refinement araçlarını kullanır, ama tam bir `refine_theme` hattı değildir. `window_background_appearance` geçersiz kılınır, `status_colors_refinement` ve `theme_colors_refinement` uygulanır, player ve accent listeleri birleştirilir, syntax geçersiz kılmaları mevcut syntax üstüne bindirilir. Geçersiz kılma işlemi registry'deki orijinal `Arc<Theme>` örneğini değiştirmez; yalnızca bir klon üzerinde çalışır.
+`modify_theme` aynı düşük seviyeli refinement araçlarını kullanır, ama tam bir `refine_theme` hattı değildir. `window_background_appearance` geçersiz kılınır, `status_colors_refinement` ve `theme_colors_refinement` uygularsın, player ve accent listeleri birleştirilir, syntax geçersiz kılmaları mevcut syntax üstüne bindirilir. Geçersiz kılma işlemi registry'deki orijinal `Arc<Theme>` örneğini değiştirmez; yalnızca bir klon üzerinde çalışır.
 
 > **Önemli fark:** Zed `ThemeSettings::modify_theme` içinde `apply_status_color_defaults` ve `apply_theme_color_defaults` çağırmaz. Yani ayar seviyesindeki `theme_overrides`, yalnızca ön planı verilen status değerinden otomatik arka plan üretmez. `element_selection_background` değerini player selection'dan da türetmez. Bu iki türetme yalnızca tam user theme yüklemesindeki `refine_theme` akışına aittir. Buna karşılık syntax override'ları gerçekten `SyntaxTheme::merge(...)` ile mevcut syntax üstüne alan bazlı bindirilir.
 
@@ -523,7 +523,7 @@ pub fn set_mode(content: &mut SettingsContent, mode: ThemeAppearanceMode);
 | `set_icon_theme` | `settings.theme.icon_theme` | `Dynamic` modda mevcut mode'a göre `light` veya `dark` slot'unu yazar; `Static` durumunda tek slot'u günceller. `Option<IconThemeSelection>` `None` ise `Static` ile başlatır |
 | `set_mode` | `settings.theme.theme` **ve** `settings.theme.icon_theme` | Tema tarafında: mevcut `Static` seçimi `Dynamic { mode = System, light = DEFAULT_LIGHT_THEME, dark = DEFAULT_DARK_THEME }` ile değiştirir; mevcut `Dynamic` ise yalnızca `mode`'u günceller; `None` durumunda `Dynamic`'i baştan kurar. İkon tarafında: `Static` seçimi `Dynamic { mode, light = mevcut ikon, dark = mevcut ikon }`'e çevirir; `Dynamic` ise yalnızca `mode`'u günceller; `None` durumunda `Static(varsayılan ikon teması)` ile kurar |
 
-**`kvs_tema` karşılığı:** Bu üç fonksiyon `kvs_tema` çalışma zamanı API'sinin değil, seçici / settings UI köprüsünün sorumluluğudur. Mirror crate yapısında ya `kvs_tema_ayarlari` ya da `kvs_secici` modülünde tutulur. Seçici onay akışında dosya yazma sırası şöyle kurarsın:
+**`kvs_tema` karşılığı:** Bu üç fonksiyon `kvs_tema` çalışma zamanı API'sinin değil, seçici / settings UI köprüsünün sorumluluğudur. Mirror crate yapısında ya `kvs_tema_ayarlari` ya da `kvs_secici` modülünde tutarsın. Seçici onay akışında dosya yazma sırası şöyle kurarsın:
 
 ```rust
 pub fn secimi_onayla(
@@ -641,7 +641,7 @@ pub fn tema_dosyasini_yeniden_yukle(
 
 1. Disk'ten okur ve parse edersin.
 2. Her tema varyantı için uygun tabanı seçersin (light → light tabanı).
-3. `kayit.insert_themes` çağrısı eski kaydın üstüne yazar — aynı isim güncellenir.
+3. `kayit.insert_themes` çağrısı eski kaydın üstüne yazar — aynı isim güncellersin.
 4. Aktif tema yeniden yüklendiyse `GlobalTheme::update_theme` ile global'i güncellersin ve `refresh_windows` çağırırsın.
 
 ### Başarım
@@ -683,7 +683,7 @@ pub fn set_theme_settings_provider(saglayici: Box<dyn ThemeSettingsProvider>, cx
 pub fn theme_settings(cx: &App) -> &dyn ThemeSettingsProvider;
 ```
 
-**Sözleşme sınırı:** Bu trait aktif tema adını veya aktif icon tema adını döndürmez. Zed'de sağlayıcı yalnızca typography ve yoğunluk okumaları için vardır. Seçici durumu `ThemeSettingsContent.theme` ve `ThemeSettingsContent.icon_theme` alanlarından çözülür. Sağlayıcı trait'i `agent_font_size`, `active_theme_name` ya da `active_icon_theme_name` gibi metotlar içermez.
+**Sözleşme sınırı:** Bu trait aktif tema adını veya aktif icon tema adını döndürmez. Zed'de sağlayıcı yalnızca typography ve yoğunluk okumaları için vardır. Seçici durumu `ThemeSettingsContent.theme` ve `ThemeSettingsContent.icon_theme` alanlarından çözersin. Sağlayıcı trait'i `agent_font_size`, `active_theme_name` ya da `active_icon_theme_name` gibi metotlar içermez.
 
 **`kvs_tema`'da karşılığı:**
 
@@ -756,7 +756,7 @@ fn uygulamayi_baslat(platform: std::rc::Rc<dyn gpui::Platform>) {
 
 **`ThemeSettingsContent` alan modeli:**
 
-`settings_content` crate'i tarafındaki ayar şeması sağlayıcıdan daha geniştir; kullanıcı ayar dosyası burada temsil edilir. `ThemeSettingsContent` şu alanları taşır:
+`settings_content` crate'i tarafındaki ayar şeması sağlayıcıdan daha geniştir; kullanıcı ayar dosyası burada temsil edersin. `ThemeSettingsContent` şu alanları taşır:
 
 ```text
 ui_font_size, ui_font_family, ui_font_fallbacks, ui_font_features,
@@ -784,7 +784,7 @@ Bu alanların yardımcı tipleri de şemaya dahildir:
 
 `agent_ui_font_size`, `agent_buffer_font_size` ve `git_commit_buffer_font_size` sağlayıcı trait'inde yer almaz; her biri kendi tüketici alanında ayar katmanında kalır. `git_commit_buffer_font_size` varsayılanı 12 pikseldir (`default.json`'da belgelenmiştir); git paneli ve commit modal'ındaki editörün yazı tipi boyutunu diğer tampon boyutlarından bağımsız olarak denetler. `theme`, `icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides` ve `theme_overrides` seçici ve geçersiz kılma akışına gider; typography helper'ları ise sağlayıcı üzerinden `ui_font`, `buffer_font`, `ui_font_size`, `buffer_font_size` ve `ui_density` değerlerini okur. `markdown_preview_code_font_family` sağlayıcı trait'ine eklenmez; markdown preview tüketicisi `ThemeSettings` üzerinden okur. Değer boşsa `buffer_font.family` kullanır.
 
-Tema renklerini tüketen her ayar `ThemeSettingsContent` içine girmez. `completion_menu_item_kind` bunun yeni örneğidir: schema sahibi `EditorSettingsContent`'tir, değerleri `off` ve `symbol` olur, default `off`'tur. `symbol` açıldığında completion menüsü aktif syntax theme'den capture rengi okur; bu yüzden tema dokümantasyonunda ele alınır, ama `ThemeSettingsProvider` veya `ThemeSettingsContent` sözleşmesine eklenmez. Eski ad, alias veya geriye uyumluluk katmanı tanımlanmaz.
+Tema renklerini tüketen her ayar `ThemeSettingsContent` içine girmez. `completion_menu_item_kind` bunun yeni örneğidir: schema sahibi `EditorSettingsContent`'tir, değerleri `off` ve `symbol` olur, default `off`'tur. `symbol` açıldığında completion menüsü aktif syntax theme'den capture rengi okur; bu yüzden tema dokümantasyonunda ele alırsın, ama `ThemeSettingsProvider` veya `ThemeSettingsContent` sözleşmesine eklenmez. Eski ad, alias veya geriye uyumluluk katmanı tanımlanmaz.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -876,7 +876,7 @@ Yani `BufferLineHeight::Custom(0.5)` gibi geçersiz değerler bile accessor sevi
 | Strateji | Açıklama | Ne zaman |
 | ---------- | ---------- | ---------- |
 | Sağlayıcı trait'ini genişletme | `TemaAyarSaglayici`'a `adjust_*`/`reset_*` eklenir | `kvs_tema` tüketicilerinin font değişimini dinlemesi gerekiyorsa |
-| Sade newtype mirror | `BufferFontSize` vb. global'leri `kvs_tema_ayarlari` crate'inde tutulur, `adjust_*`/`reset_*` orada implement edilir | Settings UI'sı bağımsız bir crate olduğunda |
+| Sade newtype mirror | `BufferFontSize` vb. global'leri `kvs_tema_ayarlari` crate'inde tutarsın, `adjust_*`/`reset_*` orada implement edilir | Settings UI'sı bağımsız bir crate olduğunda |
 | Kapsam dışı bırakma | UI yoksa hiç mirror edilmez | Font picker kapsam dışı bırakıldıysa |
 
 Sözleşme parite bayrağı şudur: bu fonksiyonlar `kvs_tema` public API'sinde yer almaz.

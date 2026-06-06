@@ -1,6 +1,6 @@
 # Erişilebilirlik
 
-GPUI'nin mevcut public yüzeyi erişilebilirlik bilgisini AccessKit üzerinden taşır. `gpui` crate kökü `accesskit` modülünü ve sık kullanılan `Action`, `Role`, `Orientation`, `Toggled` tiplerini yeniden dışa aktarır; `Action` dışarıda `AccessibleAction` adıyla kullanılır. Uygulama kodunda erişilebilirlik bilgisi çoğunlukla `div().id(...).role(...).aria_*()` zinciri ve `text!` makrosu üzerinden verilir.
+GPUI'nin mevcut public yüzeyi erişilebilirlik bilgisini AccessKit üzerinden taşır. `gpui` crate kökü `accesskit` modülünü ve sık kullanılan `Action`, `Role`, `Orientation`, `Toggled` tiplerini yeniden dışa aktarır; `Action` dışarıda `AccessibleAction` adıyla kullanırsın. Uygulama kodunda erişilebilirlik bilgisi çoğunlukla `div().id(...).role(...).aria_*()` zinciri ve `text!` makrosu üzerinden verirsin.
 
 ## Temel Model
 
@@ -9,18 +9,18 @@ GPUI erişilebilirlik ağacını element ağacından üretir, fakat her görsel 
 - Stabil bir element kimliği: `div().id("kaydet")` veya tekrar eden öğelerde kayıt kimliğine bağlı bir ID.
 - Anlamlı rol ve özellikler: `role(Role::Button)`, `aria_label(...)`, `aria_selected(...)`, `aria_toggled(...)` gibi metotlar.
 
-`role(Role::GenericContainer)` kullanma; bu rol GPUI erişilebilirlik ağacında filtrelenir. `role(Role::GenericContainer)` çağrısı debug derlemede bir doğrulama (`debug_assert`) tetikler, yani debug'da panik verir; release derlemede ise etkili bir node üretmez. Sıradan layout kapsayıcılarında rol vermemek genellikle daha doğrudur. Erişilebilirlik bilgisi, kullanıcının etkileştiği veya ekran okuyucuda duyulması gereken semantik yüzeylere verilmelidir.
+`role(Role::GenericContainer)` kullanma; bu rol GPUI erişilebilirlik ağacında filtrelenir. `role(Role::GenericContainer)` çağrısı debug derlemede bir doğrulama (`debug_assert`) tetikler, yani debug'da panik verir; release derlemede ise etkili bir node üretmez. Sıradan layout kapsayıcılarında rol vermemek genellikle daha doğrudur. Erişilebilirlik bilgisi, kullanıcının etkileştiği veya ekran okuyucuda duyulması gereken semantik yüzeylere vermen gerekir.
 
 ID kararlılığı erişilebilirlik için de önemlidir. Aynı kontrol her render'da farklı ID alırsa ekran okuyucu bunu güncellenen bir node olarak değil, silinen ve yeniden eklenen bir node olarak algılar. Liste satırlarında sıra numarası yerine mümkünse domain kimliği kullanırsın.
 
 ## Metin Node'ları
 
-Düz string çocuklar ekranda çizilebilir, ancak erişilebilirlik ağacında stabil metin node'u gerektiğinde `Text` veya `text!` kullanırsın:
+Düz string çocuklar ekranda çizilebilir, ancak erişilebilirlik ağacında sabit metin node'u gerektiğinde `Text` veya `text!` kullanırsın:
 
-- `text!("Başlık")` aynı makro çağrı konumundan türetilen stabil bir `ElementId` üretir.
+- `text!("Başlık")` aynı makro çağrı konumundan türetilen sabit bir `ElementId` üretir.
 - `text!(id = "durum-mesaji", metin)` metin ID'sini açıkça verir; dinamik veya tekrar eden içerikte en güvenli yoldur.
 - `Text::new(id, SharedString)` elle kurulan erişilebilir metin node'u üretir.
-- `Text::new_inaccessible(text)` metni ekran okuyucudan gizler; parent container zaten `aria_label(...)` ile aynı bilgiyi veriyorsa tekrar duyurmayı önlemek için kullanılır.
+- `Text::new_inaccessible(text)` metni ekran okuyucudan gizler; parent container zaten `aria_label(...)` ile aynı bilgiyi veriyorsa tekrar duyurmayı önlemek için kullanırsın.
 
 Tek bir `text!` çağrısını tekrar eden satır builder'ında kullanırken dikkatli ol. Aynı kaynak konumu aynı ID'yi üreteceği için satır başına farklı erişilebilir metin node'u gerekiyorsa `text!(id = ("satir-baslik", kayit_id), baslik)` biçiminde açık ID verirsin.
 
@@ -33,8 +33,8 @@ Erişilebilirlik fluent metotları `StatefulInteractiveElement` üzerinde bulunu
 - `aria_selected(bool)`, `aria_expanded(bool)`, `aria_toggled(Toggled::True | Toggled::False | Toggled::Mixed)` seçim, açılma ve toggle durumunu taşır.
 - `aria_numeric_value(f64)`, `aria_min_numeric_value(f64)`, `aria_max_numeric_value(f64)` sayaç, slider veya spinbutton gibi sayısal kontroller içindir.
 - `aria_orientation(Orientation::Horizontal | Orientation::Vertical)` yön bilgisini belirtir.
-- `aria_level(usize)`, `aria_position_in_set(usize)`, `aria_size_of_set(usize)` başlık ve liste hiyerarşilerinde kullanılır.
-- `aria_row_index(...)`, `aria_column_index(...)`, `aria_row_count(...)`, `aria_column_count(...)` grid veya tablo benzeri yüzeylerde kullanılır.
+- `aria_level(usize)`, `aria_position_in_set(usize)`, `aria_size_of_set(usize)` başlık ve liste hiyerarşilerinde kullanırsın.
+- `aria_row_index(...)`, `aria_column_index(...)`, `aria_row_count(...)`, `aria_column_count(...)` grid veya tablo benzeri yüzeylerde kullanırsın.
 - `on_a11y_action(AccessibleAction::..., listener)` ekran okuyucudan gelen action isteğini kontrol state'ine bağlar.
 
 Örnek:
@@ -122,7 +122,7 @@ Bu örnekte framework tipleri İngilizce kalır; uygulama durumu ve yardımcı d
 
 `Application::new_inaccessible(platform)` GPUI uygulamasını AccessKit entegrasyonu olmadan başlatır. Bu yol başsız test, screenshot üretimi veya erişilebilirlik köprüsünün bilinçli olarak kapatıldığı ortamlar içindir. Böyle bir uygulamada `.role(...)` ve `.aria_*()` zincirlerini yazabilirsin, fakat erişilebilirlik entegrasyonu zorla kapatıldığı için AccessKit adapter çağrıları yapılmaz.
 
-Platform arka ucu yazıyorsan erişilebilirlik köprüsü `A11yCallbacks` ve `PlatformWindow` üzerindeki `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds` çağrılarıyla kurulur. Uygulama veya bileşen kodu bu seviyeye normalde inmez. Ekran okuyucudan gelen action'ı bağlamak için düşük seviyeli `Window::on_a11y_action(node_id, action, listener)` yerine element üzerindeki `.on_a11y_action(...)` fluent metodunu tercih edersin.
+Platform arka ucu yazıyorsan erişilebilirlik köprüsü `A11yCallbacks` ve `PlatformWindow` üzerindeki `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds` çağrılarıyla kurarsın. Uygulama veya bileşen kodu bu seviyeye normalde inmez. Ekran okuyucudan gelen action'ı bağlamak için düşük seviyeli `Window::on_a11y_action(node_id, action, listener)` yerine element üzerindeki `.on_a11y_action(...)` fluent metodunu tercih edersin.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -137,7 +137,7 @@ Platform arka ucu yazıyorsan erişilebilirlik köprüsü `A11yCallbacks` ve `Pl
 
 Pratik kontrol listesi:
 
-- Etkileşimli her ham `div()` için stabil `.id(...)` ver.
+- Etkileşimli her ham `div()` için sabit `.id(...)` ver.
 - Kontrolün görünür metni belirsizse veya ikon-only ise `aria_label(...)` ekle.
 - Toggle, seçim, genişleme ve sayısal değer durumunu render çıktısındaki gerçek durumla aynı yerde üret.
 - Tekrarlı dinamik metinlerde açık `text!(id = ..., metin)` kullan.

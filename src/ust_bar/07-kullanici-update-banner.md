@@ -1,14 +1,14 @@
 # Kullanıcı menüsü, oturum açma, plan çipi, güncelleme ve duyuru bandı
 
-Başlığın sağ grubu hesap ve uygulama durumunu özetler: oturum açık mı, hangi plan, bir güncelleme var mı ve duyurulacak bir şey var mı. Bu bölüm bu parçaları birlikte ele alır; hepsi `TitleBarSettings` alanlarına ve oturum/güncelleme durumuna bağlı koşullu çizilir.
+Başlığın sağ grubu hesap ve uygulama durumunu özetler: oturum açık mı, hangi plan, bir güncelleme var mı ve duyurulacak bir şey var mı. Bu bölüm bu parçaları birlikte ele alır; hepsi `TitleBarSettings` alanlarına ve oturum/güncelleme durumuna bağlı koşullu çizersin.
 
 ## 1. Oturum durumuna göre üç hâl
 
 Render geçişi, kullanıcı ve `Client` bağlantı durumuna bakarak sağ grupta üç farklı şeyden birini gösterir:
 
-- **Oturum açık** (`current_user` var): kullanıcı menüsü butonu çizilir.
+- **Oturum açık** (`current_user` var): kullanıcı menüsü butonu çizersin.
 - **Oturum açılıyor** (kullanıcı henüz yok ama durum `Authenticating`/`Authenticated`/`Connecting`): kaynak arayüzde titreşen bir `"Signing in…"` etiketi gösterilir. Bu etiket 2 saniyelik bir animasyonla 0.4-0.8 arası alfa değerinde nabız gibi yanıp söner; kullanıcıya "bekle, bağlanıyorum" sinyali verir. Türkçe portta görünür metin `"Oturum açılıyor…"` gibi yerelleştirilebilir.
-- **Oturum kapalı veya kimlik hatası** (`SignedOut`/`AuthenticationError`) ve `show_sign_in` açık: kaynak arayüzde `"Sign In"` butonu çizilir. Türkçe portta görünür metin `"Oturum Aç"` gibi yerelleştirilebilir.
+- **Oturum kapalı veya kimlik hatası** (`SignedOut`/`AuthenticationError`) ve `show_sign_in` açık: kaynak arayüzde `"Sign In"` butonu çizersin. Türkçe portta görünür metin `"Oturum Aç"` gibi yerelleştirilebilir.
 
 ```rust
 pub fn render_sign_in_button(&mut self, _: &mut Context<Self>) -> Button
@@ -19,11 +19,11 @@ Bu üç hâl birbirini dışlar; aynı anda yalnız biri görünür. Port hedefi
 
 ## 2. Kullanıcı menüsü
 
-Kullanıcı menüsü butonunun tetikleyicisi oturum durumuna ve `show_user_picture` ayarına göre değişir: oturum açık ve avatar gösterimi açıksa kullanıcının avatarı; aksi halde bir aşağı ok ikonu kullanılır. Bir güncelleme menüde gösterilecekse avatarın köşesine küçük bir vurgu noktası eklenir; böylece kullanıcı menüyü açmadan güncelleme olduğunu fark eder.
+Kullanıcı menüsü butonunun tetikleyicisi oturum durumuna ve `show_user_picture` ayarına göre değişir: oturum açık ve avatar gösterimi açıksa kullanıcının avatarı; aksi halde bir aşağı ok ikonu kullanırsın. Bir güncelleme menüde gösterilecekse avatarın köşesine küçük bir vurgu noktası eklenir; böylece kullanıcı menüyü açmadan güncelleme olduğunu fark eder.
 
 Menü açıldığında bir açılır panel içinde hesap ve uygulama eylemleri listelenir: abonelik planı, varsa organizasyon bilgisi, ayarlar/tuş eşlemi/temalar gibi geçişler ve oturumu kapatma. `ToggleUserMenu` eylemi bu menüyü klavyeyle de açıp kapatmayı sağlar.
 
-AI etkinken menüde ayrıca bir **"Panel Yerleşimi" alt menüsü** çizilir; bu alt menü çalışma alanı düzenini `"Klasik"` (editör odaklı) ve `"Ajanlı"` (AI panel düzeni) arasında değiştirir. İki giriş sırasıyla `UseClassicLayout` ve `UseAgenticLayout` eylemlerini gönderir; yürürlükteki düzen alt menüde işaretli görünür. Bu eylemler `workspace` ad alanındadır, dolayısıyla komut paletinden veya bir klavye kısayoluna bağlanarak da çağrılabilir. Bir eylem tetiklendiğinde `AgentSettings::set_layout(...)` seçilen düzeni kullanıcının ayar dosyasına yazar (`UseClassicLayout` -> `WindowLayout::Editor`, `UseAgenticLayout` -> `WindowLayout::Agent`); böylece seçim kalıcıdır. AI devre dışıyken (`DisableAiSettings.disable_ai`) hem alt menü çizilmez hem de iki eylem komut paletinden gizlenir.
+AI etkinken menüde ayrıca bir **"Panel Yerleşimi" alt menüsü** çizilir; bu alt menü çalışma alanı düzenini `"Klasik"` (editör odaklı) ve `"Ajanlı"` (AI panel düzeni) arasında değiştirir. İki giriş sırasıyla `UseClassicLayout` ve `UseAgenticLayout` eylemlerini gönderir; yürürlükteki düzen alt menüde işaretli görünür. Bu eylemler `workspace` ad alanındadır, bu yüzden komut paletinden veya bir klavye kısayoluna bağlanarak da çağrılabilir. Bir eylem tetiklendiğinde `AgentSettings::set_layout(...)` seçilen düzeni kullanıcının ayar dosyasına yazar (`UseClassicLayout` -> `WindowLayout::Editor`, `UseAgenticLayout` -> `WindowLayout::Agent`); böylece seçim kalıcıdır. AI devre dışıyken (`DisableAiSettings.disable_ai`) hem alt menü çizilmez hem de iki eylem komut paletinden gizlenir.
 
 ## 3. Plan çipi
 
@@ -58,7 +58,7 @@ Görsel kabuk, `ui` crate'indeki `UpdateButton` bileşenidir ve bu durumların h
 fn version_tooltip_message(version: &VersionCheckType) -> String
 ```
 
-Bu yardımcı yalnız indirme, kurulum ve güncelleme-hazır durumlarında çağrılır; bu durumların ipucu `"Update to Version: {version}"` kalıbındadır. Sürüm semantik bir versiyon ise sürüm numarası, commit SHA ise **kısaltılmamış tam SHA** kullanılır. Hata durumunda ise ipucu bu kalıba uymaz; doğrudan ham hata metnidir. Manuel kontroldeki `Checking` durumunda hiç ipucu yoktur. Türkçe portta bu metin yerelleştirilecekse aynı veri ayrımı korunur; başlıkta kısa SHA değil, tam hash gösterilir.
+Bu yardımcı yalnız indirme, kurulum ve güncelleme-hazır durumlarında çağrılır; bu durumların ipucu `"Update to Version: {version}"` kalıbındadır. Sürüm semantik bir versiyon ise sürüm numarası, commit SHA ise **kısaltılmamış tam SHA** kullanırsın. Hata durumunda ise ipucu bu kalıba uymaz; doğrudan ham hata metnidir. Manuel kontroldeki `Checking` durumunda hiç ipucu yoktur. Türkçe portta bu metin yerelleştirilecekse aynı veri ayrımı korunur; başlıkta kısa SHA değil, tam hash gösterilir.
 
 `SimulateUpdateAvailable` eylemi, bu yüzeyi geliştirme sırasında test etmek içindir: `toggle_update_simulation` aracılığıyla `UpdateVersion`'ı durumlar arasında döndürür, böylece her durumun görünümü gerçek bir güncelleme beklemeden denenebilir.
 
@@ -83,7 +83,7 @@ pub fn visible_when(self, predicate: impl Fn(&mut App) -> bool + 'static) -> Sel
 pub fn restore_banner(cx: &mut App)
 ```
 
-Tasarım şudur: duyuru bandı bir kaynak kimliği (telemetri/kapatma anahtarı), bir ikon, bir ana metin, opsiyonel bir alt metin (verilmezse varsayılan olarak `"Introducing:"` öneki kullanılır, dolayısıyla pratikte daima bir alt metin çizilir) ve tıklamada gönderilecek bir eylem alır. `visible_when` ile bir koşul işlevi verilir; bu koşul her render geçişinde çağrılır ve duyuru bandının görünürlüğünü (örneğin bir özellik bayrağına göre) belirler. Kullanıcı bandı tıklarsa eylem gönderilir ve bant kapanır; kapatma (X) butonuna basarsa yalnız kapanır. Her iki durumda da kapatma kalıcı kaydedilir, böylece bant tekrar gösterilmez. `restore_banner` ise bu kaydı silip bandı yeniden görünür yapar (yönetim/test amaçlı).
+Tasarım şudur: duyuru bandı bir kaynak kimliği (telemetri/kapatma anahtarı), bir ikon, bir ana metin, opsiyonel bir alt metin (verilmezse varsayılan olarak `"Introducing:"` öneki kullanırsın, bu yüzden pratikte daima bir alt metin çizilir) ve tıklamada gönderilecek bir eylem alır. `visible_when` ile bir koşul işlevi verilir; bu koşul her render geçişinde çağrılır ve duyuru bandının görünürlüğünü (örneğin bir özellik bayrağına göre) belirler. Kullanıcı bandı tıklarsa eylem gönderilir ve bant kapanır; kapatma (X) butonuna basarsa yalnız kapanır. Her iki durumda da kapatma kalıcı kaydedersin, böylece bant tekrar gösterilmez. `restore_banner` ise bu kaydı silip bandı yeniden görünür yapar (yönetim/test amaçlı).
 
 **Güncel HEAD'in önemli notu:** Bu altyapı kodda hazır olsa da, şu anki Zed sürümünde `TitleBar`'ın `banner` alanı her zaman `None`'dır; `OnboardingBanner::new` hiçbir yerde çağrılmaz. Yani duyuru bandı mekanizması **mevcut ama bağlı değildir**; başlıkta fiilen bir duyuru bandı çizilmez. Render yolu `show_onboarding_banner` ayarı ve `banner` alanının `Some` olması koşuluna bağlı olduğundan, alan `None` kaldıkça bu yol hiç çalışmaz.
 

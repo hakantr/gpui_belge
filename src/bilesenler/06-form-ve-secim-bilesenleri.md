@@ -47,7 +47,7 @@ Davranış:
 
 - `RenderOnce` implement eder.
 - `ToggleState::Selected` için `IconName::Check`, `ToggleState::Indeterminate` için ise `IconName::Dash` ikonunu çizer.
-- Click işleyicisine mevcut durum değil, `self.toggle_state.inverse()` gönderilir. Yani işleyici her zaman hedef durumu alır.
+- Click işleyicisine mevcut durum değil, `self.toggle_state.inverse()` gönderirsin. Yani işleyici her zaman hedef durumu alır.
 - `ToggleState::Indeterminate.inverse()` çağrısının sonucu `Selected` olur; bu sayede kısmi seçimden tıklama ile tam seçime geçilir.
 - `disabled(true)` click işleyicisini devre dışı bırakır.
 - `visualization_only(true)` pointer ve hover davranışını kaldırır, ama bileşeni disabled gibi soluk renkle göstermez; yalnızca dokunulamaz hale getirir.
@@ -185,8 +185,8 @@ Davranış:
 
 - `RenderOnce` implement eder.
 - Kapsayıcının kendisine yapılan tıklama ile iç switch'e yapılan tıklama, aynı `on_click` geri çağrısını hedef durum ile çağırır; yani satırın herhangi bir yerine tıklamak da switch'i toggle eder.
-- Tooltip verildiğinde label'ın yanında bir `IconButton::new("tooltip_button", IconName::Info)` render edilir. Bu ikonun click işleyicisi boştur; yani bilgi ikonuna tıklamak switch'i toggle etmez, yalnızca bilgi göstergesi olarak durur.
-- Açıklama verildiğinde, muted renkli bir label olarak çizilir.
+- Tooltip verildiğinde label'ın yanında bir `IconButton::new("tooltip_button", IconName::Info)` render edersin. Bu ikonun click işleyicisi boştur; yani bilgi ikonuna tıklamak switch'i toggle etmez, yalnızca bilgi göstergesi olarak durur.
+- Açıklama verildiğinde, muted renkli bir label olarak çizersin.
 
 Örnek:
 
@@ -269,10 +269,10 @@ Temel API:
 
 Davranış:
 
-- `Render` ve `Focusable` implement eder; genellikle `Entity<InputField>` olarak view durumunda tutulur.
+- `Render` ve `Focusable` implement eder; genellikle `Entity<InputField>` olarak view durumunda tutarsın.
 - `InputField::new(...)` çağrısı, `ui_input::ERASED_EDITOR_FACTORY` fabrika fonksiyonunun önceden kurulmuş olmasını bekler. Zed çalışma zamanı bu fabrikayı editor entegrasyonu sırasında hazırlar.
 - `.masked(true)` verildiğinde sağda bir show/hide `IconButton` render edilir ve bu butona tıklamak maske durumunu günceller.
-- Odak görünümü editor odak handle'ına bağlı border rengiyle çizilir.
+- Odak görünümü editor odak handle'ına bağlı border rengiyle çizersin.
 
 Örnek:
 
@@ -305,7 +305,7 @@ Düşük seviye yüzey — `ErasedEditor`:
 
 | API | Rol |
 | :-- | :-- |
-| `ERASED_EDITOR_FACTORY` | Çalışma zamanında gerçek editor adaptörünü sağlayan global fabrikadır; `InputField::new(...)` bu fabrika kurulduktan sonra çağrılmalıdır. |
+| `ERASED_EDITOR_FACTORY` | Çalışma zamanında gerçek editor adaptörünü sağlayan global fabrikadır; `InputField::new(...)` bu fabrika kurulduktan sonra çağırman gerekir. |
 | `ErasedEditor` | Metin okuma/yazma, odak handle'ı, maskeleme, olay aboneliği ve render işlemlerini crate sınırını bozmadan sunan trait yüzeyidir. |
 | `ErasedEditorEvent` | `BufferEdited` ve `Blurred` olaylarıyla giriş değişimi ve odak kaybını bildirir. |
 
@@ -390,7 +390,7 @@ impl ApiAnahtariFormu {
 
 Dikkat edeceğin noktalar:
 
-- `InputField` `RenderOnce` değildir; her render'da yeniden yaratmak yerine entity olarak saklanır ve view durumunda tutulur.
+- `InputField` `RenderOnce` değildir; her render'da yeniden yaratmak yerine entity olarak saklanır ve view durumunda tutarsın.
 - Metin değerini `field.read(cx).text(cx)` ile okursun. Değer değişimine tepki vereceksen yukarıdaki `subscribe` örneğini izler ve dönen `Subscription` değerini view alanında saklarsın.
 - `ERASED_EDITOR_FACTORY` kurulmadan `InputField::new` çağrılırsa panic oluşur; bu yüzden editor crate'inin init fonksiyonunun uygulama başlangıcında çalıştığından emin olman gerekir.
 - `label_min_width(...)` adında "label" ifadesi geçse de, kaynakta bu metod input kapsayıcısının `min_width` değerini ayarlar.
@@ -409,7 +409,7 @@ Davranış:
 - Ayar sayfasındaki `"Completion Menu Item Kind"` (tamamlama menüsü öğe türü) satırı, tamamlama menüsünde LSP öğe türü bilgisinin gösterilip gösterilmeyeceğini seçtirir. `off` öğe türünü gizler, `symbol` sözdizimi teması ile renklendirilmiş tek harfli rozet gösterir.
 - `"Version Control / Git Hunks"` bölümünde `"Show Stage/Restore Buttons"` satırı `git.show_stage_restore_buttons` boolean ayarını yazar. Bu değer `false` olduğunda diff hunk üstündeki `"Stage"`, `"Unstage"` ve `"Restore"` butonları render edilmez.
 - `"Araç İzinleri"` kurulum listesindeki `skill` aracı kaynakta `"Loading agent skill instructions"` açıklamasıyla gelir. Regex açıklaması skill adına değil, skill'in `SKILL.md` dosyasının mutlak yoluna göre eşleştiğini belirtir.
-- Ayar araması boş sorguda filtre uygulamaz; sayfa listesi resetlenir. Tam eşleşme yolunda sorgu birden fazla kelime içerdiğinde, kelimelerin tamamının ilgili dokümandaki bir sözcük önekiyle eşleşmesi beklenir.
+- Ayar araması boş sorguda filtre uygulamaz; sayfa listesi resetlenir. Tam eşleşme yolunda sorgu birden fazla kelime içerdiğinde, kelimelerin tamamının ilgili dokümandaki bir sözcük önekiyle eşleşmesi beklersin.
 
 Dikkat edeceğin noktalar:
 

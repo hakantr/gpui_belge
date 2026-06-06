@@ -13,7 +13,7 @@ Hangi durumda hangisini seçeceğini kabaca şöyle ayırabilirsin:
 - Bir popup yüzeyinin içeriğini doğru elevation ve padding ile çizmek için `Popover` kullanırsın.
 - Kısa hover açıklamaları veya kısayol bilgilerini göstermek için ise `Tooltip` doğru yüzeydir.
 
-Menü ve popup bileşenleri kendi başlarına değer saklamaz. Girdi işleyicileri view veya model durumunu günceller. Popup'ın açılıp kapanma davranışı ise ilgili menu, popover veya üst bileşen yaşam döngüsü tarafından yönetilir.
+Menü ve popup bileşenleri kendi başlarına değer saklamaz. Girdi işleyicileri view veya model durumunu günceller. Popup'ın açılıp kapanma davranışı ise ilgili menu, popover veya üst bileşen yaşam döngüsü tarafından yönetirsin.
 
 ## DropdownMenu
 
@@ -44,8 +44,8 @@ Temel API:
 
 Davranış:
 
-- Metin label durumunda arka planda bir `Button` üretilir; özel element label durumunda ise bir `ButtonLike` kullanılır.
-- İçeride `PopoverMenu::new((id, "popover"))` kurulur.
+- Metin label durumunda arka planda bir `Button` üretilir; özel element label durumunda ise bir `ButtonLike` kullanırsın.
+- İçeride `PopoverMenu::new((id, "popover"))` kurarsın.
 - Varsayılan tetikleyici ikonu `IconName::ChevronUpDown`'dur; `.no_chevron()` bu oku kaldırır.
 - Varsayılan attach noktası `Anchor::BottomRight`'tır.
 - `DropdownStyle` değerleri buton stiline şu şekilde eşlenir: `Solid -> Filled`, `Outlined -> Outlined`, `Subtle -> Subtle`, `Ghost -> Transparent`.
@@ -118,7 +118,7 @@ Davranış:
 - Blur olduğunda menü kapanır; bir alt menü açıkken odak orada korunuyorsa kapanma ertelenir.
 - Confirm edilen girdi işleyicisi çalıştırılır. `keep_open_on_confirm(false)` durumunda menü `DismissEvent` yayınlar ve kapanır.
 - `build_persistent(...)` ile kurulan menü hem rebuild edilebilir hem de açık kalabilir.
-- Klavye gezintisi için menünün kendi action'ları ve `key_context` değeri birlikte kullanılır.
+- Klavye gezintisi için menünün kendi action'ları ve `key_context` değeri birlikte kullanırsın.
 
 Örnek:
 
@@ -243,10 +243,10 @@ Davranış:
 - Tetikleyici tipi `PopoverTrigger` trait'ini sağlamalıdır. Bu trait, `IntoElement + Clickable + Toggleable + 'static` kombinasyonunun public bir alias yüzeyidir.
 - `.trigger(...)` için yalnız `PopoverTrigger` yeterlidir; ancak `.trigger_with_tooltip(...)` kullanmak istiyorsan tetikleyicinin ayrıca `ButtonCommon` sağlaması gerekir. Bu yüzden tooltip'li tetikleyici, buton ailesinden bir öğe (örneğin `Button` veya `IconButton`) olmalıdır.
 - Tetikleyici tıklandığında menu builder bir `Option<Entity<M>>` döndürür; `None` döndürdüğünde menü açılmaz.
-- Açılan menu `DismissEvent` yayınladığında handle temizlenir ve mümkünse önceki odak geri verilir.
-- Menü deferred olarak render edildiği için odak iki `on_next_frame` sonrasında uygulanır.
+- Açılan menu `DismissEvent` yayınladığında handle temizlenir ve mümkünse önceki odak geri verirsin.
+- Menü deferred olarak render edildiği için odak iki `on_next_frame` sonrasında uygularsın.
 - Tetikleyiciye menü açıkken tekrar tıklanırsa menü dismiss edilir ve olay yayılımı durdurulur.
-- `PopoverMenuElementState` açık menü entity'sini ve tetikleyici sınır bilgisini frame'ler arasında saklar. `PopoverMenuFrameState` ise layout pass sırasında tetikleyici elementi, menu elementi ve layout id bilgisini taşır. Bunlar public görünse de normal uygulama kodunun kuracağı değerler değildir; `PopoverMenu` element yaşam döngüsü tarafından yönetilir.
+- `PopoverMenuElementState` açık menü entity'sini ve tetikleyici sınır bilgisini frame'ler arasında saklar. `PopoverMenuFrameState` ise layout pass sırasında tetikleyici elementi, menu elementi ve layout id bilgisini taşır. Bunlar public görünse de normal uygulama kodunun kuracağı değerler değildir; `PopoverMenu` element yaşam döngüsü tarafından yönetirsin.
 
 **Menu ve popover yardımcı API kapsamı.** Aşağıdaki tipler bu bölümdeki davranışların küçük taşıyıcılarıdır:
 
@@ -256,7 +256,7 @@ Davranış:
 | `ContextMenuItem` | `Separator`, `Header`, `HeaderWithLink`, `Label`, `Entry`, `CustomEntry`, `Submenu` | Menü içeriğini saklamak veya dinamik üretmek için kullanılan enum modelidir. |
 | `ContextMenuEntry` | `toggle`, `toggleable`, label alanı, `icon`, `custom_icon_path`, `custom_icon_svg`, `handler`, `secondary_handler`, `action`, `disabled`, `documentation_aside`, end-slot alanları | Tek bir seçilebilir menü satırının bütün görsel ve davranış bilgisini taşır. |
 | `DocumentationSide` | `Left`, `Right` | Girdi dokümantasyon panelinin menünün hangi yanında açılacağını belirtir. |
-| `DocumentationAside` | `side`, `render`; `new` | Girdi veya picker yanında küçük açıklama paneli render etmek için kullanılır. |
+| `DocumentationAside` | `side`, `render`; `new` | Girdi veya picker yanında küçük açıklama paneli render etmek için kullanırsın. |
 | `PopoverMenuHandle` | `show`, `hide`, `toggle`, `is_deployed`, `is_focused`, `refresh_menu` | Popover'ın dışarıdan açma/kapama ve içerik yenileme tutamacıdır. |
 | `PopoverTrigger` | `IntoElement + Clickable + Toggleable + 'static` | Popover tetikleyicisi olabilecek buton benzeri elementleri sınırlayan trait alias yüzeyidir. |
 | `PopoverMenuElementState` | private alanlar: `menu`, `child_bounds` | Açık menü entity'si ve tetikleyici sınır bilgisini element durumu olarak saklar. |
@@ -371,7 +371,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- Tetikleyici closure'ı içinde gelen `is_menu_active` değeri, hover veya selected görseli için kullanabilirsin. Bu değerin bir uygulama durumu olarak saklanmaması beklenir; çünkü zaten menü tarafından yönetilir.
+- Tetikleyici closure'ı içinde gelen `is_menu_active` değeri, hover veya selected görseli için kullanabilirsin. Bu değerin bir uygulama durumu olarak saklanmaması beklenir; çünkü zaten menü tarafından yönetirsin.
 - Sağ tık menüsünün içinde sol tıkla çalışan özel kontroller varsa, olay yayılımı davranışını ve menu dismiss akışını test etmen gerekir; yoksa sürpriz davranışlar ortaya çıkabilir.
 
 ## Popover
@@ -403,8 +403,8 @@ Temel API:
 Davranış:
 
 - İçeriği `v_flex().elevation_2(cx)` yüzeyi üzerinde çizer.
-- `aside(...)` verdiğinde, ikinci bir elevation yüzeyi olarak yan içerik eklenir.
-- `POPOVER_Y_PADDING` sabiti dikey padding hesabı sırasında kullanılır.
+- `aside(...)` verdiğinde, ikinci bir elevation yüzeyi olarak yan içerik eklersin.
+- `POPOVER_Y_PADDING` sabiti dikey padding hesabı sırasında kullanırsın.
 
 Örnek:
 
@@ -468,9 +468,9 @@ Temel API:
 
 Davranış:
 
-- Tooltip yüzeyi `tooltip_container(...)` içinde `elevation_2`, UI fontu ve tema text rengiyle çizilir.
+- Tooltip yüzeyi `tooltip_container(...)` içinde `elevation_2`, UI fontu ve tema text rengiyle çizersin.
 - `key_binding` varsa title satırının sağında gösterilir.
-- `meta` verildiğinde, ikinci satırda küçük ve muted bir label olarak çizilir.
+- `meta` verildiğinde, ikinci satırda küçük ve muted bir label olarak çizersin.
 - `Tooltip::text(...)` gibi yöntemler, `.tooltip(...)` builder imzasına doğrudan uyan bir closure döndürür.
 - GPUI görünür tooltip'i kaynak elementin hover durumuna bağlı tutar. Mouse kaynak hitbox'tan ayrıldığında normal tooltip kapanır; `hoverable_tooltip` kullanıldığında tooltip yüzeyi de hover alanı sayılır ve kullanıcı mouse'u tooltip içine taşıdığı sürece yüzey açık kalabilir.
 - GPUI tooltip'i, imleç kaynak element üzerinde varsayılan olarak 500 ms bekledikten sonra gösterir. Bu gecikmeyi tek bir element için değiştirmek istersen tooltip'i eklediğin (id'li) element üzerinde `.tooltip_show_delay(delay)` metodunu zincirlersin; daha hızlı geri bildirim için kısaltır, kazara açılmayı azaltmak için uzatırsın. Özel `Element` yazarken aynı ayarın imperatif biçimi `Interactivity::tooltip_show_delay(delay)`'dir.
@@ -502,7 +502,7 @@ Dikkat edeceğin noktalar:
 
 ## Menü ve Popup Kompozisyon Örnekleri
 
-Bir toolbar üzerindeki ek eylem menüsü, `PopoverMenu` ve `ContextMenu`'nün en doğal kombinasyonudur. Bir ikon tetikleyiciye tooltip eklenir, menü içeriği ise dışarıda `ContextMenu::build` ile hazırlanır:
+Bir toolbar üzerindeki ek eylem menüsü, `PopoverMenu` ve `ContextMenu`'nün en doğal kombinasyonudur. Bir ikon tetikleyiciye tooltip eklersin, menü içeriği ise dışarıda `ContextMenu::build` ile hazırlanır:
 
 ```rust
 use ui::prelude::*;

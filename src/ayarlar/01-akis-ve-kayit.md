@@ -60,7 +60,7 @@ pub trait SettingsKey: 'static + Send + Sync {
 
 ## `RegisterSetting` derive'ı
 
-Ayar tipleri iki yoldan kaydedilir:
+Ayar tipleri iki yoldan kaydedersin:
 
 - **Derive ile `inventory` kayıt listesi üzerinden otomatik kayıt:**
 
@@ -87,7 +87,7 @@ Ayar tipleri iki yoldan kaydedilir:
   }
   ```
 
-  `RegisterSetting` derive'ı her tip için `inventory::submit!` ile envanter listesine bir giriş ekler; listenin kendisi `SettingsStore` crate'inde `inventory::collect!` ile tanımlanır. `SettingsStore::new` (içeride `load_settings_types`) bu listeyi tek seferde okuyup tüm tipleri kaydeder.
+  `RegisterSetting` derive'ı her tip için `inventory::submit!` ile envanter listesine bir giriş ekler; listenin kendisi `SettingsStore` crate'inde `inventory::collect!` ile tanımlarsın. `SettingsStore::new` (içeride `load_settings_types`) bu listeyi tek seferde okuyup tüm tipleri kaydeder.
 
 - **Elle kayıt:**
 
@@ -124,7 +124,7 @@ cx.observe_global::<SettingsStore>(|cx| {
 - `for_release_channel` `release_channel::RELEASE_CHANNEL.dev_name()` üzerinden eşleşen `release_channel_overrides` girişini açar.
 - `for_os` `env::consts::OS` üzerinden eşleşen `platform_overrides` girişini açar.
 
-Dosya hata/rapor sıralamasında `SettingsFile::cmp` önceliği `Project` > `Server` > `User` > `Global` > `Default` şeklindedir. Runtime merge hattında global değerler şu sırayla kurulur: `Default` üstüne `Extension`, `Global`, kullanıcı içeriği, kullanıcı release kanalı (`for_release_channel`), kullanıcı OS (`for_os`), aktif profil ve son olarak `Server`. Yani aktif profil, kullanıcının release/OS override'larından sonra, `Server` katmanından önce uygulanır. Path hedefli okumada proje/local ayarlar bunun üstüne eklenir.
+Dosya hata/rapor sıralamasında `SettingsFile::cmp` önceliği `Project` > `Server` > `User` > `Global` > `Default` şeklindedir. Runtime merge hattında global değerler şu sırayla kurarsın: `Default` üstüne `Extension`, `Global`, kullanıcı içeriği, kullanıcı release kanalı (`for_release_channel`), kullanıcı OS (`for_os`), aktif profil ve son olarak `Server`. Yani aktif profil, kullanıcının release/OS override'larından sonra, `Server` katmanından önce uygularsın. Path hedefli okumada proje/local ayarlar bunun üstüne eklersin.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
@@ -150,7 +150,7 @@ Dosya hata/rapor sıralamasında `SettingsFile::cmp` önceliği `Project` > `Ser
 | `TelemetrySettingsContent` | `telemetry` altında diagnostics ve metrics tercihleri | Varsayılan implementasyonu iki alanı da `true` yapar. |
 | `DebuggerSettingsContent`, `SteppingGranularity` | `debugger` stepping, breakpoint ve DAP log ayarları | Dock alanı settings crate'indeki `DockPosition` değerine bağlanır. |
 | `GitPanelSettingsContent`, `StatusStyle`, `ScrollbarSettings` | Git paneli görünümü, dock, scrollbar ve commit başlığı sınırları | `StatusStyle` dosya durumunun ikon mu renkli label mı gösterileceğini seçer. |
-| `PanelSettingsContent`, `DockSide` | Collaboration ve benzeri panel genişliği/dock schema'sı | Tek panel content taşıyıcısı birden çok panel alanında kullanılır. |
+| `PanelSettingsContent`, `DockSide` | Collaboration ve benzeri panel genişliği/dock schema'sı | Tek panel content taşıyıcısı birden çok panel alanında kullanırsın. |
 | `FileFinderSettingsContent`, `FileFinderWidthContent`, `IncludeIgnoredContent` | File finder ikon, genişlik ve ignored dosya stratejisi | `IncludeIgnoredContent::Smart` default seçimdir. |
 | `VimSettingsContent`, `ModeContent`, `UseSystemClipboard`, `CursorShapeSettings`, `VimInsertModeCursorShape` | Vim modu davranışı ve cursor shape override'ları | `CursorShapeSettings` editor `CursorShape` ile Vim insert shape enum'unu birleştirir. |
 | `JournalSettingsContent`, `HourFormat` | Journal dizini ve saat formatı | `HourFormat` `hour12` / `hour24` JSON değerlerini taşır. |
@@ -171,7 +171,7 @@ Dosya hata/rapor sıralamasında `SettingsFile::cmp` önceliği `Project` > `Ser
 
 Akış ve kayıt tarafında hataya açık noktalar:
 
-- `from_settings` panic ediyorsa varsayılan JSON eksiktir; her alanın `assets/settings/default.json` içinde tanımlanması gerekir.
+- `from_settings` panic ediyorsa varsayılan JSON eksiktir; her alanın `assets/settings/default.json` içinde tanımlaman gerekir.
 - Dile özel ayar gerekiyorsa `Settings::get(Some(SettingsLocation { worktree_id, path }), cx)` çağrısı worktree özel üzerine yazmaları otomatik getirir.
 - `SettingsStore::new` envanter kayıt listesini başta tek seferde okuyup tüm tipleri kaydeder; runtime'da bir tipi geç kaydetmek istediğinde `Settings::register(cx)` çağırman gerekir.
 - Yeni ayar eklerken `settings_content` schema'sını güncellemen gerekir; aksi halde JSON schema doğrulaması yeni alanı tanımaz.

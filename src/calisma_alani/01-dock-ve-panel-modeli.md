@@ -43,7 +43,7 @@
 - `active_panel_size`, `stored_active_panel_size`, `stored_panel_size`, `stored_panel_size_state`, `resize_active_panel`, `resize_all_panels`, `clamp_panel_size` ve `toggle_panel_flexible_size` panel boyutu ve esnek boyut geçişlerini yönetir.
 - `restore_state`, serialize edilmiş dock durumundan aktif panel, açık/kapalı durum ve zoom bilgisini geri yükler.
 - `set_panel_zoomed`, `zoomed_panel` ve `zoom_out` panel zoom katmanı ile çalışma alanı serileştirmesini birlikte günceller.
-- `has_agent_panel` dock içinde agent paneli var mı sorusunu cevaplar; AI/multi-workspace sidebar durumunu değerlendirirken kullanılır.
+- `has_agent_panel` dock içinde agent paneli var mı sorusunu cevaplar; AI/multi-workspace sidebar durumunu değerlendirirken kullanırsın.
 - Panel `PanelEvent::Activate` yaydığında dock açılır, panel aktiflenir ve odak panele taşınır.
 - `PanelEvent::Close` aktif görünür paneli kapatır.
 - `PanelEvent::ZoomIn/ZoomOut` çalışma alanı zoom katmanı durumunu günceller.
@@ -99,7 +99,7 @@
 - `position_is_valid` alt ve yan sınırlamalarını net tanımlamalıdır.
 - `toggle_action()` action'ı önceden kaydedilmiş olmalıdır.
 - `activation_priority()` benzersiz olmalıdır.
-- `set_active` içinde UI durumu değiştiriliyorsa `cx.notify()` çağrısı bu akışa eklenmelidir.
+- `set_active` içinde UI durumu değiştiriliyorsa `cx.notify()` çağrısı bu akışa eklemen gerekir.
 - Dock değiştiren ayar gözlemcilerinde panel taşınırken boyut durumu ekseni değişiyorsa sıfırlanabilir; bu mevcut `Dock::add_panel`/ayar gözlemci akışında zaten yaparsın.
 
 ---

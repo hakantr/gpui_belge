@@ -2,7 +2,7 @@
 
 Bu konu, Zed uygulamasındaki varlık altyapısının nasıl kurulduğunu ve uygulamaya nasıl bağlandığını bölüm bölüm anlatır. Amaç sadece `RustEmbed` ile bir klasörü paketlemek değildir. Font, ikon, görsel, ses, prompt şablonu, tema JSON'u ve klavye haritası gibi farklı varlık türleri tek bir `AssetSource` sözleşmesi üzerinden akar. Bölümün odağı, bu sözleşmenin GPUI çalışma zamanına, SVG render hattına, ses hattına ve ayar/tema sistemine nasıl bağlandığını netleştirmektir. `RustEmbed` release build'de gömülü byte üretirken normal debug build'de aynı API ile dosya sisteminden okuma yapabildiği için iki davranış da ayrıca belirtilir.
 
-Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam ve klasör topolojisi netleşir, sonra `AssetSource` sözleşmesi ile `RustEmbed` entegrasyonu kurarsın. Bu temel oturduktan sonra font, ikon, görsel ve ses gibi binary varlıkların tüketim yolları sırayla işlenir. Son bölümler JSON tabanlı varlıkları (tema, keymap, settings, badge) ve test/headless ortamlardaki ikame stratejilerini toparlar.
+Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam ve klasör topolojisi netleşir, sonra `AssetSource` sözleşmesi ile `RustEmbed` entegrasyonu kurarsın. Bu temel oturduktan sonra font, ikon, görsel ve ses gibi binary varlıkların tüketim yolları sırayla işlersin. Son bölümler JSON tabanlı varlıkları (tema, keymap, settings, badge) ve test/headless ortamlardaki ikame stratejilerini toparlar.
 
 ## Bölümler
 

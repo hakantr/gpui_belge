@@ -2,7 +2,7 @@
 
 Bu bölüm, varlık altyapısının yapılandırılmış varlık katmanını ele alır. JSON dosyaları binary ile birlikte taşınır, fakat tüketim biçimleri birbirinden farklıdır:
 
-- Tema JSON'ları çalışma zamanında bir kayda eklenir.
+- Tema JSON'ları çalışma zamanında bir kayda eklersin.
 - Keymap JSON'ları kullanıcı tercihine göre seçilip ayrıştırılır.
 - Settings JSON'ları varsayılan değer kaynağı olarak okunur.
 - Badge JSON'u çalışma zamanında hiç tüketilmez.
@@ -103,7 +103,7 @@ Akış altı adımdadır:
 
 1. **`kayit.assets().list("themes/")`** — Özyinelemeli listeleme; `themes/one/one.json`, `themes/ayu/ayu.json`, `themes/LICENSES/...` gibi tüm yollar döner.
 2. **`.json` filtresi** — `LICENSE` dosyaları ve klasörler dışlanır. Filtre uzantı bazlıdır.
-3. **`assets().load(&yol)` çağrısı** — Her tema dosyası ham byte olarak yüklenir. `log_err().flatten()` deseni, hata varsa log'a düşürür ve `None` döndürür; aksi halde `Some(baytlar)` ile devam edilir.
+3. **`assets().load(&yol)` çağrısı** — Her tema dosyası ham byte olarak yüklenir. `log_err().flatten()` deseni, hata varsa log'a düşürür ve `None` döndürür; aksi halde `Some(baytlar)` ile devam edersin.
 4. **`serde_json::from_slice`** — Baytlar `ThemeFamilyContent` struct'ına ayrıştırılır. Bu struct Zed tema JSON sözleşmesini yansıtır; kendisi yalnızca `name`, `author` ve `themes` alanlarını taşır. Renk alanları ise iç içe yapıda durur: her tema `ThemeContent` içinde bir `ThemeStyleContent` tutar, o da `ThemeColorsContent` ile durum renklerini barındırır ve bu alanların her biri `Option<String>` olduğu için eksik renkler atlanabilir.
 5. **`refine_theme_family`** — `Content` → `Refinement` → `Theme` dönüşümü uygularsın. Bu adım tema sistemi bölümünde detaylıdır; özetle: kullanıcı temasındaki eksik alanlar yedek değerlerle doldurulur ve çalışma zamanında kullanıma hazır `Theme` struct'ı üretilir.
 6. **`kayit.insert_theme_families`** — Hazır tema ailesi `ThemeRegistry`'ye eklenir; `cx.theme()` artık bu temaya erişebilir.
@@ -165,7 +165,7 @@ fn kullanici_temalarini_arkada_yukle(dosya_sistemi: Arc<dyn fs::Fs>, cx: &mut Ap
 
 Dosya sisteminden okuma asenkron yapılır; binary'deki tema yükleme ise senkron `list+load` döngüsüdür. İki yol birleştiğinde aynı `ThemeRegistry`'ye akar ve fark gözlemlenemez. Bu, "binary'deki varlık + dosya sistemi geçersiz kılması" deseninin tema sistemindeki karşılığıdır.
 
-İki yolun ayrıştırma katmanında ince bir fark bulunur: `load_user_theme` kullanıcı temasını `serde_json_lenient` ile okur; böylece yorum içeren ve sondaki virgülü hoş gören kullanıcı dosyaları da kabul edilir. Gömülü temalar ise `load_bundled_themes` içinde düz `serde_json` ile ayrıştırılır; çünkü binary'ye giren dosyalar zaten katı JSON biçimindedir.
+İki yolun ayrıştırma katmanında ince bir fark bulunur: `load_user_theme` kullanıcı temasını `serde_json_lenient` ile okur; böylece yorum içeren ve sondaki virgülü hoş gören kullanıcı dosyaları da kabul edersin. Gömülü temalar ise `load_bundled_themes` içinde düz `serde_json` ile ayrıştırılır; çünkü binary'ye giren dosyalar zaten katı JSON biçimindedir.
 
 ---
 
@@ -245,7 +245,7 @@ pub fn asset_path(&self) -> Option<&'static str> {
 - **`BaseKeymap::None` boş keymap'tir.** Tüm kısayollar devre dışı bırakılır; kullanıcı her kısayolu kendisi tanımlar.
 - **Linux'ta TextMate yoktur.** macOS'a özgü bir paketleme tercihidir; `#[cfg]` ile match koluna eklenmez. Bu, "binary'de olsa bile platforma uygun değilse çağırma" davranışının tipik bir örneğidir.
 
-Keymap seçimi `BaseKeymap` ayarından okunur, `BaseKeymap::asset_path` ile yol elde edilir, `SettingsAssets` üzerinden içerik okunur ve varsayılan keymap'in üzerine eklersin. Bu zincir kullanıcı tercihinin varlık hattına nasıl bağlandığını net bir şekilde gösterir.
+Keymap seçimi `BaseKeymap` ayarından okunur, `BaseKeymap::asset_path` ile yol elde edersin, `SettingsAssets` üzerinden içerik okunur ve varsayılan keymap'in üzerine eklersin. Bu zincir kullanıcı tercihinin varlık hattına nasıl bağlandığını net bir şekilde gösterir.
 
 ---
 
@@ -313,7 +313,7 @@ pub fn init(cx: &mut App) {
 
 `SettingsStore::new` çağrısı `default_settings()` çıktısını (yani `settings/default.json` içeriği) ayrıştırır ve ayarların başlangıç değerlerini bu içerikten çıkarır. Kullanıcı dosyaları sonradan yüklendiğinde bu varsayılan değerlerin üzerine yazılır.
 
-Önemli ayrıntı: `default_settings()` çağrısı fail-fast paketleme kontratına bağlıdır. `asset_str::<SettingsAssets>` içindeki varlık okuma kontratı dosya yoksa erken durur. Yani settings sisteminin başlatılması, varsayılan JSON dosyasının `SettingsAssets` erişim kümesinde bulunmasına sıkı sıkıya bağlıdır. Bu kasıtlı bir sertliktir: settings olmadan Zed başlatılamaz, fail-fast davranışı kabul edilir.
+Önemli ayrıntı: `default_settings()` çağrısı fail-fast paketleme kontratına bağlıdır. `asset_str::<SettingsAssets>` içindeki varlık okuma kontratı dosya yoksa erken durur. Yani settings sisteminin başlatılması, varsayılan JSON dosyasının `SettingsAssets` erişim kümesinde bulunmasına sıkı sıkıya bağlıdır. Bu kasıtlı bir sertliktir: settings olmadan Zed başlatılamaz, fail-fast davranışı kabul edersin.
 
 ---
 

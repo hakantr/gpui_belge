@@ -73,7 +73,7 @@ workspace::register_serializable_item::<BenimOgem>(cx);
 
 `OpenResult { window, workspace, opened_items }` üst seviye açma sonucudur. İç çalışma alanı açma fonksiyonları çoğunlukla `Task<Result<Box<dyn ItemHandle>>>` veya çoklu path için `Task<Vec<Option<Result<Box<dyn ItemHandle>>>>>` döndürür.
 
-Path bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve dizin kararı doğrudan `worktree.root_entry()` üzerinden verilir. Bu özellikle uzak worktree'lerde önemlidir: local olmayan worktree için yerel dosya sistemi `fs.is_dir(abs_path)` fallback'ine güvenilmez. Root entry dizinse açma akışı onu dosya gibi aktif item yapmaya çalışmaz; sidebar/project ekleme sonucu deterministik kalır.
+Path bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve dizin kararı doğrudan `worktree.root_entry()` üzerinden verirsin. Bu özellikle uzak worktree'lerde önemlidir: local olmayan worktree için yerel dosya sistemi `fs.is_dir(abs_path)` fallback'ine güvenilmez. Root entry dizinse açma akışı onu dosya gibi aktif item yapmaya çalışmaz; sidebar/project ekleme sonucu deterministik kalır.
 
 **Open/serialization API kapsamı.** Bu tipler açma ve restore akışını taşır:
 
@@ -115,7 +115,7 @@ multi_workspace.move_project_group_up(&key, cx);
 multi_workspace.move_project_group_down(&key, cx);
 ```
 
-Her ikisi de `bool` döndürür: zaten en başta ya da en sonda olan grup için `false`, başarıyla taşınan grup için `true`. Taşıma başarılıysa `ProjectGroupsChanged` olayı yayılır, durum kalıcı hale getirilir (`serialize`) ve yeniden çizim tetiklenir. Sidebar'da sürükleme veya bağlam menüsü üzerinden sıra değiştirme bu yöntemleri çağırır.
+Her ikisi de `bool` döndürür: zaten en başta ya da en sonda olan grup için `false`, başarıyla taşınan grup için `true`. Taşıma başarılıysa `ProjectGroupsChanged` olayı yayılır, durum kalıcı hale getirilir (`serialize`) ve yeniden çizim tetiklersin. Sidebar'da sürükleme veya bağlam menüsü üzerinden sıra değiştirme bu yöntemleri çağırır.
 
 ---
 
@@ -178,17 +178,17 @@ pub fn possible_open_target(
 **Çözümleme önceliği.** `possible_open_target_internal` şu sırayı izler:
 
 1. `a/...` ve `b/...` önekleri soyularak git diff yolları için her iki biçim denenir.
-2. Worktree kök yoluna göre göreli yol hesaplanır; çalışma dizini (`cwd`) bilinen bir worktree içindeyse ona ağırlık verilir.
+2. Worktree kök yoluna göre göreli yol hesaplanır; çalışma dizini (`cwd`) bilinen bir worktree içindeyse ona ağırlık verirsin.
 3. Worktree içinde tam eşleşme bulunursa `Task::ready` ile anında döner.
-4. Proje yerel ise (`is_local()`) arka planda dosya sistemi kontrolü yapılır: `~` ile başlayan yollar `dirs::home_dir()` ile genişletilir; göreli yollar için her worktree kökü denenir.
+4. Proje yerel ise (`is_local()`) arka planda dosya sistemi kontrolü yaparsın: `~` ile başlayan yollar `dirs::home_dir()` ile genişletilir; göreli yollar için her worktree kökü denenir.
 5. Eşleşme hâlâ bulunamazsa worktree `traverse_from_path` ile taranır (yavaş yol, suffix eşleştirme).
 
 `sanitize_path_text` ve `first_unbalanced_open_paren` yardımcıları ham metinden önce noktalama ve dengesiz parantez temizliği yapar; böylece `"src/main.rs:42,"` gibi terminale yapıştırılmış yollar temiz ayrıştırılır.
 
 **Dikkat noktaları:**
 
-- `BackgroundFsChecks::Disabled` yalnızca test/test-support helper'ı üzerinden açıkça verilir. Normal `possible_open_target` akışında yerel projelerde arka plan dosya sistemi kontrolü açıktır; uzak projelerde bu kontrol kapalı kalır.
-- `cwd` bilgisi verilmezse göreli yollar worktree köklerine birleştirilerek denenir; belirsizlik çözümlenmez, ilk eşleşme alınır.
+- `BackgroundFsChecks::Disabled` yalnızca test/test-support helper'ı üzerinden açıkça verirsin. Normal `possible_open_target` akışında yerel projelerde arka plan dosya sistemi kontrolü açıktır; uzak projelerde bu kontrol kapalı kalır.
+- `cwd` bilgisi verilmezse göreli yollar worktree köklerine birleştirilerek denenir; belirsizlik çözümlenmez, ilk eşleşme alırsın.
 
 ---
 
@@ -223,5 +223,5 @@ Collab ve follow akışı için `FollowableItem` kullanırsın:
 
 - Serializable item kaydedilmediğinde `deserialize` hiç çağrılmaz; session restore sessiz biçimde geçersiz item'e düşebilir.
 - `serialized_item_kind` global bir namespace gibidir; başka item ile çakıştırılmamalıdır.
-- Search match tipi byte offset, buffer snapshot ve token ile uyumlu tutulmalıdır; bayat match'in yeni buffer üzerinde kullanılması yanlış aralığa gider.
+- Search match tipi byte offset, buffer snapshot ve token ile uyumlu tutman gerekir; bayat match'in yeni buffer üzerinde kullanılması yanlış aralığa gider.
 - `OpenOptions::visible = None` varsayılan olarak çalışma alanına görünür worktree ekleme anlamı taşımaz; path açma davranışı dizin/dosya ayrımı için açıkça seçmen gerekir.

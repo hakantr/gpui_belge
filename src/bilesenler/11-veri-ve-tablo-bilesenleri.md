@@ -1,14 +1,14 @@
 # 11. Veri ve Tablo Bileşenleri
 
-Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)` çağrılarıyla kurarsın. Satır sayısı büyüdüğünde ise tablo, GPUI'nin sanallaştırılmış liste altyapısına bağlanan `.uniform_list(...)` veya `.variable_row_height_list(...)` çağrılarıyla render edilir. Yani tablo tek bir kalıba sıkışmaz; satır modeline göre üç farklı kullanım biçimi sunar.
+Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)` çağrılarıyla kurarsın. Satır sayısı büyüdüğünde ise tablo, GPUI'nin sanallaştırılmış liste altyapısına bağlanan `.uniform_list(...)` veya `.variable_row_height_list(...)` çağrılarıyla render edersin. Yani tablo tek bir kalıba sıkışmaz; satır modeline göre üç farklı kullanım biçimi sunar.
 
 ## GPUI uniform_list ile köprü
 
 `Table::uniform_list(...)` ve Bölüm 9'daki büyük listeler GPUI'nin `uniform_list(...)` elementine bağlanır. Bu element yalnızca görünür satır aralığını render eder; böylece binlerce satırlık listeler gereksiz render maliyeti yaratmadan ekrana basılabilir. Kullanırken şu kurallara dikkat edersin:
 
 - `uniform_list(id, item_count, |range, window, cx| Vec<AnyElement>)` imzası bir id ile bir satır sayısı alır; kalan kısımda yalnızca görünür `range` için satırlar üretilir. Aralık içindeki indeks dizisi `range.map(|indeks| ...)` ifadesiyle dolaşılır.
-- Satır yüksekliğinin homojen olması beklenir. İçerik her satırda farklı bir yükseklik gerektiriyorsa, GPUI tarafındaki `list(...)` elementi ve `ListState` ile çalışan `Table::variable_row_height_list(...)` daha uygun bir seçim olur.
-- Scroll davranışı için `UniformListScrollHandle` değerini view yapısında saklar ve `.track_scroll(&handle)` ile bağlarsın. Tablo tarafında `Table::interactable(...)` çağrısı kullanıldığında bu, içerideki `TableInteractionState` üzerinden yönetilir.
+- Satır yüksekliğinin homojen olması beklersin. İçerik her satırda farklı bir yükseklik gerektiriyorsa, GPUI tarafındaki `list(...)` elementi ve `ListState` ile çalışan `Table::variable_row_height_list(...)` daha uygun bir seçim olur.
+- Scroll davranışı için `UniformListScrollHandle` değerini view yapısında saklar ve `.track_scroll(&handle)` ile bağlarsın. Tablo tarafında `Table::interactable(...)` çağrısı kullanıldığında bu, içerideki `TableInteractionState` üzerinden yönetirsin.
 - `with_sizing_behavior(ListSizingBehavior::Infer)`, listenin içeriğine göre yükseklik hesaplatır. `Auto` ise liste için sabit bir ölçü hesaplatmaz; boyut kararını üst layout ve flex akışına bırakırsın.
 - `with_decoration(...)` slot'una `IndentGuides` ve `StickyItems` gibi süslemeleri bağlarsın; bu süslemelerin `UniformListDecoration` trait'ini implement etmesi gerekir.
 
@@ -18,7 +18,7 @@ Karar matrisi:
 
 | Satır modeli | Kullanım |
 | :-- | :-- |
-| Sabit, az satır | `List::new()` ile `ListItem::new(...)`; scroll doğrudan üst öğe içinde yapılır. |
+| Sabit, az satır | `List::new()` ile `ListItem::new(...)`; scroll doğrudan üst öğe içinde yaparsın. |
 | Sabit yükseklik, çok satır | `uniform_list(id, count, ...)` veya `Table::uniform_list(...)`. |
 | Değişken yükseklik, çok satır | `gpui::list(...) + ListState` veya `Table::variable_row_height_list(...)`. |
 | Hiyerarşik ya da sticky üst öğe | `uniform_list(...)` ile birlikte `IndentGuides` ve `StickyItems`. |
@@ -118,7 +118,7 @@ fn paket_satiri_tablosu_render() -> impl IntoElement {
 }
 ```
 
-Sabit yükseklikli büyük bir liste için tablo `.uniform_list(...)` ile kurarsın. Burada satır sayısı view içinde tutulur ve sadece görünür aralık render edilir:
+Sabit yükseklikli büyük bir liste için tablo `.uniform_list(...)` ile kurarsın. Burada satır sayısı view içinde tutulur ve sadece görünür aralık render edersin:
 
 ```rust
 use gpui::Entity;
@@ -239,7 +239,7 @@ Dikkat edeceğin noktalar:
 - Header ve tüm satırların aynı kolon sayısında olması gerekir.
 - Bir `Vec` içinde farklı element tipleri kullanılıyorsa, her hücrenin `.into_any_element()` çağrısıyla aynı tipe çevrilmesi gerekir.
 - Büyük veri setlerinde `.row(...)` ile binlerce satır eklemek beklenmez; bu durumda `.uniform_list(...)` veya `.variable_row_height_list(...)` doğru tercihtir.
-- `variable_row_height_list` için kullanılan `ListState`, satır sayısıyla senkron tutulmalıdır. Veri sayısı değiştiğinde `reset(...)` veya uygun `splice(...)` çağrısı yaparsın.
+- `variable_row_height_list` için kullanılan `ListState`, satır sayısıyla senkron tutman gerekir. Veri sayısı değiştiğinde `reset(...)` veya uygun `splice(...)` çağrısı yaparsın.
 
 ## TableInteractionState
 
@@ -248,7 +248,7 @@ Kaynak:
 - Tanım: `ui` crate'i
 - Export: `ui::TableInteractionState`.
 - Prelude: Hayır; ayrıca import edersin.
-- Render modeli: `Entity<TableInteractionState>` olarak view durumunda tutulur.
+- Render modeli: `Entity<TableInteractionState>` olarak view durumunda tutarsın.
 
 Ne zaman kullanırsın:
 
@@ -309,7 +309,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edeceğin noktalar:
 
-- `TableInteractionState` doğrudan bir struct alanı olarak değil, bir `Entity` içinde tutulmalıdır.
+- `TableInteractionState` doğrudan bir struct alanı olarak değil, bir `Entity` içinde tutman gerekir.
 - Scroll offset elle set ediliyorsa, aynı frame içinde veri sayısının veya liste durumunun değişiklikleriyle çakışmamasına dikkat edersin.
 - Focus davranışı gerekiyorsa, `focus_handle` alanı public olduğu için Zed'deki örnekler gibi `tab_index(...)` veya `tab_stop(...)` ile yapılandırılabilir.
 
@@ -551,15 +551,15 @@ impl CsvBenzeriTablo {
 
 Zed içinden kullanım örnekleri:
 
-- `csv_preview` crate'i: CSV kolon durumu `ResizableColumnsState` ile tutulur.
-- `csv_preview` crate'i: tablo `ColumnWidthConfig::Resizable(...)` ile render edilir.
+- `csv_preview` crate'i: CSV kolon durumu `ResizableColumnsState` ile tutarsın.
+- `csv_preview` crate'i: tablo `ColumnWidthConfig::Resizable(...)` ile render edersin.
 
 Dikkat edeceğin noktalar:
 
 - Bu model yatay scroll üretebilir; bu yüzden tablonun `.interactable(...)` ile bağlanması gerekir.
 - Kolon sayısı değişirse, eski durumu güncellemek yerine yeni bir `ResizableColumnsState` oluşturmak çok daha net bir tercih olur.
 - `set_column_configuration(...)`, çalışma zamanında tek bir kolonun başlangıç ve mevcut genişliğini birlikte günceller.
-- İlk kolonun satır numarası veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanırsın. Zed CSV önizlemesi ilk kolonu bu şekilde sabitler. Kullanıcı pinned bölümdeki divider'ı sürükleyemez; boyut değiştirme ihtiyacı scrollable kolonlarda beklenir veya kolon konfigürasyonu durum üzerinden güncellenir.
+- İlk kolonun satır numarası veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanırsın. Zed CSV önizlemesi ilk kolonu bu şekilde sabitler. Kullanıcı pinned bölümdeki divider'ı sürükleyemez; boyut değiştirme ihtiyacı scrollable kolonlarda beklenir veya kolon konfigürasyonu durum üzerinden güncellersin.
 
 ## TableRow ve UncheckedTableRow
 
@@ -641,7 +641,7 @@ Temel API:
 
 - `TableRenderContext::for_column_widths(column_widths, use_ui_font)`:
   - `column_widths`: `Option<TableRow<Length>>`. `None` verildiğinde hücreler sabit bir genişlik almaz. Redistributable veya resizable bir durum üzerinden geliyorsa `columns_state.read(cx).widths_to_render()` çağrısıyla beslenir.
-  - `use_ui_font`: `true` olduğunda hücre içeriği `text_ui(cx)` ile çizilir; `false` olduğunda font ailesi üst öğeden miras alınır. `Table::no_ui_font()` ile kapatılan davranışla aynıdır. CSV preview monospace bir görünüm için bu değeri `false` verir.
+  - `use_ui_font`: `true` olduğunda hücre içeriği `text_ui(cx)` ile çizilir; `false` olduğunda font ailesi üst öğeden miras alırsın. `Table::no_ui_font()` ile kapatılan davranışla aynıdır. CSV preview monospace bir görünüm için bu değeri `false` verir.
   - `striped`, `show_row_borders`, `show_row_hover`, `total_row_count`, `disable_base_cell_style`, `map_row`, `pinned_cols` ve `h_scroll_handle` alanları, `Default::default()` benzeri varsayılanlarla doldurulur. Özel bir görünüm gerekiyorsa `for_column_widths(...)` çıktısı alan alan değiştirilebilir.
 - `render_table_header(headers, table_context, resize_info, entity_id, cx) -> AnyElement`.
 - `render_table_row(row_index, items, table_context, window, cx)`.

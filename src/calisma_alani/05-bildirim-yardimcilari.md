@@ -46,7 +46,7 @@ Hangi yardımcının seçileceği bağlama göre belirlersin:
 | `NotificationId` | `unique`, `composite` ve `named` yardımcılarıyla bildirim dedupe kimliği üretir. |
 | `NotifyResultExt` | `Result` değerini workspace veya app notification'a çeviren extension trait'tir. |
 | `NotifyTaskExt` | `Task<Result<_>>` sonucunu spawn edip hatayı notification olarak gösterir. |
-| `DetachAndPromptErr` | Async sonucu prompt tabanlı kullanıcı hatasına çevirir; `prompt_err` beklenebilir, `detach_and_prompt_err` arka plana bırakılır. |
+| `DetachAndPromptErr` | Async sonucu prompt tabanlı kullanıcı hatasına çevirir; `prompt_err` beklenebilir, `detach_and_prompt_err` arka plana bırakırsın. |
 | `show_app_notification` | App-level bildirimi tüm `MultiWorkspace` çalışma alanlarına dağıtır ve yeni workspace'ler için global kayıt altında tutar. |
 | `dismiss_app_notification` | Aynı id'li app-level notification kayıtlarını ve workspace kopyalarını kaldırır. |
 | `SuppressEvent` | Notification view'den workspace'e "bu bildirimi bastır" kararını taşır. |

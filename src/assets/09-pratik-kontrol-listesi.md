@@ -6,12 +6,12 @@ Bu bölüm, önceki bölümlerdeki açıklamaların özünü tek noktaya toplar.
 
 ## 1. Kuruluş sırasında dikkat edilecekler
 
-Varlık hattı uygulama başlatma akışında birkaç sert bağımlılığa sahiptir. Zed'in `main.rs` dosyasındaki gerçek sıra kabaca şöyledir: varlık kaynağı en başta kurulur, settings erken yüklenir, tema sistemi settings ve extension altyapısından sonra gelir. Prompt şablonları daha sonra handlebars motoruna kaydedilir. Font yükleme ise pencere açılmadan önce, editor/workspace init'lerinden hemen önce çalışır. Yani tek doğru olan aşağıdaki sıra değil, bu bağımlılıkların korunmasıdır:
+Varlık hattı uygulama başlatma akışında birkaç sert bağımlılığa sahiptir. Zed'in `main.rs` dosyasındaki gerçek sıra kabaca şöyledir: varlık kaynağı en başta kurarsın, settings erken yüklenir, tema sistemi settings ve extension altyapısından sonra gelir. Prompt şablonları daha sonra handlebars motoruna kaydedersin. Font yükleme ise pencere açılmadan önce, editor/workspace init'lerinden hemen önce çalışır. Yani tek doğru olan aşağıdaki sıra değil, bu bağımlılıkların korunmasıdır:
 
 1. **`Application::with_platform(...).with_assets(Assets)`** — Varlık kaynağı `App`'e bağlanır. Bu çağrı yoksa `cx.asset_source()` boş `()` döner ve `list/load` çağrıları sonuç vermez.
 2. **`settings::init(cx)`** — `SettingsStore` `default_settings()` çıktısıyla kurarsın. `asset_str::<SettingsAssets>("settings/default.json")` çağrısı bu noktada fail-fast paketleme kontratına bağlıdır; dosya binary'de olmazsa uygulama açılmaz.
 3. **`theme_settings::init(LoadThemes::All(Box::new(Assets)), cx)`** — Tema sistemi kurulur; `ThemeRegistry` global duruma konur ve gömülü temalar yüklenir. Settings'e bakan tema seçimi için `settings::init` bundan önce tamamlanmış olmalıdır.
-4. **`PromptBuilder::load(fs, ..., cx)`** — Prompt şablonları handlebars motoruna kaydedilir. Dosya sistemi izleyicisi arka planda geçersiz kılma klasörünü izlemeye başlar.
+4. **`PromptBuilder::load(fs, ..., cx)`** — Prompt şablonları handlebars motoruna kaydedersin. Dosya sistemi izleyicisi arka planda geçersiz kılma klasörünü izlemeye başlar.
 5. **`load_embedded_fonts(cx)` (veya `Assets.load_fonts(cx)`)** — `TextSystem`'e fontlar yüklenir. Pencere açılmadan önce yapman gerekir; aksi halde ilk karede font yedek değere düşer.
 6. **`cx.open_window(...)`** — Pencere açıldıktan sonra UI render hattı SVG ikonları okumaya başlar; varlık hattının önceki adımları tamamlanmış olmalıdır.
 
@@ -75,7 +75,7 @@ Font eklerken iki ayrı tüketiciyi güncellersin:
 
 **Dikkat edilmesi gereken lisans ayrıntısı:** OFL ile lisanslı font'lar için lisans dosyası (`OFL.txt` veya `license.txt`) font klasörünün içine konmalıdır. Bu dosyalar `.ttf` filtresi tarafından dışlandığı için `TextSystem`'e yüklenmez ama varlık paketinde durur ve dağıtım gereksinimini karşılar.
 
-**Generic family yedeği:** Eğer SVG'lerde `font-family="sans-serif"` veya `font-family="monospace"` kullanılıyorsa ve Linux'ta render sorunu görülüyorsa `fix_generic_font_families` fonksiyonundaki yedek eşleme güncellenmelidir. Yeni eklenen bir font ailesi varsayılan eşleme haline getirilmek istenirse oraya girer.
+**Generic family yedeği:** Eğer SVG'lerde `font-family="sans-serif"` veya `font-family="monospace"` kullanılıyorsa ve Linux'ta render sorunu görülüyorsa `fix_generic_font_families` fonksiyonundaki yedek eşleme güncellemen gerekir. Yeni eklenen bir font ailesi varsayılan eşleme haline getirilmek istenirse oraya girer.
 
 ---
 
@@ -123,7 +123,7 @@ Settings JSON'unu değiştirirken:
 
 Keymap dosyalarını değiştirirken:
 
-- Platforma özgü dosyalar (`default-macos.json`, `default-linux.json`, `default-windows.json`) ayrı ayrı yönetilir. Aynı kısayolu üç platforma da eklemek için üç dosyayı da güncellemek gerekir.
+- Platforma özgü dosyalar (`default-macos.json`, `default-linux.json`, `default-windows.json`) ayrı ayrı yönetirsin. Aynı kısayolu üç platforma da eklemek için üç dosyayı da güncellemek gerekir.
 - Editor emülasyon paketleri (`keymaps/macos/jetbrains.json` vb.) opsiyoneldir; kullanıcı `BaseKeymap` ayarı ile seçer.
 - `initial.json` kullanıcının ilk keymap dosyası şablonudur; örnek kısayollar koyarsın ama hiçbir bağlayıcı kural yoktur.
 

@@ -49,7 +49,7 @@ Avatar indicator API'leri:
 Davranış:
 
 - Varsayılan avatar boyutu `1rem`'dir.
-- Görsel yüklenemediğinde `IconName::Person` ikonu ile bir yedek render edilir.
+- Görsel yüklenemediğinde `IconName::Person` ikonu ile bir yedek render edersin.
 - `border_color(...)` çağrısı avatar çevresinde `1px` bir border açar. Bu border, özellikle facepile gibi örtüşen görünümlerde avatarların arasında görsel bir boşluk yaratmak için kullanırsın.
 - Gösterge, avatar kapsayıcısının bir child'ı olarak render edilir; göstergenin konumu kendi elementinde absolute olarak ayarlanır.
 
@@ -129,7 +129,7 @@ Temel API:
 
 Davranış:
 
-- Render sırasında `flex_row_reverse()` kullanılır; bu sayede en sol yüz en üstte görünür ve doğal bir örtüşme elde edilir.
+- Render sırasında `flex_row_reverse()` kullanılır; bu sayede en sol yüz en üstte görünür ve doğal bir örtüşme elde edersin.
 - İkinci ve sonraki yüzler `ml_neg_1()` ile birbirinin üzerine bindirilir.
 - `Facepile` bir overflow sayacı üretmez. Görüntülenen kişi sayısından daha fazlası varsa, kalan sayıyı belirtmek için `Chip` veya `CountBadge` gibi başka bir eleman ayrıca eklersin.
 

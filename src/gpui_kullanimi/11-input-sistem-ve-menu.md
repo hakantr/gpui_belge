@@ -30,19 +30,19 @@ if let Some(oge) = cx.read_from_clipboard()
 
 `ClipboardItem` birden çok `ClipboardEntry` taşıyabilir: `String`, `Image` veya `ExternalPaths`. `String` girdisine üst veri eklemek istediğinde `new_string_with_metadata` veya `new_string_with_json_metadata`'yı kullanırsın. `ClipboardItem::new_image(&image)` görseli pano girdisine çevirir; `ClipboardItem::into_entries()` ise öğeyi tüketip sahipli `ClipboardEntry` iterator'ı verir. Linux/FreeBSD için primary selection `read_from_primary`/`write_to_primary`; macOS Find pasteboard için `read_from_find_pasteboard`/`write_to_find_pasteboard`, `cfg` koşullu API'lerdir.
 
-`ClipboardString` metnin yanında isteğe bağlı format/metadata taşır. `ClipboardString::text()` veya `ClipboardItem::text()` ile düz metne inmeyi tercih edersin; sahipli metin gerekiyorsa `ClipboardString::into_text()` değeri tüketir. JSON metadata için `ClipboardString::with_json_metadata(...)` yazma, `ClipboardString::metadata_json::<T>()` okuma tarafıdır. `ClipboardString::text_hash(text)` macOS ve Windows pano köprülerinde metnin değişip değişmediğini ucuzca ayırmak için kullanılır. Metadata yalnız aynı uygulama ailesi içinde zengin yapıştırma davranışı gerektiğinde anlamlıdır. Görsel pano girdilerinde `Image` ve `ImageFormat` boru hattı devreye girer; normal metin kopyalama için `ClipboardItem::new_string(...)` yeterlidir.
+`ClipboardString` metnin yanında isteğe bağlı format/metadata taşır. `ClipboardString::text()` veya `ClipboardItem::text()` ile düz metne inmeyi tercih edersin; sahipli metin gerekiyorsa `ClipboardString::into_text()` değeri tüketir. JSON metadata için `ClipboardString::with_json_metadata(...)` yazma, `ClipboardString::metadata_json::<T>()` okuma tarafıdır. `ClipboardString::text_hash(text)` macOS ve Windows pano köprülerinde metnin değişip değişmediğini ucuzca ayırmak için kullanırsın. Metadata yalnız aynı uygulama ailesi içinde zengin yapıştırma davranışı gerektiğinde anlamlıdır. Görsel pano girdilerinde `Image` ve `ImageFormat` boru hattı devreye girer; normal metin kopyalama için `ClipboardItem::new_string(...)` yeterlidir.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `ClipboardEntry` | `String(ClipboardString)`, `Image(Image)`, `ExternalPaths(ExternalPaths)` | `ClipboardItem` içindeki sahipli pano girdisi varyantıdır. |
-| `ClickEvent` | mouse/keyboard click ayrımı | `.on_click(...)` callback'lerinde kaynak, pozisyon, click sayısı ve alternatif mouse butonlarını okumak için kullanılır. |
+| `ClickEvent` | mouse/keyboard click ayrımı | `.on_click(...)` callback'lerinde kaynak, pozisyon, click sayısı ve alternatif mouse butonlarını okumak için kullanırsın. |
 | `KeyDownEvent`, `KeyUpEvent` | key press/release olayı | Klavye listener ve test girdi simülasyonu tarafında ham key event modelidir. |
 | `MousePressureEvent`, `ScrollDelta` | pressure ve scroll delta modeli | Gelişmiş pointer/scroll girdisini platformdan element listener'ına taşır. |
 | `EntityInputHandler`, `ElementInputHandler` | input handler trait'i ve element bağlayıcısı | IME, selection bounds ve printable key kararlarını view state'ine bağlar. |
 
 **PlatformInputHandler sınırı.** `PlatformInputHandler` platform penceresinin aktif metin girdi dinleyicisini temsil eden bir sarmalayıcı struct'tır. Uygulama düzeyinde bunu doğrudan saklamazsın; `EntityInputHandler` ve `ElementInputHandler` view'ı platforma bağlar, `window.handle_input(...)` da frame içinde bu bağı kaydeder. Platform arka ucu ve GPUI pencere katmanı bu sarmalayıcı üzerinden `apple_press_and_hold_enabled()`, `dispatch_input(input, window, cx)`, `selected_bounds(window, cx)`, `query_accepts_text_input()` ve `query_prefers_ime_for_printable_keys()` çağrılarını yapar. Böylece platform, IME kabulü, seçili metin sınırı ve printable tuşların IME'ye mi kısayola mı gideceği kararını view'ın gerçek `InputHandler` uygulamasından sorar. Doğrudan yazacağın taraf `PlatformInputHandler` değil, bu sarmalayıcının içine alınan özel `InputHandler` uygulamasıdır.
 
-`selected_bounds(window, cx)`'in döndürdüğü sınır, IME aday penceresinin (composition popup) yerleştirileceği noktadır. Aktif bir composition (marked range) varsa bu nokta imlecin bulunduğu **görsel satırın başına** çapalanır: metot imleçten geriye doğru yürüyüp Y konumunun ilk değiştiği yeri (önceki satıra geçiş) bularak satır başını saptar, böyle bir kırılma yoksa marked range'in başını kullanır. Composition yoksa seçimin uç noktası (ters seçimde başlangıç, düz seçimde bitiş) kullanılır. Aynı hesabı `window`/`cx` elinde olmadan yapman gerekirse `ime_candidate_bounds(&mut self)` varyantı handler'ın kendi `marked_text_range`/`selected_text_range`/`bounds_for_range` metotlarıyla aynı sonucu üretir; iki varyant da ortak `compute_ime_candidate_bounds(marked_range, selection, bounds_for_range)` saf yardımcısına dayanır.
+`selected_bounds(window, cx)`'in döndürdüğü sınır, IME aday penceresinin (composition popup) yerleştirileceği noktadır. Aktif bir composition (marked range) varsa bu nokta imlecin bulunduğu **görsel satırın başına** çapalanır: metot imleçten geriye doğru yürüyüp Y konumunun ilk değiştiği yeri (önceki satıra geçiş) bularak satır başını saptar, böyle bir kırılma yoksa marked range'in başını kullanır. Composition yoksa seçimin uç noktası (ters seçimde başlangıç, düz seçimde bitiş) kullanırsın. Aynı hesabı `window`/`cx` elinde olmadan yapman gerekirse `ime_candidate_bounds(&mut self)` varyantı handler'ın kendi `marked_text_range`/`selected_text_range`/`bounds_for_range` metotlarıyla aynı sonucu üretir; iki varyant da ortak `compute_ime_candidate_bounds(marked_range, selection, bounds_for_range)` saf yardımcısına dayanır.
 
 **Prompt ve dosya seçici.** Kullanıcıyla iletişim kuran platform diyalogları da bağlam üzerinden çalışır:
 
@@ -61,7 +61,7 @@ if let Some(oge) = cx.read_from_clipboard()
 
 - macOS `Window::prompt` NSAlert akışında Return ilk butona, Escape iptal akışına gider; Space ile odak son "iptal olmayan ve varsayılan olmayan" butona taşınır. `"Kaydet / Kaydetme / İptal"` gibi üçlü prompt'larda orta seçenek klavyeyle erişilebilir kalır.
 - Wayland'da pano ve primary selection yazılırken, tuş veya fare basma türüne göre süzülmüş seri yerine alınan en güncel compositor serisi kullanılır; aksi halde bazı compositor'lar seçim isteğini sessizce reddedebilir.
-- `open_path_prompt` sonuç sıralaması `ProjectPanelSettings.sort_mode` ile uyumlu çalışır. Proje panelindeki "önce dizinler / önce dosyalar / karışık" seçimi, dosya yolu prompt'unun aday listesinde de aynı şekilde uygulanır.
+- `open_path_prompt` sonuç sıralaması `ProjectPanelSettings.sort_mode` ile uyumlu çalışır. Proje panelindeki "önce dizinler / önce dosyalar / karışık" seçimi, dosya yolu prompt'unun aday listesinde de aynı şekilde uygularsın.
 
 ## Prompt Builder, PromptHandle ve Fallback Prompt
 
@@ -98,8 +98,8 @@ let secilen_sira = yanit.await?;
 
 **Zed entegrasyonu** (`ui_prompt`):
 
-- `ui_prompt::init(cx)`, `WorkspaceSettings::use_system_prompts` ayarını `SettingsStore` üzerinden gözlemler. Sistem prompt'ları açıksa `cx.reset_prompt_builder()` çağrılarak platform diyaloğuna düşülür; aksi halde `cx.set_prompt_builder(zed_prompt_renderer)` ile GPUI içindeki markdown destekli prompt akışına geçilir. Linux/FreeBSD'de sistem prompt'u yoksayılır, daima Zed çizimi kullanılır.
-- `ZedPromptRenderer`, `pub` bir struct'tır: `Markdown` entity'siyle mesaj ve detay metnini çizer; cancel ve confirm action'larını içeride yönlendirir. Uygulama kodu doğrudan oluşturmaz; yalnızca prompt builder fonksiyonu tarafından kurulur.
+- `ui_prompt::init(cx)`, `WorkspaceSettings::use_system_prompts` ayarını `SettingsStore` üzerinden gözlemler. Sistem prompt'ları açıksa `cx.reset_prompt_builder()` çağrılarak platform diyaloğuna düşülür; aksi halde `cx.set_prompt_builder(zed_prompt_renderer)` ile GPUI içindeki markdown destekli prompt akışına geçilir. Linux/FreeBSD'de sistem prompt'u yoksayılır, daima Zed çizimi kullanırsın.
+- `ZedPromptRenderer`, `pub` bir struct'tır: `Markdown` entity'siyle mesaj ve detay metnini çizer; cancel ve confirm action'larını içeride yönlendirir. Uygulama kodu doğrudan oluşturmaz; yalnızca prompt builder fonksiyonu tarafından kurarsın.
 
 **Özel builder.** Tamamen özel bir prompt görsel akışı tanımlamak için builder'ı kayda alırsın:
 
@@ -121,7 +121,7 @@ cx.set_prompt_builder(|seviye, mesaj, ayrinti, eylemler, tutamac, window, cx| {
 
 ## Uygulama Menüsü ve Dock
 
-Menü modeli birkaç ana tip etrafında kurulur:
+Menü modeli birkaç ana tip etrafında kurarsın:
 
 - `Menu { name, items, disabled }`
 - `MenuItem`:
@@ -161,7 +161,7 @@ cx.set_menus(vec![
 | `MenuItem` | `Separator`, `Submenu`, `SystemMenu`, `Action`; builder ve `owned` | Uygulama menüsünün ham enum modelidir. |
 | `OsMenu`, `SystemMenuType` | `name`, `menu_type`; `Services` | macOS Services gibi işletim sistemi tarafından yönetilen alt menüleri temsil eder. |
 | `OsAction` | `Cut`, `Copy`, `Paste`, `SelectAll`, `Undo`, `Redo` | Yerel düzenleme menüsü eşlemesini normal GPUI action'ına bağlar. |
-| `OwnedMenu`, `OwnedMenuItem`, `OwnedOsMenu` | sahipli menu/item/os menu modeli | Platform tarafına saklanmak üzere clone edilebilir, sahipli menü ağacı üretir. |
+| `OwnedMenu`, `OwnedMenuItem`, `OwnedOsMenu` | sahipli menu/item/os menu modeli | Platform tarafına saklanmak üzere clone edebilirsin, sahipli menü ağacı üretir. |
 
 **Diğer menü API'leri** (`App` üzerinde):
 
@@ -170,7 +170,7 @@ cx.set_menus(vec![
 - `cx.update_jump_list(menus, entries) -> Task<Vec<SmallVec<[PathBuf; 2]>>>` — Windows jump list'ini günceller ve kullanıcının listeden kaldırdığı girişleri `Task` sonucu olarak döndürür. Zed `HistoryManager`, bu sonucu geçmişten siler.
 - `cx.get_menus()` — şu an ayarlanmış menü modelini okur.
 
-**Platform davranışı.** Aynı menü modeli her platformda farklı bir kanal üzerinden çizilir:
+**Platform davranışı.** Aynı menü modeli her platformda farklı bir kanal üzerinden çizersin:
 
 - macOS'ta yerel `NSMenu` ile çizilir; klavye kısayolları kısayol kayıtlarından okunur.
 - Windows ve Linux, platform durumunu `OwnedMenu` olarak saklar; Zed bu modeli uygulama içi menü ve çizim katmanlarında kullanır.

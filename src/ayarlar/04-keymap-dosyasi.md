@@ -6,7 +6,7 @@ Zed klavye bağlamalarını kullanıcı keymap.json, paketlenmiş varsayılan ke
 
 ## `KeymapFile` yapısı
 
-`KeymapFile`, birden fazla bağlam bloğu içeren bir keymap JSON dosyasının ayrıştırılmış halidir. Her blok bir `KeymapSection` olarak tutulur:
+`KeymapFile`, birden fazla bağlam bloğu içeren bir keymap JSON dosyasının ayrıştırılmış halidir. Her blok bir `KeymapSection` olarak tutarsın:
 
 ```rust
 pub struct KeymapFile(Vec<KeymapSection>);
@@ -87,7 +87,7 @@ pub enum KeybindSource {
 }
 ```
 
-Her binding'in nereden geldiğini sınıflandırır. `KeyBindingMetaIndex` üzerinde sabit numaralarla saklanır; UI tarafında her satırın "User", "Default", "Vim", "Base" rozeti bu enum'dan çözülür.
+Her binding'in nereden geldiğini sınıflandırır. `KeyBindingMetaIndex` üzerinde sabit numaralarla saklanır; UI tarafında her satırın "User", "Default", "Vim", "Base" rozeti bu enum'dan çözersin.
 
 - `KeybindSource::User` — kullanıcı keymap dosyası.
 - `KeybindSource::Vim` — paketlenmiş `vim.json` keymap'i.
@@ -133,9 +133,9 @@ pub struct KeybindUpdateTarget<'a> {
 }
 ```
 
-- `Replace` mevcut bir bindingi yenisiyle değiştirir; eski binding'in kaynağı `target_keybind_source` ile bilinir, yenisi `source` ile tanımlanır. `target_keybind_source` `User` değilse keymap editörü hedefi yeni bir User kaydı üreterek üzerine yazar.
+- `Replace` mevcut bir bindingi yenisiyle değiştirir; eski binding'in kaynağı `target_keybind_source` ile bilinir, yenisi `source` ile tanımlarsın. `target_keybind_source` `User` değilse keymap editörü hedefi yeni bir User kaydı üreterek üzerine yazar.
 - `Add` doğrudan yeni bir binding ekler. `from` verildiyse "şu binding'in yanına" gibi bir referans noktası belirtir.
-- `Remove` belirtilen hedefi unbind eder; `target_keybind_source` `User` ise tam kaldırma, aksi halde `unbind` girişi eklenerek üst katmandaki kayıt iptal edilir.
+- `Remove` belirtilen hedefi unbind eder; `target_keybind_source` `User` ise tam kaldırma, aksi halde `unbind` girişi eklenerek üst katmandaki kayıt iptal edersin.
 - `KeybindUpdateOperation::add(source)` `Add { from: None }` kısayoludur.
 - `KeybindUpdateOperation::generate_telemetry()` `(new_binding, removed_binding, source)` üçlüsünü döndürür; ChangeKeybinding akışı telemetry'ye bunu yollar.
 

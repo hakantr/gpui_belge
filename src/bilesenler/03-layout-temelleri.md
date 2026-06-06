@@ -181,9 +181,9 @@ Temel API:
 Davranış:
 
 - Varsayılan renk `DividerColor::BorderVariant`'tır; yani ayırıcı sahnenin içine fazla bağırmaz.
-- Solid divider arka planda `Divider::render_solid(base, cx)` ile `bg(...)` uygulanarak çizilir.
+- Solid divider arka planda `Divider::render_solid(base, cx)` ile `bg(...)` uygulanarak çizersin.
 - Dashed divider ise `Divider::render_dashed(base)` içinde `canvas(...)` ve `PathBuilder::stroke(px(1.)).dash_array(...)` kullanılarak çizilir; bu yüzden solid'e göre daha pahalı bir çizim yapar.
-- Horizontal divider geometri olarak `min_w_0().h_px().max_h_px().w_full()`, vertical divider ise `min_w_0().w_px().h_full()` kullanır; bu taban geometri kurulduktan sonra senin stil zincirin onun üstüne uygulanır. Yatay ayırıcıdaki `max_h_px()`, üste eklediğin stil çizgiyi kalınlaştırmaya çalışsa bile yatay ayırıcının 1 px yüksekliğini korur.
+- Horizontal divider geometri olarak `min_w_0().h_px().max_h_px().w_full()`, vertical divider ise `min_w_0().w_px().h_full()` kullanır; bu taban geometri kurulduktan sonra senin stil zincirin onun üstüne uygularsın. Yatay ayırıcıdaki `max_h_px()`, üste eklediğin stil çizgiyi kalınlaştırmaya çalışsa bile yatay ayırıcının 1 px yüksekliğini korur.
 - `.inset()` çağrısı horizontal divider'da `mx_1p5()`, vertical divider'da `my_1p5()` ekler; yani kenarlardan içeri çekme davranışı sağlar.
 - Vertical divider'ın görünür olabilmesi için parent kapsayıcının belirli bir yüksekliği olması veya yüksekliğin içerikten otomatik türemesi gerekir; aksi halde dikey çizgi 0 boy alıp kaybolur.
 

@@ -44,7 +44,7 @@ Scrollbar altyapı yüzeyi:
 | `ShowScrollbar` | Ayar seviyesinde görünürlük politikasını taşır: `Auto`, `System`, `Always`, `Never`. |
 | `ScrollbarVisibility` | Global ayar tipinin scrollbar görünürlük tercihini public trait olarak sağlar. |
 | `ScrollbarAutoHide` | Platform veya ayardan gelen otomatik gizleme bilgisini `should_hide()` ile okuyan küçük sarmalayıcıdır. |
-| `ScrollbarPrepaintState` | Üst hitbox ve thumb prepaint bilgisini tutar; `Scrollbars` elementinin iç hit test ve sürükleme hazırlığında kullanılır. |
+| `ScrollbarPrepaintState` | Üst hitbox ve thumb prepaint bilgisini tutar; `Scrollbars` elementinin iç hit test ve sürükleme hazırlığında kullanırsın. |
 | `on_new_scrollbars` | Yeni kurulan scrollbar durumlarını ayar değişikliklerine abone edip değişiklikte yeniden hesaplatan kurulum yardımcısıdır. |
 
 Davranış:
@@ -53,9 +53,9 @@ Davranış:
 - `tracked_scroll_handle(&handle)` ile harici bir `ScrollableHandle` (örneğin bir `ScrollHandle` veya `UniformListScrollHandle`) bağlarsın; scrollbar bu handle üzerinden okuma ve yazma yapar.
 - `Table::interactable(...)` ile `TableInteractionState::with_custom_scrollbar(...)` birlikte kullanıldığında `Scrollbars`, tablonun yatay ve dikey scroll handle'larına bağlanır; yani tablo kendi scroll davranışını dış bir scrollbar üzerinden sürer.
 - `ScrollbarStyle::Editor`, editor görseliyle gelen scrollbar genişliğinde çizim yapar; panel ve listelerde ise `Regular` daha uygundur.
-- `ListState` tabanlı variable-height listelerde scrollbar sürükleme durumu `scrollbar_drag_started()`, `scrollbar_drag_ended()` ve `is_scrollbar_dragging()` ile izlenir. `set_offset_from_scrollbar(point)` çağrısında aşağı yöndeki scroll negatif `y` offset'iyle temsil edilir; `point(px(0.), px(-150.))` içeriğin 150px aşağı kaydırıldığı durumu ifade eder.
+- `ListState` tabanlı variable-height listelerde scrollbar sürükleme durumu `scrollbar_drag_started()`, `scrollbar_drag_ended()` ve `is_scrollbar_dragging()` ile izlersin. `set_offset_from_scrollbar(point)` çağrısında aşağı yöndeki scroll negatif `y` offset'iyle temsil edilir; `point(px(0.), px(-150.))` içeriğin 150px aşağı kaydırıldığı durumu ifade eder.
 - Sürükleme sırasında liste içeriği büyürse scrollbar konumu sürükleme başlangıcındaki içerik yüksekliğine göre korunur. Kullanıcı sürüklemeyi frozen track'in sonuna getirirse tail-follow yeniden etkinleşir; bu özellikle günlük, terminal ve agent conversation gibi sona akması gereken listelerde elle scroll ile otomatik takip arasındaki ayrımı korur.
-- `ScrollbarPrepaintState`, prepaint aşamasında üst hitbox'ı ve yatay/dikey thumb layout'larını tutar. Struct public görünür ama alanları private olduğu için tüketici kodunun inşa edeceği bir model değildir; thumb hit test'i, track tıklaması ve sürükleme başlangıcı için `Scrollbars` elementi tarafından kullanılır.
+- `ScrollbarPrepaintState`, prepaint aşamasında üst hitbox'ı ve yatay/dikey thumb layout'larını tutar. Struct public görünür ama alanları private olduğu için tüketici kodunun inşa edeceği bir model değildir; thumb hit test'i, track tıklaması ve sürükleme başlangıcı için `Scrollbars` elementi tarafından kullanırsın.
 
 Örnek:
 

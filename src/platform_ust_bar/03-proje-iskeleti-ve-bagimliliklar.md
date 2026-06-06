@@ -70,7 +70,7 @@ Platform titlebar tek crate olarak değil, **iki ayrı crate** olarak konumlanı
 
 ### Modül adlandırma kuralı
 
-Lib kökü olarak `mod.rs` değil, **crate ile aynı isimli dosya** seçilir (örn. `kvs_titlebar.rs`). Bunun pratik bir nedeni vardır: editörde birden fazla "mod.rs" sekmesi açıldığında hangi crate'in köküne baktığını anlamak zorlaşır. Crate adıyla açılan dosyalar ise sekme başlığından bile ayırt edilir. Bu aynı zamanda Zed projesinin kendi konvansiyonudur. Tema rehberi ilgili bölüm ile de örtüşür.
+Lib kökü olarak `mod.rs` değil, **crate ile aynı isimli dosya** seçilir (örn. `kvs_titlebar.rs`). Bunun pratik bir nedeni vardır: editörde birden fazla "mod.rs" sekmesi açıldığında hangi crate'in köküne baktığını anlamak zorlaşır. Crate adıyla açılan dosyalar ise sekme başlığından bile ayırt edersin. Bu aynı zamanda Zed projesinin kendi konvansiyonudur. Tema rehberi ilgili bölüm ile de örtüşür.
 
 ### `DECISIONS.md`
 
@@ -191,7 +191,7 @@ Zed'in `platform_title_bar` ve `title_bar` crate'leri, çalışmak için Zed eko
 | `ItemSettings::close_position`, `ItemSettings::show_close_button` | Senin kendi `SekmeAyarlari` veya uygulama yapılandırması |
 | `DisableAiSettings` | Senin kendi özellik bayrağın (`SidebarSettings::enabled` vb.). Zed'de bu bayrak üst barda çok-workspace/sidebar render durumunu kapatır: `is_multi_workspace_enabled`, `!disable_ai` döndürür ve böylece sidebar render durumu (`sidebar_render_state`) yalnız bayrak kapalıyken üretilir |
 | `TitleBarSettings::show_onboarding_banner`, `OnboardingBanner::visible_when(...)` | Kendi banner görünürlük ayarın veya özellik bayrağı predicate'in. Güncel Zed'de `TitleBar::new` başlangıçta `banner = None` kurar; banner bağlanacaksa ürün katmanı bunu bilinçli ekler. |
-| `BannerDetails::action` | Ürünün kendi duyuru/migration modali eylemi; banner tıklandığında gönderilir. |
+| `BannerDetails::action` | Ürünün kendi duyuru/migration modali eylemi; banner tıklandığında gönderirsin. |
 | `theme::Theme::colors()::title_bar_background` | `kvs_tema::ActiveTheme` + `cx.theme().colors().title_bar_background` |
 | `theme::Theme::colors()::title_bar_inactive_background` | `cx.theme().colors().title_bar_inactive_background` |
 | `ui::prelude::*`, `ui::IconButton`, `ui::Tooltip` | Kendi UI bileşen kütüphanen |
@@ -199,7 +199,7 @@ Zed'in `platform_title_bar` ve `title_bar` crate'leri, çalışmak için Zed eko
 
 ### Versiyon pinleme tavsiyesi
 
-- **`gpui`** git `branch = "main"` üzerinden takip edilir. Belirli bir commit'e sabitlemek gerekirse `rev = "..."` alanı eklersin. Üst bar için en kritik tipler ve metotlar şunlardır: `WindowControlArea`, `WindowButtonLayout`, `WindowButton`, `MAX_BUTTONS_PER_SIDE`, `TitlebarOptions`, `Window::start_window_move`, `SystemWindowTabController`. Her Zed güncellemesinde önce bu imzalar kontrol edilir. Çünkü buradaki küçük bir değişiklik bile alt katmanı doğrudan etkiler.
+- **`gpui`** git `branch = "main"` üzerinden takip edersin. Belirli bir commit'e sabitlemek gerekirse `rev = "..."` alanı eklersin. Üst bar için en kritik tipler ve metotlar şunlardır: `WindowControlArea`, `WindowButtonLayout`, `WindowButton`, `MAX_BUTTONS_PER_SIDE`, `TitlebarOptions`, `Window::start_window_move`, `SystemWindowTabController`. Her Zed güncellemesinde önce bu imzalar kontrol edersin. Çünkü buradaki küçük bir değişiklik bile alt katmanı doğrudan etkiler.
 - **`kvs_tema`** tema rehberinde detaylı anlatılan crate'tir. Aynı workspace'in parçası olduğu için git bağımlılığı yerine path bağımlılığı yeterlidir. Bu tercih geliştirme sırasında değişiklik akışını hızlandırır.
 
 ### Bağımlılık akış grafiği

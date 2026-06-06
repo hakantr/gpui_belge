@@ -24,7 +24,7 @@ use gpui::actions;
 actions!(benim_ad_alanim, [Kaydet, Kapat, Yenile]);
 ```
 
-`actions!` makrosu her isim için bir `unit struct` üretir ve bunun üzerinde `Action`'ın yanı sıra `Clone`, `PartialEq`, `Default`, `Debug` türetmelerini de uygular; namespace `benim_ad_alanim::Kaydet` adıyla kayıt defterine (`registry`) eklenir.
+`actions!` makrosu her isim için bir `unit struct` üretir ve bunun üzerinde `Action`'ın yanı sıra `Clone`, `PartialEq`, `Default`, `Debug` türetmelerini de uygular; namespace `benim_ad_alanim::Kaydet` adıyla kayıt defterine (`registry`) eklersin.
 
 **Veri taşıyan action.** Yanında veri götürmesi gereken action'lar için derive ve attribute kullanırsın:
 
@@ -42,7 +42,7 @@ pub struct SatiraGit { pub satir: u32 }
 
 - `window.dispatch_action(action.boxed_clone(), cx)` — odaktaki elementten köke doğru yayılır.
 - `focus_handle.dispatch_action(&action, window, cx)` — belirli bir handle'dan başlatır.
-- Keymap girdileri eşleştiğinde otomatik yönlendirme tetiklenir.
+- Keymap girdileri eşleştiğinde otomatik yönlendirme tetiklersin.
 
 **Dinleyici kaydı.** Action'ı dinleyen kodu element üzerinde tanımlarsın:
 
@@ -138,7 +138,7 @@ Bu makro yalnızca bir `inventory::submit!` çağrısı üretir; struct ya da im
 
 #### Action runtime API'leri
 
-Action'ları çalışma zamanında sorgulamak ve tetiklemek için bazı yardımcılar sağlanır:
+Action'ları çalışma zamanında sorgulamak ve tetiklemek için bazı yardımcılar sağlarsın:
 
 - `cx.is_action_available(&action) -> bool` — odaktaki element yolunda bu action'ı dinleyen biri var mı? Menü öğelerini pasifleştirmek için idealdir.
 - `window.is_action_available(&action, cx)` — pencereye özel sürüm.
@@ -196,7 +196,7 @@ cx.bind_keys([
 - `cx.key_bindings() -> Rc<RefCell<Keymap>>` — keymap'e düşük seviyeli erişim. Üretim kodunda mümkün olduğu kadar `bind_keys`'i, keymap dosyasını ve doğrulayıcı akışını tercih edersin; bu handle test, tanılama ve özel keymap UI'ı için uygundur.
 - `cx.clear_key_bindings()` — tüm kısayolları temizler ve pencereleri yeniden çizim için işaretler; normal uygulama akışında değil test veya sıfırlama yollarında kullanırsın.
 
-**Öncelik.** Aynı tuşa birden çok kısayol düştüğünde sıralama şu kurallarla çözülür:
+**Öncelik.** Aynı tuşa birden çok kısayol düştüğünde sıralama şu kurallarla çözersin:
 
 - Bağlam yolunda daha derin eşleşme daha yüksek önceliklidir.
 - Aynı derinlikte sonra eklenen kısayol önce gelir; kullanıcı keymap'i yerleşik kısayolları bu yüzden ezebilir.
@@ -221,7 +221,7 @@ pub enum DispatchPhase {
 }
 ```
 
-`Window::on_mouse_event`, `on_key_event` ve `on_modifiers_changed` dinleyicileri aşamaya göre çağrılır. Element fluent API'lerinde `.on_*` ailesi bubble aşamasına, `.capture_*` ailesi ise capture aşamasına bağlanır.
+`Window::on_mouse_event`, `on_key_event` ve `on_modifiers_changed` dinleyicileri aşamaya göre çağırırsın. Element fluent API'lerinde `.on_*` ailesi bubble aşamasına, `.capture_*` ailesi ise capture aşamasına bağlanır.
 
 **Kontrol bayrakları** (`gpui` crate'i):
 
@@ -242,7 +242,7 @@ pub struct DispatchEventResult {
 
 **Pratik akış.** Tipik bir yönlendirme turunda şu adımları izlersin:
 
-1. Element dinleyicisi tetiklenir, view verisi güncellenir, gerekirse `cx.notify()` çağrılır.
+1. Element dinleyicisi tetiklersin, view verisi güncellersin, gerekirse `cx.notify()` çağırırsın.
 2. Dinleyici olayı tüketmek istiyorsa `cx.stop_propagation()` çağırır.
 3. Action dinleyicisi varsayılan davranışı korumak istiyorsa `cx.propagate()` ile yayılımı yeniden açar.
 4. Varsayılan odak aktarımı gibi GPUI içi bir davranışı bastıracaksan `window.prevent_default()` çağırırsın.
@@ -271,7 +271,7 @@ Action tanımlama ve yönlendirme önceki bölümlerde işlenmiştir. Zed komut 
 - `window.on_action_when(condition, TypeId::of::<A>(), listener)` — çizim aşamasında o anki yönlendirme düğümüne koşullu, düşük seviyeli action dinleyicisi ekler. Element API'sindeki `.on_action(...)` ve `.capture_action(...)` genelde daha okunaklıdır; özel element yazmıyorsan bu seviyeye inmezsin.
 - `cx.is_action_available(&action)` ve `window.is_action_available(&action, cx)` — bool kısayollar.
 - `window.is_action_available_in(&action, focus_handle)` — action kullanılabilirliği sorgusunu belirli bir odak handle'ının yönlendirme yolundan yapar.
-- `window.bindings_for_action(&action)` — odaktaki bağlam yığınına göre action'a giden kısayolları döner; gösterim için son kısayol en yüksek öncelikli kabul edilir.
+- `window.bindings_for_action(&action)` — odaktaki bağlam yığınına göre action'a giden kısayolları döner; gösterim için son kısayol en yüksek öncelikli kabul edersin.
 - `window.highest_precedence_binding_for_action(&action)` — aynı sorgunun tek sonuçlu, daha ucuz sürümü.
 - `window.bindings_for_action_in(&action, focus_handle)` ve `highest_precedence_binding_for_action_in(...)` — sorguyu belirli bir odak handle'ı yolundan yapar.
 - `window.bindings_for_action_in_context(&action, KeyContext)` — tek bir elle verdiğin bağlama göre sorgu.
@@ -342,7 +342,7 @@ let sonuc = KeymapFile::load(&icerik, cx);
 
 `load_asset(varlik_yolu, kaynak, cx)`, paketlenmiş (`bundled`) keymap dosyalarını yükler ve `KeybindSource` üst verisini ayarlayabilir. `load_panic_on_failure`, `test-support` derleme özelliği altında kalan test yolları gibi "asset bozuksa devam etmeyelim" akışları içindir.
 
-**Temel keymap.** Hangi temel keymap'in seçili olduğu enum'da tutulur:
+**Temel keymap.** Hangi temel keymap'in seçili olduğu enum'da tutarsın:
 
 - `BaseKeymap::{VSCode, JetBrains, SublimeText, Atom, TextMate, Emacs, Cursor, None}`.
 - Temel, varsayılan, vim ve kullanıcı kısayolları `KeybindSource` üst verisi taşır; UI bu üst veriyle kısayolun nereden geldiğini gösterir.

@@ -7,7 +7,7 @@ Bu bölüm `title_bar` crate'inin parçalarını bir haritada toplar ve en kriti
 | Parça | Rol |
 | :-- | :-- |
 | `TitleBar` | Ürün başlığının ana entity'si. Tüm parçaları birleştirir ve her render geçişinde `PlatformTitleBar`'ı besler. |
-| `ApplicationMenu` | İstemci tarafı uygulama menüsü (Dosya, Düzen, Görünüm…). Yalnız platform menüsü kullanılmadığında çizilir. |
+| `ApplicationMenu` | İstemci tarafı uygulama menüsü (Dosya, Düzen, Görünüm…). Yalnız platform menüsü kullanılmadığında çizersin. |
 | `collab` modülü | Aktif çağrı sırasındaki mikrofon, dinlemeyi kapatma, ekran paylaşımı ve katılımcı listesi yüzeyi. |
 | `UpdateVersion` | Boştaki durum dışında otomatik güncelleme durumunu (`checking`, `downloading`, `installing`, `updated`, `errored`) gösteren entity. |
 | `OnboardingBanner` | Özellik bayrağına bağlanabilen duyuru bandı altyapısı. Kaynak modül yorumu Skills duyurusunu anar; güncel `TitleBar::new` ise `banner = None` ile başlar. |

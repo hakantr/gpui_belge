@@ -64,7 +64,7 @@ Seçili görünümün nasıl ifade edileceği (`Tinted` mi, `selected_style` mı
 | Buton seçili olmasa bile semantik bir renk taşıyor (örn. delete / approve) | `.style(ButtonStyle::Tinted(TintColor::...))` | Tinted, normal stilin yerine geçer; toggle olmadan da renk kalıcı kalır. |
 | Buton normalde `Subtle` veya `Filled`; seçildiğinde vurgulu görünmeli | `.toggle_state(true).selected_style(ButtonStyle::Tinted(TintColor::Accent))` | `selected_style` yalnızca `toggle_state` true iken devreye girer; seçim kalktığında eski stile döner. |
 | Seçili durumda da `Subtle` görünmeli ama icon/label rengi değişsin | `.toggle_state(true).selected_label_color(Color::Accent)` veya `IconButton::selected_icon_color(...)` | Buton arka planı korunur, yalnızca içerik rengi değişir. |
-| Seçili durumda farklı bir ikon görünmeli | `IconButton::selected_icon(IconName::...)` | Toggle iken icon swap'i `selected_style` ile kombine edilebilir. |
+| Seçili durumda farklı bir ikon görünmeli | `IconButton::selected_icon(IconName::...)` | Toggle iken icon swap'i `selected_style` ile kombine edebilirsin. |
 
 `SelectableButton` trait'i `Button`, `IconButton` ve `ButtonLike` için `selected_style(ButtonStyle)` yüzeyini ortak bir şekilde sunar; aynı görsel kural birden fazla buton tipinde uygulanacaksa bu helper tek noktadan kullanabilirsin.
 
@@ -125,8 +125,8 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder ve render sonunda arka planda bir `ButtonLike` üretir.
-- `loading(true)` olduğunda `start_icon` yerine dönen `IconName::LoadCircle` ikonu çizilir.
-- Disabled durumda label ve icon `Color::Disabled` ile çizilir.
+- `loading(true)` olduğunda `start_icon` yerine dönen `IconName::LoadCircle` ikonu çizersin.
+- Disabled durumda label ve icon `Color::Disabled` ile çizersin.
 - `truncate(true)`'ü yalnızca dinamik ve taşma riski olan label'larda kullanırsın; kaynak yorumunda statik label'lar için kullanılmaması gerektiği özellikle belirtilir.
 
 Örnekler:
@@ -217,9 +217,9 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder ve render sonunda bir `ButtonLike` üretir.
-- Seçili durumda `selected_icon` tanımlanmışsa o ikon çizilir.
-- Seçili durumdayken `selected_style` da verilmişse, ikon rengi bu stile karşılık gelen semantik renkten türetilir. Aksi halde `selected_icon_color` veya `Color::Selected` kullanılır.
-- `IconButtonShape::Square`, ikonun kare ölçüsünü kullanarak butonun width ve height değerlerini eşitler; yani buton bir kare gibi çizilir.
+- Seçili durumda `selected_icon` tanımlanmışsa o ikon çizersin.
+- Seçili durumdayken `selected_style` da verilmişse, ikon rengi bu stile karşılık gelen semantik renkten türetilir. Aksi halde `selected_icon_color` veya `Color::Selected` kullanırsın.
+- `IconButtonShape::Square`, ikonun kare ölçüsünü kullanarak butonun width ve height değerlerini eşitler; yani buton bir kare gibi çizersin.
 
 Örnek:
 
@@ -290,7 +290,7 @@ Temel API:
 
 Yuvarlama davranışı:
 
-`ButtonLikeRounding` kaynakta `pub(crate)` bir yardımcı tiptir; uygulama kodunda doğrudan import edilmez. Public kullanım yüzeyi `ButtonLike` constructor'larıdır. Snapshot denetimi sabit imzalarını görebildiği için burada kaynak eşlemesi verilir, ama önerilen API sabitin kendisi değil constructor'dır.
+`ButtonLikeRounding` kaynakta `pub(crate)` bir yardımcı tiptir; uygulama kodunda doğrudan import edilmez. Public kullanım yüzeyi `ButtonLike` constructor'larıdır. Snapshot denetimi sabit imzalarını görebildiği için burada kaynak eşlemesi verirsin, ama önerilen API sabitin kendisi değil constructor'dır.
 
 | İç sabit | Kaynak görünürlüğü | Public karşılığı |
 | :-- | :-- | :-- |
@@ -369,8 +369,8 @@ Temel API:
 
 Davranış:
 
-- Render sırasında arka planda bir `ButtonLike::new(...)` kurulur.
-- Label otomatik olarak underline edilir.
+- Render sırasında arka planda bir `ButtonLike::new(...)` kurarsın.
+- Label otomatik olarak underline edersin.
 - Varsayılan olarak `IconName::ArrowUpRight` end icon olarak gösterilir; bu yön oku link metnine "dışa açılır" niteliği verir.
 - Click işleyicisi `cx.open_url(&self.link)` çağırarak bağlantıyı tarayıcıda açar.
 
@@ -490,7 +490,7 @@ Davranış:
 
 - `RenderOnce` implement eder.
 - Sol ve sağ parçayı tek bir h-flex kontrol olarak render eder; iki parça görsel olarak tek bir bütünmüş gibi görünür.
-- `Filled` ve `Outlined` stilleri border ile divider çizer; ayrıca `Filled` stilinde surface background ve hafif bir shadow uygulanır.
+- `Filled` ve `Outlined` stilleri border ile divider çizer; ayrıca `Filled` stilinde surface background ve hafif bir shadow uygularsın.
 
 Örnek:
 
@@ -560,9 +560,9 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder.
-- Her girdi bir `ButtonLike` olarak render edilir.
+- Her girdi bir `ButtonLike` olarak render edersin.
 - `selected_index` veya girdinin `.selected(true)` durumu, seçili görünümü birlikte tetikler.
-- Seçili görünüm `ButtonStyle::Tinted(TintColor::Accent)` arka planı ile accent label/icon rengi kombinasyonuyla çizilir.
+- Seçili görünüm `ButtonStyle::Tinted(TintColor::Accent)` arka planı ile accent label/icon rengi kombinasyonuyla çizersin.
 - `ToggleButtonPosition` grup içinde ilk, orta veya son segmentin köşe yuvarlamasını ifade eder. Public sabit değerleri vardır (`HORIZONTAL_FIRST`, `HORIZONTAL_MIDDLE`, `HORIZONTAL_LAST`), ancak alanlar private olduğu için normal kullanıcı kodu doğrudan segment durumu kuramaz; bunun yerine `ToggleButtonGroup` aracılığıyla kullanman gerekir.
 - `ButtonBuilder` trait'i public görünmesine rağmen private bir supertrait ile sealed durumdadır. Bu nedenle dış bir crate kendi girdi tipini implement edemez; beklenen giriş noktaları `ToggleButtonSimple` ve `ToggleButtonWithIcon`'dur.
 - Sealed supertrait kaynakta `private::ToggleButtonStyle` adıyla yer alır; crate dışından import edilemez ve tüketici API'si olarak düşünülmemiştir.

@@ -1,6 +1,6 @@
 # Hedef, kapsam, lisans ve klasör topolojisi
 
-Bu bölüm, varlık altyapısının hangi amaçla kurulduğunu ve sınırlarının nerede çizildiğini netleştirir. Sonraki bölümler bu cevapların üzerine kurulur. Bu nedenle kararları burada açıkça koymak, aynı konuları ileride tekrar tekrar açmadan ilerlemeyi mümkün kılar.
+Bu bölüm, varlık altyapısının hangi amaçla kurulduğunu ve sınırlarının nerede çizildiğini netleştirir. Sonraki bölümler bu cevapların üzerine kurarsın. Bu nedenle kararları burada açıkça koymak, aynı konuları ileride tekrar tekrar açmadan ilerlemeyi mümkün kılar.
 
 Üç soru özellikle önemlidir: Varlık altyapısı hangi varlık türlerini taşır? Bu varlıklar release binary'ye nasıl katılır veya debug modda dosya sisteminden nasıl okunur? Hangi parçalar GPL-3 sınırı içinde, hangileri uygulamanın özgür alanındadır?
 
@@ -65,11 +65,11 @@ pub struct Assets;
 pub struct SettingsAssets;
 ```
 
-İki struct birden olmasının teknik bir gerekçesi vardır: `RustEmbed` macro'sunun derleme süresinde tarama maliyeti, klasör büyüdükçe ciddi şekilde artar. `Assets` struct'ı; font, ikon ve tema klasörleri büyük olduğu için Zed binary'sinin sık yeniden derlenmesi sırasında her seferinde taranmasın diye **ayrı bir crate** olarak (`assets`) tutulur. Bu kararın yorumu kaynak dosyasının ilk satırında açıkça yazılıdır: "incremental build sırasında bir-iki saniye kazandırmak için ayrıldı". `SettingsAssets` ise yalnızca settings ve keymap JSON'larını tutar; bu klasörler küçük olduğundan settings crate'iyle aynı yerde bulunması yeniden derleme maliyetini büyütmez.
+İki struct birden olmasının teknik bir gerekçesi vardır: `RustEmbed` macro'sunun derleme süresinde tarama maliyeti, klasör büyüdükçe ciddi şekilde artar. `Assets` struct'ı; font, ikon ve tema klasörleri büyük olduğu için Zed binary'sinin sık yeniden derlenmesi sırasında her seferinde taranmasın diye **ayrı bir crate** olarak (`assets`) tutarsın. Bu kararın yorumu kaynak dosyasının ilk satırında açıkça yazılıdır: "incremental build sırasında bir-iki saniye kazandırmak için ayrıldı". `SettingsAssets` ise yalnızca settings ve keymap JSON'larını tutar; bu klasörler küçük olduğundan settings crate'iyle aynı yerde bulunması yeniden derleme maliyetini büyütmez.
 
 `RustEmbed` davranışı build moduna göre ikiye ayrılır: release build'de veya `debug-embed` feature'ı açıkken dosyalar binary içinden gelir; normal debug build'de aynı path'ler dosya sisteminden okunur. Zed dokümanlarında "gömülü varlık" denildiğinde üretim davranışı kastedilir, fakat kendi uygulamanda debug modda canlı dosya okuma davranışını da hesaba katmak gerekir.
 
-**Önemli ayrıntı:** `Assets` struct'ı `AssetSource` trait'ini implement eder ve çalışma zamanına `Application::with_assets(Assets)` zinciriyle bağlanır. `SettingsAssets` ise `RustEmbed::get` üzerinden senkron olarak `asset_str()` yardımıyla okunur; çalışma zamanına global olarak kaydedilmez. Bu ayrım üçüncü bölümde derinlemesine işlenir.
+**Önemli ayrıntı:** `Assets` struct'ı `AssetSource` trait'ini implement eder ve çalışma zamanına `Application::with_assets(Assets)` zinciriyle bağlanır. `SettingsAssets` ise `RustEmbed::get` üzerinden senkron olarak `asset_str()` yardımıyla okunur; çalışma zamanına global olarak kaydedilmez. Bu ayrım üçüncü bölümde derinlemesine işlersin.
 
 ---
 
@@ -85,10 +85,10 @@ pub struct SettingsAssets;
 | `images` | `#[include = "images/**/*"]` | `Vector` ve görsel SVG tüketiminde kullanılır; raster image cache ile karıştırılmaz. |
 | `themes` | `#[include = "themes/**/*"]`, `#[exclude = "themes/src/*"]` | Bundled tema JSON'ları ve lisans dosyaları buradan okunur; kaynak tema üretim klasörü paketlenmez. |
 | `sounds` | `#[include = "sounds/**/*"]` | `Sound` enum'u ve ses hattı için `.wav` varlıklarını taşır. |
-| `prompts` | `#[include = "prompts/**/*"]` | Handlebars prompt şablonları için kullanılır. |
+| `prompts` | `#[include = "prompts/**/*"]` | Handlebars prompt şablonları için kullanırsın. |
 | `markdown` | `#[include = "*.md"]` | Kural tanımlı olsa da `assets/` kökünde `.md` dosyası bulunmadığından grup şu an boştur; ileride kök Markdown eklenirse bu kapsamla taranır. |
 | `Assets::get` | `RustEmbed` tarafından üretilen statik erişim | Tek path için `EmbeddedFile` döndürür; `AssetSource::load` bu çağrıyı `Result<Option<Cow<[u8]>>>` sözleşmesine sarar. |
-| `Assets::iter` | `RustEmbed` tarafından üretilen iterator | `AssetSource::list` içinde prefix filtrelemesi için kullanılır. |
+| `Assets::iter` | `RustEmbed` tarafından üretilen iterator | `AssetSource::list` içinde prefix filtrelemesi için kullanırsın. |
 | `Assets::load_fonts` | Çalışma zamanı font yükleme yardımcısı | `fonts` altındaki `.ttf` dosyalarını listeler, byte'ları `cx.asset_source()` üzerinden alır ve `TextSystem::add_fonts` çağırır. |
 | `Assets::load_test_fonts` | Test font yükleme yardımcısı | Minimum Lilex fontunu yükleyerek headless/test ortamının metin ölçümünü çalışır hale getirir. |
 
@@ -236,7 +236,7 @@ Application::with_assets ──> svg_renderer, varlık cache'i, text_system
 Tüketiciler (Icon, Vector, img, Sound, Theme, Settings, Prompt)
 ```
 
-Ters yön yasaktır: `AssetSource` trait'i tüketici kodlarına referans vermez. Yani `gpui::AssetSource` ne `Icon`'u ne `Sound`'u ne de `Theme`'i bilir; sadece byte döner. Bu sayede varlık altyapısı sakin tutulur: yeni bir varlık türü eklemek için `AssetSource` arayüzü değişmez, yalnızca yeni bir tüketici eklersin.
+Ters yön yasaktır: `AssetSource` trait'i tüketici kodlarına referans vermez. Yani `gpui::AssetSource` ne `Icon`'u ne `Sound`'u ne de `Theme`'i bilir; sadece byte döner. Bu sayede varlık altyapısı sakin tutarsın: yeni bir varlık türü eklemek için `AssetSource` arayüzü değişmez, yalnızca yeni bir tüketici eklersin.
 
 Bu kararın pratikteki anlamı şudur: uygulama bir varlık türünü zamanla değiştirmek isterse (örneğin SVG ikonları PDF'e döndürmek), `AssetSource` katmanı bundan etkilenmez. Yalnızca tüketici tarafındaki path eşleştirme ve render kodu değişir.
 

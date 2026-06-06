@@ -149,7 +149,7 @@ Aralıklar yine byte index aralıklarıdır; Unicode metinde karakter sınırlar
 
 - Markdown görsel çizimini Zed'i referans alarak kurarsın: `StyledImage::with_fallback` kullanıp yüklenemeyen görsel için tıklanabilir bir `"Failed to Load: ..."` yedeği üretirsin. Yedek etiketinde önce alt metin değerini, yoksa hedef URL'yi kullanırsın; tıklamada `cx.open_url` çağırırsın.
 - Mermaid kod blokları yalnızca kapalı fenced block biçimindeyse diyagram olarak çıkarılır. ` ```mermaid` etiketinin yanı sıra `.mermaid` veya `.mmd` uzantılı kaynak yolu işaret edilen bloklar da diyagram olarak sayılır.
-- Mermaid diyagram arayüzü önizleme ve kod sekmelerini, ayrıca kopyalama butonunu gösterebilir; çizim başarısızsa veya henüz tamamlanmadıysa kaynak kodu görünümü yedek olarak çizilir.
+- Mermaid diyagram arayüzü önizleme ve kod sekmelerini, ayrıca kopyalama butonunu gösterebilir; çizim başarısızsa veya henüz tamamlanmadıysa kaynak kodu görünümü yedek olarak çizersin.
 
 **Markdown çiziminin ek yüzeyleri.**
 
@@ -180,7 +180,7 @@ MarkdownElement::new(markdown, style)
     })
 ```
 
-`CodeSpanLinkCallback = Arc<dyn Fn(&str, &App) -> Option<SharedString>>` döndürürse bağlantı stili uygulanır; `None` döndürürse normal kod stili kullanılır. Geri çağrı yalnızca kod bloğunun dışında, bağlantı içinde olmayan ve `MarkdownStyle.prevent_mouse_interaction` kapalı olan durumlarda çalışır.
+`CodeSpanLinkCallback = Arc<dyn Fn(&str, &App) -> Option<SharedString>>` döndürürse bağlantı stili uygulanır; `None` döndürürse normal kod stili kullanırsın. Geri çağrı yalnızca kod bloğunun dışında, bağlantı içinde olmayan ve `MarkdownStyle.prevent_mouse_interaction` kapalı olan durumlarda çalışır.
 
 Shift+tıklama seçimi genişletir: mevcut seçimin kuyruğunu sabit tutar ve tıklama noktasına kadar aralığı uzatır. Shift'siz tıklama ise imleci tek bir konuma taşır.
 
