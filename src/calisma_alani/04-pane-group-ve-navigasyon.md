@@ -101,6 +101,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 - `sidebar_render_state(cx)` çizim tarafında open ve side bilgisini taşır; `open` değeri hem sidebar'ın açık olmasına hem de `multi_workspace_enabled(cx)` sonucuna bağlıdır.
 - `sidebar_has_notifications(cx)` başlık çubuğu veya durum göstergesi için kullanırsın.
 - Çalışma alanı aktivasyonunda tutma kararı sidebar'ın açık olmasına bağlı değildir. Çoklu çalışma alanı etkinse aktif çalışma alanı ve son transient aktif çalışma alanı tutulur; çoklu çalışma alanı devre dışıysa transient çalışma alanı ayrılır. Ayar değişiminde etkin durumdan devre dışına geçiş `collapse_to_single_workspace` ile tüm grupları atar.
+- Bir pencerede birden çok çalışma alanı tek platform penceresini paylaşır; pencerenin başlığı ve "değiştirildi" göstergesi yalnız aktif çalışma alanına aittir. `MultiWorkspace` aktif çalışma alanını değiştirdiğinde yeni aktif çalışma alanının `Workspace::refresh_window_state(window, cx)` metodunu çağırır; bu metot pencere başlığını yeniden hesaplayıp uygular ve `window.set_window_edited(...)` ile düzenlenme göstergesini tazeler. Böylece işletim sistemi penceresinin başlığı ve değişiklik göstergesi her zaman görünen çalışma alanını yansıtır.
 - Threads sidebar thread'lerle birlikte terminal girişlerini de MRU switcher'a dahil eder; terminal aktivasyonu `AgentPanel::activate_terminal` üzerinden yapılır ve `ArchiveSelectedThread` aktif terminalde kapatma davranışına bağlanır.
 - Sidebar ve panel boş durum akışları kök yolu olmayan çalışma alanında yeni thread veya terminal oluşturmaz; thread listesi bu durumda `ProjectEmptyState` çizer.
 - Taslak thread girişleri ayrı icon ve kapatma davranışıyla gösterilir. Taslak başlığı mesaj editör içeriğinden üretildiği için sidebar görünür taslak editör'leri gözlemleyip yazıldıkça girişleri yeniler.
@@ -120,6 +121,7 @@ Sidebar yaşam döngüsü `MultiWorkspace` üzerinde yönetilir:
 | `ToolbarItemEvent` | Toolbar item'ın konum değiştirme isteğini `ChangeLocation(ToolbarItemLocation)` olarak yayar. |
 | `ToolbarItemLocation` | `Hidden`, `PrimaryLeft`, `PrimaryRight`, `Secondary` yerleşimlerini tanımlar. |
 | `MultiWorkspace::add_background_workspace` | Yeni workspace'i retained background tab olarak ekler; aktif workspace ve focus olduğu yerde kalır. |
+| `Workspace::refresh_window_state` | Paylaşılan platform penceresinin başlığını ve düzenlenme göstergesini aktif çalışma alanına göre yeniden uygular; `MultiWorkspace` aktif çalışma alanı değişiminde çağırır. |
 | `dock` | Dock içindeki pane grupları ve center pane ile yan/alt panel ayrımını bağlayan modüldür. |
 | `pane` | Tab listesi, preview/pin ve split eylemlerinin ana modülüdür. |
 | `pane_group` | Split ağacı ve pane resize/swap/move davranışının modülüdür. |

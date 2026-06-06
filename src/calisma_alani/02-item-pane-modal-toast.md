@@ -252,6 +252,7 @@ let gorev = calisma_alani.open_paths(
 - `Workspace::open_path(project_path, pane, focus, window, cx)` — belirli bir `ProjectPath`'i mevcut çalışma alanı içinde açar; `Task<Result<Box<dyn ItemHandle>>>` döner.
 - `Workspace::open_abs_path(path, options, window, cx)` — `PathBuf` alır, dosyayı worktree'ye ekler ve item açar.
 - `Workspace::open_path_preview(path, pane, focus_item, allow_preview, activate, window, cx)` — dosya bulucu gibi önizleme akışları için.
+- `Workspace::open_url_or_file(url_or_path, base_path, window, cx)` — metni önce URL olarak çözmeyi dener (`http`/`https` ve tanımadığı şemalar dış uygulamada `cx.open_url` ile açılır, `file://` yerel dosya olur); URL değilse dosya yolu sayar ve mutlak yolu doğrudan, göreli yolu önce `base_path`'e göre (yerel projede ve dosya gerçekten varsa) sonra proje worktree'lerine göre çözüp açar. Hiçbiri tutmazsa metni yine `cx.open_url` ile işletim sistemine bırakır. Markdown'daki, hover açıklamasındaki veya bildirimdeki bağlantılar gibi "URL mü, dosya mı belli değil" akışlarında kullanırsın.
 - `Workspace::split_abs_path(...)`, `split_path(...)`, `split_item(...)` — yeni pane oluşturarak path veya item'i split içinde açar.
 
 ---

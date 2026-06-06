@@ -358,11 +358,12 @@ Render katmanında bazı public tipler, uygulama bileşeni yazarken nadiren doğ
 
 **AnyView ve AnyWeakView.** `AnyView` tipli view handle'ını kaybettiğin heterojen alanlar içindir; `AnyWeakView` bunun zayıf karşılığıdır. Dock, modal host, plugin slotu veya test harness gibi farklı view türlerini aynı koleksiyonda saklaman gerektiğinde uygundur. Tek bir view türüyle çalışıyorsan `Entity<T>` ve `WeakEntity<T>` hem daha güvenli hem daha okunaklıdır.
 
-**Interactivity.** `Interactivity`, `Div` ve benzeri elementlerin etkileşim durumunu taşır: element id, focus handle, scroll handle, key context, grup adı, hover/focus/active style refinement'ları, drag/drop kayıtları, mouse/key/action listener'ları, tooltip builder, window control area, tab index ve hitbox davranışı aynı yerde tutulur. Uygulama kodu bunu doğrudan doldurmaz; `.id(...)`, `.track_focus(...)`, `.tab_index(...)`, `.key_context(...)`, `.hover(...)`, `.active(...)`, `.group(...)`, `.on_click(...)`, `.on_drag(...)`, `.on_drop(...)`, `.tooltip(...)`, `.occlude()` ve `.block_mouse_except_scroll()` gibi fluent metotlar bu alanları düzenler.
+**Interactivity.** `Interactivity`, `Div` ve benzeri elementlerin etkileşim durumunu taşır: element id, focus handle, scroll handle, key context, grup adı, hover/focus/active style refinement'ları, drag/drop kayıtları, mouse/key/action listener'ları, tooltip builder, tooltip gösterim gecikmesi, window control area, tab index ve hitbox davranışı aynı yerde tutulur. Uygulama kodu bunu doğrudan doldurmaz; `.id(...)`, `.track_focus(...)`, `.tab_index(...)`, `.key_context(...)`, `.hover(...)`, `.active(...)`, `.group(...)`, `.on_click(...)`, `.on_drag(...)`, `.on_drop(...)`, `.tooltip(...)`, `.tooltip_show_delay(...)`, `.occlude()` ve `.block_mouse_except_scroll()` gibi fluent metotlar bu alanları düzenler.
 
 **Imperative interactivity metotları.** Özel element yazarken `Interactivity` üzerindeki düşük seviyeli metotlar işine yarayabilir:
 
 - `on_click(...)`, `on_aux_click(...)`, `on_drag(...)`, `on_drag_move(...)`, `on_hover(...)`, `tooltip(...)`, `hoverable_tooltip(...)`, `can_drop(...)` ve `on_drop(...)` olay davranışını ekler.
+- `tooltip_show_delay(delay)` tooltip'in görünme gecikmesini ayarlar (varsayılan 500 ms); akıcı eşdeğeri `.tooltip_show_delay(delay)`'dir.
 - `capture_action(...)`, `capture_key_down(...)`, `capture_key_up(...)`, `capture_any_mouse_down(...)`, `capture_any_mouse_up(...)`, `capture_mouse_pressure(...)` ve `capture_pinch(...)` capture aşaması dinleyicileridir.
 - `occlude_mouse()` ve `block_mouse_except_scroll()` arkadaki hitbox'ların fare alıp almayacağını belirler.
 - `window_control_area(...)` özel başlık çubuğunda platform hit-test alanı üretir.

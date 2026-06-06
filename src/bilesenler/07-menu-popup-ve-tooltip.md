@@ -473,6 +473,7 @@ Davranış:
 - `meta` verildiğinde, ikinci satırda küçük ve muted bir label olarak çizilir.
 - `Tooltip::text(...)` gibi yöntemler, `.tooltip(...)` builder imzasına doğrudan uyan bir closure döndürür.
 - GPUI görünür tooltip'i kaynak elementin hover durumuna bağlı tutar. Mouse kaynak hitbox'tan ayrıldığında normal tooltip kapanır; `hoverable_tooltip` kullanıldığında tooltip yüzeyi de hover alanı sayılır ve kullanıcı mouse'u tooltip içine taşıdığı sürece yüzey açık kalabilir.
+- GPUI tooltip'i, imleç kaynak element üzerinde varsayılan olarak 500 ms bekledikten sonra gösterir. Bu gecikmeyi tek bir element için değiştirmek istersen tooltip'i eklediğin (id'li) element üzerinde `.tooltip_show_delay(delay)` metodunu zincirlersin; daha hızlı geri bildirim için kısaltır, kazara açılmayı azaltmak için uzatırsın. Özel `Element` yazarken aynı ayarın imperatif biçimi `Interactivity::tooltip_show_delay(delay)`'dir.
 
 Örnek:
 

@@ -287,6 +287,7 @@ Temel API:
 - `Divider::horizontal()`, `Divider::vertical()`, `Divider::horizontal_dashed()`, `Divider::vertical_dashed()`.
 - `.inset()` divider'ın kendi yönüne göre iç margin uygular.
 - `.color(DividerColor::Border | BorderFaded | BorderVariant)`.
+- `Divider` `Styled` uygular; `.inset()`/`.color(...)` dışındaki genişlik, kenar boşluğu gibi yerleşim ince ayarlarını doğrudan `gpui` stil zinciriyle eklersin.
 - `divider()` yatay solid divider, `vertical_divider()` dikey solid divider döndürür.
 - `h_flex()` yatay bir flex kapsayıcı döndürür ve `items_center()` uygular. `v_flex()` ise dikey bir flex kapsayıcı döndürür. Bunlar sırasıyla `div().h_flex()` ve `div().v_flex()` çağrılarını daha okunur hale getiren temel kısayollardır.
 - `h_group_sm()`, `h_group()`, `h_group_lg()`, `h_group_xl()` sırasıyla yaklaşık 2px, 4px, 6px, 8px yatay gap verir.
