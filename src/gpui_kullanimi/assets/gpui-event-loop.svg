@@ -100,12 +100,14 @@
   </g>
 
   <!-- 3. Main Thread (Event Loop) -->
-  <g transform="translate(560, 140)" filter="url(#shadow)" class="pulse">
-    <rect width="180" height="120" rx="12" fill="#21222c" stroke="#50fa7b" stroke-width="2"/>
-    <text x="90" y="35" class="text-glow" font-size="14" font-weight="600" text-anchor="middle">Ana İş Parçacığı (Main)</text>
-    <text x="90" y="60" fill="#6272a4" font-size="11" text-anchor="middle">UI Çizimi &amp; Durum Güncelleme</text>
-    <rect x="20" y="80" width="140" height="25" rx="6" fill="#50fa7b" fill-opacity="0.2"/>
-    <text x="90" y="96" fill="#50fa7b" font-size="11" font-weight="600" text-anchor="middle">cx.notify() / Render Loop</text>
+  <g transform="translate(560, 140)" filter="url(#shadow)">
+    <g class="pulse" style="transform-origin: 90px 60px;">
+      <rect width="180" height="120" rx="12" fill="#21222c" stroke="#50fa7b" stroke-width="2"/>
+      <text x="90" y="35" class="text-glow" font-size="14" font-weight="600" text-anchor="middle">Ana İş Parçacığı (Main)</text>
+      <text x="90" y="60" fill="#6272a4" font-size="11" text-anchor="middle">UI Çizimi &amp; Durum Güncelleme</text>
+      <rect x="20" y="80" width="140" height="25" rx="6" fill="#50fa7b" fill-opacity="0.2"/>
+      <text x="90" y="96" fill="#50fa7b" font-size="11" font-weight="600" text-anchor="middle">cx.notify() / Render Loop</text>
+    </g>
   </g>
 
   <!-- 4. Background Workers (Async Threads) -->
