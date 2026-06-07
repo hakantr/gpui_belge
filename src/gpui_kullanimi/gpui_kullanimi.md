@@ -1,6 +1,6 @@
 # Zed GPUI Kullanım Rehberi
 
-Bu rehber GPUI'nin temel kavramlarını, veri akışını ve bileşen sistemini adım adım anlatır. İlgili konulara aşağıdaki içindekiler bölümünden erişebilirsin.
+Bu rehber GPUI'nin temel kavramlarını, veri akışını ve bileşen sistemini adım adım anlatır. İlgili konulara aşağıdaki içindekiler bölümünden erişilebilir.
 
 ## İçindekiler
 

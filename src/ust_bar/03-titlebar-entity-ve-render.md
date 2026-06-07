@@ -141,6 +141,6 @@ pub fn effective_active_worktree(&self, cx: &App) -> Option<Entity<project::Work
 
 Mantık şudur: Önce projenin aktif git deposunun bulunduğu çalışma ağacı tercih edilir; o yoksa ilk görünür çalışma ağacına düşülür. Böylece monorepo veya çoklu çalışma ağacı senaryolarında başlık, kullanıcının üzerinde çalıştığı depo-sahibi ağacı gösterir. Seçilen çalışma ağacına ait en spesifik depo da `get_repository_for_worktree` yardımıyla (en uzun eşleşen yolu seçerek) bulunur.
 
-Port hedefinde tek çalışma ağaçlı bir uygulamada bu mantık tamamen basitleşir: Gösterilecek tek bir proje/doküman vardır. Çoklu çalışma ağacı veya iç içe depo destekliyorsan, aynı "aktif olanı tercih et, yoksa ilkine düş" kuralı kendi modelinde kurulmalıdır.
+Port hedefinde tek çalışma ağaçlı bir uygulamada bu mantık tamamen basitleşir: Gösterilecek tek bir proje/doküman vardır. Çoklu çalışma ağacı veya iç içe depo destekliyorsan, aynı "aktif olanı tercih et, yoksa ilkine düş" kuralını kendi modelinde kurman gerekir.
 
 ---

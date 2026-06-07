@@ -92,7 +92,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::LabelLike`
-- Prelude: Hayır; `use ui::LabelLike;` satırını ayrıca eklersin.
+- Prelude: Hayır; `use ui::LabelLike;` satırını ayrıca eklemen gerekir.
 - Preview: `impl Component for LabelLike`.
 
 Ne zaman kullanılır:
@@ -256,7 +256,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::HighlightedLabel`
-- Prelude: Hayır; `use ui::HighlightedLabel;` satırını ayrıca eklersin.
+- Prelude: Hayır; `use ui::HighlightedLabel;` satırını ayrıca eklemen gerekir.
 - Preview: `impl Component for HighlightedLabel`.
 
 Ne zaman kullanılır:
@@ -282,7 +282,7 @@ Vurgu yardımcısı:
 
 | API | Rol |
 | :-- | :-- |
-| `highlight_ranges` | Byte indekslerinden char sınırlarına güvenli şekilde oturan `Range<usize>` listesi üretir; hazır `HighlightedLabel` dışında özel `StyledText` kompozisyonlarında kullanırsın. |
+| `highlight_ranges` | Byte indekslerinden char sınırlarına güvenli şekilde oturan `Range<usize>` listesi üretir; hazır `HighlightedLabel` dışında özel `StyledText` kompozisyonlarında kullanabilirsin. |
 
 Davranış:
 
@@ -386,7 +386,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::SpinnerLabel`
-- Prelude: Hayır; `use ui::SpinnerLabel;` satırını ayrıca eklersin.
+- Prelude: Hayır; `use ui::SpinnerLabel;` satırını ayrıca eklemen gerekir.
 - Preview: `impl Component for SpinnerLabel`.
 
 Ne zaman kullanılır:
@@ -437,7 +437,7 @@ fn kompakt_doner_gostergeyi_render_et() -> impl IntoElement {
 Kaynak:
 
 - `Icon`, `IconSize`, `AnyIcon`, `IconWithIndicator`: `ui` crate'i.
-- `IconName`: `icons` crate'i, `ui::IconName` adıyla re-export edersin.
+- `IconName`: `icons` crate'i, `ui::IconName` adıyla re-export etmen gerekir.
 - Export: `ui::Icon`, `ui::IconName`, `ui::IconSize`.
 - Prelude: `Icon`, `IconName`, `IconSize` otomatik gelir.
 - Preview: `impl Component for Icon`.
@@ -451,7 +451,7 @@ Ne zaman kullanılır:
 Ne zaman kullanılmaz:
 
 - Büyük raster görseller için GPUI'nin `img(...)` / `ImageSource` arayüzü veya `Avatar` ve `Vector` gibi daha uygun bileşenler tercih edilmelidir.
-- Simgenin yanında bir badge veya durum işareti gerekiyorsa, çıplak `Icon` yerine `DecoratedIcon`, `IconWithIndicator` veya ilgili bileşenin slot yüzeyini düşünürsün.
+- Simgenin yanında bir badge veya durum işareti gerekiyorsa, çıplak `Icon` yerine `DecoratedIcon`, `IconWithIndicator` veya ilgili bileşenin slot yüzeyini düşünebilirsin.
 
 Temel API:
 
@@ -512,7 +512,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::IconWithIndicator`, `ui::AnyIcon`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import etmen gerekir.
 
 Ne zaman kullanılır:
 
@@ -564,7 +564,7 @@ Kaynak:
 - `DecoratedIcon`: `ui` crate'i.
 - `IconDecoration`, `IconDecorationKind`, `KnockoutIconName`: `ui` crate'i.
 - Export: `ui::DecoratedIcon`, `ui::IconDecoration`, `ui::IconDecorationKind`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import etmen gerekir.
 - Preview: `DecoratedIcon` için vardır; `IconDecoration` tek başına bir preview taşımaz.
 
 Ne zaman kullanılır:
@@ -680,7 +680,7 @@ fn render_project_match(
 }
 ```
 
-Bir yükleme satırı için ise `SpinnerLabel` ve `LoadingLabel` birlikte durduğunda hem bir spinner görüntüsü hem de kademeli metin animasyonu elde edersin:
+Bir yükleme satırı için ise `SpinnerLabel` ve `LoadingLabel` birlikte durduğunda hem bir spinner görüntüsü hem de kademeli metin animasyonu elde edebilirsin:
 
 ```rust
 use ui::prelude::*;

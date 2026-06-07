@@ -205,7 +205,7 @@ Stil ve geometri dökümanlarında geçen bazı veri tipleri doğrudan akıcı m
 
 ### `AlignItems`, `AlignSelf`, `AlignContent`, `JustifyItems`, `JustifySelf` ve `JustifyContent`
 
-Bu hizalama tipleri, akıcı metotların arka planındaki ham yerleşim modelini oluşturur. Uygulama geliştirilerken genellikle `.items_center()`, `.justify_between()` veya `.content_stretch()` gibi hazır yardımcılar tercih edilir; ancak özel bir element veya stil editörü tasarlanırken `Style` veri yapısının alanlarını doğrudan güncellemek gerekebilir:
+Bu hizalama tipleri, akıcı metotların arka planındaki ham yerleşim modelini oluşturur. Uygulama geliştirilirken genellikle `.items_center()`, `.justify_between()` veya `.content_stretch()` gibi hazır yardımcılar tercih edilir; ancak özel bir element veya stil editörü tasarlanırken `Style` veri yapısının alanlarını doğrudan güncellemek gerekebilir:
 
 | Hizalama Tipi | Desteklenen Varyantlar | Temel İşlevi |
 |---|---|---|
@@ -464,4 +464,4 @@ cx.observe_window_appearance(window, |_, window, cx| {
 **Dikkat Edilmesi Gereken Sistem Detayları:**
 
 - macOS dışında `VibrantLight` ve `VibrantDark` modları üretilmeyebilir; ancak platformlar arası kod uyumluluğu açısından eşleştirme bloklarında bu dört varyantın da ele alınması gereklidir.
-- `observe_window_appearance` akışı tetiklendiğinde, Zed sistem görünümünü güncelliyerek temaları yeniden yükler. Pencere arka plan renklerinin eş zamanlı güncellenmesi için ise `SettingsStore` gözlemcileri aracılığıyla `window.set_background_appearance(cx.theme().window_background_appearance())` çağrısı haricen işletilir.
+- `observe_window_appearance` akışı tetiklendiğinde, Zed sistem görünümünü güncelleyerek temaları yeniden yükler. Pencere arka plan renklerinin eş zamanlı güncellenmesi için ise `SettingsStore` gözlemcileri aracılığıyla `window.set_background_appearance(cx.theme().window_background_appearance())` çağrısı haricen işletilir.

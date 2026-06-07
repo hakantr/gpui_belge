@@ -1,11 +1,11 @@
 # 15. AI ve Collab Özel Alanı
 
-Bu bölümdeki bileşenler Zed'in AI, agent (temsilci), sağlayıcı, iş birliği (collaboration) ve güncelleme akışlarına yakından bağlıdır. Bu yüzden genel bir uygulamada kullanmadan önce alan modelinin bu API'lere gerçekten uyup uymadığının kontrol edilmesi gerekir. Aksi halde bileşen görsel olarak hazır görünür, fakat modelin ihtiyaçlarıyla çelişebilir.
+Bu bölümdeki bileşenler Zed'in AI, agent (temsilci), sağlayıcı, iş birliği (collaboration) ve güncelleme akışlarına yakından bağlıdır. Bu yüzden genel bir uygulamada kullanmadan önce alan modelinin bu API'lere gerçekten uyup uymadığını kontrol etmen gerekir. Aksi halde bileşen görsel olarak hazır görünür, fakat modelin ihtiyaçlarıyla çelişebilir.
 
 Bu ailede iki genel kural geçerlidir:
 
 - Alana bağlı bileşenlerde gerçek servis durumu bileşenin içine taşınmaz. Bileşene yalnızca render için gereken etiket, durum, ikon, geri çağrı (callback) ve üstveri (metadata) verilir.
-- AI ve Collab bileşenlerini başka panellerde kompoze ederken alan durumu görünümde (view) tutulur. Bu bileşenler yalnızca o durumu görsel olarak düzenler.
+- AI ve Collab bileşenlerini başka panellerde kompoze ederken alan durumunu görünümde (view) tutman gerekir. Bu bileşenler yalnızca o durumu görsel olarak düzenler.
 
 ![AI ve Collab Domain Haritası](assets/ai-collab-domain-haritasi.svg)
 
@@ -79,7 +79,7 @@ Zed içinden kullanım örnekleri:
 Dikkat Edilmesi Gereken Hususlar:
 
 - Kaynak (source) enum değeri, gerçek kurulum kaynağıyla eşleşmelidir; tooltip metni bu değerden türetilir.
-- `.details(...)` alanı uzun bir hata metni için kullanılabilir. Yine de ana satırın aşırı kalabalıklaşmamasına dikkat edilmelidir.
+- `.details(...)` alanı uzun bir hata metni için kullanılabilir. Yine de ana satırın aşırı kalabalıklaşmamasına dikkat etmelisin.
 
 ## AgentSetupButton
 
@@ -129,7 +129,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat Edilmesi Gereken Hususlar:
 
-- Boş bir kart üretmemek için en azından ikon ile isim veya durum bilgisi verilmelidir.
+- Boş bir kart üretmemek için en azından ikon ile isim veya durum bilgisi vermen gerekir.
 - Devre dışı (disabled) durumdayken tıklama işleyicisi render edilmez.
 
 ## ThreadItem
@@ -226,7 +226,7 @@ Dikkat Edilmesi Gereken Hususlar:
 
 - `ThreadItem` yoğun bir alan bileşenidir. Genel bir liste satırı ihtiyacı için `ListItem` veya özel bir `h_flex()` kompozisyonu çok daha temiz bir çözüm sunar.
 - Worktree üstverisinde yalnızca `WorktreeKind::Linked` olan ve worktree veya branch bilgisi bulunan girdiler gösterilir; diğerleri bileşen tarafından filtrelenir.
-- Hover durumu bileşen içinde ölçülmez. Üst görünüm, `.hovered(...)` değerini doğru şekilde yönetmek durumundadır.
+- Hover durumu bileşen içinde ölçülmez. Üst görünümde, `.hovered(...)` değerini doğru şekilde yönetmen gerekir.
 
 ## ConfiguredApiCard
 
@@ -298,9 +298,9 @@ Tavsiye Edilen Kullanım Alanları:
 
 Tercih Edilmemesi Gereken Durumlar:
 
-- Gerçek bir temsilci thread listesi için: `ThreadItem` ile `List` kompozisyonu kullanılır.
+- Gerçek bir temsilci thread listesi için: `ThreadItem` ile `List` kompozisyonunu kullanman gerekir.
 - Etkileşim gerektiren temsilci sağlayıcı seçimi için: `AgentSetupButton` veya `AiSettingItem` çok daha uygundur.
-- Gerçek beceri katalogu, arama veya seçim listesi için bu bileşen kullanılmaz; yalnızca statik bir illüstrasyondur ve tıklama işleyicisi ya da durum yüzeyi sunmaz.
+- Gerçek beceri katalogu, arama veya seçim listesi için bu bileşeni kullanmamalısın; yalnızca statik bir illüstrasyondur ve tıklama işleyicisi ya da durum yüzeyi sunmaz.
 
 Temel API:
 
@@ -341,9 +341,9 @@ Zed içinden kullanım örnekleri:
 
 Dikkat Edilmesi Gereken Hususlar:
 
-- Bu bileşen yalnızca görsel bir illüstrasyondur; gerçek thread, worktree veya temsilci verisi göstermek için kullanılmaz.
+- Bu bileşen yalnızca görsel bir illüstrasyondur; gerçek thread, worktree veya temsilci verisi göstermek için kullanmamalısın.
 - İçindeki beceri adları statiktir; gerçek proje veya kullanıcı beceri listesinden beslenmez.
-- `SkillsIllustration::new()` çağrısı parametresizdir; renk veya boyut özelleştirmesi tamamen bileşenin kendi koduna bağlıdır. Farklı bir görsele ihtiyaç duyulduğunda, kaynak dosya referans alınarak özel bir illüstrasyon bileşeni yazılması daha uygun olur.
+- `SkillsIllustration::new()` çağrısı parametresizdir; renk veya boyut özelleştirmesi tamamen bileşenin kendi koduna bağlıdır. Farklı bir görsele ihtiyaç duyduğunda, kaynak dosyayı referans alarak özel bir illüstrasyon bileşeni yazman daha uygun olur.
 
 ## CollabNotification
 
@@ -395,7 +395,7 @@ Zed içinden kullanım örnekleri:
 Dikkat Edilmesi Gereken Hususlar:
 
 - Kabul ve kapat butonlarının geri çağrıları (callbacks) üst bildirim görünümünde bağlanır.
-- Uzun kullanıcı veya proje adlarında, çocuk etiketlere (child labels) bir sınırlandırma (truncate) davranışının eklenmesi gerekir; aksi halde satır taşabilir.
+- Uzun kullanıcı veya proje adlarında, çocuk etiketlere (child labels) bir sınırlandırma (truncate) davranışı eklemen gerekir; aksi halde satır taşabilir.
 
 ## Agent Skills UI
 
@@ -485,8 +485,8 @@ Zed içinden kullanım örnekleri:
 
 Dikkat Edilmesi Gereken Hususlar:
 
-- Bu bileşen başlık çubuğu bağlamına göre tasarlanmıştır; genel bir sayfa CTA'sı olarak kullanılmaz.
-- `checking()`, `downloading(...)` ve `installing(...)` kurucuları zaten devre dışı (disabled) bir hâlde gelir. Bu yüzden bu durumlarda tıklama işleyicisi bağlamak anlamsızdır; kullanıcının bir aksiyon gerçekleştirebilmesi gerekiyorsa `updated(...)`, `errored(...)` veya `UpdateButton::new(...)` ile açıkça bir durum kurulmalıdır.
+- Bu bileşen başlık çubuğu bağlamına göre tasarlanmıştır; genel bir sayfa CTA'sı olarak kullanmamalısın.
+- `checking()`, `downloading(...)` ve `installing(...)` kurucuları zaten devre dışı (disabled) bir hâlde gelir. Bu yüzden bu durumlarda tıklama işleyicisi bağlamak anlamsızdır; kullanıcının bir aksiyon gerçekleştirebilmesi gerekiyorsa `updated(...)`, `errored(...)` veya `UpdateButton::new(...)` ile açıkça bir durum kurman gerekir.
 - `updated(...)` ve `errored(...)` kapatma (dismiss) butonu gösterir; bir dismiss callback'i bağlanmadığında buton görünür kalır ama durum temizlenmez.
 
 ## AI/Collab Kompozisyon Örnekleri

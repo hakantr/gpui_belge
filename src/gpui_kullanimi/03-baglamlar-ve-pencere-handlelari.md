@@ -10,7 +10,7 @@ GPUI'de neredeyse tüm işlemler bir bağlam (`context`) üzerinden yürütülü
 
 - **`App`**: Uygulamanın kök bağlamıdır. Global durum yönetimi, açık pencerelerin listesi, platform servisleri, kısayol haritaları (keymap), yeni entity oluşturma ve pencere açma gibi süreç ömrü boyunca geçerli olan temel işlemler bu bağlam üzerinden yürütülür.
 - **`Context<T>`**: Belirli bir `Entity<T>` güncellenirken kullanılan bağlamdır. `App` üzerine deref olur; bu sayede `App`'in tüm metotlarına doğrudan erişilebilir. Buna ek olarak `cx.notify()`, `cx.emit(...)`, `cx.listener(...)`, `cx.observe(...)`, `cx.subscribe(...)` ve `cx.spawn(...)` gibi entity'ye özel API'leri kullanıma açar.
-- **`Window`**: Tek bir pencereye özgü durum ve davranışı temsil eder. Klavye odağı, imleç, pencere boyutu, başlık ayarları, arka plan görünümü, komut yönlendirme (`action dispatch`), IME (Input Method Editor), prompt ve platform pencere işlemleri bu bağlam üzerinden yönetilir.
+- **`WindowContext`**: Tek bir pencereye özgü durum ve davranışı temsil eder. Klavye odağı, imleç, pencere boyutu, başlık ayarları, arka plan görünümü, komut yönlendirme (`action dispatch`), IME (Input Method Editor), prompt ve platform pencere işlemleri bu bağlam üzerinden yönetilir.
 - **`AsyncApp` / `AsyncWindowContext`**: Asenkron bir `await` adımının ötesine taşınabilen bağlamlardır. Bu bağlamlarda `update`, `update_entity`, `read_entity`, `update_global` gibi çağrılar çoğunlukla doğrudan değeri (`R`) döndürür. Eğer uygulama (`App`) tamamen sonlanmışsa bu çağrılar panikle sonuçlanır. Diğer taraftan, pencereyi veya zayıf entity referansını yeniden çözümleyen çağrılar (`update_window`, `with_window`, `read_window` ve zayıf entity üzerindeki `update`), asenkron bekleme süresi boyunca pencerenin ya da entity'nin kapanmış/silinmiş olma ihtimaline karşın `Result` veya `Option` tipi döndürür.
 - **`TestAppContext` / `VisualTestContext`**: Testlerde simülasyon, zamanlayıcı kontrolü ve görsel doğrulama için ayrılmış bağlamlardır; üretim akışlarında kullanılmaz.
 
@@ -192,7 +192,7 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 | Yaşam sonu | `on_release(...)`, `on_release_in(...)`, `on_drop(...)` | Entity elden çıkarken temizlik veya son event yazımı için kullanılır. UI state'i zaten elden çıkıyorsa yeni render varsayımı yapılmaz. |
 | Async iş | `spawn(...)`, `spawn_in(window, ...)`, `spawn_in_with_priority(...)`, `defer_in(...)`, `on_next_frame(...)` | `spawn` App'e bağlı async iş başlatır ve geri çağrıya entity'nin `WeakEntity`'sini ve `&mut AsyncApp`'i birlikte verir; `spawn_in` ek olarak pencereyi de bağlar. `defer_in` mevcut update bittikten sonra çalışacak işi sıraya alır; aynı update içinde yeniden girişli değişiklik yapmak yerine bunu kullanırsın. |
 
-`Context<T>` ile `App` arasındaki sınırı şöyle düşün: Uygulama geneline ait bir servis veya kayıt gerekiyorsa `App` metodunu, mevcut entity'nin state'i, event'i, subscription'ı veya render bildirimi gerekiyorsa `Context<T>` metodunu kullanırsın.
+`Context<T>` ile `App` arasındaki sınırı şöyle düşün: Uygulama geneline ait bir servis veya kayıt gerekiyorsa `App` metodunu, mevcut entity'nin state'i, event'i, subscription'ı veya render bildirimi gerekiyorsa `Context<T>` metodunu tercih etmen uygun olur.
 
 ## Entity, WeakEntity ve AnyEntity Ailesi
 
@@ -206,9 +206,9 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 | `AnyWeakEntity` | `entity_id()`, `upgrade()`, `is_upgradable()`, `assert_released()`, `new_invalid()` | Tip silinmiş zayıf referanstır. Testte release doğrulaması için `assert_released()` kullanılabilir; üretim davranışı buna bağlanmaz. |
 | `EntityId` | `as_u64()`, `as_non_zero_u64()` | Log, harita anahtarı veya dış sistemle eşleme için kimlik değerini verir. Entity'nin kendisine erişim sağlamaz. |
 
-`EntityMap`, `Entity<T>` değerlerinin App içindeki gerçek saklama alanıdır. `insert`, `reserve`, `read`, `lease`, `end_lease`, `extend_accessed`, `clear_accessed`, `take_dropped`, `leak_detector_snapshot`, `assert_no_new_leaks` ve `ref_counts_drop_handle` gibi metotlar GPUI'nin sahiplik ve leak detection mekanizmasını yürütür. Uygulama kodunda çoğunlukla `cx.new`, `entity.update(...)` ve `WeakEntity` yüzeyiyle çalışırsın; `EntityMap` metotlarını ancak test altyapısı, framework entegrasyonu veya düşük seviye tanılama yazarken doğrudan görürsün.
+`EntityMap`, `Entity<T>` değerlerinin App içindeki gerçek saklama alanıdır. `insert`, `reserve`, `read`, `lease`, `end_lease`, `extend_accessed`, `clear_accessed`, `take_dropped`, `leak_detector_snapshot`, `assert_no_new_leaks` ve `ref_counts_drop_handle` gibi metotlar GPUI'nin sahiplik ve leak detection mekanizmasını yürütür. Uygulama kodunda çoğunlukla `cx.new`, `entity.update(...)` ve `WeakEntity` yüzeyiyle çalışman hedeflenir; `EntityMap` metotlarını ancak test altyapısı, framework entegrasyonu veya düşük seviye tanılama yazarken doğrudan görebilirsin.
 
-`LeakDetector`, `handle_created`, `handle_released`, `snapshot`, `assert_released` ve `assert_no_new_leaks` ile entity handle yaşamını takip eder. Bu aile, "state gerçekten elden çıktı mı?" sorusunun test cevabıdır. Kullanıcıya görünen davranışı değiştirmek için değil, sahiplik hatasını erken yakalamak için kullanırsın.
+`LeakDetector`, `handle_created`, `handle_released`, `snapshot`, `assert_released` ve `assert_no_new_leaks` ile entity handle yaşamını takip eder. Bu aile, "state gerçekten elden çıktı mı?" sorusunun test cevabıdır. Kullanıcıya görünen davranışı değiştirmek için değil, sahiplik hatasını erken yakalamak için kullanabilirsin.
 
 ## AsyncApp ve AsyncWindowContext
 
@@ -219,6 +219,6 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 | `AsyncApp` | `refresh()`, `update(...)`, `background_executor()`, `foreground_executor()`, `subscribe(...)`, `open_window(...)`, `spawn(...)`, `has_global::<G>()`, `read_global(...)`, `try_read_global(...)`, `read_default_global(...)`, `update_global(...)`, `on_drop(...)` | App hala yaşıyorsa çalışma zamanı state'ine geri döner. Global okuma/yazma ve pencere açma gibi işler async task sonucunu uygulamaya bağlar. |
 | `AsyncWindowContext` | `window_handle()`, `update(...)`, `update_root(...)`, `on_next_frame(...)`, `read_global(...)`, `update_global(...)`, `spawn(...)`, `prompt(...)` | Window kapanmışsa pencereye geri dönen çağrılar `Result` hata dönebilir. Bu yüzden async pencere işlerinde hata yayma (`?`) veya kullanıcıya sessiz no-op kararı açık olmalıdır. |
 
-Async bağlamda temel kural şudur: Task sonucunda ekrana yansıyacak state değişiyorsa entity'yi `update`/`update_in` ile günceller ve `cx.notify()` çağırırsın. Task yalnız arka plan cache'ini veya global state'i değiştiriyorsa ilgili global observer'ın render'ı tetikleyeceğinden emin olursun.
+Async bağlamda temel kural şudur: Task sonucunda ekrana yansıyacak state değişiyorsa entity'yi `update`/`update_in` ile güncelleyip `cx.notify()` çağırman gerekir. Task yalnız arka plan cache'ini veya global state'i değiştiriyorsa ilgili global observer'ın render'ı tetikleyeceğinden emin olman önemlidir.
 
 ---

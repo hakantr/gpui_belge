@@ -169,8 +169,8 @@ Aşağıdaki kayıtlar çalışma alanı action yüzeyinin büyük kısmını ol
 
 Entegrasyonlar sırasında şu noktalara dikkat edilmesi önem arz eder:
 
-- Toolbar item, `set_active_pane_item` içerisinde konumu döndürür; ancak daha sonra konum değiştireceği zaman olay yaymalıdır. Sadece durum değiştirip `cx.notify()` çağrısı yapmak yeterli değildir.
-- Sidebar durumu serileştirilecekse, `SidebarEvent::SerializeNeeded` olayının akışa eklenmesi gerekir.
-- Çalışma alanını tutma veya ayırma davranışı sidebar'ın açık ya da kapalı olması durumuna bağlanmamalıdır; bu konudaki güncel karar kaynağı doğrudan `multi_workspace_enabled(cx)` sonucudur.
-- Navigasyon geçmişi (nav history) önizleme item'larını ayrı işaretler; önizleme sekmesi gerçek bir sekme olarak sabitlendiğinde geçmiş girişlerinin de bu doğrultuda güncellenmesi gerekir.
-- Split yönü sabit kodlanmış olarak verilmek yerine kullanıcı ayarlı varsayılanlara göre belirlenmek isteniyorsa `SplitDirection::vertical(cx)` veya `horizontal(cx)` kullanılmalıdır.
+- Toolbar item, `set_active_pane_item` içerisinde konumu döndürür; ancak daha sonra konum değiştireceği zaman olay yayman gerekir. Sadece durum değiştirip `cx.notify()` çağrısı yapman yeterli değildir.
+- Sidebar durumu serileştirilecekse, `SidebarEvent::SerializeNeeded` olayını akışa eklemen gerekir.
+- Çalışma alanını tutma veya ayırma davranışını sidebar'ın açık ya da kapalı olması durumuna bağlamaman gerekir; bu konudaki güncel karar kaynağı doğrudan `multi_workspace_enabled(cx)` sonucudur.
+- Navigasyon geçmişi (nav history) önizleme item'larını ayrı işaretler; önizleme sekmesi gerçek bir sekme olarak sabitlendiğinde geçmiş girişlerini de bu doğrultuda güncellemen gerekir.
+- Split yönünü sabit kodlanmış olarak vermek yerine kullanıcı ayarlı varsayılanlara göre belirlemek istiyorsan, `SplitDirection::vertical(cx)` veya `horizontal(cx)` kullanman gerekir.

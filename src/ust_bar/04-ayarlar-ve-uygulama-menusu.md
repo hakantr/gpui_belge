@@ -34,7 +34,7 @@ pub struct TitleBarSettings {
 
 Bu ayar tipi çalışma zamanı tarafıdır. Kullanıcının `settings.json` dosyasından okunan dış veri tipi `settings_content::title_bar::TitleBarSettingsContent`'tir; tüm alanları `Option<...>` sarmalındadır ve `TitleBarSettings`'e bu içerikten üretilir. `button_layout` alanı özel bir dönüşümle (`WindowButtonLayoutContent::into_layout`) `WindowButtonLayout`'a çevrilir; bu dönüşüm Linux/FreeBSD dışında `None` döner.
 
-Port hedefinde de benzer bir yaklaşım izlenmelidir: Başlığın her parçası için bir görünürlük bayrağı tutan tek bir ayar struct'ı tanımlanmalı ve render sırasında her parça bu bayrağa göre koşullu olarak çizilmelidir. Render kodunu ayardan bağımsız yazıp parçaları her zaman çizmek, kullanıcıya sade bir başlık sunma imkanını baştan kaybettirir.
+Port hedefinde de benzer bir yaklaşım izlenmesi gerekir: Başlığın her parçası için bir görünürlük bayrağı tutan tek bir ayar struct'ı tanımlaman ve render sırasında her parçayı bu bayrağa göre koşullu olarak çizmen önemlidir. Render kodunu ayardan bağımsız yazıp parçaları her zaman çizmek, kullanıcıya sade bir başlık sunma imkanını baştan kaybettirir.
 
 ## 2. `show_menus`: menü görünürlüğü ve platform farkı
 
@@ -60,10 +60,10 @@ Menü girişleri statik değildir: `ApplicationMenu::new`, menü listesini doğr
 Davranışsal yüzeyi şu metotlardan oluşur:
 
 ```rust
-pub fn new(_: &mut Window, cx: &mut Context<Self>) -> Self
-pub fn open_menu(&mut self, action: &OpenApplicationMenu, window: &mut Window, cx: &mut Context<Self>)
-pub fn navigate_menus_in_direction(&mut self, direction: ActivateDirection, window: &mut Window, cx: &mut Context<Self>)
-pub fn all_menus_shown(&self, cx: &mut Context<Self>) -> bool
+pub fn new(cx: &mut ViewContext<Self>) -> Self
+pub fn open_menu(&mut self, action: &OpenApplicationMenu, cx: &mut ViewContext<Self>)
+pub fn navigate_menus_in_direction(&mut self, direction: ActivateDirection, cx: &mut ViewContext<Self>)
+pub fn all_menus_shown(&self, cx: &mut ViewContext<Self>) -> bool
 ```
 
 - `open_menu`, `OpenApplicationMenu(String)` eylemindeki menü adını alıp ilgili menüyü açılmak üzere işaretler (yalnızca macOS dışı platformlar için geçerlidir).
@@ -92,10 +92,10 @@ Bu eylemler yalnız istemci tarafı menü çiziminde anlamlıdır. macOS'un yere
 
 ## 5. Port hedefi için
 
-İstemci tarafı menü, Zed'e özgü bir yüzey değildir; menü çubuğunu kendisi çizen her uygulamanın ihtiyaç duyduğu genel bir kalıptır. Port ederken üç şeyi kendi tarafınızda karşılarsınız:
+İstemci tarafı menü, Zed'e özgü bir yüzey değildir; menü çubuğunu kendisi çizen her uygulamanın ihtiyaç duyduğu genel bir kalıptır. Port ederken üç şeyi kendi tarafında karşılaman gerekir:
 
-- **Menü Kaynağı:** Zed menüleri uygulamanın menü kaydından dinamik olarak okur. Sen menüleri ister statik tanımla, ister kendi durum ağacından üret; önemli olan başlığın bu kaynağı tek bir yerden okumasıdır.
-- **Platform Kararı:** macOS'ta yerel menü çubuğunu kullanmak çoğu zaman doğru tercihtir; Linux/Windows'ta menüyü kendin çizersin. Bu kararı bir ayar + platform kontrolüyle (Zed'in `show_menus` kalıbı gibi) tek noktada verilir.
-- **Klavye Gezinmesi:** Menüler arası sağ/sol geçiş ve menü-içi yukarı/aşağı gezinme, istemci tarafı menüde senin sorumluluğundur. Bu davranışı eylemlere bağlamak, hem klavye erişilebilirliğini sağlar hem de macOS/diğer platform ayrımını temiz tutar.
+- **Menü Kaynağı:** Zed menüleri uygulamanın menü kaydından dinamik olarak okur. Menüleri ister statik tanımlaman, ister kendi durum ağacından üretmen mümkündür; önemli olan başlığın bu kaynağı tek bir yerden okumasıdır.
+- **Platform Kararı:** macOS'ta yerel menü çubuğunu kullanmak çoğu zaman doğru tercihtir; Linux/Windows'ta ise menüyü uygulamanın kendisinin çizmesi gerekir. Bu kararı bir ayar ve platform kontrolüyle (Zed'in `show_menus` kalıbı gibi) tek noktada yönetebilirsin.
+- **Klavye Gezinmesi:** Menüler arası sağ/sol geçiş ve menü-içi yukarı/aşağı gezinme eylemleri geliştiricinin sorumluluğundadır. Bu davranışı eylemlere bağlamak, hem klavye erişilebilirliğini sağlar hem de macOS/diğer platform ayrımını temiz tutar.
 
 ---

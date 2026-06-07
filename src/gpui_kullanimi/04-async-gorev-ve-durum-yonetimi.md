@@ -362,7 +362,7 @@ let _abonelik = cx.observe(&varlik, |...| { ... });
 
 ## Pencere Bağlı Gözlemci, Release ve Odak Yardımcı Desenleri
 
-Standart `observe`, `subscribe` ve `on_release` geri çağırma işlevleri yalnızca `App` veya `Context<T>` bağlamlarını sağlar. Ancak kullanıcı arayüzü (UI) katmanındaki pek cell işlemin pencere durumuna da ihtiyaç duyması nedeniyle GPUI, bu kalıpların pencereye duyarlı varyantlarını da sunar. Aşağıda, bu yardımcı fonksiyon grupları ve kullanım senaryoları detaylandırılmıştır.
+Standart `observe`, `subscribe` ve `on_release` geri çağırma işlevleri yalnızca `App` veya `Context<T>` bağlamlarını sağlar. Ancak kullanıcı arayüzü (UI) katmanındaki pek çok işlemin pencere durumuna da ihtiyaç duyması nedeniyle GPUI, bu kalıpların pencereye duyarlı varyantlarını da sunar. Aşağıda, bu yardımcı fonksiyon grupları ve kullanım senaryoları detaylandırılmıştır.
 
 **Yeni entity gözleme.** Belirli bir tipte yeni bir entity oluşturulduğu anda sistem geneli bir kanca (hook) takmak amacıyla `observe_new` fonksiyonundan yararlanılır:
 

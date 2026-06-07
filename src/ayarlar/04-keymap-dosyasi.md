@@ -188,7 +188,7 @@ pub struct ActionSequence(pub Vec<Box<dyn Action>>);
 
 ## Dikkat Edilmesi Gereken Hususlar
 
-- Aynı tuş vuruşu aynı bağlamda (context) iki kez tanımlanırsa dosyada daha altta yer alan kayıt kazanır; ancak arayüzde iki kayıt arasındaki "kazanan bağlama" işareti yalnızca `KeybindSource` değerleri farklıysa görüntülenir. Aynı kullanıcı kaydını iki kez tanımlamak yerine, düzenleme akışında önce mevcut kaydın kaldırılması gerekir.
-- `unbind` işlemleri her zaman `bindings` listesinden önce işlendiği için, aynı bölüm içinde bir tuş vuruşunu önce serbest bırakıp sonra yeni bir eyleme bağlamak güvenlidir; farklı bir bölüme (section) bağlanmış olan aynı tuş vuruşu üst katmanlardan geliyorsa override edilmesi gerekebilir.
-- `KeyBindingValidator` factory yapısının `inventory::submit!` ile derleme zamanında kaydedilmesi gerekir; aksi takdirde validator listede görünmez ve doğrulama aşaması atlanır.
-- `KeybindUpdateOperation::Replace` işlemi `target_keybind_source = Default` ile çağrıldığında, varsayılan keymap dosyasına yazma denemesi yapılmaz; bunun yerine kullanıcı dosyasına ek bir kayıt yazılır ve gerekirse `unbind` girişi eklenir.
+- Aynı tuş vuruşu aynı bağlamda (context) iki kez tanımlanırsa dosyada daha altta yer alan kayıt kazanır; ancak arayüzde iki kayıt arasındaki "kazanan bağlama" işareti yalnızca `KeybindSource` değerleri farklıysa görüntülenir. Aynı kullanıcı kaydını iki kez tanımlamak yerine, düzenleme akışında önce mevcut kaydı kaldırman gerekir.
+- `unbind` işlemleri her zaman `bindings` listesinden önce işlendiği için, aynı bölüm içinde bir tuş vuruşunu önce serbest bırakıp sonra yeni bir eyleme bağlamak güvenlidir; farklı bir bölüme (section) bağlanmış olan aynı tuş vuruşu üst katmanlardan geliyorsa override etmen gerekebilir.
+- `KeyBindingValidator` factory yapısını `inventory::submit!` ile derleme zamanında kaydetmen gerekir; aksi takdirde validator listede görünmez ve doğrulama aşaması atlanır.
+- `KeybindUpdateOperation::Replace` işlemi `target_keybind_source = Default` ile çağrıldığında, GPUI varsayılan keymap dosyasına yazma denemesi yapmaz; bunun yerine kullanıcı dosyasına ek bir kayıt yazılır ve gerekirse `unbind` girişi eklenir.

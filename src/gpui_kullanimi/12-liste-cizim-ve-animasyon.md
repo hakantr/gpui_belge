@@ -129,7 +129,7 @@ list(self.liste_durumu.clone(), |sira, window, cx| {
 - `max_offset_for_scrollbar() -> Point<Pixels>` — ölçülmüş item'lara göre maksimum scroll. Sürükleme sırasında bu değer sabit kalır; böylece scrollbar sıçramaz.
 - `set_offset_from_scrollbar(point)` — scrollbar sürüklemesinden veya tıklamasından gelen offset'i uygular.
 - `scrollbar_drag_started()` / `scrollbar_drag_ended()` — sürükleme sırasında overdraw ölçümünden kaynaklı yükseklik dalgalanmasını dondurmak veya serbest bırakmak için. Sürüklemeye girerken `started`, bırakırken `ended` çağrılmazsa scrollbar sürükleme boyunca beklenmedik biçimde kayabilir.
-- `is_scrollbar_dragging() -> bool` — `scrollbar_drag_started` ile `scrollbar_drag_ended` arasındaki elle sürükleme durumunu okur. Wheel veya trackpad scroll ile scrollbar thumb sürüklemesini ayırmak için kullanırsın; sürükleme esnasında otomatik tail-follow davranışını bastırmak için bu durumun okunması gerekir.
+- `is_scrollbar_dragging() -> bool` — `scrollbar_drag_started` ile `scrollbar_drag_ended` arasındaki elle sürükleme durumunu okur. Wheel veya trackpad scroll ile scrollbar thumb sürüklemesini ayırmak için kullanılır; sürükleme esnasında otomatik tail-follow davranışını bastırmak için bu durumun okunması gerekir.
 - `set_offset_from_scrollbar(point)` tarafında scroll offset'inin Y bileşeni, içerik yukarı kaydıkça negatiftir; özel scrollbar yazarken pozitif "başlangıçtan uzaklık" yerine `point(px(0.), -distance)` üretmek doğru sonucu verir. Sürükleme sırasında içerik büyürse başlangıçtaki içerik yüksekliği dondurulur; thumb donmuş alta sürüklenirse `FollowMode::Tail` tekrar `is_following = true` olur.
 
 **Uniform liste.** Sabit yükseklikli item'larda virtualizasyon daha agresiftir:
@@ -392,7 +392,7 @@ Bu kalıpta `insert_hitbox` prepaint aşamasında çalıştırılır; `set_curso
 
 **`PathBuilder`.** Path inşası adım adım akıcı (fluent) metotlarla gerçekleştirilir:
 
-- `PathBuilder::fill()` veya `PathBuilder::stroke(width)` ile başlatırsın.
+- `PathBuilder::fill()` veya `PathBuilder::stroke(width)` ile başlatılır.
 - `move_to(point)`, `line_to(point)`, `curve_to(to, ctrl)`, `cubic_bezier_to(to, control_a, control_b)`, `arc_to(radii, x_rotation, large_arc, sweep, to)`, `relative_arc_to(...)`, `add_polygon(...)`, `close()`.
 - `dash_array(&[Pixels])` yalnızca stroke path'lerde anlamlıdır; tek sayıda değer verirsen SVG/CSS davranışındaki gibi liste iki kez tekrarlanır.
 - `transform(...)`, `translate(point)`, `scale(f32)`, ve `rotate(degrees)` metotları, build öncesinde path yapısını dönüştürür.
@@ -548,7 +548,7 @@ Bu tipler "ekrana ne çizilecek?" sorusunun son cevabıdır. Bir buton, liste ve
 
 **Kare ve paint yardımcıları.** Pencere üzerindeki bazı işler doğrudan çizim bağlamını etkiler:
 
-- `window.set_window_cursor_style(style)` — hitbox'a bağlı olmayan, tüm pencere için imleç isteği. Paint fazında çağırırsın ve hitbox imleçlerine göre önceliklidir.
+- `window.set_window_cursor_style(style)` — hitbox'a bağlı olmayan, tüm pencere için imleç isteği. Paint fazında çağrılır ve hitbox imleçlerine göre önceliklidir.
 - `window.set_tooltip(AnyTooltip) -> TooltipId` — tooltip isteği prepaint fazında kaydedilir; kaynak gövdede `debug_assert_prepaint()` ile denetlenir.
 - `window.paint_svg(...)` — `SvgRenderer` ve sprite atlas üzerinden monokrom SVG maskesi çizer. SVG her zaman hedef boyutun `gpui::SMOOTH_SVG_SCALE_FACTOR: f32 = 2.0` (`svg_renderer`) katı çözünürlükte rasterize edilip sonra küçültülür; bu nedenle `paint_svg` çağrısı küçük ikon boyutlarında bile yumuşak kenar üretir. `paint_image` kodu çözülmüş raster kare, `paint_surface` ise macOS yerel surface'i içindir.
 

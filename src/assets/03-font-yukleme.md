@@ -132,7 +132,7 @@ Bu metot yalnızca tek bir font yükler: `Lilex-Regular.ttf`. Gerekçe şudur: t
 
 ## 5. USVG fontdb entegrasyonu
 
-`SvgRenderer` yapısı, SVG dosyalarındaki `<text>` etiketlerini doğru şekilde render edebilmek amacıyla bağımsız bir font veritabanı yönetir. Bu veritabanı `usvg::fontdb::Database` türündedirและ iki farklı kaynaktan beslenir: sistemde kurulu fontlar ve Zed'in gömülü fontları. Sistem fontları, `LazyLock` ile bir defa kurulan paylaşımlı bir `SYSTEM_FONT_DB` veritabanında saklanır; bu veritabanı programın ömrü boyunca yalnızca bir kez `load_system_fonts()` çağrısıyla doldurulur. Zenginleştirme yapılması gerektiğinde bu paylaşımlı veritabanı **klonlanır** ve gömülü fontlar bu klonun üzerine eklenir; böylece ana paylaşımlı sistem veritabanı mutasyona uğramadan temiz kalır:
+`SvgRenderer` yapısı, SVG dosyalarındaki `<text>` etiketlerini doğru şekilde render edebilmek amacıyla bağımsız bir font veritabanı yönetir. Bu veritabanı `usvg::fontdb::Database` türündedir ve iki farklı kaynaktan beslenir: sistemde kurulu fontlar ve Zed'in gömülü fontları. Sistem fontları, `LazyLock` ile bir defa kurulan paylaşımlı bir `SYSTEM_FONT_DB` veritabanında saklanır; bu veritabanı programın ömrü boyunca yalnızca bir kez `load_system_fonts()` çağrısıyla doldurulur. Zenginleştirme yapılması gerektiğinde bu paylaşımlı veritabanı **klonlanır** ve gömülü fontlar bu klonun üzerine eklenir; böylece ana paylaşımlı sistem veritabanı mutasyona uğramadan temiz kalır:
 
 ```rust
 fn load_bundled_fonts(varlik_kaynagi: &dyn AssetSource, db: &mut usvg::fontdb::Database) {

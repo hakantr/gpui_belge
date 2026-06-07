@@ -102,9 +102,9 @@ Burada `canvas` imzası `prepaint: FnOnce(Bounds<Pixels>, &mut Window, &mut App)
 
 ## Olay Tipleri ve PlatformInput Modeli
 
-Element listener'ları çoğu zaman olay tipini senin yerine seçer; yine de özel element, test olayı veya platform input çevirimi yazarken GPUI olay ailesini bilmen gerekir.
+Element listener'ları çoğu zaman olay tipini kendisi seçer; yine de özel element, test olayı veya platform input çevirimi yazarken GPUI olay ailesini bilmen faydalıdır.
 
-**Trait sınıfları.** `InputEvent`, `KeyEvent`, `MouseEvent` ve `GestureEvent` olayların ortak davranışlarını ayırır. Klavye olayları `to_platform_input()` ile `PlatformInput` değerine dönüşebilir; fare ve gesture olayları da platformdan gelen ham girdiyi GPUI dispatch ağacına taşıyan aynı modelin parçasıdır. Uygulama kodunda bu trait'leri doğrudan implement etmek yerine `.on_key_down(...)`, `.on_mouse_down(...)`, `.on_scroll_wheel(...)` gibi element metotlarını kullanırsın.
+**Trait sınıfları.** `InputEvent`, `KeyEvent`, `MouseEvent` ve `GestureEvent` olayların ortak davranışlarını ayırır. Klavye olayları `to_platform_input()` ile `PlatformInput` değerine dönüşebilir; fare ve gesture olayları da platformdan gelen ham girdiyi GPUI dispatch ağacına taşıyan aynı modelin parçasıdır. Uygulama kodunda bu trait'leri doğrudan implement etmek yerine `.on_key_down(...)`, `.on_mouse_down(...)`, `.on_scroll_wheel(...)` gibi element metotlarının kullanılması gerekir.
 
 **Klavye olayları.** `KeyDownEvent`, `KeyUpEvent`, `ModifiersChangedEvent`, `KeyboardClickEvent`, `KeyboardButton` ve `PlatformInput` klavye akışını tanımlar. `ModifiersChangedEvent` doğrudan `Modifiers`'a deref eder; bu yüzden `olay.secondary()` gibi çağrılar çalışmaktadır. Kısayol yönlendirmesi gerekiyorsa ham `KeyDownEvent` yerine action/keymap modeli tercih edilmeli; metin girdisi gereksinimlerinde ise IME (Input Method Editor) için `InputHandler` yoluna gidilmelidir.
 
@@ -191,7 +191,7 @@ div()
 - `cx.has_active_drag()` — o an uygulamada (herhangi bir element üzerinde) bir sürükleme sürüyor mu, `true`/`false` döner. Asıl kullanım amacı, uygulama davranışını sürükleme durumuna göre sınırlandırmaktır: çakışan bir etkileşimi durdurmak (örneğin araya bir drag girdiğinde scrollbar sürüklemesini iptal etmek), süren bir sürükleme varken ikinci bir sürükleme işlemini başlatmamak ya da yalnızca sürükleme esnasında bırakma bölgelerini vurgulamak için bu durum kontrol edilir.
 - `cx.stop_active_drag(window)` — süren sürüklemeyi iptal eder: aktif drag varsa temizler, pencereyi yeniden çizime işaretler ve `true` döner; yoksa `false`. Tipik yeri `Cancel`/Escape akışıdır ("önce sürüklemeyi iptal et, yoksa sıradaki iptal davranışına geç"). İmleç stilini okuma/değiştirme aşağıda "İmleç" başlığındadır.
 
-**Harici sürükleme.** Dosya sisteminden sürükleyip bırakma akışı için `FileDropEvent` ve `ExternalPaths` tiplerini kullanırsın. Platform `FileDropEvent::Entered/Pending/Submit/Exited` üretir; `Window::dispatch_event` bu olayları dahili `active_drag` durumuna ve `ExternalPaths` yüküne çevirir. Arayüz tarafında normal sürükle-bırak API'si ile yakalanabilir:
+**Harici sürükleme.** Dosya sisteminden sürükleyip bırakma akışı için `FileDropEvent` ve `ExternalPaths` tipleri kullanılır. Platform `FileDropEvent::Entered/Pending/Submit/Exited` üretir; `Window::dispatch_event` bu olayları dahili `active_drag` durumuna ve `ExternalPaths` yüküne çevirir. Arayüz tarafında normal sürükle-bırak API'si ile yakalanabilir:
 
 ```rust
 div()
@@ -209,7 +209,7 @@ div()
 **Dikkat Noktaları.** Sürükle-bırak akışları tasarlanırken karşılaşılabilecek hatalı kullanımlar:
 
 - Sürüklenen tip `T: 'static` olmalıdır; ödünç alma süresi (`lifetime`) taşıyan tipler kabul edilmez.
-- Aynı element üzerinde `on_drag`'i iki kez çağırdığında debug derlemesinde bir doğrulama (`debug_assert`) tetiklenir ("calling on_drag more than once on the same element is not supported"); release derlemesinde bu kontrol devre dışıdır.
+- Aynı element üzerinde `on_drag` iki kez çağrıldığında debug derlemesinde bir doğrulama (`debug_assert`) tetiklenir ("calling on_drag more than once on the same element is not supported"); release derlemesinde bu kontrol devre dışıdır.
 - Hayalet view her sürüklemede yeni bir `cx.new(...)` ile yaratılır; yapıcı (constructor) fonksiyonlar içerisinde yan etki (side effect) oluşturmaktan kaçınılmalıdır.
 - `can_drop` `false` döndüğünde `drag_over` ve `group_drag_over` stilleri uygulanmaz, `on_drop` çağrılmaz. Kabul edilmeyen hedefler için farklı bir görsel geri bildirim sunulmak istendiğinde `on_drag_move` dinleyicisi tercih edilmelidir.
 
@@ -245,7 +245,7 @@ Yakalama aktifken ilgili hitbox üzerinde durulmuş (hovered) kabul edilir. Yeni
 - `window.request_autoscroll(bounds)` — prepaint sırasında bir elementin verilen sınırların görünür kılınmasını talep etmesini sağlar.
 - `window.take_autoscroll()` — saran kapsayıcı (örneğin `List`) tarafında bu talebi tüketir.
 
-**İmleç.** İmleç stilini hitbox veya pencere bağlamında ayarlarsın:
+**İmleç.** İmleç stili hitbox veya pencere bağlamında ayarlanabilir:
 
 - `window.set_cursor_style(style, &hitbox)` — hitbox üzerinde durulmuşsa imleç stilini ayarlar.
 - `window.set_window_cursor_style(style)` — pencere genelindeki imleç durumunu ayarlar.
@@ -253,7 +253,7 @@ Yakalama aktifken ilgili hitbox üzerinde durulmuş (hovered) kabul edilir. Yeni
 
 **Dikkat Noktaları.** Hitbox ve imleç işlemlerinde dikkat edilmesi gereken noktalar:
 
-- `Hitbox::is_hovered`, klavye girdi kipi sırasında `false` dönebilir; scroll dinleyicisi yazarken `should_handle_scroll`'u tercih edersin.
+- `Hitbox::is_hovered`, klavye girdi kipi sırasında `false` dönebilir; scroll dinleyicisi yazarken `should_handle_scroll`'u tercih etmen önerilir.
 - Üst katman elementleri `.occlude()` kullanmazsa arkadaki butonlar hover ve tıklama almaya devam edebilir.
 - İşaretçi yakalama serbest bırakılmadığında sonraki fare hareketlerinde yanlış hitbox üstte kalabilir.
 
@@ -424,7 +424,7 @@ let islendi_mi = window.dispatch_keystroke(tus_vurusu, cx);
 
 - `KeybindingKeystroke::new_with_mapper(inner, use_key_equivalents, keyboard_mapper)` — platform klavye eşleyicisi üzerinden görsel `key` ve `modifier` üretir. `from_keystroke(keystroke)`, platform eşlemesi yapmadan sarar. Windows'ta `new(inner, display_modifiers, display_key)` yapıcısı da vardır; macOS ve Linux derlemelerinde bu yapıcı bulunmaz.
 - `inner()`, `modifiers()`, `key()` okuyucuları (`getter`), görsel ile gerçek keystroke ayrımını saklar. Windows'ta `modifiers()` ve `key()` görsel değeri döndürebilir; gerçek GPUI girdisi için `inner()` değeri okunur.
-- `set_modifiers(...)`, `set_key(...)`, `remove_key_char()` ve `unparse()`'ı, kısayol düzenleyici veya normalize edici akışında kullanırsın. `remove_key_char()` yalnızca `inner.key_char = None` yapar; `key` alanına dokunmaz.
+- `set_modifiers(...)`, `set_key(...)`, `remove_key_char()` ve `unparse()` metotlarını, kısayol düzenleyici veya normalize edici akışında kullanabilirsin. `remove_key_char()` yalnızca `inner.key_char = None` yapar; `key` alanına dokunmaz.
 
 **Kısayol sorguları.** Kullanıcıya gösterilecek kısayol metni ve aktif girdi zinciri için `window` üzerinde yardımcılar mevcuttur:
 

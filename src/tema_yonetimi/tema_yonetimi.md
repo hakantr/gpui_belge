@@ -32,4 +32,4 @@ Okuma sırası bilinçli olarak aşağıdaki gibi düzenlenmiştir. Önce kapsam
 
 ## Okuma Önerisi
 
-İlk kez okuyorsanız 1-8 arası bölümleri sırayla takip etmek en sağlıklı yoldur. Mevcut bir uygulamaya tema sistemi ekliyorsanız 1, 2, 5, 7 ve 8. bölümler önce okunmalıdır. UI bileşenleri yazıyorsanız 10. bölüm doğrudan pratik ihtiyaçlara cevap verir. Test veya dışa açık API sınırı üzerinde çalışıyorsanız 11 ve 12. bölümler kontrol noktası olarak kullanılabilir.
+İlk kez okuyorsan 1-8 arası bölümleri sırayla takip etmen en sağlıklı yoldur. Mevcut bir uygulamaya tema sistemi ekliyorsan 1, 2, 5, 7 ve 8. bölümleri önce okuman gerekir. UI bileşenleri yazıyorsan 10. bölüm doğrudan pratik ihtiyaçlarına cevap verir. Test veya dışa açık API sınırı üzerinde çalışıyorsan 11 ve 12. bölümleri kontrol noktası olarak kullanabilirsin.

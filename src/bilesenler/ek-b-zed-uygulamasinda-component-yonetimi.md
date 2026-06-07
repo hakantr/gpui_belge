@@ -20,8 +20,8 @@ Component preview ise bundan ayrı, kendi içinde bir registry akışıdır:
 
 Gerçek uygulama kullanımı için en rahat okuma sırası şudur:
 
-1. Kurucu (builder) imzası ve export yolu için önce `ui` crate'inin ilgili alt modül dosyasını okunur.
-2. Registry ve önizleme davranışı için `component`, `ui_macros` ve `component_preview` akışı izlenir.
-3. Uygulama kompozisyonu için bileşenin Zed'deki gerçek çağrı yerlerine bakılır. Örnekler arasında `title_bar` menü tetikleyicileri, `project_panel` scrollbars ve list öğesi kullanımı, `keymap_editor` veri tablosu kullanımı, `git_ui` branch ve commit picker'ları, `workspace::notifications` toast ve notification frame kullanımı yer alır.
+1. Kurucu (builder) imzası ve export yolu için önce `ui` crate'inin ilgili alt modül dosyasını okuman gerekir.
+2. Registry ve önizleme davranışı için `component`, `ui_macros` ve `component_preview` akışını izlemen gerekir.
+3. Uygulama kompozisyonu için bileşenin Zed'deki gerçek çağrı yerlerine bakman gerekir. Örnekler arasında `title_bar` menü tetikleyicileri, `project_panel` scrollbars ve list öğesi kullanımı, `keymap_editor` veri tablosu kullanımı, `git_ui` branch ve commit picker'ları, `workspace::notifications` toast ve notification frame kullanımı yer alır.
 
 Bu ayrım önemlidir: `impl Component for T`, üretim ekranındaki yaşam döngüsünü değil, önizleme ve galeri metadatasını anlatır. Üretim ekranındaki yaşam döngüsü GPUI tarafında `Entity`, `Context`, `Window`, `FocusHandle`, `Task` ve gerektiğinde çalışma alanı katmanındaki `ModalLayer`, bildirim yığını (notification stack) veya popover/menu durum tutamakları (state handles) tarafından yönetilir.

@@ -16,7 +16,7 @@ Okuma sırası bilinçli olarak belirli bir mantık çerçevesinde düzenlenmiş
 
 5. [Görsel ve raster varlık akışı](05-image-ve-raster-varlik.md) `images/` klasörünü, `VectorName` registry'sini, `img()` element'ini, `Resource` enum'unu, `ImageAssetLoader` ve `Asset` trait'inin asenkron yükleme modelini gösterir.
 
-6. [Ses ve diğer binary varlıklar](06-sound-ve-binary-varlik.md) `sounds/` klasöründeki WAV dosyalarının `Audio::play_sound` üzerinden tüketini, `Sound` enum eşlemesini ve source cache davranışını açıklar. `prompts/` klasöründeki Handlebars şablonlarının handlebars motoruna nasıl kaydedildiğini de gösterir.
+6. [Ses ve diğer binary varlıklar](06-sound-ve-binary-varlik.md) `sounds/` klasöründeki WAV dosyalarının `Audio::play_sound` üzerinden tüketimini, `Sound` enum eşlemesini ve source cache davranışını açıklar. `prompts/` klasöründeki Handlebars şablonlarının handlebars motoruna nasıl kaydedildiğini de gösterir.
 
 7. [JSON varlıkları: tema, keymap, settings, badge](07-json-varlik-akisi.md) Tema JSON'larının `load_bundled_themes` üzerinden registry'ye nasıl aktığını açıklar. `SettingsAssets`'in keymap ve settings dosyalarını `asset_str` ile nasıl okuduğunu ve `badge/` klasörünün uygulama dışı kullanım amacını da toplar.
 

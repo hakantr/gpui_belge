@@ -155,7 +155,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::Divider`, `ui::DividerColor`, `ui::divider`, `ui::vertical_divider`
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import etmen gerekir.
 - Preview: `impl Component for Divider`.
 
 Ne zaman kullanılır:

@@ -29,7 +29,7 @@ Bu ayrımın iyi örneklerinden biri `system_window_tabs.rs` içindeki `SystemWi
 | `render_left_window_controls` | `pub fn render_left_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Yalnız Linux/FreeBSD + CSD; `button_layout.left[0]` boşsa `None`. |
 | `render_right_window_controls` | `pub fn render_right_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Linux/FreeBSD + CSD'de yerleşim kullanır, Windows'ta `WindowsWindowControls::new(height)`, macOS'ta `None`. |
 
-`PlatformTitleBar` tipinin render davranışı çoğu zaman public API imzalarından daha kritiktir. Port uyumsuzluklarının büyük kısmı imza farklarından değil, render içindeki ince akışlardan doğar. Aşağıdaki maddeler bu davranışta doğrulanacak noktaları sıralar:
+`PlatformTitleBar` tipinin render davranışı çoğu zaman public API imzalarından daha kritiktir. Port uyumsuzluklarının büyük kısmı imza farklarından değil, render içindeki ince akışlardan doğar. Aşağıdaki maddeler bu davranışta doğrulaman gereken noktaları sıralar:
 
 - `close_action`, kaynakta sabit olarak `Box::new(workspace::CloseWindow)` ifadesiyle oluşturulur. Buna karşılık serbest render fonksiyonları (`render_left_window_controls`, `render_right_window_controls`) kapatma eylemini dışarıdan `Box<dyn Action>` olarak alır; bu, davranışın yapılandırılabilir olduğu tek noktadır.
 - `button_layout`, private bir yardımcı olan `effective_button_layout(...)` üzerinden çözümlenir. Bu çözüm yalnızca Linux + CSD durumunda yapılır ve mantığı `self.button_layout.or_else(|| cx.button_layout())` şeklindedir. Yani önce uygulamadan gelen değere bakılır, yoksa platforma sorulur.
@@ -204,7 +204,7 @@ Aşağıdaki tablo, kaynakta `pub` görünmesine rağmen crate sınırının dı
 | `handle_tab_drop` | Private method | Sadece aynı çubukta bırakma ile yeniden sıralama: `SystemWindowTabController::update_tab_position(...)`. |
 | `handle_right_click_action` | Private method | Bağlam menüsü eylemlerini hedef sekme penceresinde çalıştırır. |
 
-Bu ayrımın port hedefi için anlamı şudur: `SystemWindowTabs` tipi dış API olarak taşınmak zorunda değildir. Tüketicilere doğrudan göstermemek serbestlik sağlar. Ancak davranış birebir taşınacaksa private olay yönlendiricileri de ayrı ayrı incelenmelidir; özellikle `handle_tab_drop` ve `handle_right_click_action` önemlidir. Yalnızca public yüzey taşınırsa bu yönlendiricilerin yaptığı iş dışarıda kalır ve sekme davranışı eksik kalır.
+Bu ayrımın port hedefi için anlamı şudur: `SystemWindowTabs` tipi dış API olarak taşınmak zorunda değildir. Tüketicilere doğrudan göstermemek serbestlik sağlar. Ancak davranışı birebir taşıyacaksan private olay yönlendiricilerini de ayrı ayrı incelemen gerekir; özellikle `handle_tab_drop` ve `handle_right_click_action` önemlidir. Yalnızca public yüzey taşınırsa bu yönlendiricilerin yaptığı iş dışarıda kalır ve sekme davranışı eksik kalır.
 
 ### GPUI native tab destek yüzeyi
 
@@ -271,7 +271,7 @@ Bu bilgilerin port hedefi için anlamı şudur: `PlatformTitleBar` tek başına 
 
 ## 22. Davranış doğrulama kontrol listesi
 
-Üst bar davranışı güncellenirken kaynak komutu listesi yerine aşağıdaki karar noktaları tek tek doğrulanmalıdır:
+Üst bar davranışını güncellerken kaynak komutu listesi yerine aşağıdaki karar noktalarını tek tek doğrulaman gerekir:
 
 - `PlatformTitleBar::new` içindeki `SystemWindowTabs` sahipliği güçlü `Entity` olarak kalır; `MultiWorkspace` bağlantısı ise zayıf kalır.
 - Linux ve FreeBSD client-side decoration yolunda `button_layout` önce uygulama ayarından, yoksa platform varsayılanından çözümlenir.

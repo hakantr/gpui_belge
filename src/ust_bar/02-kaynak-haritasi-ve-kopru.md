@@ -63,13 +63,13 @@ Port hedefinde bu sınır korunduğunda, platform kabuğunu hiç değiştirmeden
 
 ## 5. Port hedefi için köprü kalıbı
 
-Kendi uygulamanda aynı köprüyü kurarken iki entity tutulur: Platform kabuğunu temsil eden `PlatformTitleBar` (veya port karşılığı) ve onu besleyen ürün başlığı entity'si. Ürün entity'si, her render geçişinde kendi çocuk grubunu hazırlar ve platform kabuğuna teslim eder:
+Kendi uygulaman için aynı köprüyü kurarken iki entity tutman gerekir: Platform kabuğunu temsil eden `PlatformTitleBar` (veya port karşılığı) ve onu besleyen ürün başlığı entity'si. Ürün entity'si, her render geçişinde kendi çocuk grubunu hazırlar ve platform kabuğuna teslim eder:
 
 ```rust
 struct UrunBasligi {
     platform_kabugu: Entity<PlatformTitleBar>,
     // proje, kullanıcı, ayar gibi ürün durumları
-}Base
+}
 
 impl Render for UrunBasligi {
     fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {

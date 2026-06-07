@@ -10,7 +10,7 @@ Hangi durumda hangi bileşenin tercih edileceğine karar verirken aşağıdaki a
 - Menü içeriğinde girdi, ayırıcı, alt menü ve action dispatch akışı gerekiyorsa `ContextMenu` doğru yapı taşıdır.
 - Buton veya ikon tetikleyici ile açılan ve içinde yönetilen bir view barındıran menüler için `PopoverMenu` tercih edilir.
 - İkincil tıklamayla (sağ tık) açılan bir bağlam menüsü için `right_click_menu` vardır.
-- Bir popup yüzeyinin içeriğini doğru elevation ve padding ile çizmek için `Popover` kullanırsın.
+- Bir popup yüzeyinin içeriğini doğru elevation ve padding ile çizmek için `Popover` kullanabilirsin.
 - Kısa hover açıklamaları veya kısayol bilgilerini göstermek için ise `Tooltip` doğru yüzeydir.
 
 Menü ve popup bileşenleri kendi başlarına durum (state) saklamaz. Girdi işleyicileri view veya model durumunu günceller. Popup'ın açılıp kapanma davranışı ise ilgili menü, popover veya üst bileşen yaşam döngüsü tarafından yönetilir.
@@ -32,7 +32,7 @@ Ne zaman kullanılır:
 
 Ne zaman kullanılmaz:
 
-- Tetikleyici üzerindeki değer değişmiyor ve yalnızca bir eylem listesi açılıyorsa, doğrudan `PopoverMenu<ContextMenu>` kullanmak niyeti daha açık gösterir.
+- Tetikleyici üzerindeki değer değişmiyor ve yalnızca bir eylem listesi açılıyorsa, doğrudan `PopoverMenu<ContextMenu>` kullanman niyeti daha açık gösterir.
 - Geniş bir arama veya filtre deneyimi gerekiyorsa, bir picker bileşeni veya özel yönetilen view tercih edilir.
 
 Temel API:
@@ -209,7 +209,7 @@ End slot ve ikon yardımcıları:
 Dikkat edilmesi gereken noktalar:
 
 - `ContextMenu` tek başına bir pencere açma mekanizması değildir. Kullanıcının görebilmesi için `DropdownMenu`, `PopoverMenu` veya `right_click_menu` arayüzlerinden biriyle sunulmalıdır.
-- İşleyici içinde view durumu güncellenecekse, ilgili entity üzerinden `window.handler_for(...)`, `cx.listener(...)` veya yerel model güncelleme desenleri tercih edilir. Yukarıdaki örneklerde yer alan boş işleyiciler yalnızca API kullanım şeklini gösterme amacı taşır.
+- İşleyici içinde view durumu güncellenecekse, ilgili entity üzerinden `window.handler_for(...)`, `cx.listener(...)` veya yerel model güncelleme desenlerini tercih etmen gerekir. Yukarıdaki örneklerde yer alan boş işleyiciler yalnızca API kullanım şeklini gösterme amacı taşır.
 - Alt menü builder'ları yeni bir `ContextMenu` değerini döndürmelidir. Üst menüdeki durumu kopyalayarak kullanman gerektiğinde, closure capture'larını sade tutman okunabilirliği artırır.
 
 ## PopoverMenu
@@ -371,7 +371,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edilmesi gereken noktalar:
 
-- Tetikleyici closure'ı içinde gelen `is_menu_active` değeri, hover veya selected görsel durumu için kullanılabilir. Bu değerin bir uygulama durumu olarak saklanmaması beklenir; çünkü durum zaten menü tarafından otomatik olarak yönetilmektedir.
+- Tetikleyici closure'ı içinde gelen `is_menu_active` değerini, hover veya selected görsel durumu için kullanabilirsin. Bu değerin bir uygulama durumu olarak saklanmaması gerekir; çünkü durum zaten menü tarafından otomatik olarak yönetilmektedir.
 - Sağ tık menüsünün içinde sol tıkla çalışan özel kontroller varsa, olay yayılımı davranışını ve menu dismiss akışını test etmen gerekir; yoksa sürpriz davranışlar ortaya çıkabilir.
 
 ## Popover
@@ -431,7 +431,7 @@ fn filtre_popoverini_render_et() -> impl IntoElement {
 
 Dikkat edilmesi gereken noktalar:
 
-- `Popover` konumlandırma yapmaz. Bir `ManagedView` render'ı içinde kullanılıp, o view'in `PopoverMenu` ile açılması gerekir.
+- `Popover` konumlandırma yapmaz. Bir `ManagedView` render'ı içinde kullanman ve o view'i `PopoverMenu` ile açman gerekir.
 - İçerik genişliği child layout aracılığıyla kontrol edilir; `Popover` kendi başına sabit bir genişlik vermez.
 
 ## Tooltip
@@ -451,8 +451,8 @@ Ne zaman kullanılır:
 
 Ne zaman kullanılmaz:
 
-- Kullanıcı akışının doğru anlaşılması tooltip'in görünmesine bağlıysa, bunun yerine doğrudan görünür bir etiket (label) veya açıklama metni eklenmesi gerekir.
-- Uzun dokümantasyon, form hatası veya kalıcı bilgi için tooltip yerine görünür bir içerik kullanılır; aksi halde önemli bilgi gizli kalır.
+- Kullanıcı akışının doğru anlaşılması tooltip'in görünmesine bağlıysa, bunun yerine doğrudan görünür bir etiket (label) veya açıklama metni eklemen gerekir.
+- Uzun dokümantasyon, form hatası veya kalıcı bilgi için tooltip yerine görünür bir içerik kullanman gerekir; aksi halde önemli bilgi gizli kalır.
 
 Temel API:
 
@@ -502,7 +502,7 @@ Dikkat edilmesi gereken noktalar:
 
 ## Menü ve Popup Kompozisyon Örnekleri
 
-Bir toolbar üzerindeki ek eylem menüsü, `PopoverMenu` ve `ContextMenu`'nün en doğal kombinasyonudur. Bir ikon tetikleyiciye tooltip eklersin, menü içeriği ise dışarıda `ContextMenu::build` ile hazırlanır:
+Bir toolbar üzerindeki ek eylem menüsü, `PopoverMenu` ve `ContextMenu`'nün en doğal kombinasyonudur. Bir ikon tetikleyiciye tooltip ekleyebilirsin, menü içeriği ise dışarıda `ContextMenu::build` ile hazırlanır:
 
 ```rust
 use ui::prelude::*;

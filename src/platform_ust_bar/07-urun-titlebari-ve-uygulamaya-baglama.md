@@ -145,7 +145,7 @@ impl Render for UygulamaKabugu {
 }
 ```
 
-Bu örnekte `set_children` çağrısının `render` fonksiyonu içinde yer aldığına dikkat et. Bunun nedeni daha önce anlatıldığı gibi, Zed kaynağında çocuk listesinin render sırasında `mem::take` ile tüketilmesidir. Entity oluşturulurken bir kez çocuk vermek sonraki render geçişleri için yeterli değildir; içerik her render'da yeniden tazelenir.
+Bu örnekte `set_children` çağrısının `render` fonksiyonu içinde yer aldığına dikkat edilmesi gerekir. Bunun nedeni daha önce anlatıldığı gibi, Zed kaynağında çocuk listesinin render sırasında `mem::take` ile tüketilmesidir. Entity oluşturulurken bir kez çocuk vermek sonraki render geçişleri için yeterli değildir; içerik her render'da yeniden tazelenir.
 
 ### Bağımsız GPUI uygulamasına port
 

@@ -108,7 +108,7 @@ Zed içinden kullanım örnekleri:
 - `settings_ui` crate'i: Ayar sayfası uyarıları.
 - `language_models` crate'i: Dil modeli sağlayıcı durum mesajları.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - Banner içeriği kısa tutulmalıdır. Birden fazla paragraf veya liste gerektiren içerikler için `Callout` daha uygundur.
 - `action_slot(...)` içinde birden çok aksiyon yer alacaksa, `h_flex().gap_1()` ile açık bir aralık kurulması okunabilirliği artırır.
@@ -205,7 +205,7 @@ Zed içinden kullanım örnekleri:
 - `agent_ui` crate'i: Yapay zeka temsilcisi yeniden deneme, token ve araç kullanımı uyarıları.
 - `zed` crate'i: Görsel test durum mesajları.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - `Callout` içeriği normal akış içinde yer alır; görünüm alanını (viewport) kaplayan bir katman (overlay) gibi davranmaz.
 - İkon gösterilmesi gerekiyorsa `.icon(...)` çağrısının açıkça yapılması gerekir.
@@ -346,7 +346,7 @@ fn proje_ayarlarini_ac(
 
 `Workspace::toggle_modal::<V, _>(window, cx, build_fn)` çağrısı, aynı modal türü zaten açıksa onu kapatır; farklı bir modal açıksa onu kapatıp yenisini açar. `ModalLayer`, kapatma (dismiss) olayını dinler ve odağı önceki elemana otomatik olarak geri verir.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - `Modal` yalnızca bir içerik iskeletidir; açma ve kapama yaşam döngüsü modal barındırıcısı (host) veya üst görünüm üzerinden yönetilir.
 - Header'daki dismiss ve back butonları `menu::Cancel` eylemini tetikler; bu aksiyonun üst bağlamda (context) ele alınması gerekir.
@@ -443,7 +443,7 @@ Zed içinden kullanım örnekleri:
 - `workspace` crate'i: Kısıtlı çalışma alanı karar akışı; `key_context`, `track_focus` ve `.on_action(...)` özellikleri birlikte kullanılır.
 - `ui` crate'i: Temel ve özel başlık (header) önizleme örnekleri.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - `AlertModal` kısa ve karar odaklı tutulmalıdır. Birden fazla bölüm (section) gerekiyorsa doğru araç `Modal`'dır.
 - Tehlikeli aksiyonlarda birincil etiketin (primary label) net olması beklenir; `"Ok"` yerine doğrudan eylemi anlatan bir metin tercih edilir.
@@ -515,7 +515,7 @@ Zed içinden kullanım örnekleri:
 
 - `auto_update_ui` crate'i: Güncelleme duyuru görünümü; tıklama işleyicileri telemetri, URL ve kapatma geri çağrılarıyla bağlanır.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - `AnnouncementToast` tek başına bildirim yaşam döngüsünü yönetmez. Kapatma, gizleme veya yönlendirme davranışının üst bildirim görünümü içinde uygulanması gerekir.
 - Madde sayısı sınırlı tutulur; çok uzun bir duyuru kartı kullanıcıyı akıştan koparır.
@@ -585,7 +585,7 @@ Zed içinden kullanım örnekleri:
 - `workspace` crate'i: Panel öğesi üzerinde sayaç rozeti.
 - `ui` crate'i: Sınırlandırılmış sayı önizlemesi.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - Üst öğenin tıklama alanı (hitbox) ile rozetin mutlak (absolute) konumunun birlikte düşünülmesi gerekir. Çok küçük ikon butonlarında rozet, tıklanabilir alanı görsel olarak kalabalıklaştırabilir.
 - Rozet metni otomatik olarak sınırlandırıldığı (capped) için, gerçek tam sayının bir ipucu (tooltip) veya detay görünümünde gösterilmesi gerekebilir.
@@ -652,7 +652,7 @@ Zed içinden kullanım örnekleri:
 - `keymap_editor` crate'i: Çakışma göstergesi.
 - `title_bar` crate'i: Başlık çubuğu durum noktaları.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - Rengin `Color::Success`, `Warning`, `Error`, `Info` veya `Muted` gibi semantik belirteçlerden seçilmesi tutarlılığı korur.
 - Gösterge (indicator) tek bilgi kaynağı olarak kullanılmamalıdır; özellikle hata ve uyarı durumlarında tooltip veya label ile anlamın belirtilmesi gerekir.
@@ -715,7 +715,7 @@ Zed içinden kullanım örnekleri:
 - `edit_prediction_ui` crate'i: Kullanım limiti ilerleme çubuğu.
 - `ui` crate'i: Boş, kısmi ve dolu önizleme örnekleri.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - `value` ve `max_value` aynı birimde olmalıdır.
 - İlerleme çubuğuna sadece renk yüklenmemeli; yanında bir etiket (label) veya ipucu (tooltip) ile bağlam sunulması okunabilirliği artırır.
@@ -781,7 +781,7 @@ Zed içinden kullanım örnekleri:
 - `agent_ui` crate'i: Yapay zeka temsilcisi belirteç kullanım halkaları.
 - `ui` crate'i: Farklı yüzde değerleri için önizleme örnekleri.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - Halka küçük olduğunda, bir etiket veya ipucu olmadan oranı okumak zorlaşır.
 - `max_value` pozitif bir değer olmalıdır.
@@ -809,7 +809,7 @@ Davranış:
 - Ortam hatası (environment error), formatlama hatası veya eklenti hatası gibi durumlar kendi tıklama işleyicilerini taşıyorsa dil sunucusu iş menüsü aynı tetikleyiciye eklenmez.
 - Eklenti yükleme ve kaldırma durumları yükleme çarkını (loading spinner) kullanır; eklenti yükseltme ve indirme durumları indirme ikonunu kullanır.
 
-Dikkat Edilmesi Gereken Hususlar:
+Dikkat edilmesi gereken noktalar:
 
 - `ActivityIndicator`, genel amaçlı bir ilerleme bileşeni değildir. Bir panel içinde belirli bir iş oranı göstermek için `ProgressBar`, kompakt oran için `CircularProgress`, bilinmeyen süreli yerel yükleme durumları için ise `Button::loading(...)` veya `SpinnerLabel` tercih edilir.
 - Popover menüsünde yalnızca iptal edilebilir işler aksiyon üretir. İptal edilemeyen işler tek başına menüyü açtırmaz; bu yüzden kullanıcıya tıklanabilir bir görsel ipucu gerekiyorsa ilgili durumun `on_click` geri çağrısı açıkça bağlanır.

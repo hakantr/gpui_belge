@@ -705,7 +705,7 @@ Bir ekran kendi uygulamanıza taşınırken aşağıdaki sıranın izlenmesi fay
 
 - Her durum (state) alanının sahibi belirli mi: View, entity, servis store veya ayarlar?
 - Görünüm durumunu değiştiren bütün olay işleyicileri (event handlers) `cx.listener(...)` üzerinden mi geçiyor?
-- Görsel sonucu olan durum değişimlerinden sonra `cx.notify()` çağrısı yapılıyor mi?
+- Görsel sonucu olan durum değişimlerinden sonra `cx.notify()` çağrısı yapılıyor mu?
 - Asenkron görev sonucunda görünümün hâlâ hayatta olup olmadığını kontrol etmek için `Entity` veya `WeakEntity` güncelleme sınırları doğru kullanılıyor mu?
 - Yangın ve unut (fire-and-forget) türündeki görevler `.detach_and_log_err(cx)` ile kaydediliyor mu?
 - Menü içeriği render sırasında güncel durumdan mı kuruluyor?

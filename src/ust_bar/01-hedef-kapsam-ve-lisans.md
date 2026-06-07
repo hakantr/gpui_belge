@@ -36,15 +36,15 @@ Bu bağımlılıklar, ürün başlığının neden ayrı tutulduğunu da açıkl
 
 | Yaklaşım | Sonuç | Kullanım Koşulu |
 | :-- | :-- | :-- |
-| Doğrudan `title_bar` bağımlılığı | Tüm Zed işbirliği/hesap/güncelleme yığını projeye gelir; uygulaman pratikte Zed ürün modeline bağlanır | Zed ekosistemi içinde, GPL hedefiyle çalışıyorsan |
-| `TitleBar`'ı projeye al | Aynı yığın yine gelir; bakım yükü sende | Nadiren mantıklıdır |
-| Kalıbı kendi ürün başlığına yaz | Yalnızca ihtiyacın olan parçaları (proje adı, menü, kullanıcı) kendi tasarımınla kurarsın | **Lisans-temiz ve bağımsız hedef için doğru yol** |
+| Doğrudan `title_bar` bağımlılığı | Tüm Zed işbirliği/hesap/güncelleme yığını projeye gelir; uygulaman pratikte Zed ürün modeline bağlanmış olur | Zed ekosistemi içinde, GPL hedefiyle çalışıyorsan |
+| `TitleBar`'ı projeye dahil et | Aynı yığın yine gelir; bakım yükü senin üzerine geçer | Nadiren mantıklıdır |
+| Kalıbı kendi ürün başlığına yaz | Yalnızca ihtiyaç duyulan parçaları (proje adı, menü, kullanıcı) kendi tasarımınla kurman mümkündür | **Lisans-temiz ve bağımsız hedef için doğru yol** |
 
-Bu rehber üçüncü yolu anlatır. İşbirliği, plan çipi ve güncelleme gibi Zed'e özgü parçalar çoğu uygulamada hiç bulunmaz; bunların anlatımı "bu yüzeyi kendin kurmak istersen Zed nasıl kuruyor" perspektifiyle okunur.
+Bu rehber üçüncü yolu anlatır. İşbirliği, plan çipi ve güncelleme gibi Zed'e özgü parçalar çoğu uygulamada hiç bulunmaz; bunların anlatımı "bu yüzeyi kendin kurmayı tercih etmen durumunda Zed nasıl kuruyor" perspektifiyle okunmalıdır.
 
 ## 4. Lisans
 
-`title_bar` crate'i de `platform_title_bar` gibi **GPL-3.0-or-later** lisanslıdır. Kod gövdesi kopyalanamaz; ancak gözlemlenebilir davranış ve API imzaları kendi kelimelerinle yeniden kurulur. Bu rehberdeki örneklerin tamamı bu kuralı izler: "Zed başlıkta proje adını şu sözleşmeyle gösteriyor" gözlemi yasak değildir; ama `title_bar` crate'indeki bir fonksiyonun gövdesini birebir taşımak ihlaldir.
+`title_bar` crate'i de `platform_title_bar` gibi **GPL-3.0-or-later** lisanslıdır. Kod gövdesi kopyalanamaz; ancak gözlemlenebilir davranış ve API imzalarını kendi kelimelerinle yeniden kurman mümkündür. Bu rehberdeki örneklerin tamamı bu kuralı izler: "Zed başlıkta proje adını şu sözleşmeyle gösteriyor" gözlemi yasak değildir; ama `title_bar` crate'indeki bir fonksiyonun gövdesini birebir taşımak ihlaldir.
 
 Ürün başlığında lisans hassasiyeti pratikte daha düşüktür; çünkü ürün içeriği zaten kendi tasarımınla yeniden yazılır. Yine de proje/dal/menü gibi parçaları Zed'den birebir uyarlarken aynı GPL sınırını gözetmek gerekir.
 

@@ -265,7 +265,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ButtonLike`
-- Prelude: Hayır; `use ui::ButtonLike;` ayrıca eklersin.
+- Prelude: Hayır; `use ui::ButtonLike;` ayrıca eklemen gerekir.
 - Preview: `impl Component for ButtonLike`.
 
 Ne zaman kullanılır:
@@ -290,7 +290,7 @@ Temel API:
 
 Yuvarlama davranışı:
 
-`ButtonLikeRounding` kaynakta `pub(crate)` bir yardımcı tiptir; uygulama kodunda doğrudan import edilmez. Public kullanım yüzeyi `ButtonLike` constructor'larıdır. Snapshot denetimi sabit imzalarını görebildiği için burada kaynak eşlemesi verirsin, ama önerilen API sabitin kendisi değil constructor'dır.
+`ButtonLikeRounding` kaynakta `pub(crate)` bir yardımcı tiptir; uygulama kodunda doğrudan import edilmez. Public kullanım yüzeyi `ButtonLike` constructor'larıdır. Snapshot denetimi sabit imzalarını görebildiği için burada kaynak eşlemesi verebilirsin, ama önerilen API sabitin kendisi değil constructor'dır.
 
 | İç sabit | Kaynak görünürlüğü | Public karşılığı |
 | :-- | :-- | :-- |
@@ -349,7 +349,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ButtonLink`
-- Prelude: Hayır; `use ui::ButtonLink;` ayrıca eklersin.
+- Prelude: Hayır; `use ui::ButtonLink;` ayrıca eklemen gerekir.
 - Preview: `impl Component for ButtonLink`.
 
 Ne zaman kullanılır:
@@ -396,7 +396,7 @@ Zed içinden kullanım örnekleri:
 
 - `language_models` crate'i: provider ayarları ve belge bağlantıları.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
 - Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca linkin gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatılması önerilir.
 
@@ -406,7 +406,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::CopyButton`
-- Prelude: Hayır; `use ui::CopyButton;` ayrıca eklersin.
+- Prelude: Hayır; `use ui::CopyButton;` ayrıca eklemen gerekir.
 - Preview: `impl Component for CopyButton`.
 
 Ne zaman kullanılır:
@@ -467,7 +467,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::SplitButton`
-- Prelude: Hayır; `use ui::SplitButton;` ayrıca eklersin.
+- Prelude: Hayır; `use ui::SplitButton;` ayrıca eklemen gerekir.
 - Preview: Doğrudan `impl Component for SplitButton` yok.
 
 Ne zaman kullanılır:
@@ -476,7 +476,7 @@ Ne zaman kullanılır:
 
 Ne zaman kullanılmaz:
 
-- İki eylem birbirine eşit önemdeyse ayrı `Button` veya bir toolbar grubu daha okunaklı bir yapı kurarsın.
+- İki eylem birbirine eşit önemdeyse ayrı `Button` veya bir toolbar grubu daha okunaklı bir yapı kurmanı sağlar.
 - Sağ parça sadece dekoratifse split button bu yapıya gereksiz bir ağırlık katar.
 
 Temel API:
@@ -534,7 +534,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ToggleButtonGroup`, `ui::ToggleButtonSimple`, `ui::ToggleButtonWithIcon`, `ui::ToggleButtonGroupStyle`, `ui::ToggleButtonGroupSize`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import etmen gerekir.
 - Preview: `impl Component for ToggleButtonGroup<...>`.
 
 Ne zaman kullanılır:

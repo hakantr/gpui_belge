@@ -100,7 +100,7 @@ fn sound_source(&mut self, sound: Sound, cx: &App) -> Result<impl Source + use<>
 Akış altı adımdadır:
 
 1. **Cache araması.** `source_cache: HashMap<Sound, Buffered<Decoder<Cursor<Vec<u8>>>>>` haritası, her sesin decode edilmiş halini tutar. İlk çağrı bu cache'i doldurur, sonraki çağrılar doğrudan oradan okur.
-2. **Yol inşası.** `format!("sounds/{}.wav", sound.file())` ile yol üretilir. Dinamik string olduğu için her seferinde küçük bir tahsis vardır; ses çalma sıklığı düşük olduğundan bu maliyet gözardı edebilirsin.
+2. **Yol inşası.** `format!("sounds/{}.wav", sound.file())` ile yol üretilir. Dinamik string olduğu için her seferinde küçük bir tahsis vardır; ses çalma sıklığı düşük olduğundan bu maliyet göz ardı edilebilir.
 3. **`cx.asset_source().load(&yol)` senkron çağrısı:** `?` operatörü öncelikle `Result<Option<Cow>>` sonucunu çözer. Gerçek `Assets` kaynağında eksik yollar zaten doğrudan `Err` olarak döndürülür; boş `()` veya `Ok(None)` döndüren özel kaynaklarda ise `with_context` ikinci aşamada `Bu yol için varlık yok: ...` hata mesajını üretir. Her iki durumda da hata `play_sound` içinde log'a düşer ve uygulama kesintiye uğramadan çalışmaya devam eder.
 4. **`into_owned()` metodu:** `Cow<'static, [u8]>` yapısı `Vec<u8>` haline getirilir. `RustEmbed`'in döndürdüğü Cow verisi derleme (build) türüne bağlıdır: release derlemesinde byte'lar binary içerisine gömüldüğünden `Cow::Borrowed` dönerken, debug derlemesinde (rust-embed `debug-embed` özelliği kapalı ise içerik dosya sisteminden dinamik okunduğu için) `Cow::Owned` döner. Her iki senaryoda da `rodio::Decoder` doğrudan bir `Vec` talep ettiği için `into_owned()` çağrısı gerçekleştirilir.
 5. **`Decoder::new(cursor)?`:** WAV dosyası decode edilir. Format hatası bulunması durumunda hata `?` ile yukarı fırlatılır ve `play_sound` kapsamında log kaydına yansıtılır.
@@ -128,10 +128,10 @@ Maliyet hesabı: Sekiz WAV dosyasının decode edilmiş hali en fazla birkaç MB
 
 Yeni bir ses eklemek için izlenmesi gereken adımlar:
 
-1. `assets/sounds/yeni_ses.wav` dosyasını eklersin (ya da hangi snake_case ad uygunsa).
-2. `Sound` enum'una `YeniSes` varyantı eklersin.
-3. `Sound::file` `match` koluna `Self::YeniSes => "yeni_ses"` satırı eklersin.
-4. UI kodunda `Audio::play_sound(Sound::YeniSes, cx)` ile tetiklersin.
+1. `assets/sounds/yeni_ses.wav` dosyasını oluşturman veya eklemen gerekir.
+2. `Sound` enum'una `YeniSes` varyantını ekleyebilirsin.
+3. `Sound::file` `match` koluna `Self::YeniSes => "yeni_ses"` satırını eklemen gerekir.
+4. UI kodunda `Audio::play_sound(Sound::YeniSes, cx)` ile tetikleyebilirsin.
 
 Bu akışta dikkat edilmesi gereken durumlar şunlardır:
 

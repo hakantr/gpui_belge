@@ -138,7 +138,7 @@ Zed'in kendi `TitleBar` katmanı bu değişikliği `cx.observe_button_layout_cha
 
 Linux tarafında bu değer, `gpui_linux` katmanının ortak durumunda başlangıçta `WindowButtonLayout::linux_default()` olarak tutulur. `Platform::button_layout()` çağrıldığında bu ortak durum `Some(...)` sarmalanmış halde geri döner.
 
-Canlı masaüstü değişikliği XDP üzerinden gelen `ButtonLayout` olayıyla yakalanır. Wayland ve X11 istemcilerinin ikisi de gelen dizgeyi `WindowButtonLayout::parse(...)` ile okur. Ayrıştırma başarısız olursa yine `linux_default()` değerine düşer. Ardından her pencere için `window.set_button_layout()` çağrısı yaparsın. Bu çağrı `on_button_layout_changed` geri çağrısını tetikler. Zed `TitleBar::new(...)` içinde bu geri çağrıyı `cx.observe_button_layout_changed(window, ...)` üzerinden `cx.notify()` çağrısına bağlar. Zincir şöyle ilerler: Masaüstü ayarı değişir -> XDP olayı gelir -> dizge ayrıştırılır -> pencere durumu güncellenir -> geri çağrı tetiklenir -> başlık çubuğu yeniden render olur.
+Canlı masaüstü değişikliği XDP üzerinden gelen `ButtonLayout` olayıyla yakalanır. Wayland ve X11 istemcilerinin ikisi de gelen dizgeyi `WindowButtonLayout::parse(...)` ile okur. Ayrıştırma başarısız olursa yine `linux_default()` değerine düşer. Ardından her pencere için `window.set_button_layout()` çağrısı yapılır. Bu çağrı `on_button_layout_changed` geri çağrısını tetikler. Zed `TitleBar::new(...)` içinde bu geri çağrıyı `cx.observe_button_layout_changed(window, ...)` üzerinden `cx.notify()` çağrısına bağlar. Zincir şöyle ilerler: Masaüstü ayarı değişir -> XDP olayı gelir -> dizge ayrıştırılır -> pencere durumu güncellenir -> geri çağrı tetiklenir -> başlık çubuğu yeniden render olur.
 
 ## 13. Butonları uygulama katmanına bağlama
 

@@ -12,7 +12,7 @@ const MAX_PROJECT_NAME_LENGTH: usize = 40;
 
 Görsel olarak proje adı tıklanabilir bir tetikleyicidir; tıklandığında son projeler açılır paneli açılır. Birden çok çalışma ağacı açık ise adın yanında bir aşağı ok belirir; bu durum, başlığın çoklu çalışma ağacı modunda olduğunun işaretidir. Proje adı yalnızca `show_project_items` ayarı açıkken çizilir.
 
-Port hedefinde proje/doküman adı genellikle tek bir çalışma ağacından veya açık dosyadan gelir. Aynı kısaltma sınırı kendi modelinde de uygulanmalıdır; çoklu proje desteklenmiyorsa aşağı ok ve açılır panel kısmı tamamen atlanabilir.
+Port hedefinde proje/doküman adı genellikle tek bir çalışma ağacından veya açık dosyadan gelir. Aynı kısaltma sınırını kendi modelinde de uygulaman gerekir; çoklu proje desteklenmiyorsa aşağı ok ve açılır panel kısmını tamamen atlaman mümkündür.
 
 ## 2. Git dalı ve çalışma ağacı
 

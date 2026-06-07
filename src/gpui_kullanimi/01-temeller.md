@@ -8,7 +8,7 @@ GPUI, birbirinin üzerine kurulan üç katmandan oluşur. Her katman bir alttaki
 
 ![GPUI Katman Mimarisi](assets/mimari.svg)
 
-1. **Platform katmanı.** İşletim sistemine doğrudan dokunan kısımdır. GPUI; macOS, Windows, Linux, web ve test ortamlarını aynı ortak arayüzün arkasında gizler. Uygulama kodun "pencere aç", "girdi al", "ekrana çiz" gibi istekleri ortak bir sözleşme ile anlatır. Bu sözleşmeyi `Platform` ve `PlatformWindow` trait'leri taşır. Pencere oluşturma, ekran listesi, pano (`clipboard`), sürükle-bırak, sistem zili ve dosya seçici gibi platforma özgü yetenekler bu iki trait üzerinden açılır. Bu trait'lerin macOS, Windows, Linux, web ve test arka uçlarını GPUI/Zed tarafındaki platform crate'leri uygular; geliştirdiğin uygulama kodu normalde aynı `App`, `Window` ve element API'siyle konuşur. Böylece her platform için ayrı bir pencere ve arayüz katmanı yazmak yerine, GPUI'nin sağladığı bu ortak soyutlama katmanı üzerinde geliştirme yapabilirsin.
+1. **Platform katmanı.** İşletim sistemine doğrudan dokunan kısımdır. GPUI; macOS, Windows, Linux, web ve test ortamlarını aynı ortak arayüzün arkasında gizler. Uygulama kodunun "pencere aç", "girdi al", "ekrana çiz" gibi istekleri ortak bir sözleşme ile aktarılır. Bu sözleşmeyi `Platform` ve `PlatformWindow` trait'leri taşır. Pencere oluşturma, ekran listesi, pano (`clipboard`), sürükle-bırak, sistem zili ve dosya seçici gibi platforma özgü yetenekler bu iki trait üzerinden açılır. Bu trait'lerin macOS, Windows, Linux, web ve test arka uçlarını GPUI/Zed tarafındaki platform crate'leri uygular; geliştirdiğin uygulama kodu normalde aynı `App`, `Window` ve element API'siyle konuşur. Böylece her platform için ayrı bir pencere ve arayüz katmanı yazmak yerine, GPUI'nin sağladığı bu ortak soyutlama katmanı üzerinde geliştirme yapman mümkündür.
 
 2. **Uygulama/durum katmanı.** Uygulamanın yaşam döngüsü ve bellekteki tüm durum burada yaşar. `Application` süreç başlangıcını ve olay döngüsünü (`event loop`) yönetir. `App` uygulama genelindeki duruma erişilen ana kapıdır. `Context<T>`, belirli bir varlık güncellenirken `App`'in üstüne eklenen daha geniş bir bağlamdır. `Entity<T>` ve `WeakEntity<T>` ise dinamik bellekte tutulan durum kutularına güçlü ve zayıf erişim sağlar. Hem `Task` hem de `Subscription`, ilişkili değer elden çıkarıldığında (bellekten düştüğünde) arka plandaki görevi veya aboneliği otomatik olarak sonlandırıp temizleyen sahiplik (RAII) araçlarıdır. `Global` uygulama açık kaldığı sürece tek kopya kalması gereken kaynaklar içindir. Olay sistemi ise varlıklar arasında tip güvenli bir mesajlaşma köprüsü oluşturur.
 
@@ -97,12 +97,12 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 | `Background` | Dolgu tanımı | Düz renk, gradient veya pattern gibi arka plan dolgularını temsil eder. | Renk ile dolgu aynı şey değildir; dolgu daha geniş bir tariftir. |
 | `AssetSource` | Asset byte kaynağı | SVG, image, font veya paketlenmiş dosya gibi varlıkların nereden okunacağını uygulamaya söyler. | Başlangıçta `Application` üzerinde kurulur; elementler asset isterken bu kaynağa dayanır. |
 
-### Hangi Kavramı Ne Zaman Aramalıyım?
+### Hangi Kavramı Ne Zaman Araman Gerekir?
 
 - "Bu veri ekranda değişince görüntü de değişsin" diyorsan `Entity<T>`, `Context<T>` ve `cx.notify()` üçlüsüne bakman gerekir.
-- "Bu iş bir pencerenin klavye odağı, imleci, boyutu veya çizim aşaması ile ilgili" diyorsan `Window` tarafını incelemelisin.
+- "Bu iş bir pencerenin klavye odağı, imleci, boyutu veya çizim aşaması ile ilgili" durumlar için `Window` tarafını incelemen faydalıdır.
 - "Bu şey ekranda nasıl görünüyor?" sorusunun yanıtı `Render`, `RenderOnce`, `IntoElement`, `Element` ve `Styled` zincirine dayanır.
-- "Kullanıcı bir komut verdi" diyorsan `Action`, `Keymap`, klavye odağı ve `key_context` yapılarını birlikte değerlendirmelisin.
+- "Kullanıcı bir komut verdi" diyorsan `Action`, `Keymap`, klavye odağı ve `key_context` yapılarını birlikte değerlendirmen önerilir.
 - "Asenkron iş bitince hâlâ aynı view var mı?" sorusu `Task<T>`, `WeakEntity<T>` ve `AsyncApp` ile ilgilidir.
 - "Bu veri bütün uygulamanın ortak bilgisi mi, yoksa yalnızca tek bir ekran parçasının bilgisi mi?" ayrımı `Global` ile `Entity<T>` arasındaki temel mimari seçimi belirler.
 

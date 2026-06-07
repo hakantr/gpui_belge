@@ -55,9 +55,9 @@ fn kaydetmeyi_test_et(cx: &mut TestAppContext) {
 - `cx.background_executor.run_until_parked()` — test executor'ında yalnızca arka plan sürer.
 - `window.update(cx, |gorunum, window, cx| ...)` — pencere içi durumu değiştirir.
 
-`add_window_view` veya `add_empty_window` ile aldığın `VisualTestContext` pencere bağlamını taşıdığı için bazı metotlar window argümanı iletilmeden çağrılabilir:
+`add_window_view` veya `add_empty_window` ile alınan `VisualTestContext` pencere bağlamını taşıdığı için bazı metotlar window argümanı iletilmeden çağrılabilir:
 
-- `cx.simulate_keystrokes("cmd-p")` ve `cx.simulate_input("hello")` — `self.window`'u kullanır.
+- `cx.simulate_keystrokes("cmd-p")` ve `cx.simulate_input("hello")` — `self.window` referansını kullanır.
 - `cx.dispatch_action(action)` — yine `self.window` üzerinden yönlendirir.
 - `cx.run_until_parked()`, `cx.window_title()`, `cx.document_path()` — window'suz yardımcılardır.
 
@@ -236,7 +236,7 @@ pub struct SerializedLocation {
 
 - Snapshot için `get_all_timings(TasksIncluded::...)` global olarak bilinen tüm thread buffer'larını bir araya getirir. Yalnız çağıran thread gerekiyorsa `get_current_thread_timings(TasksIncluded::...)` tercih edilir.
 - İstatistik snapshot'ı için `take_all_stats(TasksIncluded::...)` thread bazlı `TaskStatistics` değerlerini alır ve tamamlanmış istatistikleri resetler. `CompletedAndRunning` seçildiğinde canlı task, snapshot anındaki süreyle hesaba katılır.
-- Delta okumayı `ProfilingCollector` üzerinden yaparsın: collector başlangıç anchor'ını saklar ve `collect_unseen(all_timings)` çağrısı her thread için son `cursor` konumundan ileriyi serileştirir. Buffer dairesel olduğundan cursor geride kaldığında eski kayıtlar silinmiş olabilir; bu durumda buffer'da kalan tüm timing verileri döner ve cursor güncellenir.
+- Delta okuma işlemi `ProfilingCollector` üzerinden yapılır: collector başlangıç anchor'ını saklar ve `collect_unseen(all_timings)` çağrısı her thread için son `cursor` konumundan ileriyi serileştirir. Buffer dairesel olduğundan cursor geride kaldığında eski kayıtlar silinmiş olabilir; bu durumda buffer'da kalan tüm timing verileri döner ve cursor güncellenir.
 - `ProfilingCollector::startup_time()` collector'ın zaman ekseni için kullandığı başlangıç `Instant` değerini döndürür. Harici profil UI'ı aynı anchor ile farklı thread delta'larını aynı zaman çizelgesine yerleştirebilir.
 - `ProfilingCollector::reset()` cursor'ları sıfırlar; yeni bir profil seansı başlatılırken tercih edilir.
 
@@ -303,9 +303,9 @@ Bu API'ler tema veya pencere oluşturma akışının merkezinde değildir; ancak
 
 ## Pencere Çalışma Zamanı Anlık Görüntüsü, Yerleşim Ölçümü ve Kare Zamanlaması
 
-Zed'in `workspace` ve `ui` katmanlarında sık gördüğün bazı `Window` çağrıları çizim çıktısı üretmez. O anki pencere veya girdi durumunu okumak ya da işi doğru kare fazına taşımak için kullanırsın.
+Zed'in `workspace` ve `ui` katmanlarında sık karşılaşılan bazı `Window` çağrıları çizim çıktısı üretmez. O anki pencere veya girdi durumunu okumak ya da işi doğru kare fazına taşımak için kullanılır.
 
-**Anlık girdi durumu.** Modifier, capslock ve fare durumunu pencere üzerinden okuyabilirsin:
+**Anlık girdi durumu.** Modifier, capslock ve fare durumunu pencere üzerinden okumak mümkündür:
 
 - `window.modifiers() -> Modifiers` — o an basılı modifier'ları verir. Zed'de Shift/Alt/Ctrl ile notification suppress, pane clone veya quick action preview davranışlarını özelleştirmek amacıyla tercih edilir.
 - `window.capslock() -> Capslock` — capslock durumunu okur.
@@ -313,7 +313,7 @@ Zed'in `workspace` ve `ui` katmanlarında sık gördüğün bazı `Window` çağ
 - `window.last_input_was_keyboard() -> bool` — focus-visible kararlarında ana sinyaldir; işaretçi ile odaklanan elemente gereksiz odak halkası çizmemek için.
 - `window.is_window_hovered() -> bool` — tooltip, popover veya hover kaplaması pencere dışına çıktığında kapatmak gibi durumlarda tercih edilir.
 
-**Çizim ve prepaint sırasında o anki view ile yerleşim.** Yerleşim ölçümlerine ve view kimliğine ulaşmak için aşağıdaki yardımcılar sağlarsın:
+**Çizim ve prepaint sırasında o anki view ile yerleşim.** Yerleşim ölçümlerine ve view kimliğine ulaşmak için aşağıdaki yardımcılar kullanılır:
 
 - `window.current_view() -> EntityId` — şu anda çizim, prepaint veya paint edilen view entity'sidir. Gecikmeli bildirim akışları bu ID değerine bağlanır. Yalnızca çizim aşamalarında anlamlı olup, uzun süre saklanacak kalıcı bir kimlik gibi düşünlenmemelidir.
 - `window.request_layout(style, children, cx) -> LayoutId` — özel elementin taffy yerleşim ağacına node eklemesidir.
@@ -340,10 +340,10 @@ window.defer(cx, |window, cx| {
 
 - `window.on_next_frame(...)` — mevcut kare tamamlandıktan sonraki karede çalışır. Yerleşim sonucu, hitbox veya popover konumu bir kare sonra bilinecekse doğru araçtır. Zed UI'da bazı menü konumlandırmaları iki kez `on_next_frame` kullanır; ilk kare anchor veya yerleşim bilgisini, ikinci kare menü entity'sinin kendi sınırlarını stabilize eder.
 - `Context<T>::on_next_frame(window, |gorunum, window, cx| ...)` — aynı işin o anki entity'ye bağlı yardımcısıdır; geri çağrı içine entity update context'i gelir.
-- `window.request_animation_frame()` — sürekli animasyon, GIF veya animasyonlu görsel için yeni kare ister. Bir view içinde çağırdığında o anki view'i sonraki karede günceller.
+- `window.request_animation_frame()` — sürekli animasyon, GIF veya animasyonlu görsel için yeni kare ister. Bir view içinde çağrıldığında o anki view'i sonraki karede günceller.
 - `cx.defer(...)`, `window.defer(cx, ...)`, `cx.defer_in(window, ...)` — mevcut etki döngüsü bittikten sonra çalışır. Entity zaten update stack'inde olduğunda reentrant update panic'inden kaçınmak ya da focus/menu dispatch'ini stack boşalınca yapmak için kullanılır. Yerleşim ölçümü gerektiğinde `defer` yerine `on_next_frame` tercih edilmelidir.
 
-**Düşük seviyeli özel element hook'ları.** Element uygulaması yazarken kullandığın dispatch ve hitbox API'leri:
+**Düşük seviyeli özel element hook'ları.** Element uygulaması yazarken kullanılan dispatch ve hitbox API'leri şunlardır:
 
 - `window.insert_window_control_hitbox(area, hitbox)` — paint fazında platform control hitbox'ı kaydeder; Windows özel başlık çubuğundaki min, max, close ve sürükleme alanlarında tercih edilir.
 - `window.set_key_context(context)` — paint fazında o anki dispatch node'una keybinding context bağlar. Element API'deki `.key_context(...)` bunun sarmalayıcısıdır.

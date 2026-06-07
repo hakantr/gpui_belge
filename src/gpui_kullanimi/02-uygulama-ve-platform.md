@@ -22,7 +22,7 @@ use gpui_platform::application;
 struct KokGorunum;
 
 impl Render for KokGorunum {
-    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, _cx: &mut ViewContext<Self>) -> impl IntoElement {
         div().size_full().child("Merhaba")
     }
 }

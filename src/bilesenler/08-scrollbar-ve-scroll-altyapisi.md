@@ -32,7 +32,7 @@ Temel API:
 - `ScrollbarStyle`: `Regular` (6px), `Editor` (15px).
 - `EDITOR_SCROLLBAR_WIDTH`: `ScrollbarStyle::Editor.to_pixels()` ile aynı değeri taşıyan 15px sabitidir. Editör scrollbar'ı ile aynı genişlikte boşluk ayrılması veya panel hizalaması gerektiğinde kullanılır.
 - `ShowScrollbar`: `Auto`, `System`, `Always`, `Never`.
-- `ScrollbarAutoHide::should_hide()`: platform veya ayar katmanından gelen otomatik gizleme bayrağını okur. Bu değer her ayar kurulumunda değil, yalnız ayar `ShowScrollbar::System` olduğunda görünürlüğü belirler; bu durumda scrollbar autohide ile sistem tercihini izler. Bileşen içinde manuel olarak polling yapmak yerine ayar tipini scrollbar'a bağlamak daha doğru bir yaklaşımdır.
+- `ScrollbarAutoHide::should_hide()`: platform veya ayar katmanından gelen otomatik gizleme bayrağını okur. Bu değer her ayar kurulumunda değil, yalnız ayar `ShowScrollbar::System` olduğunda görünürlüğü belirler; bu durumda scrollbar autohide ile sistem tercihini izler. Bileşen içinde manuel olarak polling yapmak yerine ayar tipini scrollbar'a bağlaman daha doğru bir yaklaşımdır.
 
 Scrollbar altyapı yüzeyi:
 
@@ -92,8 +92,8 @@ impl Render for GunlukPaneli {
 
 Dikkat edilmesi gereken noktalar:
 
-- `Scrollbars` kendi başına içerik kaydırmaz. İçeriğin gerçekten kaydırılabilmesi için onun bir `ScrollableHandle` ile bağlanması veya bir `ScrollHandle::new()` üzerinden takip edilmesi gerekir.
-- Tek bir scroll kapsayıcısına doğrudan bağlanılıyorsa `WithScrollbar` yardımcılarını kullanmak, ayrı bir `Scrollbars` alt öğesi (child) eklemeye kıyasla hem daha pratik hem de hata payı daha düşük bir yaklaşımdır.
+- `Scrollbars` kendi başına içerik kaydırmaz. İçeriğin gerçekten kaydırılabilmesi için onun bir `ScrollableHandle` ile bağlaman veya bir `ScrollHandle::new()` üzerinden takip etmen gerekir.
+- Tek bir scroll kapsayıcısına doğrudan bağlanıyorsan `WithScrollbar` yardımcılarını kullanman, ayrı bir `Scrollbars` alt öğesi (child) eklemeye kıyasla hem daha pratik hem de hata payı daha düşük bir yaklaşımdır.
 - `with_stable_track_along(...)` metodu, scroll alanı henüz yokken bile track için yer ayırır. Bu sayede scrollbar görünür veya gizli olarak değiştiğinde düzen (layout) aniden zıplamaz; sahne sabit kalır.
-- Birden fazla scroll alanı bulunuyorsa, her birine `.id(...)` üzerinden benzersiz bir ID tanımlanması gerekir; aksi takdirde GPUI scroll durumlarını karıştırabilir.
-- `set_offset_from_scrollbar(...)` için pozitif offset kullanımı güncel API sözleşmesine uymaz. Scrollbar handle geliştirilirken `offset()` and `set_offset(...)` değerlerinin aynı yön işaretlerini kullandığından emin olunması gerekir.
+- Birden fazla scroll alanı bulunuyorsa, her birine `.id(...)` üzerinden benzersiz bir ID tanımlaman gerekir; aksi takdirde GPUI scroll durumlarını karıştırabilir.
+- `set_offset_from_scrollbar(...)` için pozitif offset kullanımı güncel API sözleşmesine uymaz. Scrollbar handle geliştirirken `offset()` ve `set_offset(...)` değerlerinin aynı yön işaretlerini kullandığından emin olman gerekir.

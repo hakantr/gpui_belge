@@ -267,7 +267,7 @@ Zed'in başlık çubuğu yönetiminde ayrıca şu iki hususa dikkat edilmelidir:
 - `OnboardingBanner` modülü, başlık çubuğunda yeni özellik tanıtımları sergilemek amacıyla hazır bir şablon sunar. Standart `TitleBar::new` yapılandırmasında `banner` alanı varsayılan olarak `None` şeklinde kurulur. Bu nedenle arayüze yeni bir banner yerleştirilmek istendiğinde, banner entity nesnesinin haricen oluşturulması, görünürlük koşullarının belirlenmesi ve ilişkili eylemlerinin (actions) açıkça atanması gerekir.
 - Güncelleme sürecinde `UpdateButton::checking`, `downloading` ve `installing` durumları etkileşimsiz (pasif) butonlar olarak sunulur. Sürüm bilgisi ipucu metinleri `"Update to Version: ..."` şeklinde formatlanır ve SHA tabanlı sürümlerde kısa SHA formatı yerine tam SHA kodu görüntülenir.
 
-## Kontrol Butonlarını Nasıl Yönetirsin?
+## Kontrol Butonları Nasıl Yönetilir?
 
 Pencere kontrol butonları her işletim sisteminde farklı görsel standartlara göre çizilir. Doğru bileşen mimarisi tercih edildiği sürece çizim detayları geliştirici için soyutlanmış olur:
 

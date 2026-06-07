@@ -57,6 +57,6 @@ Hangi yardımcının tercih edileceği, işlemin gerçekleştiği bağlama göre
 
 Bildirim yardımcıları kullanılırken gözden kaçırılmaması gereken noktalar şunlardır:
 
-- `detach_and_log_err` fonksiyonu hatayı yalnızca günlüğe (log) kaydeder; kullanıcıya görünür bir hata gösterilmesi isteniyorsa çalışma alanı bildirimleri veya prompt yardımcılarından biri tercih edilmelidir.
-- `show_app_notification` aynı id ile birden fazla çalışma alanında gösterim yapabilir; bu nedenle id değerinin `NotificationId::named` veya `composite` ile bilinçli bir şekilde seçilmesi gerekir.
-- `MessageNotification` tıklama işleyicileri `Window` ve bildirimin kendi `Context<Self>` bağlamını alır; çalışma alanının durumuna ihtiyaç duyuluyorsa weak çalışma alanı veya entity yakalanır ve bunların serbest bırakılmış (dropped) olma ihtimali ele alınır.
+- `detach_and_log_err` fonksiyonu hatayı yalnızca günlüğe (log) kaydeder; kullanıcıya görünür bir hata göstermek istiyorsan çalışma alanı bildirimleri veya prompt yardımcılarından birini tercih etmen gerekir.
+- `show_app_notification` aynı id ile birden fazla çalışma alanında gösterim yapabilir; bu nedenle id değerini `NotificationId::named` veya `composite` ile bilinçli bir şekilde seçmen gerekir.
+- `MessageNotification` tıklama işleyicileri `Window` ve bildirimin kendi `Context<Self>` bağlamını alır; çalışma alanının durumuna ihtiyaç duyuyorsan weak çalışma alanı veya entity yakalaman ve bunların serbest bırakılmış (dropped) olma ihtimalini ele alman gerekir.

@@ -111,7 +111,7 @@ Ne zaman kullanılır:
 Ne zaman kullanılmaz:
 
 - Yalnızca metin gösterilecekse `Label` veya `ListBulletItem` çok daha sade bir çözüm sunar.
-- Çok büyük listelerde `ListItem` satır olarak yine kullanabilirsin, ancak kapsayıcı olarak `List` yerine `uniform_list(...)` tercih edilir.
+- Çok büyük listelerde `ListItem` satır olarak yine kullanılabilir, ancak kapsayıcı olarak `List` yerine `uniform_list(...)` tercih edilir.
 
 Temel API:
 
@@ -306,7 +306,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edilmesi gereken noktalar:
 
 - `end_slot(...)` generic değildir; slot elementinin `.into_any_element()` çağrısıyla iletilmesi gerekir.
-- Subheader'ın selected durumu yalnızca görseldir; gerçek gezinme durumunu üst view'da tutarsın.
+- Subheader'ın selected durumu yalnızca görseldir; gerçek gezinme durumunu üst view'da tutman gerekir.
 
 ## ListSeparator
 

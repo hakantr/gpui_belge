@@ -83,5 +83,5 @@ oge.focus_follows_mouse(WorkspaceSettings::get_global(cx).focus_follows_mouse, c
 
 Bu yardımcı katmanlarla çalışırken şu noktalara dikkat edilmesi önem taşır:
 
-- Bağlam menüsü (context menu) eylemleri, odaklanmış eleman bağlamına (element context) göre etkinleşir veya devre dışı kalır. Eğer menü bir odak bağlamı olmadan kurulursa, bazı eylemler görünmesine rağmen çalışmayabilir.
-- Focus-follows-mouse özelliği global bir debounce durumu kullanır. Aynı anda birden fazla hover hedefinin yarışması durumunda, daha spesifik alt kontrollerin korunması gerekir.
+- Bağlam menüsü (context menu) eylemleri, odaklanmış eleman bağlamına (element context) göre etkinleşir veya devre dışı kalır. Eğer menüyü bir odak bağlamı olmadan kurarsan, bazı eylemler görünmesine rağmen çalışmayabilir.
+- Focus-follows-mouse özelliği global bir debounce durumu kullanır. Aynı anda birden fazla hover hedefinin yarışması durumunda, daha spesifik alt kontrolleri koruman gerekir.

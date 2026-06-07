@@ -202,7 +202,7 @@ if let Some((yol, renk)) = self.path.as_ref().zip(style.text.color) {
 Beş gözlem önemlidir:
 
 1. **`zip(style.text.color)`:** Dosya yolu belirtilmiş olsa bile, text color (metin rengi) tanımlanmamışsa render işlemi atlanır. SVG ikonlarının boyanmadan çizilmesi engellenmiştir; bu kasıtlı bir koruma (guard) mantığıdır. Renk atanmamış bir ikon görünmez kalacağından, `style.text.color` setter işlevlerinin (`text_color`, `text_xxx`) kullanılması zorunludur.
-2. **`window.paint_svg`** — Düşük seviye render çağrısı; window'un kendi kuyruğuna SVG paint primitive'i ekler. İçeride `SvgRenderer` çağırırsın.
+2. **`window.paint_svg`** — Düşük seviye render çağrısı; window'un kendi kuyruğuna SVG paint primitive'i ekler. İçeride `SvgRenderer` çağırılır.
 3. **`paint_svg` işlevinin ikinci argümanı:** `Embedded` akışında `None` değeri geçilerek verinin doğrudan varlık kaynağından okunması sağlanır; `External` akışında ise `Some(&bytes)` geçilerek önceden yüklenmiş byte verileri aktarılır. Böylece aynı render hattı, her iki kaynak türü için de tek bir metot vasıtasıyla kullanılabilir.
 4. **`window.use_asset::<SvgAsset>(path, cx)`:** Asenkron yükleme akışıdır. İlk çağrıda yükleme görevi (task) başlatılır; sonraki çağrılarda ise önbelleğe alınmış (cached) Future yapısı paylaşılır. Varlık henüz yüklenmemişse metot `None` döner ve render işlemi pas geçilir; yükleme tamamlandığında ise `cx.notify(entity_id)` çağrısıyla view bileşeni yeniden çizilir.
 5. **`log_err()`** — Asset yükleme veya render hatası fatal değildir; log'a düşer ve ikon görünmez kalır. Bu davranış UI sağlamlığı için bilinçlidir: bir tek ikon dosyasının bozuk olması tüm pencereyi düşürmez.
@@ -241,7 +241,7 @@ impl Asset for SvgAsset {
 
 ## 5. `SvgRenderer` ve rasterleştirme
 
-`gpui` crate'indeki `SvgRenderer`, ham SVG byte'larını piksel buffer'ına çevirir. Yapısı sade tutarsın:
+`gpui` crate'indeki `SvgRenderer`, ham SVG byte'larını piksel buffer'ına çevirir. Yapısı sade tutulmuştur:
 
 ```rust
 pub struct SvgRenderer {
@@ -344,7 +344,7 @@ Tablo yapısı, üç farklı sabit tablonun katmanlanmasıyla kurgulanır:
 
 `default_icon_theme()` işlevi bu üç tabloyu katmanlayarak bir `IconTheme` örneği (instance) üretir; dosya adı tabanı ve uzantı katmanlarını bir icon key değerine indirger ve son tablo yardımıyla bu key'i dosya yoluna (path) dönüştürür. Ayrıca klasör ve chevron ikonları doğrudan `DirectoryIcons` ve `ChevronIcons` alanlarından beslenir (`icons/file_icons/folder.svg`, `icons/file_icons/folder_open.svg`, `icons/file_icons/chevron_right.svg`, `icons/file_icons/chevron_down.svg`). Bu sebeple `icons/file_icons/` altında yer alan her dosyanın `FILE_ICONS` tablosunda görünmesi zorunlu değildir; bazı dosyalar doğrudan dosya tipi ikonunu değil, proje paneli davranışlarını destekleyen yardımcı ikonları temsil eder. Dosya yolu string'leri doğrudan `icons/file_icons/` altındadır; yani kullanıcı arayüzü bu yolları `Icon::from_path` veya doğrudan `svg().path()` ile tüketebilir.
 
-**Genişleme:** Yeni bir dosya tipi eklemek için eşleme tablolarına (dosya adı tabanına göre `FILE_STEMS_BY_ICON_KEY`, uzantıya göre `FILE_SUFFIXES_BY_ICON_KEY`) ve `FILE_ICONS` tablosuna giriş yapılması gerekir; bu iki tarafın uyumsuz olması durumunda dosya tipi eşleşse bile dosya yolu bulunamaz veya tam tersi bir durum yaşanır.
+**Genişleme:** Yeni bir dosya tipi eklemek için eşleme tablolarına (dosya adı tabanına göre `FILE_STEMS_BY_ICON_KEY`, uzantıya göre `FILE_SUFFIXES_BY_ICON_KEY`) ve `FILE_ICONS` tablosuna giriş yapman gerekir; bu iki tarafın uyumsuz olması durumunda dosya tipi eşleşse bile dosya yolu bulunamaz veya tam tersi bir durum yaşanır.
 
 ### 6.1 Dış ikon temaları ve raster yedek
 
@@ -434,12 +434,12 @@ Her iki bileşen de aynı render hattını (`svg()` elementi ve `SvgRenderer`) p
 
 ## 9. İkon ekleme akışı
 
-Pratik bir özet olarak, "bir tipli UI ikonu eklemek" için izlenmesi gereken adımlar:
+Pratik bir özet olarak, "bir tipli UI ikonu eklemek" için izlemen gereken adımlar:
 
-1. SVG dosyası **tek renkli** (monochrome) olacak şekilde hazırlanır. Renk değerleri `currentColor` veya yer tutucu olarak `#000` olarak bırakılır; çalışma zamanında `text_color` ile dinamik olarak renklendirilir.
-2. Dosya `assets/icons/yeni_ikon.svg` dizinine yerleştirilir (snake_case dosya adı formatında).
-3. `icons` crate'i içindeki `IconName` enum yapısına `YeniIkon` varyantı eklenir.
-4. Kullanıcı arayüzü kodunda `Icon::new(IconName::YeniIkon)` şeklinde çağrılarak kullanılır. Boyut için `.size(IconSize::Small)`, renk için ise `.color(Color::Accent)` metotları zincirlenebilir.
+1. SVG dosyasını **tek renkli** (monochrome) olacak şekilde hazırlaman gerekir. Renk değerleri `currentColor` veya yer tutucu olarak `#000` olarak bırakılır; çalışma zamanında `text_color` ile dinamik olarak renklendirilir.
+2. Dosyayı `assets/icons/yeni_ikon.svg` dizinine yerleştirmen gerekir (snake_case dosya adı formatında).
+3. `icons` crate'i içindeki `IconName` enum yapısına `YeniIkon` varyantını eklemen gerekir.
+4. Kullanıcı arayüzü kodunda `Icon::new(IconName::YeniIkon)` şeklinde çağırarak kullanabilirsin. Boyut için `.size(IconSize::Small)`, renk için ise `.color(Color::Accent)` metotlarını zincirleyebilirsin.
 
 Bu akışta dikkat edilmesi gereken tipik durumlar şunlardır:
 

@@ -12,7 +12,7 @@
 
 - `panel::PanelHeader` varsayılan `header_height` veya `panel_header_container` sağlayan bir yardımcı trait değildir; `workspace::Panel` üstünde işaretleyici bir trait'tir. Başlık yüksekliği gerekiyorsa doğrudan `Tab::container_height(cx)`, kapsayıcı gerekiyorsa `h_flex()`/`v_flex()` ve `ui::Button`/`ui::IconButton` bileşenleri kurulur.
 - `panel_button`, `panel_filled_button`, `panel_icon_button` ve `panel_filled_icon_button` serbest fonksiyon yardımcıları yoktur. Panel UI'ında buton katman/boyut/stil kararları doğrudan bileşen üzerinde açıkça belirtilir.
-- Git paneli `GitPanelTab::{Changes, History}` durumuyla iki tab çizer. Changes sekmesi staged/unstaged liste ve commit footer akışını taşır; History sekmesi commit geçmişini `UniformListScrollHandle` ile sanallaştırır, ok tuşlarıyla `focused_history_entry` seçer ve confirm ile `CommitView::open` çağırır. Panel eylem dinleyicilerine `ActivateChangesTab` ve `ActivateHistoryTab` eklenmesi gerekir.
+- Git paneli `GitPanelTab::{Changes, History}` durumuyla iki tab çizer. Changes sekmesi staged/unstaged liste ve commit footer akışını taşır; History sekmesi commit geçmişini `UniformListScrollHandle` ile sanallaştırır, ok tuşlarıyla `focused_history_entry` seçer ve confirm ile `CommitView::open` çağırır. Panel eylem dinleyicilerine `ActivateChangesTab` ve `ActivateHistoryTab` eklemen gerekir.
 - Branch diff görünümü toolbar'daki `Base: ...` popover'ı ile diff baz branch'ini değiştirir. Picker `branch_picker::select_popover(...)` üzerinden checkout yapmadan branch seçer, geri çağrı `DiffBase::Merge { base_ref }` ayarlar ve `BranchDiff::set_diff_base` `BranchDiffEvent::DiffBaseChanged` yayar. Ağaç tabanlı merge-base diff hesabı sürerken `is_tree_base_loading()` true döner; boş görünümler bunu yükleme göstergesiyle ayırmalı, eski statik baz varsayımına dönmemelidir.
 
 **Çalışma alanı yapısı.** Çalışma alanı üç ana dock'u ve merkezdeki pane grubunu bir arada tutar:
@@ -95,11 +95,11 @@
 
 **Yeni panel eklerken kontrol.** Aşağıdaki noktalar yeni bir panel hazırlanırken gözden geçirilmelidir:
 
-- `panel_key` kalıcılaştırma ve keymap kimliğidir; yeni panelde başlangıçta sabit bir değer seçilmesi gerekir.
-- `position_is_valid` alt ve yan sınırlamalarını net tanımlamalıdır.
-- `toggle_action()` action'ı önceden kaydedilmiş olmalıdır.
-- `activation_priority()` benzersiz olmalıdır.
-- `set_active` içinde UI durumu değiştiriliyorsa `cx.notify()` çağrısının bu akışa eklenmesi gerekir.
+- `panel_key` kalıcılaştırma ve keymap kimliğidir; yeni panelde başlangıçta sabit bir değer seçmen gerekir.
+- `position_is_valid` alt ve yan sınırlamalarını net tanımlaman gerekir.
+- `toggle_action()` action'ını önceden kaydetmen gerekir.
+- `activation_priority()` için benzersiz bir öncelik tanımlaman gerekir.
+- `set_active` içinde UI durumu değiştiriliyorsa `cx.notify()` çağrısını bu akışa eklemen gerekir.
 - Dock değiştiren ayar gözlemcilerinde panel taşınırken boyut durumu ekseni değişiyorsa sıfırlanabilir; bu durum mevcut `Dock::add_panel`/ayar gözlemci akışında zaten gerçekleştirilir.
 
 ---

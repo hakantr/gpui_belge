@@ -626,13 +626,13 @@ Kaynak:
 - `bind_redistributable_columns`: `ui` crate'i
 - `render_redistributable_columns_resize_handles`: `ui` crate'i
 
-Ne zaman kullanırsın:
+Ne zaman kullanılır:
 
 - Tek bir `Table` yeterli değilse; örneğin header, graph alanı ve tablo gövdesi farklı kapsayıcılarda ama aynı kolon durumuyla hizalanacaksa.
 - Yeniden boyutlandırma tutamaçlarının tablo dışındaki kardeş (sibling) elemanların üzerine bind edilmesi gerekiyorsa.
 - Satır veya header render'ının `Table` dışındaki özel bir yerleşim (layout) içinde yeniden kullanılması gerektiğinde.
 
-Ne zaman kullanmazsın:
+Ne zaman kullanılmaz:
 
 - Normal bir veri tablosu için bu yardımcılara inilmesine gerek yoktur. `Table` zaten header, row, scroll ve resize binding'ini tek bir yerde yönetir.
 - Sadece genişlik ayarlamak için `bind_redistributable_columns(...)` çağrılmaz; `ColumnWidthConfig` bu amaç için yeterlidir.

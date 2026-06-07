@@ -1,6 +1,6 @@
 # Pratik uygulama, port ve doğrulama
 
-Bu bölüm önceki konuları bir araya getirir: Kendi ürün başlığınızı kurarken hangi parçaları nereden alacağınız, Zed bağımlılıklarının port karşılıkları, dikkat edilmesi gereken kullanımlar ve teslim öncesi davranış doğrulama listesi.
+Bu bölüm önceki konuları bir araya getirir: Kendi ürün başlığını kurarken hangi parçaları nereden alacağın, Zed bağımlılıklarının port karşılıkları, dikkat edilmesi gereken kullanımlar ve teslim öncesi davranış doğrulama listesi ele alınır.
 
 ## 1. Ürün başlığını kurma iskeleti
 
@@ -8,14 +8,14 @@ Kendi uygulamanda ürün başlığı, platform kabuğunu sahiplenen ve her rende
 
 ```rust
 struct UrunBasligi {
-    platform_kabugu: Entity<PlatformTitleBar>,
-    proje_durumu: Entity<ProjeDurumu>,
+    platform_kabugu: View<PlatformTitleBar>,
+    proje_durumu: Model<ProjeDurumu>,
     ayarlar: BaslikAyarlari,
     _abonelikler: Vec<Subscription>,
 }
 
 impl Render for UrunBasligi {
-    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, cx: &mut ViewContext<Self>) -> impl IntoElement {
         let mut cocuk_grubu = Vec::new();
         cocuk_grubu.push(self.sol_grubu_kur(cx));   // proje adı, dal, sunucu
         cocuk_grubu.push(self.sag_grubu_kur(cx));   // kullanıcı, güncelleme, durum
