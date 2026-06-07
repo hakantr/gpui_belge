@@ -1,8 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 400">
   <title>GPUI Piksel Birimi Katmanları</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
     </marker>
     <style>
       .title    { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
@@ -13,8 +16,8 @@
       .mono     { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
       .small    { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
       .edgeLbl  { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1e40af; }
-      .arrow    { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
-      .arrowB   { stroke: #1e40af; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrow    { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .arrowB   { stroke: #1e40af; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
     </style>
   </defs>
 

@@ -1,13 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
   <title>GPUI görev ve yürütücü mimarisi</title>
   <defs>
-    <marker id="aSlate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
-    <marker id="aEmerald" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#059669"/></marker>
-    <marker id="aViolet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7c3aed"/></marker>
-    <marker id="aCyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0891b2"/></marker>
-    <marker id="aAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#d97706"/></marker>
-    <marker id="aRose" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#be123c"/></marker>
-    <marker id="aSky" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0284c7"/></marker>
+    <marker id="aSlate" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#64748b" stroke="#64748b" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-aSlate" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#64748b" />
+    </marker>
+    <marker id="aEmerald" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#059669" stroke="#059669" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-aEmerald" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#059669" />
+    </marker>
+    <marker id="aViolet" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#7c3aed" stroke="#7c3aed" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-aViolet" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#7c3aed" />
+    </marker>
+    <marker id="aCyan" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#0891b2" stroke="#0891b2" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-aCyan" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#0891b2" />
+    </marker>
+    <marker id="aAmber" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#d97706" stroke="#d97706" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-aAmber" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#d97706" />
+    </marker>
+    <marker id="aRose" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-aRose" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
+    </marker>
+    <marker id="aSky" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#0284c7" stroke="#0284c7" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-aSky" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#0284c7" />
+    </marker>
     <style>
       text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
       .title{font-size:20px;font-weight:700;fill:#0f172a}
@@ -19,8 +54,8 @@
       .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;fill:#0f172a}
       .card{fill:#fff;stroke-width:1.6}
       .tEmerald{fill:#059669}.tViolet{fill:#7c3aed}.tCyan{fill:#0891b2}.tAmber{fill:#d97706}.tRose{fill:#be123c}.tSky{fill:#0284c7}.tSlate{fill:#64748b}.tWhite{fill:#fff}
-      .arrow{stroke:#64748b;stroke-width:2;fill:none;marker-end:url(#aSlate)}
-      .aEm{stroke:#059669;marker-end:url(#aEmerald)}.aVi{stroke:#7c3aed;marker-end:url(#aViolet)}.aCy{stroke:#0891b2;marker-end:url(#aCyan)}.aAm{stroke:#d97706;marker-end:url(#aAmber)}.aRo{stroke:#be123c;marker-end:url(#aRose)}.aSk{stroke:#0284c7;marker-end:url(#aSky)}
+      .arrow{stroke:#64748b;stroke-width:2;fill:none;marker-end:url(#aSlate); marker-start: url(#dot-aSlate)}
+      .aEm{stroke:#059669;marker-end:url(#aEmerald); marker-start: url(#dot-aEmerald)}.aVi{stroke:#7c3aed;marker-end:url(#aViolet); marker-start: url(#dot-aViolet)}.aCy{stroke:#0891b2;marker-end:url(#aCyan); marker-start: url(#dot-aCyan)}.aAm{stroke:#d97706;marker-end:url(#aAmber); marker-start: url(#dot-aAmber)}.aRo{stroke:#be123c;marker-end:url(#aRose); marker-start: url(#dot-aRose)}.aSk{stroke:#0284c7;marker-end:url(#aSky); marker-start: url(#dot-aSky)}
     </style>
   </defs>
   <rect width="100%" height="100%" rx="10" fill="#f8fafc"/>

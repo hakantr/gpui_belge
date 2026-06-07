@@ -1,8 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350">
   <title>İkon ve SVG render akış hattı</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
+    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
     </marker>
     <style>
       .bg { fill: #f8fafc; rx: 12px; }
@@ -16,7 +19,7 @@
       .step-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #475569; text-anchor: middle; }
       
       /* Connecting Arrows */
-      .conn-line { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .conn-line { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
     </style>
   </defs>
 
@@ -28,9 +31,9 @@
   <text x="400" y="70" class="label-sub">SVG varlıklarının okunması, çözümlenmesi, mozaiklenmesi ve çizimi</text>
 
   <!-- Bağlantı Çizgileri -->
-  <path d="M 190 175 H 250" class="conn-line" />
-  <path d="M 370 175 H 430" class="conn-line" />
-  <path d="M 550 175 H 610" class="conn-line" />
+  <path d="M 190 175 H 242" class="conn-line" />
+  <path d="M 370 175 H 422" class="conn-line" />
+  <path d="M 550 175 H 602" class="conn-line" />
 
   <!-- 1. Adım: AssetSource -->
   <g transform="translate(70, 125)">

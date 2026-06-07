@@ -1,73 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 460">
   <title>JSON Varlık Tüketim Yolları</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
     </marker>
     <style>
-      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
-      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
-      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
-      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
-      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
-      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
-      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
+      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .head { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
+      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .arrow-start { fill: #334155; }
     </style>
   </defs>
-  <rect width="980" height="420" rx="10" fill="#f8fafc"/>
+
+  <rect width="980" height="460" rx="10" fill="#f8fafc" />
   <text x="490" y="36" text-anchor="middle" class="title">JSON Varlık Tüketim Yolları</text>
   <text x="490" y="60" text-anchor="middle" class="sub">Aynı dosya formatı dört farklı runtime sözleşmesine akar.</text>
 
-  <rect x="44" y="94" width="168" height="88" rx="8" class="card"/>
-  <rect x="44" y="94" width="168" height="30" rx="8" fill="#0284c7"/>
-  <path d="M44 116 H212 V124 H44 Z" fill="#0284c7"/>
-  <text x="60" y="114" class="head">themes/</text>
-  <text x="60" y="146" class="body">ThemeFamilyContent</text>
-  <text x="60" y="164" class="small">registry'ye eklenir</text>
+  <rect x="70" y="96" width="168" height="88" rx="8" class="card" />
+  <rect x="70" y="96" width="168" height="30" rx="8" fill="#0284c7" />
+  <path d="M 70 118 H 238 V 126 H 70 Z" fill="#0284c7" />
+  <text x="86" y="116" class="head">themes/</text>
+  <text x="86" y="148" class="body">ThemeFamilyContent</text>
+  <text x="86" y="166" class="small">registry'ye eklenir</text>
 
-  <rect x="44" y="210" width="168" height="88" rx="8" class="card"/>
-  <rect x="44" y="210" width="168" height="30" rx="8" fill="#7c3aed"/>
-  <path d="M44 232 H212 V240 H44 Z" fill="#7c3aed"/>
-  <text x="60" y="230" class="head">keymaps/</text>
-  <text x="60" y="262" class="body">platform seçimi</text>
-  <text x="60" y="280" class="small">keymap parser</text>
+  <rect x="286" y="96" width="168" height="88" rx="8" class="card" />
+  <rect x="286" y="96" width="168" height="30" rx="8" fill="#059669" />
+  <path d="M 286 118 H 454 V 126 H 286 Z" fill="#059669" />
+  <text x="302" y="116" class="head">settings/</text>
+  <text x="302" y="148" class="body">default content</text>
+  <text x="302" y="166" class="small">SettingsStore'a girer</text>
 
-  <rect x="300" y="94" width="168" height="88" rx="8" class="card"/>
-  <rect x="300" y="94" width="168" height="30" rx="8" fill="#059669"/>
-  <path d="M300 116 H468 V124 H300 Z" fill="#059669"/>
-  <text x="316" y="114" class="head">settings/</text>
-  <text x="316" y="146" class="body">default content</text>
-  <text x="316" y="164" class="small">SettingsStore'a girer</text>
+  <rect x="502" y="96" width="168" height="88" rx="8" class="card" />
+  <rect x="502" y="96" width="168" height="30" rx="8" fill="#7c3aed" />
+  <path d="M 502 118 H 670 V 126 H 502 Z" fill="#7c3aed" />
+  <text x="518" y="116" class="head">keymaps/</text>
+  <text x="518" y="148" class="body">platform seçimi</text>
+  <text x="518" y="166" class="small">keymap parser</text>
 
-  <rect x="300" y="210" width="168" height="88" rx="8" class="card"/>
-  <rect x="300" y="210" width="168" height="30" rx="8" fill="#d97706"/>
-  <path d="M300 232 H468 V240 H300 Z" fill="#d97706"/>
-  <text x="316" y="230" class="head">badge/</text>
-  <text x="316" y="262" class="body">runtime dışı</text>
-  <text x="316" y="280" class="small">README rozeti</text>
+  <rect x="718" y="96" width="168" height="88" rx="8" class="card" />
+  <rect x="718" y="96" width="168" height="30" rx="8" fill="#d97706" />
+  <path d="M 718 118 H 886 V 126 H 718 Z" fill="#d97706" />
+  <text x="734" y="116" class="head">badge/</text>
+  <text x="734" y="148" class="body">runtime dışı</text>
+  <text x="734" y="166" class="small">README rozeti</text>
 
-  <rect x="568" y="150" width="176" height="96" rx="8" class="card"/>
-  <rect x="568" y="150" width="176" height="30" rx="8" fill="#334155"/>
-  <path d="M568 172 H744 V180 H568 Z" fill="#334155"/>
-  <text x="584" y="170" class="head">AssetSource</text>
-  <text x="584" y="202" class="body">asset_str / list</text>
-  <text x="584" y="220" class="small">dosyayı yalnız taşır</text>
+  <rect x="402" y="230" width="176" height="96" rx="8" class="card" />
+  <rect x="402" y="230" width="176" height="30" rx="8" fill="#334155" />
+  <path d="M 402 252 H 578 V 260 H 402 Z" fill="#334155" />
+  <text x="418" y="250" class="head">AssetSource</text>
+  <text x="418" y="282" class="body">asset_str / list</text>
+  <text x="418" y="300" class="small">dosyayı yalnız taşır</text>
 
-  <rect x="812" y="96" width="128" height="72" rx="8" class="card"/>
-  <text x="830" y="126" class="body">ThemeRegistry</text>
-  <text x="830" y="146" class="small">UI theme</text>
-  <rect x="812" y="184" width="128" height="72" rx="8" class="card"/>
-  <text x="830" y="214" class="body">SettingsStore</text>
-  <text x="830" y="234" class="small">ayar + keymap</text>
-  <rect x="812" y="272" width="128" height="72" rx="8" class="card"/>
-  <text x="830" y="302" class="body">Harici araç</text>
-  <text x="830" y="322" class="small">badge tüketimi</text>
+  <rect x="178" y="376" width="160" height="58" rx="8" class="card" />
+  <text x="198" y="404" class="body">ThemeRegistry</text>
+  <text x="198" y="422" class="small">UI theme</text>
 
-  <path d="M212 138 H568" class="arrow"/>
-  <path d="M212 254 H568" class="arrow"/>
-  <path d="M468 138 H568" class="arrow"/>
-  <path d="M468 254 H568" class="arrow"/>
-  <path d="M744 178 C780 178 780 132 812 132" class="arrow"/>
-  <path d="M744 198 H812" class="arrow"/>
-  <path d="M744 222 C780 222 780 308 812 308" class="arrow"/>
+  <rect x="410" y="376" width="160" height="58" rx="8" class="card" />
+  <text x="430" y="404" class="body">SettingsStore</text>
+  <text x="430" y="422" class="small">ayar + keymap</text>
+
+  <rect x="642" y="376" width="160" height="58" rx="8" class="card" />
+  <text x="662" y="404" class="body">Harici araç</text>
+  <text x="662" y="422" class="small">badge tüketimi</text>
+
+  <path d="M 154 184 L 418 222" class="arrow" />
+  <path d="M 370 184 L 466 222" class="arrow" />
+  <path d="M 586 184 L 514 222" class="arrow" />
+  <path d="M 802 184 L 562 222" class="arrow" />
+
+  <path d="M 438 326 L 258 368" class="arrow" />
+  <path d="M 490 326 V 368" class="arrow" />
+  <path d="M 542 326 L 722 368" class="arrow" />
+
+  <circle cx="154" cy="184" r="3.5" class="arrow-start" />
+  <circle cx="370" cy="184" r="3.5" class="arrow-start" />
+  <circle cx="586" cy="184" r="3.5" class="arrow-start" />
+  <circle cx="802" cy="184" r="3.5" class="arrow-start" />
+  <circle cx="438" cy="326" r="3.5" class="arrow-start" />
+  <circle cx="490" cy="326" r="3.5" class="arrow-start" />
+  <circle cx="542" cy="326" r="3.5" class="arrow-start" />
 </svg>
