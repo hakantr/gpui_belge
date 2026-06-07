@@ -206,7 +206,7 @@ Branch takibi Zed'deki değişimleri otomatik alır; `rev` ile sabitleme ise han
 
 **Bağımlılık Akış Grafiği:**
 
-![Tema Crate Bağımlılık Grafiği](../assets/images/tema-crate-bagimliliklari.svg)
+![Tema Crate Bağımlılık Grafiği](assets/tema-crate-bagimliliklari.svg)
 
 ```text
 kvs_tema  ──bağımlı──>  gpui, refineable, collections, kvs_syntax_tema

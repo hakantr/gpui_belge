@@ -6,7 +6,7 @@
 
 <div align="center">
 
-![GPUI Render Döngüsü](../assets/images/render_pipeline.svg)
+![GPUI Render Döngüsü](assets/render_pipeline.svg)
 
 </div>
 

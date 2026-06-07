@@ -138,7 +138,7 @@ Bu değerler bir tema paleti alanı değildir; kullanıcı temasından geçersiz
 
 UI renk paletinin tamamı tek bir struct altında toplanır. **Alan sayısı yaklaşık 150 civarındadır**; kesin sayı takip edilen Zed tema sözleşmesine bağlıdır.
 
-![ThemeStyles ve ThemeColors Alan Haritası](../assets/images/theme-colors-yapisi.svg)
+![ThemeStyles ve ThemeColors Alan Haritası](assets/theme-colors-yapisi.svg)
 
 ```rust
 #[derive(Refineable, Clone, Debug, PartialEq)]

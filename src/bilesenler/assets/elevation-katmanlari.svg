@@ -1,19 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <title>ElevationIndex katman hiyerarşisi</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
 
       /* Colors and shadows for elevations */
-      .layer-bg { fill: #0f172a; stroke: #1e293b; stroke-width: 2; opacity: 0.9; }
-      .layer-surface { fill: #1e293b; stroke: #334155; stroke-width: 2; opacity: 0.9; }
-      .layer-elevated { fill: #334155; stroke: #475569; stroke-width: 2; opacity: 0.9; }
-      .layer-modal { fill: #1e293b; stroke: #38bdf8; stroke-width: 2; opacity: 0.95; }
+      .layer-bg { fill: #f1f5f9; stroke: #ffffff; stroke-width: 2; opacity: 0.9; }
+      .layer-surface { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; opacity: 0.9; }
+      .layer-elevated { fill: #e2e8f0; stroke: #475569; stroke-width: 2; opacity: 0.9; }
+      .layer-modal { fill: #ffffff; stroke: #0284c7; stroke-width: 2; opacity: 0.95; }
 
-      .text-lbl { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 14px; fill: #f8fafc; }
-      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; }
-      .text-shadow-label { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #f472b6; }
+      .text-lbl { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 14px; fill: #0f172a; }
+      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #475569; }
+      .text-shadow-label { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #db2777; }
 
       /* Floating animations */
       @keyframes float-modal {
@@ -82,9 +83,9 @@
   <!-- 4. En Üst Katman: Modal -->
   <g class="modal-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-modal" />
-    <text x="-180" y="60" class="text-lbl" fill="#38bdf8">ModalSurface (Dialogs)</text>
+    <text x="-180" y="60" class="text-lbl" fill="#0284c7">ModalSurface (Dialogs)</text>
     <text x="-180" y="80" class="text-desc">Kullanıcı eylemi bekleyen modal pencereler</text>
-    <text x="-180" y="100" class="text-shadow-label" fill="#38bdf8">shadow_2xl() / .border_2()</text>
+    <text x="-180" y="100" class="text-shadow-label" fill="#0284c7">shadow_2xl() / .border_2()</text>
   </g>
 
 </svg>

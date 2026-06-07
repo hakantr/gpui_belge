@@ -1,59 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350">
+  <title>Tema etkileşim renk akışı</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
       
       /* Durum Açıklama Metni */
-      .label-state { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 16px; fill: #34d399; text-anchor: middle; }
+      .label-state { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 16px; fill: #059669; text-anchor: middle; }
       
       /* Buton Animasyonu */
       .btn-base { rx: 6px; transform-origin: center; transition: all 0.3s ease-in-out; }
       .btn-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 15px; text-anchor: middle; dominant-baseline: middle; transition: fill 0.3s; }
       
       /* Focus Halkası */
-      .focus-ring { fill: none; stroke: #38bdf8; stroke-width: 2; rx: 10px; opacity: 0; transform-origin: center; transition: all 0.3s; }
+      .focus-ring { fill: none; stroke: #0284c7; stroke-width: 2; rx: 10px; opacity: 0; transform-origin: center; transition: all 0.3s; }
 
       /* Animasyon Döngüsü */
       @keyframes anim-button {
         /* Default: 0s - 2.5s */
         0%, 15% {
-          fill: #1e293b;
-          stroke: #334155;
+          fill: #ffffff;
+          stroke: #cbd5e1;
           stroke-width: 1.5;
         }
         /* Hovered: 3s - 5.5s */
         20%, 40% {
-          fill: #334155;
+          fill: #e2e8f0;
           stroke: #475569;
           stroke-width: 1.5;
         }
         /* Pressed: 6s - 8.5s */
         45%, 65% {
-          fill: #0f172a;
-          stroke: #38bdf8;
+          fill: #f1f5f9;
+          stroke: #0284c7;
           stroke-width: 1.5;
           transform: scale(0.96);
         }
         /* Focused: 9s - 11.5s */
         70%, 90% {
-          fill: #1e293b;
-          stroke: #38bdf8;
+          fill: #ffffff;
+          stroke: #0284c7;
           stroke-width: 1.5;
           transform: scale(1);
         }
         100% {
-          fill: #1e293b;
-          stroke: #334155;
+          fill: #ffffff;
+          stroke: #cbd5e1;
           stroke-width: 1.5;
         }
       }
 
       @keyframes anim-text {
-        0%, 15% { fill: #94a3b8; }
-        20%, 90% { fill: #f8fafc; }
-        100% { fill: #94a3b8; }
+        0%, 15% { fill: #475569; }
+        20%, 90% { fill: #0f172a; }
+        100% { fill: #475569; }
       }
 
       @keyframes anim-ring {

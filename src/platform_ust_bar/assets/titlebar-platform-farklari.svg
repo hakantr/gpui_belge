@@ -1,16 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <title>Platform titlebar ve pencere kontrolleri</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
       
       /* Platform Container Styles */
-      .window-rect { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 8px; }
-      .titlebar { fill: #0f172a; stroke: #1e293b; stroke-width: 1.5; }
+      .window-rect { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8px; }
+      .titlebar { fill: #f1f5f9; stroke: #ffffff; stroke-width: 1.5; }
       
-      .text-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 14px; fill: #f8fafc; }
-      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #94a3b8; }
+      .text-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 14px; fill: #0f172a; }
+      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #475569; }
       
       /* Traffic Lights (macOS) */
       .tl-red { fill: #ff5f56; }
@@ -18,12 +19,12 @@
       .tl-green { fill: #27c93f; }
       
       /* Window Buttons (Windows) */
-      .win-btn { fill: none; stroke: #94a3b8; stroke-width: 1.5; }
+      .win-btn { fill: none; stroke: #475569; stroke-width: 1.5; }
       .win-close { stroke: #ff5f56; }
 
       /* Guides */
-      .guide-line { stroke: #fb7185; stroke-width: 1.2; stroke-dasharray: 4 3; }
-      .guide-text { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #fb7185; }
+      .guide-line { stroke: #e11d48; stroke-width: 1.2; stroke-dasharray: 4 3; }
+      .guide-text { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #e11d48; }
 
       /* Animations: Platform toggle */
       @keyframes anim-mac {
@@ -43,7 +44,7 @@
       @keyframes anim-label-2 { 0%, 45%, 100% { opacity: 0; } 50%, 95% { opacity: 1; } }
       .lbl-s1 { animation: anim-label-1 8s infinite linear; }
       .lbl-s2 { animation: anim-label-2 8s infinite linear; }
-      .state-labels text { opacity: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; fill: #38bdf8; text-anchor: middle; }
+      .state-labels text { opacity: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; fill: #0284c7; text-anchor: middle; }
     </style>
   </defs>
 
@@ -68,7 +69,7 @@
 
     <!-- TRAFFIC_LIGHT_PADDING Kılavuz Çizgisi -->
     <line x1="100" y1="147" x2="178" y2="147" class="guide-line" />
-    <line x1="178" y1="142" x2="178" y2="152" stroke="#fb7185" stroke-width="1.5" />
+    <line x1="178" y1="142" x2="178" y2="152" stroke="#e11d48" stroke-width="1.5" />
     <text x="139" y="162" class="guide-text" text-anchor="middle">TRAFFIC_LIGHT_PADDING (78px)</text>
   </g>
 

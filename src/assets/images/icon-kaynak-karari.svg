@@ -1,74 +1,387 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 430">
-  <title>İkon Kaynak Kararı</title>
-  <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 980 430"
+   version="1.1"
+   id="svg30"
+   sodipodi:docname="icon-kaynak-karari.svg"
+   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview30"
+     pagecolor="#505050"
+     bordercolor="#eeeeee"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#505050"
+     inkscape:zoom="3.8898679"
+     inkscape:cx="806.45412"
+     inkscape:cy="206.04813"
+     inkscape:window-width="2048"
+     inkscape:window-height="1243"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg30" />
+  <title
+     id="title1">İkon Kaynak Kararı</title>
+  <defs
+     id="defs1">
+    <marker
+       style="overflow:visible"
+       id="Triangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.5)"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
+         d="M 5.77,0 -2.88,5 V -5 Z"
+         id="path135" />
     </marker>
-    <style>
-      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
-      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
+    <marker
+       id="arrow"
+       viewBox="0 0 10 10"
+       refX="10"
+       refY="5"
+       markerWidth="7"
+       markerHeight="7"
+       orient="auto-start-reverse">
+      <path
+         d="M 0 0 L 10 5 L 0 10 z"
+         fill="#334155"
+         id="path1" />
+    </marker>
+    <style
+       id="style1">
+      .title{font:700 22px system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;fill:#0f172a}
+      .sub{font:13px system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;fill:#475569}
       .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
       .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
-      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
-      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
+      .body{font:12px system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;fill:#334155}
+      .small{font:11px system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;fill:#64748b}
       .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
     </style>
   </defs>
-  <rect width="980" height="430" rx="10" fill="#f8fafc"/>
-  <text x="490" y="36" text-anchor="middle" class="title">İkon Kaynak Kararı</text>
-  <text x="490" y="60" text-anchor="middle" class="sub">Dosyanın konumu, enum eşlemesi ve renk davranışı birlikte seçilir.</text>
-
-  <rect x="40" y="118" width="170" height="94" rx="8" class="card"/>
-  <rect x="40" y="118" width="170" height="30" rx="8" fill="#0f766e"/>
-  <path d="M40 140 H210 V148 H40 Z" fill="#0f766e"/>
-  <text x="56" y="138" class="head">Yeni SVG</text>
-  <text x="56" y="170" class="body">tek renk mi?</text>
-  <text x="56" y="188" class="small">tema rengiyle boyanacak mı?</text>
-
-  <rect x="280" y="74" width="190" height="104" rx="8" class="card"/>
-  <rect x="280" y="74" width="190" height="30" rx="8" fill="#0284c7"/>
-  <path d="M280 96 H470 V104 H280 Z" fill="#0284c7"/>
-  <text x="296" y="94" class="head">IconName</text>
-  <text x="296" y="126" class="body">icons/*.svg</text>
-  <text x="296" y="144" class="body">snake_case path</text>
-  <text x="296" y="162" class="small">Icon::new(...)</text>
-
-  <rect x="280" y="244" width="190" height="104" rx="8" class="card"/>
-  <rect x="280" y="244" width="190" height="30" rx="8" fill="#7c3aed"/>
-  <path d="M280 266 H470 V274 H280 Z" fill="#7c3aed"/>
-  <text x="296" y="264" class="head">ImageSource</text>
-  <text x="296" y="296" class="body">çok renkli logo</text>
-  <text x="296" y="314" class="body">dış dosya / tema ikonu</text>
-  <text x="296" y="332" class="small">img() veya IconTheme</text>
-
-  <rect x="560" y="74" width="180" height="104" rx="8" class="card"/>
-  <rect x="560" y="74" width="180" height="30" rx="8" fill="#059669"/>
-  <path d="M560 96 H740 V104 H560 Z" fill="#059669"/>
-  <text x="576" y="94" class="head">svg()</text>
-  <text x="576" y="126" class="body">alpha mask</text>
-  <text x="576" y="144" class="body">current color</text>
-  <text x="576" y="162" class="small">SvgRenderer</text>
-
-  <rect x="560" y="244" width="180" height="104" rx="8" class="card"/>
-  <rect x="560" y="244" width="180" height="30" rx="8" fill="#d97706"/>
-  <path d="M560 266 H740 V274 H560 Z" fill="#d97706"/>
-  <text x="576" y="264" class="head">raster yol</text>
-  <text x="576" y="296" class="body">renkler korunur</text>
-  <text x="576" y="314" class="body">format loader seçer</text>
-  <text x="576" y="332" class="small">ImageAssetLoader</text>
-
-  <rect x="812" y="154" width="120" height="104" rx="8" class="card"/>
-  <rect x="812" y="154" width="120" height="30" rx="8" fill="#334155"/>
-  <path d="M812 176 H932 V184 H812 Z" fill="#334155"/>
-  <text x="828" y="174" class="head">UI</text>
-  <text x="828" y="206" class="body">Icon</text>
-  <text x="828" y="224" class="body">Vector</text>
-  <text x="828" y="242" class="small">theme aware</text>
-
-  <path d="M210 150 C244 122 250 112 280 112" class="arrow"/>
-  <path d="M210 182 C244 240 250 286 280 296" class="arrow"/>
-  <path d="M470 126 H560" class="arrow"/>
-  <path d="M470 296 H560" class="arrow"/>
-  <path d="M740 126 C790 126 790 188 812 198" class="arrow"/>
-  <path d="M740 296 C790 296 790 234 812 224" class="arrow"/>
+  <rect
+     width="980"
+     height="430"
+     rx="10"
+     fill="#f8fafc"
+     id="rect1" />
+  <text
+     x="490"
+     y="36"
+     text-anchor="middle"
+     class="title"
+     id="text1">İkon Kaynak Kararı</text>
+  <text
+     x="490"
+     y="60"
+     text-anchor="middle"
+     class="sub"
+     id="text2">Dosyanın konumu, enum eşlemesi ve renk davranışı birlikte seçilir.</text>
+  <rect
+     x="40"
+     y="118"
+     width="170"
+     height="94"
+     rx="8"
+     class="card"
+     id="rect2" />
+  <rect
+     x="40"
+     y="118"
+     width="170"
+     height="30"
+     rx="8"
+     fill="#0f766e"
+     id="rect3" />
+  <path
+     d="M40 140 H210 V148 H40 Z"
+     fill="#0f766e"
+     id="path3" />
+  <text
+     x="56"
+     y="138"
+     class="head"
+     id="text3">Yeni SVG</text>
+  <text
+     x="56"
+     y="170"
+     class="body"
+     id="text4">tek renk mi?</text>
+  <text
+     x="56"
+     y="188"
+     class="small"
+     id="text5"
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:11px;line-height:normal;font-family:system-ui, '-apple-system', 'Segoe UI', sans-serif"><tspan
+       sodipodi:role="line"
+       id="tspan30"
+       x="56"
+       y="188">tema rengiyle boyanacak</tspan><tspan
+       sodipodi:role="line"
+       id="tspan31"
+       x="56"
+       y="201.75">mı?</tspan></text>
+  <rect
+     x="280"
+     y="74"
+     width="190"
+     height="104"
+     rx="8"
+     class="card"
+     id="rect5" />
+  <rect
+     x="280"
+     y="74"
+     width="190"
+     height="30"
+     rx="8"
+     fill="#0284c7"
+     id="rect6" />
+  <path
+     d="M280 96 H470 V104 H280 Z"
+     fill="#0284c7"
+     id="path6" />
+  <text
+     x="296"
+     y="94"
+     class="head"
+     id="text6">IconName</text>
+  <text
+     x="296"
+     y="126"
+     class="body"
+     id="text7">icons/*.svg</text>
+  <text
+     x="296"
+     y="144"
+     class="body"
+     id="text8">snake_case path</text>
+  <text
+     x="296"
+     y="162"
+     class="small"
+     id="text9">Icon::new(...)</text>
+  <rect
+     x="280"
+     y="244"
+     width="190"
+     height="104"
+     rx="8"
+     class="card"
+     id="rect9" />
+  <rect
+     x="280"
+     y="244"
+     width="190"
+     height="30"
+     rx="8"
+     fill="#7c3aed"
+     id="rect10" />
+  <path
+     d="M280 266 H470 V274 H280 Z"
+     fill="#7c3aed"
+     id="path10" />
+  <text
+     x="296"
+     y="264"
+     class="head"
+     id="text10">ImageSource</text>
+  <text
+     x="296"
+     y="296"
+     class="body"
+     id="text11">çok renkli logo</text>
+  <text
+     x="296"
+     y="314"
+     class="body"
+     id="text12">dış dosya / tema ikonu</text>
+  <text
+     x="296"
+     y="332"
+     class="small"
+     id="text13">img() veya IconTheme</text>
+  <rect
+     x="560"
+     y="74"
+     width="180"
+     height="104"
+     rx="8"
+     class="card"
+     id="rect13" />
+  <rect
+     x="560"
+     y="74"
+     width="180"
+     height="30"
+     rx="8"
+     fill="#059669"
+     id="rect14" />
+  <path
+     d="M560 96 H740 V104 H560 Z"
+     fill="#059669"
+     id="path14" />
+  <text
+     x="576"
+     y="94"
+     class="head"
+     id="text14">svg()</text>
+  <text
+     x="576"
+     y="126"
+     class="body"
+     id="text15">alpha mask</text>
+  <text
+     x="576"
+     y="144"
+     class="body"
+     id="text16">current color</text>
+  <text
+     x="576"
+     y="162"
+     class="small"
+     id="text17">SvgRenderer</text>
+  <rect
+     x="560"
+     y="244"
+     width="180"
+     height="104"
+     rx="8"
+     class="card"
+     id="rect17" />
+  <rect
+     x="560"
+     y="244"
+     width="180"
+     height="30"
+     rx="8"
+     fill="#d97706"
+     id="rect18" />
+  <path
+     d="M560 266 H740 V274 H560 Z"
+     fill="#d97706"
+     id="path18" />
+  <text
+     x="576"
+     y="264"
+     class="head"
+     id="text18">raster yol</text>
+  <text
+     x="576"
+     y="296"
+     class="body"
+     id="text19">renkler korunur</text>
+  <text
+     x="576"
+     y="314"
+     class="body"
+     id="text20">format loader seçer</text>
+  <text
+     x="576"
+     y="332"
+     class="small"
+     id="text21">ImageAssetLoader</text>
+  <rect
+     x="812"
+     y="154"
+     width="120"
+     height="104"
+     rx="8"
+     class="card"
+     id="rect21" />
+  <rect
+     x="812"
+     y="154"
+     width="120"
+     height="30"
+     rx="8"
+     fill="#334155"
+     id="rect22" />
+  <path
+     d="M812 176 H932 V184 H812 Z"
+     fill="#334155"
+     id="path22" />
+  <text
+     x="828"
+     y="174"
+     class="head"
+     id="text22">UI</text>
+  <text
+     x="828"
+     y="206"
+     class="body"
+     id="text23">Icon</text>
+  <text
+     x="828"
+     y="224"
+     class="body"
+     id="text24">Vector</text>
+  <text
+     x="828"
+     y="242"
+     class="small"
+     id="text25">theme aware</text>
+  <path
+     d="m 210.188,163.87294 c 51.2067,3.54969 39.25335,-52.25669 61.82403,-52.25669"
+     class="arrow"
+     id="path25"
+     style="marker-end:url(#Triangle)"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="M 121.32035,212.79045 C 120.27484,296.91529 248.72562,296.19506 273,296"
+     class="arrow"
+     id="path26"
+     style="marker-end:url(#Triangle)"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="M470 126 H553"
+     class="arrow"
+     id="path27"
+     style="marker-end:url(#Triangle)" />
+  <path
+     d="M470 296 H553"
+     class="arrow"
+     id="path28"
+     style="marker-end:url(#Triangle)" />
+  <path
+     d="m 740,126 c 50,0 43,82.02605 65,82.02605"
+     class="arrow"
+     id="path29"
+     style="marker-end:url(#Triangle)"
+     sodipodi:nodetypes="cc" />
+  <path
+     d="m 740,296 c 50,0 43,-87.68177 65,-87.68177"
+     class="arrow"
+     id="path30"
+     style="marker-end:url(#Triangle)"
+     sodipodi:nodetypes="cc" />
+  <text
+     x="202.10431"
+     y="165.40739"
+     class="branch-label"
+     fill="#0284c7"
+     id="text10-6"
+     style="font-weight:700;font-size:11px;font-family:system-ui, '-apple-system', sans-serif;dominant-baseline:central;text-anchor:middle">E</text>
+  <text
+     x="122.10432"
+     y="204.25529"
+     class="branch-label"
+     fill="#059669"
+     id="text11-7"
+     style="font-weight:700;font-size:11px;font-family:system-ui, '-apple-system', sans-serif;dominant-baseline:central;text-anchor:middle">H</text>
 </svg>

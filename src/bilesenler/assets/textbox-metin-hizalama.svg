@@ -1,39 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350">
+  <title>InputField metin ve ikon hizalaması</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
       
       /* Input Box */
-      .input-border { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 8px; transition: stroke 0.3s, box-shadow 0.3s; }
+      .input-border { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8px; transition: stroke 0.3s, box-shadow 0.3s; }
       .input-border-focus { animation: border-pulse 4s infinite; }
       
       @keyframes border-pulse {
-        0%, 100% { stroke: #334155; filter: drop-shadow(0 0 0px rgba(56, 189, 248, 0)); }
-        50% { stroke: #38bdf8; filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4)); }
+        0%, 100% { stroke: #cbd5e1; filter: drop-shadow(0 0 0px rgba(56, 189, 248, 0)); }
+        50% { stroke: #0284c7; filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.4)); }
       }
 
       /* Text and labels */
-      .field-label { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 14px; fill: #e2e8f0; }
-      .text-val { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; fill: #f8fafc; dominant-baseline: middle; }
+      .field-label { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 14px; fill: #334155; }
+      .text-val { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; fill: #0f172a; dominant-baseline: middle; }
       .text-placeholder { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 15px; fill: #475569; dominant-baseline: middle; }
       .caption { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #64748b; }
       
       /* Guides */
       .guide-line { stroke: #e11d48; stroke-dasharray: 3 3; stroke-width: 1; opacity: 0.7; }
-      .guide-text { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #fb7185; }
+      .guide-text { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #e11d48; }
 
       /* Cursor blink */
-      .cursor { stroke: #38bdf8; stroke-width: 2; animation: blink 1s infinite; }
+      .cursor { stroke: #0284c7; stroke-width: 2; animation: blink 1s infinite; }
       @keyframes blink {
         0%, 100% { opacity: 0; }
         50% { opacity: 1; }
       }
 
       /* Icons */
-      .icon-svg { fill: #94a3b8; }
-      .icon-accent { fill: #38bdf8; }
+      .icon-svg { fill: #475569; }
+      .icon-accent { fill: #0284c7; }
 
       /* Interactive Eye Animation */
       .eye-pupil { animation: move-pupil 4s infinite; }
@@ -74,7 +75,7 @@
   <g transform="translate(610, 158)">
     <path class="icon-svg" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
     <!-- Göz Bebeği Animasyonu -->
-    <circle cx="12" cy="12" r="1.5" fill="#38bdf8" class="eye-pupil" />
+    <circle cx="12" cy="12" r="1.5" fill="#0284c7" class="eye-pupil" />
   </g>
 
   <!-- items_center Kılavuz Çizgisi (Dikey Eksen Ortası y: 170) -->
@@ -84,12 +85,12 @@
   <path d="M 680 170 L 675 167 L 675 173 Z" fill="#e11d48" />
   <path d="M 120 170 L 125 167 L 125 173 Z" fill="#e11d48" />
 
-  <!-- İkon & Metin Dikey Hizalama Etiketleri -->
+  <!-- İkon &amp; Metin Dikey Hizalama Etiketleri -->
   <text x="165" y="220" class="caption" text-anchor="middle">start_icon()</text>
   <text x="300" y="220" class="caption" text-anchor="middle">Metin/Seçim Alanı</text>
   <text x="622" y="220" class="caption" text-anchor="middle">masked() butonu</text>
 
   <!-- Kılavuz Açıklaması -->
-  <text x="400" y="270" class="caption" text-anchor="middle" fill="#94a3b8">Kapsayıcı içindeki tüm öğeler dikeyde hizalıdır.</text>
+  <text x="400" y="270" class="caption" text-anchor="middle" fill="#475569">Kapsayıcı içindeki tüm öğeler dikeyde hizalıdır.</text>
   <text x="400" y="290" class="caption" text-anchor="middle" fill="#64748b">Odağı kaybetme durumunda border rengi sönükleşir.</text>
 </svg>

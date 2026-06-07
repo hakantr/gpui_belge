@@ -329,6 +329,12 @@ Bunun pratik sonucu şudur: bir image elementi ilk render anında boş olarak ç
 
 ## 6. `ImageCache` ve `image_cache` element'i
 
+<div align="center">
+
+![ImageCache önbellek mimarisi](images/gorsel-onbellek-mimarisi.svg)
+
+</div>
+
 Image cache'in iki seviyesi vardır:
 
 - **Global önbellek (Global Cache):** `App` üzerinde konumlanan `loading_assets` eşleşme tablosudur. `use_asset` çağrısı varsayılan olarak buraya yönlendirilir.

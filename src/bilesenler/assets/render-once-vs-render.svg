@@ -1,26 +1,27 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <title>RenderOnce ve Render akış modeli</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
-      .col-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 16px; fill: #f1f5f9; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
+      .col-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 16px; fill: #334155; text-anchor: middle; }
       
-      .box { fill: #1e293b; stroke: #334155; stroke-width: 1.5; rx: 8px; }
-      .box-active { stroke: #38bdf8; }
-      .box-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 13px; fill: #f1f5f9; text-anchor: middle; }
-      .box-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
+      .box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; rx: 8px; }
+      .box-active { stroke: #0284c7; }
+      .box-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 13px; fill: #334155; text-anchor: middle; }
+      .box-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #475569; text-anchor: middle; }
       
       .arrow { stroke: #475569; stroke-width: 1.5; fill: none; }
-      .arrow-active { stroke: #38bdf8; stroke-dasharray: 5 3; animation: dash 2s linear infinite; }
-      .arrow-head { fill: #38bdf8; }
+      .arrow-active { stroke: #0284c7; stroke-dasharray: 5 3; animation: dash 2s linear infinite; }
+      .arrow-head { fill: #0284c7; }
 
       @keyframes dash {
         to { stroke-dashoffset: -20; }
       }
 
       /* Particles */
-      .particle { fill: #38bdf8; filter: drop-shadow(0 0 4px #38bdf8); }
+      .particle { fill: #0284c7; filter: drop-shadow(0 0 4px #0284c7); }
       .p-once { animation: move-once 4s infinite linear; }
       .p-render { animation: move-render 5s infinite linear; }
 
@@ -46,7 +47,7 @@
   <text x="400" y="70" class="sub">Durumsuz bileşen zinciri ile durumlu view/entity döngüsü karşılaştırması</text>
 
   <!-- Kolon Çizgisi -->
-  <line x1="400" y1="100" x2="400" y2="400" stroke="#1e293b" stroke-dasharray="5 5" />
+  <line x1="400" y1="100" x2="400" y2="400" stroke="#ffffff" stroke-dasharray="5 5" />
 
   <!-- ================= LEFT: RenderOnce ================= -->
   <text x="220" y="110" class="col-title">RenderOnce (Stateless)</text>
@@ -91,7 +92,7 @@
   <text x="580" y="315" class="box-text">GPU Çizimi</text>
   <text x="580" y="330" class="box-desc">Ekrana yansıtılır</text>
 
-  <!-- Step 4: Event & cx.notify() -->
+  <!-- Step 4: Event &amp; cx.notify() -->
   <rect x="680" y="210" width="100" height="50" class="box" />
   <text x="730" y="235" class="box-text">cx.notify()</text>
   <text x="730" y="250" class="box-desc">Event / Listener</text>
@@ -102,7 +103,7 @@
   <path d="M 580 340 L 730 340 L 730 260" class="arrow arrow-active" />
   <path d="M 730 210 L 730 155 L 675 155" class="arrow arrow-active" />
   
-  <polygon points="670,155 675,152 675,158" fill="#38bdf8" />
+  <polygon points="670,155 675,152 675,158" fill="#0284c7" />
   <circle r="4" class="particle p-render" />
 
 </svg>

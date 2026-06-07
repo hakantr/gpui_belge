@@ -1,23 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <title>Workspace yığılım ve katman sırası</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
 
       /* Isometric transform */
       .iso-layer { transform: rotateX(60deg) rotateZ(-45deg); transform-origin: 400px 250px; }
       
       /* Layers styles */
-      .layer-workspace { fill: #0f172a; stroke: #1e293b; stroke-width: 2; opacity: 0.8; }
-      .layer-pane { fill: #1e293b; stroke: #334155; stroke-width: 2; opacity: 0.85; }
-      .layer-modal { fill: #1e293b; stroke: #38bdf8; stroke-width: 2; opacity: 0.9; }
-      .layer-toast { fill: #334155; stroke: #fb7185; stroke-width: 1.5; opacity: 0.95; }
-      .layer-notification { fill: #1e293b; stroke: #10b981; stroke-width: 2; opacity: 0.95; }
+      .layer-workspace { fill: #f1f5f9; stroke: #ffffff; stroke-width: 2; opacity: 0.8; }
+      .layer-pane { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; opacity: 0.85; }
+      .layer-modal { fill: #ffffff; stroke: #0284c7; stroke-width: 2; opacity: 0.9; }
+      .layer-toast { fill: #e2e8f0; stroke: #e11d48; stroke-width: 1.5; opacity: 0.95; }
+      .layer-notification { fill: #ffffff; stroke: #059669; stroke-width: 2; opacity: 0.95; }
 
-      .text-lbl { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 13px; fill: #f8fafc; }
-      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 10px; fill: #94a3b8; }
-      .text-order { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #a78bfa; }
+      .text-lbl { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 13px; fill: #0f172a; }
+      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 10px; fill: #475569; }
+      .text-order { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #7c3aed; }
 
       /* Floating animations */
       @keyframes float-noti {
@@ -71,25 +72,25 @@
   <!-- 3. Modal -->
   <g class="modal-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-modal" />
-    <text x="-180" y="-80" class="text-lbl" fill="#38bdf8">Modal Layer</text>
+    <text x="-180" y="-80" class="text-lbl" fill="#0284c7">Modal Layer</text>
     <text x="-180" y="-60" class="text-desc">Komut paleti, arama diyaloğu ve modal view'lar</text>
-    <text x="-180" y="80" class="text-order" fill="#38bdf8">Z-INDEX: 100</text>
+    <text x="-180" y="80" class="text-order" fill="#0284c7">Z-INDEX: 100</text>
   </g>
 
   <!-- 4. Toast -->
   <g class="toast-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-toast" />
-    <text x="-180" y="-80" class="text-lbl" fill="#fb7185">Toast Layer</text>
+    <text x="-180" y="-80" class="text-lbl" fill="#e11d48">Toast Layer</text>
     <text x="-180" y="-60" class="text-desc">Geçici, hafif ve otomatik gizlenen durum bildirimleri</text>
-    <text x="-180" y="80" class="text-order" fill="#fb7185">Z-INDEX: 200</text>
+    <text x="-180" y="80" class="text-order" fill="#e11d48">Z-INDEX: 200</text>
   </g>
 
   <!-- 5. En Üst: Notification -->
   <g class="noti-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-notification" />
-    <text x="-180" y="-80" class="text-lbl" fill="#10b981">Notification Layer</text>
+    <text x="-180" y="-80" class="text-lbl" fill="#059669">Notification Layer</text>
     <text x="-180" y="-60" class="text-desc">Kullanıcı eylemi bekleyen kalıcı bildirim ekranları</text>
-    <text x="-180" y="80" class="text-order" fill="#10b981">Z-INDEX: 300</text>
+    <text x="-180" y="80" class="text-order" fill="#059669">Z-INDEX: 300</text>
   </g>
 
 </svg>

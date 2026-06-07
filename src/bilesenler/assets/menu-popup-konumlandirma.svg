@@ -1,22 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <title>Menu, popup ve tooltip konumlandırma</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
       
       /* Trigger Button */
-      .trigger-btn { fill: #1e293b; stroke: #38bdf8; stroke-width: 2; rx: 6px; }
-      .trigger-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 14px; fill: #f8fafc; text-anchor: middle; dominant-baseline: middle; }
+      .trigger-btn { fill: #ffffff; stroke: #0284c7; stroke-width: 2; rx: 6px; }
+      .trigger-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 14px; fill: #0f172a; text-anchor: middle; dominant-baseline: middle; }
       
       /* Popup/Tooltip Balonları */
-      .popup-box { fill: #1e293b; stroke: #475569; stroke-width: 1.5; rx: 8px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
-      .tooltip-box { fill: #334155; stroke: #475569; stroke-width: 1; rx: 4px; }
+      .popup-box { fill: #ffffff; stroke: #475569; stroke-width: 1.5; rx: 8px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
+      .tooltip-box { fill: #e2e8f0; stroke: #475569; stroke-width: 1; rx: 4px; }
       
-      .box-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #f1f5f9; text-anchor: middle; dominant-baseline: middle; }
-      .anchor-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #fb7185; text-anchor: middle; }
-      .arrow { stroke: #fb7185; stroke-width: 1.5; fill: none; stroke-dasharray: 4 2; }
-      .arrow-head { fill: #fb7185; }
+      .box-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #334155; text-anchor: middle; dominant-baseline: middle; }
+      .anchor-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #e11d48; text-anchor: middle; }
+      .arrow { stroke: #e11d48; stroke-width: 1.5; fill: none; stroke-dasharray: 4 2; }
+      .arrow-head { fill: #e11d48; }
 
       /* Animasyon: Hover ve Tooltip Tetikleme */
       @keyframes anim-tooltip {
@@ -58,9 +59,9 @@
     <!-- Balon Gövdesi -->
     <rect x="320" y="105" width="160" height="36" class="tooltip-box" />
     <!-- Tooltip Ok Ucu -->
-    <polygon points="395,141 405,141 400,146" fill="#334155" stroke="#475569" stroke-width="1" />
+    <polygon points="395,141 405,141 400,146" fill="#e2e8f0" stroke="#475569" stroke-width="1" />
     <!-- Üzerine çizgi çekerek kenarlık birleşimini temizleme -->
-    <line x1="396" y1="141" x2="404" y2="141" stroke="#334155" stroke-width="2" />
+    <line x1="396" y1="141" x2="404" y2="141" stroke="#cbd5e1" stroke-width="2" />
     <text x="400" y="123" class="box-text">Tooltip: Bilgilendirme Metni</text>
   </g>
 
@@ -100,6 +101,6 @@
 
   <!-- Animasyonlu İmleç (Cursor) -->
   <g class="cursor-animated" transform="translate(0,0)">
-    <polygon points="0,0 4,18 9,13 16,20 19,17 12,11 18,9" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5" />
+    <polygon points="0,0 4,18 9,13 16,20 19,17 12,11 18,9" fill="#0f172a" stroke="#0f172a" stroke-width="1.5" />
   </g>
 </svg>

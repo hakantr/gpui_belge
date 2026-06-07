@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SVG Galerisi</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f6f7f9;
+      --fg: #1d232b;
+      --muted: #667085;
+      --line: #d8dde6;
+      --panel: #ffffff;
+      --accent: #0f766e;
+      --shadow: 0 8px 24px rgba(20, 27, 36, 0.08);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111418;
+        --fg: #edf1f7;
+        --muted: #a7b0bf;
+        --line: #303844;
+        --panel: #1a2028;
+        --accent: #2dd4bf;
+        --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--bg) 88%, transparent);
+      backdrop-filter: blur(10px);
+    }
+
+    .bar {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
+      gap: 16px;
+      align-items: center;
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 18px 0;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .summary {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .search {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--fg);
+      font: inherit;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    .search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+    }
+
+    main {
+      width: min(1440px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .card.updated {
+      outline: 2px solid color-mix(in srgb, var(--accent) 54%, transparent);
+      outline-offset: 2px;
+    }
+
+    .preview {
+      display: block;
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(45deg, color-mix(in srgb, var(--line) 42%, transparent) 25%, transparent 25%),
+        linear-gradient(-45deg, color-mix(in srgb, var(--line) 42%, transparent) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, color-mix(in srgb, var(--line) 42%, transparent) 75%),
+        linear-gradient(-45deg, transparent 75%, color-mix(in srgb, var(--line) 42%, transparent) 75%);
+      background-color: color-mix(in srgb, var(--panel) 92%, var(--line));
+      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      background-size: 16px 16px;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .meta {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .name {
+      margin: 0;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .path {
+      margin: 0;
+      overflow-wrap: anywhere;
+      color: var(--muted);
+      font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    a {
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    .missing {
+      color: #b42318;
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .empty {
+      display: none;
+      padding: 48px 0;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    @media (max-width: 720px) {
+      .bar {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="bar">
+      <div>
+        <h1>SVG Galerisi</h1>
+        <div class="summary"><span id="visible-count">0</span> / <span id="total-count">0</span> dosya gosteriliyor</div>
+      </div>
+      <label>
+        <span class="visually-hidden">Ara</span>
+        <input id="search" class="search" type="search" placeholder="Dosya adi veya yol ara" autocomplete="off">
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <section id="grid" class="grid" aria-label="SVG dosyalari"></section>
+    <p id="empty" class="empty">Eslesen SVG bulunamadi.</p>
+  </main>
+
+  <script>
+    const svgDosyalari = [
+      "src/assets/images/asset_flow.svg",
+      "src/assets/images/font-yukleme-akisi.svg",
+      "src/assets/images/gorsel-onbellek-mimarisi.svg",
+      "src/assets/images/icon-kaynak-karari.svg",
+      "src/assets/images/icon-svg-render-hatti.svg",
+      "src/assets/images/json-varlik-yollari.svg",
+      "src/ayarlar/assets/ayarlar-yukleme-akisi.svg",
+      "src/ayarlar/assets/settings-akisi.svg",
+      "src/ayarlar/assets/settings-store-katmanlari.svg",
+      "src/bilesenler/assets/agac-girinti-hiyerarsisi.svg",
+      "src/bilesenler/assets/ai-collab-domain-haritasi.svg",
+      "src/bilesenler/assets/buton-durum-matrisi.svg",
+      "src/bilesenler/assets/buton-secim-matrisi.svg",
+      "src/bilesenler/assets/elevation-katmanlari.svg",
+      "src/bilesenler/assets/feedback-yuzey-secimi.svg",
+      "src/bilesenler/assets/form-kontrolu-secimi.svg",
+      "src/bilesenler/assets/ham-gpui-karar-akisi.svg",
+      "src/bilesenler/assets/layout-hizalama.svg",
+      "src/bilesenler/assets/layout-yardimcilari.svg",
+      "src/bilesenler/assets/liste-bilesenleri-haritasi.svg",
+      "src/bilesenler/assets/menu-popup-konumlandirma.svg",
+      "src/bilesenler/assets/menu-popup-secimi.svg",
+      "src/bilesenler/assets/render-once-vs-render.svg",
+      "src/bilesenler/assets/sanal-liste-mimarisi.svg",
+      "src/bilesenler/assets/scrollbar-anatomisi.svg",
+      "src/bilesenler/assets/tablo-satir-modeli.svg",
+      "src/bilesenler/assets/textbox-metin-hizalama.svg",
+      "src/calisma_alani/assets/calisma-alani-yigilim-sirasi.svg",
+      "src/calisma_alani/assets/dock-panel-yerlesimi.svg",
+      "src/calisma_alani/assets/item-pane-modal-notification.svg",
+      "src/calisma_alani/assets/workspace-iskeleti.svg",
+      "src/calisma_alani/assets/workspace-state-serilestirme.svg",
+      "src/gpui_kullanimi/assets/action-keymap-dispatch.svg",
+      "src/gpui_kullanimi/assets/asset-yukleme-pipeline.svg",
+      "src/gpui_kullanimi/assets/async-mimari.svg",
+      "src/gpui_kullanimi/assets/context-donusum-haritasi.svg",
+      "src/gpui_kullanimi/assets/element-trait-zinciri.svg",
+      "src/gpui_kullanimi/assets/entity-rezerve-insert.svg",
+      "src/gpui_kullanimi/assets/entity-sahiplik.svg",
+      "src/gpui_kullanimi/assets/event-emitter-subscription.svg",
+      "src/gpui_kullanimi/assets/executor-gorev-dagitimi.svg",
+      "src/gpui_kullanimi/assets/focus-key-context-agaci.svg",
+      "src/gpui_kullanimi/assets/girdi-olay-kategorileri.svg",
+      "src/gpui_kullanimi/assets/gpui-baglam-hiyerarsisi.svg",
+      "src/gpui_kullanimi/assets/gpui-event-loop.svg",
+      "src/gpui_kullanimi/assets/hitbox-surukle-birak-akisi.svg",
+      "src/gpui_kullanimi/assets/hitbox-surukle-birak.svg",
+      "src/gpui_kullanimi/assets/input-hitbox-focus.svg",
+      "src/gpui_kullanimi/assets/keymap-bubbling-akisi.svg",
+      "src/gpui_kullanimi/assets/layout-taffy-akisi.svg",
+      "src/gpui_kullanimi/assets/list-secim-akisi.svg",
+      "src/gpui_kullanimi/assets/metin-sistemi-hiyerarsisi.svg",
+      "src/gpui_kullanimi/assets/mimari.svg",
+      "src/gpui_kullanimi/assets/modal-popover-layer.svg",
+      "src/gpui_kullanimi/assets/pencere-yasam-dongusu.svg",
+      "src/gpui_kullanimi/assets/piksel-birimleri.svg",
+      "src/gpui_kullanimi/assets/platform-secim-akisi.svg",
+      "src/gpui_kullanimi/assets/platform-titlebar-katmani.svg",
+      "src/gpui_kullanimi/assets/recete-karar-haritasi.svg",
+      "src/gpui_kullanimi/assets/render-dongusu.svg",
+      "src/gpui_kullanimi/assets/render_pipeline.svg",
+      "src/gpui_kullanimi/assets/stil-cascade.svg",
+      "src/gpui_kullanimi/assets/stil-cozumleme-akisi.svg",
+      "src/gpui_kullanimi/assets/subscription-drop-guvenligi.svg",
+      "src/gpui_kullanimi/assets/test-ortami-secim.svg",
+      "src/gpui_kullanimi/assets/test-zamanlayici-timeline.svg",
+      "src/gpui_kullanimi/assets/theme-token-refinement.svg",
+      "src/gpui_kullanimi/assets/view-update-render-baglantisi.svg",
+      "src/gpui_kullanimi/assets/workspace-kabuk-katmani.svg",
+      "src/platform_ust_bar/assets/native-tabs-akisi.svg",
+      "src/platform_ust_bar/assets/platform-renk-matrisi.svg",
+      "src/platform_ust_bar/assets/product-titlebar-state.svg",
+      "src/platform_ust_bar/assets/surükleme-durum-makinesi.svg",
+      "src/platform_ust_bar/assets/titlebar-init-render-zinciri.svg",
+      "src/platform_ust_bar/assets/titlebar-platform-farklari.svg",
+      "src/platform_ust_bar/assets/window-button-layout.svg",
+      "src/tema_yonetimi/assets/font-weight-olcegi.svg",
+      "src/tema_yonetimi/assets/json-parse-pipeline.svg",
+      "src/tema_yonetimi/assets/tema-crate-bagimliliklari.svg",
+      "src/tema_yonetimi/assets/tema-renk-akis-gosterimi.svg",
+      "src/tema_yonetimi/assets/theme-colors-yapisi.svg",
+      "src/tema_yonetimi/assets/theme_refinement.svg",
+      "src/tema_yonetimi/assets/theme-runtime-akisi.svg",
+      "src/tema_yonetimi/assets/theme-selection-modu.svg",
+      "src/tema_yonetimi/assets/ui-tema-tuketim-akisi.svg"
+    ];
+
+    const grid = document.getElementById("grid");
+    const empty = document.getElementById("empty");
+    const search = document.getElementById("search");
+    const totalCount = document.getElementById("total-count");
+    const visibleCount = document.getElementById("visible-count");
+    const kartlar = new Map();
+    const svgImzalari = new Map();
+    const svgKontrolAraligiMs = 1500;
+
+    totalCount.textContent = svgDosyalari.length;
+
+    function dosyaAdi(path) {
+      return path.split("/").pop();
+    }
+
+    function yenilemeUrl(path) {
+      return `${path}?svg_galerisi=${Date.now()}`;
+    }
+
+    function basitImza(metin) {
+      let imza = 0;
+
+      for (let i = 0; i < metin.length; i += 1) {
+        imza = ((imza << 5) - imza + metin.charCodeAt(i)) | 0;
+      }
+
+      return `${metin.length}:${imza}`;
+    }
+
+    async function gucluImza(metin) {
+      if (!window.crypto || !window.crypto.subtle) {
+        return basitImza(metin);
+      }
+
+      const veri = new TextEncoder().encode(metin);
+      const ozet = await crypto.subtle.digest("SHA-256", veri);
+
+      return Array.from(new Uint8Array(ozet), byte => byte.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function svgImzasiOku(path) {
+      const response = await fetch(yenilemeUrl(path), { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error(`${path} okunamadi`);
+      }
+
+      return gucluImza(await response.text());
+    }
+
+    function kartiYenile(path) {
+      const kayit = kartlar.get(path);
+
+      if (!kayit) {
+        return;
+      }
+
+      kayit.img.src = yenilemeUrl(path);
+      kayit.card.classList.add("updated");
+      window.setTimeout(() => kayit.card.classList.remove("updated"), 900);
+    }
+
+    function kartOlustur(path) {
+      const card = document.createElement("article");
+      card.className = "card";
+      card.dataset.path = path.toLocaleLowerCase("tr-TR");
+
+      const preview = document.createElement("div");
+      preview.className = "preview";
+
+      const img = document.createElement("img");
+      img.src = path;
+      img.alt = dosyaAdi(path);
+      img.loading = "lazy";
+      img.addEventListener("load", () => {
+        if (!preview.contains(img)) {
+          preview.textContent = "";
+          preview.append(img);
+        }
+      });
+      img.addEventListener("error", () => {
+        preview.textContent = "";
+        const hata = document.createElement("span");
+        hata.className = "missing";
+        hata.textContent = "Yuklenemedi";
+        preview.append(hata);
+      });
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+
+      const name = document.createElement("p");
+      name.className = "name";
+      name.textContent = dosyaAdi(path);
+
+      const filePath = document.createElement("p");
+      filePath.className = "path";
+      filePath.textContent = path;
+
+      const actions = document.createElement("div");
+      actions.className = "actions";
+
+      const openLink = document.createElement("a");
+      openLink.href = path;
+      openLink.target = "_blank";
+      openLink.rel = "noopener";
+      openLink.textContent = "Ayrintili ac";
+
+      actions.append(openLink);
+      preview.append(img);
+      meta.append(name, filePath, actions);
+      card.append(preview, meta);
+      kartlar.set(path, { card, img });
+
+      return card;
+    }
+
+    function listele() {
+      const arama = search.value.trim().toLocaleLowerCase("tr-TR");
+      let gorunen = 0;
+
+      for (const card of grid.children) {
+        const eslesiyor = card.dataset.path.includes(arama);
+        card.hidden = !eslesiyor;
+        if (eslesiyor) {
+          gorunen += 1;
+        }
+      }
+
+      visibleCount.textContent = gorunen;
+      empty.style.display = gorunen === 0 ? "block" : "none";
+    }
+
+    grid.append(...svgDosyalari.map(kartOlustur));
+    search.addEventListener("input", listele);
+    listele();
+
+    async function svgDegisiklikleriniDenetle() {
+      for (const path of svgDosyalari) {
+        try {
+          const imza = await svgImzasiOku(path);
+          const eskiImza = svgImzalari.get(path);
+
+          if (eskiImza === undefined) {
+            svgImzalari.set(path, imza);
+          } else if (eskiImza !== imza) {
+            svgImzalari.set(path, imza);
+            kartiYenile(path);
+          }
+        } catch {
+          continue;
+        }
+      }
+    }
+
+    svgDegisiklikleriniDenetle();
+    window.setInterval(svgDegisiklikleriniDenetle, svgKontrolAraligiMs);
+  </script>
+</body>
+</html>

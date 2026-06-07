@@ -1,28 +1,29 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <title>GPUI bağlam (Context) hiyerarşisi</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
       
       /* Context Boxes */
-      .context-box { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 8px; }
-      .context-title { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 15px; fill: #f1f5f9; text-anchor: middle; }
-      .context-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #94a3b8; text-anchor: middle; }
+      .context-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8px; }
+      .context-title { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 15px; fill: #334155; text-anchor: middle; }
+      .context-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #475569; text-anchor: middle; }
       
       /* Inner fields */
-      .field-rect { fill: #0f172a; rx: 4px; }
-      .field-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #38bdf8; text-anchor: middle; }
+      .field-rect { fill: #f1f5f9; rx: 4px; }
+      .field-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #0284c7; text-anchor: middle; }
 
       /* Inheritance Arrows */
       .arrow { stroke: #475569; stroke-width: 2; fill: none; }
-      .arrow-active { stroke: #38bdf8; stroke-dasharray: 5 3; animation: dash 2s linear infinite; }
+      .arrow-active { stroke: #0284c7; stroke-dasharray: 5 3; animation: dash 2s linear infinite; }
       @keyframes dash { to { stroke-dashoffset: -20; } }
 
       /* Pulse animation */
-      @keyframes box-pulse-1 { 0%, 100% { stroke: #334155; } 20%, 40% { stroke: #38bdf8; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
-      @keyframes box-pulse-2 { 0%, 25%, 100% { stroke: #334155; } 45%, 65% { stroke: #38bdf8; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
-      @keyframes box-pulse-3 { 0%, 50%, 100% { stroke: #334155; } 70%, 90% { stroke: #38bdf8; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
+      @keyframes box-pulse-1 { 0%, 100% { stroke: #cbd5e1; } 20%, 40% { stroke: #0284c7; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
+      @keyframes box-pulse-2 { 0%, 25%, 100% { stroke: #cbd5e1; } 45%, 65% { stroke: #0284c7; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
+      @keyframes box-pulse-3 { 0%, 50%, 100% { stroke: #cbd5e1; } 70%, 90% { stroke: #0284c7; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
 
       .bp-1 { animation: box-pulse-1 6s infinite linear; }
       .bp-2 { animation: box-pulse-2 6s infinite linear; }
@@ -60,7 +61,7 @@
 
   <!-- Ara Ok 1 -->
   <path d="M 260 215 L 300 215" class="arrow arrow-active" />
-  <polygon points="300,215 292,211 292,219" fill="#38bdf8" />
+  <polygon points="300,215 292,211 292,219" fill="#0284c7" />
 
   <!-- 2. WindowContext: Pencere Kapsamı -->
   <g transform="translate(300, 110)">
@@ -84,7 +85,7 @@
 
   <!-- Ara Ok 2 -->
   <path d="M 500 215 L 540 215" class="arrow arrow-active" />
-  <polygon points="540,215 532,211 532,219" fill="#38bdf8" />
+  <polygon points="540,215 532,211 532,219" fill="#0284c7" />
 
   <!-- 3. ViewContext: Entity Kapsamı -->
   <g transform="translate(540, 110)">

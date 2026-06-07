@@ -1,24 +1,25 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <title>Scrollbar ve ScrollHandle anatomisi</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
       
       /* Viewport and Content Mock */
-      .viewport-border { fill: none; stroke: #334155; stroke-width: 2; rx: 8px; }
-      .content-bg { fill: #1e293b; rx: 6px; }
+      .viewport-border { fill: none; stroke: #cbd5e1; stroke-width: 2; rx: 8px; }
+      .content-bg { fill: #ffffff; rx: 6px; }
       .text-block { fill: #475569; rx: 4px; }
-      .text-block-highlight { fill: #38bdf8; rx: 4px; }
+      .text-block-highlight { fill: #0284c7; rx: 4px; }
 
       /* Labels */
-      .lbl { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #94a3b8; }
-      .lbl-bold { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 13px; fill: #f1f5f9; }
-      .lbl-formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; fill: #10b981; }
+      .lbl { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #475569; }
+      .lbl-bold { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 13px; fill: #334155; }
+      .lbl-formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; fill: #059669; }
 
       /* Guide Lines */
-      .guide { stroke: #fb7185; stroke-width: 1.2; stroke-dasharray: 4 3; }
-      .guide-lbl { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #fb7185; }
+      .guide { stroke: #e11d48; stroke-width: 1.2; stroke-dasharray: 4 3; }
+      .guide-lbl { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #e11d48; }
 
       /* Animation Sync: Thumb down -> Content up */
       @keyframes anim-thumb {
@@ -39,7 +40,7 @@
   <text x="400" y="45" class="title">Scrollbar &amp; ScrollHandle Anatomisi</text>
   <text x="400" y="70" class="sub">Viewport, içerik yüksekliği ve scrollbar thumb konumunun matematiksel eşleşmesi</text>
 
-  <!-- ================= LEFT: Viewport & Content ================= -->
+  <!-- ================= LEFT: Viewport &amp; Content ================= -->
   <!-- Viewport: x: 100, y: 120, w: 250, h: 220 -->
   <g transform="translate(100, 120)">
     <text x="0" y="-15" class="lbl-bold">Viewport (Görünür Pencere)</text>
@@ -80,8 +81,8 @@
   <!-- Kılavuz Çizgi: İçerik Yüksekliği (Content Height) -->
   <line x1="75" y1="120" x2="75" y2="300" class="guide" />
   <text x="65" y="210" class="guide-lbl" text-anchor="middle" transform="rotate(-90 65 210)">İçerik Yüksekliği (400px)</text>
-  <line x1="70" y1="120" x2="80" y2="120" stroke="#fb7185" stroke-width="1.5" />
-  <line x1="70" y1="300" x2="80" y2="300" stroke="#fb7185" stroke-width="1.5" />
+  <line x1="70" y1="120" x2="80" y2="120" stroke="#e11d48" stroke-width="1.5" />
+  <line x1="70" y1="300" x2="80" y2="300" stroke="#e11d48" stroke-width="1.5" />
 
   <!-- ================= RIGHT: Scrollbar ================= -->
   <!-- Scrollbar: x: 450, y: 120, w: 12, h: 220 -->
@@ -89,12 +90,12 @@
     <text x="0" y="-15" class="lbl-bold">Scrollbar Track (Ray)</text>
     
     <!-- Track -->
-    <rect width="12" height="220" fill="#1e293b" rx="6" stroke="#334155" />
+    <rect width="12" height="220" fill="#ffffff" rx="6" stroke="#cbd5e1" />
     
     <!-- Thumb (Yükseklik: 220 * (220/400) = 121px) -->
     <g class="animated-thumb">
-      <rect x="2" y="0" width="8" height="100" fill="#38bdf8" rx="4" />
-      <text x="25" y="55" class="lbl" fill="#38bdf8">Thumb (Kulp)</text>
+      <rect x="2" y="0" width="8" height="100" fill="#0284c7" rx="4" />
+      <text x="25" y="55" class="lbl" fill="#0284c7">Thumb (Kulp)</text>
     </g>
   </g>
 

@@ -1,18 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <title>Workspace dock ve panel düzeni</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
       
       /* Layout Areas */
-      .window-border { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 8px; }
-      .titlebar { fill: #0f172a; stroke: #1e293b; stroke-width: 1.5; }
-      .center-editor { fill: #0f172a; stroke: #1e293b; stroke-width: 1.5; transition: all 0.5s; }
-      .dock { fill: #1e293b; stroke: #334155; stroke-width: 1.5; }
+      .window-border { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8px; }
+      .titlebar { fill: #f1f5f9; stroke: #ffffff; stroke-width: 1.5; }
+      .center-editor { fill: #f1f5f9; stroke: #ffffff; stroke-width: 1.5; transition: all 0.5s; }
+      .dock { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
 
-      .area-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 12px; fill: #94a3b8; text-anchor: middle; dominant-baseline: middle; }
-      .editor-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 14px; fill: #38bdf8; text-anchor: middle; dominant-baseline: middle; }
+      .area-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 12px; fill: #475569; text-anchor: middle; dominant-baseline: middle; }
+      .editor-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 14px; fill: #0284c7; text-anchor: middle; dominant-baseline: middle; }
 
       /* Animations */
       /* Sol ve sağ dock genişleme/daralma animasyonu */
@@ -37,7 +38,7 @@
       .animated-editor { animation: anim-editor 8s infinite ease-in-out; }
 
       /* Dock State Labels */
-      .lbl-state { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; fill: #10b981; text-anchor: middle; }
+      .lbl-state { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; fill: #059669; text-anchor: middle; }
     </style>
   </defs>
 

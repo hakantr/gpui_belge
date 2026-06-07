@@ -1,12 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <title>GPUI ve Zed UI layout hizalaması</title>
   <defs>
     <style>
-      .bg { fill: #0f172a; rx: 12px; }
-      .container-box { fill: #1e293b; stroke: #334155; stroke-width: 2; stroke-dasharray: 4 4; rx: 8px; }
-      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
-      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
-      .label-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600; font-size: 15px; fill: #38bdf8; }
-      .label-state { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 16px; fill: #34d399; text-anchor: middle; }
+      .bg { fill: #f8fafc; rx: 12px; }
+      .container-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; stroke-dasharray: 4 4; rx: 8px; }
+      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
+      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
+      .label-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600; font-size: 15px; fill: #0284c7; }
+      .label-state { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 16px; fill: #059669; text-anchor: middle; }
       
       .box { rx: 6px; }
       .box-1 { fill: url(#grad-blue); }
@@ -75,15 +76,15 @@
     </style>
 
     <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="0%" stop-color="#0284c7" />
       <stop offset="100%" stop-color="#1d4ed8" />
     </linearGradient>
     <linearGradient id="grad-purple" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#a78bfa" />
+      <stop offset="0%" stop-color="#7c3aed" />
       <stop offset="100%" stop-color="#6d28d9" />
     </linearGradient>
     <linearGradient id="grad-pink" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="0%" stop-color="#db2777" />
       <stop offset="100%" stop-color="#be185d" />
     </linearGradient>
   </defs>

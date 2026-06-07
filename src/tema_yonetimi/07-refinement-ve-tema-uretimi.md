@@ -6,7 +6,7 @@ Content katmanından son `Theme` nesnesine giden yol burada tamamlanır: birleş
 
 <div align="center">
 
-![Tema Refinement Hiyerarşisi](../assets/images/theme_refinement.svg)
+![Tema Refinement Hiyerarşisi](assets/theme_refinement.svg)
 
 </div>
 

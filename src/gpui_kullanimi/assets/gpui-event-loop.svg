@@ -1,148 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+  <title>GPUI olay döngüsü ve platform entegrasyonu</title>
   <defs>
-    <!-- Modern Renk Paleti ve Gölgeler -->
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#14161d"/>
-      <stop offset="100%" stop-color="#1e2230"/>
-    </linearGradient>
-    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#ff79c6"/>
-      <stop offset="100%" stop-color="#8be9fd"/>
-    </linearGradient>
-    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-      <feGaussianBlur stdDeviation="6" result="blur"/>
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-    </filter>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
-    </filter>
-
-    <!-- CSS Animasyonları -->
+    <marker id="aSlate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#64748b"/></marker>
+    <marker id="aEmerald" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#059669"/></marker>
+    <marker id="aViolet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#7c3aed"/></marker>
+    <marker id="aCyan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0891b2"/></marker>
+    <marker id="aAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#d97706"/></marker>
+    <marker id="aRose" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#be123c"/></marker>
+    <marker id="aSky" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0284c7"/></marker>
     <style>
-      .pulse {
-        animation: pulseAnimation 2s infinite;
-      }
-      .flow-line {
-        stroke-dasharray: 8, 8;
-        animation: dash 30s linear infinite;
-      }
-      .flow-line-reverse {
-        stroke-dasharray: 8, 8;
-        animation: dash-reverse 30s linear infinite;
-      }
-      .node-glow {
-        animation: glowPulse 3s ease-in-out infinite;
-      }
-      .signal-dot {
-        animation: moveDot 4s infinite linear;
-      }
-      .signal-dot-fast {
-        animation: moveDotFast 2.5s infinite linear;
-      }
-      .text-glow {
-        font-family: 'Outfit', 'Inter', sans-serif;
-        fill: #f8f8f2;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      }
-
-      @keyframes pulseAnimation {
-        0% { transform: scale(1); opacity: 0.9; }
-        50% { transform: scale(1.03); opacity: 1; }
-        100% { transform: scale(1); opacity: 0.9; }
-      }
-      @keyframes dash {
-        to { stroke-dashoffset: -1000; }
-      }
-      @keyframes dash-reverse {
-        to { stroke-dashoffset: 1000; }
-      }
-      @keyframes glowPulse {
-        0%, 100% { filter: drop-shadow(0 0 2px rgba(139, 233, 253, 0.3)); }
-        50% { filter: drop-shadow(0 0 10px rgba(139, 233, 253, 0.8)); }
-      }
-      @keyframes moveDot {
-        0% { stroke-dashoffset: 100; }
-        100% { stroke-dashoffset: 0; }
-      }
-      @keyframes moveDotFast {
-        0% { stroke-dashoffset: 50; }
-        100% { stroke-dashoffset: 0; }
-      }
+      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+      .title{font-size:20px;font-weight:700;fill:#0f172a}
+      .sub{font-size:12px;font-weight:600;fill:#475569}
+      .h{font-size:13px;font-weight:700;fill:#0f172a}
+      .t{font-size:12px;font-weight:600;fill:#0f172a}
+      .body{font-size:11px;fill:#475569}
+      .small{font-size:10px;fill:#64748b}
+      .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;fill:#0f172a}
+      .card{fill:#fff;stroke-width:1.6}
+      .tEmerald{fill:#059669}.tViolet{fill:#7c3aed}.tCyan{fill:#0891b2}.tAmber{fill:#d97706}.tRose{fill:#be123c}.tSky{fill:#0284c7}.tSlate{fill:#64748b}.tWhite{fill:#fff}
+      .arrow{stroke:#64748b;stroke-width:2;fill:none;marker-end:url(#aSlate)}
+      .aEm{stroke:#059669;marker-end:url(#aEmerald)}.aVi{stroke:#7c3aed;marker-end:url(#aViolet)}.aCy{stroke:#0891b2;marker-end:url(#aCyan)}.aAm{stroke:#d97706;marker-end:url(#aAmber)}.aRo{stroke:#be123c;marker-end:url(#aRose)}.aSk{stroke:#0284c7;marker-end:url(#aSky)}
     </style>
   </defs>
+  <rect width="100%" height="100%" rx="10" fill="#f8fafc"/>
 
-  <!-- Arka Plan Kartı -->
-  <rect width="100%" height="100%" rx="16" fill="url(#bgGrad)" filter="url(#shadow)"/>
-  <rect width="99.5%" height="99.5%" x="0.25%" y="0.25%" rx="16" fill="none" stroke="url(#accentGrad)" stroke-width="1.5" opacity="0.3"/>
+  <text x="400" y="40" text-anchor="middle" class="title">GPUI Olay Döngüsü ve Platform Entegrasyonu</text>
+  <text x="400" y="63" text-anchor="middle" class="sub">OS olaylarının eşzamansız ve eşzamanlı kuyruklar üzerinden dağıtımı</text>
 
-  <!-- Başlık -->
-  <text x="40" y="45" class="text-glow" font-size="20" font-weight="700" letter-spacing="0.5">GPUI Olay Döngüsü ve Platform Entegrasyonu</text>
-  <text x="40" y="68" fill="#6272a4" font-family="sans-serif" font-size="12">OS Olaylarının Asenkron ve Senkron Kuyruklar Üzerinden Dağıtımı</text>
-
-  <!-- KUTULAR (Mimarinin Parçaları) -->
-
-  <!-- 1. Platform Katmanı (OS/Window System) -->
-  <g transform="translate(60, 140)" filter="url(#shadow)">
-    <rect width="180" height="120" rx="12" fill="#21222c" stroke="#ff5555" stroke-width="2"/>
-    <text x="90" y="35" class="text-glow" font-size="14" font-weight="600" text-anchor="middle">İşletim Sistemi (OS)</text>
-    <text x="90" y="60" fill="#6272a4" font-size="11" text-anchor="middle">Keyboard, Mouse, Window Events</text>
-    <rect x="20" y="80" width="140" height="25" rx="6" fill="#ff5555" fill-opacity="0.2"/>
-    <text x="90" y="96" fill="#ff5555" font-size="11" font-weight="600" text-anchor="middle">PlatformWindow</text>
+  <!-- 1. İşletim sistemi -->
+  <g transform="translate(60,140)">
+    <rect width="180" height="120" rx="12" class="card" stroke="#be123c"/>
+    <text x="90" y="35" text-anchor="middle" class="h">İşletim Sistemi (OS)</text>
+    <text x="90" y="60" text-anchor="middle" class="small">Klavye, fare, pencere olayları</text>
+    <rect x="20" y="80" width="140" height="25" rx="6" fill="#be123c" fill-opacity="0.12"/>
+    <text x="90" y="97" text-anchor="middle" class="small tRose" font-weight="600">PlatformWindow</text>
   </g>
 
-  <!-- 2. GPUI Platform Dispatcher / Event Queue -->
-  <g transform="translate(310, 140)" filter="url(#shadow)" class="node-glow">
-    <rect width="180" height="120" rx="12" fill="#21222c" stroke="#ffb86c" stroke-width="2"/>
-    <text x="90" y="35" class="text-glow" font-size="14" font-weight="600" text-anchor="middle">PlatformDispatcher</text>
-    <text x="90" y="60" fill="#6272a4" font-size="11" text-anchor="middle">Olay Sıralama &amp; Önceliklendirme</text>
-    <rect x="20" y="80" width="140" height="25" rx="6" fill="#ffb86c" fill-opacity="0.2"/>
-    <text x="90" y="96" fill="#ffb86c" font-size="11" font-weight="600" text-anchor="middle">Olay Kuyruğu (Queue)</text>
+  <!-- 2. PlatformDispatcher -->
+  <g transform="translate(310,140)">
+    <rect width="180" height="120" rx="12" class="card" stroke="#d97706"/>
+    <text x="90" y="35" text-anchor="middle" class="h">PlatformDispatcher</text>
+    <text x="90" y="60" text-anchor="middle" class="small">Olay sıralama ve önceliklendirme</text>
+    <rect x="20" y="80" width="140" height="25" rx="6" fill="#d97706" fill-opacity="0.12"/>
+    <text x="90" y="97" text-anchor="middle" class="small tAmber" font-weight="600">Olay kuyruğu (Queue)</text>
   </g>
 
-  <!-- 3. Main Thread (Event Loop) -->
-  <g transform="translate(560, 140)" filter="url(#shadow)">
-    <g class="pulse" style="transform-origin: 90px 60px;">
-      <rect width="180" height="120" rx="12" fill="#21222c" stroke="#50fa7b" stroke-width="2"/>
-      <text x="90" y="35" class="text-glow" font-size="14" font-weight="600" text-anchor="middle">Ana İş Parçacığı (Main)</text>
-      <text x="90" y="60" fill="#6272a4" font-size="11" text-anchor="middle">UI Çizimi &amp; Durum Güncelleme</text>
-      <rect x="20" y="80" width="140" height="25" rx="6" fill="#50fa7b" fill-opacity="0.2"/>
-      <text x="90" y="96" fill="#50fa7b" font-size="11" font-weight="600" text-anchor="middle">cx.notify() / Render Loop</text>
-    </g>
+  <!-- 3. Ana iş parçacığı -->
+  <g transform="translate(560,140)">
+    <rect width="180" height="120" rx="12" class="card" stroke="#059669"/>
+    <text x="90" y="35" text-anchor="middle" class="h">Ana İş Parçacığı (Main)</text>
+    <text x="90" y="60" text-anchor="middle" class="small">UI çizimi ve durum güncelleme</text>
+    <rect x="20" y="80" width="140" height="25" rx="6" fill="#059669" fill-opacity="0.12"/>
+    <text x="90" y="97" text-anchor="middle" class="small tEmerald" font-weight="600">cx.notify() / render döngüsü</text>
   </g>
 
-  <!-- 4. Background Workers (Async Threads) -->
-  <g transform="translate(310, 340)" filter="url(#shadow)">
-    <rect width="180" height="100" rx="12" fill="#21222c" stroke="#8be9fd" stroke-width="2"/>
-    <text x="90" y="30" class="text-glow" font-size="14" font-weight="600" text-anchor="middle">Arka Plan Görevleri</text>
-    <text x="90" y="55" fill="#6272a4" font-size="11" text-anchor="middle">CPU Yoğun &amp; G/Ç İşlemleri</text>
-    <rect x="20" y="68" width="140" height="20" rx="6" fill="#8be9fd" fill-opacity="0.2"/>
-    <text x="90" y="82" fill="#8be9fd" font-size="10" font-weight="600" text-anchor="middle">BackgroundExecutor</text>
+  <!-- 4. Arka plan görevleri -->
+  <g transform="translate(310,340)">
+    <rect width="180" height="100" rx="12" class="card" stroke="#0284c7"/>
+    <text x="90" y="30" text-anchor="middle" class="h">Arka Plan Görevleri</text>
+    <text x="90" y="55" text-anchor="middle" class="small">CPU yoğun ve G/Ç işlemleri</text>
+    <rect x="20" y="68" width="140" height="20" rx="6" fill="#0284c7" fill-opacity="0.12"/>
+    <text x="90" y="82" text-anchor="middle" class="small tSky" font-weight="600">BackgroundExecutor</text>
   </g>
 
-  <!-- BAĞLANTI HATLARI VE AKIŞLAR -->
+  <!-- OS -> Dispatcher -->
+  <path d="M 240 200 L 310 200" class="arrow aRo"/>
+  <text x="275" y="188" text-anchor="middle" class="small tRose" font-weight="600">OS olayları</text>
 
-  <!-- OS -> PlatformDispatcher -->
-  <path d="M 240 200 L 310 200" fill="none" stroke="#6272a4" stroke-width="2"/>
-  <path d="M 240 200 L 310 200" fill="none" stroke="#ff5555" stroke-dasharray="10, 15" stroke-width="3" class="flow-line"/>
-  <polygon points="310,200 300,195 300,205" fill="#ff5555"/>
-  <text x="275" y="185" fill="#ff5555" font-family="sans-serif" font-size="10" font-weight="600" text-anchor="middle">OS Events</text>
+  <!-- Dispatcher -> Main -->
+  <path d="M 490 200 L 560 200" class="arrow aEm"/>
+  <text x="525" y="188" text-anchor="middle" class="small tEmerald" font-weight="600">Dağıtım</text>
 
-  <!-- PlatformDispatcher -> Main Thread -->
-  <path d="M 490 200 L 560 200" fill="none" stroke="#6272a4" stroke-width="2"/>
-  <path d="M 490 200 L 560 200" fill="none" stroke="#50fa7b" stroke-dasharray="10, 15" stroke-width="3" class="flow-line"/>
-  <polygon points="560,200 550,195 550,205" fill="#50fa7b"/>
-  <text x="525" y="185" fill="#50fa7b" font-family="sans-serif" font-size="10" font-weight="600" text-anchor="middle">Dispatch</text>
+  <!-- Main -> Background -->
+  <path d="M 650 260 L 650 390 L 490 390" class="arrow aSk"/>
+  <text x="588" y="382" text-anchor="middle" class="small tSky mono" font-weight="600">background_spawn</text>
 
-  <!-- Main Thread -> Background Workers (cx.background_spawn) -->
-  <path d="M 650 260 L 650 390 L 490 390" fill="none" stroke="#6272a4" stroke-width="2"/>
-  <path d="M 650 260 L 650 390 L 490 390" fill="none" stroke="#8be9fd" stroke-dasharray="10, 15" stroke-width="3" class="flow-line"/>
-  <polygon points="490,390 500,385 500,395" fill="#8be9fd"/>
-  <text x="590" y="380" fill="#8be9fd" font-family="sans-serif" font-size="10" font-weight="600" text-anchor="middle">background_spawn</text>
-
-  <!-- Background Workers -> PlatformDispatcher (cx.spawn update) -->
-  <path d="M 400 340 L 400 260" fill="none" stroke="#6272a4" stroke-width="2"/>
-  <path d="M 400 340 L 400 260" fill="none" stroke="#ffb86c" stroke-dasharray="10, 15" stroke-width="3" class="flow-line-reverse"/>
-  <polygon points="400,260 395,270 405,270" fill="#ffb86c"/>
-  <text x="345" y="305" fill="#ffb86c" font-family="sans-serif" font-size="10" font-weight="600">cx.update()</text>
-
+  <!-- Background -> Dispatcher -->
+  <path d="M 400 340 L 400 260" class="arrow aAm"/>
+  <text x="360" y="305" class="small tAmber mono" font-weight="600">cx.update()</text>
 </svg>
