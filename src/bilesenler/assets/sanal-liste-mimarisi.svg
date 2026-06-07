@@ -1,0 +1,155 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Viewport Frame */
+      .viewport-rect { fill: none; stroke: #38bdf8; stroke-width: 3; rx: 8px; filter: drop-shadow(0 0 8px rgba(56,189,248,0.4)); }
+      .viewport-label { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 13px; fill: #38bdf8; }
+      
+      /* List Items */
+      .item-rect { rx: 6px; transition: all 0.5s; }
+      .item-rendered { fill: #10b981; stroke: #34d399; stroke-width: 1.5; }
+      .item-unrendered { fill: #1e293b; stroke: #334155; stroke-width: 1; opacity: 0.4; }
+      
+      .item-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; fill: #f8fafc; text-anchor: middle; dominant-baseline: middle; }
+      
+      /* Scrollbar Indicator */
+      .scrollbar-track { fill: #1e293b; rx: 3px; }
+      .scrollbar-thumb { fill: #475569; rx: 3px; animation: scroll-thumb 8s infinite linear; }
+
+      @keyframes scroll-thumb {
+        0%, 100% { y: 150; }
+        50% { y: 250; }
+      }
+
+      /* List Scroll Animation */
+      .list-container { animation: scroll-list 8s infinite linear; }
+      @keyframes scroll-list {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-160px); }
+      }
+
+      /* Render state toggling during scroll */
+      /* list-items: 0, 1, 2, 3, 4, 5, 6, 7, 8 */
+      /* Viewport spans from y: 140 to 320 */
+      /* Items y-coords in container:
+         Item 0: y: 20
+         Item 1: y: 80
+         Item 2: y: 140
+         Item 3: y: 200
+         Item 4: y: 260
+         Item 5: y: 320
+         Item 6: y: 380
+         Item 7: y: 440
+      */
+      @keyframes render-item-0 { 0%, 100% { fill: #1e293b; stroke: #334155; opacity: 0.4; } 50% { fill: #1e293b; stroke: #334155; opacity: 0.4; } }
+      @keyframes render-item-1 { 0%, 100% { fill: #10b981; stroke: #34d399; opacity: 1; } 50% { fill: #1e293b; stroke: #334155; opacity: 0.4; } }
+      @keyframes render-item-2 { 0%, 100% { fill: #10b981; stroke: #34d399; opacity: 1; } 50% { fill: #1e293b; stroke: #334155; opacity: 0.4; } }
+      @keyframes render-item-3 { 0%, 100% { fill: #10b981; stroke: #34d399; opacity: 1; } 50% { fill: #10b981; stroke: #34d399; opacity: 1; } }
+      @keyframes render-item-4 { 0%, 100% { fill: #1e293b; stroke: #334155; opacity: 0.4; } 50% { fill: #10b981; stroke: #34d399; opacity: 1; } }
+      @keyframes render-item-5 { 0%, 100% { fill: #1e293b; stroke: #334155; opacity: 0.4; } 50% { fill: #10b981; stroke: #34d399; opacity: 1; } }
+      @keyframes render-item-6 { 0%, 100% { fill: #1e293b; stroke: #334155; opacity: 0.4; } 50% { fill: #10b981; stroke: #34d399; opacity: 1; } }
+
+      .i0 { animation: render-item-0 8s infinite linear; }
+      .i1 { animation: render-item-1 8s infinite linear; }
+      .i2 { animation: render-item-2 8s infinite linear; }
+      .i3 { animation: render-item-3 8s infinite linear; }
+      .i4 { animation: render-item-4 8s infinite linear; }
+      .i5 { animation: render-item-5 8s infinite linear; }
+      .i6 { animation: render-item-6 8s infinite linear; }
+
+    </style>
+  </defs>
+
+  <rect width="800" height="450" class="bg" />
+  <text x="400" y="45" class="title">Sanal Liste Sanallaştırma Mimarisi</text>
+  <text x="400" y="70" class="sub">Binlerce öğe arasından sadece Viewport içindekilerin aktif render edilmesi</text>
+
+  <!-- Sol Panel: Veri Kaynağı Listesi (10,000 Öğe) -->
+  <g transform="translate(100, 100)">
+    <text x="0" y="-15" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#94a3b8">Büyük Veri Kümesi (10.000 Öğe)</text>
+    <rect width="180" height="260" fill="#1e293b" stroke="#334155" rx="8" />
+    <text x="90" y="50" class="item-text" fill="#64748b">Öğe 0001</text>
+    <text x="90" y="90" class="item-text" fill="#64748b">Öğe 0002</text>
+    <text x="90" y="130" class="item-text" fill="#64748b">Öğe 0003</text>
+    <text x="90" y="170" class="item-text" fill="#94a3b8" font-weight="bold">...</text>
+    <text x="90" y="210" class="item-text" fill="#64748b">Öğe 9999</text>
+  </g>
+
+  <!-- Sağ Panel: Sanal Liste Viewport (Çizim Alanı) -->
+  <!-- Viewport Yüksekliği: 200 (y: 130'dan 330'a), w: 280, x: 420 -->
+  <g transform="translate(420, 100)">
+    <text x="0" y="-15" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#94a3b8">Sanal Liste Viewport (Aktif Çizim)</text>
+    
+    <!-- Mask kullanarak taşan öğeleri gizleyeceğiz -->
+    <mask id="viewport-mask">
+      <rect x="0" y="30" width="280" height="200" fill="white" rx="6" />
+    </mask>
+
+    <g mask="url(#viewport-mask)">
+      <!-- Kaydırılan Liste İçeriği -->
+      <g class="list-container">
+        <!-- Öğe 0 -->
+        <g transform="translate(15, 40)">
+          <rect width="220" height="40" class="item-rect i0" />
+          <text x="110" y="20" class="item-text">Öğe 0012</text>
+        </g>
+        <!-- Öğe 1 -->
+        <g transform="translate(15, 95)">
+          <rect width="220" height="40" class="item-rect i1" />
+          <text x="110" y="20" class="item-text">Öğe 0013</text>
+        </g>
+        <!-- Öğe 2 -->
+        <g transform="translate(15, 150)">
+          <rect width="220" height="40" class="item-rect i2" />
+          <text x="110" y="20" class="item-text">Öğe 0014</text>
+        </g>
+        <!-- Öğe 3 -->
+        <g transform="translate(15, 205)">
+          <rect width="220" height="40" class="item-rect i3" />
+          <text x="110" y="20" class="item-text">Öğe 0015</text>
+        </g>
+        <!-- Öğe 4 -->
+        <g transform="translate(15, 260)">
+          <rect width="220" height="40" class="item-rect i4" />
+          <text x="110" y="20" class="item-text">Öğe 0016</text>
+        </g>
+        <!-- Öğe 5 -->
+        <g transform="translate(15, 315)">
+          <rect width="220" height="40" class="item-rect i5" />
+          <text x="110" y="20" class="item-text">Öğe 0017</text>
+        </g>
+        <!-- Öğe 6 -->
+        <g transform="translate(15, 370)">
+          <rect width="220" height="40" class="item-rect i6" />
+          <text x="110" y="20" class="item-text">Öğe 0018</text>
+        </g>
+      </g>
+    </g>
+
+    <!-- Scrollbar Track & Thumb -->
+    <rect x="260" y="30" width="6" height="200" class="scrollbar-track" />
+    <rect x="260" width="6" height="40" class="scrollbar-thumb" />
+
+    <!-- Viewport Sınır Çerçevesi (Mavi) -->
+    <rect x="0" y="30" width="280" height="200" class="viewport-rect" />
+  </g>
+
+  <!-- İki panel arasındaki akış oku -->
+  <path d="M 300 230 L 390 230" stroke="#38bdf8" stroke-width="2" stroke-dasharray="5 3" />
+  <polygon points="400,230 392,226 392,234" fill="#38bdf8" />
+  <text x="350" y="215" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#38bdf8" text-anchor="middle">Sanallaştırma</text>
+
+  <!-- Durum Göstergesi (Renk Kılavuzu) -->
+  <g transform="translate(250, 400)">
+    <rect x="0" y="0" width="16" height="16" rx="4" fill="#10b981" />
+    <text x="25" y="12" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#94a3b8">Aktif Render Edilen (GPU Belleğinde)</text>
+
+    <rect x="280" y="0" width="16" height="16" rx="4" fill="#1e293b" stroke="#334155" opacity="0.6" />
+    <text x="305" y="12" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#94a3b8">Pasif / Belleğe Alınmayan</text>
+  </g>
+
+</svg>

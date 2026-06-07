@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Trigger Button */
+      .trigger-btn { fill: #1e293b; stroke: #38bdf8; stroke-width: 2; rx: 6px; }
+      .trigger-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 14px; fill: #f8fafc; text-anchor: middle; dominant-baseline: middle; }
+      
+      /* Popup/Tooltip Balonları */
+      .popup-box { fill: #1e293b; stroke: #475569; stroke-width: 1.5; rx: 8px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
+      .tooltip-box { fill: #334155; stroke: #475569; stroke-width: 1; rx: 4px; }
+      
+      .box-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #f1f5f9; text-anchor: middle; dominant-baseline: middle; }
+      .anchor-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #fb7185; text-anchor: middle; }
+      .arrow { stroke: #fb7185; stroke-width: 1.5; fill: none; stroke-dasharray: 4 2; }
+      .arrow-head { fill: #fb7185; }
+
+      /* Animasyon: Hover ve Tooltip Tetikleme */
+      @keyframes anim-tooltip {
+        0%, 15%, 85%, 100% { opacity: 0; transform: translateY(10px); }
+        25%, 75% { opacity: 1; transform: translateY(0); }
+      }
+      
+      @keyframes anim-popup {
+        0%, 45%, 100% { opacity: 0; transform: scale(0.95); transform-origin: top left; }
+        55%, 90% { opacity: 1; transform: scale(1); transform-origin: top left; }
+      }
+
+      @keyframes anim-cursor {
+        0%, 100% { transform: translate(360px, 320px); }
+        20%, 80% { transform: translate(400px, 220px); }
+      }
+
+      .tooltip-animated { animation: anim-tooltip 8s infinite ease-in-out; transform-origin: bottom center; }
+      .popup-animated { animation: anim-popup 8s infinite ease-in-out; }
+      .cursor-animated { animation: anim-cursor 8s infinite ease-in-out; }
+    </style>
+  </defs>
+
+  <!-- Arka Plan -->
+  <rect width="800" height="400" class="bg" />
+
+  <!-- Başlıklar -->
+  <text x="400" y="45" class="label-title">Menu, Popup ve Tooltip Konumlandırma</text>
+  <text x="400" y="70" class="label-sub">Anchor koordinatları ve yerleşim yönü stratejileri</text>
+
+  <!-- Merkez Tetikleyici Buton (Trigger Button) x: 330, y: 175, w: 140, h: 50 -->
+  <g transform="translate(0, 0)">
+    <rect x="330" y="175" width="140" height="50" class="trigger-btn" />
+    <text x="400" y="200" class="trigger-text">Sağ Tıkla / Hover</text>
+  </g>
+
+  <!-- 1. Üstteki Tooltip (Hover Durumunda Animasyonlu Beliren) -->
+  <g class="tooltip-animated" transform="translate(0, 0)">
+    <!-- Balon Gövdesi -->
+    <rect x="320" y="105" width="160" height="36" class="tooltip-box" />
+    <!-- Tooltip Ok Ucu -->
+    <polygon points="395,141 405,141 400,146" fill="#334155" stroke="#475569" stroke-width="1" />
+    <!-- Üzerine çizgi çekerek kenarlık birleşimini temizleme -->
+    <line x1="396" y1="141" x2="404" y2="141" stroke="#334155" stroke-width="2" />
+    <text x="400" y="123" class="box-text">Tooltip: Bilgilendirme Metni</text>
+  </g>
+
+  <!-- 2. Alttaki Popup/Menu (Tıklama ile Sol-Alt Köşeye Kenetlenen) -->
+  <g class="popup-animated" transform="translate(0, 0)">
+    <!-- Menü Gövdesi (x: 330, y: 240, w: 170, h: 90) -->
+    <rect x="330" y="240" width="170" height="90" class="popup-box" />
+    
+    <!-- Menü Elemanları -->
+    <text x="350" y="265" class="box-text" text-anchor="start">➔ Kopyala</text>
+    <text x="350" y="290" class="box-text" text-anchor="start">➔ Yapıştır</text>
+    <text x="350" y="315" class="box-text" text-anchor="start">➔ Düzenle...</text>
+    
+    <!-- Kenetlenme Noktası Oku -->
+    <path d="M 330 225 L 330 236" class="arrow" />
+    <polygon points="330,240 327,235 333,235" class="arrow-head" />
+    <text x="330" y="252" class="anchor-text" text-anchor="end">Anchor::TopLeft</text>
+  </g>
+
+  <!-- Sağ Yönlü Popup Gösterimi (Referans) -->
+  <g transform="translate(140, 0)">
+    <rect x="380" y="180" width="130" height="40" class="popup-box" opacity="0.4" />
+    <text x="445" y="200" class="box-text" opacity="0.4">Sağ Popup</text>
+    <path d="M 330 200 L 374 200" class="arrow" opacity="0.4" />
+    <polygon points="378,200 373,197 373,203" class="arrow-head" opacity="0.4" />
+    <text x="355" y="193" class="anchor-text" opacity="0.4">Right</text>
+  </g>
+
+  <!-- Sol Yönlü Popup Gösterimi (Referans) -->
+  <g transform="translate(-140, 0)">
+    <rect x="290" y="180" width="130" height="40" class="popup-box" opacity="0.4" />
+    <text x="355" y="200" class="box-text" opacity="0.4">Sol Popup</text>
+    <path d="M 470 200 L 426 200" class="arrow" opacity="0.4" />
+    <polygon points="422,200 427,197 427,203" class="arrow-head" opacity="0.4" />
+    <text x="445" y="193" class="anchor-text" opacity="0.4">Left</text>
+  </g>
+
+  <!-- Animasyonlu İmleç (Cursor) -->
+  <g class="cursor-animated" transform="translate(0,0)">
+    <polygon points="0,0 4,18 9,13 16,20 19,17 12,11 18,9" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5" />
+  </g>
+</svg>

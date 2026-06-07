@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <!-- Tasarım Paleti ve Gölgeler -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14161d"/>
+      <stop offset="100%" stop-color="#1e2230"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ff5555"/>
+      <stop offset="100%" stop-color="#bd93f9"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+
+    <!-- CSS Animasyonları -->
+    <style>
+      .bubble-flow {
+        stroke-dasharray: 6, 8;
+        animation: bubbleDash 15s linear infinite;
+      }
+      .pulse-slow {
+        animation: pulseSlow 3s infinite;
+      }
+      .node-glow {
+        animation: nodeGlow 4s ease-in-out infinite;
+      }
+      .text-style {
+        font-family: 'Outfit', 'Inter', sans-serif;
+        fill: #f8f8f2;
+      }
+
+      @keyframes bubbleDash {
+        to { stroke-dashoffset: 1000; }
+      }
+      @keyframes pulseSlow {
+        0%, 100% { opacity: 0.8; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.02); }
+      }
+      @keyframes nodeGlow {
+        0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 85, 85, 0.2)); }
+        50% { filter: drop-shadow(0 0 8px rgba(255, 85, 85, 0.6)); }
+      }
+    </style>
+  </defs>
+
+  <!-- Arka Plan Kartı -->
+  <rect width="100%" height="100%" rx="16" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <rect width="99.5%" height="99.5%" x="0.25%" y="0.25%" rx="16" fill="none" stroke="url(#accentGrad)" stroke-width="1.5" opacity="0.3"/>
+
+  <!-- Başlık -->
+  <text x="40" y="45" class="text-style" font-size="20" font-weight="700" letter-spacing="0.5">GPUI Keymap ve Action Bubbling Akışı</text>
+  <text x="40" y="68" fill="#6272a4" font-family="sans-serif" font-size="12">Tuş Vuruşunun Odak Ağacından Yukarıya Doğru Action Eşleştirmesi</text>
+
+  <!-- ODAK AĞACI DÜĞÜMLERİ (FOCUS TREE NODES) -->
+
+  <!-- Root Node -->
+  <g transform="translate(100, 130)" filter="url(#shadow)">
+    <rect width="180" height="60" rx="8" fill="#21222c" stroke="#6272a4" stroke-width="1.5"/>
+    <text x="90" y="35" class="text-style" font-size="12" font-weight="600" text-anchor="middle">Workspace (Root)</text>
+  </g>
+
+  <!-- Parent Node (Pane) -->
+  <g transform="translate(100, 240)" filter="url(#shadow)">
+    <rect width="180" height="60" rx="8" fill="#21222c" stroke="#6272a4" stroke-width="1.5"/>
+    <text x="90" y="35" class="text-style" font-size="12" font-weight="600" text-anchor="middle">Editor Pane (Parent)</text>
+  </g>
+
+  <!-- Focus Node (TextInput / Leaf) -->
+  <g transform="translate(100, 350)" filter="url(#shadow)" class="node-glow">
+    <rect width="180" height="60" rx="8" fill="#21222c" stroke="#50fa7b" stroke-width="2"/>
+    <text x="90" y="35" class="text-style" font-size="12" font-weight="600" text-anchor="middle">Text Input (Active Focus)</text>
+  </g>
+
+  <!-- KEYMAP EŞLEŞTİRİCİSİ (KEYMAP MATCHER) -->
+  <g transform="translate(480, 160)" filter="url(#shadow)" class="pulse-slow">
+    <rect width="220" height="180" rx="12" fill="#21222c" stroke="#ffb86c" stroke-width="2"/>
+    <text x="110" y="35" class="text-style" font-size="14" font-weight="700" text-anchor="middle">Keymap Matcher</text>
+    
+    <rect x="20" y="60" width="180" height="40" rx="6" fill="#14161d" stroke="#6272a4" stroke-width="1"/>
+    <text x="35" y="84" fill="#ff5555" font-family="monospace" font-size="12">ctrl-s</text>
+    <text x="110" y="84" fill="#6272a4" font-size="11">girdisi eşlendi</text>
+
+    <rect x="20" y="115" width="180" height="45" rx="6" fill="#bd93f9" fill-opacity="0.15" stroke="#bd93f9" stroke-width="1"/>
+    <text x="110" y="142" fill="#bd93f9" font-family="monospace" font-size="12" font-weight="600" text-anchor="middle">workspace::Save</text>
+  </g>
+
+  <!-- AKIŞ HATLARI (BUBBLING VE RESOLUTION) -->
+
+  <!-- Leaf -> Parent (Bubbling Up) -->
+  <path d="M 190 350 L 190 300" fill="none" stroke="#ff5555" stroke-width="2"/>
+  <path d="M 190 350 L 190 300" fill="none" stroke="#ff5555" stroke-dasharray="6,8" stroke-width="3" class="bubble-flow"/>
+  <polygon points="190,300 185,310 195,310" fill="#ff5555"/>
+  <text x="235" y="328" fill="#ff5555" font-size="10" font-weight="600" text-anchor="middle">Bubbling Up</text>
+
+  <!-- Parent -> Root (Bubbling Up) -->
+  <path d="M 190 240 L 190 190" fill="none" stroke="#ff5555" stroke-width="2"/>
+  <path d="M 190 240 L 190 190" fill="none" stroke="#ff5555" stroke-dasharray="6,8" stroke-width="3" class="bubble-flow"/>
+  <polygon points="190,190 185,200 195,200" fill="#ff5555"/>
+
+  <!-- Keypress input indicator to Leaf -->
+  <path d="M 30 380 L 100 380" fill="none" stroke="#ff5555" stroke-width="2"/>
+  <polygon points="100,380 90,375 90,385" fill="#ff5555"/>
+  <text x="50" y="370" fill="#ff5555" font-family="monospace" font-size="11" font-weight="600" text-anchor="middle">ctrl-s</text>
+
+  <!-- Bubbled Event -> Keymap Matcher -->
+  <path d="M 280 160 C 360 120, 400 220, 480 220" fill="none" stroke="#ffb86c" stroke-width="2"/>
+  <path d="M 280 160 C 360 120, 400 220, 480 220" fill="none" stroke="#ffb86c" stroke-dasharray="6,8" stroke-width="3" class="bubble-flow"/>
+  <polygon points="480,220 470,215 470,225" fill="#ffb86c"/>
+  <text x="380" y="150" fill="#ffb86c" font-size="10" font-weight="600" text-anchor="middle">Eşleştirme</text>
+
+</svg>

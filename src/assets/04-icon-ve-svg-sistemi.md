@@ -4,6 +4,10 @@ Bu bölüm, varlık altyapısının en sık tüketilen bileşeni olan SVG ikonla
 
 ![İkon Kaynak Kararı](images/icon-kaynak-karari.svg)
 
+SVG ikonlarının binary veya dosya sisteminden yüklenip GPU üzerinde render edilmesine kadar geçen adımları ve veri akışını aşağıdaki hareketli şemada görebiliriz:
+
+![İkon ve SVG Render Akış Hattı](images/icon-svg-render-hatti.svg)
+
 ---
 
 ## 1. `icons/` klasörünün yapısı

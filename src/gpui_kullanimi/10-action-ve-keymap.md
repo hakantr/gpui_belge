@@ -13,6 +13,10 @@ GPUI'de `Action` uygulamanın yapabileceği bir işi (komutu) ifade ederken, `Ke
 
 Bir eylemin tetiklenmesi için iki gereksinim mevcuttur: Eylemin ağaçta dinlenmesi (`.on_action`) ve tuşlara bağlanması (`bind_keys` veya komut paleti üzerinden).
 
+Klavyeden bir tuş kombinasyonuna basıldığında olay, aktif odaklanmış elementten (focus node) başlayarak ağaç boyunca yukarıya doğru yayılır (bubbling). Bu yayılım sırasında her seviyedeki `KeyContext` bağlamı değerlendirilerek `Keymap` tablosundaki kısayollarla eşleştirilir ve ilgili `Action` tetiklenir. Aşağıdaki şemada, bu eylem çözümleme ve bubbling (olay yayılım) süreci gösterilmektedir:
+
+![GPUI Keymap ve Action Bubbling Akışı](assets/keymap-bubbling-akisi.svg)
+
 ## Action Sistemi Derinlemesine
 
 Action tanımı iki ana yöntemle gerçekleştirilir. Hangi yöntemin tercih edileceği, action yapısının veri taşıyıp taşımamasına göre belirlenir.

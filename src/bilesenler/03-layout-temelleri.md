@@ -15,6 +15,10 @@ Farklı durumlarda hangi düzen yardımcısının tercih edileceğine karar veri
 
 ## h_flex ve v_flex
 
+Yatay ve dikey eksendeki hizalama davranışları, flexbox modelinin getirdiği esneklikle yönetilir. Aşağıdaki hareketli şemada, öğelerin eksenler üzerinde nasıl konumlandığı ve `.justify_*` ile `.items_*` metotlarının bu yerleşime nasıl yön verdiği gözlemlenebilir:
+
+![Layout Hizalaması](assets/layout-hizalama.svg)
+
 Kaynak:
 
 - Tanım: `ui` crate'i

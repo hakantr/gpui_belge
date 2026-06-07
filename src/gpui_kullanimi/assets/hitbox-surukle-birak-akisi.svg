@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Source and target styles */
+      .source-rect { fill: #1e293b; stroke: #334155; stroke-width: 1.5; rx: 6px; }
+      .target-rect { fill: #1e293b; stroke: #334155; stroke-width: 2; stroke-dasharray: 4 4; rx: 8px; }
+      
+      .text-lbl { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 13px; fill: #f1f5f9; text-anchor: middle; }
+      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
+
+      /* Animasyonlu Elemanlar */
+      .drag-item { fill: #38bdf8; rx: 6px; }
+      .item-txt { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 12px; fill: #ffffff; text-anchor: middle; dominant-baseline: middle; }
+      
+      /* Target State Animations */
+      @keyframes anim-target {
+        0%, 30%, 100% { stroke: #334155; fill: #1e293b; }
+        40%, 70% { stroke: #10b981; fill: #064e3b; filter: drop-shadow(0 0 6px rgba(16,185,129,0.3)); }
+        75%, 95% { stroke: #38bdf8; fill: #1e293b; }
+      }
+      .target-animated { animation: anim-target 8s infinite ease-in-out; }
+
+      /* Dragging Motion (Cursor + Drag Item) */
+      @keyframes anim-drag {
+        0% { transform: translate(0px, 0px); opacity: 0; }
+        15% { transform: translate(0px, 0px); opacity: 1; }
+        /* Move to Target */
+        40%, 70% { transform: translate(320px, 0px); opacity: 1; }
+        /* Drop & Reset */
+        75% { transform: translate(320px, 0px); opacity: 0; }
+        100% { transform: translate(0px, 0px); opacity: 0; }
+      }
+      .drag-group { animation: anim-drag 8s infinite ease-in-out; }
+
+      /* Target Content Change animation */
+      @keyframes anim-target-text {
+        0%, 74% { opacity: 0; }
+        75%, 95% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+      .target-content-text { animation: anim-target-text 8s infinite linear; font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 12px; fill: #38bdf8; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="800" height="400" class="bg" />
+  <text x="400" y="45" class="title">Hitbox &amp; Sürükle-Bırak (Drag &amp; Drop) Akışı</text>
+  <text x="400" y="70" class="sub">can_drop denetimi, visual drag state ve on_drop olay döngüsü</text>
+
+  <!-- Sol: Drag Source (x: 120, y: 150, w: 160, h: 120) -->
+  <g transform="translate(120, 140)">
+    <rect width="160" height="120" class="source-rect" />
+    <text x="80" y="30" class="text-lbl">Drag Source</text>
+    <text x="80" y="50" class="text-desc">Sürükleme Kaynağı</text>
+    
+    <!-- Kaynaktaki boş yer tutucu (Drag başladıktan sonra soluk durur) -->
+    <rect x="25" y="70" width="110" height="36" fill="#0f172a" rx="4" opacity="0.5" />
+    <text x="80" y="88" class="text-desc" font-size="10">Öğe A</text>
+  </g>
+
+  <!-- Sağ: Drop Target (x: 520, y: 150, w: 160, h: 120) -->
+  <g transform="translate(520, 140)">
+    <rect width="160" height="120" class="target-rect target-animated" />
+    <text x="80" y="30" class="text-lbl">Drop Target</text>
+    <text x="80" y="50" class="text-desc">Bırakma Hedefi</text>
+    
+    <!-- Target Inner Box (can_drop / on_drop geri bildirimi) -->
+    <g transform="translate(25, 70)">
+      <rect width="110" height="36" fill="#0f172a" rx="4" stroke="#334155" stroke-width="1" />
+      <text x="55" y="22" class="target-content-text">Öğe A Bırakıldı</text>
+    </g>
+  </g>
+
+  <!-- Sürüklenen Eleman ve İmleç Grubu (Drag Source içinden başlayıp Drop Target'a gidecek) -->
+  <!-- Başlangıç x: 120+25 = 145, y: 140+70 = 210. Hedef x: 520+25 = 545 (Fark: 400px x, 0px y) -->
+  <!-- cursor offset: x: 15, y: 15. Drag item boyut: 110x36 -->
+  <g class="drag-group" transform="translate(145, 210)">
+    <!-- Drag Visual State -->
+    <rect width="110" height="36" class="drag-item" opacity="0.85" filter="drop-shadow(0 4px 8px rgba(0,0,0,0.5))" />
+    <text x="55" y="18" class="item-txt">Öğe A</text>
+    
+    <!-- Mouse Cursor -->
+    <g transform="translate(55, 18)">
+      <polygon points="0,0 4,18 9,13 16,20 19,17 12,11 18,9" fill="#f8fafc" stroke="#0f172a" stroke-width="1.5" />
+    </g>
+  </g>
+
+  <!-- Akış Açıklamaları -->
+  <g transform="translate(400, 310)">
+    <style>
+      @keyframes text-state-1 { 0%, 15%, 80%, 100% { opacity: 1; } 20%, 75% { opacity: 0; } }
+      @keyframes text-state-2 { 0%, 20% { opacity: 0; } 25%, 65% { opacity: 1; } 70%, 100% { opacity: 0; } }
+      @keyframes text-state-3 { 0%, 70% { opacity: 0; } 75% { opacity: 1; } 95%, 100% { opacity: 0; } }
+      .txt-s1 { animation: text-state-1 8s infinite linear; }
+      .txt-s2 { animation: text-state-2 8s infinite linear; }
+      .txt-s3 { animation: text-state-3 8s infinite linear; }
+      .txt-labels text { opacity: 0; }
+    </style>
+    <g class="txt-labels">
+      <text class="txt-s1 text-desc">1. Öğeye basılı tutularak sürükleme (drag) başlatılır</text>
+      <text class="txt-s2 text-desc" fill="#10b981">2. can_drop denetlenir → Hedef onay verdi (Active Green)</text>
+      <text class="txt-s3 text-desc" fill="#38bdf8">3. on_drop tetiklenir → Veri aktarımı tamamlandı</text>
+    </g>
+  </g>
+
+</svg>

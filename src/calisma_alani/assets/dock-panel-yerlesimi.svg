@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Layout Areas */
+      .window-border { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 8px; }
+      .titlebar { fill: #0f172a; stroke: #1e293b; stroke-width: 1.5; }
+      .center-editor { fill: #0f172a; stroke: #1e293b; stroke-width: 1.5; transition: all 0.5s; }
+      .dock { fill: #1e293b; stroke: #334155; stroke-width: 1.5; }
+
+      .area-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 12px; fill: #94a3b8; text-anchor: middle; dominant-baseline: middle; }
+      .editor-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 14px; fill: #38bdf8; text-anchor: middle; dominant-baseline: middle; }
+
+      /* Animations */
+      /* Sol ve sağ dock genişleme/daralma animasyonu */
+      @keyframes anim-left-dock {
+        0%, 100% { width: 40px; }
+        30%, 70% { width: 120px; }
+      }
+      @keyframes anim-right-dock {
+        0%, 100% { width: 40px; }
+        40%, 80% { width: 120px; }
+      }
+      /* Editörün esnemesi (x ve genişlik) */
+      @keyframes anim-editor {
+        0%, 100% { x: 190; width: 420; }
+        30%, 39% { x: 270; width: 340; }
+        40%, 70% { x: 270; width: 260; }
+        71%, 80% { x: 190; width: 340; }
+      }
+
+      .animated-left { animation: anim-left-dock 8s infinite ease-in-out; }
+      .animated-right { animation: anim-right-dock 8s infinite ease-in-out; }
+      .animated-editor { animation: anim-editor 8s infinite ease-in-out; }
+
+      /* Dock State Labels */
+      .lbl-state { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; fill: #10b981; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="800" height="450" class="bg" />
+  <text x="400" y="45" class="title">Workspace Dock &amp; Panel Düzeni</text>
+  <text x="400" y="70" class="sub">Sol/Sağ panel açılıp kapanmalarına göre merkez alanın (editor) esnek boyutlanması</text>
+
+  <!-- Ana Pencere Kapsayıcısı (x: 150, y: 110, w: 500, h: 280) -->
+  <rect x="150" y="110" width="500" height="280" class="window-border" />
+
+  <!-- Titlebar (Üst Bar) -->
+  <rect x="150" y="110" width="500" height="25" class="titlebar" />
+  <text x="400" y="122" class="area-text" fill="#475569" font-size="10">zed - workspace</text>
+
+  <!-- Sol Dock (Proje Paneli) -->
+  <!-- Başlangıç x: 150, y: 135, varsayılan w: 40 (kapalı), h: 200 (terminal için alt boşluk) -->
+  <g>
+    <rect x="150" y="135" height="200" class="dock animated-left" />
+    <!-- Sabit konumlandırılmış metin veya animasyonlu metin -->
+    <text x="170" y="235" class="area-text">Sol</text>
+  </g>
+
+  <!-- Editör Alanı (Merkez esnek alan) -->
+  <!-- Başlangıç x: 190, y: 135, w: 420, h: 200 -->
+  <rect y="135" height="200" class="center-editor animated-editor" />
+  <text x="400" y="235" class="editor-text">Editor (flex_1)</text>
+
+  <!-- Sağ Dock (Asistan / Copilot) -->
+  <!-- Sağ dock konumu sabit x: 610 (kapalıyken sola doğru genişleyecek), y: 135, w: 40, h: 200 -->
+  <!-- Genişlediğinde genişliği 120 olacak, x konumu 530 olacak. Bunu transform yerine genişlik animasyonuyla çözelim:
+       x: 610'dan başlayıp w: 40 (sağ uç 650). w: 120 olduğunda x: 530 olmalı.
+  -->
+  <g>
+    <!-- Sağ dock animasyonu için hem x hem genişlik animasyonu gerekir. CSS transform veya keyframes ile: -->
+    <style>
+      @keyframes anim-right-g {
+        0%, 100% { transform: translateX(0px); }
+        40%, 80% { transform: translateX(-80px); }
+      }
+      .right-g { animation: anim-right-g 8s infinite ease-in-out; }
+    </style>
+    <g class="right-g">
+      <rect x="610" y="135" width="120" height="200" class="dock" />
+      <text x="630" y="235" class="area-text">Sağ</text>
+    </g>
+  </g>
+
+  <!-- Alt Dock (Terminal) -->
+  <!-- x: 150, y: 335, w: 500, h: 55 -->
+  <rect x="150" y="335" width="500" height="55" class="dock" />
+  <text x="400" y="362" class="area-text">Alt Dock (Terminal / Arama)</text>
+
+  <!-- Dinamik Durum Bildirimleri -->
+  <g transform="translate(400, 420)">
+    <style>
+      @keyframes label-state-1 { 0%, 29%, 81%, 100% { opacity: 1; } 30%, 80% { opacity: 0; } }
+      @keyframes label-state-2 { 0%, 29% { opacity: 0; } 30%, 39% { opacity: 1; } 40%, 100% { opacity: 0; } }
+      @keyframes label-state-3 { 0%, 39% { opacity: 0; } 40%, 70% { opacity: 1; } 71%, 100% { opacity: 0; } }
+      @keyframes label-state-4 { 0%, 70% { opacity: 0; } 71%, 80% { opacity: 1; } 81%, 100% { opacity: 0; } }
+      .lbl-s1 { animation: label-state-1 8s infinite linear; }
+      .lbl-s2 { animation: label-state-2 8s infinite linear; }
+      .lbl-s3 { animation: label-state-3 8s infinite linear; }
+      .lbl-s4 { animation: label-state-4 8s infinite linear; }
+      .state-labels text { opacity: 0; }
+    </style>
+    <g class="state-labels">
+      <text class="lbl-s1 lbl-state">Tüm Paneller Kapalı → Editör Tam Genişlik</text>
+      <text class="lbl-s2 lbl-state">Sol Panel Açıldı → Editör Daraldı</text>
+      <text class="lbl-s3 lbl-state">İki Panel de Açık → Editör Minimum Genişlikte</text>
+      <text class="lbl-s4 lbl-state">Sağ Panel Açık → Editör Konumu Kaydı</text>
+    </g>
+  </g>
+
+</svg>

@@ -6,6 +6,8 @@
 
 ![GPUI Pencere Yaşam Döngüsü](assets/pencere-yasam-dongusu.svg)
 
+Pencerenin oluşturulması (`open_window`), odaklanarak aktif hale gelmesi (`activation`), arka plana alınması (`minimize`) ve nihai olarak kapatılması (`on_window_closed`) süreçleri işletim sistemi ile eşgüdümlü olarak yürütülür. Yukarıdaki yaşam döngüsü şeması bu durum geçişlerini ve olay kancalarını özetlemektedir.
+
 GPUI üzerinde pencere açmak için kullanılan temel API `cx.open_window(options, root_builder)` işlevidir. Buradaki ilk parametre pencerenin başlangıç davranışlarını tanımlayan `WindowOptions` yapısıyken; ikinci parametre ise pencerenin kök görünümünü (root view) yapılandıran bir closure'dır. Tipik kullanım senaryolarında şu kod kalıbı izlenir:
 
 ```rust

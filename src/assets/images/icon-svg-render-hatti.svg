@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Step Blocks */
+      .step-rect { fill: #1e293b; stroke: #334155; stroke-width: 1.5; rx: 8px; }
+      .step-rect-active { stroke: #38bdf8; }
+      .step-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 13px; fill: #f1f5f9; text-anchor: middle; }
+      .step-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Connecting Arrows */
+      .conn-line { stroke: #475569; stroke-width: 2; fill: none; }
+      .conn-line-active { stroke: #38bdf8; stroke-dasharray: 6 4; animation: dash 3s linear infinite; }
+      @keyframes dash {
+        to { stroke-dashoffset: -20; }
+      }
+      
+      /* Data Particle Animation */
+      .particle { fill: #38bdf8; filter: drop-shadow(0 0 6px #38bdf8); animation: move-particle 6s infinite linear; }
+      @keyframes move-particle {
+        0% { cx: 165; cy: 175; opacity: 1; }
+        25% { cx: 325; cy: 175; }
+        50% { cx: 485; cy: 175; }
+        75% { cx: 645; cy: 175; }
+        100% { cx: 645; cy: 175; opacity: 0; }
+      }
+
+      /* Step Active Pulses */
+      @keyframes pulse-step-1 { 0%, 25%, 100% { stroke: #334155; } 10%, 15% { stroke: #38bdf8; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
+      @keyframes pulse-step-2 { 0%, 25%, 75%, 100% { stroke: #334155; } 35%, 45% { stroke: #38bdf8; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
+      @keyframes pulse-step-3 { 0%, 50%, 100% { stroke: #334155; } 60%, 70% { stroke: #38bdf8; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
+      @keyframes pulse-step-4 { 0%, 75% { stroke: #334155; } 85%, 95% { stroke: #38bdf8; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
+
+      .step-1 { animation: pulse-step-1 6s infinite linear; }
+      .step-2 { animation: pulse-step-2 6s infinite linear; }
+      .step-3 { animation: pulse-step-3 6s infinite linear; }
+      .step-4 { animation: pulse-step-4 6s infinite linear; }
+    </style>
+  </defs>
+
+  <!-- Arka Plan -->
+  <rect width="800" height="350" class="bg" />
+
+  <!-- Başlıklar -->
+  <text x="400" y="45" class="label-title">İkon ve SVG Render Akış Hattı</text>
+  <text x="400" y="70" class="label-sub">SVG varlıklarının okunması, çözümlenmesi, mozaiklenmesi ve çizimi</text>
+
+  <!-- Bağlantı Çizgileri -->
+  <line x1="165" y1="175" x2="325" y2="175" class="conn-line conn-line-active" />
+  <line x1="325" y1="175" x2="485" y2="175" class="conn-line conn-line-active" />
+  <line x1="485" y1="175" x2="645" y2="175" class="conn-line conn-line-active" />
+
+  <!-- 1. Adım: AssetSource -->
+  <g transform="translate(45, 125)">
+    <rect width="120" height="100" class="step-rect step-1" />
+    <text x="60" y="35" class="step-title">AssetSource</text>
+    <text x="60" y="60" class="step-desc">SVG byte verisi</text>
+    <text x="60" y="75" class="step-desc">veya dosya yükleme</text>
+  </g>
+
+  <!-- 2. Adım: usvg / SVG Parser -->
+  <g transform="translate(265, 125)">
+    <rect width="120" height="100" class="step-rect step-2" />
+    <text x="60" y="35" class="step-title">usvg Parser</text>
+    <text x="60" y="60" class="step-desc">Vektör yollarının</text>
+    <text x="60" y="75" class="step-desc">çözümlenmesi (parse)</text>
+  </g>
+
+  <!-- 3. Adım: Tessellator (Lyon) -->
+  <g transform="translate(425, 125)">
+    <rect width="120" height="100" class="step-rect step-3" />
+    <text x="60" y="35" class="step-title">Tessellator</text>
+    <text x="60" y="60" class="step-desc">Yolların üçgenlere</text>
+    <text x="60" y="75" class="step-desc">bölünmesi (Lyon)</text>
+  </g>
+
+  <!-- 4. Adım: GPU Canvas Render -->
+  <g transform="translate(585, 125)">
+    <rect width="120" height="100" class="step-rect step-4" />
+    <text x="60" y="35" class="step-title">GPU Render</text>
+    <text x="60" y="60" class="step-desc">Canvas üzerinde</text>
+    <text x="60" y="75" class="step-desc">hızlı piksel boyama</text>
+  </g>
+
+  <!-- Hareketli Veri Parçacığı (Particle) -->
+  <circle r="6" class="particle" />
+
+  <!-- Açıklama Notları -->
+  <text x="400" y="280" class="step-desc" fill="#64748b">Bellek kopyalamalarını önlemek amacıyla veriler paylaşımlı Arc dilimlerinde taşınır.</text>
+  <text x="400" y="300" class="step-desc" fill="#475569">Süreç, GPUI'nin düşük seviyeli çizim motoru tarafından asenkron olarak yürütülür.</text>
+</svg>

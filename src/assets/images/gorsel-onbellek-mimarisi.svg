@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Block styles */
+      .box { fill: #1e293b; stroke: #334155; stroke-width: 1.5; rx: 8px; }
+      .box-active { stroke: #38bdf8; }
+      .box-success { stroke: #10b981; }
+      .box-warn { stroke: #f59e0b; }
+      
+      .text-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 13px; fill: #f1f5f9; text-anchor: middle; }
+      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
+
+      /* Connection Lines */
+      .conn-line { stroke: #475569; stroke-width: 1.5; fill: none; }
+      .conn-line-active { stroke: #38bdf8; stroke-dasharray: 5 3; }
+
+      /* Particles animation for MISS and HIT cycles */
+      .particle { fill: #38bdf8; filter: drop-shadow(0 0 4px #38bdf8); }
+      
+      @keyframes anim-p-miss {
+        0% { cx: 160; cy: 195; opacity: 1; }
+        20% { cx: 320; cy: 195; }
+        /* MISS route down to network */
+        40% { cx: 320; cy: 305; }
+        60% { cx: 480; cy: 305; }
+        /* Up to Cache */
+        80% { cx: 480; cy: 195; }
+        100% { cx: 640; cy: 195; opacity: 0; }
+      }
+      
+      @keyframes anim-p-hit {
+        0% { cx: 160; cy: 195; opacity: 0; }
+        50% { cx: 160; cy: 195; opacity: 1; }
+        70% { cx: 320; cy: 195; }
+        /* Direct to Output (HIT) */
+        90% { cx: 480; cy: 195; }
+        100% { cx: 640; cy: 195; opacity: 0; }
+      }
+
+      .p-miss { animation: anim-p-miss 8s infinite linear; }
+      .p-hit { animation: anim-p-hit 8s infinite linear; }
+    </style>
+  </defs>
+
+  <rect width="800" height="400" class="bg" />
+  <text x="400" y="45" class="title">ImageCache Önbellek Mimarisi</text>
+  <text x="400" y="70" class="sub">Uzak görsellerin ilk yükleme (MISS) ve sonrasındaki hızlı bellek (HIT) akışları</text>
+
+  <!-- 1. İstek Başlangıcı (img(source)) x: 60, y: 145, w: 140, h: 100 -->
+  <g transform="translate(60, 145)">
+    <rect width="140" height="100" class="box" />
+    <text x="70" y="40" class="text-title">img(source)</text>
+    <text x="70" y="60" class="text-desc">Görsel Kaynak</text>
+    <text x="70" y="75" class="text-desc">İsteği</text>
+  </g>
+
+  <!-- Ok 1 -->
+  <path d="M 200 195 L 250 195" class="conn-line conn-line-active" />
+
+  <!-- 2. Önbellek Denetleyici (Cache Controller) x: 250, y: 145, w: 140, h: 100 -->
+  <g transform="translate(250, 145)">
+    <rect width="140" height="100" class="box box-active" />
+    <text x="70" y="40" class="text-title">Cache Lookup</text>
+    <text x="70" y="60" class="text-desc">Bellekte Var mı?</text>
+    <text x="70" y="75" class="text-desc">Denetimi</text>
+  </g>
+
+  <!-- Oklar: Miss (Aşağı) ve Hit (Sağ) -->
+  <!-- Hit -->
+  <path d="M 390 195 L 410 195" class="conn-line conn-line-active" />
+  <!-- Miss -->
+  <path d="M 320 245 L 320 255" class="conn-line conn-line-active" />
+
+  <!-- 3. Önbellek Bellek Alanı (RAM/Texture Atlas) x: 410, y: 145, w: 140, h: 100 -->
+  <g transform="translate(410, 145)">
+    <rect width="140" height="100" class="box box-success" />
+    <text x="70" y="40" class="text-title">ImageCache (RAM)</text>
+    <text x="70" y="60" class="text-desc">Önbellek Havuzu</text>
+    <text x="70" y="75" class="text-desc">/ Texture Atlas</text>
+  </g>
+
+  <!-- Ok 2 -->
+  <path d="M 550 195 L 600 195" class="conn-line conn-line-active" />
+
+  <!-- 4. Çıktı / GPU Render x: 600, y: 145, w: 140, h: 100 -->
+  <g transform="translate(600, 145)">
+    <rect width="140" height="100" class="box" />
+    <text x="70" y="45" class="text-title">GPU Render</text>
+    <text x="70" y="65" class="text-desc">Ekrana Çizim</text>
+  </g>
+
+  <!-- ================= MISS ROUTE (Alt Kanal) ================= -->
+  <!-- 5. Asenkron İndirme / Ağ Yükü (Disk/Network) x: 250, y: 275, w: 300, h: 60 -->
+  <g transform="translate(250, 275)">
+    <rect width="300" height="60" class="box box-warn" />
+    <text x="150" y="25" class="text-title">Async Yükleme Görevi (Network/Disk)</text>
+    <text x="150" y="45" class="text-desc">fs::read veya HTTP get ile byte okuma</text>
+  </g>
+
+  <!-- Miss dönüş oku (İndirmeden Cache'e) -->
+  <path d="M 550 305 L 580 305 L 580 250" class="conn-line conn-line-active" />
+  <path d="M 580 250 L 480 250 L 480 245" class="conn-line conn-line-active" />
+  <polygon points="480,245 477,250 483,250" fill="#38bdf8" />
+
+  <!-- Animasyonlu Veri Parçacıkları -->
+  <circle r="5" class="particle p-miss" />
+  <circle r="5" class="particle p-hit" />
+
+  <!-- Durum Kılavuz Açıklamaları -->
+  <g transform="translate(400, 370)">
+    <style>
+      @keyframes label-state-1 { 0%, 45%, 100% { opacity: 1; } 46%, 99% { opacity: 0; } }
+      @keyframes label-state-2 { 0%, 49% { opacity: 0; } 50%, 95% { opacity: 1; } 96%, 100% { opacity: 0; } }
+      .lbl-s1 { animation: label-state-1 8s infinite linear; }
+      .lbl-s2 { animation: label-state-2 8s infinite linear; }
+      .state-labels text { opacity: 0; }
+    </style>
+    <g class="state-labels">
+      <text class="lbl-s1 text-desc" fill="#f59e0b">MISS: Görsel ilk kez istenir → Asenkron disk/ağ görevi başlatılır.</text>
+      <text class="lbl-s2 text-desc" fill="#10b981">HIT: Görsel önbellekte var → RAM / Atlas üzerinden anında çizilir.</text>
+    </g>
+  </g>
+
+</svg>

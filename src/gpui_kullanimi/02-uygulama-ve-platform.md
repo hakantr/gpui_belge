@@ -51,6 +51,10 @@ Görsel olmayan senaryolar için ayrı bir başlatıcı vardır: `gpui_platform:
 
 ## Application Yaşam Döngüsü ve Platform Olayları
 
+GPUI'ın olay döngüsü, platformdan gelen ham girdilerin kuyruğa alınması ve iş parçacıkları arasında güvenli bir biçimde iletilmesi esasına dayanır. Aşağıdaki şemada, işletim sisteminden gelen olayların sıraya alınması, `PlatformDispatcher` üzerinden dağıtılması ve asenkron arka plan görevleri ile ana iş parçacığı arasındaki etkileşim süreci gösterilmektedir:
+
+![GPUI Olay Döngüsü ve Platform Entegrasyonu](assets/gpui-event-loop.svg)
+
 `Application`, GPUI çalışmaya başlamadan önce kullanılan builder katmanıdır. Uygulama yaşam döngüsü boyunca geçerli olacak asset kaynakları, HTTP istemci yapılandırmaları ve uygulamadan çıkış politikaları (quit mode) bu builder arayüzü vasıtasıyla kurulur. Tipik bir yapılandırma kurulumu aşağıdaki gibidir:
 
 ```rust

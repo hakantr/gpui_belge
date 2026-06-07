@@ -6,6 +6,10 @@
 
 `Styled`, `gpui` paketi içerisindeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` şeklinde zorunlu bir metot barındırır. GPUI çekirdeğindeki `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList` ve `Surface` bileşenleri bu trait aracılığıyla aynı akıcı (fluent) stil sözlüğünden faydalanır. Benzer şekilde, Zed UI bileşenlerinin büyük kısmı da kendi stil alanlarını bu ortak arayüze bağlar.
 
+GPUI elementlerinin stil tanımları akıcı (fluent) bir metot zinciriyle kurulur. Arka planda Rust veri tipleriyle temsil edilen bu stil yapılandırılması, yerleşim (layout) ve boyama (paint) fazlarında çözümlenerek ekrana yansıtılır. Aşağıdaki akış şemasında, bir elementin fluent stil çağrılarından GPU paint komutlarına kadar olan dönüşüm aşamaları özetlenmektedir:
+
+![GPUI Stil Çözümleme Akışı](assets/stil-cozumleme-akisi.svg)
+
 GPUI stil sistemi CSS ve TailwindCSS prensiplerine benzeyen akıcı metot zincirlerinden oluşur. Arka planda Rust veri tipleri yer aldığı için, hangi özelliğin hangi değeri kabul ettiği derleme aşamasında doğrulanmış olur. Örnek bir stil zinciri şu şekildedir:
 
 ```rust

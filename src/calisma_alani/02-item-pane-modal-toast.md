@@ -4,6 +4,10 @@ GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde 
 
 ![Item, Pane, Modal ve Notification Akışı](assets/item-pane-modal-notification.svg)
 
+Çalışma alanındaki farklı katmanların (Workspace, Pane/Tab, Modal, Toast ve Notification) üst üste yığılım hiyerarşisi (Z-index düzeni) aşağıdaki 3D şemada gösterilmiştir:
+
+![Workspace Yığılım Katmanları](assets/calisma-alani-yigilim-sirasi.svg)
+
 ---
 
 ## Item ve ItemHandle

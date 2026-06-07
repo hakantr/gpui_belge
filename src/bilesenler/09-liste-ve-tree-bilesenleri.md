@@ -380,6 +380,10 @@ Dikkat edilmesi gereken noktalar:
 
 ## TreeViewItem
 
+Hiyerarşik veri yapılarını (dosya dizinleri, sembol ağaçları vb.) görselleştirmek amacıyla ağaç elemanlarının girinti seviyeleri ve kılavuz çizgileri eşgüdümlü olarak kullanılır. Aşağıdaki şemada, `TreeViewItem` girintileri, disclosure durumları (expanded/collapsed) ve `IndentGuides` kılavuz çizgilerinin yerleşim ilişkileri gösterilmektedir:
+
+![Ağaç (Tree) ve Girinti (Indent) Yapısı](assets/agac-girinti-hiyerarsisi.svg)
+
 Kaynak:
 
 - Tanım: `ui` crate'i

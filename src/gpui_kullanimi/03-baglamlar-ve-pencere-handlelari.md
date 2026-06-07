@@ -6,6 +6,10 @@
 
 ![GPUI Bağlam Dönüşüm Haritası](assets/context-donusum-haritasi.svg)
 
+GPUI bağlam yapılarının (`AppContext`, `WindowContext`, `ViewContext`) hiyerarşik ilişkisi ve hangi verileri/lifecycle yönetimlerini kapsadığı aşağıdaki şemada görselleştirilmiştir:
+
+![GPUI Bağlam Hiyerarşisi](assets/gpui-baglam-hiyerarsisi.svg)
+
 GPUI'de neredeyse tüm işlemler bir bağlam (`context`) üzerinden yürütülür. `cx`, bağlam değişkeni için yaygın kullanılan bir isimlendirme tercihidir; herhangi bir zorunluluk teşkil etmez. Bağlam, o esnada hangi mimari katmanda çalışıldığını ve hangi kaynaklara erişilebildiğini belirler. Birden fazla bağlam tipi vardır ve her birinin sorumluluğu farklıdır:
 
 - **`App`**: Uygulamanın kök bağlamıdır. Global durum yönetimi, açık pencerelerin listesi, platform servisleri, kısayol haritaları (keymap), yeni entity oluşturma ve pencere açma gibi süreç ömrü boyunca geçerli olan temel işlemler bu bağlam üzerinden yürütülür.

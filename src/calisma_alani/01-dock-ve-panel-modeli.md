@@ -6,6 +6,10 @@
 
 ![Çalışma Alanı İskeleti](assets/workspace-iskeleti.svg)
 
+Çalışma alanında Sol, Sağ ve Alt panel (dock) alanlarının açılıp kapanması durumunda merkezdeki editör alanı (`flex_1`) dinamik olarak daralır veya genişler. Aşağıdaki şemada bu esnek yerleşim yapısı görselleştirilmiştir:
+
+![Workspace Panel Düzeni](assets/dock-panel-yerlesimi.svg)
+
 `workspace` crate'i GPUI çekirdeğinin üstüne `Workspace` adında merkezi bir uygulama görüntüsü koyar; merkezde pane grubunu, solda `left_dock`'u, sağda `right_dock`'u ve altta `bottom_dock`'u bir arada tutar. Bu modelin ana kaynak yüzeyi `workspace` crate'inin dock, pane ve panel modülleridir.
 
 **Panel yardımcı yüzeyi.** Panel UI'ı yazılırken aşağıdaki sınırların bilinmesi gerekir:

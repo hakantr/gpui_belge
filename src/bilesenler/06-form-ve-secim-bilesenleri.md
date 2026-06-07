@@ -242,6 +242,10 @@ Form ve toggle yardımcı API'leri:
 
 ## InputField (`ui_input`)
 
+Metin giriş alanlarında, içerideki ikonların, metinlerin ve yardımcı butonların dikey eksende kusursuz hizalanması son derece önemlidir. Aşağıdaki şemada, bir `InputField` bileşeninin anatomisi, öğelerin dikeyde ortalanması (`items-center`) ve bileşen odaklandığında (focus) sınır çerçevesinin görsel değişimi gösterilmektedir:
+
+![InputField Metin ve İkon Hizalaması](assets/textbox-metin-hizalama.svg)
+
 Kaynak:
 
 - Tanım: `ui_input` crate'i

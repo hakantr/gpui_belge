@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <!-- Tasarım Paleti ve Gölgeler -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14161d"/>
+      <stop offset="100%" stop-color="#1e2230"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#bd93f9"/>
+      <stop offset="100%" stop-color="#ffb86c"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+
+    <!-- CSS Animasyonları -->
+    <style>
+      .flow-path {
+        stroke-dasharray: 6, 8;
+        animation: flowDash 20s linear infinite;
+      }
+      .flow-path-reverse {
+        stroke-dasharray: 6, 8;
+        animation: flowDashReverse 20s linear infinite;
+      }
+      .glow-node {
+        animation: glowPulse 4s ease-in-out infinite;
+      }
+      .text-style {
+        font-family: 'Outfit', 'Inter', sans-serif;
+        fill: #f8f8f2;
+      }
+
+      @keyframes flowDash {
+        to { stroke-dashoffset: -1000; }
+      }
+      @keyframes flowDashReverse {
+        to { stroke-dashoffset: 1000; }
+      }
+      @keyframes glowPulse {
+        0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 184, 108, 0.2)); }
+        50% { filter: drop-shadow(0 0 8px rgba(255, 184, 108, 0.6)); }
+      }
+    </style>
+  </defs>
+
+  <!-- Arka Plan Kartı -->
+  <rect width="100%" height="100%" rx="16" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <rect width="99.5%" height="99.5%" x="0.25%" y="0.25%" rx="16" fill="none" stroke="url(#accentGrad)" stroke-width="1.5" opacity="0.3"/>
+
+  <!-- Başlık -->
+  <text x="40" y="45" class="text-style" font-size="20" font-weight="700" letter-spacing="0.5">Workspace Oturum Serileştirme ve Geri Yükleme</text>
+  <text x="40" y="68" fill="#6272a4" font-family="sans-serif" font-size="12">SerializableItem Durumunun SQLite DB Üzerinden Yönetimi</text>
+
+  <!-- AKIŞ KUTULARI -->
+
+  <!-- UI State (Workspace Window) -->
+  <g transform="translate(60, 160)" filter="url(#shadow)">
+    <rect width="200" height="180" rx="12" fill="#21222c" stroke="#50fa7b" stroke-width="2"/>
+    <text x="100" y="30" class="text-style" font-size="13" font-weight="600" text-anchor="middle">Workspace UI State</text>
+    
+    <rect x="20" y="55" width="160" height="30" rx="6" fill="#14161d" stroke="#6272a4" stroke-width="1"/>
+    <text x="100" y="74" fill="#f8f8f2" font-size="11" text-anchor="middle">Açık Editör Sekmeleri</text>
+
+    <rect x="20" y="95" width="160" height="30" rx="6" fill="#14161d" stroke="#6272a4" stroke-width="1"/>
+    <text x="100" y="114" fill="#f8f8f2" font-size="11" text-anchor="middle">Panel Yerleşimleri</text>
+
+    <rect x="20" y="135" width="160" height="30" rx="6" fill="#14161d" stroke="#6272a4" stroke-width="1"/>
+    <text x="100" y="154" fill="#f8f8f2" font-size="11" text-anchor="middle">Odak &amp; Seçim Alanları</text>
+  </g>
+
+  <!-- Database (Session DB) -->
+  <g transform="translate(540, 160)" filter="url(#shadow)" class="glow-node">
+    <rect width="200" height="180" rx="12" fill="#21222c" stroke="#ffb86c" stroke-width="2"/>
+    <text x="100" y="30" class="text-style" font-size="13" font-weight="600" text-anchor="middle">SQLite Session DB</text>
+    
+    <rect x="20" y="55" width="160" height="105" rx="6" fill="#14161d" stroke="#6272a4" stroke-width="1"/>
+    <text x="100" y="85" fill="#ffb86c" font-size="11" font-weight="600" text-anchor="middle">Kalıcı Tablolar</text>
+    <text x="100" y="110" fill="#6272a4" font-size="9" text-anchor="middle">workspaces_id | pane_id</text>
+    <text x="100" y="130" fill="#6272a4" font-size="9" text-anchor="middle">serialized_item_kind</text>
+  </g>
+
+  <!-- ARA SÜREÇLER VE AKIŞ HATLARI -->
+
+  <!-- Serialize Flow -->
+  <path d="M 260 210 L 540 210" fill="none" stroke="#bd93f9" stroke-width="2"/>
+  <path d="M 260 210 L 540 210" fill="none" stroke="#bd93f9" stroke-dasharray="6,8" stroke-width="3" class="flow-path"/>
+  <polygon points="540,210 530,205 530,215" fill="#bd93f9"/>
+  <text x="400" y="195" fill="#bd93f9" font-size="10" font-weight="600" text-anchor="middle">serialize()</text>
+  <text x="400" y="180" fill="#6272a4" font-size="9" text-anchor="middle">Kapanırken veya Değişiklikte</text>
+
+  <!-- Deserialize Flow -->
+  <path d="M 540 290 L 260 290" fill="none" stroke="#8be9fd" stroke-width="2"/>
+  <path d="M 540 290 L 260 290" fill="none" stroke="#8be9fd" stroke-dasharray="6,8" stroke-width="3" class="flow-path-reverse"/>
+  <polygon points="260,290 270,285 270,295" fill="#8be9fd"/>
+  <text x="400" y="315" fill="#8be9fd" font-size="10" font-weight="600" text-anchor="middle">deserialize()</text>
+  <text x="400" y="330" fill="#6272a4" font-size="9" text-anchor="middle">Oturum Yeniden Açılırken</text>
+
+</svg>

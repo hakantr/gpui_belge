@@ -38,6 +38,10 @@ use ui::{Callout, ContextMenu, DropdownMenu, List, ListItem, Tooltip};
 
 ## Render modeli
 
+Durumsuz (stateless) çalışan `RenderOnce` yapısı ile durumlu (stateful) `Render` ve `cx.notify()` döngüsü arasındaki mimari ve veri akış farkları aşağıdaki hareketli şemada gösterilmektedir:
+
+![RenderOnce vs Render Akışı](assets/render-once-vs-render.svg)
+
 Zed UI bileşenlerinin büyük bir kısmı `RenderOnce` trait'ini implement eder. Bu model, kendi içinde durum (state) barındırmayan ve builder zinciriyle kurulan küçük UI parçaları için son derece uygundur. Bileşen render sırasında üretilerek ekrana çizilir ve görevini tamamlar; bir sonraki render aşamasına saklanan bağımsız bir durumu bulunmaz:
 
 ```rust
@@ -176,6 +180,10 @@ Spacing macro yüzeyi:
 Sabit ve değişmeyen bir aralık gerektiğinde `gap_0p5`, `gap_1`, `gap_1p5`, `gap_2` gibi GPUI yardımcıları yeterli olur. Bu sabitler aynı zamanda `h_group*` ve `v_group*` yardımcılarının arka planında da işlev görür.
 
 ## Yükseklik / elevation token'ları (`ElevationIndex`)
+
+GPUI ve Zed UI üzerindeki dikey katmanlaşma yapısı (`ElevationIndex`) ve bu katmanların üst üste binme ilişkisi, gölge ve kenarlık derinlikleriyle birlikte aşağıdaki 3D şemada gösterilmiştir:
+
+![ElevationIndex Katmanları](assets/elevation-katmanlari.svg)
 
 `ui` crate'i içindeki `ElevationIndex`, bir yüzeyin görsel dikey eksendeki ("z-axis") konumunu ifade eder. Doğru elevation seviyesi seçildiğinde gölge (shadow), arka plan (background) ve kenarlık (border) kombinasyonu birlikte uygulanır. Böylece her popover, modal veya panel için aynı görsel ayrıntıların manuel olarak ayarlanmasına gerek kalmaz.
 

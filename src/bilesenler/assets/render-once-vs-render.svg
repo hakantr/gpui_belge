@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .col-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 16px; fill: #f1f5f9; text-anchor: middle; }
+      
+      .box { fill: #1e293b; stroke: #334155; stroke-width: 1.5; rx: 8px; }
+      .box-active { stroke: #38bdf8; }
+      .box-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 13px; fill: #f1f5f9; text-anchor: middle; }
+      .box-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #94a3b8; text-anchor: middle; }
+      
+      .arrow { stroke: #475569; stroke-width: 1.5; fill: none; }
+      .arrow-active { stroke: #38bdf8; stroke-dasharray: 5 3; animation: dash 2s linear infinite; }
+      .arrow-head { fill: #38bdf8; }
+
+      @keyframes dash {
+        to { stroke-dashoffset: -20; }
+      }
+
+      /* Particles */
+      .particle { fill: #38bdf8; filter: drop-shadow(0 0 4px #38bdf8); }
+      .p-once { animation: move-once 4s infinite linear; }
+      .p-render { animation: move-render 5s infinite linear; }
+
+      @keyframes move-once {
+        0% { cx: 220; cy: 155; opacity: 1; }
+        35% { cx: 220; cy: 235; }
+        70% { cx: 220; cy: 315; }
+        100% { cx: 220; cy: 380; opacity: 0; }
+      }
+
+      @keyframes move-render {
+        0% { cx: 580; cy: 155; }
+        25% { cx: 580; cy: 235; }
+        50% { cx: 580; cy: 315; }
+        75% { cx: 680; cy: 235; }
+        100% { cx: 580; cy: 155; }
+      }
+    </style>
+  </defs>
+
+  <rect width="800" height="450" class="bg" />
+  <text x="400" y="45" class="title">RenderOnce vs Render Akış Modeli</text>
+  <text x="400" y="70" class="sub">Durumsuz bileşen zinciri ile durumlu view/entity döngüsü karşılaştırması</text>
+
+  <!-- Kolon Çizgisi -->
+  <line x1="400" y1="100" x2="400" y2="400" stroke="#1e293b" stroke-dasharray="5 5" />
+
+  <!-- ================= LEFT: RenderOnce ================= -->
+  <text x="220" y="110" class="col-title">RenderOnce (Stateless)</text>
+
+  <!-- Step 1: Element Instantiation -->
+  <rect x="130" y="130" width="180" height="50" class="box" />
+  <text x="220" y="155" class="box-text">Bileşen Kurulumu</text>
+  <text x="220" y="170" class="box-desc">Builder zinciri ile parametre alımı</text>
+
+  <!-- Step 2: render() -->
+  <rect x="130" y="210" width="180" height="50" class="box" />
+  <text x="220" y="235" class="box-text">render() Çağrısı</text>
+  <text x="220" y="250" class="box-desc">Sadece anlık IntoElement döner</text>
+
+  <!-- Step 3: Draw/GPU -->
+  <rect x="130" y="290" width="180" height="50" class="box" />
+  <text x="220" y="315" class="box-text">GPU Çizimi</text>
+  <text x="220" y="330" class="box-desc">Ekrana yansıtılır ve sonlanır</text>
+
+  <!-- Left Arrows -->
+  <path d="M 220 180 L 220 205" class="arrow arrow-active" />
+  <path d="M 220 260 L 220 285" class="arrow arrow-active" />
+  <path d="M 220 340 L 220 380" class="arrow arrow-active" />
+  
+  <circle r="4" class="particle p-once" />
+
+  <!-- ================= RIGHT: Render ================= -->
+  <text x="580" y="110" class="col-title">Render (Stateful View/Entity)</text>
+
+  <!-- Step 1: Entity/State -->
+  <rect x="490" y="130" width="180" height="50" class="box box-active" />
+  <text x="580" y="155" class="box-text">View / Entity Durumu</text>
+  <text x="580" y="170" class="box-desc">Kalıcı durum verileri saklanır</text>
+
+  <!-- Step 2: render() -->
+  <rect x="490" y="210" width="180" height="50" class="box" />
+  <text x="580" y="235" class="box-text">render() Çağrısı</text>
+  <text x="580" y="250" class="box-desc">Güncel durum ile element türetilir</text>
+
+  <!-- Step 3: Draw/GPU -->
+  <rect x="490" y="290" width="180" height="50" class="box" />
+  <text x="580" y="315" class="box-text">GPU Çizimi</text>
+  <text x="580" y="330" class="box-desc">Ekrana yansıtılır</text>
+
+  <!-- Step 4: Event & cx.notify() -->
+  <rect x="680" y="210" width="100" height="50" class="box" />
+  <text x="730" y="235" class="box-text">cx.notify()</text>
+  <text x="730" y="250" class="box-desc">Event / Listener</text>
+
+  <!-- Right Loop Arrows -->
+  <path d="M 580 180 L 580 205" class="arrow arrow-active" />
+  <path d="M 580 260 L 580 285" class="arrow arrow-active" />
+  <path d="M 580 340 L 730 340 L 730 260" class="arrow arrow-active" />
+  <path d="M 730 210 L 730 155 L 675 155" class="arrow arrow-active" />
+  
+  <polygon points="670,155 675,152 675,158" fill="#38bdf8" />
+  <circle r="4" class="particle p-render" />
+
+</svg>

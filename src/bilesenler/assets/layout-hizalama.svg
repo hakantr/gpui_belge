@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .container-box { fill: #1e293b; stroke: #334155; stroke-width: 2; stroke-dasharray: 4 4; rx: 8px; }
+      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      .label-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 600; font-size: 15px; fill: #38bdf8; }
+      .label-state { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 16px; fill: #34d399; text-anchor: middle; }
+      
+      .box { rx: 6px; }
+      .box-1 { fill: url(#grad-blue); }
+      .box-2 { fill: url(#grad-purple); }
+      .box-3 { fill: url(#grad-pink); }
+      
+      .box-text { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 16px; fill: #ffffff; text-anchor: middle; dominant-baseline: middle; }
+
+      /* Animasyon Tanımları */
+      @keyframes animate-state {
+        0%, 20% { content: "h_flex() .justify_start()"; }
+        25%, 45% { content: "h_flex() .justify_between()"; }
+        50%, 70% { content: "h_flex() .justify_center()"; }
+        75%, 95% { content: "v_flex() .items_center()"; }
+      }
+
+      /* CSS Content animasyonunu SVG text içinde yapabilmek için görünürlük (opacity) kontrolü kullanacağız */
+      .state-txt { opacity: 0; animation: fade-text 16s infinite; }
+      .state-1 { animation-delay: 0s; }
+      .state-2 { animation-delay: 4s; }
+      .state-3 { animation-delay: 8s; }
+      .state-4 { animation-delay: 12s; }
+
+      @keyframes fade-text {
+        0%, 20% { opacity: 1; }
+        23%, 100% { opacity: 0; }
+      }
+
+      /* Kutu Hareketleri */
+      @keyframes move-box-1 {
+        /* State 1: justify_start (x: 50, y: 175) */
+        0%, 20% { transform: translate(0px, 0px); }
+        /* State 2: justify_between (x: 50, y: 175) */
+        25%, 45% { transform: translate(0px, 0px); }
+        /* State 3: justify_center (x: 230, y: 175) */
+        50%, 70% { transform: translate(180px, 0px); }
+        /* State 4: v_flex items_center (x: 275, y: 80) */
+        75%, 95% { transform: translate(225px, -95px); }
+      }
+
+      @keyframes move-box-2 {
+        /* State 1: justify_start (x: 120, y: 175) */
+        0%, 20% { transform: translate(0px, 0px); }
+        /* State 2: justify_between (x: 275, y: 175) */
+        25%, 45% { transform: translate(155px, 0px); }
+        /* State 3: justify_center (x: 300, y: 175) */
+        50%, 70% { transform: translate(180px, 0px); }
+        /* State 4: v_flex items_center (x: 275, y: 175) */
+        75%, 95% { transform: translate(155px, 0px); }
+      }
+
+      @keyframes move-box-3 {
+        /* State 1: justify_start (x: 190, y: 175) */
+        0%, 20% { transform: translate(0px, 0px); }
+        /* State 2: justify_between (x: 500, y: 175) */
+        25%, 45% { transform: translate(310px, 0px); }
+        /* State 3: justify_center (x: 370, y: 175) */
+        50%, 70% { transform: translate(180px, 0px); }
+        /* State 4: v_flex items_center (x: 275, y: 270) */
+        75%, 95% { transform: translate(85px, 95px); }
+      }
+
+      .b1 { animation: move-box-1 16s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+      .b2 { animation: move-box-2 16s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+      .b3 { animation: move-box-3 16s infinite cubic-bezier(0.4, 0, 0.2, 1); }
+    </style>
+
+    <linearGradient id="grad-blue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#1d4ed8" />
+    </linearGradient>
+    <linearGradient id="grad-purple" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a78bfa" />
+      <stop offset="100%" stop-color="#6d28d9" />
+    </linearGradient>
+    <linearGradient id="grad-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f472b6" />
+      <stop offset="100%" stop-color="#be185d" />
+    </linearGradient>
+  </defs>
+
+  <!-- Arka Plan -->
+  <rect width="800" height="450" class="bg" />
+
+  <!-- Başlıklar -->
+  <text x="400" y="45" class="label-title">GPUI &amp; Zed UI Layout Hizalaması</text>
+  <text x="400" y="70" class="label-sub">Flexbox düzenindeki öğelerin dinamik konumlandırma animasyonu</text>
+
+  <!-- Kapsayıcı Kutu (Dış Sınır) -->
+  <!-- Genişlik: 600, Yükseklik: 280, Merkezleme: x: 100, y: 100 -->
+  <rect x="100" y="100" width="600" height="280" class="container-box" />
+
+  <!-- Dinamik Kod/Metin Gösterimi -->
+  <g transform="translate(400, 415)">
+    <!-- Farklı zamanlarda görünen metinler -->
+    <text class="state-txt state-1 label-state">h_flex().justify_start()</text>
+    <text class="state-txt state-2 label-state">h_flex().justify_between()</text>
+    <text class="state-txt state-3 label-state">h_flex().justify_center()</text>
+    <text class="state-txt state-4 label-state">v_flex().items_center()</text>
+  </g>
+
+  <!-- Hareketli Elemanlar -->
+  <!-- Başlangıç konumları: x: 130, 200, 270 (justify_start), y: 215 (items_center, container_y: 100, height: 280, box_h: 50 -> (280-50)/2 + 100 = 215) -->
+  <g class="b1">
+    <rect x="130" y="215" width="50" height="50" class="box box-1" />
+    <text x="155" y="240" class="box-text">A</text>
+  </g>
+
+  <g class="b2">
+    <rect x="200" y="215" width="50" height="50" class="box box-2" />
+    <text x="225" y="240" class="box-text">B</text>
+  </g>
+
+  <g class="b3">
+    <rect x="270" y="215" width="50" height="50" class="box box-3" />
+    <text x="295" y="240" class="box-text">C</text>
+  </g>
+
+</svg>

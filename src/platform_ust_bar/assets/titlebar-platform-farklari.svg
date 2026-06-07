@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Platform Container Styles */
+      .window-rect { fill: #1e293b; stroke: #334155; stroke-width: 2; rx: 8px; }
+      .titlebar { fill: #0f172a; stroke: #1e293b; stroke-width: 1.5; }
+      
+      .text-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 14px; fill: #f8fafc; }
+      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #94a3b8; }
+      
+      /* Traffic Lights (macOS) */
+      .tl-red { fill: #ff5f56; }
+      .tl-yellow { fill: #ffbd2e; }
+      .tl-green { fill: #27c93f; }
+      
+      /* Window Buttons (Windows) */
+      .win-btn { fill: none; stroke: #94a3b8; stroke-width: 1.5; }
+      .win-close { stroke: #ff5f56; }
+
+      /* Guides */
+      .guide-line { stroke: #fb7185; stroke-width: 1.2; stroke-dasharray: 4 3; }
+      .guide-text { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #fb7185; }
+
+      /* Animations: Platform toggle */
+      @keyframes anim-mac {
+        0%, 45%, 100% { opacity: 1; transform: translateY(0); }
+        50%, 95% { opacity: 0.15; transform: translateY(5px); }
+      }
+      @keyframes anim-win {
+        0%, 45%, 100% { opacity: 0.15; transform: translateY(5px); }
+        50%, 95% { opacity: 1; transform: translateY(0); }
+      }
+
+      .mac-view { animation: anim-mac 8s infinite ease-in-out; transform-origin: center; }
+      .win-view { animation: anim-win 8s infinite ease-in-out; transform-origin: center; }
+
+      /* Status label animation */
+      @keyframes anim-label-1 { 0%, 45%, 100% { opacity: 1; } 50%, 95% { opacity: 0; } }
+      @keyframes anim-label-2 { 0%, 45%, 100% { opacity: 0; } 50%, 95% { opacity: 1; } }
+      .lbl-s1 { animation: anim-label-1 8s infinite linear; }
+      .lbl-s2 { animation: anim-label-2 8s infinite linear; }
+      .state-labels text { opacity: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; fill: #38bdf8; text-anchor: middle; }
+    </style>
+  </defs>
+
+  <rect width="800" height="450" class="bg" />
+  <text x="400" y="45" class="title">Platform Titlebar ve Pencere Kontrolleri</text>
+  <text x="400" y="70" class="sub">macOS (Traffic Lights) ile Windows/Linux pencere eylem butonları yerleşim farkları</text>
+
+  <!-- ================= MAC APP VIEW ================= -->
+  <g class="mac-view" transform="translate(0, 0)">
+    <!-- Pencere Kapsayıcısı (x: 100, y: 120, w: 600, h: 110) -->
+    <rect x="100" y="110" width="600" height="110" class="window-rect" />
+    <rect x="100" y="110" width="600" height="34" class="titlebar" />
+    
+    <!-- macOS Traffic Lights (Sol Kenarda) -->
+    <!-- Boşluk: TRAFFIC_LIGHT_PADDING (78px) -->
+    <circle cx="120" cy="127" r="6" class="tl-red" />
+    <circle cx="138" cy="127" r="6" class="tl-yellow" />
+    <circle cx="156" cy="127" r="6" class="tl-green" />
+    
+    <text x="210" y="132" class="text-title" font-size="12">Sol Sekme / Başlık Alanı</text>
+    <text x="400" y="180" class="text-desc" text-anchor="middle">macOS yerleşiminde sol tarafta traffic lights için padding ayrılır.</text>
+
+    <!-- TRAFFIC_LIGHT_PADDING Kılavuz Çizgisi -->
+    <line x1="100" y1="147" x2="178" y2="147" class="guide-line" />
+    <line x1="178" y1="142" x2="178" y2="152" stroke="#fb7185" stroke-width="1.5" />
+    <text x="139" y="162" class="guide-text" text-anchor="middle">TRAFFIC_LIGHT_PADDING (78px)</text>
+  </g>
+
+  <!-- ================= WINDOWS APP VIEW ================= -->
+  <g class="win-view" transform="translate(0, 0)">
+    <!-- Pencere Kapsayıcısı (x: 100, y: 240, w: 600, h: 110) -->
+    <rect x="100" y="240" width="600" height="110" class="window-rect" />
+    <rect x="100" y="240" width="600" height="34" class="titlebar" />
+
+    <!-- Windows Eylem Butonları (Sağ Kenarda) -->
+    <!-- Minimize -->
+    <line x1="630" y1="257" x2="642" y2="257" class="win-btn" />
+    <!-- Maximize -->
+    <rect x="652" y="251" width="12" height="12" class="win-btn" />
+    <!-- Close -->
+    <line x1="676" y1="251" x2="688" y2="263" class="win-btn win-close" />
+    <line x1="688" y1="251" x2="676" y2="263" class="win-btn win-close" />
+
+    <text x="120" y="262" class="text-title" font-size="12">Proje İsmi / Başlık</text>
+    <text x="400" y="310" class="text-desc" text-anchor="middle">Windows/Linux yerleşiminde butonlar sağdadır ve sol tarafta traffic lights boşluğu bırakılmaz.</text>
+  </g>
+
+  <!-- Dinamik Platform Etiketi -->
+  <g class="state-labels" transform="translate(400, 400)">
+    <text class="lbl-s1">Etkin Platform Görünümü: macOS (Traffic Lights Solda)</text>
+    <text class="lbl-s2">Etkin Platform Görünümü: Windows / Linux (Eylem Butonları Sağda)</text>
+  </g>
+
+</svg>

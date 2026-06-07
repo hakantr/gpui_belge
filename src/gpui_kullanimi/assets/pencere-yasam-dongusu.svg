@@ -1,82 +1,120 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 620">
-  <title>GPUI Pencere Yaşam Döngüsü</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
   <defs>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155" />
-    </marker>
-    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M 0 0 L 10 5 L 0 10 z" fill="#be123c" />
-    </marker>
+    <!-- Tasarım Paleti ve Gölgeler -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#14161d"/>
+      <stop offset="100%" stop-color="#1e2230"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffb86c"/>
+      <stop offset="100%" stop-color="#ff5555"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+
+    <!-- CSS Animasyonları -->
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
-      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); }
-      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+      .pulse-slow {
+        animation: pulseSlow 3s infinite;
+      }
+      .flow-path {
+        stroke-dasharray: 6, 8;
+        animation: flowDash 25s linear infinite;
+      }
+      .state-glow {
+        animation: stateGlow 3s ease-in-out infinite;
+      }
+      .text-style {
+        font-family: 'Outfit', 'Inter', sans-serif;
+        fill: #f8f8f2;
+      }
+
+      @keyframes pulseSlow {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 1; }
+      }
+      @keyframes flowDash {
+        to { stroke-dashoffset: -1000; }
+      }
+      @keyframes stateGlow {
+        0%, 100% { filter: drop-shadow(0 0 2px rgba(255, 184, 108, 0.2)); }
+        50% { filter: drop-shadow(0 0 8px rgba(255, 184, 108, 0.6)); }
+      }
     </style>
-    
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="520" y="36" text-anchor="middle" class="title">GPUI Pencere Yaşam Döngüsü</text>
 
-  <text x="520" y="62" text-anchor="middle" class="subtitle">Açılıştan kapanışa pencere, kök view ve render döngüsü ilişkisi.</text>
-  <rect x="90" y="92" width="640" height="96" rx="8" class="card" />
-<rect x="90" y="92" width="640" height="30" rx="8" fill="#d97706" />
-<path d="M 90 114 H 730 V 122 H 90 Z" fill="#d97706" />
-<text x="104" y="112" class="cardTitle">1. cx.open_window(options, root_builder)</text>
-<text x="104" y="144" class="body">WindowOptions pencere sınırları, titlebar, focus, show ve kind bilgisini taşır.</text>
-<text x="104" y="161" class="body">request_decorations, set_background_appearance ve platform geri çağrıları hazırlanır.</text>
+  <!-- Arka Plan Kartı -->
+  <rect width="100%" height="100%" rx="16" fill="url(#bgGrad)" filter="url(#shadow)"/>
+  <rect width="99.5%" height="99.5%" x="0.25%" y="0.25%" rx="16" fill="none" stroke="url(#accentGrad)" stroke-width="1.5" opacity="0.3"/>
 
-  <path d="M 410 188 L 410 220" class="arrowSoft" />
-  <rect x="90" y="220" width="640" height="112" rx="8" class="card" />
-<rect x="90" y="220" width="640" height="30" rx="8" fill="#059669" />
-<path d="M 90 242 H 730 V 250 H 90 Z" fill="#059669" />
-<text x="104" y="240" class="cardTitle">2. Kök view oluşturulur</text>
-<text x="104" y="272" class="body">cx.new(|cx| KokGorunum::new(window, cx)) ile Entity&lt;V&gt; üretilir.</text>
-<text x="104" y="289" class="body">Kök view Render uygular; ilk element ağacı çizime girer.</text>
-<text x="104" y="306" class="body">Açma çağrısı WindowHandle&lt;V&gt; döndürür.</text>
+  <!-- Başlık -->
+  <text x="40" y="45" class="text-style" font-size="20" font-weight="700" letter-spacing="0.5">GPUI Pencere Yaşam Döngüsü</text>
+  <text x="40" y="68" fill="#6272a4" font-family="sans-serif" font-size="12">Pencere Durum Geçişleri ve Olay Kancaları</text>
 
-  <path d="M 410 332 L 410 364" class="arrowSoft" />
-  <rect x="90" y="364" width="640" height="116" rx="8" class="card" />
-<rect x="90" y="364" width="640" height="30" rx="8" fill="#7c3aed" />
-<path d="M 90 386 H 730 V 394 H 90 Z" fill="#7c3aed" />
-<text x="104" y="384" class="cardTitle">3. Etkileşim ve yeniden çizim döngüsü</text>
-<text x="104" y="416" class="body">Kullanıcı girdisi action veya event handler çalıştırır; state değişir.</text>
-<text x="104" y="433" class="body">cx.notify() Render::render çağrısına ve yeni element ağacına gider.</text>
-<text x="104" y="450" class="body">window.refresh, on_next_frame ve request_animation_frame döngüyü sürdürür.</text>
+  <!-- DURUM KUTULARI (STATES) -->
 
-  <path d="M 410 480 L 410 512" class="arrowSoft" />
-  <rect x="90" y="512" width="640" height="72" rx="8" class="card" />
-<rect x="90" y="512" width="640" height="30" rx="8" fill="#be123c" />
-<path d="M 90 534 H 730 V 542 H 90 Z" fill="#be123c" />
-<text x="104" y="532" class="cardTitle">4. Kapanış</text>
-<text x="104" y="564" class="body">window.remove_window() veya işletim sistemi kapanış isteği kök Entity'yi düşürür.</text>
-<text x="104" y="581" class="body">Subscription kayıtları drop ile otomatik temizlenir.</text>
+  <!-- 1. Başlatma / Açılış -->
+  <g transform="translate(60, 200)" filter="url(#shadow)">
+    <rect width="140" height="90" rx="10" fill="#21222c" stroke="#ffb86c" stroke-width="2"/>
+    <text x="70" y="35" class="text-style" font-size="13" font-weight="600" text-anchor="middle">1. Oluşturulma</text>
+    <rect x="15" y="52" width="110" height="20" rx="4" fill="#ffb86c" fill-opacity="0.15"/>
+    <text x="70" y="66" fill="#ffb86c" font-size="10" font-weight="600" text-anchor="middle">cx.open_window()</text>
+  </g>
 
-  <path d="M 730 418 C 860 418 860 448 732 448" class="arrowDash" />
-  <text x="850" y="407" text-anchor="middle" class="edge">render döngüsü</text>
-  <rect x="770" y="112" width="220" height="154" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.2" />
-<text x="786" y="136" text-anchor="start" class="small">WindowKind</text>
-<text x="786" y="153" text-anchor="start" class="small">Normal, PopUp, Floating,</text>
-<text x="786" y="170" text-anchor="start" class="small">Dialog, LayerShell</text>
-<text x="786" y="170" text-anchor="start" class="small"></text>
-<text x="786" y="187" text-anchor="start" class="small">WindowDecorations</text>
-<text x="786" y="204" text-anchor="start" class="small">Server veya Client</text>
-  <rect x="770" y="300" width="220" height="116" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.2" />
-<text x="786" y="324" text-anchor="start" class="small">Döngü tetikleyicileri</text>
-<text x="786" y="341" text-anchor="start" class="small">cx.notify()</text>
-<text x="786" y="358" text-anchor="start" class="small">window.refresh()</text>
-<text x="786" y="375" text-anchor="start" class="small">window.on_next_frame()</text>
+  <!-- 2. Aktif (Active / Focused) -->
+  <g transform="translate(290, 120)" filter="url(#shadow)" class="state-glow">
+    <rect width="160" height="100" rx="10" fill="#21222c" stroke="#50fa7b" stroke-width="2"/>
+    <text x="80" y="35" class="text-style" font-size="13" font-weight="600" text-anchor="middle">2. Aktif (Focused)</text>
+    <text x="80" y="55" fill="#6272a4" font-size="10" text-anchor="middle">Klavye &amp; Fare Odağı</text>
+    <rect x="15" y="68" width="130" height="20" rx="4" fill="#50fa7b" fill-opacity="0.15"/>
+    <text x="80" y="82" fill="#50fa7b" font-size="9" font-weight="600" text-anchor="middle">observe_window_activation</text>
+  </g>
+
+  <!-- 3. Pasif (Inactive / Unfocused) -->
+  <g transform="translate(290, 280)" filter="url(#shadow)">
+    <rect width="160" height="100" rx="10" fill="#21222c" stroke="#6272a4" stroke-width="2"/>
+    <text x="80" y="35" class="text-style" font-size="13" font-weight="600" text-anchor="middle">3. Pasif (Inactive)</text>
+    <text x="80" y="55" fill="#6272a4" font-size="10" text-anchor="middle">Arka Plana Alınma</text>
+    <rect x="15" y="68" width="130" height="20" rx="4" fill="#6272a4" fill-opacity="0.15"/>
+    <text x="80" y="82" fill="#6272a4" font-size="9" font-weight="600" text-anchor="middle">minimize_window()</text>
+  </g>
+
+  <!-- 4. Kapanış (Closed) -->
+  <g transform="translate(580, 200)" filter="url(#shadow)">
+    <rect width="140" height="90" rx="10" fill="#21222c" stroke="#ff5555" stroke-width="2"/>
+    <text x="70" y="35" class="text-style" font-size="13" font-weight="600" text-anchor="middle">4. Kapanma</text>
+    <rect x="15" y="52" width="110" height="20" rx="4" fill="#ff5555" fill-opacity="0.15"/>
+    <text x="70" y="66" fill="#ff5555" font-size="10" font-weight="600" text-anchor="middle">on_window_closed</text>
+  </g>
+
+  <!-- AKIŞ ÇİZGİLERİ VE OKLAR -->
+
+  <!-- Oluşturuldu -> Aktif -->
+  <path d="M 200 230 L 245 230 L 245 170 L 290 170" fill="none" stroke="#50fa7b" stroke-width="2"/>
+  <path d="M 200 230 L 245 230 L 245 170 L 290 170" fill="none" stroke="#50fa7b" stroke-dasharray="6,8" stroke-width="3" class="flow-path"/>
+  <polygon points="290,170 280,165 280,175" fill="#50fa7b"/>
+
+  <!-- Aktif <-> Pasif Geçişi -->
+  <path d="M 350 220 L 350 280" fill="none" stroke="#6272a4" stroke-width="1.5"/>
+  <polygon points="350,280 345,270 355,270" fill="#6272a4"/>
+  <path d="M 390 280 L 390 220" fill="none" stroke="#50fa7b" stroke-width="1.5"/>
+  <polygon points="390,220 385,230 395,230" fill="#50fa7b"/>
+  <text x="370" y="254" fill="#6272a4" font-size="9" text-anchor="middle">Focus</text>
+
+  <!-- Aktif -> Kapanma -->
+  <path d="M 450 170 L 525 170 L 525 230 L 580 230" fill="none" stroke="#ff5555" stroke-width="2"/>
+  <path d="M 450 170 L 525 170 L 525 230 L 580 230" fill="none" stroke="#ff5555" stroke-dasharray="6,8" stroke-width="3" class="flow-path"/>
+  <polygon points="580,230 570,225 570,235" fill="#ff5555"/>
+
+  <!-- Pasif -> Kapanma -->
+  <path d="M 450 330 L 525 330 L 525 260 L 580 260" fill="none" stroke="#ff5555" stroke-width="2"/>
+  <path d="M 450 330 L 525 330 L 525 260 L 580 260" fill="none" stroke="#ff5555" stroke-dasharray="6,8" stroke-width="3" class="flow-path"/>
+  <polygon points="580,260 570,255 570,265" fill="#ff5555"/>
+
+  <!-- Kapatma Onayı Sorgusu (on_window_should_close) -->
+  <path d="M 525 210 Q 525 100 370 120" fill="none" stroke="#ff5555" stroke-width="1.5" stroke-dasharray="4,4"/>
+  <polygon points="370,120 380,125 378,115" fill="#ff5555"/>
+  <text x="490" y="110" fill="#ff5555" font-size="9" font-weight="600" text-anchor="middle">should_close?</text>
 
 </svg>

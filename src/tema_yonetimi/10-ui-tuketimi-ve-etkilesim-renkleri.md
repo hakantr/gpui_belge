@@ -316,7 +316,11 @@ Editor completion menüsündeki `completion_menu_item_kind = "symbol"` ayarı da
 
 ## 42. Hover / active / disabled / selected / ghost desenleri
 
-GPUI'nin fluent API'si etkileşim durumları için `.hover()`, `.active()` ve `Interactivity` katmanını sağlar. Tema tarafında her durum için **özel alanlar** vardır. Bu alanların nasıl eşleneceği sözleşmenin parçasıdır.
+GPUI'nin fluent API'si etkileşim durumları için `.hover()`, `.active()` ve `Interactivity` katmanını sağlar. Tema tarafında her durum için **özel alanlar** vardır. Bu alanların etkileşim sırasında nasıl değiştiğini ve görsel farklılıklar oluşturduğunu aşağıdaki hareketli şemada görebiliriz:
+
+![Tema Etkileşim Renk Akışı](assets/tema-renk-akis-gosterimi.svg)
+
+Tema tarafında her durum için **özel alanlar** vardır. Bu alanların nasıl eşleneceği sözleşmenin parçasıdır.
 
 ### Etkileşim alanları eşlemesi
 

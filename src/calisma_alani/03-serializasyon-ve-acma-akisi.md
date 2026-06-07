@@ -6,6 +6,10 @@
 
 ## SerializableItem ve Geri Yükleme (Restore)
 
+Çalışma alanı (Workspace) oturumunun kalıcılığı, açık panellerin ve editör sekmelerinin SQLite veritabanına yazılması ve uygulamanın yeniden başlatılmasıyla geri yüklenmesi esasına dayanır. Aşağıdaki şemada, `SerializableItem` durumunun `serialize` ve `deserialize` kancaları aracılığıyla veritabanı ile olan etkileşim döngüsü özetlenmektedir:
+
+![Workspace Oturum Serileştirme ve Geri Yükleme](assets/workspace-state-serilestirme.svg)
+
 `SerializableItem` arayüzü, çalışma alanı kapanırken veya öğe (item) olayı geldiğinde öğe durumunu çalışma alanı veritabanına yazmak amacıyla kullanılır. Aynı veri daha sonra restore akışında geri yüklenir:
 
 ```rust

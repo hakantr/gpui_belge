@@ -35,6 +35,10 @@ Ortak trait'ler:
 
 Buton stilleri:
 
+Butonların farklı etkileşimler altındaki davranışsal durumları ve görsel değişimleri (opaklık, gölge ve boyut gibi) tutarlı bir tasarım diliyle yönetilir. Aşağıdaki durum matrisi şemasında, bir butonun normal, üzerine gelme (hover), tıklanma (active) ve pasiflik (disabled) durumlarındaki görsel geçiş özellikleri özetlenmektedir:
+
+![Buton Etkileşim Durum Matrisi](assets/buton-durum-matrisi.svg)
+
 - `ButtonStyle::Subtle`: varsayılan; çoğu sıradan toolbar ve satır eylemi için yeterlidir.
 - `ButtonStyle::Filled`: daha fazla vurgu isteyen birincil veya modal eylemler için.
 - `ButtonStyle::Tinted(TintColor::Accent | Error | Warning | Success)`: seçili veya semantik bir vurgu gerektiren durumlar için.

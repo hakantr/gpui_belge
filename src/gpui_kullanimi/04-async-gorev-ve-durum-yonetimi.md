@@ -72,6 +72,10 @@ cx.spawn(async move |cx| {
 
 ## Çalıştırıcı, Öncelik, Timeout ve Test Zamanı
 
+GPUI bünyesinde asenkron işlemlerin yönetimi ve iş parçacıkları arasındaki görev dağılımı, iki temel çalıştırıcı yapısına dayanır. Aşağıdaki şemada, ön plan iş parçacığı (`ForegroundExecutor`) ile arka plan iş parçacığı havuzu (`BackgroundExecutor`) arasındaki iş bölümü ve asenkron görevlerin (`spawn`/`update`) aktarım yolları gösterilmektedir:
+
+![GPUI Görev ve Yürütücü (Executor) Mimarisi](assets/executor-gorev-dagitimi.svg)
+
 GPUI bünyesinde görevlerin yürütülmesi iki temel çalıştırıcı arasında paylaştırılır. Ön plan çalıştırıcısı (foreground executor) doğrudan UI iş parçacığı üzerinde çalışırken; arka plan çalıştırıcısı (background executor) ise zamanlayıcı (`scheduler`) ve iş parçacığı havuzu (`thread pool`) vasıtasıyla işleri yürütür. Bu ayrım sadece performansı artırmakla kalmaz, aynı zamanda bir `await` noktasından sonra hangi bağlamların güvenle tutulabileceğini de belirler. Örneğin, ön plan tarafında `App` veya `Window` bağlamlarına güvenli dönüş noktaları sağlanmışken, arka plan tarafında bu tür doğrudan erişimler bulunmaz.
 
 **Temel tipler.** Yürütme sistemi aşağıdaki bileşenlerden meydana gelir:

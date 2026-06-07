@@ -6,6 +6,10 @@
 
 ![Ayar Akışı](assets/settings-akisi.svg)
 
+Uygulama ayarlarının yüklenmesi, diskteki değişikliklerin izlenmesi ve birleştirilerek (merge) bileşenlere duyurulması süreçleri `SettingsStore` aracılığıyla yürütülür. Aşağıdaki şemada, varsayılan, global ve yerel ayar dosyalarının hiyerarşik bir öncelikle birleştirilmesi ve `observe_global` kancası üzerinden kullanıcı arayüzü bileşenlerine yansıtılması akışı gösterilmektedir:
+
+![Ayarlar Yükleme ve Birleştirme Akışı](assets/ayarlar-yukleme-akisi.svg)
+
 Ayar güncelleme ve yükleme akışı şu sırayla işler:
 
 1. Kullanıcı `~/.config/zed/settings.json`, proje seviyesindeki `.zed/settings.json`, sunucu tarafındaki ayar dosyası veya bir EditorConfig dosyasına yeni ayarlar yazar.

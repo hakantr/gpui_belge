@@ -32,6 +32,10 @@ Hangi ihtiyaç için hangi API'nin seçileceğini ve ne zaman ham GPUI seviyesin
 
 ![Ham GPUI Primitive Karar Akışı](assets/ham-gpui-karar-akisi.svg)
 
+Çok büyük veri kümelerinde, listenin tamamını değil, yalnızca viewport (görünür alan) içinde kalan ve kaydırma (scroll) anında dinamik olarak değişen aralığı render etmek performans açısından kritiktir. Aşağıdaki hareketli şemada değişken yükseklikli `list` ve sabit yükseklikli `uniform_list` sanal liste çalışma mantığı görselleştirilmiştir:
+
+![Sanal Liste Mimarisi](assets/sanal-liste-mimarisi.svg)
+
 | İhtiyaç | Öncelikli API | Ham GPUI'ye inme sebebi |
 | :-- | :-- | :-- |
 | Standart satır, toolbar, ayar, menü, modal, tab, bildirim | `ui::*` bileşenleri | Tasarım token'ları, odak ve erişilebilirlik hazır gelir |

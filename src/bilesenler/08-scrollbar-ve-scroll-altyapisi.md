@@ -47,7 +47,11 @@ Scrollbar altyapı yüzeyi:
 | `ScrollbarPrepaintState` | Üst hitbox ve thumb prepaint bilgisini tutar; `Scrollbars` elementinin dahili hit test ve sürükleme hazırlık aşamalarında kullanılır. |
 | `on_new_scrollbars` | Yeni kurulan scrollbar durumlarını ayar değişikliklerine abone edip değişiklikte yeniden hesaplatan kurulum yardımcısıdır. |
 
-Davranış:
+## Davranış
+
+Scrollbar'ın boyutu ve konumu, viewport yüksekliği ile içerik yüksekliği arasındaki orana göre dinamik olarak hesaplanır. Aşağıdaki şemada kaydırma çubuğunun anatomisi, thumb ve track bileşenleri ile `ScrollHandle` offset ilişkisi görselleştirilmiştir:
+
+![Scrollbar Anatomisi](assets/scrollbar-anatomisi.svg)
 
 - `Scrollbars::new(ScrollAxes::Vertical)` varsayılan `ShowScrollbar::Auto` ayarıyla otomatik gizleme (autohide) şeklinde çalışır. Global ayar tipine bağlamak istendiğinde `Scrollbars::for_settings::<S>()` tercih edilir. `always_visible(...)` ayarı ise görünürlük tercihini yok sayarak scrollbar'ı her zaman görünür kılar.
 - `tracked_scroll_handle(&handle)` ile harici bir `ScrollableHandle` (örneğin bir `ScrollHandle` veya `UniformListScrollHandle`) bağlanır; scrollbar bu handle üzerinden okuma ve yazma işlemlerini yürütür.

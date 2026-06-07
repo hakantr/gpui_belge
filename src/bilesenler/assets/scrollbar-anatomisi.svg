@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <style>
+      .bg { fill: #0f172a; rx: 12px; }
+      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #f8fafc; text-anchor: middle; }
+      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #94a3b8; text-anchor: middle; }
+      
+      /* Viewport and Content Mock */
+      .viewport-border { fill: none; stroke: #334155; stroke-width: 2; rx: 8px; }
+      .content-bg { fill: #1e293b; rx: 6px; }
+      .text-block { fill: #475569; rx: 4px; }
+      .text-block-highlight { fill: #38bdf8; rx: 4px; }
+
+      /* Labels */
+      .lbl { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #94a3b8; }
+      .lbl-bold { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 13px; fill: #f1f5f9; }
+      .lbl-formula { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 14px; fill: #10b981; }
+
+      /* Guide Lines */
+      .guide { stroke: #fb7185; stroke-width: 1.2; stroke-dasharray: 4 3; }
+      .guide-lbl { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #fb7185; }
+
+      /* Animation Sync: Thumb down -> Content up */
+      @keyframes anim-thumb {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(120px); }
+      }
+      @keyframes anim-content {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-180px); }
+      }
+
+      .animated-thumb { animation: anim-thumb 6s infinite ease-in-out; }
+      .animated-content { animation: anim-content 6s infinite ease-in-out; }
+    </style>
+  </defs>
+
+  <rect width="800" height="450" class="bg" />
+  <text x="400" y="45" class="title">Scrollbar &amp; ScrollHandle Anatomisi</text>
+  <text x="400" y="70" class="sub">Viewport, içerik yüksekliği ve scrollbar thumb konumunun matematiksel eşleşmesi</text>
+
+  <!-- ================= LEFT: Viewport & Content ================= -->
+  <!-- Viewport: x: 100, y: 120, w: 250, h: 220 -->
+  <g transform="translate(100, 120)">
+    <text x="0" y="-15" class="lbl-bold">Viewport (Görünür Pencere)</text>
+    
+    <!-- Mask for scrolling content -->
+    <mask id="content-mask">
+      <rect x="0" y="0" width="250" height="220" fill="white" rx="6" />
+    </mask>
+
+    <g mask="url(#content-mask)">
+      <!-- Toplam İçerik Yüksekliği (Content Height: 400px) -->
+      <g class="animated-content">
+        <!-- Zemin -->
+        <rect x="0" y="0" width="250" height="400" class="content-bg" />
+        
+        <!-- İçerik Satır Blokları -->
+        <rect x="20" y="20" width="210" height="15" class="text-block" />
+        <rect x="20" y="50" width="170" height="15" class="text-block" />
+        <rect x="20" y="80" width="210" height="15" class="text-block-highlight" />
+        <rect x="20" y="110" width="130" height="15" class="text-block" />
+        <rect x="20" y="140" width="190" height="15" class="text-block" />
+        
+        <rect x="20" y="180" width="210" height="15" class="text-block" />
+        <rect x="20" y="210" width="150" height="15" class="text-block-highlight" />
+        <rect x="20" y="240" width="190" height="15" class="text-block" />
+        <rect x="20" y="270" width="120" height="15" class="text-block" />
+        
+        <rect x="20" y="310" width="200" height="15" class="text-block" />
+        <rect x="20" y="340" width="160" height="15" class="text-block" />
+        <rect x="20" y="370" width="190" height="15" class="text-block-highlight" />
+      </g>
+    </g>
+
+    <!-- Viewport Sınırı -->
+    <rect x="0" y="0" width="250" height="220" class="viewport-border" />
+  </g>
+
+  <!-- Kılavuz Çizgi: İçerik Yüksekliği (Content Height) -->
+  <line x1="75" y1="120" x2="75" y2="300" class="guide" />
+  <text x="65" y="210" class="guide-lbl" text-anchor="middle" transform="rotate(-90 65 210)">İçerik Yüksekliği (400px)</text>
+  <line x1="70" y1="120" x2="80" y2="120" stroke="#fb7185" stroke-width="1.5" />
+  <line x1="70" y1="300" x2="80" y2="300" stroke="#fb7185" stroke-width="1.5" />
+
+  <!-- ================= RIGHT: Scrollbar ================= -->
+  <!-- Scrollbar: x: 450, y: 120, w: 12, h: 220 -->
+  <g transform="translate(450, 120)">
+    <text x="0" y="-15" class="lbl-bold">Scrollbar Track (Ray)</text>
+    
+    <!-- Track -->
+    <rect width="12" height="220" fill="#1e293b" rx="6" stroke="#334155" />
+    
+    <!-- Thumb (Yükseklik: 220 * (220/400) = 121px) -->
+    <g class="animated-thumb">
+      <rect x="2" y="0" width="8" height="100" fill="#38bdf8" rx="4" />
+      <text x="25" y="55" class="lbl" fill="#38bdf8">Thumb (Kulp)</text>
+    </g>
+  </g>
+
+  <!-- ================= MATHEMATICAL MODEL ================= -->
+  <g transform="translate(450, 390)">
+    <text x="0" y="0" class="lbl-bold">Yerleşim Formülü:</text>
+    <text x="140" y="0" class="lbl-formula">Thumb H. / Track H. = Viewport H. / Content H.</text>
+  </g>
+
+</svg>

@@ -15,6 +15,10 @@ Hangi durumda hangi bileşenin tercih edileceğine karar verirken aşağıdaki a
 
 Menü ve popup bileşenleri kendi başlarına durum (state) saklamaz. Girdi işleyicileri view veya model durumunu günceller. Popup'ın açılıp kapanma davranışı ise ilgili menü, popover veya üst bileşen yaşam döngüsü tarafından yönetilir.
 
+Bileşenlerin açılış yönleri ve kenetlenme noktaları, `Anchor` koordinatları doğrultusunda belirlenir. Aşağıdaki şemada, tetikleyici bir elemana göre popup ve tooltip bileşenlerinin nasıl konumlandırıldığı ve kenetlendiği görselleştirilmiştir:
+
+![Menu ve Popup Konumlandırma](assets/menu-popup-konumlandirma.svg)
+
 ## DropdownMenu
 
 Kaynak:
