@@ -102,7 +102,7 @@ Burada `canvas` imzası `prepaint: FnOnce(Bounds<Pixels>, &mut Window, &mut App)
 
 ## Olay Tipleri ve PlatformInput Modeli
 
-Element listener'ları çoğu zaman olay tipini kendisi seçer; yine de özel element, test olayı veya platform input çevirimi yazarken GPUI olay ailesini bilmen faydalıdır.
+Element listener'ları çoğu zaman olay tipini kendisi seçer; yine de özel element, test olayı veya platform input çevirimi yazarken GPUI olay ailesini bilmek faydalıdır.
 
 **Trait sınıfları.** `InputEvent`, `KeyEvent`, `MouseEvent` ve `GestureEvent` olayların ortak davranışlarını ayırır. Klavye olayları `to_platform_input()` ile `PlatformInput` değerine dönüşebilir; fare ve gesture olayları da platformdan gelen ham girdiyi GPUI dispatch ağacına taşıyan aynı modelin parçasıdır. Uygulama kodunda bu trait'leri doğrudan implement etmek yerine `.on_key_down(...)`, `.on_mouse_down(...)`, `.on_scroll_wheel(...)` gibi element metotlarının kullanılması gerekir.
 
@@ -253,7 +253,7 @@ Yakalama aktifken ilgili hitbox üzerinde durulmuş (hovered) kabul edilir. Yeni
 
 **Dikkat Noktaları.** Hitbox ve imleç işlemlerinde dikkat edilmesi gereken noktalar:
 
-- `Hitbox::is_hovered`, klavye girdi kipi sırasında `false` dönebilir; scroll dinleyicisi yazarken `should_handle_scroll`'u tercih etmen önerilir.
+- `Hitbox::is_hovered`, klavye girdi kipi sırasında `false` dönebilir; scroll dinleyicisi yazarken `should_handle_scroll`'un tercih edilmesi önerilir.
 - Üst katman elementleri `.occlude()` kullanmazsa arkadaki butonlar hover ve tıklama almaya devam edebilir.
 - İşaretçi yakalama serbest bırakılmadığında sonraki fare hareketlerinde yanlış hitbox üstte kalabilir.
 
@@ -424,7 +424,7 @@ let islendi_mi = window.dispatch_keystroke(tus_vurusu, cx);
 
 - `KeybindingKeystroke::new_with_mapper(inner, use_key_equivalents, keyboard_mapper)` — platform klavye eşleyicisi üzerinden görsel `key` ve `modifier` üretir. `from_keystroke(keystroke)`, platform eşlemesi yapmadan sarar. Windows'ta `new(inner, display_modifiers, display_key)` yapıcısı da vardır; macOS ve Linux derlemelerinde bu yapıcı bulunmaz.
 - `inner()`, `modifiers()`, `key()` okuyucuları (`getter`), görsel ile gerçek keystroke ayrımını saklar. Windows'ta `modifiers()` ve `key()` görsel değeri döndürebilir; gerçek GPUI girdisi için `inner()` değeri okunur.
-- `set_modifiers(...)`, `set_key(...)`, `remove_key_char()` ve `unparse()` metotlarını, kısayol düzenleyici veya normalize edici akışında kullanabilirsin. `remove_key_char()` yalnızca `inner.key_char = None` yapar; `key` alanına dokunmaz.
+- `set_modifiers(...)`, `set_key(...)`, `remove_key_char()` ve `unparse()` metotları, kısayol düzenleyici veya normalize edici akışında kullanılabilir. `remove_key_char()` yalnızca `inner.key_char = None` yapar; `key` alanına dokunmaz.
 
 **Kısayol sorguları.** Kullanıcıya gösterilecek kısayol metni ve aktif girdi zinciri için `window` üzerinde yardımcılar mevcuttur:
 

@@ -64,7 +64,7 @@ Seçili görünümün nasıl ifade edileceği (`Tinted` mi, `selected_style` mı
 | Buton seçili olmasa bile semantik bir renk taşıyor (örn. delete / approve) | `.style(ButtonStyle::Tinted(TintColor::...))` | Tinted, normal stilin yerine geçer; toggle olmadan da renk kalıcı kalır. |
 | Buton normalde `Subtle` veya `Filled`; seçildiğinde vurgulu görünmeli | `.toggle_state(true).selected_style(ButtonStyle::Tinted(TintColor::Accent))` | `selected_style` yalnızca `toggle_state` true iken devreye girer; seçim kalktığında eski stile döner. |
 | Seçili durumda da `Subtle` görünmeli ama icon/label rengi değişsin | `.toggle_state(true).selected_label_color(Color::Accent)` veya `IconButton::selected_icon_color(...)` | Buton arka planı korunur, yalnızca içerik rengi değişir. |
-| Seçili durumda farklı bir ikon görünmeli | `IconButton::selected_icon(IconName::...)` | Toggle iken icon swap'i `selected_style` ile kombine edebilirsin. |
+| Seçili durumda farklı bir ikon görünmeli | `IconButton::selected_icon(IconName::...)` | Toggle iken icon swap'i `selected_style` ile kombine edilebilir. |
 
 `SelectableButton` trait'i `Button`, `IconButton` ve `ButtonLike` için `selected_style(ButtonStyle)` yüzeyini ortak bir şekilde sunar; aynı görsel kural birden fazla buton tipinde uygulanacaksa bu yardımcı metot tek bir noktadan kullanılabilir.
 
@@ -86,12 +86,12 @@ Buton ailesindeki küçük taşıyıcı ve trait yüzeyleri şu tabloda toplanı
 | `ToggleButtonWithIcon` | `new`, `selected`, `tooltip` | Label + icon toggle button girdisidir. |
 | `ToggleButtonGroupStyle` | `Transparent`, `Filled`, `Outlined` | Toggle group yüzey stilini seçer. |
 | `ToggleButtonGroupSize` | `Default`, `Medium`, `Large`, `Custom(Rems)` | Toggle group ölçüsünü seçer. |
-| `private::ToggleButtonStyle` | private marker trait | `ToggleButtonSimple` ve `ToggleButtonWithIcon` dışındaki tiplerin `ButtonBuilder` olmasını sınırlar; crate dışından import edemezsin. |
+| `private::ToggleButtonStyle` | private marker trait | `ToggleButtonSimple` ve `ToggleButtonWithIcon` dışındaki tiplerin `ButtonBuilder` olmasını sınırlar; crate dışından import edilemez. |
 
 Dikkat edilmesi gereken noktalar:
 
 - `ButtonCommon::tooltip(...)` metodu, `Tooltip::text(...)` gibi `Fn(&mut Window, &mut App) -> AnyView` döndüren yardımcılarla birlikte kullanılır.
-- `ButtonLike`, render sırasında click işleyicisi içinde `cx.stop_propagation()` çağırır. Bu yüzden iç içe yerleştirilmiş tıklanabilir yüzeylerde event akışını buna göre düşünmen gerekir.
+- `ButtonLike`, render sırasında click işleyicisi içinde `cx.stop_propagation()` çağırır. Bu yüzden iç içe yerleştirilmiş tıklanabilir yüzeylerde event akışının buna göre düşünülmesi gerekir.
 - Disabled durumda olan butonlarda tıklama ve right-click işleyicileri uygulanmaz; sahnede görünseler bile etkileşime girmezler.
 
 ## Button
@@ -265,7 +265,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ButtonLike`
-- Prelude: Hayır; `use ui::ButtonLike;` ayrıca eklemen gerekir.
+- Prelude: Hayır; `use ui::ButtonLike;` ayrıca eklenmesi gerekir.
 - Preview: `impl Component for ButtonLike`.
 
 Ne zaman kullanılır:
@@ -290,7 +290,7 @@ Temel API:
 
 Yuvarlama davranışı:
 
-`ButtonLikeRounding` kaynakta `pub(crate)` bir yardımcı tiptir; uygulama kodunda doğrudan import edilmez. Public kullanım yüzeyi `ButtonLike` constructor'larıdır. Snapshot denetimi sabit imzalarını görebildiği için burada kaynak eşlemesi verebilirsin, ama önerilen API sabitin kendisi değil constructor'dır.
+`ButtonLikeRounding` kaynakta `pub(crate)` bir yardımcı tiptir; uygulama kodunda doğrudan import edilmez. Public kullanım yüzeyi `ButtonLike` constructor'larıdır. Snapshot denetimi sabit imzalarını görebildiği için burada kaynak eşlemesi verilebilir, ama önerilen API sabitin kendisi değil constructor'dır.
 
 | İç sabit | Kaynak görünürlüğü | Public karşılığı |
 | :-- | :-- | :-- |
@@ -349,7 +349,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ButtonLink`
-- Prelude: Hayır; `use ui::ButtonLink;` ayrıca eklemen gerekir.
+- Prelude: Hayır; `use ui::ButtonLink;` ayrıca eklenmesi gerekir.
 - Preview: `impl Component for ButtonLink`.
 
 Ne zaman kullanılır:
@@ -406,7 +406,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::CopyButton`
-- Prelude: Hayır; `use ui::CopyButton;` ayrıca eklemen gerekir.
+- Prelude: Hayır; `use ui::CopyButton;` ayrıca eklenmesi gerekir.
 - Preview: `impl Component for CopyButton`.
 
 Ne zaman kullanılır:
@@ -467,7 +467,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::SplitButton`
-- Prelude: Hayır; `use ui::SplitButton;` ayrıca eklemen gerekir.
+- Prelude: Hayır; `use ui::SplitButton;` ayrıca eklenmesi gerekir.
 - Preview: Doğrudan `impl Component for SplitButton` yok.
 
 Ne zaman kullanılır:
@@ -476,7 +476,7 @@ Ne zaman kullanılır:
 
 Ne zaman kullanılmaz:
 
-- İki eylem birbirine eşit önemdeyse ayrı `Button` veya bir toolbar grubu daha okunaklı bir yapı kurmanı sağlar.
+- İki eylem birbirine eşit önemdeyse ayrı `Button` veya bir toolbar grubu daha okunaklı bir yapı sunar.
 - Sağ parça sadece dekoratifse split button bu yapıya gereksiz bir ağırlık katar.
 
 Temel API:
@@ -534,7 +534,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ToggleButtonGroup`, `ui::ToggleButtonSimple`, `ui::ToggleButtonWithIcon`, `ui::ToggleButtonGroupStyle`, `ui::ToggleButtonGroupSize`.
-- Prelude: Hayır; ayrıca import etmen gerekir.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for ToggleButtonGroup<...>`.
 
 Ne zaman kullanılır:

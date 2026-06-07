@@ -1,6 +1,6 @@
 # Entegrasyon başlangıcı ve uygulama sözleşmesi
 
-İskelet hazır olduktan sonra iki somut adım gelir: İlki pencerenin doğru seçeneklerle açılmasıdır. İkincisi ise platform kabuğunun uygulama durumuyla iletişim kuracağı denetleyici (controller) sözleşmesinin tanımlanmasıdır. Bu iki adım birlikte düşünülmelidir. `WindowOptions` ayarları olmadan platform kabuğu doğru zemini bulamaz; denetleyici sözleşmesi olmadan da uygulamanın iş kurallarını öğrenemez.
+İskelet hazır olduktan sonra iki somut adım gelir: İlki pencerenin doğru seçeneklerle açılmasıdır. İkincisi ise platform kabuğunun uygulama durumuyla iletişim kuracağı denetleyici (controller) sözleşmesinin tanımlanmasıdır. Bu iki adımın birlikte düşünülmesi gerekir. `WindowOptions` ayarları olmadan platform kabuğu doğru zemini bulamaz; denetleyici sözleşmesi olmadan da uygulamanın iş kurallarını öğrenemez.
 
 ## 9. Entegrasyon ön koşulları
 

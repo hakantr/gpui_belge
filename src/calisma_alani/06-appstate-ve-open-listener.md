@@ -108,7 +108,7 @@ dinleyici.open(RawOpenRequest {
 
 Açılış akışları ve global durumlar ile çalışırken hataya açık olan durumlar şunlardır:
 
-- Çalışma alanı açma akışında `AppState::build_window_options` kullanman gerekir; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, pencere dekorasyonları, sistem sekmeleri ve platforma özel arka plan/ikon ayarlarının atlanmasına neden olur.
-- `WorkspaceStore` zayıf referanslar (`WeakEntity`) tuttuğu için iterasyon sırasında upgrade işlemleri başarısız olabilir; bu olasılığı kod içinde mutlaka kontrol etmen gerekir.
-- `OpenListener::open` dinleyici yokken oluşan hataları loglar; talebin başarıyla teslim edildiği varsayımıyla kullanıcı akışını başlatmaman gerekir.
-- DB restore (veritabanından geri yükleme) yolunda serileştirilebilir öğe türü (serializable item kind) eksikse öğe geri yüklenemez; bu nedenle yeni bir öğe türü eklerken `register_serializable_item` kaydını başlangıç (startup) init sürecinde çağırman gerekir.
+- Çalışma alanı açma akışında `AppState::build_window_options` kullanılması gerekir; doğrudan `WindowOptions` kopyalamak Zed'in başlık çubuğu, app id, pencere dekorasyonları, sistem sekmeleri ve platforma özel arka plan/ikon ayarlarının atlanmasına neden olur.
+- `WorkspaceStore` zayıf referanslar (`WeakEntity`) tuttuğu için iterasyon sırasında upgrade işlemleri başarısız olabilir; bu olasılığın kod içinde mutlaka kontrol edilmesi gerekir.
+- `OpenListener::open` dinleyici yokken oluşan hataları loglar; talebin başarıyla teslim edildiği varsayımıyla kullanıcı akışının başlatılmaması gerekir.
+- DB restore (veritabanından geri yükleme) yolunda serileştirilebilir öğe türü (serializable item kind) eksikse öğe geri yüklenemez; bu nedenle yeni bir öğe türü eklerken `register_serializable_item` kaydının başlangıç (startup) init sürecinde çağrılması gerekir.

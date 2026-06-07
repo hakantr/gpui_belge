@@ -232,7 +232,7 @@ Zed-benzeri selector/settings/icon-theme akışı hedefleniyorsa aşağıdaki me
 | `remove_icon_themes` | Extension/user icon theme yenileme. |
 | `extensions_loaded`, `set_extensions_loaded` | Extension temaları gelmeden önce fallback'e sessiz düşme, geldikten sonra gerçek hata loglama. |
 
-Bu metotlardan birini public API'ye eklemeyeceksen, bu kararı açıkça kapsam dışı bir tasarım kararı olarak yazman gerekir. "Şimdilik UI yok" yeterli bir gerekçe değildir; selector UI ileride gelse bile registry sözleşmesinin hazır olması beklenir.
+Bu metotlardan biri public API'ye eklenmeyecekse, bu kararın açıkça kapsam dışı bir tasarım kararı olarak yazılması gerekir. "Şimdilik UI yok" yeterli bir gerekçe değildir; selector UI ileride gelse bile registry sözleşmesinin hazır olması beklenir.
 
 ### Dikkat Noktaları
 
@@ -264,7 +264,7 @@ pub struct GlobalTheme {
 impl Global for GlobalTheme {}
 ```
 
-`Theme` ve `IconTheme`'i doğrudan global yapmaman gerekir; bunun yerine bir newtype wrapper kullanılır. Alanlar private'tır. Dışarıdan erişim `theme()`/`icon_theme()` ve update metotları üzerinden yapılır.
+`Theme` ve `IconTheme`'in doğrudan global yapılmaması gerekir; bunun yerine bir newtype wrapper kullanılır. Alanlar private'tır. Dışarıdan erişim `theme()`/`icon_theme()` ve update metotları üzerinden yapılır.
 
 ### `GlobalTheme` API
 
@@ -350,7 +350,7 @@ impl ActiveTheme for App {
 
 **`kvs_tema` için iki seçenek:**
 
-1. **Paritede kalmak** — trait'i Zed'deki gibi tek metotlu tutabilirsin; icon tema'ya `GlobalTheme::icon_theme(cx)` veya bağımsız bir `IconActiveTheme` trait'i üzerinden erişilir:
+1. **Paritede kalmak** — trait'i Zed'deki gibi tek metotlu tutulması mümkündür; icon tema'ya `GlobalTheme::icon_theme(cx)` veya bağımsız bir `IconActiveTheme` trait'i üzerinden erişilir:
 
    ```rust
    pub trait ActiveTheme {
@@ -539,7 +539,7 @@ impl SystemAppearance {
 }
 ```
 
-> **`init` `default_global` ile çalışır:** `set_global` yerine `default_global` kullanıldığında, bağlamda global yoksa `Default::default()` (yani `SystemAppearance(Appearance::Dark)`) oluşturulup üstüne yazılır. İkinci `init` çağrısı eski global'i drop etmek yerine mevcut yerinde günceller; observer ihtiyacı varsa ayrı bir gözlem akışı kurman gerekir.
+> **`init` `default_global` ile çalışır:** `set_global` yerine `default_global` kullanıldığında, bağlamda global yoksa `Default::default()` (yani `SystemAppearance(Appearance::Dark)`) oluşturulup üstüne yazılır. İkinci `init` çağrısı eski global'i drop etmek yerine mevcut yerinde günceller; observer ihtiyacı varsa ayrı bir gözlem akışı kurulması gerekir.
 
 **`init(cx)`:**
 

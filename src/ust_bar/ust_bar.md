@@ -8,7 +8,7 @@ Bu rehber, Zed'in `title_bar` crate'ini, yani kullanıcıya görünen **ürün b
 
 ## Bu bölümün okuma sözleşmesi
 
-Ürün başlık çubuğu, platform kabuğunun aksine "evrensel davranış paritesi" peşinde değildir. Buradaki parçaların çoğu (işbirliği, plan göstergeleri, güncelleme bildirimi) Zed'in kendi ürün kararlarıdır ve birebir taşınmaları beklenmez. Bu yüzden her bölümde önce **parçanın ne işe yaradığı**, sonra **`TitleBar` içinde nasıl kurulup render edildiği**, en sonda da **kendi uygulaman için karşılığını nasıl kurman gerektiği** açıklanır. Amaç kodu kopyalamak değil; Zed'in ürün başlığını hangi sözleşmelerle kurduğunu öğrenip aynı modeli kendi tasarımınla yeniden yazmandır.
+Ürün başlık çubuğu, platform kabuğunun aksine "evrensel davranış paritesi" peşinde değildir. Buradaki parçaların çoğu (işbirliği, plan göstergeleri, güncelleme bildirimi) Zed'in kendi ürün kararlarıdır ve birebir taşınmaları beklenmez. Bu yüzden her bölümde önce **parçanın ne işe yaradığı**, sonra **`TitleBar` içinde nasıl kurulup render edildiği**, en sonda da **özel bir uygulama için karşılığının nasıl kurulması gerektiği** açıklanır. Amaç kodu kopyalamak değil; Zed'in ürün başlığını hangi sözleşmelerle kurduğunu öğrenip aynı modelin özel bir tasarımla yeniden yazılmasıdır.
 
 ## Ürün yüzeyi (`title_bar` crate'i)
 

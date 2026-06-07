@@ -48,9 +48,9 @@ impl VectorName {
 
 İkonlardaki `IconName` ile yapısal olarak **birebir aynıdır**: snake_case dönüşümü, `EnumIter` ve `IntoStaticStr` özellikleri paylaşılır. Tek fark dosya yolu prefix'idir (`images/` yerine `icons/`). Bu bilinçli tasarım kararı sayesinde yeni bir vektörel görsel eklemek için izlemen gereken adımlar şunlardır:
 
-1. `assets/images/yeni_logo.svg` dosyasını eklemen gerekir.
-2. `VectorName::YeniLogo` varyantını tanımlaman gerekir.
-3. UI kodunda `Vector::square(VectorName::YeniLogo, rems_from_px(60.))` şeklinde çağırarak kullanabilirsin.
+1. `assets/images/yeni_logo.svg` dosyasının eklenmesi gerekir.
+2. `VectorName::YeniLogo` varyantının tanımlanması gerekir.
+3. UI kodunda `Vector::square(VectorName::YeniLogo, rems_from_px(60.))` şeklinde çağırarak kullanılması mümkündür.
 
 ---
 
@@ -93,7 +93,7 @@ impl Vector {
 
 Her iki bileşen de aynı render hattını (`svg()` elementi ve `SvgRenderer`) paylaşır; ancak semantikleri farklıdır: `Icon` standart boyutlardaki arayüz ikonları için kullanılırken, `Vector` logo, damga veya dekoratif çizim gibi serbest boyutlu görseller için tasarlanmıştır. Sonraki bölümde `images/` klasörü ve `Vector` bileşeni ayrıntılı olarak ele alınacaktır.
 
-Eğer çok renkli bir logo veya illüstrasyon çizilmesi gerekiyorsa, `Vector` yerine `img("images/logo.svg")` kullanımını tercih etmen gerekir; `ImageAssetLoader` SVG byte verilerini `SvgRenderer::render_single_frame` vasıtasıyla tam renkli bir `RenderImage` nesnesine dönüştürür.
+Eğer çok renkli bir logo veya illüstrasyon çizilmesi gerekiyorsa, `Vector` yerine `img("images/logo.svg")` kullanımının tercih edilmesi gerekir; `ImageAssetLoader` SVG byte verilerini `SvgRenderer::render_single_frame` vasıtasıyla tam renkli bir `RenderImage` nesnesine dönüştürür.
 
 `Vector::render` çağrısı son derece sade tutulur:
 
@@ -165,7 +165,7 @@ Heuristik son derece basittir: `url::Url::from_str(s).is_ok()` çağrısı `true
 - `img("https://example.com/avatar.png")` → `Resource::Uri("https://example.com/avatar.png")`
 - `img(&Path::new("/tmp/screenshot.png"))` → `Resource::Path(...)` (ayrı `From<&Path>` impl'i)
 
-Bu otomatik dönüşüm zinciri, bileşen geliştiricilerinin kaynak türünü her seferinde açıkça belirtmesi zorunluluğunu ortadan kaldırır. Dosya yolu (path) olduğundan emin olunamayan girdiler için ham string yerine `PathBuf` veya `Arc<Path>` kullanman daha güvenli bir yaklaşımdır. Aksi takdirde, girdi 'https://' gibi belirteçlerle başlamadığı sürece `Embedded` kabul edilir ve binary içerisinden okunmaya çalışılır.
+Bu otomatik dönüşüm zinciri, bileşen geliştiricilerinin kaynak türünü her seferinde açıkça belirtmesi zorunluluğunu ortadan kaldırır. Dosya yolu (path) olduğundan emin olunamayan girdiler için ham string yerine `PathBuf` veya `Arc<Path>` kullanılması daha güvenli bir yaklaşımdır. Aksi takdirde, girdi 'https://' gibi belirteçlerle başlamadığı sürece `Embedded` kabul edilir ve binary içerisinden okunmaya çalışılır.
 
 ---
 
@@ -323,7 +323,7 @@ Akış:
 2. `now_or_never()` çağrısı Future hazır durumdaysa doğrudan sonucu döner; aksi takdirde `None` döner ve ilgili view'in yeniden render edilmesi (re-render) için bir tetikleyici kurulur.
 3. İlk çağrı esnasında (`is_first == true`) Future tamamlandığında `cx.notify(entity_id)` tetiklenir; böylece görsel yüklendiğinde view yeniden çizilir ve `use_asset` sonraki çağrıda başarıyla sonucu geri döndürür.
 
-Bunun pratik sonucu şudur: bir image elementi ilk render anında boş olarak çizilir, byte verileri yüklenip decode edildikten sonra ise otomatik olarak güncellenir. Bu davranış kullanıcı tarafında hafif bir titreme (flash) olarak algılanabilir; bunu yumuşatmak amacıyla `with_loading(...)` metodu yardımıyla geçici yer tutucu UI bileşenleri tanımlayabilirsin.
+Bunun pratik sonucu şudur: bir image elementi ilk render anında boş olarak çizilir, byte verileri yüklenip decode edildikten sonra ise otomatik olarak güncellenir. Bu davranış kullanıcı tarafında hafif bir titreme (flash) olarak algılanabilir; bunu yumuşatmak amacıyla `with_loading(...)` metodu yardımıyla geçici yer tutucu UI bileşenlerinin tanımlanması mümkündür.
 
 ---
 
@@ -344,7 +344,7 @@ h_flex()
     .children(<IconName as strum::IntoEnumIterator>::iter().map(...))
 ```
 
-`gpui::retain_all` çağrısı, 'bu önbellek hiçbir veriyi tahliye etmesin' (evict) davranışını tetikler; böylece tüm ikon galerisi açık olsa bile cache temizliği yapılmaz. GPUI bünyesinde yerleşik olarak sunulan tek `ImageCache` somut türü, `RetainAllImageCacheProvider` tarafından üretilen `RetainAllImageCache` yapısıdır. Bu yapı adı itibarıyla LRU çağrıştırsa da gerçekte herhangi bir tahliye (eviction) stratejisi (boyut sınırı veya LRU) barındırmaz; sadece veriyi yükler ve bellekte tutar. Eğer özel bir eviction (tahliye) stratejisine ihtiyaç duyarsan `ImageCache` trait'ini manuel olarak implement edip özel bir cache yapısı kurgulaman gerekir.
+`gpui::retain_all` çağrısı, 'bu önbellek hiçbir veriyi tahliye etmesin' (evict) davranışını tetikler; böylece tüm ikon galerisi açık olsa bile cache temizliği yapılmaz. GPUI bünyesinde yerleşik olarak sunulan tek `ImageCache` somut türü, `RetainAllImageCacheProvider` tarafından üretilen `RetainAllImageCache` yapısıdır. Bu yapı adı itibarıyla LRU çağrıştırsa da gerçekte herhangi bir tahliye (eviction) stratejisi (boyut sınırı veya LRU) barındırmaz; sadece veriyi yükler ve bellekte tutar. Eğer özel bir eviction (tahliye) stratejisine ihtiyaç duyulursa `ImageCache` trait'inin manuel olarak implement edilip özel bir cache yapısının kurgulanması gerekir.
 
 `Img::image_cache(entity)` çağrısı, bir image elementinin cache hiyerarşisindeki en yakın `ImageCacheElement` referansını yoksaymasını (override) sağlayarak doğrudan belirtilen cache yapısının kullanılmasını mümkün kılar. Bu yaklaşım, 'belirli bir görseli özel bir cache alanına yerleştirme' istekleri için esnek bir zemin sunar.
 
@@ -450,6 +450,6 @@ cx.fetch_asset::<ImgResourceLoader>(kaynak)
 
 - **Kaynak tabanlı (Resource-based) görsel yükleme asenkrondur**, dolayısıyla yükleme süresi sıfır değildir. İlk render karesinde görsel görünmeyebilir; bu nedenle yükleme durumunun bilinçli şekilde yönetilmesi önerilir. `ImageSource::Render` gibi önceden decode edilmiş veri kaynaklarında bu asenkron bekleme süreci yaşanmaz.
 - **`ImgResourceLoader` üç kaynak türünü birden yönetebilir**; bu sayede `img()` elementi uzak URL, yerel path ve gömülü (embedded) path seçenekleri için aynı arayüzü sunar.
-- **Önbellek hash algoritması Resource türünü de kapsar**; aynı yol string'i bir kez URI, bir kez de Embedded olarak yorumlanırsa farklı cache anahtarları üretilir. Bu durum dönüşümler deterministik olduğundan pratik olarak bir çakışma yaratmaz; ancak özel bir loader tasarlarken bu hash davranışını göz önünde bulundurman gerekir.
+- **Önbellek hash algoritması Resource türünü de kapsar**; aynı yol string'i bir kez URI, bir kez de Embedded olarak yorumlanırsa farklı cache anahtarları üretilir. Bu durum dönüşümler deterministik olduğundan pratik olarak bir çakışma yaratmaz; ancak özel bir loader tasarlarken bu hash davranışının göz önünde bulundurulması gerekir.
 
 ---

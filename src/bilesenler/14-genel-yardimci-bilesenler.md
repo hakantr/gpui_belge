@@ -472,7 +472,7 @@ Davranış:
 - Bir focus handle verildiğinde, action için önce odak bağlamındaki binding aranır.
 - Binding bulunamadığında `Empty` render edilir.
 - Platform stili macOS için modifier ikonlarını, Linux ve Windows için ise metin ve `+` ayırıcılarını kullanır.
-- `.platform_style(...)` alanı set eder, ancak mevcut render gövdesi doğrudan `PlatformStyle::platform()` kullanır. Belirli bir platform stilini zorlamak istediğinde düşük seviyeli `render_keybinding_keystroke(...)` veya `render_modifiers(...)` yardımcılarına platform stilini açıkça vermen gerekir.
+- `.platform_style(...)` alanı set eder, ancak mevcut render gövdesi doğrudan `PlatformStyle::platform()` kullanır. Belirli bir platform stilini zorlamak istendiğinde düşük seviyeli `render_keybinding_keystroke(...)` veya `render_modifiers(...)` yardımcılarına platform stilini açıkça verilmesi gerekir.
 - `.has_binding(window)` mevcut kaynakta yalnız focus handle'lı eylem kaynağı için `true` dönebilir; `for_action(...)` ile focus handle verilmeden oluşturulan bileşende render yine binding arar, ancak `has_binding(...)` kontrolü `false` kalır.
 
 Örnek:

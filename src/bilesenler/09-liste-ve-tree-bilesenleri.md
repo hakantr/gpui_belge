@@ -91,7 +91,7 @@ Dikkat edilmesi gereken noktalar:
 
 - `List`, kendi başına bir kaydırma (scroll) davranışı sunmaz. Kaydırma gerekiyorsa üst kapsayıcıya `.overflow_y_scroll()` eklenir; büyük listelerde ise `uniform_list(...)` tercih edilir.
 - Dinamik çocuklar üretilirken sabit bir `ElementId` kullanılması önerilir. Yalnızca indeks üzerinden id vermek, yeniden sıralanan listelerde durum ve odak takibini zorlaştırır.
-- Boş durum özel bir element ise onu `.into_any_element()` çağrısıyla iletmen gerekir.
+- Boş durum özel bir element ise onu `.into_any_element()` çağrısıyla iletilmesi gerekir.
 
 ## ListItem
 
@@ -306,7 +306,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edilmesi gereken noktalar:
 
 - `end_slot(...)` generic değildir; slot elementinin `.into_any_element()` çağrısıyla iletilmesi gerekir.
-- Subheader'ın selected durumu yalnızca görseldir; gerçek gezinme durumunu üst view'da tutman gerekir.
+- Subheader'ın selected durumu yalnızca görseldir; gerçek gezinme durumunun üst view'da tutulması gerekir.
 
 ## ListSeparator
 
@@ -373,7 +373,7 @@ Temel API:
 - Builder: `.label_color(Color)`.
 - `ParentElement` implement eder; bir alt öğe (child) verildiğinde label yerine alt öğeler kaydırmalı (wrap) satır içi içerik olarak render edilir.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
 - Bu bileşen açıklayıcı bir içerik için tasarlanmıştır. İçerisine bir action link konabilir, ama satır düzeyinde seçim veya klavye gezinmesi beklenmemelidir.
 - Kaynakta iç `ListItem` id'si sabittir; bu yüzden keyed bir satır durumunun gerektiği dinamik listelerde `ListItem` ile özel bir satır kurmak daha doğru bir tercih olur.

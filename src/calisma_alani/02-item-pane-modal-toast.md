@@ -1,6 +1,6 @@
 # Item, Pane, Modal, Toast ve Notification Sistemi
 
-GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde tab/pane, modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editör benzeri panel veya komut yazarken bu sözleşmeleri bilmen gerekir.
+GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde tab/pane, modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editör benzeri panel veya komut yazarken bu sözleşmelerin bilinmesi gerekir.
 
 ![Item, Pane, Modal ve Notification Akışı](assets/item-pane-modal-notification.svg)
 
@@ -259,9 +259,9 @@ let gorev = calisma_alani.open_paths(
 
 Öğe ve çalışma alanı tarafında dikkat edilmesi gereken hataya açık kullanımlar:
 
-- `Item` uygulamasında `Self::Event` türünü doğru tanımlaman ve `EventEmitter<Self::Event>` uygulaman şarttır; aksi halde `Item` trait kısıtlaması (bound) sağlanamaz.
-- `Pane::add_item` çağrısını `Box::new(view)` ile yapman gerekir; pane, item sahipliğini üzerine alır.
+- `Item` uygulamasında `Self::Event` türünü doğru tanımlanması ve `EventEmitter<Self::Event>` uygulanması şarttır; aksi halde `Item` trait kısıtlaması (bound) sağlanamaz.
+- `Pane::add_item` çağrısının `Box::new(view)` ile yapılması gerekir; pane, item sahipliğini üzerine alır.
 - `Workspace::register_action` geri çağrı imzası `Fn(&mut Self, &A, &mut Window, &mut Context<Self>)` biçimindedir; diğer GPUI `on_action` dinleyicilerinden farklı bir pozisyonel düzene sahiptir (`&A` ortadadır).
-- `NotificationId::Unique(TypeId::of::<T>())` ile aynı tipte iki bildirim açıldığında ikincisi birincinin yerine geçer; farklı bir alt kimlik istiyorsan `Composite(TypeId, ElementId)` tercih etmen gerekir.
-- `Toast` otomatik gizleme (autohide) süresi varsayılan değildir; uzun mesajlarda elle `dismiss_toast` çağırman gerekebilir.
-- `ModalView::on_before_dismiss` metodu `Pending` (ya da `Dismiss(false)`) döndürürse modal kapatılmaz, açık kalır. Burada bir bekleme veya asenkron çözümleme yoktur; kapatma akışını yeniden çağırman gerekir.
+- `NotificationId::Unique(TypeId::of::<T>())` ile aynı tipte iki bildirim açıldığında ikincisi birincinin yerine geçer; farklı bir alt kimlik isteniyorsa `Composite(TypeId, ElementId)` tercih edilmesi gerekir.
+- `Toast` otomatik gizleme (autohide) süresi varsayılan değildir; uzun mesajlarda elle `dismiss_toast` çağrılması gerekebilir.
+- `ModalView::on_before_dismiss` metodu `Pending` (ya da `Dismiss(false)`) döndürürse modal kapatılmaz, açık kalır. Burada bir bekleme veya asenkron çözümleme yoktur; kapatma akışının yeniden çağrılması gerekir.

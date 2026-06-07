@@ -2,7 +2,7 @@
 
 `collab` modülü, başlık çubuğunun en çok Zed'e özgü olan parçasıdır. Aktif bir çağrı/oda sırasında mikrofon, dinleme, ekran paylaşımı ve katılımcı listesini başlıkta yönetir. Bu modül crate dışına açık durumdadır (`pub mod collab`), ama sunduğu arayüz tamamen Zed'in işbirliği altyapısına (`call`, `client`, LiveKit odası) bağlıdır.
 
-> **Port Uyarısı:** Bu bölümdeki davranış, kendi uygulamanda büyük olasılıkla yer almaz. Bir işbirliği/çağrı özelliği planlamıyorsan bu arayüzü tamamen atlaman mümkündür. Varsa bile, altyapı Zed'in `ActiveCall`/oda modelinden farklı olacağı için burada anlatılan kalıp doğrudan taşınmaz; yalnızca "Zed bu kontrolleri hangi sözleşmeyle başlığa koyuyor" perspektifiyle okunması gerekir.
+> **Port Uyarısı:** Bu bölümdeki davranışın, hedeflenen uygulamada büyük olasılıkla yeri yoktur. Bir işbirliği/çağrı özelliği planlanmıyorsa bu arayüzün tamamen atlanması mümkündür. Varsa bile, altyapı Zed'in `ActiveCall`/oda modelinden farklı olacağı için burada anlatılan kalıp doğrudan taşınmaz; yalnızca "Zed bu kontrolleri hangi sözleşmeyle başlığa koyuyor" perspektifiyle okunması gerekir.
 
 ## 1. Üç geçiş fonksiyonu
 
@@ -69,10 +69,10 @@ Bu modülün öğrettiği genel yaklaşım, kontrol mantığının küçük, dur
 
 Ancak somut arayüz tamamen Zed'in çağrı altyapısına bağlıdır:
 
-- `ActiveCall` ve oda kavramı Zed'in `call` crate'ine özgüdür; kendi uygulamanda karşılığının farklı bir WebRTC/çağrı sağlayıcısı olması muhtemeldir.
-- Ekran yakalama (`ScreenCaptureSource`) platforma özel bir API'dir; kendi uygulamanda kendi yakalama yığınını tercih etmen gerekir.
+- `ActiveCall` ve oda kavramı Zed'in `call` crate'ine özgüdür; hedef uygulamada karşılığının farklı bir WebRTC/çağrı sağlayıcısı olması muhtemeldir.
+- Ekran yakalama (`ScreenCaptureSource`) platforma özel bir API'dir; hedef uygulamada özel bir yakalama yığınının tercih edilmesi gerekir.
 - Katılımcı listesi, takip ve kanal görünürlüğü Zed'in işbirliği ürün modelidir.
 
-Bu yüzden bir işbirliği özelliği eklememen durumunda bu bölümün tamamı kapsam dışı kalır. Eklediğin senaryoda bile buradaki asıl değer kodun kendisi değil; "Çağrı durumunu başlıkta hangi butonlarla, hangi koşullarla ve hangi görsel geri bildirimle özetlemeli?" sorusuna Zed'in verdiği cevaptır.
+Bu yüzden bir işbirliği özelliği eklenmemesi durumunda bu bölümün tamamı kapsam dışı kalır. Eklenecek bir senaryoda bile buradaki asıl değer kodun kendisi değil; "Çağrı durumunu başlıkta hangi butonlarla, hangi koşullarla ve hangi görsel geri bildirimle özetlemeli?" sorusuna Zed'in verdiği cevaptır.
 
 ---

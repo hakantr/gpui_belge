@@ -13,7 +13,7 @@
 
 ## Platform Başlatma
 
-Bir GPUI uygulamasının ilk adımı platform arka ucunu başlatmaktır. Normal bir uygulama geliştirirken, hedef platformlara göre ayrı ayrı başlangıç dosyaları yazma gereksinimi duyulmaz; `gpui_platform::application()` çalıştığı işletim sistemine uygun GPUI platform implementasyonunu otomatik bağlar. Pencere açılması, klavye girdilerinin okunması ve ekrana çizim yapılması gibi düşük seviyeli platform işlemleri bu arka uç tarafından şeffaf bir biçimde yürütülür. Geliştirici olarak senin ise yalnızca ortak `App`, `Window` ve element API'lerini kullanman yeterlidir. Tipik bir uygulama başlangıcı şu kalıbı takip eder:
+Bir GPUI uygulamasının ilk adımı platform arka ucunu başlatmaktır. Normal bir uygulama geliştirirken, hedef platformlara göre ayrı ayrı başlangıç dosyaları yazma gereksinimi duyulmaz; `gpui_platform::application()` çalıştığı işletim sistemine uygun GPUI platform implementasyonunu otomatik bağlar. Pencere açılması, klavye girdilerinin okunması ve ekrana çizim yapılması gibi düşük seviyeli platform işlemleri bu arka uç tarafından şeffaf bir biçimde yürütülür. Geliştiricinin ise yalnızca ortak `App`, `Window` ve element API'lerini kullanması yeterlidir. Tipik bir uygulama başlangıcı şu kalıbı takip eder:
 
 ```rust
 use gpui::{App, AppContext as _, Window, WindowOptions, div, prelude::*};
@@ -47,7 +47,7 @@ fn main() {
 - Linux/FreeBSD: `gpui_linux::current_platform(headless)`; Wayland veya X11 arka ucunu platform crate'i kendi içinde seçer.
 - Web/WASM: `gpui_web::WebPlatform`
 
-Görsel olmayan senaryolar için ayrı bir başlatıcı vardır: `gpui_platform::headless()`, `current_platform(true)` üzerinden başsız modda bir `Application` kurar. Bu yöntem, herhangi bir kullanıcı arayüzü veya pencere oluşturmadan, yalnızca arka plan görevlerini ya da test düzeneklerini çalıştırmak istediğin durumlarda tercih edilir. Test desteğine ihtiyaç duyulması durumunda `gpui_platform::current_headless_renderer()` fonksiyonundan yararlanılır. Güncel sürümde bu çağrı yalnızca macOS üzerinde çalışan Metal tabanlı bir başsız çizim aracı döndürür; diğer platform hedeflerinde ise `None` çıktısı üretilir.
+Görsel olmayan senaryolar için ayrı bir başlatıcı vardır: `gpui_platform::headless()`, `current_platform(true)` üzerinden başsız modda bir `Application` kurar. Bu yöntem, herhangi bir kullanıcı arayüzü veya pencere oluşturmadan, yalnızca arka plan görevlerini ya da test düzeneklerini çalıştırmanın hedeflendiği durumlarda tercih edilir. Test desteğine ihtiyaç duyulması durumunda `gpui_platform::current_headless_renderer()` fonksiyonundan yararlanılır. Güncel sürümde bu çağrı yalnızca macOS üzerinde çalışan Metal tabanlı bir başsız çizim aracı döndürür; diğer platform hedeflerinde ise `None` çıktısı üretilir.
 
 ## Application Yaşam Döngüsü ve Platform Olayları
 
@@ -85,7 +85,7 @@ uygulama.run(|cx| {
 | `QuitMode` | `Default`, `LastWindowClosed`, `Explicit` | Uygulamanın son pencere kapandığında mı yoksa açık quit isteğiyle mi sonlanacağını belirler. |
 | `CursorHideMode` | klavye girdisine tepki olarak imleci gizleme politikası | Uygulama seviyesinde, klavye girdilerine (yazım işlemleri veya komut tetikleyen kısayollar) tepki olarak fare imlecinin ne zaman gizleneceğini yapılandırır. İmlecin fare hareketiyle tekrar görünür kılınması ise platform arka ucu tarafından otomatik olarak yürütülür. |
 
-- `cx.on_app_quit(|cx| async { ... })` ile kaydettiğin tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 200ms` (`app`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar artık beklenmez (bırakılır), bir hata günlüğü yazılır ve GPUI platform çıkışını sürdürür. Bu zaman kısıtı nedeniyle, uygulamanın kapanışı sırasında tamamlanması zorunlu olan uzun soluklu işlerin, bağımsız (detached) bırakılan asenkron `Task`'lere emanet edilmemesi, bunun yerine yaşam döngüsü gözlemcilerine (lifecycle observers) bağlanması kritik bir önem taşır.
+- `cx.on_app_quit(|cx| async { ... })` ile kaydedilen tüm geri çağrıları GPUI, uygulama tamamen sonlanmadan önce çalıştırır. Bu geri çağrılar için ayrılan süreyi `gpui::SHUTDOWN_TIMEOUT: Duration = 200ms` (`app`) sabiti belirler; bu eşik aşılırsa hâlâ bekleyen `future`'lar artık beklenmez (bırakılır), bir hata günlüğü yazılır ve GPUI platform çıkışını sürdürür. Bu zaman kısıtı nedeniyle, uygulamanın kapanışı sırasında tamamlanması zorunlu olan uzun soluklu işlerin, bağımsız (detached) bırakılan asenkron `Task`'lere emanet edilmemesi, bunun yerine yaşam döngüsü gözlemcilerine (lifecycle observers) bağlanması kritik bir önem taşır.
 
 **Uygulama etkinliği ve görünürlüğü.** `cx.activate(ignoring_other_apps)` uygulamayı platform düzeyinde öne getirir. Özellikle yeni bir pencere açıldığında ya da harici bir URL yönlendirmesiyle uygulamaya geri dönüldüğünde `ignoring_other_apps = true` parametresi tercih edilir. Uygulamanın kendi pencereleri arasında odağın yumuşak bir biçimde güncellenmesi istendiğinde ise `false` seçeneği daha uygundur. `cx.hide()` uygulamanın tamamını gizler. `cx.hide_other_apps()` ve `cx.unhide_other_apps()` ise macOS tarzı uygulama menüsü eylemlerinde olduğu gibi diğer uygulamaları gizleme ya da geri gösterme komutlarını platforma iletir. Bu dört metot tekil bir görünüm (view) durumunu manipüle etmek yerine, doğrudan işletim sistemi kabuğuna uygulama genelindeki etkileşim niyetini iletir.
 
@@ -118,7 +118,7 @@ uygulama.run(|cx| {
 - **Pano:** `read_from_clipboard`, `write_to_clipboard`.
 - **Linux primary selection:** `read_from_primary`, `write_to_primary` — X11 ve Wayland ortamlarında orta tıklama ile yapıştırma için kullanılan ayrı bir panoyu (primary selection) hedefler.
 - **macOS find pasteboard:** `read_from_find_pasteboard`, `write_to_find_pasteboard` — macOS üzerindeki uygulama genelinde paylaşılan "son aranan metin" panosunu yönetir.
-- **Keychain ve kimlik bilgisi deposu:** `write_credentials(url, username, password)`, `read_credentials(url) -> Task<Result<Option<(String, Vec<u8>)>>>`, `delete_credentials(url)`. Geri dönen `Task` nesnesi arka plan çalıştırıcısında yürütülür; bu görevi `await` ile bekleyebilir veya `detach_and_log_err(cx)` metoduyla bağımsız (detached) olarak arka planda yürütebilirsin.
+- **Keychain ve kimlik bilgisi deposu:** `write_credentials(url, username, password)`, `read_credentials(url) -> Task<Result<Option<(String, Vec<u8>)>>>`, `delete_credentials(url)`. Geri dönen `Task` nesnesi arka plan çalıştırıcısında yürütülür; bu görevi `await` ile beklemek veya `detach_and_log_err(cx)` metoduyla bağımsız (detached) olarak arka planda yürütmek mümkündür.
 - **URL:** `open_url`, `register_url_scheme`.
 - **Dosya ve prompt:** `prompt_for_paths`, `prompt_for_new_path`, `reveal_path`, `open_with_system`, `can_select_mixed_files_and_dirs`.
 - **Menü:** `set_menus`, `get_menus`, `set_dock_menu`, `add_recent_document`, `update_jump_list`.

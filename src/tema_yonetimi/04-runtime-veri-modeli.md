@@ -1,6 +1,6 @@
 # Çalışma Zamanı Veri Modeli
 
-GPUI tipleri tanındıktan sonra, uygulamanın bellekte taşıyacağı tema modelini kurabilirsin. Bu modelin içinde ana `Theme` tipi, renk grupları, sözdizimi tema kabı ve ikon tema sözleşmesi yer alır. Bu bölüm çalışma zamanı tarafının ana yapı taşlarını tek tek anlatır ve her parçanın neden bu şekilde tasarlandığını açıklar.
+GPUI tipleri tanındıktan sonra, uygulamanın bellekte taşıyacağı tema modelinin kurulması mümkündür. Bu modelin içinde ana `Theme` tipi, renk grupları, sözdizimi tema kabı ve ikon tema sözleşmesi yer alır. Bu bölüm çalışma zamanı tarafının ana yapı taşlarını tek tek anlatır ve her parçanın neden bu şekilde tasarlandığını açıklar.
 
 ---
 
@@ -128,7 +128,7 @@ Bu değerler bir tema paleti alanı değildir; kullanıcı temasından geçersiz
 1. **`id` ile `name` arasında karışıklık**: `name` `SharedString` tipindedir ve registry'de anahtar olarak kullanılır. `id` (uuid) yalnızca tema-içi tanımlama amacıyla tutulur; ikisinin birbirinin yerine konulması registry akışını bozar.
 2. **`styles` alanını `pub` yapmak**: Bu, dış sözleşmeyi doğrudan iç yapıya bağlar. Bu rehberin kararı `pub(crate)` yönündedir. Tüketicinin tek okuma yolu erişim metotlarıdır (`theme.colors()`, `theme.status()` vb.).
 3. **`appearance` çalışma zamanında değişmez**: Bir tema *Light* olarak yüklendi diye çalışma zamanında Dark olarak yeniden işlenmez. Tema değişimi için `GlobalTheme::update_theme` çağrısı yapılarak yeni bir `Arc<Theme>` aktive edilmelidir.
-4. **`SystemColors::default()` ile doldurmanın yeterliliği**: Tema yazarı sistem renklerini özelleştirmek istemiyorsa `Default::default()` yeterlidir. Bu alanı atlayıp `unsafe zeroed` ile doldurman yapıyı görünmez hale getirebilir ve sonradan zor takip edilen sorunlara yol açar.
+4. **`SystemColors::default()` ile doldurmanın yeterliliği**: Tema yazarı sistem renklerini özelleştirmek istemiyorsa `Default::default()` yeterlidir. Bu alanı atlayıp `unsafe zeroed` ile doldurulması yapıyı görünmez hale getirebilir ve sonradan zor takip edilen sorunlara yol açar.
 
 ---
 
@@ -454,7 +454,7 @@ pub fn all_theme_colors(cx: &mut App) -> Vec<(Hsla, SharedString)> {
 pub struct ThemeColors { /* ... */ }
 ```
 
-`ThemeColorReflect` türetme makrosu `ThemeColorField` enum'unu, `label` ve `value` impl'lerini otomatik olarak üretir. Zed paritesi tercih edilmişse 32 alan, `#[theme_color_reflect(skip)]` benzeri bir öznitelik ile yansıtma dışı bırakılır; aksi halde makro yerel genişletme üretir. Refinement makrosuyla aynı crate içinde (`ui_macros` veya `kvs_macros`) tutman, bakım açısından çok daha tutarlı bir yerleşim olur.
+`ThemeColorReflect` türetme makrosu `ThemeColorField` enum'unu, `label` ve `value` impl'lerini otomatik olarak üretir. Zed paritesi tercih edilmişse 32 alan, `#[theme_color_reflect(skip)]` benzeri bir öznitelik ile yansıtma dışı bırakılır; aksi halde makro yerel genişletme üretir. Refinement makrosuyla aynı crate içinde (`ui_macros` veya `kvs_macros`) tutulması, bakım açısından çok daha tutarlı bir yerleşim olur.
 
 **Kullanım yerleri:**
 
@@ -655,7 +655,7 @@ impl Theme {
 ### Dikkat Noktaları
 
 1. **Türetme kuralının uygulanması**: Kullanıcı yalnızca `error` rengini verdiyse ve `apply_status_color_defaults` çağrılmadıysa, `error_background` tabandan kalır. Sonuç olarak kullanıcı temasının ana rengi var ama arka plan tabanın yarı saydam mavisidir; UI dağınık görünür.
-2. **14 status'un tamamını dahil etmek**: Tema yazarı yalnızca `error` ve `warning` kullanıyor olsa bile, struct'ta `predictive`, `unreachable`, `renamed` vb. **bulundurman zorunludur**. UI'da okunmayan alanın maliyeti sıfırdır.
+2. **14 status'un tamamını dahil etmek**: Tema yazarı yalnızca `error` ve `warning` kullanıyor olsa bile, struct'ta `predictive`, `unreachable`, `renamed` vb. **bulundurulması zorunludur**. UI'da okunmayan alanın maliyeti sıfırdır.
 3. **`_background` ve `_border` farklı türetilebilir**: Arka plan için %25 alpha makul bir tercihtir; kenarlık için %50 alpha çoğu zaman daha doğal durur. Mevcut yardımcı fonksiyon yalnızca `_background` için tanımlıdır; `_border` için ayrı bir türetme istendiğinde ek bir fonksiyonun yazılması yerinde olur.
 4. **Yeni status tipi**: Zed sözleşmesindeki her status tipi ön plan/arka plan/kenarlık üçlüsüyle temsil edilir; yalnız ön plan türetme gerektiren senaryolar `apply_status_color_defaults` içinde toplanır.
 
@@ -716,11 +716,11 @@ impl PlayerColors {
 
 **Davranış Kuralları:**
 
-- Liste boş olduğunda `local()`, `agent()`, `absent()`, `read_only()` ve `color_for_participant()` metotlarının hepsi panic atar. Bu yüzden yedek temalarda en az bir `PlayerColor` bulundurman gerekir. Collaboration veya katılımcı renkleri kullanılacaksa en az iki slot gerekir.
+- Liste boş olduğunda `local()`, `agent()`, `absent()`, `read_only()` ve `color_for_participant()` metotlarının hepsi panic eder. Bu yüzden yedek temalarda en az bir `PlayerColor` bulundurulması gerekir. Collaboration veya katılımcı renkleri kullanılacaksa en az iki slot gerekir.
 - `color_for_participant(N)` çağrısı yerel slot'u atlar: katılımcı 0, liste indeks 1'ini kullanır. 8 slot bulunduğu varsayıldığında uzak slotlar indeks 1 ile 7 arasında döner.
 - `agent()` ve `absent()` aynı slot'u döndürür: listenin son elemanı. Semantik ayrım tüketici tarafında yapılır. Bir kullanım agent UI'sı, diğeri offline kullanıcı olabilir.
 - `read_only()` çağrı anında yerel slot'tan gri tonlama türevi üretir; yedek temada yerel değer dolu olduğu sürece otomatik çalışır.
-- Bu API boş veya tek elemanlı listeyi tolere etmez; listenin çalışma zamanına ulaşmadan önce yedek veya fixture testleriyle garanti altına alman gerekir.
+- Bu API boş veya tek elemanlı listeyi tolere etmez; listenin çalışma zamanına ulaşmadan önce yedek veya fixture testleriyle garanti altına alınması gerekir.
 
 ### JSON Şeması
 
@@ -749,7 +749,7 @@ div().bg(katilimci.selection)
 
 ### Dikkat Noktaları
 
-1. **Boş `PlayerColors`**: `Vec` boş olduğunda `local()` panic eder; yalnız tek bir slot varsa `color_for_participant` modulo-by-zero hatasına yol açar. Yedek temalarda **en az bir yerel slot**, katılımcı kullanılan senaryolarda ise **en az iki slot** bulundurman gerekir:
+1. **Boş `PlayerColors`**: `Vec` boş olduğunda `local()` panic eder; yalnız tek bir slot varsa `color_for_participant` modulo-by-zero hatasına yol açar. Yedek temalarda **en az bir yerel slot**, katılımcı kullanılan senaryolarda ise **en az iki slot** bulundurulması gerekir:
    ```rust
    PlayerColors(vec![PlayerColor { cursor: vurgu, ... }])
    ```
@@ -1427,7 +1427,7 @@ impl IconTheme {
 }
 ```
 
-UI temasından farklı olarak burada **refinement katmanı yoktur**. Yani `Refineable` türevli alan-bazlı tema geçersiz kılma hattı icon tema için çalışmaz. Buna rağmen Zed'in yükleme ve arama davranışı "tam değiştirme" de değildir. `ThemeRegistry::load_icon_theme`, kullanıcı temasının `file_stems`, `file_suffixes` ve `named_directory_icons` haritalarını varsayılan icon theme'in üstüne genişletir. `directory_icons`, `chevron_icons` ve `file_icons` alanları çalışma zamanı objesine kullanıcının verdiği biçimde girer. Arama sırasında ise eksik dosya tipi, klasör ve chevron yolları aktif temadan varsayılan icon theme'e düşebilir. Ayna tarafta bu iki aşamayı ayrı düşünmen gerekir: şema/refinement yoktur, ama registry yükleme ve kullanıcı arayüzü arama yedeği mevcuttur.
+UI temasından farklı olarak burada **refinement katmanı yoktur**. Yani `Refineable` türevli alan-bazlı tema geçersiz kılma hattı icon tema için çalışmaz. Buna rağmen Zed'in yükleme ve arama davranışı "tam değiştirme" de değildir. `ThemeRegistry::load_icon_theme`, kullanıcı temasının `file_stems`, `file_suffixes` ve `named_directory_icons` haritalarını varsayılan icon theme'in üstüne genişletir. `directory_icons`, `chevron_icons` ve `file_icons` alanları çalışma zamanı objesine kullanıcının verdiği biçimde girer. Arama sırasında ise eksik dosya tipi, klasör ve chevron yolları aktif temadan varsayılan icon theme'e düşebilir. Ayna tarafta bu iki aşamanın ayrı düşünülmesi gerekir: şema/refinement yoktur, ama registry yükleme ve kullanıcı arayüzü arama yedeği mevcuttur.
 
 ### Varsayılan İkon Tema Sabiti
 
@@ -1593,8 +1593,8 @@ pub fn tema_runtime_baslat(cx: &mut App) -> anyhow::Result<()> {
 
 ### Dikkat Noktaları
 
-1. **`ThemeFamily.id` kullanılmıyorsa**: Registry yalnızca `Theme`'leri isim üzerinden indeksler. `ThemeFamily.id` çalışma zamanında neredeyse hiç sorgulanmaz; saklanması daha çok debug ve isimlendirme amacıyla anlamlıdır. Ekstra üst bilgi için ihtiyaç duymuyorsan atlayabilirsin, ancak Zed paritesini koruma adına tutmanda fayda vardır.
+1. **`ThemeFamily.id` kullanılmıyorsa**: Registry yalnızca `Theme`'leri isim üzerinden indeksler. `ThemeFamily.id` çalışma zamanında neredeyse hiç sorgulanmaz; saklanması daha çok debug ve isimlendirme amacıyla anlamlıdır. Ekstra üst bilgiye ihtiyaç duyulmuyorsa atlanabilir, ancak Zed paritesini koruma adına tutulmasında fayda vardır.
 2. **`SyntaxTheme::new()`'nun `Arc` döndüğünü varsaymak**: Zed sözleşmesi `Self` döndürür; `Arc` sözleşmesi çağıran tarafta kurulur (`Arc::new(SyntaxTheme::new(...))`).
 3. **`SyntaxTheme.highlights` alanına dışarıdan erişmeye çalışmak**: Bu alan içtir; tüketici yalnızca `style_for_name`, `get`, `get_capture_name` ve `highlight_id` üzerinden okur. `IndexMap`/`HashMap` tartışması tarihseldir: gerçek implementasyon iki ayrı yapıyı bir arada kullanır (`Vec<HighlightStyle>` ve `BTreeMap<String, usize>`).
-4. **`IconTheme` ile `Theme` arasında bağ kurmak**: İki sözleşme ayrıdır. Birbirine bağlama denemesi (`Theme.icon: IconTheme` gibi) senkronizasyon disiplinini bozar; Zed ikisini ayrı tutar ve aynı yaklaşımı ayna tarafta da koruman gerekir.
-5. **`IconTheme` aynasının ertelenmesi**: "Henüz icon tema kullanmıyorum" geçerli bir dışlama sebebi olarak kabul edilmez. Struct'ı tanımlayıp minimum çalışan varsayılan icon tema ile başlatman, arama ve registry sözleşmesini canlı tutar; ayrıntılı asset setini sonraki aşamada genişletebilirsin.
+4. **`IconTheme` ile `Theme` arasında bağ kurmak**: İki sözleşme ayrıdır. Birbirine bağlama denemesi (`Theme.icon: IconTheme` gibi) senkronizasyon disiplinini bozar; Zed ikisini ayrı tutar ve aynı yaklaşımın ayna tarafta da korunması gerekir.
+5. **`IconTheme` aynasının ertelenmesi**: "Henüz icon tema kullanmıyorum" geçerli bir dışlama sebebi olarak kabul edilmez. Struct'ı tanımlayıp minimum çalışan varsayılan icon tema ile başlatılması, arama ve registry sözleşmesini canlı tutar; ayrıntılı asset setinin sonraki aşamada genişletilmesi mümkündür.

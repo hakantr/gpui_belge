@@ -1,6 +1,6 @@
 # Platform başlık çubuğu render akışı ve pencere kontrolleri
 
-Bu bölümden itibaren doğrudan başlık çubuğunun render davranışına odaklanacağız. Pencere nasıl sürükleniyor? Linux, Windows ve macOS farkları nerede ortaya çıkıyor? Kapat, minimize ve maximize butonları hangi mekanizmalarla uygulamaya bağlanıyor? Önceki bölümlerde kurulan katmanlar burada somut davranışa dönüşür.
+Bu bölümden itibaren doğrudan başlık çubuğunun render davranışına odaklanılır. Pencere nasıl sürükleniyor? Linux, Windows ve macOS farkları nerede ortaya çıkıyor? Kapat, minimize ve maximize butonları hangi mekanizmalarla uygulamaya bağlanıyor? Önceki bölümlerde kurulan katmanlar burada somut davranışa dönüşür.
 
 ## 11. Davranış modeli
 
@@ -132,7 +132,7 @@ Zed'in ayar katmanı bu yerleşim için üç farklı kullanım biçimi sunar:
 
 Uygulama katmanında bu ayar saklanacaksa izlenecek yol basittir. Kullanıcıdan gelen ayar değeri önce `WindowButtonLayout` tipine çevrilir. Ardından render sırasında `title_bar.set_button_layout(yerlesim)` çağrısı yürütülür. Bu iki adımdan biri atlanırsa ayar durumda durur ama render geçişine yansımaz.
 
-Zed'in kendi `TitleBar` katmanı bu değişikliği `cx.observe_button_layout_changed(window, ...)` çağrısıyla dinler. Değişiklik geldiğinde hemen yeniden render tetikler. Port hedefinde masaüstü buton yerleşimi değişiklikleri canlı izlenecekse aynı gözlemci desenini kullanılmalıdır.
+Zed'in kendi `TitleBar` katmanı bu değişikliği `cx.observe_button_layout_changed(window, ...)` çağrısıyla dinler. Değişiklik geldiğinde hemen yeniden render tetikler. Port hedefinde masaüstü buton yerleşimi değişiklikleri canlı izlenecekse aynı gözlemci deseni kullanılır.
 
 **`Platform::button_layout()` trait varsayılanı `None` döner**. Bu varsayılanı **yalnızca Linux/FreeBSD platform implementasyonu** geçersiz kılar ve GTK/GNOME masaüstü ayarını (örneğin `gtk-decoration-layout`) okur. Bu nedenle `cx.button_layout()` çağrısı Windows ve macOS üzerinde her zaman `None` döner. Aynı şekilde `PlatformTitleBar::effective_button_layout(...)` de Linux + `Decorations::Client` kombinasyonu dışındaki tüm durumlarda `None` sonucunu verir. Sonuç nettir: Buton yerleşimi ayar zinciri yalnızca Linux/FreeBSD CSD penceresinde anlamlıdır. Diğer platformlarda `set_button_layout(...)` çağrılsa bile görünür bir etki üretmez.
 

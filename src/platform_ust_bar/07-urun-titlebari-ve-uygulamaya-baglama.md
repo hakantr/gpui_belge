@@ -95,7 +95,7 @@ Etkileşimli çocuk elementlerde dikkat edilmesi gereken birkaç nokta vardır:
 
 - Butonların ve açılır panel tetikleyicilerin tamamı tıklama ve fare basma olay yayılımını durdurmalıdır. Bunlar sürükleme yüzeyiyle aynı katmanda durduğu için olay yayılımı engellenmezse pencere sürüklemesi tetiklenebilir.
 - Uzun metinler ya `truncate()` değiştiricisi ile kısaltılır ya da sabit bir `max_w(...)` değeriyle sınırlandırılır. Sınır yoksa uzun proje ya da dosya adları başlık çubuğunu taşırır.
-- Sağ tarafta platform pencere butonlarının bulunabileceği akılda tutulmalıdır. Ürün butonlarının sağ iç boşluğu ve flex daralma davranışı bu olasılığa göre test edilmelidir. Bu test yoksa pencere butonlarıyla çakışma yaşanabilir.
+- Sağ tarafta platform pencere butonlarının bulunabileceğinin akılda tutulması gerekir. Ürün butonlarının sağ iç boşluğu ve flex daralma davranışının bu olasılığa göre test edilmesi beklenir. Bu test yoksa pencere butonlarıyla çakışma yaşanabilir.
 - Tam ekran modunda native pencere kontrolleri değişebileceği için macOS ve Windows davranışları ayrı ayrı doğrulanır. Tek bir platformda iyi çalışan yerleşim, diğer platformda tam ekran geçişinde bozulabilir.
 
 ## 17. Kendi uygulamana dahil etme
@@ -156,10 +156,10 @@ Zed dışında bir uygulamada doğrudan `platform_title_bar` crate'ine bağımla
 | `workspace::CloseWindow` | Uygulamanın `PencereyiKapat`, `BelgeyiKapat`, `ProjeyiKapat` veya `CikisIstendi` eylemi. |
 | `zed_actions::OpenRecent { create_new_window: true }` | Uygulamanın `YeniPencere` veya `CalismaAlaniniAc` eylemi. |
 | `WorkspaceSettings::use_system_window_tabs` | Uygulama ayarındaki native sekme seçeneği. |
-| `ItemSettings::{close_position, show_close_button}` | Sekme kapatma butonu konumu ve görünürlüğü için kendi ayar tipin. |
-| `MultiWorkspace` ve `SidebarRenderState` | Sol/sağ panel açık mı bilgisini veren kendi kabuk durum tipin. |
-| `DisableAiSettings` | Çoklu çalışma alanı veya yan panel davranışını açıp kapatan kendi özellik bayrağın. |
-| `cx.theme().colors().title_bar_background` | Kendi tema sistemindeki titlebar token'ı. |
+| `ItemSettings::{close_position, show_close_button}` | Sekme kapatma butonu konumu ve görünürlüğü için uygulamanın kendi ayar tipi. |
+| `MultiWorkspace` ve `SidebarRenderState` | Sol/sağ panel açık mı bilgisini veren uygulamanın kendi kabuk durum tipi. |
+| `DisableAiSettings` | Çoklu çalışma alanı veya yan panel davranışını açıp kapatan uygulamanın kendi özellik bayrağı. |
+| `cx.theme().colors().title_bar_background` | Tema sistemindeki titlebar token'ı. |
 
 Pratik port sınırı şu şekilde özetlenebilir:
 

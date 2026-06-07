@@ -262,7 +262,7 @@ Bu üçlü mimarinin pratik sonucu şudur: bir varlığın sadece ham byte veris
 
 ## 7. Kendi GPUI uygulamasında minimum kurulum
 
-Zed'in yaklaşımını kendi uygulamana uyarlamak için Zed'in asset dosyalarını veya crate gövdesini kopyalamana gerek yoktur. Aynı desen küçük bir `RustEmbed` struct'ı ve `AssetSource` implementasyonu ile kurulabilir:
+Zed'in yaklaşımını kendi uygulamalarına uyarlamak için geliştiricinin Zed'in asset dosyalarını veya crate gövdesini kopyalamasına gerek yoktur. Aynı desen küçük bir `RustEmbed` struct'ı ve `AssetSource` implementasyonu ile kurulabilir:
 
 ```rust
 use anyhow::Context as _;

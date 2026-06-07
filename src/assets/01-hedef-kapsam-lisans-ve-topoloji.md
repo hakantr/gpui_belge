@@ -24,12 +24,12 @@ Buna ek olarak `badge/v0.json` dosyası README üzerindeki shields.io rozetini b
 
 **İlke:** Tek bir klasör hiyerarşisi tüm bu varlık gruplarını taşır; ancak her klasör kendi özel tüketicisi tarafından işlenir. Örneğin `fonts/` klasöründeki verileri `TextSystem` okurken, `themes/` klasöründeki verileri `ThemeRegistry` işler. `AssetSource` trait'i bu yapıların tamamı için ortak bir erişim yüzeyi sunar; bunun ötesinde her tüketici kendi özel gereksinim sözleşmesini tanımlar (örneğin fontlar için `.ttf` uzantı filtresi, temalar için `.json` uzantı filtresi).
 
-**Sonuç:** Yeni bir varlık eklerken iki kararı eş zamanlı olarak vermen gerekir:
+**Sonuç:** Yeni bir varlık eklerken iki kararın eş zamanlı olarak verilmesi gerekir:
 
-1. İlgili dosyayı hangi hedef klasöre yerleştireceğin,
+1. İlgili dosyanın hangi hedef klasöre yerleştirileceği,
 2. Hangi tüketici kodun, hangi makro veya çalışma zamanı (runtime) API'si vasıtasıyla bu dosyayı çağıracağı.
 
-Sadece bir SVG dosyasını `icons/` dizini altına yerleştirmen yeterli değildir; o ikona ait bir `IconName` varyantını da tanımlaman zorunludur. Benzer şekilde, yeni bir `.wav` dosyası eklemek için `Sound` enum yapısına uygun bir varyant girmen gerekir. Bu tür yapısal eşleşme gereksinimleri tüm varlık türleri için geçerlidir.
+Sadece bir SVG dosyasının `icons/` dizini altına yerleştirilmesi yeterli değildir; o ikona ait bir `IconName` varyantının da tanımlanması zorunludur. Benzer şekilde, yeni bir `.wav` dosyası eklemek için `Sound` enum yapısına uygun bir varyant girilmesi gerekir. Bu tür yapısal eşleşme gereksinimleri tüm varlık türleri için geçerlidir.
 
 ---
 
@@ -107,7 +107,7 @@ pub trait AssetSource: 'static + Send + Sync {
 }
 ```
 
-Burada iki metoda dikkat etmen gerekir:
+Burada iki metoda dikkat edilmesi gerekir:
 
 - `load`: Verilen dosya yolu (path) için ham byte içeriğini döner. Dönüş tipindeki `Option`, bazı kaynakların 'dosya mevcut değil' durumunu `Ok(None)` ile ifade edebilmesine imkan tanır; ancak her implementasyonun bu yapıyı kullanması zorunlu değildir. Zed bünyesindeki `Assets` implementasyonu `RustEmbed::get(path)` metodu `None` döndürdüğünde `with_context` vasıtasıyla bir `Err` üretirken, boş `()` implementasyonu her durumda doğrudan `Ok(None)` döndürür.
 - `list`: Belirtilen prefix ile başlayan tüm dosya yollarını döner. Rekürsif (recursive) bir davranış sergiler; örneğin `list("fonts")` çağrısı, `fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf` gibi alt klasörlerde yer alan tüm dosyaları da listeler.
@@ -215,7 +215,7 @@ Varlık altyapısının kendi kodu (yani `assets` crate'indeki `AssetSource` imp
 | Lucide (ISC) ikonlarını `icons/LICENSES` dosyasıyla birlikte taşımak veya MIT/Apache lisanslı kendi ikonlarını eklemek | `icons/*.svg` dosyalarını `icons/LICENSES` lisans metni olmadan taşımak (ISC, telif ve izin bildiriminin korunmasını şart koşar) |
 | Yapısal akışı (RustEmbed → AssetSource → SvgRenderer → svg element) anlayıp kendi koduyla yeniden yazmak | `cx.asset_source()` çağrı zincirindeki kod parçalarını birebir kopyalamak |
 
-**Sonuç:** Varlık altyapısının genel mimari yapısı (RustEmbed + AssetSource + tüketici zincirleri) açık ve standart bir tasarım desenidir; bu nedenle telif korumasına tabi değildir. Ancak varlıkların kendileri (fontlar, ikonlar, sesler, prompt'lar) mutlaka kendi lisans dosyalarıyla birlikte taşınmalıdır. Kendi uygulamanı geliştirirken, Zed bünyesindeki font ve tema dosyalarını kendi lisanslarıyla birlikte projene dahil etmen mümkündür; Lucide (ISC) tabanlı SVG ikonlarını da `icons/LICENSES` metniyle birlikte serbestçe taşıyabilirsin. WAV ses dosyaları ise doğrudan Zed ekibi tarafından üretilmiş olup GPL-3 lisans sınırları dahilindedir; bu sınırların dışında bir kullanım hedefliyorsan, bu sesleri yeniden üretmen veya uyumlu lisansa sahip eşdeğerleriyle değiştirmen gerekir.
+**Sonuç:** Varlık altyapısının genel mimari yapısı (RustEmbed + AssetSource + tüketici zincirleri) açık ve standart bir tasarım desenidir; bu nedenle telif korumasına tabi değildir. Ancak varlıkların kendileri (fontlar, ikonlar, sesler, prompt'lar) mutlaka kendi lisans dosyalarıyla birlikte taşınmalıdır. Kendi uygulamanı geliştirirken, Zed bünyesindeki font ve tema dosyalarının kendi lisanslarıyla birlikte projeye dahil edilmesi mümkündür; Lucide (ISC) tabanlı SVG ikonları da `icons/LICENSES` metniyle birlikte serbestçe taşınabilir. WAV ses dosyaları ise doğrudan Zed ekibi tarafından üretilmiş olup GPL-3 lisans sınırları dahilindedir; bu sınırların dışında bir kullanım hedefliyorsan, bu seslerin yeniden üretilmesi veya uyumlu lisansa sahip eşdeğerleriyle değiştirilmesi gerekir.
 
 ---
 

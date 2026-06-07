@@ -1,6 +1,6 @@
 # Pratik kontrol listesi
 
-Bu bölüm, önceki bölümlerde sunulan açıklamaların özünü tek bir odak noktasında bir araya getirir. Varlık altyapısını kurarken, genişletirken veya olası bir sorunu çözmeye çalışırken dikkat edilmesi gereken kritik detayları kısa maddeler halinde inceleyebilirsin. Tipik karar noktaları ve son kontrol adımları da aynı başlık altında yer alır. Temel amaç, rehberin tamamını sıfırdan okumaya gerek kalmadan hızlıca başvurulabilecek pratik bir referans özeti sunmaktır.
+Bu bölüm, önceki bölümlerde sunulan açıklamaların özünü tek bir odak noktasında bir araya getirir. Varlık altyapısını kurarken, genişletirken veya olası bir sorunu çözmeye çalışırken dikkat edilmesi gereken kritik detaylar kısa maddeler halinde incelenebilir. Tipik karar noktaları ve son kontrol adımları da aynı başlık altında yer alır. Temel amaç, rehberin tamamını sıfırdan okumaya gerek kalmadan hızlıca başvurulabilecek pratik bir referans özeti sunmaktır.
 
 ---
 
@@ -15,7 +15,7 @@ Varlık hattı, uygulamanın başlatılma (bootstrap) akışında belirli ve kat
 5. **`load_embedded_fonts(cx)` (veya `Assets.load_fonts(cx)`)** — `TextSystem` üzerine gömülü fontlar yüklenir. Bu işlemin mutlaka pencere açılmadan **önce** gerçekleştirilmesi gerekir; aksi takdirde ilk çizim karesinde (frame) fontlar yedek sisteme (fallback) düşer.
 6. **`cx.open_window(...)`** — Pencere açıldıktan sonra kullanıcı arayüzü (UI) render hattı SVG ikonlarını okumaya başlar. Bu aşamada varlık hattının önceki adımlarının tamamlanmış olması beklenir.
 
-**Kontrol:** Uygulama başarıyla çalıştığı halde ikonlar ekranda görünmüyorsa `with_assets` bağlantısını doğrulaman gerekir. Fontlar beklenen aileyle render edilmiyorsa, `load_embedded_fonts` çağrısının pencere açılmadan **önce** yapıldığından emin olman gerekir.
+**Kontrol:** Uygulama başarıyla çalıştığı halde ikonlar ekranda görünmüyorsa `with_assets` bağlantısının doğrulanması gerekir. Fontlar beklenen aileyle render edilmiyorsa, `load_embedded_fonts` çağrısının pencere açılmadan **önce** yapıldığından emin olunması gerekir.
 
 ---
 
@@ -26,9 +26,9 @@ Varlık hattı, uygulamanın başlatılma (bootstrap) akışında belirli ve kat
 - **Exclude (Hariç Tutma) Önceliklidir:** `RustEmbed` include ve exclude kalıplarını `globset` kütüphanesi vasıtasıyla ayrı kümeler halinde değerlendirir. Herhangi bir exclude eşleşmesi, include kurallarını doğrudan ezer. Direktiflerin yazılış sırası 'ilk eşleşen kazanır' mantığına göre çalışmaz.
 - **Glob Kalıpları:** `RustEmbed` tarafından kullanılan `globset::Glob::new` yapısı, varsayılan ayarlarında `*` karakterinin yol ayırıcılarını da eşlemesine izin verebilir. Zed bünyesindeki `#[include = "keymaps/*"]` kalıbının platform alt dizinlerini de kapsayabilmesi bu sayede mümkün olur. Yine de yeni yazılacak özyinelemeli (recursive) kurallarda `**/*` kalıbının tercih edilmesi, geliştiricinin niyetini daha net yansıtır.
 - **`*.DS_Store` Dosyalarını Hariç Tutmak:** macOS Finder penceresi bu gizli dosyaları otomatik olarak üretir. Eğer include kalıbı çok geniş tutulursa, bu gereksiz dosyalar ikili dosya (binary) içerisine sızabilir.
-- **Derleme Önbelleği (Cache) Geçersiz Kılma Sorunu:** `RustEmbed` yapısının dosya değişikliklerini izleyemediği uç durumlarda, eski varlık içerikleri ikili dosya içinde kalabilir. Belirgin bir varlık değişikliği yapılmasına rağmen beklenen güncel durum gözlemlenemiyorsa, `cargo clean -p assets` (veya ilgili crate ismiyle) komutunu çalıştırarak önbelleği temizlemen gerekir.
+- **Derleme Önbelleği (Cache) Geçersiz Kılma Sorunu:** `RustEmbed` yapısının dosya değişikliklerini izleyemediği uç durumlarda, eski varlık içerikleri ikili dosya içinde kalabilir. Belirgin bir varlık değişikliği yapılmasına rağmen beklenen güncel durum gözlemlenemiyorsa, `cargo clean -p assets` (veya ilgili crate ismiyle) komutunu çalıştırarak önbelleğin temizlenmesi gerekir.
 
-**Kontrol:** Yeni bir varlık eklendiği halde çalışma zamanında (runtime) erişilemiyorsa sırasıyla şu üç adımı doğrulaman gerekir: (a) Dosya `assets/` dizini altında doğru konumda mı? (b) `RustEmbed` include kalıbı bu hedef klasörü kapsıyor mu? (c) İlgili crate yeniden derlendi mi?
+**Kontrol:** Yeni bir varlık eklendiği halde çalışma zamanında (runtime) erişilemiyorsa sırasıyla şu üç adımın doğrulanması gerekir: (a) Dosya `assets/` dizini altında doğru konumda mı? (b) `RustEmbed` include kalıbı bu hedef klasörü kapsıyor mu? (c) İlgili crate yeniden derlendi mi?
 
 **Eksik Yol Davranışı:** `Assets::load` metodu, eksik veya bulunamayan bir dosya için `Ok(None)` değeri dönmez; bunun yerine yüklenemeyen dosya yolunu bağlam (context) bilgisine ekleyen ayrıntılı bir hata üretir. `Ok(None)` davranışı yalnızca boş `()` varlık kaynağı veya bunu özel olarak tercih eden özelleştirilmiş `AssetSource` uygulamaları için geçerlidir. Log kayıtlarında bu tür bir varlık yükleme hatasıyla karşılaşılıyorsa, sorun genellikle uyumsuz yollardan, eksik dosyalardan veya include kalıplarının hatalı tanımlanmasından kaynaklanır.
 
@@ -39,15 +39,15 @@ Varlık hattı, uygulamanın başlatılma (bootstrap) akışında belirli ve kat
 Yeni bir ikon eklerken takip edilmesi ve kontrol edilmesi gereken adımlar şunlardır:
 
 1. SVG dosyası **monochromatic (tek renkli)** yapıda olmalı ve renk dolgusu için `currentColor` değerini kullanmalıdır. Aksi takdirde, sistemin `text_color` üzerinden yapacağı renklendirme işlemleri beklenmedik sonuçlar doğurur.
-2. İlgili dosyayı `assets/icons/snake_case_isim.svg` biçiminde adlandırarak konumlandırman gerekir.
-3. `icons` crate'i bünyesindeki `IconName` enum yapısına `CamelCase` formatında yeni bir varyant eklemen gerekir. Varyantların enum içerisindeki sırasını alfabetik tutmak, zorunlu bir derleme gereksinimi olmasa da kodun okunabilirliği açısından tercih edilen bir standarttır.
-4. Kod katmanında bu ikonu `Icon::new(IconName::YeniIkon)` şeklinde çağırarak kullanabilirsin.
+2. İlgili dosyayı `assets/icons/snake_case_isim.svg` biçiminde adlandırarak konumlandırılması gerekir.
+3. `icons` crate'i bünyesindeki `IconName` enum yapısına `CamelCase` formatında yeni bir varyant eklenmesi gerekir. Varyantların enum içerisindeki sırasını alfabetik tutmak, zorunlu bir derleme gereksinimi olmasa da kodun okunabilirliği açısından tercih edilen bir standarttır.
+4. Kod katmanında bu ikonun `Icon::new(IconName::YeniIkon)` şeklinde çağırarak kullanılması mümkündür.
 
-**Dikkat Etmen Gereken Hususlar:**
+**Dikkat Edilmesi Gereken Hususlar:**
 
 - **Uyumsuz Dosya Adlandırması:** Eğer dosya adı `YeniIkon.svg` gibi CamelCase biçiminde kaydedilirse, `IconName::path()` metodu çalışma zamanında `snake_case` bir yol üreteceği için dosya sistemde bulunamaz.
 - **Eksik Boyut Bilgisi:** `width`, `height` ve `viewBox` özniteliklerinin üçü birden eksikse, `SvgRenderer` motoru ikon boyutunu sıfır olarak çözümler ve çizim (render) işlemi başarısız olur. `usvg` kütüphanesi, `width` ve `height` belirtilmediğinde bunları `%100` kabul eder; yani tek başına `viewBox` bulunmasa bile, boyutları tanımlanmış bir SVG render edilebilir. Yine de ikonun düzgün ölçeklenmesi için `viewBox="0 0 16 16"` gibi bir öznitelik tanımı yapılması önerilir. Asıl çizim hatası, üç göstergenin de bulunmadığı ya da hesaplanan boyutun sıfır veya negatif çıktığı durumlarda meydana gelir.
-- **Sabit Piksel Boyutları:** SVG dosyasındaki `width` ve `height` özniteliklerinin piksel cinsinden sabit değerlere sahip olması durumunda render edilen boyut küçük kalabilir. En sağlıklı yöntem bu öznitelikleri `width="100%" height="100%"` olarak ayarlamak veya tamamen kaldırmaktır; ikonun asıl boyutunu element seviyesinde `Icon::size` metoduyla belirleyebilirsin.
+- **Sabit Piksel Boyutları:** SVG dosyasındaki `width` ve `height` özniteliklerinin piksel cinsinden sabit değerlere sahip olması durumunda render edilen boyut küçük kalabilir. En sağlıklı yöntem bu öznitelikleri `width="100%" height="100%"` olarak ayarlamak veya tamamen kaldırmaktır; ikonun asıl boyutunun element seviyesinde `Icon::size` metoduyla belirlenmesi mümkündür.
 
 **Renkli SVG Kullanımı:** `svg().path(...)`, `Icon` ve `Vector` yolları `Window::paint_svg` fonksiyonu üzerinden bir alfa maskesi (alpha mask) oluşturur ve içeriği tek bir renge boyar. Eğer renkli bir SVG veya kurumsal bir logo çizdirilmek isteniyorsa, `img("images/urun_logosu.svg")` yolu tercih edilmelidir; bu yaklaşım SVG dosyasını tam renkli bir `RenderImage` olarak pikselleştirir (rasterize eder).
 
@@ -70,12 +70,12 @@ Yeni bir ikon eklerken takip edilmesi ve kontrol edilmesi gereken adımlar şunl
 
 Yeni bir font entegre ederken iki farklı tüketici noktasını güncellemek gerekir:
 
-- `assets/fonts/<aile>/` dizini altına `.ttf` dosyalarını yerleştirmen gerekir. `load_embedded_fonts` fonksiyonu bu dizinde özyinelemeli (recursive) bir tarama yaparak dosyaları otomatik olarak keşfeder.
-- `gpui` crate'i altındaki `load_bundled_fonts` listesinin güncellenme ihtiyacını değerlendirmen gerekir. Eğer bu fontun SVG çizimleri içinde de kullanılmasını hedefliyorsan ilgili dosya yolunu bu listeye eklemen gerekir; aksi halde yeni fontu yalnızca `TextSystem` tanıyacaktır.
+- `assets/fonts/<aile>/` dizini altına `.ttf` dosyalarının yerleştirilmesi gerekir. `load_embedded_fonts` fonksiyonu bu dizinde özyinelemeli (recursive) bir tarama yaparak dosyaları otomatik olarak keşfeder.
+- `gpui` crate'i altındaki `load_bundled_fonts` listesinin güncellenme ihtiyacının değerlendirilmesi gerekir. Eğer bu fontun SVG çizimleri içinde de kullanılmasını hedefliyorsan ilgili dosya yolunun bu listeye eklenmesi gerekir; aksi halde yeni fontu yalnızca `TextSystem` tanıyacaktır.
 
 **Lisans Dosyalarının Sağlanması:** SIL Open Font License (OFL) ile lisanslanmış fontlar için lisans metni (`OFL.txt` veya `license.txt`) mutlaka font klasörünün içerisine dahil edilmelidir. Bu belgeler `.ttf` filtresi tarafından otomatik olarak süzüldüğü için `TextSystem` belleğine yüklenmez; fakat dağıtılabilir varlık paketinin (asset bundle) içinde yer alarak yasal gereksinimleri karşılar.
 
-**Genel Yazı Tipi Ailesi (Generic Family) Yedekleri:** SVG çizimlerinde `font-family="sans-serif"` veya `font-family="monospace"` gibi genel tanımlar kullanılıyorsa ve özellikle Linux sistemlerde çizim hataları yaşanıyorsa, `fix_generic_font_families` fonksiyonundaki yedek eşleme kurallarını güncellemek gerekir. Eğer yeni eklenen bir font ailesini varsayılan sistem yedeği haline getirmek istiyorsan, ilgili eşleme bloğuna ekleme yapman gerekir.
+**Genel Yazı Tipi Ailesi (Generic Family) Yedekleri:** SVG çizimlerinde `font-family="sans-serif"` veya `font-family="monospace"` gibi genel tanımlar kullanılıyorsa ve özellikle Linux sistemlerde çizim hataları yaşanıyorsa, `fix_generic_font_families` fonksiyonundaki yedek eşleme kurallarını güncellemek gerekir. Eğer yeni eklenen bir font ailesini varsayılan sistem yedeği haline getirmek istiyorsan, ilgili eşleme bloğuna ekleme yapılması gerekir.
 
 ---
 
@@ -83,9 +83,9 @@ Yeni bir font entegre ederken iki farklı tüketici noktasını güncellemek ger
 
 Ses varlığı ekleme süreci şu adımlardan oluşur:
 
-1. WAV uzantılı ses dosyasını `assets/sounds/<dosya_adi>.wav` yoluna yerleştirmen gerekir. Ses çözücü motor (`rodio::Decoder`) yalnızca PCM kodlamalı WAV formatını destekler; dolayısıyla başka formatlar kullanılmamalıdır.
-2. `audio` crate'i bünyesindeki `Sound` enum yapısına yeni varyantı eklemen gerekir.
-3. `Sound::file` metodundaki `match` bloğuna `Self::YeniSes => "yeni_ses"` eşlemesini girmen gerekir.
+1. WAV uzantılı ses dosyasının `assets/sounds/<dosya_adi>.wav` yoluna yerleştirilmesi gerekir. Ses çözücü motor (`rodio::Decoder`) yalnızca PCM kodlamalı WAV formatını destekler; dolayısıyla başka formatlar kullanılmamalıdır.
+2. `audio` crate'i bünyesindeki `Sound` enum yapısına yeni varyantın eklenmesi gerekir.
+3. `Sound::file` metodundaki `match` bloğuna `Self::YeniSes => "yeni_ses"` eşlemesinin girilmesi gerekir.
 
 **Kontrol Adımları:**
 
@@ -99,8 +99,8 @@ Ses varlığı ekleme süreci şu adımlardan oluşur:
 
 Yeni bir tema entegre ederken izlenmesi gereken adımlar şunlardır:
 
-- Tema dosyasını `assets/themes/<tema_ailesi>/<tema_ailesi>.json` yoluna kaydetmen gerekir (aile adı, klasör ve dosya adı ile birebir aynı olmalıdır).
-- İlgili tema ailesine ait `LICENSE` dosyasını klasör içine yerleştirmen ve `themes/LICENSES/` dizini altına gerekli atıfları (attribution) eklemen gerekir.
+- Tema dosyasının `assets/themes/<tema_ailesi>/<tema_ailesi>.json` yoluna kaydedilmesi gerekir (aile adı, klasör ve dosya adı ile birebir aynı olmalıdır).
+- İlgili tema ailesine ait `LICENSE` dosyasının klasör içine yerleştirilmesi ve `themes/LICENSES/` dizini altına gerekli atıfların (attribution) eklenmesi gerekir.
 - JSON dosyasının veri şeması, Zed bünyesindeki `ThemeFamilyContent` struct yapısıyla tam bir uyum (parity) içinde olmalıdır. Eksik alanlar `refine_theme_family` yardımcı işlevi tarafından doldurulabilir; ancak şemada tanımlanmamış bilinmeyen alanlar `serde` ayrıştırıcısı tarafından reddedilebilir.
 
 **Dikkat Edilmesi Gereken Noktalar:**
@@ -115,13 +115,13 @@ Yeni bir tema entegre ederken izlenmesi gereken adımlar şunlardır:
 
 ## 8. Settings ve keymap dosyalarını değiştirmek
 
-Uygulama ayarlarını (`settings`) barındıran JSON dosyaları üzerinde değişiklik yaparken şunlara dikkat etmen gerekir:
+Uygulama ayarlarını (`settings`) barındıran JSON dosyaları üzerinde değişiklik yaparken şunlara dikkat edilmesi gerekir:
 
 - **Varsayılan Ayarlar (`default.json`):** Bu dosyadaki herhangi bir değişiklik tüm kullanıcıları doğrudan etkiler. Bu nedenle geri dönük uyumluluk (backwards compatibility) mutlaka gözetilmelidir. Mevcut bir ayarın varsayılan değerini değiştirmek, kullanıcıların çalışma alışkanlıklarını etkileyebilir.
 - **İlk Kurulum Şablonları (`initial_*.json`):** Bu dosyalardaki değişiklikler yalnızca uygulamayı ilk kez kuran yeni kullanıcılar için geçerli olur. Mevcut kullanıcıların kendi özelleştirdikleri ayar dosyaları bu süreçten etkilenmez.
 - **Zorunlu Alanlar:** JSON şemasındaki alanlar `serde` ile çözümlenirken `Option<T>` sarmalayıcısına sahip olmayan alanlar zorunlu kabul edilir. Bu alanların boş veya eksik bırakılması uygulamanın başlatılmasını engelleyebilir.
 
-Kısayol eşleme (`keymap`) dosyalarını güncellerken dikkat etmen gerekenler:
+Kısayol eşleme (`keymap`) dosyalarını güncellerken dikkat edilmesi gerekenler:
 
 - **Platform Özgü Dosyalar:** İşletim sistemlerine özel kısayollar (`default-macos.json`, `default-linux.json`, `default-windows.json`) ayrı dosyalarda yönetilir. Yeni bir kısayolun her üç platformda da geçerli olması isteniyorsa, üç dosyanın da güncellenmesi gerekir.
 - **Editör Emülasyon Paketleri:** JetBrains veya VS Code gibi popüler editörlerin tuş kombinasyonlarını taklit eden dosyalar (`keymaps/macos/jetbrains.json` vb.) isteğe bağlıdır; kullanıcılar bu paketleri `BaseKeymap` ayarı üzerinden aktif hale getirebilirler.
@@ -174,7 +174,7 @@ Yeni bir varlık türü entegre edilirken doğru hedef crate'in seçilmesi, bu m
 
 ## 11. Son kontrol listesi
 
-Varlık altyapısı kurulup yapılandırıldıktan sonra doğrulaman gereken son sağlamlık kontrolleri şunlardır:
+Varlık altyapısı kurulup yapılandırıldıktan sonra doğrulanması gereken son sağlamlık kontrolleri şunlardır:
 
 - [ ] `with_assets(Assets)` çağrısı `Application::with_platform` akışına düzgün şekilde bağlanmış mı?
 - [ ] `load_embedded_fonts(cx)` çağrısı pencere açılmadan **önce** yürütülüyor mu?

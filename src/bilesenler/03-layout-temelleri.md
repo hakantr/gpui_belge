@@ -74,7 +74,7 @@ fn arac_cubugu_basligini_render_et(yol: SharedString) -> impl IntoElement {
 }
 ```
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
 - `h_flex()` varsayılan olarak `items_center()` uygular. Üstten hizalama gerektiğinde bunun `.items_start()` ile geçersiz kılınması (override) gerekir.
 - Uzun metin barındıran yatay flex (h-flex) satırlarında üst öğeye `.min_w_0()`, etiket öğesine de `.truncate()` eklenmelidir; aksi halde flex algoritması metni kısaltmak yerine satırı taşırabilir.
@@ -144,7 +144,7 @@ fn ust_veri_istifini_render_et(dal: SharedString, yol: SharedString) -> impl Int
 }
 ```
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
 - `h_group*` ve `v_group*` bir bileşen değildir; yalnızca düz bir `Div` döndürür.
 - Group yardımcılarını iç içe fazla kullanmak yerleşimi zamanla belirsizleştirir. Ana kapsayıcı için `h_flex` veya `v_flex`, küçük alt kümeler için group yardımcı kullanımı, bu hiyerarşinin okunabilir kalmasını sağlar.
@@ -155,7 +155,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::Divider`, `ui::DividerColor`, `ui::divider`, `ui::vertical_divider`
-- Prelude: Hayır; ayrıca import etmen gerekir.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Divider`.
 
 Ne zaman kullanılır:
@@ -222,7 +222,7 @@ Zed içinden kullanım örnekleri:
 - `recent_projects` crate'i: proje grupları ve araç çubuğu ayrımları.
 - `git_ui` crate'i: diff araç çubuğu üzerindeki dikey ayırıcılar.
 
-Dikkat edeceğin noktalar:
+Dikkat edilmesi gereken noktalar:
 
 - `Divider` bir yerleşim (layout) aracı değildir; tamamen görsel bir ayrım oluşturma amacı taşır. Çok sık kullanıldığında arayüz hızla kalabalıklaşabilir. Bölüm hiyerarşisini öncelikle aralıklar ve başlıklar üzerinden kurmak çok daha sade bir sonuç verir; ayırıcı hatlar ise en son seçenek olarak değerlendirilmelidir.
 - Kesik çizgili ayırıcı, kesik çizgi efektini elde edebilmek için özel bir canvas çizimi gerçekleştirir. Basit bir ayrım yeterli olduğu durumlarda düz ayırıcı hem daha düşük maliyetli hem de görsel olarak daha tutarlı bir tercihtir.

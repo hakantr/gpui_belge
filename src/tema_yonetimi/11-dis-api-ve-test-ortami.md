@@ -188,7 +188,7 @@ use kvs_tema::prelude::*;
 Tüketici kodun güvenle yapabileceği işlemler:
 
 - ✓ `cx.theme().colors().background` okunabilir.
-- ✓ `kvs_tema::Theme` ve `kvs_tema::ThemeColors` yapılarını import edebilirsin.
+- ✓ `kvs_tema::Theme` ve `kvs_tema::ThemeColors` yapılarının import edilmesi mümkündür.
 - ✓ `ThemeRegistry::global(cx)` ile registry sorgulanabilir.
 - ✓ `kvs_tema::init(kvs_tema::LoadThemes::JustBase, cx)` çağrılabilir.
 - ✓ `kvs_tema::temayi_degistir(ad, cx)` ile tema değiştirilebilir.
@@ -288,7 +288,7 @@ Aşağıdaki öğeler ana sözleşme kadar büyük görünmeyebilir, fakat tema 
 | `ThemeSettings::modify_theme` override akışı | Full `refine_theme` değildir: `apply_status_color_defaults` veya `apply_theme_color_defaults` çağrısı yapmaz; status/theme refinement işlemlerini doğrudan uygular, player/accent alanlarını birleştirir ve syntax için `SyntaxTheme::merge(base, syntax_overrides(...))` işlevini kullanır. |
 | `SyntaxTheme::merge(base, overrides) -> Arc<Self>` | **Field-bazlı merge**: aynı capture varsa `new.<f>.or(existing.<f>)` ile birleştirir; capture yeni ise listenin sonuna eklenir. Override boşsa baseline klonlanmadan geri döndürülür. İlgili bölüm + settings seviyesi theme override akışında kanonik kullanımdır |
 | `ThemeName`, `IconThemeName`, `ThemeAppearanceMode`, `FontFamilyName` re-export zinciri | Owner `settings_content`'tir; `theme_settings` `pub use` ile köprü kurar. Mirror yapısında `kvs_ayarlari_icerik` (veya muadili) tek kaynak kabul edilir, `kvs_tema_ayarlari` ise yalnızca `pub use` ile bunu yeniden dışa açar. Aynı tipin iki farklı yerde tanımlanması, tip kimliklerinin (type identity) ayrışmasına ve çakışmalara yol açar. |
-| `Theme.styles` görünürlüğü | Zed'de **`pub styles: ThemeStyles`** (alan-bazlı). Yerel tasarım accessor disiplini için `pub(crate)` seçebilirsin; bu yerel bir sıkılaştırmadır. Zed paritesi `pub`'tır |
+| `Theme.styles` görünürlüğü | Zed'de **`pub styles: ThemeStyles`** (alan-bazlı). Yerel tasarım accessor disiplini için `pub(crate)` seçilebilir; bu yerel bir sıkılaştırmadır. Zed paritesi `pub`'tır |
 | `ThemeStylesRefinement` | `#[derive(Refineable)]` tarafından `ThemeStyles` için üretilen public refinement tipidir. Nested `colors` ve `status` override zinciri için kullanılır; mirror tarafında derive çıktısı veya elle yazılmış eşdeğeri public kapsama dahil edilmelidir |
 | `ThemeColorFieldIter` | `ThemeColorField` üzerindeki `EnumIter` derive çıktısıdır. Doğrudan elle import etmek yerine `ThemeColorField::iter()` ve `all_theme_colors(cx)` üzerinden tüketilmesi önerilir; rustdoc public API'de ayrı tip olarak görünür |
 | `ThemeFamily` alan görünürlüğü | `id`, `name`, `author`, `themes`, `scales` alanlarının tamamı `pub`'tır. `scales: ColorScales` alanı hedeflenen referansta 33 paleti taşır |

@@ -222,6 +222,6 @@ Collab ve follow akışı için `FollowableItem` kullanılır:
 **Dikkat Edilmesi Gereken Hususlar.** Serileştirme, seçenekler ve arama tarafında hataya açık kullanımlar:
 
 - Öğe serileştirmeyi (serializable item) kaydetmediğinde `deserialize` hiç çağrılmaz; oturum geri yükleme (session restore) sessiz biçimde geçersiz öğeye düşebilir.
-- `serialized_item_kind` global bir ad alanı (namespace) gibidir; başka öğe kimlikleriyle çakıştırmaman gerekir.
-- Arama eşleşme (search match) tipini byte offset, buffer snapshot ve token ile uyumlu tutman gerekir; bayat match'i yeni buffer üzerinde kullanman yanlış aralığa yönlenmesine neden olur.
-- `OpenOptions::visible = None` varsayılan olarak çalışma alanına görünür worktree ekleme anlamı taşımaz; path açma davranışını dizin/dosya ayrımı için açıkça seçmen gerekir.
+- `serialized_item_kind` global bir ad alanı (namespace) gibidir; başka öğe kimlikleriyle çakıştırılmaması gerekir.
+- Arama eşleşme (search match) tipinin byte offset, buffer snapshot ve token ile uyumlu tutulması gerekir; bayat match'i yeni buffer üzerinde kullanmak yanlış aralığa yönlenmesine neden olur.
+- `OpenOptions::visible = None` varsayılan olarak çalışma alanına görünür worktree ekleme anlamı taşımaz; path açma davranışının dizin/dosya ayrımı için açıkça seçilmesi gerekir.

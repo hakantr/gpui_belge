@@ -236,7 +236,7 @@ h_flex()
     )
 ```
 
-Zed'in bilinen ikon setinden bir simge çizeceksen `Icon::new(IconName::...)` en okunaklı yoldur; tema rengi, boyut ve Zed UI sözleşmeleri bu bileşende toplanır. `svg().path(...)` metodu, URL veya dosya kaynaklı raster görsel çizimlerinde ise `img(...)` yapısı tercih edilir.
+Zed'in bilinen ikon setinden bir simge çizilecekse `Icon::new(IconName::...)` en okunaklı yoldur; tema rengi, boyut ve Zed UI sözleşmeleri bu bileşende toplanır. `svg().path(...)` metodu, URL veya dosya kaynaklı raster görsel çizimlerinde ise `img(...)` yapısı tercih edilir.
 
 **Önbellek davranışı.** İki katmanlıdır: `window.use_asset::<A>(kaynak, cx)` aynı asset türü ve kaynak için tek asenkron yükleme görevini paylaşır ve ilk yükleme tamamlandığında o anki view'i sonraki frame'de yeniden çizdirir. `window.get_asset::<A>(...)` aynı görevi yoklar, fakat tamamlanınca redraw planlamaz. `ImageCache` ise kodu çözülmüş `RenderImage` nesnesini tutar. Element bazında `.image_cache(&varlik)` veya ağacın üst seviyesinde `image_cache(retain_all("id"))` kullanılabilir. Hata kaydı `ImgResourceLoader = AssetLogger<...>` ile otomatiktir.
 
@@ -247,7 +247,7 @@ Zed'in bilinen ikon setinden bir simge çizeceksen `Icon::new(IconName::...)` en
 - `with_fallback` yalnız yükleme tamamlandığında ve hatalıysa yedeği çizer.
 - `with_loading` yükleme 200 ms'den uzun sürerse yükleme yedeğini çizer. Bu eşik `gpui::LOADING_DELAY: Duration` sabitiyle tanımlıdır (`elements/img`); benzer gecikmeli yedek akışlarında da aynı süre değerinden yararlanılabilir.
 - `RenderImage` GIF veya animasyonlu WebP için `frame_count()` ve `delay(frame_index)` sağlar. `img` elementi aktif pencerede kare ilerletir ve animasyon karesi ister.
-- Yol sınıflandırıcı veya ayarlar güvenlik kontrolü yazarken macOS ve Windows'un varsayılan büyük/küçük harfe duyarsız dosya sistemlerini atlamaman gerekir. `util::paths::component_matches_ignore_ascii_case(component, ".zed")` gibi ASCII duyarsız yardımcı fonksiyonlar tercih edilmeli; `.ZED/settings.json` gibi varyasyonlar düz `== ".zed"` karşılaştırmasıyla atlanmamalıdır.
+- Yol sınıflandırıcı veya ayarlar güvenlik kontrolü yazarken macOS ve Windows'un varsayılan büyük/küçük harfe duyarsız dosya sistemlerinin atlanmaması gerekir. `util::paths::component_matches_ignore_ascii_case(component, ".zed")` gibi ASCII duyarsız yardımcı fonksiyonlar tercih edilmeli; `.ZED/settings.json` gibi varyasyonlar düz `== ".zed"` karşılaştırmasıyla atlanmamalıdır.
 
 ## Asset, ImageCache ve Surface Boru Hattı
 
@@ -394,13 +394,13 @@ Bu kalıpta `insert_hitbox` prepaint aşamasında çalıştırılır; `set_curso
 
 - `PathBuilder::fill()` veya `PathBuilder::stroke(width)` ile başlatılır.
 - `move_to(point)`, `line_to(point)`, `curve_to(to, ctrl)`, `cubic_bezier_to(to, control_a, control_b)`, `arc_to(radii, x_rotation, large_arc, sweep, to)`, `relative_arc_to(...)`, `add_polygon(...)`, `close()`.
-- `dash_array(&[Pixels])` yalnızca stroke path'lerde anlamlıdır; tek sayıda değer verirsen SVG/CSS davranışındaki gibi liste iki kez tekrarlanır.
+- `dash_array(&[Pixels])` yalnızca stroke path'lerde anlamlıdır; tek sayıda değer verilirse SVG/CSS davranışındaki gibi liste iki kez tekrarlanır.
 - `transform(...)`, `translate(point)`, `scale(f32)`, ve `rotate(degrees)` metotları, build öncesinde path yapısını dönüştürür.
 - `build()` → tessellate edilmiş `Path<Pixels>` döner; hata `?` ile yayılır.
 
 **Tessellator parametreleri** (`PathStyle`, `FillOptions`, `StrokeOptions`, `FillRule`).
 
-GPUI bu tipleri lyon'dan yeniden dışa aktarır (`pub use lyon::tessellation::{FillOptions, FillRule, StrokeOptions}`, `path_builder`). `PathBuilder::with_style(...)`, hazır `fill()` veya `stroke(width)` builder'ının stilini açık bir `PathStyle` ile değiştirmek içindir. `PathBuilder::build_path(buf)` ise lyon tessellator'ından gelen `VertexBuffers` değerini `Path<Pixels>` modeline dönüştüren düşük seviye köprüdür; normal kullanımda `build()` bunu senin adına çağırır. `PathBuilder.style: PathStyle` alanı `pub` görünürlüktedir; iki varyantı vardır:
+GPUI bu tipleri lyon'dan yeniden dışa aktarır (`pub use lyon::tessellation::{FillOptions, FillRule, StrokeOptions}`, `path_builder`). `PathBuilder::with_style(...)`, hazır `fill()` veya `stroke(width)` builder'ının stilini açık bir `PathStyle` ile değiştirmek içindir. `PathBuilder::build_path(buf)` ise lyon tessellator'ından gelen `VertexBuffers` değerini `Path<Pixels>` modeline dönüştüren düşük seviye köprüdür; normal kullanımda `build()` bunu otomatik olarak çağırır. `PathBuilder.style: PathStyle` alanı `pub` görünürlüktedir; iki varyantı vardır:
 
 ```rust
 pub enum PathStyle {
@@ -418,12 +418,12 @@ Varsayılan yapıcılar, lyon'un varsayılan parametrelerini ayarlar (`PathBuild
 | `path_builder` | crate kök reexport | Path çizim ve lyon tessellation yardımcılarını kök namespace'e taşır. |
 | `Orientation` | `Horizontal`, `Vertical` | Path fill sweep orientation ve erişilebilirlik yön bilgisinde kullanılan ortak yön enum'udur. |
 | `ContentMask` | `bounds`, `intersect` | Paint/prepaint sırasında aktif kırpma sınırını taşır. |
-| `outline` | bounds, color, border style | `fill`/`quad` gibi modül düzeyinde serbest bir fonksiyondur; ürettiği `PaintQuad`'ı `window.paint_quad(...)`'a verirsin. |
+| `outline` | bounds, color, border style | `fill`/`quad` gibi modül düzeyinde serbest bir fonksiyondur; ürettiği `PaintQuad`'ı `window.paint_quad(...)` argümanı olarak verilir. |
 
 - `StrokeOptions` — `line_width` (varsayılan 1.0), `start_cap` ve `end_cap` (her sub-path için başlangıç ve bitiş ucu, varsayılan `LineCap::Butt`), `line_join` (varsayılan `LineJoin::Miter`), `miter_limit` (varsayılan 4.0), `tolerance` (varsayılan 0.1). Tüm sabitler `lyon_tessellation::StrokeOptions::{DEFAULT_LINE_CAP, DEFAULT_LINE_JOIN, DEFAULT_MITER_LIMIT, DEFAULT_LINE_WIDTH, DEFAULT_TOLERANCE}` const'larında bulunur.
 - `FillRule::EvenOdd` (lyon ve gpui varsayılanı): SVG even-odd kuralıdır; iç içe path'lerde delik oluşturur. İki üst üste binen kapalı path'in çakışan bölgesi şeffaf hale gelir. `FillRule::NonZero`: SVG non-zero winding kuralıdır; yön birleşimine göre kapsama hesaplar, çakışan path'ler genellikle dolu kalır. Karmaşık kompozit şekiller için bilinçli olarak `non_zero()` seçeneği tercih edilmelidir.
 
-Lyon API'sine inmek istiyorsan `lyon::tessellation::FillOptions::tolerance(0.5)` gibi builder zincirlerini kullanabilirsin; GPUI bu builder'ları olduğu gibi yeniden dışa aktardığı için ayrı bir sarmalayıcıya ihtiyaç yoktur.
+Lyon API'sine inmek istenirse `lyon::tessellation::FillOptions::tolerance(0.5)` gibi builder zincirlerini kullanmak mümkündür; GPUI bu builder'ları olduğu gibi yeniden dışa aktardığı için ayrı bir sarmalayıcıya ihtiyaç yoktur.
 
 **Window paint API'leri.** Path veya quad yapıları GPU'ya iletilirken pencere üzerindeki paint metotları tercih edilir:
 
@@ -613,7 +613,7 @@ div()
     )
 ```
 
-Çoklu animasyon zinciri için `with_animations(id, vec![anim_a, anim_b], |el, ix, delta| ...)`'i kullanırsın. Closure'a (element, animation_index, delta_in_animation) parametreleri verilir; `ix` aktif animasyonun vec içindeki sırası, `delta` ise o animasyona göre 0..1 ilerlemesidir. Sıralı veya çoklu fazlı geçişler tasarlanırken `ix` değeri üzerinden eşleşme (`match`) kurulabilir.
+Çoklu animasyon zinciri için `with_animations(id, vec![anim_a, anim_b], |el, ix, delta| ...)` kalıbı kullanılır. Closure'a (element, animation_index, delta_in_animation) parametreleri verilir; `ix` aktif animasyonun vec içindeki sırası, `delta` ise o animasyona göre 0..1 ilerlemesidir. Sıralı veya çoklu fazlı geçişler tasarlanırken `ix` değeri üzerinden eşleşme (`match`) kurulabilir.
 
 **Yerleşik easing fonksiyonları** (`gpui` crate'i): `linear`, `quadratic`, `ease_in_out`, `ease_out_quint()`, `bounce(inner)`, `pulsating_between(min, max)`. `pulsating_between` yön değiştirerek değer döndürür (yükleme göstergeleri için idealdir; `Animation::repeat()` ile birleştirilebilir).
 

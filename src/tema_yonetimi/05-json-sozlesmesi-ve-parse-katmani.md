@@ -820,7 +820,7 @@ fn tema_stil_anahtarlarini_dogrula(stil: &serde_json::Map<String, serde_json::Va
 - Anahtar validasyonu AÇIK: Tema yüklemesi alan yolunu gösteren bir hatayla durur. Hata hızlıca bulunur.
 - Anahtar validasyonu YOK: Alan sessizce atlanır. JSON'da renk verilmiş gibi görünür, ama uygulama taban değeri kullanır.
 
-**Bu kural nettir:** Mevcut Zed sözleşmesinde olmayan alanlar kabul edilmez. `ThemeStyleContent` `#[serde(flatten)]` kullandığı için pratik çözüm `deny_unknown_fields` değil, hedef sözleşmedeki anahtarları tutan açık bir izin listesi validasyonudur. Zed referansı güncellenecekse önce ayna struct'larını, sonra izin listesini, fixture ve snapshot testlerini güncellemen gerekir.
+**Bu kural nettir:** Mevcut Zed sözleşmesinde olmayan alanlar kabul edilmez. `ThemeStyleContent` `#[serde(flatten)]` kullandığı için pratik çözüm `deny_unknown_fields` değil, hedef sözleşmedeki anahtarları tutan açık bir izin listesi validasyonudur. Zed referansı güncellenecekse önce ayna struct'larının, sonra izin listesinin, fixture ve snapshot testlerinin güncellenmesi gerekir.
 
 Pratik yükleme yardımcısı bu yüzden iki aşamalı yazılır: önce JSON toleranslı biçimde `serde_json::Value` olarak okunur, `themes[*].style` içindeki anahtarlar `TEMA_STIL_ANAHTARLARI` ile doğrulanır, sonra aynı değer `ThemeFamilyContent` tipine deserialize edilir. Bu rehberde örnek yardımcı adı `tema_ailesini_kati_ayristir(baytlar)` olarak tercih edilir.
 

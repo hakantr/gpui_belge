@@ -6,7 +6,7 @@
 
 ![GPUI Async Mimari](assets/async-mimari.svg)
 
-GPUI bünyesinde asenkron işlemler, bağlam (context) üzerinden başlatılan `Task` handle'ları (tutacakları) vasıtasıyla yönetilir. Bu doğrultuda üç temel kalıp mevcuttur: ön plan görevi, o anki entity'ye (varlığa) bağlı görev ve pencere ömrünü hesaba katan görev. Ön plan görevi UI (arayüz) iş parçacığıyla (thread) aynı çalıştırıcı üzerinde koşarken; diğer iki kalıp, ilgili entity veya pencerenin yaşam döngüsünü esas alır. Her bir kalıbı, ihtiyaç duyduğu bağlama göre farklı bir closure (kapanış) imzasıyla tanımlayabilirsin.
+GPUI bünyesinde asenkron işlemler, bağlam (context) üzerinden başlatılan `Task` handle'ları (tutacakları) vasıtasıyla yönetilir. Bu doğrultuda üç temel kalıp mevcuttur: ön plan görevi, o anki entity'ye (varlığa) bağlı görev ve pencere ömrünü hesaba katan görev. Ön plan görevi UI (arayüz) iş parçacığıyla (thread) aynı çalıştırıcı üzerinde koşarken; diğer iki kalıp, ilgili entity veya pencerenin yaşam döngüsünü esas alır. Her bir kalıbı, ihtiyaç duyduğu bağlama göre farklı bir closure (kapanış) imzasıyla tanımlamak mümkündür.
 
 **Ön plan görevi.** Herhangi bir entity veya pencere bağlamına ihtiyaç duymayan en sade görev biçimidir:
 
@@ -33,7 +33,7 @@ cx.spawn(async move |gorunum, cx| {
 .detach_and_log_err(cx);
 ```
 
-**Pencereye bağlı görev.** Pencere bağlamını asenkron tarafa taşıyarak, pencere eylemlerini `cx.update_in` yardımıyla yürütmene imkan tanır:
+**Pencereye bağlı görev.** Pencere bağlamını asenkron tarafa taşıyarak, pencere eylemlerinin `cx.update_in` yardımıyla yürütülmesine imkan tanır:
 
 ```rust
 cx.spawn_in(window, async move |gorunum, cx| {
@@ -46,7 +46,7 @@ cx.spawn_in(window, async move |gorunum, cx| {
 .detach_and_log_err(cx);
 ```
 
-`Context::spawn` ve `spawn_in` fonksiyonlarının imzaları `AsyncFnOnce(WeakEntity<T>, &mut AsyncApp/AsyncWindowContext)` beklediği için closure yapısını `async move |gorunum, cx| { ... }` biçiminde kurman gerekir. Closure gövdesinden `Result` döndürüldüğü durumlarda, derleyicinin tip çıkarımını doğru yapabilmesi adına ya yukarıdaki gibi `Ok::<(), anyhow::Error>(())` ile son ifadenin tipi açıkça belirtilmeli ya da kod bloğunun başında `let _: Result<_, anyhow::Error> = ...` kalıbına yer verilmelidir.
+`Context::spawn` ve `spawn_in` fonksiyonlarının imzaları `AsyncFnOnce(WeakEntity<T>, &mut AsyncApp/AsyncWindowContext)` beklediği için closure yapısının `async move |gorunum, cx| { ... }` biçiminde kurulması gerekir. Closure gövdesinden `Result` döndürüldüğü durumlarda, derleyicinin tip çıkarımını doğru yapabilmesi adına ya yukarıdaki gibi `Ok::<(), anyhow::Error>(())` ile son ifadenin tipi açıkça belirtilmeli ya da kod bloğunun başında `let _: Result<_, anyhow::Error> = ...` kalıbına yer verilmelidir.
 
 `window.to_async(cx)` çağrısı doğrudan bir `AsyncWindowContext` üretir. Geri çağırma işlevlerinin dışına taşınacak pencere bağımlı asenkron yardımcılar yazılırken bu yöntemin tercih edilmesi uygundur. Günlük entity ve view geliştirme süreçlerinde ise `cx.spawn_in(window, ...)` fonksiyonu, sunduğu güvenlik ve okunabilirlik sayesinde daha pratik bir sarmalayıcı görevi görür.
 

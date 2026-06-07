@@ -154,7 +154,7 @@ Bu yapının döngüsel davranışı şöyle işler: Yeni bir sekme eklendiğind
 
 Burada bölme hatasına karşı bir güvence vardır. `number_of_tabs` ifadesi `tab_items.len().max(1)` ile en az 1'e sınırlandırılır. Böylece sekme sayısı sıfır olduğunda bile bölme işlemi güvenli kalır. Port hedefinde aynı geri besleme döngüsü kurulmalıdır. Bu döngü yoksa sekme genişliği ya `0px` çıkar ya da hiç güncellenmeden statik kalır.
 
-**Sekme ölçüleri, kapatma ayarı ve bırakma işaretleri** konularını birlikte ele alacağız. Burada gözlenmesi gereken altı detay vardır:
+**Sekme ölçüleri, kapatma ayarı ve bırakma işaretleri** konuları birlikte ele alınır. Burada gözlenmesi gereken altı detay vardır:
 
 - Canvas ölçümünden gelen `measured_tab_width.max(rem_size * 10)` değeri `DraggedWindowTab.width` alanına yazılır. Gerçek sekme sarmalayıcısı ayrıca `.flex_1().min_w(rem_size * 10)` kullanır. Bu ikili yapı sayesinde hem sürükleme önizlemesi gerçekçi genişlikte çıkar hem de gerçek sekme alanı `10rem` altına düşmez.
 - Düşeyde dış sekme çubuğu yüksekliği `Tab::container_height(cx)`, tek sekmenin yüksekliği ise `Tab::content_height(cx)` üzerinden hesaplanır. `ui::Tab` bu iki değeri `DynamicSpacing::Base32` ve `Base32 - 1px` cinsinden üretir. Port hedefinde bu değerlere sabit `32px` yazılırsa, dinamik yoğunluk değişimleri doğru takip edilemez ve kullanıcı arayüzü farklı yoğunluklarda bozulur.

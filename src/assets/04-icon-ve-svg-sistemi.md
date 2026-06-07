@@ -338,13 +338,13 @@ const FILE_ICONS: &[(&str, &str)] = &[
 
 Tablo yapısı, üç farklı sabit tablonun katmanlanmasıyla kurgulanır:
 
-1. `FILE_STEMS_BY_ICON_KEY`: dosya adı tabanı → icon key eşlemesi. Burada uzantı değil, tam dosya adı gövdesi eşlenir; ör. `Podfile` ruby ikonuna, `Dockerfile` docker ikonuna bağlanır. Bir dosyanın uzantısı olmasa da yalnızca adından ikon türetebilirsin.
+1. `FILE_STEMS_BY_ICON_KEY`: dosya adı tabanı → icon key eşlemesi. Burada uzantı değil, tam dosya adı gövdesi eşlenir; ör. `Podfile` ruby ikonuna, `Dockerfile` docker ikonuna bağlanır. Bir dosyanın uzantısı olmasa da yalnızca adından ikon türetilmesi mümkündür.
 2. `FILE_SUFFIXES_BY_ICON_KEY`: `("cpp", &["c++", "h++", "cc", "cpp", ...])` gibi suffix → icon key eşlemesi. Dizinin elemanları bir icon key'e bağlanlanan uzantılardır; ör. `c++` da `cc` de aynı `cpp` ikonuna düşer.
 3. `FILE_ICONS`: `("cpp", "icons/file_icons/cpp.svg")` gibi icon key → path eşlemesi.
 
 `default_icon_theme()` işlevi bu üç tabloyu katmanlayarak bir `IconTheme` örneği (instance) üretir; dosya adı tabanı ve uzantı katmanlarını bir icon key değerine indirger ve son tablo yardımıyla bu key'i dosya yoluna (path) dönüştürür. Ayrıca klasör ve chevron ikonları doğrudan `DirectoryIcons` ve `ChevronIcons` alanlarından beslenir (`icons/file_icons/folder.svg`, `icons/file_icons/folder_open.svg`, `icons/file_icons/chevron_right.svg`, `icons/file_icons/chevron_down.svg`). Bu sebeple `icons/file_icons/` altında yer alan her dosyanın `FILE_ICONS` tablosunda görünmesi zorunlu değildir; bazı dosyalar doğrudan dosya tipi ikonunu değil, proje paneli davranışlarını destekleyen yardımcı ikonları temsil eder. Dosya yolu string'leri doğrudan `icons/file_icons/` altındadır; yani kullanıcı arayüzü bu yolları `Icon::from_path` veya doğrudan `svg().path()` ile tüketebilir.
 
-**Genişleme:** Yeni bir dosya tipi eklemek için eşleme tablolarına (dosya adı tabanına göre `FILE_STEMS_BY_ICON_KEY`, uzantıya göre `FILE_SUFFIXES_BY_ICON_KEY`) ve `FILE_ICONS` tablosuna giriş yapman gerekir; bu iki tarafın uyumsuz olması durumunda dosya tipi eşleşse bile dosya yolu bulunamaz veya tam tersi bir durum yaşanır.
+**Genişleme:** Yeni bir dosya tipi eklemek için eşleme tablolarına (dosya adı tabanına göre `FILE_STEMS_BY_ICON_KEY`, uzantıya göre `FILE_SUFFIXES_BY_ICON_KEY`) ve `FILE_ICONS` tablosuna giriş yapılması gerekir; bu iki tarafın uyumsuz olması durumunda dosya tipi eşleşse bile dosya yolu bulunamaz veya tam tersi bir durum yaşanır.
 
 ### 6.1 Dış ikon temaları ve raster yedek
 
@@ -434,12 +434,12 @@ Her iki bileşen de aynı render hattını (`svg()` elementi ve `SvgRenderer`) p
 
 ## 9. İkon ekleme akışı
 
-Pratik bir özet olarak, "bir tipli UI ikonu eklemek" için izlemen gereken adımlar:
+Pratik bir özet olarak, "bir tipli UI ikonu eklemek" için izlenmesi gereken adımlar:
 
-1. SVG dosyasını **tek renkli** (monochrome) olacak şekilde hazırlaman gerekir. Renk değerleri `currentColor` veya yer tutucu olarak `#000` olarak bırakılır; çalışma zamanında `text_color` ile dinamik olarak renklendirilir.
-2. Dosyayı `assets/icons/yeni_ikon.svg` dizinine yerleştirmen gerekir (snake_case dosya adı formatında).
-3. `icons` crate'i içindeki `IconName` enum yapısına `YeniIkon` varyantını eklemen gerekir.
-4. Kullanıcı arayüzü kodunda `Icon::new(IconName::YeniIkon)` şeklinde çağırarak kullanabilirsin. Boyut için `.size(IconSize::Small)`, renk için ise `.color(Color::Accent)` metotlarını zincirleyebilirsin.
+1. SVG dosyasını **tek renkli** (monochrome) olacak şekilde hazırlanması gerekir. Renk değerleri `currentColor` veya yer tutucu olarak `#000` olarak bırakılır; çalışma zamanında `text_color` ile dinamik olarak renklendirilir.
+2. Dosyanın `assets/icons/yeni_ikon.svg` dizinine yerleştirilmesi gerekir (snake_case dosya adı formatında).
+3. `icons` crate'i içindeki `IconName` enum yapısına `YeniIkon` varyantının eklenmesi gerekir.
+4. Kullanıcı arayüzü kodunda `Icon::new(IconName::YeniIkon)` şeklinde çağırarak kullanılması mümkündür. Boyut için `.size(IconSize::Small)`, renk için ise `.color(Color::Accent)` metotlarının zincirlenmesi mümkündür.
 
 Bu akışta dikkat edilmesi gereken tipik durumlar şunlardır:
 

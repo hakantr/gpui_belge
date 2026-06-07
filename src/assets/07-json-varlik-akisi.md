@@ -215,7 +215,7 @@ pub fn initial_keymap_content() -> Cow<'static, str> {
 
 - **Sert paketleme sözleşmesi:** `A::get(yol)` metodu `None` döndürdüğünde kaynak kod yapısı fail-fast (erken durdurma) davranış sergiler. Bu, keymap dosyalarının `SettingsAssets` erişim kümesinde mutlaka bulunması gerektiğini şart koşan bir paketleme varsayımıdır. Dosya silindiğinde veya `#[include]` filtresi uyumsuz kaldığında, uygulama başlatma esnasında erken durma (panic) yaşanır; bu durumun dağıtım öncesi doğrulama testlerinde yakalanması hedeflenir.
 
-Burada küçük ama önemli bir paketleme detayı mevcuttur: `SettingsAssets` kaynak kodunda `#[include = "keymaps/*"]` şeklinde tanımlanmış olmasına karşın, tüketilen yollar `keymaps/macos/atom.json` ve `keymaps/linux/jetbrains.json` gibi alt dizinlerdedir. Bunun sebebi `rust-embed` 8.11 sürümündeki `include-exclude` özelliğinde kullanılan `globset` varsayılanlarının `*` karakterini yol ayırıcısını da eşleyebilecek şekilde değerlendirmesidir. Dolayısıyla Zed'in mevcut kalıbı alt paketleri de kapsar; yine de bu kalıp değiştirilirken kök `keymaps/*.json` dosyalarının yanı sıra platform alt paketlerinin de gömülü kaldığını mutlaka doğrulaman gerekir. Daha açık bir ifade hedefleniyorsa `keymaps/**/*` kalıbını kullanman önerilir.
+Burada küçük ama önemli bir paketleme detayı mevcuttur: `SettingsAssets` kaynak kodunda `#[include = "keymaps/*"]` şeklinde tanımlanmış olmasına karşın, tüketilen yollar `keymaps/macos/atom.json` ve `keymaps/linux/jetbrains.json` gibi alt dizinlerdedir. Bunun sebebi `rust-embed` 8.11 sürümündeki `include-exclude` özelliğinde kullanılan `globset` varsayılanlarının `*` karakterini yol ayırıcısını da eşleyebilecek şekilde değerlendirmesidir. Dolayısıyla Zed'in mevcut kalıbı alt paketleri de kapsar; yine de bu kalıp değiştirilirken kök `keymaps/*.json` dosyalarının yanı sıra platform alt paketlerinin de gömülü kaldığının mutlaka doğrulanması gerekir. Daha açık bir ifade hedefleniyorsa `keymaps/**/*` kalıbının kullanılması önerilir.
 
 ### 3.1 Platforma özgü editör keymap paketleri
 
@@ -388,11 +388,11 @@ Yeni bir JSON dosyası eklenmesi gerektiğinde aşağıdaki sorular sırayla cev
    └── Hayır → Assets struct'ı + cx.asset_source().load
 ```
 
-Burada üç temel noktada karar vermen gerekir:
+Burada üç temel noktada karar verilmesi gerekir:
 
-- **Tüketim yolu (Assets vs SettingsAssets):** Eğer dosya `App` çalışma zamanı kurulmadan önce okunacaksa veya başlatma esnasında erken çağrılan bir bileşen tarafından talep edilecekse `SettingsAssets` kullanmayı tercih etmen gerekir. Aksi takdirde `Assets` yapısı daha esnektir (test ortamında sahte kaynakla çalışabilir).
-- **Ayrıştırma stratejisi:** Eğer dosya bir struct yapısına deserialize edilecekse `serde_json::from_slice` kullanman gerekir. Eğer dosya UTF-8 string olarak okunup özel bir ayrıştırıcıya (parser) verilecekse `asset_str` kullanman daha doğrudur (string dönüşümünü kendi içinde gerçekleştirir).
-- **Geçersiz kılma stratejisi:** Eğer kullanıcının dosyayı geçersiz kılması hedefleniyorsa dosya sistemi izleyicisi (file watcher) kurman veya `cx.spawn` ile asenkron yükleme yolu entegre etmen gerekir; aksi durumda binary içeriğini tek otorite kabul etmen gerekir.
+- **Tüketim yolu (Assets vs SettingsAssets):** Eğer dosya `App` çalışma zamanı kurulmadan önce okunacaksa veya başlatma esnasında erken çağrılan bir bileşen tarafından talep edilecekse `SettingsAssets` kullanmayı tercih edilmesi gerekir. Aksi takdirde `Assets` yapısı daha esnektir (test ortamında sahte kaynakla çalışabilir).
+- **Ayrıştırma stratejisi:** Eğer dosya bir struct yapısına deserialize edilecekse `serde_json::from_slice` kullanılması gerekir. Eğer dosya UTF-8 string olarak okunup özel bir ayrıştırıcıya (parser) verilecekse `asset_str` kullanılması daha doğrudur (string dönüşümünü kendi içinde gerçekleştirir).
+- **Geçersiz kılma stratejisi:** Eğer kullanıcının dosyayı geçersiz kılması hedefleniyorsa dosya sistemi izleyicisi (file watcher) kurulması veya `cx.spawn` ile asenkron yükleme yolu entegre edilmesi gerekir; aksi durumda binary içeriğinin tek otorite kabul edilmesi gerekir.
 
 Bu karar ağacı, JSON varlıklarının tüketim hattını seçerken üç boyutu birden değerlendirir: erişim zamanı, esneklik ve geçersiz kılma gereksinimi.
 

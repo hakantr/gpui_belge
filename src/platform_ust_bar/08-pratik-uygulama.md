@@ -11,7 +11,7 @@ Aşağıdaki tablo, üst barda en sık değiştirilen davranışların hangi dos
 | Kapat butonu farklı bir eylem göndermeli | `PlatformTitleBar` içine `close_action` alanı eklenir veya doğrudan serbest render fonksiyonları kullanılır. |
 | Linux buton sırası ayardan gelmeli | `set_button_layout(...)` çağrısı uygulamanın ayar durumuna bağlanır; ayar değiştikçe yeniden render tetiklenir. |
 | Linux butonlarının ikonu/rengi değişmeli | `WindowControlStyle` veya `WindowControlType::icon()` port karşılığında değişiklik gerçekleştirilir. |
-| Windows kapatma üzerine gelme rengi farklı olmalı | `platform_windows.rs` içindeki `WindowsCaptionButton::Close` (crate-içi enum) renkleri değiştirilir. Tip public değildir; port hedefinde aynı dört varyant kendi enum'unla yeniden yazılır. |
+| Windows kapatma üzerine gelme rengi farklı olmalı | `platform_windows.rs` içindeki `WindowsCaptionButton::Close` (crate-içi enum) renkleri değiştirilir. Tip public değildir; port hedefinde aynı dört varyant kendi enum yapısıyla yeniden yazılır. |
 | Başlık çubuğu yüksekliği değişmeli | `platform_title_bar_height` karşılığı port edilir ve tüm başlık çubuğu/kontrol kullanımlarında aynı değer kullanılır. |
 | Yerel sekmeler kapatılmalı | `SystemWindowTabs` render çocuk bileşeni özellik bayrağı ile boş döndürülür; denetleyici kaldırılmaz, böylece ihtiyaç doğduğunda etkinleştirmek kolaydır. |
 | Sekme artı butonu yeni pencere açmalı | `zed_actions::OpenRecent` yerine uygulamanın kendi `YeniPencere` eylemi gönderilir. |
@@ -38,7 +38,7 @@ Aşağıdaki listeler, üst bar entegrasyonu tamamlandıktan sonra hızlıca gö
 - Ürün duyuru bantlarının `PlatformTitleBar` içine gömülmeden, `UygulamaBaslikCubugu` çocuk grubu olarak kurulup kurulmadığı kontrol edilir.
 - Duyuru bantlarının görünürlüğünün başlangıçta tek sefer hesaplanmadığını, render sırasında güncel ayar koşulu ve kapatılma durumu ile gizlenip gösterildiği doğrulanır. Görünürlük `should_show = !dismissed && visible_when(cx)` biçiminde değerlendirilir; `visible_when` bir koşul kapanışıdır ve kapatılma durumu kalıcı olarak saklanır.
 - Güncelleme ipucunun semantik sürüm için de SHA için de kaynak davranıştaki `"Update to Version:"` önekesini ve tam SHA bilgisini koruyup korumadığı kontrol edilir. Port görünür metinleri Türkçeyse bu veri ayrımı yerelleştirilmiş metinde de korunur.
-- Güncelleme butonunun geçici durumları (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) sırasında tıklamanın kapalı olduğu doğrulanır; `checking` ve `installing` durumlarında döner `LoadCircle` ikonunun her turu 2 saniyede tamamlayan sürekli (sonsuz tekrarlı) bir dönüş yaptığını, `downloading` durumunda ise `Download` ikonunun animasyonsuz olarak kullanıldığını kontrol edilir. Port görünür metinleri Türkçeyse bu durumlar `"Denetleniyor…"`, `"İndiriliyor…"`, `"Kuruluyor…"` gibi yazılır.
+- Güncelleme butonunun geçici durumları (`Checking for Zed Updates…`, `Downloading Zed Update…`, `Installing Zed Update…`) sırasında tıklamanın kapalı olduğu doğrulanır; `checking` ve `installing` durumlarında döner `LoadCircle` ikonunun her turu 2 saniyede tamamlayan sürekli (sonsuz tekrarlı) bir dönüş yaptığını, `downloading` durumunda ise `Download` ikonunun animasyonsuz olarak kullanıldığı kontrol edilir. Port görünür metinleri Türkçeyse bu durumlar `"Denetleniyor…"`, `"İndiriliyor…"`, `"Kuruluyor…"` gibi yazılır.
 - Mevcut pencereye/yan panele proje açan `Activate` akışının pencereyi öne alıp almadığı ve başlık çubuğu durumunu güncelleyip güncellemediği test edilir.
 
 ### Linux/FreeBSD
@@ -62,7 +62,7 @@ Aşağıdaki listeler, üst bar entegrasyonu tamamlandıktan sonra hızlıca gö
 - `traffic_light_position` ile başlık çubuğu çocuklarının çakışmadığı test edilir.
 - Trafik ışıklarının başlangıç konumunun, pencere oluşturulurken `TitlebarOptions.traffic_light_position` ile verildiği; Zed'in kendisinin çalışma zamanında bu konumu yeniden ayarlamadığı bilinmelidir. Çalışma zamanında başlık çubuğu yüksekliği, duyuru bandı veya yoğunluk değişiyorsa yerel buton konumunu güncellemek porta özgü bir gerekliliktir; bu durumda `window.set_traffic_light_position(...)` çağrısıyla konumunun güncellendiği doğrulanır.
 - Tam ekran ve yerel sekme davranışının ayrı senaryolarda doğru çalıştığı kontrol edilir; iki özelliğin birlikte etkinleştiği durumlar ayrıca test edilir.
-- Çift tıklamanın sistem davranışına mı yoksa ürünün özel davranışına mı yönlendirileceğini bilinçli olarak karara bağlanmalıdır.
+- Çift tıklamanın sistem davranışına mı yoksa ürünün özel davranışına mı yönlendirileceğinin bilinçli olarak karara bağlanması gerekir.
 
 ### Yerel Sekmeler
 

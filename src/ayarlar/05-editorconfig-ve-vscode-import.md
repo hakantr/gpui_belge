@@ -129,8 +129,8 @@ Eşleşmesi olmayan ayarlar aktarılmadan atlanır; `SettingsStore::get_vscode_e
 
 ## Dikkat Edilmesi Gereken Hususlar
 
-- `Editorconfig::from_str` ayrıştırma hatası verdiğinde store yine de yer tutucu bir kayıt saklar; arayüz üzerinde parse hatasını göstermek için `EditorconfigEvent` ile birlikte `InvalidSettingsError::Editorconfig` mesajını okuman gerekir.
+- `Editorconfig::from_str` ayrıştırma hatası verdiğinde store yine de yer tutucu bir kayıt saklar; arayüz üzerinde parse hatasını göstermek için `EditorconfigEvent` ile birlikte `InvalidSettingsError::Editorconfig` mesajının okunması gerekir.
 - `EditorconfigStore`, bir worktree silindiğinde `worktree_state` girdisini temizler; harici dosyalara başka hiçbir worktree referans göstermiyorsa harici kayıtlar ve bunlara bağlı izleyici görevler (watcher tasks) de kaldırılır. Bu temizlik süreçleri store tarafından otomatik olarak yönetilir.
-- `VsCodeSettings::load_user_settings` metodu aday yol listesinde dosyayı bulamazsa anlaşılır bir hata mesajı üretir; bu hatayı `notify_app_err` aracılığıyla kullanıcıya yansıtman gerekir.
+- `VsCodeSettings::load_user_settings` metodu aday yol listesinde dosyayı bulamazsa anlaşılır bir hata mesajı üretir; bu hatanın `notify_app_err` aracılığıyla kullanıcıya yansıtılması gerekir.
 - `import_vscode_settings` ile normal ayar güncelleme süreçleri aynı yolu izler; her ikisi de eski metni store önbelleğinden almak yerine, her çağrıda doğrudan diskten taze olarak okur. Güncellenecek eski kullanıcı metni yazımdan hemen önce diskten okunur ve tüm güncellemeler tek bir seri kanal üzerinde sırayla işlenir; böylece içe aktarım ve manuel düzenleme işlemleri birbirine girmeden sıraya alınır.
 - VS Code ayarlarındaki `editor.fontFamily` gibi tek değerde çoklu fallback tanımlayan alanlar, Zed'in `buffer_font_fallbacks` listesine bölünür; tek aile adı doğrudan aktarılırken, virgülle ayrılmış aile isimleri bölünerek listeye yerleştirilir.

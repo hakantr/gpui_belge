@@ -24,9 +24,9 @@ Bu bölüm, tema sisteminin hangi amaçla kurulduğunu ve sınırlarının nered
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Veri Sözleşmesi (en alt katman) — `mirror`:** Bu katman, Zed'in JSON tema dosyalarını kayıpsız okuyabilmek için kurulan struct katmanıdır. Alan adları, JSON anahtarları ve hangi alanın opsiyonel olduğu gibi yapısal kararları, Zed'in `theme` ve `settings_content` crate'lerindeki yapıyla **aynı şekilde** yazman gerekir. Burada yaratıcı davranmaman önemlidir; hedefin, sözleşme paritesini tam sağlamak olmalıdır. İlgili bölümler bu katmanı anlatır.
+**Veri Sözleşmesi (en alt katman) — `mirror`:** Bu katman, Zed'in JSON tema dosyalarını kayıpsız okuyabilmek için kurulan struct katmanıdır. Alan adları, JSON anahtarları ve hangi alanın opsiyonel olduğu gibi yapısal kararları, Zed'in `theme` ve `settings_content` crate'lerindeki yapıyla **aynı şekilde** yazılması gerekir. Burada yaratıcı davranılmaması önemlidir; hedef, sözleşme paritesini tam sağlamak olmalıdır. İlgili bölümler bu katmanı anlatır.
 
-**Refinement (orta katman) — `davranış`:** Bu katman, kullanıcının yazdığı temayı baseline (temel) tema ile birleştirir. Kullanıcı teması çoğu zaman eksik alanlar içerir; fallback tema bu boşlukları doldurur. Zed'in `refineable` crate'inden gelen `Refineable` derive makrosu, her struct için `Option<T>` alanlı bir `*Refinement` ikizi üretir. Birleştirme işlemini de bu ikiz üzerinden `original.refine(&refinement)` çağrısıyla yapman mümkündür. Foreground (ön plan) rengi mevcutken background (arka plan) renginin olmaması gibi yarı tanımlı durumları tamamlayan yardımcılar da (`apply_status_color_defaults` ve benzerleri) bu katmandadır. Davranışı Zed'den **öğrenmen**, fakat kodu bağımsız sözcüklerle yeniden yazman gerekir; GPL-3 nedeniyle kod gövdesini birebir kopyalamamalısın. İlgili bölüm bu katmanı anlatır.
+**Refinement (orta katman) — `davranış`:** Bu katman, kullanıcının yazdığı temayı baseline (temel) tema ile birleştirir. Kullanıcı teması çoğu zaman eksik alanlar içerir; fallback tema bu boşlukları doldurur. Zed'in `refineable` crate'inden gelen `Refineable` derive makrosu, her struct için `Option<T>` alanlı bir `*Refinement` ikizi üretir. Birleştirme işleminin de bu ikiz üzerinden `original.refine(&refinement)` çağrısıyla yapılması mümkündür. Foreground (ön plan) rengi mevcutken background (arka plan) renginin olmaması gibi yarı tanımlı durumları tamamlayan yardımcılar da (`apply_status_color_defaults` ve benzerleri) bu katmandadır. Davranışın Zed'den **öğrenilmesi**, fakat kodun bağımsız sözcüklerle yeniden yazılması gerekir; GPL-3 nedeniyle kod gövdesinin birebir kopyalanmaması gerekir. İlgili bölüm bu katmanı anlatır.
 
 **Runtime (en üst katman) — `uygulama tasarımı`:** Aktif temayı `cx.theme()` ile okumak, `GlobalTheme::update_theme` ile değiştirmek ve sistemin light/dark modunu izlemek bu katmanın işidir. Bu bölüm tamamen uygulamanın kendi tasarımına göre şekillenir. Zed'in `theme_settings` veya `theme_selector` crate'lerini taklit etmek gerekmez. Entegrasyon, uygulamanın kendi konfigürasyon (config) sistemi ve kendi kullanıcı arayüzü (UI) üzerinden kurulur. İlgili bölüm bu katmanı anlatır.
 
@@ -92,7 +92,7 @@ Zed'in tema sistemi **GPL-3.0-or-later** lisansına tabidir. Kod gövdesi kopyal
 2. **Fork Yayınlama:** Yayınlanamayan yardımcı crate'ler ayrı bir hesap aduyla crates.io üzerine yeniden yayınlanır.
 3. **Yalnızca Dahili Kullanım:** Uygulama bir kütüphane olarak değil binary olarak dağıtılıyorsa Cargo.toml'da git bağımlılığı tutmak yeterli olur; çünkü bu senaryoda crates.io yayını söz konusu değildir.
 
-**Doc Comment Yazımı:** Zed kaynak dosyasındaki bir struct alanını yansıtırken (mirror), doc comment'leri orijinaliyle birebir aynı bırakmaman, aynı anlamı **bağımsız sözcüklerle** yeniden yazman gerekir. Örnek:
+**Doc Comment Yazımı:** Zed kaynak dosyasındaki bir struct alanını yansıtırken (mirror), doc comment'leri orijinaliyle birebir aynı bırakılmaması, aynı anlamın **bağımsız sözcüklerle** yeniden yazılması gerekir. Örnek:
 
 ```rust
 // Zed'deki orijinal (mirror EDİLMEZ):

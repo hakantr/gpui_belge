@@ -6,9 +6,9 @@ Başlığın sağ grubu hesap ve uygulama durumunu özetler: Oturum açık mı, 
 
 Render geçişi, kullanıcı ve `Client` bağlantı durumuna bakarak sağ grupta üç farklı görünümden birini sunar:
 
-- **Oturum Açık** (`current_user` mevcutsa): Kullanıcı menüsü butonunu çiz.
-- **Oturum Açılıyor** (Kullanıcı henüz yok ama durum `Authenticating`/`Authenticated`/`Connecting` ise): Kaynak arayüzde titreşen bir `"Signing in…"` etiketi göster. Bu etiket 2 saniyelik bir animasyonla 0.4-0.8 arası alfa değerinde nabız gibi yanıp söner; kullanıcıya "bekle, bağlanıyorum" sinyali ver. Türkçe portta görünür metin `"Oturum açılıyor…"` şeklinde yerelleştirilebilir.
-- **Oturum Kapalı veya Kimlik Hatası** (`SignedOut`/`AuthenticationError`) ve `show_sign_in` açık ise: Kaynak arayüzde `"Sign In"` butonunu çiz. Türkçe portta görünür metin `"Oturum Aç"` şeklinde yerelleştirilebilir.
+- **Oturum Açık** (`current_user` mevcutsa): Kullanıcı menüsü butonu çizilir.
+- **Oturum Açılıyor** (Kullanıcı henüz yok ama durum `Authenticating`/`Authenticated`/`Connecting` ise): Kaynak arayüzde titreşen bir `"Signing in…"` etiketi gösterilir. Bu etiket 2 saniyelik bir animasyonla 0.4-0.8 arası alfa değerinde nabız gibi yanıp söner; kullanıcıya "bekle, bağlanıyorum" sinyali verilir. Türkçe portta görünür metin `"Oturum açılıyor…"` şeklinde yerelleştirilebilir.
+- **Oturum Kapalı veya Kimlik Hatası** (`SignedOut`/`AuthenticationError`) ve `show_sign_in` açık ise: Kaynak arayüzde `"Sign In"` butonu çizilir. Türkçe portta görünür metin `"Oturum Aç"` şeklinde yerelleştirilebilir.
 
 ```rust
 pub fn render_sign_in_button(&mut self, _: &mut ViewContext<Self>) -> Button
@@ -35,7 +35,7 @@ pub fn new(plan: Plan) -> Self
 
 `PlanChip`, `cloud_api_types::Plan` değerini alır ve plana göre renklendirilmiş bir etiket çizer: Ücretsiz plan nötr renkte, ücretli planlar (Pro, Business, Pro Trial, Student gibi) vurgu renginde ve daha belirgin bir arka planla. Renkler tema token'larından gelir; bu yüzden açık/koyu temada otomatik uyumludur.
 
-Plan bilgisi yalnızca kullanıcının bir abonelik dönemi varsa gösterilir; eski ücretsiz durumdaki kullanıcılarda çip gizlenir. Port hedefinde bir abonelik modeli yoksa bu parça hiç gerekmez; varsa aynı kalıp kurulur: Planı tek bir enum'dan oku, plana göre renk seç, küçük bir etiket çiz.
+Plan bilgisi yalnızca kullanıcının bir abonelik dönemi varsa gösterilir; eski ücretsiz durumdaki kullanıcılarda çip gizlenir. Port hedefinde bir abonelik modeli yoksa bu parça hiç gerekmez; varsa aynı kalıp kurulur: Plan tek bir enum'dan okunur, plana göre renk seçilir, küçük bir etiket çizilir.
 
 ## 4. Güncelleme bildirimi (`UpdateVersion`)
 
@@ -87,4 +87,4 @@ Tasarım şudur: Duyuru bandı bir kaynak kimliği (telemetri/kapatma anahtarı)
 
 **Güncel HEAD'in Önemli Notu:** Bu altyapı kodda hazır olsa da, şu anki Zed sürümünde `TitleBar`'ın `banner` alanı her zaman `None`'dır; `OnboardingBanner::new` hiçbir yerde çağrılmaz. Yani duyuru bandı mekanizması **mevcut ama bağlı değildir**; başlıkta fiilen bir duyuru bandı çizilmez. Render yolu `show_onboarding_banner` ayarı ve `banner` alanının `Some` olması koşuluna bağlı olduğundan, alan `None` kaldıkça bu yol hiç çalışmaz.
 
-Port hedefinde duyuru bandı isteniyorsa, aynı kalıp iyi bir şablondur: Tek bir duyuru bandı modeli kurman, görünürlüğünü bir koşul işlevine bağlaman, kapatma durumunu kalıcı saklaman ve gerektiğinde geri getirmen uygun bir yaklaşımdır. Bu parçanın yeri platform kabuğu değil, ürün başlığı katmanıdır; çünkü duyuru içeriği ürünün yapısına aittir.
+Port hedefinde duyuru bandı isteniyorsa, aynı kalıp iyi bir şablondur: Tek bir duyuru bandı modelinin kurulması, görünürlüğünün bir koşul işlevine bağlanması, kapatma durumunun kalıcı saklanması ve gerektiğinde geri getirilmesi uygun bir yaklaşımdır. Bu parçanın yeri platform kabuğu değil, ürün başlığı katmanıdır; çünkü duyuru içeriği ürünün yapısına aittir.

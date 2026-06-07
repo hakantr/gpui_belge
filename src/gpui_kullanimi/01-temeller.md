@@ -4,7 +4,7 @@
 
 ## Büyük Resim
 
-GPUI, birbirinin üzerine kurulan üç katmandan oluşur. Her katman bir alttakinin üzerine binip bir üsttekine daha sade bir arayüz sunar. Böylece uygulama geliştirirken hangi sorumluluğun hangi katmanda çözüleceğini belirlemen kolaylaşır.
+GPUI, birbirinin üzerine kurulan üç katmandan oluşur. Her katman bir alttakinin üzerine binip bir üsttekine daha sade bir arayüz sunar. Böylece uygulama geliştirirken hangi sorumluluğun hangi katmanda çözüleceğinin belirlenmesi kolaylaşır.
 
 ![GPUI Katman Mimarisi](assets/mimari.svg)
 
@@ -16,7 +16,7 @@ GPUI, birbirinin üzerine kurulan üç katmandan oluşur. Her katman bir alttaki
 
 Zed bu üç katmanın üstüne kendi tasarım sistemini koyar. Bunlar GPUI'nin parçası değil; GPUI üzerine yazılmış son kullanıcı bileşenleridir:
 
-- `ui` — Button, Icon, Label, Modal, ContextMenu, Tooltip, Tab, Table, Toggle ve benzeri yeniden kullanılan bileşenleri barındırır. Bileşen kiti, tutarlı bir görsel dil ve ortak davranış kalıbı sunar; böylece uygulama içi ekranları bu kiti temel alarak hızlıca inşa edebilirsin. Zed uygulama kodu çoğu zaman `use ui::prelude::*;` ile başlar. Bu prelude GPUI çekirdek trait'lerini ve Zed'in sık kullanılan UI bileşenlerini birlikte getirir. Yalnız çekirdek GPUI örneği yazarken `gpui::prelude::*` yeterli olabilir.
+- `ui` — Button, Icon, Label, Modal, ContextMenu, Tooltip, Tab, Table, Toggle ve benzeri yeniden kullanılan bileşenleri barındırır. Bileşen kiti, tutarlı bir görsel dil ve ortak davranış kalıbı sunar; böylece uygulama içi ekranları bu kiti temel alarak hızlıca inşa etmek mümkündür. Zed uygulama kodu çoğu zaman `use ui::prelude::*;` ile başlar. Bu prelude GPUI çekirdek trait'lerini ve Zed'in sık kullanılan UI bileşenlerini birlikte getirir. Yalnız çekirdek GPUI örneği yazarken `gpui::prelude::*` yeterli olabilir.
 
   ```rust
   use ui::prelude::*; // Zed UI + GPUI çekirdek trait'leri
@@ -44,13 +44,13 @@ En kısa zihinsel model şu:
 5. `Render::render`, o anki veriyi geçici bir element ağacına çevirir.
 6. `Element` ağacı yerleşim, çizim hazırlığı ve çizim aşamalarından geçer; sonra ekrana basılır.
 
-Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değildir. Bellekte kalıcı olan çoğunlukla `Entity<T>` içindeki veridir. Ekrandaki element ağacı ise her çizimde yeniden üretilen geçici bir tariftir. Bu temel ayrımın zihne erken yerleştirilmesi, ilerleyen bölümlerde karşılaşacağın neredeyse tüm API tasarım kararlarını ve mimari tercihleri anlamlandırmanı kolaylaştıracaktır.
+Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değildir. Bellekte kalıcı olan çoğunlukla `Entity<T>` içindeki veridir. Ekrandaki element ağacı ise her çizimde yeniden üretilen geçici bir tariftir. Bu temel ayrımın zihne erken yerleştirilmesi, ilerleyen bölümlerde karşılaşılacak neredeyse tüm API tasarım kararlarını ve mimari tercihleri anlamlandırmayı kolaylaştıracaktır.
 
 ### Uygulama ve Durum
 
 | Kavram | Basit karşılık | Ne işe yarar? | İlk okurken dikkat |
 |---|---|---|---|
-| `Application` | Programın dış kabı | `main` tarafında platformu, asset kaynağını ve olay döngüsünü (`event loop`) kurar. Uygulama hazır olduğunda `run` geri çağrısı içinde sana `&mut App` verir. | Uygulama yaşam döngüsünde genellikle başlangıç sırasında bir kez kurulması yeterlidir. Yeni ekran veya pencere özellikleri geliştirmek için sıfırdan bir `Application` oluşturmak yerine, mevcut `App` ve `Window` bağlamları üzerinden hareket edilir. |
+| `Application` | Programın dış kabı | `main` tarafında platformu, asset kaynağını ve olay döngüsünü (`event loop`) kurar. Uygulama hazır olduğunda `run` geri çağrısı içinde sisteme `&mut App` döndürür. | Uygulama yaşam döngüsünde genellikle başlangıç sırasında bir kez kurulması yeterlidir. Yeni ekran veya pencere özellikleri geliştirmek için sıfırdan bir `Application` oluşturmak yerine, mevcut `App` ve `Window` bağlamları üzerinden hareket edilir. |
 | `App` | Çalışan uygulamanın merkezi | Uygulama genelindeki verilere, pencerelere, entity listesine, kısayol tablosuna, async çalıştırıcılara, platform servislerine ve asset sistemine erişim sağlar. | `cx` adı bir zorunluluk değil, GPUI/Zed kodlarında bağlam değişkeni için yaygın kullanılan bir isimlendirme tercihidir. Aynı ad farklı bağlamlarda farklı tipi gösterebilir: bazen yalnızca `App`, bazen de bir entity'ye bağlı `Context<T>` olur. |
 | `Global` | Her yerden erişilen ortak veri | Tema, ayarlar, uygulama oturumu veya tüm pencerelerin paylaşması gereken servisler gibi uygulama açık kaldığı sürece tek kopya durması gereken veriler için kullanılır. | Yalnızca tek bir panele özgü olan arama metinleri, seçili satır indisleri veya bileşen görünürlük durumları gibi lokal bilgiler `Global` altında tutulmamalıdır; bu tür veriler, ilgili paneli yöneten ve genellikle bir `Entity<T>` içerisinde barındırılan Rust veri yapısının kendi alanlarında saklanır. |
 | `Entity<T>` | Tipli, kalıcı veri kaydı | `T` tipindeki bir değeri GPUI'nin dahili entity listesinde saklar. Veri üzerindeki okuma ve güncelleme işlemleri sırasıyla `varlik.read(cx)` ve `varlik.update(cx, ...)` metotlarıyla gerçekleştirilir. | `Entity<T>` ekrandaki kutu veya buton değildir; ekrana ne çizileceğini belirleyen veriyi tutar. |
@@ -67,7 +67,7 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 |---|---|---|---|
 | `Window` | Tek pencerenin canlı bağlamı | Klavye odağı, imleç, pencere boyutu, IME, prompt, tıklama alanları, scroll, komut yönlendirme, yenileme ve düşük seviyeli çizim işlerini yönetir. | `App` uygulama geneline bakar; `Window` yalnızca o pencereye ait bilgiyi taşır. |
 | `WindowHandle<V>` | Pencereyi sonradan bulmaya yarayan referans | Açılmış pencerenin en üst view'unu doğru Rust tipiyle okumak veya güncellemek amacıyla kullanılır. | Bu değer pencereye ulaşma yoludur; kendi başına çizim yapmaz. Çizim yine kök view'un `Render` çıktısından gelir. |
-| `FocusHandle` | Klavye odağı kimliği | Bir view veya element grubunun klavye odağına katılmasını sağlar. `track_focus` ve tab navigasyonu bunun etrafında çalışır. | Element ağacı her çizimde yeniden kurulur; hangi parçanın odakta olduğunu bu referans sayesinde takip edersin. |
+| `FocusHandle` | Klavye odağı kimliği | Bir view veya element grubunun klavye odağına katılmasını sağlar. `track_focus` ve tab navigasyonu bunun etrafında çalışır. | Element ağacı her çizimde yeniden kurulur; hangi parçanın odakta olduğu bu referans sayesinde takip edilir. |
 | `Hitbox` | Mouse ile test edilen alan | Prepaint aşamasında kaydedilen dikdörtgen veya bölge üzerinden hover, tıklama, sürükleme gibi davranışların hedefini belirler. | Görsel olarak çizilmiş olmak tek başına tıklanabilir olmak demek değildir; hitbox gerekir. |
 | `ScrollHandle` | Scroll konumunu tutan referans | Bir scroll alanının konumunu ve scroll davranışını ekran kareleri arasında korur. | Scroll konumu kaybolmasın isteniyorsa aynı alan için sabit bir element id'si kullanılır ve `ScrollHandle` uygun yerde saklanır. |
 | `Action` | Kullanıcı komutu | Menü, kısayol veya komut paleti üzerinden gelen "kaydet", "sekmeyi kapat", "satırı seç" gibi niyeti temsil eder. | Action "şu tuşa basıldı" değil, "şu komut istendi" bilgisidir. |
@@ -97,12 +97,12 @@ Yani GPUI'de ekranda gördüğün şeyler doğrudan bellekte duran nesneler değ
 | `Background` | Dolgu tanımı | Düz renk, gradient veya pattern gibi arka plan dolgularını temsil eder. | Renk ile dolgu aynı şey değildir; dolgu daha geniş bir tariftir. |
 | `AssetSource` | Asset byte kaynağı | SVG, image, font veya paketlenmiş dosya gibi varlıkların nereden okunacağını uygulamaya söyler. | Başlangıçta `Application` üzerinde kurulur; elementler asset isterken bu kaynağa dayanır. |
 
-### Hangi Kavramı Ne Zaman Araman Gerekir?
+### Hangi Kavramı Ne Zaman Aramak Gerekir?
 
-- "Bu veri ekranda değişince görüntü de değişsin" diyorsan `Entity<T>`, `Context<T>` ve `cx.notify()` üçlüsüne bakman gerekir.
-- "Bu iş bir pencerenin klavye odağı, imleci, boyutu veya çizim aşaması ile ilgili" durumlar için `Window` tarafını incelemen faydalıdır.
+- "Bu veri ekranda değişince görüntü de değişsin" isteniyorsa `Entity<T>`, `Context<T>` ve `cx.notify()` üçlüsüne bakılması gerekir.
+- "Bu iş bir pencerenin klavye odağı, imleci, boyutu veya çizim aşaması ile ilgili" durumlar için `Window` tarafını incelemek faydalıdır.
 - "Bu şey ekranda nasıl görünüyor?" sorusunun yanıtı `Render`, `RenderOnce`, `IntoElement`, `Element` ve `Styled` zincirine dayanır.
-- "Kullanıcı bir komut verdi" diyorsan `Action`, `Keymap`, klavye odağı ve `key_context` yapılarını birlikte değerlendirmen önerilir.
+- "Kullanıcı bir komut verdi" deniyorsa `Action`, `Keymap`, klavye odağı ve `key_context` yapılarını birlikte değerlendirmek önerilir.
 - "Asenkron iş bitince hâlâ aynı view var mı?" sorusu `Task<T>`, `WeakEntity<T>` ve `AsyncApp` ile ilgilidir.
 - "Bu veri bütün uygulamanın ortak bilgisi mi, yoksa yalnızca tek bir ekran parçasının bilgisi mi?" ayrımı `Global` ile `Entity<T>` arasındaki temel mimari seçimi belirler.
 

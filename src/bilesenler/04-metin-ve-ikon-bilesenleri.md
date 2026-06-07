@@ -92,7 +92,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::LabelLike`
-- Prelude: Hayır; `use ui::LabelLike;` satırını ayrıca eklemen gerekir.
+- Prelude: Hayır; `use ui::LabelLike;` satırının ayrıca eklenmesi gerekir.
 - Preview: `impl Component for LabelLike`.
 
 Ne zaman kullanılır:
@@ -256,7 +256,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::HighlightedLabel`
-- Prelude: Hayır; `use ui::HighlightedLabel;` satırını ayrıca eklemen gerekir.
+- Prelude: Hayır; `use ui::HighlightedLabel;` satırının ayrıca eklenmesi gerekir.
 - Preview: `impl Component for HighlightedLabel`.
 
 Ne zaman kullanılır:
@@ -282,7 +282,7 @@ Vurgu yardımcısı:
 
 | API | Rol |
 | :-- | :-- |
-| `highlight_ranges` | Byte indekslerinden char sınırlarına güvenli şekilde oturan `Range<usize>` listesi üretir; hazır `HighlightedLabel` dışında özel `StyledText` kompozisyonlarında kullanabilirsin. |
+| `highlight_ranges` | Byte indekslerinden char sınırlarına güvenli şekilde oturan `Range<usize>` listesi üretir; hazır `HighlightedLabel` dışında özel `StyledText` kompozisyonlarında kullanılabilir. |
 
 Davranış:
 
@@ -386,7 +386,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::SpinnerLabel`
-- Prelude: Hayır; `use ui::SpinnerLabel;` satırını ayrıca eklemen gerekir.
+- Prelude: Hayır; `use ui::SpinnerLabel;` satırının ayrıca eklenmesi gerekir.
 - Preview: `impl Component for SpinnerLabel`.
 
 Ne zaman kullanılır:
@@ -397,7 +397,7 @@ Ne zaman kullanılır:
 Ne zaman kullanılmaz:
 
 - İkon semantiği veya dönen bir simge gerekiyorsa `Icon::new(IconName::LoadCircle)` ve GPUI'nin animasyon yardımcıları daha uygun bir çözüm sunar.
-- İlerlemeyi biliyorsan ilerleme bileşenleri kullanıcıya çok daha açıklayıcı bir geri bildirim verir.
+- İlerleme oranı biliniyorsa ilerleme bileşenleri kullanıcıya çok daha açıklayıcı bir geri bildirim verir.
 
 Temel API:
 
@@ -437,7 +437,7 @@ fn kompakt_doner_gostergeyi_render_et() -> impl IntoElement {
 Kaynak:
 
 - `Icon`, `IconSize`, `AnyIcon`, `IconWithIndicator`: `ui` crate'i.
-- `IconName`: `icons` crate'i, `ui::IconName` adıyla re-export etmen gerekir.
+- `IconName`: `icons` crate'i, `ui::IconName` adıyla re-export edilmesi gerekir.
 - Export: `ui::Icon`, `ui::IconName`, `ui::IconSize`.
 - Prelude: `Icon`, `IconName`, `IconSize` otomatik gelir.
 - Preview: `impl Component for Icon`.
@@ -451,7 +451,7 @@ Ne zaman kullanılır:
 Ne zaman kullanılmaz:
 
 - Büyük raster görseller için GPUI'nin `img(...)` / `ImageSource` arayüzü veya `Avatar` ve `Vector` gibi daha uygun bileşenler tercih edilmelidir.
-- Simgenin yanında bir badge veya durum işareti gerekiyorsa, çıplak `Icon` yerine `DecoratedIcon`, `IconWithIndicator` veya ilgili bileşenin slot yüzeyini düşünebilirsin.
+- Simgenin yanında bir badge veya durum işareti gerekiyorsa, çıplak `Icon` yerine `DecoratedIcon`, `IconWithIndicator` veya ilgili bileşenin slot yüzeyini düşünülebilir.
 
 Temel API:
 
@@ -461,7 +461,7 @@ Temel API:
 - `.size(IconSize::...)`.
 - `.color(Color::...)`.
 - `IconSize`: `Indicator` 10px, `XSmall` 12px, `Small` 14px, `Medium` 16px (varsayılan), `XLarge` 48px, ayrıca `Custom(Rems)` özel boyut için.
-- Ölçü yardımcıları: `IconSize::rems() -> Rems`, `IconSize::square(window, cx) -> Pixels` (ikonu ve simetrik padding'i içeren kare ölçüyü verir) ve `IconSize::square_components(window, cx) -> (Pixels, Pixels)` (ikon ölçüsü ile tek taraf padding'ini ayrı ayrı döndürür). `IconButtonShape::Square` ve özel ikon konteynerlerinin hizalamasında işine yarar.
+- Ölçü yardımcıları: `IconSize::rems() -> Rems`, `IconSize::square(window, cx) -> Pixels` (ikonu ve simetrik padding'i içeren kare ölçüyü verir) ve `IconSize::square_components(window, cx) -> (Pixels, Pixels)` (ikon ölçüsü ile tek taraf padding'ini ayrı ayrı döndürür). `IconButtonShape::Square` ve özel ikon konteynerlerinin hizalamasında işe yarar.
 - `IconName::path()` gömülü ikonun `icons/<name>.svg` yolunu döndürür.
 
 Davranış:
@@ -512,7 +512,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::IconWithIndicator`, `ui::AnyIcon`.
-- Prelude: Hayır; ayrıca import etmen gerekir.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 
 Ne zaman kullanılır:
 
@@ -523,7 +523,7 @@ Ne zaman kullanılmaz:
 
 - Daha büyük veya knockout etkili bir kaplama gerekiyorsa `DecoratedIcon` ve `IconDecoration` daha uygun olur.
 - Metinsel sayaç için `CountBadge`, satır içi küçük durum için `Indicator` tek başına daha okunabilir olabilir.
-- Sadece icon rengini değiştirmek için `AnyIcon` kullanmana gerek yoktur; düz `Icon::color(...)` yeterlidir.
+- Sadece icon rengini değiştirmek için `AnyIcon` kullanılmasına gerek yoktur; düz `Icon::color(...)` yeterlidir.
 
 Temel API:
 
@@ -564,7 +564,7 @@ Kaynak:
 - `DecoratedIcon`: `ui` crate'i.
 - `IconDecoration`, `IconDecorationKind`, `KnockoutIconName`: `ui` crate'i.
 - Export: `ui::DecoratedIcon`, `ui::IconDecoration`, `ui::IconDecorationKind`.
-- Prelude: Hayır; ayrıca import etmen gerekir.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `DecoratedIcon` için vardır; `IconDecoration` tek başına bir preview taşımaz.
 
 Ne zaman kullanılır:
@@ -680,7 +680,7 @@ fn render_project_match(
 }
 ```
 
-Bir yükleme satırı için ise `SpinnerLabel` ve `LoadingLabel` birlikte durduğunda hem bir spinner görüntüsü hem de kademeli metin animasyonu elde edebilirsin:
+Bir yükleme satırı için ise `SpinnerLabel` ve `LoadingLabel` birlikte durduğunda hem bir spinner görüntüsü hem de kademeli metin animasyonu elde edilebilir:
 
 ```rust
 use ui::prelude::*;

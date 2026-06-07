@@ -1,6 +1,6 @@
 # 2. Ham GPUI Primitive'leri ve Metod Kapsamı
 
-Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements` primitive'lerini anlatır. Günlük Zed ekran kodunda öncelikle hazır `ui` bileşenleri değerlendirilir. Ham GPUI primitive'lerine ise ancak daha özel ihtiyaçlar ortaya çıktığında başvurabilirsin: kendine özgü bir düzen (layout), özel çizim, metin ölçümü, görsel önbellek, sanal liste veya hazır bileşenlerin sunmadığı bir etkileşim modeli gibi. Kısacası, üst katman ihtiyaçların çoğunu karşılar; alt katmana inmek ise genellikle bilinçli bir gereksinimin sonucudur.
+Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements` primitive'lerini anlatır. Günlük Zed ekran kodunda öncelikle hazır `ui` bileşenleri değerlendirilir. Ham GPUI primitive'lerine ise ancak daha özel ihtiyaçlar ortaya çıktığında başvurulması mümkündür: kendine özgü bir düzen (layout), özel çizim, metin ölçümü, görsel önbellek, sanal liste veya hazır bileşenlerin sunmadığı bir etkileşim modeli gibi. Kısacası, üst katman ihtiyaçların çoğunu karşılar; alt katmana inmek ise genellikle bilinçli bir gereksinimin sonucudur.
 
 ## Public GPUI element adları
 
@@ -161,13 +161,13 @@ Aşağıdaki tablo her primitive'in nasıl üretildiğini, hangi özel metotlar 
 | `ScrollHandle` | `ScrollHandle::new()` | `.offset()`, `.max_offset()`, `.top_item()`, `.bottom_item()`, `.bounds()`, `.bounds_for_item(ix)`, `.scroll_to_item(ix)`, `.scroll_to_top_of_item(ix)`, `.scroll_to_bottom()`, `.set_offset(point)`, `.logical_scroll_top()`, `.logical_scroll_bottom()`, `.children_count()` | `overflow_*_scroll` ve `.track_scroll(&handle)` ile bağlanır |
 | `ScrollAnchor` | `ScrollAnchor::for_handle(handle)` | `.scroll_to(window, cx)` | Nested child'ın parent scroll alanına anchor edilmesi gerektiğinde tercih edilir |
 | `canvas` / `Canvas<T>` | `canvas(prepaint, paint)` | `Styled`; prepaint closure durum döndürür, paint closure bu durum ile çizim yapar | Sadece özel render gerektiğinde devreye girer; layout `Styled` boyutlarıyla sabitlenir |
-| `img` / `Img` | `img(source)` | `Img::extensions()`, `.image_cache(entity)`; `StyledImage`: `.grayscale(bool)`, `.object_fit(ObjectFit)`, `.with_fallback(|| ...)` | Yükleme ve yedek UI'sı belirlenmemiş uzak/asset görsel bırakmaman gerekir |
+| `img` / `Img` | `img(source)` | `Img::extensions()`, `.image_cache(entity)`; `StyledImage`: `.grayscale(bool)`, `.object_fit(ObjectFit)`, `.with_fallback(|| ...)` | Yükleme ve yedek UI'sı belirlenmemiş uzak/asset görsel bırakılmaması gerekir |
 | `ImageSource` | `ImageSource::{Resource, Custom, Render, Image}` | `.remove_asset(cx)` | Asset yaşam döngüsünü açıkça temizlemek gerektiğinde kullanılır |
 | `image_cache` / `ImageCacheElement` | `image_cache(provider)` | `ParentElement`, `Styled`; alt ağaçtaki `img` yüklerini provider önbelleğine bağlar | Aynı ekran içinde tekrar tekrar görünen görsellerde tercih edilir |
 | `AnyImageCache` | `Entity<I: ImageCache>` üzerinden `From` | `.load(resource, window, cx)` | Cache sağlayıcılarının type erasure katmanı |
 | `ImageCache` | trait | `.load(resource, window, cx)` | Uygulamaya özel önbellek stratejisi gerekiyorsa bu trait implement edilir |
 | `ImageCacheProvider` | trait | `.provide(window, cx)` | Render veya request-layout aşamasında önbellek sağlar |
-| `RetainAllImageCache` | `RetainAllImageCache::new(cx)` | `.load(source, window, cx)`, `.clear(window, cx)`, `.remove(source, window, cx)`, `.len()`, `.is_empty()` | Basit "her şeyi tut" stratejisidir; uzun ömürlü ekranlarda clear/remove sorumluluğunu açıkça yönetmen gerekir |
+| `RetainAllImageCache` | `RetainAllImageCache::new(cx)` | `.load(source, window, cx)`, `.clear(window, cx)`, `.remove(source, window, cx)`, `.len()`, `.is_empty()` | Basit "her şeyi tut" stratejisidir; uzun ömürlü ekranlarda clear/remove sorumluluğunun açıkça yönetilmesi gerekir |
 | `retain_all` | `retain_all(id)` | `RetainAllImageCacheProvider` üretir | Satır içi (inline) önbellek sağlayıcısı (provider) gerektiğinde kullanılır |
 | `svg` / `Svg` | `svg()` | `.path(path)`, `.external_path(path)`, `.with_transformation(transformation)` | İkon ihtiyaçları için `Icon` tercih edilir; ham SVG yalnızca asset transform işlemleri gerektiğinde anlamlıdır |
 | `Transformation` | `Transformation::scale(size)`, `::translate(point)`, `::rotate(radians)` | `.with_scaling(size)`, `.with_translation(point)`, `.with_rotation(radians)` | Birden fazla transform gerektiğinde builder zinciriyle tek bir `Transformation` nesnesi oluşturulur |
@@ -175,14 +175,14 @@ Aşağıdaki tablo her primitive'in nasıl üretildiğini, hangi özel metotlar 
 | `deferred` / `Deferred` | `deferred(child)` | `.with_priority(priority)`, `.priority(priority)` | Ağır alt ağaçların render sırasını ayarlar; etkileşim açısından kritik kontroller geciktirilmemelidir |
 | `surface` / `Surface` | `surface(source)` | `.object_fit(ObjectFit)`; `SurfaceSource` macOS `CVPixelBuffer` taşır | macOS native surface dışında kullanılmamalıdır; platform cfg sınırı korunur |
 | `list` / `List` | `list(state, render_item)` | `.with_sizing_behavior(ListSizingBehavior)`; `ListAlignment`, `ListHorizontalSizingBehavior`, `ListMeasuringBehavior`, `ListOffset`, `ListScrollEvent`, `FollowMode` | Satır yüksekliği değişken olduğunda tercih edilir; durum view alanında saklanır |
-| `ListState` | `ListState::new(item_count, alignment, overdraw)` | `.measure_all()`, `.reset(count)`, `.remeasure()`, `.remeasure_items(range)`, `.item_count()`, `.is_scrolled_to_end()`, `.splice(range, count)`, `.splice_focusable(...)`, `.set_scroll_handler(...)`, `.logical_scroll_top()`, `.scroll_by(distance)`, `.scroll_to_end()`, `.set_follow_mode(mode)`, `.is_following_tail()`, `.scroll_to(offset)`, `.scroll_to_reveal_item(ix)`, `.bounds_for_item(ix)`, `.item_is_above_viewport(ix)`, `.item_is_below_viewport(ix)`, `.scrollbar_drag_started()`, `.scrollbar_drag_ended()`, `.is_scrollbar_dragging()`, `.set_offset_from_scrollbar(point)`, `.max_offset_for_scrollbar()`, `.scroll_px_offset_for_scrollbar()`, `.viewport_bounds()` | Veri değiştiğinde `splice` veya `reset`, ölçüm değiştiğinde `remeasure*` çağrılarını yapman gerekir |
+| `ListState` | `ListState::new(item_count, alignment, overdraw)` | `.measure_all()`, `.reset(count)`, `.remeasure()`, `.remeasure_items(range)`, `.item_count()`, `.is_scrolled_to_end()`, `.splice(range, count)`, `.splice_focusable(...)`, `.set_scroll_handler(...)`, `.logical_scroll_top()`, `.scroll_by(distance)`, `.scroll_to_end()`, `.set_follow_mode(mode)`, `.is_following_tail()`, `.scroll_to(offset)`, `.scroll_to_reveal_item(ix)`, `.bounds_for_item(ix)`, `.item_is_above_viewport(ix)`, `.item_is_below_viewport(ix)`, `.scrollbar_drag_started()`, `.scrollbar_drag_ended()`, `.is_scrollbar_dragging()`, `.set_offset_from_scrollbar(point)`, `.max_offset_for_scrollbar()`, `.scroll_px_offset_for_scrollbar()`, `.viewport_bounds()` | Veri değiştiğinde `splice` veya `reset`, ölçüm değiştiğinde `remeasure*` çağrılarının yapılması gerekir |
 | `uniform_list` / `UniformList` | `uniform_list(id, item_count, render_item)` | `.with_width_from_item(Some(index))`, `.with_sizing_behavior(...)`, `.with_horizontal_sizing_behavior(...)`, `.with_decoration(decoration)`, `.track_scroll(handle)`, `.y_flipped(bool)`; `UniformListDecoration`, `UniformListFrameState`, `UniformListScrollState` | Sabit satır geometrisi ve çok büyük veri kümeleri için tercih edilir |
 | `UniformListScrollHandle` | `UniformListScrollHandle::new()` | `.scroll_to_item(ix, strategy)`, `.scroll_to_item_strict(ix, strategy)`, `.scroll_to_item_with_offset(ix, strategy, offset)`, `.scroll_to_item_strict_with_offset(ix, strategy, offset)`, `.y_flipped()`, `.is_scrollable()`, `.is_scrolled_to_end()`, `.scroll_to_bottom()`; test/test-support altında `.logical_scroll_top_index()`; `ScrollStrategy` | Dışarıdan scroll komutu vermek ve scroll durumunu okumak için handle yapısı saklanır |
 | `StyledText` | `StyledText::new(text)` | `.layout()`, `.with_default_highlights(...)`, `.with_highlights(...)`, `.with_font_family_overrides(...)`, `.with_runs(runs)` | Vurgu ve zengin metin gerektiğinde tercih edilir; normal etiket için `Label` daha doğru bir seçenektir |
 | `TextLayout` | `StyledText::layout()` | `.index_for_position(point)`, `.position_for_index(index)`, `.line_layout_for_index(index)`, `.bounds()`, `.line_height()`, `.len()`, `.text()`, `.wrapped_text()` | Hit-test ve ölçüm bilgisi prepaint veya layout sonrası anlam kazanır |
 | `InteractiveText` | `InteractiveText::new(id, styled_text)` | `.on_click(range, listener)`, `.on_hover(range, listener)`, `.tooltip(range, builder)`; `InteractiveTextState` | Satır içi (inline) link, mention veya span tooltip özellikleri için kullanılır |
 | `Animation` | `Animation::new(duration)` | `.repeat()`, `.with_easing(easing)` | Animasyon token'ları tek bir yerde üretilir; sonsuz animasyon seçeneği ise bilinçli olarak belirtilmelidir |
-| `AnimationExt` / `AnimationElement` | `.with_animation(id, animation, animator)`, `.with_animations(id, animations, animator)` | `AnimationElement::map_element(f)` | Elementi saran bir sarmalayıcıdır; sabit bir `ElementId` vermen zorunludur |
+| `AnimationExt` / `AnimationElement` | `.with_animation(id, animation, animator)`, `.with_animations(id, animations, animator)` | `AnimationElement::map_element(f)` | Elementi saran bir sarmalayıcıdır; sabit bir `ElementId` verilmesi zorunludur |
 
 `ListState` scrollbar sürükleme sözleşmesi özellikle değişken yükseklikli listelerde önem taşır. `scrollbar_drag_started()` ile `scrollbar_drag_ended()` arasında `is_scrollbar_dragging()` değeri true döner. `set_offset_from_scrollbar(point)` pozitif "baştan mesafe" değeri almaz; `scroll_px_offset_for_scrollbar()` ile aynı koordinat modelini temel alır. İçerik aşağı kaydıkça `point.y` negatif olur. Dolayısıyla scrollbar'ı 150px aşağı kaydırmak için `point(px(0.), px(-150.))` tanımlanır. İçerik sürükleme esnasında büyürse, sürükleme başlangıcındaki içerik yüksekliği baz alınır; kullanıcı kaydırma alanının sonuna ulaştığında `FollowMode::Tail` yeniden takibi başlatır.
 
@@ -214,11 +214,11 @@ Public durum alanları:
 | `ListOffset` | `item_ix`, `offset_in_item` | Değişken yükseklikli listede logical scroll pozisyonunu temsil eder |
 | `ListScrollEvent` | `visible_range`, `count`, `is_scrolled`, `is_following_tail` | `ListState::set_scroll_handler(...)` callback'i içinde scroll değişimini okuduğun yüzeydir |
 | `DivInspectorState` | `base_style`, `bounds`, `content_size` | Inspector veya debug build durumudur; uygulama bileşen API'si değildir |
-| `Interactivity` | `element_id`, `active`, `hovered`, `base_style` | `Div` interactivity çekirdeğidir; üretim kodunda fluent builder metodlarını tercih etmelisin |
+| `Interactivity` | `element_id`, `active`, `hovered`, `base_style` | `Div` interactivity çekirdeğidir; üretim kodunda fluent builder metodlarının tercih edilmesi gerekir |
 
 ## Kullanım örüntüleri
 
-Ham `div()` ile özel bir kontrol tasarlanırken aşağıdaki iskelet temel bir örnek olarak değerlendirilebilir. Standart bir `ui::Button` yerine manuel olarak kontrol yazıldığında odak, hover, tooltip ve eylem (action) bağlantılarını açıkça kurman gerekir:
+Ham `div()` ile özel bir kontrol tasarlanırken aşağıdaki iskelet temel bir örnek olarak değerlendirilebilir. Standart bir `ui::Button` yerine manuel olarak kontrol yazıldığında odak, hover, tooltip ve eylem (action) bağlantılarının açıkça kurulması gerekir:
 
 ```rust
 div()
@@ -244,7 +244,7 @@ list(self.list_state.clone(), move |ix, window, cx| {
 .with_sizing_behavior(ListSizingBehavior::Infer)
 ```
 
-Sabit yükseklikli büyük liste örüntüsünde ise `uniform_list` öne çıkar. Buradaki kritik fark, her satırın aynı yüksekliğe sahip olduğunun varsayılmasıdır; bu varsayım sayesinde çok büyük veri kümeleri için hızlı bir sanallaştırma elde edebilirsin:
+Sabit yükseklikli büyük liste örüntüsünde ise `uniform_list` öne çıkar. Buradaki kritik fark, her satırın aynı yüksekliğe sahip olduğunun varsayılmasıdır; bu varsayım sayesinde çok büyük veri kümeleri için hızlı bir sanallaştırma elde edilmesi mümkündür:
 
 ```rust
 uniform_list("items", self.items.len(), move |range, window, cx| {
@@ -255,7 +255,7 @@ uniform_list("items", self.items.len(), move |range, window, cx| {
 .track_scroll(&self.uniform_scroll_handle)
 ```
 
-Görsel önbellek örüntüsü ise alt ağaçtaki tüm `img` çağrılarını ortak bir önbelleğe bağlamak amacıyla kullanılır. `image_cache(retain_all(...))` katmanı, aynı görselin tekrar tekrar yüklenmesini önler; ayrıca yükleme ve yedek (fallback) davranışını da merkezi bir noktadan tanımlayabilirsin:
+Görsel önbellek örüntüsü ise alt ağaçtaki tüm `img` çağrılarını ortak bir önbelleğe bağlamak amacıyla kullanılır. `image_cache(retain_all(...))` katmanı, aynı görselin tekrar tekrar yüklenmesini önler; ayrıca yükleme ve yedek (fallback) davranışının da merkezi bir noktadan tanımlanması mümkündür:
 
 ```rust
 image_cache(retain_all("image-cache"))

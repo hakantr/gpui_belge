@@ -188,7 +188,7 @@ cx.bind_keys([
 - `KeyBindingContextPredicate::parse(kaynak)` — yüklem üretir. `eval(baglam_yigini)` mantıksal eşleşmeyi, `depth_of(baglam_yigini)` en derin eşleşme derinliğini, `is_superset(&diger)` ise keymap önceliği ve çakışma analizlerini gerçekleştirir. `eval_inner(...)` genel erişime açık görünse de ayrıştırıcı veya doğrulayıcı gibi düşük seviyeli dahili yapılar içindir; normal bileşen kodlarında doğrudan çağrılmamalıdır.
 - `Keymap::bindings_for_input(input, context_stack)` — eşleşen action'ları ve bekleyen çok vuruşlu (`multi-stroke`) durumu döndürür.
 - `Keymap::possible_next_bindings_for_input(input, context_stack)` — mevcut akor önekini (`chord prefix`) takip edebilecek kısayolları öncelik sırasında verir.
-- `Keymap::version() -> KeymapVersion` — kısayol seti değiştikçe artan sayaçtır; kısayol UI önbelleklerinde geçersizleştirme anahtarı olarak kullanabilirsin.
+- `Keymap::version() -> KeymapVersion` — kısayol seti değiştikçe artan sayaçtır; kısayol UI önbelleklerinde geçersizleştirme anahtarı olarak kullanılabilir.
 - `Keymap::new(bindings)`, `add_bindings(bindings)`, `bindings()`, `bindings_for_action(action)`, `all_bindings_for_input(input)` ve `clear()`, ham keymap tablosunu kurma, sorgulama ve sıfırlama arayüzüdür. Uygulama akışında çoğunlukla `cx.bind_keys(...)` and settings yükleyicisi tercih edilir; bu metotlar test, doğrulayıcı, tanılama veya özel keymap arayüzleri geliştirilirken kullanılır.
 - `window.context_stack()` — kökten odaktaki düğüme, yönlendirme yolundaki bağlamları verir.
 - `window.keystroke_text_for(&action)` — UI'da gösterilecek en yüksek öncelikli kısayol metni.
@@ -226,7 +226,7 @@ pub enum DispatchPhase {
 **Kontrol bayrakları** (`gpui` crate'i):
 
 - `cx.stop_propagation()` — aynı tipteki diğer dinleyicilerin çağrılmasını keser (farede z-index'te alt katman, tuşta ağaçta üst element).
-- `cx.propagate()` — önceki `stop_propagation()` etkisini geri alır. Action dinleyicileri bubble aşamasında varsayılan olarak yayılımı durdurduğu için üst öğeye düşürmek istiyorsan dinleyici içinden `cx.propagate()` çağrısı yapılır.
+- `cx.propagate()` — önceki `stop_propagation()` etkisini geri alır. Action dinleyicileri bubble aşamasında varsayılan olarak yayılımı durdurduğu için üst öğeye düşürülmesi isteniyorsa dinleyici içinden `cx.propagate()` çağrısı yapılır.
 - `window.prevent_default()` ve `window.default_prevented()` — aynı yönlendirme içinde varsayılan element davranışını bastıran pencere bayrağıdır. En görünür kullanım örneği, fare basma sırasında üst öğeye odak aktarımının engellenmesidir.
 
 **Platforma dönen sonuç.** Yönlendirme tamamlandığında platforma şu yapı döner:
@@ -238,7 +238,7 @@ pub struct DispatchEventResult {
 }
 ```
 
-`PlatformWindow::on_input` geri çağrısı, `Fn(PlatformInput) -> DispatchEventResult` döndürür. Mevcut platform arka uçlarında (`backend`) "olay işlendi mi?" kararı esas olarak `propagate` üzerinden verilir (`!propagate`, "işlendi" anlamına gelir). `default_prevented`, GPUI yönlendirme ağacındaki varsayılan element davranışını ve test/tanılama sonucunu taşır. Bunu genel bir platform iptal mekanizması gibi değil, dinleyicinin açıkça kontrol ettiği yerlerde anlamlandırman gerekir.
+`PlatformWindow::on_input` geri çağrısı, `Fn(PlatformInput) -> DispatchEventResult` döndürür. Mevcut platform arka uçlarında (`backend`) "olay işlendi mi?" kararı esas olarak `propagate` üzerinden verilir (`!propagate`, "işlendi" anlamına gelir). `default_prevented`, GPUI yönlendirme ağacındaki varsayılan element davranışını ve test/tanılama sonucunu taşır. Bunu genel bir platform iptal mekanizması gibi değil, dinleyicinin açıkça kontrol ettiği yerlerde anlamlandırmak gerekir.
 
 **Pratik akış.** Tipik bir yönlendirme turunda şu adımlar izlenir:
 
@@ -317,7 +317,7 @@ let yonlendirme_oncesi = cx.intercept_keystrokes(|olay, _window, cx| {
 
 **Dikkat noktaları.** İnceleme yüzeyinde atlanması kolay noktalar:
 
-- `all_action_names` içinde görünen bir action'ın o anda kullanılabilir olması garanti değildir; UI öğesini etkin veya pasif yapmak için `available_actions`'ı ya da `is_action_available`'ı tercih etmen gerekir.
+- `all_action_names` içinde görünen bir action'ın o anda kullanılabilir olması garanti değildir; UI öğesini etkin veya pasif yapmak için `available_actions`'ı ya da `is_action_available`'ı tercih etmek gerekir.
 - Kısayol gösterimlerinde bağlam yığınını dikkate almayan `cx.all_bindings_for_input` yerine, mümkün olduğunda pencere veya odak handle'ı bazlı sorgular tercih edilir.
 - Yakalayıcılar (`interceptor`) genel etkilidir; modal pencerelere özgü tuş engelleme işlemleri yapılacaksa bunun mümkün mertebe element action veya capture dinleyicisi ile sınırlandırılması gerekir.
 

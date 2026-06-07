@@ -12,7 +12,7 @@ const MAX_PROJECT_NAME_LENGTH: usize = 40;
 
 Görsel olarak proje adı tıklanabilir bir tetikleyicidir; tıklandığında son projeler açılır paneli açılır. Birden çok çalışma ağacı açık ise adın yanında bir aşağı ok belirir; bu durum, başlığın çoklu çalışma ağacı modunda olduğunun işaretidir. Proje adı yalnızca `show_project_items` ayarı açıkken çizilir.
 
-Port hedefinde proje/doküman adı genellikle tek bir çalışma ağacından veya açık dosyadan gelir. Aynı kısaltma sınırını kendi modelinde de uygulaman gerekir; çoklu proje desteklenmiyorsa aşağı ok ve açılır panel kısmını tamamen atlaman mümkündür.
+Port hedefinde proje/doküman adı genellikle tek bir çalışma ağacından veya açık dosyadan gelir. Aynı kısaltma sınırının uygulanan modelde de uygulanması gerekir; çoklu proje desteklenmiyorsa aşağı ok ve açılır panel kısmının tamamen atlanması mümkündür.
 
 ## 2. Git dalı ve çalışma ağacı
 
@@ -55,7 +55,7 @@ pub fn render_restricted_mode(&self, cx: &mut Context<Self>) -> Option<AnyElemen
 
 Davranış şudur: `TrustedWorktrees::has_restricted_worktrees` değeri doğruysa, başlığa uyarı renginde bir `"Restricted Mode"` butonu eklenir. Türkçe portta bu görünür metin `"Kısıtlı Mod"` şeklinde yerelleştirilebilir. Buton bir uyarı ikonu taşır ve ipucunda `ToggleWorktreeSecurity` eylemine işaret eder: Projeyi güvenilir işaretleyip tüm özellikleri açma. Tıklanınca çalışma alanının güven/güvenlik modalı açılır. Kısıtlı çalışma ağacı yoksa fonksiyon `None` döner ve hiçbir şey çizilmez.
 
-Bu gösterge, güvenlik modelinin başlıktaki görünür yüzüdür: Kullanıcı güvenmediği bir projeyi açtığında bazı özellikler kısıtlanır ve bu durum başlıkta açıkça belirtilir. Port hedefinde benzer bir güven modeli varsa (örneğin "bu klasöre güveniyor musun?"), aynı kalıp uygulanır: Kısıtlı durumda görünür bir uyarı gösterilir, tıklamayla güven kararını soran bir arayüz açılır. Güven modeli yoksa bu gösterge gerekmez.
+Bu gösterge, güvenlik modelinin başlıktaki görünür yüzüdür: Kullanıcı güvenmediği bir projeyi açtığında bazı özellikler kısıtlanır ve bu durum başlıkta açıkça belirtilir. Port hedefinde benzer bir güven modeli varsa (örneğin "bu klasöre güvenilsin mi?"), aynı kalıp uygulanır: Kısıtlı durumda görünür bir uyarı gösterilir, tıklamayla güven kararını soran bir arayüz açılır. Güven modeli yoksa bu gösterge gerekmez.
 
 ## 5. Sol grubun bir araya gelişi
 

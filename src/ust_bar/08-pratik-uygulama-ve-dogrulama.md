@@ -1,10 +1,10 @@
 # Pratik uygulama, port ve doğrulama
 
-Bu bölüm önceki konuları bir araya getirir: Kendi ürün başlığını kurarken hangi parçaları nereden alacağın, Zed bağımlılıklarının port karşılıkları, dikkat edilmesi gereken kullanımlar ve teslim öncesi davranış doğrulama listesi ele alınır.
+Bu bölüm önceki konuları bir araya getirir: Hedeflenen ürün başlığını kurarken hangi parçaların nereden alınacağı, Zed bağımlılıklarının port karşılıkları, dikkat edilmesi gereken kullanımlar ve teslim öncesi davranış doğrulama listesi ele alınır.
 
 ## 1. Ürün başlığını kurma iskeleti
 
-Kendi uygulamanda ürün başlığı, platform kabuğunu sahiplenen ve her render geçişinde besleyen bir entity'dir. İskelet, [2. bölümdeki](02-kaynak-haritasi-ve-kopru.md) köprü kalıbının genişletilmiş halidir:
+Geliştirilen uygulamada ürün başlığı, platform kabuğunu sahiplenen ve her render geçişinde besleyen bir entity'dir. İskelet, [2. bölümdeki](02-kaynak-haritasi-ve-kopru.md) köprü kalıbının genişletilmiş halidir:
 
 ```rust
 struct UrunBasligi {
@@ -36,14 +36,14 @@ Menüleri ayrı bir satıra taşıma ihtiyacı varsa, [3. bölümdeki](03-titleb
 
 | İhtiyaç | Yapılacak İşlem |
 | :-- | :-- |
-| Bir parçayı gizle/göster | Kendi `TitleBarSettings` muadilinde bir bayrak tut; render geçişinde o parçayı koşula bağla. |
-| Proje adı farklı bir kaynaktan gelmeli | `effective_active_worktree` kalıbını kendi aktif doküman/proje modelinle değiştir. |
-| Dal göstergesi eklenmeli | Aktif dalı kısaltarak göster, tıklamayı dal değiştirme yüzeyine bağla, opsiyonel durum ikonu ekle. |
-| Menü ayrı satırda olmalı | Menü modunu (iki satır) etkinleştir; ikinci satırın rengini/yüksekliğini platform kabuğuyla eşitle. |
-| Kullanıcı menüsü/oturum açma | Oturum durum makinesini kur: Açık -> menü, açılıyor -> geçici gösterge, kapalı -> giriş. |
-| Güncelleme bildirimi | Güncelleme durum yayınını izle; duruma göre buton çiz, süren işlemde butonu `disabled` yap. |
+| Bir parçayı gizle/göster | Hedef `TitleBarSettings` muadilinde bir bayrak tutulur; render geçişinde o parça koşula bağlanır. |
+| Proje adı farklı bir kaynaktan gelmeli | `effective_active_worktree` kalıbı, uygulamanın aktif doküman/proje modeliyle değiştirilir. |
+| Dal göstergesi eklenmeli | Aktif dal kısaltılarak gösterilir, tıklama dal değiştirme yüzeyine bağlanır, opsiyonel durum ikonu eklenir. |
+| Menü ayrı satırda olmalı | Menü modu (iki satır) etkinleştirilir; ikinci satırın rengi ve yüksekliği platform kabuğuyla eşitlenir. |
+| Kullanıcı menüsü/oturum açma | Oturum durum makinesi kurulur: Açık -> menü, açılıyor -> geçici gösterge, kapalı -> giriş. |
+| Güncelleme bildirimi | Güncelleme durum yayını izlenir; duruma göre buton çizilir, süren işlemde buton `disabled` yapılır. |
 | Duyuru bandı | Tek duyuru bandı entity'si + `visible_when` koşulu + kalıcı kapatma kaydı. |
-| İşbirliği kontrolleri | Yalnızca bir çağrı/işbirliği özelliğin varsa; geçişleri küçük fonksiyonlara topla, butonları ince tetikleyici yap. |
+| İşbirliği kontrolleri | Yalnızca bir çağrı/işbirliği özelliği varsa; geçişler küçük fonksiyonlara toplanır, butonlar ince tetikleyici yapılır. |
 
 ## 3. Dikkat Edilmesi Gereken Kullanımlar
 

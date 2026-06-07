@@ -45,7 +45,7 @@ fn kaydetmeyi_test_et(cx: &mut TestAppContext) {
 
 **Sık Kullanılan API'ler.** Test akışında en sık karşılaşılan yardımcı metotlar şunlardır:
 
-- `TestAppContext::single()` — çoklu istemci kurmayan testlerde tek bir test uygulaması başlatır. `#[gpui::test]` çoğu zaman bunu senin yerine kurar; elle test koşumu yazarken anlamlıdır.
+- `TestAppContext::single()` — çoklu istemci kurmayan testlerde tek bir test uygulaması başlatır. `#[gpui::test]` çoğu zaman bu kurulumu otomatik olarak gerçekleştirir; elle test koşumu yazarken anlamlıdır.
 - `cx.add_window(|window, cx| cx.new(...))` — test ekranı boyutunda (maximized) yeni bir test penceresi açar.
 - `cx.simulate_keystrokes(window, "cmd-s left")` — boşlukla ayrılmış keystroke dizisini simüle eder.
 - `cx.simulate_input(window, "hello")` — metin girdisi simülasyonu yapar.
@@ -357,7 +357,7 @@ Bu küçük API'ler ana çizim modelinin parçası değildir; ancak Zed başlang
 
 **Application ve platform kurulumu.** Application kurarken normal yol platformu açıkça seçen yapıcıdan geçer; platform yardımcıları ise üst katmanda yaygın olarak kullanılır:
 
-- `Application::with_platform(Rc<dyn Platform>)` normal Application kurma yoludur; `Application::new()` diye sade bir yapıcı yoktur. Erişilebilirlik köprüsünü bilinçli kapatman gereken ender durumda `Application::new_inaccessible(platform)` aynı platformla başlar ve AccessKit entegrasyonunu no-op hale getirir.
+- `Application::with_platform(Rc<dyn Platform>)` normal Application kurma yoludur; `Application::new()` diye sade bir yapıcı yoktur. Erişilebilirlik köprüsünün bilinçli kapatılması gereken ender durumlarda `Application::new_inaccessible(platform)` aynı platformla başlar ve AccessKit entegrasyonunu no-op hale getirir.
 - Üretim kodu genellikle bu yapıcıyı doğrudan çağırmaz; `gpui_platform` yardımcılarından yararlanılır:
   - `gpui_platform::application()` → `Application::with_platform(current_platform(false))`.
   - `gpui_platform::headless()` → `Application::with_platform(current_platform(true))`.
@@ -559,7 +559,7 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `PaintSurface` | `bounds`, `content_mask`, platform image buffer | Platform surface primitive'idir; özellikle macOS compositing yolunda görünür. |
 | `PathId`, `PathVertex`, `PathVertex_ScaledPixels` | path index, vertex positions/mask, scaled alias | Scene path çiziminin vertex ve id taşıyıcılarıdır. |
 | `DebugBelow` | debug marker | `debug_below` styling'inin alt ağaçta taşınması için debug build işaretleyicisidir. |
-| `RenderablePromptHandle`, `FallbackPromptRenderer` | renderable prompt handle ve fallback renderer | Platform prompt yoksa GPUI içinde yedek prompt akışında kullanırsın. |
+| `RenderablePromptHandle`, `FallbackPromptRenderer` | renderable prompt handle ve fallback renderer | Platform prompt yoksa GPUI içinde yedek prompt akışında kullanılır. |
 | `quad` | window helper fn | Düşük seviyede quad primitive üretimine yakın yardımcıdır; uygulama kodu çoğunlukla `div()` styling veya `window.paint_quad` kullanır. |
 
 | API | Alt özellikler | Kısa anlamı |
@@ -733,7 +733,7 @@ Doğrudan kullanıcı akışında nadiren gördüğün genel yardımcılar:
 #### Küçük Genel Fonksiyonlar
 
 - `guess_compositor()` — Linux/Wayland/X11 compositor adını tahmin eder; "Platform Servisleri" başlığındaki `cx.compositor_name()` akışının düşük seviyeli yardımcısıdır.
-- `get_gamma_correction_ratios(gamma)` — atlas/glif çizim gamma düzeltme oranlarını üretir; tema rengi seçmek için kullanmazsın.
+- `get_gamma_correction_ratios(gamma)` — atlas/glif çizim gamma düzeltme oranlarını üretir; tema rengi seçmek için kullanılmaz.
 - `LinearColorStop` — gradient stop verisidir; `linear_gradient(...)` yardımcıları bunu üretir.
 - `combine_highlights(...)` — metin vurgu katmanlarını birleştirir; editör ve metin çizim hatlarında tercih edilir.
 - `hash(data)` — asset önbellek anahtarı üretimi için yardımcıdır.
@@ -796,7 +796,7 @@ Renk ve geometri kısa fonksiyonları:
 
 Rustdoc listesindeki `Action`, `IntoElement`, `Refineable`, `AppContext` ve `VisualContext` kısa adları tek bir öğe değildir; trait ve derive macro yüzeyleri ayrı namespace'lerde yaşar. `#[derive(AppContext)]` struct içinde `#[app]` ile işaretlenmiş `&mut App` alanını bulur ve `AppContext` metotlarını o alana delege eder. `#[derive(VisualContext)]` hem `#[app]` hem `#[window]` ister; `VisualContext` için `type Result<T> = T` üretir, `window_handle`, `update_window_entity`, `new_window_entity`, `replace_root_view` ve `focus` çağrılarını ilgili `App`/`Window` alanlarına indirir. `prelude::IntoElement`, `prelude::Refineable` ve `prelude::VisualContext` rustdoc'ta görünen derive macro takma adlarıdır; yeni bir trait veya farklı bir çalışma zamanı davranışı değildir.
 
-Bu yeniden dışa aktarımlar yeni bir API anlamına gelmez; modüllerde anlatılan aynı yüzeyin crate kökünden ergonomik erişimidir. Özellikle `property_test` ve `proptest` yalnız test kodunda, `ctor` ise registration altyapısı gibi dar alanlarda kullanırsın.
+Bu yeniden dışa aktarımlar yeni bir API anlamına gelmez; modüllerde anlatılan aynı yüzeyin crate kökünden ergonomik erişimidir. Özellikle `property_test` ve `proptest` yalnız test kodunda, `ctor` ise registration altyapısı gibi dar alanlarda kullanılır.
 
 Test yardımcı fonksiyonları `gpui::test` modülünde toplanır: `seed_strategy()`, `apply_seed_to_proptest_config(...)`, `run_test_once(...)`, `run_test(...)` ve `Observation<T>`. Bunlar `#[gpui::test]` ve `#[gpui::property_test]` makrolarının altyapısıdır; normal uygulama kodu çağırmaz.
 

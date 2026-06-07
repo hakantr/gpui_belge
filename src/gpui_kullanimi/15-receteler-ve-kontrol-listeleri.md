@@ -252,7 +252,7 @@ Tipik bir tanım şöyledir:
 Aşağıdaki liste rehber boyunca anlatılan dikkat noktalarını tek bir noktada toparlar; her madde belirtisi ile birlikte altta yatan nedeni de işaret eder.
 
 - **İstenen süslemeye güvenme** — `WindowOptions.window_decorations` yalnız bir istektir. Çizim sırasında fiili sonucu `window.window_decorations()` çağrısı verir; kararların bu sonuca göre verilmesi önerilir.
-- **Bulanıklık görünmüyor** — Kök view veya tema tamamen opak bir renk çiziyor olabilir. Bulanıklık efektinin görünmesi için saydam bir surface ve içerikte alfa bırakman şarttır.
+- **Bulanıklık görünmüyor** — Kök view veya tema tamamen opak bir renk çiziyor olabilir. Bulanıklık efektinin görünmesi için saydam bir surface ve içerikte alfa bırakılması şarttır.
 - **Linux kontrol butonları yanlış tarafta** — Doğru kaynak `cx.button_layout()`'tur ve değişimler pencerenin `observe_button_layout_changed` çağrısıyla takip edilmelidir.
 - **Windows başlık butonları tıklanmıyor** — Butonlarda `window_control_area(Close/Max/Min)` çağrısının eksik kalması yerel hit-test'i bozar.
 - **Kapatma davranışı atlanıyor** — Zed workspace penceresinde doğrudan `remove_window` yerine `workspace::CloseWindow` action'ının yönlendirilmesi (dispatch) gerekir; aksi takdirde kaydedilmemiş değişiklikler ve kullanıcı onay süreçleri atlanmış olur.

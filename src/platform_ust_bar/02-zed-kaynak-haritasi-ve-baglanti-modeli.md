@@ -1,6 +1,6 @@
 # Zed kaynak haritası ve bağlantı modeli
 
-İlk bölümde katmanları ayırdık. Bu bölümde Zed tarafındaki gerçek kaynakların nerede konumlandığı ele alınmaktadır. Önce dosyaların fiziksel haritası çıkarılacak, ardından başlık çubuğunun uygulama içinde hangi geri çağrılarla (callback) yaşadığı, hangi anda hangi entity'nin oluşturulduğu ve bu parçaların birbirine nasıl bağlandığı açıklanacaktır.
+İlk bölümde katmanlar ayrıldı. Bu bölümde Zed tarafındaki gerçek kaynakların nerede konumlandığı ele alınmaktadır. Önce dosyaların fiziksel haritası çıkarılacak, ardından başlık çubuğunun uygulama içinde hangi geri çağrılarla (callback) yaşadığı, hangi anda hangi entity'nin oluşturulduğu ve bu parçaların birbirine nasıl bağlandığı açıklanacaktır.
 
 ## 5. Zed kaynak haritası
 

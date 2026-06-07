@@ -675,7 +675,7 @@ pub fn set_theme_settings_provider(saglayici: Box<dyn ThemeSettingsProvider>, cx
 pub fn theme_settings(cx: &App) -> &dyn ThemeSettingsProvider;
 ```
 
-**Sözleşme sınırı:** Bu trait aktif tema adını veya aktif icon tema adını döndürmez. Zed'de sağlayıcı yalnızca typography ve yoğunluk okumaları için vardır. Seçici durumunu `ThemeSettingsContent.theme` ve `ThemeSettingsContent.icon_theme` alanlarından çözmen gerekir.
+**Sözleşme sınırı:** Bu trait aktif tema adını veya aktif icon tema adını döndürmez. Zed'de sağlayıcı yalnızca typography ve yoğunluk okumaları için vardır. Seçici durumunun `ThemeSettingsContent.theme` ve `ThemeSettingsContent.icon_theme` alanlarından çözülmesi gerekir.
 
 **`kvs_tema`'da karşılığı:**
 
