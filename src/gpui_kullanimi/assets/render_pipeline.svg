@@ -25,14 +25,14 @@
   <rect x="50" y="100" width="170" height="70" rx="8" class="card"/>
   <text x="135" y="130" class="label" text-anchor="middle">Event / State</text>
 
-  <path d="M 220 135 L 320 135" class="arrowSoft"/>
+  <path d="M 220 135 L 312 135" class="arrowSoft"/>
   <text x="270" y="122" class="edge" text-anchor="middle">cx.notify()</text>
 
   <rect x="320" y="100" width="200" height="70" rx="8" class="card"/>
   <text x="420" y="128" class="label" text-anchor="middle">Render::render</text>
   <text x="420" y="150" class="body" text-anchor="middle">(Element Tree)</text>
 
-  <path d="M 520 135 L 620 135" class="arrowSoft"/>
+  <path d="M 520 135 L 612 135" class="arrowSoft"/>
 
   <rect x="620" y="100" width="200" height="70" rx="8" class="card"/>
   <text x="720" y="128" class="label" text-anchor="middle">Layout &amp; Paint</text>

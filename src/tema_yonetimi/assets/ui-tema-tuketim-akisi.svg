@@ -56,11 +56,11 @@
   <text x="776" y="184" class="body">bg / border</text>
   <text x="776" y="202" class="small">text_color</text>
 
-  <path d="M218 180 H284" class="arrow"/>
-  <path d="M450 168 C482 154 488 136 516 136" class="arrow"/>
-  <path d="M450 196 C482 214 488 274 516 274" class="arrow"/>
-  <path d="M694 136 C734 136 734 170 760 176" class="arrow"/>
-  <path d="M694 274 C734 274 734 208 760 198" class="arrow"/>
+  <path d="M218 180 H276" class="arrow"/>
+  <path d="M450 168 C482 154 488 136 508 136" class="arrow"/>
+  <path d="M450 196 C482 214 488 274 508 274" class="arrow"/>
+  <path d="M694 136 C734 136 730 187 752 187" class="arrow"/>
+  <path d="M694 274 C734 274 730 187 752 187" class="arrow"/>
 
   <rect x="122" y="342" width="696" height="28" rx="7" fill="#eef2ff" stroke="#6366f1" stroke-width="1.1"/>
   <text x="144" y="361" class="small">Kural: `styles` crate-içi kalır; dış UI yalnız accessor metotlarını kullanır.</text>

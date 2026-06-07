@@ -40,13 +40,13 @@
   <rect x="405" y="92" width="350" height="68" rx="9" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
   <text x="580" y="118" text-anchor="middle" class="label">Pencere render etmem gerekiyor mu?</text>
   <text x="580" y="140" text-anchor="middle" class="small">SVG, layout veya snapshot gerekiyorsa evet.</text>
-  <path d="M 405 132 L 260 218" class="arrowSoft" /><text x="318" y="162" class="small">hayır</text>
-  <path d="M 755 132 L 900 218" class="arrowSoft" /><text x="830" y="162" class="small">evet</text>
+  <path d="M 405 132 L 260 210" class="arrowSoft" /><text x="318" y="162" class="small">hayır</text>
+  <path d="M 755 132 L 900 210" class="arrowSoft" /><text x="830" y="162" class="small">evet</text>
   <rect x="760" y="218" width="300" height="68" rx="9" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
   <text x="910" y="244" text-anchor="middle" class="label">Gerçek GPU compositor mu?</text>
   <text x="910" y="266" text-anchor="middle" class="small">Metal screenshot veya CI headless ayrımı.</text>
-  <path d="M 820 286 L 650 350" class="arrowSoft" /><text x="710" y="316" class="small">hayır</text>
-  <path d="M 990 286 L 990 350" class="arrowSoft" /><text x="1008" y="318" class="small">evet</text>
+  <path d="M 820 286 L 670 342" class="arrowSoft" /><text x="710" y="316" class="small">hayır</text>
+  <path d="M 990 286 L 980 342" class="arrowSoft" /><text x="1008" y="318" class="small">evet</text>
   <rect x="60" y="218" width="400" height="176" rx="8" class="card" />
 <rect x="60" y="218" width="400" height="30" rx="8" fill="#059669" />
 <path d="M 60 240 H 460 V 248 H 60 Z" fill="#059669" />

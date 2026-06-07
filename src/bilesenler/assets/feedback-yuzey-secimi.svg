@@ -48,13 +48,16 @@
   <text x="400" y="142" class="body">Karar zorunlu.</text>
   <text x="400" y="160" class="small">Akış durur</text>
 
-  <rect x="680" y="304" width="180" height="70" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1.3"/>
-  <text x="700" y="332" class="body">Severity</text>
-  <text x="700" y="352" class="small">Info · Success · Warning · Error</text>
-  <circle cx="820" cy="328" r="6" fill="#0284c7"/>
-  <circle cx="838" cy="328" r="6" fill="#059669"/>
-  <circle cx="856" cy="328" r="6" fill="#d97706"/>
-  <circle cx="874" cy="328" r="6" fill="#be123c"/>
+  <rect x="650" y="298" width="230" height="86" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1.3"/>
+  <text x="670" y="324" class="body">Severity</text>
+  <circle cx="672" cy="346" r="6" fill="#0284c7"/>
+  <text x="686" y="350" class="small">Info</text>
+  <circle cx="752" cy="346" r="6" fill="#059669"/>
+  <text x="766" y="350" class="small">Success</text>
+  <circle cx="672" cy="368" r="6" fill="#d97706"/>
+  <text x="686" y="372" class="small">Warning</text>
+  <circle cx="752" cy="368" r="6" fill="#be123c"/>
+  <text x="766" y="372" class="small">Error</text>
 
   <text x="196" y="404" class="small">Kural: mesaj kısa değilse Banner yerine Callout; karar zorunluysa AlertModal.</text>
 </svg>

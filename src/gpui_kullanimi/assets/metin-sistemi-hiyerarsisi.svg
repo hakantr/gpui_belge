@@ -32,7 +32,7 @@
   <text x="730" y="115" text-anchor="middle" class="mono" fill="#94a3b8">FontFallbacks</text>
 
   <!-- ── Katman 2: TextStyle + HighlightStyle ── -->
-  <path d="M 410 134 L 410 158" class="arrow" />
+  <path d="M 410 134 L 410 152" class="arrow" />
 
   <rect x="20" y="160" width="490" height="68" rx="8" fill="#1d4ed8" />
   <text x="265" y="182" text-anchor="middle" class="lbl">TextStyle</text>
@@ -54,7 +54,7 @@
   <text x="410" y="316" text-anchor="middle" class="note" fill="#a5f3fc">Harflerin gruplara (run) ayrılması: aynı stilce ardışık karakterler tek run'dır.</text>
 
   <!-- ── Katman 4: StyledText ── -->
-  <path d="M 410 324 L 410 350" class="arrow" />
+  <path d="M 410 324 L 410 344" class="arrow" />
 
   <rect x="20" y="352" width="580" height="52" rx="8" fill="#059669" />
   <text x="310" y="374" text-anchor="middle" class="lbl">StyledText</text>
@@ -67,6 +67,6 @@
   <text x="708" y="404" text-anchor="middle" class="note" fill="#fed7aa">hover · tooltip</text>
 
   <!-- Arrow StyledText → InteractiveText -->
-  <path d="M 600 378 L 614 378" class="arrow" />
+  <path d="M 600 378 L 608 378" class="arrow" />
 
 </svg>

@@ -86,12 +86,12 @@
   </g>
 
   <!-- Serialize akışı -->
-  <path d="M 260 210 L 540 210" class="arrow aVi"/>
+  <path d="M 260 210 L 532 210" class="arrow aVi"/>
   <text x="400" y="195" text-anchor="middle" class="small tViolet mono" font-weight="600">serialize()</text>
   <text x="400" y="180" text-anchor="middle" class="small">Kapanırken veya değişiklikte</text>
 
   <!-- Deserialize akışı -->
-  <path d="M 540 290 L 260 290" class="arrow aSk"/>
+  <path d="M 540 290 L 268 290" class="arrow aSk"/>
   <text x="400" y="312" text-anchor="middle" class="small tSky mono" font-weight="600">deserialize()</text>
   <text x="400" y="328" text-anchor="middle" class="small">Oturum yeniden açılırken</text>
 </svg>

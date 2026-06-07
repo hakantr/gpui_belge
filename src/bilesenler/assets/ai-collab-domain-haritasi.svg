@@ -58,10 +58,10 @@
   <text x="624" y="262" class="body">duyuru ve migration</text>
   <text x="624" y="280" class="small">lifecycle parent'ta</text>
 
-  <path d="M238 170 H318" class="arrow"/>
-  <path d="M238 190 C270 190 284 258 318 258" class="arrow"/>
-  <path d="M528 130 H608" class="arrow"/>
-  <path d="M528 258 H608" class="arrow"/>
+  <path d="M238 170 H310" class="arrow"/>
+  <path d="M238 190 C270 190 284 258 310 258" class="arrow"/>
+  <path d="M528 130 H600" class="arrow"/>
+  <path d="M528 258 H600" class="arrow"/>
 
   <rect x="110" y="342" width="720" height="42" rx="7" fill="#eef2ff" stroke="#6366f1" stroke-width="1.1"/>
   <text x="134" y="368" class="body">Kural: component yalnız render girdisi alır; gerçek servis ve migration kararları uygulama modelinde kalır.</text>

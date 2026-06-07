@@ -4,6 +4,9 @@
     <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
       <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
     </marker>
+    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    </marker>
     <style>
       .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
       .sub { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
@@ -12,6 +15,7 @@
       .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
       .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
       .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .merge-branch { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); stroke-linecap: round; stroke-linejoin: round; }
       .arrow-start { fill: #334155; }
     </style>
   </defs>
@@ -67,19 +71,15 @@
   <text x="662" y="404" class="body">Harici araç</text>
   <text x="662" y="422" class="small">badge tüketimi</text>
 
-  <path d="M 154 184 L 418 222" class="arrow" />
-  <path d="M 370 184 L 466 222" class="arrow" />
-  <path d="M 586 184 L 514 222" class="arrow" />
-  <path d="M 802 184 L 562 222" class="arrow" />
+  <path d="M 154 184 C 260 190 490 194 490 222" class="merge-branch" />
+  <path d="M 370 184 C 424 194 490 202 490 222" class="merge-branch" />
+  <path d="M 586 184 C 552 194 490 202 490 222" class="merge-branch" />
+  <path d="M 802 184 C 690 190 490 194 490 222" class="merge-branch" />
 
   <path d="M 438 326 L 258 368" class="arrow" />
   <path d="M 490 326 V 368" class="arrow" />
   <path d="M 542 326 L 722 368" class="arrow" />
 
-  <circle cx="154" cy="184" r="3.5" class="arrow-start" />
-  <circle cx="370" cy="184" r="3.5" class="arrow-start" />
-  <circle cx="586" cy="184" r="3.5" class="arrow-start" />
-  <circle cx="802" cy="184" r="3.5" class="arrow-start" />
   <circle cx="438" cy="326" r="3.5" class="arrow-start" />
   <circle cx="490" cy="326" r="3.5" class="arrow-start" />
   <circle cx="542" cy="326" r="3.5" class="arrow-start" />

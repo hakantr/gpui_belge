@@ -68,8 +68,8 @@
   <text x="220" y="330" class="box-desc">Ekrana yansıtılır ve sonlanır</text>
 
   <!-- Left Arrows -->
-  <path d="M 220 180 L 220 205" class="arrow arrow-active" />
-  <path d="M 220 260 L 220 285" class="arrow arrow-active" />
+  <path d="M 220 180 L 220 202" class="arrow arrow-active" />
+  <path d="M 220 260 L 220 282" class="arrow arrow-active" />
   <path d="M 220 340 L 220 380" class="arrow arrow-active" />
   
   <circle r="4" class="particle p-once" />
@@ -98,10 +98,10 @@
   <text x="730" y="250" class="box-desc">Event / Listener</text>
 
   <!-- Right Loop Arrows -->
-  <path d="M 580 180 L 580 205" class="arrow arrow-active" />
-  <path d="M 580 260 L 580 285" class="arrow arrow-active" />
-  <path d="M 580 340 L 730 340 L 730 260" class="arrow arrow-active" />
-  <path d="M 730 210 L 730 155 L 675 155" class="arrow arrow-active" />
+  <path d="M 580 180 L 580 202" class="arrow arrow-active" />
+  <path d="M 580 260 L 580 282" class="arrow arrow-active" />
+  <path d="M 580 340 L 730 340 L 730 268" class="arrow arrow-active" />
+  <path d="M 730 210 L 730 155 L 678 155" class="arrow arrow-active" />
   
   <polygon points="670,155 675,152 675,158" fill="#0284c7" />
   <circle r="4" class="particle p-render" />

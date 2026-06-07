@@ -64,10 +64,10 @@
   <text x="790" y="212" class="body">render tree</text>
   <text x="790" y="230" class="small">focus + events</text>
 
-  <path d="M214 164 C250 146 252 128 286 128" class="arrow"/>
-  <path d="M454 128 H530" class="arrow"/>
-  <path d="M214 184 C252 218 250 292 286 292" class="arrow"/>
-  <path d="M454 292 H530" class="arrow"/>
-  <path d="M698 128 C744 128 746 188 774 198" class="arrow"/>
-  <path d="M698 292 C744 292 746 236 774 222" class="arrow"/>
+  <path d="M214 164 C250 146 252 128 278 128" class="arrow"/>
+  <path d="M454 128 H522" class="arrow"/>
+  <path d="M214 184 C252 218 250 292 278 292" class="arrow"/>
+  <path d="M454 292 H522" class="arrow"/>
+  <path d="M698 128 C744 128 744 210 766 210" class="arrow"/>
+  <path d="M698 292 C744 292 744 210 766 210" class="arrow"/>
 </svg>

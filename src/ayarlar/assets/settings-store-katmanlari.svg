@@ -15,6 +15,7 @@
       .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
       .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
       .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow); marker-start: url(#dot-arrow)}
+      .mergeBranch{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow);marker-start:url(#dot-arrow);stroke-linecap:round;stroke-linejoin:round}
     </style>
   </defs>
   <rect width="940" height="430" rx="10" fill="#f8fafc"/>
@@ -47,11 +48,11 @@
   <text x="720" y="268" class="body">observe_global</text>
   <text x="720" y="290" class="small">UI yeniden çizilir</text>
 
-  <path d="M310 114 C360 114 360 190 410 198" class="arrow"/>
-  <path d="M310 166 C360 166 360 204 410 210" class="arrow"/>
-  <path d="M310 218 H410" class="arrow"/>
-  <path d="M310 270 C360 270 360 236 410 230" class="arrow"/>
-  <path d="M310 322 C360 322 360 250 410 242" class="arrow"/>
-  <path d="M590 198 C640 198 646 156 700 156" class="arrow"/>
-  <path d="M590 238 C640 238 646 276 700 276" class="arrow"/>
+  <path d="M310 114 C350 116 378 218 402 218" class="mergeBranch"/>
+  <path d="M310 166 C350 168 378 218 402 218" class="mergeBranch"/>
+  <path d="M310 218 H402" class="mergeBranch"/>
+  <path d="M310 270 C350 268 378 218 402 218" class="mergeBranch"/>
+  <path d="M310 322 C350 320 378 218 402 218" class="mergeBranch"/>
+  <path d="M590 198 C640 198 646 156 692 156" class="arrow"/>
+  <path d="M590 238 C640 238 646 276 692 276" class="arrow"/>
 </svg>

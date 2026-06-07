@@ -27,14 +27,14 @@
   <text x="440" y="104" text-anchor="middle" class="q" fill="#e2e8f0">UI bileşeniyle karşılanıyor mu?</text>
 
   <!-- Evet ok -->
-  <path d="M 300 93 L 140 93" class="arrow" />
+  <path d="M 300 93 L 146 93" class="arrow" />
   <rect x="20" y="68" width="118" height="50" rx="8" fill="#0891b2" />
   <text x="79" y="88" text-anchor="middle" class="api">ui::*</text>
   <text x="79" y="104" text-anchor="middle" class="why">Token, focus,</text>
   <text x="79" y="116" text-anchor="middle" class="why">erişilebilirlik hazır</text>
 
   <!-- Alt dağıtım -->
-  <path d="M 440 118 L 440 148" class="arrow" />
+  <path d="M 440 118 L 440 142" class="arrow" />
   <rect x="300" y="150" width="280" height="40" rx="20" fill="#475569" />
   <text x="440" y="170" text-anchor="middle" class="q" fill="#e2e8f0">Hangi ham GPUI ihtiyacı?</text>
   <text x="440" y="182" text-anchor="middle" class="q" fill="#e2e8f0">(Aşağıdan seç)</text>
@@ -42,7 +42,7 @@
   <!-- Satır 1: 4 kutu -->
   <path d="M 358 190 L 100 230" class="arrow" />
   <path d="M 400 190 L 280 230" class="arrow" />
-  <path d="M 480 190 L 530 230" class="arrow" />
+  <path d="M 480 190 L 530 224" class="arrow" />
   <path d="M 522 190 L 700 230" class="arrow" />
 
   <rect x="20" y="232" width="148" height="52" rx="7" fill="#1d4ed8" />
@@ -66,10 +66,10 @@
   <text x="704" y="278" text-anchor="middle" class="why">konumlu overlay</text>
 
   <!-- Satır 2: 4 kutu -->
-  <path d="M 380 190 L 130 334" class="arrow" />
-  <path d="M 420 190 L 304 334" class="arrow" />
-  <path d="M 460 190 L 530 334" class="arrow" />
-  <path d="M 500 190 L 704 334" class="arrow" />
+  <path d="M 380 190 L 130 328" class="arrow" />
+  <path d="M 420 190 L 304 328" class="arrow" />
+  <path d="M 460 190 L 530 328" class="arrow" />
+  <path d="M 500 190 L 704 328" class="arrow" />
 
   <rect x="20" y="336" width="190" height="52" rx="7" fill="#0e7490" />
   <text x="115" y="356" text-anchor="middle" class="api">list / uniform_list</text>

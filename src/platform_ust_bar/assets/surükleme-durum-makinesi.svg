@@ -49,22 +49,22 @@
 
   <!-- ── Geçiş okları ── -->
   <!-- HAZIR → SÜRÜKLEMEYE HAZIR -->
-  <path d="M 260 130 L 308 130" class="arrow" />
+  <path d="M 260 130 L 302 130" class="arrow" />
   <text x="284" y="120" text-anchor="middle" class="edgeB">on_mouse_down</text>
   <text x="284" y="132" text-anchor="middle" class="edgeB">(Left, drag alanı)</text>
 
   <!-- SÜRÜKLEMEYE HAZIR → SÜRÜKLENIYOR -->
-  <path d="M 510 130 L 558 130" class="arrow" />
+  <path d="M 510 130 L 552 130" class="arrow" />
   <text x="534" y="120" text-anchor="middle" class="edgeB">on_mouse_move</text>
   <text x="534" y="132" text-anchor="middle" class="note">should_move = false</text>
   <text x="534" y="144" text-anchor="middle" class="note">start_window_move()</text>
 
   <!-- SÜRÜKLEMEYE HAZIR → HAZIR (geri dönüş, üstten) -->
-  <path d="M 410 100 Q 410 60 160 60 L 160 100" class="arrowR" />
-  <text x="284" y="52" text-anchor="middle" style="font: 700 11px system-ui; fill:#dc2626;">on_mouse_up / on_mouse_down_out</text>
+  <path d="M 410 92 C 345 78 225 78 160 92" class="arrowR" />
+  <text x="285" y="76" text-anchor="middle" style="font: 700 11px system-ui; fill:#dc2626;">on_mouse_up / on_mouse_down_out</text>
 
   <!-- SÜRÜKLENIYOR → HAZIR (altta) -->
-  <path d="M 660 180 Q 660 260 160 260 L 160 182" class="arrow" />
+  <path d="M 660 180 Q 660 260 160 260 L 160 188" class="arrow" />
   <text x="410" y="280" text-anchor="middle" class="edge">platform sürüklemeyi tamamlar</text>
 
   <!-- ── Linux stop_propagation notları ── -->

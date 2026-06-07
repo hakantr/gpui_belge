@@ -53,7 +53,7 @@
   <rect x="186" y="216" width="588" height="28" rx="6" fill="#f8fafc" stroke="#cbd5e1" />
   <text x="480" y="235" text-anchor="middle" class="body">ürün başlığı çocukları: menü, proje adı, kullanıcı alanı, aksiyonlar</text>
 
-  <path d="M 480 252 L 480 286" class="arrow" />
+  <path d="M 480 252 L 480 280" class="arrow" />
   <rect x="318" y="288" width="324" height="44" rx="8" class="card" />
   <text x="480" y="308" text-anchor="middle" class="label">Window ve platform servisleri</text>
   <text x="480" y="325" text-anchor="middle" class="small">hit-test, minimize, maximize, close, sekme ve sürükleme davranışı</text>
@@ -66,6 +66,6 @@
   <text x="796" y="297" text-anchor="middle" class="label">App action</text>
   <text x="796" y="314" text-anchor="middle" class="small">kapatma kararı üründen gelir</text>
 
-  <path d="M 266 302 L 318 302" class="arrowSoft" />
-  <path d="M 694 302 L 642 302" class="arrowSoft" />
+  <path d="M 266 302 L 310 302" class="arrowSoft" />
+  <path d="M 694 302 L 650 302" class="arrowSoft" />
 </svg>

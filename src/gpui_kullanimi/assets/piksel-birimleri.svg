@@ -41,7 +41,7 @@
   <text x="54" y="224" class="mono">point(px(0.), px(0.))</text>
 
   <!-- ─── Ok 1 ─── -->
-  <path d="M 272 170 L 316 170" class="arrowB" />
+  <path d="M 272 170 L 310 170" class="arrowB" />
   <text x="294" y="160" text-anchor="middle" class="edgeLbl">× scale</text>
   <text x="294" y="173" text-anchor="middle" class="edgeLbl">_factor()</text>
 
@@ -57,7 +57,7 @@
   <text x="332" y="202" class="body">bu tipte değer yazmaz.</text>
 
   <!-- ─── Ok 2 ─── -->
-  <path d="M 544 170 L 588 170" class="arrow" />
+  <path d="M 544 170 L 582 170" class="arrow" />
   <text x="566" y="162" text-anchor="middle" class="small">render</text>
 
   <!-- ─── Kutu 3: DevicePixels ─── -->

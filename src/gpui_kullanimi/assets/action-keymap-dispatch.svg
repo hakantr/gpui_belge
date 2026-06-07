@@ -45,7 +45,7 @@
 <text x="74" y="161" class="body">PlatformWindow::on_input</text>
 <text x="74" y="178" class="body">-&gt; Window event loop.</text>
 
-  <path d="M 360 142 L 430 142" class="arrowSoft" />
+  <path d="M 360 142 L 422 142" class="arrowSoft" />
   <rect x="430" y="92" width="300" height="100" rx="8" class="card" />
 <rect x="430" y="92" width="300" height="30" rx="8" fill="#059669" />
 <path d="M 430 114 H 730 V 122 H 430 Z" fill="#059669" />
@@ -54,7 +54,7 @@
 <text x="444" y="161" class="body">window.context_stack()</text>
 <text x="444" y="178" class="body">.key_context(&quot;Editor mode=insert&quot;).</text>
 
-  <path d="M 730 142 L 800 142" class="arrowSoft" />
+  <path d="M 730 142 L 792 142" class="arrowSoft" />
   <rect x="800" y="92" width="300" height="100" rx="8" class="card" />
 <rect x="800" y="92" width="300" height="30" rx="8" fill="#7c3aed" />
 <path d="M 800 114 H 1100 V 122 H 800 Z" fill="#7c3aed" />
@@ -73,7 +73,7 @@
 <text x="74" y="378" class="body">Action::build(json_value)?</text>
 <text x="74" y="395" class="body">Kod içinden: cx.dispatch_action(&amp;Kaydet).</text>
 
-  <path d="M 360 376 L 430 376" class="arrowSoft" />
+  <path d="M 360 376 L 422 376" class="arrowSoft" />
   <rect x="430" y="326" width="670" height="150" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
   <text x="765" y="354" text-anchor="middle" class="label">5. DispatchPhase ile yayılım</text>
   <rect x="460" y="374" width="610" height="36" rx="7" fill="#fff7ed" stroke="#d97706" />
@@ -93,7 +93,7 @@
 <text x="74" y="598" class="body">cx.notify, stop_propagation, propagate.</text>
 <text x="74" y="615" class="body">window.prevent_default.</text>
 
-  <path d="M 420 570 L 490 570" class="arrowSoft" />
+  <path d="M 420 570 L 482 570" class="arrowSoft" />
   <rect x="490" y="512" width="300" height="116" rx="8" class="card" />
 <rect x="490" y="512" width="300" height="30" rx="8" fill="#334155" />
 <path d="M 490 534 H 790 V 542 H 490 Z" fill="#334155" />

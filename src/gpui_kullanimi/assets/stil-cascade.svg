@@ -47,7 +47,7 @@
 <text x="74" y="210" class="body">background: Fill</text>
 <text x="74" y="227" class="body">border_widths: Edges&lt;...&gt;</text>
 
-  <path d="M 360 182 L 430 182" class="arrowSoft" /><text x="395" y="170" text-anchor="middle" class="edge">derive</text>
+  <path d="M 360 182 L 422 182" class="arrowSoft" /><text x="395" y="170" text-anchor="middle" class="edge">derive</text>
   <rect x="430" y="124" width="300" height="118" rx="8" class="card" />
 <rect x="430" y="124" width="300" height="30" rx="8" fill="#7c3aed" />
 <path d="M 430 146 H 730 V 154 H 430 Z" fill="#7c3aed" />
@@ -57,7 +57,7 @@
 <text x="444" y="210" class="body">background: Option&lt;Fill&gt;</text>
 <text x="444" y="227" class="body">border_widths: Option&lt;...&gt;</text>
 
-  <path d="M 730 182 L 800 182" class="arrowSoft" /><text x="765" y="170" text-anchor="middle" class="edge">refine</text>
+  <path d="M 730 182 L 792 182" class="arrowSoft" /><text x="765" y="170" text-anchor="middle" class="edge">refine</text>
   <rect x="800" y="124" width="300" height="118" rx="8" class="card" />
 <rect x="800" y="124" width="300" height="30" rx="8" fill="#059669" />
 <path d="M 800 146 H 1100 V 154 H 800 Z" fill="#059669" />
@@ -82,7 +82,7 @@
 <text x="74" y="535" class="body">focus_visible_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
 <text x="74" y="552" class="body">group_hover_style / group_active_style</text>
 
-  <path d="M 560 500 L 620 500" class="arrowSoft" />
+  <path d="M 560 500 L 612 500" class="arrowSoft" />
   <rect x="620" y="398" width="480" height="210" rx="8" class="card" />
 <rect x="620" y="398" width="480" height="30" rx="8" fill="#059669" />
 <path d="M 620 420 H 1100 V 428 H 620 Z" fill="#059669" />

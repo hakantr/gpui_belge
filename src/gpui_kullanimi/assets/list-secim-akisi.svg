@@ -31,15 +31,15 @@
   <text x="410" y="115" text-anchor="middle" class="q">sanallaştırma gerekli mi?</text>
 
   <!-- Sol ok → Hayır -->
-  <path d="M 255 102 L 130 102 L 130 194" class="arrow" />
+  <path d="M 255 102 L 130 102 L 130 186" class="arrow" />
   <text x="188" y="96" text-anchor="middle" class="ansN">Hayır</text>
 
   <!-- Sağ ok → Evet -->
-  <path d="M 565 102 L 690 102 L 690 194" class="arrow" />
+  <path d="M 565 102 L 690 102 L 690 186" class="arrow" />
   <text x="632" y="96" text-anchor="middle" class="ans">Evet</text>
 
   <!-- Alt ok -->
-  <path d="M 410 130 L 410 194" class="arrow" />
+  <path d="M 410 130 L 410 186" class="arrow" />
 
   <!-- ── Karar 2 (ortada) ── -->
   <rect x="255" y="194" width="310" height="56" rx="8" fill="#fff" stroke="#94a3b8" stroke-width="2" />
@@ -60,11 +60,11 @@
   <text x="232" y="214" text-anchor="middle" class="ansN">Hayır</text>
 
   <!-- Alt-Sol: list() -->
-  <path d="M 410 250 L 410 310 L 270 310 L 270 338" class="arrow" />
+  <path d="M 410 250 L 410 310 L 270 310 L 270 330" class="arrow" />
   <text x="340" y="306" text-anchor="middle" class="ansN">Hayır</text>
 
   <!-- Alt-Sağ: uniform_list() -->
-  <path d="M 410 250 L 410 310 L 550 310 L 550 338" class="arrow" />
+  <path d="M 410 250 L 410 310 L 550 310 L 550 330" class="arrow" />
   <text x="480" y="306" text-anchor="middle" class="ans">Evet</text>
 
   <!-- ── Kutu: list() ── -->

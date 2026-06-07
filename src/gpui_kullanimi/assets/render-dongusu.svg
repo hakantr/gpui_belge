@@ -43,7 +43,7 @@
 <text x="354" y="108" class="cardTitle">Entity&lt;V&gt; + Render::render</text>
 <text x="354" y="140" class="body">cx.notify() tetikler; yeni element ağacı üretilir.</text>
 
-  <path d="M 520 166 L 520 204" class="arrowSoft" />
+  <path d="M 520 166 L 520 196" class="arrowSoft" />
   <rect x="70" y="204" width="260" height="116" rx="8" class="card" />
 <rect x="70" y="204" width="260" height="30" rx="8" fill="#059669" />
 <path d="M 70 226 H 330 V 234 H 70 Z" fill="#059669" />
@@ -53,7 +53,7 @@
 <text x="84" y="290" class="body">Stil ve alt öğe LayoutId'leri</text>
 <text x="84" y="307" class="body">kaydedilir.</text>
 
-  <path d="M 330 262 L 390 262" class="arrowSoft" />
+  <path d="M 330 262 L 382 262" class="arrowSoft" />
   <rect x="390" y="204" width="260" height="116" rx="8" class="card" />
 <rect x="390" y="204" width="260" height="30" rx="8" fill="#d97706" />
 <path d="M 390 226 H 650 V 234 H 390 Z" fill="#d97706" />
@@ -63,7 +63,7 @@
 <text x="404" y="290" class="body">belirlenir.</text>
 <text x="404" y="307" class="body">Element başına veri hazırlanır.</text>
 
-  <path d="M 650 262 L 710 262" class="arrowSoft" />
+  <path d="M 650 262 L 702 262" class="arrowSoft" />
   <rect x="710" y="204" width="260" height="116" rx="8" class="card" />
 <rect x="710" y="204" width="260" height="30" rx="8" fill="#be123c" />
 <path d="M 710 226 H 970 V 234 H 710 Z" fill="#be123c" />
@@ -73,7 +73,7 @@
 <text x="724" y="290" class="body">set_cursor_style imleç sonucunu yazar.</text>
 <text x="724" y="307" class="body">GPU primitive üretimi yapılır.</text>
 
-  <path d="M 840 320 L 840 378 L 200 378 L 200 320" class="arrowDash" />
+  <path d="M 840 320 L 840 378 L 200 378 L 200 328" class="arrowDash" />
   <text x="520" y="370" text-anchor="middle" class="edge">cx.notify() / window.refresh() / on_next_frame ile yeniden çizim</text>
   <rect x="70" y="410" width="900" height="62" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
 <text x="86" y="434" text-anchor="start" class="small">Aşama ihlali debug derlemede panic ile yakalanır: paint dışında paint_* veya prepaint dışında insert_hitbox çağrılmaz.</text>

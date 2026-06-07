@@ -33,7 +33,7 @@
   <text x="74" y="169" class="body">Disk asset source.</text>
   <text x="74" y="186" class="body">Testte fake veya dış asset.</text>
 
-  <path d="M 310 163 L 390 163" class="arrowSoft" />
+  <path d="M 310 163 L 382 163" class="arrowSoft" />
 
   <rect x="390" y="100" width="300" height="126" rx="8" class="card" />
   <rect x="390" y="100" width="300" height="30" rx="8" fill="#7c3aed" />
@@ -43,7 +43,7 @@
   <text x="404" y="169" class="body">MIME / uzantı ayrımı.</text>
   <text x="404" y="186" class="body">Cache ve hata raporlama katmanı.</text>
 
-  <path d="M 690 163 L 770 163" class="arrowSoft" />
+  <path d="M 690 163 L 762 163" class="arrowSoft" />
 
   <rect x="770" y="100" width="330" height="126" rx="8" class="card" />
   <rect x="770" y="100" width="330" height="30" rx="8" fill="#059669" />
@@ -79,10 +79,10 @@
   <text x="635" y="566" text-anchor="middle" class="mono">audio / custom parser</text>
 
   <path d="M 540 226 L 165 300" class="arrowSoft" />
-  <path d="M 540 226 L 400 300" class="arrowSoft" />
-  <path d="M 540 226 L 635 300" class="arrowSoft" />
+  <path d="M 540 226 L 400 292" class="arrowSoft" />
+  <path d="M 540 226 L 635 292" class="arrowSoft" />
   <path d="M 540 226 L 870 300" class="arrowSoft" />
-  <path d="M 540 226 C 610 330 620 410 635 492" class="arrowSoft" />
+  <path d="M 540 226 C 610 330 620 410 635 484" class="arrowSoft" />
 
   <rect x="80" y="664" width="1000" height="74" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
   <text x="104" y="692" class="label">Test stratejisi</text>

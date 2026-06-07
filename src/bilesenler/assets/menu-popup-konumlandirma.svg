@@ -1,106 +1,92 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
   <title>Menu, popup ve tooltip konumlandırma</title>
   <defs>
+    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#e11d48" stroke="#e11d48" stroke-width="1pt" />
+    </marker>
     <style>
-      .bg { fill: #f8fafc; rx: 12px; }
-      .label-title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
-      .label-sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
-      
-      /* Trigger Button */
-      .trigger-btn { fill: #ffffff; stroke: #0284c7; stroke-width: 2; rx: 6px; }
-      .trigger-text { font-family: system-ui, -apple-system, sans-serif; font-weight: 600; font-size: 14px; fill: #0f172a; text-anchor: middle; dominant-baseline: middle; }
-      
-      /* Popup/Tooltip Balonları */
-      .popup-box { fill: #ffffff; stroke: #475569; stroke-width: 1.5; rx: 8px; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5)); }
-      .tooltip-box { fill: #e2e8f0; stroke: #475569; stroke-width: 1; rx: 4px; }
-      
-      .box-text { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #334155; text-anchor: middle; dominant-baseline: middle; }
-      .anchor-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #e11d48; text-anchor: middle; }
-      .arrow { stroke: #e11d48; stroke-width: 1.5; fill: none; stroke-dasharray: 4 2; }
-      .arrow-head { fill: #e11d48; }
-
-      /* Animasyon: Hover ve Tooltip Tetikleme */
-      @keyframes anim-tooltip {
-        0%, 15%, 85%, 100% { opacity: 0; transform: translateY(10px); }
-        25%, 75% { opacity: 1; transform: translateY(0); }
-      }
-      
-      @keyframes anim-popup {
-        0%, 45%, 100% { opacity: 0; transform: scale(0.95); transform-origin: top left; }
-        55%, 90% { opacity: 1; transform: scale(1); transform-origin: top left; }
-      }
-
-      @keyframes anim-cursor {
-        0%, 100% { transform: translate(360px, 320px); }
-        20%, 80% { transform: translate(400px, 220px); }
-      }
-
-      .tooltip-animated { animation: anim-tooltip 8s infinite ease-in-out; transform-origin: bottom center; }
-      .popup-animated { animation: anim-popup 8s infinite ease-in-out; }
-      .cursor-animated { animation: anim-cursor 8s infinite ease-in-out; }
+      text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+      .bg { fill: #f8fafc; }
+      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; text-anchor: middle; }
+      .sub { font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; text-anchor: middle; }
+      .trigger { fill: #fff; stroke: #0284c7; stroke-width: 2; }
+      .trigger-text { font-size: 14px; font-weight: 700; fill: #0f172a; text-anchor: middle; dominant-baseline: middle; }
+      .surface { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .tooltip { fill: #e0f2fe; stroke: #0284c7; stroke-width: 1.3; }
+      .popup-head { fill: #334155; }
+      .surface-title { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .surface-text { font-size: 12px; fill: #334155; }
+      .muted { font-size: 12px; fill: #94a3b8; text-anchor: middle; dominant-baseline: middle; }
+      .guide { stroke: #e11d48; stroke-width: 1.7; stroke-dasharray: 5 4; fill: none; marker-end: url(#arrow); }
+      .guide-label { font: 700 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #e11d48; text-anchor: middle; }
+      .anchor-dot { fill: #e11d48; }
+      .cursor { fill: #0f172a; stroke: #0f172a; stroke-width: 1.4; }
     </style>
   </defs>
 
-  <!-- Arka Plan -->
-  <rect width="800" height="400" class="bg" />
+  <rect width="800" height="400" rx="10" class="bg" />
 
-  <!-- Başlıklar -->
-  <text x="400" y="45" class="label-title">Menu, Popup ve Tooltip Konumlandırma</text>
-  <text x="400" y="70" class="label-sub">Anchor koordinatları ve yerleşim yönü stratejileri</text>
+  <text x="400" y="42" class="title">Menu, Popup ve Tooltip Konumlandırma</text>
+  <text x="400" y="68" class="sub">Anchor noktası, yüzeyin hangi kenara yerleşeceğini belirler.</text>
 
-  <!-- Merkez Tetikleyici Buton (Trigger Button) x: 330, y: 175, w: 140, h: 50 -->
-  <g transform="translate(0, 0)">
-    <rect x="330" y="175" width="140" height="50" class="trigger-btn" />
-    <text x="400" y="200" class="trigger-text">Sağ Tıkla / Hover</text>
+  <!-- Trigger -->
+  <rect x="315" y="174" width="170" height="52" rx="8" class="trigger" />
+  <text x="400" y="200" class="trigger-text">Sağ Tıkla / Hover</text>
+  <circle cx="400" cy="174" r="4" class="anchor-dot" />
+  <circle cx="315" cy="226" r="4" class="anchor-dot" />
+  <circle cx="485" cy="200" r="4" class="anchor-dot" opacity="0.45" />
+  <circle cx="315" cy="200" r="4" class="anchor-dot" opacity="0.45" />
+
+  <!-- Tooltip -->
+  <g>
+    <rect x="292" y="104" width="216" height="42" rx="6" class="tooltip" />
+    <polygon points="394,146 406,146 400,154" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.2" />
+    <line x1="395" y1="146" x2="405" y2="146" stroke="#e0f2fe" stroke-width="2" />
+    <text x="400" y="128" class="surface-text" text-anchor="middle">Tooltip: kısa bilgilendirme metni</text>
+    <path d="M 400 154 V 166" class="guide" />
+    <text x="448" y="162" class="guide-label">Anchor::Bottom</text>
   </g>
 
-  <!-- 1. Üstteki Tooltip (Hover Durumunda Animasyonlu Beliren) -->
-  <g class="tooltip-animated" transform="translate(0, 0)">
-    <!-- Balon Gövdesi -->
-    <rect x="320" y="105" width="160" height="36" class="tooltip-box" />
-    <!-- Tooltip Ok Ucu -->
-    <polygon points="395,141 405,141 400,146" fill="#e2e8f0" stroke="#475569" stroke-width="1" />
-    <!-- Üzerine çizgi çekerek kenarlık birleşimini temizleme -->
-    <line x1="396" y1="141" x2="404" y2="141" stroke="#cbd5e1" stroke-width="2" />
-    <text x="400" y="123" class="box-text">Tooltip: Bilgilendirme Metni</text>
+  <!-- Popup menu -->
+  <g opacity="0">
+    <animate attributeName="opacity" dur="8s" repeatCount="indefinite"
+      values="0;0;1;1;0;0"
+      keyTimes="0;0.34;0.42;0.72;0.82;1" />
+    <rect x="315" y="250" width="190" height="104" rx="8" class="surface" />
+    <rect x="315" y="250" width="190" height="30" rx="8" class="popup-head" />
+    <path d="M315 272 H505 V280 H315 Z" class="popup-head" />
+    <text x="333" y="270" class="surface-title">Menu</text>
+    <text x="333" y="302" class="surface-text">Kopyala</text>
+    <text x="333" y="326" class="surface-text">Yapıştır</text>
+    <text x="333" y="350" class="surface-text">Düzenle...</text>
+    <path d="M 315 226 V 242" class="guide" />
+    <text x="382" y="242" class="guide-label">Anchor::TopLeft</text>
   </g>
 
-  <!-- 2. Alttaki Popup/Menu (Tıklama ile Sol-Alt Köşeye Kenetlenen) -->
-  <g class="popup-animated" transform="translate(0, 0)">
-    <!-- Menü Gövdesi (x: 330, y: 240, w: 170, h: 90) -->
-    <rect x="330" y="240" width="170" height="90" class="popup-box" />
-    
-    <!-- Menü Elemanları -->
-    <text x="350" y="265" class="box-text" text-anchor="start">➔ Kopyala</text>
-    <text x="350" y="290" class="box-text" text-anchor="start">➔ Yapıştır</text>
-    <text x="350" y="315" class="box-text" text-anchor="start">➔ Düzenle...</text>
-    
-    <!-- Kenetlenme Noktası Oku -->
-    <path d="M 330 225 L 330 236" class="arrow" />
-    <polygon points="330,240 327,235 333,235" class="arrow-head" />
-    <text x="330" y="252" class="anchor-text" text-anchor="end">Anchor::TopLeft</text>
+  <!-- Reference placements -->
+  <g opacity="0.5">
+    <rect x="108" y="176" width="144" height="48" rx="8" class="surface" />
+    <text x="180" y="201" class="muted">Sol Popup</text>
+    <path d="M 307 200 H 260" class="guide" />
+    <text x="284" y="192" class="guide-label">Left</text>
   </g>
 
-  <!-- Sağ Yönlü Popup Gösterimi (Referans) -->
-  <g transform="translate(140, 0)">
-    <rect x="380" y="180" width="130" height="40" class="popup-box" opacity="0.4" />
-    <text x="445" y="200" class="box-text" opacity="0.4">Sağ Popup</text>
-    <path d="M 330 200 L 374 200" class="arrow" opacity="0.4" />
-    <polygon points="378,200 373,197 373,203" class="arrow-head" opacity="0.4" />
-    <text x="355" y="193" class="anchor-text" opacity="0.4">Right</text>
+  <g opacity="0.5">
+    <rect x="548" y="176" width="144" height="48" rx="8" class="surface" />
+    <text x="620" y="201" class="muted">Sağ Popup</text>
+    <path d="M 493 200 H 540" class="guide" />
+    <text x="516" y="192" class="guide-label">Right</text>
   </g>
 
-  <!-- Sol Yönlü Popup Gösterimi (Referans) -->
-  <g transform="translate(-140, 0)">
-    <rect x="290" y="180" width="130" height="40" class="popup-box" opacity="0.4" />
-    <text x="355" y="200" class="box-text" opacity="0.4">Sol Popup</text>
-    <path d="M 470 200 L 426 200" class="arrow" opacity="0.4" />
-    <polygon points="422,200 427,197 427,203" class="arrow-head" opacity="0.4" />
-    <text x="445" y="193" class="anchor-text" opacity="0.4">Left</text>
-  </g>
-
-  <!-- Animasyonlu İmleç (Cursor) -->
-  <g class="cursor-animated" transform="translate(0,0)">
-    <polygon points="0,0 4,18 9,13 16,20 19,17 12,11 18,9" fill="#0f172a" stroke="#0f172a" stroke-width="1.5" />
+  <!-- Cursor movement is isolated from placement groups, so it cannot shift labels or surfaces. -->
+  <g>
+    <g transform="translate(374 314)">
+      <polygon points="0,0 4,18 9,13 16,20 19,17 12,11 18,9" class="cursor" />
+      <animateTransform attributeName="transform" type="translate" dur="8s" repeatCount="indefinite"
+        values="374 314; 404 210; 404 210; 374 314"
+        keyTimes="0;0.35;0.7;1"
+        calcMode="spline"
+        keySplines="0.4 0 0.2 1; 0.4 0 0.2 1; 0.4 0 0.2 1" />
+    </g>
   </g>
 </svg>

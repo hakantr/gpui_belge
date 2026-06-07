@@ -4,9 +4,10 @@
     <style>
       .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
       .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .api   { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .when  { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .body  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .api   { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .when  { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
+      .body  { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1e293b; }
+      .card  { fill: #fff; stroke-width: 1.4; }
     </style>
   </defs>
 
@@ -15,47 +16,55 @@
   <text x="430" y="53" text-anchor="middle" class="sub">Seçim türü ve görsel sunum gereksinime göre doğru kontrolü belirler.</text>
 
   <!-- Checkbox -->
-  <rect x="20" y="70" width="195" height="200" rx="8" fill="#1d4ed8" />
+  <rect x="20" y="70" width="195" height="200" rx="8" class="card" stroke="#93c5fd" />
+  <rect x="20" y="70" width="195" height="42" rx="8" fill="#1d4ed8" />
+  <path d="M20 102 H215 V112 H20 Z" fill="#1d4ed8" />
   <text x="117" y="96" text-anchor="middle" class="api">Checkbox</text>
-  <text x="36" y="116" class="when">NE ZAMAN:</text>
-  <text x="36" y="132" class="body" fill="#bfdbfe">Birbirinden bağımsız</text>
-  <text x="36" y="148" class="body" fill="#bfdbfe">çoklu seçimler.</text>
-  <text x="36" y="168" class="body" fill="#bfdbfe">İzin, filtre, staged</text>
-  <text x="36" y="184" class="body" fill="#bfdbfe">file, capability vb.</text>
-  <text x="36" y="204" class="body" fill="#bfdbfe">Indeterminate durum</text>
-  <text x="36" y="220" class="body" fill="#bfdbfe">desteklenir.</text>
+  <text x="36" y="136" class="when">NE ZAMAN:</text>
+  <text x="36" y="156" class="body">Birbirinden bağımsız</text>
+  <text x="36" y="174" class="body">çoklu seçimler.</text>
+  <text x="36" y="198" class="body">İzin, filtre, staged</text>
+  <text x="36" y="216" class="body">file, capability vb.</text>
+  <text x="36" y="240" class="body">Indeterminate durum</text>
+  <text x="36" y="258" class="body">desteklenir.</text>
 
   <!-- Switch -->
-  <rect x="231" y="70" width="195" height="200" rx="8" fill="#0891b2" />
+  <rect x="231" y="70" width="195" height="200" rx="8" class="card" stroke="#7dd3fc" />
+  <rect x="231" y="70" width="195" height="42" rx="8" fill="#0891b2" />
+  <path d="M231 102 H426 V112 H231 Z" fill="#0891b2" />
   <text x="328" y="96" text-anchor="middle" class="api">Switch</text>
-  <text x="247" y="116" class="when">NE ZAMAN:</text>
-  <text x="247" y="132" class="body" fill="#e0f2fe">Tek bir ayarı</text>
-  <text x="247" y="148" class="body" fill="#e0f2fe">açmak / kapatmak.</text>
-  <text x="247" y="168" class="body" fill="#e0f2fe">Boolean değer,</text>
-  <text x="247" y="184" class="body" fill="#e0f2fe">net aç/kapat anlamı.</text>
-  <text x="247" y="204" class="body" fill="#e0f2fe">Çoklu seçim</text>
-  <text x="247" y="220" class="body" fill="#e0f2fe">gerekmez.</text>
+  <text x="247" y="136" class="when">NE ZAMAN:</text>
+  <text x="247" y="156" class="body">Tek bir ayarı</text>
+  <text x="247" y="174" class="body">açmak / kapatmak.</text>
+  <text x="247" y="198" class="body">Boolean değer,</text>
+  <text x="247" y="216" class="body">net aç/kapat anlamı.</text>
+  <text x="247" y="240" class="body">Çoklu seçim</text>
+  <text x="247" y="258" class="body">gerekmez.</text>
 
   <!-- SwitchField -->
-  <rect x="442" y="70" width="195" height="200" rx="8" fill="#7c3aed" />
+  <rect x="442" y="70" width="195" height="200" rx="8" class="card" stroke="#c4b5fd" />
+  <rect x="442" y="70" width="195" height="42" rx="8" fill="#7c3aed" />
+  <path d="M442 102 H637 V112 H442 Z" fill="#7c3aed" />
   <text x="539" y="96" text-anchor="middle" class="api">SwitchField</text>
-  <text x="458" y="116" class="when">NE ZAMAN:</text>
-  <text x="458" y="132" class="body" fill="#f3e8ff">Label + açıklama</text>
-  <text x="458" y="148" class="body" fill="#f3e8ff">+ switch birlikte</text>
-  <text x="458" y="164" class="body" fill="#f3e8ff">tek satır ayar</text>
-  <text x="458" y="180" class="body" fill="#f3e8ff">olarak sunulur.</text>
-  <text x="458" y="200" class="body" fill="#f3e8ff">Switch + label</text>
-  <text x="458" y="216" class="body" fill="#f3e8ff">tek çağrıda kurulur.</text>
+  <text x="458" y="136" class="when">NE ZAMAN:</text>
+  <text x="458" y="156" class="body">Label + açıklama</text>
+  <text x="458" y="174" class="body">+ switch birlikte</text>
+  <text x="458" y="192" class="body">tek satır ayar</text>
+  <text x="458" y="210" class="body">olarak sunulur.</text>
+  <text x="458" y="234" class="body">Switch + label</text>
+  <text x="458" y="252" class="body">tek çağrıda kurulur.</text>
 
   <!-- InputField -->
-  <rect x="653" y="70" width="187" height="200" rx="8" fill="#059669" />
+  <rect x="653" y="70" width="187" height="200" rx="8" class="card" stroke="#86efac" />
+  <rect x="653" y="70" width="187" height="42" rx="8" fill="#059669" />
+  <path d="M653 102 H840 V112 H653 Z" fill="#059669" />
   <text x="746" y="96" text-anchor="middle" class="api">InputField</text>
-  <text x="669" y="116" class="when">NE ZAMAN:</text>
-  <text x="669" y="132" class="body" fill="#d1fae5">Tek satır serbest</text>
-  <text x="669" y="148" class="body" fill="#d1fae5">metin girişi.</text>
-  <text x="669" y="168" class="body" fill="#d1fae5">Arama, isim,</text>
-  <text x="669" y="184" class="body" fill="#d1fae5">değer, URL vb.</text>
-  <text x="669" y="204" class="body" fill="#d1fae5">ui_input crate'i</text>
-  <text x="669" y="220" class="body" fill="#d1fae5">üzerinden gelir.</text>
+  <text x="669" y="136" class="when">NE ZAMAN:</text>
+  <text x="669" y="156" class="body">Tek satır serbest</text>
+  <text x="669" y="174" class="body">metin girişi.</text>
+  <text x="669" y="198" class="body">Arama, isim,</text>
+  <text x="669" y="216" class="body">değer, URL vb.</text>
+  <text x="669" y="240" class="body">ui_input crate'i</text>
+  <text x="669" y="258" class="body">üzerinden gelir.</text>
 
 </svg>

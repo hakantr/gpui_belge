@@ -64,10 +64,10 @@
   <text x="796" y="222" class="body">render yeniden</text>
   <text x="796" y="240" class="small">cx.theme() güncel</text>
 
-  <path d="M202 178 C230 178 230 128 262 128" class="arrow"/>
-  <path d="M202 188 C230 188 230 278 262 278" class="arrow"/>
-  <path d="M434 128 H524" class="arrow"/>
-  <path d="M434 278 H524" class="arrow"/>
-  <path d="M698 128 C744 128 744 184 780 196" class="arrow"/>
-  <path d="M698 278 C744 278 744 228 780 220" class="arrow"/>
+  <path d="M202 178 C230 178 230 128 254 128" class="arrow"/>
+  <path d="M202 188 C230 188 230 278 254 278" class="arrow"/>
+  <path d="M434 128 H516" class="arrow"/>
+  <path d="M434 278 H516" class="arrow"/>
+  <path d="M698 128 C744 128 750 208 772 208" class="arrow"/>
+  <path d="M698 278 C744 278 750 208 772 208" class="arrow"/>
 </svg>

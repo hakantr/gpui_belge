@@ -34,7 +34,7 @@
   <text x="94" y="173" class="mono">let child = cx.reserve_entity();</text>
   <text x="94" y="196" class="body">Handle'lar bilinir, veri henüz kurulmaz.</text>
 
-  <path d="M 380 164 L 430 164" class="arrowSoft" />
+  <path d="M 380 164 L 422 164" class="arrowSoft" />
 
   <rect x="430" y="104" width="300" height="120" rx="8" class="card" />
   <rect x="430" y="104" width="300" height="30" rx="8" fill="#7c3aed" />
@@ -44,7 +44,7 @@
   <text x="444" y="173" class="body">Child parent için WeakEntity saklar.</text>
   <text x="444" y="196" class="mono">parent.downgrade()</text>
 
-  <path d="M 730 164 L 780 164" class="arrowSoft" />
+  <path d="M 730 164 L 772 164" class="arrowSoft" />
 
   <rect x="780" y="104" width="300" height="120" rx="8" class="card" />
   <rect x="780" y="104" width="300" height="30" rx="8" fill="#059669" />
@@ -66,9 +66,9 @@
   <text x="850" y="380" text-anchor="middle" class="body">Parent yaşamını uzatmaz.</text>
   <text x="850" y="402" text-anchor="middle" class="body">update/read Result ile kontrol edilir.</text>
 
-  <path d="M 480 360 L 680 360" class="arrow" />
+  <path d="M 480 360 L 672 360" class="arrow" />
   <text x="580" y="348" text-anchor="middle" class="edge">güçlü child handle</text>
-  <path d="M 680 414 L 480 414" class="arrowDash" />
+  <path d="M 680 414 L 488 414" class="arrowDash" />
   <text x="580" y="436" text-anchor="middle" class="edge">WeakEntity parent bağlantısı</text>
 
   <rect x="80" y="548" width="480" height="142" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />

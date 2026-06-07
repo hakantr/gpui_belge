@@ -48,17 +48,17 @@
 
   <rect x="930" y="176" width="100" height="330" rx="8" fill="#f1f5f9" stroke="#94a3b8" />
   <text x="980" y="204" text-anchor="middle" class="label">Z</text>
-  <rect x="950" y="452" width="60" height="30" rx="5" fill="#fff" stroke="#94a3b8" />
-  <text x="980" y="472" text-anchor="middle" class="small">base</text>
-  <rect x="950" y="382" width="60" height="30" rx="5" fill="#dbeafe" stroke="#2563eb" />
-  <text x="980" y="402" text-anchor="middle" class="small">menu</text>
-  <rect x="950" y="312" width="60" height="30" rx="5" fill="#fef3c7" stroke="#d97706" />
-  <text x="980" y="332" text-anchor="middle" class="small">pop</text>
-  <rect x="950" y="242" width="60" height="30" rx="5" fill="#ffe4e6" stroke="#be123c" />
-  <text x="980" y="262" text-anchor="middle" class="small">modal</text>
-  <path d="M 980 452 L 980 230" class="arrow" />
-  <text x="980" y="360" text-anchor="middle" class="edge">üst</text>
-  <text x="980" y="377" text-anchor="middle" class="edge">katman</text>
+  <rect x="964" y="452" width="52" height="30" rx="5" fill="#fff" stroke="#94a3b8" />
+  <text x="990" y="472" text-anchor="middle" class="small">base</text>
+  <rect x="964" y="382" width="52" height="30" rx="5" fill="#dbeafe" stroke="#2563eb" />
+  <text x="990" y="402" text-anchor="middle" class="small">menu</text>
+  <rect x="964" y="312" width="52" height="30" rx="5" fill="#fef3c7" stroke="#d97706" />
+  <text x="990" y="332" text-anchor="middle" class="small">pop</text>
+  <rect x="964" y="242" width="52" height="30" rx="5" fill="#ffe4e6" stroke="#be123c" />
+  <text x="990" y="262" text-anchor="middle" class="small">modal</text>
+  <path d="M 944 452 L 944 230" class="arrow" />
+  <text x="937" y="360" text-anchor="end" class="edge">üst</text>
+  <text x="937" y="377" text-anchor="end" class="edge">katman</text>
 
   <rect x="80" y="660" width="310" height="96" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
   <text x="104" y="690" class="label">Açma yolları</text>

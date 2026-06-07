@@ -1,6 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420">
   <title>Ürün Başlık Çubuğu Durum Haritası</title>
   <defs>
+    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    </marker>
+    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
+      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    </marker>
     <style>
       .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
       .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
@@ -8,6 +14,7 @@
       .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
       .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
       .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
+      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow);marker-start:url(#dot-arrow);stroke-linecap:round;stroke-linejoin:round}
     </style>
   </defs>
   <rect width="960" height="420" rx="10" fill="#f8fafc"/>
@@ -58,9 +65,9 @@
   <text x="816" y="202" class="body">sürükleme</text>
   <text x="816" y="220" class="small">close/min/max</text>
 
-  <path d="M234 158 H300" stroke="#334155" stroke-width="2"/>
-  <path d="M234 196 C270 196 270 268 300 268" stroke="#334155" stroke-width="2"/>
-  <path d="M480 130 H558" stroke="#334155" stroke-width="2"/>
-  <path d="M480 268 H558" stroke="#334155" stroke-width="2"/>
-  <path d="M738 268 C780 268 780 218 800 206" stroke="#334155" stroke-width="2"/>
+  <path d="M234 158 H292" class="arrow"/>
+  <path d="M234 196 C270 196 268 268 292 268" class="arrow"/>
+  <path d="M480 130 H550" class="arrow"/>
+  <path d="M480 268 H550" class="arrow"/>
+  <path d="M738 268 C780 268 770 206 792 206" class="arrow"/>
 </svg>

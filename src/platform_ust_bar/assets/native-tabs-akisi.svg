@@ -63,10 +63,10 @@
   <text x="818" y="212" class="body">NSWindow</text>
   <text x="818" y="230" class="small">veya yedek</text>
 
-  <path d="M214 164 C250 140 252 124 284 124" class="arrow"/>
-  <path d="M214 184 C252 230 252 292 284 292" class="arrow"/>
-  <path d="M470 124 H548" class="arrow"/>
-  <path d="M470 292 H548" class="arrow"/>
-  <path d="M726 124 C770 124 770 188 802 198" class="arrow"/>
-  <path d="M726 292 C770 292 770 232 802 222" class="arrow"/>
+  <path d="M214 164 C250 140 252 124 276 124" class="arrow"/>
+  <path d="M214 184 C252 230 252 292 276 292" class="arrow"/>
+  <path d="M470 124 H540" class="arrow"/>
+  <path d="M470 292 H540" class="arrow"/>
+  <path d="M726 124 C772 124 772 210 794 210" class="arrow"/>
+  <path d="M726 292 C772 292 772 210 794 210" class="arrow"/>
 </svg>

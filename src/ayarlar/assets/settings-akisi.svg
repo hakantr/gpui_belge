@@ -12,6 +12,7 @@
       .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
       .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
       .arrowSoft { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .mergeBranch { stroke: #64748b; stroke-width: 2; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
       .arrowStart { fill: #334155; }
       .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
     </style>
@@ -87,12 +88,12 @@
     <text x="964" y="196" class="body">yalnız runtime.</text>
   </g>
 
-  <path d="M 133 206 L 305 292" class="arrowSoft" />
-  <path d="M 313 206 L 415 292" class="arrowSoft" />
-  <path d="M 493 206 L 525 292" class="arrowSoft" />
-  <path d="M 673 206 L 635 292" class="arrowSoft" />
-  <path d="M 853 206 L 745 292" class="arrowSoft" />
-  <path d="M 1033 206 L 855 292" class="arrowSoft" />
+  <path d="M 133 206 C 300 216 580 246 580 292" class="mergeBranch" />
+  <path d="M 313 206 C 440 224 580 250 580 292" class="mergeBranch" />
+  <path d="M 493 206 C 550 232 580 258 580 292" class="mergeBranch" />
+  <path d="M 673 206 C 610 232 580 258 580 292" class="mergeBranch" />
+  <path d="M 853 206 C 720 224 580 250 580 292" class="mergeBranch" />
+  <path d="M 1033 206 C 860 216 580 246 580 292" class="mergeBranch" />
   <circle cx="133" cy="206" r="3.5" class="arrowStart" />
   <circle cx="313" cy="206" r="3.5" class="arrowStart" />
   <circle cx="493" cy="206" r="3.5" class="arrowStart" />

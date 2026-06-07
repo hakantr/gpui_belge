@@ -46,7 +46,7 @@
 <text x="74" y="178" class="body">Context&lt;Belge&gt; üzerinden çağrılır.</text>
 <text x="74" y="195" class="body">Tip güvenli mesaj yayar.</text>
 
-  <path d="M 370 156 L 430 156" class="arrowSoft" /><text x="400" y="144" text-anchor="middle" class="edge">emit</text>
+  <path d="M 370 156 L 422 156" class="arrowSoft" /><text x="400" y="144" text-anchor="middle" class="edge">emit</text>
   <rect x="430" y="92" width="300" height="128" rx="8" class="card" />
 <rect x="430" y="92" width="300" height="30" rx="8" fill="#7c3aed" />
 <path d="M 430 114 H 730 V 122 H 430 Z" fill="#7c3aed" />
@@ -55,7 +55,7 @@
 <text x="444" y="161" class="body">flush_effects sırayla tüketir.</text>
 <text x="444" y="178" class="body">Kayıtlı Subscription callback'leri çağrılır.</text>
 
-  <path d="M 730 156 L 790 156" class="arrowSoft" /><text x="760" y="144" text-anchor="middle" class="edge">dispatch</text>
+  <path d="M 730 156 L 782 156" class="arrowSoft" /><text x="760" y="144" text-anchor="middle" class="edge">dispatch</text>
   <rect x="790" y="92" width="310" height="128" rx="8" class="card" />
 <rect x="790" y="92" width="310" height="30" rx="8" fill="#059669" />
 <path d="M 790 114 H 1100 V 122 H 790 Z" fill="#059669" />

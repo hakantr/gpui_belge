@@ -37,31 +37,31 @@
   <rect x="20" y="74" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
   <text x="115" y="96" text-anchor="middle" class="nm">ListHeader</text>
   <text x="115" y="112" text-anchor="middle" class="desc">Ana bölüm başlığı</text>
-  <path d="M 210 102 L 328 102" class="arrow" />
+  <path d="M 210 102 C 250 102 300 112 322 112" class="arrow" />
 
   <!-- ── ListSubHeader ── -->
   <rect x="20" y="144" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
   <text x="115" y="166" text-anchor="middle" class="nm">ListSubHeader</text>
   <text x="115" y="182" text-anchor="middle" class="desc">Alt bölüm başlığı</text>
-  <path d="M 210 170 L 328 130" class="arrow" />
+  <path d="M 210 170 C 250 170 300 112 322 112" class="arrow" />
 
   <!-- ── ListItem ── -->
   <rect x="690" y="74" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
   <text x="785" y="96" text-anchor="middle" class="nm">ListItem</text>
   <text x="785" y="112" text-anchor="middle" class="desc">Tıklanabilir / seçilebilir satır</text>
-  <path d="M 572 102 L 688 102" class="arrow" />
+  <path d="M 572 102 L 682 102" class="arrow" />
 
   <!-- ── ListSeparator ── -->
   <rect x="690" y="144" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
   <text x="785" y="166" text-anchor="middle" class="nm">ListSeparator</text>
   <text x="785" y="182" text-anchor="middle" class="desc">Yatay ayırıcı çizgi</text>
-  <path d="M 572 130 L 688 170" class="arrow" />
+  <path d="M 572 130 L 682 170" class="arrow" />
 
   <!-- ── ListBulletItem ── -->
   <rect x="20" y="214" width="190" height="52" rx="7" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
   <text x="115" y="236" text-anchor="middle" class="nm">ListBulletItem</text>
   <text x="115" y="252" text-anchor="middle" class="desc">Sabit açıklama maddesi</text>
-  <path d="M 210 240 L 328 156" class="arrow" />
+  <path d="M 210 240 C 260 230 300 112 322 112" class="arrow" />
 
   <!-- ── TreeViewItem ── -->
   <rect x="690" y="214" width="190" height="52" rx="7" fill="#fff" stroke="#7c3aed" stroke-width="1.5" />

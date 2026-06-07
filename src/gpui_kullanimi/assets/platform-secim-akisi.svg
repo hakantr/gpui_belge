@@ -38,7 +38,7 @@
   <!-- Dağıtım okları -->
   <path d="M 410 118 L 90 162" class="arrow" />
   <path d="M 410 118 L 248 162" class="arrow" />
-  <path d="M 410 118 L 410 162" class="arrow" />
+  <path d="M 410 118 L 410 156" class="arrow" />
   <path d="M 410 118 L 572 162" class="arrow" />
   <path d="M 410 118 L 730 162" class="arrow" />
 
@@ -73,8 +73,8 @@
   <text x="731" y="218" text-anchor="middle" class="note" fill="#fde68a">pencere yok</text>
 
   <!-- Linux alt dalları -->
-  <path d="M 380 230 L 328 280" class="arrow" />
-  <path d="M 440 230 L 492 280" class="arrow" />
+  <path d="M 380 230 L 328 274" class="arrow" />
+  <path d="M 440 230 L 492 274" class="arrow" />
 
   <rect x="256" y="282" width="136" height="50" rx="6" fill="#0e7490" />
   <text x="324" y="302" text-anchor="middle" class="plat">Wayland</text>
@@ -85,7 +85,7 @@
   <text x="486" y="318" text-anchor="middle" class="impl">gpui_linux</text>
 
   <!-- Test ayrımı (headless) -->
-  <path d="M 731 228 L 731 282" class="arrowG" />
+  <path d="M 731 228 L 731 276" class="arrowG" />
   <rect x="662" y="284" width="138" height="50" rx="6" fill="#fff7ed" stroke="#fcd34d" stroke-width="1.5" />
   <text x="731" y="306" text-anchor="middle" class="body" style="fill:#92400e; font-weight:700">Test desteği</text>
   <text x="731" y="322" text-anchor="middle" class="note">current_headless_renderer()</text>

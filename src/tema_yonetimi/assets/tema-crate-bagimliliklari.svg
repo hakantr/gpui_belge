@@ -41,7 +41,7 @@
   <text x="590" y="142" text-anchor="middle" class="desc" fill="#e0f2fe">kod renkleri</text>
 
   <!-- kvs_tema → kvs_syntax_tema -->
-  <path d="M 470 115 L 488 115" class="arrow" />
+  <path d="M 470 115 C 474 118 478 118 482 118" class="arrow" />
 
   <!-- ── Zed workspace (Apache-2.0) ── -->
   <rect x="20" y="82" width="230" height="66" rx="8" fill="#fff" stroke="#15803d" stroke-width="2" />
@@ -51,9 +51,9 @@
   <text x="135" y="120" text-anchor="middle" class="clabel">gpui · refineable</text>
   <text x="135" y="136" text-anchor="middle" class="clabel">collections</text>
   <!-- Arrow -->
-  <path d="M 250 115 L 268 115" class="arrow" />
+  <path d="M 250 115 L 262 115" class="arrow" />
   <!-- Syntax tema → gpui -->
-  <path d="M 250 120 L 488 120" class="arrow" />
+  <path d="M 250 120 C 330 120 430 118 482 118" class="arrow" />
 
   <!-- ── GPL Zed crate'leri (YALNIZCA referans) ── -->
   <rect x="20" y="200" width="230" height="80" rx="8" fill="#fff7f7" stroke="#dc2626" stroke-width="2" stroke-dasharray="8 4" />
@@ -63,7 +63,7 @@
   <text x="135" y="242" text-anchor="middle" class="clabel">theme · syntax_theme</text>
   <text x="135" y="258" text-anchor="middle" class="clabel">theme_settings vb.</text>
   <!-- Dashed reference arrow — reverse (reference goes from kvs_tema to GPL) -->
-  <path d="M 270 130 L 180 198" class="arrowR" />
+  <path d="M 270 130 L 180 192" class="arrowR" />
   <text x="200" y="175" text-anchor="middle" class="badge" fill="#dc2626" style="font-size:10px;">kod değil</text>
   <text x="200" y="187" text-anchor="middle" class="badge" fill="#dc2626" style="font-size:10px;">yalnız okur</text>
 
@@ -80,7 +80,7 @@
   <text x="665" y="210" class="clabel">anyhow · thiserror</text>
   <text x="665" y="228" class="clabel">uuid</text>
   <!-- Arrow from kvs_tema to third-party -->
-  <path d="M 470 130 L 648 130" class="arrow" />
+  <path d="M 470 130 L 642 130" class="arrow" />
 
   <!-- ── Bağımlılık yönü kuralı ── -->
   <rect x="20" y="320" width="860" height="60" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />

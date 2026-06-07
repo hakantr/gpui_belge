@@ -40,7 +40,7 @@
   <text x="74" y="177" class="body">Geriye opak Subscription döner.</text>
   <text x="74" y="194" class="mono">cx.subscribe(&amp;entity, ...)</text>
 
-  <path d="M 360 168 L 430 168" class="arrowSoft" />
+  <path d="M 360 168 L 422 168" class="arrowSoft" />
 
   <rect x="430" y="108" width="300" height="120" rx="8" class="card" />
   <rect x="430" y="108" width="300" height="30" rx="8" fill="#7c3aed" />
@@ -50,7 +50,7 @@
   <text x="444" y="177" class="body">Sahiplik kaydın ömrünü belirler.</text>
   <text x="444" y="194" class="mono">Vec&lt;Subscription&gt;</text>
 
-  <path d="M 730 168 L 800 168" class="arrowSoft" />
+  <path d="M 730 168 L 792 168" class="arrowSoft" />
 
   <rect x="800" y="108" width="300" height="120" rx="8" class="card" />
   <rect x="800" y="108" width="300" height="30" rx="8" fill="#059669" />
@@ -90,6 +90,6 @@
   <text x="634" y="615" class="body">Güçlü Entity yakalamak yaşam döngüsünü uzatır.</text>
   <text x="634" y="642" class="body">WeakEntity yakala; upgrade/update sonucunu kontrol et.</text>
 
-  <path d="M 230 438 C 230 486 314 500 314 540" class="arrowSoft" />
-  <path d="M 930 438 C 930 486 846 500 846 540" class="arrowRed" />
+  <path d="M 230 438 C 230 486 314 500 314 532" class="arrowSoft" />
+  <path d="M 930 438 C 930 486 846 500 846 532" class="arrowRed" />
 </svg>

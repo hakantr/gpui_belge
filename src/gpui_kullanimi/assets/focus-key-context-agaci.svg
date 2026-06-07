@@ -35,7 +35,7 @@
   <text x="580" y="222" text-anchor="middle" class="mono">key_context("Workspace")</text>
 
   <path d="M 580 240 L 350 292" class="arrowSoft" />
-  <path d="M 580 240 L 580 292" class="arrowSoft" />
+  <path d="M 580 240 L 580 284" class="arrowSoft" />
   <path d="M 580 240 L 810 292" class="arrowSoft" />
 
   <rect x="210" y="292" width="280" height="62" rx="8" fill="#e0f2fe" stroke="#0284c7" />
@@ -50,12 +50,12 @@
   <text x="810" y="317" text-anchor="middle" class="label">Right Dock</text>
   <text x="810" y="336" text-anchor="middle" class="mono">key_context("Assistant")</text>
 
-  <path d="M 580 354 L 580 402" class="arrowSoft" />
+  <path d="M 580 354 L 580 394" class="arrowSoft" />
   <rect x="440" y="402" width="280" height="58" rx="8" fill="#fef3c7" stroke="#d97706" />
   <text x="580" y="426" text-anchor="middle" class="label">Editor - odak burada</text>
   <text x="580" y="444" text-anchor="middle" class="mono">key_context("Editor mode=insert")</text>
 
-  <path d="M 230 166 C 205 250 210 400 438 434" class="arrowDash" />
+  <path d="M 230 166 C 205 250 210 400 432 434" class="arrowDash" />
   <text x="145" y="230" class="edge">Capture</text>
   <text x="145" y="248" class="edge">root -> focus</text>
 
@@ -71,7 +71,7 @@
   <text x="94" y="589" class="body">Her key_context predicate'e eklenir.</text>
   <text x="94" y="606" class="body">Derin eşleşme daha yüksek önceliklidir.</text>
 
-  <path d="M 380 579 L 430 579" class="arrowSoft" />
+  <path d="M 380 579 L 422 579" class="arrowSoft" />
 
   <rect x="430" y="520" width="300" height="118" rx="8" class="card" />
   <rect x="430" y="520" width="300" height="30" rx="8" fill="#7c3aed" />
@@ -81,7 +81,7 @@
   <text x="444" y="589" class="body">matched ve pending sonuçları üretilir.</text>
   <text x="444" y="606" class="body">NoAction / Unbind bağlamda iptal eder.</text>
 
-  <path d="M 730 579 L 780 579" class="arrowSoft" />
+  <path d="M 730 579 L 772 579" class="arrowSoft" />
 
   <rect x="780" y="520" width="300" height="118" rx="8" class="card" />
   <rect x="780" y="520" width="300" height="30" rx="8" fill="#059669" />

@@ -25,12 +25,12 @@
   <text x="140" y="128" class="label" text-anchor="middle">RustEmbed</text>
   <text x="140" y="150" class="body" text-anchor="middle">Binary / FS Files</text>
 
-  <path d="M 230 135 L 320 135" class="arrowSoft"/>
+  <path d="M 230 135 L 312 135" class="arrowSoft"/>
 
   <rect x="320" y="100" width="200" height="70" rx="8" class="card"/>
   <text x="420" y="138" class="label" text-anchor="middle">AssetSource Trait</text>
 
-  <path d="M 520 135 L 620 135" class="arrowSoft"/>
+  <path d="M 520 135 L 612 135" class="arrowSoft"/>
 
   <rect x="620" y="100" width="200" height="70" rx="8" class="card"/>
   <text x="720" y="128" class="label" text-anchor="middle">SvgRenderer</text>

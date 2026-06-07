@@ -103,16 +103,16 @@
 <text x="764" y="634" class="body">advance_clock, run_until_parked.</text>
 <text x="764" y="651" class="body">simulate_input ve Inspector.</text>
 
-  <path d="M 240 226 L 240 270" class="arrowSoft" /><text x="256" y="250" class="edge">cx.new / entity.update</text>
-  <path d="M 240 382 L 240 426" class="arrowSoft" /><text x="256" y="406" class="edge">open_window / update_window</text>
-  <path d="M 240 538 L 240 582" class="arrowSoft" /><text x="256" y="562" class="edge">handle.update</text>
-  <path d="M 410 158 L 750 158" class="arrow" /><text x="482" y="146" class="edge">cx.spawn(async move |cx| ...)</text>
-  <path d="M 750 194 L 410 194" class="arrowSoft" /><text x="500" y="212" class="edge">cx.update(|cx| ...)</text>
-  <path d="M 410 482 C 585 482 585 326 750 326" class="arrow" /><text x="482" y="346" class="edge">spawn_in / to_async</text>
-  <path d="M 750 372 C 585 372 585 500 410 500" class="arrowSoft" /><text x="482" y="518" class="edge">cx.update_in</text>
-  <path d="M 410 326 C 590 326 590 482 750 482" class="arrow" /><text x="488" y="390" class="edge">entity.downgrade</text>
-  <path d="M 750 516 C 590 548 590 360 410 360" class="arrowSoft" /><text x="488" y="566" class="edge">weak.update?</text>
-  <path d="M 410 622 L 750 622" class="arrowDash" /><text x="482" y="610" class="edge">TestDispatcher</text>
+  <path d="M 240 226 L 240 262" class="arrowSoft" /><text x="256" y="250" class="edge">cx.new / entity.update</text>
+  <path d="M 240 382 L 240 418" class="arrowSoft" /><text x="256" y="406" class="edge">open_window / update_window</text>
+  <path d="M 240 538 L 240 574" class="arrowSoft" /><text x="256" y="562" class="edge">handle.update</text>
+  <path d="M 410 158 L 742 158" class="arrow" /><text x="482" y="146" class="edge">cx.spawn(async move |cx| ...)</text>
+  <path d="M 750 194 L 418 194" class="arrowSoft" /><text x="500" y="212" class="edge">cx.update(|cx| ...)</text>
+  <path d="M 410 482 C 585 482 585 326 742 326" class="arrow" /><text x="482" y="346" class="edge">spawn_in / to_async</text>
+  <path d="M 750 372 C 585 372 585 500 418 500" class="arrowSoft" /><text x="482" y="518" class="edge">cx.update_in</text>
+  <path d="M 410 326 C 590 326 590 482 742 482" class="arrow" /><text x="488" y="390" class="edge">entity.downgrade</text>
+  <path d="M 750 516 C 590 548 590 360 418 360" class="arrowSoft" /><text x="488" y="566" class="edge">weak.update?</text>
+  <path d="M 410 622 L 742 622" class="arrowDash" /><text x="482" y="610" class="edge">TestDispatcher</text>
   <rect x="110" y="698" width="940" height="54" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
 <text x="126" y="722" text-anchor="start" class="small">Sol sütun çalışmakta olan senkron yüzeyi, sağ sütun await sonrası elde tutulan yüzeyi gösterir.</text>
 <text x="126" y="739" text-anchor="start" class="small">Async dönüşlerde entity veya pencere düşmüş olabilir; bu yüzden update/read sonuçları Result veya Option taşır.</text>

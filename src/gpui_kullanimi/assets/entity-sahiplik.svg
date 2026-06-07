@@ -49,7 +49,7 @@
 <text x="104" y="212" class="body">entity.read(cx) ve</text>
 <text x="104" y="229" class="body">entity.update(cx, ...) ile kullanılır.</text>
 
-  <path d="M 270 238 L 270 282" class="arrowSoft" /><text x="286" y="264" class="edge">tutar</text>
+  <path d="M 270 238 L 270 274" class="arrowSoft" /><text x="286" y="264" class="edge">tutar</text>
   <rect x="90" y="282" width="360" height="112" rx="8" class="card" />
 <rect x="90" y="282" width="360" height="30" rx="8" fill="#059669" />
 <path d="M 90 304 H 450 V 312 H 90 Z" fill="#059669" />
@@ -58,7 +58,7 @@
 <text x="104" y="351" class="body">T'nin alanları ve emit hedefleri burada durur.</text>
 <text x="104" y="368" class="body">Son güçlü handle düşünce drop edilir.</text>
 
-  <path d="M 270 394 L 270 438" class="arrowDash" /><text x="286" y="420" class="edge">drop temizliği</text>
+  <path d="M 270 394 L 270 430" class="arrowDash" /><text x="286" y="420" class="edge">drop temizliği</text>
   <rect x="90" y="438" width="360" height="96" rx="8" class="card" />
 <rect x="90" y="438" width="360" height="30" rx="8" fill="#d97706" />
 <path d="M 90 460 H 450 V 468 H 90 Z" fill="#d97706" />
@@ -89,10 +89,10 @@
 <text x="684" y="490" class="body">upgrade() -&gt; None.</text>
 <text x="684" y="507" class="body">update ve read_with -&gt; Err; hata görünür kalır.</text>
 
-  <path d="M 450 166 L 670 166" class="arrow" /><text x="488" y="154" class="edge">entity.downgrade()</text>
-  <path d="M 670 204 L 450 204" class="arrowSoft" /><text x="488" y="222" class="edge">weak.upgrade()?</text>
-  <path d="M 670 338 C 560 338 560 338 450 338" class="arrowSoft" /><text x="488" y="326" class="edge">canlıysa T erişimi</text>
-  <path d="M 850 394 L 850 438" class="arrowRed" /><text x="866" y="420" class="edge">drop sonrası Err</text>
+  <path d="M 450 166 L 662 166" class="arrow" /><text x="488" y="154" class="edge">entity.downgrade()</text>
+  <path d="M 670 204 L 458 204" class="arrowSoft" /><text x="488" y="222" class="edge">weak.upgrade()?</text>
+  <path d="M 670 338 C 560 338 560 338 458 338" class="arrowSoft" /><text x="488" y="326" class="edge">canlıysa T erişimi</text>
+  <path d="M 850 394 L 850 430" class="arrowRed" /><text x="866" y="420" class="edge">drop sonrası Err</text>
   <rect x="90" y="588" width="940" height="86" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
 <text x="106" y="612" text-anchor="start" class="small">Karşılıklı iki Entity&lt;T&gt; birbirine güçlü bağlanırsa ref-count sıfıra düşmez ve bellek sızıntısı oluşur.</text>
 <text x="106" y="629" text-anchor="start" class="small">Bir tarafı WeakEntity&lt;T&gt; yapmak veya cx.reserve_entity / cx.insert_entity ile çift yön bağlamak doğru çözümdür.</text>

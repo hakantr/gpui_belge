@@ -34,7 +34,7 @@
   <text x="74" y="179" class="body">Window event loop olayı alır.</text>
   <text x="74" y="196" class="body">Koordinat pencere uzayındadır.</text>
 
-  <path d="M 330 168 L 400 168" class="arrowSoft" />
+  <path d="M 330 168 L 392 168" class="arrowSoft" />
 
   <rect x="400" y="110" width="270" height="116" rx="8" class="card" />
   <rect x="400" y="110" width="270" height="30" rx="8" fill="#7c3aed" />
@@ -44,7 +44,7 @@
   <text x="414" y="179" class="body">Üstteki ve occlude eden hit kazanır.</text>
   <text x="414" y="196" class="mono">HitboxBehavior</text>
 
-  <path d="M 670 168 L 740 168" class="arrowSoft" />
+  <path d="M 670 168 L 732 168" class="arrowSoft" />
 
   <rect x="740" y="110" width="360" height="116" rx="8" class="card" />
   <rect x="740" y="110" width="360" height="30" rx="8" fill="#059669" />
@@ -73,8 +73,8 @@
   <text x="910" y="416" text-anchor="middle" class="body">Keymap önceliği buna göre düşer.</text>
 
   <path d="M 250 322 C 250 270 235 244 195 226" class="arrowDash" />
-  <path d="M 580 322 C 580 270 535 244 535 226" class="arrowDash" />
-  <path d="M 910 322 C 910 270 920 244 920 226" class="arrowDash" />
+  <path d="M 580 322 C 580 270 535 244 535 234" class="arrowDash" />
+  <path d="M 910 322 C 910 270 920 244 920 234" class="arrowDash" />
 
   <rect x="80" y="542" width="1000" height="120" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
   <text x="104" y="572" class="label">Karar özeti</text>

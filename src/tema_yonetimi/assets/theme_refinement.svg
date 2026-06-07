@@ -27,12 +27,12 @@
   <rect x="200" y="100" width="240" height="60" rx="8" class="card"/>
   <text x="320" y="134" class="label" text-anchor="middle">Theme Content (JSON)</text>
 
-  <path d="M 320 160 L 320 210" class="arrowSoft"/>
+  <path d="M 320 160 L 320 202" class="arrowSoft"/>
 
   <rect x="200" y="210" width="240" height="60" rx="8" class="cardMid"/>
   <text x="320" y="244" class="label" text-anchor="middle">Refinement Layer</text>
 
-  <path d="M 320 270 L 320 320" class="arrowSoft"/>
+  <path d="M 320 270 L 320 312" class="arrowSoft"/>
   <text x="380" y="300" class="edge" text-anchor="middle">baseline.refine()</text>
 
   <rect x="200" y="320" width="240" height="70" rx="8" class="cardBottom"/>
