@@ -226,7 +226,7 @@ if let Some(kaynak) = kaynaklar.first() {
 
 Linux/FreeBSD/Windows tarafındaki `screen-capture` özelliği açıkken `gpui::platform::scap_screen_capture` modülü, `scap` arka ucunu `ScreenCaptureSource` ve `ScreenCaptureStream` trait'lerine uyarlar. Uygulama geliştirme aşamalarında genellikle bu seviyeye inilmesi gerekmez; platformlar arası özellik desteği doğrudan `cx.is_screen_capture_supported()` ve `cx.screen_capture_sources()` sarmalayıcıları vasıtasıyla denetlenir.
 
-**Dikkat noktaları.** Ekran yakalama ve başsız çalışma tarafında dikkat edilecek birkaç nokta vardır:
+**Dikkat noktaları.** Ekran yakalama ve başsız çalışma tarafında dikkat edilmesi gereken birkaç nokta vardır:
 
 - macOS'ta `Screen Recording` izni kullanıcı onayı gerektirir; ilk çağrıda sistem bir izin penceresi açar, onay verilmesinin ardından sonraki çalıştırmalarda da izin geçerli kalır.
 - Bazı platformlarda ekran yakalama desteklenmez; `is_screen_capture_supported()` `false` dönebilir veya kaynak listesi boş gelebilir. Bu tür durumlar uygulama düzeyinde ele alınmalı ve kullanıcıya açıklayıcı bir bilgilendirme mesajı sunulmalıdır.

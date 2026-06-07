@@ -396,7 +396,7 @@ Zed içinden kullanım örnekleri:
 
 - `language_models` crate'i: provider ayarları ve belge bağlantıları.
 
-Dikkat edinilecek noktalar:
+Dikkat edeceğin noktalar:
 
 - Harici bir bağlantıya gidileceğinin kullanıcıya açıkça belli edilmesi önemlidir. Varsayılan olan arrow-up-right ikonu bu yüzden değerlidir ve yalnızca linkin gerçekten inline bir metin gibi görünmesi gereken çok özel durumlarda `.no_icon(true)` ile kapatılması önerilir.
 

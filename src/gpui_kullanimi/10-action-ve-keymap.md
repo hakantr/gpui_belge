@@ -247,7 +247,7 @@ pub struct DispatchEventResult {
 3. Action dinleyicisi varsayılan davranışı korumak istiyorsa `cx.propagate()` ile yayılımı yeniden açar.
 4. Varsayılan odak aktarımı gibi GPUI içi yerleşik bir davranışı engellemek için `window.prevent_default()` çağrısı yapılır.
 
-**Dikkat noktaları.** Bu akışta dikkat edileceğin noktalar:
+**Dikkat noktaları.** Bu akışta dikkat edeceğin noktalar:
 
 - `capture_*` dinleyicileri odak yolu bilinmeden çalışır; pencere genelinde kısayol veya gözlemci için kullanılır; ama veri değiştirme işlemleri yapılacaksa odaktaki elementin çalışma zamanında kontrol edilmesi gerekir.
 - Action yayılım davranışı, fare veya tuş olaylarından farklı (tersi şekilde) işler. Yeni bir action dinleyicisinde refleksle `stop_propagation` yazmak, üst öğelerdeki action'ların tetiklenmesini engelleyebilir.
