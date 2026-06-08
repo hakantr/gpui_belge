@@ -1,132 +1,123 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 385">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 500">
   <title>Platform Renk Token Matrisi</title>
   <defs>
     <style>
       .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
       .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
       .hdr   { font: 700 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
-      .tok   { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1e293b; }
-      .cell  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .yes   { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #059669; }
-      .no    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #cbd5e1; }
+      .tok   { font: 10.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1e293b; }
+      .cell  { font: 10.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .yes   { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #047857; }
+      .no    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #94a3b8; }
       .note  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
     </style>
   </defs>
 
-  <rect width="820" height="385" rx="10" fill="#f8fafc"/>
-  <text x="410" y="30" text-anchor="middle" class="title">Platform Renk Token Matrisi</text>
-  <text x="410" y="50" text-anchor="middle" class="sub">Başlık çubuğu render kodu hangi platformda hangi tema token'ını tüketir.</text>
+  <rect width="920" height="500" rx="10" fill="#f8fafc" />
+  <text x="460" y="30" text-anchor="middle" class="title">Platform Renk Token Matrisi</text>
+  <text x="460" y="51" text-anchor="middle" class="sub">Başlık çubuğu render kodu hangi platformda hangi tema token'ını tüketir.</text>
 
-  <!-- Sütun başlıkları -->
-  <rect x="10"  y="60" width="280" height="34" rx="4" fill="#475569"/>
-  <text x="150" y="82" text-anchor="middle" class="hdr">Token</text>
+  <!-- Başlık satırı -->
+  <rect x="24" y="70" width="296" height="38" rx="4" fill="#475569" />
+  <rect x="328" y="70" width="184" height="38" rx="4" fill="#0284c7" />
+  <rect x="520" y="70" width="176" height="38" rx="4" fill="#374151" />
+  <rect x="704" y="70" width="192" height="38" rx="4" fill="#4c1d95" />
+  <text x="172" y="94" text-anchor="middle" class="hdr">Token</text>
+  <text x="420" y="94" text-anchor="middle" class="hdr">Linux / FreeBSD</text>
+  <text x="608" y="94" text-anchor="middle" class="hdr">Windows</text>
+  <text x="800" y="94" text-anchor="middle" class="hdr">macOS</text>
 
-  <rect x="298" y="60" width="160" height="34" rx="4" fill="#0284c7"/>
-  <text x="378" y="82" text-anchor="middle" class="hdr">Linux / FreeBSD</text>
+  <!-- Satır zeminleri -->
+  <rect x="24" y="114" width="872" height="38" fill="#f1f5f9" />
+  <rect x="24" y="152" width="872" height="38" fill="#fff" />
+  <rect x="24" y="190" width="872" height="38" fill="#f1f5f9" />
+  <rect x="24" y="228" width="872" height="38" fill="#fff" />
+  <rect x="24" y="266" width="872" height="38" fill="#f1f5f9" />
+  <rect x="24" y="304" width="872" height="44" fill="#fff" />
+  <rect x="24" y="348" width="872" height="44" fill="#f1f5f9" />
+  <rect x="24" y="392" width="872" height="38" fill="#fff" />
+  <rect x="24" y="430" width="872" height="38" fill="#f1f5f9" />
 
-  <rect x="466" y="60" width="160" height="34" rx="4" fill="#374151"/>
-  <text x="546" y="82" text-anchor="middle" class="hdr">Windows</text>
+  <!-- Izgara -->
+  <path d="M 24 114 H 896 M 24 152 H 896 M 24 190 H 896 M 24 228 H 896 M 24 266 H 896 M 24 304 H 896 M 24 348 H 896 M 24 392 H 896 M 24 430 H 896 M 24 468 H 896" stroke="#e2e8f0" stroke-width="1" />
+  <path d="M 324 70 V 468 M 516 70 V 468 M 700 70 V 468" stroke="#e2e8f0" stroke-width="1" />
 
-  <rect x="634" y="60" width="176" height="34" rx="4" fill="#4c1d95"/>
-  <text x="722" y="82" text-anchor="middle" class="hdr">macOS</text>
+  <!-- title_bar_background -->
+  <text x="38" y="137" class="tok">title_bar_background</text>
+  <text x="342" y="129" class="yes">✓</text>
+  <text x="364" y="129" class="cell">aktif pencere</text>
+  <text x="534" y="129" class="yes">✓</text>
+  <text x="556" y="129" class="cell">tüm durumlar</text>
+  <text x="718" y="129" class="yes">✓</text>
+  <text x="740" y="129" class="cell">tüm durumlar</text>
 
-  <!-- Satır arkaplanları, çizgiler -->
-  <rect x="10" y="100" width="800" height="28" fill="#f1f5f9"/>
-  <rect x="10" y="128" width="800" height="28" fill="#fff"/>
-  <rect x="10" y="156" width="800" height="28" fill="#f1f5f9"/>
-  <rect x="10" y="184" width="800" height="28" fill="#fff"/>
-  <rect x="10" y="212" width="800" height="28" fill="#f1f5f9"/>
-  <rect x="10" y="240" width="800" height="28" fill="#fff"/>
-  <rect x="10" y="268" width="800" height="28" fill="#f1f5f9"/>
-  <rect x="10" y="296" width="800" height="28" fill="#fff"/>
-  <rect x="10" y="324" width="800" height="28" fill="#f1f5f9"/>
+  <!-- title_bar_inactive_background -->
+  <text x="38" y="175" class="tok">title_bar_inactive_background</text>
+  <text x="342" y="167" class="yes">✓</text>
+  <text x="364" y="167" class="cell">pasif / taşınırken</text>
+  <text x="534" y="175" class="no">—</text>
+  <text x="718" y="175" class="no">—</text>
 
-  <!-- Dikey sınır çizgileri -->
-  <line x1="294" y1="60" x2="294" y2="352" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="462" y1="60" x2="462" y2="352" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="630" y1="60" x2="630" y2="352" stroke="#e2e8f0" stroke-width="1"/>
+  <!-- tab_bar_background -->
+  <text x="38" y="213" class="tok">tab_bar_background</text>
+  <text x="342" y="205" class="yes">✓</text>
+  <text x="364" y="205" class="cell">sekme çubuğu</text>
+  <text x="534" y="205" class="yes">✓</text>
+  <text x="556" y="205" class="cell">sekme çubuğu</text>
+  <text x="718" y="205" class="yes">✓</text>
+  <text x="740" y="205" class="cell">sekme çubuğu</text>
 
-  <!-- Yatay satır sınırları -->
-  <line x1="10" y1="100" x2="810" y2="100" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="128" x2="810" y2="128" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="156" x2="810" y2="156" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="184" x2="810" y2="184" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="212" x2="810" y2="212" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="240" x2="810" y2="240" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="268" x2="810" y2="268" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="296" x2="810" y2="296" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="324" x2="810" y2="324" stroke="#e2e8f0" stroke-width="1"/>
-  <line x1="10" y1="352" x2="810" y2="352" stroke="#e2e8f0" stroke-width="1"/>
+  <!-- border -->
+  <text x="38" y="251" class="tok">border</text>
+  <text x="342" y="243" class="yes">✓</text>
+  <text x="364" y="243" class="cell">tab / buton kenarı</text>
+  <text x="534" y="251" class="no">—</text>
+  <text x="718" y="251" class="no">—</text>
 
-  <!-- Satır 1: title_bar_background -->
-  <text x="20"  y="119" class="tok">title_bar_background</text>
-  <text x="308" y="115" class="yes">✓</text>
-  <text x="308" y="127" class="cell">aktif pencere</text>
-  <text x="476" y="115" class="yes">✓</text>
-  <text x="476" y="127" class="cell">tüm durumlar</text>
-  <text x="644" y="115" class="yes">✓</text>
-  <text x="644" y="127" class="cell">tüm durumlar</text>
+  <!-- ghost_element_background -->
+  <text x="38" y="289" class="tok">ghost_element_background</text>
+  <text x="342" y="281" class="yes">✓</text>
+  <text x="364" y="281" class="cell">varsayılan buton zemini</text>
+  <text x="534" y="289" class="no">—</text>
+  <text x="718" y="289" class="no">—</text>
 
-  <!-- Satır 2: title_bar_inactive_background -->
-  <text x="20"  y="147" class="tok">title_bar_inactive_background</text>
-  <text x="308" y="143" class="yes">✓</text>
-  <text x="308" y="155" class="cell">pasif / taşınırken</text>
-  <text x="476" y="147" class="no">—</text>
-  <text x="644" y="147" class="no">—</text>
+  <!-- ghost_element_hover / active -->
+  <text x="38" y="322" class="tok">ghost_element_hover</text>
+  <text x="38" y="338" class="tok">ghost_element_active</text>
+  <text x="342" y="318" class="yes">✓</text>
+  <text x="364" y="318" class="cell">WindowControl hover</text>
+  <text x="364" y="334" class="cell">active arka planı</text>
+  <text x="534" y="318" class="yes">✓</text>
+  <text x="556" y="318" class="cell">hover + active</text>
+  <text x="556" y="334" class="cell">non-close buton</text>
+  <text x="718" y="326" class="no">—</text>
 
-  <!-- Satır 3: tab_bar_background -->
-  <text x="20"  y="175" class="tok">tab_bar_background</text>
-  <text x="308" y="171" class="yes">✓</text>
-  <text x="308" y="183" class="cell">sekme çubuğu</text>
-  <text x="476" y="171" class="yes">✓</text>
-  <text x="476" y="183" class="cell">sekme çubuğu</text>
-  <text x="644" y="171" class="yes">✓</text>
-  <text x="644" y="183" class="cell">sekme çubuğu</text>
+  <!-- icon / icon_muted -->
+  <text x="38" y="366" class="tok">icon</text>
+  <text x="38" y="382" class="tok">icon_muted</text>
+  <text x="342" y="362" class="yes">✓</text>
+  <text x="364" y="362" class="cell">glyph rengi</text>
+  <text x="364" y="378" class="cell">hover: icon_muted</text>
+  <text x="534" y="370" class="no">—</text>
+  <text x="718" y="370" class="no">—</text>
 
-  <!-- Satır 4: border -->
-  <text x="20"  y="203" class="tok">border</text>
-  <text x="308" y="199" class="yes">✓</text>
-  <text x="308" y="211" class="cell">tab/buton kenarı</text>
-  <text x="476" y="203" class="no">—</text>
-  <text x="644" y="203" class="no">—</text>
+  <!-- text -->
+  <text x="38" y="415" class="tok">text</text>
+  <text x="342" y="415" class="no">—</text>
+  <text x="534" y="407" class="yes">✓</text>
+  <text x="556" y="407" class="cell">caption glyph</text>
+  <text x="556" y="423" class="cell">varsayılan renk</text>
+  <text x="718" y="415" class="no">—</text>
 
-  <!-- Satır 5: ghost_element_background / hover / active -->
-  <text x="20"  y="227" class="tok">ghost_element_background</text>
-  <text x="308" y="227" class="yes">✓  default bg</text>
-  <text x="476" y="227" class="no">—</text>
-  <text x="644" y="227" class="no">—</text>
+  <!-- drop_target -->
+  <text x="38" y="447" class="tok">drop_target_background</text>
+  <text x="38" y="463" class="tok">drop_target_border</text>
+  <text x="342" y="451" class="yes">✓</text>
+  <text x="364" y="451" class="cell">sekme drag hedefi</text>
+  <text x="534" y="451" class="yes">✓</text>
+  <text x="556" y="451" class="cell">sekme drag hedefi</text>
+  <text x="718" y="451" class="yes">✓</text>
+  <text x="740" y="451" class="cell">sekme drag hedefi</text>
 
-  <!-- Satır 6: ghost_element_hover + active -->
-  <text x="20"  y="253" class="tok">ghost_element_hover / active</text>
-  <text x="308" y="249" class="yes">✓ hover</text>
-  <text x="308" y="263" class="cell">WindowControl</text>
-  <text x="476" y="249" class="yes">✓ hover + active</text>
-  <text x="476" y="263" class="cell">non-close buton</text>
-  <text x="644" y="253" class="no">—</text>
-
-  <!-- Satır 7: icon + icon_muted -->
-  <text x="20"  y="285" class="tok">icon  /  icon_muted</text>
-  <text x="308" y="281" class="yes">✓ glyph rengi</text>
-  <text x="308" y="293" class="cell">hover: icon_muted</text>
-  <text x="476" y="285" class="no">—</text>
-  <text x="644" y="285" class="no">—</text>
-
-  <!-- Satır 8: text -->
-  <text x="20"  y="313" class="tok">text</text>
-  <text x="308" y="313" class="no">—</text>
-  <text x="476" y="309" class="yes">✓ caption glyph</text>
-  <text x="476" y="321" class="cell">varsayılan renk</text>
-  <text x="644" y="313" class="no">—</text>
-
-  <!-- Satır 9: drop_target -->
-  <text x="20"  y="341" class="tok">drop_target_background / border</text>
-  <text x="308" y="337" class="yes">✓</text>
-  <text x="308" y="349" class="cell">sekme drag hedefi</text>
-  <text x="476" y="337" class="yes">✓</text>
-  <text x="476" y="349" class="cell">sekme drag hedefi</text>
-  <text x="644" y="337" class="yes">✓</text>
-  <text x="644" y="349" class="cell">sekme drag hedefi</text>
-
-  <!-- Alt not -->
-  <text x="410" y="373" text-anchor="middle" class="note">drop_target_* eksik bırakılırsa sekme sürükleme sırasında görsel geri bildirim kaybolur.</text>
+  <text x="460" y="490" text-anchor="middle" class="note">drop_target_* eksik bırakılırsa sekme sürükleme sırasında görsel geri bildirim kaybolur.</text>
 </svg>

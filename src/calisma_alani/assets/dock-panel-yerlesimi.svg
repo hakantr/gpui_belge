@@ -22,8 +22,8 @@
         30%, 70% { width: 120px; }
       }
       @keyframes anim-right-dock {
-        0%, 100% { width: 40px; }
-        40%, 80% { width: 120px; }
+        0%, 100% { x: 610px; width: 40px; }
+        40%, 80% { x: 530px; width: 120px; }
       }
       /* Editörün esnemesi (x ve genişlik) */
       @keyframes anim-editor {
@@ -72,18 +72,13 @@
        x: 610'dan başlayıp w: 40 (sağ uç 650). w: 120 olduğunda x: 530 olmalı.
   -->
   <g>
-    <!-- Sağ dock animasyonu için hem x hem genişlik animasyonu gerekir. CSS transform veya keyframes ile: -->
-    <style>
-      @keyframes anim-right-g {
-        0%, 100% { transform: translateX(0px); }
-        40%, 80% { transform: translateX(-80px); }
-      }
-      .right-g { animation: anim-right-g 8s infinite ease-in-out; }
-    </style>
-    <g class="right-g">
-      <rect x="610" y="135" width="120" height="200" class="dock" />
-      <text x="630" y="235" class="area-text">Sağ</text>
-    </g>
+    <rect x="610" y="135" width="40" height="200" class="dock">
+      <animate attributeName="x" dur="8s" repeatCount="indefinite" values="610;610;530;530;610;610" keyTimes="0;0.39;0.40;0.80;0.81;1" calcMode="spline" keySplines="0.42 0 0.58 1;0 0 1 1;0.42 0 0.58 1;0.42 0 0.58 1;0 0 1 1" />
+      <animate attributeName="width" dur="8s" repeatCount="indefinite" values="40;40;120;120;40;40" keyTimes="0;0.39;0.40;0.80;0.81;1" calcMode="spline" keySplines="0.42 0 0.58 1;0 0 1 1;0.42 0 0.58 1;0.42 0 0.58 1;0 0 1 1" />
+    </rect>
+    <text x="630" y="235" class="area-text">Sağ
+      <animate attributeName="x" dur="8s" repeatCount="indefinite" values="630;630;590;590;630;630" keyTimes="0;0.39;0.40;0.80;0.81;1" calcMode="spline" keySplines="0.42 0 0.58 1;0 0 1 1;0.42 0 0.58 1;0.42 0 0.58 1;0 0 1 1" />
+    </text>
   </g>
 
   <!-- Alt Dock (Terminal) -->
@@ -93,22 +88,19 @@
 
   <!-- Dinamik Durum Bildirimleri -->
   <g transform="translate(400, 420)">
-    <style>
-      @keyframes label-state-1 { 0%, 29%, 81%, 100% { opacity: 1; } 30%, 80% { opacity: 0; } }
-      @keyframes label-state-2 { 0%, 29% { opacity: 0; } 30%, 39% { opacity: 1; } 40%, 100% { opacity: 0; } }
-      @keyframes label-state-3 { 0%, 39% { opacity: 0; } 40%, 70% { opacity: 1; } 71%, 100% { opacity: 0; } }
-      @keyframes label-state-4 { 0%, 70% { opacity: 0; } 71%, 80% { opacity: 1; } 81%, 100% { opacity: 0; } }
-      .lbl-s1 { animation: label-state-1 8s infinite linear; }
-      .lbl-s2 { animation: label-state-2 8s infinite linear; }
-      .lbl-s3 { animation: label-state-3 8s infinite linear; }
-      .lbl-s4 { animation: label-state-4 8s infinite linear; }
-      .state-labels text { opacity: 0; }
-    </style>
     <g class="state-labels">
-      <text class="lbl-s1 lbl-state">Tüm Paneller Kapalı → Editör Tam Genişlik</text>
-      <text class="lbl-s2 lbl-state">Sol Panel Açıldı → Editör Daraldı</text>
-      <text class="lbl-s3 lbl-state">İki Panel de Açık → Editör Minimum Genişlikte</text>
-      <text class="lbl-s4 lbl-state">Sağ Panel Açık → Editör Konumu Kaydı</text>
+      <text class="lbl-state" opacity="1">Tüm Paneller Kapalı → Editör Tam Genişlik
+        <animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="1;1;0;0;1" keyTimes="0;0.29;0.30;0.81;1" />
+      </text>
+      <text class="lbl-state" opacity="0">Sol Panel Açıldı → Editör Daraldı
+        <animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.29;0.30;0.39;0.40;1" />
+      </text>
+      <text class="lbl-state" opacity="0">İki Panel de Açık → Editör Minimum Genişlikte
+        <animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.39;0.40;0.70;0.71;1" />
+      </text>
+      <text class="lbl-state" opacity="0">Sağ Panel Açık → Sağ kenar sabit, editör daraldı
+        <animate attributeName="opacity" dur="8s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.70;0.71;0.80;0.81;1" />
+      </text>
     </g>
   </g>
 

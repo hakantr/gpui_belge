@@ -19,9 +19,11 @@
       .cname  { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
       .clabel { font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
       .desc   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .descBlue { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #dbeafe; }
+      .descTeal { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #cffafe; }
       .badge  { font: 700 10px system-ui, -apple-system, "Segoe UI", sans-serif; }
-      .arrow  { stroke: #334155; stroke-width: 1.8; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowR { stroke: #dc2626; stroke-width: 1.8; stroke-dasharray: 6 4; fill: none; marker-end: url(#arrowR); marker-start: url(#dot-arrowR); }
+      .arrow  { stroke: #334155; stroke-width: 1.9; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .arrowR { stroke: #dc2626; stroke-width: 1.9; stroke-dasharray: 6 4; fill: none; marker-end: url(#arrowR); marker-start: url(#dot-arrowR); }
     </style>
   </defs>
 
@@ -29,68 +31,62 @@
   <text x="450" y="34" text-anchor="middle" class="title">Tema Crate Bağımlılık Grafiği</text>
   <text x="450" y="56" text-anchor="middle" class="sub">Ok yönü "bağımlı → sağlayan" ilişkisini gösterir. GPL crate'lere yalnızca okuma referansı verilir.</text>
 
-  <!-- ── Uygulama crate'leri (merkez) ── -->
-  <rect x="270" y="80" width="200" height="70" rx="8" fill="#1d4ed8" />
-  <text x="370" y="108" text-anchor="middle" class="cname">kvs_tema</text>
-  <text x="370" y="126" text-anchor="middle" class="desc" fill="#bfdbfe">Theme, Registry, Runtime</text>
-  <text x="370" y="142" text-anchor="middle" class="desc" fill="#bfdbfe">JSON schema, IconTheme</text>
+  <!-- Zed workspace: sağlayıcı Apache crate'ler -->
+  <rect x="32" y="96" width="240" height="82" rx="8" fill="#fff" stroke="#15803d" stroke-width="2" />
+  <path d="M 40 96 H 264 Q 272 96 272 104 V 121 H 32 V 104 Q 32 96 40 96 Z" fill="#15803d" />
+  <text x="152" y="112" text-anchor="middle" class="badge" fill="#fff">Zed workspace · Apache-2.0</text>
+  <text x="152" y="143" text-anchor="middle" class="clabel">gpui · refineable</text>
+  <text x="152" y="160" text-anchor="middle" class="clabel">collections</text>
 
-  <rect x="490" y="80" width="200" height="70" rx="8" fill="#0891b2" />
-  <text x="590" y="108" text-anchor="middle" class="cname">kvs_syntax_tema</text>
-  <text x="590" y="126" text-anchor="middle" class="desc" fill="#e0f2fe">SyntaxTheme</text>
-  <text x="590" y="142" text-anchor="middle" class="desc" fill="#e0f2fe">kod renkleri</text>
+  <!-- Merkez crate -->
+  <rect x="330" y="96" width="220" height="82" rx="8" fill="#1d4ed8" />
+  <text x="440" y="128" text-anchor="middle" class="cname">kvs_tema</text>
+  <text x="440" y="149" text-anchor="middle" class="descBlue">Theme, Registry, Runtime</text>
+  <text x="440" y="166" text-anchor="middle" class="descBlue">JSON schema, IconTheme</text>
 
-  <!-- kvs_tema → kvs_syntax_tema -->
-  <path d="M 470 115 C 474 118 478 118 482 118" class="arrow" />
+  <!-- Syntax tema crate -->
+  <rect x="628" y="96" width="240" height="82" rx="8" fill="#0891b2" />
+  <text x="748" y="128" text-anchor="middle" class="cname">kvs_syntax_tema</text>
+  <text x="748" y="149" text-anchor="middle" class="descTeal">SyntaxTheme</text>
+  <text x="748" y="166" text-anchor="middle" class="descTeal">kod renkleri</text>
 
-  <!-- ── Zed workspace (Apache-2.0) ── -->
-  <rect x="20" y="82" width="230" height="66" rx="8" fill="#fff" stroke="#15803d" stroke-width="2" />
-  <rect x="20" y="82" width="230" height="22" rx="8" fill="#15803d" />
-  <path d="M 20 97 H 250 V 104 H 20 Z" fill="#15803d" />
-  <text x="135" y="95" text-anchor="middle" class="badge" fill="#fff">Zed workspace · Apache-2.0</text>
-  <text x="135" y="120" text-anchor="middle" class="clabel">gpui · refineable</text>
-  <text x="135" y="136" text-anchor="middle" class="clabel">collections</text>
-  <!-- Arrow -->
-  <path d="M 250 115 L 262 115" class="arrow" />
-  <!-- Syntax tema → gpui -->
-  <path d="M 250 120 C 330 120 430 118 482 118" class="arrow" />
+  <!-- GPL referans alanı -->
+  <rect x="32" y="224" width="240" height="92" rx="8" fill="#fff7f7" stroke="#dc2626" stroke-width="2" stroke-dasharray="8 4" />
+  <path d="M 40 224 H 264 Q 272 224 272 232 V 249 H 32 V 232 Q 32 224 40 224 Z" fill="#dc2626" />
+  <text x="152" y="241" text-anchor="middle" class="badge" fill="#fff">YALNIZCA REFERANS · GPL-3</text>
+  <text x="152" y="272" text-anchor="middle" class="clabel">theme · syntax_theme</text>
+  <text x="152" y="291" text-anchor="middle" class="clabel">theme_settings vb.</text>
 
-  <!-- ── GPL Zed crate'leri (YALNIZCA referans) ── -->
-  <rect x="20" y="200" width="230" height="80" rx="8" fill="#fff7f7" stroke="#dc2626" stroke-width="2" stroke-dasharray="8 4" />
-  <rect x="20" y="200" width="230" height="22" rx="8" fill="#dc2626" />
-  <path d="M 20 215 H 250 V 222 H 20 Z" fill="#dc2626" />
-  <text x="135" y="214" text-anchor="middle" class="badge" fill="#fff">YALNIZCA REFERANS · GPL-3</text>
-  <text x="135" y="242" text-anchor="middle" class="clabel">theme · syntax_theme</text>
-  <text x="135" y="258" text-anchor="middle" class="clabel">theme_settings vb.</text>
-  <!-- Dashed reference arrow — reverse (reference goes from kvs_tema to GPL) -->
-  <path d="M 270 130 L 180 192" class="arrowR" />
-  <text x="200" y="175" text-anchor="middle" class="badge" fill="#dc2626" style="font-size:10px;">kod değil</text>
-  <text x="200" y="187" text-anchor="middle" class="badge" fill="#dc2626" style="font-size:10px;">yalnız okur</text>
+  <!-- Üçüncü taraf crate'ler -->
+  <rect x="628" y="216" width="240" height="116" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1.4" />
+  <path d="M 636 216 H 860 Q 868 216 868 224 V 241 H 628 V 224 Q 628 216 636 216 Z" fill="#334155" />
+  <text x="748" y="233" text-anchor="middle" class="badge" fill="#fff">Üçüncü taraf</text>
+  <text x="646" y="262" class="clabel">serde · serde_json</text>
+  <text x="646" y="281" class="clabel">serde_json_lenient · palette</text>
+  <text x="646" y="300" class="clabel">parking_lot · indexmap</text>
+  <text x="646" y="319" class="clabel">schemars · anyhow · uuid</text>
 
-  <!-- ── Üçüncü taraf crate'ler ── -->
-  <rect x="650" y="80" width="230" height="200" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="650" y="80" width="230" height="22" rx="8" fill="#334155" />
-  <path d="M 650 95 H 880 V 102 H 650 Z" fill="#334155" />
-  <text x="765" y="94" text-anchor="middle" class="badge" fill="#fff">Üçüncü taraf</text>
-  <text x="665" y="120" class="clabel">serde + serde_json</text>
-  <text x="665" y="138" class="clabel">serde_json_lenient</text>
-  <text x="665" y="156" class="clabel">palette (renk dönüşümü)</text>
-  <text x="665" y="174" class="clabel">parking_lot (RwLock)</text>
-  <text x="665" y="192" class="clabel">indexmap · schemars</text>
-  <text x="665" y="210" class="clabel">anyhow · thiserror</text>
-  <text x="665" y="228" class="clabel">uuid</text>
-  <!-- Arrow from kvs_tema to third-party -->
-  <path d="M 470 130 L 642 130" class="arrow" />
+  <!-- Bağımlılık okları -->
+  <path d="M 322 137 L 280 137" class="arrow" />
+  <text x="301" y="127" text-anchor="middle" class="badge" fill="#334155">kullanır</text>
 
-  <!-- ── Bağımlılık yönü kuralı ── -->
-  <rect x="20" y="320" width="860" height="60" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <text x="40" y="348" class="desc"><tspan font-weight="bold">Ters yön yasaktır:</tspan> gpui, refineable veya collections hiçbir zaman kvs_tema'ya bağlanmaz.</text>
-  <text x="40" y="368" class="desc">Bu kural alt katmanları sakin tutar; upstream Zed değişikliğinde yalnızca tip imzası, davranış veya isim değişimleri izlenir.</text>
+  <path d="M 558 137 L 620 137" class="arrow" />
+  <text x="589" y="127" text-anchor="middle" class="badge" fill="#334155">ayırır</text>
 
-  <!-- ── Lisans notu ── -->
-  <rect x="20" y="398" width="860" height="76" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.2" />
-  <text x="40" y="422" class="desc"><tspan font-weight="bold" fill="#92400e">GPL sınırı:</tspan> <tspan fill="#334155">GPL-3 Zed crate'leri (theme, syntax_theme, theme_settings, theme_selector…) Cargo.toml'a</tspan></text>
-  <text x="40" y="440" class="desc" fill="#334155">dependency olarak <tspan font-weight="bold">eklenmez.</tspan> Yalnızca kaynak okuma için referans alınır. Bir satır bile kopyalanırsa uygulama GPL kapsamına girer.</text>
-  <text x="40" y="460" class="desc" fill="#334155">Alan adları ve JSON anahtarları telif kapsamı dışındadır ve mirror edilebilir. Bağımlılık yalnızca apache crate'ler üzerindendir.</text>
+  <path d="M 520 186 C 560 214 578 264 620 274" class="arrow" />
+  <text x="574" y="236" text-anchor="middle" class="badge" fill="#334155">crate</text>
 
+  <path d="M 390 186 C 348 214 324 248 280 270" class="arrowR" />
+  <text x="335" y="238" text-anchor="middle" class="badge" fill="#dc2626">kod değil</text>
+  <text x="335" y="252" text-anchor="middle" class="badge" fill="#dc2626">yalnız okur</text>
+
+  <!-- Bağımlılık yönü kuralı -->
+  <rect x="32" y="356" width="836" height="50" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
+  <text x="56" y="379" class="desc"><tspan font-weight="bold">Ters yön yasaktır:</tspan> gpui, refineable veya collections hiçbir zaman kvs_tema'ya bağlanmaz.</text>
+  <text x="56" y="397" class="desc">Bu kural alt katmanları sakin tutar; upstream Zed değişikliğinde yalnızca tip imzası, davranış veya isim değişimleri izlenir.</text>
+
+  <!-- Lisans notu -->
+  <rect x="32" y="424" width="836" height="52" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.2" />
+  <text x="56" y="447" class="desc"><tspan font-weight="bold" fill="#92400e">GPL sınırı:</tspan> <tspan fill="#334155">GPL-3 Zed crate'leri Cargo.toml'a dependency olarak eklenmez; yalnızca kaynak okuma için referans alınır.</tspan></text>
+  <text x="56" y="465" class="desc" fill="#334155">Alan adları ve JSON anahtarları mirror edilebilir; uygulama bağımlılığı yalnızca Apache uyumlu crate'ler üzerindedir.</text>
 </svg>

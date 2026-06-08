@@ -2,138 +2,142 @@
   <title>ThemeStyles ve ThemeColors Alan Haritası</title>
   <defs>
     <style>
-      .title  { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .hdr    { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .sib    { font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .chip   { font: 700 10px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1e293b; }
-      .cnt    { font: 10px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
-      .body   { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
+      .sub { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .panel { fill: #fff; stroke: #dbe4ee; stroke-width: 1.4; }
+      .panel-head-blue { fill: #1d4ed8; }
+      .panel-head-dark { fill: #334155; }
+      .panel-title { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
+      .chip-name { font: 700 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
+      .chip-count { font: 10px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
+      .card-title { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+      .body { font: 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
+      .note { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
     </style>
   </defs>
 
   <rect width="900" height="520" rx="10" fill="#f8fafc" />
-  <text x="450" y="34" text-anchor="middle" class="title">ThemeStyles — Renk Grubu Haritası</text>
-  <text x="450" y="56" text-anchor="middle" class="sub">ThemeColors 143 Hsla alanını ~19 semantik grupta barındırır. Diğer alt gruplar ayrı struct olarak taşınır.</text>
+  <text x="450" y="34" text-anchor="middle" class="title">ThemeStyles - Renk Grubu Haritası</text>
+  <text x="450" y="56" text-anchor="middle" class="sub">ThemeColors alanları semantik kümeler halinde; diğer tema renkleri ayrı alt yapılar olarak taşınır.</text>
 
-  <!-- ── ThemeColors (büyük merkez kutu) ── -->
-  <rect x="20" y="72" width="590" height="420" rx="9" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="20" y="72" width="590" height="28" rx="9" fill="#1d4ed8" />
-  <path d="M 20 93 H 610 V 100 H 20 Z" fill="#1d4ed8" />
-  <text x="315" y="91" text-anchor="middle" class="hdr">ThemeColors  (143 alan)</text>
+  <!-- ThemeColors -->
+  <rect x="24" y="78" width="574" height="410" rx="9" class="panel" />
+  <rect x="24" y="78" width="574" height="30" rx="9" class="panel-head-blue" />
+  <path d="M24 100 H598 V108 H24 Z" class="panel-head-blue" />
+  <text x="311" y="98" text-anchor="middle" class="panel-title">ThemeColors  (143 Hsla alan)</text>
 
-  <!-- Chip satırları -->
-  <!-- Satır 1 -->
-  <rect x="34" y="110" width="80" height="26" rx="5" fill="#dbeafe" />
-  <text x="74" y="127" text-anchor="middle" class="chip">border</text>
-  <text x="74" y="137" text-anchor="middle" class="cnt">6 alan</text>
+  <!-- Row 1 -->
+  <rect x="44" y="122" width="120" height="46" rx="6" fill="#dbeafe" />
+  <text x="104" y="142" text-anchor="middle" class="chip-name">border</text>
+  <text x="104" y="158" text-anchor="middle" class="chip-count">6 alan</text>
 
-  <rect x="124" y="110" width="84" height="26" rx="5" fill="#dbeafe" />
-  <text x="166" y="127" text-anchor="middle" class="chip">surface</text>
-  <text x="166" y="137" text-anchor="middle" class="cnt">3 alan</text>
+  <rect x="178" y="122" width="120" height="46" rx="6" fill="#dbeafe" />
+  <text x="238" y="142" text-anchor="middle" class="chip-name">surface</text>
+  <text x="238" y="158" text-anchor="middle" class="chip-count">3 alan</text>
 
-  <rect x="218" y="110" width="104" height="26" rx="5" fill="#dbeafe" />
-  <text x="270" y="127" text-anchor="middle" class="chip">element</text>
-  <text x="270" y="137" text-anchor="middle" class="cnt">8 alan</text>
+  <rect x="312" y="122" width="120" height="46" rx="6" fill="#dbeafe" />
+  <text x="372" y="142" text-anchor="middle" class="chip-name">element</text>
+  <text x="372" y="158" text-anchor="middle" class="chip-count">8 alan</text>
 
-  <rect x="332" y="110" width="120" height="26" rx="5" fill="#dbeafe" />
-  <text x="392" y="127" text-anchor="middle" class="chip">ghost_element</text>
-  <text x="392" y="137" text-anchor="middle" class="cnt">5 alan</text>
+  <rect x="446" y="122" width="132" height="46" rx="6" fill="#dbeafe" />
+  <text x="512" y="142" text-anchor="middle" class="chip-name">ghost_element</text>
+  <text x="512" y="158" text-anchor="middle" class="chip-count">5 alan</text>
 
-  <rect x="462" y="110" width="70" height="26" rx="5" fill="#dbeafe" />
-  <text x="497" y="127" text-anchor="middle" class="chip">text</text>
-  <text x="497" y="137" text-anchor="middle" class="cnt">5 alan</text>
+  <!-- Row 2 -->
+  <rect x="44" y="188" width="120" height="46" rx="6" fill="#dcfce7" />
+  <text x="104" y="208" text-anchor="middle" class="chip-name">text</text>
+  <text x="104" y="224" text-anchor="middle" class="chip-count">5 alan</text>
 
-  <!-- Satır 2 -->
-  <rect x="34" y="148" width="60" height="26" rx="5" fill="#dcfce7" />
-  <text x="64" y="165" text-anchor="middle" class="chip">icon</text>
-  <text x="64" y="175" text-anchor="middle" class="cnt">4 alan</text>
+  <rect x="178" y="188" width="120" height="46" rx="6" fill="#dcfce7" />
+  <text x="238" y="208" text-anchor="middle" class="chip-name">icon</text>
+  <text x="238" y="224" text-anchor="middle" class="chip-count">4 alan</text>
 
-  <rect x="104" y="148" width="134" height="26" rx="5" fill="#dcfce7" />
-  <text x="171" y="165" text-anchor="middle" class="chip">chrome (UI kabuk)</text>
-  <text x="171" y="175" text-anchor="middle" class="cnt">status bar, title bar, tab vb. ~19</text>
+  <rect x="312" y="188" width="120" height="46" rx="6" fill="#dcfce7" />
+  <text x="372" y="208" text-anchor="middle" class="chip-name">scrollbar</text>
+  <text x="372" y="224" text-anchor="middle" class="chip-count">6 alan</text>
 
-  <rect x="248" y="148" width="100" height="26" rx="5" fill="#dcfce7" />
-  <text x="298" y="165" text-anchor="middle" class="chip">scrollbar</text>
-  <text x="298" y="175" text-anchor="middle" class="cnt">6 alan</text>
+  <rect x="446" y="188" width="132" height="46" rx="6" fill="#dcfce7" />
+  <text x="512" y="208" text-anchor="middle" class="chip-name">minimap</text>
+  <text x="512" y="224" text-anchor="middle" class="chip-count">4 alan</text>
 
-  <rect x="358" y="148" width="90" height="26" rx="5" fill="#dcfce7" />
-  <text x="403" y="165" text-anchor="middle" class="chip">minimap</text>
-  <text x="403" y="175" text-anchor="middle" class="cnt">4 alan</text>
+  <!-- Row 3 -->
+  <rect x="44" y="254" width="120" height="46" rx="6" fill="#fef9c3" />
+  <text x="104" y="274" text-anchor="middle" class="chip-name">chrome</text>
+  <text x="104" y="290" text-anchor="middle" class="chip-count">kabuk alanları</text>
 
-  <rect x="458" y="148" width="130" height="26" rx="5" fill="#dcfce7" />
-  <text x="523" y="165" text-anchor="middle" class="chip">panel &amp; pane</text>
-  <text x="523" y="175" text-anchor="middle" class="cnt">~7 alan</text>
+  <rect x="178" y="254" width="120" height="46" rx="6" fill="#fef9c3" />
+  <text x="238" y="274" text-anchor="middle" class="chip-name">panel / pane</text>
+  <text x="238" y="290" text-anchor="middle" class="chip-count">~7 alan</text>
 
-  <!-- Satır 3 -->
-  <rect x="34" y="186" width="134" height="26" rx="5" fill="#fef9c3" />
-  <text x="101" y="203" text-anchor="middle" class="chip">editor (base)</text>
-  <text x="101" y="213" text-anchor="middle" class="cnt">~18 alan</text>
+  <rect x="312" y="254" width="120" height="46" rx="6" fill="#fef9c3" />
+  <text x="372" y="274" text-anchor="middle" class="chip-name">editor</text>
+  <text x="372" y="290" text-anchor="middle" class="chip-count">base ~18</text>
 
-  <rect x="178" y="186" width="140" height="26" rx="5" fill="#fef9c3" />
-  <text x="248" y="203" text-anchor="middle" class="chip">editor_diff_hunk</text>
-  <text x="248" y="213" text-anchor="middle" class="cnt">6 alan</text>
+  <rect x="446" y="254" width="132" height="46" rx="6" fill="#fef9c3" />
+  <text x="512" y="274" text-anchor="middle" class="chip-name">editor_diff</text>
+  <text x="512" y="290" text-anchor="middle" class="chip-count">hunk 6 alan</text>
 
-  <rect x="328" y="186" width="90" height="26" rx="5" fill="#fef9c3" />
-  <text x="373" y="203" text-anchor="middle" class="chip">search</text>
-  <text x="373" y="213" text-anchor="middle" class="cnt">2 alan</text>
+  <!-- Row 4 -->
+  <rect x="44" y="320" width="120" height="46" rx="6" fill="#fce7f3" />
+  <text x="104" y="340" text-anchor="middle" class="chip-name">search</text>
+  <text x="104" y="356" text-anchor="middle" class="chip-count">2 alan</text>
 
-  <rect x="428" y="186" width="90" height="26" rx="5" fill="#fef9c3" />
-  <text x="473" y="203" text-anchor="middle" class="chip">debugger</text>
-  <text x="473" y="213" text-anchor="middle" class="cnt">2 alan</text>
+  <rect x="178" y="320" width="120" height="46" rx="6" fill="#fce7f3" />
+  <text x="238" y="340" text-anchor="middle" class="chip-name">debugger</text>
+  <text x="238" y="356" text-anchor="middle" class="chip-count">2 alan</text>
 
-  <!-- Satır 4 -->
-  <rect x="34" y="224" width="160" height="26" rx="5" fill="#fce7f3" />
-  <text x="114" y="241" text-anchor="middle" class="chip">terminal (ansi renkleri)</text>
-  <text x="114" y="251" text-anchor="middle" class="cnt">~29 alan</text>
+  <rect x="312" y="320" width="120" height="46" rx="6" fill="#fce7f3" />
+  <text x="372" y="340" text-anchor="middle" class="chip-name">terminal</text>
+  <text x="372" y="356" text-anchor="middle" class="chip-count">ansi ~29 alan</text>
 
-  <rect x="204" y="224" width="80" height="26" rx="5" fill="#fce7f3" />
-  <text x="244" y="241" text-anchor="middle" class="chip">vcs</text>
-  <text x="244" y="251" text-anchor="middle" class="cnt">~10 alan</text>
+  <rect x="446" y="320" width="132" height="46" rx="6" fill="#fce7f3" />
+  <text x="512" y="340" text-anchor="middle" class="chip-name">vcs</text>
+  <text x="512" y="356" text-anchor="middle" class="chip-count">~10 alan</text>
 
-  <rect x="294" y="224" width="84" height="26" rx="5" fill="#fce7f3" />
-  <text x="336" y="241" text-anchor="middle" class="chip">vim / helix</text>
-  <text x="336" y="251" text-anchor="middle" class="cnt">~18 alan</text>
+  <!-- Row 5 -->
+  <rect x="44" y="386" width="120" height="46" rx="6" fill="#ede9fe" />
+  <text x="104" y="406" text-anchor="middle" class="chip-name">vim / helix</text>
+  <text x="104" y="422" text-anchor="middle" class="chip-count">~18 alan</text>
 
-  <!-- ── Diğer ThemeStyles alt tipleri ── -->
-  <rect x="630" y="72" width="250" height="420" rx="9" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="630" y="72" width="250" height="28" rx="9" fill="#334155" />
-  <path d="M 630 93 H 880 V 100 H 630 Z" fill="#334155" />
-  <text x="755" y="91" text-anchor="middle" class="hdr">ThemeStyles (diğer)</text>
+  <rect x="178" y="386" width="254" height="46" rx="6" fill="#eef2ff" />
+  <text x="305" y="406" text-anchor="middle" class="chip-name">accessor odaklı kullanım</text>
+  <text x="305" y="422" text-anchor="middle" class="chip-count">cx.theme().colors().background</text>
 
-  <!-- StatusColors -->
-  <rect x="646" y="110" width="218" height="72" rx="7" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.2" />
-  <text x="755" y="130" text-anchor="middle" class="sib" style="fill:#dc2626">StatusColors</text>
-  <text x="755" y="150" text-anchor="middle" class="body">error, warning, info, success</text>
-  <text x="755" y="166" text-anchor="middle" class="body">— ve her birinin fg/bg/border varyantları</text>
+  <rect x="446" y="386" width="132" height="46" rx="6" fill="#f1f5f9" stroke="#e2e8f0" />
+  <text x="512" y="406" text-anchor="middle" class="chip-name">pub(crate)</text>
+  <text x="512" y="422" text-anchor="middle" class="chip-count">alanlar gizli</text>
 
-  <!-- PlayerColors -->
-  <rect x="646" y="196" width="218" height="60" rx="7" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2" />
-  <text x="755" y="218" text-anchor="middle" class="sib" style="fill:#1d4ed8">PlayerColors</text>
-  <text x="755" y="238" text-anchor="middle" class="body">cursor, selection, background</text>
-  <text x="755" y="254" text-anchor="middle" class="body">her iş birliği katılımcısı için</text>
+  <rect x="44" y="454" width="534" height="22" rx="5" fill="#f8fafc" stroke="#e2e8f0" />
+  <text x="311" y="469" text-anchor="middle" class="note">Tüketici doğrudan struct alanına değil, accessor metodlarına dayanır.</text>
 
-  <!-- AccentColors -->
-  <rect x="646" y="270" width="218" height="56" rx="7" fill="#fefce8" stroke="#fde047" stroke-width="1.2" />
-  <text x="755" y="292" text-anchor="middle" class="sib" style="fill:#713f12">AccentColors</text>
-  <text x="755" y="308" text-anchor="middle" class="body">color, text, background, border</text>
-  <text x="755" y="322" text-anchor="middle" class="body">uygulama accent rengi seti</text>
+  <!-- Other ThemeStyles -->
+  <rect x="622" y="78" width="254" height="410" rx="9" class="panel" />
+  <rect x="622" y="78" width="254" height="30" rx="9" class="panel-head-dark" />
+  <path d="M622 100 H876 V108 H622 Z" class="panel-head-dark" />
+  <text x="749" y="98" text-anchor="middle" class="panel-title">ThemeStyles  (diğer)</text>
 
-  <!-- SyntaxTheme -->
-  <rect x="646" y="340" width="218" height="56" rx="7" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2" />
-  <text x="755" y="362" text-anchor="middle" class="sib" style="fill:#15803d">Arc&lt;SyntaxTheme&gt;</text>
-  <text x="755" y="380" text-anchor="middle" class="body">50-200 highlight girişi.</text>
-  <text x="755" y="396" text-anchor="middle" class="body">Arc: tema varyantları paylaşabilir.</text>
+  <rect x="640" y="124" width="218" height="64" rx="7" fill="#fef2f2" stroke="#fca5a5" stroke-width="1.2" />
+  <text x="656" y="146" class="card-title" fill="#dc2626">StatusColors</text>
+  <text x="656" y="165" class="body">error, warning, info, success</text>
+  <text x="656" y="179" class="note">fg / bg / border varyantları</text>
 
-  <!-- SystemColors -->
-  <rect x="646" y="410" width="218" height="44" rx="7" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2" />
-  <text x="755" y="430" text-anchor="middle" class="sib" style="fill:#475569">SystemColors</text>
-  <text x="755" y="446" text-anchor="middle" class="body">platform sistem renkleri (macOS transparent vb.)</text>
+  <rect x="640" y="200" width="218" height="64" rx="7" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.2" />
+  <text x="656" y="222" class="card-title" fill="#1d4ed8">PlayerColors</text>
+  <text x="656" y="241" class="body">cursor, selection, background</text>
+  <text x="656" y="255" class="note">her iş birliği katılımcısı için</text>
 
-  <!-- Alt not -->
-  <rect x="20" y="504" width="860" height="0" rx="6" fill="none" />
-  <rect x="20" y="278" width="590" height="30" rx="6" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" />
-  <text x="315" y="293" text-anchor="middle" class="body">Erişim: cx.theme().colors().background · .status().error · .players().local().cursor</text>
-  <text x="315" y="305" text-anchor="middle" class="body">styles alanı pub(crate) — tüketici yalnızca accessor metodlarını kullanır</text>
+  <rect x="640" y="276" width="218" height="64" rx="7" fill="#fefce8" stroke="#fde047" stroke-width="1.2" />
+  <text x="656" y="298" class="card-title" fill="#713f12">AccentColors</text>
+  <text x="656" y="317" class="body">color, text, background, border</text>
+  <text x="656" y="331" class="note">uygulama accent rengi seti</text>
 
+  <rect x="640" y="352" width="218" height="64" rx="7" fill="#f0fdf4" stroke="#86efac" stroke-width="1.2" />
+  <text x="656" y="374" class="card-title" fill="#15803d">Arc&lt;SyntaxTheme&gt;</text>
+  <text x="656" y="393" class="body">50-200 highlight girişi</text>
+  <text x="656" y="407" class="note">tema varyantları paylaşabilir</text>
+
+  <rect x="640" y="428" width="218" height="44" rx="7" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.2" />
+  <text x="656" y="449" class="card-title" fill="#475569">SystemColors</text>
+  <text x="656" y="464" class="note">platform sistem renkleri</text>
 </svg>

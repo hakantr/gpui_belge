@@ -10,7 +10,7 @@ Ana başlık çubuğu yüzeyi `WindowControlArea::Drag` etiketiyle işaretlenir.
 
 Başlık çubuğuna yerleştirilen etkileşimli elementler, kendi fare basma/tıklama olaylarında yayılımı durdurmalıdır. Buna butonlar, menü tetikleyicileri ve arama kutuları dahildir. Aksi halde aynı tıklama hem ilgili element hem de altındaki "sürükle" yüzeyi tarafından algılanır. Sonuçta kullanıcı menüye basmak isterken pencere de hareket edebilir.
 
-![Başlık Çubuğu Sürükleme Durum Makinesi](assets/surükleme-durum-makinesi.svg)
+![Başlık Çubuğu Sürükleme Durum Makinesi](assets/surukleme-durum-makinesi.svg)
 
 `hareket_etmeli` bayrağı sürükleme akışının merkezindedir. Kaynakta dört farklı noktada güncellenir:
 

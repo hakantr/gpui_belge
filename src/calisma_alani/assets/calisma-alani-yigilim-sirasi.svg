@@ -6,91 +6,83 @@
       .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
       .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
 
-      /* Isometric transform */
-      .iso-layer { transform: rotateX(60deg) rotateZ(-45deg); transform-origin: 400px 250px; }
-      
-      /* Layers styles */
-      .layer-workspace { fill: #f1f5f9; stroke: #ffffff; stroke-width: 2; opacity: 0.8; }
-      .layer-pane { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; opacity: 0.85; }
-      .layer-modal { fill: #ffffff; stroke: #0284c7; stroke-width: 2; opacity: 0.9; }
-      .layer-toast { fill: #e2e8f0; stroke: #e11d48; stroke-width: 1.5; opacity: 0.95; }
-      .layer-notification { fill: #ffffff; stroke: #059669; stroke-width: 2; opacity: 0.95; }
+      .layer-workspace { fill: #f1f5f9; stroke: #ffffff; stroke-width: 2; opacity: 0.9; }
+      .layer-pane { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; opacity: 0.92; }
+      .layer-modal { fill: #dbeafe; stroke: #0284c7; stroke-width: 2; opacity: 0.95; }
+      .layer-toast { fill: #ffe4e6; stroke: #e11d48; stroke-width: 2; opacity: 0.96; }
+      .layer-notification { fill: #d1fae5; stroke: #059669; stroke-width: 2; opacity: 0.97; }
 
-      .text-lbl { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 13px; fill: #0f172a; }
-      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 10px; fill: #475569; }
+      .text-lbl { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 14px; fill: #0f172a; }
+      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #475569; }
       .text-order { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #7c3aed; }
+      .blue { fill: #0369a1; }
+      .rose { fill: #be123c; }
+      .green { fill: #047857; }
 
-      /* Floating animations */
-      @keyframes float-noti {
-        0%, 100% { transform: translate(400px, 110px) scale(0.55) rotateX(60deg) rotateZ(-45deg); }
-        50% { transform: translate(400px, 95px) scale(0.55) rotateX(60deg) rotateZ(-45deg); }
+      @keyframes float-notification {
+        0%, 100% { transform: translate(400px, 180px) scale(1.05) rotateX(60deg) rotateZ(-7deg); }
+        50% { transform: translate(400px, 166px) scale(1.05) rotateX(60deg) rotateZ(-7deg); }
       }
       @keyframes float-toast {
-        0%, 100% { transform: translate(400px, 180px) scale(0.65) rotateX(60deg) rotateZ(-45deg); }
-        50% { transform: translate(400px, 170px) scale(0.65) rotateX(60deg) rotateZ(-45deg); }
+        0%, 100% { transform: translate(400px, 226px) scale(1.18) rotateX(60deg) rotateZ(-7deg); }
+        50% { transform: translate(400px, 214px) scale(1.18) rotateX(60deg) rotateZ(-7deg); }
       }
       @keyframes float-modal {
-        0%, 100% { transform: translate(400px, 250px) scale(0.75) rotateX(60deg) rotateZ(-45deg); }
-        50% { transform: translate(400px, 240px) scale(0.75) rotateX(60deg) rotateZ(-45deg); }
+        0%, 100% { transform: translate(400px, 274px) scale(1.31) rotateX(60deg) rotateZ(-7deg); }
+        50% { transform: translate(400px, 264px) scale(1.31) rotateX(60deg) rotateZ(-7deg); }
       }
       @keyframes float-pane {
-        0%, 100% { transform: translate(400px, 320px) scale(0.85) rotateX(60deg) rotateZ(-45deg); }
-        50% { transform: translate(400px, 315px) scale(0.85) rotateX(60deg) rotateZ(-45deg); }
+        0%, 100% { transform: translate(400px, 324px) scale(1.44) rotateX(60deg) rotateZ(-7deg); }
+        50% { transform: translate(400px, 316px) scale(1.44) rotateX(60deg) rotateZ(-7deg); }
       }
-      @keyframes float-wksp {
-        0%, 100% { transform: translate(400px, 390px) scale(0.95) rotateX(60deg) rotateZ(-45deg); }
+      @keyframes float-workspace {
+        0%, 100% { transform: translate(400px, 374px) scale(1.57) rotateX(60deg) rotateZ(-7deg); }
       }
 
-      .noti-g { animation: float-noti 6s infinite ease-in-out; transform-origin: center; }
-      .toast-g { animation: float-toast 6s infinite ease-in-out; transform-origin: center; }
-      .modal-g { animation: float-modal 6s infinite ease-in-out; transform-origin: center; }
-      .pane-g { animation: float-pane 6s infinite ease-in-out; transform-origin: center; }
-      .wksp-g { animation: float-wksp 6s infinite ease-in-out; transform-origin: center; }
+      .notification-g { animation: float-notification 6s infinite ease-in-out; transform-origin: 0px 0px; }
+      .toast-g { animation: float-toast 6s infinite ease-in-out; transform-origin: 0px 0px; }
+      .modal-g { animation: float-modal 6s infinite ease-in-out; transform-origin: 0px 0px; }
+      .pane-g { animation: float-pane 6s infinite ease-in-out; transform-origin: 0px 0px; }
+      .workspace-g { animation: float-workspace 6s infinite ease-in-out; transform-origin: 0px 0px; }
     </style>
   </defs>
 
   <rect width="800" height="500" class="bg" />
-  <text x="400" y="45" class="title">Workspace Yığılım &amp; Katman Sırası</text>
-  <text x="400" y="70" class="sub">Pencere içi bileşen katmanlarının üst üste yığılma hiyerarşisi</text>
+  <text x="400" y="30" class="title">Workspace Yığılım &amp; Katman Sırası</text>
+  <text x="400" y="55" class="sub">Pencere içi bileşen katmanlarının üst üste çizim hiyerarşisi</text>
 
-  <!-- 1. En Alt: Workspace -->
-  <g class="wksp-g">
+  <g class="workspace-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-workspace" />
-    <text x="-180" y="-80" class="text-lbl">Workspace (Çalışma Alanı Tabanı)</text>
-    <text x="-180" y="-60" class="text-desc">Temel pencere iskeleti ve arka plan</text>
-    <text x="-180" y="80" class="text-order">Z-INDEX: 0</text>
+    <text x="-180" y="56" class="text-lbl">Workspace Tabanı</text>
+    <text x="-180" y="76" class="text-desc">Pencere iskeleti, dock alanları ve arka plan</text>
+    <text x="-180" y="98" class="text-order">Z-INDEX: 0</text>
   </g>
 
-  <!-- 2. Pane / Tab -->
   <g class="pane-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-pane" />
-    <text x="-180" y="-80" class="text-lbl">Pane &amp; Tab Layer</text>
-    <text x="-180" y="-60" class="text-desc">Editör pencereleri, sekmeler ve breadcrumbs</text>
-    <text x="-180" y="80" class="text-order">Z-INDEX: 10</text>
+    <text x="-180" y="56" class="text-lbl">Pane &amp; Tab Layer</text>
+    <text x="-180" y="76" class="text-desc">Editör panelleri, sekmeler ve breadcrumbs</text>
+    <text x="-180" y="98" class="text-order">Z-INDEX: 10</text>
   </g>
 
-  <!-- 3. Modal -->
   <g class="modal-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-modal" />
-    <text x="-180" y="-80" class="text-lbl" fill="#0284c7">Modal Layer</text>
-    <text x="-180" y="-60" class="text-desc">Komut paleti, arama diyaloğu ve modal view'lar</text>
-    <text x="-180" y="80" class="text-order" fill="#0284c7">Z-INDEX: 100</text>
+    <text x="-180" y="56" class="text-lbl blue">Modal Layer</text>
+    <text x="-180" y="76" class="text-desc">Komut paleti, arama diyaloğu ve modal view'lar</text>
+    <text x="-180" y="98" class="text-order blue">Z-INDEX: 100</text>
   </g>
 
-  <!-- 4. Toast -->
   <g class="toast-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-toast" />
-    <text x="-180" y="-80" class="text-lbl" fill="#e11d48">Toast Layer</text>
-    <text x="-180" y="-60" class="text-desc">Geçici, hafif ve otomatik gizlenen durum bildirimleri</text>
-    <text x="-180" y="80" class="text-order" fill="#e11d48">Z-INDEX: 200</text>
+    <text x="-180" y="56" class="text-lbl rose">Toast Layer</text>
+    <text x="-180" y="76" class="text-desc">Geçici ve otomatik gizlenen durum bildirimleri</text>
+    <text x="-180" y="98" class="text-order rose">Z-INDEX: 200</text>
   </g>
 
-  <!-- 5. En Üst: Notification -->
-  <g class="noti-g">
+  <g class="notification-g">
     <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-notification" />
-    <text x="-180" y="-80" class="text-lbl" fill="#059669">Notification Layer</text>
-    <text x="-180" y="-60" class="text-desc">Kullanıcı eylemi bekleyen kalıcı bildirim ekranları</text>
-    <text x="-180" y="80" class="text-order" fill="#059669">Z-INDEX: 300</text>
+    <text x="-180" y="56" class="text-lbl green">Notification Layer</text>
+    <text x="-180" y="76" class="text-desc">Kullanıcı eylemi bekleyen kalıcı bildirimler</text>
+    <text x="-180" y="98" class="text-order green">Z-INDEX: 300</text>
   </g>
-
 </svg>
