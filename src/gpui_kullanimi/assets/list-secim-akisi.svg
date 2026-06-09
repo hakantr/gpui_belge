@@ -1,84 +1,142 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 520">
-  <title>GPUI Liste API Seçim Akışı</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720">
+  <title>Liste API Seçim Akışı</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
+
+    <linearGradient id="g-node" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#334155" />
+      <stop offset="1" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a78bfa" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34d399" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .question { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .apiTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1e293b; }
-      .tagYes { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #047857; }
-      .tagNo { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #b91c1c; }
-      .card { fill: #fff; stroke-width: 1.5; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .c-sig { font: 700 13px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.92; }
+
+      .qText { font: 800 16px system-ui, -apple-system, sans-serif; fill: #ffffff; text-anchor: middle; }
+
+      .tagYes { font: 800 14px system-ui, -apple-system, sans-serif; fill: #10b981; text-anchor: middle; }
+      .tagNo { font: 800 14px system-ui, -apple-system, sans-serif; fill: #e11d48; text-anchor: middle; }
+
+      .card { filter: url(#shadow); }
+      .flow-arrow { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linejoin: round; stroke-linecap: round; }
+
+      @keyframes pulseNode {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.82; }
+        100% { opacity: 1; }
+      }
+      @keyframes riseCard {
+        0%   { opacity: 1; }
+        45%  { opacity: 0.72; }
+        100% { opacity: 1; }
+      }
+      .anim-node { animation: pulseNode 9s ease-in-out infinite; }
+      .anim-c1 { animation: riseCard 9s ease-in-out infinite; }
+      .anim-c2 { animation: riseCard 9s ease-in-out infinite 0.6s; }
+      .anim-c3 { animation: riseCard 9s ease-in-out infinite 1.2s; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .anim-node, .anim-c1, .anim-c2, .anim-c3 { animation: none; }
+      }
     </style>
   </defs>
 
-  <rect width="900" height="520" rx="10" fill="#f8fafc" />
-  <text x="450" y="34" text-anchor="middle" class="title">Liste API Seçim Akışı</text>
-  <text x="450" y="56" text-anchor="middle" class="subtitle">GPUI çekirdek liste API'leri ile Zed UI liste bileşeni arasındaki karar noktaları.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <!-- Karar 1 -->
-  <rect x="300" y="86" width="300" height="76" rx="10" fill="#fff" stroke="#64748b" stroke-width="1.8" />
-  <text x="450" y="114" text-anchor="middle" class="question">Büyük liste veya</text>
-  <text x="450" y="134" text-anchor="middle" class="question">sanallaştırma gerekli mi?</text>
+  <text x="550" y="46" class="title">Liste API Seçim Akışı</text>
+  <text x="550" y="74" class="sub">GPUI çekirdek liste API'leri ile Zed UI liste bileşeni arasındaki karar noktaları.</text>
 
-  <!-- Karar 2 -->
-  <rect x="318" y="218" width="264" height="72" rx="10" fill="#fff" stroke="#64748b" stroke-width="1.8" />
-  <text x="450" y="246" text-anchor="middle" class="question">Satır yükseklikleri</text>
-  <text x="450" y="266" text-anchor="middle" class="question">sabit mi?</text>
+  <!-- ================= SORU DÜĞÜMLERİ ================= -->
 
-  <!-- Sonuç kartları -->
-  <rect x="48" y="218" width="230" height="132" rx="9" class="card" stroke="#0f766e" />
-  <path d="M 57 218 H 269 Q 278 218 278 227 V 249 H 48 V 227 Q 48 218 57 218 Z" fill="#0f766e" />
-  <text x="163" y="238" text-anchor="middle" class="apiTitle">ui::List</text>
-  <text x="68" y="274" class="body">Küçük veya statik listeler.</text>
-  <text x="68" y="294" class="body">Header, empty state ve</text>
-  <text x="68" y="314" class="body">ListItem hazır gelir.</text>
-  <text x="68" y="336" class="mono">ui::List / ListItem</text>
+  <!-- Kök soru -->
+  <g transform="translate(340, 110)" class="anim-node">
+    <rect width="420" height="70" rx="35" fill="url(#g-node)" stroke="#38bdf8" stroke-width="3" class="card" />
+    <text x="210" y="40" class="qText">Büyük liste veya sanallaştırma gerekli mi?</text>
+  </g>
 
-  <rect x="622" y="218" width="230" height="132" rx="9" class="card" stroke="#334155" />
-  <path d="M 631 218 H 843 Q 852 218 852 227 V 249 H 622 V 227 Q 622 218 631 218 Z" fill="#334155" />
-  <text x="737" y="238" text-anchor="middle" class="apiTitle">uniform_list()</text>
-  <text x="642" y="274" class="body">Onbinlerce sabit satır.</text>
-  <text x="642" y="294" class="body">Yalnız görünür aralık</text>
-  <text x="642" y="314" class="body">çizilir.</text>
-  <text x="642" y="336" class="mono">UniformListScrollHandle</text>
+  <!-- 2. soru -->
+  <g transform="translate(590, 280)" class="anim-node">
+    <rect width="340" height="70" rx="35" fill="url(#g-node)" stroke="#38bdf8" stroke-width="3" class="card" />
+    <text x="170" y="40" class="qText">Satır yükseklikleri sabit mi?</text>
+  </g>
 
-  <rect x="190" y="372" width="230" height="112" rx="9" class="card" stroke="#7c3aed" />
-  <path d="M 199 372 H 411 Q 420 372 420 381 V 403 H 190 V 381 Q 190 372 199 372 Z" fill="#7c3aed" />
-  <text x="305" y="392" text-anchor="middle" class="apiTitle">list()</text>
-  <text x="210" y="426" class="body">Değişken yükseklik.</text>
-  <text x="210" y="446" class="body">ListState ölçüm önbelleği.</text>
-  <text x="210" y="468" class="mono">list(durum, render_fn)</text>
+  <!-- ================= SONUÇ KARTLARI ================= -->
 
-  <rect x="480" y="372" width="230" height="112" rx="9" class="card" stroke="#059669" />
-  <path d="M 489 372 H 701 Q 710 372 710 381 V 403 H 480 V 381 Q 480 372 489 372 Z" fill="#059669" />
-  <text x="595" y="392" text-anchor="middle" class="apiTitle">uniform_list()</text>
-  <text x="500" y="426" class="body">Sabit yükseklik, hızlı.</text>
-  <text x="500" y="446" class="body">Yalnız örnek item ölçülür.</text>
-  <text x="500" y="468" class="mono">uniform_list(id, n, fn)</text>
+  <!-- 1. ui::List -->
+  <g transform="translate(60, 490)" class="anim-c1">
+    <rect width="300" height="170" rx="12" fill="url(#g-sky)" class="card" />
+    <text x="150" y="40" class="c-title">ui::List</text>
+    <text x="22" y="76" class="c-body">• Küçük veya statik listeler.</text>
+    <text x="22" y="101" class="c-body">• Header, empty state ve hazır</text>
+    <text x="22" y="123" class="c-body">  ListItem içerir.</text>
+    <rect x="16" y="138" width="268" height="22" rx="6" fill="#ffffff" fill-opacity="0.16" />
+    <text x="28" y="154" class="c-sig">ui::List / ListItem</text>
+  </g>
 
-  <!-- Oklar ve karar etiketleri -->
-  <path d="M 292 124 C 244 126 180 164 165 210" class="arrow" />
-  <text x="232" y="136" text-anchor="middle" class="tagNo">Hayır</text>
+  <!-- 2. list() -->
+  <g transform="translate(400, 490)" class="anim-c2">
+    <rect width="300" height="170" rx="12" fill="url(#g-violet)" class="card" />
+    <text x="150" y="40" class="c-title">list()</text>
+    <text x="22" y="76" class="c-body">• Değişken satır yüksekliği.</text>
+    <text x="22" y="101" class="c-body">• ListState ile dinamik ölçüm</text>
+    <text x="22" y="123" class="c-body">  önbelleği tutar.</text>
+    <rect x="16" y="138" width="268" height="22" rx="6" fill="#ffffff" fill-opacity="0.16" />
+    <text x="28" y="154" class="c-sig">list(durum, render_fn)</text>
+  </g>
 
-  <path d="M 608 124 C 656 126 720 164 735 210" class="arrow" />
-  <text x="668" y="136" text-anchor="middle" class="tagYes">Evet</text>
+  <!-- 3. uniform_list() -->
+  <g transform="translate(740, 490)" class="anim-c3">
+    <rect width="300" height="170" rx="12" fill="url(#g-green)" class="card" />
+    <text x="150" y="40" class="c-title">uniform_list()</text>
+    <text x="22" y="76" class="c-body">• Sabit satır yüksekliği (çok hızlı).</text>
+    <text x="22" y="101" class="c-body">• Yalnız tek örnek satır ölçülür.</text>
+    <text x="22" y="123" class="c-body">• Değişmez başarım sunar.</text>
+    <rect x="16" y="138" width="268" height="22" rx="6" fill="#ffffff" fill-opacity="0.16" />
+    <text x="28" y="154" class="c-sig">uniform_list(id, n, fn)</text>
+  </g>
 
-  <path d="M 450 170 L 450 210" class="arrow" />
-  <text x="474" y="194" class="tagYes">Evet</text>
+  <!-- ================= BAĞLANTILAR (OKLAR) ================= -->
 
-  <path d="M 405 298 C 368 328 330 338 307 364" class="arrow" />
-  <text x="356" y="326" text-anchor="middle" class="tagNo">Hayır</text>
+  <!-- Kök -> ui::List (Hayır) -->
+  <path d="M 550 180 V 230 H 210 V 480" class="flow-arrow" />
+  <rect x="358" y="215" width="54" height="30" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+  <text x="385" y="235" class="tagNo">Hayır</text>
 
-  <path d="M 495 298 C 532 328 570 338 593 364" class="arrow" />
-  <text x="544" y="326" text-anchor="middle" class="tagYes">Evet</text>
+  <!-- Kök -> 2. soru (Evet) -->
+  <path d="M 550 180 V 230 H 760 V 270" class="flow-arrow" />
+  <rect x="633" y="215" width="54" height="30" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+  <text x="660" y="235" class="tagYes">Evet</text>
+
+  <!-- 2. soru -> list() (Hayır) -->
+  <path d="M 760 350 V 400 H 550 V 480" class="flow-arrow" />
+  <rect x="633" y="385" width="54" height="30" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+  <text x="660" y="405" class="tagNo">Hayır</text>
+
+  <!-- 2. soru -> uniform_list() (Evet) -->
+  <path d="M 760 350 V 400 H 890 V 480" class="flow-arrow" />
+  <rect x="798" y="385" width="54" height="30" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+  <text x="825" y="405" class="tagYes">Evet</text>
+
 </svg>

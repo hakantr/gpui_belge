@@ -1,97 +1,122 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 460">
   <title>Workspace oturum serileştirme ve geri yükleme</title>
   <defs>
-    <marker id="aSlate" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#64748b" stroke="#64748b" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+
+    <marker id="arrowViolet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#7c3aed" />
     </marker>
-    <marker id="dot-aSlate" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#64748b" />
+    <marker id="arrowSky" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#0284c7" />
     </marker>
-    <marker id="aEmerald" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#059669" stroke="#059669" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aEmerald" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#059669" />
-    </marker>
-    <marker id="aViolet" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#7c3aed" stroke="#7c3aed" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aViolet" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#7c3aed" />
-    </marker>
-    <marker id="aCyan" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#0891b2" stroke="#0891b2" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aCyan" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#0891b2" />
-    </marker>
-    <marker id="aAmber" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#d97706" stroke="#d97706" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aAmber" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#d97706" />
-    </marker>
-    <marker id="aRose" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aRose" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
-    </marker>
-    <marker id="aSky" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#0284c7" stroke="#0284c7" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aSky" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#0284c7" />
-    </marker>
+
+    <linearGradient id="g-emerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" />
+      <stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
+    <linearGradient id="g-tablo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fef9ed" />
+      <stop offset="1" stop-color="#fef3c7" />
+    </linearGradient>
+    <linearGradient id="g-footer" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f1f5f9" />
+    </linearGradient>
+
     <style>
-      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-      .title{font-size:20px;font-weight:700;fill:#0f172a}
-      .sub{font-size:12px;font-weight:600;fill:#475569}
-      .h{font-size:13px;font-weight:700;fill:#0f172a}
-      .t{font-size:12px;font-weight:600;fill:#0f172a}
-      .body{font-size:11px;fill:#475569}
-      .small{font-size:10px;fill:#64748b}
-      .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;fill:#0f172a}
-      .card{fill:#fff;stroke-width:1.6}
-      .tEmerald{fill:#059669}.tViolet{fill:#7c3aed}.tCyan{fill:#0891b2}.tAmber{fill:#d97706}.tRose{fill:#be123c}.tSky{fill:#0284c7}.tSlate{fill:#64748b}.tWhite{fill:#fff}
-      .arrow{stroke:#64748b;stroke-width:2;fill:none;marker-end:url(#aSlate); marker-start: url(#dot-aSlate)}
-      .aEm{stroke:#059669;marker-end:url(#aEmerald); marker-start: url(#dot-aEmerald)}.aVi{stroke:#7c3aed;marker-end:url(#aViolet); marker-start: url(#dot-aViolet)}.aCy{stroke:#0891b2;marker-end:url(#aCyan); marker-start: url(#dot-aCyan)}.aAm{stroke:#d97706;marker-end:url(#aAmber); marker-start: url(#dot-aAmber)}.aRo{stroke:#be123c;marker-end:url(#aRose); marker-start: url(#dot-aRose)}.aSk{stroke:#0284c7;marker-end:url(#aSky); marker-start: url(#dot-aSky)}
+      .bg { fill: #f8fafc; }
+      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .api { font: 800 20px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .layer-title { font: 800 14px system-ui, -apple-system, sans-serif; fill: #ffffff; text-anchor: middle; }
+
+      .body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #334155; text-anchor: middle; }
+      .mono-body { font: 600 13px ui-monospace, SFMono-Regular, monospace; fill: #334155; text-anchor: middle; }
+
+      .card { filter: url(#shadow); }
+      .panel { fill: url(#g-panel); stroke: #cbd5e1; stroke-width: 1.5; rx: 8px; filter: url(#shadow); }
+
+      .arrow-vi { stroke: #7c3aed; stroke-width: 3; fill: none; marker-end: url(#arrowViolet); stroke-linecap: round; }
+      .arrow-sk { stroke: #0284c7; stroke-width: 3; fill: none; marker-end: url(#arrowSky); stroke-linecap: round; }
+
+      .flow { stroke-dasharray: 10 8; animation: flow 9s linear infinite; }
+      @keyframes flow { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -180; } }
+
+      .flow-rev { stroke-dasharray: 10 8; animation: flow-rev 9s linear infinite; }
+      @keyframes flow-rev { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 180; } }
+
+      .pulse-vi { animation: pulse 9s ease-in-out infinite; }
+      .pulse-sk { animation: pulse 9s ease-in-out infinite; animation-delay: -4.5s; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .flow, .flow-rev, .pulse-vi, .pulse-sk { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc"/>
 
-  <text x="400" y="40" text-anchor="middle" class="title">Workspace Oturum Serileştirme ve Geri Yükleme</text>
-  <text x="400" y="63" text-anchor="middle" class="sub">SerializableItem durumunun SQLite veritabanı üzerinden yönetimi</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <!-- Workspace UI durumu -->
-  <g transform="translate(60,160)">
-    <rect width="200" height="180" rx="12" class="card" stroke="#059669"/>
-    <text x="100" y="32" text-anchor="middle" class="h">Workspace UI Durumu</text>
-    <rect x="20" y="55" width="160" height="30" rx="6" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
-    <text x="100" y="74" text-anchor="middle" class="body">Açık editör sekmeleri</text>
-    <rect x="20" y="95" width="160" height="30" rx="6" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
-    <text x="100" y="114" text-anchor="middle" class="body">Panel yerleşimleri</text>
-    <rect x="20" y="135" width="160" height="30" rx="6" fill="#fff" stroke="#cbd5e1" stroke-width="1"/>
-    <text x="100" y="154" text-anchor="middle" class="body">Odak ve seçim alanları</text>
+  <text x="500" y="46" class="title">Workspace Oturum Serileştirme ve Geri Yükleme</text>
+  <text x="500" y="74" class="sub">SerializableItem durumunun SQLite veritabanı üzerinden yönetimi</text>
+
+  <!-- ================= WORKSPACE UI ================= -->
+  <g transform="translate(80, 140)">
+    <rect width="280" height="220" rx="12" fill="url(#g-emerald)" class="card" />
+    <text x="140" y="40" class="api">Workspace UI</text>
+    <text x="140" y="65" class="layer-title" style="fill:rgba(255,255,255,0.85)">Aktif Durum</text>
+
+    <rect x="25" y="85" width="230" height="34" class="panel" />
+    <text x="140" y="107" class="body">Açık Editör Sekmeleri</text>
+
+    <rect x="25" y="135" width="230" height="34" class="panel" />
+    <text x="140" y="157" class="body">Panel Yerleşimleri</text>
+
+    <rect x="25" y="185" width="230" height="34" class="panel" />
+    <text x="140" y="207" class="body">Odak ve Seçim Alanları</text>
   </g>
 
-  <!-- SQLite oturum veritabanı -->
-  <g transform="translate(540,160)">
-    <rect width="200" height="180" rx="12" class="card" stroke="#d97706"/>
-    <text x="100" y="32" text-anchor="middle" class="h">SQLite Oturum Veritabanı</text>
-    <rect x="20" y="55" width="160" height="105" rx="6" fill="#d97706" fill-opacity="0.08" stroke="#fcd34d" stroke-width="1"/>
-    <text x="100" y="85" text-anchor="middle" class="t tAmber">Kalıcı tablolar</text>
-    <text x="100" y="110" text-anchor="middle" class="mono" font-size="10">workspaces_id | pane_id</text>
-    <text x="100" y="130" text-anchor="middle" class="mono" font-size="10">serialized_item_kind</text>
+  <!-- ================= SQLITE DB ================= -->
+  <g transform="translate(640, 140)">
+    <rect width="280" height="220" rx="12" fill="url(#g-amber)" class="card" />
+    <text x="140" y="40" class="api">SQLite DB</text>
+    <text x="140" y="65" class="layer-title" style="fill:rgba(255,255,255,0.85)">Oturum Veritabanı</text>
+
+    <rect x="25" y="85" width="230" height="134" rx="8" fill="url(#g-tablo)" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="140" y="115" class="body" style="font-weight:800;fill:#b45309">Kalıcı Tablolar</text>
+
+    <text x="140" y="145" class="mono-body" style="fill:#92400e">workspaces_id</text>
+    <text x="140" y="167" class="mono-body" style="fill:#92400e">pane_id</text>
+    <text x="140" y="197" class="mono-body" style="fill:#92400e">serialized_item_kind</text>
   </g>
 
-  <!-- Serialize akışı -->
-  <path d="M 260 210 L 532 210" class="arrow aVi"/>
-  <text x="400" y="195" text-anchor="middle" class="small tViolet mono" font-weight="600">serialize()</text>
-  <text x="400" y="180" text-anchor="middle" class="small">Kapanırken veya değişiklikte</text>
+  <!-- ================= OKLAR ================= -->
 
-  <!-- Deserialize akışı -->
-  <path d="M 540 290 L 268 290" class="arrow aSk"/>
-  <text x="400" y="312" text-anchor="middle" class="small tSky mono" font-weight="600">deserialize()</text>
-  <text x="400" y="328" text-anchor="middle" class="small">Oturum yeniden açılırken</text>
+  <!-- Serialize -->
+  <path d="M 360 190 L 620 190" class="arrow-vi flow" />
+  <text x="490" y="180" class="api pulse-vi" font-size="18" style="fill:#7c3aed">serialize()</text>
+  <text x="490" y="210" class="body" font-size="12" style="fill:#64748b">Kapanırken / Değişiklikte</text>
+
+  <!-- Deserialize -->
+  <path d="M 640 300 L 380 300" class="arrow-sk flow-rev" />
+  <text x="510" y="290" class="api pulse-sk" font-size="18" style="fill:#0284c7">deserialize()</text>
+  <text x="510" y="320" class="body" font-size="12" style="fill:#64748b">Oturum Yeniden Açılırken</text>
+
+  <!-- ================= ALT BİLGİ ================= -->
+  <g transform="translate(80, 390)">
+    <rect width="840" height="40" rx="8" fill="url(#g-footer)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="420" y="25" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="14" fill="#475569">Not: GPUI pencereleri kapandığında serileştirme işlemi eşzamansız olarak veritabanına işlenir.</text>
+  </g>
+
 </svg>

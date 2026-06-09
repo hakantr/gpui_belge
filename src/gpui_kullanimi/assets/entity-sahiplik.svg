@@ -1,101 +1,148 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 720">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 778">
   <title>Entity&lt;T&gt; / WeakEntity&lt;T&gt; Sahiplik Modeli</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#94a3b8" />
     </marker>
-    <marker id="arrowRed" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#e11d48" />
     </marker>
-    <marker id="dot-arrowRed" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
-    </marker>
+
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" /><stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" /><stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" /><stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f43f5e" /><stop offset="1" stop-color="#e11d48" />
+    </linearGradient>
+    <linearGradient id="g-panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" /><stop offset="1" stop-color="#f1f5f9" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
-      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); marker-start: url(#dot-arrowRed); }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.96; }
+      .c-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.95; }
+      .c-mono-sm { font: 700 12px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.95; }
+
+      .lbl { font: 800 18px system-ui, -apple-system, sans-serif; fill: #0f172a; text-anchor: middle; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-dash { stroke: #94a3b8; stroke-width: 3; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowDash); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-red { stroke: #e11d48; stroke-width: 3; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); stroke-linecap: round; stroke-linejoin: round; }
+
+      .edge { font: 700 12px ui-monospace, SFMono-Regular, monospace; fill: #64748b; text-anchor: middle; }
+
+      @keyframes flow { to { stroke-dashoffset: -22; } }
+      .flow { stroke-dasharray: 6 5; animation: flow 9s linear infinite; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .flow { animation: none; }
+      }
     </style>
-    
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="560" y="36" text-anchor="middle" class="title">Entity&lt;T&gt; / WeakEntity&lt;T&gt; Sahiplik Modeli</text>
 
-  <text x="560" y="62" text-anchor="middle" class="subtitle">Güçlü handle yaşamı uzatır; zayıf handle async işlerde güvenli erişim sağlar.</text>
-  <text x="255" y="96" text-anchor="middle" class="label">Güçlü sahiplik - ref-count tutar</text>
-  <text x="850" y="96" text-anchor="middle" class="label">Zayıf sahiplik - yaşamı uzatmaz</text>
-  <line x1="560" y1="112" x2="560" y2="586" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="7 5" />
-  <rect x="90" y="126" width="360" height="112" rx="8" class="card" />
-<rect x="90" y="126" width="360" height="30" rx="8" fill="#0284c7" />
-<path d="M 90 148 H 450 V 156 H 90 Z" fill="#0284c7" />
-<text x="104" y="146" class="cardTitle">Entity&lt;T&gt;</text>
-<text x="104" y="178" class="body">Güçlü handle; ref-count artırır.</text>
-<text x="104" y="195" class="body">cx.new(|cx| ...) ile oluşur.</text>
-<text x="104" y="212" class="body">entity.read(cx) ve</text>
-<text x="104" y="229" class="body">entity.update(cx, ...) ile kullanılır.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <path d="M 270 238 L 270 274" class="arrowSoft" /><text x="286" y="264" class="edge">tutar</text>
-  <rect x="90" y="282" width="360" height="112" rx="8" class="card" />
-<rect x="90" y="282" width="360" height="30" rx="8" fill="#059669" />
-<path d="M 90 304 H 450 V 312 H 90 Z" fill="#059669" />
-<text x="104" y="302" class="cardTitle">App.entity_map { T }</text>
-<text x="104" y="334" class="body">Dinamik bellekte yaşayan tipli veri.</text>
-<text x="104" y="351" class="body">T'nin alanları ve emit hedefleri burada durur.</text>
-<text x="104" y="368" class="body">Son güçlü handle düşünce drop edilir.</text>
+  <text x="550" y="46" class="title">Entity&lt;T&gt; / WeakEntity&lt;T&gt; Sahiplik Modeli</text>
+  <text x="550" y="74" class="sub">Güçlü handle yaşamı uzatır; zayıf handle async işlerde güvenli erişim sağlar.</text>
+  <line x1="430" y1="90" x2="670" y2="90" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round" />
 
-  <path d="M 270 394 L 270 430" class="arrowDash" /><text x="286" y="420" class="edge">drop temizliği</text>
-  <rect x="90" y="438" width="360" height="96" rx="8" class="card" />
-<rect x="90" y="438" width="360" height="30" rx="8" fill="#d97706" />
-<path d="M 90 460 H 450 V 468 H 90 Z" fill="#d97706" />
-<text x="104" y="458" class="cardTitle">Subscription</text>
-<text x="104" y="490" class="body">cx.subscribe(&amp;entity, ...) Subscription döndürür.</text>
-<text x="104" y="507" class="body">Struct alanında saklanır veya detach edilir.</text>
+  <text x="250" y="128" class="lbl">Güçlü Sahiplik (Ref-count Tutar)</text>
+  <text x="850" y="128" class="lbl">Zayıf Sahiplik (Yaşamı Uzatmaz)</text>
+  <line x1="550" y1="148" x2="550" y2="600" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8 6" />
 
-  <rect x="670" y="126" width="360" height="112" rx="8" class="card" />
-<rect x="670" y="126" width="360" height="30" rx="8" fill="#7c3aed" />
-<path d="M 670 148 H 1030 V 156 H 670 Z" fill="#7c3aed" />
-<text x="684" y="146" class="cardTitle">WeakEntity&lt;T&gt;</text>
-<text x="684" y="178" class="body">Zayıf handle; ref-count'a etki etmez.</text>
-<text x="684" y="195" class="body">entity.downgrade() veya cx.weak_entity().</text>
-<text x="684" y="212" class="body">spawn closure'larına yakalamak için uygundur.</text>
+  <!-- ================= SOL (GÜÇLÜ) ================= -->
+  <g transform="translate(60, 158)">
+    <rect width="380" height="120" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
+    <text x="190" y="35" class="c-title">Entity&lt;T&gt;</text>
+    <text x="20" y="65" class="c-body">• Güçlü handle; ref-count artırır</text>
+    <text x="20" y="85" class="c-body">• cx.new(|cx| ...) ile oluşur</text>
+    <text x="20" y="105" class="c-body">• entity.read(cx) / update(cx) ile kullanılır</text>
+  </g>
 
-  <rect x="670" y="282" width="360" height="112" rx="8" class="card" />
-<rect x="670" y="282" width="360" height="30" rx="8" fill="#7c3aed" />
-<path d="M 670 304 H 1030 V 312 H 670 Z" fill="#7c3aed" />
-<text x="684" y="302" class="cardTitle">Async görevde erişim</text>
-<text x="684" y="334" class="body">weak.upgrade() -&gt; Option&lt;Entity&lt;T&gt;&gt;.</text>
-<text x="684" y="351" class="body">weak.update(cx, |T, cx| ...)? -&gt; Result&lt;R&gt;.</text>
-<text x="684" y="368" class="body">weak.read_with(cx, |T, cx| ...)? -&gt; Result&lt;R&gt;.</text>
+  <g transform="translate(60, 328)">
+    <rect width="380" height="120" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
+    <text x="190" y="35" class="c-title">App.entity_map { T }</text>
+    <text x="20" y="65" class="c-body">• Dinamik bellekte yaşayan tipli veri</text>
+    <text x="20" y="85" class="c-body">• T'nin alanları / emit hedefleri buradadır</text>
+    <text x="20" y="105" class="c-body">• Son güçlü handle düşünce drop edilir</text>
+  </g>
 
-  <rect x="670" y="438" width="360" height="96" rx="8" class="card" />
-<rect x="670" y="438" width="360" height="30" rx="8" fill="#be123c" />
-<path d="M 670 460 H 1030 V 468 H 670 Z" fill="#be123c" />
-<text x="684" y="458" class="cardTitle">Entity düştüğünde</text>
-<text x="684" y="490" class="body">upgrade() -&gt; None.</text>
-<text x="684" y="507" class="body">update ve read_with -&gt; Err; hata görünür kalır.</text>
+  <g transform="translate(60, 498)">
+    <rect width="380" height="100" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
+    <text x="190" y="35" class="c-title">Subscription</text>
+    <text x="20" y="65" class="c-body">• cx.subscribe(&amp;entity, ...) abonelik döndürür</text>
+    <text x="20" y="85" class="c-body">• Struct alanında saklanır veya detach edilir</text>
+  </g>
 
-  <path d="M 450 166 L 662 166" class="arrow" /><text x="488" y="154" class="edge">entity.downgrade()</text>
-  <path d="M 670 204 L 458 204" class="arrowSoft" /><text x="488" y="222" class="edge">weak.upgrade()?</text>
-  <path d="M 670 338 C 560 338 560 338 458 338" class="arrowSoft" /><text x="488" y="326" class="edge">canlıysa T erişimi</text>
-  <path d="M 850 394 L 850 430" class="arrowRed" /><text x="866" y="420" class="edge">drop sonrası Err</text>
-  <rect x="90" y="588" width="940" height="86" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
-<text x="106" y="612" text-anchor="start" class="small">Karşılıklı iki Entity&lt;T&gt; birbirine güçlü bağlanırsa ref-count sıfıra düşmez ve bellek sızıntısı oluşur.</text>
-<text x="106" y="629" text-anchor="start" class="small">Bir tarafı WeakEntity&lt;T&gt; yapmak veya cx.reserve_entity / cx.insert_entity ile çift yön bağlamak doğru çözümdür.</text>
-<text x="106" y="646" text-anchor="start" class="small">Async görevlerde WeakEntity yakalanır; drop olmuş entity Result ile görünür kalır.</text>
+  <!-- ================= SAĞ (ZAYIF) ================= -->
+  <g transform="translate(660, 158)">
+    <rect width="380" height="120" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
+    <text x="190" y="35" class="c-title">WeakEntity&lt;T&gt;</text>
+    <text x="20" y="65" class="c-body">• Zayıf handle; ref-count'a etki etmez</text>
+    <text x="20" y="85" class="c-body">• entity.downgrade() / cx.weak_entity()</text>
+    <text x="20" y="105" class="c-body">• spawn closure'larına yakalamak içindir</text>
+  </g>
+
+  <g transform="translate(660, 328)">
+    <rect width="380" height="120" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
+    <text x="190" y="35" class="c-title">Async Görevde Erişim</text>
+    <text x="20" y="65" class="c-mono-sm">• weak.upgrade() -&gt; Option&lt;Entity&lt;T&gt;&gt;</text>
+    <text x="20" y="85" class="c-mono-sm">• weak.update(cx, |T, cx| ...)? -&gt; Result&lt;R&gt;</text>
+    <text x="20" y="105" class="c-mono-sm">• weak.read_with(cx, |T, cx| ...)? -&gt; Result&lt;R&gt;</text>
+  </g>
+
+  <g transform="translate(660, 498)">
+    <rect width="380" height="100" rx="12" fill="url(#g-rose)" filter="url(#shadow)" />
+    <text x="190" y="35" class="c-title">Entity Düştüğünde</text>
+    <text x="20" y="65" class="c-body">• upgrade() -&gt; None</text>
+    <text x="20" y="85" class="c-body">• update / read_with -&gt; Err; hata görünür kalır</text>
+  </g>
+
+  <!-- ================= OKLAR (İlişkiler) ================= -->
+  <path d="M 250 283 V 318" class="arrow-line" />
+  <text x="312" y="303" class="edge">Ref-count Tutar</text>
+
+  <path d="M 250 453 V 488" class="arrow-dash flow" />
+  <text x="312" y="473" class="edge">Drop Temizliği</text>
+
+  <path d="M 450 198 H 640" class="arrow-line" />
+  <text x="550" y="188" class="edge">entity.downgrade()</text>
+
+  <path d="M 640 238 H 450" class="arrow-dash flow" />
+  <text x="550" y="228" class="edge">weak.upgrade()?</text>
+
+  <path d="M 640 388 H 450" class="arrow-dash flow" />
+  <text x="550" y="378" class="edge">Canlıysa T erişimi</text>
+
+  <path d="M 850 453 V 488" class="arrow-red flow" />
+  <text x="912" y="473" class="edge" style="fill:#e11d48">Drop sonrası Err</text>
+
+  <!-- ================= BİLGİ KUTUSU ================= -->
+  <g transform="translate(60, 648)">
+    <rect width="980" height="106" rx="12" fill="url(#g-panel)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="24" y="32" class="c-body" style="fill:#1e293b">• Karşılıklı iki Entity&lt;T&gt; birbirine güçlü bağlanırsa ref-count sıfıra düşmez ve bellek sızıntısı oluşur.</text>
+    <text x="24" y="59" class="c-body" style="fill:#1e293b">• Bir tarafı WeakEntity&lt;T&gt; yapmak veya cx.reserve_entity / cx.insert_entity ile çift yön bağlamak doğru çözümdür.</text>
+    <text x="24" y="86" class="c-body" style="fill:#1e293b">• Async görevlerde WeakEntity yakalanır; drop olmuş entity Result ile görünür kalır.</text>
+  </g>
 
 </svg>

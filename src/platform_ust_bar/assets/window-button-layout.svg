@@ -1,75 +1,81 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 360">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 550">
   <title>WindowButtonLayout Platform Desteği</title>
   <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.04" />
+    </filter>
     <style>
-      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .hdr   { font: 700 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
-      .feat  { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1e293b; }
-      .cell  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .mono  { font: 10.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .yes   { font: 700 11.5px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #047857; }
-      .no    { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #94a3b8; }
-      .note  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
+      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
+      .subtitle { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .hdr { font: 700 14px system-ui, -apple-system, sans-serif; fill: #ffffff; }
+      .feat { font: 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #1e293b; font-weight: 600; }
+      .cell { font: 14px system-ui, -apple-system, sans-serif; fill: #475569; }
+      .yes { font: 800 14px ui-monospace, SFMono-Regular, monospace; fill: #10b981; }
+      .no { font: 800 16px system-ui, -apple-system, sans-serif; fill: #94a3b8; }
+      .note { font: 13px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .mono { font: 13px ui-monospace, SFMono-Regular, monospace; fill: #334155; }
     </style>
   </defs>
 
-  <rect width="900" height="360" rx="10" fill="#f8fafc" />
-  <text x="450" y="30" text-anchor="middle" class="title">WindowButtonLayout Platform Desteği</text>
-  <text x="450" y="51" text-anchor="middle" class="sub">Buton düzeni yalnızca Linux/FreeBSD CSD penceresinde anlamlıdır.</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+  
+  <text x="580" y="46" text-anchor="middle" class="title">WindowButtonLayout Platform Desteği</text>
+  <text x="580" y="74" text-anchor="middle" class="subtitle">Buton düzeni yalnızca Linux/FreeBSD CSD penceresinde anlamlıdır.</text>
 
-  <!-- Başlık satırı -->
-  <rect x="24" y="70" width="198" height="40" rx="4" fill="#475569" />
-  <rect x="230" y="70" width="328" height="40" rx="4" fill="#0284c7" />
-  <rect x="566" y="70" width="150" height="40" rx="4" fill="#334155" />
-  <rect x="724" y="70" width="152" height="40" rx="4" fill="#334155" />
-  <text x="123" y="95" text-anchor="middle" class="hdr">Özellik</text>
-  <text x="394" y="95" text-anchor="middle" class="hdr">Linux / FreeBSD (CSD)</text>
-  <text x="641" y="95" text-anchor="middle" class="hdr">Windows</text>
-  <text x="800" y="95" text-anchor="middle" class="hdr">macOS</text>
+  <g transform="translate(40, 110)">
+    <rect width="1080" height="360" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)" />
+    
+    <!-- Satır Zeminleri -->
+    <rect x="0" y="50" width="1080" height="80" fill="#f8fafc" />
+    <rect x="0" y="130" width="1080" height="80" fill="#ffffff" />
+    <rect x="0" y="210" width="1080" height="80" fill="#f8fafc" />
+    <rect x="0" y="290" width="1080" height="70" fill="#ffffff" />
 
-  <!-- Satır zeminleri -->
-  <rect x="24" y="116" width="852" height="54" fill="#f1f5f9" />
-  <rect x="24" y="170" width="852" height="58" fill="#fff" />
-  <rect x="24" y="228" width="852" height="64" fill="#f1f5f9" />
-  <rect x="24" y="292" width="852" height="42" fill="#fff" />
+    <!-- Dikey Çizgiler -->
+    <path d="M 280 0 V 360 M 600 0 V 360 M 840 0 V 360" stroke="#e2e8f0" stroke-width="1.5" />
 
-  <!-- Izgara -->
-  <path d="M 24 116 H 876 M 24 170 H 876 M 24 228 H 876 M 24 292 H 876 M 24 334 H 876" stroke="#e2e8f0" stroke-width="1" />
-  <path d="M 226 70 V 334 M 562 70 V 334 M 720 70 V 334" stroke="#e2e8f0" stroke-width="1" />
+    <!-- Başlık Satırı -->
+    <path d="M 0 10 A 10 10 0 0 1 10 0 H 1070 A 10 10 0 0 1 1080 10 V 50 H 0 Z" fill="#334155" />
+    <text x="140" y="30" text-anchor="middle" class="hdr">Özellik</text>
+    <text x="440" y="30" text-anchor="middle" class="hdr">Linux / FreeBSD (CSD)</text>
+    <text x="720" y="30" text-anchor="middle" class="hdr">Windows</text>
+    <text x="960" y="30" text-anchor="middle" class="hdr">macOS</text>
 
-  <!-- Satır 1 -->
-  <text x="38" y="139" class="feat">cx.button_layout()</text>
-  <text x="244" y="134" class="yes">Some(WindowButtonLayout)</text>
-  <text x="244" y="153" class="cell">GTK/GNOME masaüstü ayarını okur.</text>
-  <text x="580" y="139" class="no">None</text>
-  <text x="580" y="156" class="cell">her zaman</text>
-  <text x="738" y="139" class="no">None</text>
-  <text x="738" y="156" class="cell">her zaman</text>
+    <!-- Satır 1 -->
+    <text x="20" y="95" class="feat">cx.button_layout()</text>
+    <text x="300" y="85" class="yes">Some(WindowButtonLayout)</text>
+    <text x="300" y="105" class="cell">GTK/GNOME masaüstü ayarını okur.</text>
+    <text x="620" y="90" class="no">None</text>
+    <text x="620" y="110" class="cell">Her zaman</text>
+    <text x="860" y="90" class="no">None</text>
+    <text x="860" y="110" class="cell">Her zaman</text>
 
-  <!-- Satır 2 -->
-  <text x="38" y="196" class="feat">Varsayılan düzen</text>
-  <text x="244" y="191" class="cell">linux_default()</text>
-  <text x="244" y="210" class="cell">Sağ: Minimize, Maximize, Close</text>
-  <text x="580" y="191" class="cell">Sistem caption</text>
-  <text x="580" y="210" class="cell">değiştirilemez</text>
-  <text x="738" y="191" class="cell">Sol: yerel</text>
-  <text x="738" y="210" class="cell">trafik ışıkları</text>
+    <!-- Satır 2 -->
+    <text x="20" y="175" class="feat" style="font-family: system-ui, -apple-system, sans-serif;">Varsayılan Düzen</text>
+    <text x="300" y="165" class="mono">linux_default()</text>
+    <text x="300" y="185" class="cell">Sağ: Minimize, Maximize, Close</text>
+    <text x="620" y="165" class="cell">Sistem caption</text>
+    <text x="620" y="185" class="cell">Değiştirilemez</text>
+    <text x="860" y="165" class="cell">Sol: Yerel</text>
+    <text x="860" y="185" class="cell">Trafik ışıkları</text>
 
-  <!-- Satır 3 -->
-  <text x="38" y="256" class="feat">Özel yerleşim</text>
-  <text x="244" y="251" class="yes">3 mod</text>
-  <text x="244" y="270" class="mono">platform_default / standard</text>
-  <text x="244" y="288" class="mono">GNOME string</text>
-  <text x="580" y="259" class="no">—</text>
-  <text x="738" y="259" class="no">—</text>
+    <!-- Satır 3 -->
+    <text x="20" y="255" class="feat" style="font-family: system-ui, -apple-system, sans-serif;">Özel Yerleşim</text>
+    <text x="300" y="240" class="yes">3 Mod</text>
+    <text x="300" y="260" class="mono">platform_default / standard</text>
+    <text x="300" y="280" class="mono">GNOME string</text>
+    <text x="620" y="255" class="no">—</text>
+    <text x="860" y="255" class="no">—</text>
 
-  <!-- Satır 4 -->
-  <text x="38" y="318" class="feat">GNOME format örneği</text>
-  <text x="244" y="310" class="mono">"close:minimize,maximize"</text>
-  <text x="244" y="327" class="cell">Sol: Close | Sağ: Min, Max</text>
-  <text x="580" y="319" class="no">—</text>
-  <text x="738" y="319" class="no">—</text>
+    <!-- Satır 4 -->
+    <text x="20" y="330" class="feat" style="font-family: system-ui, -apple-system, sans-serif;">GNOME Format Örneği</text>
+    <text x="300" y="320" class="mono">"close:minimize,maximize"</text>
+    <text x="300" y="340" class="cell">Sol: Close | Sağ: Min, Max</text>
+    <text x="620" y="330" class="no">—</text>
+    <text x="860" y="330" class="no">—</text>
+  </g>
 
-  <text x="450" y="350" text-anchor="middle" class="note">set_button_layout Windows/macOS üzerinde görünür etki üretmez. MAX_BUTTONS_PER_SIDE = 3.</text>
+  <rect x="40" y="490" width="1080" height="40" rx="6" fill="#fffbeb" stroke="#fde68a" />
+  <text x="580" y="515" text-anchor="middle" class="note">Not: `set_button_layout` Windows/macOS üzerinde görünür etki üretmez. MAX_BUTTONS_PER_SIDE = 3.</text>
+
 </svg>

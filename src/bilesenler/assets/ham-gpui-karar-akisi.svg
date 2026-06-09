@@ -1,103 +1,206 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 480">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700">
   <title>Ham GPUI Primitive Karar Akışı</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.10" />
+    </filter>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38bdf8" flood-opacity="0.55" />
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#10b981" />
     </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#0ea5e9" />
+    </marker>
+
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#334155" /><stop offset="1" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="g-slate2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" /><stop offset="1" stop-color="#334155" />
+    </linearGradient>
+    <linearGradient id="g-emerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34d399" /><stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6" /><stop offset="1" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a78bfa" /><stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" /><stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbbf24" /><stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fb7185" /><stop offset="1" stop-color="#e11d48" />
+    </linearGradient>
+    <linearGradient id="g-teal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2dd4bf" /><stop offset="1" stop-color="#0d9488" />
+    </linearGradient>
+    <linearGradient id="g-pink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f472b6" /><stop offset="1" stop-color="#db2777" />
+    </linearGradient>
+    <linearGradient id="g-indigo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#818cf8" /><stop offset="1" stop-color="#4338ca" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .q     { font: 700 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .api   { font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .why   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
-      .arrow { stroke: #334155; stroke-width: 1.6; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .title    { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
+      .subtitle { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .q        { font: 800 16px system-ui, -apple-system, sans-serif; fill: #ffffff; }
+      .qsub     { font: 500 13px system-ui, -apple-system, sans-serif; fill: #cbd5e1; }
+      .api      { font: 800 16px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
+      .why      { font: 600 13px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .chip     { font: 700 13px system-ui, -apple-system, sans-serif; }
+      .note     { font: 500 13px system-ui, -apple-system, sans-serif; fill: #64748b; }
+
+      .arrow-line  { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-green { stroke: #10b981; stroke-width: 3;   fill: none; marker-end: url(#arrow-green); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-blue  { stroke: #0ea5e9; stroke-width: 3;   fill: none; marker-end: url(#arrow-blue); stroke-linecap: round; stroke-linejoin: round; }
+      .card        { filter: url(#shadow); }
+
+      .decision { animation: pulse 9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+      @keyframes pulse {
+        0%, 100% { filter: url(#shadow); }
+        50%      { filter: url(#glow); }
+      }
+
+      .row1 { animation: rise 9s ease-in-out infinite; }
+      .row2 { animation: rise 9s ease-in-out infinite; animation-delay: 0.4s; }
+      .row3 { animation: rise 9s ease-in-out infinite; animation-delay: 0.8s; }
+      @keyframes rise {
+        0%, 18%, 100% { opacity: 0.62; }
+        34%, 84%      { opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .decision, .row1, .row2, .row3 { animation: none; opacity: 1; }
+      }
     </style>
   </defs>
 
-  <rect width="880" height="480" rx="10" fill="#f8fafc" />
-  <text x="440" y="33" text-anchor="middle" class="title">Ham GPUI Primitive Karar Akışı</text>
-  <text x="440" y="53" text-anchor="middle" class="sub">Hazır Zed bileşeni var mı? → Yoksa hangi primitive?</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
 
-  <!-- Merkez karar noktası -->
-  <rect x="300" y="68" width="280" height="50" rx="25" fill="#334155" />
-  <text x="440" y="88" text-anchor="middle" class="q" fill="#e2e8f0">İhtiyacın standart bir Zed</text>
-  <text x="440" y="104" text-anchor="middle" class="q" fill="#e2e8f0">UI bileşeniyle karşılanıyor mu?</text>
+  <text x="480" y="48" text-anchor="middle" class="title">Ham GPUI Primitive Karar Akışı</text>
+  <text x="480" y="76" text-anchor="middle" class="subtitle">Hazır Zed bileşeni var mı? → Yoksa hangi primitive kullanılmalı?</text>
 
-  <!-- Evet ok -->
-  <path d="M 300 93 L 146 93" class="arrow" />
-  <rect x="20" y="68" width="118" height="50" rx="8" fill="#0891b2" />
-  <text x="79" y="88" text-anchor="middle" class="api">ui::*</text>
-  <text x="79" y="104" text-anchor="middle" class="why">Token, focus,</text>
-  <text x="79" y="116" text-anchor="middle" class="why">erişilebilirlik hazır</text>
+  <!-- ===== Karar düğümü 1 ===== -->
+  <g class="decision">
+    <rect x="310" y="104" width="340" height="64" rx="32" fill="url(#g-slate)" stroke="#38bdf8" stroke-width="3" class="card" />
+    <text x="480" y="132" text-anchor="middle" class="q">İhtiyacın standart bir Zed</text>
+    <text x="480" y="154" text-anchor="middle" class="q">UI bileşeniyle karşılanıyor mu?</text>
+  </g>
 
-  <!-- Alt dağıtım -->
-  <path d="M 440 118 L 440 142" class="arrow" />
-  <rect x="300" y="150" width="280" height="40" rx="20" fill="#475569" />
-  <text x="440" y="170" text-anchor="middle" class="q" fill="#e2e8f0">Hangi ham GPUI ihtiyacı?</text>
-  <text x="440" y="182" text-anchor="middle" class="q" fill="#e2e8f0">(Aşağıdan seç)</text>
+  <!-- Evet → ui::* -->
+  <path d="M 310 136 L 232 136" class="arrow-green" />
+  <g transform="translate(376,98)">
+    <rect x="0" y="0" width="60" height="22" rx="11" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" />
+    <text x="30" y="15" text-anchor="middle" class="chip" fill="#059669">Evet</text>
+  </g>
+  <rect x="40" y="100" width="170" height="72" rx="12" fill="url(#g-emerald)" class="card" />
+  <text x="125" y="128" text-anchor="middle" class="api">ui::*</text>
+  <text x="125" y="148" text-anchor="middle" class="why">Token, focus,</text>
+  <text x="125" y="165" text-anchor="middle" class="why">erişilebilirlik hazır</text>
 
-  <!-- Satır 1: 4 kutu -->
-  <path d="M 358 190 L 100 230" class="arrow" />
-  <path d="M 400 190 L 280 230" class="arrow" />
-  <path d="M 480 190 L 530 224" class="arrow" />
-  <path d="M 522 190 L 700 230" class="arrow" />
+  <!-- Hayır → aşağı -->
+  <path d="M 480 168 L 480 200" class="arrow-blue" />
+  <g transform="translate(496,170)">
+    <rect x="0" y="0" width="66" height="22" rx="11" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" />
+    <text x="33" y="15" text-anchor="middle" class="chip" fill="#e11d48">Hayır</text>
+  </g>
 
-  <rect x="20" y="232" width="148" height="52" rx="7" fill="#1d4ed8" />
-  <text x="94" y="252" text-anchor="middle" class="api">div / h_flex</text>
-  <text x="94" y="266" text-anchor="middle" class="why">Container + layout</text>
-  <text x="94" y="278" text-anchor="middle" class="why">ve stil zinciri</text>
+  <!-- ===== Karar düğümü 2 ===== -->
+  <rect x="330" y="206" width="300" height="58" rx="29" fill="url(#g-slate2)" stroke="#64748b" stroke-width="2" class="card" />
+  <text x="480" y="232" text-anchor="middle" class="q">Hangi ham GPUI ihtiyacı?</text>
+  <text x="480" y="252" text-anchor="middle" class="qsub">(Aşağıdan seç)</text>
 
-  <rect x="186" y="232" width="164" height="52" rx="7" fill="#7c3aed" />
-  <text x="268" y="252" text-anchor="middle" class="api">canvas(pre, paint)</text>
-  <text x="268" y="266" text-anchor="middle" class="why">Özel çizim,</text>
-  <text x="268" y="278" text-anchor="middle" class="why">hitbox, path</text>
+  <!-- Dağıtım gövdesi -->
+  <path d="M 480 264 L 480 290" class="arrow-line" style="marker-end:none;" />
 
-  <rect x="466" y="232" width="148" height="52" rx="7" fill="#059669" />
-  <text x="540" y="252" text-anchor="middle" class="api">img / svg</text>
-  <text x="540" y="266" text-anchor="middle" class="why">Görsel gösterim,</text>
-  <text x="540" y="278" text-anchor="middle" class="why">vektör asset</text>
+  <!-- ================= SATIR 1 ================= -->
+  <g class="row1">
+    <path d="M 480 290 L 480 296 L 130 296 L 130 320" class="arrow-line" />
+    <path d="M 360 296 L 360 320" class="arrow-line" />
+    <path d="M 600 296 L 600 320" class="arrow-line" />
+    <path d="M 480 290 L 480 296 L 830 296 L 830 320" class="arrow-line" />
 
-  <rect x="630" y="232" width="148" height="52" rx="7" fill="#b45309" />
-  <text x="704" y="252" text-anchor="middle" class="api">anchored()</text>
-  <text x="704" y="266" text-anchor="middle" class="why">Tooltip, popover</text>
-  <text x="704" y="278" text-anchor="middle" class="why">konumlu overlay</text>
+    <rect x="40" y="326" width="180" height="72" rx="12" fill="url(#g-blue)" class="card" />
+    <text x="130" y="354" text-anchor="middle" class="api">div / h_flex</text>
+    <text x="130" y="374" text-anchor="middle" class="why">Kutu + layout</text>
+    <text x="130" y="391" text-anchor="middle" class="why">ve stil zinciri</text>
 
-  <!-- Satır 2: 4 kutu -->
-  <path d="M 380 190 L 130 328" class="arrow" />
-  <path d="M 420 190 L 304 328" class="arrow" />
-  <path d="M 460 190 L 530 328" class="arrow" />
-  <path d="M 500 190 L 704 328" class="arrow" />
+    <rect x="270" y="326" width="180" height="72" rx="12" fill="url(#g-violet)" class="card" />
+    <text x="360" y="354" text-anchor="middle" class="api">canvas(pre, paint)</text>
+    <text x="360" y="374" text-anchor="middle" class="why">Özel çizim,</text>
+    <text x="360" y="391" text-anchor="middle" class="why">hitbox, path</text>
 
-  <rect x="20" y="336" width="190" height="52" rx="7" fill="#0e7490" />
-  <text x="115" y="356" text-anchor="middle" class="api">list / uniform_list</text>
-  <text x="115" y="370" text-anchor="middle" class="why">Sanal liste —</text>
-  <text x="115" y="382" text-anchor="middle" class="why">değişken / sabit yükseklik</text>
+    <rect x="510" y="326" width="180" height="72" rx="12" fill="url(#g-sky)" class="card" />
+    <text x="600" y="354" text-anchor="middle" class="api">img / svg</text>
+    <text x="600" y="374" text-anchor="middle" class="why">Görsel gösterim,</text>
+    <text x="600" y="391" text-anchor="middle" class="why">vektör varlık</text>
 
-  <rect x="226" y="336" width="190" height="52" rx="7" fill="#1e40af" />
-  <text x="321" y="356" text-anchor="middle" class="api">StyledText</text>
-  <text x="321" y="370" text-anchor="middle" class="why">Metin highlight,</text>
-  <text x="321" y="382" text-anchor="middle" class="why">span etkileşimi</text>
+    <rect x="740" y="326" width="180" height="72" rx="12" fill="url(#g-amber)" class="card" />
+    <text x="830" y="354" text-anchor="middle" class="api">anchored()</text>
+    <text x="830" y="374" text-anchor="middle" class="why">Tooltip, popover,</text>
+    <text x="830" y="391" text-anchor="middle" class="why">konumlu kaplama</text>
+  </g>
 
-  <rect x="432" y="336" width="190" height="52" rx="7" fill="#4c1d95" />
-  <text x="527" y="356" text-anchor="middle" class="api">image_cache</text>
-  <text x="527" y="370" text-anchor="middle" class="why">Alt ağaçta ortak</text>
-  <text x="527" y="382" text-anchor="middle" class="why">görsel önbelleği</text>
+  <!-- ================= SATIR 2 ================= -->
+  <g class="row2">
+    <path d="M 130 398 L 130 422" class="arrow-line" />
+    <path d="M 360 398 L 360 422" class="arrow-line" />
+    <path d="M 600 398 L 600 422" class="arrow-line" />
+    <path d="M 830 398 L 830 422" class="arrow-line" />
 
-  <rect x="638" y="336" width="190" height="52" rx="7" fill="#92400e" />
-  <text x="733" y="356" text-anchor="middle" class="api">Animation</text>
-  <text x="733" y="370" text-anchor="middle" class="why">Zaman tabanlı</text>
-  <text x="733" y="382" text-anchor="middle" class="why">transform / geçiş</text>
+    <rect x="40" y="428" width="180" height="72" rx="12" fill="url(#g-green)" class="card" />
+    <text x="130" y="456" text-anchor="middle" class="api">list / uniform_list</text>
+    <text x="130" y="476" text-anchor="middle" class="why">Sanal liste —</text>
+    <text x="130" y="493" text-anchor="middle" class="why">değişken / sabit yükseklik</text>
 
-  <!-- deferred ve surface -->
-  <rect x="20" y="414" width="190" height="44" rx="7" fill="#334155" />
-  <text x="115" y="434" text-anchor="middle" class="api">deferred(child)</text>
-  <text x="115" y="448" text-anchor="middle" class="why">Ağır alt ağaç erteleme</text>
+    <rect x="270" y="428" width="180" height="72" rx="12" fill="url(#g-rose)" class="card" />
+    <text x="360" y="456" text-anchor="middle" class="api">StyledText</text>
+    <text x="360" y="476" text-anchor="middle" class="why">Metin vurgu,</text>
+    <text x="360" y="493" text-anchor="middle" class="why">aralık (span) etkileşimi</text>
 
-  <rect x="226" y="414" width="190" height="44" rx="7" fill="#334155" />
-  <text x="321" y="434" text-anchor="middle" class="api">surface(source)</text>
-  <text x="321" y="448" text-anchor="middle" class="why">CVPixelBuffer (macOS)</text>
+    <rect x="510" y="428" width="180" height="72" rx="12" fill="url(#g-teal)" class="card" />
+    <text x="600" y="456" text-anchor="middle" class="api">image_cache</text>
+    <text x="600" y="476" text-anchor="middle" class="why">Alt ağaçta ortak</text>
+    <text x="600" y="493" text-anchor="middle" class="why">görsel önbelleği</text>
+
+    <rect x="740" y="428" width="180" height="72" rx="12" fill="url(#g-pink)" class="card" />
+    <text x="830" y="456" text-anchor="middle" class="api">Animation</text>
+    <text x="830" y="476" text-anchor="middle" class="why">Zaman tabanlı</text>
+    <text x="830" y="493" text-anchor="middle" class="why">dönüşüm / geçiş</text>
+  </g>
+
+  <!-- ================= SATIR 3 ================= -->
+  <g class="row3">
+    <path d="M 130 500 L 130 524" class="arrow-line" />
+    <path d="M 360 500 L 360 524" class="arrow-line" />
+
+    <rect x="40" y="530" width="180" height="72" rx="12" fill="url(#g-indigo)" class="card" />
+    <text x="130" y="558" text-anchor="middle" class="api">deferred(child)</text>
+    <text x="130" y="578" text-anchor="middle" class="why">Ağır alt ağacın</text>
+    <text x="130" y="595" text-anchor="middle" class="why">çizimini erteleme</text>
+
+    <rect x="270" y="530" width="180" height="72" rx="12" fill="url(#g-slate2)" class="card" />
+    <text x="360" y="558" text-anchor="middle" class="api">surface(source)</text>
+    <text x="360" y="578" text-anchor="middle" class="why">CVPixelBuffer</text>
+    <text x="360" y="595" text-anchor="middle" class="why">(macOS) yüzeyi</text>
+  </g>
+
+  <!-- Alt not -->
+  <text x="600" y="572" text-anchor="middle" class="note">Önce ui::* ara; yoksa amaca en yakın primitive ile kompozisyon kur.</text>
+  <text x="600" y="594" text-anchor="middle" class="note">Token, focus ve erişilebilirliği elle taşımayı unutma.</text>
 
 </svg>

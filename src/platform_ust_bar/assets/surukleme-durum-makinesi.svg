@@ -1,79 +1,82 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 500">
   <title>Başlık Çubuğu Sürükleme Durum Makinesi</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.04" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
-    <marker id="arrowR" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#dc2626" stroke="#dc2626" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrowR" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#dc2626" />
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#ef4444" />
     </marker>
     <style>
-      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .state { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
-      .flag  { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .edge  { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1e293b; }
-      .edgeB { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1d4ed8; }
-      .edgeR { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #dc2626; }
-      .body  { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .note  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowR { stroke: #dc2626; stroke-width: 2; stroke-dasharray: 5 4; fill: none; marker-end: url(#arrowR); marker-start: url(#dot-arrowR); }
+      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
+      .subtitle { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .stateTitle { font: 800 16px system-ui, -apple-system, sans-serif; fill: #ffffff; letter-spacing: 0.5px; }
+      .stateVal { font: 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #f8fafc; }
+      .edge { font: 700 13px system-ui, -apple-system, sans-serif; fill: #1e293b; }
+      .edgeSub { font: 500 12px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .flow-arrow { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linejoin: round; }
+      .flow-arrow-red { stroke: #ef4444; stroke-width: 3; fill: none; marker-end: url(#arrowRed); stroke-linejoin: round; stroke-dasharray: 6 4; }
     </style>
   </defs>
 
-  <rect width="900" height="500" rx="10" fill="#f8fafc" />
-  <text x="450" y="34" text-anchor="middle" class="title">Başlık Çubuğu Sürükleme Durum Makinesi</text>
-  <text x="450" y="56" text-anchor="middle" class="sub">should_move bayrağı sürükleme akışının merkezindedir. Tek-atışlık tetikleyici ile çalışır.</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+  
+  <text x="580" y="46" text-anchor="middle" class="title">Başlık Çubuğu Sürükleme Durum Makinesi</text>
+  <text x="580" y="74" text-anchor="middle" class="subtitle">`should_move` bayrağı sürükleme akışının merkezindedir. Tek-atışlık (one-shot) tetikleyici ile çalışır.</text>
 
-  <!-- Durum kutuları -->
-  <rect x="56" y="120" width="210" height="76" rx="38" fill="#334155" />
-  <text x="161" y="153" text-anchor="middle" class="state">HAZIR</text>
-  <text x="161" y="173" text-anchor="middle" class="flag">should_move = false</text>
+  <!-- ================= BAĞLANTILAR (OKLAR) ================= -->
 
-  <rect x="345" y="120" width="210" height="76" rx="38" fill="#1d4ed8" />
-  <text x="450" y="148" text-anchor="middle" class="state">SÜRÜKLEMEYE</text>
-  <text x="450" y="166" text-anchor="middle" class="state">HAZIR</text>
-  <text x="450" y="184" text-anchor="middle" class="flag">should_move = true</text>
+  <!-- HAZIR -> SÜRÜKLEMEYE HAZIR -->
+  <path d="M 320 170 L 460 170" class="flow-arrow" />
+  <rect x="330" y="125" width="120" height="36" rx="6" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+  <text x="390" y="142" text-anchor="middle" class="edge" style="fill:#0284c7">on_mouse_down</text>
+  <text x="390" y="156" text-anchor="middle" class="edgeSub">Left, drag alanı</text>
 
-  <rect x="634" y="120" width="210" height="76" rx="38" fill="#059669" />
-  <text x="739" y="153" text-anchor="middle" class="state">SÜRÜKLENİYOR</text>
-  <text x="739" y="173" text-anchor="middle" class="flag">platform kontrolünde</text>
+  <!-- SÜRÜKLEMEYE HAZIR -> SÜRÜKLENİYOR -->
+  <path d="M 720 170 L 860 170" class="flow-arrow" />
+  <rect x="730" y="125" width="120" height="36" rx="6" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+  <text x="790" y="142" text-anchor="middle" class="edge" style="fill:#0284c7">on_mouse_move</text>
+  <text x="790" y="156" text-anchor="middle" class="edgeSub">start_window_move()</text>
 
-  <!-- İleri geçişler -->
-  <path d="M 274 158 L 337 158" class="arrow" />
-  <rect x="258" y="84" width="96" height="34" rx="6" fill="#f8fafc" stroke="#bfdbfe" />
-  <text x="306" y="98" text-anchor="middle" class="edgeB">on_mouse_down</text>
-  <text x="306" y="112" text-anchor="middle" class="note">Left, drag alanı</text>
+  <!-- SÜRÜKLEMEYE HAZIR -> HAZIR (Red Arrow) -->
+  <path d="M 590 220 L 590 280 L 190 280 L 190 220" class="flow-arrow-red" />
+  <rect x="300" y="262" width="180" height="36" rx="6" fill="#fef2f2" stroke="#fecaca" stroke-width="1.5" />
+  <text x="390" y="279" text-anchor="middle" class="edge" style="fill:#dc2626">on_mouse_up / down_out</text>
+  <text x="390" y="293" text-anchor="middle" class="edgeSub">İptal durumu</text>
 
-  <path d="M 563 158 L 626 158" class="arrow" />
-  <rect x="543" y="78" width="104" height="40" rx="6" fill="#f8fafc" stroke="#bfdbfe" />
-  <text x="595" y="93" text-anchor="middle" class="edgeB">on_mouse_move</text>
-  <text x="595" y="107" text-anchor="middle" class="note">start_window_move()</text>
+  <!-- SÜRÜKLENİYOR -> HAZIR -->
+  <path d="M 990 220 L 990 340 L 190 340 L 190 220" class="flow-arrow" />
+  <rect x="490" y="322" width="200" height="36" rx="6" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+  <text x="590" y="345" text-anchor="middle" class="edge">Platform Sürüklemeyi Tamamlar</text>
 
-  <!-- Hazır bekleme durumuna dönüş -->
-  <path d="M 450 204 C 408 230 214 230 161 204" class="arrowR" />
-  <rect x="259" y="248" width="144" height="34" rx="6" fill="#fff7f7" stroke="#fecaca" />
-  <text x="331" y="262" text-anchor="middle" class="edgeR">on_mouse_up</text>
-  <text x="331" y="276" text-anchor="middle" class="edgeR">on_mouse_down_out</text>
+  <!-- ================= DURUMLAR (NODES) ================= -->
 
-  <!-- Platform sürükleme tamamlanınca başa dönüş -->
-  <path d="M 739 204 C 739 296 628 336 578 336 L 322 336 C 250 336 161 296 161 204" class="arrow" />
-  <rect x="330" y="294" width="240" height="32" rx="6" fill="#f8fafc" stroke="#cbd5e1" />
-  <text x="450" y="315" text-anchor="middle" class="edge">platform sürüklemeyi tamamlar</text>
+  <!-- HAZIR -->
+  <rect x="60" y="120" width="260" height="100" rx="50" fill="#334155" filter="url(#shadow)" />
+  <text x="190" y="165" text-anchor="middle" class="stateTitle">HAZIR</text>
+  <text x="190" y="190" text-anchor="middle" class="stateVal">should_move = false</text>
 
-  <!-- Linux stop_propagation notları -->
-  <rect x="56" y="350" width="788" height="122" rx="8" fill="#fff" stroke="#fde68a" stroke-width="1.5" />
-  <path d="M 64 350 H 836 Q 844 350 844 358 V 376 H 56 V 358 Q 56 350 64 350 Z" fill="#b45309" />
-  <text x="76" y="368" style="font: 700 12px system-ui; fill: #fff;">Linux: 3 stop_propagation noktası; eksik biri davranışı bozar</text>
+  <!-- SÜRÜKLEMEYE HAZIR -->
+  <rect x="460" y="120" width="260" height="100" rx="50" fill="#0284c7" filter="url(#shadow)" />
+  <text x="590" y="165" text-anchor="middle" class="stateTitle">SÜRÜKLEMEYE HAZIR</text>
+  <text x="590" y="190" text-anchor="middle" class="stateVal">should_move = true</text>
 
-  <text x="76" y="400" class="body"><tspan font-weight="bold">1.</tspan> LinuxWindowControls h_flex: on_mouse_down(Left), başlık çubuğu sürüklemesini buton grubunda keser.</text>
-  <text x="76" y="424" class="body"><tspan font-weight="bold">2.</tspan> WindowControl: on_mouse_move, buton üzerindeki fare hareketinin sürüklemeyi tetiklemesini engeller.</text>
-  <text x="76" y="448" class="body"><tspan font-weight="bold">3.</tspan> WindowControl on_click: stop_propagation(), tıklama eyleminden önce should_move = true yapılmasını engeller.</text>
+  <!-- SÜRÜKLENİYOR -->
+  <rect x="860" y="120" width="260" height="100" rx="50" fill="#059669" filter="url(#shadow)" />
+  <text x="990" y="165" text-anchor="middle" class="stateTitle">SÜRÜKLENİYOR</text>
+  <text x="990" y="190" text-anchor="middle" class="stateVal">Platform kontrolünde</text>
+
+  <!-- ================= NOTLAR ================= -->
+  <g transform="translate(60, 390)">
+    <rect width="1060" height="90" rx="10" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5" />
+    <path d="M 0 10 A 10 10 0 0 1 10 0 H 1050 A 10 10 0 0 1 1060 10 V 28 H 0 Z" fill="#d97706" />
+    <text x="15" y="19" class="stateTitle" style="font-size: 14px;">Linux: 3 kritik `stop_propagation` noktası</text>
+    <text x="15" y="48" class="edgeSub" style="fill:#334155"><tspan font-weight="700">1.</tspan> LinuxWindowControls h_flex: on_mouse_down(Left), başlık çubuğu sürüklemesini buton grubunda keser.</text>
+    <text x="15" y="66" class="edgeSub" style="fill:#334155"><tspan font-weight="700">2.</tspan> WindowControl: on_mouse_move, buton üzerindeki fare hareketinin sürüklemeyi tetiklemesini engeller.</text>
+    <text x="15" y="84" class="edgeSub" style="fill:#334155"><tspan font-weight="700">3.</tspan> WindowControl on_click: stop_propagation(), tıklama eyleminden önce should_move = true yapılmasını engeller.</text>
+  </g>
+
 </svg>

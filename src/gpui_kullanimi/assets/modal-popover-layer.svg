@@ -1,76 +1,160 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 820">
   <title>Modal, Açılır Panel ve Katman Yüzeyleri</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
+
+    <!-- Degradeler -->
+    <linearGradient id="g-window" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef2f7" /><stop offset="1" stop-color="#e2e8f0" />
+    </linearGradient>
+    <linearGradient id="g-content" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" /><stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eff6ff" /><stop offset="1" stop-color="#dbeafe" />
+    </linearGradient>
+    <linearGradient id="g-teal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e6fffb" /><stop offset="1" stop-color="#ccfbf1" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffbeb" /><stop offset="1" stop-color="#fef3c7" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff1f2" /><stop offset="1" stop-color="#ffe4e6" />
+    </linearGradient>
+    <linearGradient id="g-z" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" /><stop offset="1" stop-color="#f1f5f9" />
+    </linearGradient>
+    <linearGradient id="card-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6366f1" /><stop offset="1" stop-color="#4f46e5" />
+    </linearGradient>
+    <linearGradient id="card-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" /><stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="card-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#059669" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .frame-title { font: 800 15px system-ui, -apple-system, sans-serif; }
+      .layer-title { font: 800 16px system-ui, -apple-system, sans-serif; text-anchor: middle; }
+      .layer-sub  { font: 600 13px system-ui, -apple-system, sans-serif; text-anchor: middle; }
+      .layer-mono { font: 700 13px ui-monospace, SFMono-Regular, monospace; text-anchor: middle; }
+
+      .c-title { font: 800 17px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body  { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.96; }
+
+      .z-label { font: 700 13px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .z-axis-title { font: 800 22px system-ui, -apple-system, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .z-note { font: 600 12px system-ui, -apple-system, sans-serif; fill: #475569; text-anchor: middle; }
+
+      /* Sıralı katman belirme (z-yığılım sırası): base -> menu -> pop -> modal */
+      @keyframes lyr { 0% { opacity: 1; } 8% { opacity: 0.62; } 22% { opacity: 1; } 100% { opacity: 1; } }
+      .anim-menu  { animation: lyr 9s ease-in-out infinite; }
+      .anim-pop   { animation: lyr 9s ease-in-out infinite; animation-delay: 0.6s; }
+      .anim-modal { animation: lyr 9s ease-in-out infinite; animation-delay: 1.2s; }
+      @media (prefers-reduced-motion: reduce) {
+        .anim-menu, .anim-pop, .anim-modal { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">Modal, Açılır Panel ve Katman Yüzeyleri</text>
-  <text x="580" y="62" text-anchor="middle" class="subtitle">Workspace ana içeriği üzerinde z-sırası ile çizilen geçici UI yüzeyleri.</text>
 
-  <rect x="150" y="116" width="760" height="500" rx="14" fill="#e2e8f0" stroke="#334155" stroke-width="1.6" />
-  <text x="180" y="148" class="label">Window / Workspace</text>
-  <rect x="190" y="176" width="680" height="330" rx="10" fill="#fff" stroke="#94a3b8" />
-  <text x="530" y="206" text-anchor="middle" class="label">Ana içerik</text>
-  <text x="530" y="228" text-anchor="middle" class="small">PaneGroup, dock'lar, editor ve status bar.</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
 
-  <rect x="260" y="280" width="220" height="74" rx="8" fill="#dbeafe" stroke="#2563eb" />
-  <text x="370" y="306" text-anchor="middle" class="label">Context Menu</text>
-  <text x="370" y="326" text-anchor="middle" class="mono">anchored / popup</text>
+  <text x="550" y="46" class="title">Modal, Açılır Panel ve Katman Yüzeyleri</text>
+  <text x="550" y="74" class="sub">Workspace ana içeriği üzerinde z-sırası ile çizilen geçici UI yüzeyleri.</text>
 
-  <rect x="560" y="254" width="220" height="74" rx="8" fill="#ccfbf1" stroke="#0f766e" />
-  <text x="670" y="280" text-anchor="middle" class="label">İpucu</text>
-  <text x="670" y="300" text-anchor="middle" class="mono">hover gecikmesi</text>
+  <!-- ================= WINDOW / WORKSPACE ÇERÇEVESİ ================= -->
+  <rect x="50" y="116" width="850" height="490" rx="14" fill="url(#g-window)" stroke="#94a3b8" stroke-width="1.6" filter="url(#shadow)" />
+  <text x="74" y="148" class="frame-title" fill="#334155">Window / Workspace</text>
 
-  <rect x="430" y="364" width="260" height="96" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.4" />
-  <text x="560" y="396" text-anchor="middle" class="label">Açılır Panel</text>
-  <text x="560" y="418" text-anchor="middle" class="small">Anchor bounds'a göre konumlanır.</text>
-  <text x="560" y="438" text-anchor="middle" class="mono">focus dışı click ile kapanabilir</text>
+  <!-- Ana içerik yüzeyi -->
+  <rect x="74" y="172" width="802" height="412" rx="11" fill="url(#g-content)" stroke="#cbd5e1" stroke-width="1.4" />
+  <text x="475" y="200" class="layer-title" fill="#334155">Ana içerik</text>
+  <text x="475" y="222" class="layer-sub" fill="#64748b">PaneGroup, dock'lar, editor ve status bar.</text>
 
-  <rect x="220" y="514" width="620" height="76" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.4" />
-  <text x="530" y="544" text-anchor="middle" class="label">ModalLayer</text>
-  <text x="530" y="565" text-anchor="middle" class="small">ModalView, ManagedView, Notification, ToastView ve bloklayıcı overlay.</text>
+  <!-- 1. Context Menu (menu katmanı) -->
+  <g class="anim-menu" transform="translate(108, 256)">
+    <rect width="270" height="90" rx="11" fill="url(#g-blue)" stroke="#2563eb" stroke-width="1.6" filter="url(#shadow)" />
+    <text x="135" y="38" class="layer-title" fill="#1d4ed8">Context Menu</text>
+    <text x="135" y="64" class="layer-mono" fill="#2563eb">anchored / popup</text>
+  </g>
 
-  <rect x="930" y="176" width="100" height="330" rx="8" fill="#f1f5f9" stroke="#94a3b8" />
-  <text x="980" y="204" text-anchor="middle" class="label">Z</text>
-  <rect x="964" y="452" width="52" height="30" rx="5" fill="#fff" stroke="#94a3b8" />
-  <text x="990" y="472" text-anchor="middle" class="small">base</text>
-  <rect x="964" y="382" width="52" height="30" rx="5" fill="#dbeafe" stroke="#2563eb" />
-  <text x="990" y="402" text-anchor="middle" class="small">menu</text>
-  <rect x="964" y="312" width="52" height="30" rx="5" fill="#fef3c7" stroke="#d97706" />
-  <text x="990" y="332" text-anchor="middle" class="small">pop</text>
-  <rect x="964" y="242" width="52" height="30" rx="5" fill="#ffe4e6" stroke="#be123c" />
-  <text x="990" y="262" text-anchor="middle" class="small">modal</text>
-  <path d="M 920 452 L 920 230" class="arrow" />
-  <text x="900" y="236" class="edge" style="writing-mode: vertical-rl; text-orientation: upright;">üst katman</text>
+  <!-- 1.5 İpucu (Tooltip) -->
+  <g transform="translate(540, 236)">
+    <rect width="270" height="90" rx="11" fill="url(#g-teal)" stroke="#0f766e" stroke-width="1.6" filter="url(#shadow)" />
+    <text x="135" y="38" class="layer-title" fill="#0f766e">İpucu (Tooltip)</text>
+    <text x="135" y="64" class="layer-mono" fill="#0d9488">hover gecikmesi</text>
+  </g>
 
-  <rect x="80" y="660" width="310" height="96" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
-  <text x="104" y="690" class="label">Açma yolları</text>
-  <text x="104" y="718" class="body">workspace.toggle_modal&lt;V&gt;(...)</text>
-  <text x="104" y="735" class="body">show_toast / notification</text>
+  <!-- 2. Açılır Panel (pop katmanı) -->
+  <g class="anim-pop" transform="translate(360, 366)">
+    <rect width="320" height="106" rx="11" fill="url(#g-amber)" stroke="#d97706" stroke-width="1.6" filter="url(#shadow)" />
+    <text x="160" y="36" class="layer-title" fill="#b45309">Açılır Panel</text>
+    <text x="160" y="60" class="layer-sub" fill="#d97706">Anchor bounds'a göre konumlanır.</text>
+    <text x="160" y="84" class="layer-mono" fill="#d97706">focus dışı click ile kapanabilir</text>
+  </g>
 
-  <rect x="425" y="660" width="310" height="96" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
-  <text x="449" y="690" class="label">Kapanma kararları</text>
-  <text x="449" y="718" class="body">Escape, dış click, action veya drop.</text>
-  <text x="449" y="735" class="body">Focus geri verme ayrıca ele alınır.</text>
+  <!-- 3. ModalLayer (modal katmanı) -->
+  <g class="anim-modal" transform="translate(118, 488)">
+    <rect width="704" height="84" rx="11" fill="url(#g-rose)" stroke="#be123c" stroke-width="1.6" filter="url(#shadow)" />
+    <text x="352" y="36" class="layer-title" fill="#be123c">ModalLayer</text>
+    <text x="352" y="62" class="layer-mono" fill="#e11d48">ModalView, ManagedView, Notification, ToastView ve bloklayıcı overlay</text>
+  </g>
 
-  <rect x="770" y="660" width="310" height="96" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="1.2" />
-  <text x="794" y="690" class="label">Hitbox etkisi</text>
-  <text x="794" y="718" class="body">Modal overlay alttaki hitbox'ları kapatır.</text>
-  <text x="794" y="735" class="body">İpucu genelde işaretçiyi engellemez.</text>
+  <!-- ================= Z EKSENİ (SAĞ TARAF) ================= -->
+  <g transform="translate(940, 116)">
+    <rect width="110" height="490" rx="14" fill="url(#g-z)" stroke="#94a3b8" stroke-width="1.6" filter="url(#shadow)" />
+    <text x="55" y="44" class="z-axis-title">Z</text>
+
+    <!-- Eksen oku: base (alt) -> modal (üst) -->
+    <path d="M 55 442 V 88" stroke="#64748b" stroke-width="3" fill="none" stroke-linecap="round" marker-end="url(#arrow)" />
+    <text x="55" y="468" class="z-note">üst katman ↑</text>
+
+    <rect x="29" y="396" width="52" height="30" rx="7" fill="#334155" filter="url(#shadow)" />
+    <text x="55" y="416" class="z-label">base</text>
+
+    <rect x="29" y="316" width="52" height="30" rx="7" fill="#2563eb" filter="url(#shadow)" />
+    <text x="55" y="336" class="z-label">menu</text>
+
+    <rect x="29" y="236" width="52" height="30" rx="7" fill="#d97706" filter="url(#shadow)" />
+    <text x="55" y="256" class="z-label">pop</text>
+
+    <rect x="29" y="156" width="52" height="30" rx="7" fill="#be123c" filter="url(#shadow)" />
+    <text x="55" y="176" class="z-label">modal</text>
+  </g>
+
+  <!-- ================= AÇIKLAMALAR (ALT KISIM) ================= -->
+  <g transform="translate(50, 646)">
+    <rect width="320" height="142" rx="12" fill="url(#card-blue)" filter="url(#shadow)" />
+    <text x="160" y="36" class="c-title">Açma yolları</text>
+    <text x="24" y="74" class="c-body">• workspace.toggle_modal&lt;V&gt;(...)</text>
+    <text x="24" y="104" class="c-body">• show_toast / notification</text>
+    <text x="24" y="130" class="c-body" style="opacity:0.88">• Tooltip otomatik hover ile.</text>
+  </g>
+
+  <g transform="translate(390, 646)">
+    <rect width="320" height="142" rx="12" fill="url(#card-amber)" filter="url(#shadow)" />
+    <text x="160" y="36" class="c-title">Kapanma kararları</text>
+    <text x="24" y="74" class="c-body">• Escape, dış click, action veya drop.</text>
+    <text x="24" y="104" class="c-body">• Focus geri verme ayrıca ele alınır.</text>
+    <text x="24" y="130" class="c-body" style="opacity:0.88">• Her yüzeyin kapanış kuralı farklı.</text>
+  </g>
+
+  <g transform="translate(730, 646)">
+    <rect width="320" height="142" rx="12" fill="url(#card-green)" filter="url(#shadow)" />
+    <text x="160" y="36" class="c-title">Hitbox etkisi</text>
+    <text x="24" y="74" class="c-body">• Modal overlay alttaki hitbox'ları kapatır.</text>
+    <text x="24" y="104" class="c-body">• İpucu genelde işaretçiyi engellemez.</text>
+    <text x="24" y="130" class="c-body" style="opacity:0.88">• Üst katman tıklamayı yakalar.</text>
+  </g>
+
 </svg>

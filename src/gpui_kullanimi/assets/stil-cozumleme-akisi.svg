@@ -1,113 +1,156 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
-  <title>GPUI stil çözümleme akışı</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520">
+  <title>GPUI Stil Çözümleme Akışı</title>
   <defs>
-    <marker id="aSlate" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#64748b" stroke="#64748b" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-aSlate" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#64748b" />
+    <marker id="arrow-violet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#7c3aed" />
     </marker>
-    <marker id="aEmerald" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#059669" stroke="#059669" stroke-width="1pt" />
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#d97706" />
     </marker>
-    <marker id="dot-aEmerald" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#059669" />
+    <marker id="arrow-sky" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#0284c7" />
     </marker>
-    <marker id="aViolet" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#7c3aed" stroke="#7c3aed" stroke-width="1pt" />
+    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#059669" />
     </marker>
-    <marker id="dot-aViolet" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#7c3aed" />
-    </marker>
-    <marker id="aCyan" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#0891b2" stroke="#0891b2" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aCyan" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#0891b2" />
-    </marker>
-    <marker id="aAmber" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#d97706" stroke="#d97706" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aAmber" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#d97706" />
-    </marker>
-    <marker id="aRose" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aRose" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
-    </marker>
-    <marker id="aSky" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#0284c7" stroke="#0284c7" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aSky" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#0284c7" />
-    </marker>
+
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" />
+      <stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+
     <style>
-      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-      .title{font-size:20px;font-weight:700;fill:#0f172a}
-      .sub{font-size:12px;font-weight:600;fill:#475569}
-      .h{font-size:13px;font-weight:700;fill:#0f172a}
-      .t{font-size:12px;font-weight:600;fill:#0f172a}
-      .body{font-size:11px;fill:#475569}
-      .small{font-size:10px;fill:#64748b}
-      .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;fill:#0f172a}
-      .card{fill:#fff;stroke-width:1.6}
-      .tEmerald{fill:#059669}.tViolet{fill:#7c3aed}.tCyan{fill:#0891b2}.tAmber{fill:#d97706}.tRose{fill:#be123c}.tSky{fill:#0284c7}.tSlate{fill:#64748b}.tWhite{fill:#fff}
-      .arrow{stroke:#64748b;stroke-width:2;fill:none;marker-end:url(#aSlate); marker-start: url(#dot-aSlate)}
-      .aEm{stroke:#059669;marker-end:url(#aEmerald); marker-start: url(#dot-aEmerald)}.aVi{stroke:#7c3aed;marker-end:url(#aViolet); marker-start: url(#dot-aViolet)}.aCy{stroke:#0891b2;marker-end:url(#aCyan); marker-start: url(#dot-aCyan)}.aAm{stroke:#d97706;marker-end:url(#aAmber); marker-start: url(#dot-aAmber)}.aRo{stroke:#be123c;marker-end:url(#aRose); marker-start: url(#dot-aRose)}.aSk{stroke:#0284c7;marker-end:url(#aSky); marker-start: url(#dot-aSky)}
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .c-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.95; }
+
+      .step-num { font: 800 13px system-ui, -apple-system, sans-serif; fill: #0f172a; text-anchor: middle; }
+
+      .edge { font: 800 14px system-ui, -apple-system, sans-serif; text-anchor: middle; }
+      .note { font: 500 14px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      /* Akan kesik çizgi animasyonu (akış vurgusu) */
+      .flow { stroke-dasharray: 10 6; animation: dash 9s linear infinite; }
+      @keyframes dash { to { stroke-dashoffset: -160; } }
+
+      /* Sıralı belirme — kartlar akış yönünde nabız atar; opaklık 0.78 altına inmez */
+      .pulse-1 { animation: pulse 10s ease-in-out infinite; }
+      .pulse-2 { animation: pulse 10s ease-in-out infinite; animation-delay: 2.5s; }
+      .pulse-3 { animation: pulse 10s ease-in-out infinite; animation-delay: 5s; }
+      .pulse-4 { animation: pulse 10s ease-in-out infinite; animation-delay: 5s; }
+      @keyframes pulse {
+        0%   { opacity: 1; }
+        12%  { opacity: 1; }
+        50%  { opacity: 0.82; }
+        100% { opacity: 1; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .flow { animation: none; }
+        .pulse-1, .pulse-2, .pulse-3, .pulse-4 { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc"/>
 
-  <text x="400" y="40" text-anchor="middle" class="title">GPUI Stil Çözümleme Akışı</text>
-  <text x="400" y="63" text-anchor="middle" class="sub">Fluent API'den GPU paint aşamasına stil çözümleme süreci</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
+
+  <text x="550" y="50" class="title">GPUI Stil Çözümleme Akışı</text>
+  <text x="550" y="80" class="sub">Fluent API'den GPU paint aşamasına stil çözümleme süreci</text>
 
   <!-- 1. Fluent API -->
-  <g transform="translate(40,180)">
-    <rect width="160" height="120" rx="10" class="card" stroke="#7c3aed"/>
-    <text x="80" y="30" text-anchor="middle" class="t">1. Fluent API</text>
-    <rect x="15" y="48" width="130" height="55" rx="6" fill="#7c3aed" fill-opacity="0.08"/>
-    <text x="25" y="66" class="mono tViolet">div()</text>
-    <text x="25" y="80" class="mono tViolet">  .flex()</text>
-    <text x="25" y="94" class="mono tViolet">  .bg(gpui::red())</text>
+  <g transform="translate(60, 200)" class="pulse-1">
+    <rect width="250" height="160" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
+    <circle cx="32" cy="32" r="15" fill="#ffffff" opacity="0.18" />
+    <text x="32" y="37" class="step-num" style="fill:#ffffff">1</text>
+    <text x="142" y="38" class="c-title">Fluent API</text>
+    <line x1="20" y1="54" x2="230" y2="54" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.5" />
+
+    <rect x="20" y="68" width="210" height="78" rx="8" fill="#5b21b6" stroke="#4c1d95" stroke-width="2" />
+    <text x="38" y="92" class="c-mono">div()</text>
+    <text x="38" y="113" class="c-mono">  .flex()</text>
+    <text x="38" y="134" class="c-mono">  .bg(gpui::red())</text>
   </g>
 
   <!-- 2. Style Struct -->
-  <g transform="translate(290,180)">
-    <rect width="160" height="120" rx="10" class="card" stroke="#d97706"/>
-    <text x="80" y="30" text-anchor="middle" class="t">2. Style Struct</text>
-    <rect x="15" y="48" width="130" height="55" rx="6" fill="#d97706" fill-opacity="0.08"/>
-    <text x="80" y="70" text-anchor="middle" class="t tAmber">Veri modeli</text>
-    <text x="80" y="88" text-anchor="middle" class="small">Layout ve paint özellikleri</text>
+  <g transform="translate(400, 200)" class="pulse-2">
+    <rect width="250" height="160" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
+    <circle cx="32" cy="32" r="15" fill="#ffffff" opacity="0.18" />
+    <text x="32" y="37" class="step-num" style="fill:#ffffff">2</text>
+    <text x="142" y="38" class="c-title">Style Struct</text>
+    <line x1="20" y1="54" x2="230" y2="54" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.5" />
+
+    <rect x="20" y="68" width="210" height="78" rx="8" fill="#b45309" stroke="#92400e" stroke-width="2" />
+    <text x="125" y="100" class="c-title" font-size="16">Veri Modeli</text>
+    <text x="125" y="126" class="c-body" text-anchor="middle">Layout ve paint özellikleri</text>
   </g>
 
   <!-- 3. Layout (Taffy) -->
-  <g transform="translate(540,120)">
-    <rect width="200" height="100" rx="10" class="card" stroke="#0284c7"/>
-    <text x="100" y="30" text-anchor="middle" class="t">3. Layout (Taffy)</text>
-    <text x="100" y="50" text-anchor="middle" class="small">Geometri ve flexbox hesabı</text>
-    <rect x="20" y="63" width="160" height="22" rx="4" fill="#0284c7" fill-opacity="0.1"/>
-    <text x="100" y="78" text-anchor="middle" class="mono tSky" font-weight="600">request_layout() → Bounds</text>
+  <g transform="translate(800, 120)" class="pulse-3">
+    <rect width="250" height="130" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
+    <circle cx="32" cy="32" r="15" fill="#ffffff" opacity="0.18" />
+    <text x="32" y="37" class="step-num" style="fill:#ffffff">3</text>
+    <text x="142" y="38" class="c-title">Layout (Taffy)</text>
+    <line x1="20" y1="54" x2="230" y2="54" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.5" />
+
+    <text x="125" y="76" class="c-body" text-anchor="middle">Geometri ve flexbox hesabı</text>
+    <rect x="20" y="90" width="210" height="28" rx="6" fill="#0369a1" />
+    <text x="125" y="109" class="c-mono" text-anchor="middle">request_layout() → Bounds</text>
   </g>
 
   <!-- 4. Paint (GPU) -->
-  <g transform="translate(540,260)">
-    <rect width="200" height="100" rx="10" class="card" stroke="#059669"/>
-    <text x="100" y="30" text-anchor="middle" class="t">4. Paint (GPU)</text>
-    <text x="100" y="50" text-anchor="middle" class="small">Quad ve SVG çizim komutları</text>
-    <rect x="20" y="63" width="160" height="22" rx="4" fill="#059669" fill-opacity="0.1"/>
-    <text x="100" y="78" text-anchor="middle" class="mono tEmerald" font-weight="600">paint() → çizim komutları</text>
+  <g transform="translate(800, 310)" class="pulse-4">
+    <rect width="250" height="130" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
+    <circle cx="32" cy="32" r="15" fill="#ffffff" opacity="0.18" />
+    <text x="32" y="37" class="step-num" style="fill:#ffffff">4</text>
+    <text x="142" y="38" class="c-title">Paint (GPU)</text>
+    <line x1="20" y1="54" x2="230" y2="54" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.5" />
+
+    <text x="125" y="76" class="c-body" text-anchor="middle">Quad ve SVG çizim komutları</text>
+    <rect x="20" y="90" width="210" height="28" rx="6" fill="#047857" />
+    <text x="125" y="109" class="c-mono" text-anchor="middle">paint() → çizim komutları</text>
   </g>
 
+  <!-- ================= BAĞLANTILAR ================= -->
+
   <!-- 1 -> 2 -->
-  <path d="M 200 240 L 290 240" class="arrow aVi"/>
+  <path d="M 310 280 H 400" fill="none" stroke="#7c3aed" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow-violet)" class="flow" />
 
   <!-- 2 -> 3 (yerleşim) -->
-  <path d="M 450 220 L 490 220 L 490 170 L 540 170" class="arrow aSk"/>
-  <text x="495" y="152" text-anchor="middle" class="small tSky" font-weight="600">Yerleşim</text>
+  <path d="M 650 250 C 720 250 730 185 800 185" fill="none" stroke="#0284c7" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow-sky)" class="flow" />
+  <rect x="690" y="190" width="86" height="26" rx="13" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+  <text x="733" y="208" class="edge" style="fill:#0284c7">Yerleşim</text>
 
   <!-- 2 -> 4 (çizim) -->
-  <path d="M 450 260 L 490 260 L 490 310 L 540 310" class="arrow aEm"/>
-  <text x="495" y="335" text-anchor="middle" class="small tEmerald" font-weight="600">Çizim</text>
+  <path d="M 650 310 C 720 310 730 375 800 375" fill="none" stroke="#059669" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow-green)" class="flow" />
+  <rect x="700" y="362" width="66" height="26" rx="13" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+  <text x="733" y="380" class="edge" style="fill:#059669">Çizim</text>
+
+  <!-- Alt bilgi şeridi: süreç özeti -->
+  <g transform="translate(0, 478)">
+    <text x="550" y="0" class="note">Bildirimsel stil → veri modeli → yerleşim geometrisi → GPU çizim komutları</text>
+  </g>
+
 </svg>

@@ -1,97 +1,163 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 760">
   <title>Focus ve Key Context Ağacı</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#94a3b8" />
     </marker>
+
+    <linearGradient id="g-panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" /><stop offset="1" stop-color="#eef2f7" />
+    </linearGradient>
+    <linearGradient id="g-workspace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#dbeafe" /><stop offset="1" stop-color="#bfdbfe" />
+    </linearGradient>
+    <linearGradient id="g-left" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e0f2fe" /><stop offset="1" stop-color="#bae6fd" />
+    </linearGradient>
+    <linearGradient id="g-pane" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d1fae5" /><stop offset="1" stop-color="#a7f3d0" />
+    </linearGradient>
+    <linearGradient id="g-right" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ede9fe" /><stop offset="1" stop-color="#ddd6fe" />
+    </linearGradient>
+    <linearGradient id="g-editor" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fef3c7" /><stop offset="1" stop-color="#fde68a" />
+    </linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" /><stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" /><stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#059669" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+
+      .lbl { font: 800 16px system-ui, -apple-system, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .lbl-mono { font: 700 13px ui-monospace, SFMono-Regular, monospace; text-anchor: middle; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-dash { stroke: #94a3b8; stroke-width: 3; fill: none; stroke-dasharray: 7 6; marker-end: url(#arrowDash); stroke-linecap: round; stroke-linejoin: round; }
+
+      .card { filter: url(#shadow); }
+      .edge { font: 700 12px ui-monospace, SFMono-Regular, monospace; fill: #64748b; text-anchor: middle; }
+
+      /* Akış animasyonu: kesik çizgiler odak yönünde akar */
+      .flow-cap { animation: flowCap 9s linear infinite; }
+      .flow-bub { animation: flowBub 9s linear infinite; }
+      @keyframes flowCap { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -26; } }
+      @keyframes flowBub { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -26; } }
+      /* İşleyiş hattında yumuşak nabız */
+      .step1 { animation: pulse 9s ease-in-out infinite; }
+      .step2 { animation: pulse 9s ease-in-out infinite; animation-delay: -6s; }
+      .step3 { animation: pulse 9s ease-in-out infinite; animation-delay: -3s; }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        20% { opacity: 1; }
+        45% { opacity: 0.82; }
+        70% { opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .flow-cap, .flow-bub, .step1, .step2, .step3 { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">Focus ve Key Context Ağacı</text>
-  <text x="580" y="62" text-anchor="middle" class="subtitle">Odaktaki elementten köke doğru bağlam yığını kurulur; keymap ve action dispatch bu yığını kullanır.</text>
 
-  <rect x="80" y="98" width="1000" height="380" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.4" />
-  <text x="105" y="128" class="label">UI element ağacı</text>
-  <text x="105" y="150" class="small">Capture kökten odağa, Bubble odaktan köke doğru akar.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <rect x="440" y="178" width="280" height="62" rx="8" fill="#dbeafe" stroke="#2563eb" />
-  <text x="580" y="203" text-anchor="middle" class="label">Workspace</text>
-  <text x="580" y="222" text-anchor="middle" class="mono">key_context("Workspace")</text>
+  <text x="580" y="46" class="title">Focus ve Key Context Ağacı</text>
+  <text x="580" y="74" class="sub">Odaktaki elementten köke doğru bağlam yığını kurulur; keymap ve action dispatch bu yığını kullanır.</text>
 
-  <path d="M 580 240 L 350 292" class="arrowSoft" />
-  <path d="M 580 240 L 580 284" class="arrowSoft" />
-  <path d="M 580 240 L 810 292" class="arrowSoft" />
+  <!-- ================= AĞAÇ YAPISI (ÜST KISIM) ================= -->
+  <rect x="60" y="100" width="1040" height="382" rx="12" fill="url(#g-panel)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
+  <text x="580" y="135" class="lbl">UI Element Ağacı</text>
+  <text x="580" y="157" class="c-body" text-anchor="middle" style="fill:#64748b">Capture kökten odağa, Bubble odaktan köke doğru akar.</text>
 
-  <rect x="210" y="292" width="280" height="62" rx="8" fill="#e0f2fe" stroke="#0284c7" />
-  <text x="350" y="317" text-anchor="middle" class="label">Left Dock</text>
-  <text x="350" y="336" text-anchor="middle" class="mono">key_context("ProjectPanel")</text>
+  <!-- Workspace -->
+  <rect x="440" y="186" width="280" height="62" rx="12" fill="url(#g-workspace)" stroke="#2563eb" stroke-width="2" filter="url(#shadow)" />
+  <text x="580" y="212" class="lbl" style="fill:#1d4ed8">Workspace</text>
+  <text x="580" y="232" class="lbl-mono" style="fill:#1e40af">key_context("Workspace")</text>
 
-  <rect x="440" y="292" width="280" height="62" rx="8" fill="#d1fae5" stroke="#059669" />
-  <text x="580" y="317" text-anchor="middle" class="label">Pane</text>
-  <text x="580" y="336" text-anchor="middle" class="mono">key_context("Pane")</text>
+  <!-- Alt bileşenlere oklar -->
+  <path d="M 580 248 L 350 300" class="arrow-line" />
+  <path d="M 580 248 L 580 300" class="arrow-line" />
+  <path d="M 580 248 L 810 300" class="arrow-line" />
 
-  <rect x="670" y="292" width="280" height="62" rx="8" fill="#ede9fe" stroke="#7c3aed" />
-  <text x="810" y="317" text-anchor="middle" class="label">Right Dock</text>
-  <text x="810" y="336" text-anchor="middle" class="mono">key_context("Assistant")</text>
+  <!-- Left Dock -->
+  <rect x="180" y="300" width="296" height="62" rx="12" fill="url(#g-left)" stroke="#0284c7" stroke-width="2" filter="url(#shadow)" />
+  <text x="328" y="326" class="lbl" style="fill:#0369a1">Left Dock</text>
+  <text x="328" y="346" class="lbl-mono" style="fill:#075985">key_context("ProjectPanel")</text>
 
-  <path d="M 580 354 L 580 394" class="arrowSoft" />
-  <rect x="440" y="402" width="280" height="58" rx="8" fill="#fef3c7" stroke="#d97706" />
-  <text x="580" y="426" text-anchor="middle" class="label">Editor - odak burada</text>
-  <text x="580" y="444" text-anchor="middle" class="mono">key_context("Editor mode=insert")</text>
+  <!-- Pane -->
+  <rect x="492" y="300" width="176" height="62" rx="12" fill="url(#g-pane)" stroke="#059669" stroke-width="2" filter="url(#shadow)" />
+  <text x="580" y="326" class="lbl" style="fill:#047857">Pane</text>
+  <text x="580" y="346" class="lbl-mono" style="fill:#065f46">key_context("Pane")</text>
 
-  <path d="M 230 166 C 205 250 210 400 432 434" class="arrowDash" />
-  <text x="145" y="230" class="edge">Capture</text>
-  <text x="145" y="248" class="edge">root -> focus</text>
+  <!-- Right Dock -->
+  <rect x="684" y="300" width="296" height="62" rx="12" fill="url(#g-right)" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)" />
+  <text x="832" y="326" class="lbl" style="fill:#6d28d9">Right Dock</text>
+  <text x="832" y="346" class="lbl-mono" style="fill:#5b21b6">key_context("Assistant")</text>
 
-  <path d="M 720 434 C 964 404 955 250 930 166" class="arrowDash" />
-  <text x="948" y="230" class="edge">Bubble</text>
-  <text x="948" y="248" class="edge">focus -> root</text>
+  <!-- Odak noktası -->
+  <path d="M 580 362 L 580 410" class="arrow-line" />
+  <rect x="420" y="410" width="320" height="62" rx="12" fill="url(#g-editor)" stroke="#d97706" stroke-width="2.5" filter="url(#shadow)" />
+  <text x="580" y="436" class="lbl" style="fill:#b45309">Editor — Odak Burada</text>
+  <text x="580" y="456" class="lbl-mono" style="fill:#92400e">key_context("Editor mode=insert")</text>
 
-  <rect x="80" y="520" width="300" height="118" rx="8" class="card" />
-  <rect x="80" y="520" width="300" height="30" rx="8" fill="#0284c7" />
-  <path d="M 80 542 H 380 V 550 H 80 Z" fill="#0284c7" />
-  <text x="94" y="540" class="cardTitle">1. context_stack()</text>
-  <text x="94" y="572" class="body">Odaktaki Editor'dan köke yürür.</text>
-  <text x="94" y="589" class="body">Her key_context predicate'e eklenir.</text>
-  <text x="94" y="606" class="body">Derin eşleşme daha yüksek önceliklidir.</text>
+  <!-- CAPTURE / BUBBLE OKLARI -->
+  <path d="M 230 178 C 200 260 200 430 412 446" class="arrow-dash flow-cap" />
+  <text x="140" y="262" class="edge">CAPTURE</text>
+  <text x="140" y="280" class="edge">root -&gt; focus</text>
 
-  <path d="M 380 579 L 422 579" class="arrowSoft" />
+  <path d="M 748 446 C 960 430 960 260 930 178" class="arrow-dash flow-bub" />
+  <text x="1020" y="262" class="edge">BUBBLE</text>
+  <text x="1020" y="280" class="edge">focus -&gt; root</text>
 
-  <rect x="430" y="520" width="300" height="118" rx="8" class="card" />
-  <rect x="430" y="520" width="300" height="30" rx="8" fill="#7c3aed" />
-  <path d="M 430 542 H 730 V 550 H 430 Z" fill="#7c3aed" />
-  <text x="444" y="540" class="cardTitle">2. Keymap resolve</text>
-  <text x="444" y="572" class="body">Keystroke + context_stack eşleştirilir.</text>
-  <text x="444" y="589" class="body">matched ve pending sonuçları üretilir.</text>
-  <text x="444" y="606" class="body">NoAction / Unbind bağlamda iptal eder.</text>
+  <!-- ================= İŞLEYİŞ PANELLERİ (ALT KISIM) ================= -->
+  <g class="step1">
+    <rect x="60" y="516" width="312" height="150" rx="12" fill="url(#g-blue)" class="card" />
+    <text x="216" y="551" class="c-title">1. context_stack()</text>
+    <text x="80" y="585" class="c-body">• Odaktaki Editor'dan köke yürür</text>
+    <text x="80" y="609" class="c-body">• Her key_context predicate'e eklenir</text>
+    <text x="80" y="633" class="c-body">• Derin eşleşme en yüksek önceliği alır</text>
+  </g>
 
-  <path d="M 730 579 L 772 579" class="arrowSoft" />
+  <path d="M 372 591 H 412" class="arrow-line" />
 
-  <rect x="780" y="520" width="300" height="118" rx="8" class="card" />
-  <rect x="780" y="520" width="300" height="30" rx="8" fill="#059669" />
-  <path d="M 780 542 H 1080 V 550 H 780 Z" fill="#059669" />
-  <text x="794" y="540" class="cardTitle">3. Action dispatch</text>
-  <text x="794" y="572" class="body">Capture dinleyicileri önce çalışır.</text>
-  <text x="794" y="589" class="body">Bubble aşamasında .on_action tetiklenir.</text>
-  <text x="794" y="606" class="body">cx.propagate yayılımı sürdürür.</text>
+  <g class="step2">
+    <rect x="424" y="516" width="312" height="150" rx="12" fill="url(#g-purple)" class="card" />
+    <text x="580" y="551" class="c-title">2. Keymap Resolve</text>
+    <text x="444" y="585" class="c-body">• Keystroke + context_stack eşleşir</text>
+    <text x="444" y="609" class="c-body">• matched / pending üretilir</text>
+    <text x="444" y="633" class="c-body">• NoAction/Unbind devredışı bırakır</text>
+  </g>
 
-  <rect x="80" y="684" width="1000" height="64" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
-  <text x="96" y="710" class="small">Predicate örnekleri: "Editor", "mode == insert", "!Terminal", "Workspace &gt; Editor", "A &amp;&amp; B", "A || B".</text>
-  <text x="96" y="730" class="small">Odak değiştiğinde context stack de değişir; aynı tuş farklı view'larda farklı action'a bağlanabilir.</text>
+  <path d="M 736 591 H 776" class="arrow-line" />
+
+  <g class="step3">
+    <rect x="788" y="516" width="312" height="150" rx="12" fill="url(#g-green)" class="card" />
+    <text x="944" y="551" class="c-title">3. Action Dispatch</text>
+    <text x="808" y="585" class="c-body">• Capture dinleyicileri önce çalışır</text>
+    <text x="808" y="609" class="c-body">• Bubble aşamasında .on_action tetiklenir</text>
+    <text x="808" y="633" class="c-body">• cx.propagate yayılımı sürdürür</text>
+  </g>
+
+  <!-- ================= BİLGİ KUTUSU ================= -->
+  <rect x="60" y="686" width="1040" height="54" rx="12" fill="#eef2ff" stroke="#6366f1" stroke-width="1.4" />
+  <text x="80" y="709" class="c-body" text-anchor="start" style="fill:#3730a3">• Predicate örnekleri: "Editor", "mode == insert", "!Terminal", "Workspace &gt; Editor", "A &amp;&amp; B", "A || B".</text>
+  <text x="80" y="730" class="c-body" text-anchor="start" style="fill:#3730a3">• Odak değiştiğinde context stack de değişir; aynı tuş farklı view'larda farklı action'a bağlanabilir.</text>
 </svg>

@@ -1,67 +1,81 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 360">
   <title>JSON Parse Pipeline</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.04" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
     <style>
-      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
-      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
-      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
-      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
-      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
-      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
-      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow); marker-start: url(#dot-arrow)}
+      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
+      .subtitle { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .api { font: 800 16px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
+      .when { font: 800 12px system-ui, -apple-system, sans-serif; fill: rgba(255, 255, 255, 0.8); letter-spacing: 0.5px; }
+      .body { font: 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linejoin: round; }
+      .card { filter: url(#shadow); }
     </style>
   </defs>
-  <rect width="980" height="420" rx="10" fill="#f8fafc"/>
-  <text x="490" y="36" text-anchor="middle" class="title">JSON Parse Pipeline</text>
-  <text x="490" y="60" text-anchor="middle" class="sub">Lenient okuma, schema tipi ve runtime model aynı sırada ayrılır.</text>
 
-  <rect x="38" y="130" width="160" height="96" rx="8" class="card"/>
-  <rect x="38" y="130" width="160" height="30" rx="8" fill="#334155"/>
-  <path d="M38 152 H198 V160 H38 Z" fill="#334155"/>
-  <text x="54" y="150" class="head">theme.json</text>
-  <text x="54" y="182" class="body">Zed uyumlu</text>
-  <text x="54" y="200" class="small">comments / trailing comma</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+  
+  <text x="550" y="46" text-anchor="middle" class="title">JSON Parse Pipeline</text>
+  <text x="550" y="74" text-anchor="middle" class="subtitle">Lenient okuma, schema tipi ve runtime model sırayla nasıl işlenir?</text>
 
-  <rect x="258" y="130" width="170" height="96" rx="8" class="card"/>
-  <rect x="258" y="130" width="170" height="30" rx="8" fill="#0284c7"/>
-  <path d="M258 152 H428 V160 H258 Z" fill="#0284c7"/>
-  <text x="274" y="150" class="head">serde_lenient</text>
-  <text x="274" y="182" class="body">ThemeFamilyContent</text>
-  <text x="274" y="200" class="small">schema katmanı</text>
+  <!-- Adım 1 -->
+  <g transform="translate(30, 110)">
+    <rect width="180" height="120" rx="10" fill="#334155" class="card" />
+    <text x="90" y="30" text-anchor="middle" class="api">theme.json</text>
+    <text x="15" y="70" class="body">• Zed uyumlu</text>
+    <text x="25" y="90" class="when">Comments &amp;</text>
+    <text x="25" y="105" class="when">Trailing Comma</text>
+  </g>
 
-  <rect x="488" y="84" width="184" height="96" rx="8" class="card"/>
-  <rect x="488" y="84" width="184" height="30" rx="8" fill="#7c3aed"/>
-  <path d="M488 106 H672 V114 H488 Z" fill="#7c3aed"/>
-  <text x="504" y="104" class="head">flatten/rename</text>
-  <text x="504" y="136" class="body">dotted keys</text>
-  <text x="504" y="154" class="small">Option alanlar</text>
+  <!-- Adım 2 -->
+  <g transform="translate(250, 110)">
+    <rect width="180" height="120" rx="10" fill="#0ea5e9" class="card" />
+    <text x="90" y="30" text-anchor="middle" class="api">serde_lenient</text>
+    <text x="15" y="70" class="body">• ThemeFamilyContent</text>
+    <text x="25" y="95" class="when">Schema Katmanı</text>
+  </g>
 
-  <rect x="488" y="232" width="184" height="96" rx="8" class="card"/>
-  <rect x="488" y="232" width="184" height="30" rx="8" fill="#d97706"/>
-  <path d="M488 254 H672 V262 H488 Z" fill="#d97706"/>
-  <text x="504" y="252" class="head">treat_error_as_none</text>
-  <text x="504" y="284" class="body">tolerans noktası</text>
-  <text x="504" y="302" class="small">hatalı renk düşer</text>
+  <!-- Adım 3a -->
+  <g transform="translate(470, 40)">
+    <rect width="200" height="120" rx="10" fill="#7c3aed" class="card" />
+    <text x="100" y="30" text-anchor="middle" class="api">flatten/rename</text>
+    <text x="20" y="70" class="body">• Dotted keys çözülür</text>
+    <text x="20" y="95" class="when">İç içe Option Alanlar</text>
+  </g>
 
-  <rect x="742" y="130" width="190" height="96" rx="8" class="card"/>
-  <rect x="742" y="130" width="190" height="30" rx="8" fill="#059669"/>
-  <path d="M742 152 H932 V160 H742 Z" fill="#059669"/>
-  <text x="758" y="150" class="head">Theme::from_content</text>
-  <text x="758" y="182" class="body">Hsla + Arc + registry</text>
-  <text x="758" y="200" class="small">runtime model</text>
+  <!-- Adım 3b -->
+  <g transform="translate(470, 180)">
+    <rect width="200" height="120" rx="10" fill="#d97706" class="card" />
+    <text x="100" y="30" text-anchor="middle" class="api" style="font-size: 14px;">treat_error_as_none</text>
+    <text x="20" y="70" class="body">• Tolerans noktası</text>
+    <text x="20" y="95" class="when">Hatalı Renk Düşer</text>
+  </g>
 
-  <path d="M198 178 H250" class="arrow"/>
-  <path d="M428 160 C460 144 462 132 480 132" class="arrow"/>
-  <path d="M428 196 C460 220 462 280 480 280" class="arrow"/>
-  <path d="M672 132 C704 132 712 181 734 181" class="arrow"/>
-  <path d="M672 280 C704 280 712 181 734 181" class="arrow"/>
+  <!-- Adım 4 -->
+  <g transform="translate(710, 110)">
+    <rect width="220" height="120" rx="10" fill="#10b981" class="card" />
+    <text x="110" y="30" text-anchor="middle" class="api">Theme::from_content</text>
+    <text x="20" y="70" class="body">• Hsla + Arc + Registry</text>
+    <text x="20" y="95" class="when">Runtime Model Oluşturulur</text>
+  </g>
 
-  <rect x="158" y="352" width="664" height="42" rx="7" fill="#eef2ff" stroke="#6366f1" stroke-width="1.1"/>
-  <text x="182" y="378" class="body">Kural: JSON schema kullanıcı sözleşmesidir; runtime Theme bu sözleşmenin işlenmiş sonucudur.</text>
+  <!-- Oklar -->
+  <path d="M 210 170 H 240" class="arrow-line" />
+  <path d="M 430 170 C 450 170 450 100 460 100" class="arrow-line" />
+  <path d="M 430 170 C 450 170 450 240 460 240" class="arrow-line" />
+  
+  <path d="M 670 100 C 690 100 690 170 700 170" class="arrow-line" />
+  <path d="M 670 240 C 690 240 690 170 700 170" class="arrow-line" />
+
+  <!-- Alt Not -->
+  <g transform="translate(30, 316)">
+    <rect width="900" height="30" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+    <text x="450" y="20" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="14" fill="#1e40af">Kural: JSON schema kullanıcı sözleşmesidir; runtime Theme bu sözleşmenin işlenmiş ve valide edilmiş sonucudur.</text>
+  </g>
+
 </svg>

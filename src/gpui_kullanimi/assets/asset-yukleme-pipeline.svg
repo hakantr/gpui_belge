@@ -1,93 +1,146 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
   <title>Asset Yükleme Pipeline</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <marker id="dot" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="6" markerHeight="6" orient="auto">
+      <circle cx="3.5" cy="3.5" r="3" fill="#64748b" />
     </marker>
+
+    <!-- Üst kaynak kartları için dikey degradeler -->
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0ea5e9" /><stop offset="1" stop-color="#0284c7" /></linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b5cf6" /><stop offset="1" stop-color="#7c3aed" /></linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#059669" /></linearGradient>
+
+    <!-- Tüketici panelleri için açık dikey degradeler -->
+    <linearGradient id="p-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0f9ff" /><stop offset="1" stop-color="#dbeafe" /></linearGradient>
+    <linearGradient id="p-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ecfdf5" /><stop offset="1" stop-color="#d1fae5" /></linearGradient>
+    <linearGradient id="p-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbeb" /><stop offset="1" stop-color="#fef3c7" /></linearGradient>
+    <linearGradient id="p-violet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f5f3ff" /><stop offset="1" stop-color="#ede9fe" /></linearGradient>
+    <linearGradient id="p-rose" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff1f2" /><stop offset="1" stop-color="#ffe4e6" /></linearGradient>
+    <linearGradient id="p-indigo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8fafc" /><stop offset="1" stop-color="#eef2ff" /></linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .bus { stroke: #94a3b8; stroke-width: 2; fill: none; }
-      .branch { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+
+      .l-title { font: 800 16px system-ui, -apple-system, sans-serif; text-anchor: middle; }
+      .l-sub { font: 600 12px ui-monospace, SFMono-Regular, monospace; text-anchor: middle; opacity: 0.85; }
+      .l-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; text-anchor: middle; }
+
+      .note-title { font: 800 18px system-ui, -apple-system, sans-serif; }
+      .note-body { font: 500 14px system-ui, -apple-system, sans-serif; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); marker-start: url(#dot); stroke-linecap: round; stroke-linejoin: round; }
+      .bus-line { stroke: #94a3b8; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+      /* Akış canlandırması: kaynaktan tüketiciye akan kesik çizgi */
+      .flow { stroke-dasharray: 7 7; animation: flow 9s linear infinite; }
+      @keyframes flow { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -56; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .flow { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">Asset Yükleme Pipeline</text>
-  <text x="580" y="62" text-anchor="middle" class="subtitle">Gömülü veya disk kaynaklı varlıklar, AssetSource üzerinden tipli tüketim yüzeylerine ayrılır.</text>
 
-  <rect x="60" y="100" width="250" height="126" rx="8" class="card" />
-  <rect x="60" y="100" width="250" height="30" rx="8" fill="#0284c7" />
-  <path d="M 60 122 H 310 V 130 H 60 Z" fill="#0284c7" />
-  <text x="74" y="120" class="cardTitle">Kaynaklar</text>
-  <text x="74" y="152" class="body">include_dir / rust-embed.</text>
-  <text x="74" y="169" class="body">Disk asset source.</text>
-  <text x="74" y="186" class="body">Testte fake veya dış asset.</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
 
-  <path d="M 310 163 L 382 163" class="arrowSoft" />
+  <text x="580" y="44" class="title">Asset Yükleme Pipeline</text>
+  <text x="580" y="72" class="sub">Gömülü veya disk kaynaklı varlıklar, AssetSource üzerinden tipli tüketim yüzeylerine ayrılır.</text>
 
-  <rect x="390" y="100" width="300" height="126" rx="8" class="card" />
-  <rect x="390" y="100" width="300" height="30" rx="8" fill="#7c3aed" />
-  <path d="M 390 122 H 690 V 130 H 390 Z" fill="#7c3aed" />
-  <text x="404" y="120" class="cardTitle">AssetSource</text>
-  <text x="404" y="152" class="body">path -> bytes çözümleme.</text>
-  <text x="404" y="169" class="body">MIME / uzantı ayrımı.</text>
-  <text x="404" y="186" class="body">Cache ve hata raporlama katmanı.</text>
+  <!-- ================= ÜST KAYNAK BÖLÜMÜ ================= -->
+  <g transform="translate(60, 110)">
+    <rect width="280" height="130" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
+    <text x="22" y="36" class="c-title">Kaynaklar</text>
+    <text x="22" y="70" class="c-body">• include_dir / rust-embed</text>
+    <text x="22" y="95" class="c-body">• Disk asset source</text>
+    <text x="22" y="120" class="c-body">• Testte fake veya dış asset</text>
+  </g>
 
-  <path d="M 690 163 L 762 163" class="arrowSoft" />
+  <path d="M 350 175 H 392" class="arrow-line flow" />
 
-  <rect x="770" y="100" width="330" height="126" rx="8" class="card" />
-  <rect x="770" y="100" width="330" height="30" rx="8" fill="#059669" />
-  <path d="M 770 122 H 1100 V 130 H 770 Z" fill="#059669" />
-  <text x="784" y="120" class="cardTitle">Application::with_assets</text>
-  <text x="784" y="152" class="body">Runtime'a asset provider bağlanır.</text>
-  <text x="784" y="169" class="body">UI ve servis katmanları aynı yüzeyi okur.</text>
-  <text x="784" y="186" class="body">Eksik asset erken görünür hata üretir.</text>
+  <g transform="translate(400, 110)">
+    <rect width="290" height="130" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
+    <text x="22" y="36" class="c-title">AssetSource</text>
+    <text x="22" y="70" class="c-body">• path -&gt; bytes çözümleme</text>
+    <text x="22" y="95" class="c-body">• MIME / uzantı ayrımı</text>
+    <text x="22" y="120" class="c-body">• Cache ve hata raporlama</text>
+  </g>
 
-  <rect x="60" y="300" width="210" height="126" rx="8" fill="#dbeafe" stroke="#2563eb" />
-  <text x="165" y="330" text-anchor="middle" class="label">SVG / Icon</text>
-  <text x="165" y="354" text-anchor="middle" class="small">svg path, symbol, icon registry</text>
-  <text x="165" y="374" text-anchor="middle" class="mono">paint_svg</text>
+  <path d="M 690 175 H 762" class="arrow-line flow" />
 
-  <rect x="295" y="300" width="210" height="126" rx="8" fill="#d1fae5" stroke="#059669" />
-  <text x="400" y="330" text-anchor="middle" class="label">Raster image</text>
-  <text x="400" y="354" text-anchor="middle" class="small">png, jpg, webp</text>
-  <text x="400" y="374" text-anchor="middle" class="mono">img(...) / paint_image</text>
+  <g transform="translate(770, 110)">
+    <rect width="330" height="130" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
+    <text x="22" y="36" class="c-title">Application::with_assets</text>
+    <text x="22" y="70" class="c-body">• Runtime'a asset provider bağlanır</text>
+    <text x="22" y="95" class="c-body">• UI ve servis aynı yüzeyi okur</text>
+    <text x="22" y="120" class="c-body">• Eksik asset erken hata üretir</text>
+  </g>
 
-  <rect x="530" y="300" width="210" height="126" rx="8" fill="#fef3c7" stroke="#d97706" />
-  <text x="635" y="330" text-anchor="middle" class="label">Font</text>
-  <text x="635" y="354" text-anchor="middle" class="small">font family, weight, style</text>
-  <text x="635" y="374" text-anchor="middle" class="mono">text_system</text>
+  <!-- ================= ORTA OTOBÜS ÇİZGİSİ ================= -->
+  <path d="M 545 240 V 280" class="bus-line" />
+  <path d="M 165 280 H 1030" class="bus-line" />
 
-  <rect x="765" y="300" width="210" height="126" rx="8" fill="#ede9fe" stroke="#7c3aed" />
-  <text x="870" y="330" text-anchor="middle" class="label">JSON</text>
-  <text x="870" y="354" text-anchor="middle" class="small">settings, schema, metadata</text>
-  <text x="870" y="374" text-anchor="middle" class="mono">serde parse</text>
+  <path d="M 165 280 V 320" class="arrow-line flow" />
+  <path d="M 400 280 V 320" class="arrow-line flow" />
+  <path d="M 635 280 V 320" class="arrow-line flow" />
+  <path d="M 870 280 V 320" class="arrow-line flow" />
+  <path d="M 1030 280 V 510 H 752" class="arrow-line flow" />
 
-  <rect x="530" y="492" width="210" height="126" rx="8" fill="#ffe4e6" stroke="#be123c" />
-  <text x="635" y="522" text-anchor="middle" class="label">Sound / binary</text>
-  <text x="635" y="546" text-anchor="middle" class="small">wav, raw bytes, model data</text>
-  <text x="635" y="566" text-anchor="middle" class="mono">audio / custom parser</text>
+  <!-- ================= ALT TÜKETİCİ PANELLERİ ================= -->
+  <!-- 1. SVG / Icon -->
+  <g transform="translate(60, 330)">
+    <rect width="210" height="126" rx="12" fill="url(#p-sky)" stroke="#0284c7" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="105" y="38" class="l-title" style="fill:#0369a1">SVG / Icon</text>
+    <text x="105" y="68" class="l-sub" style="fill:#0284c7">svg path, symbol, icon registry</text>
+    <text x="105" y="100" class="l-mono" style="fill:#0ea5e9">paint_svg</text>
+  </g>
 
-  <path d="M 540 226 L 540 258 M 165 258 H 870" class="bus" />
-  <path d="M 165 258 L 165 292" class="branch" />
-  <path d="M 400 258 L 400 292" class="branch" />
-  <path d="M 635 258 L 635 292" class="branch" />
-  <path d="M 870 258 L 870 292" class="branch" />
-  <path d="M 870 258 H 1030 V 555 H 748" class="branch" />
+  <!-- 2. Raster image -->
+  <g transform="translate(295, 330)">
+    <rect width="210" height="126" rx="12" fill="url(#p-green)" stroke="#059669" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="105" y="38" class="l-title" style="fill:#047857">Raster image</text>
+    <text x="105" y="68" class="l-sub" style="fill:#059669">png, jpg, webp</text>
+    <text x="105" y="100" class="l-mono" style="fill:#10b981">img(...) / paint_image</text>
+  </g>
 
-  <rect x="80" y="664" width="1000" height="74" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
-  <text x="104" y="692" class="label">Test stratejisi</text>
-  <text x="104" y="718" class="small">Headless testte asset source açıkça bağlanır; dış dosyaya bağımlı testlerde path ve eksik asset hatası görünür yapılır.</text>
+  <!-- 3. Font -->
+  <g transform="translate(530, 330)">
+    <rect width="210" height="126" rx="12" fill="url(#p-amber)" stroke="#d97706" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="105" y="38" class="l-title" style="fill:#b45309">Font</text>
+    <text x="105" y="68" class="l-sub" style="fill:#d97706">font family, weight, style</text>
+    <text x="105" y="100" class="l-mono" style="fill:#f59e0b">text_system</text>
+  </g>
+
+  <!-- 4. JSON -->
+  <g transform="translate(765, 330)">
+    <rect width="210" height="126" rx="12" fill="url(#p-violet)" stroke="#7c3aed" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="105" y="38" class="l-title" style="fill:#6d28d9">JSON</text>
+    <text x="105" y="68" class="l-sub" style="fill:#7c3aed">settings, schema, metadata</text>
+    <text x="105" y="100" class="l-mono" style="fill:#8b5cf6">serde parse</text>
+  </g>
+
+  <!-- 5. Sound / binary -->
+  <g transform="translate(530, 500)">
+    <rect width="210" height="126" rx="12" fill="url(#p-rose)" stroke="#e11d48" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="105" y="38" class="l-title" style="fill:#be123c">Sound / binary</text>
+    <text x="105" y="68" class="l-sub" style="fill:#e11d48">wav, raw bytes, model data</text>
+    <text x="105" y="100" class="l-mono" style="fill:#f43f5e">audio / custom parser</text>
+  </g>
+
+  <!-- ================= TEST STRATEJİSİ ================= -->
+  <g transform="translate(60, 668)">
+    <rect width="1040" height="84" rx="12" fill="url(#p-indigo)" stroke="#6366f1" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="28" y="36" class="note-title" style="fill:#4338ca">Test stratejisi</text>
+    <text x="28" y="64" class="note-body" style="fill:#334155">Headless testte asset source açıkça bağlanır; dış dosyaya bağımlı testlerde path ve eksik asset hatası görünür yapılır.</text>
+  </g>
+
 </svg>

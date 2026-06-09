@@ -1,86 +1,136 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 460">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500">
   <title>JSON Varlık Tüketim Yolları</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
+
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" />
+      <stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#334155" />
+      <stop offset="1" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="g-light" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f1f5f9" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .head { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); }
-      .merge-branch { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); stroke-linecap: round; stroke-linejoin: round; }
-      .arrow-start { fill: #334155; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .api { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; text-anchor: middle; }
+      .when { font: 700 12px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.82; letter-spacing: 0.4px; text-anchor: middle; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .flow { stroke: #94a3b8; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-dasharray: 7 9; animation: flow 9s linear infinite; }
+
+      @keyframes flow { from { stroke-dashoffset: 32; } to { stroke-dashoffset: 0; } }
+      @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
     </style>
   </defs>
 
-  <rect width="980" height="460" rx="10" fill="#f8fafc" />
-  <text x="490" y="36" text-anchor="middle" class="title">JSON Varlık Tüketim Yolları</text>
-  <text x="490" y="60" text-anchor="middle" class="sub">Aynı dosya formatı dört farklı runtime sözleşmesine akar.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <rect x="70" y="96" width="168" height="88" rx="8" class="card" />
-  <rect x="70" y="96" width="168" height="30" rx="8" fill="#0284c7" />
-  <path d="M 70 118 H 238 V 126 H 70 Z" fill="#0284c7" />
-  <text x="86" y="116" class="head">themes/</text>
-  <text x="86" y="148" class="body">ThemeFamilyContent</text>
-  <text x="86" y="166" class="small">registry'ye eklenir</text>
+  <text x="500" y="48" class="title">JSON Varlık Tüketim Yolları</text>
+  <text x="500" y="76" class="sub">Aynı dosya formatı dört farklı runtime sözleşmesine akar.</text>
 
-  <rect x="286" y="96" width="168" height="88" rx="8" class="card" />
-  <rect x="286" y="96" width="168" height="30" rx="8" fill="#059669" />
-  <path d="M 286 118 H 454 V 126 H 286 Z" fill="#059669" />
-  <text x="302" y="116" class="head">settings/</text>
-  <text x="302" y="148" class="body">default content</text>
-  <text x="302" y="166" class="small">SettingsStore'a girer</text>
+  <!-- ================= 4 KANALLI BAŞLANGIÇ ================= -->
+  <!-- 1. THEMES -->
+  <g transform="translate(60, 118)">
+    <rect width="190" height="104" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
+    <text x="95" y="40" class="api">themes/</text>
+    <text x="95" y="66" class="body">ThemeFamilyContent</text>
+    <text x="95" y="88" class="when">Registry'ye Eklenir</text>
+  </g>
 
-  <rect x="502" y="96" width="168" height="88" rx="8" class="card" />
-  <rect x="502" y="96" width="168" height="30" rx="8" fill="#7c3aed" />
-  <path d="M 502 118 H 670 V 126 H 502 Z" fill="#7c3aed" />
-  <text x="518" y="116" class="head">keymaps/</text>
-  <text x="518" y="148" class="body">platform seçimi</text>
-  <text x="518" y="166" class="small">keymap parser</text>
+  <!-- 2. SETTINGS -->
+  <g transform="translate(290, 118)">
+    <rect width="190" height="104" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
+    <text x="95" y="40" class="api">settings/</text>
+    <text x="95" y="66" class="body">Default Content</text>
+    <text x="95" y="88" class="when">SettingsStore'a Girer</text>
+  </g>
 
-  <rect x="718" y="96" width="168" height="88" rx="8" class="card" />
-  <rect x="718" y="96" width="168" height="30" rx="8" fill="#d97706" />
-  <path d="M 718 118 H 886 V 126 H 718 Z" fill="#d97706" />
-  <text x="734" y="116" class="head">badge/</text>
-  <text x="734" y="148" class="body">runtime dışı</text>
-  <text x="734" y="166" class="small">README rozeti</text>
+  <!-- 3. KEYMAPS -->
+  <g transform="translate(520, 118)">
+    <rect width="190" height="104" rx="12" fill="url(#g-purple)" filter="url(#shadow)" />
+    <text x="95" y="40" class="api">keymaps/</text>
+    <text x="95" y="66" class="body">Platform Seçimi</text>
+    <text x="95" y="88" class="when">Keymap Parser</text>
+  </g>
 
-  <rect x="402" y="230" width="176" height="96" rx="8" class="card" />
-  <rect x="402" y="230" width="176" height="30" rx="8" fill="#334155" />
-  <path d="M 402 252 H 578 V 260 H 402 Z" fill="#334155" />
-  <text x="418" y="250" class="head">AssetSource</text>
-  <text x="418" y="282" class="body">asset_str / list</text>
-  <text x="418" y="300" class="small">dosyayı yalnız taşır</text>
+  <!-- 4. BADGES -->
+  <g transform="translate(750, 118)">
+    <rect width="190" height="104" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
+    <text x="95" y="40" class="api">badge/</text>
+    <text x="95" y="66" class="body">Runtime Dışı</text>
+    <text x="95" y="88" class="when">README Rozeti</text>
+  </g>
 
-  <rect x="178" y="376" width="160" height="58" rx="8" class="card" />
-  <text x="198" y="404" class="body">ThemeRegistry</text>
-  <text x="198" y="422" class="small">UI theme</text>
+  <!-- ================= OKLAR YUKARI -> MERKEZ ================= -->
+  <path d="M 155 222 C 155 252 500 252 500 282" class="flow" />
+  <path d="M 385 222 C 385 252 500 252 500 282" class="flow" />
+  <path d="M 615 222 C 615 252 500 252 500 282" class="flow" />
+  <path d="M 845 222 C 845 252 500 252 500 282" class="flow" />
+  <path d="M 155 222 C 155 252 500 252 500 282" class="arrow-line" />
+  <path d="M 385 222 C 385 252 500 252 500 282" class="arrow-line" />
+  <path d="M 615 222 C 615 252 500 252 500 282" class="arrow-line" />
+  <path d="M 845 222 C 845 252 500 252 500 282" class="arrow-line" />
 
-  <rect x="410" y="376" width="160" height="58" rx="8" class="card" />
-  <text x="430" y="404" class="body">SettingsStore</text>
-  <text x="430" y="422" class="small">ayar + keymap</text>
+  <!-- ================= MERKEZ ================= -->
+  <g transform="translate(390, 282)">
+    <rect width="220" height="92" rx="12" fill="url(#g-slate)" stroke="#38bdf8" stroke-width="2" filter="url(#shadow)" />
+    <text x="110" y="36" class="api">AssetSource</text>
+    <text x="110" y="58" class="body" style="font-family:ui-monospace,SFMono-Regular,monospace">asset_str / list</text>
+    <text x="110" y="78" class="when">Dosyayı Yalnız Taşır</text>
+  </g>
 
-  <rect x="642" y="376" width="160" height="58" rx="8" class="card" />
-  <text x="662" y="404" class="body">Harici araç</text>
-  <text x="662" y="422" class="small">badge tüketimi</text>
+  <!-- ================= OKLAR MERKEZ -> AŞAĞI ================= -->
+  <path d="M 500 374 C 500 404 275 404 275 432" class="flow" />
+  <path d="M 500 374 V 432" class="flow" />
+  <path d="M 500 374 C 500 404 725 404 725 432" class="flow" />
+  <path d="M 500 374 C 500 404 275 404 275 432" class="arrow-line" />
+  <path d="M 500 374 V 432" class="arrow-line" />
+  <path d="M 500 374 C 500 404 725 404 725 432" class="arrow-line" />
 
-  <path d="M 154 184 C 260 190 490 194 490 222" class="merge-branch" />
-  <path d="M 370 184 C 424 194 490 202 490 222" class="merge-branch" />
-  <path d="M 586 184 C 552 194 490 202 490 222" class="merge-branch" />
-  <path d="M 802 184 C 690 190 490 194 490 222" class="merge-branch" />
+  <!-- ================= HEDEF TÜKETİCİLER ================= -->
+  <g transform="translate(180, 432)">
+    <rect width="190" height="62" rx="12" fill="url(#g-light)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="95" y="29" class="api" style="fill:#334155">ThemeRegistry</text>
+    <text x="95" y="49" class="when" style="fill:#64748b;opacity:1">UI Theme</text>
+  </g>
 
-  <path d="M 438 326 L 258 368" class="arrow" />
-  <path d="M 490 326 V 368" class="arrow" />
-  <path d="M 542 326 L 722 368" class="arrow" />
+  <g transform="translate(405, 432)">
+    <rect width="190" height="62" rx="12" fill="url(#g-light)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="95" y="29" class="api" style="fill:#334155">SettingsStore</text>
+    <text x="95" y="49" class="when" style="fill:#64748b;opacity:1">Ayarlar + Keymap</text>
+  </g>
 
-  <circle cx="438" cy="326" r="3.5" class="arrow-start" />
-  <circle cx="490" cy="326" r="3.5" class="arrow-start" />
-  <circle cx="542" cy="326" r="3.5" class="arrow-start" />
+  <g transform="translate(630, 432)">
+    <rect width="190" height="62" rx="12" fill="url(#g-light)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="95" y="29" class="api" style="fill:#334155">Harici Araç</text>
+    <text x="95" y="49" class="when" style="fill:#64748b;opacity:1">Badge Tüketimi</text>
+  </g>
+
 </svg>

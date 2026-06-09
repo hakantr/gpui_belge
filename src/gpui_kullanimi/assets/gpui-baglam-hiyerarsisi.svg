@@ -1,106 +1,155 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
-  <title>GPUI bağlam (Context) hiyerarşisi</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620">
+  <title>GPUI Bağlam (Context) Hiyerarşisi</title>
   <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#0ea5e9" />
+    </marker>
+
+    <!-- Kart degradeleri: aynı tonun açık -> koyu hali -->
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f0f9ff" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f0fdf4" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f5f3ff" />
+    </linearGradient>
+    <linearGradient id="g-band" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e293b" />
+      <stop offset="1" stop-color="#0f172a" />
+    </linearGradient>
+
     <style>
-      .bg { fill: #f8fafc; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
-      
-      /* Context Boxes */
-      .context-box { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 8px; }
-      .context-title { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; font-size: 15px; fill: #334155; text-anchor: middle; }
-      .context-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 12px; fill: #475569; text-anchor: middle; }
-      
-      /* Inner fields */
-      .field-rect { fill: #f1f5f9; rx: 4px; }
-      .field-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #0284c7; text-anchor: middle; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
 
-      /* Inheritance Arrows */
-      .arrow { stroke: #475569; stroke-width: 2; fill: none; }
-      .arrow-active { stroke: #0284c7; stroke-dasharray: 5 3; animation: dash 2s linear infinite; }
-      @keyframes dash { to { stroke-dashoffset: -20; } }
+      .c-title { font: 800 19px ui-monospace, SFMono-Regular, monospace; text-anchor: middle; }
+      .c-sub { font: 600 13px system-ui, -apple-system, sans-serif; text-anchor: middle; }
 
-      /* Pulse animation */
-      @keyframes box-pulse-1 { 0%, 100% { stroke: #cbd5e1; } 20%, 40% { stroke: #0284c7; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
-      @keyframes box-pulse-2 { 0%, 25%, 100% { stroke: #cbd5e1; } 45%, 65% { stroke: #0284c7; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
-      @keyframes box-pulse-3 { 0%, 50%, 100% { stroke: #cbd5e1; } 70%, 90% { stroke: #0284c7; filter: drop-shadow(0 0 4px rgba(56,189,248,0.3)); } }
+      .card { filter: url(#shadow); rx: 14px; stroke-width: 2.5; }
+      .field-rect { fill: #f1f5f9; stroke: #e2e8f0; stroke-width: 1; rx: 7px; }
+      .field-text { font: 700 13px ui-monospace, SFMono-Regular, monospace; fill: #334155; text-anchor: middle; }
 
-      .bp-1 { animation: box-pulse-1 6s infinite linear; }
-      .bp-2 { animation: box-pulse-2 6s infinite linear; }
-      .bp-3 { animation: box-pulse-3 6s infinite linear; }
+      .arrow-line { stroke: #0ea5e9; stroke-width: 3; fill: none; stroke-dasharray: 7 5; marker-end: url(#arrow); stroke-linecap: round; }
+      .arrow-label { font: 700 12px ui-monospace, SFMono-Regular, monospace; fill: #0284c7; text-anchor: middle; }
+
+      .band-title { font: 800 14px system-ui, -apple-system, sans-serif; fill: #ffffff; text-anchor: middle; }
+      .band-text { font: 500 13.5px system-ui, -apple-system, sans-serif; fill: #cbd5e1; }
+      .band-code { font: 700 13px ui-monospace, SFMono-Regular, monospace; fill: #38bdf8; }
+
+      /* Akan ok animasyonu (soldan sağa Deref / kapsama akışı) */
+      @keyframes flow { to { stroke-dashoffset: -24; } }
+      .arrow-line { animation: flow 1.6s linear infinite; }
+
+      /* Sıralı kart vurgusu: dış -> iç bağlam kapsama sırası */
+      @keyframes pulse1 { 0%, 100% { opacity: 1; } 14%, 30% { opacity: 1; filter: url(#shadow) drop-shadow(0 0 7px rgba(14,165,233,0.35)); } }
+      @keyframes pulse2 { 0%, 100% { opacity: 1; } 38%, 54% { opacity: 1; filter: url(#shadow) drop-shadow(0 0 7px rgba(16,185,129,0.35)); } }
+      @keyframes pulse3 { 0%, 100% { opacity: 1; } 62%, 78% { opacity: 1; filter: url(#shadow) drop-shadow(0 0 7px rgba(124,58,237,0.35)); } }
+      .glow1 { animation: pulse1 9s ease-in-out infinite; }
+      .glow2 { animation: pulse2 9s ease-in-out infinite; }
+      .glow3 { animation: pulse3 9s ease-in-out infinite; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .arrow-line { animation: none; }
+        .glow1, .glow2, .glow3 { animation: none; }
+      }
     </style>
   </defs>
 
-  <rect width="800" height="400" class="bg" />
-  <text x="400" y="45" class="title">GPUI Bağlam (Context) Hiyerarşisi</text>
-  <text x="400" y="70" class="sub">AppContext, WindowContext ve ViewContext yapılarının kalıtım ve kapsama ilişkisi</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <!-- 1. AppContext: En Dış Kapsam -->
-  <g transform="translate(60, 110)">
-    <rect width="200" height="210" class="context-box bp-1" />
-    <text x="100" y="30" class="context-title">AppContext</text>
-    <text x="100" y="50" class="context-desc">Uygulama Seviyesi</text>
-    
-    <g transform="translate(15, 70)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">Global States</text>
+  <text x="550" y="48" class="title">GPUI Bağlam (Context) Hiyerarşisi</text>
+  <text x="550" y="76" class="sub">AppContext, WindowContext ve ViewContext yapılarının kalıtım ve kapsama ilişkisi</text>
+
+  <!-- ================= 1. APP CONTEXT ================= -->
+  <g transform="translate(60, 120)">
+    <rect width="280" height="330" fill="url(#g-sky)" stroke="#0ea5e9" class="card glow1" />
+    <rect width="280" height="6" rx="3" fill="#0ea5e9" />
+    <text x="140" y="48" class="c-title" style="fill:#0284c7">AppContext</text>
+    <text x="140" y="72" class="c-sub" style="fill:#0ea5e9">Uygulama Seviyesi · En Dış Kapsam</text>
+
+    <g transform="translate(20, 96)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">Global States</text>
     </g>
-    <g transform="translate(15, 105)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">SettingsStore</text>
+    <g transform="translate(20, 150)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">SettingsStore</text>
     </g>
-    <g transform="translate(15, 140)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">AssetSource / Fonts</text>
+    <g transform="translate(20, 204)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">AssetSource / Fonts</text>
     </g>
-    <g transform="translate(15, 175)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">Keymap / Actions</text>
+    <g transform="translate(20, 258)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">Keymap / Actions</text>
     </g>
   </g>
 
-  <!-- Ara Ok 1 -->
-  <path d="M 260 215 L 300 215" class="arrow arrow-active" />
-  <polygon points="300,215 292,211 292,219" fill="#0284c7" />
+  <path d="M 348 285 H 402" class="arrow-line" />
+  <text x="375" y="272" class="arrow-label">Deref</text>
 
-  <!-- 2. WindowContext: Pencere Kapsamı -->
-  <g transform="translate(300, 110)">
-    <rect width="200" height="210" class="context-box bp-2" />
-    <text x="100" y="30" class="context-title">WindowContext</text>
-    <text x="100" y="50" class="context-desc">Pencere Seviyesi</text>
-    
-    <g transform="translate(15, 75)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">window: &amp;mut Window</text>
+  <!-- ================= 2. WINDOW CONTEXT ================= -->
+  <g transform="translate(410, 120)">
+    <rect width="280" height="330" fill="url(#g-green)" stroke="#10b981" class="card glow2" />
+    <rect width="280" height="6" rx="3" fill="#10b981" />
+    <text x="140" y="48" class="c-title" style="fill:#059669">WindowContext</text>
+    <text x="140" y="72" class="c-sub" style="fill:#10b981">Pencere Seviyesi · Pencere Kapsamı</text>
+
+    <g transform="translate(20, 110)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">window: &amp;mut Window</text>
     </g>
-    <g transform="translate(15, 115)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">Window Bounds / Scale</text>
+    <g transform="translate(20, 170)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">Window Bounds / Scale</text>
     </g>
-    <g transform="translate(15, 155)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">Render Pass States</text>
+    <g transform="translate(20, 230)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">Render Pass States</text>
     </g>
   </g>
 
-  <!-- Ara Ok 2 -->
-  <path d="M 500 215 L 540 215" class="arrow arrow-active" />
-  <polygon points="540,215 532,211 532,219" fill="#0284c7" />
+  <path d="M 698 285 H 752" class="arrow-line" />
+  <text x="725" y="272" class="arrow-label">Deref</text>
 
-  <!-- 3. ViewContext: Entity Kapsamı -->
-  <g transform="translate(540, 110)">
-    <rect width="200" height="210" class="context-box bp-3" />
-    <text x="100" y="30" class="context-title">ViewContext&lt;T&gt;</text>
-    <text x="100" y="50" class="context-desc">Entity / Görünüm Seviyesi</text>
-    
-    <g transform="translate(15, 80)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">view: WeakEntity&lt;T&gt;</text>
+  <!-- ================= 3. VIEW CONTEXT ================= -->
+  <g transform="translate(760, 120)">
+    <rect width="280" height="330" fill="url(#g-purple)" stroke="#8b5cf6" class="card glow3" />
+    <rect width="280" height="6" rx="3" fill="#8b5cf6" />
+    <text x="140" y="48" class="c-title" style="fill:#7c3aed">ViewContext&lt;T&gt;</text>
+    <text x="140" y="72" class="c-sub" style="fill:#8b5cf6">Entity / Görünüm Seviyesi · İç Kapsam</text>
+
+    <g transform="translate(20, 124)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">view: WeakEntity&lt;T&gt;</text>
     </g>
-    <g transform="translate(15, 130)">
-      <rect width="170" height="25" class="field-rect" />
-      <text x="85" y="17" class="field-text">View Lifecycle / notify()</text>
+    <g transform="translate(20, 184)">
+      <rect width="240" height="42" class="field-rect" />
+      <text x="120" y="27" class="field-text">View Lifecycle / notify()</text>
     </g>
+  </g>
+
+  <!-- ================= ALT BANT: KAPSAMA / DEREF AÇIKLAMASI ================= -->
+  <g transform="translate(60, 480)">
+    <rect width="980" height="110" rx="14" fill="url(#g-band)" filter="url(#shadow)" />
+    <rect width="6" height="110" rx="3" fill="#0ea5e9" />
+    <text x="30" y="34" class="band-title" style="text-anchor:start">Kapsama ve Deref ilişkisi</text>
+
+    <text x="30" y="64" class="band-text">
+      <tspan>İç bağlam dış bağlama </tspan><tspan class="band-code">Deref</tspan><tspan> olur: </tspan><tspan class="band-code">Context&lt;T&gt;: Deref&lt;Target = App&gt;</tspan>
+    </text>
+    <text x="30" y="88" class="band-text">
+      <tspan>Bu sayede iç bağlamdan dıştaki tüm metotlara doğrudan erişilir: </tspan><tspan class="band-code">cx.notify()</tspan><tspan>, </tspan><tspan class="band-code">cx.theme()</tspan><tspan>, </tspan><tspan class="band-code">cx.refresh_windows()</tspan>
+    </text>
   </g>
 
 </svg>

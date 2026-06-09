@@ -1,97 +1,188 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 400">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 670">
   <title>GPUI Platform Seçim Akışı</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#d97706" />
     </marker>
-    <marker id="arrowG" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#059669" stroke="#059669" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrowG" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#059669" />
-    </marker>
+
+    <linearGradient id="g-node" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e293b" />
+      <stop offset="1" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6" />
+      <stop offset="1" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-cyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0891b2" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d97706" />
+      <stop offset="1" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0284c7" />
+      <stop offset="1" stop-color="#0369a1" />
+    </linearGradient>
+
     <style>
-      .title  { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .entry  { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .plat   { font: 700 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
-      .impl   { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .note   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .body   { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .arrow  { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowG { stroke: #059669; stroke-width: 1.8; stroke-dasharray: 5 4; fill: none; marker-end: url(#arrowG); marker-start: url(#dot-arrowG); }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; text-anchor: middle; }
+      .c-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.92; text-anchor: middle; }
+      .note { font: 500 14px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .card { filter: url(#shadow); }
+
+      .flow-arrow { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .flow-line { stroke: #64748b; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .flow-arrow-dashed-amber { stroke: #d97706; stroke-width: 2.5; stroke-dasharray: 7 5; fill: none; marker-end: url(#arrow-amber); stroke-linecap: round; stroke-linejoin: round; }
+
+      @keyframes flowPulse {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.78; }
+        100% { opacity: 1; }
+      }
+      @keyframes dash {
+        to { stroke-dashoffset: -24; }
+      }
+      @keyframes cardLift {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.92; }
+        100% { opacity: 1; }
+      }
+
+      .lvl1 { animation: flowPulse 9s ease-in-out infinite; }
+      .lvl2 { animation: flowPulse 9s ease-in-out infinite; animation-delay: 0.8s; }
+      .lvl3 { animation: flowPulse 9s ease-in-out infinite; animation-delay: 1.6s; }
+      .dashed-amber-anim { animation: dash 1.6s linear infinite; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .lvl1, .lvl2, .lvl3, .dashed-amber-anim { animation: none; }
+      }
     </style>
   </defs>
 
-  <rect width="820" height="400" rx="10" fill="#f8fafc" />
-  <text x="410" y="34" text-anchor="middle" class="title">GPUI Platform Seçim Akışı</text>
-  <text x="410" y="56" text-anchor="middle" class="sub">application() çağrısı işletim sistemine göre doğru platform arka ucunu otomatik döndürür.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <!-- Giriş -->
-  <rect x="300" y="72" width="220" height="46" rx="8" fill="#334155" />
-  <text x="410" y="94" text-anchor="middle" class="entry">gpui_platform::application()</text>
-  <text x="410" y="110" text-anchor="middle" class="note" fill="#94a3b8">işletim sistemi algılar</text>
+  <text x="550" y="46" class="title">GPUI Platform Seçim Akışı</text>
+  <text x="550" y="74" class="sub">application() çağrısı işletim sistemine göre doğru platform arka ucunu otomatik döndürür.</text>
 
-  <!-- Dağıtım okları -->
-  <path d="M 410 118 L 90 162" class="arrow" />
-  <path d="M 410 118 L 248 162" class="arrow" />
-  <path d="M 410 118 L 410 156" class="arrow" />
-  <path d="M 410 118 L 572 162" class="arrow" />
-  <path d="M 410 118 L 730 162" class="arrow" />
+  <!-- ================= BAĞLANTILAR (OKLAR) ================= -->
 
-  <!-- macOS -->
-  <rect x="20" y="164" width="138" height="64" rx="7" fill="#1d4ed8" />
-  <text x="89" y="186" text-anchor="middle" class="plat">macOS</text>
-  <text x="89" y="202" text-anchor="middle" class="impl">MacPlatform</text>
-  <text x="89" y="218" text-anchor="middle" class="note" fill="#bfdbfe">::new(headless)</text>
+  <g class="lvl1">
+    <path d="M 550 160 V 191" class="flow-line" />
+    <path d="M 150 191 H 950" class="flow-line" />
+    <path d="M 150 191 V 219" class="flow-arrow" />
+    <path d="M 350 191 V 219" class="flow-arrow" />
+    <path d="M 550 191 V 219" class="flow-arrow" />
+    <path d="M 750 191 V 219" class="flow-arrow" />
+    <path d="M 950 191 V 219" class="flow-arrow" />
+  </g>
 
-  <!-- Windows -->
-  <rect x="174" y="164" width="138" height="64" rx="7" fill="#7c3aed" />
-  <text x="243" y="186" text-anchor="middle" class="plat">Windows</text>
-  <text x="243" y="202" text-anchor="middle" class="impl">WindowsPlatform</text>
-  <text x="243" y="218" text-anchor="middle" class="note" fill="#ddd6fe">::new(headless)</text>
+  <g class="lvl2">
+    <path d="M 550 330 V 361" class="flow-line" />
+    <path d="M 450 361 H 650" class="flow-line" />
+    <path d="M 450 361 V 389" class="flow-arrow" />
+    <path d="M 650 361 V 389" class="flow-arrow" />
+  </g>
 
-  <!-- Linux/FreeBSD -->
-  <rect x="328" y="164" width="164" height="64" rx="7" fill="#0891b2" />
-  <text x="410" y="186" text-anchor="middle" class="plat">Linux / FreeBSD</text>
-  <text x="410" y="202" text-anchor="middle" class="impl">current_platform()</text>
-  <text x="410" y="218" text-anchor="middle" class="note" fill="#e0f2fe">Wayland veya X11 seçer</text>
+  <path d="M 950 330 V 389" class="flow-arrow-dashed-amber dashed-amber-anim" />
 
-  <!-- Web/WASM -->
-  <rect x="508" y="164" width="138" height="64" rx="7" fill="#059669" />
-  <text x="577" y="186" text-anchor="middle" class="plat">Web / WASM</text>
-  <text x="577" y="202" text-anchor="middle" class="impl">WebPlatform</text>
-  <text x="577" y="218" text-anchor="middle" class="note" fill="#d1fae5">gpui_web</text>
+  <!-- ================= KARTLAR ================= -->
 
-  <!-- Headless -->
-  <rect x="662" y="164" width="138" height="64" rx="7" fill="#b45309" />
-  <text x="731" y="186" text-anchor="middle" class="plat">Headless</text>
-  <text x="731" y="202" text-anchor="middle" class="impl">headless()</text>
-  <text x="731" y="218" text-anchor="middle" class="note" fill="#fde68a">pencere yok</text>
+  <!-- Üst düğüm -->
+  <g transform="translate(400, 100)" class="lvl1">
+    <rect width="300" height="60" rx="12" fill="url(#g-node)" stroke="#38bdf8" stroke-width="1.5" class="card" />
+    <text x="150" y="28" class="c-title" style="fill:#38bdf8">gpui_platform::application()</text>
+    <text x="150" y="48" class="c-body" style="fill:#94a3b8">İşletim Sistemi Algılar</text>
+  </g>
 
-  <!-- Linux alt dalları -->
-  <path d="M 380 230 L 328 274" class="arrow" />
-  <path d="M 440 230 L 492 274" class="arrow" />
+  <!-- Düzey 2: macOS -->
+  <g transform="translate(60, 220)" class="lvl2">
+    <rect width="180" height="110" rx="12" fill="url(#g-blue)" class="card" />
+    <text x="90" y="38" class="c-title">macOS</text>
+    <text x="90" y="68" class="c-mono">MacPlatform</text>
+    <text x="90" y="90" class="c-mono" style="opacity:0.82">::new(headless)</text>
+  </g>
 
-  <rect x="256" y="282" width="136" height="50" rx="6" fill="#0e7490" />
-  <text x="324" y="302" text-anchor="middle" class="plat">Wayland</text>
-  <text x="324" y="318" text-anchor="middle" class="impl">gpui_linux</text>
+  <!-- Düzey 2: Windows -->
+  <g transform="translate(260, 220)" class="lvl2">
+    <rect width="180" height="110" rx="12" fill="url(#g-violet)" class="card" />
+    <text x="90" y="38" class="c-title">Windows</text>
+    <text x="90" y="68" class="c-mono">WindowsPlatform</text>
+    <text x="90" y="90" class="c-mono" style="opacity:0.82">::new(headless)</text>
+  </g>
 
-  <rect x="418" y="282" width="136" height="50" rx="6" fill="#0e7490" />
-  <text x="486" y="302" text-anchor="middle" class="plat">X11</text>
-  <text x="486" y="318" text-anchor="middle" class="impl">gpui_linux</text>
+  <!-- Düzey 2: Linux / FreeBSD -->
+  <g transform="translate(460, 220)" class="lvl2">
+    <rect width="180" height="110" rx="12" fill="url(#g-cyan)" class="card" />
+    <text x="90" y="38" class="c-title">Linux / FreeBSD</text>
+    <text x="90" y="68" class="c-mono">current_platform()</text>
+    <text x="90" y="90" class="c-body" style="opacity:0.88">Wayland veya X11 seçer</text>
+  </g>
 
-  <!-- Test ayrımı (headless) -->
-  <path d="M 731 228 L 731 276" class="arrowG" />
-  <rect x="662" y="284" width="138" height="50" rx="6" fill="#fff7ed" stroke="#fcd34d" stroke-width="1.5" />
-  <text x="731" y="306" text-anchor="middle" class="body" style="fill:#92400e; font-weight:700">Test desteği</text>
-  <text x="731" y="322" text-anchor="middle" class="note">current_headless_renderer()</text>
+  <!-- Düzey 2: Web / WASM -->
+  <g transform="translate(660, 220)" class="lvl2">
+    <rect width="180" height="110" rx="12" fill="url(#g-green)" class="card" />
+    <text x="90" y="38" class="c-title">Web / WASM</text>
+    <text x="90" y="68" class="c-mono">WebPlatform</text>
+    <text x="90" y="90" class="c-mono" style="fill:#d1fae5; opacity:0.9">gpui_web</text>
+  </g>
 
-  <!-- Alt not -->
-  <rect x="20" y="350" width="780" height="30" rx="6" fill="#f1f5f9" stroke="#e2e8f0" />
-  <text x="410" y="369" text-anchor="middle" class="note">Tüm dallar aynı Platform trait yüzeyini karşılar. Uygulama kodu OS'a göre ayrışmaz; App ve Window sarmalayıcıları farkı gizler.</text>
+  <!-- Düzey 2: Headless -->
+  <g transform="translate(860, 220)" class="lvl2">
+    <rect width="180" height="110" rx="12" fill="url(#g-amber)" class="card" />
+    <text x="90" y="38" class="c-title">Headless</text>
+    <text x="90" y="68" class="c-mono">headless()</text>
+    <text x="90" y="90" class="c-body" style="opacity:0.88">Pencere Oluşturmaz</text>
+  </g>
+
+  <!-- Düzey 3: Wayland -->
+  <g transform="translate(370, 390)" class="lvl3">
+    <rect width="160" height="70" rx="12" fill="url(#g-sky)" class="card" />
+    <text x="80" y="32" class="c-title">Wayland</text>
+    <text x="80" y="56" class="c-mono" style="opacity:0.85">gpui_linux</text>
+  </g>
+
+  <!-- Düzey 3: X11 -->
+  <g transform="translate(570, 390)" class="lvl3">
+    <rect width="160" height="70" rx="12" fill="url(#g-sky)" class="card" />
+    <text x="80" y="32" class="c-title">X11</text>
+    <text x="80" y="56" class="c-mono" style="opacity:0.85">gpui_linux</text>
+  </g>
+
+  <!-- Düzey 3: Test Desteği -->
+  <g transform="translate(840, 390)" class="lvl3">
+    <rect width="220" height="70" rx="12" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6,4" class="card" />
+    <text x="110" y="32" class="c-title" style="fill:#b45309">Test Desteği</text>
+    <text x="110" y="56" class="c-mono" style="fill:#b45309; font-size:13px">current_headless_renderer()</text>
+  </g>
+
+  <!-- Alt bilgi -->
+  <g transform="translate(60, 530)">
+    <rect width="980" height="80" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" class="card" />
+    <text x="490" y="34" class="note">Tüm dallar aynı Platform trait yüzeyini karşılar. Uygulama kodu işletim sistemine göre ayrışmaz;</text>
+    <text x="490" y="58" class="note">App ve Window sarmalayıcıları bu farkı tamamen gizler.</text>
+  </g>
 
 </svg>

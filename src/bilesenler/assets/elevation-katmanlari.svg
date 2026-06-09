@@ -1,91 +1,129 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
-  <title>ElevationIndex katman hiyerarşisi</title>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 540">
+  <title>ElevationIndex Katman Hiyerarşisi</title>
   <defs>
+    <filter id="shadow-bg" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <filter id="shadow-surface" x="-25%" y="-25%" width="150%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.10" />
+    </filter>
+    <filter id="shadow-elevated" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.16" />
+    </filter>
+    <filter id="shadow-modal" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="28" stdDeviation="22" flood-color="#0284c7" flood-opacity="0.26" />
+    </filter>
+
+    <linearGradient id="grad-bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f1f5f9" />
+    </linearGradient>
+    <linearGradient id="grad-surface" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
+    <linearGradient id="grad-elevated" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" />
+      <stop offset="1" stop-color="#e2e8f0" />
+    </linearGradient>
+    <linearGradient id="grad-modal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f0f9ff" />
+    </linearGradient>
+    <linearGradient id="grad-zaxis" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#94a3b8" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+
+    <marker id="arrow-z" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#0284c7" />
+    </marker>
+
     <style>
-      .bg { fill: #f8fafc; rx: 12px; }
-      .title { font-family: system-ui, -apple-system, sans-serif; font-weight: 700; font-size: 20px; fill: #0f172a; text-anchor: middle; }
-      .sub { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; fill: #475569; text-anchor: middle; }
+      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+      .text-lbl { font: 800 16px system-ui, -apple-system, sans-serif; fill: #0f172a; }
+      .text-desc { font: 500 13px system-ui, -apple-system, sans-serif; fill: #475569; }
+      .text-shadow-label { font: 600 12px ui-monospace, SFMono-Regular, monospace; fill: #e11d48; }
 
-      /* Colors and shadows for elevations */
-      .layer-bg { fill: #f1f5f9; stroke: #ffffff; stroke-width: 2; opacity: 0.9; }
-      .layer-surface { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; opacity: 0.9; }
-      .layer-elevated { fill: #e2e8f0; stroke: #475569; stroke-width: 2; opacity: 0.9; }
-      .layer-modal { fill: #ffffff; stroke: #0284c7; stroke-width: 2; opacity: 0.95; }
+      .layer-bg { fill: url(#grad-bg); stroke: #cbd5e1; stroke-width: 2; }
+      .layer-surface { fill: url(#grad-surface); stroke: #cbd5e1; stroke-width: 2; }
+      .layer-elevated { fill: url(#grad-elevated); stroke: #94a3b8; stroke-width: 2; }
+      .layer-modal { fill: url(#grad-modal); stroke: #0284c7; stroke-width: 3; }
 
-      .text-lbl { font-family: system-ui, -apple-system, sans-serif; font-weight: bold; font-size: 14px; fill: #0f172a; }
-      .text-desc { font-family: system-ui, -apple-system, sans-serif; font-size: 11px; fill: #475569; }
-      .text-shadow-label { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; fill: #db2777; }
+      .zlbl { font: 700 12px system-ui, -apple-system, sans-serif; fill: #0284c7; }
+      .znote { font: 500 12px system-ui, -apple-system, sans-serif; fill: #94a3b8; }
 
-      /* Floating animations */
       @keyframes float-modal {
-        0%, 100% { transform: translate(400px, 190px) scale(1.26) rotateX(60deg) rotateZ(-7deg); }
-        50% { transform: translate(400px, 170px) scale(1.26) rotateX(60deg) rotateZ(-7deg); }
+        0%, 100% { transform: translate(430px, 210px) scale(1.15) rotateX(55deg) rotateZ(-10deg); }
+        50% { transform: translate(430px, 190px) scale(1.15) rotateX(55deg) rotateZ(-10deg); }
       }
       @keyframes float-elevated {
-        0%, 100% { transform: translate(400px, 240px) scale(1.44) rotateX(60deg) rotateZ(-7deg); }
-        50% { transform: translate(400px, 225px) scale(1.44) rotateX(60deg) rotateZ(-7deg); }
+        0%, 100% { transform: translate(430px, 270px) scale(1.3) rotateX(55deg) rotateZ(-10deg); }
+        50% { transform: translate(430px, 255px) scale(1.3) rotateX(55deg) rotateZ(-10deg); }
       }
       @keyframes float-surface {
-        0%, 100% { transform: translate(400px, 297px) scale(1.62) rotateX(60deg) rotateZ(-7deg); }
-        50% { transform: translate(400px, 287px) scale(1.62) rotateX(60deg) rotateZ(-7deg); }
+        0%, 100% { transform: translate(430px, 330px) scale(1.45) rotateX(55deg) rotateZ(-10deg); }
+        50% { transform: translate(430px, 320px) scale(1.45) rotateX(55deg) rotateZ(-10deg); }
       }
       @keyframes float-base {
-        0%, 100% { transform: translate(400px, 360px) scale(1.80) rotateX(60deg) rotateZ(-7deg); }
+        0%, 100% { transform: translate(430px, 390px) scale(1.6) rotateX(55deg) rotateZ(-10deg); }
       }
 
-      /* Explicit transform origins to prevent shifting */
-      .modal-g {
-        animation: float-modal 6s infinite ease-in-out;
-        transform-origin: 0px 0px;
-      }
-      .elevated-g {
-        animation: float-elevated 6s infinite ease-in-out;
-        transform-origin: 0px 0px;
-      }
-      .surface-g {
-        animation: float-surface 6s infinite ease-in-out;
-        transform-origin: 0px 0px;
-      }
-      .base-g {
-        animation: float-base 6s infinite ease-in-out;
-        transform-origin: 0px 0px;
+      .modal-g { animation: float-modal 9s infinite ease-in-out; transform-origin: 0 0; }
+      .elevated-g { animation: float-elevated 9s infinite ease-in-out; transform-origin: 0 0; }
+      .surface-g { animation: float-surface 9s infinite ease-in-out; transform-origin: 0 0; }
+      .base-g { animation: float-base 9s infinite ease-in-out; transform-origin: 0 0; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .modal-g, .elevated-g, .surface-g, .base-g { animation: none; }
       }
     </style>
   </defs>
 
-  <rect width="800" height="500" class="bg" />
-  <text x="400" y="30" class="title">ElevationIndex Katman Hiyerarşisi</text>
-  <text x="400" y="55" class="sub">Yüzeylerin Z eksenindeki yığılımı ve gölge/kenarlık ilişkileri</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+
+  <text x="430" y="46" class="title">ElevationIndex Katman Hiyerarşisi</text>
+  <text x="430" y="74" class="sub">Yüzeylerin Z eksenindeki yığılımı ve gölge/kenarlık ilişkileri</text>
+
+  <!-- Z ekseni göstergesi (sol kenar) -->
+  <g>
+    <line x1="60" y1="470" x2="60" y2="130" stroke="url(#grad-zaxis)" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow-z)" />
+    <text x="74" y="128" class="zlbl">+z</text>
+    <text x="74" y="146" class="znote">üst</text>
+    <text x="74" y="464" class="znote">zemin</text>
+    <text x="40" y="305" class="znote" transform="rotate(-90 40 305)" text-anchor="middle">artan elevation / gölge</text>
+  </g>
 
   <!-- 1. En Alt Katman: Background -->
   <g class="base-g">
-    <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-bg" />
-    <text x="-180" y="60" class="text-lbl">Background (Zemin)</text>
-    <text x="-180" y="80" class="text-desc">Uygulamanın en alt pencere tabanı</text>
+    <rect x="-200" y="-120" width="400" height="240" rx="12" class="layer-bg" filter="url(#shadow-bg)" />
+    <text x="-170" y="60" class="text-lbl">Background (Zemin)</text>
+    <text x="-170" y="80" class="text-desc">Uygulamanın en alt pencere tabanı</text>
   </g>
 
   <!-- 2. İkinci Katman: Surface -->
   <g class="surface-g">
-    <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-surface" />
-    <text x="-180" y="60" class="text-lbl">Surface (Paneller &amp; Editör)</text>
-    <text x="-180" y="80" class="text-desc">Editör alanları, sidebar ve workspace panelleri</text>
-    <text x="-180" y="100" class="text-shadow-label">shadow_sm() / border_muted()</text>
+    <rect x="-200" y="-120" width="400" height="240" rx="12" class="layer-surface" filter="url(#shadow-surface)" />
+    <text x="-170" y="60" class="text-lbl">Surface (Paneller &amp; Editör)</text>
+    <text x="-170" y="80" class="text-desc">Editör alanları, sidebar ve workspace panelleri</text>
+    <text x="-170" y="105" class="text-shadow-label">shadow_sm() / border_muted()</text>
   </g>
 
   <!-- 3. Üçüncü Katman: Elevated -->
   <g class="elevated-g">
-    <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-elevated" />
-    <text x="-180" y="60" class="text-lbl">ElevatedSurface (Popover &amp; Tooltip)</text>
-    <text x="-180" y="80" class="text-desc">Açılır menüler, dropdown ve bilgi kutuları</text>
-    <text x="-180" y="100" class="text-shadow-label">shadow_md() / border_primary()</text>
+    <rect x="-200" y="-120" width="400" height="240" rx="12" class="layer-elevated" filter="url(#shadow-elevated)" />
+    <text x="-170" y="60" class="text-lbl">ElevatedSurface (Popover &amp; Tooltip)</text>
+    <text x="-170" y="80" class="text-desc">Açılır menüler, dropdown ve bilgi kutuları</text>
+    <text x="-170" y="105" class="text-shadow-label">shadow_md() / border_primary()</text>
   </g>
 
   <!-- 4. En Üst Katman: Modal -->
   <g class="modal-g">
-    <rect x="-200" y="-120" width="400" height="240" rx="8" class="layer-modal" />
-    <text x="-180" y="60" class="text-lbl" fill="#0284c7">ModalSurface (Dialogs)</text>
-    <text x="-180" y="80" class="text-desc">Kullanıcı eylemi bekleyen modal pencereler</text>
-    <text x="-180" y="100" class="text-shadow-label" fill="#0284c7">shadow_2xl() / .border_2()</text>
+    <rect x="-200" y="-120" width="400" height="240" rx="12" class="layer-modal" filter="url(#shadow-modal)" />
+    <text x="-170" y="60" class="text-lbl" style="fill:#0284c7">ModalSurface (Dialogs)</text>
+    <text x="-170" y="80" class="text-desc">Kullanıcı eylemi bekleyen modal pencereler</text>
+    <text x="-170" y="105" class="text-shadow-label" style="fill:#0284c7">shadow_2xl() / .border_2()</text>
   </g>
 
 </svg>

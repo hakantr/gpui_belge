@@ -1,86 +1,113 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 240">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 320">
   <title>FontWeight Ölçeği</title>
   <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.04" />
+    </filter>
     <style>
-      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cname { font: 700 9px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-      .cval  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; }
-      .note  { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
+      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+      .cname { font: 800 12px ui-monospace, SFMono-Regular, monospace; text-anchor: middle; }
+      .cval { font: 600 14px system-ui, -apple-system, sans-serif; text-anchor: middle; }
+      .csmall { font: 500 11px system-ui, -apple-system, sans-serif; text-anchor: middle; }
+      .note { font: 500 14px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+      .card { filter: url(#shadow); rx: 12px; }
+      .letter { font-family: system-ui, -apple-system, sans-serif; text-anchor: middle; }
     </style>
   </defs>
 
-  <rect width="820" height="240" rx="10" fill="#f8fafc" />
-  <text x="410" y="30" text-anchor="middle" class="title">FontWeight Ölçeği</text>
-  <text x="410" y="50" text-anchor="middle" class="sub">9 sabit; CSS ağırlık değerleriyle birebir eşleşir. FontWeight(pub f32) yeni tip olarak tanımlıdır.</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+  
+  <text x="530" y="46" class="title">FontWeight Ölçeği</text>
+  <text x="530" y="74" class="sub">9 sabit değer; CSS ağırlık değerleriyle birebir eşleşir. FontWeight yeni tip olarak tanımlıdır.</text>
 
-  <!-- 9 kutucuk: genişlik=83px, aralık=4px; sol kenar=21px -->
-  <!-- x sırası: 21, 108, 195, 282, 369, 456, 543, 630, 717 -->
-  <!-- merkez  : 62, 149, 236, 323, 410, 497, 584, 671, 758 -->
+  <!-- 9 kutucuk -->
+  <!-- Genişlik: 96, Aralık: 16 -> Toplam Genişlik: 9*96 + 8*16 = 864 + 128 = 992. Merkez=530 -> Başlangıç=530 - 496 = 34 -->
+  
+  <g transform="translate(34, 110)">
+    <!-- THIN 100 -->
+    <g transform="translate(0, 0)">
+      <rect width="96" height="150" class="card" fill="#e0e7ff" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="100" fill="#312e81">Aa</text>
+      <text x="48" y="96" class="cname" fill="#3730a3">THIN</text>
+      <text x="48" y="116" class="cval" fill="#4338ca">100.0</text>
+      <text x="48" y="136" class="csmall" fill="#4f46e5">thin</text>
+    </g>
 
-  <!-- THIN 100 -->
-  <rect x="21" y="65" width="83" height="150" rx="6" fill="#c7d2fe"/>
-  <text x="62" y="117" text-anchor="middle" font-size="34" font-weight="100" font-family="system-ui, -apple-system, sans-serif" fill="#1e1b4b">Aa</text>
-  <text x="62" y="142" text-anchor="middle" class="cname" fill="#312e81">THIN</text>
-  <text x="62" y="157" text-anchor="middle" class="cval" fill="#3730a3">100.0</text>
-  <text x="62" y="171" text-anchor="middle" class="cval" font-size="9" fill="#4338ca">thin</text>
+    <!-- EXTRA_LIGHT 200 -->
+    <g transform="translate(112, 0)">
+      <rect width="96" height="150" class="card" fill="#c7d2fe" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="200" fill="#312e81">Aa</text>
+      <text x="48" y="96" class="cname" fill="#3730a3">EXTRA_LIGHT</text>
+      <text x="48" y="116" class="cval" fill="#4338ca">200.0</text>
+      <text x="48" y="136" class="csmall" fill="#4f46e5">extra-light</text>
+    </g>
 
-  <!-- EXTRA_LIGHT 200 -->
-  <rect x="108" y="65" width="83" height="150" rx="6" fill="#a5b4fc"/>
-  <text x="149" y="117" text-anchor="middle" font-size="34" font-weight="200" font-family="system-ui, -apple-system, sans-serif" fill="#1e1b4b">Aa</text>
-  <text x="149" y="142" text-anchor="middle" class="cname" fill="#312e81">EXTRA_LIGHT</text>
-  <text x="149" y="157" text-anchor="middle" class="cval" fill="#3730a3">200.0</text>
-  <text x="149" y="171" text-anchor="middle" class="cval" font-size="9" fill="#4338ca">extra-light</text>
+    <!-- LIGHT 300 -->
+    <g transform="translate(224, 0)">
+      <rect width="96" height="150" class="card" fill="#a5b4fc" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="300" fill="#1e1b4b">Aa</text>
+      <text x="48" y="96" class="cname" fill="#312e81">LIGHT</text>
+      <text x="48" y="116" class="cval" fill="#3730a3">300.0</text>
+      <text x="48" y="136" class="csmall" fill="#4338ca">light</text>
+    </g>
 
-  <!-- LIGHT 300 -->
-  <rect x="195" y="65" width="83" height="150" rx="6" fill="#818cf8"/>
-  <text x="236" y="117" text-anchor="middle" font-size="34" font-weight="300" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
-  <text x="236" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">LIGHT</text>
-  <text x="236" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">300.0</text>
-  <text x="236" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">light</text>
+    <!-- NORMAL 400 -->
+    <g transform="translate(336, 0)">
+      <rect width="96" height="150" class="card" fill="#818cf8" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="400" fill="#ffffff">Aa</text>
+      <text x="48" y="96" class="cname" fill="#e0e7ff">NORMAL</text>
+      <text x="48" y="116" class="cval" fill="#ffffff">400.0</text>
+      <text x="48" y="136" class="csmall" fill="#c7d2fe">normal (default)</text>
+    </g>
 
-  <!-- NORMAL 400 -->
-  <rect x="282" y="65" width="83" height="150" rx="6" fill="#6366f1"/>
-  <text x="323" y="117" text-anchor="middle" font-size="34" font-weight="400" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
-  <text x="323" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">NORMAL</text>
-  <text x="323" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">400.0</text>
-  <text x="323" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">normal (default)</text>
+    <!-- MEDIUM 500 -->
+    <g transform="translate(448, 0)">
+      <rect width="96" height="150" class="card" fill="#6366f1" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="500" fill="#ffffff">Aa</text>
+      <text x="48" y="96" class="cname" fill="#e0e7ff">MEDIUM</text>
+      <text x="48" y="116" class="cval" fill="#ffffff">500.0</text>
+      <text x="48" y="136" class="csmall" fill="#c7d2fe">medium</text>
+    </g>
 
-  <!-- MEDIUM 500 -->
-  <rect x="369" y="65" width="83" height="150" rx="6" fill="#4f46e5"/>
-  <text x="410" y="117" text-anchor="middle" font-size="34" font-weight="500" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
-  <text x="410" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">MEDIUM</text>
-  <text x="410" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">500.0</text>
-  <text x="410" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">medium</text>
+    <!-- SEMIBOLD 600 -->
+    <g transform="translate(560, 0)">
+      <rect width="96" height="150" class="card" fill="#4f46e5" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="600" fill="#ffffff">Aa</text>
+      <text x="48" y="96" class="cname" fill="#e0e7ff">SEMIBOLD</text>
+      <text x="48" y="116" class="cval" fill="#ffffff">600.0</text>
+      <text x="48" y="136" class="csmall" fill="#c7d2fe">semibold</text>
+    </g>
 
-  <!-- SEMIBOLD 600 -->
-  <rect x="456" y="65" width="83" height="150" rx="6" fill="#4338ca"/>
-  <text x="497" y="117" text-anchor="middle" font-size="34" font-weight="600" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
-  <text x="497" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">SEMIBOLD</text>
-  <text x="497" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">600.0</text>
-  <text x="497" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">semibold</text>
+    <!-- BOLD 700 -->
+    <g transform="translate(672, 0)">
+      <rect width="96" height="150" class="card" fill="#4338ca" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="700" fill="#ffffff">Aa</text>
+      <text x="48" y="96" class="cname" fill="#e0e7ff">BOLD</text>
+      <text x="48" y="116" class="cval" fill="#ffffff">700.0</text>
+      <text x="48" y="136" class="csmall" fill="#c7d2fe">bold</text>
+    </g>
 
-  <!-- BOLD 700 -->
-  <rect x="543" y="65" width="83" height="150" rx="6" fill="#3730a3"/>
-  <text x="584" y="117" text-anchor="middle" font-size="34" font-weight="700" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
-  <text x="584" y="142" text-anchor="middle" class="cname" fill="#e0e7ff">BOLD</text>
-  <text x="584" y="157" text-anchor="middle" class="cval" fill="#e0e7ff">700.0</text>
-  <text x="584" y="171" text-anchor="middle" class="cval" font-size="9" fill="#c7d2fe">bold</text>
+    <!-- EXTRA_BOLD 800 -->
+    <g transform="translate(784, 0)">
+      <rect width="96" height="150" class="card" fill="#3730a3" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="800" fill="#ffffff">Aa</text>
+      <text x="48" y="96" class="cname" fill="#c7d2fe">EXTRA_BOLD</text>
+      <text x="48" y="116" class="cval" fill="#ffffff">800.0</text>
+      <text x="48" y="136" class="csmall" fill="#a5b4fc">extra-bold</text>
+    </g>
 
-  <!-- EXTRA_BOLD 800 -->
-  <rect x="630" y="65" width="83" height="150" rx="6" fill="#1e1b4b"/>
-  <text x="671" y="117" text-anchor="middle" font-size="34" font-weight="800" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
-  <text x="671" y="142" text-anchor="middle" class="cname" fill="#c7d2fe">EXTRA_BOLD</text>
-  <text x="671" y="157" text-anchor="middle" class="cval" fill="#c7d2fe">800.0</text>
-  <text x="671" y="171" text-anchor="middle" class="cval" font-size="9" fill="#a5b4fc">extra-bold</text>
+    <!-- BLACK 900 -->
+    <g transform="translate(896, 0)">
+      <rect width="96" height="150" class="card" fill="#1e1b4b" />
+      <text x="48" y="56" class="letter" font-size="44" font-weight="900" fill="#ffffff">Aa</text>
+      <text x="48" y="96" class="cname" fill="#c7d2fe">BLACK</text>
+      <text x="48" y="116" class="cval" fill="#ffffff">900.0</text>
+      <text x="48" y="136" class="csmall" fill="#a5b4fc">black</text>
+    </g>
+  </g>
 
-  <!-- BLACK 900 -->
-  <rect x="717" y="65" width="83" height="150" rx="6" fill="#0f172a"/>
-  <text x="758" y="117" text-anchor="middle" font-size="34" font-weight="900" font-family="system-ui, -apple-system, sans-serif" fill="#fff">Aa</text>
-  <text x="758" y="142" text-anchor="middle" class="cname" fill="#c7d2fe">BLACK</text>
-  <text x="758" y="157" text-anchor="middle" class="cval" fill="#c7d2fe">900.0</text>
-  <text x="758" y="171" text-anchor="middle" class="cval" font-size="9" fill="#a5b4fc">black</text>
+  <!-- Alt Not -->
+  <text x="530" y="294" class="note">FontWeight::ALL tüm değerleri sırayla taşır — font seçici iterasyonu için pratik erişim sunar.</text>
 
-  <!-- Alt not -->
-  <text x="410" y="232" text-anchor="middle" class="note">FontWeight::ALL tüm değerleri sırayla taşır — font seçici iterasyonu için.</text>
 </svg>

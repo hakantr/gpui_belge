@@ -1,73 +1,141 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 420">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 540">
   <title>Item, Pane, Modal ve Notification Akışı</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
+
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" />
+      <stop offset="1" stop-color="#334155" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" />
+      <stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f43f5e" />
+      <stop offset="1" stop-color="#e11d48" />
+    </linearGradient>
+
     <style>
-      .title{font:700 22px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#0f172a}
-      .sub{font:13px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#475569}
-      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
-      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
-      .body{font:12px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#334155}
-      .small{font:11px system-ui,-apple-system,"Segoe UI",sans-serif;fill:#64748b}
-      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow); marker-start: url(#dot-arrow)}
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .api { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .when { font: 700 11px system-ui, -apple-system, sans-serif; fill: rgba(255, 255, 255, 0.85); letter-spacing: 0.2px; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+
+      .flow { stroke: #94a3b8; stroke-width: 2.5; fill: none; stroke-dasharray: 6 8; stroke-linecap: round; animation: dash 9s linear infinite; }
+      @keyframes dash { to { stroke-dashoffset: -56; } }
+
+      @media (prefers-reduced-motion: reduce) {
+        .flow { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="960" height="420" rx="10" fill="#f8fafc"/>
-  <text x="480" y="36" text-anchor="middle" class="title">Item, Pane, Modal ve Notification Akışı</text>
-  <text x="480" y="60" text-anchor="middle" class="sub">Workspace katmanı tab içeriğini, geçici yüzeyleri ve bildirimleri ayrı kanallarda yönetir.</text>
 
-  <rect x="46" y="120" width="168" height="104" rx="8" class="card"/>
-  <rect x="46" y="120" width="168" height="30" rx="8" fill="#334155"/>
-  <path d="M46 142 H214 V150 H46 Z" fill="#334155"/>
-  <text x="62" y="140" class="head">Workspace</text>
-  <text x="62" y="172" class="body">action kayıtları</text>
-  <text x="62" y="190" class="body">dock + status bar</text>
-  <text x="62" y="208" class="small">ana oturum sahibi</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <rect x="286" y="80" width="168" height="96" rx="8" class="card"/>
-  <rect x="286" y="80" width="168" height="30" rx="8" fill="#0284c7"/>
-  <path d="M286 102 H454 V110 H286 Z" fill="#0284c7"/>
-  <text x="302" y="100" class="head">Pane</text>
-  <text x="302" y="132" class="body">ItemHandle listesi</text>
-  <text x="302" y="150" class="small">activate / split / close</text>
+  <text x="550" y="52" class="title">Item, Pane, Modal ve Notification Akışı</text>
+  <text x="550" y="82" class="sub">Workspace katmanı tab içeriğini, geçici yüzeyleri ve bildirimleri ayrı kanallarda yönetir.</text>
 
-  <rect x="530" y="80" width="168" height="96" rx="8" class="card"/>
-  <rect x="530" y="80" width="168" height="30" rx="8" fill="#059669"/>
-  <path d="M530 102 H698 V110 H530 Z" fill="#059669"/>
-  <text x="546" y="100" class="head">Item</text>
-  <text x="546" y="132" class="body">Focusable + Render</text>
-  <text x="546" y="150" class="small">tab_content üretir</text>
+  <!-- ================= OKLAR (kartların altında) ================= -->
+  <!-- Workspace -> Pane -->
+  <path d="M 240 215 C 280 215 280 165 320 165" class="arrow-line" />
+  <path d="M 240 215 C 280 215 280 165 318 165" class="flow" />
+  <!-- Workspace -> ModalLayer -->
+  <path d="M 240 265 C 280 265 280 345 320 345" class="arrow-line" />
+  <path d="M 240 265 C 280 265 280 345 318 345" class="flow" />
+  <!-- Pane -> Item -->
+  <path d="M 520 165 H 600" class="arrow-line" />
+  <path d="M 520 165 H 598" class="flow" />
+  <!-- ModalLayer -> Notification -->
+  <path d="M 520 345 H 600" class="arrow-line" />
+  <path d="M 520 345 H 598" class="flow" />
+  <!-- Item -> UI -->
+  <path d="M 800 165 C 830 165 830 230 860 230" class="arrow-line" />
+  <path d="M 800 165 C 830 165 830 230 858 230" class="flow" />
+  <!-- Notification -> UI -->
+  <path d="M 800 345 C 830 345 830 280 860 280" class="arrow-line" />
+  <path d="M 800 345 C 830 345 830 280 858 280" class="flow" />
 
-  <rect x="286" y="244" width="168" height="96" rx="8" class="card"/>
-  <rect x="286" y="244" width="168" height="30" rx="8" fill="#7c3aed"/>
-  <path d="M286 266 H454 V274 H286 Z" fill="#7c3aed"/>
-  <text x="302" y="264" class="head">ModalLayer</text>
-  <text x="302" y="296" class="body">ManagedView</text>
-  <text x="302" y="314" class="small">dismiss kararı</text>
+  <!-- ================= KÖK: WORKSPACE ================= -->
+  <g transform="translate(40, 180)">
+    <rect width="200" height="130" rx="12" fill="url(#g-slate)" filter="url(#shadow)" />
+    <text x="100" y="34" class="api">Workspace</text>
+    <line x1="20" y1="48" x2="180" y2="48" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5" />
+    <text x="20" y="74" class="body">• Action kayıtları</text>
+    <text x="20" y="96" class="body">• Dock + Status Bar</text>
+    <text x="20" y="120" class="when">ANA OTURUM SAHİBİ</text>
+  </g>
 
-  <rect x="530" y="244" width="168" height="96" rx="8" class="card"/>
-  <rect x="530" y="244" width="168" height="30" rx="8" fill="#d97706"/>
-  <path d="M530 266 H698 V274 H530 Z" fill="#d97706"/>
-  <text x="546" y="264" class="head">Notification</text>
-  <text x="546" y="296" class="body">toast / suppress</text>
-  <text x="546" y="314" class="small">DismissEvent yayar</text>
+  <!-- ================= PANE & ITEM (TAB) ================= -->
+  <g transform="translate(320, 110)">
+    <rect width="200" height="110" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
+    <text x="100" y="34" class="api">Pane</text>
+    <line x1="20" y1="48" x2="180" y2="48" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5" />
+    <text x="20" y="74" class="body">• ItemHandle Listesi</text>
+    <text x="20" y="98" class="when">ACTIVATE / SPLIT / CLOSE</text>
+  </g>
 
-  <rect x="774" y="160" width="130" height="96" rx="8" class="card"/>
-  <rect x="774" y="160" width="130" height="30" rx="8" fill="#be123c"/>
-  <path d="M774 182 H904 V190 H774 Z" fill="#be123c"/>
-  <text x="790" y="180" class="head">UI</text>
-  <text x="790" y="212" class="body">render tree</text>
-  <text x="790" y="230" class="small">focus + events</text>
+  <g transform="translate(600, 110)">
+    <rect width="200" height="110" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
+    <text x="100" y="34" class="api">Item</text>
+    <line x1="20" y1="48" x2="180" y2="48" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5" />
+    <text x="20" y="74" class="body">• Focusable + Render</text>
+    <text x="20" y="98" class="when">TAB İÇERİĞİNİ ÜRETİR</text>
+  </g>
 
-  <path d="M214 164 C250 146 252 128 278 128" class="arrow"/>
-  <path d="M454 128 H522" class="arrow"/>
-  <path d="M214 184 C252 218 250 292 278 292" class="arrow"/>
-  <path d="M454 292 H522" class="arrow"/>
-  <path d="M698 128 C744 128 744 210 766 210" class="arrow"/>
-  <path d="M698 292 C744 292 744 210 766 210" class="arrow"/>
+  <!-- ================= MODAL & NOTIFICATION ================= -->
+  <g transform="translate(320, 290)">
+    <rect width="200" height="110" rx="12" fill="url(#g-purple)" filter="url(#shadow)" />
+    <text x="100" y="34" class="api">ModalLayer</text>
+    <line x1="20" y1="48" x2="180" y2="48" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5" />
+    <text x="20" y="74" class="body">• ManagedView</text>
+    <text x="20" y="98" class="when">DISMISS (KAPANMA) KARARI</text>
+  </g>
+
+  <g transform="translate(600, 290)">
+    <rect width="200" height="110" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
+    <text x="100" y="34" class="api">Notification</text>
+    <line x1="20" y1="48" x2="180" y2="48" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5" />
+    <text x="20" y="74" class="body">• Toast / Suppress</text>
+    <text x="20" y="98" class="when">DISMISSEVENT YAYAR</text>
+  </g>
+
+  <!-- ================= UI RENDER ================= -->
+  <g transform="translate(860, 180)">
+    <rect width="180" height="130" rx="12" fill="url(#g-rose)" filter="url(#shadow)" />
+    <text x="90" y="34" class="api">UI Engine</text>
+    <line x1="20" y1="48" x2="160" y2="48" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1.5" />
+    <text x="20" y="74" class="body">• Render Tree</text>
+    <text x="20" y="96" class="body">• Focus &amp; Events</text>
+    <text x="20" y="120" class="when">AĞACI EKRANA ÇİZER</text>
+  </g>
+
+  <!-- ================= ALT BİLGİ ================= -->
+  <g transform="translate(40, 460)">
+    <rect width="1020" height="44" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+    <text x="510" y="28" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="14" fill="#1e40af">Kural: Item sekme içeriği içindir, ModalLayer ise her şeyin üstünde (z-index) geçici olarak çizilir.</text>
+  </g>
+
 </svg>

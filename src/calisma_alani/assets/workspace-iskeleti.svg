@@ -1,108 +1,191 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1380 970">
   <title>Zed Workspace İskeleti</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
-    <marker id="arrowRed" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrowRed" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
-    </marker>
+
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" /><stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" /><stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" /><stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-teal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14b8a6" /><stop offset="1" stop-color="#0d9488" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ecfdf5" /><stop offset="1" stop-color="#d1fae5" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffe4e6" /><stop offset="1" stop-color="#fecdd3" />
+    </linearGradient>
+    <linearGradient id="g-bar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f1f5f9" /><stop offset="1" stop-color="#e2e8f0" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
-      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); marker-start: url(#dot-arrowRed); }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .card-title { font: 800 16px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .card-body { font: 600 13px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+
+      .pane-title { font: 800 15px system-ui, -apple-system, sans-serif; fill: #059669; text-anchor: middle; }
+      .pane-body { font: 600 12px ui-monospace, SFMono-Regular, monospace; fill: #334155; }
+
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; rx: 8px; filter: url(#shadow); }
+
+      /* Animasyonlar */
+      @keyframes anim-macos-op {
+        0%, 45% { opacity: 1; }
+        50%, 95% { opacity: 0; }
+        100% { opacity: 1; }
+      }
+      @keyframes anim-win-op {
+        0%, 45% { opacity: 0; }
+        50%, 95% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+      .anim-macos { animation: anim-macos-op 8s infinite; }
+      .anim-win { animation: anim-win-op 8s infinite; opacity: 0; }
+      @media (prefers-reduced-motion: reduce) {
+        .anim-macos { animation: none; opacity: 1; }
+        .anim-win { animation: none; opacity: 0; }
+      }
     </style>
-    
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">Zed Workspace İskeleti</text>
 
-  <text x="580" y="62" text-anchor="middle" class="subtitle">Workspace kök Entity; dock'lar, pane grubu, status bar ve modal katmanı birlikte çalışır.</text>
-  <rect x="60" y="92" width="1040" height="530" rx="12" fill="#f1f5f9" stroke="#334155" stroke-width="1.6" />
-  <text x="86" y="122" class="label">Workspace - kök Entity</text>
-  <text x="86" y="144" class="small">left_dock, right_dock, bottom_dock, center: PaneGroup, status_bar ve modal_layer.</text>
-  <rect x="86" y="168" width="220" height="280" rx="8" class="card" />
-<rect x="86" y="168" width="220" height="30" rx="8" fill="#0284c7" />
-<path d="M 86 190 H 306 V 198 H 86 Z" fill="#0284c7" />
-<text x="100" y="188" class="cardTitle">left_dock: Dock</text>
-<text x="100" y="220" class="body">DockPosition::Left.</text>
-<text x="100" y="237" class="body">Project, Outline, Git Panel.</text>
-<text x="100" y="254" class="body">activation_priority sırası.</text>
-<text x="100" y="271" class="body">Panel: Focusable + Render.</text>
-<text x="100" y="288" class="body">EventEmitter&lt;PanelEvent&gt;.</text>
-<text x="100" y="305" class="body">PanelEvent: Activate, Close.</text>
-<text x="100" y="322" class="body">ZoomIn ve ZoomOut.</text>
-<text x="100" y="339" class="body">ToggleLeftDock.</text>
-<text x="100" y="356" class="body">resize_active_panel.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <rect x="854" y="168" width="220" height="280" rx="8" class="card" />
-<rect x="854" y="168" width="220" height="30" rx="8" fill="#7c3aed" />
-<path d="M 854 190 H 1074 V 198 H 854 Z" fill="#7c3aed" />
-<text x="868" y="188" class="cardTitle">right_dock: Dock</text>
-<text x="868" y="220" class="body">DockPosition::Right.</text>
-<text x="868" y="237" class="body">Assistant, Outline, Chat.</text>
-<text x="868" y="254" class="body">add_panel benzersiz</text>
-<text x="868" y="271" class="body">priority ister.</text>
-<text x="868" y="288" class="body">Aynı priority panic üretir.</text>
-<text x="868" y="322" class="body">visible_panel, active_panel.</text>
-<text x="868" y="339" class="body">panel::&lt;T&gt;() -&gt;</text>
-<text x="868" y="356" class="body">Option&lt;Entity&lt;T&gt;&gt;.</text>
+  <g transform="translate(90, 0)">
+  <!-- BAŞLIK & ALT BAŞLIK -->
+  <g class="anim-macos">
+    <text x="600" y="46" class="title">Zed Workspace İskeleti <tspan fill="#64748b" font-size="18">(macOS)</tspan></text>
+  </g>
+  <g class="anim-win">
+    <text x="600" y="46" class="title">Zed Workspace İskeleti <tspan fill="#64748b" font-size="18">(Linux / Windows)</tspan></text>
+  </g>
+  <text x="600" y="74" class="sub">Workspace kök Entity; dock'lar, pane grubu, status bar ve modal katmanı birlikte çalışır.</text>
 
-  <rect x="330" y="168" width="500" height="230" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.4" />
-  <text x="580" y="198" text-anchor="middle" class="label">center: PaneGroup</text>
-  <text x="580" y="220" text-anchor="middle" class="body">Member::Pane veya Member::Axis(PaneAxis).</text>
-  <rect x="356" y="244" width="220" height="128" rx="8" fill="#fff" stroke="#059669" />
-  <text x="466" y="268" text-anchor="middle" class="label">Pane - sol</text>
-  <text x="376" y="292" text-anchor="start" class="small">Tab1 [Item], Tab2, Tab3</text>
-<text x="376" y="308" text-anchor="start" class="small">activate_item / close_item</text>
-<text x="376" y="324" text-anchor="start" class="small">navigate_backward / forward</text>
-<text x="376" y="340" text-anchor="start" class="small">split(direction) -&gt; yeni Pane</text>
-<text x="376" y="356" text-anchor="start" class="small">NavHistory, pin, preview</text>
-  <rect x="594" y="244" width="210" height="128" rx="8" fill="#fff" stroke="#059669" />
-  <text x="699" y="268" text-anchor="middle" class="label">Pane - sağ split</text>
-  <text x="614" y="292" text-anchor="start" class="small">SplitDirection: Up, Down</text>
-<text x="614" y="308" text-anchor="start" class="small">Left, Right</text>
-<text x="614" y="324" text-anchor="start" class="small">ToolbarItemView</text>
-<text x="614" y="340" text-anchor="start" class="small">Emitter&lt;ToolbarItemEvent&gt;</text>
-<text x="614" y="356" text-anchor="start" class="small">Item: tab_content</text>
-  <rect x="330" y="416" width="500" height="84" rx="8" class="card" />
-<rect x="330" y="416" width="500" height="30" rx="8" fill="#d97706" />
-<path d="M 330 438 H 830 V 446 H 330 Z" fill="#d97706" />
-<text x="344" y="436" class="cardTitle">bottom_dock: Dock</text>
-<text x="344" y="468" class="body">DockPosition::Bottom; Terminal, Problems, Debug Console ve Tests.</text>
-<text x="344" y="485" class="body">ToggleBottomDock, Panel trait ve PanelEvent.</text>
+  <!-- ================= DIŞ ÇERÇEVE ================= -->
+  <rect x="50" y="100" width="1100" height="690" rx="14" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" />
 
-  <rect x="86" y="518" width="988" height="44" rx="8" fill="#fff" stroke="#334155" />
-  <text x="580" y="544" text-anchor="middle" class="label">StatusBar - left_items / right_items: Vec&lt;Box&lt;dyn StatusItemView&gt;&gt;</text>
-  <rect x="86" y="574" width="988" height="30" rx="8" fill="#ffe4e6" stroke="#be123c" />
-  <text x="580" y="594" text-anchor="middle" class="small">ModalLayer: ModalView, ManagedView, Notification, ToastView, workspace.toggle_modal&lt;V&gt;(...) ve show_toast.</text>
-  <rect x="60" y="656" width="1040" height="112" rx="8" class="card" />
-<rect x="60" y="656" width="1040" height="30" rx="8" fill="#d97706" />
-<path d="M 60 678 H 1100 V 686 H 60 Z" fill="#d97706" />
-<text x="74" y="676" class="cardTitle">Altyapı - Workspace dışı, paylaşılan</text>
-<text x="74" y="708" class="body">AppState, WorkspaceStore, WorkspaceDb, HistoryManager, OpenListener ve RawOpenRequest.</text>
-<text x="74" y="725" class="body">Workspace::new(workspace_id, project, app_state, window, cx).</text>
-<text x="74" y="742" class="body">Workspace::new_local(paths, app_state, ...).</text>
-<text x="74" y="759" class="body">register_sidebar (MultiWorkspace); Sidebar: Focusable + Render + EventEmitter&lt;SidebarEvent&gt;.</text>
+  <!-- ================= PLATFORM TITLE BAR ================= -->
+  <path d="M 50 114 A 14 14 0 0 1 64 100 H 1136 A 14 14 0 0 1 1150 114 V 134 H 50 Z" fill="url(#g-bar)" stroke="#94a3b8" stroke-width="2" />
 
+  <g class="anim-macos">
+    <circle cx="80" cy="117" r="6" fill="#f87171" />
+    <circle cx="100" cy="117" r="6" fill="#facc15" />
+    <circle cx="120" cy="117" r="6" fill="#4ade80" />
+    <text x="600" y="122" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#64748b" text-anchor="middle">macOS Title Bar (Trafik Işıkları)</text>
+  </g>
+
+  <g class="anim-win">
+    <text x="70" y="122" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#334155" font-weight="600" letter-spacing="1">File   Edit   View   Go   Run   Terminal   Help</text>
+    <path d="M 1080 122 H 1090" stroke="#475569" stroke-width="2" fill="none" />
+    <rect x="1105" y="112" width="10" height="10" fill="none" stroke="#475569" stroke-width="1.5" />
+    <path d="M 1125 112 L 1135 122 M 1135 112 L 1125 122" stroke="#475569" stroke-width="1.5" fill="none" />
+    <text x="600" y="122" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#64748b" text-anchor="middle">Windows/Linux Title Bar &amp; Menü</text>
+  </g>
+
+  <!-- ================= ZED TITLEBAR ================= -->
+  <rect x="70" y="145" width="1060" height="34" class="panel" />
+  <text x="600" y="167" class="card-title" font-size="14" style="fill:#0ea5e9">Zed Titlebar Component (Arama, Kullanıcı, Proje Adı)</text>
+
+  <!-- ================= LEFT DOCK ================= -->
+  <g transform="translate(70, 195)">
+    <rect width="240" height="320" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
+    <text x="120" y="30" class="card-title">left_dock: Dock</text>
+    <line x1="20" y1="44" x2="220" y2="44" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.5" />
+    <text x="20" y="70" class="card-body">• DockPosition::Left</text>
+    <text x="20" y="95" class="card-body">• Project, Outline, Git Panel</text>
+    <text x="20" y="120" class="card-body">• activation_priority sırası</text>
+    <text x="20" y="145" class="card-body">• Panel: Focusable + Render</text>
+    <text x="20" y="170" class="card-body">• EventEmitter&lt;PanelEvent&gt;</text>
+    <text x="20" y="195" class="card-body">• PanelEvent: Activate, Close</text>
+    <text x="20" y="220" class="card-body">• ZoomIn ve ZoomOut</text>
+    <text x="20" y="245" class="card-body">• ToggleLeftDock</text>
+    <text x="20" y="270" class="card-body">• resize_active_panel</text>
+  </g>
+
+  <!-- ================= CENTER PANE GROUP ================= -->
+  <rect x="330" y="195" width="540" height="320" rx="10" fill="url(#g-green)" stroke="#10b981" stroke-width="2" filter="url(#shadow)" />
+  <text x="600" y="225" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="16" fill="#047857" text-anchor="middle">center: PaneGroup</text>
+  <text x="600" y="245" class="card-body" text-anchor="middle" style="fill:#059669">Member::Pane veya Member::Axis(PaneAxis)</text>
+
+  <!-- Sol Pane (Tablar) -->
+  <rect x="350" y="262" width="240" height="232" class="panel" />
+  <text x="470" y="287" class="pane-title">Pane - Sol</text>
+  <line x1="365" y1="298" x2="575" y2="298" stroke="#e2e8f0" stroke-width="1.5" />
+  <text x="365" y="322" class="pane-body">• Tab1 [Item], Tab2, Tab3</text>
+  <text x="365" y="347" class="pane-body">• activate_item / close_item</text>
+  <text x="365" y="372" class="pane-body">• navigate_backward / forward</text>
+  <text x="365" y="397" class="pane-body">• split(direction) → Pane</text>
+  <text x="365" y="422" class="pane-body">• NavHistory</text>
+  <text x="365" y="447" class="pane-body">• pin, preview</text>
+
+  <!-- Sağ Pane (Toolbar) -->
+  <rect x="610" y="262" width="240" height="232" class="panel" />
+  <text x="730" y="287" class="pane-title">Pane - Sağ Split</text>
+  <line x1="625" y1="298" x2="835" y2="298" stroke="#e2e8f0" stroke-width="1.5" />
+  <text x="625" y="322" class="pane-body">• SplitDirection: Up, Down</text>
+  <text x="625" y="347" class="pane-body">&#160;&#160;Left, Right</text>
+  <text x="625" y="372" class="pane-body">• ToolbarItemView</text>
+  <text x="625" y="397" class="pane-body">• Emitter&lt;ToolbarItemEvent&gt;</text>
+  <text x="625" y="422" class="pane-body">• Item: tab_content</text>
+  <text x="625" y="447" class="pane-body">• active_item()</text>
+
+  <!-- ================= RIGHT DOCK ================= -->
+  <g transform="translate(890, 195)">
+    <rect width="240" height="320" rx="12" fill="url(#g-purple)" filter="url(#shadow)" />
+    <text x="120" y="30" class="card-title">right_dock: Dock</text>
+    <line x1="20" y1="44" x2="220" y2="44" stroke="#ffffff" stroke-opacity="0.25" stroke-width="1.5" />
+    <text x="20" y="68" class="card-body">• DockPosition::Right</text>
+    <text x="20" y="93" class="card-body">• Assistant, Outline, Chat</text>
+    <text x="20" y="118" class="card-body">• add_panel benzersiz priority</text>
+    <text x="34" y="138" class="card-body">ister</text>
+    <text x="20" y="163" class="card-body">• Aynı priority panic üretir</text>
+    <text x="20" y="188" class="card-body">• visible_panel()</text>
+    <text x="20" y="213" class="card-body">• active_panel()</text>
+    <text x="20" y="238" class="card-body">• panel::&lt;T&gt;() -&gt;</text>
+    <text x="34" y="258" class="card-body">Option&lt;Entity&lt;T&gt;&gt;</text>
+    <text x="20" y="283" class="card-body">• ToggleRightDock</text>
+  </g>
+
+  <!-- ================= BOTTOM DOCK ================= -->
+  <g transform="translate(70, 530)">
+    <rect width="1060" height="78" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
+    <text x="530" y="30" class="card-title">bottom_dock: Dock</text>
+    <text x="530" y="55" class="card-body" text-anchor="middle">• DockPosition::Bottom • Terminal, Problems, Debug Console, Tests</text>
+    <text x="530" y="72" class="card-body" text-anchor="middle">• ToggleBottomDock • Panel trait • PanelEvent</text>
+  </g>
+
+  <!-- ================= STATUS BAR ================= -->
+  <rect x="70" y="623" width="1060" height="46" class="panel" />
+  <text x="600" y="651" class="pane-title" style="fill:#334155">StatusBar - left_items / right_items: Vec&lt;Box&lt;dyn StatusItemView&gt;&gt;</text>
+
+  <!-- ================= MODAL LAYER (ÜSTTE YÜZEYEN) ================= -->
+  <rect x="70" y="685" width="1060" height="64" rx="8" fill="url(#g-rose)" stroke="#be123c" stroke-width="2" filter="url(#shadow)" />
+  <text x="600" y="710" class="pane-title" style="fill:#be123c">ModalLayer: ModalView, ManagedView, Notification, ToastView</text>
+  <text x="600" y="733" class="pane-body" text-anchor="middle" style="fill:#9f1239">workspace.toggle_modal&lt;V&gt;(...) ve show_toast</text>
+
+  <!-- ================= ALTYAPI ================= -->
+  <g transform="translate(50, 818)">
+    <rect width="1100" height="132" rx="12" fill="url(#g-teal)" filter="url(#shadow)" />
+    <text x="550" y="35" class="card-title" font-size="18">Altyapı - Workspace Dışı, Paylaşılan Modüller</text>
+    <line x1="40" y1="48" x2="1060" y2="48" stroke="#ffffff" stroke-opacity="0.22" stroke-width="1.5" />
+    <text x="550" y="72" class="card-body" text-anchor="middle">• AppState, WorkspaceStore, WorkspaceDb, HistoryManager, OpenListener, RawOpenRequest</text>
+    <text x="550" y="93" class="card-body" text-anchor="middle">• Workspace::new(workspace_id, project, app_state, window, cx) ve Workspace::new_local(paths, app_state, ...)</text>
+    <text x="550" y="114" class="card-body" text-anchor="middle">• register_sidebar (MultiWorkspace), Sidebar: Focusable + Render + EventEmitter&lt;SidebarEvent&gt;</text>
+  </g>
+  </g>
 
 </svg>

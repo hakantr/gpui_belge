@@ -1,87 +1,161 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700">
   <title>reserve_entity ve insert_entity İlişki Kurulumu</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#94a3b8" />
     </marker>
+
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0369a1" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#6d28d9" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#047857" />
+    </linearGradient>
+    <linearGradient id="g-skyPanel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#eff6ff" />
+    </linearGradient>
+    <linearGradient id="g-purplePanel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f5f3ff" />
+    </linearGradient>
+    <linearGradient id="g-amberPanel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf5" />
+      <stop offset="1" stop-color="#fef3c7" />
+    </linearGradient>
+    <linearGradient id="g-rosePanel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff7f8" />
+      <stop offset="1" stop-color="#fee2e2" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .c-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.92; }
+
+      .p-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; text-anchor: middle; }
+      .p-body { font: 600 14px system-ui, -apple-system, sans-serif; opacity: 0.95; text-anchor: middle; }
+      .p-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; opacity: 0.9; text-anchor: middle; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-dash { stroke: #94a3b8; stroke-width: 3; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowDash); stroke-linecap: round; stroke-linejoin: round; }
+      .card { filter: url(#shadow); rx: 12px; }
+      .panel { stroke-width: 2; rx: 12px; filter: url(#shadow); }
+
+      .step1 { animation: pulse 9s ease-in-out infinite; }
+      .step2 { animation: pulse 9s ease-in-out infinite; animation-delay: 0.6s; }
+      .step3 { animation: pulse 9s ease-in-out infinite; animation-delay: 1.2s; }
+      @keyframes pulse {
+        0%   { opacity: 1; }
+        12%  { opacity: 1; }
+        26%  { opacity: 0.82; }
+        40%  { opacity: 1; }
+        100% { opacity: 1; }
+      }
+      .flow { stroke-dasharray: 7 6; animation: flow 9s linear infinite; }
+      @keyframes flow {
+        0%   { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: -130; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .step1, .step2, .step3, .flow { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">reserve_entity ve insert_entity İlişki Kurulumu</text>
-  <text x="580" y="62" text-anchor="middle" class="subtitle">Çift yönlü Entity ilişkilerinde önce slot ayırmak, sonra değerleri yerleştirmek döngü kurulumunu güvenli hale getirir.</text>
 
-  <rect x="80" y="104" width="300" height="120" rx="8" class="card" />
-  <rect x="80" y="104" width="300" height="30" rx="8" fill="#0284c7" />
-  <path d="M 80 126 H 380 V 134 H 80 Z" fill="#0284c7" />
-  <text x="94" y="124" class="cardTitle">1. Slot ayır</text>
-  <text x="94" y="156" class="mono">let parent = cx.reserve_entity();</text>
-  <text x="94" y="173" class="mono">let child = cx.reserve_entity();</text>
-  <text x="94" y="196" class="body">Handle'lar bilinir, veri henüz kurulmaz.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <path d="M 380 164 L 422 164" class="arrowSoft" />
+  <text x="550" y="46" class="title">reserve_entity ve insert_entity İlişki Kurulumu</text>
+  <text x="550" y="74" class="sub">Çift yönlü Entity ilişkilerinde önce slot ayırmak, sonra değerleri yerleştirmek döngü kurulumunu güvenli hale getirir.</text>
 
-  <rect x="430" y="104" width="300" height="120" rx="8" class="card" />
-  <rect x="430" y="104" width="300" height="30" rx="8" fill="#7c3aed" />
-  <path d="M 430 126 H 730 V 134 H 430 Z" fill="#7c3aed" />
-  <text x="444" y="124" class="cardTitle">2. Veriyi hazırla</text>
-  <text x="444" y="156" class="body">Parent güçlü child handle tutabilir.</text>
-  <text x="444" y="173" class="body">Child parent için WeakEntity saklar.</text>
-  <text x="444" y="196" class="mono">parent.downgrade()</text>
+  <!-- ================= ADIM 1, 2, 3 ================= -->
+  <g transform="translate(60, 110)" class="step1">
+    <rect width="300" height="140" fill="url(#g-sky)" class="card" />
+    <text x="150" y="34" class="c-title">1. Slot Ayır</text>
+    <text x="20" y="64" class="c-mono">parent = cx.reserve_entity()</text>
+    <text x="20" y="86" class="c-mono">child = cx.reserve_entity()</text>
+    <text x="20" y="118" class="c-body">Handle'lar bilinir, veri henüz kurulmaz.</text>
+  </g>
 
-  <path d="M 730 164 L 772 164" class="arrowSoft" />
+  <path d="M 370 180 H 412" class="arrow-line flow" />
 
-  <rect x="780" y="104" width="300" height="120" rx="8" class="card" />
-  <rect x="780" y="104" width="300" height="30" rx="8" fill="#059669" />
-  <path d="M 780 126 H 1080 V 134 H 780 Z" fill="#059669" />
-  <text x="794" y="124" class="cardTitle">3. Slotlara yerleştir</text>
-  <text x="794" y="156" class="mono">cx.insert_entity(parent, Parent {...})</text>
-  <text x="794" y="173" class="mono">cx.insert_entity(child, Child {...})</text>
-  <text x="794" y="196" class="body">Artık iki taraf da tutarlı referans görür.</text>
+  <g transform="translate(420, 110)" class="step2">
+    <rect width="260" height="140" fill="url(#g-purple)" class="card" />
+    <text x="130" y="34" class="c-title">2. Veriyi Hazırla</text>
+    <text x="20" y="64" class="c-body">• Parent güçlü child tutar</text>
+    <text x="20" y="86" class="c-body">• Child zayıf parent (Weak) tutar</text>
+    <text x="20" y="118" class="c-mono">parent.downgrade()</text>
+  </g>
 
-  <rect x="140" y="304" width="340" height="170" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="1.4" />
-  <text x="310" y="334" text-anchor="middle" class="label">Parent Entity</text>
-  <text x="310" y="358" text-anchor="middle" class="mono">children: Vec&lt;Entity&lt;Child&gt;&gt;</text>
-  <text x="310" y="380" text-anchor="middle" class="body">Çocukları güçlü tutar.</text>
-  <text x="310" y="402" text-anchor="middle" class="body">Parent yaşadığı sürece child düşmez.</text>
+  <path d="M 690 180 H 732" class="arrow-line flow" />
 
-  <rect x="680" y="304" width="340" height="170" rx="10" fill="#ede9fe" stroke="#7c3aed" stroke-width="1.4" />
-  <text x="850" y="334" text-anchor="middle" class="label">Child Entity</text>
-  <text x="850" y="358" text-anchor="middle" class="mono">parent: WeakEntity&lt;Parent&gt;</text>
-  <text x="850" y="380" text-anchor="middle" class="body">Parent yaşamını uzatmaz.</text>
-  <text x="850" y="402" text-anchor="middle" class="body">update/read Result ile kontrol edilir.</text>
+  <g transform="translate(740, 110)" class="step3">
+    <rect width="300" height="140" fill="url(#g-green)" class="card" />
+    <text x="150" y="34" class="c-title">3. Slotlara Yerleştir</text>
+    <text x="20" y="64" class="c-mono">cx.insert_entity(parent, P{})</text>
+    <text x="20" y="86" class="c-mono">cx.insert_entity(child, C{})</text>
+    <text x="20" y="118" class="c-body">Artık iki taraf da tutarlı referans görür.</text>
+  </g>
 
-  <path d="M 480 360 L 672 360" class="arrow" />
-  <text x="580" y="348" text-anchor="middle" class="edge">güçlü child handle</text>
-  <path d="M 680 414 L 488 414" class="arrowDash" />
-  <text x="580" y="436" text-anchor="middle" class="edge">WeakEntity parent bağlantısı</text>
+  <!-- ================= ENTITY YAPILARI ================= -->
+  <g transform="translate(160, 300)">
+    <rect width="320" height="150" fill="url(#g-skyPanel)" stroke="#0284c7" class="panel" />
+    <text x="160" y="36" class="p-title" fill="#0369a1">Parent Entity</text>
+    <text x="160" y="66" class="p-mono" fill="#0f172a">children: Vec&lt;Entity&lt;Child&gt;&gt;</text>
+    <text x="160" y="98" class="p-body" fill="#334155">Çocukları güçlü tutar.</text>
+    <text x="160" y="120" class="p-body" fill="#334155">Parent yaşadıkça child düşmez.</text>
+  </g>
 
-  <rect x="80" y="548" width="480" height="142" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
-  <text x="104" y="578" class="label">Neden reserve?</text>
-  <text x="104" y="606" class="body">Bir entity kurulurken diğerinin handle'ına ihtiyaç varsa</text>
-  <text x="104" y="623" class="body">normal cx.new sırası yeterli olmayabilir.</text>
-  <text x="104" y="650" class="body">reserve_entity önce kimlik verir; insert_entity</text>
-  <text x="104" y="667" class="body">veriyi sonradan bu kimliğe bağlar.</text>
+  <g transform="translate(620, 300)">
+    <rect width="320" height="150" fill="url(#g-purplePanel)" stroke="#7c3aed" class="panel" />
+    <text x="160" y="36" class="p-title" fill="#6d28d9">Child Entity</text>
+    <text x="160" y="66" class="p-mono" fill="#0f172a">parent: WeakEntity&lt;Parent&gt;</text>
+    <text x="160" y="98" class="p-body" fill="#334155">Parent yaşamını uzatmaz.</text>
+    <text x="160" y="120" class="p-body" fill="#334155">update/read Result ile kontrol edilir.</text>
+  </g>
 
-  <rect x="600" y="548" width="480" height="142" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
-  <text x="624" y="578" class="label">Kaçınılacak desen</text>
-  <text x="624" y="606" class="body">Parent ve Child birbirini Entity&lt;T&gt; ile güçlü tutarsa</text>
-  <text x="624" y="623" class="body">ref-count sıfıra düşmeyebilir.</text>
-  <text x="624" y="650" class="body">Çift yönlü bağlarda geri referans genelde</text>
-  <text x="624" y="667" class="body">WeakEntity&lt;T&gt; olmalıdır.</text>
+  <!-- ================= OKLAR (İlişkiler) ================= -->
+  <path d="M 490 350 H 600" class="arrow-line" />
+  <rect x="488" y="316" width="124" height="20" rx="10" fill="#f8fafc" />
+  <text x="550" y="330" font-family="system-ui" font-weight="700" font-size="12" fill="#0369a1" text-anchor="middle">Güçlü Child Handle</text>
+
+  <path d="M 610 410 H 500" class="arrow-dash" />
+  <rect x="466" y="386" width="168" height="20" rx="10" fill="#f8fafc" />
+  <text x="550" y="400" font-family="system-ui" font-weight="700" font-size="12" fill="#7c3aed" text-anchor="middle">WeakEntity Parent Bağlantısı</text>
+
+  <!-- ================= BİLGİ PANELLERİ ================= -->
+  <g transform="translate(60, 500)">
+    <rect width="470" height="150" fill="url(#g-amberPanel)" stroke="#d97706" class="panel" />
+    <text x="235" y="36" class="p-title" fill="#b45309">Neden Reserve?</text>
+    <text x="235" y="66" class="p-body" fill="#334155">Bir entity kurulurken diğerinin handle'ına</text>
+    <text x="235" y="86" class="p-body" fill="#334155">ihtiyaç varsa normal cx.new sırası yetmez.</text>
+    <text x="235" y="114" class="p-body" fill="#334155">reserve_entity önce kimlik verir;</text>
+    <text x="235" y="134" class="p-body" fill="#334155">insert_entity veriyi bu kimliğe bağlar.</text>
+  </g>
+
+  <g transform="translate(570, 500)">
+    <rect width="470" height="150" fill="url(#g-rosePanel)" stroke="#e11d48" class="panel" />
+    <text x="235" y="36" class="p-title" fill="#be123c">Kaçınılacak Desen</text>
+    <text x="235" y="66" class="p-body" fill="#334155">Parent ve Child birbirini güçlü Entity&lt;T&gt;</text>
+    <text x="235" y="86" class="p-body" fill="#334155">tutarsa ref-count sıfıra düşmez (döngü).</text>
+    <text x="235" y="114" class="p-body" fill="#334155">Çift yönlü bağlarda geri referans genelde</text>
+    <text x="235" y="134" class="p-body" fill="#334155">WeakEntity&lt;T&gt; olmalıdır.</text>
+  </g>
+
 </svg>

@@ -1,84 +1,165 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1180 800">
   <title>Test Zamanlayıcı Timeline</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
+
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" /><stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" /><stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" /><stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-indigo" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5f7ff" /><stop offset="1" stop-color="#e8ecff" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff5f6" /><stop offset="1" stop-color="#ffe6e9" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 17px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 13.5px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.97; text-anchor: middle; }
+      .c-mono { font: 700 13px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.95; text-anchor: middle; }
+
+      .card { filter: url(#shadow); }
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .timeline-line { stroke: #cbd5e1; stroke-width: 4; stroke-linecap: round; }
+      .timeline-node { stroke: #ffffff; stroke-width: 3; }
+
+      .label-title { font: 800 16px system-ui, -apple-system, sans-serif; fill: #0f172a; text-anchor: middle; }
+
+      .panel-title { font: 800 18px system-ui, -apple-system, sans-serif; }
+      .panel-body { font: 500 14px system-ui, -apple-system, sans-serif; fill: #334155; }
+      .panel-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; fill: #1e293b; }
+
+      .stage { animation: stageGlow 10s ease-in-out infinite; }
+      .stage-2 { animation-delay: 0.7s; }
+      .stage-3 { animation-delay: 1.4s; }
+      .stage-4 { animation-delay: 2.1s; }
+      .node-pulse { animation: nodePulse 10s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+      .node-2 { animation-delay: 0.7s; }
+      .node-3 { animation-delay: 1.4s; }
+      .node-4 { animation-delay: 2.1s; }
+      .flow { stroke-dasharray: 8 7; animation: flowDash 9s linear infinite; }
+
+      @keyframes stageGlow {
+        0%   { opacity: 1; }
+        8%   { opacity: 0.78; }
+        20%  { opacity: 1; }
+        100% { opacity: 1; }
+      }
+      @keyframes nodePulse {
+        0%   { transform: scale(1); }
+        7%   { transform: scale(1.45); }
+        18%  { transform: scale(1); }
+        100% { transform: scale(1); }
+      }
+      @keyframes flowDash {
+        0%   { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: -120; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .stage, .node-pulse, .flow { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">Test Zamanlayıcı Timeline</text>
-  <text x="580" y="62" text-anchor="middle" class="subtitle">TestDispatcher hazır task'leri ve sahte zamanı ayrı ayrı ilerletir.</text>
 
-  <line x1="110" y1="250" x2="1050" y2="250" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#dot-arrow)" />
-  <text x="110" y="226" text-anchor="middle" class="label">t0</text>
-  <text x="420" y="226" text-anchor="middle" class="label">t+1s</text>
-  <text x="735" y="226" text-anchor="middle" class="label">park</text>
-  <text x="1020" y="226" text-anchor="middle" class="label">assert</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <circle cx="110" cy="250" r="7" fill="#0284c7" />
-  <circle cx="420" cy="250" r="7" fill="#7c3aed" />
-  <circle cx="735" cy="250" r="7" fill="#d97706" />
-  <circle cx="1020" cy="250" r="7" fill="#059669" />
+  <text x="590" y="46" class="title">Test Zamanlayıcı Timeline</text>
+  <text x="590" y="74" class="sub">TestDispatcher hazır task'leri ve sahte zamanı ayrı ayrı ilerletir.</text>
 
-  <rect x="60" y="308" width="260" height="120" rx="8" fill="#dbeafe" stroke="#2563eb" />
-  <text x="190" y="338" text-anchor="middle" class="label">1. Task spawn</text>
-  <text x="190" y="362" text-anchor="middle" class="mono">cx.background_spawn(...)</text>
-  <text x="190" y="382" text-anchor="middle" class="body">Task timer beklemeye geçer.</text>
-  <text x="190" y="402" text-anchor="middle" class="mono">timer(1s).await</text>
+  <!-- ================= KAVISLI BİLGİ OKU (akış) ================= -->
+  <path class="flow" d="M 160 168 C 280 110 560 110 680 168" stroke="#94a3b8" stroke-width="3" fill="none" marker-end="url(#arrow)" />
+  <text x="420" y="120" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="13" fill="#64748b" text-anchor="middle">timer hazır olana kadar task park eder</text>
 
-  <path d="M 190 308 L 120 256" class="arrowSoft" />
+  <!-- ================= TIMELINE ÇİZGİSİ VE NODELAR ================= -->
+  <line x1="90" y1="210" x2="1090" y2="210" class="timeline-line" />
 
-  <rect x="335" y="308" width="260" height="120" rx="8" fill="#ede9fe" stroke="#7c3aed" />
-  <text x="465" y="338" text-anchor="middle" class="label">2. advance_clock</text>
-  <text x="465" y="362" text-anchor="middle" class="mono">advance_clock(1s)</text>
-  <text x="465" y="382" text-anchor="middle" class="body">Sahte saat ilerler.</text>
-  <text x="465" y="402" text-anchor="middle" class="body">Timer hazır hale gelir.</text>
+  <text x="160" y="195" class="label-title">t0</text>
+  <circle cx="160" cy="210" r="10" fill="#0284c7" class="timeline-node node-pulse" />
 
-  <path d="M 465 308 L 420 256" class="arrowSoft" />
+  <text x="420" y="195" class="label-title">t+1s</text>
+  <circle cx="420" cy="210" r="10" fill="#7c3aed" class="timeline-node node-pulse node-2" />
 
-  <rect x="610" y="308" width="260" height="120" rx="8" fill="#fef3c7" stroke="#d97706" />
-  <text x="740" y="338" text-anchor="middle" class="label">3. run_until_parked</text>
-  <text x="740" y="362" text-anchor="middle" class="mono">cx.run_until_parked()</text>
-  <text x="740" y="382" text-anchor="middle" class="body">Hazır task'ler sürülür.</text>
-  <text x="740" y="402" text-anchor="middle" class="body">Saat kendiliğinden ilerlemez.</text>
+  <text x="680" y="195" class="label-title">park</text>
+  <circle cx="680" cy="210" r="10" fill="#d97706" class="timeline-node node-pulse node-3" />
 
-  <path d="M 740 308 L 735 256" class="arrowSoft" />
+  <text x="940" y="195" class="label-title">assert</text>
+  <circle cx="940" cy="210" r="10" fill="#059669" class="timeline-node node-pulse node-4" />
 
-  <rect x="885" y="308" width="220" height="120" rx="8" fill="#d1fae5" stroke="#059669" />
-  <text x="995" y="338" text-anchor="middle" class="label">4. Sonuç</text>
-  <text x="995" y="362" text-anchor="middle" class="body">State değişmişse assert edilir.</text>
-  <text x="995" y="382" text-anchor="middle" class="body">Gerekirse cx.notify sonrası</text>
-  <text x="995" y="402" text-anchor="middle" class="body">render beklenir.</text>
+  <!-- ================= AŞAMALAR ================= -->
 
-  <path d="M 995 308 L 1020 256" class="arrowSoft" />
+  <path d="M 160 280 V 232" class="arrow-line" />
+  <g class="stage" transform="translate(35, 280)">
+    <rect width="250" height="160" rx="12" fill="url(#g-sky)" class="card" />
+    <text x="125" y="36" class="c-title">1. Task spawn</text>
+    <text x="125" y="72" class="c-mono">cx.background_spawn(...)</text>
+    <text x="125" y="104" class="c-body">Task timer beklemeye geçer.</text>
+    <text x="125" y="136" class="c-mono">timer(1s).await</text>
+  </g>
 
-  <rect x="80" y="512" width="480" height="130" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
-  <text x="104" y="542" class="label">İki ayrı kaldıraç</text>
-  <text x="104" y="570" class="body">advance_clock yalnızca test saatini ileri alır.</text>
-  <text x="104" y="594" class="body">run_until_parked hazır işleri sürer ama zamanı ilerletmez.</text>
-  <text x="104" y="618" class="body">Timer bekleyen task için çoğu zaman ikisi beraber gerekir.</text>
+  <path d="M 420 280 V 232" class="arrow-line" />
+  <g class="stage stage-2" transform="translate(295, 280)">
+    <rect width="250" height="160" rx="12" fill="url(#g-purple)" class="card" />
+    <text x="125" y="36" class="c-title">2. advance_clock</text>
+    <text x="125" y="72" class="c-mono">advance_clock(1s)</text>
+    <text x="125" y="104" class="c-body">Sahte saat ilerler.</text>
+    <text x="125" y="136" class="c-body">Timer hazır hale gelir.</text>
+  </g>
 
-  <rect x="600" y="512" width="480" height="130" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
-  <text x="624" y="542" class="label">Kaçınılacak kullanım</text>
-  <text x="624" y="570" class="body">smol::Timer::after test dispatcher saatini bilmez.</text>
-  <text x="624" y="594" class="body">Deterministik test için background_executor.timer(d)</text>
-  <text x="624" y="618" class="body">kullanmak gerekir.</text>
+  <path d="M 680 280 V 232" class="arrow-line" />
+  <g class="stage stage-3" transform="translate(555, 280)">
+    <rect width="250" height="160" rx="12" fill="url(#g-amber)" class="card" />
+    <text x="125" y="36" class="c-title">3. run_until_parked</text>
+    <text x="125" y="72" class="c-mono">cx.run_until_parked()</text>
+    <text x="125" y="104" class="c-body">Hazır task'ler sürülür.</text>
+    <text x="125" y="136" class="c-body">Saat kendiliğinden ilerlemez.</text>
+  </g>
 
-  <path d="M 110 250 C 220 140 650 140 735 250" class="arrowDash" />
-  <text x="420" y="150" text-anchor="middle" class="edge">timer hazır olana kadar task park eder</text>
+  <path d="M 940 280 V 232" class="arrow-line" />
+  <g class="stage stage-4" transform="translate(815, 280)">
+    <rect width="250" height="160" rx="12" fill="url(#g-green)" class="card" />
+    <text x="125" y="36" class="c-title">4. Sonuç</text>
+    <text x="125" y="72" class="c-body">State değişmişse assert edilir.</text>
+    <text x="125" y="104" class="c-body">Gerekirse cx.notify sonrası</text>
+    <text x="125" y="136" class="c-body">render beklenir.</text>
+  </g>
+
+  <!-- ================= BİLGİ PANELLERİ ================= -->
+
+  <g transform="translate(55, 510)">
+    <rect width="510" height="160" rx="12" fill="url(#g-indigo)" stroke="#6366f1" stroke-width="1.5" class="card" />
+    <text x="32" y="44" class="panel-title" style="fill:#4f46e5">İki ayrı kaldıraç</text>
+    <text x="32" y="82" class="panel-body"><tspan class="panel-mono">advance_clock</tspan> yalnızca test saatini ileri alır.</text>
+    <text x="32" y="114" class="panel-body"><tspan class="panel-mono">run_until_parked</tspan> hazır işleri sürer ama</text>
+    <text x="32" y="136" class="panel-body">zamanı ilerletmez.</text>
+  </g>
+
+  <g transform="translate(615, 510)">
+    <rect width="510" height="160" rx="12" fill="url(#g-rose)" stroke="#e11d48" stroke-width="1.5" class="card" />
+    <text x="32" y="44" class="panel-title" style="fill:#e11d48">Kaçınılacak kullanım</text>
+    <text x="32" y="82" class="panel-body"><tspan class="panel-mono">smol::Timer::after</tspan> test dispatcher saatini bilmez.</text>
+    <text x="32" y="114" class="panel-body">Deterministik test için</text>
+    <text x="32" y="136" class="panel-body"><tspan class="panel-mono">background_executor.timer(d)</tspan> kullanmak gerekir.</text>
+  </g>
+
+  <!-- alt not -->
+  <text x="590" y="710" class="sub" style="font-weight:600">Timer bekleyen task için çoğu zaman ikisi beraber gerekir.</text>
+
 </svg>

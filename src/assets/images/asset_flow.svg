@@ -1,38 +1,112 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 280">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 340">
   <title>Asset ve SVG Tüketim Boru Hattı</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
+
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" />
+      <stop offset="1" stop-color="#334155" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f1f5f9" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .label { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .api { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; text-anchor: middle; }
+      .when { font: 800 12px system-ui, -apple-system, sans-serif; fill: rgba(255,255,255,0.85); letter-spacing: 0.5px; text-anchor: middle; }
+      .step { font: 800 12px ui-monospace, SFMono-Regular, monospace; fill: rgba(255,255,255,0.9); text-anchor: middle; }
+
+      .chip { fill: url(#g-chip); stroke: #e2e8f0; stroke-width: 1.5; filter: url(#shadow); }
+      .chip-label { font: 700 12px system-ui, -apple-system, sans-serif; fill: #334155; text-anchor: middle; }
+      .chip-note { font: 500 12px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+
+      .card { filter: url(#shadow); }
+
+      @keyframes step-pulse {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.7; }
+        100% { opacity: 1; }
+      }
+      .stage-1 { animation: step-pulse 9s ease-in-out infinite; }
+      .stage-2 { animation: step-pulse 9s ease-in-out infinite; animation-delay: 3s; }
+      .stage-3 { animation: step-pulse 9s ease-in-out infinite; animation-delay: 6s; }
+
+      @keyframes flow-dash { to { stroke-dashoffset: -22; } }
+      .flow { stroke-dasharray: 9 4; animation: flow-dash 1.4s linear infinite; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .stage-1, .stage-2, .stage-3, .flow { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
 
-  <text x="430" y="38" text-anchor="middle" class="title">Asset ve SVG Tüketim Boru Hattı</text>
-  <text x="430" y="62" text-anchor="middle" class="subtitle">RustEmbed binary varlıkları AssetSource üzerinden SvgRenderer'a taşır.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <rect x="50" y="100" width="180" height="70" rx="8" class="card"/>
-  <text x="140" y="128" class="label" text-anchor="middle">RustEmbed</text>
-  <text x="140" y="150" class="body" text-anchor="middle">Binary / FS Files</text>
+  <text x="430" y="50" class="title">Asset ve SVG Tüketim Boru Hattı</text>
+  <text x="430" y="80" class="sub">RustEmbed binary varlıkları AssetSource üzerinden SvgRenderer'a taşır.</text>
 
-  <path d="M 230 135 L 312 135" class="arrowSoft"/>
+  <!-- ================= ADIM 1: RUSTEMBED ================= -->
+  <g transform="translate(60, 140)" class="stage-1">
+    <rect width="200" height="100" rx="12" fill="url(#g-slate)" class="card" />
+    <text x="100" y="30" class="step">1 · KAYNAK</text>
+    <text x="100" y="58" class="api">RustEmbed</text>
+    <text x="100" y="83" class="body">Binary / FS Files</text>
+  </g>
+  <g transform="translate(60, 262)" class="chip-1">
+    <rect width="200" height="44" rx="10" class="chip" />
+    <text x="100" y="20" class="chip-label">Derleme zamanı gömme</text>
+    <text x="100" y="36" class="chip-note">load(path) -&gt; Cow&lt;[u8]&gt;</text>
+  </g>
 
-  <rect x="320" y="100" width="200" height="70" rx="8" class="card"/>
-  <text x="420" y="138" class="label" text-anchor="middle">AssetSource Trait</text>
+  <!-- ================= ADIM 2: ASSET SOURCE ================= -->
+  <g transform="translate(330, 140)" class="stage-2">
+    <rect width="200" height="100" rx="12" fill="url(#g-sky)" class="card" />
+    <text x="100" y="30" class="step">2 · SOYUTLAMA</text>
+    <text x="100" y="58" class="api">AssetSource Trait</text>
+    <text x="100" y="83" class="when">Soyutlama Katmanı</text>
+  </g>
+  <g transform="translate(330, 262)" class="chip-2">
+    <rect width="200" height="44" rx="10" class="chip" />
+    <text x="100" y="20" class="chip-label">Bayt erişimini ayırır</text>
+    <text x="100" y="36" class="chip-note">list(path) · load(path)</text>
+  </g>
 
-  <path d="M 520 135 L 612 135" class="arrowSoft"/>
+  <!-- ================= ADIM 3: RENDERER ================= -->
+  <g transform="translate(600, 140)" class="stage-3">
+    <rect width="200" height="100" rx="12" fill="url(#g-green)" class="card" />
+    <text x="100" y="30" class="step">3 · İŞLEME</text>
+    <text x="100" y="58" class="api">SvgRenderer</text>
+    <text x="100" y="83" class="body">Rasterization &amp; Çizim</text>
+  </g>
+  <g transform="translate(600, 262)" class="chip-3">
+    <rect width="200" height="44" rx="10" class="chip" />
+    <text x="100" y="20" class="chip-label">Bayt verisini piksele çevirir</text>
+    <text x="100" y="36" class="chip-note">render_svg() -&gt; Bitmap</text>
+  </g>
 
-  <rect x="620" y="100" width="200" height="70" rx="8" class="card"/>
-  <text x="720" y="128" class="label" text-anchor="middle">SvgRenderer</text>
-  <text x="720" y="150" class="body" text-anchor="middle">(Rasterization)</text>
+  <!-- ================= OKLAR ================= -->
+  <path d="M 262 190 H 318" class="arrow-line flow" />
+  <path d="M 532 190 H 588" class="arrow-line flow" />
+
 </svg>

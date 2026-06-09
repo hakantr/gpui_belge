@@ -1,95 +1,169 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
   <title>Subscription Drop Güvenliği</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#e11d48" />
     </marker>
-    <marker id="arrowRed" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrowRed" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
-    </marker>
+
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffbeb" />
+      <stop offset="1" stop-color="#fef3c7" />
+    </linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eff6ff" />
+      <stop offset="1" stop-color="#dbeafe" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5f3ff" />
+      <stop offset="1" stop-color="#ede9fe" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff1f2" />
+      <stop offset="1" stop-color="#ffe4e6" />
+    </linearGradient>
+    <linearGradient id="g-emerald" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ecfdf5" />
+      <stop offset="1" stop-color="#d1fae5" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); marker-start: url(#dot-arrowRed); }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .c-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.9; }
+
+      .card { filter: url(#shadow); }
+      .arrow-soft { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-red { stroke: #e11d48; stroke-width: 3; fill: none; marker-end: url(#arrowRed); stroke-linecap: round; stroke-linejoin: round; }
+
+      .label-title { font: 800 16px system-ui, -apple-system, sans-serif; text-anchor: middle; }
+      .label-body { font: 600 14px system-ui, -apple-system, sans-serif; text-anchor: middle; }
+      .label-mono { font: 700 13px ui-monospace, SFMono-Regular, monospace; text-anchor: middle; opacity: 0.9; }
+
+      .panel-title { font: 800 16px system-ui, -apple-system, sans-serif; }
+      .panel-body { font: 600 14px system-ui, -apple-system, sans-serif; }
+
+      @keyframes flowPulse {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.7; }
+        100% { opacity: 1; }
+      }
+      .flow-1 { animation: flowPulse 9s ease-in-out infinite; }
+      .flow-2 { animation: flowPulse 9s ease-in-out infinite; animation-delay: 1.2s; }
+      .flow-3 { animation: flowPulse 9s ease-in-out infinite; animation-delay: 2.4s; }
+
+      @keyframes dash {
+        to { stroke-dashoffset: -28; }
+      }
+      .arrow-flow { stroke-dasharray: 10 6; animation: dash 1.6s linear infinite; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .flow-1, .flow-2, .flow-3, .arrow-flow { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">Subscription Drop Güvenliği</text>
-  <text x="580" y="62" text-anchor="middle" class="subtitle">Abonelik kaydının ömrü Subscription handle'ının nerede saklandığıyla belirlenir.</text>
 
-  <rect x="60" y="108" width="300" height="120" rx="8" class="card" />
-  <rect x="60" y="108" width="300" height="30" rx="8" fill="#0284c7" />
-  <path d="M 60 130 H 360 V 138 H 60 Z" fill="#0284c7" />
-  <text x="74" y="128" class="cardTitle">observe / subscribe</text>
-  <text x="74" y="160" class="body">App içinde callback kaydı açılır.</text>
-  <text x="74" y="177" class="body">Geriye opak Subscription döner.</text>
-  <text x="74" y="194" class="mono">cx.subscribe(&amp;entity, ...)</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <path d="M 360 168 L 422 168" class="arrowSoft" />
+  <text x="580" y="46" class="title">Subscription Drop Güvenliği</text>
+  <text x="580" y="74" class="sub">Abonelik kaydının ömrü Subscription handle'ının nerede saklandığıyla belirlenir.</text>
 
-  <rect x="430" y="108" width="300" height="120" rx="8" class="card" />
-  <rect x="430" y="108" width="300" height="30" rx="8" fill="#7c3aed" />
-  <path d="M 430 130 H 730 V 138 H 430 Z" fill="#7c3aed" />
-  <text x="444" y="128" class="cardTitle">Handle sahibi</text>
-  <text x="444" y="160" class="body">Struct alanı, local değişken veya detach.</text>
-  <text x="444" y="177" class="body">Sahiplik kaydın ömrünü belirler.</text>
-  <text x="444" y="194" class="mono">Vec&lt;Subscription&gt;</text>
+  <!-- ================= 3 ADIMLIK AKIŞ ================= -->
+  <g class="flow-1" transform="translate(60, 110)">
+    <rect width="320" height="130" rx="12" fill="url(#g-sky)" class="card" />
+    <text x="160" y="35" class="c-title">observe / subscribe</text>
+    <text x="20" y="70" class="c-body">• App içinde callback kaydı açılır.</text>
+    <text x="20" y="95" class="c-body">• Geriye opak Subscription döner.</text>
+    <text x="20" y="118" class="c-mono">• cx.subscribe(&amp;entity, ...)</text>
+  </g>
 
-  <path d="M 730 168 L 792 168" class="arrowSoft" />
+  <path d="M 380 175 H 422" class="arrow-soft arrow-flow" />
 
-  <rect x="800" y="108" width="300" height="120" rx="8" class="card" />
-  <rect x="800" y="108" width="300" height="30" rx="8" fill="#059669" />
-  <path d="M 800 130 H 1100 V 138 H 800 Z" fill="#059669" />
-  <text x="814" y="128" class="cardTitle">Drop davranışı</text>
-  <text x="814" y="160" class="body">Subscription düşerse kayıt silinir.</text>
-  <text x="814" y="177" class="body">Callback artık çağrılmaz.</text>
-  <text x="814" y="194" class="body">Leak ve stale update riski azalır.</text>
+  <g class="flow-2" transform="translate(430, 110)">
+    <rect width="300" height="130" rx="12" fill="url(#g-violet)" class="card" />
+    <text x="150" y="35" class="c-title">Handle Sahibi</text>
+    <text x="20" y="70" class="c-body">• Struct alanı, local veya detach.</text>
+    <text x="20" y="95" class="c-body">• Sahiplik kaydın ömrünü belirler.</text>
+    <text x="20" y="118" class="c-mono">• Vec&lt;Subscription&gt;</text>
+  </g>
 
-  <rect x="80" y="306" width="300" height="132" rx="8" fill="#fef3c7" stroke="#d97706" />
-  <text x="230" y="336" text-anchor="middle" class="label">A. Struct alanı</text>
-  <text x="230" y="360" text-anchor="middle" class="mono">_subs: Vec&lt;Subscription&gt;</text>
-  <text x="230" y="382" text-anchor="middle" class="body">View yaşadığı sürece dinler.</text>
-  <text x="230" y="402" text-anchor="middle" class="body">View drop olunca kayıt temizlenir.</text>
+  <path d="M 730 175 H 772" class="arrow-soft arrow-flow" />
 
-  <rect x="430" y="306" width="300" height="132" rx="8" fill="#dbeafe" stroke="#2563eb" />
-  <text x="580" y="336" text-anchor="middle" class="label">B. Local let</text>
-  <text x="580" y="360" text-anchor="middle" class="mono">let _sub = cx.observe(...);</text>
-  <text x="580" y="382" text-anchor="middle" class="body">Scope sonunda hemen düşer.</text>
-  <text x="580" y="402" text-anchor="middle" class="body">Kısa ömürlü dinleme için uygundur.</text>
+  <g class="flow-3" transform="translate(780, 110)">
+    <rect width="320" height="130" rx="12" fill="url(#g-green)" class="card" />
+    <text x="160" y="35" class="c-title">Drop Davranışı</text>
+    <text x="20" y="70" class="c-body">• Subscription düşerse kayıt silinir.</text>
+    <text x="20" y="95" class="c-body">• Callback artık çağrılmaz.</text>
+    <text x="20" y="118" class="c-body">• Leak ve stale update riski azalır.</text>
+  </g>
 
-  <rect x="780" y="306" width="300" height="132" rx="8" fill="#ede9fe" stroke="#7c3aed" />
-  <text x="930" y="336" text-anchor="middle" class="label">C. detach()</text>
-  <text x="930" y="360" text-anchor="middle" class="mono">cx.subscribe(...).detach()</text>
-  <text x="930" y="382" text-anchor="middle" class="body">Handle sahipten kopar.</text>
-  <text x="930" y="402" text-anchor="middle" class="body">WeakEntity koruması gerekir.</text>
+  <!-- ================= SAKLAMA YÖNTEMLERİ ================= -->
 
-  <rect x="80" y="540" width="470" height="132" rx="10" fill="#ffe4e6" stroke="#be123c" stroke-width="1.2" />
-  <text x="104" y="570" class="label">Callback içinde update riski</text>
-  <text x="104" y="598" class="body">observe callback'i tetikleyen entity üzerinde doğrudan</text>
-  <text x="104" y="615" class="body">update çağırmak re-entrant panic üretebilir.</text>
-  <text x="104" y="642" class="body">Çözüm: cx.defer veya cx.spawn ile işi sonraki tura taşı.</text>
+  <g transform="translate(110, 310)">
+    <rect width="300" height="140" rx="12" fill="url(#g-amber)" stroke="#d97706" stroke-width="2" class="card" />
+    <text x="150" y="36" class="label-title" fill="#b45309">A. Struct Alanı</text>
+    <text x="150" y="65" class="label-mono" fill="#92400e">_subs: Vec&lt;Subscription&gt;</text>
+    <text x="150" y="95" class="label-body" fill="#b45309">View yaşadığı sürece dinler.</text>
+    <text x="150" y="120" class="label-body" fill="#b45309">View drop olunca kayıt silinir.</text>
+  </g>
 
-  <rect x="610" y="540" width="470" height="132" rx="10" fill="#d1fae5" stroke="#059669" stroke-width="1.2" />
-  <text x="634" y="570" class="label">Async ve detached güvenliği</text>
-  <text x="634" y="598" class="body">Detached callback view ömründen uzun yaşayabilir.</text>
-  <text x="634" y="615" class="body">Güçlü Entity yakalamak yaşam döngüsünü uzatır.</text>
-  <text x="634" y="642" class="body">WeakEntity yakala; upgrade/update sonucunu kontrol et.</text>
+  <g transform="translate(430, 310)">
+    <rect width="300" height="140" rx="12" fill="url(#g-blue)" stroke="#2563eb" stroke-width="2" class="card" />
+    <text x="150" y="36" class="label-title" fill="#1d4ed8">B. Local Let</text>
+    <text x="150" y="65" class="label-mono" fill="#1e40af">let _sub = cx.observe(...);</text>
+    <text x="150" y="95" class="label-body" fill="#1d4ed8">Scope sonunda hemen düşer.</text>
+    <text x="150" y="120" class="label-body" fill="#1d4ed8">Kısa ömürlü dinleme içindir.</text>
+  </g>
 
-  <path d="M 230 438 C 230 486 314 500 314 532" class="arrowSoft" />
-  <path d="M 930 438 C 930 486 846 500 846 532" class="arrowRed" />
+  <g transform="translate(750, 310)">
+    <rect width="300" height="140" rx="12" fill="url(#g-purple)" stroke="#7c3aed" stroke-width="2" class="card" />
+    <text x="150" y="36" class="label-title" fill="#6d28d9">C. detach()</text>
+    <text x="150" y="65" class="label-mono" fill="#5b21b6">cx.subscribe(...).detach()</text>
+    <text x="150" y="95" class="label-body" fill="#6d28d9">Handle sahipten kopar.</text>
+    <text x="150" y="120" class="label-body" fill="#6d28d9">WeakEntity koruması gerekir.</text>
+  </g>
+
+  <!-- ================= RİSK VE GÜVENLİK UYARILARI ================= -->
+
+  <g transform="translate(60, 560)">
+    <rect width="500" height="140" rx="12" fill="url(#g-rose)" stroke="#e11d48" stroke-width="2" class="card" />
+    <text x="40" y="42" class="panel-title" fill="#be123c">Callback İçinde Update Riski</text>
+    <text x="40" y="76" class="panel-body" fill="#9f1239">observe callback'ini tetikleyen entity üzerinde doğrudan</text>
+    <text x="40" y="98" class="panel-body" fill="#9f1239">update çağırmak re-entrant panic üretebilir.</text>
+    <text x="40" y="124" class="panel-body" fill="#e11d48" style="font-weight:800">Çözüm: cx.defer veya cx.spawn ile işi sonraki tura taşı.</text>
+  </g>
+
+  <g transform="translate(600, 560)">
+    <rect width="500" height="140" rx="12" fill="url(#g-emerald)" stroke="#059669" stroke-width="2" class="card" />
+    <text x="40" y="42" class="panel-title" fill="#047857">Async ve Detached Güvenliği</text>
+    <text x="40" y="76" class="panel-body" fill="#065f46">Detached callback view ömründen uzun yaşayabilir.</text>
+    <text x="40" y="98" class="panel-body" fill="#065f46">Güçlü Entity yakalamak yaşam döngüsünü uzatır.</text>
+    <text x="40" y="124" class="panel-body" fill="#059669" style="font-weight:800">Kural: WeakEntity yakala; upgrade sonucunu kontrol et.</text>
+  </g>
+
+  <!-- Oklar -->
+  <path d="M 260 450 C 260 500 310 520 310 558" class="arrow-soft" />
+  <path d="M 900 450 C 900 500 850 520 850 558" class="arrow-red" />
+
 </svg>

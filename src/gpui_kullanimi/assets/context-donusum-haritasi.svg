@@ -1,120 +1,166 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 780">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 900">
   <title>GPUI Bağlam Dönüşüm Haritası</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <marker id="arrowDash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#94a3b8" />
     </marker>
-    <marker id="arrowRed" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrowRed" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
-    </marker>
+
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" /><stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" /><stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" /><stop offset="1" stop-color="#334155" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" /><stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" /><stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
-      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); marker-start: url(#dot-arrowRed); }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 15px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
+      .c-body { font: 600 13px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.96; }
+
+      .lbl { font: 800 16px system-ui, -apple-system, sans-serif; fill: #1e293b; text-anchor: middle; }
+      .edge { font: 700 12px ui-monospace, SFMono-Regular, monospace; fill: #64748b; text-anchor: middle; }
+      .vedge { font: 700 11px ui-monospace, SFMono-Regular, monospace; fill: #94a3b8; }
+      .note { font: 500 13px system-ui, -apple-system, sans-serif; fill: #334155; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-dash { stroke: #94a3b8; stroke-width: 3; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowDash); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-soft { stroke: #94a3b8; stroke-width: 2.5; fill: none; marker-end: url(#arrowDash); stroke-linecap: round; stroke-linejoin: round; }
+
+      .flow { animation: dash 11s linear infinite; }
+      @keyframes dash { to { stroke-dashoffset: -220; } }
+      @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
     </style>
-    
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">GPUI Bağlam Dönüşüm Haritası</text>
 
-  <text x="580" y="62" text-anchor="middle" class="subtitle">Senkron bağlamlardan await sonrası taşınan async yüzeylere geçiş noktaları.</text>
-  <text x="240" y="94" text-anchor="middle" class="label">Senkron taraf - await yok</text>
-  <text x="900" y="94" text-anchor="middle" class="label">Async taraf - await sonrası</text>
-  <line x1="580" y1="108" x2="580" y2="660" stroke="#cbd5e1" stroke-width="1.2" stroke-dasharray="7 5" />
-  <rect x="70" y="122" width="340" height="104" rx="8" class="card" />
-<rect x="70" y="122" width="340" height="30" rx="8" fill="#0284c7" />
-<path d="M 70 144 H 410 V 152 H 70 Z" fill="#0284c7" />
-<text x="84" y="142" class="cardTitle">App</text>
-<text x="84" y="174" class="body">Kök bağlam (cx).</text>
-<text x="84" y="191" class="body">cx.new, cx.open_window ve cx.spawn.</text>
-<text x="84" y="208" class="body">cx.background_spawn burada başlar.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <rect x="70" y="270" width="340" height="112" rx="8" class="card" />
-<rect x="70" y="270" width="340" height="30" rx="8" fill="#059669" />
-<path d="M 70 292 H 410 V 300 H 70 Z" fill="#059669" />
-<text x="84" y="290" class="cardTitle">Context&lt;T&gt;</text>
-<text x="84" y="322" class="body">Entity güncellenirken kullanılır.</text>
-<text x="84" y="339" class="body">Deref ile App yüzeyini görür.</text>
-<text x="84" y="356" class="body">cx.notify, cx.emit ve cx.listener.</text>
-<text x="84" y="373" class="body">cx.subscribe çağrıları.</text>
+  <text x="580" y="48" class="title">GPUI Bağlam Dönüşüm Haritası</text>
+  <text x="580" y="76" class="sub">Senkron bağlamlardan await sonrası taşınan async yüzeylere geçiş noktaları.</text>
 
-  <rect x="70" y="426" width="340" height="112" rx="8" class="card" />
-<rect x="70" y="426" width="340" height="30" rx="8" fill="#d97706" />
-<path d="M 70 448 H 410 V 456 H 70 Z" fill="#d97706" />
-<text x="84" y="446" class="cardTitle">Window + App</text>
-<text x="84" y="478" class="body">Pencere bağlamı handle.update içinde elde edilir.</text>
-<text x="84" y="495" class="body">window.focus ve window.refresh.</text>
-<text x="84" y="512" class="body">dispatch_action ve prompt.</text>
+  <text x="250" y="118" class="lbl">Senkron Taraf — await yok</text>
+  <text x="910" y="118" class="lbl">Async Taraf — await sonrası</text>
 
-  <rect x="70" y="582" width="340" height="80" rx="8" class="card" />
-<rect x="70" y="582" width="340" height="30" rx="8" fill="#334155" />
-<path d="M 70 604 H 410 V 612 H 70 Z" fill="#334155" />
-<text x="84" y="602" class="cardTitle">WindowHandle&lt;V&gt; / AnyWindowHandle</text>
-<text x="84" y="634" class="body">handle.update, handle.read.</text>
-<text x="84" y="651" class="body">handle.entity ve is_active.</text>
+  <!-- AYIRICI ÇİZGİ -->
+  <line x1="580" y1="140" x2="580" y2="730" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="8 6" />
 
-  <rect x="750" y="122" width="340" height="104" rx="8" class="card" />
-<rect x="750" y="122" width="340" height="30" rx="8" fill="#7c3aed" />
-<path d="M 750 144 H 1090 V 152 H 750 Z" fill="#7c3aed" />
-<text x="764" y="142" class="cardTitle">AsyncApp</text>
-<text x="764" y="174" class="body">await ötesine taşınan App benzeri yüzey.</text>
-<text x="764" y="191" class="body">cx.update, cx.refresh ve</text>
-<text x="764" y="208" class="body">background_executor erişimi.</text>
+  <!-- ================= SOL (SENKRON) ================= -->
+  <g transform="translate(70, 150)">
+    <rect width="360" height="118" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
+    <text x="20" y="32" class="c-title">App</text>
+    <text x="20" y="62" class="c-body">• Kök bağlam (cx)</text>
+    <text x="20" y="83" class="c-body">• cx.new, cx.open_window, cx.spawn</text>
+    <text x="20" y="104" class="c-body">• cx.background_spawn burada başlar</text>
+  </g>
 
-  <rect x="750" y="270" width="340" height="112" rx="8" class="card" />
-<rect x="750" y="270" width="340" height="30" rx="8" fill="#7c3aed" />
-<path d="M 750 292 H 1090 V 300 H 750 Z" fill="#7c3aed" />
-<text x="764" y="290" class="cardTitle">AsyncWindowContext</text>
-<text x="764" y="322" class="body">Pencereye bağlı async bağlam.</text>
-<text x="764" y="339" class="body">cx.update(|window, cx| ...).</text>
-<text x="764" y="356" class="body">cx.update_root(|root, window, cx| ...).</text>
+  <g transform="translate(70, 308)">
+    <rect width="360" height="138" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
+    <text x="20" y="32" class="c-title">Context&lt;T&gt;</text>
+    <text x="20" y="62" class="c-body">• Entity güncellenirken kullanılır</text>
+    <text x="20" y="83" class="c-body">• Deref ile App yüzeyini görür</text>
+    <text x="20" y="104" class="c-body">• cx.notify, cx.emit, cx.listener</text>
+    <text x="20" y="125" class="c-body">• cx.subscribe çağrıları</text>
+  </g>
 
-  <rect x="750" y="426" width="340" height="112" rx="8" class="card" />
-<rect x="750" y="426" width="340" height="30" rx="8" fill="#7c3aed" />
-<path d="M 750 448 H 1090 V 456 H 750 Z" fill="#7c3aed" />
-<text x="764" y="446" class="cardTitle">WeakEntity&lt;T&gt;.update(cx, ...)</text>
-<text x="764" y="478" class="body">Async görevde tipli entity erişimi.</text>
-<text x="764" y="495" class="body">Entity drop edildiyse Result Err döner.</text>
-<text x="764" y="512" class="body">update_in ile birlikte kullanılabilir.</text>
+  <g transform="translate(70, 486)">
+    <rect width="360" height="138" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
+    <text x="20" y="32" class="c-title">Window + App</text>
+    <text x="20" y="62" class="c-body">• Pencere bağlamı handle.update içinde</text>
+    <text x="20" y="83" class="c-body">• window.focus, window.refresh</text>
+    <text x="20" y="104" class="c-body">• dispatch_action, prompt</text>
+  </g>
 
-  <rect x="750" y="582" width="340" height="80" rx="8" class="card" />
-<rect x="750" y="582" width="340" height="30" rx="8" fill="#334155" />
-<path d="M 750 604 H 1090 V 612 H 750 Z" fill="#334155" />
-<text x="764" y="602" class="cardTitle">TestAppContext / VisualTestContext</text>
-<text x="764" y="634" class="body">advance_clock, run_until_parked.</text>
-<text x="764" y="651" class="body">simulate_input ve Inspector.</text>
+  <g transform="translate(70, 664)">
+    <rect width="360" height="96" rx="12" fill="url(#g-slate)" filter="url(#shadow)" />
+    <text x="20" y="32" class="c-title">WindowHandle&lt;V&gt; / AnyWindowHandle</text>
+    <text x="20" y="62" class="c-body">• handle.update, handle.read</text>
+    <text x="20" y="83" class="c-body">• handle.entity, is_active</text>
+  </g>
 
-  <path d="M 240 226 L 240 262" class="arrowSoft" /><text x="256" y="250" class="edge">cx.new / entity.update</text>
-  <path d="M 240 382 L 240 418" class="arrowSoft" /><text x="256" y="406" class="edge">open_window / update_window</text>
-  <path d="M 240 538 L 240 574" class="arrowSoft" /><text x="256" y="562" class="edge">handle.update</text>
-  <path d="M 410 158 L 742 158" class="arrow" /><text x="482" y="146" class="edge">cx.spawn(async move |cx| ...)</text>
-  <path d="M 750 194 L 418 194" class="arrowSoft" /><text x="500" y="212" class="edge">cx.update(|cx| ...)</text>
-  <path d="M 410 482 C 585 482 585 326 742 326" class="arrow" /><text x="482" y="346" class="edge">spawn_in / to_async</text>
-  <path d="M 750 372 C 585 372 585 500 418 500" class="arrowSoft" /><text x="482" y="518" class="edge">cx.update_in</text>
-  <path d="M 410 326 C 590 326 590 482 742 482" class="arrow" /><text x="488" y="390" class="edge">entity.downgrade</text>
-  <path d="M 750 516 C 590 548 590 360 418 360" class="arrowSoft" /><text x="488" y="566" class="edge">weak.update?</text>
-  <path d="M 410 622 L 742 622" class="arrowDash" /><text x="482" y="610" class="edge">TestDispatcher</text>
-  <rect x="110" y="698" width="940" height="54" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
-<text x="126" y="722" text-anchor="start" class="small">Sol sütun çalışmakta olan senkron yüzeyi, sağ sütun await sonrası elde tutulan yüzeyi gösterir.</text>
-<text x="126" y="739" text-anchor="start" class="small">Async dönüşlerde entity veya pencere düşmüş olabilir; bu yüzden update/read sonuçları Result veya Option taşır.</text>
+  <!-- ================= SAĞ (ASYNC) ================= -->
+  <g transform="translate(730, 150)">
+    <rect width="360" height="118" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
+    <text x="20" y="32" class="c-title">AsyncApp</text>
+    <text x="20" y="62" class="c-body">• await ötesine taşınan App yüzeyi</text>
+    <text x="20" y="83" class="c-body">• cx.update, cx.refresh</text>
+    <text x="20" y="104" class="c-body">• background_executor erişimi</text>
+  </g>
+
+  <g transform="translate(730, 308)">
+    <rect width="360" height="138" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
+    <text x="20" y="32" class="c-title">AsyncWindowContext</text>
+    <text x="20" y="62" class="c-body">• Pencereye bağlı async bağlam</text>
+    <text x="20" y="83" class="c-body">• cx.update(|window, cx| ...)</text>
+    <text x="20" y="104" class="c-body">• cx.update_root(|root, window, cx| ...)</text>
+  </g>
+
+  <g transform="translate(730, 486)">
+    <rect width="360" height="138" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
+    <text x="20" y="32" class="c-title">WeakEntity&lt;T&gt;.update(cx, ...)</text>
+    <text x="20" y="62" class="c-body">• Async görevde tipli entity erişimi</text>
+    <text x="20" y="83" class="c-body">• Drop edildiyse Result Err döner</text>
+    <text x="20" y="104" class="c-body">• update_in ile birlikte kullanılabilir</text>
+  </g>
+
+  <g transform="translate(730, 664)">
+    <rect width="360" height="96" rx="12" fill="url(#g-slate)" filter="url(#shadow)" />
+    <text x="20" y="32" class="c-title">TestAppContext / VisualTestContext</text>
+    <text x="20" y="62" class="c-body">• advance_clock, run_until_parked</text>
+    <text x="20" y="83" class="c-body">• simulate_input ve Inspector</text>
+  </g>
+
+  <!-- ================= SOL İÇİ DİKEY OKLAR ================= -->
+  <path d="M 250 268 V 304" class="arrow-soft" /><text x="262" y="291" class="vedge">cx.new / entity.update</text>
+  <path d="M 250 446 V 482" class="arrow-soft" /><text x="262" y="469" class="vedge">open_window / update_window</text>
+  <path d="M 250 624 V 660" class="arrow-soft" /><text x="262" y="647" class="vedge">handle.update</text>
+
+  <!-- ================= GEÇİŞ OKLARI ================= -->
+  <path d="M 430 192 H 726" class="arrow-line flow" />
+  <text x="578" y="182" class="edge">cx.spawn(async move |cx|)</text>
+
+  <path d="M 726 242 H 434" class="arrow-dash" />
+  <text x="578" y="232" class="edge">cx.update(|cx|)</text>
+
+  <path d="M 430 350 H 726" class="arrow-line flow" />
+  <text x="578" y="340" class="edge">spawn_in / to_async</text>
+
+  <path d="M 726 400 H 434" class="arrow-dash" />
+  <text x="578" y="390" class="edge">cx.update_in</text>
+
+  <path d="M 430 528 H 726" class="arrow-line flow" />
+  <text x="578" y="518" class="edge">entity.downgrade()</text>
+
+  <path d="M 726 578 H 434" class="arrow-dash" />
+  <text x="578" y="568" class="edge">weak.update()?</text>
+
+  <path d="M 430 712 H 726" class="arrow-dash" />
+  <text x="578" y="702" class="edge">TestDispatcher</text>
+
+  <!-- ================= BİLGİ KUTUSU ================= -->
+  <g transform="translate(70, 786)">
+    <rect width="1020" height="84" rx="12" fill="url(#g-card)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="22" y="34" class="note">• Sol sütun çalışmakta olan senkron yüzeyi, sağ sütun await sonrası elde tutulan yüzeyi gösterir.</text>
+    <text x="22" y="62" class="note">• Async dönüşlerde entity veya pencere düşmüş olabilir; bu yüzden update/read sonuçları Result veya Option taşır.</text>
+  </g>
 
 </svg>

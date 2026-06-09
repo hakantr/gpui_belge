@@ -1,105 +1,159 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 820">
   <title>Layout ve Taffy Akışı</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
+
+    <!-- Kart degradeleri (aynı tonun açık -> koyu hali) -->
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0ea5e9" /><stop offset="1" stop-color="#0284c7" /></linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8b5cf6" /><stop offset="1" stop-color="#7c3aed" /></linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#059669" /></linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f59e0b" /><stop offset="1" stop-color="#d97706" /></linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e11d48" /><stop offset="1" stop-color="#be123c" /></linearGradient>
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#475569" /><stop offset="1" stop-color="#334155" /></linearGradient>
+    <linearGradient id="g-indigo-panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eef2ff" /><stop offset="1" stop-color="#e0e7ff" /></linearGradient>
+    <linearGradient id="g-amber-panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fffbeb" /><stop offset="1" stop-color="#fef3c7" /></linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .c-mono { font: 700 14px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.9; }
+
+      .card { filter: url(#shadow); rx: 12px; }
+
+      .arrow-soft { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-dash { stroke: #94a3b8; stroke-width: 2.5; fill: none; stroke-dasharray: 6 6; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+
+      .edge { font: 700 13px ui-monospace, SFMono-Regular, monospace; fill: #64748b; text-anchor: middle; }
+      .label-title { font: 800 18px system-ui, -apple-system, sans-serif; fill: #0f172a; }
+      .label-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #334155; }
+
+      /* Sıralı akış vurgusu: kartlar adım adım hafifçe parlar (okunabilirliği bozmaz) */
+      @keyframes stepGlow {
+        0%   { opacity: 1; }
+        12%  { opacity: 1; }
+        50%  { opacity: 0.82; }
+        100% { opacity: 1; }
+      }
+      .step { animation: stepGlow 10s ease-in-out infinite; }
+      .step1 { animation-delay: 0s; }
+      .step2 { animation-delay: 1.4s; }
+      .step3 { animation-delay: 2.8s; }
+      .step4 { animation-delay: 4.2s; }
+      .step5 { animation-delay: 5.6s; }
+      .step6 { animation-delay: 7s; }
+
+      /* Geri dönüş okunda akan kesik çizgi */
+      @keyframes flowDash { to { stroke-dashoffset: -48; } }
+      .flow { animation: flowDash 9s linear infinite; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .step, .flow { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="580" y="36" text-anchor="middle" class="title">Layout ve Taffy Akışı</text>
-  <text x="580" y="62" text-anchor="middle" class="subtitle">StyleRefinement element ağacından Taffy node'larına iner; ölçüm sonucu paint için bounds üretir.</text>
 
-  <rect x="70" y="98" width="240" height="122" rx="8" class="card" />
-  <rect x="70" y="98" width="240" height="30" rx="8" fill="#0284c7" />
-  <path d="M 70 120 H 310 V 128 H 70 Z" fill="#0284c7" />
-  <text x="84" y="118" class="cardTitle">1. Styled element</text>
-  <text x="84" y="150" class="body">.flex(), .gap_2(), .w(...)</text>
-  <text x="84" y="167" class="body">ve diğer refinement çağrıları.</text>
-  <text x="84" y="184" class="body">ParentElement çocukları toplar.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
+  <text x="580" y="46" class="title">Layout ve Taffy Akışı</text>
+  <text x="580" y="74" class="sub">StyleRefinement element ağacından Taffy node'larına iner; ölçüm sonucu paint için bounds üretir.</text>
 
-  <path d="M 310 159 L 362 159" class="arrowSoft" />
+  <!-- ================= ÜST SIRA (1, 2, 3) ================= -->
 
-  <rect x="370" y="98" width="240" height="122" rx="8" class="card" />
-  <rect x="370" y="98" width="240" height="30" rx="8" fill="#7c3aed" />
-  <path d="M 370 120 H 610 V 128 H 370 Z" fill="#7c3aed" />
-  <text x="384" y="118" class="cardTitle">2. request_layout</text>
-  <text x="384" y="150" class="body">Element kendi Taffy stilini üretir.</text>
-  <text x="384" y="167" class="body">Çocuk LayoutId'leri bağlanır.</text>
-  <text x="384" y="184" class="mono">-&gt; (LayoutId, state)</text>
+  <g transform="translate(60, 120)" class="step step1">
+    <rect width="280" height="140" fill="url(#g-sky)" class="card" />
+    <text x="140" y="35" class="c-title">1. Styled Element</text>
+    <text x="20" y="70" class="c-body">• .flex(), .gap_2(), .w(...)</text>
+    <text x="20" y="95" class="c-body">• diğer refinement çağrıları.</text>
+    <text x="20" y="120" class="c-body">• ParentElement çocukları toplar.</text>
+  </g>
 
-  <path d="M 610 159 L 662 159" class="arrowSoft" />
+  <path d="M 350 190 H 400" class="arrow-soft" />
 
-  <rect x="670" y="98" width="240" height="122" rx="8" class="card" />
-  <rect x="670" y="98" width="240" height="30" rx="8" fill="#059669" />
-  <path d="M 670 120 H 910 V 128 H 670 Z" fill="#059669" />
-  <text x="684" y="118" class="cardTitle">3. Taffy solve</text>
-  <text x="684" y="150" class="body">Flex/grid ölçüleri çözülür.</text>
-  <text x="684" y="167" class="body">Min/max, gap ve padding uygulanır.</text>
-  <text x="684" y="184" class="body">Mutlak konumlu öğeler ayrıştırılır.</text>
+  <g transform="translate(410, 120)" class="step step2">
+    <rect width="280" height="140" fill="url(#g-violet)" class="card" />
+    <text x="140" y="35" class="c-title">2. request_layout</text>
+    <text x="20" y="70" class="c-body">• Element kendi Taffy stilini üretir.</text>
+    <text x="20" y="95" class="c-body">• Çocuk LayoutId'leri bağlanır.</text>
+    <text x="20" y="120" class="c-mono">-> (LayoutId, state)</text>
+  </g>
 
-  <path d="M 790 220 L 790 274" class="arrowSoft" />
+  <path d="M 700 190 H 750" class="arrow-soft" />
 
-  <rect x="670" y="282" width="240" height="122" rx="8" class="card" />
-  <rect x="670" y="282" width="240" height="30" rx="8" fill="#d97706" />
-  <path d="M 670 304 H 910 V 312 H 670 Z" fill="#d97706" />
-  <text x="684" y="302" class="cardTitle">4. Bounds</text>
-  <text x="684" y="334" class="body">Her LayoutId için piksel rect.</text>
-  <text x="684" y="351" class="body">Origin, size ve overflow bilgisi.</text>
-  <text x="684" y="368" class="body">prepaint bu rect'leri kullanır.</text>
+  <g transform="translate(760, 120)" class="step step3">
+    <rect width="280" height="140" fill="url(#g-green)" class="card" />
+    <text x="140" y="35" class="c-title">3. Taffy Solve</text>
+    <text x="20" y="70" class="c-body">• Flex/grid ölçüleri çözülür.</text>
+    <text x="20" y="95" class="c-body">• Min/max, gap, padding uygulanır.</text>
+    <text x="20" y="120" class="c-body">• Mutlak konumlu öğeler ayrıştırılır.</text>
+  </g>
 
-  <path d="M 670 343 L 618 343" class="arrowSoft" />
+  <!-- ================= DÖNÜŞ YOLU ================= -->
 
-  <rect x="370" y="282" width="240" height="122" rx="8" class="card" />
-  <rect x="370" y="282" width="240" height="30" rx="8" fill="#be123c" />
-  <path d="M 370 304 H 610 V 312 H 370 Z" fill="#be123c" />
-  <text x="384" y="302" class="cardTitle">5. prepaint</text>
-  <text x="384" y="334" class="body">Hitbox, cursor ve scroll state.</text>
-  <text x="384" y="351" class="body">Element başına ara veri saklanır.</text>
-  <text x="384" y="368" class="mono">insert_hitbox(...)</text>
+  <path d="M 900 270 V 310" class="arrow-soft" />
 
-  <path d="M 370 343 L 318 343" class="arrowSoft" />
+  <!-- ================= ALT SIRA (4, 5, 6) ================= -->
 
-  <rect x="70" y="282" width="240" height="122" rx="8" class="card" />
-  <rect x="70" y="282" width="240" height="30" rx="8" fill="#334155" />
-  <path d="M 70 304 H 310 V 312 H 70 Z" fill="#334155" />
-  <text x="84" y="302" class="cardTitle">6. paint</text>
-  <text x="84" y="334" class="body">Bounds ile primitive çizilir.</text>
-  <text x="84" y="351" class="body">paint_quad, image, svg, path.</text>
-  <text x="84" y="368" class="body">GPU katmanına komut gider.</text>
+  <g transform="translate(760, 320)" class="step step4">
+    <rect width="280" height="140" fill="url(#g-amber)" class="card" />
+    <text x="140" y="35" class="c-title">4. Bounds</text>
+    <text x="20" y="70" class="c-body">• Her LayoutId için piksel rect.</text>
+    <text x="20" y="95" class="c-body">• Origin, size ve overflow bilgisi.</text>
+    <text x="20" y="120" class="c-body">• prepaint bu rect'leri kullanır.</text>
+  </g>
 
-  <rect x="70" y="466" width="420" height="210" rx="10" fill="#eef2ff" stroke="#6366f1" stroke-width="1.2" />
-  <text x="94" y="496" class="label">Ölçüm notları</text>
-  <text x="94" y="524" class="body">Text ve image gibi içerik ölçen elementler</text>
-  <text x="94" y="541" class="body">Taffy'ye measure callback sağlayabilir.</text>
-  <text x="94" y="574" class="body">Yerleşim geçersizleştirme:</text>
-  <text x="94" y="591" class="mono">cx.notify()</text>
-  <text x="94" y="608" class="mono">style veya child listesi değişimi</text>
-  <text x="94" y="625" class="mono">pencere boyutu / DPI değişimi</text>
+  <path d="M 750 390 H 700" class="arrow-soft" />
 
-  <rect x="550" y="466" width="540" height="210" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.2" />
-  <text x="574" y="496" class="label">Sık karıştırılan sınır</text>
-  <text x="574" y="524" class="body">request_layout çizim yapmaz; yalnızca yapı ve ölçüm isteği üretir.</text>
-  <text x="574" y="548" class="body">prepaint hitbox ve ara durum toplar; paint komutları burada çağrılmaz.</text>
-  <text x="574" y="572" class="body">paint yalnızca önceden çözülmüş bounds ve prepaint durumunu tüketir.</text>
-  <text x="574" y="606" class="body">Bu ayrım debug derlemede aşama kontrolleriyle korunur.</text>
+  <g transform="translate(410, 320)" class="step step5">
+    <rect width="280" height="140" fill="url(#g-rose)" class="card" />
+    <text x="140" y="35" class="c-title">5. prepaint</text>
+    <text x="20" y="70" class="c-body">• Hitbox, cursor ve scroll state.</text>
+    <text x="20" y="95" class="c-body">• Element başına ara veri saklanır.</text>
+    <text x="20" y="120" class="c-mono">• insert_hitbox(...)</text>
+  </g>
 
-  <path d="M 190 404 L 190 430 L 790 430 L 790 412" class="arrowDash" />
-  <text x="490" y="424" text-anchor="middle" class="edge">refresh / notify sonrası yeni frame'de tekrar layout yapılabilir</text>
+  <path d="M 400 390 H 350" class="arrow-soft" />
+
+  <g transform="translate(60, 320)" class="step step6">
+    <rect width="280" height="140" fill="url(#g-slate)" class="card" />
+    <text x="140" y="35" class="c-title">6. paint</text>
+    <text x="20" y="70" class="c-body">• Bounds ile primitive çizilir.</text>
+    <text x="20" y="95" class="c-body">• paint_quad, image, svg, path.</text>
+    <text x="20" y="120" class="c-body">• GPU katmanına komut gider.</text>
+  </g>
+
+  <!-- ================= BİLGİ PANELLERİ ================= -->
+
+  <g transform="translate(60, 520)">
+    <rect width="480" height="240" rx="12" fill="url(#g-indigo-panel)" stroke="#6366f1" stroke-width="2" class="card" />
+    <text x="40" y="45" class="label-title" style="fill:#4f46e5">Ölçüm Notları</text>
+    <text x="40" y="80" class="label-body">• Text ve image gibi içerik ölçen elementler</text>
+    <text x="40" y="105" class="label-body">  Taffy'ye measure callback sağlayabilir.</text>
+
+    <text x="40" y="145" class="label-body" style="font-weight:800">Yerleşim geçersizleştirme:</text>
+    <text x="40" y="170" class="label-body" style="font-family:ui-monospace, SFMono-Regular, monospace">  • cx.notify()</text>
+    <text x="40" y="195" class="label-body" style="font-family:ui-monospace, SFMono-Regular, monospace">  • style veya child listesi değişimi</text>
+    <text x="40" y="220" class="label-body" style="font-family:ui-monospace, SFMono-Regular, monospace">  • pencere boyutu / DPI değişimi</text>
+  </g>
+
+  <g transform="translate(560, 520)">
+    <rect width="540" height="240" rx="12" fill="url(#g-amber-panel)" stroke="#f59e0b" stroke-width="2" class="card" />
+    <text x="40" y="45" class="label-title" style="fill:#d97706">Sık Karıştırılan Sınır</text>
+    <text x="40" y="85" class="label-body">• <tspan style="font-family:ui-monospace, SFMono-Regular, monospace; font-weight:700">request_layout</tspan> çizim yapmaz; yalnızca yapı ve ölçüm isteği üretir.</text>
+    <text x="40" y="125" class="label-body">• <tspan style="font-family:ui-monospace, SFMono-Regular, monospace; font-weight:700">prepaint</tspan> hitbox ve ara durum toplar; paint komutları burada çağrılmaz.</text>
+    <text x="40" y="165" class="label-body">• <tspan style="font-family:ui-monospace, SFMono-Regular, monospace; font-weight:700">paint</tspan> yalnızca önceden çözülmüş bounds ve prepaint durumunu tüketir.</text>
+    <text x="40" y="205" class="label-body">• Bu ayrım hata ayıklama derlemesinde aşama kontrolleriyle korunur.</text>
+  </g>
+
+  <!-- ================= GERİ DÖNÜŞ OKU ================= -->
+  <path d="M 200 470 V 490 H 800 V 470" class="arrow-dash flow" />
+  <text x="500" y="485" class="edge">refresh / notify sonrası yeni frame'de tekrar layout yapılabilir</text>
+
 </svg>

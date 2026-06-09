@@ -1,75 +1,106 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 820">
   <title>GPUI ve Zed Mimari Katmanları</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
-    <marker id="arrowRed" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrowRed" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
-    </marker>
+
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6" />
+      <stop offset="1" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" />
+      <stop offset="1" stop-color="#334155" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 22px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cardTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .label { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .small { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .mono { font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
-      .monoSmall { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #334155; }
-      .softTitle { font: 700 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrow { stroke: #334155; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowDash { stroke: #94a3b8; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowRed { stroke: #be123c; stroke-width: 2; fill: none; stroke-dasharray: 6 5; marker-end: url(#arrowRed); marker-start: url(#dot-arrowRed); }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .panel { fill: #fff; stroke: #cbd5e1; stroke-width: 1.2; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 20px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 15px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+
+      .card { filter: url(#shadow); }
+      .arrow-soft { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+
+      .layer { opacity: 1; animation: layerIn 9s ease-in-out infinite; }
+      .l4 { animation-delay: 0s; }
+      .l3 { animation-delay: 0.5s; }
+      .l2 { animation-delay: 1s; }
+      .l1 { animation-delay: 1.5s; }
+      .flow { stroke-dasharray: 6 6; animation: flowDash 9s linear infinite; }
+      @keyframes layerIn {
+        0%   { opacity: 1; }
+        45%  { opacity: 0.72; }
+        100% { opacity: 1; }
+      }
+      @keyframes flowDash {
+        0%   { stroke-dashoffset: 0; }
+        100% { stroke-dashoffset: -48; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .layer, .flow { animation: none; }
+      }
     </style>
-    
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
-  <text x="480" y="36" text-anchor="middle" class="title">GPUI ve Zed Mimari Katmanları</text>
 
-  <text x="480" y="62" text-anchor="middle" class="subtitle">Her katman daha alttaki sözleşmeye dayanır; Zed bileşenleri GPUI üzerine kurulur.</text>
-  <rect x="90" y="92" width="780" height="94" rx="8" class="card" />
-<rect x="90" y="92" width="780" height="30" rx="8" fill="#2563eb" />
-<path d="M 90 114 H 870 V 122 H 90 Z" fill="#2563eb" />
-<text x="104" y="112" class="cardTitle">Zed üst kabuğu</text>
-<text x="104" y="144" class="body">crates/ui, platform_title_bar ve workspace katmanı.</text>
-<text x="104" y="161" class="body">Button, Icon, Label, Modal, ContextMenu, Tooltip, Tab ve başlık çubuğu.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <path d="M 480 186 L 480 208" class="arrowSoft" />
-  <rect x="90" y="216" width="780" height="106" rx="8" class="card" />
-<rect x="90" y="216" width="780" height="30" rx="8" fill="#059669" />
-<path d="M 90 238 H 870 V 246 H 90 Z" fill="#059669" />
-<text x="104" y="236" class="cardTitle">3. Render / Element katmanı</text>
-<text x="104" y="268" class="body">Render, RenderOnce, IntoElement ve Element sözleşmeleri.</text>
-<text x="104" y="285" class="body">div, canvas, list, uniform_list, img, svg, anchored, deferred ve surface.</text>
-<text x="104" y="302" class="body">Styled ve InteractiveElement bu katmanda davranış ekler.</text>
+  <text x="550" y="46" class="title">GPUI ve Zed Mimari Katmanları</text>
+  <text x="550" y="74" class="sub">Her katman daha alttaki sözleşmeye dayanır; Zed bileşenleri GPUI üzerine kurulur.</text>
 
-  <path d="M 480 322 L 480 344" class="arrowSoft" />
-  <rect x="90" y="352" width="780" height="106" rx="8" class="card" />
-<rect x="90" y="352" width="780" height="30" rx="8" fill="#7c3aed" />
-<path d="M 90 374 H 870 V 382 H 90 Z" fill="#7c3aed" />
-<text x="104" y="372" class="cardTitle">2. Uygulama / Durum katmanı</text>
-<text x="104" y="404" class="body">Application, App, Context&lt;T&gt;, Entity&lt;T&gt;, WeakEntity&lt;T&gt;.</text>
-<text x="104" y="421" class="body">Task, Subscription ve Global ile tipli durum yönetimi.</text>
-<text x="104" y="438" class="body">Olay sistemi ve event loop bu katmanı canlı tutar.</text>
+  <!-- ================= KATMAN 4 ================= -->
+  <g transform="translate(100, 120)" class="layer l4">
+    <rect width="900" height="120" rx="12" fill="url(#g-blue)" class="card" />
+    <text x="450" y="38" class="c-title">4. Zed Üst Kabuğu</text>
+    <text x="24" y="72" class="c-body">• crates/ui, platform_title_bar ve workspace katmanı.</text>
+    <text x="24" y="98" class="c-body">• Button, Icon, Label, Modal, ContextMenu, Tooltip, Tab ve başlık çubuğu.</text>
+  </g>
 
-  <path d="M 480 458 L 480 480" class="arrowSoft" />
-  <rect x="90" y="488" width="780" height="116" rx="8" class="card" />
-<rect x="90" y="488" width="780" height="30" rx="8" fill="#334155" />
-<path d="M 90 510 H 870 V 518 H 90 Z" fill="#334155" />
-<text x="104" y="508" class="cardTitle">1. Platform katmanı</text>
-<text x="104" y="540" class="body">macOS, Windows, Linux, web ve test platformları aynı trait yüzeyini sağlar.</text>
-<text x="104" y="557" class="body">Pencere oluşturma, ekran listesi, pano, sürükle-bırak, ses, dosya seçici ve girdi.</text>
-<text x="104" y="574" class="body">Üst katmanlar yalnızca ortak platform sözleşmesini görür.</text>
+  <path d="M 550 240 V 274" class="arrow-soft flow" />
 
+  <!-- ================= KATMAN 3 ================= -->
+  <g transform="translate(100, 282)" class="layer l3">
+    <rect width="900" height="138" rx="12" fill="url(#g-green)" class="card" />
+    <text x="450" y="38" class="c-title">3. Render / Element Katmanı</text>
+    <text x="24" y="72" class="c-body">• Render, RenderOnce, IntoElement ve Element sözleşmeleri.</text>
+    <text x="24" y="98" class="c-body">• div, canvas, list, uniform_list, img, svg, anchored, deferred ve surface.</text>
+    <text x="24" y="124" class="c-body">• Styled ve InteractiveElement bu katmanda davranış ekler.</text>
+  </g>
+
+  <path d="M 550 420 V 454" class="arrow-soft flow" />
+
+  <!-- ================= KATMAN 2 ================= -->
+  <g transform="translate(100, 462)" class="layer l2">
+    <rect width="900" height="138" rx="12" fill="url(#g-purple)" class="card" />
+    <text x="450" y="38" class="c-title">2. Uygulama / Durum Katmanı</text>
+    <text x="24" y="72" class="c-body">• Application, App, Context&lt;T&gt;, Entity&lt;T&gt;, WeakEntity&lt;T&gt;.</text>
+    <text x="24" y="98" class="c-body">• Task, Subscription ve Global ile tipli durum yönetimi.</text>
+    <text x="24" y="124" class="c-body">• Olay sistemi ve event loop bu katmanı canlı tutar.</text>
+  </g>
+
+  <path d="M 550 600 V 634" class="arrow-soft flow" />
+
+  <!-- ================= KATMAN 1 ================= -->
+  <g transform="translate(100, 642)" class="layer l1">
+    <rect width="900" height="138" rx="12" fill="url(#g-slate)" class="card" />
+    <text x="450" y="38" class="c-title">1. Platform Katmanı</text>
+    <text x="24" y="72" class="c-body">• macOS, Windows, Linux, web ve test platformları aynı trait yüzeyini sağlar.</text>
+    <text x="24" y="98" class="c-body">• Pencere oluşturma, ekran listesi, pano, sürükle-bırak, ses, dosya seçici ve girdi.</text>
+    <text x="24" y="124" class="c-body">• Üst katmanlar yalnızca ortak platform sözleşmesini görür.</text>
+  </g>
 
 </svg>

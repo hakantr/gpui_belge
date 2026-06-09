@@ -1,92 +1,109 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520">
   <title>Tema Crate Bağımlılık Grafiği</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.04" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
-    <marker id="arrowR" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#dc2626" stroke="#dc2626" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrowR" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#dc2626" />
+    <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#e11d48" />
     </marker>
     <style>
-      .title  { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub    { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .cname  { font: 700 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .clabel { font: 700 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
-      .desc   { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .descBlue { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #dbeafe; }
-      .descTeal { font: 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #cffafe; }
-      .badge  { font: 700 10px system-ui, -apple-system, "Segoe UI", sans-serif; }
-      .arrow  { stroke: #334155; stroke-width: 1.9; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .arrowR { stroke: #dc2626; stroke-width: 1.9; stroke-dasharray: 6 4; fill: none; marker-end: url(#arrowR); marker-start: url(#dot-arrowR); }
+      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+      .cname { font: 800 16px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .clabel { font: 800 14px ui-monospace, SFMono-Regular, monospace; fill: #0f172a; }
+      .clabel-white { font: 800 14px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
+      .desc { font: 14px system-ui, -apple-system, sans-serif; fill: #334155; }
+      .desc-white { font: 14px system-ui, -apple-system, sans-serif; fill: #f8fafc; opacity: 0.9; text-anchor: middle; }
+      .badge { font: 800 11px system-ui, -apple-system, sans-serif; letter-spacing: 0.5px; text-transform: uppercase; }
+      .arrow { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .arrowR { stroke: #e11d48; stroke-width: 3; stroke-dasharray: 8 6; fill: none; marker-end: url(#arrowR); }
+      .card { filter: url(#shadow); rx: 12px; }
     </style>
   </defs>
 
-  <rect width="900" height="500" rx="10" fill="#f8fafc" />
-  <text x="450" y="34" text-anchor="middle" class="title">Tema Crate Bağımlılık Grafiği</text>
-  <text x="450" y="56" text-anchor="middle" class="sub">Ok yönü "bağımlı → sağlayan" ilişkisini gösterir. GPL crate'lere yalnızca okuma referansı verilir.</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+  
+  <text x="500" y="46" class="title">Tema Crate Bağımlılık Grafiği</text>
+  <text x="500" y="74" class="sub">Ok yönü "bağımlı → sağlayan" ilişkisini gösterir. GPL crate'lere yalnızca okuma referansı verilir.</text>
 
-  <!-- Zed workspace: sağlayıcı Apache crate'ler -->
-  <rect x="32" y="96" width="240" height="82" rx="8" fill="#fff" stroke="#15803d" stroke-width="2" />
-  <path d="M 40 96 H 264 Q 272 96 272 104 V 121 H 32 V 104 Q 32 96 40 96 Z" fill="#15803d" />
-  <text x="152" y="112" text-anchor="middle" class="badge" fill="#fff">Zed workspace · Apache-2.0</text>
-  <text x="152" y="143" text-anchor="middle" class="clabel">gpui · refineable</text>
-  <text x="152" y="160" text-anchor="middle" class="clabel">collections</text>
+  <!-- ================= SOL: ZED WORKSPACE ================= -->
+  <g transform="translate(40, 110)">
+    <rect width="260" height="100" fill="#ffffff" stroke="#10b981" stroke-width="2" class="card" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 248 A 12 12 0 0 1 260 12 V 30 H 0 Z" fill="#10b981" />
+    <text x="130" y="20" class="badge" fill="#ffffff" text-anchor="middle">Zed Workspace · Apache-2.0</text>
+    
+    <text x="130" y="60" class="clabel" text-anchor="middle">gpui · refineable</text>
+    <text x="130" y="80" class="clabel" text-anchor="middle">collections</text>
+  </g>
 
-  <!-- Merkez crate -->
-  <rect x="330" y="96" width="220" height="82" rx="8" fill="#1d4ed8" />
-  <text x="440" y="128" text-anchor="middle" class="cname">kvs_tema</text>
-  <text x="440" y="149" text-anchor="middle" class="descBlue">Theme, Registry, Runtime</text>
-  <text x="440" y="166" text-anchor="middle" class="descBlue">JSON schema, IconTheme</text>
+  <!-- ================= MERKEZ: KVS TEMA ================= -->
+  <g transform="translate(380, 110)">
+    <rect width="240" height="100" fill="#2563eb" class="card" />
+    <text x="120" y="35" class="cname">kvs_tema</text>
+    <text x="120" y="60" class="desc-white">Theme, Registry, Runtime</text>
+    <text x="120" y="80" class="desc-white">JSON schema, IconTheme</text>
+  </g>
 
-  <!-- Syntax tema crate -->
-  <rect x="628" y="96" width="240" height="82" rx="8" fill="#0891b2" />
-  <text x="748" y="128" text-anchor="middle" class="cname">kvs_syntax_tema</text>
-  <text x="748" y="149" text-anchor="middle" class="descTeal">SyntaxTheme</text>
-  <text x="748" y="166" text-anchor="middle" class="descTeal">kod renkleri</text>
+  <!-- ================= SAĞ: SYNTAX TEMA ================= -->
+  <g transform="translate(700, 110)">
+    <rect width="240" height="100" fill="#0ea5e9" class="card" />
+    <text x="120" y="35" class="cname">kvs_syntax_tema</text>
+    <text x="120" y="60" class="desc-white">SyntaxTheme</text>
+    <text x="120" y="80" class="desc-white">Kod Renkleri</text>
+  </g>
 
-  <!-- GPL referans alanı -->
-  <rect x="32" y="224" width="240" height="92" rx="8" fill="#fff7f7" stroke="#dc2626" stroke-width="2" stroke-dasharray="8 4" />
-  <path d="M 40 224 H 264 Q 272 224 272 232 V 249 H 32 V 232 Q 32 224 40 224 Z" fill="#dc2626" />
-  <text x="152" y="241" text-anchor="middle" class="badge" fill="#fff">YALNIZCA REFERANS · GPL-3</text>
-  <text x="152" y="272" text-anchor="middle" class="clabel">theme · syntax_theme</text>
-  <text x="152" y="291" text-anchor="middle" class="clabel">theme_settings vb.</text>
+  <!-- ================= SOL ALT: GPL REFERANS ================= -->
+  <g transform="translate(40, 240)">
+    <rect width="260" height="100" fill="#fff1f2" stroke="#e11d48" stroke-width="2" stroke-dasharray="8 6" class="card" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 248 A 12 12 0 0 1 260 12 V 30 H 0 Z" fill="#e11d48" />
+    <text x="130" y="20" class="badge" fill="#ffffff" text-anchor="middle">YALNIZCA REFERANS · GPL-3</text>
+    
+    <text x="130" y="60" class="clabel" text-anchor="middle">theme · syntax_theme</text>
+    <text x="130" y="80" class="clabel" text-anchor="middle">theme_settings vb.</text>
+  </g>
 
-  <!-- Üçüncü taraf crate'ler -->
-  <rect x="628" y="216" width="240" height="116" rx="8" fill="#fff" stroke="#cbd5e1" stroke-width="1.4" />
-  <path d="M 636 216 H 860 Q 868 216 868 224 V 241 H 628 V 224 Q 628 216 636 216 Z" fill="#334155" />
-  <text x="748" y="233" text-anchor="middle" class="badge" fill="#fff">Üçüncü taraf</text>
-  <text x="646" y="262" class="clabel">serde · serde_json</text>
-  <text x="646" y="281" class="clabel">serde_json_lenient · palette</text>
-  <text x="646" y="300" class="clabel">parking_lot · indexmap</text>
-  <text x="646" y="319" class="clabel">schemars · anyhow · uuid</text>
+  <!-- ================= SAĞ ALT: ÜÇÜNCÜ TARAF ================= -->
+  <g transform="translate(700, 240)">
+    <rect width="240" height="120" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" class="card" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 228 A 12 12 0 0 1 240 12 V 30 H 0 Z" fill="#334155" />
+    <text x="120" y="20" class="badge" fill="#ffffff" text-anchor="middle">ÜÇÜNCÜ TARAF CRATE'LER</text>
+    
+    <text x="120" y="60" class="clabel" text-anchor="middle">serde · serde_json</text>
+    <text x="120" y="80" class="clabel" text-anchor="middle">serde_json_lenient · palette</text>
+    <text x="120" y="100" class="clabel" text-anchor="middle">parking_lot · indexmap</text>
+  </g>
 
-  <!-- Bağımlılık okları -->
-  <path d="M 322 137 L 280 137" class="arrow" />
-  <text x="301" y="127" text-anchor="middle" class="badge" fill="#334155">kullanır</text>
+  <!-- ================= OKLAR ================= -->
+  <!-- KVS_TEMA -> ZED WORKSPACE -->
+  <path d="M 380 160 L 310 160" class="arrow" />
+  <text x="345" y="150" class="badge" fill="#475569" text-anchor="middle">KULLANIR</text>
 
-  <path d="M 558 137 L 620 137" class="arrow" />
-  <text x="589" y="127" text-anchor="middle" class="badge" fill="#334155">ayırır</text>
+  <!-- SYNTAX_TEMA -> KVS_TEMA -->
+  <path d="M 700 160 L 630 160" class="arrow" />
+  <text x="665" y="150" class="badge" fill="#475569" text-anchor="middle">AYIRIR</text>
 
-  <path d="M 520 186 C 560 214 578 264 620 274" class="arrow" />
-  <text x="574" y="236" text-anchor="middle" class="badge" fill="#334155">crate</text>
+  <!-- SYNTAX_TEMA -> ÜÇÜNCÜ TARAF -->
+  <path d="M 820 210 L 820 230" class="arrow" />
 
-  <path d="M 390 186 C 348 214 324 248 280 270" class="arrowR" />
-  <text x="335" y="238" text-anchor="middle" class="badge" fill="#dc2626">kod değil</text>
-  <text x="335" y="252" text-anchor="middle" class="badge" fill="#dc2626">yalnız okur</text>
+  <!-- KVS_TEMA -> GPL -->
+  <path d="M 500 210 C 500 250 400 280 310 280" class="arrowR" />
+  <text x="400" y="260" class="badge" fill="#e11d48" text-anchor="middle">KOD DEĞİL, YALNIZCA OKUR</text>
 
-  <!-- Bağımlılık yönü kuralı -->
-  <rect x="32" y="356" width="836" height="50" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <text x="56" y="379" class="desc"><tspan font-weight="bold">Ters yön yasaktır:</tspan> gpui, refineable veya collections hiçbir zaman kvs_tema'ya bağlanmaz.</text>
-  <text x="56" y="397" class="desc">Bu kural alt katmanları sakin tutar; upstream Zed değişikliğinde yalnızca tip imzası, davranış veya isim değişimleri izlenir.</text>
+  <!-- ================= KURALLAR ================= -->
+  <!-- Kural 1 -->
+  <g transform="translate(40, 390)">
+    <rect width="900" height="46" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+    <text x="20" y="28" class="desc"><tspan font-weight="800">Ters yön yasaktır:</tspan> gpui, refineable veya collections hiçbir zaman kvs_tema'ya bağlanmaz.</text>
+  </g>
 
-  <!-- Lisans notu -->
-  <rect x="32" y="424" width="836" height="52" rx="8" fill="#fff7ed" stroke="#fed7aa" stroke-width="1.2" />
-  <text x="56" y="447" class="desc"><tspan font-weight="bold" fill="#92400e">GPL sınırı:</tspan> <tspan fill="#334155">GPL-3 Zed crate'leri Cargo.toml'a dependency olarak eklenmez; yalnızca kaynak okuma için referans alınır.</tspan></text>
-  <text x="56" y="465" class="desc" fill="#334155">Alan adları ve JSON anahtarları mirror edilebilir; uygulama bağımlılığı yalnızca Apache uyumlu crate'ler üzerindedir.</text>
+  <!-- Kural 2 -->
+  <g transform="translate(40, 446)">
+    <rect width="900" height="46" rx="8" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5" />
+    <text x="20" y="28" class="desc"><tspan font-weight="800" fill="#c2410c">GPL sınırı:</tspan> GPL-3 Zed crate'leri Cargo.toml'a bağımlılık olarak eklenmez; sadece kaynak okuma için referans alınır.</text>
+  </g>
+
 </svg>

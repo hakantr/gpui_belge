@@ -1,41 +1,60 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 440">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 460">
   <title>Tema Refinement Hiyerarşisi</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.05" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
     <style>
-      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .label { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
-      .cardMid { fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 1.4; }
-      .cardBottom { fill: #e2e8f0; stroke: #94a3b8; stroke-width: 1.4; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 22px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .subtitle { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+      
+      .label { font: 800 16px system-ui, -apple-system, sans-serif; fill: #0f172a; text-anchor: middle; }
+      .body { font: 14px system-ui, -apple-system, sans-serif; fill: #475569; text-anchor: middle; }
+      .edge { font: 800 13px ui-monospace, SFMono-Regular, monospace; fill: #3b82f6; text-anchor: middle; background: #fff; }
+      
+      .arrow-line { stroke: #94a3b8; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linejoin: round; }
+      
+      .card-top { fill: #ffffff; stroke: #e2e8f0; stroke-width: 2; rx: 12px; filter: url(#shadow); }
+      .card-mid { fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 2; rx: 12px; filter: url(#shadow); }
+      .card-bot { fill: #e2e8f0; stroke: #94a3b8; stroke-width: 2; rx: 12px; filter: url(#shadow); }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
 
-  <text x="320" y="38" text-anchor="middle" class="title">Tema Refinement Hiyerarşisi</text>
-  <text x="320" y="62" text-anchor="middle" class="subtitle">JSON içeriği refinement katmanından geçerek runtime nesnesine dönüşür.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <rect x="200" y="100" width="240" height="60" rx="8" class="card"/>
-  <text x="320" y="134" class="label" text-anchor="middle">Theme Content (JSON)</text>
+  <text x="350" y="46" class="title">Tema Refinement Hiyerarşisi</text>
+  <text x="350" y="74" class="subtitle">JSON içeriği refinement katmanından geçerek runtime nesnesine dönüşür.</text>
 
-  <path d="M 320 160 L 320 202" class="arrowSoft"/>
+  <!-- ================= KATMAN 1 (JSON) ================= -->
+  <g transform="translate(200, 110)">
+    <rect width="300" height="70" class="card-top" />
+    <text x="150" y="40" class="label">Theme Content (JSON)</text>
+  </g>
 
-  <rect x="200" y="210" width="240" height="60" rx="8" class="cardMid"/>
-  <text x="320" y="244" class="label" text-anchor="middle">Refinement Layer</text>
+  <!-- Ok 1 -->
+  <path d="M 350 180 L 350 230" class="arrow-line" />
 
-  <path d="M 320 270 L 320 312" class="arrowSoft"/>
-  <text x="380" y="300" class="edge" text-anchor="middle">baseline.refine()</text>
+  <!-- ================= KATMAN 2 (Refinement) ================= -->
+  <g transform="translate(200, 240)">
+    <rect width="300" height="70" class="card-mid" />
+    <text x="150" y="40" class="label">Refinement Layer</text>
+  </g>
 
-  <rect x="200" y="320" width="240" height="70" rx="8" class="cardBottom"/>
-  <text x="320" y="350" class="label" text-anchor="middle">Final Theme (Hsla)</text>
-  <text x="320" y="372" class="body" text-anchor="middle">Runtime Object</text>
+  <!-- Ok 2 -->
+  <path d="M 350 310 L 350 360" class="arrow-line" />
+  
+  <rect x="370" y="325" width="140" height="20" fill="#f8fafc" />
+  <text x="440" y="340" class="edge">baseline.refine()</text>
+
+  <!-- ================= KATMAN 3 (Runtime) ================= -->
+  <g transform="translate(200, 370)">
+    <rect width="300" height="70" class="card-bot" />
+    <text x="150" y="30" class="label">Final Theme (Hsla)</text>
+    <text x="150" y="52" class="body">Runtime Object</text>
+  </g>
+
 </svg>

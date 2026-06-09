@@ -1,339 +1,142 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   viewBox="0 0 960 420"
-   version="1.1"
-   id="svg23"
-   sodipodi:docname="font-yukleme-akisi.svg"
-   inkscape:version="1.4.4 (dcaf3e7d9e, 2026-05-05)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview23"
-     pagecolor="#505050"
-     bordercolor="#eeeeee"
-     borderopacity="1"
-     inkscape:showpageshadow="0"
-     inkscape:pageopacity="0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#505050"
-     inkscape:zoom="1.6354167"
-     inkscape:cx="480"
-     inkscape:cy="210.03822"
-     inkscape:window-width="2048"
-     inkscape:window-height="1243"
-     inkscape:window-x="0"
-     inkscape:window-y="0"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg23" />
-  <title
-     id="title1">Font Yükleme Akışı</title>
-  <defs
-     id="defs1">
-    <marker
-       style="overflow:visible"
-       id="marker24"
-       refX="0"
-       refY="0"
-       orient="auto-start-reverse"
-       inkscape:stockid="Triangle arrow"
-       markerWidth="1"
-       markerHeight="1"
-       viewBox="0 0 1 1"
-       inkscape:isstock="true"
-       inkscape:collect="always"
-       preserveAspectRatio="xMidYMid">
-      <path
-         transform="scale(0.5)"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
-         d="M 5.77,0 -2.88,5 V -5 Z"
-         id="path24" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1040 500">
+  <title>Font Yükleme Akışı</title>
+  <desc>Aynı AssetSource iki tüketiciyi besler: TextSystem ve SVG renderer fontdb'si.</desc>
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker
-       style="overflow:visible"
-       id="Triangle"
-       refX="0"
-       refY="0"
-       orient="auto-start-reverse"
-       inkscape:stockid="Triangle arrow"
-       markerWidth="1"
-       markerHeight="1"
-       viewBox="0 0 1 1"
-       inkscape:isstock="true"
-       inkscape:collect="always"
-       preserveAspectRatio="xMidYMid">
-      <path
-         transform="scale(0.5)"
-         style="fill:context-stroke;fill-rule:evenodd;stroke:context-stroke;stroke-width:1pt"
-         d="M 5.77,0 -2.88,5 V -5 Z"
-         id="path135" />
-    </marker>
-    <marker
-       id="arrow"
-       viewBox="0 0 10 10"
-       refX="10"
-       refY="5"
-       markerWidth="0.001"
-       markerHeight="0.001"
-       orient="auto-start-reverse">
-      <path
-         d="M 0 0 L 10 5 L 0 10 z"
-         fill="#334155"
-         id="path1" />
-    </marker>
-    <style
-       id="style1">
-      .title{font:700 22px system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;fill:#0f172a}
-      .sub{font:13px system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;fill:#475569}
-      .card{fill:#fff;stroke:#cbd5e1;stroke-width:1.4}
-      .head{font:700 14px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#fff}
-      .body{font:12px system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;fill:#334155}
-      .small{font:11px system-ui,-apple-system,&quot;Segoe UI&quot;,sans-serif;fill:#64748b}
-      .arrow{stroke:#334155;stroke-width:2;fill:none;marker-end:url(#arrow)}
+
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" />
+      <stop offset="1" stop-color="#334155" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" />
+      <stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2563eb" />
+      <stop offset="1" stop-color="#1d4ed8" />
+    </linearGradient>
+
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .api { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.96; }
+      .when { font: 700 12px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.82; letter-spacing: 0.3px; }
+      .divider { stroke: #ffffff; stroke-opacity: 0.22; stroke-width: 1; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+
+      .footer-text { font: 600 14px system-ui, -apple-system, sans-serif; fill: #4338ca; text-anchor: middle; }
+      .footer-tag { font: 800 12px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+
+      @keyframes flow-dash {
+        to { stroke-dashoffset: -28; }
+      }
+      .flow {
+        stroke-dasharray: 7 7;
+        animation: flow-dash 9s linear infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.72; }
+      }
+      .glow-1 { animation: pulse 10s ease-in-out infinite; }
+      .glow-2 { animation: pulse 10s ease-in-out infinite; animation-delay: 1.5s; }
+      .glow-3 { animation: pulse 10s ease-in-out infinite; animation-delay: 3s; }
+      .glow-4 { animation: pulse 10s ease-in-out infinite; animation-delay: 4.5s; }
+      .glow-5 { animation: pulse 10s ease-in-out infinite; animation-delay: 6s; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .flow { animation: none; }
+        .glow-1, .glow-2, .glow-3, .glow-4, .glow-5 { animation: none; }
+      }
     </style>
   </defs>
-  <rect
-     width="960"
-     height="420"
-     rx="10"
-     fill="#f8fafc"
-     id="rect1" />
-  <text
-     x="480"
-     y="36"
-     text-anchor="middle"
-     class="title"
-     id="text1">Font Yükleme Akışı</text>
-  <text
-     x="480"
-     y="60"
-     text-anchor="middle"
-     class="sub"
-     id="text2">Aynı AssetSource iki tüketiciyi besler: TextSystem ve SVG renderer fontdb'si.</text>
-  <rect
-     x="40"
-     y="100"
-     width="180"
-     height="104"
-     rx="8"
-     class="card"
-     id="rect2" />
-  <rect
-     x="40"
-     y="100"
-     width="180"
-     height="30"
-     rx="8"
-     fill="#0284c7"
-     id="rect3" />
-  <path
-     d="M40 122 H220 V130 H40 Z"
-     fill="#0284c7"
-     id="path3" />
-  <text
-     x="56"
-     y="120"
-     class="head"
-     id="text3">assets/fonts/</text>
-  <text
-     x="56"
-     y="152"
-     class="body"
-     id="text4">IBM Plex Sans</text>
-  <text
-     x="56"
-     y="170"
-     class="body"
-     id="text5">Lilex</text>
-  <text
-     x="56"
-     y="188"
-     class="small"
-     id="text6">.ttf + lisans dosyaları</text>
-  <rect
-     x="300"
-     y="100"
-     width="190"
-     height="104"
-     rx="8"
-     class="card"
-     id="rect6" />
-  <rect
-     x="300"
-     y="100"
-     width="190"
-     height="30"
-     rx="8"
-     fill="#7c3aed"
-     id="rect7" />
-  <path
-     d="M300 122 H490 V130 H300 Z"
-     fill="#7c3aed"
-     id="path7" />
-  <text
-     x="316"
-     y="120"
-     class="head"
-     id="text7">AssetSource</text>
-  <text
-     x="316"
-     y="152"
-     class="body"
-     id="text8">list(&quot;fonts&quot;)</text>
-  <text
-     x="316"
-     y="170"
-     class="body"
-     id="text9">.ttf filtresi</text>
-  <text
-     x="316"
-     y="188"
-     class="small"
-     id="text10">license dosyaları dışlanır</text>
-  <rect
-     x="570"
-     y="88"
-     width="170"
-     height="92"
-     rx="8"
-     class="card"
-     id="rect10" />
-  <rect
-     x="570"
-     y="88"
-     width="170"
-     height="30"
-     rx="8"
-     fill="#059669"
-     id="rect11" />
-  <path
-     d="M570 110 H740 V118 H570 Z"
-     fill="#059669"
-     id="path11" />
-  <text
-     x="586"
-     y="108"
-     class="head"
-     id="text11">TextSystem</text>
-  <text
-     x="586"
-     y="140"
-     class="body"
-     id="text12">add_fonts(...)</text>
-  <text
-     x="586"
-     y="158"
-     class="small"
-     id="text13">UI metni ve editör</text>
-  <rect
-     x="570"
-     y="224"
-     width="170"
-     height="92"
-     rx="8"
-     class="card"
-     id="rect13" />
-  <rect
-     x="570"
-     y="224"
-     width="170"
-     height="30"
-     rx="8"
-     fill="#d97706"
-     id="rect14" />
-  <path
-     d="M570 246 H740 V254 H570 Z"
-     fill="#d97706"
-     id="path14" />
-  <text
-     x="586"
-     y="244"
-     class="head"
-     id="text14">USVG fontdb</text>
-  <text
-     x="586"
-     y="276"
-     class="body"
-     id="text15">load_system_fonts</text>
-  <text
-     x="586"
-     y="294"
-     class="small"
-     id="text16">SVG text fallback</text>
-  <rect
-     x="800"
-     y="150"
-     width="120"
-     height="92"
-     rx="8"
-     class="card"
-     id="rect16" />
-  <rect
-     x="800"
-     y="150"
-     width="120"
-     height="30"
-     rx="8"
-     fill="#334155"
-     id="rect17" />
-  <path
-     d="M800 172 H920 V180 H800 Z"
-     fill="#334155"
-     id="path17" />
-  <text
-     x="816"
-     y="170"
-     class="head"
-     id="text17">Pencere</text>
-  <text
-     x="816"
-     y="202"
-     class="body"
-     id="text18">ilk frame</text>
-  <text
-     x="816"
-     y="220"
-     class="small"
-     id="text19">fallback önlenir</text>
-  <path
-     d="m 220,152 h 72.51394"
-     class="arrow"
-     id="path19"
-     style="marker-end:url(#Triangle)" />
-  <path
-     d="m 490,140 h 72.53042"
-     class="arrow"
-     id="path20"
-     style="marker-end:url(#Triangle)" />
-  <path
-     d="m 490.15798,163.83727 c 36.48526,0 36.48526,106.31036 72.97052,106.31036"
-     class="arrow"
-     id="path21"
-     style="marker-end:url(#Triangle)" />
-  <path
-     d="m 740.49441,133.6675 c 34.8235,0 26.11763,68.87048 52.23524,68.87048"
-     class="arrow"
-     id="path22"
-     style="marker-end:url(#Triangle)" />
-  <path
-     d="m 740.34047,270.24086 c 34.82948,0 26.12212,-67.70468 52.24422,-67.70468"
-     class="arrow"
-     id="path23"
-     style="marker-end:url(#marker24)" />
-  <rect
-     x="130"
-     y="338"
-     width="700"
-     height="42"
-     rx="7"
-     fill="#eef2ff"
-     stroke="#6366f1"
-     stroke-width="1.2"
-     id="rect23" />
-  <text
-     x="154"
-     y="364"
-     class="body"
-     id="text23">Sert sıra: with_assets önce kurulur, fontlar pencere açılmadan önce TextSystem'e eklenir.</text>
+
+  <rect width="100%" height="100%" rx="12" class="bg" />
+
+  <text x="520" y="48" class="title">Font Yükleme Akışı</text>
+  <text x="520" y="76" class="sub">Aynı AssetSource iki tüketiciyi besler: TextSystem ve SVG renderer fontdb'si.</text>
+
+  <!-- ================= OKLAR (kartların altında) ================= -->
+  <path d="M 240 230 H 312" class="arrow-line flow" />
+
+  <path d="M 520 230 C 562 230 562 160 592 160" class="arrow-line flow" />
+  <path d="M 520 230 C 562 230 562 300 592 300" class="arrow-line flow" />
+
+  <path d="M 800 160 C 832 160 832 230 854 230" class="arrow-line flow" />
+  <path d="M 800 300 C 832 300 832 230 854 230" class="arrow-line flow" />
+
+  <!-- ================= ADIM 1 — assets/fonts/ ================= -->
+  <g transform="translate(40, 170)" class="glow-1">
+    <rect width="200" height="120" rx="12" fill="url(#g-slate)" filter="url(#shadow)" />
+    <text x="100" y="34" class="api">assets/fonts/</text>
+    <line x1="18" y1="46" x2="182" y2="46" class="divider" />
+    <text x="20" y="70" class="body">• IBM Plex Sans</text>
+    <text x="20" y="91" class="body">• Lilex vb.</text>
+    <text x="20" y="111" class="when">.ttf + Lisans Dosyaları</text>
+  </g>
+
+  <!-- ================= ADIM 2 — AssetSource ================= -->
+  <g transform="translate(320, 170)" class="glow-2">
+    <rect width="200" height="120" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
+    <text x="100" y="34" class="api">AssetSource</text>
+    <line x1="18" y1="46" x2="182" y2="46" class="divider" />
+    <text x="20" y="70" class="body">• list("fonts")</text>
+    <text x="20" y="91" class="body">• .ttf filtresi</text>
+    <text x="20" y="111" class="when">Lisans dosyaları dışlanır</text>
+  </g>
+
+  <!-- ================= ADIM 3 ÜST — TextSystem ================= -->
+  <g transform="translate(600, 110)" class="glow-3">
+    <rect width="200" height="100" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
+    <text x="100" y="32" class="api">TextSystem</text>
+    <line x1="18" y1="44" x2="182" y2="44" class="divider" />
+    <text x="20" y="67" class="body">• add_fonts(...)</text>
+    <text x="20" y="87" class="when">UI Metni ve Editör</text>
+  </g>
+
+  <!-- ================= ADIM 3 ALT — USVG fontdb ================= -->
+  <g transform="translate(600, 250)" class="glow-4">
+    <rect width="200" height="100" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
+    <text x="100" y="32" class="api">USVG fontdb</text>
+    <line x1="18" y1="44" x2="182" y2="44" class="divider" />
+    <text x="20" y="67" class="body">• load_system_fonts()</text>
+    <text x="20" y="87" class="when">SVG Text Fallback</text>
+  </g>
+
+  <!-- ================= ADIM 4 — Pencere ================= -->
+  <g transform="translate(860, 170)" class="glow-5">
+    <rect width="140" height="120" rx="12" fill="url(#g-blue)" filter="url(#shadow)" />
+    <text x="70" y="34" class="api">Pencere</text>
+    <line x1="18" y1="46" x2="122" y2="46" class="divider" />
+    <text x="20" y="70" class="body">• İlk Frame</text>
+    <text x="20" y="111" class="when">Fallback Önlenir</text>
+  </g>
+
+  <!-- ================= ALT BİLGİ ================= -->
+  <g transform="translate(40, 420)">
+    <rect width="960" height="48" rx="10" fill="#eef2ff" stroke="#818cf8" stroke-width="1.5" filter="url(#shadow)" />
+    <rect x="16" y="14" width="84" height="20" rx="10" fill="#4f46e5" />
+    <text x="58" y="28" class="footer-tag">KURAL</text>
+    <text x="540" y="29" class="footer-text">with_assets önce kurulur, fontlar pencere açılmadan önce TextSystem'e eklenir.</text>
+  </g>
+
 </svg>

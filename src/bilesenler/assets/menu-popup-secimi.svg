@@ -1,93 +1,145 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 450">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 580">
   <title>Menü, Popup ve Tooltip Bileşeni Seçimi</title>
   <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6" />
+      <stop offset="1" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" />
+      <stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" />
+      <stop offset="1" stop-color="#334155" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34d399" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
     <style>
-      .title   { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub     { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .name    { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .when    { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .body    { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #334155; }
-      .tag     { font: 700 10px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #fff; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
+      .subtitle { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .name { font: 800 17px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
+      .when { font: 800 12px system-ui, -apple-system, sans-serif; fill: #64748b; letter-spacing: 0.5px; }
+      .body { font: 500 14px system-ui, -apple-system, sans-serif; fill: #334155; }
+      .card { fill: url(#g-card); stroke: #e2e8f0; stroke-width: 1.5; }
     </style>
   </defs>
 
-  <rect width="900" height="450" rx="10" fill="#f8fafc" />
-  <text x="450" y="34" text-anchor="middle" class="title">Menü, Popup ve Tooltip Seçimi</text>
-  <text x="450" y="56" text-anchor="middle" class="sub">Hangi bileşen hangi senaryoya uyar?</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
 
-  <!-- ─── Satır 1 ─── -->
+  <text x="580" y="48" text-anchor="middle" class="title">Menü, Popup ve Tooltip Seçimi</text>
+  <text x="580" y="76" text-anchor="middle" class="subtitle">Hangi bileşen hangi senaryoya uyar?</text>
+
+  <!-- ================= SATIR 1 ================= -->
 
   <!-- DropdownMenu -->
-  <rect x="20" y="74" width="274" height="140" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="20" y="74" width="274" height="28" rx="8" fill="#0891b2" />
-  <path d="M 20 94 H 294 V 102 H 20 Z" fill="#0891b2" />
-  <text x="34" y="92" class="name">DropdownMenu</text>
-  <text x="34" y="118" class="when">NE ZAMAN:</text>
-  <text x="34" y="134" class="body">Seçili değer trigger üzerinde görünür.</text>
-  <text x="34" y="150" class="body">Entry listesi kısa, arama gerekmez.</text>
-  <text x="34" y="172" class="when">TETİKLEYİCİ:</text>
-  <text x="34" y="188" class="body">Button / label tıklaması</text>
+  <g transform="translate(60, 110)">
+    <rect width="320" height="170" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 308 A 12 12 0 0 1 320 12 V 42 H 0 Z" fill="url(#g-sky)" />
+    <text x="160" y="28" text-anchor="middle" class="name">DropdownMenu</text>
+
+    <text x="20" y="72" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="20" y="96" class="body">• Seçili değer tetikleyici üzerinde görünür.</text>
+    <text x="20" y="118" class="body">• Öğe listesi kısa, arama gerekmez.</text>
+
+    <text x="20" y="150" class="when" style="fill: #0284c7;">TETİKLEYİCİ:</text>
+    <text x="125" y="150" class="body" style="font-weight: 600;">Button / Label</text>
+  </g>
 
   <!-- ContextMenu -->
-  <rect x="314" y="74" width="274" height="140" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="314" y="74" width="274" height="28" rx="8" fill="#7c3aed" />
-  <path d="M 314 94 H 588 V 102 H 314 Z" fill="#7c3aed" />
-  <text x="328" y="92" class="name">ContextMenu</text>
-  <text x="328" y="118" class="when">NE ZAMAN:</text>
-  <text x="328" y="134" class="body">Entry, separator, submenu, action</text>
-  <text x="328" y="150" class="body">dispatch akışı gerekir.</text>
-  <text x="328" y="172" class="when">TETİKLEYİCİ:</text>
-  <text x="328" y="188" class="body">PopoverMenu içinde entity olarak</text>
+  <g transform="translate(420, 110)">
+    <rect width="320" height="170" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 308 A 12 12 0 0 1 320 12 V 42 H 0 Z" fill="url(#g-violet)" />
+    <text x="160" y="28" text-anchor="middle" class="name">ContextMenu</text>
+
+    <text x="20" y="72" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="20" y="96" class="body">• Öğe, ayraç, alt menü ve eylem</text>
+    <text x="30" y="116" class="body">dağıtım akışı gerektirir.</text>
+
+    <text x="20" y="150" class="when" style="fill: #7c3aed;">TETİKLEYİCİ:</text>
+    <text x="125" y="150" class="body" style="font-weight: 600;">PopoverMenu varlığı</text>
+  </g>
 
   <!-- PopoverMenu -->
-  <rect x="608" y="74" width="272" height="140" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="608" y="74" width="272" height="28" rx="8" fill="#1d4ed8" />
-  <path d="M 608 94 H 880 V 102 H 608 Z" fill="#1d4ed8" />
-  <text x="622" y="92" class="name">PopoverMenu</text>
-  <text x="622" y="118" class="when">NE ZAMAN:</text>
-  <text x="622" y="134" class="body">Trigger ile managed view açılır.</text>
-  <text x="622" y="150" class="body">ContextMenu en yaygın içerik.</text>
-  <text x="622" y="172" class="when">TETİKLEYİCİ:</text>
-  <text x="622" y="188" class="body">Button / IconButton tıklaması</text>
+  <g transform="translate(780, 110)">
+    <rect width="320" height="170" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 308 A 12 12 0 0 1 320 12 V 42 H 0 Z" fill="url(#g-blue)" />
+    <text x="160" y="28" text-anchor="middle" class="name">PopoverMenu</text>
 
-  <!-- ─── Satır 2 ─── -->
+    <text x="20" y="72" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="20" y="96" class="body">• Tetikleyici ile yönetilen görünüm açılır.</text>
+    <text x="20" y="118" class="body">• ContextMenu en yaygın içeriğidir.</text>
+
+    <text x="20" y="150" class="when" style="fill: #2563eb;">TETİKLEYİCİ:</text>
+    <text x="125" y="150" class="body" style="font-weight: 600;">IconButton / Button</text>
+  </g>
+
+  <!-- ================= SATIR 2 ================= -->
 
   <!-- right_click_menu -->
-  <rect x="20" y="230" width="274" height="140" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="20" y="230" width="274" height="28" rx="8" fill="#b45309" />
-  <path d="M 20 250 H 294 V 258 H 20 Z" fill="#b45309" />
-  <text x="34" y="248" class="name">right_click_menu</text>
-  <text x="34" y="274" class="when">NE ZAMAN:</text>
-  <text x="34" y="290" class="body">İkincil tıklama (sağ tık) ile</text>
-  <text x="34" y="306" class="body">bağlam menüsü açılır.</text>
-  <text x="34" y="328" class="when">TETİKLEYİCİ:</text>
-  <text x="34" y="344" class="body">Sağ tık / context click</text>
+  <g transform="translate(60, 310)">
+    <rect width="320" height="170" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 308 A 12 12 0 0 1 320 12 V 42 H 0 Z" fill="url(#g-amber)" />
+    <text x="160" y="28" text-anchor="middle" class="name">right_click_menu</text>
+
+    <text x="20" y="72" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="20" y="96" class="body">• İkincil tıklama (sağ tık) ile bağlam</text>
+    <text x="30" y="116" class="body">menüsü açmak için kullanılır.</text>
+
+    <text x="20" y="150" class="when" style="fill: #d97706;">TETİKLEYİCİ:</text>
+    <text x="125" y="150" class="body" style="font-weight: 600;">Sağ Tık / Bağlam</text>
+  </g>
 
   <!-- Popover -->
-  <rect x="314" y="230" width="274" height="140" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="314" y="230" width="274" height="28" rx="8" fill="#334155" />
-  <path d="M 314 250 H 588 V 258 H 314 Z" fill="#334155" />
-  <text x="328" y="248" class="name">Popover</text>
-  <text x="328" y="274" class="when">NE ZAMAN:</text>
-  <text x="328" y="290" class="body">Yüzey kabı gerekir; elevation,</text>
-  <text x="328" y="306" class="body">padding ve konum ayarı önemli.</text>
-  <text x="328" y="328" class="when">TETİKLEYİCİ:</text>
-  <text x="328" y="344" class="body">PopoverMenu içinde iç kap olarak</text>
+  <g transform="translate(420, 310)">
+    <rect width="320" height="170" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 308 A 12 12 0 0 1 320 12 V 42 H 0 Z" fill="url(#g-slate)" />
+    <text x="160" y="28" text-anchor="middle" class="name">Popover</text>
+
+    <text x="20" y="72" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="20" y="96" class="body">• Yüzey kabı gerekir; yükseklik,</text>
+    <text x="30" y="116" class="body">iç boşluk ve konumlandırma sunar.</text>
+
+    <text x="20" y="150" class="when" style="fill: #334155;">TETİKLEYİCİ:</text>
+    <text x="125" y="150" class="body" style="font-weight: 600;">İç Kapsayıcıdır</text>
+  </g>
 
   <!-- Tooltip -->
-  <rect x="608" y="230" width="272" height="140" rx="8" fill="#fff" stroke="#e2e8f0" stroke-width="1.2" />
-  <rect x="608" y="230" width="272" height="28" rx="8" fill="#059669" />
-  <path d="M 608 250 H 880 V 258 H 608 Z" fill="#059669" />
-  <text x="622" y="248" class="name">Tooltip</text>
-  <text x="622" y="274" class="when">NE ZAMAN:</text>
-  <text x="622" y="290" class="body">Kısa hover açıklama veya</text>
-  <text x="622" y="306" class="body">shortcut bilgisi gösterilir.</text>
-  <text x="622" y="328" class="when">TETİKLEYİCİ:</text>
-  <text x="622" y="344" class="body">Fare hover (element üzerinde)</text>
+  <g transform="translate(780, 310)">
+    <rect width="320" height="170" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 308 A 12 12 0 0 1 320 12 V 42 H 0 Z" fill="url(#g-green)" />
+    <text x="160" y="28" text-anchor="middle" class="name">Tooltip</text>
 
-  <!-- Alt not -->
-  <rect x="20" y="388" width="860" height="40" rx="7" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1" />
-  <text x="40" y="408" class="body">Ortak kural: menü ve popup bileşenleri kendi başlarına değer saklamaz. Entry handler'ları view veya model state'ini günceller.</text>
-  <text x="40" y="424" class="body">Açılıp kapanma davranışı menu, popover veya parent lifecycle tarafından yönetilir.</text>
+    <text x="20" y="72" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="20" y="96" class="body">• Kısa bilgilendirme, üzerine gelme</text>
+    <text x="30" y="116" class="body">açıklaması veya kısayol tuşu gösterimi.</text>
+
+    <text x="20" y="150" class="when" style="fill: #059669;">TETİKLEYİCİ:</text>
+    <text x="125" y="150" class="body" style="font-weight: 600;">Fare Üzerine Gelme</text>
+  </g>
+
+  <!-- Alt Not -->
+  <g transform="translate(60, 510)">
+    <rect width="1040" height="56" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="520" y="26" text-anchor="middle" class="body" style="font-weight: 600; fill: #1e293b;">Kural: menü ve popup bileşenleri kendi başlarına değer saklamaz; öğe işleyicileri görünüm veya model durumunu günceller.</text>
+    <text x="520" y="46" text-anchor="middle" class="body" style="fill: #475569;">Açılıp kapanma davranışı menü, popover veya üst öğe yaşam döngüsü tarafından yönetilir.</text>
+  </g>
 
 </svg>

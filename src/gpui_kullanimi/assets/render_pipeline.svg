@@ -1,40 +1,91 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 280">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 360">
   <title>GPUI Render Döngüsü</title>
   <defs>
-    <marker id="arrow" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#334155" stroke="#334155" stroke-width="1pt" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="dot-arrow" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#334155" />
-    </marker>
+
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a78bfa" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34d399" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+
     <style>
-      .title { font: 700 20px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .subtitle { font: 600 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .label { font: 700 14px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .body { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .edge { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #475569; }
-      .arrowSoft { stroke: #94a3b8; stroke-width: 2; fill: none; marker-end: url(#arrow); marker-start: url(#dot-arrow); }
-      .card { fill: #fff; stroke: #cbd5e1; stroke-width: 1.4; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .c-title { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .c-body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; text-anchor: middle; }
+
+      .card { filter: url(#shadow); }
+      .arrow-soft { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .edge { font: 700 14px ui-monospace, SFMono-Regular, monospace; fill: #475569; text-anchor: middle; }
+      .note { font: 500 14px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      /* Akış noktası — okların üzerinde ilerleyen vurgu */
+      .flow-dash {
+        stroke: #0ea5e9; stroke-width: 3; fill: none;
+        stroke-linecap: round;
+        stroke-dasharray: 10 14;
+        animation: dashmove 10s linear infinite;
+      }
+      @keyframes dashmove { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: -240; } }
+      @media (prefers-reduced-motion: reduce) {
+        .flow-dash { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc" />
 
-  <text x="430" y="38" text-anchor="middle" class="title">GPUI Render Döngüsü</text>
-  <text x="430" y="62" text-anchor="middle" class="subtitle">Her cx.notify() çağrısı tam bir render döngüsü tetikler.</text>
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <rect x="50" y="100" width="170" height="70" rx="8" class="card"/>
-  <text x="135" y="130" class="label" text-anchor="middle">Event / State</text>
+  <text x="550" y="50" class="title">GPUI Render Döngüsü</text>
+  <text x="550" y="80" class="sub">Her cx.notify() çağrısı tam bir render döngüsü tetikler.</text>
 
-  <path d="M 220 135 L 312 135" class="arrowSoft"/>
-  <text x="270" y="122" class="edge" text-anchor="middle">cx.notify()</text>
+  <!-- ================= 1. ADIM ================= -->
+  <g transform="translate(60, 150)">
+    <rect width="250" height="100" rx="12" fill="url(#g-blue)" class="card" />
+    <text x="125" y="44" class="c-title">Event / State</text>
+    <text x="125" y="74" class="c-body" style="fill:#e0f2fe">Olay ve Durum Değişimi</text>
+  </g>
 
-  <rect x="320" y="100" width="200" height="70" rx="8" class="card"/>
-  <text x="420" y="128" class="label" text-anchor="middle">Render::render</text>
-  <text x="420" y="150" class="body" text-anchor="middle">(Element Tree)</text>
+  <!-- Ok 1 -->
+  <path d="M 310 200 H 425" class="arrow-soft" />
+  <path d="M 310 200 H 415" class="flow-dash" />
+  <text x="367" y="183" class="edge">cx.notify()</text>
 
-  <path d="M 520 135 L 612 135" class="arrowSoft"/>
+  <!-- ================= 2. ADIM ================= -->
+  <g transform="translate(435, 150)">
+    <rect width="250" height="100" rx="12" fill="url(#g-purple)" class="card" />
+    <text x="125" y="44" class="c-title">Render::render</text>
+    <text x="125" y="74" class="c-body" style="fill:#ede9fe">Element Ağacı Üretimi</text>
+  </g>
 
-  <rect x="620" y="100" width="200" height="70" rx="8" class="card"/>
-  <text x="720" y="128" class="label" text-anchor="middle">Layout &amp; Paint</text>
-  <text x="720" y="150" class="body" text-anchor="middle">(GPU Frame)</text>
+  <!-- Ok 2 -->
+  <path d="M 685 200 H 800" class="arrow-soft" />
+  <path d="M 685 200 H 790" class="flow-dash" />
+  <text x="742" y="183" class="edge">Element Tree</text>
+
+  <!-- ================= 3. ADIM ================= -->
+  <g transform="translate(810, 150)">
+    <rect width="230" height="100" rx="12" fill="url(#g-green)" class="card" />
+    <text x="115" y="44" class="c-title">Layout &amp; Paint</text>
+    <text x="115" y="74" class="c-body" style="fill:#d1fae5">GPU Karesi (Frame)</text>
+  </g>
+
+  <!-- ================= GERİ DÖNGÜ (yeni durum tekrar tetikler) ================= -->
+  <path d="M 925 250 V 300 H 185 V 250" class="arrow-soft" />
+  <text x="555" y="330" class="note">Sonraki cx.notify() döngüyü yeniden başlatır</text>
+
 </svg>

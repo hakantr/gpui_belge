@@ -1,106 +1,123 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 520">
   <title>Ağaç ve girinti yapısı</title>
   <defs>
-    <marker id="aSlate" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#64748b" stroke="#64748b" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aSlate" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#64748b" />
-    </marker>
-    <marker id="aEmerald" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#059669" stroke="#059669" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aEmerald" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#059669" />
-    </marker>
-    <marker id="aViolet" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#7c3aed" stroke="#7c3aed" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aViolet" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#7c3aed" />
-    </marker>
-    <marker id="aCyan" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#0891b2" stroke="#0891b2" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aCyan" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#0891b2" />
-    </marker>
-    <marker id="aAmber" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#d97706" stroke="#d97706" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aAmber" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#d97706" />
-    </marker>
-    <marker id="aRose" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#be123c" stroke="#be123c" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aRose" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#be123c" />
-    </marker>
-    <marker id="aSky" viewBox="0 0 1 1" refX="0" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 5.77 0 L -2.88 5 V -5 Z" transform="scale(0.5)" fill="#0284c7" stroke="#0284c7" stroke-width="1pt" />
-    </marker>
-    <marker id="dot-aSky" viewBox="0 0 7 7" refX="3.5" refY="3.5" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse">
-      <circle cx="3.5" cy="3.5" r="3.5" fill="#0284c7" />
-    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#10b981" flood-opacity="0.45" />
+    </filter>
+
+    <linearGradient id="g-card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
+    <linearGradient id="g-selected" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0fdf4" />
+      <stop offset="1" stop-color="#dcfce7" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#a78bfa" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" />
+      <stop offset="1" stop-color="#0ea5e9" />
+    </linearGradient>
+    <linearGradient id="g-legend" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f1f5f9" />
+    </linearGradient>
+
     <style>
-      text{font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-      .title{font-size:20px;font-weight:700;fill:#0f172a}
-      .sub{font-size:12px;font-weight:600;fill:#475569}
-      .h{font-size:13px;font-weight:700;fill:#0f172a}
-      .t{font-size:12px;font-weight:600;fill:#0f172a}
-      .body{font-size:12px;fill:#475569}
-      .small{font-size:10px;fill:#64748b}
-      .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11px;fill:#0f172a}
-      .card{fill:#fff;stroke-width:1.6}
-      .tEmerald{fill:#059669}.tViolet{fill:#7c3aed}.tCyan{fill:#0891b2}.tAmber{fill:#d97706}.tRose{fill:#be123c}.tSky{fill:#0284c7}.tSlate{fill:#64748b}.tWhite{fill:#fff}
-      .arrow{stroke:#64748b;stroke-width:2;fill:none;marker-end:url(#aSlate); marker-start: url(#dot-aSlate)}
-      .aEm{stroke:#059669;marker-end:url(#aEmerald); marker-start: url(#dot-aEmerald)}.aVi{stroke:#7c3aed;marker-end:url(#aViolet); marker-start: url(#dot-aViolet)}.aCy{stroke:#0891b2;marker-end:url(#aCyan); marker-start: url(#dot-aCyan)}.aAm{stroke:#d97706;marker-end:url(#aAmber); marker-start: url(#dot-aAmber)}.aRo{stroke:#be123c;marker-end:url(#aRose); marker-start: url(#dot-aRose)}.aSk{stroke:#0284c7;marker-end:url(#aSky); marker-start: url(#dot-aSky)}
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
+      .subtitle { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .t { font: 600 15px ui-monospace, SFMono-Regular, monospace; fill: #1e293b; }
+      .small { font: 500 13px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .meta { font: 600 13px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .lh { font: 700 13px system-ui, -apple-system, sans-serif; fill: #334155; }
+      .lb { font: 500 13px system-ui, -apple-system, sans-serif; fill: #475569; }
+
+      .card { fill: url(#g-card); stroke: #e2e8f0; stroke-width: 1.5; }
+      .card-selected { fill: url(#g-selected); stroke: #10b981; stroke-width: 2; }
+      .card-hidden { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; stroke-dasharray: 4 4; opacity: 0.6; }
+
+      .tEmerald { fill: #047857; }
+
+      .pulse { animation: pulse 9s ease-in-out infinite; }
+      @keyframes pulse {
+        0%   { opacity: 1; }
+        50%  { opacity: 0.78; }
+        100% { opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .pulse { animation: none; }
+      }
     </style>
   </defs>
-  <rect width="100%" height="100%" rx="10" fill="#f8fafc"/>
 
-  <text x="400" y="40" text-anchor="middle" class="title">Ağaç (Tree) ve Girinti (Indent) Yapısı</text>
-  <text x="400" y="63" text-anchor="middle" class="sub">TreeViewItem girintileri ve IndentGuides kılavuz çizgileri</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+
+  <text x="430" y="48" text-anchor="middle" class="title">Ağaç (Tree) ve Girinti (Indent) Yapısı</text>
+  <text x="430" y="76" text-anchor="middle" class="subtitle">TreeViewItem girintileri ve IndentGuides kılavuz çizgileri</text>
 
   <!-- Girinti kılavuz çizgileri -->
-  <line x1="140" y1="180" x2="140" y2="392" stroke="#cbd5e1" stroke-width="1.5"/>
-  <line x1="180" y1="300" x2="180" y2="392" stroke="#e2e8f0" stroke-width="1.5"/>
+  <line x1="160" y1="186" x2="160" y2="396" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4" />
+  <line x1="200" y1="326" x2="200" y2="396" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4" />
 
   <!-- Düğüm 1: Kök (açık) -->
-  <g transform="translate(80,120)">
-    <rect width="640" height="48" rx="8" class="card" stroke="#cbd5e1"/>
-    <path d="M 20 19 L 30 27 L 40 19" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="60" y="14" width="20" height="20" rx="3" fill="#7c3aed"/>
-    <text x="95" y="29" class="t">src (kök düğüm · girinti 0)</text>
-    <text x="600" y="29" class="small" text-anchor="end">Açık</text>
+  <g transform="translate(100, 130)">
+    <rect width="660" height="56" rx="10" class="card" filter="url(#shadow)" />
+    <!-- Chevron Down -->
+    <path d="M 24 24 L 32 32 L 40 24" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="60" y="16" width="24" height="24" rx="5" fill="url(#g-violet)" />
+    <text x="100" y="34" class="t">src <tspan class="small">(kök düğüm · girinti 0)</tspan></text>
+    <text x="630" y="33" class="meta" text-anchor="end">Açık</text>
   </g>
 
   <!-- Düğüm 2: Alt dosya (girinti 1) -->
-  <g transform="translate(80,180)">
-    <rect width="640" height="48" rx="8" class="card" stroke="#cbd5e1"/>
-    <rect x="0" y="0" width="60" height="48" rx="8" fill="#be123c" fill-opacity="0.05"/>
-    <rect x="100" y="14" width="16" height="20" rx="2" fill="#0284c7"/>
-    <text x="130" y="29" class="t">main.rs (alt dosya · girinti 1)</text>
-    <text x="600" y="29" class="small" text-anchor="end">Girinti: 12px</text>
+  <g transform="translate(100, 200)">
+    <rect width="660" height="56" rx="10" class="card" filter="url(#shadow)" />
+    <!-- Indent Highlight -->
+    <rect x="0" y="0" width="60" height="56" rx="10" fill="#e2e8f0" fill-opacity="0.45" />
+    <rect x="100" y="16" width="20" height="24" rx="4" fill="url(#g-sky)" />
+    <text x="136" y="34" class="t">main.rs <tspan class="small">(alt dosya · girinti 1)</tspan></text>
+    <text x="630" y="33" class="meta" text-anchor="end">Girinti: 12px</text>
   </g>
 
   <!-- Düğüm 3: Alt klasör (girinti 1 · seçili) -->
-  <g transform="translate(80,240)">
-    <rect width="640" height="48" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="1.8"/>
-    <rect x="0" y="0" width="60" height="48" rx="8" fill="#be123c" fill-opacity="0.05"/>
-    <path d="M 65 19 L 75 24 L 65 29" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="100" y="14" width="20" height="20" rx="3" fill="#7c3aed"/>
-    <text x="130" y="29" class="t tEmerald">ui (alt klasör · seçili)</text>
-    <text x="600" y="29" class="small tEmerald" font-weight="600" text-anchor="end">Kapalı</text>
+  <g transform="translate(100, 270)">
+    <rect width="660" height="56" rx="10" class="card-selected pulse" filter="url(#glow)" />
+    <rect x="0" y="0" width="60" height="56" rx="10" fill="#e2e8f0" fill-opacity="0.45" />
+    <!-- Chevron Right -->
+    <path d="M 68 22 L 76 28 L 68 34" fill="none" stroke="#d97706" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="100" y="16" width="24" height="24" rx="5" fill="url(#g-violet)" />
+    <text x="136" y="34" class="t tEmerald">ui <tspan class="small tEmerald">(alt klasör · seçili)</tspan></text>
+    <text x="630" y="33" class="meta tEmerald" style="font-weight:700" text-anchor="end">Kapalı</text>
   </g>
 
   <!-- Düğüm 4: Torun dosya (girinti 2 · gizli) -->
-  <g transform="translate(80,300)" opacity="0.6">
-    <rect width="640" height="48" rx="8" class="card" stroke="#94a3b8" stroke-dasharray="4,4"/>
-    <rect x="0" y="0" width="100" height="48" rx="8" fill="#be123c" fill-opacity="0.04"/>
-    <rect x="140" y="14" width="16" height="20" rx="2" fill="#0284c7"/>
-    <text x="170" y="29" class="t">button.rs (torun · girinti 2)</text>
-    <text x="600" y="29" class="small" text-anchor="end">Girinti: 24px</text>
+  <g transform="translate(100, 340)">
+    <rect width="660" height="56" rx="10" class="card-hidden" />
+    <rect x="0" y="0" width="100" height="56" rx="10" fill="#e2e8f0" fill-opacity="0.3" />
+    <rect x="140" y="16" width="20" height="24" rx="4" fill="url(#g-sky)" opacity="0.6" />
+    <text x="176" y="34" class="t" opacity="0.6">button.rs <tspan class="small">(torun · girinti 2)</tspan></text>
+    <text x="630" y="33" class="meta" text-anchor="end">Girinti: 24px</text>
+  </g>
+
+  <!-- Açıklama şeridi -->
+  <g transform="translate(100, 422)">
+    <rect width="660" height="74" rx="12" fill="url(#g-legend)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)" />
+
+    <text x="22" y="28" class="lh">Girinti kuralı</text>
+    <text x="22" y="50" class="lb">girinti = derinlik × 12px (her düzey içe kayar)</text>
+
+    <!-- ayraç -->
+    <line x1="318" y1="16" x2="318" y2="58" stroke="#e2e8f0" stroke-width="1.5" />
+
+    <!-- kılavuz çizgisi örneği -->
+    <line x1="344" y1="22" x2="344" y2="52" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 4" />
+    <text x="360" y="30" class="lh">IndentGuides</text>
+    <text x="360" y="50" class="lb">üst düğüme bağlayan kesik kılavuz çizgisi</text>
   </g>
 </svg>

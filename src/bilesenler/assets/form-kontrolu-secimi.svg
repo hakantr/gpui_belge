@@ -1,70 +1,110 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 300">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 940 360">
   <title>Form Kontrolü Seçimi</title>
   <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
+    </filter>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-purple" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f43f5e" />
+      <stop offset="1" stop-color="#e11d48" />
+    </linearGradient>
+    <linearGradient id="g-card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
     <style>
-      .title { font: 700 19px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #0f172a; }
-      .sub   { font: 13px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #475569; }
-      .api   { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #fff; }
-      .when  { font: 700 11px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #64748b; }
-      .body  { font: 12px system-ui, -apple-system, "Segoe UI", sans-serif; fill: #1e293b; }
-      .card  { fill: #fff; stroke-width: 1.4; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
+      .subtitle { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .api { font: 800 16px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
+      .when { font: 800 11px system-ui, -apple-system, sans-serif; fill: #94a3b8; letter-spacing: 0.6px; }
+      .body { font: 600 13.5px system-ui, -apple-system, sans-serif; fill: #334155; }
+      .card { fill: url(#g-card); stroke: #e2e8f0; stroke-width: 1.5; }
     </style>
   </defs>
 
-  <rect width="860" height="300" rx="10" fill="#f8fafc" />
-  <text x="430" y="33" text-anchor="middle" class="title">Form Kontrolü Seçimi</text>
-  <text x="430" y="53" text-anchor="middle" class="sub">Seçim türü ve görsel sunum gereksinime göre doğru kontrolü belirler.</text>
+  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+
+  <text x="470" y="46" text-anchor="middle" class="title">Form Kontrolü Seçimi</text>
+  <text x="470" y="74" text-anchor="middle" class="subtitle">Seçim türü ve görsel sunum gereksinime göre doğru kontrolü belirler.</text>
 
   <!-- Checkbox -->
-  <rect x="20" y="70" width="195" height="200" rx="8" class="card" stroke="#93c5fd" />
-  <rect x="20" y="70" width="195" height="42" rx="8" fill="#1d4ed8" />
-  <path d="M20 102 H215 V112 H20 Z" fill="#1d4ed8" />
-  <text x="117" y="96" text-anchor="middle" class="api">Checkbox</text>
-  <text x="36" y="136" class="when">NE ZAMAN:</text>
-  <text x="36" y="156" class="body">Birbirinden bağımsız</text>
-  <text x="36" y="174" class="body">çoklu seçimler.</text>
-  <text x="36" y="198" class="body">İzin, filtre, staged</text>
-  <text x="36" y="216" class="body">file, capability vb.</text>
-  <text x="36" y="240" class="body">Indeterminate durum</text>
-  <text x="36" y="258" class="body">desteklenir.</text>
+  <g transform="translate(40, 104)">
+    <rect width="200" height="232" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 188 A 12 12 0 0 1 200 12 V 44 H 0 Z" fill="url(#g-sky)" />
+    <rect x="18" y="13" width="18" height="18" rx="4" fill="#ffffff" opacity="0.92" />
+    <path d="M 22 22 L 25.5 26 L 32 18" fill="none" stroke="#0284c7" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="52" y="28" class="api">Checkbox</text>
+
+    <text x="18" y="74" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="18" y="102" class="body">• Birbirinden bağımsız</text>
+    <text x="28" y="122" class="body">çoklu seçimler.</text>
+    <text x="18" y="150" class="body">• İzin, filtre, staged</text>
+    <text x="28" y="170" class="body">file, capability vb.</text>
+    <text x="18" y="198" class="body">• Indeterminate durum</text>
+    <text x="28" y="218" class="body">desteklenir.</text>
+  </g>
 
   <!-- Switch -->
-  <rect x="231" y="70" width="195" height="200" rx="8" class="card" stroke="#7dd3fc" />
-  <rect x="231" y="70" width="195" height="42" rx="8" fill="#0891b2" />
-  <path d="M231 102 H426 V112 H231 Z" fill="#0891b2" />
-  <text x="328" y="96" text-anchor="middle" class="api">Switch</text>
-  <text x="247" y="136" class="when">NE ZAMAN:</text>
-  <text x="247" y="156" class="body">Tek bir ayarı</text>
-  <text x="247" y="174" class="body">açmak / kapatmak.</text>
-  <text x="247" y="198" class="body">Boolean değer,</text>
-  <text x="247" y="216" class="body">net aç/kapat anlamı.</text>
-  <text x="247" y="240" class="body">Çoklu seçim</text>
-  <text x="247" y="258" class="body">gerekmez.</text>
+  <g transform="translate(260, 104)">
+    <rect width="200" height="232" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 188 A 12 12 0 0 1 200 12 V 44 H 0 Z" fill="url(#g-green)" />
+    <rect x="18" y="14" width="30" height="16" rx="8" fill="#ffffff" opacity="0.30" />
+    <circle cx="40" cy="22" r="6" fill="#ffffff" />
+    <text x="58" y="28" class="api">Switch</text>
+
+    <text x="18" y="74" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="18" y="102" class="body">• Tek bir ayarı</text>
+    <text x="28" y="122" class="body">açmak / kapatmak.</text>
+    <text x="18" y="150" class="body">• Boolean değer,</text>
+    <text x="28" y="170" class="body">net aç/kapat anlamı.</text>
+    <text x="18" y="198" class="body">• Çoklu seçim</text>
+    <text x="28" y="218" class="body">gerekmez.</text>
+  </g>
 
   <!-- SwitchField -->
-  <rect x="442" y="70" width="195" height="200" rx="8" class="card" stroke="#c4b5fd" />
-  <rect x="442" y="70" width="195" height="42" rx="8" fill="#7c3aed" />
-  <path d="M442 102 H637 V112 H442 Z" fill="#7c3aed" />
-  <text x="539" y="96" text-anchor="middle" class="api">SwitchField</text>
-  <text x="458" y="136" class="when">NE ZAMAN:</text>
-  <text x="458" y="156" class="body">Label + açıklama</text>
-  <text x="458" y="174" class="body">+ switch birlikte</text>
-  <text x="458" y="192" class="body">tek satır ayar</text>
-  <text x="458" y="210" class="body">olarak sunulur.</text>
-  <text x="458" y="234" class="body">Switch + label</text>
-  <text x="458" y="252" class="body">tek çağrıda kurulur.</text>
+  <g transform="translate(480, 104)">
+    <rect width="200" height="232" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 188 A 12 12 0 0 1 200 12 V 44 H 0 Z" fill="url(#g-purple)" />
+    <rect x="18" y="15" width="26" height="14" rx="7" fill="#ffffff" opacity="0.30" />
+    <circle cx="37" cy="22" r="5" fill="#ffffff" />
+    <text x="52" y="28" class="api">SwitchField</text>
+
+    <text x="18" y="74" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="18" y="102" class="body">• Label + açıklama</text>
+    <text x="28" y="122" class="body">+ switch birlikte.</text>
+    <text x="18" y="150" class="body">• Tek satır ayar</text>
+    <text x="28" y="170" class="body">olarak sunulur.</text>
+    <text x="18" y="198" class="body">• Switch + label tek</text>
+    <text x="28" y="218" class="body">çağrıda kurulur.</text>
+  </g>
 
   <!-- InputField -->
-  <rect x="653" y="70" width="187" height="200" rx="8" class="card" stroke="#86efac" />
-  <rect x="653" y="70" width="187" height="42" rx="8" fill="#059669" />
-  <path d="M653 102 H840 V112 H653 Z" fill="#059669" />
-  <text x="746" y="96" text-anchor="middle" class="api">InputField</text>
-  <text x="669" y="136" class="when">NE ZAMAN:</text>
-  <text x="669" y="156" class="body">Tek satır serbest</text>
-  <text x="669" y="174" class="body">metin girişi.</text>
-  <text x="669" y="198" class="body">Arama, isim,</text>
-  <text x="669" y="216" class="body">değer, URL vb.</text>
-  <text x="669" y="240" class="body">ui_input crate'i</text>
-  <text x="669" y="258" class="body">üzerinden gelir.</text>
+  <g transform="translate(700, 104)">
+    <rect width="200" height="232" rx="12" class="card" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 188 A 12 12 0 0 1 200 12 V 44 H 0 Z" fill="url(#g-rose)" />
+    <rect x="18" y="14" width="28" height="16" rx="4" fill="#ffffff" opacity="0.28" stroke="#ffffff" stroke-opacity="0.55" stroke-width="1" />
+    <rect x="23" y="18" width="2" height="8" fill="#ffffff" />
+    <text x="54" y="28" class="api">InputField</text>
+
+    <text x="18" y="74" class="when">NE ZAMAN KULLANILIR?</text>
+    <text x="18" y="102" class="body">• Tek satır serbest</text>
+    <text x="28" y="122" class="body">metin girişi.</text>
+    <text x="18" y="150" class="body">• Arama, isim,</text>
+    <text x="28" y="170" class="body">değer, URL vb.</text>
+    <text x="18" y="198" class="body">• ui_input crate'i</text>
+    <text x="28" y="218" class="body">üzerinden gelir.</text>
+  </g>
 
 </svg>
