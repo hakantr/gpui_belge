@@ -85,7 +85,7 @@
   <g transform="translate(70, 486)">
     <rect width="360" height="138" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
     <text x="20" y="32" class="c-title">Window + App</text>
-    <text x="20" y="62" class="c-body">• Pencere bağlamı handle.update içinde</text>
+    <text x="20" y="62" class="c-body">• Pencere bağlamı handle.update içinde elde edilir</text>
     <text x="20" y="83" class="c-body">• window.focus, window.refresh</text>
     <text x="20" y="104" class="c-body">• dispatch_action, prompt</text>
   </g>
@@ -101,7 +101,7 @@
   <g transform="translate(730, 150)">
     <rect width="360" height="118" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
     <text x="20" y="32" class="c-title">AsyncApp</text>
-    <text x="20" y="62" class="c-body">• await ötesine taşınan App yüzeyi</text>
+    <text x="20" y="62" class="c-body">• await ötesine taşınan App benzeri yüzey</text>
     <text x="20" y="83" class="c-body">• cx.update, cx.refresh</text>
     <text x="20" y="104" class="c-body">• background_executor erişimi</text>
   </g>
@@ -118,7 +118,7 @@
     <rect width="360" height="138" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
     <text x="20" y="32" class="c-title">WeakEntity&lt;T&gt;.update(cx, ...)</text>
     <text x="20" y="62" class="c-body">• Async görevde tipli entity erişimi</text>
-    <text x="20" y="83" class="c-body">• Drop edildiyse Result Err döner</text>
+    <text x="20" y="83" class="c-body">• Entity drop edildiyse Result Err döner</text>
     <text x="20" y="104" class="c-body">• update_in ile birlikte kullanılabilir</text>
   </g>
 
@@ -136,10 +136,10 @@
 
   <!-- ================= GEÇİŞ OKLARI ================= -->
   <path d="M 430 192 H 726" class="arrow-line flow" />
-  <text x="578" y="182" class="edge">cx.spawn(async move |cx|)</text>
+  <text x="578" y="182" class="edge">cx.spawn(async move |cx| ...)</text>
 
   <path d="M 726 242 H 434" class="arrow-dash" />
-  <text x="578" y="232" class="edge">cx.update(|cx|)</text>
+  <text x="578" y="232" class="edge">cx.update(|cx| ...)</text>
 
   <path d="M 430 350 H 726" class="arrow-line flow" />
   <text x="578" y="340" class="edge">spawn_in / to_async</text>

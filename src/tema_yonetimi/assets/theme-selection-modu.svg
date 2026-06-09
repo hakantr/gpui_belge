@@ -1,21 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 440">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500">
   <title>ThemeSelection Modu Seçimi</title>
   <defs>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.05" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
     </filter>
-    <style>
-      .bg { fill: #f8fafc; }
-      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
-      .sub { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
-      
-      .api { font: 800 16px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
-      .head { font: 800 16px system-ui, -apple-system, sans-serif; fill: #ffffff; text-anchor: middle; }
-      .body { font: 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
-      .note { font: 13px ui-monospace, SFMono-Regular, monospace; fill: rgba(255, 255, 255, 0.8); }
-      .sec { font: 800 15px system-ui, -apple-system, sans-serif; fill: #334155; }
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
+    </marker>
 
-      .card { filter: url(#shadow); rx: 12px; }
+    <linearGradient id="g-static" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-light" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6" />
+      <stop offset="1" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="g-dark" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4338ca" />
+      <stop offset="1" stop-color="#312e81" />
+    </linearGradient>
+    <linearGradient id="g-system" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#6d28d9" />
+    </linearGradient>
+    <linearGradient id="g-foot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#334155" />
+      <stop offset="1" stop-color="#1e293b" />
+    </linearGradient>
+
+    <style>
+      .bg   { fill: #f8fafc; }
+      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub  { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      .api  { font: 800 17px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .head { font: 800 16px system-ui, -apple-system, sans-serif; fill: #ffffff; text-anchor: middle; }
+      .body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.96; }
+      .note { font: 13px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; opacity: 0.80; }
+      .sec  { font: 800 15px system-ui, -apple-system, sans-serif; fill: #334155; }
+      .foot { font: 600 13px system-ui, -apple-system, sans-serif; fill: #e2e8f0; text-anchor: middle; }
+      .tag  { font: 700 12px ui-monospace, SFMono-Regular, monospace; fill: #475569; text-anchor: middle; }
+
+      .reveal { animation: reveal 9s ease-in-out infinite; }
+      .d0 { animation-delay: 0s; }
+      .d1 { animation-delay: 0.6s; }
+      .d2 { animation-delay: 1.2s; }
+      .d3 { animation-delay: 1.8s; }
+      @keyframes reveal {
+        0%   { opacity: 1; }
+        70%  { opacity: 1; }
+        82%  { opacity: 0.7; }
+        100% { opacity: 1; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .reveal { animation: none; }
+      }
     </style>
   </defs>
 
@@ -24,51 +64,68 @@
   <text x="500" y="46" class="title">ThemeSelection Modu Seçimi</text>
   <text x="500" y="74" class="sub">Enum serde::untagged olarak ayrıştırılır; string → Static, object → Dynamic.</text>
 
+  <!-- ================= AYRIŞTIRMA AKIŞI (untagged karar) ================= -->
+  <g transform="translate(40, 96)">
+    <!-- JSON girişi -->
+    <rect x="0" y="0" width="160" height="40" rx="9" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <text x="80" y="25" class="tag">serde JSON girişi</text>
+    <!-- string dalı -->
+    <path d="M 160 20 L 232 20" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow)" />
+    <rect x="240" y="2" width="118" height="36" rx="8" fill="#e0e7ff" stroke="#cbd5e1" stroke-width="1" />
+    <text x="299" y="25" class="tag">string → Static</text>
+    <!-- object dalı -->
+    <path d="M 358 20 L 430 20" fill="none" stroke="#64748b" stroke-width="2.5" stroke-linecap="round" marker-end="url(#arrow)" />
+    <rect x="438" y="2" width="132" height="36" rx="8" fill="#ede9fe" stroke="#cbd5e1" stroke-width="1" />
+    <text x="504" y="25" class="tag">object → Dynamic</text>
+  </g>
+
   <!-- ================= STATIC (Tekil Tema) ================= -->
-  <g transform="translate(40, 110)">
-    <rect width="920" height="90" fill="#0ea5e9" class="card" />
+  <g transform="translate(40, 152)" class="reveal d0">
+    <rect width="920" height="92" rx="12" fill="url(#g-static)" filter="url(#shadow)" />
     <text x="460" y="32" class="api">ThemeSelection::Static(ThemeName)</text>
-    <text x="460" y="55" class="body" text-anchor="middle">Tek bir tema adı taşır; "mode" kavramı yoktur. Her koşulda aynı ad Registry üzerinden aranır.</text>
-    <text x="460" y="75" class="note" text-anchor="middle">Örnek JSON: "theme": "One Dark"</text>
+    <text x="460" y="56" class="body" text-anchor="middle">Tek bir tema adı taşır; "mode" kavramı yoktur. Her koşulda aynı ad Registry.get(name) ile aranır.</text>
+    <text x="460" y="78" class="note" text-anchor="middle">Örnek JSON: "theme": "One Dark"</text>
   </g>
 
   <!-- ================= DYNAMIC BAŞLIK ================= -->
-  <text x="40" y="235" class="sec">Dynamic { mode, light, dark } — Object biçiminde ayrıştırılır (light ve dark zorunludur).</text>
+  <text x="40" y="280" class="sec">Dynamic { mode, light, dark } — Object biçiminde ayrıştırılır (light ve dark zorunludur).</text>
 
   <!-- ================= DYNAMIC: LIGHT ================= -->
-  <g transform="translate(40, 250)">
-    <rect width="290" height="135" fill="#2563eb" class="card" />
+  <g transform="translate(40, 296)" class="reveal d1">
+    <rect width="290" height="168" rx="12" fill="url(#g-light)" filter="url(#shadow)" />
     <text x="145" y="32" class="head">mode = Light</text>
-    <text x="20" y="60" class="body">• OS modu yoksayılır.</text>
-    <text x="20" y="80" class="body">• Daima "light" kullanılır.</text>
-    <text x="20" y="105" class="note">"theme": { "mode": "light",</text>
-    <text x="20" y="120" class="note">  "light": "One Light", ... }</text>
+    <text x="20" y="62" class="body">• OS modu yoksayılır.</text>
+    <text x="20" y="84" class="body">• Hep "light" adı lookup edilir.</text>
+    <text x="20" y="116" class="note">"theme": { "mode": "light",</text>
+    <text x="20" y="134" class="note">  "light": "One Light",</text>
+    <text x="20" y="152" class="note">  "dark": "One Dark" }</text>
   </g>
 
   <!-- ================= DYNAMIC: DARK ================= -->
-  <g transform="translate(355, 250)">
-    <rect width="290" height="135" fill="#312e81" class="card" />
+  <g transform="translate(355, 296)" class="reveal d2">
+    <rect width="290" height="168" rx="12" fill="url(#g-dark)" filter="url(#shadow)" />
     <text x="145" y="32" class="head">mode = Dark</text>
-    <text x="20" y="60" class="body">• OS modu yoksayılır.</text>
-    <text x="20" y="80" class="body">• Daima "dark" kullanılır.</text>
-    <text x="20" y="105" class="note">"theme": { "mode": "dark",</text>
-    <text x="20" y="120" class="note">  "dark": "One Dark", ... }</text>
+    <text x="20" y="62" class="body">• OS modu yoksayılır.</text>
+    <text x="20" y="84" class="body">• Hep "dark" adı lookup edilir.</text>
+    <text x="20" y="116" class="note">"theme": { "mode": "dark",</text>
+    <text x="20" y="134" class="note">  "light": "One Light",</text>
+    <text x="20" y="152" class="note">  "dark": "One Dark" }</text>
   </g>
 
   <!-- ================= DYNAMIC: SYSTEM ================= -->
-  <g transform="translate(670, 250)">
-    <rect width="290" height="135" fill="#7c3aed" class="card" />
+  <g transform="translate(670, 296)" class="reveal d3">
+    <rect width="290" height="168" rx="12" fill="url(#g-system)" filter="url(#shadow)" />
     <text x="145" y="32" class="head">mode = System (Varsayılan)</text>
-    <text x="20" y="60" class="body">• OS Modu Okunur</text>
-    <text x="20" y="80" class="body">• Light OS → "light" Tema</text>
-    <text x="20" y="100" class="body">• Dark OS → "dark" Tema</text>
-    <text x="20" y="120" class="note">Mode belirtilmezse bu seçilir.</text>
+    <text x="20" y="58" class="note" style="font-size:11.5px">SystemAppearance::global(cx) okunur.</text>
+    <text x="20" y="80" class="body">• Appearance::Light → "light" adı</text>
+    <text x="20" y="102" class="body">• Appearance::Dark → "dark" adı</text>
+    <text x="20" y="130" class="note" style="font-size:11.5px">mode belirtilmezse System seçilir.</text>
   </g>
 
   <!-- ================= ALT BİLGİ ================= -->
-  <g transform="translate(40, 400)">
-    <rect width="920" height="24" rx="4" fill="#334155" />
-    <text x="460" y="17" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#e2e8f0">ThemeAppearanceMode: #[default] System. IconThemeSelection aynı untagged yapısını kullanır.</text>
+  <g transform="translate(40, 478)">
+    <rect width="920" height="26" rx="6" fill="url(#g-foot)" filter="url(#shadow)" />
+    <text x="460" y="18" class="foot">ThemeAppearanceMode: #[default] System. IconThemeSelection aynı untagged yapısını kullanır.</text>
   </g>
 
 </svg>

@@ -76,7 +76,7 @@
     <text x="190" y="35" class="c-title">Entity&lt;T&gt;</text>
     <text x="20" y="65" class="c-body">• Güçlü handle; ref-count artırır</text>
     <text x="20" y="85" class="c-body">• cx.new(|cx| ...) ile oluşur</text>
-    <text x="20" y="105" class="c-body">• entity.read(cx) / update(cx) ile kullanılır</text>
+    <text x="20" y="105" class="c-body">• entity.read(cx) ve entity.update(cx, ...) ile kullanılır</text>
   </g>
 
   <g transform="translate(60, 328)">
@@ -90,7 +90,7 @@
   <g transform="translate(60, 498)">
     <rect width="380" height="100" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
     <text x="190" y="35" class="c-title">Subscription</text>
-    <text x="20" y="65" class="c-body">• cx.subscribe(&amp;entity, ...) abonelik döndürür</text>
+    <text x="20" y="65" class="c-body">• cx.subscribe(&amp;entity, ...) Subscription döndürür</text>
     <text x="20" y="85" class="c-body">• Struct alanında saklanır veya detach edilir</text>
   </g>
 

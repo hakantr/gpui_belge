@@ -1,122 +1,192 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 620">
   <title>TitleBar Init → Render Zinciri</title>
   <defs>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.04" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
     </filter>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
+
+    <!-- Faz başlık şeritleri için dikey degradeler -->
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" />
+      <stop offset="1" stop-color="#334155" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+
+    <!-- Panel ve düğüm degradeleri (açık ton: açık→biraz koyu) -->
+    <linearGradient id="g-panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" />
+      <stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
+    <linearGradient id="g-node-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f8fafc" />
+      <stop offset="1" stop-color="#eef2f6" />
+    </linearGradient>
+    <linearGradient id="g-node-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5f3ff" />
+      <stop offset="1" stop-color="#ede9fe" />
+    </linearGradient>
+    <linearGradient id="g-node-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f0f9ff" />
+      <stop offset="1" stop-color="#e0f2fe" />
+    </linearGradient>
+    <linearGradient id="g-note" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffbeb" />
+      <stop offset="1" stop-color="#fef3c7" />
+    </linearGradient>
+
     <style>
-      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
-      .subtitle { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; }
-      .phaseTitle { font: 800 16px system-ui, -apple-system, sans-serif; fill: #ffffff; letter-spacing: 0.5px; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; }
+      .subtitle { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; }
+      .phaseTitle { font: 800 17px system-ui, -apple-system, sans-serif; fill: #ffffff; letter-spacing: 0.3px; }
       .stepTitle { font: 700 14px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; fill: #0f172a; }
-      .body { font: 13px system-ui, -apple-system, sans-serif; fill: #475569; }
-      .flow-arrow { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linejoin: round; }
+      .body { font: 500 13px system-ui, -apple-system, sans-serif; fill: #475569; }
+      .flow-arrow { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+
+      /* Akış vurgusu — oklarda akan kesik çizgi */
+      .flow-pulse {
+        stroke: #0ea5e9;
+        stroke-width: 2.5;
+        fill: none;
+        stroke-linecap: round;
+        stroke-dasharray: 6 10;
+        animation: dash 9s linear infinite;
+        opacity: 0.9;
+      }
+      @keyframes dash {
+        0% { stroke-dashoffset: 32; }
+        100% { stroke-dashoffset: 0; }
+      }
+
+      /* Fazların sırayla yumuşak vurgulanışı */
+      .phase-card { animation: phaseGlow 9s ease-in-out infinite; }
+      .phase-2 { animation-delay: 3s; }
+      .phase-3 { animation-delay: 6s; }
+      @keyframes phaseGlow {
+        0%, 100% { opacity: 1; }
+        10% { opacity: 1; }
+        22% { opacity: 0.82; }
+        40%, 90% { opacity: 1; }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .flow-pulse { animation: none; opacity: 0; }
+        .phase-card { animation: none; }
+      }
     </style>
   </defs>
 
   <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
-  
-  <text x="580" y="46" text-anchor="middle" class="title">TitleBar Init → Render Zinciri</text>
-  <text x="580" y="74" text-anchor="middle" class="subtitle">Uygulama başlangıcından her ekran karesindeki render'a kadar olan zincir.</text>
+
+  <text x="580" y="48" text-anchor="middle" class="title">TitleBar Init → Render Zinciri</text>
+  <text x="580" y="76" text-anchor="middle" class="subtitle">Uygulama başlangıcından her ekran karesindeki render'a kadar olan zincir.</text>
 
   <!-- ================= FAZ 1 ================= -->
-  <g transform="translate(60, 110)">
-    <rect width="1040" height="110" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
-    <path d="M 0 10 A 10 10 0 0 1 10 0 H 1030 A 10 10 0 0 1 1040 10 V 38 H 0 Z" fill="#334155" />
-    <text x="20" y="24" class="phaseTitle">Faz 1 — Uygulama başlangıcı (title_bar::init)</text>
+  <g transform="translate(60, 110)" class="phase-card phase-1">
+    <rect width="1040" height="110" rx="12" fill="url(#g-panel)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 1028 A 12 12 0 0 1 1040 12 V 40 H 0 Z" fill="url(#g-slate)" />
+    <text x="20" y="26" class="phaseTitle">Faz 1 — Uygulama başlangıcı (title_bar::init)</text>
 
     <!-- Node 1 -->
-    <rect x="30" y="55" width="280" height="40" rx="6" fill="#f1f5f9" />
-    <text x="170" y="73" text-anchor="middle" class="stepTitle">title_bar::init(cx)</text>
-    <text x="170" y="88" text-anchor="middle" class="body">giriş noktası</text>
+    <rect x="30" y="56" width="280" height="40" rx="8" fill="url(#g-node-slate)" stroke="#e2e8f0" stroke-width="1" />
+    <text x="170" y="74" text-anchor="middle" class="stepTitle">title_bar::init(cx)</text>
+    <text x="170" y="89" text-anchor="middle" class="body">giriş noktası</text>
 
-    <path d="M 310 75 L 360 75" class="flow-arrow" />
+    <path d="M 310 76 L 360 76" class="flow-arrow" />
 
     <!-- Node 2 -->
-    <rect x="360" y="55" width="310" height="40" rx="6" fill="#f1f5f9" />
-    <text x="515" y="73" text-anchor="middle" class="stepTitle">PlatformTitleBar::init(cx)</text>
-    <text x="515" y="88" text-anchor="middle" class="body">platform kabuğunu hazırlar</text>
+    <rect x="360" y="56" width="310" height="40" rx="8" fill="url(#g-node-slate)" stroke="#e2e8f0" stroke-width="1" />
+    <text x="515" y="74" text-anchor="middle" class="stepTitle">PlatformTitleBar::init(cx)</text>
+    <text x="515" y="89" text-anchor="middle" class="body">platform kabuğunu hazırlar</text>
 
-    <path d="M 670 75 L 720 75" class="flow-arrow" />
+    <path d="M 670 76 L 720 76" class="flow-arrow" />
 
     <!-- Node 3 -->
-    <rect x="720" y="55" width="290" height="40" rx="6" fill="#f1f5f9" />
-    <text x="865" y="73" text-anchor="middle" class="stepTitle">cx.observe_new(Workspace)</text>
-    <text x="865" y="88" text-anchor="middle" class="body">her yeni workspace için kanca</text>
+    <rect x="720" y="56" width="290" height="40" rx="8" fill="url(#g-node-slate)" stroke="#e2e8f0" stroke-width="1" />
+    <text x="865" y="74" text-anchor="middle" class="stepTitle">cx.observe_new(Workspace)</text>
+    <text x="865" y="89" text-anchor="middle" class="body">her yeni workspace için kanca</text>
   </g>
 
   <!-- FAZ 1 -> FAZ 2 -->
   <path d="M 580 220 L 580 250" class="flow-arrow" />
+  <path d="M 580 220 L 580 250" class="flow-pulse" />
 
   <!-- ================= FAZ 2 ================= -->
-  <g transform="translate(60, 250)">
-    <rect width="1040" height="110" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
-    <path d="M 0 10 A 10 10 0 0 1 10 0 H 1030 A 10 10 0 0 1 1040 10 V 38 H 0 Z" fill="#7c3aed" />
-    <text x="20" y="24" class="phaseTitle">Faz 2 — Workspace açılışı (per workspace)</text>
+  <g transform="translate(60, 250)" class="phase-card phase-2">
+    <rect width="1040" height="110" rx="12" fill="url(#g-panel)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 1028 A 12 12 0 0 1 1040 12 V 40 H 0 Z" fill="url(#g-violet)" />
+    <text x="20" y="26" class="phaseTitle">Faz 2 — Workspace açılışı (her workspace için)</text>
 
     <!-- Node 1 -->
-    <rect x="30" y="55" width="280" height="40" rx="6" fill="#f5f3ff" />
-    <text x="170" y="73" text-anchor="middle" class="stepTitle">TitleBar::new(...)</text>
-    <text x="170" y="88" text-anchor="middle" class="body">TitleBar entity'si oluşturulur</text>
+    <rect x="30" y="56" width="280" height="40" rx="8" fill="url(#g-node-violet)" stroke="#ddd6fe" stroke-width="1" />
+    <text x="170" y="74" text-anchor="middle" class="stepTitle">TitleBar::new(...)</text>
+    <text x="170" y="89" text-anchor="middle" class="body">TitleBar entity'si oluşturulur</text>
 
-    <path d="M 310 75 L 360 75" class="flow-arrow" />
+    <path d="M 310 76 L 360 76" class="flow-arrow" />
 
     <!-- Node 2 -->
-    <rect x="360" y="55" width="310" height="40" rx="6" fill="#f5f3ff" />
-    <text x="515" y="73" text-anchor="middle" class="stepTitle">workspace.set_titlebar_item()</text>
-    <text x="515" y="88" text-anchor="middle" class="body">workspace kök render akışına bağlanır</text>
+    <rect x="360" y="56" width="310" height="40" rx="8" fill="url(#g-node-violet)" stroke="#ddd6fe" stroke-width="1" />
+    <text x="515" y="74" text-anchor="middle" class="stepTitle">workspace.set_titlebar_item()</text>
+    <text x="515" y="89" text-anchor="middle" class="body">workspace kök render akışına bağlanır</text>
 
-    <path d="M 670 75 L 720 75" class="flow-arrow" />
+    <path d="M 670 76 L 720 76" class="flow-arrow" />
 
     <!-- Node 3 -->
-    <rect x="720" y="55" width="290" height="40" rx="6" fill="#f5f3ff" />
-    <text x="865" y="73" text-anchor="middle" class="stepTitle">WindowOptions ayarları</text>
-    <text x="865" y="88" text-anchor="middle" class="body">titlebar, decorations, movable yapılandırması</text>
+    <rect x="720" y="56" width="290" height="40" rx="8" fill="url(#g-node-violet)" stroke="#ddd6fe" stroke-width="1" />
+    <text x="865" y="74" text-anchor="middle" class="stepTitle">WindowOptions ayarları</text>
+    <text x="865" y="89" text-anchor="middle" class="body">titlebar, decorations, movable yapılandırması</text>
   </g>
 
   <!-- FAZ 2 -> FAZ 3 -->
   <path d="M 580 360 L 580 390" class="flow-arrow" />
+  <path d="M 580 360 L 580 390" class="flow-pulse" />
 
   <!-- ================= FAZ 3 ================= -->
-  <g transform="translate(60, 390)">
-    <rect width="1040" height="110" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
-    <path d="M 0 10 A 10 10 0 0 1 10 0 H 1030 A 10 10 0 0 1 1040 10 V 38 H 0 Z" fill="#0284c7" />
-    <text x="20" y="24" class="phaseTitle">Faz 3 — Her ekran karesi (TitleBar::render)</text>
+  <g transform="translate(60, 390)" class="phase-card phase-3">
+    <rect width="1040" height="110" rx="12" fill="url(#g-panel)" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 1028 A 12 12 0 0 1 1040 12 V 40 H 0 Z" fill="url(#g-sky)" />
+    <text x="20" y="26" class="phaseTitle">Faz 3 — Her ekran karesi (TitleBar::render)</text>
 
     <!-- Node 1 -->
-    <rect x="20" y="55" width="230" height="40" rx="6" fill="#f0f9ff" />
-    <text x="135" y="73" text-anchor="middle" class="stepTitle">button_layout hesapla</text>
-    <text x="135" y="88" text-anchor="middle" class="body">cx.button_layout()</text>
+    <rect x="20" y="56" width="230" height="40" rx="8" fill="url(#g-node-sky)" stroke="#bae6fd" stroke-width="1" />
+    <text x="135" y="74" text-anchor="middle" class="stepTitle">button_layout hesapla</text>
+    <text x="135" y="89" text-anchor="middle" class="body">cx.button_layout()</text>
 
-    <path d="M 250 75 L 280 75" class="flow-arrow" />
+    <path d="M 250 76 L 280 76" class="flow-arrow" />
 
     <!-- Node 2 -->
-    <rect x="280" y="55" width="260" height="40" rx="6" fill="#f0f9ff" />
-    <text x="410" y="73" text-anchor="middle" class="stepTitle">set_children/set_button_layout</text>
-    <text x="410" y="88" text-anchor="middle" class="body">mem::take ile tüketilir!</text>
+    <rect x="280" y="56" width="260" height="40" rx="8" fill="url(#g-node-sky)" stroke="#bae6fd" stroke-width="1" />
+    <text x="410" y="74" text-anchor="middle" class="stepTitle">set_children/set_button_layout</text>
+    <text x="410" y="89" text-anchor="middle" class="body">mem::take ile tüketilir!</text>
 
-    <path d="M 540 75 L 570 75" class="flow-arrow" />
+    <path d="M 540 76 L 570 76" class="flow-arrow" />
 
     <!-- Node 3 -->
-    <rect x="570" y="55" width="290" height="40" rx="6" fill="#f0f9ff" />
-    <text x="715" y="73" text-anchor="middle" class="stepTitle">PlatformTitleBar.into_any_element</text>
-    <text x="715" y="88" text-anchor="middle" class="body">kök element ağacına dahil</text>
+    <rect x="570" y="56" width="290" height="40" rx="8" fill="url(#g-node-sky)" stroke="#bae6fd" stroke-width="1" />
+    <text x="715" y="74" text-anchor="middle" class="stepTitle">PlatformTitleBar.into_any_element</text>
+    <text x="715" y="89" text-anchor="middle" class="body">kök element ağacına dahil</text>
 
-    <path d="M 860 75 L 890 75" class="flow-arrow" />
+    <path d="M 860 76 L 890 76" class="flow-arrow" />
 
     <!-- Node 4 -->
-    <rect x="890" y="55" width="130" height="40" rx="6" fill="#f0f9ff" />
-    <text x="955" y="73" text-anchor="middle" class="stepTitle">GPU render</text>
-    <text x="955" y="88" text-anchor="middle" class="body">Ekrana çizim</text>
+    <rect x="890" y="56" width="130" height="40" rx="8" fill="url(#g-node-sky)" stroke="#bae6fd" stroke-width="1" />
+    <text x="955" y="74" text-anchor="middle" class="stepTitle">GPU render</text>
+    <text x="955" y="89" text-anchor="middle" class="body">Ekrana çizim</text>
   </g>
 
   <!-- ================= CSD Sarmal Notu ================= -->
   <g transform="translate(60, 520)">
-    <rect width="1040" height="60" rx="8" fill="#fffbeb" stroke="#fde68a" stroke-width="1.5" />
-    <text x="20" y="26" class="body"><tspan font-weight="700">CSD sarmalı (client_side_decorations):</tspan> PlatformTitleBar'ın çevresini sarar. Shadow, border, resize kenarı ve</text>
+    <rect width="1040" height="60" rx="10" fill="url(#g-note)" stroke="#fde68a" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="20" y="26" class="body"><tspan font-weight="800" fill="#92400e">CSD sarmalı (client_side_decorations):</tspan> PlatformTitleBar'ın çevresini sarar. Shadow, border, resize kenarı ve</text>
     <text x="20" y="46" class="body">window.set_client_inset(...) burada yönetilir. Başlık çubuğu tek başına CSD penceresi değildir; bu sarmal zorunludur.</text>
   </g>
 

@@ -64,7 +64,7 @@
     <text x="48" y="104" class="mono-box">cx.spawn(async move |cx| ...)</text>
 
     <rect x="30" y="134" width="390" height="46" rx="8" fill="url(#g-inner)" stroke="#cbd5e1" stroke-width="1.5" />
-    <text x="48" y="162" class="mono-box">cx.spawn_in(window, |view, cx| ...)</text>
+    <text x="48" y="162" class="mono-box">cx.spawn_in(window, async move |view, cx| ...)</text>
 
     <rect x="30" y="192" width="390" height="46" rx="8" fill="url(#g-inner)" stroke="#cbd5e1" stroke-width="1.5" />
     <text x="48" y="220" class="mono-box">cx.update(...) / cx.update_in(window, ...)</text>
@@ -87,7 +87,7 @@
     <text x="48" y="104" class="mono-box">cx.background_spawn(async move { ... })</text>
 
     <rect x="30" y="134" width="390" height="46" rx="8" fill="url(#g-inner)" stroke="#cbd5e1" stroke-width="1.5" />
-    <text x="48" y="162" class="mono-box">background_executor().timer(dur).await</text>
+    <text x="48" y="162" class="mono-box">background_executor().timer(duration).await</text>
 
     <rect x="30" y="192" width="390" height="46" rx="8" fill="url(#g-inner)" stroke="#cbd5e1" stroke-width="1.5" />
     <text x="48" y="220" class="mono-box">spawn / spawn_with_priority / scoped</text>

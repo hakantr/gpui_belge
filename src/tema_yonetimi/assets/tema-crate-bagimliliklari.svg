@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 576">
   <title>Tema Crate Bağımlılık Grafiği</title>
   <defs>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#000" flood-opacity="0.04" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
     </filter>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
@@ -10,100 +10,132 @@
     <marker id="arrowR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 1 L 10 5 L 0 9 Z" fill="#e11d48" />
     </marker>
+
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#34d399" /><stop offset="1" stop-color="#10b981" />
+    </linearGradient>
+    <linearGradient id="g-blue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6" /><stop offset="1" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#38bdf8" /><stop offset="1" stop-color="#0ea5e9" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fb7185" /><stop offset="1" stop-color="#e11d48" />
+    </linearGradient>
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#334155" /><stop offset="1" stop-color="#1e293b" />
+    </linearGradient>
+    <linearGradient id="g-paper-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" /><stop offset="1" stop-color="#f0fdf4" />
+    </linearGradient>
+    <linearGradient id="g-paper-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff5f6" /><stop offset="1" stop-color="#ffe4e6" />
+    </linearGradient>
+    <linearGradient id="g-paper-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" /><stop offset="1" stop-color="#f8fafc" />
+    </linearGradient>
+
     <style>
-      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
-      .sub { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
-      .cname { font: 800 16px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+      .cname { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
       .clabel { font: 800 14px ui-monospace, SFMono-Regular, monospace; fill: #0f172a; }
-      .clabel-white { font: 800 14px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
-      .desc { font: 14px system-ui, -apple-system, sans-serif; fill: #334155; }
-      .desc-white { font: 14px system-ui, -apple-system, sans-serif; fill: #f8fafc; opacity: 0.9; text-anchor: middle; }
+      .desc { font: 500 14px system-ui, -apple-system, sans-serif; fill: #334155; }
+      .desc-white { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; text-anchor: middle; }
       .badge { font: 800 11px system-ui, -apple-system, sans-serif; letter-spacing: 0.5px; text-transform: uppercase; }
-      .arrow { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); }
-      .arrowR { stroke: #e11d48; stroke-width: 3; stroke-dasharray: 8 6; fill: none; marker-end: url(#arrowR); }
-      .card { filter: url(#shadow); rx: 12px; }
+      .arrow { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .arrowR { stroke: #e11d48; stroke-width: 3; fill: none; marker-end: url(#arrowR); stroke-linecap: round; stroke-linejoin: round; }
+
+      .flow { stroke-dasharray: 9 7; animation: flow 9s linear infinite; }
+      @keyframes flow { to { stroke-dashoffset: -64; } }
+      .flowR { stroke-dasharray: 8 6; animation: flowR 9s linear infinite; }
+      @keyframes flowR { to { stroke-dashoffset: -56; } }
+      @media (prefers-reduced-motion: reduce) {
+        .flow, .flowR { animation: none; }
+      }
     </style>
   </defs>
 
   <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
-  
+
   <text x="500" y="46" class="title">Tema Crate Bağımlılık Grafiği</text>
   <text x="500" y="74" class="sub">Ok yönü "bağımlı → sağlayan" ilişkisini gösterir. GPL crate'lere yalnızca okuma referansı verilir.</text>
 
+  <!-- ================= OKLAR (kartların ALTINDA) ================= -->
+  <!-- KVS_TEMA -> ZED WORKSPACE -->
+  <path d="M 375 165 L 315 165" class="arrow flow" />
+  <text x="345" y="152" class="badge" fill="#475569" text-anchor="middle">KULLANIR</text>
+
+  <!-- SYNTAX_TEMA -> KVS_TEMA -->
+  <path d="M 700 165 L 630 165" class="arrow flow" />
+  <text x="665" y="152" class="badge" fill="#475569" text-anchor="middle">AYIRIR</text>
+
+  <!-- SYNTAX_TEMA -> ÜÇÜNCÜ TARAF -->
+  <path d="M 815 215 L 815 238" class="arrow flow" />
+
+  <!-- KVS_TEMA -> GPL (yalnızca okur) -->
+  <path d="M 490 215 C 470 258 390 290 315 290" class="arrowR flowR" />
+  <text x="405" y="262" class="badge" fill="#e11d48" text-anchor="middle">KOD DEĞİL, YALNIZCA OKUR</text>
+
   <!-- ================= SOL: ZED WORKSPACE ================= -->
-  <g transform="translate(40, 110)">
-    <rect width="260" height="100" fill="#ffffff" stroke="#10b981" stroke-width="2" class="card" />
-    <path d="M 0 12 A 12 12 0 0 1 12 0 H 248 A 12 12 0 0 1 260 12 V 30 H 0 Z" fill="#10b981" />
-    <text x="130" y="20" class="badge" fill="#ffffff" text-anchor="middle">Zed Workspace · Apache-2.0</text>
-    
-    <text x="130" y="60" class="clabel" text-anchor="middle">gpui · refineable</text>
-    <text x="130" y="80" class="clabel" text-anchor="middle">collections</text>
+  <g transform="translate(40, 115)">
+    <rect width="260" height="100" rx="12" fill="url(#g-paper-green)" stroke="#10b981" stroke-width="2" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 248 A 12 12 0 0 1 260 12 V 30 H 0 Z" fill="url(#g-green)" />
+    <text x="130" y="20" class="badge" fill="#ffffff" text-anchor="middle">ZED WORKSPACE · APACHE-2.0</text>
+    <text x="130" y="62" class="clabel" text-anchor="middle">gpui · refineable</text>
+    <text x="130" y="84" class="clabel" text-anchor="middle">collections</text>
   </g>
 
   <!-- ================= MERKEZ: KVS TEMA ================= -->
-  <g transform="translate(380, 110)">
-    <rect width="240" height="100" fill="#2563eb" class="card" />
-    <text x="120" y="35" class="cname">kvs_tema</text>
-    <text x="120" y="60" class="desc-white">Theme, Registry, Runtime</text>
-    <text x="120" y="80" class="desc-white">JSON schema, IconTheme</text>
+  <g transform="translate(380, 115)">
+    <rect width="240" height="100" rx="12" fill="url(#g-blue)" filter="url(#shadow)" />
+    <text x="120" y="37" class="cname">kvs_tema</text>
+    <text x="120" y="62" class="desc-white">Theme, Registry, Runtime</text>
+    <text x="120" y="83" class="desc-white">JSON schema, IconTheme</text>
   </g>
 
   <!-- ================= SAĞ: SYNTAX TEMA ================= -->
-  <g transform="translate(700, 110)">
-    <rect width="240" height="100" fill="#0ea5e9" class="card" />
-    <text x="120" y="35" class="cname">kvs_syntax_tema</text>
-    <text x="120" y="60" class="desc-white">SyntaxTheme</text>
-    <text x="120" y="80" class="desc-white">Kod Renkleri</text>
+  <g transform="translate(700, 115)">
+    <rect width="240" height="100" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
+    <text x="120" y="37" class="cname">kvs_syntax_tema</text>
+    <text x="120" y="62" class="desc-white">SyntaxTheme</text>
+    <text x="120" y="83" class="desc-white">Kod Renkleri</text>
   </g>
 
   <!-- ================= SOL ALT: GPL REFERANS ================= -->
-  <g transform="translate(40, 240)">
-    <rect width="260" height="100" fill="#fff1f2" stroke="#e11d48" stroke-width="2" stroke-dasharray="8 6" class="card" />
-    <path d="M 0 12 A 12 12 0 0 1 12 0 H 248 A 12 12 0 0 1 260 12 V 30 H 0 Z" fill="#e11d48" />
+  <g transform="translate(40, 245)">
+    <rect width="260" height="100" rx="12" fill="url(#g-paper-rose)" stroke="#e11d48" stroke-width="2" stroke-dasharray="8 6" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 248 A 12 12 0 0 1 260 12 V 30 H 0 Z" fill="url(#g-rose)" />
     <text x="130" y="20" class="badge" fill="#ffffff" text-anchor="middle">YALNIZCA REFERANS · GPL-3</text>
-    
-    <text x="130" y="60" class="clabel" text-anchor="middle">theme · syntax_theme</text>
-    <text x="130" y="80" class="clabel" text-anchor="middle">theme_settings vb.</text>
+    <text x="130" y="62" class="clabel" text-anchor="middle">theme · syntax_theme</text>
+    <text x="130" y="84" class="clabel" text-anchor="middle">theme_settings vb.</text>
   </g>
 
   <!-- ================= SAĞ ALT: ÜÇÜNCÜ TARAF ================= -->
-  <g transform="translate(700, 240)">
-    <rect width="240" height="120" fill="#ffffff" stroke="#cbd5e1" stroke-width="2" class="card" />
-    <path d="M 0 12 A 12 12 0 0 1 12 0 H 228 A 12 12 0 0 1 240 12 V 30 H 0 Z" fill="#334155" />
-    <text x="120" y="20" class="badge" fill="#ffffff" text-anchor="middle">ÜÇÜNCÜ TARAF CRATE'LER</text>
-    
-    <text x="120" y="60" class="clabel" text-anchor="middle">serde · serde_json</text>
-    <text x="120" y="80" class="clabel" text-anchor="middle">serde_json_lenient · palette</text>
-    <text x="120" y="100" class="clabel" text-anchor="middle">parking_lot · indexmap</text>
+  <g transform="translate(660, 245)">
+    <rect width="300" height="142" rx="12" fill="url(#g-paper-slate)" stroke="#cbd5e1" stroke-width="2" filter="url(#shadow)" />
+    <path d="M 0 12 A 12 12 0 0 1 12 0 H 288 A 12 12 0 0 1 300 12 V 30 H 0 Z" fill="url(#g-slate)" />
+    <text x="150" y="20" class="badge" fill="#ffffff" text-anchor="middle">ÜÇÜNCÜ TARAF CRATE'LER</text>
+    <text x="150" y="58" class="clabel" text-anchor="middle">serde · serde_json</text>
+    <text x="150" y="80" class="clabel" text-anchor="middle">serde_json_lenient · palette</text>
+    <text x="150" y="102" class="clabel" text-anchor="middle">parking_lot · indexmap</text>
+    <text x="150" y="124" class="clabel" text-anchor="middle">schemars · anyhow · uuid</text>
   </g>
-
-  <!-- ================= OKLAR ================= -->
-  <!-- KVS_TEMA -> ZED WORKSPACE -->
-  <path d="M 380 160 L 310 160" class="arrow" />
-  <text x="345" y="150" class="badge" fill="#475569" text-anchor="middle">KULLANIR</text>
-
-  <!-- SYNTAX_TEMA -> KVS_TEMA -->
-  <path d="M 700 160 L 630 160" class="arrow" />
-  <text x="665" y="150" class="badge" fill="#475569" text-anchor="middle">AYIRIR</text>
-
-  <!-- SYNTAX_TEMA -> ÜÇÜNCÜ TARAF -->
-  <path d="M 820 210 L 820 230" class="arrow" />
-
-  <!-- KVS_TEMA -> GPL -->
-  <path d="M 500 210 C 500 250 400 280 310 280" class="arrowR" />
-  <text x="400" y="260" class="badge" fill="#e11d48" text-anchor="middle">KOD DEĞİL, YALNIZCA OKUR</text>
 
   <!-- ================= KURALLAR ================= -->
   <!-- Kural 1 -->
-  <g transform="translate(40, 390)">
-    <rect width="900" height="46" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
-    <text x="20" y="28" class="desc"><tspan font-weight="800">Ters yön yasaktır:</tspan> gpui, refineable veya collections hiçbir zaman kvs_tema'ya bağlanmaz.</text>
+  <g transform="translate(40, 405)">
+    <rect width="920" height="64" rx="8" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="20" y="26" class="desc"><tspan font-weight="800">Ters yön yasaktır:</tspan> gpui, refineable veya collections hiçbir zaman kvs_tema'ya bağlanmaz.</text>
+    <text x="20" y="48" class="desc">Bu kural alt katmanları sakin tutar; upstream Zed değişikliğinde yalnızca tip imzası, davranış veya isim değişimleri izlenir.</text>
   </g>
 
   <!-- Kural 2 -->
-  <g transform="translate(40, 446)">
-    <rect width="900" height="46" rx="8" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5" />
-    <text x="20" y="28" class="desc"><tspan font-weight="800" fill="#c2410c">GPL sınırı:</tspan> GPL-3 Zed crate'leri Cargo.toml'a bağımlılık olarak eklenmez; sadece kaynak okuma için referans alınır.</text>
+  <g transform="translate(40, 479)">
+    <rect width="920" height="64" rx="8" fill="#fff7ed" stroke="#fdba74" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="20" y="26" class="desc"><tspan font-weight="800" style="fill:#c2410c">GPL sınırı:</tspan> GPL-3 Zed crate'leri Cargo.toml'a bağımlılık olarak eklenmez; sadece kaynak okuma için referans alınır.</text>
+    <text x="20" y="48" class="desc">Alan adları ve JSON anahtarları mirror edilebilir; uygulama bağımlılığı yalnızca Apache uyumlu crate'ler üzerindedir.</text>
   </g>
 
 </svg>

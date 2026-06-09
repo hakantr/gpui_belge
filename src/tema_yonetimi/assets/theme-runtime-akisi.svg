@@ -1,103 +1,148 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 480">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520">
   <title>Tema Runtime Akışı</title>
   <defs>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.05" />
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
     </filter>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
     </marker>
-    <marker id="arrowB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#0ea5e9" />
-    </marker>
+
+    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#475569" />
+      <stop offset="1" stop-color="#334155" />
+    </linearGradient>
+    <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0ea5e9" />
+      <stop offset="1" stop-color="#0284c7" />
+    </linearGradient>
+    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#7c3aed" />
+    </linearGradient>
+    <linearGradient id="g-green" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#10b981" />
+      <stop offset="1" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="g-amber" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f59e0b" />
+      <stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+    <linearGradient id="g-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f43f5e" />
+      <stop offset="1" stop-color="#e11d48" />
+    </linearGradient>
+
     <style>
       .bg { fill: #f8fafc; }
-      .title { font: 800 24px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
-      .sub { font: 500 15px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
-      
-      .api { font: 800 16px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
-      .body { font: 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
-      .when { font: 800 12px system-ui, -apple-system, sans-serif; fill: rgba(255, 255, 255, 0.8); letter-spacing: 0.5px; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
 
-      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linejoin: round; }
-      .arrow-blue { stroke: #0ea5e9; stroke-width: 3; fill: none; marker-end: url(#arrowB); stroke-dasharray: 6 4; stroke-linejoin: round; }
-      .card { filter: url(#shadow); rx: 12px; }
+      .api { font: 800 17px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; }
+      .when { font: 800 12px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.82; letter-spacing: 0.4px; }
+
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .card { filter: url(#shadow); }
+      .foot-note { font: 600 14px system-ui, -apple-system, sans-serif; fill: #1e40af; text-anchor: middle; }
+      .lbl { font: 700 12px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+
+      @keyframes flowdash {
+        0%   { stroke-dashoffset: 32; }
+        100% { stroke-dashoffset: 0; }
+      }
+      .flow {
+        stroke-dasharray: 10 6;
+        animation: flowdash 9s linear infinite;
+      }
+      @keyframes glowpulse {
+        0%, 100% { opacity: 1; }
+        50%      { opacity: 0.78; }
+      }
+      .pulse { animation: glowpulse 10s ease-in-out infinite; }
+      @media (prefers-reduced-motion: reduce) {
+        .flow { animation: none; }
+        .pulse { animation: none; }
+      }
     </style>
   </defs>
 
   <rect width="100%" height="100%" rx="12" class="bg" />
-  
-  <text x="550" y="46" class="title">Tema Runtime Akışı</text>
-  <text x="550" y="74" class="sub">Init, registry ve pencere refresh zinciri nasıl çalışır?</text>
+
+  <text x="550" y="48" class="title">Tema Runtime Akışı</text>
+  <text x="550" y="76" class="sub">Init, registry ve pencere yenileme zinciri nasıl çalışır?</text>
 
   <!-- ================= BAŞLANGIÇ ================= -->
-  <g transform="translate(50, 140)">
-    <rect width="200" height="120" fill="#334155" class="card" />
-    <text x="100" y="30" class="api">init(...)</text>
-    <text x="20" y="70" class="body">• AssetSource alınır</text>
-    <text x="20" y="95" class="when">Global State Hazırlanır</text>
+  <g transform="translate(50, 200)">
+    <rect width="200" height="120" rx="12" fill="url(#g-slate)" class="card" />
+    <text x="100" y="38" class="api">init(...)</text>
+    <text x="20" y="74" class="body">• AssetSource alınır</text>
+    <text x="20" y="100" class="when">GLOBAL STATE HAZIRLANIR</text>
   </g>
 
   <!-- ================= MERKEZİ REGISTRY ================= -->
-  <g transform="translate(330, 60)">
-    <rect width="220" height="120" fill="#0284c7" class="card" />
-    <text x="110" y="30" class="api">ThemeRegistry</text>
-    <text x="20" y="70" class="body">• RwLock + HashMap</text>
-    <text x="20" y="95" class="when">Theme / IconTheme Deposu</text>
+  <g transform="translate(330, 120)">
+    <rect width="220" height="120" rx="12" fill="url(#g-sky)" class="card" />
+    <text x="110" y="38" class="api">ThemeRegistry</text>
+    <text x="20" y="74" class="body">• RwLock + HashMap</text>
+    <text x="20" y="100" class="when">THEME / ICONTHEME DEPOSU</text>
   </g>
 
-  <g transform="translate(330, 240)">
-    <rect width="220" height="120" fill="#7c3aed" class="card" />
-    <text x="110" y="30" class="api">GlobalTheme</text>
-    <text x="20" y="70" class="body">• Aktif Temayı Tutar</text>
-    <text x="20" y="95" class="when">System Appearance Takibi</text>
+  <g transform="translate(330, 300)">
+    <rect width="220" height="120" rx="12" fill="url(#g-violet)" class="card" />
+    <text x="110" y="38" class="api">GlobalTheme</text>
+    <text x="20" y="74" class="body">• Aktif temayı tutar</text>
+    <text x="20" y="100" class="when">SYSTEM APPEARANCE TAKİBİ</text>
   </g>
 
   <!-- ================= TETİKLENME ================= -->
-  <g transform="translate(630, 60)">
-    <rect width="200" height="120" fill="#059669" class="card" />
-    <text x="100" y="30" class="api">settings change</text>
-    <text x="20" y="70" class="body">• Tema Adı Çözülür</text>
-    <text x="20" y="95" class="when">Registry Lookup</text>
+  <g transform="translate(630, 120)">
+    <rect width="200" height="120" rx="12" fill="url(#g-green)" class="card" />
+    <text x="100" y="38" class="api">settings change</text>
+    <text x="20" y="74" class="body">• Tema adı çözülür</text>
+    <text x="20" y="100" class="when">REGISTRY LOOKUP</text>
   </g>
 
-  <g transform="translate(630, 240)">
-    <rect width="200" height="120" fill="#d97706" class="card" />
-    <text x="100" y="30" class="api">reload</text>
-    <text x="20" y="70" class="body">• Diskten Tema Okunur</text>
-    <text x="20" y="95" class="when">Hata Raporu Döner</text>
+  <g transform="translate(630, 300)">
+    <rect width="200" height="120" rx="12" fill="url(#g-amber)" class="card" />
+    <text x="100" y="38" class="api">reload</text>
+    <text x="20" y="74" class="body">• Diskten tema okunur</text>
+    <text x="20" y="100" class="when">HATA RAPORU DÖNER</text>
   </g>
 
   <!-- ================= SONUÇ (PENCERE) ================= -->
-  <g transform="translate(880, 150)">
-    <rect width="180" height="130" fill="#e11d48" class="card" />
-    <text x="90" y="30" class="api">Window Refresh</text>
-    <text x="20" y="65" class="body">• cx.notify()</text>
-    <text x="20" y="85" class="body">• Render Yenilenir</text>
-    <text x="20" y="110" class="when">cx.theme() Güncel!</text>
+  <g transform="translate(880, 210)">
+    <rect width="180" height="130" rx="12" fill="url(#g-rose)" class="card pulse" />
+    <text x="90" y="38" class="api">Window Refresh</text>
+    <text x="20" y="72" class="body">• cx.notify()</text>
+    <text x="20" y="94" class="body">• Render yenilenir</text>
+    <text x="20" y="118" class="when">cx.theme() GÜNCEL!</text>
   </g>
 
   <!-- ================= OKLAR ================= -->
   <!-- Init -> Registry / GlobalTheme -->
-  <path d="M 250 180 C 290 180 290 120 330 120" class="arrow-line" />
-  <path d="M 250 220 C 290 220 290 300 330 300" class="arrow-line" />
+  <path d="M 250 240 C 290 240 290 180 330 180" class="arrow-line flow" />
+  <path d="M 250 280 C 290 280 290 360 330 360" class="arrow-line flow" />
 
   <!-- Registry -> Settings Change -->
-  <path d="M 550 120 H 630" class="arrow-line" />
+  <path d="M 550 180 H 630" class="arrow-line flow" />
 
   <!-- GlobalTheme -> Reload -->
-  <path d="M 550 300 H 630" class="arrow-line" />
+  <path d="M 550 360 H 630" class="arrow-line flow" />
 
   <!-- Tetikleyiciler -> Window Refresh -->
-  <path d="M 830 120 C 860 120 860 190 880 190" class="arrow-line" />
-  <path d="M 830 300 C 860 300 860 230 880 230" class="arrow-line" />
+  <path d="M 830 180 C 858 180 858 255 880 255" class="arrow-line flow" />
+  <path d="M 830 360 C 858 360 858 295 880 295" class="arrow-line flow" />
 
-  <text x="850" y="150" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#64748b">tetikler</text>
+  <g transform="translate(855, 226)">
+    <rect x="-32" y="-15" width="64" height="22" rx="11" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
+    <text x="0" y="1" class="lbl">tetikler</text>
+  </g>
 
   <!-- ================= ALT BİLGİ ================= -->
-  <g transform="translate(50, 410)">
-    <rect width="1010" height="40" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
-    <text x="505" y="25" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="14" fill="#1e40af">Init, registry yönetimi ve pencere yenileme zinciri tamamen senkrondur ve birbirine bağlıdır.</text>
+  <g transform="translate(50, 450)">
+    <rect width="1010" height="42" rx="10" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+    <text x="505" y="27" class="foot-note">Init, registry yönetimi ve pencere yenileme zinciri tamamen eşzamanlı ve birbirine bağlıdır.</text>
   </g>
 
 </svg>

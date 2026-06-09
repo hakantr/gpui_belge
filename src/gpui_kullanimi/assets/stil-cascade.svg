@@ -83,7 +83,7 @@
     <rect width="296" height="140" rx="12" fill="url(#g-purple)" class="card" />
     <text x="148" y="35" class="c-title">StyleRefinement</text>
     <text x="20" y="66" class="c-body">• Her alan Option ile sarılı ikiz.</text>
-    <text x="20" y="90" class="c-mono">• font_size: Option&lt;AbsoluteLength&gt;</text>
+    <text x="20" y="90" class="c-mono" style="font-size:12px">• font_size: Option&lt;AbsoluteLength&gt;</text>
     <text x="20" y="111" class="c-mono">• background: Option&lt;Fill&gt;</text>
     <text x="20" y="132" class="c-mono">• border_widths: Option&lt;...&gt;</text>
   </g>
@@ -97,8 +97,8 @@
     <text x="140" y="35" class="c-title">Style — yenilenmiş</text>
     <text x="20" y="66" class="c-body">• Her alan dolu; çizimde kullanılır.</text>
     <text x="20" y="90" class="c-body">• Some yazar; None değeri korur.</text>
-    <text x="20" y="111" class="c-mono">• from_cascade(&amp;cascade)</text>
-    <text x="20" y="132" class="c-mono">&#160;&#160;-&gt; Self</text>
+    <text x="20" y="111" class="c-mono" style="font-size:11px">• Refineable::from_cascade(&amp;cascade)</text>
+    <text x="20" y="132" class="c-mono" style="font-size:11px">&#160;&#160;-&gt; Self</text>
   </g>
 
   <!-- BİLGİ KUTUSU 1 -->
@@ -119,7 +119,7 @@
     <text x="20" y="110" class="c-mono">• active_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
     <text x="20" y="132" class="c-mono">• focus_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
     <text x="20" y="154" class="c-mono">• in_focus_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
-    <text x="20" y="176" class="c-mono">• focus_visible_style: Option&lt;Box&lt;...&gt;&gt;</text>
+    <text x="20" y="176" class="c-mono" font-size="12.5">• focus_visible_style: Option&lt;Box&lt;StyleRefinement&gt;&gt;</text>
     <text x="20" y="195" class="c-body" opacity="0.9">• group_hover_style / group_active_style vb.</text>
   </g>
 
@@ -160,7 +160,7 @@
     <text x="20" y="88" class="c-mono">• slot 0: Some(default); cascade.reserve()</text>
     <text x="20" y="107" class="c-mono">&#160;&#160;-&gt; CascadeSlot.</text>
     <text x="20" y="129" class="c-mono">• Refineable::from_cascade(&amp;cascade) -&gt; S.</text>
-    <text x="20" y="150" class="c-body" opacity="0.9">• refineable crate'inde durur; çekirdek içeriden kullanmaz.</text>
+    <text x="20" y="150" class="c-body" opacity="0.9" style="font-size:11px">• refineable crate'inde durur; GPUI çekirdeği bu sürümde içeriden kullanmaz.</text>
   </g>
 
   <g transform="translate(600, 702)">
@@ -170,7 +170,7 @@
     <text x="20" y="85" class="c-mono">&#160;&#160;other: &amp;Self); }</text>
     <text x="20" y="107" class="c-mono">• #[derive(MergeFrom)], ExtendingVec&lt;T&gt;, SaturatingBool.</text>
     <text x="20" y="129" class="c-mono">• user_settings.merge_from(&amp;server_settings).</text>
-    <text x="20" y="150" class="c-body" opacity="0.9">• Ayarlar ve tema yüklemesinde kullanılır.</text>
+    <text x="20" y="150" class="c-body" opacity="0.9" font-size="12.5">• Aynı üzerine yaz mantığı ayarlar ve tema yüklemesinde kullanılır.</text>
   </g>
 
 </svg>

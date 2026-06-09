@@ -116,27 +116,29 @@
     <rect x="20" y="48" width="380" height="1.5" fill="#ffffff" opacity="0.25" />
     <text x="20" y="78" class="c-body">• #[gpui::test] makrosunun verdiği bağlam.</text>
     <text x="20" y="103" class="c-mono">• cx.add_window(|window, cx| cx.new(...)).</text>
-    <text x="20" y="128" class="c-body">• simulate_keystrokes, dispatch_action, run_until_parked.</text>
+    <text x="20" y="128" class="c-body" style="font-size:13px">• simulate_keystrokes, dispatch_action, run_until_parked.</text>
     <text x="20" y="153" class="c-mono">• add_window -&gt; WindowHandle&lt;V&gt;.</text>
     <text x="20" y="178" class="c-mono">• add_window_view -&gt; VisualTestContext.</text>
   </g>
 
   <g transform="translate(500, 380)" class="step s2">
-    <rect width="320" height="150" rx="12" fill="url(#g-purple)" class="card" />
-    <text x="160" y="36" class="c-title">HeadlessAppContext</text>
-    <rect x="20" y="48" width="280" height="1.5" fill="#ffffff" opacity="0.25" />
-    <text x="20" y="78" class="c-body">• UI window'suz veya null-renderer ile.</text>
-    <text x="20" y="103" class="c-mono">• with_platform(...) renderer_factory: || None</text>
-    <text x="20" y="128" class="c-body">• CI screenshot / otomasyon.</text>
+    <rect width="320" height="172" rx="12" fill="url(#g-purple)" class="card" />
+    <text x="160" y="34" class="c-title">HeadlessAppContext</text>
+    <rect x="20" y="46" width="280" height="1.5" fill="#ffffff" opacity="0.25" />
+    <text x="20" y="72" class="c-body">• UI window'suz veya null-renderer ile.</text>
+    <text x="20" y="95" class="c-mono" style="font-size:11px">• HeadlessAppContext::with_platform(...).</text>
+    <text x="20" y="116" class="c-mono" style="font-size:11px">• renderer_factory: || None.</text>
+    <text x="20" y="139" class="c-body">• CI screenshot / otomasyon.</text>
   </g>
 
   <g transform="translate(840, 380)" class="step s3">
-    <rect width="280" height="150" rx="12" fill="url(#g-orange)" class="card" />
+    <rect width="280" height="172" rx="12" fill="url(#g-orange)" class="card" />
     <text x="140" y="36" class="c-title">VisualTestAppContext</text>
     <rect x="18" y="48" width="244" height="1.5" fill="#ffffff" opacity="0.25" />
-    <text x="18" y="78" class="c-body">• macOS test-support; gerçek Metal.</text>
-    <text x="18" y="103" class="c-mono">• with_asset_source(platform, ...)</text>
-    <text x="18" y="128" class="c-mono">• simulate_keystrokes(window)</text>
+    <text x="18" y="74" class="c-body">• macOS test-support; gerçek Metal.</text>
+    <text x="18" y="97" class="c-mono" style="font-size:11px">• with_asset_source(platform, ...).</text>
+    <text x="18" y="120" class="c-mono" style="font-size:11px">• simulate_keystrokes(window, ...).</text>
+    <text x="18" y="143" class="c-mono" style="font-size:11px">• advance_clock(d).</text>
   </g>
 
   <!-- ================= ÜRETİM VE TEST ALTYAPISI ================= -->

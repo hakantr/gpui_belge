@@ -119,16 +119,17 @@
   <path d="M 370 469 H 410" class="arrow-line flow" />
 
   <g transform="translate(420, 384)" class="step s5">
-    <rect width="640" height="170" rx="12" fill="url(#g-orange)" class="card" />
+    <rect width="640" height="190" rx="12" fill="url(#g-orange)" class="card" />
     <text x="320" y="34" class="c-title" style="fill:#78350f">5. DispatchPhase İle Yayılım</text>
 
     <rect x="20" y="52" width="600" height="50" rx="8" fill="#fffbeb" />
     <text x="40" y="73" class="c-body"  font-weight="800" style="fill:#b45309">CAPTURE</text>
     <text x="40" y="92" class="c-body" style="fill:#92400e">Kökten odağa doğru çalışır; window.on_key_event(Capture, ...).</text>
 
-    <rect x="20" y="110" width="600" height="50" rx="8" fill="#fffbeb" />
+    <rect x="20" y="110" width="600" height="70" rx="8" fill="#fffbeb" />
     <text x="40" y="131" class="c-body"  font-weight="800" style="fill:#b45309">BUBBLE</text>
-    <text x="40" y="150" class="c-body" style="fill:#92400e">Odaktan köke gider; Action dinleyicisi yayılımı durdurur, cx.propagate() sürdürür.</text>
+    <text x="40" y="150" class="c-body" style="fill:#92400e">.on_action ve .on_* dinleyicileri odaktan köke gider.</text>
+    <text x="40" y="170" class="c-body" style="fill:#92400e">Action dinleyicisi yayılımı durdurur, cx.propagate() sürdürür.</text>
   </g>
 
   <!-- ================= ADIM 6 & 7 & KAYIT ================= -->
@@ -136,7 +137,7 @@
     <rect width="330" height="160" rx="12" fill="url(#g-rose)" class="card" />
     <text x="165" y="34" class="c-title">6. Dinleyici Çalışır</text>
     <text x="20" y="68" class="c-mono">• .on_action(cx.listener(</text>
-    <text x="20" y="88" class="c-mono">  |view, _: &amp;Kaydet, window, cx|))</text>
+    <text x="20" y="88" class="c-mono">  |view, _: &amp;Kaydet, window, cx| { ... }))</text>
     <text x="20" y="114" class="c-mono">• cx.notify, stop_propagation,</text>
     <text x="20" y="132" class="c-mono">  propagate</text>
     <text x="20" y="152" class="c-mono">• window.prevent_default</text>
@@ -166,7 +167,7 @@
   <!-- ================= BİLGİ 2 (kırmızı) ================= -->
   <g transform="translate(60, 766)">
     <rect width="1000" height="98" rx="10" fill="#fff1f2" stroke="#f43f5e" stroke-width="2" filter="url(#shadow)" />
-    <text x="20" y="30" class="c-body" style="fill:#9f1239">• Yazdırılabilir girdi IME'ye gidecekse prefers_ime_for_printable_keys kısayol yakalama önceliğini düşürür.</text>
+    <text x="20" y="30" class="c-body" style="fill:#9f1239">• Yazdırılabilir girdi IME'ye gidecekse InputHandler::prefers_ime_for_printable_keys kısayol yakalama önceliğini düşürür.</text>
     <text x="20" y="58" class="c-body" style="fill:#9f1239">• EntityInputHandler kullanan view'larda değer ElementInputHandler::accepts_text_input sonucundan türetilir.</text>
     <text x="20" y="86" class="c-body" style="fill:#9f1239">• no_json ile işaretli action keymap'ten çağrılamaz; yalnızca cx.dispatch_action(&amp;action) ile tetiklenir.</text>
   </g>
@@ -174,7 +175,7 @@
   <!-- ================= BİLGİ 3 (gri) ================= -->
   <g transform="translate(60, 880)">
     <rect width="1000" height="76" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" filter="url(#shadow)" />
-    <text x="20" y="30" class="c-body" style="fill:#334155">• İnceleme: keystroke_text_for(&amp;action), possible_bindings_for_input, Keymap::version().</text>
+    <text x="20" y="30" class="c-body" style="fill:#334155">• İnceleme: window.keystroke_text_for(&amp;action), possible_bindings_for_input, Keymap::version().</text>
     <text x="20" y="58" class="c-body" style="fill:#334155">• Tanılama: cx.key_bindings(), Keymap::all_bindings_for_input, bindings_for_action; aşama: .on_action / .capture_action.</text>
   </g>
 

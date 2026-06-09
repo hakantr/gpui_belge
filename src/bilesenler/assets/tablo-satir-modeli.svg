@@ -119,7 +119,7 @@
   <!-- ================= NOT ================= -->
   <g transform="translate(40, 491)">
     <rect width="880" height="30" rx="8" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.2" class="card" />
-    <text x="440" y="20" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#1e40af" text-anchor="middle">Hiyerarşik veya sticky parent gerekiyorsa: uniform_list + IndentGuides / StickyItems (UniformListDecoration uygulanır)</text>
+    <text x="440" y="20" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="13" fill="#1e40af" text-anchor="middle">Hiyerarşik veya sticky parent gerekiyorsa: uniform_list + IndentGuides + StickyItems (her ikisi UniformListDecoration uygular)</text>
   </g>
 
 </svg>

@@ -72,7 +72,7 @@
     <text x="22" y="36" class="c-title">AssetSource</text>
     <text x="22" y="70" class="c-body">• path -&gt; bytes çözümleme</text>
     <text x="22" y="95" class="c-body">• MIME / uzantı ayrımı</text>
-    <text x="22" y="120" class="c-body">• Cache ve hata raporlama</text>
+    <text x="22" y="120" class="c-body">• Cache ve hata raporlama katmanı</text>
   </g>
 
   <path d="M 690 175 H 762" class="arrow-line flow" />
@@ -81,8 +81,8 @@
     <rect width="330" height="130" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
     <text x="22" y="36" class="c-title">Application::with_assets</text>
     <text x="22" y="70" class="c-body">• Runtime'a asset provider bağlanır</text>
-    <text x="22" y="95" class="c-body">• UI ve servis aynı yüzeyi okur</text>
-    <text x="22" y="120" class="c-body">• Eksik asset erken hata üretir</text>
+    <text x="22" y="95" class="c-body">• UI ve servis katmanları aynı yüzeyi okur</text>
+    <text x="22" y="120" class="c-body">• Eksik asset erken görünür hata üretir</text>
   </g>
 
   <!-- ================= ORTA OTOBÜS ÇİZGİSİ ================= -->

@@ -124,10 +124,11 @@
 
   <g transform="translate(720, 320)">
     <rect width="240" height="124" rx="12" fill="url(#g-green-soft)" stroke="#059669" stroke-width="2" class="card" />
-    <text x="120" y="38" class="label-title" style="fill:#047857">Paint Output</text>
-    <text x="120" y="64" class="label-body" style="fill:#059669">Element final Style üretir.</text>
-    <text x="120" y="86" class="label-body" style="fill:#059669">Renderer renkleri primitive'e yazar.</text>
-    <text x="120" y="111" class="label-mono" style="fill:#10b981">paint_quad</text>
+    <text x="120" y="36" class="label-title" style="fill:#047857">Paint Output</text>
+    <text x="120" y="60" class="label-body" style="fill:#059669">Element final Style üretir.</text>
+    <text x="120" y="80" class="label-body" style="fill:#059669">Renderer renkleri</text>
+    <text x="120" y="98" class="label-body" style="fill:#059669">primitive'e yazar.</text>
+    <text x="120" y="118" class="label-mono" style="fill:#10b981">paint_quad</text>
   </g>
 
   <path d="M 380 382 H 422" class="arrow-soft dashflow" />

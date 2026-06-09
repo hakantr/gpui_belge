@@ -103,7 +103,7 @@
   <g class="flow-2" transform="translate(430, 110)">
     <rect width="300" height="130" rx="12" fill="url(#g-violet)" class="card" />
     <text x="150" y="35" class="c-title">Handle Sahibi</text>
-    <text x="20" y="70" class="c-body">• Struct alanı, local veya detach.</text>
+    <text x="20" y="70" class="c-body">• Struct alanı, local değişken veya detach.</text>
     <text x="20" y="95" class="c-body">• Sahiplik kaydın ömrünü belirler.</text>
     <text x="20" y="118" class="c-mono">• Vec&lt;Subscription&gt;</text>
   </g>
@@ -159,7 +159,7 @@
     <text x="40" y="42" class="panel-title" fill="#047857">Async ve Detached Güvenliği</text>
     <text x="40" y="76" class="panel-body" fill="#065f46">Detached callback view ömründen uzun yaşayabilir.</text>
     <text x="40" y="98" class="panel-body" fill="#065f46">Güçlü Entity yakalamak yaşam döngüsünü uzatır.</text>
-    <text x="40" y="124" class="panel-body" fill="#059669" style="font-weight:800">Kural: WeakEntity yakala; upgrade sonucunu kontrol et.</text>
+    <text x="40" y="124" class="panel-body" fill="#059669" style="font-weight:800">Kural: WeakEntity yakala; upgrade/update sonucunu kontrol et.</text>
   </g>
 
   <!-- Oklar -->

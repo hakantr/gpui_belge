@@ -74,9 +74,14 @@
     <text x="600" y="46" class="title">Zed Workspace İskeleti <tspan fill="#64748b" font-size="18">(Linux / Windows)</tspan></text>
   </g>
   <text x="600" y="74" class="sub">Workspace kök Entity; dock'lar, pane grubu, status bar ve modal katmanı birlikte çalışır.</text>
+  <text x="600" y="92" text-anchor="middle" font-family="ui-monospace, SFMono-Regular, monospace" font-size="12" style="fill:#475569">left_dock, right_dock, bottom_dock, center: PaneGroup, status_bar ve modal_layer.</text>
 
   <!-- ================= DIŞ ÇERÇEVE ================= -->
   <rect x="50" y="100" width="1100" height="690" rx="14" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" />
+
+  <!-- Çerçeve etiketi (fieldset legend) -->
+  <rect x="72" y="87" width="222" height="25" rx="12" fill="url(#g-sky)" stroke="#0284c7" stroke-width="1.5" filter="url(#shadow)" />
+  <text x="183" y="104" class="card-title" font-size="13">Workspace - kök Entity</text>
 
   <!-- ================= PLATFORM TITLE BAR ================= -->
   <path d="M 50 114 A 14 14 0 0 1 64 100 H 1136 A 14 14 0 0 1 1150 114 V 134 H 50 Z" fill="url(#g-bar)" stroke="#94a3b8" stroke-width="2" />
