@@ -45,7 +45,7 @@ Tavsiye Edilen Kullanım Alanları:
 
 - Sayfa veya panel içinde kısa bir bilgi, başarı, uyarı veya hata mesajı göstermek için.
 - Kullanıcıyı akıştan koparmadan bir CTA (eyleme çağrı) veya düzeltme aksiyonu sunmak için.
-- Bir içeriğin üstünde ya da ilgili bölümün başında engelleyici olmayan (non-blocking) bir mesaj konumlandırmak için.
+- Bir içeriğin üstünde ya da ilgili bölümün başında engelleyici olmayan bir mesaj konumlandırmak için.
 
 Tercih Edilmemesi Gereken Durumlar:
 
@@ -119,7 +119,7 @@ Dikkat edilmesi gereken noktalar:
 Kaynak:
 
 - Tanım: `ui` crate'i
-- Export: `ui::Callout`, `ui::BorderPosition`.
+- Export: `ui::Callout`, `ui::CalloutBorderPosition`.
 - İlgili tipler: `ui::Severity`.
 - Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Callout`.
@@ -147,13 +147,13 @@ Temel API:
 - `.actions_slot(element)`.
 - `.dismiss_action(element)`.
 - `.line_height(px)`.
-- `.border_position(BorderPosition::Top | BorderPosition::Bottom)`.
+- `.border_position(CalloutBorderPosition::Top | CalloutBorderPosition::Bottom)`.
 
 Callout kenar seçimi:
 
 | API | Rol |
 | :-- | :-- |
-| `BorderPosition` | Callout border çizgisinin `Top` veya `Bottom` tarafında görüneceğini seçer. |
+| `CalloutBorderPosition` | Callout border çizgisinin `Top` veya `Bottom` tarafında görüneceğini seçer. |
 
 Davranış:
 

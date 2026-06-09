@@ -718,7 +718,11 @@ Davranış:
 - APCA sonucu pozitifse koyu metin/açık arka plan, negatifse açık metin/koyu arka plan kutupsallığını (polarity) ifade eder. `ensure_minimum_contrast(...)`, ön plan parlaklık (lightness) değerini değiştirerek eşik sağlamaya çalışır.
 - `platform_title_bar_height(window)`, Windows'ta 32px döndürür; diğer platformlarda rem boyutuna bağlı, minimum 34px olan bir değer üretir.
 - `WithRemSize`, alt ağacı farklı bir rem boyutu ile layout/prepaint eder. `.occlude()` işaretçi olaylarının (pointer events) alt çocuklara ulaşmasını engeller.
-- `FormatDistance` `Display` implement eder; kurucu (builder) zinciri sonunda `.to_string()` ile göreceli metne çevrilebilir.
+- `FormatDistance` `Display` implement eder; kurucu zinciri sonunda `.to_string()` ile göreceli metne çevrilebilir.
+
+### `MACOS_SDK_26_OR_LATER`
+
+`MACOS_SDK_26_OR_LATER`, derlemenin macOS SDK 26 veya daha yeni bir SDK ile yapılıp yapılmadığını gösteren dışa açık sabittir. `TRAFFIC_LIGHT_PADDING` bu bayrağa göre 78px veya 71px değerini seçer; amaç, yerel trafik ışıklarıyla özel başlık çubuğu içeriği arasındaki güvenli boşluğu korumaktır.
 
 Örnek:
 

@@ -23,6 +23,8 @@ Kullanıcı menüsü butonunun tetikleyicisi oturum durumuna ve `show_user_pictu
 
 Menü açıldığında bir açılır panel içinde hesap ve uygulama eylemleri listelenir: Abonelik planı, varsa organizasyon bilgisi, ayarlar/tuş eşlemi/temalar gibi geçişler ve oturumu kapatma. `ToggleUserMenu` eylemi bu menüyü klavyeyle de açıp kapatmayı sağlar.
 
+### `UseClassicLayout` ve `UseAgenticLayout`
+
 AI etkinken menüde ayrıca bir **"Panel Yerleşimi" alt menüsü** çizilir; bu alt menü çalışma alanı düzenini `"Klasik"` (editör odaklı) ve `"Ajanlı"` (AI panel düzeni) arasında değiştirir. İki giriş sırasıyla `UseClassicLayout` ve `UseAgenticLayout` eylemlerini gönderir; yürürlükteki düzen alt menüde işaretli görünür. Bu eylemler `workspace` ad alanındadır, bu yüzden komut paletinden veya bir klavye kısayoluna bağlanarak da çağrılabilir. Bir eylem tetiklendiğinde `AgentSettings::set_layout(...)` seçilen düzeni kullanıcının ayar dosyasına yazar (`UseClassicLayout` -> `WindowLayout::Editor`, `UseAgenticLayout` -> `WindowLayout::Agent`); böylece seçim kalıcı hale gelir. AI devre dışıyken (`DisableAiSettings.disable_ai`) hem alt menü çizilmez hem de iki eylem komut paletinden gizlenir.
 
 ## 3. Plan çipi

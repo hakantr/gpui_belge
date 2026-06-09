@@ -69,7 +69,8 @@ pub enum KeymapFileLoadResult {
 API üzerinde sıkça kullanılan yapıcı metotlar şunlardır:
 
 - `KeymapFile::parse(content) -> Result<Self>` — Boş içerikler için boş bir `KeymapFile` döndürür; aksi halde `parse_json_with_comments` ile içeriği ayrıştırır.
-- `KeymapFile::load(content, cx) -> KeymapFileLoadResult` — String formatındaki içeriği `Vec<KeyBinding>` yapısına dönüştürür.
+- `KeymapFile::load(content, cx) -> KeymapFileLoadResult` — String formatındaki içeriği `Vec<KeyBinding>` yapısına dönüştürür; içeride önce `parse(content)` ile ayrıştırır, ardından elde edilen `KeymapFile` üzerinde `load_keymap(cx)` çağırır.
+- `KeymapFile::load_keymap(&self, cx) -> KeymapFileLoadResult` — Önceden ayrıştırılmış bir `KeymapFile` örneğinden tuş eşlemlerini (`Vec<KeyBinding>`) üretir; ayrıştırma ile yükleme adımlarının ayrı yürütülmesi gerektiğinde doğrudan kullanılır.
 - `KeymapFile::load_asset(asset_path, source, cx) -> Result<Vec<KeyBinding>>` — Paketlenmiş asset üzerinden yükleme yapar ve `KeybindSource` belirtilmişse her binding'in metasına bunu yazar. Paketlenmiş keymap'ler için bu yöntem kullanılır ve dönen `Result` değeri `?` operatörü ile ele alınır; eğer yükleme `SomeFailedToLoad` veya `JsonParseFailure` ile sonuçlanırsa içeride `bail!` ile hataya çevrilir, yani kısmi yüklemeleri sessizce kabul etmez.
 - `KeymapFile::load_asset_allow_partial_failure(...)` — Kısmi yüklemelere izin verir; `SomeFailedToLoad` hata mesajını doğrudan arayüz tarafına geri yansıtır.
 - `KeymapFile::load_panic_on_failure(content, cx)` — Test ortamlarında (`test-support`) yalnızca başarı beklenen yollar için kullanılır.
@@ -100,7 +101,7 @@ Arayüz Metotları:
 - `name(&self) -> &'static str` — `"User" | "Default" | "Base" | "Vim" | "Unknown"` değerlerinden birini döner; UI etiketlerinde ya da telemetri verisinde kullanılır.
 - `meta(&self) -> KeyBindingMetaIndex` — GPUI tarafındaki binding metasına atanan sayısal değeri döndürür.
 - `KeybindSource::from_meta(index)` — İndis bilgisinden enum yapısını geri elde etmeyi sağlar.
-- `From<KeyBindingMetaIndex> for KeybindSource` ve `From<KeybindSource> for KeyBindingMetaIndex` blanket implementasyonları, bu çift yönlü dönüşüm sürecini otomatikleştirir.
+- `From<KeyBindingMetaIndex> for KeybindSource` ve `From<KeybindSource> for KeyBindingMetaIndex` genel implementasyonları, bu çift yönlü dönüşüm sürecini otomatikleştirir.
 
 ---
 

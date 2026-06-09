@@ -231,7 +231,7 @@ impl Render for KomutAracCubugu {
 `KeybindingHint` için pratik kurallar:
 
 - Kısayol sabit bir string olarak yazılmaz. Mümkün olduğunda uygulamadaki eylem veya keymap çözümlemesinden dinamik bir `ui::KeyBinding` üretilir.
-- Kısayol ipucu (hint) her araç çubuğunda görünmek zorunda değildir. Asıl değerli olduğu yerler komut paleti, boş durum (empty state) veya onboarding gibi bağlamlardır.
+- Kısayol ipucu her araç çubuğunda görünmek zorunda değildir. Asıl değerli olduğu yerler komut paleti, boş durum veya ilk kullanım akışı gibi bağlamlardır.
 - Sadece ikondan oluşan bir buton varsa `Tooltip` kullanımı zorunlu kabul edilir; etiketli bir buton üzerinde tooltip ise yalnızca ek bir bağlam sağlıyorsa kullanılır.
 
 ## Proje Listesi
@@ -464,14 +464,13 @@ Dikkat Edilmesi Gereken Hususlar:
 
 ## Bildirim Merkezi
 
-Bu örnekte bir bildirim yaşam döngüsü ile birlikte `NotificationFrame`, `AnnouncementToast`, `Banner`, `AlertModal` ve `Button` birlikte ele alınır.
+Bu örnekte bir bildirim yaşam döngüsü ile birlikte `AnnouncementToast`, `Banner`, `AlertModal` ve `Button` birlikte ele alınır.
 
 Neden bir arada:
 
-- `Banner`, ekran veya panel üstündeki engelleyici olmayan (non-blocking) bir duyuruyu gösterir.
-- `NotificationFrame`, çalışma alanı bildirim yığınında (workspace notification stack) başlığı, içeriği, kapatma ve gizleme (suppress) davranışını birlikte çerçeveler.
+- `Banner`, ekran veya panel üstündeki engelleyici olmayan bir duyuruyu gösterir.
 - `AnnouncementToast`, ürün duyurusu veya yeni özellik tanıtımı için hazır bir yerleşim sağlar.
-- `AlertModal`, kısa ve blocking (engelleyici) bir karar anında devreye girer.
+- `AlertModal`, kısa ve engelleyici bir karar anında devreye girer.
 - `Button`, banner, toast ve modal eylem yüzeylerinin tamamlayıcısıdır.
 
 Örnek:
@@ -482,7 +481,6 @@ use ui::{
     AlertModal, AnnouncementToast, Banner, Button, ButtonSize, ListBulletItem,
     Severity, prelude::*,
 };
-use workspace::notifications::NotificationFrame;
 
 struct BildirimMerkeziOnizleme {
     yeniden_baslatma_uyarisi_goster: bool,
@@ -500,17 +498,6 @@ impl Render for BildirimMerkeziOnizleme {
                         Button::new("lsp-log-ac", "Logu aç")
                             .size(ButtonSize::Compact),
                     ),
-            )
-            .child(
-                NotificationFrame::new()
-                    .with_title(Some("Proje indeksleniyor"))
-                    .with_content("Semboller hâlâ indeksleniyor.")
-                    .with_suffix(Button::new("indekslemeyi-gizle", "Gizle").size(ButtonSize::Compact))
-                    .on_close(|suppress, _window, _cx| {
-                        if *suppress {
-                            bildirim_susturmayi_kaydet();
-                        }
-                    }),
             )
             .child(
                 AnnouncementToast::new()
@@ -545,9 +532,9 @@ impl Render for BildirimMerkeziOnizleme {
 
 Bildirim (Notification) Yaşam Döngüsü:
 
-- Çalışma alanı bildirim yığınana (workspace notification stack) girecek bir view, `workspace::notifications::Notification` trait kuralını karşılamalıdır: `Render`, `Focusable`, `EventEmitter<DismissEvent>` ve `EventEmitter<SuppressEvent>` yapıları birlikte beklenir.
+- Çalışma alanı bildirim yığınına girecek bir görünüm, `workspace::notifications::Notification` trait kuralını karşılamalıdır: `Render`, `Focusable`, `EventEmitter<DismissEvent>` ve `EventEmitter<SuppressEvent>` yapıları birlikte beklenir.
 - Kapatma (dismiss) veya gizleme (suppress) durumu bileşen içinde kalıcı kabul edilmez. Kullanıcı tercihi kalıcı olarak saklanacaksa, ayarlar veya bir KV store tarafında tutulur.
-- Engelleyici bir karar gerekmiyorsa, `AlertModal` yerine bir `Banner` veya `NotificationFrame` çok daha uygun bir seçimdir.
+- Engelleyici bir karar gerekmiyorsa, `AlertModal` yerine bir `Banner` çok daha uygun bir seçimdir. Çalışma alanının kalıcı bildirim yığınına girecek başlık/içerik/kapatma çerçevesi için ise `workspace::notifications::MessageNotification` görünümü `cx.new(...)` ile bir `Entity` olarak kurulur; ayrıntısı [Bildirim Yardımcıları](../calisma_alani/05-bildirim-yardimcilari.md) bölümündedir.
 
 ## AI Sağlayıcı Kartları
 
@@ -701,9 +688,9 @@ Dikkat Edilmesi Gereken Hususlar:
 
 ## Uyum Kontrol Listesi
 
-Bir ekran kendi uygulamanıza taşınırken aşağıdaki sıranın izlenmesi faydalı olur:
+Bir ekran hedef uygulamaya taşınırken aşağıdaki sıranın izlenmesi faydalı olur:
 
-- Her durum (state) alanının sahibi belirli mi: View, entity, servis store veya ayarlar?
+- Her durum alanının sahibi belirli mi: `View`, `Entity`, servis deposu veya ayarlar?
 - Görünüm durumunu değiştiren bütün olay işleyicileri (event handlers) `cx.listener(...)` üzerinden mi geçiyor?
 - Görsel sonucu olan durum değişimlerinden sonra `cx.notify()` çağrısı yapılıyor mu?
 - Asenkron görev sonucunda görünümün hâlâ hayatta olup olmadığını kontrol etmek için `Entity` veya `WeakEntity` güncelleme sınırları doğru kullanılıyor mu?
@@ -719,7 +706,7 @@ Bir ekran kendi uygulamanıza taşınırken aşağıdaki sıranın izlenmesi fay
 GPUI'de bir ekranın klavye erişimi dört parçayla kurulur: Odak (focus), tab order, key context ve action dispatch. Bu dört parça `Navigable`, `Tooltip`, `KeyBinding`, `Button*`, `ListItem`, `ContextMenu` ve `AlertModal` gibi bileşenlerin kurucu arayüzlerinde dağıtık olarak yer alır. Bir ekran üretirken aşağıdaki sıranın izlenmesi tutarlı bir sonuç verir:
 
 1. **Odak tutamacının (focus handle) tek bir noktada üretilmesi:** Görünüm struct'ında bir `focus_handle: FocusHandle` alanı tutulur ve görünüm `Focusable` trait'ini implement eder. `track_focus` metodu `AlertModal` ile saran eleman/`div` üzerinde bulunur; `Modal` `RenderOnce` olduğundan bu metodu taşımaz. Bir `AlertModal` kullanılıyorsa aynı handle `.track_focus(&focus_handle)` ile ona verilir; sade bir `Modal` kullanılıyorsa handle modalı saran elemana bağlanır.
-2. **Tab sırasının (tab order) `tab_index(...)` ile tanımlanması:** `Button`, `IconButton`, `ButtonLike`, `SwitchField`, `Switch`, `DropdownMenu`, `Tab`, `ToggleButtonGroup` ve `TreeViewItem` kurucu arayüzleri `tab_index` değerini (genellikle `&mut isize` veya `isize`) kabul eder. `ConfiguredApiCard` aynı işi `button_tab_index(isize)` metoduyla yapar; içindeki butona tab sırası bu adla verilir. `Disclosure` ve `Table` ise `RenderOnce` olduğundan `tab_index` taşımaz; bu ikisini saran odaklanabilir bir elemana güvenilir. Aynı form üzerinde tek bir sayaç geçirilir; her kurucu (builder) sayacı kendi kullandığı kadar artırır.
+2. **Tab sırasının (tab order) `tab_index(...)` ile tanımlanması:** `Button`, `IconButton`, `ButtonLike`, `SwitchField`, `Switch`, `DropdownMenu`, `Tab`, `ToggleButtonGroup` ve `TreeViewItem` kurucu arayüzleri `tab_index` değerini (genellikle `&mut isize` veya `isize`) kabul eder. `ConfiguredApiCard` aynı işi `button_tab_index(isize)` metoduyla yapar; içindeki butona tab sırası bu adla verilir. `Disclosure` ve `Table` ise `RenderOnce` olduğundan `tab_index` taşımaz; bu ikisini saran odaklanabilir bir elemana güvenilir. Aynı form üzerinde tek bir sayaç geçirilir; her kurucu sayacı kendi kullandığı kadar artırır.
 3. **`tab_stop` ve `track_focus` ile özel odaklanabilir alanlar kurulması:** `ListItem` gibi yüksek seviyeli bileşenler odağı kendileri yönetir. Özel bir `div()` veya `h_flex()` üzerinde klavye odağı vermek için `.track_focus(&handle)` eklenir. Gerekli durumlarda aynı elemente `.tab_index(...)` da tanımlanır. `NavigableEntry::focusable(cx)`, scroll anchor olmadan odaklanabilir bir girdi üretir.
 4. **`Navigable` ile yukarı/aşağı geçiş (traversal) kurulması:** Kaydırılabilir bir listede `menu::SelectNext` ve `menu::SelectPrevious` eylemleri, `Navigable::new(...).entry(NavigableEntry::new(...))` bağlamasıyla doğru girdiye kaydırma yapıp odak (focus) verir.
 5. **`key_context(...)` ile bağlam zinciri kurulması:** `AlertModal::key_context(...)` ve `ContextMenu::key_context(...)` metotları, modal veya menü içindeyken keymap'in doğru kısayolları kullanmasını sağlar. Özel görünümlerde `cx.set_global` veya bir element üzerinde `.key_context("MyView")` çağrısı kullanılır; `.key_context(...)` doğrudan string kabul eder.

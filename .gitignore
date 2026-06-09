@@ -4,6 +4,8 @@ book
 .antigravitycli
 doc/test.json
 
+svg/
+
 # Generated API inventory artifacts
 .agents/zed_api_snapshot_current.json
 .agents/zed_api_snapshot_current.sqlite
@@ -15,3 +17,4 @@ doc/test.json
 .agents/__pycache__/
 .agents/logs/
 .agents/zed_farklari/
+src/gpui_kullanimi/assets/svg/

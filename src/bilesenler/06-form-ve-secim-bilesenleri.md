@@ -268,7 +268,7 @@ Temel API:
 
 - Constructor: `InputField::new(window, cx, placeholder_text)`.
 - Builder'lar: `.start_icon(IconName)`, `.label(...)`, `.label_size(...)`, `.label_min_width(...)`, `.tab_index(...)`, `.tab_stop(bool)`, `.masked(bool)`.
-- Okuma/yazma: `.text(cx)`, `.is_empty(cx)`, `.clear(window, cx)`, `.set_text(text, window, cx)`, `.set_masked(masked, window, cx)`.
+- Okuma/yazma: `.text(cx)`, `.is_empty(cx)`, `.clear(window, cx)`, `.set_text(text, window, cx)`, `.set_masked(masked, window, cx)`, `.set_error(error, cx)`.
 - Düşük seviye erişim: `.editor() -> &Arc<dyn ErasedEditor>`.
 
 Davranış:
@@ -277,6 +277,7 @@ Davranış:
 - `InputField::new(...)` çağrısı, `ui_input::ERASED_EDITOR_FACTORY` fabrika fonksiyonunun önceden kurulmuş olmasını bekler. Zed çalışma zamanı bu fabrikayı editör entegrasyonu aşamasında hazırlar.
 - `.masked(true)` tanımlandığında sağda bir göster/gizle `IconButton`'ı render edilir ve bu butona tıklamak maskeleme durumunu günceller.
 - Odak görünümü, editör odak handle'ına bağlı kenarlık (border) rengiyle çizilir.
+- `.set_error(Some(mesaj), cx)` bir doğrulama hatası ayarlar: alanın kenarlığını kırmızıya çevirir ve mesajı alanın altında küçük bir ipucu metni olarak gösterir. `.set_error(None, cx)` hatayı temizler.
 
 Örnek:
 
@@ -394,7 +395,7 @@ impl ApiAnahtariFormu {
 
 Dikkat edilmesi gereken noktalar:
 
-- `InputField` `RenderOnce` değildir; her render adımında yeniden oluşturulmak yerine bir entity olarak saklanır ve view durumunda tutulur.
+- `InputField` `RenderOnce` değildir; her render adımında yeniden oluşturulmak yerine bir `Entity` olarak saklanır ve görünüm durumunda tutulur.
 - Metin değerini `field.read(cx).text(cx)` yardımıyla okunması gerekir. Değer değişimine tepki vermek istendiğinde yukarıdaki `subscribe` örneğinin izlenmesi ve dönen `Subscription` değerinin view alanında saklanması gerekir.
 - `ERASED_EDITOR_FACTORY` kurulmadan `InputField::new` çağrılırsa panik oluşur; bu yüzden editör crate'inin init fonksiyonunun uygulama başlangıcında çalıştığından emin olunması gerekir.
 - `label_min_width(...)` adında "label" ifadesi geçse de, kaynak kodda bu metot input kapsayıcısının `min_width` değerini ayarlar.

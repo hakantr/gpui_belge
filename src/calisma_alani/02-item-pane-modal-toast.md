@@ -173,8 +173,10 @@ calisma_alani.show_toast(
     cx,
 );
 
-calisma_alani.show_error(&hata, cx);
+calisma_alani.show_error(hata, cx);
 ```
+
+`show_error<E: WorkspaceError + 'static>(err, cx)` hatayı **sahiplenerek** alır (referansla değil); `String`, `&'static str` ve `anyhow::Error` için hazır `WorkspaceError` uygulaması bulunduğundan bu tipler doğrudan geçirilebilir. Hata yüzeyinin tamamı (önem düzeyi, eylem düğmeleri, otomatik kapanma) [Bildirim Yardımcıları ve Async Hata Gösterimi](05-bildirim-yardimcilari.md) bölümünde işlenir.
 
 `Toast` hafif ve geçicidir (autohide); `Notification` ise kalıcı bir görünümdür (view) ve kullanıcı kapatana (dismiss edene) kadar görünür kalır. `SuppressEvent` aynı kaynaktan gelen tekrarlı bildirimleri bastırmak amacıyla kullanılır.
 
@@ -203,7 +205,7 @@ Bu bölümde bazı tipler davranışın ana başlığıdır (`Item`, `ModalView`
 | `HideStatusItem` | Status bar öğesinin sağ tık menüsünden kullanıcı ayarına gizleme yazmasını sağlar; `new` kapanışı alır, `apply` ayar dosyasını günceller. |
 | `ItemEvent` | `CloseItem`, `UpdateTab`, `UpdateBreadcrumbs`, `Edit` sinyalleriyle öğe değişimini çalışma alanına bildirir. |
 | `ItemBufferKind` | `Multibuffer`, `Singleton`, `None` ile öğenin proje tampon (project buffer) ilişkisini sınıflandırır. |
-| `TabContentParams` | `detail`, `selected`, `preview`, `deemphasized` alanlarını tab çizimine taşır; `text_color()` anlamsal rengi üretir. |
+| `TabContentParams` | `detail`, `selected`, `preview`, `deemphasized`, `max_title_len` alanlarını tab çizimine taşır; `text_color()` anlamsal rengi üretir. `max_title_len: Option<usize>` sekme başlığının kırpılacağı azami uzunluğu çağırana bırakır (`None` ise öğenin kendi varsayılanı geçerlidir). |
 | `TabTooltipContent` | Tooltip'i düz `Text` veya özel görünüm (custom view) üreten `Custom` kapanışı olarak temsil eder. |
 | `OpenVisible` | Açılan yolun (path) proje panelindeki görünürlüğünü `All`, `None`, `OnlyFiles`, `OnlyDirectories` olarak sınırlar. |
 | `NotificationId` | Bildirimleri `Unique(TypeId)`, `Composite(TypeId, ElementId)` veya `Named(SharedString)` kimliğiyle tekilleştirir (dedupe eder). |
@@ -224,7 +226,7 @@ Bu bölümde bazı tipler davranışın ana başlığıdır (`Item`, `ModalView`
 | `FollowEvent`, `FollowableViewRegistry`, `FollowerState`, `LEADER_UPDATE_THROTTLE` | Takip (follow) olayı dönüşümü, uzak görünüm arşivi (remote view registry), takipçi durumu (follower state) ve lider güncelleme sınırlama (throttling) sabitini kapsar. |
 | `ActiveModal` | Modal katmanı (modal layer) içinde açık modal görünümünü ve dismiss davranışını taşıyan dahili durum (internal state) modelidir. |
 | `ToastLayer`, `RestoreBanner`, `SuppressNotification`, `ClearAllNotifications` | Toast host'u, geri yükleme başlığı (restore banner) ve bildirim bastırma/temizleme eylemlerini temsil eder. |
-| `Notifications`, `LanguageServerPrompt`, `ErrorMessagePrompt` | Çalışma alanı bildirim sunucusu ile dil sunucusu (language server) ve hata istemi görünümlerinin (prompt views) genel yüzeyidir. |
+| `Notifications`, `LanguageServerPrompt` | Çalışma alanı bildirim sunucusu ile dil sunucusu (language server) prompt görünümlerinin genel yüzeyidir. |
 | `PaneSearchBarCallbacks` | Pane arama çubuğunun eşleşme gezintisi (match navigation) ve değiştirme (replace) geri çağrılarını pane dışındaki araç çubuğu görünümüne taşır. |
 | `add_hide_button_entry` | Durum çubuğu sağ tık menüsüne kaynakta `"Hide Button"` kaydını ekleyen yardımcıdır; `hide_setting()` döndüren öğelerle birlikte kullanılır. |
 

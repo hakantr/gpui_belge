@@ -372,6 +372,15 @@ cx.observe_window_appearance(window, |_, window, cx| {
 4. **`window.set_background_appearance` sistem modunu değiştirmez**: Bu fonksiyon yalnızca pencere düzeyinde etki eder; sistem light/dark moduna dokunmaz.
 5. **Açıldıktan sonra blur eklemek**: GPU kaynakları yeniden ayrıldığından ilk kare görsel olarak titreyebilir.
 
+### İstemci Tarafı Süsleme Köşeleri: `ClientDecorationsExt`
+
+theme crate'i, istemci tarafı pencere süslemelerinde (CSD) tutarlı köşe yuvarlama için `Styled` üzerine bir uzantı trait'i sağlar:
+
+- `theme::ClientDecorationsExt: Styled` — `Styled` uygulayan her tipe genel olarak uygulanır; `rounded_client_corners(tiling: Tiling)` metodu, iki komşu kenarı da döşenmemiş olan köşelere `CLIENT_SIDE_DECORATION_ROUNDING` yarıçapı uygular, ekrana yapışık köşeleri köşeli bırakır.
+- `theme::CLIENT_SIDE_DECORATION_ROUNDING` (`10px`) ve `theme::CLIENT_SIDE_DECORATION_SHADOW` (`10px`) sabitleri, sırasıyla CSD pencere köşe yarıçapını ve gölge payını tanımlar.
+
+Bu yüzeyin pencere yeniden boyutlandırma ve `workspace::client_side_decorations` ile birlikte pratik kullanımı [Pencere Yönetimi](../gpui_kullanimi/05-pencere-yonetimi.md) bölümünde işlenir.
+
 ---
 
 ## 9. Bağlam Tipleri: `App`, `Context<T>`, `Window`, `BorrowAppContext`

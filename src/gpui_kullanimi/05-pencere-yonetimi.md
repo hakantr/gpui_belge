@@ -328,6 +328,8 @@ Bu sarmalayıcı yapı şu görevleri üstlenir:
 - Kenar ve köşe bölgelerinde fare imlecini otomatik olarak yeniden boyutlandırma (resize cursor) ikonuna dönüştürür.
 - İlgili sınırlarda fareye tıklandığında `window.start_window_resize(edge)` çağrısını tetikleyerek platform düzeyinde boyutu günceller.
 
+Köşe yuvarlama mantığı `theme::ClientDecorationsExt` uzantı trait'i üzerinden dışa da açıktır. `Styled` uygulayan herhangi bir öğeye `.rounded_client_corners(tiling)` zincirlenir; iki komşu kenarı da döşenmemiş olan her köşeye `theme::CLIENT_SIDE_DECORATION_ROUNDING` (10px) yarıçapı uygular, ekrana yapışık köşeleri köşeli bırakır. `client_side_decorations` sarmalayıcısı köşe yuvarlamasını içeride bu yardımcıyla hesaplar; kendi süsleme yüzeyini kuran bir bileşen de aynı tutarlı köşe davranışını doğrudan bu trait ile elde edebilir. Trait bütün `Styled` tipleri için genel olarak uygulandığından ayrıca elle implement edilmesi gerekmez.
+
 Özel bir istemci tarafı süsleme modeli tasarlanırken şu temel prensipler izlenmelidir:
 
 1. Platformun sunduğu fiili süsleme kipi `window.window_decorations()` üzerinden okunmalıdır.

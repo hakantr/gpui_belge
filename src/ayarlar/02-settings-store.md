@@ -58,7 +58,7 @@ cx.set_global(ayarlar);
 SettingsStore::observe_active_settings_profile_name(cx).detach();
 ```
 
-`settings::init(cx)` fonksiyonu da başlangıçta aynı adımları uygular ve aktif profil değişimi için gerekli gözlemciyi yapılandırır. Test koşumlarında ise `SettingsStore::test(cx)` yardımıyla yalnızca test ayar içeriğiyle (`test_settings()`) izole bir store kurulur.
+`settings::init(cx)` fonksiyonu da başlangıçta aynı adımları uygular ve aktif profil değişimi için gerekli gözlemciyi yapılandırır. `SettingsStore::new(cx, default_settings)` kendisi `SettingsStore::new_with_semantic_tokens(cx, default_settings)`'a devreder; ikisi de varsayılan ayar metnini ayrıştırıp anlamsal token (semantic token) kurallarını global durumda hazırlar. Test koşumlarında ise `SettingsStore::test(cx)` yardımıyla yalnızca test ayar içeriğiyle (`test_settings()`) izole bir store kurulur.
 
 `SettingsStore::update(cx, |store, cx| { ... })` metodu, herhangi bir `BorrowAppContext` üzerinden `cx.update_global` çağrısını sarmalar. Kaynak kod içerisinde doğrudan `SettingsStore::update_global(cx, ...)` kullanımı da GPUI `UpdateGlobal` trait'inden gelir; kayıt ekleme, üzerine yazma veya yeni ayar içerikleri yedirme işlemleri bu blok içinde gerçekleştirilir.
 
@@ -300,7 +300,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `XAiSettingsContent`, `XaiAvailableModel`, `ZedDotDevSettingsContent`, `ZedDotDevAvailableModel`, `ZedDotDevAvailableProvider` | xAI ve `zed.dev` sağlayıcı ayarları | `zed.dev` JSON anahtarı serde rename niteliğiyle korunur. |
 | `OpenRouterSettingsContent`, `OpenRouterAvailableModel`, `OpenRouterProvider`, `DataCollection` | OpenRouter sağlayıcısı, model metadata ve veri toplama tercihleri | OpenRouter sağlayıcı bilgisi model girişinden ayrı olarak tiplendirilir. |
 
-Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<String, String>>` alanı bulunur. Bu alan, sağlayıcı HTTP isteklerine ek başlıklar (custom headers) geçirmek için kullanılır; ağ katmanına ait bir override olduğu için API URL veya model listesinden ayrı tutulur.
+Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<String, String>>` alanı bulunur. Bu alan, sağlayıcı HTTP isteklerine özel başlıklar geçirmek için kullanılır; ağ katmanına ait bir üzerine yazma olduğu için API URL veya model listesinden ayrı tutulur.
 
 ### Diğer İçerik Taşıyıcıları ve Modül Re-Export'ları
 
@@ -331,7 +331,7 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 
 ### `SandboxPermissionsContent`
 
-`SandboxPermissionsContent`, agent tarafından çalıştırılan terminal komutlarının sandbox yükseltme (unsandboxed) isteklerinde kalıcı izinleri ayar JSON dosyasına taşır. Yapı, `AgentSettingsContent.sandbox_permissions: Option<SandboxPermissionsContent>` alanının içeriğidir; eğer bu değer atanmamışsa, terminal sandbox izinleri prompt (kullanıcı onayı) sonucuna göre anlık olarak değerlendirilir.
+`SandboxPermissionsContent`, agent tarafından çalıştırılan terminal komutlarının sandbox yükseltme isteklerinde kalıcı izinleri ayar JSON dosyasına taşır. Yapı, `AgentSettingsContent.sandbox_permissions: Option<SandboxPermissionsContent>` alanının içeriğidir; eğer bu değer atanmamışsa, terminal sandbox izinleri kullanıcı onayı sonucuna göre anlık olarak değerlendirilir.
 
 | Grup | API | Not |
 |---|---|---|
