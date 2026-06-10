@@ -35,8 +35,8 @@
       .note-title { font: 800 18px system-ui, -apple-system, sans-serif; }
       .note-body { font: 500 14px system-ui, -apple-system, sans-serif; }
 
-      .arrow-line { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
-      .bus-line { stroke: #94a3b8; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+      .arrow-line { stroke: #64748b; stroke-width: 3; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
+      .bus-line { stroke: #64748b; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 
       /* Akış canlandırması: kaynaktan tüketiciye akan kesik çizgi */
       .flow { stroke-dasharray: 7 7; animation: flow 9s linear infinite; }
@@ -54,6 +54,8 @@
   <text x="580" y="72" class="sub">Gömülü veya disk kaynaklı varlıklar, AssetSource üzerinden tipli tüketim yüzeylerine ayrılır.</text>
 
   <!-- ================= ÜST KAYNAK BÖLÜMÜ ================= -->
+
+  <path d="M 340 175 H 392" class="arrow-line flow" />
   <g transform="translate(60, 110)">
     <rect width="280" height="130" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
     <text x="22" y="36" class="c-title">Kaynaklar</text>
@@ -62,8 +64,8 @@
     <text x="22" y="120" class="c-body">• Testte fake veya dış asset</text>
   </g>
 
-  <path d="M 350 175 H 392" class="arrow-line flow" />
 
+  <path d="M 690 175 H 762" class="arrow-line flow" />
   <g transform="translate(400, 110)">
     <rect width="290" height="130" rx="12" fill="url(#g-violet)" filter="url(#shadow)" />
     <text x="22" y="36" class="c-title">AssetSource</text>
@@ -72,7 +74,6 @@
     <text x="22" y="120" class="c-body">• Cache ve hata raporlama katmanı</text>
   </g>
 
-  <path d="M 690 175 H 762" class="arrow-line flow" />
 
   <g transform="translate(770, 110)">
     <rect width="330" height="130" rx="12" fill="url(#g-green)" filter="url(#shadow)" />
@@ -86,11 +87,11 @@
   <path d="M 545 240 V 280" class="bus-line" />
   <path d="M 165 280 H 1030" class="bus-line" />
 
-  <path d="M 165 280 V 320" class="arrow-line flow" />
-  <path d="M 400 280 V 320" class="arrow-line flow" />
-  <path d="M 635 280 V 320" class="arrow-line flow" />
-  <path d="M 870 280 V 320" class="arrow-line flow" />
-  <path d="M 1030 280 V 510 H 752" class="arrow-line flow" />
+  <path d="M 165 280 V 320" class="arrow-line" />
+  <path d="M 400 280 V 320" class="arrow-line" />
+  <path d="M 635 280 V 320" class="arrow-line" />
+  <path d="M 870 280 V 320" class="arrow-line" />
+  <path d="M 1030 280 V 510 H 752" class="arrow-line" />
 
   <!-- ================= ALT TÜKETİCİ PANELLERİ ================= -->
   <!-- 1. SVG / Icon -->

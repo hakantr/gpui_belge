@@ -80,7 +80,7 @@
 
   <!-- ================= BAĞLANTILAR (önce çizilir, kartların altında kalır) ================= -->
   <!-- Idle -> Mouse Down -->
-  <path d="M 340 200 H 410" class="pipeline-arrow flow" />
+  <path d="M 310 200 H 410" class="pipeline-arrow flow" />
   <text x="375" y="190" class="edge">on_mouse_down</text>
 
   <!-- Mouse Down -> Dragging -->
@@ -121,12 +121,12 @@
 
   <!-- ================= KARTLAR (NODES) ================= -->
   <!-- Idle -->
-  <g transform="translate(60, 140)">
-    <rect width="280" height="130" rx="12" fill="url(#g-slate)" class="card" />
-    <text x="140" y="34" class="c-title">Idle</text>
-    <text x="20" y="64" class="c-mono">cx.has_active_drag() -&gt; false</text>
-    <text x="20" y="86" class="c-mono">window.insert_hitbox(</text>
-    <text x="20" y="106" class="c-mono">  bounds, behavior)</text>
+  <g transform="translate(70, 140)">
+    <rect width="256" height="125" rx="12" fill="url(#g-slate)" class="card" />
+    <text x="120" y="34" class="c-title">Idle</text>
+    <text x="8" y="64" class="c-mono">cx.has_active_drag() -&gt; false</text>
+    <text x="8" y="86" class="c-mono">window.insert_hitbox(</text>
+    <text x="8" y="106" class="c-mono">  bounds, behavior)</text>
   </g>
 
   <!-- Mouse Down -->

@@ -85,6 +85,8 @@
   <text x="620" y="74" class="sub">OS olaylarının eşzamansız ve eşzamanlı kuyruklar üzerinden dağıtımı</text>
 
   <!-- ================= 1. İŞLETİM SİSTEMİ ================= -->
+
+  <path d="M 340 250 H 465" class="arrow-line flow" stroke="#e11d48" />
   <g transform="translate(60, 150)">
     <rect width="280" height="200" fill="url(#g-rose)" stroke="#be123c" class="card" />
     <text x="140" y="40" class="c-title" style="fill:#be123c">İşletim Sistemi (OS)</text>
@@ -94,11 +96,12 @@
     <text x="140" y="135" class="box-text" style="fill:#9f1239">PlatformWindow</text>
   </g>
 
-  <path d="M 340 250 H 470" class="arrow-line flow" stroke="#e11d48" />
   <rect class="edge-chip" x="357" y="227" width="96" height="22" />
   <text x="405" y="242" class="edge" style="fill:#e11d48">OS Olayları</text>
 
   <!-- ================= 2. PLATFORM DISPATCHER ================= -->
+
+  <path d="M 750 250 H 875" class="arrow-line flow" stroke="#059669" />
   <g transform="translate(470, 150)">
     <rect width="280" height="200" fill="url(#g-amber)" stroke="#d97706" class="card" />
     <text x="140" y="40" class="c-title" style="fill:#d97706">PlatformDispatcher</text>
@@ -108,10 +111,12 @@
     <text x="140" y="135" class="box-text" style="fill:#b45309">Olay Kuyruğu (Queue)</text>
   </g>
 
-  <path d="M 750 250 H 880" class="arrow-line flow" stroke="#059669" />
   <rect class="edge-chip" x="780" y="227" width="70" height="22" />
   <text x="815" y="242" class="edge" style="fill:#059669">Dağıtım</text>
 
+
+  <path d="M 1020 350 V 530 H 755" class="arrow-line flow" stroke="#0284c7" />
+  <path d="M 610 440 V 355" class="arrow-line flow" stroke="#d97706" />
   <!-- ================= 3. ANA İŞ PARÇACIĞI ================= -->
   <g transform="translate(880, 150)">
     <rect width="280" height="200" fill="url(#g-emerald)" stroke="#059669" class="card" />
@@ -133,11 +138,11 @@
   </g>
 
   <!-- Olay Döngüsü Oklar -->
-  <path d="M 1020 350 V 530 H 750" class="arrow-line flow" stroke="#0284c7" />
+
   <rect class="edge-chip" x="800" y="514" width="136" height="22" />
   <text x="868" y="529" class="edge" style="fill:#0284c7">background_spawn</text>
 
-  <path d="M 610 440 V 350" class="arrow-line flow" stroke="#d97706" />
+
   <rect class="edge-chip" x="570" y="384" width="92" height="22" />
   <text x="616" y="399" class="edge" style="fill:#d97706">cx.update()</text>
 

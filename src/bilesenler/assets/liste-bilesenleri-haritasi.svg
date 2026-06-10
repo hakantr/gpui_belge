@@ -5,7 +5,7 @@
       <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
     </filter>
     <marker id="arrow" viewBox="0 0 1 1" refX="0.6" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#64748b" />
+      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#94a3b8" />
     </marker>
 
     <!-- Degradeler -->
@@ -46,7 +46,7 @@
       .card { fill: url(#g-card); stroke: #e2e8f0; stroke-width: 1.5; }
 
       /* Akan kesik çizgi animasyonu (sol bileşenler List'e akar, List'ten sağa) */
-      .flow { stroke: #94a3b8; stroke-width: 2.2; fill: none; stroke-linecap: round;
+      .flow { stroke: #94a3b8; stroke-width: 2.2; fill: none; stroke-linecap: round; marker-end: url(#arrow);
               stroke-dasharray: 7 9; animation: dash 9s linear infinite; }
       @keyframes dash { to { stroke-dashoffset: -160; } }
       @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
@@ -57,16 +57,6 @@
 
   <text x="500" y="46" text-anchor="middle" class="title">Liste ve Tree Bileşenleri Haritası</text>
   <text x="500" y="74" text-anchor="middle" class="subtitle">Her bileşenin rolü ve Liste içindeki hiyerarşik yeri</text>
-
-  <!-- Sol Bağlantılar (Gelenler) -->
-  <path d="M 230 115 C 300 115 300 175 350 175" class="arrow-line" />
-  <path d="M 230 175 L 350 175" class="arrow-line" />
-  <path d="M 230 235 C 300 235 300 175 350 175" class="arrow-line" />
-
-  <!-- Sağ Bağlantılar (Gidenler) -->
-  <path d="M 650 175 C 700 175 700 115 750 115" class="arrow-line" />
-  <path d="M 650 175 L 750 175" class="arrow-line" />
-  <path d="M 650 175 C 700 175 700 235 750 235" class="arrow-line" />
 
   <!-- Akan kesik çizgiler (oklarla aynı yol, dikkat çekici akış) -->
   <path d="M 230 115 C 300 115 300 175 350 175" class="flow" />

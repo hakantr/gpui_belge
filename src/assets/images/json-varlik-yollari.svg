@@ -5,7 +5,7 @@
       <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
     </filter>
     <marker id="arrow" viewBox="0 0 1 1" refX="0.6" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#64748b" />
+      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#94a3b8" />
     </marker>
 
     <linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1">
@@ -42,8 +42,7 @@
       .body { font: 600 14px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.95; text-anchor: middle; }
       .when { font: 700 12px system-ui, -apple-system, sans-serif; fill: #ffffff; opacity: 0.82; letter-spacing: 0.4px; text-anchor: middle; }
 
-      .arrow-line { stroke: #64748b; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-linejoin: round; }
-      .flow { stroke: #94a3b8; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-dasharray: 7 9; animation: flow 9s linear infinite; }
+      .flow { stroke: #94a3b8; stroke-width: 2.5; fill: none; marker-end: url(#arrow); stroke-linecap: round; stroke-dasharray: 7 9; animation: flow 9s linear infinite; }
 
       @keyframes flow { from { stroke-dashoffset: 32; } to { stroke-dashoffset: 0; } }
       @media (prefers-reduced-motion: reduce) { .flow { animation: none; } }
@@ -56,6 +55,12 @@
   <text x="500" y="76" class="sub">Aynı dosya formatı dört farklı runtime sözleşmesine akar.</text>
 
   <!-- ================= 4 KANALLI BAŞLANGIÇ ================= -->
+    <!-- ================= OKLAR YUKARI -> MERKEZ ================= -->
+  <path d="M 155 222 C 155 252 500 247 500 277" class="flow" />
+  <path d="M 385 222 C 385 252 500 247 500 277" class="flow" />
+  <path d="M 615 222 C 615 252 500 247 500 277" class="flow" />
+  <path d="M 845 222 C 845 252 500 247 500 277" class="flow" />
+
   <!-- 1. THEMES -->
   <g transform="translate(60, 118)">
     <rect width="190" height="104" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
@@ -88,31 +93,18 @@
     <text x="95" y="88" class="when">README Rozeti</text>
   </g>
 
-  <!-- ================= OKLAR YUKARI -> MERKEZ ================= -->
-  <path d="M 155 222 C 155 252 500 252 500 282" class="flow" />
-  <path d="M 385 222 C 385 252 500 252 500 282" class="flow" />
-  <path d="M 615 222 C 615 252 500 252 500 282" class="flow" />
-  <path d="M 845 222 C 845 252 500 252 500 282" class="flow" />
-  <path d="M 155 222 C 155 252 500 252 500 282" class="arrow-line" />
-  <path d="M 385 222 C 385 252 500 252 500 282" class="arrow-line" />
-  <path d="M 615 222 C 615 252 500 252 500 282" class="arrow-line" />
-  <path d="M 845 222 C 845 252 500 252 500 282" class="arrow-line" />
-
   <!-- ================= MERKEZ ================= -->
+  <!-- ================= OKLAR MERKEZ -> AŞAĞI ================= -->
+  <path d="M 500 374 C 500 404 275 399 275 427" class="flow" />
+  <path d="M 500 374 V 427" class="flow" />
+  <path d="M 500 374 C 500 404 725 399 725 427" class="flow" />
+
   <g transform="translate(390, 282)">
     <rect width="220" height="92" rx="12" fill="url(#g-slate)" stroke="#38bdf8" stroke-width="2" filter="url(#shadow)" />
     <text x="110" y="36" class="api">AssetSource</text>
     <text x="110" y="58" class="body" style="font-family:ui-monospace,SFMono-Regular,monospace">asset_str / list</text>
     <text x="110" y="78" class="when">Dosyayı Yalnız Taşır</text>
   </g>
-
-  <!-- ================= OKLAR MERKEZ -> AŞAĞI ================= -->
-  <path d="M 500 374 C 500 404 275 404 275 432" class="flow" />
-  <path d="M 500 374 V 432" class="flow" />
-  <path d="M 500 374 C 500 404 725 404 725 432" class="flow" />
-  <path d="M 500 374 C 500 404 275 404 275 432" class="arrow-line" />
-  <path d="M 500 374 V 432" class="arrow-line" />
-  <path d="M 500 374 C 500 404 725 404 725 432" class="arrow-line" />
 
   <!-- ================= HEDEF TÜKETİCİLER ================= -->
   <g transform="translate(180, 432)">

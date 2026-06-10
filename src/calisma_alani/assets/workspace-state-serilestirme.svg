@@ -72,6 +72,7 @@
   <text x="500" y="74" class="sub">SerializableItem durumunun SQLite veritabanı üzerinden yönetimi</text>
 
   <!-- ================= WORKSPACE UI ================= -->
+  <path d="M 360 190 L 620 190" class="arrow-vi flow" />
   <g transform="translate(80, 140)">
     <rect width="280" height="220" rx="12" fill="url(#g-emerald)" class="card" />
     <text x="140" y="40" class="api">Workspace UI</text>
@@ -88,6 +89,7 @@
   </g>
 
   <!-- ================= SQLITE DB ================= -->
+  <path d="M 640 300 L 380 300" class="arrow-sk flow" />
   <g transform="translate(640, 140)">
     <rect width="280" height="220" rx="12" fill="url(#g-amber)" class="card" />
     <text x="140" y="40" class="api">SQLite DB</text>
@@ -104,12 +106,11 @@
   <!-- ================= OKLAR ================= -->
 
   <!-- Serialize -->
-  <path d="M 360 190 L 620 190" class="arrow-vi flow" />
+
   <text x="490" y="180" class="api pulse-vi" font-size="18" style="fill:#7c3aed">serialize()</text>
   <text x="490" y="210" class="body" font-size="12" style="fill:#64748b">Kapanırken / Değişiklikte</text>
 
   <!-- Deserialize -->
-  <path d="M 640 300 L 380 300" class="arrow-sk flow-rev" />
   <text x="510" y="290" class="api pulse-sk" font-size="18" style="fill:#0284c7">deserialize()</text>
   <text x="510" y="320" class="body" font-size="12" style="fill:#64748b">Oturum Yeniden Açılırken</text>
 

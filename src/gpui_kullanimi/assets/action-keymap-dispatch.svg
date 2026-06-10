@@ -69,6 +69,7 @@
   <text x="560" y="76" class="sub">Platform girdisi bağlam yığını ve keymap eşleşmesi üzerinden action dinleyicilerine ulaşır.</text>
 
   <!-- ================= ADIM 1, 2, 3 ================= -->
+  <path d="M 360 185 H 410" class="arrow-line flow" />
   <g transform="translate(60, 112)" class="step s1">
     <rect width="300" height="146" rx="12" fill="url(#g-sky)" class="card" />
     <text x="150" y="34" class="c-title">1. Platform Girdisi</text>
@@ -78,8 +79,7 @@
     <text x="20" y="135" class="c-body">  → Window event loop.</text>
   </g>
 
-  <path d="M 370 185 H 410" class="arrow-line flow" />
-
+  <path d="M 720 185 H 770" class="arrow-line flow" />
   <g transform="translate(420, 112)" class="step s2">
     <rect width="300" height="146" rx="12" fill="url(#g-green)" class="card" />
     <text x="150" y="34" class="c-title">2. Bağlam Yığını</text>
@@ -89,7 +89,7 @@
     <text x="20" y="137" class="c-mono">  ("Editor mode=insert")</text>
   </g>
 
-  <path d="M 730 185 H 770" class="arrow-line flow" />
+
 
   <g transform="translate(780, 112)" class="step s3">
     <rect width="280" height="146" rx="12" fill="url(#g-purple)" class="card" />
@@ -108,6 +108,7 @@
   </g>
 
   <!-- ================= ADIM 4 & 5 ================= -->
+  <path d="M 360 469 H 410" class="arrow-line flow" />
   <g transform="translate(60, 384)" class="step s4">
     <rect width="300" height="170" rx="12" fill="url(#g-amber)" class="card" />
     <text x="150" y="34" class="c-title">4. Action Üretilir</text>
@@ -116,7 +117,7 @@
     <text x="20" y="132" class="c-mono">  cx.dispatch_action(&amp;Kaydet)</text>
   </g>
 
-  <path d="M 370 469 H 410" class="arrow-line flow" />
+
 
   <g transform="translate(420, 384)" class="step s5">
     <rect width="640" height="190" rx="12" fill="url(#g-orange)" class="card" />
@@ -133,8 +134,9 @@
   </g>
 
   <!-- ================= ADIM 6 & 7 & KAYIT ================= -->
+  <path d="M 400 660 H 440" class="arrow-line flow" />
   <g transform="translate(60, 580)" class="step s6">
-    <rect width="330" height="160" rx="12" fill="url(#g-rose)" class="card" />
+    <rect width="340" height="160" rx="12" fill="url(#g-rose)" class="card" />
     <text x="165" y="34" class="c-title">6. Dinleyici Çalışır</text>
     <text x="20" y="68" class="c-mono">• .on_action(cx.listener(</text>
     <text x="20" y="88" class="c-mono">  |view, _: &amp;Kaydet, window, cx| { ... }))</text>
@@ -143,7 +145,7 @@
     <text x="20" y="152" class="c-mono">• window.prevent_default</text>
   </g>
 
-  <path d="M 400 660 H 440" class="arrow-line flow" />
+
 
   <g transform="translate(450, 580)" class="step s7">
     <rect width="270" height="160" rx="12" fill="url(#g-slate)" class="card" />

@@ -124,7 +124,7 @@
   </g>
 
   <!-- Dinamik durum etiketi: koyu çip üzerinde, sırayla değişir -->
-  <rect x="290" y="438" width="280" height="36" rx="18" fill="url(#g-chip)" filter="url(#shadow)" />
+  <rect x="280" y="438" width="300" height="33" rx="18" fill="url(#g-chip)" filter="url(#shadow)" />
   <g transform="translate(430, 457)">
     <text class="state-txt state-1 label-state">h_flex().justify_start()</text>
     <text class="state-txt state-2 label-state">h_flex().justify_between()</text>

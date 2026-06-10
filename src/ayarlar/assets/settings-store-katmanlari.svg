@@ -68,6 +68,13 @@
   <text x="500" y="71" class="sub">Kaynaklar merge edilir, tipli Settings değerleri birleşik içerikten (SettingsContent) üretilir.</text>
 
   <!-- ================= KATMANLAR ================= -->
+  <!-- ================= OKLAR 1 (kaynak -> merge) ================= -->
+  <path d="M 320 143 C 372 143 392 259 412 259" class="arrow-line flow" />
+  <path d="M 320 201 C 372 201 392 259 412 259" class="arrow-line flow" />
+  <path d="M 320 259 H 412" class="arrow-line flow" />
+  <path d="M 320 317 C 372 317 392 259 412 259" class="arrow-line flow" />
+  <path d="M 320 375 C 372 375 392 259 412 259" class="arrow-line flow" />
+
   <text x="190" y="106" class="section">KAYNAK KATMANLARI</text>
   <g transform="translate(60, 120)">
     <rect y="0" width="260" height="46" rx="8" fill="url(#g-slate1)" class="layer" />
@@ -86,24 +93,17 @@
     <text x="130" y="261" class="l-name">Project Local</text>
   </g>
 
-  <!-- ================= OKLAR 1 (kaynak -> merge) ================= -->
-  <path d="M 320 143 C 372 143 392 263 412 263" class="arrow-line flow" />
-  <path d="M 320 201 C 372 201 392 263 412 263" class="arrow-line flow" />
-  <path d="M 320 259 H 412" class="arrow-line flow" />
-  <path d="M 320 317 C 372 317 392 263 412 263" class="arrow-line flow" />
-  <path d="M 320 375 C 372 375 392 263 412 263" class="arrow-line flow" />
-
   <!-- ================= MERGE FROM ================= -->
+  <!-- ================= OKLAR 2 (merge -> üretim / gözlem) ================= -->
+  <path d="M 620 233 C 672 233 690 172 720 172" class="arrow-line flow" />
+  <path d="M 620 293 C 672 293 690 312 720 312" class="arrow-line flow" />
+
   <g transform="translate(420, 205)">
     <rect width="200" height="116" rx="12" fill="url(#g-green)" class="card pulse" />
     <text x="100" y="42" class="api">merge_from()</text>
     <text x="100" y="71" class="body">Öncelik Sırasıyla</text>
     <text x="100" y="97" class="when">MERGED_SETTINGS</text>
   </g>
-
-  <!-- ================= OKLAR 2 (merge -> üretim / gözlem) ================= -->
-  <path d="M 620 233 C 672 233 690 172 720 172" class="arrow-line flow" />
-  <path d="M 620 293 C 672 293 690 312 720 312" class="arrow-line flow" />
 
   <!-- ================= TYPE GENERATION ================= -->
   <text x="835" y="106" class="section">TÜKETİM</text>

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 700">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620">
   <title>Ham GPUI Primitive Karar Akışı</title>
   <defs>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -200,7 +200,7 @@
   </g>
 
   <!-- Alt not -->
-  <text x="600" y="572" text-anchor="middle" class="note">Önce ui::* ara; yoksa amaca en yakın primitive ile kompozisyon kur.</text>
-  <text x="600" y="594" text-anchor="middle" class="note">Token, focus ve erişilebilirliği elle taşımayı unutma.</text>
+  <text x="700" y="572" text-anchor="middle" class="note">Önce ui::* ara; yoksa amaca en yakın primitive ile kompozisyon kur.</text>
+  <text x="700" y="594" text-anchor="middle" class="note">Token, focus ve erişilebilirliği elle taşımayı unutma.</text>
 
 </svg>

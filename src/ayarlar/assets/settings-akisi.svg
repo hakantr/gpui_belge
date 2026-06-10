@@ -91,6 +91,15 @@
   <!-- ================= 6 ADIM KAYNAK KARTLARI ================= -->
   <!-- Genişlik: 170, Boşluk: 20 -> Toplam (6*170 + 5*20) = 1020 + 100 = 1120. Merkez=600 -> Sol=40 -->
 
+    <!-- ================= MERGE OKLARI ================= -->
+  <path d="M 125 240 C 125 310 600 280 600 320" class="arrow-line merge" />
+  <path d="M 315 240 C 315 310 600 280 600 320" class="arrow-line merge" />
+  <path d="M 505 240 C 505 310 600 280 600 320" class="arrow-line merge" />
+
+  <path d="M 695 240 C 695 310 600 280 600 320" class="arrow-line merge" />
+  <path d="M 885 240 C 885 310 600 280 600 320" class="arrow-line merge" />
+  <path d="M 1075 240 C 1075 310 600 280 600 320" class="arrow-line merge" />
+
   <!-- 1. Default -->
   <g class="src s1" transform="translate(40, 110)">
     <rect width="170" height="130" rx="12" fill="url(#g-sky)" filter="url(#shadow)" />
@@ -151,16 +160,9 @@
     <text x="85" y="112" class="c-body">yalnız runtime.</text>
   </g>
 
-  <!-- ================= MERGE OKLARI ================= -->
-  <path d="M 125 240 C 125 310 590 280 590 320" class="arrow-line merge" />
-  <path d="M 315 240 C 315 310 590 280 590 320" class="arrow-line merge" />
-  <path d="M 505 240 C 505 310 590 280 590 320" class="arrow-line merge" />
-
-  <path d="M 695 240 C 695 310 610 280 610 320" class="arrow-line merge" />
-  <path d="M 885 240 C 885 310 610 280 610 320" class="arrow-line merge" />
-  <path d="M 1075 240 C 1075 310 610 280 610 320" class="arrow-line merge" />
-
   <!-- ================= MERGE SONUCU ================= -->
+  <path d="M 600 445 L 600 472" class="arrow-line merge" />
+
   <g transform="translate(170, 335)">
     <rect width="860" height="110" rx="12" fill="url(#g-amber)" filter="url(#shadow)" />
     <text x="430" y="32" class="p-title">SettingsContent — Merge Sonucu</text>
@@ -169,9 +171,9 @@
     <text x="24" y="100" class="p-body">• SettingsStore::recompute() dosya değişiminden sonra zinciri yeniden hesaplar.</text>
   </g>
 
-  <path d="M 600 445 L 600 472" class="arrow-line pulse" />
-
   <!-- ================= GLOBAL STORE ================= -->
+
+  <path d="M 600 595 L 600 622" class="arrow-line merge" />
   <g transform="translate(120, 485)">
     <rect width="960" height="110" rx="12" fill="url(#g-slate)" filter="url(#shadow)" />
     <text x="480" y="32" class="p-title">SettingsStore — Global, cx.set_global</text>
@@ -179,8 +181,6 @@
     <text x="24" y="80" class="p-body">• Her tipli ayar için Settings::from_settings(&amp;SettingsContent) çağrılır.</text>
     <text x="24" y="100" class="p-mono">• Okuma: T::get_global(cx), T::get(Some(SettingsLocation), cx), T::try_get(cx), T::try_read_global(async_cx, …).</text>
   </g>
-
-  <path d="M 600 595 L 600 622" class="arrow-line pulse" />
 
   <!-- ================= UI TÜKETİM ================= -->
   <g transform="translate(120, 635)">
