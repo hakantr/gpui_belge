@@ -8,8 +8,8 @@
       <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#0284c7" flood-opacity="0.45" />
     </filter>
 
-    <marker id="arrow" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#e11d48" />
+    <marker id="arrow" viewBox="0 0 1 1" refX="0.6" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#e11d48" />
     </marker>
 
     <linearGradient id="g-field" x1="0" y1="0" x2="0" y2="1">

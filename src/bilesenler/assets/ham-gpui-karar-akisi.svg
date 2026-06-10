@@ -8,14 +8,14 @@
       <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38bdf8" flood-opacity="0.55" />
     </filter>
 
-    <marker id="arrow" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#64748b" />
+    <marker id="arrow" viewBox="0 0 1 1" refX="0.6" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#64748b" />
     </marker>
-    <marker id="arrow-green" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#10b981" />
+    <marker id="arrow-green" viewBox="0 0 1 1" refX="0.6" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#10b981" />
     </marker>
-    <marker id="arrow-blue" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#0ea5e9" />
+    <marker id="arrow-blue" viewBox="0 0 1 1" refX="0.6" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#0ea5e9" />
     </marker>
 
     <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">

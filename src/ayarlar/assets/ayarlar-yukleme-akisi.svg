@@ -22,11 +22,11 @@
       <stop offset="0" stop-color="#10b981" /><stop offset="1" stop-color="#059669" />
     </linearGradient>
 
-    <marker id="arrowAmber" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#d97706" />
+    <marker id="arrowAmber" viewBox="0 0 1 1" refX="0.6" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#d97706" />
     </marker>
-    <marker id="arrowEmerald" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
-      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#059669" />
+    <marker id="arrowEmerald" viewBox="0 0 1 1" refX="0.6" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.6 0 L -1.6 1.9 L -1.6 -1.9 Z" fill="#059669" />
     </marker>
 
     <style>
