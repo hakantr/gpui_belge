@@ -4,8 +4,8 @@
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
     </filter>
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
+    <marker id="arrow" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#64748b" />
     </marker>
 
     <linearGradient id="g-teal" x1="0" y1="0" x2="0" y2="1">
@@ -89,8 +89,8 @@
   <g transform="translate(580, 100)">
     <rect width="180" height="120" rx="12" fill="url(#g-green)" class="card" />
     <text x="90" y="35" class="api">svg()</text>
-    <text x="20" y="68" class="body">• alpha mask</text>
-    <text x="20" y="90" class="body">• current color</text>
+    <text x="20" y="68" class="body">• Alfa maskesi</text>
+    <text x="20" y="90" class="body">• Geçerli renk</text>
     <text x="20" y="111" class="when">SvgRenderer</text>
   </g>
 
@@ -107,27 +107,27 @@
     <rect width="180" height="120" rx="12" fill="url(#g-amber)" class="card" />
     <text x="90" y="35" class="api">Raster Yol</text>
     <text x="20" y="68" class="body">• Renkler korunur</text>
-    <text x="20" y="90" class="body">• Format loader seçer</text>
+    <text x="20" y="90" class="body">• Biçim yükleyici seçer</text>
     <text x="20" y="111" class="when">ImageAssetLoader</text>
   </g>
 
   <!-- ================= UI RENDER ================= -->
   <g transform="translate(820, 180)">
     <rect width="140" height="120" rx="12" fill="url(#g-slate)" class="card" />
-    <text x="70" y="35" class="api">UI Engine</text>
-    <text x="20" y="68" class="body">• Icon</text>
-    <text x="20" y="90" class="body">• Vector</text>
-    <text x="20" y="111" class="when">Theme Aware</text>
+    <text x="70" y="35" class="api">UI Motoru</text>
+    <text x="20" y="68" class="body">• İkon</text>
+    <text x="20" y="90" class="body">• Vektör</text>
+    <text x="20" y="111" class="when">Tema Duyarlı</text>
   </g>
 
   <!-- ================= OK ETİKETLERİ ================= -->
   <g>
-    <rect x="258" y="183" width="50" height="24" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
-    <text x="283" y="199" font-family="system-ui" font-weight="800" font-size="13" fill="#10b981" text-anchor="middle">EVET</text>
+    <rect x="270" y="182" width="26" height="26" rx="8" fill="#f8fafc" stroke="#bbf7d0" stroke-width="1.5" />
+    <text x="283" y="200" font-family="system-ui" font-weight="800" font-size="15" fill="#10b981" text-anchor="middle">E</text>
   </g>
   <g>
-    <rect x="253" y="273" width="60" height="24" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
-    <text x="283" y="289" font-family="system-ui" font-weight="800" font-size="13" fill="#e11d48" text-anchor="middle">HAYIR</text>
+    <rect x="270" y="272" width="26" height="26" rx="8" fill="#f8fafc" stroke="#fecdd3" stroke-width="1.5" />
+    <text x="283" y="290" font-family="system-ui" font-weight="800" font-size="15" fill="#e11d48" text-anchor="middle">H</text>
   </g>
 
 </svg>

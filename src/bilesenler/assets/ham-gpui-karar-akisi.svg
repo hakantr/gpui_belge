@@ -8,14 +8,14 @@
       <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38bdf8" flood-opacity="0.55" />
     </filter>
 
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#64748b" />
+    <marker id="arrow" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#64748b" />
     </marker>
-    <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#10b981" />
+    <marker id="arrow-green" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#10b981" />
     </marker>
-    <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#0ea5e9" />
+    <marker id="arrow-blue" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#0ea5e9" />
     </marker>
 
     <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
@@ -102,10 +102,10 @@
   </g>
 
   <!-- Evet → ui::* -->
-  <path d="M 310 136 L 232 136" class="arrow-green" />
-  <g transform="translate(376,98)">
-    <rect x="0" y="0" width="60" height="22" rx="11" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" />
-    <text x="30" y="15" text-anchor="middle" class="chip" fill="#059669">Evet</text>
+  <path d="M 308 136 L 216 136" class="arrow-green" />
+  <g transform="translate(249,106)">
+    <rect x="0" y="0" width="26" height="24" rx="8" fill="#f8fafc" stroke="#bbf7d0" stroke-width="1.5" />
+    <text x="13" y="16" text-anchor="middle" class="chip" fill="#059669">E</text>
   </g>
   <rect x="40" y="100" width="170" height="72" rx="12" fill="url(#g-emerald)" class="card" />
   <text x="125" y="128" text-anchor="middle" class="api">ui::*</text>
@@ -114,9 +114,9 @@
 
   <!-- Hayır → aşağı -->
   <path d="M 480 168 L 480 200" class="arrow-blue" />
-  <g transform="translate(496,170)">
-    <rect x="0" y="0" width="66" height="22" rx="11" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1" />
-    <text x="33" y="15" text-anchor="middle" class="chip" fill="#e11d48">Hayır</text>
+  <g transform="translate(491,170)">
+    <rect x="0" y="0" width="26" height="24" rx="8" fill="#f8fafc" stroke="#fecdd3" stroke-width="1.5" />
+    <text x="13" y="16" text-anchor="middle" class="chip" fill="#e11d48">H</text>
   </g>
 
   <!-- ===== Karar düğümü 2 ===== -->

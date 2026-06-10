@@ -35,8 +35,8 @@
       <stop offset="1" stop-color="#0284c7" />
     </linearGradient>
 
-    <marker id="arrow-z" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
-      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#0284c7" />
+    <marker id="arrow-z" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#0284c7" />
     </marker>
 
     <style>

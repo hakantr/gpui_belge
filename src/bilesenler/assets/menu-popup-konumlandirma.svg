@@ -9,8 +9,8 @@
     </filter>
 
     <!-- Anchor (kılavuz) oku — kırmızı: yön göstergesi -->
-    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto">
-      <path d="M 0 1 L 10 5 L 0 9 Z" fill="#e11d48" />
+    <marker id="arrow" viewBox="0 0 1 1" refX="0.4" refY="0" markerWidth="1" markerHeight="1" orient="auto-start-reverse" overflow="visible" preserveAspectRatio="xMidYMid">
+      <path d="M 1.4 0 L -1 1.5 L -1 -1.5 Z" fill="#e11d48" />
     </marker>
 
     <!-- Degradeler -->
@@ -49,17 +49,7 @@
       .cursor { fill: #0f172a; stroke: #ffffff; stroke-width: 2; }
       .note { font: 500 14px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
 
-      /* Popup ilk karede tam görünür; sonra nazik nabız (okunabilirlik korunur) */
-      .popup-anim { animation: popupPulse 9s ease-in-out infinite; }
-      @keyframes popupPulse {
-        0%   { opacity: 1; }
-        38%  { opacity: 1; }
-        50%  { opacity: 0.65; }
-        62%  { opacity: 1; }
-        100% { opacity: 1; }
-      }
       @media (prefers-reduced-motion: reduce) {
-        .popup-anim { animation: none; }
         .cursor-anim { animation: none; }
       }
     </style>
@@ -111,8 +101,9 @@
     <text x="580" y="272" class="guide-label">Right</text>
   </g>
 
-  <!-- ================= POPUP MENU (ilk karede görünür, nazik nabız) ================= -->
-  <g class="popup-anim">
+  <!-- ================= POPUP MENU (imleç tıkladığında görünür, başlangıca dönünce gizlenir) ================= -->
+  <g opacity="0">
+    <animate attributeName="opacity" dur="9s" repeatCount="indefinite" values="0;0;1;1;0;0" keyTimes="0;0.28;0.34;0.83;0.88;1" />
     <!-- Guide ok: trigger sol-altından menüye -->
     <path d="M 350 312 V 332" class="guide" />
     <rect x="392" y="318" width="118" height="20" rx="10" class="chip" />
@@ -144,8 +135,8 @@
         keySplines="0.4 0 0.2 1; 0 0 1 1; 0.4 0 0.2 1; 0 0 1 1" />
       <g>
         <animateTransform attributeName="transform" type="scale" dur="9s" repeatCount="indefinite"
-          values="1; 1; 0.85; 1; 1"
-          keyTimes="0; 0.30; 0.33; 0.36; 1" />
+          values="1; 1; 0.82; 1; 1; 0.82; 1; 1"
+          keyTimes="0; 0.30; 0.33; 0.37; 0.85; 0.88; 0.92; 1" />
         <polygon points="0,0 6,24 12,18 20,28 25,24 17,14 24,12" class="cursor" filter="url(#shadow-soft)" />
       </g>
     </g>

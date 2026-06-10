@@ -1,127 +1,128 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 540">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 860 470">
   <title>Buton Etkileşim Durum Matrisi</title>
   <defs>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#0f172a" flood-opacity="0.06" />
     </filter>
-    <filter id="btn-shadow" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#7c3aed" flood-opacity="0.32" />
+    <filter id="btn-shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="6" stdDeviation="9" flood-color="#7c3aed" flood-opacity="0.35" />
     </filter>
-    <linearGradient id="g-card" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#ffffff" />
-      <stop offset="1" stop-color="#f8fafc" />
+    <linearGradient id="g-panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" /><stop offset="1" stop-color="#f8fafc" />
     </linearGradient>
-    <linearGradient id="g-card-dim" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#f8fafc" />
-      <stop offset="1" stop-color="#f1f5f9" />
-    </linearGradient>
-    <linearGradient id="g-violet" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#8b5cf6" />
-      <stop offset="1" stop-color="#7c3aed" />
-    </linearGradient>
-    <linearGradient id="g-violet-hover" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#a78bfa" />
-      <stop offset="1" stop-color="#8b5cf6" />
-    </linearGradient>
-    <linearGradient id="g-violet-deep" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#7c3aed" />
-      <stop offset="1" stop-color="#5b21b6" />
-    </linearGradient>
-    <linearGradient id="g-slate" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#cbd5e1" />
-      <stop offset="1" stop-color="#94a3b8" />
+    <linearGradient id="g-stage" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5f3ff" /><stop offset="1" stop-color="#ede9fe" />
     </linearGradient>
     <style>
-      text { font-family: system-ui, -apple-system, sans-serif; }
-      .title { font: 800 26px system-ui; fill: #0f172a; letter-spacing: -0.5px; }
-      .subtitle { font: 500 16px system-ui; fill: #64748b; }
-      .card-title { font: 800 18px system-ui; fill: #0f172a; }
-      .btn-text { font: 700 15px system-ui; fill: #ffffff; }
-      .note { font: 500 14px system-ui; fill: #64748b; }
-      .note-violet { font: 700 14px system-ui; fill: #7c3aed; }
-      .note-rose { font: 700 14px system-ui; fill: #e11d48; }
-      .badge { font: 800 12px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; }
-      @keyframes pulseRing {
-        0%   { opacity: 1; }
-        50%  { opacity: 0.65; }
-        100% { opacity: 1; }
+      .bg { fill: #f8fafc; }
+      .title { font: 800 26px system-ui, -apple-system, sans-serif; fill: #0f172a; letter-spacing: -0.5px; text-anchor: middle; }
+      .sub { font: 500 16px system-ui, -apple-system, sans-serif; fill: #64748b; text-anchor: middle; }
+      .label-state { font: 800 18px ui-monospace, SFMono-Regular, monospace; fill: #7c3aed; text-anchor: middle; }
+      .btn-text { font: 800 17px system-ui, -apple-system, sans-serif; text-anchor: middle; dominant-baseline: middle; }
+      .info-card { fill: url(#g-panel); stroke: #e2e8f0; stroke-width: 1.5; rx: 12px; filter: url(#shadow); }
+      .card-accent { rx: 3px; }
+      .info-head { font: 800 14px system-ui, -apple-system, sans-serif; fill: #0f172a; }
+      .info-text { font: 600 13px system-ui, -apple-system, sans-serif; fill: #475569; }
+      .step-num { font: 800 13px ui-monospace, SFMono-Regular, monospace; fill: #ffffff; text-anchor: middle; }
+      .chip-text { font: 700 13px system-ui, -apple-system, sans-serif; }
+
+      /* Buton durum döngüsü: 8s, her durum 2s, ANLIK geçiş (step-end) */
+      @keyframes btn-cycle {
+        0%   { fill: #8b5cf6; stroke: #7c3aed; stroke-width: 0; }
+        25%  { fill: #a78bfa; stroke: #8b5cf6; stroke-width: 2; }
+        50%  { fill: #6d28d9; stroke: #5b21b6; stroke-width: 2; }
+        75%  { fill: #e2e8f0; stroke: #cbd5e1; stroke-width: 2; }
+        100% { fill: #8b5cf6; stroke: #7c3aed; stroke-width: 0; }
       }
-      @keyframes cardFocus {
-        0%, 100% { opacity: 1; }
-        50%      { opacity: 0.78; }
+      @keyframes btn-text-cycle {
+        0%   { fill: #ffffff; }
+        75%  { fill: #94a3b8; }
+        100% { fill: #ffffff; }
       }
-      .hover-ring { animation: pulseRing 9s ease-in-out infinite; }
-      .focus-card { animation: cardFocus 9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+      .target-btn { animation: btn-cycle 8s infinite step-end; }
+      .target-text { animation: btn-text-cycle 8s infinite step-end; }
       @media (prefers-reduced-motion: reduce) {
-        .hover-ring, .focus-card { animation: none; }
+        .target-btn, .target-text { animation: none; }
       }
     </style>
   </defs>
 
-  <rect width="100%" height="100%" rx="12" fill="#f8fafc" />
+  <rect width="100%" height="100%" rx="12" class="bg" />
 
-  <text x="430" y="48" text-anchor="middle" class="title">Buton Etkileşim Durum Matrisi</text>
-  <text x="430" y="76" text-anchor="middle" class="subtitle">Farklı durumlar altında butonun görsel değişim şeması</text>
+  <text x="430" y="48" class="title">Buton Etkileşim Durum Matrisi</text>
+  <text x="430" y="76" class="sub">Tek buton; dört etkileşim durumunu anlık geçişlerle sırayla gösterir.</text>
 
-  <!-- 1. Varsayılan (Normal) -->
-  <g transform="translate(80, 120)">
-    <rect width="320" height="160" rx="12" fill="url(#g-card)" stroke="#cbd5e1" stroke-width="1.5" filter="url(#shadow)" />
-    <rect x="16" y="16" width="38" height="20" rx="10" fill="#475569" />
-    <text x="35" y="30" text-anchor="middle" class="badge">01</text>
-    <text x="174" y="32" text-anchor="middle" class="card-title">Varsayılan (Normal)</text>
-
-    <g transform="translate(80, 66)">
-      <rect width="160" height="44" rx="8" fill="url(#g-violet)" filter="url(#shadow)" />
-      <text x="80" y="28" text-anchor="middle" class="btn-text">Onayla</text>
-    </g>
-
-    <text x="160" y="142" text-anchor="middle" class="note">Opaklık: 1.0 · imleç: işaretçi</text>
+  <!-- ================= SAHNE + ANIMASYONLU BUTON ================= -->
+  <g transform="translate(430, 196)">
+    <rect x="-150" y="-76" width="300" height="152" rx="16" fill="url(#g-stage)" stroke="#ddd6fe" stroke-width="1.5" filter="url(#shadow)" />
+    <text x="0" y="-50" fill="#7c3aed" text-anchor="middle" style="font: 700 12px ui-monospace, SFMono-Regular, monospace;">Etkileşim Sahnesi</text>
+    <rect class="target-btn" x="-95" y="-24" width="190" height="50" rx="10" filter="url(#btn-shadow)" />
+    <text x="0" y="2" class="btn-text target-text">Onayla</text>
   </g>
 
-  <!-- 2. Üzerinde (Hover) -->
-  <g transform="translate(460, 120)">
-    <rect width="320" height="160" rx="12" fill="url(#g-card)" stroke="#7c3aed" stroke-width="2" filter="url(#shadow)" />
-    <rect x="16" y="16" width="38" height="20" rx="10" fill="#7c3aed" />
-    <text x="35" y="30" text-anchor="middle" class="badge">02</text>
-    <text x="178" y="32" text-anchor="middle" class="card-title">Üzerinde (Hover)</text>
-
-    <g transform="translate(80, 66)">
-      <rect class="hover-ring" x="-6" y="-6" width="172" height="56" rx="11" fill="#8b5cf6" fill-opacity="0.18" />
-      <rect width="160" height="44" rx="8" fill="url(#g-violet-hover)" filter="url(#btn-shadow)" />
-      <text x="80" y="28" text-anchor="middle" class="btn-text">Onayla</text>
-    </g>
-
-    <text x="160" y="142" text-anchor="middle" class="note-violet">Gölge vurgusu · parlaklık artışı</text>
+  <!-- ================= DURUM ETİKETİ (animasyonlu, anlık) ================= -->
+  <g transform="translate(430, 306)">
+    <text class="label-state" opacity="1">Durum: Varsayılan (Normal)
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete" values="1;0;0;0;1" keyTimes="0;0.25;0.5;0.75;1" />
+    </text>
+    <text class="label-state" opacity="0" style="fill:#8b5cf6">Durum: Üzerinde (Hover)
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete" values="0;1;0;0;0" keyTimes="0;0.25;0.5;0.75;1" />
+    </text>
+    <text class="label-state" opacity="0" style="fill:#6d28d9">Durum: Basılı (Pressed)
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete" values="0;0;1;0;0" keyTimes="0;0.25;0.5;0.75;1" />
+    </text>
+    <text class="label-state" opacity="0" style="fill:#94a3b8">Durum: Pasif (Disabled)
+      <animate attributeName="opacity" dur="8s" repeatCount="indefinite" calcMode="discrete" values="0;0;0;1;0" keyTimes="0;0.25;0.5;0.75;1" />
+    </text>
   </g>
 
-  <!-- 3. Basılı (Active) -->
-  <g transform="translate(80, 320)">
-    <rect width="320" height="160" rx="12" fill="url(#g-card)" stroke="#e11d48" stroke-width="2" filter="url(#shadow)" />
-    <rect x="16" y="16" width="38" height="20" rx="10" fill="#e11d48" />
-    <text x="35" y="30" text-anchor="middle" class="badge">03</text>
-    <text x="180" y="32" text-anchor="middle" class="card-title">Basılı (Active)</text>
-
-    <g transform="translate(86, 70)">
-      <rect width="148" height="38" rx="8" fill="url(#g-violet-deep)" />
-      <text x="74" y="25" text-anchor="middle" class="btn-text">Onayla</text>
-    </g>
-
-    <text x="160" y="142" text-anchor="middle" class="note-rose">Küçülme (0.96) · koyu ton</text>
+  <!-- ================= SOL KART: Normal + Hover ================= -->
+  <g transform="translate(30, 140)">
+    <rect width="262" height="128" class="info-card" />
+    <rect x="0" y="14" width="5" height="100" class="card-accent" fill="#8b5cf6" />
+    <circle cx="30" cy="34" r="11" fill="#8b5cf6" /><text x="30" y="38" class="step-num">1</text>
+    <text x="50" y="31" class="info-head">Varsayılan (Normal)</text>
+    <text x="50" y="50" class="info-text">Opaklık 1.0 · imleç: işaretçi</text>
+    <circle cx="30" cy="92" r="11" fill="#a78bfa" /><text x="30" y="96" class="step-num">2</text>
+    <text x="50" y="89" class="info-head">Üzerinde (Hover)</text>
+    <text x="50" y="108" class="info-text">Gölge vurgusu · parlaklık artışı</text>
   </g>
 
-  <!-- 4. Pasif (Disabled) -->
-  <g transform="translate(460, 320)">
-    <rect width="320" height="160" rx="12" fill="url(#g-card-dim)" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 4" />
-    <rect x="16" y="16" width="38" height="20" rx="10" fill="#94a3b8" />
-    <text x="35" y="30" text-anchor="middle" class="badge">04</text>
-    <text x="180" y="32" text-anchor="middle" class="card-title" style="fill:#94a3b8">Pasif (Disabled)</text>
+  <!-- ================= SAĞ KART: Pressed + Disabled ================= -->
+  <g transform="translate(568, 140)">
+    <rect width="262" height="128" class="info-card" />
+    <rect x="0" y="14" width="5" height="100" class="card-accent" fill="#6d28d9" />
+    <circle cx="30" cy="34" r="11" fill="#6d28d9" /><text x="30" y="38" class="step-num">3</text>
+    <text x="50" y="31" class="info-head">Basılı (Pressed)</text>
+    <text x="50" y="50" class="info-text">Küçülme (0.96) · koyu ton</text>
+    <circle cx="30" cy="92" r="11" fill="#94a3b8" /><text x="30" y="96" class="step-num">4</text>
+    <text x="50" y="89" class="info-head">Pasif (Disabled)</text>
+    <text x="50" y="108" class="info-text">Opaklık 0.4 · imleç: izin yok</text>
+  </g>
 
-    <g transform="translate(80, 66)" opacity="0.5">
-      <rect width="160" height="44" rx="8" fill="url(#g-slate)" />
-      <text x="80" y="28" text-anchor="middle" class="btn-text">Onayla</text>
+  <!-- ================= ALT DURUM ŞERİDİ ================= -->
+  <g transform="translate(430, 392)">
+    <text x="0" y="-12" text-anchor="middle" style="font: 600 13px system-ui, -apple-system, sans-serif; fill: #94a3b8;">Etkileşim döngüsü: her durum 2 saniye, anlık geçiş</text>
+    <g transform="translate(-322, 0)">
+      <rect width="150" height="32" rx="9" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="2" />
+      <circle cx="20" cy="16" r="6" fill="#8b5cf6" />
+      <text x="34" y="21" class="chip-text" style="fill:#6d28d9">Normal</text>
     </g>
-
-    <text x="160" y="142" text-anchor="middle" class="note">Opaklık: 0.4 · imleç: izin yok</text>
+    <g transform="translate(-162, 0)">
+      <rect width="150" height="32" rx="9" fill="#f5f3ff" stroke="#a78bfa" stroke-width="2" />
+      <circle cx="20" cy="16" r="6" fill="#a78bfa" />
+      <text x="34" y="21" class="chip-text" style="fill:#6d28d9">Üzerinde</text>
+    </g>
+    <g transform="translate(-2, 0)">
+      <rect width="150" height="32" rx="9" fill="#ede9fe" stroke="#6d28d9" stroke-width="2.5" />
+      <circle cx="20" cy="16" r="6" fill="#6d28d9" />
+      <text x="34" y="21" class="chip-text" style="fill:#5b21b6">Basılı</text>
+    </g>
+    <g transform="translate(158, 0)">
+      <rect width="150" height="32" rx="9" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5 3" />
+      <circle cx="20" cy="16" r="6" fill="#94a3b8" />
+      <text x="34" y="21" class="chip-text" style="fill:#64748b">Pasif</text>
+    </g>
   </g>
 
 </svg>

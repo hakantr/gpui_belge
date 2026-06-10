@@ -98,8 +98,14 @@
   <!-- Kapsayıcı Kutu: Genişlik 640, Yükseklik 300, x=110, y=110 (merkez 430,260) -->
   <rect x="110" y="110" width="640" height="300" rx="12" class="container-box" filter="url(#shadow)" />
 
-  <!-- Eksen ipuçları: yatay (h_flex) ve dikey (v_flex) yön -->
-  <text x="430" y="130" class="axis-label">ana eksen →  h_flex / v_flex</text>
+  <!-- Hizalama kılavuzları: soluk merkez çizgileri (justify_center / items_center referansı) -->
+  <line x1="430" y1="150" x2="430" y2="374" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="3 6" />
+  <line x1="160" y1="260" x2="700" y2="260" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="3 6" />
+  <circle cx="430" cy="260" r="3" fill="#cbd5e1" />
+
+  <!-- Eksen ipuçları: yatay (ana eksen) ve dikey (çapraz eksen) -->
+  <text x="430" y="132" class="axis-label">ana eksen →  h_flex / v_flex</text>
+  <text x="138" y="260" class="axis-label" transform="rotate(-90 138 260)">çapraz eksen ↕  items_*</text>
 
   <!-- Hareketli Elemanlar: 60x60 kutular, başlangıç justify_start (boşluk 30): x=140,230,320; y=230 -->
   <g class="b1">
