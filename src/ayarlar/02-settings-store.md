@@ -230,7 +230,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | API | Kapsadığı Davranış | Not |
 | :-- | :-- | :-- |
 | `WorkspaceSettingsContent`, `ItemSettingsContent`, `PreviewTabsSettingsContent`, `TabBarSettingsContent`, `StatusBarSettingsContent` | Workspace, item/tab ve durum çubuğu görünümleri | `SettingsContent.workspace` flatten alanına ve kök panel alanlarına bağlanır. |
-| `ActivePaneModifiers`, `CloseWindowWhenNoItems`, `CliDefaultOpenBehavior`, `AutosaveSettingDiscriminants` | Aktif pane modifier tuşları, pencere kapatma, CLI açılış ve otomatik kaydetme discriminant'ları | Workspace davranışlarının enum/newtype şema yüzeyidir. |
+| `ActivePaneModifiers`, `CloseWindowWhenNoItems`, `CliDefaultOpenBehavior`, `DefaultOpenBehavior`, `AutosaveSettingDiscriminants` | Aktif pane modifier tuşları, pencere kapatma, CLI açılış, ürün arayüzünden açılış ve otomatik kaydetme discriminant'ları | Workspace davranışlarının enum/newtype şema yüzeyidir; `DefaultOpenBehavior` `existing_window` ve `new_window` seçenekleriyle UI kaynaklı proje açma varsayılanını taşır. |
 | `PaneSplitDirectionHorizontal`, `PaneSplitDirectionVertical`, `CenteredLayoutSettings`, `OnLastWindowClosed` | Pane split yönü, merkezlenmiş düzen ve son pencere kapatma davranışları | Pencere ve workspace yerleşim ayarlarını taşır. |
 | `ProjectPanelSettingsContent`, `ProjectPanelAutoOpenSettings`, `ProjectPanelEntrySpacing`, `ProjectPanelIndentGuidesSettings` | Proje paneli ana içeriği, otomatik açılma, boşluklar ve girinti çizgisi ayarları | Dosya ağacı görünümünü kullanıcı JSON dosyasına bağlar. |
 | `ProjectPanelScrollbarSettingsContent`, `ProjectPanelSortMode`, `ProjectPanelSortOrder` | Proje paneli scrollbar ve sıralama ayarları | Sıralama modu ve düzeni ayrı enum yapılarla şemada yer alır. |
@@ -279,6 +279,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | :-- | :-- | :-- |
 | `AgentSettingsContent`, `AgentProfileContent`, `ContextServerPresetContent` | Agent panel, profil ve context server preset ayarları | Model, panel ve izin yapılarını tek bir içerik altında toplar. |
 | `AllAgentServersSettings`, `CustomAgentServerSettings` | Agent sunucu ayarları koleksiyonu ve özel sunucu seçimi | Dış agent sunucu davranışlarını settings JSON dosyasına bağlar. |
+| `AgentSettingsContent.auto_compact`, `AutoCompactSettingsContent`, `AutoCompactThreshold` | Agent bağlamı büyüdüğünde otomatik compaction eşiği | `enabled` varsayılan olarak açıktır; `threshold` `"90%"` gibi yüzde string'i, pozitif token sayısı veya negatif kalan-token eşiği olarak taşınabilir. |
 | `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve sağlayıcıya özel parametre override'ları | `language_models` sağlayıcı ayarlarından bağımsız olarak agent model seçimini taşır. |
 | `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel yerleşimi, düşünme bloğu gösterimi, bildirimler ve ses davranışları | Kullanıcı etkileşimiyle ilgili enum şema bileşenleridir. |
 | `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool (araç) izinleri, regex kuralları ve izin modları | Tool çağrısı politikaları içerik şeması seviyesinde tiplendirilir. |
@@ -290,6 +291,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | :-- | :-- | :-- |
 | `language_model`, `AllLanguageModelSettingsContent` | Kök re-export ve tüm sağlayıcı ayarlarının koleksiyonu | `SettingsContent.language_models` alanının üst seviye şemasıdır. |
 | `AnthropicSettingsContent`, `AnthropicAvailableModel`, `LanguageModelCacheConfiguration` | Anthropic API URL, model listesi ve önbellek yapılandırması | Model girişleri ekran ismi, token limitleri ve tool override'ları barındırabilir. |
+| `AnthropicCompatibleSettingsContent`, `AnthropicCompatibleAvailableModel`, `AnthropicCompatibleModelCapabilities` | Anthropic protokolüyle uyumlu özel sağlayıcılar | `api_url`, model listesi, özel header'lar, tool override, thinking modu ve `tools`/`images`/`prompt_caching` kabiliyetlerini `language_models.anthropic_compatible` altında taşır. |
 | `AmazonBedrockSettingsContent`, `BedrockAvailableModel`, `BedrockAuthMethodContent` | Bedrock bölge, endpoint, kimlik doğrulama ve model listeleri | Kimlik doğrulama enum'ı; profil adı, SSO, API key ve otomatik yolları ayırır. |
 | `OllamaSettingsContent`, `OllamaAvailableModel`, `KeepAlive` | Ollama API, otomatik keşif ve keep-alive davranışları | `KeepAlive` saniye veya süre string'i olarak deserialize edilir. |
 | `OpenCodeSettingsContent`, `OpenCodeAvailableModel`, `OpenCodeModelSubscription` | OpenCode API ve abonelik bazlı model listeleri | Abonelik seviyeleri enum yapısı sağlayıcı içeriğinin bir parçasıdır. |

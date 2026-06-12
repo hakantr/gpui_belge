@@ -2,6 +2,13 @@
 
 ---
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `78658778a28f..fef979dec45c`.
+- [x] Rustdoc JSON snapshot üretimi tamamlandı; güncel kaynak commit `fef979dec45c`, toplam API kaydı `32358`.
+- [x] Bu bölüm için doğrulanan yeni yüzeyler: `Rgba::alpha`, `Rgba::opacity`, `BoxShadow::new`, `BoxShadow::blur_radius`, `BoxShadow::spread_radius`, `BoxShadow::inset`, `TextOverflow::TruncateMiddle` ve `Styled::text_ellipsis_middle`.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/color.rs`, `crates/gpui/src/style.rs`, `crates/gpui/src/styled.rs` ve `crates/ui/src/styles/elevation.rs`.
+
 ## Styled
 
 `Styled`, `gpui` paketi içerisindeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` şeklinde zorunlu bir metot barındırır. GPUI çekirdeğindeki `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList` ve `Surface` bileşenleri bu trait aracılığıyla aynı akıcı (fluent) stil sözlüğünden faydalanır. Benzer şekilde, Zed UI bileşenlerinin büyük kısmı da kendi stil alanlarını bu ortak arayüze bağlar.
@@ -34,7 +41,7 @@ div()
 | Ara Boşluk (Gap) | `gap`, `gap_x`, `gap_y`, `gap_*`, `gap_x_*`, `gap_y_*` | Alt öğeler arasında bırakılacak genel, yatay veya dikey boşluk miktarını tanımlar. |
 | Kenarlık ve Yuvarlama | `border`, `border_t`, `border_r`, `border_b`, `border_l`, `border_x`, `border_y`, `border_*`, `border_t_*`, `border_r_*`, `border_b_*`, `border_l_*`, `border_x_*`, `border_y_*`, `border_color`, `border_dashed`, `rounded`, `rounded_*` | Kenarlık kalınlıkları, kenarlık renkleri/stilleri ve köşe yuvarlama yarıçapı değerlerini ayarlar. |
 | Gölge ve Opaklık | `shadow`, `shadow_none`, `shadow_2xs`, `shadow_xs`, `shadow_sm`, `shadow_md`, `shadow_lg`, `shadow_xl`, `shadow_2xl`, `opacity` | Hazır gölge şablonlarını, özel `BoxShadow` listelerini ve element şeffaflık derecesini (opacity) belirler. |
-| Arka Plan ve Metin | `bg`, `text_style`, `text_color`, `text_bg`, `text_size`, `text_xs`, `text_sm`, `text_base`, `text_lg`, `text_xl`, `text_2xl`, `text_3xl`, `text_ellipsis`, `text_ellipsis_start`, `text_overflow`, `text_align`, `text_left`, `text_center`, `text_right`, `truncate`, `line_clamp`, `font`, `font_weight`, `font_family`, `font_features`, `italic`, `not_italic`, `underline`, `line_through`, `text_decoration_none`, `text_decoration_color`, `text_decoration_solid`, `text_decoration_wavy`, `text_decoration_*`, `line_height`, `whitespace_normal`, `whitespace_nowrap` | Arka plan renklerini, yazı tiplerini, metin hizalamalarını ve süslemelerini hiyerarşik yazı stili alanlarına yazar. |
+| Arka Plan ve Metin | `bg`, `text_style`, `text_color`, `text_bg`, `text_size`, `text_xs`, `text_sm`, `text_base`, `text_lg`, `text_xl`, `text_2xl`, `text_3xl`, `text_ellipsis`, `text_ellipsis_start`, `text_ellipsis_middle`, `text_overflow`, `text_align`, `text_left`, `text_center`, `text_right`, `truncate`, `line_clamp`, `font`, `font_weight`, `font_family`, `font_features`, `italic`, `not_italic`, `underline`, `line_through`, `text_decoration_none`, `text_decoration_color`, `text_decoration_solid`, `text_decoration_wavy`, `text_decoration_*`, `line_height`, `whitespace_normal`, `whitespace_nowrap` | Arka plan renklerini, yazı tiplerini, metin hizalamalarını ve süslemelerini hiyerarşik yazı stili alanlarına yazar. |
 | İmleç ve Taşma (Overflow) | `cursor`, `cursor_*`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `overflow_hidden`, `overflow_x_hidden`, `overflow_y_hidden`, `scrollbar_width` | Fare imlecinin görsel şeklini, taşma durumlarında içeriğin kırpılmasını ve kaydırma çubuğu alanlarını denetler. |
 | Grid ve En-Boy Oranı | `aspect_ratio`, `aspect_square`, `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`, `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full` | Grid ızgara şablonlarını, en-boy oranlarını (`Aspect`) ve hücre yerleşim koordinatlarını yapılandırır; arka planda `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement` veri yapılarını kullanır. |
 
@@ -55,33 +62,52 @@ Bu makrolar, `gpui_macros` paketi üzerinden dışa aktarılır ve dolaylı olar
 
 Flex faktörlerinin belirlenmesinde iki temel yaklaşım izlenir: Özel oranların hedeflendiği durumlarda `flex_grow(2.0)` veya `flex_shrink(0.5)` gibi doğrudan faktör değerleri atanır. CSS standartlarındaki `flex-grow: 1` ve `flex-shrink: 1` davranışları için ise `flex_grow_1()` ve `flex_shrink_1()` metotlarından yararlanılır. Büyüme veya küçülmeyi tamamen devre dışı bırakmak amacıyla `flex_grow_0()` ve `flex_shrink_0()` metotları kullanılırken; boyutu tamamen sabitlenmiş öğelerde `flex_none()` çağrısı grow, shrink ve basis ayarlarını bir arada yapılandırır.
 
+### Renk Opaklığı ve `Rgba`
+
+`Rgba` renkleri üzerinde opaklık iki ayrı yardımcıyla yönetilir. `alpha(a)` metodu kırmızı, yeşil ve mavi kanalları koruyup alfa kanalını doğrudan yeni değere taşır. `opacity(factor)` metodu ise mevcut alfa değerini verilen katsayıyla çarpar. Her iki metot da verilen değeri `0.0..=1.0` aralığına sıkıştırır; bu nedenle yanlışlıkla `1.5` gibi bir değer verilmesi durumunda sonuç tam opaklık sınırına oturur.
+
+```rust
+let ana_renk = rgba(0x3399ffcc);
+let secili_renk = ana_renk.alpha(1.0);
+let pasif_renk = ana_renk.opacity(0.45);
+
+div()
+    .bg(secili_renk)
+    .border_color(pasif_renk)
+    .child("Durum")
+```
+
+Bu ayrım özellikle tema token'larıyla çalışırken önemlidir. Token'ın kendi şeffaflığı korunarak sadece etkisinin azaltılması gerektiğinde `opacity(...)`; token aynı renk tonunda ancak kesin bir alfa ile çizilecekse `alpha(...)` tercih edilir.
+
 ### `BoxShadow` Yapılandırması
 
-`BoxShadow` veri yapısı, gölgenin içe mi yoksa dışa mı çizileceğini belirleyen `inset: bool` alanını barındırır. Hazır sunulan `shadow_sm()`, `shadow_md()` ve benzeri yardımcı metotlar varsayılan olarak dış gölge (drop shadow) üretir; iç gölge (inset shadow) gereksinimlerinde ise doğrudan `BoxShadow` tanımı oluşturulmalıdır. `Style::paint(...)` render süreci dış gölgeleri arka plan ve kenarlıklardan önce, iç gölgeleri ise elementin kendi arka plan çiziminin ardından, alt öğe içeriklerinin çizilmesinden ise önce işleme alır.
+`BoxShadow` veri yapısı, gölgenin içe mi yoksa dışa mı çizileceğini belirleyen `inset: bool` alanını barındırır. Hazır sunulan `shadow_sm()`, `shadow_md()` ve benzeri yardımcı metotlar varsayılan olarak dış gölge (drop shadow) üretir. Özel gölge ihtiyacında `BoxShadow::new(offset_x, offset_y, color)` yapıcısı tercih edilir; blur, spread ve inset kararları akıcı builder metotlarıyla tamamlanır. `Style::paint(...)` render süreci dış gölgeleri arka plan ve kenarlıklardan önce, iç gölgeleri ise elementin kendi arka plan çiziminin ardından, alt öğe içeriklerinin çizilmesinden ise önce işleme alır.
 
 | Nitelik | Temel İşlevi |
 |---|---|
 | `color` | Gölgenin renk tonunu belirler. |
-| `offset` | Gölgenin X ve Y yönündeki kayma koordinatıdır. |
-| `blur_radius` | Gölge yumuşatma/bulanıklık yarıçapıdır. |
-| `spread_radius` | Gölgenin sınır genişleme/yayılma miktarıdır. |
-| `inset` | `true` ise iç gölge (inset), `false` ise dış gölge (drop shadow) çizer. |
+| `offset` | `BoxShadow::new` içinde verilen X ve Y yönündeki kayma koordinatıdır. |
+| `blur_radius` | `blur_radius(px(...))` ile ayarlanan gölge yumuşatma/bulanıklık yarıçapıdır. |
+| `spread_radius` | `spread_radius(px(...))` ile ayarlanan sınır genişleme/yayılma miktarıdır. |
+| `inset` | `inset()` çağrısı yapıldığında iç gölge (inset), aksi halde dış gölge (drop shadow) çizer. |
 
 ```rust
-let ic_golge = BoxShadow {
-    color: black().opacity(0.18),
-    offset: point(px(0.), px(1.)),
-    blur_radius: px(4.),
-    spread_radius: px(0.),
-    inset: true,
-};
+let ic_golge = BoxShadow::new(px(0.), px(1.), black().opacity(0.18))
+    .blur_radius(px(4.))
+    .inset();
+
+let katman_golgesi = BoxShadow::new(px(0.), px(6.), black().opacity(0.12))
+    .blur_radius(px(14.))
+    .spread_radius(px(1.));
 
 div()
     .rounded_md()
     .bg(rgb(0xffffff))
-    .shadow(vec![ic_golge])
+    .shadow(vec![katman_golgesi, ic_golge])
     .child("İç gölgeli alan")
 ```
+
+Builder zinciri, ham struct literal kullanımına göre alan sırasını sadeleştirir ve CSS `box-shadow` zihinsel modeline yaklaşır: önce offset ve renk, ardından blur, spread ve inset kararı verilir. Zed UI elevation katmanı da aynı yapıcıyı kullanarak modal ve elevated surface gölgelerini üretir.
 
 `Styled` trait yapısı bünyesinde ayrıca `gpui_macros::style_helpers!()` makro çağrısı yer alır. Bu makro `#[doc(hidden)]` özniteliğiyle gizlendiği için standart kütüphane dökümantasyon listelerinde doğrudan sergilenmez. `w_*`, `h_*`, `size_*`, `min_size_*`, `min_w_*`, `min_h_*`, `max_size_*`, `max_w_*`, `max_h_*`, `gap_*`, `gap_x_*`, `gap_y_*` ve `rounded_*` gibi stil ailelerinin tamamı bu dahili makro tarafından üretilir.
 
@@ -227,7 +253,7 @@ Bu enum veri yapıları; sayfa düzeni (layout), görünürlük, metin taşmalar
 | `FlexWrap` | `NoWrap`, `Wrap`, `WrapReverse` | Flex öğelerin tek bir satırda mı kalacağını yoksa yeni satırlara mı taşacağını denetler. |
 | `Visibility` | `Visible`, `Hidden` | Elementin çizimini açar veya kapatır; `Hidden` görünürlüğü kapatsa da kapladığı yerleşim alanını korur. |
 | `WhiteSpace` | `Normal`, `Nowrap` | Metinlerin satır sonlarında alt satıra kırılıp kırılmayacağını belirler. |
-| `TextOverflow` | `Truncate`, `TruncateStart` | Sığmayan uzun metinleri sondan veya baştan üç nokta koyarak kısaltır. |
+| `TextOverflow` | `Truncate`, `TruncateStart`, `TruncateMiddle` | Sığmayan uzun metinleri sondan, baştan veya ortadan üç nokta koyarak kısaltır. |
 | `TextAlign` | `Left`, `Center`, `Right` | Metinleri kapsayıcı kutu içinde sola, ortaya veya sağa hizalar. |
 | `Overflow` | `Visible`, `Clip`, `Hidden`, `Scroll` | Taşma yapan alt öğelerin yerleşim ve kaydırma (scroll) sınırlarını belirler. |
 | `Position` | `Relative`, `Absolute` | Konumlandırma ötelemelerinin normal akışa göre mi yoksa konumlandırılmış üst öğeye göre mi hesaplanacağını belirler. |

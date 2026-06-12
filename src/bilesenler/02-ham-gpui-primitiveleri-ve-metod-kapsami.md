@@ -67,8 +67,9 @@ Hangi ihtiyaç için hangi API'nin seçileceğini ve ne zaman ham GPUI seviyesin
 ```text
 block, flex, grid, hidden, scrollbar_width,
 whitespace_normal, whitespace_nowrap, text_ellipsis, text_ellipsis_start,
-text_overflow, text_align, text_left, text_center, text_right, truncate,
-line_clamp, flex_col, flex_col_reverse, flex_row, flex_row_reverse,
+text_ellipsis_middle, text_overflow, text_align, text_left, text_center,
+text_right, truncate, line_clamp, flex_col, flex_col_reverse, flex_row,
+flex_row_reverse,
 flex_1, flex_auto, flex_initial, flex_none, flex_basis, flex_grow,
 flex_grow_0, flex_grow_1, flex_shrink, flex_shrink_0, flex_shrink_1,
 flex_wrap, flex_wrap_reverse, flex_nowrap, items_start, items_end,

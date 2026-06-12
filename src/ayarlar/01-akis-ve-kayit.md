@@ -151,9 +151,9 @@ Dosyaların öncelik sıralamasında `SettingsFile::cmp` yapısı `Project` > `S
 | :-- | :-- | :-- |
 | `AudioSettingsContent`, `AudioInputDeviceName`, `AudioOutputDeviceName` | `audio` ve deneysel giriş/çıkış cihazı ayarları | Cihaz adları `#[serde(transparent)]` newtype olarak taşınır. |
 | `CallSettingsContent` | `calls` altında sesli çağrı başlangıç tercihleri | `mute_on_join` ve `share_on_join` gibi bool alanları içerir. |
-| `TelemetrySettingsContent` | `telemetry` altında tanı ve metrik tercihleri | Varsayılan implementasyon iki alanı da `true` yapar. |
+| `TelemetrySettingsContent` | `telemetry` altında tanı, metrik ve model sağlayıcı retention tercihleri | `diagnostics` ve `metrics` varsayılan olarak `true`, `anthropic_retention` varsayılan olarak `false` değerine sahiptir. |
 | `DebuggerSettingsContent`, `SteppingGranularity` | `debugger` adım, breakpoint ve DAP günlüğü ayarları | Dock alanı, settings crate'indeki `DockPosition` değerine bağlanır. |
-| `GitPanelSettingsContent`, `StatusStyle`, `ScrollbarSettings` | Git paneli görünümü, dock, scrollbar ve commit başlığı sınırları | `StatusStyle`, dosya durumunun ikonla mı yoksa renkli etiketle mi gösterileceğini belirler. |
+| `GitPanelSettingsContent`, `StatusStyle`, `ScrollbarSettings` | Git paneli görünümü, dock, scrollbar ve commit başlığı sınırları | `StatusStyle`, dosya durumunun ikonla mı yoksa renkli etiketle mi gösterileceğini belirler; `commit_title_max_length` varsayılanı `0` olduğunda başlık uzunluğu uyarısı devre dışıdır. |
 | `PanelSettingsContent`, `DockSide` | İş birliği ve benzeri panel genişliği/dock şemaları | Tek panel içerik taşıyıcısı birden çok panel alanında kullanılır. |
 | `FileFinderSettingsContent`, `FileFinderWidthContent`, `IncludeIgnoredContent` | Dosya bulucu ikon, genişlik ve göz ardı edilen dosya stratejileri | `IncludeIgnoredContent::Smart` varsayılan seçimdir. |
 | `VimSettingsContent`, `ModeContent`, `UseSystemClipboard`, `CursorShapeSettings`, `VimInsertModeCursorShape` | Vim modu davranışları ve cursor şekli override'ları | `CursorShapeSettings`, editör `CursorShape` ile Vim insert shape enum'unu birleştirir. |

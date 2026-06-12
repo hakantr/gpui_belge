@@ -73,7 +73,7 @@ workspace::register_serializable_item::<BenimOgem>(cx);
 - `env` — Açılan çalışma alanı için ortam üzerine yazması.
 - `open_in_dev_container` — Dev container açma isteği.
 
-`OpenMode::Activate` `NewWindow` gibi hedef pencereyi öne getirir. Varsayılan davranışta `-n`, `-a` veya `-r` verilmeden klasör açmak mevcut pencerenin Threads sidebar'ına yeni bir project olarak ekler. Yeni pencere isteniyorsa CLI'da `zed -n path`, Open Recent'te değiştiricili enter tuşu, tıklama eylemi ya da `cli_default_open_behavior = "new_window"` ayarı tercih edilir.
+`OpenMode::Activate` `NewWindow` gibi hedef pencereyi öne getirir. Varsayılan davranışta `-n`, `-a` veya `-r` verilmeden klasör açmak mevcut pencerenin Threads sidebar'ına yeni bir project olarak ekler. CLI kaynaklı açma kararları `cli_default_open_behavior`, ürün arayüzünden gelen genel açma kararları ise `default_open_behavior` ayarıyla yönlendirilir. Yeni pencere açıkça isteniyorsa CLI'da `zed -n path`, Open Recent'te değiştiricili enter tuşu veya ilgili action içinde `create_new_window: Some(true)` kullanılır.
 
 `OpenResult { window, workspace, opened_items }` üst seviye açma sonucudur. İç çalışma alanı açma fonksiyonları çoğunlukla `Task<Result<Box<dyn ItemHandle>>>` veya çoklu yol için `Task<Vec<Option<Result<Box<dyn ItemHandle>>>>>` döndürür.
 
@@ -85,7 +85,7 @@ Yol bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve diz
 |-----|-----|
 | `ItemId` | Kalıcılık (persistence) modelinde öğe kayıtlarını tanımlar; `SerializableItem` cleanup ve restore akışında canlı öğe setiyle karşılaştırılır. |
 | `WorkspaceId` | Kalıcı workspace kimliğidir; DB satırlarıyla taşınır ve `from_i64` ile dış integer değerden kurulabilir. |
-| `Open` | `workspace` namespace'inde dosya/dizin açma eylemidir (action); `create_new_window` alanı yeni pencere davranışını seçer. |
+| `Open` | `workspace` namespace'inde dosya/dizin açma eylemidir (action); `create_new_window: Option<bool>` alanı verilirse yeni pencere kararını açıkça seçer, `None` olduğunda `default_open_behavior` ayarı kullanılır. |
 | `OpenMode` | `NewWindow`, `Add`, `Activate` varyantlarıyla workspace'in pencereye nasıl ekleneceğini belirler. |
 | `OpenVisible` | Açılan dosya veya dizinlerin proje panel görünürlüğünü `All`, `None`, `OnlyFiles`, `OnlyDirectories` olarak sınırlar. |
 | `OpenResult` | Üst seviye açma sonucunda `window`, `workspace` ve yol başına `opened_items` sonucunu taşır. |

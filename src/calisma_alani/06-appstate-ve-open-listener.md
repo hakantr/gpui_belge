@@ -59,7 +59,7 @@ Zed uygulamasında çalışma alanı açmak yalnızca basit bir `open_window` ç
 | API | Rolü |
 |-----|-----|
 | `ItemId` | Serileştirilmiş workspace içindeki item (öğe) kayıtlarını tanımlar. |
-| `Open` | Dış eylem olarak dosya ya da dizin açma isteğini taşır; `create_new_window` parametresi yeni pencere davranışını belirler. |
+| `Open` | Dış eylem olarak dosya ya da dizin açma isteğini taşır; `create_new_window: Option<bool>` verilirse yeni pencere davranışını açıkça belirler, `None` olduğunda workspace `default_open_behavior` ayarı uygulanır. |
 | `SerializedMultiWorkspace` | Bir pencere içindeki çoklu çalışma alanı durumunun kalıcılaştırılmış (persist edilmiş) modelidir. |
 | `SerializedWorkspaceLocation` | Workspace'in yerel/uzak konum bilgisini oturum geri yükleme (session restore) için taşır. |
 | `SessionWorkspace` | Oturum geri yükleme esnasında açılacak çalışma alanı girdisini temsil eder. |

@@ -13,7 +13,7 @@
 - `max_offset() -> Point<Pixels>` — alınabilecek azami offset.
 - `top_item()`, `bottom_item()` — görünür ilk ve son alt öğe dizini.
 - `bounds()` — scroll kapsayıcısının sınırları.
-- `bounds_for_item(ix)` — verdiğin alt öğenin sınırları.
+- `bounds_for_item(ix)` — verilen alt öğenin sınırları.
 - `scroll_to_item(ix)`, `scroll_to_top_of_item(ix)` — prepaint aşamasında istenilen öğeye scroll eder.
 - `scroll_to_bottom()`
 - `set_offset(point)` — offset'i doğrudan ayarlar. Offset, içerik orijininin üst öğe orijinine uzaklığıdır; aşağı kaydıkça Y genelde negatife gider.
@@ -120,6 +120,10 @@ list(self.liste_durumu.clone(), |sira, window, cx| {
 - `item_is_above_viewport(ix) -> Option<bool>` — item'ın viewport'un üstünde kalıp kalmadığını söyler; ölçüm yoksa `None`.
 - `item_is_below_viewport(ix) -> Option<bool>` — item'ın viewport'un altında kalıp kalmadığını söyler; ölçüm yoksa `None`.
 - `set_scroll_handler(...)` — `ListScrollEvent` ile `visible_range`, `count`, `is_scrolled` ve `is_following_tail` bilgileri izlenebilir.
+
+**Remeasure Sonrası Scroll Kararlılığı.** Değişken yükseklikli listelerde `remeasure_items(range)` çağrısı bir sonraki layout sırasında öğe yüksekliğini yeniden ölçer. Kullanıcı bu yeniden ölçüm henüz çizime yansımadan wheel, trackpad veya özel scrollbar ile kaydırma yaparsa `ListState` yeni scroll konumunu pending ölçüm düzeltmesine yeniden bağlar. Böylece eski ölçümden kalan bekleyen düzeltme, kullanıcının yeni scroll konumunu geri almaz.
+
+Bu davranış özellikle sohbet, günlük, test çıktısı veya tembel yüklenen satırların bulunduğu listelerde önemlidir. Öğenin yüksekliği ölçümden sonra küçülürse scroll offset'i ilgili öğenin yeni yüksekliğine sıkıştırılır; öğe büyürse kullanıcı scroll niyeti korunarak yeni konum hesaplanır. Veri seti tamamen değiştiğinde `reset(count)` çağrısı pending scroll bilgisini temizler; son konuma gidildiğinde `scroll_to_end()` de aynı şekilde eski bekleyen ölçüm durumunu devre dışı bırakır.
 
 **Özel scrollbar API'si.** Özel bir scrollbar bileşeni tasarlanırken bu metotlar üzerinden işlem yapılır (`ui::Scrollbars` da bu arayüz temel alınarak yapılandırılmıştır):
 

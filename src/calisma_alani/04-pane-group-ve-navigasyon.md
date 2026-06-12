@@ -20,6 +20,8 @@ Pane ve çalışma alanı yalnızca bir tab listesinden ibaret değildir; split 
 - `SplitDirection::axis()`, `opposite()`, `edge(bounds)` ve `along_edge(bounds, length)` metotları, resize (boyutlandırma) ve bırakma göstergesi hesaplamalarında kullanılır.
 - `SplitDirection::increasing()` yönün koordinat ekseninde artan tarafa doğru gidip gitmediğini bildirir; `Down` ve `Right` artan, `Up` ve `Left` ise azalan yönü temsil eder.
 
+**Pane Boyutlarını Eşitleme.** Merkez split ağacındaki pane oranları kullanıcı sürüklemesiyle bozulduğunda `ResetPaneSizes` action'ı çalışma alanının `reset_pane_sizes(cx)` akışını tetikler. Bu işlem merkez `PaneGroup` kökünden başlayarak iç içe `PaneAxis` düğümlerine kadar iner ve her axis için `flexes` listesini `1.0` değerleriyle yeniden kurar. Split yapısı korunur; yalnız yatay veya dikey bölmelerin oranları eşitlenir. Dock boyutları için kullanılan `ResetActiveDockSize` ve `ResetOpenDocksSize` action'ları bu merkez pane eşitleme davranışından ayrıdır.
+
 ---
 
 ## Pane Preview, Pin ve NavHistory
@@ -152,6 +154,7 @@ Aşağıdaki kayıtlar çalışma alanı action yüzeyinin büyük kısmını ol
 | `SplitMode`, `SplitUp`, `SplitDown`, `SplitLeft`, `SplitRight`, `SplitHorizontal`, `SplitVertical` | Mevcut item veya pane içeriğini yeni split yönüne göre ayırır; yatay/dikey yardımcılar kullanıcı ayarlı varsayılanlarla birlikte düşünülür. |
 | `SplitAndMoveUp`, `SplitAndMoveDown`, `SplitAndMoveLeft`, `SplitAndMoveRight` | Aktif item'ı yeni split'e taşıyarak bölme ve taşıma işlemini tek bir eylemde birleştirir. |
 | `NewFileSplit`, `NewFileSplitHorizontal`, `NewFileSplitVertical` | Yeni dosya item'ını mevcut pane yerine split içinde açar. |
+| `ResetPaneSizes` | Merkez split ağacındaki tüm pane oranlarını eşit `1.0` flex değerlerine döndürür; split yönleri ve pane sayısı korunur. |
 | `MoveItemToPane`, `MoveItemToPaneInDirection`, `move_item`, `move_active_item`, `clone_active_item` | Aktif veya seçili item'ı hedef pane'e taşır ya da klonlar; düşük seviyeli fonksiyonlar action handler'ların ortak taşıma çekirdeğidir. |
 | `MovePaneUp`, `MovePaneDown`, `MovePaneLeft`, `MovePaneRight`, `SwapPaneAdjacent` | Pane'in split ağacındaki konumunu taşır veya komşu pane ile yer değiştirir. |
 | `SwapPaneUp`, `SwapPaneDown`, `SwapPaneLeft`, `SwapPaneRight`, `SwapItemLeft`, `SwapItemRight` | Pane veya sekme sırasını yön bazlı yer değiştirme (swap) işlemiyle değiştirir. |

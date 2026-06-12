@@ -183,6 +183,7 @@ Davranış:
 - Üstveri satırında ilişkili worktree bilgisi, proje adı veya yolu, diff statüsü ve zaman bilgisi sırayla render edilir.
 - `title_slot(...)` verildiğinde başlık metnini bileşen değil, doğrudan verilen element çizer; bu yol özel ikon, rozet veya zengin başlık kompozisyonları için ayrılmıştır.
 - `is_truncated(false)` solma katmanını kapatır; üst yerleşim başlık taşmasını kendisi yönetecekse tercih edilir.
+- Pencere arka planı opak değilse başlık solma gradyanı çizilmez; bunun yerine `Label` veya `HighlightedLabel` üzerinde doğrudan `.truncate()` uygulanır. Böylece transparent window üzerinde solma katmanı görünür bir yama gibi belirmez.
 - `action_slot(...)` yalnızca `.hovered(true)` durumunda görünür.
 
 Örnek:
@@ -544,7 +545,7 @@ fn ajan_ayarlari_ozeti_render() -> impl IntoElement {
 }
 ```
 
-Bu bölümdeki bileşenlerin nerede tercih edileceğini özetleyen kısa bir karar rehberi şöyle özetlenebilir:
+Bu bölümdeki bileşenlerin tercih yerlerini özetleyen kısa karar rehberi şöyledir:
 
 - Kişi görseli için `Avatar`; kişi grubu için `Facepile`.
 - Kompakt üstveri etiketi için `Chip`.

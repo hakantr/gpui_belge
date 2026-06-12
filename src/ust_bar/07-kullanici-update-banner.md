@@ -21,7 +21,7 @@ Bu üç hâl birbirini dışlar; aynı anda yalnızca biri görünür. Port hede
 
 Kullanıcı menüsü butonunun tetikleyicisi oturum durumuna ve `show_user_picture` ayarına göre değişir: Oturum açık ve avatar gösterimi açık ise kullanıcının avatarı; aksi takdirde bir aşağı ok ikonu tercih edilir. Bir güncelleme menüde gösterilecekse avatarın köşesine küçük bir vurgu noktası eklenir; böylece kullanıcı menüyü açmadan güncelleme olduğunu fark eder.
 
-Menü açıldığında bir açılır panel içinde hesap ve uygulama eylemleri listelenir: Abonelik planı, varsa organizasyon bilgisi, ayarlar/tuş eşlemi/temalar gibi geçişler ve oturumu kapatma. `ToggleUserMenu` eylemi bu menüyü klavyeyle de açıp kapatmayı sağlar.
+Menü açıldığında bir açılır panel içinde hesap ve uygulama eylemleri listelenir: Kullanıcı hesabı, organizasyon seçimi, ayarlar/tuş eşlemi/temalar gibi geçişler ve oturumu kapatma. `ToggleUserMenu` eylemi bu menüyü klavyeyle de açıp kapatmayı sağlar.
 
 ### `UseClassicLayout` ve `UseAgenticLayout`
 
@@ -29,7 +29,7 @@ AI etkinken menüde ayrıca bir **"Panel Yerleşimi" alt menüsü** çizilir; bu
 
 ## 3. Plan çipi
 
-Kullanıcının abonelik planı, kullanıcı menüsü içinde küçük bir etiket (`PlanChip`) olarak gösterilir:
+Kullanıcının abonelik planı, kullanıcı menüsü içindeki organizasyon satırlarında küçük bir etiket (`PlanChip`) olarak gösterilir:
 
 ```rust
 pub fn new(plan: Plan) -> Self
@@ -37,7 +37,7 @@ pub fn new(plan: Plan) -> Self
 
 `PlanChip`, `cloud_api_types::Plan` değerini alır ve plana göre renklendirilmiş bir etiket çizer: Ücretsiz plan nötr renkte, ücretli planlar (Pro, Business, Pro Trial, Student gibi) vurgu renginde ve daha belirgin bir arka planla. Renkler tema token'larından gelir; bu yüzden açık/koyu temada otomatik uyumludur.
 
-Plan bilgisi yalnızca kullanıcının bir abonelik dönemi varsa gösterilir; eski ücretsiz durumdaki kullanıcılarda çip gizlenir. Port hedefinde bir abonelik modeli yoksa bu parça hiç gerekmez; varsa aynı kalıp kurulur: Plan tek bir enum'dan okunur, plana göre renk seçilir, küçük bir etiket çizilir.
+Organizasyon bölümü, kullanıcı hesabı kişisel olsa bile menü yapısının parçası olarak kurulur; her organizasyon satırı kendi plan bilgisini `UserStore::plan_for_organization(...)` üzerinden alır. Port hedefinde bir abonelik veya organizasyon modeli yoksa bu parça hiç gerekmez; varsa aynı kalıp kurulur: Plan tek bir enum'dan okunur, plana göre renk seçilir, küçük bir etiket çizilir.
 
 ## 4. Güncelleme bildirimi (`UpdateVersion`)
 

@@ -37,7 +37,7 @@ Ne zaman kullanılmaz:
 Temel API:
 
 - Constructor: `Label::new(label: impl Into<SharedString>)`.
-- Sık builder'lar: `.size(LabelSize::...)`, `.color(Color::...)`, `.weight(FontWeight::...)`, `.line_height_style(...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(f32)`, `.truncate()`, `.truncate_start()`, `.line_clamp(lines)`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`, `.render_code_spans()`.
+- Sık builder'lar: `.size(LabelSize::...)`, `.color(Color::...)`, `.weight(FontWeight::...)`, `.line_height_style(...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(f32)`, `.truncate()`, `.truncate_start()`, `.truncate_middle()`, `.line_clamp(lines)`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`, `.render_code_spans()`.
 - Mutator: `.set_text(text: impl Into<SharedString>)` çağrısı `&mut self` üzerinden etiket metnini günceller. `Label` örneği view alanında saklanıyorsa, render dışından yeni bir `Label` üretmeden mevcut örneğin metnini değiştirmek için bu yöntem tercih edilir. Bu metot builder zincirinde değil, daha önce oluşturulmuş bir örnek üzerinde çağrılır.
 - Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow()`, `.flex_shrink()`, `.flex_shrink_0()` ile çeşitli margin style yöntemleri.
 - Trait: `LabelCommon`.
@@ -82,7 +82,7 @@ Zed içinden kullanım örnekleri:
 
 Dikkat edilmesi gereken noktalar:
 
-- Uzun bir metin dar bir kapsayıcı içine yerleştirildiğinde `.truncate()` veya `.truncate_start()` çağrısının eklenmesi gerekir; aksi takdirde satır taşması düzeni (layout) bozabilir. Metni tek satıra sıkıştırmak yerine birkaç satırda tutup taşan kısmı kırpmak gerekiyorsa `.line_clamp(satir_sayisi)` kullanılır; metin verilen satır sayısını aşarsa son görünür satırın sonuna üç nokta (`…`) eklenir.
+- Uzun bir metin dar bir kapsayıcı içine yerleştirildiğinde `.truncate()`, `.truncate_start()` veya `.truncate_middle()` çağrısının eklenmesi gerekir; aksi takdirde satır taşması düzeni (layout) bozabilir. `.truncate_middle()` dosya adı ve branch gibi hem başı hem sonu anlam taşıyan metinlerde orta kısma üç nokta yerleştirir. Metni tek satıra sıkıştırmak yerine birkaç satırda tutup taşan kısmı kırpmak gerekiyorsa `.line_clamp(satir_sayisi)` kullanılır; metin verilen satır sayısını aşarsa son görünür satırın sonuna üç nokta (`…`) eklenir.
 - `Label::new(format!(...))` pratik bir kısayoldur. Ancak sık render edilen listelerde hazır `SharedString` veya önceden üretilmiş bir metnin kullanılması, gereksiz bellek kopyalamalarını (allocation) azaltarak render maliyetini düşürür.
 - Tüm satırın monospace (sabit genişlikli) yapılması gerekiyorsa `.buffer_font(cx)` veya `.inline_code(cx)` çağrılır; yalnızca backtick içindeki bölümlerin vurgulanması hedefleniyorsa `.render_code_spans()` daha doğru bir seçenektir.
 
@@ -109,7 +109,7 @@ Temel API:
 
 - Constructor: `LabelLike::new()`.
 - `LabelCommon`: `.size(...)`, `.color(...)`, `.weight(...)`, `.line_height_style(...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(...)`, `.truncate()`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`.
-- Ek builder: `.truncate_start()`, `.line_clamp(lines)` (metni verilen satır sayısında tutar, taşarsa son satırı üç nokta ile kırpar).
+- Ek builder: `.truncate_start()`, `.truncate_middle()`, `.line_clamp(lines)` (metni verilen satır sayısında tutar, taşarsa son satırı üç nokta ile kırpar).
 - `ParentElement` implement eder; `.child(...)` ve `.children(...)` kabul eder.
 - `LineHeightStyle`: `TextLabel` varsayılan label/buffer line-height davranışını verir; `UiLabel` ise line-height değerini `1` yapan daha kompakt bir UI etiketi davranışını seçer.
 
@@ -276,6 +276,7 @@ Temel API:
 - Okuma yöntemleri: `.text()`, `.highlight_indices()`.
 - `LabelCommon` builder'ları: `.size(...)`, `.color(...)`, `.weight(...)`, `.line_height_style(...)`, `.italic()`, `.underline()`, `.strikethrough()`, `.alpha(...)`, `.truncate()`, `.single_line()`, `.buffer_font(cx)`, `.inline_code(cx)`.
 - `.truncate_start()`: etiketi baştan kırpar ve sonunu görünür tutar. İçeride temel `Label`'ın `truncate_start()` ayarını uygular; dosya yolu veya branch adı gibi anlamlı kısmı sonda yer alan eşleşme satırlarında tercih edilir.
+- `.truncate_middle()`: etiketi ortadan kırpar ve hem başı hem sonu görünür tutar. İçeride temel `Label`'ın `truncate_middle()` ayarını uygular; dosya adı, branch adı veya uzun sembol adlarında ayırt edici son parçanın korunması için tercih edilir.
 - Layout yardımcıları: `.flex_1()`, `.flex_none()`, `.flex_grow()`, `.flex_shrink()`, `.flex_shrink_0()`.
 
 Vurgu yardımcısı:
