@@ -26,8 +26,8 @@ Bu ayrımın iyi örneklerinden biri `system_window_tabs.rs` içindeki `SystemWi
 | `set_button_layout` | `pub fn set_button_layout(&mut self, button_layout: Option<WindowButtonLayout>)` | Sadece Linux + `Decorations::Client` olduğunda `effective_button_layout` tarafından kullanılır. |
 | `PlatformTitleBar::init` | `pub fn init(cx: &mut App)` | Internal `SystemWindowTabs::init(cx)` çağrısıdır. |
 | `is_multi_workspace_enabled` | `pub fn is_multi_workspace_enabled(cx: &App) -> bool` | Zed'de `DisableAiSettings` tersine bağlı özellik bayrağı. |
-| `render_left_window_controls` | `pub fn render_left_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Yalnız Linux/FreeBSD + CSD; `button_layout.left[0]` boşsa `None`. |
-| `render_right_window_controls` | `pub fn render_right_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Linux/FreeBSD + CSD'de yerleşim kullanır, Windows'ta `WindowsWindowControls::new(height)`, macOS'ta `None`. |
+| `platform_title_bar::render_left_window_controls` | `pub fn render_left_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Yalnız Linux/FreeBSD + CSD; `button_layout.left[0]` boşsa `None`. |
+| `platform_title_bar::render_right_window_controls` | `pub fn render_right_window_controls(button_layout: Option<WindowButtonLayout>, close_action: Box<dyn Action>, window: &Window) -> Option<AnyElement>` | Linux/FreeBSD + CSD'de yerleşim kullanır, Windows'ta `WindowsWindowControls::new(height)`, macOS'ta `None`. |
 
 `PlatformTitleBar` tipinin render davranışı çoğu zaman public API imzalarından daha kritiktir. Port uyumsuzluklarının büyük kısmı imza farklarından değil, render içindeki ince akışlardan doğar. Aşağıdaki maddeler bu davranışta doğrulanması gereken noktaları sıralar:
 
@@ -56,19 +56,21 @@ Bu sıralama önemlidir; aşamalar **birbirleriyle yer değiştirebilir değildi
 
 ### `platforms::platform_linux`
 
+Tam modül yolu `platform_title_bar::platforms::platform_linux` olarak dışa açıktır.
+
 | Dış API | İmza / Tanım | Not |
 | :-- | :-- | :-- |
-| `LinuxWindowControls` | `pub struct LinuxWindowControls` private alanlı | `#[derive(IntoElement)]`; dışarıdan alan ayarlanamaz. |
+| `platform_title_bar::platforms::platform_linux::LinuxWindowControls` | `pub struct LinuxWindowControls` private alanlı | `#[derive(IntoElement)]`; dışarıdan alan ayarlanamaz. |
 | `LinuxWindowControls::new` | `pub fn new(id: &'static str, buttons: [Option<WindowButton>; MAX_BUTTONS_PER_SIDE], close_action: Box<dyn Action>) -> Self` | Yerleşim slotlarını ve kapatma eylemini saklar. Render'da `WindowControls` yeteneğine göre minimize/maximize filtrelenir, **`WindowButton::Close => true` kolu koşulsuzdur**; `supported_controls.close` false olsa bile kapat butonu render edilir. |
-| `WindowControlType` | `pub enum WindowControlType { Minimize, Restore, Maximize, Close }` | Varyant sırası kaynakta `Minimize, Restore, Maximize, Close`; `WindowButton::Maximize` çalışma zamanında pencere büyütülmüşse `Restore` ikonuna çevrilir. |
+| `platform_title_bar::platforms::platform_linux::WindowControlType` | `pub enum WindowControlType { Minimize, Restore, Maximize, Close }` | Varyant sırası kaynakta `Minimize, Restore, Maximize, Close`; `WindowButton::Maximize` çalışma zamanında pencere büyütülmüşse `Restore` ikonuna çevrilir. |
 | `WindowControlType::icon` | `pub fn icon(&self) -> IconName` | `GenericMinimize`, `GenericRestore`, `GenericMaximize`, `GenericClose` döner. |
-| `WindowControlStyle` | `pub struct WindowControlStyle` private alanlı | Alanlar public değildir; sadece kurucu zinciri yüzeyi var. |
+| `platform_title_bar::platforms::platform_linux::WindowControlStyle` | `pub struct WindowControlStyle` private alanlı | Alanlar public değildir; sadece kurucu zinciri yüzeyi var. |
 | `WindowControlStyle::default` | `pub fn default(cx: &mut App) -> Self` | `Default` trait impl'i değildir; argümansız `WindowControlStyle::default()` derlenmez. |
 | `background` | `pub fn background(mut self, color: impl Into<Hsla>) -> Self` | Kurucu zinciri adımı. |
 | `background_hover` | `pub fn background_hover(mut self, color: impl Into<Hsla>) -> Self` | Kurucu zinciri adımı. |
 | `icon` | `pub fn icon(mut self, color: impl Into<Hsla>) -> Self` | Kurucu zinciri adımı. |
 | `icon_hover` | `pub fn icon_hover(mut self, color: impl Into<Hsla>) -> Self` | Kurucu zinciri adımı. |
-| `WindowControl` | `pub struct WindowControl` private alanlı | `#[derive(IntoElement)]`; public ayarlayıcı yok. |
+| `platform_title_bar::platforms::platform_linux::WindowControl` | `pub struct WindowControl` private alanlı | `#[derive(IntoElement)]`; public ayarlayıcı yok. |
 | `WindowControl::new` | `pub fn new(id: impl Into<ElementId>, icon: WindowControlType, cx: &mut App) -> Self` | `close_action: None`; kapatma için kullanılırsa tıklama işleyicisi panik atar. |
 | `WindowControl::new_close` | `pub fn new_close(id: impl Into<ElementId>, icon: WindowControlType, close_action: Box<dyn Action>, cx: &mut App) -> Self` | `close_action.boxed_clone()` saklar. |
 | `WindowControl::custom_style` | `pub fn custom_style(id: impl Into<ElementId>, icon: WindowControlType, style: WindowControlStyle) -> Self` | Crate içinde çağrılmıyor, kapatma eylemi `None`. |
@@ -126,9 +128,11 @@ Adım 4 ve 5 yalnızca Linux CSD ortamında ve kapat butonunun bulunduğu taraft
 
 ### `platforms::platform_windows`
 
+Tam modül yolu `platform_title_bar::platforms::platform_windows` olarak dışa açıktır.
+
 | Dış API | İmza / Tanım | Not |
 | :-- | :-- | :-- |
-| `WindowsWindowControls` | `pub struct WindowsWindowControls { button_height: Pixels }` private alanlı | `#[derive(IntoElement)]`; dışarıdan sadece kurucu var. |
+| `platform_title_bar::platforms::platform_windows::WindowsWindowControls` | `pub struct WindowsWindowControls { button_height: Pixels }` private alanlı | `#[derive(IntoElement)]`; dışarıdan sadece kurucu var. |
 | `WindowsWindowControls::new` | `pub fn new(button_height: Pixels) -> Self` | Render'da minimize, maximize/restore ve close caption butonlarını üretir. |
 
 `WindowsCaptionButton` tipi crate dışına açılmamıştır; yalnızca crate içinde kullanılır. Tipin private metotları `id()`, `icon()` ve `control_area()` sırasıyla şu üç şeyi döner: Kararlı element id'si, Segoe glyph karakteri ve `WindowControlArea::{Min, Max, Close}` varyantlarından biri. Windows butonları, Linux'taki gibi tıklama işleyicisi çağırmaz; bunun yerine `.window_control_area(...)` ile hit-test alanı üretirler ve davranış platform caption katmanı tarafından sürdürülür.

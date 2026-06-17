@@ -308,7 +308,7 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 
 | API | Kapsadığı Davranış | Not |
 | :-- | :-- | :-- |
-| `ActionName` | Action adını JSON string olarak taşır | Çalışma zamanı action registry ile şema otomatik tamamlama (schema autocomplete) bağlanırken kullanılır. |
+| `ActionName`, `CommandAliasTarget` | Action adını veya komut takma adı hedefini JSON string olarak taşır | `ActionName` keymap ve kayıtlı action alanlarında registry tabanlı şema tamamlama sağlar; `CommandAliasTarget` ise `command_aliases` değerlerinde kayıtlı action adının yanında Vim komutu gibi serbest palet sorgularını da kabul eder. |
 | `ExtendingVec`, `SaturatingBool`, `MergeFrom`, `MergeFromTrait` | Özel merge semantiği olan collection, bool newtype ve re-export trait adları | `ExtendingVec` eleman biriktirir, `SaturatingBool` bir kez `true` olduğunda geri düşmez; `MergeFrom::merge_from_option` opsiyonel katman varsa birleştirir, `MergeFromTrait` settings macro çıktısının public trait re-export'udur. |
 | `RootUserSettings`, `SettingsProfile` | Kök settings parse trait'i ve profil override verisi | `RootUserSettings` yorumlu/yorumsuz JSON parse girişlerini sağlar; `SettingsProfile` kullanıcı profilinin taban ve settings override içeriğini taşır. |
 | `SeedQuerySetting`, `ActivateOnClose`, `ClosePosition`, `ShowCloseButton`, `ShowDiagnostics` | Editör/workspace davranışındaki küçük enum ve içerik seçimleri | Tek başına uzun açıklamalar gerektirmeyen şema seçenekleridir. |
@@ -337,9 +337,9 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 
 | Grup | API | Not |
 |---|---|---|
-| Alanlar | `allow_network`, `allow_fs_write_all`, `allow_unsandboxed`, `write_paths` | Ağ erişimi, tüm dosya sistemine yazma, sandbox dışında çalışma ve belirli mutlak yol (path) alt ağaçlarına yazma izinlerini taşır. |
+| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, sandbox dışında çalışmayı ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
 
-`allow_sandbox_network()`, `allow_sandbox_fs_write_all()` ve `allow_sandbox_unsandboxed()` metotları ilgili boolean izni `Some(true)` yapar. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ve `allow_sandbox_unsandboxed()` metotları ilgili boolean izni `Some(true)` yapar. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
 
 ### `WorktreeSettingsContent`
 

@@ -44,7 +44,7 @@ pub trait WorkspaceError {
 
 | API | Rolü |
 |-----|-----|
-| `ErrorSeverity` | `Critical`, `Error`, `Warning` düzeylerini ayırır. `auto_dismiss_delay()` her düzeye otomatik kapanma süresi verir: `Critical` için `None` (kullanıcı kapatana kadar kalır), `Error` için 20 saniye, `Warning` için 10 saniye. |
+| `ErrorSeverity` | `Critical`, `Error`, `Warning` düzeylerini ayırır. `auto_dismiss_delay()` her düzeye otomatik kapanma süresi verir: `Critical` için `None` (kullanıcı kapatana kadar kalır), `Error` için 30 saniye, `Warning` için 20 saniye. |
 | `ErrorAction` | Hata bildirimindeki bir eylem düğmesini tanımlar (`label`, opsiyonel `icon`, `tooltip`, `handler`). `ErrorAction::new(label, action)` bir `Action` tetikler; `ErrorAction::dismiss()` yalnız bildirimi kapatan "Dismiss" düğmesi üretir; `ErrorAction::link(label, url)` sona `ArrowUpRight` ikonu koyup bağlantıyı tarayıcıda açar. `.with_icon(...)`, `.with_end_icon(...)`, `.with_tooltip(...)` ile zincirlenir. `tooltip` alanı eylem verisinde taşınır; `MessageNotification::from_workspace_error(...)` dönüşümü bu alanı şu an düğme çizimine bağlamaz. Eylem ipucu gerekiyorsa özel `MessageNotification` kurulumu veya ayrı bir bildirim görünümü kullanılır. |
 | `ErrorActionHandler` | Düğmeye basılınca çalışacak davranış: `Action(Box<dyn Action>)` ilgili action'ı gönderir, `Dismiss` yalnız bildirimi kapatır. |
 | `ActionIcon` | Eylem düğmesi ikonunu konumuyla taşır: `ActionIcon::start(name)` etiketin solunda, `ActionIcon::end(name)` sağındadır. |

@@ -592,7 +592,9 @@ Dekorasyon türleri:
 | :-- | :-- |
 | `IconDecorationKind` | Overlay biçimini seçer: `X` hata/silme, `Dot` küçük durum noktası, `Triangle` köşe uyarısı için tercih edilir. |
 | `IconDecorationKind::iter()` | `IconDecorationKind` varyantlarını preview veya doğrulama kodunda dolaşmak için `strum::IntoEnumIterator` üzerinden kullanılır. |
+| `ui::components::icon::icon_decoration::IconDecorationKindIter` | `IconDecorationKind::iter()` çağrısının döndürdüğü `EnumIter` iterator tipidir; uygulama kodunda genellikle doğrudan adlandırılmaz. |
 | `KnockoutIconName::iter()` | Knockout SVG enum varyantlarını listelemek için `strum::IntoEnumIterator` üzerinden kullanılır; normal bileşen tüketicisi genellikle doğrudan çağırmaz. |
+| `ui::components::icon::icon_decoration::KnockoutIconNameIter` | `KnockoutIconName::iter()` çağrısının iterator tipidir; knockout SVG envanteri veya preview doğrulaması dışında elle taşınması beklenmez. |
 
 Davranış:
 

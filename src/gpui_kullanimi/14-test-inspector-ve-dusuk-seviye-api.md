@@ -485,6 +485,7 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `FutureExt`, `WithTimeout` | `with_timeout(...)` zinciri | Future'a executor kontrollü timeout ekleyen trait ve onun sarmalayıcı future tipidir. |
 | `BackgroundExecutor`, `ForegroundExecutor`, `Scope` | `spawn`, `spawn_with_priority`, `scheduler_executor`, scoped task | Ön plan/arka plan task scheduling yüzeyidir; testte deterministik zaman için test dispatcher ile çalışır. |
 | `ArcCow` | `gpui_util::arc_cow::ArcCow` | Clone maliyeti düşük copy-on-write paylaşımlı veri taşımak için yeniden dışa aktarılır. |
+| `gpui::shared_uri::SharedUri` | `SharedString` URI sarmalayıcısı | URI metnini paylaşımlı string olarak taşır; `Display`, `Debug`, `Deref`, `DerefMut`, `Clone`, `Hash` ve `From<T: Into<SharedString>>` yüzeyiyle `gpui` genel API'sine açılır. |
 | `block_on` | `pollster::block_on` | Küçük senkron köprülerde kullanılır; GPUI ana akışında asenkron task ve executor yapılarının tercih edilmesi önerilir. |
 | `AnyDrag`, `KeystrokeEvent`, `ArenaClearNeeded` | drag view/value/cursor, resolved action, arena temizliği | App/window iç durum taşıyıcılarıdır; çoğu uygulama kodu bu tipleri doğrudan sahiplenmez. |
 | `SHUTDOWN_TIMEOUT` | 200ms | `Context::on_app_quit` future'larının quit sırasında çalışabileceği süreyi sınırlar. |

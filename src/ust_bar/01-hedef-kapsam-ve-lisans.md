@@ -9,6 +9,21 @@ Zed'in başlık çubuğu iki ayrı crate'in üst üste binmesinden oluşur:
 - **`platform_title_bar`** — Pencere kabuğu. Sürükleme alanı, Linux/Windows pencere kontrolleri, macOS trafik ışığı boşluğu, yerel pencere sekmeleri. Bu katman [Platform Üst Barı](../platform_ust_bar/platform_ust_bar.md) bölümünde anlatılmaktadır.
 - **`title_bar`** — Ürün başlığı. `platform_title_bar`'ı re-export (yeniden dışa aktarım) ile dışa aktarıp onun üstüne Zed'in kullanıcıya gösterdiği içeriği inşa eder: Proje adı ve menüsü, Git dal göstergesi, uygulama menüsü, kullanıcı menüsü, işbirliği kontrolleri, abonelik planı çipi, güncelleme bildirimi ve ilk karşılama duyuru bandı.
 
+`platform_title_bar` dış API'si ürün başlığının altında yalnız köprü rolüyle görünür; ayrıntılı davranış [Platform Üst Barı referansında](../platform_ust_bar/09-referans-ve-dogrulama.md) anlatılır. `src/ust_bar` kapsamından izlenmesi gereken public yollar şunlardır:
+
+| API yolu | Rol |
+| :-- | :-- |
+| `platform_title_bar::platforms` | Linux ve Windows platform modüllerini açan kök modüldür. |
+| `platform_title_bar::platforms::platform_linux` | Linux/FreeBSD CSD pencere kontrol bileşenlerini taşır. |
+| `platform_title_bar::platforms::platform_linux::LinuxWindowControls` | Linux tarafında sol veya sağ pencere kontrol grubunu render eden elementtir. |
+| `platform_title_bar::platforms::platform_linux::WindowControl` | Tek bir Linux pencere kontrol butonunu temsil eder. |
+| `platform_title_bar::platforms::platform_linux::WindowControlStyle` | Linux kontrol butonlarının arka plan ve ikon renklerini taşır. |
+| `platform_title_bar::platforms::platform_linux::WindowControlType` | `Minimize`, `Restore`, `Maximize`, `Close` ikon kararlarını sınıflandırır. |
+| `platform_title_bar::platforms::platform_windows` | Windows caption button çizimini taşıyan modüldür. |
+| `platform_title_bar::platforms::platform_windows::WindowsWindowControls` | Windows minimize, maximize/restore ve close caption butonlarını üretir. |
+| `platform_title_bar::render_left_window_controls` | Linux/FreeBSD + client-side decorations durumunda sol kontrol grubunu üretir. |
+| `platform_title_bar::render_right_window_controls` | Linux/FreeBSD sağ kontrol grubunu veya Windows caption kontrollerini üretir; macOS tarafında `None` döner. |
+
 Bu ayrım rastgele değildir. Platform kabuğu "pencere nasıl davranır" sorusunu yanıtlar; ürün başlığı ise "kullanıcı başlıkta neyi görür ve neye tıklar" sorusunu yanıtlar. Birincisi her uygulamada aynı kalmalıdır; ikincisi her uygulamada tamamen farklıdır.
 
 ```text

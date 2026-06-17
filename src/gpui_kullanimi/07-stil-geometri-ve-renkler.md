@@ -4,8 +4,8 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `78658778a28f..fef979dec45c`.
-- [x] Rustdoc JSON snapshot üretimi tamamlandı; güncel kaynak commit `fef979dec45c`, toplam API kaydı `32358`.
+- [x] Kaynak commit aralığı: `78658778a28f..84b753cb5144`.
+- [x] Rustdoc JSON snapshot üretimi tamamlandı; güncel kaynak commit `84b753cb5144`, toplam API kaydı `32536`.
 - [x] Bu bölüm için doğrulanan yeni yüzeyler: `Rgba::alpha`, `Rgba::opacity`, `BoxShadow::new`, `BoxShadow::blur_radius`, `BoxShadow::spread_radius`, `BoxShadow::inset`, `TextOverflow::TruncateMiddle` ve `Styled::text_ellipsis_middle`.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/color.rs`, `crates/gpui/src/style.rs`, `crates/gpui/src/styled.rs` ve `crates/ui/src/styles/elevation.rs`.
 
