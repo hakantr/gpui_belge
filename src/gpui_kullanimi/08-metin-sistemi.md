@@ -113,7 +113,9 @@ let yerlesim = metin.layout().clone();
 
 - `index_for_position(point) -> Result<usize, usize>`: Piksel bazlı konum koordinatından metnin UTF-8 byte indeksini hesaplar.
 - `position_for_index(index) -> Option<Point<Pixels>>`: Metnin byte indeksinden piksel koordinat karşılığını üretir.
-- `line_layout_for_index(index)`, `bounds()`, `line_height()`, `len()`, `text()` ve `wrapped_text()` sorgularını yürütür.
+- `line_layout_for_index(index) -> Option<Arc<WrappedLineLayout>>`: Verilen byte indeksini içeren satırın sarılmış yerleşim nesnesini döndürür.
+- `line_layouts() -> SmallVec<[Arc<WrappedLineLayout>; 1]>`: Tüm satır yerleşimlerini kaynak sırasıyla döndürür; çok satırlı ölçüm, hit-test veya özel editor çizimlerinde toplu satır bilgisi gerektiğinde kullanılır.
+- `bounds()`, `line_height()`, `len()`, `text()` ve `wrapped_text()` sorgularını yürütür.
 
 `TextLayout` verileri yerleşim veya prepaint aşamaları tamamlanmadan önce okunmaya çalışılırsa çalışma zamanında hataya (`panic`) yol açabilir. Bu nedenle, ölçüm sonuçlarına bağımlı olan kod blokları olay işleyicileri (event handlers) veya yerleşim sonrası akışlarda çalıştırılmalıdır.
 

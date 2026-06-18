@@ -112,7 +112,7 @@ Temel API:
 
 - Constructor: `Switch::new(id, state: ToggleState)`.
 - Yardımcı constructor: `switch(id, toggle_state)`.
-- Builder'lar: `.color(SwitchColor)`, `.disabled(bool)`, `.on_click(...)`, `.label(...)`, `.label_position(...)`, `.label_size(...)`, `.full_width(bool)`, `.key_binding(...)`, `.tab_index(...)`.
+- Builder'lar: `.color(SwitchColor)`, `.disabled(bool)`, `.on_click(...)`, `.label(...)`, `.label_position(...)`, `.label_size(...)`, `.full_width(bool)`, `.key_binding(...)`, `.tab_index(...)`, `.aria_label(...)`.
 - `SwitchColor`: `Accent`, `Custom(Hsla)`.
 - `SwitchLabelPosition`: `Start`, `End`.
 
@@ -121,6 +121,7 @@ Davranış:
 - `ToggleState::Selected` açık, diğer durumlar kapalı görünür.
 - Click işleyicisine `self.toggle_state.inverse()` gönderilir; yani Switch da Checkbox gibi hedef durumu taşır.
 - `.label(...)` tek başına etiketi çizdirmez; etiketin görünmesi için ayrıca `.label_position(Some(SwitchLabelPosition::Start))` veya `.label_position(Some(SwitchLabelPosition::End))` tanımlanması gerekir.
+- `.aria_label(...)` verilmezse erişilebilirlik etiketi görünür label'dan türetilir. Label çizdirilmeyen kompakt switch'lerde ekran okuyucu etiketi için bu builder'ın açıkça verilmesi gerekir.
 - `full_width(true)` switch ile etiketi satır içinde iki uca doğru yayar; böylece etiket solda, switch ise sağda konumlanır.
 - `tab_index(...)` tanımlandığında switch, odaklandığında görünür bir kenarlık (border) kazanır ve klavye odak sırasına dahil olur.
 

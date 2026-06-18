@@ -120,6 +120,7 @@ Temel API:
 - Slotlar: `.start_slot(...)`, `.end_slot(...)`, `.end_slot_on_hover(...)`, `.show_end_slot_on_hover()`.
 - Hiyerarşi: `.indent_level(usize)`, `.indent_step_size(Pixels)`, `.inset(bool)`, `.toggle(...)`, `.on_toggle(...)`, `.always_show_disclosure_icon(bool)`.
 - Davranış: `.on_click(...)`, `.on_hover(...)`, `.on_secondary_mouse_down(...)`, `.tooltip(...)`.
+- Erişilebilirlik: `.aria_role(Role)`, `.aria_label(...)`, `.aria_active_descendant()`.
 - Görsel durum: `.toggle_state(bool)`, `.disabled(bool)`, `.selectable(bool)`, `.outlined()`, `.rounded()`, `.focused(bool)`, `.docked_right(bool)`, `.height(...)`, `.overflow_x()`, `.group_name(...)`.
 
 Satır yoğunluğu:
@@ -132,6 +133,8 @@ Davranış:
 
 - `RenderOnce`, `Disableable`, `Toggleable` ve `ParentElement` implement eder.
 - `toggle_state(true)` satırı seçili arka plan ile çizer; fakat uygulama durumunu kendisi değiştirmez. Seçim bilgisinin arkasındaki gerçek değerin view tarafında saklanması gerekir.
+- `aria_role(...)` verilmediğinde `ListItem` ayrı bir erişilebilirlik node'u gibi raporlanmaz; menü, picker veya composite widget satırında anlamlı bir rol gerekiyorsa `Role::MenuItem`, `Role::ListItem` veya uygun AccessKit rolü açıkça seçilir.
+- `aria_active_descendant()` seçili satırın erişilebilirlik odağı gibi duyurulmasını sağlar. Bu kullanımda odak container üzerinde kalır ve seçili satırda `aria_role(...)` tanımlanmış olmalıdır.
 - `disabled(true)` click işleyicisini devre dışı bırakır.
 - `.toggle(Some(is_open))` bir disclosure ikonu render eder; çocukların gerçekten gösterilip gösterilmeyeceğini üst view kontrol eder.
 - `end_slot_on_hover(...)`, normal end slot'u hover sırasında verilen hover slot'uyla değiştirir. `.show_end_slot_on_hover()` ise mevcut end slot'u yalnızca hover anında görünür kılar.
@@ -413,6 +416,7 @@ Davranış:
 - `RenderOnce`, `Disableable` ve `Toggleable` implement eder.
 - `root_item(true)` olan satırlarda disclosure ile label aynı satırda çizilir.
 - `root_item(false)` olan bir alt (child) satırda, solda bir girinti çizgisi çizilir.
+- Render sırasında iç etkileşimli yüzey `Role::TreeItem`, label, seçili durum, hiyerarşi seviyesi ve root satırlarda expanded durumuyla işaretlenir. Bu davranış için ek bir public builder gerekmez; değerler `label`, `toggle_state`, `root_item` ve `expanded` alanlarından türetilir.
 - `.expanded(...)` yalnızca disclosure ikonunun görünümünü belirler; child satırlarının gerçekten render edilip edilmeyeceğine üst view karar verir.
 - `.default_expanded(...)` mevcut kaynak kodda alanı set eder, ancak render içinde okunmaz. Açık veya kapalı durum kontrolü için `.expanded(...)` kullanılır.
 - `.toggle_state(true)` seçili arka plan ile birlikte border davranışını tetikler.

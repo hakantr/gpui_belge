@@ -43,12 +43,13 @@ Temel API:
 
 - Constructor: `DropdownMenu::new(id, label, menu: Entity<ContextMenu>)`.
 - Özel label için: `DropdownMenu::new_with_element(id, label: AnyElement, menu)`.
-- Builder'lar: `.style(DropdownStyle)`, `.trigger_size(ButtonSize)`, `.trigger_tooltip(...)`, `.trigger_icon(IconName)`, `.full_width(bool)`, `.handle(PopoverMenuHandle<ContextMenu>)`, `.attach(Anchor)`, `.offset(Point<Pixels>)`, `.tab_index(...)`, `.no_chevron()`, `.disabled(bool)`.
+- Builder'lar: `.style(DropdownStyle)`, `.trigger_size(ButtonSize)`, `.trigger_tooltip(...)`, `.trigger_icon(IconName)`, `.full_width(bool)`, `.handle(PopoverMenuHandle<ContextMenu>)`, `.attach(Anchor)`, `.offset(Point<Pixels>)`, `.tab_index(...)`, `.no_chevron()`, `.aria_label(...)`, `.disabled(bool)`.
 - `DropdownStyle`: `Solid`, `Outlined`, `Subtle`, `Ghost`.
 
 Davranış:
 
 - Metin label durumunda arka planda bir `Button` üretilir; özel element label durumunda ise bir `ButtonLike` kullanılır.
+- `.aria_label(...)` verilmezse tetikleyicinin erişilebilirlik etiketi görünür label'dan türetilir. Özel element label'ı metin üretmiyorsa bu builder'ın açıkça tanımlanması gerekir.
 - Dahili olarak `PopoverMenu::new((id, "popover"))` kurulur.
 - Varsayılan tetikleyici ikonu `IconName::ChevronUpDown`'dur; `.no_chevron()` bu oku kaldırır.
 - Varsayılan attach noktası `Anchor::BottomRight`'tır.

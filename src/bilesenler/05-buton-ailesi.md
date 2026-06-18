@@ -124,6 +124,7 @@ Temel API:
 - Constructor: `Button::new(id, label)`.
 - İçerik builder'ları: `.start_icon(...)`, `.end_icon(...)`, `.selected_label(...)`, `.selected_label_color(...)`, `.color(...)`, `.label_size(...)`, `.alpha(...)`, `.key_binding(...)`, `.key_binding_position(...)`.
 - Durum builder'ları: `.loading(bool)`, `.truncate(bool)`, `.toggle_state(bool)`, `.selected_style(...)`, `.disabled(bool)`.
+- Erişilebilirlik builder'ları: `.aria_label(...)`, `.aria_role(gpui::Role)`, `.aria_expanded(bool)`, `.on_a11y_action(action, listener)`.
 - Ortak builder'lar: `.style(...)`, `.size(...)`, `.tooltip(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.width(...)`, `.full_width()`, `.on_click(...)`, `.cursor_style(...)`.
 
 Davranış:
@@ -131,6 +132,9 @@ Davranış:
 - `RenderOnce` implement eder ve render sonunda arka planda bir `ButtonLike` üretir.
 - `loading(true)` olduğunda `start_icon` yerine dönen `IconName::LoadCircle` ikonu çizilir.
 - Devre dışı (disabled) durumda etiket ve ikon `Color::Disabled` rengiyle çizilir.
+- `aria_label(...)` belirtilmezse erişilebilirlik etiketi görünür button label'ından türetilir; ikon veya görsel durum label'ı yeterince açıklamıyorsa bu builder açıkça verilmelidir.
+- `aria_expanded(...)` ve `on_a11y_action(...)`, dropdown veya disclosure tetikleyicisi gibi popup kontrol eden butonlarda ekran okuyucu action akışını buton durumuna bağlar.
+- `toggle_state(...)` seçili görsel durumun yanında erişilebilirlik ağacına `Toggled::True` veya `Toggled::False` bilgisini de aktarır.
 - `.truncate(true)` yalnızca dinamik ve taşma riski olan etiketlerde kullanılır; kaynak yorumlarında statik etiketler için kullanılmaması gerektiği özellikle vurgulanmaktadır.
 
 Örnekler:
@@ -216,6 +220,7 @@ Temel API:
 - İkon builder'ları: `.icon_size(...)`, `.icon_color(...)`, `.selected_icon(...)`, `.selected_icon_color(...)`, `.alpha(...)`.
 - Şekil: `.shape(IconButtonShape::Square | Wide)`. Varsayılan şekil `IconButtonShape::Wide`'dir; kare bir yüzey isteniyorsa `Square` açıkça tanımlanır.
 - Durum ve davranış: `.indicator(...)`, `.indicator_border_color(...)`, `.toggle_state(...)`, `.selected_style(...)`, `.disabled(...)`, `.on_click(...)`, `.on_right_click(...)`, `.visible_on_hover(...)`.
+- Erişilebilirlik: `.aria_label(...)`, `.aria_expanded(bool)`, `.on_a11y_action(action, listener)`.
 - Ortak builder'lar: `.style(...)`, `.size(...)`, `.tooltip(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.width(...)`, `.full_width()`, `.cursor_style(...)`.
 
 Davranış:
@@ -224,6 +229,7 @@ Davranış:
 - Seçili durumda `selected_icon` tanımlanmışsa o ikon çizilir.
 - Seçili durumdayken `selected_style` da belirtilmişse, ikon rengi bu stile karşılık gelen semantik renkten türetilir. Aksi halde `selected_icon_color` veya `Color::Selected` kullanılır.
 - `IconButtonShape::Square`, ikonun kare ölçüsünü kullanarak butonun genişlik (width) ve yükseklik (height) değerlerini eşitler; yani buton bir kare olarak çizilir.
+- İkon-only bir yüzeyde görünür metin olmadığı için `.aria_label(...)` genellikle tooltip metniyle aynı anlamı taşıyacak şekilde verilmelidir.
 
 Örnek:
 
@@ -290,6 +296,7 @@ Temel API:
 - Grup constructor'ları: `new_rounded_left`, `new_rounded_right`, `new_rounded_all`.
 - Style ve durum: `.style(...)`, `.size(...)`, `.disabled(...)`, `.toggle_state(...)`, `.selected_style(...)`, `.opacity(...)`, `.height(...)`.
 - Davranış: `.on_click(...)`, `.on_right_click(...)`, `.tooltip(...)`, `.hoverable_tooltip(...)`, `.cursor_style(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.visible_on_hover(...)`.
+- Erişilebilirlik: `.aria_label(...)`, `.aria_role(gpui::Role)`, `.aria_expanded(bool)`, `.on_a11y_action(action, listener)`.
 - Layout: `ParentElement` implement eder; `.child(...)` ve `.children(...)` kabul eder. Ayrıca `.width(...)` ve `.full_width()` builder'larını taşır.
 
 Yuvarlama davranışı:
@@ -310,6 +317,8 @@ Davranış:
 - Kendisine verilen child'ları bir h-flex buton yüzeyi içinde render eder.
 - Style hesabı için enabled, hover, active, focus ve disabled durumlarının hepsi `ButtonStyle` üzerinden türetilir.
 - Click işleyicisi disabled değilse çalışır ve event propagation durdurulur.
+- Özel child içeriği görünür metni açıkça sağlamıyorsa `.aria_label(...)` verilmesi gerekir. Menü veya popup tetikleyen özel yüzeylerde `.aria_expanded(...)` ve uygun `accesskit::Action` için `.on_a11y_action(...)` bağlanabilir.
+- `toggle_state(...)`, seçili görsel durumu `aria_toggled` değerine de dönüştürür; özel toggle yüzeyi yazılırken görsel seçim ve erişilebilirlik durumu aynı builder üzerinden eşleşir.
 
 Örnek:
 

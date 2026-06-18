@@ -242,6 +242,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | :-- | :-- | :-- |
 | `ThemeSettingsContent` | Tema, font ve arayüz yoğunluğu üst seviye verisi | `theme`, `icon_theme`, `markdown_preview_theme`, `ui_density`, arayüz/tampon/agent/git commit font boyutu ve ağırlığı, font ailesi/özellikleri, gereksiz kodların soluklaştırılması ve tema override alanlarını taşır. |
 | `ThemeSettingsContent` | Font alanları | `ui_font_family`, `ui_font_fallbacks`, `ui_font_size`, `ui_font_features`, `ui_font_weight`, `buffer_font_weight`, `buffer_line_height`, `buffer_font_features`, `agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size`, `markdown_preview_font_family`, `markdown_preview_code_font_family` font odaklı parçalardır. |
+| `MarkdownPreviewSettingsContent` | Markdown preview yerleşim genişliği | `SettingsContent.markdown_preview` alanında `limit_content_width` ve `max_width` değerlerini taşır; preview pane geniş olduğunda içerik genişliği bu sözleşmeyle sınırlandırılır. |
 | `ThemeSelection`, `ThemeSelectionDiscriminants`, `ThemeName`, `DEFAULT_LIGHT_THEME`, `DEFAULT_DARK_THEME` | Tema seçimi ve varsayılan tema adları | Statik veya dinamik light/dark seçimi yapılır; varsayılan tercihler `One Light` ve `One Dark` isimlerini kullanır. |
 | `IconThemeSelection`, `IconThemeSelectionDiscriminants`, `IconThemeName` | Dosya ikonu teması seçimi | Dosya ikonu teması da statik veya dinamik light/dark yapısıyla seçilebilir. |
 | `ThemeAppearanceMode`, `UiDensity` | Görünüm modu ve yoğunluğu | `Light`, `Dark`, `System` tema modunu; `Compact`, `Default`, `Comfortable` boşluk oranlarını belirler. `UiDensity::spacing_ratio()` bu seçimi sayısal katsayıya çevirir. |
@@ -280,10 +281,11 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `AgentSettingsContent`, `AgentProfileContent`, `ContextServerPresetContent` | Agent panel, profil ve context server preset ayarları | Model, panel ve izin yapılarını tek bir içerik altında toplar. |
 | `AllAgentServersSettings`, `CustomAgentServerSettings` | Agent sunucu ayarları koleksiyonu ve özel sunucu seçimi | Dış agent sunucu davranışlarını settings JSON dosyasına bağlar. |
 | `AgentSettingsContent.auto_compact`, `AutoCompactSettingsContent`, `AutoCompactThreshold` | Agent bağlamı büyüdüğünde otomatik compaction eşiği | `enabled` varsayılan olarak açıktır; `threshold` `"90%"` gibi yüzde string'i, pozitif token sayısı veya negatif kalan-token eşiği olarak taşınabilir. |
+| `AgentSettingsContent.terminal_init_command` | Terminal Thread başlangıç komutu | Agent paneli Terminal Thread shell'i oluşturduğunda gönderilecek shell komutunu taşır; boş string bu davranışı kapatır. |
 | `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve sağlayıcıya özel parametre override'ları | `language_models` sağlayıcı ayarlarından bağımsız olarak agent model seçimini taşır. |
 | `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel yerleşimi, düşünme bloğu gösterimi, bildirimler ve ses davranışları | Kullanıcı etkileşimiyle ilgili enum şema bileşenleridir. |
 | `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool (araç) izinleri, regex kuralları ve izin modları | Tool çağrısı politikaları içerik şeması seviyesinde tiplendirilir. |
-| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları ve sandbox dışı çalışma izinlerini taşır. |
+| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, sandbox dışı çalışma izinleri ve sandbox'ın tamamen kapatılması bilgisini taşır. |
 
 ### Dil Modeli Sağlayıcı (Language Model Provider) İçerik Ailesi
 
@@ -337,9 +339,9 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 
 | Grup | API | Not |
 |---|---|---|
-| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, sandbox dışında çalışmayı ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
+| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `disabled`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, sandbox dışında çalışmayı, sandbox'ı tüm agent terminal komutları için kapatmayı ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
 
-`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ve `allow_sandbox_unsandboxed()` metotları ilgili boolean izni `Some(true)` yapar. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ve `allow_sandbox_unsandboxed()` metotları ilgili boolean izni `Some(true)` yapar. `disable_sandbox()` ise `disabled: Some(true)` yazar ve agent terminal komutlarının sandbox dışında çalışacağı ayar durumunu kalıcılaştırır. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
 
 ### `WorktreeSettingsContent`
 
