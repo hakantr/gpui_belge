@@ -64,6 +64,7 @@ pub enum KeymapFileLoadResult {
 | :-- | :-- | :-- |
 | `KeymapFileLoadResult` | `Success`, `SomeFailedToLoad`, `JsonParseFailure` | Keymap parse ve action doğrulama sonuçlarını arayüze taşır. |
 | `DEFAULT_KEYMAP_PATH` | platforma göre default asset | Paketlenmiş varsayılan keymap dosyasının yoludur. |
+| `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre specific override asset | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` yolunu verir. |
 | `VIM_KEYMAP_PATH` | `keymaps/vim.json` | Vim modu keymap asset dosyasının yoludur. |
 
 API üzerinde sıkça kullanılan yapıcı metotlar şunlardır:

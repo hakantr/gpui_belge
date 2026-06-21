@@ -132,6 +132,9 @@ Satır yoğunluğu:
 Davranış:
 
 - `RenderOnce`, `Disableable`, `Toggleable` ve `ParentElement` implement eder.
+- Erişilebilirlik node'u yalnız `.aria_role(...)` ile rol verildiğinde anlamlı satır node'u olarak ayrışır; `.aria_label(...)` bu node'un duyurulacak adını taşır.
+- `.aria_active_descendant()` odak üst listede veya menü container'ında kalırken satırın aktif descendant olarak raporlanmasını sağlar.
+- `.toggle_state(true)` seçili veya checked satırlarda erişilebilirlik durumunu da aynı render dalından üretir; rol verilmediğinde bu bilgi ayrı bir node olarak görünmeyebilir.
 - `toggle_state(true)` satırı seçili arka plan ile çizer; fakat uygulama durumunu kendisi değiştirmez. Seçim bilgisinin arkasındaki gerçek değerin view tarafında saklanması gerekir.
 - `aria_role(...)` verilmediğinde `ListItem` ayrı bir erişilebilirlik node'u gibi raporlanmaz; menü, picker veya composite widget satırında anlamlı bir rol gerekiyorsa `Role::MenuItem`, `Role::ListItem` veya uygun AccessKit rolü açıkça seçilir.
 - `aria_active_descendant()` seçili satırın erişilebilirlik odağı gibi duyurulmasını sağlar. Bu kullanımda odak container üzerinde kalır ve seçili satırda `aria_role(...)` tanımlanmış olmalıdır.
@@ -403,7 +406,7 @@ Ne zaman kullanılır:
 Ne zaman kullanılmaz:
 
 - Slot'lu, serbest layout'lu bir satır gerektiğinde `ListItem` daha esnek bir çözüm sunar.
-- Büyük ve özel bir hiyerarşik panel kurulurken `uniform_list(...)`, `ListItem` and `IndentGuides` üçlüsü çok daha esnek bir altyapı verir.
+- Büyük ve özel bir hiyerarşik panel kurulurken `uniform_list(...)`, `ListItem` ve `IndentGuides` üçlüsü çok daha esnek bir altyapı verir.
 
 Temel API:
 
@@ -414,6 +417,9 @@ Temel API:
 Davranış:
 
 - `RenderOnce`, `Disableable` ve `Toggleable` implement eder.
+- Satır erişilebilirlik ağacında `Role::TreeItem` rolüyle çizilir ve görünür label aynı zamanda `aria_label` olarak aktarılır.
+- `toggle_state(true)` seçili ağaç satırını `aria_selected(true)` ile bildirir.
+- `indent_level(...)`, `aria_level(...)` değerine bağlanır; kök seviyedeki açılır öğeler ise `aria_expanded(...)` ile açık/kapalı durumunu taşır.
 - `root_item(true)` olan satırlarda disclosure ile label aynı satırda çizilir.
 - `root_item(false)` olan bir alt (child) satırda, solda bir girinti çizgisi çizilir.
 - Render sırasında iç etkileşimli yüzey `Role::TreeItem`, label, seçili durum, hiyerarşi seviyesi ve root satırlarda expanded durumuyla işaretlenir. Bu davranış için ek bir public builder gerekmez; değerler `label`, `toggle_state`, `root_item` ve `expanded` alanlarından türetilir.

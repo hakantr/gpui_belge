@@ -125,6 +125,8 @@ list(self.liste_durumu.clone(), |sira, window, cx| {
 
 Bu davranış özellikle sohbet, günlük, test çıktısı veya tembel yüklenen satırların bulunduğu listelerde önemlidir. Öğenin yüksekliği ölçümden sonra küçülürse scroll offset'i ilgili öğenin yeni yüksekliğine sıkıştırılır; öğe büyürse kullanıcı scroll niyeti korunarak yeni konum hesaplanır. Veri seti tamamen değiştiğinde `reset(count)` çağrısı pending scroll bilgisini temizler; son konuma gidildiğinde `scroll_to_end()` de aynı şekilde eski bekleyen ölçüm durumunu devre dışı bırakır.
 
+**Autoscroll ve Negatif Offset Koruması.** Bir çocuk element `window.request_autoscroll(...)` ile görünür kalmak istediğinde istenen üst sınır, o çocuğun kendi üst kenarının da üzerine taşabilir. `ListState`, bu durumda önceki öğelere doğru geri yürüyerek `ListOffset { item_ix, offset_in_item }` değerini yeniden hesaplar. Böylece `offset_in_item` negatif kalmaz ve listenin üstünde boşluk oluşmaz. Özellikle satır içi scroll-margin etkisi veren büyük editör, terminal veya log satırlarında bu davranışın liste state'i tarafından çözüldüğü kabul edilir; uygulama kodunun ayrıca negatif offset düzeltmesi üretmesi gerekmez.
+
 **Özel scrollbar API'si.** Özel bir scrollbar bileşeni tasarlanırken bu metotlar üzerinden işlem yapılır (`ui::Scrollbars` da bu arayüz temel alınarak yapılandırılmıştır):
 
 - `viewport_bounds() -> Bounds<Pixels>` — en son yerleşim yapılmış viewport rect'i.

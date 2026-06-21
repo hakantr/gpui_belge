@@ -105,6 +105,8 @@ calisma_alani.hide_modal(window, cx);
 
 `toggle_modal` aynı tipte bir modal zaten açıksa onu kapatır; aksi halde yenisini açar. `on_before_dismiss` varsayılan olarak `DismissDecision::Dismiss(true)` döndürür. Bu metot `DismissDecision::Dismiss(false)` veya `Pending` döndürürse yeni modal görünmez.
 
+**Güvenlik modalı.** `SecurityModal::new(worktree_store, remote_host, window, cx)` çalışma alanı güven kararını soran hazır modalı üretir. `window` parametresi, modal içinde kullanılan `InputField` entity'sinin oluşturulması için gereklidir. Tek bir dosya olmayan proje güven sorusu gösterildiğinde modal, güvenilecek klasör kapsamını düzenlenebilir bir alan olarak sunar; değer boş, göreli veya projenin üst dizini/eşiti olmayan bir yol ise alan hata durumuna geçer. `~` ile başlayan yollar kullanıcının home dizinine genişletilir.
+
 ---
 
 ## StatusBar ve StatusItemView
@@ -215,6 +217,7 @@ Bu bölümde bazı tipler davranışın ana başlığıdır (`Item`, `ModalView`
 | `modal_layer` | `ModalView`, `DismissDecision` ve modal yığını (modal stack) davranışını barındıran modül sınırıdır. |
 | `notifications` | Çalışma alanı bildirim listesi, bildirim kimlikleri, uygulama seviyesi bildirimler ve hata yardımcılarının modül sınırıdır. |
 | `pane` | Öğe sekme listesi, split, zoom, close/save eylemleri ve pane olaylarını barındıran ana modüldür. |
+| `security_modal` | `SecurityModal` ve çalışma ağacı güven kapsamı doğrulama akışını barındıran modül sınırıdır. |
 
 **Item, follow, modal ve toast ek kapsamı.** Bu dışa açık yüzeyler öğe yaşam döngüsünün yan kanallarıdır: Tab ayarları, follow/collab bağlantısı, modal stack ve notification host davranışını tamamlar.
 

@@ -242,7 +242,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | :-- | :-- | :-- |
 | `ThemeSettingsContent` | Tema, font ve arayüz yoğunluğu üst seviye verisi | `theme`, `icon_theme`, `markdown_preview_theme`, `ui_density`, arayüz/tampon/agent/git commit font boyutu ve ağırlığı, font ailesi/özellikleri, gereksiz kodların soluklaştırılması ve tema override alanlarını taşır. |
 | `ThemeSettingsContent` | Font alanları | `ui_font_family`, `ui_font_fallbacks`, `ui_font_size`, `ui_font_features`, `ui_font_weight`, `buffer_font_weight`, `buffer_line_height`, `buffer_font_features`, `agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size`, `markdown_preview_font_family`, `markdown_preview_code_font_family` font odaklı parçalardır. |
-| `MarkdownPreviewSettingsContent` | Markdown preview yerleşim genişliği | `SettingsContent.markdown_preview` alanında `limit_content_width` ve `max_width` değerlerini taşır; preview pane geniş olduğunda içerik genişliği bu sözleşmeyle sınırlandırılır. |
+| `MarkdownPreviewSettingsContent` | Markdown preview içerik genişliği | `SettingsContent.markdown_preview` alanında `limit_content_width` ve `max_width` değerlerini taşır; rendered markdown içeriğinin okunabilirlik genişliği ve preview pane içindeki yatay merkezlemesi bu sözleşmeyle yönetilir. |
 | `ThemeSelection`, `ThemeSelectionDiscriminants`, `ThemeName`, `DEFAULT_LIGHT_THEME`, `DEFAULT_DARK_THEME` | Tema seçimi ve varsayılan tema adları | Statik veya dinamik light/dark seçimi yapılır; varsayılan tercihler `One Light` ve `One Dark` isimlerini kullanır. |
 | `IconThemeSelection`, `IconThemeSelectionDiscriminants`, `IconThemeName` | Dosya ikonu teması seçimi | Dosya ikonu teması da statik veya dinamik light/dark yapısıyla seçilebilir. |
 | `ThemeAppearanceMode`, `UiDensity` | Görünüm modu ve yoğunluğu | `Light`, `Dark`, `System` tema modunu; `Compact`, `Default`, `Comfortable` boşluk oranlarını belirler. `UiDensity::spacing_ratio()` bu seçimi sayısal katsayıya çevirir. |
@@ -279,13 +279,14 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | API | Kapsadığı Davranış | Not |
 | :-- | :-- | :-- |
 | `AgentSettingsContent`, `AgentProfileContent`, `ContextServerPresetContent` | Agent panel, profil ve context server preset ayarları | Model, panel ve izin yapılarını tek bir içerik altında toplar. |
+| `AgentSettingsContent.terminal_init_command` | Terminal Thread başlangıç komutu | Agent panelinde Terminal Thread shell'i oluşturulduğunda shell'e yazılmış gibi gönderilecek komutu taşır; boş string davranışı kapatır. |
 | `AllAgentServersSettings`, `CustomAgentServerSettings` | Agent sunucu ayarları koleksiyonu ve özel sunucu seçimi | Dış agent sunucu davranışlarını settings JSON dosyasına bağlar. |
 | `AgentSettingsContent.auto_compact`, `AutoCompactSettingsContent`, `AutoCompactThreshold` | Agent bağlamı büyüdüğünde otomatik compaction eşiği | `enabled` varsayılan olarak açıktır; `threshold` `"90%"` gibi yüzde string'i, pozitif token sayısı veya negatif kalan-token eşiği olarak taşınabilir. |
 | `AgentSettingsContent.terminal_init_command` | Terminal Thread başlangıç komutu | Agent paneli Terminal Thread shell'i oluşturduğunda gönderilecek shell komutunu taşır; boş string bu davranışı kapatır. |
 | `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve sağlayıcıya özel parametre override'ları | `language_models` sağlayıcı ayarlarından bağımsız olarak agent model seçimini taşır. |
 | `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel yerleşimi, düşünme bloğu gösterimi, bildirimler ve ses davranışları | Kullanıcı etkileşimiyle ilgili enum şema bileşenleridir. |
 | `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool (araç) izinleri, regex kuralları ve izin modları | Tool çağrısı politikaları içerik şeması seviyesinde tiplendirilir. |
-| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, sandbox dışı çalışma izinleri ve sandbox'ın tamamen kapatılması bilgisini taşır. |
+| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, sandbox dışı çalışma izinleri ve sandbox'ın tüm agent terminal komutları için kapatılması kararını taşır. |
 
 ### Dil Modeli Sağlayıcı (Language Model Provider) İçerik Ailesi
 
@@ -318,6 +319,7 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 | `Shell`, `ShowScrollbar` | Terminal shell ve scrollbar gösterim ayarları | `TerminalSettingsContent` altında terminal davranışını belirler. |
 | `SidebarSide` | Agent sidebar tarafının dahili/içerik eşleşmesi | `SidebarDockPosition` public settings enum'ını tamamlayan küçük bir yardımcıdır. |
 | `TitleBarSettingsContent`, `WindowButtonLayoutContent`, `title_bar` | Title bar ayar verisi, pencere düğmesi layout içeriği ve re-export modülü | Üst bar dokümanında derinlemesine ele alınır; settings tarafında JSON şeması sahibi olarak görünür. |
+| `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre keymap override yolu | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` sabitini verir. |
 | `serialize_f32_with_two_decimal_places`, `settings_content::serde_helper::serialize_f32_with_two_decimal_places` | `f32` değerlerini iki ondalık basamakla yazan serializer | `FontSize`, `CodeFade` ve benzeri transparent numeric içerik tiplerinin settings JSON çıktısını sabit formatta tutar. |
 
 ---
@@ -333,6 +335,12 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 
 ## İlgili Ek Ayar Tipleri ve Davranışları
 
+### `AgentSettingsContent.terminal_init_command`
+
+`AgentSettingsContent.terminal_init_command: Option<String>`, agent panelinde bir Terminal Thread shell'i oluşturulduğunda otomatik gönderilecek başlangıç komutunu taşır. Komut shell'e kullanıcı yazmış gibi iletilir; bu nedenle yorumlama, aktif shell yapılandırmasına ve uzak/Windows/WSL çalışma bağlamına bırakılır.
+
+Varsayılan ayar dosyasında değer boş string'dir. Boş string, başlangıç komutu davranışını devre dışı bırakır; bir komut tanımlandığında davranış agent terminal oluşturma akışına bağlanır, normal workspace terminal ayarlarının yerine geçmez.
+
 ### `SandboxPermissionsContent`
 
 `SandboxPermissionsContent`, agent tarafından çalıştırılan terminal komutlarının sandbox yükseltme isteklerinde kalıcı izinleri ayar JSON dosyasına taşır. Yapı, `AgentSettingsContent.sandbox_permissions: Option<SandboxPermissionsContent>` alanının içeriğidir; eğer bu değer atanmamışsa, terminal sandbox izinleri kullanıcı onayı sonucuna göre anlık olarak değerlendirilir.
@@ -341,7 +349,17 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 |---|---|---|
 | Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `disabled`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, sandbox dışında çalışmayı, sandbox'ı tüm agent terminal komutları için kapatmayı ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
 
-`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ve `allow_sandbox_unsandboxed()` metotları ilgili boolean izni `Some(true)` yapar. `disable_sandbox()` ise `disabled: Some(true)` yazar ve agent terminal komutlarının sandbox dışında çalışacağı ayar durumunu kalıcılaştırır. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ve `allow_sandbox_unsandboxed()` metotları ilgili boolean izni `Some(true)` yapar. `disable_sandbox()` ise `disabled: Some(true)` yazar; bu karar belirli bir unsandboxed komut izninden farklıdır, agent terminal komutlarının sandbox dışında çalışmasını genel ayar olarak ifade eder. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+
+### `MarkdownPreviewSettingsContent`
+
+`SettingsContent.markdown_preview: Option<MarkdownPreviewSettingsContent>` alanı, markdown preview pane içindeki rendered içerik genişliğini yönetir. Varsayılan ayar dosyasında `limit_content_width: true` ve `max_width: 800` değerleriyle gelir.
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `limit_content_width`, `max_width` | İçerik genişliğini okunabilirlik için sınırlama kararını ve piksel cinsinden üst genişliği taşır. |
+
+`limit_content_width` açık olduğunda rendered markdown içeriği `max_width` ile sınırlandırılır ve preview pane içinde yatay olarak merkezlenir. Bu ayar, tema tarafındaki `markdown_preview_theme` veya markdown preview font alanlarından farklıdır; burada yalnız layout genişliği yönetilir.
 
 ### `WorktreeSettingsContent`
 

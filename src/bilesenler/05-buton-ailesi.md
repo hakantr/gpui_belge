@@ -78,6 +78,7 @@ Buton ailesindeki küçük taşıyıcı ve trait yüzeyleri şu tabloda toplanı
 |-----|----------------|---------------|
 | `ButtonCommon` | `id`, `style`, `size`, `tooltip`, `tab_index`, `layer`, `track_focus` | Bütün button-like kontrollerin ortak yapılandırma sözleşmesidir. |
 | `SelectableButton` | `selected_style` | `Toggleable` kontrollerde seçili görsel stili ortaklaştırır. |
+| `ButtonLike` erişilebilirlik builder'ları | `aria_label`, `aria_role`, `aria_expanded`, `on_a11y_action` | Özel içerikli buton yüzeyinde AccessKit rol, etiket, açılma durumu ve action listener bilgisini taşır. |
 | `ButtonBuilder` | `into_configuration` | `ToggleButtonGroup` satırlarını `ButtonConfiguration` değerine çeviren builder sınırıdır. |
 | `ButtonConfiguration` | `label`, `icon`, `on_click`, `selected`, `tooltip` | Toggle button satırlarının render sırasında kullandığı paketlenmiş konfigürasyondur. |
 | `IconButtonShape` | `Square`, `Wide` | Icon-only butonun kare mi yoksa geniş toolbar yüzeyi mi olacağını seçer. |
@@ -130,6 +131,9 @@ Temel API:
 Davranış:
 
 - `RenderOnce` implement eder ve render sonunda arka planda bir `ButtonLike` üretir.
+- `.aria_label(...)` verilmemişse render sırasında görünür label erişilebilirlik label'ı olarak kullanılır.
+- `.aria_role(...)` verilmezse arka plandaki `ButtonLike` `Role::Button` üretir.
+- `.aria_expanded(...)` ve `.on_a11y_action(...)` özellikle dropdown, disclosure veya menü tetikleyicisi gibi açılır yüzeyleri denetleyen butonlarda kullanılır.
 - `loading(true)` olduğunda `start_icon` yerine dönen `IconName::LoadCircle` ikonu çizilir.
 - Devre dışı (disabled) durumda etiket ve ikon `Color::Disabled` rengiyle çizilir.
 - `aria_label(...)` belirtilmezse erişilebilirlik etiketi görünür button label'ından türetilir; ikon veya görsel durum label'ı yeterince açıklamıyorsa bu builder açıkça verilmelidir.
@@ -220,12 +224,14 @@ Temel API:
 - İkon builder'ları: `.icon_size(...)`, `.icon_color(...)`, `.selected_icon(...)`, `.selected_icon_color(...)`, `.alpha(...)`.
 - Şekil: `.shape(IconButtonShape::Square | Wide)`. Varsayılan şekil `IconButtonShape::Wide`'dir; kare bir yüzey isteniyorsa `Square` açıkça tanımlanır.
 - Durum ve davranış: `.indicator(...)`, `.indicator_border_color(...)`, `.toggle_state(...)`, `.selected_style(...)`, `.disabled(...)`, `.on_click(...)`, `.on_right_click(...)`, `.visible_on_hover(...)`.
-- Erişilebilirlik: `.aria_label(...)`, `.aria_expanded(bool)`, `.on_a11y_action(action, listener)`.
+- Erişilebilirlik builder'ları: `.aria_label(...)`, `.aria_expanded(bool)`, `.on_a11y_action(action, listener)`.
 - Ortak builder'lar: `.style(...)`, `.size(...)`, `.tooltip(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.width(...)`, `.full_width()`, `.cursor_style(...)`.
 
 Davranış:
 
 - `RenderOnce` implement eder ve render sonunda bir `ButtonLike` üretir.
+- Yalnız ikon taşıyan kontrollerde `.aria_label(...)` ayrı bir gerekliliktir; tooltip görsel kullanıcıya yardım eder, ekran okuyucu label'ı ise AccessKit node'undaki asıl adlandırmadır.
+- Açılır tetikleyicilerde `.aria_expanded(...)` gerçek açık/kapalı durumla aynı render dalından üretilir.
 - Seçili durumda `selected_icon` tanımlanmışsa o ikon çizilir.
 - Seçili durumdayken `selected_style` da belirtilmişse, ikon rengi bu stile karşılık gelen semantik renkten türetilir. Aksi halde `selected_icon_color` veya `Color::Selected` kullanılır.
 - `IconButtonShape::Square`, ikonun kare ölçüsünü kullanarak butonun genişlik (width) ve yükseklik (height) değerlerini eşitler; yani buton bir kare olarak çizilir.
@@ -296,7 +302,7 @@ Temel API:
 - Grup constructor'ları: `new_rounded_left`, `new_rounded_right`, `new_rounded_all`.
 - Style ve durum: `.style(...)`, `.size(...)`, `.disabled(...)`, `.toggle_state(...)`, `.selected_style(...)`, `.opacity(...)`, `.height(...)`.
 - Davranış: `.on_click(...)`, `.on_right_click(...)`, `.tooltip(...)`, `.hoverable_tooltip(...)`, `.cursor_style(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.visible_on_hover(...)`.
-- Erişilebilirlik: `.aria_label(...)`, `.aria_role(gpui::Role)`, `.aria_expanded(bool)`, `.on_a11y_action(action, listener)`.
+- Erişilebilirlik builder'ları: `.aria_label(...)`, `.aria_role(Role)`, `.aria_expanded(bool)`, `.on_a11y_action(action, listener)`.
 - Layout: `ParentElement` implement eder; `.child(...)` ve `.children(...)` kabul eder. Ayrıca `.width(...)` ve `.full_width()` builder'larını taşır.
 
 Yuvarlama davranışı:
@@ -315,6 +321,9 @@ Davranış:
 
 - `RenderOnce` implement eder.
 - Kendisine verilen child'ları bir h-flex buton yüzeyi içinde render eder.
+- Varsayılan erişilebilirlik rolü `Role::Button` olur; özel tetikleyicilerde `.aria_role(...)` ile örneğin `Role::ComboBox` gibi daha uygun bir rol verilebilir.
+- `.toggle_state(true)` görsel seçimi üretirken AccessKit tarafına `Toggled::True`; `false` durumunda `Toggled::False` taşır.
+- `.on_a11y_action(...)` listener'ı verilen AccessKit action'ı node üzerinde ilan eder ve ekran okuyucudan gelen action isteğini aynı kontrol durumuna bağlar.
 - Style hesabı için enabled, hover, active, focus ve disabled durumlarının hepsi `ButtonStyle` üzerinden türetilir.
 - Click işleyicisi disabled değilse çalışır ve event propagation durdurulur.
 - Özel child içeriği görünür metni açıkça sağlamıyorsa `.aria_label(...)` verilmesi gerekir. Menü veya popup tetikleyen özel yüzeylerde `.aria_expanded(...)` ve uygun `accesskit::Action` için `.on_a11y_action(...)` bağlanabilir.

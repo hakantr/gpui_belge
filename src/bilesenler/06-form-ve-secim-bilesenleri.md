@@ -40,7 +40,7 @@ Temel API:
 - Constructor: `Checkbox::new(id, checked: ToggleState)`.
 - Yardımcı constructor: `checkbox(id, toggle_state)`.
 - Builder'lar: `.disabled(bool)`, `.placeholder(bool)`, `.fill()`, `.visualization_only(bool)`, `.style(ToggleStyle)`, `.elevation(...)`, `.tooltip(...)`, `.label(...)`, `.label_size(...)`, `.label_color(...)`, `.on_click(...)`, `.on_click_ext(...)`.
-- Statik boyut yardımcısı: `Checkbox::container_size() -> Pixels` checkbox kutusu için kullanılan sabit yan boyut ölçüsünü (`px(20.0)`) döndürür; bir checkbox satırını diğer kontrollerle hizalaman gerektiğinde başvurabileceğin referans değerdir.
+- Statik boyut yardımcısı: `Checkbox::container_size() -> Pixels` checkbox kutusu için kullanılan sabit yan boyut ölçüsünü (`px(20.0)`) döndürür; bir checkbox satırının diğer kontrollerle hizalanması gerektiğinde başvurulacak referans değerdir.
 - `ToggleStyle`: `Ghost`, `ElevationBased(ElevationIndex)`, `Custom(Hsla)`.
 
 Davranış:
@@ -112,13 +112,15 @@ Temel API:
 
 - Constructor: `Switch::new(id, state: ToggleState)`.
 - Yardımcı constructor: `switch(id, toggle_state)`.
-- Builder'lar: `.color(SwitchColor)`, `.disabled(bool)`, `.on_click(...)`, `.label(...)`, `.label_position(...)`, `.label_size(...)`, `.full_width(bool)`, `.key_binding(...)`, `.tab_index(...)`, `.aria_label(...)`.
+- Builder'lar: `.color(SwitchColor)`, `.disabled(bool)`, `.on_click(...)`, `.label(...)`, `.label_position(...)`, `.label_size(...)`, `.aria_label(...)`, `.full_width(bool)`, `.key_binding(...)`, `.tab_index(...)`.
 - `SwitchColor`: `Accent`, `Custom(Hsla)`.
 - `SwitchLabelPosition`: `Start`, `End`.
 
 Davranış:
 
 - `ToggleState::Selected` açık, diğer durumlar kapalı görünür.
+- Erişilebilirlik ağacında `Role::Switch` rolüyle çizilir; `.aria_label(...)` verilmezse görünür label erişilebilirlik adı olarak kullanılır.
+- Toggle durumu `aria_toggled(Toggled::True | Toggled::False)` üzerinden bildirilir.
 - Click işleyicisine `self.toggle_state.inverse()` gönderilir; yani Switch da Checkbox gibi hedef durumu taşır.
 - `.label(...)` tek başına etiketi çizdirmez; etiketin görünmesi için ayrıca `.label_position(Some(SwitchLabelPosition::Start))` veya `.label_position(Some(SwitchLabelPosition::End))` tanımlanması gerekir.
 - `.aria_label(...)` verilmezse erişilebilirlik etiketi görünür label'dan türetilir. Label çizdirilmeyen kompakt switch'lerde ekran okuyucu etiketi için bu builder'ın açıkça verilmesi gerekir.
@@ -221,7 +223,7 @@ Dikkat edilmesi gereken noktalar:
 - `SwitchField` ile tam genişlikte bir ayar satırı düzeni kurulur. Araç çubukları (toolbar) gibi dar alanlarda bu fazla yer kaplayacağı için doğrudan `Switch` tercih edilmesi gerekir.
 - Tooltip yalnızca label varlığında görsel bir ikonla birlikte çizilir; label'sız kullanımda tooltip görünmez.
 
-Ortak `ToggleState` modelnya:
+Ortak `ToggleState` modeli:
 
 | Varyant | Anlam | Not |
 | :-- | :-- | :-- |
@@ -312,7 +314,7 @@ Düşük seviye yüzey — `ErasedEditor`:
 | API | Rol |
 | :-- | :-- |
 | `ERASED_EDITOR_FACTORY` | Çalışma zamanında gerçek adaptörünü sağlayan global fabrikadır; `InputField::new(...)` çağrısını bu fabrika kurulduktan sonra yapılması gerekir. |
-| `ErasedEditor` | Metin okuma/yazma, odak handle'ı, maskeleme, olay aboneliği ve render işlemlerini crate sınırını bozmadan sunan trait yüzeyidir. |
+| `ErasedEditor` | Metin okuma/yazma, odak handle'ı, read-only/multiline/maskeleme ayarları, olay aboneliği ve render işlemlerini crate sınırını bozmadan sunan trait yüzeyidir. |
 | `ErasedEditorEvent` | `BufferEdited` ve `Blurred` olaylarıyla giriş değişimi ve odak kaybını bildirir. |
 
 ```rust
@@ -334,6 +336,8 @@ if ui_input::ERASED_EDITOR_FACTORY
 | `clear(window, cx)` | `(&self, &mut Window, &mut App)` | Tüm metni siler |
 | `set_placeholder_text(text, window, cx)` | `(&self, &str, &mut Window, &mut App)` | Placeholder güncelleme |
 | `move_selection_to_end(window, cx)` | `(&self, &mut Window, &mut App)` | İmleci sona taşır |
+| `set_read_only(read_only, cx)` | `(&self, bool, &mut App)` | Düzenleyiciyi salt okunur veya düzenlenebilir hale getirir |
+| `set_multiline(max_lines, window, cx)` | `(&self, Option<usize>, &mut Window, &mut App)` | Tek satırlı girdiyi çok satırlı düzenlemeye açar; `max_lines` üst sınırı opsiyoneldir |
 | `set_masked(masked, window, cx)` | `(&self, bool, &mut Window, &mut App)` | Şifre maskesi aç/kapat |
 | `focus_handle(cx)` | `(&self, &App) -> FocusHandle` | Odak yönetimi |
 | `subscribe(callback, window, cx)` | callback: `FnMut(ErasedEditorEvent, &mut Window, &mut App)`, `Subscription` döner | Olay aboneliği; geri çağrıya olay değeri iletilir |

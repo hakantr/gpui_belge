@@ -51,6 +51,9 @@ Davranış:
 - Metin label durumunda arka planda bir `Button` üretilir; özel element label durumunda ise bir `ButtonLike` kullanılır.
 - `.aria_label(...)` verilmezse tetikleyicinin erişilebilirlik etiketi görünür label'dan türetilir. Özel element label'ı metin üretmiyorsa bu builder'ın açıkça tanımlanması gerekir.
 - Dahili olarak `PopoverMenu::new((id, "popover"))` kurulur.
+- Tetikleyici erişilebilirlik ağacında `Role::ComboBox` rolüyle görünür; popover handle durumuna göre `aria_expanded` değeri güncellenir.
+- `.aria_label(...)`, görünür label'ın ekran okuyucu için yetersiz kaldığı veya özel element label kullanıldığı durumlarda tetikleyici adını açıkça verir.
+- Expand ve collapse AccessKit action'ları tetikleyiciye bağlanır; ekran okuyucudan gelen açma/kapama isteği aynı popover handle üzerinden yürütülür.
 - Varsayılan tetikleyici ikonu `IconName::ChevronUpDown`'dur; `.no_chevron()` bu oku kaldırır.
 - Varsayılan attach noktası `Anchor::BottomRight`'tır.
 - `DropdownStyle` değerleri buton stiline şu şekilde eşlenir: `Solid -> Filled`, `Outlined -> Outlined`, `Subtle -> Subtle`, `Ghost -> Transparent`.
@@ -84,7 +87,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edilmesi gereken noktalar:
 
 - `DropdownMenu`, menu entity'sini dışarıdan alır. Menü girdi işleyicileri seçili değeri view veya model durumuna yazmalıdır; dropdown bu yazımı kendi başına yapmaz.
-- Dinamik bir label kullanıyorsan mevcut seçili değeri her render'da label'a yansıtılması gerekir. Aksi halde kontrol seçim değişse bile eski etiketi göstermeye devam eder.
+- Dinamik bir label kullanıldığında mevcut seçili değerin her render'da label'a yansıtılması gerekir. Aksi halde kontrol seçim değişse bile eski etiketi göstermeye devam eder.
 - `full_width(true)`, tetikleyici ile popover'ın genişliklerini birlikte etkiler. Dar formlarda üst genişliğin de bilinçli ayarlanması gerekir.
 
 ## ContextMenu
@@ -93,7 +96,7 @@ Kaynak:
 
 - Tanım: `ui` crate'i
 - Export: `ui::ContextMenu`, `ui::ContextMenuEntry`, `ui::ContextMenuItem`.
-- Prelude: Hayır; ayrıca import edersin.
+- Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: Doğrudan bir bileşen önizlemesi yok; `DropdownMenu` ve gerçek kullanım örnekleri üzerinden görünür hale gelir.
 
 Ne zaman kullanılır:
@@ -120,6 +123,10 @@ Temel API:
 Davranış:
 
 - `Focusable` ve `EventEmitter<DismissEvent>` implement eder.
+- Kök element erişilebilirlik ağacında `Role::Menu` rolünü taşır.
+- Standart girdiler `Role::MenuItem`, toggleable girdiler ise `Role::MenuItemCheckBox` olarak raporlanır; checked/toggled durumları girdi durumundan üretilir.
+- Gerçek klavye odağı menü container'ında kalır; seçili girdi `ListItem::aria_active_descendant()` ile aktif descendant olarak bildirilir.
+- Özel girdi render eden `custom_entry(...)` ve `custom_row(...)` kullanımlarında anlamlı label ve rol bilgisi özel element tarafından tamamlanmalıdır.
 - Blur olduğunda menü kapanır; bir alt menü açıkken odak orada korunuyorsa kapanma ertelenir.
 - Confirm edilen girdi işleyicisi çalıştırılır. `keep_open_on_confirm(false)` durumunda menü `DismissEvent` yayınlar ve kapanır.
 - `build_persistent(...)` ile kurulan menü hem rebuild edilebilir hem de açık kalabilir.
@@ -215,7 +222,7 @@ Dikkat edilmesi gereken noktalar:
 
 - `ContextMenu` tek başına bir pencere açma mekanizması değildir. Kullanıcının görebilmesi için `DropdownMenu`, `PopoverMenu` veya `right_click_menu` arayüzlerinden biriyle sunulmalıdır.
 - İşleyici içinde view durumu güncellenecekse, ilgili entity üzerinden `window.handler_for(...)`, `cx.listener(...)` veya yerel model güncelleme desenlerinin tercih edilmesi gerekir. Yukarıdaki örneklerde yer alan boş işleyiciler yalnızca API kullanım şeklini gösterme amacı taşır.
-- Alt menü builder'ları yeni bir `ContextMenu` değerini döndürmelidir. Üst menüdeki durumu kopyalayarak kullanman gerektiğinde, closure capture'larını sade tutulması okunabilirliği artırır.
+- Alt menü builder'ları yeni bir `ContextMenu` değerini döndürmelidir. Üst menüdeki durumun kopyalanması gerektiğinde closure capture'larının sade tutulması okunabilirliği artırır.
 
 ## PopoverMenu
 
@@ -258,6 +265,7 @@ Davranış:
 | API | Alt özellikler | Kullanım notu |
 |-----|----------------|---------------|
 | `DropdownStyle` | `Solid`, `Outlined`, `Subtle`, `Ghost` | Dropdown tetikleyicisinin buton stiline eşlenen görsel yüzeyidir. |
+| `DropdownMenu::aria_label` | builder | Özel veya ikon ağırlıklı tetikleyicide erişilebilirlik adını görünür label'dan bağımsız verir. |
 | `ContextMenuItem` | `Separator`, `Header`, `HeaderWithLink`, `Label`, `Entry`, `CustomEntry`, `Submenu` | Menü içeriğini saklamak veya dinamik üretmek için kullanılan enum modelidir. |
 | `ContextMenuEntry` | `toggle`, `toggleable`, label alanı, `icon`, `custom_icon_path`, `custom_icon_svg`, `handler`, `secondary_handler`, `action`, `disabled`, `documentation_aside`, end-slot alanları | Tek bir seçilebilir menü satırının bütün görsel ve davranış bilgisini taşır. |
 | `DocumentationSide` | `Left`, `Right` | Girdi dokümantasyon panelinin menünün hangi yanında açılacağını belirtir. |

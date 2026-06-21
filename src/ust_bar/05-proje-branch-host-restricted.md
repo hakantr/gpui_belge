@@ -4,7 +4,7 @@ Başlığın sol grubu, kullanıcıya "Şu an neredeyim?" sorusunu yanıtlar: Ha
 
 ## 1. Proje adı
 
-Proje adı, `effective_active_worktree` ile seçilen çalışma ağacının kök adından üretilir. Ancak ilgili çalışma ağacının bir deposu varsa, ad depo kimliğinden (`repo_identity_path`) yeniden yazılır; bu yüzden git barındıran projelerde görünen ad çoğunlukla çalışma ağacı klasörünün değil, deponun adıdır. Çok uzun adların başlığı taşırmaması için bir üst sınıra kadar kısaltma uygulanır:
+Proje adı, `effective_active_worktree` ile seçilen çalışma ağacının kök adından üretilir. Ancak ilgili çalışma ağacının bir deposu varsa, ad depo kimliğinden (`repo_identity_path`) yeniden yazılır; bu yüzden git barındıran projelerde görünen ad çoğunlukla çalışma ağacı klasörünün değil, deponun adıdır. Aynı repository altında yalnız bir görünür worktree bulunduğunda, çalışma ağacı repository kökünün altındaysa görünen ada göreli path eklenir (`repo/alt-klasor`). Aynı repository için birden fazla görünür worktree varsa başlık yalnız repository adını kullanır; bu sayede sol grup gereksiz uzun path parçalarıyla şişmez. Çok uzun adların başlığı taşırmaması için bir üst sınıra kadar kısaltma uygulanır:
 
 ```rust
 const MAX_PROJECT_NAME_LENGTH: usize = 40;
@@ -54,6 +54,8 @@ pub fn render_restricted_mode(&self, cx: &mut Context<Self>) -> Option<AnyElemen
 ```
 
 Davranış şudur: `TrustedWorktrees::has_restricted_worktrees` değeri doğruysa, başlığa uyarı renginde bir `"Restricted Mode"` butonu eklenir. Türkçe portta bu görünür metin `"Kısıtlı Mod"` şeklinde yerelleştirilebilir. Buton bir uyarı ikonu taşır ve ipucunda `ToggleWorktreeSecurity` eylemine işaret eder: Projeyi güvenilir işaretleyip tüm özellikleri açma. Tıklanınca çalışma alanının güven/güvenlik modalı açılır. Kısıtlı çalışma ağacı yoksa fonksiyon `None` döner ve hiçbir şey çizilmez.
+
+Güvenlik modalı tek bir dosya olmayan proje için açıldığında, güvenilecek klasör kapsamını düzenlenebilir bir `InputField` ile gösterir. Alan boş, göreli veya projenin üst dizini/eşiti olmayan bir yol içerirse modal kapanmaz ve hata alan üzerinde gösterilir; `~` öneki kullanıcının home dizinine genişletilir. Bu nedenle `SecurityModal::new(...)` çağrısı artık `window` parametresini de alır.
 
 Bu gösterge, güvenlik modelinin başlıktaki görünür yüzüdür: Kullanıcı güvenmediği bir projeyi açtığında bazı özellikler kısıtlanır ve bu durum başlıkta açıkça belirtilir. Port hedefinde benzer bir güven modeli varsa (örneğin "bu klasöre güvenilsin mi?"), aynı kalıp uygulanır: Kısıtlı durumda görünür bir uyarı gösterilir, tıklamayla güven kararını soran bir arayüz açılır. Güven modeli yoksa bu gösterge gerekmez.
 

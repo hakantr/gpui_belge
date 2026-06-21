@@ -1,14 +1,4 @@
 # Stil, Geometri ve Renkler
-
----
-
-## Sürüm Analiz Raporu
-
-- [x] Kaynak commit aralığı: `78658778a28f..84b753cb5144`.
-- [x] Rustdoc JSON snapshot üretimi tamamlandı; güncel kaynak commit `84b753cb5144`, toplam API kaydı `32536`.
-- [x] Bu bölüm için doğrulanan yeni yüzeyler: `Rgba::alpha`, `Rgba::opacity`, `BoxShadow::new`, `BoxShadow::blur_radius`, `BoxShadow::spread_radius`, `BoxShadow::inset`, `TextOverflow::TruncateMiddle` ve `Styled::text_ellipsis_middle`.
-- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/color.rs`, `crates/gpui/src/style.rs`, `crates/gpui/src/styled.rs` ve `crates/ui/src/styles/elevation.rs`.
-
 ## Styled
 
 `Styled`, `gpui` paketi içerisindeki ortak stil trait'idir. `style(&mut self) -> &mut StyleRefinement` şeklinde zorunlu bir metot barındırır. GPUI çekirdeğindeki `Div`, `Img`, `Svg`, `Canvas`, `List`, `UniformList` ve `Surface` bileşenleri bu trait aracılığıyla aynı akıcı (fluent) stil sözlüğünden faydalanır. Benzer şekilde, Zed UI bileşenlerinin büyük kısmı da kendi stil alanlarını bu ortak arayüze bağlar.

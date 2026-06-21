@@ -34,7 +34,7 @@ Erişilebilirlik akıcı (fluent) metotları `StatefulInteractiveElement` üzeri
 - `aria_active_descendant()` bileşik widget desenlerinde gerçek klavye odağı parent üzerinde kalırken seçili child node'un erişilebilirlik odağı gibi duyurulmasını sağlar.
 - `a11y_synthetic_children(|builder| ...)`, element ağacında karşılığı olmayan sentetik erişilebilirlik child node'larını ilgili element node'unun altına ekler.
 - `aria_numeric_value(f64)`, `aria_numeric_value_step(f64)`, `aria_min_numeric_value(f64)`, `aria_max_numeric_value(f64)` sayaç, slider veya spinbutton gibi sayısal kontroller içindir.
-- `aria_value(text)` ve `aria_placeholder(text)` metin girişi benzeri kontrollerde string değerini ve placeholder bilgisini erişilebilirlik ağacına taşır.
+- `aria_value(text)` metin tabanlı kontrolün güncel değerini, `aria_placeholder(text)` ise boş durum açıklamasını erişilebilirlik ağacına taşır.
 - `aria_orientation(Orientation::Horizontal | Orientation::Vertical)` yön bilgisini belirtir.
 - `aria_level(usize)`, `aria_position_in_set(usize)`, `aria_size_of_set(usize)` başlık ve liste hiyerarşilerinde kullanılır.
 - `aria_row_index(...)`, `aria_column_index(...)`, `aria_row_count(...)`, `aria_column_count(...)` grid veya tablo benzeri yüzeylerde kullanılır.
@@ -123,7 +123,7 @@ Bu örnekte framework tipleri İngilizce kalır; uygulama durumu ve yardımcı d
 
 ## Sentetik Node ve Aktif Descendant
 
-GPUI erişilebilirlik ağacı normalde render edilen elementlerden üretilir. Bazı yüzeylerde, özellikle editor veya sanallaştırılmış metin alanı gibi yapılarda, ekranda tek bir GPUI elementi görünürken ekran okuyucunun daha ayrıntılı bir alt ağaç görmesi gerekebilir. Bu durumda `Element::a11y_synthetic_children(...)` düşük seviye override noktası, `StatefulInteractiveElement::a11y_synthetic_children(...)` ise fluent kullanım yüzeyi olarak çalışır.
+Özel `Element` uygulamaları, tek bir çizim yüzeyi içinde birden fazla semantik erişilebilirlik node'u göstermek zorunda kalabilir. Bu durumda `Element::a11y_synthetic_children(&mut self, prepaint, builder)` düşük seviye kancası çalışır. GPUI bu kancayı `prepaint` sonrasında çağırır; böylece görünür aralık, imleç konumu veya ölçülmüş sınırlar gibi `PrepaintState` verileri erişilebilirlik ağacına yansıtılabilir. Ham `div()` zincirinde aynı davranış `StatefulInteractiveElement::a11y_synthetic_children(|builder| ...)` ile eklenir; closure yalnız element `.id(...)` ve `.role(...)` üzerinden erişilebilirlik node'u ürettiğinde çalışır.
 
 `A11ySubtreeBuilder` yalnızca ilgili elementin erişilebilirlik node'u oluşturulduğunda çağrıya verilir. Builder, parent node'a güvenli biçimde child eklemek ve aynı parent altında kararlı `NodeId` üretmek için kullanılır:
 
@@ -133,7 +133,7 @@ GPUI erişilebilirlik ağacı normalde render edilen elementlerden üretilir. Ba
 | `StatefulInteractiveElement::a11y_synthetic_children(f)` | `div().id(...).role(...).a11y_synthetic_children(...)` zincirinde aynı davranışı fluent olarak bağlar. |
 | `A11ySubtreeBuilder::synthetic_node_id(key)` | Parent node kimliğiyle birlikte verilen anahtarı hashleyerek child için kararlı `NodeId` üretir. |
 | `A11ySubtreeBuilder::push_child(id, node)` | Sentetik leaf node'u parent node'un child'ı olarak ekler; aynı ID ağaçta varsa `false` döner. |
-| `A11ySubtreeBuilder::parent_node()` | Parent `accesskit::Node` üzerinde ek özellik yazılması gerektiğinde mutable referans sağlar. |
+| `A11ySubtreeBuilder::parent_node()` | Parent `accesskit::Node` üzerinde text selection gibi ek özellikler yazılması gerektiğinde mutable referans sağlar. |
 
 `aria_active_descendant()` ayrı ama tamamlayıcı bir desendir. Odak, container üzerinde kalır; seçili satır veya menü girdisi ise erişilebilirlik ağacında aktif descendant olarak işaretlenir. Bu yöntem menü, listbox ve benzeri composite widget'larda seçili öğenin ekran okuyucu tarafından odaklanmış gibi duyurulmasını sağlar. GPUI bu bildirimi yalnızca ilgili node'un odaklı bir ancestor'ı varsa uygular; bu nedenle seçili child üzerinde koşulsuz ayarlanması güvenlidir.
 
@@ -150,6 +150,10 @@ Platform arka ucu (backend) yazılırken erişilebilirlik köprüsü `A11yCallba
 | `Role` | AccessKit role reexport'u | Elementin semantik rolünü belirtir. |
 | `Orientation` | `Horizontal`, `Vertical` | Slider/list/tree gibi yönlü erişilebilirlik yüzeylerinde yön bilgisini taşır. |
 | `Toggled` | `True`, `False`, `Mixed` | Toggle/switch/checkbox durumunu erişilebilirlik ağacına aktarır. |
+| `Element::a11y_synthetic_children` | `PrepaintState`, `A11ySubtreeBuilder` | Özel elementin AccessKit ağacına gerçek GPUI child'ı olmayan synthetic node'lar eklemesini sağlar. |
+| `A11ySubtreeBuilder` | `synthetic_node_id`, `push_child`, `parent_node` | Synthetic çocuk node kimliği üretir, leaf node ekler ve parent node'u günceller. |
+| `StatefulInteractiveElement::aria_active_descendant` | odaklanmış ancestor şartı | Composite widget içinde seçili alt öğeyi erişilebilirlik odağı olarak raporlar. |
+| `StatefulInteractiveElement::a11y_synthetic_children` | closure tabanlı builder | `div()` zincirinde synthetic erişilebilirlik child'ları üretir. |
 | `A11yCallbacks` | `activation`, `action`, `deactivation` | `PlatformWindow` erişilebilirlik köprüsünde platform adapter'ının çağırdığı callback setidir. |
 | `PlatformWindow` | `a11y_init`, `a11y_tree_update`, `a11y_update_window_bounds` | Erişilebilirlik ağacını platform penceresine taşıyan düşük seviye trait yüzeyidir. |
 | `Window::is_a11y_active` | `pub fn is_a11y_active(&self) -> bool` | Geçerli karede erişilebilirlik ağacı üretiminin aktif olup olmadığını bildirir. |

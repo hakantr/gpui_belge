@@ -35,7 +35,7 @@ Kullanıcının abonelik planı, kullanıcı menüsü içindeki organizasyon sat
 pub fn new(plan: Plan) -> Self
 ```
 
-`PlanChip`, `cloud_api_types::Plan` değerini alır ve plana göre renklendirilmiş bir etiket çizer: Ücretsiz plan nötr renkte, ücretli planlar (Pro, Business, Pro Trial, Student gibi) vurgu renginde ve daha belirgin bir arka planla. Renkler tema token'larından gelir; bu yüzden açık/koyu temada otomatik uyumludur.
+`PlanChip`, `cloud_api_types::Plan` değerini alır ve plana göre renklendirilmiş bir etiket çizer: Ücretsiz plan nötr renkte, ücretli planlar (Pro, Business, Pro Trial, VIP, Student gibi) vurgu renginde ve daha belirgin bir arka planla. Renkler tema token'larından gelir; bu yüzden açık/koyu temada otomatik uyumludur.
 
 Organizasyon bölümü, kullanıcı hesabı kişisel olsa bile menü yapısının parçası olarak kurulur; her organizasyon satırı kendi plan bilgisini `UserStore::plan_for_organization(...)` üzerinden alır. Port hedefinde bir abonelik veya organizasyon modeli yoksa bu parça hiç gerekmez; varsa aynı kalıp kurulur: Plan tek bir enum'dan okunur, plana göre renk seçilir, küçük bir etiket çizilir.
 

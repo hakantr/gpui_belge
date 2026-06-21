@@ -1,7 +1,4 @@
 # Etkileşim ve Olaylar
-
----
-
 ## Klavye Odağı, Odak Kaybı ve Klavye Olayları
 
 Klavye odağı GPUI'de `FocusHandle` ile temsil edilir. Bir view'un odak alıp verebilmesi için kendine ait bir handle tutması ve çizim sırasında bu handle'ı elemente bağlaması gerekir.
@@ -323,7 +320,7 @@ Zed bünyesinde, form tipindeki tek satırlık girdiler için doğrudan bir düz
 - `InputField::new(window, cx, placeholder_text)` kurucusu, tek satırlık bir düzenleyici nesnesi talep eder ve yer tutucu metni (`placeholder`) düzenleyiciye atar.
 - Builder ve metot zinciri: `.start_icon(IconName)`, `.label(...)`, `.label_size(LabelSize)`, `.label_min_width(Length)`, `.tab_index(isize)`, `.tab_stop(bool)`, `.masked(bool)`, `.is_empty(cx)`, `.editor()`, `.text(cx)`, `.clear(window, cx)`, `.set_text(text, window, cx)`, `.set_masked(masked, window, cx)`.
 - `InputFieldStyle`, `pub` bir struct olarak görünür ancak alanları private'dır; dışarıdan stil üzerine yazma sözleşmesi değil, çizim içi tema anlık görüntüsüdür.
-- `ErasedEditor` trait'i düzenleyici köprüsüdür; `text`, `set_text`, `clear`, `set_placeholder_text`, `move_selection_to_end`, `set_masked`, `focus_handle`, `subscribe`, `render`, `as_any` metotlarını içerir.
+- `ErasedEditor` trait'i düzenleyici köprüsüdür; `text`, `set_text`, `clear`, `set_placeholder_text`, `move_selection_to_end`, `set_read_only`, `set_multiline`, `set_masked`, `focus_handle`, `subscribe`, `render`, `as_any` metotlarını içerir.
 - `ErasedEditorEvent::{BufferEdited, Blurred}`, picker veya arama gibi üst bileşenlerin düzenleme ve odak kaybı akışını dinlemesi için yayınlanır.
 - `ERASED_EDITOR_FACTORY: OnceLock<fn(&mut Window, &mut App) -> Arc<dyn ErasedEditor>>`, düzenleyici modülü tarafından kurulur. Zed'in başlatma (initialization) akışında bu fabrika, `Editor::single_line(window, cx)` döndüren `ErasedEditorImpl` ile ilişkilendirilir. Fabrika atanmadığı takdirde `InputField::new` çağrısı `panic` ile sonuçlanır; bu nedenle başlatma esnasında, düzenleyici kurulumunun tamamlanmış olmasına dikkat edilmelidir.
 
