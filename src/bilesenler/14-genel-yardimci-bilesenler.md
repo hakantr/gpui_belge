@@ -1,5 +1,11 @@
 # 14. Genel Yardımcı Bileşenler
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
+- [x] Doğrulanan UI yardımcı yüzeyi: `VectorName::VipStamp`.
+- [x] Kaynak doğrulama dosyası: `crates/ui/src/components/image.rs`.
+
 Bu bölümdeki bileşenler tek bir amaca hizmet eden küçük yapı taşlarıdır. Çoğunlukla görsel bir yardımcı, klavye ipucu veya gezinti yüzeyi sunarlar. Liste satırı, araç çubuğu, panel başlığı veya boş durum gibi alanlarda önceki bölümlerdeki büyük bileşenlerin yanında sıkça tercih edilirler. Küçük görünseler de ekranın okunabilirliğini ve etkileşim kalitesini doğrudan etkilerler.
 
 Bu aileyi kullanırken üç ayrımı akılda tutmak işi kolaylaştırır:
@@ -356,7 +362,20 @@ Temel API:
 - `.color(Color)`.
 - `.size(Size<Rems>)`.
 - `CommonAnimationExt` üzerinden `.with_rotate_animation(duration)`.
-- `VectorName`: `BusinessStamp`, `Grid`, `ProTrialStamp`, `ProUserStamp`, `StudentStamp`, `ZedLogo`, `ZedXCopilot`.
+- `VectorName`: `BusinessStamp`, `VipStamp`, `Grid`, `ProTrialStamp`, `ProUserStamp`, `StudentStamp`, `ZedLogo`, `ZedXCopilot`.
+
+### `VectorName` Varyantları
+
+| Varyant | Asset yolu | Kullanım odağı |
+| :-- | :-- | :-- |
+| `VectorName::BusinessStamp` | `images/business_stamp.svg` | Business plan veya kurum hesabı damgası. |
+| `VectorName::VipStamp` | `images/vip_stamp.svg` | VIP plan görsel damgası ve hesap rozetleri. |
+| `VectorName::Grid` | `images/grid.svg` | Geometrik grid arka planı veya ürün görseli. |
+| `VectorName::ProTrialStamp` | `images/pro_trial_stamp.svg` | Pro deneme planı damgası. |
+| `VectorName::ProUserStamp` | `images/pro_user_stamp.svg` | Pro kullanıcı damgası. |
+| `VectorName::StudentStamp` | `images/student_stamp.svg` | Öğrenci planı damgası. |
+| `VectorName::ZedLogo` | `images/zed_logo.svg` | Ana Zed logosu. |
+| `VectorName::ZedXCopilot` | `images/zed_x_copilot.svg` | Zed ve Copilot ortak görseli. |
 
 Vector enum yardımcıları:
 

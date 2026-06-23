@@ -1,5 +1,11 @@
 # İkon sistemi ve SVG render hattı
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
+- [x] Doğrulanan SVG render yüzeyi: `SvgRenderer` font resolver hattı, `render_single_frame(...)`, mixed-font metin kümesi ve combining mark regresyon testi.
+- [x] Kaynak doğrulama dosyası: `crates/gpui/src/svg_renderer.rs`.
+
 Bu bölüm, varlık altyapısının en sık tüketilen bileşeni olan SVG ikonlarını ele almaktadır. Zed bünyesinde yüzlerce SVG dosyası `icons/` klasörü altında saklanır ve kullanıcı arayüzünde (UI) `Icon` veya `Vector` bileşenleri yardımıyla render edilir. Yüzeyde basit görünse de bu akış dört temel katmandan oluşur: dosya yerleşimi, dosya yolu (path) eşleme kayıt sistemi (`IconName` ve `KnockoutIconName`), GPUI'nin `svg()` element yapısı ve `SvgRenderer` vasıtasıyla yürütülen rasterleştirme (rasterization) adımı. Her katmanın üstlendiği görevi ayrıştırmak; yeni bir ikonun nasıl ekleneceği, neden bazı ikonların tema renkleriyle boyanırken bazılarının çok renkli kaldığı ve dış ikon temalarının nasıl destekleneceği gibi soruların yanıtlanmasını kolaylaştırır.
 
 ![İkon Kaynak Kararı](images/icon-kaynak-karari.svg)
@@ -256,6 +262,8 @@ pub struct SvgRenderer {
 
 `asset_source` referansı yapı kurulurken `Application::with_assets` çağrısı sırasında verilir; render zamanında binary path'leri bu kaynaktan çekilir. `usvg_options` font seçim ve fallback davranışını içerir (önceki bölümde anlatıldı). Sistem font veritabanı ile gömülü fontların birleştirilmesi lazy yapılır; ilk SVG render'a kadar pahalı fontdb kopyası oluşturulmaz.
 
+Metin içeren SVG'lerde font resolver yalnız font ailesi seçimiyle sınırlı kalmaz; emoji fallback'i, generic font ailelerinin Linux üzerinde anlamlı karşılık bulması ve birden fazla fonta bölünen glyph cluster'larının güvenli işlenmesi de bu hatta dahildir. Özellikle taban harfi çok sayıda combining mark ile izleyen ve `tspan` içinde farklı font ailesine geçen SVG metinleri, `usvg::Tree::from_data` ve `SvgRenderer::render_pixmap` akışında pencereyi düşürmeden işlenir. Bu davranış, ikonlardan çok logo, belge içi SVG veya dış SVG varlıklarında önem kazanır; çünkü bu dosyalar yalnız silüet değil, gerçek metin yerleşimi de taşıyabilir.
+
 ### 5.1 İki ayrı render yolu
 
 `SvgRenderer` iki public render API'si sunar:
@@ -406,6 +414,7 @@ Bu yapının pratik karşılığı şudur: ikonu 'kapalı/devre dışı' göster
 ```rust
 pub enum VectorName {
     BusinessStamp,
+    VipStamp,
     Grid,
     ProTrialStamp,
     ProUserStamp,

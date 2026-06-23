@@ -1,5 +1,11 @@
 # 17. Picker Bileşeni
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
+- [x] Doğrulanan picker yüzeyi: `DEFAULT_MODAL_WIDTH`, `DEFAULT_MODAL_MAX_HEIGHT`, `Picker::initial_width`, `Picker::max_height`, `Picker::embedded`, `Picker::popover`, `Picker::resizable`, `PickerPopoverMenu::new(...)` ve `pickers_v2` kalıcılık ad alanı.
+- [x] Kaynak doğrulama dosyaları: `crates/picker/src/picker.rs`, `crates/picker/src/shape.rs`, `crates/picker/src/persistence.rs` ve `crates/picker/src/popover_menu.rs`.
+
 `picker` crate'i, komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch seçici, command palette, model seçici ve fuzzy seçim gerektiren her türlü kullanıcı arayüzü (UI) bunun üzerine kurulur. Bu yapı, yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
 
 ---
@@ -67,18 +73,20 @@ Picker üretmek için altı yapıcı mevcuttur:
 
 Picker davranışı zincir üzerinden ince ayarlarla yapılandırılabilir:
 
-- `initial_width(width)`: Picker'ın ilk açılış genişliğini `RelativeWidth` uyumlu bir değerle belirler.
-- `minimum_results_width(width)`: Sonuç listesinin alt genişlik eşiğini `Rems` uyumlu bir değerle sınırlar.
-- `height(height)`: Picker yüksekliğini `RelativeHeight` uyumlu bir değerle belirler. `RelativeHeight`, mutlak `Rems` ölçüsüyle birlikte viewport oranını temsil eden `ViewportFraction` değerini de taşıyabilir; kalıcı preview yerleşimlerinde yükseklik bu oran üzerinden saklanır.
-- `no_vertical_padding()`: Özellikle preview veya özel satır düzenlerinde dış dikey padding'i kaldırır.
+- `initial_width(width)`: Picker'ın ilk açılış genişliğini `RelativeWidth` uyumlu bir değerle belirler. Preview taşımayan sade picker'larda bu genişlik aynı zamanda sonuç alanının minimum genişliği olarak ele alınır; böylece picker açıldığı ölçünün altına sıkışmaz.
+- `max_height(height)`: Picker'ın üst yükseklik sınırını `RelativeHeight` uyumlu bir değerle belirler. Preview gizliyken içerik azsa picker bu sınırın altında kalabilir; preview sağda veya altta görünürken yüksekliği dolduran daha geniş yerleşim kullanılır.
 - `show_scrollbar(bool)`: Dış kaydırma çubuğu gösterimi.
-- `modal(bool)`: Picker kendi başına modal gibi çiziliyorsa elevation (yükseklik) verir; daha büyük bir modalın parçasıysa `false` yapılır.
+- `embedded()`: Picker'ı dış bir modal veya panelin içine gömülü olarak sunar; kendi elevated container ve blur ile kapanma davranışını çizmez.
+- `popover()`: Picker'ı menu/popover tetikleyicisine bağlı bir yüzey olarak sunar; kendi elevated container'ını çizer, fakat resize davranışı etkinleşmez.
+- `resizable(bool)`: Modal picker'ın sürüklenerek yeniden boyutlandırılıp boyutunun kalıcılaştırılıp kalıcılaştırılmayacağını belirler. Preview içeren modallar varsayılan olarak yeniden boyutlandırılabilir, sade picker'lar varsayılan olarak sabit kalır.
 - `list_measure_all()`: `ListState` tabanlı listede tüm öğeleri ölçmek için kullanılır.
 - `refresh(&mut self, window, cx)`, `update_matches_with_options(..., ScrollBehavior)`: Eşleşme akışını dışarıdan tetikleyen yardımcı metotlardır.
 - `editor_move_up(...)`, `editor_move_down(...)`, `cycle_selection(...)`: Picker'ın eylem bağlantıları veya özel tuş işleyicileri (key handlers) tarafından seçimi hareket ettiren dışa açık yardımcılardır.
 - `refresh_placeholder(window, cx)`: Temsilcinin (delegate) `placeholder_text(...)` sonucunu arama kutusu placeholder alanına tekrar yazar.
 - `query(&self, cx: &App) -> String`: Arama kutusundaki anlık sorguyu okur.
 - `set_query(&self, sorgu: &str, window: &mut Window, cx: &mut App)`: Arama kutusu metnini değiştirir. Bu metodun `&self` aldığına dikkat edilmelidir; picker entity'sini bir `update` bloğunun içine sokmak şart değildir, doğrudan picker referansından çağrılabilir. `cx` burada `Context<...>` değil `&mut App` olduğu için entity bağlamı gerekiyorsa update bloğundan dışarı çıkmak gerekebilir.
+
+Varsayılan ölçüler iki sabit üzerinden okunur: `DEFAULT_MODAL_WIDTH = Rems(34.0)` ve `DEFAULT_MODAL_MAX_HEIGHT = Rems(24.0)`. `shape::Centered::simple()` sade picker için bu değerleri kullanır. Preview layout'u gizliyken aynı sade ölçü korunur; preview sağda veya altta açıldığında `default_shape_for_layout(...)` daha geniş preview odaklı yerleşimi seçer. Boyut kalıcılığı `KeyValueStore` içinde `pickers_v2` ad alanına yazılır; anahtarlar delegate `name()` değeri ile preview layout adını birlikte taşır (`hidden`, `below`, `right`, `none`). Bu ad alanı, güncel picker ölçü sözleşmesinin ayrı ve tutarlı şekilde yüklenmesini sağlar.
 
 ---
 
@@ -137,6 +145,8 @@ Picker crate'indeki dışa açık yardımcıların çoğu, `PickerDelegate` davr
 |-----|----------------|---------------|
 | `ConfirmCompletion` | Action struct | Seçili tamamlama eylemini onaylayan `picker` ad alanı eylemidir; temsilci `confirm_completion` ile sorguyu güncelleyebilir. |
 | `ConfirmInput` | `secondary` | Seçili satırı değil, arama kutusundaki ham girdiyi onaylar; secondary confirm bilgisini `secondary` alanıyla taşır. |
+| `DEFAULT_MODAL_WIDTH` | `Rems(34.0)` | Preview taşımayan modal picker'ın standart açılış genişliğidir. |
+| `DEFAULT_MODAL_MAX_HEIGHT` | `Rems(24.0)` | Preview gizliyken sade picker'ın içerik azaldığında altına inebildiği standart üst yükseklik sınırıdır. |
 | `Direction` | `Up`, `Down` | `select_history` içinde yukarı/aşağı geçmiş gezinme yönünü belirtir. |
 | `ScrollBehavior` | `RevealSelected`, `PreserveOffset` | Eşleşme güncellenirken seçili satıra kaydırma yapma veya mevcut offset'i koruma kararını taşır. |
 | `PickerEditorPosition` | `Start`, `End` | Arama kutusunun listenin üstünde veya altında render edilmesini seçer. |
@@ -161,7 +171,7 @@ Picker crate'indeki dışa açık yardımcıların çoğu, `PickerDelegate` davr
 
 ## `PickerPopoverMenu`
 
-Picker'ı bir popover içine yerleştiren ince sarmalayıcıdır. `new(picker, trigger, tooltip, anchor, cx)` yapıcı metodu picker'ın `DismissEvent`'ini popover kapatma olayına bağlar; `with_handle(...)` ve `offset(...)` ile dış popover handle ve konum ayarları yapılır. Picker bir araç çubuğu butonu veya popover tetikleyicisi arkasında açılacaksa doğrudan modal yerine bu sarmalayıcı tercih edilir.
+Picker'ı bir popover içine yerleştiren ince sarmalayıcıdır. `new(picker, trigger, tooltip, anchor, cx)` yapıcı metodu picker'ın `DismissEvent`'ini popover kapatma olayına bağlar ve picker entity'si üzerinde `set_popover()` çağırarak sunumu `Presentation::Popover` davranışına geçirir. Böylece picker kendi elevated yüzeyini çizer, fakat modal'a özgü resize kalıcılığı devreye girmez. `with_handle(...)` ve `offset(...)` ile dış popover handle ve konum ayarları yapılır. Picker bir araç çubuğu butonu veya popover tetikleyicisi arkasında açılacaksa doğrudan modal yerine bu sarmalayıcı tercih edilir.
 
 ---
 

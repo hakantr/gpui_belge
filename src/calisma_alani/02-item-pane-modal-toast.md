@@ -105,7 +105,15 @@ calisma_alani.hide_modal(window, cx);
 
 `toggle_modal` aynı tipte bir modal zaten açıksa onu kapatır; aksi halde yenisini açar. `on_before_dismiss` varsayılan olarak `DismissDecision::Dismiss(true)` döndürür. Bu metot `DismissDecision::Dismiss(false)` veya `Pending` döndürürse yeni modal görünmez.
 
-**Güvenlik modalı.** `SecurityModal::new(worktree_store, remote_host, window, cx)` çalışma alanı güven kararını soran hazır modalı üretir. `window` parametresi, modal içinde kullanılan `InputField` entity'sinin oluşturulması için gereklidir. Tek bir dosya olmayan proje güven sorusu gösterildiğinde modal, güvenilecek klasör kapsamını düzenlenebilir bir alan olarak sunar; değer boş, göreli veya projenin üst dizini/eşiti olmayan bir yol ise alan hata durumuna geçer. `~` ile başlayan yollar kullanıcının home dizinine genişletilir.
+## `SecurityModal`
+
+`SecurityModal::new(worktree_store, remote_host, window, cx)` çalışma alanı güven kararını soran hazır modalı üretir. `window` parametresi, modal içinde kullanılan `InputField` entity'sinin oluşturulması için gereklidir. Tek bir dosya olmayan proje güven sorusu gösterildiğinde modal, güvenilecek klasör kapsamını düzenlenebilir bir alan olarak sunar; değer boş, göreli veya projenin üst dizini/eşiti olmayan bir yol ise alan hata durumuna geçer. `~` ile başlayan yollar kullanıcının home dizinine genişletilir.
+
+| API | Rol |
+| :-- | :-- |
+| `SecurityModal::new(worktree_store, remote_host, window, cx)` | Worktree güven kararını soran modal görünümünü kurar; `remote_host` uzak geliştirme bağlamını, `window` ise içerideki giriş alanı entity'sini besler. |
+| `SecurityModal::dismiss(cx)` | Modal kapatma isteğini çalışma alanı güven sonucuyla birlikte tamamlar. |
+| `SecurityModal::refresh_restricted_paths(cx)` | Güven kapsamı giriş alanındaki güncel path değerinden kısıtlı yol listesini ve hata durumunu yeniden hesaplar. |
 
 ---
 

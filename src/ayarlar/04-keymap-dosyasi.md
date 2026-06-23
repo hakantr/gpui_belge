@@ -1,5 +1,11 @@
 # Keymap Dosyası
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
+- [x] Doğrulanan keymap yüzeyi: `SPECIFIC_OVERRIDES_KEYMAP_PATH`, `project_search::OpenTextFinder` ve `text_finder::ToProjectSearch` bağlamaları.
+- [x] Kaynak doğrulama dosyaları: `crates/settings/src/settings.rs`, `crates/gpui/src/key_dispatch.rs`, `assets/keymaps/default-macos.json`, `assets/keymaps/default-linux.json`, `assets/keymaps/default-windows.json`, `assets/keymaps/specific-overrides-macos.json` ve `assets/keymaps/specific-overrides.json`.
+
 Zed, klavye kısayolu bağlamalarını (keybindings) kullanıcıya ait `keymap.json`, paketlenmiş varsayılan keymap dosyaları ve Vim modu keymap'i üzerinden çözümler. `KeymapFile` yapısı; hem ayrıştırma, hem programatik düzenleme, hem de telemetri süreçleri için ortak bir erişim kapısı sağlar.
 
 ---
@@ -64,7 +70,7 @@ pub enum KeymapFileLoadResult {
 | :-- | :-- | :-- |
 | `KeymapFileLoadResult` | `Success`, `SomeFailedToLoad`, `JsonParseFailure` | Keymap parse ve action doğrulama sonuçlarını arayüze taşır. |
 | `DEFAULT_KEYMAP_PATH` | platforma göre default asset | Paketlenmiş varsayılan keymap dosyasının yoludur. |
-| `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre specific override asset | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` yolunu verir. |
+| `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre specific override asset | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` yolunu verir. Bu dosya base keymap'den sonra yüklendiği için `Picker > Editor` gibi eşit derinlikte base binding tarafından gölgelenen bağlamları geri kazanmak amacıyla kullanılır; kullanıcı keymap'i son yüklendiğinden nihai override hakkı yine kullanıcı tarafında kalır. |
 | `VIM_KEYMAP_PATH` | `keymaps/vim.json` | Vim modu keymap asset dosyasının yoludur. |
 
 API üzerinde sıkça kullanılan yapıcı metotlar şunlardır:
@@ -78,6 +84,10 @@ API üzerinde sıkça kullanılan yapıcı metotlar şunlardır:
 - `KeymapFile::load_keymap_file(fs)` — Kullanıcıya ait `keymap.json` dosyasını asenkron olarak yükler; dosya mevcut değilse paketlenmiş varsayılan `initial_keymap_content()` metnine geri döner.
 - `KeymapFile::parse_action(action)` — `KeymapAction` JSON değerini `null`, `"action::Name"` veya `["action::Name", args]` formatından çözerek action adı ve isteğe bağlı argümanına dönüştürür. Tuş vuruşlarını ayrıştırmaz; tuş vuruşu (keystroke) ayrıştırma işlemi yükleme akışında ayrı olarak gerçekleştirilir.
 - `KeymapFile::sections()` — Dosyadaki tüm bölümleri gezmeyi sağlar.
+
+### Project Search ve Text Finder Geçişleri
+
+Varsayılan keymap dosyaları proje aramasından dosya içi aramaya geçiş için `project_search::OpenTextFinder` action'ını bağlar. macOS üzerinde bu bağlama `alt-cmd-f`, Linux ve Windows üzerinde `ctrl-alt-f` kısayoluyla tanımlıdır. Aynı tuş ailesi specific override dosyalarında ters yön için kullanılır: `specific-overrides-macos.json` içinde `alt-cmd-f`, `specific-overrides.json` içinde `ctrl-alt-f` bağlaması `text_finder::ToProjectSearch` action'ına gider. Böylece proje araması ile text finder arasında aynı zihinsel kısayol korunur; bağlam değiştiğinde action da ilgili arama yüzeyine yönelir.
 
 ---
 

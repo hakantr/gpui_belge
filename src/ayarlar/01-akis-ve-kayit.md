@@ -2,6 +2,12 @@
 
 ---
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
+- [x] Doğrulanan settings yüzeyleri: `GitPanelSettingsContent::sort_by`, `group_by`, `entry_primary_click_action`, `GitPanelSortBy`, `GitPanelGroupBy` ve `GitPanelClickBehavior`.
+- [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/settings_content.rs`, `assets/settings/default.json` ve Zed `docs/src/reference/all-settings.md`.
+
 ## Ayar Akışı
 
 ![Ayar Akışı](assets/settings-akisi.svg)
@@ -153,7 +159,7 @@ Dosyaların öncelik sıralamasında `SettingsFile::cmp` yapısı `Project` > `S
 | `CallSettingsContent` | `calls` altında sesli çağrı başlangıç tercihleri | `mute_on_join` ve `share_on_join` gibi bool alanları içerir. |
 | `TelemetrySettingsContent` | `telemetry` altında tanı, metrik ve model sağlayıcı retention tercihleri | `diagnostics` ve `metrics` varsayılan olarak `true`, `anthropic_retention` varsayılan olarak `false` değerine sahiptir. |
 | `DebuggerSettingsContent`, `SteppingGranularity` | `debugger` adım, breakpoint ve DAP günlüğü ayarları | Dock alanı, settings crate'indeki `DockPosition` değerine bağlanır. |
-| `GitPanelSettingsContent`, `StatusStyle`, `ScrollbarSettings` | Git paneli görünümü, dock, scrollbar ve commit başlığı sınırları | `StatusStyle`, dosya durumunun ikonla mı yoksa renkli etiketle mi gösterileceğini belirler; `commit_title_max_length` varsayılanı `0` olduğunda başlık uzunluğu uyarısı devre dışıdır. |
+| `GitPanelSettingsContent`, `StatusStyle`, `ScrollbarSettings`, `GitPanelSortBy`, `GitPanelGroupBy`, `GitPanelClickBehavior` | Git paneli görünümü, dock, scrollbar, sıralama, gruplama ve tıklama davranışı | `sort_by` alanı `path`/`name`, `group_by` alanı `none`/`status`, `entry_primary_click_action` alanı ise `project_diff`/`file_diff`/`view_file` seçeneklerini taşır; `commit_title_max_length` varsayılanı `0` olduğunda başlık uzunluğu uyarısı devre dışıdır. |
 | `PanelSettingsContent`, `DockSide` | İş birliği ve benzeri panel genişliği/dock şemaları | Tek panel içerik taşıyıcısı birden çok panel alanında kullanılır. |
 | `FileFinderSettingsContent`, `FileFinderWidthContent`, `IncludeIgnoredContent` | Dosya bulucu ikon, genişlik ve göz ardı edilen dosya stratejileri | `IncludeIgnoredContent::Smart` varsayılan seçimdir. |
 | `VimSettingsContent`, `ModeContent`, `UseSystemClipboard`, `CursorShapeSettings`, `VimInsertModeCursorShape` | Vim modu davranışları ve cursor şekli override'ları | `CursorShapeSettings`, editör `CursorShape` ile Vim insert shape enum'unu birleştirir. |

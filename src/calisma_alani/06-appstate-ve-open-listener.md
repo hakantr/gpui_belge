@@ -1,5 +1,11 @@
 # AppState, WorkspaceStore, WorkspaceDb ve OpenListener Akışı
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
+- [x] Doğrulanan çalışma alanı kalıcılığı yüzeyi: `workspace::persistence::Bookmark`, `project::bookmark_store::SerializedBookmark`, `BookmarkStore::toggle_bookmark`, `BookmarkStore::rename_bookmark` ve `bookmarks` SQLite tablosundaki `label` alanı.
+- [x] Kaynak doğrulama dosyaları: `crates/workspace/src/persistence.rs` ve `crates/project/src/bookmark_store.rs`.
+
 Zed uygulamasında çalışma alanı açmak yalnızca basit bir `open_window` çağrısından ibaret değildir. Başlangıç (startup), CLI istekleri, url yönlendirmeleri, çalışma alanı veritabanı ve collab follow (iş birliği takip) durumları; birkaç global servis ve handle üzerinden koordine edilerek birbirine bağlanır.
 
 ---
@@ -53,6 +59,9 @@ Zed uygulamasında çalışma alanı açmak yalnızca basit bir `open_window` ç
 - `HistoryManager::global(cx)` yakın zamanlı yerel çalışma alanı geçmişini sağlar.
 - `HistoryManager::update_history(id, entry, cx)` yakın zamanlı çalışma alanı listesini günceller ve platform jump list (hızlı erişim listesi) yapısını yeniler.
 - `HistoryManager::delete_history(id, cx)` boşaltılan çalışma alanını geçmiş listesinden kaldırır.
+- Bookmark kalıcılığı `bookmarks` SQLite tablosu üzerinden ilerler. Her kayıt `workspace_id`, `path`, `row` ve `label` alanlarını taşır; `workspace::persistence::Bookmark { row, label }` satır ve etiket bilgisini DB sınırında okur/yazar, `project::bookmark_store::SerializedBookmark { row, label }` ise buffer henüz yüklenmeden saklanan bookmark bilgisini temsil eder.
+
+Bookmark akışında `BookmarkStore::toggle_bookmark(buffer, anchor, label, cx)` aynı satırda kayıt varsa onu kaldırır, yoksa verilen `label` ile yeni bookmark ekler. `BookmarkStore::rename_bookmark(...)` yüklü buffer üzerindeki bookmark etiketini günceller. Restore sırasında `load_serialized_bookmarks(...)` kayıtları önce `BookmarkEntry::Unloaded(Vec<SerializedBookmark>)` halinde tutar; ilgili buffer açıldığında satır numaraları anchor'a çözülür ve etiketler `Bookmark { anchor, label }` modeline aktarılır. Bu ayrım, workspace restore sırasında dosyaları hemen açmadan bookmark bilgisini korumayı sağlar.
 
 **Open/Restore Servis API Kapsamı.** Bu dışa açık arayüzler başlangıç (startup), geri yükleme (restore) ve dış açma isteklerinde birlikte kullanılır:
 

@@ -1,5 +1,11 @@
 # SettingsStore
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
+- [x] Doğrulanan settings yüzeyleri: `AgentSettingsContent.sandbox_permissions`, `SandboxPermissionsContent::allow_unsandboxed`, sandbox host/yazma izinleri ve agent terminal sandbox off-switch sözleşmesi.
+- [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/agent.rs`, `crates/settings_content/src/settings_content.rs`, `crates/settings/src/settings.rs` ve `assets/settings/default.json`.
+
 `SettingsStore`, Zed'in tüm ayar kaynaklarını tek bir tip güvenli store (ayar deposu) içinde birleştirir. Çalışma zamanındaki (runtime) global değerler; varsayılan (`Default`) üzerine sırasıyla eklenti (`Extension`), `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve sunucu (`Server`) katmanları eklenerek kurulur. Dosya yolu (path) hedefli okumalarda ise yerel ayarlar (`local_settings`) bu zincirin en üstüne dahil edilir. Birleştirilmiş nihai içerik daha sonra sisteme kayıtlı olan ilgili `Settings` tiplerine aktarılır.
 
 ![SettingsStore Katmanları](assets/settings-store-katmanlari.svg)
@@ -217,13 +223,43 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | :-- | :-- | :-- |
 | `ProjectSettingsContent`, `WorktreeSettingsContent`, `SessionSettingsContent` | Proje, worktree ve oturum (session) üst seviye şema verileri | `SettingsContent.project` flatten alanının ana bileşenleridir. |
 | `LspSettingsMap`, `LspSettings`, `GlobalLspSettingsContent`, `LspNotificationSettingsContent`, `LspPullDiagnosticsSettingsContent` | LSP sunucu ayarları, bildirim ve pull diagnostic ayarları | LSP şema URL'leri `SettingsStore::json_schema` üretiminde bu yapılardan beslenir. |
-| `DapSettingsContent`, `ContextServerSettingsContent`, `ContextServerCommand`, `OAuthClientSettings` | Hata ayıklama adaptörü (DAP), bağlam sunucusu ve OAuth istemci ayarları | Proje içeriği kapsamındaki araç ve sunucu entegrasyonlarını taşır. |
+| `DapSettingsContent`, `ContextServerSettingsContent`, `ContextServerCommand`, `OAuthClientSettings` | Hata ayıklama adaptörü (DAP), bağlam sunucusu ve OAuth istemci ayarları | `ContextServerCommand::args` alanı JSON'da verilmediğinde boş `Vec<String>` olarak okunur; `ContextServerCommand::timeout` araç çağrısı süresini saniye cinsinden özelleştirir ve verilmediğinde global `context_server_timeout` değerine bırakılır. Yalnız `command` verilmiş stdio bağlam sunucusu geçerli kabul edilir. |
 | `DiagnosticsSettingsContent`, `InlineDiagnosticsSettingsContent`, `DiagnosticSeverityContent` | Tanı (diagnostics) ve satır içi tanı davranışları | Severity enum'ı, kullanıcı JSON dosyasındaki diagnostic eşiğini temsil eder. |
 | `GitSettings`, `GitEnabledSettings`, `GitGutterSetting`, `GitHunkStyleSetting`, `GitPathStyle` | Git entegrasyonu, gutter ve hunk görünümleri | Editör ve git paneli kullanımındaki Git davranış ayarlarının şema sahibidir. |
+| `GitPanelSettingsContent`, `GitPanelSortBy`, `GitPanelGroupBy`, `GitPanelClickBehavior` | Git paneli liste düzeni ve giriş tıklama davranışı | `sort_by` varsayılan olarak `path`, `group_by` varsayılan olarak `status`, `entry_primary_click_action` varsayılan olarak `project_diff` değerini kullanır. |
 | `InlineBlameSettings`, `BlameSettings`, `BranchPickerSettingsContent` | Blame (satır yazarı gösterme) ve branch picker davranışları | Git arayüz özellikleri proje içeriği altında tiplendirilir. |
 | `GitHostingProviderConfig`, `GitHostingProviderKind` | Git barındırma sağlayıcısı bağlantı tipi | Sağlayıcı türü enum yapısı, barındırma entegrasyonu seçimini saklar. |
 | `SemanticTokenRule`, `SemanticTokenColorOverride`, `SemanticTokenFontStyle`, `SemanticTokenFontWeight` | Semantik token stili override kuralları | Tema syntax renkleriyle kesişir ancak şema sahibi proje içeriğidir. |
 | `NodeBinarySettings`, `BinarySettings`, `FetchSettings`, `DirenvSettings` | Node binary, genel binary indirme ve direnv ayarları | Toolchain keşfi ve dış süreç davranışlarını JSON'dan taşır. |
+
+### `ContextServerCommand`
+
+| Alan | Davranış |
+| :-- | :-- |
+| `ContextServerCommand::args` | JSON'da verilmediğinde boş `Vec<String>` olarak okunur; bu nedenle yalnız `command` içeren stdio bağlam sunucusu tanımı geçerli kalır. |
+| `ContextServerCommand::timeout` | Bağlam sunucusu araç çağrısı zaman aşımını saniye cinsinden özelleştirir; eksik bırakıldığında global `context_server_timeout` kullanılır. |
+
+### `GitPanelSortBy`
+
+| Varyant | JSON değeri | Etki |
+| :-- | :-- | :-- |
+| `GitPanelSortBy::Path` | `path` | Git paneli girdilerini dosya yolu düzenine göre sıralar. |
+| `GitPanelSortBy::Name` | `name` | Git paneli girdilerini dosya adına göre sıralar. |
+
+### `GitPanelGroupBy`
+
+| Varyant | JSON değeri | Etki |
+| :-- | :-- | :-- |
+| `GitPanelGroupBy::None` | `none` | Git panelinde durum gruplamasını devre dışı bırakır. |
+| `GitPanelGroupBy::Status` | `status` | Git paneli girdilerini dosya durumuna göre gruplar. |
+
+### `GitPanelClickBehavior`
+
+| Varyant | JSON değeri | Etki |
+| :-- | :-- | :-- |
+| `GitPanelClickBehavior::ProjectDiff` | `project_diff` | Birincil tıklamada proje diff görünümünü açar. |
+| `GitPanelClickBehavior::FileDiff` | `file_diff` | Birincil tıklamada dosya diff görünümünü açar. |
+| `GitPanelClickBehavior::ViewFile` | `view_file` | Birincil tıklamada dosyanın çalışma kopyasını açar. |
 
 ### Workspace ve Panel İçerik Ailesi
 
@@ -286,7 +322,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve sağlayıcıya özel parametre override'ları | `language_models` sağlayıcı ayarlarından bağımsız olarak agent model seçimini taşır. |
 | `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel yerleşimi, düşünme bloğu gösterimi, bildirimler ve ses davranışları | Kullanıcı etkileşimiyle ilgili enum şema bileşenleridir. |
 | `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool (araç) izinleri, regex kuralları ve izin modları | Tool çağrısı politikaları içerik şeması seviyesinde tiplendirilir. |
-| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, sandbox dışı çalışma izinleri ve sandbox'ın tüm agent terminal komutları için kapatılması kararını taşır. |
+| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, belirli sandbox dışı çalışma izinleri ve tüm agent terminal komutları için model-facing sandbox off-switch kararını taşır. |
 
 ### Dil Modeli Sağlayıcı (Language Model Provider) İçerik Ailesi
 
@@ -319,7 +355,7 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 | `Shell`, `ShowScrollbar` | Terminal shell ve scrollbar gösterim ayarları | `TerminalSettingsContent` altında terminal davranışını belirler. |
 | `SidebarSide` | Agent sidebar tarafının dahili/içerik eşleşmesi | `SidebarDockPosition` public settings enum'ını tamamlayan küçük bir yardımcıdır. |
 | `TitleBarSettingsContent`, `WindowButtonLayoutContent`, `title_bar` | Title bar ayar verisi, pencere düğmesi layout içeriği ve re-export modülü | Üst bar dokümanında derinlemesine ele alınır; settings tarafında JSON şeması sahibi olarak görünür. |
-| `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre keymap override yolu | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` sabitini verir. |
+| `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre keymap override yolu | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` sabitini verir; bu override keymap base keymap'den sonra, kullanıcı keymap'inden önce yüklendiği için aynı chord için base bağlamasını geçersiz kılabilir. |
 | `serialize_f32_with_two_decimal_places`, `settings_content::serde_helper::serialize_f32_with_two_decimal_places` | `f32` değerlerini iki ondalık basamakla yazan serializer | `FontSize`, `CodeFade` ve benzeri transparent numeric içerik tiplerinin settings JSON çıktısını sabit formatta tutar. |
 
 ---
@@ -347,9 +383,9 @@ Varsayılan ayar dosyasında değer boş string'dir. Boş string, başlangıç k
 
 | Grup | API | Not |
 |---|---|---|
-| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `disabled`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, sandbox dışında çalışmayı, sandbox'ı tüm agent terminal komutları için kapatmayı ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
+| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, tüm agent terminal komutları için sandbox dışı çalışma kararını ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
 
-`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ve `allow_sandbox_unsandboxed()` metotları ilgili boolean izni `Some(true)` yapar. `disable_sandbox()` ise `disabled: Some(true)` yazar; bu karar belirli bir unsandboxed komut izninden farklıdır, agent terminal komutlarının sandbox dışında çalışmasını genel ayar olarak ifade eder. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ilgili dosya sistemi yazma iznini, `allow_sandbox_unsandboxed()` ise `allow_unsandboxed: Some(true)` kararını kalıcılaştırır. `allow_unsandboxed`, agent terminal komutları için model-facing off-switch işlevi görür: değer doğru olduğunda sandboxed terminal tool sunulmaz, sistem prompt'unda sandbox bölümü yer almaz, model düz `terminal` tool akışına yönelir ve Windows üzerinde WSL sandbox kurulumu atlanır. Bu karar, tek komutluk veya thread kapsamlı `unsandboxed: true` yükseltme onayından ayrıdır. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
 
 ### `MarkdownPreviewSettingsContent`
 

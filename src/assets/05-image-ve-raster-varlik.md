@@ -1,5 +1,11 @@
 # Görsel ve raster varlık akışı
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
+- [x] Doğrulanan asset/UI yüzeyi: `VectorName::VipStamp` ve `assets/images/vip_stamp.svg` yolu.
+- [x] Kaynak doğrulama dosyası: `crates/ui/src/components/image.rs`.
+
 Bu bölüm, vektörel logolar ve raster (PNG/JPG/WebP/GIF) görseller için kullanılan işlem hattını ele almaktadır. İkon sistemiyle paylaşılan ortak bir SVG render hattı bulunsa da tüketim arayüzü farklılık gösterir. `images/` klasörü serbest boyutlu vektörel görsellere ev sahipliği yapar. Raster görseller ise `img()` elementi ve `ImageSource` enum yapısı üzerinden akar. Bu ayrım, uzak bir URL'den gelen bir görsel ile binary içerisine gömülü bir logonun aynı arayüzü nasıl paylaştığını açıklar.
 
 Bölüm boyunca `Resource::Embedded` ve `Resource::Path` koşullarının hangi durumlarda seçildiği incelenecektir. Ayrıca `ImageAssetLoader` format desteği ve görsel önbellek (image cache) davranışları da aynı akış kapsamında ele alınmaktadır.
@@ -17,6 +23,7 @@ assets/images/
 ├── pro_trial_stamp.svg
 ├── pro_user_stamp.svg
 ├── student_stamp.svg
+├── vip_stamp.svg
 ├── zed_logo.svg
 └── zed_x_copilot.svg
 ```
@@ -30,6 +37,7 @@ assets/images/
 #[strum(serialize_all = "snake_case")]
 pub enum VectorName {
     BusinessStamp,
+    VipStamp,
     Grid,
     ProTrialStamp,
     ProUserStamp,
@@ -46,7 +54,7 @@ impl VectorName {
 }
 ```
 
-İkonlardaki `IconName` ile yapısal olarak **birebir aynıdır**: snake_case dönüşümü, `EnumIter` ve `IntoStaticStr` özellikleri paylaşılır. Tek fark dosya yolu prefix'idir (`images/` yerine `icons/`). Bu bilinçli tasarım kararı sayesinde yeni bir vektörel görsel eklemek için izlemen gereken adımlar şunlardır:
+İkonlardaki `IconName` ile yapısal olarak **birebir aynıdır**: snake_case dönüşümü, `EnumIter` ve `IntoStaticStr` özellikleri paylaşılır. Tek fark dosya yolu prefix'idir (`images/` yerine `icons/`). Bu bilinçli tasarım kararı sayesinde yeni bir vektörel görsel eklemek için izlenmesi gereken adımlar şunlardır:
 
 1. `assets/images/yeni_logo.svg` dosyasının eklenmesi gerekir.
 2. `VectorName::YeniLogo` varyantının tanımlanması gerekir.
