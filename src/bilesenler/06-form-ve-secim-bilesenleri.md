@@ -1,5 +1,11 @@
 # 6. Form ve Seçim Bileşenleri
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan form yüzeyi: `ErasedEditor::select_all` tip silmeli editor köprüsü.
+- [x] Kaynak doğrulama dosyası: `crates/ui_input/src/ui_input.rs`.
+
 Bu bölüm, kullanıcıdan değer alan veya var olan bir ayarı değiştiren kontrolleri anlatır. Butonlardan hemen sonra gelmesinin sebebi de budur: checkbox, switch ve giriş alanları aynı olay modeline yaslanır; ayrıca önceki bölümlerdeki label ve icon düzenini tekrar kullanır. Butonların çalışma şekli anlaşıldıysa, bu kontrollerin arkasındaki fikir tanıdık gelecektir.
 
 Hangi durumda hangi kontrolün tercih edileceğine karar verirken aşağıdaki ayrım faydalı olacaktır:
@@ -336,6 +342,7 @@ if ui_input::ERASED_EDITOR_FACTORY
 | `clear(window, cx)` | `(&self, &mut Window, &mut App)` | Tüm metni siler |
 | `set_placeholder_text(text, window, cx)` | `(&self, &str, &mut Window, &mut App)` | Placeholder güncelleme |
 | `move_selection_to_end(window, cx)` | `(&self, &mut Window, &mut App)` | İmleci sona taşır |
+| `select_all(window, cx)` | `(&self, &mut Window, &mut App)` | Girişteki tüm metni seçer; sonraki yazım mevcut değeri tek adımda değiştirir |
 | `set_read_only(read_only, cx)` | `(&self, bool, &mut App)` | Düzenleyiciyi salt okunur veya düzenlenebilir hale getirir |
 | `set_multiline(max_lines, window, cx)` | `(&self, Option<usize>, &mut Window, &mut App)` | Tek satırlı girdiyi çok satırlı düzenlemeye açar; `max_lines` üst sınırı opsiyoneldir |
 | `set_masked(masked, window, cx)` | `(&self, bool, &mut Window, &mut App)` | Şifre maskesi aç/kapat |

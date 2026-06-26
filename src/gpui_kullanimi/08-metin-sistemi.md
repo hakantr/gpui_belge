@@ -1,5 +1,11 @@
 # Metin Sistemi
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan metin yüzeyi: `LineWrapper::is_word_char` kapsamındaki non-breaking glue karakterleri ve satır sarma davranışı.
+- [x] Kaynak doğrulama dosyası: `crates/gpui/src/text_system/line_wrapper.rs`.
+
 ---
 
 ## Metin, Font ve Ölçüm
@@ -127,11 +133,13 @@ let yerlesim = metin.layout().clone();
 - `WrappedLine`: `len()`, `paint()` ve `paint_background()` metotlarıyla ekrana sarılmış satır çıktısını çizer.
 - `LineLayout`: `index_for_x(...)`, `closest_index_for_x(...)` ve `x_for_index(...)` metotlarıyla tek bir satır üzerinde piksel ile byte indeksi arasındaki dönüşümleri hesaplar.
 - `WrappedLineLayout`: `len()`, `width()`, `size()`, `wrap_boundaries()`, `index_for_position(...)` ve `position_for_index(...)` metotlarıyla çok satırlı yerleşim detaylarını sorgular.
-- `LineWrapper`: `wrap_line()`, `should_truncate_line()` ve `truncate_line()` metotlarıyla metin sarma ve kırpma sınırlarını belirler. Satır sarma işlemlerinde uygulanabilecek girinti sınırı `LineWrapper::MAX_INDENT` sabitiyle 256 piksel olarak sınırlandırılmıştır; bu sınır yerleşim hesaplamalarının taşmasını (layout overflow) engellemek amacıyla konulmuştur.
+- `LineWrapper`: `wrap_line()`, `should_truncate_line()` ve `truncate_line()` metotlarıyla metin sarma ve kırpma sınırlarını belirler. Satır sarma işlemlerinde uygulanabilecek girinti sınırı `LineWrapper::MAX_INDENT` sabitiyle 256 piksel olarak sınırlandırılmıştır; bu sınır yerleşim hesaplamalarının taşmasını (layout overflow) engellemek amacıyla konulmuştur. Kelime karakteri sınıflandırması ASCII/Latin/Cyrillic/Bengali aralıklarının yanında dar bölünmez boşluk `U+202F`, bölünmez boşluk `U+00A0` ve bölünmez tire `U+2011` karakterlerini de kapsar; bu karakterler iki yanındaki metni aynı kelime grubu içinde tutar.
 
 `LineLayoutCache`, aynı satır yerleşimlerini ekran karesi çizimi (frame) sırasında yeniden kullanan dahili bir önbellek yapısıdır; uygulama kodlarında doğrudan çağrılması gerekmez. Yüksek hacimli metin ölçüm gereksinimlerinde veya özel metin editörü tasarımlarında `WindowTextSystem` arayüzünün sunduğu `layout_line(...)`, `shape_line(...)` veya bunların hash tabanlı varyantları (`layout_line_by_hash(...)`, `shape_line_by_hash(...)`) tercih edilmelidir.
 
 **Unicode Sınır Yönetimi.** `LineFragment`, `WrapBoundary`, `ShapedRun` ve `FontRun` gibi yapılar metnin Unicode ve font run parçalarını taşır. Çok dilli metin yapılarında string dilimleme (slice) işlemlerinin doğrudan ham byte sınırları üzerinden yapılması hatalı sonuçlar doğurabileceğinden, aralıkların Unicode standartlarına ve grapheme sınırlarına uygunluğu gözetilmelidir.
+
+Satır sarma sırasında bölünmez boşluk ve bölünmez tire ailesi normal boşluk gibi kırılma noktası oluşturmaz. Bu davranış; para birimi, ölçü birimi, kısaltma veya birleşik etiket gibi birlikte kalması gereken metin parçalarının dar kapsayıcılarda ayrışmasını engeller. Genişliği aşan çok uzun bir birliktelikte GPUI yine görsel sınırı korumak için zorunlu kırpma veya taşma kurallarına döner; ancak kelime sınırı adayı olarak bu glue karakterlerini seçmez.
 
 **`InteractiveText` Yapısı.** Metne fare tıklamaları, hover durumları ve ipuçları ekleyen dinamik bir sarmalayıcıdır:
 

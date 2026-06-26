@@ -1,5 +1,11 @@
 # Uygulama ve Platform
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan platform yüzeyi: `Application::on_system_wake`, `Platform::on_system_wake` ve sistem uyku dönüşü callback akışı.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/app.rs` ve `crates/gpui/src/platform.rs`.
+
 ---
 
 ## İçindekiler
@@ -71,6 +77,10 @@ uygulama.on_reopen(|cx| {
     cx.activate(true);
 });
 
+uygulama.on_system_wake(|cx| {
+    cx.refresh_windows();
+});
+
 uygulama.run(|cx| {
     // Genel kurulum, keymap, pencereler.
 });
@@ -100,6 +110,7 @@ uygulama.run(|cx| {
 - `cx.on_keyboard_layout_change(...)` — Kullanıcının klavye düzenini değiştirmesi durumunda tetiklenir.
 - `cx.keyboard_layout()` ve `cx.keyboard_mapper()` — Tuş vuruşlarını (keystrokes) eylemlere (actions) eşlemek için gerekli verileri sağlar.
 - `cx.thermal_state()` ve `cx.on_thermal_state_change(...)` — Yoğun görsel çizimler, dosya dizinleme veya ağır arka plan görevlerinde CPU/GPU tasarrufuna (throttling) gitme kararlarını alırken yararlanılır.
+- `Application::on_system_wake(|cx| ...)` — İşletim sistemi uyku durumundan döndüğünde çalışır ve geri çağrıya `&mut App` verir. Ağ bağlantılarının yeniden doğrulanması, zamanlayıcıların tazelenmesi veya pencere çizimlerinin yenilenmesi gibi uygulama geneli toparlanma işleri bu noktaya bağlanır.
 - `cx.set_cursor_hide_mode(CursorHideMode::...)` — Metin yazımı ya da eylem (action) tetiklenmesi durumunda fare imlecinin gizlenme politikasını yapılandırır.
 - `cx.refresh_windows()` — Tüm pencereleri tek bir etki döngüsü (`effect cycle`) içinde yeniden çizmeye zorlar.
 - `cx.set_quit_mode(mode)` — Uygulamadan çıkış politikasını çalışma zamanında dinamik olarak güncellemeye olanak tanır. Bu çağrı, başlangıçtaki builder arayüzünde yer alan `.with_quit_mode(...)` alanı ile aynı dahili veriyi değiştirir.
@@ -127,6 +138,7 @@ uygulama.run(|cx| {
 - **Dosya ve prompt:** `prompt_for_paths`, `prompt_for_new_path`, `reveal_path`, `open_with_system`, `can_select_mixed_files_and_dirs`.
 - **Menü:** `set_menus`, `get_menus`, `set_dock_menu`, `add_recent_document`, `update_jump_list`.
 - **Termal durum:** `thermal_state`, `on_thermal_state_change`.
+- **Sistem uyku dönüşü:** `Application::on_system_wake(|cx| ...)`; platform arka ucundaki `Platform::on_system_wake` sinyalini `&mut App` erişimli bir uygulama callback'ine dönüştürür.
 - **İmleç görünürlüğü:** `cursor_hide_mode`, `set_cursor_hide_mode`, `is_cursor_visible`. İşaretçinin görsel stili pencere veya hitbox bağlamında `window.set_cursor_style(style, &hitbox)` metoduyla, sürükleme (drag and drop) işlemleri sırasında ise `cx.set_active_drag_cursor_style(...)` vasıtasıyla belirlenir.
 - **Ekran yakalama:** `is_screen_capture_supported`, `screen_capture_sources`.
 - **Klavye:** `keyboard_layout()`, `keyboard_mapper()`, `on_keyboard_layout_change(|cx| ...)`.
@@ -148,7 +160,7 @@ Uygulama kodu `Platform` veya `PlatformWindow` trait'lerini doğrudan çağırma
 `Platform` ana grupları:
 
 - **Çalıştırıcı ve metin:** `background_executor`, `foreground_executor`, `text_system` — Görev çalıştırıcılar ve metin sistemi platforma bağlı kaynaklardır.
-- **Uygulama yaşam döngüsü:** `run`, `quit`, `restart`, `activate`, `hide`, `hide_other_apps`, `unhide_other_apps`, `on_quit`, `on_reopen`.
+- **Uygulama yaşam döngüsü:** `run`, `quit`, `restart`, `activate`, `hide`, `hide_other_apps`, `unhide_other_apps`, `on_quit`, `on_reopen`, `on_system_wake`.
 - **Ekran ve pencere:** `displays`, `primary_display`, `active_window`, `window_stack`, `open_window`.
 - **Görünüm ve UI politikası:** `window_appearance`, `button_layout`, `should_auto_hide_scrollbars`, imleç görünürlüğü ve stili.
 - **URL, yol ve prompt:** `open_url`, `on_open_urls`, `register_url_scheme`, `prompt_for_paths`, `prompt_for_new_path`, `reveal_path`, `open_with_system`.

@@ -2,9 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
-- [x] Doğrulanan picker yüzeyi: `DEFAULT_MODAL_WIDTH`, `DEFAULT_MODAL_MAX_HEIGHT`, `Picker::initial_width`, `Picker::max_height`, `Picker::embedded`, `Picker::popover`, `Picker::resizable`, `PickerPopoverMenu::new(...)` ve `pickers_v2` kalıcılık ad alanı.
-- [x] Kaynak doğrulama dosyaları: `crates/picker/src/picker.rs`, `crates/picker/src/shape.rs`, `crates/picker/src/persistence.rs` ve `crates/picker/src/popover_menu.rs`.
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan picker yüzeyi: `Picker::select_query`, `ErasedEditor::select_all`, `(Picker && with_preview) > Editor` key context'i ve preview layout kalıcılığı.
+- [x] Kaynak doğrulama dosyaları: `crates/picker/src/picker.rs`, `crates/picker/src/render.rs`, `crates/picker/src/persistence.rs` ve `crates/ui_input/src/ui_input.rs`.
 
 `picker` crate'i, komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch seçici, command palette, model seçici ve fuzzy seçim gerektiren her türlü kullanıcı arayüzü (UI) bunun üzerine kurulur. Bu yapı, yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
 
@@ -85,8 +85,9 @@ Picker davranışı zincir üzerinden ince ayarlarla yapılandırılabilir:
 - `refresh_placeholder(window, cx)`: Temsilcinin (delegate) `placeholder_text(...)` sonucunu arama kutusu placeholder alanına tekrar yazar.
 - `query(&self, cx: &App) -> String`: Arama kutusundaki anlık sorguyu okur.
 - `set_query(&self, sorgu: &str, window: &mut Window, cx: &mut App)`: Arama kutusu metnini değiştirir. Bu metodun `&self` aldığına dikkat edilmelidir; picker entity'sini bir `update` bloğunun içine sokmak şart değildir, doğrudan picker referansından çağrılabilir. `cx` burada `Context<...>` değil `&mut App` olduğu için entity bağlamı gerekiyorsa update bloğundan dışarı çıkmak gerekebilir.
+- `select_query(&self, window, cx)`: Arama kutusundaki tüm sorguyu seçer. Seed edilmiş veya dışarıdan `set_query(...)` ile yazılmış sorgularda ilk klavye girdisinin mevcut metni tek adımda değiştirmesi hedeflendiğinde kullanılır.
 
-Varsayılan ölçüler iki sabit üzerinden okunur: `DEFAULT_MODAL_WIDTH = Rems(34.0)` ve `DEFAULT_MODAL_MAX_HEIGHT = Rems(24.0)`. `shape::Centered::simple()` sade picker için bu değerleri kullanır. Preview layout'u gizliyken aynı sade ölçü korunur; preview sağda veya altta açıldığında `default_shape_for_layout(...)` daha geniş preview odaklı yerleşimi seçer. Boyut kalıcılığı `KeyValueStore` içinde `pickers_v2` ad alanına yazılır; anahtarlar delegate `name()` değeri ile preview layout adını birlikte taşır (`hidden`, `below`, `right`, `none`). Bu ad alanı, güncel picker ölçü sözleşmesinin ayrı ve tutarlı şekilde yüklenmesini sağlar.
+Varsayılan ölçüler iki sabit üzerinden okunur: `DEFAULT_MODAL_WIDTH = Rems(34.0)` ve `DEFAULT_MODAL_MAX_HEIGHT = Rems(24.0)`. `shape::Centered::simple()` sade picker için bu değerleri kullanır. Preview layout'u gizliyken aynı sade ölçü korunur; preview sağda veya altta açıldığında `default_shape_for_layout(...)` daha geniş preview odaklı yerleşimi seçer. Boyut kalıcılığı `KeyValueStore` içinde `pickers_v2` ad alanına yazılır; anahtarlar delegate `name()` değeri ile preview layout adını birlikte taşır (`hidden`, `below`, `right`, `none`). Preview konumu değiştirildiğinde son layout tercihi de aynı delegate adıyla saklanır; preview sonradan kapansa bile bir sonraki preview'lu açılış bu son yön bilgisinden devam eder. Bu ad alanı, güncel picker ölçü sözleşmesinin ayrı ve tutarlı şekilde yüklenmesini sağlar.
 
 ---
 
@@ -113,6 +114,7 @@ Picker kök eylemleri preview ve actions menüsünü doğrudan yönetir: `Toggle
 Picker kökü kendi tuş bağlamını ve eylem dinleyicilerini kurar:
 
 - Çizim kökü `"Picker"` key context'ini ekler.
+- Preview paneli bulunan picker'larda aynı kök context'e `"with_preview"` etiketi de eklenir. Bu nedenle preview'a özgü kısayollar `(Picker && with_preview) > Editor` bağlamında tutulur; `ToggleActionsMenu` gibi preview bağımsız eylemler ise `Picker > Editor` bağlamında kalır.
 - `menu::SelectNext`, `menu::SelectPrevious`, `menu::SelectFirst`, `menu::SelectLast`, `menu::Cancel`, `menu::Confirm`, `menu::SecondaryConfirm`, `editor::MoveUp`, `editor::MoveDown`, `picker::ConfirmCompletion` ve `picker::ConfirmInput` eylemlerini dinler. `editor::MoveUp` ve `editor::MoveDown` yukarı/aşağı seçim hareketini editör eylemi olarak da karşılar.
 - Tıklama onayı sırasında `cx.stop_propagation()` ve `window.prevent_default()` çağrılır; bu sayede picker satırına tıklama dış elementlere sızmaz.
 
@@ -150,6 +152,7 @@ Picker crate'indeki dışa açık yardımcıların çoğu, `PickerDelegate` davr
 | `Direction` | `Up`, `Down` | `select_history` içinde yukarı/aşağı geçmiş gezinme yönünü belirtir. |
 | `ScrollBehavior` | `RevealSelected`, `PreserveOffset` | Eşleşme güncellenirken seçili satıra kaydırma yapma veya mevcut offset'i koruma kararını taşır. |
 | `PickerEditorPosition` | `Start`, `End` | Arama kutusunun listenin üstünde veya altında render edilmesini seçer. |
+| `Picker::select_query` | `window`, `cx` | Arama kutusundaki tüm sorguyu seçer; seed edilmiş sorgunun ilk yazımda değiştirilmesini sağlar. |
 | `TogglePreview`, `SetPreviewRight`, `SetPreviewBelow`, `SetPreviewHidden`, `ToggleActionsMenu`, `ToMultiBuffer` | Action struct | Preview paneli, actions menüsü ve preview içeriğini multi-buffer akışına taşıma davranışlarını tetikler. |
 | `Preview` | `new_editor`, `update`, `render`, `adjust_to_new_size` | Preview panelinin editor tabanlı içeriğini yönetir; picker constructor'ları tarafından oluşturulur. |
 | `PreviewSource` | `Path`, `Buffer`, `Message` | Preview içeriğinin dosya yolu, hazır buffer veya vurgulu mesajdan üretileceğini seçer. |

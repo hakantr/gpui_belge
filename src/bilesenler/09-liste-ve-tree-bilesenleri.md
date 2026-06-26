@@ -1,5 +1,11 @@
 # 9. Liste ve Tree Bileşenleri
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan liste yüzeyi: `ListItem::end_slot_on_hover` ve `EndSlotVisibility::SwapOnHover` hover slot çizimi.
+- [x] Kaynak doğrulama dosyası: `crates/ui/src/components/list/list_item.rs`.
+
 Liste bileşenleri; aynı görsel ritme sahip satırları, bölüm başlıklarını, boş durum bildirimlerini ve hiyerarşik gezinme (navigation) arayüzlerini kurmak için kullanılır. Küçük ve orta ölçekli statik listelerde `List` ve `ListItem` kullanımı çoğunlukla yeterlidir. Satır sayısı arttığında ve satır yükseklikleri sabit kaldığında ise GPUI'nin `uniform_list(...)` çağrısı tercih edilmelidir. `StickyItems` ve `IndentGuides` gibi yardımcı araçlar da bu düşük seviyeli listenin üzerine ek bir süsleme/kılavuz katmanı olarak eklenebilir.
 
 Hangi durumda hangi bileşenin tercih edileceğine karar verirken aşağıdaki ayrım faydalı olacaktır:
@@ -140,7 +146,7 @@ Davranış:
 - `aria_active_descendant()` seçili satırın erişilebilirlik odağı gibi duyurulmasını sağlar. Bu kullanımda odak container üzerinde kalır ve seçili satırda `aria_role(...)` tanımlanmış olmalıdır.
 - `disabled(true)` click işleyicisini devre dışı bırakır.
 - `.toggle(Some(is_open))` bir disclosure ikonu render eder; çocukların gerçekten gösterilip gösterilmeyeceğini üst view kontrol eder.
-- `end_slot_on_hover(...)`, normal end slot'u hover sırasında verilen hover slot'uyla değiştirir. `.show_end_slot_on_hover()` ise mevcut end slot'u yalnızca hover anında görünür kılar.
+- `end_slot_on_hover(...)`, hover sırasında verilen hover slot'unu sağ tarafta gösterir. Normal `end_slot(...)` tanımlıysa hover anında onun yerine geçer; normal slot hiç yoksa yalnız hover slot'u render edilir. `.show_end_slot_on_hover()` ise mevcut end slot'u yalnızca hover anında görünür kılar.
 - `indent_level(...)` parametresi, `inset(false)` durumunda girintiyi satırın içinde uygular; `inset(true)` olduğunda ise girintiyi satırın dışında oluşturur.
 
 Örnek:

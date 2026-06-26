@@ -1,5 +1,11 @@
 # Pencere Yönetimi
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan pencere yüzeyi: `WindowOptions::is_movable` macOS özel başlık çubuğu notu ve `WindowParams::app_id` aktarımı.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs` ve `crates/gpui/src/window.rs`.
+
 ---
 
 ## Pencere Oluşturma
@@ -45,7 +51,7 @@ let tutamac = cx.open_window(
 - `focus`: Pencerenin oluşturulduğu anda klavye odağını otomatik olarak devralıp devralmayacağını belirler.
 - `show`: Pencerenin oluşturulur oluşturulmaz ekranda görünür olup olmayacağını denetler. Örneğin Zed, ana uygulama pencerelerini başlangıçta `show: false` ve `focus: false` ayarlarıyla arka planda yükler, arayüz tamamen hazır duruma geldiğinde ise görünür kılar.
 - `kind`: Pencerenin türünü belirler. `Normal`, `PopUp`, `Floating`, `Dialog` varyantlarının yanı sıra Linux Wayland desteği etkin olduğunda `LayerShell` seçeneği de kullanılabilir durumdadır.
-- `is_movable`, `is_resizable`, `is_minimizable`: Pencerenin taşınabilirliği, yeniden boyutlandırılabilirliği ve simge durumuna küçültülebilirliği gibi platform düzeyindeki yetenekleri denetleyen bayraklardır.
+- `is_movable`, `is_resizable`, `is_minimizable`: Pencerenin taşınabilirliği, yeniden boyutlandırılabilirliği ve simge durumuna küçültülebilirliği gibi platform düzeyindeki yetenekleri denetleyen bayraklardır. macOS 27 üzerinde özel başlık çubuğu kendi sürükleme davranışını `Window::start_window_move` ile yönetiyorsa `is_movable: false` tercih edilir; aksi halde AppKit başlık alanını sistemin sahip olduğu bir bölge gibi yorumlayıp çift tıklama ayrıştırması sırasında tıklamaları geciktirebilir.
 - `display_id`: Pencerenin hangi monitör üzerinde açılacağını belirlemek amacıyla ilgili ekranın benzersiz kimliğini kabul eder.
 - `window_background`: Arka plan görünümünü belirleyen `Opaque`, `Transparent`, `Blurred` değerlerinin yanı sıra her platform için tanımlanmış `MicaBackdrop` ve `MicaAltBackdrop` varyantlarını içerir. Ancak Mica tabanlı arka planların görsel etkisi yalnızca Windows 11 üzerinde (DWM motoru aracılığıyla) desteklenir.
 - `app_id`: Linux masaüstü ortamlarında pencerelerin doğru şekilde gruplandırılması ve görev çubuğu davranışlarının düzenlenmesi amacıyla kullanılır.
@@ -211,6 +217,7 @@ Basit bir GPUI projesinde işletim sisteminin sağladığı yerel başlık çubu
 cx.open_window(
     WindowOptions {
         titlebar: None,
+        is_movable: false,
         ..Default::default()
     },
     |_, cx| cx.new(|_| OrnekGorunum),
@@ -232,6 +239,8 @@ div()
     )
     .child(icerik)
 ```
+
+Bu modelde pencere sürükleme davranışı `WindowControlArea::Drag` veya doğrudan `window.start_window_move()` üzerinden uygulama tarafında başlatılır. Özellikle macOS 27 hedefinde `WindowOptions::is_movable` alanının `false` bırakılması, özel başlık çubuğu alanındaki tıklamaların sistem başlık çubuğu çift tıklama ayrıştırmasına takılmadan uygulama hit-test hattına ulaşmasını sağlar.
 
 Özellikle Windows platformunda pencere kontrol butonlarının (caption buttons) yer aldığı bölgelerin doğru tanımlanması için `window_control_area` çağrısı kritik bir role sahiptir; işletim sistemi düzeyindeki tıklama çarpışma testleri (hit testing) doğrudan bu alanlar üzerinden çözümlenir:
 
@@ -337,6 +346,8 @@ Köşe yuvarlama mantığı `theme::ClientDecorationsExt` uzantı trait'i üzeri
 3. Ekrana yapışık döşenme (tiling) varsa, ilgili kenar ve köşelerden yuvarlama, iç boşluk ve gölge efektleri kaldırılmalıdır.
 4. Yeniden boyutlandırma bölgeleri için sınır doğrultusunda `ResizeEdge` hesaplaması yapılmalıdır.
 5. Sürükleme hareketi için başlık çubuğuna `WindowControlArea::Drag` alanı bağlanmalı ya da Linux ve macOS platformları için doğrudan `window.start_window_move()` metodu çağrılmalıdır.
+
+macOS 27 hedefinde özel sürükleme davranışı uygulanıyorsa pencere açılışında `WindowOptions::is_movable = false` tanımlanmalıdır. Bu tercih, sistem başlık çubuğu mekanizması ile istemci tarafında çizilen drag alanının aynı tıklamayı paylaşmaya çalışmasını önler.
 
 Linux tarafında sunucu düzeyinde pencere süslemesi her senaryoda garanti edilemez:
 

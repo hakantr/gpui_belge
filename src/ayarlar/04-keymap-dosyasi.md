@@ -2,9 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
-- [x] Doğrulanan keymap yüzeyi: `SPECIFIC_OVERRIDES_KEYMAP_PATH`, `project_search::OpenTextFinder` ve `text_finder::ToProjectSearch` bağlamaları.
-- [x] Kaynak doğrulama dosyaları: `crates/settings/src/settings.rs`, `crates/gpui/src/key_dispatch.rs`, `assets/keymaps/default-macos.json`, `assets/keymaps/default-linux.json`, `assets/keymaps/default-windows.json`, `assets/keymaps/specific-overrides-macos.json` ve `assets/keymaps/specific-overrides.json`.
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan keymap yüzeyi: `(Picker && with_preview) > Editor` preview bağlamı, `Picker > Editor` actions menüsü bağlamı ve Vim/Helix debug kısayolları.
+- [x] Kaynak doğrulama dosyaları: `crates/settings/src/settings.rs`, `crates/gpui/src/key_dispatch.rs`, `assets/keymaps/specific-overrides-macos.json`, `assets/keymaps/specific-overrides.json` ve `assets/keymaps/vim.json`.
 
 Zed, klavye kısayolu bağlamalarını (keybindings) kullanıcıya ait `keymap.json`, paketlenmiş varsayılan keymap dosyaları ve Vim modu keymap'i üzerinden çözümler. `KeymapFile` yapısı; hem ayrıştırma, hem programatik düzenleme, hem de telemetri süreçleri için ortak bir erişim kapısı sağlar.
 
@@ -70,7 +70,7 @@ pub enum KeymapFileLoadResult {
 | :-- | :-- | :-- |
 | `KeymapFileLoadResult` | `Success`, `SomeFailedToLoad`, `JsonParseFailure` | Keymap parse ve action doğrulama sonuçlarını arayüze taşır. |
 | `DEFAULT_KEYMAP_PATH` | platforma göre default asset | Paketlenmiş varsayılan keymap dosyasının yoludur. |
-| `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre specific override asset | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` yolunu verir. Bu dosya base keymap'den sonra yüklendiği için `Picker > Editor` gibi eşit derinlikte base binding tarafından gölgelenen bağlamları geri kazanmak amacıyla kullanılır; kullanıcı keymap'i son yüklendiğinden nihai override hakkı yine kullanıcı tarafında kalır. |
+| `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre specific override asset | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` yolunu verir. Bu dosya base keymap'den sonra yüklendiği için `Picker > Editor` ve `(Picker && with_preview) > Editor` gibi eşit derinlikte base binding tarafından gölgelenen bağlamları geri kazanmak amacıyla kullanılır; kullanıcı keymap'i son yüklendiğinden nihai override hakkı yine kullanıcı tarafında kalır. |
 | `VIM_KEYMAP_PATH` | `keymaps/vim.json` | Vim modu keymap asset dosyasının yoludur. |
 
 API üzerinde sıkça kullanılan yapıcı metotlar şunlardır:
@@ -88,6 +88,14 @@ API üzerinde sıkça kullanılan yapıcı metotlar şunlardır:
 ### Project Search ve Text Finder Geçişleri
 
 Varsayılan keymap dosyaları proje aramasından dosya içi aramaya geçiş için `project_search::OpenTextFinder` action'ını bağlar. macOS üzerinde bu bağlama `alt-cmd-f`, Linux ve Windows üzerinde `ctrl-alt-f` kısayoluyla tanımlıdır. Aynı tuş ailesi specific override dosyalarında ters yön için kullanılır: `specific-overrides-macos.json` içinde `alt-cmd-f`, `specific-overrides.json` içinde `ctrl-alt-f` bağlaması `text_finder::ToProjectSearch` action'ına gider. Böylece proje araması ile text finder arasında aynı zihinsel kısayol korunur; bağlam değiştiğinde action da ilgili arama yüzeyine yönelir.
+
+### Picker Preview Bağlamları
+
+Specific override dosyalarında picker kısayolları iki ayrı bağlama ayrılır. `ToggleActionsMenu`, preview varlığından bağımsız olarak `Picker > Editor` altında kalır. Preview görünürlüğü ve yönünü değiştiren `TogglePreview`, `SetPreviewRight`, `SetPreviewBelow`, `SetPreviewHidden` ve `ToMultiBuffer` action'ları ise `(Picker && with_preview) > Editor` bağlamındadır. Picker render kökü preview entity'si bulunduğunda key context'e `"with_preview"` etiketi eklediği için preview'a özgü kısayollar sade picker'larda devreye girmez.
+
+### Vim/Helix Debug Bağlamaları
+
+Paketlenmiş `vim.json` dosyası Helix `space G` debug ailesini de taşır. `space shift-g l` `debugger::Start`, `space shift-g r` `debugger::Restart`, `space shift-g b` `editor::ToggleBreakpoint`, `space shift-g c` `debugger::Continue`, `space shift-g h` `debugger::Pause`, `space shift-g i` `debugger::StepInto`, `space shift-g o` `debugger::StepOut`, `space shift-g n` `debugger::StepOver`, `space shift-g t` `debugger::Stop` ve `space shift-g ctrl-l` `editor::EditLogBreakpoint` action'ına gider.
 
 ---
 

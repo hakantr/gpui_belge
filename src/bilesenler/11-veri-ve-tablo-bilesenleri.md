@@ -1,5 +1,11 @@
 # 11. Veri ve Tablo Bileşenleri
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan tablo yüzeyi: `ResizableColumnsState::pinned_width`, `ResizableColumnsState::scrollable_width` ve sabit kolonlu yatay scrollbar yerleşimi.
+- [x] Kaynak doğrulama dosyası: `crates/ui/src/components/data_table.rs`.
+
 Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)` çağrılarıyla kurulur. Satır sayısı arttığında ise tablo, GPUI'nin sanallaştırılmış liste altyapısına bağlanan `.uniform_list(...)` veya `.variable_row_height_list(...)` çağrılarıyla render edilir. Yani tablo tek bir kalıba sıkışmaz; satır modeline göre üç farklı kullanım biçimi sunar.
 
 ## GPUI uniform_list ile Köprü
@@ -75,7 +81,7 @@ Davranış:
 - `.row(...)` yalnızca tablo sabit satır modundayken satır ekler. Tablo `.uniform_list(...)` veya `.variable_row_height_list(...)` ile kurulduysa satırlar bir closure üzerinden üretilir.
 - `.map_row(...)`, tablonun ürettiği `Stateful<Div>` satır kapsayıcısını alır. Bu sayede seçili satır, hover durumu, sağ tık veya özel tıklama davranışı gibi ek nitelikler eklemek mümkün hale gelir.
 - `.pin_cols(n)`, ilk `n` kolonu yatay kaydırma sırasında görünür tutar. Kaynakta yalnızca `ColumnWidthConfig::Resizable` ile desteklenir; `n == 0` veya `n >= cols` durumunda tablo tek bölümlü normal bir yerleşime döner.
-- Sabitlenmiş yerleşimde (pinned layout) header, satırlar ve yeniden boyutlandırma katmanı (resize overlay) aynı yatay `ScrollHandle`'ı izler. Sabitlenmiş kolonlar, kaydırılabilir kolonlarla aynı liste öğesi içinde render edildiği için değişken yükseklikli satırlarda iki tarafın yüksekliği ayrışmaz. Bu nedenle `.pin_cols(...)` kullanılırken tablonun `.interactable(...)` ile bağlanması pratikte zorunlu hâle gelir.
+- Sabitlenmiş yerleşimde (pinned layout) header, satırlar ve yeniden boyutlandırma katmanı (resize overlay) aynı yatay `ScrollHandle`'ı izler. Sabitlenmiş kolonlar, kaydırılabilir kolonlarla aynı liste öğesi içinde render edildiği için değişken yükseklikli satırlarda iki tarafın yüksekliği ayrışmaz. Yatay scrollbar yalnız kaydırılabilir bölümün altına yerleşir; sabit kolon genişliği `ResizableColumnsState::pinned_width(...)`, kaydırılabilir alan genişliği ise `ResizableColumnsState::scrollable_width(...)` ile hesaplanır. Bu nedenle `.pin_cols(...)` kullanılırken tablonun `.interactable(...)` ile bağlanması pratikte zorunlu hâle gelir.
 
 Minimum örnek:
 
@@ -493,6 +499,8 @@ Temel API:
 - `.cols()`.
 - `.resize_behavior()`.
 - `.set_column_configuration(col_idx, width, resize_behavior)`.
+- `.pinned_width(pinned_cols, rem_size) -> Pixels`.
+- `.scrollable_width(pinned_cols, rem_size) -> Pixels`.
 - `.reset_column_to_initial_width(col_idx)`.
 
 Davranış:
@@ -500,6 +508,7 @@ Davranış:
 - Başlangıç genişlikleri `AbsoluteLength` alır.
 - Yeniden boyutlandırılan kolonun genişliği değişir; komşu kolonlardan genişlik oranı çalınmaz.
 - `ColumnWidthConfig::Resizable(entity)` konfigürasyonuyla tablo toplam genişliğini kolon genişliklerinin toplamı üzerinden hesaplar.
+- `pinned_width(...)`, ilk `pinned_cols` kolonunun piksel toplamını verir; `scrollable_width(...)` ise kalan kolonların yatay kaydırma bütçesini hesaplar. Her iki metot `AbsoluteLength` değerlerini pencerenin `rem_size` ölçüsüne göre piksele çevirir.
 - `TableResizeBehavior::MinSize(value)` değeri, resizable algoritmasında rem tabanlı bir minimum eşik olarak uygulanır.
 
 Örnek:
@@ -560,6 +569,7 @@ Dikkat Edilmesi Gereken Hususlar:
 - Kolon sayısı değişirse, eski durumu güncellemek yerine yeni bir `ResizableColumnsState` oluşturmak çok daha net bir tercih olur.
 - `set_column_configuration(...)`, çalışma zamanında tek bir kolonun başlangıç ve mevcut genişliğini birlikte günceller.
 - İlk kolonun satır numarası veya seçim sütunu gibi her zaman görünür kalması gerekiyorsa, `ColumnWidthConfig::Resizable(entity)` ile birlikte `Table::pin_cols(n)` kullanılır. Zed CSV önizlemesi ilk kolonu bu şekilde sabitler. Kullanıcı sabitlenmiş bölümdeki bölücüyü (divider) sürükleyemez; boyut değiştirme ihtiyacı kaydırılabilir kolonlarda beklenir veya kolon konfigürasyonu durum üzerinden güncellenir.
+- Sabit kolonlu bir tabloda yatay scrollbar genişliği tüm tablonun değil yalnız kaydırılabilir kolonların genişliğini temsil eder. Özel render akışlarında scrollbar veya resize overlay elle çiziliyorsa `pinned_width(...)` kadar soldan uzaklaştırma ve `scrollable_width(...)` kadar genişlik kullanılması gerekir.
 
 ## TableRow ve UncheckedTableRow
 

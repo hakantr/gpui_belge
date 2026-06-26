@@ -1,5 +1,11 @@
 # Ayarlar ve yoğunluk entegrasyonu
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan tema ayar yüzeyi: `ThemeSettingsContent.markdown_preview_font_size`, `ThemeSettings::markdown_preview_font_size`, `MarkdownPreviewFontSize`, `adjust_markdown_preview_font_size` ve `reset_markdown_preview_font_size`.
+- [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/theme.rs`, `crates/theme_settings/src/settings.rs`, `crates/theme_settings/src/theme_settings.rs` ve `crates/settings/src/vscode_import.rs`.
+
 Çalışma zamanı çalışır hale geldikten sonra kullanıcı ayarları devreye girer. Bu bölüm tema seçimi, font geçersiz kılma akışları ve UI yoğunluk sözleşmesinin çalışma zamanına nasıl bağlandığını anlatır. Bu üç hat birlikte düşünülür; birindeki karar diğerlerinin davranışını doğrudan etkiler.
 
 ---
@@ -264,6 +270,7 @@ impl SettingsStore {
 | `git_commit_buffer_font_size: Option<Pixels>` | **private** | `theme_settings.git_commit_buffer_font_size(cx)` |
 | `markdown_preview_font_family: Option<SharedString>` | **private** | `theme_settings.markdown_preview_font_family()` |
 | `markdown_preview_code_font_family: Option<SharedString>` | **private** | `theme_settings.markdown_preview_code_font_family()` |
+| `markdown_preview_font_size: Option<Pixels>` | **private** | `theme_settings.markdown_preview_font_size(cx)` |
 | `markdown_preview_theme: Option<ThemeSelection>` | `pub` | doğrudan alan |
 | `buffer_line_height: BufferLineHeight` | `pub` | doğrudan alan |
 | `theme: ThemeSelection` | `pub` | doğrudan alan |
@@ -273,7 +280,7 @@ impl SettingsStore {
 | `ui_density: UiDensity` | `pub` | doğrudan alan |
 | `unnecessary_code_fade: f32` | `pub` | doğrudan alan |
 
-**Gerekçe:** Font boyutu değerleri `*FontSize` geçersiz kılma global'lerinden etkilenir. Accessor metotlar bu geçersiz kılmayı uygular ve **etkin değeri** döndürür. Doğrudan alan okuması ise ayarlar dosyasındaki ham değeri verir. Bu yüzden font boyutu alanları bilinçli olarak private tutulur. Markdown preview font family alanları da private tutulur; düz markdown metni UI fontuna, inline code ve code block ise buffer fontuna fallback eder.
+**Gerekçe:** Font boyutu değerleri `*FontSize` geçersiz kılma global'lerinden etkilenir. Accessor metotlar bu geçersiz kılmayı uygular ve **etkin değeri** döndürür. Doğrudan alan okuması ise ayarlar dosyasındaki ham değeri verir. Bu yüzden font boyutu alanları bilinçli olarak private tutulur. Markdown preview font family alanları da private tutulur; düz markdown metni UI fontuna, inline code ve code block ise buffer fontuna fallback eder. Markdown preview font boyutu kendi accessor'ında önce `MarkdownPreviewFontSize` geçersiz kılma global'ini, sonra `markdown_preview_font_size` ayarını, en son da ayar dosyasındaki `buffer_font_size` değerini kullanır; geçici editor zoom değeri bu fallback zincirine dahil edilmez.
 
 Mirror tarafta `TemaAyarlari` struct'ında font boyutlarının private tutulması ve accessor metotlarla okunması Zed paritesi açısından zorunludur. Aksi halde geçersiz kılma düşürme davranışı Zed akışından sapar.
 
@@ -406,6 +413,8 @@ pub fn observe_tema_ayarlari(cx: &mut App) {
     let mut onceki_agent_buffer_font_boyutu_ayari = ayarlar.agent_buffer_font_size_settings();
     let mut onceki_git_commit_buffer_font_boyutu_ayari =
         ayarlar.git_commit_buffer_font_size_settings();
+    let mut onceki_markdown_preview_font_boyutu_ayari =
+        ayarlar.markdown_preview_font_size_settings();
     let mut onceki_tema_adi = ayarlar.theme.name(SystemAppearance::global(cx).0);
     let mut onceki_ikon_tema_adi = ayarlar.icon_theme.name(SystemAppearance::global(cx).0);
     let mut onceki_tema_gecersiz_kilmalari = (
@@ -421,6 +430,8 @@ pub fn observe_tema_ayarlari(cx: &mut App) {
         let agent_buffer_font_boyutu_ayari = ayarlar.agent_buffer_font_size_settings();
         let git_commit_buffer_font_boyutu_ayari =
             ayarlar.git_commit_buffer_font_size_settings();
+        let markdown_preview_font_boyutu_ayari =
+            ayarlar.markdown_preview_font_size_settings();
         let tema_adi = ayarlar.theme.name(SystemAppearance::global(cx).0);
         let ikon_tema_adi = ayarlar.icon_theme.name(SystemAppearance::global(cx).0);
         let tema_gecersiz_kilmalari = (
@@ -448,6 +459,10 @@ pub fn observe_tema_ayarlari(cx: &mut App) {
             onceki_git_commit_buffer_font_boyutu_ayari = git_commit_buffer_font_boyutu_ayari;
             reset_git_commit_buffer_font_size(cx);
         }
+        if markdown_preview_font_boyutu_ayari != onceki_markdown_preview_font_boyutu_ayari {
+            onceki_markdown_preview_font_boyutu_ayari = markdown_preview_font_boyutu_ayari;
+            reset_markdown_preview_font_size(cx);
+        }
 
         if tema_adi != onceki_tema_adi
             || tema_gecersiz_kilmalari != onceki_tema_gecersiz_kilmalari
@@ -464,7 +479,7 @@ pub fn observe_tema_ayarlari(cx: &mut App) {
 }
 ```
 
-> **Tüm 8 değişken zorunludur:** Gözlemci 5 font boyutu, 2 tema adı ve 1 `theme_overrides` alanını izler. Font boyutları izlenmezse, kullanıcı ayar dosyasında `buffer_font_size`'ı değiştirdiğinde çalışma zamanı eski geçersiz kılma değerini göstermeye devam edebilir.
+> **Tüm 9 değişken zorunludur:** Gözlemci 6 font boyutu, 2 tema adı ve 1 `theme_overrides` alanını izler. Font boyutları izlenmezse, kullanıcı ayar dosyasında `buffer_font_size` veya `markdown_preview_font_size` değerini değiştirdiğinde çalışma zamanı eski geçersiz kılma değerini göstermeye devam edebilir.
 
 Tema seçici davranışı:
 
@@ -755,6 +770,7 @@ buffer_font_size, buffer_font_weight, buffer_line_height,
 buffer_font_features, agent_ui_font_size, agent_buffer_font_size,
 git_commit_buffer_font_size,
 markdown_preview_font_family, markdown_preview_code_font_family,
+markdown_preview_font_size,
 markdown_preview_theme, theme, icon_theme, ui_density,
 unnecessary_code_fade, experimental_theme_overrides, theme_overrides
 ```
@@ -763,7 +779,7 @@ Bu alanların yardımcı tipleri de şemaya dahildir:
 
 | Tip | Rol | Kritik sözleşme |
 | ----- | ----- | ----------------- |
-| `ThemeSettingsContent` | Kullanıcı ayar dosyasındaki tema/font/density alanları | 23 alan; container düzeyinde `#[with_fallible_options]`, `#[serde(default)]` ise alan bazlı (örneğin `theme_overrides`) uygulanır; `MergeFrom` davranışı korunur |
+| `ThemeSettingsContent` | Kullanıcı ayar dosyasındaki tema/font/density alanları | 24 alan; container düzeyinde `#[with_fallible_options]`, `#[serde(default)]` ise alan bazlı (örneğin `theme_overrides`) uygulanır; `MergeFrom` davranışı korunur |
 | `FontSize` | `f32` pixel newtype'ı | Serialize edilirken iki ondalık basamak tutar |
 | `FontFamilyName` | font family adı | `#[serde(transparent)]`, `Arc<str>` |
 | `FontFeaturesContent` | OpenType feature map'i | 4 karakter alfanumerik key; boolean veya unsigned integer value |
@@ -772,7 +788,7 @@ Bu alanların yardımcı tipleri de şemaya dahildir:
 | `DEFAULT_LIGHT_THEME` / `DEFAULT_DARK_THEME` | ayar yedek adları | `"One Light"` / `"One Dark"` tek kaynak olarak korunur |
 | `ThemeSelectionDiscriminants`, `IconThemeSelectionDiscriminants`, `BufferLineHeightDiscriminants` | Content enum'larının variant/discriminant görünümü | Selector UI, şema ve strum tabanlı variant listelerinde content enum varyantlarını ayrı tip olarak görünür kılar |
 
-`agent_ui_font_size`, `agent_buffer_font_size` ve `git_commit_buffer_font_size` sağlayıcı trait'inde yer almaz; her biri kendi tüketici alanında ayar katmanında kalır. `git_commit_buffer_font_size` varsayılanı 12 pikseldir; git paneli ve commit modal'ındaki editörün yazı tipi boyutunu diğer tampon boyutlarından bağımsız olarak denetler. `theme`, `icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides` ve `theme_overrides` seçici ve geçersiz kılma akışına gider; typography helper'ları ise sağlayıcı üzerinden `ui_font`, `buffer_font`, `ui_font_size`, `buffer_font_size` ve `ui_density` değerlerini okur. `markdown_preview_code_font_family` sağlayıcı trait'ine eklenmez; markdown preview tüketicisi `ThemeSettings` üzerinden okur. Değer boşsa `buffer_font.family` kullanır.
+`agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size` ve `markdown_preview_font_size` sağlayıcı trait'inde yer almaz; her biri kendi tüketici alanında ayar katmanında kalır. `git_commit_buffer_font_size` varsayılanı 12 pikseldir; git paneli ve commit modal'ındaki editörün yazı tipi boyutunu diğer tampon boyutlarından bağımsız olarak denetler. `markdown_preview_font_size` boşsa markdown preview, geçici editor zoom değerini değil ayar dosyasındaki `buffer_font_size` tabanını kullanır. `theme`, `icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides` ve `theme_overrides` seçici ve geçersiz kılma akışına gider; typography helper'ları ise sağlayıcı üzerinden `ui_font`, `buffer_font`, `ui_font_size`, `buffer_font_size` ve `ui_density` değerlerini okur. `markdown_preview_code_font_family` sağlayıcı trait'ine eklenmez; markdown preview tüketicisi `ThemeSettings` üzerinden okur. Değer boşsa `buffer_font.family` kullanır.
 
 Tema renklerini tüketen her ayar `ThemeSettingsContent` içine girmez. `completion_menu_item_kind` bunun yeni örneğidir: şema sahibi `EditorSettingsContent`'tir, değerleri `off` ve `symbol` olur, default `off`'tur. `symbol` açıldığında completion menüsü aktif syntax theme'den capture rengi okur; bu yüzden tema dokümantasyonunda ele alınır, ama `ThemeSettingsProvider` veya `ThemeSettingsContent` sözleşmesine eklenmez. Eski ad, alias veya geriye uyumluluk katmanı tanımlanmaz.
 
@@ -784,7 +800,7 @@ Tema renklerini tüketen her ayar `ThemeSettingsContent` içine girmez. `complet
 
 **Kaynak modüller:** `theme_settings` crate'i.
 
-Zed font ölçeklemesini iki katmanlı çalıştırır: ayar dosyasındaki taban değer (`ThemeSettings.{ui,buffer,agent_ui,agent_buffer}_font_size`) ve **çalışma zamanı geçersiz kılma global'leri**. Geçersiz kılma global'i set edildiğinde `ThemeSettings::*_font_size(cx)` accessor'ı önce global'i okur; yoksa settings değerine düşer. Böylece kullanıcı `cmd-+`/`cmd--` ile font'u geçici olarak büyütebilir. Settings dosyası yazılmaz.
+Zed font ölçeklemesini iki katmanlı çalıştırır: ayar dosyasındaki taban değer (`ThemeSettings.{ui,buffer,agent_ui,agent_buffer,markdown_preview}_font_size`) ve **çalışma zamanı geçersiz kılma global'leri**. Geçersiz kılma global'i set edildiğinde `ThemeSettings::*_font_size(cx)` accessor'ı önce global'i okur; yoksa settings değerine düşer. Böylece kullanıcı `cmd-+`/`cmd--` veya markdown preview'a özgü font eylemleriyle font'u geçici olarak büyütebilir. Settings dosyası yazılmaz.
 
 ```rust
 struct BufferFontSize(Pixels);               // private
@@ -792,6 +808,7 @@ pub(crate) struct UiFontSize(Pixels);        // crate-içi
 pub struct AgentUiFontSize(Pixels);          // public
 pub struct AgentBufferFontSize(Pixels);      // public
 pub struct GitCommitBufferFontSize(Pixels);  // public, settings.rs
+pub struct MarkdownPreviewFontSize(Pixels);  // public, settings.rs
 
 impl Global for BufferFontSize {}      // ... her biri için
 ```
@@ -799,6 +816,7 @@ impl Global for BufferFontSize {}      // ... her biri için
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `GitCommitBufferFontSize` | `Pixels` newtype, `Global` impl | Commit mesajı buffer font size geçersiz kılmasını çalışma zamanı global'i olarak taşır; `adjust_git_commit_buffer_font_size` set eder, `reset_git_commit_buffer_font_size` kaldırır. |
+| `MarkdownPreviewFontSize` | `Pixels` newtype, `Global` impl | Markdown preview font size geçersiz kılmasını çalışma zamanı global'i olarak taşır; `adjust_markdown_preview_font_size` set eder, `reset_markdown_preview_font_size` kaldırır. |
 
 Public yüzey:
 
@@ -809,6 +827,7 @@ pub fn adjust_ui_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
 pub fn adjust_agent_ui_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
 pub fn adjust_agent_buffer_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
 pub fn adjust_git_commit_buffer_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
+pub fn adjust_markdown_preview_font_size(cx: &mut App, f: impl FnOnce(Pixels) -> Pixels);
 
 // Geçersiz kılmayı kaldır → ayar değerine düş
 pub fn reset_buffer_font_size(cx: &mut App);
@@ -816,6 +835,7 @@ pub fn reset_ui_font_size(cx: &mut App);
 pub fn reset_agent_ui_font_size(cx: &mut App);
 pub fn reset_agent_buffer_font_size(cx: &mut App);
 pub fn reset_git_commit_buffer_font_size(cx: &mut App);
+pub fn reset_markdown_preview_font_size(cx: &mut App);
 
 // ±1 px convenience
 pub fn increase_buffer_font_size(cx: &mut App);

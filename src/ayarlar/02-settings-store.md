@@ -2,9 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
-- [x] Doğrulanan settings yüzeyleri: `AgentSettingsContent.sandbox_permissions`, `SandboxPermissionsContent::allow_unsandboxed`, sandbox host/yazma izinleri ve agent terminal sandbox off-switch sözleşmesi.
-- [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/agent.rs`, `crates/settings_content/src/settings_content.rs`, `crates/settings/src/settings.rs` ve `assets/settings/default.json`.
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan settings yüzeyleri: `ThemeSettingsContent.markdown_preview_font_size`, `SandboxPermissionsContent.allow_git_access` ve `OpenAiCompatibleModelCapabilities.max_tokens_parameter`.
+- [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/theme.rs`, `crates/settings_content/src/agent.rs`, `crates/settings_content/src/language_model.rs` ve `crates/settings/src/vscode_import.rs`.
 
 `SettingsStore`, Zed'in tüm ayar kaynaklarını tek bir tip güvenli store (ayar deposu) içinde birleştirir. Çalışma zamanındaki (runtime) global değerler; varsayılan (`Default`) üzerine sırasıyla eklenti (`Extension`), `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve sunucu (`Server`) katmanları eklenerek kurulur. Dosya yolu (path) hedefli okumalarda ise yerel ayarlar (`local_settings`) bu zincirin en üstüne dahil edilir. Birleştirilmiş nihai içerik daha sonra sisteme kayıtlı olan ilgili `Settings` tiplerine aktarılır.
 
@@ -276,9 +276,9 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 
 | API | Kapsadığı Davranış | Not |
 | :-- | :-- | :-- |
-| `ThemeSettingsContent` | Tema, font ve arayüz yoğunluğu üst seviye verisi | `theme`, `icon_theme`, `markdown_preview_theme`, `ui_density`, arayüz/tampon/agent/git commit font boyutu ve ağırlığı, font ailesi/özellikleri, gereksiz kodların soluklaştırılması ve tema override alanlarını taşır. |
-| `ThemeSettingsContent` | Font alanları | `ui_font_family`, `ui_font_fallbacks`, `ui_font_size`, `ui_font_features`, `ui_font_weight`, `buffer_font_weight`, `buffer_line_height`, `buffer_font_features`, `agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size`, `markdown_preview_font_family`, `markdown_preview_code_font_family` font odaklı parçalardır. |
-| `MarkdownPreviewSettingsContent` | Markdown preview içerik genişliği | `SettingsContent.markdown_preview` alanında `limit_content_width` ve `max_width` değerlerini taşır; rendered markdown içeriğinin okunabilirlik genişliği ve preview pane içindeki yatay merkezlemesi bu sözleşmeyle yönetilir. |
+| `ThemeSettingsContent` | Tema, font ve arayüz yoğunluğu üst seviye verisi | `theme`, `icon_theme`, `markdown_preview_theme`, `ui_density`, arayüz/tampon/agent/git commit/markdown preview font boyutu ve ağırlığı, font ailesi/özellikleri, gereksiz kodların soluklaştırılması ve tema override alanlarını taşır. |
+| `ThemeSettingsContent` | Font alanları | `ui_font_family`, `ui_font_fallbacks`, `ui_font_size`, `ui_font_features`, `ui_font_weight`, `buffer_font_weight`, `buffer_line_height`, `buffer_font_features`, `agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size`, `markdown_preview_font_family`, `markdown_preview_code_font_family`, `markdown_preview_font_size` font odaklı parçalardır. |
+| `MarkdownPreviewSettingsContent` | Markdown preview içerik genişliği | `SettingsContent.markdown_preview` alanında `limit_content_width` ve `max_width` değerlerini taşır; rendered markdown içeriğinin okunabilirlik genişliği ve preview pane içindeki yatay merkezlemesi bu sözleşmeyle yönetilir. Font ailesi ve font boyutu ayarları `ThemeSettingsContent` içinde kalır. |
 | `ThemeSelection`, `ThemeSelectionDiscriminants`, `ThemeName`, `DEFAULT_LIGHT_THEME`, `DEFAULT_DARK_THEME` | Tema seçimi ve varsayılan tema adları | Statik veya dinamik light/dark seçimi yapılır; varsayılan tercihler `One Light` ve `One Dark` isimlerini kullanır. |
 | `IconThemeSelection`, `IconThemeSelectionDiscriminants`, `IconThemeName` | Dosya ikonu teması seçimi | Dosya ikonu teması da statik veya dinamik light/dark yapısıyla seçilebilir. |
 | `ThemeAppearanceMode`, `UiDensity` | Görünüm modu ve yoğunluğu | `Light`, `Dark`, `System` tema modunu; `Compact`, `Default`, `Comfortable` boşluk oranlarını belirler. `UiDensity::spacing_ratio()` bu seçimi sayısal katsayıya çevirir. |
@@ -322,7 +322,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve sağlayıcıya özel parametre override'ları | `language_models` sağlayıcı ayarlarından bağımsız olarak agent model seçimini taşır. |
 | `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel yerleşimi, düşünme bloğu gösterimi, bildirimler ve ses davranışları | Kullanıcı etkileşimiyle ilgili enum şema bileşenleridir. |
 | `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool (araç) izinleri, regex kuralları ve izin modları | Tool çağrısı politikaları içerik şeması seviyesinde tiplendirilir. |
-| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, belirli sandbox dışı çalışma izinleri ve tüm agent terminal komutları için model-facing sandbox off-switch kararını taşır. |
+| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, Git metadata erişimi, belirli sandbox dışı çalışma izinleri ve tüm agent terminal komutları için model-facing sandbox off-switch kararını taşır. |
 
 ### Dil Modeli Sağlayıcı (Language Model Provider) İçerik Ailesi
 
@@ -336,7 +336,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `OpenCodeSettingsContent`, `OpenCodeAvailableModel`, `OpenCodeModelSubscription` | OpenCode API ve abonelik bazlı model listeleri | Abonelik seviyeleri enum yapısı sağlayıcı içeriğinin bir parçasıdır. |
 | `LmStudioSettingsContent`, `LmStudioAvailableModel`, `DeepseekSettingsContent`, `DeepseekAvailableModel` | LM Studio ve DeepSeek sağlayıcı verileri | Her sağlayıcı kendine özel available model yapısını kullanır. |
 | `MistralSettingsContent`, `MistralAvailableModel`, `OpenAiSettingsContent`, `OpenAiAvailableModel`, `OpenAiModelCapabilities` | Mistral ve OpenAI sağlayıcı ayarları | Token, completion, reasoning ve tool/image yetenekleri sağlayıcı şemasında yer alır. |
-| `OpenAiCompatibleSettingsContent`, `OpenAiCompatibleAvailableModel`, `OpenAiCompatibleModelCapabilities` | OpenAI uyumlu isimlendirilmiş sağlayıcı map'i | `HashMap<Arc<str>, ...>` yapısıyla birden fazla özel sağlayıcı tanımlanabilir. |
+| `OpenAiCompatibleSettingsContent`, `OpenAiCompatibleAvailableModel`, `OpenAiCompatibleModelCapabilities` | OpenAI uyumlu isimlendirilmiş sağlayıcı map'i | `HashMap<Arc<str>, ...>` yapısıyla birden fazla özel sağlayıcı tanımlanabilir. Model kabiliyetleri `tools`, `images`, `parallel_tool_calls` ve `max_tokens_parameter` gibi istek biçimi kararlarını taşır. |
 | `VercelAiGatewaySettingsContent`, `VercelAiGatewayAvailableModel`, `GoogleSettingsContent`, `GoogleAvailableModel` | Vercel AI Gateway ve Google sağlayıcı ayarları | Ağ geçidi ve sağlayıcı ayarları `language_models` altında ayrı anahtarlarla tutulur. |
 | `XAiSettingsContent`, `XaiAvailableModel`, `ZedDotDevSettingsContent`, `ZedDotDevAvailableModel`, `ZedDotDevAvailableProvider` | xAI ve `zed.dev` sağlayıcı ayarları | `zed.dev` JSON anahtarı serde rename niteliğiyle korunur. |
 | `OpenRouterSettingsContent`, `OpenRouterAvailableModel`, `OpenRouterProvider`, `DataCollection` | OpenRouter sağlayıcısı, model metadata ve veri toplama tercihleri | OpenRouter sağlayıcı bilgisi model girişinden ayrı olarak tiplendirilir. |
@@ -383,9 +383,9 @@ Varsayılan ayar dosyasında değer boş string'dir. Boş string, başlangıç k
 
 | Grup | API | Not |
 |---|---|---|
-| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, tüm agent terminal komutları için sandbox dışı çalışma kararını ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
+| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_git_access`, `allow_unsandboxed`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, korumalı Git metadata yollarına erişimi, tüm agent terminal komutları için sandbox dışı çalışma kararını ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
 
-`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ilgili dosya sistemi yazma iznini, `allow_sandbox_unsandboxed()` ise `allow_unsandboxed: Some(true)` kararını kalıcılaştırır. `allow_unsandboxed`, agent terminal komutları için model-facing off-switch işlevi görür: değer doğru olduğunda sandboxed terminal tool sunulmaz, sistem prompt'unda sandbox bölümü yer almaz, model düz `terminal` tool akışına yönelir ve Windows üzerinde WSL sandbox kurulumu atlanır. Bu karar, tek komutluk veya thread kapsamlı `unsandboxed: true` yükseltme onayından ayrıdır. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ilgili dosya sistemi yazma iznini, `allow_sandbox_git_access()` ise korumalı Git metadata yollarına erişim kararını `allow_git_access: Some(true)` olarak kalıcılaştırır. Bu izin, sandbox'lı terminal komutlarının `.git` metadata veya worktree Git yönetim yollarına her komutta yeniden onay istemeden erişebilmesi için kullanılır. `allow_sandbox_unsandboxed()` ise `allow_unsandboxed: Some(true)` kararını kalıcılaştırır. `allow_unsandboxed`, agent terminal komutları için model-facing off-switch işlevi görür: değer doğru olduğunda sandboxed terminal tool sunulmaz, sistem prompt'unda sandbox bölümü yer almaz, model düz `terminal` tool akışına yönelir ve Windows üzerinde WSL sandbox kurulumu atlanır. Bu karar, tek komutluk veya thread kapsamlı `unsandboxed: true` yükseltme onayından ayrıdır. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
 
 ### `MarkdownPreviewSettingsContent`
 
@@ -395,7 +395,13 @@ Varsayılan ayar dosyasında değer boş string'dir. Boş string, başlangıç k
 |---|---|---|
 | Alanlar | `limit_content_width`, `max_width` | İçerik genişliğini okunabilirlik için sınırlama kararını ve piksel cinsinden üst genişliği taşır. |
 
-`limit_content_width` açık olduğunda rendered markdown içeriği `max_width` ile sınırlandırılır ve preview pane içinde yatay olarak merkezlenir. Bu ayar, tema tarafındaki `markdown_preview_theme` veya markdown preview font alanlarından farklıdır; burada yalnız layout genişliği yönetilir.
+`limit_content_width` açık olduğunda rendered markdown içeriği `max_width` ile sınırlandırılır ve preview pane içinde yatay olarak merkezlenir. Bu ayar, tema tarafındaki `markdown_preview_theme`, `markdown_preview_font_family`, `markdown_preview_code_font_family` ve `markdown_preview_font_size` alanlarından farklıdır; burada yalnız layout genişliği yönetilir.
+
+### `OpenAiCompatibleModelCapabilities`
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `tools`, `images`, `parallel_tool_calls`, `max_tokens_parameter` | OpenAI uyumlu özel sağlayıcının hangi istek özelliklerini desteklediğini bildirir. `max_tokens_parameter` `true` olduğunda sağlayıcıya token sınırı klasik `max_tokens` parametresiyle iletilir; varsayılan `false` değeridir. |
 
 ### `WorktreeSettingsContent`
 

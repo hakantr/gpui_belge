@@ -1,5 +1,11 @@
 # Test, Inspector ve Düşük Seviye API
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
+- [x] Doğrulanan düşük seviye yüzey: `WindowParams::app_id` ve `Platform::on_system_wake`.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs`, `crates/gpui/src/platform/test/platform.rs` ve `crates/gpui/src/platform/visual_test.rs`.
+
 ---
 
 ## Test Rehberi
@@ -513,10 +519,10 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `GpuSpecs` | `is_software_emulated`, `device_name`, `driver_name`, `driver_info` | GPUI'ın çalıştığı GPU/driver bilgisini taşır; `window.gpu_specs()` Linux/Vulkan tarafında tanı için bunu döndürebilir. |
 | `SourceMetadata` | `id`, `label`, `is_main`, `resolution` | Screen capture kaynağının kullanıcıya gösterilebilir metadata'sıdır. |
 | `RequestFrameOptions` | `require_presentation`, `force_render` | Platformdan yeni frame talep ederken taşınan düşük seviye ayar paketidir. |
-| `WindowParams` | `bounds`, `titlebar`, `kind`, `is_movable`, `is_resizable`, `is_minimizable`, `focus`, `show`, `icon`, `display_id`, `window_min_size` | `WindowOptions` çözümlendikten sonra platform backend'ine giden pencere açma parametreleridir. |
+| `WindowParams` | `bounds`, `titlebar`, `kind`, `is_movable`, `is_resizable`, `is_minimizable`, `focus`, `show`, `icon`, `display_id`, `app_id`, `window_min_size` | `WindowOptions` çözümlendikten sonra platform backend'ine giden pencere açma parametreleridir. `app_id`, Linux/FreeBSD masaüstü ortamlarında pencere gruplama ve görev çubuğu eşleşmesi için platform katmanına taşınır. |
 | `DEFAULT_WINDOW_SIZE`, `DEFAULT_ADDITIONAL_WINDOW_SIZE` | ana pencere ve ek pencere varsayılan boyutları | `WindowOptions.window_bounds` verilmediğinde display `default_bounds()` hesabının temel aldığı ana ölçü ve Zed'in yardımcı pencerelerde kullandığı ek ölçüdür. Aktif pencere varsa GPUI önce onun sınırından kademeli yerleşim üretir. |
 | `TextRenderingMode` | `PlatformDefault`, `Subpixel`, `Grayscale` | Platform text system'in glif rasterleme modunu bildirir. |
-| `Platform` | `hide_cursor_until_mouse_moves` | Platform arka ucunda imleci bir sonraki fare hareketine kadar gizleyen düşük seviye çağrıdır; pencere `CursorHideMode` akışı bunu kullanır. |
+| `Platform` | `hide_cursor_until_mouse_moves`, `on_system_wake` | Platform arka ucunda imleci bir sonraki fare hareketine kadar gizleyen düşük seviye çağrı ve sistem uyku dönüşü callback kaydıdır. Uygulama kodu wake sinyalini `Application::on_system_wake` sarmalayıcısı üzerinden kullanır. |
 | `PlatformTextSystem`, `NoopTextSystem` | font yükleme, metrics, glyph, raster, layout | Platform metin motoru trait'i ve test/headless için no-op implementasyondur. |
 | `PlatformInputHandler` | `selected_text_range`, IME/input handler köprüsü | Platform metin girdisi ile GPUI `InputHandler` arasındaki async window context köprüsüdür. |
 | `PlatformKeyboardLayout`, `PlatformKeyboardMapper`, `DummyKeyboardMapper` | layout, mapper, test mapper | Platform keystroke çevirimi ve test keyboard mapping sınırıdır. |
