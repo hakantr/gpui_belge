@@ -267,9 +267,9 @@ Burada iki ayrı pencere kavramı vardır: tema yazarının seçtiği **arka pla
 
 ### `WindowBackgroundAppearance`
 
-**Kaynak:** `gpui::WindowBackgroundAppearance` (`window`).
+**Kaynak:** `gpui::WindowBackgroundAppearance` (`platform`).
 
-GPUI enum yapısı pencere arka planı için şu değerleri taşır. Tema/settings JSON sözleşmesindeki `"background.appearance"` alanı ise `WindowBackgroundContent` üzerinden yalnızca `Opaque`, `Transparent` ve `Blurred` değerlerini GPUI'ye çevirir; iki Windows 11 materyali olan `MicaBackdrop` ve `MicaAltBackdrop` bu sürümde düşük seviye GPUI yüzeyinde kalır ve tema JSON'undan doğrudan gelmez:
+GPUI enum yapısı pencere arka planı için şu değerleri taşır. Tema/settings JSON sözleşmesindeki `"background.appearance"` alanı ise `WindowBackgroundContent` üzerinden yalnızca `Opaque`, `Transparent` ve `Blurred` değerlerini GPUI'ye çevirir; iki Windows 11 materyali olan `MicaBackdrop` ve `MicaAltBackdrop` düşük seviye GPUI yüzeyinde kalır ve tema JSON'undan doğrudan gelmez:
 
 ```rust
 pub enum WindowBackgroundAppearance {
@@ -284,7 +284,7 @@ pub enum WindowBackgroundAppearance {
 | Değer | Davranış | Platform Notu |
 | ------- | ---------- | --------------- |
 | `Opaque` (varsayılan) | Pencere arka planı tam dolu; altındaki masaüstü görünmez. | Her yerde çalışır. |
-| `Transparent` | Pencere altındaki masaüstü/diğer pencereler doğrudan görünür. Bunun için temanın `background` rengi alpha < 1 olmalı. | macOS, Windows, Wayland evet. X11 compositor'a bağlı. |
+| `Transparent` | Pencere altındaki masaüstü/diğer pencereler doğrudan görünür. Bunun için temanın `background` renginde alpha < 1 olması gerekir. | macOS, Windows, Wayland evet. X11 compositor'a bağlı. |
 | `Blurred` | Arka planı bulanıklaştıran platform etkisini ister. | Platform desteğine bağlıdır; destek yoksa pencere yöneticisi yedek davranışa düşebilir. |
 | `MicaBackdrop` | Windows 11 Mica backdrop materyalini ister. | GPUI enum'unda vardır; Zed tema/settings JSON sözleşmesi bu değeri doğrudan parse etmez. |
 | `MicaAltBackdrop` | Windows 11 Mica Alt backdrop materyalini ister. | GPUI enum'unda vardır; Zed tema/settings JSON sözleşmesi bu değeri doğrudan parse etmez. |
@@ -304,7 +304,17 @@ impl Theme {
 }
 ```
 
-JSON Content tarafında ise `WindowBackgroundContent` (`Opaque`/`Transparent`/`Blurred`) üçlüsü `IntoGpui` dönüşümüyle bu enum'un ilk üç varyantına eşlenir.
+JSON Content tarafında ise `WindowBackgroundContent` (`Opaque`/`Transparent`/`Blurred`) üçlüsü `IntoGpui` dönüşümüyle bu enum'un ilk üç varyantına eşlenir. Bu content alanı `Option<WindowBackgroundContent>` tipindedir; tema yazarı değer vermediğinde refinement ve fallback zinciri runtime modelinde somut `WindowBackgroundAppearance` değerini üretir. Bu nedenle uygulama kodu `Theme::window_background_appearance()` üzerinden daima tamamlanmış runtime değerini okur.
+
+Settings içindeki geçersiz kılmalar da aynı content tipini kullandığı için dış JSON alan adı `window_background_appearance` değil, `background.appearance` biçimindedir:
+
+```json
+{
+  "experimental.theme_overrides": {
+    "background.appearance": "blurred"
+  }
+}
+```
 
 **Pencere Açılırken Aktarma:**
 
@@ -315,9 +325,9 @@ WindowOptions {
 }
 ```
 
-Bu değer `open_window` argümanı olarak verilir. Pencere yöneticisi de pencereyi bu arka plan tipine göre oluşturur.
+Bu değer `open_window` argümanı olarak verilir. GPUI platform katmanı da pencereyi bu arka plan tipine göre oluşturur.
 
-**Çalışma Zamanı Değişimi:** Pencere açıldıktan sonra arka plan tipinin değiştirilmesi gerekiyorsa `window.set_background_appearance(yeni_gorunum)` çağrısı kullanılır.
+**Çalışma Zamanı Değişimi:** Pencere açıldıktan sonra arka plan tipinin değiştirilmesi gerekiyorsa `window.set_background_appearance(yeni_gorunum)` çağrısı kullanılır. Fiili platform değeri düşük seviyeli `PlatformWindow::background_appearance()` metoduyla saklanır; üst seviye `gpui::Window` public API'si bu değeri doğrudan sorgulayan ayrı bir `background_appearance()` metodu sunmaz.
 
 ### `WindowAppearance`
 

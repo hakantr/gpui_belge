@@ -411,17 +411,35 @@ pub enum WindowBackgroundAppearance {
 }
 ```
 
-Zed'in tema konfigürasyonu bu listenin tamamını değil, yalnızca belirli bir alt kümesini kullanıcı ayarlarına sunmaktadır:
+Zed'in tema ve ayar konfigürasyonu bu listenin tamamını değil, yalnızca belirli bir alt kümesini kullanıcıya açar. JSON sözleşmesinde alan adı `background.appearance` biçimindedir; Rust tarafındaki `window_background_appearance` adı serde katmanında dışarıya doğrudan taşınmaz:
 
 ```json
 {
   "experimental.theme_overrides": {
-    "window_background_appearance": "blurred"
+    "background.appearance": "blurred"
   }
 }
 ```
 
-Kullanıcı ayarlarında desteklenen değerler `opaque`, `transparent` ve `blurred` şeklindedir. `MicaBackdrop` ve `MicaAltBackdrop` seçenekleri GPUI çekirdek kütüphanesi düzeyinde mevcut olsa da, Zed tema şeması henüz bu değerleri kullanıcı arayüzü ayarları seviyesinde sunmamaktadır.
+Tema adına göre geçersiz kılma yapılırken de aynı iç alan adı kullanılır:
+
+```json
+{
+  "theme_overrides": {
+    "One Dark": {
+      "background.appearance": "transparent"
+    }
+  }
+}
+```
+
+Kullanıcı ayarlarında ve tema JSON içeriğinde desteklenen değerler `opaque`, `transparent` ve `blurred` şeklindedir. Bu dış sözleşme `WindowBackgroundContent` enum'u üzerinden çözümlenir ve GPUI tarafındaki `WindowBackgroundAppearance::{Opaque, Transparent, Blurred}` değerlerine dönüştürülür. `MicaBackdrop` ve `MicaAltBackdrop` seçenekleri GPUI çekirdek kütüphanesi düzeyinde mevcut olsa da, Zed tema/settings JSON sözleşmesi bu değerleri parse etmez. Bu iki değer gerektiğinde yalnızca düşük seviye GPUI pencere yüzeyi üzerinden doğrudan iletilir.
+
+Bu noktada iki katmanı ayırmak önemlidir:
+
+- JSON/content katmanındaki `ThemeStyleContent::window_background_appearance` alanı `Option<WindowBackgroundContent>` tipindedir; tema veya ayar yazarı değer vermediğinde alan boş kalabilir.
+- Runtime tema modelindeki `ThemeStyles::window_background_appearance` alanı ise `WindowBackgroundAppearance` tipindedir; refinement ve varsayılan tema çözümlemesi tamamlandıktan sonra uygulama kodu her zaman somut bir değer okur.
+- `Theme::window_background_appearance()` metodu bu somut runtime değerini döndürür. Standart uygulama kodunda pencere arka planı için en güvenilir okuma noktası budur.
 
 **Zed işlem akışı.** Temada yapılan değişiklikler o an açık bulunan tüm pencerelere anında yansıtılır:
 
@@ -430,23 +448,35 @@ Kullanıcı ayarlarında desteklenen değerler `opaque`, `transparent` ve `blurr
 - Ayarlar veya aktif tema güncellendiğinde, `zed` paketi tüm açık pencereler üzerinde sırasıyla `window.set_background_appearance(background_appearance)` metodunu çalıştırır.
 - Arayüz bileşenlerinde yaygın olarak kullanılan `ui::theme_is_transparent(cx)` kontrolü; pencere şeffaf veya bulanık arka plana sahipse `true` değerini döndürür. Opak arka plan beklentisiyle tasarlanan bileşenlerin bu durumu gözetmesi önem taşır.
 
+**API yüzeyi ve sorgulama sınırı.** Etkin tema tercihi `cx.theme().window_background_appearance()` ile okunur. Düşük seviyeli platform nesnesinde ayrıca `PlatformWindow::background_appearance()` ve `PlatformWindow::set_background_appearance(...)` metodları bulunur; bunlar platform implementasyonlarının sakladığı fiili değeri yönetir. Buna karşılık üst seviye `gpui::Window` yapısı public olarak `set_background_appearance(...)` metodunu sunar, ancak eşdeğer bir `window.background_appearance()` sorgu metodu açmaz. Bu nedenle normal render ve ayar akışlarında değer tema üzerinden okunur, pencereye ise `window.set_background_appearance(...)` ile uygulanır.
+
 **Platform düzeyinde işleme.** Aynı enum değeri, her işletim sisteminin kendi kompozisyon yeteneklerine göre farklı bir mekanizmayla hayata geçirilir:
 
 - macOS:
   - `Opaque` değeri pencereyi tamamen opak hale getirir.
   - `Transparent` ve `Blurred` modlarında çizim katmanının saydamlık özelliği etkinleştirilir.
-  - `Blurred` ayarı seçildiğinde, pencere hiyerarşisine `NSVisualEffectView` tabanlı yerel macOS bulanıklık katmanı dinamik olarak dahil edilir.
+  - macOS 12 ve üzeri sürümlerde `Blurred` ayarı seçildiğinde pencere hiyerarşisine `NSVisualEffectView` tabanlı yerel bulanıklık katmanı dinamik olarak dahil edilir. Bu katman `NSVisualEffectMaterial::Selection` ve `NSVisualEffectState::Active` ile kurulur; `CAChameleonLayer` arka plan tonu gizlenerek masaüstü renk tonlamasının bulanıklık üstüne binmesi engellenir.
+  - macOS 12 altındaki sürümlerde `NSVisualEffectView` alt katman davranışı farklı olduğundan, `Blurred` için `CGSSetWindowBackgroundBlurRadius(..., 80)` çağrısı üzerinden WindowServer bulanıklığı kullanılır. `Opaque` ve `Transparent` değerlerinde bu yarıçap sıfırlanır.
 - Windows:
   - `Opaque` seçeneğinde DWM kompozisyon öznitelikleri devre dışı bırakılır.
   - `Transparent` modunda pencere kompozisyon durumu şeffaf olarak etiketlenir.
-  - `Blurred` tercih edildiğinde, Windows'a özgü Acrylic veya standart pencere bulanıklığı kompozisyon öznitelikleri devreye sokulur.
+  - `Blurred` tercih edildiğinde `set_window_composition_attribute` çağrısı aracılığıyla standart pencere bulanıklığı kompozisyon öznitelikleri devreye sokulur.
   - `MicaBackdrop` seçeneği Windows DWM düzeyindeki `DWMSBT_MAINWINDOW` efektini tetikler.
   - `MicaAltBackdrop` seçeneği ise sekmeli pencerelere özel `DWMSBT_TABBEDWINDOW` efektini uygular.
 - Wayland:
-  - Ekran kompozitörü bulanıklık protokollerini destekliyorsa, `Blurred` türündeki pencerelere Wayland düzeyinde bulanıklık uygulanır.
+  - Ekran kompozitörü `blur_manager` protokolünü destekliyorsa, `Blurred` türündeki pencereler için yüzeye bağlı bir blur nesnesi oluşturulur ve commit edilir.
   - Destek bulunmayan kompozitörlerde bulanıklık talebi görsel bir değişim oluşturmayabilir.
 - X11:
-  - Şeffaflık ve bulanıklık ayarları çizim motorunun alfa kanalını etkiler; ancak gerçek bir masaüstü arka planı bulanıklaştırması için aktif bir pencere yöneticisi (WM) veya kompozitör desteği gereklidir.
+  - `Opaque` dışındaki değerler çizim motorunun alfa kanalıyla şeffaflık yoluna girer.
+  - X11 implementasyonu `Blurred` için yerel bir masaüstü arka planı bulanıklaştırması uygulamaz; sonuç pratikte kompozitörün sunduğu şeffaflık desteğiyle sınırlıdır.
+- Web/WASM:
+  - Tarayıcı platformunda `background_appearance()` her zaman `Opaque` döndürür; `set_background_appearance(...)` çağrısı etkisizdir.
+
+**Element düzeyinde blur sınırı.** `WindowBackgroundAppearance::Blurred` ve Windows Mica değerleri pencere zeminini etkiler; tekil bir `div`, `Button`, sidebar veya panel için CSS'teki `backdrop-filter: blur(...)` benzeri ayrı bir element filtresi sağlamaz. GPUI `Style` yapısında element arka planı, border, köşe yarıçapı, `box_shadow`, metin stili ve opacity gibi alanlar bulunur; fakat elementin arkasındaki mevcut sahneyi örnekleyip bulanıklaştıran bir `filter` veya `backdrop_filter` alanı yer almaz.
+
+Bu ayrım özellikle yarı saydam panellerde önemlidir. Bir tema `Blurred` pencere arka planını etkinleştirdiğinde işletim sistemi pencerenin arkasındaki masaüstü veya diğer pencere içeriklerini bulanıklaştırır. Sidebar, buton veya panel üzerinde `transparent_black()`, alfa kanalı düşük `Hsla` renkleri veya `opacity(...)` kullanıldığında görünen etki, o elementin kendi blur işlemi değildir; elementin yarı saydam yüzeyinden pencerenin en altındaki platform bulanıklığının görünmesidir. Aynı element opak bir `background` çizdiğinde bu platform etkisi kapanır.
+
+macOS implementasyonunda `NSVisualEffectView` katmanı `content_view` altına `NSWindowOrderingMode::NSWindowBelow` ile eklenir; Windows ve Wayland tarafında da karar pencere/yüzey düzeyindedir. Bu nedenle bir sidebar'ın arkasında kalan editör metnini ya da bir butonun altındaki komşu UI katmanını yerel `WindowBackgroundAppearance::Blurred` ile bulanıklaştırmak mümkün değildir. Böyle bir görünüm gerektiğinde tasarımın yarı saydam renk, gölge, overlay ve opak yedek yüzey kombinasyonlarıyla kurulması gerekir; gerçek backdrop blur semantiği GPUI element stil API'sinde bulunmaz.
 
 **Pratik kullanım kılavuzu.** Karar verme süreçlerinde hangi seçeneğin nerede tercih edilmesi gerektiği şu şekilde özetlenebilir:
 
