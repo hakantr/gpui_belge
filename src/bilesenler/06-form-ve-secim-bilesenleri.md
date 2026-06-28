@@ -8,7 +8,7 @@
 
 Bu bölüm, kullanıcıdan değer alan veya var olan bir ayarı değiştiren kontrolleri anlatır. Butonlardan hemen sonra gelmesinin sebebi de budur: checkbox, switch ve giriş alanları aynı olay modeline yaslanır; ayrıca önceki bölümlerdeki label ve icon düzenini tekrar kullanır. Butonların çalışma şekli anlaşıldıysa, bu kontrollerin arkasındaki fikir tanıdık gelecektir.
 
-Hangi durumda hangi kontrolün tercih edileceğine karar verirken aşağıdaki ayrım faydalı olacaktır:
+Hangi durumda hangi kontrolün tercih edileceği konusunda aşağıdaki ayrım faydalı olacaktır:
 
 ![Form Kontrolü Seçimi](assets/form-kontrolu-secimi.svg)
 
@@ -320,7 +320,7 @@ Düşük seviye yüzey — `ErasedEditor`:
 | API | Rol |
 | :-- | :-- |
 | `ERASED_EDITOR_FACTORY` | Çalışma zamanında gerçek adaptörünü sağlayan global fabrikadır; `InputField::new(...)` çağrısını bu fabrika kurulduktan sonra yapılması gerekir. |
-| `ErasedEditor` | Metin okuma/yazma, odak handle'ı, read-only/multiline/maskeleme ayarları, olay aboneliği ve render işlemlerini crate sınırını bozmadan sunan trait yüzeyidir. |
+| `ErasedEditor` | Metin okuma/yazma, tümünü seçme, salt okunur/çok satırlı kip, odak handle'ı, maskeleme, olay aboneliği ve render işlemlerini crate sınırını bozmadan sunan trait yüzeyidir. |
 | `ErasedEditorEvent` | `BufferEdited` ve `Blurred` olaylarıyla giriş değişimi ve odak kaybını bildirir. |
 
 ```rust
@@ -340,12 +340,15 @@ if ui_input::ERASED_EDITOR_FACTORY
 | `text(cx)` | `(&self, &App) -> String` | Anlık metin değeri |
 | `set_text(text, window, cx)` | `(&self, &str, &mut Window, &mut App)` | Programatik değer atama |
 | `clear(window, cx)` | `(&self, &mut Window, &mut App)` | Tüm metni siler |
+| `select_all(window, cx)` | `(&self, &mut Window, &mut App)` | Metnin tamamını seçer |
 | `set_placeholder_text(text, window, cx)` | `(&self, &str, &mut Window, &mut App)` | Placeholder güncelleme |
 | `move_selection_to_end(window, cx)` | `(&self, &mut Window, &mut App)` | İmleci sona taşır |
 | `select_all(window, cx)` | `(&self, &mut Window, &mut App)` | Girişteki tüm metni seçer; sonraki yazım mevcut değeri tek adımda değiştirir |
 | `set_read_only(read_only, cx)` | `(&self, bool, &mut App)` | Düzenleyiciyi salt okunur veya düzenlenebilir hale getirir |
 | `set_multiline(max_lines, window, cx)` | `(&self, Option<usize>, &mut Window, &mut App)` | Tek satırlı girdiyi çok satırlı düzenlemeye açar; `max_lines` üst sınırı opsiyoneldir |
 | `set_masked(masked, window, cx)` | `(&self, bool, &mut Window, &mut App)` | Şifre maskesi aç/kapat |
+| `set_read_only(read_only, cx)` | `(&self, bool, &mut App)` | Editor girdisini salt okunur veya düzenlenebilir duruma alır |
+| `set_multiline(max_lines, window, cx)` | `(&self, Option<usize>, &mut Window, &mut App)` | Tek satır davranışından çok satırlı girişe geçer; `Some(n)` en fazla satır sayısını sınırlar |
 | `focus_handle(cx)` | `(&self, &App) -> FocusHandle` | Odak yönetimi |
 | `subscribe(callback, window, cx)` | callback: `FnMut(ErasedEditorEvent, &mut Window, &mut App)`, `Subscription` döner | Olay aboneliği; geri çağrıya olay değeri iletilir |
 | `render(window, cx)` | `(&self, &mut Window, &App) -> AnyElement` | Manuel render (InputField içeride çağırır) |

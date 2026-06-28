@@ -142,6 +142,7 @@ uygulama.run(|cx| {
 - **İmleç görünürlüğü:** `cursor_hide_mode`, `set_cursor_hide_mode`, `is_cursor_visible`. İşaretçinin görsel stili pencere veya hitbox bağlamında `window.set_cursor_style(style, &hitbox)` metoduyla, sürükleme (drag and drop) işlemleri sırasında ise `cx.set_active_drag_cursor_style(...)` vasıtasıyla belirlenir.
 - **Ekran yakalama:** `is_screen_capture_supported`, `screen_capture_sources`.
 - **Klavye:** `keyboard_layout()`, `keyboard_mapper()`, `on_keyboard_layout_change(|cx| ...)`.
+- **Sistem uyanması:** `Application::on_system_wake(|cx| ...)` işletim sistemi uyku durumundan çıktığında tetiklenir; callback `&mut App` alır ve pencere yenileme, zamanlayıcıları kontrol etme veya dış kaynak durumunu tazeleme gibi uygulama geneli işleri yürütür.
 - **HTTP istemcisi:** `http_client() -> Arc<dyn HttpClient>`, `set_http_client(Arc<dyn HttpClient>)`. Başlangıçta `Application::with_http_client(...)` ile de ayarlanabilir. GPUI'nin varsayılan HTTP istemcisi işlem yapmayan bir sahte istemcidir (`NullHttpClient`). Bu nedenle gerçek ağ istekleri gerektiğinde `with_http_client(...)` aracılığıyla gerçek bir istemcinin sağlanması gerekir.
 - **Uygulama yolu ve compositor:** `app_path() -> Result<PathBuf>` (macOS üzerinde bundle yolu veya Linux üzerinde çalıştırılabilir dosyanın konumu), `path_for_auxiliary_executable(name)` (yardımcı programlar için bundle içi arama yolu), `compositor_name() -> &'static str` (Linux'ta `"Wayland"`, `"X11"` veya başsız oturumda `"Headless"`; diğer platformlarda ise boş metin döner).
 

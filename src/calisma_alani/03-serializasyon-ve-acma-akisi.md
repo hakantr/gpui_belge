@@ -102,6 +102,7 @@ Yol bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve diz
 | :-- | :-- |
 | `ActiveWorktreeCreation`, `AutoWatch`, `AddFolderToProject` | Worktree oluşturma durumu, otomatik izleme (auto-watch) tercihi ve mevcut projeye klasör ekleme eylemini kapsar. |
 | `PreviousWorkspaceState`, `WorkspacePosition`, `WorkspaceHandle`, `ViewId` | Önceki workspace durumu, pencere/workspace konumu, `Entity<Workspace>` üzerinde projedeki dosya yollarını veren sözleşme ve görünüm (view) kimliği taşıyıcılarıdır. |
+| `Bookmark` | Kalıcı bookmark satırını ve kullanıcı etiketini taşır; `row: u32` ve `label: String` alanlarıyla oturum/DB kayıtlarına yazılır. |
 | `SERIALIZATION_THROTTLE_TIME`, `delete_unloaded_items`, `apply_restored_multiworkspace_state`, `restore_multiworkspace` | Oturum serileştirme (session serialization) debounce sabiti, yüklenmeyenleri temizleme (unload cleanup) ve multi-workspace geri yükleme yardımcılarıdır. |
 | `last_opened_workspace_location`, `last_session_workspace_locations`, `remote_workspace_position_from_db` | DB veya oturum durumundan son yerel/uzak workspace konumlarını okur. |
 | `workspace_windows_for_location`, `find_existing_workspace`, `get_any_active_multi_workspace`, `activate_any_workspace_window` | Açma isteği için yeniden kullanılabilecek pencere/workspace'i bulur veya aktif pencereye geçer. |
@@ -110,6 +111,7 @@ Yol bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve diz
 | `register_project_item`, `clone_active_item`, `move_item`, `move_active_item` | Project item tiplerini kaydeder; aktif öğe klonlama/taşıma işlemlerinin çalışma alanı tarafındaki düşük seviyeli girişleridir. |
 | `OpenLog`, `RevealLogInFileManager`, `OpenInTerminal`, `OpenTerminal` | Günlük (log) dosyasını açma/gösterme ve terminali çalışma alanı veya dosya bağlamında açma eylemleridir. |
 | `ClearBookmarks`, `ClearNavigationHistory`, `ClearTrustedWorktrees`, `ToggleWorktreeSecurity` | Çalışma alanı kalıcılığında bookmark/gezinti geçmişi/güvenilen çalışma alanı kayıtlarını temizler veya aktif çalışma alanı güvenlik durumunu değiştirir. |
+| `SecurityModal::new(worktree_store, remote_host, window, cx)` | Worktree güven kararını modal arayüze taşır; tek proje için güven kapsamı `InputField` üzerinden gösterilir ve checkbox açıldığında düzenlenebilir hale gelir. |
 | `RemoteConnectionIdentity` | Uzak çalışma alanı açma ve karşılaştırma işlemlerinde bağlantı kimliğini taşıyan yeniden ihraç (re-export) yüzeyidir. |
 
 **Proje grubu sıralaması.** Sidebar'da proje gruplarının görüntülenme sırası `MultiWorkspace` üzerindeki iki yeni yöntemle değiştirilebilir:

@@ -498,6 +498,8 @@ Temel API:
 - `ResizableColumnsState::new(cols, initial_widths, resize_behavior)`.
 - `.cols()`.
 - `.resize_behavior()`.
+- `.pinned_width(pinned_cols, rem_size) -> Pixels`.
+- `.scrollable_width(pinned_cols, rem_size) -> Pixels`.
 - `.set_column_configuration(col_idx, width, resize_behavior)`.
 - `.pinned_width(pinned_cols, rem_size) -> Pixels`.
 - `.scrollable_width(pinned_cols, rem_size) -> Pixels`.
@@ -508,7 +510,7 @@ Davranış:
 - Başlangıç genişlikleri `AbsoluteLength` alır.
 - Yeniden boyutlandırılan kolonun genişliği değişir; komşu kolonlardan genişlik oranı çalınmaz.
 - `ColumnWidthConfig::Resizable(entity)` konfigürasyonuyla tablo toplam genişliğini kolon genişliklerinin toplamı üzerinden hesaplar.
-- `pinned_width(...)`, ilk `pinned_cols` kolonunun piksel toplamını verir; `scrollable_width(...)` ise kalan kolonların yatay kaydırma bütçesini hesaplar. Her iki metot `AbsoluteLength` değerlerini pencerenin `rem_size` ölçüsüne göre piksele çevirir.
+- `pinned_width(...)` sabitlenen ilk kolon grubunun, `scrollable_width(...)` ise kalan yatay kaydırılabilir kolon grubunun güncel piksel toplamını verir. Her iki hesap da rem tabanlı kolon genişliklerini çözmek için çağrıda verilen `rem_size` değerini kullanır.
 - `TableResizeBehavior::MinSize(value)` değeri, resizable algoritmasında rem tabanlı bir minimum eşik olarak uygulanır.
 
 Örnek:

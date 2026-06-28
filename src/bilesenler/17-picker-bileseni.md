@@ -57,12 +57,12 @@ Picker, farklı senaryolara uyum sağlamak amacıyla opsiyonel ek davranış nok
 
 ## Yapıcı (Constructor) Seçimi
 
-Picker üretmek için altı yapıcı mevcuttur:
+Picker üretmek için aramalı, aramasız ve preview destekli altı yapıcı mevcuttur:
 
 - `Picker::uniform_list(temsilci, window, cx)`: Aramalı picker'dır; tüm satırlar aynı yükseklikteyse tercih edilir ve arka planda `gpui::uniform_list` kullanır.
 - `Picker::list(temsilci, window, cx)`: Aramalı picker'dır; satır yükseklikleri değişkense kullanılır.
-- `Picker::uniform_list_with_preview(temsilci, proje, window, cx)`: Sabit satır yüksekliğiyle çalışan ve yanında/aşağısında preview paneli taşıyan picker üretir.
-- `Picker::list_with_preview(temsilci, proje, window, cx)`: Değişken satır yüksekliğiyle çalışan ve preview paneli taşıyan picker üretir.
+- `Picker::uniform_list_with_preview(temsilci, project, window, cx)`: Sabit satır yüksekliğiyle çalışan ve sağda veya altta preview paneli açabilen picker üretir.
+- `Picker::list_with_preview(temsilci, project, window, cx)`: Değişken satır yüksekliğiyle çalışan ve preview paneli taşıyan picker üretir.
 - `Picker::nonsearchable_uniform_list(...)` ve `Picker::nonsearchable_list(...)`: Arama kutusu olmayan seçim listeleridir.
 
 `uniform_list` varyantı `gpui::uniform_list` üzerinde sanallaştırma kullandığı için çok büyük listelerde tercih edilir. `list` varyantı ise `ListState` tabanlıdır; değişken satır yükseklikleri ölçülürken `list_measure_all()` ile her satır önceden ölçtürülür. Preview'lu constructor'lar `Project` entity'si alır; `PreviewSource::Path` ve `PreviewSource::Buffer` akışları bu proje bağlamı üzerinden editör önizlemesine bağlanır.
@@ -91,9 +91,9 @@ Varsayılan ölçüler iki sabit üzerinden okunur: `DEFAULT_MODAL_WIDTH = Rems(
 
 ---
 
-## Preview ve Footer Actions
+## Preview ve Footer API'si
 
-Preview desteği, delegate'in seçili eşleşmeye karşılık gelen bir `PreviewUpdate` döndürmesiyle çalışır. Crate kökü bu tipi `picker::preview::Update` üzerinden `PreviewUpdate` adıyla yeniden dışa aktarır. `PreviewUpdate` iki parçadan oluşur: içeriğin nereden okunacağını belirleyen `PreviewSource` ve vurgulanacak konumu taşıyan isteğe bağlı `MatchLocation`.
+Preview destekli picker'lar `Preview` editor alanını kendi içinde yönetir. Temsilci seçili eşleşme için `try_get_preview_data_for_match(cx)` metodundan `PreviewUpdate` döndürdüğünde picker, kaynak türüne göre preview içeriğini günceller. Crate kökü bu tipi `picker::preview::Update` üzerinden `PreviewUpdate` adıyla yeniden dışa aktarır. `PreviewUpdate` iki parçadan oluşur: içeriğin nereden okunacağını belirleyen `PreviewSource` ve vurgulanacak konumu taşıyan isteğe bağlı `MatchLocation`.
 
 - `PreviewSource::Path(PathBuf)`: Mutlak dosya yolunu preview editöründe açar.
 - `PreviewSource::Buffer(Entity<Buffer>)`: Zaten elde bulunan `Buffer` entity'sini preview içine bağlar.
@@ -101,7 +101,7 @@ Preview desteği, delegate'in seçili eşleşmeye karşılık gelen bir `Preview
 - `PreviewUpdate::from_path(...)`, `PreviewUpdate::from_buffer(...)` ve `PreviewUpdate::message(...)`: En yaygın üç update biçimini kısa yoldan üretir.
 - `MatchLocation { anchor_range, range }`: Hem highlight anchor aralığını hem de scroll için byte/offset aralığını taşır.
 
-Footer tarafında `PickerAction` enum'u `Actions` menüsünün satırlarını modellemektedir. `PickerAction::button(label, action)` tıklanabilir satır üretir, `PickerAction::header(label)` başlık satırı ekler, `PickerAction::separator()` grupları ayırır ve `.toggled(bool)` bir action satırını işaretli/işaretsiz gösterir.
+Footer, delegate'in `render_footer(...)` çıktısı varsa onu kullanır. Özel footer yoksa ve picker preview ile kurulduysa, varsayılan footer preview kontrollerini ve `actions_menu(...)` sonucunu gösterir. `PickerAction` enum'u bu eylem menüsünün satırlarını modellemektedir: `PickerAction::button(label, action)` tıklanabilir satır üretir, `PickerAction::header(label)` başlık satırı ekler, `PickerAction::separator()` grupları ayırır ve `.toggled(bool)` bir action satırını işaretli/işaretsiz gösterir.
 
 Picker kök eylemleri preview ve actions menüsünü doğrudan yönetir: `TogglePreview`, `SetPreviewRight`, `SetPreviewBelow`, `SetPreviewHidden`, `ToggleActionsMenu` ve `ToMultiBuffer`. `ToMultiBuffer`, preview içeriğini çoklu buffer akışına taşıyan özel eylemdir; diğerleri preview panelinin görünürlüğünü ve konumunu değiştirir.
 
@@ -115,7 +115,7 @@ Picker kökü kendi tuş bağlamını ve eylem dinleyicilerini kurar:
 
 - Çizim kökü `"Picker"` key context'ini ekler.
 - Preview paneli bulunan picker'larda aynı kök context'e `"with_preview"` etiketi de eklenir. Bu nedenle preview'a özgü kısayollar `(Picker && with_preview) > Editor` bağlamında tutulur; `ToggleActionsMenu` gibi preview bağımsız eylemler ise `Picker > Editor` bağlamında kalır.
-- `menu::SelectNext`, `menu::SelectPrevious`, `menu::SelectFirst`, `menu::SelectLast`, `menu::Cancel`, `menu::Confirm`, `menu::SecondaryConfirm`, `editor::MoveUp`, `editor::MoveDown`, `picker::ConfirmCompletion` ve `picker::ConfirmInput` eylemlerini dinler. `editor::MoveUp` ve `editor::MoveDown` yukarı/aşağı seçim hareketini editör eylemi olarak da karşılar.
+- `menu::SelectNext`, `menu::SelectPrevious`, `menu::SelectFirst`, `menu::SelectLast`, `menu::Cancel`, `menu::Confirm`, `menu::SecondaryConfirm`, `editor::MoveUp`, `editor::MoveDown`, `picker::ConfirmCompletion`, `picker::ConfirmInput`, `picker::TogglePreview`, `picker::SetPreviewRight`, `picker::SetPreviewBelow`, `picker::SetPreviewHidden` ve `picker::ToggleActionsMenu` eylemlerini dinler. `editor::MoveUp` ve `editor::MoveDown` yukarı/aşağı seçim hareketini editör eylemi olarak da karşılar.
 - Tıklama onayı sırasında `cx.stop_propagation()` ve `window.prevent_default()` çağrılır; bu sayede picker satırına tıklama dış elementlere sızmaz.
 
 ---
@@ -154,13 +154,15 @@ Picker crate'indeki dışa açık yardımcıların çoğu, `PickerDelegate` davr
 | `PickerEditorPosition` | `Start`, `End` | Arama kutusunun listenin üstünde veya altında render edilmesini seçer. |
 | `Picker::select_query` | `window`, `cx` | Arama kutusundaki tüm sorguyu seçer; seed edilmiş sorgunun ilk yazımda değiştirilmesini sağlar. |
 | `TogglePreview`, `SetPreviewRight`, `SetPreviewBelow`, `SetPreviewHidden`, `ToggleActionsMenu`, `ToMultiBuffer` | Action struct | Preview paneli, actions menüsü ve preview içeriğini multi-buffer akışına taşıma davranışlarını tetikler. |
+| `RelativeWidth`, `RelativeHeight`, `ViewportFraction` | `FULL`, `viewport`, `rems`, `from_pixels`, `as_pixels` | Picker genişlik, yükseklik ve preview bölücü ölçülerini viewport oranı ile `Rems` toplamı olarak temsil eden ölçü tipleridir. |
 | `Preview` | `new_editor`, `update`, `render`, `adjust_to_new_size` | Preview panelinin editor tabanlı içeriğini yönetir; picker constructor'ları tarafından oluşturulur. |
 | `PreviewSource` | `Path`, `Buffer`, `Message` | Preview içeriğinin dosya yolu, hazır buffer veya vurgulu mesajdan üretileceğini seçer. |
 | `picker::preview::Update` | `source`, `match_location`; `from_path`, `from_buffer`, `message` | Preview güncellemesinin asıl modül içi tip adıdır; crate kökü aynı tipi `PreviewUpdate` adıyla yeniden dışa aktarır. |
 | `PreviewUpdate` | `source`, `match_location`; `from_path`, `from_buffer`, `message` | Delegate'in seçili eşleşme için preview içeriğini güncelleme sözleşmesidir. |
 | `MatchLocation` | `anchor_range`, `range` | Preview içinde hem highlight hem de scroll hedefini taşır. |
 | `PickerAction` | `button`, `header`, `separator`, `toggled` | Footer `Actions` menüsünün başlık, ayırıcı ve action satırlarını modelleyen public enum'dur. |
-| `ViewportFraction` | `width_as_pixels`, `height_as_pixels` | `RelativeWidth` ve `RelativeHeight` hesaplarında viewport oranını taşıyan ölçü tipidir; public tip olmasına karşın yapıcıları crate içi tutulduğu için dış kod çoğunlukla picker shape/persistence akışı üzerinden karşılaşır. |
+| `HighlightedText`, `HighlightedTextBuilder` | Vurgulu mesaj metni | Preview mesajları veya açıklama satırları için parça bazlı vurgulu metin üretir. |
+| `ErasedEditor` | Tip silmeli editor köprüsü | Arama kutusu editor'ünü delegate ve özel render akışlarında crate sınırını bozmadan taşır. |
 | `highlighted_match_with_paths` | Modül | Yol içeren fuzzy sonuçların etiket ve yol parçalarını ayrı ayrı vurgulayan hazır render yardımcılarını barındırır. |
 | `picker::parts` | Modül | Birden çok picker tarafından kullanılan küçük görsel parçaları toplar; şu an dışa açık ana yardımcısı `project_scan_indicator` fonksiyonudur. |
 | `picker::parts::project_scan_indicator` | `has_query`, `project`, `cx` | Proje taraması sürerken ve sorgu mevcutken dönen `LoadCircle` göstergesini üretir; tarama tamamlandıysa `None` döner. |

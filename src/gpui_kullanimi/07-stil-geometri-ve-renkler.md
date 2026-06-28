@@ -163,6 +163,8 @@ Mantıksal piksellerin dışındaki uzunluk tipleri, farklı yerleşim ihtiyaçl
 - `DefiniteLength`: Kesin bir mutlak uzunluğu (`Absolute`) veya üst öğeye oranlı bir kesri (`Fraction`) temsil eder.
 - `Length`: Kesin bir uzunluk değerini (`Definite`) ya da yerleşim motorunun kendisinin hesaplayacağı otomatik (`Auto`) modu tanımlar.
 
+`Rems::ZERO` sıfır rem değerinin sabit karşılığıdır. Pikselden rem değerine dönmek gerektiğinde `Rems::from_pixels(length, window)` aktif pencerenin `rem_size()` değerini kullanır; tersi yönde dönüşüm için `to_pixels(window)` çağrısı uygulanır. Kademeli spacing hesaplarında `+=` operatörü `AddAssign<Rems>` uygulaması üzerinden çalışır, böylece ham `.0` alanını açmadan rem toplamı üretilebilir.
+
 | Veri Yapısı | Desteklenen Metotlar | Temel Görevi |
 |---|---|---|
 | `AbsoluteLength` | `is_zero`, `to_pixels`, `to_rems` | Mutlak uzunluğu piksel/rem ayrımıyla taşır ve gerektiğinde dönüşüm yapar. |
@@ -215,7 +217,7 @@ Jenerik geometrik kapsayıcı tipleri olan `Point<T>`, `Size<T>`, `Bounds<T>`, `
 | `Corners<T>` | `top_left`, `top_right`, `bottom_right`, `bottom_left`, `all`, `corner`, `clamp_radii_for_quad_size`, `map` | Dört köşe yuvarlama yarıçapını ve köşe bazlı erişimleri yönetir. |
 | `Pixels` | `as_f32`, `floor`, `round`, `ceil`, `scale`, `pow`, `abs` | Mantıksal piksel değerlerinde yuvarlama ve ham değer erişimleri sağlar. |
 | `ScaledPixels` | `as_f32`, `floor`, `round`, `ceil` | Ölçeklenmiş piksel değerlerini çizim katmanına uygun biçimde yuvarlar. |
-| `Rems` | `ZERO`, `is_zero`, `to_pixels`, `from_pixels`, `half`, `AddAssign<Rems>` | Rem değerlerini piksele dönüştürür, penceredeki rem ölçeğinden geri hesaplar ve sıfır/yarıya bölme kontrolleri sunar. |
+| `Rems` | `ZERO`, `is_zero`, `to_pixels`, `from_pixels`, `half`, `+=` | Rem değerlerini piksel/rem arasında dönüştürür; sıfır, yarıya bölme ve kademeli toplama işlemlerini sunar. |
 | `DevicePixels` | `to_bytes` | Fiziksel piksel sayısından ekran bellek (buffer) byte miktarlarını hesaplar. |
 
 ### Altın Oran (`phi`) Sabiti

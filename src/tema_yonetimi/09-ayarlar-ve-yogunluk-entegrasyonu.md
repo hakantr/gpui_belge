@@ -268,9 +268,9 @@ impl SettingsStore {
 | `agent_ui_font_size: Option<Pixels>` | **private** | `theme_settings.agent_ui_font_size(cx)` |
 | `agent_buffer_font_size: Option<Pixels>` | **private** | `theme_settings.agent_buffer_font_size(cx)` |
 | `git_commit_buffer_font_size: Option<Pixels>` | **private** | `theme_settings.git_commit_buffer_font_size(cx)` |
+| `markdown_preview_font_size: Option<Pixels>` | **private** | `theme_settings.markdown_preview_font_size(cx)`, `theme_settings.markdown_preview_font_size_settings()` |
 | `markdown_preview_font_family: Option<SharedString>` | **private** | `theme_settings.markdown_preview_font_family()` |
 | `markdown_preview_code_font_family: Option<SharedString>` | **private** | `theme_settings.markdown_preview_code_font_family()` |
-| `markdown_preview_font_size: Option<Pixels>` | **private** | `theme_settings.markdown_preview_font_size(cx)` |
 | `markdown_preview_theme: Option<ThemeSelection>` | `pub` | doğrudan alan |
 | `buffer_line_height: BufferLineHeight` | `pub` | doğrudan alan |
 | `theme: ThemeSelection` | `pub` | doğrudan alan |
@@ -788,7 +788,7 @@ Bu alanların yardımcı tipleri de şemaya dahildir:
 | `DEFAULT_LIGHT_THEME` / `DEFAULT_DARK_THEME` | ayar yedek adları | `"One Light"` / `"One Dark"` tek kaynak olarak korunur |
 | `ThemeSelectionDiscriminants`, `IconThemeSelectionDiscriminants`, `BufferLineHeightDiscriminants` | Content enum'larının variant/discriminant görünümü | Selector UI, şema ve strum tabanlı variant listelerinde content enum varyantlarını ayrı tip olarak görünür kılar |
 
-`agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size` ve `markdown_preview_font_size` sağlayıcı trait'inde yer almaz; her biri kendi tüketici alanında ayar katmanında kalır. `git_commit_buffer_font_size` varsayılanı 12 pikseldir; git paneli ve commit modal'ındaki editörün yazı tipi boyutunu diğer tampon boyutlarından bağımsız olarak denetler. `markdown_preview_font_size` boşsa markdown preview, geçici editor zoom değerini değil ayar dosyasındaki `buffer_font_size` tabanını kullanır. `theme`, `icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides` ve `theme_overrides` seçici ve geçersiz kılma akışına gider; typography helper'ları ise sağlayıcı üzerinden `ui_font`, `buffer_font`, `ui_font_size`, `buffer_font_size` ve `ui_density` değerlerini okur. `markdown_preview_code_font_family` sağlayıcı trait'ine eklenmez; markdown preview tüketicisi `ThemeSettings` üzerinden okur. Değer boşsa `buffer_font.family` kullanır.
+`agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size` ve `markdown_preview_font_size` sağlayıcı trait'inde yer almaz; her biri kendi tüketici alanında ayar katmanında kalır. `git_commit_buffer_font_size` varsayılanı 12 pikseldir; git paneli ve commit modal'ındaki editörün yazı tipi boyutunu diğer tampon boyutlarından bağımsız olarak denetler. `markdown_preview_font_size`, markdown preview metninin çalışma zamanı font boyutunu `ThemeSettings::markdown_preview_font_size(cx)` üzerinden verir; değer boşsa geçici editor zoom değerine değil ayar dosyasındaki `buffer_font_size` tabanına düşer. `theme`, `icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides` ve `theme_overrides` seçici ve geçersiz kılma akışına gider; typography helper'ları ise sağlayıcı üzerinden `ui_font`, `buffer_font`, `ui_font_size`, `buffer_font_size` ve `ui_density` değerlerini okur. `markdown_preview_code_font_family` sağlayıcı trait'ine eklenmez; markdown preview tüketicisi `ThemeSettings` üzerinden okur. Değer boşsa `buffer_font.family` kullanır.
 
 Tema renklerini tüketen her ayar `ThemeSettingsContent` içine girmez. `completion_menu_item_kind` bunun yeni örneğidir: şema sahibi `EditorSettingsContent`'tir, değerleri `off` ve `symbol` olur, default `off`'tur. `symbol` açıldığında completion menüsü aktif syntax theme'den capture rengi okur; bu yüzden tema dokümantasyonunda ele alınır, ama `ThemeSettingsProvider` veya `ThemeSettingsContent` sözleşmesine eklenmez. Eski ad, alias veya geriye uyumluluk katmanı tanımlanmaz.
 
@@ -816,7 +816,7 @@ impl Global for BufferFontSize {}      // ... her biri için
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `GitCommitBufferFontSize` | `Pixels` newtype, `Global` impl | Commit mesajı buffer font size geçersiz kılmasını çalışma zamanı global'i olarak taşır; `adjust_git_commit_buffer_font_size` set eder, `reset_git_commit_buffer_font_size` kaldırır. |
-| `MarkdownPreviewFontSize` | `Pixels` newtype, `Global` impl | Markdown preview font size geçersiz kılmasını çalışma zamanı global'i olarak taşır; `adjust_markdown_preview_font_size` set eder, `reset_markdown_preview_font_size` kaldırır. |
+| `MarkdownPreviewFontSize` | `Pixels` newtype, `Global` impl | Markdown preview metin font boyutu geçersiz kılmasını çalışma zamanı global'i olarak taşır; `adjust_markdown_preview_font_size` set eder, `reset_markdown_preview_font_size` kaldırır. |
 
 Public yüzey:
 

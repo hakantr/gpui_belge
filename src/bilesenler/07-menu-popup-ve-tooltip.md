@@ -2,7 +2,7 @@
 
 Bu bölüm, bir kontrolün arkasından geçici bir yüzey açan bileşenleri anlatır. Önceki bölümde form ve seçim durumunun nasıl tutulduğunu gördük; burada odak biraz değişir. Artık asıl soru "değer nerede duruyor" değil, "seçenekler nasıl sunulacak, menü içeriği hangi modelle kurulacak, popup nasıl açılıp kapanacak" sorusudur.
 
-Hangi durumda hangi bileşenin tercih edileceğine karar verirken aşağıdaki ayrım faydalı olacaktır:
+Hangi durumda hangi bileşenin tercih edileceği konusunda aşağıdaki ayrım faydalı olacaktır:
 
 ![Menü, Popup ve Tooltip Seçimi](assets/menu-popup-secimi.svg)
 
@@ -339,12 +339,13 @@ Ne zaman kullanılmaz:
 Temel API:
 
 - Constructor: `right_click_menu::<M>(id)`.
-- Builder'lar: `.trigger(|is_menu_active, window, cx| element)`, `.menu(|window, cx| Entity<M>)`, `.anchor(Anchor)`, `.attach(Anchor)`.
+- Builder'lar: `.trigger(|is_menu_active, window, cx| element)`, `.menu(|window, cx| Entity<M>)`, `.maybe_menu(|window, cx| Option<Entity<M>>)`, `.anchor(Anchor)`, `.attach(Anchor)`.
 
 Davranış:
 
 - Sağ tık (`MouseButton::Right`) hovered hitbox üzerinde bubble phase'de yakalandığında menü açılır.
 - Açılma sırasında `prevent_default()` ve `stop_propagation()` çağrılır; böylece browser veya üst kontrol olayı işlemez.
+- `.maybe_menu(...)` `None` döndürdüğünde sağ tık olayı yakalanır fakat menü açılmaz. Bu desen, satır bazlı izinler, boş seçimler veya geçici olarak devre dışı kalan bağlam menüleri için uygundur.
 - `attach(...)` verildiğinde, menünün pozisyonu cursor yerine tetikleyici sınırının belirtilen köşesine bağlanır.
 - Açılan yönetilen view `DismissEvent` yayınladığında menü durumu temizlenir ve mümkünse odak önceki elemana geri döner.
 - Bu durum tipleri manuel olarak üretilmez; sağ tık menüsünün işaretçi (cursor) konumu, odak dönüşü ve ertelenmiş (deferred) menü render işlem için element sistemi kullanılır.
