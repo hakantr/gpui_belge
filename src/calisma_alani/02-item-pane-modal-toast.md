@@ -105,6 +105,15 @@ calisma_alani.hide_modal(window, cx);
 
 `toggle_modal` aynı tipte bir modal zaten açıksa onu kapatır; aksi halde yenisini açar. `on_before_dismiss` varsayılan olarak `DismissDecision::Dismiss(true)` döndürür. Bu metot `DismissDecision::Dismiss(false)` veya `Pending` döndürürse yeni modal görünmez.
 
+**Tekrar açılabilir picker modalı.** Modal katmanı kapatılan son tekrar açılabilir picker'ı düşürmek yerine gizli bir stashed modal olarak saklayabilir. Picker tarafında varsayılan `reopenable` değeri açıktır; özel bir picker bu davranıştan çıkarılacaksa `Picker::reopenable(false, cx)` kullanılır. Kayıt mekanizması modal wrapper tipine değil focus kimliğine dayanır:
+
+| API | Rol |
+| :-- | :-- |
+| `register_reopenable_picker(focus_handle, cx)` | Picker veya picker taşıyan modalın focus handle değerini tekrar açılabilir registry'ye ekler. |
+| `deregister_reopenable_picker(focus_handle, cx)` | Aynı focus handle için tekrar açma kaydını temizler. |
+| `ModalLayer::reveal_stashed_modal(window, cx) -> bool` | Aktif modal yoksa saklanan son picker modalını yeniden gösterir ve bir modal açıldı olayını yayar. |
+| `workspace::ReopenLastPicker` | Geçerli pencerede en son saklanan picker modalını tekrar görünür hale getiren workspace action'ıdır. |
+
 ## `SecurityModal`
 
 `SecurityModal::new(worktree_store, remote_host, window, cx)` çalışma alanı güven kararını soran hazır modalı üretir. `window` parametresi, modal içinde kullanılan `InputField` entity'sinin oluşturulması için gereklidir. Tek bir dosya olmayan proje güven sorusu gösterildiğinde modal, güvenilecek klasör kapsamını düzenlenebilir bir alan olarak sunar; değer boş, göreli veya projenin üst dizini/eşiti olmayan bir yol ise alan hata durumuna geçer. `~` ile başlayan yollar kullanıcının home dizinine genişletilir.

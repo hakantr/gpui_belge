@@ -245,7 +245,7 @@ Tavsiye Edilen Kullanım Alanları:
 
 Temel API:
 
-- `ConfiguredApiCard::new(label)`.
+- `ConfiguredApiCard::new(id, label)`.
 - `.button_label(text)`.
 - `.tooltip_label(text)`.
 - `.disabled(bool)`.
@@ -265,7 +265,7 @@ Davranış:
 use ui::{ConfiguredApiCard, prelude::*};
 
 fn yapilandirilmis_anahtar_karti_render() -> impl IntoElement {
-    ConfiguredApiCard::new("OpenAI API anahtarı yapılandırıldı")
+    ConfiguredApiCard::new("openai-api-karti", "OpenAI API anahtarı yapılandırıldı")
         .button_label("Anahtarı sıfırla")
         .tooltip_label("Geçerli anahtarı değiştirmek için tıkla")
         .on_click(|_, _window, _cx| {})
@@ -541,7 +541,10 @@ fn ajan_ayarlari_ozeti_render() -> impl IntoElement {
                     .icon_color(Color::Muted),
             ),
         )
-        .child(ConfiguredApiCard::new("Anthropic API anahtarı yapılandırıldı"))
+        .child(ConfiguredApiCard::new(
+            "anthropic-api-karti",
+            "Anthropic API anahtarı yapılandırıldı",
+        ))
 }
 ```
 

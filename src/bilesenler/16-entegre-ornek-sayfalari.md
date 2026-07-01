@@ -587,7 +587,7 @@ impl Render for AiSaglayiciPaneli {
                         .on_click(|_event, _window, _cx| saglayici_ayarlarini_ac()),
                 )
                 .details(
-                    ConfiguredApiCard::new("API anahtarı yapılandırıldı")
+                    ConfiguredApiCard::new("openai-api-karti", "API anahtarı yapılandırıldı")
                         .button_label("Anahtarı sıfırla")
                         .tooltip_label("Saklanan API anahtarını değiştir")
                         .on_click(|_event, _window, _cx| saglayici_anahtarini_sifirla()),

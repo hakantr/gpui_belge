@@ -2,9 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
-- [x] Doğrulanan dış tema API yüzeyi: `MarkdownPreviewFontSize`, `ThemeSettings::markdown_preview_font_size`, `markdown_preview_font_size_settings`, `adjust_markdown_preview_font_size` ve `reset_markdown_preview_font_size`.
-- [x] Kaynak doğrulama dosyaları: `crates/theme_settings/src/settings.rs` ve `crates/theme_settings/src/theme_settings.rs`.
+- [x] Kaynak commit aralığı: `5837e7ef50f6..d0802abdecad`.
+- [x] Doğrulanan dış tema API yüzeyi: `Oklab`, `Oklch`, `hsla_to_oklab`, `hsla_to_oklch`, `oklch_to_hsla` ve tema crate kökü `pub use crate::color_space::*`.
+- [x] Kaynak doğrulama dosyaları: `crates/theme/src/color_space.rs` ve `crates/theme/src/theme.rs`.
 
 Bu bölüm iki temel konuyu netleştirir: tüketiciye sunulacak public API sınırları ve test ortamındaki sahte tema düzeni. İyi tanımlanmış bir public API sınırı, mevcut Zed sözleşmesinde hangi parçaların bilinçli olarak dışarıya açıldığını gösterir. Sağlam kurulmuş bir test ortamı ise, bileşenlerin tema değişimleri karşısında doğru davrandığını sürdürülebilir biçimde doğrulamayı sağlar.
 
@@ -40,6 +40,10 @@ pub use crate::styles::SystemColors;
 pub use crate::styles::ThemeStyles;
 pub use crate::styles::ThemeColorField;
 
+pub use crate::color_space::{
+    Oklab, Oklch, hsla_to_oklab, hsla_to_oklch, oklch_to_hsla,
+};
+
 // Icon tema sözleşmesi
 pub use crate::icon_theme::{
     IconTheme, IconThemeFamily, IconDefinition,
@@ -48,6 +52,16 @@ pub use crate::icon_theme::{
 ```
 
 > **Zed parite notu:** Zed bünyesinde `ThemeStyles` tipi ve `Theme.styles` alanı public olarak görünür durumdadır. Mirror tarafında accessor disiplinini korumak amacıyla `styles` alanının `pub(crate)` seçilmesi bilinçli bir yerel sıkılaştırma adımıdır; buna karşın Zed public API kapsamı yine de `ThemeStyles` yapısını içerir.
+
+**Algısal renk uzayı yardımcıları.** Tema crate kökü `color_space` modülünü glob olarak yeniden ihraç eder. Bu yüzey, GPUI `Hsla` rengini OKLab/OKLCh uzayına çevirerek algısal renk mesafesi, bracket colorization ve tema türetme gibi işlemlerde doğrudan `palette` bağımlılığı taşımadan çalışmayı sağlar.
+
+| API | Alanlar / Parametreler | Kullanım notu |
+| :-- | :-- | :-- |
+| `Oklab` | `l`, `a`, `b` | `l` algısal açıklık, `a` yeşil/kırmızı ekseni, `b` mavi/sarı eksenidir. |
+| `Oklch` | `l`, `chroma`, `hue` | OKLab'in silindirik biçimidir; hue derece cinsinden `0.0..360.0` aralığında taşınır. |
+| `hsla_to_oklab(color: Hsla) -> Oklab` | `Hsla` girdi | GPUI rengini OKLab uzayına dönüştürür. |
+| `hsla_to_oklch(color: Hsla) -> Oklch` | `Hsla` girdi | GPUI rengini OKLCh uzayına dönüştürür. |
+| `oklch_to_hsla(color: Oklch, alpha: f32) -> Hsla` | OKLCh renk ve alpha | OKLCh değerini GPUI `Hsla` rengine döndürür; sRGB gamut dışı kanallar kırpılır, alpha dış parametreden alınır. |
 
 **Runtime (public):**
 

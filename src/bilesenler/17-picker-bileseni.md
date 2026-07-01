@@ -2,9 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
-- [x] Doğrulanan picker yüzeyi: `Picker::select_query`, `ErasedEditor::select_all`, `(Picker && with_preview) > Editor` key context'i ve preview layout kalıcılığı.
-- [x] Kaynak doğrulama dosyaları: `crates/picker/src/picker.rs`, `crates/picker/src/render.rs`, `crates/picker/src/persistence.rs` ve `crates/ui_input/src/ui_input.rs`.
+- [x] Kaynak commit aralığı: `5837e7ef50f6..d0802abdecad`.
+- [x] Doğrulanan picker yüzeyi: `PreviewBackend`, `PreviewLayout`, `Preview::new`, `Picker::uniform_list_with_preview`, `Picker::list_with_preview` ve `Picker::reopenable`.
+- [x] Kaynak doğrulama dosyaları: `crates/picker/src/picker.rs`, `crates/picker/src/preview.rs`, `crates/picker/src/render.rs`, `crates/picker/src/persistence.rs` ve `crates/workspace/src/modal_layer.rs`.
 
 `picker` crate'i, komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch seçici, command palette, model seçici ve fuzzy seçim gerektiren her türlü kullanıcı arayüzü (UI) bunun üzerine kurulur. Bu yapı, yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
 
@@ -61,11 +61,11 @@ Picker üretmek için aramalı, aramasız ve preview destekli altı yapıcı mev
 
 - `Picker::uniform_list(temsilci, window, cx)`: Aramalı picker'dır; tüm satırlar aynı yükseklikteyse tercih edilir ve arka planda `gpui::uniform_list` kullanır.
 - `Picker::list(temsilci, window, cx)`: Aramalı picker'dır; satır yükseklikleri değişkense kullanılır.
-- `Picker::uniform_list_with_preview(temsilci, project, window, cx)`: Sabit satır yüksekliğiyle çalışan ve sağda veya altta preview paneli açabilen picker üretir.
-- `Picker::list_with_preview(temsilci, project, window, cx)`: Değişken satır yüksekliğiyle çalışan ve preview paneli taşıyan picker üretir.
+- `Picker::uniform_list_with_preview(temsilci, preview, window, cx)`: Sabit satır yüksekliğiyle çalışan ve sağda veya altta preview paneli açabilen picker üretir. `preview` parametresi `Arc<dyn PreviewBackend>` sözleşmesini taşır.
+- `Picker::list_with_preview(temsilci, preview, window, cx)`: Değişken satır yüksekliğiyle çalışan ve preview paneli taşıyan picker üretir. Satır yüksekliği değişen sonuçlarda bu yapıcı tercih edilir.
 - `Picker::nonsearchable_uniform_list(...)` ve `Picker::nonsearchable_list(...)`: Arama kutusu olmayan seçim listeleridir.
 
-`uniform_list` varyantı `gpui::uniform_list` üzerinde sanallaştırma kullandığı için çok büyük listelerde tercih edilir. `list` varyantı ise `ListState` tabanlıdır; değişken satır yükseklikleri ölçülürken `list_measure_all()` ile her satır önceden ölçtürülür. Preview'lu constructor'lar `Project` entity'si alır; `PreviewSource::Path` ve `PreviewSource::Buffer` akışları bu proje bağlamı üzerinden editör önizlemesine bağlanır.
+`uniform_list` varyantı `gpui::uniform_list` üzerinde sanallaştırma kullandığı için çok büyük listelerde tercih edilir. `list` varyantı ise `ListState` tabanlıdır; değişken satır yükseklikleri ölçülürken `list_measure_all()` ile her satır önceden ölçtürülür. Preview'lu constructor'lar preview içeriğini doğrudan `Arc<dyn PreviewBackend>` üzerinden alır; dosya, buffer veya özel mesaj gösterimi bu arka ucun `update`, `render`, `adjust_to_new_size` ve `clear` metotlarında bağlanır.
 
 ---
 
@@ -76,6 +76,7 @@ Picker davranışı zincir üzerinden ince ayarlarla yapılandırılabilir:
 - `initial_width(width)`: Picker'ın ilk açılış genişliğini `RelativeWidth` uyumlu bir değerle belirler. Preview taşımayan sade picker'larda bu genişlik aynı zamanda sonuç alanının minimum genişliği olarak ele alınır; böylece picker açıldığı ölçünün altına sıkışmaz.
 - `max_height(height)`: Picker'ın üst yükseklik sınırını `RelativeHeight` uyumlu bir değerle belirler. Preview gizliyken içerik azsa picker bu sınırın altında kalabilir; preview sağda veya altta görünürken yüksekliği dolduran daha geniş yerleşim kullanılır.
 - `show_scrollbar(bool)`: Dış kaydırma çubuğu gösterimi.
+- `reopenable(bool, cx)`: Modal içinde kapatılan picker'ın `workspace::ReopenLastPicker` eylemiyle aynı durum korunarak yeniden görünür hale gelip gelmeyeceğini belirler. Varsayılan değer `true` olduğu için özel dışlama gereken picker'larda `false` verilmesi yeterlidir.
 - `embedded()`: Picker'ı dış bir modal veya panelin içine gömülü olarak sunar; kendi elevated container ve blur ile kapanma davranışını çizmez.
 - `popover()`: Picker'ı menu/popover tetikleyicisine bağlı bir yüzey olarak sunar; kendi elevated container'ını çizer, fakat resize davranışı etkinleşmez.
 - `resizable(bool)`: Modal picker'ın sürüklenerek yeniden boyutlandırılıp boyutunun kalıcılaştırılıp kalıcılaştırılmayacağını belirler. Preview içeren modallar varsayılan olarak yeniden boyutlandırılabilir, sade picker'lar varsayılan olarak sabit kalır.
@@ -93,7 +94,9 @@ Varsayılan ölçüler iki sabit üzerinden okunur: `DEFAULT_MODAL_WIDTH = Rems(
 
 ## Preview ve Footer API'si
 
-Preview destekli picker'lar `Preview` editor alanını kendi içinde yönetir. Temsilci seçili eşleşme için `try_get_preview_data_for_match(cx)` metodundan `PreviewUpdate` döndürdüğünde picker, kaynak türüne göre preview içeriğini günceller. Crate kökü bu tipi `picker::preview::Update` üzerinden `PreviewUpdate` adıyla yeniden dışa aktarır. `PreviewUpdate` iki parçadan oluşur: içeriğin nereden okunacağını belirleyen `PreviewSource` ve vurgulanacak konumu taşıyan isteğe bağlı `MatchLocation`.
+Preview destekli picker'lar `Preview` taşıyıcısını kendi içinde yönetir; içerik üretimi ise `PreviewBackend` trait'ine bırakılır. Constructor aşamasında verilen `Arc<dyn PreviewBackend>`, seçili eşleşme değiştiğinde `update`, çizim sırasında `render`, resize sonrasında `adjust_to_new_size` ve boşaltma gerektiğinde `clear` çağrılarını alır. Böylece picker listesi ile preview içeriği aynı bileşende tutulur, fakat editor tabanlı veya özel preview arka ucu çağıran kod tarafından seçilir.
+
+Crate kökü `preview::Layout` tipini `PreviewLayout`, `preview::Update` tipini ise `PreviewUpdate` adıyla yeniden dışa aktarır. `PreviewUpdate` iki parçadan oluşur: içeriğin nereden okunacağını belirleyen `PreviewSource` ve vurgulanacak konumu taşıyan isteğe bağlı `MatchLocation`. Temsilci seçili eşleşme için `try_get_preview_data_for_match(cx)` metodundan `PreviewUpdate` döndürdüğünde picker bu güncellemeyi preview arka ucuna iletir.
 
 - `PreviewSource::Path(PathBuf)`: Mutlak dosya yolunu preview editöründe açar.
 - `PreviewSource::Buffer(Entity<Buffer>)`: Zaten elde bulunan `Buffer` entity'sini preview içine bağlar.
@@ -153,9 +156,12 @@ Picker crate'indeki dışa açık yardımcıların çoğu, `PickerDelegate` davr
 | `ScrollBehavior` | `RevealSelected`, `PreserveOffset` | Eşleşme güncellenirken seçili satıra kaydırma yapma veya mevcut offset'i koruma kararını taşır. |
 | `PickerEditorPosition` | `Start`, `End` | Arama kutusunun listenin üstünde veya altında render edilmesini seçer. |
 | `Picker::select_query` | `window`, `cx` | Arama kutusundaki tüm sorguyu seçer; seed edilmiş sorgunun ilk yazımda değiştirilmesini sağlar. |
+| `Picker::reopenable` | `bool`, `cx` | Modal picker'ın kapatıldıktan sonra `workspace::ReopenLastPicker` eylemiyle aynı durum korunarak görünür hale getirilip getirilmeyeceğini seçer. |
 | `TogglePreview`, `SetPreviewRight`, `SetPreviewBelow`, `SetPreviewHidden`, `ToggleActionsMenu`, `ToMultiBuffer` | Action struct | Preview paneli, actions menüsü ve preview içeriğini multi-buffer akışına taşıma davranışlarını tetikler. |
 | `RelativeWidth`, `RelativeHeight`, `ViewportFraction` | `FULL`, `viewport`, `rems`, `from_pixels`, `as_pixels` | Picker genişlik, yükseklik ve preview bölücü ölçülerini viewport oranı ile `Rems` toplamı olarak temsil eden ölçü tipleridir. |
-| `Preview` | `new_editor`, `update`, `render`, `adjust_to_new_size` | Preview panelinin editor tabanlı içeriğini yönetir; picker constructor'ları tarafından oluşturulur. |
+| `Preview` | `new`, `update`, `render`, `adjust_to_new_size` | `Arc<dyn PreviewBackend>` içeriğini taşıyan preview panelidir; picker constructor'ları tarafından oluşturulur. |
+| `PreviewBackend` | `update`, `render`, `adjust_to_new_size`, `clear` | Picker listesinden bağımsız preview arka ucu sözleşmesidir; editor preview veya özel render yüzeyi bu trait üzerinden bağlanır. |
+| `PreviewLayout` | `Hidden`, `Below`, `Right` | Preview panelinin gizli, sonuçların altında veya sonuçların sağında durduğunu belirten yeniden ihraç edilen layout enum'ıdır. |
 | `PreviewSource` | `Path`, `Buffer`, `Message` | Preview içeriğinin dosya yolu, hazır buffer veya vurgulu mesajdan üretileceğini seçer. |
 | `picker::preview::Update` | `source`, `match_location`; `from_path`, `from_buffer`, `message` | Preview güncellemesinin asıl modül içi tip adıdır; crate kökü aynı tipi `PreviewUpdate` adıyla yeniden dışa aktarır. |
 | `PreviewUpdate` | `source`, `match_location`; `from_path`, `from_buffer`, `message` | Delegate'in seçili eşleşme için preview içeriğini güncelleme sözleşmesidir. |

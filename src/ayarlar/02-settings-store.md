@@ -2,9 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
-- [x] Doğrulanan settings yüzeyleri: `ThemeSettingsContent.markdown_preview_font_size`, `SandboxPermissionsContent.allow_git_access` ve `OpenAiCompatibleModelCapabilities.max_tokens_parameter`.
-- [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/theme.rs`, `crates/settings_content/src/agent.rs`, `crates/settings_content/src/language_model.rs` ve `crates/settings/src/vscode_import.rs`.
+- [x] Kaynak commit aralığı: `5837e7ef50f6..d0802abdecad`.
+- [x] Doğrulanan settings yüzeyleri: `AgentSettingsContent.commit_message_include_project_rules`, `AgentConfigOptionValue`, `SandboxPermissionsContent`, `LlamaCppSettingsContent`, `InlineBlameLocation` ve global `format_on_save` varsayılanı.
+- [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/agent.rs`, `crates/settings_content/src/language_model.rs`, `crates/settings_content/src/project.rs`, `crates/settings_content/src/workspace.rs` ve `assets/settings/default.json`.
 
 `SettingsStore`, Zed'in tüm ayar kaynaklarını tek bir tip güvenli store (ayar deposu) içinde birleştirir. Çalışma zamanındaki (runtime) global değerler; varsayılan (`Default`) üzerine sırasıyla eklenti (`Extension`), `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve sunucu (`Server`) katmanları eklenerek kurulur. Dosya yolu (path) hedefli okumalarda ise yerel ayarlar (`local_settings`) bu zincirin en üstüne dahil edilir. Birleştirilmiş nihai içerik daha sonra sisteme kayıtlı olan ilgili `Settings` tiplerine aktarılır.
 
@@ -315,14 +315,15 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | API | Kapsadığı Davranış | Not |
 | :-- | :-- | :-- |
 | `AgentSettingsContent`, `AgentProfileContent`, `ContextServerPresetContent` | Agent panel, profil ve context server preset ayarları | Model, panel ve izin yapılarını tek bir içerik altında toplar. |
+| `AgentSettingsContent.commit_message_include_project_rules` | Commit mesajı üretiminde proje kural dosyalarının dahil edilmesi | Varsayılan değer `true` gelir; `AGENTS.md`, `CLAUDE.md`, `.rules` ve benzeri proje kural dosyalarının commit mesajı prompt'una katılıp katılmayacağını belirler. |
 | `AgentSettingsContent.terminal_init_command` | Terminal Thread başlangıç komutu | Agent panelinde Terminal Thread shell'i oluşturulduğunda shell'e yazılmış gibi gönderilecek komutu taşır; boş string davranışı kapatır. |
 | `AllAgentServersSettings`, `CustomAgentServerSettings` | Agent sunucu ayarları koleksiyonu ve özel sunucu seçimi | Dış agent sunucu davranışlarını settings JSON dosyasına bağlar. |
+| `AgentConfigOptionValue` | Agent server config option varsayılanları | `default_config_options` değerlerinde string value id veya boolean değer taşır; `as_value_id()`, `as_bool()` ve `Display` ile typed okuma sağlar. |
 | `AgentSettingsContent.auto_compact`, `AutoCompactSettingsContent`, `AutoCompactThreshold` | Agent bağlamı büyüdüğünde otomatik compaction eşiği | `enabled` varsayılan olarak açıktır; `threshold` `"90%"` gibi yüzde string'i, pozitif token sayısı veya negatif kalan-token eşiği olarak taşınabilir. |
-| `AgentSettingsContent.terminal_init_command` | Terminal Thread başlangıç komutu | Agent paneli Terminal Thread shell'i oluşturduğunda gönderilecek shell komutunu taşır; boş string bu davranışı kapatır. |
 | `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve sağlayıcıya özel parametre override'ları | `language_models` sağlayıcı ayarlarından bağımsız olarak agent model seçimini taşır. |
 | `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel yerleşimi, düşünme bloğu gösterimi, bildirimler ve ses davranışları | Kullanıcı etkileşimiyle ilgili enum şema bileşenleridir. |
 | `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool (araç) izinleri, regex kuralları ve izin modları | Tool çağrısı politikaları içerik şeması seviyesinde tiplendirilir. |
-| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, Git metadata erişimi, belirli sandbox dışı çalışma izinleri ve tüm agent terminal komutları için model-facing sandbox off-switch kararını taşır. |
+| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, belirli sandbox dışı çalışma izinleri ve tüm agent terminal komutları için model-facing sandbox off-switch kararını taşır. |
 
 ### Dil Modeli Sağlayıcı (Language Model Provider) İçerik Ailesi
 
@@ -334,7 +335,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `AmazonBedrockSettingsContent`, `BedrockAvailableModel`, `BedrockAuthMethodContent` | Bedrock bölge, endpoint, kimlik doğrulama ve model listeleri | Kimlik doğrulama enum'ı; profil adı, SSO, API key ve otomatik yolları ayırır. |
 | `OllamaSettingsContent`, `OllamaAvailableModel`, `KeepAlive` | Ollama API, otomatik keşif ve keep-alive davranışları | `KeepAlive` saniye veya süre string'i olarak deserialize edilir. |
 | `OpenCodeSettingsContent`, `OpenCodeAvailableModel`, `OpenCodeModelSubscription` | OpenCode API ve abonelik bazlı model listeleri | Abonelik seviyeleri enum yapısı sağlayıcı içeriğinin bir parçasıdır. |
-| `LmStudioSettingsContent`, `LmStudioAvailableModel`, `DeepseekSettingsContent`, `DeepseekAvailableModel` | LM Studio ve DeepSeek sağlayıcı verileri | Her sağlayıcı kendine özel available model yapısını kullanır. |
+| `LmStudioSettingsContent`, `LmStudioAvailableModel`, `LlamaCppSettingsContent`, `LlamaCppAvailableModel`, `DeepseekSettingsContent`, `DeepseekAvailableModel` | LM Studio, llama.cpp ve DeepSeek sağlayıcı verileri | llama.cpp sağlayıcısı `api_url`, `auto_discover`, `available_models`, `context_window` ve `custom_headers` alanlarını taşır; model girdileri tool, görsel ve thinking desteklerini ayrı opsiyonel bayraklarla bildirir. |
 | `MistralSettingsContent`, `MistralAvailableModel`, `OpenAiSettingsContent`, `OpenAiAvailableModel`, `OpenAiModelCapabilities` | Mistral ve OpenAI sağlayıcı ayarları | Token, completion, reasoning ve tool/image yetenekleri sağlayıcı şemasında yer alır. |
 | `OpenAiCompatibleSettingsContent`, `OpenAiCompatibleAvailableModel`, `OpenAiCompatibleModelCapabilities` | OpenAI uyumlu isimlendirilmiş sağlayıcı map'i | `HashMap<Arc<str>, ...>` yapısıyla birden fazla özel sağlayıcı tanımlanabilir. Model kabiliyetleri `tools`, `images`, `parallel_tool_calls` ve `max_tokens_parameter` gibi istek biçimi kararlarını taşır. |
 | `VercelAiGatewaySettingsContent`, `VercelAiGatewayAvailableModel`, `GoogleSettingsContent`, `GoogleAvailableModel` | Vercel AI Gateway ve Google sağlayıcı ayarları | Ağ geçidi ve sağlayıcı ayarları `language_models` altında ayrı anahtarlarla tutulur. |
@@ -352,6 +353,7 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 | `ExtendingVec`, `SaturatingBool`, `MergeFrom`, `MergeFromTrait` | Özel merge semantiği olan collection, bool newtype ve re-export trait adları | `ExtendingVec` eleman biriktirir, `SaturatingBool` bir kez `true` olduğunda geri düşmez; `MergeFrom::merge_from_option` opsiyonel katman varsa birleştirir, `MergeFromTrait` settings macro çıktısının public trait re-export'udur. |
 | `RootUserSettings`, `SettingsProfile` | Kök settings parse trait'i ve profil override verisi | `RootUserSettings` yorumlu/yorumsuz JSON parse girişlerini sağlar; `SettingsProfile` kullanıcı profilinin taban ve settings override içeriğini taşır. |
 | `SeedQuerySetting`, `ActivateOnClose`, `ClosePosition`, `ShowCloseButton`, `ShowDiagnostics` | Editör/workspace davranışındaki küçük enum ve içerik seçimleri | Tek başına uzun açıklamalar gerektirmeyen şema seçenekleridir. |
+| `InlineBlameLocation`, `InlineBlameSettings.location` | Git blame gösterim yeri | `inline` varsayılanıyla aktif satırda, `status_bar` değeriyle durum çubuğunda blame bilgisinin gösterilmesini seçer. |
 | `AutosaveSetting`, `RestoreOnStartupBehavior`, `EncodingDisplayOptions`, `TextRenderingMode`, `WindowDecorations`, `BottomDockLayout`, `FocusFollowsMouse` | Workspace başlatma, kaydetme, encoding, text render ve pencere dekorasyon ayarları | `WorkspaceSettingsContent` ailesinin alt enum/struct arayüzleridir. |
 | `Shell`, `ShowScrollbar` | Terminal shell ve scrollbar gösterim ayarları | `TerminalSettingsContent` altında terminal davranışını belirler. |
 | `SidebarSide` | Agent sidebar tarafının dahili/içerik eşleşmesi | `SidebarDockPosition` public settings enum'ını tamamlayan küçük bir yardımcıdır. |
@@ -384,9 +386,15 @@ Varsayılan ayar dosyasında değer boş string'dir. Boş string, başlangıç k
 
 | Grup | API | Not |
 |---|---|---|
-| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_git_access`, `allow_unsandboxed`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, korumalı Git metadata yollarına erişimi, tüm agent terminal komutları için sandbox dışı çalışma kararını ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
+| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, tüm agent terminal komutları için sandbox dışı çalışma kararını ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
 
-`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ilgili dosya sistemi yazma iznini, `allow_sandbox_git_access()` ise korumalı Git metadata yollarına erişim kararını `allow_git_access: Some(true)` olarak kalıcılaştırır. Bu izin, sandbox'lı terminal komutlarının `.git` metadata veya worktree Git yönetim yollarına her komutta yeniden onay istemeden erişebilmesi için kullanılır. `allow_sandbox_unsandboxed()` ise `allow_unsandboxed: Some(true)` kararını kalıcılaştırır. `allow_unsandboxed`, agent terminal komutları için model-facing off-switch işlevi görür: değer doğru olduğunda sandboxed terminal tool sunulmaz, sistem prompt'unda sandbox bölümü yer almaz, model düz `terminal` tool akışına yönelir ve Windows üzerinde WSL sandbox kurulumu atlanır. Bu karar, tek komutluk veya thread kapsamlı `unsandboxed: true` yükseltme onayından ayrıdır. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+`allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ilgili dosya sistemi yazma iznini kalıcılaştırır. `allow_sandbox_unsandboxed()` ise `allow_unsandboxed: Some(true)` kararını kalıcılaştırır. `allow_unsandboxed`, agent terminal komutları için model-facing off-switch işlevi görür: değer doğru olduğunda sandboxed terminal tool sunulmaz, sistem prompt'unda sandbox bölümü yer almaz, model düz `terminal` tool akışına yönelir ve Windows üzerinde WSL sandbox kurulumu atlanır. Bu karar, tek komutluk veya thread kapsamlı `unsandboxed: true` yükseltme onayından ayrıdır. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+
+### `format_on_save` ve `InlineBlameLocation`
+
+Varsayılan ayar dosyasında global `format_on_save` değeri `"off"` olarak gelir; dil bazlı varsayılanlar ilgili dil bloklarında ayrıca etkinleştirilebilir. Bu yapı, format-on-save davranışının tek global karar yerine dil katmanıyla birlikte okunmasını gerektirir.
+
+`InlineBlameSettings.location: Option<InlineBlameLocation>` blame bilgisinin yerini seçer. JSON tarafında `"inline"` varsayılan aktif satır gösterimidir; `"status_bar"` ise aynı bilgiyi durum çubuğu alanına taşır. `enabled`, `delay_ms`, `padding`, `min_column` ve `show_commit_summary` alanları konum kararından bağımsız olarak aynı `InlineBlameSettings` yapısında tutulur.
 
 ### `MarkdownPreviewSettingsContent`
 
