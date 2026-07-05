@@ -450,11 +450,12 @@ Temel API:
 - `.icon_animate(bool)`.
 - `.icon_color(Option<Color>)`.
 - `.tooltip(text)`.
+- `.progress(Option<f32>)`.
 - `.with_dismiss()`.
 - `.disabled(bool)`.
 - `.on_click(handler)`.
 - `.on_dismiss(handler)`.
-- Yardımcı kurucular (convenience constructors): `UpdateButton::checking()`, `downloading(version)`, `installing(version)`, `updated(version)`, `errored(error)`.
+- Yardımcı kurucular (convenience constructors): `UpdateButton::checking()`, `downloading(version, progress)`, `installing(version)`, `updated(version)`, `errored(error)`.
 
 Davranış:
 
@@ -463,10 +464,10 @@ Davranış:
 - `.disabled(true)`, ana buton benzeri alanı devre dışı bırakır. Bunun yanında `checking`, `downloading` ve `installing` hazır kurucuları bu durumu kendileri uygular.
 - Ana alan `ButtonLike::new("update-button")` üzerinden render edilir.
 - İpucu verildiğinde ana buton alanına bağlanır.
-- `checking()` ile `installing(...)` dönen `IconName::LoadCircle` kullanır; animasyon süresi 2 saniyedir. `downloading(...)` ve `updated(...)` `IconName::Download`, `errored(...)` ise `IconName::Warning` ile çizilir.
+- `checking()` ile `installing(...)` dönen `IconName::LoadCircle` kullanır; animasyon süresi 2 saniyedir. `downloading(...)` progress değeri verilmediğinde `IconName::Download` kullanır; progress değeri verildiğinde ikon yerinde `CircularProgress` halkası çizer. `updated(...)` `IconName::Download`, `errored(...)` ise `IconName::Warning` ile çizilir.
 - Hazır kurucuların arayüzde ürettiği varsayılan mesajlar şu biçimdedir: `checking()` `"Checking for Zed Updates…"`, `downloading(...)` `"Downloading Zed Update…"`, `installing(...)` `"Installing Zed Update…"`, `updated(...)` `"Restart to Update"`, `errored(...)` ise `"Failed to Update"`. Özel bir metin gerektiğinde `UpdateButton::new(...)` ile açıkça bir durum kurulur.
 - Kenarlık rengi devre dışı duruma göre değişir: Aktif konumda `colors().text.opacity(0.15)` ile yumuşatılmış bir kenarlık, devre dışı konumda ise standart `colors().border` kullanılır. Bu nedenle aktif `updated(...)` ve `errored(...)` durumları, devre dışı olan `checking`, `downloading` ve `installing` durumlarından daha belirgin bir kenarlık taşır.
-- Başlık çubuğundaki `UpdateVersion` ipucu `"Update to Version: ..."` biçimindedir; SHA tabanlı bir sürümde kısaltılmış SHA yerine tam SHA gösterilir.
+- Başlık çubuğundaki `UpdateVersion` ipucu `"Update to Version: ..."` biçimindedir ve `semver::Version` değerinin `to_string()` çıktısını kullanır; nightly build metadata varsa sürüm metninin parçası olarak görünür.
 
 Örnek:
 

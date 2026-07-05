@@ -747,6 +747,7 @@ Temel API:
 - `.max_value(max_value)`.
 - `.size(px)`.
 - `.stroke_width(px)`.
+- `.radius(px)`.
 - `.bg_color(hsla)`.
 - `.progress_color(hsla)`.
 
@@ -757,6 +758,7 @@ Davranış:
 - İlerleme oranı `(value / max_value).clamp(0.0, 1.0)` ile hesaplanır.
 - `progress >= 0.999` olduğunda tam bir çember çizilir.
 - Varsayılan çizgi kalınlığı (stroke width) `px(4.)`'tür.
+- Varsayılan yarıçap `(size / 2.0) - stroke_width` hesabından türetilir. `.radius(px)` verildiğinde halka, layout kutusundan bağımsız daha küçük veya daha büyük bir yarıçapla çizilebilir.
 
 Örnek:
 
@@ -770,6 +772,7 @@ fn token_halkasi_render(kullanilan: f32, maks: f32, cx: &App) -> impl IntoElemen
         .child(
             CircularProgress::new(kullanilan, maks, px(18.), cx)
                 .stroke_width(px(2.))
+                .radius(px(7.))
                 .progress_color(cx.theme().status().info),
         )
         .child(Label::new(format!("{kullanilan:.0}/{maks:.0}")).size(LabelSize::Small))

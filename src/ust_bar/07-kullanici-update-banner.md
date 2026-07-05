@@ -46,7 +46,7 @@ Organizasyon bölümü, kullanıcı hesabı kişisel olsa bile menü yapısını
 | Durum | Görünüm |
 | :-- | :-- |
 | `Checking` | Yalnızca manuel kontrolde; dönen `LoadCircle` ikonu. |
-| `Downloading { version }` | İndirme göstergesi; ipucunda sürüm. |
+| `Downloading { version, progress }` | İndirme göstergesi; ipucunda sürüm, biliniyorsa `0.0..=1.0` aralığında progress halkası. |
 | `Installing { version }` | Kurulum göstergesi; ipucunda sürüm. |
 | `Updated { version }` | Tıklanınca çalışma alanı yeniden yüklenir; kapatılabilir. |
 | `Errored { error }` | Görünür buton etiketi `"Failed to Update"`; hata ayrıntısı ise ipucuna konan ham hata metnidir. Tıklanınca uygulama günlüğü açılır; kapatılabilir. Türkçe portta görünür etiket anlam korunarak yerelleştirilir. |
@@ -57,10 +57,10 @@ Görsel kabuk, `ui` crate'indeki `UpdateButton` bileşenidir ve bu durumların h
 İpucu metni `version_tooltip_message` ile üretilir:
 
 ```rust
-fn version_tooltip_message(version: &VersionCheckType) -> String
+fn version_tooltip_message(version: &Version) -> String
 ```
 
-Bu yardımcı yalnızca indirme, kurulum ve güncelleme-hazır durumlarında çağrılır; bu durumların ipucu `"Update to Version: {version}"` kalıbındadır. Sürüm semantik bir versiyon ise sürüm numarası, commit SHA ise **kısaltılmamış tam SHA** kullanılır. Hata durumunda ise ipucu bu kalıba uymaz; doğrudan ham hata metnidir. Manuel kontroldeki `Checking` durumunda hiç ipucu yoktur. Türkçe portta bu metin yerelleştirilecekse aynı veri ayrımı korunur; başlıkta kısa SHA değil, tam hash gösterilir.
+Bu yardımcı yalnızca indirme, kurulum ve güncelleme-hazır durumlarında çağrılır; bu durumların ipucu `"Update to Version: {version}"` kalıbındadır. `Version` değeri semver biçiminde yazdırılır; nightly build metadata içeriyorsa bu ek bilgi de metne dahil olur. Hata durumunda ise ipucu bu kalıba uymaz; doğrudan ham hata metnidir. Manuel kontroldeki `Checking` durumunda hiç ipucu yoktur. Türkçe portta bu metin yerelleştirilecekse aynı veri ayrımı korunur.
 
 `SimulateUpdateAvailable` eylemi, bu yüzeyi geliştirme sırasında test etmek içindir: `toggle_update_simulation` aracılığıyla `UpdateVersion`'ı durumlar arasında döndürür, böylece her durumun görünümü gerçek bir güncelleme beklemeden denenebilir.
 

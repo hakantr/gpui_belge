@@ -81,6 +81,7 @@ Buton ailesindeki küçük taşıyıcı ve trait yüzeyleri şu tabloda toplanı
 | `ButtonLike` erişilebilirlik builder'ları | `aria_label`, `aria_role`, `aria_expanded`, `on_a11y_action` | Özel içerikli buton yüzeyinde AccessKit rol, etiket, açılma durumu ve action listener bilgisini taşır. |
 | `ButtonBuilder` | `into_configuration` | `ToggleButtonGroup` satırlarını `ButtonConfiguration` değerine çeviren builder sınırıdır. |
 | `ButtonConfiguration` | `label`, `icon`, `on_click`, `selected`, `tooltip` | Toggle button satırlarının render sırasında kullandığı paketlenmiş konfigürasyondur. |
+| `IconButton` tooltip builder'ları | `tooltip`, `hoverable_tooltip` | Normal tooltip kısa açıklama içindir; `hoverable_tooltip` tooltip yüzeyi içinde link veya buton gibi etkileşimli içerik gerektiğinde kullanılır. |
 | `IconButtonShape` | `Square`, `Wide` | Icon-only butonun kare mi yoksa geniş toolbar yüzeyi mi olacağını seçer. |
 | `IconPosition` | `Start`, `End` | Menü, toggle veya button-like satırlarda ikon/checked işaretinin label'ın hangi tarafında duracağını belirtir. |
 | `KeybindingPosition` | `Start`, `End` | Yalnız `Button::key_binding_position` için kısayol ipucu tarafını belirler. |
@@ -225,7 +226,7 @@ Temel API:
 - Şekil: `.shape(IconButtonShape::Square | Wide)`. Varsayılan şekil `IconButtonShape::Wide`'dir; kare bir yüzey isteniyorsa `Square` açıkça tanımlanır.
 - Durum ve davranış: `.indicator(...)`, `.indicator_border_color(...)`, `.toggle_state(...)`, `.selected_style(...)`, `.disabled(...)`, `.on_click(...)`, `.on_right_click(...)`, `.visible_on_hover(...)`.
 - Erişilebilirlik builder'ları: `.aria_label(...)`, `.aria_expanded(bool)`, `.on_a11y_action(action, listener)`.
-- Ortak builder'lar: `.style(...)`, `.size(...)`, `.tooltip(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.width(...)`, `.full_width()`, `.cursor_style(...)`.
+- Ortak builder'lar: `.style(...)`, `.size(...)`, `.tooltip(...)`, `.hoverable_tooltip(...)`, `.tab_index(...)`, `.layer(...)`, `.track_focus(...)`, `.width(...)`, `.full_width()`, `.cursor_style(...)`.
 
 Davranış:
 
@@ -236,6 +237,7 @@ Davranış:
 - Seçili durumdayken `selected_style` da belirtilmişse, ikon rengi bu stile karşılık gelen semantik renkten türetilir. Aksi halde `selected_icon_color` veya `Color::Selected` kullanılır.
 - `IconButtonShape::Square`, ikonun kare ölçüsünü kullanarak butonun genişlik (width) ve yükseklik (height) değerlerini eşitler; yani buton bir kare olarak çizilir.
 - İkon-only bir yüzeyde görünür metin olmadığı için `.aria_label(...)` genellikle tooltip metniyle aynı anlamı taşıyacak şekilde verilmelidir.
+- `.hoverable_tooltip(...)`, mouse kaynak butondan tooltip yüzeyine geçtiğinde tooltip'in kapanmadan kalmasını sağlar. Bu builder, normal açıklama metninden farklı olarak etkileşimli tooltip içeriği için ayrılmıştır.
 
 Örnek:
 

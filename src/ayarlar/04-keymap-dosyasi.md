@@ -159,7 +159,9 @@ pub struct KeybindUpdateTarget<'a> {
 - `KeybindUpdateOperation::add(source)` — `Add { from: None }` çağrısının kısayoludur.
 - `KeybindUpdateOperation::generate_telemetry()` — `(new_binding, removed_binding, source)` üçlüsünü döndürür; ChangeKeybinding akışı telemetri sistemine bu verileri yollar.
 
-`KeymapFile::update_keybinding(operation, keymap_contents, tab_size, keyboard_mapper)` metodu; mevcut kullanıcı `keymap.json` metnini alır, verilen `KeybindUpdateOperation` işlemini uygular ve yalnızca güncellenmiş yeni metni döndürür. `tab_size` parametresi dosyanın girintileme biçimini korumak, `keyboard_mapper` ise platform klavye eşdeğerlerini hesaplamak amacıyla kullanılır. Kaydetme aşamasında dönen metin `fs.write(paths::keymap_file(), ...)` ile doğrudan yazılır; keymap kaydetme işlemleri, ayar dosyasındaki gibi `update_settings_file` ya da `atomic_write` akışlarını kullanmaz.
+`KeymapFile::update_keybinding(operation, keymap_contents, tab_size, keyboard_mapper, deprecated_aliases)` metodu; mevcut kullanıcı `keymap.json` metnini alır, verilen `KeybindUpdateOperation` işlemini uygular ve yalnızca güncellenmiş yeni metni döndürür. `tab_size` parametresi dosyanın girintileme biçimini korumak, `keyboard_mapper` platform klavye eşdeğerlerini hesaplamak, `deprecated_aliases: &HashMap<&'static str, &'static str>` ise dosyada kalmış eski action adını yüklenmiş canonical action adıyla eşleştirmek amacıyla kullanılır. Kaydetme aşamasında dönen metin `fs.write(paths::keymap_file(), ...)` ile doğrudan yazılır; keymap kaydetme işlemleri, ayar dosyasındaki gibi `update_settings_file` ya da `atomic_write` akışlarını kullanmaz.
+
+Deprecated alias eşleşmesi özellikle kullanıcı dosyasında eski action adı dururken arayüzün canonical ad üzerinden silme veya değiştirme işlemi başlattığı durumlarda önemlidir. `Remove` tam hedef kaydı bulup yalnız o bölümü siler; `Replace` ise kaydı yerinde günceller ve çıktıya canonical action adını yazar. Böylece eski ada sahip kayıtlar kopya binding eklenmeden düzenlenebilir.
 
 ---
 

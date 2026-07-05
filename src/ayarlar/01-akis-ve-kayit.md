@@ -151,7 +151,7 @@ Dosyaların öncelik sıralamasında `SettingsFile::cmp` yapısı `Project` > `S
 
 ## Kök `SettingsContent` Şema Yüzeyi
 
-`settings_content::SettingsContent`, kullanıcı JSON dosyasındaki düz alanları ilgili alan modellerine (domain content) dağıtır. `project`, `theme`, `extension`, `workspace`, `editor`, `remote`, `tabs`, `preview_tabs`, `file_finder`, `project_panel`, `git_panel`, `outline_panel`, `collaboration_panel`, `agent`, `agent_servers`, `message_editor`, `image_viewer`, `repl` ve `which_key` alanları, farklı alan içeriklerini aynı kök merge hattında birleştirir; aşağıdaki daha küçük içerik tipleri ise üst seviye alanların şema, birleştirme (merge) ve varsayılan davranışlarını taşır. Bu tipler çalışma zamanı `Settings` implementasyonu değildir; `SettingsStore` içindeki ham `SettingsContent` birleştirme hattının sözleşmesini oluşturur.
+`settings_content::SettingsContent`, kullanıcı JSON dosyasındaki düz alanları ilgili alan modellerine (domain content) dağıtır. `project`, `theme`, `extension`, `workspace`, `editor`, `remote`, `tabs`, `preview_tabs`, `file_finder`, `project_panel`, `git_panel`, `outline_panel`, `collaboration_panel`, `agent`, `agent_servers`, `image_viewer`, `repl` ve `which_key` alanları, farklı alan içeriklerini aynı kök merge hattında birleştirir; aşağıdaki daha küçük içerik tipleri ise üst seviye alanların şema, birleştirme (merge) ve varsayılan davranışlarını taşır. Bu tipler çalışma zamanı `Settings` implementasyonu değildir; `SettingsStore` içindeki ham `SettingsContent` birleştirme hattının sözleşmesini oluşturur.
 
 | API | JSON/Settings Rolü | Not |
 | :-- | :-- | :-- |

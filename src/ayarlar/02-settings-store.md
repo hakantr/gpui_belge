@@ -209,6 +209,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | API | Kapsadığı Davranış | Not |
 | :-- | :-- | :-- |
 | `AllLanguageSettingsContent`, `LanguageSettingsContent`, `LanguageToSettingsMap` | Dile özel ayar eşleşmesi ve tekil dil içerikleri | `SettingsContent.project.all_languages` altında dosya yolu/dil birleştirme hattına dahil olur. |
+| `settings_content::REST_OF_LANGUAGE_SERVERS` | Dil sunucusu sıralama sentinel'i | `LanguageSettingsContent.language_servers` listesinde `"..."` değerini temsil eder; global `!sunucu` kapatma girdileri bu sentinel'den önce yerleştirilir ve kalan dil sunucusu sırası korunur. |
 | `EditPredictionProvider`, `EditPredictionSettingsContent`, `CustomEditPredictionProviderSettingsContent`, `EditPredictionPromptFormatContent` | Düzenleme tahmini (edit prediction) sağlayıcısı, özel sağlayıcı ve prompt formatı ayarları | Copilot, Codestral ve Ollama içerikleriyle birlikte değerlendirilir. |
 | `CopilotSettingsContent`, `CodestralSettingsContent`, `OllamaModelName`, `OllamaEditPredictionSettingsContent` | Yerleşik düzenleme tahmini sağlayıcılarının verileri | Sağlayıcıya özel URL ve model ayarları şemada ayrı olarak tiplendirilir. |
 | `EditPredictionDataCollectionChoice`, `EditPredictionsMode` | Düzenleme tahmini veri toplama politikası ve çalışma modu | Kullanıcı onayı ve çalışma modu enum yapılarıdır. |

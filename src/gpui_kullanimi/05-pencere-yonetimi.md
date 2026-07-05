@@ -276,7 +276,7 @@ platform_baslik_cubugu.into_any_element()
 Zed'in başlık çubuğu yönetiminde ayrıca şu iki hususa dikkat edilmelidir:
 
 - `OnboardingBanner` modülü, başlık çubuğunda yeni özellik tanıtımları sergilemek amacıyla hazır bir şablon sunar. Standart `TitleBar::new` yapılandırmasında `banner` alanı varsayılan olarak `None` şeklinde kurulur. Bu nedenle arayüze yeni bir banner yerleştirilmek istendiğinde, banner entity nesnesinin haricen oluşturulması, görünürlük koşullarının belirlenmesi ve ilişkili eylemlerinin (actions) açıkça atanması gerekir.
-- Güncelleme sürecinde `UpdateButton::checking`, `downloading` ve `installing` durumları etkileşimsiz (pasif) butonlar olarak sunulur. Sürüm bilgisi ipucu metinleri `"Update to Version: ..."` şeklinde formatlanır ve SHA tabanlı sürümlerde kısa SHA formatı yerine tam SHA kodu görüntülenir.
+- Güncelleme sürecinde `UpdateButton::checking`, `downloading` ve `installing` durumları etkileşimsiz (pasif) butonlar olarak sunulur. Sürüm bilgisi ipucu metinleri `"Update to Version: ..."` şeklinde formatlanır ve `semver::Version` değerinin `to_string()` çıktısını kullanır. `downloading` durumu bilinen indirme oranını progress halkası olarak da gösterebilir.
 
 ## Kontrol Butonları Nasıl Yönetilir?
 
