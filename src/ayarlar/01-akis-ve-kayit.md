@@ -7,6 +7,8 @@
 - [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
 - [x] Doğrulanan settings yüzeyleri: `GitPanelSettingsContent::sort_by`, `group_by`, `entry_primary_click_action`, `GitPanelSortBy`, `GitPanelGroupBy` ve `GitPanelClickBehavior`.
 - [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/settings_content.rs`, `assets/settings/default.json` ve Zed `docs/src/reference/all-settings.md`.
+- [x] Güncel kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
+- [x] Güncel doğrulama: `SettingsContent` kök şeması güncel kaynak yüzeyiyle yeniden eşleştirildi.
 
 ## Ayar Akışı
 
@@ -171,7 +173,7 @@ Dosyaların öncelik sıralamasında `SettingsFile::cmp` yapısı `Project` > `S
 | `FeatureFlagsMap`, `InstrumentationSettingsContent`, `PerformanceProfilerSettingsContent` | Özellik bayrağı override ve profil oluşturucu/izleme ayarları | `FeatureFlagsMap`, özel `JsonSchema` adıyla çalışma zamanı şema değişimine izin verir. |
 | `PlatformOverrides`, `ReleaseChannelOverrides`, `ProfileBase` | İşletim sistemi, release kanalı ve profil tabanlı override'lar | `settings_overrides!` makrosu `OVERRIDE_KEYS` ve `get_by_key` metotlarını üretir. |
 | `ExtensionsSettingsContent`, `ExtensionSettingsContent`, `ExtensionCapabilityContent` | Uzantı ve uzantı yeteneği (capability) verileri | Uzantı içerikleri, settings şemasına ayrı bir flatten katmanı olarak dahil olur. |
-| `HideMouseMode`, `MessageEditorSettings` | Global fare gizleme ve mesaj editörü davranışları | `HideMouseMode`, yazma veya eylem kaynaklı imleç gizlemeyi seçer. |
+| `HideMouseMode` | Global fare gizleme davranışı | Yazma veya eylem kaynaklı imleç gizlemeyi seçer. |
 | `WindowButtonLayoutContentDiscriminants` | Pencere buton yerleşim enum discriminant değeri | Seçici/şema tarafında varyant listesini içerik katmanından sağlar. |
 | `default_true`, `serialize_optional_f32_with_two_decimal_places` | Serde varsayılan ve float serileştirme yardımcıları | İçerik alanlarının şema/JSON kararlılığında kullanılan küçük yardımcılardır. |
 

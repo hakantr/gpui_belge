@@ -1,5 +1,11 @@
 # Liste, Çizim ve Animasyon
 
+## Sürüm Analiz Raporu
+
+- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
+- [x] Güncel doğrulama: `impl<E: ParentElement> ParentElement for AnimationElement<E>` zincirleme çocuk ekleme davranışıyla eşleştirildi.
+- [x] Kaynak doğrulama dosyası: `crates/gpui/src/elements/animation.rs`.
+
 ---
 
 ## ScrollHandle ve Scroll Davranışı
@@ -621,10 +627,15 @@ div()
 
 Çoklu animasyon zinciri için `with_animations(id, vec![anim_a, anim_b], |el, ix, delta| ...)` kalıbı kullanılır. Closure'a (element, animation_index, delta_in_animation) parametreleri verilir; `ix` aktif animasyonun vec içindeki sırası, `delta` ise o animasyona göre 0..1 ilerlemesidir. Sıralı veya çoklu fazlı geçişler tasarlanırken `ix` değeri üzerinden eşleşme (`match`) kurulabilir.
 
+### AnimationElement
+
+`AnimationElement<E>`, içindeki `E: ParentElement` olduğunda kendisi de `ParentElement` implement eder. Bu nedenle `div().id(...).with_animation(...).child(...)` zinciri doğrudan çalışır; animasyon sarmalayıcısı sonradan eklenen alt öğeleri iç elemente aktarır. `AnimationElement::map_element(f)` ise animasyon sarmalayıcısının içindeki elementi dönüştürerek yeni `AnimationElement<E>` döndürür; ek stil veya yerleşim katmanı animasyon sarmalayıcısı bozulmadan uygulanır. Bu davranış, animasyonlu kapsayıcıların normal `div()` yerleşimi gibi genişletilebilmesini sağlar.
+
 **Yerleşik easing fonksiyonları** (`gpui` crate'i): `linear`, `quadratic`, `ease_in_out`, `ease_out_quint()`, `bounce(inner)`, `pulsating_between(min, max)`. `pulsating_between` yön değiştirerek değer döndürür (yükleme göstergeleri için idealdir; `Animation::repeat()` ile birleştirilebilir).
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
+| `AnimationElement<E>` | `impl<E: ParentElement> ParentElement`, `AnimationElement::map_element(f)` | Animasyon sarmalayıcısı, iç element parent ise `.child(...)` ve `.children(...)` zincirini korur; `map_element` iç elementi dönüştürürken `ElementId` ve animasyon zincirini korur. |
 | `pulsating_between` | min/max arası yön değiştiren easing | Tekrarlanan animasyonlarda nefes alma/yükleme göstergesi benzeri değer üretir. |
 
 **Dikkat Noktaları.** Animasyon kullanımında gözden kaçabilecek noktalar:

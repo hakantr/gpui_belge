@@ -1,5 +1,11 @@
 # 7. Menü, Popup ve Tooltip
 
+## Sürüm Analiz Raporu
+
+- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
+- [x] Güncel doğrulama: `ContextMenu::toggleable_entry_disabled_when(...)` builder imzası ve disabled toggleable girdi davranışı doğrulandı.
+- [x] Kaynak doğrulama dosyası: `crates/ui/src/components/context_menu.rs`.
+
 Bu bölüm, bir kontrolün arkasından geçici bir yüzey açan bileşenleri anlatır. Önceki bölümde form ve seçim durumunun nasıl tutulduğunu gördük; burada odak biraz değişir. Artık asıl soru "değer nerede duruyor" değil, "seçenekler nasıl sunulacak, menü içeriği hangi modelle kurulacak, popup nasıl açılıp kapanacak" sorusudur.
 
 Hangi durumda hangi bileşenin tercih edileceği konusunda aşağıdaki ayrım faydalı olacaktır:
@@ -113,7 +119,7 @@ Temel API:
 
 - `ContextMenu::build(window, cx, |menu, window, cx| menu...)`.
 - Menünün açık kalmasını ve yeniden oluşturulabilmesini gerektiren durumlarda ise `ContextMenu::build_persistent(window, cx, builder)` yöntemi tercih edilir.
-- Yapı builder'ları: `.context(focus_handle)`, `.header(...)`, `.header_with_link(...)`, `.separator()`, `.label(...)`, `.entry(...)`, `.toggleable_entry(...)`, `.custom_row(...)`, `.custom_entry(...)`, `.custom_entry_with_docs(...)`, `.entry_with_end_slot(...)`, `.entry_with_end_slot_on_hover(...)`, `.selectable(bool)`, `.action(...)`, `.action_checked(...)`, `.action_checked_with_disabled(...)`, `.action_disabled_when(...)`, `.link(...)`, `.link_with_handler(...)`, `.submenu(...)`, `.submenu_with_icon(...)`, `.submenu_with_colored_icon(...)`, `.keep_open_on_confirm(bool)`, `.fixed_width(...)`, `.key_context(...)`, `.end_slot_action(action)`.
+- Yapı builder'ları: `.context(focus_handle)`, `.header(...)`, `.header_with_link(...)`, `.separator()`, `.label(...)`, `.entry(...)`, `.toggleable_entry(...)`, `.toggleable_entry_disabled_when(...)`, `.custom_row(...)`, `.custom_entry(...)`, `.custom_entry_with_docs(...)`, `.entry_with_end_slot(...)`, `.entry_with_end_slot_on_hover(...)`, `.selectable(bool)`, `.action(...)`, `.action_checked(...)`, `.action_checked_with_disabled(...)`, `.action_disabled_when(...)`, `.link(...)`, `.link_with_handler(...)`, `.submenu(...)`, `.submenu_with_icon(...)`, `.submenu_with_colored_icon(...)`, `.keep_open_on_confirm(bool)`, `.fixed_width(...)`, `.key_context(...)`, `.end_slot_action(action)`.
 - Dinamik öğe (item) ekleme builder'ları: `.item(item: impl Into<ContextMenuItem>)` ve `.extend(items: impl IntoIterator<Item = impl Into<ContextMenuItem>>)` zincirleme kullanım için uygundur. `&mut self` üzerinden menüyü değiştiren `.push_item(item)` ise builder zinciri dışında menü içeriğini güncellemek gerektiğinde (örneğin bir olay geri çağrısı içinde) tercih edilir.
 - Programatik değiştiriciler: `.rebuild(window, cx)`, `build_persistent` ile açık kalan menünün içeriğini yeniden kurar; `.trigger_end_slot_handler(window, cx)` ise aktif girdinin end slot işleyicisini programatik olarak çalıştırır.
 - Action ve gezinme metodları: `.selected_index()`, `.confirm(...)`, `.secondary_confirm(...)`, `.cancel(...)`, `.end_slot(...)`, `.clear_selected()`, `.select_first(...)`, `.select_last(...)`, `.select_next(...)`, `.select_previous(...)`, `.select_submenu_child(...)`, `.select_submenu_parent(...)`, `.on_action_dispatch(...)`, `.on_blur_subscription(...)`. Bunlar büyük çoğunlukla keymap ve action bağlarından çağrılır; normal menü inşası sırasında builder zincirine karıştırılmaz. `.select_last(...)` diğer `select_*` metodlarından farklıdır: bir action işleyicisi değil, son seçilebilir girdinin indeksini `Option<usize>` olarak döndüren bir yardımcıdır; seçilebilir girdi yoksa `None` verir.
@@ -207,6 +213,7 @@ fn ozel_girdili_menu_olustur(window: &mut Window, cx: &mut App) -> Entity<Contex
 Action ve link yardımcıları:
 
 - `action(label, action)`: önce varsa context odak handle'ına odak verir, ardından action dispatch eder.
+- `toggleable_entry_disabled_when(label, toggled, disabled, position, action, handler)`: checked/toggled durumunu gösteren menü girdisini disabled koşuluyla birlikte üretir; `disabled` `true` olduğunda girdi render edilir ama işleyici çağrılmaz.
 - `action_checked(...)` ve `action_checked_with_disabled(...)`: action girdisine sırasıyla checked ve disabled durumlarını ekler.
 - `action_disabled_when(disabled, label, action)`: disabled koşulunu girdi oluştururken doğrudan bağlar.
 - `link(...)` ve `link_with_handler(...)`: girdinin sonuna bir `ArrowUpRight` ikonu ekler, özel işleyiciyi çalıştırır ve ardından action dispatch eder.

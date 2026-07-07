@@ -1,4 +1,11 @@
 # Etkileşim ve Olaylar
+
+## Sürüm Analiz Raporu
+
+- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
+- [x] Güncel doğrulama: `InteractiveElement::on_mouse_exit(...)`, `Interactivity::on_mouse_exit(...)` ve `MouseExitEvent` ilişkisi rustdoc JSON ile doğrulandı.
+- [x] Kaynak doğrulama dosyası: `crates/gpui/src/elements/div.rs`.
+
 ## Klavye Odağı, Odak Kaybı ve Klavye Olayları
 
 Klavye odağı GPUI'de `FocusHandle` ile temsil edilir. Bir view'un odak alıp verebilmesi için kendine ait bir handle tutması ve çizim sırasında bu handle'ı elemente bağlaması gerekir.
@@ -69,7 +76,7 @@ Bu aboneliklerin arkasındaki pencere odak olayı, önceki ve mevcut focus path'
 
 Element seviyesindeki etkileşim API'leri tek bir akıcı (fluent) zincir içinde toplanır; doğru metodu seçmek için öncelikle etkileşimin hangi sınıfa girdiğini belirlemek gerekir:
 
-- **Tıklama ve temel fare hareketi:** `.on_click(...)`, mouse down/up aynı hedefte eşleştiğinde `ClickEvent` üretir; buton gibi komut yüzeylerinde bu metot tercih edilir. `.on_mouse_down(...)`, `.on_mouse_up(...)` ve `.on_mouse_move(...)` doğrudan fare olaylarını dinler; sürükleme başlatma, özel basılı durum veya anlık imleç takibi gerektiğinde bu metotlar seçilmelidir. Bu noktada önemli bir ayrım mevcuttur: `.on_click(...)`, `.on_drag(...)` ve `.on_hover(...)` `.id(...)` verilmiş bir elementte (yani `StatefulInteractiveElement`) bulunur; `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)` ile bırakma ailesi (`.drag_over(...)`, `.can_drop(...)`, `.on_drop(...)`) ise id'si bulunmayan `InteractiveElement` üzerindedir.
+- **Tıklama ve temel fare hareketi:** `.on_click(...)`, mouse down/up aynı hedefte eşleştiğinde `ClickEvent` üretir; buton gibi komut yüzeylerinde bu metot tercih edilir. `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)` ve `.on_mouse_exit(...)` doğrudan fare olaylarını dinler; sürükleme başlatma, özel basılı durum, anlık imleç takibi veya hitbox'tan ayrılma davranışı gerektiğinde bu metotlar seçilmelidir. Bu noktada önemli bir ayrım mevcuttur: `.on_click(...)`, `.on_drag(...)` ve `.on_hover(...)` `.id(...)` verilmiş bir elementte (yani `StatefulInteractiveElement`) bulunur; `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)`, `.on_mouse_exit(...)` ile bırakma ailesi (`.drag_over(...)`, `.can_drop(...)`, `.on_drop(...)`) ise id'si bulunmayan `InteractiveElement` üzerindedir.
 - **Dışarı tıklama/kapatma akışı:** `.on_mouse_down_out(...)` ve `.on_mouse_up_out(...)`, fare olayı element hitbox'ının dışında gerçekleştiğinde capture aşamasında çalışır. Popover, menü veya modal dışına tıklanıldığında `DismissEvent` yaymak amacıyla bu metot ailesinden yararlanılır.
 - **Kaydırma ve gesture:** `.on_scroll_wheel(...)`, hitbox kaydırma alabiliyorsa scroll olayını dinler; düz hover kontrolünden daha güvenilirdir. `.on_pinch(...)`, trackpad pinch gibi yakınlaştırma gesture'larını yakalar.
 - **Sürükleme ve bırakma:** `.on_drag_move::<T>(...)`, sürükleme element sınırının dışına çıksa dahi aynı tipteki aktif drag boyunca hareket bilgisi sağlar; bu durum yeniden boyutlandırma (resize) veya split handle gibi klasik drop içermeyen sürükleme senaryolarında tercih edilir. `.drag_over::<T>(...)` kabul edilebilir sürükleme hedefi üstündeyken geçici stil üretir; `.can_drop(...)` hedefin bırakmayı kabul edip etmeyeceğini belirler; `.on_drop::<T>(...)` başarılı bırakma tamamlandığında tetiklenir.

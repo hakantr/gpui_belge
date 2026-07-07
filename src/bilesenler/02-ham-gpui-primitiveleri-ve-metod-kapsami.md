@@ -1,5 +1,11 @@
 # 2. Ham GPUI Primitive'leri ve Metod Kapsamı
 
+## Sürüm Analiz Raporu
+
+- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
+- [x] Güncel doğrulama: `InteractiveElement::on_mouse_exit(...)` ve `Interactivity::on_mouse_exit(...)` işaretçi çıkış olayı yüzeyiyle eşleştirildi.
+- [x] Kaynak doğrulama dosyası: `crates/gpui/src/elements/div.rs`.
+
 Bu bölüm, Zed `ui` bileşen katmanının altında kalan `gpui::elements` primitive'lerini anlatır. Günlük Zed ekran kodunda öncelikle hazır `ui` bileşenleri değerlendirilir. Ham GPUI primitive'lerine ise ancak daha özel ihtiyaçlar ortaya çıktığında başvurulması mümkündür: kendine özgü bir düzen (layout), özel çizim, metin ölçümü, görsel önbellek, sanal liste veya hazır bileşenlerin sunmadığı bir etkileşim modeli gibi. Kısacası, üst katman ihtiyaçların çoğunu karşılar; alt katmana inmek ise genellikle bilinçli bir gereksinimin sonucudur.
 
 ## Public GPUI element adları
@@ -115,7 +121,7 @@ Size, margin, padding ve position prefix'leri için aynı üretim kuralı geçer
 
 Kimlik ve odak ailesinde `group(...)`, `id(...)`, `track_focus(...)`, `tab_stop(...)`, `tab_index(...)`, `tab_group()` and `key_context(...)` yer alır. Bu metotlar elementin olay dağıtım (dispatch) ağacında nasıl konumlanacağını, klavye gezinmesine dahil olup olmayacağını ve hangi tuş eşleme (keybinding) bağlamında çalışacağını belirler. Görsel odak stilleri için `focus(...)`, `in_focus(...)` ve `focus_visible(...)` metotları kullanılır; `focus_visible` özellikle son girdinin klavye üzerinden yapıldığı senaryolarda odak halkasını göstermek amacıyla tercih edilir.
 
-Fare ve işaretçi (pointer) ailesi; `on_mouse_down(...)`, `on_mouse_up(...)`, `on_mouse_move(...)`, `on_mouse_down_out(...)`, `on_mouse_up_out(...)`, `on_mouse_pressure(...)` ve bunların capture/any varyantlarından oluşur. Normal varyantlar elemente gelen olayları işlerken; capture varyantları olay dağıtımının (dispatch) erken aşamalarında devreye girer. `*_out` metotları ise menü veya popup pencerelerini kapatma gibi element dışındaki tıklama akışlarını yönetmek için kullanılır. Scroll ve hareket olayları `on_scroll_wheel(...)`, `on_pinch(...)` ve `capture_pinch(...)` yardımıyla bağlanır.
+Fare ve işaretçi (pointer) ailesi; `on_mouse_down(...)`, `on_mouse_up(...)`, `on_mouse_move(...)`, `on_mouse_exit(...)`, `on_mouse_down_out(...)`, `on_mouse_up_out(...)`, `on_mouse_pressure(...)` ve bunların capture/any varyantlarından oluşur. Normal varyantlar elemente gelen olayları işlerken; capture varyantları olay dağıtımının (dispatch) erken aşamalarında devreye girer. `on_mouse_exit(...)`, işaretçinin element hitbox'ından ayrıldığı bubble aşamasını `MouseExitEvent` ile bildirir. `*_out` metotları ise menü veya popup pencerelerini kapatma gibi element dışındaki tıklama akışlarını yönetmek için kullanılır. Scroll ve hareket olayları `on_scroll_wheel(...)`, `on_pinch(...)` ve `capture_pinch(...)` yardımıyla bağlanır.
 
 Eylem (action) ve klavye ailesinde; `capture_action(...)`, `on_action(...)`, `on_boxed_action(...)`, `on_key_down(...)`, `capture_key_down(...)`, `on_key_up(...)`, `capture_key_up(...)` ve `on_modifiers_changed(...)` yer alır. Eylem işleyicileri, keymap üzerinden çözümlenen komutları yakalar; key down/up işleyicileri ise doğrudan ham klavye olaylarına yakın seviyede çalışır. Sürükle-bırak (drag-and-drop) mekanizmasında `on_drag_move(...)`, `drag_over(...)`, `group_drag_over(...)`, `on_drop(...)` ve `can_drop(...)` kullanılır; `can_drop` kabul koşulunu, `on_drop` ise bırakma eyleminin sonucunu temsil eder. `occlude()`, `window_control_area(...)` ve `block_mouse_except_scroll(...)` ise alttaki elementlerin fare olaylarını alıp almayacağını veya özel başlık çubuğu hit-test alanını belirleyen kontrol yardımcılarıdır.
 

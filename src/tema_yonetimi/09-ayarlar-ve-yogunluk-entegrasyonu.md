@@ -5,6 +5,8 @@
 - [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan tema ayar yüzeyi: `ThemeSettingsContent.markdown_preview_font_size`, `ThemeSettings::markdown_preview_font_size`, `MarkdownPreviewFontSize`, `adjust_markdown_preview_font_size` ve `reset_markdown_preview_font_size`.
 - [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/theme.rs`, `crates/theme_settings/src/settings.rs`, `crates/theme_settings/src/theme_settings.rs` ve `crates/settings/src/vscode_import.rs`.
+- [x] Güncel kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
+- [x] Güncel doğrulama: `ThemeSettings::markdown_preview_font_size(cx)` boş ayarda ayar dosyasındaki `ui_font_size` değerine düşer; geçici UI zoom fallback değerine katılmaz.
 
 Çalışma zamanı çalışır hale geldikten sonra kullanıcı ayarları devreye girer. Bu bölüm tema seçimi, font geçersiz kılma akışları ve UI yoğunluk sözleşmesinin çalışma zamanına nasıl bağlandığını anlatır. Bu üç hat birlikte düşünülür; birindeki karar diğerlerinin davranışını doğrudan etkiler.
 

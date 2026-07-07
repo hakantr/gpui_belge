@@ -5,6 +5,8 @@
 - [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan tablo yüzeyi: `ResizableColumnsState::pinned_width`, `ResizableColumnsState::scrollable_width` ve sabit kolonlu yatay scrollbar yerleşimi.
 - [x] Kaynak doğrulama dosyası: `crates/ui/src/components/data_table.rs`.
+- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
+- [x] Güncel doğrulama: `Table::column_filter`, `TableRenderContext::with_column_filter`, `bind_redistributable_columns(..., hidden)` ve `render_redistributable_columns_resize_handles(..., hidden, ...)` imzaları rustdoc JSON ile doğrulandı.
 
 Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)` çağrılarıyla kurulur. Satır sayısı arttığında ise tablo, GPUI'nin sanallaştırılmış liste altyapısına bağlanan `.uniform_list(...)` veya `.variable_row_height_list(...)` çağrılarıyla render edilir. Yani tablo tek bir kalıba sıkışmaz; satır modeline göre üç farklı kullanım biçimi sunar.
 
@@ -67,6 +69,7 @@ Temel API:
 - Sanallaştırılmış değişken yükseklikli satırlar: `.variable_row_height_list(row_count, list_state, render_row_fn)`.
 - Görsel builder'lar: `.striped()`, `.hide_row_borders()`, `.hide_row_hover()`, `.no_ui_font()`, `.disable_base_style()`.
 - Genişlik: `.width(width)`, `.width_config(config)`.
+- Kolon görünürlüğü: `.column_filter(filter)`.
 - Sabit ilk kolonlar: `.pin_cols(n)`.
 - Etkileşim: `.interactable(&table_interaction_state)`.
 - Satır özelleştirme: `.map_row(callback)`.
@@ -80,6 +83,7 @@ Davranış:
 - `.disable_base_style()` çağrısı hücre baz stilini kapatır. CSV önizleme gibi her hücrenin kendi yerleşimini taşıdığı durumlarda tercih edilir.
 - `.row(...)` yalnızca tablo sabit satır modundayken satır ekler. Tablo `.uniform_list(...)` veya `.variable_row_height_list(...)` ile kurulduysa satırlar bir closure üzerinden üretilir.
 - `.map_row(...)`, tablonun ürettiği `Stateful<Div>` satır kapsayıcısını alır. Bu sayede seçili satır, hover durumu, sağ tık veya özel tıklama davranışı gibi ek nitelikler eklemek mümkün hale gelir.
+- `.column_filter(filter)`, `TableRow<bool>` görünürlük maskesini tabloya bağlar; `true` olan kolonlar render edilmez. Maskedeki indeksler tablonun özgün kolon sırasına göre değerlendirilir. Bu yüzey, kolon görünürlüğü genişlik konfigürasyonundan ayrı bir uygulama durumuyla yönetildiğinde kullanılır.
 - `.pin_cols(n)`, ilk `n` kolonu yatay kaydırma sırasında görünür tutar. Kaynakta yalnızca `ColumnWidthConfig::Resizable` ile desteklenir; `n == 0` veya `n >= cols` durumunda tablo tek bölümlü normal bir yerleşime döner.
 - Sabitlenmiş yerleşimde (pinned layout) header, satırlar ve yeniden boyutlandırma katmanı (resize overlay) aynı yatay `ScrollHandle`'ı izler. Sabitlenmiş kolonlar, kaydırılabilir kolonlarla aynı liste öğesi içinde render edildiği için değişken yükseklikli satırlarda iki tarafın yüksekliği ayrışmaz. Yatay scrollbar yalnız kaydırılabilir bölümün altına yerleşir; sabit kolon genişliği `ResizableColumnsState::pinned_width(...)`, kaydırılabilir alan genişliği ise `ResizableColumnsState::scrollable_width(...)` ile hesaplanır. Bu nedenle `.pin_cols(...)` kullanılırken tablonun `.interactable(...)` ile bağlanması pratikte zorunlu hâle gelir.
 
@@ -408,12 +412,16 @@ Temel API:
 - `.set_cached_container_width(width)`.
 - `.commit_preview()`.
 - `.reset_column_to_initial_width(column_index, window)`.
+- `is_column_hidden(hidden, idx)`.
+- `redistribute_hidden_widths(widths, hidden)`.
+- `redistribute_hidden_fractions(fractions, hidden)`.
 
 Davranış:
 
 - Başlangıç genişlikleri `DefiniteLength` alır. Aynı tabloda `DefiniteLength::Fraction(...)` ile `DefiniteLength::Absolute(...)` birlikte kullanılabilir.
 - Sürükleme sırasında `preview_widths` güncellenir; bırakma (drop) sonrasında `commit_preview()` çağrısıyla kalıcı genişliklere aktarılır.
 - `Table` içinde `.interactable(...)` ve `.width_config(ColumnWidthConfig::redistributable(...))` birlikte kullanıldığında yeniden boyutlandırma tutamacı bağlantısı (resize handle binding) normal tablo için otomatik olarak gerçekleştirilir.
+- Kolon gizleme maskesi kullanıldığında gizli kolonlar render akışından çıkarılır; `redistribute_hidden_widths(...)` ve `redistribute_hidden_fractions(...)`, gizlenen kolonların oranlı genişlik bütçesini görünür kolonlara dağıtır. Mutlak (`Absolute`) genişlikler bu yeniden dağıtımda değiştirilmez.
 - `TableResizeBehavior::None`, ilgili bölücü (divider) yönünde yeniden boyutlandırma yayılımını engeller.
 - `TableResizeBehavior::Resizable`, varsayılan minimum sınırla boyutlandırmaya izin verir.
 - `TableResizeBehavior::MinSize(value)`, redistributable algoritmasında minimum kolon oranı olarak değerlendirilir.
@@ -654,14 +662,15 @@ Temel API:
 - `TableRenderContext::for_column_widths(column_widths, use_ui_font)`:
   - `column_widths`: `Option<TableRow<Length>>`. `None` verildiğinde hücreler sabit bir genişlik almaz. Redistributable veya resizable bir durum üzerinden geliyorsa `columns_state.read(cx).widths_to_render()` çağrısıyla beslenir.
   - `use_ui_font`: `true` olduğunda hücre içeriği `text_ui(cx)` ile çizilir; `false` olduğunda font ailesi üst öğeden miras alınır. `Table::no_ui_font()` ile kapatılan davranışla aynıdır. CSV önizleme, monospace bir görünüm için bu değeri `false` yapar.
-  - `striped`, `show_row_borders`, `show_row_hover`, `total_row_count`, `disable_base_cell_style`, `map_row`, `pinned_cols` ve `h_scroll_handle` alanları, `Default::default()` benzeri varsayılanlarla doldurulur. Özel bir görünüm gerekiyorsa `for_column_widths(...)` çıktısı üzerinden ilgili alanlar değiştirilebilir.
+  - `striped`, `show_row_borders`, `show_row_hover`, `total_row_count`, `disable_base_cell_style`, `map_row`, `pinned_cols`, `column_filter` ve `h_scroll_handle` alanları, `Default::default()` benzeri varsayılanlarla doldurulur. Özel bir görünüm gerekiyorsa `for_column_widths(...)` çıktısı üzerinden ilgili alanlar değiştirilebilir.
+- `TableRenderContext::with_column_filter(column_filter)`, düşük seviyeli header/row render akışında aynı kolon görünürlük maskesini bağlama ekler.
 - `render_table_header(headers, table_context, resize_info, entity_id, cx) -> AnyElement`.
 - `render_table_row(row_index, items, table_context, window, cx)`.
 - `HeaderResizeInfo::from_redistributable(&columns_state, cx)`.
 - `HeaderResizeInfo::from_resizable(&columns_state, cx)`.
 - `resize_behavior: TableRow<TableResizeBehavior>` public alanı, header hücresinin resizable olup olmadığını okumak için kullanılır. İlgili kolon durumu public bir alan değildir; sıfırlama ve durum güncelleme işlemleri için `reset_column(...)` çağrısı gerçekleştirilir.
-- `bind_redistributable_columns(container, columns_state)`.
-- `render_redistributable_columns_resize_handles(&columns_state, window, cx)`.
+- `bind_redistributable_columns(container, columns_state, hidden)`.
+- `render_redistributable_columns_resize_handles(&columns_state, hidden, window, cx)`.
 
 Düşük seviye tablo yardımcıları:
 
@@ -669,8 +678,9 @@ Düşük seviye tablo yardımcıları:
 | :-- | :-- |
 | `TableRenderContext` | Header ve satır render'ı için kolon genişlikleri, font seçimi, stripe/border/hover davranışı, pinned kolon ve yatay scroll handle bilgisini taşır. |
 | `HeaderResizeInfo` | Header hücresinin resize davranışını ve kolon sıfırlama akışını bağlamak için redistributable veya resizable durumdan üretilir. |
-| `bind_redistributable_columns` | Redistributable kolon durumunu sürükleme önizlemesi ve bırakma kaydetme (drop commit) davranışıyla kapsayıcıya bağlar. |
-| `render_redistributable_columns_resize_handles` | Redistributable kolon bölücü/tutamak katmanlarını (divider/handle overlay) üretir. |
+| `bind_redistributable_columns` | Redistributable kolon durumunu sürükleme önizlemesi ve bırakma kaydetme (drop commit) davranışıyla kapsayıcıya bağlar; `hidden` maskesi varsa sürükleme geometrisi görünür kolonlara göre hesaplanır. |
+| `render_redistributable_columns_resize_handles` | Redistributable kolon bölücü/tutamak katmanlarını (divider/handle overlay) üretir; `hidden` maskesi varsa gizli kolonlar için spacer veya divider çizilmez. |
+| `is_column_hidden`, `redistribute_hidden_widths`, `redistribute_hidden_fractions` | Kolon görünürlük maskesini okumak ve gizli kolonların oranlı genişliğini görünür kolonlara dağıtmak için kullanılan düşük seviye yardımcılardır. |
 | `render_table_header` | Doğrulanmış header hücreleri, render bağlamı (context) ve opsiyonel resize bilgisiyle tablo header element'i üretir. |
 | `render_table_row` | Satır indeksi, hücreler ve `TableRenderContext` üzerinden tablo gövde satırını render eder. |
 
@@ -690,7 +700,10 @@ fn ozel_tablo_basligi_render(
     cx: &mut App,
 ) -> impl IntoElement {
     let genislikler = kolonlar.read(cx).widths_to_render();
-    let baglam = TableRenderContext::for_column_widths(Some(genislikler), true);
+    let gizli_kolonlar: Option<TableRow<bool>> = None;
+    let baglam =
+        TableRenderContext::for_column_widths(Some(genislikler), true)
+            .with_column_filter(gizli_kolonlar.clone());
     let resize_bilgisi = HeaderResizeInfo::from_redistributable(kolonlar, cx);
 
     bind_redistributable_columns(
@@ -710,8 +723,14 @@ fn ozel_tablo_basligi_render(
                 Some(kolonlar.entity_id()),
                 cx,
             ))
-            .child(render_redistributable_columns_resize_handles(kolonlar, window, cx)),
+            .child(render_redistributable_columns_resize_handles(
+                kolonlar,
+                gizli_kolonlar.as_ref(),
+                window,
+                cx,
+            )),
         kolonlar.clone(),
+        gizli_kolonlar,
     )
 }
 ```
@@ -722,8 +741,8 @@ Zed içinden kullanım örnekleri:
 
 Dikkat Edilmesi Gereken Hususlar:
 
-- `bind_redistributable_columns(...)`, sürükleme hareketi sırasında önizleme genişliğini günceller ve bırakma anında kaydeder.
-- `render_redistributable_columns_resize_handles(...)`, kolon durumundan bölücüleri üretir; kapsayıcının `relative()` olması tutamak yerleşimini çok daha öngörülebilir hâle getirir.
+- `bind_redistributable_columns(...)`, sürükleme hareketi sırasında önizleme genişliğini günceller ve bırakma anında kaydeder. `hidden` parametresi `None` olduğunda tüm kolonlar görünür kabul edilir.
+- `render_redistributable_columns_resize_handles(...)`, kolon durumundan bölücüleri üretir; kapsayıcının `relative()` olması tutamak yerleşimini çok daha öngörülebilir hâle getirir. `hidden` maskesi aynı `TableRenderContext` ile paylaşılmalıdır; aksi halde header, satır ve resize overlay aynı kolon setini görmez.
 - `render_table_header(...)` içinde çift tıklama ile kolon sıfırlama davranışı `HeaderResizeInfo` üzerinden bağlanır.
 - Header ve row için aynı `TableRenderContext` genişlik modelinin kullanılması zorunludur; aksi takdirde hücreler hizalanamaz.
 - Sabitlenmiş kolonlu özel bir render akışı kuruluyorsa, `TableRenderContext.pinned_cols` ile `TableRenderContext.h_scroll_handle` birlikte ayarlanmalıdır. Normal `Table::pin_cols(...)` kullanımı bu iki alanı kendi içinde zaten doldurur. Kaydırılabilir satır ve başlık bölümleri `overflow_x_scroll()` ile aynı handle'ı takip eder; ayrıca resize sürükleme koordinatı bu yatay kaydırma farkına göre düzeltilir.

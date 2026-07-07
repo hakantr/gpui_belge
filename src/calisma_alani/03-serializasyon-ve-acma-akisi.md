@@ -1,5 +1,11 @@
 # Serileştirme, OpenOptions, ProjectItem ve SearchableItem
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
+- [x] Doğrulanan workspace açma yüzeyi: `MultiWorkspace::find_or_create_workspace_with_source_workspace`, `workspace_for_paths_excluding`, `OpenMode::Activate` ve `WorkspaceMatching`.
+- [x] Kaynak doğrulama dosyaları: `crates/workspace/src/multi_workspace.rs` ve `crates/workspace/src/multi_workspace_tests.rs`.
+
 Çalışma alanında öğe (item) açma yalnız `Pane::add_item` çağrısından ibaret değildir. Zed oturum geri yükleme, project item çözme, search bar ve collab follow gibi katmanlar da item trait'leri üzerinden bağlanır.
 
 ---
@@ -75,6 +81,8 @@ workspace::register_serializable_item::<BenimOgem>(cx);
 
 `OpenMode::Activate` `NewWindow` gibi hedef pencereyi öne getirir. Varsayılan CLI davranışında `-n`, `-a` veya `-r` verilmeden klasör açmak mevcut pencerenin Threads sidebar'ına yeni bir project olarak ekler. `cli_default_open_behavior = "new_window"` seçildiğinde yollar yeni pencerede açılır; ancak verilen yollar mevcut bir projenin alt yollarıysa `MatchSubpaths` eşleşmesi mevcut workspace'i hedefleyebilir. CLI kaynaklı açma kararları `cli_default_open_behavior`, ürün arayüzünden gelen genel açma kararları ise `default_open_behavior` ayarıyla yönlendirilir. Yeni pencere açıkça isteniyorsa CLI'da `zed -n path`, Open Recent'te değiştiricili enter tuşu veya ilgili action içinde `create_new_window: Some(true)` kullanılır.
 
+`find_or_create_workspace_with_source_workspace` mevcut workspace ararken `workspace_for_paths_excluding` hattını kullanır. `excluding` listesine alınan çalışma alanları yol eşleşmesi üretse bile yeniden etkinleştirilmez; böylece discard edilen draft workspace veya kapatılma sürecindeki workspace, yeni açma isteğinin hedefi olmaz. Eşleşme bulunmazsa akış yeni workspace oluşturma yoluna devam eder.
+
 `OpenResult { window, workspace, opened_items }` üst seviye açma sonucudur. İç çalışma alanı açma fonksiyonları çoğunlukla `Task<Result<Box<dyn ItemHandle>>>` veya çoklu yol için `Task<Vec<Option<Result<Box<dyn ItemHandle>>>>>` döndürür.
 
 Yol bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve dizin kararı doğrudan `worktree.root_entry()` üzerinden verilir. Bu özellikle uzak worktree'lerde önemlidir: local olmayan worktree için yerel dosya sistemi `fs.is_dir(abs_path)` fallback'ine güvenilmez. Root entry dizinse açma akışı onu dosya gibi aktif öğe yapmaya çalışmaz; sidebar/project ekleme sonucu deterministik kalır.
@@ -106,6 +114,7 @@ Yol bir worktree köküne denk geldiğinde `project_path.path` boş gelir ve diz
 | `SERIALIZATION_THROTTLE_TIME`, `delete_unloaded_items`, `apply_restored_multiworkspace_state`, `restore_multiworkspace` | Oturum serileştirme (session serialization) debounce sabiti, yüklenmeyenleri temizleme (unload cleanup) ve multi-workspace geri yükleme yardımcılarıdır. |
 | `last_opened_workspace_location`, `last_session_workspace_locations`, `remote_workspace_position_from_db` | DB veya oturum durumundan son yerel/uzak workspace konumlarını okur. |
 | `workspace_windows_for_location`, `find_existing_workspace`, `get_any_active_multi_workspace`, `activate_any_workspace_window` | Açma isteği için yeniden kullanılabilecek pencere/workspace'i bulur veya aktif pencereye geçer. |
+| `workspace_for_paths_excluding` | Path listesi için mevcut workspace arar; `excluding` listesinde bulunan workspace entity'lerini aday kümenin dışında tutar. |
 | `with_active_or_new_workspace`, `open_new`, `prompt_for_open_path_and_open` | Aktif workspace'i kullanma, yeni pencere açma veya kullanıcıdan yol isteyip açma akışlarını başlatır. |
 | `create_and_open_local_file`, `open_remote_project_with_new_connection`, `open_remote_project_with_existing_connection` | Yerel yeni dosya oluşturup açma ve uzak proje bağlantısını yeni veya mevcut bağlantıyla açma yardımcılarıdır. |
 | `register_project_item`, `clone_active_item`, `move_item`, `move_active_item` | Project item tiplerini kaydeder; aktif öğe klonlama/taşıma işlemlerinin çalışma alanı tarafındaki düşük seviyeli girişleridir. |

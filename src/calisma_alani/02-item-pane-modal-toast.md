@@ -1,5 +1,11 @@
 # Item, Pane, Modal, Toast ve Notification Sistemi
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
+- [x] Doğrulanan pane yüzeyi: `dirty_message_for`, `MarkdownInlineCode`, `SaveIntent` ve dirty item kapatma uyarısı.
+- [x] Kaynak doğrulama dosyası: `crates/workspace/src/pane.rs`.
+
 GPUI bir UI framework'üdür. Zed'in çalışma alanı katmanı bunun üstünde tab/pane, modal, toast ve bildirim akışlarını standartlaştırır. Yeni bir editör benzeri panel veya komut yazarken bu sözleşmelerin bilinmesi gerekir.
 
 ![Item, Pane, Modal ve Notification Akışı](assets/item-pane-modal-notification.svg)
@@ -40,6 +46,8 @@ pub trait Item: Focusable + EventEmitter<Self::Event> + Render + Sized {
 `ItemHandle` boxed veya dyn karşılığıdır; pane API'leri çoğunlukla `Box<dyn ItemHandle>` ile çalışır. `to_any_view`, `to_followable_item_handle`, `to_serializable_item_handle`, `to_searchable_item_handle` ve `downgrade_item` tip silinmiş view/search/follow/serialization köprüleridir. `project_paths`, `project_entry_ids`, `project_item_model_ids`, `workspace_settings`, `item_focus_handle`, `subscribe_to_item_events`, `relay_action`, `added_to_pane`, `on_release`, `dragged_tab_content` ve `can_autosave` ise pane yaşam döngüsü, odaklanma (focus), tab sürükleme, otomatik kaydetme (autosave) ve eylem (action) yönlendirme tarafında kullanılır. `FollowableItem` collab takibi için ek bir sözleşmedir.
 
 `Item` ek davranış noktaları tab görünümü, yaşam döngüsü ve yetenek (capability) davranışını aynı trait içinde toplar. `tab_icon`, `tab_tooltip_content`, `suggested_filename`, `breadcrumb_location`, `breadcrumb_prefix`, `show_toolbar` ve `tab_extra_context_menu_actions` tab/breadcrumb arayüzünü besler. `can_save`, `can_save_as`, `is_dirty`, `capability`, `toggle_read_only`, `has_deleted_file` ve `has_conflict` save ve dosya durumu kararlarını verir. `added_to_workspace`, `pane_changed`, `discarded`, `on_removed`, `set_nav_history`, `preserve_preview`, `pixel_position_of_cursor`, `handle_drop`, `to_item_events`, `act_as_type` ve `clone_on_split` ise pane yaşam döngüsü, önizleme (preview), sürükle/bırak (drag/drop), olay çevirimi ve split davranışının genişletme noktalarıdır.
+
+Dirty item kapatma uyarısı, path metnini `MarkdownInlineCode` ile sarar. Bu nedenle `dir/__init__.py` gibi markdown vurgusu üretebilecek dosya adları uyarı metninde kod parçası olarak güvenli biçimde görünür. Path yoksa metin dosya adı üretmeye çalışmaz ve genel buffer ifadesiyle kurulur.
 
 **`active_project_path`.** `Item` trait'inde varsayılan bir yöntem olarak tanımlıdır; `ItemHandle::project_path` ise buna yönlendirilmiştir:
 

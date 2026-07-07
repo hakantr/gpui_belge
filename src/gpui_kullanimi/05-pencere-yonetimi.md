@@ -5,6 +5,8 @@
 - [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan pencere yüzeyi: `WindowOptions::is_movable` macOS özel başlık çubuğu notu ve `WindowParams::app_id` aktarımı.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs` ve `crates/gpui/src/window.rs`.
+- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
+- [x] Güncel doğrulama: `Window::set_input_region` ve `PlatformWindow::set_input_region` Wayland girdi bölgesi sözleşmesiyle eşleştirildi.
 
 ---
 
@@ -191,6 +193,7 @@ pub enum Decorations {
 | `Decorations` | `Server`, `Client { tiling }` | Pencere yöneticisi tarafından onaylanan gerçek süsleme durumunu bildirir. |
 | `Tiling` | `top`, `left`, `right`, `bottom`, `tiled`, `is_tiled` | İstemci dekorasyonunun ekran sınırlarına yapışma durumunu detaylandırır. |
 | `WindowBounds` | `Windowed`, `Maximized`, `Fullscreen`, `centered` | Pencerenin ekrandaki fiziksel boyut alanını ve durumunu temsil eder. |
+| `Window::set_input_region` / `PlatformWindow::set_input_region` | `Option<&[Bounds<Pixels>]>` | Linux Wayland üzerinde pencerenin işaretçi ve dokunma girdisi aldığı bölgeleri sınırlar. |
 
 Zed üzerindeki dekorasyon tercihi yapılandırma dosyasında tek bir alan ile ifade edilir:
 
@@ -492,7 +495,7 @@ Pencerenin durumunu ve görsel sunumunu yönetmek amacıyla kullanılan `Window`
 - **Sınır ve İçerik Ölçüleri:** `window.bounds()` aktif ekran koordinatlarını, `window.window_bounds()` pencerenin geri yüklenebilir `WindowBounds` değerini, `window.inner_window_bounds()` ise istemci inset (iç boşluk) payları hesaba katılmış iç sınırları sağlar. `window.viewport_size()` metodu ise çizilebilir güncel içerik boyutunu döndürür. `window.resize(size)` içerik boyutlarını günceller. Kalıcı pencere koordinatlarının saklanması süreçlerinde hangi sınır verisinden yararlanılacağını bu ayrım belirler.
 - **Pencere Durumu ve Yaşam Döngüsü:** `window.is_fullscreen()` ve `window.is_maximized()` metotları pencerenin o anki ekran durumunu sorgular. `window.activate_window()`, `window.minimize_window()`, `window.zoom_window()` ve `window.toggle_fullscreen()` işlevleri kullanıcıya sunulan pencere durumunu işletim sistemi üzerinden değiştirir. `window.remove_window()` ise pencereyi çalışma zamanından tamamen kaldırır. Örneğin Zed, çalışma alanının (workspace) kapatılması gibi doğrulama gerektiren süreçlerde doğrudan bu kaldırma çağrısı yerine kapatma eylemini (action) tetiklemeyi tercih eder.
 - **Başlık, Kimlik ve Arka Plan:** `window.set_window_title(title)`, `window.set_app_id(app_id)` ve `window.set_background_appearance(appearance)` metotları platform penceresinin kimlik niteliklerini ve arka plan kompozisyonlarını günceller. macOS platformunda belge düzenleme göstergeleri gerekiyorsa, `window.set_window_edited(true/false)` ile düzenleme durumu, `window.set_document_path(path)` ile ise belgenin dosya sistemi yolu sisteme bildirilebilir.
-- **Süsleme ve Hareket:** `window.show_window_menu(position)` çağrısı Linux masaüstünde başlık çubuğu bağlam menüsünü tetikler. `window.start_window_move()` ve `window.start_window_resize(edge)` metotları, özel istemci dekorasyonları tasarlanırken pencerenin taşınması ve yeniden boyutlandırılması akışlarını başlatır. `window.request_decorations(...)` istenen dekorasyon kipini iletirken, `window.window_decorations()` fiili sonucu okur; `window.window_controls()` ise platformun sunduğu buton yeteneklerini listeler.
+- **Süsleme, Hareket ve Girdi Bölgesi:** `window.show_window_menu(position)` çağrısı Linux masaüstünde başlık çubuğu bağlam menüsünü tetikler. `window.start_window_move()` ve `window.start_window_resize(edge)` metotları, özel istemci dekorasyonları tasarlanırken pencerenin taşınması ve yeniden boyutlandırılması akışlarını başlatır. `window.request_decorations(...)` istenen dekorasyon kipini iletirken, `window.window_decorations()` fiili sonucu okur; `window.window_controls()` ise platformun sunduğu buton yeteneklerini listeler. Linux Wayland üzerinde `window.set_input_region(Some(rects))`, pencerenin yalnız verilen sınırlar içinde işaretçi ve dokunma girdisi almasını sağlar; `Some(&[])` tüm işaretçi/dokunma girdisini geçirir, `None` ise pencereyi varsayılan tam girdi bölgesine döndürür.
 - **Kullanıcı Bildirimleri ve Sistem Uyarıları:** `window.prompt(...)` pencereye kenetlenmiş yerel veya özel onay pencerelerini başlatır. `window.play_system_bell()` platformun varsayılan sistem uyarı sesini (beep) tetikler; iş mantığı hatalarında büyük diyalog pencereleri açmak yerine hızlı bir kullanıcı geri bildirimi sağlamak amacıyla tercih edilir.
 
 macOS yerel pencere sekmelerine yönelik ek API ailesi, işletim sistemi düzeyindeki sekme gruplarını yönetir:
