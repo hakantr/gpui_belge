@@ -5,6 +5,9 @@
 - [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
 - [x] Doğrulanan UI yardımcı yüzeyi: `VectorName::VipStamp`.
 - [x] Kaynak doğrulama dosyası: `crates/ui/src/components/image.rs`.
+- [x] Ek kaynak commit aralığı: `6e9ff7a4f31a..e7311d52ba1b`.
+- [x] Doğrulanan yardımcı yüzey: `Divider`, `DividerColor` ve grup yardımcıları.
+- [x] Ek kaynak doğrulama dosyası: `crates/ui/src/components/divider.rs`.
 
 Bu bölümdeki bileşenler tek bir amaca hizmet eden küçük yapı taşlarıdır. Çoğunlukla görsel bir yardımcı, klavye ipucu veya gezinti yüzeyi sunarlar. Liste satırı, araç çubuğu, panel başlığı veya boş durum gibi alanlarda önceki bölümlerdeki büyük bileşenlerin yanında sıkça tercih edilirler. Küçük görünseler de ekranın okunabilirliğini ve etkileşim kalitesini doğrudan etkilerler.
 
@@ -272,7 +275,7 @@ Kaynak:
 
 - Divider: `ui` crate'i
 - Grup yardımcıları: `ui` crate'i
-- Export: `ui::Divider`, `ui::DividerColor`, `ui::divider`, `ui::vertical_divider`, `ui::h_flex`, `ui::v_flex`, `ui::h_group*`, `ui::v_group*`.
+- Export: `ui::Divider`, `ui::DividerColor`, `ui::h_flex`, `ui::v_flex`, `ui::h_group*`, `ui::v_group*`.
 - Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Divider`.
 
@@ -280,7 +283,7 @@ Tavsiye Edilen Kullanım Alanları:
 
 - Aynı panel içinde iki görsel grubu ince bir çizgiyle ayırmak için `Divider`.
 - Araç çubukları, üstveriler veya kısa yığın düzenlerinde tutarlı küçük boşluklar için `h_group*` ve `v_group*`.
-- Basit yardımcı fonksiyonuyla hızlı bölücü üretmek için `divider()` veya `vertical_divider()`.
+- Basit ayırıcı üretmek için `Divider::horizontal()` veya `Divider::vertical()`.
 
 Tercih Edilmemesi Gereken Durumlar:
 
@@ -294,7 +297,6 @@ Temel API:
 - `.inset()` divider'ın kendi yönüne göre iç kenar boşluğu (margin) uygular.
 - `.color(DividerColor::Border | BorderFaded | BorderVariant)`.
 - `Divider` `Styled` uygular; `.inset()`/`.color(...)` dışındaki genişlik, kenar boşluğu gibi yerleşim ince ayarları doğrudan `gpui` stil zinciriyle eklenir.
-- `divider()` yatay solid divider, `vertical_divider()` dikey solid divider döndürür.
 - `h_flex()` yatay bir esnek kutu kapsayıcısı döndürür ve `items_center()` uygular. `v_flex()` ise dikey bir esnek kutu kapsayıcısı döndürür. Bunlar sırasıyla `div().h_flex()` ve `div().v_flex()` çağrılarını daha okunabilir hale getiren temel kısayollardır.
 - `h_group_sm()`, `h_group()`, `h_group_lg()`, `h_group_xl()` sırasıyla yaklaşık 2px, 4px, 6px, 8px yatay boşluk (gap) verir.
 - `v_group_sm()`, `v_group()`, `v_group_lg()`, `v_group_xl()` aynı ölçeği dikey esnek kutu kapsayıcısı için uygular.
@@ -303,9 +305,8 @@ Divider ve grup yardımcıları tablosu:
 
 | API | Rol |
 | :-- | :-- |
+| `Divider` | `horizontal`, `vertical`, `horizontal_dashed` ve `vertical_dashed` yapıcılarıyla görsel ayırıcı üretir. |
 | `DividerColor` | Bölücü rengini `Border`, `BorderFaded` veya `BorderVariant` tema belirteçlerinden seçer. |
-| `divider` | Yatay solid divider üretir; kısa araç çubuğu veya panel ayrımlarında `Divider::horizontal()` kısayoludur. |
-| `vertical_divider` | Dikey solid divider üretir; üst öğe yüksekliği belirli ise araç çubuğu ayrımı için kullanılır. |
 | `v_group_sm` | Dikey esnek kutu kapsayıcısına küçük, yaklaşık 2px boşluk verir. |
 | `v_group_lg` | Dikey esnek kutu kapsayıcısına orta-büyük, yaklaşık 6px boşluk verir. |
 | `v_group_xl` | Dikey esnek kutu kapsayıcısına büyük, yaklaşık 8px boşluk verir. |
@@ -332,7 +333,7 @@ fn arac_cubugu_ayirici_render() -> impl IntoElement {
 
 Dikkat Edilmesi Gereken Hususlar:
 
-- Dikey divider'ın görünmesi için üst öğenin yüksekliği belirli olmalıdır; aksi halde `h_full()` hizalama için anlamlı bir alan bulamayabilir.
+- Dikey divider varsayılan olarak `h_4()` yüksekliğiyle gelir. Tüm araç çubuğu yüksekliğini dolduran bir çizgi gerekiyorsa `.h_full()` gibi açık bir GPUI stil metodu zincire eklenir.
 - Grup yardımcıları yoğun ve kısa UI parçaları içindir. Form, modal veya liste bölümlerinde (sections) `DynamicSpacing` ile açık boşluk seçmek daha okunabilir sonuçlar verir.
 
 ## Vector ve Görsel Kullanımı

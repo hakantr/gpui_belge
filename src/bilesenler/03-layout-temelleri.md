@@ -1,5 +1,11 @@
 # 3. Layout Temelleri
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `6e9ff7a4f31a..e7311d52ba1b`.
+- [x] Doğrulanan yerleşim yüzeyi: `Divider`, `DividerColor` ve `Divider::vertical()` geometri varsayılanı.
+- [x] Kaynak doğrulama dosyası: `crates/ui/src/components/divider.rs`.
+
 Layout yardımcıları, GPUI'nin `div()` çağrısının üstüne Zed'de sık kullanılan flex ve ayırıcı kalıplarını ekleyen küçük yapı taşlarıdır. Bunlar tam anlamıyla yüksek seviye bileşen sayılmaz. Daha çok, layout kurarken sürekli tekrar eden stil zincirlerini kısa ve okunur hale getirmek için vardır. İçerik semantiği taşımazlar, kendi başlarına durum yönetmezler; işleri görsel düzeni hızlı ve tutarlı biçimde kurmaktır.
 
 Farklı durumlarda hangi düzen yardımcısının tercih edileceğine karar verirken aşağıdaki yol haritası faydalı olacaktır:
@@ -158,7 +164,7 @@ Dikkat edilmesi gereken noktalar:
 Kaynak:
 
 - Tanım: `ui` crate'i
-- Export: `ui::Divider`, `ui::DividerColor`, `ui::divider`, `ui::vertical_divider`
+- Export: `ui::Divider`, `ui::DividerColor`
 - Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: `impl Component for Divider`.
 
@@ -166,7 +172,7 @@ Ne zaman kullanılır:
 
 - Panel, modal, araç çubuğu (toolbar) veya listelerde görsel bir ayırıcı hat çizmek için.
 - Aynı kapsayıcı içinde yer alan iki içeriği ince bir kenarlık (border) rengiyle ayırmak amacıyla.
-- Kesik çizgili bir ayırıcı gerektiğinde dashed yapıcı metotlar (constructors) ile.
+- Kesik çizgili bir ayırıcı gerektiğinde dashed yapıcı metotlar ile.
 
 Ne zaman kullanılmaz:
 
@@ -176,8 +182,7 @@ Ne zaman kullanılmaz:
 
 Temel API:
 
-- Helper constructor'lar: `divider()`, `vertical_divider()`.
-- Associated constructor'lar: `Divider::horizontal()`, `Divider::vertical()`, `Divider::horizontal_dashed()`, `Divider::vertical_dashed()`.
+- Yapıcılar: `Divider::horizontal()`, `Divider::vertical()`, `Divider::horizontal_dashed()`, `Divider::vertical_dashed()`.
 - Builder'lar: `.inset()`, `.color(DividerColor)`.
 - `Divider` yapısı `Styled` implement eder; temel geometrinin üzerine genişlik, kenar boşluğu gibi `gpui` stil metotları (`.w_full()`, `.mx_2()`, `.max_w(...)` vb.) doğrudan zincirlenebilir. `.inset()` veya `.color(...)` ile karşılanamayan ince yerleşim ayarları bu şekilde gerçekleştirilir.
 - `DividerColor`: `Border`, `BorderFaded`, `BorderVariant` (varsayılan).
@@ -186,10 +191,21 @@ Davranış:
 
 - Varsayılan renk `DividerColor::BorderVariant`'tır; yani ayırıcı sahnenin içine fazla bağırmaz.
 - Düz (solid) ayırıcı, arka planda `Divider::render_solid(base, cx)` yöntemiyle `bg(...)` uygulanarak çizilir.
-- Kesikli (dashed) ayırıcı ise `Divider::render_dashed(base)` içinde `canvas(...)` and `PathBuilder::stroke(px(1.)).dash_array(...)` kullanılarak çizilir; bu nedenle düz olana kıyasla performansı daha fazla etkileyen bir çizim sürecine sahiptir.
-- Yatay (horizontal) ayırıcı geometri olarak `min_w_0().h_px().max_h_px().w_full()`, dikey (vertical) ayırıcı ise `min_w_0().w_px().h_full()` kullanır; bu temel geometri kurulduktan sonra özel stil zinciri bunun üzerine eklenir. Yatay ayırıcıdaki `max_h_px()` ifadesi, üzerine eklenen stil çizgiyi kalınlaştırmaya çalışsa bile yatay ayırıcının 1 piksellik yüksekliğini korur.
+- Kesikli (dashed) ayırıcı ise `Divider::render_dashed(base)` içinde `canvas(...)` ve `PathBuilder::stroke(px(1.)).dash_array(...)` kullanılarak çizilir; bu nedenle düz olana kıyasla daha maliyetli bir çizim sürecine sahiptir.
+- Yatay (horizontal) ayırıcı geometri olarak `min_w_0().h_px().max_h_px().w_full()`, dikey (vertical) ayırıcı ise `min_w_0().w_px().h_4()` kullanır; bu temel geometri kurulduktan sonra özel stil zinciri bunun üzerine eklenir. Yatay ayırıcıdaki `max_h_px()` ifadesi, üzerine eklenen stil çizgiyi kalınlaştırmaya çalışsa bile yatay ayırıcının 1 piksellik yüksekliğini korur.
 - `.inset()` çağrısı horizontal divider'da `mx_1p5()`, vertical divider'da `my_1p5()` ekler; yani kenarlardan içeri çekme davranışı sağlar.
-- Vertical divider'ın görünür olabilmesi için parent kapsayıcının belirli bir yüksekliği olması veya yüksekliğin içerikten otomatik türemesi gerekir; aksi halde dikey çizgi 0 boy alıp kaybolur.
+- Vertical divider varsayılan olarak kısa bir ayırıcı çizgi üretir. Araç çubuğu yüksekliğini tamamen doldurması gerekiyorsa `.h_full()` gibi bir GPUI stil metodu zincire eklenir; kısa footer ve toolbar ayrımlarında varsayılan `h_4()` ölçüsü yeterlidir.
+
+### `DividerColor`
+
+`DividerColor`, ayırıcı çizginin tema renklerinden hangisine bağlanacağını belirler. `Border` doğrudan tema sınır rengini, `BorderFaded` aynı rengin daha düşük opaklıklı halini, `BorderVariant` ise varsayılan daha yumuşak sınır varyantını kullanır. Renk seçimi `.color(...)` builder'ı ile yapılır; iç çizim tarafında `.hsla(cx)` metodu aktif temadaki `Hsla` değerini döndürür.
+
+| API | Rol |
+| :-- | :-- |
+| `Border` | Tema sınır rengini doğrudan kullanır. |
+| `BorderFaded` | Tema sınır rengini daha düşük opaklıkla kullanır. |
+| `BorderVariant` | Varsayılan, daha yumuşak ayırıcı rengidir. |
+| `hsla(cx)` | Seçili varyantı aktif tema üzerinden `Hsla` değerine çevirir. |
 
 Örnek:
 

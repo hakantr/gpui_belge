@@ -5,6 +5,9 @@
 - [x] Kaynak commit aralığı: `d0802abdecad..6e9ff7a4f31a`.
 - [x] Doğrulanan picker yüzeyi: `PreviewBackend`, `PreviewLayout`, `Preview::new`, `PreviewSource::Symbol`, `PreviewUpdate::from_symbol`, `Picker::uniform_list_with_preview`, `Picker::list_with_preview` ve `Picker::reopenable`.
 - [x] Kaynak doğrulama dosyaları: `crates/picker/src/picker.rs`, `crates/picker/src/preview.rs`, `crates/picker/src/render.rs`, `crates/picker/src/persistence.rs` ve `crates/workspace/src/modal_layer.rs`.
+- [x] Ek kaynak commit aralığı: `6e9ff7a4f31a..e7311d52ba1b`.
+- [x] Doğrulanan picker davranışı: `Picker::new(...)` kurulumunda `PickerDelegate::preview_layout_changed(...)` ilk preview yönüyle çağrılır.
+- [x] Ek kaynak doğrulama dosyası: `crates/picker/src/picker.rs`.
 
 `picker` crate'i, komut paleti dışında da kullanılan genel bir seçim ve arama bileşenidir. Dosya bulucu, branch seçici, command palette, model seçici ve fuzzy seçim gerektiren her türlü kullanıcı arayüzü (UI) bunun üzerine kurulur. Bu yapı, yeniden kullanılabilir bir GPUI bileşeni olarak `bilesenler/` bölümünde yer alır.
 
@@ -32,6 +35,10 @@ pub trait PickerDelegate: Sized + 'static {
 
 Minimum uygulama bu dokuz metottan ibarettir. `name()` değeri picker'ın kalıcı ayar anahtarıdır; delegate tipinin Rust adından türetilmez, çünkü tip yeniden adlandırmaları kullanıcıya ait preview yerleşimi gibi kalıcı tercihleri bozabilir. Picker arama kutusuna yazılan her tuş vuruşunda `update_matches` metodunu asenkron olarak çağırır; mevcut eşleşme durumu hemen işlenir, task tamamlandığında da liste tekrar güncellenir.
 
+### `preview_layout_changed`
+
+`preview_layout_changed(layout_is_horizontal)` metodu, preview yönüne göre satırların ve footer eylemlerinin uyarlanması gereken picker'larda kullanılır. Preview destekli picker kurulduğunda delegate bu bildirimi ilk yerleşim yönüyle alır; kullanıcı `SetPreviewRight`, `SetPreviewBelow`, `SetPreviewHidden` veya `TogglePreview` eylemleriyle yönü değiştirdiğinde aynı metot yeni yön bilgisiyle tekrar çağrılır. Parametre `true` olduğunda preview sağdadır; `false` değeri preview altta ya da gizli olduğunda kullanılır.
+
 ---
 
 ## Sık Üzerine Yazılan Davranışlar
@@ -44,7 +51,7 @@ Picker, farklı senaryolara uyum sağlamak amacıyla opsiyonel ek davranış nok
 - `searchbar_trailer(window, cx)`: Arama çubuğunun sağ ucuna filtre, toggle veya küçük action elementi ekler; tüm arama kutusu yeniden çizilecekse `render_editor(...)` daha geniş yüzey sağlar.
 - `no_matches_text(...)`, `render_header(...)`, `render_footer(...)`: Boş durum ile sabit üst ve alt alanlardır. Footer normalde yalnız `render_footer(...)` döndüğünde veya preview etkin olduğunda görünür.
 - `render_editor(editor, window, cx)`: Varsayılan arama kutusu kabını değiştirir; özel iç kenar boşluğu (padding), bölücü (divider) veya kompozisyon gerekiyorsa kullanılır.
-- `try_get_preview_data_for_match(cx) -> Option<PreviewUpdate>` ve `preview_layout_changed(layout_is_horizontal)`: Seçili eşleşme için preview içeriğini ve preview sağda/aşağıda konumlandığında satır render uyarlamasını yönetir.
+- `try_get_preview_data_for_match(cx) -> Option<PreviewUpdate>` ve `preview_layout_changed(layout_is_horizontal)`: Seçili eşleşme için preview içeriğini ve preview sağda/aşağıda konumlandığında satır render uyarlamasını yönetir. Preview destekli picker kurulduğunda delegate bu metodu ilk yerleşim yönüyle de alır; böylece ilk satır çizimi kalıcı preview yönüyle uyumlu başlar.
 - `actions_menu(window, cx) -> Vec<PickerAction>`: Footer içinde `Actions` menüsü açılmasını sağlar; preview yönü, gizleme/gösterme veya delegate'e özel eylemler bu listeyle sunulur.
 - `documentation_aside(...)` ve `documentation_aside_index()`: Seçili veya üzerinde durulan (hover) öğe için sağda dokümantasyon paneli göstermek amacıyla tercih edilir.
 - `confirm_update_query(...)`, `confirm_input(...)`, `confirm_completion(...)`: Enter tuşunun seçimi onaylamak yerine sorguyu dönüştürdüğü veya doğrudan girdiyi eyleme (action) çevirdiği picker türleridir.
@@ -65,7 +72,7 @@ Picker üretmek için aramalı, aramasız ve preview destekli altı yapıcı mev
 - `Picker::list_with_preview(temsilci, preview, window, cx)`: Değişken satır yüksekliğiyle çalışan ve preview paneli taşıyan picker üretir. Satır yüksekliği değişen sonuçlarda bu yapıcı tercih edilir.
 - `Picker::nonsearchable_uniform_list(...)` ve `Picker::nonsearchable_list(...)`: Arama kutusu olmayan seçim listeleridir.
 
-`uniform_list` varyantı `gpui::uniform_list` üzerinde sanallaştırma kullandığı için çok büyük listelerde tercih edilir. `list` varyantı ise `ListState` tabanlıdır; değişken satır yükseklikleri ölçülürken `list_measure_all()` ile her satır önceden ölçtürülür. Preview'lu constructor'lar preview içeriğini doğrudan `Arc<dyn PreviewBackend>` üzerinden alır; dosya, buffer veya özel mesaj gösterimi bu arka ucun `update`, `render`, `adjust_to_new_size` ve `clear` metotlarında bağlanır.
+`uniform_list` varyantı `gpui::uniform_list` üzerinde sanallaştırma kullandığı için çok büyük listelerde tercih edilir. `list` varyantı ise `ListState` tabanlıdır; değişken satır yükseklikleri ölçülürken `list_measure_all()` ile her satır önceden ölçtürülür. Preview'lu yapıcılar preview içeriğini doğrudan `Arc<dyn PreviewBackend>` üzerinden alır; dosya, buffer veya özel mesaj gösterimi bu arka ucun `update`, `render`, `adjust_to_new_size` ve `clear` metotlarında bağlanır.
 
 ---
 
@@ -160,7 +167,7 @@ Picker crate'indeki dışa açık yardımcıların çoğu, `PickerDelegate` davr
 | `Picker::reopenable` | `bool`, `cx` | Modal picker'ın kapatıldıktan sonra `workspace::ReopenLastPicker` eylemiyle aynı durum korunarak görünür hale getirilip getirilmeyeceğini seçer. |
 | `TogglePreview`, `SetPreviewRight`, `SetPreviewBelow`, `SetPreviewHidden`, `ToggleActionsMenu`, `ToMultiBuffer` | Action struct | Preview paneli, actions menüsü ve preview içeriğini multi-buffer akışına taşıma davranışlarını tetikler. |
 | `RelativeWidth`, `RelativeHeight`, `ViewportFraction` | `FULL`, `viewport`, `rems`, `from_pixels`, `as_pixels` | Picker genişlik, yükseklik ve preview bölücü ölçülerini viewport oranı ile `Rems` toplamı olarak temsil eden ölçü tipleridir. |
-| `Preview` | `new`, `update`, `render`, `adjust_to_new_size` | `Arc<dyn PreviewBackend>` içeriğini taşıyan preview panelidir; picker constructor'ları tarafından oluşturulur. |
+| `Preview` | `new`, `update`, `render`, `adjust_to_new_size` | `Arc<dyn PreviewBackend>` içeriğini taşıyan preview panelidir; picker yapıcıları tarafından oluşturulur. |
 | `PreviewBackend` | `update`, `render`, `adjust_to_new_size`, `clear` | Picker listesinden bağımsız preview arka ucu sözleşmesidir; editor preview veya özel render yüzeyi bu trait üzerinden bağlanır. |
 | `PreviewLayout` | `Hidden`, `Below`, `Right` | Preview panelinin gizli, sonuçların altında veya sonuçların sağında durduğunu belirten yeniden ihraç edilen layout enum'ıdır. |
 | `PreviewSource` | `Path`, `Buffer`, `Symbol`, `Message` | Preview içeriğinin dosya yolu, hazır buffer, proje sembolü veya vurgulu mesajdan üretileceğini seçer. |
