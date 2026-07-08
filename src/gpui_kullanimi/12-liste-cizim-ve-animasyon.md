@@ -2,9 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
-- [x] Güncel doğrulama: `impl<E: ParentElement> ParentElement for AnimationElement<E>` zincirleme çocuk ekleme davranışıyla eşleştirildi.
-- [x] Kaynak doğrulama dosyası: `crates/gpui/src/elements/animation.rs`.
+- [x] Güncel kaynak commit aralığı: `693962917b5a..6b733d105896`.
+- [x] Güncel doğrulama: `ListState::with_uniform_item_height`, `ListState::reset_with_uniform_height` ve animation element çocuk ekleme davranışı eşleştirildi.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/elements/list.rs`, `crates/gpui/src/elements/animation.rs` ve rustdoc JSON snapshot kayıtları.
 
 ---
 
@@ -71,7 +71,7 @@ GPUI'de büyük listeler için iki çekirdek element vardır. İkisi farklı lis
 ![GPUI Liste API Seçim Akışı](assets/list-secim-akisi.svg)
 
 - `list(durum, ogeyi_render_et)` — item yükseklikleri değişebilir. Ölçüm önbelleği `ListState` yapısı içerisinde tutulur.
-- `uniform_list(id, item_count, render_range)` — tüm öğelerin (item) yüksekliği aynı olduğunda daha yüksek performans sağlar; ilk veya örnek öğe ölçülerek yalnızca görünür aralık çizilir.
+- `uniform_list(id, item_count, render_range)` — tüm öğelerin (item) yüksekliği aynı olduğunda daha yüksek başarım sağlar; ilk veya örnek öğe ölçülerek yalnızca görünür aralık çizilir.
 
 **Değişken yükseklikli liste.** Liste durumu view (görünüm) içerisinde tutulur ve veri seti değiştiğinde ilgili yardımcı metotlar çağrılır:
 
@@ -110,8 +110,10 @@ list(self.liste_durumu.clone(), |sira, window, cx| {
 
 - `new(item_count, alignment, overdraw)` — yapıcı.
 - `measure_all()` (consuming) — `ListMeasuringBehavior::Measure(false)` ayarlayarak scrollbar boyutunun yalnız çizilmiş elementlere değil **tüm liste** ölçümüne dayanmasını sağlar.
+- `with_uniform_item_height(height)` (consuming) — henüz ölçülmemiş tüm öğelere sabit yükseklik ipucu yazar; gerçek yükseklikler çizilen öğelerde sonradan bu ipucunun yerini alır.
 - `item_count() -> usize` — o anki item sayısı.
 - `reset(count)` — tüm item kümesi değişti.
+- `reset_with_uniform_height(count, height)` — item sayısını sıfırlayıp aynı anda tüm öğelere sabit yükseklik ipucu uygular.
 - `splice(old_range, count)` — aralık değişti; scroll offset korunur.
 - `splice_focusable(old_range, focus_handles)` — odaklanabilir öğeler sanallaştırılıyorsa focus handle dizisi iletilir; aksi takdirde görünür olmayan ve odaktaki öğe çizim dışı kalabilir.
 - `remeasure()` — font veya tema gibi tüm yükseklikleri etkileyen değişim.
@@ -130,6 +132,10 @@ list(self.liste_durumu.clone(), |sira, window, cx| {
 **Remeasure Sonrası Scroll Kararlılığı.** Değişken yükseklikli listelerde `remeasure_items(range)` çağrısı bir sonraki layout sırasında öğe yüksekliğini yeniden ölçer. Kullanıcı bu yeniden ölçüm henüz çizime yansımadan wheel, trackpad veya özel scrollbar ile kaydırma yaparsa `ListState` yeni scroll konumunu pending ölçüm düzeltmesine yeniden bağlar. Böylece eski ölçümden kalan bekleyen düzeltme, kullanıcının yeni scroll konumunu geri almaz.
 
 Bu davranış özellikle sohbet, günlük, test çıktısı veya tembel yüklenen satırların bulunduğu listelerde önemlidir. Öğenin yüksekliği ölçümden sonra küçülürse scroll offset'i ilgili öğenin yeni yüksekliğine sıkıştırılır; öğe büyürse kullanıcı scroll niyeti korunarak yeni konum hesaplanır. Veri seti tamamen değiştiğinde `reset(count)` çağrısı pending scroll bilgisini temizler; son konuma gidildiğinde `scroll_to_end()` de aynı şekilde eski bekleyen ölçüm durumunu devre dışı bırakır.
+
+**Uniform yükseklik ipucu.** Öğelerin gerçek yükseklikleri değişebilir olsa da, satırların çoğu aynı yüksekliğe yakınsa `ListState::with_uniform_item_height(height)` başlangıç scrollbar boyutunu daha doğru kurar. Bu çağrı `measure_all()` gibi tüm öğeleri ilk karede ölçmez; yalnızca ölçülmemiş öğelere `Size { width: px(0.), height }` ipucu yerleştirir. Bir öğe render edildiğinde GPUI gerçek ölçümü kaydeder ve ipuçlu değer kademeli olarak kesin ölçümle değişir.
+
+Veri kümesi tamamen değiştiğinde `reset_with_uniform_height(count, height)` aynı işin güncelleme karşılığıdır. Bu metot önce `reset(count)` davranışını uygular, ardından yeni öğe kümesine yükseklik ipucu yazar. Tablo satırları, arama sonuçları veya tek satırlık günlük kayıtları gibi tahmini satır yüksekliği bilinen ancak içerik genişliğine göre nadiren taşabilen listelerde bu yaklaşım, ilk karede scrollbar thumb boyutunun zıplamasını azaltır. Yüksekliğin gerçekten sabit olduğu listelerde ise hâlâ `uniform_list(...)` daha doğrudan seçimdir.
 
 **Autoscroll ve Negatif Offset Koruması.** Bir çocuk element `window.request_autoscroll(...)` ile görünür kalmak istediğinde istenen üst sınır, o çocuğun kendi üst kenarının da üzerine taşabilir. `ListState`, bu durumda önceki öğelere doğru geri yürüyerek `ListOffset { item_ix, offset_in_item }` değerini yeniden hesaplar. Böylece `offset_in_item` negatif kalmaz ve listenin üstünde boşluk oluşmaz. Özellikle satır içi scroll-margin etkisi veren büyük editör, terminal veya log satırlarında bu davranışın liste state'i tarafından çözüldüğü kabul edilir; uygulama kodunun ayrıca negatif offset düzeltmesi üretmesi gerekmez.
 
@@ -447,7 +453,7 @@ Lyon API'sine inmek istenirse `lyon::tessellation::FillOptions::tolerance(0.5)` 
 
 **Dikkat Noktaları.** Path çizimlerinde dikkat edilmesi gereken hususlar:
 
-- Her karede (frame) yeni path inşa etmek performansı (FPS) düşürür. Mümkün olan durumlarda prepaint aşamasında inşa edilip paint aşamasında yalnızca çizilmelidir.
+- Her karede (frame) yeni path inşa etmek başarımı (FPS) düşürür. Mümkün olan durumlarda prepaint aşamasında inşa edilip paint aşamasında yalnızca çizilmelidir.
 - Path bounds dışına taşan kısımlar kırpılmaz; bu durumlarda `paint_layer` ile manuel kırpma uygulanmalıdır.
 - Stroke genişliği mantıksal Pixels'dir; yüksek çözünürlüklü (DPI) ekranlarda çok ince kalmaması için `px(1.0).max(...)` gibi alt sınır sınırlandırmaları tercih edilir.
 
@@ -528,7 +534,7 @@ window.paint_quad(outline(sinirlar, rgb(0xff0000), BorderStyle::Solid));
 **Dikkat Noktaları.** Paint çağrılarında dikkat edilmesi gereken hususlar:
 
 - `paint_*` çağrıları yalnız `Element::paint` fazında geçerlidir; GPUI kaynak kodu bunu `debug_assert_paint()` ile denetler.
-- `paint_path` her karede yeniden tessellate edilirse performans (FPS) olumsuz etkilenir; mümkünse path yapısının prepaint aşamasında oluşturulup element durumunda (state) saklanması önerilir.
+- `paint_path` her karede yeniden tessellate edilirse başarım (FPS) olumsuz etkilenir; mümkünse path yapısının prepaint aşamasında oluşturulup element durumunda (state) saklanması önerilir.
 - `paint_layer` kırpma uyguladığı için içerik sınırlarının dışına taşan kısımlar gizlenir; gölge gibi dışarı taşan efektlerin katman dışında çizilmesi gerekir.
 - `border_widths` dört kenara ayrı değer verebilir (`Edges { top, right, bottom, left }`); tek bir değer tanımlanmak istendiğinde `Edges::all(px(1.))` tercih edilir.
 

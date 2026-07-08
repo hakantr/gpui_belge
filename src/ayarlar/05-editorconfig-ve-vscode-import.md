@@ -6,7 +6,7 @@
 
 ## `EditorconfigStore`
 
-`EditorconfigStore`, EditorConfig spesifikasyonunu (`ec4rs` kütüphanesi aracılığıyla) çalışma zamanında çözümler. Store, her worktree'nin dahili (`InWorktree`) ve harici (`OutsideWorktree`) EditorConfig dosyalarını ayrı ayrı tutar. Aynı harici dosya birden çok worktree tarafından paylaşılıyorsa, performans kazanımı için yalnızca bir kez ayrıştırılır (parse edilir).
+`EditorconfigStore`, EditorConfig spesifikasyonunu (`ec4rs` kütüphanesi aracılığıyla) çalışma zamanında çözümler. Store, her worktree'nin dahili (`InWorktree`) ve harici (`OutsideWorktree`) EditorConfig dosyalarını ayrı ayrı tutar. Aynı harici dosya birden çok worktree tarafından paylaşılıyorsa, başarım kazanımı için yalnızca bir kez ayrıştırılır (parse edilir).
 
 ```rust
 pub struct EditorconfigStore {
@@ -116,10 +116,13 @@ Renk okumak için özel bir metot bulunmamaktadır; VS Code `editor.semanticToke
 | `editor.fontFamily` | `buffer_font_family` / `buffer_font_fallbacks` |
 | `editor.insertSpaces` | `hard_tabs` ters değeri |
 | `files.eol` | `line_ending` |
+| `editor.formatOnSave` + `editor.formatOnSaveMode` | `format_on_save` |
 | `workbench.editor.enablePreview` | `preview_tabs.enabled` |
 | `telemetry.telemetryLevel` | `telemetry.metrics` / `telemetry.diagnostics` |
 
 `lsp_document_links` ayarı (VS Code tarafında `editor.links`), editörde sunucu bazlı belge bağlantısı sorgularını açıp kapatır ve varsayılan değeri `true`'dur. VS Code bu özelliği `editor.links` anahtarıyla taşır; Zed içe aktarma sürecinde bu boolean değeri olduğu gibi devralır. Bu ayar `EditorSettings` alanıdır ve çalışma zamanında değiştirildiğinde editör yeniden bağlantı listesi talep eder veya mevcut listeyi temizler. Etkin olduğunda, dil sunucusunun (LSP) döndürdüğü belge bağlantıları, editörün buluşsal yöntemle (heuristic) bulduğu dosya ve URL bağlantılarından önce gelir; böylece sunucu bir alanı tıklanabilir olarak işaretlemişse daha kesin ve güvenilir hedefler gösterilir.
+
+`editor.formatOnSave` kapalıysa VS Code tarafındaki `editor.formatOnSaveMode` tek başına aktarım üretmez. `editor.formatOnSave` açık olduğunda `"file"` veya eksik mode değeri Zed tarafında `"on"` sonucunu verir; `"modifications"` değeri `"modifications"`, `"modificationsIfAvailable"` değeri ise `"modifications_if_available"` biçimine çevrilir. Bu eşleme Zed'in `FormatOnSave` enum'unun `snake_case` JSON değerleriyle birebir uyumludur.
 
 Eşleşmesi olmayan ayarlar aktarılmadan atlanır; `SettingsStore::get_vscode_edits(old_text, vscode)` fonksiyonu aynı dönüşümü diske yazma işlemi yapmadan, mevcut kullanıcı içeriğine `merge_from` uygulayarak güncellenmiş tam metni (`String`) döndürür. Arayüz tarafında "şu dönüşümler uygulanacak" önizlemesi sunulurken bu fonksiyondan yararlanılır.
 

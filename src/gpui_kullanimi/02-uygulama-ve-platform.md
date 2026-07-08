@@ -2,9 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
-- [x] Doğrulanan platform yüzeyi: `Application::on_system_wake`, `Platform::on_system_wake` ve sistem uyku dönüşü callback akışı.
-- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/app.rs` ve `crates/gpui/src/platform.rs`.
+- [x] Kaynak commit aralığı: `693962917b5a..6b733d105896`.
+- [x] Doğrulanan platform yüzeyi: `Application::run_embedded`, `ApplicationHandle`, primary selection pano metotları ve sistem uyku dönüşü callback akışı.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/app.rs`, `crates/gpui/src/platform.rs` ve rustdoc JSON snapshot kayıtları.
 
 ---
 
@@ -28,7 +28,7 @@ use gpui_platform::application;
 struct KokGorunum;
 
 impl Render for KokGorunum {
-    fn render(&mut self, _cx: &mut ViewContext<Self>) -> impl IntoElement {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
         div().size_full().child("Merhaba")
     }
 }
@@ -87,6 +87,12 @@ uygulama.run(|cx| {
 ```
 
 `run` çağrısı, kontrolü platformun olay döngüsüne devreder. Bu noktadan sonra uygulama tamamen olay tabanlı olarak çalışır.
+
+### `ApplicationHandle` ve `run_embedded`
+
+Bazı hedeflerde olay döngüsünü GPUI değil, dış bir taşıyıcı yönetir. WebAssembly misafirleri veya yabancı bir yerel uygulama içine gömülen GPUI yüzeyleri bu sınıfa girer. Bu biçimde `Application::run_embedded(on_finish_launching) -> ApplicationHandle` kullanılır. Platform `run` callback'ini çalıştırıp geri döndüğünde `ApplicationHandle` uygulamayı canlı tutar; handle bırakıldığında uygulama sahipliği de bırakılır.
+
+`ApplicationHandle::update(|cx| ...)` dış olay döngüsünden GPUI `App` bağlamına kısa ve yeniden girişsiz bir güncelleme noktası açar. Bu metot, zaten bir GPUI güncellemesi yürürken iç içe çağrılmamalıdır; uygulama durumu `RefCell` üzerinde tutulduğu için çift ödünç alma çalışma zamanı hatasına dönüşür. Await noktaları arasında uygulamaya zayıf bağla dönmek gerektiğinde `ApplicationHandle::to_async() -> AsyncApp` kullanılır; ancak uygulamayı canlı tutma sorumluluğu yine güçlü `ApplicationHandle` değerindedir.
 
 **Çıkış ve etkinleştirme.** Uygulamanın hangi koşulda sonlanacağını belirlemek için `QuitMode` enum varyantları kullanılır:
 
@@ -208,7 +214,7 @@ GPUI'nın platform modülünde görünen bazı public tipler uygulama geliştiri
 
 ## Başsız Çalışma, Ekran Yakalama ve Test Çizim Aracı
 
-Görsel arayüz olmadan da bir GPUI uygulamasını başlatmak mümkündür. Bu yöntem özellikle komut satırı arayüzü (CLI) alt komutlarında, toplu veri işleme (batch processing) betiklerinde, arka plan sunucu süreçlerinde ve performans başarım ölçümü (benchmark) senaryolarında büyük kolaylık sağlar. İlgili giriş noktaları `headless()` fonksiyonu ile `App` üzerindeki `screen_capture_sources` metodudur.
+Görsel arayüz olmadan da bir GPUI uygulamasını başlatmak mümkündür. Bu yöntem özellikle komut satırı arayüzü (CLI) alt komutlarında, toplu veri işleme (batch processing) betiklerinde, arka plan sunucu süreçlerinde ve başarım ölçümü (benchmark) senaryolarında büyük kolaylık sağlar. İlgili giriş noktaları `headless()` fonksiyonu ile `App` üzerindeki `screen_capture_sources` metodudur.
 
 Başsız bir uygulama şu biçimde başlatılır:
 

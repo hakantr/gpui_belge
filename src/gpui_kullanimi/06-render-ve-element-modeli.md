@@ -1,5 +1,11 @@
 # Render ve Element Modeli
 
+## Sürüm Analiz Raporu
+
+- [x] Kaynak commit aralığı: `693962917b5a..6b733d105896`.
+- [x] Doğrulanan render yüzeyi: `View`, `ViewElement<V>`, `Entity<T>::cached(...)`, `AnyView::cached(...)` ve `IntoElement for Entity<T>`.
+- [x] Kaynak doğrulama dosyası: `crates/gpui/src/view.rs` ve rustdoc JSON snapshot kayıtları.
+
 ---
 
 ## Render Modeli
@@ -16,6 +22,7 @@ GPUI mimarisinde `Element` ekranda çizilen geçici görsel birimleri; `Render` 
 |---|---|---|
 | `Entity<V> + Render` | Kalıcıdır (durum verisini korur) | Her `cx.notify()` çağrısında verisini kullanarak geçici element ağacını yeniden oluşturur. |
 | `RenderOnce` | Tek seferliktir (tüketilir) | Kendi durum yönetim döngüsü olmayan, dışarıdan aldığı parametrelerle yalnızca tek seferlik arayüz parçaları üreten hafif bileşendir. |
+| `View` | Ara sözleşmedir | `Render` ve `RenderOnce` çıktılarının element ağacına aynı `ViewElement` mekanizmasıyla bağlanmasını sağlar. |
 | `Element` | Geçicidir (her karede yeniden üretilir) | Ekran yerleşimini (`layout`) ve boyama (`paint`) aşamalarını yönetir. Ekrana çizilen en uç birimdir. |
 
 Basit bir element ağacı tanımı şu şekilde örneklenebilir:
@@ -28,7 +35,7 @@ div()
     .child("Merhaba GPUI!")
 ```
 
-Herhangi bir pencerenin kök görünümü (root view) her zaman bir `Entity<V>` nesnesidir. Buradaki `V` tipinin `Render` trait'ini uygulaması (implement etmesi) zorunludur. `Render::render` fonksiyonunun görevi veri kaydetmek, ağ istekleri başlatmak veya kalıcı durum verisi (state) oluşturmak değildir. Bu işlevin tek sorumluluğu; görünümın alanlarında (fields) bulunan mevcut verilere bakarak o ekran karesinde çizilecek olan geçici element ağacını üretip geriye döndürmektir.
+Herhangi bir pencerenin kök görünümü (root view) her zaman bir `Entity<V>` nesnesidir. Buradaki `V` tipinin `Render` trait'ini uygulaması (implement etmesi) zorunludur. `Render::render` fonksiyonunun görevi veri kaydetmek, ağ istekleri başlatmak veya kalıcı durum verisi (state) oluşturmak değildir. Bu işlevin tek sorumluluğu; görünümün alanlarında (fields) bulunan mevcut verilere bakarak o ekran karesinde çizilecek olan geçici element ağacını üretip geriye döndürmektir.
 
 Bir profil güncelleme penceresi bu sorumluluk ayrımı için açıklayıcı bir örnektir. E-posta adresi kullanıcı metin girdikçe değişecek, diske kaydedilecek, hata veya başarı durumları yansıtacak ve uygulamanın diğer bölümleri tarafından okunacaksa; bu verilerin tamamı `Render` trait'ini uygulayan kalıcı görünüm (view) nesnesinde saklanmalıdır:
 
@@ -106,6 +113,16 @@ impl RenderOnce for KayitBasariliMesaji {
 ```
 
 Bu senaryoda `KayitBasariliMesaji` e-posta adresini ekran üzerinde çizebilir; ancak bu işlem onu durum sahibi (stateful) yapmaz. Asıl veri her zaman `ProfilPenceresi` görünümü bünyesinde yaşamaya devam eder. `KayitBasariliMesaji` ise render aşamasında üretilir, `RenderOnce::render(self, ...)` çağrısıyla birlikte geçici bir elemente dönüştürülerek tüketilir. Bir sonraki ekran karesinde bu mesaja yeniden ihtiyaç duyulursa, üst görünüm yeni bir `KayitBasariliMesaji` nesnesi yapılandırarak ağaca ekler.
+
+`View` trait'i bu iki çizim biçimini tek element yolunda birleştirir:
+
+- `impl<T: RenderOnce> View for T`: Durumsuz bileşenler `entity_id() -> None` döndürür ve type name tabanlı yerel bir element kimliği altında çizilir.
+- `impl<T: Render> View for Entity<T>`: Durumlu view handle'ı kendi `EntityId` değeriyle çizilir; `cx.notify()` yalnız bu view alt ağacını kirli kabul eder.
+- `impl View for AnyView`: Tipi silinmiş view handle'ı aynı mekanizmaya katılır ve heterojen view yuvalarında kullanılabilir.
+
+Bu modelin element karşılığı `ViewElement<V: View>` yapısıdır. Uygulama kodunda çoğu zaman doğrudan `ViewElement::new(...)` çağırmak gerekmez; `.child(entity)`, `.child(render_once_bilesen)` veya `AnyView::from(entity)` kullanımı GPUI tarafından uygun `ViewElement` değerine dönüştürülür. Bir view alt ağacının önbelleğe alınması gerektiğinde yalnız entity-backed yollar kullanılmalıdır: `Entity<T>::cached(style)` veya `AnyView::cached(style)`. Stateless `RenderOnce` bileşenleri için genel bir public `.cached(...)` yolu sunulmaz; çünkü bu bileşenlerin `Context::notify` ile kırılacak kalıcı bir kimliği yoktur.
+
+`View::entity_id()` elle implement edilen özel yapılarda dikkatle seçilmelidir. Aynı `EntityId` aynı parent altında iki kardeş konumda kullanılırsa iç element durumları, `use_state` değerleri veya scroll offset'leri çakışabilir. Aynı id'nin iç içe kullanılması ise parent yolu farklılaştığı için sorun oluşturmaz.
 
 Arayüz tasarımında şu temel karar kuralları esas alınmalıdır:
 
@@ -248,8 +265,8 @@ GPUI bünyesindeki yerleşik arayüz elementleri, farklı tasarım ihtiyaçları
 - `canvas(prepaint, paint)`: Düşük seviyeli özel çizim operasyonları veya fare etkileşim alanı (hitbox) hazırlıkları için kullanılır.
 - `anchored()`: Pencere sınırlarına veya belirli referans noktalarına sabitlenen popover panelleri ve menü tasarımları için idealdir.
 - `deferred(child)`: Çizim sırasının ertelenmesi veya üst katmanlarda render edilmesi gereken durumlar için kullanılır.
-- `list(...)`: Satır yükseklikleri değişken olan, büyük ölçekli ve dinamik veri listelerinin performanslı çiziminde tercih edilir.
-- `uniform_list(...)`: Tüm satırları eşit yükseklikte olan ve yüksek performans gerektiren verimli listelerin çiziminde kullanılır.
+- `list(...)`: Satır yükseklikleri değişken olan, büyük ölçekli ve dinamik veri listelerinin verimli çiziminde tercih edilir.
+- `uniform_list(...)`: Tüm satırları eşit yükseklikte olan ve yüksek başarım gerektiren verimli listelerin çiziminde kullanılır.
 - `surface(...)`: macOS platformuna özel yerel yüzey (surface) kaynaklarını element ağacına dahil etmeye yarar (`#[cfg(target_os = "macos")]`).
 
 **Sıkça Yararlanılan Stil Grupları.** Akıcı builder (fluent API) zincirinde yaygın olarak gruplanan metotlar şunlardır:
@@ -297,7 +314,7 @@ div()
     }))
 ```
 
-Farklı tipteki elementleri aynı dinamik listede bir arada tutmak gerektiğinde, her bir öğe `into_any_element()` çağrısıyla `AnyElement` tipine dönüştürülmelidir. Bu yöntem yalnızca heterojen koleksiyonların zorunlu olduğu durumlarda kullanılmalıdır; tek tip satır listelerinde iterator + `.children(...)` yaklaşımı daha sade ve performanslıdır.
+Farklı tipteki elementleri aynı dinamik listede bir arada tutmak gerektiğinde, her bir öğe `into_any_element()` çağrısıyla `AnyElement` tipine dönüştürülmelidir. Bu yöntem yalnızca heterojen koleksiyonların zorunlu olduğu durumlarda kullanılmalıdır; tek tip satır listelerinde iterator + `.children(...)` yaklaşımı daha sade ve verimlidir.
 
 ## Element ID, Element Verisi ve Tip Soyutlaması
 
@@ -348,13 +365,15 @@ window.with_global_id("gorsel-onbellegi".into(), |genel_id, window| {
 - Bir veri yapısının (struct) alanında element saklanması gerektiğinde `AnyElement` kullanılmalıdır.
 - View veya entity referansları saklanırken, FFI, plugin (eklenti) mimarileri, dock panelleri veya heterojen koleksiyon gereksinimleri olmadığı sürece daima tipli `Entity<T>` veya `WeakEntity<T>` referansları tercih edilmelidir.
 
-## AnyElement, Component ve Interactivity Yüzeyi
+## AnyElement, ViewElement ve Interactivity Yüzeyi
 
 GPUI render katmanında yer alan bazı halka açık (public) veri yapıları, günlük uygulama geliştirme süreçlerinde nadiren doğrudan kullanılsa da, element ağacının iç işleyişini anlamak açısından büyük öneme sahiptir:
 
 **AnyElement.** `AnyElement` yapısı heterojen element tiplerini tek bir ortak tipe indirger. Günlük kod yazımında `.into_any_element()` metodu bu dönüşümü sağlar. Düşük seviyeli çalışmalarda `downcast_mut::<T>()` ile iç element tipi denetlenebilir; `request_layout`, `layout_as_root`, `prepaint`, `prepaint_at`, `prepaint_as_root` ve `paint` çağrıları vasıtasıyla elementin yaşam döngüsü manuel olarak yönetilebilir. Bu metotlar yalnızca özel kapsayıcılar, test kütüphaneleri veya framework çekirdeği yazılırken tercih edilir; standart görünümlerde alt öğelerin yönetimi GPUI motoruna bırakılır.
 
-**`Component<C>`.** `Component<C: RenderOnce>` sarmalayıcısı, `#[derive(IntoElement)]` makro çıktılarının arka planda yararlandığı bir yapıdır. `Component::new(component)` çağrısı bir `RenderOnce` bileşenini element yaşam döngüsüne dahil eder; render sürecinde bileşen bir defa tüketilerek ekran karesine işlenir. Uygulama kodlarında doğrudan `Component` üretmek yerine, `RenderOnce` implementasyonunun yapılması ve `IntoElement` makrosunun derive edilmesi çok daha okunaklı bir kod yapısı sunar.
+**`ViewElement<V>`.** `ViewElement<V: View>`, `RenderOnce` bileşenleri, `Entity<T: Render>` handle'ları ve `AnyView` değerleri için ortak element sarmalayıcısıdır. `ViewElement::new(view)` bir `View` değerini element yaşam döngüsüne dahil eder; ancak uygulama kodunda bu yapıcı genellikle dolaylı kullanılır. `#[derive(IntoElement)]` uygulanan bir `RenderOnce` bileşeni, `.child(entity)` ile verilen bir `Entity<T>` veya `.child(any_view)` ile verilen bir `AnyView` GPUI tarafından aynı element yoluna taşınır.
+
+`ViewElement` durumlu ve durumsuz yolları ayırır. `entity_id() -> Some(EntityId)` döndüren view'larda GPUI reactive boundary kurar; dirty view takibi, cache kırılması ve element ID namespace'i bu kimliğe bağlanır. `None` döndüren `RenderOnce` bileşenlerinde ise tip adıyla sınırlı durumsuz bir alt ağaç çizilir. Bu nedenle doğrudan `ViewElement` üretme ihtiyacı yalnız özel view adapter'ları veya framework düzeyi yardımcılar yazılırken ortaya çıkar.
 
 **AnyView ve AnyWeakView.** `AnyView` tipli view handle referanslarının soyutlandığı heterojen alanlarda saklama yapmayı sağlarken; `AnyWeakView` ise bu yapının zayıf (weak) referans karşılığıdır. Dock sistemleri, modal sunucuları veya eklenti yuvaları gibi farklı tipteki view nesnelerini tek bir koleksiyon altında toplamak gerektiğinde kullanılır. Tek bir görünüm türüyle çalışılan standart durumlarda, daha güvenli ve okunaklı olan tipli `Entity<T>` ve `WeakEntity<T>` referansları tercih edilmelidir.
 
@@ -416,7 +435,7 @@ div()
 - Closure içerisine iletilen elementin veri tipi aynen korunur; böylece alt öğeler eklemeye kesintisiz devam edilebilir.
 - `.map()` metodu, akıcı zincirin dışına kontrollü biçimde çıkılması ve keyfi tip dönüşümlerinin gerçekleştirilmesi gereken durumlarda kolaylık sağlar.
 
-**Dikkat Edilmesi Gereken Hususlar.** Bu yardımcıların hatalı kullanımları bazı performans veya tasarım sorunlarına yol açabilir:
+**Dikkat Edilmesi Gereken Hususlar.** Bu yardımcıların hatalı kullanımları bazı başarım veya tasarım sorunlarına yol açabilir:
 
 - `.when()` içerisindeki closure her render karesinde yeniden çalıştırılır; bu nedenle bu gövdelerde maliyetli hesaplama işlemlerinin yürütülmesinden kaçınılmalıdır.
 - Aynı element üzerinde çok sayıda `.when_some()` çağrısının zincirlenmesi kodun okunabilirliğini azaltıyorsa, ilgili verilerin önceden standart bir `if let` bloğu ile ayıklanması ve doğrudan tek bir `.child(...)` çağrısıyla eklenmesi tercih edilmelidir.
@@ -541,7 +560,7 @@ Varsayılan birleştirme kuralları şu şekildedir:
 
 **Dikkat edilmesi gereken hususlar.** Bu iki birleştirme modeliyle çalışırken şu noktalara dikkat edilmelidir:
 
-- `Refineable` zincirinde `default()` temel stili her seferinde sıfırdan hesaplanır; yüksek maliyetli stil yapılandırmalarının arayüz performansını düşürmemesi için uygun bir önbelleğe alınması önerilir.
+- `Refineable` zincirinde `default()` temel stili her seferinde sıfırdan hesaplanır; yüksek maliyetli stil yapılandırmalarının arayüz başarımını düşürmemesi için uygun bir önbelleğe alınması önerilir.
 - `MergeFrom` sıralamasında en özel (spesifik) kaynağı en sona yerleştirilmelidir; sıralama her zaman `local > profile > user > default` akışını izlemelidir.
 - Vektör türündeki verilere yeni elemanlar eklemek gerektiğinde `ExtendingVec` tercih edilmelidir; eski listenin tamamen ezilmesi hedefleniyorsa düz `Vec` kullanılmalıdır.
 - `Option<Option<T>>` gibi iç içe sarmalanmış seçenek yapılarında `MergeFrom` varsayılan davranışları hatalı sonuçlar üretebileceğinden, bu istisnai durumlarda özel trait implementasyonları yazılmalıdır.

@@ -8,7 +8,7 @@
 
 Liste bileşenleri; aynı görsel ritme sahip satırları, bölüm başlıklarını, boş durum bildirimlerini ve hiyerarşik gezinme (navigation) arayüzlerini kurmak için kullanılır. Küçük ve orta ölçekli statik listelerde `List` ve `ListItem` kullanımı çoğunlukla yeterlidir. Satır sayısı arttığında ve satır yükseklikleri sabit kaldığında ise GPUI'nin `uniform_list(...)` çağrısı tercih edilmelidir. `StickyItems` ve `IndentGuides` gibi yardımcı araçlar da bu düşük seviyeli listenin üzerine ek bir süsleme/kılavuz katmanı olarak eklenebilir.
 
-Hangi durumda hangi bileşenin tercih edileceğine karar verirken aşağıdaki ayrım faydalı olacaktır:
+Bileşen seçimi yapılırken aşağıdaki ayrım faydalı olacaktır:
 
 ![Liste ve Tree Bileşenleri](assets/liste-bilesenleri-haritasi.svg)
 
@@ -39,7 +39,7 @@ Ne zaman kullanılır:
 
 Ne zaman kullanılmaz:
 
-- Binlerce satır barındıran, kaydırma (scroll) yapılan ve performans açısından kritik olan listeler için GPUI'nin `uniform_list(...)` çağrısı tercih edilir.
+- Binlerce satır barındıran, kaydırma (scroll) yapılan ve başarım açısından kritik olan listeler için GPUI'nin `uniform_list(...)` çağrısı tercih edilir.
 - Tablo semantiği, column resize veya header/satır sözleşmesi gerektiren yapılar için doğrudan tablo veya veri bileşenleri daha doğru bir araçtır.
 
 Temel API:
@@ -554,7 +554,7 @@ Dikkat edilmesi gereken noktalar:
 Kaynak:
 
 - Tanım: `ui` crate'i
-- Export: `ui::indent_guides`, `ui::IndentGuides`, `ui::IndentGuideColors`, `ui::IndentGuideLayout`, `ui::RenderIndentGuideParams`, `ui::RenderedIndentGuide`.
+- Export: `ui::indent_guides`, `ui::IndentGuides`, `ui::IndentGuideColors`, `ui::IndentGuideLayout`, `ui::RenderIndentGuideParams`, `ui::RenderedIndentGuide`, `ui::LIST_ITEM_INDENT_GUIDE_LEFT_OFFSET`.
 - Prelude: Hayır; ayrıca import edilmesi gerekir.
 - Preview: Doğrudan bir bileşen önizlemesi yok.
 
@@ -573,7 +573,8 @@ Temel API:
 
 - Constructor: `indent_guides(indent_size: Pixels, colors: IndentGuideColors)`.
 - Renk yardımcısı: `IndentGuideColors::panel(cx)`.
-- Builder'lar: `.with_compute_indents_fn(entity, compute_fn)`, `.with_render_fn(entity, render_fn)`, `.on_click(...)`.
+- Builder'lar: `.with_compute_indents_fn(entity, compute_fn)`, `.with_render_fn(entity, render_fn)`, `.with_left_offset(left_offset)`, `.on_click(...)`.
+- `LIST_ITEM_INDENT_GUIDE_LEFT_OFFSET: Pixels`: Standart `ListItem` ikon kolonu ile girinti kılavuzunu hizalamak için hazır sol offset değeridir.
 - `IndentGuideColors` public alanları: `default: Hsla`, `hover: Hsla`, `active: Hsla`. `panel(cx)` yardımcısı dışında özel bir renk seti gerektiğinde, bu alanlarla doğrudan bir struct literal kurulabilir.
 - `RenderIndentGuideParams`: `indent_guides: SmallVec<[IndentGuideLayout; 12]>`, `indent_size: Pixels`, `item_height: Pixels`. `with_render_fn` geri çağrısının girdisidir.
 - `RenderedIndentGuide`: `bounds: Bounds<Pixels>`, `layout: IndentGuideLayout`, `is_active: bool`, `hitbox: Option<Bounds<Pixels>>`. `with_render_fn` geri çağrısından dönen vektörın eleman tipidir.
@@ -584,6 +585,7 @@ Indent guide taşıyıcıları:
 | API | Rol |
 | :-- | :-- |
 | `IndentGuideColors` | Girinti çizgileri için default, hover ve active renk setini taşır; `panel(cx)` panel temasına uygun varsayılanı üretir. |
+| `LIST_ITEM_INDENT_GUIDE_LEFT_OFFSET` | Varsayılan `ListItem` ikon kolonu hizası için kullanılan sol offset sabitidir. |
 | `RenderIndentGuideParams` | Özel render geri çağrısına hesaplanmış guide layout'larını, indent ölçüsünü ve item yüksekliğini verir. |
 | `RenderedIndentGuide` | Özel render sonucunda her guide için bounds, layout, active durum ve opsiyonel hitbox bilgisini taşır. |
 | `IndentGuideLayout` | Bir guide'ın hangi satır/depth noktasından başlayıp kaç satır sürdüğünü ve offscreen devam edip etmediğini belirtir. |
@@ -593,14 +595,15 @@ Davranış:
 - `UniformListDecoration` olarak kullanıldığında `.with_compute_indents_fn(...)` çağrısı zorunludur; verilmediğinde compute sırasında panic oluşur.
 - Görünür aralık sonrasında daha fazla item varsa, aralık bir satır genişletilir; böylece ekran dışında devam eden bir guide doğru hesaplanır.
 - `.on_click(...)` verildiğinde guide hitbox'ları oluşur, hover rengi uygulanır ve pointing hand cursor görünür.
-- `.with_render_fn(...)` tanımlanmadığında her kılavuz (guide) 1px genişliğinde varsayılan bir çizgi olarak çizilir.
+- `.with_left_offset(...)`, özel render fonksiyonu yokken her guide'ın X konumuna eklenir. Standart `ListItem` satırlarıyla hizalama gerektiğinde `LIST_ITEM_INDENT_GUIDE_LEFT_OFFSET` kullanılır.
+- `.with_render_fn(...)` tanımlanmadığında her kılavuz (guide) 1px genişliğinde varsayılan bir çizgi olarak çizilir. Özel render fonksiyonu verildiğinde sol offset dahil tüm konumlandırma geri çağrının sorumluluğundadır.
 
 Örnek:
 
 ```rust
 use gpui::{ListSizingBehavior, UniformListScrollHandle, uniform_list};
 use ui::prelude::*;
-use ui::{IndentGuideColors, ListItem, indent_guides};
+use ui::{IndentGuideColors, LIST_ITEM_INDENT_GUIDE_LEFT_OFFSET, ListItem, indent_guides};
 
 #[derive(Clone)]
 struct AnahatGirdisi {
@@ -631,15 +634,17 @@ impl Render for AnahatListesi {
         .with_sizing_behavior(ListSizingBehavior::Infer)
         .track_scroll(&self.kaydirma_tutamaci)
         .with_decoration(
-            indent_guides(px(12.), IndentGuideColors::panel(cx)).with_compute_indents_fn(
-                cx.entity(),
-                |this: &mut AnahatListesi, range, _, _| {
-                    this.girdiler[range]
-                        .iter()
-                        .map(|girdi| girdi.derinlik)
-                        .collect()
-                },
-            ),
+            indent_guides(px(12.), IndentGuideColors::panel(cx))
+                .with_left_offset(LIST_ITEM_INDENT_GUIDE_LEFT_OFFSET)
+                .with_compute_indents_fn(
+                    cx.entity(),
+                    |this: &mut AnahatListesi, range, _, _| {
+                        this.girdiler[range]
+                            .iter()
+                            .map(|girdi| girdi.derinlik)
+                            .collect()
+                    },
+                ),
         )
     }
 }
@@ -654,6 +659,7 @@ Zed içinden kullanım örnekleri:
 Dikkat edilmesi gereken noktalar:
 
 - `indent_size` değeri satırların `.indent_step_size(...)` değeri ile uyumlu olmalıdır; aksi halde girinti çizgileri ile satır içerikleri birbirinden kayar.
+- Standart `ListItem` satırlarında ikon kolonu kullanılıyorsa `.with_left_offset(LIST_ITEM_INDENT_GUIDE_LEFT_OFFSET)` çağrısı, guide çizgisini satır içeriğiyle hizalar.
 - `with_compute_indents_fn(...)` geri çağrısı (callback), görünür aralık için tam olarak o aralıktaki depth dizisini üretmelidir.
 - Özel render sırasında hitbox alanını biraz büyütmek, ince 1px çizgilerin tıklanmasını çok daha kolaylaştırır.
 

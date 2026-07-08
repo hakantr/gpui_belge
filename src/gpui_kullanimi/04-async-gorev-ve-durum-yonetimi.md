@@ -76,7 +76,7 @@ GPUI bünyesinde asenkron işlemlerin yönetimi ve iş parçacıkları arasında
 
 ![GPUI Görev ve Yürütücü (Executor) Mimarisi](assets/executor-gorev-dagitimi.svg)
 
-GPUI bünyesinde görevlerin yürütülmesi iki temel çalıştırıcı arasında paylaştırılır. Ön plan çalıştırıcısı (foreground executor) doğrudan UI iş parçacığı üzerinde çalışırken; arka plan çalıştırıcısı (background executor) ise zamanlayıcı (`scheduler`) ve iş parçacığı havuzu (`thread pool`) vasıtasıyla işleri yürütür. Bu ayrım sadece performansı artırmakla kalmaz, aynı zamanda bir `await` noktasından sonra hangi bağlamların güvenle tutulabileceğini de belirler. Örneğin, ön plan tarafında `App` veya `Window` bağlamlarına güvenli dönüş noktaları sağlanmışken, arka plan tarafında bu tür doğrudan erişimler bulunmaz.
+GPUI bünyesinde görevlerin yürütülmesi iki temel çalıştırıcı arasında paylaştırılır. Ön plan çalıştırıcısı (foreground executor) doğrudan UI iş parçacığı üzerinde çalışırken; arka plan çalıştırıcısı (background executor) ise zamanlayıcı (`scheduler`) ve iş parçacığı havuzu (`thread pool`) vasıtasıyla işleri yürütür. Bu ayrım sadece başarımı artırmakla kalmaz, aynı zamanda bir `await` noktasından sonra hangi bağlamların güvenle tutulabileceğini de belirler. Örneğin, ön plan tarafında `App` veya `Window` bağlamlarına güvenli dönüş noktaları sağlanmışken, arka plan tarafında bu tür doğrudan erişimler bulunmaz.
 
 **Temel tipler.** Yürütme sistemi aşağıdaki bileşenlerden meydana gelir:
 
@@ -193,7 +193,7 @@ cx.spawn_in(window, async move |gorunum, cx| {
 - `task.detach_and_log_err(cx)`: En yaygın ve standart akıştır; üretim kodlarında hata yönetiminin varsayılan yöntemi olarak bu metodun tercih edilmesi önerilir.
 - `task.detach_and_prompt_err(prompt_label, window, cx, |err, window, cx| ...)`: Workspace arayüzünde tanımlanmış ek bir yardımcı fonksiyondur. Olası bir hata durumunda kullanıcıya modal bir uyarı penceresi (prompt) gösterilmesini sağlar.
 
-**Tasarım kararları.** Bir asenkron görevin metot imzasında nasıl temsil edileceğini belirlerken şu pratik yaklaşımlar yol gösterici olabilir:
+**Tasarım kararları.** Bir asenkron görevin metot imzasındaki temsili belirlenirken şu pratik yaklaşımlar yol gösterici olabilir:
 
 - Asenkron işlemin sonucu çağıran koda iletilmesi gerekiyorsa, metodun `Task<R>` tipi döndürmesi ve çağıran tarafta bu değerin `await` edilmesi gerekir. Elde edilen görevi bir struct alanı bünyesinde saklamak ise, ilerleyen süreçte o alanın elden çıkması durumunda görevin otomatikman iptal edilmesi davranışını beraberinde getirir.
 - Eğer çağıran kodun bu sonucu beklemesi gerekmiyorsa, görevi metottan dışarı döndürmek yersizdir; doğrudan `detach_and_log_err(cx)` çağrısı yapılarak asenkron görevin arka plana bırakılması niyetin daha net anlaşılmasını sağlar.
@@ -604,7 +604,7 @@ Bu sebeple `AnyEntity` ve `AnyWeakEntity` üzerindeki bazı metotlar tipli handl
 
 #### AnyView, AnyWeakView ve EmptyView
 
-`AnyView`, `Render` trait'ini uygulayan herhangi bir `Entity<V>` için element olarak kullanılabilen, tipi silinmiş view handle referansıdır. Bu sayede farklı görünüm (view) tipleri tek bir ortak element yuvasına yerleştirilebilir:
+`AnyView`, `Render` trait'ini uygulayan herhangi bir `Entity<V>` için tipi silinmiş view handle referansıdır. Kendisinin `View` implementasyonu vardır; element ağacına eklendiğinde GPUI onu `ViewElement<AnyView>` üzerinden çizer. Bu sayede farklı görünüm (view) tipleri tek bir ortak element yuvasına yerleştirilebilir:
 
 ```rust
 let gorunum: AnyView = bolme.clone().into();
@@ -613,13 +613,14 @@ div().child(gorunum.clone());
 
 **Önemli metotlar.** Tipi silinmiş view yapılarıyla çalışırken yararlanılan temel API'ler şunlardır:
 
-- `AnyView::from(varlik)` veya `varlik.into_element()`: Tipli bir view yapısını, tipi silinmiş element formatına dönüştürür.
+- `AnyView::from(varlik)`: Tipli `Entity<T: Render>` değerini tipi silinmiş view handle biçimine dönüştürür.
+- `varlik.into_element()`: Tipli entity'yi doğrudan `ViewElement<Entity<T>>` elementine dönüştürür; tipi silme gerekiyorsa önce `AnyView::from(varlik)` kurulmalıdır.
 - `any_view.downcast::<T>() -> Result<Entity<T>, AnyView>`: Tipli handle referansına geri dönüş yapmak amacıyla kullanılır.
 - `any_view.downgrade() -> AnyWeakView` ve `AnyWeakView::upgrade() -> Option<AnyView>`: Zayıf referans dönüşümlerini gerçekleştirir.
 - `any_view.entity_id()` ve `entity_type()`: Hata ayıklama veya kayıt defteri mekanizmalarında tanımlayıcı olarak kullanılır.
 - `EmptyView`: Herhangi bir içerik çizmeyen boş bir `Render` view nesnesidir; yer tutucu (placeholder) gereksinimlerinde tercih edilir.
 
-**Önbelleklenmiş view.** `AnyView::cached(style_refinement)` fonksiyonu, çizimi yüksek maliyetli olan alt görünümlerin render sonuçlarını önbelleğe alarak performansı artırmak amacıyla tercih edilir:
+**Önbelleklenmiş view.** `AnyView::cached(style_refinement) -> ViewElement<AnyView>` ve `Entity<T: Render>::cached(style_refinement) -> ViewElement<Entity<T>>` fonksiyonları, çizimi yüksek maliyetli olan alt görünümlerin render sonuçlarını önbelleğe alarak başarımı artırmak amacıyla tercih edilir:
 
 ```rust
 div().child(
@@ -628,7 +629,7 @@ div().child(
 )
 ```
 
-Önbellek mekanizması, view kendi üzerinde `cx.notify()` çağırmadığı sürece önceki yerleşim (layout) hesaplamalarını, çizim hazırlıklarını ve render çıktılarını koruyarak yeniden kullanır. Ancak `Window::refresh()` çağrıları önbelleği devre dışı bırakır. Inspector aracı açıkken भी hitbox'ların tam olarak taranabilmesi adına önbellek devre dışı kalır. Önbelleğe alma işleminde anahtar olarak; yerleşim sınırları (bounds), aktif maske (`ContentMask`) ve aktif yazı stili (`TextStyle`) bilgileri kullanılır. Bu yüzden `cached(...)` çağrısı sırasında iletilen kök `StyleRefinement` değerinin, view'un gerçek kök yerleşim stiliyle örtüşmesi gerekir; uyumsuz stil tanımları arayüzde hatalı veya güncellenmemiş gösterimlere yol açabilir.
+Önbellek mekanizması, view kendi üzerinde `cx.notify()` çağırmadığı sürece önceki yerleşim (layout) hesaplamalarını, çizim hazırlıklarını ve render çıktılarını koruyarak yeniden kullanır. Ancak `Window::refresh()` çağrıları önbelleği devre dışı bırakır. Inspector aracı açıkken hitbox'ların tam olarak taranabilmesi adına önbellek devre dışı kalır. Önbelleğe alma işleminde anahtar olarak; yerleşim sınırları (bounds), aktif maske (`ContentMask`) ve aktif yazı stili (`TextStyle`) bilgileri kullanılır. Bu yüzden `cached(...)` çağrısı sırasında iletilen kök `StyleRefinement` değerinin, view'un gerçek kök yerleşim stiliyle örtüşmesi gerekir; uyumsuz stil tanımları arayüzde hatalı veya güncellenmemiş gösterimlere yol açabilir.
 
 #### Geri Çağırma (Callback) Adaptörleri
 

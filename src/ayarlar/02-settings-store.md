@@ -7,6 +7,8 @@
 - [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/agent.rs`, `crates/settings_content/src/language_model.rs`, `crates/settings_content/src/project.rs`, `crates/settings_content/src/workspace.rs` ve `assets/settings/default.json`.
 - [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
 - [x] Güncel doğrulama: `OpenCodeApiProtocol` ve `OpenCodeAvailableModel.protocol: Option<OpenCodeApiProtocol>` settings şema yüzeyiyle eşleştirildi.
+- [x] Güncel kaynak commit aralığı: `693962917b5a..6b733d105896`.
+- [x] Güncel doğrulama: `FormatOnSave::{Modifications, ModificationsIfAvailable}`, `BedrockMantleAvailableModel`, `BedrockMantleProtocolContent` ve `TerminalSettingsContent.open_links_in_mouse_mode` settings şema yüzeyiyle eşleştirildi.
 
 `SettingsStore`, Zed'in tüm ayar kaynaklarını tek bir tip güvenli store (ayar deposu) içinde birleştirir. Çalışma zamanındaki (runtime) global değerler; varsayılan (`Default`) üzerine sırasıyla eklenti (`Extension`), `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve sunucu (`Server`) katmanları eklenerek kurulur. Dosya yolu (path) hedefli okumalarda ise yerel ayarlar (`local_settings`) bu zincirin en üstüne dahil edilir. Birleştirilmiş nihai içerik daha sonra sisteme kayıtlı olan ilgili `Settings` tiplerine aktarılır.
 
@@ -335,7 +337,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `language_model`, `AllLanguageModelSettingsContent` | Kök re-export ve tüm sağlayıcı ayarlarının koleksiyonu | `SettingsContent.language_models` alanının üst seviye şemasıdır. |
 | `AnthropicSettingsContent`, `AnthropicAvailableModel`, `LanguageModelCacheConfiguration` | Anthropic API URL, model listesi ve önbellek yapılandırması | Model girişleri ekran ismi, token limitleri ve tool override'ları barındırabilir. |
 | `AnthropicCompatibleSettingsContent`, `AnthropicCompatibleAvailableModel`, `AnthropicCompatibleModelCapabilities` | Anthropic protokolüyle uyumlu özel sağlayıcılar | `api_url`, model listesi, özel header'lar, tool override, thinking modu ve `tools`/`images`/`prompt_caching` kabiliyetlerini `language_models.anthropic_compatible` altında taşır. |
-| `AmazonBedrockSettingsContent`, `BedrockAvailableModel`, `BedrockAuthMethodContent` | Bedrock bölge, endpoint, kimlik doğrulama ve model listeleri | Kimlik doğrulama enum'ı; profil adı, SSO, API key ve otomatik yolları ayırır. |
+| `AmazonBedrockSettingsContent`, `BedrockAvailableModel`, `BedrockMantleAvailableModel`, `BedrockMantleProtocolContent`, `BedrockAuthMethodContent` | Bedrock bölge, endpoint, kimlik doğrulama, klasik model listeleri ve Mantle model listeleri | Mantle girdileri OpenAI uyumlu `chat_completions` veya `responses` protokolüyle çağrılacak özel modelleri tanımlar. |
 | `OllamaSettingsContent`, `OllamaAvailableModel`, `KeepAlive` | Ollama API, otomatik keşif ve keep-alive davranışları | `KeepAlive` saniye veya süre string'i olarak deserialize edilir. |
 | `OpenCodeSettingsContent`, `OpenCodeAvailableModel`, `OpenCodeApiProtocol`, `OpenCodeModelSubscription` | OpenCode API protokolü ve abonelik bazlı model listeleri | `OpenCodeSettingsContent.available_models` girdileri `OpenCodeAvailableModel` elemanlarıdır. Model alanları `name`, `display_name`, `max_tokens`, `max_output_tokens`, `protocol`, `subscription`, `custom_model_api_url`, `reasoning_effort_levels` ve `interleaved_reasoning` olarak ayrılır. `OpenCodeApiProtocol` varyantları `Anthropic`, `OpenAiResponses`, `OpenAiChat` ve `Google`; JSON değerleri sırasıyla `anthropic`, `openai_responses`, `openai_chat` ve `google` biçimindedir. `OpenCodeModelSubscription` abonelik seviyelerini taşır. |
 | `LmStudioSettingsContent`, `LmStudioAvailableModel`, `LlamaCppSettingsContent`, `LlamaCppAvailableModel`, `DeepseekSettingsContent`, `DeepseekAvailableModel` | LM Studio, llama.cpp ve DeepSeek sağlayıcı verileri | llama.cpp sağlayıcısı `api_url`, `auto_discover`, `available_models`, `context_window` ve `custom_headers` alanlarını taşır; model girdileri tool, görsel ve thinking desteklerini ayrı opsiyonel bayraklarla bildirir. |
@@ -358,7 +360,7 @@ Sağlayıcı ayar yapılarının çoğunda `custom_headers: Option<HashMap<Strin
 | `SeedQuerySetting`, `ActivateOnClose`, `ClosePosition`, `ShowCloseButton`, `ShowDiagnostics` | Editör/workspace davranışındaki küçük enum ve içerik seçimleri | Tek başına uzun açıklamalar gerektirmeyen şema seçenekleridir. |
 | `InlineBlameLocation`, `InlineBlameSettings.location` | Git blame gösterim yeri | `inline` varsayılanıyla aktif satırda, `status_bar` değeriyle durum çubuğunda blame bilgisinin gösterilmesini seçer. |
 | `AutosaveSetting`, `RestoreOnStartupBehavior`, `EncodingDisplayOptions`, `TextRenderingMode`, `WindowDecorations`, `BottomDockLayout`, `FocusFollowsMouse` | Workspace başlatma, kaydetme, encoding, text render ve pencere dekorasyon ayarları | `WorkspaceSettingsContent` ailesinin alt enum/struct arayüzleridir. |
-| `Shell`, `ShowScrollbar` | Terminal shell ve scrollbar gösterim ayarları | `TerminalSettingsContent` altında terminal davranışını belirler. |
+| `Shell`, `ShowScrollbar`, `TerminalSettingsContent.open_links_in_mouse_mode` | Terminal shell, scrollbar ve mouse-reporting açıkken hyperlink açma davranışı | `open_links_in_mouse_mode` varsayılan olarak true kabul edilir; kapatıldığında cmd/ctrl-click terminal uygulamasına iletilir. |
 | `SidebarSide` | Agent sidebar tarafının dahili/içerik eşleşmesi | `SidebarDockPosition` public settings enum'ını tamamlayan küçük bir yardımcıdır. |
 | `TitleBarSettingsContent`, `WindowButtonLayoutContent`, `title_bar` | Title bar ayar verisi, pencere düğmesi layout içeriği ve re-export modülü | Üst bar dokümanında derinlemesine ele alınır; settings tarafında JSON şeması sahibi olarak görünür. |
 | `SPECIFIC_OVERRIDES_KEYMAP_PATH` | platforma göre keymap override yolu | macOS için `keymaps/specific-overrides-macos.json`, diğer platformlar için `keymaps/specific-overrides.json` sabitini verir; bu override keymap base keymap'den sonra, kullanıcı keymap'inden önce yüklendiği için aynı chord için base bağlamasını geçersiz kılabilir. |
@@ -397,6 +399,15 @@ Varsayılan ayar dosyasında değer boş string'dir. Boş string, başlangıç k
 
 Varsayılan ayar dosyasında global `format_on_save` değeri `"off"` olarak gelir; dil bazlı varsayılanlar ilgili dil bloklarında ayrıca etkinleştirilebilir. Bu yapı, format-on-save davranışının tek global karar yerine dil katmanıyla birlikte okunmasını gerektirir.
 
+`FormatOnSave` enum'u JSON tarafında `snake_case` değerler bekler:
+
+| JSON değeri | Rust varyantı | Davranış |
+|---|---|---|
+| `"on"` | `FormatOnSave::On` | Dosya kaydedilirken tüm dosya formatlanır. |
+| `"off"` | `FormatOnSave::Off` | Kaydetme sırasında formatlama yapılmaz. |
+| `"modifications"` | `FormatOnSave::Modifications` | Yalnız git diff'inde görünen değiştirilmiş satırlar formatlanır; diff veya LSP range formatting yoksa formatlama atlanır. |
+| `"modifications_if_available"` | `FormatOnSave::ModificationsIfAvailable` | Değiştirilmiş satırlar formatlanır; diff veya LSP range formatting yoksa tüm dosya formatlamasına düşer. |
+
 `InlineBlameSettings.location: Option<InlineBlameLocation>` blame bilgisinin yerini seçer. JSON tarafında `"inline"` varsayılan aktif satır gösterimidir; `"status_bar"` ise aynı bilgiyi durum çubuğu alanına taşır. `enabled`, `delay_ms`, `padding`, `min_column` ve `show_commit_summary` alanları konum kararından bağımsız olarak aynı `InlineBlameSettings` yapısında tutulur.
 
 ### `MarkdownPreviewSettingsContent`
@@ -414,6 +425,21 @@ Varsayılan ayar dosyasında global `format_on_save` değeri `"off"` olarak geli
 | Grup | API | Not |
 |---|---|---|
 | Alanlar | `tools`, `images`, `parallel_tool_calls`, `max_tokens_parameter` | OpenAI uyumlu özel sağlayıcının hangi istek özelliklerini desteklediğini bildirir. `max_tokens_parameter` `true` olduğunda sağlayıcıya token sınırı klasik `max_tokens` parametresiyle iletilir; varsayılan `false` değeridir. |
+
+### `BedrockMantleAvailableModel`
+
+`AmazonBedrockSettingsContent.mantle_available_models: Option<Vec<BedrockMantleAvailableModel>>`, Bedrock `bedrock-mantle` endpoint'i üzerinden çağrılacak OpenAI uyumlu özel modelleri klasik Bedrock model listesine ekler. Mantle model girdisi, model id'sini, kullanıcıya gösterilecek adı, token sınırlarını, kullanılacak OpenAI uyumlu protokolü ve model kabiliyetlerini ayrı alanlarda taşır.
+
+| Grup | API | Not |
+|---|---|---|
+| Alanlar | `name`, `display_name`, `max_tokens`, `max_output_tokens`, `protocol`, `supports_tools`, `supports_images`, `supports_thinking` | `name` istek gövdesindeki model id'sidir; `protocol` çağrının hangi OpenAI uyumlu endpoint biçimine gideceğini belirler. |
+| Protokol | `BedrockMantleProtocolContent::ChatCompletions`, `BedrockMantleProtocolContent::Responses` | JSON değerleri sırasıyla `"chat_completions"` ve `"responses"` biçimindedir. |
+
+`supports_tools`, `supports_images` ve `supports_thinking` opsiyonel kabiliyet bayraklarıdır. Alan verilmediğinde sağlayıcı tarafındaki varsayılan kararlar korunur; alan verildiğinde model seçici ve istek üretimi bu yetenekleri doğrudan dikkate alır.
+
+### `TerminalSettingsContent.open_links_in_mouse_mode`
+
+`TerminalSettingsContent.open_links_in_mouse_mode: Option<bool>`, terminal uygulaması mouse reporting modunu etkinleştirdiğinde hyperlink tıklamalarının nasıl ele alınacağını belirler. Varsayılan davranış `true` kabul edilir: macOS üzerinde cmd-click, Linux ve Windows üzerinde ctrl-click hyperlink'i açar. Değer `false` olduğunda bu tıklamalar terminal uygulamasına iletilir; hyperlink açmak için shift-cmd-click veya shift-ctrl-click yolu korunur.
 
 ### `WorktreeSettingsContent`
 
