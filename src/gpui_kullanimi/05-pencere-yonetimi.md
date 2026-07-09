@@ -2,6 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
+- [x] Kaynak commit aralığı: `6b733d105896..10504e3ce18b`.
+- [x] Doğrulanan pencere yüzeyi: `WindowKind::AnchoredPopup(PopupOptions)`, `PopupOptions`, `PopupAnchor`, `PopupGravity`, `PopupConstraintAdjustment` ve `PopupNotSupportedError`.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs` ve `crates/gpui/src/platform/popup.rs`.
 - [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan pencere yüzeyi: `WindowOptions::is_movable` macOS özel başlık çubuğu notu ve `WindowParams::app_id` aktarımı.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs` ve `crates/gpui/src/window.rs`.
@@ -132,6 +135,7 @@ Pencerenin işletim sistemi düzeyindeki rolü ve davranış şekli `WindowKind`
 
 - `Normal`: Standart ana uygulama penceresi.
 - `PopUp`: Diğer pencerelerin her zaman üstünde konumlanan, bildirimler ve geçici açılır pencereler için kullanılan pencere yapısı. Örneğin Zed, kullanıcı bildirim pencerelerini oluştururken bu türden yararlanır.
+- `AnchoredPopup(PopupOptions)`: Parent pencereye bağlı, native ve platform tarafından konumlandırılan geçici yüzeyleri temsil eder. Menü, combobox, context menu ve tooltip gibi yüzeylerde mutlak ekran koordinatı yerine parent pencere içindeki anchor dikdörtgeni kullanılır.
 - `Floating`: Ana pencere üzerinde serbestçe yüzen ve diğer içeriklerin üstünde kalan yardımcı arayüz paneli.
 - `Dialog`: Ana pencereyle olan etkileşimi geçici olarak askıya alan modal platform penceresi.
 - `LayerShell`: Wayland görüntü sunucusunun `layer-shell` özelliği etkin olduğunda dock (rıhtım), durum çubukları veya arka plan yüzeyleri üretmek amacıyla tercih edilir.
@@ -161,6 +165,84 @@ WindowOptions {
 ```
 
 Bu kullanım desenine ait somut örnekler Zed kod tabanındaki `agent_ui` ve `collab_ui` paketleri (crates) altında incelenebilir.
+
+## Native Anchored Popup Pencereleri
+
+`WindowKind::AnchoredPopup(PopupOptions)` normal `PopUp` penceresinden farklı olarak konumunu parent pencereye göre çözer. `PopUp` üstte duran genel bir platform penceresi üretirken, `AnchoredPopup` tetikleyici öğenin sınırlarına bağlanan menü, combobox, context menu ve tooltip yüzeyleri için kullanılır. Bu ayrım özellikle Wayland gibi pencere konumlandırmasının kompozitör tarafından yönetildiği ortamlarda önemlidir; uygulama mutlak ekran koordinatı dayatmak yerine anchor bilgisini platforma iletir.
+
+### PopupOptions
+
+`PopupOptions` şu alanlarla yapılandırılır:
+
+| Alan | Tip | Açıklama |
+| :-- | :-- | :-- |
+| `parent` | `AnyWindowHandle` | Popup'ın bağlandığı parent pencereyi belirtir. |
+| `anchor_rect` | `Bounds<Pixels>` | Parent pencere koordinat sistemindeki tetikleyici dikdörtgendir. Element bounds ile aynı mantıksal piksel uzayını kullanır. |
+| `anchor` | `PopupAnchor` | `anchor_rect` üzerinde bağlanılacak noktayı seçer. |
+| `gravity` | `PopupGravity` | Popup yüzeyinin anchor noktasından hangi yöne doğru genişleyeceğini belirler. |
+| `constraint_adjustment` | `PopupConstraintAdjustment` | Popup ekran dışına taşacaksa platformun kaydırma, çevirme veya yeniden boyutlandırma yapıp yapamayacağını bildirir. |
+| `offset` | `Point<Pixels>` | Anchor hesabından sonra eklenecek mantıksal piksel ofsetidir. |
+| `grab` | `bool` | Menü benzeri yüzeylerde açık input grab isteğini etkinleştirir. |
+
+`WindowOptions.window_bounds` bu türde yalnızca popup boyutunu taşır; origin değeri platform tarafından yok sayılır. Yerleşim kararı `PopupOptions.anchor_rect`, `PopupAnchor` ve `PopupGravity` üçlüsünden çıkarılır:
+
+```rust
+use gpui::{
+    AnyWindowHandle, Bounds, Pixels, WindowBounds, WindowKind, WindowOptions, point, px, size,
+    popup::{PopupAnchor, PopupConstraintAdjustment, PopupGravity, PopupOptions},
+};
+
+fn acilir_pencere_secenekleri(
+    parent_pencere: AnyWindowHandle,
+    tetikleyici_sinirlari: Bounds<Pixels>,
+) -> WindowOptions {
+    let popup_secenekleri = PopupOptions {
+        parent: parent_pencere,
+        anchor_rect: tetikleyici_sinirlari,
+        anchor: PopupAnchor::BottomLeft,
+        gravity: PopupGravity::BottomRight,
+        constraint_adjustment: PopupConstraintAdjustment::SLIDE_X
+            | PopupConstraintAdjustment::SLIDE_Y
+            | PopupConstraintAdjustment::FLIP_Y,
+        offset: point(px(0.), px(4.)),
+        grab: true,
+    };
+
+    WindowOptions {
+        kind: WindowKind::AnchoredPopup(popup_secenekleri),
+        window_bounds: Some(WindowBounds::Windowed(Bounds::new(
+            point(px(0.), px(0.)),
+            size(px(280.), px(360.)),
+        ))),
+        titlebar: None,
+        ..Default::default()
+    }
+}
+```
+
+### PopupAnchor ve PopupGravity
+
+`PopupAnchor` ve `PopupGravity` aynı yön sözlüğünü paylaşır: `Center`, `Top`, `Bottom`, `Left`, `Right`, `TopLeft`, `BottomLeft`, `TopRight`, `BottomRight`. Anchor, parent üzerindeki referans noktasıdır; gravity ise popup'ın bu noktadan hangi tarafa açılacağını ifade eder. Örneğin buton altından sağa doğru açılan bir dropdown için `PopupAnchor::BottomLeft` ile `PopupGravity::BottomRight` uyumlu bir eşleşmedir.
+
+### PopupConstraintAdjustment
+
+`PopupConstraintAdjustment` bit bayrakları platforma esneklik tanır:
+
+| Bayrak | Etki |
+| :-- | :-- |
+| `SLIDE_X`, `SLIDE_Y` | Popup'ı yatay veya dikey eksende ekrana sığacak şekilde kaydırabilir. |
+| `FLIP_X`, `FLIP_Y` | Anchor ve gravity eşleşmesini yatay veya dikey eksende ters çevirebilir. |
+| `RESIZE_X`, `RESIZE_Y` | Popup boyutunu yatay veya dikey eksende küçülterek görünür alana sığdırabilir. |
+
+Bu yapı `bitflags` temelli olduğu için `empty`, `all`, `contains`, `insert`, `remove`, `union`, `intersection`, `difference`, `symmetric_difference`, `complement`, `from_bits`, `from_bits_truncate`, `from_bits_retain`, `from_name`, `bits`, `is_empty`, `is_all`, `iter` ve `iter_names` yardımcılarıyla da çalışır. Uygulama kodunda genellikle sabit bayrakların `|` ile birleştirilmesi yeterlidir; düşük seviyeli platform köprülerinde ise ham bit değeri veya ad tabanlı çözümleme gerekebilir.
+
+`PopupConstraintAdjustment` için `bitflags` altyapısı ayrıca `Bits = u32` ilişkili tipini ve `FLAGS` metadata sabitini üretir. Bunlar doğrudan pencere açma akışının parçası değildir; bayrak adlarını listeleyen araçlar, debug yardımcıları veya düşük seviyeli köprü kodları tarafından okunur.
+
+`grab: true` seçeneği menü ve combobox gibi aktif yüzeyler içindir. Grab isteğinin tetikleyici girdi hâlâ aktifken yapılması gerekir; bu nedenle grab isteyen popup'lar click tamamlandıktan sonra değil, mouse-down işleyicisinde açılır. Tooltip ve benzeri pasif yüzeylerde `grab: false` tercih edilir. Dış uygulamalara yönelen input otomatik kapatma üretebilir; aynı uygulamanın başka bir yerine yapılan tıklamanın popup kapatmasını ise uygulama yaşam döngüsünün yönetmesi gerekir. İç içe grab isteyen popup'lar açılış sırasının tersine kapatılır.
+
+### PopupNotSupportedError
+
+Platform arka ucu native anchored popup desteği sunmuyorsa pencere açma akışı `PopupNotSupportedError` döndürebilir. Bu hata, işletim sistemi penceresiyle kurulan native popup modelinden uygulama içi `Popover` / `PopoverMenu` çizimine düşmek için kullanılır. Native popup ayrı bir platform penceresidir; Zed UI `Popover` ise mevcut pencerenin element ağacında çizilen bir üst katman yüzeyidir.
 
 ## Başlık Çubuğu ve Pencere Süslemesi
 
@@ -315,7 +397,7 @@ Bu dolaylı yönlendirme sayesinde; kaydedilmemiş değişikliklerin (`dirty buf
 
 **Linux `WindowButtonLayout`.** Linux platformunda butonların dizilim düzeni oldukça esnektir ve kullanıcı tercihlerine göre özelleştirilebilir:
 
-- `WindowButton::{Minimize, Maximize, Close}` yapıları sıralı kontrol tiplerini temsil eder. Buton düzeni, sol ve sağ kenarlar için `Option<WindowButton>` varyantlarını barındıran sabit boyutlu dizilerde tutulur. Her kenardaki maksimum buton sayısı platform düzeyinde `gpui::MAX_BUTTONS_PER_SIDE: usize = 3` sabitiyle sınırlandırılmıştır. `WindowButtonLayout::{left, right}` dizileri भी bu sınır doğrultusunda yapılandırılır.
+- `WindowButton::{Minimize, Maximize, Close}` yapıları sıralı kontrol tiplerini temsil eder. Buton düzeni, sol ve sağ kenarlar için `Option<WindowButton>` varyantlarını barındıran sabit boyutlu dizilerde tutulur. Her kenardaki maksimum buton sayısı platform düzeyinde `gpui::MAX_BUTTONS_PER_SIDE: usize = 3` sabitiyle sınırlandırılmıştır. `WindowButtonLayout::{left, right}` dizileri de bu sınır doğrultusunda yapılandırılır.
 - Aktif dizilim düzeni, platform katmanından `cx.button_layout()` çağrısı ile elde edilir.
 - GNOME masaüstü standartlarında kullanılan `"close,minimize:maximize"` dizilim metinleri otomatik olarak ayrıştırılabilir.
 - Linux için varsayılan yedek düzen `WindowButtonLayout::linux_default()` ile üretilir; bu düzen sağ kenarda sırasıyla küçültme, ekranı kaplama ve kapatma butonlarını barındırır.
