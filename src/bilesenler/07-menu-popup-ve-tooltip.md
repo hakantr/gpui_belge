@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
 - [x] Güncel doğrulama: `ContextMenu::toggleable_entry_disabled_when(...)` builder imzası ve disabled toggleable girdi davranışı doğrulandı.
 - [x] Kaynak doğrulama dosyası: `crates/ui/src/components/context_menu.rs`.
 

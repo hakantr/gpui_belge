@@ -419,7 +419,7 @@ Davranış:
 - Eğik çizgi (slash) otomatik tamamlama açıldığında sağlayıcı önce temsilciye `slash_autocomplete_invoked(...)` durumunu bildirir; yerel temsilci bunu global ve projeye özel beceriler taramasını başlatmak için kullanır.
 - Otomatik tamamlama listesinde Beceriler (Skills), Temsilci Komutları (Agent Commands) grubundan önce sıralanır. Beceri tamamlama etiketinde ad ve kapsam/kaynak birlikte gösterilir; belgeleme (documentation) alanında beceri açıklaması yer alır.
 - Beceri seçildiğinde yerel temsilci metne `MentionUri::Skill` bağlantısı ekler. Bağlantı veya mention açıldığında ilgili `SKILL.md` dosyası çalışma alanında mutlak yol (absolute path) ile açılır.
-- `SkillLoadingErrorsUpdated` olayları thread görünümünde uyarı `Callout` olarak render edilir. Her callout kaynakta `Open File` butonu ve kapatma ikon butonu taşır; dosya düzeltildiğinde veya kaldırıldığında kapatma kaydı da temizlenir.
+- `SkillLoadingIssuesUpdated`, proje için geçerli `SkillLoadingIssue` listesinin tamamını replacement-style bir olayla taşır. Thread görünümü `LoadFailed` ve `CatalogBudgetExceeded` kayıtlarını uyarı `Callout` bileşenleriyle, uzun açıklama sorunlarını ise toplu açıklama uyarısıyla gösterir. Dosyaya bağlı callout `Open Skill` butonu ve kapatma ikon butonu taşır; sorun listeden çıktığında ilgili kapatma kaydı temizlenir ve aynı sorun yeniden oluşursa tekrar gösterilir.
 - Kurallardan becerilere geçiş (rules-to-skills migration) tek seferlik çalışır; tüm kullanıcılar için aynı şekilde uygulanır. `MIGRATION_DONE_KEY` sabitinin değeri olan `rules_to_skills_migration_done` global KVP anahtarıyla bir kez çalışacak şekilde korunur. Zed, varsayılan olmayan kuralları (non-default rules) global beceri dizinine `SKILL.md` olarak taşır; varsayılan kuralları (default rules) ve özelleştirilmiş built-in prompt gövdelerini global `AGENTS.md` dosyasına ekler. Özelleştirilmemiş dahili prompt'ları `AGENTS.md` dosyasına aktarmaz; bunlar zaten kullanıcının kişisel `AGENTS.md` dosyasına yerleştirildiğinden, hiç yazmadığı metni dosyaya eklemekten kaçınır. Sonuç `MIGRATION_RESULT_KEY` sabitinin değeri olan `rules_to_skills_migration_result` anahtarıyla saklanır.
 - Zed, beceriler duyuru toast'unu `auto_update_ui` içinde "Introducing Skills Support" başlığıyla kurar. Migration sonucu boş değilse kurallar dönüşümünü anlatan ek madde gösterir; `"Try Now"` etiketli birincil eylem temsilci paneline odaklanır, `"Read Documentation"` etiketli ikincil eylem beceri dokümantasyonuna yönlendirir. Toast `skills_announcement_dismissed` KVP anahtarıyla bir kez kapatılır.
 - Araç izinleri kurulum sayfasında `skill` aracı ayrı bir satırdır. Regex şablonları beceri adıyla değil, becerinin `SKILL.md` dosyasının mutlak yoluyla eşleşir.
@@ -428,7 +428,7 @@ Dikkat Edilmesi Gereken Hususlar:
 
 - Beceri gövdesi bileşen durumuna kopyalanmaz; UI katalog metadatasını, dosya yolunu ve yükleme hatalarını gösterir. Gövde, ihtiyaç anında beceri aracı (skill tool) tarafından okunur.
 - Projeye özel beceri ile global beceri aynı adı kullanıyorsa, kullanıcı arayüzünde kapsam/kaynak gösterilir; aksi halde otomatik tamamlamada hangi becerinin seçildiği belirsizleşir.
-- Beceri yükleme hataları kapatılabilir (dismiss edilebilir) ama bu kalıcı bir engelleme değildir. Alttaki dosya düzelip sonra yeniden bozulursa hata tekrar gösterilir.
+- Beceri yükleme sorunları kapatılabilir, ancak bu kalıcı bir engelleme değildir. Alttaki dosya düzelip daha sonra aynı sorun yeniden oluşursa uyarı tekrar gösterilir.
 
 ## UpdateButton
 

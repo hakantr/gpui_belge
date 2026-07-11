@@ -2,13 +2,10 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `6b733d105896..10504e3ce18b`.
 - [x] Doğrulanan pencere yüzeyi: `WindowKind::AnchoredPopup(PopupOptions)`, `PopupOptions`, `PopupAnchor`, `PopupGravity`, `PopupConstraintAdjustment` ve `PopupNotSupportedError`.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs` ve `crates/gpui/src/platform/popup.rs`.
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan pencere yüzeyi: `WindowOptions::is_movable` macOS özel başlık çubuğu notu ve `WindowParams::app_id` aktarımı.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs` ve `crates/gpui/src/window.rs`.
-- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
 - [x] Güncel doğrulama: `Window::set_input_region` ve `PlatformWindow::set_input_region` Wayland girdi bölgesi sözleşmesiyle eşleştirildi.
 
 ---

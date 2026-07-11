@@ -60,10 +60,20 @@ Menü girişleri statik değildir: `ApplicationMenu::new`, menü listesini doğr
 Davranışsal yüzeyi şu metotlardan oluşur:
 
 ```rust
-pub fn new(cx: &mut ViewContext<Self>) -> Self
-pub fn open_menu(&mut self, action: &OpenApplicationMenu, cx: &mut ViewContext<Self>)
-pub fn navigate_menus_in_direction(&mut self, direction: ActivateDirection, cx: &mut ViewContext<Self>)
-pub fn all_menus_shown(&self, cx: &mut ViewContext<Self>) -> bool
+pub fn new(window: &mut Window, cx: &mut Context<Self>) -> Self
+pub fn open_menu(
+    &mut self,
+    action: &OpenApplicationMenu,
+    window: &mut Window,
+    cx: &mut Context<Self>,
+)
+pub fn navigate_menus_in_direction(
+    &mut self,
+    direction: ActivateDirection,
+    window: &mut Window,
+    cx: &mut Context<Self>,
+)
+pub fn all_menus_shown(&self, cx: &mut Context<Self>) -> bool
 ```
 
 - `open_menu`, `OpenApplicationMenu(String)` eylemindeki menü adını alıp ilgili menüyü açılmak üzere işaretler (yalnızca macOS dışı platformlar için geçerlidir).

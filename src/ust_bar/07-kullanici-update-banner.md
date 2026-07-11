@@ -11,8 +11,8 @@ Render geçişi, kullanıcı ve `Client` bağlantı durumuna bakarak sağ grupta
 - **Oturum Kapalı veya Kimlik Hatası** (`SignedOut`/`AuthenticationError`) ve `show_sign_in` açık ise: Kaynak arayüzde `"Sign In"` butonu çizilir. Türkçe portta görünür metin `"Oturum Aç"` şeklinde yerelleştirilebilir.
 
 ```rust
-pub fn render_sign_in_button(&mut self, _: &mut ViewContext<Self>) -> Button
-pub fn render_user_menu_button(&mut self, cx: &mut ViewContext<Self>) -> impl Element
+pub fn render_sign_in_button(&mut self, _: &mut Context<Self>) -> Button
+pub fn render_user_menu_button(&mut self, cx: &mut Context<Self>) -> impl Element
 ```
 
 Bu üç hâl birbirini dışlar; aynı anda yalnızca biri görünür. Port hedefinde bir hesap/oturum sistemi varsa benzer bir durum makinesi kurulur: Açık → menü, açılıyor → geçici gösterge, kapalı → giriş daveti. Hesap sistemi yoksa bu yüzeyin tamamı kaldırılır.
@@ -77,16 +77,16 @@ pub fn new(
     label: impl Into<SharedString>,
     subtitle: Option<SharedString>,
     action: Box<dyn Action>,
-    cx: &mut ViewContext<Self>,
+    cx: &mut Context<Self>,
 ) -> Self
 
-pub fn visible_when(self, predicate: impl Fn(&mut ModelContext<'_, Self>) -> bool + 'static) -> Self
+pub fn visible_when(self, predicate: impl Fn(&mut App) -> bool + 'static) -> Self
 
-pub fn restore_banner(cx: &mut AppContext)
+pub fn restore_banner(cx: &mut App)
 ```
 
 Tasarım şudur: Duyuru bandı bir kaynak kimliği (telemetri/kapatma anahtarı), bir ikon, bir ana metin, isteğe bağlı bir alt metin (verilmezse varsayılan olarak `"Introducing:"` önekesi kullanılır, bu yüzden pratikte daima bir alt metin çizilir) ve tıklamada gönderilecek bir eylem alır. `visible_when` ile bir koşul işlevi verilir; bu koşul her render geçişinde çağrılır ve duyuru bandının görünürlüğünü (örneğin bir özellik bayrağına göre) belirler. Kullanıcı bandı tıklarsa eylem gönderilir ve bant kapanır; kapatma (X) butonuna basarsa yalnızca kapanır. Her iki durumda da kapatma kalıcı olarak kaydedilir, böylece bant tekrar gösterilmez. `restore_banner` ise bu kaydı silip bandı yeniden görünür yapar (yönetim/test amaçlı).
 
-**Güncel HEAD'in Önemli Notu:** Bu altyapı kodda hazır olsa da, şu anki Zed sürümünde `TitleBar`'ın `banner` alanı her zaman `None`'dır; `OnboardingBanner::new` hiçbir yerde çağrılmaz. Yani duyuru bandı mekanizması **mevcut ama bağlı değildir**; başlıkta fiilen bir duyuru bandı çizilmez. Render yolu `show_onboarding_banner` ayarı ve `banner` alanının `Some` olması koşuluna bağlı olduğundan, alan `None` kaldıkça bu yol hiç çalışmaz.
+**Bağlantı durumu:** `TitleBar::new(...)`, `banner` alanını `None` değeriyle kurar ve çalışma alanında `OnboardingBanner::new(...)` çağrısı bulunmaz. Duyuru bandı altyapısı kullanılabilir durumdadır, ancak başlıkta bir bant çizilmez. Render yolu `show_onboarding_banner` ayarının açık ve `banner` alanının `Some` olmasını birlikte gerektirir.
 
 Port hedefinde duyuru bandı isteniyorsa, aynı kalıp iyi bir şablondur: Tek bir duyuru bandı modelinin kurulması, görünürlüğünün bir koşul işlevine bağlanması, kapatma durumunun kalıcı saklanması ve gerektiğinde geri getirilmesi uygun bir yaklaşımdır. Bu parçanın yeri platform kabuğu değil, ürün başlığı katmanıdır; çünkü duyuru içeriği ürünün yapısına aittir.

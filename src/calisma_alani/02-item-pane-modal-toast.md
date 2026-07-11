@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
 - [x] Doğrulanan pane yüzeyi: `dirty_message_for`, `MarkdownInlineCode`, `SaveIntent` ve dirty item kapatma uyarısı.
 - [x] Kaynak doğrulama dosyası: `crates/workspace/src/pane.rs`.
 

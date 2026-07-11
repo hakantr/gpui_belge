@@ -2,10 +2,8 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
 - [x] Doğrulanan komut paleti yüzeyi: `CommandPalette::new` içinde `Picker::uniform_list(...)` varsayılan picker ölçüleriyle kurulan modal akış.
 - [x] Kaynak doğrulama dosyası: `crates/command_palette/src/command_palette.rs`.
-- [x] Güncel kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
 - [x] Güncel doğrulama: `CommandPalette::new` picker kurulumunda `show_scrollbar(true)` uygular.
 
 `command_palette` ve `command_palette_hooks` crate'leri, çalışma alanı katmanının üzerinde yer alarak eylem (action) keşfi ve eylemlerin tetiklenmesi için ortak bir modal arayüz sunar. Zed başlangıç (startup) sürecinde `command_palette::init(cx)` ve `command_palette_hooks::init(cx)` çağrıları yapılır; filtre global'i de bu çağrı esnasında kurulur.
@@ -52,7 +50,7 @@ Tipik bir kullanım senaryosu, `CommandPaletteFilter::update_global(cx, |filtre,
 
 ---
 
-## CommandInterceptor
+## `GlobalCommandPaletteInterceptor`
 
 Komut paletindeki "tam sorguyu doğrudan komuta dönüştürme" davranışı (örneğin Vim ex komutları veya satıra atlama `:42` gibi) `GlobalCommandPaletteInterceptor` aracılığıyla çalışır:
 
@@ -65,7 +63,7 @@ GlobalCommandPaletteInterceptor::set(cx, |sorgu, calisma_alani, cx| {
 Arayüz imzaları şu şekildedir:
 
 - `set(cx, Fn(&str, WeakEntity<Workspace>, &mut App) -> Task<CommandInterceptResult>)`
-- `clear(cx)` — Interceptor'ı kaldırır.
+- `clear(cx)` — Global interceptor kaydını kaldırır.
 - `intercept(sorgu, calisma_alani, cx) -> Option<Task<CommandInterceptResult>>` — Komut paleti arayüzü tarafından her tuş vuruşunda tetiklenir.
 
 `CommandInterceptResult` yapısı şu şekildedir:
@@ -163,5 +161,5 @@ Filtre ve interceptor mekanizmalarını kullanırken dikkat edilmesi gereken has
 
 - `CommandPaletteFilter` global bir durumdur; testlerde belirli bir özellik etkinleştirildiğinde, bir sonraki test senaryosuna geçmeden önce bu durumun sıfırlanması gerekebilir.
 - `hide_action_types` ile gizlenecek tiplerin sistem registry'sine kaydedilmiş olması gerekir; aksi takdirde filtreye eklenmiş olsalar dahi komut paleti listesinde zaten görüntülenmezler.
-- `Interceptor::set` çağrısı, mevcut interceptor'ı üzerine yazarak iptal eder; eğer çoklu veri kaynağı gerekiyorsa, zincirleme yapının kendi kod yapısında kurulması gerekir (örneğin önce Vim, başarısız olunursa AI agent interceptor'ının tetiklenmesi gibi).
+- `GlobalCommandPaletteInterceptor::set` çağrısı mevcut global interceptor kaydının üzerine yazar. Birden fazla veri kaynağı gerekiyorsa zincirleme davranışın verilen geri çağrı içinde kurulması gerekir; örneğin önce Vim sonucu denenip sonuç üretilemediğinde agent kaynağına geçilebilir.
 - `CommandInterceptResult::exclusive = true` ayarı yoğun şekilde kullanıldığında, kullanıcı normal action listesindeki komutlara erişemez; bu nedenle ilgili bayrağın yalnızca gerçekten "tek ve kesin doğru sonuç var" senaryolarında etkinleştirilmesi gerekir.

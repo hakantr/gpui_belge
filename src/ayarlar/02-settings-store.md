@@ -2,13 +2,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `5837e7ef50f6..d0802abdecad`.
-- [x] Doğrulanan settings yüzeyleri: `AgentSettingsContent.commit_message_include_project_rules`, `AgentConfigOptionValue`, `SandboxPermissionsContent`, `LlamaCppSettingsContent`, `InlineBlameLocation` ve global `format_on_save` varsayılanı.
+- [x] Doğrulanan settings yüzeyleri: `AgentSettingsContent.commit_message_include_project_rules`, `AgentConfigOptionValue`, `SandboxPermissionsContent`, `AnthropicAvailableModel`, `GitPanelGroupBy`, `LlamaCppSettingsContent`, `InlineBlameLocation` ve global `format_on_save` varsayılanı.
 - [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/agent.rs`, `crates/settings_content/src/language_model.rs`, `crates/settings_content/src/project.rs`, `crates/settings_content/src/workspace.rs` ve `assets/settings/default.json`.
-- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
-- [x] Güncel doğrulama: `OpenCodeApiProtocol` ve `OpenCodeAvailableModel.protocol: Option<OpenCodeApiProtocol>` settings şema yüzeyiyle eşleştirildi.
-- [x] Güncel kaynak commit aralığı: `693962917b5a..6b733d105896`.
-- [x] Güncel doğrulama: `FormatOnSave::{Modifications, ModificationsIfAvailable}`, `BedrockMantleAvailableModel`, `BedrockMantleProtocolContent` ve `TerminalSettingsContent.open_links_in_mouse_mode` settings şema yüzeyiyle eşleştirildi.
+- [x] Doğrulama: `OpenCodeApiProtocol`, `OpenCodeAvailableModel.protocol`, `FormatOnSave::{Modifications, ModificationsIfAvailable}`, Bedrock Mantle içerikleri, `TerminalSettingsContent.open_links_in_mouse_mode`, `SandboxPermissionsContent.warn_confusable_unicode`, `AnthropicAvailableModel.supports_fast_mode` ve `GitPanelGroupBy::Staging` mevcut şema yüzeyiyle eşleştirildi.
 
 `SettingsStore`, Zed'in tüm ayar kaynaklarını tek bir tip güvenli store (ayar deposu) içinde birleştirir. Çalışma zamanındaki (runtime) global değerler; varsayılan (`Default`) üzerine sırasıyla eklenti (`Extension`), `Global`, kullanıcı içeriği, release kanalı, OS, aktif profil ve sunucu (`Server`) katmanları eklenerek kurulur. Dosya yolu (path) hedefli okumalarda ise yerel ayarlar (`local_settings`) bu zincirin en üstüne dahil edilir. Birleştirilmiş nihai içerik daha sonra sisteme kayıtlı olan ilgili `Settings` tiplerine aktarılır.
 
@@ -231,7 +227,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `DapSettingsContent`, `ContextServerSettingsContent`, `ContextServerCommand`, `OAuthClientSettings` | Hata ayıklama adaptörü (DAP), bağlam sunucusu ve OAuth istemci ayarları | `ContextServerCommand::args` alanı JSON'da verilmediğinde boş `Vec<String>` olarak okunur; `ContextServerCommand::timeout` araç çağrısı süresini saniye cinsinden özelleştirir ve verilmediğinde global `context_server_timeout` değerine bırakılır. Yalnız `command` verilmiş stdio bağlam sunucusu geçerli kabul edilir. |
 | `DiagnosticsSettingsContent`, `InlineDiagnosticsSettingsContent`, `DiagnosticSeverityContent` | Tanı (diagnostics) ve satır içi tanı davranışları | Severity enum'ı, kullanıcı JSON dosyasındaki diagnostic eşiğini temsil eder. |
 | `GitSettings`, `GitEnabledSettings`, `GitGutterSetting`, `GitHunkStyleSetting`, `GitPathStyle` | Git entegrasyonu, gutter ve hunk görünümleri | Editör ve git paneli kullanımındaki Git davranış ayarlarının şema sahibidir. |
-| `GitPanelSettingsContent`, `GitPanelSortBy`, `GitPanelGroupBy`, `GitPanelClickBehavior` | Git paneli sıralama, gruplama ve birincil tıklama davranışı | `sort_by` varsayılan olarak `path`, `group_by` varsayılan olarak `status`, `entry_primary_click_action` varsayılan olarak `project_diff` değerini kullanır; birincil tıklama `project_diff`, `file_diff` veya `view_file` davranışına bağlanır. |
+| `GitPanelSettingsContent`, `GitPanelSortBy`, `GitPanelGroupBy`, `GitPanelClickBehavior` | Git paneli sıralama, gruplama ve birincil tıklama davranışı | `sort_by` varsayılan olarak `path`, `group_by` varsayılan olarak `status`, `entry_primary_click_action` varsayılan olarak `project_diff` değerini kullanır. `group_by: "staging"`, çakışmaları staged ve unstaged değişikliklerden ayıran bölüm görünümünü seçer. |
 | `InlineBlameSettings`, `BlameSettings`, `BranchPickerSettingsContent` | Blame (satır yazarı gösterme) ve branch picker davranışları | Git arayüz özellikleri proje içeriği altında tiplendirilir. |
 | `GitHostingProviderConfig`, `GitHostingProviderKind` | Git barındırma sağlayıcısı bağlantı tipi | Sağlayıcı türü enum yapısı, barındırma entegrasyonu seçimini saklar. |
 | `SemanticTokenRule`, `SemanticTokenColorOverride`, `SemanticTokenFontStyle`, `SemanticTokenFontWeight` | Semantik token stili override kuralları | Tema syntax renkleriyle kesişir ancak şema sahibi proje içeriğidir. |
@@ -257,6 +253,7 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | :-- | :-- | :-- |
 | `GitPanelGroupBy::None` | `none` | Git panelinde durum gruplamasını devre dışı bırakır. |
 | `GitPanelGroupBy::Status` | `status` | Git paneli girdilerini dosya durumuna göre gruplar. |
+| `GitPanelGroupBy::Staging` | `staging` | Girdileri Conflict, Staged ve Unstaged bölümlerine ayırır; kısmen staged bir dosyanın staged ve unstaged parçalarını iki bölümde temsil eder. |
 
 ### `GitPanelClickBehavior`
 
@@ -328,14 +325,14 @@ LSP ayarları için `LSP_SETTINGS_SCHEMA_URL_PREFIX = "zed://schemas/settings/ls
 | `LanguageModelSelection`, `LanguageModelParameters`, `LanguageModelProviderSetting` | Agent model seçimi ve sağlayıcıya özel parametre override'ları | `language_models` sağlayıcı ayarlarından bağımsız olarak agent model seçimini taşır. |
 | `SidebarDockPosition`, `ThinkingBlockDisplay`, `NotifyWhenAgentWaiting`, `PlaySoundWhenAgentDone` | Agent panel yerleşimi, düşünme bloğu gösterimi, bildirimler ve ses davranışları | Kullanıcı etkileşimiyle ilgili enum şema bileşenleridir. |
 | `ToolPermissionsContent`, `ToolRulesContent`, `ToolRegexRule`, `ToolPermissionMode` | Tool (araç) izinleri, regex kuralları ve izin modları | Tool çağrısı politikaları içerik şeması seviyesinde tiplendirilir. |
-| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı hale gelen ağ erişimi, disk yazma yolları, belirli sandbox dışı çalışma izinleri ve tüm agent terminal komutları için model-facing sandbox off-switch kararını taşır. |
+| `SandboxPermissionsContent` | Agent terminal sandbox izinleri | Kalıcı ağ erişimini, disk yazma yollarını, sandbox dışı çalışma kararını ve Unicode benzerlik uyarısı politikasını taşır. |
 
 ### Dil Modeli Sağlayıcı (Language Model Provider) İçerik Ailesi
 
 | API | Kapsadığı Davranış | Not |
 | :-- | :-- | :-- |
 | `language_model`, `AllLanguageModelSettingsContent` | Kök re-export ve tüm sağlayıcı ayarlarının koleksiyonu | `SettingsContent.language_models` alanının üst seviye şemasıdır. |
-| `AnthropicSettingsContent`, `AnthropicAvailableModel`, `LanguageModelCacheConfiguration` | Anthropic API URL, model listesi ve önbellek yapılandırması | Model girişleri ekran ismi, token limitleri ve tool override'ları barındırabilir. |
+| `AnthropicSettingsContent`, `AnthropicAvailableModel`, `LanguageModelCacheConfiguration` | Anthropic API URL, model listesi ve önbellek yapılandırması | Model girişleri ekran ismi, token limitleri, tool override'ları ve `supports_fast_mode` ile hızlı kip desteğini barındırabilir. |
 | `AnthropicCompatibleSettingsContent`, `AnthropicCompatibleAvailableModel`, `AnthropicCompatibleModelCapabilities` | Anthropic protokolüyle uyumlu özel sağlayıcılar | `api_url`, model listesi, özel header'lar, tool override, thinking modu ve `tools`/`images`/`prompt_caching` kabiliyetlerini `language_models.anthropic_compatible` altında taşır. |
 | `AmazonBedrockSettingsContent`, `BedrockAvailableModel`, `BedrockMantleAvailableModel`, `BedrockMantleProtocolContent`, `BedrockAuthMethodContent` | Bedrock bölge, endpoint, kimlik doğrulama, klasik model listeleri ve Mantle model listeleri | Mantle girdileri OpenAI uyumlu `chat_completions` veya `responses` protokolüyle çağrılacak özel modelleri tanımlar. |
 | `OllamaSettingsContent`, `OllamaAvailableModel`, `KeepAlive` | Ollama API, otomatik keşif ve keep-alive davranışları | `KeepAlive` saniye veya süre string'i olarak deserialize edilir. |
@@ -391,9 +388,19 @@ Varsayılan ayar dosyasında değer boş string'dir. Boş string, başlangıç k
 
 | Grup | API | Not |
 |---|---|---|
-| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `write_paths` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, tüm agent terminal komutları için sandbox dışı çalışma kararını ve belirli mutlak yol (path) alt ağaçlarına yazmayı taşır. |
+| Alanlar | `allow_all_hosts`, `network_hosts`, `allow_fs_write_all`, `allow_unsandboxed`, `write_paths`, `warn_confusable_unicode` | Ağ erişimini tüm host'lar veya belirli host desenleri düzeyinde, tüm dosya sistemine yazmayı, tüm agent terminal komutları için sandbox dışı çalışma kararını, belirli mutlak yol alt ağaçlarına yazmayı ve yükseltme hedeflerindeki şaşırtıcı Unicode uyarısını taşır. |
 
 `allow_sandbox_all_hosts()`, tüm host'lara ağ erişimini `allow_all_hosts: Some(true)` olarak kalıcılaştırır. Daha dar ağ izni gerektiğinde `sandbox_network_hosts()` kayıtlı host desenlerini okur, `set_sandbox_network_hosts(hosts)` ise listenin tamamını değiştirir; girişler `github.com` gibi birebir host adı veya `*.npmjs.org` gibi alt alan wildcard'ı olabilir. `allow_sandbox_fs_write_all()` ilgili dosya sistemi yazma iznini kalıcılaştırır. `allow_sandbox_unsandboxed()` ise `allow_unsandboxed: Some(true)` kararını kalıcılaştırır. `allow_unsandboxed`, agent terminal komutları için model-facing off-switch işlevi görür: değer doğru olduğunda sandboxed terminal tool sunulmaz, sistem prompt'unda sandbox bölümü yer almaz, model düz `terminal` tool akışına yönelir ve Windows üzerinde WSL sandbox kurulumu atlanır. Bu karar, tek komutluk veya thread kapsamlı `unsandboxed: true` yükseltme onayından ayrıdır. `add_sandbox_write_path(path)` metodu, `write_paths: Option<ExtendingVec<PathBuf>>` içerisine dosya yolu ekler; eğer zaten daha genel bir izin mevcutsa ekleme yapmaz, yeni eklenen yol daha genel bir kapsama sahipse eski alt yol izinlerini temizler. Böylece ayar dosyasında `/tmp/proje` izni varken ayrıca `/tmp/proje/cache` gibi gereksiz mükerrer kayıtların birikmesi önlenir.
+
+`warn_confusable_unicode`, verilmediğinde `true` kabul edilir. Sandbox yükseltme istemindeki alan adları Punycode biçiminden Unicode'a çözülür; alan adları ve yazma yolları benzer glifler, görünmez karakterler ve çift yönlü metin kontrolleri için taranır. Bulgular varsa istem bir uyarı gösterir ve izin düğmeleri kullanıcı uyarıyı kabul edene kadar kapalı kalır. Değer `false` olduğunda bu uyarı ve kabul kapısı uygulanmaz.
+
+### `AnthropicAvailableModel`
+
+| Alan | Tür | Rol |
+|---|---|---|
+| `supports_fast_mode` | `Option<bool>` | Özel modelin Anthropic hızlı kip desteğini açıkça belirler veya kararı model adı algılamasına bırakır. |
+
+`AnthropicAvailableModel.supports_fast_mode: Option<bool>`, `language_models.anthropic.available_models` içindeki özel bir modelin Anthropic hızlı kipini (`fast mode`) destekleyip desteklemediğini bildirir. `Some(true)` desteği etkinleştirir ve gerekli hızlı kip beta başlığı `extra_beta_headers` içinde yoksa istek modeline eklenir. `Some(false)` model adı yerleşik olarak desteklenen bir ada benzese bile hızlı kipi kapatır. Alan verilmediğinde destek kararı `AnthropicAvailableModel.name` üzerinde çalışan yerleşik model adı algılamasına bırakılır.
 
 ### `format_on_save` ve `InlineBlameLocation`
 

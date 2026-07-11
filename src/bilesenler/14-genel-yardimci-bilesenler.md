@@ -2,10 +2,8 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
 - [x] Doğrulanan UI yardımcı yüzeyi: `VectorName::VipStamp`.
 - [x] Kaynak doğrulama dosyası: `crates/ui/src/components/image.rs`.
-- [x] Ek kaynak commit aralığı: `6e9ff7a4f31a..e7311d52ba1b`.
 - [x] Doğrulanan yardımcı yüzey: `Divider`, `DividerColor` ve grup yardımcıları.
 - [x] Ek kaynak doğrulama dosyası: `crates/ui/src/components/divider.rs`.
 

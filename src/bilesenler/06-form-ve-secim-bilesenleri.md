@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan form yüzeyi: `ErasedEditor::select_all` tip silmeli editor köprüsü.
 - [x] Kaynak doğrulama dosyası: `crates/ui_input/src/ui_input.rs`.
 

@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan düşük seviye yüzey: `WindowParams::app_id` ve `Platform::on_system_wake`.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs`, `crates/gpui/src/platform/test/platform.rs` ve `crates/gpui/src/platform/visual_test.rs`.
 
@@ -97,7 +96,7 @@ GPUI test API'si birkaç benzer isimli bağlamdan oluşur. Bunları doğru ayır
 
 **TestApp.** `TestApp` düşük seviyeli uygulama koşumudur; doğrudan kullanmak yerine çoğu senaryoda `#[gpui::test]` ile sağlanan `TestAppContext` yeterli olmaktadır. Doğrudan kullanıldığı durumlarda kurulum yardımcıları (`with_seed`, `with_text_system`, `with_text_system_and_assets`) test dispatcher'ını, metin sistemini ve asset kaynağını belirler. Entity yardımcıları (`new_entity`, `update_entity`, `read_entity`) pencere açmadan model/view durumunu yürütür. Pencere yardımcıları (`open_window`, `open_window_with_options`) `TestAppWindow<V>` döndürür ve kök view'i test platformu üzerinde çalıştırır. Executor ve async yardımcıları (`spawn`, `background_spawn`, `to_async`, `run_until_parked`) ön plan/arka plan task'larını deterministik olarak yürütür. Global, clipboard, URL ve prompt yardımcıları ise platform yan etkilerini gerçek işletim sistemi yerine test platformundaki kayıtlar üzerinden doğrulamaya yardımcı olur.
 
-**TestAppContext.** `TestAppContext`, `#[gpui::test]` makrosunun sana verdiği ana test bağlamıdır. `add_window(...)` maximized test penceresi açar; `open_window(size, ...)` layout duyarlı testlerde boyutu açıkça belirler; `add_window_view(...)` kök `Entity<V>` ile `VisualTestContext`'i birlikte sağlar. `update(...)` ve `read(...)` doğrudan `App` erişimi sunar, `spawn(...)` ve `to_async()` async app işlerini test foreground executor'ında yürütür, `run_until_parked()` bekleyen işleri bitene kadar devam ettirir. Girdi tarafında `simulate_keystrokes(...)`, `simulate_input(...)`, `dispatch_keystroke(...)`, `dispatch_action(...)` ve `simulate_window_resize(...)` pencere handle'ı talep eder; `VisualTestContext` sürümünde aynı işlemler seçili pencereye bağlıdır. Test süreçlerinde bir durumun gerçekleşmesini beklemek amacıyla `condition(...)` tercih edilir; test içerisine sleep koymak deterministik olmayan sonuçlara yol açabilir.
+**TestAppContext.** `TestAppContext`, `#[gpui::test]` makrosunun sağladığı ana test bağlamıdır. `add_window(...)` maximized test penceresi açar; `open_window(size, ...)` layout duyarlı testlerde boyutu açıkça belirler; `add_window_view(...)` kök `Entity<V>` ile `VisualTestContext`'i birlikte sağlar. `update(...)` ve `read(...)` doğrudan `App` erişimi sunar, `spawn(...)` ve `to_async()` async app işlerini test foreground executor'ında yürütür, `run_until_parked()` bekleyen işleri bitene kadar devam ettirir. Girdi tarafında `simulate_keystrokes(...)`, `simulate_input(...)`, `dispatch_keystroke(...)`, `dispatch_action(...)` ve `simulate_window_resize(...)` pencere handle'ı talep eder; `VisualTestContext` sürümünde aynı işlemler seçili pencereye bağlıdır. Test süreçlerinde bir durumun gerçekleşmesini beklemek amacıyla `condition(...)` tercih edilir; test içerisine sleep koymak deterministik olmayan sonuçlara yol açabilir.
 
 **`TestAppWindow<V>`.** `TestAppWindow` tipli pencere handle'ıdır ve doğrudan kök view'e odaklanan testlerde tercih edilir. `handle()` ham `WindowHandle<V>`'yi, `root()` kök `Entity<V>`'yi verir. `update(...)` kök view, `Window` ve `Context<V>` üçlüsünü aynı closure yapısına taşır; `read(...)` yalnız okuma yapar. `simulate_keystroke(...)`, `simulate_keystrokes(...)` ve `simulate_input(...)` klavye akışını yönlendirir; `simulate_mouse_move(...)`, `simulate_mouse_down(...)`, `simulate_mouse_up(...)`, `simulate_click(...)` ve `simulate_scroll(...)` pointer/scroll olaylarını üretir. `simulate_event(...)` daha özel bir `InputEvent` göndermek, `simulate_resize(...)` platform pencere boyutunu değiştirmek, `draw()` ise layout ve debug sınırlarını gerçekten üretmek amacıyla kullanılır. Aynı işlemlerin `TestAppContext` veya `VisualTestContext` sarmalayıcıları varsa, testin niyetini daha açık gösteren sarmalayıcı tercih edilmelidir.
 
@@ -575,8 +574,9 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `ImageId`, `RenderImageParams`, `RenderSvgParams` | cache id, image frame index, SVG path/size | Görsel ve SVG render cache anahtarlarını taşır. |
 | `AssetLogger`, `hash` | asset cache log modu ve cache hash yardımcısı | Asset/görsel önbellek tanılama ve anahtar üretimi süreçlerinde tercih edilir. |
 | `PrimitiveBatch` | `Shadows`, `Quads`, `Paths`, `Underlines`, sprite/surface batch'leri | Scene primitive'lerini renderer'a uygun batch aralıklarına ayırır. |
-| `Quad`, `Underline` | bounds/mask/background/border; bounds/color/thickness/wavy | En yaygın iki scene primitive'idir; `window.paint_quad` ve text decoration path'lerinde görülür. |
-| `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite` | tile, bounds, mask, color/opacity/transform | Glif, SVG ve image atlas sprite'larını renderer'a taşır. |
+| `Quad`, `Underline` | bounds/mask/background/border; bounds/color/thickness/`wavy: PaddedBool32` | En yaygın iki scene primitive'idir; `window.paint_quad` ve text decoration path'lerinde görülür. |
+| `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite` | tile, bounds, mask, color/opacity/transform; `grayscale: PaddedBool32` | Glif, SVG ve image atlas sprite'larını renderer'a taşır. |
+| `PaddedBool32` | `From<bool>`, `Default`, `Copy`, `Eq` | GPU'ya yazılan `#[repr(C)]` yapılarda dolgu baytı bırakmadan `false`/`true` değerini `u32` yerleşiminde taşır; iç `u32` alanı private olduğu için dış kod yalnız `bool` dönüşümünü kullanır. |
 | `PaintSurface` | `bounds`, `content_mask`, platform image buffer | Platform surface primitive'idir; özellikle macOS compositing yolunda görünür. |
 | `PathId`, `PathVertex`, `PathVertex_ScaledPixels` | path index, vertex positions/mask, scaled alias | Scene path çiziminin vertex ve id taşıyıcılarıdır. |
 | `DebugBelow` | debug marker | `debug_below` styling'inin alt ağaçta taşınması için debug build işaretleyicisidir. |
@@ -681,7 +681,7 @@ Bu tiplerin doğru sahibi `gpui_platform` uygulamalarıdır. tanı veya platform
 
 `scene`, `arena` ve `taffy` renderer ve yerleşim boru hattının alt katmanıdır:
 
-- Scene tarafı dış API'ye yeniden dışa aktarılır: `Scene`, `Primitive`, `PrimitiveBatch`, `DrawOrder`, `Quad`, `Underline`, `Shadow`, `PaintSurface`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite`, `PathId`, `PathVertex<P>`, `PathVertex_ScaledPixels`.
+- Scene tarafı dış API'ye yeniden dışa aktarılır: `Scene`, `Primitive`, `PrimitiveBatch`, `DrawOrder`, `Quad`, `Underline`, `Shadow`, `PaintSurface`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite`, `PaddedBool32`, `PathId`, `PathVertex<P>`, `PathVertex_ScaledPixels`. `Underline::wavy` ve `PolychromeSprite::grayscale` alanları `PaddedBool32` alır; primitive doğrudan kuruluyorsa mantıksal değer `bool.into()` ile dönüştürülür. Yüksek seviyeli `Window` paint çağrıları dönüşümü otomatik uygular.
 - Yerleşim tarafında `AvailableSpace` ve `LayoutId` crate kökünden genel olarak dışa aktarılır. `TaffyLayoutEngine` ise `taffy` private modülünde `pub struct` olsa da `gpui` yalnız `use taffy::TaffyLayoutEngine` yaptığı için dış API değildir.
 - Arena tarafında `Arena` and `ArenaBox<T>` `arena` private modülünde `pub` olarak tanımlanır; ancak `gpui` bunları `pub(crate) use arena::*` ile yalnız crate içine açar; dış uygulama kodunun API'si değildir.
 

@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
 - [x] Doğrulanan workspace açma yüzeyi: `MultiWorkspace::find_or_create_workspace_with_source_workspace`, `workspace_for_paths_excluding`, `OpenMode::Activate` ve `WorkspaceMatching`.
 - [x] Kaynak doğrulama dosyaları: `crates/workspace/src/multi_workspace.rs` ve `crates/workspace/src/multi_workspace_tests.rs`.
 

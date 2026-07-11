@@ -125,7 +125,7 @@ pub trait Action: Any + Send {
 
 - `namespace = benim_crate` — action adını `benim_crate::Kaydet` biçimine çevirir.
 - `name = "OpenFile"` — namespace içinde özel ad.
-- `no_json` — `Deserialize`/`JsonSchema` derive zorunluluğunu kaldırır; `build()` her zaman hata döner, `action_json_schema()` `None` verir. Tamamen kod içinde kullanılacak action yapıları (örneğin `RangeAction { start: usize }`) için bu öznitelik tercih edilir.
+- `no_json` — `Deserialize`/`JsonSchema` derive zorunluluğunu kaldırır; `build()` her zaman hata döner, `action_json_schema()` `None` verir. Tamamen kod içinde kullanılacak, örnek uygulamaya ait action yapıları (örneğin `AralikEylemi { baslangic: usize }`) için bu öznitelik tercih edilir.
 - `no_register` — inventory üzerinden otomatik kaydı atlar; trait'i elle uygularken veya koşula bağlı kayıt yaparken gerekir.
 
 #### `register_action!` makrosu
@@ -373,7 +373,7 @@ let sonuc = KeymapFile::load(&icerik, cx);
   { "context": "Duzenleyici", "bindings": { "cmd-p": null } }
   ```
 
-  Aynı keystroke'a daha düşük öncelikle bağlanmış action'lar bu bağlam için iptal edilir; eşleşme `Keymap::resolve_binding` tarafından `disabled_binding_matches_context(...)` çağrısıyla **bağlama duyarlı** şekilde süzülür (`gpui` crate'i). Yani `NoAction`, belirli bir bağlam yüklemi içinde o tuşu sessize alır.
+  Aynı keystroke'a daha düşük öncelikle bağlanmış action'lar bu bağlam için iptal edilir. `Keymap::bindings_for_input(...)`, her binding'i etkin context yığınına karşı `binding_enabled(...)` ile değerlendirir; eşleşen kullanıcı `NoAction` girdisinde daha düşük öncelikli aramayı durdurur. `bindings_for_action(...)` görünümünde ise devre dışı binding'in context kapsamı `disabled_binding_matches_context(...)` ile karşılaştırılır. Böylece `NoAction`, belirli bir bağlam yüklemi içinde o tuşu sessize alır.
 
 - **`zed::Unbind(SharedString)`** — `derive(Action)` ile tanımlıdır; yükü (`payload`) bir action adıdır. JSON biçimi şu şekildedir:
 

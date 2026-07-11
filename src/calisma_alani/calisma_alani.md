@@ -36,4 +36,4 @@ Bölüm hangi alt dosyada hangi yüzeyi anlatır:
 - **Notification yardımcıları ve async hata gösterimi** — App-level notification, `notify_err`, `detach_and_prompt_err` aileleri.
 - **AppState, WorkspaceStore, WorkspaceDb ve OpenListener** — Workspace açma servis paketi, kalıcılık, CLI/URL açma akışı.
 - **Item ayarları, bağlam menüsü ve focus-follows-mouse** — `ItemSettings`, `ContextMenu`/`PopoverMenu` ve focus-follows-mouse davranışı (istemci tarafı uygulama menüsü `title_bar` katmanına aittir, [Üst Bar](../ust_bar/ust_bar.md) bölümünde).
-- **Komut paleti** — `CommandPaletteFilter`, `CommandInterceptor`, aliases, çalışma zamanı akışı, fuzzy arama ve geçmiş.
+- **Komut paleti** — `CommandPaletteFilter`, `GlobalCommandPaletteInterceptor`, aliases, çalışma zamanı akışı, fuzzy arama ve geçmiş.

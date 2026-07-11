@@ -8,17 +8,17 @@ Geliştirilen uygulamada ürün başlığı, platform kabuğunu sahiplenen ve he
 
 ```rust
 struct UrunBasligi {
-    platform_kabugu: View<PlatformTitleBar>,
-    proje_durumu: Model<ProjeDurumu>,
+    platform_kabugu: Entity<PlatformTitleBar>,
+    proje_durumu: Entity<ProjeDurumu>,
     ayarlar: BaslikAyarlari,
     _abonelikler: Vec<Subscription>,
 }
 
 impl Render for UrunBasligi {
-    fn render(&mut self, cx: &mut ViewContext<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
         let mut cocuk_grubu = Vec::new();
-        cocuk_grubu.push(self.sol_grubu_kur(cx));   // proje adı, dal, sunucu
-        cocuk_grubu.push(self.sag_grubu_kur(cx));   // kullanıcı, güncelleme, durum
+        cocuk_grubu.push(self.sol_grubu_kur(window, cx));
+        cocuk_grubu.push(self.sag_grubu_kur(window, cx));
 
         self.platform_kabugu.update(cx, |kabuk, _| {
             kabuk.set_button_layout(self.ayarlar.buton_yerlesimi);

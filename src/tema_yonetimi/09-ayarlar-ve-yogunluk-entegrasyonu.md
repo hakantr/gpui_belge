@@ -2,10 +2,8 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan tema ayar yüzeyi: `ThemeSettingsContent.markdown_preview_font_size`, `ThemeSettings::markdown_preview_font_size`, `MarkdownPreviewFontSize`, `adjust_markdown_preview_font_size` ve `reset_markdown_preview_font_size`.
 - [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/theme.rs`, `crates/theme_settings/src/settings.rs`, `crates/theme_settings/src/theme_settings.rs` ve `crates/settings/src/vscode_import.rs`.
-- [x] Güncel kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
 - [x] Güncel doğrulama: `ThemeSettings::markdown_preview_font_size(cx)` boş ayarda ayar dosyasındaki `ui_font_size` değerine düşer; geçici UI zoom fallback değerine katılmaz.
 
 Çalışma zamanı çalışır hale geldikten sonra kullanıcı ayarları devreye girer. Bu bölüm tema seçimi, font geçersiz kılma akışları ve UI yoğunluk sözleşmesinin çalışma zamanına nasıl bağlandığını anlatır. Bu üç hat birlikte düşünülür; birindeki karar diğerlerinin davranışını doğrudan etkiler.
@@ -792,7 +790,7 @@ Bu alanların yardımcı tipleri de şemaya dahildir:
 
 `agent_ui_font_size`, `agent_buffer_font_size`, `git_commit_buffer_font_size` ve `markdown_preview_font_size` sağlayıcı trait'inde yer almaz; her biri kendi tüketici alanında ayar katmanında kalır. `git_commit_buffer_font_size` varsayılanı 12 pikseldir; git paneli ve commit modal'ındaki editörün yazı tipi boyutunu diğer tampon boyutlarından bağımsız olarak denetler. `markdown_preview_font_size`, markdown preview metninin çalışma zamanı font boyutunu `ThemeSettings::markdown_preview_font_size(cx)` üzerinden verir; değer boşsa geçici UI zoom değerine değil ayar dosyasındaki `ui_font_size` tabanına düşer. `theme`, `icon_theme`, `markdown_preview_theme`, `experimental.theme_overrides` ve `theme_overrides` seçici ve geçersiz kılma akışına gider; typography helper'ları ise sağlayıcı üzerinden `ui_font`, `buffer_font`, `ui_font_size`, `buffer_font_size` ve `ui_density` değerlerini okur. `markdown_preview_code_font_family` sağlayıcı trait'ine eklenmez; markdown preview tüketicisi `ThemeSettings` üzerinden okur. Değer boşsa `buffer_font.family` kullanır.
 
-Tema renklerini tüketen her ayar `ThemeSettingsContent` içine girmez. `completion_menu_item_kind` bunun yeni örneğidir: şema sahibi `EditorSettingsContent`'tir, değerleri `off` ve `symbol` olur, default `off`'tur. `symbol` açıldığında completion menüsü aktif syntax theme'den capture rengi okur; bu yüzden tema dokümantasyonunda ele alınır, ama `ThemeSettingsProvider` veya `ThemeSettingsContent` sözleşmesine eklenmez. Eski ad, alias veya geriye uyumluluk katmanı tanımlanmaz.
+Tema renklerini tüketen her ayar `ThemeSettingsContent` içine girmez. `completion_menu_item_kind` ayarının şema sahibi `EditorSettingsContent`'tir; değerleri `off` ve `symbol`, varsayılanı `off` olur. `symbol` açıldığında completion menüsü etkin syntax theme'den capture rengi okur. Bu nedenle ayar tema dokümantasyonunda ele alınır, ancak `ThemeSettingsProvider` veya `ThemeSettingsContent` sözleşmesine eklenmez. Ayar yalnız `completion_menu_item_kind` adıyla çözümlenir; alias veya geriye uyumluluk katmanı bulunmaz.
 
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |

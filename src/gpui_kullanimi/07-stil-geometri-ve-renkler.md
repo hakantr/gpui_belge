@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
 - [x] Doğrulanan geometri yüzeyleri: `Rems::ZERO`, `Rems::from_pixels(length, window)` ve `impl AddAssign<Rems> for Rems`.
 - [x] Kaynak doğrulama dosyası: `crates/gpui/src/geometry.rs`.
 
@@ -40,7 +39,7 @@ div()
 | Gölge ve Opaklık | `shadow`, `shadow_none`, `shadow_2xs`, `shadow_xs`, `shadow_sm`, `shadow_md`, `shadow_lg`, `shadow_xl`, `shadow_2xl`, `opacity` | Hazır gölge şablonlarını, özel `BoxShadow` listelerini ve element şeffaflık derecesini (opacity) belirler. |
 | Arka Plan ve Metin | `bg`, `text_style`, `text_color`, `text_bg`, `text_size`, `text_xs`, `text_sm`, `text_base`, `text_lg`, `text_xl`, `text_2xl`, `text_3xl`, `text_ellipsis`, `text_ellipsis_start`, `text_ellipsis_middle`, `text_overflow`, `text_align`, `text_left`, `text_center`, `text_right`, `truncate`, `line_clamp`, `font`, `font_weight`, `font_family`, `font_features`, `italic`, `not_italic`, `underline`, `line_through`, `text_decoration_none`, `text_decoration_color`, `text_decoration_solid`, `text_decoration_wavy`, `text_decoration_*`, `line_height`, `whitespace_normal`, `whitespace_nowrap` | Arka plan renklerini, yazı tiplerini, metin hizalamalarını ve süslemelerini hiyerarşik yazı stili alanlarına yazar. |
 | İmleç ve Taşma (Overflow) | `cursor`, `cursor_*`, `cursor_default`, `cursor_pointer`, `cursor_text`, `cursor_move`, `cursor_not_allowed`, `cursor_context_menu`, `cursor_crosshair`, `cursor_vertical_text`, `cursor_alias`, `cursor_copy`, `cursor_no_drop`, `cursor_grab`, `cursor_grabbing`, `overflow_hidden`, `overflow_x_hidden`, `overflow_y_hidden`, `scrollbar_width` | Fare imlecinin görsel şeklini, taşma durumlarında içeriğin kırpılmasını ve kaydırma çubuğu alanlarını denetler. |
-| Grid ve En-Boy Oranı | `aspect_ratio`, `aspect_square`, `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`, `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full` | Grid ızgara şablonlarını, en-boy oranlarını (`Aspect`) ve hücre yerleşim koordinatlarını yapılandırır; arka planda `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement` veri yapılarını kullanır. |
+| Grid ve En-Boy Oranı | `aspect_ratio`, `aspect_square`, `grid_cols`, `grid_cols_min_content`, `grid_cols_max_content`, `grid_rows`, `col_start`, `col_end`, `col_span`, `col_span_full`, `row_start`, `row_end`, `row_span`, `row_span_full` | Grid ızgara şablonlarını, `Style::aspect_ratio: Option<f32>` alanını ve hücre yerleşim koordinatlarını yapılandırır; arka planda `GridTemplate`, `TemplateColumnMinSize` ve `GridPlacement` veri yapılarını kullanır. |
 
 Yukarıdaki akıcı metotların büyük kısmı `Styled` trait gövdesinde el ile kodlanmamıştır; derleme sürecinde bir dizi proc-macro tarafından otomatik olarak üretilir. `gpui` paketi içerisinden çağrılan bu makrolar, `gpui_macros` paketi vasıtasıyla her bir çağrı için çok sayıda metot varyantı oluşturur. Hangi makronun hangi metotları ürettiği aşağıdaki tabloda detaylandırılmıştır:
 

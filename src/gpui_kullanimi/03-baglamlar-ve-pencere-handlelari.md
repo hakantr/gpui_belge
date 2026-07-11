@@ -6,7 +6,7 @@
 
 ![GPUI Bağlam Dönüşüm Haritası](assets/context-donusum-haritasi.svg)
 
-GPUI bağlam yapılarının (`AppContext`, `WindowContext`, `ViewContext`) hiyerarşik ilişkisi ve hangi verileri/lifecycle yönetimlerini kapsadığı aşağıdaki şemada görselleştirilmiştir:
+GPUI'nin güncel geri çağrı modeli `App`, ayrı pencere parametresi olan `Window` ve entity'ye özgü `Context<T>` üçlüsüne dayanır. Bu tiplerin hangi verileri ve yaşam döngüsü işlemlerini kapsadığı aşağıdaki şemada gösterilmiştir:
 
 ![GPUI Bağlam Hiyerarşisi](assets/gpui-baglam-hiyerarsisi.svg)
 
@@ -14,7 +14,7 @@ GPUI'de neredeyse tüm işlemler bir bağlam (`context`) üzerinden yürütülü
 
 - **`App`**: Uygulamanın kök bağlamıdır. Global durum yönetimi, açık pencerelerin listesi, platform servisleri, kısayol haritaları (keymap), yeni entity oluşturma ve pencere açma gibi süreç ömrü boyunca geçerli olan temel işlemler bu bağlam üzerinden yürütülür.
 - **`Context<T>`**: Belirli bir `Entity<T>` güncellenirken kullanılan bağlamdır. `App` üzerine deref olur; bu sayede `App`'in tüm metotlarına doğrudan erişilebilir. Buna ek olarak `cx.notify()`, `cx.emit(...)`, `cx.listener(...)`, `cx.observe(...)`, `cx.subscribe(...)` ve `cx.spawn(...)` gibi entity'ye özel API'leri kullanıma açar.
-- **`WindowContext`**: Tek bir pencereye özgü durum ve davranışı temsil eder. Klavye odağı, imleç, pencere boyutu, başlık ayarları, arka plan görünümü, komut yönlendirme (`action dispatch`), IME (Input Method Editor), prompt ve platform pencere işlemleri bu bağlam üzerinden yönetilir.
+- **`Window`**: Tek bir pencereye özgü durum ve davranışı temsil eder. Klavye odağı, imleç, pencere boyutu, başlık ayarları, arka plan görünümü, komut yönlendirme (`action dispatch`), IME, prompt ve platform pencere işlemleri bu tip üzerinden yönetilir. `Window`, `App` üzerine deref olan bir bağlam değildir; `Render`, pencere bağlantılı listener ve `update_in` geri çağrılarında `&mut Window` ile `&mut Context<T>` veya `&mut App` ayrı parametreler olarak verilir.
 - **`AsyncApp` / `AsyncWindowContext`**: Asenkron bir `await` adımının ötesine taşınabilen bağlamlardır. Bu bağlamlarda `update`, `update_entity`, `read_entity`, `update_global` gibi çağrılar çoğunlukla doğrudan değeri (`R`) döndürür. Eğer uygulama (`App`) tamamen sonlanmışsa bu çağrılar panikle sonuçlanır. Diğer taraftan, pencereyi veya zayıf entity referansını yeniden çözümleyen çağrılar (`update_window`, `with_window`, `read_window` ve zayıf entity üzerindeki `update`), asenkron bekleme süresi boyunca pencerenin ya da entity'nin kapanmış/silinmiş olma ihtimaline karşın `Result` veya `Option` tipi döndürür.
 - **`TestAppContext` / `VisualTestContext`**: Testlerde simülasyon, zamanlayıcı kontrolü ve görsel doğrulama için ayrılmış bağlamlardır; üretim akışlarında kullanılmaz.
 
@@ -134,7 +134,7 @@ let baslik = tipsiz_tutamac.read::<Workspace, _, _>(cx, |calisma_alani, cx| {
 - `VisualContext`: Pencereye bağlı bağlamlara (örneğin `Window`+`App` çiftine) `window_handle`, `update_window_entity`, `new_window_entity`, `replace_root_view`, `focus` metotlarını ekler ve görsel işlevsellik kazandırır.
 - `BorrowAppContext`: `App`, `Context<T>`, async ve test context'leri gibi `App`'i ödünç alabilen bağlamlar arasında `set_global`, `update_global` ve `update_default_global` yardımcılarının ortaklaştırılmasını sağlar.
 
-**Pencerede kök değiştirme.** `window.replace_root(cx, |window, cx| NewRoot::new(window, cx))` çağrısı, mevcut pencerenin kök entity'sini yeni bir `Render` view ile değiştirir. Async ve test bağlamlarında aynı iş `replace_root_view` yardımcısı üzerinden yürütülür. Bu kalıp, yeni bir pencere açmadan kök akışını değiştirmek istediğimizde oldukça kullanışlıdır. Yine de değiştirilen eski kök görünüme ait aboneliklerin (subscriptions) ve `Task` sahipliklerinin düzgün yönetilmesi gerekir; aksi takdirde geride kalan asenkron görevler veya dinleyiciler bağlamlarını yitirmiş olarak çalışmaya devam edebilir.
+**Pencerede kök değiştirme.** `window.replace_root(cx, |window, cx| YeniKok::yeni(window, cx))` çağrısı, mevcut pencerenin kök entity'sini örnek uygulamaya ait yeni bir `Render` tipiyle değiştirir. `YeniKok` ve `yeni` adları rehber örneğinin uygulama katmanına aittir; GPUI yüzeyi `Window::replace_root` metodudur. Async ve test bağlamlarında aynı iş `replace_root_view` yardımcısı üzerinden yürütülür. Bu kalıp, yeni bir pencere açmadan kök akışını değiştirmek istendiğinde kullanışlıdır. Değiştirilen kök görünüme ait aboneliklerin ve `Task` sahipliklerinin düzgün yönetilmesi gerekir; aksi takdirde geride kalan asenkron görevler veya dinleyiciler bağlamlarını yitirmiş olarak çalışmaya devam edebilir.
 
 **`with_window` kullanımı.** `with_window(entity_id, ...)` çağrısı, verilen entity'nin en son çizildiği pencereyi bulur. Aynı entity birden fazla pencerede çiziliyorsa bu API, o anki pencere için bir kısayol işlevi görür. Eğer belirli bir pencerenin hedeflenmesi gerekiyorsa, o pencereye ait `WindowHandle` referansı doğrudan saklanmalıdır.
 

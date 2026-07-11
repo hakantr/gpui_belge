@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan liste yüzeyi: `ListItem::end_slot_on_hover` ve `EndSlotVisibility::SwapOnHover` hover slot çizimi.
 - [x] Kaynak doğrulama dosyası: `crates/ui/src/components/list/list_item.rs`.
 

@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
 - [x] Doğrulanan asset/UI yüzeyi: `VectorName::VipStamp` ve `assets/images/vip_stamp.svg` yolu.
 - [x] Kaynak doğrulama dosyası: `crates/ui/src/components/image.rs`.
 

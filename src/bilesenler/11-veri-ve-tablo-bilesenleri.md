@@ -2,10 +2,8 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan tablo yüzeyi: `ResizableColumnsState::pinned_width`, `ResizableColumnsState::scrollable_width` ve sabit kolonlu yatay scrollbar yerleşimi.
 - [x] Kaynak doğrulama dosyası: `crates/ui/src/components/data_table.rs`.
-- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
 - [x] Güncel doğrulama: `Table::column_filter`, `TableRenderContext::with_column_filter`, `bind_redistributable_columns(..., hidden)` ve `render_redistributable_columns_resize_handles(..., hidden, ...)` imzaları rustdoc JSON ile doğrulandı.
 
 Zed UI tarafında tabloya ihtiyaç duyulduğunda ana giriş noktası `Table` bileşenidir. Küçük ve sabit satırlı tablolar doğrudan `.row(...)` çağrılarıyla kurulur. Satır sayısı arttığında ise tablo, GPUI'nin sanallaştırılmış liste altyapısına bağlanan `.uniform_list(...)` veya `.variable_row_height_list(...)` çağrılarıyla render edilir. Yani tablo tek bir kalıba sıkışmaz; satır modeline göre üç farklı kullanım biçimi sunar.

@@ -2,10 +2,8 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `5837e7ef50f6..d0802abdecad`.
 - [x] Doğrulanan dış tema API yüzeyi: `Oklab`, `Oklch`, `hsla_to_oklab`, `hsla_to_oklch`, `oklch_to_hsla` ve tema crate kökü `pub use crate::color_space::*`.
 - [x] Kaynak doğrulama dosyaları: `crates/theme/src/color_space.rs` ve `crates/theme/src/theme.rs`.
-- [x] Güncel kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
 - [x] Güncel doğrulama: markdown preview font boyutu boş ayarda ayar dosyasındaki `ui_font_size` değerine fallback eder; geçici UI zoom bu fallback'i değiştirmez.
 
 Bu bölüm iki temel konuyu netleştirir: tüketiciye sunulacak public API sınırları ve test ortamındaki sahte tema düzeni. İyi tanımlanmış bir public API sınırı, mevcut Zed sözleşmesinde hangi parçaların bilinçli olarak dışarıya açıldığını gösterir. Sağlam kurulmuş bir test ortamı ise, bileşenlerin tema değişimleri karşısında doğru davrandığını sürdürülebilir biçimde doğrulamayı sağlar.
@@ -619,7 +617,7 @@ fn buton_tema_arka_planiyla_cizilir(cx: &mut TestAppContext) -> anyhow::Result<(
 }
 ```
 
-> **GPUI test API'ları:** `TestAppContext::simulate_input`, `find_view` gibi metotlar rehber.md #75 altında detaylandırılmıştır. Render çıktısının test edilmesi, temanın doğru okunduğunu teyit eder; temanın **kendi** doğruluğu için ise ilgili bölümlerdeki fixture testleri yeterli kabul edilir.
+> **GPUI test API'ları:** `TestAppContext::simulate_input`, `TestAppWindow::read` ve `VisualTestContext::debug_bounds` gibi güncel test yüzeyleri GPUI test bölümünde detaylandırılmıştır. Render çıktısının test edilmesi, temanın doğru okunduğunu teyit eder; temanın **kendi** doğruluğu için ise ilgili bölümlerdeki fixture testleri yeterli kabul edilir.
 
 ### Tema değişimi simülasyonu
 

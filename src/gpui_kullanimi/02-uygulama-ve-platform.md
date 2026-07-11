@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `693962917b5a..6b733d105896`.
 - [x] Doğrulanan platform yüzeyi: `Application::run_embedded`, `ApplicationHandle`, primary selection pano metotları ve sistem uyku dönüşü callback akışı.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/app.rs`, `crates/gpui/src/platform.rs` ve rustdoc JSON snapshot kayıtları.
 

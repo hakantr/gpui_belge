@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `cf93437d6a4d..f88bc7e18aeb`.
 - [x] Doğrulanan SVG render yüzeyi: `SvgRenderer` font resolver hattı, `render_single_frame(...)`, mixed-font metin kümesi ve combining mark regresyon testi.
 - [x] Kaynak doğrulama dosyası: `crates/gpui/src/svg_renderer.rs`.
 

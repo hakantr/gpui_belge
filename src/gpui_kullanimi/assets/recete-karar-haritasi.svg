@@ -119,7 +119,7 @@
   <g transform="translate(180, 348)" class="seq5">
     <rect width="220" height="148" rx="12" fill="url(#g-slate)" class="card" />
     <text x="110" y="36" class="c-title">State Sahibi</text>
-    <text x="110" y="74" class="c-body">• Entity / Model</text>
+    <text x="110" y="74" class="c-body">• Entity</text>
     <text x="110" y="102" class="c-dim">• render yalnız okur</text>
   </g>
 

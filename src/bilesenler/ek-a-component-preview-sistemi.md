@@ -40,7 +40,7 @@ Bu tipler canlı arayüzde component seçmek için genel amaçlı bir API olarak
 | `scope() -> ComponentScope` | `ComponentScope::None` | `ComponentScope::None` | Galeride (gallery) grup başlığını belirler; gruplamak istendiğinde override edilir |
 | `status() -> ComponentStatus` | `ComponentStatus::Live` | `ComponentStatus::Live` | Galeri filtreleme ve "canlı kullanıma hazır mı" işareti; farklı bir durum gerektiğinde override edilir |
 | `name() -> &'static str` | `type_name::<Self>()` | Genelde override | Galeride görünen ad; `type_name` modül yolunu da içerir |
-| `sort_name() -> &'static str` | `Self::name()` | Bilinçli sıralama istendiğinde override | İlişkili bileşenleri sıralı tutmak için (örn. `ButtonA`, `ButtonB`, `ButtonC`) |
+| `sort_name() -> &'static str` | `Self::name()` | Bilinçli sıralama istendiğinde override | Örnek uygulamadaki ilişkili bileşenleri sıralı tutmak için (örn. `DugmeA`, `DugmeB`, `DugmeC`) |
 | `description() -> &'static str` | Açıklama metni | Zorunlu | `documented::Documented` derive ile doc comment `Self::DOCS` üzerinden açıklamaya dönüştürülebilir |
 | `preview(window, cx) -> AnyElement` | Önizleme elementi | Zorunlu | Galeride gösterilen örnek alanı; boş durum için `empty_example(...)` döndürülebilir |
 

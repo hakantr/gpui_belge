@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `6e9ff7a4f31a..e7311d52ba1b`.
 - [x] Doğrulanan yerleşim yüzeyi: `Divider`, `DividerColor` ve `Divider::vertical()` geometri varsayılanı.
 - [x] Kaynak doğrulama dosyası: `crates/ui/src/components/divider.rs`.
 

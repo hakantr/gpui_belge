@@ -2,10 +2,8 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan metin yüzeyi: `LineWrapper::is_word_char` kapsamındaki non-breaking glue karakterleri ve satır sarma davranışı.
 - [x] Kaynak doğrulama dosyası: `crates/gpui/src/text_system/line_wrapper.rs`.
-- [x] Güncel kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
 - [x] Güncel doğrulama: `MarkdownElement` link içindeki görsellerde tıklama hedefini çevreleyen bağlantıya yönlendirir; tekil görsel fallback'i görsel URL'sini açar.
 
 ---

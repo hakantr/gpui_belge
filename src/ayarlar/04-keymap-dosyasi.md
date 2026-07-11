@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `f88bc7e18aeb..46ff888db853`.
 - [x] Doğrulanan keymap yüzeyi: `(Picker && with_preview) > Editor` preview bağlamı, `Picker > Editor` actions menüsü bağlamı ve Vim/Helix debug kısayolları.
 - [x] Kaynak doğrulama dosyaları: `crates/settings/src/settings.rs`, `crates/gpui/src/key_dispatch.rs`, `assets/keymaps/specific-overrides-macos.json`, `assets/keymaps/specific-overrides.json` ve `assets/keymaps/vim.json`.
 

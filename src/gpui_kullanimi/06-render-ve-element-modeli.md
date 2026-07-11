@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `693962917b5a..6b733d105896`.
 - [x] Doğrulanan render yüzeyi: `View`, `ViewElement<V>`, `Entity<T>::cached(...)`, `AnyView::cached(...)` ve `IntoElement for Entity<T>`.
 - [x] Kaynak doğrulama dosyası: `crates/gpui/src/view.rs` ve rustdoc JSON snapshot kayıtları.
 

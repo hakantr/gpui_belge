@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Güncel kaynak commit aralığı: `693962917b5a..6b733d105896`.
 - [x] Güncel doğrulama: `ListState::with_uniform_item_height`, `ListState::reset_with_uniform_height` ve animation element çocuk ekleme davranışı eşleştirildi.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/elements/list.rs`, `crates/gpui/src/elements/animation.rs` ve rustdoc JSON snapshot kayıtları.
 
@@ -545,6 +544,7 @@ window.paint_quad(outline(sinirlar, rgb(0xff0000), BorderStyle::Solid));
 - `Scene::clear()`, `len()`, `push_layer(bounds)`, `pop_layer()`, `insert_primitive(primitive)`, `replay(...)`, `finish()` ve `batches()` çizim listesini yönetir.
 - `Primitive` varyantları `Shadow`, `Quad`, `Path`, `Underline`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite` ve `Surface` türlerini taşır; raster image ve SVG çizimleri renderer katmanında sprite primitive'lerine dönüşür. `Primitive::bounds()` ve `content_mask()` çizim alanı ve kırpma bilgisini verir.
 - `PrimitiveBatch`, `DrawOrder`, `MonochromeSprite`, `SubpixelSprite`, `PolychromeSprite`, `PaintSurface`, `PathId`, `PathVertex<Pixels>` ve `PathVertex_ScaledPixels` renderer'ın batch ve sprite atlas verileridir. `Scene` bu veriyi `shadows`, `quads`, `underlines`, sprite listeleri ve `surfaces` alanlarında türüne göre saklar.
+- `PaddedBool32`, GPU'ya gönderilen yapılardaki mantıksal değerleri dolgu baytı üretmeyen `#[repr(transparent)]` bir `u32` içinde tutar. Dışarıdan yalnız `From<bool>` ile üretilebildiği için değer `0` veya `1` kalır. `Underline::wavy` ile `PolychromeSprite::grayscale` bu tipi kullanır; primitive elle kurulurken `bool.into()` dönüşümü gerekir. `Window::paint_underline(...)`, görsel ve SVG çizim yolları bu dönüşümü kendi içinde yapar.
 - `clipped_bounds(...)`, path'in aktif içerik maskesiyle kesilmiş sınırını hesaplar.
 
 Bu tipler "ekrana ne çizilecek?" sorusunun son cevabıdır. Bir buton, liste veya kart bileşeni tasarlarken `Scene` yerine element API'leri tercih edilir; yalnızca GPUI renderer hattı genişletilmek istendiğinde primitive seviyesine inilir.

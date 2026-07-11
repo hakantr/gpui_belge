@@ -4,11 +4,9 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Kaynak commit aralığı: `080838387a76..8ba35e5eacf3`.
 - [x] Doğrulanan settings yüzeyleri: `GitPanelSettingsContent::sort_by`, `group_by`, `entry_primary_click_action`, `GitPanelSortBy`, `GitPanelGroupBy` ve `GitPanelClickBehavior`.
 - [x] Kaynak doğrulama dosyaları: `crates/settings_content/src/settings_content.rs`, `assets/settings/default.json` ve Zed `docs/src/reference/all-settings.md`.
-- [x] Güncel kaynak commit aralığı: `d0802abdecad..78b6bf2fbe2a`.
-- [x] Güncel doğrulama: `SettingsContent` kök şeması güncel kaynak yüzeyiyle yeniden eşleştirildi.
+- [x] Doğrulama: `SettingsContent` kök şeması mevcut kaynak yüzeyiyle eşleştirildi; `GitPanelGroupBy::{None, Status, Staging}` seçenekleri kapsandı.
 
 ## Ayar Akışı
 
@@ -66,7 +64,7 @@ pub trait SettingsKey: 'static + Send + Sync {
 }
 ```
 
-`KEY = None` olması, ayarın root object (kök nesne) üzerinden çözümlendiği anlamına gelir. `FALLBACK_KEY` ise eski JSON anahtarlarından yeni yapılara geçiş yapılırken uyumluluğu korumak amacıyla kullanılır; yeni anlatımlarda kalıcı bir anahtar olarak değil, geçiş desteği olarak düşünülmelidir.
+`KEY = None` olması, ayarın root object (kök nesne) üzerinden çözümlendiği anlamına gelir. `FALLBACK_KEY`, canonical `KEY` bulunmadığında desteklenen alternatif JSON anahtarını çözümlemek için kullanılır; kalıcı yazma anahtarı yine `KEY` olur.
 
 ---
 
@@ -161,7 +159,7 @@ Dosyaların öncelik sıralamasında `SettingsFile::cmp` yapısı `Project` > `S
 | `CallSettingsContent` | `calls` altında sesli çağrı başlangıç tercihleri | `mute_on_join` ve `share_on_join` gibi bool alanları içerir. |
 | `TelemetrySettingsContent` | `telemetry` altında tanı, metrik ve model sağlayıcı retention tercihleri | `diagnostics` ve `metrics` varsayılan olarak `true`, `anthropic_retention` varsayılan olarak `false` değerine sahiptir. |
 | `DebuggerSettingsContent`, `SteppingGranularity` | `debugger` adım, breakpoint ve DAP günlüğü ayarları | Dock alanı, settings crate'indeki `DockPosition` değerine bağlanır. |
-| `GitPanelSettingsContent`, `StatusStyle`, `ScrollbarSettings`, `GitPanelSortBy`, `GitPanelGroupBy`, `GitPanelClickBehavior` | Git paneli görünümü, dock, scrollbar, sıralama, gruplama ve tıklama davranışı | `sort_by` alanı `path`/`name`, `group_by` alanı `none`/`status`, `entry_primary_click_action` alanı ise `project_diff`/`file_diff`/`view_file` seçeneklerini taşır; `commit_title_max_length` varsayılanı `0` olduğunda başlık uzunluğu uyarısı devre dışıdır. |
+| `GitPanelSettingsContent`, `StatusStyle`, `ScrollbarSettings`, `GitPanelSortBy`, `GitPanelGroupBy`, `GitPanelClickBehavior` | Git paneli görünümü, dock, scrollbar, sıralama, gruplama ve tıklama davranışı | `sort_by` alanı `path`/`name`, `group_by` alanı `none`/`status`/`staging`, `entry_primary_click_action` alanı ise `project_diff`/`file_diff`/`view_file` seçeneklerini taşır; `commit_title_max_length` varsayılanı `0` olduğunda başlık uzunluğu uyarısı devre dışıdır. `staging`, değişiklikleri çakışma, staged ve unstaged bölümlerine ayırır. |
 | `PanelSettingsContent`, `DockSide` | İş birliği ve benzeri panel genişliği/dock şemaları | Tek panel içerik taşıyıcısı birden çok panel alanında kullanılır. |
 | `FileFinderSettingsContent`, `FileFinderWidthContent`, `IncludeIgnoredContent` | Dosya bulucu ikon, genişlik ve göz ardı edilen dosya stratejileri | `IncludeIgnoredContent::Smart` varsayılan seçimdir. |
 | `VimSettingsContent`, `ModeContent`, `UseSystemClipboard`, `CursorShapeSettings`, `VimInsertModeCursorShape` | Vim modu davranışları ve cursor şekli override'ları | `CursorShapeSettings`, editör `CursorShape` ile Vim insert shape enum'unu birleştirir. |

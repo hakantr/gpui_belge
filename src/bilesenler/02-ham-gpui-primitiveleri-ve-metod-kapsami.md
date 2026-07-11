@@ -2,7 +2,6 @@
 
 ## Sürüm Analiz Raporu
 
-- [x] Güncel kaynak commit aralığı: `e7311d52ba1b..693962917b5a`.
 - [x] Güncel doğrulama: `InteractiveElement::on_mouse_exit(...)` ve `Interactivity::on_mouse_exit(...)` işaretçi çıkış olayı yüzeyiyle eşleştirildi.
 - [x] Kaynak doğrulama dosyası: `crates/gpui/src/elements/div.rs`.
 
