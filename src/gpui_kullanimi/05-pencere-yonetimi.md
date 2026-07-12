@@ -7,6 +7,8 @@
 - [x] Doğrulanan pencere yüzeyi: `WindowOptions::is_movable` macOS özel başlık çubuğu notu ve `WindowParams::app_id` aktarımı.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs` ve `crates/gpui/src/window.rs`.
 - [x] Güncel doğrulama: `Window::set_input_region` ve `PlatformWindow::set_input_region` Wayland girdi bölgesi sözleşmesiyle eşleştirildi.
+- [x] Doğrulanan mobil pencere sözleşmesi: `WindowInsets`, `TextInputStateChange` ve `PlatformWindow` üzerindeki inset, sistem geri eylemi ile yazılım klavyesi metotları.
+- [x] Kaynak doğrulama dosyası: `crates/gpui/src/platform.rs`; struct, enum ve trait üyesi imzaları rust-analyzer ile doğrulandı.
 
 ---
 
@@ -583,6 +585,25 @@ macOS yerel pencere sekmelerine yönelik ek API ailesi, işletim sistemi düzeyi
 - `window.tabbed_windows()` fonksiyonu sekmeli pencerelerin grup bilgilerini `Option<Vec<SystemWindowTab>>` formatında sorgular.
 - `window.tab_bar_visible()` yerel sekme barının aktif görünürlük durumunu bildirir.
 - `window.merge_all_windows()`, `window.move_tab_to_new_window()` ve `window.toggle_window_tab_overview()` metotları ise işletim sisteminin yerel pencere sekmelerini yöneten kullanıcı komutlarının GPUI sarmalayıcılarıdır.
+
+## Mobil Pencere Insets, Sistem Geri Eylemi ve Yazılım Klavyesi
+
+Mobil platform arka uçları, sistem UI'sının pencere içinde kapladığı alanı `WindowInsets` ile bildirir. `safe_area: Edges<Pixels>` durum çubuğu, ekran kesiti ve gezinme çubuğu gibi güvenli alan paylarını; `ime: Edges<Pixels>` ise yazılım klavyesinin kapladığı bölgeyi taşır. `WindowInsets::effective()` bu iki değeri toplamaz: her kenar için `safe_area` ile `ime` değerlerinden büyük olanı seçer. Böylece aynı fiziksel alan iki kez düşülmez.
+
+`PlatformWindow` üzerindeki mobil sözleşme şu metotlardan oluşur:
+
+| API | Görevi | Varsayılan davranış |
+| :-- | :-- | :-- |
+| `insets() -> WindowInsets` | Pencerenin sistem UI'sı ve yazılım klavyesi tarafından örtülen güncel kenar paylarını verir. | Sıfır kenarlı `WindowInsets::default()` döndürür. |
+| `on_insets_changed(Box<dyn FnMut(WindowInsets)>)` | Insets değişimini, animasyon ilerlemesi boyunca ve dinlenme konumunda bildirir. | Geri çağrı kaydedilmez. |
+| `set_back_handler(Box<dyn FnMut()>)` | Android sistem geri butonu veya gesture eyleminin işleyicisini kurar. | İşlem yapmaz. |
+| `set_back_enabled(bool)` | Uygulamanın sistem geri eylemini o anda işleyip işlemeyeceğini bildirir. | İşlem yapmaz. |
+| `show_soft_keyboard()` / `hide_soft_keyboard()` | Yazılım klavyesinin gösterilmesini veya gizlenmesini ister. | İşlem yapmaz. |
+| `text_input_state_changed(TextInputStateChange)` | Odak, seçim veya içerik değişimini işletim sistemi metin girdisi katmanına bildirir. | İşlem yapmaz. |
+
+`TextInputStateChange::{FocusGained, FocusLost, SelectionChanged, ContentChanged}` sırasıyla düzenlenebilir elementin odak kazanmasını, odağı bırakmasını, seçim veya imleç hareketini ve platform kaynaklı olmayan belge değişimini ayırır.
+
+Bu metotlar yüksek seviyeli `Window` üzerinde aynı adlarla sunulmaz; yeni bir `PlatformWindow` arka ucu yazılırken uygulanır. Mevcut HEAD altındaki platform uygulamaları varsayılan gövdeleri ezmez. Dolayısıyla `WindowInsets` ve ilgili metotlar, çalışan masaüstü pencere davranışı değil, mobil arka uç sözleşmesidir. Metin seçimi ve UTF-16 köprüsü [Metin Girdisi ve IME](09-etkilesim-ve-olaylar.md#metin-girdisi-ve-ime) başlığında açıklanır.
 
 ## Window Çalışma Zamanı API Aileleri
 

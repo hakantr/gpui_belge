@@ -4,6 +4,8 @@
 
 - [x] Doğrulanan düşük seviye yüzey: `WindowParams::app_id` ve `Platform::on_system_wake`.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs`, `crates/gpui/src/platform/test/platform.rs` ve `crates/gpui/src/platform/visual_test.rs`.
+- [x] Doğrulanan düşük seviye mobil yüzey: `PlatformGestures`, `AppLifecyclePhase`, `WindowInsets`, `TextInputStateChange`, dokunma olay tipleri ve genişletilen `PlatformInputHandler` köprüsü.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/gestures.rs`, `crates/gpui/src/interactive.rs`, `crates/gpui/src/platform.rs` ve `crates/gpui/src/input.rs`; sembol yüzeyi rust-analyzer ile doğrulandı.
 
 ---
 
@@ -521,9 +523,11 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `WindowParams` | `bounds`, `titlebar`, `kind`, `is_movable`, `is_resizable`, `is_minimizable`, `focus`, `show`, `icon`, `display_id`, `app_id`, `window_min_size` | `WindowOptions` çözümlendikten sonra platform backend'ine giden pencere açma parametreleridir. `app_id`, Linux/FreeBSD masaüstü ortamlarında pencere gruplama ve görev çubuğu eşleşmesi için platform katmanına taşınır. |
 | `DEFAULT_WINDOW_SIZE`, `DEFAULT_ADDITIONAL_WINDOW_SIZE` | ana pencere ve ek pencere varsayılan boyutları | `WindowOptions.window_bounds` verilmediğinde display `default_bounds()` hesabının temel aldığı ana ölçü ve Zed'in yardımcı pencerelerde kullandığı ek ölçüdür. Aktif pencere varsa GPUI önce onun sınırından kademeli yerleşim üretir. |
 | `TextRenderingMode` | `PlatformDefault`, `Subpixel`, `Grayscale` | Platform text system'in glif rasterleme modunu bildirir. |
-| `Platform` | `hide_cursor_until_mouse_moves`, `on_system_wake` | Platform arka ucunda imleci bir sonraki fare hareketine kadar gizleyen düşük seviye çağrı ve sistem uyku dönüşü callback kaydıdır. Uygulama kodu wake sinyalini `Application::on_system_wake` sarmalayıcısı üzerinden kullanır. |
+| `Platform` | `hide_cursor_until_mouse_moves`, `on_system_wake`, `on_app_lifecycle`, `on_memory_warning`, `gestures` | Platform arka ucunda imleç, sistem uyku dönüşü ve mobil yaşam döngüsü/bellek baskısı sinyallerini taşır. Mobil metotların varsayılanları işlem yapmaz; `gestures()` `None` döndürür. |
+| `AppLifecyclePhase`, `WindowInsets`, `TextInputStateChange` | mobil yaşam döngüsü; `safe_area`/`ime` ve `effective`; odak/seçim/içerik değişimi | Mobil platform ile pencere arka ucu arasındaki durum sözlüğüdür; uygulama ve pencere sözleşmeleri ilgili konu dosyalarında ayrıntılandırılır. |
+| `PlatformGestures`, `GestureTuning`, `GestureKinds`, `NullPlatformGestures` | `tuning`, `native_recognizers`; tanıyıcı ayarları ve yetenek bayrakları | Mobil gesture arka ucu sözleşmesidir. Mevcut platform uygulamalarında varsayılanı ezen tanıyıcı hizmeti bulunmaz. |
 | `PlatformTextSystem`, `NoopTextSystem` | font yükleme, metrics, glyph, raster, layout | Platform metin motoru trait'i ve test/headless için no-op implementasyondur. |
-| `PlatformInputHandler` | `selected_text_range`, IME/input handler köprüsü | Platform metin girdisi ile GPUI `InputHandler` arasındaki async window context köprüsüdür. |
+| `PlatformInputHandler` | `selected_text_range`, `set_selected_text_range`, `element_bounds`, `text_length_utf16`, IME/input handler köprüsü | Platform metin girdisi ile GPUI `InputHandler` arasındaki async pencere bağlamı köprüsüdür. |
 | `PlatformKeyboardLayout`, `PlatformKeyboardMapper`, `DummyKeyboardMapper` | layout, mapper, test mapper | Platform keystroke çevirimi ve test keyboard mapping sınırıdır. |
 | `PlatformAtlas` | `get_or_insert_with`, `remove` | Glif/SVG/image raster sonuçlarını atlas tile olarak cache'leyen platform trait'idir. |
 | `AtlasKey` | `Glyph`, `Svg`, `Image`, `texture_kind` | Atlas cache anahtarıdır; içerik tipine göre texture kind seçer. |
@@ -540,7 +544,9 @@ Aşağıdaki tablolar, bu dosyada anlatılan ama ayrı başlık açılması gere
 | `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent` | down: `button`, `position`, `modifiers`, `click_count`, `first_mouse` alanı (`is_focusing()` ile sorgulanır); up: `button`, `position`, `modifiers`, `click_count` (`is_focusing()` ile sorgulanır); move: `position`, `pressed_button`, `modifiers`, `dragging()` | Fare press/release/move ham olaylarıdır; modifier alanı doğrudan `modifiers` üzerinden okunur. |
 | `MouseClickEvent`, `MouseExitEvent` | down/up çifti; exit `position`, `pressed_button`, `modifiers` | Click sentezi ve pencere dışına çıkış olayıdır; `MouseExitEvent` `Modifiers` için `Deref` taşır. |
 | `ScrollWheelEvent`, `PinchEvent` | `delta`, `touch_phase`; `delta`, `phase` | Scroll ve pinch gesture olaylarıdır; ikisi de `Modifiers` için `Deref` taşır. |
-| `TouchPhase` | `Started`, `Moved`, `Ended` | Touch/scroll/pinch fazını sınıflandırır. |
+| `TouchPhase` | `Started`, `Moved`, `Ended`, `Cancelled` | Dokunma, scroll ve pinch evresini sınıflandırır; `Cancelled` normal bitiş gelmeden süren etkileşimin geri alınmasını gerektirir. |
+| `TouchId`, `TouchEvent` | temas kimliği; `id`, `phase`, `position`, `force` | Ham dokunmayı temas ömrü boyunca tanımlar ve `PlatformInput::Touch` içine dönüştürür. |
+| `TouchClickEvent`, `ClickEvent::Touch` | `position`, `tap_count`, `long_press`; `is_secondary`, `standard_click` | Tanınmış dokunma etkinleştirmesinin anlamsal tıklama modelidir; geçerli çekirdek yönlendirme sınırı etkileşim bölümünde açıklanır. |
 | `NavigationDirection` | `Back`, `Forward` | Mouse navigation button yönüdür. |
 | `PressureStage` | `Zero`, `Normal`, `Force` | Force click basınç aşamasını sınıflandırır. |
 | `ExternalPaths`, `FileDropEvent` | `paths`; `Entered`, `Pending`, `Submit`, `Exited` | Dosya sürükle-bırak verisini ve fazlarını taşır. |
@@ -618,7 +624,7 @@ Bu tipler özellikle özel yerleşim hesaplarında, canvas ve path çizimlerinde
 
 Bazı genel tipler element ağacının yerleşim, prepaint ve paint fazları arasında durum taşır:
 
-- `Drawable<E>`, `Canvas<T>`, `AnimationElement<E>`, `Svg`, `Img`, `SurfaceSource`.
+- `Drawable<E>`, `Canvas<T>`, `ContainerQuery`, `AnimationElement<E>`, `Svg`, `Img`, `SurfaceSource`.
 - `AnchoredState`, `DivFrameState`, `DivInspectorState`, `ImgLayoutState`, `ListPrepaintState`, `InteractiveTextState`, `UniformListFrameState`, `UniformListScrollState`.
 - `InteractiveElementState`, `ElementClickedState`, `ElementHoverState`, `GroupStyle`, `DragMoveEvent<T>`.
 - `DeferredScrollToItem`, `ItemSize`, `UniformListDecoration`, `ListScrollEvent`, `ListMeasuringBehavior`, `ListHorizontalSizingBehavior`.
@@ -632,7 +638,7 @@ Normal uygulama kodlarında bu durum tipleri çoğunlukla doğrudan yönetilmez;
 - Trait sınıfları: `InputEvent`, `KeyEvent`, `MouseEvent`, `GestureEvent`.
 - Klavye: `ModifiersChangedEvent`, `KeyboardClickEvent`, `KeyboardButton`.
 - Fare: `MouseClickEvent`, `MouseExitEvent`, `PressureStage`.
-- Dokunma ve hareket: `TouchPhase`, `NavigationDirection`.
+- Dokunma ve hareket: `TouchId`, `TouchEvent`, `TouchClickEvent`, `TouchPhase`, `NavigationDirection`.
 - Hitbox: `HitboxId` çizilmiş kare içinde hitbox'ı tanımlayan opaque id'dir; uygulama kodu genellikle `Hitbox` handle'ı ve `window.hitbox(...)` sonucu ile çalışır.
 - Drag/drop tarafında `ExternalPaths` ve `FileDropEvent` "Sürükleme ve Bırakma İçeriği Üretimi" başlığında ayrıca ele alınmıştır.
 
@@ -799,7 +805,7 @@ Renk ve geometri kısa fonksiyonları:
 | `TextSystem`, `FontFeatures` | Platform font sistemi ve OpenType feature map taşıyıcısıdır. |
 | `KeyBinding`, `keymap`, `is_no_action`, `is_unbind` | GPUI keymap bağlama modeli, keymap modülü ve no-op/unbind yardımcılarıdır. |
 | `WindowBackgroundAppearance`, `WindowControls`, `WindowButton`, `WindowButtonLayout`, `TitlebarOptions`, `MAX_BUTTONS_PER_SIDE` | Platform pencere arka planı, native kontrol butonları ve titlebar seçeneklerinin GPUI tarafındaki düşük seviye yüzeyidir. |
-| `assets`, `colors`, `input`, `inspector`, `inspector_reflection`, `interactive` | Crate kökünden yeniden açılan alt modüllerdir; derin davranış ilgili konu dosyalarında anlatılır. |
+| `assets`, `colors`, `gestures`, `input`, `inspector`, `inspector_reflection`, `interactive` | Crate kökünden yeniden açılan alt modüllerdir; derin davranış ilgili konu dosyalarında anlatılır. |
 | `prelude`, `refineable` | Ergonomik import ve refinement macro/trait yüzeyine geçiş noktalarıdır; yeni davranış katmanı değil, mevcut GPUI yüzeyinin re-export kapısıdır. |
 
 #### Kök Yeniden Dışa Aktarım ve Makro Yüzeyi

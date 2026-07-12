@@ -4,6 +4,9 @@
 
 - [x] Güncel doğrulama: `InteractiveElement::on_mouse_exit(...)`, `Interactivity::on_mouse_exit(...)` ve `MouseExitEvent` ilişkisi rustdoc JSON ile doğrulandı.
 - [x] Kaynak doğrulama dosyası: `crates/gpui/src/elements/div.rs`.
+- [x] Doğrulanan dokunma yüzeyi: `TouchId`, `TouchEvent`, `TouchClickEvent`, `ClickEvent::Touch`, `TouchPhase::Cancelled`, `PlatformInput::Touch` ve gesture sözleşmesi tipleri.
+- [x] Doğrulanan metin girdisi yüzeyi: `InputHandler` ile `EntityInputHandler` üzerindeki seçim yazma, element sınırı ve UTF-16 belge uzunluğu metotları.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/interactive.rs`, `crates/gpui/src/gestures.rs`, `crates/gpui/src/platform.rs`, `crates/gpui/src/input.rs` ve `crates/gpui/src/window.rs`; imzalar ve yönlendirme sınırı rust-analyzer ile doğrulandı.
 
 ## Klavye Odağı, Odak Kaybı ve Klavye Olayları
 
@@ -75,7 +78,7 @@ Bu aboneliklerin arkasındaki pencere odak olayı, önceki ve mevcut focus path'
 
 Element seviyesindeki etkileşim API'leri tek bir akıcı (fluent) zincir içinde toplanır; doğru metodu seçmek için öncelikle etkileşimin hangi sınıfa girdiğini belirlemek gerekir:
 
-- **Tıklama ve temel fare hareketi:** `.on_click(...)`, mouse down/up aynı hedefte eşleştiğinde `ClickEvent` üretir; buton gibi komut yüzeylerinde bu metot tercih edilir. `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)` ve `.on_mouse_exit(...)` doğrudan fare olaylarını dinler; sürükleme başlatma, özel basılı durum, anlık imleç takibi veya hitbox'tan ayrılma davranışı gerektiğinde bu metotlar seçilmelidir. Bu noktada önemli bir ayrım mevcuttur: `.on_click(...)`, `.on_drag(...)` ve `.on_hover(...)` `.id(...)` verilmiş bir elementte (yani `StatefulInteractiveElement`) bulunur; `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)`, `.on_mouse_exit(...)` ile bırakma ailesi (`.drag_over(...)`, `.can_drop(...)`, `.on_drop(...)`) ise id'si bulunmayan `InteractiveElement` üzerindedir.
+- **Tıklama ve temel fare hareketi:** `.on_click(...)`, hedef üzerinde tamamlanan anlamsal tıklamayı `ClickEvent` olarak taşır; çekirdek fare yolunda `MouseDownEvent` ve `MouseUpEvent` olaylarının aynı hedefte eşleşmesi gerekir. `ClickEvent` tipi klavye ve dokunma kaynaklarını da ayırır; mevcut dokunma yönlendirme sınırı aşağıdaki özel başlıkta açıklanır. `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)` ve `.on_mouse_exit(...)` doğrudan fare olaylarını dinler; sürükleme başlatma, özel basılı durum, anlık imleç takibi veya hitbox'tan ayrılma davranışı gerektiğinde bu metotlar seçilmelidir. Bu noktada önemli bir ayrım mevcuttur: `.on_click(...)`, `.on_drag(...)` ve `.on_hover(...)` `.id(...)` verilmiş bir elementte (yani `StatefulInteractiveElement`) bulunur; `.on_mouse_down(...)`, `.on_mouse_up(...)`, `.on_mouse_move(...)`, `.on_mouse_exit(...)` ile bırakma ailesi (`.drag_over(...)`, `.can_drop(...)`, `.on_drop(...)`) ise id'si bulunmayan `InteractiveElement` üzerindedir.
 - **Dışarı tıklama/kapatma akışı:** `.on_mouse_down_out(...)` ve `.on_mouse_up_out(...)`, fare olayı element hitbox'ının dışında gerçekleştiğinde capture aşamasında çalışır. Popover, menü veya modal dışına tıklanıldığında `DismissEvent` yaymak amacıyla bu metot ailesinden yararlanılır.
 - **Kaydırma ve gesture:** `.on_scroll_wheel(...)`, hitbox kaydırma alabiliyorsa scroll olayını dinler; düz hover kontrolünden daha güvenilirdir. `.on_pinch(...)`, trackpad pinch gibi yakınlaştırma gesture'larını yakalar.
 - **Sürükleme ve bırakma:** `.on_drag_move::<T>(...)`, sürükleme element sınırının dışına çıksa dahi aynı tipteki aktif drag boyunca hareket bilgisi sağlar; bu durum yeniden boyutlandırma (resize) veya split handle gibi klasik drop içermeyen sürükleme senaryolarında tercih edilir. `.drag_over::<T>(...)` kabul edilebilir sürükleme hedefi üstündeyken geçici stil üretir; `.can_drop(...)` hedefin bırakmayı kabul edip etmeyeceğini belirler; `.on_drop::<T>(...)` başarılı bırakma tamamlandığında tetiklenir.
@@ -111,7 +114,7 @@ Element listener'ları çoğu zaman olay tipini kendisi seçer; yine de özel el
 
 **Klavye olayları.** `KeyDownEvent`, `KeyUpEvent`, `ModifiersChangedEvent`, `KeyboardClickEvent`, `KeyboardButton` ve `PlatformInput` klavye akışını tanımlar. `ModifiersChangedEvent` doğrudan `Modifiers`'a deref eder; bu yüzden `olay.secondary()` gibi çağrılar çalışmaktadır. Kısayol yönlendirmesi gerekiyorsa ham `KeyDownEvent` yerine action/keymap modeli tercih edilmeli; metin girdisi gereksinimlerinde ise IME (Input Method Editor) için `InputHandler` yoluna gidilmelidir.
 
-**Fare ve gesture olayları.** `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MouseClickEvent`, `MouseExitEvent`, `MousePressureEvent`, `MouseButton`, `PressureStage`, `ScrollWheelEvent`, `ScrollDelta`, `PinchEvent`, `TouchPhase` ve `NavigationDirection` işaretçi ve hareket girdilerini taşır. `MouseDownEvent::is_focusing()` ve `MouseUpEvent::is_focusing()` sol tuş akışının odağı taşıyıp taşımayacağını açıkça bildirir; `MouseMoveEvent::dragging()` ise hareket sırasında bir mouse button basılı mı sorusunu yanıtlar. `ClickEvent` tıklama sayısını ve basma/bırakma eşleşmesini temsil eder; `.on_click(...)` bunu üretir. `ClickEvent::standard_click()`, sol mouse veya klavye click yolunu; `ClickEvent::is_right_click()` ve `ClickEvent::is_middle_click()` alternatif mouse butonlarını; `ClickEvent::is_keyboard()` klavye kaynaklı tıklamayı; `ClickEvent::first_focus()` ise fare tıklamasının ilk odak kazandıran tıklama olup olmadığını ayırt eder. `ScrollDelta::pixel_delta(line_height)` satır tabanlı scroll değerini piksele dönüştürür; `ScrollDelta::precise()` trackpad gibi hassas piksel girdisiyle satır tabanlı wheel girdisini ayırır; `coalesce(...)` aynı yöndeki delta değerlerini birleştirir.
+**Fare, dokunma ve gesture olayları.** `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MouseClickEvent`, `MouseExitEvent`, `MousePressureEvent`, `MouseButton`, `PressureStage`, `ScrollWheelEvent`, `ScrollDelta`, `PinchEvent`, `TouchId`, `TouchEvent`, `TouchClickEvent`, `TouchPhase` ve `NavigationDirection` işaretçi ve hareket girdilerini taşır. `MouseDownEvent::is_focusing()` ve `MouseUpEvent::is_focusing()` sol tuş akışının odağı taşıyıp taşımayacağını açıkça bildirir; `MouseMoveEvent::dragging()` ise hareket sırasında bir mouse button basılı mı sorusunu yanıtlar. `ClickEvent` tıklama kaynağını ve sayısını temsil eder. `ClickEvent::standard_click()`, sol fare tıklaması, klavye tıklaması veya long press olmayan dokunma yolunda `true` döner. `ClickEvent::is_secondary()` sağ fare tıklamasını ve dokunma long press'ini ortak bağlam menüsü niyeti olarak sınıflandırır; `is_right_click()` ile `is_middle_click()` yalnız fare butonlarını, `is_keyboard()` ise yalnız klavye kaynağını ayırt eder. `ScrollDelta::pixel_delta(line_height)` satır tabanlı scroll değerini piksele dönüştürür; `ScrollDelta::precise()` trackpad gibi hassas piksel girdisiyle satır tabanlı wheel girdisini ayırır; `coalesce(...)` aynı yöndeki delta değerlerini birleştirir.
 
 **Modifier asimetrisi.** `ModifiersChangedEvent`, `ScrollWheelEvent`, `PinchEvent` ve `MouseExitEvent` `Deref<Target = Modifiers>` taşır; bu dört olayda `olay.secondary()` doğrudan çalışır. `MouseDownEvent`, `MouseUpEvent` ve `MouseMoveEvent` ise deref etmez, yalnız `olay.modifiers` alanını verir. Bu fark, geri çağrı (callback) fonksiyonları yazılırken göz önünde bulundurulmalıdır; fare basma ve taşıma olaylarında `olay.modifiers.secondary()` biçimi tercih edilmelidir.
 
@@ -121,8 +124,8 @@ Element listener'ları çoğu zaman olay tipini kendisi seçer; yine de özel el
 | `KeybindingKeystroke` | fiziksel/karakter eşleşme verisi | Keymap tarafında gerçek basılan tuş ile beklenen binding arasındaki karşılaştırmayı taşır. |
 | `KeyDownEvent`, `KeyUpEvent` | `keystroke`, `is_held`, `prefer_character_input`; release keystroke | Platform klavye basma/bırakma olaylarıdır; action dispatch veya metin girdisi katmanına çevrilir. |
 | `ModifiersChangedEvent` | `modifiers`, `capslock`, `Deref<Target = Modifiers>` | Modifier state değişimini taşır; `olay.secondary()` gibi `Modifiers` metotları doğrudan çağrılabilir. |
-| `PlatformInput` | `KeyDown`, `KeyUp`, `ModifiersChanged`, `MouseDown`, `MouseUp`, `MouseMove`, `MousePressure`, `MouseExited`, `ScrollWheel`, `Pinch`, `FileDrop` | Platformdan gelen ham keyboard, mouse, gesture ve dosya bırakma olaylarını tek enum altında dispatch ağacına taşır. |
-| `ClickEvent` | `Mouse`, `Keyboard`, `modifiers`, `position`, `is_right_click`, `standard_click`, `first_focus`, `click_count` | `.on_click(...)` için mouse ve klavye click kaynaklarını tek enum altında toplar. |
+| `PlatformInput` | `KeyDown`, `KeyUp`, `ModifiersChanged`, `MouseDown`, `MouseUp`, `MouseMove`, `MousePressure`, `MouseExited`, `ScrollWheel`, `Pinch`, `FileDrop`, `Touch`; `touch_event` | Platformdan gelen ham klavye, fare, gesture, dosya bırakma ve dokunma olaylarını tek enum altında taşır. |
+| `ClickEvent` | `Mouse`, `Keyboard`, `Touch`; `modifiers`, `position`, `mouse_position`, `is_right_click`, `is_middle_click`, `is_secondary`, `standard_click`, `first_focus`, `click_count`, `is_keyboard` | Anlamsal tıklamanın fare, klavye veya dokunma kaynağını ve ortak etkinleştirme semantiğini taşır. |
 | `MouseButton` | `Left`, `Right`, `Middle`, `Navigate(Back/Forward)`, `all` | Fare butonu ve navigation button modelidir. |
 | `MousePressureEvent`, `PressureStage` | `pressure`, `stage`, `position`, `modifiers`; `Zero`, `Normal`, `Force` | Force-sensitive trackpad basınç bilgisini taşır. |
 | `ScrollDelta` | `Pixels`, `Lines`, `precise`, `pixel_delta`, `coalesce` | Scroll wheel/trackpad delta'sını piksel veya satır olarak temsil eder. |
@@ -134,8 +137,42 @@ Element listener'ları çoğu zaman olay tipini kendisi seçer; yine de özel el
 **Dikkat noktaları.** Platform input modeline inerken dikkat edilmesi gereken noktalar:
 
 - Metin girişi için ham `KeyDownEvent` yeterli değildir; IME ve dead-key dilleri için `InputHandler` gerekir.
-- `ClickEvent` yalnız mouse down ve mouse up aynı tıklama hedefinde kaldığında oluşur; sürüklemeye dönen akışta tıklama dinleyicisi (click listener) tetiklenmesi beklenmemelidir.
+- Fare kaynaklı `ClickEvent`, `MouseDownEvent` ve `MouseUpEvent` aynı tıklama hedefinde kaldığında oluşur; sürüklemeye dönen akışta tıklama dinleyicisinin tetiklenmesi beklenmemelidir. `ClickEvent::Touch` ise bir `TouchClickEvent` taşıyabilecek tip sözleşmesidir; çekirdeğin geçerli üretim sınırı aşağıdaki başlıkta belirtilir.
 - Scroll ve pinch olaylarında modifier bilgisi doğrudan olay nesnesi üzerinden okunabilir, ancak mouse move/down/up olayları için aynı kısayol geçerli değildir.
+
+## Dokunma Olayları ve Gesture Platform Sözleşmesi
+
+Ham dokunma modeli bir temasın kimliğini, evresini ve pencere içindeki konumunu birbirinden ayırır:
+
+| API | Yüzey | Anlamı |
+| :-- | :-- | :-- |
+| `TouchId(pub u64)` | Temas kimliği | Değer platform tarafından belirlenir; yalnız temasın ömrü boyunca sabit ve eşzamanlı temaslar arasında benzersiz kabul edilir. Sayısal değer iş mantığı kimliği olarak saklanmamalıdır. |
+| `TouchPhase` | `Started`, `Moved`, `Ended`, `Cancelled` | Temasın yaşam döngüsünü taşır. `Cancelled`, sistemin teması devraldığı ve normal bir bitiş gelmeyeceği anlamına gelir; süren etkileşim kesinleştirilmeden tamamen geri alınır. |
+| `TouchEvent` | `id`, `phase`, `position`, `force` | Ham teması pencere koordinatlarıyla taşır. `force`, donanım sağlıyorsa `0.0..=1.0` aralığında normalize edilmiş basınçtır. |
+| `PlatformInput::Touch(TouchEvent)` | `touch_event()` | Ham dokunmayı platform girdi enum'una ekler; `TouchEvent::to_platform_input()` aynı varyantı üretir. |
+
+Tanınmış bir dokunma tıklamasının veri modeli `TouchClickEvent { position, tap_count, long_press }` yapısıdır. Bu değer `ClickEvent::Touch` içinde taşındığında ortak yardımcıların davranışı şöyledir:
+
+- `position()` dokunma konumunu, `click_count()` ardışık dokunma sayısını döndürür.
+- `modifiers()` boş `Modifiers` üretir; dokunmanın klavye modifier bilgisi yoktur.
+- `mouse_position()` `None`, `first_focus()` ve `is_keyboard()` `false` döndürür.
+- `is_right_click()` ve `is_middle_click()` dokunma için `false` kalır.
+- `standard_click()` sıradan dokunmada `true`, long press durumunda `false` döndürür.
+- `is_secondary()` long press için `true` döndürerek sağ fare tıklamasıyla ortak bağlam menüsü niyetini verir.
+
+Gesture ayarları platform arka ucuyla çekirdek arasındaki ayrı bir sözleşmede toplanır:
+
+| API | Alanlar ve varsayılanlar |
+| :-- | :-- |
+| `GestureTuning` | `touch_slop: 8px`, `multi_tap_interval: 400ms`, `multi_tap_slop: 16px`, `long_press_duration: 500ms`, `momentum_decay_per_ms: 0.998`, `min_fling_velocity: 50.0` |
+| `GestureKinds` | `tap`, `long_press`, `pan`, `pinch`; `NONE` tümünü kapalı, `ALL` tümünü açık kurar. |
+| `PlatformGestures` | `tuning()` varsayılan `GestureTuning` değerini, `native_recognizers()` varsayılan `GestureKinds::NONE` değerini döndürür. |
+| `NullPlatformGestures` | Yerel tanıyıcı sunmayan masaüstü ve test arka uçları için varsayılanları kullanan işlem yapmayan uygulamadır. |
+| `LongPressEvent` | Tanınmış uzun basmanın (`long press`) `position` değerini taşır. |
+
+**Geçerli yönlendirme sınırı.** Mevcut HEAD'de bu tipler public sözleşme olarak bulunur, fakat taşınabilir gesture arena'sı veya element düzeyinde ham dokunma dinleyicisi uygulanmış değildir. `Window::dispatch_event` bir `PlatformInput::Touch` aldığında yalnız son girdi kipini `Touch` olarak kaydedip pencereyi yenilemeye işaretler; olay `dispatch_mouse_event` veya `dispatch_key_event` yoluna girmez ve ayrı bir dokunma dispatch işlevi çağrılmaz. `Platform::gestures()` için platform arka uçlarında varsayılanı ezen bir uygulama da bulunmaz.
+
+Bu nedenle `ClickEvent::Touch`, `LongPressEvent` ve gesture ayar tiplerinin varlığı, `.on_click(...)`, `.on_scroll_wheel(...)` veya `.on_pinch(...)` dinleyicilerinin ham dokunmadan otomatik olay aldığı anlamına gelmez. Mobil bir arka uç tamamlanırken platform olay üretimi, gesture tanıma ve element yönlendirme katmanlarının birlikte uygulanması gerekir; rehberde yalnız mevcut HEAD üzerinde doğrulanan tip ve yönlendirme davranışı temel alınır.
 
 ## Sürükleme ve Bırakma İçeriği Üretimi
 
@@ -301,6 +338,7 @@ div()
 Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Düzenleyici benzeri metin alanlarının sağladığı metotlar üç soruya cevap verir: hangi metin seçili, IME hangi aralığı oluşturuyor ve platform aday penceresini nereye koymalı?
 
 - `selected_text_range(ignore_disabled_input, ...)`, kullanıcının mevcut seçimini UTF-16 aralığı olarak döndürür. Seçim yoksa imleç konumu sıfır uzunluklu aralıkla temsil edilir; metin girdisinin devre dışı bırakıldığı durumlar ise bileşenin kendi politikaları çerçevesinde ele alınır.
+- `set_selected_text_range(range_utf16, ...)`, sistem metin katmanı seçim tutamacını taşıdığında veya sistem UI'sından Select All çalıştırıldığında yeni UTF-16 seçimini uygulamaya geri yazar. Bu metot `selected_text_range(...)` akışının ters yönüdür.
 - `marked_text_range(...)`, IME'nin henüz kesinleşmemiş işaretli metin aralığını verir. Japonca, Korece veya Çince gibi bileşimli girişlerde aday metin bu aralıkta yaşar.
 - `text_for_range(range_utf16, adjusted_range, ...)`, platformun istediği UTF-16 aralığındaki metni döndürür. Aralık bileşenin gerçek sınırlarına uydurulursa `adjusted_range` ile düzeltilmiş aralık bildirilir.
 - `replace_text_in_range(range, text, ...)`, kesinleşmiş metni seçili veya verilen aralığa yazar. Normal karakter ekleme ve yapıştırma (paste) akışı bu yoldan sağlanır.
@@ -308,7 +346,11 @@ Platform IME entegrasyonu `InputHandler` üzerinden çalışır. Düzenleyici be
 - `unmark_text(...)`, IME bileşim durumunu temizler; aday metin kesinleştiğinde veya iptal edildiğinde bu metot çağrılır.
 - `bounds_for_range(range_utf16, ...)`, verilen UTF-16 aralığının ekran koordinatlarındaki dikdörtgenini döndürür. IME aday penceresinin imlecin yanında kalması buna bağlıdır.
 - `character_index_for_point(point, ...)`, ekran noktasını UTF-16 karakter ofsetine dönüştürür. Platformun tıklama veya aday konumu sorgularında tercih edilir.
+- `element_bounds(...)`, odaktaki metin elementinin pencere koordinatlarındaki sınırlarını döndürür. Mobil sistem metin araçlarının düzenlenebilir alanın üzerine yerleşmesi bu geometriye bağlıdır.
+- `text_length_utf16(...)`, belgenin toplam UTF-16 kod birimi uzunluğunu verir; sistem seçim aralıklarının üst sınırını doğrulamak için kullanılır.
 - `accepts_text_input(...)`, bu handler'ın o anda metin eklemeyi kabul edip etmediğini bildirir. `false` döndüğünde platform yazdırılabilir tuş olaylarını içeri aktarmayabilir.
+
+Bu üç metot `InputHandler` üzerinde varsayılan gövdeye sahiptir: seçim yazma işlemi etkisizdir, iki sorgu `None` döndürür. `EntityInputHandler` görünüm katmanına `set_selected_text_range(...)` ve `text_length_utf16(...)` kancalarını açar. `ElementInputHandler` ise `element_bounds(...)` sonucunu, `ElementInputHandler::new(element_bounds, view)` kurucusuna çizim sırasında verilen güncel sınırdan sağlar. `PlatformInputHandler` aynı çağrıları aktif `AsyncWindowContext` üzerinden somut handler'a iletir.
 
 Özel bir `InputHandler` uygulaması yazılırken `prefers_ime_for_printable_keys` metodu ezilebilir (override). Bununla birlikte, yaygın bir görünüm (view) yöntemi olan `EntityInputHandler` + `ElementInputHandler` ikilisinde bu durum ayrı bir kanca (hook) sunmaz; mevcut sarmalayıcı, `prefers_ime_for_printable_keys` sorgusunu `accepts_text_input` sonucuna göre yanıtlar. IME ve kısayol önceliğinin `accepts_text_input` değerinden bağımsız olarak yönetilmesi gereken durumlarda doğrudan `InputHandler` arayüzünü uygulayan özel bir dinleyici tanımlanmalıdır.
 
@@ -379,6 +421,8 @@ window.handle_input(
 
 - Aralık (`Range`) değerleri UTF-16 ofseti olup, Rust'ın yerleşik byte indeksleri ile karıştırılmamalıdır.
 - `bounds_for_range`, ekran veya aday penceresi konumlandırması için doğru mutlak sınırları döndürmelidir.
+- Sistem seçim değişiklikleri destekleniyorsa `set_selected_text_range` görünümün seçimini güncellemeli; `text_length_utf16` aynı UTF-16 ölçü biriminde belge sınırını bildirmelidir.
+- `ElementInputHandler::new(...)` çağrısına verilen sınırlar odaktaki düzenlenebilir elemente ait olmalıdır; `PlatformInputHandler::element_bounds()` bu değeri doğrudan platforma taşır.
 - İmleç veya seçim hareketlerini takiben `window.invalidate_character_coordinates()` çağrısı yapılmalıdır; aksi takdirde IME paneli güncel konuma taşınamaz.
 - `accepts_text_input` `false` olduğunda platformun metin eklemesi engellenebilir.
 - Ham `InputHandler::prefers_ime_for_printable_keys` `true` olduğunda, ASCII dışı bir IME etkinken yazdırılabilir tuşlar kısayollardan önce IME'ye yönlendirilir. `ElementInputHandler` ile sarmalanan `EntityInputHandler` yapısında GPUI bu kararı `accepts_text_input` üzerinden verir; trait bünyesinde ayrı bir özelleştirme kancası bulunmaz.

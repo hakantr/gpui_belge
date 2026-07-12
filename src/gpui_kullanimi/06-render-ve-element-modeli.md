@@ -4,6 +4,8 @@
 
 - [x] Doğrulanan render yüzeyi: `View`, `ViewElement<V>`, `Entity<T>::cached(...)`, `AnyView::cached(...)` ve `IntoElement for Entity<T>`.
 - [x] Kaynak doğrulama dosyası: `crates/gpui/src/view.rs` ve rustdoc JSON snapshot kayıtları.
+- [x] Doğrulanan duyarlı yerleşim yüzeyi: `container_query(...)`, `ContainerQuery` ve otomatik boyutlu pencere köklerinin viewport'u doldurma sözleşmesi.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/elements/container_query.rs`, `crates/gpui/src/window.rs` ve `crates/gpui/src/taffy.rs`; imzalar rust-analyzer ile doğrulandı.
 
 ---
 
@@ -136,6 +138,32 @@ Arayüz tasarımında şu temel karar kuralları esas alınmalıdır:
 | :-- | :-- | :-- |
 | `Sealed` (mühürlü) | Crate içi özel (private) modül | Paket kökünden ihraç edilmez. Olay (event) gibi kritik trait'lerin harici paketlerce implemente edilmesini engelleyerek, geliştiriciyi hazır element/olay arayüzlerini kullanmaya yönlendirir. |
 
+## `container_query` ve `ContainerQuery` ile Kök Boyutlandırması
+
+`container_query(...)`, CSS container query yaklaşımına benzer biçimde kapsayıcının yerleşim sonucuna göre element içeriği seçilmesini sağlar. Genel imza `pub fn container_query<E>(render: impl 'static + FnOnce(Size<Pixels>, &mut Window, &mut App) -> E) -> ContainerQuery where E: IntoElement` biçimindedir.
+
+`ContainerQuery`, dış yerleşime önce kendi stilini bildirir. Kapsayıcı boyutu kesinleştikten sonra geri çağrı bu `Size<Pixels>` değeriyle çalışır ve dönen içerik, ayrılan kesin boyut içinde ayrı bir kök olarak yerleştirilir. İçerik geri çağrıdan önce mevcut olmadığı için kapsayıcının talep ettiği boyutu etkileyemez. Boyut kararının dış stil veya üst öğe tarafından verilmesi, içerik seçiminin ise ölçüm sonrasında yapılması gerekir.
+
+```rust
+use gpui::{IntoElement, ParentElement as _, container_query, div, px};
+
+fn duyarli_panel() -> impl IntoElement {
+    container_query(|kapsayici_boyutu, _window, _cx| {
+        if kapsayici_boyutu.width < px(240.) {
+            div().child("Dar yerleşim")
+        } else {
+            div().child("Geniş yerleşim")
+        }
+    })
+}
+```
+
+`ContainerQuery`, `Element`, `IntoElement` ve `Styled` uygular. Başlangıç stili genişliği ve yüksekliği yüzde yüz bağıl ölçüye ayarladığı için üst öğeyi varsayılan olarak doldurur; `.w(...)`, `.h(...)` veya `.size(...)` ile farklı bir dış boyut verilebilir. Geri çağrının `FnOnce` olması, tek bir `ContainerQuery` element örneğinde yalnız bir kez tüketildiği anlamına gelir. GPUI her yeni çizimde element ağacını yeniden kurduğu için bir sonraki karede yeni bir örnek ve yeni bir geri çağrı oluşur.
+
+Pencere kökü için ayrı bir kural vardır. `Window::draw_roots`, kök element ile etkin prompt elementinin yerleşimini ister ve stilde `auto` kalan her boyutu ilgili viewport boyutuna genişletir. Açıkça verilen genişlik veya yükseklik korunur; yalnız `auto` kalan eksen doldurulur. Bu işlem iç içe elementlere uygulanmaz ve alt öğelerin kendiliğinden tüm alanı kaplamasını sağlamaz.
+
+Bu davranışı yürüten `TaffyLayoutEngine::stretch_auto_size_to_fill(...)`, özel `taffy` modülünün crate-içi yardımcısıdır; dış uygulama API'si olarak çağrılmaz. Uygulama tarafında kök element için sırf pencere boyutunu edinmek amacıyla `.size_full()` eklenmesi gerekmez. İç içe kapsayıcıların boyutlandırılması ise normal `Styled` kurallarına bağlı kalır.
+
 ## Element Yaşam Döngüsü ve Çizim Aşamaları
 
 Bir `Element` nesnesinin yaşam döngüsü üç ana aşamadan oluşur ve bu aşamalar her ekran karesinde sırasıyla işletilir:
@@ -262,6 +290,7 @@ GPUI bünyesindeki yerleşik arayüz elementleri, farklı tasarım ihtiyaçları
 - `svg()`: Satır içi (inline) veya harici dosya yollarından SVG formatındaki vektörel grafikleri çizer.
 - `img(...)`: Varlıklar (assets), yerel dosya yolları, web adresleri veya ham byte dizilerinden görseller yükler; yüklenme ve yükleme hatası durumları için yedek görsel (fallback) yapılandırmalarını destekler.
 - `canvas(prepaint, paint)`: Düşük seviyeli özel çizim operasyonları veya fare etkileşim alanı (hitbox) hazırlıkları için kullanılır.
+- `container_query(...)`: Dış yerleşimin verdiği kesin kapsayıcı boyutunu okuyup dar ve geniş içerik düzenleri arasında seçim yapan `ContainerQuery` elementini üretir.
 - `anchored()`: Pencere sınırlarına veya belirli referans noktalarına sabitlenen popover panelleri ve menü tasarımları için idealdir.
 - `deferred(child)`: Çizim sırasının ertelenmesi veya üst katmanlarda render edilmesi gereken durumlar için kullanılır.
 - `list(...)`: Satır yükseklikleri değişken olan, büyük ölçekli ve dinamik veri listelerinin verimli çiziminde tercih edilir.

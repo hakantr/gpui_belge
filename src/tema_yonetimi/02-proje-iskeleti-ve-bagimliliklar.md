@@ -196,13 +196,13 @@ Varsayılan derlemede sözdizimi crate'inin tek zorunlu bağımlılığı `gpui`
 
 - **`serde_json_lenient`** sürümü, Zed'in kullandığı sürümle uyumlu olmalıdır; major versiyon değişikliği yorum ve sonda virgül ayrıştırma davranışını değiştirebilir, bu da bazı geçerli Zed JSON dosyalarının aniden ayrıştırılamamasına yol açabilir.
 
-- **`gpui`, `refineable`, `collections`** paketleri git kaynağından alınır. Uygulamanın hedeflediği Zed durumunu açık tutmak için `branch` yerine `rev` ile sabit bir commit referansı kullanılabilir:
+- **`gpui`, `refineable`, `collections`** paketleri git kaynağından alınır. Yaşayan rehber mevcut Zed yüzeyini izlediği için kaynak metnine sabit bir revizyon kimliği gömülmez:
 
   ```toml
-  gpui = { git = "https://github.com/zed-industries/zed", rev = "6e8eaab25b5ac324e11a82d1563dcad39c84bace" }
+  gpui = { git = "https://github.com/zed-industries/zed", branch = "main" }
   ```
 
-Branch takibi Zed'deki değişimleri otomatik alır; `rev` ile sabitleme ise hangi Zed durumunun referans alındığını netleştirir. Bu rehberde önemli olan, seçilen referansın açık ve test edilebilir olmasıdır.
+Tam yeniden üretilebilir derlemelerde çözümlenen kaynak revizyonu `Cargo.lock` içinde tutulur. Rehber metni ise yerel kaynak çalışma alanının mevcut HEAD sözleşmesini öğretir; geçmiş kaynak kimliklerini okuyucu bölümüne taşımaz.
 
 **Bağımlılık Akış Grafiği:**
 

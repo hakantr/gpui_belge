@@ -1,5 +1,11 @@
 # Girdi, Sistem ve Menü
 
+## Sürüm Analiz Raporu
+
+- [x] Doğrulanan girdi köprüsü: `PlatformInputHandler::{set_selected_text_range, element_bounds, text_length_utf16}`, bunların `InputHandler` ve `EntityInputHandler` karşılıkları.
+- [x] Doğrulanan olay yüzeyi: `TouchEvent`, `TouchClickEvent`, `ClickEvent::Touch` ve `PlatformInput::Touch`.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs`, `crates/gpui/src/input.rs` ve `crates/gpui/src/interactive.rs`; imzalar rust-analyzer ile doğrulandı.
+
 ---
 
 ## Girdi, Pano, Prompt ve Platform Servisleri
@@ -14,7 +20,7 @@ Element seviyesinde GPUI birçok girdi olayını tek tipli bir fluent API üzeri
 - **Sürükle-bırak:** `.on_drag` sürükleme yükünü ve hayalet (ghost) view'u başlatır. `.on_drag_move` aktif sürükleme boyunca hareket bilgisi sağlar; bu metottan yeniden boyutlandırma veya split handle gibi drop içermeyen sürükleme senaryolarında da yararlanılır. `.on_drop` ise aynı tipteki sürükleme yükü hedefe bırakıldığında tetiklenir.
 - **Action:** `.capture_action::<A>` action'ı kökten hedefe giden aşamada yakalar. `.on_action::<A>` odaklanan elementten köke yönelen standart action dinleyicisidir. `.on_boxed_action` ise tipin derleme zamanında (compile-time) bilinmediği kayıt veya yönlendirme katmanlarında tercih edilir.
 
-Olay tipleri `interactive` içinde tanımlıdır: `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`, `FileDropEvent`, `ExternalPaths`, `ClickEvent`. `ScrollDelta::pixel_delta(line_height)` satır tabanlı scroll değerini piksele dönüştürür; `coalesce` ise aynı yöndeki delta değerlerini birleştirir.
+Olay tipleri `interactive` içinde tanımlıdır: `KeyDownEvent`, `KeyUpEvent`, `MouseDownEvent`, `MouseUpEvent`, `MouseMoveEvent`, `MousePressureEvent`, `ScrollWheelEvent`, `PinchEvent`, `TouchEvent`, `TouchClickEvent`, `FileDropEvent`, `ExternalPaths`, `ClickEvent`. `PlatformInput::Touch` ham dokunmayı taşır; `ClickEvent::Touch` ise tanınmış dokunma tıklamasının tip sözleşmesidir. Mevcut yönlendirme sınırı [Dokunma Olayları ve Gesture Platform Sözleşmesi](09-etkilesim-ve-olaylar.md#dokunma-olayları-ve-gesture-platform-sözleşmesi) başlığında açıklanır. `ScrollDelta::pixel_delta(line_height)` satır tabanlı scroll değerini piksele dönüştürür; `coalesce` ise aynı yöndeki delta değerlerini birleştirir.
 
 **Pano.** Panoya okuma ve yazma işlemleri pratik metot çağrılarıyla gerçekleştirilir:
 
@@ -35,12 +41,14 @@ if let Some(oge) = cx.read_from_clipboard()
 | API | Alt özellikler | Kısa anlamı |
 | :-- | :-- | :-- |
 | `ClipboardEntry` | `String(ClipboardString)`, `Image(Image)`, `ExternalPaths(ExternalPaths)` | `ClipboardItem` içindeki sahipli pano girdisi varyantıdır. |
-| `ClickEvent` | mouse/keyboard click ayrımı | `.on_click(...)` callback'lerinde kaynak, pozisyon, click sayısı ve alternatif mouse butonlarını okumak için tercih edilir. |
+| `ClickEvent` | `Mouse`, `Keyboard`, `Touch`; `is_secondary`, `standard_click`, `click_count` | Anlamsal tıklamanın kaynağını, sayısını ve birincil/ikincil etkinleştirme niyetini okumak için kullanılır. |
 | `KeyDownEvent`, `KeyUpEvent` | key press/release olayı | Klavye listener ve test girdi simülasyonu tarafında ham key event modelidir. |
 | `MousePressureEvent`, `ScrollDelta` | pressure ve scroll delta modeli | Gelişmiş pointer/scroll girdisini platformdan element listener'ına taşır. |
-| `EntityInputHandler`, `ElementInputHandler` | input handler trait'i ve element bağlayıcısı | IME, selection bounds ve printable key kararlarını view state'ine bağlar. |
+| `EntityInputHandler`, `ElementInputHandler` | input handler trait'i ve element bağlayıcısı | IME, UTF-16 seçim yazma/uzunluk sorgusu, element sınırları ve yazdırılabilir tuş kararlarını görünüm durumuna bağlar. |
 
-**PlatformInputHandler Yapısı.** `PlatformInputHandler` platform penceresinin aktif metin girdi dinleyicisini temsil eden bir sarmalayıcı struct'tır. Uygulama düzeyinde bu yapının doğrudan saklanması gerekmez; `EntityInputHandler` ve `ElementInputHandler` view'ı platforma bağlar, `window.handle_input(...)` da frame içinde bu bağı kaydeder. Platform arka ucu ve GPUI pencere katmanı bu sarmalayıcı üzerinden `apple_press_and_hold_enabled()`, `dispatch_input(input, window, cx)`, `selected_bounds(window, cx)`, `query_accepts_text_input()` ve `query_prefers_ime_for_printable_keys()` çağrılarını yapar. Böylece platform; IME kabulü, seçili metin sınırı ve yazdırılabilir tuşların IME'ye mi yoksa kısayollara mı yönlendirileceği kararını görünümün (view) gerçek `InputHandler` uygulamasından sorgular. Doğrudan geliştirilmesi gereken yapı `PlatformInputHandler` değil, bu sarmalayıcının içerisine alınan özel `InputHandler` uygulamasıdır.
+**PlatformInputHandler Yapısı.** `PlatformInputHandler` platform penceresinin aktif metin girdi dinleyicisini temsil eden bir sarmalayıcı struct'tır. Uygulama düzeyinde bu yapının doğrudan saklanması gerekmez; `EntityInputHandler` ve `ElementInputHandler` görünümü platforma bağlar, `window.handle_input(...)` da kare içinde bu bağı kaydeder. Platform arka ucu ve GPUI pencere katmanı bu sarmalayıcı üzerinden `apple_press_and_hold_enabled()`, `dispatch_input(input, window, cx)`, `selected_bounds(window, cx)`, `set_selected_text_range(range_utf16)`, `element_bounds()`, `text_length_utf16()`, `query_accepts_text_input()` ve `query_prefers_ime_for_printable_keys()` çağrılarını yapar. Böylece platform; IME kabulünü, seçili metin sınırını, sistemin değiştirdiği seçimin uygulamaya geri yazılmasını, odaktaki element geometrisini, UTF-16 belge uzunluğunu ve yazdırılabilir tuşların IME'ye mi yoksa kısayollara mı yönlendirileceği kararını görünümün gerçek `InputHandler` uygulamasından alır. Doğrudan uygulanması gereken yapı `PlatformInputHandler` değil, bu sarmalayıcının içerisine alınan özel `InputHandler` uygulamasıdır.
+
+`PlatformInputHandler::set_selected_text_range(...)` dönüş değeri olmadan etkin handler'ı günceller. `element_bounds()` ve `text_length_utf16()` ise bağlam güncellemesi başarısız olduğunda veya handler bilgi sağlamadığında `None` döndürür. `ElementInputHandler`, element sınırını kurucuda aldığı güncel `Bounds<Pixels>` değerinden; diğer iki davranışı `EntityInputHandler` görünümünden sağlar.
 
 `selected_bounds(window, cx)`'in döndürdüğü sınır, IME aday penceresinin (composition popup) yerleştirileceği noktadır. Aktif bir composition (marked range) varsa bu nokta imlecin bulunduğu **görsel satırın başına** çapalanır: metot imleçten geriye doğru yürüyüp Y konumunun ilk değiştiği yeri (önceki satıra geçiş) bularak satır başını saptar, böyle bir kırılma yoksa marked range'in başını kullanır. Composition yoksa seçimin uç noktası (ters seçimde başlangıç, düz seçimde bitiş) tercih edilir. Aynı hesabı `window`/`cx` elinde olmadan yapılması gerekirse `ime_candidate_bounds(&mut self)` varyantı handler'ın kendi `marked_text_range`/`selected_text_range`/`bounds_for_range` metotlarıyla aynı sonucu üretir; iki varyant da ortak `compute_ime_candidate_bounds(marked_range, selection, bounds_for_range)` saf yardımcısına dayanır.
 

@@ -4,6 +4,8 @@
 
 - [x] Doğrulanan platform yüzeyi: `Application::run_embedded`, `ApplicationHandle`, primary selection pano metotları ve sistem uyku dönüşü callback akışı.
 - [x] Kaynak doğrulama dosyaları: `crates/gpui/src/app.rs`, `crates/gpui/src/platform.rs` ve rustdoc JSON snapshot kayıtları.
+- [x] Doğrulanan mobil platform sözleşmesi: `AppLifecyclePhase`, `Platform::on_app_lifecycle`, `Platform::on_memory_warning` ve `Platform::gestures`.
+- [x] Kaynak doğrulama dosyaları: `crates/gpui/src/platform.rs` ve `crates/gpui/src/gestures.rs`; tip ve trait imzaları rust-analyzer ile doğrulandı.
 
 ---
 
@@ -126,6 +128,27 @@ Bazı hedeflerde olay döngüsünü GPUI değil, dış bir taşıyıcı yönetir
 - `on_open_urls` geri çağrısı `&mut App` almaz; uygulama verilerine veya durumuna erişilmesi gereken senaryolarda, yakalanan URL adreslerini bir iç iş kuyruğuna ya da `Global` durum kutusuna aktaracak bir mekanizma tasarlanmalıdır.
 - `on_reopen` özellikle macOS'ta Dock veya uygulama ikonuna tıklamayla yeniden açılma senaryosunda devreye girer. Eğer ekranda açık herhangi bir pencere kalmadıysa, yeni bir çalışma alanı (workspace) açma mantığı bu blok içerisinde tetiklenir.
 - `refresh_windows()` çağrısı herhangi bir uygulama verisini mutasyona uğratmaz; yalnızca bir sonraki ekran tazelemesinde tüm pencerelerin yeniden çizilmesi gerektiğini planlayıcıya bildirir.
+
+### Mobil Platform Yaşam Döngüsü ve Gesture Servisi
+
+Mobil işletim sistemleri uygulama görünürlüğünü ve işlem ömrünü kendileri yönettiği için `Platform` trait'i bu olayları düşük seviyeli geri çağrılarla taşır. Bu yüzey, `Application` builder'ının genel bir uzantısı değil, yeni bir GPUI platform arka ucu yazılırken uygulanan sözleşmedir:
+
+| API | Sözleşme |
+| :-- | :-- |
+| `Platform::on_app_lifecycle(Box<dyn FnMut(AppLifecyclePhase)>)` | İşletim sisteminin uygulama evresi değiştiğinde platform arka ucunun çağıracağı dinleyiciyi kaydeder. |
+| `Platform::on_memory_warning(Box<dyn FnMut()>)` | iOS bellek uyarısı veya Android bellek daraltma sinyalini GPUI katmanına taşır. |
+| `Platform::gestures() -> Option<Rc<dyn PlatformGestures>>` | Platformun sağladığı yerel gesture tanıyıcı hizmetini döndürür; hizmet yoksa `None` üretir. |
+
+`AppLifecyclePhase` dört evreyi ayırır:
+
+| Evre | Anlamı |
+| :-- | :-- |
+| `Active` | Uygulama ön plandadır ve girdi alır. |
+| `Inactive` | Uygulama görünürdür ancak sistem diyaloğu gibi bir nedenle girdi almaz. |
+| `Background` | Uygulama görünür değildir; GPU yüzeyi bırakılabilir ve işlem sistem tarafından sonlandırılabilir. |
+| `Foreground` | Uygulama görünür hâle gelmektedir, fakat girdi akışı henüz geri verilmemiştir. |
+
+Bu üç `Platform` metodu varsayılan uygulamalara sahiptir: yaşam döngüsü ve bellek uyarısı geri çağrılarını kaydetmeyen arka uçlarda işlem yapılmaz, `gestures()` ise `None` döndürür. Mevcut HEAD altında platform crate'lerinde bu varsayılanları ezen bir uygulama bulunmaz. Bu nedenle tiplerin varlığı, masaüstü arka uçlarında mobil olay üretildiği veya taşınabilir gesture tanımanın çalıştığı anlamına gelmez. Dokunma tipleri ve geçerli yönlendirme sınırı [Dokunma Olayları ve Gesture Platform Sözleşmesi](09-etkilesim-ve-olaylar.md#dokunma-olayları-ve-gesture-platform-sözleşmesi) başlığında ele alınır.
 
 ## Platform Servisleri
 
